@@ -1,0 +1,19 @@
+{
+  "name": "@socketregistry/path-parse",
+  "version": "1.0.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SocketDev/socket-registry-js",
+    "directory": "packages/npm/path-parse"
+  },
+  "main": "./index.js",
+  "sideEffects": false,
+  "files": [
+    "*.d.ts",
+    "*.js"
+  ],
+  "socket": {
+    "category": "cleanup"
+  }
+}
