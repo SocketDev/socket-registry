@@ -17,7 +17,7 @@ function capitalize(str) {
   return str[0].toUpperCase() + str.slice(1)
 }
 
-function createPackageJson(pkgName, relPkgPath, options = {}) {
+function createPackageJson(pkgName, directory, options = {}) {
   const {
     browser,
     engines,
@@ -37,7 +37,7 @@ function createPackageJson(pkgName, relPkgPath, options = {}) {
     repository: {
       type: 'git',
       url: `https://github.com/${REPO_ORG}/${REPO_NAME}`,
-      directory: relPkgPath
+      directory
     },
     ...(browser ? { browser: './index.js' } : {}),
     main: `${main ?? './index.js'}`,

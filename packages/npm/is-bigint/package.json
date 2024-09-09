@@ -5,7 +5,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/SocketDev/socket-registry-js",
-    "directory": "packages/npm/@socketregistry/is-bigint"
+    "directory": "packages/npm/is-bigint"
   },
   "browser": "./index.js",
   "main": "./node.js",

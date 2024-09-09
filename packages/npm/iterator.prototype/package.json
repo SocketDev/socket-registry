@@ -5,7 +5,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/SocketDev/socket-registry-js",
-    "directory": "packages/npm/@socketregistry/iterator.prototype"
+    "directory": "packages/npm/iterator.prototype"
   },
   "main": "./index.js",
   "sideEffects": false,

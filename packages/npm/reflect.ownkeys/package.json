@@ -5,7 +5,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/SocketDev/socket-registry-js",
-    "directory": "packages/npm/@socketregistry/reflect.ownkeys"
+    "directory": "packages/npm/reflect.ownkeys"
   },
   "main": "./index.js",
   "sideEffects": false,

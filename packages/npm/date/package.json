@@ -5,7 +5,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/SocketDev/socket-registry-js",
-    "directory": "packages/npm/@socketregistry/date"
+    "directory": "packages/npm/date"
   },
   "main": "./index.json",
   "sideEffects": false,

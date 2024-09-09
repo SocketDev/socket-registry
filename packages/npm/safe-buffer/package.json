@@ -5,7 +5,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/SocketDev/socket-registry-js",
-    "directory": "packages/npm/@socketregistry/safe-buffer"
+    "directory": "packages/npm/safe-buffer"
   },
   "main": "./index.js",
   "sideEffects": false,

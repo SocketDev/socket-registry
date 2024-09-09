@@ -5,7 +5,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/SocketDev/socket-registry-js",
-    "directory": "packages/npm/@socketregistry/typed-array-length"
+    "directory": "packages/npm/typed-array-length"
   },
   "main": "./index.js",
   "sideEffects": false,

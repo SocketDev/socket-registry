@@ -40,21 +40,20 @@ describe('Ecosystems', async () => {
       if (eco === 'npm') {
         const absEcoPath = path.join(absPackagesPath, eco)
         const pkgJsonGlob = await tinyGlob(['*/package.json'], {
-          absolute: true,
           cwd: absEcoPath
         })
-        for await (const pkgJsonPath of pkgJsonGlob) {
-          const pkgJSON = await fs.readJSON(pkgJsonPath)
+        for await (const relPkgJsonPath of pkgJsonGlob) {
+          const pkgName = path.dirname(relPkgJsonPath)
+          const pkgJson = await fs.readJSON(path.join(absEcoPath, relPkgJsonPath))
           const {
-            name,
             browser: browserPath,
             main: mainPath,
             files: filesPatterns,
             overrides: pkgOverrides,
             resolutions: pkgResolutions,
             version
-          } = pkgJSON
-          const purlObj = PackageURL.fromString(`pkg:${eco}/${name}@${version}`)
+          } = pkgJson
+          const purlObj = PackageURL.fromString(`pkg:${eco}/${pkgJson.name}@${version}`)
           const absPkgPath = `${absEcoPath}/${purlObj.name}`
           const indexPath = path.join(absPkgPath, 'index.js')
           const req_ = createRequire(indexPath)
@@ -97,7 +96,15 @@ describe('Ecosystems', async () => {
             .filter(n => path.extname(n) === '.json')
             .sort()
 
-          describe(`${name}:`, async () => {
+          describe(`${pkgName}:`, async () => {
+            it('package name should be "name" field of package.json', () => {
+              assert.strictEqual(pkgJson.name, `@socketregistry/${pkgName}`)
+            })
+
+            it('package name should be included in "repository.directory" field of package.json', () => {
+              assert.strictEqual(pkgJson.repository?.directory, `packages/npm/${pkgName}`)
+            })
+
             it('file exists for "main" field of package.json', async () => {
               assert.doesNotThrow(() => req.resolve(mainPath))
             })
@@ -159,7 +166,6 @@ describe('Ecosystems', async () => {
               files.includes('polyfill.js')
             ) {
               describe('es-shim', async () => {
-                const pkgJson = req(pkgJsonPath)
                 const nodeRange = pkgJson?.engines?.node
                 const skipping = nodeRange
                   ? !semver.satisfies(nodeVer, nodeRange)

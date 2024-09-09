@@ -5,7 +5,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/SocketDev/socket-registry-js",
-    "directory": "packages/npm/@socketregistry/safe-regex-test"
+    "directory": "packages/npm/safe-regex-test"
   },
   "main": "./index.js",
   "sideEffects": false,

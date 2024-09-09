@@ -5,7 +5,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/SocketDev/socket-registry-js",
-    "directory": "packages/npm/@socketregistry/which-typed-array"
+    "directory": "packages/npm/which-typed-array"
   },
   "main": "./index.js",
   "sideEffects": false,

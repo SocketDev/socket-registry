@@ -5,7 +5,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/SocketDev/socket-registry-js",
-    "directory": "packages/npm/@socketregistry/object.groupby"
+    "directory": "packages/npm/object.groupby"
   },
   "main": "./index.js",
   "sideEffects": false,

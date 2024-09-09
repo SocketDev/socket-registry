@@ -23,17 +23,18 @@ const absPackagesPath = path.join(rootPath, relPackagesPath)
       const absEcoPath = path.join(absPackagesPath, eco)
       const relEcoPath = path.join(relPackagesPath, eco)
       const pkgJsonGlob = await tinyGlob(['*/package.json'], {
-        absolute: true,
         cwd: absEcoPath
       })
-      for await (const pkgJsonPath of pkgJsonGlob) {
-        const pkgJSON = await fs.readJSON(pkgJsonPath)
+      for await (const relPkgJsonPath of pkgJsonGlob) {
+        const absPkgJsonPath = path.join(absEcoPath, relPkgJsonPath)
+        const pkgName = path.dirname(relPkgJsonPath)
+        const pkgJSON = await fs.readJSON(absPkgJsonPath)
         const { name } = pkgJSON
-        const relPkgPath = `${relEcoPath}/${name}`
-        const output = createPackageJson(name, relPkgPath, {
+        const directory = `${relEcoPath}/${pkgName}`
+        const output = createPackageJson(name, directory, {
           ...pkgJSON
         })
-        await fs.writeJSON(pkgJsonPath, output, { spaces: 2 })
+        await fs.writeJSON(absPkgJsonPath, output, { spaces: 2 })
       }
     }
   }

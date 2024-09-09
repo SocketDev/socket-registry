@@ -5,7 +5,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/SocketDev/socket-registry-js",
-    "directory": "packages/npm/@socketregistry/is-array-buffer"
+    "directory": "packages/npm/is-array-buffer"
   },
   "browser": "./index.js",
   "main": "./node.js",
