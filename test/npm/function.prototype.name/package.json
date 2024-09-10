@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "scripts": {
+    "prepare": "patch-package && npm-recursive-install --skip-root --includeDirectories 'node_modules/function.prototype.name'",
+    "test": "tape 'node_modules/function.prototype.name/test/**/*.js'"
+  },
+  "devDependencies": {
+    "function.prototype.name": "^1.1.6"
+  }
+}

@@ -1,0 +1,24 @@
+diff --git a/node_modules/function.prototype.name/implementation.js b/node_modules/function.prototype.name/implementation.js
+index a43a598..1a9be62 100644
+--- a/node_modules/function.prototype.name/implementation.js
++++ b/node_modules/function.prototype.name/implementation.js
+@@ -1,5 +1,7 @@
+ 'use strict';
+ 
++module.exports = require(require('node:path').resolve(`${__dirname}/../../implementation`));
++return
+ var IsCallable = require('es-abstract/2023/IsCallable');
+ var HasOwnProperty = require('es-abstract/2023/HasOwnProperty');
+ var functionsHaveNames = require('functions-have-names')();
+diff --git a/node_modules/function.prototype.name/index.js b/node_modules/function.prototype.name/index.js
+index ee9573a..49cb44c 100644
+--- a/node_modules/function.prototype.name/index.js
++++ b/node_modules/function.prototype.name/index.js
+@@ -1,5 +1,7 @@
+ 'use strict';
+ 
++module.exports = require(require('node:path').resolve(`${__dirname}/../../`));
++return
+ var define = require('define-properties');
+ var callBind = require('call-bind');
+ 

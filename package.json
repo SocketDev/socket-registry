@@ -15,7 +15,7 @@
     "check": "run-p -c --aggregate-output check:*",
     "check:lint": "eslint --report-unused-disable-directives .",
     "check:tsc": "tsc",
-    "clean-node_modules": "del-cli \"test/**/node_modules\" \"node_modules\"",
+    "clean-node_modules": "del-cli 'test/**/node_modules' 'node_modules'",
     "knip:dependencies": "knip --dependencies",
     "knip:exports": "knip --include exports,duplicates --reporter compact",
     "lint": "oxlint -c=./.oxlintrc.json --ignore-path=./.prettierignore --tsconfig=./tsconfig.json . -D correctness -D perf -D suspicious --promise-plugin --import-plugin",
