@@ -1,7 +1,7 @@
 'use strict'
 
 function defineProperties(object, map, predicates = {}) {
-  var props = Reflect.ownKeys(map)
+  const props = Reflect.ownKeys(map)
   for (let i = 0, { length } = props; i < length; i += 1) {
     const name = props[i]
     const value = map[props[i]]
@@ -18,6 +18,7 @@ function defineProperties(object, map, predicates = {}) {
     Object.defineProperty(object, name, {
       __proto__: null,
       configurable: true,
+      enumerable: false,
       value,
       writable: true
     })

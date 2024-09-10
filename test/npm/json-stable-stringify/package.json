@@ -1,5 +1,5 @@
 {
-  "name": "@socketregistry/test-json-stable-stringify",
+  "name": "@socketregistry/test-npm-json-stable-stringify",
   "private": true,
   "main": "./index.js",
   "scripts": {
