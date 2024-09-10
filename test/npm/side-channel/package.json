@@ -1,14 +1,10 @@
 {
-  "name": "@socketregistry/test-npm-side-channel",
   "private": true,
-  "main": "./index.js",
   "scripts": {
     "prepare": "patch-package",
     "test": "tape 'node_modules/side-channel/test/**/*.js'"
   },
-  "files": [],
   "devDependencies": {
-    "side-channel": "^1.0.6",
-    "tape": "^5.8.1"
+    "side-channel": "^1.0.6"
   }
 }

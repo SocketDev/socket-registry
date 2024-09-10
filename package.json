@@ -15,6 +15,7 @@
     "check": "run-p -c --aggregate-output check:*",
     "check:lint": "eslint --report-unused-disable-directives .",
     "check:tsc": "tsc",
+    "clean-node_modules": "del-cli \"test/**/node_modules\" \"node_modules\"",
     "knip:dependencies": "knip --dependencies",
     "knip:exports": "knip --include exports,duplicates --reporter compact",
     "lint": "oxlint -c=./.oxlintrc.json --ignore-path=./.prettierignore --tsconfig=./tsconfig.json . -D correctness -D perf -D suspicious --promise-plugin --import-plugin",
@@ -45,6 +46,7 @@
     "@types/yargs-parser": "^21.0.3",
     "@typescript-eslint/eslint-plugin": "^8.5.0",
     "@typescript-eslint/parser": "^8.5.0",
+    "del-cli": "^5.1.0",
     "eslint": "^9.10.0",
     "fs-extra": "^11.2.0",
     "husky": "^9.1.5",
@@ -56,6 +58,7 @@
     "prettier": "3.3.3",
     "semver": "^7.6.3",
     "tap": "^21.0.1",
+    "tape": "^5.8.1",
     "tinyglobby": "^0.2.6",
     "typescript": "5.6.2",
     "typescript-eslint": "^8.5.0",
@@ -64,6 +67,5 @@
   },
   "engines": {
     "node": "^20.9.0 || >=22.0.0"
-  },
-  "files": []
+  }
 }

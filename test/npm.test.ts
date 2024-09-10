@@ -11,31 +11,30 @@ import yargsParser from 'yargs-parser'
 import { stripQuotes } from '@socketregistry/monorepo/scripts/utils'
 
 const { execPath } = process
-const absNpmPackagesPath = path.join(__dirname, 'npm')
+const rootPath = path.resolve(__dirname, '..')
+const binPath = path.join(rootPath, 'node_modules/.bin')
+const npmPackagesPath = path.join(__dirname, 'npm')
+const tapeBinPath = fs.realpathSync(path.join(binPath, 'tape'))
 
 ;(async () => {
   const packageDirs = await tinyGlob(['*/'], {
-    cwd: absNpmPackagesPath,
+    cwd: npmPackagesPath,
     onlyDirectories: true,
     expandDirectories: false
   })
 
   for (const pkgDir of packageDirs) {
     const pkgName = pkgDir.replace(/[/\\]$/, '')
-    const absPkgPath = path.join(absNpmPackagesPath, pkgName)
+    const absPkgPath = path.join(npmPackagesPath, pkgName)
     const pkgJson = require(path.join(absPkgPath, 'package.json'))
     const {
       scripts: { test }
     } = pkgJson
-    const binPath = path.join(absPkgPath, 'node_modules/.bin')
-    const tapeBinPath = path.join(binPath, 'tape')
 
     describe(pkgName, async () => {
-      const tapeBinRealPath = await fs.realpath(tapeBinPath)
-
       it('should pass all unit tests', async () => {
         const args = yargsParser(test)._.map(n =>
-          n === 'tape' ? tapeBinRealPath : stripQuotes(`${n}`)
+          n === 'tape' ? tapeBinPath : stripQuotes(`${n}`)
         )
         assert.doesNotReject(spawn(execPath, args, { cwd: absPkgPath }))
       })

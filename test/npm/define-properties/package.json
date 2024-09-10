@@ -1,14 +1,10 @@
 {
-  "name": "@socketregistry/test-npm-define-properties",
   "private": true,
-  "main": "./index.js",
   "scripts": {
     "prepare": "patch-package",
     "test": "tape 'node_modules/define-properties/test/**/*.js'"
   },
-  "files": [],
   "devDependencies": {
-    "define-properties": "git://github.com/ljharb/define-properties.git#v1.2.1",
-    "tape": "^5.8.1"
+    "define-properties": "git://github.com/ljharb/define-properties.git#v1.2.1"
   }
 }

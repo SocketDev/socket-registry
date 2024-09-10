@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "scripts": {
+    "prepare": "patch-package",
+    "test": "tape 'node_modules/regexp.prototype.flags/test/**/*.js'"
+  },
+  "devDependencies": {
+    "available-regexp-flags": "^1.0.4",
+    "es-value-fixtures": "^1.4.2",
+    "has-strict-mode": "^1.0.1",
+    "regexp.prototype.flags": "^1.5.2"
+  }
+}
