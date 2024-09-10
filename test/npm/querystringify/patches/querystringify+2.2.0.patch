@@ -1,0 +1,12 @@
+diff --git a/node_modules/querystringify/index.js b/node_modules/querystringify/index.js
+index 58c9808..eee9b3b 100644
+--- a/node_modules/querystringify/index.js
++++ b/node_modules/querystringify/index.js
+@@ -1,5 +1,7 @@
+ 'use strict';
+ 
++module.exports = require(require('node:path').resolve(`${__dirname}/../../`));
++return
+ var has = Object.prototype.hasOwnProperty
+   , undef;
+ 

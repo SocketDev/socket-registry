@@ -31,7 +31,7 @@ const tapeBinPath = fs.realpathSync(path.join(binPath, 'tape'))
       scripts: { test }
     } = pkgJson
 
-    describe(pkgName, async () => {
+    describe(pkgName, () => {
       it('should pass all unit tests', async () => {
         const args = yargsParser(test)._.map(n =>
           n === 'tape' ? tapeBinPath : stripQuotes(`${n}`)
