@@ -79,8 +79,9 @@ module.exports = function stableStringify(obj, opts = {}) {
       }
     : _node => localCompare
   const resultEntries = []
-  const seen = new Set()
-  const queue = [[{ '': obj }, '0', obj, 0, ARRAY_TYPE, resultEntries]]
+  const queue = [
+    [{ '': obj }, '0', obj, 0, ARRAY_TYPE, resultEntries, new Set()]
+  ]
   let { length: queueLength } = queue
   let pos = 0
   while (pos < queueLength) {
@@ -95,8 +96,13 @@ module.exports = function stableStringify(obj, opts = {}) {
       2: rawNode,
       3: level,
       4: type,
-      5: entries
+      5: entries,
+      6: seen
     } = queue[pos++]
+    if (rawNode === seen) {
+      seen.delete(parent)
+      continue
+    }
     const node = replacer(
       parent,
       key,
@@ -118,6 +124,15 @@ module.exports = function stableStringify(obj, opts = {}) {
       entries.push([key, JSON.stringify(node)])
       continue
     }
+    if (seen.has(node)) {
+      if (cycles) {
+        entries.push([key, STRINGIFIED_CYCLE])
+        continue
+      }
+      throw new TypeError('Converting circular structure to JSON')
+    } else {
+      seen.add(node)
+    }
     const indent = space ? `\n${space.repeat(level)}` : ''
     if (Array.isArray(node)) {
       const { length } = node
@@ -128,20 +143,23 @@ module.exports = function stableStringify(obj, opts = {}) {
           i,
           node[i],
           level + 1,
-          { type: ARRAY_TYPE, entries: arrEntries }
+          ARRAY_TYPE,
+          arrEntries,
+          new Set(seen)
         ]
       }
+      // Add `seen` to end to cleanup.
+      queue[queueLength++] = [
+        node,
+        '<CLEANUP>',
+        seen,
+        level + 1,
+        ARRAY_TYPE,
+        arrEntries,
+        seen
+      ]
       entries.push([key, arrEntries])
       continue
-    }
-    if (seen.has(node)) {
-      if (cycles) {
-        entries.push([key, STRINGIFIED_CYCLE])
-        continue
-      }
-      throw new TypeError('Converting circular structure to JSON')
-    } else {
-      seen.add(node)
     }
     const keys = Object.keys(node).sort(cmp(node))
     const objEntries = new ObjectEntries({ indent, space })
@@ -153,10 +171,20 @@ module.exports = function stableStringify(obj, opts = {}) {
         node[key],
         level + 1,
         OBJECT_TYPE,
-        objEntries
+        objEntries,
+        new Set(seen)
       ]
     }
-    seen.delete(node)
+    // Add `seen` to end to cleanup.
+    queue[queueLength++] = [
+      node,
+      '<CLEANUP>',
+      seen,
+      level + 1,
+      OBJECT_TYPE,
+      objEntries,
+      seen
+    ]
     entries.push([key, objEntries])
   }
   return resultEntries[0]?.[1]?.toString()

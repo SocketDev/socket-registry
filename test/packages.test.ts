@@ -5,8 +5,11 @@ import { describe, it } from 'node:test'
 
 import fs from 'fs-extra'
 import { glob as tinyGlob } from 'tinyglobby'
-const { PackageURL } = require('packageurl-js')
+import { PackageURL } from 'packageurl-js'
 import semver from 'semver'
+import validateNpmPackageName from 'validate-npm-package-name'
+// @ts-ignore
+import { ignores } from '../scripts/constants'
 // @ts-ignore
 import { isObjectObject } from '../scripts/utils'
 
@@ -15,8 +18,7 @@ const extDts = '.d.ts'
 const nodeVer = process.versions.node
 
 const rootPath = path.resolve(__dirname, '..')
-const relPackagesPath = 'packages'
-const absPackagesPath = path.join(rootPath, relPackagesPath)
+const absPackagesPath = path.join(rootPath, 'packages')
 const overridesDir = 'overrides/'
 
 const shimApiKeys = ['getPolyfill', 'implementation', 'shim']
@@ -36,6 +38,7 @@ describe('Ecosystems', async () => {
   })
   for (const eco_ of ecosystems) {
     const eco = eco_.replace(/[/\\]$/, '')
+
     describe(`${eco}:`, async () => {
       if (eco === 'npm') {
         const absEcoPath = path.join(absPackagesPath, eco)
@@ -44,19 +47,23 @@ describe('Ecosystems', async () => {
         })
         for await (const relPkgJsonPath of pkgJsonGlob) {
           const pkgName = path.dirname(relPkgJsonPath)
-          const pkgJson = await fs.readJSON(path.join(absEcoPath, relPkgJsonPath))
+          const pkgJson = await fs.readJSON(
+            path.join(absEcoPath, relPkgJsonPath)
+          )
           const {
             browser: browserPath,
-            main: mainPath,
+            engines,
             files: filesPatterns,
+            main: mainPath,
             overrides: pkgOverrides,
             resolutions: pkgResolutions,
             version
           } = pkgJson
-          const purlObj = PackageURL.fromString(`pkg:${eco}/${pkgJson.name}@${version}`)
+          const purlObj = PackageURL.fromString(
+            `pkg:${eco}/${pkgJson.name}@${version}`
+          )
           const absPkgPath = `${absEcoPath}/${purlObj.name}`
-          const indexPath = path.join(absPkgPath, 'index.js')
-          const req_ = createRequire(indexPath)
+          const req_ = createRequire(`${absPkgPath}/<dummy>`)
           const req = (id: string) => req_(prepareReqId(id))
           req.resolve = (id: string) => req_.resolve(prepareReqId(id))
           const files = (
@@ -72,12 +79,15 @@ describe('Ecosystems', async () => {
           const filesFieldMatches = (
             await tinyGlob(
               [
-                ...filesPatternsAsArray,
+                // Certain files are always included, regardless of settings:
+                // https://docs.npmjs.com/cli/v10/configuring-npm/package-json#files
                 'package.json',
                 'LICEN[CS]E{.*,}',
-                'README{.*,}'
+                'README{.*,}',
+                ...filesPatternsAsArray
               ],
               {
+                ignore: ignores,
                 cwd: absPkgPath,
                 dot: true,
                 onlyFiles: true
@@ -97,12 +107,21 @@ describe('Ecosystems', async () => {
             .sort()
 
           describe(`${pkgName}:`, async () => {
+            it('package name should be valid', () => {
+              assert.ok(
+                validateNpmPackageName(pkgJson.name).validForNewPackages
+              )
+            })
+
             it('package name should be "name" field of package.json', () => {
               assert.strictEqual(pkgJson.name, `@socketregistry/${pkgName}`)
             })
 
             it('package name should be included in "repository.directory" field of package.json', () => {
-              assert.strictEqual(pkgJson.repository?.directory, `packages/npm/${pkgName}`)
+              assert.strictEqual(
+                pkgJson.repository?.directory,
+                `packages/npm/${pkgName}`
+              )
             })
 
             it('file exists for "main" field of package.json', async () => {
@@ -115,6 +134,17 @@ describe('Ecosystems', async () => {
               })
             }
 
+            if (engines) {
+              it('should have valid "engine" entry version ranges', () => {
+                for (const { 0: key, 1: value } of Object.entries(engines)) {
+                  assert.ok(
+                    typeof value === 'string' && semver.validRange(value),
+                    key
+                  )
+                }
+              })
+            }
+
             if (jsonFiles.length) {
               it('should have valid .json files', async () => {
                 for (const relJsonPath of jsonFiles) {
@@ -124,6 +154,10 @@ describe('Ecosystems', async () => {
                 }
               })
             }
+
+            it('should have a "sideEffects" field of `false` in package.json', () => {
+              assert.strictEqual(pkgJson.sideEffects, false)
+            })
 
             it('should have a MIT LICENSE file', async () => {
               assert.ok(files.includes('LICENSE'))

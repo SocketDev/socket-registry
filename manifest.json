@@ -102,6 +102,10 @@
       { "category": "cleanup" }
     ],
     [
+      "pkg:npm/%40socketregistry/es-iterator-helpers@1.0.0",
+      { "category": "cleanup", "engines": { "node": ">=22.0.0" } }
+    ],
+    [
       "pkg:npm/%40socketregistry/es-set-tostringtag@1.0.0",
       { "category": "cleanup" }
     ],
@@ -109,6 +113,7 @@
       "pkg:npm/%40socketregistry/es6-object-assign@1.0.0",
       { "category": "cleanup" }
     ],
+    ["pkg:npm/%40socketregistry/es6-symbol@1.0.0", { "category": "cleanup" }],
     [
       "pkg:npm/%40socketregistry/function-bind@1.0.0",
       { "category": "cleanup" }
@@ -265,6 +270,7 @@
       "pkg:npm/%40socketregistry/object.values@1.0.0",
       { "category": "cleanup" }
     ],
+    ["pkg:npm/%40socketregistry/path-parse@1.0.0", { "category": "cleanup" }],
     [
       "pkg:npm/%40socketregistry/promise.allsettled@1.0.0",
       { "category": "cleanup" }

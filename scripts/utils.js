@@ -71,11 +71,27 @@ function isObjectObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
+function stripQuotes(str) {
+  const { length } = str
+  if (length > 1) {
+    const first = str.charCodeAt(0)
+    const last = str.charCodeAt(length - 1)
+    if (
+      (first === 39 /*"'"*/ && last === 39) ||
+      (first === 34 /*'"'*/ && last === 34)
+    ) {
+      return str.slice(1, -1)
+    }
+  }
+  return str
+}
+
 module.exports = {
   capitalize,
   createPackageJson,
   escapeRegExp,
   formatJsSrc,
   isObjectObject,
-  localCompare
+  localCompare,
+  stripQuotes
 }

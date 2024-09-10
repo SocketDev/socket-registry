@@ -8,8 +8,7 @@ const { glob: tinyGlob } = require('tinyglobby')
 const { createPackageJson } = require('./utils')
 
 const rootPath = path.resolve(__dirname, '..')
-const relPackagesPath = 'packages'
-const absPackagesPath = path.join(rootPath, relPackagesPath)
+const absPackagesPath = path.join(rootPath, 'packages')
 
 ;(async () => {
   const ecosystems = await tinyGlob(['*/'], {
@@ -21,7 +20,6 @@ const absPackagesPath = path.join(rootPath, relPackagesPath)
     const eco = eco_.replace(/[/\\]$/, '')
     if (eco === 'npm') {
       const absEcoPath = path.join(absPackagesPath, eco)
-      const relEcoPath = path.join(relPackagesPath, eco)
       const pkgJsonGlob = await tinyGlob(['*/package.json'], {
         cwd: absEcoPath
       })
@@ -30,7 +28,7 @@ const absPackagesPath = path.join(rootPath, relPackagesPath)
         const pkgName = path.dirname(relPkgJsonPath)
         const pkgJSON = await fs.readJSON(absPkgJsonPath)
         const { name } = pkgJSON
-        const directory = `${relEcoPath}/${pkgName}`
+        const directory = `packages/${eco}/${pkgName}`
         const output = createPackageJson(name, directory, {
           ...pkgJSON
         })
