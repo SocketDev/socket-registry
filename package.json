@@ -35,6 +35,7 @@
     "@eslint/js": "^9.10.0",
     "@jdalton/patch-package": "^8.1.1",
     "@npmcli/promise-spawn": "^8.0.0",
+    "@socketregistry/monorepo": "file:./",
     "@types/eslint__js": "^8.42.3",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.5.4",

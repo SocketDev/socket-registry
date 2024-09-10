@@ -1,6 +1,7 @@
 {
   "name": "@socketregistry/test-json-stable-stringify",
   "private": true,
+  "main": "./index.js",
   "scripts": {
     "prepare": "patch-package",
     "test": "tape 'node_modules/json-stable-stringify/test/**/*.js'"

@@ -9,9 +9,9 @@ import { PackageURL } from 'packageurl-js'
 import semver from 'semver'
 import validateNpmPackageName from 'validate-npm-package-name'
 // @ts-ignore
-import { ignores } from '../scripts/constants'
+import { ignores } from '@socketregistry/monorepo/scripts/constants'
 // @ts-ignore
-import { isObjectObject } from '../scripts/utils'
+import { isObjectObject } from '@socketregistry/monorepo/scripts/utils'
 
 const extJs = '.js'
 const extDts = '.d.ts'
