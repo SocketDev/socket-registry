@@ -9,7 +9,7 @@ disable-coverage: true
 coverage-report:
   - none
 reporter: terse
-passes: true
+# passes: true
 plugin:
   - "!@tapjs/spawn"
   - "!@tapjs/stdin"

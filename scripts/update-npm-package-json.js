@@ -5,35 +5,33 @@ const path = require('node:path')
 const fs = require('fs-extra')
 const { glob: tinyGlob } = require('tinyglobby')
 
-const { createPackageJson } = require('./utils')
+const { PACKAGE_JSON } = require('@socketregistry/scripts/constants')
+const { readPackageJson } = require('@socketregistry/scripts/utils/fs')
+const { createPackageJson } = require('@socketregistry/scripts/utils/packages')
+const { trimTrailingSlash } = require('@socketregistry/scripts/utils/path')
+const { localCompare } = require('@socketregistry/scripts/utils/strings')
 
 const rootPath = path.resolve(__dirname, '..')
-const absPackagesPath = path.join(rootPath, 'packages')
+const npmPackagesPath = path.join(rootPath, 'packages/npm')
 
 ;(async () => {
-  const ecosystems = await tinyGlob(['*/'], {
-    cwd: absPackagesPath,
-    onlyDirectories: true,
-    expandDirectories: false
-  })
-  for (const eco_ of ecosystems) {
-    const eco = eco_.replace(/[/\\]$/, '')
-    if (eco === 'npm') {
-      const absEcoPath = path.join(absPackagesPath, eco)
-      const pkgJsonGlob = await tinyGlob(['*/package.json'], {
-        cwd: absEcoPath
-      })
-      for await (const relPkgJsonPath of pkgJsonGlob) {
-        const absPkgJsonPath = path.join(absEcoPath, relPkgJsonPath)
-        const pkgName = path.dirname(relPkgJsonPath)
-        const pkgJSON = await fs.readJSON(absPkgJsonPath)
-        const { name } = pkgJSON
-        const directory = `packages/${eco}/${pkgName}`
-        const output = createPackageJson(name, directory, {
-          ...pkgJSON
-        })
-        await fs.writeJSON(absPkgJsonPath, output, { spaces: 2 })
-      }
-    }
+  const packageNames = (
+    await tinyGlob(['*/'], {
+      cwd: npmPackagesPath,
+      onlyDirectories: true,
+      expandDirectories: false
+    })
+  )
+    .map(trimTrailingSlash)
+    .sort(localCompare)
+  for (const pkgName of packageNames) {
+    const pkgJsonPath = path.join(npmPackagesPath, pkgName, PACKAGE_JSON)
+    const pkgJson = await readPackageJson(pkgJsonPath)
+    const { name } = pkgJson
+    const directory = `packages/npm/${pkgName}`
+    const output = createPackageJson(name, directory, {
+      ...pkgJson
+    })
+    await fs.writeJson(pkgJsonPath, output, { spaces: 2 })
   }
 })()

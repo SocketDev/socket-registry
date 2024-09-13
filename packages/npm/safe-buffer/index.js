@@ -1,3 +1,5 @@
 'use strict'
 
-module.exports = Buffer
+module.exports = function Buffer() {
+  //Buffer
+}

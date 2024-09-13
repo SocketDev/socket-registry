@@ -7,31 +7,41 @@ const { PackageURL } = require('packageurl-js')
 const prettier = require('prettier')
 const { glob: tinyGlob } = require('tinyglobby')
 
-const { localCompare } = require('./utils')
+const { trimTrailingSlash } = require('@socketregistry/scripts/utils/path')
+const { readPackageJson } = require('@socketregistry/scripts/utils/fs')
+const { localCompare } = require('@socketregistry/scripts/utils/strings')
 
 const rootPath = path.resolve(__dirname, '..')
-const relPackagesPath = 'packages'
-const absPackagesPath = path.join(rootPath, relPackagesPath)
+const rootPackagesPath = path.join(rootPath, 'packages')
 
 ;(async () => {
-  const ecosystems = await tinyGlob(['*/'], {
-    cwd: absPackagesPath,
-    onlyDirectories: true,
-    expandDirectories: false
-  })
+  const ecosystems = (
+    await tinyGlob(['*/'], {
+      cwd: rootPackagesPath,
+      onlyDirectories: true,
+      expandDirectories: false
+    })
+  )
+    .map(trimTrailingSlash)
+    .sort(localCompare)
   const manifest = {}
-  for (const eco_ of ecosystems) {
-    const eco = eco_.replace(/[/\\]$/, '')
+  for (const eco of ecosystems) {
     if (eco === 'npm') {
-      const absEcoPath = path.join(absPackagesPath, eco)
-      const packages = []
-      const pkgJsonGlob = await tinyGlob(['*/package.json'], {
-        absolute: true,
-        cwd: absEcoPath
-      })
-      for await (const pkgJsonPath of pkgJsonGlob) {
-        const pkgJSON = await fs.readJSON(pkgJsonPath)
-        const { browser, engines, name, socket, version } = pkgJSON
+      const npmPackagesPath = path.join(rootPackagesPath, eco)
+      const packageNames = (
+        await tinyGlob(['*/'], {
+          cwd: npmPackagesPath,
+          onlyDirectories: true,
+          expandDirectories: false
+        })
+      )
+        .map(trimTrailingSlash)
+        .sort(localCompare)
+      const manifestData = []
+      for await (const pkgName of packageNames) {
+        const pkgPath = path.join(npmPackagesPath, pkgName)
+        const { browser, engines, name, socket, version } =
+          await readPackageJson(pkgPath)
         const purlObj = PackageURL.fromString(`pkg:${eco}/${name}@${version}`)
         const data = [purlObj.toString()]
         const metaEntries = [
@@ -44,10 +54,10 @@ const absPackagesPath = path.join(rootPath, relPackagesPath)
             metaEntries.sort((a, b) => localCompare(a[0], b[0]))
           )
         }
-        packages.push(data.length === 1 ? data[0] : data)
+        manifestData.push(data.length === 1 ? data[0] : data)
       }
-      if (packages.length) {
-        manifest[eco] = packages.sort((a_, b_) => {
+      if (manifestData.length) {
+        manifest[eco] = manifestData.sort((a_, b_) => {
           const a = Array.isArray(a_) ? a_[0] : a_
           const b = Array.isArray(b_) ? b_[0] : b_
           return localCompare(a, b)
