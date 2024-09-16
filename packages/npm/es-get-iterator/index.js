@@ -1,5 +1,5 @@
 'use strict'
 
 module.exports = function getIterator(iterable) {
-  return iterable[Symbol.iterator]?.()
+  return iterable?.[Symbol.iterator]?.()
 }

@@ -9,8 +9,8 @@ const desc = value => ({
 })
 
 module.exports = Object.defineProperties(
-  function flatMap(thisArg, callbackFn) {
-    return Reflect.apply(impl, thisArg, [callbackFn])
+  function flatMap(thisArg, mapper) {
+    return new.target ? new impl() : Reflect.apply(impl, thisArg, [mapper])
   },
   {
     getPolyfill: desc(require('./polyfill')),

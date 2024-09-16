@@ -1,1 +1,1 @@
-export = Object.getOwnPropertyDescriptors
+export = Object.getOwnPropertyDescriptor

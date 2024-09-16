@@ -11,6 +11,6 @@ module.exports = function isBigInt(value) {
       bigIntValueOf.call(value)
       return true
     } catch {}
-    return false
   }
+  return false
 }

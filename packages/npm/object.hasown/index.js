@@ -10,7 +10,7 @@ const desc = value => ({
 
 module.exports = Object.defineProperties(
   function hasOwn(object, key) {
-    return impl(object, key)
+    return new.target ? impl() : impl(object, key)
   },
   {
     getPolyfill: desc(require('./polyfill')),

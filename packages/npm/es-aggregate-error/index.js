@@ -9,9 +9,17 @@ const desc = value => ({
 })
 
 module.exports = Object.defineProperties(
-  function AggregateError(errors, message = '') {
-    return new Impl(errors, message)
-  },
+  Object.defineProperty(
+    function AggregateError(errors, message) {
+      return new.target ? new Impl(errors, message) : Impl(errors, message)
+    },
+    'prototype',
+    {
+      __proto__: null,
+      value: Impl.prototype,
+      writable: false
+    }
+  ),
   {
     getPolyfill: desc(require('./polyfill')),
     implementation: desc(Impl),

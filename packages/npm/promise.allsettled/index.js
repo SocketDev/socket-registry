@@ -8,8 +8,17 @@ const desc = value => ({
   value
 })
 
-module.exports = Object.defineProperties(Promise.allSettled.bind(Promise), {
-  getPolyfill: desc(require('./polyfill')),
-  implementation: desc(impl),
-  shim: desc(require('./shim'))
-})
+module.exports = Object.defineProperties(
+  function allSettled(iterable) {
+    return new.target
+      ? new impl()
+      : Reflect.apply(impl, typeof this === 'undefined' ? Promise : this, [
+          iterable
+        ])
+  },
+  {
+    getPolyfill: desc(require('./polyfill')),
+    implementation: desc(impl),
+    shim: desc(require('./shim'))
+  }
+)

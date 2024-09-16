@@ -1,5 +1,6 @@
 .DS_Store
 /.eslintcache
+/npm-debug.log
 /.tap
 /.vscode
 **/node_modules

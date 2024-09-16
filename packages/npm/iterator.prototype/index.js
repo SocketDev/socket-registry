@@ -1,3 +1,7 @@
 'use strict'
 
-module.exports = Reflect.getPrototypeOf(Reflect.getPrototypeOf([].keys()))
+const arrayIterator = [][Symbol.iterator]()
+const ArrayIteratorPrototype = Reflect.getPrototypeOf(arrayIterator)
+const IteratorPrototype = Reflect.getPrototypeOf(ArrayIteratorPrototype)
+
+module.exports = IteratorPrototype

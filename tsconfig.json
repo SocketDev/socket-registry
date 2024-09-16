@@ -30,8 +30,7 @@
     /* Additional checks */
     "importsNotUsedAsValues": "remove",
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noUncheckedSideEffectImports": true
+    "noUnusedParameters": true
   },
   "include": ["packages/**/*.ts", "test/**/*.ts"]
 }

@@ -3,5 +3,5 @@
 const impl = require('./implementation')
 
 module.exports = function getUTCDate(date) {
-  return Reflect.apply(impl, date, [])
+  return new.target ? new impl() : Reflect.apply(impl, date, [])
 }

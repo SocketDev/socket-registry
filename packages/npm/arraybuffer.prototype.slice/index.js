@@ -10,7 +10,7 @@ const desc = value => ({
 
 module.exports = Object.defineProperties(
   function slice(thisArg, start, end) {
-    return Reflect.apply(impl, thisArg, [start, end])
+    return new.target ? new impl() : Reflect.apply(impl, thisArg, [start, end])
   },
   {
     getPolyfill: desc(require('./polyfill')),

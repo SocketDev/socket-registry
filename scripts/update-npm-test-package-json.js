@@ -1,9 +1,7 @@
 'use strict'
 
 const path = require('node:path')
-const util = require('node:util')
 
-const { default: confirm } = require('@inquirer/confirm')
 const fs = require('fs-extra')
 
 const spawn = require('@npmcli/promise-spawn')
@@ -24,6 +22,7 @@ const {
   isSymbolicLinkSync,
   readPackageJson
 } = require('@socketregistry/scripts/utils/fs')
+const { parsePackageSpec } = require('@socketregistry/scripts/utils/packages')
 const {
   splitPath,
   trimTrailingSlash,
@@ -45,18 +44,25 @@ const relNmPath = trimLeadingDotSlash(path.relative(rootPath, nmPath))
 const nmHiddenLockPath = path.join(nmPath, PACKAGE_HIDDEN_LOCK)
 const workspacePath = path.join(testNpmPath, NODE_WORKSPACE)
 
-const gitTagRefUrl = (user, repo, tag) =>
-  `https://api.github.com/repos/${user}/${repo}/git/ref/tags/${tag}`
+const cleanTestScript = testScript =>
+  testScript
+    // Strip actions BEFORE the test runner is invoked.
+    .replace(/^.*?(?=\b(?:ava|jest|node|npm run|mocha|tape?)\b)/, '')
+    // Remove unsupported Node flag "--es-staging"
+    .replace(/(?<=node)(?: +--[-\w]+)+/, m => m.replaceAll(' --es-staging', ''))
 
-const tgzUrl = (user, repo, sha) =>
-  `https://github.com/${user}/${repo}/archive/${sha}.tar.gz`
+const gitTagRefUrl = (user, project, tag) =>
+  `https://api.github.com/repos/${user}/${project}/git/ref/tags/${tag}`
+
+const tgzUrl = (user, project, sha) =>
+  `https://github.com/${user}/${project}/archive/${sha}.tar.gz`
 
 const getRepoUrlDetails = (repoUrl = '') => {
   const userAndRepo = repoUrl.replace(/^.+github.com\//, '').split('/')
   const { 0: user } = userAndRepo
-  const repo =
+  const project =
     userAndRepo.length > 1 ? userAndRepo[1].slice(0, -'.git'.length) : ''
-  return { user, repo }
+  return { user, project }
 }
 
 const installTestNpmNodeModules = async pkgName => {
@@ -171,19 +177,35 @@ const testScripts = [
           console.log(msg)
         }
 
+        const pkgSpec = testNpmPkgJsonRaw.devDependencies?.[pkgName]
+        const parsedSpec = parsePackageSpec(pkgName, pkgSpec, nmPath)
         const isTarball =
-          !!testNpmPkgJsonRaw.devDependencies?.[pkgName]?.endsWith('.tar.gz')
+          parsedSpec.type === 'remote' &&
+          !!parsedSpec.saveSpec?.endsWith('.tar.gz')
+        const isGithubUrl =
+          parsedSpec.type === 'git' &&
+          parsedSpec.hosted?.domain === 'github.com' &&
+          isNonEmptyString(parsedSpec.gitCommittish)
         if (
-          // We don't need to resolve the tarball if the devDependencies value
-          // is already one.
+          // We don't need to resolve the tarball URL if the devDependencies
+          // value is already one.
           !isTarball &&
-          // Search for the presence of test files anywhere in the package.
-          (
-            await tinyGlob(['**/test{s,}{.js,}', '**/*.{spec,test}.js'], {
-              cwd: nmPkgPath,
-              onlyFiles: false
-            })
-          ).length === 0
+          // We'll convert the easier to read GitHub URL with a #tag into the tarball URL.
+          (isGithubUrl ||
+            // Search for the presence of test files anywhere in the package.
+            // The glob pattern ".{[cm],}[jt]s" matches .js, .cjs, .cts, .mjs, .mts, .ts file extensions.
+            (
+              await tinyGlob(
+                [
+                  '**/test{s,}{.{[cm],}[jt]s,}',
+                  '**/*.{spec,test}{.{[cm],}[jt]s}'
+                ],
+                {
+                  cwd: nmPkgPath,
+                  onlyFiles: false
+                }
+              )
+            ).length === 0)
         ) {
           // When tests aren't included in the installed package we convert the
           // package version to a GitHub release tag, then we convert the release
@@ -191,20 +213,26 @@ const testScripts = [
           // to use in place of the version range for its devDependencies entry.
           const nmPkgJson = await readCachedPackageJson(nmPkgPath)
           const { version: nmPkgVer } = nmPkgJson
-          const { user, repo } = getRepoUrlDetails(nmPkgJson.repository?.url)
+          const { user, project } = isGithubUrl
+            ? parsedSpec.hosted
+            : getRepoUrlDetails(nmPkgJson.repository?.url)
           let resolved = false
-          if (user && repo) {
-            // First try to resolve the sha for a tag starting with "v", e.g. v1.2.3.
-            let tag = `v${nmPkgVer}`
-            let apiUrl = gitTagRefUrl(user, repo, tag)
-            let head = await fetch(apiUrl, { method: 'head' })
-            if (!head.ok) {
-              // If a sha isn't found, try again with the "v" removed, e.g. 1.2.3.
-              tag = tag.slice(1)
-              apiUrl = gitTagRefUrl(user, repo, tag)
-              head = await fetch(apiUrl, { method: 'head' })
+          if (user && project) {
+            let apiUrl = ''
+            if (isGithubUrl) {
+              apiUrl = gitTagRefUrl(user, project, parsedSpec.gitCommittish)
+            } else {
+              // First try to resolve the sha for a tag starting with "v", e.g. v1.2.3.
+              apiUrl = gitTagRefUrl(user, project, `v${nmPkgVer}`)
+              if (!(await fetch(apiUrl, { method: 'head' })).ok) {
+                // If a sha isn't found, try again with the "v" removed, e.g. 1.2.3.
+                apiUrl = gitTagRefUrl(user, project, nmPkgVer)
+                if (!(await fetch(apiUrl, { method: 'head' })).ok) {
+                  apiUrl = ''
+                }
+              }
             }
-            if (head.ok) {
+            if (apiUrl) {
               const resp = await fetch(apiUrl)
               const json = await resp.json()
               const sha = json?.object?.sha
@@ -217,7 +245,7 @@ const testScripts = [
                 }
                 testNpmPkgJsonRaw.devDependencies[pkgName] = tgzUrl(
                   user,
-                  repo,
+                  project,
                   sha
                 )
               }
@@ -278,61 +306,61 @@ const testScripts = [
         // Cleanup package scripts
         const scripts = nmPkgJson.scripts ?? {}
         // Consolidate test script to script['test'].
-        const scriptName =
+        const testScriptName =
           testScripts.find(n => isNonEmptyString(scripts[n])) ?? 'test'
-        scripts.test = (scripts[scriptName] ?? '').replace(
-          /^.*?(?=mocha|tape?)/,
-          ''
-        )
+        scripts.test = scripts[testScriptName] ?? ''
         // Remove lifecycle and test script variants.
         nmPkgJson.scripts = Object.fromEntries(
-          Object.entries(scripts).filter(
-            ({ 0: key }) =>
-              key === 'test' ||
-              !(
-                key === 'lint' ||
-                key === 'prelint' ||
-                key === 'postlint' ||
-                key === 'pretest' ||
-                key === 'posttest' ||
-                key.startsWith('test') ||
-                lifecycleScriptNames.has(key)
-              )
-          )
+          Object.entries(scripts)
+            .filter(
+              ({ 0: key }) =>
+                key === 'test' ||
+                !(
+                  key === testScriptName ||
+                  key === 'lint' ||
+                  key === 'prelint' ||
+                  key === 'postlint' ||
+                  key === 'pretest' ||
+                  key === 'posttest' ||
+                  lifecycleScriptNames.has(key)
+                )
+            )
+            .map(pair => {
+              const { 0: key, 1: value } = pair
+              if (key.startsWith('test')) {
+                pair[1] = cleanTestScript(value)
+              }
+              return pair
+            })
         )
 
+        // Add dependencies and overrides of @socketregistry/xyz as dependencies
+        // of the xyz package.
         const { dependencies, overrides } = pkgJson
-        // Add dependencies of the @socketregistry/xyz package to the xyz package.
-        if (dependencies) {
-          if (nmPkgDeps) {
-            Object.assign(nmPkgDeps, dependencies)
-            if (overrides) {
-              // Remove dependencies that exists in overrides to prevent an
-              // install conflict error.
-              nmPkgJson.dependencies = Object.fromEntries(
-                Object.entries(nmPkgJson.dependencies).filter(({ 0: key }) => {
-                  if (Object.hasOwn(overrides, key)) {
-                    return false
-                  }
-                  return true
-                })
-              )
-            }
-          } else {
-            nmPkgJson.dependencies = {
-              ...dependencies
-            }
+        if (dependencies ?? overrides) {
+          const socketRegistryPrefix = 'npm:@socketregistry/'
+          const overridesAsDeps =
+            overrides &&
+            Object.fromEntries(
+              Object.entries(overrides).map(pair => {
+                const { 1: value } = pair
+                if (value.startsWith(socketRegistryPrefix)) {
+                  pair[1] = `file:../${value.slice(socketRegistryPrefix.length, value.lastIndexOf('@'))}`
+                }
+                return pair
+              })
+            )
+          nmPkgJson.dependencies = {
+            ...nmPkgDeps,
+            ...dependencies,
+            ...overridesAsDeps
           }
         }
-        // Add overrides of the @socketregistry/xyz package to the xyz package.
-        nmPkgJson.overrides = {
-          ...nmPkgOverrides,
-          ...overrides
-        }
-        nmPkgJson.resolutions = {
-          ...nmPkgResolutions,
-          ...overrides
-        }
+
+        // Add engines field of the @socketregistry/xyz package to the xyz package.
+        // If the value is `undefined` it will be removed when written to disk.
+        nmPkgJson.engines = pkgJson.engines
+
         // Symlink files from the @socketregistry/xyz package to the xyz package.
         const jsFiles = (
           await tinyGlob(['**/*.{js,json}'], {
@@ -396,21 +424,28 @@ const testScripts = [
     (
       await tinyGlob(
         [
-          '**/.*',
-          '**/eslint.config.*',
-          '**/karma.conf.js',
-          '**/tsconfig.*',
-          '**/tslint.*',
+          '.package-lock.json',
+          '**/.editorconfig',
+          '**/.eslintignore',
+          '**/.eslintrc.json',
+          '**/.gitattributes',
+          '**/.github',
+          '**/.npmignore',
+          '**/.npmrc',
+          '**/.nvmrc',
+          '**/.travis.yml',
           '**/*.md',
-          'example/',
-          'CHANGE{LOG,S}{.*,}',
-          'CONTRIBUTING{.*,}',
-          'FUND{ING,}{.*,}',
-          'README{.*,}',
+          '**/tslint.json',
+          '**/doc{s,}/',
+          '**/example{s,}/',
+          '**/CHANGE{LOG,S}{.*,}',
+          '**/CONTRIBUTING{.*,}',
+          '**/FUND{ING,}{.*,}',
+          '**/README{.*,}',
           ...ignores
         ],
         {
-          ignore: [`LICEN[CS]E{.*,}`],
+          ignore: [`**/LICEN[CS]E{.*,}`],
           absolute: true,
           cwd: workspacePath,
           dot: true,

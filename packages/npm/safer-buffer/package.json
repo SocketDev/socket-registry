@@ -7,7 +7,7 @@
     "url": "https://github.com/SocketDev/socket-registry-js",
     "directory": "packages/npm/safer-buffer"
   },
-  "main": "./index.js",
+  "main": "./safer.js",
   "sideEffects": false,
   "files": [
     "*.d.ts",

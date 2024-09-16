@@ -10,7 +10,7 @@ const desc = value => ({
 
 module.exports = Object.defineProperties(
   function isNan(value) {
-    return impl(value)
+    return new.target ? new impl() : impl(value)
   },
   {
     getPolyfill: desc(require('./polyfill')),

@@ -1,7 +1,17 @@
 'use strict'
 
-const impl = require('./implementation')
+const getPolyfill = require('./polyfill')
 
 module.exports = function shimDateParse() {
-  return impl
+  const polyfill = getPolyfill()
+  if (polyfill && Date.parse !== polyfill) {
+    Object.defineProperty(Date, 'parse', {
+      __proto__: null,
+      configurable: true,
+      enumerable: false,
+      value: polyfill,
+      writable: true
+    })
+  }
+  return polyfill
 }

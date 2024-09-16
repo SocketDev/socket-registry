@@ -8,13 +8,8 @@ const desc = value => ({
   value
 })
 
-module.exports = Object.defineProperties(
-  function Iterator() {
-    return new Impl()
-  },
-  {
-    getPolyfill: desc(require('./polyfill')),
-    implementation: desc(Impl),
-    shim: desc(require('./shim'))
-  }
-)
+module.exports = Object.defineProperties(Impl.bind(), {
+  getPolyfill: desc(require('./polyfill')),
+  implementation: desc(Impl),
+  shim: desc(require('./shim'))
+})

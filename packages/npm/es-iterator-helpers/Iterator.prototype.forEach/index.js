@@ -10,7 +10,7 @@ const desc = value => ({
 
 module.exports = Object.defineProperties(
   function forEach(thisArg, callbackFn) {
-    Reflect.apply(impl, thisArg, [callbackFn])
+    new.target ? new impl() : Reflect.apply(impl, thisArg, [callbackFn])
   },
   {
     getPolyfill: desc(require('./polyfill')),

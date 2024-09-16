@@ -3,5 +3,5 @@
 const impl = require('./implementation')
 
 module.exports = function getFullYear(date) {
-  return Reflect.apply(impl, date, [])
+  return new.target ? new impl() : Reflect.apply(impl, date, [])
 }

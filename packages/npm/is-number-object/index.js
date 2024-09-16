@@ -11,6 +11,6 @@ module.exports = function isNumber(value) {
       numValueOf.call(value)
       return true
     } catch {}
-    return false
   }
+  return false
 }

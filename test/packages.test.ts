@@ -10,6 +10,7 @@ import validateNpmPackageName from 'validate-npm-package-name'
 
 import {
   LICENSE,
+  NODE_VERSION,
   PACKAGE_JSON,
   ignores
   // @ts-ignore
@@ -23,12 +24,14 @@ import {
   trimTrailingSlash
   // @ts-ignore
 } from '@socketregistry/scripts/utils/path'
-// @ts-ignore
-import { localCompare } from '@socketregistry/scripts/utils/strings'
+import {
+  isNonEmptyString,
+  localCompare
+  // @ts-ignore
+} from '@socketregistry/scripts/utils/strings'
 
 const extJs = '.js'
 const extDts = '.d.ts'
-const nodeVer = process.versions.node
 
 const rootPath = path.resolve(__dirname, '..')
 const rootPackagesPath = path.join(rootPath, 'packages')
@@ -221,11 +224,11 @@ describe('Ecosystems', async () => {
             ) {
               describe('es-shim', async () => {
                 const nodeRange = pkgJson?.engines?.node
-                const skipping = nodeRange
-                  ? !semver.satisfies(nodeVer, nodeRange)
-                  : false
+                const skipping =
+                  isNonEmptyString(nodeRange) &&
+                  !semver.satisfies(NODE_VERSION, nodeRange)
                 const skipMessage = skipping
-                  ? `supported in ${nodeRange}, running ${nodeVer}`
+                  ? `supported in ${nodeRange}, running ${NODE_VERSION}`
                   : ''
 
                 it('index.js exists for "main" field of package.json', async () => {

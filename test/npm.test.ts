@@ -3,17 +3,21 @@ import path from 'node:path'
 import { describe, it } from 'node:test'
 
 import spawn from '@npmcli/promise-spawn'
+import semver from 'semver'
 import { glob as tinyGlob } from 'tinyglobby'
 import which from 'which'
 
 // @ts-ignore
-import { NODE_WORKSPACE } from '@socketregistry/scripts/constants'
+import { NODE_WORKSPACE, NODE_VERSION } from '@socketregistry/scripts/constants'
 // @ts-ignore
 import { readPackageJson } from '@socketregistry/scripts/utils/fs'
 // @ts-ignore
 import { trimTrailingSlash } from '@socketregistry/scripts/utils/path'
-// @ts-ignore
-import { localCompare, trimQuotes } from '@socketregistry/scripts/utils/strings'
+import {
+  isNonEmptyString,
+  localCompare
+  // @ts-ignore
+} from '@socketregistry/scripts/utils/strings'
 
 const { execPath } = process
 const rootPath = path.resolve(__dirname, '..')
@@ -22,49 +26,22 @@ const runScriptExecPath = which.sync('run-s')
 const workspacePath = path.join(testNpmPath, NODE_WORKSPACE)
 
 const skippedPackages = [
-  // Fails
-  'array-flatten',
-  'array.from',
-  'arraybuffer.prototype.slice',
-  'assert',
-  'asynciterator.prototype',
-  'available-typed-arrays',
+  // Has known test fails in its package:
+  // https://github.com/es-shims/Date/issues/3
   'date',
-  'deep-equal',
-  'es-aggregate-error',
-  'es-define-property',
-  'es-get-iterator',
-  'es-iterator-helpers',
-  'gopd',
-  'has-symbols',
-  'has-tostringtag',
-  'is-arguments',
-  'is-array-buffer',
-  'is-bigint',
-  'is-generator-function',
-  'is-regex',
-  'is-shared-array-buffer',
-  'number-is-nan',
-  'object-keys',
-  'object.assign',
-  'object.groupby',
-  'path-parse',
-  'promise.allsettled',
-  'promise.any',
-  'safe-array-concat',
-  'safe-buffer',
-  'safer-buffer',
-  'set-function-length',
-  'string.prototype.matchall',
-  'typed-array-buffer',
-  'typed-array-byte-length',
-  'typedarray.prototype.slice',
-  // Skipped
+  // Has no unit tests.
   'es6-object-assign',
-  'harmony-reflect'
+  // Has known failures in its package and requires running tests in browser.
+  'harmony-reflect',
+  // The package tests don't account for the `require('node:util/types).isRegExp`
+  // method having no observable side-effects and assumes the "getOwnPropertyDescriptor"
+  // trap will be triggered by `Object.getOwnPropertyDescriptor(value, 'lastIndex')`.
+  'is-regex',
+  // Has known failures in its package.
+  'safer-buffer'
 ]
 
-;(async () => {
+describe('Package tests against their own unit tests', async () => {
   const packageNames = <string[]>(
     await tinyGlob(['*/'], {
       cwd: workspacePath,
@@ -78,19 +55,18 @@ const skippedPackages = [
   for (const pkgName of packageNames) {
     const wsPkgPath = path.join(workspacePath, pkgName)
     const wsPkgJson = await readPackageJson(wsPkgPath)
-    const shouldSkip = !wsPkgJson.scripts.test
-    describe(pkgName, { skip: shouldSkip }, async () => {
-      it('should pass all unit tests', async () => {
-        try {
-          await spawn(execPath, [runScriptExecPath, 'test'], {
-            cwd: wsPkgPath
-          })
-        } catch (e) {
-          console.log('Failed', pkgName)
-        }
-        assert.ok(true)
-        //assert.doesNotReject(spawn(execPath, args, { cwd: pkgPath }))
-      })
+    const nodeRange = wsPkgJson?.engines?.node
+    const skip =
+      !wsPkgJson.scripts.test ||
+      (isNonEmptyString(nodeRange) &&
+        !semver.satisfies(NODE_VERSION, nodeRange))
+
+    it(`${pkgName} should pass all its unit tests`, { skip }, async () => {
+      assert.doesNotReject(
+        spawn(execPath, [runScriptExecPath, 'test'], {
+          cwd: wsPkgPath
+        })
+      )
     })
   }
-})()
+})

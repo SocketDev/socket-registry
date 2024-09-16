@@ -11,6 +11,6 @@ module.exports = function isBoolean(value) {
       boolValueOf.call(value)
       return true
     } catch {}
-    return false
   }
+  return false
 }

@@ -1,6 +1,7 @@
 'use strict'
 
 const normalizePackageData = require('normalize-package-data')
+const npmPackageArg = require('npm-package-arg')
 const semver = require('semver')
 
 const {
@@ -77,8 +78,13 @@ function normalizePackageJson(pkgJson) {
   return pkgJson
 }
 
+function parsePackageSpec(pkgName, pkgSpec, where) {
+  return npmPackageArg.resolve(pkgName, pkgSpec, where)
+}
+
 module.exports = {
   createPackageJson,
   findPackageExtensions,
-  normalizePackageJson
+  normalizePackageJson,
+  parsePackageSpec
 }

@@ -10,7 +10,7 @@ const desc = value => ({
 
 module.exports = Object.defineProperties(
   function groupBy(items, callbackFn) {
-    return impl(items, callbackFn)
+    return new.target ? impl() : impl(items, callbackFn)
   },
   {
     getPolyfill: desc(require('./polyfill')),

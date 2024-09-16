@@ -17,6 +17,7 @@ const LICENSE = 'LICENSE'
 const MIT = 'MIT'
 const NODE_MODULES = 'node_modules'
 const NODE_WORKSPACE = 'node_workspace'
+const NODE_VERSION = process.versions.node
 const NPM_ORG = 'socketregistry'
 const NPM_SCOPE = `@${NPM_ORG}`
 const PACKAGE_JSON = 'package.json'
@@ -105,10 +106,18 @@ const lowerToCamelCase = Object.freeze(
 const packageExtensions = [
   ...yarnPackageExtensions,
   [
-    'abab@<=2.0.6',
+    'abab@>=2.0.6',
     {
       devDependencies: {
         webpack: '^3.12.0'
+      }
+    }
+  ],
+  [
+    'is-generator-function@>=1.0.10',
+    {
+      scripts: {
+        'test:uglified': ''
       }
     }
   ]
@@ -125,6 +134,7 @@ module.exports = {
   MIT,
   NODE_MODULES,
   NODE_WORKSPACE,
+  NODE_VERSION,
   NPM_ORG,
   NPM_SCOPE,
   PACKAGE_JSON,

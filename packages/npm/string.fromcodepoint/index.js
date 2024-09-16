@@ -10,7 +10,7 @@ const desc = value => ({
 
 module.exports = Object.defineProperties(
   function fromCodePoint(...args) {
-    return impl(...args)
+    return new.target ? impl() : impl(...args)
   },
   {
     getPolyfill: desc(require('./polyfill')),

@@ -1,3 +1,3 @@
 'use strict'
 
-module.exports = require('../Iterator').from
+module.exports = require('../Iterator/implementation').from

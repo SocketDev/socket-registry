@@ -1,26 +1,27 @@
 'use strict'
 
-const empty = []
-empty.concat = empty.concat
-
-function needsOverride(value) {
-  const spreadable = value[Symbol.isConcatSpreadable]
-  return spreadable !== undefined && !spreadable
-}
-
-module.exports = function safeArrayConcat(...args) {
-  for (let i = 0, { length } = args; i < length; i += 1) {
-    const arg = args[i]
-    if (arg !== null && typeof arg === 'object' && needsOverride(arg)) {
-      const array = Array.isArray(arg) ? Array.from(arg) : [arg]
-      array[Symbol.isConcatSpreadable] = true
-      arg[i] = array
+// This implementation avoids a V8 perf issue associated with setting Symbol.isConcatSpreadable:
+// https://issues.chromium.org/issues/42204235#comment4
+module.exports = function safeArrayConcat(_item) {
+  // Compute size to pre-allocate the result array.
+  // The assumption here is the number of arguments provided is low so the cost
+  // of iterating over them twice is nominal.
+  let size = 0
+  for (let i = 0, { length } = arguments; i < length; i += 1) {
+    const arg = arguments[i]
+    size += Array.isArray(arg) ? arg.length : 1
+  }
+  const result = Array(size)
+  let pos = 0
+  for (let i = 0, { length } = arguments; i < length; i += 1) {
+    const arg = arguments[i]
+    if (Array.isArray(arg)) {
+      for (let j = 0, { length: length_j } = arg; j < length_j; j += 1) {
+        result[pos++] = arg[j]
+      }
+    } else {
+      result[pos++] = arg
     }
   }
-  // Avoids V8 perf issue by only setting Symbol.isConcatSpreadable when needed.
-  // https://issues.chromium.org/issues/42204235#comment4
-  if (needsOverride(empty)) {
-    empty[Symbol.isConcatSpreadable] = true
-  }
-  return empty.concat(...args)
+  return result
 }
