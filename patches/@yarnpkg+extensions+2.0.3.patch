@@ -1,0 +1,14 @@
+diff --git a/node_modules/@yarnpkg/extensions/package.json b/node_modules/@yarnpkg/extensions/package.json
+index 38454a9..c83290f 100644
+--- a/node_modules/@yarnpkg/extensions/package.json
++++ b/node_modules/@yarnpkg/extensions/package.json
+@@ -7,9 +7,6 @@
+     ".": "./lib/index.js",
+     "./package.json": "./package.json"
+   },
+-  "peerDependencies": {
+-    "@yarnpkg/core": "^4.0.5"
+-  },
+   "devDependencies": {
+     "@yarnpkg/core": "^4.0.5"
+   },

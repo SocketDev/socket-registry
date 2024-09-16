@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import builtinBufferExports, { Buffer } from 'node:buffer'
-declare interface SaferBufferModuleExports
-  extends Omit<typeof builtinBufferExports, 'BufferSlow'> {
+declare interface SaferBuffer
+  extends Omit<typeof builtinBufferExports, 'Buffer' | 'BufferSlow'> {
   Buffer: Omit<typeof Buffer, 'allocUnsafe' | 'allocUnsafeSlow'>
 }
-export = SaferBufferModuleExports
+export = SaferBuffer
