@@ -106,7 +106,13 @@ const lowerToCamelCase = Object.freeze(
 const packageExtensions = [
   ...yarnPackageExtensions,
   [
-    'abab@>=2.0.6',
+    '@yarnpkg/extensions@>=1.1.0',
+    {
+      peerDependencies: undefined
+    }
+  ],
+  [
+    'abab@>=2.0.0',
     {
       devDependencies: {
         webpack: '^3.12.0'
@@ -114,7 +120,7 @@ const packageExtensions = [
     }
   ],
   [
-    'is-generator-function@>=1.0.10',
+    'is-generator-function@>=1.0.7',
     {
       scripts: {
         'test:uglified': ''

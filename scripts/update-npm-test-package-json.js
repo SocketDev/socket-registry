@@ -1,6 +1,8 @@
+#!/usr/bin/env node
 'use strict'
 
 const path = require('node:path')
+const { parseArgs } = require('node:util')
 
 const fs = require('fs-extra')
 
@@ -32,6 +34,15 @@ const {
   isNonEmptyString,
   localCompare
 } = require('@socketregistry/scripts/utils/strings')
+
+const { values: cliArgs } = parseArgs({
+  options: {
+    force: {
+      type: 'boolean',
+      short: 'f'
+    }
+  }
+})
 
 const rootPath = path.resolve(__dirname, '..')
 const npmExecPath = which.sync('npm')
@@ -101,6 +112,14 @@ const testScripts = [
 ]
 
 ;(async () => {
+  const workspaceExists = fs.existsSync(workspacePath)
+  const nmExists = fs.existsSync(nmPath)
+
+  // Exit early if nothing to do.
+  if (workspaceExists && nmExists && !cliArgs.force) {
+    return
+  }
+
   const packageNames = (
     await tinyGlob(['*/'], {
       cwd: npmPackagesPath,
@@ -124,14 +143,17 @@ const testScripts = [
   // We will add them back at the end.
   if (Array.isArray(testNpmPkgJsonRaw.workspaces)) {
     initializeNodeModules = true
+    // Properties with undefined values are omitted when saved as JSON.
     testNpmPkgJsonRaw.workspaces = undefined
     await fs.writeJson(testNpmPkgJsonPath, testNpmPkgJsonRaw, { spaces: 2 })
     testNpmPkgJsonRaw = await fs.readJson(testNpmPkgJsonPath)
   }
-  if (fs.existsSync(workspacePath)) {
-    initializeNodeModules = true
+
+  initializeNodeModules = !nmExists
+  if (workspaceExists) {
+    // Avoid a symlink rabbit hole that ends up accidentally updating
+    // packages/npm/**/package.json files.
     await fs.move(workspacePath, nmPath, { overwrite: true })
-  } else if (!fs.existsSync(nmPath)) {
     initializeNodeModules = true
   }
 
@@ -296,11 +318,7 @@ const testScripts = [
         const nmPkgPath = path.join(nmPath, pkgName)
         const nmPkgJsonPath = path.join(nmPkgPath, PACKAGE_JSON)
         const nmPkgJson = await readCachedPackageJson(nmPkgJsonPath)
-        const {
-          dependencies: nmPkgDeps,
-          overrides: nmPkgOverrides,
-          resolutions: nmPkgResolutions
-        } = nmPkgJson
+        const { dependencies: nmPkgDeps } = nmPkgJson
         const pkgJson = await readPackageJson(pkgPath)
 
         // Cleanup package scripts

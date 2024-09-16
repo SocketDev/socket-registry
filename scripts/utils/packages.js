@@ -1,5 +1,6 @@
 'use strict'
 
+const EditablePackageJson = require('@npmcli/package-json')
 const normalizePackageData = require('normalize-package-data')
 const npmPackageArg = require('npm-package-arg')
 const semver = require('semver')
@@ -82,9 +83,16 @@ function parsePackageSpec(pkgName, pkgSpec, where) {
   return npmPackageArg.resolve(pkgName, pkgSpec, where)
 }
 
+function toEditablePackageJson(pkgJson, pkgJsonPath) {
+  return pkgJsonPath
+    ? EditablePackageJson.create(pkgJsonPath, { data: pkgJson })
+    : new EditablePackageJson().fromContent(pkgJson)
+}
+
 module.exports = {
   createPackageJson,
   findPackageExtensions,
   normalizePackageJson,
-  parsePackageSpec
+  parsePackageSpec,
+  toEditablePackageJson
 }
