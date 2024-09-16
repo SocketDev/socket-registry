@@ -12,7 +12,7 @@
     "url": "https://socket.dev"
   },
   "scripts": {
-    "check": "run-p -c --aggregate-output check:*",
+    "check": "run-p --continue-on-error --aggregate-output check:*",
     "check:lint": "eslint --report-unused-disable-directives .",
     "check:tsc": "tsc",
     "clean-node_modules": "del-cli 'test/**/node_modules' 'node_modules'",
@@ -26,11 +26,13 @@
     "test:unit": "tap",
     "test-ci": "run-s test:*",
     "make:npm-package": "node ./scripts/make-npm-package.js",
-    "update": "run-p -c --aggregate-output update:*",
+    "update": "run-p --continue-on-error --aggregate-output update:*",
     "update:empty-files": "node ./scripts/update-empty-files.js",
     "update:license": "node ./scripts/update-license.js",
     "update:manifest": "node ./scripts/update-manifest.js",
+    "update:package-lock": "node ./scripts/update-package-lock.js",
     "update:workspaces": "node ./scripts/update-workspaces.js",
+    "update:npm": "run-s --continue-on-error update:npm:*",
     "update:npm:package-json": "node ./scripts/update-npm-package-json.js",
     "update:npm:test-package-json": "node ./scripts/update-npm-test-package-json.js"
   },
