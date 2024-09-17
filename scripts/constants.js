@@ -3,14 +3,53 @@
 const path = require('node:path')
 
 const { includeIgnoreFile } = require('@eslint/compat')
-const {
-  packageExtensions: yarnPackageExtensions
-} = require('@yarnpkg/extensions')
+const { packageExtensions: yarnPkgExts } = require('@yarnpkg/extensions')
+const browserslist = require('browserslist')
+const semver = require('semver')
+const { naturalSort } = require('./utils/sorts')
 
 const { compare: localCompare } = new Intl.Collator()
 
 const rootPath = path.resolve(__dirname, '..')
 const gitignorePath = path.resolve(rootPath, '.gitignore')
+
+const MAINTAINED_NODE_VERSIONS = (() => {
+  const query = naturalSort(
+    browserslist('maintained node versions')
+      // Trim value, e.g. 'node 22.5.0' to '22.5.0'.
+      .map(s => s.slice(5))
+  ).desc()
+  // Under the hood browserlist uses node-releases which is a bit behind:
+  // https://github.com/chicoxyzzy/node-releases/issues/37
+  // So we maintain a manual version list for now.
+  const manualNext = '22.8.0'
+  const manualCurr = '20.17.0'
+  const manualPrev = '18.20.4'
+
+  const queryNext = query.at(0)
+  const queryCurr = query.at(1)
+  const queryPrev = query.at(-1)
+
+  const next = semver.maxSatisfying(
+    [queryNext, manualNext],
+    `^${semver.major(queryNext)}`
+  )
+  const curr = semver.maxSatisfying(
+    [queryCurr, manualCurr],
+    `^${semver.major(queryCurr)}`
+  )
+  const prev = semver.maxSatisfying(
+    [queryPrev, manualPrev],
+    `^${semver.major(queryPrev)}`
+  )
+
+  return new Map([
+    ['next', next],
+    ['current', curr],
+    ['previous', prev],
+    ...[next, curr, prev].map(v => [semver.major(v), v])
+  ])
+})()
 
 const EMPTY_FILE = '/* empty */\n'
 const LICENSE = 'LICENSE'
@@ -98,7 +137,7 @@ const lowerToCamelCase = new Map(
 )
 
 const packageExtensions = [
-  ...yarnPackageExtensions,
+  ...yarnPkgExts,
   [
     '@yarnpkg/extensions@>=1.1.0',
     {
@@ -155,6 +194,7 @@ const tsLibs = new Set([
 module.exports = {
   EMPTY_FILE,
   LICENSE,
+  MAINTAINED_NODE_VERSIONS,
   MIT,
   NODE_MODULES,
   NODE_WORKSPACE,

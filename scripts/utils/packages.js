@@ -1,23 +1,29 @@
 'use strict'
 
+const path = require('node:path')
+
 const EditablePackageJson = require('@npmcli/package-json')
 const normalizePackageData = require('normalize-package-data')
 const npmPackageArg = require('npm-package-arg')
 const semver = require('semver')
 
 const {
+  MAINTAINED_NODE_VERSIONS,
   MIT,
   NPM_SCOPE,
   REPO_ORG,
   REPO_NAME,
   VERSION,
-  packageExtensions
+  packageExtensions,
+  PACKAGE_JSON
 } = require('@socketregistry/scripts/constants')
 const {
   isObjectObject,
   merge
 } = require('@socketregistry/scripts/utils/objects')
 const { escapeRegExp } = require('@socketregistry/scripts/utils/regexps')
+
+const nodeVerPrev = MAINTAINED_NODE_VERSIONS.get('previous')
 
 function createPackageJson(pkgName, directory, options = {}) {
   const {
@@ -32,6 +38,7 @@ function createPackageJson(pkgName, directory, options = {}) {
     version = VERSION
   } = options
   const name = `${NPM_SCOPE}/${pkgName.replace(new RegExp(`^${escapeRegExp(NPM_SCOPE)}/`), '')}`
+  const nodeRange = `>=${nodeVerPrev}`
   return {
     name,
     version,
@@ -47,8 +54,20 @@ function createPackageJson(pkgName, directory, options = {}) {
     ...(isObjectObject(dependencies) ? { dependencies } : {}),
     ...(isObjectObject(overrides) ? { overrides, resolutions: overrides } : {}),
     ...(isObjectObject(engines)
-      ? { engines }
-      : { engines: { node: '>=18.20.4' } }),
+      ? {
+          engines: Object.fromEntries(
+            Object.entries(engines).map(pair => {
+              if (pair[0] === 'node') {
+                const { 1: range } = pair
+                if (!semver.satisfies(semver.coerce(range), nodeRange)) {
+                  pair[1] = nodeRange
+                }
+              }
+              return pair
+            })
+          )
+        }
+      : { engines: { node: nodeRange } }),
     files: Array.isArray(files) ? files : ['*.d.ts', '*.js'],
     ...(isObjectObject(socket)
       ? { socket }
@@ -85,9 +104,28 @@ function parsePackageSpec(pkgName, pkgSpec, where) {
   return npmPackageArg.resolve(pkgName, pkgSpec, where)
 }
 
-function toEditablePackageJson(pkgJson, pkgJsonPath) {
+async function toEditablePackageJson(pkgJson, pkgJsonPath) {
   return pkgJsonPath
-    ? EditablePackageJson.create(pkgJsonPath, { data: pkgJson })
+    ? (
+        await EditablePackageJson.load(
+          path.basename(pkgJsonPath) === PACKAGE_JSON
+            ? path.dirname(pkgJsonPath)
+            : pkgJsonPath,
+          { create: true }
+        )
+      ).update(pkgJson)
+    : new EditablePackageJson().fromContent(pkgJson)
+}
+
+function toEditablePackageJsonSync(pkgJson, pkgJsonPath) {
+  return pkgJsonPath
+    ? new EditablePackageJson()
+        .create(
+          path.basename(pkgJsonPath) === PACKAGE_JSON
+            ? path.dirname(pkgJsonPath)
+            : pkgJsonPath
+        )
+        .update(pkgJson)
     : new EditablePackageJson().fromContent(pkgJson)
 }
 
@@ -96,5 +134,6 @@ module.exports = {
   findPackageExtensions,
   normalizePackageJson,
   parsePackageSpec,
-  toEditablePackageJson
+  toEditablePackageJson,
+  toEditablePackageJsonSync
 }

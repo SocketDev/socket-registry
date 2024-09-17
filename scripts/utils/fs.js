@@ -5,19 +5,17 @@ const path = require('node:path')
 const fs = require('fs-extra')
 
 const { PACKAGE_JSON } = require('@socketregistry/scripts/constants')
-const { normalizePackageJson, toEditablePackageJson } = require('./packages')
+const {
+  normalizePackageJson,
+  toEditablePackageJson,
+  toEditablePackageJsonSync
+} = require('./packages')
 
 function isSymbolicLinkSync(filepath) {
   try {
     return fs.lstatSync(filepath).isSymbolicLink()
   } catch {}
   return false
-}
-
-function innerReadPackageJson(filepath, pkgJson, options) {
-  return options?.editable
-    ? toEditablePackageJson(pkgJson, filepath)
-    : normalizePackageJson(pkgJson)
 }
 
 function normalizePackageJsonPath(filepath) {
@@ -28,12 +26,18 @@ function normalizePackageJsonPath(filepath) {
 
 async function readPackageJson(filepath, options = {}) {
   const jsonPath = normalizePackageJsonPath(filepath)
-  return innerReadPackageJson(jsonPath, await fs.readJson(jsonPath), options)
+  const pkgJson = await fs.readJson(jsonPath)
+  return options?.editable
+    ? await toEditablePackageJson(pkgJson, filepath)
+    : normalizePackageJson(pkgJson)
 }
 
 function readPackageJsonSync(filepath, options = {}) {
   const jsonPath = normalizePackageJsonPath(filepath)
-  return innerReadPackageJson(jsonPath, fs.readJsonSync(jsonPath), options)
+  const pkgJson = fs.readJsonSync(jsonPath)
+  return options?.editable
+    ? toEditablePackageJsonSync(pkgJson, filepath)
+    : normalizePackageJson(pkgJson)
 }
 
 module.exports = {

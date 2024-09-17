@@ -386,7 +386,7 @@
     ],
     [
       "pkg:npm/%40socketregistry/object.hasown@1.0.0",
-      { "category": "cleanup", "engines": { "node": ">=18.0.0" } }
+      { "category": "cleanup", "engines": { "node": ">=18.20.4" } }
     ],
     [
       "pkg:npm/%40socketregistry/object.values@1.0.0",
