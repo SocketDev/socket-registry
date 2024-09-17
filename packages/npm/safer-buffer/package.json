@@ -9,6 +9,9 @@
   },
   "main": "./safer.js",
   "sideEffects": false,
+  "engines": {
+    "node": ">=18.20.4"
+  },
   "files": [
     "*.d.ts",
     "*.js"

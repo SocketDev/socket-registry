@@ -10,7 +10,7 @@
   "main": "./index.js",
   "sideEffects": false,
   "engines": {
-    "node": ">=21.0.0"
+    "node": ">=21.7.3"
   },
   "files": [
     "*.d.ts",

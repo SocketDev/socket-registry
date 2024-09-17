@@ -1,3 +1,3 @@
 'use strict'
 
-module.exports = require('util/types').isMap
+module.exports = require('node:util/types').isMap

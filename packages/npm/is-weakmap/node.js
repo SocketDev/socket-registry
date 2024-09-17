@@ -1,3 +1,3 @@
 'use strict'
 
-module.exports = require('util/types').isWeakMap
+module.exports = require('node:util/types').isWeakMap

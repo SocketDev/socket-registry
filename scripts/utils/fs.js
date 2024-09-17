@@ -14,7 +14,7 @@ function isSymbolicLinkSync(filepath) {
   return false
 }
 
-function innerReadPackageJson(pkgJson, options) {
+function innerReadPackageJson(filepath, pkgJson, options) {
   return options?.editable
     ? toEditablePackageJson(pkgJson, filepath)
     : normalizePackageJson(pkgJson)
@@ -27,17 +27,13 @@ function normalizePackageJsonPath(filepath) {
 }
 
 async function readPackageJson(filepath, options = {}) {
-  return innerReadPackageJson(
-    await fs.readJson(normalizePackageJsonPath(filepath)),
-    options
-  )
+  const jsonPath = normalizePackageJsonPath(filepath)
+  return innerReadPackageJson(jsonPath, await fs.readJson(jsonPath), options)
 }
 
 function readPackageJsonSync(filepath, options = {}) {
-  return innerReadPackageJson(
-    fs.readJsonSync(normalizePackageJsonPath(filepath)),
-    options
-  )
+  const jsonPath = normalizePackageJsonPath(filepath)
+  return innerReadPackageJson(jsonPath, fs.readJsonSync(jsonPath), options)
 }
 
 module.exports = {

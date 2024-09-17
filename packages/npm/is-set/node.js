@@ -1,3 +1,3 @@
 'use strict'
 
-module.exports = require('util/types').isSet
+module.exports = require('node:util/types').isSet

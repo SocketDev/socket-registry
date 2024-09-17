@@ -3,15 +3,22 @@
 const path = require('node:path')
 
 const { includeIgnoreFile } = require('@eslint/compat')
+const js = require('@eslint/js')
+const nodePlugin = require('eslint-plugin-n')
 const tsEslint = require('typescript-eslint')
 const tsParser = require('@typescript-eslint/parser')
 
-const gitignorePath = path.resolve(__dirname, '.gitignore')
-const prettierignorePath = path.resolve(__dirname, '.prettierignore')
+const rootPath = __dirname
+const gitignorePath = path.resolve(rootPath, '.gitignore')
+const prettierignorePath = path.resolve(rootPath, '.prettierignore')
+const {
+  engines: { node: nodeRange }
+} = require('./package.json')
 
 module.exports = [
   includeIgnoreFile(gitignorePath),
   includeIgnoreFile(prettierignorePath),
+  nodePlugin.configs['flat/recommended-script'],
   {
     files: ['packages/**/*.ts', 'test/**/*.ts'],
     languageOptions: {
@@ -54,6 +61,15 @@ module.exports = [
   {
     files: ['packages/**/*.js', 'scripts/**/*.js'],
     rules: {
+      ...js.configs.recommended.rules,
+      'n/exports-style': ['error', 'module.exports'],
+      'n/no-unsupported-features/node-builtins': [
+        'error',
+        { ignores: ['buffer.resolveObjectURL', 'fetch'], version: nodeRange }
+      ],
+      'n/prefer-node-protocol': ['error'],
+      'no-empty': ['error', { allowEmptyCatch: true }],
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       'no-warning-comments': ['error']
     }
   }

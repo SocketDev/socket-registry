@@ -30,7 +30,8 @@
     /* Additional checks */
     "importsNotUsedAsValues": "remove",
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "noUncheckedSideEffectImports": true
   },
   "include": ["packages/**/*.ts", "test/**/*.ts"],
   "exclude": ["test/**/node_workspace/**/*"]

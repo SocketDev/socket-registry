@@ -10,7 +10,7 @@
   "main": "./index.json",
   "sideEffects": false,
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22.8.0"
   },
   "files": [
     "**/*.d.ts",

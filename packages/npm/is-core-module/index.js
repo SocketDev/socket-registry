@@ -1,3 +1,3 @@
 'use strict'
 
-module.exports = require('module').isBuiltin
+module.exports = require('node:module').isBuiltin

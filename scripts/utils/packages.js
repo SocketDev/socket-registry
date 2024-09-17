@@ -46,7 +46,9 @@ function createPackageJson(pkgName, directory, options = {}) {
     sideEffects: sideEffects !== undefined && !!sideEffects,
     ...(isObjectObject(dependencies) ? { dependencies } : {}),
     ...(isObjectObject(overrides) ? { overrides, resolutions: overrides } : {}),
-    ...(isObjectObject(engines) ? { engines } : {}),
+    ...(isObjectObject(engines)
+      ? { engines }
+      : { engines: { node: '>=18.20.4' } }),
     files: Array.isArray(files) ? files : ['*.d.ts', '*.js'],
     ...(isObjectObject(socket)
       ? { socket }

@@ -9,6 +9,9 @@
   },
   "main": "./index.js",
   "sideEffects": false,
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "files": [
     "*.d.ts",
     "*.js"

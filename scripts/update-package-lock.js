@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 'use strict'
 
 const path = require('node:path')
@@ -30,7 +29,7 @@ async function modifyRootPkgLock() {
     if (lockEntry?.peerDependencies) {
       // Properties with undefined values are omitted when saved as JSON.
       lockEntry.peerDependencies = undefined
-      //await fs.writeJson(rootPkgLockPath, pkgLockJson, { spaces: 2 })
+      await fs.writeJson(rootPkgLockPath, rootPkgLockJson, { spaces: 2 })
       return true
     }
   }

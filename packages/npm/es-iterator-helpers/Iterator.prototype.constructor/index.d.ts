@@ -1,2 +1,2 @@
-import Impl from '../Iterator'
+import Impl from '../Iterator/index'
 export = Impl

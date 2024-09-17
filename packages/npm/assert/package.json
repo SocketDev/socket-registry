@@ -36,6 +36,9 @@
     "util": "npm:util@0.12.5",
     "which-typed-array": "npm:@socketregistry/which-typed-array@^1"
   },
+  "engines": {
+    "node": ">=18.20.4"
+  },
   "files": [
     "*.d.ts",
     "**/*.js"
