@@ -60,7 +60,7 @@ const lifecycleScriptNames = new Set(
   ].flat()
 )
 
-const lowerToCamelCase = Object.freeze(
+const lowerToCamelCase = new Map(
   [
     'AggregateError',
     'allSettled',
@@ -94,13 +94,7 @@ const lowerToCamelCase = Object.freeze(
     'TypedArray'
   ]
     .sort(localCompare)
-    .reduce(
-      (o, v) => {
-        o[v.toLowerCase()] = v
-        return o
-      },
-      { __proto__: null }
-    )
+    .map(v => [v.toLowerCase(), v])
 )
 
 const packageExtensions = [
@@ -108,6 +102,7 @@ const packageExtensions = [
   [
     '@yarnpkg/extensions@>=1.1.0',
     {
+      // Properties with undefined values are omitted when saved as JSON.
       peerDependencies: undefined
     }
   ],
@@ -115,6 +110,7 @@ const packageExtensions = [
     'abab@>=2.0.0',
     {
       devDependencies: {
+        // Lower the Webpack from v4.x to one supported by abab's peers.
         webpack: '^3.12.0'
       }
     }
@@ -123,6 +119,7 @@ const packageExtensions = [
     'is-generator-function@>=1.0.7',
     {
       scripts: {
+        // Make the script a silent no-op.
         'test:uglified': ''
       }
     }
@@ -133,6 +130,26 @@ const packageExtensions = [
     b[0].slice(0, b[0].lastIndexOf('@'))
   )
 )
+
+const tsLibs = new Set([
+  'decorators',
+  'dom',
+  'es5',
+  'es6',
+  'es2015',
+  'es2016',
+  'es2017',
+  'es2018',
+  'es2019',
+  'es2020',
+  'es2021',
+  'es2022',
+  'es2023',
+  'es2024',
+  'esnext',
+  'scripthost',
+  'webworker'
+])
 
 module.exports = {
   EMPTY_FILE,
@@ -152,5 +169,6 @@ module.exports = {
   ignores,
   lifecycleScriptNames,
   lowerToCamelCase,
-  packageExtensions
+  packageExtensions,
+  tsLibs
 }

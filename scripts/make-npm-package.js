@@ -5,34 +5,17 @@ const path = require('node:path')
 
 const fs = require('fs-extra')
 const { default: confirm } = require('@inquirer/confirm')
+const { default: didYouMean, ReturnTypeEnums } = require('didyoumean2')
 const { default: input } = require('@inquirer/input')
 const { default: select } = require('@inquirer/select')
+const { default: search } = require('@inquirer/search')
 const { glob: tinyGlob } = require('tinyglobby')
 const validateNpmPackageName = require('validate-npm-package-name')
-const { PACKAGE_JSON } = require('./constants')
+const { PACKAGE_JSON, tsLibs } = require('./constants')
 
 const rootPath = path.resolve(__dirname, '..')
 const npmPackagesPath = path.join(rootPath, 'packages/npm')
 const npmTemplatesPath = path.join(__dirname, 'templates/npm')
-
-const validEsReferences = new Set([
-  'dom',
-  'decorators',
-  'es5',
-  'es6',
-  'es2015',
-  'es2016',
-  'es2017',
-  'es2018',
-  'es2019',
-  'es2020',
-  'es2021',
-  'es2022',
-  'es2023',
-  'es2024',
-  'esnext',
-  'webworker'
-])
 
 const templates = Object.fromEntries(
   [
@@ -55,11 +38,11 @@ function modifyContent(content, data = {}) {
 
 ;(async () => {
   const pkgName = await input({
-    message: 'Enter package name',
+    message: 'Give the package a name',
     validate: value => validateNpmPackageName(value).validForNewPackages
   })
   const templateChoice = await select({
-    message: 'Choose a package template',
+    message: `Choose ${pkgName}'s template`,
     choices: [
       { name: 'default', value: 'default' },
       {
@@ -71,49 +54,68 @@ function modifyContent(content, data = {}) {
       { name: 'node plus browser', value: 'node-plus-browser' }
     ]
   })
-
-  const srcPath = templates[templateChoice]
-  const destPath = path.join(npmPackagesPath, pkgName)
-  await fs.copy(srcPath, destPath)
-
   let ts_lib
   if (templateChoice.startsWith('es-shim')) {
+    const availableTsLibs = [...tsLibs]
+    const maxTsLibLength = availableTsLibs.reduce(
+      (n, v) => Math.max(n, v.length),
+      0
+    )
     if (
       await confirm({
-        message: 'Does this require a lib reference?',
+        message: `Does ${pkgName} need a TypeScript lib?`,
         default: false
       })
     ) {
-      ts_lib = await input({
-        message: 'Enter lib reference (e.g. es2024)',
-        transformer: value => value.toLowerCase(),
-        validate: value => validEsReferences.has(value.toLowerCase())
+      ts_lib = await search({
+        message: 'Which one?',
+        source: async input => {
+          if (!input) return []
+          const truncated = input.slice(0, maxTsLibLength)
+          return didYouMean(truncated, availableTsLibs, {
+            deburr: false,
+            returnType: ReturnTypeEnums.ALL_SORTED_MATCHES,
+            threshold: 0.3
+          }).map(l => ({ name: l, value: l }))
+        }
       })
     }
   }
+  const srcPath = templates[templateChoice]
+  const destPath = path.join(npmPackagesPath, pkgName)
+  const pkgJsonPath = path.join(destPath, PACKAGE_JSON)
+
+  await fs.copy(srcPath, destPath)
+
+  const actions = []
   if (ts_lib) {
-    const tsData = {
-      ts_lib
-    }
     const tsFiles = await tinyGlob(['**/*.ts'], {
       absolute: true,
       cwd: destPath
     })
+    const tsData = {
+      ts_lib
+    }
     for (const filepath of tsFiles) {
-      const content = await fs.readFile(filepath, 'utf8')
-      await fs.writeFile(filepath, modifyContent(content, tsData), 'utf8')
+      actions.push([filepath, tsData])
     }
   }
-
   const pkgJsonData = {
     name: pkgName,
     category: 'cleanup'
   }
-  const pkgJsonPath = path.join(destPath, PACKAGE_JSON)
-  const pkgJsonStr = await fs.readFile(pkgJsonPath, 'utf8')
-  await fs.writeFile(
-    pkgJsonPath,
-    modifyContent(pkgJsonStr, pkgJsonData),
-    'utf8'
+  actions.push([pkgJsonPath, pkgJsonData])
+
+  await Promise.all(
+    actions.map(
+      async ({ 0: filepath, 1: data }) =>
+        await fs.writeFile(
+          filepath,
+          modifyContent(await fs.readFile(filepath, 'utf8'), data),
+          'utf8'
+        )
+    )
   )
+
+  console.log('All done 🎉')
 })()
