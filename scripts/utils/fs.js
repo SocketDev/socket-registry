@@ -14,17 +14,34 @@ function isSymbolicLinkSync(filepath) {
   return false
 }
 
-async function readPackageJson(filepath_, options = {}) {
-  const filepath = filepath_.endsWith(PACKAGE_JSON)
-    ? filepath_
-    : path.join(filepath_, PACKAGE_JSON)
-  const pkgJson = await fs.readJson(filepath)
+function innerReadPackageJson(pkgJson, options) {
   return options?.editable
     ? toEditablePackageJson(pkgJson, filepath)
     : normalizePackageJson(pkgJson)
 }
 
+function normalizePackageJsonPath(filepath) {
+  return filepath.endsWith(PACKAGE_JSON)
+    ? filepath
+    : path.join(filepath, PACKAGE_JSON)
+}
+
+async function readPackageJson(filepath, options = {}) {
+  return innerReadPackageJson(
+    await fs.readJson(normalizePackageJsonPath(filepath)),
+    options
+  )
+}
+
+function readPackageJsonSync(filepath, options = {}) {
+  return innerReadPackageJson(
+    fs.readJsonSync(normalizePackageJsonPath(filepath)),
+    options
+  )
+}
+
 module.exports = {
   isSymbolicLinkSync,
-  readPackageJson
+  readPackageJson,
+  readPackageJsonSync
 }

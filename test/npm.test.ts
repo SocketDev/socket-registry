@@ -10,7 +10,7 @@ import which from 'which'
 // @ts-ignore
 import { NODE_WORKSPACE, NODE_VERSION } from '@socketregistry/scripts/constants'
 // @ts-ignore
-import { readPackageJson } from '@socketregistry/scripts/utils/fs'
+import { readPackageJsonSync } from '@socketregistry/scripts/utils/fs'
 // @ts-ignore
 import { trimTrailingSlash } from '@socketregistry/scripts/utils/path'
 import {
@@ -41,7 +41,7 @@ const skippedPackages = [
   'safer-buffer'
 ]
 
-describe('Package tests against their own unit tests', async () => {
+describe('Package runs against their own unit tests', async () => {
   const packageNames = <string[]>(
     await tinyGlob(['*/'], {
       cwd: workspacePath,
@@ -52,16 +52,17 @@ describe('Package tests against their own unit tests', async () => {
     .map(trimTrailingSlash)
     .filter((n: any) => !skippedPackages.includes(n))
     .sort(localCompare)
+
   for (const pkgName of packageNames) {
     const wsPkgPath = path.join(workspacePath, pkgName)
-    const wsPkgJson = await readPackageJson(wsPkgPath)
+    const wsPkgJson = readPackageJsonSync(wsPkgPath)
     const nodeRange = wsPkgJson?.engines?.node
     const skip =
       !wsPkgJson.scripts.test ||
       (isNonEmptyString(nodeRange) &&
         !semver.satisfies(NODE_VERSION, nodeRange))
 
-    it(`${pkgName} should pass all its unit tests`, { skip }, async () => {
+    it(`${pkgName} should pass all its unit tests`, { skip }, () => {
       assert.doesNotReject(
         spawn(execPath, [runScriptExecPath, 'test'], {
           cwd: wsPkgPath
