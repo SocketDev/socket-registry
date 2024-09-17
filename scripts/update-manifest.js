@@ -10,7 +10,7 @@ const { glob: tinyGlob } = require('tinyglobby')
 
 const { trimTrailingSlash } = require('@socketregistry/scripts/utils/path')
 const { readPackageJson } = require('@socketregistry/scripts/utils/fs')
-const { localCompare } = require('@socketregistry/scripts/utils/strings')
+const { localCompare } = require('@socketregistry/scripts/utils/sorts')
 
 const rootPath = path.resolve(__dirname, '..')
 const rootPackagesPath = path.join(rootPath, 'packages')

@@ -2,8 +2,6 @@
 
 const { EMPTY_FILE } = require('@socketregistry/scripts/constants')
 
-const { compare: localCompare } = new Intl.Collator()
-
 function capitalize(str) {
   const { length } = str
   if (length === 0) return str
@@ -23,6 +21,5 @@ function isNonEmptyString(value) {
 module.exports = {
   capitalize,
   formatJsSrc,
-  isNonEmptyString,
-  localCompare
+  isNonEmptyString
 }

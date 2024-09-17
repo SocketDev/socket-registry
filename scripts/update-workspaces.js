@@ -8,7 +8,7 @@ const { glob: tinyGlob } = require('tinyglobby')
 
 const { PACKAGE_JSON } = require('@socketregistry/scripts/constants')
 const { trimTrailingSlash } = require('@socketregistry/scripts/utils/path')
-const { localCompare } = require('@socketregistry/scripts/utils/strings')
+const { localCompare } = require('@socketregistry/scripts/utils/sorts')
 
 const rootPath = path.resolve(__dirname, '..')
 const rootJsonPath = path.join(rootPath, PACKAGE_JSON)

@@ -24,11 +24,10 @@ import {
   trimTrailingSlash
   // @ts-ignore
 } from '@socketregistry/scripts/utils/path'
-import {
-  isNonEmptyString,
-  localCompare
-  // @ts-ignore
-} from '@socketregistry/scripts/utils/strings'
+// @ts-ignore
+import { localCompare } from '@socketregistry/scripts/utils/sorts'
+// @ts-ignore
+import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
 
 const extJs = '.js'
 const extDts = '.d.ts'

@@ -10,7 +10,7 @@ const { PACKAGE_JSON } = require('@socketregistry/scripts/constants')
 const { readPackageJson } = require('@socketregistry/scripts/utils/fs')
 const { createPackageJson } = require('@socketregistry/scripts/utils/packages')
 const { trimTrailingSlash } = require('@socketregistry/scripts/utils/path')
-const { localCompare } = require('@socketregistry/scripts/utils/strings')
+const { localCompare } = require('@socketregistry/scripts/utils/sorts')
 
 const rootPath = path.resolve(__dirname, '..')
 const npmPackagesPath = path.join(rootPath, 'packages/npm')

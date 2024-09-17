@@ -12,6 +12,7 @@ const { default: search } = require('@inquirer/search')
 const { glob: tinyGlob } = require('tinyglobby')
 const validateNpmPackageName = require('validate-npm-package-name')
 const { PACKAGE_JSON, tsLibs } = require('./constants')
+const { naturalSort } = require('./utils/sorts')
 
 const rootPath = path.resolve(__dirname, '..')
 const npmPackagesPath = path.join(rootPath, 'packages/npm')
@@ -71,12 +72,31 @@ function modifyContent(content, data = {}) {
         message: 'Which one?',
         source: async input => {
           if (!input) return []
-          const truncated = input.slice(0, maxTsLibLength)
-          return didYouMean(truncated, availableTsLibs, {
-            deburr: false,
-            returnType: ReturnTypeEnums.ALL_SORTED_MATCHES,
-            threshold: 0.3
-          }).map(l => ({ name: l, value: l }))
+          // Trim, truncate, and lower input.
+          const formatted = input.trim().slice(0, maxTsLibLength).toLowerCase()
+          if (!formatted) return []
+          let matches
+          // Simple search.
+          for (const p of ['es2', 'es', 'e', 'de', 'd', 'w']) {
+            if (input.startsWith(p) && input.length <= 3) {
+              matches = availableTsLibs.filter(l => l.startsWith(p))
+              break
+            }
+          }
+          if (matches === undefined) {
+            // Advanced closest match search.
+            matches = didYouMean(formatted, availableTsLibs, {
+              caseSensitive: true,
+              deburr: false,
+              returnType: ReturnTypeEnums.ALL_CLOSEST_MATCHES,
+              threshold: 0.2
+            })
+          }
+          const sorted =
+            matches.length > 1
+              ? [matches[0], ...naturalSort(matches.slice(1)).desc()]
+              : matches
+          return sorted.map(l => ({ name: l, value: l }))
         }
       })
     }

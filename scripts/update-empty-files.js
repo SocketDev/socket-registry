@@ -7,7 +7,7 @@ const fs = require('fs-extra')
 const { glob: tinyGlob } = require('tinyglobby')
 
 const { EMPTY_FILE, ignores } = require('@socketregistry/scripts/constants')
-const { localCompare } = require('@socketregistry/scripts/utils/strings')
+const { localCompare } = require('@socketregistry/scripts/utils/sorts')
 
 const rootPath = path.resolve(__dirname, '..')
 const npmTemplatesPath = path.join(__dirname, 'templates/npm')

@@ -30,10 +30,8 @@ const {
   trimTrailingSlash,
   trimLeadingDotSlash
 } = require('@socketregistry/scripts/utils/path')
-const {
-  isNonEmptyString,
-  localCompare
-} = require('@socketregistry/scripts/utils/strings')
+const { localCompare } = require('@socketregistry/scripts/utils/sorts')
+const { isNonEmptyString } = require('@socketregistry/scripts/utils/strings')
 
 const { values: cliArgs } = parseArgs({
   options: {
