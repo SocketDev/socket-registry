@@ -5,40 +5,22 @@ const path = require('node:path')
 const fs = require('fs-extra')
 const { PackageURL } = require('packageurl-js')
 const prettier = require('prettier')
-const { glob: tinyGlob } = require('tinyglobby')
 
-const { trimTrailingSlash } = require('@socketregistry/scripts/utils/path')
+const {
+  ecosystems,
+  npmPackageNames,
+  npmPackagesPath,
+  rootManifestJsonPath
+} = require('@socketregistry/scripts/constants')
 const { readPackageJson } = require('@socketregistry/scripts/utils/fs')
 const { localCompare } = require('@socketregistry/scripts/utils/sorts')
 
-const rootPath = path.resolve(__dirname, '..')
-const rootPackagesPath = path.join(rootPath, 'packages')
-
 ;(async () => {
-  const ecosystems = (
-    await tinyGlob(['*/'], {
-      cwd: rootPackagesPath,
-      onlyDirectories: true,
-      expandDirectories: false
-    })
-  )
-    .map(trimTrailingSlash)
-    .sort(localCompare)
   const manifest = {}
   for (const eco of ecosystems) {
     if (eco === 'npm') {
-      const npmPackagesPath = path.join(rootPackagesPath, eco)
-      const packageNames = (
-        await tinyGlob(['*/'], {
-          cwd: npmPackagesPath,
-          onlyDirectories: true,
-          expandDirectories: false
-        })
-      )
-        .map(trimTrailingSlash)
-        .sort(localCompare)
       const manifestData = []
-      for await (const pkgName of packageNames) {
+      for await (const pkgName of npmPackageNames) {
         const pkgPath = path.join(npmPackagesPath, pkgName)
         const { browser, engines, name, socket, version } =
           await readPackageJson(pkgPath)
@@ -68,5 +50,5 @@ const rootPackagesPath = path.join(rootPath, 'packages')
   const output = await prettier.format(JSON.stringify(manifest), {
     parser: 'json'
   })
-  await fs.writeFile(path.join(rootPath, 'manifest.json'), output, 'utf8')
+  await fs.writeFile(rootManifestJsonPath, output, 'utf8')
 })()

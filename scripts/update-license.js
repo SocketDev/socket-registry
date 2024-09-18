@@ -1,25 +1,22 @@
 'use strict'
 
-const path = require('node:path')
-
 const fs = require('fs-extra')
 const { glob: tinyGlob } = require('tinyglobby')
 
-const { LICENSE, ignores } = require('@socketregistry/scripts/constants')
-const { localCompare } = require('@socketregistry/scripts/utils/sorts')
-
-const rootPath = path.resolve(__dirname, '..')
+const {
+  LICENSE,
+  LICENSE_CONTENT,
+  LICENSE_GLOB_PATTERN,
+  ignores,
+  rootPath
+} = require('@socketregistry/scripts/constants')
 
 ;(async () => {
-  const licenseContent = await fs.readFile(path.join(rootPath, LICENSE), 'utf8')
-  const licenseFiles = (
-    await tinyGlob([`**/${LICENSE}`], {
-      ignore: [LICENSE, ...ignores],
-      absolute: true,
-      cwd: rootPath
-    })
-  ).sort(localCompare)
-  for (const licensePath of licenseFiles) {
-    await fs.writeFile(licensePath, licenseContent, 'utf8')
+  for (const licensePath of await tinyGlob([`**/${LICENSE_GLOB_PATTERN}`], {
+    ignore: [LICENSE, ...ignores],
+    absolute: true,
+    cwd: rootPath
+  })) {
+    await fs.writeFile(licensePath, LICENSE_CONTENT, 'utf8')
   }
 })()

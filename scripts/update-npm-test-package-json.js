@@ -3,33 +3,35 @@
 const path = require('node:path')
 const { parseArgs } = require('node:util')
 
-const fs = require('fs-extra')
-
 const spawn = require('@npmcli/promise-spawn')
+const fs = require('fs-extra')
 const { glob: tinyGlob } = require('tinyglobby')
-const which = require('which')
 
 const {
-  NODE_MODULES,
+  LICENSE_GLOB_PATTERN,
   NODE_WORKSPACE,
-  PACKAGE_HIDDEN_LOCK,
   PACKAGE_JSON,
-  PACKAGE_LOCK,
+  README_GLOB_PATTERN,
   ignores,
-  lifecycleScriptNames
+  lifecycleScriptNames,
+  npmExecPath,
+  npmPackageNames,
+  npmPackagesPath,
+  testNpmNodeModulesHiddenLockPath,
+  testNpmNodeModulesPath,
+  testNpmNodeWorkspacePath,
+  testNpmPath,
+  testNpmPkgJsonPath,
+  testNpmPkgLockPath
 } = require('@socketregistry/scripts/constants')
 const { arrayChunk } = require('@socketregistry/scripts/utils/arrays')
 const {
   isSymbolicLinkSync,
+  readDirNames,
   readPackageJson
 } = require('@socketregistry/scripts/utils/fs')
 const { parsePackageSpec } = require('@socketregistry/scripts/utils/packages')
-const {
-  splitPath,
-  trimTrailingSlash,
-  trimLeadingDotSlash
-} = require('@socketregistry/scripts/utils/path')
-const { localCompare } = require('@socketregistry/scripts/utils/sorts')
+const { splitPath } = require('@socketregistry/scripts/utils/path')
 const { isNonEmptyString } = require('@socketregistry/scripts/utils/strings')
 
 const { values: cliArgs } = parseArgs({
@@ -40,17 +42,6 @@ const { values: cliArgs } = parseArgs({
     }
   }
 })
-
-const rootPath = path.resolve(__dirname, '..')
-const npmExecPath = which.sync('npm')
-const npmPackagesPath = path.join(rootPath, 'packages/npm')
-const testNpmPath = path.join(rootPath, 'test/npm')
-const testNpmPkgJsonPath = path.join(testNpmPath, PACKAGE_JSON)
-const testNpmPkgLockPath = path.join(testNpmPath, PACKAGE_LOCK)
-const nmPath = path.join(testNpmPath, NODE_MODULES)
-const relNmPath = trimLeadingDotSlash(path.relative(rootPath, nmPath))
-const nmHiddenLockPath = path.join(nmPath, PACKAGE_HIDDEN_LOCK)
-const workspacePath = path.join(testNpmPath, NODE_WORKSPACE)
 
 const cleanTestScript = testScript =>
   testScript
@@ -79,7 +70,7 @@ const installTestNpmNodeModules = async pkgName => {
     args.push('--save-dev', pkgName)
   }
   await fs.remove(testNpmPkgLockPath)
-  await fs.remove(nmHiddenLockPath)
+  await fs.remove(testNpmNodeModulesHiddenLockPath)
   return await spawn(npmExecPath, args, { cwd: testNpmPath })
 }
 
@@ -109,27 +100,23 @@ const testScripts = [
 ]
 
 ;(async () => {
-  const workspaceExists = fs.existsSync(workspacePath)
-  const nmExists = fs.existsSync(nmPath)
+  const workspaceExists = fs.existsSync(testNpmNodeWorkspacePath)
+  const nmExists = fs.existsSync(testNpmNodeModulesPath)
 
   // Exit early if nothing to do.
   if (workspaceExists && nmExists && !cliArgs.force) {
     return
   }
 
-  const packageNames = (
-    await tinyGlob(['*/'], {
-      cwd: npmPackagesPath,
-      onlyDirectories: true,
-      expandDirectories: false
-    })
+  const relTestNpmNodeModulesPath = path.relative(
+    testNpmNodeModulesPath,
+    testNpmPath
   )
-    .map(trimTrailingSlash)
-    .sort(localCompare)
-  const packageNameChunks = arrayChunk(packageNames, 3)
+
+  const packageNameChunks = arrayChunk(npmPackageNames, 3)
 
   // Populate lookup for isSocketRegistryPackage.
-  for (const pkgName of packageNames) {
+  for (const pkgName of npmPackageNames) {
     socketRegistryPackageLookup.add(pkgName)
   }
 
@@ -150,13 +137,15 @@ const testScripts = [
   if (workspaceExists) {
     // Avoid a symlink rabbit hole that ends up accidentally updating
     // packages/npm/**/package.json files.
-    await fs.move(workspacePath, nmPath, { overwrite: true })
+    await fs.move(testNpmNodeWorkspacePath, testNpmNodeModulesPath, {
+      overwrite: true
+    })
     initializeNodeModules = true
   }
 
   // Initialize node_modules if missing or workspace config has changed.
   if (initializeNodeModules) {
-    console.log(`✔ Initializing ${relNmPath}`)
+    console.log(`✔ Initializing ${relTestNpmNodeModulesPath}`)
     try {
       await installTestNpmNodeModules()
       testNpmPkgJsonRaw = await fs.readJson(testNpmPkgJsonPath)
@@ -173,7 +162,7 @@ const testScripts = [
       pkgNameChunk.map(async pkgName => {
         const devDepExists =
           typeof testNpmPkgJsonRaw.devDependencies?.[pkgName] === 'string'
-        const nmPkgPath = path.join(nmPath, pkgName)
+        const nmPkgPath = path.join(testNpmNodeModulesPath, pkgName)
         const nmPkgPathExists = fs.existsSync(nmPkgPath)
         // Missing packages can occur if the script is stopped part way through
         if (!devDepExists || !nmPkgPathExists) {
@@ -197,7 +186,11 @@ const testScripts = [
         }
 
         const pkgSpec = testNpmPkgJsonRaw.devDependencies?.[pkgName]
-        const parsedSpec = parsePackageSpec(pkgName, pkgSpec, nmPath)
+        const parsedSpec = parsePackageSpec(
+          pkgName,
+          pkgSpec,
+          testNpmNodeModulesPath
+        )
         const isTarball =
           parsedSpec.type === 'remote' &&
           !!parsedSpec.saveSpec?.endsWith('.tar.gz')
@@ -296,7 +289,7 @@ const testScripts = [
 
   if (modifiedTestNpmPkgJson) {
     await fs.writeJson(testNpmPkgJsonPath, testNpmPkgJsonRaw, { spaces: 2 })
-    console.log(`✔ Updated ${relNmPath}. Reinstalling...`)
+    console.log(`✔ Updated ${relTestNpmNodeModulesPath}. Reinstalling...`)
     try {
       await installTestNpmNodeModules()
       testNpmPkgJsonRaw = await fs.readJson(testNpmPkgJsonPath)
@@ -304,7 +297,7 @@ const testScripts = [
       console.log('✘ Reinstall encountered an error:', e)
     }
   } else {
-    console.log(`✔ Skipping reinstall of ${relNmPath}`)
+    console.log(`✔ Skipping reinstall of ${relTestNpmNodeModulesPath}`)
   }
 
   for (const pkgNameChunk of packageNameChunks) {
@@ -312,7 +305,7 @@ const testScripts = [
     await Promise.all(
       pkgNameChunk.map(async pkgName => {
         const pkgPath = path.join(npmPackagesPath, pkgName)
-        const nmPkgPath = path.join(nmPath, pkgName)
+        const nmPkgPath = path.join(testNpmNodeModulesPath, pkgName)
         const nmPkgJsonPath = path.join(nmPkgPath, PACKAGE_JSON)
         const nmPkgJson = await readCachedPackageJson(nmPkgJsonPath)
         const { dependencies: nmPkgDeps } = nmPkgJson
@@ -377,14 +370,11 @@ const testScripts = [
         nmPkgJson.engines = pkgJson.engines
 
         // Symlink files from the @socketregistry/xyz package to the xyz package.
-        const jsFiles = (
-          await tinyGlob(['**/*.{js,json}'], {
-            ignore: ['**/package.json'],
-            cwd: pkgPath
-          })
-        ).sort(localCompare)
         const actions = new Map()
-        for (const jsFile of jsFiles) {
+        for (const jsFile of await tinyGlob(['**/*.{js,json}'], {
+          ignore: ['**/package.json'],
+          cwd: pkgPath
+        })) {
           let targetPath = path.join(pkgPath, jsFile)
           let destPath = path.join(nmPkgPath, jsFile)
           const dirs = splitPath(path.dirname(jsFile))
@@ -413,26 +403,23 @@ const testScripts = [
       })
     )
   }
-  if (packageNames.length) {
+  if (npmPackageNames.length) {
     console.log('✔ Packages linked')
   }
-  testNpmPkgJsonRaw.workspaces = packageNames.map(n => `${NODE_WORKSPACE}/${n}`)
+  testNpmPkgJsonRaw.workspaces = npmPackageNames.map(
+    n => `${NODE_WORKSPACE}/${n}`
+  )
   await fs.writeJson(testNpmPkgJsonPath, testNpmPkgJsonRaw, { spaces: 2 })
 
   console.log('✔ Installing workspace... (☕ break)')
-  await fs.move(nmPath, workspacePath, { overwrite: true })
+  await fs.move(testNpmNodeModulesPath, testNpmNodeWorkspacePath, {
+    overwrite: true
+  })
   // Remove unneeded workspace packages.
   await Promise.all(
-    (
-      await tinyGlob(['*/'], {
-        cwd: workspacePath,
-        onlyDirectories: true,
-        expandDirectories: false
-      })
-    )
-      .map(trimTrailingSlash)
+    (await readDirNames(testNpmNodeWorkspacePath, { sort: false }))
       .filter(n => !isSocketRegistryPackage(n))
-      .map(p => fs.remove(path.join(workspacePath, p)))
+      .map(p => fs.remove(path.join(testNpmNodeWorkspacePath, p)))
   )
   // Remove unneeded workspace directories/files.
   await Promise.all(
@@ -456,13 +443,13 @@ const testScripts = [
           '**/CHANGE{LOG,S}{.*,}',
           '**/CONTRIBUTING{.*,}',
           '**/FUND{ING,}{.*,}',
-          '**/README{.*,}',
+          `**/${README_GLOB_PATTERN}`,
           ...ignores
         ],
         {
-          ignore: [`**/LICEN[CS]E{.*,}`],
+          ignore: [`**/${LICENSE_GLOB_PATTERN}`],
           absolute: true,
-          cwd: workspacePath,
+          cwd: testNpmNodeWorkspacePath,
           dot: true,
           onlyFiles: false
         }

@@ -1,26 +1,22 @@
 'use strict'
 
-const path = require('node:path')
-
 const fs = require('fs-extra')
 const { glob: tinyGlob } = require('tinyglobby')
 
-const { EMPTY_FILE, ignores } = require('@socketregistry/scripts/constants')
-const { localCompare } = require('@socketregistry/scripts/utils/sorts')
-
-const rootPath = path.resolve(__dirname, '..')
-const npmTemplatesPath = path.join(__dirname, 'templates/npm')
+const {
+  EMPTY_FILE,
+  ignores,
+  npmTemplatesPath,
+  rootPath
+} = require('@socketregistry/scripts/constants')
 
 ;(async () => {
   const autoPatterns = ['**/auto.{d.ts,js}']
-  const autoFiles = (
-    await tinyGlob(autoPatterns, {
-      ignore: ignores,
-      absolute: true,
-      cwd: rootPath
-    })
-  ).sort(localCompare)
-
+  const autoFiles = await tinyGlob(autoPatterns, {
+    ignore: ignores,
+    absolute: true,
+    cwd: rootPath
+  })
   if (autoFiles.length === 0) {
     return
   }
@@ -35,14 +31,11 @@ const npmTemplatesPath = path.join(__dirname, 'templates/npm')
       await fs.writeFile(filepath, EMPTY_FILE, 'utf8')
     }
   }
-  const otherFiles = (
-    await tinyGlob(['**/*.{d.ts,js}'], {
-      ignore: [...autoPatterns, ...ignores],
-      absolute: true,
-      cwd: rootPath
-    })
-  ).sort(localCompare)
-  for (const filepath of otherFiles) {
+  for (const filepath of await tinyGlob(['**/*.{d.ts,js}'], {
+    ignore: [...autoPatterns, ...ignores],
+    absolute: true,
+    cwd: rootPath
+  })) {
     if (
       (await fs.stat(filepath)).size === OLD_EMPTY_CONTENT_BYTES &&
       (await fs.readFile(filepath, 'utf8')) === OLD_EMPTY_CONTENT

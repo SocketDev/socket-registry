@@ -2,20 +2,24 @@
 
 const path = require('node:path')
 
-const fs = require('fs-extra')
 const { default: confirm } = require('@inquirer/confirm')
-const { default: didYouMean, ReturnTypeEnums } = require('didyoumean2')
 const { default: input } = require('@inquirer/input')
-const { default: select } = require('@inquirer/select')
 const { default: search } = require('@inquirer/search')
+const { default: select } = require('@inquirer/select')
+const { default: didYouMean, ReturnTypeEnums } = require('didyoumean2')
+const fs = require('fs-extra')
 const { glob: tinyGlob } = require('tinyglobby')
 const validateNpmPackageName = require('validate-npm-package-name')
-const { PACKAGE_JSON, tsLibs } = require('./constants')
-const { naturalSort } = require('./utils/sorts')
 
-const rootPath = path.resolve(__dirname, '..')
-const npmPackagesPath = path.join(rootPath, 'packages/npm')
-const npmTemplatesPath = path.join(__dirname, 'templates/npm')
+const {
+  LICENSE_CONTENT,
+  LICENSE_GLOB_PATTERN,
+  PACKAGE_JSON,
+  npmPackagesPath,
+  npmTemplatesPath,
+  tsLibs
+} = require('@socketregistry/scripts/constants')
+const { naturalSort } = require('@socketregistry/scripts/utils/sorts')
 
 const templates = Object.fromEntries(
   [
@@ -107,34 +111,44 @@ function modifyContent(content, data = {}) {
   await fs.copy(srcPath, destPath)
 
   const actions = []
+  const licenseData = {
+    license: LICENSE_CONTENT.trim()
+  }
+  for (const filepath of await tinyGlob([`**/${LICENSE_GLOB_PATTERN}`], {
+    absolute: true,
+    cwd: destPath
+  })) {
+    actions.push([filepath, licenseData])
+  }
   if (ts_lib) {
-    const tsFiles = await tinyGlob(['**/*.ts'], {
-      absolute: true,
-      cwd: destPath
-    })
     const tsData = {
       ts_lib
     }
-    for (const filepath of tsFiles) {
+    for (const filepath of await tinyGlob(['**/*.ts'], {
+      absolute: true,
+      cwd: destPath
+    })) {
       actions.push([filepath, tsData])
     }
   }
-  const pkgJsonData = {
-    name: pkgName,
-    category: 'cleanup'
-  }
-  actions.push([pkgJsonPath, pkgJsonData])
-
+  actions.push([
+    pkgJsonPath,
+    {
+      name: pkgName,
+      category: 'cleanup'
+    }
+  ])
   await Promise.all(
     actions.map(
       async ({ 0: filepath, 1: data }) =>
         await fs.writeFile(
           filepath,
-          modifyContent(await fs.readFile(filepath, 'utf8'), data),
+          modifyContent(await fs.readFile(filepath, 'utf8'), {
+            ...data
+          }),
           'utf8'
         )
     )
   )
-
   console.log('All done 🎉')
 })()

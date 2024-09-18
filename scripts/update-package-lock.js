@@ -1,23 +1,21 @@
 'use strict'
 
-const path = require('node:path')
-
-const fs = require('fs-extra')
 const spawn = require('@npmcli/promise-spawn')
-const which = require('which')
-const { NODE_MODULES, PACKAGE_LOCK, PACKAGE_JSON } = require('./constants')
-const { normalizePackageJson } = require('./utils/packages')
+const fs = require('fs-extra')
 
-const rootPath = path.resolve(__dirname, '..')
-const rootPkgLockPath = path.join(rootPath, PACKAGE_LOCK)
-const rootNmPath = path.join(rootPath, NODE_MODULES)
-const yarnPkgExtsPath = path.join(rootNmPath, '@yarnpkg/extensions')
-const yarnPkgExtsJsonPath = path.join(yarnPkgExtsPath, PACKAGE_JSON)
-const npmExecPath = which.sync('npm')
+const {
+  rootPath,
+  rootPackageLockPath,
+  npmExecPath,
+  yarnPkgExtsJsonPath
+} = require('@socketregistry/scripts/constants')
+const {
+  normalizePackageJson
+} = require('@socketregistry/scripts/utils/packages')
 
 async function modifyRootPkgLock() {
-  if (fs.existsSync(rootPkgLockPath)) {
-    const rootPkgLockJson = await fs.readJson(rootPkgLockPath, 'utf8')
+  if (fs.existsSync(rootPackageLockPath)) {
+    const rootPkgLockJson = await fs.readJson(rootPackageLockPath, 'utf8')
     // The @yarnpkg/extensions package is a zero dependency package, however it
     // includes @yarnpkg/core as peer dependency which npm happily installs as a
     // direct dependency. Later when check:tsc is run it will fail with errors
@@ -29,7 +27,7 @@ async function modifyRootPkgLock() {
     if (lockEntry?.peerDependencies) {
       // Properties with undefined values are omitted when saved as JSON.
       lockEntry.peerDependencies = undefined
-      await fs.writeJson(rootPkgLockPath, rootPkgLockJson, { spaces: 2 })
+      await fs.writeJson(rootPackageLockPath, rootPkgLockJson, { spaces: 2 })
       return true
     }
   }

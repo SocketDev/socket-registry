@@ -5,54 +5,30 @@ const path = require('node:path')
 const { includeIgnoreFile } = require('@eslint/compat')
 const { packageExtensions: yarnPkgExts } = require('@yarnpkg/extensions')
 const browserslist = require('browserslist')
+const { createNewSortInstance } = require('fast-sort')
+const fs = require('fs-extra')
 const semver = require('semver')
-const { naturalSort } = require('./utils/sorts')
+const which = require('which')
 
 const { compare: localCompare } = new Intl.Collator()
 
-const rootPath = path.resolve(__dirname, '..')
-const gitignorePath = path.resolve(rootPath, '.gitignore')
+const innerReadDirNames = (dirents, options) => {
+  const opts = { sort: true, ...options }
+  const names = dirents.filter(d => d.isDirectory()).map(d => d.name)
+  return opts.sort ? names.sort(localCompare) : names
+}
 
-const MAINTAINED_NODE_VERSIONS = (() => {
-  const query = naturalSort(
-    browserslist('maintained node versions')
-      // Trim value, e.g. 'node 22.5.0' to '22.5.0'.
-      .map(s => s.slice(5))
-  ).desc()
-  // Under the hood browserlist uses node-releases which is a bit behind:
-  // https://github.com/chicoxyzzy/node-releases/issues/37
-  // So we maintain a manual version list for now.
-  const manualNext = '22.8.0'
-  const manualCurr = '20.17.0'
-  const manualPrev = '18.20.4'
+const naturalSort = createNewSortInstance({
+  comparer: new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
+    .compare
+})
 
-  const queryNext = query.at(0)
-  const queryCurr = query.at(1)
-  const queryPrev = query.at(-1)
-
-  const next = semver.maxSatisfying(
-    [queryNext, manualNext],
-    `^${semver.major(queryNext)}`
-  )
-  const curr = semver.maxSatisfying(
-    [queryCurr, manualCurr],
-    `^${semver.major(queryCurr)}`
-  )
-  const prev = semver.maxSatisfying(
-    [queryPrev, manualPrev],
-    `^${semver.major(queryPrev)}`
-  )
-
-  return new Map([
-    ['next', next],
-    ['current', curr],
-    ['previous', prev],
-    ...[next, curr, prev].map(v => [semver.major(v), v])
-  ])
-})()
+const readDirNamesSync = (dirname, options) =>
+  innerReadDirNames(fs.readdirSync(dirname, { withFileTypes: true }), options)
 
 const EMPTY_FILE = '/* empty */\n'
 const LICENSE = 'LICENSE'
+const LICENSE_GLOB_PATTERN = 'LICEN[CS]E{.*,}'
 const MIT = 'MIT'
 const NODE_MODULES = 'node_modules'
 const NODE_WORKSPACE = 'node_workspace'
@@ -62,9 +38,48 @@ const NPM_SCOPE = `@${NPM_ORG}`
 const PACKAGE_JSON = 'package.json'
 const PACKAGE_LOCK = 'package-lock.json'
 const PACKAGE_HIDDEN_LOCK = `.${PACKAGE_LOCK}`
+const README_GLOB_PATTERN = 'README{.*,}'
 const REPO_ORG = 'SocketDev'
 const REPO_NAME = 'socket-registry-js'
 const VERSION = '1.0.0'
+
+const rootPath = path.resolve(__dirname, '..')
+
+const rootLicensePath = path.join(rootPath, LICENSE)
+const LICENSE_CONTENT = fs.readFileSync(rootLicensePath, 'utf8')
+
+const rootManifestJsonPath = path.join(rootPath, 'manifest.json')
+const rootNodeModulesPath = path.join(rootPath, NODE_MODULES)
+const rootPackageJsonPath = path.join(rootPath, PACKAGE_JSON)
+const rootPackageLockPath = path.join(rootPath, PACKAGE_LOCK)
+const rootPackagesPath = path.join(rootPath, 'packages')
+
+const { execPath } = process
+const gitignorePath = path.resolve(rootPath, '.gitignore')
+const prettierignorePath = path.resolve(rootPath, '.prettierignore')
+const templatesPath = path.join(__dirname, 'templates')
+
+const npmExecPath = which.sync('npm')
+const npmPackagesPath = path.join(rootPackagesPath, 'npm')
+const npmTemplatesPath = path.join(templatesPath, 'npm')
+
+const testNpmPath = path.join(rootPath, 'test/npm')
+const testNpmPkgJsonPath = path.join(testNpmPath, PACKAGE_JSON)
+const testNpmPkgLockPath = path.join(testNpmPath, PACKAGE_LOCK)
+const testNpmNodeModulesPath = path.join(testNpmPath, NODE_MODULES)
+const testNpmNodeModulesHiddenLockPath = path.join(
+  testNpmNodeModulesPath,
+  PACKAGE_HIDDEN_LOCK
+)
+const testNpmNodeWorkspacePath = path.join(testNpmPath, NODE_WORKSPACE)
+
+const runScriptExecPath = which.sync('run-s')
+const workspacePath = path.join(testNpmPath, NODE_WORKSPACE)
+
+const yarnPkgExtsPath = path.join(rootNodeModulesPath, '@yarnpkg/extensions')
+const yarnPkgExtsJsonPath = path.join(yarnPkgExtsPath, PACKAGE_JSON)
+
+const ecosystems = readDirNamesSync(rootPackagesPath)
 
 const ignores = Object.freeze([
   ...new Set([
@@ -136,6 +151,43 @@ const lowerToCamelCase = new Map(
     .map(v => [v.toLowerCase(), v])
 )
 
+const maintainedNodeVersions = (() => {
+  const query = naturalSort(
+    browserslist('maintained node versions')
+      // Trim value, e.g. 'node 22.5.0' to '22.5.0'.
+      .map(s => s.slice(5))
+  ).desc()
+  // Under the hood browserlist uses the node-releases package which is out of date:
+  // https://github.com/chicoxyzzy/node-releases/issues/37
+  // So we maintain a manual version list for now.
+  const manualNext = '22.8.0'
+  const manualCurr = '20.17.0'
+  const manualPrev = '18.20.4'
+
+  const queryNext = query.at(0)
+  const queryCurr = query.at(1)
+  const queryPrev = query.at(-1)
+
+  const next = semver.maxSatisfying(
+    [queryNext, manualNext],
+    `^${semver.major(queryNext)}`
+  )
+  const curr = semver.maxSatisfying(
+    [queryCurr, manualCurr],
+    `^${semver.major(queryCurr)}`
+  )
+  const prev = semver.maxSatisfying(
+    [queryPrev, manualPrev],
+    `^${semver.major(queryPrev)}`
+  )
+  return new Map([
+    ['next', next],
+    ['current', curr],
+    ['previous', prev],
+    ...[next, curr, prev].map(v => [semver.major(v), v])
+  ])
+})()
+
 const packageExtensions = [
   ...yarnPkgExts,
   [
@@ -170,6 +222,8 @@ const packageExtensions = [
   )
 )
 
+const npmPackageNames = readDirNamesSync(npmPackagesPath)
+
 const tsLibs = new Set([
   // Defined in priority order.
   'esnext',
@@ -194,7 +248,8 @@ const tsLibs = new Set([
 module.exports = {
   EMPTY_FILE,
   LICENSE,
-  MAINTAINED_NODE_VERSIONS,
+  LICENSE_CONTENT,
+  LICENSE_GLOB_PATTERN,
   MIT,
   NODE_MODULES,
   NODE_WORKSPACE,
@@ -204,12 +259,43 @@ module.exports = {
   PACKAGE_JSON,
   PACKAGE_HIDDEN_LOCK,
   PACKAGE_LOCK,
+  README_GLOB_PATTERN,
   REPO_ORG,
   REPO_NAME,
   VERSION,
+  ecosystems,
+  execPath,
   ignores,
+  innerReadDirNames,
+  gitignorePath,
   lifecycleScriptNames,
+  localCompare,
   lowerToCamelCase,
+  maintainedNodeVersions,
+  naturalSort,
+  npmExecPath,
+  npmPackageNames,
+  npmPackagesPath,
+  npmTemplatesPath,
   packageExtensions,
-  tsLibs
+  prettierignorePath,
+  rootPath,
+  rootLicensePath,
+  rootManifestJsonPath,
+  rootNodeModulesPath,
+  rootPackageJsonPath,
+  rootPackageLockPath,
+  rootPackagesPath,
+  runScriptExecPath,
+  templatesPath,
+  testNpmPath,
+  testNpmPkgJsonPath,
+  testNpmPkgLockPath,
+  testNpmNodeModulesPath,
+  testNpmNodeModulesHiddenLockPath,
+  testNpmNodeWorkspacePath,
+  tsLibs,
+  workspacePath,
+  yarnPkgExtsPath,
+  yarnPkgExtsJsonPath
 }

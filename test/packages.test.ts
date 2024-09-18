@@ -4,26 +4,28 @@ import path from 'node:path'
 import { describe, it } from 'node:test'
 
 import fs from 'fs-extra'
-import { glob as tinyGlob } from 'tinyglobby'
 import semver from 'semver'
+import { glob as tinyGlob } from 'tinyglobby'
 import validateNpmPackageName from 'validate-npm-package-name'
 
 import {
   LICENSE,
+  LICENSE_GLOB_PATTERN,
   NODE_VERSION,
   PACKAGE_JSON,
-  ignores
+  README_GLOB_PATTERN,
+  ecosystems,
+  ignores,
+  npmPackageNames,
+  npmPackagesPath
   // @ts-ignore
 } from '@socketregistry/scripts/constants'
 // @ts-ignore
 import { readPackageJson } from '@socketregistry/scripts/utils/fs'
 // @ts-ignore
 import { isObjectObject } from '@socketregistry/scripts/utils/objects'
-import {
-  trimLeadingDotSlash,
-  trimTrailingSlash
-  // @ts-ignore
-} from '@socketregistry/scripts/utils/path'
+// @ts-ignore
+import { trimLeadingDotSlash } from '@socketregistry/scripts/utils/path'
 // @ts-ignore
 import { localCompare } from '@socketregistry/scripts/utils/sorts'
 // @ts-ignore
@@ -31,9 +33,6 @@ import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
 
 const extJs = '.js'
 const extDts = '.d.ts'
-
-const rootPath = path.resolve(__dirname, '..')
-const rootPackagesPath = path.join(rootPath, 'packages')
 const overridesDir = 'overrides/'
 
 const shimApiKeys = ['getPolyfill', 'implementation', 'shim']
@@ -46,30 +45,11 @@ const prepareReqId = (id: string) =>
   path.isAbsolute(id) ? id : `./${trimLeadingDotSlash(id)}`
 
 describe('Ecosystems', async () => {
-  const ecosystems = (
-    await tinyGlob(['*/'], {
-      cwd: rootPackagesPath,
-      onlyDirectories: true,
-      expandDirectories: false
-    })
-  )
-    .map(trimTrailingSlash)
-    .sort(localCompare)
   for (const eco of ecosystems) {
     describe(`${eco}:`, async () => {
       if (eco === 'npm') {
-        const packagesPath = path.join(rootPackagesPath, eco)
-        const packageNames = <string[]>(
-          await tinyGlob(['*/'], {
-            cwd: packagesPath,
-            onlyDirectories: true,
-            expandDirectories: false
-          })
-        )
-          .map(trimTrailingSlash)
-          .sort(localCompare)
-        for await (const pkgName of packageNames) {
-          const pkgPath = path.join(packagesPath, pkgName)
+        for await (const pkgName of npmPackageNames) {
+          const pkgPath = path.join(npmPackagesPath, pkgName)
           const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
           const pkgJsonExists = fs.existsSync(pkgJsonPath)
           const pkgLicensePath = path.join(pkgPath, LICENSE)
@@ -111,8 +91,8 @@ describe('Ecosystems', async () => {
                   // Certain files are always included, regardless of settings:
                   // https://docs.npmjs.com/cli/v10/configuring-npm/package-json#files
                   PACKAGE_JSON,
-                  'LICEN[CS]E{.*,}',
-                  'README{.*,}',
+                  LICENSE_GLOB_PATTERN,
+                  README_GLOB_PATTERN,
                   ...filesPatternsAsArray
                 ],
                 {

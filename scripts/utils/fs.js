@@ -4,12 +4,16 @@ const path = require('node:path')
 
 const fs = require('fs-extra')
 
-const { PACKAGE_JSON } = require('@socketregistry/scripts/constants')
+const {
+  PACKAGE_JSON,
+  innerReadDirNames,
+  readDirNamesSync
+} = require('@socketregistry/scripts/constants')
 const {
   normalizePackageJson,
   toEditablePackageJson,
   toEditablePackageJsonSync
-} = require('./packages')
+} = require('@socketregistry/scripts/utils/packages')
 
 function isSymbolicLinkSync(filepath) {
   try {
@@ -24,7 +28,14 @@ function normalizePackageJsonPath(filepath) {
     : path.join(filepath, PACKAGE_JSON)
 }
 
-async function readPackageJson(filepath, options = {}) {
+async function readDirNames(dirname, options) {
+  return innerReadDirNames(
+    await fs.readdir(dirname, { withFileTypes: true }),
+    options
+  )
+}
+
+async function readPackageJson(filepath, options) {
   const jsonPath = normalizePackageJsonPath(filepath)
   const pkgJson = await fs.readJson(jsonPath)
   return options?.editable
@@ -32,7 +43,7 @@ async function readPackageJson(filepath, options = {}) {
     : normalizePackageJson(pkgJson)
 }
 
-function readPackageJsonSync(filepath, options = {}) {
+function readPackageJsonSync(filepath, options) {
   const jsonPath = normalizePackageJsonPath(filepath)
   const pkgJson = fs.readJsonSync(jsonPath)
   return options?.editable
@@ -42,6 +53,8 @@ function readPackageJsonSync(filepath, options = {}) {
 
 module.exports = {
   isSymbolicLinkSync,
+  readDirNames,
+  readDirNamesSync,
   readPackageJson,
   readPackageJsonSync
 }

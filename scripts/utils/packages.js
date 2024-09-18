@@ -8,7 +8,7 @@ const npmPackageArg = require('npm-package-arg')
 const semver = require('semver')
 
 const {
-  MAINTAINED_NODE_VERSIONS,
+  maintainedNodeVersions,
   MIT,
   NPM_SCOPE,
   REPO_ORG,
@@ -23,7 +23,7 @@ const {
 } = require('@socketregistry/scripts/utils/objects')
 const { escapeRegExp } = require('@socketregistry/scripts/utils/regexps')
 
-const nodeVerPrev = MAINTAINED_NODE_VERSIONS.get('previous')
+const nodeVerPrev = maintainedNodeVersions.get('previous')
 
 function createPackageJson(pkgName, directory, options = {}) {
   const {
