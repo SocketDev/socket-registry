@@ -63,6 +63,9 @@ const npmExecPath = which.sync('npm')
 const npmPackagesPath = path.join(rootPackagesPath, 'npm')
 const npmTemplatesPath = path.join(templatesPath, 'npm')
 
+const runScriptParallelExecPath = which.sync('run-p')
+const runScriptSequentiallyExecPath = which.sync('run-s')
+
 const testNpmPath = path.join(rootPath, 'test/npm')
 const testNpmPkgJsonPath = path.join(testNpmPath, PACKAGE_JSON)
 const testNpmPkgLockPath = path.join(testNpmPath, PACKAGE_LOCK)
@@ -73,7 +76,6 @@ const testNpmNodeModulesHiddenLockPath = path.join(
 )
 const testNpmNodeWorkspacePath = path.join(testNpmPath, NODE_WORKSPACE)
 
-const runScriptExecPath = which.sync('run-s')
 const workspacePath = path.join(testNpmPath, NODE_WORKSPACE)
 
 const yarnPkgExtsPath = path.join(rootNodeModulesPath, '@yarnpkg/extensions')
@@ -286,7 +288,8 @@ module.exports = {
   rootPackageJsonPath,
   rootPackageLockPath,
   rootPackagesPath,
-  runScriptExecPath,
+  runScriptParallelExecPath,
+  runScriptSequentiallyExecPath,
   templatesPath,
   testNpmPath,
   testNpmPkgJsonPath,

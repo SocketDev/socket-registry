@@ -6,6 +6,7 @@ const { default: confirm } = require('@inquirer/confirm')
 const { default: input } = require('@inquirer/input')
 const { default: search } = require('@inquirer/search')
 const { default: select } = require('@inquirer/select')
+const spawn = require('@npmcli/promise-spawn')
 const { default: didYouMean, ReturnTypeEnums } = require('didyoumean2')
 const fs = require('fs-extra')
 const { glob: tinyGlob } = require('tinyglobby')
@@ -15,8 +16,12 @@ const {
   LICENSE_CONTENT,
   LICENSE_GLOB_PATTERN,
   PACKAGE_JSON,
+  execPath,
+  npmExecPath,
   npmPackagesPath,
   npmTemplatesPath,
+  rootPath,
+  runScriptParallelExecPath,
   tsLibs
 } = require('@socketregistry/scripts/constants')
 const { naturalSort } = require('@socketregistry/scripts/utils/sorts')
@@ -31,6 +36,14 @@ const templates = Object.fromEntries(
   ].map(k => [k, path.join(npmTemplatesPath, k)])
 )
 
+async function isInNpmRegistry(pkgName) {
+  try {
+    await spawn(npmExecPath, ['view', pkgName, 'name'], { cwd: rootPath })
+    return true
+  } catch {}
+  return false
+}
+
 function modifyContent(content, data = {}) {
   let modified = content
   for (const { 0: key, 1: value } of Object.entries(data)) {
@@ -42,11 +55,11 @@ function modifyContent(content, data = {}) {
 
 ;(async () => {
   const pkgName = await input({
-    message: 'Give the package a name',
+    message: 'The name of the package override to create',
     validate: value => validateNpmPackageName(value).validForNewPackages
   })
   const templateChoice = await select({
-    message: `Choose ${pkgName}'s template`,
+    message: 'Choose the package template',
     choices: [
       { name: 'default', value: 'default' },
       {
@@ -67,7 +80,7 @@ function modifyContent(content, data = {}) {
     )
     if (
       await confirm({
-        message: `Does ${pkgName} need a TypeScript lib?`,
+        message: 'Does this override need a TypeScript lib?',
         default: false
       })
     ) {
@@ -149,6 +162,20 @@ function modifyContent(content, data = {}) {
           'utf8'
         )
     )
+  )
+  await spawn(
+    execPath,
+    [
+      runScriptParallelExecPath,
+      'update:package-json',
+      ...((await isInNpmRegistry(pkgName))
+        ? ['update:npm:test-package-json -- --force']
+        : [])
+    ],
+    {
+      cwd: rootPath,
+      stdio: 'inherit'
+    }
   )
   console.log('All done 🎉')
 })()

@@ -8,7 +8,7 @@ import semver from 'semver'
 import {
   NODE_VERSION,
   execPath,
-  runScriptExecPath,
+  runScriptSequentiallyExecPath,
   testNpmNodeWorkspacePath
   // @ts-ignore
 } from '@socketregistry/scripts/constants'
@@ -56,7 +56,7 @@ describe('Package runs against their own unit tests', async () => {
 
     it(`${pkgName} should pass all its unit tests`, { skip }, () => {
       assert.doesNotReject(
-        spawn(execPath, [runScriptExecPath, 'test'], {
+        spawn(execPath, [runScriptSequentiallyExecPath, 'test'], {
           cwd: wsPkgPath
         })
       )
