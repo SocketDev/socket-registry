@@ -12,11 +12,11 @@ const { builtinBufferExportsDescMap } = require('./shared')
 
 const {
   INSPECT_MAX_BYTES,
-  Blob,
+  Blob: BlobCtor,
   Buffer: Safer,
-  File,
-  atob,
-  btoa,
+  File: FileCtor,
+  atob: atobFn,
+  btoa: btoaFn,
   constants,
   isAscii,
   isUtf8,
@@ -36,10 +36,10 @@ const Dangerous = Object.defineProperties(
 
 module.exports = {
   INSPECT_MAX_BYTES,
-  Blob,
-  File,
-  atob,
-  btoa,
+  Blob: BlobCtor,
+  File: FileCtor,
+  atob: atobFn,
+  btoa: btoaFn,
   constants,
   isAscii,
   isUtf8,

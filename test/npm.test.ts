@@ -4,7 +4,6 @@ import { describe, it } from 'node:test'
 
 import spawn from '@npmcli/promise-spawn'
 import semver from 'semver'
-import { glob as tinyGlob } from 'tinyglobby'
 
 import {
   NODE_VERSION,
@@ -13,15 +12,15 @@ import {
   testNpmNodeWorkspacePath
   // @ts-ignore
 } from '@socketregistry/scripts/constants'
-// @ts-ignore
-import { readPackageJsonSync } from '@socketregistry/scripts/utils/fs'
+import {
+  readDirNames,
+  readPackageJsonSync
+  // @ts-ignores
+} from '@socketregistry/scripts/utils/fs'
 // @ts-ignore
 import { trimTrailingSlash } from '@socketregistry/scripts/utils/path'
-import {
-  isNonEmptyString,
-  localCompare
-  // @ts-ignore
-} from '@socketregistry/scripts/utils/strings'
+// @ts-ignore
+import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
 
 const skippedPackages = [
   // Has known test fails in its package:
@@ -41,15 +40,10 @@ const skippedPackages = [
 
 describe('Package runs against their own unit tests', async () => {
   const packageNames = <string[]>(
-    await tinyGlob(['*/'], {
-      cwd: testNpmNodeWorkspacePath,
-      onlyDirectories: true,
-      expandDirectories: false
-    })
+    (await readDirNames(testNpmNodeWorkspacePath)).filter(
+      (n: any) => !skippedPackages.includes(n)
+    )
   )
-    .map(trimTrailingSlash)
-    .filter((n: any) => !skippedPackages.includes(n))
-    .sort(localCompare)
 
   for (const pkgName of packageNames) {
     const wsPkgPath = path.join(testNpmNodeWorkspacePath, pkgName)

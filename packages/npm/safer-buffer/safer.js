@@ -2,11 +2,11 @@
 
 const {
   INSPECT_MAX_BYTES,
-  Blob,
-  Buffer,
-  File,
-  atob,
-  btoa,
+  Blob: BlobCtor,
+  Buffer: UnsafeBuffer,
+  File: FileCtor,
+  atob: atobFn,
+  btoa: btoaFn,
   constants,
   isAscii,
   isUtf8,
@@ -19,24 +19,24 @@ const {
 const { builtinBufferExportsDescMap } = require('./shared')
 
 const Safer = {
-  prototype: Buffer.prototype
+  prototype: UnsafeBuffer.prototype
 }
-for (const key of Reflect.ownKeys(Buffer)) {
+for (const key of Reflect.ownKeys(UnsafeBuffer)) {
   if (
     key !== 'allocUnsafe' &&
     key !== 'allocUnsafeSlow' &&
     key !== 'prototype'
   ) {
-    Safer[key] = Buffer[key]
+    Safer[key] = UnsafeBuffer[key]
   }
 }
 // Give Node ESM/CJS interop a chance to detect names of exports.
 module.exports = {
   INSPECT_MAX_BYTES,
-  Blob,
-  File,
-  atob,
-  btoa,
+  Blob: BlobCtor,
+  File: FileCtor,
+  atob: atobFn,
+  btoa: btoaFn,
   constants,
   isAscii,
   isUtf8,

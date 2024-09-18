@@ -1,6 +1,7 @@
 'use strict'
 
 const { promisify: builtinPromisify } = require('node:util')
+
 const impl = require('./implementation')
 const desc = value => ({
   __proto__: null,

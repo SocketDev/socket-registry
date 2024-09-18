@@ -1,28 +1,76 @@
 'use strict'
 
-const path = require('node:path')
-
 const { includeIgnoreFile } = require('@eslint/compat')
 const js = require('@eslint/js')
+const importXPlugin = require('eslint-plugin-import-x')
 const nodePlugin = require('eslint-plugin-n')
 const tsEslint = require('typescript-eslint')
-const tsParser = require('@typescript-eslint/parser')
 
-const rootPath = __dirname
-const gitignorePath = path.resolve(rootPath, '.gitignore')
-const prettierignorePath = path.resolve(rootPath, '.prettierignore')
+const {
+  gitignorePath,
+  prettierignorePath
+} = require('@socketregistry/scripts/constants')
+
 const {
   engines: { node: nodeRange }
 } = require('./package.json')
+
+const { flatConfigs: origImportXFlatConfigs } = importXPlugin
+
+const defaultLanguageOptions = {
+  ecmaVersion: 'latest',
+  sourceType: 'script'
+}
+
+const importXFlatConfigs = {
+  recommended: {
+    ...origImportXFlatConfigs.recommended,
+    languageOptions: {
+      ...origImportXFlatConfigs.recommended.languageOptions,
+      ...defaultLanguageOptions
+    },
+    rules: {
+      ...origImportXFlatConfigs.recommended.rules,
+      'import-x/no-named-as-default-member': 'off',
+      'import-x/order': [
+        'warn',
+        {
+          groups: [
+            'builtin',
+            'external',
+            'internal',
+            ['parent', 'sibling', 'index'],
+            'type'
+          ],
+          pathGroups: [
+            {
+              pattern: '@socketregistry/**',
+              group: 'internal'
+            }
+          ],
+          pathGroupsExcludedImportTypes: ['type'],
+          'newlines-between': 'always',
+          alphabetize: {
+            order: 'asc'
+          }
+        }
+      ]
+    }
+  },
+  typescript: origImportXFlatConfigs.typescript
+}
 
 module.exports = [
   includeIgnoreFile(gitignorePath),
   includeIgnoreFile(prettierignorePath),
   nodePlugin.configs['flat/recommended-script'],
+  importXFlatConfigs.recommended,
+  importXFlatConfigs.typescript,
   {
     files: ['packages/**/*.ts', 'test/**/*.ts'],
     languageOptions: {
-      parser: tsParser,
+      ...defaultLanguageOptions,
+      parser: tsEslint.parser,
       parserOptions: {
         projectService: {
           allowDefaultProject: [],

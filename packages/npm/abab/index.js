@@ -1,6 +1,6 @@
 const { atob: builtinAtob, btoa: builtinBtoa } = globalThis
 
-function atob(...args) {
+const atobFn = function atob(...args) {
   try {
     return builtinAtob(...args)
   } catch (e) {
@@ -11,7 +11,7 @@ function atob(...args) {
   }
 }
 
-function btoa(...args) {
+const btoaFn = function btoa(...args) {
   try {
     return builtinBtoa(...args)
   } catch (e) {
@@ -23,6 +23,6 @@ function btoa(...args) {
 }
 
 module.exports = {
-  atob,
-  btoa
+  atob: atobFn,
+  btoa: btoaFn
 }
