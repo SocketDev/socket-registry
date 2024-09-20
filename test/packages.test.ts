@@ -26,19 +26,23 @@ import { isObjectObject } from '@socketregistry/scripts/utils/objects'
 // @ts-ignore
 import { isValidPackageName } from '@socketregistry/scripts/utils/packages'
 // @ts-ignore
-import { trimLeadingDotSlash } from '@socketregistry/scripts/utils/path'
-// @ts-ignore
 import { localCompare } from '@socketregistry/scripts/utils/sorts'
 // @ts-ignore
 import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
 
 const extJs = '.js'
 const extDts = '.d.ts'
+const leadingDotSlashRegExp = /^\.\.?[/\\]/
 const overridesDir = 'overrides/'
-
 const shimApiKeys = ['getPolyfill', 'implementation', 'shim']
-const findLeakedApiKey = (keys: any[]) =>
-  shimApiKeys.find(k => keys.includes(k))
+
+function findLeakedApiKey(keys: any[]): string | undefined {
+  return shimApiKeys.find(k => keys.includes(k))
+}
+
+function trimLeadingDotSlash(filepath: string): string {
+  return filepath.replace(leadingDotSlashRegExp, '')
+}
 
 const isDotFile = (filepath: string) => path.basename(filepath).startsWith('.')
 const isDotPattern = (pattern: string) => pattern.startsWith('.')

@@ -17,7 +17,7 @@
     "check:tsc": "tsc",
     "clean-node_modules": "del-cli 'test/**/node_modules' 'node_modules'",
     "knip:dependencies": "knip --dependencies",
-    "knip:exports": "knip --include exports,duplicates --reporter compact",
+    "knip:exports": "knip --include exports,duplicates",
     "lint": "oxlint -c=./.oxlintrc.json --ignore-path=./.prettierignore --tsconfig=./tsconfig.json . -D correctness -D perf -D suspicious --promise-plugin --import-plugin",
     "lint:fix": "npm run lint -- --fix && npm run lint:fix:fast",
     "lint:fix:fast": "prettier --cache --log-level warn --write .",

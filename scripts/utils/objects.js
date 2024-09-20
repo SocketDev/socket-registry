@@ -67,7 +67,6 @@ function merge(target, source) {
 }
 
 module.exports = {
-  isObject,
   isObjectObject,
   merge
 }

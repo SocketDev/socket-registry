@@ -15,7 +15,6 @@ const {
   VERSION,
   maintainedNodeVersions,
   npmExecPath,
-  npmPackageNames,
   packageExtensions,
   rootPath
 } = require('@socketregistry/scripts/constants')
@@ -30,7 +29,6 @@ const {
 const { escapeRegExp } = require('@socketregistry/scripts/utils/regexps')
 
 const nodeVerPrev = maintainedNodeVersions.get('previous')
-const socketRegistryPackageLookup = new Set(npmPackageNames)
 
 function createPackageJson(pkgName, directory, options = {}) {
   const {
@@ -110,10 +108,6 @@ function findPackageExtensions(pkgName, pkgVer) {
   return result
 }
 
-function isSocketRegistryPackage(pkgName) {
-  return socketRegistryPackageLookup.has(pkgName)
-}
-
 function isValidPackageName(pkgName) {
   const validation = validateNpmPackageName(pkgName)
   return (
@@ -172,29 +166,11 @@ async function toEditablePackageJson(pkgJson, options) {
   )
 }
 
-function toEditablePackageJsonSync(pkgJson, options) {
-  const { path: pathOpt, ...otherOptions } = { ...options }
-  if (typeof pathOpt !== 'string') {
-    return jsonToEditablePackageJson(pkgJson, otherOptions)
-  }
-  const pkgJsonPath = resolvePackageJsonDirname(pathOpt)
-  const normalizeOptions = {
-    ...(isNodeModules(pkgJsonPath) ? {} : { preserve: ['repository'] }),
-    ...otherOptions
-  }
-  return new EditablePackageJson()
-    .create(pkgJsonPath)
-    .update(normalizePackageJson(pkgJson, normalizeOptions))
-}
-
 module.exports = {
   createPackageJson,
   existsInNpmRegistry,
-  findPackageExtensions,
-  isSocketRegistryPackage,
   isValidPackageName,
   normalizePackageJson,
   parsePackageSpec,
-  toEditablePackageJson,
-  toEditablePackageJsonSync
+  toEditablePackageJson
 }

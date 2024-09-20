@@ -8,12 +8,11 @@ const fs = require('fs-extra')
 const constants = require('@socketregistry/scripts/constants')
 const {
   kInternalsSymbol,
-  [kInternalsSymbol]: { innerReadDirNames, readDirNamesSync, isDirEmptySync }
+  [kInternalsSymbol]: { innerReadDirNames }
 } = constants
 const {
   normalizePackageJson,
-  toEditablePackageJson,
-  toEditablePackageJsonSync
+  toEditablePackageJson
 } = require('@socketregistry/scripts/utils/packages')
 const { resolvePackageJsonPath } = require('@socketregistry/scripts/utils/path')
 
@@ -31,14 +30,6 @@ async function cp(srcPath, destPath, options) {
     recursive: true,
     ...otherOptions
   })
-}
-
-async function isDirEmpty(dirname) {
-  try {
-    return (await fs.readdir(dirname)).length === 0
-  } catch (e) {
-    return e?.code === 'ENOENT'
-  }
 }
 
 function isSymbolicLinkSync(filepath) {
@@ -69,15 +60,6 @@ async function readPackageJson(filepath, options) {
     : normalizePackageJson(pkgJson, otherOptions)
 }
 
-function readPackageJsonSync(filepath, options) {
-  const { editable, ...otherOptions } = { ...options }
-  const jsonPath = resolvePackageJsonPath(filepath)
-  const pkgJson = fs.readJsonSync(jsonPath)
-  return editable
-    ? toEditablePackageJsonSync(pkgJson, { path: filepath, ...otherOptions })
-    : normalizePackageJson(pkgJson, otherOptions)
-}
-
 function uniqueSync(filepath) {
   const dirname = path.dirname(filepath)
   let basename = path.basename(filepath)
@@ -88,14 +70,9 @@ function uniqueSync(filepath) {
 }
 
 module.exports = {
-  cp,
-  isDirEmpty,
-  isDirEmptySync,
   isSymbolicLinkSync,
   move,
   readDirNames,
-  readDirNamesSync,
   readPackageJson,
-  readPackageJsonSync,
   uniqueSync
 }
