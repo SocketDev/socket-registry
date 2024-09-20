@@ -1,12 +1,12 @@
 'use strict'
 
-module.exports = Object.assign(
-  function hasPropertyDescriptors() {
-    return true
-  },
-  {
-    hasArrayLengthDefineBug() {
-      return false
-    }
-  }
-)
+function hasPropertyDescriptors() {
+  return true
+}
+
+function hasArrayLengthDefineBug() {
+  return false
+}
+
+module.exports = hasPropertyDescriptors
+module.exports.hasArrayLengthDefineBug = hasArrayLengthDefineBug

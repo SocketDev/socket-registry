@@ -1,6 +1,7 @@
 import EsIterator from './Iterator.prototype/implementation'
 declare interface InternalShared {
-  isIteratorNextCheckBuggy: boolean
   fixIterator<T>(iterator: EsIterator<T>): EsIterator<T>
+  isIteratorNextCheckBuggy: boolean
 }
-export = InternalShared
+declare const shared: InternalShared
+export = shared

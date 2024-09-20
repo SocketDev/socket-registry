@@ -22,13 +22,10 @@ function innerIsArguments(value, useLegacyFallback = false) {
   )
 }
 
-function isArguments(value) {
+module.exports = function isArguments(value) {
   return innerIsArguments(value)
 }
-
 // Undocumented export for unit tests.
-isArguments.isLegacyArguments = function isArguments(value) {
+module.exports.isLegacyArguments = function isArguments(value) {
   return innerIsArguments(value, true)
 }
-
-module.exports = isArguments

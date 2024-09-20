@@ -10,7 +10,7 @@
   "main": "./index.js",
   "sideEffects": false,
   "dependencies": {
-    "from-npm-assert": "npm:assert@2.1.0"
+    "commonjs-assert": "npm:assert@2.1.0"
   },
   "overrides": {
     "call-bind": "file:./overrides/call-bind",

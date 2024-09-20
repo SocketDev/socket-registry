@@ -1,5 +1,6 @@
 /// <reference types="node" />
 import builtinBufferExports from 'node:buffer'
-declare interface DangerousBufferModuleExports
+declare interface DangerousBuffer
   extends Omit<typeof builtinBufferExports, 'BufferSlow'> {}
-export = DangerousBufferModuleExports
+declare const dangerous: DangerousBuffer
+export = dangerous

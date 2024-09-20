@@ -1,11 +1,12 @@
 'use strict'
 
 const impl = require('./implementation')
+
 const desc = value => ({
   __proto__: null,
   configurable: true,
-  writable: true,
-  value
+  value,
+  writable: true
 })
 
 module.exports = Object.defineProperties(
@@ -19,3 +20,6 @@ module.exports = Object.defineProperties(
     shim: desc(require('./shim'))
   }
 )
+module.exports.getPolyfill = module.exports.getPolyfill
+module.exports.implementation = module.exports.implementation
+module.exports.shim = module.exports.shim

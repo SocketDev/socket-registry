@@ -4,4 +4,5 @@ declare interface Env {
   functionsHaveConfigurableLengths: boolean
   functionsHaveWritableLengths: boolean
 }
-export = Env
+declare const env: Env
+export = env

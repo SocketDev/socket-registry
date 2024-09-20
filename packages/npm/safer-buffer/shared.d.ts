@@ -1,4 +1,5 @@
 declare interface InternalShared {
   builtinBufferExportsDescMap: { [x: string]: PropertyDescriptor }
 }
-export = InternalShared
+declare const shared: InternalShared
+export = shared

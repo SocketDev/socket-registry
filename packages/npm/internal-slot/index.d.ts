@@ -5,4 +5,5 @@ declare interface InternalSlot {
   get(O: WeakKey, slot: string): any
   set(O: WeakKey, slot: string, value: any): void
 }
-export = InternalSlot
+declare const internalSlot: InternalSlot
+export = internalSlot

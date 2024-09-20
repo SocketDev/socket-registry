@@ -1,6 +1,2 @@
-declare function deepEqual(
-  value1: unknown,
-  value2: unknown,
-  options?: { strict?: boolean }
-): boolean
+import deepEqual from './index'
 export = deepEqual

@@ -18,3 +18,5 @@ module.exports = Object.assign(
     customPromisifyArgs
   }
 )
+module.exports.custom = module.exports.custom
+module.exports.customPromisifyArgs = module.exports.customPromisifyArgs

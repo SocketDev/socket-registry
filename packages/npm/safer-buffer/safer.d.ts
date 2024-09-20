@@ -4,4 +4,5 @@ declare interface SaferBuffer
   extends Omit<typeof builtinBufferExports, 'Buffer' | 'BufferSlow'> {
   Buffer: Omit<typeof Buffer, 'allocUnsafe' | 'allocUnsafeSlow'>
 }
-export = SaferBuffer
+declare const safer: SaferBuffer
+export = safer

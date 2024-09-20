@@ -50,6 +50,6 @@ function stringify(obj, prefix = '') {
 }
 
 module.exports = {
-  stringify,
-  parse
+  parse,
+  stringify
 }

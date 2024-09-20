@@ -1,3 +1,6 @@
-/// <reference types="node" />
-import assert from 'node:assert'
-export = assert
+declare function deepEqual(
+  value1: unknown,
+  value2: unknown,
+  options?: { strict?: boolean }
+): boolean
+export = deepEqual

@@ -4,5 +4,5 @@ declare interface EsIteratorConstructor {
   new <T>(): EsIterator<T>
   readonly prototype: EsIterator<any>
 }
-declare var Iterator: EsIteratorConstructor
+declare const Iterator: EsIteratorConstructor
 export = Iterator

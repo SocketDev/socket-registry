@@ -11,4 +11,5 @@ declare interface TypedArray {
   Uint16Array: Uint16Array
   Uint32Array: Uint32Array
 }
-export = TypedArray
+declare const typedArray: TypedArray
+export = typedArray

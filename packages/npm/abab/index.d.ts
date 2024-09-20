@@ -1,6 +1,7 @@
 /// <reference types="node" />
-declare interface Base64 {
+declare interface Abab {
   atob: typeof atob
   btoa: typeof btoa
 }
-export = Base64
+declare const abab: Abab
+export = abab
