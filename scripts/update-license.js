@@ -12,11 +12,13 @@ const {
 } = require('@socketregistry/scripts/constants')
 
 ;(async () => {
-  for (const licensePath of await tinyGlob([`**/${LICENSE_GLOB_PATTERN}`], {
-    ignore: [LICENSE, ...ignores],
-    absolute: true,
-    cwd: rootPath
-  })) {
-    await fs.writeFile(licensePath, LICENSE_CONTENT, 'utf8')
-  }
+  await Promise.all(
+    (
+      await tinyGlob([`**/${LICENSE_GLOB_PATTERN}`], {
+        ignore: [LICENSE, ...ignores],
+        absolute: true,
+        cwd: rootPath
+      })
+    ).map(licensePath => fs.writeFile(licensePath, LICENSE_CONTENT, 'utf8'))
+  )
 })()

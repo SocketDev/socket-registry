@@ -5,11 +5,10 @@ const util = require('node:util')
 
 const fs = require('fs-extra')
 
-const constants = require('@socketregistry/scripts/constants')
 const {
   kInternalsSymbol,
-  [kInternalsSymbol]: { innerReadDirNames }
-} = constants
+  [kInternalsSymbol]: { innerReadDirNames, isDirEmptySync }
+} = require('@socketregistry/scripts/constants')
 const {
   normalizePackageJson,
   toEditablePackageJson
@@ -70,6 +69,7 @@ function uniqueSync(filepath) {
 }
 
 module.exports = {
+  isDirEmptySync,
   isSymbolicLinkSync,
   move,
   readDirNames,

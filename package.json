@@ -29,6 +29,7 @@
     "setup": "run-s update:package-lock update:test:**",
     "update": "run-p --aggregate-output update:* update:npm:* && run-s update:test:**",
     "update:browserslist-db": "update-browserslist-db",
+    "update:empty-dirs": "node ./scripts/update-empty-dirs.js",
     "update:empty-files": "node ./scripts/update-empty-files.js",
     "update:license": "node ./scripts/update-license.js",
     "update:manifest": "node ./scripts/update-manifest.js",
