@@ -15,10 +15,8 @@ const {
   npmPackagesPath,
   npmPackageNames,
   prettierignorePath,
-  rootPath
+  relNpmPackagesPath
 } = require('@socketregistry/scripts/constants')
-
-const relNpmPackagesPath = path.relative(rootPath, npmPackagesPath)
 
 const {
   engines: { node: nodeRange }

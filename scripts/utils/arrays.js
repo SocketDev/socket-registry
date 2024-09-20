@@ -9,6 +9,11 @@ function arrayChunk(array, size = 2) {
   return chunks
 }
 
+function arrayUnique(array) {
+  return [...new Set(array)]
+}
+
 module.exports = {
-  arrayChunk
+  arrayChunk,
+  arrayUnique
 }

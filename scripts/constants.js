@@ -41,6 +41,30 @@ const gitignorePath = path.resolve(rootPath, '.gitignore')
 const prettierignorePath = path.resolve(rootPath, '.prettierignore')
 const templatesPath = path.join(__dirname, 'templates')
 
+const npmPackagesPath = path.join(rootPackagesPath, 'npm')
+const npmTemplatesPath = path.join(templatesPath, 'npm')
+
+const testNpmPath = path.join(rootPath, 'test/npm')
+const testNpmPkgJsonPath = path.join(testNpmPath, PACKAGE_JSON)
+const testNpmPkgLockPath = path.join(testNpmPath, PACKAGE_LOCK)
+const testNpmNodeModulesPath = path.join(testNpmPath, NODE_MODULES)
+const testNpmNodeModulesHiddenLockPath = path.join(
+  testNpmNodeModulesPath,
+  PACKAGE_HIDDEN_LOCK
+)
+const testNpmNodeWorkspacesPath = path.join(testNpmPath, NODE_WORKSPACES)
+
+const yarnPkgExtsPath = path.join(rootNodeModulesPath, '@yarnpkg/extensions')
+const yarnPkgExtsJsonPath = path.join(yarnPkgExtsPath, PACKAGE_JSON)
+
+const relPackagesPath = path.relative(rootPath, rootPackagesPath)
+const relNpmPackagesPath = path.relative(rootPath, npmPackagesPath)
+const relTestNpmPath = path.relative(rootPath, testNpmPath)
+const relTestNpmNodeModulesPath = path.relative(
+  rootPath,
+  testNpmNodeModulesPath
+)
+
 const LICENSE_CONTENT = fs.readFileSync(rootLicensePath, 'utf8')
 
 const { compare: localCompare } = new Intl.Collator()
@@ -65,26 +89,8 @@ const whichSyncOptions = {
 const whichSync = cmd => which.sync(cmd, whichSyncOptions)
 
 const npmExecPath = whichSync('npm')
-const npmPackagesPath = path.join(rootPackagesPath, 'npm')
-const npmTemplatesPath = path.join(templatesPath, 'npm')
-
 const runScriptParallelExecPath = whichSync('run-p')
 const runScriptSequentiallyExecPath = whichSync('run-s')
-
-const testNpmPath = path.join(rootPath, 'test/npm')
-const testNpmPkgJsonPath = path.join(testNpmPath, PACKAGE_JSON)
-const testNpmPkgLockPath = path.join(testNpmPath, PACKAGE_LOCK)
-const testNpmNodeModulesPath = path.join(testNpmPath, NODE_MODULES)
-const testNpmNodeModulesHiddenLockPath = path.join(
-  testNpmNodeModulesPath,
-  PACKAGE_HIDDEN_LOCK
-)
-const testNpmNodeWorkspacesPath = path.join(testNpmPath, NODE_WORKSPACES)
-
-const workspacePath = path.join(testNpmPath, NODE_WORKSPACES)
-
-const yarnPkgExtsPath = path.join(rootNodeModulesPath, '@yarnpkg/extensions')
-const yarnPkgExtsJsonPath = path.join(yarnPkgExtsPath, PACKAGE_JSON)
 
 const ecosystems = Object.freeze(readDirNamesSync(rootPackagesPath))
 
@@ -288,6 +294,10 @@ module.exports = {
   npmTemplatesPath,
   packageExtensions,
   prettierignorePath,
+  relPackagesPath,
+  relNpmPackagesPath,
+  relTestNpmPath,
+  relTestNpmNodeModulesPath,
   rootPath,
   rootLicensePath,
   rootManifestJsonPath,
@@ -305,7 +315,6 @@ module.exports = {
   testNpmNodeModulesHiddenLockPath,
   testNpmNodeWorkspacesPath,
   tsLibs,
-  workspacePath,
   yarnPkgExtsPath,
   yarnPkgExtsJsonPath
 }

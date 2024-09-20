@@ -10,20 +10,21 @@ const spawn = require('@npmcli/promise-spawn')
 const { default: didYouMean, ReturnTypeEnums } = require('didyoumean2')
 const fs = require('fs-extra')
 const { glob: tinyGlob } = require('tinyglobby')
-const validateNpmPackageName = require('validate-npm-package-name')
 
 const {
   LICENSE_CONTENT,
   LICENSE_GLOB_PATTERN,
   PACKAGE_JSON,
   execPath,
-  npmExecPath,
   npmPackagesPath,
   npmTemplatesPath,
   rootPath,
   runScriptParallelExecPath,
   tsLibs
 } = require('@socketregistry/scripts/constants')
+const {
+  existsInNpmRegistry
+} = require('@socketregistry/scripts/utils/packages')
 const { naturalSort } = require('@socketregistry/scripts/utils/sorts')
 
 const templates = Object.fromEntries(
@@ -36,14 +37,6 @@ const templates = Object.fromEntries(
   ].map(k => [k, path.join(npmTemplatesPath, k)])
 )
 
-async function isInNpmRegistry(pkgName) {
-  try {
-    await spawn(npmExecPath, ['view', pkgName, 'name'], { cwd: rootPath })
-    return true
-  } catch {}
-  return false
-}
-
 function modifyContent(content, data = {}) {
   let modified = content
   for (const { 0: key, 1: value } of Object.entries(data)) {
@@ -55,11 +48,11 @@ function modifyContent(content, data = {}) {
 
 ;(async () => {
   const pkgName = await input({
-    message: 'The name of the package override to create',
-    validate: value => validateNpmPackageName(value).validForNewPackages
+    message: 'What is the name of the package to override?',
+    validate: existsInNpmRegistry
   })
   const templateChoice = await select({
-    message: 'Choose the package template',
+    message: 'Pick a package template to use',
     choices: [
       { name: 'default', value: 'default' },
       {
@@ -163,19 +156,22 @@ function modifyContent(content, data = {}) {
         )
     )
   )
-  await spawn(
-    execPath,
-    [
-      runScriptParallelExecPath,
-      'update:package-json',
-      ...((await isInNpmRegistry(pkgName))
-        ? ['update:npm:test-package-json -- --force']
-        : [])
-    ],
-    {
-      cwd: rootPath,
-      stdio: 'inherit'
-    }
-  )
-  console.log('All done 🎉')
+  try {
+    await spawn(
+      execPath,
+      [
+        runScriptParallelExecPath,
+        '--continue-on-error',
+        '--aggregate-output',
+        'update:package-json',
+        `update:npm:test-package-json -- --add ${pkgName}`
+      ],
+      {
+        cwd: rootPath,
+        stdio: 'inherit'
+      }
+    )
+  } catch (e) {
+    console.log('✘ Package override finalization encountered an error:', e)
+  }
 })()

@@ -17,7 +17,9 @@ const {
   npmExecPath,
   npmPackageNames,
   npmPackagesPath,
-  rootPath,
+  relNpmPackagesPath,
+  relTestNpmPath,
+  relTestNpmNodeModulesPath,
   testNpmNodeModulesHiddenLockPath,
   testNpmNodeModulesPath,
   testNpmNodeWorkspacesPath,
@@ -25,7 +27,10 @@ const {
   testNpmPkgJsonPath,
   testNpmPkgLockPath
 } = require('@socketregistry/scripts/constants')
-const { arrayChunk } = require('@socketregistry/scripts/utils/arrays')
+const {
+  arrayChunk,
+  arrayUnique
+} = require('@socketregistry/scripts/utils/arrays')
 const {
   isSymbolicLinkSync,
   move,
@@ -35,6 +40,7 @@ const {
 const { parsePackageSpec } = require('@socketregistry/scripts/utils/packages')
 const { splitPath } = require('@socketregistry/scripts/utils/path')
 const { pEach, pEachChunk } = require('@socketregistry/scripts/utils/promises')
+const { localCompare } = require('@socketregistry/scripts/utils/sorts')
 const { Spinner } = require('@socketregistry/scripts/utils/spinner')
 const { isNonEmptyString } = require('@socketregistry/scripts/utils/strings')
 
@@ -105,6 +111,8 @@ const readCachedEditablePackageJson = async filepath_ => {
   return result
 }
 
+const toWorkspaceEntry = pkgName => `${NODE_WORKSPACES}/${pkgName}`
+
 const testScripts = [
   // Order is significant. First in, first tried.
   'mocha',
@@ -128,31 +136,26 @@ const testScripts = [
   }
 
   // Chunk package names to process them in parallel 3 at a time.
-  const allPackageNameChunks = arrayChunk(npmPackageNames, 3)
+  const npmPackageNameChunks = arrayChunk(npmPackageNames, 3)
+  const packageNames = cliArgs.add ?? npmPackageNames
   const packageNameChunks = cliArgs.add
-    ? arrayChunk([...npmPackageNames, ...cliArgs.add], 3)
-    : allPackageNameChunks
+    ? arrayChunk(cliArgs.add, 3)
+    : npmPackageNameChunks
 
-  const relTestNpmPath = path.relative(rootPath, testNpmPath)
-  const relTestNpmNodeModulesPath = path.relative(
-    rootPath,
-    testNpmNodeModulesPath
-  )
   let modifiedTestNpmPkgJson = false
   let testNpmEditablePkgJson = await readPackageJson(testNpmPkgJsonPath, {
     editable: true
   })
 
-  // Initialize test/npm/node_modules
+  // Refresh/initialize test/npm/node_modules
   {
     const spinner = new Spinner(
-      `Initializing ${relTestNpmNodeModulesPath}...`
+      `${nmExists ? 'Refreshing' : 'Initializing'} ${relTestNpmNodeModulesPath}...`
     ).start()
     if (nmExists) {
-      // Remove existing packages to re-install.
-      const pkgNames = cliArgs.add ?? npmPackageNames
+      // Remove existing packages to re-install later.
       await Promise.all(
-        pkgNames.map(n => fs.remove(path.join(testNpmNodeModulesPath, n)))
+        packageNames.map(n => fs.remove(path.join(testNpmNodeModulesPath, n)))
       )
     }
     try {
@@ -160,9 +163,14 @@ const testScripts = [
       testNpmEditablePkgJson = await readPackageJson(testNpmPkgJsonPath, {
         editable: true
       })
-      spinner.stop(`✔ Initialized ${relTestNpmNodeModulesPath}`)
+      spinner.stop(
+        `✔ ${nmExists ? 'Refreshed' : 'Initialized'} ${relTestNpmNodeModulesPath}`
+      )
     } catch (e) {
-      spinner.stop('✘ Initialization encountered an error:', e)
+      spinner.stop(
+        `✘ ${nmExists ? 'Refresh' : 'Initialization'} encountered an error:`,
+        e
+      )
     }
   }
 
@@ -177,11 +185,13 @@ const testScripts = [
       const nmPkgPathExists = fs.existsSync(nmPkgPath)
       // Missing packages can occur if the script is stopped part way through
       if (!devDepExists || !nmPkgPathExists) {
-        // A package we expect to be there is missing or corrupt. Reinstall it.
+        // A package we expect to be there is missing or corrupt. Install it.
         if (nmPkgPathExists) {
           await fs.remove(nmPkgPath)
         }
-        const spinner = new Spinner(`Reinstalling ${pkgName}...`).start()
+        const spinner = new Spinner(
+          `${devDepExists ? 'Refreshing' : 'Adding'} ${pkgName}...`
+        ).start()
         try {
           await installTestNpmNodeModules(pkgName)
           testNpmEditablePkgJson = await readPackageJson(testNpmPkgJsonPath, {
@@ -189,7 +199,7 @@ const testScripts = [
           })
           spinner.stop(
             devDepExists
-              ? `✔ Reinstalled ${pkgName}`
+              ? `✔ Refreshed ${pkgName}`
               : `✔ --save-dev ${pkgName} to package.json`
           )
         } catch {
@@ -324,6 +334,10 @@ const testScripts = [
     const spinner = new Spinner(`Linking packages...`).start()
     await pEachChunk(packageNameChunks, async pkgName => {
       const pkgPath = path.join(npmPackagesPath, pkgName)
+      if (!fs.existsSync(pkgPath)) {
+        console.log(`⚠️ ${pkgName}: Missing from ${relNpmPackagesPath}`)
+        return
+      }
       const nmPkgPath = path.join(testNpmNodeModulesPath, pkgName)
       const nmPkgJsonPath = path.join(nmPkgPath, PACKAGE_JSON)
       const nmEditablePkgJson =
@@ -429,6 +443,7 @@ const testScripts = [
                 // We can go from CJS by creating an ESM stub.
                 const uniquePath = uniqueSync(`${destPath.slice(0, -3)}.cjs`)
                 await fs.copyFile(targetPath, uniquePath)
+                await fs.remove(destPath)
                 await fs.outputFile(
                   destPath,
                   createStubEsModule(uniquePath),
@@ -506,9 +521,14 @@ const testScripts = [
       `Installing ${relTestNpmPath} workspaces... (☕ break)`
     ).start()
     // Update "workspaces" field in test/npm/package.json.
-    testNpmEditablePkgJson.update({
-      workspaces: npmPackageNames.map(n => `${NODE_WORKSPACES}/${n}`)
-    })
+    const existingWorkspaces = testNpmEditablePkgJson.content.workspaces
+    const workspaces = cliArgs.add
+      ? arrayUnique([
+          ...(Array.isArray(existingWorkspaces) ? existingWorkspaces : []),
+          ...cliArgs.add.map(toWorkspaceEntry)
+        ]).sort(localCompare)
+      : npmPackageNames.map(toWorkspaceEntry)
+    testNpmEditablePkgJson.update({ workspaces })
     await testNpmEditablePkgJson.save()
     // Finally install workspaces.
     try {

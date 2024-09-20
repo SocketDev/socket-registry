@@ -21,6 +21,7 @@ const {
   const workspaces = []
   for (const eco of ecosystems) {
     const ecoPackagesPath = path.join(rootPackagesPath, eco)
+    // No need to sort because readDirNames returns names sorted by default.
     const packageNames = await readDirNames(ecoPackagesPath)
     for (const pkgName of packageNames) {
       workspaces.push(`packages/${eco}/${pkgName}`)
