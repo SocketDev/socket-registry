@@ -2,7 +2,12 @@
 
 const path = require('node:path')
 
-const { PACKAGE_JSON } = require('@socketregistry/scripts/constants')
+const constants = require('@socketregistry/scripts/constants')
+const {
+  PACKAGE_JSON,
+  kInternalsSymbol,
+  [kInternalsSymbol]: { getGlobMatcher, which, whichSync }
+} = constants
 
 const slashRegExp = /[/\\]/
 const leadingDotSlashRegExp = /^\.\.?[/\\]/
@@ -40,11 +45,14 @@ function trimTrailingSlash(filepath) {
 }
 
 module.exports = {
+  getGlobMatcher,
   isNodeModules,
   isRelative,
   resolvePackageJsonDirname,
   resolvePackageJsonPath,
   splitPath,
   trimLeadingDotSlash,
-  trimTrailingSlash
+  trimTrailingSlash,
+  which,
+  whichSync
 }

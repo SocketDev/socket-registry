@@ -7,8 +7,10 @@ const { packageExtensions: yarnPkgExts } = require('@yarnpkg/extensions')
 const browserslist = require('browserslist')
 const { createNewSortInstance } = require('fast-sort')
 const fs = require('fs-extra')
+const picomatch = require('picomatch')
 const semver = require('semver')
-const which = require('which')
+const whichFn = require('which')
+const { sync: whichSyncFn } = whichFn
 
 const EMPTY_FILE = '/* empty */\n'
 const LICENSE = 'LICENSE'
@@ -67,33 +69,6 @@ const relTestNpmNodeModulesPath = path.relative(
 
 const LICENSE_CONTENT = fs.readFileSync(rootLicensePath, 'utf8')
 
-const { compare: localCompare } = new Intl.Collator()
-
-const innerReadDirNames = (dirents, options) => {
-  const opts = { sort: true, ...options }
-  const names = dirents.filter(d => d.isDirectory()).map(d => d.name)
-  return opts.sort ? names.sort(localCompare) : names
-}
-
-const naturalSort = createNewSortInstance({
-  comparer: new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
-    .compare
-})
-
-const readDirNamesSync = (dirname, options) =>
-  innerReadDirNames(fs.readdirSync(dirname, { withFileTypes: true }), options)
-
-const whichSyncOptions = {
-  path: `${rootNodeModulesBinPath}${path.delimiter}${process.env.PATH}`
-}
-const whichSync = cmd => which.sync(cmd, whichSyncOptions)
-
-const npmExecPath = whichSync('npm')
-const runScriptParallelExecPath = whichSync('run-p')
-const runScriptSequentiallyExecPath = whichSync('run-s')
-
-const ecosystems = Object.freeze(readDirNamesSync(rootPackagesPath))
-
 const ignores = Object.freeze([
   ...new Set([
     // Most of these ignored files can be included specifically if included in the
@@ -109,6 +84,101 @@ const ignores = Object.freeze([
     ...includeIgnoreFile(gitignorePath).ignores
   ])
 ])
+
+const { compare: localCompare } = new Intl.Collator()
+
+const naturalSort = createNewSortInstance({
+  comparer: new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
+    .compare
+})
+
+const innerReadDirNames = function innerReadDirNames(dirents, options) {
+  const { sort, includeEmpty } = { sort: true, includeEmpty: false, ...options }
+  const names = dirents
+    .filter(
+      d =>
+        d.isDirectory() &&
+        (includeEmpty || !isDirEmptySync(path.join(d.parentPath, d.name)))
+    )
+    .map(d => d.name)
+  return sort ? names.sort(localCompare) : names
+}
+
+const matcherCache = new Map()
+
+const getGlobMatcher = function getGlobMatcher(glob, options) {
+  const patterns = Array.isArray(glob) ? glob : [glob]
+  const key = JSON.stringify({ patterns, options })
+  let matcher = matcherCache.get(key)
+  if (matcher) {
+    return matcher
+  }
+  matcher = picomatch(patterns, {
+    dot: true,
+    nocase: true,
+    ...options
+  })
+  matcherCache.set(key, matcher)
+  return matcher
+}
+
+const isDirEmptySync = function isDirEmptySync(dirname) {
+  try {
+    const files = fs.readdirSync(dirname)
+    const { length } = files
+    if (length === 0) {
+      return true
+    }
+    const matcher = getGlobMatcher(ignores, { cwd: dirname })
+    let ignoredCount = 0
+    for (let i = 0; i < length; i += 1) {
+      if (matcher(files[i])) {
+        ignoredCount += 1
+      }
+    }
+    return ignoredCount === length
+  } catch (e) {
+    return e?.code === 'ENOENT'
+  }
+}
+
+const readDirNamesSync = function readDirNamesSync(dirname, options) {
+  return innerReadDirNames(
+    fs.readdirSync(dirname, { withFileTypes: true }),
+    options
+  )
+}
+
+const defaultWhichOptions = {
+  path: `${rootNodeModulesBinPath}${path.delimiter}${process.env.PATH}`
+}
+
+const which = function which(cmd, options) {
+  return whichFn(cmd, { ...defaultWhichOptions, ...options })
+}
+
+const whichSync = function whichSync(cmd, options) {
+  return whichSyncFn(cmd, { ...defaultWhichOptions, ...options })
+}
+
+const kInternalsSymbol = Symbol('@socketregistry.constants.internals')
+
+const internals = {
+  getGlobMatcher,
+  innerReadDirNames,
+  isDirEmptySync,
+  localCompare,
+  naturalSort,
+  readDirNamesSync,
+  which,
+  whichSync
+}
+
+const npmExecPath = whichSync('npm')
+const runScriptParallelExecPath = whichSync('run-p')
+const runScriptSequentiallyExecPath = whichSync('run-s')
+
+const ecosystems = Object.freeze(readDirNamesSync(rootPackagesPath))
 
 const lifecycleScriptNames = new Set(
   [
@@ -261,6 +331,7 @@ const tsLibs = new Set([
 ])
 
 module.exports = {
+  [kInternalsSymbol]: internals,
   EMPTY_FILE,
   LICENSE,
   LICENSE_CONTENT,
@@ -280,14 +351,12 @@ module.exports = {
   VERSION,
   ecosystems,
   execPath,
-  ignores,
-  innerReadDirNames,
   gitignorePath,
+  ignores,
+  kInternalsSymbol,
   lifecycleScriptNames,
-  localCompare,
   lowerToCamelCase,
   maintainedNodeVersions,
-  naturalSort,
   npmExecPath,
   npmPackageNames,
   npmPackagesPath,

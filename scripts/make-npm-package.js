@@ -161,8 +161,6 @@ function modifyContent(content, data = {}) {
       execPath,
       [
         runScriptParallelExecPath,
-        '--continue-on-error',
-        '--aggregate-output',
         'update:package-json',
         `update:npm:test-package-json -- --add ${pkgName}`
       ],

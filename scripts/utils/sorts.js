@@ -1,9 +1,10 @@
 'use strict'
 
+const constants = require('@socketregistry/scripts/constants')
 const {
-  localCompare,
-  naturalSort
-} = require('@socketregistry/scripts/constants')
+  kInternalsSymbol,
+  [kInternalsSymbol]: { localCompare, naturalSort }
+} = constants
 
 module.exports = {
   localCompare,

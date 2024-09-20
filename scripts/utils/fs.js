@@ -5,10 +5,11 @@ const util = require('node:util')
 
 const fs = require('fs-extra')
 
+const constants = require('@socketregistry/scripts/constants')
 const {
-  innerReadDirNames,
-  readDirNamesSync
-} = require('@socketregistry/scripts/constants')
+  kInternalsSymbol,
+  [kInternalsSymbol]: { innerReadDirNames, readDirNamesSync, isDirEmptySync }
+} = constants
 const {
   normalizePackageJson,
   toEditablePackageJson,
@@ -30,6 +31,14 @@ async function cp(srcPath, destPath, options) {
     recursive: true,
     ...otherOptions
   })
+}
+
+async function isDirEmpty(dirname) {
+  try {
+    return (await fs.readdir(dirname)).length === 0
+  } catch (e) {
+    return e?.code === 'ENOENT'
+  }
 }
 
 function isSymbolicLinkSync(filepath) {
@@ -80,6 +89,8 @@ function uniqueSync(filepath) {
 
 module.exports = {
   cp,
+  isDirEmpty,
+  isDirEmptySync,
   isSymbolicLinkSync,
   move,
   readDirNames,
