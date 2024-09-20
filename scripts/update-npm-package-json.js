@@ -2,8 +2,6 @@
 
 const path = require('node:path')
 
-const fs = require('fs-extra')
-
 const {
   PACKAGE_JSON,
   npmPackageNames,
@@ -15,12 +13,15 @@ const { createPackageJson } = require('@socketregistry/scripts/utils/packages')
 ;(async () => {
   for (const pkgName of npmPackageNames) {
     const pkgJsonPath = path.join(npmPackagesPath, pkgName, PACKAGE_JSON)
-    const pkgJson = await readPackageJson(pkgJsonPath)
-    const { name } = pkgJson
-    const directory = `packages/npm/${pkgName}`
-    const output = createPackageJson(name, directory, {
-      ...pkgJson
+    const editablePkgJson = await readPackageJson(pkgJsonPath, {
+      editable: true
     })
-    await fs.writeJson(pkgJsonPath, output, { spaces: 2 })
+    const directory = `packages/npm/${pkgName}`
+    editablePkgJson.update(
+      createPackageJson(editablePkgJson.content.name, directory, {
+        ...editablePkgJson.content
+      })
+    )
+    await editablePkgJson.save()
   }
 })()

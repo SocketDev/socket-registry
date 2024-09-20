@@ -6,7 +6,6 @@ import { describe, it } from 'node:test'
 import fs from 'fs-extra'
 import semver from 'semver'
 import { glob as tinyGlob } from 'tinyglobby'
-import validateNpmPackageName from 'validate-npm-package-name'
 
 import {
   LICENSE,
@@ -24,6 +23,8 @@ import {
 import { readPackageJson } from '@socketregistry/scripts/utils/fs'
 // @ts-ignore
 import { isObjectObject } from '@socketregistry/scripts/utils/objects'
+// @ts-ignore
+import { isValidPackageName } from '@socketregistry/scripts/utils/packages'
 // @ts-ignore
 import { trimLeadingDotSlash } from '@socketregistry/scripts/utils/path'
 // @ts-ignore
@@ -114,9 +115,7 @@ describe('Ecosystems', async () => {
               .sort(localCompare)
 
             it('package name should be valid', () => {
-              assert.ok(
-                validateNpmPackageName(pkgJson.name).validForNewPackages
-              )
+              assert.ok(isValidPackageName(pkgJson.name))
             })
 
             it('package name should be "name" field of package.json', () => {

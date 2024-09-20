@@ -10,6 +10,39 @@ const fs = require('fs-extra')
 const semver = require('semver')
 const which = require('which')
 
+const EMPTY_FILE = '/* empty */\n'
+const LICENSE = 'LICENSE'
+const LICENSE_GLOB_PATTERN = 'LICEN[CS]E{.*,}'
+const MIT = 'MIT'
+const NODE_MODULES = 'node_modules'
+const NODE_WORKSPACES = 'node_workspaces'
+const NODE_VERSION = process.versions.node
+const NPM_ORG = 'socketregistry'
+const NPM_SCOPE = `@${NPM_ORG}`
+const PACKAGE_JSON = 'package.json'
+const PACKAGE_LOCK = 'package-lock.json'
+const PACKAGE_HIDDEN_LOCK = `.${PACKAGE_LOCK}`
+const README_GLOB_PATTERN = 'README{.*,}'
+const REPO_ORG = 'SocketDev'
+const REPO_NAME = 'socket-registry-js'
+const VERSION = '1.0.0'
+
+const rootPath = path.resolve(__dirname, '..')
+const rootLicensePath = path.join(rootPath, LICENSE)
+const rootManifestJsonPath = path.join(rootPath, 'manifest.json')
+const rootNodeModulesPath = path.join(rootPath, NODE_MODULES)
+const rootNodeModulesBinPath = path.join(rootNodeModulesPath, '.bin')
+const rootPackageJsonPath = path.join(rootPath, PACKAGE_JSON)
+const rootPackageLockPath = path.join(rootPath, PACKAGE_LOCK)
+const rootPackagesPath = path.join(rootPath, 'packages')
+
+const { execPath } = process
+const gitignorePath = path.resolve(rootPath, '.gitignore')
+const prettierignorePath = path.resolve(rootPath, '.prettierignore')
+const templatesPath = path.join(__dirname, 'templates')
+
+const LICENSE_CONTENT = fs.readFileSync(rootLicensePath, 'utf8')
+
 const { compare: localCompare } = new Intl.Collator()
 
 const innerReadDirNames = (dirents, options) => {
@@ -26,45 +59,17 @@ const naturalSort = createNewSortInstance({
 const readDirNamesSync = (dirname, options) =>
   innerReadDirNames(fs.readdirSync(dirname, { withFileTypes: true }), options)
 
-const EMPTY_FILE = '/* empty */\n'
-const LICENSE = 'LICENSE'
-const LICENSE_GLOB_PATTERN = 'LICEN[CS]E{.*,}'
-const MIT = 'MIT'
-const NODE_MODULES = 'node_modules'
-const NODE_WORKSPACE = 'node_workspace'
-const NODE_VERSION = process.versions.node
-const NPM_ORG = 'socketregistry'
-const NPM_SCOPE = `@${NPM_ORG}`
-const PACKAGE_JSON = 'package.json'
-const PACKAGE_LOCK = 'package-lock.json'
-const PACKAGE_HIDDEN_LOCK = `.${PACKAGE_LOCK}`
-const README_GLOB_PATTERN = 'README{.*,}'
-const REPO_ORG = 'SocketDev'
-const REPO_NAME = 'socket-registry-js'
-const VERSION = '1.0.0'
+const whichSyncOptions = {
+  path: `${rootNodeModulesBinPath}${path.delimiter}${process.env.PATH}`
+}
+const whichSync = cmd => which.sync(cmd, whichSyncOptions)
 
-const rootPath = path.resolve(__dirname, '..')
-
-const rootLicensePath = path.join(rootPath, LICENSE)
-const LICENSE_CONTENT = fs.readFileSync(rootLicensePath, 'utf8')
-
-const rootManifestJsonPath = path.join(rootPath, 'manifest.json')
-const rootNodeModulesPath = path.join(rootPath, NODE_MODULES)
-const rootPackageJsonPath = path.join(rootPath, PACKAGE_JSON)
-const rootPackageLockPath = path.join(rootPath, PACKAGE_LOCK)
-const rootPackagesPath = path.join(rootPath, 'packages')
-
-const { execPath } = process
-const gitignorePath = path.resolve(rootPath, '.gitignore')
-const prettierignorePath = path.resolve(rootPath, '.prettierignore')
-const templatesPath = path.join(__dirname, 'templates')
-
-const npmExecPath = which.sync('npm')
+const npmExecPath = whichSync('npm')
 const npmPackagesPath = path.join(rootPackagesPath, 'npm')
 const npmTemplatesPath = path.join(templatesPath, 'npm')
 
-const runScriptParallelExecPath = which.sync('run-p')
-const runScriptSequentiallyExecPath = which.sync('run-s')
+const runScriptParallelExecPath = whichSync('run-p')
+const runScriptSequentiallyExecPath = whichSync('run-s')
 
 const testNpmPath = path.join(rootPath, 'test/npm')
 const testNpmPkgJsonPath = path.join(testNpmPath, PACKAGE_JSON)
@@ -74,14 +79,14 @@ const testNpmNodeModulesHiddenLockPath = path.join(
   testNpmNodeModulesPath,
   PACKAGE_HIDDEN_LOCK
 )
-const testNpmNodeWorkspacePath = path.join(testNpmPath, NODE_WORKSPACE)
+const testNpmNodeWorkspacesPath = path.join(testNpmPath, NODE_WORKSPACES)
 
-const workspacePath = path.join(testNpmPath, NODE_WORKSPACE)
+const workspacePath = path.join(testNpmPath, NODE_WORKSPACES)
 
 const yarnPkgExtsPath = path.join(rootNodeModulesPath, '@yarnpkg/extensions')
 const yarnPkgExtsJsonPath = path.join(yarnPkgExtsPath, PACKAGE_JSON)
 
-const ecosystems = readDirNamesSync(rootPackagesPath)
+const ecosystems = Object.freeze(readDirNamesSync(rootPackagesPath))
 
 const ignores = Object.freeze([
   ...new Set([
@@ -190,41 +195,43 @@ const maintainedNodeVersions = (() => {
   ])
 })()
 
-const packageExtensions = [
-  ...yarnPkgExts,
+const packageExtensions = Object.freeze(
   [
-    '@yarnpkg/extensions@>=1.1.0',
-    {
-      // Properties with undefined values are omitted when saved as JSON.
-      peerDependencies: undefined
-    }
-  ],
-  [
-    'abab@>=2.0.0',
-    {
-      devDependencies: {
-        // Lower the Webpack from v4.x to one supported by abab's peers.
-        webpack: '^3.12.0'
+    ...yarnPkgExts,
+    [
+      '@yarnpkg/extensions@>=1.1.0',
+      {
+        // Properties with undefined values are omitted when saved as JSON.
+        peerDependencies: undefined
       }
-    }
-  ],
-  [
-    'is-generator-function@>=1.0.7',
-    {
-      scripts: {
-        // Make the script a silent no-op.
-        'test:uglified': ''
+    ],
+    [
+      'abab@>=2.0.0',
+      {
+        devDependencies: {
+          // Lower the Webpack from v4.x to one supported by abab's peers.
+          webpack: '^3.12.0'
+        }
       }
-    }
-  ]
-].sort((a, b) =>
-  localCompare(
-    a[0].slice(0, a[0].lastIndexOf('@')),
-    b[0].slice(0, b[0].lastIndexOf('@'))
+    ],
+    [
+      'is-generator-function@>=1.0.7',
+      {
+        scripts: {
+          // Make the script a silent no-op.
+          'test:uglified': ''
+        }
+      }
+    ]
+  ].sort((a, b) =>
+    localCompare(
+      a[0].slice(0, a[0].lastIndexOf('@')),
+      b[0].slice(0, b[0].lastIndexOf('@'))
+    )
   )
 )
 
-const npmPackageNames = readDirNamesSync(npmPackagesPath)
+const npmPackageNames = Object.freeze(readDirNamesSync(npmPackagesPath))
 
 const tsLibs = new Set([
   // Defined in priority order.
@@ -254,7 +261,7 @@ module.exports = {
   LICENSE_GLOB_PATTERN,
   MIT,
   NODE_MODULES,
-  NODE_WORKSPACE,
+  NODE_WORKSPACES,
   NODE_VERSION,
   NPM_ORG,
   NPM_SCOPE,
@@ -296,7 +303,7 @@ module.exports = {
   testNpmPkgLockPath,
   testNpmNodeModulesPath,
   testNpmNodeModulesHiddenLockPath,
-  testNpmNodeWorkspacePath,
+  testNpmNodeWorkspacesPath,
   tsLibs,
   workspacePath,
   yarnPkgExtsPath,

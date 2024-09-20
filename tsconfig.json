@@ -34,5 +34,5 @@
     "noUncheckedSideEffectImports": true
   },
   "include": ["packages/**/*.ts", "test/**/*.ts"],
-  "exclude": ["test/**/node_workspace/**/*"]
+  "exclude": ["test/**/node_workspaces/**/*"]
 }

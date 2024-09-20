@@ -1,29 +1,36 @@
 'use strict'
 
-const path = require('node:path')
-
 const EditablePackageJson = require('@npmcli/package-json')
+const spawn = require('@npmcli/promise-spawn')
 const normalizePackageData = require('normalize-package-data')
 const npmPackageArg = require('npm-package-arg')
 const semver = require('semver')
+const validateNpmPackageName = require('validate-npm-package-name')
 
 const {
-  maintainedNodeVersions,
   MIT,
   NPM_SCOPE,
   REPO_ORG,
   REPO_NAME,
   VERSION,
+  maintainedNodeVersions,
+  npmExecPath,
+  npmPackageNames,
   packageExtensions,
-  PACKAGE_JSON
+  rootPath
 } = require('@socketregistry/scripts/constants')
 const {
   isObjectObject,
   merge
 } = require('@socketregistry/scripts/utils/objects')
+const {
+  resolvePackageJsonDirname,
+  isNodeModules
+} = require('@socketregistry/scripts/utils/path')
 const { escapeRegExp } = require('@socketregistry/scripts/utils/regexps')
 
 const nodeVerPrev = maintainedNodeVersions.get('previous')
+const socketRegistryPackageLookup = new Set(npmPackageNames)
 
 function createPackageJson(pkgName, directory, options = {}) {
   const {
@@ -75,6 +82,16 @@ function createPackageJson(pkgName, directory, options = {}) {
   }
 }
 
+async function existsInNpmRegistry(pkgName) {
+  if (isValidPackageName(pkgName)) {
+    try {
+      await spawn(npmExecPath, ['view', pkgName, 'name'], { cwd: rootPath })
+      return true
+    } catch {}
+  }
+  return false
+}
+
 function findPackageExtensions(pkgName, pkgVer) {
   let result
   for (const { 0: selector, 1: ext } of packageExtensions) {
@@ -93,10 +110,46 @@ function findPackageExtensions(pkgName, pkgVer) {
   return result
 }
 
-function normalizePackageJson(pkgJson) {
+function isSocketRegistryPackage(pkgName) {
+  return socketRegistryPackageLookup.has(pkgName)
+}
+
+function isValidPackageName(pkgName) {
+  const validation = validateNpmPackageName(pkgName)
+  return (
+    validation.validForNewPackages || validation.validForOldPackages || false
+  )
+}
+
+function jsonToEditablePackageJson(pkgJson, options) {
+  return new EditablePackageJson().fromContent(
+    normalizePackageJson(pkgJson, options)
+  )
+}
+
+function normalizePackageJson(pkgJson, options) {
+  const { preserve } = { ...options }
+  const preserved = [
+    ['_id', undefined],
+    ['readme', undefined],
+    ...(Object.hasOwn(pkgJson, 'bugs') ? [] : [['bugs', undefined]]),
+    ...(Object.hasOwn(pkgJson, 'homepage') ? [] : [['homepage', undefined]]),
+    ...(Object.hasOwn(pkgJson, 'name') ? [] : [['name', undefined]]),
+    ...(Object.hasOwn(pkgJson, 'version') ? [] : [['version', undefined]]),
+    ...(Array.isArray(preserve)
+      ? preserve.map(k => [
+          k,
+          Object.hasOwn(pkgJson, k) ? pkgJson[k] : undefined
+        ])
+      : [])
+  ]
   normalizePackageData(pkgJson)
-  const ext = findPackageExtensions(pkgJson.name, pkgJson.version)
-  merge(pkgJson, ext)
+  merge(pkgJson, findPackageExtensions(pkgJson.name, pkgJson.version))
+  // Revert/remove properties we don't care to have normalized.
+  // Properties with undefined values are omitted when saved as JSON.
+  for (const { 0: key, 1: value } of preserved) {
+    pkgJson[key] = value
+  }
   return pkgJson
 }
 
@@ -104,34 +157,42 @@ function parsePackageSpec(pkgName, pkgSpec, where) {
   return npmPackageArg.resolve(pkgName, pkgSpec, where)
 }
 
-async function toEditablePackageJson(pkgJson, pkgJsonPath) {
-  return pkgJsonPath
-    ? (
-        await EditablePackageJson.load(
-          path.basename(pkgJsonPath) === PACKAGE_JSON
-            ? path.dirname(pkgJsonPath)
-            : pkgJsonPath,
-          { create: true }
-        )
-      ).update(pkgJson)
-    : new EditablePackageJson().fromContent(pkgJson)
+async function toEditablePackageJson(pkgJson, options) {
+  const { path: pathOpt, ...otherOptions } = { ...options }
+  if (typeof pathOpt !== 'string') {
+    return jsonToEditablePackageJson(pkgJson, otherOptions)
+  }
+  const pkgJsonPath = resolvePackageJsonDirname(pathOpt)
+  const normalizeOptions = {
+    ...(isNodeModules(pkgJsonPath) ? {} : { preserve: ['repository'] }),
+    ...otherOptions
+  }
+  return (await EditablePackageJson.load(pkgJsonPath, { create: true })).update(
+    normalizePackageJson(pkgJson, normalizeOptions)
+  )
 }
 
-function toEditablePackageJsonSync(pkgJson, pkgJsonPath) {
-  return pkgJsonPath
-    ? new EditablePackageJson()
-        .create(
-          path.basename(pkgJsonPath) === PACKAGE_JSON
-            ? path.dirname(pkgJsonPath)
-            : pkgJsonPath
-        )
-        .update(pkgJson)
-    : new EditablePackageJson().fromContent(pkgJson)
+function toEditablePackageJsonSync(pkgJson, options) {
+  const { path: pathOpt, ...otherOptions } = { ...options }
+  if (typeof pathOpt !== 'string') {
+    return jsonToEditablePackageJson(pkgJson, otherOptions)
+  }
+  const pkgJsonPath = resolvePackageJsonDirname(pathOpt)
+  const normalizeOptions = {
+    ...(isNodeModules(pkgJsonPath) ? {} : { preserve: ['repository'] }),
+    ...otherOptions
+  }
+  return new EditablePackageJson()
+    .create(pkgJsonPath)
+    .update(normalizePackageJson(pkgJson, normalizeOptions))
 }
 
 module.exports = {
   createPackageJson,
+  existsInNpmRegistry,
   findPackageExtensions,
+  isSocketRegistryPackage,
+  isValidPackageName,
   normalizePackageJson,
   parsePackageSpec,
   toEditablePackageJson,

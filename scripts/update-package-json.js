@@ -14,6 +14,9 @@ const {
 } = require('@socketregistry/scripts/utils/fs')
 
 ;(async () => {
+  const rootEditablePkgJson = await readPackageJson(rootPackageJsonPath, {
+    editable: true
+  })
   // Update workspaces.
   const workspaces = []
   for (const eco of ecosystems) {
@@ -23,9 +26,6 @@ const {
       workspaces.push(`packages/${eco}/${pkgName}`)
     }
   }
-  const rootEditablePkgJson = await readPackageJson(rootPackageJsonPath, {
-    editable: true
-  })
   rootEditablePkgJson.update({ workspaces })
 
   // Update engines field.

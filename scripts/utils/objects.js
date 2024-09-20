@@ -12,57 +12,55 @@ function merge(target, source) {
   if (!isObject(target) || !isObject(source)) {
     return target
   }
-  if (Array.isArray(target)) {
-    if (Array.isArray(source)) {
-      for (const item of source) {
-        if (!target.includes(item)) {
-          target.push(item)
+  const queue = [[target, source]]
+  let pos = 0
+  let { length: queueLength } = queue
+  while (pos < queueLength) {
+    const { 0: currentTarget, 1: currentSource } = queue[pos++]
+    const isSourceArray = Array.isArray(currentSource)
+    if (Array.isArray(currentTarget)) {
+      if (isSourceArray) {
+        const seen = new Set(currentTarget)
+        for (let i = 0, { length } = currentSource; i < length; i += 1) {
+          const item = currentSource[i]
+          if (!seen.has(item)) {
+            currentTarget.push(item)
+            seen.add(item)
+          }
         }
       }
+      continue
     }
-    return target
-  }
-  if (Array.isArray(source)) {
-    return target
-  }
-  for (const { 0: key, 1: srcVal } of Object.entries(source)) {
-    if (Object.hasOwn(target, key)) {
-      const targetVal = target[key]
+    if (isSourceArray) {
+      continue
+    }
+    const keys = Reflect.ownKeys(currentSource)
+    for (let i = 0, { length } = keys; i < length; i += 1) {
+      const key = keys[i]
+      const srcVal = currentSource[key]
+      const targetVal = currentTarget[key]
       if (Array.isArray(srcVal)) {
-        const srcArr = srcVal
         if (Array.isArray(targetVal)) {
-          const targetArr = targetVal
-          for (const item of srcArr) {
-            if (!targetArr.includes(item)) {
-              targetArr.push(item)
+          const seen = new Set(targetVal)
+          for (let i = 0, { length } = srcVal; i < length; i += 1) {
+            const item = srcVal[i]
+            if (!seen.has(item)) {
+              targetVal.push(item)
+              seen.add(item)
             }
           }
         } else {
-          target[key] = srcVal
+          currentTarget[key] = srcVal
         }
       } else if (isObject(srcVal)) {
-        const srcObj = srcVal
         if (isObject(targetVal) && !Array.isArray(targetVal)) {
-          const targetObj = targetVal
-          for (const { 0: srcObjKey, 1: srcObjVal } of Object.entries(srcObj)) {
-            const targetObjVal = targetObj[srcObjKey]
-            if (
-              (Array.isArray(targetObjVal) || isObject(targetObjVal)) &&
-              (Array.isArray(srcObjVal) || isObject(srcObjVal))
-            ) {
-              targetObj[srcObjKey] = merge(targetObjVal, srcObjVal)
-            } else {
-              targetObj[srcObjKey] = srcObjVal
-            }
-          }
+          queue[queueLength++] = [targetVal, srcVal]
         } else {
-          target[key] = srcVal
+          currentTarget[key] = srcVal
         }
       } else {
-        target[key] = srcVal
+        currentTarget[key] = srcVal
       }
-    } else {
-      target[key] = srcVal
     }
   }
   return target
