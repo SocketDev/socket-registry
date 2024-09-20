@@ -1,0 +1,28 @@
+{
+  "name": "@socketregistry/aggregate-error",
+  "version": "1.0.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SocketDev/socket-registry-js",
+    "directory": "packages/npm/aggregate-error"
+  },
+  "type": "module",
+  "exports": {
+    "module": "./index.js",
+    "default": "./index.cjs"
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.20.4"
+  },
+  "files": [
+    "*.d.ts",
+    "*.cjs",
+    "*.js"
+  ],
+  "socket": {
+    "category": "cleanup"
+  },
+  "main": "./index.js"
+}

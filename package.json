@@ -84,6 +84,7 @@
   },
   "workspaces": [
     "packages/npm/abab",
+    "packages/npm/aggregate-error",
     "packages/npm/array-buffer-byte-length",
     "packages/npm/array-flatten",
     "packages/npm/array-includes",
@@ -118,6 +119,7 @@
     "packages/npm/es6-symbol",
     "packages/npm/function-bind",
     "packages/npm/function.prototype.name",
+    "packages/npm/functions-have-names",
     "packages/npm/get-symbol-description",
     "packages/npm/globalthis",
     "packages/npm/gopd",
@@ -128,6 +130,7 @@
     "packages/npm/has-symbols",
     "packages/npm/has-tostringtag",
     "packages/npm/hasown",
+    "packages/npm/indent-string",
     "packages/npm/internal-slot",
     "packages/npm/is-arguments",
     "packages/npm/is-array-buffer",

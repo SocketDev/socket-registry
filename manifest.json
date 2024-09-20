@@ -5,6 +5,10 @@
       { "category": "cleanup", "engines": { "node": ">=18.20.4" } }
     ],
     [
+      "pkg:npm/%40socketregistry/aggregate-error@1.0.0",
+      { "category": "cleanup", "engines": { "node": ">=18.20.4" } }
+    ],
+    [
       "pkg:npm/%40socketregistry/array-buffer-byte-length@1.0.0",
       { "category": "cleanup", "engines": { "node": ">=18.20.4" } }
     ],
@@ -145,6 +149,10 @@
       { "category": "cleanup", "engines": { "node": ">=18.20.4" } }
     ],
     [
+      "pkg:npm/%40socketregistry/functions-have-names@1.0.0",
+      { "category": "cleanup", "engines": { "node": ">=18.20.4" } }
+    ],
+    [
       "pkg:npm/%40socketregistry/get-symbol-description@1.0.0",
       { "category": "cleanup", "engines": { "node": ">=18.20.4" } }
     ],
@@ -182,6 +190,10 @@
     ],
     [
       "pkg:npm/%40socketregistry/hasown@1.0.0",
+      { "category": "cleanup", "engines": { "node": ">=18.20.4" } }
+    ],
+    [
+      "pkg:npm/%40socketregistry/indent-string@1.0.0",
       { "category": "cleanup", "engines": { "node": ">=18.20.4" } }
     ],
     [
