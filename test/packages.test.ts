@@ -30,6 +30,8 @@ import { localCompare } from '@socketregistry/scripts/utils/sorts'
 // @ts-ignore
 import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
 
+import { hasTestFilesChanges } from './utils'
+
 const extJs = '.js'
 const extDts = '.d.ts'
 const leadingDotSlashRegExp = /^\.\.?[/\\]/
@@ -49,7 +51,7 @@ const isDotPattern = (pattern: string) => pattern.startsWith('.')
 const prepareReqId = (id: string) =>
   path.isAbsolute(id) ? id : `./${trimLeadingDotSlash(id)}`
 
-describe('Ecosystems', async () => {
+describe('Ecosystems', { skip: !hasTestFilesChanges() }, async () => {
   for (const eco of ecosystems) {
     describe(`${eco}:`, async () => {
       if (eco === 'npm') {

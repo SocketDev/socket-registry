@@ -21,6 +21,8 @@ import {
 // @ts-ignore
 import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
 
+import { hasTestFilesChanges } from './utils'
+
 const skippedPackages = [
   // Has known test fails in its package:
   // https://github.com/es-shims/Date/issues/3
@@ -37,7 +39,7 @@ const skippedPackages = [
   'safer-buffer'
 ]
 
-describe('Package runs against their own unit tests', async () => {
+describe('Package runs against their own unit tests', { skip: !hasTestFilesChanges() }, async () => {
   const packageNames = <string[]>(
     (await readDirNames(testNpmNodeWorkspacesPath)).filter(
       (n: any) => !skippedPackages.includes(n)

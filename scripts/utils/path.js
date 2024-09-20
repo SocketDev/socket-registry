@@ -2,7 +2,11 @@
 
 const path = require('node:path')
 
-const { PACKAGE_JSON } = require('@socketregistry/scripts/constants')
+const {
+  PACKAGE_JSON,
+  kInternalsSymbol,
+  [kInternalsSymbol]: { getGlobMatcher }
+} = require('@socketregistry/scripts/constants')
 
 const slashRegExp = /[/\\]/
 const nodeModulesPathRegExp = /(?:^|[/\\])node_modules(?:[/\\]|$)/
@@ -26,6 +30,7 @@ function splitPath(filepath) {
 }
 
 module.exports = {
+  getGlobMatcher,
   isNodeModules,
   resolvePackageJsonDirname,
   resolvePackageJsonPath,

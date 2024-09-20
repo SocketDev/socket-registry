@@ -174,6 +174,7 @@ const internals = {
   whichSync
 }
 
+const gitExecPath = whichSync('git')
 const npmExecPath = whichSync('npm')
 const runScriptParallelExecPath = whichSync('run-p')
 const runScriptSequentiallyExecPath = whichSync('run-s')
@@ -351,6 +352,7 @@ module.exports = {
   VERSION,
   ecosystems,
   execPath,
+  gitExecPath,
   gitignorePath,
   ignores,
   kInternalsSymbol,
