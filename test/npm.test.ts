@@ -9,19 +9,19 @@ import semver from 'semver'
 import {
   NODE_VERSION,
   PACKAGE_JSON,
+  PRE_COMMIT,
   execPath,
+  npmPackagesPath,
   runScriptSequentiallyExecPath,
   testNpmNodeWorkspacesPath
   // @ts-ignore
 } from '@socketregistry/scripts/constants'
-import {
-  readDirNames
-  // @ts-ignores
-} from '@socketregistry/scripts/utils/fs'
+// @ts-ignores
+import { readDirNames } from '@socketregistry/scripts/utils/fs'
+// @ts-ignore
+import { isPathStagedSync } from '@socketregistry/scripts/utils/git'
 // @ts-ignore
 import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
-
-import { hasTestFilesChanges } from './utils'
 
 const skippedPackages = [
   // Has known test fails in its package:
@@ -38,8 +38,9 @@ const skippedPackages = [
   // Has known failures in its package.
   'safer-buffer'
 ]
+const skip = PRE_COMMIT && !isPathStagedSync(npmPackagesPath)
 
-describe('Package runs against their own unit tests', { skip: !hasTestFilesChanges() }, async () => {
+describe('Package runs against their own unit tests', { skip }, async () => {
   const packageNames = <string[]>(
     (await readDirNames(testNpmNodeWorkspacesPath)).filter(
       (n: any) => !skippedPackages.includes(n)

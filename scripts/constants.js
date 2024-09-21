@@ -24,6 +24,7 @@ const NPM_SCOPE = `@${NPM_ORG}`
 const PACKAGE_JSON = 'package.json'
 const PACKAGE_LOCK = 'package-lock.json'
 const PACKAGE_HIDDEN_LOCK = `.${PACKAGE_LOCK}`
+const PRE_COMMIT = /^(?:1|true)$/.test(process.env.PRE_COMMIT)
 const README_GLOB_PATTERN = 'README{.*,}'
 const REPO_ORG = 'SocketDev'
 const REPO_NAME = 'socket-registry-js'
@@ -346,6 +347,7 @@ module.exports = {
   PACKAGE_JSON,
   PACKAGE_HIDDEN_LOCK,
   PACKAGE_LOCK,
+  PRE_COMMIT,
   README_GLOB_PATTERN,
   REPO_ORG,
   REPO_NAME,

@@ -12,6 +12,7 @@ import {
   LICENSE_GLOB_PATTERN,
   NODE_VERSION,
   PACKAGE_JSON,
+  PRE_COMMIT,
   README_GLOB_PATTERN,
   ecosystems,
   ignores,
@@ -22,6 +23,8 @@ import {
 // @ts-ignore
 import { readPackageJson } from '@socketregistry/scripts/utils/fs'
 // @ts-ignore
+import { isPathStagedSync } from '@socketregistry/scripts/utils/git'
+// @ts-ignore
 import { isObjectObject } from '@socketregistry/scripts/utils/objects'
 // @ts-ignore
 import { isValidPackageName } from '@socketregistry/scripts/utils/packages'
@@ -30,13 +33,12 @@ import { localCompare } from '@socketregistry/scripts/utils/sorts'
 // @ts-ignore
 import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
 
-import { hasTestFilesChanges } from './utils'
-
 const extJs = '.js'
 const extDts = '.d.ts'
 const leadingDotSlashRegExp = /^\.\.?[/\\]/
 const overridesDir = 'overrides/'
 const shimApiKeys = ['getPolyfill', 'implementation', 'shim']
+const skip = PRE_COMMIT && !isPathStagedSync(npmPackagesPath)
 
 function findLeakedApiKey(keys: any[]): string | undefined {
   return shimApiKeys.find(k => keys.includes(k))
@@ -51,7 +53,7 @@ const isDotPattern = (pattern: string) => pattern.startsWith('.')
 const prepareReqId = (id: string) =>
   path.isAbsolute(id) ? id : `./${trimLeadingDotSlash(id)}`
 
-describe('Ecosystems', { skip: !hasTestFilesChanges() }, async () => {
+describe('Ecosystems', { skip }, async () => {
   for (const eco of ecosystems) {
     describe(`${eco}:`, async () => {
       if (eco === 'npm') {

@@ -1,42 +1,57 @@
 'use strict'
 
-const path = require('node:path')
 const { spawnSync } = require('node:child_process')
+const path = require('node:path')
 
 const spawn = require('@npmcli/promise-spawn')
 
-const {
+const { gitExecPath, rootPath } = require('@socketregistry/scripts/constants')
+const { getGlobMatcher } = require('@socketregistry/scripts/utils/path')
+
+const spawnArgsGitStaged = [
   gitExecPath,
-  rootPath
-} = require('@socketregistry/scripts/constants')
+  ['diff', '--cached', '--name-only'],
+  {
+    cwd: rootPath,
+    encoding: 'utf8'
+  }
+]
 
-const gitDiffArgsForStaged = [gitExecPath, ['diff', '--cached', '--name-only'], {
-  cwd: rootPath
-}]
-
-function innerGitStagedFiles(stdout, options) {
+function innerGetStagedFiles(stdout, options) {
   const { absolute } = { ...options }
   const stagedFiles = stdout?.split('\n') ?? []
   return absolute
-    ? stagedFiles.map((rel) => path.join(rootPath, rel))
-    : stagedFiles.map((rel) => path.normalize(rel))
+    ? stagedFiles.map(rel => path.join(rootPath, rel))
+    : stagedFiles.map(rel => path.normalize(rel))
 }
 
-async function gitStagedFiles(options) {
+async function getStagedFiles(options) {
   try {
-    return innerGitStagedFiles((await spawn(...gitDiffArgsForStaged)).stdout, options)
+    return innerGetStagedFiles(
+      (await spawn(...spawnArgsGitStaged)).stdout,
+      options
+    )
   } catch {}
   return []
 }
 
-async function gitStagedFilesSync(options) {
+function getStagedFilesSync(options) {
   try {
-    return innerGitStagedFiles(spawnSync(...gitDiffArgsForStaged).stdout, options)
+    return innerGetStagedFiles(spawnSync(...spawnArgsGitStaged).stdout, options)
   } catch {}
   return []
+}
+
+function isPathStagedSync(dirname) {
+  const stagedFiles = getStagedFilesSync()
+  const matcher = getGlobMatcher([`${path.relative(rootPath, dirname)}/**`], {
+    cwd: rootPath
+  })
+  return stagedFiles.some(rel => matcher(rel))
 }
 
 module.exports = {
-  gitStagedFiles,
-  gitStagedFilesSync
+  getStagedFiles,
+  getStagedFilesSync,
+  isPathStagedSync
 }
