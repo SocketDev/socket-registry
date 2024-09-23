@@ -7,12 +7,21 @@ const { packageExtensions: yarnPkgExts } = require('@yarnpkg/extensions')
 const browserslist = require('browserslist')
 const { createNewSortInstance } = require('fast-sort')
 const fs = require('fs-extra')
+const pacote = require('pacote')
 const picomatch = require('picomatch')
 const semver = require('semver')
 const whichFn = require('which')
 const { sync: whichSyncFn } = whichFn
 
+const { constructor: PacoteFetcherBase } = Reflect.getPrototypeOf(
+  pacote.RegistryFetcher.prototype
+)
+const packumentCache = new Map()
+
 const EMPTY_FILE = '/* empty */\n'
+const ENV = Object.freeze({
+  PRE_COMMIT: /^(?:1|true)$/.test(process.env.PRE_COMMIT)
+})
 const LICENSE = 'LICENSE'
 const LICENSE_GLOB_PATTERN = 'LICEN[CS]E{.*,}'
 const MIT = 'MIT'
@@ -21,13 +30,14 @@ const NODE_WORKSPACES = 'node_workspaces'
 const NODE_VERSION = process.versions.node
 const NPM_ORG = 'socketregistry'
 const NPM_SCOPE = `@${NPM_ORG}`
+const OVERRIDES = 'overrides'
 const PACKAGE_JSON = 'package.json'
 const PACKAGE_LOCK = 'package-lock.json'
 const PACKAGE_HIDDEN_LOCK = `.${PACKAGE_LOCK}`
-const PRE_COMMIT = /^(?:1|true)$/.test(process.env.PRE_COMMIT)
 const README_GLOB_PATTERN = 'README{.*,}'
 const REPO_ORG = 'SocketDev'
 const REPO_NAME = 'socket-registry-js'
+const TSCONFIG_JSON = 'tsconfig.json'
 const VERSION = '1.0.0'
 
 const rootPath = path.resolve(__dirname, '..')
@@ -38,9 +48,12 @@ const rootNodeModulesBinPath = path.join(rootNodeModulesPath, '.bin')
 const rootPackageJsonPath = path.join(rootPath, PACKAGE_JSON)
 const rootPackageLockPath = path.join(rootPath, PACKAGE_LOCK)
 const rootPackagesPath = path.join(rootPath, 'packages')
+const rootTsConfigPath = path.join(rootPath, TSCONFIG_JSON)
 
 const { execPath } = process
 const gitignorePath = path.resolve(rootPath, '.gitignore')
+const pacoteCachePath = new PacoteFetcherBase(/*dummy package spec*/ 'x', {})
+  .cache
 const prettierignorePath = path.resolve(rootPath, '.prettierignore')
 const templatesPath = path.join(__dirname, 'templates')
 
@@ -94,7 +107,12 @@ const naturalSort = createNewSortInstance({
 })
 
 const innerReadDirNames = function innerReadDirNames(dirents, options) {
-  const { sort, includeEmpty } = { sort: true, includeEmpty: false, ...options }
+  const { sort, includeEmpty } = {
+    __proto__: null,
+    sort: true,
+    includeEmpty: false,
+    ...options
+  }
   const names = dirents
     .filter(
       d =>
@@ -155,16 +173,20 @@ const defaultWhichOptions = {
 }
 
 const which = function which(cmd, options) {
-  return whichFn(cmd, { ...defaultWhichOptions, ...options })
+  return whichFn(cmd, { __proto__: null, ...defaultWhichOptions, ...options })
 }
 
 const whichSync = function whichSync(cmd, options) {
-  return whichSyncFn(cmd, { ...defaultWhichOptions, ...options })
+  return whichSyncFn(cmd, {
+    __proto__: null,
+    ...defaultWhichOptions,
+    ...options
+  })
 }
 
 const kInternalsSymbol = Symbol('@socketregistry.constants.internals')
 
-const internals = {
+const internals = Object.freeze({
   getGlobMatcher,
   innerReadDirNames,
   isDirEmptySync,
@@ -173,7 +195,7 @@ const internals = {
   readDirNamesSync,
   which,
   whichSync
-}
+})
 
 const gitExecPath = whichSync('git')
 const npmExecPath = whichSync('npm')
@@ -335,6 +357,7 @@ const tsLibs = new Set([
 module.exports = {
   [kInternalsSymbol]: internals,
   EMPTY_FILE,
+  ENV,
   LICENSE,
   LICENSE_CONTENT,
   LICENSE_GLOB_PATTERN,
@@ -344,10 +367,10 @@ module.exports = {
   NODE_VERSION,
   NPM_ORG,
   NPM_SCOPE,
+  OVERRIDES,
   PACKAGE_JSON,
   PACKAGE_HIDDEN_LOCK,
   PACKAGE_LOCK,
-  PRE_COMMIT,
   README_GLOB_PATTERN,
   REPO_ORG,
   REPO_NAME,
@@ -366,6 +389,8 @@ module.exports = {
   npmPackagesPath,
   npmTemplatesPath,
   packageExtensions,
+  packumentCache,
+  pacoteCachePath,
   prettierignorePath,
   relPackagesPath,
   relNpmPackagesPath,
@@ -378,6 +403,7 @@ module.exports = {
   rootPackageJsonPath,
   rootPackageLockPath,
   rootPackagesPath,
+  rootTsConfigPath,
   runScriptParallelExecPath,
   runScriptSequentiallyExecPath,
   templatesPath,

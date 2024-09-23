@@ -1,11 +1,14 @@
 'use strict'
 
 const EditablePackageJson = require('@npmcli/package-json')
-const spawn = require('@npmcli/promise-spawn')
+const cacache = require('cacache')
 const normalizePackageData = require('normalize-package-data')
 const npmPackageArg = require('npm-package-arg')
+const pacote = require('pacote')
 const semver = require('semver')
 const validateNpmPackageName = require('validate-npm-package-name')
+
+const { RegistryFetcher } = pacote
 
 const {
   MIT,
@@ -14,9 +17,9 @@ const {
   REPO_NAME,
   VERSION,
   maintainedNodeVersions,
-  npmExecPath,
   packageExtensions,
-  rootPath
+  packumentCache,
+  pacoteCachePath
 } = require('@socketregistry/scripts/constants')
 const {
   isObjectObject,
@@ -80,14 +83,34 @@ function createPackageJson(pkgName, directory, options = {}) {
   }
 }
 
-async function existsInNpmRegistry(pkgName) {
-  if (isValidPackageName(pkgName)) {
-    try {
-      await spawn(npmExecPath, ['view', pkgName, 'name'], { cwd: rootPath })
-      return true
-    } catch {}
+async function extractPackage(pkgSpecRaw, options, callback) {
+  if (arguments.length === 2 && typeof options === 'function') {
+    callback = options
+    options = {}
   }
-  return false
+  const { tmpPrefix, ...otherOptions } = { __proto__: null, ...options }
+  cacache.tmp.withTmp(pacoteCachePath, { tmpPrefix }, async tmpDirPath => {
+    await pacote.extract(pkgSpecRaw, tmpDirPath, {
+      __proto__: null,
+      packumentCache,
+      ...otherOptions
+    })
+    await callback(tmpDirPath)
+  })
+}
+
+async function fetchPackageManifest(pkgSpecRaw, options) {
+  const { where, ...otherOptions } = { __proto__: null, ...options }
+  try {
+    const spec = npmPackageArg(pkgSpecRaw, where)
+    const fetcher = new RegistryFetcher(spec.subSpec || spec, {
+      __proto__: null,
+      packumentCache,
+      ...otherOptions
+    })
+    return await fetcher.manifest()
+  } catch {}
+  return null
 }
 
 function findPackageExtensions(pkgName, pkgVer) {
@@ -122,7 +145,7 @@ function jsonToEditablePackageJson(pkgJson, options) {
 }
 
 function normalizePackageJson(pkgJson, options) {
-  const { preserve } = { ...options }
+  const { preserve } = { __proto__: null, ...options }
   const preserved = [
     ['_id', undefined],
     ['readme', undefined],
@@ -152,7 +175,7 @@ function parsePackageSpec(pkgName, pkgSpec, where) {
 }
 
 async function toEditablePackageJson(pkgJson, options) {
-  const { path: pathOpt, ...otherOptions } = { ...options }
+  const { path: pathOpt, ...otherOptions } = { __proto__: null, ...options }
   if (typeof pathOpt !== 'string') {
     return jsonToEditablePackageJson(pkgJson, otherOptions)
   }
@@ -168,7 +191,8 @@ async function toEditablePackageJson(pkgJson, options) {
 
 module.exports = {
   createPackageJson,
-  existsInNpmRegistry,
+  extractPackage,
+  fetchPackageManifest,
   isValidPackageName,
   normalizePackageJson,
   parsePackageSpec,

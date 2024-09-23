@@ -7,23 +7,29 @@ import fs from 'fs-extra'
 import semver from 'semver'
 
 import {
+  ENV,
   NODE_VERSION,
   PACKAGE_JSON,
-  PRE_COMMIT,
   execPath,
-  npmPackagesPath,
   runScriptSequentiallyExecPath,
   testNpmNodeWorkspacesPath
   // @ts-ignore
 } from '@socketregistry/scripts/constants'
 // @ts-ignores
 import { readDirNames } from '@socketregistry/scripts/utils/fs'
-// @ts-ignore
-import { isPathStagedSync } from '@socketregistry/scripts/utils/git'
+import {
+  getModifiedPackagesSync,
+  getStagedPackagesSync
+  // @ts-ignore
+} from '@socketregistry/scripts/utils/git'
 // @ts-ignore
 import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
 
-const skippedPackages = [
+const testablePackages: Set<string> = ENV.PRE_COMMIT
+  ? getStagedPackagesSync('npm', { asSet: true })
+  : getModifiedPackagesSync('npm', { asSet: true })
+
+const skippedPackages = new Set([
   // Has known test fails in its package:
   // https://github.com/es-shims/Date/issues/3
   'date',
@@ -37,15 +43,12 @@ const skippedPackages = [
   'is-regex',
   // Has known failures in its package.
   'safer-buffer'
-]
-const skip = PRE_COMMIT && !isPathStagedSync(npmPackagesPath)
+])
 
-describe('Package runs against their own unit tests', { skip }, async () => {
-  const packageNames = <string[]>(
-    (await readDirNames(testNpmNodeWorkspacesPath)).filter(
-      (n: any) => !skippedPackages.includes(n)
-    )
-  )
+describe('npm', async () => {
+  const packageNames: string[] = (
+    await readDirNames(testNpmNodeWorkspacesPath)
+  ).filter((n: string) => testablePackages.has(n) && !skippedPackages.has(n))
 
   for (const pkgName of packageNames) {
     const wsPkgPath = path.join(testNpmNodeWorkspacesPath, pkgName)
@@ -56,7 +59,7 @@ describe('Package runs against their own unit tests', { skip }, async () => {
       (isNonEmptyString(nodeRange) &&
         !semver.satisfies(NODE_VERSION, nodeRange))
 
-    it(`${pkgName} should pass all its unit tests`, { skip }, async () => {
+    it(`${pkgName} passes all its tests`, { skip }, async () => {
       try {
         await spawn(execPath, [runScriptSequentiallyExecPath, 'test'], {
           cwd: wsPkgPath

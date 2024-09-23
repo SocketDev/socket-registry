@@ -15,7 +15,8 @@ const {
   npmPackagesPath,
   npmPackageNames,
   prettierignorePath,
-  relNpmPackagesPath
+  relNpmPackagesPath,
+  rootTsConfigPath
 } = require('@socketregistry/scripts/constants')
 
 const {
@@ -53,7 +54,7 @@ const getIgnores = isEsm =>
     })
     .map(n => `${relNpmPackagesPath}/${n}/*`)
 
-const getImportFlatConfigs = isEsm => ({
+const getImportXFlatConfigs = isEsm => ({
   recommended: {
     ...origImportXFlatConfigs.recommended,
     languageOptions: {
@@ -89,13 +90,26 @@ const getImportFlatConfigs = isEsm => ({
       ]
     }
   },
-  typescript: origImportXFlatConfigs.typescript
+  typescript: {
+    ...origImportXFlatConfigs.typescript,
+    settings: {
+      ...origImportXFlatConfigs.typescript.settings,
+      'import-x/resolver': {
+        'eslint-import-resolver-oxc': {
+          tsConfig: {
+            configFile: rootTsConfigPath,
+            references: 'auto'
+          }
+        }
+      }
+    }
+  }
 })
 
 function configs(sourceType) {
   const isEsm = sourceType === 'module'
   const ignores = getIgnores(isEsm)
-  const importFlatConfigs = getImportFlatConfigs(isEsm)
+  const importFlatConfigs = getImportXFlatConfigs(isEsm)
   return [
     {
       ignores,

@@ -51,7 +51,7 @@ async function readDirNames(dirname, options) {
 }
 
 async function readPackageJson(filepath, options) {
-  const { editable, ...otherOptions } = { ...options }
+  const { editable, ...otherOptions } = { __proto__: null, ...options }
   const jsonPath = resolvePackageJsonPath(filepath)
   const pkgJson = await fs.readJson(jsonPath)
   return editable
