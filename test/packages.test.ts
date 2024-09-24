@@ -65,7 +65,7 @@ function trimLeadingDotSlash(filepath: string): string {
 }
 
 for (const eco of ecosystems) {
-  describe(eco, async () => {
+  describe(eco, () => {
     if (eco === 'npm') {
       const testablePackages: Set<string> = ENV.PRE_COMMIT
         ? getStagedPackagesSync(eco, { asSet: true })
@@ -75,7 +75,7 @@ for (const eco of ecosystems) {
         testablePackages.has(n)
       )
 
-      for await (const pkgName of packageNames) {
+      for (const pkgName of packageNames) {
         const pkgPath = path.join(npmPackagesPath, pkgName)
         const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
         const pkgJsonExists = fs.existsSync(pkgJsonPath)
@@ -156,23 +156,23 @@ for (const eco of ecosystems) {
           })
 
           if (entryExports) {
-            it('file exists for every "export" entry of package.json', async () => {
+            it('file exists for every "export" entry of package.json', () => {
               for (const entry of Object.values(entryExports)) {
                 assert.doesNotThrow(() => req.resolve(entry as string))
               }
             })
 
-            it('should not have "main" field in package.json', async () => {
+            it('should not have "main" field in package.json', () => {
               assert.ok(!Object.hasOwn(pkgJson, 'main'))
             })
           }
 
           if (mainPath) {
-            it('file exists for "main" field of package.json', async () => {
+            it('file exists for "main" field of package.json', () => {
               assert.doesNotThrow(() => req.resolve(mainPath))
             })
 
-            it('should not have "exports" field in package.json', async () => {
+            it('should not have "exports" field in package.json', () => {
               assert.ok(!Object.hasOwn(pkgJson, 'exports'))
             })
           }
@@ -200,14 +200,18 @@ for (const eco of ecosystems) {
             assert.strictEqual(pkgJson.sideEffects, false)
           })
 
-          it('should have a MIT LICENSE file', async () => {
-            assert.ok(files.includes('LICENSE'))
+          it(`should have a MIT ${LICENSE} file`, async () => {
+            assert.ok(files.includes(LICENSE))
             assert.ok(
               (await fs.readFile(pkgLicensePath, 'utf8')).includes('MIT')
             )
           })
 
-          it('should have a .d.ts file for every .js file', async () => {
+          it(`should have a ${LICENSE}.original file`, () => {
+            assert.ok(files.some(n => n.includes(`${LICENSE}.original`)))
+          })
+
+          it('should have a .d.ts file for every .js file', () => {
             const jsFiles = files
               .filter(
                 n => n.endsWith(extJs) && !n.startsWith(overridesWithSlash)
@@ -221,7 +225,7 @@ for (const eco of ecosystems) {
             assert.deepEqual(jsFiles, dtsFiles)
           })
 
-          it('should have a "files" field in package.json', async () => {
+          it('should have a "files" field in package.json', () => {
             assert.ok(
               Array.isArray(filesPatterns) &&
                 filesPatterns.length > 0 &&
@@ -229,7 +233,7 @@ for (const eco of ecosystems) {
             )
           })
 
-          it('package files should match "files" field', async () => {
+          it('package files should match "files" field', () => {
             const filesToCompare = files.filter(
               n => !isDotFile(n) || dotFileMatches.includes(n)
             )
@@ -240,7 +244,7 @@ for (const eco of ecosystems) {
             files.includes('implementation.js') &&
             files.includes('polyfill.js')
           ) {
-            describe('es-shim', async () => {
+            describe('es-shim', () => {
               const nodeRange = pkgJson?.engines?.node
               const skipping =
                 isNonEmptyString(nodeRange) &&
@@ -249,7 +253,7 @@ for (const eco of ecosystems) {
                 ? `supported in ${nodeRange}, running ${NODE_VERSION}`
                 : ''
 
-              it('index.js exists for "main" field of package.json', async () => {
+              it('index.js exists for "main" field of package.json', () => {
                 assert.doesNotThrow(() => req.resolve(mainPath))
               })
 
