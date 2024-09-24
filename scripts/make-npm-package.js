@@ -15,7 +15,6 @@ const { glob: tinyGlob } = require('tinyglobby')
 
 const {
   LICENSE_CONTENT,
-  LICENSE_GLOB_PATTERN,
   PACKAGE_ENGINES_NODE_RANGE,
   PACKAGE_JSON,
   execPath,
@@ -238,10 +237,7 @@ const nodeEsmTemplateChoices = [
   const licenseData = {
     license: LICENSE_CONTENT.trim()
   }
-  for (const filepath of await tinyGlob([`**/${LICENSE_GLOB_PATTERN}`], {
-    absolute: true,
-    cwd: pkgPath
-  })) {
+  for (const filepath of await globLicenses(pkgPath, { recursive: true })) {
     actions.push([filepath, licenseData])
   }
   if (ts_lib) {

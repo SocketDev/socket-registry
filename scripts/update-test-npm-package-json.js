@@ -9,7 +9,7 @@ const npmPackageArg = require('npm-package-arg')
 const { glob: tinyGlob } = require('tinyglobby')
 
 const {
-  LICENSE_GLOB_PATTERN,
+  LICENSE_GLOB_PATTERN_RECURSIVE,
   NODE_WORKSPACES,
   PACKAGE_JSON,
   README_GLOB_PATTERN,
@@ -467,7 +467,7 @@ const testScripts = [
               ...ignores
             ],
             {
-              ignore: [`**/${LICENSE_GLOB_PATTERN}`],
+              ignore: [LICENSE_GLOB_PATTERN_RECURSIVE],
               absolute: true,
               cwd: srcPath,
               dot: true,

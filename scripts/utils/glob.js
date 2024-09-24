@@ -4,18 +4,22 @@ const { glob: tinyGlob } = require('tinyglobby')
 
 const {
   LICENSE_GLOB_PATTERN,
+  LICENSE_GLOB_PATTERN_RECURSIVE,
   kInternalsSymbol,
   [kInternalsSymbol]: { getGlobMatcher }
 } = require('@socketregistry/scripts/constants')
 
-const licenseGlobPatterns = [LICENSE_GLOB_PATTERN]
-
-async function globLicenses(dirname) {
-  return await tinyGlob(licenseGlobPatterns, {
-    absolute: true,
-    cwd: dirname,
-    expandDirectories: false
-  })
+async function globLicenses(dirname, options) {
+  const { recursive, ...otherOptions } = { __proto__: null, ...options }
+  return await tinyGlob(
+    [recursive ? LICENSE_GLOB_PATTERN_RECURSIVE : LICENSE_GLOB_PATTERN],
+    {
+      absolute: true,
+      cwd: dirname,
+      expandDirectories: recursive,
+      ...otherOptions
+    }
+  )
 }
 
 module.exports = {
