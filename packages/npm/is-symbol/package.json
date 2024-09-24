@@ -7,8 +7,10 @@
     "url": "https://github.com/SocketDev/socket-registry-js",
     "directory": "packages/npm/is-symbol"
   },
-  "browser": "./index.js",
-  "main": "./node.js",
+  "exports": {
+    "node": "./node.js",
+    "default": "./index.js"
+  },
   "sideEffects": false,
   "engines": {
     "node": ">=18.20.4"

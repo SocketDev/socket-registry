@@ -138,7 +138,6 @@ async function resolveGitHubTgzUrl(pkgNameOrId, where) {
 
 function createPackageJson(pkgName, directory, options = {}) {
   const {
-    browser,
     engines,
     exports: entryExports,
     dependencies,
@@ -161,7 +160,6 @@ function createPackageJson(pkgName, directory, options = {}) {
       directory
     },
     ...(type ? { type } : {}),
-    ...(browser ? { browser: './index.js' } : {}),
     ...(entryExports ? { exports: entryExports } : {}),
     ...(entryExports ? {} : { main: `${main ?? './index.js'}` }),
     sideEffects: sideEffects !== undefined && !!sideEffects,

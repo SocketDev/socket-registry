@@ -95,7 +95,6 @@ for (const eco of ecosystems) {
 
           const pkgJson = await readPackageJson(pkgJsonPath)
           const {
-            browser: browserPath,
             engines,
             exports: entryExports,
             files: filesPatterns,
@@ -162,17 +161,19 @@ for (const eco of ecosystems) {
                 assert.doesNotThrow(() => req.resolve(entry as string))
               }
             })
+
+            it('should not have "main" field in package.json', async () => {
+              assert.ok(!Object.hasOwn(pkgJson, 'main'))
+            })
           }
 
           if (mainPath) {
             it('file exists for "main" field of package.json', async () => {
               assert.doesNotThrow(() => req.resolve(mainPath))
             })
-          }
 
-          if (browserPath) {
-            it('file exists for "browser" field of package.json', async () => {
-              assert.doesNotThrow(() => req.resolve(browserPath))
+            it('should not have "exports" field in package.json', async () => {
+              assert.ok(!Object.hasOwn(pkgJson, 'exports'))
             })
           }
 
