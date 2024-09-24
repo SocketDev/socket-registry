@@ -1,0 +1,28 @@
+{
+  "name": "@socketregistry/%NAME%",
+  "version": "1.0.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SocketDev/socket-registry-js",
+    "directory": "packages/npm/%NAME%"
+  },
+  "type": "module",
+  "exports": {
+    "require": "./node.cjs",
+    "import": "./node.js",
+    "default": "./index.js"
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": "%NODE_RANGE%"
+  },
+  "files": [
+    "*.d.ts",
+    "*.cjs",
+    "*.js"
+  ],
+  "socket": {
+    "categories": ["%CATEGORIES%"]
+  }
+}

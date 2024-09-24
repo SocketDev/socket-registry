@@ -9,11 +9,6 @@ const {
   kInternalsSymbol,
   [kInternalsSymbol]: { innerReadDirNames, isDirEmptySync }
 } = require('@socketregistry/scripts/constants')
-const {
-  normalizePackageJson,
-  toEditablePackageJson
-} = require('@socketregistry/scripts/utils/packages')
-const { resolvePackageJsonPath } = require('@socketregistry/scripts/utils/path')
 
 const builtinAsyncCp = util.promisify(fs.cp)
 
@@ -39,6 +34,12 @@ function isSymbolicLinkSync(filepath) {
 }
 
 async function move(srcPath, destPath, options) {
+  if (
+    isSymbolicLinkSync(destPath) &&
+    fs.realpathSync(destPath) !== path.resolve(srcPath)
+  ) {
+    await fs.remove(destPath)
+  }
   await cp(srcPath, destPath, options)
   await fs.remove(srcPath)
 }
@@ -48,15 +49,6 @@ async function readDirNames(dirname, options) {
     await fs.readdir(dirname, { withFileTypes: true }),
     options
   )
-}
-
-async function readPackageJson(filepath, options) {
-  const { editable, ...otherOptions } = { __proto__: null, ...options }
-  const jsonPath = resolvePackageJsonPath(filepath)
-  const pkgJson = await fs.readJson(jsonPath)
-  return editable
-    ? await toEditablePackageJson(pkgJson, { path: filepath, ...otherOptions })
-    : normalizePackageJson(pkgJson, otherOptions)
 }
 
 function uniqueSync(filepath) {
@@ -73,6 +65,5 @@ module.exports = {
   isSymbolicLinkSync,
   move,
   readDirNames,
-  readPackageJson,
   uniqueSync
 }

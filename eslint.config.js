@@ -43,16 +43,16 @@ const conditionalConfig = (config, isEsm) => {
 
 const getIgnores = isEsm =>
   npmPackageNames
-    .filter(n => {
+    .filter(pkgName => {
+      const pkgPath = path.join(npmPackagesPath, pkgName)
+      const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
       try {
-        const { type } = fs.readJsonSync(
-          path.join(npmPackagesPath, n, PACKAGE_JSON)
-        )
+        const { type } = fs.readJsonSync(pkgJsonPath)
         return isEsm ? type !== 'module' : type === 'module'
       } catch {}
       return false
     })
-    .map(n => `${relNpmPackagesPath}/${n}/*`)
+    .map(pkgName => `${relNpmPackagesPath}/${pkgName}/*`)
 
 const getImportXFlatConfigs = isEsm => ({
   recommended: {

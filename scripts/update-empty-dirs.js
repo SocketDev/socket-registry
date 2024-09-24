@@ -8,12 +8,14 @@ const { isDirEmptySync } = require('@socketregistry/scripts/utils/fs')
 
 ;(async () => {
   await Promise.all(
-    await tinyGlob(['**/'], {
-      ignore: ['**/node_modules'],
-      absolute: true,
-      cwd: rootPath,
-      onlyDirectories: true
-    })
+    (
+      await tinyGlob(['**/'], {
+        ignore: ['**/node_modules'],
+        absolute: true,
+        cwd: rootPath,
+        onlyDirectories: true
+      })
+    )
       .filter(isDirEmptySync)
       .map(d => fs.remove(d))
   )

@@ -7,14 +7,21 @@
     "url": "https://github.com/SocketDev/socket-registry-js",
     "directory": "packages/npm/%NAME%"
   },
-  "browser": "./index.js",
-  "main": "./node.js",
+  "type": "module",
+  "exports": {
+    "module": "./index.js",
+    "default": "./index.cjs"
+  },
   "sideEffects": false,
+  "engines": {
+    "node": "%NODE_RANGE%"
+  },
   "files": [
     "*.d.ts",
+    "*.cjs",
     "*.js"
   ],
   "socket": {
-    "category": "%CATEGORY%"
+    "categories": ["%CATEGORIES%"]
   }
 }

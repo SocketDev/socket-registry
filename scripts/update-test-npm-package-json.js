@@ -5,6 +5,7 @@ const util = require('node:util')
 
 const spawn = require('@npmcli/promise-spawn')
 const fs = require('fs-extra')
+const npmPackageArg = require('npm-package-arg')
 const { glob: tinyGlob } = require('tinyglobby')
 
 const {
@@ -34,10 +35,12 @@ const {
 const {
   isSymbolicLinkSync,
   move,
-  readPackageJson,
   uniqueSync
 } = require('@socketregistry/scripts/utils/fs')
-const { parsePackageSpec } = require('@socketregistry/scripts/utils/packages')
+const {
+  readPackageJson,
+  resolveGitHubTgzUrl
+} = require('@socketregistry/scripts/utils/packages')
 const { splitPath } = require('@socketregistry/scripts/utils/path')
 const { pEach, pEachChunk } = require('@socketregistry/scripts/utils/promises')
 const { localCompare } = require('@socketregistry/scripts/utils/sorts')
@@ -57,37 +60,28 @@ const { values: cliArgs } = util.parseArgs({
   }
 })
 
-const cleanTestScript = testScript =>
-  testScript
-    // Strip actions BEFORE and AFTER the test runner is invoked.
-    .replace(
-      /^.*?(\b(?:ava|jest|node|npm run|mocha|tape?)\b.*?)(?:&.+|$)/,
-      '$1'
-    )
-    // Remove unsupported Node flag "--es-staging"
-    .replace(/(?<=node)(?: +--[-\w]+)+/, m => m.replaceAll(' --es-staging', ''))
-    .trim()
+function cleanTestScript(testScript) {
+  return (
+    testScript
+      // Strip actions BEFORE and AFTER the test runner is invoked.
+      .replace(
+        /^.*?(\b(?:ava|jest|node|npm run|mocha|tape?)\b.*?)(?:&.+|$)/,
+        '$1'
+      )
+      // Remove unsupported Node flag "--es-staging"
+      .replace(/(?<=node)(?: +--[-\w]+)+/, m =>
+        m.replaceAll(' --es-staging', '')
+      )
+      .trim()
+  )
+}
 
-const createStubEsModule = srcPath => {
+function createStubEsModule(srcPath) {
   const relPath = `./${path.basename(srcPath)}`
   return `export * from '${relPath}'\nexport { default } from '${relPath}'\n`
 }
 
-const gitTagRefUrl = (user, project, tag) =>
-  `https://api.github.com/repos/${user}/${project}/git/ref/tags/${tag}`
-
-const tgzUrl = (user, project, sha) =>
-  `https://github.com/${user}/${project}/archive/${sha}.tar.gz`
-
-const getRepoUrlDetails = (repoUrl = '') => {
-  const userAndRepo = repoUrl.replace(/^.+github.com\//, '').split('/')
-  const { 0: user } = userAndRepo
-  const project =
-    userAndRepo.length > 1 ? userAndRepo[1].slice(0, -'.git'.length) : ''
-  return { user, project }
-}
-
-const installTestNpmNodeModules = async pkgName => {
+async function installTestNpmNodeModules(pkgName) {
   await Promise.all([
     fs.remove(testNpmPkgLockPath),
     fs.remove(testNpmNodeModulesHiddenLockPath)
@@ -211,7 +205,7 @@ const testScripts = [
         }
       }
       const pkgSpec = testNpmEditablePkgJson.content.devDependencies?.[pkgName]
-      const parsedSpec = parsePackageSpec(
+      const parsedSpec = npmPackageArg.resolve(
         pkgName,
         pkgSpec,
         testNpmNodeModulesPath
@@ -251,47 +245,20 @@ const testScripts = [
         const nmEditablePkgJson = await readCachedEditablePackageJson(nmPkgPath)
         const { version: nmPkgVer } = nmEditablePkgJson.content
         const pkgId = `${pkgName}@${nmPkgVer}`
-        const { user, project } = isGithubUrl
-          ? parsedSpec.hosted
-          : getRepoUrlDetails(nmEditablePkgJson.content.repository?.url)
-
         const spinner = new Spinner(
           `Resolving GitHub tarball URL for ${pkgId}...`
         ).start()
-        let resolved = false
-        if (user && project) {
-          let apiUrl = ''
-          if (isGithubUrl) {
-            apiUrl = gitTagRefUrl(user, project, parsedSpec.gitCommittish)
-          } else {
-            // First try to resolve the sha for a tag starting with "v", e.g. v1.2.3.
-            apiUrl = gitTagRefUrl(user, project, `v${nmPkgVer}`)
-            if (!(await fetch(apiUrl, { method: 'head' })).ok) {
-              // If a sha isn't found, try again with the "v" removed, e.g. 1.2.3.
-              apiUrl = gitTagRefUrl(user, project, nmPkgVer)
-              if (!(await fetch(apiUrl, { method: 'head' })).ok) {
-                apiUrl = ''
-              }
+        const gitHubTgzUrl = await resolveGitHubTgzUrl(pkgId, nmPkgPath)
+        if (gitHubTgzUrl) {
+          // Replace the dev dep version range with the tarball URL.
+          modifiedTestNpmPkgJson = true
+          testNpmEditablePkgJson.update({
+            devDependencies: {
+              ...testNpmEditablePkgJson.content.devDependencies,
+              [pkgName]: gitHubTgzUrl
             }
-          }
-          if (apiUrl) {
-            const resp = await fetch(apiUrl)
-            const json = await resp.json()
-            const sha = json?.object?.sha
-            if (sha) {
-              // Replace the dev dep version range with the tarball URL.
-              resolved = true
-              modifiedTestNpmPkgJson = true
-              testNpmEditablePkgJson.update({
-                devDependencies: {
-                  ...testNpmEditablePkgJson.content.devDependencies,
-                  [pkgName]: tgzUrl(user, project, sha)
-                }
-              })
-            }
-          }
-        }
-        if (!resolved) {
+          })
+        } else {
           // Collect the names and versions of packages we failed to resolve
           // tarballs for.
           unresolved.push({ name: pkgName, version: nmPkgVer })

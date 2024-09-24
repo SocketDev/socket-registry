@@ -1,5 +1,9 @@
 'use strict'
 
+function indentString(str, count = 1) {
+  return str.replace(/^(?!\s*$)/gm, ' '.repeat(count))
+}
+
 function isNonEmptyString(value) {
   return typeof value === 'string' && value.length > 0
 }
@@ -14,6 +18,7 @@ function search(str, regexp, fromIndex = 0) {
 }
 
 module.exports = {
+  indentString,
   isNonEmptyString,
   search
 }

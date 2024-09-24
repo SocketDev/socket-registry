@@ -9,11 +9,14 @@
   },
   "main": "./index.js",
   "sideEffects": false,
+  "engines": {
+    "node": "%NODE_RANGE%"
+  },
   "files": [
     "*.d.ts",
     "*.js"
   ],
   "socket": {
-    "category": "%CATEGORY%"
+    "categories": ["%CATEGORIES%"]
   }
 }

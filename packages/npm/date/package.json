@@ -18,6 +18,8 @@
     "*.json"
   ],
   "socket": {
-    "category": "cleanup"
+    "categories": [
+      "cleanup"
+    ]
   }
 }

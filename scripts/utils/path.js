@@ -1,12 +1,5 @@
 'use strict'
 
-const path = require('node:path')
-
-const {
-  PACKAGE_JSON,
-  kInternalsSymbol,
-  [kInternalsSymbol]: { getGlobMatcher }
-} = require('@socketregistry/scripts/constants')
 const { search } = require('@socketregistry/scripts/utils/strings')
 
 const slashRegExp = /[/\\]/
@@ -80,25 +73,12 @@ function normalizePath(filePath) {
   return prefix + collapsed
 }
 
-function resolvePackageJsonPath(filepath) {
-  return filepath.endsWith(PACKAGE_JSON)
-    ? filepath
-    : path.join(filepath, PACKAGE_JSON)
-}
-
-function resolvePackageJsonDirname(filepath) {
-  return filepath.endsWith(PACKAGE_JSON) ? path.dirname(filepath) : filepath
-}
-
 function splitPath(filepath) {
   return filepath.split(slashRegExp)
 }
 
 module.exports = {
-  getGlobMatcher,
   isNodeModules,
   normalizePath,
-  resolvePackageJsonDirname,
-  resolvePackageJsonPath,
   splitPath
 }

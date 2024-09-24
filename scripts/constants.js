@@ -24,6 +24,7 @@ const ENV = Object.freeze({
 })
 const LICENSE = 'LICENSE'
 const LICENSE_GLOB_PATTERN = 'LICEN[CS]E{.*,}'
+const LOOP_SENTINEL = 1_000_000
 const MIT = 'MIT'
 const NODE_MODULES = 'node_modules'
 const NODE_WORKSPACES = 'node_workspaces'
@@ -38,6 +39,8 @@ const README_GLOB_PATTERN = 'README{.*,}'
 const REPO_ORG = 'SocketDev'
 const REPO_NAME = 'socket-registry-js'
 const TSCONFIG_JSON = 'tsconfig.json'
+const UNLICENCED = 'UNLICENCED'
+const UNLICENSED = 'UNLICENSED'
 const VERSION = '1.0.0'
 
 const rootPath = path.resolve(__dirname, '..')
@@ -202,6 +205,32 @@ const npmExecPath = whichSync('npm')
 const runScriptParallelExecPath = whichSync('run-p')
 const runScriptSequentiallyExecPath = whichSync('run-s')
 
+const copyLeftLicenses = new Set([
+  'AGPL-3.0-or-later',
+  'AGPL-3.0',
+  'AGPL-3.0-only',
+  'AGPL-1.0-or-later',
+  'AGPL-1.0',
+  'AGPL-1.0-only',
+  'CC-BY-SA-4.0',
+  'CC-BY-SA-3.0',
+  'CC-BY-SA-2.0',
+  'CC-BY-SA-1.0',
+  'EPL-2.0',
+  'EPL-1.0',
+  'EUPL-1.2',
+  'EUPL-1.1',
+  'GPL-3.0-or-later',
+  'GPL-3.0',
+  'GPL-3.0-only',
+  'GPL-2.0-or-later',
+  'GPL-2.0',
+  'GPL-2.0-only',
+  'GPL-1.0-or-later',
+  'GPL-1.0',
+  'GPL-1.0-only'
+])
+
 const ecosystems = Object.freeze(readDirNamesSync(rootPackagesPath))
 
 const lifecycleScriptNames = new Set(
@@ -295,6 +324,8 @@ const maintainedNodeVersions = (() => {
   ])
 })()
 
+const PACKAGE_ENGINES_NODE_RANGE = `>=${maintainedNodeVersions.get('previous')}`
+
 const packageExtensions = Object.freeze(
   [
     ...yarnPkgExts,
@@ -361,6 +392,7 @@ module.exports = {
   LICENSE,
   LICENSE_CONTENT,
   LICENSE_GLOB_PATTERN,
+  LOOP_SENTINEL,
   MIT,
   NODE_MODULES,
   NODE_WORKSPACES,
@@ -368,13 +400,18 @@ module.exports = {
   NPM_ORG,
   NPM_SCOPE,
   OVERRIDES,
+  PACKAGE_ENGINES_NODE_RANGE,
   PACKAGE_JSON,
   PACKAGE_HIDDEN_LOCK,
   PACKAGE_LOCK,
   README_GLOB_PATTERN,
   REPO_ORG,
   REPO_NAME,
+  TSCONFIG_JSON,
+  UNLICENCED,
+  UNLICENSED,
   VERSION,
+  copyLeftLicenses,
   ecosystems,
   execPath,
   gitExecPath,

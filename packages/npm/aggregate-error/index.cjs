@@ -9,8 +9,8 @@ const desc = (value, configurable = true, writable = true) => ({
   writable
 })
 
-const indentString = (string, count = 1) =>
-  string.replace(/^(?!\s*$)/gm, ' '.repeat(count))
+const indentString = (str, count = 1) =>
+  str.replace(/^(?!\s*$)/gm, ' '.repeat(count))
 
 const AggregateErrorLike = function AggregateError(errors, message) {
   // Behave like the builtin AggregateError when exactly 2 arguments are

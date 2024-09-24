@@ -7,13 +7,16 @@ const {
   npmPackageNames,
   npmPackagesPath
 } = require('@socketregistry/scripts/constants')
-const { readPackageJson } = require('@socketregistry/scripts/utils/fs')
-const { createPackageJson } = require('@socketregistry/scripts/utils/packages')
+const {
+  createPackageJson,
+  readPackageJson
+} = require('@socketregistry/scripts/utils/packages')
 
 ;(async () => {
   await Promise.all(
     npmPackageNames.map(async pkgName => {
-      const pkgJsonPath = path.join(npmPackagesPath, pkgName, PACKAGE_JSON)
+      const pkgPath = path.join(npmPackagesPath, pkgName)
+      const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
       const editablePkgJson = await readPackageJson(pkgJsonPath, {
         editable: true
       })

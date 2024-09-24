@@ -1,5 +1,7 @@
 'use strict'
 
+const { LOOP_SENTINEL } = require('@socketregistry/scripts/constants')
+
 function isObject(value) {
   return value !== null && typeof value === 'object'
 }
@@ -16,6 +18,9 @@ function merge(target, source) {
   let pos = 0
   let { length: queueLength } = queue
   while (pos < queueLength) {
+    if (pos === LOOP_SENTINEL) {
+      throw new Error('Detected infinite loop in object crawl of merge')
+    }
     const { 0: currentTarget, 1: currentSource } = queue[pos++]
     const isSourceArray = Array.isArray(currentSource)
     if (Array.isArray(currentTarget)) {
@@ -67,6 +72,7 @@ function merge(target, source) {
 }
 
 module.exports = {
+  isObject,
   isObjectObject,
   merge
 }

@@ -8,10 +8,8 @@ const {
   rootPackageJsonPath,
   rootPackagesPath
 } = require('@socketregistry/scripts/constants')
-const {
-  readDirNames,
-  readPackageJson
-} = require('@socketregistry/scripts/utils/fs')
+const { readDirNames } = require('@socketregistry/scripts/utils/fs')
+const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
 
 ;(async () => {
   const rootEditablePkgJson = await readPackageJson(rootPackageJsonPath, {

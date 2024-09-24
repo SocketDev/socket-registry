@@ -12,7 +12,7 @@ const {
   npmPackagesPath,
   rootManifestJsonPath
 } = require('@socketregistry/scripts/constants')
-const { readPackageJson } = require('@socketregistry/scripts/utils/fs')
+const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
 const { localCompare } = require('@socketregistry/scripts/utils/sorts')
 
 ;(async () => {

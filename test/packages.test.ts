@@ -21,8 +21,6 @@ import {
   npmPackagesPath
   // @ts-ignore
 } from '@socketregistry/scripts/constants'
-// @ts-ignore
-import { readPackageJson } from '@socketregistry/scripts/utils/fs'
 import {
   getModifiedPackagesSync,
   getStagedPackagesSync
@@ -30,8 +28,11 @@ import {
 } from '@socketregistry/scripts/utils/git'
 // @ts-ignore
 import { isObjectObject } from '@socketregistry/scripts/utils/objects'
-// @ts-ignore
-import { isValidPackageName } from '@socketregistry/scripts/utils/packages'
+import {
+  isValidPackageName,
+  readPackageJson
+  // @ts-ignore
+} from '@socketregistry/scripts/utils/packages'
 // @ts-ignore
 import { localCompare } from '@socketregistry/scripts/utils/sorts'
 // @ts-ignore
@@ -96,6 +97,7 @@ for (const eco of ecosystems) {
           const {
             browser: browserPath,
             engines,
+            exports: entryExports,
             files: filesPatterns,
             main: mainPath,
             overrides: pkgOverrides,
@@ -154,9 +156,19 @@ for (const eco of ecosystems) {
             )
           })
 
-          it('file exists for "main" field of package.json', async () => {
-            assert.doesNotThrow(() => req.resolve(mainPath))
-          })
+          if (entryExports) {
+            it('file exists for every "export" entry of package.json', async () => {
+              for (const entry of Object.values(entryExports)) {
+                assert.doesNotThrow(() => req.resolve(entry as string))
+              }
+            })
+          }
+
+          if (mainPath) {
+            it('file exists for "main" field of package.json', async () => {
+              assert.doesNotThrow(() => req.resolve(mainPath))
+            })
+          }
 
           if (browserPath) {
             it('file exists for "browser" field of package.json', async () => {
