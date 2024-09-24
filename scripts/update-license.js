@@ -15,6 +15,7 @@ const { globLicenses } = require('@socketregistry/scripts/utils/glob')
     (
       await globLicenses(rootPath, {
         recursive: true,
+        ignoreOriginals: true,
         ignore: [LICENSE, ...ignores]
       })
     ).map(licensePath => fs.writeFile(licensePath, LICENSE_CONTENT, 'utf8'))

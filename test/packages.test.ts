@@ -10,7 +10,7 @@ import { glob as tinyGlob } from 'tinyglobby'
 import {
   ENV,
   LICENSE,
-  LICENSE_GLOB_PATTERN,
+  LICENSE_GLOB,
   NODE_VERSION,
   OVERRIDES,
   PACKAGE_JSON,
@@ -118,12 +118,13 @@ for (const eco of ecosystems) {
                 // Certain files are always included, regardless of settings:
                 // https://docs.npmjs.com/cli/v10/configuring-npm/package-json#files
                 PACKAGE_JSON,
-                LICENSE_GLOB_PATTERN,
+                LICENSE_GLOB,
                 README_GLOB_PATTERN,
                 ...filesPatternsAsArray
               ],
               {
                 ignore: ignores,
+                caseSensitiveMatch: false,
                 cwd: pkgPath,
                 dot: true
               }
