@@ -24,6 +24,9 @@ function normalizePath(filePath) {
   // Ensure win32 namespaces have two leading slashes so they are handled properly
   // by path.win32.parse() after being normalized.
   // https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#namespaces
+  // UNC paths, paths starting with double slashes, e.g. "\\\\wsl.localhost\\Ubuntu\home\\",
+  // are okay to convert to forward slashes.
+  // https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions
   let prefix = ''
   if (length > 4 && filePath.charCodeAt(3) === 92 /*'\\'*/) {
     const code2 = filePath.charCodeAt(2)

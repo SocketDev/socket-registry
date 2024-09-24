@@ -5,6 +5,7 @@ const path = require('node:path')
 const EditablePackageJson = require('@npmcli/package-json')
 const cacache = require('cacache')
 const fs = require('fs-extra')
+const makeFetchHappen = require('make-fetch-happen')
 const normalizePackageData = require('normalize-package-data')
 const npmPackageArg = require('npm-package-arg')
 const pacote = require('pacote')
@@ -42,6 +43,14 @@ const {
 } = require('@socketregistry/scripts/utils/path')
 const { escapeRegExp } = require('@socketregistry/scripts/utils/regexps')
 const { isNonEmptyString } = require('@socketregistry/scripts/utils/strings')
+
+const fetcher = makeFetchHappen.defaults({
+  cachePath: pacoteCachePath,
+  // Prefer-offline: Staleness checks for cached data will be bypassed, but
+  // missing data will be requested from the server.
+  // https://github.com/npm/make-fetch-happen?tab=readme-ov-file#--optscache
+  cache: 'force-cache'
+})
 
 const fileReferenceRegExp = /^SEE LICEN[CS]E IN (.+)$/
 
@@ -116,16 +125,16 @@ async function resolveGitHubTgzUrl(pkgNameOrId, where) {
     } else {
       // First try to resolve the sha for a tag starting with "v", e.g. v1.2.3.
       apiUrl = gitHubTagRefUrl(user, project, `v${version}`)
-      if (!(await fetch(apiUrl, { method: 'head' })).ok) {
+      if (!(await fetcher(apiUrl, { method: 'head' })).ok) {
         // If a sha isn't found, try again with the "v" removed, e.g. 1.2.3.
         apiUrl = gitHubTagRefUrl(user, project, version)
-        if (!(await fetch(apiUrl, { method: 'head' })).ok) {
+        if (!(await fetcher(apiUrl, { method: 'head' })).ok) {
           apiUrl = ''
         }
       }
     }
     if (apiUrl) {
-      const resp = await fetch(apiUrl)
+      const resp = await fetcher(apiUrl)
       const json = await resp.json()
       const sha = json?.object?.sha
       if (sha) {
