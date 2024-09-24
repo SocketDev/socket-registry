@@ -6,14 +6,15 @@ const { includeIgnoreFile } = require('@eslint/compat')
 const js = require('@eslint/js')
 const importXPlugin = require('eslint-plugin-import-x')
 const nodePlugin = require('eslint-plugin-n')
+const sortDestructureKeysPlugin = require('eslint-plugin-sort-destructure-keys')
 const fs = require('fs-extra')
 const tsEslint = require('typescript-eslint')
 
 const {
   PACKAGE_JSON,
   gitignorePath,
-  npmPackagesPath,
   npmPackageNames,
+  npmPackagesPath,
   prettierignorePath,
   relNpmPackagesPath,
   rootTsConfigPath
@@ -125,6 +126,9 @@ function configs(sourceType) {
     },
     {
       ignores,
+      plugins: {
+        'sort-destructure-keys': sortDestructureKeysPlugin
+      },
       rules: {
         'n/exports-style': ['error', 'module.exports'],
         'n/no-unsupported-features/node-builtins': [
@@ -138,7 +142,9 @@ function configs(sourceType) {
           { argsIgnorePattern: '^_', ignoreRestSiblings: true }
         ],
         'no-self-assign': ['error', { props: false }],
-        'no-warning-comments': ['error']
+        'no-warning-comments': ['error'],
+        'sort-destructure-keys/sort-destructure-keys': ['error'],
+        'sort-imports': ['error', { ignoreDeclarationSort: true }]
       }
     },
     ...conditionalConfig(

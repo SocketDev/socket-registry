@@ -111,7 +111,7 @@ const naturalSort = createNewSortInstance({
 })
 
 const innerReadDirNames = function innerReadDirNames(dirents, options) {
-  const { sort, includeEmpty } = {
+  const { includeEmpty, sort } = {
     __proto__: null,
     sort: true,
     includeEmpty: false,

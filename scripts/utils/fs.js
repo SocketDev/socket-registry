@@ -15,8 +15,8 @@ const builtinAsyncCp = util.promisify(fs.cp)
 async function cp(srcPath, destPath, options) {
   const {
     force: _force,
-    recursive: _recursive,
     overwrite,
+    recursive: _recursive,
     ...otherOptions
   } = options ?? {}
   await builtinAsyncCp(srcPath, destPath, {

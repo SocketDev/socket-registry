@@ -11,10 +11,10 @@ const safer = require('./safer')
 const { builtinBufferExportsDescMap } = require('./shared')
 
 const {
-  INSPECT_MAX_BYTES,
   Blob: BlobCtor,
   Buffer: Safer,
   File: FileCtor,
+  INSPECT_MAX_BYTES,
   atob: atobFn,
   btoa: btoaFn,
   constants,

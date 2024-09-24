@@ -4,9 +4,9 @@ const spawn = require('@npmcli/promise-spawn')
 const fs = require('fs-extra')
 
 const {
-  rootPath,
-  rootPackageLockPath,
   npmExecPath,
+  rootPackageLockPath,
+  rootPath,
   yarnPkgExtsJsonPath
 } = require('@socketregistry/scripts/constants')
 const {

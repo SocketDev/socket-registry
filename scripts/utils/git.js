@@ -7,8 +7,8 @@ const spawn = require('@npmcli/promise-spawn')
 
 const {
   gitExecPath,
-  rootPath,
-  rootPackagesPath
+  rootPackagesPath,
+  rootPath
 } = require('@socketregistry/scripts/constants')
 const { getGlobMatcher } = require('@socketregistry/scripts/utils/glob')
 const { normalizePath } = require('@socketregistry/scripts/utils/path')

@@ -22,10 +22,10 @@ const {
   NPM_SCOPE,
   PACKAGE_ENGINES_NODE_RANGE,
   PACKAGE_JSON,
-  REPO_ORG,
   REPO_NAME,
-  UNLICENSED,
+  REPO_ORG,
   UNLICENCED,
+  UNLICENSED,
   VERSION,
   copyLeftLicenses,
   packageExtensions,
@@ -114,7 +114,7 @@ async function resolveGitHubTgzUrl(pkgNameOrId, where) {
     parsedSpec.hosted?.domain === 'github.com' &&
     isNonEmptyString(parsedSpec.gitCommittish)
 
-  const { user, project } = isGithubUrl
+  const { project, user } = isGithubUrl
     ? parsedSpec.hosted
     : getRepoUrlDetails(pkgJson.repository?.url)
 
@@ -147,9 +147,9 @@ async function resolveGitHubTgzUrl(pkgNameOrId, where) {
 
 function createPackageJson(pkgName, directory, options = {}) {
   const {
+    dependencies,
     engines,
     exports: entryExports,
-    dependencies,
     files,
     main,
     overrides,

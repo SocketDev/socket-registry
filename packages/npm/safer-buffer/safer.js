@@ -1,10 +1,10 @@
 'use strict'
 
 const {
-  INSPECT_MAX_BYTES,
   Blob: BlobCtor,
   Buffer: UnsafeBuffer,
   File: FileCtor,
+  INSPECT_MAX_BYTES,
   atob: atobFn,
   btoa: btoaFn,
   constants,
