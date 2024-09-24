@@ -14,6 +14,7 @@ const prettier = require('prettier')
 const { glob: tinyGlob } = require('tinyglobby')
 
 const {
+  LICENSE,
   LICENSE_CONTENT,
   PACKAGE_ENGINES_NODE_RANGE,
   PACKAGE_JSON,
@@ -271,6 +272,29 @@ const nodeEsmTemplateChoices = [
       return await fs.writeFile(filepath, output, 'utf8')
     })
   )
+  // Create LICENSE.original files.
+  const { length: licenseCount } = licenseContents
+  if (licenseCount === 1) {
+    const { content, name } = licenseContents[0]
+    const ext = path.extname(name)
+    await fs.writeFile(
+      path.join(pkgPath, `${LICENSE}.original${ext}`),
+      content,
+      'utf8'
+    )
+  } else if (licenseCount > 1) {
+    for (let i = 0; i < licenseCount; i += 1) {
+      const { content, name } = licenseContents[i]
+      const ext = path.extname(name)
+      const basename = path.basename(name, ext)
+      fs.writeFile(
+        path.join(pkgPath, `${basename}.original${ext}`),
+        content,
+        'utf8'
+      )
+    }
+  }
+  // Update monorepo package.json workspaces definition and test/npm files.
   try {
     await spawn(
       execPath,
