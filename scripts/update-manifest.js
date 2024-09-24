@@ -22,15 +22,29 @@ const { localCompare } = require('@socketregistry/scripts/utils/sorts')
       const manifestData = []
       for await (const pkgName of npmPackageNames) {
         const pkgPath = path.join(npmPackagesPath, pkgName)
-        const { browser, engines, name, socket, version } =
-          await readPackageJson(pkgPath)
-        const purlObj = PackageURL.fromString(`pkg:${eco}/${name}@${version}`)
-        const data = [purlObj.toString()]
+        const {
+          engines,
+          exports: entryExports,
+          name,
+          socket,
+          version
+        } = await readPackageJson(pkgPath)
+        const interop = []
+        const isEsm = !!(entryExports?.import || entryExports?.module)
+        if (isEsm) {
+          interop.push('esm')
+        }
+        const isBrowser = !!entryExports?.node
+        if (isBrowser) {
+          interop.push('browser')
+        }
         const metaEntries = [
-          ...(browser ? [['browser', true]] : []),
+          ...(interop.length ? [['interop', interop]] : []),
           ...(engines ? [['engines', engines]] : []),
           ...(socket ? Object.entries(socket) : [])
         ]
+        const purlObj = PackageURL.fromString(`pkg:${eco}/${name}@${version}`)
+        const data = [purlObj.toString()]
         if (metaEntries.length) {
           data[1] = Object.fromEntries(
             metaEntries.sort((a, b) => localCompare(a[0], b[0]))

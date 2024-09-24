@@ -6,7 +6,11 @@
     ],
     [
       "pkg:npm/%40socketregistry/aggregate-error@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["esm"]
+      }
     ],
     [
       "pkg:npm/%40socketregistry/array-buffer-byte-length@1.0.0",
@@ -103,9 +107,9 @@
     [
       "pkg:npm/%40socketregistry/deep-equal@1.0.0",
       {
-        "browser": true,
         "categories": ["cleanup"],
-        "engines": { "node": ">=18.20.4" }
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["browser"]
       }
     ],
     [
@@ -194,7 +198,11 @@
     ],
     [
       "pkg:npm/%40socketregistry/indent-string@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["esm"]
+      }
     ],
     [
       "pkg:npm/%40socketregistry/internal-slot@1.0.0",
@@ -203,33 +211,33 @@
     [
       "pkg:npm/%40socketregistry/is-arguments@1.0.0",
       {
-        "browser": true,
         "categories": ["cleanup"],
-        "engines": { "node": ">=18.20.4" }
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["browser"]
       }
     ],
     [
       "pkg:npm/%40socketregistry/is-array-buffer@1.0.0",
       {
-        "browser": true,
         "categories": ["cleanup"],
-        "engines": { "node": ">=18.20.4" }
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["browser"]
       }
     ],
     [
       "pkg:npm/%40socketregistry/is-bigint@1.0.0",
       {
-        "browser": true,
         "categories": ["cleanup"],
-        "engines": { "node": ">=18.20.4" }
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["browser"]
       }
     ],
     [
       "pkg:npm/%40socketregistry/is-boolean-object@1.0.0",
       {
-        "browser": true,
         "categories": ["cleanup"],
-        "engines": { "node": ">=18.20.4" }
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["browser"]
       }
     ],
     [
@@ -239,25 +247,25 @@
     [
       "pkg:npm/%40socketregistry/is-date-object@1.0.0",
       {
-        "browser": true,
         "categories": ["cleanup"],
-        "engines": { "node": ">=18.20.4" }
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["browser"]
       }
     ],
     [
       "pkg:npm/%40socketregistry/is-generator-function@1.0.0",
       {
-        "browser": true,
         "categories": ["cleanup"],
-        "engines": { "node": ">=18.20.4" }
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["browser"]
       }
     ],
     [
       "pkg:npm/%40socketregistry/is-map@1.0.0",
       {
-        "browser": true,
         "categories": ["cleanup"],
-        "engines": { "node": ">=18.20.4" }
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["browser"]
       }
     ],
     [
@@ -271,65 +279,65 @@
     [
       "pkg:npm/%40socketregistry/is-number-object@1.0.0",
       {
-        "browser": true,
         "categories": ["cleanup"],
-        "engines": { "node": ">=18.20.4" }
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["browser"]
       }
     ],
     [
       "pkg:npm/%40socketregistry/is-regex@1.0.0",
       {
-        "browser": true,
         "categories": ["cleanup"],
-        "engines": { "node": ">=18.20.4" }
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["browser"]
       }
     ],
     [
       "pkg:npm/%40socketregistry/is-set@1.0.0",
       {
-        "browser": true,
         "categories": ["cleanup"],
-        "engines": { "node": ">=18.20.4" }
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["browser"]
       }
     ],
     [
       "pkg:npm/%40socketregistry/is-shared-array-buffer@1.0.0",
       {
-        "browser": true,
         "categories": ["cleanup"],
-        "engines": { "node": ">=18.20.4" }
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["browser"]
       }
     ],
     [
       "pkg:npm/%40socketregistry/is-string@1.0.0",
       {
-        "browser": true,
         "categories": ["cleanup"],
-        "engines": { "node": ">=18.20.4" }
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["browser"]
       }
     ],
     [
       "pkg:npm/%40socketregistry/is-symbol@1.0.0",
       {
-        "browser": true,
         "categories": ["cleanup"],
-        "engines": { "node": ">=18.20.4" }
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["browser"]
       }
     ],
     [
       "pkg:npm/%40socketregistry/is-typed-array@1.0.0",
       {
-        "browser": true,
         "categories": ["cleanup"],
-        "engines": { "node": ">=18.20.4" }
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["browser"]
       }
     ],
     [
       "pkg:npm/%40socketregistry/is-weakmap@1.0.0",
       {
-        "browser": true,
         "categories": ["cleanup"],
-        "engines": { "node": ">=18.20.4" }
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["browser"]
       }
     ],
     [
@@ -339,9 +347,9 @@
     [
       "pkg:npm/%40socketregistry/is-weakset@1.0.0",
       {
-        "browser": true,
         "categories": ["cleanup"],
-        "engines": { "node": ">=18.20.4" }
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["browser"]
       }
     ],
     [
