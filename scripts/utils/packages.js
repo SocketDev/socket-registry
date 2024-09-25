@@ -43,8 +43,8 @@ const {
 const { escapeRegExp } = require('@socketregistry/scripts/utils/regexps')
 const { isNonEmptyString } = require('@socketregistry/scripts/utils/strings')
 
-const LICENSE_NODE_TYPE = 'License'
 const BINARY_OPERATION_NODE_TYPE = 'BinaryOperation'
+const LICENSE_NODE_TYPE = 'License'
 
 const fileReferenceRegExp = /^SEE LICEN[CS]E IN (.+)$/
 

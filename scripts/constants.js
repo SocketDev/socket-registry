@@ -18,6 +18,18 @@ const { constructor: PacoteFetcherBase } = Reflect.getPrototypeOf(
 )
 const packumentCache = new Map()
 
+const UNDEFINED_LAZY_VALUE = {}
+
+function createLazyGetter(getter) {
+  let lazyValue = UNDEFINED_LAZY_VALUE
+  return () => {
+    if (lazyValue === UNDEFINED_LAZY_VALUE) {
+      lazyValue = getter()
+    }
+    return lazyValue
+  }
+}
+
 function envAsBool(value) {
   return (
     typeof value === 'string' &&
@@ -34,6 +46,7 @@ const ENV = Object.freeze({
   // .husky/pre-commit hook.
   PRE_COMMIT: envAsBool(process.env.PRE_COMMIT)
 })
+const LAZY_LICENSE_CONTENT = () => fs.readFileSync(rootLicensePath, 'utf8')
 const LICENSE = 'LICENSE'
 const LICENSE_GLOB = 'LICEN[CS]E{.*,}'
 const LICENSE_GLOB_RECURSIVE = `**/${LICENSE_GLOB}`
@@ -98,8 +111,6 @@ const relTestNpmNodeModulesPath = path.relative(
   rootPath,
   testNpmNodeModulesPath
 )
-
-const LICENSE_CONTENT = fs.readFileSync(rootLicensePath, 'utf8')
 
 const ignores = Object.freeze([
   ...new Set([
@@ -216,10 +227,13 @@ const internals = Object.freeze({
   whichSync
 })
 
-const gitExecPath = whichSync('git')
-const npmExecPath = whichSync('npm')
-const runScriptParallelExecPath = whichSync('run-p')
-const runScriptSequentiallyExecPath = whichSync('run-s')
+const lazyEcosystems = () => Object.freeze(readDirNamesSync(rootPackagesPath))
+const lazyGitExecPath = () => whichSync('git')
+const lazyNpmExecPath = () => whichSync('npm')
+const lazyNpmPackageNames = () =>
+  Object.freeze(readDirNamesSync(npmPackagesPath))
+const lazyRunScriptParallelExecPath = () => whichSync('run-p')
+const lazyRunScriptSequentiallyExecPath = () => whichSync('run-s')
 
 const copyLeftLicenses = new Set([
   'AGPL-3.0-or-later',
@@ -246,8 +260,6 @@ const copyLeftLicenses = new Set([
   'GPL-1.0',
   'GPL-1.0-only'
 ])
-
-const ecosystems = Object.freeze(readDirNamesSync(rootPackagesPath))
 
 const lifecycleScriptNames = new Set(
   [
@@ -378,8 +390,6 @@ const packageExtensions = Object.freeze(
   )
 )
 
-const npmPackageNames = Object.freeze(readDirNamesSync(npmPackagesPath))
-
 const tsLibs = new Set([
   // Defined in priority order.
   'esnext',
@@ -406,7 +416,7 @@ module.exports = {
   EMPTY_FILE,
   ENV,
   LICENSE,
-  LICENSE_CONTENT,
+  LICENSE_CONTENT: undefined,
   LICENSE_GLOB,
   LICENSE_GLOB_RECURSIVE,
   LICENSE_ORIGINAL_GLOB,
@@ -431,17 +441,17 @@ module.exports = {
   UNLICENSED,
   VERSION,
   copyLeftLicenses,
-  ecosystems,
+  ecosystems: undefined,
   execPath,
-  gitExecPath,
+  gitExecPath: undefined,
   gitignorePath,
   ignores,
   kInternalsSymbol,
   lifecycleScriptNames,
   lowerToCamelCase,
   maintainedNodeVersions,
-  npmExecPath,
-  npmPackageNames,
+  npmExecPath: undefined,
+  npmPackageNames: undefined,
   npmPackagesPath,
   npmTemplatesPath,
   packageExtensions,
@@ -460,8 +470,8 @@ module.exports = {
   rootPackageLockPath,
   rootPackagesPath,
   rootTsConfigPath,
-  runScriptParallelExecPath,
-  runScriptSequentiallyExecPath,
+  runScriptParallelExecPath: undefined,
+  runScriptSequentiallyExecPath: undefined,
   templatesPath,
   testNpmPath,
   testNpmPkgJsonPath,
@@ -473,3 +483,29 @@ module.exports = {
   yarnPkgExtsPath,
   yarnPkgExtsJsonPath
 }
+
+module.exports.__defineGetter__(
+  'LICENSE_CONTENT',
+  createLazyGetter(LAZY_LICENSE_CONTENT)
+)
+module.exports.__defineGetter__('ecosystems', createLazyGetter(lazyEcosystems))
+module.exports.__defineGetter__(
+  'gitExecPath',
+  createLazyGetter(lazyGitExecPath)
+)
+module.exports.__defineGetter__(
+  'npmExecPath',
+  createLazyGetter(lazyNpmExecPath)
+)
+module.exports.__defineGetter__(
+  'npmPackageNames',
+  createLazyGetter(lazyNpmPackageNames)
+)
+module.exports.__defineGetter__(
+  'runScriptParallelExecPath',
+  createLazyGetter(lazyRunScriptParallelExecPath)
+)
+module.exports.__defineGetter__(
+  'runScriptSequentiallyExecPath',
+  createLazyGetter(lazyRunScriptSequentiallyExecPath)
+)
