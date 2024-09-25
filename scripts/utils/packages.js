@@ -130,9 +130,10 @@ function createPackageJson(pkgName, directory, options) {
     socket,
     type,
     version = VERSION
-  } = options
+  } = { __proto__: null, ...options }
   const name = `${NPM_SCOPE}/${pkgName.replace(new RegExp(`^${escapeRegExp(NPM_SCOPE)}/`), '')}`
   return {
+    __proto__: null,
     name,
     version,
     license: MIT,
@@ -177,7 +178,7 @@ function createPackageJson(pkgName, directory, options) {
 async function extractPackage(pkgNameOrId, options, callback) {
   if (arguments.length === 2 && typeof options === 'function') {
     callback = options
-    options = {}
+    options = undefined
   }
   const { tmpPrefix, ...otherOptions } = { __proto__: null, ...options }
   await cacache.tmp.withTmp(
@@ -409,6 +410,7 @@ async function toEditablePackageJson(pkgJson, options) {
   }
   const pkgJsonPath = resolvePackageJsonDirname(pathOpt)
   const normalizeOptions = {
+    __proto__: null,
     ...(isNodeModules(pkgJsonPath) ? {} : { preserve: ['repository'] }),
     ...otherOptions
   }
