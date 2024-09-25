@@ -2,7 +2,6 @@
 
 const path = require('node:path')
 
-const { includeIgnoreFile } = require('@eslint/compat')
 const js = require('@eslint/js')
 const importXPlugin = require('eslint-plugin-import-x')
 const nodePlugin = require('eslint-plugin-n')
@@ -12,10 +11,10 @@ const tsEslint = require('typescript-eslint')
 
 const {
   PACKAGE_JSON,
-  gitignorePath,
+  gitignoreFile,
   npmPackageNames,
   npmPackagesPath,
-  prettierignorePath,
+  prettierignoreFile,
   relNpmPackagesPath,
   rootTsConfigPath
 } = require('@socketregistry/scripts/constants')
@@ -219,8 +218,8 @@ function configs(sourceType) {
 }
 
 module.exports = [
-  includeIgnoreFile(gitignorePath),
-  includeIgnoreFile(prettierignorePath),
+  gitignoreFile,
+  prettierignoreFile,
   ...configs('script'),
   ...configs('module')
 ]

@@ -5,7 +5,7 @@ const fs = require('fs-extra')
 const {
   LICENSE,
   LICENSE_CONTENT,
-  ignores,
+  ignoreGlobs,
   rootPath
 } = require('@socketregistry/scripts/constants')
 const { globLicenses } = require('@socketregistry/scripts/utils/glob')
@@ -16,7 +16,7 @@ const { globLicenses } = require('@socketregistry/scripts/utils/glob')
       await globLicenses(rootPath, {
         recursive: true,
         ignoreOriginals: true,
-        ignore: [LICENSE, ...ignores]
+        ignore: [LICENSE, 'scripts/templates', ...ignoreGlobs]
       })
     ).map(licensePath => fs.writeFile(licensePath, LICENSE_CONTENT, 'utf8'))
   )

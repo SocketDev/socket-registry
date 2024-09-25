@@ -13,12 +13,15 @@ const semver = require('semver')
 const whichFn = require('which')
 const { sync: whichSyncFn } = whichFn
 
+const UNDEFINED_LAZY_VALUE = {}
+
+const { __defineGetter__ } = Object.prototype
+
+const packumentCache = new Map()
+
 const { constructor: PacoteFetcherBase } = Reflect.getPrototypeOf(
   pacote.RegistryFetcher.prototype
 )
-const packumentCache = new Map()
-
-const UNDEFINED_LAZY_VALUE = {}
 
 function createLazyGetter(getter) {
   let lazyValue = UNDEFINED_LAZY_VALUE
@@ -28,6 +31,20 @@ function createLazyGetter(getter) {
     }
     return lazyValue
   }
+}
+
+function defineLazyGetter(object, propKey, getter) {
+  __defineGetter__.call(object, propKey, createLazyGetter(getter))
+  return object
+}
+
+function defineLazyGetters(object, getterObj) {
+  const keys = Reflect.ownKeys(getterObj)
+  for (let i = 0, { length } = keys; i < length; i += 1) {
+    const key = keys[i]
+    defineLazyGetter(object, key, createLazyGetter(getterObj[key]))
+  }
+  return object
 }
 
 function envAsBool(value) {
@@ -112,22 +129,6 @@ const relTestNpmNodeModulesPath = path.relative(
   testNpmNodeModulesPath
 )
 
-const ignores = Object.freeze([
-  ...new Set([
-    // Most of these ignored files can be included specifically if included in the
-    // files globs. Exceptions to this are:
-    // https://docs.npmjs.com/cli/v10/configuring-npm/package-json#files
-    // These can not be included.
-    '.git',
-    '.npmrc',
-    '**/node_modules',
-    '**/package-lock.json',
-    '**/pnpm-lock.ya?ml',
-    '**/yarn.lock',
-    ...includeIgnoreFile(gitignorePath).ignores
-  ])
-])
-
 const { compare: localCompare } = new Intl.Collator()
 
 const naturalSort = createNewSortInstance({
@@ -177,7 +178,7 @@ const isDirEmptySync = function isDirEmptySync(dirname) {
     if (length === 0) {
       return true
     }
-    const matcher = getGlobMatcher(ignores, { cwd: dirname })
+    const matcher = getGlobMatcher(constants.ignoreGlobs, { cwd: dirname })
     let ignoredCount = 0
     for (let i = 0; i < length; i += 1) {
       if (matcher(files[i])) {
@@ -229,9 +230,28 @@ const internals = Object.freeze({
 
 const lazyEcosystems = () => Object.freeze(readDirNamesSync(rootPackagesPath))
 const lazyGitExecPath = () => whichSync('git')
+const lazyIgnoreGlobs = () =>
+  Object.freeze([
+    ...new Set([
+      // Most of these ignored files can be included specifically if included in the
+      // files globs. Exceptions to this are:
+      // https://docs.npmjs.com/cli/v10/configuring-npm/package-json#files
+      // These can not be included.
+      '.git',
+      '.npmrc',
+      '**/node_modules',
+      '**/package-lock.json',
+      '**/pnpm-lock.ya?ml',
+      '**/yarn.lock',
+      ...constants.gitignoreFile.ignores
+    ])
+  ])
+
 const lazyNpmExecPath = () => whichSync('npm')
 const lazyNpmPackageNames = () =>
   Object.freeze(readDirNamesSync(npmPackagesPath))
+const lazyGitignoreFile = () => includeIgnoreFile(gitignorePath)
+const lazyPrettierignoreFile = () => includeIgnoreFile(prettierignorePath)
 const lazyRunScriptParallelExecPath = () => whichSync('run-p')
 const lazyRunScriptSequentiallyExecPath = () => whichSync('run-s')
 
@@ -411,101 +431,92 @@ const tsLibs = new Set([
   'scripthost'
 ])
 
-module.exports = {
-  [kInternalsSymbol]: internals,
-  EMPTY_FILE,
-  ENV,
-  LICENSE,
-  LICENSE_CONTENT: undefined,
-  LICENSE_GLOB,
-  LICENSE_GLOB_RECURSIVE,
-  LICENSE_ORIGINAL_GLOB,
-  LICENSE_ORIGINAL_GLOB_RECURSIVE,
-  LOOP_SENTINEL,
-  MIT,
-  NODE_MODULES,
-  NODE_WORKSPACES,
-  NODE_VERSION,
-  NPM_ORG,
-  NPM_SCOPE,
-  OVERRIDES,
-  PACKAGE_ENGINES_NODE_RANGE,
-  PACKAGE_JSON,
-  PACKAGE_HIDDEN_LOCK,
-  PACKAGE_LOCK,
-  README_GLOB_PATTERN,
-  REPO_ORG,
-  REPO_NAME,
-  TSCONFIG_JSON,
-  UNLICENCED,
-  UNLICENSED,
-  VERSION,
-  copyLeftLicenses,
-  ecosystems: undefined,
-  execPath,
-  gitExecPath: undefined,
-  gitignorePath,
-  ignores,
-  kInternalsSymbol,
-  lifecycleScriptNames,
-  lowerToCamelCase,
-  maintainedNodeVersions,
-  npmExecPath: undefined,
-  npmPackageNames: undefined,
-  npmPackagesPath,
-  npmTemplatesPath,
-  packageExtensions,
-  packumentCache,
-  pacoteCachePath,
-  prettierignorePath,
-  relPackagesPath,
-  relNpmPackagesPath,
-  relTestNpmPath,
-  relTestNpmNodeModulesPath,
-  rootPath,
-  rootLicensePath,
-  rootManifestJsonPath,
-  rootNodeModulesPath,
-  rootPackageJsonPath,
-  rootPackageLockPath,
-  rootPackagesPath,
-  rootTsConfigPath,
-  runScriptParallelExecPath: undefined,
-  runScriptSequentiallyExecPath: undefined,
-  templatesPath,
-  testNpmPath,
-  testNpmPkgJsonPath,
-  testNpmPkgLockPath,
-  testNpmNodeModulesPath,
-  testNpmNodeModulesHiddenLockPath,
-  testNpmNodeWorkspacesPath,
-  tsLibs,
-  yarnPkgExtsPath,
-  yarnPkgExtsJsonPath
-}
-
-module.exports.__defineGetter__(
-  'LICENSE_CONTENT',
-  createLazyGetter(LAZY_LICENSE_CONTENT)
+const constants = Object.freeze(
+  defineLazyGetters(
+    {
+      [kInternalsSymbol]: internals,
+      EMPTY_FILE,
+      ENV,
+      LICENSE,
+      LICENSE_CONTENT: undefined,
+      LICENSE_GLOB,
+      LICENSE_GLOB_RECURSIVE,
+      LICENSE_ORIGINAL_GLOB,
+      LICENSE_ORIGINAL_GLOB_RECURSIVE,
+      LOOP_SENTINEL,
+      MIT,
+      NODE_MODULES,
+      NODE_WORKSPACES,
+      NODE_VERSION,
+      NPM_ORG,
+      NPM_SCOPE,
+      OVERRIDES,
+      PACKAGE_ENGINES_NODE_RANGE,
+      PACKAGE_JSON,
+      PACKAGE_HIDDEN_LOCK,
+      PACKAGE_LOCK,
+      README_GLOB_PATTERN,
+      REPO_ORG,
+      REPO_NAME,
+      TSCONFIG_JSON,
+      UNLICENCED,
+      UNLICENSED,
+      VERSION,
+      copyLeftLicenses,
+      ecosystems: undefined,
+      execPath,
+      gitExecPath: undefined,
+      gitignoreFile: undefined,
+      ignoreGlobs: undefined,
+      kInternalsSymbol,
+      lifecycleScriptNames,
+      lowerToCamelCase,
+      maintainedNodeVersions,
+      npmExecPath: undefined,
+      npmPackageNames: undefined,
+      npmPackagesPath,
+      npmTemplatesPath,
+      packageExtensions,
+      packumentCache,
+      pacoteCachePath,
+      prettierignoreFile: undefined,
+      relPackagesPath,
+      relNpmPackagesPath,
+      relTestNpmPath,
+      relTestNpmNodeModulesPath,
+      rootPath,
+      rootLicensePath,
+      rootManifestJsonPath,
+      rootNodeModulesPath,
+      rootPackageJsonPath,
+      rootPackageLockPath,
+      rootPackagesPath,
+      rootTsConfigPath,
+      runScriptParallelExecPath: undefined,
+      runScriptSequentiallyExecPath: undefined,
+      templatesPath,
+      testNpmPath,
+      testNpmPkgJsonPath,
+      testNpmPkgLockPath,
+      testNpmNodeModulesPath,
+      testNpmNodeModulesHiddenLockPath,
+      testNpmNodeWorkspacesPath,
+      tsLibs,
+      yarnPkgExtsPath,
+      yarnPkgExtsJsonPath
+    },
+    {
+      LICENSE_CONTENT: LAZY_LICENSE_CONTENT,
+      ecosystems: lazyEcosystems,
+      gitExecPath: lazyGitExecPath,
+      gitignoreFile: lazyGitignoreFile,
+      ignoreGlobs: lazyIgnoreGlobs,
+      npmExecPath: lazyNpmExecPath,
+      npmPackageNames: lazyNpmPackageNames,
+      prettierignoreFile: lazyPrettierignoreFile,
+      runScriptParallelExecPath: lazyRunScriptParallelExecPath,
+      runScriptSequentiallyExecPath: lazyRunScriptSequentiallyExecPath
+    }
+  )
 )
-module.exports.__defineGetter__('ecosystems', createLazyGetter(lazyEcosystems))
-module.exports.__defineGetter__(
-  'gitExecPath',
-  createLazyGetter(lazyGitExecPath)
-)
-module.exports.__defineGetter__(
-  'npmExecPath',
-  createLazyGetter(lazyNpmExecPath)
-)
-module.exports.__defineGetter__(
-  'npmPackageNames',
-  createLazyGetter(lazyNpmPackageNames)
-)
-module.exports.__defineGetter__(
-  'runScriptParallelExecPath',
-  createLazyGetter(lazyRunScriptParallelExecPath)
-)
-module.exports.__defineGetter__(
-  'runScriptSequentiallyExecPath',
-  createLazyGetter(lazyRunScriptSequentiallyExecPath)
-)
+module.exports = constants

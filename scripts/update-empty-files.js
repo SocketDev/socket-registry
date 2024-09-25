@@ -5,7 +5,7 @@ const { glob: tinyGlob } = require('tinyglobby')
 
 const {
   EMPTY_FILE,
-  ignores,
+  ignoreGlobs,
   npmTemplatesPath,
   rootPath
 } = require('@socketregistry/scripts/constants')
@@ -13,7 +13,7 @@ const {
 ;(async () => {
   const autoPatterns = ['**/auto.{d.ts,js}']
   const autoFiles = await tinyGlob(autoPatterns, {
-    ignore: ignores,
+    ignore: ignoreGlobs,
     absolute: true,
     cwd: rootPath
   })
@@ -36,7 +36,7 @@ const {
   await Promise.all(
     (
       await tinyGlob(['**/*.{d.ts,js}'], {
-        ignore: [...autoPatterns, ...ignores],
+        ignore: [...autoPatterns, ...ignoreGlobs],
         absolute: true,
         cwd: rootPath
       })

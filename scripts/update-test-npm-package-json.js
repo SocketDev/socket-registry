@@ -13,7 +13,7 @@ const {
   NODE_WORKSPACES,
   PACKAGE_JSON,
   README_GLOB_PATTERN,
-  ignores,
+  ignoreGlobs,
   lifecycleScriptNames,
   npmExecPath,
   npmPackageNames,
@@ -464,7 +464,7 @@ const testScripts = [
               '**/CONTRIBUTING{.*,}',
               '**/FUND{ING,}{.*,}',
               `**/${README_GLOB_PATTERN}`,
-              ...ignores
+              ...ignoreGlobs
             ],
             {
               ignore: [LICENSE_GLOB_RECURSIVE],

@@ -15,7 +15,7 @@ import {
   testNpmNodeWorkspacesPath
   // @ts-ignore
 } from '@socketregistry/scripts/constants'
-// @ts-ignores
+// @ts-ignore
 import { readDirNames } from '@socketregistry/scripts/utils/fs'
 import {
   getModifiedPackagesSync,

@@ -16,7 +16,7 @@ import {
   PACKAGE_JSON,
   README_GLOB_PATTERN,
   ecosystems,
-  ignores,
+  ignoreGlobs,
   npmPackageNames,
   npmPackagesPath
   // @ts-ignore
@@ -130,7 +130,7 @@ for (const eco of ecosystems) {
                 ...filesPatternsAsArray
               ],
               {
-                ignore: ignores,
+                ignore: ignoreGlobs,
                 caseSensitiveMatch: false,
                 cwd: pkgPath,
                 dot: true
