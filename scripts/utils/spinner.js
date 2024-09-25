@@ -8,7 +8,7 @@ class Spinner {
   #spinner
   constructor(message, options) {
     this.#message = message
-    this.#options = { ...options, clearOnEnd: true }
+    this.#options = { __proto__: null, ...options, clearOnEnd: true }
     this.#spinner = cliLoadingAnimation(this.#message, this.#options)
   }
 

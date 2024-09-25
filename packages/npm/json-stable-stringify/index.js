@@ -15,10 +15,11 @@ function joinEntries(entries, indent, wrapper) {
 }
 
 class StringifyEntries extends Array {
-  constructor(options = {}) {
+  constructor(options) {
     super()
-    this.indent = options.indent || ''
-    this.space = options.space || ''
+    const { indent, space } = { __proto__: null, ...options }
+    this.indent = indent || ''
+    this.space = space || ''
   }
 }
 

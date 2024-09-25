@@ -1,7 +1,10 @@
 'use strict'
 
-module.exports = function indentString(string, count = 1, options = {}) {
-  const { includeEmptyLines = false, indent = ' ' } = options
+module.exports = function indentString(string, count = 1, options) {
+  const { includeEmptyLines = false, indent = ' ' } = {
+    __proto__: null,
+    ...options
+  }
   if (typeof string !== 'string') {
     throw new TypeError(
       `Expected \`input\` to be a \`string\`, got \`${typeof string}\``

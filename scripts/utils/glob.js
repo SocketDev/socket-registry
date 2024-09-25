@@ -24,6 +24,7 @@ async function globLicenses(dirname, options) {
       : [LICENSE_ORIGINAL_GLOB_RECURSIVE]
   }
   return await tinyGlob([recursive ? LICENSE_GLOB_RECURSIVE : LICENSE_GLOB], {
+    __proto__: null,
     absolute: true,
     caseSensitiveMatch: false,
     cwd: dirname,

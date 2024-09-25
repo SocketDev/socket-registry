@@ -187,6 +187,7 @@ const readDirNamesSync = function readDirNamesSync(dirname, options) {
 }
 
 const defaultWhichOptions = {
+  __proto__: null,
   path: `${rootNodeModulesBinPath}${path.delimiter}${process.env.PATH}`
 }
 

@@ -264,7 +264,7 @@ const nodeEsmTemplateChoices = [
     actions.map(async ({ 0: filepath, 1: data }) => {
       const ext = path.extname(filepath)
       const content = await fs.readFile(filepath, 'utf8')
-      const modified = modifyContent(content, { ...data })
+      const modified = modifyContent(content, { __proto__: null, ...data })
       const output =
         ext === '.json'
           ? await prettier.format(modified, { parser: 'json' })
