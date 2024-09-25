@@ -2,218 +2,406 @@
   "npm": [
     [
       "pkg:npm/%40socketregistry/abab@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/aggregate-error@1.0.0",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["esm"]
+        "interop": ["esm"],
+        "license": "MIT"
       }
     ],
     [
       "pkg:npm/%40socketregistry/array-buffer-byte-length@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/array-flatten@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/array-includes@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/array.from@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/array.of@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/array.prototype.at@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/array.prototype.every@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/array.prototype.filter@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/array.prototype.find@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/array.prototype.findlast@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/array.prototype.findlastindex@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/array.prototype.flat@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/array.prototype.flatmap@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/array.prototype.foreach@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/array.prototype.map@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/array.prototype.reduce@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/array.prototype.toreversed@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=20.17.0" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=20.17.0" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/array.prototype.tosorted@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=20.17.0" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=20.17.0" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/arraybuffer.prototype.slice@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/assert@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/asynciterator.prototype@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/available-typed-arrays@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/date@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/deep-equal@1.0.0",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["browser"]
+        "interop": ["browser"],
+        "license": "MIT"
       }
     ],
     [
       "pkg:npm/%40socketregistry/define-properties@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/es-aggregate-error@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/es-define-property@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/es-get-iterator@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/es-iterator-helpers@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=22.8.0" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=22.8.0" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/es-set-tostringtag@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/es6-object-assign@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/es6-symbol@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/function-bind@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/function.prototype.name@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/functions-have-names@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/get-symbol-description@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/globalthis@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/gopd@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/harmony-reflect@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/has-property-descriptors@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/has-proto@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/has-symbols@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/has-tostringtag@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/has@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/hasown@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/indent-string@1.0.0",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["esm"]
+        "interop": ["esm"],
+        "license": "MIT"
       }
     ],
     [
       "pkg:npm/%40socketregistry/internal-slot@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/is-arguments@1.0.0",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["browser"]
+        "interop": ["browser"],
+        "license": "MIT"
       }
     ],
     [
@@ -221,7 +409,8 @@
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["browser"]
+        "interop": ["browser"],
+        "license": "MIT"
       }
     ],
     [
@@ -229,7 +418,8 @@
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["browser"]
+        "interop": ["browser"],
+        "license": "MIT"
       }
     ],
     [
@@ -237,19 +427,25 @@
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["browser"]
+        "interop": ["browser"],
+        "license": "MIT"
       }
     ],
     [
       "pkg:npm/%40socketregistry/is-core-module@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/is-date-object@1.0.0",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["browser"]
+        "interop": ["browser"],
+        "license": "MIT"
       }
     ],
     [
@@ -257,7 +453,8 @@
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["browser"]
+        "interop": ["browser"],
+        "license": "MIT"
       }
     ],
     [
@@ -265,23 +462,33 @@
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["browser"]
+        "interop": ["browser"],
+        "license": "MIT"
       }
     ],
     [
       "pkg:npm/%40socketregistry/is-nan@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/is-negative-zero@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/is-number-object@1.0.0",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["browser"]
+        "interop": ["browser"],
+        "license": "MIT"
       }
     ],
     [
@@ -289,7 +496,8 @@
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["browser"]
+        "interop": ["browser"],
+        "license": "MIT"
       }
     ],
     [
@@ -297,7 +505,8 @@
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["browser"]
+        "interop": ["browser"],
+        "license": "MIT"
       }
     ],
     [
@@ -305,7 +514,8 @@
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["browser"]
+        "interop": ["browser"],
+        "license": "MIT"
       }
     ],
     [
@@ -313,7 +523,8 @@
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["browser"]
+        "interop": ["browser"],
+        "license": "MIT"
       }
     ],
     [
@@ -321,7 +532,8 @@
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["browser"]
+        "interop": ["browser"],
+        "license": "MIT"
       }
     ],
     [
@@ -329,7 +541,8 @@
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["browser"]
+        "interop": ["browser"],
+        "license": "MIT"
       }
     ],
     [
@@ -337,244 +550,474 @@
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["browser"]
+        "interop": ["browser"],
+        "license": "MIT"
       }
     ],
     [
       "pkg:npm/%40socketregistry/is-weakref@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/is-weakset@1.0.0",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["browser"]
+        "interop": ["browser"],
+        "license": "MIT"
       }
     ],
     [
       "pkg:npm/%40socketregistry/isarray@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/iterator.prototype@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/json-stable-stringify@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/jsonify@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/number-is-nan@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/object-is@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/object-keys@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/object.assign@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/object.entries@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/object.fromentries@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/object.getownpropertydescriptors@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/object.getprototypeof@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/object.groupby@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=21.7.3" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=21.7.3" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/object.hasown@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/object.values@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/path-parse@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/promise.allsettled@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/promise.any@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/querystringify@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/reflect.getprototypeof@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/reflect.ownkeys@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/regexp.prototype.flags@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/safe-array-concat@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/safe-buffer@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/safe-regex-test@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/safer-buffer@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/set-function-length@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/side-channel@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/string.fromcodepoint@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/string.prototype.at@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/string.prototype.codepointat@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/string.prototype.endswith@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/string.prototype.includes@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/string.prototype.matchall@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/string.prototype.padend@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/string.prototype.padstart@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/string.prototype.repeat@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/string.prototype.replaceall@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/string.prototype.split@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/string.prototype.startswith@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/string.prototype.trim@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/string.prototype.trimend@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/string.prototype.trimleft@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/string.prototype.trimright@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/string.prototype.trimstart@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/typed-array-buffer@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/typed-array-byte-length@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/typed-array-byte-offset@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/typed-array-length@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/typedarray.prototype.slice@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/typedarray@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/unbox-primitive@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/util.promisify@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/which-boxed-primitive@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/which-collection@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ],
     [
       "pkg:npm/%40socketregistry/which-typed-array@1.0.0",
-      { "categories": ["cleanup"], "engines": { "node": ">=18.20.4" } }
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "license": "MIT"
+      }
     ]
   ]
 }

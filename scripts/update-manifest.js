@@ -25,6 +25,7 @@ const { localCompare } = require('@socketregistry/scripts/utils/sorts')
         const {
           engines,
           exports: entryExports,
+          license,
           name,
           socket,
           version
@@ -34,11 +35,15 @@ const { localCompare } = require('@socketregistry/scripts/utils/sorts')
         if (isEsm) {
           interop.push('esm')
         }
-        const isBrowser = !!entryExports?.node
+        const isBrowser = !!(
+          entryExports?.browser ||
+          (entryExports?.node && entryExports?.default)
+        )
         if (isBrowser) {
           interop.push('browser')
         }
         const metaEntries = [
+          ['license', license],
           ...(interop.length ? [['interop', interop]] : []),
           ...(engines ? [['engines', engines]] : []),
           ...(socket ? Object.entries(socket) : [])
