@@ -32,7 +32,7 @@
     "update:browserslist-db": "update-browserslist-db",
     "update:empty-dirs": "node ./scripts/update-empty-dirs.js",
     "update:empty-files": "node ./scripts/update-empty-files.js",
-    "update:license": "node ./scripts/update-license.js",
+    "update:licenses": "node ./scripts/update-licenses.js",
     "update:manifest": "node ./scripts/update-manifest.js",
     "update:package-json": "node ./scripts/update-package-json.js",
     "update:package-lock": "node ./scripts/update-package-lock.js",
