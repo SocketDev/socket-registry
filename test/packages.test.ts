@@ -49,11 +49,16 @@ function findLeakedApiKey(keys: any[]): string | undefined {
 }
 
 function isDotFile(filepath: string) {
-  return path.basename(filepath).startsWith('.')
+  const basename = path.basename(filepath)
+  return basename.length > 0 && basename.charCodeAt(0) === 46 /*'.'*/
 }
 
 function isDotPattern(pattern: string) {
-  return pattern.startsWith('.')
+  return (
+    pattern.length > 2 &&
+    pattern.charCodeAt(0) === 46 /*'.'*/ &&
+    pattern.charCodeAt(1) !== 46 /*'.'*/
+  )
 }
 
 function prepareReqId(id: string) {
