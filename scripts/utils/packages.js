@@ -33,7 +33,6 @@ const {
   pacoteCachePath
 } = require('@socketregistry/scripts/constants')
 const {
-  isObject,
   isObjectObject,
   merge
 } = require('@socketregistry/scripts/utils/objects')
@@ -44,6 +43,11 @@ const {
 const { escapeRegExp } = require('@socketregistry/scripts/utils/regexps')
 const { isNonEmptyString } = require('@socketregistry/scripts/utils/strings')
 
+const LICENSE_NODE_TYPE = 'License'
+const BINARY_OPERATION_NODE_TYPE = 'BinaryOperation'
+
+const fileReferenceRegExp = /^SEE LICEN[CS]E IN (.+)$/
+
 const fetcher = makeFetchHappen.defaults({
   cachePath: pacoteCachePath,
   // Prefer-offline: Staleness checks for cached data will be bypassed, but
@@ -51,8 +55,6 @@ const fetcher = makeFetchHappen.defaults({
   // https://github.com/npm/make-fetch-happen?tab=readme-ov-file#--optscache
   cache: 'force-cache'
 })
-
-const fileReferenceRegExp = /^SEE LICEN[CS]E IN (.+)$/
 
 function collectIncompatibleLicenses(licenseNodes) {
   const result = []
@@ -79,73 +81,44 @@ function collectLicenseWarnings(licenseNodes) {
   return [...warnings.values()]
 }
 
-function getRepoUrlDetails(repoUrl = '') {
-  const userAndRepo = repoUrl.replace(/^.+github.com\//, '').split('/')
-  const { 0: user } = userAndRepo
-  const project =
-    userAndRepo.length > 1 ? userAndRepo[1].slice(0, -'.git'.length) : ''
-  return { user, project }
+function createAstNode(rawNode) {
+  return Object.hasOwn(rawNode, 'license')
+    ? createLicenseNode(rawNode)
+    : createBinaryOperationNode(rawNode)
 }
 
-function gitHubTagRefUrl(user, project, tag) {
-  return `https://api.github.com/repos/${user}/${project}/git/ref/tags/${tag}`
-}
-
-function gitHubTgzUrl(user, project, sha) {
-  return `https://github.com/${user}/${project}/archive/${sha}.tar.gz`
-}
-
-async function resolveGitHubTgzUrl(pkgNameOrId, where) {
-  const { version } = pkgJson
-  const whereIsPkgJson = isObjectObject(where)
-  const pkgJson = whereIsPkgJson ? where : await readPackageJson(where)
-  const parsedSpec = npmPackageArg(
-    pkgNameOrId,
-    whereIsPkgJson ? undefined : where
-  )
-  const isTarballUrl =
-    parsedSpec.type === 'remote' && !!parsedSpec.saveSpec?.endsWith('.tar.gz')
-
-  if (isTarballUrl) {
-    return parsedSpec.saveSpec
-  }
-  const isGithubUrl =
-    parsedSpec.type === 'git' &&
-    parsedSpec.hosted?.domain === 'github.com' &&
-    isNonEmptyString(parsedSpec.gitCommittish)
-
-  const { project, user } = isGithubUrl
-    ? parsedSpec.hosted
-    : getRepoUrlDetails(pkgJson.repository?.url)
-
-  if (user && project) {
-    let apiUrl = ''
-    if (isGithubUrl) {
-      apiUrl = gitHubTagRefUrl(user, project, parsedSpec.gitCommittish)
-    } else {
-      // First try to resolve the sha for a tag starting with "v", e.g. v1.2.3.
-      apiUrl = gitHubTagRefUrl(user, project, `v${version}`)
-      if (!(await fetcher(apiUrl, { method: 'head' })).ok) {
-        // If a sha isn't found, try again with the "v" removed, e.g. 1.2.3.
-        apiUrl = gitHubTagRefUrl(user, project, version)
-        if (!(await fetcher(apiUrl, { method: 'head' })).ok) {
-          apiUrl = ''
-        }
+function createBinaryOperationNode(rawNode) {
+  let left
+  let right
+  let { left: rawLeft, right: rawRight } = rawNode
+  const { conjunction } = rawNode
+  rawNode = undefined
+  return {
+    __proto__: null,
+    type: BINARY_OPERATION_NODE_TYPE,
+    get left() {
+      if (left === undefined) {
+        left = createAstNode(rawLeft)
+        rawLeft = undefined
       }
-    }
-    if (apiUrl) {
-      const resp = await fetcher(apiUrl)
-      const json = await resp.json()
-      const sha = json?.object?.sha
-      if (sha) {
-        return gitHubTgzUrl(user, project, sha)
+      return left
+    },
+    conjunction,
+    get right() {
+      if (right === undefined) {
+        right = createAstNode(rawRight)
+        rawRight = undefined
       }
+      return right
     }
   }
-  return ''
 }
 
-function createPackageJson(pkgName, directory, options = {}) {
+function createLicenseNode(rawNode) {
+  return { __proto__: null, ...rawNode, type: LICENSE_NODE_TYPE }
+}
+
+function createPackageJson(pkgName, directory, options) {
   const {
     dependencies,
     engines,
@@ -253,6 +226,22 @@ function findPackageExtensions(pkgName, pkgVer) {
   return result
 }
 
+function getRepoUrlDetails(repoUrl = '') {
+  const userAndRepo = repoUrl.replace(/^.+github.com\//, '').split('/')
+  const { 0: user } = userAndRepo
+  const project =
+    userAndRepo.length > 1 ? userAndRepo[1].slice(0, -'.git'.length) : ''
+  return { user, project }
+}
+
+function gitHubTagRefUrl(user, project, tag) {
+  return `https://api.github.com/repos/${user}/${project}/git/ref/tags/${tag}`
+}
+
+function gitHubTgzUrl(user, project, sha) {
+  return `https://github.com/${user}/${project}/archive/${sha}.tar.gz`
+}
+
 function isValidPackageName(pkgName) {
   const validation = validateNpmPackageName(pkgName)
   return (
@@ -309,6 +298,56 @@ async function readPackageJson(filepath, options) {
     : normalizePackageJson(pkgJson, otherOptions)
 }
 
+async function resolveGitHubTgzUrl(pkgNameOrId, where) {
+  const { version } = pkgJson
+  const whereIsPkgJson = isObjectObject(where)
+  const pkgJson = whereIsPkgJson ? where : await readPackageJson(where)
+  const parsedSpec = npmPackageArg(
+    pkgNameOrId,
+    whereIsPkgJson ? undefined : where
+  )
+  const isTarballUrl =
+    parsedSpec.type === 'remote' && !!parsedSpec.saveSpec?.endsWith('.tar.gz')
+
+  if (isTarballUrl) {
+    return parsedSpec.saveSpec
+  }
+  const isGithubUrl =
+    parsedSpec.type === 'git' &&
+    parsedSpec.hosted?.domain === 'github.com' &&
+    isNonEmptyString(parsedSpec.gitCommittish)
+
+  const { project, user } = isGithubUrl
+    ? parsedSpec.hosted
+    : getRepoUrlDetails(pkgJson.repository?.url)
+
+  if (user && project) {
+    let apiUrl = ''
+    if (isGithubUrl) {
+      apiUrl = gitHubTagRefUrl(user, project, parsedSpec.gitCommittish)
+    } else {
+      // First try to resolve the sha for a tag starting with "v", e.g. v1.2.3.
+      apiUrl = gitHubTagRefUrl(user, project, `v${version}`)
+      if (!(await fetcher(apiUrl, { method: 'head' })).ok) {
+        // If a sha isn't found, try again with the "v" removed, e.g. 1.2.3.
+        apiUrl = gitHubTagRefUrl(user, project, version)
+        if (!(await fetcher(apiUrl, { method: 'head' })).ok) {
+          apiUrl = ''
+        }
+      }
+    }
+    if (apiUrl) {
+      const resp = await fetcher(apiUrl)
+      const json = await resp.json()
+      const sha = json?.object?.sha
+      if (sha) {
+        return gitHubTgzUrl(user, project, sha)
+      }
+    }
+  }
+  return ''
+}
+
 function resolvePackageJsonDirname(filepath) {
   return filepath.endsWith(PACKAGE_JSON) ? path.dirname(filepath) : filepath
 }
@@ -345,16 +384,19 @@ function resolvePackageLicenses(licenseFieldValue, where) {
     // SPDX identifiers, then the terms should be put in a file in the package
     // and the license field should point users there, e.g. "SEE LICENSE IN LICENSE.txt".
     // https://github.com/kemitchell/validate-npm-package-license.js/blob/v3.0.4/index.js#L18-L24
-    visitLicenses(ast, node => {
-      const { license } = node
-      if (
-        license.startsWith('LicenseRef') ||
-        license.startsWith('DocumentRef')
-      ) {
-        licenseNodes.length = 0
-        return false
+    visitLicenses(ast, {
+      __proto__: null,
+      License(node) {
+        const { license } = node
+        if (
+          license.startsWith('LicenseRef') ||
+          license.startsWith('DocumentRef')
+        ) {
+          licenseNodes.length = 0
+          return false
+        }
+        licenseNodes.push(node)
       }
-      licenseNodes.push(node)
     })
   }
   return licenseNodes
@@ -375,8 +417,8 @@ async function toEditablePackageJson(pkgJson, options) {
   )
 }
 
-function visitLicenses(ast, callback) {
-  const queue = [ast]
+function visitLicenses(ast, visitor) {
+  const queue = [[createAstNode(ast), undefined]]
   let { length: queueLength } = queue
   let pos = 0
   while (pos < queueLength) {
@@ -391,23 +433,18 @@ function visitLicenses(ast, callback) {
     //   }
     // or a binary operation node which looks like
     //   {
-    //     left: licenseNode | binaryOpNode
+    //     left: License | BinaryOperation
     //     conjunction: string
-    //     right: licenseNode | binaryOpNode
+    //     right: License | BinaryOperation
     //   }
-    const node = { __proto__: null, ...queue[pos++] }
-    if (typeof node.license === 'string') {
-      if (callback(node) === false) {
-        break
-      }
-    } else {
-      const { left, right } = node
-      if (isObject(left)) {
-        queue[queueLength++] = left
-      }
-      if (isObject(right)) {
-        queue[queueLength++] = right
-      }
+    const { 0: node, 1: parent } = queue[pos++]
+    const { type } = node
+    if (visitor[type]?.(node, parent) === false) {
+      break
+    }
+    if (type === BINARY_OPERATION_NODE_TYPE) {
+      queue[queueLength++] = [node.left, node]
+      queue[queueLength++] = [node.right, node]
     }
   }
 }
