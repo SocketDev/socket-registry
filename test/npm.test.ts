@@ -25,10 +25,6 @@ import {
 // @ts-ignore
 import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
 
-const testablePackages: Set<string> = ENV.PRE_COMMIT
-  ? getStagedPackagesSync('npm', { asSet: true })
-  : getModifiedPackagesSync('npm', { asSet: true })
-
 const skippedPackages = new Set([
   // Has known test fails in its package:
   // https://github.com/es-shims/Date/issues/3
@@ -46,10 +42,19 @@ const skippedPackages = new Set([
 ])
 
 describe('npm', async () => {
-  const packageNames: string[] = (
+  const testNpmNodeWorkspacesPackages = (<string[]>(
     await readDirNames(testNpmNodeWorkspacesPath)
-  ).filter((n: string) => testablePackages.has(n) && !skippedPackages.has(n))
-
+  )).filter(n => !skippedPackages.has(n))
+  const packageNames: string[] = ENV.CI
+    ? testNpmNodeWorkspacesPackages
+    : (() => {
+        const testablePackages: Set<string> = ENV.PRE_COMMIT
+          ? getStagedPackagesSync('npm', { asSet: true })
+          : getModifiedPackagesSync('npm', { asSet: true })
+        return testNpmNodeWorkspacesPackages.filter((n: string) =>
+          testablePackages.has(n)
+        )
+      })()
   for (const pkgName of packageNames) {
     const wsPkgPath = path.join(testNpmNodeWorkspacesPath, pkgName)
     const wsPkgJson = fs.readJsonSync(path.join(wsPkgPath, PACKAGE_JSON))

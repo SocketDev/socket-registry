@@ -18,9 +18,21 @@ const { constructor: PacoteFetcherBase } = Reflect.getPrototypeOf(
 )
 const packumentCache = new Map()
 
+function envAsBool(value) {
+  return (
+    typeof value === 'string' &&
+    (value === '1' || value.toLowerCase() === 'true')
+  )
+}
+
 const EMPTY_FILE = '/* empty */\n'
 const ENV = Object.freeze({
-  PRE_COMMIT: /^(?:1|true)$/.test(process.env.PRE_COMMIT)
+  // CI is always set to "true" in a GitHub action.
+  // https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables
+  CI: envAsBool(process.env.CI),
+  // PRE_COMMIT is set to "1" by our "test-pre-commit" script run by the
+  // .husky/pre-commit hook.
+  PRE_COMMIT: envAsBool(process.env.PRE_COMMIT)
 })
 const LICENSE = 'LICENSE'
 const LICENSE_GLOB = 'LICEN[CS]E{.*,}'

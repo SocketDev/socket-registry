@@ -67,14 +67,16 @@ function trimLeadingDotSlash(filepath: string): string {
 for (const eco of ecosystems) {
   describe(eco, () => {
     if (eco === 'npm') {
-      const testablePackages: Set<string> = ENV.PRE_COMMIT
-        ? getStagedPackagesSync(eco, { asSet: true })
-        : getModifiedPackagesSync(eco, { asSet: true })
-
-      const packageNames: string[] = npmPackageNames.filter((n: string) =>
-        testablePackages.has(n)
-      )
-
+      const packageNames: string[] = ENV.CI
+        ? npmPackageNames
+        : (() => {
+            const testablePackages: Set<string> = ENV.PRE_COMMIT
+              ? getStagedPackagesSync(eco, { asSet: true })
+              : getModifiedPackagesSync(eco, { asSet: true })
+            return npmPackageNames.filter((n: string) =>
+              testablePackages.has(n)
+            )
+          })()
       for (const pkgName of packageNames) {
         const pkgPath = path.join(npmPackagesPath, pkgName)
         const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
