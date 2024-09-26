@@ -45,4 +45,4 @@ npm install @socketregistry/reflect.ownkeys
 
 ## Requirements
 
-Node &gt;=18.20.4
+Node &gt;= `18.20.4`

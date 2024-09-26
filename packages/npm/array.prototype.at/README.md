@@ -45,4 +45,4 @@ npm install @socketregistry/array.prototype.at
 
 ## Requirements
 
-Node &gt;=18.20.4
+Node &gt;= `18.20.4`

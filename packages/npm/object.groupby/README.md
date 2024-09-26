@@ -45,4 +45,4 @@ npm install @socketregistry/object.groupby
 
 ## Requirements
 
-Node &gt;=21.7.3
+Node &gt;= `21.7.3`

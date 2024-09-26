@@ -49,4 +49,4 @@ npm install <%= it.name %>
 
 ## Requirements
 
-Node <%= it.engines.node %>
+Node <%= it.engines.node.replace(/\d.+/, ' `$&`') %>

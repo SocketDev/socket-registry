@@ -45,4 +45,4 @@ npm install @socketregistry/aggregate-error
 
 ## Requirements
 
-Node &gt;=18.20.4
+Node &gt;= `18.20.4`

@@ -45,4 +45,4 @@ npm install @socketregistry/safe-regex-test
 
 ## Requirements
 
-Node &gt;=18.20.4
+Node &gt;= `18.20.4`

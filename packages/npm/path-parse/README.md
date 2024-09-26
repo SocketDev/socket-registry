@@ -45,4 +45,4 @@ npm install @socketregistry/path-parse
 
 ## Requirements
 
-Node &gt;=18.20.4
+Node &gt;= `18.20.4`

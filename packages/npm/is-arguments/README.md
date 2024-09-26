@@ -45,4 +45,4 @@ npm install @socketregistry/is-arguments
 
 ## Requirements
 
-Node &gt;=18.20.4
+Node &gt;= `18.20.4`
