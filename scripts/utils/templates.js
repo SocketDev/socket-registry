@@ -4,9 +4,11 @@ const path = require('node:path')
 
 const { Eta } = require('eta')
 const fs = require('fs-extra')
+const { PackageURL } = require('packageurl-js')
 const semver = require('semver')
 const { glob: tinyGlob } = require('tinyglobby')
 
+const manifest = require('@socketregistry/manifest')
 const {
   LICENSE_CONTENT,
   PACKAGE_ENGINES_NODE_RANGE,
@@ -82,21 +84,16 @@ async function getLicenseActions(pkgPath) {
   return actions
 }
 
-async function getPackageJsonAction(pkgPath) {
-  return [
-    path.join(pkgPath, PACKAGE_JSON),
-    {
-      __proto__: null,
-      name: path.basename(pkgPath),
-      node_range: PACKAGE_ENGINES_NODE_RANGE,
-      categories: ['cleanup']
-    }
-  ]
-}
-
-async function getReadmeAction(pkgPath) {
+async function getNpmReadmeAction(pkgPath) {
   const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
   const pkgJson = await readPackageJson(pkgJsonPath)
+  const pkgPurlObj = PackageURL.fromString(
+    `pkg:npm/${pkgJson.name}@${pkgJson.version}`
+  )
+  const { name: pkgName } = pkgPurlObj
+  const manifestData = manifest.npm.find(
+    ({ 0: purlStr }) => PackageURL.fromString(purlStr).name === pkgName
+  )?.[1]
   return [
     path.join(pkgPath, README_MD),
     {
@@ -106,9 +103,24 @@ async function getReadmeAction(pkgPath) {
         {
           __proto__: null,
           ...pkgJson,
+          manifest: manifestData,
+          originalName: `${manifestData?.scope ?? ''}${pkgName}`,
+          purl: pkgPurlObj,
           version: semver.parse(pkgJson.version)
         }
       ])
+    }
+  ]
+}
+
+async function getPackageJsonAction(pkgPath) {
+  return [
+    path.join(pkgPath, PACKAGE_JSON),
+    {
+      __proto__: null,
+      name: path.basename(pkgPath),
+      node_range: PACKAGE_ENGINES_NODE_RANGE,
+      categories: ['cleanup']
     }
   ]
 }
@@ -149,8 +161,8 @@ async function writeAction(action) {
 
 module.exports = {
   getLicenseActions,
+  getNpmReadmeAction,
   getPackageJsonAction,
-  getReadmeAction,
   getTypeScriptActions,
   renderAction,
   templates,

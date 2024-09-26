@@ -49,6 +49,7 @@
     "@inquirer/select": "^3.0.1",
     "@npmcli/package-json": "^5.2.0",
     "@npmcli/promise-spawn": "^8.0.0",
+    "@socketregistry/manifest": "file:./manifest.json",
     "@socketregistry/scripts": "file:./scripts",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.5.5",

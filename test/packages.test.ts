@@ -9,6 +9,8 @@ import { PackageURL } from 'packageurl-js'
 import semver from 'semver'
 import { glob as tinyGlob } from 'tinyglobby'
 
+// @ts-ignore
+import manifest from '@socketregistry/manifest'
 import {
   ENV,
   LICENSE,
@@ -39,8 +41,6 @@ import {
 import { localCompare } from '@socketregistry/scripts/utils/sorts'
 // @ts-ignore
 import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
-
-import manifest from '../manifest.json'
 
 // Use by passing as a tap --test-arg:
 // npm run test:unit ./test/packages.test.ts -- --test-arg="--force"
@@ -233,8 +233,8 @@ for (const eco of ecosystems) {
 
           const manifestData = <any>(
             manifest.npm.find(
-              ({ 0: purlStr }) =>
-                PackageURL.fromString(<string>purlStr).name === pkgName
+              ({ 0: purlStr }: [string]) =>
+                PackageURL.fromString(purlStr).name === pkgName
             )?.[1]
           )
           if (manifestData?.license !== 'Public Domain') {

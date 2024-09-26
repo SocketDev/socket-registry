@@ -18,9 +18,11 @@ const {
   readPackageJson
 } = require('@socketregistry/scripts/utils/packages')
 const { localCompare } = require('@socketregistry/scripts/utils/sorts')
+const { Spinner } = require('@socketregistry/scripts/utils/spinner')
 const { prettierFormat } = require('@socketregistry/scripts/utils/strings')
 
 ;(async () => {
+  const spinner = new Spinner('Updating manifest.json...').start()
   const manifest = {}
   for (const eco of ecosystems) {
     if (eco === 'npm') {
@@ -40,8 +42,12 @@ const { prettierFormat } = require('@socketregistry/scripts/utils/strings')
           socket,
           version
         } = pkgJson
-        const { deprecated: nmPkgDeprecated } = nmPkgManifest
+        const { _id: nmPkgId, deprecated: nmPkgDeprecated } = nmPkgManifest
         const { license: nwPkgLicense } = nwPkgJson
+        const { namespace: nmScope } = PackageURL.fromString(
+          `pkg:${eco}/${nmPkgId}`
+        )
+
         const interop = []
         const isEsm = !!(entryExports?.import || entryExports?.module)
         if (isEsm) {
@@ -57,8 +63,9 @@ const { prettierFormat } = require('@socketregistry/scripts/utils/strings')
         const metaEntries = [
           ['license', nwPkgLicense ?? UNLICENSED],
           ...(nmPkgDeprecated ? [['deprecated', true]] : []),
-          ...(interop.length ? [['interop', interop]] : []),
           ...(engines ? [['engines', engines]] : []),
+          ...(interop.length ? [['interop', interop]] : []),
+          ...(nmScope ? [['scope', nmScope]] : []),
           ...(socket ? Object.entries(socket) : [])
         ]
         const purlObj = PackageURL.fromString(`pkg:${eco}/${name}@${version}`)
@@ -83,4 +90,5 @@ const { prettierFormat } = require('@socketregistry/scripts/utils/strings')
     filepath: rootManifestJsonPath
   })
   await fs.writeFile(rootManifestJsonPath, output, 'utf8')
+  spinner.stop()
 })()

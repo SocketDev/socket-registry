@@ -193,6 +193,7 @@ async function extractPackage(pkgNameOrId, options, callback) {
       await pacote.extract(pkgNameOrId, tmpDirPath, {
         __proto__: null,
         packumentCache,
+        preferOffline: true,
         ...otherOptions
       })
       await callback(tmpDirPath)
@@ -207,6 +208,7 @@ async function fetchPackageManifest(pkgNameOrId, options) {
     const fetcher = new RegistryFetcher(spec.subSpec || spec, {
       __proto__: null,
       packumentCache,
+      preferOffline: true,
       ...otherOptions
     })
     return await fetcher.manifest()

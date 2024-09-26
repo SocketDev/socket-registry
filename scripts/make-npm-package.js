@@ -34,8 +34,8 @@ const { naturalSort } = require('@socketregistry/scripts/utils/sorts')
 const { indentString } = require('@socketregistry/scripts/utils/strings')
 const {
   getLicenseActions,
+  getNpmReadmeAction,
   getPackageJsonAction,
-  getReadmeAction,
   getTypeScriptActions,
   templateChoices,
   templates,
@@ -197,7 +197,7 @@ async function readLicenses(dirname) {
   await writeAction(getPackageJsonAction(pkgPath))
   await Promise.all(
     [
-      await getReadmeAction(pkgPath),
+      await getNpmReadmeAction(pkgPath),
       ...(await getLicenseActions(pkgPath)),
       ...(tsLib ? await getTypeScriptActions(pkgPath, tsLib) : [])
     ].map(writeAction)
