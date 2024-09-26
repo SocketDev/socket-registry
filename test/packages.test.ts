@@ -4,6 +4,7 @@ import path from 'node:path'
 import { describe, it } from 'node:test'
 
 import fs from 'fs-extra'
+import { PackageURL } from 'packageurl-js'
 import semver from 'semver'
 import { glob as tinyGlob } from 'tinyglobby'
 
@@ -37,6 +38,8 @@ import {
 import { localCompare } from '@socketregistry/scripts/utils/sorts'
 // @ts-ignore
 import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
+
+import manifest from '../manifest.json'
 
 const extJs = '.js'
 const extDts = '.d.ts'
@@ -215,9 +218,17 @@ for (const eco of ecosystems) {
             )
           })
 
-          it(`should have a ${LICENSE}.original file`, () => {
-            assert.ok(files.some(n => n.includes(`${LICENSE}.original`)))
-          })
+          const manifestData = <any>(
+            manifest.npm.find(
+              ({ 0: purlStr }) =>
+                PackageURL.fromString(<string>purlStr).name === pkgName
+            )?.[1]
+          )
+          if (manifestData?.license !== 'Public Domain') {
+            it(`should have an original license file`, () => {
+              assert.ok(files.some(n => n.includes('.original')))
+            })
+          }
 
           it('should have a .d.ts file for every .js file', () => {
             const jsFiles = files

@@ -5,7 +5,7 @@
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "license": "MIT"
+        "license": "BSD-3-Clause"
       }
     ],
     [
@@ -271,7 +271,7 @@
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "license": "MIT"
+        "license": "ISC"
       }
     ],
     [
@@ -327,7 +327,7 @@
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "license": "MIT"
+        "license": "(Apache-2.0 OR MPL-1.1)"
       }
     ],
     [
@@ -590,7 +590,7 @@
     [
       "pkg:npm/%40socketregistry/json-stable-stringify@1.0.0",
       {
-        "categories": ["cleanup"],
+        "categories": ["cleanup", "speedup"],
         "engines": { "node": ">=18.20.4" },
         "license": "MIT"
       }
@@ -600,7 +600,7 @@
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "license": "MIT"
+        "license": "Public Domain"
       }
     ],
     [
