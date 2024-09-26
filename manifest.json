@@ -4,6 +4,7 @@
       "pkg:npm/%40socketregistry/abab@1.0.0",
       {
         "categories": ["cleanup"],
+        "deprecated": true,
         "engines": { "node": ">=18.20.4" },
         "license": "BSD-3-Clause"
       }

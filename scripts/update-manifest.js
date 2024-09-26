@@ -13,7 +13,10 @@ const {
   rootManifestJsonPath,
   testNpmNodeWorkspacesPath
 } = require('@socketregistry/scripts/constants')
-const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
+const {
+  fetchPackageManifest,
+  readPackageJson
+} = require('@socketregistry/scripts/utils/packages')
 const { localCompare } = require('@socketregistry/scripts/utils/sorts')
 const { prettierFormat } = require('@socketregistry/scripts/utils/strings')
 
@@ -25,14 +28,20 @@ const { prettierFormat } = require('@socketregistry/scripts/utils/strings')
       for await (const pkgName of npmPackageNames) {
         const pkgPath = path.join(npmPackagesPath, pkgName)
         const nwPkgPath = path.join(testNpmNodeWorkspacesPath, pkgName)
+        const pkgJson = await readPackageJson(pkgPath)
+        const nwPkgJson = await readPackageJson(nwPkgPath)
+        const nmPkgManifest = await fetchPackageManifest(
+          `${pkgName}@${nwPkgJson.version}`
+        )
         const {
           engines,
           exports: entryExports,
           name,
           socket,
           version
-        } = await readPackageJson(pkgPath)
-        const { license: nmPkgLicense } = await readPackageJson(nwPkgPath)
+        } = pkgJson
+        const { deprecated: nmPkgDeprecated } = nmPkgManifest
+        const { license: nwPkgLicense } = nwPkgJson
         const interop = []
         const isEsm = !!(entryExports?.import || entryExports?.module)
         if (isEsm) {
@@ -46,7 +55,8 @@ const { prettierFormat } = require('@socketregistry/scripts/utils/strings')
           interop.push('browser')
         }
         const metaEntries = [
-          ['license', nmPkgLicense ?? UNLICENSED],
+          ['license', nwPkgLicense ?? UNLICENSED],
+          ...(nmPkgDeprecated ? [['deprecated', true]] : []),
           ...(interop.length ? [['interop', interop]] : []),
           ...(engines ? [['engines', engines]] : []),
           ...(socket ? Object.entries(socket) : [])
