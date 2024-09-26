@@ -93,7 +93,7 @@ async function getNpmReadmeAction(pkgPath) {
   const { name: pkgName } = pkgPurlObj
   const manifestData = manifest.npm.find(
     ({ 0: purlStr }) => PackageURL.fromString(purlStr).name === pkgName
-  )?.[1]
+  )?.[1] ?? {}
   return [
     path.join(pkgPath, README_MD),
     {

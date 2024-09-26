@@ -3,8 +3,8 @@
 [![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/abab)](https://socket.dev/npm/package/@socketregistry/abab)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
-> [`abab`](https://www.npmjs.com/package/abab).
+> A zero dependency drop-in replacement of the deprecated
+> [`abab`](https://www.npmjs.com/package/abab) package .
 
 ## Installation
 

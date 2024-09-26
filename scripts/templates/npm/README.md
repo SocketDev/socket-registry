@@ -6,8 +6,8 @@
 >A<% if (it.socket.categories.includes('speedup')) { %> faster <% } %>
 <% if (it.socket.categories.includes('tightenup')) { %> more secure <% } %>
 <% if (Object.keys(it.dependencies ?? {}).length) { %> low <% } else { %> zero <% } %>
-dependency <% if (it.socket.interop?.includes('esm')) { %>CommonJS compatible<% } %>
-drop-in replacement of [`<%= it.originalName %>`](https://www.npmjs.com/package/<%= it.originalName %>).
+dependency <% if (it.socket.interop?.includes('esm')) { %> CommonJS compatible <% } %>
+drop-in replacement of <% if (it.manifest.deprecated) { %> the deprecated <% } %>[`<%= it.originalName %>`](https://www.npmjs.com/package/<%= it.originalName %>)<% if (it.manifest.deprecated) { %> package <% } %>.
 
 ## Installation
 
