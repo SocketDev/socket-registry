@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/internal-slot
+# @socketregistry/internal-slot
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/internal-slot)](https://socket.dev/npm/package/@socketregistry/@socketregistry/internal-slot)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/internal-slot)](https://socket.dev/npm/package/@socketregistry/internal-slot)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/internal-slot`](https://www.npmjs.com/package/@socketregistry/internal-slot).
+> [`internal-slot`](https://www.npmjs.com/package/internal-slot).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/internal-slot` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/internal-slot`
+to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/internal-slot": "npm:@socketregistry/@socketregistry/internal-slot@^1"
+    "@socketregistry/internal-slot": "npm:@socketregistry/internal-slot@^1"
   },
   "resolutions": {
-    "@socketregistry/internal-slot": "npm:@socketregistry/@socketregistry/internal-slot@^1"
+    "@socketregistry/internal-slot": "npm:@socketregistry/internal-slot@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/internal-slot
+npm install @socketregistry/internal-slot
 ```
 
 ## Requirements

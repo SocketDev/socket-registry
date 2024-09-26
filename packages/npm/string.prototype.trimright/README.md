@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/string.prototype.trimright
+# @socketregistry/string.prototype.trimright
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/string.prototype.trimright)](https://socket.dev/npm/package/@socketregistry/@socketregistry/string.prototype.trimright)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/string.prototype.trimright)](https://socket.dev/npm/package/@socketregistry/string.prototype.trimright)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/string.prototype.trimright`](https://www.npmjs.com/package/@socketregistry/string.prototype.trimright).
+> [`string.prototype.trimright`](https://www.npmjs.com/package/string.prototype.trimright).
 
 ## Installation
 
@@ -21,16 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/string.prototype.trimright` to your
-`package.json`.
+`@socketregistry/string.prototype.trimright` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/string.prototype.trimright": "npm:@socketregistry/@socketregistry/string.prototype.trimright@^1"
+    "@socketregistry/string.prototype.trimright": "npm:@socketregistry/string.prototype.trimright@^1"
   },
   "resolutions": {
-    "@socketregistry/string.prototype.trimright": "npm:@socketregistry/@socketregistry/string.prototype.trimright@^1"
+    "@socketregistry/string.prototype.trimright": "npm:@socketregistry/string.prototype.trimright@^1"
   }
 }
 ```
@@ -40,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/string.prototype.trimright
+npm install @socketregistry/string.prototype.trimright
 ```
 
 ## Requirements

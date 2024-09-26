@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/json-stable-stringify
+# @socketregistry/json-stable-stringify
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/json-stable-stringify)](https://socket.dev/npm/package/@socketregistry/@socketregistry/json-stable-stringify)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/json-stable-stringify)](https://socket.dev/npm/package/@socketregistry/json-stable-stringify)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A faster zero dependency drop-in replacement of
-> [`@socketregistry/json-stable-stringify`](https://www.npmjs.com/package/@socketregistry/json-stable-stringify).
+> [`json-stable-stringify`](https://www.npmjs.com/package/json-stable-stringify).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/json-stable-stringify` to your `package.json`.
+`@socketregistry/json-stable-stringify` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/json-stable-stringify": "npm:@socketregistry/@socketregistry/json-stable-stringify@^1"
+    "@socketregistry/json-stable-stringify": "npm:@socketregistry/json-stable-stringify@^1"
   },
   "resolutions": {
-    "@socketregistry/json-stable-stringify": "npm:@socketregistry/@socketregistry/json-stable-stringify@^1"
+    "@socketregistry/json-stable-stringify": "npm:@socketregistry/json-stable-stringify@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/json-stable-stringify
+npm install @socketregistry/json-stable-stringify
 ```
 
 ## Requirements

@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/is-bigint
+# @socketregistry/is-bigint
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/is-bigint)](https://socket.dev/npm/package/@socketregistry/@socketregistry/is-bigint)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/is-bigint)](https://socket.dev/npm/package/@socketregistry/is-bigint)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/is-bigint`](https://www.npmjs.com/package/@socketregistry/is-bigint).
+> [`is-bigint`](https://www.npmjs.com/package/is-bigint).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/is-bigint` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/is-bigint` to
+your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/is-bigint": "npm:@socketregistry/@socketregistry/is-bigint@^1"
+    "@socketregistry/is-bigint": "npm:@socketregistry/is-bigint@^1"
   },
   "resolutions": {
-    "@socketregistry/is-bigint": "npm:@socketregistry/@socketregistry/is-bigint@^1"
+    "@socketregistry/is-bigint": "npm:@socketregistry/is-bigint@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/is-bigint
+npm install @socketregistry/is-bigint
 ```
 
 ## Requirements

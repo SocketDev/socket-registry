@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/is-weakref
+# @socketregistry/is-weakref
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/is-weakref)](https://socket.dev/npm/package/@socketregistry/@socketregistry/is-weakref)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/is-weakref)](https://socket.dev/npm/package/@socketregistry/is-weakref)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/is-weakref`](https://www.npmjs.com/package/@socketregistry/is-weakref).
+> [`is-weakref`](https://www.npmjs.com/package/is-weakref).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/is-weakref` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/is-weakref` to
+your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/is-weakref": "npm:@socketregistry/@socketregistry/is-weakref@^1"
+    "@socketregistry/is-weakref": "npm:@socketregistry/is-weakref@^1"
   },
   "resolutions": {
-    "@socketregistry/is-weakref": "npm:@socketregistry/@socketregistry/is-weakref@^1"
+    "@socketregistry/is-weakref": "npm:@socketregistry/is-weakref@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/is-weakref
+npm install @socketregistry/is-weakref
 ```
 
 ## Requirements

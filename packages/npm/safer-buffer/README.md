@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/safer-buffer
+# @socketregistry/safer-buffer
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/safer-buffer)](https://socket.dev/npm/package/@socketregistry/@socketregistry/safer-buffer)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/safer-buffer)](https://socket.dev/npm/package/@socketregistry/safer-buffer)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/safer-buffer`](https://www.npmjs.com/package/@socketregistry/safer-buffer).
+> [`safer-buffer`](https://www.npmjs.com/package/safer-buffer).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/safer-buffer` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/safer-buffer` to
+your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/safer-buffer": "npm:@socketregistry/@socketregistry/safer-buffer@^1"
+    "@socketregistry/safer-buffer": "npm:@socketregistry/safer-buffer@^1"
   },
   "resolutions": {
-    "@socketregistry/safer-buffer": "npm:@socketregistry/@socketregistry/safer-buffer@^1"
+    "@socketregistry/safer-buffer": "npm:@socketregistry/safer-buffer@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/safer-buffer
+npm install @socketregistry/safer-buffer
 ```
 
 ## Requirements

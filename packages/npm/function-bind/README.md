@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/function-bind
+# @socketregistry/function-bind
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/function-bind)](https://socket.dev/npm/package/@socketregistry/@socketregistry/function-bind)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/function-bind)](https://socket.dev/npm/package/@socketregistry/function-bind)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/function-bind`](https://www.npmjs.com/package/@socketregistry/function-bind).
+> [`function-bind`](https://www.npmjs.com/package/function-bind).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/function-bind` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/function-bind`
+to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/function-bind": "npm:@socketregistry/@socketregistry/function-bind@^1"
+    "@socketregistry/function-bind": "npm:@socketregistry/function-bind@^1"
   },
   "resolutions": {
-    "@socketregistry/function-bind": "npm:@socketregistry/@socketregistry/function-bind@^1"
+    "@socketregistry/function-bind": "npm:@socketregistry/function-bind@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/function-bind
+npm install @socketregistry/function-bind
 ```
 
 ## Requirements

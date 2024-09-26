@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/is-boolean-object
+# @socketregistry/is-boolean-object
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/is-boolean-object)](https://socket.dev/npm/package/@socketregistry/@socketregistry/is-boolean-object)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/is-boolean-object)](https://socket.dev/npm/package/@socketregistry/is-boolean-object)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/is-boolean-object`](https://www.npmjs.com/package/@socketregistry/is-boolean-object).
+> [`is-boolean-object`](https://www.npmjs.com/package/is-boolean-object).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/is-boolean-object` to your `package.json`.
+`@socketregistry/is-boolean-object` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/is-boolean-object": "npm:@socketregistry/@socketregistry/is-boolean-object@^1"
+    "@socketregistry/is-boolean-object": "npm:@socketregistry/is-boolean-object@^1"
   },
   "resolutions": {
-    "@socketregistry/is-boolean-object": "npm:@socketregistry/@socketregistry/is-boolean-object@^1"
+    "@socketregistry/is-boolean-object": "npm:@socketregistry/is-boolean-object@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/is-boolean-object
+npm install @socketregistry/is-boolean-object
 ```
 
 ## Requirements

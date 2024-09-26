@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/es-set-tostringtag
+# @socketregistry/es-set-tostringtag
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/es-set-tostringtag)](https://socket.dev/npm/package/@socketregistry/@socketregistry/es-set-tostringtag)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/es-set-tostringtag)](https://socket.dev/npm/package/@socketregistry/es-set-tostringtag)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/es-set-tostringtag`](https://www.npmjs.com/package/@socketregistry/es-set-tostringtag).
+> [`es-set-tostringtag`](https://www.npmjs.com/package/es-set-tostringtag).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/es-set-tostringtag` to your `package.json`.
+`@socketregistry/es-set-tostringtag` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/es-set-tostringtag": "npm:@socketregistry/@socketregistry/es-set-tostringtag@^1"
+    "@socketregistry/es-set-tostringtag": "npm:@socketregistry/es-set-tostringtag@^1"
   },
   "resolutions": {
-    "@socketregistry/es-set-tostringtag": "npm:@socketregistry/@socketregistry/es-set-tostringtag@^1"
+    "@socketregistry/es-set-tostringtag": "npm:@socketregistry/es-set-tostringtag@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/es-set-tostringtag
+npm install @socketregistry/es-set-tostringtag
 ```
 
 ## Requirements

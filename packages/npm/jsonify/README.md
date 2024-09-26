@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/jsonify
+# @socketregistry/jsonify
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/jsonify)](https://socket.dev/npm/package/@socketregistry/@socketregistry/jsonify)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/jsonify)](https://socket.dev/npm/package/@socketregistry/jsonify)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/jsonify`](https://www.npmjs.com/package/@socketregistry/jsonify).
+> [`jsonify`](https://www.npmjs.com/package/jsonify).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/jsonify` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/jsonify` to your
+`package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/jsonify": "npm:@socketregistry/@socketregistry/jsonify@^1"
+    "@socketregistry/jsonify": "npm:@socketregistry/jsonify@^1"
   },
   "resolutions": {
-    "@socketregistry/jsonify": "npm:@socketregistry/@socketregistry/jsonify@^1"
+    "@socketregistry/jsonify": "npm:@socketregistry/jsonify@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/jsonify
+npm install @socketregistry/jsonify
 ```
 
 ## Requirements

@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/typed-array-buffer
+# @socketregistry/typed-array-buffer
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/typed-array-buffer)](https://socket.dev/npm/package/@socketregistry/@socketregistry/typed-array-buffer)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/typed-array-buffer)](https://socket.dev/npm/package/@socketregistry/typed-array-buffer)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/typed-array-buffer`](https://www.npmjs.com/package/@socketregistry/typed-array-buffer).
+> [`typed-array-buffer`](https://www.npmjs.com/package/typed-array-buffer).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/typed-array-buffer` to your `package.json`.
+`@socketregistry/typed-array-buffer` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/typed-array-buffer": "npm:@socketregistry/@socketregistry/typed-array-buffer@^1"
+    "@socketregistry/typed-array-buffer": "npm:@socketregistry/typed-array-buffer@^1"
   },
   "resolutions": {
-    "@socketregistry/typed-array-buffer": "npm:@socketregistry/@socketregistry/typed-array-buffer@^1"
+    "@socketregistry/typed-array-buffer": "npm:@socketregistry/typed-array-buffer@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/typed-array-buffer
+npm install @socketregistry/typed-array-buffer
 ```
 
 ## Requirements

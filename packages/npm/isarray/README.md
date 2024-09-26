@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/isarray
+# @socketregistry/isarray
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/isarray)](https://socket.dev/npm/package/@socketregistry/@socketregistry/isarray)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/isarray)](https://socket.dev/npm/package/@socketregistry/isarray)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/isarray`](https://www.npmjs.com/package/@socketregistry/isarray).
+> [`isarray`](https://www.npmjs.com/package/isarray).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/isarray` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/isarray` to your
+`package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/isarray": "npm:@socketregistry/@socketregistry/isarray@^1"
+    "@socketregistry/isarray": "npm:@socketregistry/isarray@^1"
   },
   "resolutions": {
-    "@socketregistry/isarray": "npm:@socketregistry/@socketregistry/isarray@^1"
+    "@socketregistry/isarray": "npm:@socketregistry/isarray@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/isarray
+npm install @socketregistry/isarray
 ```
 
 ## Requirements

@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/string.prototype.split
+# @socketregistry/string.prototype.split
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/string.prototype.split)](https://socket.dev/npm/package/@socketregistry/@socketregistry/string.prototype.split)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/string.prototype.split)](https://socket.dev/npm/package/@socketregistry/string.prototype.split)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/string.prototype.split`](https://www.npmjs.com/package/@socketregistry/string.prototype.split).
+> [`string.prototype.split`](https://www.npmjs.com/package/string.prototype.split).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/string.prototype.split` to your `package.json`.
+`@socketregistry/string.prototype.split` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/string.prototype.split": "npm:@socketregistry/@socketregistry/string.prototype.split@^1"
+    "@socketregistry/string.prototype.split": "npm:@socketregistry/string.prototype.split@^1"
   },
   "resolutions": {
-    "@socketregistry/string.prototype.split": "npm:@socketregistry/@socketregistry/string.prototype.split@^1"
+    "@socketregistry/string.prototype.split": "npm:@socketregistry/string.prototype.split@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/string.prototype.split
+npm install @socketregistry/string.prototype.split
 ```
 
 ## Requirements

@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/side-channel
+# @socketregistry/side-channel
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/side-channel)](https://socket.dev/npm/package/@socketregistry/@socketregistry/side-channel)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/side-channel)](https://socket.dev/npm/package/@socketregistry/side-channel)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/side-channel`](https://www.npmjs.com/package/@socketregistry/side-channel).
+> [`side-channel`](https://www.npmjs.com/package/side-channel).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/side-channel` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/side-channel` to
+your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/side-channel": "npm:@socketregistry/@socketregistry/side-channel@^1"
+    "@socketregistry/side-channel": "npm:@socketregistry/side-channel@^1"
   },
   "resolutions": {
-    "@socketregistry/side-channel": "npm:@socketregistry/@socketregistry/side-channel@^1"
+    "@socketregistry/side-channel": "npm:@socketregistry/side-channel@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/side-channel
+npm install @socketregistry/side-channel
 ```
 
 ## Requirements

@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/gopd
+# @socketregistry/gopd
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/gopd)](https://socket.dev/npm/package/@socketregistry/@socketregistry/gopd)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/gopd)](https://socket.dev/npm/package/@socketregistry/gopd)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/gopd`](https://www.npmjs.com/package/@socketregistry/gopd).
+> [`gopd`](https://www.npmjs.com/package/gopd).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/gopd` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/gopd` to your
+`package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/gopd": "npm:@socketregistry/@socketregistry/gopd@^1"
+    "@socketregistry/gopd": "npm:@socketregistry/gopd@^1"
   },
   "resolutions": {
-    "@socketregistry/gopd": "npm:@socketregistry/@socketregistry/gopd@^1"
+    "@socketregistry/gopd": "npm:@socketregistry/gopd@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/gopd
+npm install @socketregistry/gopd
 ```
 
 ## Requirements

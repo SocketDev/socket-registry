@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/is-core-module
+# @socketregistry/is-core-module
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/is-core-module)](https://socket.dev/npm/package/@socketregistry/@socketregistry/is-core-module)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/is-core-module)](https://socket.dev/npm/package/@socketregistry/is-core-module)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/is-core-module`](https://www.npmjs.com/package/@socketregistry/is-core-module).
+> [`is-core-module`](https://www.npmjs.com/package/is-core-module).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/is-core-module` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/is-core-module`
+to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/is-core-module": "npm:@socketregistry/@socketregistry/is-core-module@^1"
+    "@socketregistry/is-core-module": "npm:@socketregistry/is-core-module@^1"
   },
   "resolutions": {
-    "@socketregistry/is-core-module": "npm:@socketregistry/@socketregistry/is-core-module@^1"
+    "@socketregistry/is-core-module": "npm:@socketregistry/is-core-module@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/is-core-module
+npm install @socketregistry/is-core-module
 ```
 
 ## Requirements

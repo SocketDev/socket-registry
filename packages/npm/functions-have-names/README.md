@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/functions-have-names
+# @socketregistry/functions-have-names
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/functions-have-names)](https://socket.dev/npm/package/@socketregistry/@socketregistry/functions-have-names)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/functions-have-names)](https://socket.dev/npm/package/@socketregistry/functions-have-names)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/functions-have-names`](https://www.npmjs.com/package/@socketregistry/functions-have-names).
+> [`functions-have-names`](https://www.npmjs.com/package/functions-have-names).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/functions-have-names` to your `package.json`.
+`@socketregistry/functions-have-names` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/functions-have-names": "npm:@socketregistry/@socketregistry/functions-have-names@^1"
+    "@socketregistry/functions-have-names": "npm:@socketregistry/functions-have-names@^1"
   },
   "resolutions": {
-    "@socketregistry/functions-have-names": "npm:@socketregistry/@socketregistry/functions-have-names@^1"
+    "@socketregistry/functions-have-names": "npm:@socketregistry/functions-have-names@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/functions-have-names
+npm install @socketregistry/functions-have-names
 ```
 
 ## Requirements

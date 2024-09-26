@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/safe-regex-test
+# @socketregistry/safe-regex-test
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/safe-regex-test)](https://socket.dev/npm/package/@socketregistry/@socketregistry/safe-regex-test)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/safe-regex-test)](https://socket.dev/npm/package/@socketregistry/safe-regex-test)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/safe-regex-test`](https://www.npmjs.com/package/@socketregistry/safe-regex-test).
+> [`safe-regex-test`](https://www.npmjs.com/package/safe-regex-test).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/safe-regex-test` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/safe-regex-test`
+to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/safe-regex-test": "npm:@socketregistry/@socketregistry/safe-regex-test@^1"
+    "@socketregistry/safe-regex-test": "npm:@socketregistry/safe-regex-test@^1"
   },
   "resolutions": {
-    "@socketregistry/safe-regex-test": "npm:@socketregistry/@socketregistry/safe-regex-test@^1"
+    "@socketregistry/safe-regex-test": "npm:@socketregistry/safe-regex-test@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/safe-regex-test
+npm install @socketregistry/safe-regex-test
 ```
 
 ## Requirements

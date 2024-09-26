@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/es-aggregate-error
+# @socketregistry/es-aggregate-error
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/es-aggregate-error)](https://socket.dev/npm/package/@socketregistry/@socketregistry/es-aggregate-error)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/es-aggregate-error)](https://socket.dev/npm/package/@socketregistry/es-aggregate-error)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/es-aggregate-error`](https://www.npmjs.com/package/@socketregistry/es-aggregate-error).
+> [`es-aggregate-error`](https://www.npmjs.com/package/es-aggregate-error).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/es-aggregate-error` to your `package.json`.
+`@socketregistry/es-aggregate-error` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/es-aggregate-error": "npm:@socketregistry/@socketregistry/es-aggregate-error@^1"
+    "@socketregistry/es-aggregate-error": "npm:@socketregistry/es-aggregate-error@^1"
   },
   "resolutions": {
-    "@socketregistry/es-aggregate-error": "npm:@socketregistry/@socketregistry/es-aggregate-error@^1"
+    "@socketregistry/es-aggregate-error": "npm:@socketregistry/es-aggregate-error@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/es-aggregate-error
+npm install @socketregistry/es-aggregate-error
 ```
 
 ## Requirements

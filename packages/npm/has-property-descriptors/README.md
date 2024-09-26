@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/has-property-descriptors
+# @socketregistry/has-property-descriptors
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/has-property-descriptors)](https://socket.dev/npm/package/@socketregistry/@socketregistry/has-property-descriptors)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/has-property-descriptors)](https://socket.dev/npm/package/@socketregistry/has-property-descriptors)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/has-property-descriptors`](https://www.npmjs.com/package/@socketregistry/has-property-descriptors).
+> [`has-property-descriptors`](https://www.npmjs.com/package/has-property-descriptors).
 
 ## Installation
 
@@ -21,16 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/has-property-descriptors` to your
-`package.json`.
+`@socketregistry/has-property-descriptors` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/has-property-descriptors": "npm:@socketregistry/@socketregistry/has-property-descriptors@^1"
+    "@socketregistry/has-property-descriptors": "npm:@socketregistry/has-property-descriptors@^1"
   },
   "resolutions": {
-    "@socketregistry/has-property-descriptors": "npm:@socketregistry/@socketregistry/has-property-descriptors@^1"
+    "@socketregistry/has-property-descriptors": "npm:@socketregistry/has-property-descriptors@^1"
   }
 }
 ```
@@ -40,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/has-property-descriptors
+npm install @socketregistry/has-property-descriptors
 ```
 
 ## Requirements

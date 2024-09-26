@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/promise.any
+# @socketregistry/promise.any
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/promise.any)](https://socket.dev/npm/package/@socketregistry/@socketregistry/promise.any)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/promise.any)](https://socket.dev/npm/package/@socketregistry/promise.any)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/promise.any`](https://www.npmjs.com/package/@socketregistry/promise.any).
+> [`promise.any`](https://www.npmjs.com/package/promise.any).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/promise.any` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/promise.any` to
+your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/promise.any": "npm:@socketregistry/@socketregistry/promise.any@^1"
+    "@socketregistry/promise.any": "npm:@socketregistry/promise.any@^1"
   },
   "resolutions": {
-    "@socketregistry/promise.any": "npm:@socketregistry/@socketregistry/promise.any@^1"
+    "@socketregistry/promise.any": "npm:@socketregistry/promise.any@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/promise.any
+npm install @socketregistry/promise.any
 ```
 
 ## Requirements

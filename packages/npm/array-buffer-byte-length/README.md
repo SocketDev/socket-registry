@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/array-buffer-byte-length
+# @socketregistry/array-buffer-byte-length
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/array-buffer-byte-length)](https://socket.dev/npm/package/@socketregistry/@socketregistry/array-buffer-byte-length)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/array-buffer-byte-length)](https://socket.dev/npm/package/@socketregistry/array-buffer-byte-length)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/array-buffer-byte-length`](https://www.npmjs.com/package/@socketregistry/array-buffer-byte-length).
+> [`array-buffer-byte-length`](https://www.npmjs.com/package/array-buffer-byte-length).
 
 ## Installation
 
@@ -21,16 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/array-buffer-byte-length` to your
-`package.json`.
+`@socketregistry/array-buffer-byte-length` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/array-buffer-byte-length": "npm:@socketregistry/@socketregistry/array-buffer-byte-length@^1"
+    "@socketregistry/array-buffer-byte-length": "npm:@socketregistry/array-buffer-byte-length@^1"
   },
   "resolutions": {
-    "@socketregistry/array-buffer-byte-length": "npm:@socketregistry/@socketregistry/array-buffer-byte-length@^1"
+    "@socketregistry/array-buffer-byte-length": "npm:@socketregistry/array-buffer-byte-length@^1"
   }
 }
 ```
@@ -40,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/array-buffer-byte-length
+npm install @socketregistry/array-buffer-byte-length
 ```
 
 ## Requirements

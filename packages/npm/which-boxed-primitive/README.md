@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/which-boxed-primitive
+# @socketregistry/which-boxed-primitive
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/which-boxed-primitive)](https://socket.dev/npm/package/@socketregistry/@socketregistry/which-boxed-primitive)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/which-boxed-primitive)](https://socket.dev/npm/package/@socketregistry/which-boxed-primitive)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/which-boxed-primitive`](https://www.npmjs.com/package/@socketregistry/which-boxed-primitive).
+> [`which-boxed-primitive`](https://www.npmjs.com/package/which-boxed-primitive).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/which-boxed-primitive` to your `package.json`.
+`@socketregistry/which-boxed-primitive` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/which-boxed-primitive": "npm:@socketregistry/@socketregistry/which-boxed-primitive@^1"
+    "@socketregistry/which-boxed-primitive": "npm:@socketregistry/which-boxed-primitive@^1"
   },
   "resolutions": {
-    "@socketregistry/which-boxed-primitive": "npm:@socketregistry/@socketregistry/which-boxed-primitive@^1"
+    "@socketregistry/which-boxed-primitive": "npm:@socketregistry/which-boxed-primitive@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/which-boxed-primitive
+npm install @socketregistry/which-boxed-primitive
 ```
 
 ## Requirements

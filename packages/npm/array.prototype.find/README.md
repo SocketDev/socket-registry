@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/array.prototype.find
+# @socketregistry/array.prototype.find
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/array.prototype.find)](https://socket.dev/npm/package/@socketregistry/@socketregistry/array.prototype.find)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/array.prototype.find)](https://socket.dev/npm/package/@socketregistry/array.prototype.find)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/array.prototype.find`](https://www.npmjs.com/package/@socketregistry/array.prototype.find).
+> [`array.prototype.find`](https://www.npmjs.com/package/array.prototype.find).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/array.prototype.find` to your `package.json`.
+`@socketregistry/array.prototype.find` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/array.prototype.find": "npm:@socketregistry/@socketregistry/array.prototype.find@^1"
+    "@socketregistry/array.prototype.find": "npm:@socketregistry/array.prototype.find@^1"
   },
   "resolutions": {
-    "@socketregistry/array.prototype.find": "npm:@socketregistry/@socketregistry/array.prototype.find@^1"
+    "@socketregistry/array.prototype.find": "npm:@socketregistry/array.prototype.find@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/array.prototype.find
+npm install @socketregistry/array.prototype.find
 ```
 
 ## Requirements

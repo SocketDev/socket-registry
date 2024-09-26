@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/string.prototype.replaceall
+# @socketregistry/string.prototype.replaceall
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/string.prototype.replaceall)](https://socket.dev/npm/package/@socketregistry/@socketregistry/string.prototype.replaceall)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/string.prototype.replaceall)](https://socket.dev/npm/package/@socketregistry/string.prototype.replaceall)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/string.prototype.replaceall`](https://www.npmjs.com/package/@socketregistry/string.prototype.replaceall).
+> [`string.prototype.replaceall`](https://www.npmjs.com/package/string.prototype.replaceall).
 
 ## Installation
 
@@ -21,16 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/string.prototype.replaceall` to your
-`package.json`.
+`@socketregistry/string.prototype.replaceall` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/string.prototype.replaceall": "npm:@socketregistry/@socketregistry/string.prototype.replaceall@^1"
+    "@socketregistry/string.prototype.replaceall": "npm:@socketregistry/string.prototype.replaceall@^1"
   },
   "resolutions": {
-    "@socketregistry/string.prototype.replaceall": "npm:@socketregistry/@socketregistry/string.prototype.replaceall@^1"
+    "@socketregistry/string.prototype.replaceall": "npm:@socketregistry/string.prototype.replaceall@^1"
   }
 }
 ```
@@ -40,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/string.prototype.replaceall
+npm install @socketregistry/string.prototype.replaceall
 ```
 
 ## Requirements

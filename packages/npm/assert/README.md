@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/assert
+# @socketregistry/assert
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/assert)](https://socket.dev/npm/package/@socketregistry/@socketregistry/assert)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/assert)](https://socket.dev/npm/package/@socketregistry/assert)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A low dependency drop-in replacement of
-> [`@socketregistry/assert`](https://www.npmjs.com/package/@socketregistry/assert).
+> [`assert`](https://www.npmjs.com/package/assert).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/assert` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/assert` to your
+`package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/assert": "npm:@socketregistry/@socketregistry/assert@^1"
+    "@socketregistry/assert": "npm:@socketregistry/assert@^1"
   },
   "resolutions": {
-    "@socketregistry/assert": "npm:@socketregistry/@socketregistry/assert@^1"
+    "@socketregistry/assert": "npm:@socketregistry/assert@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/assert
+npm install @socketregistry/assert
 ```
 
 ## Requirements

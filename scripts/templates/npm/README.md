@@ -1,13 +1,13 @@
-# @socketregistry/<%= it.name %>
+# <%= it.name %>
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/<%= it.name %>)](https://socket.dev/npm/package/@socketregistry/<%= it.name %>)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/<%= it.name %>)](https://socket.dev/npm/package/<%= it.name %>)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 >A<% if (it.socket.categories.includes('speedup')) { %> faster <% } %>
 <% if (it.socket.categories.includes('tightenup')) { %> more secure <% } %>
 <% if (Object.keys(it.dependencies ?? {}).length) { %> low <% } else { %> zero <% } %>
 dependency <% if (it.socket.interop?.includes('esm')) { %>CommonJS compatible<% } %>
-drop-in replacement of [`<%= it.name %>`](https://www.npmjs.com/package/<%= it.name %>).
+drop-in replacement of [`<%= it.originalName %>`](https://www.npmjs.com/package/<%= it.originalName %>).
 
 ## Installation
 
@@ -23,16 +23,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add `@socketregistry/<%= it.name %>`
+Prefer to do it yourself? You may manually add `<%= it.name %>`
 to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "<%= it.name %>": "npm:@socketregistry/<%= it.name %>@^<%= it.version.major %>"
+    "<%= it.name %>": "npm:<%= it.name %>@^<%= it.version.major %>"
   },
   "resolutions": {
-    "<%= it.name %>": "npm:@socketregistry/<%= it.name %>@^<%= it.version.major %>"
+    "<%= it.name %>": "npm:<%= it.name %>@^<%= it.version.major %>"
   }
 }
 ```
@@ -42,7 +42,7 @@ to your `package.json`.
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/<%= it.name %>
+npm install <%= it.name %>
 
 ```
 

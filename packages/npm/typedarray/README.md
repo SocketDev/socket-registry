@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/typedarray
+# @socketregistry/typedarray
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/typedarray)](https://socket.dev/npm/package/@socketregistry/@socketregistry/typedarray)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/typedarray)](https://socket.dev/npm/package/@socketregistry/typedarray)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/typedarray`](https://www.npmjs.com/package/@socketregistry/typedarray).
+> [`typedarray`](https://www.npmjs.com/package/typedarray).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/typedarray` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/typedarray` to
+your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/typedarray": "npm:@socketregistry/@socketregistry/typedarray@^1"
+    "@socketregistry/typedarray": "npm:@socketregistry/typedarray@^1"
   },
   "resolutions": {
-    "@socketregistry/typedarray": "npm:@socketregistry/@socketregistry/typedarray@^1"
+    "@socketregistry/typedarray": "npm:@socketregistry/typedarray@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/typedarray
+npm install @socketregistry/typedarray
 ```
 
 ## Requirements

@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/object.getownpropertydescriptors
+# @socketregistry/object.getownpropertydescriptors
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/object.getownpropertydescriptors)](https://socket.dev/npm/package/@socketregistry/@socketregistry/object.getownpropertydescriptors)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/object.getownpropertydescriptors)](https://socket.dev/npm/package/@socketregistry/object.getownpropertydescriptors)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/object.getownpropertydescriptors`](https://www.npmjs.com/package/@socketregistry/object.getownpropertydescriptors).
+> [`object.getownpropertydescriptors`](https://www.npmjs.com/package/object.getownpropertydescriptors).
 
 ## Installation
 
@@ -21,16 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/object.getownpropertydescriptors` to your
-`package.json`.
+`@socketregistry/object.getownpropertydescriptors` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/object.getownpropertydescriptors": "npm:@socketregistry/@socketregistry/object.getownpropertydescriptors@^1"
+    "@socketregistry/object.getownpropertydescriptors": "npm:@socketregistry/object.getownpropertydescriptors@^1"
   },
   "resolutions": {
-    "@socketregistry/object.getownpropertydescriptors": "npm:@socketregistry/@socketregistry/object.getownpropertydescriptors@^1"
+    "@socketregistry/object.getownpropertydescriptors": "npm:@socketregistry/object.getownpropertydescriptors@^1"
   }
 }
 ```
@@ -40,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/object.getownpropertydescriptors
+npm install @socketregistry/object.getownpropertydescriptors
 ```
 
 ## Requirements

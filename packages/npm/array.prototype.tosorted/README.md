@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/array.prototype.tosorted
+# @socketregistry/array.prototype.tosorted
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/array.prototype.tosorted)](https://socket.dev/npm/package/@socketregistry/@socketregistry/array.prototype.tosorted)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/array.prototype.tosorted)](https://socket.dev/npm/package/@socketregistry/array.prototype.tosorted)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/array.prototype.tosorted`](https://www.npmjs.com/package/@socketregistry/array.prototype.tosorted).
+> [`array.prototype.tosorted`](https://www.npmjs.com/package/array.prototype.tosorted).
 
 ## Installation
 
@@ -21,16 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/array.prototype.tosorted` to your
-`package.json`.
+`@socketregistry/array.prototype.tosorted` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/array.prototype.tosorted": "npm:@socketregistry/@socketregistry/array.prototype.tosorted@^1"
+    "@socketregistry/array.prototype.tosorted": "npm:@socketregistry/array.prototype.tosorted@^1"
   },
   "resolutions": {
-    "@socketregistry/array.prototype.tosorted": "npm:@socketregistry/@socketregistry/array.prototype.tosorted@^1"
+    "@socketregistry/array.prototype.tosorted": "npm:@socketregistry/array.prototype.tosorted@^1"
   }
 }
 ```
@@ -40,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/array.prototype.tosorted
+npm install @socketregistry/array.prototype.tosorted
 ```
 
 ## Requirements

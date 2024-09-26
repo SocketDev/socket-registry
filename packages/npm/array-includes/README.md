@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/array-includes
+# @socketregistry/array-includes
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/array-includes)](https://socket.dev/npm/package/@socketregistry/@socketregistry/array-includes)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/array-includes)](https://socket.dev/npm/package/@socketregistry/array-includes)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/array-includes`](https://www.npmjs.com/package/@socketregistry/array-includes).
+> [`array-includes`](https://www.npmjs.com/package/array-includes).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/array-includes` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/array-includes`
+to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/array-includes": "npm:@socketregistry/@socketregistry/array-includes@^1"
+    "@socketregistry/array-includes": "npm:@socketregistry/array-includes@^1"
   },
   "resolutions": {
-    "@socketregistry/array-includes": "npm:@socketregistry/@socketregistry/array-includes@^1"
+    "@socketregistry/array-includes": "npm:@socketregistry/array-includes@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/array-includes
+npm install @socketregistry/array-includes
 ```
 
 ## Requirements

@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/object.assign
+# @socketregistry/object.assign
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/object.assign)](https://socket.dev/npm/package/@socketregistry/@socketregistry/object.assign)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/object.assign)](https://socket.dev/npm/package/@socketregistry/object.assign)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/object.assign`](https://www.npmjs.com/package/@socketregistry/object.assign).
+> [`object.assign`](https://www.npmjs.com/package/object.assign).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/object.assign` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/object.assign`
+to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/object.assign": "npm:@socketregistry/@socketregistry/object.assign@^1"
+    "@socketregistry/object.assign": "npm:@socketregistry/object.assign@^1"
   },
   "resolutions": {
-    "@socketregistry/object.assign": "npm:@socketregistry/@socketregistry/object.assign@^1"
+    "@socketregistry/object.assign": "npm:@socketregistry/object.assign@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/object.assign
+npm install @socketregistry/object.assign
 ```
 
 ## Requirements

@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/abab
+# @socketregistry/abab
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/abab)](https://socket.dev/npm/package/@socketregistry/@socketregistry/abab)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/abab)](https://socket.dev/npm/package/@socketregistry/abab)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/abab`](https://www.npmjs.com/package/@socketregistry/abab).
+> [`abab`](https://www.npmjs.com/package/abab).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/abab` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/abab` to your
+`package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/abab": "npm:@socketregistry/@socketregistry/abab@^1"
+    "@socketregistry/abab": "npm:@socketregistry/abab@^1"
   },
   "resolutions": {
-    "@socketregistry/abab": "npm:@socketregistry/@socketregistry/abab@^1"
+    "@socketregistry/abab": "npm:@socketregistry/abab@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/abab
+npm install @socketregistry/abab
 ```
 
 ## Requirements

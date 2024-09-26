@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/es-iterator-helpers
+# @socketregistry/es-iterator-helpers
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/es-iterator-helpers)](https://socket.dev/npm/package/@socketregistry/@socketregistry/es-iterator-helpers)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/es-iterator-helpers)](https://socket.dev/npm/package/@socketregistry/es-iterator-helpers)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/es-iterator-helpers`](https://www.npmjs.com/package/@socketregistry/es-iterator-helpers).
+> [`es-iterator-helpers`](https://www.npmjs.com/package/es-iterator-helpers).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/es-iterator-helpers` to your `package.json`.
+`@socketregistry/es-iterator-helpers` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/es-iterator-helpers": "npm:@socketregistry/@socketregistry/es-iterator-helpers@^1"
+    "@socketregistry/es-iterator-helpers": "npm:@socketregistry/es-iterator-helpers@^1"
   },
   "resolutions": {
-    "@socketregistry/es-iterator-helpers": "npm:@socketregistry/@socketregistry/es-iterator-helpers@^1"
+    "@socketregistry/es-iterator-helpers": "npm:@socketregistry/es-iterator-helpers@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/es-iterator-helpers
+npm install @socketregistry/es-iterator-helpers
 ```
 
 ## Requirements

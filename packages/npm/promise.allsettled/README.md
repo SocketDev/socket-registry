@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/promise.allsettled
+# @socketregistry/promise.allsettled
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/promise.allsettled)](https://socket.dev/npm/package/@socketregistry/@socketregistry/promise.allsettled)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/promise.allsettled)](https://socket.dev/npm/package/@socketregistry/promise.allsettled)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/promise.allsettled`](https://www.npmjs.com/package/@socketregistry/promise.allsettled).
+> [`promise.allsettled`](https://www.npmjs.com/package/promise.allsettled).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/promise.allsettled` to your `package.json`.
+`@socketregistry/promise.allsettled` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/promise.allsettled": "npm:@socketregistry/@socketregistry/promise.allsettled@^1"
+    "@socketregistry/promise.allsettled": "npm:@socketregistry/promise.allsettled@^1"
   },
   "resolutions": {
-    "@socketregistry/promise.allsettled": "npm:@socketregistry/@socketregistry/promise.allsettled@^1"
+    "@socketregistry/promise.allsettled": "npm:@socketregistry/promise.allsettled@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/promise.allsettled
+npm install @socketregistry/promise.allsettled
 ```
 
 ## Requirements

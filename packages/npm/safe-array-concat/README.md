@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/safe-array-concat
+# @socketregistry/safe-array-concat
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/safe-array-concat)](https://socket.dev/npm/package/@socketregistry/@socketregistry/safe-array-concat)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/safe-array-concat)](https://socket.dev/npm/package/@socketregistry/safe-array-concat)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/safe-array-concat`](https://www.npmjs.com/package/@socketregistry/safe-array-concat).
+> [`safe-array-concat`](https://www.npmjs.com/package/safe-array-concat).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/safe-array-concat` to your `package.json`.
+`@socketregistry/safe-array-concat` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/safe-array-concat": "npm:@socketregistry/@socketregistry/safe-array-concat@^1"
+    "@socketregistry/safe-array-concat": "npm:@socketregistry/safe-array-concat@^1"
   },
   "resolutions": {
-    "@socketregistry/safe-array-concat": "npm:@socketregistry/@socketregistry/safe-array-concat@^1"
+    "@socketregistry/safe-array-concat": "npm:@socketregistry/safe-array-concat@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/safe-array-concat
+npm install @socketregistry/safe-array-concat
 ```
 
 ## Requirements

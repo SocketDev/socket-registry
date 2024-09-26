@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/is-shared-array-buffer
+# @socketregistry/is-shared-array-buffer
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/is-shared-array-buffer)](https://socket.dev/npm/package/@socketregistry/@socketregistry/is-shared-array-buffer)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/is-shared-array-buffer)](https://socket.dev/npm/package/@socketregistry/is-shared-array-buffer)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/is-shared-array-buffer`](https://www.npmjs.com/package/@socketregistry/is-shared-array-buffer).
+> [`is-shared-array-buffer`](https://www.npmjs.com/package/is-shared-array-buffer).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/is-shared-array-buffer` to your `package.json`.
+`@socketregistry/is-shared-array-buffer` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/is-shared-array-buffer": "npm:@socketregistry/@socketregistry/is-shared-array-buffer@^1"
+    "@socketregistry/is-shared-array-buffer": "npm:@socketregistry/is-shared-array-buffer@^1"
   },
   "resolutions": {
-    "@socketregistry/is-shared-array-buffer": "npm:@socketregistry/@socketregistry/is-shared-array-buffer@^1"
+    "@socketregistry/is-shared-array-buffer": "npm:@socketregistry/is-shared-array-buffer@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/is-shared-array-buffer
+npm install @socketregistry/is-shared-array-buffer
 ```
 
 ## Requirements

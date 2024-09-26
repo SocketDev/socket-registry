@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/array.prototype.flat
+# @socketregistry/array.prototype.flat
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/array.prototype.flat)](https://socket.dev/npm/package/@socketregistry/@socketregistry/array.prototype.flat)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/array.prototype.flat)](https://socket.dev/npm/package/@socketregistry/array.prototype.flat)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/array.prototype.flat`](https://www.npmjs.com/package/@socketregistry/array.prototype.flat).
+> [`array.prototype.flat`](https://www.npmjs.com/package/array.prototype.flat).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/array.prototype.flat` to your `package.json`.
+`@socketregistry/array.prototype.flat` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/array.prototype.flat": "npm:@socketregistry/@socketregistry/array.prototype.flat@^1"
+    "@socketregistry/array.prototype.flat": "npm:@socketregistry/array.prototype.flat@^1"
   },
   "resolutions": {
-    "@socketregistry/array.prototype.flat": "npm:@socketregistry/@socketregistry/array.prototype.flat@^1"
+    "@socketregistry/array.prototype.flat": "npm:@socketregistry/array.prototype.flat@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/array.prototype.flat
+npm install @socketregistry/array.prototype.flat
 ```
 
 ## Requirements

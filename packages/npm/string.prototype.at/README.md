@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/string.prototype.at
+# @socketregistry/string.prototype.at
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/string.prototype.at)](https://socket.dev/npm/package/@socketregistry/@socketregistry/string.prototype.at)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/string.prototype.at)](https://socket.dev/npm/package/@socketregistry/string.prototype.at)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/string.prototype.at`](https://www.npmjs.com/package/@socketregistry/string.prototype.at).
+> [`string.prototype.at`](https://www.npmjs.com/package/string.prototype.at).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/string.prototype.at` to your `package.json`.
+`@socketregistry/string.prototype.at` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/string.prototype.at": "npm:@socketregistry/@socketregistry/string.prototype.at@^1"
+    "@socketregistry/string.prototype.at": "npm:@socketregistry/string.prototype.at@^1"
   },
   "resolutions": {
-    "@socketregistry/string.prototype.at": "npm:@socketregistry/@socketregistry/string.prototype.at@^1"
+    "@socketregistry/string.prototype.at": "npm:@socketregistry/string.prototype.at@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/string.prototype.at
+npm install @socketregistry/string.prototype.at
 ```
 
 ## Requirements

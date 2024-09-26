@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/reflect.ownkeys
+# @socketregistry/reflect.ownkeys
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/reflect.ownkeys)](https://socket.dev/npm/package/@socketregistry/@socketregistry/reflect.ownkeys)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/reflect.ownkeys)](https://socket.dev/npm/package/@socketregistry/reflect.ownkeys)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/reflect.ownkeys`](https://www.npmjs.com/package/@socketregistry/reflect.ownkeys).
+> [`reflect.ownkeys`](https://www.npmjs.com/package/reflect.ownkeys).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/reflect.ownkeys` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/reflect.ownkeys`
+to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/reflect.ownkeys": "npm:@socketregistry/@socketregistry/reflect.ownkeys@^1"
+    "@socketregistry/reflect.ownkeys": "npm:@socketregistry/reflect.ownkeys@^1"
   },
   "resolutions": {
-    "@socketregistry/reflect.ownkeys": "npm:@socketregistry/@socketregistry/reflect.ownkeys@^1"
+    "@socketregistry/reflect.ownkeys": "npm:@socketregistry/reflect.ownkeys@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/reflect.ownkeys
+npm install @socketregistry/reflect.ownkeys
 ```
 
 ## Requirements

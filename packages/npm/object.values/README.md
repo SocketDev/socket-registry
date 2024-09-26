@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/object.values
+# @socketregistry/object.values
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/object.values)](https://socket.dev/npm/package/@socketregistry/@socketregistry/object.values)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/object.values)](https://socket.dev/npm/package/@socketregistry/object.values)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/object.values`](https://www.npmjs.com/package/@socketregistry/object.values).
+> [`object.values`](https://www.npmjs.com/package/object.values).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/object.values` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/object.values`
+to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/object.values": "npm:@socketregistry/@socketregistry/object.values@^1"
+    "@socketregistry/object.values": "npm:@socketregistry/object.values@^1"
   },
   "resolutions": {
-    "@socketregistry/object.values": "npm:@socketregistry/@socketregistry/object.values@^1"
+    "@socketregistry/object.values": "npm:@socketregistry/object.values@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/object.values
+npm install @socketregistry/object.values
 ```
 
 ## Requirements

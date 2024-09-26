@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/querystringify
+# @socketregistry/querystringify
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/querystringify)](https://socket.dev/npm/package/@socketregistry/@socketregistry/querystringify)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/querystringify)](https://socket.dev/npm/package/@socketregistry/querystringify)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/querystringify`](https://www.npmjs.com/package/@socketregistry/querystringify).
+> [`querystringify`](https://www.npmjs.com/package/querystringify).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/querystringify` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/querystringify`
+to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/querystringify": "npm:@socketregistry/@socketregistry/querystringify@^1"
+    "@socketregistry/querystringify": "npm:@socketregistry/querystringify@^1"
   },
   "resolutions": {
-    "@socketregistry/querystringify": "npm:@socketregistry/@socketregistry/querystringify@^1"
+    "@socketregistry/querystringify": "npm:@socketregistry/querystringify@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/querystringify
+npm install @socketregistry/querystringify
 ```
 
 ## Requirements

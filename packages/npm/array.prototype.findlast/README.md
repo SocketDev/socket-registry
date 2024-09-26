@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/array.prototype.findlast
+# @socketregistry/array.prototype.findlast
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/array.prototype.findlast)](https://socket.dev/npm/package/@socketregistry/@socketregistry/array.prototype.findlast)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/array.prototype.findlast)](https://socket.dev/npm/package/@socketregistry/array.prototype.findlast)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/array.prototype.findlast`](https://www.npmjs.com/package/@socketregistry/array.prototype.findlast).
+> [`array.prototype.findlast`](https://www.npmjs.com/package/array.prototype.findlast).
 
 ## Installation
 
@@ -21,16 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/array.prototype.findlast` to your
-`package.json`.
+`@socketregistry/array.prototype.findlast` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/array.prototype.findlast": "npm:@socketregistry/@socketregistry/array.prototype.findlast@^1"
+    "@socketregistry/array.prototype.findlast": "npm:@socketregistry/array.prototype.findlast@^1"
   },
   "resolutions": {
-    "@socketregistry/array.prototype.findlast": "npm:@socketregistry/@socketregistry/array.prototype.findlast@^1"
+    "@socketregistry/array.prototype.findlast": "npm:@socketregistry/array.prototype.findlast@^1"
   }
 }
 ```
@@ -40,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/array.prototype.findlast
+npm install @socketregistry/array.prototype.findlast
 ```
 
 ## Requirements

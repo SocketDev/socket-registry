@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/object.groupby
+# @socketregistry/object.groupby
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/object.groupby)](https://socket.dev/npm/package/@socketregistry/@socketregistry/object.groupby)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/object.groupby)](https://socket.dev/npm/package/@socketregistry/object.groupby)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/object.groupby`](https://www.npmjs.com/package/@socketregistry/object.groupby).
+> [`object.groupby`](https://www.npmjs.com/package/object.groupby).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/object.groupby` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/object.groupby`
+to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/object.groupby": "npm:@socketregistry/@socketregistry/object.groupby@^1"
+    "@socketregistry/object.groupby": "npm:@socketregistry/object.groupby@^1"
   },
   "resolutions": {
-    "@socketregistry/object.groupby": "npm:@socketregistry/@socketregistry/object.groupby@^1"
+    "@socketregistry/object.groupby": "npm:@socketregistry/object.groupby@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/object.groupby
+npm install @socketregistry/object.groupby
 ```
 
 ## Requirements

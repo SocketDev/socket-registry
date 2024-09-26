@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/reflect.getprototypeof
+# @socketregistry/reflect.getprototypeof
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/reflect.getprototypeof)](https://socket.dev/npm/package/@socketregistry/@socketregistry/reflect.getprototypeof)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/reflect.getprototypeof)](https://socket.dev/npm/package/@socketregistry/reflect.getprototypeof)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/reflect.getprototypeof`](https://www.npmjs.com/package/@socketregistry/reflect.getprototypeof).
+> [`reflect.getprototypeof`](https://www.npmjs.com/package/reflect.getprototypeof).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/reflect.getprototypeof` to your `package.json`.
+`@socketregistry/reflect.getprototypeof` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/reflect.getprototypeof": "npm:@socketregistry/@socketregistry/reflect.getprototypeof@^1"
+    "@socketregistry/reflect.getprototypeof": "npm:@socketregistry/reflect.getprototypeof@^1"
   },
   "resolutions": {
-    "@socketregistry/reflect.getprototypeof": "npm:@socketregistry/@socketregistry/reflect.getprototypeof@^1"
+    "@socketregistry/reflect.getprototypeof": "npm:@socketregistry/reflect.getprototypeof@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/reflect.getprototypeof
+npm install @socketregistry/reflect.getprototypeof
 ```
 
 ## Requirements

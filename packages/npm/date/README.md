@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/date
+# @socketregistry/date
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/date)](https://socket.dev/npm/package/@socketregistry/@socketregistry/date)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/date)](https://socket.dev/npm/package/@socketregistry/date)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/date`](https://www.npmjs.com/package/@socketregistry/date).
+> [`date`](https://www.npmjs.com/package/date).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/date` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/date` to your
+`package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/date": "npm:@socketregistry/@socketregistry/date@^1"
+    "@socketregistry/date": "npm:@socketregistry/date@^1"
   },
   "resolutions": {
-    "@socketregistry/date": "npm:@socketregistry/@socketregistry/date@^1"
+    "@socketregistry/date": "npm:@socketregistry/date@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/date
+npm install @socketregistry/date
 ```
 
 ## Requirements

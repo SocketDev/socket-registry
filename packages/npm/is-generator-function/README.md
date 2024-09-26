@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/is-generator-function
+# @socketregistry/is-generator-function
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/is-generator-function)](https://socket.dev/npm/package/@socketregistry/@socketregistry/is-generator-function)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/is-generator-function)](https://socket.dev/npm/package/@socketregistry/is-generator-function)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/is-generator-function`](https://www.npmjs.com/package/@socketregistry/is-generator-function).
+> [`is-generator-function`](https://www.npmjs.com/package/is-generator-function).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/is-generator-function` to your `package.json`.
+`@socketregistry/is-generator-function` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/is-generator-function": "npm:@socketregistry/@socketregistry/is-generator-function@^1"
+    "@socketregistry/is-generator-function": "npm:@socketregistry/is-generator-function@^1"
   },
   "resolutions": {
-    "@socketregistry/is-generator-function": "npm:@socketregistry/@socketregistry/is-generator-function@^1"
+    "@socketregistry/is-generator-function": "npm:@socketregistry/is-generator-function@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/is-generator-function
+npm install @socketregistry/is-generator-function
 ```
 
 ## Requirements

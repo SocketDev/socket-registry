@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/object.getprototypeof
+# @socketregistry/object.getprototypeof
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/object.getprototypeof)](https://socket.dev/npm/package/@socketregistry/@socketregistry/object.getprototypeof)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/object.getprototypeof)](https://socket.dev/npm/package/@socketregistry/object.getprototypeof)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/object.getprototypeof`](https://www.npmjs.com/package/@socketregistry/object.getprototypeof).
+> [`object.getprototypeof`](https://www.npmjs.com/package/object.getprototypeof).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/object.getprototypeof` to your `package.json`.
+`@socketregistry/object.getprototypeof` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/object.getprototypeof": "npm:@socketregistry/@socketregistry/object.getprototypeof@^1"
+    "@socketregistry/object.getprototypeof": "npm:@socketregistry/object.getprototypeof@^1"
   },
   "resolutions": {
-    "@socketregistry/object.getprototypeof": "npm:@socketregistry/@socketregistry/object.getprototypeof@^1"
+    "@socketregistry/object.getprototypeof": "npm:@socketregistry/object.getprototypeof@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/object.getprototypeof
+npm install @socketregistry/object.getprototypeof
 ```
 
 ## Requirements

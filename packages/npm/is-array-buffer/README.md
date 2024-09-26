@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/is-array-buffer
+# @socketregistry/is-array-buffer
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/is-array-buffer)](https://socket.dev/npm/package/@socketregistry/@socketregistry/is-array-buffer)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/is-array-buffer)](https://socket.dev/npm/package/@socketregistry/is-array-buffer)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/is-array-buffer`](https://www.npmjs.com/package/@socketregistry/is-array-buffer).
+> [`is-array-buffer`](https://www.npmjs.com/package/is-array-buffer).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/is-array-buffer` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/is-array-buffer`
+to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/is-array-buffer": "npm:@socketregistry/@socketregistry/is-array-buffer@^1"
+    "@socketregistry/is-array-buffer": "npm:@socketregistry/is-array-buffer@^1"
   },
   "resolutions": {
-    "@socketregistry/is-array-buffer": "npm:@socketregistry/@socketregistry/is-array-buffer@^1"
+    "@socketregistry/is-array-buffer": "npm:@socketregistry/is-array-buffer@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/is-array-buffer
+npm install @socketregistry/is-array-buffer
 ```
 
 ## Requirements

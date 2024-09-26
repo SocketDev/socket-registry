@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/has-tostringtag
+# @socketregistry/has-tostringtag
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/has-tostringtag)](https://socket.dev/npm/package/@socketregistry/@socketregistry/has-tostringtag)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/has-tostringtag)](https://socket.dev/npm/package/@socketregistry/has-tostringtag)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/has-tostringtag`](https://www.npmjs.com/package/@socketregistry/has-tostringtag).
+> [`has-tostringtag`](https://www.npmjs.com/package/has-tostringtag).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/has-tostringtag` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/has-tostringtag`
+to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/has-tostringtag": "npm:@socketregistry/@socketregistry/has-tostringtag@^1"
+    "@socketregistry/has-tostringtag": "npm:@socketregistry/has-tostringtag@^1"
   },
   "resolutions": {
-    "@socketregistry/has-tostringtag": "npm:@socketregistry/@socketregistry/has-tostringtag@^1"
+    "@socketregistry/has-tostringtag": "npm:@socketregistry/has-tostringtag@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/has-tostringtag
+npm install @socketregistry/has-tostringtag
 ```
 
 ## Requirements

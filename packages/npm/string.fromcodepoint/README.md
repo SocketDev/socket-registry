@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/string.fromcodepoint
+# @socketregistry/string.fromcodepoint
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/string.fromcodepoint)](https://socket.dev/npm/package/@socketregistry/@socketregistry/string.fromcodepoint)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/string.fromcodepoint)](https://socket.dev/npm/package/@socketregistry/string.fromcodepoint)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/string.fromcodepoint`](https://www.npmjs.com/package/@socketregistry/string.fromcodepoint).
+> [`string.fromcodepoint`](https://www.npmjs.com/package/string.fromcodepoint).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/string.fromcodepoint` to your `package.json`.
+`@socketregistry/string.fromcodepoint` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/string.fromcodepoint": "npm:@socketregistry/@socketregistry/string.fromcodepoint@^1"
+    "@socketregistry/string.fromcodepoint": "npm:@socketregistry/string.fromcodepoint@^1"
   },
   "resolutions": {
-    "@socketregistry/string.fromcodepoint": "npm:@socketregistry/@socketregistry/string.fromcodepoint@^1"
+    "@socketregistry/string.fromcodepoint": "npm:@socketregistry/string.fromcodepoint@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/string.fromcodepoint
+npm install @socketregistry/string.fromcodepoint
 ```
 
 ## Requirements

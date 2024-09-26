@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/define-properties
+# @socketregistry/define-properties
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/define-properties)](https://socket.dev/npm/package/@socketregistry/@socketregistry/define-properties)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/define-properties)](https://socket.dev/npm/package/@socketregistry/define-properties)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/define-properties`](https://www.npmjs.com/package/@socketregistry/define-properties).
+> [`define-properties`](https://www.npmjs.com/package/define-properties).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/define-properties` to your `package.json`.
+`@socketregistry/define-properties` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/define-properties": "npm:@socketregistry/@socketregistry/define-properties@^1"
+    "@socketregistry/define-properties": "npm:@socketregistry/define-properties@^1"
   },
   "resolutions": {
-    "@socketregistry/define-properties": "npm:@socketregistry/@socketregistry/define-properties@^1"
+    "@socketregistry/define-properties": "npm:@socketregistry/define-properties@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/define-properties
+npm install @socketregistry/define-properties
 ```
 
 ## Requirements

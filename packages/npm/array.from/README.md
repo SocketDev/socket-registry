@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/array.from
+# @socketregistry/array.from
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/array.from)](https://socket.dev/npm/package/@socketregistry/@socketregistry/array.from)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/array.from)](https://socket.dev/npm/package/@socketregistry/array.from)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/array.from`](https://www.npmjs.com/package/@socketregistry/array.from).
+> [`array.from`](https://www.npmjs.com/package/array.from).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/array.from` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/array.from` to
+your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/array.from": "npm:@socketregistry/@socketregistry/array.from@^1"
+    "@socketregistry/array.from": "npm:@socketregistry/array.from@^1"
   },
   "resolutions": {
-    "@socketregistry/array.from": "npm:@socketregistry/@socketregistry/array.from@^1"
+    "@socketregistry/array.from": "npm:@socketregistry/array.from@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/array.from
+npm install @socketregistry/array.from
 ```
 
 ## Requirements

@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/typed-array-byte-length
+# @socketregistry/typed-array-byte-length
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/typed-array-byte-length)](https://socket.dev/npm/package/@socketregistry/@socketregistry/typed-array-byte-length)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/typed-array-byte-length)](https://socket.dev/npm/package/@socketregistry/typed-array-byte-length)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/typed-array-byte-length`](https://www.npmjs.com/package/@socketregistry/typed-array-byte-length).
+> [`typed-array-byte-length`](https://www.npmjs.com/package/typed-array-byte-length).
 
 ## Installation
 
@@ -21,16 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/typed-array-byte-length` to your
-`package.json`.
+`@socketregistry/typed-array-byte-length` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/typed-array-byte-length": "npm:@socketregistry/@socketregistry/typed-array-byte-length@^1"
+    "@socketregistry/typed-array-byte-length": "npm:@socketregistry/typed-array-byte-length@^1"
   },
   "resolutions": {
-    "@socketregistry/typed-array-byte-length": "npm:@socketregistry/@socketregistry/typed-array-byte-length@^1"
+    "@socketregistry/typed-array-byte-length": "npm:@socketregistry/typed-array-byte-length@^1"
   }
 }
 ```
@@ -40,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/typed-array-byte-length
+npm install @socketregistry/typed-array-byte-length
 ```
 
 ## Requirements

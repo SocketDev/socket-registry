@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/function.prototype.name
+# @socketregistry/function.prototype.name
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/function.prototype.name)](https://socket.dev/npm/package/@socketregistry/@socketregistry/function.prototype.name)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/function.prototype.name)](https://socket.dev/npm/package/@socketregistry/function.prototype.name)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/function.prototype.name`](https://www.npmjs.com/package/@socketregistry/function.prototype.name).
+> [`function.prototype.name`](https://www.npmjs.com/package/function.prototype.name).
 
 ## Installation
 
@@ -21,16 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/function.prototype.name` to your
-`package.json`.
+`@socketregistry/function.prototype.name` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/function.prototype.name": "npm:@socketregistry/@socketregistry/function.prototype.name@^1"
+    "@socketregistry/function.prototype.name": "npm:@socketregistry/function.prototype.name@^1"
   },
   "resolutions": {
-    "@socketregistry/function.prototype.name": "npm:@socketregistry/@socketregistry/function.prototype.name@^1"
+    "@socketregistry/function.prototype.name": "npm:@socketregistry/function.prototype.name@^1"
   }
 }
 ```
@@ -40,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/function.prototype.name
+npm install @socketregistry/function.prototype.name
 ```
 
 ## Requirements

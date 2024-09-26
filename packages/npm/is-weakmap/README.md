@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/is-weakmap
+# @socketregistry/is-weakmap
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/is-weakmap)](https://socket.dev/npm/package/@socketregistry/@socketregistry/is-weakmap)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/is-weakmap)](https://socket.dev/npm/package/@socketregistry/is-weakmap)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/is-weakmap`](https://www.npmjs.com/package/@socketregistry/is-weakmap).
+> [`is-weakmap`](https://www.npmjs.com/package/is-weakmap).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/is-weakmap` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/is-weakmap` to
+your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/is-weakmap": "npm:@socketregistry/@socketregistry/is-weakmap@^1"
+    "@socketregistry/is-weakmap": "npm:@socketregistry/is-weakmap@^1"
   },
   "resolutions": {
-    "@socketregistry/is-weakmap": "npm:@socketregistry/@socketregistry/is-weakmap@^1"
+    "@socketregistry/is-weakmap": "npm:@socketregistry/is-weakmap@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/is-weakmap
+npm install @socketregistry/is-weakmap
 ```
 
 ## Requirements

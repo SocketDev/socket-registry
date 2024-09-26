@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/has-symbols
+# @socketregistry/has-symbols
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/has-symbols)](https://socket.dev/npm/package/@socketregistry/@socketregistry/has-symbols)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/has-symbols)](https://socket.dev/npm/package/@socketregistry/has-symbols)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/has-symbols`](https://www.npmjs.com/package/@socketregistry/has-symbols).
+> [`has-symbols`](https://www.npmjs.com/package/has-symbols).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/has-symbols` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/has-symbols` to
+your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/has-symbols": "npm:@socketregistry/@socketregistry/has-symbols@^1"
+    "@socketregistry/has-symbols": "npm:@socketregistry/has-symbols@^1"
   },
   "resolutions": {
-    "@socketregistry/has-symbols": "npm:@socketregistry/@socketregistry/has-symbols@^1"
+    "@socketregistry/has-symbols": "npm:@socketregistry/has-symbols@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/has-symbols
+npm install @socketregistry/has-symbols
 ```
 
 ## Requirements

@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/string.prototype.trimend
+# @socketregistry/string.prototype.trimend
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/string.prototype.trimend)](https://socket.dev/npm/package/@socketregistry/@socketregistry/string.prototype.trimend)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/string.prototype.trimend)](https://socket.dev/npm/package/@socketregistry/string.prototype.trimend)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/string.prototype.trimend`](https://www.npmjs.com/package/@socketregistry/string.prototype.trimend).
+> [`string.prototype.trimend`](https://www.npmjs.com/package/string.prototype.trimend).
 
 ## Installation
 
@@ -21,16 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/string.prototype.trimend` to your
-`package.json`.
+`@socketregistry/string.prototype.trimend` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/string.prototype.trimend": "npm:@socketregistry/@socketregistry/string.prototype.trimend@^1"
+    "@socketregistry/string.prototype.trimend": "npm:@socketregistry/string.prototype.trimend@^1"
   },
   "resolutions": {
-    "@socketregistry/string.prototype.trimend": "npm:@socketregistry/@socketregistry/string.prototype.trimend@^1"
+    "@socketregistry/string.prototype.trimend": "npm:@socketregistry/string.prototype.trimend@^1"
   }
 }
 ```
@@ -40,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/string.prototype.trimend
+npm install @socketregistry/string.prototype.trimend
 ```
 
 ## Requirements

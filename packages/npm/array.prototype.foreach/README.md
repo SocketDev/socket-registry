@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/array.prototype.foreach
+# @socketregistry/array.prototype.foreach
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/array.prototype.foreach)](https://socket.dev/npm/package/@socketregistry/@socketregistry/array.prototype.foreach)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/array.prototype.foreach)](https://socket.dev/npm/package/@socketregistry/array.prototype.foreach)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/array.prototype.foreach`](https://www.npmjs.com/package/@socketregistry/array.prototype.foreach).
+> [`array.prototype.foreach`](https://www.npmjs.com/package/array.prototype.foreach).
 
 ## Installation
 
@@ -21,16 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/array.prototype.foreach` to your
-`package.json`.
+`@socketregistry/array.prototype.foreach` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/array.prototype.foreach": "npm:@socketregistry/@socketregistry/array.prototype.foreach@^1"
+    "@socketregistry/array.prototype.foreach": "npm:@socketregistry/array.prototype.foreach@^1"
   },
   "resolutions": {
-    "@socketregistry/array.prototype.foreach": "npm:@socketregistry/@socketregistry/array.prototype.foreach@^1"
+    "@socketregistry/array.prototype.foreach": "npm:@socketregistry/array.prototype.foreach@^1"
   }
 }
 ```
@@ -40,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/array.prototype.foreach
+npm install @socketregistry/array.prototype.foreach
 ```
 
 ## Requirements

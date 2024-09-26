@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/which-collection
+# @socketregistry/which-collection
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/which-collection)](https://socket.dev/npm/package/@socketregistry/@socketregistry/which-collection)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/which-collection)](https://socket.dev/npm/package/@socketregistry/which-collection)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/which-collection`](https://www.npmjs.com/package/@socketregistry/which-collection).
+> [`which-collection`](https://www.npmjs.com/package/which-collection).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/which-collection` to your `package.json`.
+`@socketregistry/which-collection` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/which-collection": "npm:@socketregistry/@socketregistry/which-collection@^1"
+    "@socketregistry/which-collection": "npm:@socketregistry/which-collection@^1"
   },
   "resolutions": {
-    "@socketregistry/which-collection": "npm:@socketregistry/@socketregistry/which-collection@^1"
+    "@socketregistry/which-collection": "npm:@socketregistry/which-collection@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/which-collection
+npm install @socketregistry/which-collection
 ```
 
 ## Requirements

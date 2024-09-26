@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/object.hasown
+# @socketregistry/object.hasown
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/object.hasown)](https://socket.dev/npm/package/@socketregistry/@socketregistry/object.hasown)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/object.hasown)](https://socket.dev/npm/package/@socketregistry/object.hasown)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/object.hasown`](https://www.npmjs.com/package/@socketregistry/object.hasown).
+> [`object.hasown`](https://www.npmjs.com/package/object.hasown).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/object.hasown` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/object.hasown`
+to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/object.hasown": "npm:@socketregistry/@socketregistry/object.hasown@^1"
+    "@socketregistry/object.hasown": "npm:@socketregistry/object.hasown@^1"
   },
   "resolutions": {
-    "@socketregistry/object.hasown": "npm:@socketregistry/@socketregistry/object.hasown@^1"
+    "@socketregistry/object.hasown": "npm:@socketregistry/object.hasown@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/object.hasown
+npm install @socketregistry/object.hasown
 ```
 
 ## Requirements

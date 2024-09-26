@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/set-function-length
+# @socketregistry/set-function-length
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/set-function-length)](https://socket.dev/npm/package/@socketregistry/@socketregistry/set-function-length)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/set-function-length)](https://socket.dev/npm/package/@socketregistry/set-function-length)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/set-function-length`](https://www.npmjs.com/package/@socketregistry/set-function-length).
+> [`set-function-length`](https://www.npmjs.com/package/set-function-length).
 
 ## Installation
 
@@ -21,15 +21,15 @@ npx @socketsecurity/cli optimize
 ```
 
 Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/set-function-length` to your `package.json`.
+`@socketregistry/set-function-length` to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/set-function-length": "npm:@socketregistry/@socketregistry/set-function-length@^1"
+    "@socketregistry/set-function-length": "npm:@socketregistry/set-function-length@^1"
   },
   "resolutions": {
-    "@socketregistry/set-function-length": "npm:@socketregistry/@socketregistry/set-function-length@^1"
+    "@socketregistry/set-function-length": "npm:@socketregistry/set-function-length@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/set-function-length
+npm install @socketregistry/set-function-length
 ```
 
 ## Requirements

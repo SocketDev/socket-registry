@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/has
+# @socketregistry/has
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/has)](https://socket.dev/npm/package/@socketregistry/@socketregistry/has)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/has)](https://socket.dev/npm/package/@socketregistry/has)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/has`](https://www.npmjs.com/package/@socketregistry/has).
+> [`has`](https://www.npmjs.com/package/has).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/has` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/has` to your
+`package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/has": "npm:@socketregistry/@socketregistry/has@^1"
+    "@socketregistry/has": "npm:@socketregistry/has@^1"
   },
   "resolutions": {
-    "@socketregistry/has": "npm:@socketregistry/@socketregistry/has@^1"
+    "@socketregistry/has": "npm:@socketregistry/has@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/has
+npm install @socketregistry/has
 ```
 
 ## Requirements

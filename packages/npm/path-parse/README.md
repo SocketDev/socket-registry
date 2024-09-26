@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/path-parse
+# @socketregistry/path-parse
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/path-parse)](https://socket.dev/npm/package/@socketregistry/@socketregistry/path-parse)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/path-parse)](https://socket.dev/npm/package/@socketregistry/path-parse)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/path-parse`](https://www.npmjs.com/package/@socketregistry/path-parse).
+> [`path-parse`](https://www.npmjs.com/package/path-parse).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/path-parse` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/path-parse` to
+your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/path-parse": "npm:@socketregistry/@socketregistry/path-parse@^1"
+    "@socketregistry/path-parse": "npm:@socketregistry/path-parse@^1"
   },
   "resolutions": {
-    "@socketregistry/path-parse": "npm:@socketregistry/@socketregistry/path-parse@^1"
+    "@socketregistry/path-parse": "npm:@socketregistry/path-parse@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/path-parse
+npm install @socketregistry/path-parse
 ```
 
 ## Requirements

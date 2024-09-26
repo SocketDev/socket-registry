@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/harmony-reflect
+# @socketregistry/harmony-reflect
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/harmony-reflect)](https://socket.dev/npm/package/@socketregistry/@socketregistry/harmony-reflect)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/harmony-reflect)](https://socket.dev/npm/package/@socketregistry/harmony-reflect)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/harmony-reflect`](https://www.npmjs.com/package/@socketregistry/harmony-reflect).
+> [`harmony-reflect`](https://www.npmjs.com/package/harmony-reflect).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/harmony-reflect` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/harmony-reflect`
+to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/harmony-reflect": "npm:@socketregistry/@socketregistry/harmony-reflect@^1"
+    "@socketregistry/harmony-reflect": "npm:@socketregistry/harmony-reflect@^1"
   },
   "resolutions": {
-    "@socketregistry/harmony-reflect": "npm:@socketregistry/@socketregistry/harmony-reflect@^1"
+    "@socketregistry/harmony-reflect": "npm:@socketregistry/harmony-reflect@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/harmony-reflect
+npm install @socketregistry/harmony-reflect
 ```
 
 ## Requirements

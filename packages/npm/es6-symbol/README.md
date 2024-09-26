@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/es6-symbol
+# @socketregistry/es6-symbol
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/es6-symbol)](https://socket.dev/npm/package/@socketregistry/@socketregistry/es6-symbol)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/es6-symbol)](https://socket.dev/npm/package/@socketregistry/es6-symbol)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/es6-symbol`](https://www.npmjs.com/package/@socketregistry/es6-symbol).
+> [`es6-symbol`](https://www.npmjs.com/package/es6-symbol).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/es6-symbol` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/es6-symbol` to
+your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/es6-symbol": "npm:@socketregistry/@socketregistry/es6-symbol@^1"
+    "@socketregistry/es6-symbol": "npm:@socketregistry/es6-symbol@^1"
   },
   "resolutions": {
-    "@socketregistry/es6-symbol": "npm:@socketregistry/@socketregistry/es6-symbol@^1"
+    "@socketregistry/es6-symbol": "npm:@socketregistry/es6-symbol@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/es6-symbol
+npm install @socketregistry/es6-symbol
 ```
 
 ## Requirements

@@ -1,10 +1,10 @@
-# @socketregistry/@socketregistry/indent-string
+# @socketregistry/indent-string
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/indent-string)](https://socket.dev/npm/package/@socketregistry/@socketregistry/indent-string)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/indent-string)](https://socket.dev/npm/package/@socketregistry/indent-string)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [`@socketregistry/indent-string`](https://www.npmjs.com/package/@socketregistry/indent-string).
+> [`indent-string`](https://www.npmjs.com/package/indent-string).
 
 ## Installation
 
@@ -20,16 +20,16 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-Prefer to do it yourself? You may manually add
-`@socketregistry/@socketregistry/indent-string` to your `package.json`.
+Prefer to do it yourself? You may manually add `@socketregistry/indent-string`
+to your `package.json`.
 
 ```json
 {
   "overrides": {
-    "@socketregistry/indent-string": "npm:@socketregistry/@socketregistry/indent-string@^1"
+    "@socketregistry/indent-string": "npm:@socketregistry/indent-string@^1"
   },
   "resolutions": {
-    "@socketregistry/indent-string": "npm:@socketregistry/@socketregistry/indent-string@^1"
+    "@socketregistry/indent-string": "npm:@socketregistry/indent-string@^1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Prefer to do it yourself? You may manually add
 Install with your preferred package manager.
 
 ```sh
-npm install @socketregistry/@socketregistry/indent-string
+npm install @socketregistry/indent-string
 ```
 
 ## Requirements
