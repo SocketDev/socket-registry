@@ -4,16 +4,14 @@
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of
-> [@socketregistry/arraybuffer.prototype.slice](https://www.npmjs.com/package/@socketregistry/arraybuffer.prototype.slice).
+> [`@socketregistry/arraybuffer.prototype.slice`](https://www.npmjs.com/package/@socketregistry/arraybuffer.prototype.slice).
 
-## Install
+## Installation
 
-### As A Package Override
+### Install as Package Override
 
-#### Using `@socketsecurity/cli` :sparkles:
-
-Use [`@socketsecurity/cli`](https://www.npmjs.com/package/@socketsecurity/cli)
-to automagically populate the
+[`@socketsecurity/cli`](https://www.npmjs.com/package/@socketsecurity/cli) will
+automagically populate the
 [overrides](https://docs.npmjs.com/cli/v9/configuring-npm/package-json#overrides)
 and [resolutions](https://yarnpkg.com/configuration/manifest#resolutions) fields
 of your `package.json`.
@@ -22,10 +20,9 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-#### Using Handcrafted Artisanal Edits
-
-Manually add `@socketregistry/@socketregistry/arraybuffer.prototype.slice` to
-your `package.json`.
+Prefer to do it yourself? You may manually add
+`@socketregistry/@socketregistry/arraybuffer.prototype.slice` to your
+`package.json`.
 
 ```json
 {
@@ -38,7 +35,7 @@ your `package.json`.
 }
 ```
 
-### As A Plain Dependency
+### Install as Plain Dependency
 
 Install with your preferred package manager.
 
