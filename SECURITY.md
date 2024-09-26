@@ -10,4 +10,4 @@ quickly as possible.
 **Please do not report security vulnerabilities through public GitHub issues,
 discussions, or pull requests.**
 
-Thanks for helping make `@socketregistry` more secure :heart:
+Thanks for helping make `@socketregistry` more secure :sparkling_heart:
