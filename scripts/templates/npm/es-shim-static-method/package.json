@@ -10,13 +10,13 @@
   "main": "./index.js",
   "sideEffects": false,
   "engines": {
-    "node": "<%= it.node_range %>"
+    "node": "<%~ it.node_range %>"
   },
   "files": [
     "*.d.ts",
     "*.js"
   ],
   "socket": {
-    "categories": ["<%= it.categories %>"]
+    "categories": ["<%~ it.categories %>"]
   }
 }

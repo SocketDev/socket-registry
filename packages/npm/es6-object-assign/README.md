@@ -45,4 +45,4 @@ npm install @socketregistry/es6-object-assign
 
 ## Requirements
 
-Node &gt;= `18.20.4`
+Node >= `18.20.4`

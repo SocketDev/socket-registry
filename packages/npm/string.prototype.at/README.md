@@ -45,4 +45,4 @@ npm install @socketregistry/string.prototype.at
 
 ## Requirements
 
-Node &gt;= `18.20.4`
+Node >= `18.20.4`

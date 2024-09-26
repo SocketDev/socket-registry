@@ -45,4 +45,4 @@ npm install @socketregistry/array.prototype.toreversed
 
 ## Requirements
 
-Node &gt;= `20.17.0`
+Node >= `20.17.0`

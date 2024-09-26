@@ -45,4 +45,4 @@ npm install @socketregistry/string.prototype.padstart
 
 ## Requirements
 
-Node &gt;= `18.20.4`
+Node >= `18.20.4`

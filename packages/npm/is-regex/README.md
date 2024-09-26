@@ -45,4 +45,4 @@ npm install @socketregistry/is-regex
 
 ## Requirements
 
-Node &gt;= `18.20.4`
+Node >= `18.20.4`

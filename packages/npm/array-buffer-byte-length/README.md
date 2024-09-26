@@ -45,4 +45,4 @@ npm install @socketregistry/array-buffer-byte-length
 
 ## Requirements
 
-Node &gt;= `18.20.4`
+Node >= `18.20.4`
