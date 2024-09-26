@@ -58,17 +58,17 @@ function prepareTemplate(content, data) {
     content
       // Replace tags that look like ["<%...%>"] with [<%...%>] when data is an
       // array. Enquoting the tags avoids syntax errors in JSON template files.
-      .replace(
-        /(?<=\[)"(<%[~=]?)([\s\S]+)(%>)"(?=\])/g,
-        (match, openTag, it, closeTag) => {
-          const itTrimmed = it.trim()
-          const itParts = itTrimmed.split('.')
-          const name = itParts[0] === 'it' ? itParts?.[1] : itParts[0]
-          return name && Array.isArray(data[name])
-            ? `${openTag}${it}${closeTag}`
-            : match
-        }
-      )
+      .replace(/\["<%([-_]|)~([\s\S]+)%>"\]/g, (match, startWsc, it) => {
+        const lastCode = it.charCodeAt(it.length - 1)
+        const isEndWsc = lastCode === 45 /*'-'*/ || lastCode === 95 /*'_'*/
+        const endWsc = isEndWsc ? it.at(-1) : ''
+        const itTrimmed = (isEndWsc ? it.slice(0, -1) : it).trim()
+        const itParts = itTrimmed.split('.')
+        const name = itParts[0] === 'it' ? itParts?.[1] : itParts[0]
+        return name && Array.isArray(data[name])
+          ? `<%${startWsc}~ JSON.stringify(${itTrimmed}) ${endWsc}%>`
+          : match
+      })
   )
 }
 
@@ -142,14 +142,12 @@ async function getTypeScriptActions(pkgPath, tsLib) {
 }
 
 async function renderAction(action) {
-  const { 0: filepath, 1: data } = action
+  const { 0: filepath, 1: dataRaw } = action
+  const data = typeof dataRaw === 'function' ? await dataRaw() : dataRaw
   const ext = path.extname(filepath)
   const content = await fs.readFile(filepath, 'utf8')
-  const prepared = prepareTemplate(content)
-  const modified = await eta.renderStringAsync(
-    prepared,
-    typeof data === 'function' ? await data() : data
-  )
+  const prepared = prepareTemplate(content, data)
+  const modified = await eta.renderStringAsync(prepared, data)
   return ext === '.json' || ext === '.md'
     ? await prettierFormat(modified, { filepath })
     : modified

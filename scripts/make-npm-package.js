@@ -62,7 +62,14 @@ async function readLicenses(dirname) {
   if (fs.existsSync(pkgPath) && !isDirEmptySync(pkgPath)) {
     const relPkgPath = path.relative(rootPath, pkgPath)
     console.log(`⚠️ ${pkgName} already exists at ${relPkgPath}`)
-    return
+    if (
+      !(await confirm({
+        message: 'Do you want to overwrite it?',
+        default: false
+      }))
+    ) {
+      return
+    }
   }
   let badLicenses
   let licenses
@@ -192,9 +199,11 @@ async function readLicenses(dirname) {
 
   const templatePkgPath = templates[templateChoice]
 
+  // First copy the template directory contents to the package path.
   await fs.copy(templatePkgPath, pkgPath)
-  // Ensure the package's package.json is modified first.
-  await writeAction(getPackageJsonAction(pkgPath))
+  // Then modify package's package.json.
+  await writeAction(await getPackageJsonAction(pkgPath))
+  // Finally, modify other package files.
   await Promise.all(
     [
       await getNpmReadmeAction(pkgPath),
