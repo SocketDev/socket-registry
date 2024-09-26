@@ -1,7 +1,7 @@
 # @socketregistry/assert
 
 [![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/assert)](https://socket.dev/npm/package/@socketregistry/assert)
-[![CI - socket-registry-js](https://github.com/SocketDev/socket-registry-js/actions/workflows/ci.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/ci.yml
+[![CI - @socketregistry/assert](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A low dependency drop-in replacement of

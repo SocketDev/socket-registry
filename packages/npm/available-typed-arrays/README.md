@@ -1,7 +1,7 @@
 # @socketregistry/available-typed-arrays
 
 [![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/available-typed-arrays)](https://socket.dev/npm/package/@socketregistry/available-typed-arrays)
-[![CI - socket-registry-js](https://github.com/SocketDev/socket-registry-js/actions/workflows/ci.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/ci.yml
+[![CI - @socketregistry/available-typed-arrays](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of

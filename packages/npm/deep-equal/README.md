@@ -1,7 +1,7 @@
 # @socketregistry/deep-equal
 
 [![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/deep-equal)](https://socket.dev/npm/package/@socketregistry/deep-equal)
-[![CI - socket-registry-js](https://github.com/SocketDev/socket-registry-js/actions/workflows/ci.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/ci.yml
+[![CI - @socketregistry/deep-equal](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A low dependency drop-in replacement of

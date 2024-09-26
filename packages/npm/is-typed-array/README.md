@@ -1,7 +1,7 @@
 # @socketregistry/is-typed-array
 
 [![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/is-typed-array)](https://socket.dev/npm/package/@socketregistry/is-typed-array)
-[![CI - socket-registry-js](https://github.com/SocketDev/socket-registry-js/actions/workflows/ci.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/ci.yml
+[![CI - @socketregistry/is-typed-array](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A zero dependency drop-in replacement of

@@ -1,7 +1,7 @@
 # @socketregistry/json-stable-stringify
 
 [![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/json-stable-stringify)](https://socket.dev/npm/package/@socketregistry/json-stable-stringify)
-[![CI - socket-registry-js](https://github.com/SocketDev/socket-registry-js/actions/workflows/ci.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/ci.yml
+[![CI - @socketregistry/json-stable-stringify](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A faster zero dependency drop-in replacement of
