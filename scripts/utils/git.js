@@ -10,7 +10,7 @@ const {
   rootPackagesPath,
   rootPath
 } = require('@socketregistry/scripts/constants')
-const { getGlobMatcher } = require('@socketregistry/scripts/utils/glob')
+const { getGlobMatcher } = require('@socketregistry/scripts/utils/globs')
 const { normalizePath } = require('@socketregistry/scripts/utils/path')
 
 const spawnArgsGitDiffModified = [

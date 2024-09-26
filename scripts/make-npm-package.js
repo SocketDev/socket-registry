@@ -10,23 +10,17 @@ const spawn = require('@npmcli/promise-spawn')
 const { ReturnTypeEnums, default: didYouMean } = require('didyoumean2')
 const fs = require('fs-extra')
 const { open } = require('out-url')
-const prettier = require('prettier')
-const { glob: tinyGlob } = require('tinyglobby')
 
 const {
   LICENSE,
-  LICENSE_CONTENT,
-  PACKAGE_ENGINES_NODE_RANGE,
-  PACKAGE_JSON,
   execPath,
   npmPackagesPath,
-  npmTemplatesPath,
   rootPath,
   runScriptParallelExecPath,
   tsLibs
 } = require('@socketregistry/scripts/constants')
 const { isDirEmptySync } = require('@socketregistry/scripts/utils/fs')
-const { globLicenses } = require('@socketregistry/scripts/utils/glob')
+const { globLicenses } = require('@socketregistry/scripts/utils/globs')
 const {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
@@ -38,24 +32,17 @@ const {
 } = require('@socketregistry/scripts/utils/packages')
 const { naturalSort } = require('@socketregistry/scripts/utils/sorts')
 const { indentString } = require('@socketregistry/scripts/utils/strings')
+const {
+  getLicenseActions,
+  getPackageJsonAction,
+  getReadmeAction,
+  getTypeScriptActions,
+  templateChoices,
+  templates,
+  writeAction
+} = require('@socketregistry/scripts/utils/templates')
 
 const esShimsRepoRegExp = /^git(?:\+https)?:\/\/github\.com\/es-shims\//
-
-function modifyContent(content, data = {}) {
-  let modified = content
-  for (const { 0: key, 1: value } of Object.entries(data)) {
-    const templateKey = key.replaceAll('-', '_').toUpperCase()
-    if (Array.isArray(value)) {
-      const stringified = JSON.stringify(value)
-      modified = modified
-        .replaceAll(`["%${templateKey}%"]`, stringified)
-        .replaceAll(`%${templateKey}%`, stringified)
-    } else {
-      modified = modified.replaceAll(`%${templateKey}%`, value)
-    }
-  }
-  return modified
-}
 
 async function readLicenses(dirname) {
   return await Promise.all(
@@ -65,33 +52,6 @@ async function readLicenses(dirname) {
     }))
   )
 }
-
-const templates = Object.fromEntries(
-  [
-    'default',
-    'es-shim-prototype-method',
-    'es-shim-static-method',
-    'node-cjs',
-    'node-cjs+browser',
-    'node-esm',
-    'node-esm+browser'
-  ].map(k => [k, path.join(npmTemplatesPath, k)])
-)
-
-const esShimTemplateChoices = [
-  { name: 'es-shim prototype method', value: 'es-shim-prototype-method' },
-  { name: 'es-shim static method', value: 'es-shim-static-method' }
-]
-
-const nodeCjsTemplateChoices = [
-  { name: 'node cjs', value: 'node-cjs' },
-  { name: 'node cjs plus browser', value: 'node-cjs+browser' }
-]
-
-const nodeEsmTemplateChoices = [
-  { name: 'node esm', value: 'node-esm' },
-  { name: 'node esm plus browser', value: 'node-esm+browser' }
-]
 
 ;(async () => {
   const pkgName = await input({
@@ -108,16 +68,16 @@ const nodeEsmTemplateChoices = [
   let licenses
   let licenseContents
   let licenseWarnings
-  let pkgJson
+  let nmPkgJson
   await extractPackage(pkgName, async pkgDirPath => {
-    pkgJson = await readPackageJson(pkgDirPath)
-    licenses = resolvePackageLicenses(pkgJson.license, pkgDirPath)
+    nmPkgJson = await readPackageJson(pkgDirPath)
+    licenses = resolvePackageLicenses(nmPkgJson.license, pkgDirPath)
     licenseWarnings = collectLicenseWarnings(licenses)
     badLicenses = collectIncompatibleLicenses(licenses)
     if (!badLicenses.length) {
       licenseContents = await readLicenses(pkgDirPath)
       if (!licenseContents.length) {
-        const tgzUrl = await resolveGitHubTgzUrl(pkgName, pkgJson)
+        const tgzUrl = await resolveGitHubTgzUrl(pkgName, nmPkgJson)
         if (tgzUrl) {
           extractPackage(tgzUrl, async tarDirPath => {
             licenseContents = await readLicenses(tarDirPath)
@@ -126,7 +86,7 @@ const nodeEsmTemplateChoices = [
       }
     }
   })
-  if (!pkgJson) {
+  if (!nmPkgJson) {
     console.log(`✘ Failed to extract ${pkgName}`)
     return
   }
@@ -151,8 +111,8 @@ const nodeEsmTemplateChoices = [
       return
     }
   }
-  const isEsm = pkgJson.type === 'module'
-  const isEsShim = esShimsRepoRegExp.test(pkgJson.repository?.url)
+  const isEsm = nmPkgJson.type === 'module'
+  const isEsShim = esShimsRepoRegExp.test(nmPkgJson.repository?.url)
 
   let templateChoice
   if (isEsShim) {
@@ -164,26 +124,26 @@ const nodeEsmTemplateChoices = [
     } else {
       templateChoice = await select({
         message: 'Pick the es-shim template to use',
-        choices: esShimTemplateChoices
+        choices: templateChoices.esShim
       })
     }
   } else if (isEsm) {
     templateChoice = await select({
       message: 'Pick the ESM template to use',
-      choices: nodeEsmTemplateChoices
+      choices: templateChoices.nodeEsm
     })
   } else {
     templateChoice = await select({
       message: 'Pick the package template to use',
       choices: [
         { name: 'default', value: 'default' },
-        ...nodeCjsTemplateChoices,
-        ...esShimTemplateChoices
+        ...templateChoices.nodeCjs,
+        ...templateChoices.esShim
       ]
     })
   }
 
-  let ts_lib
+  let tsLib
   if (templateChoice.startsWith('es-shim')) {
     const availableTsLibs = [...tsLibs]
     const maxTsLibLength = availableTsLibs.reduce(
@@ -196,7 +156,7 @@ const nodeEsmTemplateChoices = [
         default: false
       })
     ) {
-      ts_lib = await search({
+      tsLib = await search({
         message: 'Which one?',
         source: async input => {
           if (!input) return []
@@ -229,49 +189,20 @@ const nodeEsmTemplateChoices = [
       })
     }
   }
-  const srcPath = templates[templateChoice]
-  const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
 
-  await fs.copy(srcPath, pkgPath)
+  const templatePkgPath = templates[templateChoice]
 
-  const actions = []
-  const licenseData = {
-    license: LICENSE_CONTENT.trim()
-  }
-  for (const filepath of await globLicenses(pkgPath, { recursive: true })) {
-    actions.push([filepath, licenseData])
-  }
-  if (ts_lib) {
-    const tsData = {
-      ts_lib
-    }
-    for (const filepath of await tinyGlob(['**/*.ts'], {
-      absolute: true,
-      cwd: pkgPath
-    })) {
-      actions.push([filepath, tsData])
-    }
-  }
-  actions.push([
-    pkgJsonPath,
-    {
-      name: pkgName,
-      node_range: PACKAGE_ENGINES_NODE_RANGE,
-      categories: ['cleanup']
-    }
-  ])
+  await fs.copy(templatePkgPath, pkgPath)
+  // Ensure the package's package.json is modified first.
+  await writeAction(getPackageJsonAction(pkgPath))
   await Promise.all(
-    actions.map(async ({ 0: filepath, 1: data }) => {
-      const ext = path.extname(filepath)
-      const content = await fs.readFile(filepath, 'utf8')
-      const modified = modifyContent(content, { __proto__: null, ...data })
-      const output =
-        ext === '.json'
-          ? await prettier.format(modified, { parser: 'json' })
-          : modified
-      return await fs.writeFile(filepath, output, 'utf8')
-    })
+    [
+      await getReadmeAction(pkgPath),
+      ...(await getLicenseActions(pkgPath)),
+      ...(tsLib ? await getTypeScriptActions(pkgPath, tsLib) : [])
+    ].map(writeAction)
   )
+
   // Create LICENSE.original files.
   const { length: licenseCount } = licenseContents
   if (licenseCount === 1) {

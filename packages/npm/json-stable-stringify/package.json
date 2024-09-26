@@ -18,7 +18,8 @@
   ],
   "socket": {
     "categories": [
-      "cleanup"
+      "cleanup",
+      "speedup"
     ]
   }
 }

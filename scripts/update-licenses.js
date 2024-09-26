@@ -8,7 +8,7 @@ const {
   ignoreGlobs,
   rootPath
 } = require('@socketregistry/scripts/constants')
-const { globLicenses } = require('@socketregistry/scripts/utils/glob')
+const { globLicenses } = require('@socketregistry/scripts/utils/globs')
 
 ;(async () => {
   await Promise.all(

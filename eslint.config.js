@@ -11,10 +11,10 @@ const tsEslint = require('typescript-eslint')
 
 const {
   PACKAGE_JSON,
-  gitignoreFile,
+  gitIgnoreFile,
   npmPackageNames,
   npmPackagesPath,
-  prettierignoreFile,
+  prettierIgnoreFile,
   relNpmPackagesPath,
   rootTsConfigPath
 } = require('@socketregistry/scripts/constants')
@@ -218,8 +218,8 @@ function configs(sourceType) {
 }
 
 module.exports = [
-  gitignoreFile,
-  prettierignoreFile,
+  gitIgnoreFile,
+  prettierIgnoreFile,
   ...configs('script'),
   ...configs('module')
 ]

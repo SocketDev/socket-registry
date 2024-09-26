@@ -1,22 +1,22 @@
 {
-  "name": "@socketregistry/%NAME%",
+  "name": "@socketregistry/<%= it.name %>",
   "version": "1.0.0",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/SocketDev/socket-registry-js",
-    "directory": "packages/npm/%NAME%"
+    "directory": "packages/npm/<%= it.name %>"
   },
   "main": "./index.js",
   "sideEffects": false,
   "engines": {
-    "node": "%NODE_RANGE%"
+    "node": "<%= it.node_range %>"
   },
   "files": [
     "*.d.ts",
     "*.js"
   ],
   "socket": {
-    "categories": ["%CATEGORIES%"]
+    "categories": ["<%= it.categories %>"]
   }
 }

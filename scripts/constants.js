@@ -9,6 +9,7 @@ const { createNewSortInstance } = require('fast-sort')
 const fs = require('fs-extra')
 const pacote = require('pacote')
 const picomatch = require('picomatch')
+const prettier = require('prettier')
 const semver = require('semver')
 const whichFn = require('which')
 const { sync: whichSyncFn } = whichFn
@@ -65,7 +66,7 @@ const ENV = Object.freeze({
 })
 const LAZY_LICENSE_CONTENT = () => fs.readFileSync(rootLicensePath, 'utf8')
 const LICENSE = 'LICENSE'
-const LICENSE_GLOB = 'LICEN[CS]E{.*,}'
+const LICENSE_GLOB = 'LICEN[CS]E{[.-]*,}'
 const LICENSE_GLOB_RECURSIVE = `**/${LICENSE_GLOB}`
 const LICENSE_ORIGINAL_GLOB = '*.original{.*,}'
 const LICENSE_ORIGINAL_GLOB_RECURSIVE = `**/${LICENSE_ORIGINAL_GLOB}`
@@ -81,6 +82,7 @@ const PACKAGE_JSON = 'package.json'
 const PACKAGE_LOCK = 'package-lock.json'
 const PACKAGE_HIDDEN_LOCK = `.${PACKAGE_LOCK}`
 const README_GLOB_PATTERN = 'README{.*,}'
+const README_MD = 'README.md'
 const REPO_ORG = 'SocketDev'
 const REPO_NAME = 'socket-registry-js'
 const TSCONFIG_JSON = 'tsconfig.json'
@@ -99,10 +101,11 @@ const rootPackagesPath = path.join(rootPath, 'packages')
 const rootTsConfigPath = path.join(rootPath, TSCONFIG_JSON)
 
 const { execPath } = process
-const gitignorePath = path.resolve(rootPath, '.gitignore')
+const gitIgnorePath = path.join(rootPath, '.gitignore')
 const pacoteCachePath = new PacoteFetcherBase(/*dummy package spec*/ 'x', {})
   .cache
-const prettierignorePath = path.resolve(rootPath, '.prettierignore')
+const prettierConfigPath = path.join(rootPath, '.prettierrc')
+const prettierIgnorePath = path.join(rootPath, '.prettierIgnore')
 const templatesPath = path.join(__dirname, 'templates')
 
 const npmPackagesPath = path.join(rootPackagesPath, 'npm')
@@ -178,6 +181,7 @@ const isDirEmptySync = function isDirEmptySync(dirname) {
     if (length === 0) {
       return true
     }
+    // Lazily access constants.ignoreGlobs.
     const matcher = getGlobMatcher(constants.ignoreGlobs, { cwd: dirname })
     let ignoredCount = 0
     for (let i = 0; i < length; i += 1) {
@@ -243,15 +247,18 @@ const lazyIgnoreGlobs = () =>
       '**/package-lock.json',
       '**/pnpm-lock.ya?ml',
       '**/yarn.lock',
-      ...constants.gitignoreFile.ignores
+      // Lazily access constants.gitIgnoreFile.
+      ...constants.gitIgnoreFile.ignores
     ])
   ])
 
 const lazyNpmExecPath = () => whichSync('npm')
 const lazyNpmPackageNames = () =>
   Object.freeze(readDirNamesSync(npmPackagesPath))
-const lazyGitignoreFile = () => includeIgnoreFile(gitignorePath)
-const lazyPrettierignoreFile = () => includeIgnoreFile(prettierignorePath)
+const lazyGitIgnoreFile = () => includeIgnoreFile(gitIgnorePath)
+const lazyPrettierConfigPromise = () =>
+  prettier.resolveConfig(prettierConfigPath, { editorconfig: true })
+const lazyPrettierIgnoreFile = () => includeIgnoreFile(prettierIgnorePath)
 const lazyRunScriptParallelExecPath = () => whichSync('run-p')
 const lazyRunScriptSequentiallyExecPath = () => whichSync('run-s')
 
@@ -456,6 +463,7 @@ const constants = Object.freeze(
       PACKAGE_HIDDEN_LOCK,
       PACKAGE_LOCK,
       README_GLOB_PATTERN,
+      README_MD,
       REPO_ORG,
       REPO_NAME,
       TSCONFIG_JSON,
@@ -466,7 +474,7 @@ const constants = Object.freeze(
       ecosystems: undefined,
       execPath,
       gitExecPath: undefined,
-      gitignoreFile: undefined,
+      gitIgnoreFile: undefined,
       ignoreGlobs: undefined,
       kInternalsSymbol,
       lifecycleScriptNames,
@@ -479,7 +487,8 @@ const constants = Object.freeze(
       packageExtensions,
       packumentCache,
       pacoteCachePath,
-      prettierignoreFile: undefined,
+      prettierConfigPromise: undefined,
+      prettierIgnoreFile: undefined,
       relPackagesPath,
       relNpmPackagesPath,
       relTestNpmPath,
@@ -509,11 +518,12 @@ const constants = Object.freeze(
       LICENSE_CONTENT: LAZY_LICENSE_CONTENT,
       ecosystems: lazyEcosystems,
       gitExecPath: lazyGitExecPath,
-      gitignoreFile: lazyGitignoreFile,
+      gitIgnoreFile: lazyGitIgnoreFile,
       ignoreGlobs: lazyIgnoreGlobs,
       npmExecPath: lazyNpmExecPath,
       npmPackageNames: lazyNpmPackageNames,
-      prettierignoreFile: lazyPrettierignoreFile,
+      prettierConfigPromise: lazyPrettierConfigPromise,
+      prettierIgnoreFile: lazyPrettierIgnoreFile,
       runScriptParallelExecPath: lazyRunScriptParallelExecPath,
       runScriptSequentiallyExecPath: lazyRunScriptSequentiallyExecPath
     }

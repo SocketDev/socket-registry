@@ -1,3 +1,4 @@
 .github/
 scripts/templates
+packages/**/*.original*
 package-lock.json

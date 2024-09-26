@@ -1,5 +1,9 @@
 'use strict'
 
+const prettier = require('prettier')
+
+const constants = require('@socketregistry/scripts/constants')
+
 function indentString(str, count = 1) {
   return str.replace(/^(?!\s*$)/gm, ' '.repeat(count))
 }
@@ -17,8 +21,18 @@ function search(str, regexp, fromIndex = 0) {
   return result === -1 ? -1 : result + offset
 }
 
+async function prettierFormat(str, options) {
+  return prettier.format(str, {
+    __proto__: null,
+    // Lazily access constants.prettierConfigPromise.
+    ...(await constants.prettierConfigPromise),
+    ...options
+  })
+}
+
 module.exports = {
   indentString,
   isNonEmptyString,
+  prettierFormat,
   search
 }

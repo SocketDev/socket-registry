@@ -36,6 +36,7 @@
     "update:manifest": "node ./scripts/update-manifest.js",
     "update:package-json": "node ./scripts/update-package-json.js",
     "update:package-lock": "node ./scripts/update-package-lock.js",
+    "update:readmes": "node ./scripts/update-readmes.js",
     "update:npm:package-json": "node ./scripts/update-npm-package-json.js",
     "update:test:npm:package-json": "node ./scripts/update-test-npm-package-json.js"
   },
@@ -68,6 +69,7 @@
     "eslint-plugin-import-x": "^4.2.1",
     "eslint-plugin-n": "^17.10.2",
     "eslint-plugin-sort-destructure-keys": "^2.0.0",
+    "eta": "^3.5.0",
     "fast-sort": "^3.4.1",
     "fs-extra": "^11.2.0",
     "husky": "^9.1.6",

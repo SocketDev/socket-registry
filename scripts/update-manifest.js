@@ -4,16 +4,18 @@ const path = require('node:path')
 
 const fs = require('fs-extra')
 const { PackageURL } = require('packageurl-js')
-const prettier = require('prettier')
 
 const {
+  UNLICENSED,
   ecosystems,
   npmPackageNames,
   npmPackagesPath,
-  rootManifestJsonPath
+  rootManifestJsonPath,
+  testNpmNodeWorkspacesPath
 } = require('@socketregistry/scripts/constants')
 const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
 const { localCompare } = require('@socketregistry/scripts/utils/sorts')
+const { prettierFormat } = require('@socketregistry/scripts/utils/strings')
 
 ;(async () => {
   const manifest = {}
@@ -22,14 +24,15 @@ const { localCompare } = require('@socketregistry/scripts/utils/sorts')
       const manifestData = []
       for await (const pkgName of npmPackageNames) {
         const pkgPath = path.join(npmPackagesPath, pkgName)
+        const nwPkgPath = path.join(testNpmNodeWorkspacesPath, pkgName)
         const {
           engines,
           exports: entryExports,
-          license,
           name,
           socket,
           version
         } = await readPackageJson(pkgPath)
+        const { license: nmPkgLicense } = await readPackageJson(nwPkgPath)
         const interop = []
         const isEsm = !!(entryExports?.import || entryExports?.module)
         if (isEsm) {
@@ -43,7 +46,7 @@ const { localCompare } = require('@socketregistry/scripts/utils/sorts')
           interop.push('browser')
         }
         const metaEntries = [
-          ['license', license],
+          ['license', nmPkgLicense ?? UNLICENSED],
           ...(interop.length ? [['interop', interop]] : []),
           ...(engines ? [['engines', engines]] : []),
           ...(socket ? Object.entries(socket) : [])
@@ -66,8 +69,8 @@ const { localCompare } = require('@socketregistry/scripts/utils/sorts')
       }
     }
   }
-  const output = await prettier.format(JSON.stringify(manifest), {
-    parser: 'json'
+  const output = await prettierFormat(JSON.stringify(manifest), {
+    filepath: rootManifestJsonPath
   })
   await fs.writeFile(rootManifestJsonPath, output, 'utf8')
 })()
