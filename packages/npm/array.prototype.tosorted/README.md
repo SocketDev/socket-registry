@@ -5,9 +5,9 @@
 
 ## Install
 
-### Override
+### As A Package Override
 
-#### `@socketsecurity/cli` :sparkles:
+#### Using `@socketsecurity/cli` :sparkles:
 
 Use [`@socketsecurity/cli`](https://www.npmjs.com/package/@socketsecurity/cli)
 to automagically populate the
@@ -19,7 +19,7 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-#### Handcrafted
+#### Using Handcrafted Artisanal Edits
 
 Manually add `@socketregistry/@socketregistry/array.prototype.tosorted` to your
 `package.json`.
@@ -35,14 +35,14 @@ Manually add `@socketregistry/@socketregistry/array.prototype.tosorted` to your
 }
 ```
 
-### Plain Dependency
+### As A Plain Dependency
 
 Install with your preferred package manager.
 
-````sh
-npm install @socketregistry/@socketregistry/array.prototype.tosorted```
+```sh
+npm install @socketregistry/@socketregistry/array.prototype.tosorted
+```
 
 ## Requirements
 
 Node &gt;=20.17.0
-````

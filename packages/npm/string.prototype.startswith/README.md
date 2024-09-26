@@ -5,9 +5,9 @@
 
 ## Install
 
-### Override
+### As A Package Override
 
-#### `@socketsecurity/cli` :sparkles:
+#### Using `@socketsecurity/cli` :sparkles:
 
 Use [`@socketsecurity/cli`](https://www.npmjs.com/package/@socketsecurity/cli)
 to automagically populate the
@@ -19,7 +19,7 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-#### Handcrafted
+#### Using Handcrafted Artisanal Edits
 
 Manually add `@socketregistry/@socketregistry/string.prototype.startswith` to
 your `package.json`.
@@ -35,14 +35,14 @@ your `package.json`.
 }
 ```
 
-### Plain Dependency
+### As A Plain Dependency
 
 Install with your preferred package manager.
 
-````sh
-npm install @socketregistry/@socketregistry/string.prototype.startswith```
+```sh
+npm install @socketregistry/@socketregistry/string.prototype.startswith
+```
 
 ## Requirements
 
 Node &gt;=18.20.4
-````
