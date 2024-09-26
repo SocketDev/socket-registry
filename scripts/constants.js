@@ -81,7 +81,8 @@ const OVERRIDES = 'overrides'
 const PACKAGE_JSON = 'package.json'
 const PACKAGE_LOCK = 'package-lock.json'
 const PACKAGE_HIDDEN_LOCK = `.${PACKAGE_LOCK}`
-const README_GLOB_PATTERN = 'README{.*,}'
+const README_GLOB = 'README{.*,}'
+const README_GLOB_RECURSIVE = `**/${README_GLOB}`
 const README_MD = 'README.md'
 const REPO_ORG = 'SocketDev'
 const REPO_NAME = 'socket-registry-js'
@@ -462,7 +463,8 @@ const constants = Object.freeze(
       PACKAGE_JSON,
       PACKAGE_HIDDEN_LOCK,
       PACKAGE_LOCK,
-      README_GLOB_PATTERN,
+      README_GLOB,
+      README_GLOB_RECURSIVE,
       README_MD,
       REPO_ORG,
       REPO_NAME,

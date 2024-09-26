@@ -16,7 +16,7 @@ import {
   NODE_VERSION,
   OVERRIDES,
   PACKAGE_JSON,
-  README_GLOB_PATTERN,
+  README_GLOB,
   ecosystems,
   ignoreGlobs,
   npmPackageNames,
@@ -142,7 +142,7 @@ for (const eco of ecosystems) {
                 // https://docs.npmjs.com/cli/v10/configuring-npm/package-json#files
                 PACKAGE_JSON,
                 LICENSE_GLOB,
-                README_GLOB_PATTERN,
+                README_GLOB,
                 ...filesPatternsAsArray
               ],
               {

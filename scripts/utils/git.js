@@ -49,13 +49,15 @@ function innerGetDiffSync(gitDiffSpawnArgs, options) {
 }
 
 function innerGetPackages(eco, stagedFiles, options) {
-  const { asSet = false } = { __proto__: null, ...options }
+  const { asSet = false, ...otherOptions } = { __proto__: null, ...options }
   const ecoPackagesPath = path.join(rootPackagesPath, eco)
   const relEcoPackagesPath = normalizePath(
     path.relative(rootPath, ecoPackagesPath)
   )
   const matcher = getGlobMatcher([`${relEcoPackagesPath}/**`], {
-    cwd: rootPath
+    __proto__: null,
+    cwd: rootPath,
+    ...otherOptions
   })
   const sliceStart = relEcoPackagesPath.length + 1
   const packageNames = new Set()

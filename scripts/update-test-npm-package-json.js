@@ -12,7 +12,7 @@ const {
   LICENSE_GLOB_RECURSIVE,
   NODE_WORKSPACES,
   PACKAGE_JSON,
-  README_GLOB_PATTERN,
+  README_GLOB,
   ignoreGlobs,
   lifecycleScriptNames,
   npmExecPath,
@@ -461,7 +461,7 @@ const testScripts = [
               '**/CHANGE{LOG,S}{.*,}',
               '**/CONTRIBUTING{.*,}',
               '**/FUND{ING,}{.*,}',
-              `**/${README_GLOB_PATTERN}`,
+              `**/${README_GLOB}`,
               ...ignoreGlobs
             ],
             {

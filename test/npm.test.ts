@@ -9,8 +9,10 @@ import semver from 'semver'
 
 import {
   ENV,
+  LICENSE_GLOB_RECURSIVE,
   NODE_VERSION,
   PACKAGE_JSON,
+  README_GLOB_RECURSIVE,
   execPath,
   runScriptSequentiallyExecPath,
   testNpmNodeWorkspacesPath
@@ -61,9 +63,12 @@ describe('npm', async () => {
     ENV.CI || cliArgs.force
       ? testNpmNodeWorkspacesPackages
       : (() => {
-          const testablePackages: Set<string> = ENV.PRE_COMMIT
-            ? getStagedPackagesSync('npm', { asSet: true })
-            : getModifiedPackagesSync('npm', { asSet: true })
+          const testablePackages: Set<string> = (
+            ENV.PRE_COMMIT ? getStagedPackagesSync : getModifiedPackagesSync
+          )('npm', {
+            asSet: true,
+            ignore: [LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE]
+          })
           return testNpmNodeWorkspacesPackages.filter((n: string) =>
             testablePackages.has(n)
           )
