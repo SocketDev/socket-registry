@@ -5,7 +5,9 @@
 
 ## Install
 
-### `@socketsecurity/cli` :sparkles:
+### Override
+
+#### `@socketsecurity/cli` :sparkles:
 
 Use [`@socketsecurity/cli`](https://www.npmjs.com/package/@socketsecurity/cli)
 to automagically populate the
@@ -17,7 +19,7 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-### Handcrafted
+#### Handcrafted
 
 Manually add `@socketregistry/@socketregistry/is-bigint` to your `package.json`.
 
@@ -32,9 +34,9 @@ Manually add `@socketregistry/@socketregistry/is-bigint` to your `package.json`.
 }
 ```
 
-### Direct Dependency
+### Plain Dependency
 
-Install as a direct dependency.
+Install with your preferred package manager.
 
 ````sh
 npm install @socketregistry/@socketregistry/is-bigint```

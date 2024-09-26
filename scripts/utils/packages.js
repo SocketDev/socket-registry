@@ -171,7 +171,12 @@ function createPackageJson(pkgName, directory, options) {
     files: Array.isArray(files) ? files : ['*.d.ts', '*.js'],
     ...(isObjectObject(socket)
       ? { socket }
-      : { socket: { categories: ['cleanup'] } })
+      : {
+          socket: {
+            // Valid categories are: cleanup, levelup, speedup, tightenup
+            categories: ['cleanup']
+          }
+        })
   }
 }
 

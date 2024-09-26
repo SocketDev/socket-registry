@@ -1,14 +1,16 @@
 # @socketregistry/<%= it.name %>
 
->A<% if (it.socket.categories?.includes('speedup')) { %> faster <% } %>
-<% if (it.socket.categories?.includes('tightenup')) { %> more secure <% } %>
+>A<% if (it.socket.categories.includes('speedup')) { %> faster <% } %>
+<% if (it.socket.categories.includes('tightenup')) { %> more secure <% } %>
 <% if (Object.keys(it.dependencies ?? {}).length) { %> low <% } else { %> zero <% } %>
 dependency <% if (it.socket.interop?.includes('esm')) { %>CommonJS compatible<% } %>
 drop-in replacement of [<%= it.name %>](https://www.npmjs.com/package/<%= it.name %>).
 
 ## Install
 
-### `@socketsecurity/cli` :sparkles:
+### Override
+
+#### `@socketsecurity/cli` :sparkles:
 
 Use [`@socketsecurity/cli`](https://www.npmjs.com/package/@socketsecurity/cli)
 to automagically populate the
@@ -20,7 +22,7 @@ of your `package.json`.
 npx @socketsecurity/cli optimize
 ```
 
-### Handcrafted
+#### Handcrafted
 
 Manually add `@socketregistry/<%= it.name %>` to your `package.json`.
 
@@ -35,9 +37,9 @@ Manually add `@socketregistry/<%= it.name %>` to your `package.json`.
 }
 ```
 
-### Direct Dependency
+### Plain Dependency
 
-Install as a direct dependency.
+Install with your preferred package manager.
 
 ```sh
 npm install @socketregistry/<%= it.name %>
