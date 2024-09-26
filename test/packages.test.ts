@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { describe, it } from 'node:test'
+import util from 'node:util'
 
 import fs from 'fs-extra'
 import { PackageURL } from 'packageurl-js'
@@ -41,6 +42,17 @@ import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
 
 import manifest from '../manifest.json'
 
+// Use by passing as a tap --test-arg:
+// npm run test:unit ./test/packages.test.ts -- --test-arg="--force"
+const { values: cliArgs } = util.parseArgs({
+  options: {
+    force: {
+      type: 'boolean',
+      short: 'f'
+    }
+  }
+})
+
 const extJs = '.js'
 const extDts = '.d.ts'
 const leadingDotSlashRegExp = /^\.\.?[/\\]/
@@ -75,16 +87,17 @@ function trimLeadingDotSlash(filepath: string): string {
 for (const eco of ecosystems) {
   describe(eco, () => {
     if (eco === 'npm') {
-      const packageNames: string[] = ENV.CI
-        ? npmPackageNames
-        : (() => {
-            const testablePackages: Set<string> = ENV.PRE_COMMIT
-              ? getStagedPackagesSync(eco, { asSet: true })
-              : getModifiedPackagesSync(eco, { asSet: true })
-            return npmPackageNames.filter((n: string) =>
-              testablePackages.has(n)
-            )
-          })()
+      const packageNames: string[] =
+        ENV.CI || cliArgs.force
+          ? npmPackageNames
+          : (() => {
+              const testablePackages: Set<string> = ENV.PRE_COMMIT
+                ? getStagedPackagesSync(eco, { asSet: true })
+                : getModifiedPackagesSync(eco, { asSet: true })
+              return npmPackageNames.filter((n: string) =>
+                testablePackages.has(n)
+              )
+            })()
       for (const pkgName of packageNames) {
         const pkgPath = path.join(npmPackagesPath, pkgName)
         const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)

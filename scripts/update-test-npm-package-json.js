@@ -370,11 +370,9 @@ const testScripts = [
         })
       }
 
-      // Add engines field of the @socketregistry/xyz override package to the
-      // original xyz package. If the value is `undefined` it will be removed
-      // when saved as JSON.
+      // Remove engines field. The `undefined` value will be removed when saved.
       nmEditablePkgJson.update({
-        engines: pkgJson.engines
+        engines: undefined
       })
 
       // Symlink files from the @socketregistry/xyz override package to the
@@ -386,7 +384,7 @@ const testScripts = [
         spinner.message = `⚠️ ${pkgName}: Module type mismatch`
       }
       const actions = new Map()
-      for (const jsFile of await tinyGlob(['**/*.{js,json}'], {
+      for (const jsFile of await tinyGlob(['**/*.{cjs,js,json}'], {
         ignore: ['**/package.json'],
         cwd: pkgPath
       })) {
