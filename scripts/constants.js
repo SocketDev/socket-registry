@@ -106,7 +106,7 @@ const gitIgnorePath = path.join(rootPath, '.gitignore')
 const pacoteCachePath = new PacoteFetcherBase(/*dummy package spec*/ 'x', {})
   .cache
 const prettierConfigPath = path.join(rootPath, '.prettierrc')
-const prettierIgnorePath = path.join(rootPath, '.prettierIgnore')
+const prettierIgnorePath = path.join(rootPath, '.prettierignore')
 const templatesPath = path.join(__dirname, 'templates')
 
 const npmPackagesPath = path.join(rootPackagesPath, 'npm')
