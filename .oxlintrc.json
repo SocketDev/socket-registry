@@ -6,6 +6,7 @@
     "no-await-in-loop": "allow",
     "no-control-regex": "allow",
     "no-empty-file": "allow",
+    "no-extend-native": "allow",
     "no-extraneous-class": "allow",
     "no-new": "allow",
     "no-new-array": "allow",
