@@ -6,6 +6,7 @@ const util = require('node:util')
 const spawn = require('@npmcli/promise-spawn')
 const fs = require('fs-extra')
 const npmPackageArg = require('npm-package-arg')
+const semver = require('semver')
 const { glob: tinyGlob } = require('tinyglobby')
 
 const {
@@ -15,6 +16,7 @@ const {
   README_GLOB,
   ignoreGlobs,
   lifecycleScriptNames,
+  maintainedNodeVersions,
   npmExecPath,
   npmPackageNames,
   npmPackagesPath,
@@ -46,6 +48,8 @@ const { pEach, pEachChunk } = require('@socketregistry/scripts/utils/promises')
 const { localCompare } = require('@socketregistry/scripts/utils/sorts')
 const { Spinner } = require('@socketregistry/scripts/utils/spinner')
 const { isNonEmptyString } = require('@socketregistry/scripts/utils/strings')
+
+const nodeVerPrev = maintainedNodeVersions.get('previous')
 
 const { values: cliArgs } = util.parseArgs({
   options: {
@@ -347,7 +351,7 @@ const testScripts = [
 
       // Add dependencies and overrides of @socketregistry/xyz override package
       // as dependencies of the original xyz package.
-      const { dependencies, overrides } = pkgJson
+      const { dependencies, engines, overrides } = pkgJson
       if (dependencies ?? overrides) {
         const socketRegistryPrefix = 'npm:@socketregistry/'
         const overridesAsDeps =
@@ -370,10 +374,15 @@ const testScripts = [
         })
       }
 
-      // Remove engines field. The `undefined` value will be removed when saved.
-      nmEditablePkgJson.update({
-        engines: undefined
-      })
+      const nodeRange = engines?.node
+      if (nodeRange && semver.gt(semver.coerce(nodeRange), nodeVerPrev)) {
+        // Replace engines field if the @socketregistry/xyz's engines.node range
+        // is greater than the previous Node version.
+        nmEditablePkgJson.update({ engines })
+      } else {
+        // Remove engines field. The `undefined` value will be removed when saved.
+        nmEditablePkgJson.update({ engines: undefined })
+      }
 
       // Symlink files from the @socketregistry/xyz override package to the
       // original xyz package.
