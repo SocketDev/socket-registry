@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/available-typed-arrays
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/available-typed-arrays)](https://socket.dev/npm/package/@socketregistry/@socketregistry/available-typed-arrays)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/available-typed-arrays](https://www.npmjs.com/package/@socketregistry/available-typed-arrays).
 

@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/define-properties
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/define-properties)](https://socket.dev/npm/package/@socketregistry/@socketregistry/define-properties)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/define-properties](https://www.npmjs.com/package/@socketregistry/define-properties).
 

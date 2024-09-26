@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/string.prototype.endswith
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/string.prototype.endswith)](https://socket.dev/npm/package/@socketregistry/@socketregistry/string.prototype.endswith)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/string.prototype.endswith](https://www.npmjs.com/package/@socketregistry/string.prototype.endswith).
 

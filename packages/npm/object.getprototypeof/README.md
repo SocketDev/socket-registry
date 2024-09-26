@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/object.getprototypeof
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/object.getprototypeof)](https://socket.dev/npm/package/@socketregistry/@socketregistry/object.getprototypeof)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/object.getprototypeof](https://www.npmjs.com/package/@socketregistry/object.getprototypeof).
 

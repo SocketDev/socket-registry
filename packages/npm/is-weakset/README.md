@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/is-weakset
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/is-weakset)](https://socket.dev/npm/package/@socketregistry/@socketregistry/is-weakset)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/is-weakset](https://www.npmjs.com/package/@socketregistry/is-weakset).
 

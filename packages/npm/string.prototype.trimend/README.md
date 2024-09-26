@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/string.prototype.trimend
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/string.prototype.trimend)](https://socket.dev/npm/package/@socketregistry/@socketregistry/string.prototype.trimend)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/string.prototype.trimend](https://www.npmjs.com/package/@socketregistry/string.prototype.trimend).
 

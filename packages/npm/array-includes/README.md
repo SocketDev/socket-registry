@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/array-includes
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/array-includes)](https://socket.dev/npm/package/@socketregistry/@socketregistry/array-includes)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/array-includes](https://www.npmjs.com/package/@socketregistry/array-includes).
 

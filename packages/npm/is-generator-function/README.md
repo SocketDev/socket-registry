@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/is-generator-function
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/is-generator-function)](https://socket.dev/npm/package/@socketregistry/@socketregistry/is-generator-function)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/is-generator-function](https://www.npmjs.com/package/@socketregistry/is-generator-function).
 

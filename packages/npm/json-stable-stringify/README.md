@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/json-stable-stringify
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/json-stable-stringify)](https://socket.dev/npm/package/@socketregistry/@socketregistry/json-stable-stringify)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A faster zero dependency drop-in replacement of
 > [@socketregistry/json-stable-stringify](https://www.npmjs.com/package/@socketregistry/json-stable-stringify).
 

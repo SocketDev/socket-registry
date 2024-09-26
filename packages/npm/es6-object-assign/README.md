@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/es6-object-assign
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/es6-object-assign)](https://socket.dev/npm/package/@socketregistry/@socketregistry/es6-object-assign)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/es6-object-assign](https://www.npmjs.com/package/@socketregistry/es6-object-assign).
 

@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/iterator.prototype
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/iterator.prototype)](https://socket.dev/npm/package/@socketregistry/@socketregistry/iterator.prototype)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/iterator.prototype](https://www.npmjs.com/package/@socketregistry/iterator.prototype).
 

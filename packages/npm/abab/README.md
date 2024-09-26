@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/abab
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/abab)](https://socket.dev/npm/package/@socketregistry/@socketregistry/abab)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/abab](https://www.npmjs.com/package/@socketregistry/abab).
 

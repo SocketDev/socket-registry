@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/internal-slot
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/internal-slot)](https://socket.dev/npm/package/@socketregistry/@socketregistry/internal-slot)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/internal-slot](https://www.npmjs.com/package/@socketregistry/internal-slot).
 

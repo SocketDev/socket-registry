@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/indent-string
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/indent-string)](https://socket.dev/npm/package/@socketregistry/@socketregistry/indent-string)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/indent-string](https://www.npmjs.com/package/@socketregistry/indent-string).
 

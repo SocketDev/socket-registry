@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/has
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/has)](https://socket.dev/npm/package/@socketregistry/@socketregistry/has)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/has](https://www.npmjs.com/package/@socketregistry/has).
 

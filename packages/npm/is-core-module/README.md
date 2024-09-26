@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/is-core-module
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/is-core-module)](https://socket.dev/npm/package/@socketregistry/@socketregistry/is-core-module)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/is-core-module](https://www.npmjs.com/package/@socketregistry/is-core-module).
 

@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/deep-equal
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/deep-equal)](https://socket.dev/npm/package/@socketregistry/@socketregistry/deep-equal)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A low dependency drop-in replacement of
 > [@socketregistry/deep-equal](https://www.npmjs.com/package/@socketregistry/deep-equal).
 

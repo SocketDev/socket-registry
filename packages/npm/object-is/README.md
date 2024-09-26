@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/object-is
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/object-is)](https://socket.dev/npm/package/@socketregistry/@socketregistry/object-is)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/object-is](https://www.npmjs.com/package/@socketregistry/object-is).
 

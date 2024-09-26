@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/array.prototype.reduce
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/array.prototype.reduce)](https://socket.dev/npm/package/@socketregistry/@socketregistry/array.prototype.reduce)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/array.prototype.reduce](https://www.npmjs.com/package/@socketregistry/array.prototype.reduce).
 

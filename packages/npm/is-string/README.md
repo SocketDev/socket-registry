@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/is-string
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/is-string)](https://socket.dev/npm/package/@socketregistry/@socketregistry/is-string)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/is-string](https://www.npmjs.com/package/@socketregistry/is-string).
 

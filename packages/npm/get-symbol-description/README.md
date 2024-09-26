@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/get-symbol-description
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/get-symbol-description)](https://socket.dev/npm/package/@socketregistry/@socketregistry/get-symbol-description)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/get-symbol-description](https://www.npmjs.com/package/@socketregistry/get-symbol-description).
 

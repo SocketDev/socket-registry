@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/number-is-nan
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/number-is-nan)](https://socket.dev/npm/package/@socketregistry/@socketregistry/number-is-nan)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/number-is-nan](https://www.npmjs.com/package/@socketregistry/number-is-nan).
 

@@ -1,5 +1,8 @@
 # @socketregistry/<%= it.name %>
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/<%= it.name %>)](https://socket.dev/npm/package/@socketregistry/<%= it.name %>)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 >A<% if (it.socket.categories.includes('speedup')) { %> faster <% } %>
 <% if (it.socket.categories.includes('tightenup')) { %> more secure <% } %>
 <% if (Object.keys(it.dependencies ?? {}).length) { %> low <% } else { %> zero <% } %>

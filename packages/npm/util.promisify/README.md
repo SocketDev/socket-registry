@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/util.promisify
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/util.promisify)](https://socket.dev/npm/package/@socketregistry/@socketregistry/util.promisify)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/util.promisify](https://www.npmjs.com/package/@socketregistry/util.promisify).
 

@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/es-set-tostringtag
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/es-set-tostringtag)](https://socket.dev/npm/package/@socketregistry/@socketregistry/es-set-tostringtag)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/es-set-tostringtag](https://www.npmjs.com/package/@socketregistry/es-set-tostringtag).
 

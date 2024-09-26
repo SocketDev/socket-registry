@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/aggregate-error
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/aggregate-error)](https://socket.dev/npm/package/@socketregistry/@socketregistry/aggregate-error)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/aggregate-error](https://www.npmjs.com/package/@socketregistry/aggregate-error).
 

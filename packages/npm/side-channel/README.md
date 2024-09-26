@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/side-channel
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/side-channel)](https://socket.dev/npm/package/@socketregistry/@socketregistry/side-channel)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/side-channel](https://www.npmjs.com/package/@socketregistry/side-channel).
 

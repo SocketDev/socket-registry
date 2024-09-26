@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/set-function-length
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/set-function-length)](https://socket.dev/npm/package/@socketregistry/@socketregistry/set-function-length)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/set-function-length](https://www.npmjs.com/package/@socketregistry/set-function-length).
 

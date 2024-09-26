@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/safe-regex-test
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/safe-regex-test)](https://socket.dev/npm/package/@socketregistry/@socketregistry/safe-regex-test)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/safe-regex-test](https://www.npmjs.com/package/@socketregistry/safe-regex-test).
 

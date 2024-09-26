@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/is-shared-array-buffer
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/is-shared-array-buffer)](https://socket.dev/npm/package/@socketregistry/@socketregistry/is-shared-array-buffer)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/is-shared-array-buffer](https://www.npmjs.com/package/@socketregistry/is-shared-array-buffer).
 

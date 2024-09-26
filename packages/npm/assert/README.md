@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/assert
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/assert)](https://socket.dev/npm/package/@socketregistry/@socketregistry/assert)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A low dependency drop-in replacement of
 > [@socketregistry/assert](https://www.npmjs.com/package/@socketregistry/assert).
 

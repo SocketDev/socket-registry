@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/typedarray.prototype.slice
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/typedarray.prototype.slice)](https://socket.dev/npm/package/@socketregistry/@socketregistry/typedarray.prototype.slice)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/typedarray.prototype.slice](https://www.npmjs.com/package/@socketregistry/typedarray.prototype.slice).
 

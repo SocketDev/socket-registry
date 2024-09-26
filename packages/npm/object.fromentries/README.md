@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/object.fromentries
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/object.fromentries)](https://socket.dev/npm/package/@socketregistry/@socketregistry/object.fromentries)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/object.fromentries](https://www.npmjs.com/package/@socketregistry/object.fromentries).
 

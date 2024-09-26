@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/which-collection
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/which-collection)](https://socket.dev/npm/package/@socketregistry/@socketregistry/which-collection)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/which-collection](https://www.npmjs.com/package/@socketregistry/which-collection).
 

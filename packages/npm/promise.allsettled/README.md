@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/promise.allsettled
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/promise.allsettled)](https://socket.dev/npm/package/@socketregistry/@socketregistry/promise.allsettled)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/promise.allsettled](https://www.npmjs.com/package/@socketregistry/promise.allsettled).
 

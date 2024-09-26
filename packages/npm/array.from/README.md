@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/array.from
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/array.from)](https://socket.dev/npm/package/@socketregistry/@socketregistry/array.from)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/array.from](https://www.npmjs.com/package/@socketregistry/array.from).
 

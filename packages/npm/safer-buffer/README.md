@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/safer-buffer
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/safer-buffer)](https://socket.dev/npm/package/@socketregistry/@socketregistry/safer-buffer)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/safer-buffer](https://www.npmjs.com/package/@socketregistry/safer-buffer).
 

@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/array.prototype.toreversed
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/array.prototype.toreversed)](https://socket.dev/npm/package/@socketregistry/@socketregistry/array.prototype.toreversed)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/array.prototype.toreversed](https://www.npmjs.com/package/@socketregistry/array.prototype.toreversed).
 

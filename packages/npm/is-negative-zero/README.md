@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/is-negative-zero
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/is-negative-zero)](https://socket.dev/npm/package/@socketregistry/@socketregistry/is-negative-zero)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/is-negative-zero](https://www.npmjs.com/package/@socketregistry/is-negative-zero).
 

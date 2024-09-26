@@ -1,5 +1,8 @@
 # @socketregistry/@socketregistry/typed-array-buffer
 
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/@socketregistry/typed-array-buffer)](https://socket.dev/npm/package/@socketregistry/@socketregistry/typed-array-buffer)
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+
 > A zero dependency drop-in replacement of
 > [@socketregistry/typed-array-buffer](https://www.npmjs.com/package/@socketregistry/typed-array-buffer).
 
