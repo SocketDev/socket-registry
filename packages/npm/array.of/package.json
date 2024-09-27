@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/array.of",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "description": "Socket.dev optimized package override for array.of",
   "keywords": [

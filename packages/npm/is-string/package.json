@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/is-string",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "description": "Socket.dev optimized package override for is-string",
   "keywords": [

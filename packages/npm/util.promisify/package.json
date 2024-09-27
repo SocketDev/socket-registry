@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/util.promisify",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "description": "Socket.dev optimized package override for util.promisify",
   "keywords": [

@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/monorepo",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Monorepo for Socket.dev package overrides",
   "homepage": "http://github.com/SocketDev/socket-registry-js",
