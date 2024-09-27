@@ -27,7 +27,7 @@
     "test-pre-commit": "cross-env-shell PRE_COMMIT=1 npm test",
     "test-ci": "run-s test:*",
     "make:npm-package": "node ./scripts/make-npm-package.js",
-    "setup": "run-s update:package-lock update:test:**",
+    "setup": "run-s update:package-lock update:longtask:test:**",
     "update": "run-p --aggregate-output update:* update:npm:* && run-s update:longtask:**",
     "update:browserslist-db": "node ./scripts/update-browserslist-db.js",
     "update:empty-dirs": "node ./scripts/update-empty-dirs.js",
