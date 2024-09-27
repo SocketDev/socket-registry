@@ -313,9 +313,9 @@ async function readPackageJson(filepath, options) {
 }
 
 async function resolveGitHubTgzUrl(pkgNameOrId, where) {
-  const { version } = pkgJson
   const whereIsPkgJson = isObjectObject(where)
   const pkgJson = whereIsPkgJson ? where : await readPackageJson(where)
+  const { version } = pkgJson
   const parsedSpec = npmPackageArg(
     pkgNameOrId,
     whereIsPkgJson ? undefined : where
