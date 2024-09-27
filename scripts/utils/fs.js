@@ -35,7 +35,7 @@ function isSameRealpathSync(filepath1, filepath2) {
   }
   try {
     if (fs.realpathSync(filepath1) === path.realpathSync(filepath2)) {
-      return !isSymbolicLinkSync(filepath2)
+      return isSymbolicLinkSync(filepath1) === isSymbolicLinkSync(filepath2)
     }
   } catch {}
   return false

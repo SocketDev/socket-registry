@@ -117,23 +117,21 @@ const testScripts = [
 ]
 
 ;(async () => {
-  const workspaceExists = fs.existsSync(testNpmNodeWorkspacesPath)
-  const nmExists = fs.existsSync(testNpmNodeModulesPath)
+  const nodeModulesExists = fs.existsSync(testNpmNodeModulesPath)
+  const nodeWorkspacesExists = fs.existsSync(testNpmNodeWorkspacesPath)
+  const requiredDirsExist = nodeModulesExists && nodeWorkspacesExists
+  const addingPkgNames = requiredDirsExist ? cliArgs.add : undefined
 
   // Exit early if nothing to do.
-  if (
-    workspaceExists &&
-    nmExists &&
-    !(cliArgs.force || Array.isArray(cliArgs.add))
-  ) {
+  if (requiredDirsExist && !(cliArgs.force || Array.isArray(addingPkgNames))) {
     return
   }
 
   // Lazily access constants.npmPackageNames.
-  const packageNames = cliArgs.add ?? constants.npmPackageNames
+  const packageNames = addingPkgNames ?? constants.npmPackageNames
   // Chunk package names to process them in parallel 3 at a time.
-  const packageNameChunks = cliArgs.add
-    ? arrayChunk(cliArgs.add, 3)
+  const packageNameChunks = addingPkgNames
+    ? arrayChunk(addingPkgNames, 3)
     : arrayChunk(constants.npmPackageNames, 3)
 
   let modifiedTestNpmPkgJson = false
@@ -144,9 +142,9 @@ const testScripts = [
   // Refresh/initialize test/npm/node_modules
   {
     const spinner = new Spinner(
-      `${nmExists ? 'Refreshing' : 'Initializing'} ${relTestNpmNodeModulesPath}...`
+      `${nodeModulesExists ? 'Refreshing' : 'Initializing'} ${relTestNpmNodeModulesPath}...`
     ).start()
-    if (nmExists) {
+    if (nodeModulesExists) {
       // Remove existing packages to re-install later.
       await Promise.all(
         packageNames.map(n => fs.remove(path.join(testNpmNodeModulesPath, n)))
@@ -158,11 +156,11 @@ const testScripts = [
         editable: true
       })
       spinner.stop(
-        `✔ ${nmExists ? 'Refreshed' : 'Initialized'} ${relTestNpmNodeModulesPath}`
+        `✔ ${nodeModulesExists ? 'Refreshed' : 'Initialized'} ${relTestNpmNodeModulesPath}`
       )
     } catch (e) {
       spinner.stop(
-        `✘ ${nmExists ? 'Refresh' : 'Initialization'} encountered an error:`,
+        `✘ ${nodeModulesExists ? 'Refresh' : 'Initialization'} encountered an error:`,
         e
       )
     }
@@ -489,7 +487,7 @@ const testScripts = [
         ).map(p => fs.remove(p))
       )
       // Move override package directory.
-      await move(srcPath, destPath, { verbatimSymlinks: true })
+      await move(srcPath, destPath)
     })
     spinner.stop('✔ Workspaces cleaned (so fresh and so clean, clean)')
   }
