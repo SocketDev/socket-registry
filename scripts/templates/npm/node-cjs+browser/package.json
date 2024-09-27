@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/<%= it.name %>",
-  "version": "1.0.0",
+  "version": "<%= it.version %>",
   "license": "MIT",
   "description": "Socket.dev optimized package override for <%= it.originalName %>",
   "keywords": [

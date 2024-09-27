@@ -26,7 +26,6 @@ const {
   REPO_ORG,
   UNLICENCED,
   UNLICENSED,
-  VERSION,
   copyLeftLicenses,
   packageExtensions,
   packumentCache,
@@ -132,7 +131,7 @@ function createPackageJson(pkgName, directory, options) {
     sideEffects,
     socket,
     type,
-    version = VERSION
+    version
   } = { __proto__: null, ...options }
   // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
   const { PACKAGE_DEFAULT_NODE_RANGE } = constants

@@ -115,6 +115,8 @@ async function getPackageJsonAction(pkgPath, nodeRange) {
     {
       __proto__: null,
       name: path.basename(pkgPath),
+      // Lazily access constants.PACKAGE_DEFAULT_VERSION.
+      version: semver.parse(constants.PACKAGE_DEFAULT_VERSION),
       // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
       node_range: nodeRange ?? constants.PACKAGE_DEFAULT_NODE_RANGE,
       categories: ['cleanup']

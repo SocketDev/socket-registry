@@ -94,7 +94,7 @@ const REPO_NAME = 'socket-registry-js'
 const TSCONFIG_JSON = 'tsconfig.json'
 const UNLICENCED = 'UNLICENCED'
 const UNLICENSED = 'UNLICENSED'
-const VERSION = '1.0.0'
+const PACKAGE_DEFAULT_VERSION = '1.0.0'
 
 const rootPath = path.resolve(__dirname, '..')
 const rootLicensePath = path.join(rootPath, LICENSE)
@@ -243,6 +243,7 @@ const internals = Object.freeze({
 })
 
 const LAZY_LICENSE_CONTENT = () => fs.readFileSync(rootLicensePath, 'utf8')
+const LAZY_PACKAGE_CURRENT_VERSION = () => require(rootPackageJsonPath).version
 const LAZY_PACKAGE_DEFAULT_NODE_RANGE = () =>
   // Lazily access constants.maintainedNodeVersions.
   `>=${constants.maintainedNodeVersions.get('previous')}`
@@ -447,7 +448,9 @@ const constants = Object.freeze(
       NODE_VERSION,
       NPM_ORG,
       OVERRIDES,
+      PACKAGE_CURRENT_VERSION: undefined,
       PACKAGE_DEFAULT_NODE_RANGE: undefined,
+      PACKAGE_DEFAULT_VERSION,
       PACKAGE_HIDDEN_LOCK,
       PACKAGE_JSON,
       PACKAGE_LOCK,
@@ -460,7 +463,6 @@ const constants = Object.freeze(
       TSCONFIG_JSON,
       UNLICENCED,
       UNLICENSED,
-      VERSION,
       copyLeftLicenses,
       ecosystems: undefined,
       execPath,
@@ -508,6 +510,7 @@ const constants = Object.freeze(
     },
     {
       LICENSE_CONTENT: LAZY_LICENSE_CONTENT,
+      PACKAGE_CURRENT_VERSION: LAZY_PACKAGE_CURRENT_VERSION,
       PACKAGE_DEFAULT_NODE_RANGE: LAZY_PACKAGE_DEFAULT_NODE_RANGE,
       ecosystems: lazyEcosystems,
       gitExecPath: lazyGitExecPath,
