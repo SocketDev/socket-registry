@@ -20,7 +20,8 @@
   "files": [
     "*.d.ts",
     "*.js",
-    "*.json"
+    "*.json",
+    "*.original{.*,}"
   ],
   "socket": {
     "categories": [

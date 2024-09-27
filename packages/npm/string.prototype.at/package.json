@@ -19,7 +19,8 @@
   },
   "files": [
     "*.d.ts",
-    "*.js"
+    "*.js",
+    "*.original{.*,}"
   ],
   "socket": {
     "categories": [
