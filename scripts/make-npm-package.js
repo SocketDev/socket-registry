@@ -297,7 +297,7 @@ async function readLicenses(dirname) {
         // Lazily access constants.runScriptParallelExecPath.
         constants.runScriptParallelExecPath,
         'update:package-json',
-        `update:test:npm:package-json -- --add ${pkgName}`
+        `update:longtask:test:npm:package-json -- --add ${pkgName}`
       ],
       {
         cwd: rootPath,

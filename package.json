@@ -28,17 +28,17 @@
     "test-ci": "run-s test:*",
     "make:npm-package": "node ./scripts/make-npm-package.js",
     "setup": "run-s update:package-lock update:test:**",
-    "update": "run-p --aggregate-output update:* update:npm:* && run-s update:test:**",
+    "update": "run-p --aggregate-output update:* update:npm:* && run-s update:longtask:**",
     "update:browserslist-db": "node ./scripts/update-browserslist-db.js",
     "update:empty-dirs": "node ./scripts/update-empty-dirs.js",
     "update:empty-files": "node ./scripts/update-empty-files.js",
     "update:licenses": "node ./scripts/update-licenses.js",
-    "update:manifest": "node ./scripts/update-manifest.js",
     "update:package-json": "node ./scripts/update-package-json.js",
     "update:package-lock": "node ./scripts/update-package-lock.js",
     "update:readmes": "node ./scripts/update-readmes.js",
     "update:npm:package-json": "node ./scripts/update-npm-package-json.js",
-    "update:test:npm:package-json": "node ./scripts/update-test-npm-package-json.js"
+    "update:longtask:test:npm:package-json": "node ./scripts/update-test-npm-package-json.js",
+    "update:longtask:manifest": "node ./scripts/update-manifest.js"
   },
   "devDependencies": {
     "@eslint/compat": "^1.1.1",
