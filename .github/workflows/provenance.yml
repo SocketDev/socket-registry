@@ -19,9 +19,9 @@ jobs:
          node-version: '20'
          registry-url: 'https://registry.npmjs.org'
          cache: npm
-         scope: "@socketsecurity"
+         scope: "@socketregistry"
      - run: npm install -g npm@latest
      - run: npm ci
-     - run: npm publish --access public
+     - run: npm publish --workspaces --access public
        env:
          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
