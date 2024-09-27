@@ -20,6 +20,7 @@ const constants = require('@socketregistry/scripts/constants')
 const {
   LOOP_SENTINEL,
   MIT,
+  PACKAGE_DEFAULT_SOCKET_CATEGORIES,
   PACKAGE_JSON,
   PACKAGE_SCOPE,
   REPO_NAME,
@@ -180,7 +181,7 @@ function createPackageJson(pkgName, directory, options) {
       : {
           socket: {
             // Valid categories are: cleanup, levelup, speedup, tightenup
-            categories: ['cleanup']
+            categories: PACKAGE_DEFAULT_SOCKET_CATEGORIES
           }
         })
   }

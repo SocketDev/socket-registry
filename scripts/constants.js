@@ -82,6 +82,7 @@ const NODE_WORKSPACES = 'node_workspaces'
 const NODE_VERSION = process.versions.node
 const NPM_ORG = 'socketregistry'
 const OVERRIDES = 'overrides'
+const PACKAGE_DEFAULT_SOCKET_CATEGORIES = Object.freeze(['cleanup'])
 const PACKAGE_JSON = 'package.json'
 const PACKAGE_LOCK = 'package-lock.json'
 const PACKAGE_HIDDEN_LOCK = `.${PACKAGE_LOCK}`
@@ -449,6 +450,7 @@ const constants = Object.freeze(
       NPM_ORG,
       OVERRIDES,
       PACKAGE_CURRENT_VERSION: undefined,
+      PACKAGE_DEFAULT_SOCKET_CATEGORIES,
       PACKAGE_DEFAULT_NODE_RANGE: undefined,
       PACKAGE_DEFAULT_VERSION,
       PACKAGE_HIDDEN_LOCK,

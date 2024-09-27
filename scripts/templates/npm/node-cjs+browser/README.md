@@ -1,1 +1,1 @@
-<%= it.readme %>
+<%~ it.readme %>

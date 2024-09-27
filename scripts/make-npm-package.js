@@ -9,8 +9,15 @@ const { open } = require('out-url')
 const semver = require('semver')
 
 const constants = require('@socketregistry/scripts/constants')
-const { ESNEXT, LICENSE, execPath, npmPackagesPath, rootPath, tsLibs } =
-  constants
+const {
+  ESNEXT,
+  LICENSE,
+  LICENSE_ORIGINAL_GLOB,
+  execPath,
+  npmPackagesPath,
+  rootPath,
+  tsLibs
+} = constants
 const { isDirEmptySync } = require('@socketregistry/scripts/utils/fs')
 const { globLicenses } = require('@socketregistry/scripts/utils/globs')
 const { isObject } = require('@socketregistry/scripts/utils/objects')
@@ -29,7 +36,10 @@ const {
   search,
   select
 } = require('@socketregistry/scripts/utils/prompts')
-const { naturalSort } = require('@socketregistry/scripts/utils/sorts')
+const {
+  localCompare,
+  naturalSort
+} = require('@socketregistry/scripts/utils/sorts')
 const { indentString } = require('@socketregistry/scripts/utils/strings')
 const {
   getLicenseActions,
@@ -273,9 +283,9 @@ async function readLicenses(dirname) {
 
   // First copy the template directory contents to the package path.
   await fs.copy(templatePkgPath, pkgPath)
-  // Then modify package's package.json.
+  // Then modify the new package's package.json source and write to disk.
   await writeAction(await getPackageJsonAction(pkgPath, nodeRange))
-  // Finally, modify other package files.
+  // Finally, modify other package file sources and write to disk.
   await Promise.all(
     [
       await getNpmReadmeAction(pkgPath),
@@ -283,29 +293,36 @@ async function readLicenses(dirname) {
       ...(tsLib ? await getTypeScriptActions(pkgPath, tsLib) : [])
     ].map(writeAction)
   )
-
   // Create LICENSE.original files.
   const { length: licenseCount } = licenseContents
+  const originalLicenseNames = []
   if (licenseCount === 1) {
     const { content, name } = licenseContents[0]
     const ext = path.extname(name)
-    await fs.writeFile(
-      path.join(pkgPath, `${LICENSE}.original${ext}`),
-      content,
-      'utf8'
-    )
+    const originalLicenseName = `${LICENSE}.original${ext}`
+    originalLicenseNames.push(originalLicenseName)
+    await fs.writeFile(path.join(pkgPath, originalLicenseName), content, 'utf8')
   } else if (licenseCount > 1) {
     for (let i = 0; i < licenseCount; i += 1) {
       const { content, name } = licenseContents[i]
       const ext = path.extname(name)
       const basename = path.basename(name, ext)
-      fs.writeFile(
-        path.join(pkgPath, `${basename}.original${ext}`),
-        content,
-        'utf8'
-      )
+      const originalLicenseName = `${basename}.original${ext}`
+      originalLicenseNames.push(originalLicenseName)
+      fs.writeFile(path.join(pkgPath, originalLicenseName), content, 'utf8')
     }
   }
+  // Load new package's package.json and edit its "files" field.
+  const editablePkgJson = await readPackageJson(pkgPath, { editable: true })
+  const filesField = editablePkgJson.content.files.filter(
+    g => g !== LICENSE_ORIGINAL_GLOB
+  )
+  filesField.push(...originalLicenseNames)
+  editablePkgJson.update({
+    files: filesField.sort(localCompare)
+  })
+  await editablePkgJson.save()
+
   // Update monorepo package.json workspaces definition and test/npm files.
   try {
     await spawn(

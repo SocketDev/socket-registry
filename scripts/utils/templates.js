@@ -10,7 +10,13 @@ const { glob: tinyGlob } = require('tinyglobby')
 
 const manifest = require('@socketregistry/manifest')
 const constants = require('@socketregistry/scripts/constants')
-const { LICENSE_CONTENT, PACKAGE_JSON, README_MD, npmTemplatesPath } = constants
+const {
+  LICENSE_CONTENT,
+  PACKAGE_DEFAULT_SOCKET_CATEGORIES,
+  PACKAGE_JSON,
+  README_MD,
+  npmTemplatesPath
+} = constants
 const { globLicenses } = require('@socketregistry/scripts/utils/globs')
 const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
 const { prettierFormat } = require('@socketregistry/scripts/utils/strings')
@@ -125,6 +131,7 @@ async function getPackageJsonAction(pkgPath, nodeRange) {
       __proto__: null,
       name: pkgName,
       originalName: getOriginalName(pkgName, manifestData),
+      categories: manifestData?.categories ?? PACKAGE_DEFAULT_SOCKET_CATEGORIES,
       // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
       node_range: nodeRange ?? constants.PACKAGE_DEFAULT_NODE_RANGE,
       // Lazily access constants.PACKAGE_DEFAULT_VERSION.
