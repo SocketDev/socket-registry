@@ -1,5 +1,7 @@
 {
   "private": true,
+  "name": "",
+  "version": "",
   "devDependencies": {
     "abab": "https://github.com/jsdom/abab/archive/063700eb38c7c4c74530bb7505ad41d097adde54.tar.gz",
     "aggregate-error": "https://github.com/sindresorhus/aggregate-error/archive/3e2a127d3791176d602782a7806f4ca3a6e7f63a.tar.gz",

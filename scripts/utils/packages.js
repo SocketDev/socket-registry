@@ -146,7 +146,7 @@ function createPackageJson(pkgName, directory, options) {
     keywords,
     repository: {
       type: 'git',
-      url: `https://github.com/${REPO_ORG}/${REPO_NAME}`,
+      url: `git+https://github.com/${REPO_ORG}/${REPO_NAME}`,
       directory
     },
     ...(type ? { type } : {}),

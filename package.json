@@ -5,7 +5,10 @@
   "description": "Monorepo for Socket.dev package overrides",
   "homepage": "http://github.com/SocketDev/socket-registry-js",
   "license": "MIT",
-  "repository": "github:SocketDev/socket-registry-js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SocketDev/socket-registry-js.git"
+  },
   "author": {
     "name": "Socket Inc",
     "email": "eng@socket.dev",
