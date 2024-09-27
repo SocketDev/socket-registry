@@ -79,6 +79,16 @@ async function getLicenseActions(pkgPath) {
   return actions
 }
 
+function getManifestData(pkgName) {
+  return manifest.npm.find(
+    ({ 0: purlStr }) => PackageURL.fromString(purlStr).name === pkgName
+  )?.[1]
+}
+
+function getOriginalName(pkgName, manifestData) {
+  return `${manifestData?.scope ?? ''}${pkgName}`
+}
+
 async function getNpmReadmeAction(pkgPath) {
   const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
   const pkgJson = await readPackageJson(pkgJsonPath)
@@ -86,10 +96,7 @@ async function getNpmReadmeAction(pkgPath) {
     `pkg:npm/${pkgJson.name}@${pkgJson.version}`
   )
   const { name: pkgName } = pkgPurlObj
-  const manifestData =
-    manifest.npm.find(
-      ({ 0: purlStr }) => PackageURL.fromString(purlStr).name === pkgName
-    )?.[1] ?? {}
+  const manifestData = getManifestData(pkgName)
   return [
     path.join(pkgPath, README_MD),
     {
@@ -99,8 +106,8 @@ async function getNpmReadmeAction(pkgPath) {
         {
           __proto__: null,
           ...pkgJson,
-          manifest: manifestData,
-          originalName: `${manifestData?.scope ?? ''}${pkgName}`,
+          manifest: manifestData || {},
+          originalName: getOriginalName(pkgName, manifestData),
           purl: pkgPurlObj,
           version: semver.parse(pkgJson.version)
         }
@@ -110,16 +117,18 @@ async function getNpmReadmeAction(pkgPath) {
 }
 
 async function getPackageJsonAction(pkgPath, nodeRange) {
+  const pkgName = path.basename(pkgPath)
+  const manifestData = getManifestData(pkgName)
   return [
     path.join(pkgPath, PACKAGE_JSON),
     {
       __proto__: null,
-      name: path.basename(pkgPath),
-      // Lazily access constants.PACKAGE_DEFAULT_VERSION.
-      version: semver.parse(constants.PACKAGE_DEFAULT_VERSION),
+      name: pkgName,
+      originalName: getOriginalName(pkgName, manifestData),
       // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
       node_range: nodeRange ?? constants.PACKAGE_DEFAULT_NODE_RANGE,
-      categories: ['cleanup']
+      // Lazily access constants.PACKAGE_DEFAULT_VERSION.
+      version: semver.parse(constants.PACKAGE_DEFAULT_VERSION)
     }
   ]
 }
