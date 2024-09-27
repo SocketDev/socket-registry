@@ -33,7 +33,6 @@ const {
 } = require('@socketregistry/scripts/utils/arrays')
 const {
   isSymbolicLinkSync,
-  move,
   uniqueSync
 } = require('@socketregistry/scripts/utils/fs')
 const {
@@ -486,8 +485,8 @@ const testScripts = [
           )
         ).map(p => fs.remove(p))
       )
-      // Move override package directory.
-      await move(srcPath, destPath)
+      // Move override package from test/npm/node_modules/ to test/npm/node_workspaces/
+      await fs.move(srcPath, destPath)
     })
     spinner.stop('✔ Workspaces cleaned (so fresh and so clean, clean)')
   }
