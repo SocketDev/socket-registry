@@ -2,6 +2,11 @@
   "name": "@socketregistry/internal-slot",
   "version": "1.0.0",
   "license": "MIT",
+  "description": "Socket.dev optimized package override for internal-slot",
+  "keywords": [
+    "Socket.dev",
+    "package-overrides"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/SocketDev/socket-registry-js",

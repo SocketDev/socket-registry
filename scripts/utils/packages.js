@@ -122,9 +122,11 @@ function createLicenseNode(rawNode) {
 function createPackageJson(pkgName, directory, options) {
   const {
     dependencies,
+    description,
     engines,
     exports: entryExports,
     files,
+    keywords,
     main,
     overrides,
     sideEffects,
@@ -140,6 +142,8 @@ function createPackageJson(pkgName, directory, options) {
     name,
     version,
     license: MIT,
+    description,
+    keywords,
     repository: {
       type: 'git',
       url: `https://github.com/${REPO_ORG}/${REPO_NAME}`,
