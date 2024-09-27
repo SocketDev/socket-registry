@@ -4,7 +4,7 @@
 [![CI - @socketregistry/aggregate-error](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
+> A zero dependency CommonJS compatible drop-in replacement of
 > [`aggregate-error`](https://www.npmjs.com/package/aggregate-error).
 
 ## Installation
