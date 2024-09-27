@@ -1,6 +1,7 @@
 'use strict'
 
 const path = require('node:path')
+const util = require('node:util')
 
 const spawn = require('@npmcli/promise-spawn')
 const { ReturnTypeEnums, default: didYouMean } = require('didyoumean2')
@@ -51,6 +52,8 @@ const {
   writeAction
 } = require('@socketregistry/scripts/utils/templates')
 
+const { positionals: cliPositionals } = util.parseArgs({ strict: false })
+
 const bcaKeysMap = new Map()
 const esShimsRepoRegExp = /^git(?:\+https)?:\/\/github\.com\/es-shims\//
 
@@ -99,6 +102,8 @@ async function readLicenses(dirname) {
 ;(async () => {
   const pkgName = await input({
     message: 'What is the name of the package to override?',
+    default: cliPositionals.at(0),
+    required: true,
     validate: isValidPackageName
   })
   if (pkgName === undefined) {
