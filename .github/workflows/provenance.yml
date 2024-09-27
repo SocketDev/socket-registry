@@ -21,6 +21,6 @@ jobs:
          scope: "@socketregistry"
      - run: npm install -g npm@latest
      - run: npm ci
-     - run: npm publish --workspaces --access public
+     - run: npm publish --provenance --workspaces --access public
        env:
          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
