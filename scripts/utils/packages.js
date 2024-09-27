@@ -16,12 +16,12 @@ const validateNpmPackageName = require('validate-npm-package-name')
 
 const { RegistryFetcher } = pacote
 
+const constants = require('@socketregistry/scripts/constants')
 const {
   LOOP_SENTINEL,
   MIT,
-  NPM_SCOPE,
-  PACKAGE_ENGINES_NODE_RANGE,
   PACKAGE_JSON,
+  PACKAGE_SCOPE,
   REPO_NAME,
   REPO_ORG,
   UNLICENCED,
@@ -31,7 +31,7 @@ const {
   packageExtensions,
   packumentCache,
   pacoteCachePath
-} = require('@socketregistry/scripts/constants')
+} = constants
 const {
   isObjectObject,
   merge
@@ -46,6 +46,7 @@ const { isNonEmptyString } = require('@socketregistry/scripts/utils/strings')
 const BINARY_OPERATION_NODE_TYPE = 'BinaryOperation'
 const LICENSE_NODE_TYPE = 'License'
 
+const pkgScopeRegExp = new RegExp(`^${escapeRegExp(PACKAGE_SCOPE)}/`)
 const fileReferenceRegExp = /^SEE LICEN[CS]E IN (.+)$/
 
 const fetcher = makeFetchHappen.defaults({
@@ -131,7 +132,9 @@ function createPackageJson(pkgName, directory, options) {
     type,
     version = VERSION
   } = { __proto__: null, ...options }
-  const name = `${NPM_SCOPE}/${pkgName.replace(new RegExp(`^${escapeRegExp(NPM_SCOPE)}/`), '')}`
+  // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
+  const { PACKAGE_DEFAULT_NODE_RANGE } = constants
+  const name = `${PACKAGE_SCOPE}/${pkgName.replace(pkgScopeRegExp, '')}`
   return {
     __proto__: null,
     name,
@@ -157,17 +160,17 @@ function createPackageJson(pkgName, directory, options) {
                 if (
                   !semver.satisfies(
                     semver.coerce(range),
-                    PACKAGE_ENGINES_NODE_RANGE
+                    PACKAGE_DEFAULT_NODE_RANGE
                   )
                 ) {
-                  pair[1] = PACKAGE_ENGINES_NODE_RANGE
+                  pair[1] = pkgScopeRegExp
                 }
               }
               return pair
             })
           )
         }
-      : { engines: { node: PACKAGE_ENGINES_NODE_RANGE } }),
+      : { engines: { node: PACKAGE_DEFAULT_NODE_RANGE } }),
     files: Array.isArray(files) ? files : ['*.d.ts', '*.js'],
     ...(isObjectObject(socket)
       ? { socket }

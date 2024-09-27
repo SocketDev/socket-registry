@@ -26,6 +26,21 @@ async function cp(srcPath, destPath, options) {
   })
 }
 
+function isSameRealpathSync(filepath1, filepath2) {
+  if (filepath1 === filepath2) {
+    return true
+  }
+  if (path.resolve(filepath1) === path.resolve(filepath2)) {
+    return true
+  }
+  try {
+    if (fs.realpathSync(filepath1) === path.realpathSync(filepath2)) {
+      return !isSymbolicLinkSync(filepath2)
+    }
+  } catch {}
+  return false
+}
+
 function isSymbolicLinkSync(filepath) {
   try {
     return fs.lstatSync(filepath).isSymbolicLink()
@@ -34,14 +49,11 @@ function isSymbolicLinkSync(filepath) {
 }
 
 async function move(srcPath, destPath, options) {
-  if (
-    isSymbolicLinkSync(destPath) &&
-    fs.realpathSync(destPath) !== path.resolve(srcPath)
-  ) {
+  if (!isSameRealpathSync(srcPath, destPath)) {
     await fs.remove(destPath)
+    await cp(srcPath, destPath, options)
+    await fs.remove(srcPath)
   }
-  await cp(srcPath, destPath, options)
-  await fs.remove(srcPath)
 }
 
 async function readDirNames(dirname, options) {

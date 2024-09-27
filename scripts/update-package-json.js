@@ -2,12 +2,8 @@
 
 const path = require('node:path')
 
-const {
-  ecosystems,
-  maintainedNodeVersions,
-  rootPackageJsonPath,
-  rootPackagesPath
-} = require('@socketregistry/scripts/constants')
+const constants = require('@socketregistry/scripts/constants')
+const { ecosystems, rootPackageJsonPath, rootPackagesPath } = constants
 const { readDirNames } = require('@socketregistry/scripts/utils/fs')
 const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
 
@@ -26,13 +22,13 @@ const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
     }
   }
   rootEditablePkgJson.update({ workspaces })
-
-  // Update engines field.
+  // Lazily access constants.maintainedNodeVersions.
+  const { maintainedNodeVersions } = constants
   const nodeVerNext = maintainedNodeVersions.get('next')
   const nodeVerCurr = maintainedNodeVersions.get('current')
+  // Update engines field.
   rootEditablePkgJson.update({
     engines: { node: `^${nodeVerCurr} || >=${nodeVerNext}` }
   })
-
   rootEditablePkgJson.save()
 })()

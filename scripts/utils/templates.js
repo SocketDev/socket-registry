@@ -9,13 +9,8 @@ const semver = require('semver')
 const { glob: tinyGlob } = require('tinyglobby')
 
 const manifest = require('@socketregistry/manifest')
-const {
-  LICENSE_CONTENT,
-  PACKAGE_ENGINES_NODE_RANGE,
-  PACKAGE_JSON,
-  README_MD,
-  npmTemplatesPath
-} = require('@socketregistry/scripts/constants')
+const constants = require('@socketregistry/scripts/constants')
+const { LICENSE_CONTENT, PACKAGE_JSON, README_MD, npmTemplatesPath } = constants
 const { globLicenses } = require('@socketregistry/scripts/utils/globs')
 const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
 const { prettierFormat } = require('@socketregistry/scripts/utils/strings')
@@ -114,13 +109,14 @@ async function getNpmReadmeAction(pkgPath) {
   ]
 }
 
-async function getPackageJsonAction(pkgPath) {
+async function getPackageJsonAction(pkgPath, nodeRange) {
   return [
     path.join(pkgPath, PACKAGE_JSON),
     {
       __proto__: null,
       name: path.basename(pkgPath),
-      node_range: PACKAGE_ENGINES_NODE_RANGE,
+      // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
+      node_range: nodeRange ?? constants.PACKAGE_DEFAULT_NODE_RANGE,
       categories: ['cleanup']
     }
   ]

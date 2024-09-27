@@ -1,10 +1,13 @@
 'use strict'
 
+const Module = require('node:module')
+if (typeof Module.enableCompileCache === 'function') {
+  Module.enableCompileCache()
+}
 const path = require('node:path')
 
 const { includeIgnoreFile } = require('@eslint/compat')
 const { packageExtensions: yarnPkgExts } = require('@yarnpkg/extensions')
-const browserslist = require('browserslist')
 const { createNewSortInstance } = require('fast-sort')
 const fs = require('fs-extra')
 const pacote = require('pacote')
@@ -64,7 +67,7 @@ const ENV = Object.freeze({
   // .husky/pre-commit hook.
   PRE_COMMIT: envAsBool(process.env.PRE_COMMIT)
 })
-const LAZY_LICENSE_CONTENT = () => fs.readFileSync(rootLicensePath, 'utf8')
+const ESNEXT = 'esnext'
 const LICENSE = 'LICENSE'
 const LICENSE_GLOB = 'LICEN[CS]E{[.-]*,}'
 const LICENSE_GLOB_RECURSIVE = `**/${LICENSE_GLOB}`
@@ -76,11 +79,11 @@ const NODE_MODULES = 'node_modules'
 const NODE_WORKSPACES = 'node_workspaces'
 const NODE_VERSION = process.versions.node
 const NPM_ORG = 'socketregistry'
-const NPM_SCOPE = `@${NPM_ORG}`
 const OVERRIDES = 'overrides'
 const PACKAGE_JSON = 'package.json'
 const PACKAGE_LOCK = 'package-lock.json'
 const PACKAGE_HIDDEN_LOCK = `.${PACKAGE_LOCK}`
+const PACKAGE_SCOPE = `@${NPM_ORG}`
 const README_GLOB = 'README{.*,}'
 const README_GLOB_RECURSIVE = `**/${README_GLOB}`
 const README_MD = 'README.md'
@@ -233,6 +236,11 @@ const internals = Object.freeze({
   whichSync
 })
 
+const LAZY_LICENSE_CONTENT = () => fs.readFileSync(rootLicensePath, 'utf8')
+const LAZY_PACKAGE_DEFAULT_NODE_RANGE = () =>
+  // Lazily access constants.maintainedNodeVersions.
+  `>=${constants.maintainedNodeVersions.get('previous')}`
+
 const lazyEcosystems = () => Object.freeze(readDirNamesSync(rootPackagesPath))
 const lazyGitExecPath = () => whichSync('git')
 const lazyIgnoreGlobs = () =>
@@ -252,7 +260,44 @@ const lazyIgnoreGlobs = () =>
       ...constants.gitIgnoreFile.ignores
     ])
   ])
+const lazyMaintainedNodeVersions = () => {
+  // Defer loading browserslist until needed.
+  const browserslist = require('browserslist')
+  const query = naturalSort(
+    browserslist('maintained node versions')
+      // Trim value, e.g. 'node 22.5.0' to '22.5.0'.
+      .map(s => s.slice(5))
+  ).desc()
+  // Under the hood browserlist uses the node-releases package which is out of date:
+  // https://github.com/chicoxyzzy/node-releases/issues/37
+  // So we maintain a manual version list for now.
+  const manualNext = '22.8.0'
+  const manualCurr = '20.17.0'
+  const manualPrev = '18.20.4'
 
+  const queryNext = query.at(0)
+  const queryCurr = query.at(1)
+  const queryPrev = query.at(-1)
+
+  const next = semver.maxSatisfying(
+    [queryNext, manualNext],
+    `^${semver.major(queryNext)}`
+  )
+  const curr = semver.maxSatisfying(
+    [queryCurr, manualCurr],
+    `^${semver.major(queryCurr)}`
+  )
+  const prev = semver.maxSatisfying(
+    [queryPrev, manualPrev],
+    `^${semver.major(queryPrev)}`
+  )
+  return new Map([
+    ['next', next],
+    ['current', curr],
+    ['previous', prev],
+    ...[next, curr, prev].map(v => [semver.major(v), v])
+  ])
+}
 const lazyNpmExecPath = () => whichSync('npm')
 const lazyNpmPackageNames = () =>
   Object.freeze(readDirNamesSync(npmPackagesPath))
@@ -343,45 +388,6 @@ const lowerToCamelCase = new Map(
     .map(v => [v.toLowerCase(), v])
 )
 
-const maintainedNodeVersions = (() => {
-  const query = naturalSort(
-    browserslist('maintained node versions')
-      // Trim value, e.g. 'node 22.5.0' to '22.5.0'.
-      .map(s => s.slice(5))
-  ).desc()
-  // Under the hood browserlist uses the node-releases package which is out of date:
-  // https://github.com/chicoxyzzy/node-releases/issues/37
-  // So we maintain a manual version list for now.
-  const manualNext = '22.8.0'
-  const manualCurr = '20.17.0'
-  const manualPrev = '18.20.4'
-
-  const queryNext = query.at(0)
-  const queryCurr = query.at(1)
-  const queryPrev = query.at(-1)
-
-  const next = semver.maxSatisfying(
-    [queryNext, manualNext],
-    `^${semver.major(queryNext)}`
-  )
-  const curr = semver.maxSatisfying(
-    [queryCurr, manualCurr],
-    `^${semver.major(queryCurr)}`
-  )
-  const prev = semver.maxSatisfying(
-    [queryPrev, manualPrev],
-    `^${semver.major(queryPrev)}`
-  )
-  return new Map([
-    ['next', next],
-    ['current', curr],
-    ['previous', prev],
-    ...[next, curr, prev].map(v => [semver.major(v), v])
-  ])
-})()
-
-const PACKAGE_ENGINES_NODE_RANGE = `>=${maintainedNodeVersions.get('previous')}`
-
 const packageExtensions = Object.freeze(
   [
     ...yarnPkgExts,
@@ -445,6 +451,7 @@ const constants = Object.freeze(
       [kInternalsSymbol]: internals,
       EMPTY_FILE,
       ENV,
+      ESNEXT,
       LICENSE,
       LICENSE_CONTENT: undefined,
       LICENSE_GLOB,
@@ -457,12 +464,12 @@ const constants = Object.freeze(
       NODE_WORKSPACES,
       NODE_VERSION,
       NPM_ORG,
-      NPM_SCOPE,
       OVERRIDES,
-      PACKAGE_ENGINES_NODE_RANGE,
-      PACKAGE_JSON,
+      PACKAGE_DEFAULT_NODE_RANGE: undefined,
       PACKAGE_HIDDEN_LOCK,
+      PACKAGE_JSON,
       PACKAGE_LOCK,
+      PACKAGE_SCOPE,
       README_GLOB,
       README_GLOB_RECURSIVE,
       README_MD,
@@ -481,7 +488,7 @@ const constants = Object.freeze(
       kInternalsSymbol,
       lifecycleScriptNames,
       lowerToCamelCase,
-      maintainedNodeVersions,
+      maintainedNodeVersions: undefined,
       npmExecPath: undefined,
       npmPackageNames: undefined,
       npmPackagesPath,
@@ -518,10 +525,12 @@ const constants = Object.freeze(
     },
     {
       LICENSE_CONTENT: LAZY_LICENSE_CONTENT,
+      PACKAGE_DEFAULT_NODE_RANGE: LAZY_PACKAGE_DEFAULT_NODE_RANGE,
       ecosystems: lazyEcosystems,
       gitExecPath: lazyGitExecPath,
       gitIgnoreFile: lazyGitIgnoreFile,
       ignoreGlobs: lazyIgnoreGlobs,
+      maintainedNodeVersions: lazyMaintainedNodeVersions,
       npmExecPath: lazyNpmExecPath,
       npmPackageNames: lazyNpmPackageNames,
       prettierConfigPromise: lazyPrettierConfigPromise,

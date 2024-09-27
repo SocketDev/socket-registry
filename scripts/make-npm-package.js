@@ -10,17 +10,14 @@ const spawn = require('@npmcli/promise-spawn')
 const { ReturnTypeEnums, default: didYouMean } = require('didyoumean2')
 const fs = require('fs-extra')
 const { open } = require('out-url')
+const semver = require('semver')
 
-const {
-  LICENSE,
-  execPath,
-  npmPackagesPath,
-  rootPath,
-  runScriptParallelExecPath,
-  tsLibs
-} = require('@socketregistry/scripts/constants')
+const constants = require('@socketregistry/scripts/constants')
+const { ESNEXT, LICENSE, execPath, npmPackagesPath, rootPath, tsLibs } =
+  constants
 const { isDirEmptySync } = require('@socketregistry/scripts/utils/fs')
 const { globLicenses } = require('@socketregistry/scripts/utils/globs')
+const { isObject } = require('@socketregistry/scripts/utils/objects')
 const {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
@@ -42,7 +39,41 @@ const {
   writeAction
 } = require('@socketregistry/scripts/utils/templates')
 
+const bcaKeysMap = new Map()
 const esShimsRepoRegExp = /^git(?:\+https)?:\/\/github\.com\/es-shims\//
+
+function getBcdKeysMap(obj) {
+  let keysMap = bcaKeysMap.get(obj)
+  if (keysMap === undefined) {
+    keysMap = new Map()
+    const keys = Object.keys(obj)
+    for (let i = 0, { length } = keys; i < length; i += 1) {
+      const key = keys[i]
+      keysMap.set(key.toLowerCase(), key)
+    }
+    bcaKeysMap.set(obj, keysMap)
+  }
+  return keysMap
+}
+
+function getCompatDataRaw(props) {
+  // Defer loading @mdn/browser-compat-data until needed.
+  // It's a single 15.3 MB json file.
+  let obj = require('@mdn/browser-compat-data')
+  for (let i = 0, { length } = props; i < length; i += 1) {
+    const keysMap = getBcdKeysMap(obj)
+    const newObj = obj[keysMap.get(props[i].toLowerCase())]
+    if (!isObject(newObj)) {
+      return undefined
+    }
+    obj = newObj
+  }
+  return obj
+}
+
+function getCompatData(props) {
+  return getCompatDataRaw(props)?.__compat
+}
 
 async function readLicenses(dirname) {
   return await Promise.all(
@@ -121,10 +152,35 @@ async function readLicenses(dirname) {
   const isEsm = nmPkgJson.type === 'module'
   const isEsShim = esShimsRepoRegExp.test(nmPkgJson.repository?.url)
 
+  let nodeRange
   let templateChoice
+  let tsLib
   if (isEsShim) {
+    // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
+    const { PACKAGE_DEFAULT_NODE_RANGE, maintainedNodeVersions } = constants
     const parts = pkgName.split('.')
-    if (parts.length === 3 && parts[1] === 'prototype') {
+    const compatData = getCompatData([
+      'javascript',
+      'builtins',
+      ...parts.filter(p => p !== 'prototype')
+    ])
+    const versionAdded =
+      compatData?.support?.nodejs?.version_added ??
+      maintainedNodeVersions.get('previous')
+    nodeRange = `>=${maintainedNodeVersions.get('next')}`
+    if (!semver.satisfies(versionAdded, nodeRange)) {
+      nodeRange = `>=${maintainedNodeVersions.get('current')}`
+      if (!semver.satisfies(versionAdded, nodeRange)) {
+        nodeRange = PACKAGE_DEFAULT_NODE_RANGE
+      }
+    }
+    if (nodeRange !== PACKAGE_DEFAULT_NODE_RANGE) {
+      tsLib = ESNEXT
+    }
+    if (
+      (parts.length === 3 && parts[1] === 'prototype') ||
+      compatData?.spec_url?.includes('.prototype')
+    ) {
       templateChoice = 'es-shim-prototype-method'
     } else if (parts.length === 2) {
       templateChoice = 'es-shim static method'
@@ -150,8 +206,7 @@ async function readLicenses(dirname) {
     })
   }
 
-  let tsLib
-  if (templateChoice.startsWith('es-shim')) {
+  if (tsLib === undefined && templateChoice.startsWith('es-shim')) {
     const availableTsLibs = [...tsLibs]
     const maxTsLibLength = availableTsLibs.reduce(
       (n, v) => Math.max(n, v.length),
@@ -202,7 +257,7 @@ async function readLicenses(dirname) {
   // First copy the template directory contents to the package path.
   await fs.copy(templatePkgPath, pkgPath)
   // Then modify package's package.json.
-  await writeAction(await getPackageJsonAction(pkgPath))
+  await writeAction(await getPackageJsonAction(pkgPath, nodeRange))
   // Finally, modify other package files.
   await Promise.all(
     [
@@ -239,7 +294,8 @@ async function readLicenses(dirname) {
     await spawn(
       execPath,
       [
-        runScriptParallelExecPath,
+        // Lazily access constants.runScriptParallelExecPath.
+        constants.runScriptParallelExecPath,
         'update:package-json',
         `update:test:npm:package-json -- --add ${pkgName}`
       ],
