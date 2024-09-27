@@ -2,10 +2,19 @@
 
 const path = require('node:path')
 
-const { default: confirm } = require('@inquirer/confirm')
-const { default: input } = require('@inquirer/input')
-const { default: search } = require('@inquirer/search')
-const { default: select } = require('@inquirer/select')
+function silentWrapAsync(fn) {
+  return async (...args) => {
+    try {
+      return await fn(...args)
+    } catch {}
+    return undefined
+  }
+}
+
+const confirm = silentWrapAsync(require('@inquirer/confirm').default)
+const input = silentWrapAsync(require('@inquirer/input').default)
+const search = silentWrapAsync(require('@inquirer/search').default)
+const select = silentWrapAsync(require('@inquirer/select').default)
 const spawn = require('@npmcli/promise-spawn')
 const { ReturnTypeEnums, default: didYouMean } = require('didyoumean2')
 const fs = require('fs-extra')
@@ -89,6 +98,10 @@ async function readLicenses(dirname) {
     message: 'What is the name of the package to override?',
     validate: isValidPackageName
   })
+  if (pkgName === undefined) {
+    // Exit if user force closed the prompt.
+    return
+  }
   const pkgPath = path.join(npmPackagesPath, pkgName)
   if (fs.existsSync(pkgPath) && !isDirEmptySync(pkgPath)) {
     const relPkgPath = path.relative(rootPath, pkgPath)
@@ -139,13 +152,14 @@ async function readLicenses(dirname) {
   if (badLicenses.length) {
     const singularOrPlural = `license${badLicenses.length === 1 ? '' : 's'}`
     const warning = `⚠️ ${pkgName} has incompatible ${singularOrPlural} ${badLicenses.join(', ')}.`
-    if (
-      !(await confirm({
-        message: `${warning}.\nDo you want to continue?`,
-        default: false
-      }))
-    ) {
-      await open(`https://npmjs.com/package/${pkgName}`)
+    const answer = await confirm({
+      message: `${warning}.\nDo you want to continue?`,
+      default: false
+    })
+    if (!answer) {
+      if (answer === false) {
+        await open(`https://npmjs.com/package/${pkgName}`)
+      }
       return
     }
   }
@@ -205,19 +219,25 @@ async function readLicenses(dirname) {
       ]
     })
   }
-
+  if (templateChoice === undefined) {
+    // Exit if user force closed the prompt.
+    return
+  }
   if (tsLib === undefined && templateChoice.startsWith('es-shim')) {
     const availableTsLibs = [...tsLibs]
     const maxTsLibLength = availableTsLibs.reduce(
       (n, v) => Math.max(n, v.length),
       0
     )
-    if (
-      await confirm({
-        message: 'Does this override need a TypeScript lib?',
-        default: false
-      })
-    ) {
+    const answer = await confirm({
+      message: 'Does this override need a TypeScript lib?',
+      default: false
+    })
+    if (answer === undefined) {
+      // Exit if user force closed the prompt.
+      return
+    }
+    if (answer) {
       tsLib = await search({
         message: 'Which one?',
         source: async input => {
@@ -249,6 +269,10 @@ async function readLicenses(dirname) {
           return sorted.map(l => ({ name: l, value: l }))
         }
       })
+      if (tsLib === undefined) {
+        // Exit if user force closed the prompt.
+        return
+      }
     }
   }
 
