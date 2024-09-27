@@ -2,19 +2,6 @@
 
 const path = require('node:path')
 
-function silentWrapAsync(fn) {
-  return async (...args) => {
-    try {
-      return await fn(...args)
-    } catch {}
-    return undefined
-  }
-}
-
-const confirm = silentWrapAsync(require('@inquirer/confirm').default)
-const input = silentWrapAsync(require('@inquirer/input').default)
-const search = silentWrapAsync(require('@inquirer/search').default)
-const select = silentWrapAsync(require('@inquirer/select').default)
 const spawn = require('@npmcli/promise-spawn')
 const { ReturnTypeEnums, default: didYouMean } = require('didyoumean2')
 const fs = require('fs-extra')
@@ -36,6 +23,12 @@ const {
   resolveGitHubTgzUrl,
   resolvePackageLicenses
 } = require('@socketregistry/scripts/utils/packages')
+const {
+  confirm,
+  input,
+  search,
+  select
+} = require('@socketregistry/scripts/utils/prompts')
 const { naturalSort } = require('@socketregistry/scripts/utils/sorts')
 const { indentString } = require('@socketregistry/scripts/utils/strings')
 const {
