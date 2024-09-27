@@ -5,50 +5,55 @@ const path = require('node:path')
 
 const spawn = require('@npmcli/promise-spawn')
 
+const constants = require('@socketregistry/scripts/constants')
 const {
-  gitExecPath,
   rootPackagesPath,
-  rootPath
-} = require('@socketregistry/scripts/constants')
+  rootPath,
+  kInternalsSymbol,
+  [kInternalsSymbol]: { defineLazyGetters }
+} = constants
 const { getGlobMatcher } = require('@socketregistry/scripts/utils/globs')
 const { normalizePath } = require('@socketregistry/scripts/utils/path')
 
-const spawnArgsGitDiffModified = [
-  gitExecPath,
-  ['diff', '--name-only'],
+const gitDiffSpawnArgs = defineLazyGetters(
+  { __proto__: null },
   {
-    cwd: rootPath,
-    encoding: 'utf8'
+    modified: () => [
+      // Lazily access constants.gitExecPath.
+      constants.gitExecPath,
+      ['diff', '--name-only'],
+      {
+        cwd: rootPath,
+        encoding: 'utf8'
+      }
+    ],
+    staged: () => [
+      // Lazily access constants.gitExecPath.
+      constants.gitExecPath,
+      ['diff', '--cached', '--name-only'],
+      {
+        cwd: rootPath,
+        encoding: 'utf8'
+      }
+    ]
   }
-]
+)
 
-const spawnArgsGitDiffStaged = [
-  gitExecPath,
-  ['diff', '--cached', '--name-only'],
-  {
-    cwd: rootPath,
-    encoding: 'utf8'
-  }
-]
-
-async function innerGetDiff(gitDiffSpawnArgs, options) {
+async function innerDiff(args, options) {
   try {
-    return parseGitDiffStdout(
-      (await spawn(...gitDiffSpawnArgs)).stdout,
-      options
-    )
+    return parseGitDiffStdout((await spawn(...args)).stdout, options)
   } catch {}
   return []
 }
 
-function innerGetDiffSync(gitDiffSpawnArgs, options) {
+function innerDiffSync(args, options) {
   try {
-    return parseGitDiffStdout(spawnSync(...gitDiffSpawnArgs).stdout, options)
+    return parseGitDiffStdout(spawnSync(...args).stdout, options)
   } catch {}
   return []
 }
 
-function innerGetPackages(eco, stagedFiles, options) {
+function innerGetPackages(eco, files, options) {
   const { asSet = false, ...otherOptions } = { __proto__: null, ...options }
   const ecoPackagesPath = path.join(rootPackagesPath, eco)
   const relEcoPackagesPath = normalizePath(
@@ -56,16 +61,17 @@ function innerGetPackages(eco, stagedFiles, options) {
   )
   const matcher = getGlobMatcher([`${relEcoPackagesPath}/**`], {
     __proto__: null,
-    cwd: rootPath,
-    ...otherOptions
+    ...otherOptions,
+    absolute: false,
+    cwd: rootPath
   })
   const sliceStart = relEcoPackagesPath.length + 1
   const packageNames = new Set()
-  for (const stagedFilePath of stagedFiles) {
-    if (matcher(stagedFilePath)) {
-      const pkgName = stagedFilePath.slice(
+  for (const filepath of files) {
+    if (matcher(filepath)) {
+      const pkgName = filepath.slice(
         sliceStart,
-        stagedFilePath.indexOf('/', sliceStart)
+        filepath.indexOf('/', sliceStart)
       )
       packageNames.add(pkgName)
     }
@@ -73,12 +79,24 @@ function innerGetPackages(eco, stagedFiles, options) {
   return asSet ? packageNames : [...packageNames]
 }
 
+function diffIncludes(files, pathname) {
+  return files.includes(path.relative(rootPath, pathname))
+}
+
+async function forceRelative(fn, options) {
+  return await fn({ __proto__: null, ...options, absolute: false })
+}
+
+function forceRelativeSync(fn, options) {
+  return fn({ __proto__: null, ...options, absolute: false })
+}
+
 async function getModifiedFiles(options) {
-  return await innerGetDiff(spawnArgsGitDiffModified, options)
+  return await innerDiff(gitDiffSpawnArgs.modified, options)
 }
 
 function getModifiedFilesSync(options) {
-  return innerGetDiffSync(spawnArgsGitDiffModified, options)
+  return innerDiffSync(gitDiffSpawnArgs.modified, options)
 }
 
 async function getModifiedPackages(eco, options) {
@@ -90,11 +108,11 @@ function getModifiedPackagesSync(eco, options) {
 }
 
 async function getStagedFiles(options) {
-  return await innerGetDiff(spawnArgsGitDiffStaged, options)
+  return await innerDiff(gitDiffSpawnArgs.staged, options)
 }
 
 function getStagedFilesSync(options) {
-  return innerGetDiffSync(spawnArgsGitDiffStaged, options)
+  return innerDiffSync(gitDiffSpawnArgs.staged, options)
 }
 
 async function getStagedPackages(eco, options) {
@@ -105,12 +123,52 @@ function getStagedPackagesSync(eco, options) {
   return innerGetPackages(eco, getStagedFilesSync(), options)
 }
 
+async function isModified(pathname, options) {
+  return diffIncludes(await forceRelative(getModifiedFiles, options), pathname)
+}
+
+function isModifiedSync(pathname, options) {
+  return diffIncludes(
+    forceRelativeSync(getModifiedFilesSync, options),
+    pathname
+  )
+}
+
+async function isStaged(pathname, options) {
+  return diffIncludes(await forceRelative(getStagedFiles, options), pathname)
+}
+
+function isStagedSync(pathname, options) {
+  return diffIncludes(forceRelativeSync(getStagedFilesSync, options), pathname)
+}
+
 function parseGitDiffStdout(stdout, options) {
-  const { absolute } = { __proto__: null, ...options }
-  const stagedFiles = stdout?.split('\n') ?? []
-  return absolute
-    ? stagedFiles.map(relPath => normalizePath(path.join(rootPath, relPath)))
-    : stagedFiles.map(relPath => normalizePath(relPath))
+  const {
+    absolute = false,
+    cwd = rootPath,
+    ...otherOptions
+  } = { __proto__: null, ...options }
+  const rawFiles = stdout?.split('\n') ?? []
+  const files = absolute
+    ? rawFiles.map(relPath => normalizePath(path.join(rootPath, relPath)))
+    : rawFiles.map(relPath => normalizePath(relPath))
+  if (cwd === rootPath) {
+    return files
+  }
+  const relPath = normalizePath(path.relative(rootPath, cwd))
+  const matcher = getGlobMatcher([`${relPath}/**`], {
+    __proto__: null,
+    ...otherOptions,
+    absolute,
+    cwd: rootPath
+  })
+  const filtered = []
+  for (const filepath of files) {
+    if (matcher(filepath)) {
+      filtered.push(filepath)
+    }
+  }
+  return filtered
 }
 
 module.exports = {
@@ -121,5 +179,9 @@ module.exports = {
   getStagedFiles,
   getStagedFilesSync,
   getStagedPackages,
-  getStagedPackagesSync
+  getStagedPackagesSync,
+  isModified,
+  isModifiedSync,
+  isStaged,
+  isStagedSync
 }

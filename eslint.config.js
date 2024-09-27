@@ -9,15 +9,15 @@ const sortDestructureKeysPlugin = require('eslint-plugin-sort-destructure-keys')
 const fs = require('fs-extra')
 const tsEslint = require('typescript-eslint')
 
+const constants = require('@socketregistry/scripts/constants')
 const {
   PACKAGE_JSON,
   gitIgnoreFile,
-  npmPackageNames,
   npmPackagesPath,
   prettierIgnoreFile,
   relNpmPackagesPath,
   rootTsConfigPath
-} = require('@socketregistry/scripts/constants')
+} = constants
 
 const {
   engines: { node: nodeRange }
@@ -42,7 +42,8 @@ const conditionalConfig = (config, isEsm) => {
 }
 
 const getIgnores = isEsm =>
-  npmPackageNames
+  // Lazily access constants.npmPackageNames.
+  constants.npmPackageNames
     .filter(pkgName => {
       const pkgPath = path.join(npmPackagesPath, pkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)

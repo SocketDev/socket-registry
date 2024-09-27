@@ -116,6 +116,7 @@ const templatesPath = path.join(__dirname, 'templates')
 
 const npmPackagesPath = path.join(rootPackagesPath, 'npm')
 const npmTemplatesPath = path.join(templatesPath, 'npm')
+const npmTemplatesReadmePath = path.join(npmTemplatesPath, README_MD)
 
 const testNpmPath = path.join(rootPath, 'test/npm')
 const testNpmPkgJsonPath = path.join(testNpmPath, PACKAGE_JSON)
@@ -228,6 +229,9 @@ const whichSync = function whichSync(cmd, options) {
 const kInternalsSymbol = Symbol('@socketregistry.constants.internals')
 
 const internals = Object.freeze({
+  createLazyGetter,
+  defineLazyGetter,
+  defineLazyGetters,
   getGlobMatcher,
   innerReadDirNames,
   isDirEmptySync,
@@ -389,6 +393,18 @@ const packageExtensions = Object.freeze(
   )
 )
 
+const parseArgsConfig = Object.freeze({
+  __proto__: null,
+  options: {
+    __proto__: null,
+    force: {
+      __proto__: null,
+      type: 'boolean',
+      short: 'f'
+    }
+  }
+})
+
 const tsLibs = new Set([
   // Defined in priority order.
   'esnext',
@@ -458,9 +474,11 @@ const constants = Object.freeze(
       npmPackageNames: undefined,
       npmPackagesPath,
       npmTemplatesPath,
+      npmTemplatesReadmePath,
       packageExtensions,
       packumentCache,
       pacoteCachePath,
+      parseArgsConfig,
       prettierConfigPromise: undefined,
       prettierIgnoreFile: undefined,
       relPackagesPath,

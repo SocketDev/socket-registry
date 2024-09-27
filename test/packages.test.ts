@@ -11,7 +11,9 @@ import { glob as tinyGlob } from 'tinyglobby'
 
 // @ts-ignore
 import manifest from '@socketregistry/manifest'
-import {
+// @ts-ignore
+import constants from '@socketregistry/scripts/constants'
+const {
   ENV,
   LICENSE,
   LICENSE_GLOB,
@@ -19,12 +21,9 @@ import {
   OVERRIDES,
   PACKAGE_JSON,
   README_GLOB,
-  ecosystems,
-  ignoreGlobs,
-  npmPackageNames,
-  npmPackagesPath
-  // @ts-ignore
-} from '@socketregistry/scripts/constants'
+  npmPackagesPath,
+  parseArgsConfig
+} = constants
 import {
   getModifiedPackagesSync,
   getStagedPackagesSync
@@ -44,14 +43,7 @@ import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
 
 // Use by passing as a tap --test-arg:
 // npm run test:unit ./test/packages.test.ts -- --test-arg="--force"
-const { values: cliArgs } = util.parseArgs({
-  options: {
-    force: {
-      type: 'boolean',
-      short: 'f'
-    }
-  }
-})
+const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 
 const extJs = '.js'
 const extDts = '.d.ts'
@@ -84,9 +76,11 @@ function trimLeadingDotSlash(filepath: string): string {
   return filepath.replace(leadingDotSlashRegExp, '')
 }
 
-for (const eco of ecosystems) {
+for (const eco of constants.ecosystems) {
   describe(eco, () => {
     if (eco === 'npm') {
+      // Lazily access constants.npmPackageNames.
+      const { npmPackageNames } = constants
       const packageNames: string[] =
         ENV.CI || cliArgs.force
           ? npmPackageNames
@@ -146,7 +140,8 @@ for (const eco of ecosystems) {
                 ...filesPatternsAsArray
               ],
               {
-                ignore: ignoreGlobs,
+                // Lazily access constants.ignoreGlobs.
+                ignore: constants.ignoreGlobs,
                 caseSensitiveMatch: false,
                 cwd: pkgPath,
                 dot: true
@@ -161,7 +156,7 @@ for (const eco of ecosystems) {
             })
           ).sort(localCompare)
           const jsonFiles = files
-            .filter(n => path.extname(n) === '.json')
+            .filter(p => path.extname(p) === '.json')
             .sort(localCompare)
 
           it('package name should be valid', () => {
@@ -239,20 +234,20 @@ for (const eco of ecosystems) {
           )
           if (manifestData?.license !== 'Public Domain') {
             it(`should have an original license file`, () => {
-              assert.ok(files.some(n => n.includes('.original')))
+              assert.ok(files.some(p => p.includes('.original')))
             })
           }
 
           it('should have a .d.ts file for every .js file', () => {
             const jsFiles = files
               .filter(
-                n => n.endsWith(extJs) && !n.startsWith(overridesWithSlash)
+                p => p.endsWith(extJs) && !p.startsWith(overridesWithSlash)
               )
-              .map(n => n.slice(0, -extJs.length))
+              .map(p => p.slice(0, -extJs.length))
               .sort()
             const dtsFiles = files
-              .filter(n => n.endsWith(extDts))
-              .map(n => n.slice(0, -extDts.length))
+              .filter(p => p.endsWith(extDts))
+              .map(p => p.slice(0, -extDts.length))
               .sort()
             assert.deepEqual(jsFiles, dtsFiles)
           })
@@ -261,13 +256,13 @@ for (const eco of ecosystems) {
             assert.ok(
               Array.isArray(filesPatterns) &&
                 filesPatterns.length > 0 &&
-                filesPatterns.every(n => typeof n === 'string')
+                filesPatterns.every(p => typeof p === 'string')
             )
           })
 
           it('package files should match "files" field', () => {
             const filesToCompare = files.filter(
-              n => !isDotFile(n) || dotFileMatches.includes(n)
+              p => !isDotFile(p) || dotFileMatches.includes(p)
             )
             assert.deepEqual(filesFieldMatches, filesToCompare)
           })
@@ -324,17 +319,17 @@ for (const eco of ecosystems) {
             })
           }
 
-          const localOverridesFiles = filesFieldMatches.filter(n =>
-            n.startsWith(overridesWithSlash)
+          const localOverridesFiles = filesFieldMatches.filter(p =>
+            p.startsWith(overridesWithSlash)
           )
           const hasOverrides =
             !!pkgOverrides || !!pkgResolutions || localOverridesFiles.length > 0
 
           if (hasOverrides) {
-            const localOverridesPackages = localOverridesFiles.map(n =>
-              n.slice(
+            const localOverridesPackages = localOverridesFiles.map(p =>
+              p.slice(
                 overridesWithSlash.length,
-                n.indexOf('/', overridesWithSlash.length)
+                p.indexOf('/', overridesWithSlash.length)
               )
             )
 

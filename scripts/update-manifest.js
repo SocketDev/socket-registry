@@ -1,18 +1,21 @@
 'use strict'
 
 const path = require('node:path')
+const util = require('node:util')
 
 const fs = require('fs-extra')
 const { PackageURL } = require('packageurl-js')
 
+const constants = require('@socketregistry/scripts/constants')
 const {
   UNLICENSED,
-  ecosystems,
-  npmPackageNames,
   npmPackagesPath,
+  parseArgsConfig,
   rootManifestJsonPath,
+  rootPackagesPath,
   testNpmNodeWorkspacesPath
-} = require('@socketregistry/scripts/constants')
+} = constants
+const { getModifiedFiles } = require('@socketregistry/scripts/utils/git')
 const {
   fetchPackageManifest,
   readPackageJson
@@ -21,8 +24,18 @@ const { localCompare } = require('@socketregistry/scripts/utils/sorts')
 const { Spinner } = require('@socketregistry/scripts/utils/spinner')
 const { prettierFormat } = require('@socketregistry/scripts/utils/strings')
 
+const { values: cliArgs } = util.parseArgs(parseArgsConfig)
+
 ;(async () => {
+  // Exit early if no relevant files have been modified.
+  if (
+    !cliArgs.force &&
+    (await getModifiedFiles({ cwd: rootPackagesPath })).length === 0
+  ) {
+    return
+  }
   const spinner = new Spinner('Updating manifest.json...').start()
+  const { ecosystems, npmPackageNames } = constants
   const manifest = {}
   for (const eco of ecosystems) {
     if (eco === 'npm') {

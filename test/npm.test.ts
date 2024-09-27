@@ -7,17 +7,18 @@ import spawn from '@npmcli/promise-spawn'
 import fs from 'fs-extra'
 import semver from 'semver'
 
-import {
+// @ts-ignore
+import constants from '@socketregistry/scripts/constants'
+const {
   ENV,
   LICENSE_GLOB_RECURSIVE,
   NODE_VERSION,
   PACKAGE_JSON,
   README_GLOB_RECURSIVE,
   execPath,
-  runScriptSequentiallyExecPath,
+  parseArgsConfig,
   testNpmNodeWorkspacesPath
-  // @ts-ignore
-} from '@socketregistry/scripts/constants'
+} = constants
 // @ts-ignore
 import { readDirNames } from '@socketregistry/scripts/utils/fs'
 import {
@@ -30,14 +31,7 @@ import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
 
 // Use by passing as a tap --test-arg:
 // npm run test:unit ./test/npm.test.ts -- --test-arg="--force"
-const { values: cliArgs } = util.parseArgs({
-  options: {
-    force: {
-      type: 'boolean',
-      short: 'f'
-    }
-  }
-})
+const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 
 const skippedPackages = new Set([
   // Has known test fails in its package:
@@ -84,9 +78,14 @@ describe('npm', async () => {
 
     it(`${pkgName} passes all its tests`, { skip }, async () => {
       try {
-        await spawn(execPath, [runScriptSequentiallyExecPath, 'test'], {
-          cwd: nwPkgPath
-        })
+        // Lazily access constants.runScriptSequentiallyExecPath.
+        await spawn(
+          execPath,
+          [constants.runScriptSequentiallyExecPath, 'test'],
+          {
+            cwd: nwPkgPath
+          }
+        )
         assert.ok(true)
       } catch (e) {
         console.log(`✘ ${pkgName}`, e)

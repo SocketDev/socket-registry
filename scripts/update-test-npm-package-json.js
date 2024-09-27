@@ -9,16 +9,13 @@ const npmPackageArg = require('npm-package-arg')
 const semver = require('semver')
 const { glob: tinyGlob } = require('tinyglobby')
 
+const constants = require('@socketregistry/scripts/constants')
 const {
   LICENSE_GLOB_RECURSIVE,
   NODE_WORKSPACES,
   PACKAGE_JSON,
   README_GLOB,
-  ignoreGlobs,
   lifecycleScriptNames,
-  maintainedNodeVersions,
-  npmExecPath,
-  npmPackageNames,
   npmPackagesPath,
   relNpmPackagesPath,
   relTestNpmNodeModulesPath,
@@ -29,7 +26,7 @@ const {
   testNpmPath,
   testNpmPkgJsonPath,
   testNpmPkgLockPath
-} = require('@socketregistry/scripts/constants')
+} = constants
 const {
   arrayChunk,
   arrayUnique
@@ -48,8 +45,6 @@ const { pEach, pEachChunk } = require('@socketregistry/scripts/utils/promises')
 const { localCompare } = require('@socketregistry/scripts/utils/sorts')
 const { Spinner } = require('@socketregistry/scripts/utils/spinner')
 const { isNonEmptyString } = require('@socketregistry/scripts/utils/strings')
-
-const nodeVerPrev = maintainedNodeVersions.get('previous')
 
 const { values: cliArgs } = util.parseArgs({
   options: {
@@ -94,7 +89,8 @@ async function installTestNpmNodeModules(pkgName) {
   if (typeof pkgName === 'string') {
     args.push('--save-dev', pkgName)
   }
-  return await spawn(npmExecPath, args, { cwd: testNpmPath })
+  // Lazily access constants.npmExecPath.
+  return await spawn(constants.npmExecPath, args, { cwd: testNpmPath })
 }
 
 const editablePackageJsonCache = { __proto__: null }
@@ -133,12 +129,12 @@ const testScripts = [
     return
   }
 
+  // Lazily access constants.npmPackageNames.
+  const packageNames = cliArgs.add ?? constants.npmPackageNames
   // Chunk package names to process them in parallel 3 at a time.
-  const npmPackageNameChunks = arrayChunk(npmPackageNames, 3)
-  const packageNames = cliArgs.add ?? npmPackageNames
   const packageNameChunks = cliArgs.add
     ? arrayChunk(cliArgs.add, 3)
-    : npmPackageNameChunks
+    : arrayChunk(constants.npmPackageNames, 3)
 
   let modifiedTestNpmPkgJson = false
   let testNpmEditablePkgJson = await readPackageJson(testNpmPkgJsonPath, {
@@ -375,7 +371,14 @@ const testScripts = [
       }
 
       const nodeRange = engines?.node
-      if (nodeRange && semver.gt(semver.coerce(nodeRange), nodeVerPrev)) {
+      if (
+        nodeRange &&
+        // Lazily access constants.maintainedNodeVersions.
+        semver.gt(
+          semver.coerce(nodeRange),
+          constants.maintainedNodeVersions.get('previous')
+        )
+      ) {
         // Replace engines field if the @socketregistry/xyz's engines.node range
         // is greater than the previous Node version.
         nmEditablePkgJson.update({ engines })
@@ -471,7 +474,8 @@ const testScripts = [
               '**/CONTRIBUTING{.*,}',
               '**/FUND{ING,}{.*,}',
               `**/${README_GLOB}`,
-              ...ignoreGlobs
+              // Lazily access constants.ignoreGlobs.
+              ...constants.ignoreGlobs
             ],
             {
               ignore: [LICENSE_GLOB_RECURSIVE],
@@ -502,7 +506,8 @@ const testScripts = [
           ...(Array.isArray(existingWorkspaces) ? existingWorkspaces : []),
           ...cliArgs.add.map(toWorkspaceEntry)
         ]).sort(localCompare)
-      : npmPackageNames.map(toWorkspaceEntry)
+      : // Lazily access constants.npmPackageNames.
+        constants.npmPackageNames.map(toWorkspaceEntry)
     testNpmEditablePkgJson.update({ workspaces })
     await testNpmEditablePkgJson.save()
     // Finally install workspaces.

@@ -2,11 +2,8 @@
 
 const path = require('node:path')
 
-const {
-  PACKAGE_JSON,
-  npmPackageNames,
-  npmPackagesPath
-} = require('@socketregistry/scripts/constants')
+const constants = require('@socketregistry/scripts/constants')
+const { PACKAGE_JSON, npmPackagesPath } = constants
 const {
   createPackageJson,
   readPackageJson
@@ -14,7 +11,8 @@ const {
 
 ;(async () => {
   await Promise.all(
-    npmPackageNames.map(async pkgName => {
+    // Lazily access constants.npmPackageNames.
+    constants.npmPackageNames.map(async pkgName => {
       const pkgPath = path.join(npmPackagesPath, pkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
       const editablePkgJson = await readPackageJson(pkgJsonPath, {

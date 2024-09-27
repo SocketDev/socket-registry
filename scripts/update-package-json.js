@@ -3,7 +3,7 @@
 const path = require('node:path')
 
 const constants = require('@socketregistry/scripts/constants')
-const { ecosystems, rootPackageJsonPath, rootPackagesPath } = constants
+const { rootPackageJsonPath, rootPackagesPath } = constants
 const { readDirNames } = require('@socketregistry/scripts/utils/fs')
 const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
 
@@ -13,7 +13,8 @@ const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
   })
   // Update workspaces.
   const workspaces = []
-  for (const eco of ecosystems) {
+  // Lazily access constants.ecosystems.
+  for (const eco of constants.ecosystems) {
     const ecoPackagesPath = path.join(rootPackagesPath, eco)
     // No need to sort because readDirNames returns names sorted by default.
     const packageNames = await readDirNames(ecoPackagesPath)
