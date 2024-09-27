@@ -188,5 +188,5 @@ module.exports = function stableStringify(obj, opts = {}) {
     ]
     entries.push([key, objEntries])
   }
-  return resultEntries[0]?.[1]?.toString()
+  return resultEntries.at(0)?.at(1)?.toString()
 }

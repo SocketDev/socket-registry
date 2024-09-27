@@ -5,12 +5,9 @@ import { describe, it } from 'node:test'
 import util from 'node:util'
 
 import fs from 'fs-extra'
-import { PackageURL } from 'packageurl-js'
 import semver from 'semver'
 import { glob as tinyGlob } from 'tinyglobby'
 
-// @ts-ignore
-import manifest from '@socketregistry/manifest'
 // @ts-ignore
 import constants from '@socketregistry/scripts/constants'
 const {
@@ -40,6 +37,8 @@ import {
 import { localCompare } from '@socketregistry/scripts/utils/sorts'
 // @ts-ignore
 import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
+// @ts-ignore
+import { getManifestData } from '@socketregistry/scripts/utils/templates'
 
 // Use by passing as a tap --test-arg:
 // npm run test:unit ./test/packages.test.ts -- --test-arg="--force"
@@ -226,12 +225,7 @@ for (const eco of constants.ecosystems) {
             )
           })
 
-          const manifestData = <any>(
-            manifest.npm.find(
-              ({ 0: purlStr }: [string]) =>
-                PackageURL.fromString(purlStr).name === pkgName
-            )?.[1]
-          )
+          const manifestData = getManifestData(pkgName)
           if (manifestData?.license !== 'Public Domain') {
             it(`should have an original license file`, () => {
               assert.ok(files.some(p => p.includes('.original')))

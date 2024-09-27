@@ -65,7 +65,7 @@ function prepareTemplate(content, data) {
         const endWsc = isEndWsc ? it.at(-1) : ''
         const itTrimmed = (isEndWsc ? it.slice(0, -1) : it).trim()
         const itParts = itTrimmed.split('.')
-        const name = itParts[0] === 'it' ? itParts?.[1] : itParts[0]
+        const name = itParts[0] === 'it' ? itParts?.at(1) : itParts[0]
         return name && Array.isArray(data[name])
           ? `<%${startWsc}~ JSON.stringify(${itTrimmed}) ${endWsc}%>`
           : match
@@ -86,9 +86,9 @@ async function getLicenseActions(pkgPath) {
 }
 
 function getManifestData(pkgName) {
-  return manifest.npm.find(
-    ({ 0: purlStr }) => PackageURL.fromString(purlStr).name === pkgName
-  )?.[1]
+  return manifest.npm
+    .find(({ 0: purlStr }) => PackageURL.fromString(purlStr).name === pkgName)
+    ?.at(1)
 }
 
 function getOriginalName(pkgName, manifestData) {
@@ -174,6 +174,7 @@ async function writeAction(action) {
 
 module.exports = {
   getLicenseActions,
+  getManifestData,
   getNpmReadmeAction,
   getPackageJsonAction,
   getTypeScriptActions,
