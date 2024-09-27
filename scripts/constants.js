@@ -1,6 +1,8 @@
 'use strict'
 
 const Module = require('node:module')
+// Available in Node v22.8.0.
+// https://nodejs.org/docs/latest/api/module.html#moduleenablecompilecachecachedir
 if (typeof Module.enableCompileCache === 'function') {
   Module.enableCompileCache()
 }
@@ -351,43 +353,6 @@ const lifecycleScriptNames = new Set(
   ].flat()
 )
 
-const lowerToCamelCase = new Map(
-  [
-    'AggregateError',
-    'allSettled',
-    'ArrayBuffer',
-    'codePointAt',
-    'endsWith',
-    'findLast',
-    'findLastIndex',
-    'flatMap',
-    'forEach',
-    'fromCodePoint',
-    'fromEntries',
-    'getOwnPropertyDescriptors',
-    'getPrototypeOf',
-    'globalThis',
-    'groupBy',
-    'hasOwn',
-    'matchAll',
-    'ownKeys',
-    'padEnd',
-    'padStart',
-    'RegExp',
-    'replaceAll',
-    'startsWith',
-    'toSorted',
-    'toReversed',
-    'trimEnd',
-    'trimLeft',
-    'trimRight',
-    'trimStart',
-    'TypedArray'
-  ]
-    .sort(localCompare)
-    .map(v => [v.toLowerCase(), v])
-)
-
 const packageExtensions = Object.freeze(
   [
     ...yarnPkgExts,
@@ -453,6 +418,7 @@ const constants = Object.freeze(
       ENV,
       ESNEXT,
       LICENSE,
+      // Lazily defined values are initialized as `undefined` to keep their key order.
       LICENSE_CONTENT: undefined,
       LICENSE_GLOB,
       LICENSE_GLOB_RECURSIVE,
@@ -487,7 +453,6 @@ const constants = Object.freeze(
       ignoreGlobs: undefined,
       kInternalsSymbol,
       lifecycleScriptNames,
-      lowerToCamelCase,
       maintainedNodeVersions: undefined,
       npmExecPath: undefined,
       npmPackageNames: undefined,
