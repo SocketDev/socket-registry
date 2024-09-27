@@ -73,6 +73,7 @@ const ESNEXT = 'esnext'
 const LICENSE = 'LICENSE'
 const LICENSE_GLOB = 'LICEN[CS]E{[.-]*,}'
 const LICENSE_GLOB_RECURSIVE = `**/${LICENSE_GLOB}`
+const LICENSE_ORIGINAL = `${LICENSE}.original`
 const LICENSE_ORIGINAL_GLOB = '*.original{.*,}'
 const LICENSE_ORIGINAL_GLOB_RECURSIVE = `**/${LICENSE_ORIGINAL_GLOB}`
 const LOOP_SENTINEL = 1_000_000
@@ -440,6 +441,7 @@ const constants = Object.freeze(
       LICENSE_CONTENT: undefined,
       LICENSE_GLOB,
       LICENSE_GLOB_RECURSIVE,
+      LICENSE_ORIGINAL,
       LICENSE_ORIGINAL_GLOB,
       LICENSE_ORIGINAL_GLOB_RECURSIVE,
       LOOP_SENTINEL,

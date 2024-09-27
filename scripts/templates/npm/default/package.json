@@ -19,8 +19,7 @@
   },
   "files": [
     "*.d.ts",
-    "*.js",
-    "*.original{.*,}"
+    "*.js"
   ],
   "socket": {
     "categories": ["<%~ it.categories %>"]

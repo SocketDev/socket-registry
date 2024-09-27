@@ -13,7 +13,7 @@ const constants = require('@socketregistry/scripts/constants')
 const {
   ESNEXT,
   LICENSE,
-  LICENSE_ORIGINAL_GLOB,
+  LICENSE_ORIGINAL,
   execPath,
   npmPackagesPath,
   rootPath,
@@ -300,33 +300,31 @@ async function readLicenses(dirname) {
   )
   // Create LICENSE.original files.
   const { length: licenseCount } = licenseContents
-  const originalLicenseNames = []
-  if (licenseCount === 1) {
-    const { content, name } = licenseContents[0]
-    const ext = path.extname(name)
-    const originalLicenseName = `${LICENSE}.original${ext}`
-    originalLicenseNames.push(originalLicenseName)
-    await fs.writeFile(path.join(pkgPath, originalLicenseName), content, 'utf8')
-  } else if (licenseCount > 1) {
-    for (let i = 0; i < licenseCount; i += 1) {
-      const { content, name } = licenseContents[i]
-      const ext = path.extname(name)
-      const basename = path.basename(name, ext)
-      const originalLicenseName = `${basename}.original${ext}`
-      originalLicenseNames.push(originalLicenseName)
-      fs.writeFile(path.join(pkgPath, originalLicenseName), content, 'utf8')
+  const filesFieldAdditions = []
+  for (let i = 0; i < licenseCount; i += 1) {
+    const { content, name } = licenseContents[i]
+    const extRaw = path.extname(name)
+    const ext = extRaw === '.txt' ? '' : extRaw
+    const basename = licenseCount === 1 ? LICENSE : path.basename(name, ext)
+    const originalLicenseName = `${basename}.original${ext}`
+    if (
+      originalLicenseName !== LICENSE_ORIGINAL &&
+      originalLicenseName !== `${LICENSE_ORIGINAL}.md`
+    ) {
+      filesFieldAdditions.push(originalLicenseName)
     }
+    fs.writeFile(path.join(pkgPath, originalLicenseName), content, 'utf8')
   }
-  // Load new package's package.json and edit its "files" field.
-  const editablePkgJson = await readPackageJson(pkgPath, { editable: true })
-  const filesField = editablePkgJson.content.files.filter(
-    g => g !== LICENSE_ORIGINAL_GLOB
-  )
-  filesField.push(...originalLicenseNames)
-  editablePkgJson.update({
-    files: filesField.sort(localCompare)
-  })
-  await editablePkgJson.save()
+  if (filesFieldAdditions.length) {
+    // Load new package's package.json and edit its "files" field.
+    const editablePkgJson = await readPackageJson(pkgPath, { editable: true })
+    editablePkgJson.update({
+      files: [...editablePkgJson.content.files, ...filesFieldAdditions].sort(
+        localCompare
+      )
+    })
+    await editablePkgJson.save()
+  }
 
   // Update monorepo package.json workspaces definition and test/npm files.
   try {

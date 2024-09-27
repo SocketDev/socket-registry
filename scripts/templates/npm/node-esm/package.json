@@ -25,8 +25,7 @@
   "files": [
     "*.d.ts",
     "*.cjs",
-    "*.js",
-    "*.original{.*,}"
+    "*.js"
   ],
   "socket": {
     "categories": ["<%~ it.categories %>"]
