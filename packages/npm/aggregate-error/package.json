@@ -14,9 +14,11 @@
   },
   "type": "module",
   "exports": {
-    "module-sync": "./index.js",
-    "module": "./index.js",
-    "default": "./index.cjs"
+    "node": {
+      "module-sync": "./index.js",
+      "default": "./index.cjs"
+    },
+    "default": "./index.js"
   },
   "sideEffects": false,
   "engines": {
@@ -24,8 +26,7 @@
   },
   "files": [
     "*.d.ts",
-    "*.cjs",
-    "*.js"
+    "*.{c,}js"
   ],
   "socket": {
     "categories": [

@@ -13,7 +13,10 @@
     "directory": "packages/npm/is-set"
   },
   "exports": {
-    "node": "./node.js",
+    "node": {
+      "module-sync": "./index.js",
+      "default": "./index.cjs"
+    },
     "default": "./index.js"
   },
   "sideEffects": false,
@@ -21,8 +24,8 @@
     "node": ">=18.20.4"
   },
   "files": [
-    "*.d.ts",
-    "*.js"
+    "*.d.{c,}ts",
+    "*.{c,}js"
   ],
   "socket": {
     "categories": [

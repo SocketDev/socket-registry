@@ -47,14 +47,24 @@ const {
   getNpmReadmeAction,
   getPackageJsonAction,
   getTypeScriptActions,
-  templateChoices,
   templates,
   writeAction
 } = require('@socketregistry/scripts/utils/templates')
 
+const CJS_VALUE = 'cjs'
+const CJS_ESM_VALUE = 'cjs-esm'
+const ES_SHIM_PROTOTYPE_METHOD_VALUE = 'es-shim-prototype-method'
+const ES_SHIM_STATIC_METHOD_VALUE = 'es-shim-static-method'
+
 const { positionals: cliPositionals } = util.parseArgs({ strict: false })
 
 const bcaKeysMap = new Map()
+
+const esShimChoices = [
+  { name: 'es-shim prototype method', value: ES_SHIM_PROTOTYPE_METHOD_VALUE },
+  { name: 'es-shim static method', value: ES_SHIM_STATIC_METHOD_VALUE }
+]
+
 const esShimsRepoRegExp = /^git(?:\+https)?:\/\/github\.com\/es-shims\//
 
 function getBcdKeysMap(obj) {
@@ -203,27 +213,24 @@ async function readLicenses(dirname) {
       (parts.length === 3 && parts[1] === 'prototype') ||
       compatData?.spec_url?.includes('.prototype')
     ) {
-      templateChoice = 'es-shim-prototype-method'
+      templateChoice = ES_SHIM_PROTOTYPE_METHOD_VALUE
     } else if (parts.length === 2) {
-      templateChoice = 'es-shim static method'
+      templateChoice = ES_SHIM_STATIC_METHOD_VALUE
     } else {
       templateChoice = await select({
         message: 'Pick the es-shim template to use',
-        choices: templateChoices.esShim
+        choices: esShimChoices
       })
     }
   } else if (isEsm) {
-    templateChoice = await select({
-      message: 'Pick the ESM template to use',
-      choices: templateChoices.nodeEsm
-    })
+    templateChoice = CJS_ESM_VALUE
   } else {
     templateChoice = await select({
       message: 'Pick the package template to use',
       choices: [
-        { name: 'default', value: 'default' },
-        ...templateChoices.nodeCjs,
-        ...templateChoices.esShim
+        { name: 'cjs', value: CJS_VALUE },
+        { name: 'cjs and esm', value: CJS_ESM_VALUE },
+        ...esShimChoices
       ]
     })
   }
@@ -231,7 +238,11 @@ async function readLicenses(dirname) {
     // Exit if user force closed the prompt.
     return
   }
-  if (tsLib === undefined && templateChoice.startsWith('es-shim')) {
+  if (
+    tsLib === undefined &&
+    (templateChoice === ES_SHIM_PROTOTYPE_METHOD_VALUE ||
+      templateChoice === ES_SHIM_PROTOTYPE_METHOD_VALUE)
+  ) {
     const availableTsLibs = [...tsLibs]
     const maxTsLibLength = availableTsLibs.reduce(
       (n, v) => Math.max(n, v.length),

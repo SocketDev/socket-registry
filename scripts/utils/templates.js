@@ -26,32 +26,10 @@ const eta = new Eta()
 const templates = Object.freeze({
   __proto__: null,
   ...Object.fromEntries(
-    [
-      'default',
-      'es-shim-prototype-method',
-      'es-shim-static-method',
-      'node-cjs',
-      'node-cjs+browser',
-      'node-esm',
-      'node-esm+browser'
-    ].map(k => [k, path.join(npmTemplatesPath, k)])
+    ['cjs', 'cjs-esm', 'es-shim-prototype-method', 'es-shim-static-method'].map(
+      k => [k, path.join(npmTemplatesPath, k)]
+    )
   )
-})
-
-const templateChoices = Object.freeze({
-  __proto__: null,
-  esShim: [
-    { name: 'es-shim prototype method', value: 'es-shim-prototype-method' },
-    { name: 'es-shim static method', value: 'es-shim-static-method' }
-  ],
-  nodeCjs: [
-    { name: 'node cjs', value: 'node-cjs' },
-    { name: 'node cjs plus browser', value: 'node-cjs+browser' }
-  ],
-  nodeEsm: [
-    { name: 'node esm', value: 'node-esm' },
-    { name: 'node esm plus browser', value: 'node-esm+browser' }
-  ]
 })
 
 function prepareTemplate(content, data) {
@@ -180,6 +158,5 @@ module.exports = {
   getTypeScriptActions,
   renderAction,
   templates,
-  templateChoices,
   writeAction
 }

@@ -14,9 +14,10 @@
   },
   "type": "module",
   "exports": {
-    "module-sync": "./node.js",
-    "require": "./node.cjs",
-    "import": "./node.js",
+    "node": {
+      "module-sync": "./index.js",
+      "default": "./index.cjs"
+    },
     "default": "./index.js"
   },
   "sideEffects": false,
@@ -24,9 +25,8 @@
     "node": "<%~ it.node_range %>"
   },
   "files": [
-    "*.d.ts",
-    "*.cjs",
-    "*.js"
+    "*.d.{c,}ts",
+    "*.{c,}js"
   ],
   "socket": {
     "categories": ["<%~ it.categories %>"]
