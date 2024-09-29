@@ -126,6 +126,10 @@ async function readLicenses(dirname) {
   )
 }
 
+function toChoice(value) {
+  return { name: value, value: value }
+}
+
 ;(async () => {
   const pkgName = await input({
     message: 'What is the name of the package to override?',
@@ -290,23 +294,30 @@ async function readLicenses(dirname) {
           }
           if (matches === undefined) {
             // Advanced closest match search.
-            matches = didYouMean(formatted, tsLibs, {
+            matches = didYouMean(formatted, possibleTsRefs, {
               caseSensitive: true,
               deburr: false,
               returnType: ReturnTypeEnums.ALL_CLOSEST_MATCHES,
               threshold: 0.2
             })
           }
-          const containsInput = matches.includes(input)
-          const sorted =
-            matches.length > 1
-              ? [
-                  matches[0],
-                  ...(containsInput ? [input] : []),
-                  ...naturalSort(matches.slice(1)).desc()
-                ]
-              : [matches[0], ...(containsInput ? [input] : [])]
-          return sorted.map(l => ({ name: l, value: l }))
+          if (matches.length === 0) {
+            return [toChoice(input)]
+          }
+          const firstMatch = matches[0]
+          const sortedTail =
+            matches.length > 1 ? naturalSort(matches.slice(1)).desc() : []
+          // If a match starts with input then don't include input in the results.
+          if (matches.some(m => m.startsWith(input))) {
+            return [firstMatch, ...sortedTail].map(toChoice)
+          }
+          let first = firstMatch
+          let second = input
+          if (input.length > firstMatch.length) {
+            first = input
+            second = firstMatch
+          }
+          return [first, second, ...sortedTail].map(toChoice)
         }
       })
       if (searchResult === undefined) {

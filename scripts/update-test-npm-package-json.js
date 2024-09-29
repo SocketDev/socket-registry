@@ -486,7 +486,7 @@ const testScripts = [
         ).map(p => fs.remove(p))
       )
       // Move override package from test/npm/node_modules/ to test/npm/node_workspaces/
-      await fs.move(srcPath, destPath)
+      await fs.move(srcPath, destPath, { overwrite: true })
     })
     spinner.stop('✔ Workspaces cleaned (so fresh and so clean, clean)')
   }
