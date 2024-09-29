@@ -1,2 +1,5 @@
-// TODO: Add type for browser.
+//_ <% it.references.forEach(r => { %>
+//_ /// <reference <%= r.name %>="<%= r.value %>" />
+//_ <% }) %>
+// TODO: Add type for ESM.
 export = undefined

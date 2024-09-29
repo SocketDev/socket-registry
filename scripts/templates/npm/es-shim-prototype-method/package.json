@@ -15,13 +15,13 @@
   "main": "./index.js",
   "sideEffects": false,
   "engines": {
-    "node": "<%~ it.node_range %>"
+    "node": "<%~ it.engines.node %>"
   },
   "files": [
     "*.d.ts",
     "*.js"
   ],
   "socket": {
-    "categories": ["<%~ it.categories %>"]
+    "categories": "//_ <%~ JSON.stringify(it.categories) %>"
   }
 }

@@ -4,11 +4,11 @@
 [![CI - <%= it.name %>](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
->A<% if (it.manifest.categories.includes('speedup')) { %> faster <% } %>
-<% if (it.manifest.categories.includes('tightenup')) { %> more secure <% } %>
+>A<% if (it.categories.includes('speedup')) { %> faster <% } %>
+<% if (it.categories.includes('tightenup')) { %> more secure <% } %>
 <% if (Object.keys(it.dependencies ?? {}).length) { %> low <% } else { %> zero <% } %>
-dependency <% if (it.manifest.interop?.includes('esm')) { %> CommonJS compatible <% } %>
-drop-in replacement of <% if (it.manifest.deprecated) { %> the deprecated <% } %>[`<%= it.originalName %>`](https://www.npmjs.com/package/<%= it.originalName %>)<% if (it.manifest.deprecated) { %> package <% } %>.
+dependency <% if (it.interop?.includes('esm')) { %> CommonJS compatible <% } %>
+drop-in replacement of <% if (it.deprecated) { %> the deprecated <% } %>[`<%= it.originalName %>`](https://www.npmjs.com/package/<%= it.originalName %>)<% if (it.deprecated) { %> package <% } %>.
 
 ## Installation
 

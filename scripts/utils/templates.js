@@ -32,22 +32,17 @@ const templates = Object.freeze({
   )
 })
 
-function prepareTemplate(content, data) {
+function prepareTemplate(content) {
   return (
     content
-      // Replace tags that look like ["<%...%>"] with [<%...%>] when data is an
-      // array. Enquoting the tags avoids syntax errors in JSON template files.
-      .replace(/\["<%([-_]|)~([\s\S]+)%>"\]/g, (match, startWsc, it) => {
-        const lastCode = it.charCodeAt(it.length - 1)
-        const isEndWsc = lastCode === 45 /*'-'*/ || lastCode === 95 /*'_'*/
-        const endWsc = isEndWsc ? it.at(-1) : ''
-        const itTrimmed = (isEndWsc ? it.slice(0, -1) : it).trim()
-        const itParts = itTrimmed.split('.')
-        const name = itParts[0] === 'it' ? itParts?.at(1) : itParts[0]
-        return name && Array.isArray(data[name])
-          ? `<%${startWsc}~ JSON.stringify(${itTrimmed}) ${endWsc}%>`
-          : match
-      })
+      // Replace strings that look like "//_ <%...%>" with <%...%>.
+      // Enquoting the tags avoids syntax errors in JSON template files.
+      .replace(
+        /(["'])\/\/_\s*(<%[-_]?[=~]?[\s\S]+%>)\1/g,
+        (_match, _quote, tag) => tag
+      )
+      // Strip single line comments start with //_
+      .replace(/\/\/_\s*/g, '')
   )
 }
 
@@ -81,6 +76,7 @@ async function getNpmReadmeAction(pkgPath) {
   )
   const { name: pkgName } = pkgPurlObj
   const manifestData = getManifestData(pkgName)
+  const categories = manifestData?.categories
   return [
     path.join(pkgPath, README_MD),
     {
@@ -89,9 +85,12 @@ async function getNpmReadmeAction(pkgPath) {
         path.join(npmTemplatesPath, README_MD),
         {
           __proto__: null,
+          ...manifestData,
           ...pkgJson,
-          manifest: manifestData || {},
           originalName: getOriginalName(pkgName, manifestData),
+          categories: Array.isArray(categories)
+            ? categories
+            : [...PACKAGE_DEFAULT_SOCKET_CATEGORIES],
           purl: pkgPurlObj,
           version: semver.parse(pkgJson.version)
         }
@@ -100,35 +99,45 @@ async function getNpmReadmeAction(pkgPath) {
   ]
 }
 
-async function getPackageJsonAction(pkgPath, nodeRange) {
+async function getPackageJsonAction(pkgPath, options) {
+  const { engines } = { __proto__: null, ...options }
   const pkgName = path.basename(pkgPath)
   const manifestData = getManifestData(pkgName)
+  const categories = manifestData?.categories
   return [
     path.join(pkgPath, PACKAGE_JSON),
     {
       __proto__: null,
+      ...manifestData,
       name: pkgName,
       originalName: getOriginalName(pkgName, manifestData),
-      categories: manifestData?.categories ?? PACKAGE_DEFAULT_SOCKET_CATEGORIES,
+      categories: Array.isArray(categories)
+        ? categories
+        : [...PACKAGE_DEFAULT_SOCKET_CATEGORIES],
       // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
-      node_range: nodeRange ?? constants.PACKAGE_DEFAULT_NODE_RANGE,
+      engines: engines ?? { node: constants.PACKAGE_DEFAULT_NODE_RANGE },
       // Lazily access constants.PACKAGE_DEFAULT_VERSION.
       version: semver.parse(constants.PACKAGE_DEFAULT_VERSION)
     }
   ]
 }
 
-async function getTypeScriptActions(pkgPath, tsLib) {
-  const tsData = {
-    __proto__: null,
-    ts_lib: tsLib
-  }
+async function getTypeScriptActions(pkgPath, options) {
+  const { references, transform } = { __proto__: null, ...options }
+  const doTransform = typeof transform === 'function'
   const actions = []
-  for (const filepath of await tinyGlob(['**/*.ts'], {
+  for (const filepath of await tinyGlob(['**/*.{[cm],}ts'], {
     absolute: true,
     cwd: pkgPath
   })) {
-    actions.push([filepath, tsData])
+    const data = {
+      __proto__: null,
+      references: Array.isArray(references) ? references : []
+    }
+    actions.push([
+      filepath,
+      doTransform ? await transform(filepath, data) : data
+    ])
   }
   return actions
 }
@@ -138,7 +147,7 @@ async function renderAction(action) {
   const data = typeof dataRaw === 'function' ? await dataRaw() : dataRaw
   const ext = path.extname(filepath)
   const content = await fs.readFile(filepath, 'utf8')
-  const prepared = prepareTemplate(content, data)
+  const prepared = prepareTemplate(content)
   const modified = await eta.renderStringAsync(prepared, data)
   return ext === '.json' || ext === '.md'
     ? await prettierFormat(modified, { filepath })

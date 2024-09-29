@@ -429,6 +429,8 @@ const tsLibs = new Set([
   'scripthost'
 ])
 
+const tsTypes = new Set(['node'])
+
 const constants = Object.freeze(
   defineLazyGetters(
     {
@@ -509,6 +511,7 @@ const constants = Object.freeze(
       testNpmNodeModulesHiddenLockPath,
       testNpmNodeWorkspacesPath,
       tsLibs,
+      tsTypes,
       yarnPkgExtsPath,
       yarnPkgExtsJsonPath
     },

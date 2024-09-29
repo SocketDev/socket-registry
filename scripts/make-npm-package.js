@@ -17,7 +17,8 @@ const {
   execPath,
   npmPackagesPath,
   rootPath,
-  tsLibs
+  tsLibs,
+  tsTypes
 } = constants
 const { isDirEmptySync } = require('@socketregistry/scripts/utils/fs')
 const { globLicenses } = require('@socketregistry/scripts/utils/globs')
@@ -53,6 +54,7 @@ const {
 
 const CJS_VALUE = 'cjs'
 const CJS_ESM_VALUE = 'cjs-esm'
+const ES_SHIM_CONSTRUCTOR_VALUE = 'es-shim-constructor'
 const ES_SHIM_PROTOTYPE_METHOD_VALUE = 'es-shim-prototype-method'
 const ES_SHIM_STATIC_METHOD_VALUE = 'es-shim-static-method'
 
@@ -62,10 +64,14 @@ const bcaKeysMap = new Map()
 
 const esShimChoices = [
   { name: 'es-shim prototype method', value: ES_SHIM_PROTOTYPE_METHOD_VALUE },
-  { name: 'es-shim static method', value: ES_SHIM_STATIC_METHOD_VALUE }
+  { name: 'es-shim static method', value: ES_SHIM_STATIC_METHOD_VALUE },
+  { name: 'es-shim constructor', value: ES_SHIM_CONSTRUCTOR_VALUE }
 ]
 
 const esShimsRepoRegExp = /^git(?:\+https)?:\/\/github\.com\/es-shims\//
+
+const possibleTsRefs = [...tsLibs, ...tsTypes]
+const maxTsRefLength = possibleTsRefs.reduce((n, v) => Math.max(n, v.length), 0)
 
 function getBcdKeysMap(obj) {
   let keysMap = bcaKeysMap.get(obj)
@@ -86,9 +92,20 @@ function getCompatDataRaw(props) {
   // It's a single 15.3 MB json file.
   let obj = require('@mdn/browser-compat-data')
   for (let i = 0, { length } = props; i < length; i += 1) {
+    const rawProp = props[i]
+    let prop = rawProp.toLowerCase()
+    if (prop === 'prototype') {
+      prop = 'proto'
+    } else {
+      // Trim double underscore property prefix/postfix.
+      prop = prop.replace(/^__(?!_)|(?<!_)__$/g, '')
+    }
     const keysMap = getBcdKeysMap(obj)
-    const newObj = obj[keysMap.get(props[i].toLowerCase())]
+    const newObj = obj[keysMap.get(prop)]
     if (!isObject(newObj)) {
+      if (prop === 'proto') {
+        continue
+      }
       return undefined
     }
     obj = newObj
@@ -143,9 +160,9 @@ async function readLicenses(dirname) {
     licenses = resolvePackageLicenses(nmPkgJson.license, pkgDirPath)
     licenseWarnings = collectLicenseWarnings(licenses)
     badLicenses = collectIncompatibleLicenses(licenses)
-    if (!badLicenses.length) {
+    if (badLicenses.length === 0) {
       licenseContents = await readLicenses(pkgDirPath)
-      if (!licenseContents.length) {
+      if (licenseContents.length === 0) {
         const tgzUrl = await resolveGitHubTgzUrl(pkgName, nmPkgJson)
         if (tgzUrl) {
           extractPackage(tgzUrl, async tarDirPath => {
@@ -186,16 +203,14 @@ async function readLicenses(dirname) {
 
   let nodeRange
   let templateChoice
-  let tsLib
+  const tsRefs = []
   if (isEsShim) {
     // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
     const { PACKAGE_DEFAULT_NODE_RANGE, maintainedNodeVersions } = constants
-    const parts = pkgName.split('.')
-    const compatData = getCompatData([
-      'javascript',
-      'builtins',
-      ...parts.filter(p => p !== 'prototype')
-    ])
+    const parts = pkgName
+      .split(/[-.]/)
+      .filter(p => p !== 'es' && p !== 'helpers')
+    const compatData = getCompatData(['javascript', 'builtins', ...parts])
     const versionAdded =
       compatData?.support?.nodejs?.version_added ??
       maintainedNodeVersions.get('previous')
@@ -207,15 +222,25 @@ async function readLicenses(dirname) {
       }
     }
     if (nodeRange !== PACKAGE_DEFAULT_NODE_RANGE) {
-      tsLib = ESNEXT
+      tsRefs.push({ name: 'lib', value: ESNEXT })
     }
+    const loweredSpecUrl = compatData?.spec_url?.toLowerCase() ?? ''
     if (
-      (parts.length === 3 && parts[1] === 'prototype') ||
-      compatData?.spec_url?.includes('.prototype')
+      (parts.length === 3 &&
+        (parts[1] === 'prototype' || parts[1] === 'proto')) ||
+      loweredSpecUrl.includes(`${parts[0]}.prototype`)
     ) {
       templateChoice = ES_SHIM_PROTOTYPE_METHOD_VALUE
-    } else if (parts.length === 2) {
+    } else if (
+      parts.length === 2 ||
+      loweredSpecUrl.includes(`${parts[0]}.${parts.at(-1)}`)
+    ) {
       templateChoice = ES_SHIM_STATIC_METHOD_VALUE
+    } else if (
+      parts.length === 1 ||
+      loweredSpecUrl.includes(`${parts[0]}-constructor`)
+    ) {
+      templateChoice = ES_SHIM_CONSTRUCTOR_VALUE
     } else {
       templateChoice = await select({
         message: 'Pick the es-shim template to use',
@@ -238,18 +263,9 @@ async function readLicenses(dirname) {
     // Exit if user force closed the prompt.
     return
   }
-  if (
-    tsLib === undefined &&
-    (templateChoice === ES_SHIM_PROTOTYPE_METHOD_VALUE ||
-      templateChoice === ES_SHIM_PROTOTYPE_METHOD_VALUE)
-  ) {
-    const availableTsLibs = [...tsLibs]
-    const maxTsLibLength = availableTsLibs.reduce(
-      (n, v) => Math.max(n, v.length),
-      0
-    )
+  if (tsRefs.length === 0) {
     const answer = await confirm({
-      message: 'Does this override need a TypeScript lib?',
+      message: 'Need a TypeScript lib/types reference?',
       default: false
     })
     if (answer === undefined) {
@@ -257,41 +273,48 @@ async function readLicenses(dirname) {
       return
     }
     if (answer) {
-      tsLib = await search({
+      const searchResult = await search({
         message: 'Which one?',
         source: async input => {
           if (!input) return []
           // Trim, truncate, and lower input.
-          const formatted = input.trim().slice(0, maxTsLibLength).toLowerCase()
-          if (!formatted) return []
+          const formatted = input.trim().slice(0, maxTsRefLength).toLowerCase()
+          if (!formatted) return [input]
           let matches
           // Simple search.
           for (const p of ['es2', 'es', 'e', 'de', 'd', 'w']) {
             if (input.startsWith(p) && input.length <= 3) {
-              matches = availableTsLibs.filter(l => l.startsWith(p))
+              matches = possibleTsRefs.filter(l => l.startsWith(p))
               break
             }
           }
           if (matches === undefined) {
             // Advanced closest match search.
-            matches = didYouMean(formatted, availableTsLibs, {
+            matches = didYouMean(formatted, tsLibs, {
               caseSensitive: true,
               deburr: false,
               returnType: ReturnTypeEnums.ALL_CLOSEST_MATCHES,
               threshold: 0.2
             })
           }
+          const containsInput = matches.includes(input)
           const sorted =
             matches.length > 1
-              ? [matches[0], ...naturalSort(matches.slice(1)).desc()]
-              : matches
+              ? [
+                  matches[0],
+                  ...(containsInput ? [input] : []),
+                  ...naturalSort(matches.slice(1)).desc()
+                ]
+              : [matches[0], ...(containsInput ? [input] : [])]
           return sorted.map(l => ({ name: l, value: l }))
         }
       })
-      if (tsLib === undefined) {
+      if (searchResult === undefined) {
         // Exit if user force closed the prompt.
         return
       }
+      const name = tsLibs.includes(searchResult) ? 'lib' : 'types'
+      tsRefs.push({ name, value: searchResult })
     }
   }
 
@@ -300,13 +323,29 @@ async function readLicenses(dirname) {
   // First copy the template directory contents to the package path.
   await fs.copy(templatePkgPath, pkgPath)
   // Then modify the new package's package.json source and write to disk.
-  await writeAction(await getPackageJsonAction(pkgPath, nodeRange))
+  await writeAction(
+    await getPackageJsonAction(pkgPath, {
+      engines: {
+        node: nodeRange
+      }
+    })
+  )
   // Finally, modify other package file sources and write to disk.
   await Promise.all(
     [
       await getNpmReadmeAction(pkgPath),
       ...(await getLicenseActions(pkgPath)),
-      ...(tsLib ? await getTypeScriptActions(pkgPath, tsLib) : [])
+      ...(await getTypeScriptActions(pkgPath, {
+        transform(filepath, data) {
+          // Exclude /// <reference types="node" /> from .d.ts files, allowing
+          // them in .d.cts files.
+          const isCts = filepath.endsWith('.d.cts')
+          data.references = tsRefs.filter(
+            r => isCts || !(r.name === 'types' && r.value === 'node')
+          )
+          return data
+        }
+      }))
     ].map(writeAction)
   )
   // Create LICENSE.original files.
@@ -315,10 +354,13 @@ async function readLicenses(dirname) {
   for (let i = 0; i < licenseCount; i += 1) {
     const { content, name } = licenseContents[i]
     const extRaw = path.extname(name)
+    // Omit the .txt extension since licenses are assumed plain text by default.
     const ext = extRaw === '.txt' ? '' : extRaw
     const basename = licenseCount === 1 ? LICENSE : path.basename(name, ext)
     const originalLicenseName = `${basename}.original${ext}`
     if (
+      // `npm pack` will automatically include LICENSE{.*,} files so we can
+      // exclude them from the package.json "files" field.
       originalLicenseName !== LICENSE_ORIGINAL &&
       originalLicenseName !== `${LICENSE_ORIGINAL}.md`
     ) {
@@ -327,7 +369,7 @@ async function readLicenses(dirname) {
     fs.writeFile(path.join(pkgPath, originalLicenseName), content, 'utf8')
   }
   if (filesFieldAdditions.length) {
-    // Load new package's package.json and edit its "files" field.
+    // Load the freshly written package.json and edit its "files" field.
     const editablePkgJson = await readPackageJson(pkgPath, { editable: true })
     editablePkgJson.update({
       files: [...editablePkgJson.content.files, ...filesFieldAdditions].sort(

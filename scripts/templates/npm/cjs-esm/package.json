@@ -22,13 +22,13 @@
   },
   "sideEffects": false,
   "engines": {
-    "node": "<%~ it.node_range %>"
+    "node": "<%~ it.engines.node %>"
   },
   "files": [
     "*.d.{c,}ts",
     "*.{c,}js"
   ],
   "socket": {
-    "categories": ["<%~ it.categories %>"]
+    "categories": "//_ <%~ JSON.stringify(it.categories) %>"
   }
 }
