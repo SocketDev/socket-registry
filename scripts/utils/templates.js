@@ -24,6 +24,7 @@ const {
   npmTemplatesPath
 } = constants
 const { globLicenses } = require('@socketregistry/scripts/utils/globs')
+const { isObjectObject } = require('@socketregistry/scripts/utils/objects')
 const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
 const { prettierFormat } = require('@socketregistry/scripts/utils/strings')
 
@@ -102,6 +103,7 @@ async function getNpmReadmeAction(pkgPath) {
           categories: Array.isArray(categories)
             ? categories
             : [...PACKAGE_DEFAULT_SOCKET_CATEGORIES],
+          dependencies: isObjectObject(pkgJson.dependencies) ?? {},
           purl: pkgPurlObj,
           version: semver.parse(pkgJson.version)
         }
