@@ -269,6 +269,21 @@ function isValidPackageName(pkgName) {
   )
 }
 
+function isSubpathEntryExports(entryExports) {
+  if (isObjectObject(entryExports)) {
+    for (const key in entryExports) {
+      // Subpath entry exports contain keys starting with '.'.
+      // Entry exports cannot contain some keys starting with '.' and some not.
+      // The exports object MUST either be an object of package subpath keys OR
+      // an object of main entry condition name keys only.
+      if (Object.hasOwn(key) && key.charCodeAt(0) === 46 /*'.'*/) {
+        return true
+      }
+    }
+  }
+  return false
+}
+
 function jsonToEditablePackageJson(pkgJson, options) {
   return new EditablePackageJson().fromContent(
     normalizePackageJson(pkgJson, options)
@@ -370,6 +385,15 @@ async function resolveGitHubTgzUrl(pkgNameOrId, where) {
 
 function resolvePackageJsonDirname(filepath) {
   return filepath.endsWith(PACKAGE_JSON) ? path.dirname(filepath) : filepath
+}
+
+function resolvePackageJsonEntryExports(pkgJson) {
+  const { exports: entryExports } = pkgJson
+  return isObjectObject(entryExports)
+    ? entryExports
+    : typeof entryExports === 'string'
+      ? { default: entryExports }
+      : undefined
 }
 
 function resolvePackageJsonPath(filepath) {
@@ -476,11 +500,13 @@ module.exports = {
   createPackageJson,
   extractPackage,
   fetchPackageManifest,
+  isSubpathEntryExports,
   isValidPackageName,
   normalizePackageJson,
   readPackageJson,
   resolveGitHubTgzUrl,
   resolvePackageJsonDirname,
+  resolvePackageJsonEntryExports,
   resolvePackageJsonPath,
   resolvePackageLicenses,
   toEditablePackageJson

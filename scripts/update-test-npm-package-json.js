@@ -35,10 +35,11 @@ const {
   isSymbolicLinkSync,
   uniqueSync
 } = require('@socketregistry/scripts/utils/fs')
-const { isObjectObject } = require('@socketregistry/scripts/utils/objects')
 const {
+  isSubpathEntryExports,
   readPackageJson,
-  resolveGitHubTgzUrl
+  resolveGitHubTgzUrl,
+  resolvePackageJsonEntryExports
 } = require('@socketregistry/scripts/utils/packages')
 const { splitPath } = require('@socketregistry/scripts/utils/path')
 const { pEach, pEachChunk } = require('@socketregistry/scripts/utils/promises')
@@ -103,10 +104,6 @@ const readCachedEditablePackageJson = async filepath_ => {
   const result = await readPackageJson(filepath, { editable: true })
   editablePackageJsonCache[filepath] = result
   return result
-}
-
-function startsWithDot(str) {
-  return str.startsWith('.')
 }
 
 function toWorkspaceEntry(pkgName) {
@@ -349,22 +346,9 @@ const testScripts = [
         )
       })
 
-      const {
-        dependencies,
-        engines,
-        exports: entryExports,
-        overrides
-      } = pkgJson
-
-      const entryExportsObj = isObjectObject(entryExports)
-        ? entryExports
-        : typeof entryExports === 'string'
-          ? { default: entryExports }
-          : undefined
-
-      const entryExportsHasDotKeys = entryExportsObj
-        ? Object.keys(entryExportsObj).some(startsWithDot)
-        : false
+      const { dependencies, engines, overrides } = pkgJson
+      const entryExports = resolvePackageJsonEntryExports(pkgJson)
+      const entryExportsHasDotKeys = isSubpathEntryExports(entryExports)
 
       // Add dependencies and overrides of the @socketregistry/xyz package
       // as dependencies of the test/npm/node_modules/xyz package.
@@ -410,36 +394,29 @@ const testScripts = [
       }
 
       // Update test/npm/node_modules/xyz package exports field.
-      if (entryExportsObj) {
-        const { exports: nmEntryExports } = nmEditablePkgJson.content
-
-        const nmEntryExportsObj = isObjectObject(nmEntryExports)
-          ? nmEntryExports
-          : typeof entryExports === 'string'
-            ? { default: nmEntryExports }
-            : undefined
-
-        const nmEntryExportsHasDotKeys = nmEntryExportsObj
-          ? Object.keys(nmEntryExportsObj).some(startsWithDot)
-          : false
+      if (entryExports) {
+        const nmEntryExports = resolvePackageJsonEntryExports(
+          nmEditablePkgJson.content
+        )
+        const nmEntryExportsHasDotKeys = isSubpathEntryExports(nmEntryExports)
 
         const { default: entryExportsDefault, ...entryExportsWithoutDefault } =
-          entryExportsObj
+          nmEntryExports
 
         const {
           default: nmEntryExportsDefault,
           ...nmEntryExportsWithoutDefault
-        } = { __proto__: null, ...nmEntryExportsObj }
+        } = { __proto__: null, ...nmEntryExports }
 
         const {
-          default: pkgNodeEntryExportsDefault,
-          ...pkgNodeEntryExportsWithoutDefault
+          default: nodeEntryExportsDefault,
+          ...nodeEntryExportsWithoutDefault
         } = entryExports.node
 
         const {
           default: nmNodeEntryExportsDefault,
           ...nmNodeEntryExportsWithoutDefault
-        } = { __proto__: null, ...nmEntryExportsObj?.node }
+        } = { __proto__: null, ...nmEntryExports?.node }
 
         let updatedEntryExports
         if (entryExportsHasDotKeys) {
@@ -448,8 +425,8 @@ const testScripts = [
             // Cannot contain some keys starting with '.' and some not.
             // The exports object must either be an object of package subpath
             // keys OR an object of main entry condition name keys only.
-            ...(nmEntryExportsHasDotKeys ? nmEntryExportsObj : {}),
-            ...entryExportsObj
+            ...(nmEntryExportsHasDotKeys ? nmEntryExports : {}),
+            ...entryExports
           }
         } else {
           updatedEntryExports = {
@@ -464,12 +441,12 @@ const testScripts = [
             node: {
               __proto__: null,
               ...nmNodeEntryExportsWithoutDefault,
-              ...pkgNodeEntryExportsWithoutDefault,
+              ...nodeEntryExportsWithoutDefault,
               // Properties with undefined values are omitted when saved as JSON.
               module: undefined,
               require: undefined,
               // The "default" entry must be defined last.
-              default: pkgNodeEntryExportsDefault ?? nmNodeEntryExportsDefault
+              default: nodeEntryExportsDefault ?? nmNodeEntryExportsDefault
             },
             // Properties with undefined values are omitted when saved as JSON.
             browser: undefined,

@@ -33,9 +33,11 @@ const {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
   extractPackage,
+  isSubpathEntryExports,
   isValidPackageName,
   readPackageJson,
   resolveGitHubTgzUrl,
+  resolvePackageJsonEntryExports,
   resolvePackageLicenses
 } = require('@socketregistry/scripts/utils/packages')
 const {
@@ -387,9 +389,17 @@ function toChoice(value) {
     fs.writeFile(path.join(pkgPath, originalLicenseName), content, 'utf8')
   }
   if (filesFieldAdditions.length) {
-    // Load the freshly written package.json and edit its "files" field.
+    // Load the freshly written package.json and edit its "exports" and "files" fields.
     const editablePkgJson = await readPackageJson(pkgPath, { editable: true })
+    const entryExports = resolvePackageJsonEntryExports(
+      editablePkgJson.content.exports
+    )
+    const nmEntryExports = resolvePackageJsonEntryExports(nmPkgJson.exports)
+    const useNmEntryExports =
+      entryExports === undefined && isSubpathEntryExports(nmEntryExports)
     editablePkgJson.update({
+      main: useNmEntryExports ? undefined : pkgPath.content.main,
+      exports: useNmEntryExports ? nmEntryExports : entryExports,
       files: [...editablePkgJson.content.files, ...filesFieldAdditions].sort(
         localCompare
       )
