@@ -35,6 +35,7 @@ const {
   isSymbolicLinkSync,
   uniqueSync
 } = require('@socketregistry/scripts/utils/fs')
+const { isObjectObject } = require('@socketregistry/scripts/utils/objects')
 const {
   readPackageJson,
   resolveGitHubTgzUrl
@@ -104,7 +105,13 @@ const readCachedEditablePackageJson = async filepath_ => {
   return result
 }
 
-const toWorkspaceEntry = pkgName => `${NODE_WORKSPACES}/${pkgName}`
+function startsWithDot(str) {
+  return str.startsWith('.')
+}
+
+function toWorkspaceEntry(pkgName) {
+  return `${NODE_WORKSPACES}/${pkgName}`
+}
 
 const testScripts = [
   // Order is significant. First in, first tried.
@@ -342,9 +349,25 @@ const testScripts = [
         )
       })
 
-      // Add dependencies and overrides of @socketregistry/xyz override package
-      // as dependencies of the original xyz package.
-      const { dependencies, engines, overrides } = pkgJson
+      const {
+        dependencies,
+        engines,
+        exports: entryExports,
+        overrides
+      } = pkgJson
+
+      const entryExportsObj = isObjectObject(entryExports)
+        ? entryExports
+        : typeof entryExports === 'string'
+          ? { default: entryExports }
+          : undefined
+
+      const entryExportsHasDotKeys = entryExportsObj
+        ? Object.keys(entryExportsObj).some(startsWithDot)
+        : false
+
+      // Add dependencies and overrides of the @socketregistry/xyz package
+      // as dependencies of the test/npm/node_modules/xyz package.
       if (dependencies ?? overrides) {
         const socketRegistryPrefix = 'npm:@socketregistry/'
         const overridesAsDeps =
@@ -367,6 +390,7 @@ const testScripts = [
         })
       }
 
+      // Update test/npm/node_modules/xyz package engines field.
       const nodeRange = engines?.node
       if (
         nodeRange &&
@@ -380,12 +404,88 @@ const testScripts = [
         // is greater than the previous Node version.
         nmEditablePkgJson.update({ engines })
       } else {
-        // Remove engines field. The `undefined` value will be removed when saved.
+        // Remove engines field.
+        // Properties with undefined values are omitted when saved as JSON.
         nmEditablePkgJson.update({ engines: undefined })
       }
 
+      // Update test/npm/node_modules/xyz package exports field.
+      if (entryExportsObj) {
+        const { exports: nmEntryExports } = nmEditablePkgJson.content
+
+        const nmEntryExportsObj = isObjectObject(nmEntryExports)
+          ? nmEntryExports
+          : typeof entryExports === 'string'
+            ? { default: nmEntryExports }
+            : undefined
+
+        const nmEntryExportsHasDotKeys = nmEntryExportsObj
+          ? Object.keys(nmEntryExportsObj).some(startsWithDot)
+          : false
+
+        const { default: entryExportsDefault, ...entryExportsWithoutDefault } =
+          entryExportsObj
+
+        const {
+          default: nmEntryExportsDefault,
+          ...nmEntryExportsWithoutDefault
+        } = { __proto__: null, ...nmEntryExportsObj }
+
+        const {
+          default: pkgNodeEntryExportsDefault,
+          ...pkgNodeEntryExportsWithoutDefault
+        } = entryExports.node
+
+        const {
+          default: nmNodeEntryExportsDefault,
+          ...nmNodeEntryExportsWithoutDefault
+        } = { __proto__: null, ...nmEntryExportsObj?.node }
+
+        let updatedEntryExports
+        if (entryExportsHasDotKeys) {
+          updatedEntryExports = {
+            __proto__: null,
+            // Cannot contain some keys starting with '.' and some not.
+            // The exports object must either be an object of package subpath
+            // keys OR an object of main entry condition name keys only.
+            ...(nmEntryExportsHasDotKeys ? nmEntryExportsObj : {}),
+            ...entryExportsObj
+          }
+        } else {
+          updatedEntryExports = {
+            __proto__: null,
+            // The "types" entry should be defined first.
+            types: undefined,
+            // Cannot contain some keys starting with '.' and some not.
+            // The exports object must either be an object of package subpath
+            // keys OR an object of main entry condition name keys only.
+            ...(nmEntryExportsHasDotKeys ? {} : nmEntryExportsWithoutDefault),
+            ...entryExportsWithoutDefault,
+            node: {
+              __proto__: null,
+              ...nmNodeEntryExportsWithoutDefault,
+              ...pkgNodeEntryExportsWithoutDefault,
+              // Properties with undefined values are omitted when saved as JSON.
+              module: undefined,
+              require: undefined,
+              // The "default" entry must be defined last.
+              default: pkgNodeEntryExportsDefault ?? nmNodeEntryExportsDefault
+            },
+            // Properties with undefined values are omitted when saved as JSON.
+            browser: undefined,
+            module: undefined,
+            require: undefined,
+            // The "default" entry must be defined last.
+            default: entryExportsDefault ?? nmEntryExportsDefault
+          }
+        }
+        nmEditablePkgJson.update({
+          exports: updatedEntryExports
+        })
+      }
+
       // Symlink files from the @socketregistry/xyz override package to the
-      // original xyz package.
+      // test/npm/node_modules/xyz package.
       const isPkgTypeModule = pkgJson.type === 'module'
       const isNmPkgTypeModule = nmEditablePkgJson.content.type === 'module'
       const isModuleTypeMismatch = isNmPkgTypeModule !== isPkgTypeModule

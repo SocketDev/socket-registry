@@ -15,6 +15,12 @@ const {
   PACKAGE_DEFAULT_SOCKET_CATEGORIES,
   PACKAGE_JSON,
   README_MD,
+  TEMPLATE_CJS,
+  TEMPLATE_CJS_BROWSER,
+  TEMPLATE_CJS_ESM,
+  TEMPLATE_ES_SHIM_CONSTRUCTOR,
+  TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
+  TEMPLATE_ES_SHIM_STATIC_METHOD,
   npmTemplatesPath
 } = constants
 const { globLicenses } = require('@socketregistry/scripts/utils/globs')
@@ -26,9 +32,14 @@ const eta = new Eta()
 const templates = Object.freeze({
   __proto__: null,
   ...Object.fromEntries(
-    ['cjs', 'cjs-esm', 'es-shim-prototype-method', 'es-shim-static-method'].map(
-      k => [k, path.join(npmTemplatesPath, k)]
-    )
+    [
+      TEMPLATE_CJS,
+      TEMPLATE_CJS_BROWSER,
+      TEMPLATE_CJS_ESM,
+      TEMPLATE_ES_SHIM_CONSTRUCTOR,
+      TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
+      TEMPLATE_ES_SHIM_STATIC_METHOD
+    ].map(k => [k, path.join(npmTemplatesPath, k)])
   )
 })
 

@@ -1,6 +1,7 @@
 'use strict'
 
 const { LOOP_SENTINEL } = require('@socketregistry/scripts/constants')
+const { localCompare } = require('@socketregistry/scripts/utils/sorts')
 
 function isObject(value) {
   return value !== null && typeof value === 'object'
@@ -71,8 +72,18 @@ function merge(target, source) {
   return target
 }
 
+function toSortedObject(object) {
+  return toSortedObjectFromEntries(Object.entries(object))
+}
+
+function toSortedObjectFromEntries(entries) {
+  return Object.fromEntries(entries.sort((a, b) => localCompare(a[0], b[0])))
+}
+
 module.exports = {
   isObject,
   isObjectObject,
-  merge
+  merge,
+  toSortedObject,
+  toSortedObjectFromEntries
 }

@@ -17,6 +17,11 @@ const {
 } = constants
 const { getModifiedFiles } = require('@socketregistry/scripts/utils/git')
 const {
+  isObjectObject,
+  toSortedObject,
+  toSortedObjectFromEntries
+} = require('@socketregistry/scripts/utils/objects')
+const {
   fetchPackageManifest,
   readPackageJson
 } = require('@socketregistry/scripts/utils/packages')
@@ -55,38 +60,39 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
           socket,
           version
         } = pkgJson
+        const entryExportsObj = isObjectObject(entryExports)
+          ? entryExports
+          : typeof entryExports === 'string'
+            ? { default: entryExports }
+            : undefined
         const { _id: nmPkgId, deprecated: nmPkgDeprecated } = nmPkgManifest
         const { license: nwPkgLicense } = nwPkgJson
         const { namespace: nmScope } = PackageURL.fromString(
           `pkg:${eco}/${nmPkgId}`
         )
 
-        const interop = []
-        const isEsm = !!(entryExports?.import || entryExports?.module)
+        const interop = ['cjs']
+        const isEsm = pkgJson.type === 'module'
         if (isEsm) {
           interop.push('esm')
         }
-        const isBrowser = !!(
-          entryExports?.browser ||
-          (entryExports?.node && entryExports?.default)
-        )
+        const isBrowser =
+          !isEsm && !!(entryExportsObj?.node && entryExportsObj?.default)
         if (isBrowser) {
-          interop.push('browser')
+          interop.push('browserify')
         }
         const metaEntries = [
           ['license', nwPkgLicense ?? UNLICENSED],
           ...(nmPkgDeprecated ? [['deprecated', true]] : []),
-          ...(engines ? [['engines', engines]] : []),
-          ...(interop.length ? [['interop', interop]] : []),
+          ...(engines ? [['engines', toSortedObject(engines)]] : []),
+          ['interop', interop.sort(localCompare)],
           ...(nmScope ? [['scope', nmScope]] : []),
           ...(socket ? Object.entries(socket) : [])
         ]
         const purlObj = PackageURL.fromString(`pkg:${eco}/${name}@${version}`)
         const data = [purlObj.toString()]
         if (metaEntries.length) {
-          data[1] = Object.fromEntries(
-            metaEntries.sort((a, b) => localCompare(a[0], b[0]))
-          )
+          data[1] = toSortedObjectFromEntries(metaEntries)
         }
         manifestData.push(data.length === 1 ? data[0] : data)
       }

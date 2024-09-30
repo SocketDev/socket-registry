@@ -14,6 +14,12 @@ const {
   ESNEXT,
   LICENSE,
   LICENSE_ORIGINAL,
+  TEMPLATE_CJS,
+  TEMPLATE_CJS_BROWSER,
+  TEMPLATE_CJS_ESM,
+  TEMPLATE_ES_SHIM_CONSTRUCTOR,
+  TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
+  TEMPLATE_ES_SHIM_STATIC_METHOD,
   execPath,
   npmPackagesPath,
   rootPath,
@@ -52,23 +58,20 @@ const {
   writeAction
 } = require('@socketregistry/scripts/utils/templates')
 
-const CJS_VALUE = 'cjs'
-const CJS_ESM_VALUE = 'cjs-esm'
-const ES_SHIM_CONSTRUCTOR_VALUE = 'es-shim-constructor'
-const ES_SHIM_PROTOTYPE_METHOD_VALUE = 'es-shim-prototype-method'
-const ES_SHIM_STATIC_METHOD_VALUE = 'es-shim-static-method'
-
 const { positionals: cliPositionals } = util.parseArgs({ strict: false })
 
 const bcaKeysMap = new Map()
 
 const esShimChoices = [
-  { name: 'es-shim prototype method', value: ES_SHIM_PROTOTYPE_METHOD_VALUE },
-  { name: 'es-shim static method', value: ES_SHIM_STATIC_METHOD_VALUE },
-  { name: 'es-shim constructor', value: ES_SHIM_CONSTRUCTOR_VALUE }
+  {
+    name: 'es-shim prototype method',
+    value: TEMPLATE_ES_SHIM_PROTOTYPE_METHOD
+  },
+  { name: 'es-shim static method', value: TEMPLATE_ES_SHIM_STATIC_METHOD },
+  { name: 'es-shim constructor', value: TEMPLATE_ES_SHIM_CONSTRUCTOR }
 ]
 
-const esShimsRepoRegExp = /^git(?:\+https)?:\/\/github\.com\/es-shims\//
+const esShimsRepoRegExp = /^git\+https:\/\/github\.com\/es-shims\//
 
 const possibleTsRefs = [...tsLibs, ...tsTypes]
 const maxTsRefLength = possibleTsRefs.reduce((n, v) => Math.max(n, v.length), 0)
@@ -209,8 +212,10 @@ function toChoice(value) {
   let templateChoice
   const tsRefs = []
   if (isEsShim) {
+    // Lazily access constants.maintainedNodeVersions.
+    const { maintainedNodeVersions } = constants
     // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
-    const { PACKAGE_DEFAULT_NODE_RANGE, maintainedNodeVersions } = constants
+    const { PACKAGE_DEFAULT_NODE_RANGE } = constants
     const parts = pkgName
       .split(/[-.]/)
       .filter(p => p !== 'es' && p !== 'helpers')
@@ -234,17 +239,17 @@ function toChoice(value) {
         (parts[1] === 'prototype' || parts[1] === 'proto')) ||
       loweredSpecUrl.includes(`${parts[0]}.prototype`)
     ) {
-      templateChoice = ES_SHIM_PROTOTYPE_METHOD_VALUE
+      templateChoice = TEMPLATE_ES_SHIM_PROTOTYPE_METHOD
     } else if (
       parts.length === 2 ||
       loweredSpecUrl.includes(`${parts[0]}.${parts.at(-1)}`)
     ) {
-      templateChoice = ES_SHIM_STATIC_METHOD_VALUE
+      templateChoice = TEMPLATE_ES_SHIM_STATIC_METHOD
     } else if (
       parts.length === 1 ||
       loweredSpecUrl.includes(`${parts[0]}-constructor`)
     ) {
-      templateChoice = ES_SHIM_CONSTRUCTOR_VALUE
+      templateChoice = TEMPLATE_ES_SHIM_CONSTRUCTOR
     } else {
       templateChoice = await select({
         message: 'Pick the es-shim template to use',
@@ -252,13 +257,14 @@ function toChoice(value) {
       })
     }
   } else if (isEsm) {
-    templateChoice = CJS_ESM_VALUE
+    templateChoice = TEMPLATE_CJS_ESM
   } else {
     templateChoice = await select({
       message: 'Pick the package template to use',
       choices: [
-        { name: 'cjs', value: CJS_VALUE },
-        { name: 'cjs and esm', value: CJS_ESM_VALUE },
+        { name: 'cjs', value: TEMPLATE_CJS },
+        { name: 'cjs and esm', value: TEMPLATE_CJS_ESM },
+        { name: 'cjs and browser', value: TEMPLATE_CJS_BROWSER },
         ...esShimChoices
       ]
     })
@@ -324,7 +330,7 @@ function toChoice(value) {
         // Exit if user force closed the prompt.
         return
       }
-      const name = tsLibs.includes(searchResult) ? 'lib' : 'types'
+      const name = tsLibs.has(searchResult) ? 'lib' : 'types'
       tsRefs.push({ name, value: searchResult })
     }
   }
@@ -337,7 +343,8 @@ function toChoice(value) {
   await writeAction(
     await getPackageJsonAction(pkgPath, {
       engines: {
-        node: nodeRange
+        // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
+        node: nodeRange ?? constants.PACKAGE_DEFAULT_NODE_RANGE
       }
     })
   )

@@ -175,6 +175,7 @@ for (const eco of constants.ecosystems) {
 
           if (entryExports) {
             it('file exists for every "export" entry of package.json', () => {
+              assert.ok(isObjectObject(entryExports))
               for (const entry of [
                 entryExports.default,
                 ...Object.values(entryExports.node)

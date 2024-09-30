@@ -93,6 +93,12 @@ const README_GLOB_RECURSIVE = `**/${README_GLOB}`
 const README_MD = 'README.md'
 const REPO_ORG = 'SocketDev'
 const REPO_NAME = 'socket-registry-js'
+const TEMPLATE_CJS = 'cjs'
+const TEMPLATE_CJS_BROWSER = 'cjs-browser'
+const TEMPLATE_CJS_ESM = 'cjs-esm'
+const TEMPLATE_ES_SHIM_CONSTRUCTOR = 'es-shim-constructor'
+const TEMPLATE_ES_SHIM_PROTOTYPE_METHOD = 'es-shim-prototype-method'
+const TEMPLATE_ES_SHIM_STATIC_METHOD = 'es-shim-static-method'
 const TSCONFIG_JSON = 'tsconfig.json'
 const UNLICENCED = 'UNLICENCED'
 const UNLICENSED = 'UNLICENSED'
@@ -466,6 +472,12 @@ const constants = Object.freeze(
       README_MD,
       REPO_ORG,
       REPO_NAME,
+      TEMPLATE_CJS,
+      TEMPLATE_CJS_BROWSER,
+      TEMPLATE_CJS_ESM,
+      TEMPLATE_ES_SHIM_CONSTRUCTOR,
+      TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
+      TEMPLATE_ES_SHIM_STATIC_METHOD,
       TSCONFIG_JSON,
       UNLICENCED,
       UNLICENSED,

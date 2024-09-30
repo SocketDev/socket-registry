@@ -137,6 +137,11 @@ function createPackageJson(pkgName, directory, options) {
   // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
   const { PACKAGE_DEFAULT_NODE_RANGE } = constants
   const name = `${PACKAGE_SCOPE}/${pkgName.replace(pkgScopeRegExp, '')}`
+  const entryExportsObj = isObjectObject(entryExports)
+    ? entryExports
+    : typeof entryExports === 'string'
+      ? { default: entryExports }
+      : undefined
   return {
     __proto__: null,
     name,
@@ -150,8 +155,8 @@ function createPackageJson(pkgName, directory, options) {
       directory
     },
     ...(type ? { type } : {}),
-    ...(entryExports ? { exports: entryExports } : {}),
-    ...(entryExports ? {} : { main: `${main ?? './index.js'}` }),
+    ...(entryExportsObj ? { exports: entryExportsObj } : {}),
+    ...(entryExportsObj ? {} : { main: `${main ?? './index.js'}` }),
     sideEffects: sideEffects !== undefined && !!sideEffects,
     ...(isObjectObject(dependencies) ? { dependencies } : {}),
     ...(isObjectObject(overrides) ? { overrides, resolutions: overrides } : {}),
