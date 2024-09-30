@@ -185,7 +185,7 @@ function createPackageJson(pkgName, directory, options) {
       ? { socket }
       : {
           socket: {
-            // Valid categories are: cleanup, levelup, speedup, tightenup
+            // Valid categories are: cleanup, levelup, speedup, tuneup
             categories: PACKAGE_DEFAULT_SOCKET_CATEGORIES
           }
         })

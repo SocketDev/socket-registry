@@ -5,9 +5,9 @@
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 >A<% if (it.categories.includes('speedup')) { %> faster <% } %>
-<% if (it.categories.includes('tightenup')) { %> more secure <% } %>
-<% if (Object.keys(it.dependencies ?? {}).length) { %> low <% } else { %> zero <% } %>
-dependency <% if (it.interop?.includes('esm')) { %> CommonJS compatible <% } %>
+<% if (it.categories.includes('tuneup')) { %> more secure <% } %>
+<% if (Object.keys(it.dependencies).length) { %> low <% } else { %> zero <% } %>
+dependency <% if (it.interop?.includes('esm')) { %> CJS/ESM compatible <% } %>
 drop-in replacement of <% if (it.deprecated) { %> the deprecated <% } %>[`<%= it.originalName %>`](https://www.npmjs.com/package/<%= it.originalName %>)<% if (it.deprecated) { %> package <% } %>.
 
 ## Installation
