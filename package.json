@@ -58,6 +58,7 @@
     "@socketregistry/scripts": "file:./scripts",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.7.3",
+    "@types/npmcli__package-json": "^4.0.4",
     "@types/npmcli__promise-spawn": "^6.0.3",
     "@types/semver": "^7.5.8",
     "@types/validate-npm-package-name": "^4.0.2",

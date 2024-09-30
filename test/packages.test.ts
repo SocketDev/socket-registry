@@ -4,6 +4,7 @@ import path from 'node:path'
 import { describe, it } from 'node:test'
 import util from 'node:util'
 
+import { fix } from '@npmcli/package-json'
 import fs from 'fs-extra'
 import semver from 'semver'
 import { glob as tinyGlob } from 'tinyglobby'
@@ -220,6 +221,12 @@ for (const eco of constants.ecosystems) {
 
           it('should have a "sideEffects" field of `false` in package.json', () => {
             assert.strictEqual(pkgJson.sideEffects, false)
+          })
+
+          it('should not need package.json fixing', () => {
+            const changes: string[] = []
+            fix(pkgPath, { changes })
+            assert.strictEqual(changes.length, 0)
           })
 
           it(`should have a MIT ${LICENSE} file`, async () => {
