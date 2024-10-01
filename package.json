@@ -139,6 +139,7 @@
     "packages/npm/es-set-tostringtag",
     "packages/npm/es6-object-assign",
     "packages/npm/es6-symbol",
+    "packages/npm/for-each",
     "packages/npm/function-bind",
     "packages/npm/function.prototype.name",
     "packages/npm/functions-have-names",

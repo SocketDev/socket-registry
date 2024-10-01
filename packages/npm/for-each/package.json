@@ -1,0 +1,29 @@
+{
+  "name": "@socketregistry/for-each",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "Socket.dev optimized package override for for-each",
+  "keywords": [
+    "Socket.dev",
+    "package-overrides"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SocketDev/socket-registry-js.git",
+    "directory": "packages/npm/for-each"
+  },
+  "main": "./index.js",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.20.4"
+  },
+  "files": [
+    "*.d.ts",
+    "*.js"
+  ],
+  "socket": {
+    "categories": [
+      "cleanup"
+    ]
+  }
+}
