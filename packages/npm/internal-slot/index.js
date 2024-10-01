@@ -1,6 +1,7 @@
 'use strict'
 
 const channel = new WeakMap()
+const { hasOwn: ObjectHasOwn } = Object
 
 function check(O, slot) {
   if (O === null || (typeof O !== 'object' && typeof O !== 'function')) {
@@ -14,7 +15,7 @@ function check(O, slot) {
 function has(O, slot) {
   check(O, slot)
   const slots = channel.get(O)
-  return slots !== undefined && Object.hasOwn(slots, slot)
+  return slots !== undefined && ObjectHasOwn(slots, slot)
 }
 
 module.exports = Object.freeze({

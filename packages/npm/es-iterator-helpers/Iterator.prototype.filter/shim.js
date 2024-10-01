@@ -3,10 +3,12 @@
 const getPolyfill = require('./polyfill')
 const IteratorPrototype = require('../Iterator.prototype/implementation')
 
+const { defineProperty: ObjectDefineProperty } = Object
+
 module.exports = function shimIteratorProtoFilter() {
   const polyfill = getPolyfill()
   if (polyfill && IteratorPrototype.drop !== polyfill) {
-    Object.defineProperty(IteratorPrototype, 'filter', {
+    ObjectDefineProperty(IteratorPrototype, 'filter', {
       __proto__: null,
       configurable: true,
       enumerable: false,

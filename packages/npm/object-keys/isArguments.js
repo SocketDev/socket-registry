@@ -1,5 +1,6 @@
 'use strict'
 
+const { isArray: ArrayIsArray } = Array
 const { toString: objToStr } = Object.prototype
 
 module.exports = function isArguments(value) {
@@ -17,6 +18,6 @@ module.exports = function isArguments(value) {
     typeof value.length === 'number' &&
     value.length >= 0 &&
     typeof value.callee === 'function' &&
-    !Array.isArray(value)
+    !ArrayIsArray(value)
   )
 }

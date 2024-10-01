@@ -7,6 +7,8 @@ const LOOP_SENTINEL = 1_000_000
 const STRINGIFIED_CYCLE = JSON.stringify('__cycle__')
 const STRINGIFIED_NULL = JSON.stringify(null)
 
+const { isArray: ArrayIsArray } = Array
+const { keys: ObjectKeys } = Object
 const { compare: localCompare } = new Intl.Collator()
 const defaultReplacer = (_parent, _key, value) => value
 
@@ -135,7 +137,7 @@ module.exports = function stableStringify(obj, opts = {}) {
       seen.add(node)
     }
     const indent = space ? `\n${space.repeat(level)}` : ''
-    if (Array.isArray(node)) {
+    if (ArrayIsArray(node)) {
       const { length } = node
       const arrEntries = new ArrayEntries({ indent, space })
       for (let i = 0; i < length; i += 1) {
@@ -162,7 +164,7 @@ module.exports = function stableStringify(obj, opts = {}) {
       entries.push([key, arrEntries])
       continue
     }
-    const keys = Object.keys(node).sort(cmp(node))
+    const keys = ObjectKeys(node).sort(cmp(node))
     const objEntries = new ObjectEntries({ indent, space })
     for (let i = 0, { length } = keys; i < length; i += 1) {
       const key = keys[i]

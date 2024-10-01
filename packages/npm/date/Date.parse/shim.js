@@ -2,10 +2,12 @@
 
 const getPolyfill = require('./polyfill')
 
+const { defineProperty: ObjectDefineProperty } = Object
+
 module.exports = function shimDateParse() {
   const polyfill = getPolyfill()
   if (polyfill && Date.parse !== polyfill) {
-    Object.defineProperty(Date, 'parse', {
+    ObjectDefineProperty(Date, 'parse', {
       __proto__: null,
       configurable: true,
       enumerable: false,

@@ -1,5 +1,8 @@
 'use strict'
 
+const ArrayCtor = Array
+const { isArray: ArrayIsArray } = ArrayCtor
+
 // This implementation avoids a V8 perf issue associated with setting Symbol.isConcatSpreadable:
 // https://issues.chromium.org/issues/42204235#comment4
 module.exports = function safeArrayConcat(_item) {
@@ -9,13 +12,13 @@ module.exports = function safeArrayConcat(_item) {
   let size = 0
   for (let i = 0, { length } = arguments; i < length; i += 1) {
     const arg = arguments[i]
-    size += Array.isArray(arg) ? arg.length : 1
+    size += ArrayIsArray(arg) ? arg.length : 1
   }
-  const result = Array(size)
+  const result = ArrayCtor(size)
   let pos = 0
   for (let i = 0, { length } = arguments; i < length; i += 1) {
     const arg = arguments[i]
-    if (Array.isArray(arg)) {
+    if (ArrayIsArray(arg)) {
       for (let j = 0, { length: length_j } = arg; j < length_j; j += 1) {
         result[pos++] = arg[j]
       }
