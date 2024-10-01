@@ -151,7 +151,7 @@ function createPackageJson(pkgName, directory, options) {
     keywords,
     repository: {
       type: 'git',
-      url: `git+https://github.com/${REPO_ORG}/${REPO_NAME}`,
+      url: `git+https://github.com/${REPO_ORG}/${REPO_NAME}.git`,
       directory
     },
     ...(type ? { type } : {}),
@@ -276,7 +276,10 @@ function isSubpathEntryExports(entryExports) {
       // Entry exports cannot contain some keys starting with '.' and some not.
       // The exports object MUST either be an object of package subpath keys OR
       // an object of main entry condition name keys only.
-      if (Object.hasOwn(key) && key.charCodeAt(0) === 46 /*'.'*/) {
+      if (
+        Object.hasOwn(entryExports, key) &&
+        key.charCodeAt(0) === 46 /*'.'*/
+      ) {
         return true
       }
     }
@@ -326,10 +329,17 @@ function parseSpdxExp(spdxExp) {
 
 async function readPackageJson(filepath, options) {
   const { editable, ...otherOptions } = { __proto__: null, ...options }
-  const jsonPath = resolvePackageJsonPath(filepath)
-  const pkgJson = await fs.readJson(jsonPath)
+  const pkgJson = await fs.readJson(resolvePackageJsonPath(filepath))
   return editable
     ? await toEditablePackageJson(pkgJson, { path: filepath, ...otherOptions })
+    : normalizePackageJson(pkgJson, otherOptions)
+}
+
+function readPackageJsonSync(filepath, options) {
+  const { editable, ...otherOptions } = { __proto__: null, ...options }
+  const pkgJson = fs.readJsonSync(resolvePackageJsonPath(filepath))
+  return editable
+    ? toEditablePackageJsonSync(pkgJson, { path: filepath, ...otherOptions })
     : normalizePackageJson(pkgJson, otherOptions)
 }
 
@@ -462,6 +472,21 @@ async function toEditablePackageJson(pkgJson, options) {
   )
 }
 
+function toEditablePackageJsonSync(pkgJson, options) {
+  const { path: filepath, ...otherOptions } = { __proto__: null, ...options }
+  return typeof filepath === 'string'
+    ? new EditablePackageJson().create(filepath).update(
+        normalizePackageJson(pkgJson, {
+          __proto__: null,
+          ...(isNodeModules(resolvePackageJsonDirname(filepath))
+            ? {}
+            : { preserve: ['repository'] }),
+          ...otherOptions
+        })
+      )
+    : jsonToEditablePackageJson(pkgJson, otherOptions)
+}
+
 function visitLicenses(ast, visitor) {
   const queue = [[createAstNode(ast), undefined]]
   let { length: queueLength } = queue
@@ -504,10 +529,12 @@ module.exports = {
   isValidPackageName,
   normalizePackageJson,
   readPackageJson,
+  readPackageJsonSync,
   resolveGitHubTgzUrl,
   resolvePackageJsonDirname,
   resolvePackageJsonEntryExports,
   resolvePackageJsonPath,
   resolvePackageLicenses,
-  toEditablePackageJson
+  toEditablePackageJson,
+  toEditablePackageJsonSync
 }
