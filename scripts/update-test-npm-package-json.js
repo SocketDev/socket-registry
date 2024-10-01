@@ -395,13 +395,14 @@ const testScripts = [
 
       // Update test/npm/node_modules/xyz package exports field.
       if (entryExports) {
+        const { default: entryExportsDefault, ...entryExportsWithoutDefault } =
+          entryExports
+
         const nmEntryExports = resolvePackageJsonEntryExports(
           nmEditablePkgJson.content
         )
-        const nmEntryExportsHasDotKeys = isSubpathEntryExports(nmEntryExports)
 
-        const { default: entryExportsDefault, ...entryExportsWithoutDefault } =
-          nmEntryExports
+        const nmEntryExportsHasDotKeys = isSubpathEntryExports(nmEntryExports)
 
         const {
           default: nmEntryExportsDefault,
