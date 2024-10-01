@@ -79,6 +79,7 @@ const LICENSE_ORIGINAL_GLOB_RECURSIVE = `**/${LICENSE_ORIGINAL_GLOB}`
 const LOOP_SENTINEL = 1_000_000
 const MIT = 'MIT'
 const NODE_MODULES = 'node_modules'
+const NODE_MODULES_GLOB_RECURSIVE = `**/${NODE_MODULES}`
 const NODE_WORKSPACES = 'node_workspaces'
 const NODE_VERSION = process.versions.node
 const NPM_ORG = 'socketregistry'
@@ -86,7 +87,6 @@ const OVERRIDES = 'overrides'
 const PACKAGE_DEFAULT_SOCKET_CATEGORIES = Object.freeze(['cleanup'])
 const PACKAGE_JSON = 'package.json'
 const PACKAGE_LOCK = 'package-lock.json'
-const PACKAGE_HIDDEN_LOCK = `.${PACKAGE_LOCK}`
 const PACKAGE_SCOPE = `@${NPM_ORG}`
 const README_GLOB = 'README{.*,}'
 const README_GLOB_RECURSIVE = `**/${README_GLOB}`
@@ -132,10 +132,6 @@ const testNpmPath = path.join(rootPath, 'test/npm')
 const testNpmPkgJsonPath = path.join(testNpmPath, PACKAGE_JSON)
 const testNpmPkgLockPath = path.join(testNpmPath, PACKAGE_LOCK)
 const testNpmNodeModulesPath = path.join(testNpmPath, NODE_MODULES)
-const testNpmNodeModulesHiddenLockPath = path.join(
-  testNpmNodeModulesPath,
-  PACKAGE_HIDDEN_LOCK
-)
 const testNpmNodeWorkspacesPath = path.join(testNpmPath, NODE_WORKSPACES)
 
 const yarnPkgExtsPath = path.join(rootNodeModulesPath, '@yarnpkg/extensions')
@@ -458,6 +454,7 @@ const constants = Object.freeze(
       LOOP_SENTINEL,
       MIT,
       NODE_MODULES,
+      NODE_MODULES_GLOB_RECURSIVE,
       NODE_WORKSPACES,
       NODE_VERSION,
       NPM_ORG,
@@ -466,7 +463,6 @@ const constants = Object.freeze(
       PACKAGE_DEFAULT_SOCKET_CATEGORIES,
       PACKAGE_DEFAULT_NODE_RANGE: undefined,
       PACKAGE_DEFAULT_VERSION,
-      PACKAGE_HIDDEN_LOCK,
       PACKAGE_JSON,
       PACKAGE_LOCK,
       PACKAGE_SCOPE,
@@ -526,7 +522,6 @@ const constants = Object.freeze(
       testNpmPkgJsonPath,
       testNpmPkgLockPath,
       testNpmNodeModulesPath,
-      testNpmNodeModulesHiddenLockPath,
       testNpmNodeWorkspacesPath,
       tsLibs,
       tsTypes,

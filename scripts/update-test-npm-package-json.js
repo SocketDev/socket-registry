@@ -12,6 +12,7 @@ const { glob: tinyGlob } = require('tinyglobby')
 const constants = require('@socketregistry/scripts/constants')
 const {
   LICENSE_GLOB_RECURSIVE,
+  NODE_MODULES_GLOB_RECURSIVE,
   NODE_WORKSPACES,
   PACKAGE_JSON,
   README_GLOB,
@@ -20,7 +21,6 @@ const {
   relNpmPackagesPath,
   relTestNpmNodeModulesPath,
   relTestNpmPath,
-  testNpmNodeModulesHiddenLockPath,
   testNpmNodeModulesPath,
   testNpmNodeWorkspacesPath,
   testNpmPath,
@@ -88,14 +88,24 @@ function createStubEsModule(srcPath) {
   return `export * from '${relPath}'\nexport { default } from '${relPath}'\n`
 }
 
-async function installTestNpmNodeModules(pkgName) {
+async function installTestNpmNodeModules(options) {
+  const { clean, specs } = { __proto__: null, ...options }
   await Promise.all([
-    fs.remove(testNpmPkgLockPath),
-    fs.remove(testNpmNodeModulesHiddenLockPath)
+    ...(clean ? [fs.remove(testNpmPkgLockPath)] : []),
+    ...(clean ? [fs.remove(testNpmNodeModulesPath)] : []),
+    ...(clean === 'deep'
+      ? (
+          await tinyGlob([NODE_MODULES_GLOB_RECURSIVE], {
+            absolute: true,
+            cwd: testNpmNodeWorkspacesPath,
+            onlyDirectories: true
+          })
+        ).map(p => fs.remove(p))
+      : [])
   ])
   const args = ['install', '--silent']
-  if (typeof pkgName === 'string') {
-    args.push('--save-dev', pkgName)
+  if (Array.isArray(specs)) {
+    args.push('--save-dev', ...specs)
   }
   // Lazily access constants.npmExecPath.
   return await spawn(constants.npmExecPath, args, { cwd: testNpmPath })
@@ -118,36 +128,8 @@ function toWorkspaceEntry(pkgName) {
   return `${NODE_WORKSPACES}/${pkgName}`
 }
 
-async function refreshNodeModules(
-  packageNames,
-  nodeModulesExists = fs.existsSync(testNpmNodeModulesPath)
-) {
-  // Refresh/initialize test/npm/node_modules
-  const spinner = new Spinner(
-    `${nodeModulesExists ? 'Refreshing' : 'Initializing'} ${relTestNpmNodeModulesPath}...`
-  ).start()
-  if (nodeModulesExists) {
-    // Remove existing packages to re-install later.
-    await Promise.all(
-      packageNames.map(n => fs.remove(path.join(testNpmNodeModulesPath, n)))
-    )
-  }
-  try {
-    await installTestNpmNodeModules()
-    spinner.stop(
-      `✔ ${nodeModulesExists ? 'Refreshed' : 'Initialized'} ${relTestNpmNodeModulesPath}`
-    )
-  } catch (e) {
-    spinner.stop(
-      `✘ ${nodeModulesExists ? 'Refresh' : 'Initialization'} encountered an error:`,
-      e
-    )
-  }
-}
-
 async function resolveDevDependencies(packageNames) {
   // Resolve test/npm/package.json "devDependencies" data.
-  let modifiedTestNpmPkgJson = false
   const unresolved = []
   // Chunk package names to process them in parallel 3 at a time.
   await pEach(packageNames, 3, async pkgName => {
@@ -168,7 +150,7 @@ async function resolveDevDependencies(packageNames) {
         `${devDepExists ? 'Refreshing' : 'Adding'} ${pkgName}...`
       ).start()
       try {
-        await installTestNpmNodeModules(pkgName)
+        await installTestNpmNodeModules({ clean: true, specs: [pkgName] })
         // Reload testNpmPkgJson because it is now out of date.
         testNpmPkgJson = readPackageJsonSync(testNpmPkgJsonPath)
         spinner.stop(
@@ -179,7 +161,7 @@ async function resolveDevDependencies(packageNames) {
       } catch {
         spinner.stop(
           devDepExists
-            ? `✘ Failed to reinstall ${pkgName}`
+            ? `✘ Failed to refresh ${pkgName}`
             : `✘ Failed to --save-dev ${pkgName} to package.json`
         )
       }
@@ -206,7 +188,11 @@ async function resolveDevDependencies(packageNames) {
         // The glob pattern ".{[cm],}[jt]s" matches .js, .cjs, .cts, .mjs, .mts, .ts file extensions.
         (
           await tinyGlob(
-            ['**/test{s,}{.{[cm],}[jt]s,}', '**/*.{spec,test}{.{[cm],}[jt]s}'],
+            [
+              'test{s,}/*',
+              '**/test{s,}{.{[cm],}[jt]s,}',
+              '**/*.{spec,test}{.{[cm],}[jt]s}'
+            ],
             {
               cwd: nmPkgPath,
               onlyFiles: false
@@ -227,7 +213,6 @@ async function resolveDevDependencies(packageNames) {
       const gitHubTgzUrl = await resolveGitHubTgzUrl(pkgId, nmPkgPath)
       if (gitHubTgzUrl) {
         // Replace the dev dep version range with the tarball URL.
-        modifiedTestNpmPkgJson = true
         const testNpmEditablePkgJson = readPackageJsonSync(testNpmPkgJsonPath, {
           editable: true
         })
@@ -238,12 +223,19 @@ async function resolveDevDependencies(packageNames) {
           }
         })
         await testNpmEditablePkgJson.save()
+        spinner.message = `Refreshing ${pkgName} from tarball...`
+        try {
+          await installTestNpmNodeModules({ clean: true, specs: [pkgName] })
+          spinner.stop(`✔ Refreshed ${pkgId} from tarball`)
+        } catch {
+          spinner.stop(`✘ Failed to refresh ${pkgName} from tarball`)
+        }
       } else {
         // Collect the names and versions of packages we failed to resolve
         // tarballs for.
         unresolved.push({ name: pkgName, version: nmPkgVer })
+        spinner.stop()
       }
-      spinner.stop()
     }
   })
   if (unresolved.length) {
@@ -256,7 +248,6 @@ async function resolveDevDependencies(packageNames) {
     const separator = msg.length + unresolvedList.length > 80 ? '\n' : ' '
     console.log(`${msg}${separator}${unresolvedList}`)
   }
-  return modifiedTestNpmPkgJson
 }
 
 async function linkPackages(packageNames) {
@@ -493,7 +484,7 @@ async function cleanupNodeWorkspaces(linkedPackageNames) {
   // Cleanup up override packages and move them from
   // test/npm/node_modules/ to test/npm/node_workspaces/
   const spinner = new Spinner(
-    `Cleaning up ${relTestNpmPath} workspaces... (☕ break)`
+    `Cleaning up ${relTestNpmPath} workspaces...`
   ).start()
   // Chunk package names to process them in parallel 3 at a time.
   await pEach(linkedPackageNames, 3, async n => {
@@ -562,7 +553,7 @@ async function installNodeWorkspaces() {
   await testNpmEditablePkgJson.save()
   // Finally install workspaces.
   try {
-    await installTestNpmNodeModules()
+    await installTestNpmNodeModules({ clean: 'deep' })
     spinner.stop()
   } catch (e) {
     spinner.stop('✘ Installation encountered an error:', e)
@@ -582,24 +573,23 @@ async function installNodeWorkspaces() {
   ) {
     return
   }
+  if (!nodeModulesExists) {
+    // Refresh/initialize test/npm/node_modules
+    const spinner = new Spinner(
+      `Initializing ${relTestNpmNodeModulesPath}...`
+    ).start()
+    try {
+      await installTestNpmNodeModules()
+      spinner.stop(`✔ Initialized ${relTestNpmNodeModulesPath}`)
+    } catch (e) {
+      spinner.stop(`✘ Initialization encountered an error:`, e)
+    }
+  }
   const packageNames = addingPkgNames
     ? cliArgs.add
     : // Lazily access constants.npmPackageNames.
       constants.npmPackageNames
-  await refreshNodeModules(packageNames, nodeModulesExists)
-  if (await resolveDevDependencies(packageNames)) {
-    // Update test/npm/node_modules if the test/npm/package.json
-    // "devDependencies" field was modified.
-    const spinner = new Spinner(
-      `Updating ${relTestNpmNodeModulesPath}...`
-    ).start()
-    try {
-      await installTestNpmNodeModules()
-      spinner.stop(`✔ Updated ${relTestNpmNodeModulesPath}`)
-    } catch (e) {
-      spinner.stop('✘ Update encountered an error:', e)
-    }
-  }
+  await resolveDevDependencies(packageNames)
   const linkedPackageNames = packageNames.length
     ? await linkPackages(packageNames)
     : []

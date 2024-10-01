@@ -8,6 +8,7 @@ const { ReturnTypeEnums, default: didYouMean } = require('didyoumean2')
 const fs = require('fs-extra')
 const { open } = require('out-url')
 const semver = require('semver')
+const { glob: tinyGlob } = require('tinyglobby')
 
 const constants = require('@socketregistry/scripts/constants')
 const {
@@ -72,8 +73,6 @@ const esShimChoices = [
   { name: 'es-shim static method', value: TEMPLATE_ES_SHIM_STATIC_METHOD },
   { name: 'es-shim constructor', value: TEMPLATE_ES_SHIM_CONSTRUCTOR }
 ]
-
-const esShimsRepoRegExp = /^git\+https:\/\/github\.com\/es-shims\//
 
 const possibleTsRefs = [...tsLibs, ...tsTypes]
 const maxTsRefLength = possibleTsRefs.reduce((n, v) => Math.max(n, v.length), 0)
@@ -160,17 +159,22 @@ function toChoice(value) {
     }
   }
   let badLicenses
+  let jsFiles
   let licenses
   let licenseContents
   let licenseWarnings
   let nmPkgJson
-  await extractPackage(pkgName, async pkgDirPath => {
-    nmPkgJson = await readPackageJson(pkgDirPath)
-    licenses = resolvePackageLicenses(nmPkgJson.license, pkgDirPath)
+  await extractPackage(pkgName, async pkgPath => {
+    nmPkgJson = await readPackageJson(pkgPath)
+    jsFiles = await tinyGlob(['**/*.{cjs,js,json}'], {
+      ignore: ['**/package.json'],
+      cwd: pkgPath
+    })
+    licenses = resolvePackageLicenses(nmPkgJson.license, pkgPath)
     licenseWarnings = collectLicenseWarnings(licenses)
     badLicenses = collectIncompatibleLicenses(licenses)
     if (badLicenses.length === 0) {
-      licenseContents = await readLicenses(pkgDirPath)
+      licenseContents = await readLicenses(pkgPath)
       if (licenseContents.length === 0) {
         const tgzUrl = await resolveGitHubTgzUrl(pkgName, nmPkgJson)
         if (tgzUrl) {
@@ -208,7 +212,12 @@ function toChoice(value) {
     }
   }
   const isEsm = nmPkgJson.type === 'module'
-  const isEsShim = esShimsRepoRegExp.test(nmPkgJson.repository?.url)
+  const isEsShim =
+    jsFiles.includes('auto.js') &&
+    jsFiles.includes('implementation.js') &&
+    jsFiles.includes('index.js') &&
+    jsFiles.includes('polyfill.js') &&
+    jsFiles.includes('shim.js.js')
 
   let nodeRange
   let templateChoice
@@ -265,9 +274,7 @@ function toChoice(value) {
       message: 'Pick the package template to use',
       choices: [
         { name: 'cjs', value: TEMPLATE_CJS },
-        { name: 'cjs and esm', value: TEMPLATE_CJS_ESM },
-        { name: 'cjs and browser', value: TEMPLATE_CJS_BROWSER },
-        ...esShimChoices
+        { name: 'cjs and browser', value: TEMPLATE_CJS_BROWSER }
       ]
     })
   }
