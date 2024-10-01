@@ -55,8 +55,8 @@
     "@mdn/browser-compat-data": "^5.6.3",
     "@npmcli/package-json": "^5.2.1",
     "@npmcli/promise-spawn": "^8.0.0",
-    "@socketregistry/manifest": "file:./manifest.json",
     "@socketregistry/scripts": "file:./scripts",
+    "@socketsecurity/registry-manifest": "file:./registry-manifest/index.json",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.7.3",
     "@types/npmcli__package-json": "^4.0.4",
@@ -105,6 +105,7 @@
     "which": "^4.0.0"
   },
   "workspaces": [
+    "registry-manifest",
     "packages/npm/abab",
     "packages/npm/aggregate-error",
     "packages/npm/array-buffer-byte-length",

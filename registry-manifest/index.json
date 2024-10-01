@@ -308,6 +308,15 @@
       }
     ],
     [
+      "pkg:npm/%40socketregistry/for-each@1.0.0",
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["cjs"],
+        "license": "MIT"
+      }
+    ],
+    [
       "pkg:npm/%40socketregistry/function-bind@1.0.1",
       {
         "categories": ["cleanup"],

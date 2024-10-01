@@ -12,7 +12,7 @@ const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
     editable: true
   })
   // Update workspaces.
-  const workspaces = []
+  const workspaces = ['registry-manifest']
   // Lazily access constants.ecosystems.
   for (const eco of constants.ecosystems) {
     const ecoPackagesPath = path.join(rootPackagesPath, eco)

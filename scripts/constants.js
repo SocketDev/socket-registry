@@ -106,7 +106,6 @@ const PACKAGE_DEFAULT_VERSION = '1.0.0'
 
 const rootPath = path.resolve(__dirname, '..')
 const rootLicensePath = path.join(rootPath, LICENSE)
-const rootManifestJsonPath = path.join(rootPath, 'manifest.json')
 const rootNodeModulesPath = path.join(rootPath, NODE_MODULES)
 const rootNodeModulesBinPath = path.join(rootNodeModulesPath, '.bin')
 const rootPackageJsonPath = path.join(rootPath, PACKAGE_JSON)
@@ -122,6 +121,11 @@ const pacoteCachePath = new PacoteFetcherBase(/*dummy package spec*/ 'x', {})
   .cache
 const prettierConfigPath = path.join(rootPath, '.prettierrc')
 const prettierIgnorePath = path.join(rootPath, '.prettierignore')
+const registryManifestPkgPath = path.join(rootPath, 'registry-manifest')
+const registryManifestJsonPath = path.join(
+  registryManifestPkgPath,
+  'index.json'
+)
 const templatesPath = path.join(__dirname, 'templates')
 
 const npmPackagesPath = path.join(rootPackagesPath, 'npm')
@@ -137,8 +141,12 @@ const testNpmNodeWorkspacesPath = path.join(testNpmPath, NODE_WORKSPACES)
 const yarnPkgExtsPath = path.join(rootNodeModulesPath, '@yarnpkg/extensions')
 const yarnPkgExtsJsonPath = path.join(yarnPkgExtsPath, PACKAGE_JSON)
 
-const relPackagesPath = path.relative(rootPath, rootPackagesPath)
 const relNpmPackagesPath = path.relative(rootPath, npmPackagesPath)
+const relPackagesPath = path.relative(rootPath, rootPackagesPath)
+const relRegistryManifestJsonPath = path.relative(
+  rootPath,
+  registryManifestJsonPath
+)
 const relTestNpmPath = path.relative(rootPath, testNpmPath)
 const relTestNpmNodeModulesPath = path.relative(
   rootPath,
@@ -501,13 +509,15 @@ const constants = Object.freeze(
       parseArgsConfig,
       prettierConfigPromise: undefined,
       prettierIgnoreFile: undefined,
-      relPackagesPath,
+      registryManifestJsonPath,
+      registryManifestPkgPath,
       relNpmPackagesPath,
+      relPackagesPath,
+      relRegistryManifestJsonPath,
       relTestNpmPath,
       relTestNpmNodeModulesPath,
       rootPath,
       rootLicensePath,
-      rootManifestJsonPath,
       rootNodeModulesPath,
       rootPackageJsonPath,
       rootPackageLockPath,

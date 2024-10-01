@@ -11,7 +11,8 @@ const {
   UNLICENSED,
   npmPackagesPath,
   parseArgsConfig,
-  rootManifestJsonPath,
+  registryManifestJsonPath,
+  relRegistryManifestJsonPath,
   rootPackagesPath,
   testNpmNodeWorkspacesPath
 } = constants
@@ -39,7 +40,9 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
   ) {
     return
   }
-  const spinner = new Spinner('Updating manifest.json...').start()
+  const spinner = new Spinner(
+    `Updating ${relRegistryManifestJsonPath}...`
+  ).start()
   const { ecosystems, npmPackageNames } = constants
   const manifest = {}
   for (const eco of ecosystems) {
@@ -106,8 +109,8 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
     }
   }
   const output = await prettierFormat(JSON.stringify(manifest), {
-    filepath: rootManifestJsonPath
+    filepath: registryManifestJsonPath
   })
-  await fs.writeFile(rootManifestJsonPath, output, 'utf8')
+  await fs.writeFile(registryManifestJsonPath, output, 'utf8')
   spinner.stop()
 })()
