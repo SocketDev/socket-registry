@@ -1,8 +1,10 @@
 .DS_Store
 /.eslintcache
-/npm-debug.log
+/.nvm
 /.tap
+/.tapci.yaml
 /.vscode
+/npm-debug.log
 **/node_modules
 /*.tsbuildinfo
 test/**/node_workspaces

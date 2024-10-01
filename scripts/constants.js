@@ -112,9 +112,11 @@ const rootNodeModulesBinPath = path.join(rootNodeModulesPath, '.bin')
 const rootPackageJsonPath = path.join(rootPath, PACKAGE_JSON)
 const rootPackageLockPath = path.join(rootPath, PACKAGE_LOCK)
 const rootPackagesPath = path.join(rootPath, 'packages')
+const rootTapConfigPath = path.join(rootPath, '.taprc')
 const rootTsConfigPath = path.join(rootPath, TSCONFIG_JSON)
 
 const { execPath } = process
+const ciTapConfigPath = path.join(rootPath, '.tapci.yaml')
 const gitIgnorePath = path.join(rootPath, '.gitignore')
 const pacoteCachePath = new PacoteFetcherBase(/*dummy package spec*/ 'x', {})
   .cache
@@ -322,6 +324,7 @@ const lazyPrettierConfigPromise = () =>
 const lazyPrettierIgnoreFile = () => includeIgnoreFile(prettierIgnorePath)
 const lazyRunScriptParallelExecPath = () => whichSync('run-p')
 const lazyRunScriptSequentiallyExecPath = () => whichSync('run-s')
+const lazyTapRunExecPath = () => whichSync('tap-run')
 
 const copyLeftLicenses = new Set([
   'AGPL-3.0-or-later',
@@ -481,6 +484,7 @@ const constants = Object.freeze(
       TSCONFIG_JSON,
       UNLICENCED,
       UNLICENSED,
+      ciTapConfigPath,
       copyLeftLicenses,
       ecosystems: undefined,
       execPath,
@@ -512,9 +516,11 @@ const constants = Object.freeze(
       rootPackageJsonPath,
       rootPackageLockPath,
       rootPackagesPath,
+      rootTapConfigPath,
       rootTsConfigPath,
       runScriptParallelExecPath: undefined,
       runScriptSequentiallyExecPath: undefined,
+      tapRunExecPath: undefined,
       templatesPath,
       testNpmPath,
       testNpmPkgJsonPath,
@@ -540,6 +546,7 @@ const constants = Object.freeze(
       npmPackageNames: lazyNpmPackageNames,
       prettierConfigPromise: lazyPrettierConfigPromise,
       prettierIgnoreFile: lazyPrettierIgnoreFile,
+      tapRunExecPath: lazyTapRunExecPath,
       runScriptParallelExecPath: lazyRunScriptParallelExecPath,
       runScriptSequentiallyExecPath: lazyRunScriptSequentiallyExecPath
     }
