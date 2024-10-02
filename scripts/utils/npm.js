@@ -28,7 +28,7 @@ async function runBin(binPath, args, options) {
     {
       __proto__: null,
       ...options,
-      shell: true,
+      shell: true
     }
   )
 }
