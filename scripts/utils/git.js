@@ -55,14 +55,14 @@ function innerDiffSync(args, options) {
 }
 
 function innerGetPackages(eco, files, options) {
-  const { asSet = false, ...otherOptions } = { __proto__: null, ...options }
+  const { asSet = false, ...matcherOptions } = { __proto__: null, ...options }
   const ecoPackagesPath = path.join(rootPackagesPath, eco)
   const relEcoPackagesPath = normalizePath(
     path.relative(rootPath, ecoPackagesPath)
   )
   const matcher = getGlobMatcher([`${relEcoPackagesPath}/**`], {
     __proto__: null,
-    ...otherOptions,
+    ...matcherOptions,
     absolute: false,
     cwd: rootPath
   })
@@ -147,7 +147,7 @@ function parseGitDiffStdout(stdout, options) {
   const {
     absolute = false,
     cwd = rootPath,
-    ...otherOptions
+    ...matcherOptions
   } = { __proto__: null, ...options }
   const rawFiles = stdout?.split('\n') ?? []
   const files = absolute
@@ -159,7 +159,7 @@ function parseGitDiffStdout(stdout, options) {
   const relPath = normalizePath(path.relative(rootPath, cwd))
   const matcher = getGlobMatcher([`${relPath}/**`], {
     __proto__: null,
-    ...otherOptions,
+    ...matcherOptions,
     absolute,
     cwd: rootPath
   })

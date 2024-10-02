@@ -3,7 +3,6 @@
 const path = require('node:path')
 const util = require('node:util')
 
-const spawn = require('@npmcli/promise-spawn')
 const fs = require('fs-extra')
 const npmPackageArg = require('npm-package-arg')
 const semver = require('semver')
@@ -32,6 +31,7 @@ const {
   isSymbolicLinkSync,
   uniqueSync
 } = require('@socketregistry/scripts/utils/fs')
+const { execNpm } = require('@socketregistry/scripts/utils/npm')
 const {
   isSubpathEntryExports,
   readPackageJson,
@@ -107,11 +107,7 @@ async function installTestNpmNodeModules(options) {
   if (Array.isArray(specs)) {
     args.push('--save-dev', ...specs)
   }
-  // Lazily access constants.npmExecPath.
-  return await spawn(constants.npmExecPath, args, {
-    cwd: testNpmPath,
-    shell: true
-  })
+  return await execNpm(args, { cwd: testNpmPath })
 }
 
 const editablePackageJsonCache = { __proto__: null }

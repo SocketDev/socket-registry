@@ -1,10 +1,10 @@
 'use strict'
 
-const spawn = require('@npmcli/promise-spawn')
 const fs = require('fs-extra')
 
 const constants = require('@socketregistry/scripts/constants')
 const { rootPackageLockPath, rootPath, yarnPkgExtsJsonPath } = constants
+const { execNpm } = require('@socketregistry/scripts/utils/npm')
 const {
   normalizePackageJson
 } = require('@socketregistry/scripts/utils/packages')
@@ -50,11 +50,6 @@ async function modifyYarnpkgExtsPkgJson() {
 ;(async () => {
   if ((await modifyRootPkgLock()) || (await modifyYarnpkgExtsPkgJson())) {
     // Reinstall packages with the updated package-lock.json. (should be quick)
-    // Lazily access constants.npmExecPath.
-    await spawn(constants.npmExecPath, ['install'], {
-      cwd: rootPath,
-      shell: true,
-      stdio: 'inherit'
-    })
+    await execNpm(['install'], { cwd: rootPath, stdio: 'inherit' })
   }
 })()

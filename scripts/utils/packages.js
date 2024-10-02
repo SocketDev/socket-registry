@@ -193,7 +193,7 @@ async function extractPackage(pkgNameOrId, options, callback) {
     callback = options
     options = undefined
   }
-  const { tmpPrefix, ...otherOptions } = { __proto__: null, ...options }
+  const { tmpPrefix, ...extractOptions } = { __proto__: null, ...options }
   await cacache.tmp.withTmp(
     pacoteCachePath,
     { tmpPrefix },
@@ -202,7 +202,7 @@ async function extractPackage(pkgNameOrId, options, callback) {
         __proto__: null,
         packumentCache,
         preferOffline: true,
-        ...otherOptions
+        ...extractOptions
       })
       await callback(tmpDirPath)
     }
@@ -210,14 +210,14 @@ async function extractPackage(pkgNameOrId, options, callback) {
 }
 
 async function fetchPackageManifest(pkgNameOrId, options) {
-  const { where, ...otherOptions } = { __proto__: null, ...options }
+  const { where, ...fetcherOptions } = { __proto__: null, ...options }
   try {
     const spec = npmPackageArg(pkgNameOrId, where)
     const fetcher = new RegistryFetcher(spec.subSpec || spec, {
       __proto__: null,
       packumentCache,
       preferOffline: true,
-      ...otherOptions
+      ...fetcherOptions
     })
     return await fetcher.manifest()
   } catch {}
@@ -452,23 +452,25 @@ function resolvePackageLicenses(licenseFieldValue, where) {
 }
 
 async function toEditablePackageJson(pkgJson, options) {
-  const { path: pathOpt, ...otherOptions } = { __proto__: null, ...options }
+  const { path: pathOpt, ...normalizeOptions } = { __proto__: null, ...options }
   if (typeof pathOpt !== 'string') {
-    return jsonToEditablePackageJson(pkgJson, otherOptions)
+    return jsonToEditablePackageJson(pkgJson, normalizeOptions)
   }
   const pkgJsonPath = resolvePackageJsonDirname(pathOpt)
-  const normalizeOptions = {
-    __proto__: null,
-    ...(isNodeModules(pkgJsonPath) ? {} : { preserve: ['repository'] }),
-    ...otherOptions
-  }
   return (await EditablePackageJson.load(pkgJsonPath, { create: true })).update(
-    normalizePackageJson(pkgJson, normalizeOptions)
+    normalizePackageJson(pkgJson, {
+      __proto__: null,
+      ...(isNodeModules(pkgJsonPath) ? {} : { preserve: ['repository'] }),
+      ...normalizeOptions
+    })
   )
 }
 
 function toEditablePackageJsonSync(pkgJson, options) {
-  const { path: filepath, ...otherOptions } = { __proto__: null, ...options }
+  const { path: filepath, ...normalizeOptions } = {
+    __proto__: null,
+    ...options
+  }
   return typeof filepath === 'string'
     ? new EditablePackageJson().create(filepath).update(
         normalizePackageJson(pkgJson, {
@@ -476,10 +478,10 @@ function toEditablePackageJsonSync(pkgJson, options) {
           ...(isNodeModules(resolvePackageJsonDirname(filepath))
             ? {}
             : { preserve: ['repository'] }),
-          ...otherOptions
+          ...normalizeOptions
         })
       )
-    : jsonToEditablePackageJson(pkgJson, otherOptions)
+    : jsonToEditablePackageJson(pkgJson, normalizeOptions)
 }
 
 function visitLicenses(ast, visitor) {

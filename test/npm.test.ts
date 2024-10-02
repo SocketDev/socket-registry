@@ -25,7 +25,7 @@ import {
   // @ts-ignore
 } from '@socketregistry/scripts/utils/git'
 // @ts-ignore
-import { runBin } from '@socketregistry/scripts/utils/npm'
+import { runScript } from '@socketregistry/scripts/utils/npm'
 // @ts-ignore
 import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
 
@@ -78,15 +78,7 @@ describe('npm', async () => {
 
     it(`${pkgName} passes all its tests`, { skip }, async () => {
       try {
-        await runBin(
-          // Lazily access constants.runScriptSequentiallyExecPath.
-          constants.runScriptSequentiallyExecPath,
-          ['test'],
-          {
-            cwd: nwPkgPath,
-            shell: true
-          }
-        )
+        await runScript('test', [], { cwd: nwPkgPath })
         assert.ok(true)
       } catch (e) {
         console.log(`✘ ${pkgName}`, e)

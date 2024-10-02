@@ -15,7 +15,7 @@ async function globLicenses(dirname, options) {
     ignore: ignoreOpt,
     ignoreOriginals,
     recursive,
-    ...otherOptions
+    ...globOptions
   } = { __proto__: null, ...options }
   let ignore = ignoreOpt
   if (ignoreOriginals) {
@@ -29,7 +29,7 @@ async function globLicenses(dirname, options) {
     caseSensitiveMatch: false,
     cwd: dirname,
     expandDirectories: recursive,
-    ...otherOptions,
+    ...globOptions,
     ...(ignore ? { ignore } : {})
   })
 }

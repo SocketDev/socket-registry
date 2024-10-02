@@ -328,7 +328,6 @@ const lazyPrettierConfigPromise = () =>
   prettier.resolveConfig(prettierConfigPath, { editorconfig: true })
 const lazyPrettierIgnoreFile = () => includeIgnoreFile(prettierIgnorePath)
 const lazyRunScriptParallelExecPath = () => whichSync('run-p')
-const lazyRunScriptSequentiallyExecPath = () => whichSync('run-s')
 const lazyTapRunExecPath = () => whichSync('tap-run')
 
 const copyLeftLicenses = new Set([
@@ -527,7 +526,6 @@ const constants = Object.freeze(
       rootTapConfigPath,
       rootTsConfigPath,
       runScriptParallelExecPath: undefined,
-      runScriptSequentiallyExecPath: undefined,
       tapRunExecPath: undefined,
       templatesPath,
       testNpmPath,
@@ -554,8 +552,7 @@ const constants = Object.freeze(
       prettierConfigPromise: lazyPrettierConfigPromise,
       prettierIgnoreFile: lazyPrettierIgnoreFile,
       tapRunExecPath: lazyTapRunExecPath,
-      runScriptParallelExecPath: lazyRunScriptParallelExecPath,
-      runScriptSequentiallyExecPath: lazyRunScriptSequentiallyExecPath
+      runScriptParallelExecPath: lazyRunScriptParallelExecPath
     }
   )
 )
