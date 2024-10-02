@@ -29,6 +29,8 @@ const {
 const { arrayUnique } = require('@socketregistry/scripts/utils/arrays')
 const {
   isSymbolicLinkSync,
+  remove,
+  removeSync,
   uniqueSync
 } = require('@socketregistry/scripts/utils/fs')
 const { execNpm } = require('@socketregistry/scripts/utils/npm')
@@ -91,8 +93,8 @@ function createStubEsModule(srcPath) {
 async function installTestNpmNodeModules(options) {
   const { clean, specs } = { __proto__: null, ...options }
   await Promise.all([
-    ...(clean ? [fs.remove(testNpmPkgLockPath)] : []),
-    ...(clean ? [fs.remove(testNpmNodeModulesPath)] : []),
+    ...(clean ? [remove(testNpmPkgLockPath)] : []),
+    ...(clean ? [remove(testNpmNodeModulesPath)] : []),
     ...(clean === 'deep'
       ? (
           await tinyGlob([NODE_MODULES_GLOB_RECURSIVE], {
@@ -100,7 +102,7 @@ async function installTestNpmNodeModules(options) {
             cwd: testNpmNodeWorkspacesPath,
             onlyDirectories: true
           })
-        ).map(p => fs.remove(p))
+        ).map(p => remove(p))
       : [])
   ])
   const args = ['install', '--silent']
@@ -143,7 +145,7 @@ async function resolveDevDependencies(packageNames) {
       // A package we expect to be there is missing or corrupt. Install it.
       if (nmPkgPathExists) {
         // Remove synchronously to continue assumption that testNpmPkgJson is up to date.
-        fs.removeSync(nmPkgPath)
+        removeSync(nmPkgPath)
       }
       const spinner = new Spinner(
         `${devDepExists ? 'Refreshing' : 'Adding'} ${pkgName}...`
@@ -455,7 +457,7 @@ async function linkPackages(packageNames) {
               // We can go from CJS by creating an ESM stub.
               const uniquePath = uniqueSync(`${destPath.slice(0, -3)}.cjs`)
               await fs.copyFile(targetPath, uniquePath)
-              await fs.remove(destPath)
+              await remove(destPath)
               await fs.outputFile(
                 destPath,
                 createStubEsModule(uniquePath),
@@ -467,7 +469,7 @@ async function linkPackages(packageNames) {
             console.log(`✘ ${pkgName}: Cannot convert ESM to CJS`)
           }
         }
-        await fs.remove(destPath)
+        await remove(destPath)
         await fs.ensureSymlink(targetPath, destPath)
       })
     }
@@ -525,7 +527,7 @@ async function cleanupNodeWorkspaces(linkedPackageNames) {
             onlyFiles: false
           }
         )
-      ).map(p => fs.remove(p))
+      ).map(p => remove(p))
     )
     // Move override package from test/npm/node_modules/ to test/npm/node_workspaces/
     await fs.move(srcPath, destPath, { overwrite: true })

@@ -1,13 +1,12 @@
 'use strict'
 
-const fs = require('fs-extra')
 const { glob: tinyGlob } = require('tinyglobby')
 
 const {
   NODE_MODULES_GLOB_RECURSIVE,
   rootPath
 } = require('@socketregistry/scripts/constants')
-const { isDirEmptySync } = require('@socketregistry/scripts/utils/fs')
+const { isDirEmptySync, remove } = require('@socketregistry/scripts/utils/fs')
 
 ;(async () => {
   await Promise.all(
@@ -20,6 +19,6 @@ const { isDirEmptySync } = require('@socketregistry/scripts/utils/fs')
       })
     )
       .filter(isDirEmptySync)
-      .map(d => fs.remove(d))
+      .map(d => remove(d))
   )
 })()
