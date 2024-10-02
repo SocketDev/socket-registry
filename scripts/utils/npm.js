@@ -25,7 +25,11 @@ async function runBin(binPath, args, options) {
   return await spawn(
     WIN_32 ? binPath : execPath,
     [...(WIN_32 ? [] : [binPath]), ...args],
-    options
+    {
+      __proto__: null,
+      ...options,
+      shell: true,
+    }
   )
 }
 

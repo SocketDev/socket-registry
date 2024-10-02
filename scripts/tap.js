@@ -6,12 +6,11 @@ const { runBin } = require('@socketregistry/scripts/utils/npm')
 
 ;(async () => {
   await runBin(
-    // Lazily access constants.tapRunExecPath.
-    constants.tapRunExecPath,
+    // Lazily access constants.tapExecPath.
+    constants.tapExecPath,
     process.argv.slice(2),
     {
       cwd: rootPath,
-      shell: true,
       stdio: 'inherit',
       env: {
         __proto__: null,

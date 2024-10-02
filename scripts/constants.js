@@ -328,7 +328,7 @@ const lazyPrettierConfigPromise = () =>
   prettier.resolveConfig(prettierConfigPath, { editorconfig: true })
 const lazyPrettierIgnoreFile = () => includeIgnoreFile(prettierIgnorePath)
 const lazyRunScriptParallelExecPath = () => whichSync('run-p')
-const lazyTapRunExecPath = () => whichSync('tap-run')
+const lazyTapExecPath = () => whichSync('tap')
 
 const copyLeftLicenses = new Set([
   'AGPL-3.0-or-later',
@@ -526,7 +526,7 @@ const constants = Object.freeze(
       rootTapConfigPath,
       rootTsConfigPath,
       runScriptParallelExecPath: undefined,
-      tapRunExecPath: undefined,
+      tapExecPath: undefined,
       templatesPath,
       testNpmPath,
       testNpmPkgJsonPath,
@@ -551,7 +551,7 @@ const constants = Object.freeze(
       npmPackageNames: lazyNpmPackageNames,
       prettierConfigPromise: lazyPrettierConfigPromise,
       prettierIgnoreFile: lazyPrettierIgnoreFile,
-      tapRunExecPath: lazyTapRunExecPath,
+      tapExecPath: lazyTapExecPath,
       runScriptParallelExecPath: lazyRunScriptParallelExecPath
     }
   )

@@ -6,7 +6,7 @@ const { defineProperty: ObjectDefineProperty } = Object
 
 module.exports = function shimDateParse() {
   const polyfill = getPolyfill()
-  if (polyfill && Date.parse !== polyfill) {
+  if (Date.parse !== polyfill) {
     ObjectDefineProperty(Date, 'parse', {
       __proto__: null,
       configurable: true,

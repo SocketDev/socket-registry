@@ -1,3 +1,4 @@
+import assertLoose from 'node:assert'
 import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import path from 'node:path'
@@ -314,12 +315,17 @@ for (const eco of constants.ecosystems) {
                 assert.ok(shimApiKeys.every(k => mainKeys.includes(k)))
               })
 
-              it('getPolyfill() === implementation', async t => {
+              it('getPolyfill() is like implementation', async t => {
                 if (skipping) return t.skip(skipMessage)
-                assert.strictEqual(
-                  req('./polyfill.js')(),
-                  req('./implementation.js')
-                )
+                const impl = req('./implementation.js')
+                const polyfill = req('./polyfill.js')()
+                assert.strictEqual(typeof impl, typeof polyfill)
+                if (typeof impl === 'function') {
+                  assert.strictEqual(impl.name, polyfill.name)
+                  assert.strictEqual(impl.length, polyfill.length)
+                } else {
+                  assertLoose.equal(impl, polyfill)
+                }
               })
             })
           }

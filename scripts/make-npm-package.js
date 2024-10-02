@@ -425,7 +425,6 @@ function toChoice(value) {
       ],
       {
         cwd: rootPath,
-        shell: true,
         stdio: 'inherit'
       }
     )
