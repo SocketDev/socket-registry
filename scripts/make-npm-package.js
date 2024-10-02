@@ -421,6 +421,7 @@ function toChoice(value) {
       [
         // Lazily access constants.runScriptParallelExecPath.
         constants.runScriptParallelExecPath,
+        'update:manifest',
         'update:package-json',
         `update:longtask:test:npm:package-json -- --add ${pkgName}`
       ],

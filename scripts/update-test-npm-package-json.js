@@ -309,7 +309,7 @@ async function linkPackages(packageNames) {
     })
 
     const { dependencies, engines, overrides } = pkgJson
-    const entryExports = resolvePackageJsonEntryExports(pkgJson)
+    const entryExports = resolvePackageJsonEntryExports(pkgJson.exports)
     const entryExportsHasDotKeys = isSubpathEntryExports(entryExports)
 
     // Add dependencies and overrides of the @socketregistry/xyz package
@@ -361,7 +361,7 @@ async function linkPackages(packageNames) {
         entryExports
 
       const nmEntryExports =
-        resolvePackageJsonEntryExports(nmEditablePkgJson.content) ?? {}
+        resolvePackageJsonEntryExports(nmEditablePkgJson.content.exports) ?? {}
 
       const nmEntryExportsHasDotKeys = isSubpathEntryExports(nmEntryExports)
 

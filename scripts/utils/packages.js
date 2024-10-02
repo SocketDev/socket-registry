@@ -124,7 +124,7 @@ function createPackageJson(pkgName, directory, options) {
     dependencies,
     description,
     engines,
-    exports: entryExports,
+    exports: entryExportsRaw,
     files,
     keywords,
     main,
@@ -137,11 +137,7 @@ function createPackageJson(pkgName, directory, options) {
   // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
   const { PACKAGE_DEFAULT_NODE_RANGE } = constants
   const name = `${PACKAGE_SCOPE}/${pkgName.replace(pkgScopeRegExp, '')}`
-  const entryExportsObj = isObjectObject(entryExports)
-    ? entryExports
-    : typeof entryExports === 'string'
-      ? { default: entryExports }
-      : undefined
+  const entryExports = resolvePackageJsonEntryExports(entryExportsRaw)
   return {
     __proto__: null,
     name,
@@ -155,8 +151,8 @@ function createPackageJson(pkgName, directory, options) {
       directory
     },
     ...(type ? { type } : {}),
-    ...(entryExportsObj ? { exports: entryExportsObj } : {}),
-    ...(entryExportsObj ? {} : { main: `${main ?? './index.js'}` }),
+    ...(entryExports ? { exports: entryExports } : {}),
+    ...(entryExports ? {} : { main: `${main ?? './index.js'}` }),
     sideEffects: sideEffects !== undefined && !!sideEffects,
     ...(isObjectObject(dependencies) ? { dependencies } : {}),
     ...(isObjectObject(overrides) ? { overrides, resolutions: overrides } : {}),
@@ -397,8 +393,7 @@ function resolvePackageJsonDirname(filepath) {
   return filepath.endsWith(PACKAGE_JSON) ? path.dirname(filepath) : filepath
 }
 
-function resolvePackageJsonEntryExports(pkgJson) {
-  const { exports: entryExports } = pkgJson
+function resolvePackageJsonEntryExports(entryExports) {
   return isObjectObject(entryExports)
     ? entryExports
     : typeof entryExports === 'string'

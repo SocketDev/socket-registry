@@ -18,13 +18,13 @@ const {
 } = constants
 const { getModifiedFiles } = require('@socketregistry/scripts/utils/git')
 const {
-  isObjectObject,
   toSortedObject,
   toSortedObjectFromEntries
 } = require('@socketregistry/scripts/utils/objects')
 const {
   fetchPackageManifest,
-  readPackageJson
+  readPackageJson,
+  resolvePackageJsonEntryExports
 } = require('@socketregistry/scripts/utils/packages')
 const { localCompare } = require('@socketregistry/scripts/utils/sorts')
 const { Spinner } = require('@socketregistry/scripts/utils/spinner')
@@ -50,24 +50,14 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
       const manifestData = []
       for await (const pkgName of npmPackageNames) {
         const pkgPath = path.join(npmPackagesPath, pkgName)
-        const nwPkgPath = path.join(testNpmNodeWorkspacesPath, pkgName)
         const pkgJson = await readPackageJson(pkgPath)
+        const nwPkgPath = path.join(testNpmNodeWorkspacesPath, pkgName)
         const nwPkgJson = await readPackageJson(nwPkgPath)
         const nmPkgManifest = await fetchPackageManifest(
           `${pkgName}@${nwPkgJson.version}`
         )
-        const {
-          engines,
-          exports: entryExports,
-          name,
-          socket,
-          version
-        } = pkgJson
-        const entryExportsObj = isObjectObject(entryExports)
-          ? entryExports
-          : typeof entryExports === 'string'
-            ? { default: entryExports }
-            : undefined
+        const { engines, name, socket, version } = pkgJson
+        const entryExports = resolvePackageJsonEntryExports(pkgJson.exports)
         const { _id: nmPkgId, deprecated: nmPkgDeprecated } = nmPkgManifest
         const { license: nwPkgLicense } = nwPkgJson
         const { namespace: nmScope } = PackageURL.fromString(
@@ -80,7 +70,7 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
           interop.push('esm')
         }
         const isBrowser =
-          !isEsm && !!(entryExportsObj?.node && entryExportsObj?.default)
+          !isEsm && !!(entryExports?.node && entryExports?.default)
         if (isBrowser) {
           interop.push('browserify')
         }
