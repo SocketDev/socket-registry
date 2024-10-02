@@ -3,7 +3,6 @@ import path from 'node:path'
 import { describe, it } from 'node:test'
 import util from 'node:util'
 
-import spawn from '@npmcli/promise-spawn'
 import fs from 'fs-extra'
 import semver from 'semver'
 
@@ -15,7 +14,6 @@ const {
   NODE_VERSION,
   PACKAGE_JSON,
   README_GLOB_RECURSIVE,
-  execPath,
   parseArgsConfig,
   testNpmNodeWorkspacesPath
 } = constants
@@ -26,6 +24,8 @@ import {
   getStagedPackagesSync
   // @ts-ignore
 } from '@socketregistry/scripts/utils/git'
+// @ts-ignore
+import { runBin } from '@socketregistry/scripts/utils/npm'
 // @ts-ignore
 import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
 
@@ -78,12 +78,13 @@ describe('npm', async () => {
 
     it(`${pkgName} passes all its tests`, { skip }, async () => {
       try {
-        // Lazily access constants.runScriptSequentiallyExecPath.
-        await spawn(
-          execPath,
-          [constants.runScriptSequentiallyExecPath, 'test'],
+        await runBin(
+          // Lazily access constants.runScriptSequentiallyExecPath.
+          constants.runScriptSequentiallyExecPath,
+          ['test'],
           {
-            cwd: nwPkgPath
+            cwd: nwPkgPath,
+            shell: true
           }
         )
         assert.ok(true)

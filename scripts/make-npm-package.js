@@ -3,7 +3,6 @@
 const path = require('node:path')
 const util = require('node:util')
 
-const spawn = require('@npmcli/promise-spawn')
 const { ReturnTypeEnums, default: didYouMean } = require('didyoumean2')
 const fs = require('fs-extra')
 const { open } = require('out-url')
@@ -21,7 +20,6 @@ const {
   TEMPLATE_ES_SHIM_CONSTRUCTOR,
   TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
   TEMPLATE_ES_SHIM_STATIC_METHOD,
-  execPath,
   npmPackagesPath,
   rootPath,
   tsLibs,
@@ -29,6 +27,7 @@ const {
 } = constants
 const { isDirEmptySync } = require('@socketregistry/scripts/utils/fs')
 const { globLicenses } = require('@socketregistry/scripts/utils/globs')
+const { runBin } = require('@socketregistry/scripts/utils/npm')
 const { isObject } = require('@socketregistry/scripts/utils/objects')
 const {
   collectIncompatibleLicenses,
@@ -416,17 +415,17 @@ function toChoice(value) {
 
   // Update monorepo package.json workspaces definition and test/npm files.
   try {
-    await spawn(
-      execPath,
+    await runBin(
+      // Lazily access constants.runScriptParallelExecPath.
+      constants.runScriptParallelExecPath,
       [
-        // Lazily access constants.runScriptParallelExecPath.
-        constants.runScriptParallelExecPath,
         'update:manifest',
         'update:package-json',
         `update:longtask:test:npm:package-json -- --add ${pkgName}`
       ],
       {
         cwd: rootPath,
+        shell: true,
         stdio: 'inherit'
       }
     )

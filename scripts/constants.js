@@ -85,6 +85,7 @@ const NODE_VERSION = process.versions.node
 const NPM_ORG = 'socketregistry'
 const OVERRIDES = 'overrides'
 const PACKAGE_DEFAULT_SOCKET_CATEGORIES = Object.freeze(['cleanup'])
+const PACKAGE_DEFAULT_VERSION = '1.0.0'
 const PACKAGE_JSON = 'package.json'
 const PACKAGE_LOCK = 'package-lock.json'
 const PACKAGE_SCOPE = `@${NPM_ORG}`
@@ -102,7 +103,7 @@ const TEMPLATE_ES_SHIM_STATIC_METHOD = 'es-shim-static-method'
 const TSCONFIG_JSON = 'tsconfig.json'
 const UNLICENCED = 'UNLICENCED'
 const UNLICENSED = 'UNLICENSED'
-const PACKAGE_DEFAULT_VERSION = '1.0.0'
+const WIN_32 = process.platform === 'win32'
 
 const rootPath = path.resolve(__dirname, '..')
 const rootLicensePath = path.join(rootPath, LICENSE)
@@ -488,6 +489,7 @@ const constants = Object.freeze(
       TSCONFIG_JSON,
       UNLICENCED,
       UNLICENSED,
+      WIN_32,
       ciTapConfigPath,
       copyLeftLicenses,
       ecosystems: undefined,

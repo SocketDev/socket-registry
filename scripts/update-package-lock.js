@@ -53,6 +53,7 @@ async function modifyYarnpkgExtsPkgJson() {
     // Lazily access constants.npmExecPath.
     await spawn(constants.npmExecPath, ['install'], {
       cwd: rootPath,
+      shell: true,
       stdio: 'inherit'
     })
   }

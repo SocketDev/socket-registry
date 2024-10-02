@@ -108,7 +108,10 @@ async function installTestNpmNodeModules(options) {
     args.push('--save-dev', ...specs)
   }
   // Lazily access constants.npmExecPath.
-  return await spawn(constants.npmExecPath, args, { cwd: testNpmPath })
+  return await spawn(constants.npmExecPath, args, {
+    cwd: testNpmPath,
+    shell: true
+  })
 }
 
 const editablePackageJsonCache = { __proto__: null }

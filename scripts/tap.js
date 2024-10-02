@@ -1,20 +1,23 @@
 'use strict'
 
-const spawn = require('@npmcli/promise-spawn')
-
 const constants = require('@socketregistry/scripts/constants')
-const { ENV, ciTapConfigPath, execPath, rootPath, rootTapConfigPath } =
-  constants
+const { ENV, ciTapConfigPath, rootPath, rootTapConfigPath } = constants
+const { runBin } = require('@socketregistry/scripts/utils/npm')
 
 ;(async () => {
-  // Lazily access constants.tapRunExecPath.
-  await spawn(execPath, [constants.tapRunExecPath, ...process.argv.slice(2)], {
-    cwd: rootPath,
-    stdio: 'inherit',
-    env: {
-      __proto__: null,
-      ...process.env,
-      TAP_RCFILE: ENV.CI ? ciTapConfigPath : rootTapConfigPath
+  await runBin(
+    // Lazily access constants.tapRunExecPath.
+    constants.tapRunExecPath,
+    process.argv.slice(2),
+    {
+      cwd: rootPath,
+      shell: true,
+      stdio: 'inherit',
+      env: {
+        __proto__: null,
+        ...process.env,
+        TAP_RCFILE: ENV.CI ? ciTapConfigPath : rootTapConfigPath
+      }
     }
-  })
+  )
 })()
