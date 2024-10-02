@@ -9,17 +9,17 @@ function logAsync(...args) {
 }
 
 class Spinner {
-  #message
-  #claOptions
+  #_claOptions
   #spinner
-  #spinnerOptions
-  #spinning
+  #options
+  #message = ''
+  #spinning = false
   constructor(message, options) {
     const { ci = ENV.CI, ...claOptions } = { __proto__: null, ...options }
-    this.#claOptions = { __proto__: null, ...claOptions, clearOnEnd: true }
+    this.#_claOptions = { __proto__: null, ...claOptions, clearOnEnd: true }
     this.#message = message
-    this.#spinnerOptions = { __proto__: null, ci }
-    this.#spinner = cliLoadingAnimation(this.#message, this.#claOptions)
+    this.#options = { __proto__: null, ci }
+    this.#spinner = cliLoadingAnimation(this.#message, this.#_claOptions)
   }
 
   get message() {
@@ -28,11 +28,11 @@ class Spinner {
 
   set message(text) {
     this.#message = text
-    if (!this.#spinnerOptions.ci) {
+    if (!this.#options.ci) {
       this.#spinner.stop()
     }
-    this.#spinner = cliLoadingAnimation(this.#message, this.#claOptions)
-    if (this.#spinnerOptions.ci) {
+    this.#spinner = cliLoadingAnimation(this.#message, this.#_claOptions)
+    if (this.#options.ci) {
       logAsync(this.#message)
     } else {
       this.#spinner.start()
@@ -42,7 +42,7 @@ class Spinner {
   start() {
     if (this.#spinning === false) {
       this.#spinning = true
-      if (this.#spinnerOptions.ci) {
+      if (this.#options.ci) {
         logAsync(this.#message)
       } else {
         this.#spinner.start()
@@ -53,7 +53,7 @@ class Spinner {
   stop(...args) {
     if (this.#spinning === true) {
       this.#spinning = false
-      if (!this.#spinnerOptions.ci) {
+      if (!this.#options.ci) {
         this.#spinner.stop()
       }
       if (args.length) {
