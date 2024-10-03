@@ -1,5 +1,11 @@
 'use strict'
 
+const Module = require('node:module')
+// Available in Node v22.8.0.
+// https://nodejs.org/docs/latest/api/module.html#moduleenablecompilecachecachedir
+if (typeof Module.enableCompileCache === 'function') {
+  Module.enableCompileCache()
+}
 const path = require('node:path')
 const util = require('node:util')
 
