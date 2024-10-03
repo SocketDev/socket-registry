@@ -1,7 +1,7 @@
 'use strict'
 
 const constants = require('@socketregistry/scripts/constants')
-const { ENV, rootPath, rootTapConfigPath, tapCiConfigPath } = constants
+const { ENV, rootPath, tapCiConfigPath, tapConfigPath } = constants
 const { runBin } = require('@socketregistry/scripts/utils/npm')
 
 ;(async () => {
@@ -15,7 +15,7 @@ const { runBin } = require('@socketregistry/scripts/utils/npm')
       env: {
         __proto__: null,
         ...process.env,
-        TAP_RCFILE: ENV.CI ? tapCiConfigPath : rootTapConfigPath
+        TAP_RCFILE: ENV.CI ? tapCiConfigPath : tapConfigPath
       }
     }
   )

@@ -1,22 +1,23 @@
 {
-  "name": "@socketsecurity/registry-manifest",
+  "name": "@socketsecurity/registry",
   "version": "1.0.0",
   "license": "MIT",
-  "description": "Socket.dev registry manifest",
+  "description": "Socket.dev registry helpers and metadata",
   "keywords": [
     "Socket.dev"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry-js.git",
-    "directory": "registry-manifest"
+    "directory": "registry"
   },
-  "main": "./index.json",
+  "main": "./index.js",
   "sideEffects": false,
   "engines": {
-    "node": ">=22.8.0"
+    "node": ">=18.20.4"
   },
   "files": [
+    "*.js",
     "*.json"
   ]
 }

@@ -26,7 +26,7 @@ const { globLicenses } = require('@socketregistry/scripts/utils/globs')
 const { isObjectObject } = require('@socketregistry/scripts/utils/objects')
 const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
 const { prettierFormat } = require('@socketregistry/scripts/utils/strings')
-const registryManifest = require('@socketsecurity/registry-manifest')
+const registryManifest = require('@socketsecurity/registry')
 
 const eta = new Eta()
 

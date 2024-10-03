@@ -9,10 +9,10 @@ const { PackageURL } = require('packageurl-js')
 const constants = require('@socketregistry/scripts/constants')
 const {
   UNLICENSED,
+  manifestJsonPath,
   npmPackagesPath,
   parseArgsConfig,
-  registryManifestJsonPath,
-  relRegistryManifestJsonPath,
+  relManifestJsonPath,
   rootPackagesPath,
   testNpmNodeWorkspacesPath
 } = constants
@@ -40,9 +40,7 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
   ) {
     return
   }
-  const spinner = new Spinner(
-    `Updating ${relRegistryManifestJsonPath}...`
-  ).start()
+  const spinner = new Spinner(`Updating ${relManifestJsonPath}...`).start()
   const { ecosystems, npmPackageNames } = constants
   const manifest = {}
   for (const eco of ecosystems) {
@@ -99,8 +97,8 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
     }
   }
   const output = await prettierFormat(JSON.stringify(manifest), {
-    filepath: registryManifestJsonPath
+    filepath: manifestJsonPath
   })
-  await fs.writeFile(registryManifestJsonPath, output, 'utf8')
+  await fs.writeFile(manifestJsonPath, output, 'utf8')
   spinner.stop()
 })()

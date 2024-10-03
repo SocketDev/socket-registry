@@ -56,7 +56,7 @@
     "@npmcli/package-json": "^6.0.1",
     "@npmcli/promise-spawn": "^8.0.1",
     "@socketregistry/scripts": "file:./scripts",
-    "@socketsecurity/registry-manifest": "file:./registry-manifest/index.json",
+    "@socketsecurity/registry": "file:./registry/index.json",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.7.4",
     "@types/npmcli__package-json": "^4.0.4",
@@ -105,7 +105,7 @@
     "which": "^5.0.0"
   },
   "workspaces": [
-    "registry-manifest",
+    "registry",
     "packages/npm/abab",
     "packages/npm/aggregate-error",
     "packages/npm/array-buffer-byte-length",

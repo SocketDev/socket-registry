@@ -3,7 +3,7 @@
 const path = require('node:path')
 
 const constants = require('@socketregistry/scripts/constants')
-const { rootPackageJsonPath, rootPackagesPath } = constants
+const { REGISTRY_WORKSPACE, rootPackageJsonPath, rootPackagesPath } = constants
 const { readDirNames } = require('@socketregistry/scripts/utils/fs')
 const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
 
@@ -12,7 +12,7 @@ const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
     editable: true
   })
   // Update workspaces.
-  const workspaces = ['registry-manifest']
+  const workspaces = [REGISTRY_WORKSPACE]
   // Lazily access constants.ecosystems.
   for (const eco of constants.ecosystems) {
     const ecoPackagesPath = path.join(rootPackagesPath, eco)

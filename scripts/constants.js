@@ -92,6 +92,7 @@ const PACKAGE_SCOPE = `@${NPM_ORG}`
 const README_GLOB = 'README{.*,}'
 const README_GLOB_RECURSIVE = `**/${README_GLOB}`
 const README_MD = 'README.md'
+const REGISTRY_WORKSPACE = 'registry'
 const REPO_ORG = 'SocketDev'
 const REPO_NAME = 'socket-registry-js'
 const TAP_TIMEOUT = 600 // 600 seconds is 10 minutes
@@ -114,7 +115,6 @@ const rootNodeModulesBinPath = path.join(rootNodeModulesPath, '.bin')
 const rootPackageJsonPath = path.join(rootPath, PACKAGE_JSON)
 const rootPackageLockPath = path.join(rootPath, PACKAGE_LOCK)
 const rootPackagesPath = path.join(rootPath, 'packages')
-const rootTapConfigPath = path.join(rootPath, '.taprc')
 const rootTsConfigPath = path.join(rootPath, TSCONFIG_JSON)
 
 const { execPath } = process
@@ -123,13 +123,12 @@ const pacoteCachePath = new PacoteFetcherBase(/*dummy package spec*/ 'x', {})
   .cache
 const prettierConfigPath = path.join(rootPath, '.prettierrc')
 const prettierIgnorePath = path.join(rootPath, '.prettierignore')
-const registryManifestPkgPath = path.join(rootPath, 'registry-manifest')
-const registryManifestJsonPath = path.join(
-  registryManifestPkgPath,
-  'index.json'
-)
-const tapCiConfigPath = path.join(rootPath, '.tapci.yaml')
+const registryPkgPath = path.join(rootPath, REGISTRY_WORKSPACE)
+const manifestJsonPath = path.join(registryPkgPath, 'manifest.json')
 const templatesPath = path.join(__dirname, 'templates')
+
+const tapCiConfigPath = path.join(rootPath, '.tapci.yaml')
+const tapConfigPath = path.join(rootPath, '.taprc')
 
 const npmPackagesPath = path.join(rootPackagesPath, 'npm')
 const npmTemplatesPath = path.join(templatesPath, 'npm')
@@ -144,12 +143,9 @@ const testNpmNodeWorkspacesPath = path.join(testNpmPath, NODE_WORKSPACES)
 const yarnPkgExtsPath = path.join(rootNodeModulesPath, '@yarnpkg/extensions')
 const yarnPkgExtsJsonPath = path.join(yarnPkgExtsPath, PACKAGE_JSON)
 
+const relManifestJsonPath = path.relative(rootPath, manifestJsonPath)
 const relNpmPackagesPath = path.relative(rootPath, npmPackagesPath)
 const relPackagesPath = path.relative(rootPath, rootPackagesPath)
-const relRegistryManifestJsonPath = path.relative(
-  rootPath,
-  registryManifestJsonPath
-)
 const relTestNpmPath = path.relative(rootPath, testNpmPath)
 const relTestNpmNodeModulesPath = path.relative(
   rootPath,
@@ -496,6 +492,7 @@ const constants = Object.freeze(
       README_GLOB,
       README_GLOB_RECURSIVE,
       README_MD,
+      REGISTRY_WORKSPACE,
       REPO_ORG,
       REPO_NAME,
       TAP_TIMEOUT,
@@ -530,11 +527,11 @@ const constants = Object.freeze(
       parseArgsConfig,
       prettierConfigPromise: undefined,
       prettierIgnoreFile: undefined,
-      registryManifestJsonPath,
-      registryManifestPkgPath,
+      manifestJsonPath,
+      registryPkgPath,
+      relManifestJsonPath,
       relNpmPackagesPath,
       relPackagesPath,
-      relRegistryManifestJsonPath,
       relTestNpmPath,
       relTestNpmNodeModulesPath,
       rootPath,
@@ -543,11 +540,11 @@ const constants = Object.freeze(
       rootPackageJsonPath,
       rootPackageLockPath,
       rootPackagesPath,
-      rootTapConfigPath,
       rootTsConfigPath,
       runScriptParallelExecPath: undefined,
       skipTestingPackages,
       tapCiConfigPath,
+      tapConfigPath,
       tapExecPath: undefined,
       templatesPath,
       testNpmPath,
