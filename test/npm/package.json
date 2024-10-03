@@ -94,7 +94,7 @@
     "querystringify": "https://github.com/unshiftio/querystringify/archive/73db95a504f988dce3f790e174e298ceb2b46a8e.tar.gz",
     "reflect.getprototypeof": "^1.0.6",
     "reflect.ownkeys": "^1.1.4",
-    "regexp.prototype.flags": "^1.5.2",
+    "regexp.prototype.flags": "^1.5.3",
     "safe-array-concat": "^1.1.2",
     "safe-buffer": "https://github.com/feross/safe-buffer/archive/c937d657051d62a28ee52e8c456de38c67d50a76.tar.gz",
     "safe-regex-test": "^1.0.3",
