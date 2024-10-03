@@ -15,6 +15,8 @@ const {
 const { getGlobMatcher } = require('@socketregistry/scripts/utils/globs')
 const { normalizePath } = require('@socketregistry/scripts/utils/path')
 
+const gitDiffCache = new Map()
+
 const gitDiffSpawnArgs = defineLazyGetters(
   { __proto__: null },
   {
@@ -41,17 +43,45 @@ const gitDiffSpawnArgs = defineLazyGetters(
 )
 
 async function innerDiff(args, options) {
+  const { cache = true, ...parseOptions } = { __proto__: null, ...options }
+  const cacheKey = cache ? JSON.stringify({ args, parseOptions }) : undefined
+  if (cache) {
+    const result = gitDiffCache.get(cacheKey)
+    if (result) {
+      return result
+    }
+  }
+  let result
   try {
-    return parseGitDiffStdout((await spawn(...args)).stdout, options)
-  } catch {}
-  return []
+    result = parseGitDiffStdout((await spawn(...args)).stdout, parseOptions)
+  } catch {
+    return []
+  }
+  if (cache) {
+    gitDiffCache.set(cacheKey, result)
+  }
+  return result
 }
 
 function innerDiffSync(args, options) {
+  const { cache = true, ...parseOptions } = { __proto__: null, ...options }
+  const cacheKey = cache ? JSON.stringify({ args, parseOptions }) : undefined
+  if (cache) {
+    const result = gitDiffCache.get(cacheKey)
+    if (result) {
+      return result
+    }
+  }
+  let result
   try {
-    return parseGitDiffStdout(spawnSync(...args).stdout, options)
-  } catch {}
-  return []
+    result = parseGitDiffStdout(spawnSync(...args).stdout, parseOptions)
+  } catch {
+    return []
+  }
+  if (cache) {
+    gitDiffCache.set(cacheKey, result)
+  }
+  return result
 }
 
 function innerGetPackages(eco, files, options) {

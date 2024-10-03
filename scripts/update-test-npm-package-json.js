@@ -112,16 +112,16 @@ async function installTestNpmNodeModules(options) {
   return await execNpm(args, { cwd: testNpmPath })
 }
 
-const editablePackageJsonCache = { __proto__: null }
+const editablePackageJsonCache = new Map()
 
 const readCachedEditablePackageJson = async filepath_ => {
   const filepath = filepath_.endsWith(PACKAGE_JSON)
     ? filepath_
     : path.join(filepath_, PACKAGE_JSON)
-  const cached = editablePackageJsonCache[filepath]
+  const cached = editablePackageJsonCache.get(filepath)
   if (cached) return cached
   const result = await readPackageJson(filepath, { editable: true })
-  editablePackageJsonCache[filepath] = result
+  editablePackageJsonCache.set(filepath, result)
   return result
 }
 

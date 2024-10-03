@@ -94,6 +94,8 @@ const README_GLOB_RECURSIVE = `**/${README_GLOB}`
 const README_MD = 'README.md'
 const REPO_ORG = 'SocketDev'
 const REPO_NAME = 'socket-registry-js'
+const TAP_TIMEOUT = 600 // 600 seconds is 10 minutes
+const TAP_WIN_32_TIMEOUT = 1800 // 1800 seconds is 30 minutes
 const TEMPLATE_CJS = 'cjs'
 const TEMPLATE_CJS_BROWSER = 'cjs-browser'
 const TEMPLATE_CJS_ESM = 'cjs-esm'
@@ -116,7 +118,6 @@ const rootTapConfigPath = path.join(rootPath, '.taprc')
 const rootTsConfigPath = path.join(rootPath, TSCONFIG_JSON)
 
 const { execPath } = process
-const ciTapConfigPath = path.join(rootPath, '.tapci.yaml')
 const gitIgnorePath = path.join(rootPath, '.gitignore')
 const pacoteCachePath = new PacoteFetcherBase(/*dummy package spec*/ 'x', {})
   .cache
@@ -127,6 +128,7 @@ const registryManifestJsonPath = path.join(
   registryManifestPkgPath,
   'index.json'
 )
+const tapCiConfigPath = path.join(rootPath, '.tapci.yaml')
 const templatesPath = path.join(__dirname, 'templates')
 
 const npmPackagesPath = path.join(rootPackagesPath, 'npm')
@@ -421,7 +423,24 @@ const parseArgsConfig = Object.freeze({
   }
 })
 
-const tsLibs = new Set([
+const skipTestingPackages = new Set([
+  // Has known test fails in its package:
+  // https://github.com/es-shims/Date/issues/3
+  'date',
+  // Has no unit tests.
+  'es6-object-assign',
+  // Has known failures in its package and requires running tests in browser.
+  'harmony-reflect',
+  // The package tests don't account for the `require('node:util/types).isRegExp`
+  // method having no observable side-effects and assumes the "getOwnPropertyDescriptor"
+  // trap will be triggered by `Object.getOwnPropertyDescriptor(value, 'lastIndex')`.
+  'is-regex',
+  // Has known failures in its package.
+  // https://github.com/ChALkeR/safer-buffer/issues/16
+  'safer-buffer'
+])
+
+const tsLibsAvailable = new Set([
   // Defined in priority order.
   'esnext',
   'es2024',
@@ -442,7 +461,7 @@ const tsLibs = new Set([
   'scripthost'
 ])
 
-const tsTypes = new Set(['node'])
+const tsTypesAvailable = new Set(['node'])
 
 const constants = Object.freeze(
   defineLazyGetters(
@@ -479,6 +498,8 @@ const constants = Object.freeze(
       README_MD,
       REPO_ORG,
       REPO_NAME,
+      TAP_TIMEOUT,
+      TAP_WIN_32_TIMEOUT,
       TEMPLATE_CJS,
       TEMPLATE_CJS_BROWSER,
       TEMPLATE_CJS_ESM,
@@ -489,7 +510,6 @@ const constants = Object.freeze(
       UNLICENCED,
       UNLICENSED,
       WIN_32,
-      ciTapConfigPath,
       copyLeftLicenses,
       ecosystems: undefined,
       execPath,
@@ -526,6 +546,8 @@ const constants = Object.freeze(
       rootTapConfigPath,
       rootTsConfigPath,
       runScriptParallelExecPath: undefined,
+      skipTestingPackages,
+      tapCiConfigPath,
       tapExecPath: undefined,
       templatesPath,
       testNpmPath,
@@ -533,8 +555,8 @@ const constants = Object.freeze(
       testNpmPkgLockPath,
       testNpmNodeModulesPath,
       testNpmNodeWorkspacesPath,
-      tsLibs,
-      tsTypes,
+      tsLibsAvailable,
+      tsTypesAvailable,
       yarnPkgExtsPath,
       yarnPkgExtsJsonPath
     },

@@ -152,7 +152,9 @@ function createPackageJson(pkgName, directory, options) {
     },
     ...(type ? { type } : {}),
     ...(entryExports ? { exports: entryExports } : {}),
-    ...(entryExports ? {} : { main: `${main ?? './index.js'}` }),
+    ...(isConditionalEntryExports(entryExports)
+      ? {}
+      : { main: `${main ?? './index.js'}` }),
     sideEffects: sideEffects !== undefined && !!sideEffects,
     ...(isObjectObject(dependencies) ? { dependencies } : {}),
     ...(isObjectObject(overrides) ? { overrides, resolutions: overrides } : {}),
@@ -258,11 +260,23 @@ function gitHubTgzUrl(user, project, sha) {
   return `https://github.com/${user}/${project}/archive/${sha}.tar.gz`
 }
 
-function isValidPackageName(pkgName) {
-  const validation = validateNpmPackageName(pkgName)
-  return (
-    validation.validForNewPackages || validation.validForOldPackages || false
-  )
+function isConditionalEntryExports(entryExports) {
+  let hasKeys = false
+  if (isObjectObject(entryExports)) {
+    for (const key in entryExports) {
+      // Conditional entry exports do NOT contain keys starting with '.'.
+      // Entry exports cannot contain some keys starting with '.' and some not.
+      // The exports object MUST either be an object of package subpath keys OR
+      // an object of main entry condition name keys only.
+      if (Object.hasOwn(entryExports, key)) {
+        hasKeys = true
+        if (key.charCodeAt(0) === 46 /*'.'*/) {
+          return false
+        }
+      }
+    }
+  }
+  return hasKeys
 }
 
 function isSubpathEntryExports(entryExports) {
@@ -281,6 +295,13 @@ function isSubpathEntryExports(entryExports) {
     }
   }
   return false
+}
+
+function isValidPackageName(pkgName) {
+  const validation = validateNpmPackageName(pkgName)
+  return (
+    validation.validForNewPackages || validation.validForOldPackages || false
+  )
 }
 
 function jsonToEditablePackageJson(pkgJson, options) {
@@ -522,6 +543,7 @@ module.exports = {
   createPackageJson,
   extractPackage,
   fetchPackageManifest,
+  isConditionalEntryExports,
   isSubpathEntryExports,
   isValidPackageName,
   normalizePackageJson,

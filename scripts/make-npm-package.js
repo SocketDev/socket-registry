@@ -22,8 +22,8 @@ const {
   TEMPLATE_ES_SHIM_STATIC_METHOD,
   npmPackagesPath,
   rootPath,
-  tsLibs,
-  tsTypes
+  tsLibsAvailable,
+  tsTypesAvailable
 } = constants
 const { isDirEmptySync } = require('@socketregistry/scripts/utils/fs')
 const { globLicenses } = require('@socketregistry/scripts/utils/globs')
@@ -73,7 +73,7 @@ const esShimChoices = [
   { name: 'es-shim constructor', value: TEMPLATE_ES_SHIM_CONSTRUCTOR }
 ]
 
-const possibleTsRefs = [...tsLibs, ...tsTypes]
+const possibleTsRefs = [...tsLibsAvailable, ...tsTypesAvailable]
 const maxTsRefLength = possibleTsRefs.reduce((n, v) => Math.max(n, v.length), 0)
 
 function getBcdKeysMap(obj) {
@@ -300,7 +300,7 @@ function toChoice(value) {
           if (!formatted) return [input]
           let matches
           // Simple search.
-          for (const p of ['es2', 'es', 'e', 'de', 'd', 'w']) {
+          for (const p of ['es2', 'es', 'e', 'de', 'd', 'n', 'w']) {
             if (input.startsWith(p) && input.length <= 3) {
               matches = possibleTsRefs.filter(l => l.startsWith(p))
               break
@@ -338,7 +338,7 @@ function toChoice(value) {
         // Exit if user force closed the prompt.
         return
       }
-      const name = tsLibs.has(searchResult) ? 'lib' : 'types'
+      const name = tsLibsAvailable.has(searchResult) ? 'lib' : 'types'
       tsRefs.push({ name, value: searchResult })
     }
   }
