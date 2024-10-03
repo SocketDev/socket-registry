@@ -14,6 +14,7 @@ const {
   parseArgsConfig,
   relManifestJsonPath,
   rootPackagesPath,
+  skipTestsByEcosystem,
   testNpmNodeWorkspacesPath
 } = constants
 const { getModifiedFiles } = require('@socketregistry/scripts/utils/git')
@@ -72,9 +73,11 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
         if (isBrowser) {
           interop.push('browserify')
         }
+        const skipTests = skipTestsByEcosystem[eco].has(pkgName)
         const metaEntries = [
           ['license', nwPkgLicense ?? UNLICENSED],
           ...(nmPkgDeprecated ? [['deprecated', true]] : []),
+          ...(skipTests ? [['skipTests', true]] : []),
           ...(engines ? [['engines', toSortedObject(engines)]] : []),
           ['interop', interop.sort(localCompare)],
           ...(nmScope ? [['scope', nmScope]] : []),

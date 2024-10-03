@@ -419,22 +419,25 @@ const parseArgsConfig = Object.freeze({
   }
 })
 
-const skipTestingPackages = new Set([
-  // Has known test fails in its package:
-  // https://github.com/es-shims/Date/issues/3
-  'date',
-  // Has no unit tests.
-  'es6-object-assign',
-  // Has known failures in its package and requires running tests in browser.
-  'harmony-reflect',
-  // The package tests don't account for the `require('node:util/types).isRegExp`
-  // method having no observable side-effects and assumes the "getOwnPropertyDescriptor"
-  // trap will be triggered by `Object.getOwnPropertyDescriptor(value, 'lastIndex')`.
-  'is-regex',
-  // Has known failures in its package.
-  // https://github.com/ChALkeR/safer-buffer/issues/16
-  'safer-buffer'
-])
+const skipTestsByEcosystem = Object.freeze({
+  __proto__: null,
+  npm: new Set([
+    // Has known test fails in its package:
+    // https://github.com/es-shims/Date/issues/3
+    'date',
+    // Has no unit tests.
+    'es6-object-assign',
+    // Has known failures in its package and requires running tests in browser.
+    'harmony-reflect',
+    // The package tests don't account for the `require('node:util/types).isRegExp`
+    // method having no observable side-effects and assumes the "getOwnPropertyDescriptor"
+    // trap will be triggered by `Object.getOwnPropertyDescriptor(value, 'lastIndex')`.
+    'is-regex',
+    // Has known failures in its package.
+    // https://github.com/ChALkeR/safer-buffer/issues/16
+    'safer-buffer'
+  ])
+})
 
 const tsLibsAvailable = new Set([
   // Defined in priority order.
@@ -542,7 +545,7 @@ const constants = Object.freeze(
       rootPackagesPath,
       rootTsConfigPath,
       runScriptParallelExecPath: undefined,
-      skipTestingPackages,
+      skipTestsByEcosystem,
       tapCiConfigPath,
       tapConfigPath,
       tapExecPath: undefined,

@@ -15,7 +15,7 @@ const {
   PACKAGE_JSON,
   README_GLOB_RECURSIVE,
   parseArgsConfig,
-  skipTestingPackages,
+  skipTestsByEcosystem,
   testNpmNodeWorkspacesPath
 } = constants
 // @ts-ignore
@@ -37,7 +37,7 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 describe('npm', async () => {
   const testNpmNodeWorkspacesPackages = (<string[]>(
     await readDirNames(testNpmNodeWorkspacesPath)
-  )).filter(n => !skipTestingPackages.has(n))
+  )).filter(n => !skipTestsByEcosystem.npm.has(n))
   const packageNames: string[] =
     ENV.CI || cliArgs.force
       ? testNpmNodeWorkspacesPackages
