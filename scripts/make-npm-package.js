@@ -38,7 +38,8 @@ const {
   readPackageJson,
   resolveGitHubTgzUrl,
   resolvePackageJsonEntryExports,
-  resolvePackageLicenses
+  resolvePackageLicenses,
+  resolveRegistryPackageName
 } = require('@socketregistry/scripts/utils/packages')
 const {
   confirm,
@@ -134,20 +135,21 @@ function toChoice(value) {
 }
 
 ;(async () => {
-  const pkgName = await input({
+  const origPkgName = await input({
     message: 'What is the name of the package to override?',
     default: cliPositionals.at(0),
     required: true,
     validate: isValidPackageName
   })
-  if (pkgName === undefined) {
+  if (origPkgName === undefined) {
     // Exit if user force closed the prompt.
     return
   }
-  const pkgPath = path.join(npmPackagesPath, pkgName)
+  const regPkgName = resolveRegistryPackageName(origPkgName)
+  const pkgPath = path.join(npmPackagesPath, regPkgName)
   if (fs.existsSync(pkgPath) && !isDirEmptySync(pkgPath)) {
     const relPkgPath = path.relative(rootPath, pkgPath)
-    console.log(`⚠️ ${pkgName} already exists at ${relPkgPath}`)
+    console.log(`⚠️ ${origPkgName} already exists at ${relPkgPath}`)
     if (
       !(await confirm({
         message: 'Do you want to overwrite it?',
@@ -163,19 +165,19 @@ function toChoice(value) {
   let licenseContents
   let licenseWarnings
   let nmPkgJson
-  await extractPackage(pkgName, async pkgPath => {
-    nmPkgJson = await readPackageJson(pkgPath)
+  await extractPackage(origPkgName, async nmPkgPath => {
+    nmPkgJson = await readPackageJson(nmPkgPath)
     jsFiles = await tinyGlob(['**/*.{cjs,js,json}'], {
       ignore: ['**/package.json'],
-      cwd: pkgPath
+      cwd: nmPkgPath
     })
-    licenses = resolvePackageLicenses(nmPkgJson.license, pkgPath)
+    licenses = resolvePackageLicenses(nmPkgJson.license, nmPkgPath)
     licenseWarnings = collectLicenseWarnings(licenses)
     badLicenses = collectIncompatibleLicenses(licenses)
     if (badLicenses.length === 0) {
-      licenseContents = await readLicenses(pkgPath)
+      licenseContents = await readLicenses(nmPkgPath)
       if (licenseContents.length === 0) {
-        const tgzUrl = await resolveGitHubTgzUrl(pkgName, nmPkgJson)
+        const tgzUrl = await resolveGitHubTgzUrl(origPkgName, nmPkgJson)
         if (tgzUrl) {
           extractPackage(tgzUrl, async tarDirPath => {
             licenseContents = await readLicenses(tarDirPath)
@@ -185,7 +187,7 @@ function toChoice(value) {
     }
   })
   if (!nmPkgJson) {
-    console.log(`✘ Failed to extract ${pkgName}`)
+    console.log(`✘ Failed to extract ${origPkgName}`)
     return
   }
   if (licenseWarnings.length) {
@@ -193,19 +195,20 @@ function toChoice(value) {
       indentString(`• ${w}`, 2)
     )
     console.log(
-      `⚠️ ${pkgName} has license warnings:\n${formattedWarnings.join('\n')}`
+      `⚠️ ${origPkgName} has license warnings:\n${formattedWarnings.join('\n')}`
     )
   }
   if (badLicenses.length) {
     const singularOrPlural = `license${badLicenses.length === 1 ? '' : 's'}`
-    const warning = `⚠️ ${pkgName} has incompatible ${singularOrPlural} ${badLicenses.join(', ')}.`
+    const badLicenseNames = badLicenses.map(n => n.license)
+    const warning = `⚠️ ${origPkgName} has incompatible ${singularOrPlural} ${badLicenseNames.join(', ')}.`
     const answer = await confirm({
       message: `${warning}.\nDo you want to continue?`,
       default: false
     })
     if (!answer) {
       if (answer === false) {
-        await open(`https://npmjs.com/package/${pkgName}`)
+        await open(`https://npmjs.com/package/${origPkgName}`)
       }
       return
     }
@@ -226,7 +229,7 @@ function toChoice(value) {
     const { maintainedNodeVersions } = constants
     // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
     const { PACKAGE_DEFAULT_NODE_RANGE } = constants
-    const parts = pkgName
+    const parts = origPkgName
       .split(/[-.]/)
       .filter(p => p !== 'es' && p !== 'helpers')
     const compatData = getCompatData(['javascript', 'builtins', ...parts])
@@ -421,7 +424,7 @@ function toChoice(value) {
       [
         'update:manifest',
         'update:package-json',
-        `update:longtask:test:npm:package-json -- --add ${pkgName}`
+        `update:longtask:test:npm:package-json -- --add ${origPkgName}`
       ],
       {
         cwd: rootPath,

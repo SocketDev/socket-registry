@@ -12,13 +12,13 @@ const {
 ;(async () => {
   await Promise.all(
     // Lazily access constants.npmPackageNames.
-    constants.npmPackageNames.map(async pkgName => {
-      const pkgPath = path.join(npmPackagesPath, pkgName)
+    constants.npmPackageNames.map(async regPkgName => {
+      const pkgPath = path.join(npmPackagesPath, regPkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
       const editablePkgJson = await readPackageJson(pkgJsonPath, {
         editable: true
       })
-      const directory = `packages/npm/${pkgName}`
+      const directory = `packages/npm/${regPkgName}`
       editablePkgJson.update(
         createPackageJson(editablePkgJson.content.name, directory, {
           ...editablePkgJson.content

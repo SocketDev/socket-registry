@@ -45,6 +45,7 @@ const {
   readPackageJson,
   readPackageJsonSync,
   resolveGitHubTgzUrl,
+  resolveOriginalPackageName,
   resolvePackageJsonEntryExports
 } = require('@socketregistry/scripts/utils/packages')
 const { splitPath } = require('@socketregistry/scripts/utils/path')
@@ -131,20 +132,21 @@ const readCachedEditablePackageJson = async filepath_ => {
   return result
 }
 
-function toWorkspaceEntry(pkgName) {
-  return `${NODE_WORKSPACES}/${pkgName}`
+function toWorkspaceEntry(regPkgName) {
+  return `${NODE_WORKSPACES}/${regPkgName}`
 }
 
 async function resolveDevDependencies(packageNames) {
   // Resolve test/npm/package.json "devDependencies" data.
   const unresolved = []
   // Chunk package names to process them in parallel 3 at a time.
-  await pEach(packageNames, 3, async pkgName => {
+  await pEach(packageNames, 3, async regPkgName => {
+    const origPkgName = resolveOriginalPackageName(regPkgName)
     // Read synchronously so we know it is up to date.
     let testNpmPkgJson = readPackageJsonSync(testNpmPkgJsonPath)
     const devDepExists =
-      typeof testNpmPkgJson.devDependencies?.[pkgName] === 'string'
-    const nmPkgPath = path.join(testNpmNodeModulesPath, pkgName)
+      typeof testNpmPkgJson.devDependencies?.[origPkgName] === 'string'
+    const nmPkgPath = path.join(testNpmNodeModulesPath, origPkgName)
     const nmPkgPathExists = fs.existsSync(nmPkgPath)
     // Missing packages can occur if the script is stopped part way through
     if (!devDepExists || !nmPkgPathExists) {
@@ -154,28 +156,28 @@ async function resolveDevDependencies(packageNames) {
         removeSync(nmPkgPath)
       }
       const spinner = new Spinner(
-        `${devDepExists ? 'Refreshing' : 'Adding'} ${pkgName}...`
+        `${devDepExists ? 'Refreshing' : 'Adding'} ${origPkgName}...`
       ).start()
       try {
-        await installTestNpmNodeModules({ clean: true, specs: [pkgName] })
+        await installTestNpmNodeModules({ clean: true, specs: [origPkgName] })
         // Reload testNpmPkgJson because it is now out of date.
         testNpmPkgJson = readPackageJsonSync(testNpmPkgJsonPath)
         spinner.stop(
           devDepExists
-            ? `✔ Refreshed ${pkgName}`
-            : `✔ --save-dev ${pkgName} to package.json`
+            ? `✔ Refreshed ${origPkgName}`
+            : `✔ --save-dev ${origPkgName} to package.json`
         )
       } catch {
         spinner.stop(
           devDepExists
-            ? `✘ Failed to refresh ${pkgName}`
-            : `✘ Failed to --save-dev ${pkgName} to package.json`
+            ? `✘ Failed to refresh ${origPkgName}`
+            : `✘ Failed to --save-dev ${origPkgName} to package.json`
         )
       }
     }
-    const pkgSpec = testNpmPkgJson.devDependencies?.[pkgName]
+    const pkgSpec = testNpmPkgJson.devDependencies?.[origPkgName]
     const parsedSpec = npmPackageArg.resolve(
-      pkgName,
+      origPkgName,
       pkgSpec,
       testNpmNodeModulesPath
     )
@@ -213,7 +215,7 @@ async function resolveDevDependencies(packageNames) {
       // to use in place of the version range for its devDependencies entry.
       const nmEditablePkgJson = await readCachedEditablePackageJson(nmPkgPath)
       const { version: nmPkgVer } = nmEditablePkgJson.content
-      const pkgId = `${pkgName}@${nmPkgVer}`
+      const pkgId = `${origPkgName}@${nmPkgVer}`
       const spinner = new Spinner(
         `Resolving GitHub tarball URL for ${pkgId}...`
       ).start()
@@ -226,21 +228,21 @@ async function resolveDevDependencies(packageNames) {
         testNpmEditablePkgJson.update({
           devDependencies: {
             ...testNpmEditablePkgJson.content.devDependencies,
-            [pkgName]: gitHubTgzUrl
+            [origPkgName]: gitHubTgzUrl
           }
         })
         await testNpmEditablePkgJson.save()
-        spinner.message = `Refreshing ${pkgName} from tarball...`
+        spinner.message = `Refreshing ${origPkgName} from tarball...`
         try {
-          await installTestNpmNodeModules({ clean: true, specs: [pkgName] })
+          await installTestNpmNodeModules({ clean: true, specs: [origPkgName] })
           spinner.stop(`✔ Refreshed ${pkgId} from tarball`)
         } catch {
-          spinner.stop(`✘ Failed to refresh ${pkgName} from tarball`)
+          spinner.stop(`✘ Failed to refresh ${origPkgName} from tarball`)
         }
       } else {
         // Collect the names and versions of packages we failed to resolve
         // tarballs for.
-        unresolved.push({ name: pkgName, version: nmPkgVer })
+        unresolved.push({ name: origPkgName, version: nmPkgVer })
         spinner.stop()
       }
     }
@@ -262,17 +264,18 @@ async function linkPackages(packageNames) {
   const linkedPackageNames = []
   const spinner = new Spinner(`Linking packages...`).start()
   // Chunk package names to process them in parallel 3 at a time.
-  await pEach(packageNames, 3, async pkgName => {
-    const pkgPath = path.join(npmPackagesPath, pkgName)
+  await pEach(packageNames, 3, async regPkgName => {
+    const origPkgName = resolveOriginalPackageName(regPkgName)
+    const pkgPath = path.join(npmPackagesPath, regPkgName)
     if (!fs.existsSync(pkgPath)) {
-      console.log(`⚠️ ${pkgName}: Missing from ${relNpmPackagesPath}`)
+      console.log(`⚠️ ${regPkgName}: Missing from ${relNpmPackagesPath}`)
       return
     }
-    const nmPkgPath = path.join(testNpmNodeModulesPath, pkgName)
+    const nmPkgPath = path.join(testNpmNodeModulesPath, origPkgName)
     if (isSymbolicLinkSync(nmPkgPath)) {
       if (
         fs.realpathSync(nmPkgPath) ===
-        path.join(testNpmNodeWorkspacesPath, pkgName)
+        path.join(testNpmNodeWorkspacesPath, regPkgName)
       ) {
         return
       }
@@ -436,7 +439,7 @@ async function linkPackages(packageNames) {
     const isNmPkgTypeModule = nmEditablePkgJson.content.type === 'module'
     const isModuleTypeMismatch = isNmPkgTypeModule !== isPkgTypeModule
     if (isModuleTypeMismatch) {
-      spinner.message = `⚠️ ${pkgName}: Module type mismatch`
+      spinner.message = `⚠️ ${origPkgName}: Module type mismatch`
     }
     const actions = new Map()
     for (const jsFile of await tinyGlob(['**/*.{cjs,js,json}'], {
@@ -472,7 +475,7 @@ async function linkPackages(packageNames) {
               return
             }
           } else {
-            console.log(`✘ ${pkgName}: Cannot convert ESM to CJS`)
+            console.log(`✘ ${origPkgName}: Cannot convert ESM to CJS`)
           }
         }
         await remove(destPath)
@@ -481,7 +484,7 @@ async function linkPackages(packageNames) {
     }
     await pEach([...actions.values()], 3, a => a())
     await nmEditablePkgJson.save()
-    linkedPackageNames.push(pkgName)
+    linkedPackageNames.push(regPkgName)
   })
   spinner.stop('✔ Packages linked')
   return linkedPackageNames
@@ -495,7 +498,10 @@ async function cleanupNodeWorkspaces(linkedPackageNames) {
   ).start()
   // Chunk package names to process them in parallel 3 at a time.
   await pEach(linkedPackageNames, 3, async n => {
-    const srcPath = path.join(testNpmNodeModulesPath, n)
+    const srcPath = path.join(
+      testNpmNodeModulesPath,
+      resolveOriginalPackageName(n)
+    )
     const destPath = path.join(testNpmNodeWorkspacesPath, n)
     // Remove unnecessary directories/files.
     await Promise.all(

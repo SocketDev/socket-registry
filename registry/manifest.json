@@ -437,6 +437,17 @@
       }
     ],
     [
+      "pkg:npm/%40socketregistry/hyrious__bun.lockb@1.0.0",
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["cjs", "esm"],
+        "license": "MIT",
+        "scope": "@hyrious",
+        "skipTests": true
+      }
+    ],
+    [
       "pkg:npm/%40socketregistry/indent-string@1.0.1",
       {
         "categories": ["cleanup"],

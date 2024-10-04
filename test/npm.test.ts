@@ -27,6 +27,10 @@ import {
 } from '@socketregistry/scripts/utils/git'
 // @ts-ignore
 import { runScript } from '@socketregistry/scripts/utils/npm'
+import {
+  resolveOriginalPackageName
+  // @ts-ignore
+} from '@socketregistry/scripts/utils/packages'
 // @ts-ignore
 import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
 
@@ -52,21 +56,22 @@ describe('npm', async () => {
             testablePackages.has(n)
           )
         })()
-  for (const pkgName of packageNames) {
-    const nwPkgPath = path.join(testNpmNodeWorkspacesPath, pkgName)
+  for (const regPkgName of packageNames) {
+    const nwPkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
     const nwPkgJson = fs.readJsonSync(path.join(nwPkgPath, PACKAGE_JSON))
     const nodeRange = nwPkgJson.engines?.node
+    const origPkgName = resolveOriginalPackageName(regPkgName)
     const skip =
       !nwPkgJson.scripts?.test ||
       (isNonEmptyString(nodeRange) &&
         !semver.satisfies(NODE_VERSION, nodeRange))
 
-    it(`${pkgName} passes all its tests`, { skip }, async () => {
+    it(`${origPkgName} passes all its tests`, { skip }, async () => {
       try {
         await runScript('test', [], { cwd: nwPkgPath })
         assert.ok(true)
       } catch (e: any) {
-        console.log(`✘ ${pkgName}`, e)
+        console.log(`✘ ${origPkgName}`, e)
         assert.ok(false)
       }
     })

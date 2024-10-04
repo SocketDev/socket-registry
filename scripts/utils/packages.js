@@ -8,6 +8,7 @@ const fs = require('fs-extra')
 const makeFetchHappen = require('make-fetch-happen')
 const normalizePackageData = require('normalize-package-data')
 const npmPackageArg = require('npm-package-arg')
+const { PackageURL } = require('packageurl-js')
 const pacote = require('pacote')
 const semver = require('semver')
 const spdxCorrect = require('spdx-correct')
@@ -23,6 +24,7 @@ const {
   PACKAGE_DEFAULT_SOCKET_CATEGORIES,
   PACKAGE_JSON,
   PACKAGE_SCOPE,
+  REGISTRY_SCOPE_DELIMITER,
   REPO_NAME,
   REPO_ORG,
   UNLICENCED,
@@ -46,8 +48,11 @@ const { isNonEmptyString } = require('@socketregistry/scripts/utils/strings')
 const BINARY_OPERATION_NODE_TYPE = 'BinaryOperation'
 const LICENSE_NODE_TYPE = 'License'
 
-const pkgScopeRegExp = new RegExp(`^${escapeRegExp(PACKAGE_SCOPE)}/`)
+const escapedScopeRegExp = new RegExp(
+  `^[^${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0])}]+${escapeRegExp(REGISTRY_SCOPE_DELIMITER)}(?!${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0])})`
+)
 const fileReferenceRegExp = /^SEE LICEN[CS]E IN (.+)$/
+const pkgScopeRegExp = new RegExp(`^${escapeRegExp(PACKAGE_SCOPE)}/`)
 
 const fetcher = makeFetchHappen.defaults({
   cachePath: pacoteCachePath,
@@ -119,7 +124,7 @@ function createLicenseNode(rawNode) {
   return { __proto__: null, ...rawNode, type: LICENSE_NODE_TYPE }
 }
 
-function createPackageJson(pkgName, directory, options) {
+function createPackageJson(regPkgName, directory, options) {
   const {
     dependencies,
     description,
@@ -136,7 +141,7 @@ function createPackageJson(pkgName, directory, options) {
   } = { __proto__: null, ...options }
   // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
   const { PACKAGE_DEFAULT_NODE_RANGE } = constants
-  const name = `${PACKAGE_SCOPE}/${pkgName.replace(pkgScopeRegExp, '')}`
+  const name = `${PACKAGE_SCOPE}/${resolveOriginalPackageName(regPkgName).replace(pkgScopeRegExp, '')}`
   const entryExports = resolvePackageJsonEntryExports(entryExportsRaw)
   return {
     __proto__: null,
@@ -360,6 +365,10 @@ function readPackageJsonSync(filepath, options) {
     : normalizePackageJson(pkgJson, otherOptions)
 }
 
+function resolveEscapedScope(regPkgName) {
+  return escapedScopeRegExp.exec(regPkgName)?.[0] ?? ''
+}
+
 async function resolveGitHubTgzUrl(pkgNameOrId, where) {
   const whereIsPkgJson = isObjectObject(where)
   const pkgJson = whereIsPkgJson ? where : await readPackageJson(where)
@@ -408,6 +417,13 @@ async function resolveGitHubTgzUrl(pkgNameOrId, where) {
     }
   }
   return ''
+}
+
+function resolveOriginalPackageName(regPkgName) {
+  const escapedScope = resolveEscapedScope(regPkgName)
+  return escapedScope
+    ? `${unescapeScope(escapedScope)}/${regPkgName.slice(escapedScope.length)}`
+    : regPkgName
 }
 
 function resolvePackageJsonDirname(filepath) {
@@ -472,12 +488,22 @@ function resolvePackageLicenses(licenseFieldValue, where) {
   return licenseNodes
 }
 
+function resolveRegistryPackageName(pkgName) {
+  const purlObj = PackageURL.fromString(`pkg:npm/${pkgName}`)
+  return purlObj.namespace
+    ? `${purlObj.namespace.slice(1)}${REGISTRY_SCOPE_DELIMITER}${purlObj.name}`
+    : pkgName
+}
+
 async function toEditablePackageJson(pkgJson, options) {
-  const { path: pathOpt, ...normalizeOptions } = { __proto__: null, ...options }
-  if (typeof pathOpt !== 'string') {
+  const { path: filepath, ...normalizeOptions } = {
+    __proto__: null,
+    ...options
+  }
+  if (typeof filepath !== 'string') {
     return jsonToEditablePackageJson(pkgJson, normalizeOptions)
   }
-  const pkgJsonPath = resolvePackageJsonDirname(pathOpt)
+  const pkgJsonPath = resolvePackageJsonDirname(filepath)
   return (await EditablePackageJson.load(pkgJsonPath, { create: true })).update(
     normalizePackageJson(pkgJson, {
       __proto__: null,
@@ -492,17 +518,21 @@ function toEditablePackageJsonSync(pkgJson, options) {
     __proto__: null,
     ...options
   }
-  return typeof filepath === 'string'
-    ? new EditablePackageJson().create(filepath).update(
-        normalizePackageJson(pkgJson, {
-          __proto__: null,
-          ...(isNodeModules(resolvePackageJsonDirname(filepath))
-            ? {}
-            : { preserve: ['repository'] }),
-          ...normalizeOptions
-        })
-      )
-    : jsonToEditablePackageJson(pkgJson, normalizeOptions)
+  if (typeof filepath !== 'string') {
+    return jsonToEditablePackageJson(pkgJson, normalizeOptions)
+  }
+  const pkgJsonPath = resolvePackageJsonDirname(filepath)
+  return new EditablePackageJson().create(pkgJsonPath).update(
+    normalizePackageJson(pkgJson, {
+      __proto__: null,
+      ...(isNodeModules(pkgJsonPath) ? {} : { preserve: ['repository'] }),
+      ...normalizeOptions
+    })
+  )
+}
+
+function unescapeScope(escapedScope) {
+  return `@${escapedScope.slice(0, -REGISTRY_SCOPE_DELIMITER.length)}`
 }
 
 function visitLicenses(ast, visitor) {
@@ -549,11 +579,15 @@ module.exports = {
   normalizePackageJson,
   readPackageJson,
   readPackageJsonSync,
+  resolveEscapedScope,
   resolveGitHubTgzUrl,
+  resolveOriginalPackageName,
   resolvePackageJsonDirname,
   resolvePackageJsonEntryExports,
   resolvePackageJsonPath,
   resolvePackageLicenses,
+  resolveRegistryPackageName,
   toEditablePackageJson,
-  toEditablePackageJsonSync
+  toEditablePackageJsonSync,
+  unescapeScope
 }

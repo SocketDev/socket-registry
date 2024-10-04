@@ -32,7 +32,8 @@ import {
 import { isObjectObject } from '@socketregistry/scripts/utils/objects'
 import {
   isValidPackageName,
-  readPackageJson
+  readPackageJson,
+  resolveOriginalPackageName
   // @ts-ignore
 } from '@socketregistry/scripts/utils/packages'
 // @ts-ignore
@@ -93,13 +94,14 @@ for (const eco of constants.ecosystems) {
                 testablePackages.has(n)
               )
             })()
-      for (const pkgName of packageNames) {
-        const pkgPath = path.join(npmPackagesPath, pkgName)
+      for (const regPkgName of packageNames) {
+        const pkgPath = path.join(npmPackagesPath, regPkgName)
         const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
         const pkgJsonExists = fs.existsSync(pkgJsonPath)
         const pkgLicensePath = path.join(pkgPath, LICENSE)
+        const origPkgName = resolveOriginalPackageName(regPkgName)
 
-        describe(pkgName, async () => {
+        describe(origPkgName, async () => {
           it('should have a package.json', () => {
             assert.ok(pkgJsonExists)
           })
@@ -165,13 +167,13 @@ for (const eco of constants.ecosystems) {
           })
 
           it('package name should be "name" field of package.json', () => {
-            assert.strictEqual(pkgJson.name, `@socketregistry/${pkgName}`)
+            assert.strictEqual(pkgJson.name, `@socketregistry/${regPkgName}`)
           })
 
           it('package name should be included in "repository.directory" field of package.json', () => {
             assert.strictEqual(
               pkgJson.repository?.directory,
-              `packages/npm/${pkgName}`
+              `packages/npm/${regPkgName}`
             )
           })
 
@@ -237,7 +239,7 @@ for (const eco of constants.ecosystems) {
             )
           })
 
-          const manifestData = getManifestData(pkgName)
+          const manifestData = getManifestData(regPkgName)
           if (manifestData?.license !== 'Public Domain') {
             it(`should have an original license file`, () => {
               assert.ok(files.some(p => p.includes('.original')))

@@ -22,8 +22,8 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
   }
   await Promise.all(
     // Lazily access constants.npmPackageNames.
-    constants.npmPackageNames.map(async pkgName => {
-      const pkgPath = path.join(npmPackagesPath, pkgName)
+    constants.npmPackageNames.map(async regPkgName => {
+      const pkgPath = path.join(npmPackagesPath, regPkgName)
       const readmePath = path.join(pkgPath, README_MD)
       const { 1: data } = await getNpmReadmeAction(pkgPath)
       return fs.writeFile(readmePath, data.readme, 'utf8')

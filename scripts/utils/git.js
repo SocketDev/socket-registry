@@ -100,11 +100,11 @@ function innerGetPackages(eco, files, options) {
   const packageNames = new Set()
   for (const filepath of files) {
     if (matcher(filepath)) {
-      const pkgName = filepath.slice(
+      const regPkgName = filepath.slice(
         sliceStart,
         filepath.indexOf('/', sliceStart)
       )
-      packageNames.add(pkgName)
+      packageNames.add(regPkgName)
     }
   }
   return asSet ? packageNames : [...packageNames]

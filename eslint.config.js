@@ -43,17 +43,22 @@ const conditionalConfig = (config, isEsm) => {
 
 const getIgnores = isEsm =>
   // Lazily access constants.npmPackageNames.
-  constants.npmPackageNames
-    .filter(pkgName => {
-      const pkgPath = path.join(npmPackagesPath, pkgName)
-      const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
-      try {
-        const { type } = fs.readJsonSync(pkgJsonPath)
-        return isEsm ? type !== 'module' : type === 'module'
-      } catch {}
-      return false
-    })
-    .map(pkgName => `${relNpmPackagesPath}/${pkgName}/*`)
+  constants.npmPackageNames.flatMap(regPkgName => {
+    const pkgPath = path.join(npmPackagesPath, regPkgName)
+    const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
+    let match = false
+    try {
+      const { type } = fs.readJsonSync(pkgJsonPath)
+      match = isEsm ? type !== 'module' : type === 'module'
+    } catch {}
+    const ignored = []
+    if (match) {
+      ignored.push(`${relNpmPackagesPath}/${regPkgName}/*`)
+    } else if (isEsm) {
+      ignored.push(`${relNpmPackagesPath}/${regPkgName}/index.js`)
+    }
+    return ignored
+  })
 
 const getImportXFlatConfigs = isEsm => ({
   recommended: {
@@ -131,6 +136,10 @@ function configs(sourceType) {
       },
       rules: {
         'n/exports-style': ['error', 'module.exports'],
+        // The n/no-unpublished-bin rule does does not support non-trivial glob
+        // patterns used in package.json "files" fields. In those cases we simplify
+        // the glob patterns used.
+        'n/no-unpublished-bin': ['error'],
         'n/no-unsupported-features/node-builtins': [
           'error',
           { ignores: ['buffer.resolveObjectURL', 'fetch'], version: nodeRange }

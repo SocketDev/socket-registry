@@ -18,8 +18,8 @@ const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
     const ecoPackagesPath = path.join(rootPackagesPath, eco)
     // No need to sort because readDirNames returns names sorted by default.
     const packageNames = await readDirNames(ecoPackagesPath)
-    for (const pkgName of packageNames) {
-      workspaces.push(`packages/${eco}/${pkgName}`)
+    for (const regPkgName of packageNames) {
+      workspaces.push(`packages/${eco}/${regPkgName}`)
     }
   }
   rootEditablePkgJson.update({ workspaces })

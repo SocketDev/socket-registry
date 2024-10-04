@@ -48,6 +48,7 @@
   "devDependencies": {
     "@eslint/compat": "^1.1.1",
     "@eslint/js": "^9.11.1",
+    "@hyrious/bun.lockb": "^0.0.4",
     "@inquirer/confirm": "^4.0.1",
     "@inquirer/input": "^3.0.1",
     "@inquirer/search": "^2.0.1",
@@ -154,6 +155,7 @@
     "packages/npm/has-symbols",
     "packages/npm/has-tostringtag",
     "packages/npm/hasown",
+    "packages/npm/hyrious__bun.lockb",
     "packages/npm/indent-string",
     "packages/npm/internal-slot",
     "packages/npm/is-arguments",

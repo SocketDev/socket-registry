@@ -25,6 +25,7 @@ const {
 const {
   fetchPackageManifest,
   readPackageJson,
+  resolveOriginalPackageName,
   resolvePackageJsonEntryExports
 } = require('@socketregistry/scripts/utils/packages')
 const { localCompare } = require('@socketregistry/scripts/utils/sorts')
@@ -47,13 +48,14 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
   for (const eco of ecosystems) {
     if (eco === 'npm') {
       const manifestData = []
-      for await (const pkgName of npmPackageNames) {
-        const pkgPath = path.join(npmPackagesPath, pkgName)
+      for await (const regPkgName of npmPackageNames) {
+        const origPkgName = resolveOriginalPackageName(regPkgName)
+        const pkgPath = path.join(npmPackagesPath, regPkgName)
         const pkgJson = await readPackageJson(pkgPath)
-        const nwPkgPath = path.join(testNpmNodeWorkspacesPath, pkgName)
+        const nwPkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
         const nwPkgJson = await readPackageJson(nwPkgPath)
         const nmPkgManifest = await fetchPackageManifest(
-          `${pkgName}@${nwPkgJson.version}`
+          `${origPkgName}@${nwPkgJson.version}`
         )
         const { engines, name, socket, version } = pkgJson
         const entryExports = resolvePackageJsonEntryExports(pkgJson.exports)
@@ -62,7 +64,6 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
         const { namespace: nmScope } = PackageURL.fromString(
           `pkg:${eco}/${nmPkgId}`
         )
-
         const interop = ['cjs']
         const isEsm = pkgJson.type === 'module'
         if (isEsm) {
@@ -73,7 +74,7 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
         if (isBrowser) {
           interop.push('browserify')
         }
-        const skipTests = skipTestsByEcosystem[eco].has(pkgName)
+        const skipTests = skipTestsByEcosystem[eco].has(regPkgName)
         const metaEntries = [
           ['license', nwPkgLicense ?? UNLICENSED],
           ...(nmPkgDeprecated ? [['deprecated', true]] : []),

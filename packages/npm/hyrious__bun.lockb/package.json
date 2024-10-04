@@ -1,0 +1,40 @@
+{
+  "name": "@socketregistry/hyrious__bun.lockb",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "Socket.dev optimized package override for @hyrious/bun.lockb",
+  "keywords": [
+    "Socket.dev",
+    "package-overrides"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SocketDev/socket-registry-js.git",
+    "directory": "packages/npm/hyrious__bun.lockb"
+  },
+  "type": "module",
+  "bin": {
+    "lockb": "./cli.cjs"
+  },
+  "exports": {
+    "node": {
+      "module-sync": "./index.js",
+      "default": "./index.cjs"
+    },
+    "default": "./index.js"
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.20.4"
+  },
+  "files": [
+    "*.d.{c,}ts",
+    "*.cjs",
+    "*.js"
+  ],
+  "socket": {
+    "categories": [
+      "cleanup"
+    ]
+  }
+}

@@ -24,7 +24,10 @@ const {
 } = constants
 const { globLicenses } = require('@socketregistry/scripts/utils/globs')
 const { isObjectObject } = require('@socketregistry/scripts/utils/objects')
-const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
+const {
+  readPackageJson,
+  resolveOriginalPackageName
+} = require('@socketregistry/scripts/utils/packages')
 const { prettierFormat } = require('@socketregistry/scripts/utils/strings')
 const registryManifest = require('@socketsecurity/registry')
 
@@ -70,14 +73,12 @@ async function getLicenseActions(pkgPath) {
   return actions
 }
 
-function getManifestData(pkgName) {
+function getManifestData(regPkgName) {
   return registryManifest.npm
-    .find(({ 0: purlStr }) => PackageURL.fromString(purlStr).name === pkgName)
+    .find(
+      ({ 0: purlStr }) => PackageURL.fromString(purlStr).name === regPkgName
+    )
     ?.at(1)
-}
-
-function getOriginalName(pkgName, manifestData) {
-  return `${manifestData?.scope ?? ''}${pkgName}`
 }
 
 async function getNpmReadmeAction(pkgPath) {
@@ -86,8 +87,8 @@ async function getNpmReadmeAction(pkgPath) {
   const pkgPurlObj = PackageURL.fromString(
     `pkg:npm/${pkgJson.name}@${pkgJson.version}`
   )
-  const { name: pkgName } = pkgPurlObj
-  const manifestData = getManifestData(pkgName)
+  const { name: regPkgName } = pkgPurlObj
+  const manifestData = getManifestData(regPkgName)
   const categories = manifestData?.categories
   return [
     path.join(pkgPath, README_MD),
@@ -99,7 +100,7 @@ async function getNpmReadmeAction(pkgPath) {
           __proto__: null,
           ...manifestData,
           ...pkgJson,
-          originalName: getOriginalName(pkgName, manifestData),
+          originalName: resolveOriginalPackageName(regPkgName),
           categories: Array.isArray(categories)
             ? categories
             : [...PACKAGE_DEFAULT_SOCKET_CATEGORIES],
@@ -114,16 +115,16 @@ async function getNpmReadmeAction(pkgPath) {
 
 async function getPackageJsonAction(pkgPath, options) {
   const { engines } = { __proto__: null, ...options }
-  const pkgName = path.basename(pkgPath)
-  const manifestData = getManifestData(pkgName)
+  const regPkgName = path.basename(pkgPath)
+  const manifestData = getManifestData(regPkgName)
   const categories = manifestData?.categories
   return [
     path.join(pkgPath, PACKAGE_JSON),
     {
       __proto__: null,
       ...manifestData,
-      name: pkgName,
-      originalName: getOriginalName(pkgName, manifestData),
+      name: regPkgName,
+      originalName: resolveOriginalPackageName(regPkgName),
       categories: Array.isArray(categories)
         ? categories
         : [...PACKAGE_DEFAULT_SOCKET_CATEGORIES],

@@ -92,6 +92,7 @@ const PACKAGE_SCOPE = `@${NPM_ORG}`
 const README_GLOB = 'README{.*,}'
 const README_GLOB_RECURSIVE = `**/${README_GLOB}`
 const README_MD = 'README.md'
+const REGISTRY_SCOPE_DELIMITER = '__'
 const REGISTRY_WORKSPACE = 'registry'
 const REPO_ORG = 'SocketDev'
 const REPO_NAME = 'socket-registry-js'
@@ -422,16 +423,23 @@ const parseArgsConfig = Object.freeze({
 const skipTestsByEcosystem = Object.freeze({
   __proto__: null,
   npm: new Set([
+    // Has no unit tests.
+    // https://github.com/hyrious/bun.lockb/tree/v0.0.3
+    '@hyrious/bun.lockb',
+    'hyrious__bun.lockb',
     // Has known test fails in its package:
     // https://github.com/es-shims/Date/issues/3
     'date',
     // Has no unit tests.
+    // https://github.com/rubennorte/es6-object-assign/tree/v1.1.0
     'es6-object-assign',
     // Has known failures in its package and requires running tests in browser.
+    // https://github.com/tvcutsem/harmony-reflect/tree/v1.6.2
     'harmony-reflect',
     // The package tests don't account for the `require('node:util/types).isRegExp`
     // method having no observable side-effects and assumes the "getOwnPropertyDescriptor"
     // trap will be triggered by `Object.getOwnPropertyDescriptor(value, 'lastIndex')`.
+    // https://github.com/inspect-js/is-regex/tree/v1.1.4
     'is-regex',
     // Has known failures in its package.
     // https://github.com/ChALkeR/safer-buffer/issues/16
@@ -495,6 +503,7 @@ const constants = Object.freeze(
       README_GLOB,
       README_GLOB_RECURSIVE,
       README_MD,
+      REGISTRY_SCOPE_DELIMITER,
       REGISTRY_WORKSPACE,
       REPO_ORG,
       REPO_NAME,
