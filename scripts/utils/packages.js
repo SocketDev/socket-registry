@@ -337,31 +337,7 @@ function gitHubTgzUrl(user, project, sha) {
 }
 
 function isConditionalExports(entryExports) {
-  let hasKeys = false
-  if (isObjectObject(entryExports)) {
-    const keys = Object.getOwnPropertyNames(entryExports)
-    const { length } = keys
-    hasKeys = length > 0
-    for (let i = 0; i < length; i += 1) {
-      // Conditional entry exports do NOT contain keys starting with '.'.
-      // Entry exports cannot contain some keys starting with '.' and some not.
-      // The exports object MUST either be an object of package subpath keys OR
-      // an object of main entry condition name keys only.
-      if (keys[i].charCodeAt(0) === 46 /*'.'*/) {
-        return false
-      }
-    }
-  }
-  return hasKeys || isConditionalExportsMainSugar(entryExports)
-}
-
-// Based on Node's internal helper.
-// https://github.com/nodejs/node/blob/v22.9.0/lib/internal/modules/esm/resolve.js#L537
-function isConditionalExportsMainSugar(entryExports) {
-  if (typeof entryExports === 'string' || Array.isArray(entryExports)) {
-    return true
-  }
-  if (!isObject(entryExports)) {
+  if (!isObjectObject(entryExports)) {
     return false
   }
   const keys = Object.getOwnPropertyNames(entryExports)
@@ -369,13 +345,17 @@ function isConditionalExportsMainSugar(entryExports) {
   if (!length) {
     return false
   }
-  let result = keys[0] === '' || keys[0].charCodeAt(0) === 46 /*'.'*/
-  for (let i = 1; i < length; i += 1) {
-    if (result !== (keys[i] === '' || keys[i].charCodeAt(0) === 46) /*'.'*/) {
+  // Conditional entry exports do NOT contain keys starting with '.'.
+  // Entry exports cannot contain some keys starting with '.' and some not.
+  // The exports object MUST either be an object of package subpath keys OR
+  // an object of main entry condition name keys only.
+  for (let i = 0; i < length; i += 1) {
+    const key = keys[i]
+    if (key.length > 0 && key.charCodeAt(0) === 46 /*'.'*/) {
       return false
     }
   }
-  return result
+  return true
 }
 
 function isSubpathExports(entryExports) {
@@ -523,10 +503,15 @@ function resolvePackageJsonDirname(filepath) {
 }
 
 function resolvePackageJsonEntryExports(entryExports) {
-  if (isConditionalExportsMainSugar(entryExports)) {
+  // If conditional exports main sugar
+  // https://nodejs.org/api/packages.html#exports-sugar
+  if (typeof entryExports === 'string' || Array.isArray(entryExports)) {
     return { '.': entryExports }
   }
-  return isObjectObject(entryExports) ? entryExports : undefined
+  if (isConditionalExports(entryExports)) {
+    return entryExports
+  }
+  return isObject(entryExports) ? entryExports : undefined
 }
 
 function resolvePackageJsonPath(filepath) {
