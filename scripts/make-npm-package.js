@@ -48,7 +48,7 @@ const {
   select
 } = require('@socketregistry/scripts/utils/prompts')
 const {
-  localCompare,
+  localeCompare,
   naturalSort
 } = require('@socketregistry/scripts/utils/sorts')
 const { indentString } = require('@socketregistry/scripts/utils/strings')
@@ -410,7 +410,7 @@ function toChoice(value) {
       main: useNmEntryExports ? undefined : pkgPath.content.main,
       exports: useNmEntryExports ? nmEntryExports : entryExports,
       files: [...editablePkgJson.content.files, ...filesFieldAdditions].sort(
-        localCompare
+        localeCompare
       )
     })
     await editablePkgJson.save()

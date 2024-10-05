@@ -41,7 +41,7 @@ import {
 // @ts-ignore
 import { trimLeadingDotSlash } from '@socketregistry/scripts/utils/path'
 // @ts-ignore
-import { localCompare } from '@socketregistry/scripts/utils/sorts'
+import { localeCompare } from '@socketregistry/scripts/utils/sorts'
 // @ts-ignore
 import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
 // @ts-ignore
@@ -125,7 +125,7 @@ for (const eco of constants.ecosystems) {
               cwd: pkgPath,
               dot: true
             })
-          ).sort(localCompare)
+          ).sort(localeCompare)
           const filesPatternsAsArray = Array.isArray(filesPatterns)
             ? filesPatterns
             : []
@@ -147,17 +147,17 @@ for (const eco of constants.ecosystems) {
                 dot: true
               }
             )
-          ).sort(localCompare)
+          ).sort(localeCompare)
           const dotFilePatterns = filesPatternsAsArray.filter(isDotPattern)
           const dotFileMatches = (
             await tinyGlob(dotFilePatterns, {
               cwd: pkgPath,
               dot: true
             })
-          ).sort(localCompare)
+          ).sort(localeCompare)
           const jsonFiles = files
             .filter(p => path.extname(p) === '.json')
-            .sort(localCompare)
+            .sort(localeCompare)
 
           it('package name should be valid', () => {
             assert.ok(isValidPackageName(pkgJson.name))

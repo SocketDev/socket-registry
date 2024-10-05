@@ -1,5 +1,7 @@
 'use strict'
 
+const { compare: localeCompare } = new Intl.Collator()
+
 function assert(truthy, message = 'assert failed') {
   if (truthy) return
   throw new TypeError(message)
@@ -103,7 +105,7 @@ function fmt_resolution(a) {
       }
       out += resolved
     } else if (commitish) {
-      out += '#' + commitish
+      out += `#${commitish}`
     }
     return out
   }
@@ -112,16 +114,16 @@ function fmt_resolution(a) {
 
 function fmt_specs(name, specs, version) {
   specs = Array.from(new Set(specs.map(e => e || `^${version}`)))
-  specs.sort((a, b) => a.localeCompare(b))
-  let out = '',
-    comma = false
+  specs.sort(localeCompare)
+  let out = ''
+  let comma = false
   for (const spec of specs) {
-    const item = name + '@' + spec
+    const item = `${name}@${spec}`
     if (comma) out += ', '
     out += quote(item)
     comma = true
   }
-  return out + ':'
+  return `${out}:`
 }
 
 function fmt_url(a) {
@@ -324,8 +326,9 @@ function parse(buf) {
       const pa = packages[a]
       const pb = packages[b]
       return (
-        str(pa.name).localeCompare(str(pb.name)) ||
-        fmt_resolution(pa.resolution).localeCompare(
+        localeCompare(str(pa.name), str(pb.name)) ||
+        localeCompare(
+          fmt_resolution(pa.resolution),
           fmt_resolution(pb.resolution)
         )
       )

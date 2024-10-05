@@ -9,7 +9,7 @@ const STRINGIFIED_NULL = JSON.stringify(null)
 
 const { isArray: ArrayIsArray } = Array
 const { keys: ObjectKeys } = Object
-const { compare: localCompare } = new Intl.Collator()
+const { compare: localeCompare } = new Intl.Collator()
 const defaultReplacer = (_parent, _key, value) => value
 
 function joinEntries(entries, indent, wrapper) {
@@ -80,7 +80,7 @@ module.exports = function stableStringify(obj, opts = {}) {
             get ? { __proto__: null, get } : undefined
           )
       }
-    : _node => localCompare
+    : _node => localeCompare
   const resultEntries = []
   const queue = [
     [{ '': obj }, '0', obj, 0, ARRAY_TYPE, resultEntries, new Set()]

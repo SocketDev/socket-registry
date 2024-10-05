@@ -29,7 +29,7 @@ const {
   resolveOriginalPackageName,
   resolvePackageJsonEntryExports
 } = require('@socketregistry/scripts/utils/packages')
-const { localCompare } = require('@socketregistry/scripts/utils/sorts')
+const { localeCompare } = require('@socketregistry/scripts/utils/sorts')
 const { Spinner } = require('@socketregistry/scripts/utils/spinner')
 const { prettierFormat } = require('@socketregistry/scripts/utils/strings')
 
@@ -88,7 +88,7 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
           ...(nmPkgDeprecated ? [['deprecated', true]] : []),
           ...(skipTests ? [['skipTests', true]] : []),
           ...(engines ? [['engines', toSortedObject(engines)]] : []),
-          ['interop', interop.sort(localCompare)],
+          ['interop', interop.sort(localeCompare)],
           ...(nmScope ? [['scope', nmScope]] : []),
           ...(socket ? Object.entries(socket) : [])
         ]
@@ -103,7 +103,7 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
         manifest[eco] = manifestData.sort((a_, b_) => {
           const a = Array.isArray(a_) ? a_[0] : a_
           const b = Array.isArray(b_) ? b_[0] : b_
-          return localCompare(a, b)
+          return localeCompare(a, b)
         })
       }
     }

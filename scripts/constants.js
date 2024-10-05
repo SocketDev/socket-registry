@@ -153,7 +153,7 @@ const relTestNpmNodeModulesPath = path.relative(
   testNpmNodeModulesPath
 )
 
-const { compare: localCompare } = new Intl.Collator()
+const { compare: localeCompare } = new Intl.Collator()
 
 const naturalSort = createNewSortInstance({
   comparer: new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
@@ -174,7 +174,7 @@ const innerReadDirNames = function innerReadDirNames(dirents, options) {
         (includeEmpty || !isDirEmptySync(path.join(d.parentPath, d.name)))
     )
     .map(d => d.name)
-  return sort ? names.sort(localCompare) : names
+  return sort ? names.sort(localeCompare) : names
 }
 
 const matcherCache = new Map()
@@ -249,7 +249,7 @@ const internals = Object.freeze({
   getGlobMatcher,
   innerReadDirNames,
   isDirEmptySync,
-  localCompare,
+  localeCompare,
   naturalSort,
   readDirNamesSync,
   which,
@@ -400,7 +400,7 @@ const packageExtensions = Object.freeze(
       }
     ]
   ].sort((a, b) =>
-    localCompare(
+    localeCompare(
       a[0].slice(0, a[0].lastIndexOf('@')),
       b[0].slice(0, b[0].lastIndexOf('@'))
     )

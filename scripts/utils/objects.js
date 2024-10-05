@@ -1,7 +1,7 @@
 'use strict'
 
 const { LOOP_SENTINEL } = require('@socketregistry/scripts/constants')
-const { localCompare } = require('@socketregistry/scripts/utils/sorts')
+const { localeCompare } = require('@socketregistry/scripts/utils/sorts')
 
 function getOwnPropertyValues(obj) {
   const keys = Object.getOwnPropertyNames(obj)
@@ -87,7 +87,7 @@ function toSortedObject(obj) {
 }
 
 function toSortedObjectFromEntries(entries) {
-  return Object.fromEntries(entries.sort((a, b) => localCompare(a[0], b[0])))
+  return Object.fromEntries(entries.sort((a, b) => localeCompare(a[0], b[0])))
 }
 
 module.exports = {

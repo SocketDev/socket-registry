@@ -50,7 +50,7 @@ const {
 } = require('@socketregistry/scripts/utils/packages')
 const { splitPath } = require('@socketregistry/scripts/utils/path')
 const { pEach } = require('@socketregistry/scripts/utils/promises')
-const { localCompare } = require('@socketregistry/scripts/utils/sorts')
+const { localeCompare } = require('@socketregistry/scripts/utils/sorts')
 const { Spinner } = require('@socketregistry/scripts/utils/spinner')
 const { isNonEmptyString } = require('@socketregistry/scripts/utils/strings')
 
@@ -560,7 +560,7 @@ async function installNodeWorkspaces() {
         arrayUnique([
           ...constants.npmPackageNames.map(toWorkspaceEntry),
           ...cliArgs.add.map(toWorkspaceEntry)
-        ]).sort(localCompare)
+        ]).sort(localeCompare)
       : constants.npmPackageNames.map(toWorkspaceEntry)
   })
   await testNpmEditablePkgJson.save()
