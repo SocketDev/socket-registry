@@ -27,7 +27,7 @@ const {
 } = constants
 const { isDirEmptySync } = require('@socketregistry/scripts/utils/fs')
 const { globLicenses } = require('@socketregistry/scripts/utils/globs')
-const { runBin } = require('@socketregistry/scripts/utils/npm')
+const { runScript } = require('@socketregistry/scripts/utils/npm')
 const { isObject } = require('@socketregistry/scripts/utils/objects')
 const {
   collectIncompatibleLicenses,
@@ -418,19 +418,19 @@ function toChoice(value) {
 
   // Update monorepo package.json workspaces definition and test/npm files.
   try {
-    await runBin(
-      // Lazily access constants.runScriptParallelExecPath.
-      constants.runScriptParallelExecPath,
-      [
-        'update:manifest',
-        'update:package-json',
-        `update:longtask:test:npm:package-json -- --add ${origPkgName}`
-      ],
-      {
-        cwd: rootPath,
-        stdio: 'inherit'
-      }
-    )
+    const spawnOptions = {
+      cwd: rootPath,
+      stdio: 'inherit'
+    }
+    await Promise.all([
+      runScript('update:manifest', [], spawnOptions),
+      runScript('update:package-json', [], spawnOptions),
+      runScript(
+        'update:longtask:test:npm:package-json',
+        ['--', '--add', origPkgName],
+        spawnOptions
+      )
+    ])
   } catch (e) {
     console.log('✘ Package override finalization encountered an error:', e)
   }

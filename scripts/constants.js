@@ -326,7 +326,6 @@ const lazyGitIgnoreFile = () => includeIgnoreFile(gitIgnorePath)
 const lazyPrettierConfigPromise = () =>
   prettier.resolveConfig(prettierConfigPath, { editorconfig: true })
 const lazyPrettierIgnoreFile = () => includeIgnoreFile(prettierIgnorePath)
-const lazyRunScriptParallelExecPath = () => whichSync('run-p')
 const lazyTapExecPath = () => whichSync('tap')
 
 const copyLeftLicenses = new Set([
@@ -553,7 +552,6 @@ const constants = Object.freeze(
       rootPackageLockPath,
       rootPackagesPath,
       rootTsConfigPath,
-      runScriptParallelExecPath: undefined,
       skipTestsByEcosystem,
       tapCiConfigPath,
       tapConfigPath,
@@ -582,8 +580,7 @@ const constants = Object.freeze(
       npmPackageNames: lazyNpmPackageNames,
       prettierConfigPromise: lazyPrettierConfigPromise,
       prettierIgnoreFile: lazyPrettierIgnoreFile,
-      tapExecPath: lazyTapExecPath,
-      runScriptParallelExecPath: lazyRunScriptParallelExecPath
+      tapExecPath: lazyTapExecPath
     }
   )
 )
