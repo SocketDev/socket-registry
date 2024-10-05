@@ -8,5 +8,5 @@ include:
   - test/**/*.test.ts
 passes: false
 reporter: base
-timeout: 1800
+timeout: 600 # 600 seconds is 10 minutes
 tsconfig: tsconfig.json

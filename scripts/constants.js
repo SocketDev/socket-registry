@@ -96,8 +96,6 @@ const REGISTRY_SCOPE_DELIMITER = '__'
 const REGISTRY_WORKSPACE = 'registry'
 const REPO_ORG = 'SocketDev'
 const REPO_NAME = 'socket-registry-js'
-const TAP_TIMEOUT = 600 // 600 seconds is 10 minutes
-const TAP_WIN_32_TIMEOUT = 2700 // 2700 seconds is 45 minutes
 const TEMPLATE_CJS = 'cjs'
 const TEMPLATE_CJS_BROWSER = 'cjs-browser'
 const TEMPLATE_CJS_ESM = 'cjs-esm'
@@ -506,8 +504,6 @@ const constants = Object.freeze(
       REGISTRY_WORKSPACE,
       REPO_ORG,
       REPO_NAME,
-      TAP_TIMEOUT,
-      TAP_WIN_32_TIMEOUT,
       TEMPLATE_CJS,
       TEMPLATE_CJS_BROWSER,
       TEMPLATE_CJS_ESM,

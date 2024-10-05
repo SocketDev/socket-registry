@@ -9,4 +9,5 @@ Thumbs.db
 /npm-debug.log
 **/node_modules
 /*.tsbuildinfo
+.tapci.yaml
 test/**/node_workspaces

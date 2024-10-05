@@ -7,15 +7,7 @@ const fs = require('fs-extra')
 const readYamlFile = require('read-yaml-file')
 
 const constants = require('@socketregistry/scripts/constants')
-const {
-  ENV,
-  TAP_TIMEOUT,
-  TAP_WIN_32_TIMEOUT,
-  WIN_32,
-  parseArgsConfig,
-  tapCiConfigPath,
-  tapConfigPath
-} = constants
+const { ENV, parseArgsConfig, tapCiConfigPath, tapConfigPath } = constants
 const { isModified } = require('@socketregistry/scripts/utils/git')
 
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
@@ -30,11 +22,7 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
     {
       ...config,
       passes: true,
-      reporter: 'base',
-      timeout: Math.max(
-        WIN_32 ? TAP_WIN_32_TIMEOUT : TAP_TIMEOUT,
-        config.timeout || 0
-      )
+      reporter: 'base'
     }
   )}`
   await fs.writeFile(tapCiConfigPath, content, 'utf8')
