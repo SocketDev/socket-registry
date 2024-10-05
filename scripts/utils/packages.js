@@ -35,6 +35,8 @@ const {
   pacoteCachePath
 } = constants
 const {
+  getOwnPropertyValues,
+  isObject,
   isObjectObject,
   merge
 } = require('@socketregistry/scripts/utils/objects')
@@ -141,7 +143,7 @@ function createPackageJson(regPkgName, directory, options) {
   } = { __proto__: null, ...options }
   // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
   const { PACKAGE_DEFAULT_NODE_RANGE } = constants
-  const name = `${PACKAGE_SCOPE}/${resolveOriginalPackageName(regPkgName).replace(pkgScopeRegExp, '')}`
+  const name = `${PACKAGE_SCOPE}/${regPkgName.replace(pkgScopeRegExp, '')}`
   const entryExports = resolvePackageJsonEntryExports(entryExportsRaw)
   return {
     __proto__: null,
@@ -157,9 +159,7 @@ function createPackageJson(regPkgName, directory, options) {
     },
     ...(type ? { type } : {}),
     ...(entryExports ? { exports: entryExports } : {}),
-    ...(isConditionalEntryExports(entryExports)
-      ? {}
-      : { main: `${main ?? './index.js'}` }),
+    ...(entryExports ? {} : { main: `${main ?? './index.js'}` }),
     sideEffects: sideEffects !== undefined && !!sideEffects,
     ...(isObjectObject(dependencies) ? { dependencies } : {}),
     ...(isObjectObject(overrides) ? { overrides, resolutions: overrides } : {}),
@@ -249,12 +249,70 @@ function findPackageExtensions(pkgName, pkgVer) {
   return result
 }
 
+function findTypesForSubpath(entryExports, subpath) {
+  const queue = [entryExports]
+  let pos = 0
+  while (pos < queue.length) {
+    if (pos === LOOP_SENTINEL) {
+      throw new Error(
+        'Detected infinite loop in entry exports crawl of getTypesForSubpath'
+      )
+    }
+    const value = queue[pos++]
+    if (Array.isArray(value)) {
+      for (let i = 0, { length } = value; i < length; i += 1) {
+        const item = value[i]
+        if (item === subpath) {
+          return value.types
+        }
+        if (isObject(item)) {
+          queue.push(item)
+        }
+      }
+    } else if (isObject(value)) {
+      const keys = Object.getOwnPropertyNames(value)
+      for (let i = 0, { length } = keys; i < length; i += 1) {
+        const item = value[keys[i]]
+        if (item === subpath) {
+          return value.types
+        }
+        if (isObject(item)) {
+          queue.push(item)
+        }
+      }
+    }
+  }
+  return undefined
+}
+
 function getRepoUrlDetails(repoUrl = '') {
   const userAndRepo = repoUrl.replace(/^.+github.com\//, '').split('/')
   const { 0: user } = userAndRepo
   const project =
     userAndRepo.length > 1 ? userAndRepo[1].slice(0, -'.git'.length) : ''
   return { user, project }
+}
+
+function getSubpaths(entryExports) {
+  const result = []
+  const queue = getOwnPropertyValues(entryExports)
+  let pos = 0
+  while (pos < queue.length) {
+    if (pos === LOOP_SENTINEL) {
+      throw new Error(
+        'Detected infinite loop in entry exports crawl of getSubpaths'
+      )
+    }
+    const value = queue[pos++]
+    if (typeof value === 'string') {
+      result.push(value)
+    } else if (Array.isArray(value)) {
+      queue.push(...value)
+    } else if (isObject(value)) {
+      queue.push(...getOwnPropertyValues(value))
+    }
+  }
+  return result
 }
 
 function gitHubTagRefUrl(user, project, tag) {
@@ -265,36 +323,57 @@ function gitHubTgzUrl(user, project, sha) {
   return `https://github.com/${user}/${project}/archive/${sha}.tar.gz`
 }
 
-function isConditionalEntryExports(entryExports) {
+function isConditionalExports(entryExports) {
   let hasKeys = false
   if (isObjectObject(entryExports)) {
-    for (const key in entryExports) {
+    const keys = Object.getOwnPropertyNames(entryExports)
+    const { length } = keys
+    hasKeys = length > 0
+    for (let i = 0; i < length; i += 1) {
       // Conditional entry exports do NOT contain keys starting with '.'.
       // Entry exports cannot contain some keys starting with '.' and some not.
       // The exports object MUST either be an object of package subpath keys OR
       // an object of main entry condition name keys only.
-      if (Object.hasOwn(entryExports, key)) {
-        hasKeys = true
-        if (key.charCodeAt(0) === 46 /*'.'*/) {
-          return false
-        }
+      if (keys[i].charCodeAt(0) === 46 /*'.'*/) {
+        return false
       }
     }
   }
-  return hasKeys
+  return hasKeys || isConditionalExportsMainSugar(entryExports)
 }
 
-function isSubpathEntryExports(entryExports) {
+// Based on Node's internal helper.
+// https://github.com/nodejs/node/blob/v22.9.0/lib/internal/modules/esm/resolve.js#L537
+function isConditionalExportsMainSugar(entryExports) {
+  if (typeof entryExports === 'string' || Array.isArray(entryExports)) {
+    return true
+  }
+  if (!isObject(entryExports)) {
+    return false
+  }
+  const keys = Object.getOwnPropertyNames(entryExports)
+  const { length } = keys
+  if (!length) {
+    return false
+  }
+  let result = keys[0] === '' || keys[0].charCodeAt(0) === 46 /*'.'*/
+  for (let i = 1; i < length; i += 1) {
+    if (result !== (keys[i] === '' || keys[i].charCodeAt(0) === 46) /*'.'*/) {
+      return false
+    }
+  }
+  return result
+}
+
+function isSubpathExports(entryExports) {
   if (isObjectObject(entryExports)) {
-    for (const key in entryExports) {
+    const keys = Object.getOwnPropertyNames(entryExports)
+    for (let i = 0, { length } = keys; i < length; i += 1) {
       // Subpath entry exports contain keys starting with '.'.
       // Entry exports cannot contain some keys starting with '.' and some not.
       // The exports object MUST either be an object of package subpath keys OR
       // an object of main entry condition name keys only.
-      if (
-        Object.hasOwn(entryExports, key) &&
-        key.charCodeAt(0) === 46 /*'.'*/
-      ) {
+      if (keys[i].charCodeAt(0) === 46 /*'.'*/) {
         return true
       }
     }
@@ -431,11 +510,10 @@ function resolvePackageJsonDirname(filepath) {
 }
 
 function resolvePackageJsonEntryExports(entryExports) {
-  return isObjectObject(entryExports)
-    ? entryExports
-    : typeof entryExports === 'string'
-      ? { default: entryExports }
-      : undefined
+  if (isConditionalExportsMainSugar(entryExports)) {
+    return { '.': entryExports }
+  }
+  return isObjectObject(entryExports) ? entryExports : undefined
 }
 
 function resolvePackageJsonPath(filepath) {
@@ -573,8 +651,10 @@ module.exports = {
   createPackageJson,
   extractPackage,
   fetchPackageManifest,
-  isConditionalEntryExports,
-  isSubpathEntryExports,
+  findTypesForSubpath,
+  getSubpaths,
+  isConditionalExports,
+  isSubpathExports,
   isValidPackageName,
   normalizePackageJson,
   readPackageJson,

@@ -12,7 +12,14 @@
     "url": "git+https://github.com/SocketDev/socket-registry-js.git",
     "directory": "packages/npm/is-core-module"
   },
-  "main": "./index.js",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./core.json": "./core.json",
+    "./package.json": "./package.json"
+  },
   "sideEffects": false,
   "engines": {
     "node": ">=18.20.4"

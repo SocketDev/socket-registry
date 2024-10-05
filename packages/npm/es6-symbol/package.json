@@ -12,7 +12,21 @@
     "url": "git+https://github.com/SocketDev/socket-registry-js.git",
     "directory": "packages/npm/es6-symbol"
   },
-  "main": "./index.js",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./implement": {
+      "types": "./implement.d.ts",
+      "default": "./implement.js"
+    },
+    "./polyfill": {
+      "types": "./polyfill.d.ts",
+      "default": "./polyfill.js"
+    },
+    "./package.json": "./package.json"
+  },
   "sideEffects": false,
   "engines": {
     "node": ">=18.20.4"

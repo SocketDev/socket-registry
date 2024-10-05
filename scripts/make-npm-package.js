@@ -33,7 +33,7 @@ const {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
   extractPackage,
-  isSubpathEntryExports,
+  isSubpathExports,
   isValidPackageName,
   readPackageJson,
   resolveGitHubTgzUrl,
@@ -405,7 +405,7 @@ function toChoice(value) {
     )
     const nmEntryExports = resolvePackageJsonEntryExports(nmPkgJson.exports)
     const useNmEntryExports =
-      entryExports === undefined && isSubpathEntryExports(nmEntryExports)
+      entryExports === undefined && isSubpathExports(nmEntryExports)
     editablePkgJson.update({
       main: useNmEntryExports ? undefined : pkgPath.content.main,
       exports: useNmEntryExports ? nmEntryExports : entryExports,

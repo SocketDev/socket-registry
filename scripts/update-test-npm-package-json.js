@@ -41,7 +41,7 @@ const {
 } = require('@socketregistry/scripts/utils/fs')
 const { execNpm } = require('@socketregistry/scripts/utils/npm')
 const {
-  isSubpathEntryExports,
+  isSubpathExports,
   readPackageJson,
   readPackageJsonSync,
   resolveGitHubTgzUrl,
@@ -320,7 +320,7 @@ async function linkPackages(packageNames) {
 
     const { dependencies, engines, overrides } = pkgJson
     const entryExports = resolvePackageJsonEntryExports(pkgJson.exports)
-    const entryExportsHasDotKeys = isSubpathEntryExports(entryExports)
+    const entryExportsHasDotKeys = isSubpathExports(entryExports)
 
     // Add dependencies and overrides of the @socketregistry/xyz package
     // as dependencies of the test/npm/node_modules/xyz package.
@@ -373,7 +373,7 @@ async function linkPackages(packageNames) {
       const nmEntryExports =
         resolvePackageJsonEntryExports(nmEditablePkgJson.content.exports) ?? {}
 
-      const nmEntryExportsHasDotKeys = isSubpathEntryExports(nmEntryExports)
+      const nmEntryExportsHasDotKeys = isSubpathExports(nmEntryExports)
 
       const {
         default: nmEntryExportsDefault,

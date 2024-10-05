@@ -3,6 +3,16 @@
 const { LOOP_SENTINEL } = require('@socketregistry/scripts/constants')
 const { localCompare } = require('@socketregistry/scripts/utils/sorts')
 
+function getOwnPropertyValues(obj) {
+  const keys = Object.getOwnPropertyNames(obj)
+  const { length } = keys
+  const values = Array(length)
+  for (let i = 0; i < length; i += 1) {
+    values[i] = obj[keys[i]]
+  }
+  return values
+}
+
 function isObject(value) {
   return value !== null && typeof value === 'object'
 }
@@ -72,8 +82,8 @@ function merge(target, source) {
   return target
 }
 
-function toSortedObject(object) {
-  return toSortedObjectFromEntries(Object.entries(object))
+function toSortedObject(obj) {
+  return toSortedObjectFromEntries(Object.entries(obj))
 }
 
 function toSortedObjectFromEntries(entries) {
@@ -81,6 +91,7 @@ function toSortedObjectFromEntries(entries) {
 }
 
 module.exports = {
+  getOwnPropertyValues,
   isObject,
   isObjectObject,
   merge,

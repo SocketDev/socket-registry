@@ -12,14 +12,31 @@
     "url": "git+https://github.com/SocketDev/socket-registry-js.git",
     "directory": "packages/npm/es-get-iterator"
   },
-  "main": "./index.js",
+  "exports": {
+    ".": {
+      "browser": {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      },
+      "import": {
+        "types": "./index.d.ts",
+        "default": "./node.mjs"
+      },
+      "default": {
+        "types": "./index.d.ts",
+        "default": "./node.js"
+      }
+    },
+    "./package": "./package.json",
+    "./package.json": "./package.json"
+  },
   "sideEffects": false,
   "engines": {
     "node": ">=18.20.4"
   },
   "files": [
     "*.d.ts",
-    "*.js"
+    "*.{m,}js"
   ],
   "socket": {
     "categories": [

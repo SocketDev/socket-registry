@@ -12,7 +12,21 @@
     "url": "git+https://github.com/SocketDev/socket-registry-js.git",
     "directory": "packages/npm/object-keys"
   },
-  "main": "./index.js",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./implementation": {
+      "types": "./implementation.d.ts",
+      "default": "./implementation.js"
+    },
+    "./isArguments": {
+      "types": "./isArguments.d.ts",
+      "default": "./isArguments.js"
+    },
+    "./package.json": "./package.json"
+  },
   "sideEffects": false,
   "engines": {
     "node": ">=18.20.4"

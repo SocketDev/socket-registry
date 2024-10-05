@@ -12,7 +12,17 @@
     "url": "git+https://github.com/SocketDev/socket-registry-js.git",
     "directory": "packages/npm/get-symbol-description"
   },
-  "main": "./index.js",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./getInferredName": {
+      "types": "./getInferredName.d.ts",
+      "default": "./getInferredName.js"
+    },
+    "./package.json": "./package.json"
+  },
   "sideEffects": false,
   "engines": {
     "node": ">=18.20.4"

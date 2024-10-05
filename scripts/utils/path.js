@@ -2,6 +2,7 @@
 
 const { search } = require('@socketregistry/scripts/utils/strings')
 
+const leadingDotSlashRegExp = /^\.\.?[/\\]/
 const slashRegExp = /[/\\]/
 const nodeModulesPathRegExp = /(?:^|[/\\])node_modules(?:[/\\]|$)/
 
@@ -80,8 +81,13 @@ function splitPath(filepath) {
   return filepath.split(slashRegExp)
 }
 
+function trimLeadingDotSlash(filepath) {
+  return filepath.replace(leadingDotSlashRegExp, '')
+}
+
 module.exports = {
   isNodeModules,
   normalizePath,
-  splitPath
+  splitPath,
+  trimLeadingDotSlash
 }

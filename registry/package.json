@@ -11,7 +11,11 @@
     "url": "git+https://github.com/SocketDev/socket-registry-js.git",
     "directory": "registry"
   },
-  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./manifest.json": "./manifest.json",
+    "./package.json": "./package.json"
+  },
   "sideEffects": false,
   "engines": {
     "node": ">=18.20.4"

@@ -12,7 +12,17 @@
     "url": "git+https://github.com/SocketDev/socket-registry-js.git",
     "directory": "packages/npm/safer-buffer"
   },
-  "main": "./safer.js",
+  "exports": {
+    ".": {
+      "types": "./safer.d.ts",
+      "default": "./safer.js"
+    },
+    "./dangerous": {
+      "types": "./dangerous.d.ts",
+      "default": "./dangerous.js"
+    },
+    "./package.json": "./package.json"
+  },
   "sideEffects": false,
   "engines": {
     "node": ">=18.20.4"

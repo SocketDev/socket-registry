@@ -12,7 +12,298 @@
     "url": "git+https://github.com/SocketDev/socket-registry-js.git",
     "directory": "packages/npm/date"
   },
-  "main": "./index.json",
+  "exports": {
+    ".": "./index.json",
+    "./auto": {
+      "types": "./auto.d.ts",
+      "default": "./auto.js"
+    },
+    "./shim": {
+      "types": "./shim.d.ts",
+      "default": "./shim.js"
+    },
+    "./Date": {
+      "types": "./Date/index.d.ts",
+      "default": "./Date/index.js"
+    },
+    "./Date/auto": {
+      "types": "./Date/auto.d.ts",
+      "default": "./Date/auto.js"
+    },
+    "./Date/polyfill": {
+      "types": "./Date/polyfill.d.ts",
+      "default": "./Date/polyfill.js"
+    },
+    "./Date/implementation": {
+      "types": "./Date/implementation.d.ts",
+      "default": "./Date/implementation.js"
+    },
+    "./Date/shim": {
+      "types": "./Date/shim.d.ts",
+      "default": "./Date/shim.js"
+    },
+    "./Date.prototype.getFullYear": {
+      "types": "./Date.prototype.getFullYear/index.d.ts",
+      "default": "./Date.prototype.getFullYear/index.js"
+    },
+    "./Date.prototype.getFullYear/auto": {
+      "types": "./Date.prototype.getFullYear/auto.d.ts",
+      "default": "./Date.prototype.getFullYear/auto.js"
+    },
+    "./Date.prototype.getFullYear/polyfill": {
+      "types": "./Date.prototype.getFullYear/polyfill.d.ts",
+      "default": "./Date.prototype.getFullYear/polyfill.js"
+    },
+    "./Date.prototype.getFullYear/implementation": {
+      "types": "./Date.prototype.getFullYear/implementation.d.ts",
+      "default": "./Date.prototype.getFullYear/implementation.js"
+    },
+    "./Date.prototype.getFullYear/shim": {
+      "types": "./Date.prototype.getFullYear/shim.d.ts",
+      "default": "./Date.prototype.getFullYear/shim.js"
+    },
+    "./Date.prototype.getMonth": {
+      "types": "./Date.prototype.getMonth/index.d.ts",
+      "default": "./Date.prototype.getMonth/index.js"
+    },
+    "./Date.prototype.getMonth/auto": {
+      "types": "./Date.prototype.getMonth/auto.d.ts",
+      "default": "./Date.prototype.getMonth/auto.js"
+    },
+    "./Date.prototype.getMonth/polyfill": {
+      "types": "./Date.prototype.getMonth/polyfill.d.ts",
+      "default": "./Date.prototype.getMonth/polyfill.js"
+    },
+    "./Date.prototype.getMonth/implementation": {
+      "types": "./Date.prototype.getMonth/implementation.d.ts",
+      "default": "./Date.prototype.getMonth/implementation.js"
+    },
+    "./Date.prototype.getMonth/shim": {
+      "types": "./Date.prototype.getMonth/shim.d.ts",
+      "default": "./Date.prototype.getMonth/shim.js"
+    },
+    "./Date.prototype.getDate": {
+      "types": "./Date.prototype.getDate/index.d.ts",
+      "default": "./Date.prototype.getDate/index.js"
+    },
+    "./Date.prototype.getDate/auto": {
+      "types": "./Date.prototype.getDate/auto.d.ts",
+      "default": "./Date.prototype.getDate/auto.js"
+    },
+    "./Date.prototype.getDate/polyfill": {
+      "types": "./Date.prototype.getDate/polyfill.d.ts",
+      "default": "./Date.prototype.getDate/polyfill.js"
+    },
+    "./Date.prototype.getDate/implementation": {
+      "types": "./Date.prototype.getDate/implementation.d.ts",
+      "default": "./Date.prototype.getDate/implementation.js"
+    },
+    "./Date.prototype.getDate/shim": {
+      "types": "./Date.prototype.getDate/shim.d.ts",
+      "default": "./Date.prototype.getDate/shim.js"
+    },
+    "./Date.prototype.getUTCDate": {
+      "types": "./Date.prototype.getUTCDate/index.d.ts",
+      "default": "./Date.prototype.getUTCDate/index.js"
+    },
+    "./Date.prototype.getUTCDate/auto": {
+      "types": "./Date.prototype.getUTCDate/auto.d.ts",
+      "default": "./Date.prototype.getUTCDate/auto.js"
+    },
+    "./Date.prototype.getUTCDate/polyfill": {
+      "types": "./Date.prototype.getUTCDate/polyfill.d.ts",
+      "default": "./Date.prototype.getUTCDate/polyfill.js"
+    },
+    "./Date.prototype.getUTCDate/implementation": {
+      "types": "./Date.prototype.getUTCDate/implementation.d.ts",
+      "default": "./Date.prototype.getUTCDate/implementation.js"
+    },
+    "./Date.prototype.getUTCDate/shim": {
+      "types": "./Date.prototype.getUTCDate/shim.d.ts",
+      "default": "./Date.prototype.getUTCDate/shim.js"
+    },
+    "./Date.prototype.getUTCFullYear": {
+      "types": "./Date.prototype.getUTCFullYear/index.d.ts",
+      "default": "./Date.prototype.getUTCFullYear/index.js"
+    },
+    "./Date.prototype.getUTCFullYear/auto": {
+      "types": "./Date.prototype.getUTCFullYear/auto.d.ts",
+      "default": "./Date.prototype.getUTCFullYear/auto.js"
+    },
+    "./Date.prototype.getUTCFullYear/polyfill": {
+      "types": "./Date.prototype.getUTCFullYear/polyfill.d.ts",
+      "default": "./Date.prototype.getUTCFullYear/polyfill.js"
+    },
+    "./Date.prototype.getUTCFullYear/implementation": {
+      "types": "./Date.prototype.getUTCFullYear/implementation.d.ts",
+      "default": "./Date.prototype.getUTCFullYear/implementation.js"
+    },
+    "./Date.prototype.getUTCFullYear/shim": {
+      "types": "./Date.prototype.getUTCFullYear/shim.d.ts",
+      "default": "./Date.prototype.getUTCFullYear/shim.js"
+    },
+    "./Date.prototype.getUTCMonth": {
+      "types": "./Date.prototype.getUTCMonth/index.d.ts",
+      "default": "./Date.prototype.getUTCMonth/index.js"
+    },
+    "./Date.prototype.getUTCMonth/auto": {
+      "types": "./Date.prototype.getUTCMonth/auto.d.ts",
+      "default": "./Date.prototype.getUTCMonth/auto.js"
+    },
+    "./Date.prototype.getUTCMonth/polyfill": {
+      "types": "./Date.prototype.getUTCMonth/polyfill.d.ts",
+      "default": "./Date.prototype.getUTCMonth/polyfill.js"
+    },
+    "./Date.prototype.getUTCMonth/implementation": {
+      "types": "./Date.prototype.getUTCMonth/implementation.d.ts",
+      "default": "./Date.prototype.getUTCMonth/implementation.js"
+    },
+    "./Date.prototype.getUTCMonth/shim": {
+      "types": "./Date.prototype.getUTCMonth/shim.d.ts",
+      "default": "./Date.prototype.getUTCMonth/shim.js"
+    },
+    "./Date.prototype.toUTCString": {
+      "types": "./Date.prototype.toUTCString/index.d.ts",
+      "default": "./Date.prototype.toUTCString/index.js"
+    },
+    "./Date.prototype.toUTCString/auto": {
+      "types": "./Date.prototype.toUTCString/auto.d.ts",
+      "default": "./Date.prototype.toUTCString/auto.js"
+    },
+    "./Date.prototype.toUTCString/polyfill": {
+      "types": "./Date.prototype.toUTCString/polyfill.d.ts",
+      "default": "./Date.prototype.toUTCString/polyfill.js"
+    },
+    "./Date.prototype.toUTCString/implementation": {
+      "types": "./Date.prototype.toUTCString/implementation.d.ts",
+      "default": "./Date.prototype.toUTCString/implementation.js"
+    },
+    "./Date.prototype.toUTCString/shim": {
+      "types": "./Date.prototype.toUTCString/shim.d.ts",
+      "default": "./Date.prototype.toUTCString/shim.js"
+    },
+    "./Date.prototype.toDateString": {
+      "types": "./Date.prototype.toDateString/index.d.ts",
+      "default": "./Date.prototype.toDateString/index.js"
+    },
+    "./Date.prototype.toDateString/auto": {
+      "types": "./Date.prototype.toDateString/auto.d.ts",
+      "default": "./Date.prototype.toDateString/auto.js"
+    },
+    "./Date.prototype.toDateString/polyfill": {
+      "types": "./Date.prototype.toDateString/polyfill.d.ts",
+      "default": "./Date.prototype.toDateString/polyfill.js"
+    },
+    "./Date.prototype.toDateString/implementation": {
+      "types": "./Date.prototype.toDateString/implementation.d.ts",
+      "default": "./Date.prototype.toDateString/implementation.js"
+    },
+    "./Date.prototype.toDateString/shim": {
+      "types": "./Date.prototype.toDateString/shim.d.ts",
+      "default": "./Date.prototype.toDateString/shim.js"
+    },
+    "./Date.prototype.toString": {
+      "types": "./Date.prototype.toString/index.d.ts",
+      "default": "./Date.prototype.toString/index.js"
+    },
+    "./Date.prototype.toString/auto": {
+      "types": "./Date.prototype.toString/auto.d.ts",
+      "default": "./Date.prototype.toString/auto.js"
+    },
+    "./Date.prototype.toString/polyfill": {
+      "types": "./Date.prototype.toString/polyfill.d.ts",
+      "default": "./Date.prototype.toString/polyfill.js"
+    },
+    "./Date.prototype.toString/implementation": {
+      "types": "./Date.prototype.toString/implementation.d.ts",
+      "default": "./Date.prototype.toString/implementation.js"
+    },
+    "./Date.prototype.toString/shim": {
+      "types": "./Date.prototype.toString/shim.d.ts",
+      "default": "./Date.prototype.toString/shim.js"
+    },
+    "./Date.prototype.toISOString": {
+      "types": "./Date.prototype.toISOString/index.d.ts",
+      "default": "./Date.prototype.toISOString/index.js"
+    },
+    "./Date.prototype.toISOString/auto": {
+      "types": "./Date.prototype.toISOString/auto.d.ts",
+      "default": "./Date.prototype.toISOString/auto.js"
+    },
+    "./Date.prototype.toISOString/polyfill": {
+      "types": "./Date.prototype.toISOString/polyfill.d.ts",
+      "default": "./Date.prototype.toISOString/polyfill.js"
+    },
+    "./Date.prototype.toISOString/implementation": {
+      "types": "./Date.prototype.toISOString/implementation.d.ts",
+      "default": "./Date.prototype.toISOString/implementation.js"
+    },
+    "./Date.prototype.toISOString/shim": {
+      "types": "./Date.prototype.toISOString/shim.d.ts",
+      "default": "./Date.prototype.toISOString/shim.js"
+    },
+    "./Date.prototype.toJSON": {
+      "types": "./Date.prototype.toJSON/index.d.ts",
+      "default": "./Date.prototype.toJSON/index.js"
+    },
+    "./Date.prototype.toJSON/auto": {
+      "types": "./Date.prototype.toJSON/auto.d.ts",
+      "default": "./Date.prototype.toJSON/auto.js"
+    },
+    "./Date.prototype.toJSON/polyfill": {
+      "types": "./Date.prototype.toJSON/polyfill.d.ts",
+      "default": "./Date.prototype.toJSON/polyfill.js"
+    },
+    "./Date.prototype.toJSON/implementation": {
+      "types": "./Date.prototype.toJSON/implementation.d.ts",
+      "default": "./Date.prototype.toJSON/implementation.js"
+    },
+    "./Date.prototype.toJSON/shim": {
+      "types": "./Date.prototype.toJSON/shim.d.ts",
+      "default": "./Date.prototype.toJSON/shim.js"
+    },
+    "./Date.now": {
+      "types": "./Date.now/index.d.ts",
+      "default": "./Date.now/index.js"
+    },
+    "./Date.now/auto": {
+      "types": "./Date.now/auto.d.ts",
+      "default": "./Date.now/auto.js"
+    },
+    "./Date.now/polyfill": {
+      "types": "./Date.now/polyfill.d.ts",
+      "default": "./Date.now/polyfill.js"
+    },
+    "./Date.now/implementation": {
+      "types": "./Date.now/implementation.d.ts",
+      "default": "./Date.now/implementation.js"
+    },
+    "./Date.now/shim": {
+      "types": "./Date.now/shim.d.ts",
+      "default": "./Date.now/shim.js"
+    },
+    "./Date.parse": {
+      "types": "./Date.parse/index.d.ts",
+      "default": "./Date.parse/index.js"
+    },
+    "./Date.parse/auto": {
+      "types": "./Date.parse/auto.d.ts",
+      "default": "./Date.parse/auto.js"
+    },
+    "./Date.parse/polyfill": {
+      "types": "./Date.parse/polyfill.d.ts",
+      "default": "./Date.parse/polyfill.js"
+    },
+    "./Date.parse/implementation": {
+      "types": "./Date.parse/implementation.d.ts",
+      "default": "./Date.parse/implementation.js"
+    },
+    "./Date.parse/shim": {
+      "types": "./Date.parse/shim.d.ts",
+      "default": "./Date.parse/shim.js"
+    },
+    "./package.json": "./package.json"
+  },
   "sideEffects": false,
   "engines": {
     "node": ">=18.20.4"

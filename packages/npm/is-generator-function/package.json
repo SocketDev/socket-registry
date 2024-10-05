@@ -14,10 +14,19 @@
   },
   "exports": {
     "node": {
-      "module-sync": "./index.js",
-      "default": "./index.cjs"
+      "module-sync": {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      },
+      "default": {
+        "types": "./index.d.cts",
+        "default": "./index.cjs"
+      }
     },
-    "default": "./index.js"
+    "default": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    }
   },
   "sideEffects": false,
   "engines": {

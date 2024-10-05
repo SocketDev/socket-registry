@@ -31,11 +31,15 @@ import {
 // @ts-ignore
 import { isObjectObject } from '@socketregistry/scripts/utils/objects'
 import {
+  findTypesForSubpath,
+  getSubpaths,
   isValidPackageName,
   readPackageJson,
   resolveOriginalPackageName
   // @ts-ignore
 } from '@socketregistry/scripts/utils/packages'
+// @ts-ignore
+import { trimLeadingDotSlash } from '@socketregistry/scripts/utils/path'
 // @ts-ignore
 import { localCompare } from '@socketregistry/scripts/utils/sorts'
 // @ts-ignore
@@ -47,9 +51,6 @@ import { getManifestData } from '@socketregistry/scripts/utils/templates'
 // npm run test:unit ./test/packages.test.ts -- --test-arg="--force"
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 
-const extJs = '.js'
-const extDts = '.d.ts'
-const leadingDotSlashRegExp = /^\.\.?[/\\]/
 const overridesWithSlash = `${OVERRIDES}/`
 const shimApiKeys = ['getPolyfill', 'implementation', 'shim']
 
@@ -72,10 +73,6 @@ function isDotPattern(pattern: string) {
 
 function prepareReqId(id: string) {
   return path.isAbsolute(id) ? id : `./${trimLeadingDotSlash(id)}`
-}
-
-function trimLeadingDotSlash(filepath: string): string {
-  return filepath.replace(leadingDotSlashRegExp, '')
 }
 
 for (const eco of constants.ecosystems) {
@@ -180,11 +177,8 @@ for (const eco of constants.ecosystems) {
           if (entryExports) {
             it('file exists for every "export" entry of package.json', () => {
               assert.ok(isObjectObject(entryExports))
-              for (const entry of [
-                entryExports.default,
-                ...Object.values(entryExports.node)
-              ]) {
-                assert.doesNotThrow(() => req.resolve(entry as string))
+              for (const subpath of getSubpaths(entryExports)) {
+                assert.ok(fs.existsSync(path.join(pkgPath, subpath)))
               }
             })
 
@@ -194,12 +188,12 @@ for (const eco of constants.ecosystems) {
           }
 
           if (mainPath) {
-            it('file exists for "main" field of package.json', () => {
-              assert.doesNotThrow(() => req.resolve(mainPath))
-            })
-
             it('should not have "exports" field in package.json', () => {
               assert.ok(!Object.hasOwn(pkgJson, 'exports'))
+            })
+
+            it('file exists for "main" field of package.json', () => {
+              assert.doesNotThrow(() => req.resolve(mainPath))
             })
           }
 
@@ -247,17 +241,15 @@ for (const eco of constants.ecosystems) {
           }
 
           it('should have a .d.ts file for every .js file', () => {
-            const jsFiles = files
-              .filter(
-                p => p.endsWith(extJs) && !p.startsWith(overridesWithSlash)
+            const jsSubpaths = (<string[]>getSubpaths(entryExports)).filter(s =>
+              /\.[cm]?js$/.test(s)
+            )
+            for (const subpath of jsSubpaths) {
+              const types = trimLeadingDotSlash(
+                findTypesForSubpath(entryExports, subpath) ?? ''
               )
-              .map(p => p.slice(0, -extJs.length))
-              .sort()
-            const dtsFiles = files
-              .filter(p => p.endsWith(extDts))
-              .map(p => p.slice(0, -extDts.length))
-              .sort()
-            assert.deepEqual(jsFiles, dtsFiles)
+              assert.ok(files.includes(types))
+            }
           })
 
           it('should have a "files" field in package.json', () => {
@@ -288,8 +280,12 @@ for (const eco of constants.ecosystems) {
                 ? `supported in ${nodeRange}, running ${NODE_VERSION}`
                 : ''
 
-              it('index.js exists for "main" field of package.json', () => {
-                assert.doesNotThrow(() => req.resolve(mainPath))
+              it('index.js exists for exports["."].default field of package.json', () => {
+                const mainEntry = entryExports['.']
+                const defaultMainEntry = Array.isArray(mainEntry)
+                  ? mainEntry.at(-1).default
+                  : mainEntry.default
+                assert.doesNotThrow(() => req.resolve(defaultMainEntry))
               })
 
               it('should not leak api', async t => {
@@ -310,11 +306,10 @@ for (const eco of constants.ecosystems) {
                 )
               })
 
-              it('implementation.js exports es-shim api', async t => {
+              it('index.js exports es-shim api', async t => {
                 if (skipping) return t.skip(skipMessage)
-                const main = req(mainPath)
-                const mainKeys = Reflect.ownKeys(main)
-                assert.ok(shimApiKeys.every(k => mainKeys.includes(k)))
+                const keys = Reflect.ownKeys(req('./index.js'))
+                assert.ok(shimApiKeys.every(k => keys.includes(k)))
               })
 
               it('getPolyfill() is like implementation', async t => {

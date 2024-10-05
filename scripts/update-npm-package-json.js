@@ -2,12 +2,18 @@
 
 const path = require('node:path')
 
+const { glob: tinyGlob } = require('tinyglobby')
+
 const constants = require('@socketregistry/scripts/constants')
 const { PACKAGE_JSON, npmPackagesPath } = constants
 const {
   createPackageJson,
-  readPackageJson
+  getSubpaths,
+  isSubpathExports,
+  readPackageJson,
+  resolvePackageJsonEntryExports
 } = require('@socketregistry/scripts/utils/packages')
+const { trimLeadingDotSlash } = require('@socketregistry/scripts/utils/path')
 
 ;(async () => {
   await Promise.all(
@@ -19,6 +25,33 @@ const {
         editable: true
       })
       const directory = `packages/npm/${regPkgName}`
+      const entryExports = resolvePackageJsonEntryExports(
+        editablePkgJson.content.exports
+      )
+      if (isSubpathExports(entryExports)) {
+        const availableFiles = await tinyGlob(
+          ['**/*.{[cm],}js', '**/*.d.{[cm],}ts', '**/*.json'],
+          {
+            ignore: ['**/overrides/*', 'shared.{js,d.ts}'],
+            cwd: pkgPath
+          }
+        )
+        const subpaths = getSubpaths(entryExports).map(trimLeadingDotSlash)
+        for (const subpath of subpaths) {
+          if (!availableFiles.includes(subpath)) {
+            console.warn(
+              `${regPkgName}: ${subpath} subpath file does not exist`
+            )
+          }
+        }
+        for (const relPath of availableFiles) {
+          if (!subpaths.includes(relPath)) {
+            console.warn(
+              `${regPkgName}: ${relPath} missing from subpath exports`
+            )
+          }
+        }
+      }
       editablePkgJson.update(
         createPackageJson(editablePkgJson.content.name, directory, {
           ...editablePkgJson.content

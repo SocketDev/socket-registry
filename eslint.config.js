@@ -46,16 +46,18 @@ const getIgnores = isEsm =>
   constants.npmPackageNames.flatMap(regPkgName => {
     const pkgPath = path.join(npmPackagesPath, regPkgName)
     const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
-    let match = false
+    let shouldIgnore = false
     try {
       const { type } = fs.readJsonSync(pkgJsonPath)
-      match = isEsm ? type !== 'module' : type === 'module'
+      shouldIgnore = isEsm ? type !== 'module' : type === 'module'
     } catch {}
     const ignored = []
-    if (match) {
+    if (shouldIgnore) {
       ignored.push(`${relNpmPackagesPath}/${regPkgName}/*`)
     } else if (isEsm) {
       ignored.push(`${relNpmPackagesPath}/${regPkgName}/index.js`)
+    } else {
+      ignored.push(`${relNpmPackagesPath}/${regPkgName}/*.mjs`)
     }
     return ignored
   })

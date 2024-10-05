@@ -12,14 +12,49 @@
     "url": "git+https://github.com/SocketDev/socket-registry-js.git",
     "directory": "packages/npm/reflect.ownkeys"
   },
-  "main": "./index.js",
+  "exports": {
+    ".": [
+      {
+        "import": {
+          "types": "./index.d.ts",
+          "default": "./index.mjs"
+        },
+        "require": {
+          "types": "./index.d.ts",
+          "default": "./index.js"
+        }
+      },
+      {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      }
+    ],
+    "./auto": {
+      "types": "./auto.d.ts",
+      "default": "./auto.js"
+    },
+    "./implementation": {
+      "types": "./implementation.d.ts",
+      "default": "./implementation.js"
+    },
+    "./polyfill": {
+      "types": "./polyfill.d.ts",
+      "default": "./polyfill.js"
+    },
+    "./shim": {
+      "types": "./shim.d.ts",
+      "default": "./shim.js"
+    },
+    "./package.json": "./package.json"
+  },
   "sideEffects": false,
   "engines": {
     "node": ">=18.20.4"
   },
   "files": [
     "*.d.ts",
-    "*.js"
+    "*.js",
+    "*.mjs"
   ],
   "socket": {
     "categories": [
