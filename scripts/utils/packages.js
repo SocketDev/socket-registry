@@ -15,8 +15,6 @@ const spdxCorrect = require('spdx-correct')
 const spdxExpParse = require('spdx-expression-parse')
 const validateNpmPackageName = require('validate-npm-package-name')
 
-const { RegistryFetcher } = pacote
-
 const constants = require('@socketregistry/scripts/constants')
 const {
   LOOP_SENTINEL,
@@ -217,18 +215,33 @@ async function extractPackage(pkgNameOrId, options, callback) {
 }
 
 async function fetchPackageManifest(pkgNameOrId, options) {
-  const { where, ...fetcherOptions } = { __proto__: null, ...options }
+  const pacoteOptions = {
+    __proto__: null,
+    ...options,
+    packumentCache,
+    preferOffline: true
+  }
+  let result
   try {
-    const spec = npmPackageArg(pkgNameOrId, where)
-    const fetcher = new RegistryFetcher(spec.subSpec || spec, {
-      __proto__: null,
-      packumentCache,
-      preferOffline: true,
-      ...fetcherOptions
-    })
-    return await fetcher.manifest()
+    result = await pacote.manifest(pkgNameOrId, pacoteOptions)
   } catch {}
-  return null
+  if (result) {
+    const spec = npmPackageArg(pkgNameOrId, pacoteOptions.where)
+    const { type } = spec
+    // RegistryFetcher spec.type check based on:
+    // https://github.com/npm/pacote/blob/v19.0.0/lib/fetcher.js#L467-L488
+    if (
+      type === 'alias' ||
+      type === 'range' ||
+      type === 'tag' ||
+      type === 'version'
+    ) {
+      return result
+    }
+  }
+  return result
+    ? fetchPackageManifest(`${result.name}@${result.version}`, pacoteOptions)
+    : null
 }
 
 function findPackageExtensions(pkgName, pkgVer) {

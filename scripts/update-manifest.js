@@ -15,7 +15,7 @@ const {
   relManifestJsonPath,
   rootPackagesPath,
   skipTestsByEcosystem,
-  testNpmNodeWorkspacesPath
+  testNpmPkgJsonPath
 } = constants
 const { getModifiedFiles } = require('@socketregistry/scripts/utils/git')
 const {
@@ -23,6 +23,7 @@ const {
   toSortedObjectFromEntries
 } = require('@socketregistry/scripts/utils/objects')
 const {
+  extractPackage,
   fetchPackageManifest,
   readPackageJson,
   resolveOriginalPackageName,
@@ -50,20 +51,27 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
       const manifestData = []
       for await (const regPkgName of npmPackageNames) {
         const origPkgName = resolveOriginalPackageName(regPkgName)
-        const pkgPath = path.join(npmPackagesPath, regPkgName)
-        const pkgJson = await readPackageJson(pkgPath)
-        const nwPkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
-        const nwPkgJson = await readPackageJson(nwPkgPath)
+        const testNpmPkgJson = await readPackageJson(testNpmPkgJsonPath)
+
+        const nmPkgSpec = testNpmPkgJson.devDependencies[origPkgName]
         const nmPkgManifest = await fetchPackageManifest(
-          `${origPkgName}@${nwPkgJson.version}`
+          `${origPkgName}@${nmPkgSpec}`
         )
-        const { engines, name, socket, version } = pkgJson
-        const entryExports = resolvePackageJsonEntryExports(pkgJson.exports)
         const { _id: nmPkgId, deprecated: nmPkgDeprecated } = nmPkgManifest
-        const { license: nwPkgLicense } = nwPkgJson
         const { namespace: nmScope } = PackageURL.fromString(
           `pkg:${eco}/${nmPkgId}`
         )
+        let nwPkgLicense
+        await extractPackage(nmPkgId, async nmPkgPath => {
+          const nmPkgJson = await readPackageJson(nmPkgPath)
+          nwPkgLicense = nmPkgJson.license
+        })
+
+        const pkgPath = path.join(npmPackagesPath, regPkgName)
+        const pkgJson = await readPackageJson(pkgPath)
+        const { engines, name, socket, version } = pkgJson
+        const entryExports = resolvePackageJsonEntryExports(pkgJson.exports)
+
         const interop = ['cjs']
         const isEsm = pkgJson.type === 'module'
         if (isEsm) {
