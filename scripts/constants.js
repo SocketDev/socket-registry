@@ -426,10 +426,10 @@ const skipTestsByEcosystem = Object.freeze({
     // https://github.com/hyrious/bun.lockb/tree/v0.0.3
     '@hyrious/bun.lockb',
     'hyrious__bun.lockb',
-    // Has known test fails in its package:
+    // Has known test fails for some Node versions and platforms:
     // https://github.com/es-shims/Date/issues/3
     // https://github.com/es-shims/Date/tree/v2.0.5
-    'date',
+    ...(ENV.CI ? [] : ['date']),
     // Has no unit tests.
     // https://github.com/rubennorte/es6-object-assign/tree/v1.1.0
     'es6-object-assign',
