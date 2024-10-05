@@ -29,6 +29,8 @@ import {
   // @ts-ignore
 } from '@socketregistry/scripts/utils/git'
 // @ts-ignore
+import { getManifestData } from '@socketregistry/scripts/utils/manifest'
+// @ts-ignore
 import { isObjectObject } from '@socketregistry/scripts/utils/objects'
 import {
   findTypesForSubpath,
@@ -44,8 +46,6 @@ import { trimLeadingDotSlash } from '@socketregistry/scripts/utils/path'
 import { localeCompare } from '@socketregistry/scripts/utils/sorts'
 // @ts-ignore
 import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
-// @ts-ignore
-import { getManifestData } from '@socketregistry/scripts/utils/templates'
 
 // Use by passing as a tap --test-arg:
 // npm run test:unit ./test/packages.test.ts -- --test-arg="--force"
@@ -233,7 +233,7 @@ for (const eco of constants.ecosystems) {
             )
           })
 
-          const manifestData = getManifestData(regPkgName)
+          const manifestData = getManifestData(eco, regPkgName)
           if (manifestData?.license !== 'Public Domain') {
             it(`should have an original license file`, () => {
               assert.ok(files.some(p => p.includes('.original')))

@@ -22,6 +22,7 @@ const {
   TEMPLATE_ES_SHIM_STATIC_METHOD,
   npmTemplatesPath
 } = constants
+const { getManifestData } = require('@socketregistry/scripts/utils//manifest')
 const { globLicenses } = require('@socketregistry/scripts/utils/globs')
 const { isObjectObject } = require('@socketregistry/scripts/utils/objects')
 const {
@@ -29,7 +30,6 @@ const {
   resolveOriginalPackageName
 } = require('@socketregistry/scripts/utils/packages')
 const { prettierFormat } = require('@socketregistry/scripts/utils/strings')
-const registryManifest = require('@socketsecurity/registry')
 
 const eta = new Eta()
 
@@ -73,14 +73,6 @@ async function getLicenseActions(pkgPath) {
   return actions
 }
 
-function getManifestData(regPkgName) {
-  return registryManifest.npm
-    .find(
-      ({ 0: purlStr }) => PackageURL.fromString(purlStr).name === regPkgName
-    )
-    ?.at(1)
-}
-
 async function getNpmReadmeAction(pkgPath) {
   const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
   const pkgJson = await readPackageJson(pkgJsonPath)
@@ -88,7 +80,7 @@ async function getNpmReadmeAction(pkgPath) {
     `pkg:npm/${pkgJson.name}@${pkgJson.version}`
   )
   const { name: regPkgName } = pkgPurlObj
-  const manifestData = getManifestData(regPkgName)
+  const manifestData = getManifestData('npm', regPkgName)
   const categories = manifestData?.categories
   return [
     path.join(pkgPath, README_MD),
@@ -116,7 +108,7 @@ async function getNpmReadmeAction(pkgPath) {
 async function getPackageJsonAction(pkgPath, options) {
   const { engines } = { __proto__: null, ...options }
   const regPkgName = path.basename(pkgPath)
-  const manifestData = getManifestData(regPkgName)
+  const manifestData = getManifestData('npm', regPkgName)
   const categories = manifestData?.categories
   return [
     path.join(pkgPath, PACKAGE_JSON),
@@ -175,7 +167,6 @@ async function writeAction(action) {
 
 module.exports = {
   getLicenseActions,
-  getManifestData,
   getNpmReadmeAction,
   getPackageJsonAction,
   getTypeScriptActions,

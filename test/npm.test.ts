@@ -14,6 +14,7 @@ const {
   NODE_VERSION,
   PACKAGE_JSON,
   README_GLOB_RECURSIVE,
+  WIN_32,
   parseArgsConfig,
   skipTestsByEcosystem,
   testNpmNodeWorkspacesPath
@@ -25,6 +26,8 @@ import {
   getStagedPackagesSync
   // @ts-ignore
 } from '@socketregistry/scripts/utils/git'
+// @ts-ignore
+import { getManifestData } from '@socketregistry/scripts/utils/manifest'
 // @ts-ignore
 import { runScript } from '@socketregistry/scripts/utils/npm'
 import {
@@ -61,8 +64,10 @@ describe('npm', async () => {
     const nwPkgJson = fs.readJsonSync(path.join(nwPkgPath, PACKAGE_JSON))
     const nodeRange = nwPkgJson.engines?.node
     const origPkgName = resolveOriginalPackageName(regPkgName)
+    const manifestData = getManifestData('npm', regPkgName)
     const skip =
       !nwPkgJson.scripts?.test ||
+      (WIN_32 && !manifestData.interop.includes('browserify')) ||
       (isNonEmptyString(nodeRange) &&
         !semver.satisfies(NODE_VERSION, nodeRange))
 
