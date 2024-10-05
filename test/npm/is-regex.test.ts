@@ -123,6 +123,8 @@ describe(`npm > ${regPkgName}`, async () => {
         false,
         'proxy of plain object is not regex'
       )
+      // Test for no side-effects.
+      // https://github.com/inspect-js/is-regex/issues/35
       assert.deepStrictEqual(
         handler.trapCalls,
         [],
@@ -140,6 +142,8 @@ describe(`npm > ${regPkgName}`, async () => {
         false,
         'proxy of RegExp instance is not regex'
       )
+      // Test for no side-effects.
+      // https://github.com/inspect-js/is-regex/issues/35
       assert.deepStrictEqual(
         handler.trapCalls,
         [],
