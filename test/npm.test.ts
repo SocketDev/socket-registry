@@ -62,9 +62,9 @@ describe('npm', async () => {
   for (const regPkgName of packageNames) {
     const nwPkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
     const nwPkgJson = fs.readJsonSync(path.join(nwPkgPath, PACKAGE_JSON))
+    const manifestData = getManifestData('npm', regPkgName)
     const nodeRange = nwPkgJson.engines?.node
     const origPkgName = resolveOriginalPackageName(regPkgName)
-    const manifestData = getManifestData('npm', regPkgName)
     const skip =
       !nwPkgJson.scripts?.test ||
       (WIN_32 && !manifestData.interop.includes('browserify')) ||

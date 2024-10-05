@@ -69,6 +69,7 @@ const ENV = Object.freeze({
   // .husky/pre-commit hook.
   PRE_COMMIT: envAsBool(process.env.PRE_COMMIT)
 })
+const ESLINT_CONFIG_JS = 'eslint.config.js'
 const ESNEXT = 'esnext'
 const LICENSE = 'LICENSE'
 const LICENSE_GLOB = 'LICEN[CS]E{[.-]*,}'
@@ -109,6 +110,7 @@ const WIN_32 = process.platform === 'win32'
 
 const rootPath = path.resolve(__dirname, '..')
 const rootLicensePath = path.join(rootPath, LICENSE)
+const rootEslintConfigPath = path.join(rootPath, ESLINT_CONFIG_JS)
 const rootNodeModulesPath = path.join(rootPath, NODE_MODULES)
 const rootNodeModulesBinPath = path.join(rootNodeModulesPath, '.bin')
 const rootPackageJsonPath = path.join(rootPath, PACKAGE_JSON)
@@ -426,6 +428,7 @@ const skipTestsByEcosystem = Object.freeze({
     'hyrious__bun.lockb',
     // Has known test fails in its package:
     // https://github.com/es-shims/Date/issues/3
+    // https://github.com/es-shims/Date/tree/v2.0.5
     'date',
     // Has no unit tests.
     // https://github.com/rubennorte/es6-object-assign/tree/v1.1.0
@@ -436,10 +439,12 @@ const skipTestsByEcosystem = Object.freeze({
     // The package tests don't account for the `require('node:util/types).isRegExp`
     // method having no observable side-effects and assumes the "getOwnPropertyDescriptor"
     // trap will be triggered by `Object.getOwnPropertyDescriptor(value, 'lastIndex')`.
+    // https://github.com/inspect-js/is-regex/issues/35
     // https://github.com/inspect-js/is-regex/tree/v1.1.4
     'is-regex',
     // Has known failures in its package.
     // https://github.com/ChALkeR/safer-buffer/issues/16
+    // https://github.com/ChALkeR/safer-buffer/tree/v2.1.2
     'safer-buffer'
   ])
 })
@@ -473,6 +478,7 @@ const constants = Object.freeze(
       [kInternalsSymbol]: internals,
       EMPTY_FILE,
       ENV,
+      ESLINT_CONFIG_JS,
       ESNEXT,
       LICENSE,
       // Lazily defined values are initialized as `undefined` to keep their key order.
@@ -541,12 +547,13 @@ const constants = Object.freeze(
       relPackagesPath,
       relTestNpmPath,
       relTestNpmNodeModulesPath,
-      rootPath,
+      rootEslintConfigPath,
       rootLicensePath,
       rootNodeModulesPath,
       rootPackageJsonPath,
       rootPackageLockPath,
       rootPackagesPath,
+      rootPath,
       rootTsConfigPath,
       skipTestsByEcosystem,
       tapCiConfigPath,

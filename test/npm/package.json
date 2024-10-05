@@ -4,6 +4,8 @@
   "version": "",
   "devDependencies": {
     "@hyrious/bun.lockb": "https://github.com/hyrious/bun.lockb/archive/e4bab9e77b8c51c13eb02d526fb294e60955e7d8.tar.gz",
+    "@socketregistry/scripts": "file:../../scripts",
+    "@socketsecurity/registry": "file:../../registry/index.json",
     "abab": "https://github.com/jsdom/abab/archive/063700eb38c7c4c74530bb7505ad41d097adde54.tar.gz",
     "aggregate-error": "https://github.com/sindresorhus/aggregate-error/archive/3e2a127d3791176d602782a7806f4ca3a6e7f63a.tar.gz",
     "array-buffer-byte-length": "^1.0.1",
