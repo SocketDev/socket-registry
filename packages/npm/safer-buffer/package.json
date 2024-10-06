@@ -21,6 +21,10 @@
       "types": "./dangerous.d.ts",
       "default": "./dangerous.js"
     },
+    "./safer": {
+      "types": "./safer.d.ts",
+      "default": "./safer.js"
+    },
     "./package.json": "./package.json"
   },
   "sideEffects": false,
