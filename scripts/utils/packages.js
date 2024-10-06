@@ -580,12 +580,18 @@ async function toEditablePackageJson(pkgJson, options) {
     return jsonToEditablePackageJson(pkgJson, normalizeOptions)
   }
   const pkgJsonPath = resolvePackageJsonDirname(filepath)
-  return (await EditablePackageJson.load(pkgJsonPath, { create: true })).update(
-    normalizePackageJson(pkgJson, {
-      __proto__: null,
-      ...(isNodeModules(pkgJsonPath) ? {} : { preserve: ['repository'] }),
-      ...normalizeOptions
-    })
+  return (
+    await EditablePackageJson.load(pkgJsonPath, { create: true })
+  ).fromJSON(
+    `${JSON.stringify(
+      normalizePackageJson(pkgJson, {
+        __proto__: null,
+        ...(isNodeModules(pkgJsonPath) ? {} : { preserve: ['repository'] }),
+        ...normalizeOptions
+      }),
+      null,
+      2
+    )}\n`
   )
 }
 
@@ -598,12 +604,16 @@ function toEditablePackageJsonSync(pkgJson, options) {
     return jsonToEditablePackageJson(pkgJson, normalizeOptions)
   }
   const pkgJsonPath = resolvePackageJsonDirname(filepath)
-  return new EditablePackageJson().create(pkgJsonPath).update(
-    normalizePackageJson(pkgJson, {
-      __proto__: null,
-      ...(isNodeModules(pkgJsonPath) ? {} : { preserve: ['repository'] }),
-      ...normalizeOptions
-    })
+  return new EditablePackageJson().create(pkgJsonPath).fromJSON(
+    `${JSON.stringify(
+      normalizePackageJson(pkgJson, {
+        __proto__: null,
+        ...(isNodeModules(pkgJsonPath) ? {} : { preserve: ['repository'] }),
+        ...normalizeOptions
+      }),
+      null,
+      2
+    )}\n`
   )
 }
 
