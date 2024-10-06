@@ -429,6 +429,7 @@ async function linkPackages(packageNames) {
         }
       }
       nmEditablePkgJson.update({
+        ...(updatedEntryExports ? { main: undefined } : {}),
         exports: updatedEntryExports
       })
     }
