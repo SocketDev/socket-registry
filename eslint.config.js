@@ -150,7 +150,7 @@ function configs(sourceType) {
         'no-empty': ['error', { allowEmptyCatch: true }],
         'no-unused-vars': [
           'error',
-          { argsIgnorePattern: '^_', ignoreRestSiblings: true }
+          { argsIgnorePattern: '^_|^this$', ignoreRestSiblings: true }
         ],
         'no-self-assign': ['error', { props: false }],
         'no-warning-comments': ['error'],
@@ -183,6 +183,10 @@ function configs(sourceType) {
         rules: {
           '@typescript-eslint/no-floating-promises': ['error'],
           '@typescript-eslint/no-misused-promises': ['error'],
+          // Define @typescript-eslint/no-this-alias because oxlint defines
+          // "no-this-alias": ["deny"] and trying to eslint-disable it will
+          // cause an eslint "Definition not found" error otherwise.
+          '@typescript-eslint/no-this-alias': ['error'],
           // Returning unawaited promises in a try/catch/finally is dangerous
           // (the `catch` won't catch if the promise is rejected, and the `finally`
           // won't wait for the promise to resolve). Returning unawaited promises

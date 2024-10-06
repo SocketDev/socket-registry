@@ -426,8 +426,8 @@ const skipTestsByEcosystem = Object.freeze({
     // https://github.com/hyrious/bun.lockb/tree/v0.0.4
     '@hyrious/bun.lockb',
     'hyrious__bun.lockb',
-    // Has known test fails for some Node versions and platforms, but passes in
-    // CI environments for the time being.
+    // Tests fail for some Node versions and platforms, but pass in CI
+    // environments for the time being.
     // https://github.com/es-shims/Date/issues/3
     // https://github.com/es-shims/Date/tree/v2.0.5
     ...(ENV.CI ? [] : ['date']),

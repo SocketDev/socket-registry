@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
 const regPkgName = 'is-regex'
-const isRegex = require(regPkgName)
+const isRegex: any = require(regPkgName)
 
 // Tests don't account for `is-regex` backed by `require('node:util/types).isRegExp`
 // which triggers no proxy traps and assumes instead that the "getOwnPropertyDescriptor"

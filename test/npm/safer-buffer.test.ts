@@ -5,9 +5,9 @@ import { describe, it } from 'node:test'
 
 const regPkgName = 'safer-buffer'
 
-const index = require(regPkgName)
-const safer = require(`${regPkgName}/safer`)
-const dangerous = require(`${regPkgName}/dangerous`)
+const index: any = require(regPkgName)
+const safer: any = require(`${regPkgName}/safer`)
+const dangerous: any = require(`${regPkgName}/dangerous`)
 const implementations = [index, safer, dangerous]
 
 // Tests assume Buffer.alloc, Buffer.allocUnsafe, and Buffer.allocUnsafeSlow

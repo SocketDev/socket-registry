@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
 const regPkgName = 'es6-object-assign'
-const es6oa = require(regPkgName)
+const es6oa: any = require(regPkgName)
 
 // Has no unit tests.
 // https://github.com/rubennorte/es6-object-assign/tree/v1.1.0
