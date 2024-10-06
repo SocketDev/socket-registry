@@ -38,12 +38,15 @@ async function runScript(scriptName, args, options) {
   // Lazily access constants.npmExecPath.
   const useNode = !prepost && canUseNodeRun
   const cmd = useNode ? execPath : constants.npmExecPath
-  const runArg = useNode ? '--run' : 'run'
-  return await spawn(cmd, [runArg, scriptName, ...args], {
-    __proto__: null,
-    ...spawnOptions,
-    shell: true
-  })
+  return await spawn(
+    cmd,
+    [...(useNode ? ['--no-warnings', '--run'] : ['run']), scriptName, ...args],
+    {
+      __proto__: null,
+      ...spawnOptions,
+      shell: true
+    }
+  )
 }
 
 module.exports = {
