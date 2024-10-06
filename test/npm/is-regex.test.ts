@@ -1,20 +1,14 @@
 import assert from 'node:assert/strict'
-import path from 'node:path'
 import { describe, it } from 'node:test'
 
-// @ts-ignore
-import constants from '@socketregistry/scripts/constants'
-const { testNpmNodeWorkspacesPath } = constants
-
 const regPkgName = 'is-regex'
-const pkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
-const isRegex = require(pkgPath)
+const isRegex = require(regPkgName)
 
-// The package tests don't account for the `require('node:util/types).isRegExp`
-// method having no observable side-effects and assumes the "getOwnPropertyDescriptor"
+// Tests don't account for `is-regex` backed by `require('node:util/types).isRegExp`
+// which triggers no proxy traps and assumes instead that the "getOwnPropertyDescriptor"
 // trap will be triggered by `Object.getOwnPropertyDescriptor(value, 'lastIndex')`.
 // https://github.com/inspect-js/is-regex/issues/35
-// https://github.com/inspect-js/is-regex/tree/v1.1.4
+// https://github.com/inspect-js/is-regex/blob/v1.1.4/test/index.js
 describe(`npm > ${regPkgName}`, async () => {
   it('not regexes', () => {
     assert.strictEqual(isRegex(), false, 'undefined is not regex')
@@ -123,11 +117,12 @@ describe(`npm > ${regPkgName}`, async () => {
         false,
         'proxy of plain object is not regex'
       )
-      // Test for no side-effects.
+      // Support `isRegex` backed by `require('node:util/types').isRegExp`
+      // which triggers no proxy traps.
       // https://github.com/inspect-js/is-regex/issues/35
       assert.deepStrictEqual(
         handler.trapCalls,
-        [],
+        handler.trapCalls.length ? ['getOwnPropertyDescriptor'] : [],
         'no unexpected proxy traps were triggered'
       )
     })
@@ -142,11 +137,12 @@ describe(`npm > ${regPkgName}`, async () => {
         false,
         'proxy of RegExp instance is not regex'
       )
-      // Test for no side-effects.
+      // Support `isRegex` backed by `require('node:util/types').isRegExp`
+      // which triggers no proxy traps.
       // https://github.com/inspect-js/is-regex/issues/35
       assert.deepStrictEqual(
         handler.trapCalls,
-        [],
+        handler.trapCalls.length ? ['getOwnPropertyDescriptor'] : [],
         'no unexpected proxy traps were triggered'
       )
     })
