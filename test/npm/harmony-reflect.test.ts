@@ -4,8 +4,8 @@ import { describe, it } from 'node:test'
 const regPkgName = 'harmony-reflect'
 const harmonyReflect: any = require(regPkgName)
 
-// Has known failures in its package and requires running tests in browser.
-// Tests based on https://github.com/tvcutsem/harmony-reflect/blob/v1.6.2/test/testReflect.js.
+// harmony-reflect has known failures in its package and requires running tests in browser.
+// https://github.com/tvcutsem/harmony-reflect/tree/v1.6.2/test
 describe(`npm > ${regPkgName}`, async () => {
   it('should be able to define a property', () => {
     const obj: {

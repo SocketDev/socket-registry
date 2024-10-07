@@ -10,8 +10,9 @@ const safer: any = require(`${regPkgName}/safer`)
 const dangerous: any = require(`${regPkgName}/dangerous`)
 const implementations = [index, safer, dangerous]
 
-// Tests assume Buffer.alloc, Buffer.allocUnsafe, and Buffer.allocUnsafeSlow
-// throw for a size of 2 * (1 << 30), i.e. 2147483648, which is no longer the case.
+// safer-buffer tests assume Buffer.alloc, Buffer.allocUnsafe, and
+// Buffer.allocUnsafeSlow throw for a size of 2 * (1 << 30), i.e. 2147483648,
+// which is no longer the case.
 // https://github.com/ChALkeR/safer-buffer/issues/16
 // https://github.com/ChALkeR/safer-buffer/blob/v2.1.2/tests.js
 describe(`npm > ${regPkgName}`, async () => {

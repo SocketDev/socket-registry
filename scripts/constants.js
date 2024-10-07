@@ -136,10 +136,11 @@ const npmTemplatesPath = path.join(templatesPath, 'npm')
 const npmTemplatesReadmePath = path.join(npmTemplatesPath, README_MD)
 
 const testNpmPath = path.join(rootPath, 'test/npm')
-const testNpmPkgJsonPath = path.join(testNpmPath, PACKAGE_JSON)
-const testNpmPkgLockPath = path.join(testNpmPath, PACKAGE_LOCK)
+const testNpmFixturesPath = path.join(testNpmPath, 'fixtures')
 const testNpmNodeModulesPath = path.join(testNpmPath, NODE_MODULES)
 const testNpmNodeWorkspacesPath = path.join(testNpmPath, NODE_WORKSPACES)
+const testNpmPkgJsonPath = path.join(testNpmPath, PACKAGE_JSON)
+const testNpmPkgLockPath = path.join(testNpmPath, PACKAGE_LOCK)
 
 const yarnPkgExtsPath = path.join(rootNodeModulesPath, '@yarnpkg/extensions')
 const yarnPkgExtsJsonPath = path.join(yarnPkgExtsPath, PACKAGE_JSON)
@@ -422,29 +423,32 @@ const parseArgsConfig = Object.freeze({
 const skipTestsByEcosystem = Object.freeze({
   __proto__: null,
   npm: new Set([
-    // Has no unit tests.
+    // @hyrious/bun.lockb has no unit tests.
     // https://github.com/hyrious/bun.lockb/tree/v0.0.4
     '@hyrious/bun.lockb',
     'hyrious__bun.lockb',
-    // Tests fail for some Node versions and platforms, but pass in CI
+    // date tests fail for some Node versions and platforms, but pass in CI
     // environments for the time being.
     // https://github.com/es-shims/Date/issues/3
     // https://github.com/es-shims/Date/tree/v2.0.5
     ...(ENV.CI ? [] : ['date']),
-    // Has no unit tests.
+    // es6-object-assign has no unit tests.
     // https://github.com/rubennorte/es6-object-assign/tree/v1.1.0
     'es6-object-assign',
-    // Has known failures in its package and requires running tests in browser.
+    // harmony-reflect has known failures in its package and requires running
+    // tests in browser.
     // https://github.com/tvcutsem/harmony-reflect/tree/v1.6.2/test
     'harmony-reflect',
-    // Tests don't account for `is-regex` backed by `require('node:util/types).isRegExp`
-    // which triggers no proxy traps and assumes instead that the "getOwnPropertyDescriptor"
-    // trap will be triggered by `Object.getOwnPropertyDescriptor(value, 'lastIndex')`.
+    // is-regex tests don't account for `is-regex` backed by
+    // `require('node:util/types).isRegExp` which triggers no proxy traps and
+    // assumes instead that the "getOwnPropertyDescriptor" trap will be triggered
+    // by `Object.getOwnPropertyDescriptor(value, 'lastIndex')`.
     // https://github.com/inspect-js/is-regex/issues/35
     // https://github.com/inspect-js/is-regex/blob/v1.1.4/test/index.js
     'is-regex',
-    // Tests assume Buffer.alloc, Buffer.allocUnsafe, and Buffer.allocUnsafeSlow
-    // throw for a size of 2 * (1 << 30), i.e. 2147483648, which is no longer the case.
+    // safer-buffer tests assume Buffer.alloc, Buffer.allocUnsafe, and
+    // Buffer.allocUnsafeSlow throw for a size of 2 * (1 << 30), i.e. 2147483648,
+    // which is no longer the case.
     // https://github.com/ChALkeR/safer-buffer/issues/16
     // https://github.com/ChALkeR/safer-buffer/blob/v2.1.2/tests.js
     'safer-buffer'
@@ -563,10 +567,11 @@ const constants = Object.freeze(
       tapExecPath: undefined,
       templatesPath,
       testNpmPath,
-      testNpmPkgJsonPath,
-      testNpmPkgLockPath,
+      testNpmFixturesPath,
       testNpmNodeModulesPath,
       testNpmNodeWorkspacesPath,
+      testNpmPkgJsonPath,
+      testNpmPkgLockPath,
       tsLibsAvailable,
       tsTypesAvailable,
       yarnPkgExtsPath,

@@ -4,9 +4,10 @@ import { describe, it } from 'node:test'
 const regPkgName = 'is-regex'
 const isRegex: any = require(regPkgName)
 
-// Tests don't account for `is-regex` backed by `require('node:util/types).isRegExp`
-// which triggers no proxy traps and assumes instead that the "getOwnPropertyDescriptor"
-// trap will be triggered by `Object.getOwnPropertyDescriptor(value, 'lastIndex')`.
+// is-regex tests don't account for `is-regex` backed by
+// `require('node:util/types).isRegExp` which triggers no proxy traps and
+// assumes instead that the "getOwnPropertyDescriptor" trap will be triggered
+// by `Object.getOwnPropertyDescriptor(value, 'lastIndex')`.
 // https://github.com/inspect-js/is-regex/issues/35
 // https://github.com/inspect-js/is-regex/blob/v1.1.4/test/index.js
 describe(`npm > ${regPkgName}`, async () => {

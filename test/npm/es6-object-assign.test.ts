@@ -4,9 +4,9 @@ import { describe, it } from 'node:test'
 const regPkgName = 'es6-object-assign'
 const es6oa: any = require(regPkgName)
 
-// Has no unit tests.
+// es6-object-assign has no unit tests.
 // https://github.com/rubennorte/es6-object-assign/tree/v1.1.0
-// Taking tests from https://github.com/ljharb/object.assign/tree/v4.1.5/test
+// Added tests from https://github.com/ljharb/object.assign/tree/v4.1.5/test.
 describe(`npm > ${regPkgName}`, () => {
   it('does not have "pending exception" logic in implementation', () => {
     /*
