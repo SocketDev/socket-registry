@@ -90,6 +90,7 @@ const PACKAGE_DEFAULT_VERSION = '1.0.0'
 const PACKAGE_JSON = 'package.json'
 const PACKAGE_LOCK = 'package-lock.json'
 const PACKAGE_SCOPE = `@${NPM_ORG}`
+const PERF_NPM_WORKSPACE = 'perf/npm'
 const README_GLOB = 'README{.*,}'
 const README_GLOB_RECURSIVE = `**/${README_GLOB}`
 const README_MD = 'README.md'
@@ -134,6 +135,9 @@ const tapConfigPath = path.join(rootPath, '.taprc')
 const npmPackagesPath = path.join(rootPackagesPath, 'npm')
 const npmTemplatesPath = path.join(templatesPath, 'npm')
 const npmTemplatesReadmePath = path.join(npmTemplatesPath, README_MD)
+
+const perfNpmPath = path.join(rootPath, 'perf/npm')
+const perfNpmFixturesPath = path.join(perfNpmPath, 'fixtures')
 
 const testNpmPath = path.join(rootPath, 'test/npm')
 const testNpmFixturesPath = path.join(testNpmPath, 'fixtures')
@@ -328,6 +332,7 @@ const lazyPrettierConfigPromise = () =>
   prettier.resolveConfig(prettierConfigPath, { editorconfig: true })
 const lazyPrettierIgnoreFile = () => includeIgnoreFile(prettierIgnorePath)
 const lazyTapExecPath = () => whichSync('tap')
+const lazyTsxExecPath = () => whichSync('tsx')
 
 const copyLeftLicenses = new Set([
   'AGPL-3.0-or-later',
@@ -509,6 +514,7 @@ const constants = Object.freeze(
       PACKAGE_JSON,
       PACKAGE_LOCK,
       PACKAGE_SCOPE,
+      PERF_NPM_WORKSPACE,
       README_GLOB,
       README_GLOB_RECURSIVE,
       README_MD,
@@ -544,6 +550,8 @@ const constants = Object.freeze(
       packumentCache,
       pacoteCachePath,
       parseArgsConfig,
+      perfNpmPath,
+      perfNpmFixturesPath,
       prettierConfigPromise: undefined,
       prettierIgnoreFile: undefined,
       manifestJsonPath,
@@ -574,6 +582,7 @@ const constants = Object.freeze(
       testNpmPkgLockPath,
       tsLibsAvailable,
       tsTypesAvailable,
+      tsxExecPath: undefined,
       yarnPkgExtsPath,
       yarnPkgExtsJsonPath
     },
@@ -590,7 +599,8 @@ const constants = Object.freeze(
       npmPackageNames: lazyNpmPackageNames,
       prettierConfigPromise: lazyPrettierConfigPromise,
       prettierIgnoreFile: lazyPrettierIgnoreFile,
-      tapExecPath: lazyTapExecPath
+      tapExecPath: lazyTapExecPath,
+      tsxExecPath: lazyTsxExecPath
     }
   )
 )

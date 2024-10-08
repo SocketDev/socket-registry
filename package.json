@@ -24,10 +24,11 @@
     "lint": "oxlint -c=./.oxlintrc.json --ignore-path=./.prettierignore --tsconfig=./tsconfig.json . -D correctness -D perf -D suspicious --promise-plugin --import-plugin",
     "lint:fix": "npm run lint -- --fix && npm run lint:fix:fast",
     "lint:fix:fast": "prettier --cache --log-level warn --write .",
+    "perf": "node ./scripts/perf.js",
     "prepare": "husky && npm run setup",
     "test": "run-s check test:*",
     "pretest:unit": "run-s update:longtask:test:**",
-    "test:unit": "node ./scripts/tap.js",
+    "test:unit": "node ./scripts/test.js",
     "test-pre-commit": "cross-env-shell PRE_COMMIT=1 npm test",
     "test-ci": "run-s test:*",
     "make:npm-package": "node ./scripts/make-npm-package.js",
@@ -98,7 +99,9 @@
     "spdx-correct": "^3.2.0",
     "spdx-expression-parse": "^4.0.0",
     "tap": "^21.0.1",
+    "tinybench": "^2.9.0",
     "tinyglobby": "^0.2.9",
+    "tsx": "^4.19.1",
     "typescript": "5.6.2",
     "typescript-eslint": "^8.8.0",
     "update-browserslist-db": "^1.1.1",
@@ -106,7 +109,6 @@
     "which": "^5.0.0"
   },
   "workspaces": [
-    "registry",
     "packages/npm/abab",
     "packages/npm/aggregate-error",
     "packages/npm/array-buffer-byte-length",
@@ -233,7 +235,9 @@
     "packages/npm/util.promisify",
     "packages/npm/which-boxed-primitive",
     "packages/npm/which-collection",
-    "packages/npm/which-typed-array"
+    "packages/npm/which-typed-array",
+    "perf/npm",
+    "registry"
   ],
   "engines": {
     "node": "^20.17.0 || >=22.8.0"

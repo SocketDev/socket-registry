@@ -1,194 +1,213 @@
 'use strict'
 
-const OBJECT_TYPE = 1
-const ARRAY_TYPE = 2
-
+const CYCLE_ERROR_MESSAGE = 'Converting circular structure to JSON'
 const LOOP_SENTINEL = 1_000_000
-const STRINGIFIED_CYCLE = JSON.stringify('__cycle__')
-const STRINGIFIED_NULL = JSON.stringify(null)
+const SORT_METHOD =
+  typeof Array.prototype.toSorted === 'function' ? 'toSorted' : 'sort'
+const STRINGIFIED_CYCLE = '"__cycle__"'
+const STRINGIFIED_NULL = 'null'
+const TYPE_VALUE = 1
+const TYPE_OPEN = 2
+const TYPE_CLOSE = 4
 
 const { isArray: ArrayIsArray } = Array
-const { keys: ObjectKeys } = Object
-const { compare: localeCompare } = new Intl.Collator()
-const defaultReplacer = (_parent, _key, value) => value
+const { freeze: ObjectFreeze, keys: ObjectKeys } = Object
+const { stringify } = JSON
 
-function joinEntries(entries, indent, wrapper) {
-  return `${wrapper[0]}${entries.join()}${indent}${wrapper[1]}`
-}
+let callStackSizeExceededErrorDetails
 
-class StringifyEntries extends Array {
-  constructor(options) {
-    super()
-    const { indent, space } = { __proto__: null, ...options }
-    this.indent = indent || ''
-    this.space = space || ''
-  }
-}
-
-class ArrayEntries extends StringifyEntries {
-  join() {
-    const { indent, length, space } = this
-    const out = Array(length)
-    for (let i = 0; i < length; i += 1) {
-      out[i] = `${indent}${space}${this[i][1]}`
+function getCallStackSizeExceededErrorDetails() {
+  if (callStackSizeExceededErrorDetails === undefined) {
+    let limit = 0
+    try {
+      ;(function r() {
+        limit += 1
+        r()
+      })()
+    } catch ({ constructor, message }) {
+      callStackSizeExceededErrorDetails = ObjectFreeze({
+        Ctor: constructor,
+        limit,
+        message
+      })
     }
-    return joinEntries(out, indent, '[]')
   }
+  return callStackSizeExceededErrorDetails
 }
 
-class ObjectEntries extends StringifyEntries {
-  join() {
-    const { indent, length, space } = this
-    const colonSeparator = space ? ': ' : ':'
-    const out = []
-    for (let i = 0; i < length; i += 1) {
-      const { 0: key, 1: value } = this[i]
-      if (value) {
-        out.push(
-          `${indent}${space}${JSON.stringify(key)}${colonSeparator}${value}`
-        )
-      }
-    }
-    return joinEntries(out, indent, '{}')
-  }
-}
-
-module.exports = function stableStringify(obj, opts = {}) {
-  const rawReplacer = opts?.replacer
-  const rawSpace = opts?.space || ''
-  const cycles = typeof opts?.cycles === 'boolean' && opts.cycles
-  const replacer =
-    typeof rawReplacer === 'function'
-      ? (thisArg, key, value) =>
-          Reflect.apply(rawReplacer, thisArg, [key, value])
-      : defaultReplacer
-  const space = typeof rawSpace === 'number' ? ' '.repeat(rawSpace) : rawSpace
-  let cmpOpt
-  if (typeof opts === 'function') {
-    cmpOpt = opts
-  } else if (typeof opts?.cmp === 'function') {
-    cmpOpt = opts.cmp
-  }
-  const passGet = cmpOpt ? cmpOpt.length > 2 : false
-  const cmp = cmpOpt
-    ? node => {
-        const get = passGet ? k => node[k] : undefined
-        return (a, b) =>
-          cmpOpt(
-            { __proto__: null, key: a, value: node[a] },
-            { __proto__: null, key: b, value: node[b] },
-            get ? { __proto__: null, get } : undefined
-          )
-      }
-    : _node => localeCompare
-  const resultEntries = []
-  const queue = [
-    [{ '': obj }, '0', obj, 0, ARRAY_TYPE, resultEntries, new Set()]
-  ]
-  let { length: queueLength } = queue
-  let pos = 0
-  while (pos < queueLength) {
-    if (pos === LOOP_SENTINEL) {
+function stableStringifyNonRecursive(obj, cmp, cycles, replacer, space) {
+  const chunks = []
+  const queue = [[null, new Set(), TYPE_OPEN, false, 0, '', obj]]
+  let depth = 0
+  let needsComma = false
+  while (queue.length > 0) {
+    if (depth++ === LOOP_SENTINEL) {
       throw new Error(
         'Detected infinite loop in object crawl of stableStringify'
       )
     }
-    const {
-      0: parent,
-      1: key,
-      2: rawNode,
-      3: level,
-      4: type,
-      5: entries,
-      6: seen
-    } = queue[pos++]
-    if (rawNode === seen) {
+    const stack = queue.pop()
+    const { 0: parent, 1: seen, 2: type, 3: parentIsArr, 4: level } = stack
+    const indent = space ? `\n${space.repeat(level)}` : ''
+    if (type === TYPE_CLOSE) {
       seen.delete(parent)
+      chunks.push(`${indent}${parentIsArr ? ']' : '}'}`)
+      needsComma = true
       continue
     }
-    const node = replacer(
-      parent,
-      key,
+    const { 5: key, 6: rawNode } = stack
+    let node =
       typeof rawNode?.toJSON === 'function' ? rawNode.toJSON() : rawNode
-    )
-    if (node === undefined) {
-      if (type === ARRAY_TYPE) {
-        entries.push([key, STRINGIFIED_NULL])
-      } else if (type !== OBJECT_TYPE) {
-        entries.push([key, undefined])
+    if (replacer) {
+      node = replacer(parent, key, node)
+    }
+    if (node === undefined && !parentIsArr) {
+      continue
+    }
+    if (parent !== null) {
+      if (needsComma) {
+        chunks.push(',')
       }
+      if (parentIsArr) {
+        chunks.push(indent)
+      } else {
+        chunks.push(`${indent}${stringify(key)}${space ? ': ' : ':'}`)
+      }
+    }
+    needsComma = true
+    if (parentIsArr && node === undefined) {
+      chunks.push(STRINGIFIED_NULL)
       continue
     }
     if (node === null) {
-      entries.push([key, STRINGIFIED_NULL])
+      chunks.push(STRINGIFIED_NULL)
       continue
     }
     if (typeof node !== 'object') {
-      entries.push([key, JSON.stringify(node)])
+      chunks.push(stringify(node))
       continue
     }
     if (seen.has(node)) {
       if (cycles) {
-        entries.push([key, STRINGIFIED_CYCLE])
+        chunks.push(STRINGIFIED_CYCLE)
         continue
       }
-      throw new TypeError('Converting circular structure to JSON')
-    } else {
-      seen.add(node)
+      throw new TypeError(CYCLE_ERROR_MESSAGE)
     }
-    const indent = space ? `\n${space.repeat(level)}` : ''
-    if (ArrayIsArray(node)) {
-      const { length } = node
-      const arrEntries = new ArrayEntries({ indent, space })
-      for (let i = 0; i < length; i += 1) {
-        queue[queueLength++] = [
-          node,
-          i,
-          node[i],
-          level + 1,
-          ARRAY_TYPE,
-          arrEntries,
-          new Set(seen)
-        ]
-      }
-      // Add `seen` to end to cleanup.
-      queue[queueLength++] = [
+    needsComma = false
+    seen.add(node)
+    const nodeIsArr = ArrayIsArray(node)
+    chunks.push(nodeIsArr ? '[' : '{')
+    queue.push([node, seen, TYPE_CLOSE, nodeIsArr, level])
+    const sortedKeys = nodeIsArr
+      ? node
+      : ObjectKeys(node)[SORT_METHOD](cmp && cmp(node))
+    for (let i = sortedKeys.length - 1; i >= 0; i -= 1) {
+      const k = nodeIsArr ? i : sortedKeys[i]
+      queue.push([
         node,
-        '<CLEANUP>',
-        seen,
+        new Set(seen),
+        TYPE_VALUE,
+        nodeIsArr,
         level + 1,
-        ARRAY_TYPE,
-        arrEntries,
-        seen
-      ]
-      entries.push([key, arrEntries])
-      continue
+        k,
+        node[k]
+      ])
     }
-    const keys = ObjectKeys(node).sort(cmp(node))
-    const objEntries = new ObjectEntries({ indent, space })
-    for (let i = 0, { length } = keys; i < length; i += 1) {
-      const key = keys[i]
-      queue[queueLength++] = [
-        node,
-        key,
-        node[key],
-        level + 1,
-        OBJECT_TYPE,
-        objEntries,
-        new Set(seen)
-      ]
-    }
-    // Add `seen` to end to cleanup.
-    queue[queueLength++] = [
-      node,
-      '<CLEANUP>',
-      seen,
-      level + 1,
-      OBJECT_TYPE,
-      objEntries,
-      seen
-    ]
-    entries.push([key, objEntries])
   }
-  return resultEntries.at(0)?.at(1)?.toString()
+  return chunks.join('')
+}
+
+function stableStringifyRecursive(obj, cmp, cycles, replacer, space) {
+  const seen = new Set()
+  return (function recursive(parent, key, rawNode, level) {
+    let node =
+      typeof rawNode?.toJSON === 'function' ? rawNode.toJSON() : rawNode
+    if (replacer) {
+      node = replacer(parent, key, node)
+    }
+    if (node === undefined) {
+      return
+    }
+    if (node === null) {
+      return STRINGIFIED_NULL
+    }
+    if (typeof node !== 'object') {
+      return stringify(node)
+    }
+    if (seen.has(node)) {
+      if (cycles) {
+        return STRINGIFIED_CYCLE
+      }
+      throw new TypeError(CYCLE_ERROR_MESSAGE)
+    }
+    seen.add(node)
+    const nodeIsArr = ArrayIsArray(node)
+    const keys = nodeIsArr
+      ? node
+      : ObjectKeys(node)[SORT_METHOD](cmp && cmp(node))
+    const out = []
+    for (let i = 0, { length } = keys; i < length; i += 1) {
+      const k = nodeIsArr ? i : keys[i]
+      const v = recursive(node, k, node[k], level + 1)
+      if (v == undefined) {
+        if (nodeIsArr) {
+          out.push(STRINGIFIED_NULL)
+        }
+      } else {
+        if (nodeIsArr) {
+          out.push(v)
+        } else {
+          out.push(`${stringify(k)}:${space ? ' ' : ''}${v}`)
+        }
+      }
+    }
+    seen.delete(node)
+    const indent = space ? `\n${space.repeat(level + 1)}` : ''
+    const openBracket = nodeIsArr ? '[' : '{'
+    const closeBracket = nodeIsArr ? ']' : '}'
+    const closingIndent = space ? `\n${space.repeat(level)}` : ''
+    return `${openBracket}${indent}${out.join(`,${indent}`)}${closingIndent}${closeBracket}`
+  })({ '': obj }, '', obj, 0)
+}
+
+let callStackLimitTripped = false
+
+module.exports = function stableStringify(obj, opts = {}) {
+  const rawReplacer = opts.replacer
+  const rawSpace = opts.space || ''
+  const cycles = opts.cycles === true
+  const replacer =
+    typeof rawReplacer === 'function'
+      ? (thisArg, key, value) => rawReplacer.call(thisArg, key, value)
+      : undefined
+  const space = typeof rawSpace === 'number' ? ' '.repeat(rawSpace) : rawSpace
+  const cmpOpt = typeof opts === 'function' ? opts : opts.cmp
+  const cmp =
+    typeof cmpOpt === 'function'
+      ? node => {
+          const get = cmpOpt.length > 2 ? k => node[k] : undefined
+          return (a, b) =>
+            cmpOpt(
+              { __proto__: null, key: a, value: node[a] },
+              { __proto__: null, key: b, value: node[b] },
+              get ? { __proto__: null, get } : undefined
+            )
+        }
+      : undefined
+  if (callStackLimitTripped) {
+    return stableStringifyNonRecursive(obj, cmp, cycles, replacer, space)
+  }
+  try {
+    return stableStringifyRecursive(obj, cmp, cycles, replacer, space)
+  } catch (e) {
+    if (e) {
+      const { Ctor, message } = getCallStackSizeExceededErrorDetails()
+      if (e instanceof Ctor && e.message === message) {
+        callStackLimitTripped = true
+        return stableStringifyNonRecursive(obj, cmp, cycles, replacer, space)
+      }
+    }
+    throw e
+  }
 }

@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "name": "",
+  "version": "",
+  "devDependencies": {
+    "@socketregistry/scripts": "*",
+    "@socketsecurity/registry": "*",
+    "json-stable-stringify": "^1.1.1",
+    "tinybench": "*"
+  }
+}

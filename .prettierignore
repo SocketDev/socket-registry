@@ -1,4 +1,5 @@
 .github/
 scripts/templates
+**/fixtures
 packages/**/*.original*
 package-lock.json

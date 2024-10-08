@@ -3,16 +3,22 @@
 const path = require('node:path')
 
 const constants = require('@socketregistry/scripts/constants')
-const { REGISTRY_WORKSPACE, rootPackageJsonPath, rootPackagesPath } = constants
+const {
+  PERF_NPM_WORKSPACE,
+  REGISTRY_WORKSPACE,
+  rootPackageJsonPath,
+  rootPackagesPath
+} = constants
 const { readDirNames } = require('@socketregistry/scripts/utils/fs')
 const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
+const { localeCompare } = require('@socketregistry/scripts/utils/sorts')
 
 ;(async () => {
   const rootEditablePkgJson = await readPackageJson(rootPackageJsonPath, {
     editable: true
   })
   // Update workspaces.
-  const workspaces = [REGISTRY_WORKSPACE]
+  const workspaces = [PERF_NPM_WORKSPACE, REGISTRY_WORKSPACE]
   // Lazily access constants.ecosystems.
   for (const eco of constants.ecosystems) {
     const ecoPackagesPath = path.join(rootPackagesPath, eco)
@@ -22,7 +28,7 @@ const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
       workspaces.push(`packages/${eco}/${regPkgName}`)
     }
   }
-  rootEditablePkgJson.update({ workspaces })
+  rootEditablePkgJson.update({ workspaces: workspaces.sort(localeCompare) })
   // Lazily access constants.maintainedNodeVersions.
   const { maintainedNodeVersions } = constants
   const nodeVerNext = maintainedNodeVersions.get('next')
