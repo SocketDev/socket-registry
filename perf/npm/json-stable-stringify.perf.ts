@@ -2,8 +2,9 @@ import path from 'node:path'
 
 import { Bench } from 'tinybench'
 
-import overrideJsonStableStringify from '@socketregistry/json-stable-stringify'
+import fastJsonStableStringify from 'fast-json-stable-stringify'
 import origJsonStableStringify from 'json-stable-stringify'
+import overrideJsonStableStringify from '@socketregistry/json-stable-stringify'
 
 // @ts-ignore
 import constants from '@socketregistry/scripts/constants'
@@ -16,11 +17,14 @@ const sampleData5MbPath = path.join(perfNpmFixturesPath, 'sample_data_5mb.json')
   const sampleData5MbJson = require(sampleData5MbPath)
 
   bench
-    .add('faster task', async () => {
+    .add('@socketregistry/json-stable-stringify', () => {
       overrideJsonStableStringify(sampleData5MbJson)
     })
-    .add('slower task', async () => {
+    .add('json-stable-stringify', () => {
       origJsonStableStringify(sampleData5MbJson)
+    })
+    .add('fast-json-stable-stringify', () => {
+      fastJsonStableStringify(sampleData5MbJson)
     })
 
   await bench.warmup()
