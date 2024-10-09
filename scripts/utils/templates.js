@@ -74,13 +74,14 @@ async function getLicenseActions(pkgPath) {
 }
 
 async function getNpmReadmeAction(pkgPath) {
+  const eco = 'npm'
   const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
   const pkgJson = await readPackageJson(pkgJsonPath)
   const pkgPurlObj = PackageURL.fromString(
-    `pkg:npm/${pkgJson.name}@${pkgJson.version}`
+    `pkg:${eco}/${pkgJson.name}@${pkgJson.version}`
   )
   const { name: regPkgName } = pkgPurlObj
-  const manifestData = getManifestData('npm', regPkgName)
+  const manifestData = getManifestData(eco, regPkgName)
   const categories = manifestData?.categories
   return [
     path.join(pkgPath, README_MD),
@@ -107,8 +108,9 @@ async function getNpmReadmeAction(pkgPath) {
 
 async function getPackageJsonAction(pkgPath, options) {
   const { engines } = { __proto__: null, ...options }
+  const eco = 'npm'
   const regPkgName = path.basename(pkgPath)
-  const manifestData = getManifestData('npm', regPkgName)
+  const manifestData = getManifestData(eco, regPkgName)
   const categories = manifestData?.categories
   return [
     path.join(pkgPath, PACKAGE_JSON),

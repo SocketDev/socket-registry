@@ -23,6 +23,7 @@ const {
   README_GLOB,
   lifecycleScriptNames,
   npmPackagesPath,
+  parseArgsConfig,
   relNpmPackagesPath,
   relTestNpmNodeModulesPath,
   relTestNpmPath,
@@ -40,6 +41,7 @@ const {
   uniqueSync
 } = require('@socketregistry/scripts/utils/fs')
 const { execNpm } = require('@socketregistry/scripts/utils/npm')
+const { merge } = require('@socketregistry/scripts/utils/objects')
 const {
   isSubpathExports,
   readPackageJson,
@@ -54,18 +56,19 @@ const { localeCompare } = require('@socketregistry/scripts/utils/sorts')
 const { Spinner } = require('@socketregistry/scripts/utils/spinner')
 const { isNonEmptyString } = require('@socketregistry/scripts/utils/strings')
 
-const { values: cliArgs } = util.parseArgs({
-  options: {
-    add: {
-      type: 'string',
-      multiple: true
-    },
-    force: {
-      type: 'boolean',
-      short: 'f'
+const { values: cliArgs } = util.parseArgs(
+  merge(parseArgsConfig, {
+    options: {
+      add: {
+        type: 'string',
+        multiple: true
+      },
+      quiet: {
+        type: 'boolean'
+      }
     }
-  }
-})
+  })
+)
 
 const testScripts = [
   // Order is significant. First in, first tried.
@@ -162,11 +165,15 @@ async function resolveDevDependencies(packageNames) {
         await installTestNpmNodeModules({ clean: true, specs: [origPkgName] })
         // Reload testNpmPkgJson because it is now out of date.
         testNpmPkgJson = readPackageJsonSync(testNpmPkgJsonPath)
-        spinner.stop(
-          devDepExists
-            ? `✔ Refreshed ${origPkgName}`
-            : `✔ --save-dev ${origPkgName} to package.json`
-        )
+        if (cliArgs.quiet) {
+          spinner.stop()
+        } else {
+          spinner.stop(
+            devDepExists
+              ? `✔ Refreshed ${origPkgName}`
+              : `✔ --save-dev ${origPkgName} to package.json`
+          )
+        }
       } catch {
         spinner.stop(
           devDepExists
@@ -235,7 +242,11 @@ async function resolveDevDependencies(packageNames) {
         spinner.message = `Refreshing ${origPkgName} from tarball...`
         try {
           await installTestNpmNodeModules({ clean: true, specs: [origPkgName] })
-          spinner.stop(`✔ Refreshed ${pkgId} from tarball`)
+          if (cliArgs.quiet) {
+            spinner.stop()
+          } else {
+            spinner.stop(`✔ Refreshed ${pkgId} from tarball`)
+          }
         } catch {
           spinner.stop(`✘ Failed to refresh ${origPkgName} from tarball`)
         }
@@ -483,11 +494,16 @@ async function linkPackages(packageNames) {
         await fs.ensureSymlink(targetPath, destPath)
       })
     }
+    // Chunk actions to process them in parallel 3 at a time.
     await pEach([...actions.values()], 3, a => a())
     await nmEditablePkgJson.save()
     linkedPackageNames.push(regPkgName)
   })
-  spinner.stop('✔ Packages linked')
+  if (cliArgs.quiet) {
+    spinner.stop()
+  } else {
+    spinner.stop('✔ Packages linked')
+  }
   return linkedPackageNames
 }
 
@@ -545,7 +561,11 @@ async function cleanupNodeWorkspaces(linkedPackageNames) {
     // Move override package from test/npm/node_modules/ to test/npm/node_workspaces/
     await fs.move(srcPath, destPath, { overwrite: true })
   })
-  spinner.stop('✔ Workspaces cleaned (so fresh and so clean, clean)')
+  if (cliArgs.quiet) {
+    spinner.stop()
+  } else {
+    spinner.stop('✔ Workspaces cleaned (so fresh and so clean, clean)')
+  }
 }
 
 async function installNodeWorkspaces() {
@@ -594,7 +614,11 @@ async function installNodeWorkspaces() {
     ).start()
     try {
       await installTestNpmNodeModules()
-      spinner.stop(`✔ Initialized ${relTestNpmNodeModulesPath}`)
+      if (cliArgs.quiet) {
+        spinner.stop()
+      } else {
+        spinner.stop(`✔ Initialized ${relTestNpmNodeModulesPath}`)
+      }
     } catch (e) {
       spinner.stop(`✘ Initialization encountered an error:`, e)
     }
@@ -611,5 +635,7 @@ async function installNodeWorkspaces() {
     await cleanupNodeWorkspaces(linkedPackageNames)
     await installNodeWorkspaces()
   }
-  console.log('Finished 🎉')
+  if (!cliArgs.quiet) {
+    console.log('Finished 🎉')
+  }
 })()

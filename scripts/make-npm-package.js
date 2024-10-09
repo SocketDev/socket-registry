@@ -422,15 +422,13 @@ function toChoice(value) {
       cwd: rootPath,
       stdio: 'inherit'
     }
-    await Promise.all([
-      runScript('update:manifest', [], spawnOptions),
-      runScript('update:package-json', [], spawnOptions),
-      runScript(
-        'update:longtask:test:npm:package-json',
-        ['--', '--add', origPkgName],
-        spawnOptions
-      )
-    ])
+    await runScript('update:manifest', [], spawnOptions)
+    await runScript('update:package-json', [], spawnOptions)
+    await runScript(
+      'update:longtask:test:npm:package-json',
+      ['--', '--quiet', '--add', origPkgName],
+      spawnOptions
+    )
   } catch (e) {
     console.log('✘ Package override finalization encountered an error:', e)
   }
