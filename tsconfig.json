@@ -9,7 +9,7 @@
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
     "isolatedModules": true,
-    "lib": [],
+    "lib": ["esnext"],
     "module": "commonjs",
     "noEmit": true,
     "noEmitOnError": true,

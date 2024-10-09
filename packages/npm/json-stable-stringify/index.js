@@ -1,18 +1,21 @@
 'use strict'
 
+const { isArray: ArrayIsArray } = Array
+const { freeze: ObjectFreeze, keys: ObjectKeys } = Object
+const { isRawJSON, stringify } = JSON
+
+const SUPPORTS_ARRAY_PROTO_TO_SORTED =
+  typeof Array.prototype.toSorted === 'function'
+const SUPPORTS_JSON_IS_RAW_JSON = typeof isRawJSON === 'function'
+
 const CYCLE_ERROR_MESSAGE = 'Converting circular structure to JSON'
 const LOOP_SENTINEL = 1_000_000
-const SORT_METHOD =
-  typeof Array.prototype.toSorted === 'function' ? 'toSorted' : 'sort'
+const SORT_METHOD = SUPPORTS_ARRAY_PROTO_TO_SORTED ? 'toSorted' : 'sort'
 const STRINGIFIED_CYCLE = '"__cycle__"'
 const STRINGIFIED_NULL = 'null'
 const TYPE_VALUE = 1
 const TYPE_OPEN = 2
 const TYPE_CLOSE = 4
-
-const { isArray: ArrayIsArray } = Array
-const { freeze: ObjectFreeze, keys: ObjectKeys } = Object
-const { stringify } = JSON
 
 let callStackSizeExceededErrorDetails
 
@@ -94,16 +97,30 @@ function stableStringifyNonRecursive(obj, cmp, cycles, replacer, space) {
       }
       throw new TypeError(CYCLE_ERROR_MESSAGE)
     }
+    const nodeIsArr = ArrayIsArray(node)
+    let keys
+    if (nodeIsArr) {
+      keys = node
+    } else {
+      const rawKeys = ObjectKeys(node)
+      const { length } = rawKeys
+      keys = length > 1 ? rawKeys[SORT_METHOD](cmp && cmp(node)) : rawKeys
+      if (
+        SUPPORTS_JSON_IS_RAW_JSON &&
+        length === 1 &&
+        keys[0] === 'rawJSON' &&
+        isRawJSON(node)
+      ) {
+        chunks.push(node.rawJSON)
+        continue
+      }
+    }
     needsComma = false
     seen.add(node)
-    const nodeIsArr = ArrayIsArray(node)
     chunks.push(nodeIsArr ? '[' : '{')
     queue.push([node, seen, TYPE_CLOSE, nodeIsArr, level])
-    const sortedKeys = nodeIsArr
-      ? node
-      : ObjectKeys(node)[SORT_METHOD](cmp && cmp(node))
-    for (let i = sortedKeys.length - 1; i >= 0; i -= 1) {
-      const k = nodeIsArr ? i : sortedKeys[i]
+    for (let i = keys.length - 1; i >= 0; i -= 1) {
+      const k = nodeIsArr ? i : keys[i]
       queue.push([
         node,
         new Set(seen),
@@ -141,11 +158,24 @@ function stableStringifyRecursive(obj, cmp, cycles, replacer, space) {
       }
       throw new TypeError(CYCLE_ERROR_MESSAGE)
     }
-    seen.add(node)
     const nodeIsArr = ArrayIsArray(node)
-    const keys = nodeIsArr
-      ? node
-      : ObjectKeys(node)[SORT_METHOD](cmp && cmp(node))
+    let keys
+    if (nodeIsArr) {
+      keys = node
+    } else {
+      const rawKeys = ObjectKeys(node)
+      const { length } = rawKeys
+      keys = length > 1 ? rawKeys[SORT_METHOD](cmp && cmp(node)) : rawKeys
+      if (
+        SUPPORTS_JSON_IS_RAW_JSON &&
+        length === 1 &&
+        keys[0] === 'rawJSON' &&
+        isRawJSON(node)
+      ) {
+        return node.rawJSON
+      }
+    }
+    seen.add(node)
     const out = []
     for (let i = 0, { length } = keys; i < length; i += 1) {
       const k = nodeIsArr ? i : keys[i]
@@ -163,11 +193,11 @@ function stableStringifyRecursive(obj, cmp, cycles, replacer, space) {
       }
     }
     seen.delete(node)
-    const indent = space ? `\n${space.repeat(level + 1)}` : ''
+    const indent = space ? `\n${space.repeat(level)}` : ''
+    const childIndent = space ? `\n${space.repeat(level + 1)}` : ''
     const openBracket = nodeIsArr ? '[' : '{'
     const closeBracket = nodeIsArr ? ']' : '}'
-    const closingIndent = space ? `\n${space.repeat(level)}` : ''
-    return `${openBracket}${indent}${out.join(`,${indent}`)}${closingIndent}${closeBracket}`
+    return `${openBracket}${childIndent}${out.join(`,${childIndent}`)}${indent}${closeBracket}`
   })({ '': obj }, '', obj, 0)
 }
 
