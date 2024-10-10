@@ -1,29 +1,29 @@
 name: Publish Packages to npm
 
 on:
- workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
- build:
-   runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-   permissions:
-     contents: read
-     id-token: write
+    permissions:
+      contents: read
+      id-token: write
 
-   steps:
-     - uses: actions/checkout@v4
-     - uses: actions/setup-node@v4
-       with:
-         node-version: '20'
-         registry-url: 'https://registry.npmjs.org'
-         cache: npm
-         scope: "@socketregistry"
-     - run: npm install -g npm@latest
-     - run: npm ci
-     - run: npm publish --provenance --workspaces --access public
-       env:
-         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-     - run: npm run update:npm:package-access
-       env:
-         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+          cache: npm
+          scope: "@socketregistry"
+      - run: npm install -g npm@latest
+      - run: npm ci
+      - run: npm run update:npm:package-publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npm run update:npm:package-access
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

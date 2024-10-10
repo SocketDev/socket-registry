@@ -16,6 +16,7 @@ const { glob: tinyGlob } = require('tinyglobby')
 
 const constants = require('@socketregistry/scripts/constants')
 const {
+  COLUMN_LIMIT,
   LICENSE_GLOB_RECURSIVE,
   NODE_MODULES_GLOB_RECURSIVE,
   NODE_WORKSPACES,
@@ -67,8 +68,6 @@ const { values: cliArgs } = util.parseArgs(
     }
   })
 )
-
-const COLUMN_LIMIT = 80
 
 const testScripts = [
   // Order is significant. First in, first tried.

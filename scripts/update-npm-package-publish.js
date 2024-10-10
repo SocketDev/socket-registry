@@ -2,11 +2,10 @@
 
 const util = require('node:util')
 
-const access = require('libnpmaccess')
-
 const constants = require('@socketregistry/scripts/constants')
-const { COLUMN_LIMIT, ENV, parseArgsConfig } = constants
+const { COLUMN_LIMIT, ENV, parseArgsConfig, rootPath } = constants
 const { joinAsList } = require('@socketregistry/scripts/utils/arrays')
+const { execNpm } = require('@socketregistry/scripts/utils/npm')
 
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 
@@ -20,8 +19,14 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
     // Lazily access constants.npmPackageNames.
     constants.npmPackageNames.map(async regPkgName => {
       try {
-        await access.setMfa(regPkgName, 'automation', {
-          '//registry.npmjs.org/:_authToken': ENV.NODE_AUTH_TOKEN
+        await execNpm(['publish', '--provenance', '--access', 'public'], {
+          cwd: rootPath,
+          stdio: 'inherit',
+          env: {
+            __proto__: null,
+            ...process.env,
+            NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
+          }
         })
       } catch {
         failures.push(regPkgName)
@@ -29,7 +34,7 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
     })
   )
   if (failures.length) {
-    const msg = '⚠️ Unable to set access for the following packages:'
+    const msg = '⚠️ Unable to publish the following packages:'
     const msgList = joinAsList(failures)
     const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
     console.log(`${msg}${separator}${msgList}`)

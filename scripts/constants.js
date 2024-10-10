@@ -64,6 +64,7 @@ function envAsString(value) {
   return typeof value === 'string' ? value : ''
 }
 
+const COLUMN_LIMIT = 80
 const EMPTY_FILE = '/* empty */\n'
 const ENV = Object.freeze({
   // CI is always set to "true" in a GitHub action.
@@ -503,6 +504,7 @@ const constants = Object.freeze(
   defineLazyGetters(
     {
       [kInternalsSymbol]: internals,
+      COLUMN_LIMIT,
       EMPTY_FILE,
       ENV,
       ESLINT_CONFIG_JS,

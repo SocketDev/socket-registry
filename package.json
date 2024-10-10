@@ -45,6 +45,7 @@
     "update:tap-config": "node ./scripts/update-tap-config.js",
     "update:npm:package-access": "node ./scripts/update-npm-package-access.js",
     "update:npm:package-json": "node ./scripts/update-npm-package-json.js",
+    "update:npm:package-publish": "node ./scripts/update-npm-package-publish.js",
     "update:npm:readmes": "node ./scripts/update-npm-readmes.js",
     "update:longtask:test:npm:package-json": "node ./scripts/update-test-npm-package-json.js"
   },
