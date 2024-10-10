@@ -50,9 +50,6 @@ async function addNpmManifestData(manifest) {
       `${origPkgName}@${nmPkgSpec}`
     )
     const { _id: nmPkgId, deprecated: nmPkgDeprecated } = nmPkgManifest
-    const { namespace: nmScope } = PackageURL.fromString(
-      `pkg:${eco}/${nmPkgId}`
-    )
     let nwPkgLicense
     await extractPackage(nmPkgId, async nmPkgPath => {
       const nmPkgJson = await readPackageJson(nmPkgPath)
@@ -75,12 +72,12 @@ async function addNpmManifestData(manifest) {
     }
     const skipTests = skipTestsByEcosystem[eco].has(regPkgName)
     const metaEntries = [
+      ['interop', interop.sort(localeCompare)],
       ['license', nwPkgLicense ?? UNLICENSED],
+      ['package', origPkgName],
       ...(nmPkgDeprecated ? [['deprecated', true]] : []),
       ...(skipTests ? [['skipTests', true]] : []),
       ...(engines ? [['engines', toSortedObject(engines)]] : []),
-      ['interop', interop.sort(localeCompare)],
-      ...(nmScope ? [['scope', nmScope]] : []),
       ...(socket ? Object.entries(socket) : [])
     ]
     const purlObj = PackageURL.fromString(`pkg:${eco}/${name}@${version}`)
