@@ -1,6 +1,7 @@
 'use strict'
 
 const { isArray: ArrayIsArray } = Array
+const { isFinite: NumberIsFinite } = Number
 const { freeze: ObjectFreeze, keys: ObjectKeys } = Object
 const { isRawJSON, stringify } = JSON
 
@@ -12,7 +13,9 @@ const CYCLE_ERROR_MESSAGE = 'Converting circular structure to JSON'
 const LOOP_SENTINEL = 1_000_000
 const SORT_METHOD = SUPPORTS_ARRAY_PROTO_TO_SORTED ? 'toSorted' : 'sort'
 const STRINGIFIED_CYCLE = '"__cycle__"'
+const STRINGIFIED_FALSE = 'false'
 const STRINGIFIED_NULL = 'null'
+const STRINGIFIED_TRUE = 'true'
 const TYPE_VALUE = 1
 const TYPE_OPEN = 2
 const TYPE_CLOSE = 4
@@ -39,10 +42,10 @@ function getCallStackSizeExceededErrorDetails() {
 }
 
 function stableStringifyNonRecursive(obj, cmp, cycles, replacer, space) {
-  const chunks = []
-  const queue = [[null, new Set(), TYPE_OPEN, false, 0, '', obj]]
+  let result = ''
   let depth = 0
   let needsComma = false
+  const queue = [[undefined, new Set(), TYPE_OPEN, false, 0, '', obj]]
   while (queue.length > 0) {
     if (depth++ === LOOP_SENTINEL) {
       throw new Error(
@@ -54,7 +57,7 @@ function stableStringifyNonRecursive(obj, cmp, cycles, replacer, space) {
     const indent = space ? `\n${space.repeat(level)}` : ''
     if (type === TYPE_CLOSE) {
       seen.delete(parent)
-      chunks.push(`${indent}${parentIsArr ? ']' : '}'}`)
+      result = `${result}${indent}${parentIsArr ? ']' : '}'}`
       needsComma = true
       continue
     }
@@ -67,32 +70,39 @@ function stableStringifyNonRecursive(obj, cmp, cycles, replacer, space) {
     if (node === undefined && !parentIsArr) {
       continue
     }
-    if (parent !== null) {
+    if (parent) {
       if (needsComma) {
-        chunks.push(',')
+        result = `${result},`
       }
       if (parentIsArr) {
-        chunks.push(indent)
+        result = `${result}${indent}`
       } else {
-        chunks.push(`${indent}${stringify(key)}${space ? ': ' : ':'}`)
+        result = `${result}${indent}${stringify(key)}${space ? ': ' : ':'}`
       }
     }
     needsComma = true
     if (parentIsArr && node === undefined) {
-      chunks.push(STRINGIFIED_NULL)
+      result = `${result}${STRINGIFIED_NULL}`
       continue
     }
     if (node === null) {
-      chunks.push(STRINGIFIED_NULL)
+      result = `${result}${STRINGIFIED_NULL}`
       continue
     }
     if (typeof node !== 'object') {
-      chunks.push(stringify(node))
+      if (typeof node === 'boolean') {
+        result = `${result}${node ? STRINGIFIED_TRUE : STRINGIFIED_FALSE}`
+      } else {
+        result =
+          typeof node === 'number' && NumberIsFinite(node)
+            ? `${result}${node}`
+            : `${result}${stringify(node)}`
+      }
       continue
     }
     if (seen.has(node)) {
       if (cycles) {
-        chunks.push(STRINGIFIED_CYCLE)
+        result = `${result}${STRINGIFIED_CYCLE}`
         continue
       }
       throw new TypeError(CYCLE_ERROR_MESSAGE)
@@ -111,13 +121,13 @@ function stableStringifyNonRecursive(obj, cmp, cycles, replacer, space) {
         keys[0] === 'rawJSON' &&
         isRawJSON(node)
       ) {
-        chunks.push(node.rawJSON)
+        result = `${result}${node.rawJSON}`
         continue
       }
     }
     needsComma = false
+    result = `${result}${nodeIsArr ? '[' : '{'}`
     seen.add(node)
-    chunks.push(nodeIsArr ? '[' : '{')
     queue.push([node, seen, TYPE_CLOSE, nodeIsArr, level])
     for (let i = keys.length - 1; i >= 0; i -= 1) {
       const k = nodeIsArr ? i : keys[i]
@@ -132,7 +142,7 @@ function stableStringifyNonRecursive(obj, cmp, cycles, replacer, space) {
       ])
     }
   }
-  return chunks.join('')
+  return result
 }
 
 function stableStringifyRecursive(obj, cmp, cycles, replacer, space) {
@@ -150,7 +160,12 @@ function stableStringifyRecursive(obj, cmp, cycles, replacer, space) {
       return STRINGIFIED_NULL
     }
     if (typeof node !== 'object') {
-      return stringify(node)
+      if (typeof node === 'boolean') {
+        return node ? STRINGIFIED_TRUE : STRINGIFIED_FALSE
+      }
+      return typeof node === 'number' && NumberIsFinite(node)
+        ? `${node}`
+        : stringify(node)
     }
     if (seen.has(node)) {
       if (cycles) {
@@ -176,28 +191,27 @@ function stableStringifyRecursive(obj, cmp, cycles, replacer, space) {
       }
     }
     seen.add(node)
-    const out = []
-    for (let i = 0, { length } = keys; i < length; i += 1) {
+    const indent = space ? `\n${space.repeat(level)}` : ''
+    const childIndent = space ? `${indent}${space}` : ''
+    const joiner = `,${childIndent}`
+    let result = `${nodeIsArr ? '[' : '{'}${childIndent}`
+    for (let i = 0, j = 0, { length } = keys; i < length; i += 1) {
       const k = nodeIsArr ? i : keys[i]
       const v = recursive(node, k, node[k], level + 1)
       if (v == undefined) {
         if (nodeIsArr) {
-          out.push(STRINGIFIED_NULL)
+          result = `${result}${j ? joiner : ''}${STRINGIFIED_NULL}`
+          j = 1
         }
       } else {
-        if (nodeIsArr) {
-          out.push(v)
-        } else {
-          out.push(`${stringify(k)}:${space ? ' ' : ''}${v}`)
-        }
+        result = nodeIsArr
+          ? `${result}${j ? joiner : ''}${v}`
+          : `${result}${j ? joiner : ''}${stringify(k)}:${space ? ' ' : ''}${v}`
+        j = 1
       }
     }
     seen.delete(node)
-    const indent = space ? `\n${space.repeat(level)}` : ''
-    const childIndent = space ? `\n${space.repeat(level + 1)}` : ''
-    const openBracket = nodeIsArr ? '[' : '{'
-    const closeBracket = nodeIsArr ? ']' : '}'
-    return `${openBracket}${childIndent}${out.join(`,${childIndent}`)}${indent}${closeBracket}`
+    return `${result}${indent}${nodeIsArr ? ']' : '}'}`
   })({ '': obj }, '', obj, 0)
 }
 
