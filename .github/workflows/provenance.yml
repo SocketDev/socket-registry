@@ -1,4 +1,4 @@
-name: Publish Package to npmjs
+name: Publish Package to npm
 
 on:
  workflow_dispatch:
@@ -22,5 +22,8 @@ jobs:
      - run: npm install -g npm@latest
      - run: npm ci
      - run: npm publish --provenance --workspaces --access public
+       env:
+         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+     - run: npm run update:npm:package-access
        env:
          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
