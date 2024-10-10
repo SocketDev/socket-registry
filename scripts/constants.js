@@ -53,21 +53,27 @@ function defineLazyGetters(object, getterObj) {
   return object
 }
 
-function envAsBool(value) {
+function envAsBoolean(value) {
   return (
     typeof value === 'string' &&
     (value === '1' || value.toLowerCase() === 'true')
   )
 }
 
+function envAsString(value) {
+  return typeof value === 'string' ? value : ''
+}
+
 const EMPTY_FILE = '/* empty */\n'
 const ENV = Object.freeze({
   // CI is always set to "true" in a GitHub action.
   // https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables
-  CI: envAsBool(process.env.CI),
+  CI: envAsBoolean(process.env.CI),
+  // .github/workflows/provenance.yml defines this.
+  NODE_AUTH_TOKEN: envAsString(process.env.NODE_AUTH_TOKEN),
   // PRE_COMMIT is set to "1" by our "test-pre-commit" script run by the
   // .husky/pre-commit hook.
-  PRE_COMMIT: envAsBool(process.env.PRE_COMMIT)
+  PRE_COMMIT: envAsBoolean(process.env.PRE_COMMIT)
 })
 const ESLINT_CONFIG_JS = 'eslint.config.js'
 const ESNEXT = 'esnext'

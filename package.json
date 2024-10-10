@@ -86,6 +86,7 @@
     "fs-extra": "^11.2.0",
     "husky": "^9.1.6",
     "knip": "^5.30.6",
+    "libnpmaccess": "^9.0.0",
     "make-fetch-happen": "^14.0.1",
     "normalize-package-data": "^7.0.0",
     "npm-package-arg": "^12.0.0",
