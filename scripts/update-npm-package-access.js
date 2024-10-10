@@ -1,12 +1,12 @@
 'use strict'
 
+const path = require('node:path')
 const util = require('node:util')
 
-const access = require('libnpmaccess')
-
 const constants = require('@socketregistry/scripts/constants')
-const { COLUMN_LIMIT, ENV, parseArgsConfig } = constants
+const { COLUMN_LIMIT, ENV, npmPackagesPath, parseArgsConfig } = constants
 const { joinAsList } = require('@socketregistry/scripts/utils/arrays')
+const { execNpm } = require('@socketregistry/scripts/utils/npm')
 
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 
@@ -19,9 +19,16 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
   await Promise.all(
     // Lazily access constants.npmPackageNames.
     constants.npmPackageNames.map(async regPkgName => {
+      const pkgPath = path.join(npmPackagesPath, regPkgName)
       try {
-        await access.setMfa(regPkgName, 'automation', {
-          '//registry.npmjs.org/:_authToken': ENV.NODE_AUTH_TOKEN
+        await execNpm(['access', 'set', 'mfa=automation'], {
+          cwd: pkgPath,
+          stdio: 'inherit',
+          env: {
+            __proto__: null,
+            ...process.env,
+            NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
+          }
         })
       } catch {
         failures.push(regPkgName)

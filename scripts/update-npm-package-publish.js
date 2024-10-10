@@ -30,8 +30,13 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
             NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
           }
         })
-      } catch {
-        failures.push(regPkgName)
+      } catch (e) {
+        const stderr = e?.stderr ?? ''
+        const isPublishOverError =
+          stderr.includes('code E403') && stderr.includes('cannot publish over')
+        if (!isPublishOverError) {
+          failures.push(regPkgName)
+        }
       }
     })
   )
