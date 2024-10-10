@@ -37,7 +37,6 @@ const { arrayUnique } = require('@socketregistry/scripts/utils/arrays')
 const {
   isSymbolicLinkSync,
   remove,
-  removeSync,
   uniqueSync
 } = require('@socketregistry/scripts/utils/fs')
 const { execNpm } = require('@socketregistry/scripts/utils/npm')
@@ -45,13 +44,12 @@ const { merge } = require('@socketregistry/scripts/utils/objects')
 const {
   isSubpathExports,
   readPackageJson,
-  readPackageJsonSync,
   resolveGitHubTgzUrl,
   resolveOriginalPackageName,
   resolvePackageJsonEntryExports
 } = require('@socketregistry/scripts/utils/packages')
 const { splitPath } = require('@socketregistry/scripts/utils/path')
-const { pEach } = require('@socketregistry/scripts/utils/promises')
+const { pEach, pFilter } = require('@socketregistry/scripts/utils/promises')
 const { localeCompare } = require('@socketregistry/scripts/utils/sorts')
 const { Spinner } = require('@socketregistry/scripts/utils/spinner')
 const { isNonEmptyString } = require('@socketregistry/scripts/utils/strings')
@@ -66,6 +64,8 @@ const { values: cliArgs } = util.parseArgs(
     }
   })
 )
+
+const COLUMN_LIMIT = 80
 
 const testScripts = [
   // Order is significant. First in, first tried.
@@ -119,6 +119,16 @@ async function installTestNpmNodeModules(options) {
   return await execNpm(args, { cwd: testNpmPath })
 }
 
+function joinAsList(arr) {
+  const { length } = arr
+  if (length === 0) {
+    return ''
+  }
+  return length === 1
+    ? arr[0]
+    : `${arr.slice(0, -1).join(', ')} and ${arr.at(-1)}`
+}
+
 const editablePackageJsonCache = new Map()
 
 const readCachedEditablePackageJson = async filepath_ => {
@@ -136,133 +146,148 @@ function toWorkspaceEntry(regPkgName) {
   return `${NODE_WORKSPACES}/${regPkgName}`
 }
 
-async function resolveDevDependencies(packageNames) {
-  // Resolve test/npm/package.json "devDependencies" data.
-  const unresolved = []
-  // Chunk package names to process them in parallel 3 at a time.
-  await pEach(packageNames, 3, async regPkgName => {
-    const origPkgName = resolveOriginalPackageName(regPkgName)
-    // Read synchronously so we know it is up to date.
-    let testNpmPkgJson = readPackageJsonSync(testNpmPkgJsonPath)
-    const devDepSpec = testNpmPkgJson.devDependencies?.[origPkgName]
-    const devDepExists = typeof devDepSpec === 'string'
+async function installMissingPackages(packageNames) {
+  const originalNames = packageNames.map(resolveOriginalPackageName)
+  const msg = 'Refreshing'
+  const msgList = joinAsList(originalNames)
+  const spinner = new Spinner(
+    msg.length + msgList.length + 3 > COLUMN_LIMIT
+      ? `${msg}:\n${msgList}`
+      : `${msg} ${msgList}...`
+  ).start()
+  await Promise.all(
+    originalNames.map(n => remove(path.join(testNpmNodeModulesPath, n)))
+  )
+  try {
+    await installTestNpmNodeModules({ clean: true, specs: originalNames })
+    if (cliArgs.quiet) {
+      spinner.stop()
+    } else {
+      spinner.stop(`✔ Refreshed package${originalNames.length > 1 ? 's' : ''}`)
+    }
+  } catch {
+    spinner.stop('✘ Failed to refresh packages')
+  }
+}
+
+async function installMissingPackageTests(packageNames) {
+  const originalNames = packageNames.map(resolveOriginalPackageName)
+  const resolvable = []
+  const unresolvable = []
+  for (const origPkgName of originalNames) {
+    // When tests aren't included in the installed package we convert the
+    // package version to a GitHub release tag, then we convert the release
+    // tag to a sha, then finally we resolve the URL of the GitHub tarball
+    // to use in place of the version range for its devDependencies entry.
     const nmPkgPath = path.join(testNpmNodeModulesPath, origPkgName)
-    const nmPkgPathExists = fs.existsSync(nmPkgPath)
-    // Missing packages can occur if the script is stopped part way through
-    if (!devDepExists || !nmPkgPathExists) {
-      // A package we expect to be there is missing or corrupt. Install it.
-      if (nmPkgPathExists) {
-        // Remove synchronously to continue assumption that testNpmPkgJson is up to date.
-        removeSync(nmPkgPath)
-      }
-      const spinner = new Spinner(
-        `${devDepExists ? 'Refreshing' : 'Adding'} ${origPkgName}...`
-      ).start()
-      try {
-        await installTestNpmNodeModules({ clean: true, specs: [origPkgName] })
-        // Reload testNpmPkgJson because it is now out of date.
-        testNpmPkgJson = readPackageJsonSync(testNpmPkgJsonPath)
-        if (cliArgs.quiet) {
-          spinner.stop()
-        } else {
-          spinner.stop(
-            devDepExists
-              ? `✔ Refreshed ${origPkgName}`
-              : `✔ --save-dev ${origPkgName} to package.json`
-          )
+    const {
+      content: { version: nmPkgVer }
+    } = await readCachedEditablePackageJson(nmPkgPath)
+    const pkgId = `${origPkgName}@${nmPkgVer}`
+    const spinner = new Spinner(
+      `Resolving GitHub tarball URL for ${pkgId}...`
+    ).start()
+    const gitHubTgzUrl = await resolveGitHubTgzUrl(pkgId, nmPkgPath)
+    if (gitHubTgzUrl) {
+      // Replace the dev dep version range with the tarball URL.
+      const testNpmEditablePkgJson = await readPackageJson(testNpmPkgJsonPath, {
+        editable: true
+      })
+      testNpmEditablePkgJson.update({
+        devDependencies: {
+          ...testNpmEditablePkgJson.content.devDependencies,
+          [origPkgName]: gitHubTgzUrl
         }
-      } catch {
-        spinner.stop(
-          devDepExists
-            ? `✘ Failed to refresh ${origPkgName}`
-            : `✘ Failed to --save-dev ${origPkgName} to package.json`
-        )
-      }
+      })
+      await testNpmEditablePkgJson.save()
+      resolvable.push(origPkgName)
+    } else {
+      // Collect package names we failed to resolve tarballs for.
+      unresolvable.push(origPkgName)
     }
-    const parsedSpec = npmPackageArg.resolve(
-      origPkgName,
-      devDepExists ? devDepSpec : testNpmPkgJson.devDependencies?.[origPkgName],
-      testNpmNodeModulesPath
-    )
-    const isTarball =
-      parsedSpec.type === 'remote' && !!parsedSpec.saveSpec?.endsWith('.tar.gz')
-    const isGithubUrl =
-      parsedSpec.type === 'git' &&
-      parsedSpec.hosted?.domain === 'github.com' &&
-      isNonEmptyString(parsedSpec.gitCommittish)
-    if (
-      // We don't need to resolve the tarball URL if the devDependencies
-      // value is already one.
-      !isTarball &&
-      // We'll convert the easier to read GitHub URL with a #tag into the tarball URL.
-      (isGithubUrl ||
-        // Search for the presence of test files anywhere in the package.
-        // The glob pattern ".{[cm],}[jt]s" matches .js, .cjs, .cts, .mjs, .mts, .ts file extensions.
-        (
-          await tinyGlob(
-            [
-              'test{s,}/*',
-              '**/test{s,}{.{[cm],}[jt]s,}',
-              '**/*.{spec,test}{.{[cm],}[jt]s}'
-            ],
-            {
-              cwd: nmPkgPath,
-              onlyFiles: false
-            }
-          )
-        ).length === 0)
-    ) {
-      // When tests aren't included in the installed package we convert the
-      // package version to a GitHub release tag, then we convert the release
-      // tag to a sha, then finally we resolve the URL of the GitHub tarball
-      // to use in place of the version range for its devDependencies entry.
-      const nmEditablePkgJson = await readCachedEditablePackageJson(nmPkgPath)
-      const { version: nmPkgVer } = nmEditablePkgJson.content
-      const pkgId = `${origPkgName}@${nmPkgVer}`
-      const spinner = new Spinner(
-        `Resolving GitHub tarball URL for ${pkgId}...`
-      ).start()
-      const gitHubTgzUrl = await resolveGitHubTgzUrl(pkgId, nmPkgPath)
-      if (gitHubTgzUrl) {
-        // Replace the dev dep version range with the tarball URL.
-        const testNpmEditablePkgJson = readPackageJsonSync(testNpmPkgJsonPath, {
-          editable: true
-        })
-        testNpmEditablePkgJson.update({
-          devDependencies: {
-            ...testNpmEditablePkgJson.content.devDependencies,
-            [origPkgName]: gitHubTgzUrl
-          }
-        })
-        await testNpmEditablePkgJson.save()
-        spinner.message = `Refreshing ${origPkgName} from tarball...`
-        try {
-          await installTestNpmNodeModules({ clean: true, specs: [origPkgName] })
-          if (cliArgs.quiet) {
-            spinner.stop()
-          } else {
-            spinner.stop(`✔ Refreshed ${pkgId} from tarball`)
-          }
-        } catch {
-          spinner.stop(`✘ Failed to refresh ${origPkgName} from tarball`)
-        }
-      } else {
-        // Collect the names and versions of packages we failed to resolve
-        // tarballs for.
-        unresolved.push({ name: origPkgName, version: nmPkgVer })
+    spinner.stop()
+  }
+  if (resolvable.length) {
+    const spinner = new Spinner(
+      `Refreshing ${resolvable.join(', ')} from tarball${resolvable.length > 1 ? 's' : ''}...`
+    ).start()
+    try {
+      await installTestNpmNodeModules({ clean: true, specs: resolvable })
+      if (cliArgs.quiet) {
         spinner.stop()
+      } else {
+        spinner.stop('✔ Refreshed packages from tarball')
       }
+    } catch {
+      spinner.stop('✘ Failed to refresh packages from tarball')
     }
-  })
-  if (unresolved.length) {
+  }
+  if (unresolvable.length) {
     const msg = '⚠️ Unable to resolve tests for the following packages:'
-    const unresolvedNames = unresolved.map(u => u.name)
-    const unresolvedList =
-      unresolvedNames.length === 1
-        ? unresolvedNames[0]
-        : `${unresolvedNames.slice(0, -1).join(', ')} and ${unresolvedNames.at(-1)}`
-    const separator = msg.length + unresolvedList.length > 80 ? '\n' : ' '
-    console.log(`${msg}${separator}${unresolvedList}`)
+    const msgList = joinAsList(unresolvable)
+    const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
+    console.log(`${msg}${separator}${msgList}`)
+  }
+}
+
+async function resolveDevDependencies(packageNames) {
+  let { devDependencies } = await readPackageJson(testNpmPkgJsonPath)
+  const missingPackages = packageNames.filter(regPkgName => {
+    const origPkgName = resolveOriginalPackageName(regPkgName)
+    // Missing packages can occur if the script is stopped part way through
+    return (
+      typeof devDependencies?.[origPkgName] !== 'string' ||
+      !fs.existsSync(path.join(testNpmNodeModulesPath, origPkgName))
+    )
+  })
+  if (missingPackages.length) {
+    await installMissingPackages(missingPackages)
+  }
+  ;({ devDependencies } = await readPackageJson(testNpmPkgJsonPath))
+  // Chunk package names to process them in parallel 3 at a time.
+  const missingPackageTests = await pFilter(
+    packageNames,
+    3,
+    async regPkgName => {
+      const origPkgName = resolveOriginalPackageName(regPkgName)
+      const parsedSpec = npmPackageArg.resolve(
+        origPkgName,
+        devDependencies[origPkgName],
+        testNpmNodeModulesPath
+      )
+      const isTarball =
+        parsedSpec.type === 'remote' &&
+        !!parsedSpec.saveSpec?.endsWith('.tar.gz')
+      const isGithubUrl =
+        parsedSpec.type === 'git' &&
+        parsedSpec.hosted?.domain === 'github.com' &&
+        isNonEmptyString(parsedSpec.gitCommittish)
+      return (
+        // We don't need to resolve the tarball URL if the devDependencies
+        // value is already one.
+        !isTarball &&
+        // We'll convert the easier to read GitHub URL with a #tag into the tarball URL.
+        (isGithubUrl ||
+          // Search for the presence of test files anywhere in the package.
+          // The glob pattern ".{[cm],}[jt]s" matches .js, .cjs, .cts, .mjs, .mts, .ts file extensions.
+          (
+            await tinyGlob(
+              [
+                'test{s,}/*',
+                '**/test{s,}{.{[cm],}[jt]s,}',
+                '**/*.{spec,test}{.{[cm],}[jt]s}'
+              ],
+              {
+                cwd: path.join(testNpmNodeModulesPath, origPkgName),
+                onlyFiles: false
+              }
+            )
+          ).length === 0)
+      )
+    }
+  )
+  if (missingPackageTests.length) {
+    await installMissingPackageTests(missingPackageTests)
   }
 }
 

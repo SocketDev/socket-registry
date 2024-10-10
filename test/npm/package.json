@@ -117,7 +117,7 @@
     "string.prototype.repeat": "^1.0.0",
     "string.prototype.replaceall": "^1.0.10",
     "string.prototype.split": "^1.0.9",
-    "string.prototype.startswith": "^1.0.0",
+    "string.prototype.startswith": "^1.0.1",
     "string.prototype.trim": "^1.2.9",
     "string.prototype.trimend": "^1.0.8",
     "string.prototype.trimleft": "^2.1.3",
