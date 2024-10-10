@@ -64,7 +64,7 @@ function prepareTemplate(content) {
 async function getLicenseActions(pkgPath) {
   const licenseData = {
     __proto__: null,
-    license: LICENSE_CONTENT.trim()
+    license: LICENSE_CONTENT
   }
   const actions = []
   for (const filepath of await globLicenses(pkgPath, { recursive: true })) {
