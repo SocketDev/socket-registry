@@ -7,6 +7,6 @@
     "@socketsecurity/registry": "*",
     "fast-json-stable-stringify": "^2.1.0",
     "json-stable-stringify": "^1.1.1",
-    "tinybench": "*"
+    "tinybench": "^2.9.0"
   }
 }
