@@ -144,7 +144,14 @@ function configs(sourceType) {
         'n/no-unpublished-bin': ['error'],
         'n/no-unsupported-features/node-builtins': [
           'error',
-          { ignores: ['buffer.resolveObjectURL', 'fetch'], version: nodeRange }
+          {
+            ignores: [
+              'buffer.resolveObjectURL',
+              'module.enableCompileCache',
+              'fetch'
+            ],
+            version: nodeRange
+          }
         ],
         'n/prefer-node-protocol': ['error'],
         'no-empty': ['error', { allowEmptyCatch: true }],
