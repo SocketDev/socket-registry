@@ -4,7 +4,8 @@ const path = require('node:path')
 const util = require('node:util')
 
 const constants = require('@socketregistry/scripts/constants')
-const { COLUMN_LIMIT, ENV, npmPackagesPath, parseArgsConfig } = constants
+const { COLUMN_LIMIT, ENV, PACKAGE_SCOPE, npmPackagesPath, parseArgsConfig } =
+  constants
 const { joinAsList } = require('@socketregistry/scripts/utils/arrays')
 const { execNpm } = require('@socketregistry/scripts/utils/npm')
 
@@ -21,17 +22,22 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
     constants.npmPackageNames.map(async regPkgName => {
       const pkgPath = path.join(npmPackagesPath, regPkgName)
       try {
-        await execNpm(['access', 'set', 'mfa=automation'], {
-          cwd: pkgPath,
-          stdio: 'inherit',
-          env: {
-            __proto__: null,
-            ...process.env,
-            NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
+        const { stdout } = await execNpm(
+          ['access', 'set', 'mfa=automation', `${PACKAGE_SCOPE}/${regPkgName}`],
+          {
+            cwd: pkgPath,
+            stdio: 'pipe',
+            env: {
+              __proto__: null,
+              ...process.env,
+              NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
+            }
           }
-        })
-      } catch {
+        )
+        console.log(stdout)
+      } catch (e) {
         failures.push(regPkgName)
+        console.log(e)
       }
     })
   )

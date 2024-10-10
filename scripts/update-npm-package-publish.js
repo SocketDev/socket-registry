@@ -21,21 +21,26 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
     constants.npmPackageNames.map(async regPkgName => {
       const pkgPath = path.join(npmPackagesPath, regPkgName)
       try {
-        await execNpm(['publish', '--provenance', '--access', 'public'], {
-          cwd: pkgPath,
-          stdio: 'inherit',
-          env: {
-            __proto__: null,
-            ...process.env,
-            NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
+        const { stdout } = await execNpm(
+          ['publish', '--provenance', '--access', 'public'],
+          {
+            cwd: pkgPath,
+            stdio: 'pipe',
+            env: {
+              __proto__: null,
+              ...process.env,
+              NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
+            }
           }
-        })
+        )
+        console.log(stdout)
       } catch (e) {
         const stderr = e?.stderr ?? ''
         const isPublishOverError =
           stderr.includes('code E403') && stderr.includes('cannot publish over')
         if (!isPublishOverError) {
           failures.push(regPkgName)
+          console.log(stderr)
         }
       }
     })
