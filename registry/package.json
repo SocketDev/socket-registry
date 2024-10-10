@@ -1,8 +1,8 @@
 {
   "name": "@socketsecurity/registry",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
-  "description": "Socket.dev registry helpers and metadata",
+  "description": "Socket.dev registry helpers methods and metadata",
   "keywords": [
     "Socket.dev"
   ],
@@ -12,16 +12,23 @@
     "directory": "registry"
   },
   "exports": {
-    ".": "./index.js",
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
     "./manifest.json": "./manifest.json",
     "./package.json": "./package.json"
   },
   "sideEffects": false,
+  "dependencies": {
+    "packageurl-js": "^2.0.1"
+  },
   "engines": {
     "node": ">=18.20.4"
   },
   "files": [
-    "*.js",
+    "*.d.ts",
+    "*.{c,}js",
     "*.json"
   ]
 }

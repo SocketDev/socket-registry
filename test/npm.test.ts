@@ -28,8 +28,6 @@ import {
   // @ts-ignore
 } from '@socketregistry/scripts/utils/git'
 // @ts-ignore
-import { getManifestData } from '@socketregistry/scripts/utils/manifest'
-// @ts-ignore
 import { runScript } from '@socketregistry/scripts/utils/npm'
 import {
   resolveOriginalPackageName
@@ -37,6 +35,7 @@ import {
 } from '@socketregistry/scripts/utils/packages'
 // @ts-ignore
 import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
+import { getManifestData } from '@socketsecurity/registry'
 
 // Pass args as tap --test-arg:
 // npm run test:unit ./test/npm.test.ts -- --test-arg="--force"
@@ -72,7 +71,7 @@ describe(eco, { skip: !packageNames.length }, () => {
     const skip =
       !nwPkgJson.scripts?.test ||
       (WIN_32 &&
-        !manifestData.interop.includes('browserify') &&
+        !manifestData?.interop.includes('browserify') &&
         !win32EnsureTestsByEcosystem?.[eco].has(origPkgName)) ||
       (isNonEmptyString(nodeRange) &&
         !semver.satisfies(NODE_VERSION, nodeRange))

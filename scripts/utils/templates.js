@@ -22,7 +22,6 @@ const {
   TEMPLATE_ES_SHIM_STATIC_METHOD,
   npmTemplatesPath
 } = constants
-const { getManifestData } = require('@socketregistry/scripts/utils//manifest')
 const { globLicenses } = require('@socketregistry/scripts/utils/globs')
 const { isObjectObject } = require('@socketregistry/scripts/utils/objects')
 const {
@@ -30,6 +29,7 @@ const {
   resolveOriginalPackageName
 } = require('@socketregistry/scripts/utils/packages')
 const { prettierFormat } = require('@socketregistry/scripts/utils/strings')
+const { getManifestData } = require('@socketsecurity/registry')
 
 const eta = new Eta()
 

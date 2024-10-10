@@ -29,8 +29,6 @@ import {
   // @ts-ignore
 } from '@socketregistry/scripts/utils/git'
 // @ts-ignore
-import { getManifestData } from '@socketregistry/scripts/utils/manifest'
-// @ts-ignore
 import { isObjectObject } from '@socketregistry/scripts/utils/objects'
 import {
   findTypesForSubpath,
@@ -46,6 +44,7 @@ import { trimLeadingDotSlash } from '@socketregistry/scripts/utils/path'
 import { localeCompare } from '@socketregistry/scripts/utils/sorts'
 // @ts-ignore
 import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
+import { getManifestData } from '@socketsecurity/registry'
 
 // Pass args as tap --test-arg:
 // npm run test:unit ./test/packages.test.ts -- --test-arg="--force"
