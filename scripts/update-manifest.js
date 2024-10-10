@@ -68,7 +68,12 @@ async function addNpmManifestData(manifest) {
     if (isEsm) {
       interop.push('esm')
     }
-    const isBrowser = !isEsm && !!(entryExports?.node && entryExports?.default)
+    const isBrowser =
+      !isEsm &&
+      !!(
+        (entryExports?.node && entryExports?.default) ||
+        (entryExports?.['.']?.node && entryExports?.['.']?.default)
+      )
     if (isBrowser) {
       interop.push('browserify')
     }

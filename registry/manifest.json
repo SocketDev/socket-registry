@@ -739,7 +739,7 @@
     [
       "pkg:npm/%40socketregistry/json-stable-stringify@1.0.1",
       {
-        "categories": ["cleanup", "speedup"],
+        "categories": ["cleanup", "levelup", "speedup"],
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",

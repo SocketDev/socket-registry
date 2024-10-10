@@ -17,20 +17,23 @@
     "lockb": "./cli.cjs"
   },
   "exports": {
-    "node": {
-      "module-sync": {
-        "types": "./index.d.ts",
-        "default": "./index.js"
+    ".": {
+      "node": {
+        "module-sync": {
+          "types": "./index.d.ts",
+          "default": "./index.js"
+        },
+        "default": {
+          "types": "./index.d.ts",
+          "default": "./index.cjs"
+        }
       },
       "default": {
         "types": "./index.d.ts",
-        "default": "./index.cjs"
+        "default": "./index.js"
       }
     },
-    "default": {
-      "types": "./index.d.ts",
-      "default": "./index.js"
-    }
+    "./package.json": "./package.json"
   },
   "sideEffects": false,
   "engines": {
