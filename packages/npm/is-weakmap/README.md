@@ -4,8 +4,9 @@
 [![CI - @socketregistry/is-weakmap](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
-> [`is-weakmap`](https://www.npmjs.com/package/is-weakmap).
+> A tested zero dependency drop-in replacement of
+> [`is-weakmap`](https://www.npmjs.com/package/is-weakmap) complete with
+> TypeScript types.
 
 ## Installation
 

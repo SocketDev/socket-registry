@@ -4,8 +4,9 @@
 [![CI - @socketregistry/string.prototype.endswith](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
-> [`string.prototype.endswith`](https://www.npmjs.com/package/string.prototype.endswith).
+> A tested zero dependency drop-in replacement of
+> [`string.prototype.endswith`](https://www.npmjs.com/package/string.prototype.endswith)
+> complete with TypeScript types.
 
 ## Installation
 

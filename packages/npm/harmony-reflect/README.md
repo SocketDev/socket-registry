@@ -4,8 +4,9 @@
 [![CI - @socketregistry/harmony-reflect](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
-> [`harmony-reflect`](https://www.npmjs.com/package/harmony-reflect).
+> A tested zero dependency drop-in replacement of
+> [`harmony-reflect`](https://www.npmjs.com/package/harmony-reflect) complete
+> with TypeScript types.
 
 ## Installation
 

@@ -4,8 +4,9 @@
 [![CI - @socketregistry/deep-equal](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A low dependency drop-in replacement of
-> [`deep-equal`](https://www.npmjs.com/package/deep-equal).
+> A tested low dependency drop-in replacement of
+> [`deep-equal`](https://www.npmjs.com/package/deep-equal) complete with
+> TypeScript types.
 
 ## Installation
 

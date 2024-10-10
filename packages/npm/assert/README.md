@@ -4,8 +4,9 @@
 [![CI - @socketregistry/assert](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A low dependency drop-in replacement of
-> [`assert`](https://www.npmjs.com/package/assert).
+> A tested low dependency drop-in replacement of
+> [`assert`](https://www.npmjs.com/package/assert) complete with TypeScript
+> types.
 
 ## Installation
 

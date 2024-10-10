@@ -19,9 +19,13 @@ function joinAsList(arr) {
   if (length === 0) {
     return ''
   }
-  return length === 1
-    ? arr[0]
-    : `${arr.slice(0, -1).join(', ')} and ${arr.at(-1)}`
+  if (length === 1) {
+    return arr[0]
+  }
+  if (length === 2) {
+    return `${arr[0]} and ${arr[1]}`
+  }
+  return `${arr.slice(0, -1).join(', ')}, and ${arr.at(-1)}`
 }
 
 module.exports = {

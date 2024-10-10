@@ -4,8 +4,9 @@
 [![CI - @socketregistry/indent-string](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency CommonJS compatible drop-in replacement of
-> [`indent-string`](https://www.npmjs.com/package/indent-string).
+> A tested zero dependency CJS/ESM compatible drop-in replacement of
+> [`indent-string`](https://www.npmjs.com/package/indent-string) complete with
+> TypeScript types.
 
 ## Installation
 

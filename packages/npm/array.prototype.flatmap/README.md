@@ -4,8 +4,9 @@
 [![CI - @socketregistry/array.prototype.flatmap](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
-> [`array.prototype.flatmap`](https://www.npmjs.com/package/array.prototype.flatmap).
+> A tested zero dependency drop-in replacement of
+> [`array.prototype.flatmap`](https://www.npmjs.com/package/array.prototype.flatmap)
+> complete with TypeScript types.
 
 ## Installation
 

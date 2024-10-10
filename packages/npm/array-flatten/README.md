@@ -4,8 +4,9 @@
 [![CI - @socketregistry/array-flatten](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
-> [`array-flatten`](https://www.npmjs.com/package/array-flatten).
+> A tested zero dependency drop-in replacement of
+> [`array-flatten`](https://www.npmjs.com/package/array-flatten) complete with
+> TypeScript types.
 
 ## Installation
 

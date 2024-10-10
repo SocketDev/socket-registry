@@ -4,8 +4,9 @@
 [![CI - @socketregistry/string.prototype.padstart](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
-> [`string.prototype.padstart`](https://www.npmjs.com/package/string.prototype.padstart).
+> A tested zero dependency drop-in replacement of
+> [`string.prototype.padstart`](https://www.npmjs.com/package/string.prototype.padstart)
+> complete with TypeScript types.
 
 ## Installation
 

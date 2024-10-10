@@ -4,8 +4,9 @@
 [![CI - @socketregistry/string.prototype.repeat](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
-> [`string.prototype.repeat`](https://www.npmjs.com/package/string.prototype.repeat).
+> A tested zero dependency drop-in replacement of
+> [`string.prototype.repeat`](https://www.npmjs.com/package/string.prototype.repeat)
+> complete with TypeScript types.
 
 ## Installation
 

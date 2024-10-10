@@ -4,8 +4,9 @@
 [![CI - @socketregistry/isarray](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
-> [`isarray`](https://www.npmjs.com/package/isarray).
+> A tested zero dependency drop-in replacement of
+> [`isarray`](https://www.npmjs.com/package/isarray) complete with TypeScript
+> types.
 
 ## Installation
 

@@ -4,8 +4,9 @@
 [![CI - @socketregistry/is-array-buffer](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
-> [`is-array-buffer`](https://www.npmjs.com/package/is-array-buffer).
+> A tested zero dependency drop-in replacement of
+> [`is-array-buffer`](https://www.npmjs.com/package/is-array-buffer) complete
+> with TypeScript types.
 
 ## Installation
 

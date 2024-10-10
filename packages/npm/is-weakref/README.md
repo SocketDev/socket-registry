@@ -4,8 +4,9 @@
 [![CI - @socketregistry/is-weakref](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
-> [`is-weakref`](https://www.npmjs.com/package/is-weakref).
+> A tested zero dependency drop-in replacement of
+> [`is-weakref`](https://www.npmjs.com/package/is-weakref) complete with
+> TypeScript types.
 
 ## Installation
 

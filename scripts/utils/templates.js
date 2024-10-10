@@ -22,6 +22,7 @@ const {
   TEMPLATE_ES_SHIM_STATIC_METHOD,
   npmTemplatesPath
 } = constants
+const { joinAsList } = require('@socketregistry/scripts/utils/arrays')
 const { globLicenses } = require('@socketregistry/scripts/utils/globs')
 const { isObjectObject } = require('@socketregistry/scripts/utils/objects')
 const {
@@ -85,6 +86,14 @@ async function getNpmReadmeAction(pkgPath) {
   const categories = Array.isArray(manifestData?.categories)
     ? manifestData.categories
     : [...PACKAGE_DEFAULT_SOCKET_CATEGORIES]
+  const adjectives = [
+    ...(categories.includes('speedup') ? ['fast'] : []),
+    ...(categories.includes('levelup')
+      ? ['enhanced<sup>[`*`](#enhancements)</sup>']
+      : []),
+    ...(categories.includes('tuneup') ? ['secure'] : []),
+    'tested'
+  ]
   return [
     path.join(pkgPath, README_MD),
     {
@@ -95,12 +104,7 @@ async function getNpmReadmeAction(pkgPath) {
           __proto__: null,
           ...manifestData,
           ...pkgJson,
-          adjectives: [
-            ...(categories.includes('speedup') ? ['fast'] : []),
-            ...(categories.includes('levelup') ? ['enhanced'] : []),
-            ...(categories.includes('tuneup') ? ['secure'] : []),
-            'tested'
-          ],
+          adjectivesText: joinAsList(adjectives),
           categories,
           dependencies: isObjectObject(pkgJson.dependencies) ?? {},
           originalName: resolveOriginalPackageName(regPkgName),

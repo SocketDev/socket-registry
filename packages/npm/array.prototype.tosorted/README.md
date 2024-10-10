@@ -4,8 +4,9 @@
 [![CI - @socketregistry/array.prototype.tosorted](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
-> [`array.prototype.tosorted`](https://www.npmjs.com/package/array.prototype.tosorted).
+> A tested zero dependency drop-in replacement of
+> [`array.prototype.tosorted`](https://www.npmjs.com/package/array.prototype.tosorted)
+> complete with TypeScript types.
 
 ## Installation
 

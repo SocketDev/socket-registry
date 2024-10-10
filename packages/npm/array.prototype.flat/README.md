@@ -4,8 +4,9 @@
 [![CI - @socketregistry/array.prototype.flat](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
-> [`array.prototype.flat`](https://www.npmjs.com/package/array.prototype.flat).
+> A tested zero dependency drop-in replacement of
+> [`array.prototype.flat`](https://www.npmjs.com/package/array.prototype.flat)
+> complete with TypeScript types.
 
 ## Installation
 

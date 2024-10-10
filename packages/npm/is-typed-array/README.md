@@ -4,8 +4,9 @@
 [![CI - @socketregistry/is-typed-array](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
-> [`is-typed-array`](https://www.npmjs.com/package/is-typed-array).
+> A tested zero dependency drop-in replacement of
+> [`is-typed-array`](https://www.npmjs.com/package/is-typed-array) complete with
+> TypeScript types.
 
 ## Installation
 

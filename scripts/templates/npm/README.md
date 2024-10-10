@@ -4,10 +4,16 @@
 [![CI - <%= it.name %>](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
->A <%= it.adjectives.length > 1 ? `${it.adjectives.slice(0, -1).join(', ')} and ${it.adjectives.at(-1)}` : it.adjectives[0] %>
+>A <%~ it.adjectivesText %>
 <% if (Object.keys(it.dependencies).length) { %> low <% } else { %> zero <% } %>
 dependency <% if (it.interop?.includes('esm')) { %> CJS/ESM compatible <% } %>
-drop-in replacement of <% if (it.deprecated) { %> the deprecated <% } %>[`<%= it.originalName %>`](https://www.npmjs.com/package/<%= it.originalName %>)<% if (it.deprecated) { %> package <% } %>.
+drop-in replacement of <% if (it.deprecated) { %> the deprecated <% } %>[`<%= it.originalName %>`](https://www.npmjs.com/package/<%= it.originalName %>)<% if (it.deprecated) { %> package <% } %> complete with TypeScript types.
+
+<% if (it.categories.includes('levelup')) { %>
+### Enhancements
+
+  - TODO: List enhancements
+<% } %>
 
 ## Installation
 

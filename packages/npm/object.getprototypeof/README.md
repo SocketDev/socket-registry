@@ -4,8 +4,9 @@
 [![CI - @socketregistry/object.getprototypeof](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
-> [`object.getprototypeof`](https://www.npmjs.com/package/object.getprototypeof).
+> A tested zero dependency drop-in replacement of
+> [`object.getprototypeof`](https://www.npmjs.com/package/object.getprototypeof)
+> complete with TypeScript types.
 
 ## Installation
 

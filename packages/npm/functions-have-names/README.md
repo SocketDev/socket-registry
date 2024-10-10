@@ -4,8 +4,9 @@
 [![CI - @socketregistry/functions-have-names](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
-> [`functions-have-names`](https://www.npmjs.com/package/functions-have-names).
+> A tested zero dependency drop-in replacement of
+> [`functions-have-names`](https://www.npmjs.com/package/functions-have-names)
+> complete with TypeScript types.
 
 ## Installation
 

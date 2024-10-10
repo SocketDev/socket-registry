@@ -4,8 +4,9 @@
 [![CI - @socketregistry/has-symbols](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
-> [`has-symbols`](https://www.npmjs.com/package/has-symbols).
+> A tested zero dependency drop-in replacement of
+> [`has-symbols`](https://www.npmjs.com/package/has-symbols) complete with
+> TypeScript types.
 
 ## Installation
 

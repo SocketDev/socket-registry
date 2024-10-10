@@ -4,8 +4,9 @@
 [![CI - @socketregistry/has-proto](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
-> [`has-proto`](https://www.npmjs.com/package/has-proto).
+> A tested zero dependency drop-in replacement of
+> [`has-proto`](https://www.npmjs.com/package/has-proto) complete with
+> TypeScript types.
 
 ## Installation
 

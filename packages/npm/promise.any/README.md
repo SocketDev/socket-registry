@@ -4,8 +4,9 @@
 [![CI - @socketregistry/promise.any](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A zero dependency drop-in replacement of
-> [`promise.any`](https://www.npmjs.com/package/promise.any).
+> A tested zero dependency drop-in replacement of
+> [`promise.any`](https://www.npmjs.com/package/promise.any) complete with
+> TypeScript types.
 
 ## Installation
 
