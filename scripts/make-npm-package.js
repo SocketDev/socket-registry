@@ -21,6 +21,7 @@ const {
   TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
   TEMPLATE_ES_SHIM_STATIC_METHOD,
   npmPackagesPath,
+  parseArgsConfig,
   rootPath,
   tsLibsAvailable,
   tsTypesAvailable
@@ -61,7 +62,8 @@ const {
   writeAction
 } = require('@socketregistry/scripts/utils/templates')
 
-const { positionals: cliPositionals } = util.parseArgs({ strict: false })
+const { positionals: cliPositionals, values: cliArgs } =
+  util.parseArgs(parseArgsConfig)
 
 const bcaKeysMap = new Map()
 
@@ -429,6 +431,9 @@ function toChoice(value) {
       ['--', '--quiet', '--add', origPkgName],
       spawnOptions
     )
+    if (!cliArgs.quiet) {
+      console.log('Finished 🎉')
+    }
   } catch (e) {
     console.log('✘ Package override finalization encountered an error:', e)
   }

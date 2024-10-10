@@ -62,9 +62,6 @@ const { values: cliArgs } = util.parseArgs(
       add: {
         type: 'string',
         multiple: true
-      },
-      quiet: {
-        type: 'boolean'
       }
     }
   })
@@ -147,8 +144,8 @@ async function resolveDevDependencies(packageNames) {
     const origPkgName = resolveOriginalPackageName(regPkgName)
     // Read synchronously so we know it is up to date.
     let testNpmPkgJson = readPackageJsonSync(testNpmPkgJsonPath)
-    const devDepExists =
-      typeof testNpmPkgJson.devDependencies?.[origPkgName] === 'string'
+    const devDepSpec = testNpmPkgJson.devDependencies?.[origPkgName]
+    const devDepExists = typeof devDepSpec === 'string'
     const nmPkgPath = path.join(testNpmNodeModulesPath, origPkgName)
     const nmPkgPathExists = fs.existsSync(nmPkgPath)
     // Missing packages can occur if the script is stopped part way through
@@ -182,10 +179,9 @@ async function resolveDevDependencies(packageNames) {
         )
       }
     }
-    const pkgSpec = testNpmPkgJson.devDependencies?.[origPkgName]
     const parsedSpec = npmPackageArg.resolve(
       origPkgName,
-      pkgSpec,
+      devDepExists ? devDepSpec : testNpmPkgJson.devDependencies?.[origPkgName],
       testNpmNodeModulesPath
     )
     const isTarball =

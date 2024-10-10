@@ -6,7 +6,7 @@ const fs = require('fs-extra')
 
 const {
   kInternalsSymbol,
-  [kInternalsSymbol]: { innerReadDirNames, isDirEmptySync }
+  [kInternalsSymbol]: { innerReadDirNames, isDirEmptySync, readDirNamesSync }
 } = require('@socketregistry/scripts/constants')
 
 const defaultRemoveOptions = Object.freeze({
@@ -62,6 +62,7 @@ module.exports = {
   isDirEmptySync,
   isSymbolicLinkSync,
   readDirNames,
+  readDirNamesSync,
   remove,
   removeSync,
   uniqueSync

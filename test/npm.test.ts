@@ -20,7 +20,7 @@ const {
   testNpmNodeWorkspacesPath
 } = constants
 // @ts-ignore
-import { readDirNames } from '@socketregistry/scripts/utils/fs'
+import { readDirNamesSync } from '@socketregistry/scripts/utils/fs'
 import {
   getModifiedPackagesSync,
   getStagedPackagesSync
@@ -37,32 +37,35 @@ import {
 // @ts-ignore
 import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
 
-// Use by passing as a tap --test-arg:
+// Pass args as tap --test-arg:
 // npm run test:unit ./test/npm.test.ts -- --test-arg="--force"
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
+const eco = 'npm'
 
-describe('npm', async () => {
-  const testNpmNodeWorkspacesPackages = (<string[]>(
-    await readDirNames(testNpmNodeWorkspacesPath)
-  )).filter(n => !skipTestsByEcosystem.npm.has(n))
-  const packageNames: string[] =
-    ENV.CI || cliArgs.force
-      ? testNpmNodeWorkspacesPackages
-      : (() => {
-          const testablePackages: Set<string> = (
-            ENV.PRE_COMMIT ? getStagedPackagesSync : getModifiedPackagesSync
-          )('npm', {
-            asSet: true,
-            ignore: [LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE]
-          })
-          return testNpmNodeWorkspacesPackages.filter((n: string) =>
-            testablePackages.has(n)
-          )
-        })()
+const testNpmNodeWorkspacesPackages = (<string[]>(
+  readDirNamesSync(testNpmNodeWorkspacesPath)
+)).filter(n => !skipTestsByEcosystem[eco].has(n))
+
+const packageNames: string[] =
+  ENV.CI || cliArgs.force
+    ? testNpmNodeWorkspacesPackages
+    : (() => {
+        const testablePackages: Set<string> = (
+          ENV.PRE_COMMIT ? getStagedPackagesSync : getModifiedPackagesSync
+        )(eco, {
+          asSet: true,
+          ignore: [LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE]
+        })
+        return testNpmNodeWorkspacesPackages.filter((n: string) =>
+          testablePackages.has(n)
+        )
+      })()
+
+describe(eco, { skip: !packageNames.length }, () => {
   for (const regPkgName of packageNames) {
     const nwPkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
     const nwPkgJson = fs.readJsonSync(path.join(nwPkgPath, PACKAGE_JSON))
-    const manifestData = getManifestData('npm', regPkgName)
+    const manifestData = getManifestData(eco, regPkgName)
     const nodeRange = nwPkgJson.engines?.node
     const origPkgName = resolveOriginalPackageName(regPkgName)
     const skip =

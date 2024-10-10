@@ -421,8 +421,13 @@ const parseArgsConfig = Object.freeze({
       __proto__: null,
       type: 'boolean',
       short: 'f'
+    },
+    quiet: {
+      __proto__: null,
+      type: 'boolean'
     }
-  }
+  },
+  strict: false
 })
 
 const skipTestsByEcosystem = Object.freeze({
