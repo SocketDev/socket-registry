@@ -1,13 +1,18 @@
 'use strict'
 
+const util = require('node:util')
+
 const fs = require('fs-extra')
 
 const constants = require('@socketregistry/scripts/constants')
-const { rootPackageLockPath, rootPath, yarnPkgExtsJsonPath } = constants
+const { parseArgsConfig, rootPackageLockPath, rootPath, yarnPkgExtsJsonPath } =
+  constants
 const { execNpm } = require('@socketregistry/scripts/utils/npm')
 const {
   normalizePackageJson
 } = require('@socketregistry/scripts/utils/packages')
+
+const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 
 async function modifyRootPkgLock() {
   if (fs.existsSync(rootPackageLockPath)) {
@@ -48,7 +53,11 @@ async function modifyYarnpkgExtsPkgJson() {
 }
 
 ;(async () => {
-  if ((await modifyRootPkgLock()) || (await modifyYarnpkgExtsPkgJson())) {
+  if (
+    cliArgs.force ||
+    (await modifyRootPkgLock()) ||
+    (await modifyYarnpkgExtsPkgJson())
+  ) {
     // Reinstall packages with the updated package-lock.json. (should be quick)
     await execNpm(['install'], { cwd: rootPath, stdio: 'inherit' })
   }

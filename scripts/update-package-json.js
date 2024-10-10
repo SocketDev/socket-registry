@@ -7,9 +7,11 @@ const {
   PERF_NPM_WORKSPACE,
   REGISTRY_WORKSPACE,
   rootPackageJsonPath,
-  rootPackagesPath
+  rootPackagesPath,
+  rootPath
 } = constants
 const { readDirNames } = require('@socketregistry/scripts/utils/fs')
+const { runScript } = require('@socketregistry/scripts/utils/npm')
 const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
 const { localeCompare } = require('@socketregistry/scripts/utils/sorts')
 
@@ -38,4 +40,9 @@ const { localeCompare } = require('@socketregistry/scripts/utils/sorts')
     engines: { node: `^${nodeVerCurr} || >=${nodeVerNext}` }
   })
   rootEditablePkgJson.save()
+
+  await runScript('update:package-lock', ['--', '--force'], {
+    cwd: rootPath,
+    stdio: 'inherit'
+  })
 })()
