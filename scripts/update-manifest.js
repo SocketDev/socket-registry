@@ -44,12 +44,14 @@ async function addNpmManifestData(manifest) {
   await pEach(constants.npmPackageNames, 3, async regPkgName => {
     const origPkgName = resolveOriginalPackageName(regPkgName)
     const testNpmPkgJson = await readPackageJson(testNpmPkgJsonPath)
-
     const nmPkgSpec = testNpmPkgJson.devDependencies[origPkgName]
-    const nmPkgManifest = await fetchPackageManifest(
-      `${origPkgName}@${nmPkgSpec}`
-    )
-    const { _id: nmPkgId, deprecated: nmPkgDeprecated } = nmPkgManifest
+    const nmPkgId = `${origPkgName}@${nmPkgSpec}`
+    const nmPkgManifest = await fetchPackageManifest(nmPkgId)
+    if (!nmPkgManifest) {
+      console.log(`⚠️ ${nmPkgId}: Not found in npm registry`)
+      return
+    }
+    const { deprecated: nmPkgDeprecated } = nmPkgManifest
     let nwPkgLicense
     await extractPackage(nmPkgId, async nmPkgPath => {
       const nmPkgJson = await readPackageJson(nmPkgPath)

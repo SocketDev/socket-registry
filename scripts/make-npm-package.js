@@ -34,6 +34,7 @@ const {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
   extractPackage,
+  fetchPackageManifest,
   isSubpathExports,
   isValidPackageName,
   readPackageJson,
@@ -141,7 +142,8 @@ function toChoice(value) {
     message: 'What is the name of the package to override?',
     default: cliPositionals.at(0),
     required: true,
-    validate: isValidPackageName
+    validate: async pkgName =>
+      isValidPackageName(pkgName) && !!(await fetchPackageManifest(pkgName))
   })
   if (origPkgName === undefined) {
     // Exit if user force closed the prompt.
