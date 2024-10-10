@@ -4,7 +4,7 @@
 [![CI - @socketregistry/json-stable-stringify](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A faster zero dependency drop-in replacement of
+> A fast, enhanced, and tested zero dependency drop-in replacement of
 > [`json-stable-stringify`](https://www.npmjs.com/package/json-stable-stringify).
 
 ## Installation
