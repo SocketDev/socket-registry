@@ -203,7 +203,7 @@ function toChoice(value) {
     )
   }
   if (badLicenses.length) {
-    const singularOrPlural = `license${badLicenses.length === 1 ? '' : 's'}`
+    const singularOrPlural = `license${badLicenses.length > 1 ? 's' : ''}`
     const badLicenseNames = badLicenses.map(n => n.license)
     const warning = `⚠️ ${origPkgName} has incompatible ${singularOrPlural} ${badLicenseNames.join(', ')}.`
     const answer = await confirm({

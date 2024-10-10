@@ -140,7 +140,7 @@ function toWorkspaceEntry(regPkgName) {
 
 async function installMissingPackages(packageNames) {
   const originalNames = packageNames.map(resolveOriginalPackageName)
-  const msg = 'Refreshing'
+  const msg = `Refreshing ${originalNames.length} package${originalNames.length > 1 ? 's' : ''}...`
   const msgList = joinAsList(originalNames)
   const spinner = new Spinner(
     msg.length + msgList.length + 3 > COLUMN_LIMIT
@@ -215,7 +215,7 @@ async function installMissingPackageTests(packageNames) {
     }
   }
   if (unresolvable.length) {
-    const msg = '⚠️ Unable to resolve tests for the following packages:'
+    const msg = `⚠️ Unable to resolve tests for ${unresolvable.length} package${unresolvable.length > 1 ? 's' : ''}:`
     const msgList = joinAsList(unresolvable)
     const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
     console.log(`${msg}${separator}${msgList}`)

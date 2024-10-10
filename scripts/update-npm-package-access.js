@@ -29,7 +29,7 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
     })
   )
   if (failures.length) {
-    const msg = '⚠️ Unable to set access for the following packages:'
+    const msg = `⚠️ Unable to set access for ${failures.length} package${failures.length > 1 ? 's' : ''}:`
     const msgList = joinAsList(failures)
     const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
     console.log(`${msg}${separator}${msgList}`)
