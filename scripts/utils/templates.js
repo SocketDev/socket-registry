@@ -82,7 +82,9 @@ async function getNpmReadmeAction(pkgPath) {
   )
   const { name: regPkgName } = pkgPurlObj
   const manifestData = getManifestData(eco, regPkgName)
-  const categories = manifestData?.categories
+  const categories = Array.isArray(manifestData?.categories)
+    ? manifestData.categories
+    : [...PACKAGE_DEFAULT_SOCKET_CATEGORIES]
   return [
     path.join(pkgPath, README_MD),
     {
@@ -93,11 +95,15 @@ async function getNpmReadmeAction(pkgPath) {
           __proto__: null,
           ...manifestData,
           ...pkgJson,
-          originalName: resolveOriginalPackageName(regPkgName),
-          categories: Array.isArray(categories)
-            ? categories
-            : [...PACKAGE_DEFAULT_SOCKET_CATEGORIES],
+          adjectives: [
+            ...(categories.includes('speedup') ? ['fast'] : []),
+            ...(categories.includes('levelup') ? ['enhanced'] : []),
+            ...(categories.includes('tuneup') ? ['secure'] : []),
+            'tested'
+          ],
+          categories,
           dependencies: isObjectObject(pkgJson.dependencies) ?? {},
+          originalName: resolveOriginalPackageName(regPkgName),
           purl: pkgPurlObj,
           version: semver.parse(pkgJson.version)
         }
@@ -125,7 +131,9 @@ async function getPackageJsonAction(pkgPath, options) {
       // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
       engines: engines ?? { node: constants.PACKAGE_DEFAULT_NODE_RANGE },
       // Lazily access constants.PACKAGE_DEFAULT_VERSION.
-      version: semver.parse(constants.PACKAGE_DEFAULT_VERSION)
+      version: semver.parse(
+        manifestData?.version ?? constants.PACKAGE_DEFAULT_VERSION
+      )
     }
   ]
 }

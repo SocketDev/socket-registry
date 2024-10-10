@@ -33,7 +33,10 @@ const {
   testNpmPkgJsonPath,
   testNpmPkgLockPath
 } = constants
-const { arrayUnique } = require('@socketregistry/scripts/utils/arrays')
+const {
+  arrayUnique,
+  joinAsList
+} = require('@socketregistry/scripts/utils/arrays')
 const {
   isSymbolicLinkSync,
   remove,
@@ -117,16 +120,6 @@ async function installTestNpmNodeModules(options) {
     args.push('--save-dev', ...specs)
   }
   return await execNpm(args, { cwd: testNpmPath })
-}
-
-function joinAsList(arr) {
-  const { length } = arr
-  if (length === 0) {
-    return ''
-  }
-  return length === 1
-    ? arr[0]
-    : `${arr.slice(0, -1).join(', ')} and ${arr.at(-1)}`
 }
 
 const editablePackageJsonCache = new Map()
