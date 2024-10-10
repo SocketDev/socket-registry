@@ -17,7 +17,8 @@ const {
   WIN_32,
   parseArgsConfig,
   skipTestsByEcosystem,
-  testNpmNodeWorkspacesPath
+  testNpmNodeWorkspacesPath,
+  win32EnsureTestsByEcosystem
 } = constants
 // @ts-ignore
 import { readDirNamesSync } from '@socketregistry/scripts/utils/fs'
@@ -44,7 +45,7 @@ const eco = 'npm'
 
 const testNpmNodeWorkspacesPackages = (<string[]>(
   readDirNamesSync(testNpmNodeWorkspacesPath)
-)).filter(n => !skipTestsByEcosystem[eco].has(n))
+)).filter(n => !skipTestsByEcosystem[eco]?.has(n))
 
 const packageNames: string[] =
   ENV.CI || cliArgs.force
@@ -70,7 +71,9 @@ describe(eco, { skip: !packageNames.length }, () => {
     const origPkgName = resolveOriginalPackageName(regPkgName)
     const skip =
       !nwPkgJson.scripts?.test ||
-      (WIN_32 && !manifestData.interop.includes('browserify')) ||
+      (WIN_32 &&
+        !manifestData.interop.includes('browserify') &&
+        !win32EnsureTestsByEcosystem?.[eco].has(origPkgName)) ||
       (isNonEmptyString(nodeRange) &&
         !semver.satisfies(NODE_VERSION, nodeRange))
 

@@ -488,6 +488,11 @@ const tsLibsAvailable = new Set([
 
 const tsTypesAvailable = new Set(['node'])
 
+const win32EnsureTestsByEcosystem = Object.freeze({
+  __proto__: null,
+  npm: new Set(['date'])
+})
+
 const constants = Object.freeze(
   defineLazyGetters(
     {
@@ -588,6 +593,7 @@ const constants = Object.freeze(
       tsLibsAvailable,
       tsTypesAvailable,
       tsxExecPath: undefined,
+      win32EnsureTestsByEcosystem,
       yarnPkgExtsPath,
       yarnPkgExtsJsonPath
     },
