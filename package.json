@@ -186,6 +186,7 @@
     "packages/npm/json-stable-stringify",
     "packages/npm/jsonify",
     "packages/npm/number-is-nan",
+    "packages/npm/object-assign",
     "packages/npm/object-is",
     "packages/npm/object-keys",
     "packages/npm/object.assign",

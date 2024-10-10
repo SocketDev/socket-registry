@@ -1,0 +1,35 @@
+{
+  "name": "@socketregistry/object-assign",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "Socket.dev optimized package override for object-assign",
+  "keywords": [
+    "Socket.dev",
+    "package-overrides"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SocketDev/socket-registry-js.git",
+    "directory": "packages/npm/object-assign"
+  },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.20.4"
+  },
+  "files": [
+    "*.d.ts",
+    "*.js"
+  ],
+  "socket": {
+    "categories": [
+      "cleanup"
+    ]
+  }
+}
