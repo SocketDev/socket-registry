@@ -15,7 +15,11 @@ declare enum Interop {
   ESM = 'esm'
 }
 declare type InteropString = `${Interop}`
-declare type ManifestData = {
+declare type Manifest = {
+  [Ecosystem in PURL_Type]: ManifestEntry[]
+}
+declare type ManifestEntry = [string, ManifestEntryData]
+declare type ManifestEntryData = {
   categories: CategoryString[]
   interop: InteropString[]
   license: string
@@ -25,13 +29,13 @@ declare type ManifestData = {
   engines?: { node: string; npm?: string }
   skipTests?: boolean
 }
-declare type ManifestEntry = [string, ManifestData]
 declare interface SocketSecurityRegistry {
+  getManifestData(): Manifest | undefined
   getManifestData(eco: EcosystemString): ManifestEntry[] | undefined
   getManifestData(
     eco: EcosystemString,
     regPkgName: string
-  ): ManifestData | undefined
+  ): ManifestEntryData | undefined
 }
 declare const registry: SocketSecurityRegistry
 export = registry
