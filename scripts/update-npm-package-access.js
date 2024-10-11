@@ -4,8 +4,14 @@ const path = require('node:path')
 const util = require('node:util')
 
 const constants = require('@socketregistry/scripts/constants')
-const { COLUMN_LIMIT, ENV, PACKAGE_SCOPE, npmPackagesPath, parseArgsConfig } =
-  constants
+const {
+  COLUMN_LIMIT,
+  ENV,
+  PACKAGE_SCOPE,
+  npmPackagesPath,
+  parseArgsConfig,
+  registryPkgPath
+} = constants
 const { joinAsList } = require('@socketregistry/scripts/utils/arrays')
 const { execNpm } = require('@socketregistry/scripts/utils/npm')
 
@@ -17,13 +23,21 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
     return
   }
   const failures = []
+  // Lazily access constants.npmPackageNames.
+  const packages = constants.npmPackageNames.map(regPkgName => ({
+    name: regPkgName,
+    path: path.join(npmPackagesPath, regPkgName)
+  }))
+  packages.push({ name: '@socketsecurity/registry', path: registryPkgPath })
   await Promise.all(
-    // Lazily access constants.npmPackageNames.
-    constants.npmPackageNames.map(async regPkgName => {
-      const pkgPath = path.join(npmPackagesPath, regPkgName)
+    packages.map(async ({ name: regPkgName, path: pkgPath }) => {
       try {
+        const pkgName =
+          regPkgName === '@socketsecurity/registry'
+            ? regPkgName
+            : `${PACKAGE_SCOPE}/${regPkgName}`
         const { stdout } = await execNpm(
-          ['access', 'set', 'mfa=automation', `${PACKAGE_SCOPE}/${regPkgName}`],
+          ['access', 'set', 'mfa=automation', pkgName],
           {
             cwd: pkgPath,
             stdio: 'pipe',
