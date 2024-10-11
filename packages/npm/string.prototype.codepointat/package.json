@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/string.prototype.codepointat",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "MIT",
   "description": "Socket.dev optimized package override for string.prototype.codepointat",
   "keywords": [

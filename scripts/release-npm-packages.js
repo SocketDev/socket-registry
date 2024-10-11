@@ -5,7 +5,13 @@ const path = require('node:path')
 const semver = require('semver')
 
 const constants = require('@socketregistry/scripts/constants')
-const { npmPackagesPath, relNpmPackagesPath, rootPath } = constants
+const {
+  PACKAGE_SCOPE,
+  npmPackagesPath,
+  registryPkgPath,
+  relNpmPackagesPath,
+  rootPath
+} = constants
 const { runScript } = require('@socketregistry/scripts/utils/npm')
 const {
   fetchPackageManifest,
@@ -15,14 +21,23 @@ const { pEach } = require('@socketregistry/scripts/utils/promises')
 const { Spinner } = require('@socketregistry/scripts/utils/spinner')
 
 ;(async () => {
+  const packages = [
+    // Lazily access constants.npmPackageNames.
+    ...constants.npmPackageNames.map(regPkgName => ({
+      name: regPkgName,
+      path: path.join(npmPackagesPath, regPkgName)
+    })),
+    { name: '@socketsecurity/registry', path: registryPkgPath }
+  ]
   const spinner = new Spinner(
     `Bumping ${relNpmPackagesPath} versions (semver patch)...`
   ).start()
   // Chunk package names to process them in parallel 3 at a time.
-  // Lazily access constants.ecosystems.
-  await pEach(constants.npmPackageNames, 3, async regPkgName => {
-    const pkgPath = path.join(npmPackagesPath, regPkgName)
-    if (await fetchPackageManifest(regPkgName)) {
+  await pEach(packages, 3, async ({ name: regPkgName, path: pkgPath }) => {
+    const pkgName = regPkgName.startsWith('@socketsecurity/')
+      ? regPkgName
+      : `${PACKAGE_SCOPE}/${regPkgName}`
+    if (await fetchPackageManifest(pkgName)) {
       const editablePkgJson = await readPackageJson(pkgPath, {
         editable: true
       })
