@@ -8,7 +8,7 @@ function getManifestData(eco, regPkgName) {
   return regPkgName
     ? entries.find(
         ({ 0: purlStr }) => PackageURL.fromString(purlStr).name === regPkgName
-      )
+      )?.[1]
     : entries
 }
 
