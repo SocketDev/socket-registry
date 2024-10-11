@@ -8,7 +8,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "BSD-3-Clause",
-        "package": "abab"
+        "package": "abab",
+        "version": "1.0.1"
       }
     ],
     [
@@ -18,7 +19,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs", "esm"],
         "license": "MIT",
-        "package": "aggregate-error"
+        "package": "aggregate-error",
+        "version": "1.0.1"
       }
     ],
     [
@@ -28,7 +30,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "array-buffer-byte-length"
+        "package": "array-buffer-byte-length",
+        "version": "1.0.1"
       }
     ],
     [
@@ -38,7 +41,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "array-flatten"
+        "package": "array-flatten",
+        "version": "1.0.1"
       }
     ],
     [
@@ -48,7 +52,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "array-includes"
+        "package": "array-includes",
+        "version": "1.0.1"
       }
     ],
     [
@@ -58,7 +63,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "array.from"
+        "package": "array.from",
+        "version": "1.0.1"
       }
     ],
     [
@@ -68,7 +74,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "array.of"
+        "package": "array.of",
+        "version": "1.0.1"
       }
     ],
     [
@@ -78,7 +85,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "array.prototype.at"
+        "package": "array.prototype.at",
+        "version": "1.0.1"
       }
     ],
     [
@@ -88,7 +96,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "array.prototype.every"
+        "package": "array.prototype.every",
+        "version": "1.0.1"
       }
     ],
     [
@@ -98,7 +107,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "array.prototype.filter"
+        "package": "array.prototype.filter",
+        "version": "1.0.1"
       }
     ],
     [
@@ -108,7 +118,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "array.prototype.find"
+        "package": "array.prototype.find",
+        "version": "1.0.1"
       }
     ],
     [
@@ -118,7 +129,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "array.prototype.findlast"
+        "package": "array.prototype.findlast",
+        "version": "1.0.1"
       }
     ],
     [
@@ -128,7 +140,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "array.prototype.findlastindex"
+        "package": "array.prototype.findlastindex",
+        "version": "1.0.1"
       }
     ],
     [
@@ -138,7 +151,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "array.prototype.flat"
+        "package": "array.prototype.flat",
+        "version": "1.0.1"
       }
     ],
     [
@@ -148,7 +162,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "array.prototype.flatmap"
+        "package": "array.prototype.flatmap",
+        "version": "1.0.1"
       }
     ],
     [
@@ -158,7 +173,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "array.prototype.foreach"
+        "package": "array.prototype.foreach",
+        "version": "1.0.1"
       }
     ],
     [
@@ -168,7 +184,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "array.prototype.map"
+        "package": "array.prototype.map",
+        "version": "1.0.1"
       }
     ],
     [
@@ -178,7 +195,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "array.prototype.reduce"
+        "package": "array.prototype.reduce",
+        "version": "1.0.1"
       }
     ],
     [
@@ -188,7 +206,8 @@
         "engines": { "node": ">=20.17.0" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "array.prototype.toreversed"
+        "package": "array.prototype.toreversed",
+        "version": "1.0.1"
       }
     ],
     [
@@ -198,7 +217,8 @@
         "engines": { "node": ">=20.17.0" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "array.prototype.tosorted"
+        "package": "array.prototype.tosorted",
+        "version": "1.0.1"
       }
     ],
     [
@@ -208,7 +228,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "arraybuffer.prototype.slice"
+        "package": "arraybuffer.prototype.slice",
+        "version": "1.0.1"
       }
     ],
     [
@@ -218,7 +239,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "assert"
+        "package": "assert",
+        "version": "1.0.1"
       }
     ],
     [
@@ -228,7 +250,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "asynciterator.prototype"
+        "package": "asynciterator.prototype",
+        "version": "1.0.1"
       }
     ],
     [
@@ -238,7 +261,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "available-typed-arrays"
+        "package": "available-typed-arrays",
+        "version": "1.0.1"
       }
     ],
     [
@@ -249,7 +273,8 @@
         "interop": ["cjs"],
         "license": "MIT",
         "package": "date",
-        "skipTests": true
+        "skipTests": true,
+        "version": "1.0.1"
       }
     ],
     [
@@ -259,7 +284,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
-        "package": "deep-equal"
+        "package": "deep-equal",
+        "version": "1.0.1"
       }
     ],
     [
@@ -269,7 +295,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "define-properties"
+        "package": "define-properties",
+        "version": "1.0.1"
       }
     ],
     [
@@ -279,7 +306,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "es-aggregate-error"
+        "package": "es-aggregate-error",
+        "version": "1.0.1"
       }
     ],
     [
@@ -289,7 +317,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "es-define-property"
+        "package": "es-define-property",
+        "version": "1.0.1"
       }
     ],
     [
@@ -299,7 +328,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "es-get-iterator"
+        "package": "es-get-iterator",
+        "version": "1.0.1"
       }
     ],
     [
@@ -309,7 +339,8 @@
         "engines": { "node": ">=22.8.0" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "es-iterator-helpers"
+        "package": "es-iterator-helpers",
+        "version": "1.0.1"
       }
     ],
     [
@@ -319,7 +350,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "es-set-tostringtag"
+        "package": "es-set-tostringtag",
+        "version": "1.0.1"
       }
     ],
     [
@@ -330,7 +362,8 @@
         "interop": ["cjs"],
         "license": "MIT",
         "package": "es6-object-assign",
-        "skipTests": true
+        "skipTests": true,
+        "version": "1.0.1"
       }
     ],
     [
@@ -340,7 +373,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "ISC",
-        "package": "es6-symbol"
+        "package": "es6-symbol",
+        "version": "1.0.1"
       }
     ],
     [
@@ -350,7 +384,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "for-each"
+        "package": "for-each",
+        "version": "1.0.0"
       }
     ],
     [
@@ -360,7 +395,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "function-bind"
+        "package": "function-bind",
+        "version": "1.0.1"
       }
     ],
     [
@@ -370,7 +406,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "function.prototype.name"
+        "package": "function.prototype.name",
+        "version": "1.0.1"
       }
     ],
     [
@@ -380,7 +417,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "functions-have-names"
+        "package": "functions-have-names",
+        "version": "1.0.1"
       }
     ],
     [
@@ -390,7 +428,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "get-symbol-description"
+        "package": "get-symbol-description",
+        "version": "1.0.1"
       }
     ],
     [
@@ -400,7 +439,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "globalthis"
+        "package": "globalthis",
+        "version": "1.0.1"
       }
     ],
     [
@@ -410,7 +450,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "gopd"
+        "package": "gopd",
+        "version": "1.0.1"
       }
     ],
     [
@@ -421,7 +462,8 @@
         "interop": ["cjs"],
         "license": "(Apache-2.0 OR MPL-1.1)",
         "package": "harmony-reflect",
-        "skipTests": true
+        "skipTests": true,
+        "version": "1.0.1"
       }
     ],
     [
@@ -431,7 +473,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "has-property-descriptors"
+        "package": "has-property-descriptors",
+        "version": "1.0.1"
       }
     ],
     [
@@ -441,7 +484,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "has-proto"
+        "package": "has-proto",
+        "version": "1.0.1"
       }
     ],
     [
@@ -451,7 +495,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "has-symbols"
+        "package": "has-symbols",
+        "version": "1.0.1"
       }
     ],
     [
@@ -461,7 +506,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "has-tostringtag"
+        "package": "has-tostringtag",
+        "version": "1.0.1"
       }
     ],
     [
@@ -471,7 +517,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "has"
+        "package": "has",
+        "version": "1.0.1"
       }
     ],
     [
@@ -481,7 +528,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "hasown"
+        "package": "hasown",
+        "version": "1.0.1"
       }
     ],
     [
@@ -492,7 +540,8 @@
         "interop": ["cjs", "esm"],
         "license": "MIT",
         "package": "@hyrious/bun.lockb",
-        "skipTests": true
+        "skipTests": true,
+        "version": "1.0.0"
       }
     ],
     [
@@ -502,7 +551,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs", "esm"],
         "license": "MIT",
-        "package": "indent-string"
+        "package": "indent-string",
+        "version": "1.0.1"
       }
     ],
     [
@@ -512,7 +562,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "internal-slot"
+        "package": "internal-slot",
+        "version": "1.0.1"
       }
     ],
     [
@@ -522,7 +573,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
-        "package": "is-arguments"
+        "package": "is-arguments",
+        "version": "1.0.1"
       }
     ],
     [
@@ -532,7 +584,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
-        "package": "is-array-buffer"
+        "package": "is-array-buffer",
+        "version": "1.0.1"
       }
     ],
     [
@@ -542,7 +595,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
-        "package": "is-bigint"
+        "package": "is-bigint",
+        "version": "1.0.1"
       }
     ],
     [
@@ -552,7 +606,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
-        "package": "is-boolean-object"
+        "package": "is-boolean-object",
+        "version": "1.0.1"
       }
     ],
     [
@@ -562,7 +617,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "is-core-module"
+        "package": "is-core-module",
+        "version": "1.0.1"
       }
     ],
     [
@@ -572,7 +628,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
-        "package": "is-date-object"
+        "package": "is-date-object",
+        "version": "1.0.1"
       }
     ],
     [
@@ -582,7 +639,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
-        "package": "is-generator-function"
+        "package": "is-generator-function",
+        "version": "1.0.1"
       }
     ],
     [
@@ -592,7 +650,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
-        "package": "is-map"
+        "package": "is-map",
+        "version": "1.0.1"
       }
     ],
     [
@@ -602,7 +661,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "is-nan"
+        "package": "is-nan",
+        "version": "1.0.1"
       }
     ],
     [
@@ -612,7 +672,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "is-negative-zero"
+        "package": "is-negative-zero",
+        "version": "1.0.1"
       }
     ],
     [
@@ -622,7 +683,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
-        "package": "is-number-object"
+        "package": "is-number-object",
+        "version": "1.0.1"
       }
     ],
     [
@@ -633,7 +695,8 @@
         "interop": ["browserify", "cjs"],
         "license": "MIT",
         "package": "is-regex",
-        "skipTests": true
+        "skipTests": true,
+        "version": "1.0.1"
       }
     ],
     [
@@ -643,7 +706,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
-        "package": "is-set"
+        "package": "is-set",
+        "version": "1.0.1"
       }
     ],
     [
@@ -653,7 +717,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
-        "package": "is-shared-array-buffer"
+        "package": "is-shared-array-buffer",
+        "version": "1.0.1"
       }
     ],
     [
@@ -663,7 +728,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
-        "package": "is-string"
+        "package": "is-string",
+        "version": "1.0.1"
       }
     ],
     [
@@ -673,7 +739,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
-        "package": "is-symbol"
+        "package": "is-symbol",
+        "version": "1.0.1"
       }
     ],
     [
@@ -683,7 +750,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
-        "package": "is-typed-array"
+        "package": "is-typed-array",
+        "version": "1.0.1"
       }
     ],
     [
@@ -693,7 +761,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
-        "package": "is-weakmap"
+        "package": "is-weakmap",
+        "version": "1.0.1"
       }
     ],
     [
@@ -703,7 +772,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "is-weakref"
+        "package": "is-weakref",
+        "version": "1.0.1"
       }
     ],
     [
@@ -713,7 +783,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
-        "package": "is-weakset"
+        "package": "is-weakset",
+        "version": "1.0.1"
       }
     ],
     [
@@ -723,7 +794,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "isarray"
+        "package": "isarray",
+        "version": "1.0.1"
       }
     ],
     [
@@ -733,7 +805,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "iterator.prototype"
+        "package": "iterator.prototype",
+        "version": "1.0.1"
       }
     ],
     [
@@ -743,7 +816,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "json-stable-stringify"
+        "package": "json-stable-stringify",
+        "version": "1.0.1"
       }
     ],
     [
@@ -753,7 +827,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "Public Domain",
-        "package": "jsonify"
+        "package": "jsonify",
+        "version": "1.0.1"
       }
     ],
     [
@@ -763,7 +838,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "number-is-nan"
+        "package": "number-is-nan",
+        "version": "1.0.1"
       }
     ],
     [
@@ -773,7 +849,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "object-assign"
+        "package": "object-assign",
+        "version": "1.0.0"
       }
     ],
     [
@@ -783,7 +860,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "object-is"
+        "package": "object-is",
+        "version": "1.0.1"
       }
     ],
     [
@@ -793,7 +871,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "object-keys"
+        "package": "object-keys",
+        "version": "1.0.1"
       }
     ],
     [
@@ -803,7 +882,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "object.assign"
+        "package": "object.assign",
+        "version": "1.0.1"
       }
     ],
     [
@@ -813,7 +893,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "object.entries"
+        "package": "object.entries",
+        "version": "1.0.1"
       }
     ],
     [
@@ -823,7 +904,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "object.fromentries"
+        "package": "object.fromentries",
+        "version": "1.0.1"
       }
     ],
     [
@@ -833,7 +915,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "object.getownpropertydescriptors"
+        "package": "object.getownpropertydescriptors",
+        "version": "1.0.1"
       }
     ],
     [
@@ -843,7 +926,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "object.getprototypeof"
+        "package": "object.getprototypeof",
+        "version": "1.0.1"
       }
     ],
     [
@@ -853,7 +937,8 @@
         "engines": { "node": ">=21.7.3" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "object.groupby"
+        "package": "object.groupby",
+        "version": "1.0.1"
       }
     ],
     [
@@ -863,7 +948,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "object.hasown"
+        "package": "object.hasown",
+        "version": "1.0.1"
       }
     ],
     [
@@ -873,7 +959,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "object.values"
+        "package": "object.values",
+        "version": "1.0.1"
       }
     ],
     [
@@ -883,7 +970,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "path-parse"
+        "package": "path-parse",
+        "version": "1.0.1"
       }
     ],
     [
@@ -893,7 +981,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "promise.allsettled"
+        "package": "promise.allsettled",
+        "version": "1.0.1"
       }
     ],
     [
@@ -903,7 +992,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "promise.any"
+        "package": "promise.any",
+        "version": "1.0.1"
       }
     ],
     [
@@ -913,7 +1003,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "querystringify"
+        "package": "querystringify",
+        "version": "1.0.1"
       }
     ],
     [
@@ -923,7 +1014,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "reflect.getprototypeof"
+        "package": "reflect.getprototypeof",
+        "version": "1.0.1"
       }
     ],
     [
@@ -933,7 +1025,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "reflect.ownkeys"
+        "package": "reflect.ownkeys",
+        "version": "1.0.1"
       }
     ],
     [
@@ -943,7 +1036,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "regexp.prototype.flags"
+        "package": "regexp.prototype.flags",
+        "version": "1.0.1"
       }
     ],
     [
@@ -953,7 +1047,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "safe-array-concat"
+        "package": "safe-array-concat",
+        "version": "1.0.1"
       }
     ],
     [
@@ -963,7 +1058,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "safe-buffer"
+        "package": "safe-buffer",
+        "version": "1.0.1"
       }
     ],
     [
@@ -973,7 +1069,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "safe-regex-test"
+        "package": "safe-regex-test",
+        "version": "1.0.1"
       }
     ],
     [
@@ -984,7 +1081,8 @@
         "interop": ["cjs"],
         "license": "MIT",
         "package": "safer-buffer",
-        "skipTests": true
+        "skipTests": true,
+        "version": "1.0.1"
       }
     ],
     [
@@ -994,7 +1092,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "set-function-length"
+        "package": "set-function-length",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1004,7 +1103,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "side-channel"
+        "package": "side-channel",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1014,7 +1114,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "string.fromcodepoint"
+        "package": "string.fromcodepoint",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1024,7 +1125,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "string.prototype.at"
+        "package": "string.prototype.at",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1034,7 +1136,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "string.prototype.codepointat"
+        "package": "string.prototype.codepointat",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1044,7 +1147,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "string.prototype.endswith"
+        "package": "string.prototype.endswith",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1054,7 +1158,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "string.prototype.includes"
+        "package": "string.prototype.includes",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1064,7 +1169,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "string.prototype.matchall"
+        "package": "string.prototype.matchall",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1074,7 +1180,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "string.prototype.padend"
+        "package": "string.prototype.padend",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1084,7 +1191,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "string.prototype.padstart"
+        "package": "string.prototype.padstart",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1094,7 +1202,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "string.prototype.repeat"
+        "package": "string.prototype.repeat",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1104,7 +1213,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "string.prototype.replaceall"
+        "package": "string.prototype.replaceall",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1114,7 +1224,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "string.prototype.split"
+        "package": "string.prototype.split",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1124,7 +1235,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "string.prototype.startswith"
+        "package": "string.prototype.startswith",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1134,7 +1246,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "string.prototype.trim"
+        "package": "string.prototype.trim",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1144,7 +1257,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "string.prototype.trimend"
+        "package": "string.prototype.trimend",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1154,7 +1268,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "string.prototype.trimleft"
+        "package": "string.prototype.trimleft",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1164,7 +1279,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "string.prototype.trimright"
+        "package": "string.prototype.trimright",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1174,7 +1290,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "string.prototype.trimstart"
+        "package": "string.prototype.trimstart",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1184,7 +1301,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "typed-array-buffer"
+        "package": "typed-array-buffer",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1194,7 +1312,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "typed-array-byte-length"
+        "package": "typed-array-byte-length",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1204,7 +1323,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "typed-array-byte-offset"
+        "package": "typed-array-byte-offset",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1214,7 +1334,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "typed-array-length"
+        "package": "typed-array-length",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1224,7 +1345,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "typedarray.prototype.slice"
+        "package": "typedarray.prototype.slice",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1234,7 +1356,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "typedarray"
+        "package": "typedarray",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1244,7 +1367,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "unbox-primitive"
+        "package": "unbox-primitive",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1254,7 +1378,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "util.promisify"
+        "package": "util.promisify",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1264,7 +1389,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "which-boxed-primitive"
+        "package": "which-boxed-primitive",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1274,7 +1400,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "which-collection"
+        "package": "which-collection",
+        "version": "1.0.1"
       }
     ],
     [
@@ -1284,7 +1411,8 @@
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
-        "package": "which-typed-array"
+        "package": "which-typed-array",
+        "version": "1.0.1"
       }
     ]
   ]
