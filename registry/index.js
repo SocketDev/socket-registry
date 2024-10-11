@@ -7,7 +7,7 @@ function getManifestData(eco, regPkgName) {
   if (eco) {
     const entries = registryManifest[eco]
     return regPkgName
-      ? entries.find(
+      ? entries?.find(
           ({ 0: purlStr }) => PackageURL.fromString(purlStr).name === regPkgName
         )?.[1]
       : entries
