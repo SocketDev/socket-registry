@@ -82,17 +82,17 @@ async function addNpmManifestData(manifest) {
       ['interop', interop.sort(localeCompare)],
       ['license', nwPkgLicense ?? UNLICENSED],
       ['package', origPkgName],
+      ['version', version],
       ...(nmPkgDeprecated ? [['deprecated', true]] : []),
       ...(skipTests ? [['skipTests', true]] : []),
       ...(engines ? [['engines', toSortedObject(engines)]] : []),
       ...(socket ? Object.entries(socket) : [])
     ]
     const purlObj = PackageURL.fromString(`pkg:${eco}/${name}@${version}`)
-    const data = [purlObj.toString()]
-    if (metaEntries.length) {
-      data[1] = toSortedObjectFromEntries(metaEntries)
-    }
-    manifestData.push(data.length === 1 ? data[0] : data)
+    manifestData.push([
+      purlObj.toString(),
+      toSortedObjectFromEntries(metaEntries)
+    ])
   })
   if (manifestData.length) {
     manifest[eco] = manifestData.sort((a_, b_) => {

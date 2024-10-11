@@ -25,7 +25,9 @@ declare type ManifestData = {
   engines?: { node: string; npm?: string }
   skipTests?: boolean
 }
+declare type ManifestEntry = [string, ManifestData]
 declare interface SocketSecurityRegistry {
+  getManifestData(eco: EcosystemString): ManifestEntry[] | undefined
   getManifestData(
     eco: EcosystemString,
     regPkgName: string

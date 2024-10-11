@@ -1,13 +1,15 @@
 .DS_Store
 ._.DS_Store
 Thumbs.db
+/.env
 /.eslintcache
 /.nvm
 /.tap
 /.tapci.yaml
 /.vscode
 /npm-debug.log
+/yarn.lock
 **/node_modules
 /*.tsbuildinfo
-.tapci.yaml
+
 test/**/node_workspaces
