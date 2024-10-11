@@ -288,11 +288,13 @@ async function linkPackages(packageNames) {
   // Link files and cleanup package.json scripts of test/npm/node_modules packages.
   const linkedPackageNames = []
   const spinner = new Spinner(`Linking packages...`).start()
+  let logCount = 0
   // Chunk package names to process them in parallel 3 at a time.
   await pEach(packageNames, 3, async regPkgName => {
     const origPkgName = resolveOriginalPackageName(regPkgName)
     const pkgPath = path.join(npmPackagesPath, regPkgName)
     if (!fs.existsSync(pkgPath)) {
+      logCount += 1
       console.log(`⚠️ ${regPkgName}: Missing from ${relNpmPackagesPath}`)
       return
     }
@@ -465,6 +467,7 @@ async function linkPackages(packageNames) {
     const isNmPkgTypeModule = nmEditablePkgJson.content.type === 'module'
     const isModuleTypeMismatch = isNmPkgTypeModule !== isPkgTypeModule
     if (isModuleTypeMismatch) {
+      logCount += 1
       spinner.message = `⚠️ ${origPkgName}: Module type mismatch`
     }
     const actions = new Map()
@@ -501,6 +504,7 @@ async function linkPackages(packageNames) {
               return
             }
           } else {
+            logCount += 1
             console.log(`✘ ${origPkgName}: Cannot convert ESM to CJS`)
           }
         }
@@ -515,7 +519,7 @@ async function linkPackages(packageNames) {
   })
   if (cliArgs.quiet) {
     spinner.stop()
-  } else {
+  } else if (logCount) {
     spinner.stop('✔ Packages linked')
   }
   return linkedPackageNames
