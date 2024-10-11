@@ -5,14 +5,14 @@
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A tested zero dependency drop-in replacement of
-> [`@hyrious/bun.lockb`](https://www.npmjs.com/package/@hyrious/bun.lockb)
+> [`@hyrious/bun.lockb`](https://socket.dev/npm/package/@hyrious/bun.lockb)
 > complete with TypeScript types.
 
 ## Installation
 
 ### Install as a package override
 
-[`@socketsecurity/cli`](https://www.npmjs.com/package/@socketsecurity/cli) will
+[`@socketsecurity/cli`](https://socket.dev/npm/package/@socketsecurity/cli) will
 automagically :sparkles: populate the
 [overrides](https://docs.npmjs.com/cli/v9/configuring-npm/package-json#overrides)
 and [resolutions](https://yarnpkg.com/configuration/manifest#resolutions) fields

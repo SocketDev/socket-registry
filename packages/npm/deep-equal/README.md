@@ -5,14 +5,14 @@
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A tested low dependency drop-in replacement of
-> [`deep-equal`](https://www.npmjs.com/package/deep-equal) complete with
+> [`deep-equal`](https://socket.dev/npm/package/deep-equal) complete with
 > TypeScript types.
 
 ## Installation
 
 ### Install as a package override
 
-[`@socketsecurity/cli`](https://www.npmjs.com/package/@socketsecurity/cli) will
+[`@socketsecurity/cli`](https://socket.dev/npm/package/@socketsecurity/cli) will
 automagically :sparkles: populate the
 [overrides](https://docs.npmjs.com/cli/v9/configuring-npm/package-json#overrides)
 and [resolutions](https://yarnpkg.com/configuration/manifest#resolutions) fields

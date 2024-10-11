@@ -7,7 +7,7 @@
 >A <%~ it.adjectivesText %>
 <% if (Object.keys(it.dependencies).length) { %> low <% } else { %> zero <% } %>
 dependency <% if (it.interop?.includes('esm')) { %> CJS/ESM compatible <% } %>
-drop-in replacement of <% if (it.deprecated) { %> the deprecated <% } %>[`<%= it.originalName %>`](https://www.npmjs.com/package/<%= it.originalName %>)<% if (it.deprecated) { %> package <% } %> complete with TypeScript types.
+drop-in replacement of <% if (it.deprecated) { %> the deprecated <% } %>[`<%= it.originalName %>`](https://socket.dev/npm/package/<%= it.originalName %>)<% if (it.deprecated) { %> package <% } %> complete with TypeScript types.
 
 <% if (it.categories.includes('levelup')) { %>
 ### Enhancements
@@ -19,7 +19,7 @@ drop-in replacement of <% if (it.deprecated) { %> the deprecated <% } %>[`<%= it
 
 ### Install as a package override
 
-[`@socketsecurity/cli`](https://www.npmjs.com/package/@socketsecurity/cli)
+[`@socketsecurity/cli`](https://socket.dev/npm/package/@socketsecurity/cli)
 will automagically :sparkles: populate the
 [overrides](https://docs.npmjs.com/cli/v9/configuring-npm/package-json#overrides)
 and [resolutions](https://yarnpkg.com/configuration/manifest#resolutions) fields

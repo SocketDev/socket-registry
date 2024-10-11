@@ -212,7 +212,7 @@ function toChoice(value) {
     })
     if (!answer) {
       if (answer === false) {
-        await open(`https://npmjs.com/package/${origPkgName}`)
+        await open(`https://socket.dev/npm/package/${origPkgName}`)
       }
       return
     }

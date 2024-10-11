@@ -5,14 +5,14 @@
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A tested zero dependency drop-in replacement of
-> [`array-includes`](https://www.npmjs.com/package/array-includes) complete with
-> TypeScript types.
+> [`array-includes`](https://socket.dev/npm/package/array-includes) complete
+> with TypeScript types.
 
 ## Installation
 
 ### Install as a package override
 
-[`@socketsecurity/cli`](https://www.npmjs.com/package/@socketsecurity/cli) will
+[`@socketsecurity/cli`](https://socket.dev/npm/package/@socketsecurity/cli) will
 automagically :sparkles: populate the
 [overrides](https://docs.npmjs.com/cli/v9/configuring-npm/package-json#overrides)
 and [resolutions](https://yarnpkg.com/configuration/manifest#resolutions) fields
