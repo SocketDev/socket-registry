@@ -35,7 +35,6 @@
     "release:npm": "node ./scripts/release-npm-packages.js",
     "setup": "run-p --aggregate-output update:package-lock update:tap-config",
     "update": "run-p --aggregate-output update:* update:npm:* && run-s update:longtask:**",
-    "update:browserslist-db": "node ./scripts/update-browserslist-db.js",
     "update:empty-dirs": "node ./scripts/update-empty-dirs.js",
     "update:empty-files": "node ./scripts/update-empty-files.js",
     "update:licenses": "node ./scripts/update-licenses.js",

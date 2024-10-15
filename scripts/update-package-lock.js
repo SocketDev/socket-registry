@@ -3,6 +3,7 @@
 const util = require('node:util')
 
 const fs = require('fs-extra')
+const updateBrowserslistDb = require('update-browserslist-db')
 
 const constants = require('@socketregistry/scripts/constants')
 const { parseArgsConfig, rootPackageLockPath, rootPath, yarnPkgExtsJsonPath } =
@@ -53,6 +54,16 @@ async function modifyYarnpkgExtsPkgJson() {
 }
 
 ;(async () => {
+  try {
+    // Surprisingly update-browserslist-db runs synchronously.
+    updateBrowserslistDb()
+  } catch (e) {
+    if (e.name === 'BrowserslistUpdateError') {
+      console.error(`update-browserslist-db: ${e.message}\n`)
+    } else {
+      throw e
+    }
+  }
   if (
     cliArgs.force ||
     (await modifyRootPkgLock()) ||
