@@ -623,8 +623,8 @@ function unescapeScope(escapedScope) {
 
 function visitLicenses(ast, visitor) {
   const queue = [[createAstNode(ast), undefined]]
-  let { length: queueLength } = queue
   let pos = 0
+  let { length: queueLength } = queue
   while (pos < queueLength) {
     if (pos === LOOP_SENTINEL) {
       throw new Error('Detected infinite loop in ast crawl of visitLicenses')
