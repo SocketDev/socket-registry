@@ -4,15 +4,14 @@
 [![CI - @socketregistry/json-stable-stringify](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
-> A fast, enhanced<sup>[`*`](#enhancements)</sup>, and tested zero dependency
-> drop-in replacement of
+> A fast, enhanced, and tested zero dependency drop-in replacement of
 > [`json-stable-stringify`](https://socket.dev/npm/package/json-stable-stringify)
 > complete with TypeScript types.
 
 ### Enhancements
 
-- No call stack limits
-- Supports
+- ♾️ No call stack limits
+- 🆕 Supports
   [`JSON.rawJSON()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/rawJSON)
 
 ## Installation

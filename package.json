@@ -2,7 +2,7 @@
   "name": "@socketregistry/monorepo",
   "version": "1.0.1",
   "private": true,
-  "description": "Monorepo for Socket.dev package overrides",
+  "description": "Monorepo for Socket.dev optimized package overrides",
   "homepage": "http://github.com/SocketDev/socket-registry-js",
   "license": "MIT",
   "repository": {

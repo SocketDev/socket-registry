@@ -88,9 +88,7 @@ async function getNpmReadmeAction(pkgPath) {
     : [...PACKAGE_DEFAULT_SOCKET_CATEGORIES]
   const adjectives = [
     ...(categories.includes('speedup') ? ['fast'] : []),
-    ...(categories.includes('levelup')
-      ? ['enhanced<sup>[`*`](#enhancements)</sup>']
-      : []),
+    ...(categories.includes('levelup') ? ['enhanced'] : []),
     ...(categories.includes('tuneup') ? ['secure'] : []),
     'tested'
   ]
