@@ -4,42 +4,41 @@
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A collection of [Socket.dev](https://socket.dev/) optimize package overrides
-> for use with [`@socketregistry/cli`](https://docs.socket.dev/docs/socket-cli).
+> for use with [`@socketsecurity/cli`](https://docs.socket.dev/docs/socket-cli).
 
 <img src="./socket-optimize-demo.gif" height="258px" width="480px" alt="npx @socketsecurity/cli optimize demo">
 
 ## About
 
-In the spirit of the [e18e](https://e18e.dev/) initiative each override may fit
-into one or more of the following categories:
+Inspired by [e18e](https://e18e.dev/), these overrides focus on:
 
-- Cleanup ✨ — _Reduces dependencies by replacing with stubs. For instance,
-  polyfills are replaced by their built-in counterparts._
-- Levelup 🧩 — _Adds new features and uses the latest platform APIs._
-- Speedup ⚡ — _Focuses on performance. Gotta go blazingly lightning fast._
-- Tuneup 🔧 — _Address CVE vulnerabilities, especially in packages that are low
-  to no maintained, providing secure, reliable alternatives._
+- Cleanup ✨ — Reduce dependencies and replace polyfills with built-in
+  equivalents.
+- Levelup 🧩 — Add new features and leverage modern platform APIs.
+- Speedup ⚡ — Boost performance to run faster.
+- Tuneup 🔧 — Address CVEs, especially in outdated or unmaintained packages.
 
-Each override is
+Overrides:
 
-- 💯 tested against the original package's unit tests to ensure compatibility
-- Interopbable with CommonJS
-- Ships with
+- Maintain compatibility by passing original package tests 💯
+- Work seamlessly with CommonJS
+- Retain original licenses and are MIT compatible
+- Include
   <a href="https://www.typescriptlang.org/"><img src="./ts.svg" height="20px" title="This package contains built-in TypeScript declarations" alt="TypeScript icon, indicating that this package has built-in type declarations"></a>
-  TypeScript types
-- Supports current and [LTS](https://nodejs.org/en/about/previous-releases) Node
+  TypeScript definitions
+- Support current and [LTS](https://nodejs.org/en/about/previous-releases) Node
   versions
 
 ## Contribute
 
-To create an npm ecosystem package override
+Adding a new override is simple.
 
-- Initialize this repository with your favorite package manager, e.g.
+- Initialize the repository with your favorite package manager, e.g.
   `npm install`.
 - Run
 
 ```bash
-npm run make:npm-package
+npm run make:npm-package [<package-name>]
 ```
 
 - Follow the prompts to create the scaffolding for your shiny new override.
