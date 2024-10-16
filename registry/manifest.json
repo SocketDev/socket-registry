@@ -533,7 +533,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/hyrious__bun.lockb@1.0.0",
+      "pkg:npm/%40socketregistry/hyrious__bun.lockb@1.0.1",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -541,7 +541,7 @@
         "license": "MIT",
         "package": "@hyrious/bun.lockb",
         "skipTests": true,
-        "version": "1.0.0"
+        "version": "1.0.1"
       }
     ],
     [
@@ -810,14 +810,14 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/json-stable-stringify@1.0.2",
+      "pkg:npm/%40socketregistry/json-stable-stringify@1.0.3",
       {
         "categories": ["cleanup", "levelup", "speedup"],
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
         "package": "json-stable-stringify",
-        "version": "1.0.2"
+        "version": "1.0.3"
       }
     ],
     [
