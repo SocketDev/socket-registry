@@ -375,10 +375,7 @@ function isSubpathExports(entryExports) {
 }
 
 function isValidPackageName(pkgName) {
-  const validation = validateNpmPackageName(pkgName)
-  return (
-    validation.validForNewPackages || validation.validForOldPackages || false
-  )
+  return validateNpmPackageName(pkgName).validForOldPackages
 }
 
 function jsonToEditablePackageJson(pkgJson, options) {
