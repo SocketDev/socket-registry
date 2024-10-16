@@ -6,6 +6,8 @@
 > A collection of [Socket.dev](https://socket.dev/) optimize package overrides
 > for use with [`@socketregistry/cli`](https://docs.socket.dev/docs/socket-cli).
 
+<img src="./socket-optimize-demo.gif" height="258px" width="480px" alt="npx @socketsecurity/cli optimize demo">
+
 ## About
 
 In the spirit of the [e18e](https://e18e.dev/) initiative each override may fit
