@@ -1,6 +1,7 @@
 'use strict'
 
 const shimIterator = require('./Iterator/shim')
+const shimIteratorConcat = require('./Iterator.concat/shim')
 const shimIteratorFrom = require('./Iterator.from/shim')
 const shimIteratorProto = require('./Iterator.prototype/shim')
 const shimIteratorCtor = require('./Iterator.prototype.constructor/shim')
@@ -18,6 +19,7 @@ const shimIteratorToArray = require('./Iterator.prototype.toArray/shim')
 
 module.exports = function shimIteratorHelpers() {
   shimIterator()
+  shimIteratorConcat()
   shimIteratorFrom()
   shimIteratorProto()
   shimIteratorCtor()

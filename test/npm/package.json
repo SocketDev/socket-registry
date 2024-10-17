@@ -36,7 +36,7 @@
     "es-aggregate-error": "^1.0.13",
     "es-define-property": "^1.0.0",
     "es-get-iterator": "^1.1.3",
-    "es-iterator-helpers": "^1.0.19",
+    "es-iterator-helpers": "^1.1.0",
     "es-set-tostringtag": "^2.0.3",
     "es6-object-assign": "https://github.com/rubennorte/es6-object-assign/archive/77eb94482832b642aefb1b875f2921a13f6003c6.tar.gz",
     "es6-symbol": "https://github.com/medikoo/es6-symbol/archive/c57f8d88070cec913ff4e3e0ed5192b2330373b2.tar.gz",

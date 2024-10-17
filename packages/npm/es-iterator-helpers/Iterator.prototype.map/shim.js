@@ -7,7 +7,7 @@ const { defineProperty: ObjectDefineProperty } = Object
 
 module.exports = function shimIteratorProtoMap() {
   const polyfill = getPolyfill()
-  if (polyfill && IteratorPrototype.drop !== polyfill) {
+  if (polyfill && IteratorPrototype.map !== polyfill) {
     ObjectDefineProperty(IteratorPrototype, 'map', {
       __proto__: null,
       configurable: true,

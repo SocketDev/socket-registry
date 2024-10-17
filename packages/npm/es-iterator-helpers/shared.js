@@ -68,9 +68,9 @@ function isObjectType(value) {
   )
 }
 
-const isIteratorNextCheckBuggy = (() => {
-  const builtinDrop = Iterator?.prototype?.drop
-  if (typeof builtinDrop === 'function') {
+const isIteratorNextCheckBuggy = (IteratorPrototype, methodName, ...args) => {
+  const builtinMethod = IteratorPrototype?.[methodName]
+  if (typeof builtinMethod === 'function') {
     // Step 7 of https://tc39.es/proposal-iterator-helpers/#sec-iteratorprototype.drop
     // calls https://tc39.es/proposal-iterator-helpers/#sec-getiteratordirect
     // which makes an Iterator Record with [[NextMethod]] set to null. When the
@@ -79,12 +79,12 @@ const isIteratorNextCheckBuggy = (() => {
     // a null. Which must throw.
     // https://issues.chromium.org/issues/336839115
     try {
-      builtinDrop.call({ next: null }, 0).next()
+      builtinMethod.call({ next: null }, ...args).next()
       return true
     } catch {}
   }
   return false
-})()
+}
 
 module.exports = {
   fixIterator,

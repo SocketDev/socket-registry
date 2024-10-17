@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/es-iterator-helpers",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "MIT",
   "description": "Socket.dev optimized package override for es-iterator-helpers",
   "keywords": [
@@ -42,25 +42,25 @@
       "types": "./Iterator/shim.d.ts",
       "default": "./Iterator/shim.js"
     },
-    "./Iterator.prototype": {
-      "types": "./Iterator.prototype/index.d.ts",
-      "default": "./Iterator.prototype/index.js"
+    "./Iterator.concat": {
+      "types": "./Iterator.concat/index.d.ts",
+      "default": "./Iterator.concat/index.js"
     },
-    "./Iterator.prototype/auto": {
-      "types": "./Iterator.prototype/auto.d.ts",
-      "default": "./Iterator.prototype/auto.js"
+    "./Iterator.concat/auto": {
+      "types": "./Iterator.concat/auto.d.ts",
+      "default": "./Iterator.concat/auto.js"
     },
-    "./Iterator.prototype/polyfill": {
-      "types": "./Iterator.prototype/polyfill.d.ts",
-      "default": "./Iterator.prototype/polyfill.js"
+    "./Iterator.concat/polyfill": {
+      "types": "./Iterator.concat/polyfill.d.ts",
+      "default": "./Iterator.concat/polyfill.js"
     },
-    "./Iterator.prototype/implementation": {
-      "types": "./Iterator.prototype/implementation.d.ts",
-      "default": "./Iterator.prototype/implementation.js"
+    "./Iterator.concat/implementation": {
+      "types": "./Iterator.concat/implementation.d.ts",
+      "default": "./Iterator.concat/implementation.js"
     },
-    "./Iterator.prototype/shim": {
-      "types": "./Iterator.prototype/shim.d.ts",
-      "default": "./Iterator.prototype/shim.js"
+    "./Iterator.concat/shim": {
+      "types": "./Iterator.concat/shim.d.ts",
+      "default": "./Iterator.concat/shim.js"
     },
     "./Iterator.from": {
       "types": "./Iterator.from/index.d.ts",
@@ -82,6 +82,26 @@
       "types": "./Iterator.from/shim.d.ts",
       "default": "./Iterator.from/shim.js"
     },
+    "./Iterator.prototype": {
+      "types": "./Iterator.prototype/index.d.ts",
+      "default": "./Iterator.prototype/index.js"
+    },
+    "./Iterator.prototype/auto": {
+      "types": "./Iterator.prototype/auto.d.ts",
+      "default": "./Iterator.prototype/auto.js"
+    },
+    "./Iterator.prototype/polyfill": {
+      "types": "./Iterator.prototype/polyfill.d.ts",
+      "default": "./Iterator.prototype/polyfill.js"
+    },
+    "./Iterator.prototype/implementation": {
+      "types": "./Iterator.prototype/implementation.d.ts",
+      "default": "./Iterator.prototype/implementation.js"
+    },
+    "./Iterator.prototype/shim": {
+      "types": "./Iterator.prototype/shim.d.ts",
+      "default": "./Iterator.prototype/shim.js"
+    },
     "./Iterator.prototype.constructor": {
       "types": "./Iterator.prototype.constructor/index.d.ts",
       "default": "./Iterator.prototype.constructor/index.js"
@@ -101,66 +121,6 @@
     "./Iterator.prototype.constructor/shim": {
       "types": "./Iterator.prototype.constructor/shim.d.ts",
       "default": "./Iterator.prototype.constructor/shim.js"
-    },
-    "./Iterator.prototype.map": {
-      "types": "./Iterator.prototype.map/index.d.ts",
-      "default": "./Iterator.prototype.map/index.js"
-    },
-    "./Iterator.prototype.map/auto": {
-      "types": "./Iterator.prototype.map/auto.d.ts",
-      "default": "./Iterator.prototype.map/auto.js"
-    },
-    "./Iterator.prototype.map/polyfill": {
-      "types": "./Iterator.prototype.map/polyfill.d.ts",
-      "default": "./Iterator.prototype.map/polyfill.js"
-    },
-    "./Iterator.prototype.map/implementation": {
-      "types": "./Iterator.prototype.map/implementation.d.ts",
-      "default": "./Iterator.prototype.map/implementation.js"
-    },
-    "./Iterator.prototype.map/shim": {
-      "types": "./Iterator.prototype.map/shim.d.ts",
-      "default": "./Iterator.prototype.map/shim.js"
-    },
-    "./Iterator.prototype.filter": {
-      "types": "./Iterator.prototype.filter/index.d.ts",
-      "default": "./Iterator.prototype.filter/index.js"
-    },
-    "./Iterator.prototype.filter/auto": {
-      "types": "./Iterator.prototype.filter/auto.d.ts",
-      "default": "./Iterator.prototype.filter/auto.js"
-    },
-    "./Iterator.prototype.filter/polyfill": {
-      "types": "./Iterator.prototype.filter/polyfill.d.ts",
-      "default": "./Iterator.prototype.filter/polyfill.js"
-    },
-    "./Iterator.prototype.filter/implementation": {
-      "types": "./Iterator.prototype.filter/implementation.d.ts",
-      "default": "./Iterator.prototype.filter/implementation.js"
-    },
-    "./Iterator.prototype.filter/shim": {
-      "types": "./Iterator.prototype.filter/shim.d.ts",
-      "default": "./Iterator.prototype.filter/shim.js"
-    },
-    "./Iterator.prototype.take": {
-      "types": "./Iterator.prototype.take/index.d.ts",
-      "default": "./Iterator.prototype.take/index.js"
-    },
-    "./Iterator.prototype.take/auto": {
-      "types": "./Iterator.prototype.take/auto.d.ts",
-      "default": "./Iterator.prototype.take/auto.js"
-    },
-    "./Iterator.prototype.take/polyfill": {
-      "types": "./Iterator.prototype.take/polyfill.d.ts",
-      "default": "./Iterator.prototype.take/polyfill.js"
-    },
-    "./Iterator.prototype.take/implementation": {
-      "types": "./Iterator.prototype.take/implementation.d.ts",
-      "default": "./Iterator.prototype.take/implementation.js"
-    },
-    "./Iterator.prototype.take/shim": {
-      "types": "./Iterator.prototype.take/shim.d.ts",
-      "default": "./Iterator.prototype.take/shim.js"
     },
     "./Iterator.prototype.drop": {
       "types": "./Iterator.prototype.drop/index.d.ts",
@@ -182,6 +142,66 @@
       "types": "./Iterator.prototype.drop/shim.d.ts",
       "default": "./Iterator.prototype.drop/shim.js"
     },
+    "./Iterator.prototype.every": {
+      "types": "./Iterator.prototype.every/index.d.ts",
+      "default": "./Iterator.prototype.every/index.js"
+    },
+    "./Iterator.prototype.every/auto": {
+      "types": "./Iterator.prototype.every/auto.d.ts",
+      "default": "./Iterator.prototype.every/auto.js"
+    },
+    "./Iterator.prototype.every/polyfill": {
+      "types": "./Iterator.prototype.every/polyfill.d.ts",
+      "default": "./Iterator.prototype.every/polyfill.js"
+    },
+    "./Iterator.prototype.every/implementation": {
+      "types": "./Iterator.prototype.every/implementation.d.ts",
+      "default": "./Iterator.prototype.every/implementation.js"
+    },
+    "./Iterator.prototype.every/shim": {
+      "types": "./Iterator.prototype.every/shim.d.ts",
+      "default": "./Iterator.prototype.every/shim.js"
+    },
+    "./Iterator.prototype.filter": {
+      "types": "./Iterator.prototype.filter/index.d.ts",
+      "default": "./Iterator.prototype.filter/index.js"
+    },
+    "./Iterator.prototype.filter/auto": {
+      "types": "./Iterator.prototype.filter/auto.d.ts",
+      "default": "./Iterator.prototype.filter/auto.js"
+    },
+    "./Iterator.prototype.filter/polyfill": {
+      "types": "./Iterator.prototype.filter/polyfill.d.ts",
+      "default": "./Iterator.prototype.filter/polyfill.js"
+    },
+    "./Iterator.prototype.filter/implementation": {
+      "types": "./Iterator.prototype.filter/implementation.d.ts",
+      "default": "./Iterator.prototype.filter/implementation.js"
+    },
+    "./Iterator.prototype.filter/shim": {
+      "types": "./Iterator.prototype.filter/shim.d.ts",
+      "default": "./Iterator.prototype.filter/shim.js"
+    },
+    "./Iterator.prototype.find": {
+      "types": "./Iterator.prototype.find/index.d.ts",
+      "default": "./Iterator.prototype.find/index.js"
+    },
+    "./Iterator.prototype.find/auto": {
+      "types": "./Iterator.prototype.find/auto.d.ts",
+      "default": "./Iterator.prototype.find/auto.js"
+    },
+    "./Iterator.prototype.find/polyfill": {
+      "types": "./Iterator.prototype.find/polyfill.d.ts",
+      "default": "./Iterator.prototype.find/polyfill.js"
+    },
+    "./Iterator.prototype.find/implementation": {
+      "types": "./Iterator.prototype.find/implementation.d.ts",
+      "default": "./Iterator.prototype.find/implementation.js"
+    },
+    "./Iterator.prototype.find/shim": {
+      "types": "./Iterator.prototype.find/shim.d.ts",
+      "default": "./Iterator.prototype.find/shim.js"
+    },
     "./Iterator.prototype.flatMap": {
       "types": "./Iterator.prototype.flatMap/index.d.ts",
       "default": "./Iterator.prototype.flatMap/index.js"
@@ -201,46 +221,6 @@
     "./Iterator.prototype.flatMap/shim": {
       "types": "./Iterator.prototype.flatMap/shim.d.ts",
       "default": "./Iterator.prototype.flatMap/shim.js"
-    },
-    "./Iterator.prototype.reduce": {
-      "types": "./Iterator.prototype.reduce/index.d.ts",
-      "default": "./Iterator.prototype.reduce/index.js"
-    },
-    "./Iterator.prototype.reduce/auto": {
-      "types": "./Iterator.prototype.reduce/auto.d.ts",
-      "default": "./Iterator.prototype.reduce/auto.js"
-    },
-    "./Iterator.prototype.reduce/polyfill": {
-      "types": "./Iterator.prototype.reduce/polyfill.d.ts",
-      "default": "./Iterator.prototype.reduce/polyfill.js"
-    },
-    "./Iterator.prototype.reduce/implementation": {
-      "types": "./Iterator.prototype.reduce/implementation.d.ts",
-      "default": "./Iterator.prototype.reduce/implementation.js"
-    },
-    "./Iterator.prototype.reduce/shim": {
-      "types": "./Iterator.prototype.reduce/shim.d.ts",
-      "default": "./Iterator.prototype.reduce/shim.js"
-    },
-    "./Iterator.prototype.toArray": {
-      "types": "./Iterator.prototype.toArray/index.d.ts",
-      "default": "./Iterator.prototype.toArray/index.js"
-    },
-    "./Iterator.prototype.toArray/auto": {
-      "types": "./Iterator.prototype.toArray/auto.d.ts",
-      "default": "./Iterator.prototype.toArray/auto.js"
-    },
-    "./Iterator.prototype.toArray/polyfill": {
-      "types": "./Iterator.prototype.toArray/polyfill.d.ts",
-      "default": "./Iterator.prototype.toArray/polyfill.js"
-    },
-    "./Iterator.prototype.toArray/implementation": {
-      "types": "./Iterator.prototype.toArray/implementation.d.ts",
-      "default": "./Iterator.prototype.toArray/implementation.js"
-    },
-    "./Iterator.prototype.toArray/shim": {
-      "types": "./Iterator.prototype.toArray/shim.d.ts",
-      "default": "./Iterator.prototype.toArray/shim.js"
     },
     "./Iterator.prototype.forEach": {
       "types": "./Iterator.prototype.forEach/index.d.ts",
@@ -262,6 +242,46 @@
       "types": "./Iterator.prototype.forEach/shim.d.ts",
       "default": "./Iterator.prototype.forEach/shim.js"
     },
+    "./Iterator.prototype.map": {
+      "types": "./Iterator.prototype.map/index.d.ts",
+      "default": "./Iterator.prototype.map/index.js"
+    },
+    "./Iterator.prototype.map/auto": {
+      "types": "./Iterator.prototype.map/auto.d.ts",
+      "default": "./Iterator.prototype.map/auto.js"
+    },
+    "./Iterator.prototype.map/polyfill": {
+      "types": "./Iterator.prototype.map/polyfill.d.ts",
+      "default": "./Iterator.prototype.map/polyfill.js"
+    },
+    "./Iterator.prototype.map/implementation": {
+      "types": "./Iterator.prototype.map/implementation.d.ts",
+      "default": "./Iterator.prototype.map/implementation.js"
+    },
+    "./Iterator.prototype.map/shim": {
+      "types": "./Iterator.prototype.map/shim.d.ts",
+      "default": "./Iterator.prototype.map/shim.js"
+    },
+    "./Iterator.prototype.reduce": {
+      "types": "./Iterator.prototype.reduce/index.d.ts",
+      "default": "./Iterator.prototype.reduce/index.js"
+    },
+    "./Iterator.prototype.reduce/auto": {
+      "types": "./Iterator.prototype.reduce/auto.d.ts",
+      "default": "./Iterator.prototype.reduce/auto.js"
+    },
+    "./Iterator.prototype.reduce/polyfill": {
+      "types": "./Iterator.prototype.reduce/polyfill.d.ts",
+      "default": "./Iterator.prototype.reduce/polyfill.js"
+    },
+    "./Iterator.prototype.reduce/implementation": {
+      "types": "./Iterator.prototype.reduce/implementation.d.ts",
+      "default": "./Iterator.prototype.reduce/implementation.js"
+    },
+    "./Iterator.prototype.reduce/shim": {
+      "types": "./Iterator.prototype.reduce/shim.d.ts",
+      "default": "./Iterator.prototype.reduce/shim.js"
+    },
     "./Iterator.prototype.some": {
       "types": "./Iterator.prototype.some/index.d.ts",
       "default": "./Iterator.prototype.some/index.js"
@@ -282,45 +302,45 @@
       "types": "./Iterator.prototype.some/shim.d.ts",
       "default": "./Iterator.prototype.some/shim.js"
     },
-    "./Iterator.prototype.every": {
-      "types": "./Iterator.prototype.every/index.d.ts",
-      "default": "./Iterator.prototype.every/index.js"
+    "./Iterator.prototype.take": {
+      "types": "./Iterator.prototype.take/index.d.ts",
+      "default": "./Iterator.prototype.take/index.js"
     },
-    "./Iterator.prototype.every/auto": {
-      "types": "./Iterator.prototype.every/auto.d.ts",
-      "default": "./Iterator.prototype.every/auto.js"
+    "./Iterator.prototype.take/auto": {
+      "types": "./Iterator.prototype.take/auto.d.ts",
+      "default": "./Iterator.prototype.take/auto.js"
     },
-    "./Iterator.prototype.every/polyfill": {
-      "types": "./Iterator.prototype.every/polyfill.d.ts",
-      "default": "./Iterator.prototype.every/polyfill.js"
+    "./Iterator.prototype.take/polyfill": {
+      "types": "./Iterator.prototype.take/polyfill.d.ts",
+      "default": "./Iterator.prototype.take/polyfill.js"
     },
-    "./Iterator.prototype.every/implementation": {
-      "types": "./Iterator.prototype.every/implementation.d.ts",
-      "default": "./Iterator.prototype.every/implementation.js"
+    "./Iterator.prototype.take/implementation": {
+      "types": "./Iterator.prototype.take/implementation.d.ts",
+      "default": "./Iterator.prototype.take/implementation.js"
     },
-    "./Iterator.prototype.every/shim": {
-      "types": "./Iterator.prototype.every/shim.d.ts",
-      "default": "./Iterator.prototype.every/shim.js"
+    "./Iterator.prototype.take/shim": {
+      "types": "./Iterator.prototype.take/shim.d.ts",
+      "default": "./Iterator.prototype.take/shim.js"
     },
-    "./Iterator.prototype.find": {
-      "types": "./Iterator.prototype.find/index.d.ts",
-      "default": "./Iterator.prototype.find/index.js"
+    "./Iterator.prototype.toArray": {
+      "types": "./Iterator.prototype.toArray/index.d.ts",
+      "default": "./Iterator.prototype.toArray/index.js"
     },
-    "./Iterator.prototype.find/auto": {
-      "types": "./Iterator.prototype.find/auto.d.ts",
-      "default": "./Iterator.prototype.find/auto.js"
+    "./Iterator.prototype.toArray/auto": {
+      "types": "./Iterator.prototype.toArray/auto.d.ts",
+      "default": "./Iterator.prototype.toArray/auto.js"
     },
-    "./Iterator.prototype.find/polyfill": {
-      "types": "./Iterator.prototype.find/polyfill.d.ts",
-      "default": "./Iterator.prototype.find/polyfill.js"
+    "./Iterator.prototype.toArray/polyfill": {
+      "types": "./Iterator.prototype.toArray/polyfill.d.ts",
+      "default": "./Iterator.prototype.toArray/polyfill.js"
     },
-    "./Iterator.prototype.find/implementation": {
-      "types": "./Iterator.prototype.find/implementation.d.ts",
-      "default": "./Iterator.prototype.find/implementation.js"
+    "./Iterator.prototype.toArray/implementation": {
+      "types": "./Iterator.prototype.toArray/implementation.d.ts",
+      "default": "./Iterator.prototype.toArray/implementation.js"
     },
-    "./Iterator.prototype.find/shim": {
-      "types": "./Iterator.prototype.find/shim.d.ts",
-      "default": "./Iterator.prototype.find/shim.js"
+    "./Iterator.prototype.toArray/shim": {
+      "types": "./Iterator.prototype.toArray/shim.d.ts",
+      "default": "./Iterator.prototype.toArray/shim.js"
     },
     "./package.json": "./package.json"
   },

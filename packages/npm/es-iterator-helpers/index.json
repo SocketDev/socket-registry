@@ -1,5 +1,6 @@
 [
   "Iterator",
+  "Iterator.concat",
   "Iterator.from",
   "Iterator.prototype",
   "Iterator.prototype.constructor",

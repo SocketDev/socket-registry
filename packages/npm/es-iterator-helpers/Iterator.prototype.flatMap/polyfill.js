@@ -5,5 +5,7 @@ const IteratorPrototype = require('../Iterator.prototype/implementation')
 const { isIteratorNextCheckBuggy } = require('../shared')
 
 module.exports = function getPolyfill() {
-  return isIteratorNextCheckBuggy ? impl : IteratorPrototype.flatMap
+  return isIteratorNextCheckBuggy(IteratorPrototype, 'flatMap', () => {})
+    ? impl
+    : IteratorPrototype.flatMap
 }
