@@ -79,6 +79,7 @@ async function addNpmManifestData(manifest) {
     }
     const skipTests = skipTestsByEcosystem[eco].has(regPkgName)
     const metaEntries = [
+      ['name', name],
       ['interop', interop.sort(localeCompare)],
       ['license', nwPkgLicense ?? UNLICENSED],
       ['package', origPkgName],

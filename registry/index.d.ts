@@ -23,6 +23,7 @@ declare type ManifestEntryData = {
   categories: CategoryString[]
   interop: InteropString[]
   license: string
+  name: string
   package: string
   version: string
   deprecated?: boolean
