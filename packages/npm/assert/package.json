@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/assert",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "MIT",
   "description": "Socket.dev optimized package override for assert",
   "keywords": [
@@ -46,6 +46,11 @@
     "object.assign": "npm:@socketregistry/object.assign@^1",
     "util": "npm:util@0.12.5",
     "which-typed-array": "npm:@socketregistry/which-typed-array@^1"
+  },
+  "dependenciesMeta": {
+    "call-bind": {
+      "injected": true
+    }
   },
   "engines": {
     "node": ">=18.20.4"
