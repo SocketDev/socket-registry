@@ -303,7 +303,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/deep-equal@1.0.2",
+      "pkg:npm/%40socketregistry/deep-equal@1.0.3",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -311,7 +311,7 @@
         "license": "MIT",
         "name": "@socketregistry/deep-equal",
         "package": "deep-equal",
-        "version": "1.0.2"
+        "version": "1.0.3"
       }
     ],
     [

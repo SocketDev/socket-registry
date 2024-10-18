@@ -53,7 +53,7 @@
   "files": [
     "*.d.ts",
     "**/*.js",
-    "!overrides/**/{*.d.ts,index.js}"
+    "!overrides/call-bind/{*.d.ts,index.js}"
   ],
   "socket": {
     "categories": [

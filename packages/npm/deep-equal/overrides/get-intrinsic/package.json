@@ -1,34 +1,35 @@
 {
-  "name": "@socketsecurity/registry",
-  "version": "1.0.8",
+  "name": "@socketregistry/deep-equal",
+  "version": "1.0.3-overrides-get-intrinsic",
   "license": "MIT",
-  "description": "Socket.dev registry helpers methods and metadata",
+  "description": "Socket.dev optimized package override for deep-equal/get-intrinsic",
   "keywords": [
-    "Socket.dev"
+    "Socket.dev",
+    "package-overrides"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry-js.git",
-    "directory": "registry"
+    "directory": "packages/npm/deep-equal/overrides/get-intrinsic"
   },
   "exports": {
     ".": {
       "types": "./index.d.ts",
       "default": "./index.js"
     },
-    "./manifest.json": "./manifest.json",
     "./package.json": "./package.json"
   },
   "sideEffects": false,
-  "dependencies": {
-    "packageurl-js": "^2.0.1"
-  },
   "engines": {
     "node": ">=18.20.4"
   },
   "files": [
     "*.d.ts",
-    "*.{c,}js",
-    "*.json"
-  ]
+    "*.js"
+  ],
+  "socket": {
+    "categories": [
+      "cleanup"
+    ]
+  }
 }

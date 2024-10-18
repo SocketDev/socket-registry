@@ -1,0 +1,39 @@
+{
+  "name": "@socketregistry/deep-equal",
+  "version": "1.0.3-overrides-call-bind",
+  "license": "MIT",
+  "description": "Socket.dev optimized package override for deep-equal/call-bind",
+  "keywords": [
+    "Socket.dev",
+    "package-overrides"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SocketDev/socket-registry-js.git",
+    "directory": "packages/npm/deep-equal/overrides/call-bind"
+  },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./callBound": {
+      "types": "./callBound.d.ts",
+      "default": "./callBound.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.20.4"
+  },
+  "files": [
+    "*.d.ts",
+    "*.js"
+  ],
+  "socket": {
+    "categories": [
+      "cleanup"
+    ]
+  }
+}
