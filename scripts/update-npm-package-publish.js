@@ -3,9 +3,18 @@
 const path = require('node:path')
 const util = require('node:util')
 
+const semver = require('semver')
+
 const constants = require('@socketregistry/scripts/constants')
-const { COLUMN_LIMIT, ENV, npmPackagesPath, parseArgsConfig, registryPkgPath } =
-  constants
+const {
+  COLUMN_LIMIT,
+  ENV,
+  PACKAGE_JSON,
+  PACKAGE_SCOPE,
+  npmPackagesPath,
+  parseArgsConfig,
+  registryPkgPath
+} = constants
 const { joinAsList } = require('@socketregistry/scripts/utils/arrays')
 const { readDirNames } = require('@socketregistry/scripts/utils/fs')
 const { execNpm } = require('@socketregistry/scripts/utils/npm')
@@ -25,43 +34,56 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
       ...constants.npmPackageNames.map(async regPkgName => {
         const pkgPath = path.join(npmPackagesPath, regPkgName)
         const overridesPath = path.join(pkgPath, 'overrides')
+        const name = `${PACKAGE_SCOPE}/${regPkgName}`
+        const shortName = regPkgName
         return [
-          { name: regPkgName, path: pkgPath },
-          ...(await readDirNames(overridesPath)).map(n => ({
-            name: regPkgName,
-            path: path.join(overridesPath, n)
-          }))
+          { name, path: pkgPath, shortName },
+          ...(await readDirNames(overridesPath)).map(n => {
+            const overridesPkgPath = path.join(overridesPath, n)
+            const overridesPkgJsonPath = path.join(
+              overridesPkgPath,
+              PACKAGE_JSON
+            )
+            const tag =
+              semver.prerelease(require(overridesPkgJsonPath).version) ??
+              undefined
+            return { name, path: overridesPkgPath, shortName, tag }
+          })
         ]
       }),
       { name: '@socketsecurity/registry', path: registryPkgPath }
     ])
   ).flat()
   // Chunk package names to process them in parallel 3 at a time.
-  await pEach(packages, 3, async ({ name: regPkgName, path: pkgPath }) => {
-    try {
-      const { stdout } = await execNpm(
-        ['publish', '--provenance', '--access', 'public'],
-        {
-          cwd: pkgPath,
-          stdio: 'pipe',
-          env: {
-            __proto__: null,
-            ...process.env,
-            NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
+  await pEach(
+    packages,
+    3,
+    async ({ name, path: pkgPath, shortName = name, tag = 'latest' }) => {
+      try {
+        const { stdout } = await execNpm(
+          ['publish', '--provenance', '--tag', tag, '--access', 'public'],
+          {
+            cwd: pkgPath,
+            stdio: 'pipe',
+            env: {
+              __proto__: null,
+              ...process.env,
+              NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
+            }
           }
+        )
+        console.log(stdout)
+      } catch (e) {
+        const stderr = e?.stderr ?? ''
+        const isPublishOverError =
+          stderr.includes('code E403') && stderr.includes('cannot publish over')
+        if (!isPublishOverError) {
+          failures.push(shortName)
+          console.log(stderr)
         }
-      )
-      console.log(stdout)
-    } catch (e) {
-      const stderr = e?.stderr ?? ''
-      const isPublishOverError =
-        stderr.includes('code E403') && stderr.includes('cannot publish over')
-      if (!isPublishOverError) {
-        failures.push(regPkgName)
-        console.log(stderr)
       }
     }
-  })
+  )
   if (failures.length) {
     const msg = `⚠️ Unable to publish ${failures.length} package${failures.length > 1 ? 's' : ''}:`
     const msgList = joinAsList(failures)

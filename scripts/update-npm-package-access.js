@@ -13,7 +13,6 @@ const {
   registryPkgPath
 } = constants
 const { joinAsList } = require('@socketregistry/scripts/utils/arrays')
-const { readDirNames } = require('@socketregistry/scripts/utils/fs')
 const { execNpm } = require('@socketregistry/scripts/utils/npm')
 const { pEach } = require('@socketregistry/scripts/utils/promises')
 
@@ -25,47 +24,40 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
     return
   }
   const failures = []
-  const packages = (
-    await Promise.all([
-      // Lazily access constants.npmPackageNames.
-      ...constants.npmPackageNames.map(async regPkgName => {
-        const pkgPath = path.join(npmPackagesPath, regPkgName)
-        const overridesPath = path.join(pkgPath, 'overrides')
-        return [
-          { name: regPkgName, path: pkgPath },
-          ...(await readDirNames(overridesPath)).map(n => ({
-            name: regPkgName,
-            path: path.join(overridesPath, n)
-          }))
-        ]
-      }),
-      { name: '@socketsecurity/registry', path: registryPkgPath }
-    ])
-  ).flat()
+  const packages = [
+    // Lazily access constants.npmPackageNames.
+    ...constants.npmPackageNames.map(async regPkgName => ({
+      name: `${PACKAGE_SCOPE}/${regPkgName}`,
+      path: path.join(npmPackagesPath, regPkgName),
+      shortName: regPkgName
+    })),
+    { name: '@socketsecurity/registry', path: registryPkgPath }
+  ]
   // Chunk package names to process them in parallel 3 at a time.
-  await pEach(packages, 3, async ({ name: regPkgName, path: pkgPath }) => {
-    try {
-      const pkgName = regPkgName.startsWith('@socketsecurity/')
-        ? regPkgName
-        : `${PACKAGE_SCOPE}/${regPkgName}`
-      const { stdout } = await execNpm(
-        ['access', 'set', 'mfa=automation', pkgName],
-        {
-          cwd: pkgPath,
-          stdio: 'pipe',
-          env: {
-            __proto__: null,
-            ...process.env,
-            NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
+  await pEach(
+    packages,
+    3,
+    async ({ name, path: pkgPath, shortName = name }) => {
+      try {
+        const { stdout } = await execNpm(
+          ['access', 'set', 'mfa=automation', name],
+          {
+            cwd: pkgPath,
+            stdio: 'pipe',
+            env: {
+              __proto__: null,
+              ...process.env,
+              NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
+            }
           }
-        }
-      )
-      console.log(stdout)
-    } catch (e) {
-      failures.push(regPkgName)
-      console.log(e)
+        )
+        console.log(stdout)
+      } catch (e) {
+        failures.push(shortName)
+        console.log(e)
+      }
     }
-  })
+  )
   if (failures.length) {
     const msg = `⚠️ Unable to set access for ${failures.length} package${failures.length > 1 ? 's' : ''}:`
     const msgList = joinAsList(failures)
