@@ -25,10 +25,13 @@ function isSymbolicLinkSync(filepath) {
 }
 
 async function readDirNames(dirname, options) {
-  return innerReadDirNames(
-    await fs.readdir(dirname, { withFileTypes: true }),
-    options
-  )
+  try {
+    return innerReadDirNames(
+      await fs.readdir(dirname, { withFileTypes: true }),
+      options
+    )
+  } catch {}
+  return []
 }
 
 async function remove(filepath, options) {

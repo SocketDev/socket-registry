@@ -160,6 +160,11 @@ for (const eco of constants.ecosystems) {
         const jsonFiles = files
           .filter(p => path.extname(p) === '.json')
           .sort(localeCompare)
+        const localOverridesFiles = filesFieldMatches.filter(p =>
+          p.startsWith(overridesWithSlash)
+        )
+        const hasOverrides =
+          !!pkgOverrides || !!pkgResolutions || localOverridesFiles.length > 0
 
         it('package name should be valid', () => {
           assert.ok(isValidPackageName(pkgJson.name))
@@ -260,13 +265,6 @@ for (const eco of constants.ecosystems) {
           )
         })
 
-        it('package files should match "files" field', () => {
-          const filesToCompare = files.filter(
-            p => !isDotFile(p) || dotFileMatches.includes(p)
-          )
-          assert.deepEqual(filesFieldMatches, filesToCompare)
-        })
-
         if (
           files.includes('implementation.js') &&
           files.includes('polyfill.js')
@@ -327,12 +325,6 @@ for (const eco of constants.ecosystems) {
           })
         }
 
-        const localOverridesFiles = filesFieldMatches.filter(p =>
-          p.startsWith(overridesWithSlash)
-        )
-        const hasOverrides =
-          !!pkgOverrides || !!pkgResolutions || localOverridesFiles.length > 0
-
         if (hasOverrides) {
           const localOverridesPackages = localOverridesFiles.map(p =>
             p.slice(
@@ -343,15 +335,7 @@ for (const eco of constants.ecosystems) {
 
           it('should have overrides and resolutions fields in package.json', () => {
             assert.ok(isObjectObject(pkgOverrides))
-            const actual = Object.fromEntries(
-              Object.entries(pkgOverrides).map(({ 0: k, 1: v }) => {
-                return [
-                  k,
-                  typeof v === 'string' ? v.replace(/^file:/, 'link:') : v
-                ]
-              })
-            )
-            assert.deepEqual(actual, pkgResolutions)
+            assert.ok(isObjectObject(pkgResolutions))
           })
 
           it('should have overrides directory', () => {
@@ -364,6 +348,13 @@ for (const eco of constants.ecosystems) {
               const expected = `${spec.startsWith('link:') ? 'link' : 'file'}:./overrides/${name}`
               assert.strictEqual(spec, expected)
             }
+          })
+        } else {
+          it('package files should match "files" field', () => {
+            const filesToCompare = files.filter(
+              p => !isDotFile(p) || dotFileMatches.includes(p)
+            )
+            assert.deepEqual(filesFieldMatches, filesToCompare)
           })
         }
       })

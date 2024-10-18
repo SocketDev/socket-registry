@@ -229,10 +229,13 @@ const isDirEmptySync = function isDirEmptySync(dirname) {
 }
 
 const readDirNamesSync = function readDirNamesSync(dirname, options) {
-  return innerReadDirNames(
-    fs.readdirSync(dirname, { withFileTypes: true }),
-    options
-  )
+  try {
+    return innerReadDirNames(
+      fs.readdirSync(dirname, { withFileTypes: true }),
+      options
+    )
+  } catch {}
+  return []
 }
 
 const defaultWhichOptions = {

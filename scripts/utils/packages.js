@@ -134,6 +134,7 @@ function createPackageJson(regPkgName, directory, options) {
     keywords,
     main,
     overrides,
+    resolutions,
     sideEffects,
     socket,
     type,
@@ -160,7 +161,8 @@ function createPackageJson(regPkgName, directory, options) {
     ...(entryExports ? {} : { main: `${main ?? './index.js'}` }),
     sideEffects: sideEffects !== undefined && !!sideEffects,
     ...(isObjectObject(dependencies) ? { dependencies } : {}),
-    ...(isObjectObject(overrides) ? { overrides, resolutions: overrides } : {}),
+    ...(isObjectObject(overrides) ? { overrides } : {}),
+    ...(isObjectObject(resolutions) ? { resolutions } : {}),
     ...(isObjectObject(engines)
       ? {
           engines: Object.fromEntries(

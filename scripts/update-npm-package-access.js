@@ -13,6 +13,7 @@ const {
   registryPkgPath
 } = constants
 const { joinAsList } = require('@socketregistry/scripts/utils/arrays')
+const { readDirNames } = require('@socketregistry/scripts/utils/fs')
 const { execNpm } = require('@socketregistry/scripts/utils/npm')
 const { pEach } = require('@socketregistry/scripts/utils/promises')
 
@@ -24,14 +25,23 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
     return
   }
   const failures = []
-  const packages = [
-    // Lazily access constants.npmPackageNames.
-    ...constants.npmPackageNames.map(regPkgName => ({
-      name: regPkgName,
-      path: path.join(npmPackagesPath, regPkgName)
-    })),
-    { name: '@socketsecurity/registry', path: registryPkgPath }
-  ]
+  const packages = (
+    await Promise.all([
+      // Lazily access constants.npmPackageNames.
+      ...constants.npmPackageNames.map(async regPkgName => {
+        const pkgPath = path.join(npmPackagesPath, regPkgName)
+        const overridesPath = path.join(pkgPath, 'overrides')
+        return [
+          { name: regPkgName, path: pkgPath },
+          ...(await readDirNames(overridesPath)).map(n => ({
+            name: regPkgName,
+            path: path.join(overridesPath, n)
+          }))
+        ]
+      }),
+      { name: '@socketsecurity/registry', path: registryPkgPath }
+    ])
+  ).flat()
   // Chunk package names to process them in parallel 3 at a time.
   await pEach(packages, 3, async ({ name: regPkgName, path: pkgPath }) => {
     try {

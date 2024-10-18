@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/assert",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "license": "MIT",
   "description": "Socket.dev optimized package override for assert",
   "keywords": [
@@ -36,7 +36,7 @@
     "which-typed-array": "npm:@socketregistry/which-typed-array@^1"
   },
   "resolutions": {
-    "call-bind": "link:./overrides/call-bind",
+    "call-bind": "npm:@socketregistry/assert@1.0.6-overrides-call-bind",
     "inherits": "npm:inherits@2.0.4",
     "is-arguments": "npm:@socketregistry/is-arguments@^1",
     "is-generator-function": "npm:@socketregistry/is-generator-function@^1",
@@ -52,7 +52,8 @@
   },
   "files": [
     "*.d.ts",
-    "**/*.js"
+    "**/*.js",
+    "!overrides/**/{*.d.ts,index.js}"
   ],
   "socket": {
     "categories": [
