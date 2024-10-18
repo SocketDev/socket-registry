@@ -343,7 +343,15 @@ for (const eco of constants.ecosystems) {
 
           it('should have overrides and resolutions fields in package.json', () => {
             assert.ok(isObjectObject(pkgOverrides))
-            assert.deepEqual(pkgOverrides, pkgResolutions)
+            const actual = Object.fromEntries(
+              Object.entries(pkgOverrides).map(({ 0: k, 1: v }) => {
+                return [
+                  k,
+                  typeof v === 'string' ? v.replace(/^file:/, 'link:') : v
+                ]
+              })
+            )
+            assert.deepEqual(actual, pkgResolutions)
           })
 
           it('should have overrides directory', () => {
@@ -352,7 +360,9 @@ for (const eco of constants.ecosystems) {
 
           it('overrides files should match corresponding package.json field values', () => {
             for (const name of localOverridesPackages) {
-              assert.strictEqual(pkgOverrides[name], `file:./overrides/${name}`)
+              const spec = pkgOverrides[name]
+              const expected = `${spec.startsWith('link:') ? 'link' : 'file'}:./overrides/${name}`
+              assert.strictEqual(spec, expected)
             }
           })
         }
