@@ -223,24 +223,24 @@ async function fetchPackageManifest(pkgNameOrId, options) {
     packumentCache,
     preferOffline: true
   }
+  const { signal } = pacoteOptions
+  if (signal?.aborted) {
+    return null
+  }
   let result
   try {
     result = await pacote.manifest(pkgNameOrId, pacoteOptions)
   } catch {}
+  if (signal?.aborted) {
+    return null
+  }
   if (result) {
     const spec = npmPackageArg(pkgNameOrId, pacoteOptions.where)
-    const { type } = spec
-    // RegistryFetcher spec.type check based on:
-    // https://github.com/npm/pacote/blob/v19.0.0/lib/fetcher.js#L467-L488
-    if (
-      type === 'alias' ||
-      type === 'range' ||
-      type === 'tag' ||
-      type === 'version'
-    ) {
+    if (isRegistryFetcherType(spec.type)) {
       return result
     }
   }
+  // Convert a manifest not fetched by RegistryFetcher to one that is.
   return result
     ? fetchPackageManifest(`${result.name}@${result.version}`, pacoteOptions)
     : null
@@ -358,6 +358,14 @@ function isConditionalExports(entryExports) {
     }
   }
   return true
+}
+
+function isRegistryFetcherType(type) {
+  // RegistryFetcher spec.type check based on:
+  // https://github.com/npm/pacote/blob/v19.0.0/lib/fetcher.js#L467-L488
+  return (
+    type === 'alias' || type === 'range' || type === 'tag' || type === 'version'
+  )
 }
 
 function isSubpathExports(entryExports) {
