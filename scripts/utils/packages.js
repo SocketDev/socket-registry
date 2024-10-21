@@ -5,6 +5,7 @@ const path = require('node:path')
 const EditablePackageJson = require('@npmcli/package-json')
 const cacache = require('cacache')
 const fs = require('fs-extra')
+const pack = require('libnpmpack')
 const makeFetchHappen = require('make-fetch-happen')
 const normalizePackageData = require('normalize-package-data')
 const npmPackageArg = require('npm-package-arg')
@@ -420,6 +421,15 @@ function normalizePackageJson(pkgJson, options) {
   return pkgJson
 }
 
+async function packPackage(spec, options) {
+  return await pack(spec, {
+    __proto__: null,
+    ...options,
+    packumentCache,
+    preferOffline: true
+  })
+}
+
 function parseSpdxExp(spdxExp) {
   try {
     return spdxExpParse(spdxExp)
@@ -672,6 +682,7 @@ module.exports = {
   isSubpathExports,
   isValidPackageName,
   normalizePackageJson,
+  packPackage,
   readPackageJson,
   readPackageJsonSync,
   resolveEscapedScope,

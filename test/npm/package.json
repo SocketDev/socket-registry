@@ -108,7 +108,7 @@
     "side-channel": "^1.0.6",
     "string.fromcodepoint": "^1.0.3",
     "string.prototype.at": "^1.0.6",
-    "string.prototype.codepointat": "^1.0.0",
+    "string.prototype.codepointat": "^1.0.1",
     "string.prototype.endswith": "^1.0.2",
     "string.prototype.includes": "^2.0.0",
     "string.prototype.matchall": "^4.0.11",
