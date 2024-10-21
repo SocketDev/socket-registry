@@ -79,8 +79,8 @@ process.on('SIGINT', () => {
   }
   const spawnOptions = {
     cwd: rootPath,
-    stdio: 'inherit',
-    signal: signal
+    signal,
+    stdio: 'inherit'
   }
   await runScript('update:manifest', [], spawnOptions)
   await runScript('update:package-json', [], spawnOptions)

@@ -61,6 +61,15 @@ const packageNames: string[] =
         )
       })()
 
+const abortController = new AbortController()
+const { signal } = abortController
+
+// Detect ^C, i.e. Ctrl + C.
+process.on('SIGINT', () => {
+  console.log('SIGINT signal received: Exiting gracefully...')
+  abortController.abort()
+})
+
 describe(eco, { skip: !packageNames.length }, () => {
   for (const regPkgName of packageNames) {
     const nwPkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
@@ -78,7 +87,7 @@ describe(eco, { skip: !packageNames.length }, () => {
 
     it(`${origPkgName} passes all its tests`, { skip }, async () => {
       try {
-        await runScript('test', [], { cwd: nwPkgPath })
+        await runScript('test', [], { cwd: nwPkgPath, signal })
         assert.ok(true)
       } catch (e: any) {
         console.log(`✘ ${origPkgName}`, e)

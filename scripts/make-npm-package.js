@@ -137,6 +137,14 @@ function toChoice(value) {
   return { name: value, value: value }
 }
 
+const abortController = new AbortController()
+const { signal } = abortController
+
+// Detect ^C, i.e. Ctrl + C.
+process.on('SIGINT', () => {
+  console.log('SIGINT signal received: Exiting gracefully...')
+  abortController.abort()
+})
 ;(async () => {
   const origPkgName = await input({
     message: 'What is the name of the package to override?',
@@ -424,6 +432,7 @@ function toChoice(value) {
   try {
     const spawnOptions = {
       cwd: rootPath,
+      signal,
       stdio: 'inherit'
     }
     await runScript('update:manifest', [], spawnOptions)

@@ -15,6 +15,14 @@ const { runScript } = require('@socketregistry/scripts/utils/npm')
 const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
 const { localeCompare } = require('@socketregistry/scripts/utils/sorts')
 
+const abortController = new AbortController()
+const { signal } = abortController
+
+// Detect ^C, i.e. Ctrl + C.
+process.on('SIGINT', () => {
+  console.log('SIGINT signal received: Exiting gracefully...')
+  abortController.abort()
+})
 ;(async () => {
   const rootEditablePkgJson = await readPackageJson(rootPackageJsonPath, {
     editable: true
@@ -43,6 +51,7 @@ const { localeCompare } = require('@socketregistry/scripts/utils/sorts')
 
   await runScript('update:package-lock', ['--', '--force'], {
     cwd: rootPath,
+    signal,
     stdio: 'inherit'
   })
 })()
