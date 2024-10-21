@@ -37,7 +37,7 @@
   },
   "sideEffects": false,
   "engines": {
-    "node": ">=21.7.3"
+    "node": ">=18.20.4"
   },
   "files": [
     "*.d.ts",

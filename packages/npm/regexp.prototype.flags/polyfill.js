@@ -1,19 +1,9 @@
 'use strict'
 
 const impl = require('./implementation')
-const { flagsGetter } = require('./shared')
+const { isRegExpProtoFlagsOrderBuggy } = require('./shared')
 
 module.exports = function getPolyfill() {
-  let calls = ''
-  flagsGetter.call({
-    // eslint-disable-next-line getter-return
-    get hasIndices() {
-      calls += 'd'
-    },
-    // eslint-disable-next-line getter-return
-    get sticky() {
-      calls += 'y'
-    }
-  })
-  return calls === 'dy' ? flagsGetter : impl
+  const flagsGetter = RegExp.prototype.__lookupGetter__('flags')
+  return isRegExpProtoFlagsOrderBuggy(flagsGetter) ? impl : flagsGetter
 }

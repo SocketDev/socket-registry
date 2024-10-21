@@ -1,3 +1,3 @@
 'use strict'
 
-module.exports = require('./implementation')
+module.exports = require('./polyfill')()

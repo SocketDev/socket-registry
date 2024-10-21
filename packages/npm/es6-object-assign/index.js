@@ -1,9 +1,9 @@
 'use strict'
 
-const { assign: builtinAssign } = Object
+const { assign: ObjectAssign } = Object
 
 function assign(target, firstSource, ...args) {
-  return builtinAssign(target, firstSource, ...args)
+  return ObjectAssign(target, firstSource, ...args)
 }
 
 function polyfill() {

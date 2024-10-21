@@ -1,6 +1,6 @@
 'use strict'
 
-const { promisify: builtinPromisify } = require('node:util')
+const { promisify: UtilPromisify } = require('node:util')
 
 const impl = require('./implementation')
 
@@ -13,7 +13,7 @@ const desc = value => ({
 
 module.exports = Object.defineProperties(
   function promisify(original) {
-    return builtinPromisify(original)
+    return UtilPromisify(original)
   },
   {
     custom: desc(impl.custom),

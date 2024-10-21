@@ -1,5 +1,5 @@
 declare interface InternalShared {
-  isRegExpProtoFlagsOrderBuggy(flagsGetter: () => string): boolean
+  isDateParseDaysOfMonthBuggy(parse: typeof Date.parse): boolean
 }
 declare const shared: InternalShared
 export = shared

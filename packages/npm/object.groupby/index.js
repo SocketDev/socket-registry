@@ -1,6 +1,7 @@
 'use strict'
 
-const impl = require('./implementation')
+const getPolyfill = require('./polyfill')
+const polyfill = getPolyfill()
 
 const desc = value => ({
   __proto__: null,
@@ -11,11 +12,11 @@ const desc = value => ({
 
 module.exports = Object.defineProperties(
   function groupBy(items, callbackFn) {
-    return new.target ? impl() : impl(items, callbackFn)
+    return new.target ? polyfill() : polyfill(items, callbackFn)
   },
   {
-    getPolyfill: desc(require('./polyfill')),
-    implementation: desc(impl),
+    getPolyfill: desc(getPolyfill),
+    implementation: desc(require('./implementation')),
     shim: desc(require('./shim'))
   }
 )

@@ -1,7 +1,7 @@
 'use strict'
 
 const {
-  promisify: builtinPromisify,
+  promisify: UtilPromisify,
   promisify: { custom }
 } = require('node:util')
 
@@ -11,7 +11,7 @@ const customPromisifyArgs = Object.getOwnPropertySymbols(
 
 module.exports = Object.assign(
   function promisify(original) {
-    return builtinPromisify(original)
+    return UtilPromisify(original)
   },
   {
     custom,

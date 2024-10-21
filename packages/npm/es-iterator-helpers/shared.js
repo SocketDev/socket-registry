@@ -21,7 +21,7 @@ function createBoundIteratorMethod(iterator, key) {
   }
   const msg = `${unbound === null ? 'object null' : typeof unbound} is not a function`
   return {
-    [key]: function () {
+    [key]() {
       throw new TypeError(msg)
     }
   }[key]
@@ -51,6 +51,10 @@ function fixIterator(iterator) {
   }
 }
 
+function isCallable(value) {
+  return typeof value === 'function' && !isEs6Class(value)
+}
+
 function isEs6Class(value) {
   try {
     return classRegExp.test(fnToStr.call(value))
@@ -58,17 +62,7 @@ function isEs6Class(value) {
   return false
 }
 
-function isCallable(value) {
-  return typeof value === 'function' && !isEs6Class(value)
-}
-
-function isObjectType(value) {
-  return (
-    typeof value === 'function' || (value !== null && typeof value === 'object')
-  )
-}
-
-const isIteratorNextCheckBuggy = (IteratorPrototype, methodName, ...args) => {
+function isIteratorProtoNextCheckBuggy(IteratorPrototype, methodName, ...args) {
   const builtinMethod = IteratorPrototype?.[methodName]
   if (typeof builtinMethod === 'function') {
     // Step 7 of https://tc39.es/proposal-iterator-helpers/#sec-iteratorprototype.drop
@@ -86,7 +80,13 @@ const isIteratorNextCheckBuggy = (IteratorPrototype, methodName, ...args) => {
   return false
 }
 
+function isObjectType(value) {
+  return (
+    typeof value === 'function' || (value !== null && typeof value === 'object')
+  )
+}
+
 module.exports = {
   fixIterator,
-  isIteratorNextCheckBuggy
+  isIteratorProtoNextCheckBuggy
 }

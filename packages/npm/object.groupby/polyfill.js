@@ -3,5 +3,6 @@
 const impl = require('./implementation')
 
 module.exports = function getPolyfill() {
-  return impl
+  const { groupBy: ObjectGroupBy } = Object
+  return typeof ObjectGroupBy === 'function' ? ObjectGroupBy : impl
 }

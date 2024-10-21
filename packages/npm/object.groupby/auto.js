@@ -1,1 +1,3 @@
-/* empty */
+'use strict'
+
+require('./shim')()

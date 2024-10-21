@@ -1,7 +1,21 @@
 'use strict'
 
-const impl = require('./implementation')
+const getPolyfill = require('./polyfill')
+
+const { defineProperty: ObjectDefineProperty } = Object
+const map = Array.prototype[Symbol.unscopables]
 
 module.exports = function shimArrayProtoToSorted() {
-  return impl
+  const polyfill = getPolyfill()
+  if (Array.prototype.toSorted !== polyfill) {
+    ObjectDefineProperty(Array.prototype, 'toSorted', {
+      __proto__: null,
+      configurable: true,
+      enumerable: false,
+      value: polyfill,
+      writable: true
+    })
+  }
+  map['toSorted'] = true
+  return polyfill
 }

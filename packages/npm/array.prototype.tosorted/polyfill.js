@@ -3,5 +3,6 @@
 const impl = require('./implementation')
 
 module.exports = function getPolyfill() {
-  return impl
+  const { toSorted: ArrayProtoToSorted } = Array.prototype
+  return typeof ArrayProtoToSorted === 'function' ? ArrayProtoToSorted : impl
 }

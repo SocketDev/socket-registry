@@ -2,10 +2,10 @@
 
 const impl = require('./implementation')
 const IteratorPrototype = require('../Iterator.prototype/implementation')
-const { isIteratorNextCheckBuggy } = require('../shared')
+const { isIteratorProtoNextCheckBuggy } = require('../shared')
 
 module.exports = function getPolyfill() {
-  return isIteratorNextCheckBuggy(IteratorPrototype, 'drop', 0)
+  return isIteratorProtoNextCheckBuggy(IteratorPrototype, 'drop', 0)
     ? impl
     : IteratorPrototype.drop
 }

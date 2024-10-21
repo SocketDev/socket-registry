@@ -346,7 +346,7 @@
   },
   "sideEffects": false,
   "engines": {
-    "node": ">=22.8.0"
+    "node": ">=18.20.4"
   },
   "files": [
     "**/*.d.ts",

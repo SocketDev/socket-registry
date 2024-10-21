@@ -3,5 +3,8 @@
 const impl = require('./implementation')
 
 module.exports = function getPolyfill() {
-  return impl
+  const { toReversed: ArrayProtoToReversed } = Array.prototype
+  return typeof ArrayProtoToReversed === 'function'
+    ? ArrayProtoToReversed
+    : impl
 }

@@ -1,8 +1,8 @@
 'use strict'
 
 const {
-  posix: { parse: builtinPosixParse },
-  win32: { parse: builtinWin32Parse }
+  posix: { parse: PathPosixParse },
+  win32: { parse: PathWin32Parse }
 } = require('node:path')
 
 function validatePathString(pathString) {
@@ -16,10 +16,10 @@ function validatePathString(pathString) {
 
 const variants = {
   posix: function parse(pathString) {
-    return builtinPosixParse(validatePathString(pathString))
+    return PathPosixParse(validatePathString(pathString))
   },
   win32: function parse(pathString) {
-    return builtinWin32Parse(validatePathString(pathString))
+    return PathWin32Parse(validatePathString(pathString))
   }
 }
 

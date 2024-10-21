@@ -12,7 +12,7 @@ module.exports = Object.defineProperty(
   {
     __proto__: null,
     configurable: true,
-    value: function () {
+    value() {
       return this
     },
     writable: true
