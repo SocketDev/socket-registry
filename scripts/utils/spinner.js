@@ -15,11 +15,18 @@ class Spinner {
   #message = ''
   #spinning = false
   constructor(message, options) {
-    const { ci = ENV.CI, ...claOptions } = { __proto__: null, ...options }
+    const {
+      ci = ENV.CI,
+      signal,
+      ...claOptions
+    } = { __proto__: null, ...options }
     this.#_claOptions = { __proto__: null, ...claOptions, clearOnEnd: true }
     this.#message = message
     this.#options = { __proto__: null, ci }
     this.#spinner = cliLoadingAnimation(this.#message, this.#_claOptions)
+    signal?.addEventListener('abort', () => {
+      this.stop()
+    })
   }
 
   get message() {
