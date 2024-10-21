@@ -66,7 +66,7 @@ describe(
       const target = Object.create(Object.prototype, {
         x: { value: 1, enumerable: true },
         y: { value: 2, enumerable: false },
-        z: { get: function () {}, enumerable: true }
+        z: { get() {}, enumerable: true }
       })
       const result = harmonyReflect.ownKeys(target)
       assert.strictEqual(result.length, 3)
@@ -122,7 +122,7 @@ describe(
         {
           x: { value: 1 },
           y: {
-            get: function () {
+            get() {
               return this
             }
           }
