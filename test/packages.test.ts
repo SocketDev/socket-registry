@@ -62,6 +62,10 @@ function isDotFile(filepath: string) {
   return basename.length > 0 && basename.charCodeAt(0) === 46 /*'.'*/
 }
 
+function isSrcFile(filepath: string) {
+  return filepath.startsWith('src/')
+}
+
 function isDotPattern(pattern: string) {
   return (
     pattern.length > 2 &&
@@ -351,8 +355,8 @@ for (const eco of constants.ecosystems) {
           })
         } else {
           it('package files should match "files" field', () => {
-            const filesToCompare = files.filter(
-              p => !isDotFile(p) || dotFileMatches.includes(p)
+            const filesToCompare = files.filter(p =>
+              isDotFile(p) ? dotFileMatches.includes(p) : !isSrcFile(p)
             )
             assert.deepEqual(filesFieldMatches, filesToCompare)
           })

@@ -1,3 +1,5 @@
+'use strict'
+
 const { isArray: ArrayIsArray } = Array
 
 function flatten(array) {
@@ -44,16 +46,14 @@ function flattenDownDepth(array, result, depth) {
   return result
 }
 
-// Support array-flatten v3 API.
-// https://github.com/blakeembrey/array-flatten/blob/v3.0.0/src/index.ts
-export { flatten }
 // Support array-flatten v1 API.
 // https://github.com/blakeembrey/array-flatten/blob/v1.1.1/array-flatten.js
-export default flatten
+module.exports = flatten
+// Support array-flatten v3 API.
+// https://github.com/blakeembrey/array-flatten/blob/v3.0.0/src/index.ts
+module.exports.flatten = flatten
 // Support array-flatten v2 API.
 // https://github.com/blakeembrey/array-flatten/blob/v2.1.2/array-flatten.js
-export {
-  flattenDepth as depth,
-  flattenFrom as from,
-  flattenFromDepth as fromDepth
-}
+module.exports.depth = flattenDepth
+module.exports.from = flattenFrom
+module.exports.fromDepth = flattenFromDepth

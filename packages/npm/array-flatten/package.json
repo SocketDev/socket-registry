@@ -12,10 +12,23 @@
     "url": "git+https://github.com/SocketDev/socket-registry-js.git",
     "directory": "packages/npm/array-flatten"
   },
+  "type": "module",
   "exports": {
     ".": {
-      "types": "./index.d.ts",
-      "default": "./index.js"
+      "node": {
+        "module-sync": {
+          "types": "./index.d.ts",
+          "default": "./index.js"
+        },
+        "default": {
+          "types": "./index.d.ts",
+          "default": "./index.cjs"
+        }
+      },
+      "default": {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      }
     },
     "./package.json": "./package.json"
   },
@@ -25,7 +38,8 @@
   },
   "files": [
     "*.d.ts",
-    "*.js"
+    "*.{c,}js",
+    "!src/*.js"
   ],
   "socket": {
     "categories": [
