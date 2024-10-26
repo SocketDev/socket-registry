@@ -6,7 +6,7 @@
 > A collection of [Socket.dev](https://socket.dev/) optimize package overrides
 > for use with [`socket`](https://docs.socket.dev/docs/socket-cli).
 
-<img src="./socket-optimize-demo.gif" height="156px" width="480px" alt="npx socket optimize demo">
+<img src="./socket-optimize-hero.png" height="272px" width="576px" alt="npx socket optimize">
 
 ## About
 
