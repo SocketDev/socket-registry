@@ -1,6 +1,6 @@
 # @socketregistry
 
-[![CI - SocketDev/socket-registry-js](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
+[![CI - SocketDev/socket-registry](https://github.com/SocketDev/socket-registry/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A collection of [Socket.dev](https://socket.dev/) optimize package overrides

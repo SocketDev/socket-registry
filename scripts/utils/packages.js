@@ -145,6 +145,7 @@ function createPackageJson(regPkgName, directory, options) {
   const { PACKAGE_DEFAULT_NODE_RANGE } = constants
   const name = `${PACKAGE_SCOPE}/${regPkgName.replace(pkgScopeRegExp, '')}`
   const entryExports = resolvePackageJsonEntryExports(entryExportsRaw)
+  const githubUrl = `https://github.com/${REPO_ORG}/${REPO_NAME}`
   return {
     __proto__: null,
     name,
@@ -152,9 +153,10 @@ function createPackageJson(regPkgName, directory, options) {
     license: MIT,
     description,
     keywords,
+    homepage: `${githubUrl}/${directory}`,
     repository: {
       type: 'git',
-      url: `git+https://github.com/${REPO_ORG}/${REPO_NAME}.git`,
+      url: `git+${githubUrl}.git`,
       directory
     },
     ...(type ? { type } : {}),
@@ -472,18 +474,18 @@ async function resolveGitHubTgzUrl(pkgNameOrId, where) {
   if (isTarballUrl) {
     return parsedSpec.saveSpec
   }
-  const isGithubUrl =
+  const isgithubUrl =
     parsedSpec.type === 'git' &&
     parsedSpec.hosted?.domain === 'github.com' &&
     isNonEmptyString(parsedSpec.gitCommittish)
 
-  const { project, user } = isGithubUrl
+  const { project, user } = isgithubUrl
     ? parsedSpec.hosted
     : getRepoUrlDetails(pkgJson.repository?.url)
 
   if (user && project) {
     let apiUrl = ''
-    if (isGithubUrl) {
+    if (isgithubUrl) {
       apiUrl = gitHubTagRefUrl(user, project, parsedSpec.gitCommittish)
     } else {
       // First try to resolve the sha for a tag starting with "v", e.g. v1.2.3.

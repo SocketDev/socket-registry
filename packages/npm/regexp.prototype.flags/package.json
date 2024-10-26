@@ -7,9 +7,10 @@
     "Socket.dev",
     "package-overrides"
   ],
+  "homepage": "https://github.com/SocketDev/socket-registry/packages/npm/regexp.prototype.flags",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SocketDev/socket-registry-js.git",
+    "url": "git+https://github.com/SocketDev/socket-registry.git",
     "directory": "packages/npm/regexp.prototype.flags"
   },
   "exports": {

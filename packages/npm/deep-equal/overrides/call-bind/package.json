@@ -9,7 +9,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SocketDev/socket-registry-js.git",
+    "url": "git+https://github.com/SocketDev/socket-registry.git",
     "directory": "packages/npm/deep-equal/overrides/call-bind"
   },
   "exports": {

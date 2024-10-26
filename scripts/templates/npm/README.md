@@ -1,7 +1,7 @@
 # <%= it.name %>
 
 [![Socket Badge](https://socket.dev/api/badge/npm/package/<%= it.name %>)](https://socket.dev/npm/package/<%= it.name %>)
-[![CI - <%= it.name %>](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry-js/actions/workflows/test.yml)
+[![CI - <%= it.name %>](https://github.com/SocketDev/socket-registry/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 >A <%~ it.adjectivesText %>
@@ -20,9 +20,9 @@ drop-in replacement of <% if (it.deprecated) { %> the deprecated <% } %>[`<%= it
 ### Install as a package override
 
 [`socket`](https://socket.dev/npm/package/socket)
-CLI will automagically :sparkles: populate the
+CLI will automagically ✨ populate
 [overrides](https://docs.npmjs.com/cli/v9/configuring-npm/package-json#overrides)
-and [resolutions](https://yarnpkg.com/configuration/manifest#resolutions) fields
+and [resolutions](https://yarnpkg.com/configuration/manifest#resolutions)
 of your `package.json`.
 
 ```sh
