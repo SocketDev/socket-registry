@@ -7,7 +7,7 @@
     "Socket.dev",
     "package-overrides"
   ],
-  "homepage": "https://github.com/SocketDev/socket-registry/packages/npm/arraybuffer.prototype.slice",
+  "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/arraybuffer.prototype.slice",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",

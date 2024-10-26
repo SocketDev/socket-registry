@@ -7,7 +7,7 @@
     "Socket.dev",
     "package-overrides"
   ],
-  "homepage": "https://github.com/SocketDev/socket-registry/packages/npm/es-get-iterator",
+  "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/es-get-iterator",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",

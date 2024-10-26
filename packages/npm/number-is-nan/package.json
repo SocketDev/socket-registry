@@ -7,7 +7,7 @@
     "Socket.dev",
     "package-overrides"
   ],
-  "homepage": "https://github.com/SocketDev/socket-registry/packages/npm/number-is-nan",
+  "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/number-is-nan",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",

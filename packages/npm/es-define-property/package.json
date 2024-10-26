@@ -7,7 +7,7 @@
     "Socket.dev",
     "package-overrides"
   ],
-  "homepage": "https://github.com/SocketDev/socket-registry/packages/npm/es-define-property",
+  "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/es-define-property",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",

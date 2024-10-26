@@ -7,7 +7,7 @@
     "Socket.dev",
     "package-overrides"
   ],
-  "homepage": "https://github.com/SocketDev/socket-registry/packages/npm/get-symbol-description",
+  "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/get-symbol-description",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",

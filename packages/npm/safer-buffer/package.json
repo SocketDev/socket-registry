@@ -7,7 +7,7 @@
     "Socket.dev",
     "package-overrides"
   ],
-  "homepage": "https://github.com/SocketDev/socket-registry/packages/npm/safer-buffer",
+  "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/safer-buffer",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",

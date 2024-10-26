@@ -7,7 +7,7 @@
     "Socket.dev",
     "package-overrides"
   ],
-  "homepage": "https://github.com/SocketDev/socket-registry/packages/npm/which-boxed-primitive",
+  "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/which-boxed-primitive",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",

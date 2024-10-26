@@ -7,7 +7,7 @@
     "Socket.dev",
     "package-overrides"
   ],
-  "homepage": "https://github.com/SocketDev/socket-registry/packages/npm/string.prototype.includes",
+  "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/string.prototype.includes",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",

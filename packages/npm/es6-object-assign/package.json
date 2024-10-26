@@ -7,7 +7,7 @@
     "Socket.dev",
     "package-overrides"
   ],
-  "homepage": "https://github.com/SocketDev/socket-registry/packages/npm/es6-object-assign",
+  "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/es6-object-assign",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",

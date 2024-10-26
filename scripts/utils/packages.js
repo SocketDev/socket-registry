@@ -153,7 +153,7 @@ function createPackageJson(regPkgName, directory, options) {
     license: MIT,
     description,
     keywords,
-    homepage: `${githubUrl}/${directory}`,
+    homepage: `${githubUrl}/tree/main/${directory}`,
     repository: {
       type: 'git',
       url: `git+${githubUrl}.git`,

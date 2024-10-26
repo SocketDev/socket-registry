@@ -7,7 +7,7 @@
     "Socket.dev",
     "package-overrides"
   ],
-  "homepage": "https://github.com/SocketDev/socket-registry/packages/npm/array.prototype.findlastindex",
+  "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/array.prototype.findlastindex",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",
