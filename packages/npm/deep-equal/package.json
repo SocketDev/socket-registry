@@ -33,7 +33,7 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "socket-deep-equal-orig": "npm:deep-equal@2.2.3"
+    "@socketregistry/original__deep-equal": "npm:deep-equal@2.2.3"
   },
   "overrides": {
     "array-buffer-byte-length": "npm:@socketregistry/array-buffer-byte-length@^1",

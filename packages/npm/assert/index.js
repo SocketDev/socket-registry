@@ -1,6 +1,6 @@
 'use strict'
 
-const commonjsAssert = require('commonjs-assert')
+const commonjsAssert = require('@socketregistry/original__assert')
 
 module.exports = commonjsAssert
 module.exports.AssertionError = commonjsAssert.AssertionError

@@ -42,7 +42,7 @@
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["cjs"],
+        "interop": ["cjs", "esm"],
         "license": "MIT",
         "name": "@socketregistry/array-flatten",
         "package": "array-flatten",
