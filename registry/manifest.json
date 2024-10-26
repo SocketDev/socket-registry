@@ -42,10 +42,11 @@
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["cjs", "esm"],
+        "interop": ["cjs"],
         "license": "MIT",
         "name": "@socketregistry/array-flatten",
         "package": "array-flatten",
+        "skipTests": true,
         "version": "1.0.3"
       }
     ],
