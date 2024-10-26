@@ -31,7 +31,7 @@ Overrides:
 
 ## Contribute
 
-Adding a new override is simple.
+Making a new override is simple.
 
 - Initialize the repository with your favorite package manager.
 
@@ -42,7 +42,7 @@ npm install
 - Run wizard.
 
 ```bash
-npm run make:npm-package [<package-name>]
+npm run make:npm-override [<package-name>]
 ```
 
 - Follow the prompts to create the scaffolding of your shiny new override.

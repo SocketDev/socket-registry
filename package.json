@@ -31,7 +31,7 @@
     "test:unit": "node ./scripts/test.js",
     "test-pre-commit": "cross-env-shell PRE_COMMIT=1 npm test",
     "test-ci": "run-s test:*",
-    "make:npm-package": "node ./scripts/make-npm-package.js",
+    "make:npm-override": "node ./scripts/make-npm-override.js",
     "release:npm": "node ./scripts/release-npm-packages.js",
     "setup": "run-p --aggregate-output update:package-lock update:tap-config",
     "update": "run-p --aggregate-output update:* update:npm:* && run-s update:longtask:**",
