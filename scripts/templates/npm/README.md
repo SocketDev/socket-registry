@@ -20,7 +20,7 @@ drop-in replacement of <% if (it.deprecated) { %> the deprecated <% } %>[`<%= it
 ### Install as a package override
 
 [`socket`](https://socket.dev/npm/package/socket)
-will automagically :sparkles: populate the
+CLI will automagically :sparkles: populate the
 [overrides](https://docs.npmjs.com/cli/v9/configuring-npm/package-json#overrides)
 and [resolutions](https://yarnpkg.com/configuration/manifest#resolutions) fields
 of your `package.json`.
@@ -29,7 +29,7 @@ of your `package.json`.
 npx socket optimize
 ```
 
-Prefer to do it yourself? You may manually add `<%= it.name %>`
+Prefer to do it yourself? Add `<%= it.name %>`
 to your `package.json`.
 
 ```json
@@ -45,7 +45,7 @@ to your `package.json`.
 
 ### Install as a plain dependency
 
-Install with your preferred package manager.
+Install with your favorite package manager.
 
 ```sh
 npm install <%= it.name %>

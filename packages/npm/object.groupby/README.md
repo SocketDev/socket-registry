@@ -12,8 +12,8 @@
 
 ### Install as a package override
 
-[`socket`](https://socket.dev/npm/package/socket) will automagically :sparkles:
-populate the
+[`socket`](https://socket.dev/npm/package/socket) CLI will automagically
+:sparkles: populate the
 [overrides](https://docs.npmjs.com/cli/v9/configuring-npm/package-json#overrides)
 and [resolutions](https://yarnpkg.com/configuration/manifest#resolutions) fields
 of your `package.json`.
@@ -22,8 +22,8 @@ of your `package.json`.
 npx socket optimize
 ```
 
-Prefer to do it yourself? You may manually add `@socketregistry/object.groupby`
-to your `package.json`.
+Prefer to do it yourself? Add `@socketregistry/object.groupby` to your
+`package.json`.
 
 ```json
 {
@@ -38,7 +38,7 @@ to your `package.json`.
 
 ### Install as a plain dependency
 
-Install with your preferred package manager.
+Install with your favorite package manager.
 
 ```sh
 npm install @socketregistry/object.groupby
@@ -46,4 +46,4 @@ npm install @socketregistry/object.groupby
 
 ## Requirements
 
-Node >= `21.7.3`
+Node >= `18.20.4`
