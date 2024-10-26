@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/abab",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "MIT",
   "description": "Socket.dev optimized package override for abab",
   "keywords": [

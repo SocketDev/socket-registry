@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/es6-symbol",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "MIT",
   "description": "Socket.dev optimized package override for es6-symbol",
   "keywords": [
