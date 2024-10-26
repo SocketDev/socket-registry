@@ -19,14 +19,14 @@ drop-in replacement of <% if (it.deprecated) { %> the deprecated <% } %>[`<%= it
 
 ### Install as a package override
 
-[`@socketsecurity/cli`](https://socket.dev/npm/package/@socketsecurity/cli)
+[`socket`](https://socket.dev/npm/package/socket)
 will automagically :sparkles: populate the
 [overrides](https://docs.npmjs.com/cli/v9/configuring-npm/package-json#overrides)
 and [resolutions](https://yarnpkg.com/configuration/manifest#resolutions) fields
 of your `package.json`.
 
 ```sh
-npx @socketsecurity/cli optimize
+npx socket optimize
 ```
 
 Prefer to do it yourself? You may manually add `<%= it.name %>`
