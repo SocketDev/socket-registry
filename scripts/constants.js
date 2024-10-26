@@ -447,6 +447,9 @@ const skipTestsByEcosystem = Object.freeze({
     // https://github.com/hyrious/bun.lockb/tree/v0.0.4
     '@hyrious/bun.lockb',
     'hyrious__bun.lockb',
+    // Our array-flatten override supports v1, v2, and v3 APIs, so we handle
+    // testing ourselves.
+    'array-flatten',
     // date tests fail for some Node versions and platforms, but pass in CI
     // environments for the time being.
     // https://github.com/es-shims/Date/issues/3
