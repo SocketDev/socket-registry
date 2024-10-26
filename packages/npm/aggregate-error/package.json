@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/aggregate-error",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "license": "MIT",
   "description": "Socket.dev optimized package override for aggregate-error",
   "keywords": [
