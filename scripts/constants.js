@@ -451,10 +451,10 @@ const skipTestsByEcosystem = Object.freeze({
     // testing ourselves.
     'array-flatten',
     // date tests fail for some Node versions and platforms, but pass in CI
-    // environments for the time being.
+    // Win32 environments for the time being.
     // https://github.com/es-shims/Date/issues/3
     // https://github.com/es-shims/Date/tree/v2.0.5
-    ...(ENV.CI ? [] : ['date']),
+    ...(ENV.WIN_32 ? [] : ['date']),
     // es6-object-assign has no unit tests.
     // https://github.com/rubennorte/es6-object-assign/tree/v1.1.0
     'es6-object-assign',

@@ -1,9 +1,14 @@
 'use strict'
 
 //const { toString: fnToStr } = Function.prototype
+const ArrayCtor = Array
 const { trunc: MathTrunc } = Math
 const { isNaN: NumberIsNaN } = Number
-const { create: ObjectCreate, defineProperty: ObjectDefineProperty } = Object
+const {
+  create: ObjectCreate,
+  defineProperty: ObjectDefineProperty,
+  hasOwn: ObjectHasOwn
+} = Object
 const { apply: ReflectApply, getPrototypeOf: ReflectGetPrototypeOf } = Reflect
 const { iterator: SymbolIterator, toStringTag: SymbolToStringTag } = Symbol
 const NumberCtor = Number
@@ -12,8 +17,9 @@ const RangeErrorCtor = RangeError
 
 const SLOT = new WeakMap()
 
-const SLOT_GENERATOR_CONTEXT = '[[generator]]'
+const SLOT_GENERATOR_CONTEXT = '[[GeneratorContext]]'
 const SLOT_GENERATOR_STATE = '[[GeneratorState]]'
+const SLOT_ITERATED = '[[Iterated]]'
 const SLOT_UNDERLYING_ITERATOR = '[[UnderlyingIterator]]'
 
 const GENERATOR_STATE_COMPLETED = 'completed'
@@ -22,6 +28,9 @@ const GENERATOR_STATE_SUSPENDED_STARTED = 'suspended-start'
 const ArrayIteratorPrototype = ReflectGetPrototypeOf([][SymbolIterator]())
 const { Iterator: IteratorCtor } = globalThis
 const IteratorPrototype = ReflectGetPrototypeOf(ArrayIteratorPrototype)
+
+// Based on specification text:
+// https://tc39.es/ecma262/#sec-%iteratorhelperprototype%-object
 const IteratorHelperPrototype = ObjectCreate(IteratorPrototype, {
   next: {
     __proto__: null,
@@ -93,6 +102,64 @@ const IteratorHelperPrototype = ObjectCreate(IteratorPrototype, {
 })
 
 // Based on specification text:
+// https://tc39.es/ecma262/#sec-%wrapforvaliditeratorprototype%-object
+const WrapForValidIteratorPrototype = ObjectCreate(IteratorPrototype, {
+  // Based on specification text:
+  // https://tc39.es/ecma262/#sec-%wrapforvaliditeratorprototype%.next
+  next: {
+    __proto__: null,
+    configurable: true,
+    enumerable: false,
+    value: function next() {
+      // Step 1: Let O be this value.
+      const O = this
+      // Step 2: Perform RequireInternalSlot(O, [[Iterated]])
+      ensureObject(O)
+      const slots = SLOT.get(O)
+      if (!(slots && ObjectHasOwn(slots, SLOT_ITERATED))) {
+        throw new TypeError(`"${SLOT_ITERATED}" is not present on "O"`)
+      }
+      // Step 3: Let iteratorRecord be O.[[Iterated]].
+      const { iterator, next } = slots[SLOT_ITERATED]
+      // Step 4: Return Call(iteratorRecord.[[NextMethod]], iteratorRecord.[[Iterator]]).
+      return ReflectApply(next, iterator, [])
+    },
+    writable: true
+  },
+  // Based on specification text:
+  // https://tc39.es/ecma262/#sec-%wrapforvaliditeratorprototype%.return
+  return: {
+    __proto__: null,
+    configurable: true,
+    enumerable: false,
+    value: function () {
+      // Step 1: Let O be this value.
+      const O = this
+      // Step 2: Perform RequireInternalSlot(O, [[Iterated]]).
+      ensureObject(O)
+      const slots = SLOT.get(O)
+      if (!(slots && ObjectHasOwn(slots, SLOT_ITERATED))) {
+        throw new TypeError(`"${SLOT_ITERATED}" is not present on "O"`)
+      }
+      // Step 3: Let iterator be O.[[Iterated]].[[Iterator]].
+      const { iterator } = slots[SLOT_ITERATED]
+      // Step 4: Assert: iterator is an Object.
+      ensureObject(iterator, 'iterator')
+      // Step 5: Let returnMethod be GetMethod(iterator, "return").
+      const returnMethod = getMethod(iterator, 'return')
+      // Step 6: If returnMethod is undefined, then
+      if (returnMethod === undefined) {
+        // Step 6.a: Return CreateIteratorResultObject(undefined, true).
+        return { value: undefined, done: true }
+      }
+      // Step 7: Return Call(returnMethod, iterator).
+      return ReflectApply(returnMethod, iterator, [])
+    },
+    writable: true
+  }
+})
+
+// Based on specification text:
 // https://tc39.es/ecma262/#sec-ifabruptcloseiterator
 function abruptCloseIterator(iterator, error) {
   if (error) {
@@ -157,9 +224,9 @@ function getIteratorDirect(obj) {
 
 // Based on specification text:
 // https://tc39.es/ecma262/#sec-getiteratorflattenable
-function getIteratorFlattenable(obj) {
+function getIteratorFlattenable(obj, allowStrings) {
   // Step 1: If obj is not an Object
-  if (!isObjectType(obj)) {
+  if (!isObjectType(obj) && !(allowStrings && typeof obj === 'string')) {
     // Step 1.a: If primitiveHandling is reject-primitives, throw a TypeError
     throw new TypeErrorCtor('Primitives are not iterable')
   }
@@ -236,6 +303,10 @@ function setSlot(O, slot, value) {
   slots[slot] = value
 }
 
+function setIterated(wrapper, record) {
+  setSlot(wrapper, SLOT_ITERATED, record)
+}
+
 function setUnderlyingIterator(generator, iterator) {
   setSlot(generator, SLOT_UNDERLYING_ITERATOR, iterator)
 }
@@ -259,6 +330,7 @@ function toIntegerOrInfinity(value) {
 }
 
 module.exports = {
+  ArrayCtor,
   IteratorCtor,
   IteratorPrototype,
   NumberCtor,
@@ -270,6 +342,7 @@ module.exports = {
   ReflectGetPrototypeOf,
   SymbolIterator,
   TypeErrorCtor,
+  WrapForValidIteratorPrototype,
   abruptCloseIterator,
   closeIterator,
   createIteratorFromClosure,
@@ -279,6 +352,7 @@ module.exports = {
   getMethod,
   isIteratorProtoNextCheckBuggy,
   isObjectType,
+  setIterated,
   setUnderlyingIterator,
   toIntegerOrInfinity
 }

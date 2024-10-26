@@ -65,8 +65,8 @@ module.exports =
           }
           const iterator = ReflectApply(method, items, [])
           if (
-            typeof iterator !== 'function' &&
-            (iterator === null || typeof iterator !== 'object')
+            iterator === null ||
+            (typeof iterator !== 'object' && typeof iterator !== 'function')
           ) {
             throw new TypeErrorCtor('`iterator` value must be an Object')
           }

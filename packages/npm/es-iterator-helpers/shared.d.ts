@@ -1,22 +1,32 @@
-declare interface IteratorResult<T> {
-  value: T
-  done: boolean
-}
 declare interface Iterator<T> {
   next(value?: any): IteratorResult<T>
   return?(value?: any): IteratorResult<T>
   [Symbol.iterator](): Iterator<T>
 }
+declare interface IteratorHelper<T> extends Iterator<T> {
+  [Symbol.toStringTag](): 'Iterator Helper'
+}
+declare interface IteratorRecord<T> {
+  iterator: Iterator<T>
+  next: () => IteratorResult<T>
+}
+declare interface IteratorResult<T> {
+  value: T
+  done: boolean
+}
 declare interface InternalShared {
   SLOT: WeakMap<any, any>
   SLOT_GENERATOR_CONTEXT: string
   SLOT_GENERATOR_STATE: string
+  SLOT_ITERATED: string
   SLOT_UNDERLYING_ITERATOR: string
   GENERATOR_STATE_COMPLETED: string
   GENERATOR_STATE_SUSPENDED_STARTED: string
   IteratorCtor: typeof globalThis.Iterator
-  IteratorPrototype: any
-  IteratorHelperPrototype: any
+  ArrayCtor: ArrayConstructor
+  IteratorPrototype: Iterator<any>
+  IteratorHelperPrototype: IteratorHelper<any>
+  WrapForValidIteratorPrototype: Iterator<any>
   NumberCtor: NumberConstructor
   MathTrunc: (x: number) => number
   NegativeInfinity: number
@@ -30,17 +40,11 @@ declare interface InternalShared {
   SymbolToStringTag: symbol
   TypeErrorCtor: typeof TypeError
   abruptCloseIterator(iterator: Iterator<any>, error: any): void
-  closeIterator<T>(iterator: Iterator<any>, completion: T): T
+  closeIterator<T>(iterator: Iterator<T>, completion: T): T
   createIteratorFromClosure<T>(closure: Iterator<T>): Iterator<T>
   ensureObject(thisArg: any, what?: string): void
-  getIteratorDirect<T>(obj: any): {
-    next: () => IteratorResult<T>
-    iterator: Iterator<T>
-  }
-  getIteratorFlattenable(obj: any): {
-    next: () => IteratorResult<any>
-    iterator: Iterator<any>
-  }
+  getIteratorDirect<T>(obj: any): IteratorRecord<T>
+  getIteratorFlattenable(obj: any): IteratorRecord<any>
   getMethod(
     obj: any,
     key: string | symbol
@@ -53,7 +57,8 @@ declare interface InternalShared {
   isObjectType(value: any): boolean
   resolveSlots(O: any, slot: string): any
   setSlot(O: any, slot: string, value: any): void
-  setUnderlyingIterator(generator: any, iterator: any): void
+  setUnderlyingIterator(generator: Iterator<any>, iterator: Iterator<any>): void
+  setIterated(wrapper: Iterator<any>, record: IteratorRecord<any>): void
   toIntegerOrInfinity(value: any): number
 }
 declare const shared: InternalShared

@@ -14,11 +14,9 @@ const {
 } = require('../shared')
 
 module.exports = function flatMap(mapper) {
-  // ECMAScript Standard Built-in Objects
+  // Built-in functions that are not identified as constructors do
+  // not implement [[Construct]] unless otherwise specified.
   // https://tc39.es/ecma262/#sec-ecmascript-standard-built-in-objects
-  // Built-in function objects that are not identified as constructors do
-  // not implement the [[Construct]] internal method unless otherwise
-  // specified in the description of a particular function.
   if (new.target) {
     throw new TypeErrorCtor('`flatMap` is not a constructor')
   }
