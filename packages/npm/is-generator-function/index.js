@@ -2,12 +2,16 @@
 
 const { toString: fnToStr } = Function.prototype
 const genFuncProto = function* () {}.prototype
-const isFnRegex = /^\s*(?:function)?\*/
+const { apply: ReflectApply, getPrototypeOf: ReflectGetPrototypeOf } = Reflect
+const { test: RegExpProtoTest } = RegExp.prototype
+const isFnRegExp = /^\s*(?:function)?\*/
 
 module.exports = function isGeneratorFunction(fn) {
   return (
     typeof fn === 'function' &&
-    (isFnRegex.test(fnToStr.call(fn)) ||
-      Reflect.getPrototypeOf(fn) === genFuncProto)
+    (ReflectApply(RegExpProtoTest, isFnRegExp, [
+      ReflectApply(fnToStr, fn, [])
+    ]) ||
+      ReflectGetPrototypeOf(fn) === genFuncProto)
   )
 }

@@ -19,8 +19,8 @@ const AggregateErrorLike = function AggregateError(errors, message) {
     return new Impl(errors, message)
   }
   const { length } = errors
-  const errorObjs = new Array(length)
-  const stacks = new Array(length)
+  const errorObjs = Array(length)
+  const stacks = Array(length)
   for (let i = 0; i < length; i += 1) {
     const value = errors[i]
     let errorObj

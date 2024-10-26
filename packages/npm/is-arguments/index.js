@@ -1,16 +1,19 @@
 'use strict'
 
+const { isArray: ArrayIsArray } = Array
 const { toString: objToStr } = Object.prototype
+const { apply: ReflectApply } = Reflect
+const { toStringTag: SymbolToStringTag } = Symbol
 
 function innerIsArguments(value, useLegacyFallback = false) {
   if (
     value === null ||
     typeof value !== 'object' ||
-    Symbol.toStringTag in value
+    SymbolToStringTag in value
   ) {
     return false
   }
-  if (objToStr.call(value) === '[object Arguments]') {
+  if (ReflectApply(objToStr, value, []) === '[object Arguments]') {
     return true
   }
   return (
@@ -18,7 +21,7 @@ function innerIsArguments(value, useLegacyFallback = false) {
     typeof value.length === 'number' &&
     value.length >= 0 &&
     typeof value.callee === 'function' &&
-    !Array.isArray(value)
+    !ArrayIsArray(value)
   )
 }
 

@@ -287,7 +287,7 @@ function parse(buf) {
     pos = end2
     return a
   }, {})
-  const requested_versions = new Array(list_len)
+  const requested_versions = Array(list_len)
   requested_versions[0] = []
   for (let i = 1; i < list_len; i += 1) {
     let resolutions = to_u32(buffers.resolutions.subarray())

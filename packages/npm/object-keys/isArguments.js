@@ -2,16 +2,18 @@
 
 const { isArray: ArrayIsArray } = Array
 const { toString: objToStr } = Object.prototype
+const { apply: ReflectApply } = Reflect
+const { toStringTag: SymbolToStringTag } = Symbol
 
 module.exports = function isArguments(value) {
   if (
     value === null ||
     typeof value !== 'object' ||
-    Symbol.toStringTag in value
+    SymbolToStringTag in value
   ) {
     return false
   }
-  if (objToStr.call(value) === '[object Arguments]') {
+  if (ReflectApply(objToStr, value, []) === '[object Arguments]') {
     return true
   }
   return (
