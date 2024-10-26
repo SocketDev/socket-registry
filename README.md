@@ -33,14 +33,18 @@ Overrides:
 
 Adding a new override is simple.
 
-- Initialize the repository with your favorite package manager, e.g.
-  `npm install`.
-- Run
+- Initialize the repository with your favorite package manager.
+
+```bash
+npm install
+```
+
+- Run wizard.
 
 ```bash
 npm run make:npm-package [<package-name>]
 ```
 
-- Follow the prompts to create the scaffolding for your shiny new override.
+- Follow the prompts to create the scaffolding of your shiny new override.
 - Fill in all `TODO:` commented sections.
 - Commit and send a pull request!
