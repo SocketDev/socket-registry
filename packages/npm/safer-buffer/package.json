@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/safer-buffer",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "license": "MIT",
   "description": "Socket.dev optimized package override for safer-buffer",
   "keywords": [

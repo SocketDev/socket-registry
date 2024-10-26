@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/array.prototype.every",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "license": "MIT",
   "description": "Socket.dev optimized package override for array.prototype.every",
   "keywords": [

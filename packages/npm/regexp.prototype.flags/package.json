@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/regexp.prototype.flags",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "license": "MIT",
   "description": "Socket.dev optimized package override for regexp.prototype.flags",
   "keywords": [

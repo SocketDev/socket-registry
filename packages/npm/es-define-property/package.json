@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/es-define-property",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "license": "MIT",
   "description": "Socket.dev optimized package override for es-define-property",
   "keywords": [

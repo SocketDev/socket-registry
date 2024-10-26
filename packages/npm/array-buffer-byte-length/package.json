@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/array-buffer-byte-length",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "license": "MIT",
   "description": "Socket.dev optimized package override for array-buffer-byte-length",
   "keywords": [
