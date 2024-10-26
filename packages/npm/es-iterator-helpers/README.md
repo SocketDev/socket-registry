@@ -46,4 +46,4 @@ npm install @socketregistry/es-iterator-helpers
 
 ## Requirements
 
-Node >= `22.8.0`
+Node >= `18.20.4`

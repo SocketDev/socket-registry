@@ -1,7 +1,20 @@
 'use strict'
 
-const impl = require('./implementation')
+const getPolyfill = require('./polyfill')
+const Iterator = require('../Iterator/implementation')
 
-module.exports = function shimFrom() {
-  return impl
+const { defineProperty: ObjectDefineProperty } = Object
+
+module.exports = function shimIteratorFrom() {
+  const polyfill = getPolyfill()
+  if (Iterator.from !== polyfill) {
+    ObjectDefineProperty(Iterator, 'from', {
+      __proto__: null,
+      configurable: true,
+      enumerable: false,
+      value: polyfill,
+      writable: true
+    })
+  }
+  return polyfill
 }

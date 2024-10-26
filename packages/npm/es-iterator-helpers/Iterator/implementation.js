@@ -1,28 +1,27 @@
 'use strict'
 
-const { isPrototypeOf: objIsPrototypeOf } = Object.prototype
+const { IteratorCtor, IteratorPrototype, TypeErrorCtor } = require('../shared')
 
+// Based on specification text:
+// https://tc39.es/ecma262/#sec-iterator-constructor
 module.exports =
-  Iterator ??
-  (() => {
-    const IteratorPrototype = require('../Iterator.prototype/implementation')
-    return Object.defineProperty(
-      function Iterator() {
-        if (
-          !(this instanceof Iterator) ||
-          this.constructor === Iterator ||
-          !objIsPrototypeOf.call(Iterator, this.constructor)
-        ) {
-          throw new TypeError(
-            '`Iterator` can not be called or constructed directly'
-          )
+  typeof IteratorCtor === 'function'
+    ? IteratorCtor
+    : Object.defineProperty(
+        function Iterator() {
+          // Step 1: If NewTarget is either undefined or the active function object,
+          // throw a TypeError exception.
+          if (!new.target || this.constructor === Iterator) {
+            throw new TypeErrorCtor(
+              '`Iterator` cannot be called or constructed directly'
+            )
+          }
+          // Step 2: Return OrdinaryCreateFromConstructor(NewTarget, "%Iterator.prototype%").
+        },
+        'prototype',
+        {
+          __proto__: null,
+          value: IteratorPrototype,
+          writable: false // Prevents modification of the prototype.
         }
-      },
-      'prototype',
-      {
-        __proto__: null,
-        value: IteratorPrototype,
-        writable: false
-      }
-    )
-  })()
+      )

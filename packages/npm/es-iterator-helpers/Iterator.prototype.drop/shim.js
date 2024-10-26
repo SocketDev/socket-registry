@@ -1,13 +1,11 @@
 'use strict'
 
 const getPolyfill = require('./polyfill')
-const IteratorPrototype = require('../Iterator.prototype/implementation')
-
-const { defineProperty: ObjectDefineProperty } = Object
+const { IteratorPrototype, ObjectDefineProperty } = require('../shared')
 
 module.exports = function shimIteratorProtoDrop() {
   const polyfill = getPolyfill()
-  if (polyfill && IteratorPrototype.drop !== polyfill) {
+  if (IteratorPrototype.drop !== polyfill) {
     ObjectDefineProperty(IteratorPrototype, 'drop', {
       __proto__: null,
       configurable: true,

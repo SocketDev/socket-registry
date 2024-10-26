@@ -1,11 +1,15 @@
 'use strict'
 
 const impl = require('./implementation')
-const IteratorPrototype = require('../Iterator.prototype/implementation')
-const { isIteratorProtoNextCheckBuggy } = require('../shared')
+const {
+  IteratorPrototype,
+  isIteratorProtoNextCheckBuggy
+} = require('../shared')
 
 module.exports = function getPolyfill() {
-  return isIteratorProtoNextCheckBuggy(IteratorPrototype, 'map', () => {})
+  const { map } = IteratorPrototype
+  return typeof map !== 'function' ||
+    isIteratorProtoNextCheckBuggy(map, () => {})
     ? impl
-    : IteratorPrototype.map
+    : map
 }

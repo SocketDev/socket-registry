@@ -1,7 +1,18 @@
 'use strict'
 
-const impl = require('./implementation')
+const getPolyfill = require('./polyfill')
+const { IteratorPrototype, ObjectDefineProperty } = require('../shared')
 
 module.exports = function shimIteratorProtoToArray() {
-  return impl
+  const polyfill = getPolyfill()
+  if (IteratorPrototype.toArray !== polyfill) {
+    ObjectDefineProperty(IteratorPrototype, 'toArray', {
+      __proto__: null,
+      configurable: true,
+      enumerable: false,
+      value: polyfill,
+      writable: true
+    })
+  }
+  return polyfill
 }
