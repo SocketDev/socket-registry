@@ -272,7 +272,6 @@ const internals = Object.freeze({
 })
 
 const LAZY_LICENSE_CONTENT = () => fs.readFileSync(rootLicensePath, 'utf8')
-const LAZY_PACKAGE_CURRENT_VERSION = () => require(rootPackageJsonPath).version
 const LAZY_PACKAGE_DEFAULT_NODE_RANGE = () =>
   // Lazily access constants.maintainedNodeVersions.
   `>=${constants.maintainedNodeVersions.previous}`
@@ -613,7 +612,6 @@ const constants = Object.freeze(
     },
     {
       LICENSE_CONTENT: LAZY_LICENSE_CONTENT,
-      PACKAGE_CURRENT_VERSION: LAZY_PACKAGE_CURRENT_VERSION,
       PACKAGE_DEFAULT_NODE_RANGE: LAZY_PACKAGE_DEFAULT_NODE_RANGE,
       ecosystems: lazyEcosystems,
       gitExecPath: lazyGitExecPath,
