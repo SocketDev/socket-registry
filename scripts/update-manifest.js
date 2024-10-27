@@ -86,7 +86,9 @@ async function addNpmManifestData(manifest) {
       ['version', version],
       ...(nmPkgDeprecated ? [['deprecated', true]] : []),
       // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
-      ...(engines ? [['engines', toSortedObject(engines)]] : [['engines', { node: constants.PACKAGE_DEFAULT_NODE_RANGE }]]),
+      ...(engines
+        ? [['engines', toSortedObject(engines)]]
+        : [['engines', { node: constants.PACKAGE_DEFAULT_NODE_RANGE }]]),
       ...(skipTests ? [['skipTests', true]] : []),
       ...(socket ? Object.entries(socket) : [])
     ]

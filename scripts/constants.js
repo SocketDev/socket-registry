@@ -327,11 +327,13 @@ const lazyMaintainedNodeVersions = () => {
     [queryNext, manualNext],
     `^${semver.major(queryNext)}`
   )
-  return Object.freeze(Object.assign([previous, current, next], {
-    previous,
-    current,
-    next
-  }))
+  return Object.freeze(
+    Object.assign([previous, current, next], {
+      previous,
+      current,
+      next
+    })
+  )
 }
 const lazyNpmExecPath = () => whichSync('npm')
 const lazyNpmPackageNames = () =>
