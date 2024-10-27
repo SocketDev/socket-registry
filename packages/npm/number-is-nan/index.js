@@ -1,7 +1,10 @@
 'use strict'
 
+const { isNaN: NumberIsNaN } = Number
+
 module.exports =
-  Number.isNaN ??
-  function isNaN(value) {
-    return typeof value === 'number' && value !== value
-  }
+  typeof NumberIsNaN === 'function'
+    ? Number.isNaN
+    : function isNaN(value) {
+        return typeof value === 'number' && value !== value
+      }
