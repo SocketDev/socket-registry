@@ -247,10 +247,10 @@ process.on('SIGINT', () => {
     const compatData = getCompatData(['javascript', 'builtins', ...parts])
     const versionAdded =
       compatData?.support?.nodejs?.version_added ??
-      maintainedNodeVersions.get('previous')
-    nodeRange = `>=${maintainedNodeVersions.get('next')}`
+      maintainedNodeVersions.previous
+    nodeRange = `>=${maintainedNodeVersions.next}`
     if (!semver.satisfies(versionAdded, nodeRange)) {
-      nodeRange = `>=${maintainedNodeVersions.get('current')}`
+      nodeRange = `>=${maintainedNodeVersions.current}`
       if (!semver.satisfies(versionAdded, nodeRange)) {
         nodeRange = PACKAGE_DEFAULT_NODE_RANGE
       }

@@ -380,7 +380,7 @@ async function linkPackages(packageNames) {
       // Lazily access constants.maintainedNodeVersions.
       semver.gt(
         semver.coerce(nodeRange),
-        constants.maintainedNodeVersions.get('previous')
+        constants.maintainedNodeVersions.previous
       )
     ) {
       // Replace engines field if the @socketregistry/xyz's engines.node range

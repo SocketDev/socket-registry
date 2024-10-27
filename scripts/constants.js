@@ -275,7 +275,7 @@ const LAZY_LICENSE_CONTENT = () => fs.readFileSync(rootLicensePath, 'utf8')
 const LAZY_PACKAGE_CURRENT_VERSION = () => require(rootPackageJsonPath).version
 const LAZY_PACKAGE_DEFAULT_NODE_RANGE = () =>
   // Lazily access constants.maintainedNodeVersions.
-  `>=${constants.maintainedNodeVersions.get('previous')}`
+  `>=${constants.maintainedNodeVersions.previous}`
 
 const lazyEcosystems = () => Object.freeze(readDirNamesSync(rootPackagesPath))
 const lazyGitExecPath = () => whichSync('git')
@@ -302,37 +302,37 @@ const lazyMaintainedNodeVersions = () => {
   const query = naturalSort(
     browserslist('maintained node versions')
       // Trim value, e.g. 'node 22.5.0' to '22.5.0'.
-      .map(s => s.slice(5))
-  ).desc()
+      .map(s => s.slice(5 /*'node '.length*/))
+  ).asc()
   // Under the hood browserlist uses the node-releases package which is out of date:
   // https://github.com/chicoxyzzy/node-releases/issues/37
   // So we maintain a manual version list for now.
-  const manualNext = '22.8.0'
-  const manualCurr = '20.17.0'
+  // https://nodejs.org/en/about/previous-releases#looking-for-latest-release-of-a-version-branch
   const manualPrev = '18.20.4'
+  const manualCurr = '20.18.0'
+  const manualNext = '22.10.0'
 
-  const queryNext = query.at(0)
-  const queryCurr = query.at(1)
-  const queryPrev = query.at(-1)
+  const queryPrev = query.at(0) ?? manualPrev
+  const queryCurr = query.at(1) ?? manualCurr
+  const queryNext = query.at(2) ?? manualNext
 
+  const previous = semver.maxSatisfying(
+    [queryPrev, manualPrev],
+    `^${semver.major(queryPrev)}`
+  )
+  const current = semver.maxSatisfying(
+    [queryCurr, manualCurr],
+    `^${semver.major(queryCurr)}`
+  )
   const next = semver.maxSatisfying(
     [queryNext, manualNext],
     `^${semver.major(queryNext)}`
   )
-  const curr = semver.maxSatisfying(
-    [queryCurr, manualCurr],
-    `^${semver.major(queryCurr)}`
-  )
-  const prev = semver.maxSatisfying(
-    [queryPrev, manualPrev],
-    `^${semver.major(queryPrev)}`
-  )
-  return new Map([
-    ['next', next],
-    ['current', curr],
-    ['previous', prev],
-    ...[next, curr, prev].map(v => [semver.major(v), v])
-  ])
+  return Object.freeze(Object.assign([previous, current, next], {
+    previous,
+    current,
+    next
+  }))
 }
 const lazyNpmExecPath = () => whichSync('npm')
 const lazyNpmPackageNames = () =>

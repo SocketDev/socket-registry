@@ -40,12 +40,10 @@ process.on('SIGINT', () => {
   }
   rootEditablePkgJson.update({ workspaces: workspaces.sort(localeCompare) })
   // Lazily access constants.maintainedNodeVersions.
-  const { maintainedNodeVersions } = constants
-  const nodeVerNext = maintainedNodeVersions.get('next')
-  const nodeVerCurr = maintainedNodeVersions.get('current')
+  const { current, next } = constants.maintainedNodeVersions
   // Update engines field.
   rootEditablePkgJson.update({
-    engines: { node: `^${nodeVerCurr} || >=${nodeVerNext}` }
+    engines: { node: `^${current} || >=${next}` }
   })
   rootEditablePkgJson.save()
 
