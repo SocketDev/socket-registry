@@ -68,13 +68,13 @@ async function addNpmManifestData(manifest) {
     if (isEsm) {
       interop.push('esm')
     }
-    const isBrowser =
+    const isBrowserify =
       !isEsm &&
       !!(
         (entryExports?.node && entryExports?.default) ||
         (entryExports?.['.']?.node && entryExports?.['.']?.default)
       )
-    if (isBrowser) {
+    if (isBrowserify) {
       interop.push('browserify')
     }
     const skipTests = skipTestsByEcosystem[eco].has(regPkgName)
@@ -85,8 +85,9 @@ async function addNpmManifestData(manifest) {
       ['package', origPkgName],
       ['version', version],
       ...(nmPkgDeprecated ? [['deprecated', true]] : []),
+      // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
+      ...(engines ? [['engines', toSortedObject(engines)]] : [['engines', { node: constants.PACKAGE_DEFAULT_NODE_RANGE }]]),
       ...(skipTests ? [['skipTests', true]] : []),
-      ...(engines ? [['engines', toSortedObject(engines)]] : []),
       ...(socket ? Object.entries(socket) : [])
     ]
     const purlObj = PackageURL.fromString(`pkg:${eco}/${name}@${version}`)

@@ -27,7 +27,7 @@ declare type ManifestEntryData = {
   package: string
   version: string
   deprecated?: boolean
-  engines?: { node: string; npm?: string }
+  engines: { node: string; npm?: string }
   skipTests?: boolean
 }
 declare interface SocketSecurityRegistry {
