@@ -296,13 +296,6 @@ const lazyIgnoreGlobs = () =>
     ])
   ])
 const lazyMaintainedNodeVersions = () => {
-  // Defer loading browserslist until needed.
-  const browserslist = require('browserslist')
-  const query = naturalSort(
-    browserslist('maintained node versions')
-      // Trim value, e.g. 'node 22.5.0' to '22.5.0'.
-      .map(s => s.slice(5 /*'node '.length*/))
-  ).asc()
   // Under the hood browserlist uses the node-releases package which is out of date:
   // https://github.com/chicoxyzzy/node-releases/issues/37
   // So we maintain a manual version list for now.
@@ -311,6 +304,13 @@ const lazyMaintainedNodeVersions = () => {
   const manualCurr = '20.18.0'
   const manualNext = '22.10.0'
 
+  // Defer loading browserslist until needed.
+  const browserslist = require('browserslist')
+  const query = naturalSort(
+    browserslist('maintained node versions')
+      // Trim value, e.g. 'node 22.5.0' to '22.5.0'.
+      .map(s => s.slice(5 /*'node '.length*/))
+  ).asc()
   const queryPrev = query.at(0) ?? manualPrev
   const queryCurr = query.at(1) ?? manualCurr
   const queryNext = query.at(2) ?? manualNext
