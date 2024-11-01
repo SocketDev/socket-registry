@@ -19,7 +19,6 @@ const {
   COLUMN_LIMIT,
   LICENSE_GLOB_RECURSIVE,
   NODE_MODULES_GLOB_RECURSIVE,
-  NODE_WORKSPACES,
   PACKAGE_JSON,
   PACKAGE_SCOPE,
   README_GLOB,
@@ -35,10 +34,7 @@ const {
   testNpmPkgJsonPath,
   testNpmPkgLockPath
 } = constants
-const {
-  arrayUnique,
-  joinAsList
-} = require('@socketregistry/scripts/utils/arrays')
+const { joinAsList } = require('@socketregistry/scripts/utils/arrays')
 const {
   isSymbolicLinkSync,
   remove,
@@ -55,7 +51,6 @@ const {
 } = require('@socketregistry/scripts/utils/packages')
 const { splitPath } = require('@socketregistry/scripts/utils/path')
 const { pEach, pFilter } = require('@socketregistry/scripts/utils/promises')
-const { localeCompare } = require('@socketregistry/scripts/utils/sorts')
 const { Spinner } = require('@socketregistry/scripts/utils/spinner')
 const { isNonEmptyString } = require('@socketregistry/scripts/utils/strings')
 
@@ -133,10 +128,6 @@ const readCachedEditablePackageJson = async filepath_ => {
   const result = await readPackageJson(filepath, { editable: true })
   editablePackageJsonCache.set(filepath, result)
   return result
-}
-
-function toWorkspaceEntry(regPkgName) {
-  return `${NODE_WORKSPACES}/${regPkgName}`
 }
 
 async function installMissingPackages(packageNames) {
@@ -590,19 +581,6 @@ async function installNodeWorkspaces() {
   const spinner = new Spinner(
     `Installing ${relTestNpmPath} workspaces... (☕ break)`
   ).start()
-  const testNpmEditablePkgJson = await readPackageJson(testNpmPkgJsonPath, {
-    editable: true
-  })
-  testNpmEditablePkgJson.update({
-    workspaces: cliArgs.add
-      ? // Lazily access constants.npmPackageNames.
-        arrayUnique([
-          ...constants.npmPackageNames.map(toWorkspaceEntry),
-          ...cliArgs.add.map(toWorkspaceEntry)
-        ]).sort(localeCompare)
-      : constants.npmPackageNames.map(toWorkspaceEntry)
-  })
-  await testNpmEditablePkgJson.save()
   // Finally install workspaces.
   try {
     await installTestNpmNodeModules({ clean: 'deep' })

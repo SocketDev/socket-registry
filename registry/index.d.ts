@@ -35,7 +35,9 @@ declare namespace SocketSecurityRegistry {
     skipTests?: boolean
   }
   export function getManifestData(): Manifest | undefined
-  export function getManifestData(eco: EcosystemString): ManifestEntry[] | undefined
+  export function getManifestData(
+    eco: EcosystemString
+  ): ManifestEntry[] | undefined
   export function getManifestData(
     eco: EcosystemString,
     regPkgName: string

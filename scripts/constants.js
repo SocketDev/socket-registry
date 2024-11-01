@@ -97,7 +97,6 @@ const PACKAGE_DEFAULT_VERSION = '1.0.0'
 const PACKAGE_JSON = 'package.json'
 const PACKAGE_LOCK = 'package-lock.json'
 const PACKAGE_SCOPE = `@${NPM_ORG}`
-const PERF_NPM_WORKSPACE = 'perf/npm'
 const README_GLOB = 'README{.*,}'
 const README_GLOB_RECURSIVE = `**/${README_GLOB}`
 const README_MD = 'README.md'
@@ -539,7 +538,6 @@ const constants = Object.freeze(
       PACKAGE_JSON,
       PACKAGE_LOCK,
       PACKAGE_SCOPE,
-      PERF_NPM_WORKSPACE,
       README_GLOB,
       README_GLOB_RECURSIVE,
       README_MD,
