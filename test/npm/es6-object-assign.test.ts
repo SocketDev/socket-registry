@@ -164,6 +164,7 @@ describe(
     })
 
     it('works with functions', () => {
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       const target = () => {}
       ;(target as any).a = 1
       const returned = es6oa.assign(target, { b: 2 })
@@ -202,6 +203,7 @@ describe(
     })
 
     it('only iterates over own keys', () => {
+      // eslint-disable-next-line @typescript-eslint/no-extraneous-class
       class Foo {}
       ;(Foo.prototype as any).bar = true
       const foo = new Foo()

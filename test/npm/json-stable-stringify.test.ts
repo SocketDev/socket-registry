@@ -20,6 +20,7 @@ describe(
     const SUPPORTS_JSON_RAW_JSON = typeof rawJSON === 'function'
 
     it('can handle exceeding call stack limits', () => {
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       function createCallStackBusterObject() {
         let obj = {}
         let limit = 0

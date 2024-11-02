@@ -268,10 +268,12 @@ describe(
     })
 
     it('should correctly implement [[Construct]] newTarget', () => {
-      const Super = function (this: any) {
+      // eslint-disable-next-line unicorn/consistent-function-scoping
+      function Super(this: any) {
         this.x = 42
       }
-      const Sub = function () {}
+      // eslint-disable-next-line unicorn/consistent-function-scoping
+      function Sub() {}
       class ES2015Class {
         prop: string
         constructor() {

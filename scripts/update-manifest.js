@@ -118,12 +118,7 @@ async function addNpmManifestData(manifest) {
   }
   const spinner = new Spinner(`Updating ${relManifestJsonPath}...`).start()
   const manifest = {}
-  // Lazily access constants.ecosystems.
-  for (const eco of constants.ecosystems) {
-    if (eco === 'npm') {
-      await addNpmManifestData(manifest)
-    }
-  }
+  await addNpmManifestData(manifest)
   const output = await prettierFormat(JSON.stringify(manifest), {
     filepath: manifestJsonPath
   })

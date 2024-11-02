@@ -29,6 +29,18 @@ function eq(a, b) {
   return true
 }
 
+function fmt_hash(a) {
+  if (a.byteLength < 32) throw new TypeError('meta_hash too short')
+  let hash = ''
+  for (let i = 0; i < 32; i += 1) {
+    let c = hex(a[i])
+    if (i < 8 || (16 <= i && i < 24)) c = c.toUpperCase()
+    hash += c
+    if (i < 31 && (i + 1) % 8 === 0) hash += '-'
+  }
+  return hash
+}
+
 function fmt_integrity(a) {
   if (a.byteLength < 65) throw new TypeError('integrity too short')
   const tag = a[0]
@@ -144,6 +156,10 @@ function fmt_url(a, buffers) {
   return a[0] === 2 /* npm */
     ? str(new Uint8Array(a.buffer, a.byteOffset + 8, 8), buffers)
     : fmt_resolution(a, buffers)
+}
+
+function hex(a) {
+  return (256 + a).toString(16).slice(1)
 }
 
 function is_scp(s) {
@@ -300,18 +316,6 @@ function parse(buf) {
       resolutions = resolutions.subarray(k + 1)
     }
     requested_versions[i] = all_requested_versions
-  }
-  const hex = a => (256 + a).toString(16).slice(1)
-  const fmt_hash = a => {
-    if (a.byteLength < 32) throw new TypeError('meta_hash too short')
-    let hash = ''
-    for (let i = 0; i < 32; i += 1) {
-      let c = hex(a[i])
-      if (i < 8 || (16 <= i && i < 24)) c = c.toUpperCase()
-      hash += c
-      if (i < 31 && (i + 1) % 8 === 0) hash += '-'
-    }
-    return hash
   }
   let ResolutionTag
   ;(ResolutionTag2 => {

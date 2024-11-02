@@ -10,6 +10,7 @@ const { runBin } = require('@socketregistry/scripts/utils/npm')
   for (const perfFile of await tinyGlob([`*.perf.ts`], {
     cwd: perfNpmPath
   })) {
+    // eslint-disable-next-line no-await-in-loop
     await runBin(
       // Lazily access constants.tsxExecPath.
       constants.tsxExecPath,

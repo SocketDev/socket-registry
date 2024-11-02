@@ -158,7 +158,8 @@ async function installMissingPackageTests(packageNames) {
   const originalNames = packageNames.map(resolveOriginalPackageName)
   const resolvable = []
   const unresolvable = []
-  for (const origPkgName of originalNames) {
+  // Chunk package names to process them in parallel 3 at a time.
+  await pEach(originalNames, 3, async origPkgName => {
     // When tests aren't included in the installed package we convert the
     // package version to a GitHub release tag, then we convert the release
     // tag to a sha, then finally we resolve the URL of the GitHub tarball
@@ -190,7 +191,7 @@ async function installMissingPackageTests(packageNames) {
       unresolvable.push(origPkgName)
     }
     spinner.stop()
-  }
+  })
   if (resolvable.length) {
     const spinner = new Spinner(
       `Refreshing ${resolvable.join(', ')} from tarball${resolvable.length > 1 ? 's' : ''}...`

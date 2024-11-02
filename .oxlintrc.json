@@ -1,16 +1,19 @@
 {
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["import", "promise", "typescript", "unicorn"],
+  "categories": {
+    "correctness": "warn",
+    "perf": "warn",
+    "suspicious": "warn"
+  },
   "settings": {},
   "rules": {
-    "@typescript-eslint/no-extraneous-class": "allow",
+    "@typescript-eslint/no-misused-new": ["deny"],
     "@typescript-eslint/no-this-alias": ["deny"],
-    "unicorn/consistent-function-scoping": "allow",
     "unicorn/no-empty-file": "allow",
     "unicorn/no-new-array": "allow",
-    "no-async-endpoint-handlers": "allow",
-    "no-await-in-loop": "allow",
     "no-control-regex": "allow",
     "no-extend-native": "allow",
-    "no-new": "allow",
     "no-self-assign": "allow",
     "no-unused-vars": "allow"
   }

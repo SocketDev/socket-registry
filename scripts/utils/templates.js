@@ -143,20 +143,23 @@ async function getPackageJsonAction(pkgPath, options) {
 async function getTypeScriptActions(pkgPath, options) {
   const { references, transform } = { __proto__: null, ...options }
   const doTransform = typeof transform === 'function'
-  const actions = []
-  for (const filepath of await tinyGlob(['**/*.{[cm],}ts'], {
+  const filepaths = await tinyGlob(['**/*.{[cm],}ts'], {
     absolute: true,
     cwd: pkgPath
-  })) {
-    const data = {
-      __proto__: null,
-      references: Array.isArray(references) ? references : []
-    }
-    actions.push([
-      filepath,
-      doTransform ? await transform(filepath, data) : data
-    ])
-  }
+  })
+  const actions = []
+  await Promise.all(
+    filepaths.map(async filepath => {
+      const data = {
+        __proto__: null,
+        references: Array.isArray(references) ? references : []
+      }
+      actions.push([
+        filepath,
+        doTransform ? await transform(filepath, data) : data
+      ])
+    })
+  )
   return actions
 }
 

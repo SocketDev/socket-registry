@@ -221,9 +221,11 @@ for (const eco of constants.ecosystems) {
 
         if (jsonFiles.length) {
           it('should have valid .json files', async () => {
-            for (const jsonPath of jsonFiles) {
-              await assert.doesNotReject(fs.readJson(req.resolve(jsonPath)))
-            }
+            await Promise.all(
+              jsonFiles.map(jsonPath =>
+                assert.doesNotReject(fs.readJson(req.resolve(jsonPath)))
+              )
+            )
           })
         }
 

@@ -46,6 +46,7 @@ describe(
       })
 
       it('should work with mixed types', () => {
+        // eslint-disable-next-line unicorn/consistent-function-scoping
         const fn = (x: string) => x
         const input = [1, ['test', [fn, [true]]]]
         const result = flatten(input)

@@ -6,6 +6,7 @@ const js = require('@eslint/js')
 const importXPlugin = require('eslint-plugin-import-x')
 const nodePlugin = require('eslint-plugin-n')
 const sortDestructureKeysPlugin = require('eslint-plugin-sort-destructure-keys')
+const unicornPlugin = require('eslint-plugin-unicorn')
 const fs = require('fs-extra')
 const tsEslint = require('typescript-eslint')
 
@@ -134,7 +135,11 @@ function configs(sourceType) {
     {
       ignores,
       plugins: {
-        'sort-destructure-keys': sortDestructureKeysPlugin
+        'sort-destructure-keys': sortDestructureKeysPlugin,
+        unicorn: unicornPlugin
+      },
+      linterOptions: {
+        reportUnusedDisableDirectives: 'off'
       },
       rules: {
         'n/exports-style': ['error', 'module.exports'],
@@ -168,15 +173,20 @@ function configs(sourceType) {
           }
         ],
         'n/prefer-node-protocol': ['error'],
+        'no-await-in-loop': ['error'],
+        'no-control-regex': ['error'],
         'no-empty': ['error', { allowEmptyCatch: true }],
+        'no-new': ['error'],
+        'no-proto': ['error'],
+        'no-self-assign': ['error', { props: false }],
         'no-unused-vars': [
           'error',
           { argsIgnorePattern: '^_|^this$', ignoreRestSiblings: true }
         ],
-        'no-self-assign': ['error', { props: false }],
         'no-warning-comments': ['error'],
         'sort-destructure-keys/sort-destructure-keys': ['error'],
-        'sort-imports': ['error', { ignoreDeclarationSort: true }]
+        'sort-imports': ['error', { ignoreDeclarationSort: true }],
+        'unicorn/consistent-function-scoping': ['error']
       }
     },
     ...conditionalConfig(
@@ -198,11 +208,16 @@ function configs(sourceType) {
         plugins: {
           '@typescript-eslint': tsEslint.plugin
         },
-        linterOptions: {
-          reportUnusedDisableDirectives: 'off'
-        },
         rules: {
+          // Define @typescript-eslint/no-extraneous-class because oxlint defines
+          // "no-extraneous-class": ["deny"] and trying to eslint-disable it will
+          // cause an eslint "Definition not found" error otherwise.
+          '@typescript-eslint/no-extraneous-class': ['error'],
           '@typescript-eslint/no-floating-promises': ['error'],
+          // Define @typescript-eslint/no-misused-new because oxlint defines
+          // "no-misused-new": ["deny"] and trying to eslint-disable it will
+          // cause an eslint "Definition not found" error otherwise.
+          '@typescript-eslint/no-misused-new': ['error'],
           '@typescript-eslint/no-misused-promises': ['error'],
           // Define @typescript-eslint/no-this-alias because oxlint defines
           // "no-this-alias": ["deny"] and trying to eslint-disable it will

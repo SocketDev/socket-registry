@@ -53,15 +53,19 @@ describe(
           impl.Buffer('a', 'utf-8')
         })
         assert.throws(() => {
+          // eslint-disable-next-line no-new
           new impl.Buffer()
         })
         assert.throws(() => {
+          // eslint-disable-next-line no-new
           new impl.Buffer(0)
         })
         assert.throws(() => {
+          // eslint-disable-next-line no-new
           new impl.Buffer('a')
         })
         assert.throws(() => {
+          // eslint-disable-next-line no-new
           new impl.Buffer('a', 'utf-8')
         })
       }

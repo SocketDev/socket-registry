@@ -44,7 +44,9 @@ const { perfNpmFixturesPath } = constants
       .add('fast-json-stable-stringify', () => {
         fastJsonStableStringify(data)
       })
+    // eslint-disable-next-line no-await-in-loop
     await bench.warmup()
+    // eslint-disable-next-line no-await-in-loop
     await bench.run()
     console.log(name)
     console.table(bench.table())

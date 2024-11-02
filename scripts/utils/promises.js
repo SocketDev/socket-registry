@@ -18,6 +18,7 @@ async function pEachChunk(chunks, callbackFn, options) {
     if (signal?.aborted) {
       return
     }
+    // eslint-disable-next-line no-await-in-loop
     await Promise.all(
       chunk.map(value =>
         signal?.aborted ? undefined : callbackFn(value, { signal })
@@ -32,17 +33,17 @@ async function pFilterChunk(chunks, callbackFn, options) {
   const filteredChunks = Array(length)
   for (let i = 0; i < length; i += 1) {
     // Process each chunk, filtering based on the callback function
-    filteredChunks[i] = signal?.aborted
-      ? []
-      : (
-          await Promise.all(
-            chunks[i].map(value =>
-              signal?.aborted
-                ? Promise.resolve()
-                : callbackFn(value, { signal })
-            )
-          )
-        ).filter(Boolean)
+    if (signal?.aborted) {
+      filteredChunks[i] = []
+    } else {
+      // eslint-disable-next-line no-await-in-loop
+      const results = await Promise.all(
+        chunks[i].map(value =>
+          signal?.aborted ? Promise.resolve() : callbackFn(value, { signal })
+        )
+      )
+      filteredChunks[i] = results.filter(Boolean)
+    }
   }
   return filteredChunks
 }
