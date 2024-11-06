@@ -3,7 +3,7 @@
 const spawn = require('@npmcli/promise-spawn')
 const semver = require('semver')
 
-const constants = require('@socketregistry/scripts/constants')
+const constants = require('./constants')
 const { NODE_VERSION, WIN_32, execPath } = constants
 
 const canUseNodeRun = semver.satisfies(NODE_VERSION, '>=22.3.0')

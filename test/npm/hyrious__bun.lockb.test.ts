@@ -4,10 +4,8 @@ import { describe, it } from 'node:test'
 
 import fs from 'fs-extra'
 
-// @ts-ignore
 import { testNpmFixturesPath } from '@socketregistry/scripts/constants'
-// @ts-ignore
-import { isPackageTestingSkipped } from '@socketregistry/scripts/utils/tests'
+import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 
 const eco = 'npm'
 const regPkgName = '@hyrious/bun.lockb'

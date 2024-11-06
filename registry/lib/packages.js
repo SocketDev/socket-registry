@@ -16,7 +16,20 @@ const spdxCorrect = require('spdx-correct')
 const spdxExpParse = require('spdx-expression-parse')
 const validateNpmPackageName = require('validate-npm-package-name')
 
-const constants = require('@socketregistry/scripts/constants')
+const {
+  getOwnPropertyValues,
+  isObject,
+  isObjectObject,
+  merge
+} = require('@socketsecurity/registry/lib/objects')
+const {
+  isNodeModules,
+  normalizePath
+} = require('@socketsecurity/registry/lib/path')
+const { escapeRegExp } = require('@socketsecurity/registry/lib/regexps')
+const { isNonEmptyString } = require('@socketsecurity/registry/lib/strings')
+
+const constants = require('./constants')
 const {
   LOOP_SENTINEL,
   MIT,
@@ -33,18 +46,6 @@ const {
   packumentCache,
   pacoteCachePath
 } = constants
-const {
-  getOwnPropertyValues,
-  isObject,
-  isObjectObject,
-  merge
-} = require('@socketregistry/scripts/utils/objects')
-const {
-  isNodeModules,
-  normalizePath
-} = require('@socketregistry/scripts/utils/path')
-const { escapeRegExp } = require('@socketregistry/scripts/utils/regexps')
-const { isNonEmptyString } = require('@socketregistry/scripts/utils/strings')
 
 const BINARY_OPERATION_NODE_TYPE = 'BinaryOperation'
 const LICENSE_NODE_TYPE = 'License'
@@ -387,8 +388,8 @@ function isSubpathExports(entryExports) {
   return false
 }
 
-function isValidPackageName(pkgName) {
-  return validateNpmPackageName(pkgName).validForOldPackages
+function isValidPackageName(value) {
+  return validateNpmPackageName(value).validForOldPackages
 }
 
 function jsonToEditablePackageJson(pkgJson, options) {

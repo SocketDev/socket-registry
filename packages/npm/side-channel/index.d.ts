@@ -1,3 +1,4 @@
+declare function getSideChannel(): getSideChannel.Channel
 declare namespace getSideChannel {
   type Key = unknown
   type ListNode<T> = {
@@ -27,5 +28,4 @@ declare namespace getSideChannel {
     set: <T>(key: Key, value: T) => void
   }
 }
-declare function getSideChannel(): getSideChannel.Channel
 export = getSideChannel

@@ -2,7 +2,7 @@
 
 const prettier = require('prettier')
 
-const constants = require('@socketregistry/scripts/constants')
+const constants = require('./constants')
 
 function indentString(str, count = 1) {
   return str.replace(/^(?!\s*$)/gm, ' '.repeat(count))

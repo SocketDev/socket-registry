@@ -7,8 +7,8 @@ const fs = require('fs-extra')
 const readYamlFile = require('read-yaml-file')
 
 const constants = require('@socketregistry/scripts/constants')
+const { isModified } = require('@socketregistry/scripts/lib/git')
 const { ENV, parseArgsConfig, tapCiConfigPath, tapConfigPath } = constants
-const { isModified } = require('@socketregistry/scripts/utils/git')
 
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 

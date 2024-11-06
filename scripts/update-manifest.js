@@ -17,22 +17,22 @@ const {
   skipTestsByEcosystem,
   testNpmPkgJsonPath
 } = constants
-const { getModifiedFiles } = require('@socketregistry/scripts/utils/git')
+const { getModifiedFiles } = require('@socketregistry/scripts/lib/git')
+const { Spinner } = require('@socketregistry/scripts/lib/spinner')
 const {
   toSortedObject,
   toSortedObjectFromEntries
-} = require('@socketregistry/scripts/utils/objects')
+} = require('@socketsecurity/registry/lib/objects')
 const {
   extractPackage,
   fetchPackageManifest,
   readPackageJson,
   resolveOriginalPackageName,
   resolvePackageJsonEntryExports
-} = require('@socketregistry/scripts/utils/packages')
-const { pEach } = require('@socketregistry/scripts/utils/promises')
-const { localeCompare } = require('@socketregistry/scripts/utils/sorts')
-const { Spinner } = require('@socketregistry/scripts/utils/spinner')
-const { prettierFormat } = require('@socketregistry/scripts/utils/strings')
+} = require('@socketsecurity/registry/lib/packages')
+const { pEach } = require('@socketsecurity/registry/lib/promises')
+const { localeCompare } = require('@socketsecurity/registry/lib/sorts')
+const { prettierFormat } = require('@socketsecurity/registry/lib/strings')
 
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 

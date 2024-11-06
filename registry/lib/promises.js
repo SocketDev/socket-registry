@@ -1,6 +1,6 @@
 'use strict'
 
-const { arrayChunk } = require('@socketregistry/scripts/utils/arrays')
+const { arrayChunk } = require('./arrays')
 
 async function pEach(array, concurrency, callbackFn, options) {
   await pEachChunk(arrayChunk(array, concurrency), callbackFn, options)

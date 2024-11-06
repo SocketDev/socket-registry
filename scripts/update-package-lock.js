@@ -6,12 +6,13 @@ const fs = require('fs-extra')
 const updateBrowserslistDb = require('update-browserslist-db')
 
 const constants = require('@socketregistry/scripts/constants')
-const { parseArgsConfig, rootPackageLockPath, rootPath, yarnPkgExtsJsonPath } =
-  constants
-const { execNpm } = require('@socketregistry/scripts/utils/npm')
+const { execNpm } = require('@socketsecurity/registry/lib/npm')
 const {
   normalizePackageJson
-} = require('@socketregistry/scripts/utils/packages')
+} = require('@socketsecurity/registry/lib/packages')
+
+const { parseArgsConfig, rootPackageLockPath, rootPath, yarnPkgExtsJsonPath } =
+  constants
 
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 

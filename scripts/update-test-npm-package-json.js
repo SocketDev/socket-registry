@@ -9,6 +9,7 @@ if (typeof Module.enableCompileCache === 'function') {
 const path = require('node:path')
 const util = require('node:util')
 
+const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
 const fs = require('fs-extra')
 const npmPackageArg = require('npm-package-arg')
 const semver = require('semver')
@@ -34,25 +35,24 @@ const {
   testNpmPkgJsonPath,
   testNpmPkgLockPath
 } = constants
-const { joinAsList } = require('@socketregistry/scripts/utils/arrays')
+const { Spinner } = require('@socketregistry/scripts/lib/spinner')
 const {
   isSymbolicLinkSync,
   remove,
   uniqueSync
-} = require('@socketregistry/scripts/utils/fs')
-const { execNpm } = require('@socketregistry/scripts/utils/npm')
-const { merge } = require('@socketregistry/scripts/utils/objects')
+} = require('@socketsecurity/registry/lib/fs')
+const { execNpm } = require('@socketsecurity/registry/lib/npm')
+const { merge } = require('@socketsecurity/registry/lib/objects')
 const {
   isSubpathExports,
   readPackageJson,
   resolveGitHubTgzUrl,
   resolveOriginalPackageName,
   resolvePackageJsonEntryExports
-} = require('@socketregistry/scripts/utils/packages')
-const { splitPath } = require('@socketregistry/scripts/utils/path')
-const { pEach, pFilter } = require('@socketregistry/scripts/utils/promises')
-const { Spinner } = require('@socketregistry/scripts/utils/spinner')
-const { isNonEmptyString } = require('@socketregistry/scripts/utils/strings')
+} = require('@socketsecurity/registry/lib/packages')
+const { splitPath } = require('@socketsecurity/registry/lib/path')
+const { pEach, pFilter } = require('@socketsecurity/registry/lib/promises')
+const { isNonEmptyString } = require('@socketsecurity/registry/lib/strings')
 
 const { values: cliArgs } = util.parseArgs(
   merge(parseArgsConfig, {

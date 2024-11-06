@@ -6,7 +6,6 @@ import util from 'node:util'
 import fs from 'fs-extra'
 import semver from 'semver'
 
-// @ts-ignore
 import constants from '@socketregistry/scripts/constants'
 const {
   ENV,
@@ -20,22 +19,15 @@ const {
   testNpmNodeWorkspacesPath,
   win32EnsureTestsByEcosystem
 } = constants
-// @ts-ignore
-import { readDirNamesSync } from '@socketregistry/scripts/utils/fs'
 import {
   getModifiedPackagesSync,
   getStagedPackagesSync
-  // @ts-ignore
-} from '@socketregistry/scripts/utils/git'
-// @ts-ignore
-import { runScript } from '@socketregistry/scripts/utils/npm'
-import {
-  resolveOriginalPackageName
-  // @ts-ignore
-} from '@socketregistry/scripts/utils/packages'
-// @ts-ignore
-import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
+} from '@socketregistry/scripts/lib/git'
 import { getManifestData } from '@socketsecurity/registry'
+import { readDirNamesSync } from '@socketsecurity/registry/lib/fs'
+import { runScript } from '@socketsecurity/registry/lib/npm'
+import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/packages'
+import { isNonEmptyString } from '@socketsecurity/registry/lib/strings'
 
 // Pass args as tap --test-arg:
 // npm run test:unit ./test/npm.test.ts -- --test-arg="--force"
@@ -50,7 +42,7 @@ const packageNames: string[] =
   ENV.CI || cliArgs.force
     ? testNpmNodeWorkspacesPackages
     : (() => {
-        const testablePackages: Set<string> = (
+        const testablePackages = (
           ENV.PRE_COMMIT ? getStagedPackagesSync : getModifiedPackagesSync
         )(eco, {
           asSet: true,
@@ -81,7 +73,7 @@ describe(eco, { skip: !packageNames.length }, () => {
       !nwPkgJson.scripts?.test ||
       (WIN_32 &&
         !manifestData?.interop.includes('browserify') &&
-        !win32EnsureTestsByEcosystem?.[eco].has(origPkgName)) ||
+        !win32EnsureTestsByEcosystem?.[eco]?.has(origPkgName)) ||
       (isNonEmptyString(nodeRange) &&
         !semver.satisfies(NODE_VERSION, nodeRange))
 

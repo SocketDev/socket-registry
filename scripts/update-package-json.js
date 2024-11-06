@@ -2,8 +2,8 @@
 
 const constants = require('@socketregistry/scripts/constants')
 const { rootPackageJsonPath, rootPath } = constants
-const { runScript } = require('@socketregistry/scripts/utils/npm')
-const { readPackageJson } = require('@socketregistry/scripts/utils/packages')
+const { runScript } = require('@socketsecurity/registry/lib/npm')
+const { readPackageJson } = require('@socketsecurity/registry/lib/packages')
 
 const abortController = new AbortController()
 const { signal } = abortController

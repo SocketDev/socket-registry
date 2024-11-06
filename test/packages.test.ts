@@ -10,7 +10,6 @@ import fs from 'fs-extra'
 import semver from 'semver'
 import { glob as tinyGlob } from 'tinyglobby'
 
-// @ts-ignore
 import constants from '@socketregistry/scripts/constants'
 const {
   ENV,
@@ -26,25 +25,19 @@ const {
 import {
   getModifiedPackagesSync,
   getStagedPackagesSync
-  // @ts-ignore
-} from '@socketregistry/scripts/utils/git'
-// @ts-ignore
-import { isObjectObject } from '@socketregistry/scripts/utils/objects'
+} from '@socketregistry/scripts/lib/git'
+import { getManifestData } from '@socketsecurity/registry'
+import { isObjectObject } from '@socketsecurity/registry/lib/objects'
 import {
   findTypesForSubpath,
   getSubpaths,
   isValidPackageName,
   readPackageJson,
   resolveOriginalPackageName
-  // @ts-ignore
-} from '@socketregistry/scripts/utils/packages'
-// @ts-ignore
-import { trimLeadingDotSlash } from '@socketregistry/scripts/utils/path'
-// @ts-ignore
-import { localeCompare } from '@socketregistry/scripts/utils/sorts'
-// @ts-ignore
-import { isNonEmptyString } from '@socketregistry/scripts/utils/strings'
-import { getManifestData } from '@socketsecurity/registry'
+} from '@socketsecurity/registry/lib/packages'
+import { trimLeadingDotSlash } from '@socketsecurity/registry/lib/path'
+import { localeCompare } from '@socketsecurity/registry/lib/sorts'
+import { isNonEmptyString } from '@socketsecurity/registry/lib/strings'
 
 // Pass args as tap --test-arg:
 // npm run test:unit ./test/packages.test.ts -- --test-arg="--force"
@@ -82,7 +75,7 @@ for (const eco of constants.ecosystems) {
   if (eco !== 'npm') {
     continue
   }
-  const packageNames: string[] =
+  const packageNames: readonly string[] =
     ENV.CI || cliArgs.force
       ? // Lazily access constants.npmPackageNames.
         constants.npmPackageNames
@@ -119,12 +112,21 @@ for (const eco of constants.ecosystems) {
         const pkgJson = await readPackageJson(pkgJsonPath)
         const {
           engines,
-          exports: entryExports,
           files: filesPatterns,
           main: mainPath,
           overrides: pkgOverrides,
           resolutions: pkgResolutions
         } = pkgJson
+
+        const entryExports = <
+          | {
+              [condition: string]: Exclude<
+                typeof pkgJson.exports,
+                string | null | undefined
+              >
+            }
+          | undefined
+        >pkgJson.exports
 
         const files = (
           await tinyGlob(['**/*'], {
@@ -147,7 +149,7 @@ for (const eco of constants.ecosystems) {
             ],
             {
               // Lazily access constants.ignoreGlobs.
-              ignore: constants.ignoreGlobs,
+              ignore: [...constants.ignoreGlobs],
               caseSensitiveMatch: false,
               cwd: pkgPath,
               dot: true
@@ -180,9 +182,13 @@ for (const eco of constants.ecosystems) {
 
         it('package name should be included in "repository.directory" field of package.json', () => {
           assert.strictEqual(
-            pkgJson.repository?.directory,
+            (pkgJson.repository as { directory?: string })?.directory,
             `packages/npm/${regPkgName}`
           )
+        })
+
+        it('should not have "main" field in package.json', () => {
+          assert.ok(!Object.hasOwn(pkgJson, 'main'))
         })
 
         if (entryExports) {
@@ -193,8 +199,16 @@ for (const eco of constants.ecosystems) {
             }
           })
 
-          it('should not have "main" field in package.json', () => {
-            assert.ok(!Object.hasOwn(pkgJson, 'main'))
+          it('should have a .d.ts file for every .js file', () => {
+            const jsSubpaths = (<string[]>getSubpaths(entryExports)).filter(s =>
+              /\.[cm]?js$/.test(s)
+            )
+            for (const subpath of jsSubpaths) {
+              const types = trimLeadingDotSlash(
+                findTypesForSubpath(entryExports, subpath) ?? ''
+              )
+              assert.ok(files.includes(types))
+            }
           })
         }
 
@@ -251,18 +265,6 @@ for (const eco of constants.ecosystems) {
           })
         }
 
-        it('should have a .d.ts file for every .js file', () => {
-          const jsSubpaths = (<string[]>getSubpaths(entryExports)).filter(s =>
-            /\.[cm]?js$/.test(s)
-          )
-          for (const subpath of jsSubpaths) {
-            const types = trimLeadingDotSlash(
-              findTypesForSubpath(entryExports, subpath) ?? ''
-            )
-            assert.ok(files.includes(types))
-          }
-        })
-
         it('should have a "files" field in package.json', () => {
           assert.ok(
             Array.isArray(filesPatterns) &&
@@ -276,7 +278,7 @@ for (const eco of constants.ecosystems) {
           files.includes('polyfill.js')
         ) {
           describe('es-shim', () => {
-            const nodeRange = pkgJson?.engines?.node
+            const nodeRange = pkgJson?.engines?.['node']
             const skipping =
               isNonEmptyString(nodeRange) &&
               !semver.satisfies(NODE_VERSION, nodeRange)
@@ -284,13 +286,15 @@ for (const eco of constants.ecosystems) {
               ? `supported in ${nodeRange}, running ${NODE_VERSION}`
               : ''
 
-            it('index.js exists for exports["."].default field of package.json', () => {
-              const mainEntry = entryExports['.']
-              const defaultMainEntry = Array.isArray(mainEntry)
-                ? mainEntry.at(-1).default
-                : mainEntry.default
-              assert.doesNotThrow(() => req.resolve(defaultMainEntry))
-            })
+            if (entryExports) {
+              it('index.js exists for exports["."].default field of package.json', () => {
+                const mainEntry = entryExports['.']
+                const defaultMainEntry = Array.isArray(mainEntry)
+                  ? (mainEntry.at(-1) as { default: string })?.default
+                  : (mainEntry as { default: string })?.default
+                assert.doesNotThrow(() => req.resolve(defaultMainEntry))
+              })
+            }
 
             it('should not leak api', async t => {
               if (skipping) return t.skip(skipMessage)
@@ -350,7 +354,7 @@ for (const eco of constants.ecosystems) {
 
           it('overrides files should match corresponding package.json field values', () => {
             for (const name of localOverridesPackages) {
-              const spec = pkgOverrides[name]
+              const spec = (pkgOverrides as any)?.[name] ?? ''
               const expected = `${spec.startsWith('link:') ? 'link' : 'file'}:./overrides/${name}`
               assert.strictEqual(spec, expected)
             }

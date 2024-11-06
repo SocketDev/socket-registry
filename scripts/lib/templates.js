@@ -2,6 +2,7 @@
 
 const path = require('node:path')
 
+const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
 const { Eta } = require('eta')
 const fs = require('fs-extra')
 const { PackageURL } = require('packageurl-js')
@@ -9,6 +10,15 @@ const semver = require('semver')
 const { glob: tinyGlob } = require('tinyglobby')
 
 const constants = require('@socketregistry/scripts/constants')
+const { getManifestData } = require('@socketsecurity/registry')
+const { globLicenses } = require('@socketsecurity/registry/lib/globs')
+const { isObjectObject } = require('@socketsecurity/registry/lib/objects')
+const {
+  readPackageJson,
+  resolveOriginalPackageName
+} = require('@socketsecurity/registry/lib/packages')
+const { prettierFormat } = require('@socketsecurity/registry/lib/strings')
+
 const {
   LICENSE_CONTENT,
   PACKAGE_DEFAULT_SOCKET_CATEGORIES,
@@ -22,15 +32,6 @@ const {
   TEMPLATE_ES_SHIM_STATIC_METHOD,
   npmTemplatesPath
 } = constants
-const { joinAsList } = require('@socketregistry/scripts/utils/arrays')
-const { globLicenses } = require('@socketregistry/scripts/utils/globs')
-const { isObjectObject } = require('@socketregistry/scripts/utils/objects')
-const {
-  readPackageJson,
-  resolveOriginalPackageName
-} = require('@socketregistry/scripts/utils/packages')
-const { prettierFormat } = require('@socketregistry/scripts/utils/strings')
-const { getManifestData } = require('@socketsecurity/registry')
 
 const eta = new Eta()
 

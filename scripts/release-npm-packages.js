@@ -13,14 +13,14 @@ const {
   relNpmPackagesPath,
   rootPath
 } = constants
-const { runScript } = require('@socketregistry/scripts/utils/npm')
+const { Spinner } = require('@socketregistry/scripts/lib/spinner')
+const { runScript } = require('@socketsecurity/registry/lib/npm')
 const {
   fetchPackageManifest,
   packPackage,
   readPackageJson
-} = require('@socketregistry/scripts/utils/packages')
-const { pEach } = require('@socketregistry/scripts/utils/promises')
-const { Spinner } = require('@socketregistry/scripts/utils/spinner')
+} = require('@socketsecurity/registry/lib/packages')
+const { pEach } = require('@socketsecurity/registry/lib/promises')
 
 const abortController = new AbortController()
 const { signal } = abortController
@@ -55,19 +55,21 @@ process.on('SIGINT', () => {
         // then bump the local version.
         if (
           ssri
-            .fromData(await packPackage(name, { signal }))
+            .fromData(
+              await packPackage(`${name}@${manifest.version}`, { signal })
+            )
             .sha512[0].hexDigest() !==
           ssri
             .fromData(await packPackage(pkgPath, { signal }))
             .sha512[0].hexDigest()
         ) {
+          const version = semver.inc(manifest.version, 'patch')
           const editablePkgJson = await readPackageJson(pkgPath, {
             editable: true
           })
-          editablePkgJson.update({
-            version: semver.inc(manifest.version, 'patch')
-          })
+          editablePkgJson.update({ version })
           await editablePkgJson.save()
+          console.log(`+${name}@${manifest.version} -> ${version}`)
         }
       }
     },

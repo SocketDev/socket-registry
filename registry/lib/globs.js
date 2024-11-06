@@ -8,7 +8,7 @@ const {
   LICENSE_GLOB_RECURSIVE,
   kInternalsSymbol,
   [kInternalsSymbol]: { getGlobMatcher }
-} = require('@socketregistry/scripts/constants')
+} = require('./constants')
 
 async function globLicenses(dirname, options) {
   const {

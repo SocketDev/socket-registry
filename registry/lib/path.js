@@ -1,6 +1,6 @@
 'use strict'
 
-const { search } = require('@socketregistry/scripts/utils/strings')
+const { search } = require('./strings')
 
 const leadingDotSlashRegExp = /^\.\.?[/\\]/
 const slashRegExp = /[/\\]/

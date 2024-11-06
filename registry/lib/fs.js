@@ -7,7 +7,7 @@ const fs = require('fs-extra')
 const {
   kInternalsSymbol,
   [kInternalsSymbol]: { innerReadDirNames, isDirEmptySync, readDirNamesSync }
-} = require('@socketregistry/scripts/constants')
+} = require('./constants')
 
 const defaultRemoveOptions = Object.freeze({
   __proto__: null,

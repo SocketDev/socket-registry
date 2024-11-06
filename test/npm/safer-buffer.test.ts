@@ -3,8 +3,7 @@ import assert from 'node:assert/strict'
 import buffer from 'node:buffer'
 import { describe, it } from 'node:test'
 
-// @ts-ignore
-import { isPackageTestingSkipped } from '@socketregistry/scripts/utils/tests'
+import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 
 const eco = 'npm'
 const regPkgName = 'safer-buffer'

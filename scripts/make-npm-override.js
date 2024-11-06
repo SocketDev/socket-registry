@@ -26,10 +26,18 @@ const {
   tsLibsAvailable,
   tsTypesAvailable
 } = constants
-const { isDirEmptySync } = require('@socketregistry/scripts/utils/fs')
-const { globLicenses } = require('@socketregistry/scripts/utils/globs')
-const { runScript } = require('@socketregistry/scripts/utils/npm')
-const { isObject } = require('@socketregistry/scripts/utils/objects')
+const {
+  getLicenseActions,
+  getNpmReadmeAction,
+  getPackageJsonAction,
+  getTypeScriptActions,
+  templates,
+  writeAction
+} = require('@socketregistry/scripts/lib/templates')
+const { isDirEmptySync } = require('@socketsecurity/registry/lib/fs')
+const { globLicenses } = require('@socketsecurity/registry/lib/globs')
+const { runScript } = require('@socketsecurity/registry/lib/npm')
+const { isObject } = require('@socketsecurity/registry/lib/objects')
 const {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
@@ -42,26 +50,18 @@ const {
   resolvePackageJsonEntryExports,
   resolvePackageLicenses,
   resolveRegistryPackageName
-} = require('@socketregistry/scripts/utils/packages')
+} = require('@socketsecurity/registry/lib/packages')
 const {
   confirm,
   input,
   search,
   select
-} = require('@socketregistry/scripts/utils/prompts')
+} = require('@socketsecurity/registry/lib/prompts')
 const {
   localeCompare,
   naturalSort
-} = require('@socketregistry/scripts/utils/sorts')
-const { indentString } = require('@socketregistry/scripts/utils/strings')
-const {
-  getLicenseActions,
-  getNpmReadmeAction,
-  getPackageJsonAction,
-  getTypeScriptActions,
-  templates,
-  writeAction
-} = require('@socketregistry/scripts/utils/templates')
+} = require('@socketsecurity/registry/lib/sorts')
+const { indentString } = require('@socketsecurity/registry/lib/strings')
 
 const { positionals: cliPositionals, values: cliArgs } =
   util.parseArgs(parseArgsConfig)

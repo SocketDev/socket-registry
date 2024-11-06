@@ -6,7 +6,7 @@ const {
   NODE_MODULES_GLOB_RECURSIVE,
   rootPath
 } = require('@socketregistry/scripts/constants')
-const { isDirEmptySync, remove } = require('@socketregistry/scripts/utils/fs')
+const { isDirEmptySync, remove } = require('@socketsecurity/registry/lib/fs')
 
 ;(async () => {
   await Promise.all(

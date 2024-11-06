@@ -8,7 +8,7 @@ const { ENV, LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE, parseArgsConfig } =
 const {
   getModifiedPackagesSync,
   getStagedPackagesSync
-} = require('@socketregistry/scripts/utils/git')
+} = require('@socketregistry/scripts/lib/git')
 
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 

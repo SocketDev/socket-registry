@@ -5,15 +5,16 @@ const path = require('node:path')
 const { glob: tinyGlob } = require('tinyglobby')
 
 const constants = require('@socketregistry/scripts/constants')
-const { PACKAGE_JSON, npmPackagesPath } = constants
 const {
   createPackageJson,
   getSubpaths,
   isSubpathExports,
   readPackageJson,
   resolvePackageJsonEntryExports
-} = require('@socketregistry/scripts/utils/packages')
-const { trimLeadingDotSlash } = require('@socketregistry/scripts/utils/path')
+} = require('@socketsecurity/registry/lib/packages')
+const { trimLeadingDotSlash } = require('@socketsecurity/registry/lib/path')
+
+const { PACKAGE_JSON, npmPackagesPath } = constants
 
 ;(async () => {
   await Promise.all(
@@ -32,7 +33,7 @@ const { trimLeadingDotSlash } = require('@socketregistry/scripts/utils/path')
         const availableFiles = await tinyGlob(
           ['**/*.{[cm],}js', '**/*.d.{[cm],}ts', '**/*.json'],
           {
-            ignore: ['**/overrides/*', 'shared.{js,d.ts}'],
+            ignore: ['**/overrides/*', '**/shared.{js,d.ts}'],
             cwd: pkgPath
           }
         )

@@ -3,7 +3,7 @@
 const {
   kInternalsSymbol,
   [kInternalsSymbol]: { localeCompare, naturalSort }
-} = require('@socketregistry/scripts/constants')
+} = require('./constants')
 
 module.exports = {
   localeCompare,

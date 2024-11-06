@@ -7,7 +7,6 @@ import fastJsonStableStringify from 'fast-json-stable-stringify'
 import origJsonStableStringify from 'json-stable-stringify'
 import overrideJsonStableStringify from '@socketregistry/json-stable-stringify'
 
-// @ts-ignore
 import constants from '@socketregistry/scripts/constants'
 const { perfNpmFixturesPath } = constants
 

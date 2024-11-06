@@ -9,7 +9,7 @@ const { glob: tinyGlob } = require('tinyglobby')
 const constants = require('@socketregistry/scripts/constants')
 const { EMPTY_FILE, ignoreGlobs, npmTemplatesPath, parseArgsConfig, rootPath } =
   constants
-const { getModifiedFiles } = require('@socketregistry/scripts/utils/git')
+const { getModifiedFiles } = require('@socketregistry/scripts/lib/git')
 
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 

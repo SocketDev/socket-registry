@@ -8,10 +8,8 @@ const fs = require('fs-extra')
 const constants = require('@socketregistry/scripts/constants')
 const { README_MD, npmPackagesPath, npmTemplatesReadmePath, parseArgsConfig } =
   constants
-const { isModified } = require('@socketregistry/scripts/utils/git')
-const {
-  getNpmReadmeAction
-} = require('@socketregistry/scripts/utils/templates')
+const { isModified } = require('@socketregistry/scripts/lib/git')
+const { getNpmReadmeAction } = require('@socketregistry/scripts/lib/templates')
 
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 

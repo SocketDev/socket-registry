@@ -1,7 +1,7 @@
 'use strict'
 
-const { LOOP_SENTINEL } = require('@socketregistry/scripts/constants')
-const { localeCompare } = require('@socketregistry/scripts/utils/sorts')
+const { LOOP_SENTINEL } = require('./constants')
+const { localeCompare } = require('./sorts')
 
 function getOwnPropertyValues(obj) {
   const keys = Object.getOwnPropertyNames(obj)
