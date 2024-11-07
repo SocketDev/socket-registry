@@ -1,6 +1,6 @@
-import type { FlatConfig } from '@eslint/compat'
-import type which from 'which'
-import type registryConstants from '@socketsecurity/registry/lib/constants'
+import { FlatConfig } from '@eslint/compat'
+import which from 'which'
+import registryConstants from '@socketsecurity/registry/lib/constants'
 
 declare const kInternalsSymbol: (typeof registryConstants)['kInternalsSymbol']
 type Internals = (typeof registryConstants)[typeof kInternalsSymbol] & {

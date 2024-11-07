@@ -1,29 +1,24 @@
-import type { Content as PackageJsonContent } from '@npmcli/package-json'
+import { Content as NPMCliPackageJson } from '@npmcli/package-json'
+import { Options as PacoteOptionsRaw } from 'pacote'
+import { CategoryString } from '../index'
 
-declare interface PackageJsonOptions {
-  dependencies?: Record<string, string>
-  description?: string
-  engines?: Record<string, string>
-  exports?: Record<string, any>
-  files?: string[]
-  keywords?: string[]
-  main?: string
-  overrides?: Record<string, any>
-  resolutions?: Record<string, any>
-  sideEffects?: boolean
-  socket?: Record<string, any>
-  type?: string
-  version?: string
+declare type PackageJson = NPMCliPackageJson & {
+  socket?: { categories: CategoryString }
 }
-declare interface ExtractOptions {
+declare type NormalizedPackageJson = Omit<PackageJson, 'repository'> & {
+  repository?: Exclude<PackageJson['repository'], string>
+}
+declare type PacoteOptions = PacoteOptionsRaw & {
+  signal?: AbortSignal
+}
+declare type ExtractOptions = PacoteOptions & {
   tmpPrefix?: string
-  [key: string]: any
 }
 declare interface LicenseNode {
   license: string
-  plus?: boolean
   exception?: string
   inFile?: string
+  plus?: boolean
 }
 declare function collectIncompatibleLicenses(
   licenseNodes: LicenseNode[]
@@ -32,16 +27,16 @@ declare function collectLicenseWarnings(licenseNodes: LicenseNode[]): string[]
 declare function createPackageJson(
   regPkgName: string,
   directory: string,
-  options: PackageJsonOptions
+  options: PackageJson
 ): Record<string, any>
 declare function extractPackage(
   pkgNameOrId: string,
   options: ExtractOptions,
-  callback: (tmpDirPath: string) => Promise<void>
+  callback: (tmpDirPath: string) => Promise<any>
 ): Promise<void>
 declare function fetchPackageManifest(
   pkgNameOrId: string,
-  options?: Record<string, any>
+  options?: PacoteOptions
 ): Promise<Record<string, any> | null>
 declare function findTypesForSubpath(
   entryExports: any,
@@ -54,7 +49,7 @@ declare function isValidPackageName(value: any): boolean
 declare function normalizePackageJson(
   pkgJson: Record<string, any>,
   options?: Record<string, any>
-): Record<string, any>
+): NormalizedPackageJson
 declare function packPackage(
   spec: string,
   options?: Record<string, any>
@@ -62,11 +57,11 @@ declare function packPackage(
 declare function readPackageJson(
   filepath: string,
   options?: Record<string, any>
-): Promise<PackageJsonContent>
+): Promise<PackageJson>
 declare function readPackageJsonSync(
   filepath: string,
   options?: Record<string, any>
-): PackageJsonContent
+): PackageJson
 declare function resolveEscapedScope(regPkgName: string): string
 declare function resolveGitHubTgzUrl(
   pkgNameOrId: string,
@@ -92,7 +87,6 @@ declare function toEditablePackageJsonSync(
   options: Record<string, any>
 ): any
 declare function unescapeScope(escapedScope: string): string
-declare function visitLicenses(ast: any, visitor: Record<string, any>): void
 declare const packagesModule: {
   collectIncompatibleLicenses: typeof collectIncompatibleLicenses
   collectLicenseWarnings: typeof collectLicenseWarnings
@@ -119,6 +113,5 @@ declare const packagesModule: {
   toEditablePackageJson: typeof toEditablePackageJson
   toEditablePackageJsonSync: typeof toEditablePackageJsonSync
   unescapeScope: typeof unescapeScope
-  visitLicenses: typeof visitLicenses
 }
 export = packagesModule

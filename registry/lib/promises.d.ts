@@ -1,26 +1,28 @@
 declare interface POptions {
   signal?: AbortSignal
 }
+declare type pCallback = (value: T, options: POptions) => Promise<any>
+declare type pPredicate = (value: T, options: POptions) => Promise<boolean>
 declare function pEach<T>(
   array: T[],
   concurrency: number,
-  callbackFn: (value: T, options: POptions) => Promise<void>,
+  callbackFn: pCallback,
   options?: POptions
 ): Promise<void>
 declare function pFilter<T>(
   array: T[],
   concurrency: number,
-  callbackFn: (value: T, options: POptions) => Promise<boolean>,
+  callbackFn: pPredicate,
   options?: POptions
 ): Promise<T[]>
 declare function pEachChunk<T>(
   chunks: T[][],
-  callbackFn: (value: T, options: POptions) => Promise<void>,
+  callbackFn: pCallback,
   options?: POptions
 ): Promise<void>
 declare function pFilterChunk<T>(
   chunks: T[][],
-  callbackFn: (value: T, options: POptions) => Promise<boolean>,
+  callbackFn: pPredicate,
   options?: POptions
 ): Promise<T[][]>
 declare const promisesModule: {

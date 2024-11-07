@@ -1,21 +1,26 @@
-declare interface SpawnOptions {
-  shell?: boolean
+// <reference types="node" />
+import { SpawnOptions } from 'node:child_process'
+
+declare type PromiseSpawnOptions = {
+  cwd?: string
+  stdioString?: boolean
+} & SpawnOptions
+declare interface RunScriptOptions extends PromiseSpawnOptions {
   prepost?: boolean
-  [key: string]: any
 }
 declare function execNpm(
   args: string[],
-  options?: SpawnOptions
+  options?: PromiseSpawnOptions
 ): Promise<{ stdout: string; stderr: string }>
 declare function runBin(
   binPath: string,
   args: string[],
-  options?: SpawnOptions
+  options?: PromiseSpawnOptions
 ): Promise<{ stdout: string; stderr: string }>
 declare function runScript(
   scriptName: string,
   args: string[],
-  options?: SpawnOptions
+  options?: RunScriptOptions
 ): Promise<{ stdout: string; stderr: string }>
 declare const npmModule: {
   execNpm: typeof execNpm

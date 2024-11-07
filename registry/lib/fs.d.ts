@@ -1,15 +1,9 @@
-import { PathLike } from 'node:fs'
+/// <reference types="node" />
+import { PathLike, RmOptions } from 'node:fs'
 
 declare interface ReadDirOptions {
-  withFileTypes?: boolean
-  [key: string]: any
-}
-declare interface RemoveOptions {
-  force?: boolean
-  maxRetries?: number
-  recursive?: boolean
-  retryDelay?: number
-  [key: string]: any
+  includeEmpty?: boolean
+  sort?: boolean
 }
 declare function isDirEmptySync(dirPath: PathLike): boolean
 declare function isSymbolicLinkSync(filepath: PathLike): boolean
@@ -21,11 +15,8 @@ declare function readDirNamesSync(
   dirname: PathLike,
   options?: ReadDirOptions
 ): string[]
-declare function remove(
-  filepath: PathLike,
-  options?: RemoveOptions
-): Promise<void>
-declare function removeSync(filepath: PathLike, options?: RemoveOptions): void
+declare function remove(filepath: PathLike, options?: RmOptions): Promise<void>
+declare function removeSync(filepath: PathLike, options?: RmOptions): void
 declare function uniqueSync(filepath: PathLike): string
 declare const fs: {
   isDirEmptySync: typeof isDirEmptySync

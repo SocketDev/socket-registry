@@ -1,7 +1,8 @@
-declare const confirm: (...args: any[]) => Promise<boolean | undefined>
-declare const input: (...args: any[]) => Promise<string | undefined>
-declare const search: (...args: any[]) => Promise<string | undefined>
-declare const select: (...args: any[]) => Promise<string | undefined>
+import confirm from '@inquirer/confirm'
+import input from '@inquirer/input'
+import search from '@inquirer/search'
+import select from '@inquirer/select'
+
 declare const promptsModule: {
   confirm: typeof confirm
   input: typeof input

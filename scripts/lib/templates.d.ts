@@ -1,29 +1,57 @@
 import { PathLike } from 'node:path'
+import { Content as NPMCliPackageJson } from '@npmcli/package-json'
+import { CategoryString, ManifestEntryData } from '@socketsecurity/registry'
+import { PackageURL } from 'packageurl-js'
+import { SemVer } from 'semver'
 
-declare interface LicenseAction {
+declare type LicenseAction = {
   license: string
 }
+declare type PackageAction = Omit<
+  NPMCliPackageJson,
+  'dependencies' | 'version'
+> &
+  ManifestEntryData & {
+    adjectivesText: string
+    categories: CategoryString[]
+    dependencies: { [key: string]: string }
+    originalName: string
+    purl: PackageURL
+    version: SemVer
+  }
+declare type NpmReadmeAction = PackageAction
+declare type TypeScripAction = {
+  references: string[]
+}
+declare type Action = LicenseAction | NpmReadmeAction | PackageAction | TypeScripAction
 declare interface TypeScriptOptions {
-  references?: any[]
-  transform?: (filepath: string, data: Record<string, any>) => Promise<any>
+  references?: string[]
+  transform?: (filepath: string, data: { references: string[] }) => Promise<any>
 }
 declare function getLicenseActions(
   pkgPath: string
 ): Promise<[string, LicenseAction][]>
 declare function getNpmReadmeAction(
   pkgPath: string
-): Promise<[string, Record<string, any>]>
+): Promise<[string, NpmReadmeAction][]>
 declare function getPackageJsonAction(
   pkgPath: string,
-  options?: { engines?: Record<string, string> }
-): Promise<[string, Record<string, any>]>
+  options?: { engines?: ManifestEntryData.engines }
+): Promise<[string, PackageAction][]>
 declare function getTypeScriptActions(
   pkgPath: string,
   options?: TypeScriptOptions
-): Promise<[string, Record<string, any> | any][]>
-declare function renderAction(action: [PathLike, any]): Promise<string>
-declare function writeAction(action: [PathLike, any]): Promise<void>
-declare const templates: Readonly<Record<string, string>>
+): Promise<[string, TypeScripAction][]>
+declare function renderAction(action: [PathLike, Action]): Promise<string>
+declare function writeAction(action: [PathLike, Action]): Promise<void>
+declare const templates: {
+  TEMPLATE_CJS: string
+  TEMPLATE_CJS_BROWSER: string
+  TEMPLATE_CJS_ESM: string
+  TEMPLATE_ES_SHIM_CONSTRUCTOR: string
+  TEMPLATE_ES_SHIM_PROTOTYPE_METHOD: string
+  TEMPLATE_ES_SHIM_STATIC_METHOD: string
+}
 declare const spinner: {
   getLicenseActions: typeof getLicenseActions
   getNpmReadmeAction: typeof getNpmReadmeAction

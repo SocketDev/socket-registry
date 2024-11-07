@@ -1,4 +1,4 @@
-import type { IFastSort } from 'fast-sort'
+import { IFastSort } from 'fast-sort'
 
 declare const kInternalsSymbol: unique symbol
 

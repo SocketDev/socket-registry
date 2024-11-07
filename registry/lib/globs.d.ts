@@ -1,8 +1,9 @@
-declare interface GlobOptions {
-  ignore?: string[]
+import { PicomatchOptions } from 'picomatch'
+import { GlobOptions as TinyGlobOptions } from 'tinyglobby'
+
+declare interface GlobOptions extends TinyGlobOptions {
   ignoreOriginals?: boolean
   recursive?: boolean
-  [key: string]: any
 }
 declare function globLicenses(
   dirname: string,
@@ -11,7 +12,7 @@ declare function globLicenses(
 declare const globsModule: {
   getGlobMatcher: (
     patterns: string[],
-    options?: GlobOptions
+    options?: PicomatchOptions
   ) => (filepath: string) => boolean
   globLicenses: typeof globLicenses
 }

@@ -107,5 +107,8 @@
     "*.{c,}js",
     "*.json",
     "lib/*.js"
-  ]
+  ],
+  "devDependencies": {
+    "@types/pacote": "^11.1.8"
+  }
 }
