@@ -78,7 +78,6 @@
     "eslint-plugin-sort-destructure-keys": "^2.0.0",
     "eslint-plugin-unicorn": "^56.0.0",
     "eta": "^3.5.0",
-    "fast-sort": "^3.4.1",
     "fs-extra": "^11.2.0",
     "husky": "^9.1.6",
     "knip": "^5.36.2",
