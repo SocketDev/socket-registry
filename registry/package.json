@@ -1,6 +1,6 @@
 {
   "name": "@socketsecurity/registry",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "license": "MIT",
   "description": "Socket.dev registry helpers methods and metadata",
   "keywords": [
@@ -23,6 +23,10 @@
     "./lib/constants": {
       "types": "./lib/constants.d.ts",
       "default": "./lib/constants.js"
+    },
+    "./lib/env": {
+      "types": "./lib/env.d.ts",
+      "default": "./lib/env.js"
     },
     "./lib/fs": {
       "types": "./lib/fs.d.ts",
