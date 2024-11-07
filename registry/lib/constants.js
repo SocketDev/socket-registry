@@ -15,6 +15,9 @@ const pacote = require('pacote')
 const picomatch = require('picomatch')
 const semver = require('semver')
 const which = require('which')
+
+const { envAsBoolean, envAsString } = require('./env')
+
 const { sync: whichSync } = which
 
 const UNDEFINED_LAZY_VALUE = {}
@@ -51,17 +54,6 @@ function defineLazyGetters(object, getterObj) {
     defineLazyGetter(object, key, createLazyGetter(getterObj[key]))
   }
   return object
-}
-
-function envAsBoolean(value) {
-  return (
-    typeof value === 'string' &&
-    (value === '1' || value.toLowerCase() === 'true')
-  )
-}
-
-function envAsString(value) {
-  return typeof value === 'string' ? value : ''
 }
 
 const COLUMN_LIMIT = 80

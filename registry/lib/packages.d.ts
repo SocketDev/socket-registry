@@ -1,5 +1,8 @@
 import { Content as NPMCliPackageJson } from '@npmcli/package-json'
-import { Options as PacoteOptionsRaw } from 'pacote'
+import {
+  manifest as PacoteManifestFn,
+  Options as PacoteOptionsRaw
+} from 'pacote'
 import { CategoryString } from '../index'
 
 declare type PackageJson = NPMCliPackageJson & {
@@ -37,7 +40,7 @@ declare function extractPackage(
 declare function fetchPackageManifest(
   pkgNameOrId: string,
   options?: PacoteOptions
-): Promise<Record<string, any> | null>
+): ReturnType<typeof PacoteManifestFn>
 declare function findTypesForSubpath(
   entryExports: any,
   subpath: string
