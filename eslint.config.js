@@ -86,7 +86,7 @@ const getImportXFlatConfigs = isEsm => ({
           ],
           pathGroups: [
             {
-              pattern: '@socketregistry/**',
+              pattern: '@socket{registry,security}/**',
               group: 'internal'
             }
           ],

@@ -2,7 +2,6 @@
 
 const path = require('node:path')
 
-const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
 const { Eta } = require('eta')
 const fs = require('fs-extra')
 const { PackageURL } = require('packageurl-js')
@@ -11,6 +10,7 @@ const { glob: tinyGlob } = require('tinyglobby')
 
 const constants = require('@socketregistry/scripts/constants')
 const { getManifestData } = require('@socketsecurity/registry')
+const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
 const { globLicenses } = require('@socketsecurity/registry/lib/globs')
 const { isObjectObject } = require('@socketsecurity/registry/lib/objects')
 const {

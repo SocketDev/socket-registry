@@ -9,7 +9,6 @@ if (typeof Module.enableCompileCache === 'function') {
 const path = require('node:path')
 const util = require('node:util')
 
-const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
 const fs = require('fs-extra')
 const npmPackageArg = require('npm-package-arg')
 const semver = require('semver')
@@ -36,6 +35,7 @@ const {
   testNpmPkgLockPath
 } = constants
 const { Spinner } = require('@socketregistry/scripts/lib/spinner')
+const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
 const {
   isSymbolicLinkSync,
   remove,
