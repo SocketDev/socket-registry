@@ -12,7 +12,10 @@ const constants = require('@socketregistry/scripts/constants')
 const { getManifestData } = require('@socketsecurity/registry')
 const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
 const { globLicenses } = require('@socketsecurity/registry/lib/globs')
-const { isObjectObject } = require('@socketsecurity/registry/lib/objects')
+const {
+  isObjectObject,
+  objectFromEntries
+} = require('@socketsecurity/registry/lib/objects')
 const {
   readPackageJson,
   resolveOriginalPackageName
@@ -37,7 +40,7 @@ const eta = new Eta()
 
 const templates = Object.freeze({
   __proto__: null,
-  ...Object.fromEntries(
+  ...objectFromEntries(
     [
       TEMPLATE_CJS,
       TEMPLATE_CJS_BROWSER,

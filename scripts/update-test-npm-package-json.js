@@ -42,7 +42,11 @@ const {
   uniqueSync
 } = require('@socketsecurity/registry/lib/fs')
 const { execNpm } = require('@socketsecurity/registry/lib/npm')
-const { merge } = require('@socketsecurity/registry/lib/objects')
+const {
+  merge,
+  objectEntries,
+  objectFromEntries
+} = require('@socketsecurity/registry/lib/objects')
 const {
   isSubpathExports,
   readPackageJson,
@@ -312,8 +316,8 @@ async function linkPackages(packageNames) {
     scripts.test = scripts[testScriptName] ?? ''
     // Remove lifecycle and test script variants.
     nmEditablePkgJson.update({
-      scripts: Object.fromEntries(
-        Object.entries(scripts)
+      scripts: objectFromEntries(
+        objectEntries(scripts)
           .filter(
             ({ 0: key }) =>
               key === 'test' ||
@@ -347,8 +351,8 @@ async function linkPackages(packageNames) {
       const socketRegistryPrefix = `npm:${PACKAGE_SCOPE}/`
       const overridesAsDeps =
         overrides &&
-        Object.fromEntries(
-          Object.entries(overrides).map(pair => {
+        objectFromEntries(
+          objectEntries(overrides).map(pair => {
             const { 1: value } = pair
             if (value.startsWith(socketRegistryPrefix)) {
               pair[1] = `file:../${value.slice(socketRegistryPrefix.length, value.lastIndexOf('@'))}`

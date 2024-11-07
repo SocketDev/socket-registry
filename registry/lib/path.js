@@ -10,6 +10,17 @@ function isNodeModules(filepath) {
   return nodeModulesPathRegExp.test(filepath)
 }
 
+function isRelative(filepath) {
+  if (typeof filepath === 'string' && filepath.charCodeAt(0) === 46 /*'.'*/) {
+    if (filepath.length === 1) {
+      return true
+    }
+    const code1 = filepath.charCodeAt(1)
+    return code1 === 47 /*'/'*/ || code1 === 92 /*'\\'*/
+  }
+  return false
+}
+
 function normalizePath(filePath) {
   const { length } = filePath
   if (length < 2) {
@@ -87,6 +98,7 @@ function trimLeadingDotSlash(filepath) {
 
 module.exports = {
   isNodeModules,
+  isRelative,
   normalizePath,
   splitPath,
   trimLeadingDotSlash

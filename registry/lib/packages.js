@@ -20,7 +20,9 @@ const {
   getOwnPropertyValues,
   isObject,
   isObjectObject,
-  merge
+  merge,
+  objectEntries,
+  objectFromEntries
 } = require('@socketsecurity/registry/lib/objects')
 const {
   isNodeModules,
@@ -169,8 +171,8 @@ function createPackageJson(regPkgName, directory, options) {
     ...(isObjectObject(resolutions) ? { resolutions } : {}),
     ...(isObjectObject(engines)
       ? {
-          engines: Object.fromEntries(
-            Object.entries(engines).map(pair => {
+          engines: objectFromEntries(
+            objectEntries(engines).map(pair => {
               if (pair[0] === 'node') {
                 const { 1: range } = pair
                 if (

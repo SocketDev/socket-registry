@@ -23,7 +23,11 @@ declare type NpmReadmeAction = PackageAction
 declare type TypeScripAction = {
   references: string[]
 }
-declare type Action = LicenseAction | NpmReadmeAction | PackageAction | TypeScripAction
+declare type Action =
+  | LicenseAction
+  | NpmReadmeAction
+  | PackageAction
+  | TypeScripAction
 declare interface TypeScriptOptions {
   references?: string[]
   transform?: (filepath: string, data: { references: string[] }) => Promise<any>

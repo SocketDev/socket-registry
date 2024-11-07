@@ -4,6 +4,9 @@ const { LOOP_SENTINEL } = require('./constants')
 const { localeCompare } = require('./sorts')
 
 function getOwnPropertyValues(obj) {
+  if (obj === null || obj === undefined) {
+    return []
+  }
   const keys = Object.getOwnPropertyNames(obj)
   const { length } = keys
   const values = Array(length)
@@ -11,6 +14,25 @@ function getOwnPropertyValues(obj) {
     values[i] = obj[keys[i]]
   }
   return values
+}
+
+function hasKeys(obj) {
+  if (obj === null || obj === undefined) {
+    return false
+  }
+  for (const key in obj) {
+    if (Object.hasOwn(obj, key)) {
+      return true
+    }
+  }
+  return false
+}
+
+function hasOwn(obj, propKey) {
+  if (obj === null || obj === undefined) {
+    return false
+  }
+  return Object.hasOwn(obj, propKey)
 }
 
 function isObject(value) {
@@ -82,19 +104,55 @@ function merge(target, source) {
   return target
 }
 
+function objectEntries(obj) {
+  if (obj === null || obj === undefined) {
+    return []
+  }
+  const entries = Object.entries(obj)
+  const symbols = Object.getOwnPropertySymbols(obj)
+  for (let i = 0, { length } = symbols; i < length; i += 1) {
+    const symbol = symbols[i]
+    entries.push([symbol, obj[symbol]])
+  }
+  return entries
+}
+
+function objectFromEntries(entries) {
+  const keyEntries = []
+  const symbolEntries = []
+  for (let i = 0, { length } = entries; i < length; i += 1) {
+    const entry = entries[i]
+    if (typeof entry[0] === 'symbol') {
+      symbolEntries.push(entry)
+    } else {
+      keyEntries.push(entry)
+    }
+  }
+  const object = Object.fromEntries(keyEntries)
+  for (let i = 0, { length } = symbolEntries; i < length; i += 1) {
+    const entry = symbolEntries[i]
+    object[entry[0]] = entry[1]
+  }
+  return object
+}
+
 function toSortedObject(obj) {
-  return toSortedObjectFromEntries(Object.entries(obj))
+  return toSortedObjectFromEntries(objectEntries(obj))
 }
 
 function toSortedObjectFromEntries(entries) {
-  return Object.fromEntries(entries.sort((a, b) => localeCompare(a[0], b[0])))
+  return objectFromEntries(entries.sort((a, b) => localeCompare(a[0], b[0])))
 }
 
 module.exports = {
   getOwnPropertyValues,
+  hasKeys,
+  hasOwn,
   isObject,
   isObjectObject,
   merge,
+  objectEntries,
+  objectFromEntries,
   toSortedObject,
   toSortedObjectFromEntries
 }

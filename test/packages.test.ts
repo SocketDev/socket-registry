@@ -27,7 +27,10 @@ import {
   getStagedPackagesSync
 } from '@socketregistry/scripts/lib/git'
 import { getManifestData } from '@socketsecurity/registry'
-import { isObjectObject } from '@socketsecurity/registry/lib/objects'
+import {
+  isObjectObject,
+  objectEntries
+} from '@socketsecurity/registry/lib/objects'
 import {
   findTypesForSubpath,
   getSubpaths,
@@ -224,10 +227,10 @@ for (const eco of constants.ecosystems) {
 
         if (engines) {
           it('should have valid "engine" entry version ranges', () => {
-            for (const { 0: key, 1: value } of Object.entries(engines)) {
+            for (const { 0: key, 1: value } of objectEntries(engines)) {
               assert.ok(
                 typeof value === 'string' && semver.validRange(value),
-                key
+                String(key)
               )
             }
           })

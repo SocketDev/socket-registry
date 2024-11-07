@@ -8,6 +8,10 @@ const prettier = require('prettier')
 const whichFn = require('which')
 
 const registryConstants = require('@socketsecurity/registry/lib/constants')
+const {
+  objectEntries,
+  objectFromEntries
+} = require('@socketsecurity/registry/lib/objects')
 
 const { sync: whichSyncFn } = whichFn
 
@@ -128,91 +132,79 @@ const lazyTsxExecPath = () => whichSync('tsx')
 const constants = Object.freeze(
   Object.defineProperties(
     { __proto__: null },
-    Object.fromEntries(
-      Object.entries(
-        Object.getOwnPropertyDescriptors(registryConstants)
-      ).reduce(
+    objectFromEntries(
+      objectEntries(Object.getOwnPropertyDescriptors(registryConstants)).reduce(
         (entries, entry) => {
           if (entries.findIndex(p => p[0] === entry[0]) === -1) {
             entries.push(entry)
           }
           return entries
         },
-        [
-          [
-            kInternalsSymbol,
-            {
-              configurable: true,
-              enumerable: true,
-              value: internals,
-              writable: true
-            }
-          ],
-          ...Object.entries(
-            Object.getOwnPropertyDescriptors(
-              defineLazyGetters(
-                {
-                  // Lazily defined values are initialized as `undefined` to
-                  // keep their key order.
-                  LICENSE_CONTENT: undefined,
-                  ecosystems: undefined,
-                  gitExecPath: undefined,
-                  gitIgnoreFile: undefined,
-                  kInternalsSymbol,
-                  ignoreGlobs: undefined,
-                  npmPackageNames: undefined,
-                  npmPackagesPath,
-                  npmTemplatesPath,
-                  npmTemplatesReadmePath,
-                  perfNpmPath,
-                  perfNpmFixturesPath,
-                  prettierConfigPromise: undefined,
-                  prettierIgnoreFile: undefined,
-                  manifestJsonPath,
-                  registryPkgPath,
-                  relManifestJsonPath,
-                  relNpmPackagesPath,
-                  relPackagesPath,
-                  relTestNpmPath,
-                  relTestNpmNodeModulesPath,
-                  rootEslintConfigPath,
-                  rootLicensePath,
-                  rootNodeModulesPath,
-                  rootPackageJsonPath,
-                  rootPackageLockPath,
-                  rootPackagesPath,
-                  rootPath,
-                  rootTsConfigPath,
-                  tapCiConfigPath,
-                  tapConfigPath,
-                  tapRunExecPath: undefined,
-                  templatesPath,
-                  testNpmPath,
-                  testNpmFixturesPath,
-                  testNpmNodeModulesPath,
-                  testNpmNodeWorkspacesPath,
-                  testNpmPkgJsonPath,
-                  testNpmPkgLockPath,
-                  tsxExecPath: undefined,
-                  yarnPkgExtsPath,
-                  yarnPkgExtsJsonPath
-                },
-                {
-                  LICENSE_CONTENT: LAZY_LICENSE_CONTENT,
-                  ecosystems: lazyEcosystems,
-                  gitExecPath: lazyGitExecPath,
-                  gitIgnoreFile: lazyGitIgnoreFile,
-                  ignoreGlobs: lazyIgnoreGlobs,
-                  npmPackageNames: lazyNpmPackageNames,
-                  prettierConfigPromise: lazyPrettierConfigPromise,
-                  prettierIgnoreFile: lazyPrettierIgnoreFile,
-                  tapRunExecPath: lazyTapRunExecPath,
-                  tsxExecPath: lazyTsxExecPath
-                }
-              )
+        objectEntries(
+          Object.getOwnPropertyDescriptors(
+            defineLazyGetters(
+              {
+                [kInternalsSymbol]: internals,
+                // Lazily defined values are initialized as `undefined` to
+                // keep their key order.
+                LICENSE_CONTENT: undefined,
+                ecosystems: undefined,
+                gitExecPath: undefined,
+                gitIgnoreFile: undefined,
+                kInternalsSymbol,
+                ignoreGlobs: undefined,
+                npmPackageNames: undefined,
+                npmPackagesPath,
+                npmTemplatesPath,
+                npmTemplatesReadmePath,
+                perfNpmPath,
+                perfNpmFixturesPath,
+                prettierConfigPromise: undefined,
+                prettierIgnoreFile: undefined,
+                manifestJsonPath,
+                registryPkgPath,
+                relManifestJsonPath,
+                relNpmPackagesPath,
+                relPackagesPath,
+                relTestNpmPath,
+                relTestNpmNodeModulesPath,
+                rootEslintConfigPath,
+                rootLicensePath,
+                rootNodeModulesPath,
+                rootPackageJsonPath,
+                rootPackageLockPath,
+                rootPackagesPath,
+                rootPath,
+                rootTsConfigPath,
+                tapCiConfigPath,
+                tapConfigPath,
+                tapRunExecPath: undefined,
+                templatesPath,
+                testNpmPath,
+                testNpmFixturesPath,
+                testNpmNodeModulesPath,
+                testNpmNodeWorkspacesPath,
+                testNpmPkgJsonPath,
+                testNpmPkgLockPath,
+                tsxExecPath: undefined,
+                yarnPkgExtsPath,
+                yarnPkgExtsJsonPath
+              },
+              {
+                LICENSE_CONTENT: LAZY_LICENSE_CONTENT,
+                ecosystems: lazyEcosystems,
+                gitExecPath: lazyGitExecPath,
+                gitIgnoreFile: lazyGitIgnoreFile,
+                ignoreGlobs: lazyIgnoreGlobs,
+                npmPackageNames: lazyNpmPackageNames,
+                prettierConfigPromise: lazyPrettierConfigPromise,
+                prettierIgnoreFile: lazyPrettierIgnoreFile,
+                tapRunExecPath: lazyTapRunExecPath,
+                tsxExecPath: lazyTsxExecPath
+              }
             )
           )
-        ]
+        )
       )
     )
   )

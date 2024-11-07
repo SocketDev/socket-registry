@@ -20,6 +20,7 @@ const {
 const { getModifiedFiles } = require('@socketregistry/scripts/lib/git')
 const { Spinner } = require('@socketregistry/scripts/lib/spinner')
 const {
+  objectEntries,
   toSortedObject,
   toSortedObjectFromEntries
 } = require('@socketsecurity/registry/lib/objects')
@@ -90,7 +91,7 @@ async function addNpmManifestData(manifest) {
         ? [['engines', toSortedObject(engines)]]
         : [['engines', { node: constants.PACKAGE_DEFAULT_NODE_RANGE }]]),
       ...(skipTests ? [['skipTests', true]] : []),
-      ...(socket ? Object.entries(socket) : [])
+      ...(socket ? objectEntries(socket) : [])
     ]
     const purlObj = PackageURL.fromString(`pkg:${eco}/${name}@${version}`)
     manifestData.push([
