@@ -67,6 +67,7 @@ function envAsString(value) {
 const COLUMN_LIMIT = 80
 const EMPTY_FILE = '/* empty */\n'
 const ENV = Object.freeze({
+  __proto__: null,
   // CI is always set to "true" in a GitHub action.
   // https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables
   CI: envAsBoolean(process.env.CI),
@@ -191,6 +192,7 @@ const readDirNamesSync = function readDirNamesSync(dirname, options) {
 const kInternalsSymbol = Symbol('@socketregistry.constants.internals')
 
 const internals = Object.freeze({
+  __proto__: null,
   createLazyGetter,
   defineLazyGetter,
   defineLazyGetters,
@@ -275,6 +277,31 @@ const copyLeftLicenses = new Set([
   'GPL-1.0-only'
 ])
 
+const ignoreGlobs = Object.freeze([
+  // Most of these ignored files can be included specifically if included in the
+  // files globs. Exceptions to this are:
+  // https://docs.npmjs.com/cli/v10/configuring-npm/package-json#files
+  // These can not be included.
+  '.git',
+  '.npmrc',
+  '**/node_modules',
+  '**/package-lock.json',
+  '**/pnpm-lock.ya?ml',
+  '**/yarn.lock',
+  // Inline .gitignore from the socket-registry repository root.
+  '.env',
+  '.eslintcache',
+  '.nvm',
+  '.tap',
+  '.tapci.yaml',
+  '.vscode',
+  'npm-debug.log',
+  '*.tsbuildinfo',
+  '**/.DS_Store',
+  '**/._.DS_Store',
+  '**/Thumbs.db'
+])
+
 const lifecycleScriptNames = new Set(
   [
     'dependencies',
@@ -291,6 +318,23 @@ const lifecycleScriptNames = new Set(
     ].map(n => [`pre${n}`, n, `post${n}`])
   ].flat()
 )
+
+const parseArgsConfig = Object.freeze({
+  __proto__: null,
+  options: {
+    __proto__: null,
+    force: {
+      __proto__: null,
+      type: 'boolean',
+      short: 'f'
+    },
+    quiet: {
+      __proto__: null,
+      type: 'boolean'
+    }
+  },
+  strict: false
+})
 
 const packageExtensions = Object.freeze(
   [
@@ -327,23 +371,6 @@ const packageExtensions = Object.freeze(
     )
   )
 )
-
-const parseArgsConfig = Object.freeze({
-  __proto__: null,
-  options: {
-    __proto__: null,
-    force: {
-      __proto__: null,
-      type: 'boolean',
-      short: 'f'
-    },
-    quiet: {
-      __proto__: null,
-      type: 'boolean'
-    }
-  },
-  strict: false
-})
 
 const skipTestsByEcosystem = Object.freeze({
   __proto__: null,
@@ -414,6 +441,7 @@ const win32EnsureTestsByEcosystem = Object.freeze({
 const constants = Object.freeze(
   defineLazyGetters(
     {
+      __proto__: null,
       [kInternalsSymbol]: internals,
       COLUMN_LIMIT,
       EMPTY_FILE,
@@ -434,8 +462,8 @@ const constants = Object.freeze(
       NODE_VERSION,
       NPM_ORG,
       OVERRIDES,
-      PACKAGE_CURRENT_VERSION: undefined,
       PACKAGE_DEFAULT_SOCKET_CATEGORIES,
+      // Lazily defined values are initialized as `undefined` to keep their key order.
       PACKAGE_DEFAULT_NODE_RANGE: undefined,
       PACKAGE_DEFAULT_VERSION,
       PACKAGE_JSON,
@@ -460,6 +488,7 @@ const constants = Object.freeze(
       WIN_32,
       copyLeftLicenses,
       execPath,
+      ignoreGlobs,
       kInternalsSymbol,
       lifecycleScriptNames,
       maintainedNodeVersions: undefined,
