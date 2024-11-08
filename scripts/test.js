@@ -4,7 +4,7 @@ const constants = require('@socketregistry/scripts/constants')
 const { ENV, rootPath, tapCiConfigPath, tapConfigPath } = constants
 const { runBin } = require('@socketsecurity/registry/lib/npm')
 
-;(async () => {
+void (async () => {
   await runBin(
     // Lazily access constants.tapRunExecPath.
     constants.tapRunExecPath,

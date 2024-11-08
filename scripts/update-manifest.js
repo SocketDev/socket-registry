@@ -109,7 +109,7 @@ async function addNpmManifestData(manifest) {
   return manifest
 }
 
-;(async () => {
+void (async () => {
   // Exit early if no relevant files have been modified.
   if (
     !cliArgs.force &&

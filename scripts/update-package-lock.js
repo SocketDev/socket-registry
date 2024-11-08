@@ -54,7 +54,7 @@ async function modifyYarnpkgExtsPkgJson() {
   return false
 }
 
-;(async () => {
+void (async () => {
   try {
     // Surprisingly update-browserslist-db runs synchronously.
     updateBrowserslistDb()

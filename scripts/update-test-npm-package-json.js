@@ -595,7 +595,7 @@ async function installNodeWorkspaces() {
   }
 }
 
-;(async () => {
+void (async () => {
   const nodeModulesExists = fs.existsSync(testNpmNodeModulesPath)
   const nodeWorkspacesExists = fs.existsSync(testNpmNodeWorkspacesPath)
   const addingPkgNames =

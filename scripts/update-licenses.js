@@ -7,7 +7,7 @@ const { globLicenses } = require('@socketsecurity/registry/lib/globs')
 
 const { LICENSE, LICENSE_CONTENT, rootPath } = constants
 
-;(async () => {
+void (async () => {
   await Promise.all(
     (
       await globLicenses(rootPath, {

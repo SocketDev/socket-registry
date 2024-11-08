@@ -7,7 +7,7 @@ Index: /@tapjs/run/dist/esm/index.js
  // node:domain, which conflicts with async-hook-domains used by tap
  import { args, config, mainCommand } from './main-config.js';
  process.title = 'tap';
-+;(async () => {
++void (async () => {
  switch (mainCommand) {
      case 'help':
          ;

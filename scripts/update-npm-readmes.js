@@ -13,7 +13,7 @@ const { getNpmReadmeAction } = require('@socketregistry/scripts/lib/templates')
 
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 
-;(async () => {
+void (async () => {
   // Exit early if no relevant files have been modified.
   if (!cliArgs.force && !(await isModified(npmTemplatesReadmePath))) {
     return

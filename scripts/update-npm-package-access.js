@@ -19,7 +19,7 @@ const {
 
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 
-;(async () => {
+void (async () => {
   // Exit early if not running in CI or with --force.
   if (!(ENV.CI || cliArgs.force)) {
     return

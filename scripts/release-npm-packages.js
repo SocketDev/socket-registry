@@ -30,7 +30,7 @@ process.on('SIGINT', () => {
   console.log('SIGINT signal received: Exiting gracefully...')
   abortController.abort()
 })
-;(async () => {
+void (async () => {
   const packages = [
     // Lazily access constants.npmPackageNames.
     ...constants.npmPackageNames.map(regPkgName => ({

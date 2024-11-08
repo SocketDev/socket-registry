@@ -145,7 +145,7 @@ process.on('SIGINT', () => {
   console.log('SIGINT signal received: Exiting gracefully...')
   abortController.abort()
 })
-;(async () => {
+void (async () => {
   const origPkgName = await input({
     message: 'What is the name of the package to override?',
     default: cliPositionals.at(0),

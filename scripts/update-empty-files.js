@@ -15,7 +15,7 @@ const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 
 const AUTO_FILE_GLOB_RECURSIVE = '**/auto.{d.ts,js}'
 
-;(async () => {
+void (async () => {
   const modifiedAutoFile = (
     await getModifiedFiles({ absolute: true, cwd: npmTemplatesPath })
   ).find(p => path.basename(p).startsWith('auto.'))

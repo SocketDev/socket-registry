@@ -6,7 +6,7 @@ const constants = require('@socketregistry/scripts/constants')
 const { perfNpmPath } = constants
 const { runBin } = require('@socketsecurity/registry/lib/npm')
 
-;(async () => {
+void (async () => {
   for (const perfFile of await tinyGlob([`*.perf.ts`], {
     cwd: perfNpmPath
   })) {

@@ -8,7 +8,7 @@ const {
 } = require('@socketregistry/scripts/constants')
 const { isDirEmptySync, remove } = require('@socketsecurity/registry/lib/fs')
 
-;(async () => {
+void (async () => {
   await Promise.all(
     (
       await tinyGlob(['**/'], {

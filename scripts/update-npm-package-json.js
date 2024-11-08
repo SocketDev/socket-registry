@@ -16,7 +16,7 @@ const { trimLeadingDotSlash } = require('@socketsecurity/registry/lib/path')
 
 const { PACKAGE_JSON, npmPackagesPath } = constants
 
-;(async () => {
+void (async () => {
   await Promise.all(
     // Lazily access constants.npmPackageNames.
     constants.npmPackageNames.map(async regPkgName => {

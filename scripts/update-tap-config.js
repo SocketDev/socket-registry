@@ -12,7 +12,7 @@ const { ENV, parseArgsConfig, tapCiConfigPath, tapConfigPath } = constants
 
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 
-;(async () => {
+void (async () => {
   // Exit early if no relevant files have been modified.
   if (!cliArgs.force && !ENV.CI && !(await isModified(tapConfigPath))) {
     return
