@@ -15,8 +15,11 @@ function isRelative(filepath) {
     if (filepath.length === 1) {
       return true
     }
-    const code1 = filepath.charCodeAt(1)
-    return code1 === 47 /*'/'*/ || code1 === 92 /*'\\'*/
+    let code = filepath.charCodeAt(1)
+    if (code === 46 /*'.'*/) {
+      code = filepath.charCodeAt(2)
+    }
+    return code === 47 /*'/'*/ || code === 92 /*'\\'*/
   }
   return false
 }
