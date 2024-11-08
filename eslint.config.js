@@ -11,6 +11,7 @@ const fs = require('fs-extra')
 const tsEslint = require('typescript-eslint')
 
 const constants = require('@socketregistry/scripts/constants')
+
 const {
   PACKAGE_JSON,
   gitIgnoreFile,
@@ -19,10 +20,6 @@ const {
   relNpmPackagesPath,
   rootTsConfigPath
 } = constants
-
-const {
-  engines: { node: nodeRange }
-} = require('./package.json')
 
 const { flatConfigs: origImportXFlatConfigs } = importXPlugin
 
@@ -151,14 +148,16 @@ function configs(sourceType) {
           'error',
           {
             ignores: ['Object.groupBy'],
-            version: nodeRange
+            // Lazily access constants.maintainedNodeVersions.
+            version: constants.maintainedNodeVersions.current
           }
         ],
         'n/no-unsupported-features/es-syntax': [
           'error',
           {
             ignores: ['object-map-groupby'],
-            version: nodeRange
+            // Lazily access constants.maintainedNodeVersions.
+            version: constants.maintainedNodeVersions.current
           }
         ],
         'n/no-unsupported-features/node-builtins': [
@@ -169,7 +168,8 @@ function configs(sourceType) {
               'module.enableCompileCache',
               'fetch'
             ],
-            version: nodeRange
+            // Lazily access constants.maintainedNodeVersions.
+            version: constants.maintainedNodeVersions.current
           }
         ],
         'n/prefer-node-protocol': ['error'],
