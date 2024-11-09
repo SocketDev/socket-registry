@@ -5,6 +5,7 @@ import {
 } from 'pacote'
 import { CategoryString } from '../index'
 
+declare type Exports = Exclude<PackageJson['exports'], undefined>
 declare type PackageJson = NPMCliPackageJson & {
   socket?: { categories: CategoryString }
 }
@@ -31,7 +32,7 @@ declare function createPackageJson(
   regPkgName: string,
   directory: string,
   options: PackageJson
-): Record<string, any>
+): PackageJson
 declare function extractPackage(
   pkgNameOrId: string,
   options: ExtractOptions,
@@ -42,39 +43,50 @@ declare function fetchPackageManifest(
   options?: PacoteOptions
 ): ReturnType<typeof PacoteManifestFn>
 declare function findTypesForSubpath(
-  entryExports: any,
+  entryExports: Exports,
   subpath: string
 ): string | undefined
-declare function getSubpaths(entryExports: any): string[]
-declare function isConditionalExports(entryExports: any): boolean
-declare function isSubpathExports(entryExports: any): boolean
+declare function getSubpaths(entryExports: Exports): string[]
+declare function isConditionalExports(entryExports: Exports): boolean
+declare function isSubpathExports(entryExports: Exports): boolean
 declare function isValidPackageName(value: any): boolean
 declare function normalizePackageJson(
-  pkgJson: Record<string, any>,
-  options?: Record<string, any>
+  pkgJson: PackageJson,
+  options?: { preserve?: string[] }
 ): NormalizedPackageJson
 declare function packPackage(
   spec: string,
-  options?: Record<string, any>
+  options?: PacoteOptions & {
+    args?: string[]
+    binPaths?: string[]
+    cmd?: string
+    dryRun?: boolean
+    env?: { [key: string]: string }
+    foregroundScripts?: boolean
+    ignoreScripts?: boolean
+    packDestination?: string
+    scriptShell?: string
+    stdioString?: boolean
+  }
 ): Promise<Buffer>
 declare function readPackageJson(
   filepath: string,
-  options?: Record<string, any>
+  options?: { editable?: boolean; preserve?: string[] }
 ): Promise<PackageJson>
 declare function readPackageJsonSync(
   filepath: string,
-  options?: Record<string, any>
+  options?: { editable?: boolean; preserve?: string[] }
 ): PackageJson
 declare function resolveEscapedScope(regPkgName: string): string
 declare function resolveGitHubTgzUrl(
   pkgNameOrId: string,
-  where: string | Record<string, any>
+  where: string
 ): Promise<string>
 declare function resolveOriginalPackageName(regPkgName: string): string
 declare function resolvePackageJsonDirname(filepath: string): string
 declare function resolvePackageJsonEntryExports(
   entryExports: any
-): Record<string, any> | undefined
+): Exports | undefined
 declare function resolvePackageJsonPath(filepath: string): string
 declare function resolvePackageLicenses(
   licenseFieldValue: string,
@@ -82,13 +94,13 @@ declare function resolvePackageLicenses(
 ): LicenseNode[]
 declare function resolveRegistryPackageName(pkgName: string): string
 declare function toEditablePackageJson(
-  pkgJson: Record<string, any>,
-  options: Record<string, any>
-): Promise<any>
+  pkgJson: PackageJson,
+  options: { editable?: boolean; path?: string }
+): Promise<PackageJson>
 declare function toEditablePackageJsonSync(
-  pkgJson: Record<string, any>,
-  options: Record<string, any>
-): any
+  pkgJson: PackageJson,
+  options: { editable?: boolean; path?: string }
+): PackageJson
 declare function unescapeScope(escapedScope: string): string
 declare const packagesModule: {
   collectIncompatibleLicenses: typeof collectIncompatibleLicenses
