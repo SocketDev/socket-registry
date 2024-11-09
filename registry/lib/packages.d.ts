@@ -1,12 +1,17 @@
-import { Content as NPMCliPackageJson } from '@npmcli/package-json'
+import {
+  Content as NPMCliPackageJsonContent,
+  PackageJson as NPMCliPackageJson
+} from '@npmcli/package-json'
 import {
   manifest as PacoteManifestFn,
-  Options as PacoteOptionsRaw
+  Options as PacoteOptionsRaw,
+  tarball as PacoteTarballFn
 } from 'pacote'
 import { CategoryString } from '../index'
 
 declare type Exports = Exclude<PackageJson['exports'], undefined>
-declare type PackageJson = NPMCliPackageJson & {
+declare type EditablePackageJson = NPMCliPackageJson
+declare type PackageJson = NPMCliPackageJsonContent & {
   socket?: { categories: CategoryString }
 }
 declare type NormalizedPackageJson = Omit<PackageJson, 'repository'> & {
@@ -68,14 +73,22 @@ declare function packPackage(
     scriptShell?: string
     stdioString?: boolean
   }
-): Promise<Buffer>
+): Awaited<ReturnType<typeof PacoteTarballFn>>
 declare function readPackageJson(
   filepath: string,
-  options?: { editable?: boolean; preserve?: string[] }
+  options?: { editable: true; preserve?: string[] }
+): Promise<EditablePackageJson>
+declare function readPackageJson(
+  filepath: string,
+  options?: { editable?: false; preserve?: string[] }
 ): Promise<PackageJson>
 declare function readPackageJsonSync(
   filepath: string,
-  options?: { editable?: boolean; preserve?: string[] }
+  options?: { editable: true; preserve?: string[] }
+): EditablePackageJson
+declare function readPackageJsonSync(
+  filepath: string,
+  options?: { editable?: false; preserve?: string[] }
 ): PackageJson
 declare function resolveEscapedScope(regPkgName: string): string
 declare function resolveGitHubTgzUrl(
@@ -95,12 +108,12 @@ declare function resolvePackageLicenses(
 declare function resolveRegistryPackageName(pkgName: string): string
 declare function toEditablePackageJson(
   pkgJson: PackageJson,
-  options: { editable?: boolean; path?: string }
-): Promise<PackageJson>
+  options: { path?: string; preserve?: string[] }
+): Promise<EditablePackageJson>
 declare function toEditablePackageJsonSync(
   pkgJson: PackageJson,
-  options: { editable?: boolean; path?: string }
-): PackageJson
+  options: { path?: string; preserve?: string[] }
+): EditablePackageJson
 declare function unescapeScope(escapedScope: string): string
 declare const packagesModule: {
   collectIncompatibleLicenses: typeof collectIncompatibleLicenses
