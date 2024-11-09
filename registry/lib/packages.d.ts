@@ -10,9 +10,11 @@ import {
 import { CategoryString } from '../index'
 
 declare type Exports = Exclude<PackageJson['exports'], undefined>
-declare type EditablePackageJson = NPMCliPackageJson
 declare type PackageJson = NPMCliPackageJsonContent & {
   socket?: { categories: CategoryString }
+}
+declare type EditablePackageJson = Omit<NPMCliPackageJson, 'content'> & {
+  content: Readonly<PackageJson>
 }
 declare type NormalizedPackageJson = Omit<PackageJson, 'repository'> & {
   repository?: Exclude<PackageJson['repository'], string>
@@ -76,7 +78,7 @@ declare function packPackage(
 ): Awaited<ReturnType<typeof PacoteTarballFn>>
 declare function readPackageJson(
   filepath: string,
-  options?: { editable: true; preserve?: string[] }
+  options: { editable: true; preserve?: string[] }
 ): Promise<EditablePackageJson>
 declare function readPackageJson(
   filepath: string,
@@ -84,7 +86,7 @@ declare function readPackageJson(
 ): Promise<PackageJson>
 declare function readPackageJsonSync(
   filepath: string,
-  options?: { editable: true; preserve?: string[] }
+  options: { editable: true; preserve?: string[] }
 ): EditablePackageJson
 declare function readPackageJsonSync(
   filepath: string,
