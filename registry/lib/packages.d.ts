@@ -1,7 +1,4 @@
-import {
-  Content as NPMCliPackageJsonContent,
-  PackageJson as NPMCliPackageJson
-} from '@npmcli/package-json'
+import NPMCliPackageJson from '@npmcli/package-json'
 import {
   manifest as PacoteManifestFn,
   Options as PacoteOptionsRaw,
@@ -10,10 +7,10 @@ import {
 import { CategoryString } from '../index'
 
 declare type Exports = Exclude<PackageJson['exports'], undefined>
-declare type PackageJson = NPMCliPackageJsonContent & {
+declare type PackageJson = NPMCliPackageJson.Content & {
   socket?: { categories: CategoryString }
 }
-declare type EditablePackageJson = Omit<NPMCliPackageJson, 'content'> & {
+declare class EditablePackageJson extends NPMCliPackageJson {
   content: Readonly<PackageJson>
 }
 declare type NormalizedPackageJson = Omit<PackageJson, 'repository'> & {
