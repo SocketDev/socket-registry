@@ -1,5 +1,6 @@
 'use strict'
 
+const { writeFileSync } = require('node:fs')
 const path = require('node:path')
 
 const EditablePackageJsonBase = require('@npmcli/package-json')
