@@ -494,11 +494,7 @@ async function linkPackages(packageNames) {
               const uniquePath = uniqueSync(`${destPath.slice(0, -3)}.cjs`)
               await fs.copyFile(targetPath, uniquePath)
               await remove(destPath)
-              await outputFile(
-                destPath,
-                createStubEsModule(uniquePath),
-                'utf8'
-              )
+              await outputFile(destPath, createStubEsModule(uniquePath), 'utf8')
               return
             }
           } else {

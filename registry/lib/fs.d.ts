@@ -1,5 +1,10 @@
 /// <reference types="node" />
-import { ObjectEncodingOptions, PathLike, RmOptions, WriteFileOptions } from 'node:fs'
+import {
+  ObjectEncodingOptions,
+  PathLike,
+  RmOptions,
+  WriteFileOptions
+} from 'node:fs'
 import NPMCliPackageJson from '@npmcli/package-json'
 
 declare type BufferEncoding =
@@ -56,8 +61,16 @@ declare function readJsonSync(
 declare function remove(filepath: PathLike, options?: RmOptions): Promise<void>
 declare function removeSync(filepath: PathLike, options?: RmOptions): void
 declare function uniqueSync(filepath: PathLike): string
-declare function writeJson(filepath: PathLike, json: NPMCliPackageJson.Content, options?: WriteJsonOptions): Promise<void>
-declare function writeJsonSync(filepath: PathLike, json: NPMCliPackageJson.Content, options?: WriteJsonOptions): void
+declare function writeJson(
+  filepath: PathLike,
+  json: NPMCliPackageJson.Content,
+  options?: WriteJsonOptions
+): Promise<void>
+declare function writeJsonSync(
+  filepath: PathLike,
+  json: NPMCliPackageJson.Content,
+  options?: WriteJsonOptions
+): void
 declare const fs: {
   isDirEmptySync: typeof isDirEmptySync
   isSymbolicLinkSync: typeof isSymbolicLinkSync
