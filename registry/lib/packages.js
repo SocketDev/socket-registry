@@ -83,12 +83,11 @@ class EditablePackageJson extends EditablePackageJsonBase {
       this.content
     const format = indent === undefined ? '  ' : indent
     const eol = newline === undefined ? '\n' : newline
-    const fileContent = `${JSON.stringify(
-      this.content,
-      null,
-      format
-    )}\n`.replace(/\n/g, eol)
-    return writeFileSync(this.filename, fileContent)
+    let fileContent = `${JSON.stringify(this.content, null, format)}\n`
+    if (eol !== '\n') {
+      fileContent = fileContent.replace(/\n/g, eol)
+    }
+    writeFileSync(this.filename, fileContent)
   }
 }
 

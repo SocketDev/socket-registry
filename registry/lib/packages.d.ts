@@ -13,6 +13,7 @@ declare namespace PackagesModule {
   }
   export class EditablePackageJson extends NPMCliPackageJson {
     content: Readonly<PackageJson>
+    saveSync: () => void
   }
   export type NormalizedPackageJson = Omit<PackageJson, 'repository'> & {
     repository?: Exclude<PackageJson['repository'], string>
