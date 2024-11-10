@@ -1,13 +1,20 @@
 'use strict'
 
+const {
+  existsSync,
+  lstatSync,
+  promises: fs,
+  readFileSync,
+  rmSync,
+  writeFileSync
+} = require('node:fs')
 const path = require('node:path')
-
-const fs = require('fs-extra')
 
 const {
   kInternalsSymbol,
   [kInternalsSymbol]: { innerReadDirNames, isDirEmptySync, readDirNamesSync }
 } = require('./constants')
+const { stripBom } = require('./strings')
 
 const defaultRemoveOptions = Object.freeze({
   __proto__: null,
@@ -19,9 +26,24 @@ const defaultRemoveOptions = Object.freeze({
 
 function isSymbolicLinkSync(filepath) {
   try {
-    return fs.lstatSync(filepath).isSymbolicLink()
+    return lstatSync(filepath).isSymbolicLink()
   } catch {}
   return false
+}
+
+function parse(filepath, content, reviver, shouldThrow) {
+  const str = Buffer.isBuffer(content) ? content.toString('utf8') : content
+  try {
+    return JSON.parse(stripBom(str), reviver)
+  } catch (e) {
+    if (shouldThrow) {
+      if (e) {
+        e.message = `${filepath}: ${e.message}`
+      }
+      throw e
+    }
+  }
+  return null
 }
 
 async function readDirNames(dirname, options) {
@@ -32,6 +54,44 @@ async function readDirNames(dirname, options) {
     )
   } catch {}
   return []
+}
+
+async function readJson(filepath, options) {
+  if (typeof options === 'string') {
+    options = { encoding: options }
+  }
+  const { reviver, throws, ...fsOptionsRaw } = { __proto__: null, ...options }
+  const fsOptions = {
+    __proto__: null,
+    encoding: 'utf8',
+    ...fsOptionsRaw
+  }
+  const shouldThrow = throws === undefined || !!throws
+  return parse(
+    filepath,
+    await fs.readFile(filepath, fsOptions),
+    reviver,
+    shouldThrow
+  )
+}
+
+function readJsonSync(filepath, options) {
+  if (typeof options === 'string') {
+    options = { encoding: options }
+  }
+  const { reviver, throws, ...fsOptionsRaw } = { __proto__: null, ...options }
+  const fsOptions = {
+    __proto__: null,
+    encoding: 'utf8',
+    ...fsOptionsRaw
+  }
+  const shouldThrow = throws === undefined || !!throws
+  return parse(
+    filepath,
+    readFileSync(filepath, fsOptions),
+    reviver,
+    shouldThrow
+  )
 }
 
 async function remove(filepath, options) {
@@ -45,28 +105,72 @@ async function remove(filepath, options) {
 }
 
 function removeSync(filepath, options) {
-  fs.rmSync(filepath, {
+  rmSync(filepath, {
     __proto__: null,
     ...defaultRemoveOptions,
     ...options
   })
 }
 
+function stringify(json, EOL = '\n', finalEOL = true, replacer = null, spaces) {
+  const EOF = finalEOL ? EOL : ''
+  const str = JSON.stringify(json, replacer, spaces)
+  return `${str.replace(/\n/g, EOL)}${EOF}`
+}
+
 function uniqueSync(filepath) {
   const dirname = path.dirname(filepath)
   let basename = path.basename(filepath)
-  while (fs.existsSync(`${dirname}/${basename}`)) {
+  while (existsSync(`${dirname}/${basename}`)) {
     basename = `_${basename}`
   }
   return path.join(dirname, basename)
 }
 
+async function writeJson(filepath, json, options) {
+  if (typeof options === 'string') {
+    options = { encoding: options }
+  }
+  const { EOL, finalEOL, replacer, spaces, ...fsOptionsRaw } = {
+    __proto__: null,
+    ...options
+  }
+  const fsOptions = {
+    __proto__: null,
+    encoding: 'utf8',
+    ...fsOptionsRaw
+  }
+  const str = stringify(json, EOL, finalEOL, replacer, spaces)
+  await fs.writeFile(filepath, str, fsOptions)
+}
+
+function writeJsonSync(json, options) {
+  if (typeof options === 'string') {
+    options = { encoding: options }
+  }
+  const { EOL, finalEOL, replacer, spaces, ...fsOptionsRaw } = {
+    __proto__: null,
+    ...options
+  }
+  const fsOptions = {
+    __proto__: null,
+    encoding: 'utf8',
+    ...fsOptionsRaw
+  }
+  const str = stringify(json, EOL, finalEOL, replacer, spaces)
+  writeFileSync(filepath, str, fsOptions)
+}
+
 module.exports = {
   isDirEmptySync,
   isSymbolicLinkSync,
+  readJson,
+  readJsonSync,
   readDirNames,
   readDirNamesSync,
   remove,
   removeSync,
-  uniqueSync
+  uniqueSync,
+  writeJson,
+  writeJsonSync
 }

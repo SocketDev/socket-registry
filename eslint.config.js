@@ -7,10 +7,10 @@ const importXPlugin = require('eslint-plugin-import-x')
 const nodePlugin = require('eslint-plugin-n')
 const sortDestructureKeysPlugin = require('eslint-plugin-sort-destructure-keys')
 const unicornPlugin = require('eslint-plugin-unicorn')
-const fs = require('fs-extra')
 const tsEslint = require('typescript-eslint')
 
 const constants = require('@socketregistry/scripts/constants')
+const { readJsonSync } = require('@socketsecurity/registry/lib/fs')
 
 const {
   PACKAGE_JSON,
@@ -44,11 +44,8 @@ const getIgnores = isEsm =>
   constants.npmPackageNames.flatMap(regPkgName => {
     const pkgPath = path.join(npmPackagesPath, regPkgName)
     const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
-    let shouldIgnore = false
-    try {
-      const { type } = fs.readJsonSync(pkgJsonPath)
-      shouldIgnore = isEsm ? type !== 'module' : type === 'module'
-    } catch {}
+    const { type } = readJsonSync(pkgJsonPath)
+    const shouldIgnore = isEsm ? type !== 'module' : type === 'module'
     const ignored = []
     if (shouldIgnore) {
       ignored.push(`${relNpmPackagesPath}/${regPkgName}/*`)

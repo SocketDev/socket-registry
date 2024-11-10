@@ -1,6 +1,6 @@
 'use strict'
 
-const fs = require('fs-extra')
+const fs = require('node:fs/promises')
 
 const constants = require('@socketregistry/scripts/constants')
 const { globLicenses } = require('@socketsecurity/registry/lib/globs')

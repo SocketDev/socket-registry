@@ -1,8 +1,7 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, it } from 'node:test'
-
-import fs from 'fs-extra'
 
 import { testNpmFixturesPath } from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
@@ -22,8 +21,8 @@ describe(
     it('parses bun.lockb into yarn.lock contents', () => {
       const lockbPath = path.join(testNpmFixturesPath, 'fixture-bun.lockb')
       const yarnLockPath = path.join(testNpmFixturesPath, 'fixture-yarn.lock')
-      const lockb = fs.readFileSync(lockbPath)
-      const yarnLock = fs.readFileSync(yarnLockPath, 'utf8')
+      const lockb = readFileSync(lockbPath)
+      const yarnLock = readFileSync(yarnLockPath, 'utf8')
       assert.strictEqual(hyriousBunLockb.parse(lockb), yarnLock)
     })
   }

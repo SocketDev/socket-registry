@@ -1,10 +1,10 @@
 'use strict'
 
+const { existsSync, promises: fs } = require('node:fs')
 const path = require('node:path')
 const util = require('node:util')
 
 const { ReturnTypeEnums, default: didYouMean } = require('didyoumean2')
-const fs = require('fs-extra')
 const { open } = require('out-url')
 const semver = require('semver')
 const { glob: tinyGlob } = require('tinyglobby')
@@ -159,7 +159,7 @@ void (async () => {
   }
   const regPkgName = resolveRegistryPackageName(origPkgName)
   const pkgPath = path.join(npmPackagesPath, regPkgName)
-  if (fs.existsSync(pkgPath) && !isDirEmptySync(pkgPath)) {
+  if (existsSync(pkgPath) && !isDirEmptySync(pkgPath)) {
     const relPkgPath = path.relative(rootPath, pkgPath)
     console.log(`⚠️ ${origPkgName} already exists at ${relPkgPath}`)
     if (

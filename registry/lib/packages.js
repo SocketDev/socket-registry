@@ -2,9 +2,8 @@
 
 const path = require('node:path')
 
-const EditablePackageJson = require('@npmcli/package-json')
+const EditablePackageJsonBase = require('@npmcli/package-json')
 const cacache = require('cacache')
-const fs = require('fs-extra')
 const pack = require('libnpmpack')
 const makeFetchHappen = require('make-fetch-happen')
 const normalizePackageData = require('normalize-package-data')
@@ -16,6 +15,7 @@ const spdxCorrect = require('spdx-correct')
 const spdxExpParse = require('spdx-expression-parse')
 const validateNpmPackageName = require('validate-npm-package-name')
 
+const { readJson, readJsonSync } = require('@socketsecurity/registry/lib/fs')
 const {
   getOwnPropertyValues,
   isObject,
@@ -65,6 +65,32 @@ const fetcher = makeFetchHappen.defaults({
   // https://github.com/npm/make-fetch-happen?tab=readme-ov-file#--optscache
   cache: 'force-cache'
 })
+
+class EditablePackageJson extends EditablePackageJsonBase {
+  #_canSave = true
+
+  fromContent(data) {
+    super.fromContent(data)
+    this.#_canSave = false
+    return this
+  }
+
+  async saveSync() {
+    if (!this.#_canSave || this.content === undefined) {
+      throw new Error('No package.json to save to')
+    }
+    const { [Symbol.for('indent')]: indent, [Symbol.for('newline')]: newline } =
+      this.content
+    const format = indent === undefined ? '  ' : indent
+    const eol = newline === undefined ? '\n' : newline
+    const fileContent = `${JSON.stringify(
+      this.content,
+      null,
+      format
+    )}\n`.replace(/\n/g, eol)
+    return writeFileSync(this.filename, fileContent)
+  }
+}
 
 function collectIncompatibleLicenses(licenseNodes) {
   const result = []
@@ -445,7 +471,7 @@ function parseSpdxExp(spdxExp) {
 
 async function readPackageJson(filepath, options) {
   const { editable, ...otherOptions } = { __proto__: null, ...options }
-  const pkgJson = await fs.readJson(resolvePackageJsonPath(filepath))
+  const pkgJson = await readJson(resolvePackageJsonPath(filepath))
   return editable
     ? await toEditablePackageJson(pkgJson, { path: filepath, ...otherOptions })
     : normalizePackageJson(pkgJson, otherOptions)
@@ -453,7 +479,7 @@ async function readPackageJson(filepath, options) {
 
 function readPackageJsonSync(filepath, options) {
   const { editable, ...otherOptions } = { __proto__: null, ...options }
-  const pkgJson = fs.readJsonSync(resolvePackageJsonPath(filepath))
+  const pkgJson = readJsonSync(resolvePackageJsonPath(filepath))
   return editable
     ? toEditablePackageJsonSync(pkgJson, { path: filepath, ...otherOptions })
     : normalizePackageJson(pkgJson, otherOptions)

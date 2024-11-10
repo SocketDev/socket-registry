@@ -1,9 +1,9 @@
 'use strict'
 
+const fs = require('node:fs/promises')
 const util = require('node:util')
 
 const YAML = require('@zkochan/js-yaml')
-const fs = require('fs-extra')
 const readYamlFile = require('read-yaml-file')
 
 const constants = require('@socketregistry/scripts/constants')

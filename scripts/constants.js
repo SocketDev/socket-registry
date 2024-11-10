@@ -1,9 +1,9 @@
 'use strict'
 
+const { readFileSync } = require('node:fs')
 const path = require('node:path')
 
 const { includeIgnoreFile } = require('@eslint/compat')
-const fs = require('fs-extra')
 const prettier = require('prettier')
 const whichFn = require('which')
 
@@ -100,7 +100,7 @@ const internals = Object.freeze({
   whichSync
 })
 
-const LAZY_LICENSE_CONTENT = () => fs.readFileSync(rootLicensePath, 'utf8')
+const LAZY_LICENSE_CONTENT = () => readFileSync(rootLicensePath, 'utf8')
 const lazyEcosystems = () => Object.freeze(readDirNamesSync(rootPackagesPath))
 const lazyGitExecPath = () => whichSync('git')
 const lazyIgnoreGlobs = () =>

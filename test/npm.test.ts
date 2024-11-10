@@ -3,7 +3,6 @@ import path from 'node:path'
 import { describe, it } from 'node:test'
 import util from 'node:util'
 
-import fs from 'fs-extra'
 import semver from 'semver'
 
 import constants from '@socketregistry/scripts/constants'
@@ -24,7 +23,7 @@ import {
   getStagedPackagesSync
 } from '@socketregistry/scripts/lib/git'
 import { getManifestData } from '@socketsecurity/registry'
-import { readDirNamesSync } from '@socketsecurity/registry/lib/fs'
+import { readDirNamesSync, readJsonSync } from '@socketsecurity/registry/lib/fs'
 import { runScript } from '@socketsecurity/registry/lib/npm'
 import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/packages'
 import { isNonEmptyString } from '@socketsecurity/registry/lib/strings'
@@ -65,9 +64,9 @@ process.on('SIGINT', () => {
 describe(eco, { skip: !packageNames.length }, () => {
   for (const regPkgName of packageNames) {
     const nwPkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
-    const nwPkgJson = fs.readJsonSync(path.join(nwPkgPath, PACKAGE_JSON))
+    const nwPkgJson = readJsonSync(path.join(nwPkgPath, PACKAGE_JSON))
     const manifestData = getManifestData(eco, regPkgName)
-    const nodeRange = nwPkgJson.engines?.node
+    const nodeRange = nwPkgJson.engines?.['node']
     const origPkgName = resolveOriginalPackageName(regPkgName)
     const skip =
       !nwPkgJson.scripts?.test ||

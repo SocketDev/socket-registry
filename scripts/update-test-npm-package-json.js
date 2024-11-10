@@ -6,10 +6,12 @@ const Module = require('node:module')
 if (typeof Module.enableCompileCache === 'function') {
   Module.enableCompileCache()
 }
+// eslint-disable-next-line import-x/order
+const { existsSync, promises: fs, realpathSync } = require('node:fs')
 const path = require('node:path')
 const util = require('node:util')
 
-const fs = require('fs-extra')
+const { ensureSymlink, move, outputFile } = require('fs-extra')
 const npmPackageArg = require('npm-package-arg')
 const semver = require('semver')
 const { glob: tinyGlob } = require('tinyglobby')
@@ -226,7 +228,7 @@ async function resolveDevDependencies(packageNames) {
     // Missing packages can occur if the script is stopped part way through
     return (
       typeof devDependencies?.[origPkgName] !== 'string' ||
-      !fs.existsSync(path.join(testNpmNodeModulesPath, origPkgName))
+      !existsSync(path.join(testNpmNodeModulesPath, origPkgName))
     )
   })
   if (missingPackages.length) {
@@ -289,7 +291,7 @@ async function linkPackages(packageNames) {
   await pEach(packageNames, 3, async regPkgName => {
     const origPkgName = resolveOriginalPackageName(regPkgName)
     const pkgPath = path.join(npmPackagesPath, regPkgName)
-    if (!fs.existsSync(pkgPath)) {
+    if (!existsSync(pkgPath)) {
       logCount += 1
       console.log(`⚠️ ${regPkgName}: Missing from ${relNpmPackagesPath}`)
       return
@@ -297,7 +299,7 @@ async function linkPackages(packageNames) {
     const nmPkgPath = path.join(testNpmNodeModulesPath, origPkgName)
     if (isSymbolicLinkSync(nmPkgPath)) {
       if (
-        fs.realpathSync(nmPkgPath) ===
+        realpathSync(nmPkgPath) ===
         path.join(testNpmNodeWorkspacesPath, regPkgName)
       ) {
         return
@@ -477,7 +479,7 @@ async function linkPackages(packageNames) {
       for (let i = 0, { length } = dirs; i < length; i += 1) {
         const crumbs = dirs.slice(0, i + 1)
         const destPathDir = path.join(nmPkgPath, ...crumbs)
-        if (!fs.existsSync(destPathDir) || isSymbolicLinkSync(destPathDir)) {
+        if (!existsSync(destPathDir) || isSymbolicLinkSync(destPathDir)) {
           targetPath = path.join(pkgPath, ...crumbs)
           destPath = destPathDir
           break
@@ -492,7 +494,7 @@ async function linkPackages(packageNames) {
               const uniquePath = uniqueSync(`${destPath.slice(0, -3)}.cjs`)
               await fs.copyFile(targetPath, uniquePath)
               await remove(destPath)
-              await fs.outputFile(
+              await outputFile(
                 destPath,
                 createStubEsModule(uniquePath),
                 'utf8'
@@ -505,7 +507,7 @@ async function linkPackages(packageNames) {
           }
         }
         await remove(destPath)
-        await fs.ensureSymlink(targetPath, destPath)
+        await ensureSymlink(targetPath, destPath)
       })
     }
     // Chunk actions to process them in parallel 3 at a time.
@@ -573,7 +575,7 @@ async function cleanupNodeWorkspaces(linkedPackageNames) {
       ).map(p => remove(p))
     )
     // Move override package from test/npm/node_modules/ to test/npm/node_workspaces/
-    await fs.move(srcPath, destPath, { overwrite: true })
+    await move(srcPath, destPath, { overwrite: true })
   })
   if (cliArgs.quiet) {
     spinner.stop()
@@ -596,8 +598,8 @@ async function installNodeWorkspaces() {
 }
 
 void (async () => {
-  const nodeModulesExists = fs.existsSync(testNpmNodeModulesPath)
-  const nodeWorkspacesExists = fs.existsSync(testNpmNodeWorkspacesPath)
+  const nodeModulesExists = existsSync(testNpmNodeModulesPath)
+  const nodeWorkspacesExists = existsSync(testNpmNodeWorkspacesPath)
   const addingPkgNames =
     nodeModulesExists && nodeWorkspacesExists && Array.isArray(cliArgs.add)
   // Exit early if nothing to do.

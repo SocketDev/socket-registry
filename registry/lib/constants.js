@@ -6,11 +6,12 @@ const Module = require('node:module')
 if (typeof Module.enableCompileCache === 'function') {
   Module.enableCompileCache()
 }
+// eslint-disable-next-line import-x/order
+const { readdirSync } = require('node:fs')
 const path = require('node:path')
 
 const { packageExtensions: yarnPkgExts } = require('@yarnpkg/extensions')
 const { createNewSortInstance } = require('fast-sort')
-const fs = require('fs-extra')
 const pacote = require('pacote')
 const picomatch = require('picomatch')
 const semver = require('semver')
@@ -152,7 +153,7 @@ const getGlobMatcher = function getGlobMatcher(glob, options) {
 
 const isDirEmptySync = function isDirEmptySync(dirname) {
   try {
-    const files = fs.readdirSync(dirname)
+    const files = readdirSync(dirname)
     const { length } = files
     if (length === 0) {
       return true
@@ -174,7 +175,7 @@ const isDirEmptySync = function isDirEmptySync(dirname) {
 const readDirNamesSync = function readDirNamesSync(dirname, options) {
   try {
     return innerReadDirNames(
-      fs.readdirSync(dirname, { withFileTypes: true }),
+      readdirSync(dirname, { withFileTypes: true }),
       options
     )
   } catch {}

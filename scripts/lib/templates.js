@@ -1,9 +1,9 @@
 'use strict'
 
+const fs = require('node:fs/promises')
 const path = require('node:path')
 
 const { Eta } = require('eta')
-const fs = require('fs-extra')
 const { PackageURL } = require('packageurl-js')
 const semver = require('semver')
 const { glob: tinyGlob } = require('tinyglobby')

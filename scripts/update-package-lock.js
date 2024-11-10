@@ -1,11 +1,12 @@
 'use strict'
 
+const { existsSync } = require('node:fs')
 const util = require('node:util')
 
-const fs = require('fs-extra')
 const updateBrowserslistDb = require('update-browserslist-db')
 
 const constants = require('@socketregistry/scripts/constants')
+const { readJson, writeJson } = require('@socketsecurity/registry/lib/fs')
 const { execNpm } = require('@socketsecurity/registry/lib/npm')
 const {
   normalizePackageJson
@@ -17,8 +18,8 @@ const { parseArgsConfig, rootPackageLockPath, rootPath, yarnPkgExtsJsonPath } =
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 
 async function modifyRootPkgLock() {
-  if (fs.existsSync(rootPackageLockPath)) {
-    const rootPkgLockJson = await fs.readJson(rootPackageLockPath, 'utf8')
+  if (existsSync(rootPackageLockPath)) {
+    const rootPkgLockJson = await readJson(rootPackageLockPath, 'utf8')
     // The @yarnpkg/extensions package is a zero dependency package, however it
     // includes @yarnpkg/core as peer dependency which npm happily installs as a
     // direct dependency. Later when check:tsc is run it will fail with errors
@@ -30,7 +31,7 @@ async function modifyRootPkgLock() {
     if (lockEntry?.peerDependencies) {
       // Properties with undefined values are omitted when saved as JSON.
       lockEntry.peerDependencies = undefined
-      await fs.writeJson(rootPackageLockPath, rootPkgLockJson, { spaces: 2 })
+      await writeJson(rootPackageLockPath, rootPkgLockJson, { spaces: 2 })
       return true
     }
   }
@@ -38,12 +39,12 @@ async function modifyRootPkgLock() {
 }
 
 async function modifyYarnpkgExtsPkgJson() {
-  if (fs.existsSync(yarnPkgExtsJsonPath)) {
+  if (existsSync(yarnPkgExtsJsonPath)) {
     // Load, normalize, and re-save node_modules/@yarnpkg/extensions/package.json
     // Normalization applies packageExtensions to fix @yarnpkg/extensions's package.json.
-    const yarnPkgExtsJsonRaw = await fs.readJson(yarnPkgExtsJsonPath)
+    const yarnPkgExtsJsonRaw = await readJson(yarnPkgExtsJsonPath)
     if (yarnPkgExtsJsonRaw.peerDependencies) {
-      await fs.writeJson(
+      await writeJson(
         yarnPkgExtsJsonPath,
         normalizePackageJson(yarnPkgExtsJsonRaw),
         { spaces: 2 }

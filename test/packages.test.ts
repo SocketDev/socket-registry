@@ -1,12 +1,12 @@
 import assertLoose from 'node:assert'
 import assert from 'node:assert/strict'
+import { existsSync, promises as fs } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 import util from 'node:util'
 
 import { fix } from '@npmcli/package-json'
-import fs from 'fs-extra'
 import semver from 'semver'
 import { glob as tinyGlob } from 'tinyglobby'
 
@@ -27,6 +27,7 @@ import {
   getStagedPackagesSync
 } from '@socketregistry/scripts/lib/git'
 import { getManifestData } from '@socketsecurity/registry'
+import { readJson } from '@socketsecurity/registry/lib/fs'
 import {
   isObjectObject,
   objectEntries
@@ -96,7 +97,7 @@ for (const eco of constants.ecosystems) {
     for (const regPkgName of packageNames) {
       const pkgPath = path.join(npmPackagesPath, regPkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
-      const pkgJsonExists = fs.existsSync(pkgJsonPath)
+      const pkgJsonExists = existsSync(pkgJsonPath)
       const pkgLicensePath = path.join(pkgPath, LICENSE)
       const origPkgName = resolveOriginalPackageName(regPkgName)
 
@@ -198,7 +199,7 @@ for (const eco of constants.ecosystems) {
           it('file exists for every "export" entry of package.json', () => {
             assert.ok(isObjectObject(entryExports))
             for (const subpath of getSubpaths(entryExports)) {
-              assert.ok(fs.existsSync(path.join(pkgPath, subpath)))
+              assert.ok(existsSync(path.join(pkgPath, subpath)))
             }
           })
 
@@ -240,7 +241,7 @@ for (const eco of constants.ecosystems) {
           it('should have valid .json files', async () => {
             await Promise.all(
               jsonFiles.map(jsonPath =>
-                assert.doesNotReject(fs.readJson(req.resolve(jsonPath)))
+                assert.doesNotReject(readJson(req.resolve(jsonPath)))
               )
             )
           })

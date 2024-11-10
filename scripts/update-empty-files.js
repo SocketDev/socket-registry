@@ -1,9 +1,9 @@
 'use strict'
 
+const fs = require('node:fs/promises')
 const path = require('node:path')
 const util = require('node:util')
 
-const fs = require('fs-extra')
 const { glob: tinyGlob } = require('tinyglobby')
 
 const constants = require('@socketregistry/scripts/constants')
