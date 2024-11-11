@@ -6,15 +6,14 @@ const path = require('node:path')
 const spawn = require('@npmcli/promise-spawn')
 
 const constants = require('@socketregistry/scripts/constants')
-const { getGlobMatcher } = require('@socketsecurity/registry/lib/globs')
-const { normalizePath } = require('@socketsecurity/registry/lib/path')
-
 const {
   rootPackagesPath,
   rootPath,
   kInternalsSymbol,
   [kInternalsSymbol]: { defineLazyGetters }
 } = constants
+const { getGlobMatcher } = require('@socketsecurity/registry/lib/globs')
+const { normalizePath } = require('@socketsecurity/registry/lib/path')
 
 const gitDiffCache = new Map()
 

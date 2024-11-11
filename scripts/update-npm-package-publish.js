@@ -6,11 +6,6 @@ const util = require('node:util')
 const semver = require('semver')
 
 const constants = require('@socketregistry/scripts/constants')
-const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
-const { readDirNames } = require('@socketsecurity/registry/lib/fs')
-const { execNpm } = require('@socketsecurity/registry/lib/npm')
-const { pEach } = require('@socketsecurity/registry/lib/promises')
-
 const {
   COLUMN_LIMIT,
   ENV,
@@ -20,6 +15,10 @@ const {
   parseArgsConfig,
   registryPkgPath
 } = constants
+const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
+const { readDirNames } = require('@socketsecurity/registry/lib/fs')
+const { execNpm } = require('@socketsecurity/registry/lib/npm')
+const { pEach } = require('@socketsecurity/registry/lib/promises')
 
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 

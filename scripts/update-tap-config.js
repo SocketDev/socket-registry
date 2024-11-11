@@ -7,8 +7,8 @@ const YAML = require('@zkochan/js-yaml')
 const readYamlFile = require('read-yaml-file')
 
 const constants = require('@socketregistry/scripts/constants')
-const { isModified } = require('@socketregistry/scripts/lib/git')
 const { ENV, parseArgsConfig, tapCiConfigPath, tapConfigPath } = constants
+const { isModified } = require('@socketregistry/scripts/lib/git')
 
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 

@@ -10,8 +10,6 @@ const unicornPlugin = require('eslint-plugin-unicorn')
 const tsEslint = require('typescript-eslint')
 
 const constants = require('@socketregistry/scripts/constants')
-const { readJsonSync } = require('@socketsecurity/registry/lib/fs')
-
 const {
   PACKAGE_JSON,
   gitIgnoreFile,
@@ -20,6 +18,7 @@ const {
   relNpmPackagesPath,
   rootTsConfigPath
 } = constants
+const { readJsonSync } = require('@socketsecurity/registry/lib/fs')
 
 const { flatConfigs: origImportXFlatConfigs } = importXPlugin
 
