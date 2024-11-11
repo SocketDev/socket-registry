@@ -68,16 +68,18 @@ declare const constantsModule: {
   readonly ENV: ENV
   readonly ESLINT_CONFIG_JS: 'eslint.config.js'
   readonly ESNEXT: 'esnext'
+  readonly GIT_IGNORE: '.gitignore'
   readonly LICENSE: 'LICENSE'
   readonly LICENSE_GLOB: 'LICEN[CS]E{[.-]*,}'
-  readonly LICENSE_GLOB_RECURSIVE: string
-  readonly LICENSE_ORIGINAL: string
+  readonly LICENSE_GLOB_RECURSIVE: `**/LICEN[CS]E{[.-]*,}`
+  readonly LICENSE_ORIGINAL: 'LICENSE.original'
   readonly LICENSE_ORIGINAL_GLOB: '*.original{.*,}'
-  readonly LICENSE_ORIGINAL_GLOB_RECURSIVE: string
+  readonly LICENSE_ORIGINAL_GLOB_RECURSIVE: `**/*.original{.*,}`
   readonly LOOP_SENTINEL: 1_000_000
+  readonly MANIFEST_JSON: 'manifest.json'
   readonly MIT: 'MIT'
   readonly NODE_MODULES: 'node_modules'
-  readonly NODE_MODULES_GLOB_RECURSIVE: string
+  readonly NODE_MODULES_GLOB_RECURSIVE: '**/node_modules'
   readonly NODE_WORKSPACES: 'node_workspaces'
   readonly NODE_VERSION: string
   readonly NPM_ORG: 'socketregistry'
@@ -87,9 +89,11 @@ declare const constantsModule: {
   readonly PACKAGE_DEFAULT_VERSION: '1.0.0'
   readonly PACKAGE_JSON: 'package.json'
   readonly PACKAGE_LOCK: 'package-lock.json'
-  readonly PACKAGE_SCOPE: string
+  readonly PACKAGE_SCOPE: '@socketregistry'
+  readonly PRETTIER_IGNORE: '.prettierignore'
+  readonly PRETTIER_RC: '.prettierrc'
   readonly README_GLOB: 'README{.*,}'
-  readonly README_GLOB_RECURSIVE: string
+  readonly README_GLOB_RECURSIVE: '**/README{.*,}'
   readonly README_MD: 'README.md'
   readonly REGISTRY_SCOPE_DELIMITER: '__'
   readonly REGISTRY_WORKSPACE: 'registry'

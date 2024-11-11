@@ -1,13 +1,17 @@
 import { FlatConfig } from '@eslint/compat'
-import which from 'which'
 import registryConstants from '@socketsecurity/registry/lib/constants'
+import prettier from 'prettier'
+import which from 'which'
 
 declare const kInternalsSymbol: (typeof registryConstants)['kInternalsSymbol']
 type Internals = (typeof registryConstants)[typeof kInternalsSymbol] & {
   readonly which: (cmd: string, options?: which.Options) => Promise<string>
   readonly whichSync: (cmd: string, options?: which.Options) => string
 }
-declare const constantsModule: typeof registryConstants & {
+declare const constantsModule: Exclude<
+  typeof registryConstants,
+  typeof kInternalsSymbol
+> & {
   readonly [kInternalsSymbol]: Internals
   readonly LICENSE_CONTENT: string
   readonly ecosystems: readonly string[]
@@ -23,7 +27,7 @@ declare const constantsModule: typeof registryConstants & {
   readonly perfNpmPath: string
   readonly perfNpmFixturesPath: string
   readonly prettierConfigPath: string
-  readonly prettierConfigPromise: Promise<object | null>
+  readonly prettierConfigPromise: ReturnType<typeof prettier.resolveConfig>
   readonly prettierIgnoreFile: FlatConfig
   readonly prettierIgnorePath: string
   readonly registryPkgPath: string

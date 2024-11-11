@@ -79,6 +79,8 @@ const LICENSE_ORIGINAL = `${LICENSE}.original`
 const LICENSE_ORIGINAL_GLOB = '*.original{.*,}'
 const LICENSE_ORIGINAL_GLOB_RECURSIVE = `**/${LICENSE_ORIGINAL_GLOB}`
 const LOOP_SENTINEL = 1_000_000
+const GIT_IGNORE = '.gitignore'
+const MANIFEST_JSON = 'manifest.json'
 const MIT = 'MIT'
 const NODE_MODULES = 'node_modules'
 const NODE_MODULES_GLOB_RECURSIVE = `**/${NODE_MODULES}`
@@ -91,6 +93,8 @@ const PACKAGE_DEFAULT_VERSION = '1.0.0'
 const PACKAGE_JSON = 'package.json'
 const PACKAGE_LOCK = 'package-lock.json'
 const PACKAGE_SCOPE = `@${NPM_ORG}`
+const PRETTIER_IGNORE = '.prettierignore'
+const PRETTIER_RC = '.prettierrc'
 const README_GLOB = 'README{.*,}'
 const README_GLOB_RECURSIVE = `**/${README_GLOB}`
 const README_MD = 'README.md'
@@ -441,6 +445,7 @@ const constants = Object.freeze(
       ENV,
       ESLINT_CONFIG_JS,
       ESNEXT,
+      GIT_IGNORE,
       LICENSE,
       LICENSE_GLOB,
       LICENSE_GLOB_RECURSIVE,
@@ -448,6 +453,7 @@ const constants = Object.freeze(
       LICENSE_ORIGINAL_GLOB,
       LICENSE_ORIGINAL_GLOB_RECURSIVE,
       LOOP_SENTINEL,
+      MANIFEST_JSON,
       MIT,
       NODE_MODULES,
       NODE_MODULES_GLOB_RECURSIVE,
@@ -462,6 +468,8 @@ const constants = Object.freeze(
       PACKAGE_JSON,
       PACKAGE_LOCK,
       PACKAGE_SCOPE,
+      PRETTIER_IGNORE,
+      PRETTIER_RC,
       README_GLOB,
       README_GLOB_RECURSIVE,
       README_MD,

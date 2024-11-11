@@ -17,11 +17,15 @@ const { sync: whichSyncFn } = whichFn
 
 const {
   ESLINT_CONFIG_JS,
+  GIT_IGNORE,
   LICENSE,
+  MANIFEST_JSON,
   NODE_MODULES,
   NODE_WORKSPACES,
   PACKAGE_JSON,
   PACKAGE_LOCK,
+  PRETTIER_IGNORE,
+  PRETTIER_RC,
   README_MD,
   REGISTRY_WORKSPACE,
   TSCONFIG_JSON,
@@ -40,11 +44,11 @@ const rootPackageLockPath = path.join(rootPath, PACKAGE_LOCK)
 const rootPackagesPath = path.join(rootPath, 'packages')
 const rootTsConfigPath = path.join(rootPath, TSCONFIG_JSON)
 
-const gitIgnorePath = path.join(rootPath, '.gitignore')
-const prettierConfigPath = path.join(rootPath, '.prettierrc')
-const prettierIgnorePath = path.join(rootPath, '.prettierignore')
+const gitIgnorePath = path.join(rootPath, GIT_IGNORE)
+const prettierConfigPath = path.join(rootPath, PRETTIER_RC)
+const prettierIgnorePath = path.join(rootPath, PRETTIER_IGNORE)
 const registryPkgPath = path.join(rootPath, REGISTRY_WORKSPACE)
-const manifestJsonPath = path.join(registryPkgPath, 'manifest.json')
+const manifestJsonPath = path.join(registryPkgPath, MANIFEST_JSON)
 const templatesPath = path.join(__dirname, 'templates')
 
 const tapCiConfigPath = path.join(rootPath, '.tapci.yaml')
