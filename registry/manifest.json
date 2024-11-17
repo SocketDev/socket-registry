@@ -908,7 +908,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/number-is-nan@1.0.8",
+      "pkg:npm/%40socketregistry/number-is-nan@1.0.7",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -916,7 +916,7 @@
         "license": "MIT",
         "name": "@socketregistry/number-is-nan",
         "package": "number-is-nan",
-        "version": "1.0.8"
+        "version": "1.0.7"
       }
     ],
     [
@@ -1542,6 +1542,18 @@
         "name": "@socketregistry/which-typed-array",
         "package": "which-typed-array",
         "version": "1.0.5"
+      }
+    ],
+    [
+      "pkg:npm/%40socketregistry/yocto-spinner@1.0.0",
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["cjs", "esm"],
+        "license": "MIT",
+        "name": "@socketregistry/yocto-spinner",
+        "package": "yocto-spinner",
+        "version": "1.0.0"
       }
     ]
   ]

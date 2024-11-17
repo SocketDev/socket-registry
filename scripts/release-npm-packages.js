@@ -13,7 +13,7 @@ const {
   relNpmPackagesPath,
   rootPath
 } = constants
-const { Spinner } = require('@socketregistry/scripts/lib/spinner')
+const yoctoSpinner = require('@socketregistry/yocto-spinner')
 const { runScript } = require('@socketsecurity/registry/lib/npm')
 const {
   fetchPackageManifest,
@@ -39,10 +39,9 @@ void (async () => {
     })),
     { name: '@socketsecurity/registry', path: registryPkgPath }
   ]
-  const spinner = new Spinner(
-    `Bumping ${relNpmPackagesPath} versions (semver patch)...`,
-    { signal }
-  ).start()
+  const spinner = yoctoSpinner({
+    text: `Bumping ${relNpmPackagesPath} versions (semver patch)...`
+  }).start()
   // Chunk package names to process them in parallel 3 at a time.
   await pEach(
     packages,

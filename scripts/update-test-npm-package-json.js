@@ -36,7 +36,7 @@ const {
   testNpmPkgJsonPath,
   testNpmPkgLockPath
 } = constants
-const { Spinner } = require('@socketregistry/scripts/lib/spinner')
+const yoctoSpinner = require('@socketregistry/yocto-spinner')
 const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
 const {
   isSymbolicLinkSync,
@@ -140,11 +140,12 @@ async function installMissingPackages(packageNames) {
   const originalNames = packageNames.map(resolveOriginalPackageName)
   const msg = `Refreshing ${originalNames.length} package${originalNames.length > 1 ? 's' : ''}...`
   const msgList = joinAsList(originalNames)
-  const spinner = new Spinner(
-    msg.length + msgList.length + 3 > COLUMN_LIMIT
-      ? `${msg}:\n${msgList}`
-      : `${msg} ${msgList}...`
-  ).start()
+  const spinner = yoctoSpinner({
+    text:
+      msg.length + msgList.length + 3 > COLUMN_LIMIT
+        ? `${msg}:\n${msgList}`
+        : `${msg} ${msgList}...`
+  }).start()
   await Promise.all(
     originalNames.map(n => remove(path.join(testNpmNodeModulesPath, n)))
   )
@@ -175,9 +176,9 @@ async function installMissingPackageTests(packageNames) {
       content: { version: nmPkgVer }
     } = await readCachedEditablePackageJson(nmPkgPath)
     const pkgId = `${origPkgName}@${nmPkgVer}`
-    const spinner = new Spinner(
-      `Resolving GitHub tarball URL for ${pkgId}...`
-    ).start()
+    const spinner = yoctoSpinner({
+      text: `Resolving GitHub tarball URL for ${pkgId}...`
+    }).start()
     const gitHubTgzUrl = await resolveGitHubTgzUrl(pkgId, nmPkgPath)
     if (gitHubTgzUrl) {
       // Replace the dev dep version range with the tarball URL.
@@ -199,9 +200,9 @@ async function installMissingPackageTests(packageNames) {
     spinner.stop()
   })
   if (resolvable.length) {
-    const spinner = new Spinner(
-      `Refreshing ${resolvable.join(', ')} from tarball${resolvable.length > 1 ? 's' : ''}...`
-    ).start()
+    const spinner = yoctoSpinner({
+      text: `Refreshing ${resolvable.join(', ')} from tarball${resolvable.length > 1 ? 's' : ''}...`
+    }).start()
     try {
       await installTestNpmNodeModules({ clean: true, specs: resolvable })
       if (cliArgs.quiet) {
@@ -285,7 +286,7 @@ async function resolveDevDependencies(packageNames) {
 async function linkPackages(packageNames) {
   // Link files and cleanup package.json scripts of test/npm/node_modules packages.
   const linkedPackageNames = []
-  const spinner = new Spinner(`Linking packages...`).start()
+  const spinner = yoctoSpinner({ text: 'Linking packages...' }).start()
   let logCount = 0
   // Chunk package names to process them in parallel 3 at a time.
   await pEach(packageNames, 3, async regPkgName => {
@@ -522,9 +523,9 @@ async function linkPackages(packageNames) {
 async function cleanupNodeWorkspaces(linkedPackageNames) {
   // Cleanup up override packages and move them from
   // test/npm/node_modules/ to test/npm/node_workspaces/
-  const spinner = new Spinner(
-    `Cleaning up ${relTestNpmPath} workspaces...`
-  ).start()
+  const spinner = yoctoSpinner({
+    text: `Cleaning up ${relTestNpmPath} workspaces...`
+  }).start()
   // Chunk package names to process them in parallel 3 at a time.
   await pEach(linkedPackageNames, 3, async n => {
     const srcPath = path.join(
@@ -581,9 +582,9 @@ async function cleanupNodeWorkspaces(linkedPackageNames) {
 }
 
 async function installNodeWorkspaces() {
-  const spinner = new Spinner(
-    `Installing ${relTestNpmPath} workspaces... (☕ break)`
-  ).start()
+  const spinner = yoctoSpinner({
+    text: `Installing ${relTestNpmPath} workspaces... (☕ break)`
+  }).start()
   // Finally install workspaces.
   try {
     await installTestNpmNodeModules({ clean: 'deep' })
@@ -608,9 +609,9 @@ void (async () => {
   }
   if (!nodeModulesExists) {
     // Refresh/initialize test/npm/node_modules
-    const spinner = new Spinner(
-      `Initializing ${relTestNpmNodeModulesPath}...`
-    ).start()
+    const spinner = yoctoSpinner({
+      text: `Initializing ${relTestNpmNodeModulesPath}...`
+    }).start()
     try {
       await installTestNpmNodeModules()
       if (cliArgs.quiet) {

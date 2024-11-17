@@ -1,0 +1,52 @@
+{
+  "name": "@socketregistry/yocto-spinner",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "Socket.dev optimized package override for yocto-spinner",
+  "keywords": [
+    "Socket.dev",
+    "package-overrides"
+  ],
+  "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/yocto-spinner",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SocketDev/socket-registry.git",
+    "directory": "packages/npm/yocto-spinner"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "node": {
+        "module-sync": {
+          "types": "./index.d.ts",
+          "default": "./index.js"
+        },
+        "default": {
+          "types": "./index.d.ts",
+          "default": "./index.cjs"
+        }
+      },
+      "default": {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.20.4"
+  },
+  "files": [
+    "*.d.{c,}ts",
+    "*.{c,}js"
+  ],
+  "socket": {
+    "categories": [
+      "cleanup"
+    ]
+  },
+  "dependencies": {
+    "yoctocolors-cjs": "^2.1.2"
+  }
+}

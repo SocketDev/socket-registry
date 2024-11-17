@@ -133,7 +133,8 @@
     "util.promisify": "^1.1.2",
     "which-boxed-primitive": "^1.0.2",
     "which-collection": "^1.0.2",
-    "which-typed-array": "^1.1.15"
+    "which-typed-array": "^1.1.15",
+    "yocto-spinner": "https://github.com/sindresorhus/yocto-spinner/archive/2645ac52ffe1fcda97d53d8213de45be3ca20c6f.tar.gz"
   },
   "workspaces": [
     "node_workspaces/*"
