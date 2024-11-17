@@ -77,7 +77,8 @@ async function getLicenseActions(pkgPath) {
   return actions
 }
 
-async function getNpmReadmeAction(pkgPath) {
+async function getNpmReadmeAction(pkgPath, options) {
+  const { interop } = { __proto__: null, ...options }
   const eco = 'npm'
   const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
   const pkgJson = await readPackageJson(pkgJsonPath)
@@ -105,6 +106,7 @@ async function getNpmReadmeAction(pkgPath) {
           __proto__: null,
           ...manifestData,
           ...pkgJson,
+          ...(interop ? { interop } : {}),
           adjectivesText: joinAsList(adjectives),
           categories,
           dependencies: isObjectObject(pkgJson.dependencies) ?? {},

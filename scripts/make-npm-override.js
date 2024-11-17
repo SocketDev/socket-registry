@@ -360,6 +360,12 @@ void (async () => {
 
   const templatePkgPath = templates[templateChoice]
 
+  const interop = [
+    'cjs',
+    ...(TEMPLATE_CJS_ESM ? ['esm'] : []),
+    ...(TEMPLATE_CJS_BROWSER ? ['browserify'] : [])
+  ]
+
   // First copy the template directory contents to the package path.
   await fs.cp(templatePkgPath, pkgPath, { recursive: true })
   // Then modify the new package's package.json source and write to disk.
@@ -374,7 +380,7 @@ void (async () => {
   // Finally, modify other package file sources and write to disk.
   await Promise.all(
     [
-      await getNpmReadmeAction(pkgPath),
+      await getNpmReadmeAction(pkgPath, { interop }),
       ...(await getLicenseActions(pkgPath)),
       ...(await getTypeScriptActions(pkgPath, {
         transform(filepath, data) {
