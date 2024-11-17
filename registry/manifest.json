@@ -14,7 +14,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/aggregate-error@1.0.7",
+      "pkg:npm/%40socketregistry/aggregate-error@1.0.8",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -22,7 +22,7 @@
         "license": "MIT",
         "name": "@socketregistry/aggregate-error",
         "package": "aggregate-error",
-        "version": "1.0.7"
+        "version": "1.0.8"
       }
     ],
     [
@@ -364,7 +364,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/es-iterator-helpers@1.0.6",
+      "pkg:npm/%40socketregistry/es-iterator-helpers@1.0.7",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -372,7 +372,7 @@
         "license": "MIT",
         "name": "@socketregistry/es-iterator-helpers",
         "package": "es-iterator-helpers",
-        "version": "1.0.6"
+        "version": "1.0.7"
       }
     ],
     [
@@ -1545,7 +1545,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/yocto-spinner@1.0.0",
+      "pkg:npm/%40socketregistry/yocto-spinner@1.0.1",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -1553,7 +1553,7 @@
         "license": "MIT",
         "name": "@socketregistry/yocto-spinner",
         "package": "yocto-spinner",
-        "version": "1.0.0"
+        "version": "1.0.1"
       }
     ]
   ]
