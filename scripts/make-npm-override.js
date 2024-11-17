@@ -361,7 +361,7 @@ void (async () => {
   const templatePkgPath = templates[templateChoice]
 
   // First copy the template directory contents to the package path.
-  await fs.copy(templatePkgPath, pkgPath)
+  await fs.cp(templatePkgPath, pkgPath, { recursive: true })
   // Then modify the new package's package.json source and write to disk.
   await writeAction(
     await getPackageJsonAction(pkgPath, {

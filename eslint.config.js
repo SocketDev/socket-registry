@@ -162,7 +162,8 @@ function configs(sourceType) {
             ignores: [
               'buffer.resolveObjectURL',
               'module.enableCompileCache',
-              'fetch'
+              'fetch',
+              'fs.promises.cp'
             ],
             // Lazily access constants.maintainedNodeVersions.
             version: constants.maintainedNodeVersions.current
