@@ -7,7 +7,7 @@ const { defineProperty: ObjectDefineProperty } = Object
 
 module.exports = function shimIteratorFrom() {
   const polyfill = getPolyfill()
-  if (Iterator.from !== polyfill) {
+  if (IteratorCtor.from !== polyfill) {
     ObjectDefineProperty(IteratorCtor, 'from', {
       __proto__: null,
       configurable: true,
