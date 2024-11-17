@@ -22,7 +22,7 @@ export type Options = {
 
 	@default 'cyan'
 	*/
-  readonly color?: Color
+  readonly color?: Color | undefined
 
   /**
 	Customize the spinner animation with a custom set of frames and interval.
@@ -36,21 +36,21 @@ export type Options = {
 
 	Pass in any spinner from [`cli-spinners`](https://github.com/sindresorhus/cli-spinners).
 	*/
-  readonly spinner?: SpinnerStyle
+  readonly spinner?: SpinnerStyle | undefined
 
   /**
 	The stream to which the spinner is written.
 
 	@default process.stderr
 	*/
-  readonly stream?: Writable
+  readonly stream?: Writable | undefined
 
   /**
 	Text to display next to the spinner.
 
 	@default ''
 	*/
-  readonly text?: string
+  readonly text?: string | undefined
 }
 
 export type Spinner = {
@@ -87,7 +87,7 @@ export type Spinner = {
 	@param text - The error message to display.
 	@returns The spinner instance.
 	*/
-  error(text?: string): Spinner
+  error(text?: string | undefined): Spinner
 
   /**
 	Stops the spinner and displays an info symbol with the message.
@@ -95,7 +95,7 @@ export type Spinner = {
 	@param text - The info message to display.
 	@returns The spinner instance.
 	*/
-  info(text?: string): Spinner
+  info(text?: string | undefined): Spinner
 
   /**
 	Starts the spinner.
@@ -105,7 +105,7 @@ export type Spinner = {
 	@param text - The text to display next to the spinner.
 	@returns The spinner instance.
 	*/
-  start(text?: string): Spinner
+  start(text?: string | undefined): Spinner
 
   /**
 	Stops the spinner.
@@ -115,7 +115,7 @@ export type Spinner = {
 	@param finalText - The final text to display after stopping the spinner.
 	@returns The spinner instance.
 	*/
-  stop(finalText?: string): Spinner
+  stop(finalText?: string | undefined): Spinner
 
   /**
 	Stops the spinner and displays a success symbol with the message.
@@ -123,7 +123,7 @@ export type Spinner = {
 	@param text - The success message to display.
 	@returns The spinner instance.
 	*/
-  success(text?: string): Spinner
+  success(text?: string | undefined): Spinner
 
   /**
 	Stops the spinner and displays a warning symbol with the message.
@@ -131,7 +131,7 @@ export type Spinner = {
 	@param text - The warning message to display.
 	@returns The spinner instance.
 	*/
-  warning(text?: string): Spinner
+  warning(text?: string | undefined): Spinner
 }
 
 /**
@@ -150,4 +150,4 @@ setTimeout(() => {
 }, 2000)
 ```
 */
-export default function yoctoSpinner(options?: Options): Spinner
+export default function yoctoSpinner(options?: Options | undefined): Spinner
