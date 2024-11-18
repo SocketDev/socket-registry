@@ -151,7 +151,11 @@ async function installMissingPackages(packageNames) {
     originalNames.map(n => remove(path.join(testNpmNodeModulesPath, n)))
   )
   try {
-    await installTestNpmNodeModules({ clean: true, specs: originalNames, spinner })
+    await installTestNpmNodeModules({
+      clean: true,
+      specs: originalNames,
+      spinner
+    })
     if (cliArgs.quiet) {
       spinner.stop()
     } else {
@@ -200,9 +204,15 @@ async function installMissingPackageTests(packageNames, options) {
     spinner.stop()
   })
   if (resolvable.length) {
-    spinner.start(`Refreshing ${resolvable.join(', ')} from ${pluralize('tarball', resolvable.length)}...`)
+    spinner.start(
+      `Refreshing ${resolvable.join(', ')} from ${pluralize('tarball', resolvable.length)}...`
+    )
     try {
-      await installTestNpmNodeModules({ clean: true, specs: resolvable, spinner })
+      await installTestNpmNodeModules({
+        clean: true,
+        specs: resolvable,
+        spinner
+      })
       if (cliArgs.quiet) {
         spinner.stop()
       } else {
