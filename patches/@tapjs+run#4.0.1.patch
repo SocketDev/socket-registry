@@ -21,15 +21,3 @@ Index: /@tapjs/run/dist/esm/index.js
 \ No newline at end of file
 +})()
 +//# sourceMappingURL=index.js.map
-Index: /@tapjs/run/dist/esm/run.js
-===================================================================
---- /@tapjs/run/dist/esm/run.js
-+++ /@tapjs/run/dist/esm/run.js
-@@ -152,5 +152,5 @@
-                 externalID: name,
-             });
-     });
- };
--//# sourceMappingURL=run.js.map
-\ No newline at end of file
-+//# sourceMappingURL=run.js.map
