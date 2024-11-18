@@ -96,6 +96,7 @@ async function getNpmReadmeAction(pkgPath, options) {
     ...(categories.includes('tuneup') ? ['secure'] : []),
     'tested'
   ]
+  const aOrAn = /^[aeiou]/i.test(adjectives[0]) ? 'An' : 'A'
   return [
     path.join(pkgPath, README_MD),
     {
@@ -107,7 +108,7 @@ async function getNpmReadmeAction(pkgPath, options) {
           ...manifestData,
           ...pkgJson,
           ...(interop ? { interop } : {}),
-          adjectivesText: joinAsList(adjectives),
+          adjectivesText: `${aOrAn} ${joinAsList(adjectives)}`,
           categories,
           dependencies: isObjectObject(pkgJson.dependencies) ?? {},
           originalName: resolveOriginalPackageName(regPkgName),

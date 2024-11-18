@@ -4,7 +4,7 @@
 [![CI - <%= it.name %>](https://github.com/SocketDev/socket-registry/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
->A <%~ it.adjectivesText %>
+><%~ it.adjectivesText %>
 <% if (Object.keys(it.dependencies).length) { %> low <% } else { %> zero <% } %>
 dependency <% if (it.interop?.includes('esm')) { %> CJS/ESM compatible <% } %>
 drop-in replacement of <% if (it.deprecated) { %> the deprecated <% } %>[`<%= it.originalName %>`](https://socket.dev/npm/package/<%= it.originalName %>)<% if (it.deprecated) { %> package <% } %> complete with TypeScript types.

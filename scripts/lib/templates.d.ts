@@ -29,22 +29,25 @@ declare type Action =
   | PackageAction
   | TypeScripAction
 declare interface TypeScriptOptions {
-  references?: string[]
-  transform?: (filepath: string, data: { references: string[] }) => Promise<any>
+  references?: string[] | undefined
+  transform?:
+    | ((filepath: string, data: { references: string[] }) => Promise<any>)
+    | undefined
 }
 declare function getLicenseActions(
   pkgPath: string
 ): Promise<[string, LicenseAction][]>
 declare function getNpmReadmeAction(
-  pkgPath: string
+  pkgPath: string,
+  options?: { interop?: ManifestEntryData.interop } | undefined
 ): Promise<[string, NpmReadmeAction][]>
 declare function getPackageJsonAction(
   pkgPath: string,
-  options?: { engines?: ManifestEntryData.engines }
+  options?: { engines?: ManifestEntryData.engines } | undefined
 ): Promise<[string, PackageAction][]>
 declare function getTypeScriptActions(
   pkgPath: string,
-  options?: TypeScriptOptions
+  options?: TypeScriptOptions | undefined
 ): Promise<[string, TypeScripAction][]>
 declare function renderAction(action: [PathLike, Action]): Promise<string>
 declare function writeAction(action: [PathLike, Action]): Promise<void>
