@@ -31,8 +31,7 @@
   "socket": {
     "categories": [
       "cleanup",
-      "levelup",
-      "speedup"
+      "levelup"
     ]
   }
 }
