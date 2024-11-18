@@ -200,7 +200,7 @@ void (async () => {
     }
   })
   if (!nmPkgJson) {
-    console.log(`✘ Failed to extract ${origPkgName}`)
+    console.log(`✖️ Failed to extract ${origPkgName}`)
     return
   }
   if (licenseWarnings.length) {
@@ -453,6 +453,6 @@ void (async () => {
       console.log('Finished 🎉')
     }
   } catch (e) {
-    console.log('✘ Package override finalization encountered an error:', e)
+    console.log('✖️ Package override finalization encountered an error:', e)
   }
 })()

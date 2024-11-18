@@ -81,7 +81,7 @@ describe(eco, { skip: !packageNames.length }, () => {
         await runScript('test', [], { cwd: nwPkgPath, signal })
         assert.ok(true)
       } catch (e: any) {
-        console.log(`✘ ${origPkgName}`, e)
+        console.log(`✖️ ${origPkgName}`, e)
         assert.ok(false)
       }
     })

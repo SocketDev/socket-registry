@@ -155,10 +155,10 @@ async function installMissingPackages(packageNames) {
     if (cliArgs.quiet) {
       spinner.stop()
     } else {
-      spinner.stop(`✔ Refreshed ${pluralize('package', originalNames.length)}`)
+      spinner.success(`Refreshed ${pluralize('package', originalNames.length)}`)
     }
   } catch {
-    spinner.stop('✘ Failed to refresh packages')
+    spinner.error('Failed to refresh packages')
   }
 }
 
@@ -209,10 +209,10 @@ async function installMissingPackageTests(packageNames) {
       if (cliArgs.quiet) {
         spinner.stop()
       } else {
-        spinner.stop('✔ Refreshed packages from tarball')
+        spinner.success('Refreshed packages from tarball')
       }
     } catch {
-      spinner.stop('✘ Failed to refresh packages from tarball')
+      spinner.error('Failed to refresh packages from tarball')
     }
   }
   if (unresolvable.length) {
@@ -468,7 +468,7 @@ async function linkPackages(packageNames) {
     const isModuleTypeMismatch = isNmPkgTypeModule !== isPkgTypeModule
     if (isModuleTypeMismatch) {
       logCount += 1
-      spinner.message = `⚠️ ${origPkgName}: Module type mismatch`
+      spinner.text = `⚠️ ${origPkgName}: Module type mismatch`
     }
     const actions = new Map()
     for (const jsFile of await tinyGlob(['**/*.{cjs,js,json}'], {
@@ -501,7 +501,7 @@ async function linkPackages(packageNames) {
             }
           } else {
             logCount += 1
-            console.log(`✘ ${origPkgName}: Cannot convert ESM to CJS`)
+            console.log(`✖️ ${origPkgName}: Cannot convert ESM to CJS`)
           }
         }
         await remove(destPath)
@@ -516,7 +516,7 @@ async function linkPackages(packageNames) {
   if (cliArgs.quiet) {
     spinner.stop()
   } else if (logCount) {
-    spinner.stop('✔ Packages linked')
+    spinner.success('Packages linked')
   }
   return linkedPackageNames
 }
@@ -578,7 +578,7 @@ async function cleanupNodeWorkspaces(linkedPackageNames) {
   if (cliArgs.quiet) {
     spinner.stop()
   } else {
-    spinner.stop('✔ Workspaces cleaned (so fresh and so clean, clean)')
+    spinner.success('Workspaces cleaned (so fresh and so clean, clean)')
   }
 }
 
@@ -591,7 +591,8 @@ async function installNodeWorkspaces() {
     await installTestNpmNodeModules({ clean: 'deep' })
     spinner.stop()
   } catch (e) {
-    spinner.stop('✘ Installation encountered an error:', e)
+    spinner.error('Installation encountered an error:')
+    console.log(e)
   }
 }
 
@@ -618,10 +619,11 @@ void (async () => {
       if (cliArgs.quiet) {
         spinner.stop()
       } else {
-        spinner.stop(`✔ Initialized ${relTestNpmNodeModulesPath}`)
+        spinner.success(`Initialized ${relTestNpmNodeModulesPath}`)
       }
     } catch (e) {
-      spinner.stop(`✘ Initialization encountered an error:`, e)
+      spinner.error(`Initialization encountered an error:`)
+      console.log(e)
     }
   }
   const packageNames = addingPkgNames
