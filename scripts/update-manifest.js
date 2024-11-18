@@ -6,6 +6,7 @@ const util = require('node:util')
 
 const { PackageURL } = require('packageurl-js')
 
+const packageurlJsPkgJson = require('@socketregistry/packageurl-js/package.json')
 const constants = require('@socketregistry/scripts/constants')
 const {
   UNLICENSED,
@@ -34,7 +35,6 @@ const {
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { localeCompare } = require('@socketsecurity/registry/lib/sorts')
 const { prettierFormat } = require('@socketsecurity/registry/lib/strings')
-const packageurlJsPkgJson = require('@socketregistry/packageurl-js/package.json')
 
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 
