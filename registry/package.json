@@ -72,6 +72,10 @@
       "types": "./lib/strings.d.ts",
       "default": "./lib/strings.js"
     },
+    "./lib/words": {
+      "types": "./lib/words.d.ts",
+      "default": "./lib/words.js"
+    },
     "./manifest.json": "./manifest.json",
     "./package.json": "./package.json"
   },

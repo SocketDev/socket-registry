@@ -62,6 +62,7 @@ const {
   naturalSort
 } = require('@socketsecurity/registry/lib/sorts')
 const { indentString } = require('@socketsecurity/registry/lib/strings')
+const { pluralize } = require('@socketsecurity/registry/lib/words')
 
 const { positionals: cliPositionals, values: cliArgs } =
   util.parseArgs(parseArgsConfig)
@@ -211,7 +212,7 @@ void (async () => {
     )
   }
   if (badLicenses.length) {
-    const singularOrPlural = `license${badLicenses.length > 1 ? 's' : ''}`
+    const singularOrPlural = pluralize('license', badLicenses.length)
     const badLicenseNames = badLicenses.map(n => n.license)
     const warning = `⚠️ ${origPkgName} has incompatible ${singularOrPlural} ${badLicenseNames.join(', ')}.`
     const answer = await confirm({

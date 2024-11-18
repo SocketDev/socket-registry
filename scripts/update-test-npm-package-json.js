@@ -59,6 +59,7 @@ const {
 const { splitPath } = require('@socketsecurity/registry/lib/path')
 const { pEach, pFilter } = require('@socketsecurity/registry/lib/promises')
 const { isNonEmptyString } = require('@socketsecurity/registry/lib/strings')
+const { pluralize } = require('@socketsecurity/registry/lib/words')
 
 const { values: cliArgs } = util.parseArgs(
   merge(parseArgsConfig, {
@@ -138,7 +139,7 @@ const readCachedEditablePackageJson = async filepath_ => {
 
 async function installMissingPackages(packageNames) {
   const originalNames = packageNames.map(resolveOriginalPackageName)
-  const msg = `Refreshing ${originalNames.length} package${originalNames.length > 1 ? 's' : ''}...`
+  const msg = `Refreshing ${originalNames.length} ${pluralize('package', originalNames.length)}...`
   const msgList = joinAsList(originalNames)
   const spinner = yoctoSpinner({
     text:
@@ -154,7 +155,7 @@ async function installMissingPackages(packageNames) {
     if (cliArgs.quiet) {
       spinner.stop()
     } else {
-      spinner.stop(`✔ Refreshed package${originalNames.length > 1 ? 's' : ''}`)
+      spinner.stop(`✔ Refreshed ${pluralize('package', originalNames.length)}`)
     }
   } catch {
     spinner.stop('✘ Failed to refresh packages')
@@ -201,7 +202,7 @@ async function installMissingPackageTests(packageNames) {
   })
   if (resolvable.length) {
     const spinner = yoctoSpinner({
-      text: `Refreshing ${resolvable.join(', ')} from tarball${resolvable.length > 1 ? 's' : ''}...`
+      text: `Refreshing ${resolvable.join(', ')} from ${pluralize('tarball', resolvable.length)}...`
     }).start()
     try {
       await installTestNpmNodeModules({ clean: true, specs: resolvable })
@@ -215,7 +216,7 @@ async function installMissingPackageTests(packageNames) {
     }
   }
   if (unresolvable.length) {
-    const msg = `⚠️ Unable to resolve tests for ${unresolvable.length} package${unresolvable.length > 1 ? 's' : ''}:`
+    const msg = `⚠️ Unable to resolve tests for ${unresolvable.length} ${pluralize('package', unresolvable.length)}:`
     const msgList = joinAsList(unresolvable)
     const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
     console.log(`${msg}${separator}${msgList}`)

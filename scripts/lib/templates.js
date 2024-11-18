@@ -34,6 +34,10 @@ const {
   resolveOriginalPackageName
 } = require('@socketsecurity/registry/lib/packages')
 const { prettierFormat } = require('@socketsecurity/registry/lib/strings')
+const {
+  capitalize,
+  determineArticle
+} = require('@socketsecurity/registry/lib/words')
 
 const eta = new Eta()
 
@@ -96,7 +100,6 @@ async function getNpmReadmeAction(pkgPath, options) {
     ...(categories.includes('tuneup') ? ['secure'] : []),
     'tested'
   ]
-  const aOrAn = /^[aeiou]/i.test(adjectives[0]) ? 'An' : 'A'
   return [
     path.join(pkgPath, README_MD),
     {
@@ -108,7 +111,7 @@ async function getNpmReadmeAction(pkgPath, options) {
           ...manifestData,
           ...pkgJson,
           ...(interop ? { interop } : {}),
-          adjectivesText: `${aOrAn} ${joinAsList(adjectives)}`,
+          adjectivesText: `${capitalize(determineArticle(adjectives[0]))} ${joinAsList(adjectives)}`,
           categories,
           dependencies: isObjectObject(pkgJson.dependencies) ?? {},
           originalName: resolveOriginalPackageName(regPkgName),
