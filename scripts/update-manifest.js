@@ -34,12 +34,26 @@ const {
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { localeCompare } = require('@socketsecurity/registry/lib/sorts')
 const { prettierFormat } = require('@socketsecurity/registry/lib/strings')
+const packageurlJsPkgJson = require('@socketregistry/packageurl-js/package.json')
 
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 
 async function addNpmManifestData(manifest) {
   const eco = 'npm'
-  const manifestData = []
+  const manifestData = [
+    [
+      `pkg:npm/%40socketregistry/packageurl-js@${packageurlJsPkgJson.version}`,
+      {
+        categories: packageurlJsPkgJson.socket.categories,
+        engines: packageurlJsPkgJson.engines,
+        interop: ['cjs'],
+        license: packageurlJsPkgJson.license,
+        name: packageurlJsPkgJson.name,
+        package: 'packageurl-js',
+        version: packageurlJsPkgJson.version
+      }
+    ]
+  ]
   // Chunk package names to process them in parallel 3 at a time.
   // Lazily access constants.npmPackageNames.
   await pEach(constants.npmPackageNames, 3, async regPkgName => {
