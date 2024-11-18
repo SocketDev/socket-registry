@@ -151,7 +151,7 @@ async function installMissingPackages(packageNames) {
     originalNames.map(n => remove(path.join(testNpmNodeModulesPath, n)))
   )
   try {
-    await installTestNpmNodeModules({ clean: true, specs: originalNames })
+    await installTestNpmNodeModules({ clean: true, specs: originalNames, spinner })
     if (cliArgs.quiet) {
       spinner.stop()
     } else {
@@ -162,7 +162,8 @@ async function installMissingPackages(packageNames) {
   }
 }
 
-async function installMissingPackageTests(packageNames) {
+async function installMissingPackageTests(packageNames, options) {
+  const { spinner = yoctoSpinner() } = { __proto__: null, ...options }
   const originalNames = packageNames.map(resolveOriginalPackageName)
   const resolvable = []
   const unresolvable = []
@@ -177,9 +178,7 @@ async function installMissingPackageTests(packageNames) {
       content: { version: nmPkgVer }
     } = await readCachedEditablePackageJson(nmPkgPath)
     const pkgId = `${origPkgName}@${nmPkgVer}`
-    const spinner = yoctoSpinner({
-      text: `Resolving GitHub tarball URL for ${pkgId}...`
-    }).start()
+    spinner.start(`Resolving GitHub tarball URL for ${pkgId}...`)
     const gitHubTgzUrl = await resolveGitHubTgzUrl(pkgId, nmPkgPath)
     if (gitHubTgzUrl) {
       // Replace the dev dep version range with the tarball URL.
@@ -201,11 +200,9 @@ async function installMissingPackageTests(packageNames) {
     spinner.stop()
   })
   if (resolvable.length) {
-    const spinner = yoctoSpinner({
-      text: `Refreshing ${resolvable.join(', ')} from ${pluralize('tarball', resolvable.length)}...`
-    }).start()
+    spinner.start(`Refreshing ${resolvable.join(', ')} from ${pluralize('tarball', resolvable.length)}...`)
     try {
-      await installTestNpmNodeModules({ clean: true, specs: resolvable })
+      await installTestNpmNodeModules({ clean: true, specs: resolvable, spinner })
       if (cliArgs.quiet) {
         spinner.stop()
       } else {
@@ -223,7 +220,7 @@ async function installMissingPackageTests(packageNames) {
   }
 }
 
-async function resolveDevDependencies(packageNames) {
+async function resolveDevDependencies(packageNames, options) {
   let { devDependencies } = await readPackageJson(testNpmPkgJsonPath)
   const missingPackages = packageNames.filter(regPkgName => {
     const origPkgName = resolveOriginalPackageName(regPkgName)
@@ -280,14 +277,16 @@ async function resolveDevDependencies(packageNames) {
     }
   )
   if (missingPackageTests.length) {
-    await installMissingPackageTests(missingPackageTests)
+    await installMissingPackageTests(missingPackageTests, options)
   }
 }
 
-async function linkPackages(packageNames) {
+async function linkPackages(packageNames, options) {
   // Link files and cleanup package.json scripts of test/npm/node_modules packages.
+  const { spinner = yoctoSpinner() } = { __proto__: null, ...options }
+  spinner.start('Linking packages...')
+
   const linkedPackageNames = []
-  const spinner = yoctoSpinner({ text: 'Linking packages...' }).start()
   let logCount = 0
   // Chunk package names to process them in parallel 3 at a time.
   await pEach(packageNames, 3, async regPkgName => {
@@ -513,7 +512,7 @@ async function linkPackages(packageNames) {
     await nmEditablePkgJson.save()
     linkedPackageNames.push(regPkgName)
   })
-  if (cliArgs.quiet) {
+  if (!logCount || cliArgs.quiet) {
     spinner.stop()
   } else if (logCount) {
     spinner.success('Packages linked')
@@ -521,12 +520,12 @@ async function linkPackages(packageNames) {
   return linkedPackageNames
 }
 
-async function cleanupNodeWorkspaces(linkedPackageNames) {
+async function cleanupNodeWorkspaces(linkedPackageNames, options) {
   // Cleanup up override packages and move them from
   // test/npm/node_modules/ to test/npm/node_workspaces/
-  const spinner = yoctoSpinner({
-    text: `Cleaning up ${relTestNpmPath} workspaces...`
-  }).start()
+  const { spinner = yoctoSpinner() } = { __proto__: null, ...options }
+  spinner.start(`Cleaning up ${relTestNpmPath} workspaces...`)
+
   // Chunk package names to process them in parallel 3 at a time.
   await pEach(linkedPackageNames, 3, async n => {
     const srcPath = path.join(
@@ -582,13 +581,12 @@ async function cleanupNodeWorkspaces(linkedPackageNames) {
   }
 }
 
-async function installNodeWorkspaces() {
-  const spinner = yoctoSpinner({
-    text: `Installing ${relTestNpmPath} workspaces... (☕ break)`
-  }).start()
+async function installNodeWorkspaces(options) {
+  const { spinner = yoctoSpinner() } = { __proto__: null, ...options }
+  spinner.start(`Installing ${relTestNpmPath} workspaces... (☕ break)`)
   // Finally install workspaces.
   try {
-    await installTestNpmNodeModules({ clean: 'deep' })
+    await installTestNpmNodeModules({ clean: 'deep', spinner })
     spinner.stop()
   } catch (e) {
     spinner.error('Installation encountered an error:')
@@ -609,13 +607,12 @@ void (async () => {
   ) {
     return
   }
+  const spinner = yoctoSpinner()
   if (!nodeModulesExists) {
     // Refresh/initialize test/npm/node_modules
-    const spinner = yoctoSpinner({
-      text: `Initializing ${relTestNpmNodeModulesPath}...`
-    }).start()
+    spinner.start(`Initializing ${relTestNpmNodeModulesPath}...`)
     try {
-      await installTestNpmNodeModules()
+      await installTestNpmNodeModules({ spinner })
       if (cliArgs.quiet) {
         spinner.stop()
       } else {
@@ -630,13 +627,13 @@ void (async () => {
     ? cliArgs.add
     : // Lazily access constants.npmPackageNames.
       constants.npmPackageNames
-  await resolveDevDependencies(packageNames)
+  await resolveDevDependencies(packageNames, { spinner })
   const linkedPackageNames = packageNames.length
-    ? await linkPackages(packageNames)
+    ? await linkPackages(packageNames, { spinner })
     : []
   if (linkedPackageNames.length) {
-    await cleanupNodeWorkspaces(linkedPackageNames)
-    await installNodeWorkspaces()
+    await cleanupNodeWorkspaces(linkedPackageNames, { spinner })
+    await installNodeWorkspaces({ spinner })
   }
   if (!cliArgs.quiet) {
     console.log('Finished 🎉')
