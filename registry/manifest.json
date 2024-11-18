@@ -884,15 +884,15 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/json-stable-stringify@1.0.6",
+      "pkg:npm/%40socketregistry/json-stable-stringify@1.0.7",
       {
-        "categories": ["cleanup", "levelup", "speedup"],
+        "categories": ["cleanup", "levelup"],
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
         "name": "@socketregistry/json-stable-stringify",
         "package": "json-stable-stringify",
-        "version": "1.0.6"
+        "version": "1.0.7"
       }
     ],
     [
