@@ -162,7 +162,7 @@ void (async () => {
   const pkgPath = path.join(npmPackagesPath, regPkgName)
   if (existsSync(pkgPath) && !isDirEmptySync(pkgPath)) {
     const relPkgPath = path.relative(rootPath, pkgPath)
-    console.log(`⚠️ ${origPkgName} already exists at ${relPkgPath}`)
+    console.warn(`⚠️ ${origPkgName} already exists at ${relPkgPath}`)
     if (
       !(await confirm({
         message: 'Do you want to overwrite it?',
@@ -200,14 +200,14 @@ void (async () => {
     }
   })
   if (!nmPkgJson) {
-    console.log(`✖️ Failed to extract ${origPkgName}`)
+    console.error(`✖️ Failed to extract ${origPkgName}`)
     return
   }
   if (licenseWarnings.length) {
     const formattedWarnings = licenseWarnings.map(w =>
       indentString(`• ${w}`, 2)
     )
-    console.log(
+    console.warn(
       `⚠️ ${origPkgName} has license warnings:\n${formattedWarnings.join('\n')}`
     )
   }
@@ -453,6 +453,6 @@ void (async () => {
       console.log('Finished 🎉')
     }
   } catch (e) {
-    console.log('✖️ Package override finalization encountered an error:', e)
+    console.error('✖️ Package override finalization encountered an error:', e)
   }
 })()

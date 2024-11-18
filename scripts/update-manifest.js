@@ -63,7 +63,7 @@ async function addNpmManifestData(manifest) {
     const nmPkgId = `${origPkgName}@${nmPkgSpec}`
     const nmPkgManifest = await fetchPackageManifest(nmPkgId)
     if (!nmPkgManifest) {
-      console.log(`⚠️ ${nmPkgId}: Not found in npm registry`)
+      console.warn(`⚠️ ${nmPkgId}: Not found in npm registry`)
       return
     }
     const { deprecated: nmPkgDeprecated } = nmPkgManifest

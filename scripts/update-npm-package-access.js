@@ -63,6 +63,6 @@ void (async () => {
     const msg = `⚠️ Unable to set access for ${failures.length} ${pluralize('package', failures.length)}:`
     const msgList = joinAsList(failures)
     const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
-    console.log(`${msg}${separator}${msgList}`)
+    console.warn(`${msg}${separator}${msgList}`)
   }
 })()

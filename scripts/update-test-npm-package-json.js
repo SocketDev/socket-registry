@@ -226,7 +226,7 @@ async function installMissingPackageTests(packageNames, options) {
     const msg = `⚠️ Unable to resolve tests for ${unresolvable.length} ${pluralize('package', unresolvable.length)}:`
     const msgList = joinAsList(unresolvable)
     const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
-    console.log(`${msg}${separator}${msgList}`)
+    console.warn(`${msg}${separator}${msgList}`)
   }
 }
 
@@ -304,7 +304,7 @@ async function linkPackages(packageNames, options) {
     const pkgPath = path.join(npmPackagesPath, regPkgName)
     if (!existsSync(pkgPath)) {
       logCount += 1
-      console.log(`⚠️ ${regPkgName}: Missing from ${relNpmPackagesPath}`)
+      console.warn(`⚠️ ${regPkgName}: Missing from ${relNpmPackagesPath}`)
       return
     }
     const nmPkgPath = path.join(testNpmNodeModulesPath, origPkgName)
@@ -510,7 +510,7 @@ async function linkPackages(packageNames, options) {
             }
           } else {
             logCount += 1
-            console.log(`✖️ ${origPkgName}: Cannot convert ESM to CJS`)
+            console.error(`✖️ ${origPkgName}: Cannot convert ESM to CJS`)
           }
         }
         await remove(destPath)
