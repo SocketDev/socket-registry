@@ -503,18 +503,18 @@ async function resolveGitHubTgzUrl(pkgNameOrId, where) {
   if (isTarballUrl) {
     return parsedSpec.saveSpec
   }
-  const isgithubUrl =
+  const isGitHubUrl =
     parsedSpec.type === 'git' &&
     parsedSpec.hosted?.domain === 'github.com' &&
     isNonEmptyString(parsedSpec.gitCommittish)
 
-  const { project, user } = isgithubUrl
+  const { project, user } = isGitHubUrl
     ? parsedSpec.hosted
     : getRepoUrlDetails(pkgJson.repository?.url)
 
   if (user && project) {
     let apiUrl = ''
-    if (isgithubUrl) {
+    if (isGitHubUrl) {
       apiUrl = gitHubTagRefUrl(user, project, parsedSpec.gitCommittish)
     } else {
       // First try to resolve the sha for a tag starting with "v", e.g. v1.2.3.
