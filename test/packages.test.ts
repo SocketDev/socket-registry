@@ -161,12 +161,14 @@ for (const eco of constants.ecosystems) {
           )
         ).sort(localeCompare)
         const dotFilePatterns = filesPatternsAsArray.filter(isDotPattern)
-        const dotFileMatches = (
-          await tinyGlob(dotFilePatterns, {
-            cwd: pkgPath,
-            dot: true
-          })
-        ).sort(localeCompare)
+        const dotFileMatches = new Set(
+          (
+            await tinyGlob(dotFilePatterns, {
+              cwd: pkgPath,
+              dot: true
+            })
+          )
+        )
         const jsonFiles = files
           .filter(p => path.extname(p) === '.json')
           .sort(localeCompare)
@@ -366,7 +368,7 @@ for (const eco of constants.ecosystems) {
         } else {
           it('package files should match "files" field', () => {
             const filesToCompare = files.filter(p =>
-              isDotFile(p) ? dotFileMatches.includes(p) : !isSrcFile(p)
+              isDotFile(p) ? dotFileMatches.has(p) : !isSrcFile(p)
             )
             assert.deepEqual(filesFieldMatches, filesToCompare)
           })
