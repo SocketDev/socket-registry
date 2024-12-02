@@ -147,13 +147,17 @@ async function installMissingPackages(packageNames) {
         ? `${msg}:\n${msgList}`
         : `${msg} ${msgList}...`
   }).start()
+  const { devDependencies } = await readPackageJson(testNpmPkgJsonPath)
   await Promise.all(
     originalNames.map(n => remove(path.join(testNpmNodeModulesPath, n)))
   )
   try {
     await installTestNpmNodeModules({
       clean: true,
-      specs: originalNames,
+      specs: originalNames.map(n => {
+        const origSpec = devDependencies[n]
+        return `${n}${origSpec ? `@${origSpec}` : ''}`
+      }),
       spinner
     })
     if (cliArgs.quiet) {
@@ -236,7 +240,7 @@ async function resolveDevDependencies(packageNames, options) {
     const origPkgName = resolveOriginalPackageName(regPkgName)
     // Missing packages can occur if the script is stopped part way through
     return (
-      typeof devDependencies?.[origPkgName] !== 'string' ||
+      !devDependencies?.[origPkgName] ||
       !existsSync(path.join(testNpmNodeModulesPath, origPkgName))
     )
   })
