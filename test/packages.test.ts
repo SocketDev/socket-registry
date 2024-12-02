@@ -162,12 +162,10 @@ for (const eco of constants.ecosystems) {
         ).sort(localeCompare)
         const dotFilePatterns = filesPatternsAsArray.filter(isDotPattern)
         const dotFileMatches = new Set(
-          (
-            await tinyGlob(dotFilePatterns, {
-              cwd: pkgPath,
-              dot: true
-            })
-          )
+          await tinyGlob(dotFilePatterns, {
+            cwd: pkgPath,
+            dot: true
+          })
         )
         const jsonFiles = files
           .filter(p => path.extname(p) === '.json')
@@ -342,28 +340,13 @@ for (const eco of constants.ecosystems) {
         }
 
         if (hasOverrides) {
-          const localOverridesPackages = localOverridesFiles.map(p =>
-            p.slice(
-              overridesWithSlash.length,
-              p.indexOf('/', overridesWithSlash.length)
-            )
-          )
-
           it('should have overrides and resolutions fields in package.json', () => {
             assert.ok(isObjectObject(pkgOverrides))
             assert.ok(isObjectObject(pkgResolutions))
           })
 
-          it('should have overrides directory', () => {
-            assert.ok(localOverridesFiles.length > 0)
-          })
-
-          it('overrides files should match corresponding package.json field values', () => {
-            for (const name of localOverridesPackages) {
-              const spec = (pkgOverrides as any)?.[name] ?? ''
-              const expected = `${spec.startsWith('link:') ? 'link' : 'file'}:./overrides/${name}`
-              assert.strictEqual(spec, expected)
-            }
+          it('should not have overrides directory', () => {
+            assert.strictEqual(localOverridesFiles.length, 0)
           })
         } else {
           it('package files should match "files" field', () => {

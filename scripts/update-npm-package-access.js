@@ -19,6 +19,11 @@ const { pluralize } = require('@socketsecurity/registry/lib/words')
 
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 
+function packageData(data) {
+  const { printName = data.name } = data
+  return Object.assign(data, { printName })
+}
+
 void (async () => {
   // Exit early if not running in CI or with --force.
   if (!(ENV.CI || cliArgs.force)) {
@@ -26,39 +31,37 @@ void (async () => {
   }
   const failures = []
   const packages = [
+    packageData({ name: '@socketsecurity/registry', path: registryPkgPath }),
     // Lazily access constants.npmPackageNames.
-    ...constants.npmPackageNames.map(async regPkgName => ({
-      name: `${PACKAGE_SCOPE}/${regPkgName}`,
-      path: path.join(npmPackagesPath, regPkgName),
-      shortName: regPkgName
-    })),
-    { name: '@socketsecurity/registry', path: registryPkgPath }
+    ...constants.npmPackageNames.map(regPkgName =>
+      packageData({
+        name: `${PACKAGE_SCOPE}/${regPkgName}`,
+        path: path.join(npmPackagesPath, regPkgName),
+        printName: regPkgName
+      })
+    )
   ]
   // Chunk package names to process them in parallel 3 at a time.
-  await pEach(
-    packages,
-    3,
-    async ({ name, path: pkgPath, shortName = name }) => {
-      try {
-        const { stdout } = await execNpm(
-          ['access', 'set', 'mfa=automation', name],
-          {
-            cwd: pkgPath,
-            stdio: 'pipe',
-            env: {
-              __proto__: null,
-              ...process.env,
-              NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
-            }
+  await pEach(packages, 3, async pkg => {
+    try {
+      const { stdout } = await execNpm(
+        ['access', 'set', 'mfa=automation', pkg.name],
+        {
+          cwd: pkg.path,
+          stdio: 'pipe',
+          env: {
+            __proto__: null,
+            ...process.env,
+            NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
           }
-        )
-        console.log(stdout)
-      } catch (e) {
-        failures.push(shortName)
-        console.log(e)
-      }
+        }
+      )
+      console.log(stdout)
+    } catch (e) {
+      failures.push(pkg.printName)
+      console.log(e)
     }
-  )
+  })
   if (failures.length) {
     const msg = `⚠️ Unable to set access for ${failures.length} ${pluralize('package', failures.length)}:`
     const msgList = joinAsList(failures)

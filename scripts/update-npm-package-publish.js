@@ -23,6 +23,15 @@ const { pluralize } = require('@socketsecurity/registry/lib/words')
 
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 
+function packageData(data) {
+  const {
+    bundledDependencies = false,
+    printName = data.name,
+    tag = 'latest'
+  } = data
+  return Object.assign(data, { bundledDependencies, printName, tag })
+}
+
 void (async () => {
   // Exit early if not running in CI or with --force.
   if (!(ENV.CI || cliArgs.force)) {
@@ -31,40 +40,80 @@ void (async () => {
   const failures = []
   const packages = (
     await Promise.all([
+      packageData({ name: '@socketsecurity/registry', path: registryPkgPath }),
       // Lazily access constants.npmPackageNames.
       ...constants.npmPackageNames.map(async regPkgName => {
         const pkgPath = path.join(npmPackagesPath, regPkgName)
+        const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
+        const pkgJson = require(pkgJsonPath)
         const overridesPath = path.join(pkgPath, 'overrides')
         const name = `${PACKAGE_SCOPE}/${regPkgName}`
-        const shortName = regPkgName
+        const printName = regPkgName
         return [
-          { name, path: pkgPath, shortName },
-          ...(await readDirNames(overridesPath)).map(n => {
+          packageData({
+            name,
+            path: pkgPath,
+            printName,
+            bundledDependencies: !!pkgJson.bundleDependencies
+          }),
+          ...(await readDirNames(overridesPath)).flatMap(n => {
             const overridesPkgPath = path.join(overridesPath, n)
             const overridesPkgJsonPath = path.join(
               overridesPkgPath,
               PACKAGE_JSON
             )
-            const tag =
-              semver.prerelease(require(overridesPkgJsonPath).version) ??
-              undefined
-            return { name, path: overridesPkgPath, shortName, tag }
+            const overridesPkgJson = require(overridesPkgJsonPath)
+            const overridePrintName = `${printName}/${path.relative(pkgPath, overridesPkgPath)}`
+            const tag = semver.prerelease(overridesPkgJson.version) ?? undefined
+            if (!tag) {
+              failures.push(overridePrintName)
+              return []
+            }
+            // Add prerelease override variant data.
+            return [
+              packageData({
+                name,
+                path: overridesPkgPath,
+                bundledDependencies: !!overridesPkgJson.bundleDependencies,
+                printName: overridePrintName,
+                tag
+              })
+            ]
           })
         ]
-      }),
-      { name: '@socketsecurity/registry', path: registryPkgPath }
+      })
     ])
   ).flat()
-  // Chunk package names to process them in parallel 3 at a time.
+  // Chunk bundled package names to process them in parallel 3 at a time.
   await pEach(
-    packages,
+    packages.filter(pkg => pkg.bundledDependencies),
     3,
-    async ({ name, path: pkgPath, shortName = name, tag = 'latest' }) => {
+    async pkg => {
+      // Install bundled dependencies, including overrides.
+      try {
+        await execNpm(
+          ['install', '--workspaces', 'false', '--install-strategy', 'hoisted'],
+          {
+            cwd: pkg.path,
+            stdio: 'ignore'
+          }
+        )
+      } catch (e) {
+        failures.push(pkg.printName)
+        console.log(e)
+      }
+    }
+  )
+  // Chunk non-failed package names to process them in parallel 3 at a time.
+  await pEach(
+    packages.filter(pkg => !failures.includes(pkg.printName)),
+    3,
+    async pkg => {
       try {
         const { stdout } = await execNpm(
-          ['publish', '--provenance', '--tag', tag, '--access', 'public'],
+          ['publish', '--provenance', '--tag', pkg.tag, '--access', 'public'],
           {
-            cwd: pkgPath,
+            cwd: pkg.path,
             stdio: 'pipe',
             env: {
               __proto__: null,
@@ -79,7 +128,7 @@ void (async () => {
         const isPublishOverError =
           stderr.includes('code E403') && stderr.includes('cannot publish over')
         if (!isPublishOverError) {
-          failures.push(shortName)
+          failures.push(pkg.printName)
           console.log(stderr)
         }
       }

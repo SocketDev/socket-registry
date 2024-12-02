@@ -24,8 +24,11 @@
   "dependencies": {
     "@socketregistry/original__assert": "npm:assert@2.1.0"
   },
+  "bundleDependencies": [
+    "@socketregistry/original__assert"
+  ],
   "overrides": {
-    "call-bind": "file:./overrides/call-bind",
+    "call-bind": "npm:@socketregistry/assert@1.0.6-overrides-call-bind",
     "inherits": "npm:inherits@2.0.4",
     "is-arguments": "npm:@socketregistry/is-arguments@^1",
     "is-generator-function": "npm:@socketregistry/is-generator-function@^1",
@@ -54,7 +57,7 @@
   "files": [
     "*.d.ts",
     "**/*.js",
-    "!overrides/call-bind/{*.d.ts,index.js}"
+    "!overrides"
   ],
   "socket": {
     "categories": [
