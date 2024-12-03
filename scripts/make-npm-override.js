@@ -64,6 +64,9 @@ const {
 const { indentString } = require('@socketsecurity/registry/lib/strings')
 const { pluralize } = require('@socketsecurity/registry/lib/words')
 
+const abortController = new AbortController()
+const { signal } = abortController
+
 const { positionals: cliPositionals, values: cliArgs } =
   util.parseArgs(parseArgsConfig)
 
@@ -138,14 +141,12 @@ function toChoice(value) {
   return { name: value, value: value }
 }
 
-const abortController = new AbortController()
-const { signal } = abortController
-
 // Detect ^C, i.e. Ctrl + C.
 process.on('SIGINT', () => {
   console.log('SIGINT signal received: Exiting gracefully...')
   abortController.abort()
 })
+
 void (async () => {
   const origPkgName = await input({
     message: 'What is the name of the package to override?',

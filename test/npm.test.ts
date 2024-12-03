@@ -28,6 +28,9 @@ import { runScript } from '@socketsecurity/registry/lib/npm'
 import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/packages'
 import { isNonEmptyString } from '@socketsecurity/registry/lib/strings'
 
+const abortController = new AbortController()
+const { signal } = abortController
+
 // Pass args as tap --test-arg:
 // npm run test:unit ./test/npm.test.ts -- --test-arg="--force"
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
@@ -51,9 +54,6 @@ const packageNames: string[] =
           testablePackages.has(n)
         )
       })()
-
-const abortController = new AbortController()
-const { signal } = abortController
 
 // Detect ^C, i.e. Ctrl + C.
 process.on('SIGINT', () => {
