@@ -29,7 +29,7 @@ void (async () => {
   if (!(ENV.CI || cliArgs.force)) {
     return
   }
-  const failures = []
+  const fails = []
   const packages = [
     packageData({ name: '@socketsecurity/registry', path: registryPkgPath }),
     // Lazily access constants.npmPackageNames.
@@ -58,13 +58,13 @@ void (async () => {
       )
       console.log(stdout)
     } catch (e) {
-      failures.push(pkg.printName)
+      fails.push(pkg.printName)
       console.log(e)
     }
   })
-  if (failures.length) {
-    const msg = `⚠️ Unable to set access for ${failures.length} ${pluralize('package', failures.length)}:`
-    const msgList = joinAsList(failures)
+  if (fails.length) {
+    const msg = `⚠️ Unable to set access for ${fails.length} ${pluralize('package', fails.length)}:`
+    const msgList = joinAsList(fails)
     const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
     console.warn(`${msg}${separator}${msgList}`)
   }

@@ -7,6 +7,9 @@ const ssri = require('ssri')
 
 const constants = require('@socketregistry/scripts/constants')
 const {
+  LATEST,
+  OVERRIDES,
+  PACKAGE_JSON,
   PACKAGE_SCOPE,
   npmPackagesPath,
   registryPkgPath,
@@ -14,6 +17,7 @@ const {
   rootPath
 } = constants
 const yoctoSpinner = require('@socketregistry/yocto-spinner')
+const { readDirNames } = require('@socketsecurity/registry/lib/fs')
 const { runScript } = require('@socketsecurity/registry/lib/npm')
 const {
   fetchPackageManifest,
@@ -25,29 +29,64 @@ const { pEach } = require('@socketsecurity/registry/lib/promises')
 const abortController = new AbortController()
 const { signal } = abortController
 
+function packageData(data) {
+  const { printName = data.name, tag = LATEST } = data
+  return Object.assign(data, { printName, tag })
+}
+
 // Detect ^C, i.e. Ctrl + C.
 process.on('SIGINT', () => {
   console.log('SIGINT signal received: Exiting gracefully...')
   abortController.abort()
 })
+
 void (async () => {
-  const packages = [
-    // Lazily access constants.npmPackageNames.
-    ...constants.npmPackageNames.map(regPkgName => ({
-      name: `${PACKAGE_SCOPE}/${regPkgName}`,
-      path: path.join(npmPackagesPath, regPkgName)
-    })),
-    { name: '@socketsecurity/registry', path: registryPkgPath }
-  ]
   const spinner = yoctoSpinner({
     text: `Bumping ${relNpmPackagesPath} versions (semver patch)...`
   }).start()
+  const packages = [
+    packageData({ name: '@socketsecurity/registry', path: registryPkgPath }),
+    // Lazily access constants.npmPackageNames.
+    ...constants.npmPackageNames.map(regPkgName =>
+      packageData({
+        name: `${PACKAGE_SCOPE}/${regPkgName}`,
+        path: path.join(npmPackagesPath, regPkgName),
+        printName: regPkgName
+      })
+    )
+  ]
+  const prereleasePackages = []
+  // Chunk packages data to process them in parallel 3 at a time.
+  await pEach(packages, 3, async pkg => {
+    const overridesPath = path.join(pkg.path, OVERRIDES)
+    const overrideNames = await readDirNames(overridesPath)
+    for (const overrideName of overrideNames) {
+      const overridesPkgPath = path.join(overridesPath, overrideName)
+      const overridesPkgJsonPath = path.join(overridesPkgPath, PACKAGE_JSON)
+      const overridesPkgJson = require(overridesPkgJsonPath)
+      const overridePrintName = `${pkg.printName}/${path.relative(pkg.path, overridesPkgPath)}`
+      const tag = semver.prerelease(overridesPkgJson.version) ?? undefined
+      if (!tag) {
+        continue
+      }
+      // Add prerelease override variant data.
+      prereleasePackages.push(
+        packageData({
+          name: pkg.name,
+          path: overridesPkgPath,
+          printName: overridePrintName,
+          tag
+        })
+      )
+    }
+  })
+  packages.push(...prereleasePackages)
   // Chunk package names to process them in parallel 3 at a time.
   await pEach(
     packages,
     3,
-    async ({ name, path: pkgPath }, { signal }) => {
-      const manifest = await fetchPackageManifest(name)
+    async (pkg, { signal }) => {
+      const manifest = await fetchPackageManifest(`${pkg.name}@${pkg.tag}`)
       if (manifest) {
         // Compare the shasum of the @socketregistry the latest package from
         // registry.npmjs.org against the local version. If they are different
@@ -55,20 +94,22 @@ void (async () => {
         if (
           ssri
             .fromData(
-              await packPackage(`${name}@${manifest.version}`, { signal })
+              await packPackage(`${pkg.name}@${manifest.version}`, { signal })
             )
             .sha512[0].hexDigest() !==
           ssri
-            .fromData(await packPackage(pkgPath, { signal }))
+            .fromData(await packPackage(pkg.path, { signal }))
             .sha512[0].hexDigest()
         ) {
-          const version = semver.inc(manifest.version, 'patch')
-          const editablePkgJson = await readPackageJson(pkgPath, {
+          const maybePrerelease = pkg.tag === LATEST ? '' : `-${pkg.tag}`
+          const version =
+            semver.inc(manifest.version, 'patch') + maybePrerelease
+          const editablePkgJson = await readPackageJson(pkg.path, {
             editable: true
           })
           editablePkgJson.update({ version })
           await editablePkgJson.save()
-          console.log(`+${name}@${manifest.version} -> ${version}`)
+          console.log(`+${pkg.name}@${manifest.version} -> ${version}`)
         }
       }
     },

@@ -11,4 +11,5 @@ Thumbs.db
 **/node_modules
 /*.tsbuildinfo
 
+packages/npm/**/package-lock.json
 test/**/node_workspaces
