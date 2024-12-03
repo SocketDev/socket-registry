@@ -72,6 +72,7 @@ const ENV = Object.freeze({
 })
 const ESLINT_CONFIG_JS = 'eslint.config.js'
 const ESNEXT = 'esnext'
+const LATEST = 'latest'
 const LICENSE = 'LICENSE'
 const LICENSE_GLOB = 'LICEN[CS]E{[.-]*,}'
 const LICENSE_GLOB_RECURSIVE = `**/${LICENSE_GLOB}`
@@ -446,6 +447,7 @@ const constants = Object.freeze(
       ESLINT_CONFIG_JS,
       ESNEXT,
       GIT_IGNORE,
+      LATEST,
       LICENSE,
       LICENSE_GLOB,
       LICENSE_GLOB_RECURSIVE,

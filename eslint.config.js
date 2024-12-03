@@ -11,6 +11,7 @@ const tsEslint = require('typescript-eslint')
 
 const constants = require('@socketregistry/scripts/constants')
 const {
+  LATEST,
   PACKAGE_JSON,
   gitIgnoreFile,
   npmPackagesPath,
@@ -61,7 +62,7 @@ const getImportXFlatConfigs = isEsm => ({
     ...origImportXFlatConfigs.recommended,
     languageOptions: {
       ...origImportXFlatConfigs.recommended.languageOptions,
-      ecmaVersion: 'latest',
+      ecmaVersion: LATEST,
       sourceType: isEsm ? 'module' : 'script'
     },
     rules: {
@@ -191,7 +192,7 @@ function configs(sourceType) {
         files: [`${relNpmPackagesPath}/**/*.ts`, 'test/**/*.ts'],
         ignores,
         languageOptions: {
-          ecmaVersion: 'latest',
+          ecmaVersion: LATEST,
           sourceType,
           parser: tsEslint.parser,
           parserOptions: {

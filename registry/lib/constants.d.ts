@@ -69,6 +69,7 @@ declare const constantsModule: {
   readonly ESLINT_CONFIG_JS: 'eslint.config.js'
   readonly ESNEXT: 'esnext'
   readonly GIT_IGNORE: '.gitignore'
+  readonly LATEST: 'latest'
   readonly LICENSE: 'LICENSE'
   readonly LICENSE_GLOB: 'LICEN[CS]E{[.-]*,}'
   readonly LICENSE_GLOB_RECURSIVE: `**/LICEN[CS]E{[.-]*,}`
