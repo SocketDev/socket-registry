@@ -19,6 +19,7 @@ const { glob: tinyGlob } = require('tinyglobby')
 const constants = require('@socketregistry/scripts/constants')
 const {
   COLUMN_LIMIT,
+  LATEST,
   LICENSE_GLOB_RECURSIVE,
   NODE_MODULES_GLOB_RECURSIVE,
   PACKAGE_JSON,
@@ -50,6 +51,8 @@ const {
   objectFromEntries
 } = require('@socketsecurity/registry/lib/objects')
 const {
+  isGitHubTgzSpec,
+  isGitHubUrlSpec,
   isSubpathExports,
   readPackageJson,
   resolveGitHubTgzUrl,
@@ -71,6 +74,8 @@ const { values: cliArgs } = util.parseArgs(
     }
   })
 )
+
+const editablePackageJsonCache = new Map()
 
 const testScripts = [
   // Order is significant. First in, first tried.
@@ -124,40 +129,27 @@ async function installTestNpmNodeModules(options) {
   return await execNpm(args, { cwd: testNpmPath })
 }
 
-const editablePackageJsonCache = new Map()
-
-const readCachedEditablePackageJson = async filepath_ => {
-  const filepath = filepath_.endsWith(PACKAGE_JSON)
-    ? filepath_
-    : path.join(filepath_, PACKAGE_JSON)
-  const cached = editablePackageJsonCache.get(filepath)
-  if (cached) return cached
-  const result = await readPackageJson(filepath, { editable: true })
-  editablePackageJsonCache.set(filepath, result)
-  return result
-}
-
-async function installMissingPackages(packageNames) {
+async function installMissingPackages(packageNames, options) {
+  const {
+    devDependencies = (await readPackageJson(testNpmPkgJsonPath))
+      .devDependencies,
+    spinner = yoctoSpinner()
+  } = { __proto__: null, ...options }
   const originalNames = packageNames.map(resolveOriginalPackageName)
   const msg = `Refreshing ${originalNames.length} ${pluralize('package', originalNames.length)}...`
   const msgList = joinAsList(originalNames)
-  const spinner = yoctoSpinner({
-    text:
-      msg.length + msgList.length + 3 > COLUMN_LIMIT
-        ? `${msg}:\n${msgList}`
-        : `${msg} ${msgList}...`
-  }).start()
-  const { devDependencies } = await readPackageJson(testNpmPkgJsonPath)
+  spinner.start(
+    msg.length + msgList.length + 3 > COLUMN_LIMIT
+      ? `${msg}:\n${msgList}`
+      : `${msg} ${msgList}...`
+  )
   await Promise.all(
     originalNames.map(n => remove(path.join(testNpmNodeModulesPath, n)))
   )
   try {
     await installTestNpmNodeModules({
       clean: true,
-      specs: originalNames.map(n => {
-        const origSpec = devDependencies[n]
-        return `${n}${origSpec ? `@${origSpec}` : ''}`
-      }),
+      specs: originalNames.map(n => `${n}@${devDependencies?.[n] ?? LATEST}`),
       spinner
     })
     if (cliArgs.quiet) {
@@ -187,6 +179,7 @@ async function installMissingPackageTests(packageNames, options) {
     } = await readCachedEditablePackageJson(nmPkgPath)
     const pkgId = `${origPkgName}@${nmPkgVer}`
     spinner.start(`Resolving GitHub tarball URL for ${pkgId}...`)
+
     const gitHubTgzUrl = await resolveGitHubTgzUrl(pkgId, nmPkgPath)
     if (gitHubTgzUrl) {
       // Replace the dev dep version range with the tarball URL.
@@ -234,6 +227,17 @@ async function installMissingPackageTests(packageNames, options) {
   }
 }
 
+async function readCachedEditablePackageJson(filepath_) {
+  const filepath = filepath_.endsWith(PACKAGE_JSON)
+    ? filepath_
+    : path.join(filepath_, PACKAGE_JSON)
+  const cached = editablePackageJsonCache.get(filepath)
+  if (cached) return cached
+  const result = await readPackageJson(filepath, { editable: true })
+  editablePackageJsonCache.set(filepath, result)
+  return result
+}
+
 async function resolveDevDependencies(packageNames, options) {
   let { devDependencies } = await readPackageJson(testNpmPkgJsonPath)
   const missingPackages = packageNames.filter(regPkgName => {
@@ -245,7 +249,10 @@ async function resolveDevDependencies(packageNames, options) {
     )
   })
   if (missingPackages.length) {
-    await installMissingPackages(missingPackages)
+    await installMissingPackages(missingPackages, {
+      ...options,
+      devDependencies
+    })
   }
   ;({ devDependencies } = await readPackageJson(testNpmPkgJsonPath))
   // Chunk package names to process them in parallel 3 at a time.
@@ -256,16 +263,11 @@ async function resolveDevDependencies(packageNames, options) {
       const origPkgName = resolveOriginalPackageName(regPkgName)
       const parsedSpec = npmPackageArg.resolve(
         origPkgName,
-        devDependencies[origPkgName],
+        devDependencies?.[origPkgName] ?? LATEST,
         testNpmNodeModulesPath
       )
-      const isTarball =
-        parsedSpec.type === 'remote' &&
-        !!parsedSpec.saveSpec?.endsWith('.tar.gz')
-      const isGithubUrl =
-        parsedSpec.type === 'git' &&
-        parsedSpec.hosted?.domain === 'github.com' &&
-        isNonEmptyString(parsedSpec.gitCommittish)
+      const isTarball = isGitHubTgzSpec(parsedSpec)
+      const isGithubUrl = isGitHubUrlSpec(parsedSpec)
       return (
         // We don't need to resolve the tarball URL if the devDependencies
         // value is already one.
@@ -623,8 +625,8 @@ void (async () => {
   }
   const spinner = yoctoSpinner()
   if (!nodeModulesExists) {
-    // Refresh/initialize test/npm/node_modules
     spinner.start(`Initializing ${relTestNpmNodeModulesPath}...`)
+    // Refresh/initialize test/npm/node_modules
     try {
       await installTestNpmNodeModules({ spinner })
       if (cliArgs.quiet) {
