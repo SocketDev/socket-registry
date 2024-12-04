@@ -392,6 +392,22 @@ function isConditionalExports(entryExports) {
   return true
 }
 
+function isGitHubTgzSpec(spec, where) {
+  const parsedSpec = isObjectObject(spec) ? spec : npmPackageArg(spec, where)
+  return (
+    parsedSpec.type === 'remote' && !!parsedSpec.saveSpec?.endsWith('.tar.gz')
+  )
+}
+
+function isGitHubUrlSpec(spec, where) {
+  const parsedSpec = isObjectObject(spec) ? spec : npmPackageArg(spec, where)
+  return (
+    parsedSpec.type === 'git' &&
+    parsedSpec.hosted?.domain === 'github.com' &&
+    isNonEmptyString(parsedSpec.gitCommittish)
+  )
+}
+
 function isRegistryFetcherType(type) {
   // RegistryFetcher spec.type check based on:
   // https://github.com/npm/pacote/blob/v19.0.0/lib/fetcher.js#L467-L488
@@ -497,17 +513,11 @@ async function resolveGitHubTgzUrl(pkgNameOrId, where) {
     pkgNameOrId,
     whereIsPkgJson ? undefined : where
   )
-  const isTarballUrl =
-    parsedSpec.type === 'remote' && !!parsedSpec.saveSpec?.endsWith('.tar.gz')
-
+  const isTarballUrl = isGitHubTgzSpec(parsedSpec)
   if (isTarballUrl) {
     return parsedSpec.saveSpec
   }
-  const isGitHubUrl =
-    parsedSpec.type === 'git' &&
-    parsedSpec.hosted?.domain === 'github.com' &&
-    isNonEmptyString(parsedSpec.gitCommittish)
-
+  const isGitHubUrl = isGitHubUrlSpec(parsedSpec)
   const { project, user } = isGitHubUrl
     ? parsedSpec.hosted
     : getRepoUrlDetails(pkgJson.repository?.url)
@@ -710,6 +720,8 @@ module.exports = {
   findTypesForSubpath,
   getSubpaths,
   isConditionalExports,
+  isGitHubTgzSpec,
+  isGitHubUrlSpec,
   isSubpathExports,
   isValidPackageName,
   normalizePackageJson,

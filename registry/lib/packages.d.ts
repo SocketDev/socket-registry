@@ -54,6 +54,14 @@ declare namespace PackagesModule {
   ): string | undefined
   export function getSubpaths(entryExports: Exports): string[]
   export function isConditionalExports(entryExports: Exports): boolean
+  export function isGitHubTgzSpec(
+    spec: string,
+    where?: string | undefined
+  ): boolean
+  export function isGitHubUrlSpec(
+    spec: string,
+    where?: string | undefined
+  ): boolean
   export function isSubpathExports(entryExports: Exports): boolean
   export function isValidPackageName(value: any): boolean
   export function normalizePackageJson(
