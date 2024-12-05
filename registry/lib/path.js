@@ -11,8 +11,15 @@ function isNodeModules(filepath) {
 }
 
 function isRelative(filepath) {
-  if (typeof filepath === 'string' && filepath.charCodeAt(0) === 46 /*'.'*/) {
-    if (filepath.length === 1) {
+  if (typeof filepath !== 'string') {
+    return false
+  }
+  const { length } = filepath
+  if (length === 0) {
+    return false
+  }
+  if (filepath.charCodeAt(0) === 46 /*'.'*/) {
+    if (length === 1) {
       return true
     }
     let code = filepath.charCodeAt(1)
