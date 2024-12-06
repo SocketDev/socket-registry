@@ -1,6 +1,17 @@
 'use strict'
 
-const { LOOP_SENTINEL } = require('./constants')
+const constants = require('./constants')
+const {
+  LOOP_SENTINEL,
+  kInternalsSymbol,
+  [kInternalsSymbol]: {
+    createLazyGetter,
+    defineLazyGetter,
+    defineLazyGetters,
+    objectEntries,
+    objectFromEntries
+  }
+} = constants
 const { localeCompare } = require('./sorts')
 
 function getOwnPropertyValues(obj) {
@@ -104,38 +115,6 @@ function merge(target, source) {
   return target
 }
 
-function objectEntries(obj) {
-  if (obj === null || obj === undefined) {
-    return []
-  }
-  const entries = Object.entries(obj)
-  const symbols = Object.getOwnPropertySymbols(obj)
-  for (let i = 0, { length } = symbols; i < length; i += 1) {
-    const symbol = symbols[i]
-    entries.push([symbol, obj[symbol]])
-  }
-  return entries
-}
-
-function objectFromEntries(entries) {
-  const keyEntries = []
-  const symbolEntries = []
-  for (let i = 0, { length } = entries; i < length; i += 1) {
-    const entry = entries[i]
-    if (typeof entry[0] === 'symbol') {
-      symbolEntries.push(entry)
-    } else {
-      keyEntries.push(entry)
-    }
-  }
-  const object = Object.fromEntries(keyEntries)
-  for (let i = 0, { length } = symbolEntries; i < length; i += 1) {
-    const entry = symbolEntries[i]
-    object[entry[0]] = entry[1]
-  }
-  return object
-}
-
 function toSortedObject(obj) {
   return toSortedObjectFromEntries(objectEntries(obj))
 }
@@ -145,6 +124,9 @@ function toSortedObjectFromEntries(entries) {
 }
 
 module.exports = {
+  createLazyGetter,
+  defineLazyGetter,
+  defineLazyGetters,
   getOwnPropertyValues,
   hasKeys,
   hasOwn,

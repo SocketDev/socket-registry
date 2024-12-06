@@ -1,22 +1,39 @@
 import { IFastSort } from 'fast-sort'
 
 declare const kInternalsSymbol: unique symbol
-
+declare function objectEntries<T>(
+  obj: { [key: string | symbol]: T } | ArrayLike<T> | null | undefined
+): [string | symbol, T][]
+declare function objectEntries(obj: {}): [string | symbol, any][]
+declare function objectFromEntries<T = any>(
+  entries: Iterable<readonly [string | symbol, T]>
+): { [k: string | symbol]: T }
+declare function objectFromEntries(entries: Iterable<readonly any[]>): any
+declare type ConstantsObjectOptions = {
+  getters?: GetterDefObj | undefined
+  internals?: object | undefined
+  mixin?: object | undefined
+}
 interface ENV {
   readonly CI: boolean
   readonly NODE_AUTH_TOKEN: string
   readonly PRE_COMMIT: boolean
 }
+declare type GetterDefObj = { [key: PropertyKey]: () => any }
 interface Internals {
+  readonly createConstantsObject: (
+    props: object,
+    options?: ConstantsObjectOptions | undefined
+  ) => Readonly<object>
   readonly createLazyGetter: <T>(getter: () => T) => () => T
   readonly defineLazyGetter: <T>(
     object: object,
     propKey: PropertyKey,
     getter: () => T
   ) => object
-  readonly defineLazyGetters: <T extends object>(
+  readonly defineLazyGetters: (
     object: object,
-    getterObj: T
+    getterDefObj: GetterDefObj | undefined
   ) => object
   readonly getGlobMatcher: (
     glob: string | string[],
@@ -36,6 +53,8 @@ interface Internals {
   readonly isDirEmptySync: (dirname: string) => boolean
   readonly localeCompare: Intl.Collator['compare']
   readonly naturalSort: <T>(arrayToSort: T[]) => IFastSort<T>
+  readonly objectEntries: typeof objectEntries
+  readonly objectFromEntries: typeof objectFromEntries
   readonly readDirNamesSync: (
     dirname: string,
     options?: {

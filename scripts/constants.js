@@ -8,10 +8,6 @@ const prettier = require('prettier')
 const whichFn = require('which')
 
 const registryConstants = require('@socketsecurity/registry/lib/constants')
-const {
-  objectEntries,
-  objectFromEntries
-} = require('@socketsecurity/registry/lib/objects')
 
 const { sync: whichSyncFn } = whichFn
 
@@ -30,8 +26,7 @@ const {
   REGISTRY_WORKSPACE,
   TSCONFIG_JSON,
   kInternalsSymbol,
-  [kInternalsSymbol]: registryInternals,
-  [kInternalsSymbol]: { defineLazyGetters, readDirNamesSync }
+  [kInternalsSymbol]: { createConstantsObject, readDirNamesSync }
 } = registryConstants
 
 const rootPath = path.resolve(__dirname, '..')
@@ -97,13 +92,6 @@ const whichSync = function whichSync(cmd, options) {
   })
 }
 
-const internals = Object.freeze({
-  __proto__: null,
-  ...registryInternals,
-  which,
-  whichSync
-})
-
 const LAZY_LICENSE_CONTENT = () => readFileSync(rootLicensePath, 'utf8')
 const lazyEcosystems = () => Object.freeze(readDirNamesSync(rootPackagesPath))
 const lazyGitExecPath = () => whichSync('git')
@@ -133,84 +121,71 @@ const lazyPrettierIgnoreFile = () => includeIgnoreFile(prettierIgnorePath)
 const lazyTapRunExecPath = () => whichSync('tap-run')
 const lazyTsxExecPath = () => whichSync('tsx')
 
-const constants = Object.freeze(
-  Object.defineProperties(
-    { __proto__: null },
-    objectFromEntries(
-      objectEntries(Object.getOwnPropertyDescriptors(registryConstants)).reduce(
-        (entries, entry) => {
-          if (entries.findIndex(p => p[0] === entry[0]) === -1) {
-            entries.push(entry)
-          }
-          return entries
-        },
-        objectEntries(
-          Object.getOwnPropertyDescriptors(
-            defineLazyGetters(
-              {
-                [kInternalsSymbol]: internals,
-                // Lazily defined values are initialized as `undefined` to
-                // keep their key order.
-                LICENSE_CONTENT: undefined,
-                ecosystems: undefined,
-                gitExecPath: undefined,
-                gitIgnoreFile: undefined,
-                kInternalsSymbol,
-                ignoreGlobs: undefined,
-                npmPackageNames: undefined,
-                npmPackagesPath,
-                npmTemplatesPath,
-                npmTemplatesReadmePath,
-                perfNpmPath,
-                perfNpmFixturesPath,
-                prettierConfigPromise: undefined,
-                prettierIgnoreFile: undefined,
-                manifestJsonPath,
-                registryPkgPath,
-                relManifestJsonPath,
-                relNpmPackagesPath,
-                relPackagesPath,
-                relTestNpmPath,
-                relTestNpmNodeModulesPath,
-                rootEslintConfigPath,
-                rootLicensePath,
-                rootNodeModulesPath,
-                rootPackageJsonPath,
-                rootPackageLockPath,
-                rootPackagesPath,
-                rootPath,
-                rootTsConfigPath,
-                tapCiConfigPath,
-                tapConfigPath,
-                tapRunExecPath: undefined,
-                templatesPath,
-                testNpmPath,
-                testNpmFixturesPath,
-                testNpmNodeModulesPath,
-                testNpmNodeWorkspacesPath,
-                testNpmPkgJsonPath,
-                testNpmPkgLockPath,
-                tsxExecPath: undefined,
-                yarnPkgExtsPath,
-                yarnPkgExtsJsonPath
-              },
-              {
-                LICENSE_CONTENT: LAZY_LICENSE_CONTENT,
-                ecosystems: lazyEcosystems,
-                gitExecPath: lazyGitExecPath,
-                gitIgnoreFile: lazyGitIgnoreFile,
-                ignoreGlobs: lazyIgnoreGlobs,
-                npmPackageNames: lazyNpmPackageNames,
-                prettierConfigPromise: lazyPrettierConfigPromise,
-                prettierIgnoreFile: lazyPrettierIgnoreFile,
-                tapRunExecPath: lazyTapRunExecPath,
-                tsxExecPath: lazyTsxExecPath
-              }
-            )
-          )
-        )
-      )
-    )
-  )
+const constants = createConstantsObject(
+  {
+    // Lazily defined values are initialized as `undefined` to
+    // keep their key order.
+    LICENSE_CONTENT: undefined,
+    ecosystems: undefined,
+    gitExecPath: undefined,
+    gitIgnoreFile: undefined,
+    kInternalsSymbol,
+    ignoreGlobs: undefined,
+    npmPackageNames: undefined,
+    npmPackagesPath,
+    npmTemplatesPath,
+    npmTemplatesReadmePath,
+    perfNpmPath,
+    perfNpmFixturesPath,
+    prettierConfigPromise: undefined,
+    prettierIgnoreFile: undefined,
+    manifestJsonPath,
+    registryPkgPath,
+    relManifestJsonPath,
+    relNpmPackagesPath,
+    relPackagesPath,
+    relTestNpmPath,
+    relTestNpmNodeModulesPath,
+    rootEslintConfigPath,
+    rootLicensePath,
+    rootNodeModulesPath,
+    rootPackageJsonPath,
+    rootPackageLockPath,
+    rootPackagesPath,
+    rootPath,
+    rootTsConfigPath,
+    tapCiConfigPath,
+    tapConfigPath,
+    tapRunExecPath: undefined,
+    templatesPath,
+    testNpmPath,
+    testNpmFixturesPath,
+    testNpmNodeModulesPath,
+    testNpmNodeWorkspacesPath,
+    testNpmPkgJsonPath,
+    testNpmPkgLockPath,
+    tsxExecPath: undefined,
+    yarnPkgExtsPath,
+    yarnPkgExtsJsonPath
+  },
+  {
+    getters: {
+      LICENSE_CONTENT: LAZY_LICENSE_CONTENT,
+      ecosystems: lazyEcosystems,
+      gitExecPath: lazyGitExecPath,
+      gitIgnoreFile: lazyGitIgnoreFile,
+      ignoreGlobs: lazyIgnoreGlobs,
+      npmPackageNames: lazyNpmPackageNames,
+      prettierConfigPromise: lazyPrettierConfigPromise,
+      prettierIgnoreFile: lazyPrettierIgnoreFile,
+      tapRunExecPath: lazyTapRunExecPath,
+      tsxExecPath: lazyTsxExecPath
+    },
+    internals: {
+      which,
+      whichSync
+    },
+    mixin: registryConstants
+  }
 )
 module.exports = constants

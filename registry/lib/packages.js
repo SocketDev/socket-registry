@@ -16,22 +16,6 @@ const spdxCorrect = require('spdx-correct')
 const spdxExpParse = require('spdx-expression-parse')
 const validateNpmPackageName = require('validate-npm-package-name')
 
-const { readJson, readJsonSync } = require('@socketsecurity/registry/lib/fs')
-const {
-  getOwnPropertyValues,
-  isObject,
-  isObjectObject,
-  merge,
-  objectEntries,
-  objectFromEntries
-} = require('@socketsecurity/registry/lib/objects')
-const {
-  isNodeModules,
-  normalizePath
-} = require('@socketsecurity/registry/lib/path')
-const { escapeRegExp } = require('@socketsecurity/registry/lib/regexps')
-const { isNonEmptyString } = require('@socketsecurity/registry/lib/strings')
-
 const constants = require('./constants')
 const {
   LOOP_SENTINEL,
@@ -49,6 +33,18 @@ const {
   packumentCache,
   pacoteCachePath
 } = constants
+const { readJson, readJsonSync } = require('./fs')
+const {
+  getOwnPropertyValues,
+  isObject,
+  isObjectObject,
+  merge,
+  objectEntries,
+  objectFromEntries
+} = require('./objects')
+const { isNodeModules, normalizePath } = require('./path')
+const { escapeRegExp } = require('./regexps')
+const { isNonEmptyString } = require('./strings')
 
 const BINARY_OPERATION_NODE_TYPE = 'BinaryOperation'
 const LICENSE_NODE_TYPE = 'License'

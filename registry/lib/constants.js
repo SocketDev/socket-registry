@@ -19,12 +19,12 @@ const which = require('which')
 
 const { envAsBoolean, envAsString } = require('./env')
 
-const { sync: whichSync } = which
-
 const UNDEFINED_LAZY_VALUE = {}
 
 const { __defineGetter__ } = Object.prototype
+const { compare: localeCompare } = new Intl.Collator()
 const { execPath } = process
+const { sync: whichSync } = which
 
 const { constructor: PacoteFetcherBase } = Reflect.getPrototypeOf(
   pacote.RegistryFetcher.prototype
@@ -32,6 +32,61 @@ const { constructor: PacoteFetcherBase } = Reflect.getPrototypeOf(
 const packumentCache = new Map()
 const pacoteCachePath = new PacoteFetcherBase(/*dummy package spec*/ 'x', {})
   .cache
+
+const kInternalsSymbol = Symbol('@socketregistry.constants.internals')
+const matcherCache = new Map()
+
+const naturalSort = createNewSortInstance({
+  comparer: new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
+    .compare
+})
+
+const internalsMixin = {
+  createConstantsObject,
+  createLazyGetter,
+  defineLazyGetter,
+  defineLazyGetters,
+  getGlobMatcher,
+  innerReadDirNames,
+  isDirEmptySync,
+  localeCompare,
+  naturalSort,
+  objectEntries,
+  objectFromEntries,
+  readDirNamesSync
+}
+
+function createConstantsObject(props, options) {
+  const {
+    getters = {},
+    internals = {},
+    mixin
+  } = { __proto__: null, ...options }
+  const object = defineLazyGetters(
+    {
+      __proto__: null,
+      [kInternalsSymbol]: Object.freeze({
+        __proto__: null,
+        ...internalsMixin,
+        ...internals
+      }),
+      kInternalsSymbol,
+      ...props
+    },
+    getters
+  )
+  if (mixin) {
+    Object.defineProperties(
+      object,
+      objectFromEntries(
+        objectEntries(Object.getOwnPropertyDescriptors(mixin)).filter(
+          p => !Object.hasOwn(object, p[0])
+        )
+      )
+    )
+  }
+  return Object.freeze(object)
+}
 
 function createLazyGetter(getter) {
   let lazyValue = UNDEFINED_LAZY_VALUE
@@ -48,13 +103,111 @@ function defineLazyGetter(object, propKey, getter) {
   return object
 }
 
-function defineLazyGetters(object, getterObj) {
-  const keys = Reflect.ownKeys(getterObj)
-  for (let i = 0, { length } = keys; i < length; i += 1) {
-    const key = keys[i]
-    defineLazyGetter(object, key, createLazyGetter(getterObj[key]))
+function defineLazyGetters(object, getterDefObj) {
+  if (getterDefObj !== null && typeof getterDefObj === 'object') {
+    const keys = Reflect.ownKeys(getterDefObj)
+    for (let i = 0, { length } = keys; i < length; i += 1) {
+      const key = keys[i]
+      defineLazyGetter(object, key, createLazyGetter(getterDefObj[key]))
+    }
   }
   return object
+}
+
+function getGlobMatcher(glob, options) {
+  const patterns = Array.isArray(glob) ? glob : [glob]
+  const key = JSON.stringify({ patterns, options })
+  let matcher = matcherCache.get(key)
+  if (matcher) {
+    return matcher
+  }
+  matcher = picomatch(patterns, {
+    dot: true,
+    nocase: true,
+    ...options
+  })
+  matcherCache.set(key, matcher)
+  return matcher
+}
+
+function innerReadDirNames(dirents, options) {
+  const { includeEmpty, sort } = {
+    __proto__: null,
+    sort: true,
+    includeEmpty: false,
+    ...options
+  }
+  const names = dirents
+    .filter(
+      d =>
+        d.isDirectory() &&
+        (includeEmpty || !isDirEmptySync(path.join(d.parentPath, d.name)))
+    )
+    .map(d => d.name)
+  return sort ? names.sort(localeCompare) : names
+}
+
+function isDirEmptySync(dirname) {
+  try {
+    const files = readdirSync(dirname)
+    const { length } = files
+    if (length === 0) {
+      return true
+    }
+    // Lazily access constants.ignoreGlobs.
+    const matcher = getGlobMatcher(constants.ignoreGlobs, { cwd: dirname })
+    let ignoredCount = 0
+    for (let i = 0; i < length; i += 1) {
+      if (matcher(files[i])) {
+        ignoredCount += 1
+      }
+    }
+    return ignoredCount === length
+  } catch (e) {
+    return e?.code === 'ENOENT'
+  }
+}
+
+function objectEntries(obj) {
+  if (obj === null || obj === undefined) {
+    return []
+  }
+  const entries = Object.entries(obj)
+  const symbols = Object.getOwnPropertySymbols(obj)
+  for (let i = 0, { length } = symbols; i < length; i += 1) {
+    const symbol = symbols[i]
+    entries.push([symbol, obj[symbol]])
+  }
+  return entries
+}
+
+function objectFromEntries(entries) {
+  const keyEntries = []
+  const symbolEntries = []
+  for (let i = 0, { length } = entries; i < length; i += 1) {
+    const entry = entries[i]
+    if (typeof entry[0] === 'symbol') {
+      symbolEntries.push(entry)
+    } else {
+      keyEntries.push(entry)
+    }
+  }
+  const object = Object.fromEntries(keyEntries)
+  for (let i = 0, { length } = symbolEntries; i < length; i += 1) {
+    const entry = symbolEntries[i]
+    object[entry[0]] = entry[1]
+  }
+  return object
+}
+
+function readDirNamesSync(dirname, options) {
+  try {
+    return innerReadDirNames(
+      readdirSync(dirname, { withFileTypes: true }),
+      options
+    )
+  } catch {}
+  return []
 }
 
 const COLUMN_LIMIT = 80
@@ -113,94 +266,6 @@ const TSCONFIG_JSON = 'tsconfig.json'
 const UNLICENCED = 'UNLICENCED'
 const UNLICENSED = 'UNLICENSED'
 const WIN_32 = process.platform === 'win32'
-
-const { compare: localeCompare } = new Intl.Collator()
-
-const naturalSort = createNewSortInstance({
-  comparer: new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
-    .compare
-})
-
-const innerReadDirNames = function innerReadDirNames(dirents, options) {
-  const { includeEmpty, sort } = {
-    __proto__: null,
-    sort: true,
-    includeEmpty: false,
-    ...options
-  }
-  const names = dirents
-    .filter(
-      d =>
-        d.isDirectory() &&
-        (includeEmpty || !isDirEmptySync(path.join(d.parentPath, d.name)))
-    )
-    .map(d => d.name)
-  return sort ? names.sort(localeCompare) : names
-}
-
-const matcherCache = new Map()
-
-const getGlobMatcher = function getGlobMatcher(glob, options) {
-  const patterns = Array.isArray(glob) ? glob : [glob]
-  const key = JSON.stringify({ patterns, options })
-  let matcher = matcherCache.get(key)
-  if (matcher) {
-    return matcher
-  }
-  matcher = picomatch(patterns, {
-    dot: true,
-    nocase: true,
-    ...options
-  })
-  matcherCache.set(key, matcher)
-  return matcher
-}
-
-const isDirEmptySync = function isDirEmptySync(dirname) {
-  try {
-    const files = readdirSync(dirname)
-    const { length } = files
-    if (length === 0) {
-      return true
-    }
-    // Lazily access constants.ignoreGlobs.
-    const matcher = getGlobMatcher(constants.ignoreGlobs, { cwd: dirname })
-    let ignoredCount = 0
-    for (let i = 0; i < length; i += 1) {
-      if (matcher(files[i])) {
-        ignoredCount += 1
-      }
-    }
-    return ignoredCount === length
-  } catch (e) {
-    return e?.code === 'ENOENT'
-  }
-}
-
-const readDirNamesSync = function readDirNamesSync(dirname, options) {
-  try {
-    return innerReadDirNames(
-      readdirSync(dirname, { withFileTypes: true }),
-      options
-    )
-  } catch {}
-  return []
-}
-
-const kInternalsSymbol = Symbol('@socketregistry.constants.internals')
-
-const internals = Object.freeze({
-  __proto__: null,
-  createLazyGetter,
-  defineLazyGetter,
-  defineLazyGetters,
-  getGlobMatcher,
-  innerReadDirNames,
-  isDirEmptySync,
-  localeCompare,
-  naturalSort,
-  readDirNamesSync
-})
 
 const LAZY_PACKAGE_DEFAULT_NODE_RANGE = () =>
   // Lazily access constants.maintainedNodeVersions.
@@ -436,80 +501,77 @@ const win32EnsureTestsByEcosystem = Object.freeze({
   npm: new Set(['date'])
 })
 
-const constants = Object.freeze(
-  defineLazyGetters(
-    {
-      __proto__: null,
-      [kInternalsSymbol]: internals,
-      COLUMN_LIMIT,
-      EMPTY_FILE,
-      ENV,
-      ESLINT_CONFIG_JS,
-      ESNEXT,
-      GIT_IGNORE,
-      LATEST,
-      LICENSE,
-      LICENSE_GLOB,
-      LICENSE_GLOB_RECURSIVE,
-      LICENSE_ORIGINAL,
-      LICENSE_ORIGINAL_GLOB,
-      LICENSE_ORIGINAL_GLOB_RECURSIVE,
-      LOOP_SENTINEL,
-      MANIFEST_JSON,
-      MIT,
-      NODE_MODULES,
-      NODE_MODULES_GLOB_RECURSIVE,
-      NODE_WORKSPACES,
-      NODE_VERSION,
-      NPM_ORG,
-      OVERRIDES,
-      PACKAGE_DEFAULT_SOCKET_CATEGORIES,
-      // Lazily defined values are initialized as `undefined` to keep their key order.
-      PACKAGE_DEFAULT_NODE_RANGE: undefined,
-      PACKAGE_DEFAULT_VERSION,
-      PACKAGE_JSON,
-      PACKAGE_LOCK,
-      PACKAGE_SCOPE,
-      PRETTIER_IGNORE,
-      PRETTIER_RC,
-      README_GLOB,
-      README_GLOB_RECURSIVE,
-      README_MD,
-      REGISTRY_SCOPE_DELIMITER,
-      REGISTRY_WORKSPACE,
-      REPO_ORG,
-      REPO_NAME,
-      TEMPLATE_CJS,
-      TEMPLATE_CJS_BROWSER,
-      TEMPLATE_CJS_ESM,
-      TEMPLATE_ES_SHIM_CONSTRUCTOR,
-      TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
-      TEMPLATE_ES_SHIM_STATIC_METHOD,
-      TSCONFIG_JSON,
-      UNLICENCED,
-      UNLICENSED,
-      WIN_32,
-      copyLeftLicenses,
-      execPath,
-      ignoreGlobs,
-      kInternalsSymbol,
-      lifecycleScriptNames,
-      maintainedNodeVersions: undefined,
-      npmExecPath: undefined,
-      packageExtensions,
-      packumentCache,
-      pacoteCachePath,
-      parseArgsConfig,
-      skipTestsByEcosystem,
-      tsLibsAvailable,
-      tsTypesAvailable,
-      win32EnsureTestsByEcosystem
-    },
-    {
+const constants = createConstantsObject(
+  {
+    COLUMN_LIMIT,
+    EMPTY_FILE,
+    ENV,
+    ESLINT_CONFIG_JS,
+    ESNEXT,
+    GIT_IGNORE,
+    LATEST,
+    LICENSE,
+    LICENSE_GLOB,
+    LICENSE_GLOB_RECURSIVE,
+    LICENSE_ORIGINAL,
+    LICENSE_ORIGINAL_GLOB,
+    LICENSE_ORIGINAL_GLOB_RECURSIVE,
+    LOOP_SENTINEL,
+    MANIFEST_JSON,
+    MIT,
+    NODE_MODULES,
+    NODE_MODULES_GLOB_RECURSIVE,
+    NODE_WORKSPACES,
+    NODE_VERSION,
+    NPM_ORG,
+    OVERRIDES,
+    PACKAGE_DEFAULT_SOCKET_CATEGORIES,
+    // Lazily defined values are initialized as `undefined` to keep their key order.
+    PACKAGE_DEFAULT_NODE_RANGE: undefined,
+    PACKAGE_DEFAULT_VERSION,
+    PACKAGE_JSON,
+    PACKAGE_LOCK,
+    PACKAGE_SCOPE,
+    PRETTIER_IGNORE,
+    PRETTIER_RC,
+    README_GLOB,
+    README_GLOB_RECURSIVE,
+    README_MD,
+    REGISTRY_SCOPE_DELIMITER,
+    REGISTRY_WORKSPACE,
+    REPO_ORG,
+    REPO_NAME,
+    TEMPLATE_CJS,
+    TEMPLATE_CJS_BROWSER,
+    TEMPLATE_CJS_ESM,
+    TEMPLATE_ES_SHIM_CONSTRUCTOR,
+    TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
+    TEMPLATE_ES_SHIM_STATIC_METHOD,
+    TSCONFIG_JSON,
+    UNLICENCED,
+    UNLICENSED,
+    WIN_32,
+    copyLeftLicenses,
+    execPath,
+    ignoreGlobs,
+    lifecycleScriptNames,
+    maintainedNodeVersions: undefined,
+    npmExecPath: undefined,
+    packageExtensions,
+    packumentCache,
+    pacoteCachePath,
+    parseArgsConfig,
+    skipTestsByEcosystem,
+    tsLibsAvailable,
+    tsTypesAvailable,
+    win32EnsureTestsByEcosystem
+  },
+  {
+    getters: {
       PACKAGE_DEFAULT_NODE_RANGE: LAZY_PACKAGE_DEFAULT_NODE_RANGE,
       maintainedNodeVersions: lazyMaintainedNodeVersions,
       npmExecPath: lazyNpmExecPath
     }
-  )
+  }
 )
 module.exports = constants

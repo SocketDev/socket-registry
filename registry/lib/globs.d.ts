@@ -1,6 +1,7 @@
-import { PicomatchOptions } from 'picomatch'
 import { GlobOptions as TinyGlobOptions } from 'tinyglobby'
+import constants from './constants'
 
+declare type Internals = (typeof constants)[typeof constants.kInternalsSymbol]
 declare interface GlobOptions extends TinyGlobOptions {
   ignoreOriginals?: boolean
   recursive?: boolean
@@ -10,10 +11,7 @@ declare function globLicenses(
   options?: GlobOptions
 ): Promise<string[]>
 declare const globsModule: {
-  getGlobMatcher: (
-    patterns: string[],
-    options?: PicomatchOptions
-  ) => (filepath: string) => boolean
+  getGlobMatcher: Internals['getGlobMatcher']
   globLicenses: typeof globLicenses
 }
 export = globsModule

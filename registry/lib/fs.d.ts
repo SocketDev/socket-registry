@@ -6,7 +6,9 @@ import {
   WriteFileOptions
 } from 'node:fs'
 import NPMCliPackageJson from '@npmcli/package-json'
+import constants from './constants'
 
+declare type Internals = (typeof constants)[typeof constants.kInternalsSymbol]
 declare type BufferEncoding =
   | 'ascii'
   | 'utf8'
@@ -40,16 +42,11 @@ declare type WriteJsonOptions = WriteFileOptions & {
   replacer?: Parameters<typeof JSON.stringify>[1]
   spaces?: Parameters<typeof JSON.stringify>[2]
 }
-declare function isDirEmptySync(dirPath: PathLike): boolean
 declare function isSymbolicLinkSync(filepath: PathLike): boolean
 declare function readDirNames(
   dirname: PathLike,
   options?: ReadDirOptions
 ): Promise<string[]>
-declare function readDirNamesSync(
-  dirname: PathLike,
-  options?: ReadDirOptions
-): string[]
 declare function readJson(
   filepath: PathLike,
   options?: ReadJsonOptions
@@ -72,10 +69,10 @@ declare function writeJsonSync(
   options?: WriteJsonOptions
 ): void
 declare const fs: {
-  isDirEmptySync: typeof isDirEmptySync
+  isDirEmptySync: Internals['isDirEmptySync']
   isSymbolicLinkSync: typeof isSymbolicLinkSync
   readDirNames: typeof readDirNames
-  readDirNamesSync: typeof readDirNamesSync
+  readDirNamesSync: Internals['readDirNamesSync']
   readJson: typeof readJson
   readJsonSync: typeof readJsonSync
   remove: typeof remove
