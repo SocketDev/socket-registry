@@ -53,6 +53,7 @@ declare namespace PackagesModule {
     subpath: string
   ): string | undefined
   export function getSubpaths(entryExports: Exports): string[]
+  export function isBlessedPackageName(name: any): boolean
   export function isConditionalExports(entryExports: Exports): boolean
   export function isGitHubTgzSpec(
     spec: string,
@@ -63,7 +64,7 @@ declare namespace PackagesModule {
     where?: string | undefined
   ): boolean
   export function isSubpathExports(entryExports: Exports): boolean
-  export function isValidPackageName(value: any): boolean
+  export function isValidPackageName(name: any): boolean
   export function normalizePackageJson(
     pkgJson: PackageJson,
     options?: { preserve?: string[] }

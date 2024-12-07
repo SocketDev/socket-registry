@@ -366,6 +366,15 @@ function gitHubTgzUrl(user, project, sha) {
   return `https://github.com/${user}/${project}/archive/${sha}.tar.gz`
 }
 
+function isBlessedPackageName(name) {
+  return (
+    typeof name === 'string' &&
+    (name === 'socket' ||
+      name.startsWith('@socketregistry/') ||
+      name.startsWith('@socketsecurity/'))
+  )
+}
+
 function isConditionalExports(entryExports) {
   if (!isObjectObject(entryExports)) {
     return false
@@ -428,8 +437,8 @@ function isSubpathExports(entryExports) {
   return false
 }
 
-function isValidPackageName(value) {
-  return validateNpmPackageName(value).validForOldPackages
+function isValidPackageName(name) {
+  return validateNpmPackageName(name).validForOldPackages
 }
 
 function jsonToEditablePackageJson(pkgJson, options) {
@@ -715,6 +724,7 @@ module.exports = {
   fetchPackageManifest,
   findTypesForSubpath,
   getSubpaths,
+  isBlessedPackageName,
   isConditionalExports,
   isGitHubTgzSpec,
   isGitHubUrlSpec,
