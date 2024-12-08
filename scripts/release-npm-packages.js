@@ -18,7 +18,7 @@ const {
 } = constants
 const yoctoSpinner = require('@socketregistry/yocto-spinner')
 const { readDirNames } = require('@socketsecurity/registry/lib/fs')
-const { runScript } = require('@socketsecurity/registry/lib/npm')
+const { execNpm, runScript } = require('@socketsecurity/registry/lib/npm')
 const {
   fetchPackageManifest,
   packPackage,
@@ -47,13 +47,17 @@ void (async () => {
   const packages = [
     packageData({ name: '@socketsecurity/registry', path: registryPkgPath }),
     // Lazily access constants.npmPackageNames.
-    ...constants.npmPackageNames.map(regPkgName =>
-      packageData({
+    ...constants.npmPackageNames.map(regPkgName => {
+      const pkgPath = path.join(npmPackagesPath, regPkgName)
+      const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
+      const pkgJson = require(pkgJsonPath)
+      return packageData({
         name: `${PACKAGE_SCOPE}/${regPkgName}`,
-        path: path.join(npmPackagesPath, regPkgName),
-        printName: regPkgName
+        path: pkgPath,
+        printName: regPkgName,
+        bundledDependencies: !!pkgJson.bundleDependencies
       })
-    )
+    })
   ]
   const prereleasePackages = []
   // Chunk packages data to process them in parallel 3 at a time.
@@ -73,6 +77,7 @@ void (async () => {
       prereleasePackages.push(
         packageData({
           name: pkg.name,
+          bundledDependencies: !!overridesPkgJson.bundleDependencies,
           path: overridesPkgPath,
           printName: overridePrintName,
           tag
@@ -81,6 +86,29 @@ void (async () => {
     }
   })
   packages.push(...prereleasePackages)
+  const bundledPackages = packages.filter(pkg => pkg.bundledDependencies)
+  // Chunk bundled package names to process them in parallel 3 at a time.
+  await pEach(bundledPackages, 3, async pkg => {
+    // Install bundled dependencies, including overrides.
+    try {
+      await execNpm(
+        [
+          'install',
+          '--silent',
+          '--workspaces',
+          'false',
+          '--install-strategy',
+          'hoisted'
+        ],
+        {
+          cwd: pkg.path,
+          stdio: 'ignore'
+        }
+      )
+    } catch (e) {
+      console.log(e)
+    }
+  })
   // Chunk package names to process them in parallel 3 at a time.
   await pEach(
     packages,

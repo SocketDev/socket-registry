@@ -49,9 +49,9 @@ void (async () => {
       const pkgJson = require(pkgJsonPath)
       return packageData({
         name: `${PACKAGE_SCOPE}/${regPkgName}`,
+        bundledDependencies: !!pkgJson.bundleDependencies,
         path: pkgPath,
-        printName: regPkgName,
-        bundledDependencies: !!pkgJson.bundleDependencies
+        printName: regPkgName
       })
     })
   ]
@@ -74,8 +74,8 @@ void (async () => {
       prereleasePackages.push(
         packageData({
           name: pkg.name,
-          path: overridesPkgPath,
           bundledDependencies: !!overridesPkgJson.bundleDependencies,
+          path: overridesPkgPath,
           printName: overridePrintName,
           tag
         })
@@ -90,7 +90,14 @@ void (async () => {
     // Install bundled dependencies, including overrides.
     try {
       await execNpm(
-        ['install', '--workspaces', 'false', '--install-strategy', 'hoisted'],
+        [
+          'install',
+          '--silent',
+          '--workspaces',
+          'false',
+          '--install-strategy',
+          'hoisted'
+        ],
         {
           cwd: pkg.path,
           stdio: 'ignore'
