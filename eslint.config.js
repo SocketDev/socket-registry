@@ -3,6 +3,7 @@
 const path = require('node:path')
 
 const js = require('@eslint/js')
+const { createOxcImportResolver } = require('eslint-import-resolver-oxc')
 const importXPlugin = require('eslint-plugin-import-x')
 const nodePlugin = require('eslint-plugin-n')
 const sortDestructureKeysPlugin = require('eslint-plugin-sort-destructure-keys')
@@ -17,13 +18,58 @@ const {
   npmPackagesPath,
   prettierIgnoreFile,
   relNpmPackagesPath,
+  relRegistryPkgPath,
   rootTsConfigPath
 } = constants
 const { readJsonSync } = require('@socketsecurity/registry/lib/fs')
 
 const { flatConfigs: origImportXFlatConfigs } = importXPlugin
 
-const conditionalConfig = (config, isEsm) => {
+const sharedPlugins = {
+  'sort-destructure-keys': sortDestructureKeysPlugin,
+  unicorn: unicornPlugin
+}
+
+const sharedRules = {
+  'no-await-in-loop': ['error'],
+  'no-control-regex': ['error'],
+  'no-empty': ['error', { allowEmptyCatch: true }],
+  'no-new': ['error'],
+  'no-proto': ['error'],
+  'no-warning-comments': ['warn', { terms: ['fixme'] }],
+  'sort-destructure-keys/sort-destructure-keys': ['error'],
+  'sort-imports': ['error', { ignoreDeclarationSort: true }],
+  'unicorn/consistent-function-scoping': ['error']
+}
+
+const sharedRulesForImportX = {
+  ...origImportXFlatConfigs.recommended.rules,
+  'import-x/order': [
+    'warn',
+    {
+      groups: [
+        'builtin',
+        'external',
+        'internal',
+        ['parent', 'sibling', 'index'],
+        'type'
+      ],
+      pathGroups: [
+        {
+          pattern: '@socket{registry,security}/**',
+          group: 'internal'
+        }
+      ],
+      pathGroupsExcludedImportTypes: ['type'],
+      'newlines-between': 'always',
+      alphabetize: {
+        order: 'asc'
+      }
+    }
+  ]
+}
+
+function conditionalConfig(config, isEsm) {
   const files = Array.isArray(config.files)
     ? isEsm
       ? config.files.filter(p => p.startsWith(relNpmPackagesPath))
@@ -39,9 +85,9 @@ const conditionalConfig = (config, isEsm) => {
     : []
 }
 
-const getIgnores = isEsm =>
+function getIgnores(isEsm) {
   // Lazily access constants.npmPackageNames.
-  constants.npmPackageNames.flatMap(regPkgName => {
+  return constants.npmPackageNames.flatMap(regPkgName => {
     const pkgPath = path.join(npmPackagesPath, regPkgName)
     const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
     const { type } = readJsonSync(pkgJsonPath)
@@ -56,58 +102,40 @@ const getIgnores = isEsm =>
     }
     return ignored
   })
+}
 
-const getImportXFlatConfigs = isEsm => ({
-  recommended: {
-    ...origImportXFlatConfigs.recommended,
-    languageOptions: {
-      ...origImportXFlatConfigs.recommended.languageOptions,
-      ecmaVersion: LATEST,
-      sourceType: isEsm ? 'module' : 'script'
+function getImportXFlatConfigs(isEsm) {
+  return {
+    recommended: {
+      ...origImportXFlatConfigs.recommended,
+      languageOptions: {
+        ...origImportXFlatConfigs.recommended.languageOptions,
+        ecmaVersion: LATEST,
+        sourceType: isEsm ? 'module' : 'script'
+      },
+      rules: {
+        ...sharedRulesForImportX,
+        'import-x/no-named-as-default-member': 'off'
+      }
     },
-    rules: {
-      ...origImportXFlatConfigs.recommended.rules,
-      'import-x/no-named-as-default-member': 'off',
-      'import-x/order': [
-        'warn',
-        {
-          groups: [
-            'builtin',
-            'external',
-            'internal',
-            ['parent', 'sibling', 'index'],
-            'type'
-          ],
-          pathGroups: [
-            {
-              pattern: '@socket{registry,security}/**',
-              group: 'internal'
+    typescript: {
+      ...origImportXFlatConfigs.typescript,
+      plugins: origImportXFlatConfigs.recommended.plugins,
+      settings: {
+        ...origImportXFlatConfigs.typescript.settings,
+        ...sharedRulesForImportX,
+        'import-x/resolver-next': [
+          createOxcImportResolver({
+            tsConfig: {
+              configFile: rootTsConfigPath,
+              references: 'auto'
             }
-          ],
-          pathGroupsExcludedImportTypes: ['type'],
-          'newlines-between': 'always',
-          alphabetize: {
-            order: 'asc'
-          }
-        }
-      ]
-    }
-  },
-  typescript: {
-    ...origImportXFlatConfigs.typescript,
-    settings: {
-      ...origImportXFlatConfigs.typescript.settings,
-      'import-x/resolver': {
-        'eslint-import-resolver-oxc': {
-          tsConfig: {
-            configFile: rootTsConfigPath,
-            references: 'auto'
-          }
-        }
+          })
+        ]
       }
     }
   }
-})
+}
 
 function configs(sourceType) {
   const isEsm = sourceType === 'module'
@@ -116,26 +144,9 @@ function configs(sourceType) {
   return [
     {
       ignores,
-      ...nodePlugin.configs['flat/recommended-script']
-    },
-    {
-      ignores,
-      ...importFlatConfigs.recommended
-    },
-    {
-      ignores,
-      ...importFlatConfigs.typescript
-    },
-    {
-      ignores,
-      plugins: {
-        'sort-destructure-keys': sortDestructureKeysPlugin,
-        unicorn: unicornPlugin
-      },
-      linterOptions: {
-        reportUnusedDisableDirectives: 'off'
-      },
+      ...nodePlugin.configs['flat/recommended-script'],
       rules: {
+        ...nodePlugin.configs['flat/recommended-script'].rules,
         'n/exports-style': ['error', 'module.exports'],
         // The n/no-unpublished-bin rule does does not support non-trivial glob
         // patterns used in package.json "files" fields. In those cases we simplify
@@ -170,21 +181,40 @@ function configs(sourceType) {
             version: constants.maintainedNodeVersions.current
           }
         ],
-        'n/prefer-node-protocol': ['error'],
-        'no-await-in-loop': ['error'],
-        'no-control-regex': ['error'],
-        'no-empty': ['error', { allowEmptyCatch: true }],
-        'no-new': ['error'],
-        'no-proto': ['error'],
+        'n/prefer-node-protocol': ['error']
+      }
+    },
+    {
+      ignores,
+      ...importFlatConfigs.recommended
+    },
+    {
+      ignores,
+      ...importFlatConfigs.typescript
+    },
+    {
+      files: [
+        `${relNpmPackagesPath}/**/*.{c,}js`,
+        `${relRegistryPkgPath}/**/*.{c,}js`,
+        'scripts/**/*.{c,}js',
+        'test/**/*.{c,}js'
+      ],
+      ignores,
+      linterOptions: {
+        reportUnusedDisableDirectives: 'off'
+      },
+      plugins: {
+        ...sharedPlugins
+      },
+      rules: {
+        ...js.configs.recommended.rules,
+        ...sharedRules,
         'no-self-assign': ['error', { props: false }],
         'no-unused-vars': [
           'error',
           { argsIgnorePattern: '^_|^this$', ignoreRestSiblings: true }
         ],
-        'no-warning-comments': ['error'],
-        'sort-destructure-keys/sort-destructure-keys': ['error'],
-        'sort-imports': ['error', { ignoreDeclarationSort: true }],
-        'unicorn/consistent-function-scoping': ['error']
+        'no-warning-comments': ['error']
       }
     },
     ...conditionalConfig(
@@ -204,9 +234,11 @@ function configs(sourceType) {
           }
         },
         plugins: {
+          ...sharedPlugins,
           '@typescript-eslint': tsEslint.plugin
         },
         rules: {
+          ...sharedRules,
           // Define @typescript-eslint/no-extraneous-class because oxlint defines
           // "no-extraneous-class": ["deny"] and trying to eslint-disable it will
           // cause an eslint "Definition not found" error otherwise.
@@ -256,7 +288,12 @@ function configs(sourceType) {
     ),
     ...conditionalConfig(
       {
-        files: [`${relNpmPackagesPath}/**/*.js`, 'scripts/**/*.js'],
+        files: [
+          `${relNpmPackagesPath}/**/*.{c,}js`,
+          `${relRegistryPkgPath}/**/*.{c,}js`,
+          'scripts/**/*.{c,}js',
+          'test/**/*.{c,}js'
+        ],
         ignores,
         rules: {
           ...js.configs.recommended.rules
