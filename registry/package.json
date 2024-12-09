@@ -32,6 +32,10 @@
       "types": "./lib/fs.d.ts",
       "default": "./lib/fs.js"
     },
+    "./lib/functions": {
+      "types": "./lib/functions.d.ts",
+      "default": "./lib/functions.js"
+    },
     "./lib/globs": {
       "types": "./lib/globs.d.ts",
       "default": "./lib/globs.js"

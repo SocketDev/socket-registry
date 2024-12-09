@@ -1,13 +1,6 @@
 'use strict'
 
-function silentWrapAsync(fn) {
-  return async (...args) => {
-    try {
-      return await fn(...args)
-    } catch {}
-    return undefined
-  }
-}
+const { silentWrapAsync } = require('./functions')
 
 const confirm = silentWrapAsync(require('@inquirer/confirm').default)
 const input = silentWrapAsync(require('@inquirer/input').default)
