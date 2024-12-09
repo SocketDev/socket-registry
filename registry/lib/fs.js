@@ -144,7 +144,7 @@ async function writeJson(filepath, json, options) {
   await fs.writeFile(filepath, str, fsOptions)
 }
 
-function writeJsonSync(json, options) {
+function writeJsonSync(filepath, json, options) {
   if (typeof options === 'string') {
     options = { encoding: options }
   }
