@@ -34,6 +34,7 @@ declare const constantsModule: Exclude<
   readonly relManifestJsonPath: string
   readonly relNpmPackagesPath: string
   readonly relPackagesPath: string
+  readonly relRegistryPkgPath: String
   readonly relTestNpmPath: string
   readonly relTestNpmNodeModulesPath: string
   readonly rootEslintConfigPath: string

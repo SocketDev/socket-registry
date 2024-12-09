@@ -69,6 +69,7 @@ const yarnPkgExtsJsonPath = path.join(yarnPkgExtsPath, PACKAGE_JSON)
 const relManifestJsonPath = path.relative(rootPath, manifestJsonPath)
 const relNpmPackagesPath = path.relative(rootPath, npmPackagesPath)
 const relPackagesPath = path.relative(rootPath, rootPackagesPath)
+const relRegistryPkgPath = path.relative(rootPath, registryPkgPath)
 const relTestNpmPath = path.relative(rootPath, testNpmPath)
 const relTestNpmNodeModulesPath = path.relative(
   rootPath,
@@ -144,6 +145,7 @@ const constants = createConstantsObject(
     relManifestJsonPath,
     relNpmPackagesPath,
     relPackagesPath,
+    relRegistryPkgPath,
     relTestNpmPath,
     relTestNpmNodeModulesPath,
     rootEslintConfigPath,
