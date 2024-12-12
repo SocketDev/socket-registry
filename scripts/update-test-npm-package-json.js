@@ -51,6 +51,7 @@ const {
   objectFromEntries
 } = require('@socketsecurity/registry/lib/objects')
 const {
+  extractPackage,
   isGitHubTgzSpec,
   isGitHubUrlSpec,
   isSubpathExports,
@@ -126,7 +127,7 @@ async function installTestNpmNodeModules(options) {
   if (Array.isArray(specs)) {
     args.push('--save-dev', ...specs)
   }
-  return await execNpm(args, { cwd: testNpmPath })
+  return await execNpm(args, { cwd: testNpmPath, stdio: 'ignore' })
 }
 
 async function installMissingPackages(packageNames, options) {
@@ -143,15 +144,31 @@ async function installMissingPackages(packageNames, options) {
       ? `${msg}:\n${msgList}`
       : `${msg} ${msgList}...`
   )
-  await Promise.all(
-    originalNames.map(n => remove(path.join(testNpmNodeModulesPath, n)))
-  )
   try {
-    await installTestNpmNodeModules({
-      clean: true,
-      specs: originalNames.map(n => `${n}@${devDependencies?.[n] ?? LATEST}`),
-      spinner
-    })
+    const newDeps = originalNames.filter(n => !devDependencies?.[n])
+    if (newDeps.length) {
+      await installTestNpmNodeModules({
+        clean: true,
+        specs: newDeps,
+        spinner
+      })
+    }
+    const downloadDeps = originalNames.filter(
+      n =>
+        devDependencies?.[n] &&
+        !existsSync(path.join(testNpmNodeModulesPath, n))
+    )
+    if (downloadDeps.length) {
+      // Chunk dependencies to download and process them in parallel 3 at a time.
+      await pEach(downloadDeps, 3, async n => {
+        const nmPkgPath = path.join(testNpmNodeModulesPath, n)
+        // Broken symlinks are treated an non-existent by fs.existsSync, however
+        // they will cause fs.mkdir to throw an ENOENT error, so we remove any
+        // existing file beforehand just in case.
+        await remove(nmPkgPath)
+        await extractPackage(`${n}@${devDependencies[n]}`, { dest: nmPkgPath })
+      })
+    }
     if (cliArgs.quiet) {
       spinner.stop()
     } else {
