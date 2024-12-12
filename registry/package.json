@@ -87,6 +87,7 @@
   "dependencies": {
     "@inquirer/confirm": "^5.0.1",
     "@inquirer/input": "^4.0.1",
+    "@inquirer/password": "^4.0.3",
     "@inquirer/search": "^3.0.1",
     "@inquirer/select": "^4.0.1",
     "@npmcli/package-json": "^6.0.1",
