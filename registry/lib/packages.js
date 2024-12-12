@@ -627,6 +627,11 @@ function resolvePackageLicenses(licenseFieldValue, where) {
   return licenseNodes
 }
 
+function resolvePackageName(purlObj, delimiter = '/') {
+  const { name, namespace } = purlObj
+  return `${namespace ? `${namespace}${delimiter}` : ''}${name}`
+}
+
 function resolveRegistryPackageName(pkgName) {
   const purlObj = PackageURL.fromString(`pkg:npm/${pkgName}`)
   return purlObj.namespace
@@ -741,6 +746,7 @@ module.exports = {
   resolvePackageJsonEntryExports,
   resolvePackageJsonPath,
   resolvePackageLicenses,
+  resolvePackageName,
   resolveRegistryPackageName,
   toEditablePackageJson,
   toEditablePackageJsonSync,

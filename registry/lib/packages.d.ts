@@ -115,6 +115,13 @@ declare namespace PackagesModule {
     licenseFieldValue: string,
     where: string
   ): LicenseNode[]
+  export function resolvePackageName(
+    purlObj: {
+      name: string
+      namespace?: string | undefined
+    },
+    delimiter?: string | undefined
+  ): string
   export function resolveRegistryPackageName(pkgName: string): string
   export function toEditablePackageJson(
     pkgJson: PackageJson,
