@@ -1209,7 +1209,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/side-channel@1.0.6",
+      "pkg:npm/%40socketregistry/side-channel@1.0.7",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -1217,7 +1217,7 @@
         "license": "MIT",
         "name": "@socketregistry/side-channel",
         "package": "side-channel",
-        "version": "1.0.6"
+        "version": "1.0.7"
       }
     ],
     [

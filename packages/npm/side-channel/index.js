@@ -9,6 +9,12 @@ module.exports = function getSideChannel() {
         throw new TypeError('Side channel does not contain the given key')
       }
     },
+    delete(key) {
+      return key !== null &&
+        (typeof key === 'object' || typeof key === 'function')
+        ? !!wm?.delete(key)
+        : !!map?.delete(key)
+    },
     has(key) {
       return key !== null &&
         (typeof key === 'object' || typeof key === 'function')
