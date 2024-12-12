@@ -1,8 +1,6 @@
 declare type pOptions = {
-  signal?: AbortSignal
-}
-declare type pFilterOptions = pOptions & {
   retries?: number
+  signal?: AbortSignal
 }
 declare type pCallback = (value: T, options: pOptions) => Promise<any>
 declare type pPredicate = (value: T, options: pOptions) => Promise<boolean>
@@ -16,7 +14,7 @@ declare function pFilter<T>(
   array: T[],
   concurrency: number,
   callbackFn: pPredicate,
-  options?: pFilterOptions
+  options?: pOptions
 ): Promise<T[]>
 declare function pEachChunk<T>(
   chunks: T[][],
@@ -26,12 +24,17 @@ declare function pEachChunk<T>(
 declare function pFilterChunk<T>(
   chunks: T[][],
   callbackFn: pPredicate,
-  options?: pFilterOptions
+  options?: pOptions
 ): Promise<T[][]>
+declare function pRetry(
+  callbackFn: pCallback,
+  options?: pOptions
+): ReturnType<pCallback>
 declare const promisesModule: {
   pEach: typeof pEach
   pEachChunk: typeof pEachChunk
   pFilter: typeof pFilter
   pFilterChunk: typeof pFilterChunk
+  pRetry: typeof pRetry
 }
 export = promisesModule
