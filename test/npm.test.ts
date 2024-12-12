@@ -29,7 +29,13 @@ import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/package
 import { isNonEmptyString } from '@socketsecurity/registry/lib/strings'
 
 const abortController = new AbortController()
-const { signal } = abortController
+const { signal: abortSignal } = abortController
+
+// Detect ^C, i.e. Ctrl + C.
+process.on('SIGINT', () => {
+  console.log('SIGINT signal received: Exiting gracefully...')
+  abortController.abort()
+})
 
 // Pass args as tap --test-arg:
 // npm run test:unit ./test/npm.test.ts -- --test-arg="--force"
@@ -55,12 +61,6 @@ const packageNames: string[] =
         )
       })()
 
-// Detect ^C, i.e. Ctrl + C.
-process.on('SIGINT', () => {
-  console.log('SIGINT signal received: Exiting gracefully...')
-  abortController.abort()
-})
-
 describe(eco, { skip: !packageNames.length }, () => {
   for (const regPkgName of packageNames) {
     const nwPkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
@@ -78,7 +78,7 @@ describe(eco, { skip: !packageNames.length }, () => {
 
     it(`${origPkgName} passes all its tests`, { skip }, async () => {
       try {
-        await runScript('test', [], { cwd: nwPkgPath, signal })
+        await runScript('test', [], { cwd: nwPkgPath, signal: abortSignal })
         assert.ok(true)
       } catch (e: any) {
         console.error(`✖️ ${origPkgName}`, e)

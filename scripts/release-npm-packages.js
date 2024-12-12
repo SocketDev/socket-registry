@@ -27,18 +27,18 @@ const {
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 
 const abortController = new AbortController()
-const { signal } = abortController
-
-function packageData(data) {
-  const { printName = data.name, tag = LATEST } = data
-  return Object.assign(data, { printName, tag })
-}
+const { signal: abortSignal } = abortController
 
 // Detect ^C, i.e. Ctrl + C.
 process.on('SIGINT', () => {
   console.log('SIGINT signal received: Exiting gracefully...')
   abortController.abort()
 })
+
+function packageData(data) {
+  const { printName = data.name, tag = LATEST } = data
+  return Object.assign(data, { printName, tag })
+}
 
 void (async () => {
   const spinner = yoctoSpinner({
@@ -113,7 +113,7 @@ void (async () => {
   await pEach(
     packages,
     3,
-    async (pkg, { signal }) => {
+    async pkg => {
       const manifest = await fetchPackageManifest(`${pkg.name}@${pkg.tag}`)
       if (manifest) {
         // Compare the shasum of the @socketregistry the latest package from
@@ -122,11 +122,11 @@ void (async () => {
         if (
           ssri
             .fromData(
-              await packPackage(`${pkg.name}@${manifest.version}`, { signal })
+              await packPackage(`${pkg.name}@${manifest.version}`, { signal: abortSignal })
             )
             .sha512[0].hexDigest() !==
           ssri
-            .fromData(await packPackage(pkg.path, { signal }))
+            .fromData(await packPackage(pkg.path, { signal: abortSignal }))
             .sha512[0].hexDigest()
         ) {
           const maybePrerelease = pkg.tag === LATEST ? '' : `-${pkg.tag}`
@@ -141,15 +141,15 @@ void (async () => {
         }
       }
     },
-    { signal }
+    { signal: abortSignal }
   )
   spinner.stop()
-  if (signal.aborted) {
+  if (abortSignal.aborted) {
     return
   }
   const spawnOptions = {
     cwd: rootPath,
-    signal,
+    signal: abortSignal,
     stdio: 'inherit'
   }
   await runScript('update:manifest', [], spawnOptions)

@@ -65,7 +65,13 @@ const { indentString } = require('@socketsecurity/registry/lib/strings')
 const { pluralize } = require('@socketsecurity/registry/lib/words')
 
 const abortController = new AbortController()
-const { signal } = abortController
+const { signal: abortSignal } = abortController
+
+// Detect ^C, i.e. Ctrl + C.
+process.on('SIGINT', () => {
+  console.log('SIGINT signal received: Exiting gracefully...')
+  abortController.abort()
+})
 
 const { positionals: cliPositionals, values: cliArgs } =
   util.parseArgs(parseArgsConfig)
@@ -141,20 +147,17 @@ function toChoice(value) {
   return { name: value, value: value }
 }
 
-// Detect ^C, i.e. Ctrl + C.
-process.on('SIGINT', () => {
-  console.log('SIGINT signal received: Exiting gracefully...')
-  abortController.abort()
-})
-
 void (async () => {
-  const origPkgName = await input({
-    message: 'What is the name of the package to override?',
-    default: cliPositionals.at(0),
-    required: true,
-    validate: async pkgName =>
-      isValidPackageName(pkgName) && !!(await fetchPackageManifest(pkgName))
-  })
+  const origPkgName = await input(
+    {
+      message: 'What is the name of the package to override?',
+      default: cliPositionals.at(0),
+      required: true,
+      validate: async pkgName =>
+        isValidPackageName(pkgName) && !!(await fetchPackageManifest(pkgName))
+    },
+    { signal: abortSignal }
+  )
   if (origPkgName === undefined) {
     // Exit if user force closed the prompt.
     return
@@ -165,10 +168,13 @@ void (async () => {
     const relPkgPath = path.relative(rootPath, pkgPath)
     console.warn(`⚠️ ${origPkgName} already exists at ${relPkgPath}`)
     if (
-      !(await confirm({
-        message: 'Do you want to overwrite it?',
-        default: false
-      }))
+      !(await confirm(
+        {
+          message: 'Do you want to overwrite it?',
+          default: false
+        },
+        { signal: abortSignal }
+      ))
     ) {
       return
     }
@@ -216,10 +222,13 @@ void (async () => {
     const singularOrPlural = pluralize('license', badLicenses.length)
     const badLicenseNames = badLicenses.map(n => n.license)
     const warning = `⚠️ ${origPkgName} has incompatible ${singularOrPlural} ${badLicenseNames.join(', ')}.`
-    const answer = await confirm({
-      message: `${warning}.\nDo you want to continue?`,
-      default: false
-    })
+    const answer = await confirm(
+      {
+        message: `${warning}.\nDo you want to continue?`,
+        default: false
+      },
+      { signal: abortSignal }
+    )
     if (!answer) {
       if (answer === false) {
         await open(`https://socket.dev/npm/package/${origPkgName}`)
@@ -278,79 +287,94 @@ void (async () => {
     ) {
       templateChoice = TEMPLATE_ES_SHIM_CONSTRUCTOR
     } else {
-      templateChoice = await select({
-        message: 'Pick the es-shim template to use',
-        choices: esShimChoices
-      })
+      templateChoice = await select(
+        {
+          message: 'Pick the es-shim template to use',
+          choices: esShimChoices
+        },
+        { signal: abortSignal }
+      )
     }
   } else if (isEsm) {
     templateChoice = TEMPLATE_CJS_ESM
   } else {
-    templateChoice = await select({
-      message: 'Pick the package template to use',
-      choices: [
-        { name: 'cjs', value: TEMPLATE_CJS },
-        { name: 'cjs and browser', value: TEMPLATE_CJS_BROWSER }
-      ]
-    })
+    templateChoice = await select(
+      {
+        message: 'Pick the package template to use',
+        choices: [
+          { name: 'cjs', value: TEMPLATE_CJS },
+          { name: 'cjs and browser', value: TEMPLATE_CJS_BROWSER }
+        ]
+      },
+      { signal: abortSignal }
+    )
   }
   if (templateChoice === undefined) {
     // Exit if user force closed the prompt.
     return
   }
   if (tsRefs.length === 0) {
-    const answer = await confirm({
-      message: 'Need a TypeScript lib/types reference?',
-      default: false
-    })
+    const answer = await confirm(
+      {
+        message: 'Need a TypeScript lib/types reference?',
+        default: false
+      },
+      { signal: abortSignal }
+    )
     if (answer === undefined) {
       // Exit if user force closed the prompt.
       return
     }
     if (answer) {
-      const searchResult = await search({
-        message: 'Which one?',
-        source: async input => {
-          if (!input) return []
-          // Trim, truncate, and lower input.
-          const formatted = input.trim().slice(0, maxTsRefLength).toLowerCase()
-          if (!formatted) return [input]
-          let matches
-          // Simple search.
-          for (const p of ['es2', 'es', 'e', 'de', 'd', 'n', 'w']) {
-            if (input.startsWith(p) && input.length <= 3) {
-              matches = possibleTsRefs.filter(l => l.startsWith(p))
-              break
+      const searchResult = await search(
+        {
+          message: 'Which one?',
+          source: async input => {
+            if (!input) return []
+            // Trim, truncate, and lower input.
+            const formatted = input
+              .trim()
+              .slice(0, maxTsRefLength)
+              .toLowerCase()
+            if (!formatted) return [input]
+            let matches
+            // Simple search.
+            for (const p of ['es2', 'es', 'e', 'de', 'd', 'n', 'w']) {
+              if (input.startsWith(p) && input.length <= 3) {
+                matches = possibleTsRefs.filter(l => l.startsWith(p))
+                break
+              }
             }
+            if (matches === undefined) {
+              // Advanced closest match search.
+              matches = didYouMean(formatted, possibleTsRefs, {
+                caseSensitive: true,
+                deburr: false,
+                returnType: ReturnTypeEnums.ALL_CLOSEST_MATCHES,
+                threshold: 0.2
+              })
+            }
+            if (matches.length === 0) {
+              return [toChoice(input)]
+            }
+            const firstMatch = matches[0]
+            const sortedTail =
+              matches.length > 1 ? naturalSort(matches.slice(1)).desc() : []
+            // If a match starts with input then don't include input in the results.
+            if (matches.some(m => m.startsWith(input))) {
+              return [firstMatch, ...sortedTail].map(toChoice)
+            }
+            let first = firstMatch
+            let second = input
+            if (input.length > firstMatch.length) {
+              first = input
+              second = firstMatch
+            }
+            return [first, second, ...sortedTail].map(toChoice)
           }
-          if (matches === undefined) {
-            // Advanced closest match search.
-            matches = didYouMean(formatted, possibleTsRefs, {
-              caseSensitive: true,
-              deburr: false,
-              returnType: ReturnTypeEnums.ALL_CLOSEST_MATCHES,
-              threshold: 0.2
-            })
-          }
-          if (matches.length === 0) {
-            return [toChoice(input)]
-          }
-          const firstMatch = matches[0]
-          const sortedTail =
-            matches.length > 1 ? naturalSort(matches.slice(1)).desc() : []
-          // If a match starts with input then don't include input in the results.
-          if (matches.some(m => m.startsWith(input))) {
-            return [firstMatch, ...sortedTail].map(toChoice)
-          }
-          let first = firstMatch
-          let second = input
-          if (input.length > firstMatch.length) {
-            first = input
-            second = firstMatch
-          }
-          return [first, second, ...sortedTail].map(toChoice)
-        }
-      })
+        },
+        { signal: abortSignal }
+      )
       if (searchResult === undefined) {
         // Exit if user force closed the prompt.
         return
@@ -440,7 +464,7 @@ void (async () => {
   try {
     const spawnOptions = {
       cwd: rootPath,
-      signal,
+      signal: abortSignal,
       stdio: 'inherit'
     }
     await runScript('update:manifest', [], spawnOptions)

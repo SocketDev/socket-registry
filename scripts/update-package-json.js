@@ -6,7 +6,7 @@ const { runScript } = require('@socketsecurity/registry/lib/npm')
 const { readPackageJson } = require('@socketsecurity/registry/lib/packages')
 
 const abortController = new AbortController()
-const { signal } = abortController
+const { signal: abortSignal } = abortController
 
 // Detect ^C, i.e. Ctrl + C.
 process.on('SIGINT', () => {
@@ -28,7 +28,7 @@ void (async () => {
 
   await runScript('update:package-lock', ['--', '--force'], {
     cwd: rootPath,
-    signal,
+    signal: abortSignal,
     stdio: 'inherit'
   })
 })()
