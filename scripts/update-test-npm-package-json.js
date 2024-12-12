@@ -105,7 +105,7 @@ function cleanTestScript(testScript) {
 
 function createStubEsModule(srcPath) {
   const relPath = `./${path.basename(srcPath)}`
-  return `export * from '${relPath}'\nexport { default } from '${relPath}'\n`
+  return `export * from '${relPath}'\nexport { default, default as 'module.exports' } from '${relPath}'\n`
 }
 
 async function installTestNpmNodeModules(options) {
