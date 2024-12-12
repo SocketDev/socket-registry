@@ -22,6 +22,7 @@ declare namespace PackagesModule {
     signal?: AbortSignal
   }
   export type ExtractOptions = PacoteOptions & {
+    dest?: string
     tmpPrefix?: string
   }
   export interface LicenseNode {
@@ -42,7 +43,7 @@ declare namespace PackagesModule {
   export function extractPackage(
     pkgNameOrId: string,
     options: ExtractOptions,
-    callback: (tmpDirPath: string) => Promise<any>
+    callback: (destPath: string) => Promise<any>
   ): Promise<void>
   export function fetchPackageManifest(
     pkgNameOrId: string,

@@ -228,20 +228,35 @@ async function extractPackage(pkgNameOrId, options, callback) {
     callback = options
     options = undefined
   }
-  const { tmpPrefix, ...extractOptions } = { __proto__: null, ...options }
-  await cacache.tmp.withTmp(
-    pacoteCachePath,
-    { tmpPrefix },
-    async tmpDirPath => {
-      await pacote.extract(pkgNameOrId, tmpDirPath, {
-        __proto__: null,
-        packumentCache,
-        preferOffline: true,
-        ...extractOptions
-      })
-      await callback(tmpDirPath)
+  const { dest, tmpPrefix, ...extractOptions_ } = {
+    __proto__: null,
+    ...options
+  }
+  const extractOptions = {
+    __proto__: null,
+    packumentCache,
+    preferOffline: true,
+    ...extractOptions_
+  }
+  if (typeof dest === 'string') {
+    await pacote.extract(pkgNameOrId, dest, extractOptions)
+    if (typeof callback === 'function') {
+      await callback(dest)
     }
-  )
+  } else {
+    // The DefinitelyTyped types for cacache.tmp.withTmp are incorrect.
+    // It DOES returns a promise.
+    await cacache.tmp.withTmp(
+      pacoteCachePath,
+      { tmpPrefix },
+      async tmpDirPath => {
+        await pacote.extract(pkgNameOrId, tmpDirPath, extractOptions)
+        if (typeof callback === 'function') {
+          await callback(tmpDirPath)
+        }
+      }
+    )
+  }
 }
 
 async function fetchPackageManifest(pkgNameOrId, options) {
