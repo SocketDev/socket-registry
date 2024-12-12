@@ -14,7 +14,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/aggregate-error@1.0.8",
+      "pkg:npm/%40socketregistry/aggregate-error@1.0.9",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -22,7 +22,7 @@
         "license": "MIT",
         "name": "@socketregistry/aggregate-error",
         "package": "aggregate-error",
-        "version": "1.0.8"
+        "version": "1.0.9"
       }
     ],
     [
@@ -352,7 +352,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/es-get-iterator@1.0.5",
+      "pkg:npm/%40socketregistry/es-get-iterator@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -360,7 +360,7 @@
         "license": "MIT",
         "name": "@socketregistry/es-get-iterator",
         "package": "es-get-iterator",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
@@ -582,7 +582,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/hyrious__bun.lockb@1.0.5",
+      "pkg:npm/%40socketregistry/hyrious__bun.lockb@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -591,11 +591,11 @@
         "name": "@socketregistry/hyrious__bun.lockb",
         "package": "@hyrious/bun.lockb",
         "skipTests": true,
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/indent-string@1.0.6",
+      "pkg:npm/%40socketregistry/indent-string@1.0.7",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -603,7 +603,7 @@
         "license": "MIT",
         "name": "@socketregistry/indent-string",
         "package": "indent-string",
-        "version": "1.0.6"
+        "version": "1.0.7"
       }
     ],
     [
@@ -1124,7 +1124,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/reflect.ownkeys@1.0.5",
+      "pkg:npm/%40socketregistry/reflect.ownkeys@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -1132,7 +1132,7 @@
         "license": "MIT",
         "name": "@socketregistry/reflect.ownkeys",
         "package": "reflect.ownkeys",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
@@ -1557,7 +1557,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/yocto-spinner@1.0.1",
+      "pkg:npm/%40socketregistry/yocto-spinner@1.0.2",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -1565,7 +1565,7 @@
         "license": "MIT",
         "name": "@socketregistry/yocto-spinner",
         "package": "yocto-spinner",
-        "version": "1.0.1"
+        "version": "1.0.2"
       }
     ]
   ]
