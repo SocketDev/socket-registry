@@ -1,5 +1,7 @@
 'use strict'
 
+const { onExit } = require('signal-exit')
+
 const constants = require('@socketregistry/scripts/constants')
 const { rootPackageJsonPath, rootPath } = constants
 const { runScript } = require('@socketsecurity/registry/lib/npm')
@@ -9,8 +11,7 @@ const abortController = new AbortController()
 const { signal: abortSignal } = abortController
 
 // Detect ^C, i.e. Ctrl + C.
-process.on('SIGINT', () => {
-  console.log('SIGINT signal received: Exiting gracefully...')
+onExit(() => {
   abortController.abort()
 })
 

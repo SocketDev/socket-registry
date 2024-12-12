@@ -4,6 +4,7 @@ import { describe, it } from 'node:test'
 import util from 'node:util'
 
 import semver from 'semver'
+import { onExit } from 'signal-exit'
 
 import constants from '@socketregistry/scripts/constants'
 const {
@@ -32,8 +33,7 @@ const abortController = new AbortController()
 const { signal: abortSignal } = abortController
 
 // Detect ^C, i.e. Ctrl + C.
-process.on('SIGINT', () => {
-  console.log('SIGINT signal received: Exiting gracefully...')
+onExit(() => {
   abortController.abort()
 })
 

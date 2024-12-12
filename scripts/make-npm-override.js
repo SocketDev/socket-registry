@@ -7,6 +7,7 @@ const util = require('node:util')
 const { ReturnTypeEnums, default: didYouMean } = require('didyoumean2')
 const { open } = require('out-url')
 const semver = require('semver')
+const { onExit } = require('signal-exit')
 const { glob: tinyGlob } = require('tinyglobby')
 
 const constants = require('@socketregistry/scripts/constants')
@@ -68,8 +69,7 @@ const abortController = new AbortController()
 const { signal: abortSignal } = abortController
 
 // Detect ^C, i.e. Ctrl + C.
-process.on('SIGINT', () => {
-  console.log('SIGINT signal received: Exiting gracefully...')
+onExit(() => {
   abortController.abort()
 })
 

@@ -3,6 +3,7 @@
 const path = require('node:path')
 
 const semver = require('semver')
+const { onExit } = require('signal-exit')
 const ssri = require('ssri')
 
 const constants = require('@socketregistry/scripts/constants')
@@ -30,8 +31,7 @@ const abortController = new AbortController()
 const { signal: abortSignal } = abortController
 
 // Detect ^C, i.e. Ctrl + C.
-process.on('SIGINT', () => {
-  console.log('SIGINT signal received: Exiting gracefully...')
+onExit(() => {
   abortController.abort()
 })
 
@@ -122,7 +122,9 @@ void (async () => {
         if (
           ssri
             .fromData(
-              await packPackage(`${pkg.name}@${manifest.version}`, { signal: abortSignal })
+              await packPackage(`${pkg.name}@${manifest.version}`, {
+                signal: abortSignal
+              })
             )
             .sha512[0].hexDigest() !==
           ssri
