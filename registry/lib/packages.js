@@ -24,8 +24,8 @@ const {
   PACKAGE_JSON,
   PACKAGE_SCOPE,
   REGISTRY_SCOPE_DELIMITER,
-  REPO_NAME,
-  REPO_ORG,
+  SOCKET_REGISTRY_REPO_NAME,
+  SOCKET_REPO_ORG,
   UNLICENCED,
   UNLICENSED,
   copyLeftLicenses,
@@ -170,7 +170,7 @@ function createPackageJson(regPkgName, directory, options) {
   const { PACKAGE_DEFAULT_NODE_RANGE } = constants
   const name = `${PACKAGE_SCOPE}/${regPkgName.replace(pkgScopeRegExp, '')}`
   const entryExports = resolvePackageJsonEntryExports(entryExportsRaw)
-  const githubUrl = `https://github.com/${REPO_ORG}/${REPO_NAME}`
+  const githubUrl = `https://github.com/${SOCKET_REPO_ORG}/${SOCKET_REGISTRY_REPO_NAME}`
   return {
     __proto__: null,
     name,

@@ -118,8 +118,9 @@ declare const constantsModule: {
   readonly README_MD: 'README.md'
   readonly REGISTRY_SCOPE_DELIMITER: '__'
   readonly REGISTRY_WORKSPACE: 'registry'
-  readonly REPO_ORG: 'SocketDev'
-  readonly REPO_NAME: 'socket-registry'
+  readonly SOCKET_PUBLIC_API_KEY: 'sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api'
+  readonly SOCKET_REPO_ORG: 'SocketDev'
+  readonly SOCKET_REGISTRY_REPO_NAME: 'socket-registry'
   readonly SUPPORTS_NODE_DISABLE_WARNING_FLAG: boolean
   readonly SUPPORTS_NODE_REQUIRE_MODULE: boolean
   readonly SUPPORTS_NODE_RUN: boolean

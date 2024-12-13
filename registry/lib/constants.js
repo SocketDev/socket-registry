@@ -254,8 +254,10 @@ const README_GLOB_RECURSIVE = `**/${README_GLOB}`
 const README_MD = 'README.md'
 const REGISTRY_SCOPE_DELIMITER = '__'
 const REGISTRY_WORKSPACE = 'registry'
-const REPO_ORG = 'SocketDev'
-const REPO_NAME = 'socket-registry'
+const SOCKET_PUBLIC_API_KEY =
+  'sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api'
+const SOCKET_REPO_ORG = 'SocketDev'
+const SOCKET_REGISTRY_REPO_NAME = 'socket-registry'
 const TEMPLATE_CJS = 'cjs'
 const TEMPLATE_CJS_BROWSER = 'cjs-browser'
 const TEMPLATE_CJS_ESM = 'cjs-esm'
@@ -550,8 +552,9 @@ const constants = createConstantsObject(
     README_MD,
     REGISTRY_SCOPE_DELIMITER,
     REGISTRY_WORKSPACE,
-    REPO_ORG,
-    REPO_NAME,
+    SOCKET_PUBLIC_API_KEY,
+    SOCKET_REPO_ORG,
+    SOCKET_REGISTRY_REPO_NAME,
     SUPPORTS_NODE_DISABLE_WARNING_FLAG: undefined,
     SUPPORTS_NODE_REQUIRE_MODULE: undefined,
     SUPPORTS_NODE_RUN: undefined,
