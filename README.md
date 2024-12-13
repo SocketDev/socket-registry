@@ -4,7 +4,7 @@
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 
 > A collection of [Socket.dev](https://socket.dev/) optimize package overrides
-> for use with [`socket`](https://docs.socket.dev/docs/socket-cli) CLI.
+> for use with [Socket Optimize](https://socket.dev/features/optimize "npx socket optimize").
 
 <img src="./socket-optimize-hero.png" height="272px" width="576px" alt="npx socket optimize">
 
