@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict'
+import path from 'node:path'
 import { describe, it } from 'node:test'
 
+import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/packages'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 
 const eco = 'npm'
-const regPkgName = 'harmony-reflect'
+const regPkgName = path.basename(__filename, '.test.ts')
 
 // harmony-reflect has known failures in its package and requires running tests in browser.
 // https://github.com/tvcutsem/harmony-reflect/tree/v1.6.2/test
@@ -12,7 +14,7 @@ describe(
   `${eco} > ${regPkgName}`,
   { skip: isPackageTestingSkipped(eco, regPkgName) },
   () => {
-    const harmonyReflect: any = require(regPkgName)
+    const harmonyReflect = require(resolveOriginalPackageName(regPkgName))
 
     it('should be able to define a property', () => {
       const obj: {

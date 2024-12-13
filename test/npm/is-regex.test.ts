@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict'
+import path from 'node:path'
 import { describe, it } from 'node:test'
 
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 
 const eco = 'npm'
-const regPkgName = 'is-regex'
+const regPkgName = path.basename(__filename, '.test.ts')
 
 // is-regex tests don't account for `is-regex` backed by
 // `require('node:util/types).isRegExp` which triggers no proxy traps and
@@ -16,7 +17,7 @@ describe(
   `${eco} > ${regPkgName}`,
   { skip: isPackageTestingSkipped(eco, regPkgName) },
   () => {
-    const isRegex: any = require(regPkgName)
+    const isRegex = require(regPkgName)
 
     it('not regexes', () => {
       assert.strictEqual(isRegex(), false, 'undefined is not regex')

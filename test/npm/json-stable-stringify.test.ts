@@ -1,22 +1,23 @@
 import assert from 'node:assert/strict'
+import path from 'node:path'
 import { describe, it } from 'node:test'
 
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 
 const eco = 'npm'
-const regPkgName = 'json-stable-stringify'
+const regPkgName = path.basename(__filename, '.test.ts')
 
 describe(
   `${eco} > ${regPkgName}`,
   { skip: isPackageTestingSkipped(eco, regPkgName) },
   () => {
-    const jsonStableStringify: any = require(regPkgName)
-
     const rawJSON: ((_str: string) => { rawJSON: string }) | undefined = (
       JSON as any
     ).rawJSON
 
     const SUPPORTS_JSON_RAW_JSON = typeof rawJSON === 'function'
+
+    const jsonStableStringify = require(regPkgName)
 
     it('can handle exceeding call stack limits', () => {
       // eslint-disable-next-line unicorn/consistent-function-scoping

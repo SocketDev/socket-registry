@@ -3,20 +3,22 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 
-import { testNpmFixturesPath } from '@socketregistry/scripts/constants'
+import constants from '@socketregistry/scripts/constants'
+import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/packages'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 
 const eco = 'npm'
-const regPkgName = '@hyrious/bun.lockb'
+const regPkgName = path.basename(__filename, '.test.ts')
 
 // @hyrious/bun.lockb has no unit tests.
 // https://github.com/hyrious/bun.lockb/tree/v0.0.4
-// Added test case from https://github.com/daggerok/bun-examples/tree/master/hello-bun.
+// Test case from https://github.com/daggerok/bun-examples/tree/master/hello-bun.
 describe(
   `${eco} > ${regPkgName}`,
   { skip: isPackageTestingSkipped(eco, regPkgName) },
   () => {
-    const hyriousBunLockb: any = require(regPkgName)
+    const { testNpmFixturesPath } = constants
+    const hyriousBunLockb = require(resolveOriginalPackageName(regPkgName))
 
     it('parses bun.lockb into yarn.lock contents', () => {
       const lockbPath = path.join(testNpmFixturesPath, 'fixture-bun.lockb')

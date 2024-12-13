@@ -1,16 +1,17 @@
 import assert from 'node:assert/strict'
+import path from 'node:path'
 import { describe, it } from 'node:test'
 
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 
 const eco = 'npm'
-const regPkgName = 'array-flatten'
+const regPkgName = path.basename(__filename, '.test.ts')
 
 describe(
   `${eco} > ${regPkgName}`,
   { skip: isPackageTestingSkipped(eco, regPkgName) },
   () => {
-    const flattenLegacy: any = require(regPkgName)
+    const flattenLegacy = require(regPkgName)
     const { flatten } = require(regPkgName)
 
     // array-flatten v3 unit tests.

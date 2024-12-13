@@ -1,19 +1,20 @@
 import assert from 'node:assert/strict'
+import path from 'node:path'
 import { describe, it } from 'node:test'
 
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 
 const eco = 'npm'
-const regPkgName = 'es6-object-assign'
+const regPkgName = path.basename(__filename, '.test.ts')
 
 // es6-object-assign has no unit tests.
 // https://github.com/rubennorte/es6-object-assign/tree/v1.1.0
-// Added tests from https://github.com/ljharb/object.assign/tree/v4.1.5/test.
+// Tests from https://github.com/ljharb/object.assign/tree/v4.1.5/test.
 describe(
   `${eco} > ${regPkgName}`,
   { skip: isPackageTestingSkipped(eco, regPkgName) },
   () => {
-    const es6oa: any = require(regPkgName)
+    const es6oa = require(regPkgName)
 
     it('does not have "pending exception" logic in implementation', () => {
       /*
