@@ -24,10 +24,11 @@ async function runBin(binPath, args, options) {
     [
       ...(WIN_32
         ? []
-        : // Lazily access constants.SUPPORTS_NODE_DISABLE_WARNING_FLAG.
-          constants.SUPPORTS_NODE_DISABLE_WARNING_FLAG
-          ? ['--disable-warning', 'ExperimentalWarning', binPath]
-          : ['--no-warnings', binPath]),
+        : [
+            // Lazily access constants.nodeNoWarningsFlags.
+            ...constants.nodeNoWarningsFlags,
+            binPath
+          ]),
       ...args
     ],
     {
@@ -47,9 +48,11 @@ async function runScript(scriptName, args, options) {
     cmd,
     [
       ...(useNodeRun
-        ? constants.SUPPORTS_NODE_DISABLE_WARNING_FLAG
-          ? ['--disable-warning', 'ExperimentalWarning', '--run']
-          : ['--no-warnings', '--run']
+        ? [
+            // Lazily access constants.nodeNoWarningsFlags.
+            ...constants.nodeNoWarningsFlags,
+            '--run'
+          ]
         : ['run']),
       scriptName,
       ...args

@@ -325,6 +325,13 @@ const lazyMaintainedNodeVersions = () => {
   )
 }
 
+const lazyNodeNoWarningsFlags = () =>
+  Object.freeze(
+    constants.SUPPORTS_NODE_DISABLE_WARNING_FLAG
+      ? ['--disable-warning', 'ExperimentalWarning']
+      : ['--no-warnings']
+  )
+
 const lazyNpmExecPath = () => whichSync('npm')
 
 const copyLeftLicenses = new Set([
@@ -573,6 +580,7 @@ const constants = createConstantsObject(
     ignoreGlobs,
     lifecycleScriptNames,
     maintainedNodeVersions: undefined,
+    nodeNoWarningsFlags: undefined,
     npmExecPath: undefined,
     packageExtensions,
     packumentCache,
@@ -591,6 +599,7 @@ const constants = createConstantsObject(
       SUPPORTS_NODE_REQUIRE_MODULE: LAZY_SUPPORTS_NODE_REQUIRE_MODULE,
       SUPPORTS_NODE_RUN: LAZY_SUPPORTS_NODE_RUN,
       maintainedNodeVersions: lazyMaintainedNodeVersions,
+      nodeNoWarningsFlags: lazyNodeNoWarningsFlags,
       npmExecPath: lazyNpmExecPath
     }
   }
