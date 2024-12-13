@@ -8,8 +8,8 @@ const {
 } = constants
 
 const ciSpinner = {
-  frames: [],
-  interval: 80
+  frames: [''],
+  interval: Infinity
 }
 
 function Spinner(options) {
