@@ -4,8 +4,8 @@ import path from 'node:path'
 import { describe, it } from 'node:test'
 
 import constants from '@socketregistry/scripts/constants'
-import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/packages'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
+import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/packages'
 
 const eco = 'npm'
 const regPkgName = path.basename(__filename, '.test.ts')
