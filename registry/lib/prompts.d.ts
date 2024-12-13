@@ -1,18 +1,16 @@
-import confirm from '@inquirer/confirm'
-import input from '@inquirer/input'
-import password from '@inquirer/password'
-import search from '@inquirer/search'
-import select, { Separator } from '@inquirer/select'
+import inquirerConfirm from '@inquirer/confirm'
+import inquirerInput from '@inquirer/input'
+import inquirerPassword from '@inquirer/password'
+import inquirerSearch from '@inquirer/search'
+import inquirerSelect, { Separator as InquirerSelector } from '@inquirer/select'
 
-declare global {
-  type Separator = InstanceType<typeof Separator>
+declare namespace Prompts {
+  export const confirm: typeof inquirerConfirm
+  export const input: typeof inquirerInput
+  export const password: typeof inquirerPassword
+  export const search: typeof inquirerSearch
+  export const select: typeof inquirerSelect
+  export const Separator: typeof InquirerSelector
+  export type Separator = typeof InquirerSelector
 }
-declare const promptsModule: {
-  Separator: typeof Separator
-  confirm: typeof confirm
-  input: typeof input
-  password: typeof password
-  search: typeof search
-  select: typeof select
-}
-export = promptsModule
+export = Prompts
