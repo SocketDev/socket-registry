@@ -37,7 +37,7 @@ const {
   testNpmPkgJsonPath,
   testNpmPkgLockPath
 } = constants
-const yoctoSpinner = require('@socketregistry/yocto-spinner')
+const { Spinner } = require('@socketregistry/scripts/lib/spinner')
 const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
 const {
   isSymbolicLinkSync,
@@ -134,7 +134,7 @@ async function installMissingPackages(packageNames, options) {
   const {
     devDependencies = (await readPackageJson(testNpmPkgJsonPath))
       .devDependencies,
-    spinner = yoctoSpinner()
+    spinner = Spinner()
   } = { __proto__: null, ...options }
   const originalNames = packageNames.map(resolveOriginalPackageName)
   const msg = `Refreshing ${originalNames.length} ${pluralize('package', originalNames.length)}...`
@@ -180,7 +180,7 @@ async function installMissingPackages(packageNames, options) {
 }
 
 async function installMissingPackageTests(packageNames, options) {
-  const { spinner = yoctoSpinner() } = { __proto__: null, ...options }
+  const { spinner = Spinner() } = { __proto__: null, ...options }
   const originalNames = packageNames.map(resolveOriginalPackageName)
   const resolvable = []
   const unresolvable = []
@@ -316,7 +316,7 @@ async function resolveDevDependencies(packageNames, options) {
 
 async function linkPackages(packageNames, options) {
   // Link files and cleanup package.json scripts of test/npm/node_modules packages.
-  const { spinner = yoctoSpinner() } = { __proto__: null, ...options }
+  const { spinner = Spinner() } = { __proto__: null, ...options }
   spinner.start('Linking packages...')
 
   const linkedPackageNames = []
@@ -556,7 +556,7 @@ async function linkPackages(packageNames, options) {
 async function cleanupNodeWorkspaces(linkedPackageNames, options) {
   // Cleanup up override packages and move them from
   // test/npm/node_modules/ to test/npm/node_workspaces/
-  const { spinner = yoctoSpinner() } = { __proto__: null, ...options }
+  const { spinner = Spinner() } = { __proto__: null, ...options }
   spinner.start(`Cleaning up ${relTestNpmPath} workspaces...`)
 
   // Chunk package names to process them in parallel 3 at a time.
@@ -615,7 +615,7 @@ async function cleanupNodeWorkspaces(linkedPackageNames, options) {
 }
 
 async function installNodeWorkspaces(options) {
-  const { spinner = yoctoSpinner() } = { __proto__: null, ...options }
+  const { spinner = Spinner() } = { __proto__: null, ...options }
   spinner.start(`Installing ${relTestNpmPath} workspaces... (☕ break)`)
   // Finally install workspaces.
   try {
@@ -640,7 +640,7 @@ void (async () => {
   ) {
     return
   }
-  const spinner = yoctoSpinner()
+  const spinner = Spinner()
   if (!nodeModulesExists) {
     spinner.start(`Initializing ${relTestNpmNodeModulesPath}...`)
     // Refresh/initialize test/npm/node_modules

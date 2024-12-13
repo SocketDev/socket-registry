@@ -17,7 +17,7 @@ const {
   relNpmPackagesPath,
   rootPath
 } = constants
-const yoctoSpinner = require('@socketregistry/yocto-spinner')
+const { Spinner } = require('@socketregistry/scripts/lib/spinner')
 const { readDirNames } = require('@socketsecurity/registry/lib/fs')
 const { execNpm, runScript } = require('@socketsecurity/registry/lib/npm')
 const {
@@ -41,7 +41,7 @@ function packageData(data) {
 }
 
 void (async () => {
-  const spinner = yoctoSpinner({
+  const spinner = Spinner({
     text: `Bumping ${relNpmPackagesPath} versions (semver patch)...`
   }).start()
   const packages = [

@@ -19,7 +19,7 @@ const {
   testNpmPkgJsonPath
 } = constants
 const { getModifiedFiles } = require('@socketregistry/scripts/lib/git')
-const yoctoSpinner = require('@socketregistry/yocto-spinner')
+const { Spinner } = require('@socketregistry/scripts/lib/spinner')
 const {
   objectEntries,
   toSortedObject,
@@ -131,7 +131,7 @@ void (async () => {
   ) {
     return
   }
-  const spinner = yoctoSpinner({
+  const spinner = Spinner({
     text: `Updating ${relManifestJsonPath}...`
   }).start()
   const manifest = {}
