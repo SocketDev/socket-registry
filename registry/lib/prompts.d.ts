@@ -5,7 +5,7 @@ import search from '@inquirer/search'
 import select, { Separator } from '@inquirer/select'
 
 declare global {
-  type Separator = typeof Separator
+  type Separator = InstanceType<typeof Separator>
 }
 declare const promptsModule: {
   Separator: typeof Separator
