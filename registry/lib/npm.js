@@ -24,7 +24,10 @@ async function execNpm(args, options) {
 async function runBin(binPath, args, options) {
   return await spawn(
     WIN_32 ? binPath : execPath,
-    [...(WIN_32 ? [] : ['--disable-warning', 'ExperimentalWarning', binPath]), ...args],
+    [
+      ...(WIN_32 ? [] : ['--disable-warning', 'ExperimentalWarning', binPath]),
+      ...args
+    ],
     {
       __proto__: null,
       ...options,
