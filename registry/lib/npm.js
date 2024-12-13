@@ -1,12 +1,9 @@
 'use strict'
 
 const spawn = require('@npmcli/promise-spawn')
-const semver = require('semver')
 
 const constants = require('./constants')
-const { NODE_VERSION, WIN_32, execPath } = constants
-
-const canUseNodeRun = semver.satisfies(NODE_VERSION, '>=22.3.0')
+const { WIN_32, execPath } = constants
 
 async function execNpm(args, options) {
   return await spawn(
@@ -25,7 +22,12 @@ async function runBin(binPath, args, options) {
   return await spawn(
     WIN_32 ? binPath : execPath,
     [
-      ...(WIN_32 ? [] : ['--disable-warning', 'ExperimentalWarning', binPath]),
+      ...(WIN_32
+        ? []
+        : // Lazily access constants.SUPPORTS_NODE_DISABLE_WARNING_FLAG.
+          constants.SUPPORTS_NODE_DISABLE_WARNING_FLAG
+          ? ['--disable-warning', 'ExperimentalWarning', binPath]
+          : ['--no-warnings', binPath]),
       ...args
     ],
     {
@@ -38,12 +40,20 @@ async function runBin(binPath, args, options) {
 
 async function runScript(scriptName, args, options) {
   const { prepost, ...spawnOptions } = { __proto__: null, ...options }
-  // Lazily access constants.npmExecPath.
-  const useNode = !prepost && canUseNodeRun
-  const cmd = useNode ? execPath : constants.npmExecPath
+  // Lazily access constants.SUPPORTS_NODE_RUN and constants.npmExecPath.
+  const useNodeRun = !prepost && constants.SUPPORTS_NODE_RUN
+  const cmd = useNodeRun ? execPath : constants.npmExecPath
   return await spawn(
     cmd,
-    [...(useNode ? ['--no-warnings', '--run'] : ['run']), scriptName, ...args],
+    [
+      ...(useNodeRun
+        ? constants.SUPPORTS_NODE_DISABLE_WARNING_FLAG
+          ? ['--disable-warning', 'ExperimentalWarning', '--run']
+          : ['--no-warnings', '--run']
+        : ['run']),
+      scriptName,
+      ...args
+    ],
     {
       __proto__: null,
       ...spawnOptions,

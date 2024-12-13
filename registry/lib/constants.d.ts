@@ -119,6 +119,8 @@ declare const constantsModule: {
   readonly REGISTRY_WORKSPACE: 'registry'
   readonly REPO_ORG: 'SocketDev'
   readonly REPO_NAME: 'socket-registry'
+  readonly SUPPORTS_NODE_DISABLE_WARNING_FLAG: boolean
+  readonly SUPPORTS_NODE_RUN: boolean
   readonly TEMPLATE_CJS: 'cjs'
   readonly TEMPLATE_CJS_BROWSER: 'cjs-browser'
   readonly TEMPLATE_CJS_ESM: 'cjs-esm'

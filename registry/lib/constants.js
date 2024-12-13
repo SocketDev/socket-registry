@@ -271,6 +271,13 @@ const LAZY_PACKAGE_DEFAULT_NODE_RANGE = () =>
   // Lazily access constants.maintainedNodeVersions.
   `>=${constants.maintainedNodeVersions.previous}`
 
+// https://nodejs.org/api/all.html#all_cli_--disable-warningcode-or-type
+const LAZY_SUPPORTS_NODE_DISABLE_WARNING_FLAG = () =>
+  semver.satisfies(NODE_VERSION, '>=21.3.0||^20.11.0')
+
+// https://nodejs.org/api/all.html#all_cli_--run
+const LAZY_SUPPORTS_NODE_RUN = () => semver.satisfies(NODE_VERSION, '>=22.3.0')
+
 const lazyMaintainedNodeVersions = () => {
   // Under the hood browserlist uses the node-releases package which is out of date:
   // https://github.com/chicoxyzzy/node-releases/issues/37
@@ -541,6 +548,8 @@ const constants = createConstantsObject(
     REGISTRY_WORKSPACE,
     REPO_ORG,
     REPO_NAME,
+    SUPPORTS_NODE_DISABLE_WARNING_FLAG: undefined,
+    SUPPORTS_NODE_RUN: undefined,
     TEMPLATE_CJS,
     TEMPLATE_CJS_BROWSER,
     TEMPLATE_CJS_ESM,
@@ -569,6 +578,9 @@ const constants = createConstantsObject(
   {
     getters: {
       PACKAGE_DEFAULT_NODE_RANGE: LAZY_PACKAGE_DEFAULT_NODE_RANGE,
+      SUPPORTS_NODE_DISABLE_WARNING_FLAG:
+        LAZY_SUPPORTS_NODE_DISABLE_WARNING_FLAG,
+      SUPPORTS_NODE_RUN: LAZY_SUPPORTS_NODE_RUN,
       maintainedNodeVersions: lazyMaintainedNodeVersions,
       npmExecPath: lazyNpmExecPath
     }
