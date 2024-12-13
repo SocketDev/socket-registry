@@ -82,6 +82,7 @@ interface ParseArgsConfig {
 }
 declare const constantsModule: {
   readonly [kInternalsSymbol]: Internals
+  readonly 'Symbol(kInternalsSymbol)': Internals
   readonly COLUMN_LIMIT: 80
   readonly EMPTY_FILE: '/* empty */\n'
   readonly ENV: ENV
