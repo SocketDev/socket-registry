@@ -120,6 +120,7 @@ declare const constantsModule: {
   readonly REPO_ORG: 'SocketDev'
   readonly REPO_NAME: 'socket-registry'
   readonly SUPPORTS_NODE_DISABLE_WARNING_FLAG: boolean
+  readonly SUPPORTS_NODE_REQUIRE_MODULE: boolean
   readonly SUPPORTS_NODE_RUN: boolean
   readonly TEMPLATE_CJS: 'cjs'
   readonly TEMPLATE_CJS_BROWSER: 'cjs-browser'
