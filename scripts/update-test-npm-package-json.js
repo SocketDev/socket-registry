@@ -270,8 +270,10 @@ async function resolveDevDependencies(packageNames, options) {
       ...options,
       devDependencies
     })
+    // Refresh devDependencies object.
+    devDependencies = (await readPackageJson(testNpmPkgJsonPath))
+      .devDependencies
   }
-  ;({ devDependencies } = await readPackageJson(testNpmPkgJsonPath))
   // Chunk package names to process them in parallel 3 at a time.
   const missingPackageTests = await pFilter(
     packageNames,
@@ -320,16 +322,16 @@ async function linkPackages(packageNames, options) {
   spinner.start('Linking packages...')
 
   const linkedPackageNames = []
-  let logCount = 0
+  let issueCount = 0
   // Chunk package names to process them in parallel 3 at a time.
   await pEach(packageNames, 3, async regPkgName => {
-    const origPkgName = resolveOriginalPackageName(regPkgName)
     const pkgPath = path.join(npmPackagesPath, regPkgName)
     if (!existsSync(pkgPath)) {
-      logCount += 1
+      issueCount += 1
       console.warn(`⚠️ ${regPkgName}: Missing from ${relNpmPackagesPath}`)
       return
     }
+    const origPkgName = resolveOriginalPackageName(regPkgName)
     const nmPkgPath = path.join(testNpmNodeModulesPath, origPkgName)
     if (isSymbolicLinkSync(nmPkgPath)) {
       if (
@@ -499,7 +501,7 @@ async function linkPackages(packageNames, options) {
     const isNmPkgTypeModule = nmEditablePkgJson.content.type === 'module'
     const isModuleTypeMismatch = isNmPkgTypeModule !== isPkgTypeModule
     if (isModuleTypeMismatch) {
-      logCount += 1
+      issueCount += 1
       spinner.text = `⚠️ ${origPkgName}: Module type mismatch`
     }
     const actions = new Map()
@@ -532,7 +534,7 @@ async function linkPackages(packageNames, options) {
               return
             }
           } else {
-            logCount += 1
+            issueCount += 1
             console.error(`✖️ ${origPkgName}: Cannot convert ESM to CJS`)
           }
         }
@@ -545,9 +547,9 @@ async function linkPackages(packageNames, options) {
     await nmEditablePkgJson.save()
     linkedPackageNames.push(regPkgName)
   })
-  if (!logCount || cliArgs.quiet) {
+  if (!issueCount || cliArgs.quiet) {
     spinner.stop()
-  } else if (logCount) {
+  } else if (issueCount) {
     spinner.success('Packages linked')
   }
   return linkedPackageNames
@@ -652,7 +654,7 @@ void (async () => {
         spinner.success(`Initialized ${relTestNpmNodeModulesPath}`)
       }
     } catch (e) {
-      spinner.error(`Initialization encountered an error:`)
+      spinner.error('Initialization encountered an error:')
       console.log(e)
     }
   }
