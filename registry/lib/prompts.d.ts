@@ -2,9 +2,10 @@ import confirm from '@inquirer/confirm'
 import input from '@inquirer/input'
 import password from '@inquirer/password'
 import search from '@inquirer/search'
-import select from '@inquirer/select'
+import select, { Separator } from '@inquirer/select'
 
 declare const promptsModule: {
+  Separator: typeof Separator
   confirm: typeof confirm
   input: typeof input
   password: typeof password
