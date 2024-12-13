@@ -5,8 +5,8 @@ import inquirerSearch from '@inquirer/search'
 import inquirerSelect, { Separator as InquirerSeparator } from '@inquirer/select'
 
 declare namespace Prompts {
-  export type Separator = typeof InquirerSeparator
-  export const Separator: Separator
+  export type Separator = InquirerSeparator
+  export const Separator: typeof InquirerSeparator
   export const confirm: typeof inquirerConfirm
   export const input: typeof inquirerInput
   export const password: typeof inquirerPassword
