@@ -267,7 +267,7 @@ const TEMPLATE_ES_SHIM_STATIC_METHOD = 'es-shim-static-method'
 const TSCONFIG_JSON = 'tsconfig.json'
 const UNLICENCED = 'UNLICENCED'
 const UNLICENSED = 'UNLICENSED'
-const WIN_32 = process.platform === 'win32'
+const WIN32 = process.platform === 'win32'
 
 const LAZY_PACKAGE_DEFAULT_NODE_RANGE = () =>
   // Lazily access constants.maintainedNodeVersions.
@@ -469,7 +469,7 @@ const skipTestsByEcosystem = Object.freeze({
     // Win32 environments for the time being.
     // https://github.com/es-shims/Date/issues/3
     // https://github.com/es-shims/Date/tree/v2.0.5
-    ...(ENV.WIN_32 ? [] : ['date']),
+    ...(ENV.WIN32 ? [] : ['date']),
     // es6-object-assign has no unit tests.
     // https://github.com/rubennorte/es6-object-assign/tree/v1.1.0
     'es6-object-assign',
@@ -546,7 +546,7 @@ const constants = createConstantsObject(
     NPM_ORG,
     OVERRIDES,
     PACKAGE_DEFAULT_SOCKET_CATEGORIES,
-    // Lazily defined values are initialized as `undefined` to keep their key order.
+  // Lazily defined values are initialized as `undefined` to keep their key order.
     PACKAGE_DEFAULT_NODE_RANGE: undefined,
     PACKAGE_DEFAULT_VERSION,
     PACKAGE_JSON,
@@ -574,7 +574,7 @@ const constants = createConstantsObject(
     TSCONFIG_JSON,
     UNLICENCED,
     UNLICENSED,
-    WIN_32,
+    WIN32,
     copyLeftLicenses,
     execPath,
     ignoreGlobs,

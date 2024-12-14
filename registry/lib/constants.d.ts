@@ -133,7 +133,7 @@ declare const constantsModule: {
   readonly TSCONFIG_JSON: 'tsconfig.json'
   readonly UNLICENCED: 'UNLICENCED'
   readonly UNLICENSED: 'UNLICENSED'
-  readonly WIN_32: boolean
+  readonly WIN32: boolean
   readonly copyLeftLicenses: ReadonlySet<string>
   readonly execPath: string
   readonly ignoreGlobs: ReadonlyArray<string>

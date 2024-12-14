@@ -13,7 +13,7 @@ const {
   NODE_VERSION,
   PACKAGE_JSON,
   README_GLOB_RECURSIVE,
-  WIN_32,
+  WIN32,
   parseArgsConfig,
   skipTestsByEcosystem,
   testNpmNodeWorkspacesPath,
@@ -70,7 +70,7 @@ describe(eco, { skip: !packageNames.length }, () => {
     const origPkgName = resolveOriginalPackageName(regPkgName)
     const skip =
       !nwPkgJson.scripts?.test ||
-      (WIN_32 &&
+      (WIN32 &&
         !manifestData?.interop.includes('browserify') &&
         !win32EnsureTestsByEcosystem?.[eco]?.has(origPkgName)) ||
       (isNonEmptyString(nodeRange) &&

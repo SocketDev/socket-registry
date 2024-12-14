@@ -3,7 +3,7 @@
 const spawn = require('@npmcli/promise-spawn')
 
 const constants = require('./constants')
-const { WIN_32, execPath } = constants
+const { WIN32, execPath } = constants
 
 async function execNpm(args, options) {
   return await spawn(
@@ -20,9 +20,9 @@ async function execNpm(args, options) {
 
 async function runBin(binPath, args, options) {
   return await spawn(
-    WIN_32 ? binPath : execPath,
+    WIN32 ? binPath : execPath,
     [
-      ...(WIN_32
+      ...(WIN32
         ? []
         : [
             // Lazily access constants.nodeNoWarningsFlags.
