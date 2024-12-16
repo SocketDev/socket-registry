@@ -4,7 +4,6 @@ import { describe, it } from 'node:test'
 import util from 'node:util'
 
 import semver from 'semver'
-import { onExit } from 'signal-exit'
 
 import constants from '@socketregistry/scripts/constants'
 const {
@@ -14,6 +13,7 @@ const {
   PACKAGE_JSON,
   README_GLOB_RECURSIVE,
   WIN32,
+  abortSignal,
   parseArgsConfig,
   skipTestsByEcosystem,
   testNpmNodeWorkspacesPath,
@@ -28,14 +28,6 @@ import { readDirNamesSync, readJsonSync } from '@socketsecurity/registry/lib/fs'
 import { runScript } from '@socketsecurity/registry/lib/npm'
 import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/packages'
 import { isNonEmptyString } from '@socketsecurity/registry/lib/strings'
-
-const abortController = new AbortController()
-const { signal: abortSignal } = abortController
-
-// Detect ^C, i.e. Ctrl + C.
-onExit(() => {
-  abortController.abort()
-})
 
 // Pass args as tap --test-arg:
 // npm run test:unit ./test/npm.test.ts -- --test-arg="--force"

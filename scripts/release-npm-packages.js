@@ -3,7 +3,6 @@
 const path = require('node:path')
 
 const semver = require('semver')
-const { onExit } = require('signal-exit')
 const ssri = require('ssri')
 
 const constants = require('@socketregistry/scripts/constants')
@@ -12,6 +11,7 @@ const {
   OVERRIDES,
   PACKAGE_JSON,
   PACKAGE_SCOPE,
+  abortSignal,
   npmPackagesPath,
   registryPkgPath,
   relNpmPackagesPath,
@@ -26,14 +26,6 @@ const {
   readPackageJson
 } = require('@socketsecurity/registry/lib/packages')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
-
-const abortController = new AbortController()
-const { signal: abortSignal } = abortController
-
-// Detect ^C, i.e. Ctrl + C.
-onExit(() => {
-  abortController.abort()
-})
 
 function packageData(data) {
   const { printName = data.name, tag = LATEST } = data

@@ -7,7 +7,6 @@ const util = require('node:util')
 const { ReturnTypeEnums, default: didYouMean } = require('didyoumean2')
 const { open } = require('out-url')
 const semver = require('semver')
-const { onExit } = require('signal-exit')
 const { glob: tinyGlob } = require('tinyglobby')
 
 const constants = require('@socketregistry/scripts/constants')
@@ -21,6 +20,7 @@ const {
   TEMPLATE_ES_SHIM_CONSTRUCTOR,
   TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
   TEMPLATE_ES_SHIM_STATIC_METHOD,
+  abortSignal,
   npmPackagesPath,
   parseArgsConfig,
   rootPath,
@@ -64,14 +64,6 @@ const {
 } = require('@socketsecurity/registry/lib/sorts')
 const { indentString } = require('@socketsecurity/registry/lib/strings')
 const { pluralize } = require('@socketsecurity/registry/lib/words')
-
-const abortController = new AbortController()
-const { signal: abortSignal } = abortController
-
-// Detect ^C, i.e. Ctrl + C.
-onExit(() => {
-  abortController.abort()
-})
 
 const { positionals: cliPositionals, values: cliArgs } =
   util.parseArgs(parseArgsConfig)

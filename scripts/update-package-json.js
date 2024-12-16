@@ -1,19 +1,9 @@
 'use strict'
 
-const { onExit } = require('signal-exit')
-
 const constants = require('@socketregistry/scripts/constants')
-const { rootPackageJsonPath, rootPath } = constants
+const { abortSignal, rootPackageJsonPath, rootPath } = constants
 const { runScript } = require('@socketsecurity/registry/lib/npm')
 const { readPackageJson } = require('@socketsecurity/registry/lib/packages')
-
-const abortController = new AbortController()
-const { signal: abortSignal } = abortController
-
-// Detect ^C, i.e. Ctrl + C.
-onExit(() => {
-  abortController.abort()
-})
 
 void (async () => {
   const rootEditablePkgJson = await readPackageJson(rootPackageJsonPath, {
