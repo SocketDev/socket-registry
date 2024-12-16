@@ -15,9 +15,18 @@ const { createNewSortInstance } = require('fast-sort')
 const pacote = require('pacote')
 const picomatch = require('picomatch')
 const semver = require('semver')
+const { onExit } = require('signal-exit')
 const which = require('which')
 
 const { envAsBoolean, envAsString } = require('./env')
+
+const abortController = new AbortController()
+const { signal: abortSignal } = abortController
+
+// Detect ^C, i.e. Ctrl + C.
+onExit(() => {
+  abortController.abort()
+})
 
 const UNDEFINED_LAZY_VALUE = {}
 
@@ -575,6 +584,8 @@ const constants = createConstantsObject(
     UNLICENCED,
     UNLICENSED,
     WIN32,
+    abortController,
+    abortSignal,
     copyLeftLicenses,
     execPath,
     ignoreGlobs,

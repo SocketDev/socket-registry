@@ -134,6 +134,8 @@ declare const constantsModule: {
   readonly UNLICENCED: 'UNLICENCED'
   readonly UNLICENSED: 'UNLICENSED'
   readonly WIN32: boolean
+  readonly abortController: AbortController
+  readonly abortSignal: AbortSignal
   readonly copyLeftLicenses: ReadonlySet<string>
   readonly execPath: string
   readonly ignoreGlobs: ReadonlyArray<string>

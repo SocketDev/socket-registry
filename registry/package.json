@@ -105,6 +105,7 @@
     "picomatch": "^4.0.2",
     "prettier": "^3.3.3",
     "semver": "^7.6.3",
+    "signal-exit": "^4.1.0",
     "spdx-correct": "^3.2.0",
     "spdx-expression-parse": "^4.0.0",
     "tinyglobby": "^0.2.10",
