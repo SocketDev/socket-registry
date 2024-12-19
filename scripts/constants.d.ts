@@ -19,7 +19,6 @@ declare const constantsModule: Exclude<
   readonly gitIgnoreFile: FlatConfig
   readonly gitIgnorePath: string
   readonly ignoreGlobs: readonly string[]
-  readonly manifestJsonPath: string
   readonly npmPackageNames: readonly string[]
   readonly npmPackagesPath: string
   readonly npmTemplatesPath: string
@@ -30,10 +29,12 @@ declare const constantsModule: Exclude<
   readonly prettierConfigPromise: ReturnType<typeof prettier.resolveConfig>
   readonly prettierIgnoreFile: FlatConfig
   readonly prettierIgnorePath: string
+  readonly registryExtensionsJsonPath: string
+  readonly registryManifestJsonPath: string
   readonly registryPkgPath: string
-  readonly relManifestJsonPath: string
   readonly relNpmPackagesPath: string
   readonly relPackagesPath: string
+  readonly relRegistryManifestJsonPath: string
   readonly relRegistryPkgPath: String
   readonly relTestNpmPath: string
   readonly relTestNpmNodeModulesPath: string

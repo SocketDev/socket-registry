@@ -6,14 +6,16 @@ const util = require('node:util')
 
 const { PackageURL } = require('packageurl-js')
 
-const packageurlJsPkgJson = require('@socketregistry/packageurl-js/package.json')
+const purlJsPkgJson = require('@socketregistry/packageurl-js/package.json')
 const constants = require('@socketregistry/scripts/constants')
 const {
+  AT_LATEST,
   UNLICENSED,
-  manifestJsonPath,
   npmPackagesPath,
   parseArgsConfig,
-  relManifestJsonPath,
+  registryExtensionsJsonPath,
+  registryManifestJsonPath,
+  relRegistryManifestJsonPath,
   rootPackagesPath,
   skipTestsByEcosystem,
   testNpmPkgJsonPath
@@ -36,23 +38,26 @@ const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { localeCompare } = require('@socketsecurity/registry/lib/sorts')
 const { prettierFormat } = require('@socketsecurity/registry/lib/strings')
 
+const registryExtensionsJson = require(registryExtensionsJsonPath)
+
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 
 async function addNpmManifestData(manifest) {
   const eco = 'npm'
   const manifestData = [
     [
-      `pkg:npm/%40socketregistry/packageurl-js@${packageurlJsPkgJson.version}`,
+      `pkg:npm/%40socketregistry/packageurl-js@${purlJsPkgJson.version}`,
       {
-        categories: packageurlJsPkgJson.socket.categories,
-        engines: packageurlJsPkgJson.engines,
+        categories: purlJsPkgJson.socket.categories,
+        engines: purlJsPkgJson.engines,
         interop: ['cjs'],
-        license: packageurlJsPkgJson.license,
-        name: packageurlJsPkgJson.name,
+        license: purlJsPkgJson.license,
+        name: purlJsPkgJson.name,
         package: 'packageurl-js',
-        version: packageurlJsPkgJson.version
+        version: purlJsPkgJson.version
       }
-    ]
+    ],
+    ...(registryExtensionsJson[eco] ?? [])
   ]
   // Chunk package names to process them in parallel 3 at a time.
   // Lazily access constants.npmPackageNames.
@@ -113,12 +118,29 @@ async function addNpmManifestData(manifest) {
       toSortedObjectFromEntries(metaEntries)
     ])
   })
+
+  const latestIndexes = []
+  for (let i = 0, { length } = manifestData; i < length; i += 1) {
+    if (manifestData[i][0].endsWith(AT_LATEST)) {
+      latestIndexes.push(i)
+    }
+  }
+  // Chunk lookupLatest to process them in parallel 3 at a time.
+  await pEach(latestIndexes, 3, async index => {
+    const entry = manifestData[index]
+    const nmPkgId = `${entry[1].name}${AT_LATEST}`
+    const nmPkgManifest = await fetchPackageManifest(nmPkgId)
+    if (!nmPkgManifest) {
+      console.warn(`⚠️ ${nmPkgId}: Not found in npm registry`)
+      return
+    }
+    const { version } = nmPkgManifest
+    entry[0] = `${entry[0].slice(0, -AT_LATEST.length)}@${version}`
+    entry[1].version = version
+  })
+
   if (manifestData.length) {
-    manifest[eco] = manifestData.sort((a_, b_) => {
-      const a = Array.isArray(a_) ? a_[0] : a_
-      const b = Array.isArray(b_) ? b_[0] : b_
-      return localeCompare(a, b)
-    })
+    manifest[eco] = manifestData.sort((a, b) => localeCompare(a[0], b[0]))
   }
   return manifest
 }
@@ -132,13 +154,13 @@ void (async () => {
     return
   }
   const spinner = Spinner({
-    text: `Updating ${relManifestJsonPath}...`
+    text: `Updating ${relRegistryManifestJsonPath}...`
   }).start()
   const manifest = {}
   await addNpmManifestData(manifest)
   const output = await prettierFormat(JSON.stringify(manifest), {
-    filepath: manifestJsonPath
+    filepath: registryManifestJsonPath
   })
-  await fs.writeFile(manifestJsonPath, output, 'utf8')
+  await fs.writeFile(registryManifestJsonPath, output, 'utf8')
   spinner.stop()
 })()

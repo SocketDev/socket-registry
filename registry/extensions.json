@@ -1,0 +1,16 @@
+{
+  "npm": [
+    [
+      "pkg:npm/shell-quote@latest",
+      {
+        "categories": ["tuneup"],
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["cjs"],
+        "license": "MIT",
+        "name": "shell-quote",
+        "package": "shell-quote",
+        "version": "latest"
+      }
+    ]
+  ]
+}

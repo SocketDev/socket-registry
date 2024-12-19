@@ -1567,6 +1567,18 @@
         "package": "yocto-spinner",
         "version": "1.0.2"
       }
+    ],
+    [
+      "pkg:npm/shell-quote@1.8.2",
+      {
+        "categories": ["tuneup"],
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["cjs"],
+        "license": "MIT",
+        "name": "shell-quote",
+        "package": "shell-quote",
+        "version": "1.8.2"
+      }
     ]
   ]
 }

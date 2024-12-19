@@ -234,7 +234,10 @@ const ENV = Object.freeze({
 })
 const ESLINT_CONFIG_JS = 'eslint.config.js'
 const ESNEXT = 'esnext'
+const EXTENSIONS = 'extensions'
+const EXTENSIONS_JSON = `${EXTENSIONS}.json`
 const LATEST = 'latest'
+const AT_LATEST = `@${LATEST}`
 const LICENSE = 'LICENSE'
 const LICENSE_GLOB = 'LICEN[CS]E{[.-]*,}'
 const LICENSE_GLOB_RECURSIVE = `**/${LICENSE_GLOB}`
@@ -261,8 +264,8 @@ const PRETTIER_RC = '.prettierrc'
 const README_GLOB = 'README{.*,}'
 const README_GLOB_RECURSIVE = `**/${README_GLOB}`
 const README_MD = 'README.md'
+const REGISTRY = 'registry'
 const REGISTRY_SCOPE_DELIMITER = '__'
-const REGISTRY_WORKSPACE = 'registry'
 const SOCKET_PUBLIC_API_KEY =
   'sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api'
 const SOCKET_REPO_ORG = 'SocketDev'
@@ -532,11 +535,14 @@ const win32EnsureTestsByEcosystem = Object.freeze({
 
 const constants = createConstantsObject(
   {
+    AT_LATEST,
     COLUMN_LIMIT,
     EMPTY_FILE,
     ENV,
     ESLINT_CONFIG_JS,
     ESNEXT,
+    EXTENSIONS,
+    EXTENSIONS_JSON,
     GIT_IGNORE,
     LATEST,
     LICENSE,
@@ -555,7 +561,7 @@ const constants = createConstantsObject(
     NPM_ORG,
     OVERRIDES,
     PACKAGE_DEFAULT_SOCKET_CATEGORIES,
-  // Lazily defined values are initialized as `undefined` to keep their key order.
+    // Lazily defined values are initialized as `undefined` to keep their key order.
     PACKAGE_DEFAULT_NODE_RANGE: undefined,
     PACKAGE_DEFAULT_VERSION,
     PACKAGE_JSON,
@@ -567,7 +573,7 @@ const constants = createConstantsObject(
     README_GLOB_RECURSIVE,
     README_MD,
     REGISTRY_SCOPE_DELIMITER,
-    REGISTRY_WORKSPACE,
+    REGISTRY,
     SOCKET_PUBLIC_API_KEY,
     SOCKET_REPO_ORG,
     SOCKET_REGISTRY_REPO_NAME,

@@ -80,6 +80,7 @@
       "types": "./lib/words.d.ts",
       "default": "./lib/words.js"
     },
+    "./extensions.json": "./extensions.json",
     "./manifest.json": "./manifest.json",
     "./package.json": "./package.json"
   },

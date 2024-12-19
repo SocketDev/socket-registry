@@ -83,11 +83,14 @@ interface ParseArgsConfig {
 declare const constantsModule: {
   readonly [kInternalsSymbol]: Internals
   readonly 'Symbol(kInternalsSymbol)': Internals
+  readonly AT_LATEST: '@latest'
   readonly COLUMN_LIMIT: 80
   readonly EMPTY_FILE: '/* empty */\n'
   readonly ENV: ENV
   readonly ESLINT_CONFIG_JS: 'eslint.config.js'
   readonly ESNEXT: 'esnext'
+  readonly EXTENSIONS: 'extensions'
+  readonly EXTENSIONS_JSON: 'extensions.json'
   readonly GIT_IGNORE: '.gitignore'
   readonly LATEST: 'latest'
   readonly LICENSE: 'LICENSE'
@@ -116,8 +119,8 @@ declare const constantsModule: {
   readonly README_GLOB: 'README{.*,}'
   readonly README_GLOB_RECURSIVE: '**/README{.*,}'
   readonly README_MD: 'README.md'
+  readonly REGISTRY: 'registry'
   readonly REGISTRY_SCOPE_DELIMITER: '__'
-  readonly REGISTRY_WORKSPACE: 'registry'
   readonly SOCKET_PUBLIC_API_KEY: 'sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api'
   readonly SOCKET_REPO_ORG: 'SocketDev'
   readonly SOCKET_REGISTRY_REPO_NAME: 'socket-registry'

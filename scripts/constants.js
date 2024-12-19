@@ -13,6 +13,7 @@ const { sync: whichSyncFn } = whichFn
 
 const {
   ESLINT_CONFIG_JS,
+  EXTENSIONS_JSON,
   GIT_IGNORE,
   LICENSE,
   MANIFEST_JSON,
@@ -23,7 +24,7 @@ const {
   PRETTIER_IGNORE,
   PRETTIER_RC,
   README_MD,
-  REGISTRY_WORKSPACE,
+  REGISTRY,
   TSCONFIG_JSON,
   kInternalsSymbol,
   [kInternalsSymbol]: { createConstantsObject, readDirNamesSync }
@@ -42,8 +43,9 @@ const rootTsConfigPath = path.join(rootPath, TSCONFIG_JSON)
 const gitIgnorePath = path.join(rootPath, GIT_IGNORE)
 const prettierConfigPath = path.join(rootPath, PRETTIER_RC)
 const prettierIgnorePath = path.join(rootPath, PRETTIER_IGNORE)
-const registryPkgPath = path.join(rootPath, REGISTRY_WORKSPACE)
-const manifestJsonPath = path.join(registryPkgPath, MANIFEST_JSON)
+const registryPkgPath = path.join(rootPath, REGISTRY)
+const registryExtensionsJsonPath = path.join(registryPkgPath, EXTENSIONS_JSON)
+const registryManifestJsonPath = path.join(registryPkgPath, MANIFEST_JSON)
 const templatesPath = path.join(__dirname, 'templates')
 
 const tapCiConfigPath = path.join(rootPath, '.tapci.yaml')
@@ -66,10 +68,13 @@ const testNpmPkgLockPath = path.join(testNpmPath, PACKAGE_LOCK)
 const yarnPkgExtsPath = path.join(rootNodeModulesPath, '@yarnpkg/extensions')
 const yarnPkgExtsJsonPath = path.join(yarnPkgExtsPath, PACKAGE_JSON)
 
-const relManifestJsonPath = path.relative(rootPath, manifestJsonPath)
 const relNpmPackagesPath = path.relative(rootPath, npmPackagesPath)
 const relPackagesPath = path.relative(rootPath, rootPackagesPath)
 const relRegistryPkgPath = path.relative(rootPath, registryPkgPath)
+const relRegistryManifestJsonPath = path.relative(
+  rootPath,
+  registryManifestJsonPath
+)
 const relTestNpmPath = path.relative(rootPath, testNpmPath)
 const relTestNpmNodeModulesPath = path.relative(
   rootPath,
@@ -140,11 +145,12 @@ const constants = createConstantsObject(
     perfNpmFixturesPath,
     prettierConfigPromise: undefined,
     prettierIgnoreFile: undefined,
-    manifestJsonPath,
+    registryExtensionsJsonPath,
+    registryManifestJsonPath,
     registryPkgPath,
-    relManifestJsonPath,
     relNpmPackagesPath,
     relPackagesPath,
+    relRegistryManifestJsonPath,
     relRegistryPkgPath,
     relTestNpmPath,
     relTestNpmNodeModulesPath,
