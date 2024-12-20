@@ -1,6 +1,13 @@
 'use strict'
 
-const { glob: tinyGlob } = require('tinyglobby')
+let _tinyGlobby
+function getTinyGlobby() {
+  if (_tinyGlobby === undefined) {
+    const id = 'tinyglobby'
+    _tinyGlobby = require(id)
+  }
+  return _tinyGlobby
+}
 
 const {
   LICENSE_GLOB,
@@ -23,15 +30,19 @@ async function globLicenses(dirname, options) {
       ? ignoreOpt.concat([LICENSE_ORIGINAL_GLOB_RECURSIVE])
       : [LICENSE_ORIGINAL_GLOB_RECURSIVE]
   }
-  return await tinyGlob([recursive ? LICENSE_GLOB_RECURSIVE : LICENSE_GLOB], {
-    __proto__: null,
-    absolute: true,
-    caseSensitiveMatch: false,
-    cwd: dirname,
-    expandDirectories: recursive,
-    ...globOptions,
-    ...(ignore ? { ignore } : {})
-  })
+  const tinyGlobby = getTinyGlobby()
+  return await tinyGlobby.glob(
+    [recursive ? LICENSE_GLOB_RECURSIVE : LICENSE_GLOB],
+    {
+      __proto__: null,
+      absolute: true,
+      caseSensitiveMatch: false,
+      cwd: dirname,
+      expandDirectories: recursive,
+      ...globOptions,
+      ...(ignore ? { ignore } : {})
+    }
+  )
 }
 
 module.exports = {

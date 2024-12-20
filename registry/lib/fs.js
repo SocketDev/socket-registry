@@ -1,14 +1,22 @@
 'use strict'
 
-const {
-  existsSync,
-  lstatSync,
-  promises: fs,
-  readFileSync,
-  rmSync,
-  writeFileSync
-} = require('node:fs')
-const path = require('node:path')
+let _fs
+function getFs() {
+  if (_fs === undefined) {
+    const id = 'node:fs'
+    _fs = require(id)
+  }
+  return _fs
+}
+
+let _path
+function getPath() {
+  if (_path === undefined) {
+    const id = 'node:path'
+    _path = require(id)
+  }
+  return _path
+}
 
 const {
   kInternalsSymbol,
@@ -25,8 +33,9 @@ const defaultRemoveOptions = Object.freeze({
 })
 
 function isSymbolicLinkSync(filepath) {
+  const fs = getFs()
   try {
-    return lstatSync(filepath).isSymbolicLink()
+    return fs.lstatSync(filepath).isSymbolicLink()
   } catch {}
   return false
 }
@@ -47,9 +56,10 @@ function parse(filepath, content, reviver, shouldThrow) {
 }
 
 async function readDirNames(dirname, options) {
+  const fs = getFs()
   try {
     return innerReadDirNames(
-      await fs.readdir(dirname, { withFileTypes: true }),
+      await fs.promises.readdir(dirname, { withFileTypes: true }),
       options
     )
   } catch {}
@@ -66,10 +76,11 @@ async function readJson(filepath, options) {
     encoding: 'utf8',
     ...fsOptionsRaw
   }
+  const fs = getFs()
   const shouldThrow = throws === undefined || !!throws
   return parse(
     filepath,
-    await fs.readFile(filepath, fsOptions),
+    await fs.promises.readFile(filepath, fsOptions),
     reviver,
     shouldThrow
   )
@@ -85,10 +96,11 @@ function readJsonSync(filepath, options) {
     encoding: 'utf8',
     ...fsOptionsRaw
   }
+  const fs = getFs()
   const shouldThrow = throws === undefined || !!throws
   return parse(
     filepath,
-    readFileSync(filepath, fsOptions),
+    fs.readFileSync(filepath, fsOptions),
     reviver,
     shouldThrow
   )
@@ -97,7 +109,8 @@ function readJsonSync(filepath, options) {
 async function remove(filepath, options) {
   // Attempt to workaround occasional ENOTEMPTY errors in Windows.
   // https://github.com/jprichardson/node-fs-extra/issues/532#issuecomment-1178360589
-  await fs.rm(filepath, {
+  const fs = getFs()
+  await fs.promises.rm(filepath, {
     __proto__: null,
     ...defaultRemoveOptions,
     ...options
@@ -105,7 +118,8 @@ async function remove(filepath, options) {
 }
 
 function removeSync(filepath, options) {
-  rmSync(filepath, {
+  const fs = getFs()
+  fs.rmSync(filepath, {
     __proto__: null,
     ...defaultRemoveOptions,
     ...options
@@ -119,9 +133,11 @@ function stringify(json, EOL = '\n', finalEOL = true, replacer = null, spaces) {
 }
 
 function uniqueSync(filepath) {
+  const fs = getFs()
+  const path = getPath()
   const dirname = path.dirname(filepath)
   let basename = path.basename(filepath)
-  while (existsSync(`${dirname}/${basename}`)) {
+  while (fs.existsSync(`${dirname}/${basename}`)) {
     basename = `_${basename}`
   }
   return path.join(dirname, basename)
@@ -140,8 +156,9 @@ async function writeJson(filepath, json, options) {
     encoding: 'utf8',
     ...fsOptionsRaw
   }
+  const fs = getFs()
   const str = stringify(json, EOL, finalEOL, replacer, spaces)
-  await fs.writeFile(filepath, str, fsOptions)
+  await fs.promises.writeFile(filepath, str, fsOptions)
 }
 
 function writeJsonSync(filepath, json, options) {
@@ -157,8 +174,9 @@ function writeJsonSync(filepath, json, options) {
     encoding: 'utf8',
     ...fsOptionsRaw
   }
+  const fs = getFs()
   const str = stringify(json, EOL, finalEOL, replacer, spaces)
-  writeFileSync(filepath, str, fsOptions)
+  fs.writeFileSync(filepath, str, fsOptions)
 }
 
 module.exports = {

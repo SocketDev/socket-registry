@@ -171,12 +171,7 @@ function configs(sourceType) {
         'n/no-unsupported-features/node-builtins': [
           'error',
           {
-            ignores: [
-              'buffer.resolveObjectURL',
-              'module.enableCompileCache',
-              'fetch',
-              'fs.promises.cp'
-            ],
+            ignores: ['buffer.resolveObjectURL', 'fetch', 'fs.promises.cp'],
             // Lazily access constants.maintainedNodeVersions.
             version: constants.maintainedNodeVersions.current
           }

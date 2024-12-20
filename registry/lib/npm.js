@@ -1,11 +1,19 @@
 'use strict'
 
-const spawn = require('@npmcli/promise-spawn')
+let _spawn
+function getSpawn() {
+  if (_spawn === undefined) {
+    const id = '@npmcli/promise-spawn'
+    _spawn = require(id)
+  }
+  return _spawn
+}
 
 const constants = require('./constants')
 const { WIN32, execPath } = constants
 
 async function execNpm(args, options) {
+  const spawn = getSpawn()
   return await spawn(
     // Lazily access constants.npmExecPath.
     constants.npmExecPath,
@@ -19,6 +27,7 @@ async function execNpm(args, options) {
 }
 
 async function runBin(binPath, args, options) {
+  const spawn = getSpawn()
   return await spawn(
     WIN32 ? binPath : execPath,
     [
@@ -44,6 +53,7 @@ async function runScript(scriptName, args, options) {
   // Lazily access constants.SUPPORTS_NODE_RUN and constants.npmExecPath.
   const useNodeRun = !prepost && constants.SUPPORTS_NODE_RUN
   const cmd = useNodeRun ? execPath : constants.npmExecPath
+  const spawn = getSpawn()
   return await spawn(
     cmd,
     [

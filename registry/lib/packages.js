@@ -1,21 +1,5 @@
 'use strict'
 
-const { writeFileSync } = require('node:fs')
-const path = require('node:path')
-
-const EditablePackageJsonBase = require('@npmcli/package-json')
-const cacache = require('cacache')
-const pack = require('libnpmpack')
-const makeFetchHappen = require('make-fetch-happen')
-const normalizePackageData = require('normalize-package-data')
-const npmPackageArg = require('npm-package-arg')
-const { PackageURL } = require('packageurl-js')
-const pacote = require('pacote')
-const semver = require('semver')
-const spdxCorrect = require('spdx-correct')
-const spdxExpParse = require('spdx-expression-parse')
-const validateNpmPackageName = require('validate-npm-package-name')
-
 const constants = require('./constants')
 const {
   LOOP_SENTINEL,
@@ -55,37 +39,166 @@ const escapedScopeRegExp = new RegExp(
 const fileReferenceRegExp = /^SEE LICEN[CS]E IN (.+)$/
 const pkgScopeRegExp = new RegExp(`^${escapeRegExp(PACKAGE_SCOPE)}/`)
 
-const fetcher = makeFetchHappen.defaults({
-  cachePath: pacoteCachePath,
-  // Prefer-offline: Staleness checks for cached data will be bypassed, but
-  // missing data will be requested from the server.
-  // https://github.com/npm/make-fetch-happen?tab=readme-ov-file#--optscache
-  cache: 'force-cache'
-})
-
-class EditablePackageJson extends EditablePackageJsonBase {
-  #_canSave = true
-
-  fromContent(data) {
-    super.fromContent(data)
-    this.#_canSave = false
-    return this
+let _cacache
+function getCacache() {
+  if (_cacache === undefined) {
+    const id = 'cacache'
+    _cacache = require(id)
   }
+  return _cacache
+}
 
-  async saveSync() {
-    if (!this.#_canSave || this.content === undefined) {
-      throw new Error('No package.json to save to')
-    }
-    const { [Symbol.for('indent')]: indent, [Symbol.for('newline')]: newline } =
-      this.content
-    const format = indent === undefined ? '  ' : indent
-    const eol = newline === undefined ? '\n' : newline
-    let fileContent = `${JSON.stringify(this.content, null, format)}\n`
-    if (eol !== '\n') {
-      fileContent = fileContent.replace(/\n/g, eol)
-    }
-    writeFileSync(this.filename, fileContent)
+let _fetcher
+function getFetcher() {
+  if (_fetcher === undefined) {
+    const id = 'make-fetch-happen'
+    const makeFetchHappen = require(id)
+    _fetcher = makeFetchHappen.defaults({
+      cachePath: pacoteCachePath,
+      // Prefer-offline: Staleness checks for cached data will be bypassed, but
+      // missing data will be requested from the server.
+      // https://github.com/npm/make-fetch-happen?tab=readme-ov-file#--optscache
+      cache: 'force-cache'
+    })
   }
+  return _fetcher
+}
+
+let _fs
+function getFs() {
+  if (_fs === undefined) {
+    const id = 'node:fs'
+    _fs = require(id)
+  }
+  return _fs
+}
+
+let _normalizePackageData
+function getNormalizePackageData() {
+  if (_normalizePackageData === undefined) {
+    const id = 'normalize-package-data'
+    _normalizePackageData = require(id)
+  }
+  return _normalizePackageData
+}
+
+let _npmPackageArg
+function getNpmPackageArg() {
+  if (_npmPackageArg === undefined) {
+    const id = 'npm-package-arg'
+    _npmPackageArg = require(id)
+  }
+  return _npmPackageArg
+}
+
+let _pack
+function getPack() {
+  if (_pack === undefined) {
+    const id = 'libnpmpack'
+    _pack = require(id)
+  }
+  return _pack
+}
+
+let _PackageURL
+function getPackageURL() {
+  if (_PackageURL === undefined) {
+    const id = 'packageurl-js'
+    _PackageURL = require(id).PackageURL
+  }
+  return _PackageURL
+}
+
+let _pacote
+function getPacote() {
+  if (_pacote === undefined) {
+    const id = 'pacote'
+    _pacote = require(id)
+  }
+  return _pacote
+}
+
+let _path
+function getPath() {
+  if (_path === undefined) {
+    const id = 'node:path'
+    _path = require(id)
+  }
+  return _path
+}
+
+let _semver
+function getSemver() {
+  if (_semver === undefined) {
+    const id = 'semver'
+    _semver = require(id)
+  }
+  return _semver
+}
+
+let _spdxCorrect
+function getSpdxCorrect() {
+  if (_spdxCorrect === undefined) {
+    const id = 'spdx-correct'
+    _spdxCorrect = require(id)
+  }
+  return _spdxCorrect
+}
+
+let _spdxExpParse
+function getSpdxExpParse() {
+  if (_spdxExpParse === undefined) {
+    const id = 'spdx-expression-parse'
+    _spdxExpParse = require(id)
+  }
+  return _spdxExpParse
+}
+
+let _validateNpmPackageName
+function getValidateNpmPackageName() {
+  if (_validateNpmPackageName === undefined) {
+    const id = 'validate-npm-package-name'
+    _validateNpmPackageName = require(id)
+  }
+  return _validateNpmPackageName
+}
+
+let _EditablePackageJsonClass
+function getEditablePackageJsonClass() {
+  if (_EditablePackageJsonClass === undefined) {
+    const id = '@npmcli/package-json'
+    const EditablePackageJsonBase = require(id)
+    _EditablePackageJsonClass = class EditablePackageJson extends (
+      EditablePackageJsonBase
+    ) {
+      #_canSave = true
+
+      fromContent(data) {
+        super.fromContent(data)
+        this.#_canSave = false
+        return this
+      }
+
+      async saveSync() {
+        if (!this.#_canSave || this.content === undefined) {
+          throw new Error('No package.json to save to')
+        }
+        const {
+          [Symbol.for('indent')]: indent,
+          [Symbol.for('newline')]: newline
+        } = this.content
+        const format = indent === undefined ? '  ' : indent
+        const eol = newline === undefined ? '\n' : newline
+        let fileContent = `${JSON.stringify(this.content, null, format)}\n`
+        if (eol !== '\n') {
+          fileContent = fileContent.replace(/\n/g, eol)
+        }
+        const fs = getFs()
+        fs.writeFileSync(this.filename, fileContent)
+      }
+    }
+  }
+  return _EditablePackageJsonClass
 }
 
 function collectIncompatibleLicenses(licenseNodes) {
@@ -196,6 +309,7 @@ function createPackageJson(regPkgName, directory, options) {
           engines: objectFromEntries(
             objectEntries(engines).map(pair => {
               if (pair[0] === 'node') {
+                const semver = getSemver()
                 const { 1: range } = pair
                 if (
                   !semver.satisfies(
@@ -238,6 +352,7 @@ async function extractPackage(pkgNameOrId, options, callback) {
     preferOffline: true,
     ...extractOptions_
   }
+  const pacote = getPacote()
   if (typeof dest === 'string') {
     await pacote.extract(pkgNameOrId, dest, extractOptions)
     if (typeof callback === 'function') {
@@ -246,6 +361,7 @@ async function extractPackage(pkgNameOrId, options, callback) {
   } else {
     // The DefinitelyTyped types for cacache.tmp.withTmp are incorrect.
     // It DOES returns a promise.
+    const cacache = getCacache()
     await cacache.tmp.withTmp(
       pacoteCachePath,
       { tmpPrefix },
@@ -270,6 +386,7 @@ async function fetchPackageManifest(pkgNameOrId, options) {
   if (signal?.aborted) {
     return null
   }
+  const pacote = getPacote()
   let result
   try {
     result = await pacote.manifest(pkgNameOrId, pacoteOptions)
@@ -278,6 +395,7 @@ async function fetchPackageManifest(pkgNameOrId, options) {
     return null
   }
   if (result) {
+    const npmPackageArg = getNpmPackageArg()
     const spec = npmPackageArg(pkgNameOrId, pacoteOptions.where)
     if (isRegistryFetcherType(spec.type)) {
       return result
@@ -295,6 +413,7 @@ function findPackageExtensions(pkgName, pkgVer) {
     const lastAtSignIndex = selector.lastIndexOf('@')
     const name = selector.slice(0, lastAtSignIndex)
     if (pkgName === name) {
+      const semver = getSemver()
       const range = selector.slice(lastAtSignIndex + 1)
       if (semver.satisfies(pkgVer, range)) {
         if (result === undefined) {
@@ -413,14 +532,26 @@ function isConditionalExports(entryExports) {
 }
 
 function isGitHubTgzSpec(spec, where) {
-  const parsedSpec = isObjectObject(spec) ? spec : npmPackageArg(spec, where)
+  let parsedSpec
+  if (isObjectObject(spec)) {
+    parsedSpec = spec
+  } else {
+    const npmPackageArg = getNpmPackageArg()
+    parsedSpec = npmPackageArg(spec, where)
+  }
   return (
     parsedSpec.type === 'remote' && !!parsedSpec.saveSpec?.endsWith('.tar.gz')
   )
 }
 
 function isGitHubUrlSpec(spec, where) {
-  const parsedSpec = isObjectObject(spec) ? spec : npmPackageArg(spec, where)
+  let parsedSpec
+  if (isObjectObject(spec)) {
+    parsedSpec = spec
+  } else {
+    const npmPackageArg = getNpmPackageArg()
+    parsedSpec = npmPackageArg(spec, where)
+  }
   return (
     parsedSpec.type === 'git' &&
     parsedSpec.hosted?.domain === 'github.com' &&
@@ -453,10 +584,12 @@ function isSubpathExports(entryExports) {
 }
 
 function isValidPackageName(name) {
+  const validateNpmPackageName = getValidateNpmPackageName()
   return validateNpmPackageName(name).validForOldPackages
 }
 
 function jsonToEditablePackageJson(pkgJson, options) {
+  const EditablePackageJson = getEditablePackageJsonClass()
   return new EditablePackageJson().fromContent(
     normalizePackageJson(pkgJson, options)
   )
@@ -478,6 +611,7 @@ function normalizePackageJson(pkgJson, options) {
         ])
       : [])
   ]
+  const normalizePackageData = getNormalizePackageData()
   normalizePackageData(pkgJson)
   merge(pkgJson, findPackageExtensions(pkgJson.name, pkgJson.version))
   // Revert/remove properties we don't care to have normalized.
@@ -489,6 +623,7 @@ function normalizePackageJson(pkgJson, options) {
 }
 
 async function packPackage(spec, options) {
+  const pack = getPack()
   return await pack(spec, {
     __proto__: null,
     ...options,
@@ -498,9 +633,11 @@ async function packPackage(spec, options) {
 }
 
 function parseSpdxExp(spdxExp) {
+  const spdxExpParse = getSpdxExpParse()
   try {
     return spdxExpParse(spdxExp)
   } catch {}
+  const spdxCorrect = getSpdxCorrect()
   const corrected = spdxCorrect(spdxExp)
   return corrected ? spdxExpParse(corrected) : null
 }
@@ -529,6 +666,7 @@ async function resolveGitHubTgzUrl(pkgNameOrId, where) {
   const whereIsPkgJson = isObjectObject(where)
   const pkgJson = whereIsPkgJson ? where : await readPackageJson(where)
   const { version } = pkgJson
+  const npmPackageArg = getNpmPackageArg()
   const parsedSpec = npmPackageArg(
     pkgNameOrId,
     whereIsPkgJson ? undefined : where
@@ -547,6 +685,7 @@ async function resolveGitHubTgzUrl(pkgNameOrId, where) {
     if (isGitHubUrl) {
       apiUrl = gitHubTagRefUrl(user, project, parsedSpec.gitCommittish)
     } else {
+      const fetcher = getFetcher()
       // First try to resolve the sha for a tag starting with "v", e.g. v1.2.3.
       apiUrl = gitHubTagRefUrl(user, project, `v${version}`)
       if (!(await fetcher(apiUrl, { method: 'head' })).ok) {
@@ -558,6 +697,7 @@ async function resolveGitHubTgzUrl(pkgNameOrId, where) {
       }
     }
     if (apiUrl) {
+      const fetcher = getFetcher()
       const resp = await fetcher(apiUrl)
       const json = await resp.json()
       const sha = json?.object?.sha
@@ -577,7 +717,11 @@ function resolveOriginalPackageName(regPkgName) {
 }
 
 function resolvePackageJsonDirname(filepath) {
-  return filepath.endsWith(PACKAGE_JSON) ? path.dirname(filepath) : filepath
+  if (filepath.endsWith(PACKAGE_JSON)) {
+    const path = getPath()
+    return path.dirname(filepath)
+  }
+  return filepath
 }
 
 function resolvePackageJsonEntryExports(entryExports) {
@@ -593,9 +737,11 @@ function resolvePackageJsonEntryExports(entryExports) {
 }
 
 function resolvePackageJsonPath(filepath) {
-  return filepath.endsWith(PACKAGE_JSON)
-    ? filepath
-    : path.join(filepath, PACKAGE_JSON)
+  if (filepath.endsWith(PACKAGE_JSON)) {
+    return filepath
+  }
+  const path = getPath()
+  return path.join(filepath, PACKAGE_JSON)
 }
 
 function resolvePackageLicenses(licenseFieldValue, where) {
@@ -609,6 +755,7 @@ function resolvePackageLicenses(licenseFieldValue, where) {
   // https://github.com/kemitchell/validate-npm-package-license.js/blob/v3.0.4/index.js#L48-L53
   const match = fileReferenceRegExp.exec(licenseFieldValue)
   if (match) {
+    const path = getPath()
     return [
       {
         license: licenseFieldValue,
@@ -648,6 +795,7 @@ function resolvePackageName(purlObj, delimiter = '/') {
 }
 
 function resolveRegistryPackageName(pkgName) {
+  const PackageURL = getPackageURL()
   const purlObj = PackageURL.fromString(`pkg:npm/${pkgName}`)
   return purlObj.namespace
     ? `${purlObj.namespace.slice(1)}${REGISTRY_SCOPE_DELIMITER}${purlObj.name}`
@@ -662,6 +810,7 @@ async function toEditablePackageJson(pkgJson, options) {
   if (typeof filepath !== 'string') {
     return jsonToEditablePackageJson(pkgJson, normalizeOptions)
   }
+  const EditablePackageJson = getEditablePackageJsonClass()
   const pkgJsonPath = resolvePackageJsonDirname(filepath)
   return (
     await EditablePackageJson.load(pkgJsonPath, { create: true })
@@ -686,6 +835,7 @@ function toEditablePackageJsonSync(pkgJson, options) {
   if (typeof filepath !== 'string') {
     return jsonToEditablePackageJson(pkgJson, normalizeOptions)
   }
+  const EditablePackageJson = getEditablePackageJsonClass()
   const pkgJsonPath = resolvePackageJsonDirname(filepath)
   return new EditablePackageJson().create(pkgJsonPath).fromJSON(
     `${JSON.stringify(

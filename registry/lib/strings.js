@@ -1,8 +1,15 @@
 'use strict'
 
-const prettier = require('prettier')
-
 const constants = require('./constants')
+
+let _prettier
+function getPrettier() {
+  if (_prettier === undefined) {
+    const id = 'prettier'
+    _prettier = require(id)
+  }
+  return _prettier
+}
 
 function indentString(str, count = 1) {
   return str.replace(/^(?!\s*$)/gm, ' '.repeat(count))
@@ -13,6 +20,7 @@ function isNonEmptyString(value) {
 }
 
 async function prettierFormat(str, options) {
+  const prettier = getPrettier()
   return prettier.format(str, {
     __proto__: null,
     // Lazily access constants.prettierConfigPromise.
