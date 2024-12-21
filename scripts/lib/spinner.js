@@ -3,10 +3,6 @@
 const constants = require('@socketregistry/scripts/constants')
 const yoctoSpinner = require('@socketregistry/yocto-spinner')
 
-const {
-  ENV: { CI }
-} = constants
-
 const ciSpinner = {
   frames: [''],
   // The delay argument is converted to a signed 32-bit integer. This effectively
@@ -18,7 +14,8 @@ const ciSpinner = {
 
 function Spinner(options) {
   return yoctoSpinner({
-    spinner: CI ? ciSpinner : undefined,
+    // Lazily access constants.ENV.
+    spinner: constants.ENV.CI ? ciSpinner : undefined,
     ...options
   })
 }

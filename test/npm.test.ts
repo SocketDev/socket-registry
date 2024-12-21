@@ -7,15 +7,11 @@ import semver from 'semver'
 
 import constants from '@socketregistry/scripts/constants'
 const {
-  ENV,
   LICENSE_GLOB_RECURSIVE,
-  NODE_VERSION,
   PACKAGE_JSON,
   README_GLOB_RECURSIVE,
-  WIN32,
   abortSignal,
   parseArgsConfig,
-  skipTestsByEcosystem,
   testNpmNodeWorkspacesPath,
   win32EnsureTestsByEcosystem
 } = constants
@@ -36,14 +32,21 @@ const eco = 'npm'
 
 const testNpmNodeWorkspacesPackages = (<string[]>(
   readDirNamesSync(testNpmNodeWorkspacesPath)
-)).filter(n => !skipTestsByEcosystem[eco]?.has(n))
+)).filter(
+  // Lazily access constants.skipTestsByEcosystem.
+  n => !constants.skipTestsByEcosystem[eco]?.has(n)
+)
 
 const packageNames: string[] =
-  ENV.CI || cliArgs.force
+  // Lazily access constants.ENV.
+  cliArgs.force || constants.ENV.CI
     ? testNpmNodeWorkspacesPackages
     : (() => {
-        const testablePackages = (
-          ENV.PRE_COMMIT ? getStagedPackagesSync : getModifiedPackagesSync
+        const testablePackages = // Lazily access constants.ENV.
+        (
+          constants.ENV.PRE_COMMIT
+            ? getStagedPackagesSync
+            : getModifiedPackagesSync
         )(eco, {
           asSet: true,
           ignore: [LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE]
@@ -62,11 +65,13 @@ describe(eco, { skip: !packageNames.length }, () => {
     const origPkgName = resolveOriginalPackageName(regPkgName)
     const skip =
       !nwPkgJson.scripts?.test ||
-      (WIN32 &&
+      // Lazily access constants.WIN32.
+      (constants.WIN32 &&
         !manifestData?.interop.includes('browserify') &&
         !win32EnsureTestsByEcosystem?.[eco]?.has(origPkgName)) ||
       (isNonEmptyString(nodeRange) &&
-        !semver.satisfies(NODE_VERSION, nodeRange))
+        // Lazily access constants.NODE_VERSION.
+        !semver.satisfies(constants.NODE_VERSION, nodeRange))
 
     it(`${origPkgName} passes all its tests`, { skip }, async () => {
       try {

@@ -3,7 +3,7 @@
 const util = require('node:util')
 
 const constants = require('@socketregistry/scripts/constants')
-const { ENV, LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE, parseArgsConfig } =
+const { LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE, parseArgsConfig } =
   constants
 const {
   getModifiedPackagesSync,
@@ -13,7 +13,9 @@ const {
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 
 function isPackageTestingSkipped(eco, regPkgName) {
-  return ENV.CI || cliArgs.force
+  // Lazily access constants.ENV.
+  const { ENV } = constants
+  return cliArgs.force || ENV.CI
     ? false
     : !(ENV.PRE_COMMIT ? getStagedPackagesSync : getModifiedPackagesSync)(eco, {
         ignore: [LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE]

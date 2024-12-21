@@ -17,7 +17,6 @@ const {
   registryManifestJsonPath,
   relRegistryManifestJsonPath,
   rootPackagesPath,
-  skipTestsByEcosystem,
   testNpmPkgJsonPath
 } = constants
 const { getModifiedFiles } = require('@socketregistry/scripts/lib/git')
@@ -97,7 +96,8 @@ async function addNpmManifestData(manifest) {
     if (isBrowserify) {
       interop.push('browserify')
     }
-    const skipTests = skipTestsByEcosystem[eco].has(regPkgName)
+    // Lazily access constants.skipTestsByEcosystem.
+    const skipTests = constants.skipTestsByEcosystem[eco].has(regPkgName)
     const metaEntries = [
       ['name', name],
       ['interop', interop.sort(localeCompare)],

@@ -1,5 +1,7 @@
 'use strict'
 
+const constants = require('./constants')
+
 let _spawn
 function getSpawn() {
   if (_spawn === undefined) {
@@ -8,9 +10,6 @@ function getSpawn() {
   }
   return _spawn
 }
-
-const constants = require('./constants')
-const { WIN32, execPath } = constants
 
 async function execNpm(args, options) {
   const spawn = getSpawn()
@@ -27,9 +26,12 @@ async function execNpm(args, options) {
 }
 
 async function runBin(binPath, args, options) {
+  // Lazily access constants.WIN32.
+  const { WIN32 } = constants
   const spawn = getSpawn()
   return await spawn(
-    WIN32 ? binPath : execPath,
+    // Lazily access constants.execPath.
+    WIN32 ? binPath : constants.execPath,
     [
       ...(WIN32
         ? []
@@ -50,9 +52,10 @@ async function runBin(binPath, args, options) {
 
 async function runScript(scriptName, args, options) {
   const { prepost, ...spawnOptions } = { __proto__: null, ...options }
-  // Lazily access constants.SUPPORTS_NODE_RUN and constants.npmExecPath.
+  // Lazily access constants.SUPPORTS_NODE_RUN.
   const useNodeRun = !prepost && constants.SUPPORTS_NODE_RUN
-  const cmd = useNodeRun ? execPath : constants.npmExecPath
+  // Lazily access constants.execPath and constants.npmExecPath.
+  const cmd = useNodeRun ? constants.execPath : constants.npmExecPath
   const spawn = getSpawn()
   return await spawn(
     cmd,

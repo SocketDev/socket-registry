@@ -7,14 +7,19 @@ const YAML = require('@zkochan/js-yaml')
 const readYamlFile = require('read-yaml-file')
 
 const constants = require('@socketregistry/scripts/constants')
-const { ENV, parseArgsConfig, tapCiConfigPath, tapConfigPath } = constants
+const { parseArgsConfig, tapCiConfigPath, tapConfigPath } = constants
 const { isModified } = require('@socketregistry/scripts/lib/git')
 
 const { values: cliArgs } = util.parseArgs(parseArgsConfig)
 
 void (async () => {
   // Exit early if no relevant files have been modified.
-  if (!cliArgs.force && !ENV.CI && !(await isModified(tapConfigPath))) {
+  // Lazily access constants.ENV.
+  if (
+    !cliArgs.force &&
+    !constants.ENV.CI &&
+    !(await isModified(tapConfigPath))
+  ) {
     return
   }
   const config = await readYamlFile(tapConfigPath)

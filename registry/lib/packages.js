@@ -13,9 +13,7 @@ const {
   UNLICENCED,
   UNLICENSED,
   copyLeftLicenses,
-  packageExtensions,
-  packumentCache,
-  pacoteCachePath
+  packumentCache
 } = constants
 const { readJson, readJsonSync } = require('./fs')
 const {
@@ -54,7 +52,8 @@ function getFetcher() {
     const id = 'make-fetch-happen'
     const makeFetchHappen = require(id)
     _fetcher = makeFetchHappen.defaults({
-      cachePath: pacoteCachePath,
+      // Lazily access constants.pacoteCachePath.
+      cachePath: constants.pacoteCachePath,
       // Prefer-offline: Staleness checks for cached data will be bypassed, but
       // missing data will be requested from the server.
       // https://github.com/npm/make-fetch-happen?tab=readme-ov-file#--optscache
@@ -363,7 +362,8 @@ async function extractPackage(pkgNameOrId, options, callback) {
     // It DOES returns a promise.
     const cacache = getCacache()
     await cacache.tmp.withTmp(
-      pacoteCachePath,
+      // Lazily access constants.pacoteCachePath.
+      constants.pacoteCachePath,
       { tmpPrefix },
       async tmpDirPath => {
         await pacote.extract(pkgNameOrId, tmpDirPath, extractOptions)
@@ -409,7 +409,8 @@ async function fetchPackageManifest(pkgNameOrId, options) {
 
 function findPackageExtensions(pkgName, pkgVer) {
   let result
-  for (const { 0: selector, 1: ext } of packageExtensions) {
+  // Lazily access constants.packageExtensions.
+  for (const { 0: selector, 1: ext } of constants.packageExtensions) {
     const lastAtSignIndex = selector.lastIndexOf('@')
     const name = selector.slice(0, lastAtSignIndex)
     if (pkgName === name) {

@@ -12,10 +12,8 @@ import { glob as tinyGlob } from 'tinyglobby'
 
 import constants from '@socketregistry/scripts/constants'
 const {
-  ENV,
   LICENSE,
   LICENSE_GLOB,
-  NODE_VERSION,
   OVERRIDES,
   PACKAGE_JSON,
   README_GLOB,
@@ -79,8 +77,10 @@ for (const eco of constants.ecosystems) {
   if (eco !== 'npm') {
     continue
   }
+  // Lazily access constants.ENV.
+  const { ENV } = constants
   const packageNames: readonly string[] =
-    ENV.CI || cliArgs.force
+    cliArgs.force || ENV.CI
       ? // Lazily access constants.npmPackageNames.
         constants.npmPackageNames
       : (() => {
@@ -282,6 +282,8 @@ for (const eco of constants.ecosystems) {
           files.includes('polyfill.js')
         ) {
           describe('es-shim', () => {
+            // Lazily access constants.NODE_VERSION.
+            const { NODE_VERSION } = constants
             const nodeRange = pkgJson?.engines?.['node']
             const skipping =
               isNonEmptyString(nodeRange) &&

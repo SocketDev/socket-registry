@@ -6,7 +6,6 @@ const util = require('node:util')
 const constants = require('@socketregistry/scripts/constants')
 const {
   COLUMN_LIMIT,
-  ENV,
   PACKAGE_SCOPE,
   npmPackagesPath,
   parseArgsConfig,
@@ -26,7 +25,9 @@ function packageData(data) {
 
 void (async () => {
   // Exit early if not running in CI or with --force.
-  if (!(ENV.CI || cliArgs.force)) {
+  // Lazily access constants.ENV.
+  const { ENV } = constants
+  if (!(cliArgs.force || ENV.CI)) {
     return
   }
   const fails = []
