@@ -18,22 +18,30 @@ interface ENV {
   readonly CI: boolean
   readonly NODE_AUTH_TOKEN: string
   readonly PRE_COMMIT: boolean
+  readonly TAP: boolean
 }
 declare type GetterDefObj = { [key: PropertyKey]: () => any }
+declare type LazyGetterStats = { initialized?: Set<PropertyKey> | undefined }
 interface Internals {
   readonly createConstantsObject: (
     props: object,
     options?: ConstantsObjectOptions | undefined
   ) => Readonly<object>
-  readonly createLazyGetter: <T>(getter: () => T) => () => T
+  readonly createLazyGetter: <T>(
+    name: PropertyKey,
+    getter: () => T,
+    stats?: LazyGetterStats
+  ) => () => T
   readonly defineLazyGetter: <T>(
     object: object,
     propKey: PropertyKey,
-    getter: () => T
+    getter: () => T,
+    stats?: LazyGetterStats
   ) => object
   readonly defineLazyGetters: (
     object: object,
-    getterDefObj: GetterDefObj | undefined
+    getterDefObj: GetterDefObj | undefined,
+    stats?: LazyGetterStats
   ) => object
   readonly getGlobMatcher: (
     glob: string | string[],
@@ -51,6 +59,7 @@ interface Internals {
     }
   ) => string[]
   readonly isDirEmptySync: (dirname: string) => boolean
+  get lazyGetterStats(): { initialized: Set<PropertyKey> }
   readonly localeCompare: Intl.Collator['compare']
   readonly naturalSort: <T>(arrayToSort: T[]) => IFastSort<T>
   readonly objectEntries: typeof objectEntries

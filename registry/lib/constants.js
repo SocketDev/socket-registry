@@ -140,18 +140,23 @@ function createConstantsObject(props, options) {
     internals = {},
     mixin
   } = { __proto__: null, ...options }
+  const lazyGetterStats = { initialized: new Set() }
   const object = defineLazyGetters(
     {
       __proto__: null,
       [kInternalsSymbol]: Object.freeze({
         __proto__: null,
+        get lazyGetterStats() {
+          return lazyGetterStats
+        },
         ...internalsMixin,
         ...internals
       }),
       kInternalsSymbol,
       ...props
     },
-    getters
+    getters,
+    lazyGetterStats
   )
   if (mixin) {
     Object.defineProperties(
@@ -166,27 +171,40 @@ function createConstantsObject(props, options) {
   return Object.freeze(object)
 }
 
-function createLazyGetter(getter) {
+function createLazyGetter(name, getter, stats) {
   let lazyValue = UNDEFINED_LAZY_VALUE
-  return () => {
-    if (lazyValue === UNDEFINED_LAZY_VALUE) {
-      lazyValue = getter()
+  // Dynamically name the getter without using Object.defineProperty.
+  const { [name]: lazyGetter } = {
+    [name]() {
+      if (lazyValue === UNDEFINED_LAZY_VALUE) {
+        stats?.initialized?.add(name)
+        lazyValue = getter()
+      }
+      return lazyValue
     }
-    return lazyValue
   }
+  return lazyGetter
 }
 
-function defineLazyGetter(object, propKey, getter) {
-  __defineGetter__.call(object, propKey, createLazyGetter(getter))
+function defineLazyGetter(object, propKey, getter, stats) {
+  __defineGetter__.call(
+    object,
+    propKey,
+    createLazyGetter(propKey, getter, stats)
+  )
   return object
 }
 
-function defineLazyGetters(object, getterDefObj) {
+function defineLazyGetters(object, getterDefObj, stats) {
   if (getterDefObj !== null && typeof getterDefObj === 'object') {
     const keys = Reflect.ownKeys(getterDefObj)
     for (let i = 0, { length } = keys; i < length; i += 1) {
       const key = keys[i]
-      defineLazyGetter(object, key, createLazyGetter(getterDefObj[key]))
+      defineLazyGetter(
+        object,
+        key,
+        createLazyGetter(key, getterDefObj[key], stats)
+      )
     }
   }
   return object
@@ -342,17 +360,22 @@ const UNLICENCED = 'UNLICENCED'
 const UNLICENSED = 'UNLICENSED'
 
 const LAZY_ENV = () => {
-  const process = getProcess()
+  const {
+    env: { CI, NODE_AUTH_TOKEN, PRE_COMMIT, TAP }
+  } = getProcess()
   return Object.freeze({
     __proto__: null,
     // CI is always set to "true" in a GitHub action.
     // https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables
-    CI: envAsBoolean(process.env.CI),
+    CI: envAsBoolean(CI),
     // .github/workflows/provenance.yml defines this.
-    NODE_AUTH_TOKEN: envAsString(process.env.NODE_AUTH_TOKEN),
+    NODE_AUTH_TOKEN: envAsString(NODE_AUTH_TOKEN),
     // PRE_COMMIT is set to "1" by our "test-pre-commit" script run by the
     // .husky/pre-commit hook.
-    PRE_COMMIT: envAsBoolean(process.env.PRE_COMMIT)
+    PRE_COMMIT: envAsBoolean(PRE_COMMIT),
+    // TAP=1 is set by the tap-run test runner.
+    // https://node-tap.org/environment/#environment-variables-used-by-tap
+    TAP: envAsBoolean(TAP)
   })
 }
 

@@ -42,15 +42,16 @@ const packageNames: string[] =
   cliArgs.force || constants.ENV.CI
     ? testNpmNodeWorkspacesPackages
     : (() => {
-        const testablePackages = // Lazily access constants.ENV.
-        (
-          constants.ENV.PRE_COMMIT
-            ? getStagedPackagesSync
-            : getModifiedPackagesSync
-        )(eco, {
-          asSet: true,
-          ignore: [LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE]
-        })
+        const testablePackages =
+          // Lazily access constants.ENV.
+          (
+            constants.ENV.PRE_COMMIT
+              ? getStagedPackagesSync
+              : getModifiedPackagesSync
+          )(eco, {
+            asSet: true,
+            ignore: [LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE]
+          })
         return testNpmNodeWorkspacesPackages.filter((n: string) =>
           testablePackages.has(n)
         )

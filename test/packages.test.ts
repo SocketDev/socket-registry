@@ -17,7 +17,6 @@ const {
   OVERRIDES,
   PACKAGE_JSON,
   README_GLOB,
-  npmPackagesPath,
   parseArgsConfig
 } = constants
 import {
@@ -95,7 +94,8 @@ for (const eco of constants.ecosystems) {
 
   describe(eco, { skip: !packageNames.length }, () => {
     for (const regPkgName of packageNames) {
-      const pkgPath = path.join(npmPackagesPath, regPkgName)
+      // Lazily access constants.npmPackagesPath.
+      const pkgPath = path.join(constants.npmPackagesPath, regPkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
       const pkgJsonExists = existsSync(pkgJsonPath)
       const pkgLicensePath = path.join(pkgPath, LICENSE)
