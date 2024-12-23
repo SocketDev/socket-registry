@@ -64,6 +64,7 @@ const {
   MANIFEST_JSON,
   NODE_MODULES,
   NODE_WORKSPACES,
+  NPM,
   PACKAGE_JSON,
   PACKAGE_LOCK,
   PRETTIER_IGNORE,
@@ -149,11 +150,11 @@ const lazyNpmPackageNames = () =>
 
 const lazyNpmPackagesPath = () =>
   // Lazily access constants.rootPackagesPath.
-  getPath().join(constants.rootPackagesPath, 'npm')
+  getPath().join(constants.rootPackagesPath, NPM)
 
 const lazyNpmTemplatesPath = () =>
   // Lazily access constants.templatesPath.
-  getPath().join(constants.templatesPath, 'npm')
+  getPath().join(constants.templatesPath, NPM)
 
 const lazyNpmTemplatesReadmePath = () =>
   // Lazily access constants.npmTemplatesPath.
@@ -161,7 +162,7 @@ const lazyNpmTemplatesReadmePath = () =>
 
 const lazyPerfNpmPath = () =>
   // Lazily access constants.rootPath.
-  getPath().join(constants.rootPath, 'perf/npm')
+  getPath().join(constants.rootPath, `perf/${NPM}`)
 
 const lazyPerfNpmFixturesPath = () =>
   // Lazily access constants.perfNpmPath.
@@ -269,7 +270,7 @@ const lazyTemplatesPath = () => getPath().join(__dirname, 'templates')
 
 const lazyTestNpmPath = () =>
   // Lazily access constants.rootPath.
-  getPath().join(constants.rootPath, 'test/npm')
+  getPath().join(constants.rootPath, `test/${NPM}`)
 
 const lazyTestNpmFixturesPath = () =>
   // Lazily access constants.testNpmPath.

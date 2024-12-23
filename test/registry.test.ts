@@ -4,16 +4,27 @@ import { describe, it } from 'node:test'
 
 import { glob as tinyGlob } from 'tinyglobby'
 
+import constants from '@socketregistry/scripts/constants'
+const { NPM } = constants
+import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
+
 const rootPath = path.resolve(__dirname, '..')
 const rootRegistryPath = path.join(rootPath, 'registry')
 
-describe('@socketsecurity/registry', () => {
+const eco = NPM
+const regPkgName = '@socketsecurity/registry'
+
+describe(regPkgName, { skip: isPackageTestingSkipped(eco, regPkgName) }, () => {
   it('should not trigger lazy getter on module initialization', async () => {
-    for (const filepath of await tinyGlob(['**/*.js'], {
+    const jsFilepaths = await tinyGlob(['**/*.js'], {
       absolute: true,
       cwd: rootRegistryPath,
       ignore: ['**/node_modules']
-    })) {
+    })
+    for (const filepath of jsFilepaths) {
+      delete require.cache[filepath]
+    }
+    for (const filepath of jsFilepaths) {
       require(filepath)
     }
     const registryConstants = require(

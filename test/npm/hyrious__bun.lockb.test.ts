@@ -4,10 +4,11 @@ import path from 'node:path'
 import { describe, it } from 'node:test'
 
 import constants from '@socketregistry/scripts/constants'
+const { NPM } = constants
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/packages'
 
-const eco = 'npm'
+const eco = NPM
 const regPkgName = path.basename(__filename, '.test.ts')
 
 // @hyrious/bun.lockb has no unit tests.

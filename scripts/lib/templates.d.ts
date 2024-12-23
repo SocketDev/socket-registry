@@ -23,16 +23,24 @@ declare type NpmReadmeAction = PackageAction
 declare type TypeScripAction = {
   references: string[]
 }
-declare type Action =
-  | LicenseAction
-  | NpmReadmeAction
-  | PackageAction
-  | TypeScripAction
 declare interface TypeScriptOptions {
   references?: string[] | undefined
   transform?:
     | ((filepath: string, data: { references: string[] }) => Promise<any>)
     | undefined
+}
+declare type Action =
+  | LicenseAction
+  | NpmReadmeAction
+  | PackageAction
+  | TypeScripAction
+declare type Templates = {
+  TEMPLATE_CJS: string
+  TEMPLATE_CJS_BROWSER: string
+  TEMPLATE_CJS_ESM: string
+  TEMPLATE_ES_SHIM_CONSTRUCTOR: string
+  TEMPLATE_ES_SHIM_PROTOTYPE_METHOD: string
+  TEMPLATE_ES_SHIM_STATIC_METHOD: string
 }
 declare function getLicenseActions(
   pkgPath: string
@@ -51,21 +59,16 @@ declare function getTypeScriptActions(
 ): Promise<[string, TypeScripAction][]>
 declare function renderAction(action: [PathLike, Action]): Promise<string>
 declare function writeAction(action: [PathLike, Action]): Promise<void>
-declare const templates: {
-  TEMPLATE_CJS: string
-  TEMPLATE_CJS_BROWSER: string
-  TEMPLATE_CJS_ESM: string
-  TEMPLATE_ES_SHIM_CONSTRUCTOR: string
-  TEMPLATE_ES_SHIM_PROTOTYPE_METHOD: string
-  TEMPLATE_ES_SHIM_STATIC_METHOD: string
-}
+declare function getTemplate<T extends keyof Templates>(
+  templateName: T
+): Templates[T]
 declare const spinner: {
   getLicenseActions: typeof getLicenseActions
   getNpmReadmeAction: typeof getNpmReadmeAction
   getPackageJsonAction: typeof getPackageJsonAction
+  getTemplate: typeof getTemplate
   getTypeScriptActions: typeof getTypeScriptActions
   renderAction: typeof renderAction
-  templates: typeof templates
   writeAction: typeof writeAction
 }
 export = spinner

@@ -115,6 +115,7 @@ declare const constantsModule: {
   readonly NODE_MODULES_GLOB_RECURSIVE: '**/node_modules'
   readonly NODE_WORKSPACES: 'node_workspaces'
   readonly NODE_VERSION: string
+  readonly NPM: 'npm'
   readonly NPM_ORG: 'socketregistry'
   readonly OVERRIDES: 'overrides'
   readonly PACKAGE_DEFAULT_SOCKET_CATEGORIES: readonly ['cleanup']

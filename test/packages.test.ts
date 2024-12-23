@@ -14,6 +14,7 @@ import constants from '@socketregistry/scripts/constants'
 const {
   LICENSE,
   LICENSE_GLOB,
+  NPM,
   OVERRIDES,
   PACKAGE_JSON,
   README_GLOB,
@@ -73,7 +74,7 @@ function prepareReqId(id: string) {
 }
 
 for (const eco of constants.ecosystems) {
-  if (eco !== 'npm') {
+  if (eco !== NPM) {
     continue
   }
   // Lazily access constants.ENV.

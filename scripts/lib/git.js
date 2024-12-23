@@ -1,14 +1,35 @@
 'use strict'
 
-const { spawnSync } = require('node:child_process')
-const path = require('node:path')
+let _child_process
+function getChildProcess() {
+  if (_child_process === undefined) {
+    const id = 'node:child_process'
+    _child_process = require(id)
+  }
+  return _child_process
+}
 
-const spawn = require('@npmcli/promise-spawn')
+let _path
+function getPath() {
+  if (_path === undefined) {
+    const id = 'node:path'
+    _path = require(id)
+  }
+  return _path
+}
+
+let _spawn
+function getSpawn() {
+  if (_spawn === undefined) {
+    const id = '@npmcli/promise-spawn'
+    _spawn = require(id)
+  }
+  return _spawn
+}
 
 const constants = require('@socketregistry/scripts/constants')
 const {
-  rootPackagesPath,
-  rootPath,
+  NPM,
   kInternalsSymbol,
   [kInternalsSymbol]: { defineLazyGetters }
 } = constants
@@ -25,7 +46,8 @@ const gitDiffSpawnArgs = defineLazyGetters(
       constants.gitExecPath,
       ['diff', '--name-only'],
       {
-        cwd: rootPath,
+        // Lazily access constants.rootPath.
+        cwd: constants.rootPath,
         encoding: 'utf8'
       }
     ],
@@ -34,7 +56,8 @@ const gitDiffSpawnArgs = defineLazyGetters(
       constants.gitExecPath,
       ['diff', '--cached', '--name-only'],
       {
-        cwd: rootPath,
+        // Lazily access constants.rootPath.
+        cwd: constants.rootPath,
         shell: true,
         encoding: 'utf8'
       }
@@ -51,6 +74,7 @@ async function innerDiff(args, options) {
       return result
     }
   }
+  const spawn = getSpawn()
   let result
   try {
     result = parseGitDiffStdout((await spawn(...args)).stdout, parseOptions)
@@ -74,7 +98,10 @@ function innerDiffSync(args, options) {
   }
   let result
   try {
-    result = parseGitDiffStdout(spawnSync(...args).stdout, parseOptions)
+    result = parseGitDiffStdout(
+      getChildProcess().spawnSync(...args).stdout,
+      parseOptions
+    )
   } catch {
     return []
   }
@@ -86,24 +113,41 @@ function innerDiffSync(args, options) {
 
 function innerGetPackages(eco, files, options) {
   const { asSet = false, ...matcherOptions } = { __proto__: null, ...options }
-  const ecoPackagesPath = path.join(rootPackagesPath, eco)
+  const path = getPath()
+  // Lazily access constants.rootPackagesPath.
+  const ecoPackagesPath = path.join(constants.rootPackagesPath, eco)
+  // Lazily access constants.rootPath.
+  const { rootPath } = constants
   const relEcoPackagesPath = normalizePath(
     path.relative(rootPath, ecoPackagesPath)
   )
-  const matcher = getGlobMatcher([`${relEcoPackagesPath}/**`], {
-    __proto__: null,
-    ...matcherOptions,
-    absolute: false,
-    cwd: rootPath
-  })
+  const matcher = getGlobMatcher(
+    [
+      `${relEcoPackagesPath}/**`,
+      // Lazily access constants.relRegistryPkgPath.
+      ...(eco === NPM ? [`${constants.relRegistryPkgPath}/**`] : [])
+    ],
+    {
+      __proto__: null,
+      ...matcherOptions,
+      absolute: false,
+      cwd: rootPath
+    }
+  )
   const sliceStart = relEcoPackagesPath.length + 1
   const packageNames = new Set()
   for (const filepath of files) {
     if (matcher(filepath)) {
-      const regPkgName = filepath.slice(
-        sliceStart,
-        filepath.indexOf('/', sliceStart)
-      )
+      let regPkgName
+      // Lazily access constants.relRegistryPkgPath.
+      if (eco === NPM && filepath.startsWith(constants.relRegistryPkgPath)) {
+        regPkgName = '@socketsecurity/registry'
+      } else {
+        regPkgName = filepath.slice(
+          sliceStart,
+          filepath.indexOf('/', sliceStart)
+        )
+      }
       packageNames.add(regPkgName)
     }
   }
@@ -111,7 +155,8 @@ function innerGetPackages(eco, files, options) {
 }
 
 function diffIncludes(files, pathname) {
-  return files.includes(path.relative(rootPath, pathname))
+  // Lazily access constants.rootPath.
+  return files.includes(getPath().relative(constants.rootPath, pathname))
 }
 
 async function forceRelative(fn, options) {
@@ -174,11 +219,14 @@ function isStagedSync(pathname, options) {
 }
 
 function parseGitDiffStdout(stdout, options) {
+  // Lazily access constants.rootPath.
+  const { rootPath } = constants
   const {
     absolute = false,
     cwd = rootPath,
     ...matcherOptions
   } = { __proto__: null, ...options }
+  const path = getPath()
   const rawFiles = stdout?.split('\n') ?? []
   const files = absolute
     ? rawFiles.map(relPath => normalizePath(path.join(rootPath, relPath)))
