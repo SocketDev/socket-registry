@@ -2,9 +2,11 @@ import assert from 'node:assert/strict'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 
+import constants from '@socketregistry/scripts/constants'
+const { NPM } = constants
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 
-const eco = 'npm'
+const eco = NPM
 const regPkgName = path.basename(__filename, '.test.ts')
 
 // es6-object-assign has no unit tests.

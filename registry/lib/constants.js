@@ -331,6 +331,7 @@ const MIT = 'MIT'
 const NODE_MODULES = 'node_modules'
 const NODE_MODULES_GLOB_RECURSIVE = `**/${NODE_MODULES}`
 const NODE_WORKSPACES = 'node_workspaces'
+const NPM = 'npm'
 const NPM_ORG = 'socketregistry'
 const OVERRIDES = 'overrides'
 const PACKAGE_DEFAULT_SOCKET_CATEGORIES = Object.freeze(['cleanup'])
@@ -455,7 +456,7 @@ const lazyNodeNoWarningsFlags = () =>
 
 const lazyNpmExecPath = () => {
   const which = getWhich()
-  return which.sync('npm')
+  return which.sync(NPM)
 }
 
 const lazyPackageExtensions = () =>
@@ -506,7 +507,7 @@ const lazyPacoteCachePath = () => {
 const lazySkipTestsByEcosystem = () =>
   Object.freeze({
     __proto__: null,
-    npm: new Set([
+    [NPM]: new Set([
       // @hyrious/bun.lockb has no unit tests.
       // https://github.com/hyrious/bun.lockb/tree/v0.0.4
       '@hyrious/bun.lockb',
@@ -653,7 +654,7 @@ const tsTypesAvailable = new Set(['node'])
 
 const win32EnsureTestsByEcosystem = Object.freeze({
   __proto__: null,
-  npm: new Set(['date'])
+  [NPM]: new Set(['date'])
 })
 
 const constants = createConstantsObject(
@@ -681,6 +682,7 @@ const constants = createConstantsObject(
     NODE_MODULES_GLOB_RECURSIVE,
     NODE_WORKSPACES,
     NODE_VERSION: undefined,
+    NPM,
     NPM_ORG,
     OVERRIDES,
     PACKAGE_DEFAULT_SOCKET_CATEGORIES,

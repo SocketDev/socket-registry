@@ -31,8 +31,8 @@ const {
   getLicenseActions,
   getNpmReadmeAction,
   getPackageJsonAction,
+  getTemplate,
   getTypeScriptActions,
-  templates,
   writeAction
 } = require('@socketregistry/scripts/lib/templates')
 const { isDirEmptySync } = require('@socketsecurity/registry/lib/fs')
@@ -172,14 +172,14 @@ void (async () => {
     }
   }
   let badLicenses
-  let jsFiles
   let licenses
   let licenseContents
   let licenseWarnings
   let nmPkgJson
+  let relJsFilepaths
   await extractPackage(origPkgName, async nmPkgPath => {
     nmPkgJson = await readPackageJson(nmPkgPath)
-    jsFiles = await tinyGlob(['**/*.{cjs,js,json}'], {
+    relJsFilepaths = await tinyGlob(['**/*.{cjs,js,json}'], {
       ignore: ['**/package.json'],
       cwd: nmPkgPath
     })
@@ -230,11 +230,11 @@ void (async () => {
   }
   const isEsm = nmPkgJson.type === 'module'
   const isEsShim =
-    jsFiles.includes('auto.js') &&
-    jsFiles.includes('implementation.js') &&
-    jsFiles.includes('index.js') &&
-    jsFiles.includes('polyfill.js') &&
-    jsFiles.includes('shim.js.js')
+    relJsFilepaths.includes('auto.js') &&
+    relJsFilepaths.includes('implementation.js') &&
+    relJsFilepaths.includes('index.js') &&
+    relJsFilepaths.includes('polyfill.js') &&
+    relJsFilepaths.includes('shim.js.js')
 
   let nodeRange
   let templateChoice
@@ -376,7 +376,7 @@ void (async () => {
     }
   }
 
-  const templatePkgPath = templates[templateChoice]
+  const templatePkgPath = getTemplate(templateChoice)
 
   const interop = [
     'cjs',

@@ -1,7 +1,15 @@
 'use strict'
 
 const constants = require('@socketregistry/scripts/constants')
-const yoctoSpinner = require('@socketregistry/yocto-spinner')
+
+let _yoctoSpinner
+function getYoctoSpinner() {
+  if (_yoctoSpinner === undefined) {
+    const id = '@socketregistry/yocto-spinner'
+    _yoctoSpinner = require(id)
+  }
+  return _yoctoSpinner
+}
 
 const ciSpinner = {
   frames: [''],
@@ -13,6 +21,8 @@ const ciSpinner = {
 }
 
 function Spinner(options) {
+  // Lazy load to defer experimental ES module in require() warning.
+  const yoctoSpinner = getYoctoSpinner()
   return yoctoSpinner({
     // Lazily access constants.ENV.
     spinner: constants.ENV.CI ? ciSpinner : undefined,
