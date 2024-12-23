@@ -16,11 +16,15 @@ const regPkgName = '@socketsecurity/registry'
 
 describe(regPkgName, { skip: isPackageTestingSkipped(eco, regPkgName) }, () => {
   it('should not trigger lazy getter on module initialization', async () => {
-    const jsFilepaths = await tinyGlob(['**/*.js'], {
-      absolute: true,
-      cwd: rootRegistryPath,
-      ignore: ['**/node_modules']
-    })
+    const jsFilepaths = (
+      await tinyGlob(['**/*.js'], {
+        absolute: true,
+        cwd: rootRegistryPath,
+        ignore: ['**/node_modules']
+      })
+    )
+    // Normalize filepaths for Windows.
+    .map(path.normalize)
     for (const filepath of jsFilepaths) {
       delete require.cache[filepath]
     }
