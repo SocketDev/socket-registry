@@ -11,15 +11,6 @@ import semver from 'semver'
 import { glob as tinyGlob } from 'tinyglobby'
 
 import constants from '@socketregistry/scripts/constants'
-const {
-  LICENSE,
-  LICENSE_GLOB,
-  NPM,
-  OVERRIDES,
-  PACKAGE_JSON,
-  README_GLOB,
-  parseArgsConfig
-} = constants
 import {
   getModifiedPackagesSync,
   getStagedPackagesSync
@@ -40,6 +31,16 @@ import {
 import { trimLeadingDotSlash } from '@socketsecurity/registry/lib/path'
 import { localeCompare } from '@socketsecurity/registry/lib/sorts'
 import { isNonEmptyString } from '@socketsecurity/registry/lib/strings'
+
+const {
+  LICENSE,
+  LICENSE_GLOB,
+  NPM,
+  OVERRIDES,
+  PACKAGE_JSON,
+  README_GLOB,
+  parseArgsConfig
+} = constants
 
 // Pass args as tap --test-arg:
 // npm run test:unit ./test/packages.test.ts -- --test-arg="--force"

@@ -5,8 +5,9 @@ import { describe, it } from 'node:test'
 import { glob as tinyGlob } from 'tinyglobby'
 
 import constants from '@socketregistry/scripts/constants'
-const { NPM } = constants
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
+
+const { NPM } = constants
 
 const rootPath = path.resolve(__dirname, '..')
 const rootRegistryPath = path.join(rootPath, 'registry')
@@ -23,8 +24,8 @@ describe(regPkgName, { skip: isPackageTestingSkipped(eco, regPkgName) }, () => {
         ignore: ['**/node_modules']
       })
     )
-    // Normalize filepaths for Windows.
-    .map(path.normalize)
+      // Normalize filepaths for Windows.
+      .map(path.normalize)
     for (const filepath of jsFilepaths) {
       delete require.cache[filepath]
     }
