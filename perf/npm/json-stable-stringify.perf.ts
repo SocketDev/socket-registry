@@ -8,6 +8,7 @@ import origJsonStableStringify from 'json-stable-stringify'
 import overrideJsonStableStringify from '@socketregistry/json-stable-stringify'
 
 import constants from '@socketregistry/scripts/constants'
+
 const { perfNpmFixturesPath } = constants
 
 void (async () => {

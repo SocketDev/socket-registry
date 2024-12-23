@@ -6,6 +6,16 @@ import util from 'node:util'
 import semver from 'semver'
 
 import constants from '@socketregistry/scripts/constants'
+import {
+  getModifiedPackagesSync,
+  getStagedPackagesSync
+} from '@socketregistry/scripts/lib/git'
+import { getManifestData } from '@socketsecurity/registry'
+import { readDirNamesSync, readJsonSync } from '@socketsecurity/registry/lib/fs'
+import { runScript } from '@socketsecurity/registry/lib/npm'
+import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/packages'
+import { isNonEmptyString } from '@socketsecurity/registry/lib/strings'
+
 const {
   LICENSE_GLOB_RECURSIVE,
   NPM,
@@ -16,15 +26,6 @@ const {
   testNpmNodeWorkspacesPath,
   win32EnsureTestsByEcosystem
 } = constants
-import {
-  getModifiedPackagesSync,
-  getStagedPackagesSync
-} from '@socketregistry/scripts/lib/git'
-import { getManifestData } from '@socketsecurity/registry'
-import { readDirNamesSync, readJsonSync } from '@socketsecurity/registry/lib/fs'
-import { runScript } from '@socketsecurity/registry/lib/npm'
-import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/packages'
-import { isNonEmptyString } from '@socketsecurity/registry/lib/strings'
 
 // Pass args as tap --test-arg:
 // npm run test:unit ./test/npm.test.ts -- --test-arg="--force"
