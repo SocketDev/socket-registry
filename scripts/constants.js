@@ -1,15 +1,60 @@
 'use strict'
 
-const { readFileSync } = require('node:fs')
-const path = require('node:path')
-
-const { includeIgnoreFile } = require('@eslint/compat')
-const prettier = require('prettier')
-const whichFn = require('which')
-
 const registryConstants = require('@socketsecurity/registry/lib/constants')
 
-const { sync: whichSyncFn } = whichFn
+let _eslintCompat
+function getEslintCompat() {
+  if (_eslintCompat === undefined) {
+    const id = '@eslint/compat'
+    _eslintCompat = require(id)
+  }
+  return _eslintCompat
+}
+
+let _fs
+function getFs() {
+  if (_fs === undefined) {
+    const id = 'node:fs'
+    _fs = require(id)
+  }
+  return _fs
+}
+
+let _path
+function getPath() {
+  if (_path === undefined) {
+    const id = 'node:path'
+    _path = require(id)
+  }
+  return _path
+}
+
+let _prettier
+function getPrettier() {
+  if (_prettier === undefined) {
+    const id = 'prettier'
+    _prettier = require(id)
+  }
+  return _prettier
+}
+
+let _process
+function getProcess() {
+  if (_process === undefined) {
+    const id = 'node:process'
+    _process = require(id)
+  }
+  return _process
+}
+
+let _which
+function getWhich() {
+  if (_which === undefined) {
+    const id = 'which'
+    _which = require(id)
+  }
+  return _which
+}
 
 const {
   ESLINT_CONFIG_JS,
@@ -30,77 +75,56 @@ const {
   [kInternalsSymbol]: { createConstantsObject, readDirNamesSync }
 } = registryConstants
 
-const rootPath = path.resolve(__dirname, '..')
-const rootLicensePath = path.join(rootPath, LICENSE)
-const rootEslintConfigPath = path.join(rootPath, ESLINT_CONFIG_JS)
-const rootNodeModulesPath = path.join(rootPath, NODE_MODULES)
-const rootNodeModulesBinPath = path.join(rootNodeModulesPath, '.bin')
-const rootPackageJsonPath = path.join(rootPath, PACKAGE_JSON)
-const rootPackageLockPath = path.join(rootPath, PACKAGE_LOCK)
-const rootPackagesPath = path.join(rootPath, 'packages')
-const rootTsConfigPath = path.join(rootPath, TSCONFIG_JSON)
-
-const gitIgnorePath = path.join(rootPath, GIT_IGNORE)
-const prettierConfigPath = path.join(rootPath, PRETTIER_RC)
-const prettierIgnorePath = path.join(rootPath, PRETTIER_IGNORE)
-const registryPkgPath = path.join(rootPath, REGISTRY)
-const registryExtensionsJsonPath = path.join(registryPkgPath, EXTENSIONS_JSON)
-const registryManifestJsonPath = path.join(registryPkgPath, MANIFEST_JSON)
-const templatesPath = path.join(__dirname, 'templates')
-
-const tapCiConfigPath = path.join(rootPath, '.tapci.yaml')
-const tapConfigPath = path.join(rootPath, '.taprc')
-
-const npmPackagesPath = path.join(rootPackagesPath, 'npm')
-const npmTemplatesPath = path.join(templatesPath, 'npm')
-const npmTemplatesReadmePath = path.join(npmTemplatesPath, README_MD)
-
-const perfNpmPath = path.join(rootPath, 'perf/npm')
-const perfNpmFixturesPath = path.join(perfNpmPath, 'fixtures')
-
-const testNpmPath = path.join(rootPath, 'test/npm')
-const testNpmFixturesPath = path.join(testNpmPath, 'fixtures')
-const testNpmNodeModulesPath = path.join(testNpmPath, NODE_MODULES)
-const testNpmNodeWorkspacesPath = path.join(testNpmPath, NODE_WORKSPACES)
-const testNpmPkgJsonPath = path.join(testNpmPath, PACKAGE_JSON)
-const testNpmPkgLockPath = path.join(testNpmPath, PACKAGE_LOCK)
-
-const yarnPkgExtsPath = path.join(rootNodeModulesPath, '@yarnpkg/extensions')
-const yarnPkgExtsJsonPath = path.join(yarnPkgExtsPath, PACKAGE_JSON)
-
-const relNpmPackagesPath = path.relative(rootPath, npmPackagesPath)
-const relPackagesPath = path.relative(rootPath, rootPackagesPath)
-const relRegistryPkgPath = path.relative(rootPath, registryPkgPath)
-const relRegistryManifestJsonPath = path.relative(
-  rootPath,
-  registryManifestJsonPath
-)
-const relTestNpmPath = path.relative(rootPath, testNpmPath)
-const relTestNpmNodeModulesPath = path.relative(
-  rootPath,
-  testNpmNodeModulesPath
-)
-
-const defaultWhichOptions = {
-  __proto__: null,
-  path: `${rootNodeModulesBinPath}${path.delimiter}${process.env.PATH}`
+let _defaultWhichOptions
+function getDefaultWhichOptions() {
+  if (_defaultWhichOptions === undefined) {
+    const path = getPath()
+    const process = getProcess()
+    _defaultWhichOptions = {
+      __proto__: null,
+      // Lazily access constants.rootNodeModulesBinPath.
+      path: `${constants.rootNodeModulesBinPath}${path.delimiter}${process.env.PATH}`
+    }
+  }
+  return _defaultWhichOptions
 }
 
-const which = function which(cmd, options) {
-  return whichFn(cmd, { __proto__: null, ...defaultWhichOptions, ...options })
-}
-
-const whichSync = function whichSync(cmd, options) {
-  return whichSyncFn(cmd, {
+function which(cmd, options) {
+  const whichFn = getWhich()
+  return whichFn(cmd, {
     __proto__: null,
-    ...defaultWhichOptions,
+    ...getDefaultWhichOptions(),
     ...options
   })
 }
 
-const LAZY_LICENSE_CONTENT = () => readFileSync(rootLicensePath, 'utf8')
-const lazyEcosystems = () => Object.freeze(readDirNamesSync(rootPackagesPath))
+function whichSync(cmd, options) {
+  const whichFn = getWhich()
+  return whichFn.sync(cmd, {
+    __proto__: null,
+    ...getDefaultWhichOptions(),
+    ...options
+  })
+}
+
+const LAZY_LICENSE_CONTENT = () =>
+  // Lazily access constants.rootLicensePath.
+  getFs().readFileSync(constants.rootLicensePath, 'utf8')
+
+const lazyEcosystems = () =>
+  // Lazily access constants.rootPackagesPath.
+  Object.freeze(readDirNamesSync(constants.rootPackagesPath))
+
 const lazyGitExecPath = () => whichSync('git')
+
+const lazyGitIgnoreFile = () =>
+  // Lazily access constants.gitIgnorePath.
+  getEslintCompat().includeIgnoreFile(constants.gitIgnorePath)
+
+const lazyGitIgnorePath = () =>
+  // Lazily access constants.rootPath.
+  getPath().join(constants.rootPath, GIT_IGNORE)
+
 const lazyIgnoreGlobs = () =>
   Object.freeze([
     ...new Set([
@@ -118,14 +142,164 @@ const lazyIgnoreGlobs = () =>
       ...constants.gitIgnoreFile.ignores
     ])
   ])
+
 const lazyNpmPackageNames = () =>
-  Object.freeze(readDirNamesSync(npmPackagesPath))
-const lazyGitIgnoreFile = () => includeIgnoreFile(gitIgnorePath)
+  // Lazily access constants.npmPackagesPath.
+  Object.freeze(readDirNamesSync(constants.npmPackagesPath))
+
+const lazyNpmPackagesPath = () =>
+  // Lazily access constants.rootPackagesPath.
+  getPath().join(constants.rootPackagesPath, 'npm')
+
+const lazyNpmTemplatesPath = () =>
+  // Lazily access constants.templatesPath.
+  getPath().join(constants.templatesPath, 'npm')
+
+const lazyNpmTemplatesReadmePath = () =>
+  // Lazily access constants.npmTemplatesPath.
+  getPath().join(constants.npmTemplatesPath, README_MD)
+
+const lazyPerfNpmPath = () =>
+  // Lazily access constants.rootPath.
+  getPath().join(constants.rootPath, 'perf/npm')
+
+const lazyPerfNpmFixturesPath = () =>
+  // Lazily access constants.perfNpmPath.
+  getPath().join(constants.perfNpmPath, 'fixtures')
+
+const lazyPrettierConfigPath = () =>
+  // Lazily access constants.rootPath.
+  getPath().join(constants.rootPath, PRETTIER_RC)
+
 const lazyPrettierConfigPromise = () =>
-  prettier.resolveConfig(prettierConfigPath, { editorconfig: true })
-const lazyPrettierIgnoreFile = () => includeIgnoreFile(prettierIgnorePath)
+  // Lazily access constants.gitIgnorePath.
+  getPrettier().resolveConfig(constants.prettierConfigPath, {
+    editorconfig: true
+  })
+
+const lazyPrettierIgnorePath = () =>
+  // Lazily access constants.rootPath.
+  getPath().join(constants.rootPath, PRETTIER_IGNORE)
+
+const lazyPrettierIgnoreFile = () =>
+  // Lazily access constants.prettierIgnorePath.
+  getEslintCompat().includeIgnoreFile(constants.prettierIgnorePath)
+
+const lazyRootLicensePath = () =>
+  // Lazily access constants.rootPath.
+  getPath().join(constants.rootPath, LICENSE)
+
+const lazyRootEslintConfigPath = () =>
+  // Lazily access constants.rootPath.
+  getPath().join(constants.rootPath, ESLINT_CONFIG_JS)
+
+const lazyRootNodeModulesPath = () =>
+  // Lazily access constants.rootPath.
+  getPath().join(constants.rootPath, NODE_MODULES)
+
+const lazyRootNodeModulesBinPath = () =>
+  // Lazily access constants.rootNodeModulesPath.
+  getPath().join(constants.rootNodeModulesPath, '.bin')
+
+const lazyRootPackageJsonPath = () =>
+  // Lazily access constants.rootPath.
+  getPath().join(constants.rootPath, PACKAGE_JSON)
+
+const lazyRootPackageLockPath = () =>
+  // Lazily access constants.rootPath.
+  getPath().join(constants.rootPath, PACKAGE_LOCK)
+
+const lazyRootPackagesPath = () =>
+  // Lazily access constants.rootPath.
+  getPath().join(constants.rootPath, 'packages')
+
+const lazyRootPath = () => getPath().resolve(__dirname, '..')
+
+const lazyRootTsConfigPath = () =>
+  // Lazily access constants.rootPath.
+  getPath().join(constants.rootPath, TSCONFIG_JSON)
+
+const lazyRegistryPkgPath = () =>
+  // Lazily access constants.rootPath.
+  getPath().join(constants.rootPath, REGISTRY)
+
+const lazyRegistryExtensionsJsonPath = () =>
+  // Lazily access constants.registryPkgPath.
+  getPath().join(constants.registryPkgPath, EXTENSIONS_JSON)
+
+const lazyRegistryManifestJsonPath = () =>
+  // Lazily access constants.registryPkgPath.
+  getPath().join(constants.registryPkgPath, MANIFEST_JSON)
+
+const lazyRelNpmPackagesPath = () =>
+  // Lazily access constants.rootPath and constants.npmPackagesPath.
+  getPath().relative(constants.rootPath, constants.npmPackagesPath)
+
+const lazyRelPackagesPath = () =>
+  // Lazily access constants.rootPath and constants.rootPackagesPath.
+  getPath().relative(constants.rootPath, constants.rootPackagesPath)
+
+const lazyRelRegistryPkgPath = () =>
+  // Lazily access constants.rootPath and constants.registryPkgPath.
+  getPath().relative(constants.rootPath, constants.registryPkgPath)
+
+const lazyRelRegistryManifestJsonPath = () =>
+  // Lazily access constants.rootPath and constants.registryManifestJsonPath.
+  getPath().relative(constants.rootPath, constants.registryManifestJsonPath)
+
+const lazyRelTestNpmPath = () =>
+  // Lazily access constants.rootPath and constants.testNpmPath.
+  getPath().relative(constants.rootPath, constants.testNpmPath)
+
+const lazyRelTestNpmNodeModulesPath = () =>
+  // Lazily access constants.rootPath and constants.testNpmNodeModulesPath.
+  getPath().relative(constants.rootPath, constants.testNpmNodeModulesPath)
+
+const lazyTapCiConfigPath = () =>
+  // Lazily access constants.rootPath.
+  getPath().join(constants.rootPath, '.tapci.yaml')
+
+const lazyTapConfigPath = () =>
+  // Lazily access constants.rootPath.
+  getPath().join(constants.rootPath, '.taprc')
+
 const lazyTapRunExecPath = () => whichSync('tap-run')
+
+const lazyTemplatesPath = () => getPath().join(__dirname, 'templates')
+
+const lazyTestNpmPath = () =>
+  // Lazily access constants.rootPath.
+  getPath().join(constants.rootPath, 'test/npm')
+
+const lazyTestNpmFixturesPath = () =>
+  // Lazily access constants.testNpmPath.
+  getPath().join(constants.testNpmPath, 'fixtures')
+
+const lazyTestNpmNodeModulesPath = () =>
+  // Lazily access constants.testNpmPath.
+  getPath().join(constants.testNpmPath, NODE_MODULES)
+
+const lazyTestNpmNodeWorkspacesPath = () =>
+  // Lazily access constants.testNpmPath.
+  getPath().join(constants.testNpmPath, NODE_WORKSPACES)
+
+const lazyTestNpmPkgJsonPath = () =>
+  // Lazily access constants.testNpmPath.
+  getPath().join(constants.testNpmPath, PACKAGE_JSON)
+
+const lazyTestNpmPkgLockPath = () =>
+  // Lazily access constants.testNpmPath.
+  getPath().join(constants.testNpmPath, PACKAGE_LOCK)
+
 const lazyTsxExecPath = () => whichSync('tsx')
+
+const lazyYarnPkgExtsPath = () =>
+  // Lazily access constants.rootNodeModulesPath.
+  getPath().join(constants.rootNodeModulesPath, '@yarnpkg/extensions')
+
+const lazyYarnPkgExtsJsonPath = () =>
+  // Lazily access constants.yarnPkgExtsPath.
+  getPath().join(constants.yarnPkgExtsPath, PACKAGE_JSON)
 
 const constants = createConstantsObject(
   {
@@ -135,46 +309,50 @@ const constants = createConstantsObject(
     ecosystems: undefined,
     gitExecPath: undefined,
     gitIgnoreFile: undefined,
+    gitIgnorePath: undefined,
     kInternalsSymbol,
     ignoreGlobs: undefined,
     npmPackageNames: undefined,
-    npmPackagesPath,
-    npmTemplatesPath,
-    npmTemplatesReadmePath,
-    perfNpmPath,
-    perfNpmFixturesPath,
+    npmPackagesPath: undefined,
+    npmTemplatesPath: undefined,
+    npmTemplatesReadmePath: undefined,
+    perfNpmPath: undefined,
+    perfNpmFixturesPath: undefined,
+    prettierConfigPath: undefined,
     prettierConfigPromise: undefined,
     prettierIgnoreFile: undefined,
-    registryExtensionsJsonPath,
-    registryManifestJsonPath,
-    registryPkgPath,
-    relNpmPackagesPath,
-    relPackagesPath,
-    relRegistryManifestJsonPath,
-    relRegistryPkgPath,
-    relTestNpmPath,
-    relTestNpmNodeModulesPath,
-    rootEslintConfigPath,
-    rootLicensePath,
-    rootNodeModulesPath,
-    rootPackageJsonPath,
-    rootPackageLockPath,
-    rootPackagesPath,
-    rootPath,
-    rootTsConfigPath,
-    tapCiConfigPath,
-    tapConfigPath,
+    prettierIgnorePath: undefined,
+    registryExtensionsJsonPath: undefined,
+    registryManifestJsonPath: undefined,
+    registryPkgPath: undefined,
+    relNpmPackagesPath: undefined,
+    relPackagesPath: undefined,
+    relRegistryManifestJsonPath: undefined,
+    relRegistryPkgPath: undefined,
+    relTestNpmPath: undefined,
+    relTestNpmNodeModulesPath: undefined,
+    rootEslintConfigPath: undefined,
+    rootLicensePath: undefined,
+    rootNodeModulesBinPath: undefined,
+    rootNodeModulesPath: undefined,
+    rootPackageJsonPath: undefined,
+    rootPackageLockPath: undefined,
+    rootPackagesPath: undefined,
+    rootPath: undefined,
+    rootTsConfigPath: undefined,
+    tapCiConfigPath: undefined,
+    tapConfigPath: undefined,
     tapRunExecPath: undefined,
-    templatesPath,
-    testNpmPath,
-    testNpmFixturesPath,
-    testNpmNodeModulesPath,
-    testNpmNodeWorkspacesPath,
-    testNpmPkgJsonPath,
-    testNpmPkgLockPath,
+    templatesPath: undefined,
+    testNpmPath: undefined,
+    testNpmFixturesPath: undefined,
+    testNpmNodeModulesPath: undefined,
+    testNpmNodeWorkspacesPath: undefined,
+    testNpmPkgJsonPath: undefined,
+    testNpmPkgLockPath: undefined,
     tsxExecPath: undefined,
-    yarnPkgExtsPath,
-    yarnPkgExtsJsonPath
+    yarnPkgExtsPath: undefined,
+    yarnPkgExtsJsonPath: undefined
   },
   {
     getters: {
@@ -182,12 +360,49 @@ const constants = createConstantsObject(
       ecosystems: lazyEcosystems,
       gitExecPath: lazyGitExecPath,
       gitIgnoreFile: lazyGitIgnoreFile,
+      gitIgnorePath: lazyGitIgnorePath,
       ignoreGlobs: lazyIgnoreGlobs,
       npmPackageNames: lazyNpmPackageNames,
+      npmPackagesPath: lazyNpmPackagesPath,
+      npmTemplatesPath: lazyNpmTemplatesPath,
+      npmTemplatesReadmePath: lazyNpmTemplatesReadmePath,
+      perfNpmPath: lazyPerfNpmPath,
+      perfNpmFixturesPath: lazyPerfNpmFixturesPath,
+      prettierConfigPath: lazyPrettierConfigPath,
       prettierConfigPromise: lazyPrettierConfigPromise,
       prettierIgnoreFile: lazyPrettierIgnoreFile,
+      prettierIgnorePath: lazyPrettierIgnorePath,
+      registryExtensionsJsonPath: lazyRegistryExtensionsJsonPath,
+      registryManifestJsonPath: lazyRegistryManifestJsonPath,
+      registryPkgPath: lazyRegistryPkgPath,
+      relNpmPackagesPath: lazyRelNpmPackagesPath,
+      relPackagesPath: lazyRelPackagesPath,
+      relRegistryManifestJsonPath: lazyRelRegistryManifestJsonPath,
+      relRegistryPkgPath: lazyRelRegistryPkgPath,
+      relTestNpmPath: lazyRelTestNpmPath,
+      relTestNpmNodeModulesPath: lazyRelTestNpmNodeModulesPath,
+      rootEslintConfigPath: lazyRootEslintConfigPath,
+      rootLicensePath: lazyRootLicensePath,
+      rootNodeModulesBinPath: lazyRootNodeModulesBinPath,
+      rootNodeModulesPath: lazyRootNodeModulesPath,
+      rootPackageJsonPath: lazyRootPackageJsonPath,
+      rootPackageLockPath: lazyRootPackageLockPath,
+      rootPackagesPath: lazyRootPackagesPath,
+      rootPath: lazyRootPath,
+      rootTsConfigPath: lazyRootTsConfigPath,
+      tapCiConfigPath: lazyTapCiConfigPath,
+      tapConfigPath: lazyTapConfigPath,
       tapRunExecPath: lazyTapRunExecPath,
-      tsxExecPath: lazyTsxExecPath
+      templatesPath: lazyTemplatesPath,
+      testNpmPath: lazyTestNpmPath,
+      testNpmFixturesPath: lazyTestNpmFixturesPath,
+      testNpmNodeModulesPath: lazyTestNpmNodeModulesPath,
+      testNpmNodeWorkspacesPath: lazyTestNpmNodeWorkspacesPath,
+      testNpmPkgJsonPath: lazyTestNpmPkgJsonPath,
+      testNpmPkgLockPath: lazyTestNpmPkgLockPath,
+      tsxExecPath: lazyTsxExecPath,
+      yarnPkgExtsPath: lazyYarnPkgExtsPath,
+      yarnPkgExtsJsonPath: lazyYarnPkgExtsJsonPath
     },
     internals: {
       which,
