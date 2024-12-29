@@ -12,8 +12,7 @@ const {
 
 const { every: IteratorProtoEvery } = IteratorPrototype
 
-// Based on the specification text:
-// https://tc39.es/ecma262/#sec-iterator.prototype.every
+// Based on https://tc39.es/ecma262/#sec-iterator.prototype.every.
 module.exports =
   typeof IteratorProtoEvery === 'function'
     ? IteratorProtoEvery

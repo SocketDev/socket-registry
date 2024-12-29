@@ -12,8 +12,7 @@ const {
 
 const IteratorFrom = IteratorCtorRaw?.from
 
-// Based specification text:
-// https://tc39.es/ecma262/#sec-iterator.from
+// Based on https://tc39.es/ecma262/#sec-iterator.from.
 module.exports =
   typeof IteratorFrom === 'function'
     ? IteratorFrom

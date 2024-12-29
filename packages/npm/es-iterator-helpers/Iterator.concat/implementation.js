@@ -15,8 +15,7 @@ const {
 
 const IteratorConcat = IteratorCtor?.concat
 
-// Based specification text:
-// https://tc39.es/proposal-iterator-sequencing/
+// Based on https://tc39.es/proposal-iterator-sequencing/#sec-iterator.concat.
 module.exports =
   typeof IteratorConcat === 'function'
     ? IteratorConcat
@@ -30,12 +29,12 @@ module.exports =
         // Step 1: Let iterables be a new empty List.
         const { length } = iterables
         const records = ArrayCtor(length)
-        // Step 2: For each element item of items (iterables), do
+        // Step 2: For each element item of items, do.
         for (let i = 0; i < length; i += 1) {
           const iterable = iterables[i]
           // Step 2.a: If item is not an Object, throw a TypeError exception.
           ensureObject(iterable, 'iterable')
-          // Step 2.b: Let method be GetMethod(item, %Symbol.iterator%).
+          // Step 2.b: Let method be ? GetMethod(item, %Symbol.iterator%).
           const method = getMethod(iterable, SymbolIterator)
           // Step 2.c: If method is undefined, throw a TypeError exception.
           if (method === undefined) {

@@ -10,8 +10,7 @@ const {
   setUnderlyingIterator
 } = require('../shared')
 
-// Based on the specification text:
-// https://tc39.es/ecma262/#sec-iterator.prototype.map
+// Based on https://tc39.es/ecma262/#sec-iterator.prototype.map
 module.exports = function map(mapper) {
   // Built-in functions that are not identified as constructors do
   // not implement [[Construct]] unless otherwise specified.

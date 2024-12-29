@@ -10,8 +10,8 @@ const {
 } = require('../shared')
 
 const { reduce: IteratorProtoReduce } = IteratorPrototype
-// Based on the specification text:
-// https://tc39.es/ecma262/#sec-iterator.prototype.reduce
+
+// Based on https://tc39.es/ecma262/#sec-iterator.prototype.reduce.
 module.exports =
   typeof IteratorProtoReduce === 'function'
     ? IteratorProtoReduce
