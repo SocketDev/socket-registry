@@ -2,6 +2,8 @@
   "Iterator",
   "Iterator.concat",
   "Iterator.from",
+  "Iterator.zip",
+  "Iterator.zipKeyed",
   "Iterator.prototype",
   "Iterator.prototype.constructor",
   "Iterator.prototype.drop",

@@ -83,6 +83,46 @@
       "types": "./Iterator.from/shim.d.ts",
       "default": "./Iterator.from/shim.js"
     },
+    "./Iterator.zip": {
+      "types": "./Iterator.zip/index.d.ts",
+      "default": "./Iterator.zip/index.js"
+    },
+    "./Iterator.zip/auto": {
+      "types": "./Iterator.zip/auto.d.ts",
+      "default": "./Iterator.zip/auto.js"
+    },
+    "./Iterator.zip/polyfill": {
+      "types": "./Iterator.zip/polyfill.d.ts",
+      "default": "./Iterator.zip/polyfill.js"
+    },
+    "./Iterator.zip/implementation": {
+      "types": "./Iterator.zip/implementation.d.ts",
+      "default": "./Iterator.zip/implementation.js"
+    },
+    "./Iterator.zip/shim": {
+      "types": "./Iterator.zip/shim.d.ts",
+      "default": "./Iterator.zip/shim.js"
+    },
+    "./Iterator.zipKeyed": {
+      "types": "./Iterator.zipKeyed/index.d.ts",
+      "default": "./Iterator.zipKeyed/index.js"
+    },
+    "./Iterator.zipKeyed/auto": {
+      "types": "./Iterator.zipKeyed/auto.d.ts",
+      "default": "./Iterator.zipKeyed/auto.js"
+    },
+    "./Iterator.zipKeyed/polyfill": {
+      "types": "./Iterator.zipKeyed/polyfill.d.ts",
+      "default": "./Iterator.zipKeyed/polyfill.js"
+    },
+    "./Iterator.zipKeyed/implementation": {
+      "types": "./Iterator.zipKeyed/implementation.d.ts",
+      "default": "./Iterator.zipKeyed/implementation.js"
+    },
+    "./Iterator.zipKeyed/shim": {
+      "types": "./Iterator.zipKeyed/shim.d.ts",
+      "default": "./Iterator.zipKeyed/shim.js"
+    },
     "./Iterator.prototype": {
       "types": "./Iterator.prototype/index.d.ts",
       "default": "./Iterator.prototype/index.js"
