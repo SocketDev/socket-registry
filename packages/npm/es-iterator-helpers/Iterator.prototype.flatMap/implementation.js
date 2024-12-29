@@ -3,12 +3,12 @@
 const {
   ReflectApply,
   TypeErrorCtor,
-  abruptCloseIterator,
   createIteratorFromClosure,
   ensureObject,
   getIteratorDirect,
   getIteratorFlattenable,
   getMethod,
+  ifAbruptCloseIterator,
   setUnderlyingIterator
 } = require('../shared')
 
@@ -54,7 +54,7 @@ module.exports = function flatMap(mapper) {
           index += 1
         } catch (e) {
           // Step 5.b.iv: IfAbruptCloseIterator(mapped, iterated).
-          abruptCloseIterator(iterator, e)
+          ifAbruptCloseIterator(iterator, e)
         }
       }
       // Step 5.b.viii: Inner loop over innerIterator values.

@@ -4,9 +4,9 @@ const {
   IteratorPrototype,
   ReflectApply,
   TypeErrorCtor,
-  abruptCloseIterator,
   ensureObject,
-  getIteratorDirect
+  getIteratorDirect,
+  ifAbruptCloseIterator
 } = require('../shared')
 
 const { forEach: IteratorProtoForEach } = IteratorPrototype
@@ -49,7 +49,7 @@ module.exports =
             ReflectApply(procedure, undefined, [result.value, index])
           } catch (e) {
             // Step 6.d: IfAbruptCloseIterator(result, iterated).
-            abruptCloseIterator(iterator, e)
+            ifAbruptCloseIterator(iterator, e)
           }
           // Step 6.e: Set counter to counter + 1.
           index += 1

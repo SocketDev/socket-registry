@@ -3,10 +3,10 @@
 const {
   ReflectApply,
   TypeErrorCtor,
-  abruptCloseIterator,
   createIteratorFromClosure,
   ensureObject,
   getIteratorDirect,
+  ifAbruptCloseIterator,
   setUnderlyingIterator
 } = require('../shared')
 
@@ -46,7 +46,7 @@ module.exports = function map(mapper) {
         mappedValue = mapper(result.value, index)
       } catch (e) {
         // Step 5.b.iv: IfAbruptCloseIterator(mapped, iterated).
-        abruptCloseIterator(iterator, e)
+        ifAbruptCloseIterator(iterator, e)
       }
       // Step 5.b.vii. Set counter to counter + 1.
       index += 1

@@ -3,10 +3,10 @@
 const {
   ReflectApply,
   TypeErrorCtor,
-  abruptCloseIterator,
   createIteratorFromClosure,
   ensureObject,
   getIteratorDirect,
+  ifAbruptCloseIterator,
   setUnderlyingIterator
 } = require('../shared')
 
@@ -46,7 +46,7 @@ module.exports = function filter(predicate) {
           selected = predicate(result.value, index++)
         } catch (e) {
           // Step 5.b.iv: IfAbruptCloseIterator(selected, iterated).
-          abruptCloseIterator(iterator, e)
+          ifAbruptCloseIterator(iterator, e)
         }
         // Step 5.b.v: If ToBoolean(selected) is true,
         if (selected) {

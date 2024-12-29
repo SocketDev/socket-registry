@@ -4,9 +4,9 @@ const {
   IteratorPrototype,
   ReflectApply,
   TypeErrorCtor,
-  abruptCloseIterator,
   ensureObject,
-  getIteratorDirect
+  getIteratorDirect,
+  ifAbruptCloseIterator
 } = require('../shared')
 
 const { reduce: IteratorProtoReduce } = IteratorPrototype
@@ -70,7 +70,7 @@ module.exports =
             ])
           } catch (e) {
             // Step 7.d: IfAbruptCloseIterator(result, iterated).
-            abruptCloseIterator(iterator, e)
+            ifAbruptCloseIterator(iterator, e)
           }
           // Step 7.e: Set accumulator to result.
           // Step 7.f: Set counter to counter + 1.
