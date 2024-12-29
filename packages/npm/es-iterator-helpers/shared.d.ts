@@ -1,3 +1,8 @@
+declare type FinishResults<T, U> = (results: T[]) => U
+interface IteratorRecord<T> {
+  iterator: Iterator<T>
+  next: () => IteratorResult<T>
+}
 declare interface Iterator<T> {
   next(value?: any): IteratorResult<T>
   return?(value?: any): IteratorResult<T>
@@ -14,6 +19,7 @@ declare interface IteratorResult<T> {
   value: T
   done: boolean
 }
+declare type Mode = 'longest' | 'shortest' | 'strict'
 declare interface InternalShared {
   SLOT: WeakMap<any, any>
   SLOT_GENERATOR_CONTEXT: string
@@ -28,33 +34,42 @@ declare interface InternalShared {
   IteratorHelperPrototype: IteratorHelper<any>
   WrapForValidIteratorPrototype: Iterator<any>
   NumberCtor: NumberConstructor
-  MathTrunc: (x: number) => number
+  MathTrunc: typeof Math.trunc
   NegativeInfinity: number
-  NumberIsNaN: (x: number) => boolean
-  ObjectCreate: <T>(o: T, properties?: PropertyDescriptorMap) => T
+  NumberIsNaN: typeof Number.isNaN
+  ObjectCreate: typeof Object.create
   ObjectDefineProperty: typeof Object.defineProperty
+  ObjectGetOwnPropertyDescriptor: typeof Object.getOwnPropertyDescriptor
   RangeErrorCtor: typeof RangeError
-  ReflectApply: (target: Function, thisArg: any, args: any[]) => any
-  ReflectGetPrototypeOf: (target: any) => any
+  ReflectApply: typeof Reflect.apply
+  ReflectGetPrototypeOf: typeof Reflect.getPrototypeOf
+  ReflectOwnKeys: typeof Reflect.ownKeys
   SymbolIterator: symbol
   SymbolToStringTag: symbol
   TypeErrorCtor: typeof TypeError
-  abruptCloseIterator(iterator: Iterator<any>, error: any): void
-  closeIterator<T>(iterator: Iterator<T>, completion: T): T
   createIteratorFromClosure<T>(closure: Iterator<T>): Iterator<T>
   ensureObject(thisArg: any, what?: string): void
+  getIterator<T>(obj: any): Iterator<T>
   getIteratorDirect<T>(obj: any): IteratorRecord<T>
   getIteratorFlattenable(obj: any): IteratorRecord<any>
   getMethod(
     obj: any,
     key: string | symbol
   ): ((...args: any[]) => any) | undefined
+  getOptionsObject<T = any>(options: T): T extends object ? T : {}
   getSlot(O: any, slot: string): any
+  ifAbruptCloseIterator(iterator: Iterator<any>, error: any): void
   isIteratorProtoNextCheckBuggy(
     method: (...args: any[]) => any,
     arg: any
   ): boolean
-  isObjectType(value: any): boolean
+  iteratorClose<T>(iterator: Iterator<T>, completion: T): T
+  iteratorZip<T, U = T>(
+    iters: Array<IteratorRecord<T>>,
+    mode: Mode,
+    padding: Array<U | undefined>,
+    finishResults?: FinishResults<T, U>
+  ): Generator<U, void, unknown>
   resolveSlots(O: any, slot: string): any
   setSlot(O: any, slot: string, value: any): void
   setUnderlyingIterator(generator: Iterator<any>, iterator: Iterator<any>): void

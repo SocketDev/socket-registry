@@ -7,10 +7,10 @@ const {
   RangeErrorCtor,
   ReflectApply,
   TypeErrorCtor,
-  closeIterator,
   createIteratorFromClosure,
   ensureObject,
   getIteratorDirect,
+  iteratorClose,
   setUnderlyingIterator,
   toIntegerOrInfinity
 } = require('../shared')
@@ -52,7 +52,7 @@ module.exports =
           next() {
             // Step 8.b.i: If remaining = 0, then return IteratorClose(iterated, ReturnCompletion(undefined)).
             if (remaining === 0) {
-              closeIterator(iterator, undefined)
+              iteratorClose(iterator, undefined)
               return { value: undefined, done: true }
             }
             // Step 8.b.iii: Let value be IteratorStepValue(iterated).

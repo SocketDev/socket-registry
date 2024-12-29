@@ -4,10 +4,10 @@ const {
   IteratorPrototype,
   ReflectApply,
   TypeErrorCtor,
-  abruptCloseIterator,
-  closeIterator,
   ensureObject,
-  getIteratorDirect
+  getIteratorDirect,
+  ifAbruptCloseIterator,
+  iteratorClose
 } = require('../shared')
 
 const { every: IteratorProtoEvery } = IteratorPrototype
@@ -54,11 +54,11 @@ module.exports =
             ])
           } catch (e) {
             // Step 6.d: IfAbruptCloseIterator(result, iterated).
-            abruptCloseIterator(iterator, e)
+            ifAbruptCloseIterator(iterator, e)
           }
           // Step 6.e: If ToBoolean(result) is false, return ? IteratorClose(iterated, NormalCompletion(false)).
           if (!predicateResult) {
-            return closeIterator(iterator, false)
+            return iteratorClose(iterator, false)
           }
           // Step 6.f: Set counter to counter + 1.
           index += 1

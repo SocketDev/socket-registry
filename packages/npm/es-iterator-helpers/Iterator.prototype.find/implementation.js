@@ -4,10 +4,10 @@ const {
   IteratorPrototype,
   ReflectApply,
   TypeErrorCtor,
-  abruptCloseIterator,
-  closeIterator,
   ensureObject,
-  getIteratorDirect
+  getIteratorDirect,
+  ifAbruptCloseIterator,
+  iteratorClose
 } = require('../shared')
 
 const { find: IteratorProtoFind } = IteratorPrototype
@@ -52,11 +52,11 @@ module.exports =
             predicateResult = ReflectApply(predicate, undefined, [value, index])
           } catch (e) {
             // Step 6.d: IfAbruptCloseIterator(result, iterated).
-            abruptCloseIterator(iterator, e)
+            ifAbruptCloseIterator(iterator, e)
           }
           // Step 6.e: If ToBoolean(result) is true, return IteratorClose(iterated, NormalCompletion(value)).
           if (predicateResult) {
-            return closeIterator(iterator, value)
+            return iteratorClose(iterator, value)
           }
           // Step 6.f: Set counter to counter + 1.
           index += 1
