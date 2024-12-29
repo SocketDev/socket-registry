@@ -3,7 +3,9 @@
 const { compare: localeCompare } = new Intl.Collator()
 
 function assert(truthy, message = 'assert failed') {
-  if (truthy) return
+  if (truthy) {
+    return
+  }
   throw new TypeError(message)
 }
 
@@ -22,35 +24,53 @@ function base64(a) {
 }
 
 function eq(a, b) {
-  if (a.byteLength !== b.byteLength) return false
+  if (a.byteLength !== b.byteLength) {
+    return false
+  }
   for (let i = a.byteLength - 1; i >= 0; i--) {
-    if (a[i] !== b[i]) return false
+    if (a[i] !== b[i]) {
+      return false
+    }
   }
   return true
 }
 
 function fmt_hash(a) {
-  if (a.byteLength < 32) throw new TypeError('meta_hash too short')
+  if (a.byteLength < 32) {
+    throw new TypeError('meta_hash too short')
+  }
   let hash = ''
   for (let i = 0; i < 32; i += 1) {
     let c = hex(a[i])
-    if (i < 8 || (16 <= i && i < 24)) c = c.toUpperCase()
+    if (i < 8 || (16 <= i && i < 24)) {
+      c = c.toUpperCase()
+    }
     hash += c
-    if (i < 31 && (i + 1) % 8 === 0) hash += '-'
+    if (i < 31 && (i + 1) % 8 === 0) {
+      hash += '-'
+    }
   }
   return hash
 }
 
 function fmt_integrity(a) {
-  if (a.byteLength < 65) throw new TypeError('integrity too short')
+  if (a.byteLength < 65) {
+    throw new TypeError('integrity too short')
+  }
   const tag = a[0]
   a = a.subarray(1)
   let out
-  if (tag === 1) out = 'sha1-'
-  else if (tag === 2) out = 'sha256-'
-  else if (tag === 3) out = 'sha384-'
-  else if (tag === 4) out = 'sha512-'
-  else return ''
+  if (tag === 1) {
+    out = 'sha1-'
+  } else if (tag === 2) {
+    out = 'sha256-'
+  } else if (tag === 3) {
+    out = 'sha384-'
+  } else if (tag === 4) {
+    out = 'sha512-'
+  } else {
+    return ''
+  }
   out += base64(a)
   return out
 }
@@ -70,8 +90,12 @@ function fmt_resolution(a, buffers) {
     const pre = str(version_tag.subarray(0, 8), buffers)
     const build = str(version_tag.subarray(16, 24), buffers)
     let v = `${major}.${minor}.${patch}`
-    if (pre) v += '-' + pre
-    if (build) v += '+' + build
+    if (pre) {
+      v += '-' + pre
+    }
+    if (build) {
+      v += '+' + build
+    }
     return v
   }
   if (
@@ -86,9 +110,15 @@ function fmt_resolution(a, buffers) {
       new Uint8Array(view2.buffer, view2.byteOffset + pos, 8),
       buffers
     )
-    if (tag === 72 /* workspace */) v = `workspace:${v}`
-    if (tag === 64 /* symlink */) v = `link:${v}`
-    if (tag === 100 /* single_file_module */) v = `module:${v}`
+    if (tag === 72 /* workspace */) {
+      v = `workspace:${v}`
+    }
+    if (tag === 64 /* symlink */) {
+      v = `link:${v}`
+    }
+    if (tag === 100 /* single_file_module */) {
+      v = `module:${v}`
+    }
     return v
   }
   if (
@@ -110,8 +140,11 @@ function fmt_resolution(a, buffers) {
       new Uint8Array(view2.buffer, view2.byteOffset + pos + 8, 8),
       buffers
     )
-    if (owner) out += owner + '/'
-    else if (is_scp(repo)) out += 'ssh://'
+    if (owner) {
+      out += owner + '/'
+    } else if (is_scp(repo)) {
+      out += 'ssh://'
+    }
     out += repo
     pos += 16
     let commitish = str(
@@ -144,7 +177,9 @@ function fmt_specs(name, specs, version) {
   let comma = false
   for (const spec of specs) {
     const item = `${name}@${spec}`
-    if (comma) out += ', '
+    if (comma) {
+      out += ', '
+    }
     out += quote(item)
     comma = true
   }
@@ -152,7 +187,9 @@ function fmt_specs(name, specs, version) {
 }
 
 function fmt_url(a, buffers) {
-  if (a.byteLength < 64) throw new TypeError('resolution too short')
+  if (a.byteLength < 64) {
+    throw new TypeError('resolution too short')
+  }
   return a[0] === 2 /* npm */
     ? str(new Uint8Array(a.buffer, a.byteOffset + 8, 8), buffers)
     : fmt_resolution(a, buffers)
@@ -163,13 +200,19 @@ function hex(a) {
 }
 
 function is_scp(s) {
-  if (s.length < 3) return false
+  if (s.length < 3) {
+    return false
+  }
   let at = -1
-  for (let i = 0; i < s.length; i++) {
+  for (let i = 0, { length } = s; i < length; i += 1) {
     if (s[i] === '@') {
-      if (at < 0) at = i
+      if (at < 0) {
+        at = i
+      }
     } else if (s[i] === ':') {
-      if (s.slice(i).startsWith('://')) return false
+      if (s.slice(i).startsWith('://')) {
+        return false
+      }
       return at >= 0 ? i > at + 1 : i > 0
     } else if (s[i] === '/') {
       return at >= 0 && i > at + 1
@@ -189,7 +232,7 @@ function quote(s) {
 }
 
 function slice(data, a, item) {
-  const [off, length] = to_u32(a)
+  const { 0: off, 1: length } = to_u32(a)
   return Array.from({ length }, (_, i) =>
     data.subarray(item * off + item * i, item * off + item * i + item)
   )
@@ -198,26 +241,24 @@ function slice(data, a, item) {
 function str(a, buffers) {
   if ((a[7] & 128) === 0) {
     let i = a.indexOf(0)
-    if (i >= 0) a = a.subarray(0, i)
+    if (i >= 0) {
+      a = a.subarray(0, i)
+    }
     return new TextDecoder().decode(a)
-  } else {
-    let [off, len] = to_u32(a)
-    len &= ~2147483648
-    return new TextDecoder().decode(
-      buffers.string_bytes.subarray(off, off + len)
-    )
   }
+  let [off, len] = to_u32(a)
+  len &= ~2147483648
+  return new TextDecoder().decode(buffers.string_bytes.subarray(off, off + len))
 }
 
 function to_u32(a) {
   if (a.byteOffset % 4 === 0) {
     return new Uint32Array(a.buffer, a.byteOffset, a.byteLength / 4)
-  } else {
-    const view2 = new DataView(a.buffer, a.byteOffset, a.byteLength)
-    return Uint32Array.from({ length: a.byteLength / 4 }, (_, i) =>
-      view2.getUint32(i * 4, true)
-    )
   }
+  const view2 = new DataView(a.buffer, a.byteOffset, a.byteLength)
+  return Uint32Array.from({ length: a.byteLength / 4 }, (_, i) =>
+    view2.getUint32(i * 4, true)
+  )
 }
 
 function parse(buf) {
@@ -230,17 +271,23 @@ function parse(buf) {
     '#!/usr/bin/env bun\nbun-lockfile-format-v0\n'
   )
   const u32 = () => {
-    if (pos + 4 > view.byteLength) throw new TypeError('too short')
+    if (pos + 4 > view.byteLength) {
+      throw new TypeError('too short')
+    }
     return view.getUint32((pos += 4) - 4, true)
   }
   const u64 = () => {
-    if (pos + 8 > view.byteLength) throw new TypeError('too short')
+    if (pos + 8 > view.byteLength) {
+      throw new TypeError('too short')
+    }
     const a = view.getUint32((pos += 4) - 4, true)
     const b = view.getUint32((pos += 4) - 4, true)
     return a + b * 2 ** 32
   }
   const read = n => {
-    if (pos + n > view.byteLength) throw new TypeError('too short')
+    if (pos + n > view.byteLength) {
+      throw new TypeError('too short')
+    }
     return new Uint8Array(view.buffer, view.byteOffset + (pos += n) - n, n)
   }
   const header_buf = read(header_bytes.byteLength)
