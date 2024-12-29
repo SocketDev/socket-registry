@@ -219,7 +219,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/array.prototype.toreversed@1.0.5",
+      "pkg:npm/%40socketregistry/array.prototype.toreversed@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -227,11 +227,11 @@
         "license": "MIT",
         "name": "@socketregistry/array.prototype.toreversed",
         "package": "array.prototype.toreversed",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/array.prototype.tosorted@1.0.5",
+      "pkg:npm/%40socketregistry/array.prototype.tosorted@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -239,7 +239,7 @@
         "license": "MIT",
         "name": "@socketregistry/array.prototype.tosorted",
         "package": "array.prototype.tosorted",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
@@ -364,7 +364,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/es-iterator-helpers@1.0.7",
+      "pkg:npm/%40socketregistry/es-iterator-helpers@1.0.8",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -372,7 +372,7 @@
         "license": "MIT",
         "name": "@socketregistry/es-iterator-helpers",
         "package": "es-iterator-helpers",
-        "version": "1.0.7"
+        "version": "1.0.8"
       }
     ],
     [
@@ -582,7 +582,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/hyrious__bun.lockb@1.0.6",
+      "pkg:npm/%40socketregistry/hyrious__bun.lockb@1.0.7",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -591,7 +591,7 @@
         "name": "@socketregistry/hyrious__bun.lockb",
         "package": "@hyrious/bun.lockb",
         "skipTests": true,
-        "version": "1.0.6"
+        "version": "1.0.7"
       }
     ],
     [
@@ -1016,7 +1016,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/object.groupby@1.0.5",
+      "pkg:npm/%40socketregistry/object.groupby@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -1024,7 +1024,7 @@
         "license": "MIT",
         "name": "@socketregistry/object.groupby",
         "package": "object.groupby",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
