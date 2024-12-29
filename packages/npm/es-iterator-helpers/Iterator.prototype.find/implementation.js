@@ -12,8 +12,7 @@ const {
 
 const { find: IteratorProtoFind } = IteratorPrototype
 
-// Based on the specification text:
-// https://tc39.es/ecma262/#sec-iterator.prototype.find
+// Based on https://tc39.es/ecma262/#sec-iterator.prototype.find.
 module.exports =
   typeof IteratorProtoFind === 'function'
     ? IteratorProtoFind

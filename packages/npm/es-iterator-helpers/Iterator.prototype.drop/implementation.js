@@ -13,8 +13,7 @@ const {
   toIntegerOrInfinity
 } = require('../shared')
 
-// Based specification text:
-// https://tc39.es/ecma262/#sec-iterator.prototype.drop
+// Based on https://tc39.es/ecma262/#sec-iterator.prototype.drop.
 module.exports = function drop(limit) {
   // Built-in functions that are not identified as constructors do
   // not implement [[Construct]] unless otherwise specified.

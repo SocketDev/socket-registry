@@ -10,8 +10,7 @@ const {
   setUnderlyingIterator
 } = require('../shared')
 
-// Based specification text:
-// https://tc39.es/ecma262/#sec-iterator.prototype.filter
+// Based on https://tc39.es/ecma262/#sec-iterator.prototype.filter.
 module.exports = function filter(predicate) {
   // Built-in functions that are not identified as constructors do
   // not implement [[Construct]] unless otherwise specified.

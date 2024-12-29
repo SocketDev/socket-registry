@@ -16,8 +16,7 @@ module.exports =
         const { apply: ReflectApply } = Reflect
         const TypeErrorCtor = TypeError
 
-        // Based specification text:
-        // https://tc39.es/ecma262/#sec-array.prototype.tosorted
+        // Based on https://tc39.es/ecma262/#sec-array.prototype.tosorted.
         return function toSorted(comparator) {
           // ECMAScript Standard Built-in Objects
           // https://tc39.es/ecma262/#sec-ecmascript-standard-built-in-objects

@@ -9,10 +9,10 @@ const {
   getIteratorDirect,
   getIteratorFlattenable,
   getMethod,
-  isObjectType,
   setUnderlyingIterator
 } = require('../shared')
 
+// Based on https://tc39.es/ecma262/#sec-iterator.prototype.flatmap.
 module.exports = function flatMap(mapper) {
   // Built-in functions that are not identified as constructors do
   // not implement [[Construct]] unless otherwise specified.
@@ -20,14 +20,16 @@ module.exports = function flatMap(mapper) {
   if (new.target) {
     throw new TypeErrorCtor('`flatMap` is not a constructor')
   }
+  // Step 1: Let O be the this value.
+  const O = this
   // Step 2: If O is not an Object, throw TypeError.
-  ensureObject(this)
+  ensureObject(O)
   // Step 3: If IsCallable(mapper) is false, throw TypeError.
   if (typeof mapper !== 'function') {
     throw new TypeErrorCtor('`mapper` must be a function')
   }
   // Step 4: GetIteratorDirect(O).
-  const { iterator, next } = getIteratorDirect(this)
+  const { iterator, next } = getIteratorDirect(O)
   let innerNext = null
   let innerIterator = null
   let innerIteratorReturnCalled = false
@@ -82,11 +84,7 @@ module.exports = function flatMap(mapper) {
             innerIterator,
             []
           )
-          if (!isObjectType(innerReturnResult)) {
-            throw new TypeErrorCtor(
-              '`Iterator.return` result must be an object'
-            )
-          }
+          ensureObject(innerReturnResult, 'Iterator.return')
         }
       }
       // Handle the outer iterator return if available.
@@ -97,9 +95,7 @@ module.exports = function flatMap(mapper) {
           iterator,
           []
         )
-        if (!isObjectType(outerReturnResult)) {
-          throw new TypeErrorCtor('`Iterator.return` result must be an object')
-        }
+        ensureObject(outerReturnResult, 'Iterator.return')
       }
       if (innerReturnResult) {
         return innerReturnResult

@@ -2,8 +2,7 @@
 
 const { groupBy: ObjectGroupBy } = Object
 
-// Based specification text:
-// https://tc39.es/ecma262/#sec-object.groupby
+// Based on https://tc39.es/ecma262/#sec-object.groupby.
 module.exports =
   typeof ObjectGroupBy === 'function'
     ? ObjectGroupBy
@@ -14,8 +13,7 @@ module.exports =
         const { iterator: SymbolIterator } = Symbol
         const TypeErrorCtor = TypeError
 
-        // Based specification text:
-        // https://tc39.es/ecma262/#sec-add-value-to-keyed-group
+        // Based on https://tc39.es/ecma262/#sec-add-value-to-keyed-group.
         function AddValueToKeyedGroup(groups, key, value) {
           let matched = 0
           // Step 1: For each Record { [[Key]], [[Elements]] } g of groups, do
@@ -43,8 +41,7 @@ module.exports =
           // Step 4: Return unused.
         }
 
-        // Based specification text:
-        // https://tc39.es/ecma262/#sec-groupby
+        // Based on https://tc39.es/ecma262/#sec-groupby.
         function GroupBy(items, callbackfn) {
           // Step 1: Perform RequireObjectCoercible(items).
           if (items === null || items === undefined) {
@@ -100,8 +97,7 @@ module.exports =
           }
         }
 
-        // Based specification text:
-        // https://tc39.es/ecma262/#sec-object.groupby
+        // Based on https://tc39.es/ecma262/#sec-object.groupby.
         return function groupBy(items, callbackfn) {
           // Step 1: Let groups be GroupBy(items, callback, property).
           const groups = GroupBy(items, callbackfn)

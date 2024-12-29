@@ -2,8 +2,7 @@
 
 const { IteratorCtor, IteratorPrototype, TypeErrorCtor } = require('../shared')
 
-// Based on specification text:
-// https://tc39.es/ecma262/#sec-iterator-constructor
+// Based on https://tc39.es/ecma262/#sec-iterator-constructor.
 module.exports =
   typeof IteratorCtor === 'function'
     ? IteratorCtor

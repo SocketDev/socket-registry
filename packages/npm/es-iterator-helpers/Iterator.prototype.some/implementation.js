@@ -12,8 +12,7 @@ const {
 
 const { some: IteratorProtoSome } = IteratorPrototype
 
-// Based on the specification text:
-// https://tc39.es/ecma262/#sec-iterator.prototype.some
+// Based on https://tc39.es/ecma262/#sec-iterator.prototype.some.
 module.exports =
   typeof IteratorProtoSome === 'function'
     ? IteratorProtoSome

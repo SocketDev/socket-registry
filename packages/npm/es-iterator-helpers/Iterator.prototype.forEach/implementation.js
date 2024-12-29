@@ -11,8 +11,7 @@ const {
 
 const { forEach: IteratorProtoForEach } = IteratorPrototype
 
-// Based on the specification text:
-// https://tc39.es/ecma262/#sec-iterator.prototype.foreach
+// Based on https://tc39.es/ecma262/#sec-iterator.prototype.foreach.
 module.exports =
   typeof IteratorProtoForEach === 'function'
     ? IteratorProtoForEach

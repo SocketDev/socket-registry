@@ -7,6 +7,7 @@ const {
   getIteratorDirect
 } = require('../shared')
 
+// Based on https://tc39.es/ecma262/#sec-iterator.prototype.toarray.
 module.exports = function toArray() {
   // Built-in functions that are not identified as constructors do
   // not implement [[Construct]] unless otherwise specified.
@@ -19,7 +20,7 @@ module.exports = function toArray() {
   // Step 2: If O is not an Object, throw a TypeError exception.
   ensureObject(O)
   // Step 3: Let iterated be GetIteratorDirect(O).
-  const { iterator, next } = getIteratorDirect(this)
+  const { iterator, next } = getIteratorDirect(O)
   // Step 4: Let items be a new empty List.
   const items = []
   // Step 5: Repeat.

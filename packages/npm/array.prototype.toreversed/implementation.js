@@ -13,8 +13,7 @@ module.exports =
         const ObjectCtor = Object
         const TypeErrorCtor = TypeError
 
-        // Based specification text:
-        // https://tc39.es/ecma262/#sec-array.prototype.toreversed
+        // Based on https://tc39.es/ecma262/#sec-array.prototype.toreversed.
         return function toReversed() {
           // ECMAScript Standard Built-in Objects
           // https://tc39.es/ecma262/#sec-ecmascript-standard-built-in-objects

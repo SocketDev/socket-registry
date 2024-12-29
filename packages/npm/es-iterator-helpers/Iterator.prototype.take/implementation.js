@@ -17,8 +17,7 @@ const {
 
 const { take: IteratorProtoTake } = IteratorPrototype
 
-// Based on the specification text:
-// https://tc39.es/ecma262/#sec-iterator.prototype.take
+// Based on https://tc39.es/ecma262/#sec-iterator.prototype.take.
 module.exports =
   typeof IteratorProtoTake === 'function'
     ? IteratorProtoTake
