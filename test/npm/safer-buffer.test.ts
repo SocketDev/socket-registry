@@ -410,7 +410,7 @@ describe(
         dangerous.Buffer.allocUnsafe,
         dangerous.Buffer.allocUnsafeSlow
       ]) {
-        for (let i = 0; i < 1e2; i++) {
+        for (let i = 0; i < 1e2; i += 1) {
           const length = Math.round(Math.random() * 1e5)
           const buf = method(length)
           if (!buffer.Buffer.isBuffer(buf)) ok = false
@@ -424,17 +424,17 @@ describe(
       assert.equal(index.Buffer.alloc, safer.Buffer.alloc)
       assert.equal(index.Buffer.alloc, dangerous.Buffer.alloc)
       let ok = true
-      for (let i = 0; i < 1e2; i++) {
+      for (let i = 0; i < 1e2; i += 1) {
         const length = Math.round(Math.random() * 2e6)
         const buf = index.Buffer.alloc(length)
         if (!buffer.Buffer.isBuffer(buf)) ok = false
         if (buf.length !== length) ok = false
         let j
-        for (j = 0; j < length; j++) {
+        for (j = 0; j < length; j += 1) {
           if (buf[j] !== 0) ok = false
         }
         buf.fill(1)
-        for (j = 0; j < length; j++) {
+        for (j = 0; j < length; j += 1) {
           if (buf[j] !== 1) ok = false
         }
       }
@@ -444,18 +444,18 @@ describe(
     it('.allocUnsafe / .allocUnsafeSlow are fillable and have correct lengths', () => {
       for (const method of ['allocUnsafe', 'allocUnsafeSlow']) {
         let ok = true
-        for (let i = 0; i < 1e2; i++) {
+        for (let i = 0; i < 1e2; i += 1) {
           const length = Math.round(Math.random() * 2e6)
           const buf = dangerous.Buffer[method](length)
           if (!buffer.Buffer.isBuffer(buf)) ok = false
           if (buf.length !== length) ok = false
           buf.fill(0, 0, length)
           let j
-          for (j = 0; j < length; j++) {
+          for (j = 0; j < length; j += 1) {
             if (buf[j] !== 0) ok = false
           }
           buf.fill(1, 0, length)
-          for (j = 0; j < length; j++) {
+          for (j = 0; j < length; j += 1) {
             if (buf[j] !== 1) ok = false
           }
         }
@@ -467,13 +467,13 @@ describe(
       assert.equal(index.Buffer.alloc, safer.Buffer.alloc)
       assert.equal(index.Buffer.alloc, dangerous.Buffer.alloc)
       let ok = true
-      for (let i = 0; i < 1e2; i++) {
+      for (let i = 0; i < 1e2; i += 1) {
         const length = Math.round(Math.random() * 2e6)
         const fill = Math.round(Math.random() * 255)
         const buf = index.Buffer.alloc(length, fill)
         if (!buffer.Buffer.isBuffer(buf)) ok = false
         if (buf.length !== length) ok = false
-        for (let j = 0; j < length; j++) {
+        for (let j = 0; j < length; j += 1) {
           if (buf[j] !== fill) ok = false
         }
       }
@@ -484,13 +484,13 @@ describe(
       assert.equal(index.Buffer.alloc, safer.Buffer.alloc)
       assert.equal(index.Buffer.alloc, dangerous.Buffer.alloc)
       let ok = true
-      for (let i = 0; i < 1e2; i++) {
+      for (let i = 0; i < 1e2; i += 1) {
         const length = Math.round(Math.random() * 2e6)
         const fill = Math.round(Math.random() * 255)
         const buf = index.Buffer.alloc(length, fill)
         if (!buffer.Buffer.isBuffer(buf)) ok = false
         if (buf.length !== length) ok = false
-        for (let j = 0; j < length; j++) {
+        for (let j = 0; j < length; j += 1) {
           if (buf[j] !== fill) ok = false
         }
       }
