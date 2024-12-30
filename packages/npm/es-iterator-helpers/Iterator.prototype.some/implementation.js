@@ -34,13 +34,13 @@ module.exports =
           throw new TypeErrorCtor('`predicate` must be a function')
         }
         // Step 4: Let iterated be GetIteratorDirect(O).
-        const { iterator, next } = getIteratorDirect(O)
+        const { iterator, next: nextMethod } = getIteratorDirect(O)
         // Step 5: Let counter be 0.
         let index = 0
         // Step 6: Repeat
         while (true) {
           // Step 6.a: Let value be IteratorStepValue(iterated).
-          const result = ReflectApply(next, iterator, [])
+          const result = ReflectApply(nextMethod, iterator, [])
           // Step 6.b: If value is done, return false.
           if (result.done) {
             return false

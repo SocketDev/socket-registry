@@ -38,7 +38,7 @@ module.exports = function drop(limit) {
     throw new RangeErrorCtor('`limit` must be a non-negative number')
   }
   // Step 7: Let iterated be GetIteratorDirect(O).
-  const { iterator, next } = getIteratorDirect(O)
+  const { iterator, next: nextMethod } = getIteratorDirect(O)
   // Step 8.a: Let remaining be integerLimit.
   let remaining = integerLimit
   // Step 8: Let closure be a new Abstract Closure with no parameters that captures iterated and integerLimit.
@@ -52,14 +52,14 @@ module.exports = function drop(limit) {
           remaining -= 1
         }
         // Step 8.b.ii: Let next be IteratorStep(iterated).
-        const result = ReflectApply(next, iterator, [])
+        const result = ReflectApply(nextMethod, iterator, [])
         // Step 8.b.iii: If next is done, return ReturnCompletion(undefined).
         if (result.done) {
           return result
         }
       }
       // Step 8.c: Repeat, yield the remaining values.
-      return ReflectApply(next, iterator, [])
+      return ReflectApply(nextMethod, iterator, [])
     }
   })
   // Step 10: Set result.[[UnderlyingIterator]] to iterated.

@@ -62,10 +62,10 @@ module.exports =
                 // Step 3.a.iii: Let iteratorRecord be ? GetIteratorDirect(iter).
                 innerIteratorRecord = getIteratorDirect(innerIterator)
               }
-              const { iterator, next } = innerIteratorRecord
+              const { iterator, next: nextMethod } = innerIteratorRecord
               try {
                 // Step 3.a.v.1: Let iteratorResult be ? IteratorStep(iteratorRecord).
-                const result = ReflectApply(next, iterator, [])
+                const result = ReflectApply(nextMethod, iterator, [])
                 // Step 3.a.v.3: Yield value if not done.
                 if (!result.done) {
                   return { value: result.value, done: false }

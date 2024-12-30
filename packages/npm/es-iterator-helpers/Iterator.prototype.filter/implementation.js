@@ -27,7 +27,7 @@ module.exports = function filter(predicate) {
     throw new TypeErrorCtor('`predicate` must be a function')
   }
   // Step 4: Let iterated be GetIteratorDirect(O).
-  const { iterator, next } = getIteratorDirect(O)
+  const { iterator, next: nextMethod } = getIteratorDirect(O)
   let index = 0
   // Step 5: Let closure be a new Abstract Closure with no parameters that captures iterated and predicate.
   const wrapper = createIteratorFromClosure({
@@ -35,7 +35,7 @@ module.exports = function filter(predicate) {
     next() {
       while (true) {
         // Step 5.b.i: Let value be IteratorStepValue(iterated).
-        const result = ReflectApply(next, iterator, [])
+        const result = ReflectApply(nextMethod, iterator, [])
         // Step 5.b.ii: If value is done, return ReturnCompletion(undefined).
         if (result.done) {
           return result
