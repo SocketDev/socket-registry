@@ -364,7 +364,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/es-iterator-helpers@1.0.8",
+      "pkg:npm/%40socketregistry/es-iterator-helpers@1.0.9",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -372,7 +372,7 @@
         "license": "MIT",
         "name": "@socketregistry/es-iterator-helpers",
         "package": "es-iterator-helpers",
-        "version": "1.0.8"
+        "version": "1.0.9"
       }
     ],
     [
