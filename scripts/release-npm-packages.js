@@ -27,6 +27,11 @@ const {
 } = require('@socketsecurity/registry/lib/packages')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 
+const registryPkg = packageData({
+  name: '@socketsecurity/registry',
+  path: registryPkgPath
+})
+
 function packageData(data) {
   const { printName = data.name, tag = LATEST } = data
   return Object.assign(data, { printName, tag })
@@ -37,7 +42,7 @@ void (async () => {
     text: `Bumping ${relNpmPackagesPath} versions (semver patch)...`
   }).start()
   const packages = [
-    packageData({ name: '@socketsecurity/registry', path: registryPkgPath }),
+    registryPkg,
     // Lazily access constants.npmPackageNames.
     ...constants.npmPackageNames.map(regPkgName => {
       const pkgPath = path.join(npmPackagesPath, regPkgName)
@@ -54,6 +59,9 @@ void (async () => {
   const prereleasePackages = []
   // Chunk packages data to process them in parallel 3 at a time.
   await pEach(packages, 3, async pkg => {
+    if (abortSignal.aborted) {
+      return
+    }
     const overridesPath = path.join(pkg.path, OVERRIDES)
     const overrideNames = await readDirNames(overridesPath)
     for (const overrideName of overrideNames) {
@@ -77,10 +85,17 @@ void (async () => {
       )
     }
   })
+  if (abortSignal.aborted) {
+    spinner.stop()
+    return
+  }
   packages.push(...prereleasePackages)
   const bundledPackages = packages.filter(pkg => pkg.bundledDependencies)
   // Chunk bundled package names to process them in parallel 3 at a time.
   await pEach(bundledPackages, 3, async pkg => {
+    if (abortSignal.aborted) {
+      return
+    }
     // Install bundled dependencies, including overrides.
     try {
       await execNpm(
@@ -101,13 +116,25 @@ void (async () => {
       console.log(e)
     }
   })
+  if (abortSignal.aborted) {
+    spinner.stop()
+    return
+  }
+  let registryPkgManifest
+  const bumpedPackages = []
   // Chunk package names to process them in parallel 3 at a time.
   await pEach(
     packages,
     3,
     async pkg => {
+      if (abortSignal.aborted) {
+        return
+      }
       const manifest = await fetchPackageManifest(`${pkg.name}@${pkg.tag}`)
       if (manifest) {
+        if (pkg === registryPkg) {
+          registryPkgManifest = manifest
+        }
         // Compare the shasum of the @socketregistry the latest package from
         // registry.npmjs.org against the local version. If they are different
         // then bump the local version.
@@ -129,17 +156,31 @@ void (async () => {
           const editablePkgJson = await readPackageJson(pkg.path, {
             editable: true
           })
-          editablePkgJson.update({ version })
-          await editablePkgJson.save()
-          console.log(`+${pkg.name}@${manifest.version} -> ${version}`)
+          if (editablePkgJson.content.version !== version) {
+            bumpedPackages.push(pkg)
+            editablePkgJson.update({ version })
+            await editablePkgJson.save()
+            console.log(`+${pkg.name}@${manifest.version} -> ${version}`)
+          }
         }
       }
     },
     { signal: abortSignal }
   )
   spinner.stop()
-  if (abortSignal.aborted) {
+  if (abortSignal.aborted || !bumpedPackages.length) {
     return
+  }
+  if (!bumpedPackages.find(pkg => pkg === registryPkg)) {
+    const version = semver.inc(registryPkgManifest.version, 'patch')
+    const editablePkgJson = await readPackageJson(registryPkg.path, {
+      editable: true
+    })
+    editablePkgJson.update({ version })
+    await editablePkgJson.save()
+    console.log(
+      `+${registryPkg.name}@${registryPkgManifest.version} -> ${version}`
+    )
   }
   const spawnOptions = {
     cwd: rootPath,
