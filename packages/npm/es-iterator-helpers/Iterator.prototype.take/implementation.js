@@ -44,7 +44,7 @@ module.exports =
           throw new RangeErrorCtor('`limit` must be a non-negative number')
         }
         // Step 7: Let iterated be GetIteratorDirect(O).
-        const { iterator, next } = getIteratorDirect(O)
+        const { iterator, next: nextMethod } = getIteratorDirect(O)
         // Step 8.a: Let remaining be integerLimit.
         let remaining = integerLimit
         // Step 8: Let closure be a new Abstract Closure with no parameters that captures iterated and integerLimit.
@@ -56,7 +56,7 @@ module.exports =
               return { value: undefined, done: true }
             }
             // Step 8.b.iii: Let value be IteratorStepValue(iterated).
-            const result = ReflectApply(next, iterator, [])
+            const result = ReflectApply(nextMethod, iterator, [])
             // Step 8.b.iv: If value is done, return ReturnCompletion(undefined).
             if (result.done) {
               return result

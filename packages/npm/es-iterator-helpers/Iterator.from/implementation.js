@@ -24,7 +24,7 @@ module.exports =
           throw new TypeErrorCtor('`Iterator.from` is not a constructor')
         }
         // Step 1: Let iteratorRecord be GetIteratorFlattenable(O, iterate-string-primitives).
-        const { iterator, next } = getIteratorFlattenable(O, true)
+        const { iterator, next: nextMethod } = getIteratorFlattenable(O, true)
         // Step 2: Let hasInstance be OrdinaryHasInstance(%Iterator%, iteratorRecord.[[Iterator]]).
         // Step 3: If hasInstance is true, then
         if (iterator instanceof IteratorCtor) {
@@ -34,7 +34,7 @@ module.exports =
         // Step 4: Let wrapper be OrdinaryObjectCreate(%WrapForValidIteratorPrototype%, << [[Iterated]] >>).
         const wrapper = ObjectCreate(WrapForValidIteratorPrototype)
         // Step 5: Set wrapper.[[Iterated]] to iteratorRecord.
-        setIterated(wrapper, { iterator, next })
+        setIterated(wrapper, { iterator, next: nextMethod })
         // Step 6: Return wrapper.
         return wrapper
       }

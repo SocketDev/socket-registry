@@ -33,7 +33,7 @@ module.exports =
           throw new TypeErrorCtor('`reducer` must be a function')
         }
         // Step 4: Let iterated be GetIteratorDirect(O).
-        const { iterator, next } = getIteratorDirect(O)
+        const { iterator, next: nextMethod } = getIteratorDirect(O)
         let accumulator
         let index = 0
         // Step 5: If initialValue is not present,
@@ -42,7 +42,7 @@ module.exports =
           accumulator = initialValue
         } else {
           // Step 5.a: Let accumulator be IteratorStepValue(iterated).
-          const result = ReflectApply(next, iterator, [])
+          const result = ReflectApply(nextMethod, iterator, [])
           // Step 5.b: If accumulator is done, throw a TypeError exception.
           if (result.done) {
             throw new TypeErrorCtor(
@@ -56,7 +56,7 @@ module.exports =
         // Step 7: Repeat,
         while (true) {
           // Step 7.a: Let value be IteratorStepValue(iterated).
-          const result = ReflectApply(next, iterator, [])
+          const result = ReflectApply(nextMethod, iterator, [])
           // Step 7.b: If value is done, return accumulator.
           if (result.done) {
             return accumulator

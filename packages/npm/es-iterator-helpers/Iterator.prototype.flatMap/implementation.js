@@ -29,7 +29,7 @@ module.exports = function flatMap(mapper) {
     throw new TypeErrorCtor('`mapper` must be a function')
   }
   // Step 4: GetIteratorDirect(O).
-  const { iterator, next } = getIteratorDirect(O)
+  const { iterator, next: nextMethod } = getIteratorDirect(O)
   let innerNext = null
   let innerIterator = null
   let innerIteratorReturnCalled = false
@@ -40,7 +40,7 @@ module.exports = function flatMap(mapper) {
     while (true) {
       if (!innerIterator) {
         // Step 5.b.i: Get the next outer value.
-        const result = ReflectApply(next, iterator, [])
+        const result = ReflectApply(nextMethod, iterator, [])
         if (result.done) {
           // Step 5.b.ii: ReturnCompletion(undefined).
           return

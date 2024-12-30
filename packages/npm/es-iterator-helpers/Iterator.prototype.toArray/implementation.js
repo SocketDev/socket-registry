@@ -20,13 +20,13 @@ module.exports = function toArray() {
   // Step 2: If O is not an Object, throw a TypeError exception.
   ensureObject(O)
   // Step 3: Let iterated be GetIteratorDirect(O).
-  const { iterator, next } = getIteratorDirect(O)
+  const { iterator, next: nextMethod } = getIteratorDirect(O)
   // Step 4: Let items be a new empty List.
   const items = []
   // Step 5: Repeat.
   while (true) {
     // Step 5.a: Let value be IteratorStepValue(iterated).
-    const result = ReflectApply(next, iterator, [])
+    const result = ReflectApply(nextMethod, iterator, [])
     // Step 5.b: If value is done, return CreateArrayFromList(items).
     if (result.done) {
       return items

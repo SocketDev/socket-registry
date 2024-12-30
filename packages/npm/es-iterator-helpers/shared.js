@@ -34,7 +34,7 @@ const ArrayIteratorPrototype = ReflectGetPrototypeOf([][SymbolIterator]())
 const { Iterator: IteratorCtor } = globalThis
 const IteratorPrototype = ReflectGetPrototypeOf(ArrayIteratorPrototype)
 
-;('use strict')
+const processedContexts = new Set()
 
 // Based on https://tc39.es/ecma262/#sec-%iteratorhelperprototype%-object.
 const IteratorHelperPrototype = ObjectCreate(IteratorPrototype, {
@@ -42,84 +42,94 @@ const IteratorHelperPrototype = ObjectCreate(IteratorPrototype, {
     __proto__: null,
     configurable: true,
     enumerable: false,
-    value: (function () {
-      const processedContexts = new Set() // Track processed generator contexts.
-
-      return function next() {
-        const generator = getSlot(this, SLOT_GENERATOR_CONTEXT)
-        const generatorNext = generator?.next
-        if (typeof generatorNext !== 'function') {
-          throw new TypeErrorCtor('Generator context not set or invalid')
-        }
-
-        const underlyingIterator = getSlot(this, SLOT_UNDERLYING_ITERATOR)
-        const underlyingNext = underlyingIterator?.next
-        if (typeof underlyingNext !== 'function') {
-          throw new TypeErrorCtor('Underlying iterator not set or invalid')
-        }
-
-        if (getSlot(this, SLOT_GENERATOR_STATE) === GENERATOR_STATE_COMPLETED) {
-          return { value: undefined, done: true }
-        }
-
-        // Avoid reprocessing the same generator context.
-        if (processedContexts.has(generator)) {
-          throw new TypeErrorCtor('Recursive generator context detected')
-        }
-
-        processedContexts.add(generator) // Mark this generator context as processed.
-
-        try {
-          // Execute the closure's next function to apply transformations (like map).
-          const nextValue = ReflectApply(generatorNext, generator, [])
-          if (nextValue.done) {
-            setSlot(this, SLOT_GENERATOR_STATE, GENERATOR_STATE_COMPLETED)
-          }
-          return nextValue
-        } catch (error) {
-          setSlot(this, SLOT_GENERATOR_STATE, GENERATOR_STATE_COMPLETED)
-          throw error
-        } finally {
-          // Clean up the context after processing.
-          processedContexts.delete(generator)
-        }
+    // Based on https://tc39.es/ecma262/#sec-%iteratorhelperprototype%.next
+    // Step 1: Return ? GeneratorResume(this value, undefined, "Iterator Helper").
+    value: function next() {
+      // Based on https://tc39.es/ecma262/#sec-generatorresume
+      // Step 1: Let state be ? GeneratorValidate(generator, generatorBrand).
+      const O = this
+      const generator = getSlot(O, SLOT_GENERATOR_CONTEXT)
+      const generatorNext = generator?.next
+      if (typeof generatorNext !== 'function') {
+        throw new TypeErrorCtor('Generator context not set or invalid')
       }
-    })(),
+      // Retrieve the underlying iterator for later use.
+      const underlyingIterator = getSlot(O, SLOT_UNDERLYING_ITERATOR)
+      const underlyingNext = underlyingIterator?.next
+      if (typeof underlyingNext !== 'function') {
+        throw new TypeErrorCtor('Underlying iterator not set or invalid')
+      }
+      // Step 2: If state is completed, return CreateIteratorResultObject(undefined, true).
+      if (getSlot(O, SLOT_GENERATOR_STATE) === GENERATOR_STATE_COMPLETED) {
+        return { value: undefined, done: true }
+      }
+      // Step 3: Assert: state is either suspended-start or suspended-yield.
+      if (processedContexts.has(generator)) {
+        throw new TypeErrorCtor('Recursive generator context detected')
+      }
+      processedContexts.add(generator)
+      try {
+        // Step 4: Let genContext be generator.[[GeneratorContext]].
+        // Step 5: Let methodContext be the running execution context.
+        // Step 6: Suspend methodContext.
+        // Step 7: Set generator.[[GeneratorState]] to executing.
+        // Step 8: Push genContext onto the execution context stack; genContext
+        // is now the running execution context.
+        // Step 9: Resume the suspended evaluation of genContext using NormalCompletion(value).
+        // Step 10: Assert: When we return here, genContext has already been
+        // removed from the execution context stack.
+        const nextValue = ReflectApply(generatorNext, generator, [])
+        if (nextValue.done) {
+          setSlot(this, SLOT_GENERATOR_STATE, GENERATOR_STATE_COMPLETED)
+        }
+        // Step 11: Return ? result.
+        return nextValue
+      } catch (error) {
+        setSlot(this, SLOT_GENERATOR_STATE, GENERATOR_STATE_COMPLETED)
+        throw error
+      } finally {
+        // Clean up the context after processing.
+        processedContexts.delete(generator)
+      }
+    },
     writable: true
   },
   return: {
     __proto__: null,
     configurable: true,
     enumerable: false,
+    // Based on https://tc39.es/ecma262/#sec-%iteratorhelperprototype%.return.
     value: function () {
-      const underlyingIterator = getSlot(this, SLOT_UNDERLYING_ITERATOR)
+      // Step 1: Bind `this` to O.
+      const O = this
+      // Step 2: Ensure O has the [[UnderlyingIterator]] internal slot.
+      const underlyingIterator = getSlot(O, SLOT_UNDERLYING_ITERATOR)
       if (!isObjectType(underlyingIterator)) {
         throw new TypeErrorCtor('Iterator must be an Object')
       }
+      // Step 3: Ensure O has a [[GeneratorState]] internal slot.
+      const generatorState = getSlot(O, SLOT_GENERATOR_STATE)
 
-      const generatorState = getSlot(this, SLOT_GENERATOR_STATE)
+      // Step 4: If the generator is suspended-start, mark it as completed and
+      // return a completed result.
       if (generatorState === GENERATOR_STATE_COMPLETED) {
         return { value: undefined, done: true }
       }
-
       try {
-        const returnMethod = getMethod(underlyingIterator, 'return')
-        if (returnMethod === undefined) {
-          setSlot(this, SLOT_GENERATOR_STATE, GENERATOR_STATE_COMPLETED)
-          return { value: undefined, done: true }
-        }
-
-        // Ensure the iterator completes after return
-        const result = ReflectApply(returnMethod, underlyingIterator, [])
-        setSlot(this, SLOT_GENERATOR_STATE, GENERATOR_STATE_COMPLETED)
-        return result
+        // Step 4.c: Close the underlying iterator and complete the generator.
+        iteratorClose(underlyingIterator, undefined)
+        setSlot(O, SLOT_GENERATOR_STATE, GENERATOR_STATE_COMPLETED)
+        return { value: undefined, done: true }
       } catch (error) {
-        setSlot(this, SLOT_GENERATOR_STATE, GENERATOR_STATE_COMPLETED)
+        // Step 6: If an abrupt completion occurs, set the generator to completed
+        // and propagate the error.
+        setSlot(O, SLOT_GENERATOR_STATE, GENERATOR_STATE_COMPLETED)
         throw error
       }
     },
     writable: true
   },
+  // Based on https://tc39.es/ecma262/#sec-%iteratorhelperprototype%-%symbol.tostringtag%.
   [SymbolToStringTag]: {
     configurable: true,
     enumerable: false,
@@ -145,9 +155,9 @@ const WrapForValidIteratorPrototype = ObjectCreate(IteratorPrototype, {
         throw new TypeError(`"${SLOT_ITERATED}" is not present on "O"`)
       }
       // Step 3: Let iteratorRecord be O.[[Iterated]].
-      const { iterator, next } = slots[SLOT_ITERATED]
+      const { iterator, next: nextMethod } = slots[SLOT_ITERATED]
       // Step 4: Return Call(iteratorRecord.[[NextMethod]], iteratorRecord.[[Iterator]]).
-      return ReflectApply(next, iterator, [])
+      return ReflectApply(nextMethod, iterator, [])
     },
     writable: true
   },
@@ -185,16 +195,24 @@ const WrapForValidIteratorPrototype = ObjectCreate(IteratorPrototype, {
 
 // Based on https://tc39.es/ecma262/#sec-createiteratorfromclosure.
 function createIteratorFromClosure(closure) {
-  if (!closure || typeof closure.next !== 'function') {
-    throw new TypeErrorCtor('Closure must have a `next` method')
-  }
+  // Step 1: NOTE: closure can contain uses of the Yield operation to yield an
+  // IteratorResult object.
+  // Step 2: If extraSlots is not present, set extraSlots to a new empty List.
+  // Step 3: Let internalSlotsList be the list-concatenation of extraSlots and
+  // << [[GeneratorState]], [[GeneratorContext]], [[GeneratorBrand]] >>.
+  // Step 4: Let generator be OrdinaryObjectCreate(generatorPrototype, internalSlotsList).
   const generator = ObjectCreate(IteratorHelperPrototype)
+  // Step 5: Set generator.[[GeneratorBrand]] to generatorBrand.
+  // Step 6: Set generator.[[GeneratorState]] to suspended-start.
+  // Step 7: Let callerContext be the running execution context.
+  // (Steps 5-7 are part of the SLOT setup.)
   SLOT.set(generator, {
     __proto__: null,
     [SLOT_GENERATOR_CONTEXT]: closure,
     [SLOT_GENERATOR_STATE]: GENERATOR_STATE_SUSPENDED_STARTED,
     [SLOT_UNDERLYING_ITERATOR]: undefined
   })
+  // Step 16: Return generator.
   return generator
 }
 
@@ -206,15 +224,22 @@ function ensureObject(thisArg, what = 'this') {
 
 // Based on https://tc39.es/ecma262/#sec-getiterator.
 function getIterator(obj) {
+  // Step 2.a: Let method be ? GetMethod(obj, %Symbol.iterator%).
   const method = obj[SymbolIterator]
+  // Step 3: If method is undefined, throw a TypeError exception.
   if (typeof method !== 'function') {
     throw new TypeErrorCtor('Object is not iterable')
   }
+  // Step 4: Return ? GetIteratorFromMethod(obj, method).
   return ReflectApply(method, obj, [])
 }
 
 // Based on https://tc39.es/ecma262/#sec-getiteratordirect.
 function getIteratorDirect(obj) {
+  // Step 1: Let nextMethod be ? Get(obj, "next").
+  // Step 2: Let iteratorRecord be the Iterator Record
+  // { [[Iterator]]: obj, [[NextMethod]]: nextMethod, [[Done]]: false }.
+  // Step 3: Return iteratorRecord.
   return { next: obj.next, iterator: obj, done: false }
 }
 
@@ -240,13 +265,17 @@ function getIteratorFlattenable(obj, allowStrings) {
 
 // Based on https://tc39.es/ecma262/#sec-getmethod.
 function getMethod(obj, key) {
+  // Step 1: Let func be ? GetV(V, P).
   const method = obj[key]
+  // Step 2: If func is either undefined or null, return undefined.
   if (method === undefined || method === null) {
     return undefined
   }
+  // Step 3: If IsCallable(func) is false, throw a TypeError exception.
   if (typeof method !== 'function') {
     throw new TypeErrorCtor('Method is not a function')
   }
+  // Step 4: Return func.
   return method
 }
 
@@ -273,10 +302,8 @@ function getSlot(O, slot) {
 function ifAbruptCloseIterator(iterator, error) {
   if (error) {
     try {
-      const returnMethod = getMethod(iterator, 'return')
-      if (returnMethod) {
-        ReflectApply(returnMethod, iterator, [])
-      }
+      // Step 2: If value is an abrupt completion, return ? IteratorClose(iteratorRecord, value).
+      iteratorClose(iterator)
     } catch {
       // If both `predicate` and `return()` throw, the `predicate`'s error
       // should win.
@@ -305,38 +332,44 @@ function isObjectType(value) {
 
 // Based on https://tc39.es/ecma262/#sec-iteratorclose.
 function iteratorClose(iterator, completion) {
+  // Step 1: Assert: iteratorRecord.[[Iterator]] is an Object.
+  ensureObject(iterator, 'iterator')
+  // Step 2: Let iterator be iteratorRecord.[[Iterator]].
+  // Step 3: Let innerResult be Completion(GetMethod(iterator, "return")).
   const returnMethod = getMethod(iterator, 'return')
+  // Step 4.a: If return is undefined, return ? completion.
   if (returnMethod === undefined) {
     return completion
   }
+  // Step 4.c: Set innerResult to Completion(Call(return, iterator)).
   const innerResult = ReflectApply(returnMethod, iterator, [])
+  // Step 7: If innerResult.[[Value]] is not an Object, throw a TypeError exception.
   if (!isObjectType(innerResult)) {
     throw new TypeError('`Iterator.return` result must be an object')
   }
+  // Step 8: Return ? completion.
   return completion
 }
 
 // Based on https://tc39.es/proposal-joint-iteration/#sec-closeall.
-function iteratorCloseAll(openIters, error) {
-  for (const iter of openIters) {
-    if (iter !== null && typeof iter.return === 'function') {
-      try {
-        iter.return()
-      } catch {
-        // Ignore errors during iterator closure.
-      }
-    }
+function iteratorCloseAll(openIters, completion) {
+  // Step 1: For each element iter of openIters, in reverse List order, do
+  for (let i = openIters.length - 1; i >= 0; i -= 1) {
+    // Step 1.a: Set completion to Completion(IteratorClose(iter, completion)).
+    iteratorClose(openIters[i], completion)
   }
-  if (error) {
-    throw error
+  // Step 2: Return ? completion.
+  if (completion) {
+    throw completion
   }
 }
 
 // Based on https://tc39.es/proposal-joint-iteration/#sec-IteratorZip.
 function iteratorZip(iters, mode, padding, finishResults = v => v) {
-  const iterCount = iters.length // Step 1: Number of iterators.
-  const openIters = [...iters] // Step 2: Copy of iterators to track active ones.
-
+  // Step 1: Let iterCount be the number of elements in iters.
+  const { length: iterCount } = iters
+  // Step 2: Let openIters be a copy of iters.
+  const openIters = [...iters]
   // Step 3: Define the generator closure.
   const generator = {
     next() {
@@ -344,75 +377,75 @@ function iteratorZip(iters, mode, padding, finishResults = v => v) {
       if (iterCount === 0) {
         return { value: undefined, done: true }
       }
-
-      const results = [] // Step 3.b.i: Let results be a new empty list.
-
+      // Step 3.b.i: Let results be a new empty list.
+      const results = []
       // Step 3.b.ii: Assert: openIters is not empty.
-      if (openIters.every(iter => iter === null)) {
+      let allNull = true
+      for (let i = 0, { length } = openIters; i < length; i += 1) {
+        if (openIters[i] !== null) {
+          allNull = false
+          break
+        }
+      }
+      if (allNull) {
         return { value: undefined, done: true }
       }
-
-      // Step 3.b.iii: Iterate through openIters.
+      // Step 3.b.iii: For each integer i such that 0 ≤ i < iterCount, in ascending order, do.
       for (let i = 0; i < iterCount; i += 1) {
         const iter = openIters[i]
-
-        // Step 3.b.iii.2: If iter is null...
+        // Step 3.b.iii.2: If iter is null, then.
         if (iter === null) {
-          // Assert: mode is "longest".
+          // Step 3.b.iii.2.a: Assert: mode is "longest".
           if (mode !== 'longest') {
             throw new ErrorCtor(
               'Invalid state: null iterator in non-longest mode'
             )
           }
-          results.push(padding[i]) // Use padding for exhausted iterators.
+          // Step 3.b.iii.2.b: Let result be padding[i].
+          results.push(padding[i])
           continue
         }
-
         try {
           // Step 3.b.iii.3.a: Fetch the next value from the iterator.
           const next = ReflectApply(iter.next, iter.iterator, [])
-
-          // Step 3.b.iii.3.d: If next is done...
+          // Step 3.b.iii.3.d: If result is done, then.
           if (next.done) {
-            openIters[i] = null // Mark iterator as exhausted.
-
+            // Step 3.b.iii.3.d.i: Remove iter from openIters.
+            openIters[i] = null
             if (mode === 'shortest') {
-              // Stop iteration in shortest mode as soon as one iterator is exhausted.
+              // Step 3.b.iii.3.d.ii: Return { value: undefined, done: true } in "shortest" mode.
               return { value: undefined, done: true }
             }
-
-            results.push(padding[i]) // Add padding for exhausted iterators in longest mode.
+            // Step 3.b.iii.3.d.iv: Let result be padding[i].
+            results.push(padding[i])
           } else {
-            results.push(next.value) // Add the value to the results list.
+            // Step 3.b.iii.3.c: Set result to the value.
+            results.push(next.value)
           }
-        } catch (err) {
-          // Step 3.b.iii.3.b: Handle abrupt completions.
-          openIters[i] = null // Mark iterator as exhausted.
-          return iteratorCloseAll(openIters, err) // Close all iterators and propagate the error.
+        } catch (e) {
+          // Step 3.b.iii.3.b.i: Remove iter from openIters on abrupt completion.
+          openIters[i] = null
+          // Step 3.b.iii.3.b.ii: Return ? IteratorCloseAll(openIters, result).
+          return iteratorCloseAll(openIters, e)
         }
       }
-
-      // Step 3.b.iv: Finalize the results using finishResults.
+      // Step 3.b.iv: Set results to finishResults(results).
       const finalizedResults = finishResults(results)
-
       // Step 3.b.v: Yield the finalized results.
       return { value: finalizedResults, done: false }
     },
-
     return() {
-      // Close all iterators when the zip iterator is terminated.
+      // Step 3.b.vi: Close all iterators when the zip iterator is terminated.
       iteratorCloseAll(openIters)
       return { value: undefined, done: true }
     },
-
-    [Symbol.iterator]() {
+    [SymbolIterator]() {
+      // Step 3: The generator must be iterable.
       return this
     }
   }
-
-  // Step 5: Attach the underlying iterators to the generator.
-  generator[Symbol.for('[[UnderlyingIterators]]')] = openIters
-
+  // Step 5: Set generator.[[UnderlyingIterators]] to openIters.
+  setUnderlyingIterator(generator, openIters)
   // Step 6: Return the generator.
   return generator
 }

@@ -27,7 +27,7 @@ module.exports = function map(mapper) {
     throw new TypeErrorCtor('`mapper` must be a function')
   }
   // Step 4: Let iterated be GetIteratorDirect(O).
-  const { iterator, next } = getIteratorDirect(O)
+  const { iterator, next: nextMethod } = getIteratorDirect(O)
   // Step 5: Let closure be a new Abstract Closure with no parameters that
   // captures iterated and mapper.
   let index = 0
@@ -35,7 +35,7 @@ module.exports = function map(mapper) {
     // Step 5.b: Repeat
     next() {
       // Step 5.b.i: Let value be IteratorStepValue(iterated).
-      const result = ReflectApply(next, iterator, [])
+      const result = ReflectApply(nextMethod, iterator, [])
       // Step 5.b.ii: If value is done, return ReturnCompletion(undefined).
       if (result.done) {
         return result
