@@ -85,10 +85,12 @@ void (async () => {
       )
     }
   })
+
   if (abortSignal.aborted) {
     spinner.stop()
     return
   }
+
   packages.push(...prereleasePackages)
   const bundledPackages = packages.filter(pkg => pkg.bundledDependencies)
   // Chunk bundled package names to process them in parallel 3 at a time.
@@ -116,10 +118,12 @@ void (async () => {
       console.log(e)
     }
   })
+
   if (abortSignal.aborted) {
     spinner.stop()
     return
   }
+
   let registryPkgManifest
   const bumpedPackages = []
   // Chunk package names to process them in parallel 3 at a time.
@@ -167,10 +171,13 @@ void (async () => {
     },
     { signal: abortSignal }
   )
+
   spinner.stop()
   if (abortSignal.aborted || !bumpedPackages.length) {
     return
   }
+
+  await runScript('update:manifest', [], spawnOptions)
   if (!bumpedPackages.find(pkg => pkg === registryPkg)) {
     const version = semver.inc(registryPkgManifest.version, 'patch')
     const editablePkgJson = await readPackageJson(registryPkg.path, {
@@ -182,16 +189,31 @@ void (async () => {
       `+${registryPkg.name}@${registryPkgManifest.version} -> ${version}`
     )
   }
+
+  if (abortSignal.aborted) {
+    return
+  }
+
   const spawnOptions = {
     cwd: rootPath,
     signal: abortSignal,
     stdio: 'inherit'
   }
-  await runScript('update:manifest', [], spawnOptions)
+
   await runScript('update:package-json', [], spawnOptions)
-  await runScript(
-    'update:longtask:test:npm:package-json',
-    ['--', '--quiet', '--force'],
-    spawnOptions
-  )
+
+  if (abortSignal.aborted) {
+    return
+  }
+
+  if (
+    bumpedPackages.length > 1 ||
+    (bumpedPackages.length === 1 && bumpedPackages[0] !== registryPkg)
+  ) {
+    await runScript(
+      'update:longtask:test:npm:package-json',
+      ['--', '--quiet', '--force'],
+      spawnOptions
+    )
+  }
 })()
