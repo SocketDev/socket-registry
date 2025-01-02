@@ -11,6 +11,25 @@
     "url": "git+https://github.com/SocketDev/socket-registry.git",
     "directory": "registry"
   },
+  "browser": {
+    "@inquirer/confirm": false,
+    "@inquirer/input": false,
+    "@inquirer/password": false,
+    "@inquirer/search": false,
+    "@inquirer/select": false,
+    "@npmcli/package-json": false,
+    "@npmcli/promise-spawn": false,
+    "browserslist": false,
+    "cacache": false,
+    "libnpmpack": false,
+    "make-fetch-happen": false,
+    "npm-package-arg": false,
+    "pacote": false,
+    "prettier": false,
+    "tinyglobby": false,
+    "validate-npm-package-name": false,
+    "which": false
+  },
   "exports": {
     ".": {
       "types": "./index.d.ts",
