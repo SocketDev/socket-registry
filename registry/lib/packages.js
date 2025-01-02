@@ -407,6 +407,15 @@ async function fetchPackageManifest(pkgNameOrId, options) {
     : null
 }
 
+async function fetchPackagePackument(pkgNameOrId, options) {
+  return await getPacote().packument(pkgNameOrId, {
+    __proto__: null,
+    ...options,
+    packumentCache,
+    preferOffline: true
+  })
+}
+
 function findPackageExtensions(pkgName, pkgVer) {
   let result
   // Lazily access constants.packageExtensions.
@@ -893,6 +902,7 @@ module.exports = {
   createPackageJson,
   extractPackage,
   fetchPackageManifest,
+  fetchPackagePackument,
   findTypesForSubpath,
   getSubpaths,
   isBlessedPackageName,

@@ -1,6 +1,7 @@
 import NPMCliPackageJson from '@npmcli/package-json'
 import {
   manifest as PacoteManifestFn,
+  packument as PacotePackumentFn,
   Options as PacoteOptionsRaw,
   tarball as PacoteTarballFn
 } from 'pacote'
@@ -49,6 +50,10 @@ declare namespace PackagesModule {
     pkgNameOrId: string,
     options?: PacoteOptions
   ): ReturnType<typeof PacoteManifestFn>
+  export function fetchPackagePackument(
+    pkgNameOrId: string,
+    options?: PacoteOptions
+  ): ReturnType<typeof PacotePackumentFn>
   export function findTypesForSubpath(
     entryExports: Exports,
     subpath: string
