@@ -177,6 +177,12 @@ void (async () => {
     return
   }
 
+  const spawnOptions = {
+    cwd: rootPath,
+    signal: abortSignal,
+    stdio: 'inherit'
+  }
+
   await runScript('update:manifest', [], spawnOptions)
   if (!bumpedPackages.find(pkg => pkg === registryPkg)) {
     const version = semver.inc(registryPkgManifest.version, 'patch')
@@ -192,12 +198,6 @@ void (async () => {
 
   if (abortSignal.aborted) {
     return
-  }
-
-  const spawnOptions = {
-    cwd: rootPath,
-    signal: abortSignal,
-    stdio: 'inherit'
   }
 
   await runScript('update:package-json', [], spawnOptions)
