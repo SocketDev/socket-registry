@@ -6,7 +6,8 @@ let _spawn
 function getSpawn() {
   if (_spawn === undefined) {
     const id = '@npmcli/promise-spawn'
-    _spawn = require(id)
+    // Use a template string to avoid "Critical dependency" warnings in Webpack.
+    _spawn = require(`${id}`)
   }
   return _spawn
 }

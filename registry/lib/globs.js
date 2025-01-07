@@ -4,7 +4,8 @@ let _tinyGlobby
 function getTinyGlobby() {
   if (_tinyGlobby === undefined) {
     const id = 'tinyglobby'
-    _tinyGlobby = require(id)
+    // Use a template string to avoid "Critical dependency" warnings in Webpack.
+    _tinyGlobby = require(`${id}`)
   }
   return _tinyGlobby
 }
