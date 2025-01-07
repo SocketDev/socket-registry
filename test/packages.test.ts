@@ -39,6 +39,7 @@ const {
   OVERRIDES,
   PACKAGE_JSON,
   README_GLOB,
+  ignoreGlobs,
   parseArgsConfig
 } = constants
 
@@ -154,8 +155,7 @@ for (const eco of constants.ecosystems) {
               ...filesPatternsAsArray
             ],
             {
-              // Lazily access constants.ignoreGlobs.
-              ignore: [...constants.ignoreGlobs],
+              ignore: [...ignoreGlobs],
               caseSensitiveMatch: false,
               cwd: pkgPath,
               dot: true
