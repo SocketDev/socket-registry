@@ -161,11 +161,11 @@ void (async () => {
             editable: true
           })
           if (editablePkgJson.content.version !== version) {
-            bumpedPackages.push(pkg)
             editablePkgJson.update({ version })
             await editablePkgJson.save()
-            console.log(`+${pkg.name}@${manifest.version} -> ${version}`)
           }
+          bumpedPackages.push(pkg)
+          console.log(`+${pkg.name}@${manifest.version} -> ${version}`)
         }
       }
     },
