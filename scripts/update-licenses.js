@@ -3,7 +3,7 @@
 const fs = require('node:fs/promises')
 
 const constants = require('@socketregistry/scripts/constants')
-const { LICENSE, LICENSE_CONTENT, rootPath } = constants
+const { LICENSE, LICENSE_CONTENT, ignoreGlobs, rootPath } = constants
 const { globLicenses } = require('@socketsecurity/registry/lib/globs')
 
 void (async () => {
@@ -12,8 +12,7 @@ void (async () => {
       await globLicenses(rootPath, {
         recursive: true,
         ignoreOriginals: true,
-        // Lazily access constants.ignoreGlobs.
-        ignore: [LICENSE, 'scripts/templates', ...constants.ignoreGlobs]
+        ignore: [LICENSE, 'scripts/templates', ...ignoreGlobs]
       })
     ).map(licensePath => fs.writeFile(licensePath, LICENSE_CONTENT, 'utf8'))
   )

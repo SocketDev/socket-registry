@@ -253,8 +253,7 @@ function isDirEmptySync(dirname) {
     if (length === 0) {
       return true
     }
-    // Lazily access constants.ignoreGlobs.
-    const matcher = getGlobMatcher(constants.ignoreGlobs, { cwd: dirname })
+    const matcher = getGlobMatcher(ignoreGlobs, { cwd: dirname })
     let ignoredCount = 0
     for (let i = 0; i < length; i += 1) {
       if (matcher(files[i])) {

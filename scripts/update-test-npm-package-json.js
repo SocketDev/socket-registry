@@ -17,7 +17,8 @@ const {
   NODE_MODULES_GLOB_RECURSIVE,
   PACKAGE_JSON,
   PACKAGE_SCOPE,
-  README_GLOB,
+  README_GLOB_RECURSIVE,
+  ignoreGlobs,
   lifecycleScriptNames,
   npmPackagesPath,
   parseArgsConfig,
@@ -566,15 +567,12 @@ async function cleanupNodeWorkspaces(linkedPackageNames, options) {
       (
         await tinyGlob(
           [
-            '.package-lock.json',
             '**/.editorconfig',
             '**/.eslintignore',
             '**/.eslintrc.json',
             '**/.gitattributes',
             '**/.github',
             '**/.idea',
-            '**/.npmignore',
-            '**/.npmrc',
             '**/.nvmrc',
             '**/.travis.yml',
             '**/*.md',
@@ -584,9 +582,8 @@ async function cleanupNodeWorkspaces(linkedPackageNames, options) {
             '**/CHANGE{LOG,S}{.*,}',
             '**/CONTRIBUTING{.*,}',
             '**/FUND{ING,}{.*,}',
-            `**/${README_GLOB}`,
-            // Lazily access constants.ignoreGlobs.
-            ...constants.ignoreGlobs
+            README_GLOB_RECURSIVE,
+            ...ignoreGlobs
           ],
           {
             ignore: [LICENSE_GLOB_RECURSIVE],

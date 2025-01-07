@@ -24,8 +24,7 @@ void (async () => {
     return
   }
   const autoFiles = await tinyGlob([AUTO_FILE_GLOB_RECURSIVE], {
-    // Lazily access constants.ignoreGlobs.
-    ignore: constants.ignoreGlobs,
+    ignore: ignoreGlobs,
     absolute: true,
     cwd: npmTemplatesPath
   })
