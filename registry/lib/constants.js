@@ -1,6 +1,6 @@
 'use strict'
 
-// signal-exit is browser safe.
+// The 'signal-exit' package is browser safe.
 const { onExit } = require('signal-exit')
 
 const { envAsBoolean, envAsString } = require('./env')
@@ -12,7 +12,8 @@ let _browserList
 function getBrowserList() {
   if (_browserList === undefined) {
     const id = 'browserslist'
-    _browserList = require(id)
+    // Use a template string to avoid "Critical dependency" warnings in Webpack.
+    _browserList = require(`${id}`)
   }
   return _browserList
 }
@@ -21,7 +22,7 @@ let _fs
 function getFs() {
   if (_fs === undefined) {
     const id = 'node:fs'
-    _fs = require(id)
+    _fs = require(`${id}`)
   }
   return _fs
 }
@@ -30,7 +31,7 @@ let _naturalSort
 function naturalSort(arrayToSort) {
   if (_naturalSort === undefined) {
     const id = 'fast-sort'
-    const fastSort = require(id)
+    const fastSort = require(`${id}`)
     _naturalSort = fastSort.createNewSortInstance({
       comparer: new Intl.Collator(undefined, {
         numeric: true,
@@ -45,7 +46,7 @@ let _pacote
 function getPacote() {
   if (_pacote === undefined) {
     const id = 'pacote'
-    _pacote = require(id)
+    _pacote = require(`${id}`)
   }
   return _pacote
 }
@@ -54,7 +55,7 @@ let _path
 function getPath() {
   if (_path === undefined) {
     const id = 'node:path'
-    _path = require(id)
+    _path = require(`${id}`)
   }
   return _path
 }
@@ -63,7 +64,7 @@ let _picomatch
 function getPicomatch() {
   if (_picomatch === undefined) {
     const id = 'picomatch'
-    _picomatch = require(id)
+    _picomatch = require(`${id}`)
   }
   return _picomatch
 }
@@ -72,7 +73,7 @@ let _process
 function getProcess() {
   if (_process === undefined) {
     const id = 'node:process'
-    _process = require(id)
+    _process = require(`${id}`)
   }
   return _process
 }
@@ -81,7 +82,7 @@ let _semver
 function getSemver() {
   if (_semver === undefined) {
     const id = 'semver'
-    _semver = require(id)
+    _semver = require(`${id}`)
   }
   return _semver
 }
@@ -90,7 +91,7 @@ let _which
 function getWhich() {
   if (_which === undefined) {
     const id = 'which'
-    _which = require(id)
+    _which = require(`${id}`)
   }
   return _which
 }
@@ -99,7 +100,7 @@ let _yarnPkgExtensions
 function getYarnPkgExtensions() {
   if (_yarnPkgExtensions === undefined) {
     const id = '@yarnpkg/extensions'
-    _yarnPkgExtensions = require(id).packageExtensions
+    _yarnPkgExtensions = require(`${id}`).packageExtensions
   }
   return _yarnPkgExtensions
 }

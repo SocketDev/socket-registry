@@ -4,7 +4,8 @@ let _fs
 function getFs() {
   if (_fs === undefined) {
     const id = 'node:fs'
-    _fs = require(id)
+    // Use a template string to avoid "Critical dependency" warnings in Webpack.
+    _fs = require(`${id}`)
   }
   return _fs
 }
@@ -13,7 +14,7 @@ let _path
 function getPath() {
   if (_path === undefined) {
     const id = 'node:path'
-    _path = require(id)
+    _path = require(`${id}`)
   }
   return _path
 }

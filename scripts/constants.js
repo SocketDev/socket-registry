@@ -6,7 +6,7 @@ let _eslintCompat
 function getEslintCompat() {
   if (_eslintCompat === undefined) {
     const id = '@eslint/compat'
-    _eslintCompat = require(id)
+    _eslintCompat = require(`${id}`)
   }
   return _eslintCompat
 }
@@ -15,7 +15,7 @@ let _fs
 function getFs() {
   if (_fs === undefined) {
     const id = 'node:fs'
-    _fs = require(id)
+    _fs = require(`${id}`)
   }
   return _fs
 }
@@ -24,7 +24,7 @@ let _path
 function getPath() {
   if (_path === undefined) {
     const id = 'node:path'
-    _path = require(id)
+    _path = require(`${id}`)
   }
   return _path
 }
@@ -33,7 +33,7 @@ let _prettier
 function getPrettier() {
   if (_prettier === undefined) {
     const id = 'prettier'
-    _prettier = require(id)
+    _prettier = require(`${id}`)
   }
   return _prettier
 }
@@ -42,7 +42,7 @@ let _process
 function getProcess() {
   if (_process === undefined) {
     const id = 'node:process'
-    _process = require(id)
+    _process = require(`${id}`)
   }
   return _process
 }
@@ -51,7 +51,7 @@ let _which
 function getWhich() {
   if (_which === undefined) {
     const id = 'which'
-    _which = require(id)
+    _which = require(`${id}`)
   }
   return _which
 }

@@ -4,7 +4,8 @@ let _PackageURL
 function getPackageURL() {
   if (_PackageURL === undefined) {
     const id = 'packageurl-js'
-    _PackageURL = require(id).PackageURL
+    // Use a template string to avoid "Critical dependency" warnings in Webpack.
+    _PackageURL = require(`${id}`).PackageURL
   }
   return _PackageURL
 }
