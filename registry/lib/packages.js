@@ -715,10 +715,13 @@ async function resolveGitHubTgzUrl(pkgNameOrId, where) {
 }
 
 function resolveOriginalPackageName(regPkgName) {
-  const escapedScope = resolveEscapedScope(regPkgName)
-  return escapedScope
-    ? `${unescapeScope(escapedScope)}/${regPkgName.slice(escapedScope.length)}`
+  const name = regPkgName.startsWith(`${PACKAGE_SCOPE}/`)
+    ? regPkgName.slice(PACKAGE_SCOPE.length + 1)
     : regPkgName
+  const escapedScope = resolveEscapedScope(name)
+  return escapedScope
+    ? `${unescapeScope(escapedScope)}/${name.slice(escapedScope.length)}`
+    : name
 }
 
 function resolvePackageJsonDirname(filepath) {
