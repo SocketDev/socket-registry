@@ -23,6 +23,15 @@ function getFs() {
   return _fs
 }
 
+let _localeCompare
+function localeCompare(x, y) {
+  if (_localeCompare === undefined) {
+    // Lazily call new Intl.Collator() because in Node it can take 10-14ms.
+    _localeCompare = new Intl.Collator().compare
+  }
+  return _localeCompare(x, y)
+}
+
 let _naturalSort
 function naturalSort(arrayToSort) {
   if (_naturalSort === undefined) {
@@ -120,7 +129,6 @@ setTimeout(() => {
 const UNDEFINED_LAZY_VALUE = {}
 
 const { __defineGetter__ } = Object.prototype
-const { compare: localeCompare } = new Intl.Collator()
 
 const packumentCache = new Map()
 
@@ -261,7 +269,8 @@ function isDirEmptySync(dirname) {
     if (length === 0) {
       return true
     }
-    const matcher = getGlobMatcher(ignoreGlobs, { cwd: dirname })
+    // Lazily access constants.ignoreGlobs.
+    const matcher = getGlobMatcher(constants.ignoreGlobs, { cwd: dirname })
     let ignoredCount = 0
     for (let i = 0; i < length; i += 1) {
       if (matcher(files[i])) {
@@ -412,6 +421,47 @@ const LAZY_WIN32 = () => getProcess().platform === 'win32'
 
 const lazyExecPath = () => getProcess().execPath
 
+const lazyIgnoreGlobs = () =>
+  Object.freeze([
+    // Most of these ignored files can be included specifically if included in the
+    // files globs. Exceptions to this are:
+    // https://docs.npmjs.com/cli/v10/configuring-npm/package-json#files
+    // These can NOT be included.
+    // https://github.com/npm/npm-packlist/blob/v10.0.0/lib/index.js#L280
+    '**/.git',
+    '**/.npmrc',
+    '**/bun.lockb?',
+    NODE_MODULES_GLOB_RECURSIVE,
+    `**/${PACKAGE_LOCK}`,
+    '**/pnpm-lock.ya?ml',
+    '**/yarn.lock',
+    // Include npm-packlist defaults:
+    // https://github.com/npm/npm-packlist/blob/v10.0.0/lib/index.js#L15-L38
+    '**/.DS_Store',
+    `**/${GIT_IGNORE}`,
+    '**/.hg',
+    '**/.lock-wscript',
+    '**/.npmignore',
+    '**/.svn',
+    '**/.wafpickle-*',
+    '**/.*.swp',
+    '**/._*/**',
+    '**/archived-packages/**',
+    '**/build/config.gypi',
+    '**/CVS',
+    '**/npm-debug.log',
+    '**/*.orig',
+    // Inline .gitignore from the socket-registry repository root.
+    '**/.env',
+    '**/.eslintcache',
+    '**/.nvm',
+    '**/.tap',
+    '**/.tapci.yaml',
+    '**/.vscode',
+    '**/*.tsbuildinfo',
+    '**/Thumbs.db'
+  ])
+
 const lazyMaintainedNodeVersions = () => {
   // Under the hood browserlist uses the node-releases package which is out of date:
   // https://github.com/chicoxyzzy/node-releases/issues/37
@@ -511,6 +561,24 @@ const lazyPacoteCachePath = () => {
   return new PacoteFetcherBase(/*dummy package spec*/ 'x', {}).cache
 }
 
+const lazyParseArgsConfig = () =>
+  Object.freeze({
+    __proto__: null,
+    options: {
+      __proto__: null,
+      force: {
+        __proto__: null,
+        type: 'boolean',
+        short: 'f'
+      },
+      quiet: {
+        __proto__: null,
+        type: 'boolean'
+      }
+    },
+    strict: false
+  })
+
 const lazySkipTestsByEcosystem = () =>
   Object.freeze({
     __proto__: null,
@@ -551,6 +619,12 @@ const lazySkipTestsByEcosystem = () =>
     ])
   })
 
+const lazyWin32EnsureTestsByEcosystem = () =>
+  Object.freeze({
+    __proto__: null,
+    [NPM]: new Set(['date'])
+  })
+
 const copyLeftLicenses = new Set([
   'AGPL-3.0-or-later',
   'AGPL-3.0',
@@ -577,46 +651,6 @@ const copyLeftLicenses = new Set([
   'GPL-1.0-only'
 ])
 
-const ignoreGlobs = Object.freeze([
-  // Most of these ignored files can be included specifically if included in the
-  // files globs. Exceptions to this are:
-  // https://docs.npmjs.com/cli/v10/configuring-npm/package-json#files
-  // These can NOT be included.
-  // https://github.com/npm/npm-packlist/blob/v10.0.0/lib/index.js#L280
-  '**/.git',
-  '**/.npmrc',
-  '**/bun.lockb?',
-  NODE_MODULES_GLOB_RECURSIVE,
-  `**/${PACKAGE_LOCK}`,
-  '**/pnpm-lock.ya?ml',
-  '**/yarn.lock',
-  // Include npm-packlist defaults:
-  // https://github.com/npm/npm-packlist/blob/v10.0.0/lib/index.js#L15-L38
-  '**/.DS_Store',
-  `**/${GIT_IGNORE}`,
-  '**/.hg',
-  '**/.lock-wscript',
-  '**/.npmignore',
-  '**/.svn',
-  '**/.wafpickle-*',
-  '**/.*.swp',
-  '**/._*/**',
-  '**/archived-packages/**',
-  '**/build/config.gypi',
-  '**/CVS',
-  '**/npm-debug.log',
-  '**/*.orig',
-  // Inline .gitignore from the socket-registry repository root.
-  '**/.env',
-  '**/.eslintcache',
-  '**/.nvm',
-  '**/.tap',
-  '**/.tapci.yaml',
-  '**/.vscode',
-  '**/*.tsbuildinfo',
-  '**/Thumbs.db'
-])
-
 const lifecycleScriptNames = new Set(
   [
     'dependencies',
@@ -633,23 +667,6 @@ const lifecycleScriptNames = new Set(
     ].map(n => [`pre${n}`, n, `post${n}`])
   ].flat()
 )
-
-const parseArgsConfig = Object.freeze({
-  __proto__: null,
-  options: {
-    __proto__: null,
-    force: {
-      __proto__: null,
-      type: 'boolean',
-      short: 'f'
-    },
-    quiet: {
-      __proto__: null,
-      type: 'boolean'
-    }
-  },
-  strict: false
-})
 
 const tsLibsAvailable = new Set([
   // Defined in priority order.
@@ -673,11 +690,6 @@ const tsLibsAvailable = new Set([
 ])
 
 const tsTypesAvailable = new Set(['node'])
-
-const win32EnsureTestsByEcosystem = Object.freeze({
-  __proto__: null,
-  [NPM]: new Set(['date'])
-})
 
 const constants = createConstantsObject(
   {
@@ -741,7 +753,7 @@ const constants = createConstantsObject(
     abortSignal,
     copyLeftLicenses,
     execPath: undefined,
-    ignoreGlobs,
+    ignoreGlobs: undefined,
     lifecycleScriptNames,
     maintainedNodeVersions: undefined,
     nodeNoWarningsFlags: undefined,
@@ -749,11 +761,11 @@ const constants = createConstantsObject(
     packageExtensions: undefined,
     packumentCache,
     pacoteCachePath: undefined,
-    parseArgsConfig,
+    parseArgsConfig: undefined,
     skipTestsByEcosystem: undefined,
     tsLibsAvailable,
     tsTypesAvailable,
-    win32EnsureTestsByEcosystem
+    win32EnsureTestsByEcosystem: undefined
   },
   {
     getters: {
@@ -766,13 +778,17 @@ const constants = createConstantsObject(
       SUPPORTS_NODE_RUN: LAZY_SUPPORTS_NODE_RUN,
       WIN32: LAZY_WIN32,
       execPath: lazyExecPath,
+      ignoreGlobs: lazyIgnoreGlobs,
       maintainedNodeVersions: lazyMaintainedNodeVersions,
       nodeNoWarningsFlags: lazyNodeNoWarningsFlags,
       npmExecPath: lazyNpmExecPath,
       packageExtensions: lazyPackageExtensions,
       pacoteCachePath: lazyPacoteCachePath,
-      skipTestsByEcosystem: lazySkipTestsByEcosystem
+      parseArgsConfig: lazyParseArgsConfig,
+      skipTestsByEcosystem: lazySkipTestsByEcosystem,
+      win32EnsureTestsByEcosystem: lazyWin32EnsureTestsByEcosystem
     }
   }
 )
+
 module.exports = constants
