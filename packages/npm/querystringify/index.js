@@ -26,13 +26,13 @@ function stringify(obj, prefix = '') {
     obj !== null && typeof obj === 'object'
       ? new URLSearchParams(
           Object.fromEntries(
-            Object.entries(obj).map(pairs => {
-              const { 1: value } = pairs
+            Object.entries(obj).map(pair => {
+              const { 1: value } = pair
               return value === null ||
                 value === undefined ||
                 (!value && isNaN(value))
-                ? [pairs[0], '']
-                : pairs
+                ? [pair[0], '']
+                : pair
             })
           )
         ).toString()
