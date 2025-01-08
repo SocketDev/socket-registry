@@ -127,6 +127,7 @@ void (async () => {
 
   let registryPkgManifest
   const bumpedPackages = []
+  const changedPackages = []
   // Chunk package names to process them in parallel 3 at a time.
   await pEach(
     packages,
@@ -164,6 +165,7 @@ void (async () => {
           if (editablePkgJson.content.version !== version) {
             editablePkgJson.update({ version })
             await editablePkgJson.save()
+            changedPackages.push(pkg)
           }
           bumpedPackages.push(pkg)
           console.log(`+${pkg.name}@${manifest.version} -> ${version}`)
@@ -209,8 +211,8 @@ void (async () => {
   }
 
   if (
-    bumpedPackages.length > 1 ||
-    (bumpedPackages.length === 1 && bumpedPackages[0] !== registryPkg)
+    changedPackages.length > 1 ||
+    (changedPackages.length === 1 && changedPackages[0] !== registryPkg)
   ) {
     await runScript(
       'update:longtask:test:npm:package-json',
