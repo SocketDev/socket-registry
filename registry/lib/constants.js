@@ -1,5 +1,9 @@
 'use strict'
 
+// The 'signal-exit' package is browser safe.
+// Do NOT defer loading, otherwise mystery errors may occur at the end of the event loop.
+const signalExit = require('signal-exit')
+
 const { envAsBoolean, envAsString } = require('./env')
 
 const abortController = new AbortController()
@@ -92,15 +96,6 @@ function getSemver() {
   return _semver
 }
 
-let _signalExit
-function getSignalExit() {
-  if (_signalExit === undefined) {
-    // The 'signal-exit' package is browser safe.
-    _signalExit = require('signal-exit')
-  }
-  return _signalExit
-}
-
 let _which
 function getWhich() {
   if (_which === undefined) {
@@ -119,12 +114,10 @@ function getYarnPkgExtensions() {
   return _yarnPkgExtensions
 }
 
-setTimeout(() => {
-  // Detect ^C, i.e. Ctrl + C.
-  getSignalExit().onExit(() => {
-    abortController.abort()
-  })
-}, 0)
+// Detect ^C, i.e. Ctrl + C.
+signalExit.onExit(() => {
+  abortController.abort()
+})
 
 const UNDEFINED_LAZY_VALUE = {}
 
