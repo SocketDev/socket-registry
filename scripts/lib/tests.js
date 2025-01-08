@@ -4,7 +4,7 @@ let _util
 function getUtil() {
   if (_util === undefined) {
     const id = 'node:util'
-    _util = require(`${id}`)
+    _util = require(id)
   }
   return _util
 }

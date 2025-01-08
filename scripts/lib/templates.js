@@ -4,7 +4,7 @@ let _eta
 function getEta() {
   if (_eta === undefined) {
     const id = 'eta'
-    _eta = new require(`${id}`).Eta()
+    _eta = new require(id).Eta()
   }
   return _eta
 }
@@ -13,7 +13,7 @@ let _fs
 function getFs() {
   if (_fs === undefined) {
     const id = 'node:fs'
-    _fs = require(`${id}`)
+    _fs = require(id)
   }
   return _fs
 }
@@ -22,7 +22,7 @@ let _PackageURL
 function getPackageURL() {
   if (_PackageURL === undefined) {
     const id = 'packageurl-js'
-    _PackageURL = require(`${id}`).PackageURL
+    _PackageURL = require(id).PackageURL
   }
   return _PackageURL
 }
@@ -31,7 +31,7 @@ let _path
 function getPath() {
   if (_path === undefined) {
     const id = 'node:path'
-    _path = require(`${id}`)
+    _path = require(id)
   }
   return _path
 }
@@ -40,7 +40,7 @@ let _semver
 function getSemver() {
   if (_semver === undefined) {
     const id = 'semver'
-    _semver = require(`${id}`)
+    _semver = require(id)
   }
   return _semver
 }
@@ -49,7 +49,7 @@ let _tinyGlobby
 function getTinyGlobby() {
   if (_tinyGlobby === undefined) {
     const id = 'tinyglobby'
-    _tinyGlobby = require(`${id}`)
+    _tinyGlobby = require(id)
   }
   return _tinyGlobby
 }

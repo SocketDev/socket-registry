@@ -6,7 +6,7 @@ let _yoctoSpinner
 function getYoctoSpinner() {
   if (_yoctoSpinner === undefined) {
     const id = '@socketregistry/yocto-spinner'
-    _yoctoSpinner = require(`${id}`)
+    _yoctoSpinner = require(id)
   }
   return _yoctoSpinner
 }

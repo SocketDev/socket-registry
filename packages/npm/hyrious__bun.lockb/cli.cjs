@@ -17,8 +17,9 @@ if (process.argv[2] === '-h' || process.argv[2] === '--help') {
     $ npx -p @socketregistry/hyrious__bun.lockb lockb [bun.lockb]
 `)
 } else if (process.argv[2]?.toLowerCase() === '-v') {
-  // Use a template string to avoid "Critical dependency" warnings in Webpack.
-  const pkg = require(`${path.join(rootPath, 'package.json')}`)
+  const pkg = require(
+    /* webpackIgnore: true */ path.join(rootPath, 'package.json')
+  )
   console.log(`${pkg.name}, ${pkg.version}`)
 } else {
   const file = process.argv[2] || 'bun.lockb'
