@@ -15,7 +15,7 @@ void (async () => {
   rootEditablePkgJson.update({
     engines: { node: `^${current} || >=${next}` }
   })
-  rootEditablePkgJson.save()
+  await rootEditablePkgJson.save()
 
   await runScript('update:package-lock', ['--', '--force'], {
     cwd: rootPath,
