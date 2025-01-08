@@ -1,8 +1,5 @@
 'use strict'
 
-// The 'packageurl-js' package is browser safe.
-const { PackageURL } = require('@socketregistry/packageurl-js')
-
 const constants = require('./constants')
 const { readJson, readJsonSync } = require('./fs')
 const {
@@ -103,6 +100,15 @@ function getPack() {
   return _pack
 }
 
+let _PackageURL
+function getPackageURL() {
+  if (_PackageURL === undefined) {
+    // The 'packageurl-js' package is browser safe.
+    _PackageURL = require('@socketregistry/packageurl-js').PackageURL
+  }
+  return _PackageURL
+}
+
 let _pacote
 function getPacote() {
   if (_pacote === undefined) {
@@ -124,8 +130,8 @@ function getPath() {
 let _semver
 function getSemver() {
   if (_semver === undefined) {
-    const id = 'semver'
-    _semver = require(/* webpackIgnore: true */ id)
+    // The 'semver' package is browser safe.
+    _semver = require('semver')
   }
   return _semver
 }
@@ -803,7 +809,7 @@ function resolvePackageName(purlObj, delimiter = '/') {
 }
 
 function resolveRegistryPackageName(pkgName) {
-  const purlObj = PackageURL.fromString(`pkg:npm/${pkgName}`)
+  const purlObj = getPackageURL().fromString(`pkg:npm/${pkgName}`)
   return purlObj.namespace
     ? `${purlObj.namespace.slice(1)}${REGISTRY_SCOPE_DELIMITER}${purlObj.name}`
     : pkgName
