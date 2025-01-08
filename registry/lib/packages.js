@@ -39,7 +39,7 @@ const escapedScopeRegExp = new RegExp(
   `^[^${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0])}]+${escapeRegExp(REGISTRY_SCOPE_DELIMITER)}(?!${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0])})`
 )
 const fileReferenceRegExp = /^SEE LICEN[CS]E IN (.+)$/
-const pkgScopeRegExp = new RegExp(`^${escapeRegExp(PACKAGE_SCOPE)}/`)
+const pkgScopePrefixRegExp = new RegExp(`^${escapeRegExp(PACKAGE_SCOPE)}/`)
 
 let _cacache
 function getCacache() {
@@ -275,7 +275,7 @@ function createPackageJson(regPkgName, directory, options) {
   } = { __proto__: null, ...options }
   // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
   const { PACKAGE_DEFAULT_NODE_RANGE } = constants
-  const name = `${PACKAGE_SCOPE}/${regPkgName.replace(pkgScopeRegExp, '')}`
+  const name = `${PACKAGE_SCOPE}/${regPkgName.replace(pkgScopePrefixRegExp, '')}`
   const entryExports = resolvePackageJsonEntryExports(entryExportsRaw)
   const githubUrl = `https://github.com/${SOCKET_REPO_ORG}/${SOCKET_REGISTRY_REPO_NAME}`
   return {
@@ -311,7 +311,7 @@ function createPackageJson(regPkgName, directory, options) {
                     PACKAGE_DEFAULT_NODE_RANGE
                   )
                 ) {
-                  pair[1] = pkgScopeRegExp
+                  pair[1] = PACKAGE_DEFAULT_NODE_RANGE
                 }
               }
               return pair
