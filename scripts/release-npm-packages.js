@@ -183,7 +183,8 @@ void (async () => {
     stdio: 'inherit'
   }
 
-  await runScript('update:manifest', [], spawnOptions)
+  await runScript('update:manifest', ['--', '--force'], spawnOptions)
+
   if (!bumpedPackages.find(pkg => pkg === registryPkg)) {
     const version = semver.inc(registryPkgManifest.version, 'patch')
     const editablePkgJson = await readPackageJson(registryPkg.path, {
