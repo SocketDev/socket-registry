@@ -1,5 +1,11 @@
 'use strict'
 
+const fs = require('node:fs')
+const path = require('node:path')
+
+const semver = require('semver')
+const tinyglobby = require('tinyglobby')
+
 const { PackageURL } = require('@socketregistry/packageurl-js')
 const constants = require('@socketregistry/scripts/constants')
 const { getManifestData } = require('@socketsecurity/registry')
@@ -33,55 +39,11 @@ const {
   TEMPLATE_ES_SHIM_STATIC_METHOD
 } = constants
 
-let _eta
-function getEta() {
-  if (_eta === undefined) {
-    const id = 'eta'
-    _eta = new require(id).Eta()
-  }
-  return _eta
-}
-
-let _fs
-function getFs() {
-  if (_fs === undefined) {
-    const id = 'node:fs'
-    _fs = require(id)
-  }
-  return _fs
-}
-
-let _path
-function getPath() {
-  if (_path === undefined) {
-    const id = 'node:path'
-    _path = require(id)
-  }
-  return _path
-}
-
-let _semver
-function getSemver() {
-  if (_semver === undefined) {
-    const id = 'semver'
-    _semver = require(id)
-  }
-  return _semver
-}
-
-let _tinyGlobby
-function getTinyGlobby() {
-  if (_tinyGlobby === undefined) {
-    const id = 'tinyglobby'
-    _tinyGlobby = require(id)
-  }
-  return _tinyGlobby
-}
+const eta = new require('eta').Eta()
 
 let _templates
 function getTemplates() {
   if (_templates === undefined) {
-    const path = getPath()
     _templates = Object.freeze({
       __proto__: null,
       ...objectFromEntries(
@@ -121,8 +83,6 @@ async function getLicenseActions(pkgPath) {
 async function getNpmReadmeAction(pkgPath, options) {
   const { interop } = { __proto__: null, ...options }
   const eco = NPM
-  const path = getPath()
-  const semver = getSemver()
   const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
   const pkgJson = await readPackageJson(pkgJsonPath)
   const pkgPurlObj = PackageURL.fromString(
@@ -166,8 +126,6 @@ async function getNpmReadmeAction(pkgPath, options) {
 async function getPackageJsonAction(pkgPath, options) {
   const { engines } = { __proto__: null, ...options }
   const eco = NPM
-  const path = getPath()
-  const semver = getSemver()
   const regPkgName = path.basename(pkgPath)
   const manifestData = getManifestData(eco, regPkgName)
   const categories = manifestData?.categories
@@ -194,8 +152,7 @@ async function getPackageJsonAction(pkgPath, options) {
 async function getTypeScriptActions(pkgPath, options) {
   const { references, transform } = { __proto__: null, ...options }
   const doTransform = typeof transform === 'function'
-  const tinyGlobby = getTinyGlobby()
-  const filepaths = await tinyGlobby.glob(['**/*.{[cm],}ts'], {
+  const filepaths = await tinyglobby.glob(['**/*.{[cm],}ts'], {
     absolute: true,
     cwd: pkgPath
   })
@@ -232,9 +189,6 @@ function prepareTemplate(content) {
 async function renderAction(action) {
   const { 0: filepath, 1: dataRaw } = action
   const data = typeof dataRaw === 'function' ? await dataRaw() : dataRaw
-  const eta = getEta()
-  const fs = getFs()
-  const path = getPath()
   const ext = path.extname(filepath)
   const content = await fs.readFile(filepath, 'utf8')
   const prepared = prepareTemplate(content)
@@ -246,7 +200,7 @@ async function renderAction(action) {
 
 async function writeAction(action) {
   const { 0: filepath } = action
-  return await getFs().writeFile(filepath, await renderAction(action), 'utf8')
+  return await fs.writeFile(filepath, await renderAction(action), 'utf8')
 }
 
 module.exports = {
