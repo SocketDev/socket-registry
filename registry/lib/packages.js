@@ -139,8 +139,8 @@ function getSemver() {
 let _spdxCorrect
 function getSpdxCorrect() {
   if (_spdxCorrect === undefined) {
-    const id = 'spdx-correct'
-    _spdxCorrect = require(/* webpackIgnore: true */ id)
+    // The 'spdx-correct' package is browser safe.
+    _spdxCorrect = require('spdx-correct')
   }
   return _spdxCorrect
 }
@@ -148,8 +148,8 @@ function getSpdxCorrect() {
 let _spdxExpParse
 function getSpdxExpParse() {
   if (_spdxExpParse === undefined) {
-    const id = 'spdx-expression-parse'
-    _spdxExpParse = require(/* webpackIgnore: true */ id)
+    // The 'spdx-expression-parse' package is browser safe.
+    _spdxExpParse = require('spdx-expression-parse')
   }
   return _spdxExpParse
 }
