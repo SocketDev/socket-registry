@@ -5,8 +5,8 @@ const constants = require('@socketregistry/scripts/constants')
 let _yoctoSpinner
 function getYoctoSpinner() {
   if (_yoctoSpinner === undefined) {
-    const id = '@socketregistry/yocto-spinner'
-    _yoctoSpinner = require(id)
+    // Lazily load yocto-spinner to avoid up front experimental-require-module warnings.
+    _yoctoSpinner = require('@socketregistry/yocto-spinner')
   }
   return _yoctoSpinner
 }
