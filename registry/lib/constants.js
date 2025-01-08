@@ -1,8 +1,5 @@
 'use strict'
 
-// The 'signal-exit' package is browser safe.
-const { onExit } = require('signal-exit')
-
 const { envAsBoolean, envAsString } = require('./env')
 
 const abortController = new AbortController()
@@ -29,8 +26,8 @@ function getFs() {
 let _naturalSort
 function naturalSort(arrayToSort) {
   if (_naturalSort === undefined) {
-    const id = 'fast-sort'
-    const fastSort = require(/* webpackIgnore: true */ id)
+    // The 'fast-sort' package is browser safe.
+    const fastSort = require('fast-sort')
     _naturalSort = fastSort.createNewSortInstance({
       comparer: new Intl.Collator(undefined, {
         numeric: true,
@@ -62,8 +59,8 @@ function getPath() {
 let _picomatch
 function getPicomatch() {
   if (_picomatch === undefined) {
-    const id = 'picomatch'
-    _picomatch = require(/* webpackIgnore: true */ id)
+    // The 'picomatch' package is browser safe.
+    _picomatch = require('picomatch')
   }
   return _picomatch
 }
@@ -86,6 +83,15 @@ function getSemver() {
   return _semver
 }
 
+let _signalExit
+function getSignalExit() {
+  if (_signalExit === undefined) {
+    // The 'signal-exit' package is browser safe.
+    _signalExit = require('signal-exit')
+  }
+  return _signalExit
+}
+
 let _which
 function getWhich() {
   if (_which === undefined) {
@@ -98,16 +104,18 @@ function getWhich() {
 let _yarnPkgExtensions
 function getYarnPkgExtensions() {
   if (_yarnPkgExtensions === undefined) {
-    const id = '@yarnpkg/extensions'
-    _yarnPkgExtensions = require(/* webpackIgnore: true */ id).packageExtensions
+    // The '@yarnpkg/extensions' package is browser safe.
+    _yarnPkgExtensions = require('@yarnpkg/extensions').packageExtensions
   }
   return _yarnPkgExtensions
 }
 
-// Detect ^C, i.e. Ctrl + C.
-onExit(() => {
-  abortController.abort()
-})
+setTimeout(() => {
+  // Detect ^C, i.e. Ctrl + C.
+  getSignalExit().onExit(() => {
+    abortController.abort()
+  })
+}, 0)
 
 const UNDEFINED_LAZY_VALUE = {}
 
