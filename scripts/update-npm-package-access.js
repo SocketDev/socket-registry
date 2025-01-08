@@ -4,19 +4,15 @@ const path = require('node:path')
 const util = require('node:util')
 
 const constants = require('@socketregistry/scripts/constants')
-const {
-  COLUMN_LIMIT,
-  PACKAGE_SCOPE,
-  npmPackagesPath,
-  parseArgsConfig,
-  registryPkgPath
-} = constants
 const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
 const { execNpm } = require('@socketsecurity/registry/lib/npm')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { pluralize } = require('@socketsecurity/registry/lib/words')
 
-const { values: cliArgs } = util.parseArgs(parseArgsConfig)
+const { COLUMN_LIMIT, PACKAGE_SCOPE, npmPackagesPath, registryPkgPath } =
+  constants
+
+const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
 function packageData(data) {
   const { printName = data.name } = data

@@ -1,5 +1,15 @@
 'use strict'
 
+const constants = require('@socketregistry/scripts/constants')
+const { getGlobMatcher } = require('@socketsecurity/registry/lib/globs')
+const { normalizePath } = require('@socketsecurity/registry/lib/path')
+
+const {
+  NPM,
+  kInternalsSymbol,
+  [kInternalsSymbol]: { defineLazyGetters }
+} = constants
+
 let _child_process
 function getChildProcess() {
   if (_child_process === undefined) {
@@ -26,15 +36,6 @@ function getSpawn() {
   }
   return _spawn
 }
-
-const constants = require('@socketregistry/scripts/constants')
-const {
-  NPM,
-  kInternalsSymbol,
-  [kInternalsSymbol]: { defineLazyGetters }
-} = constants
-const { getGlobMatcher } = require('@socketsecurity/registry/lib/globs')
-const { normalizePath } = require('@socketsecurity/registry/lib/path')
 
 const gitDiffCache = new Map()
 

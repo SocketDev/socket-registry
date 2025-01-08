@@ -1,6 +1,22 @@
 'use strict'
 
+// The 'packageurl-js' package is browser safe.
+const { PackageURL } = require('@socketregistry/packageurl-js')
+
 const constants = require('./constants')
+const { readJson, readJsonSync } = require('./fs')
+const {
+  getOwnPropertyValues,
+  isObject,
+  isObjectObject,
+  merge,
+  objectEntries,
+  objectFromEntries
+} = require('./objects')
+const { isNodeModules, normalizePath } = require('./path')
+const { escapeRegExp } = require('./regexps')
+const { isNonEmptyString } = require('./strings')
+
 const {
   LOOP_SENTINEL,
   MIT,
@@ -15,18 +31,6 @@ const {
   copyLeftLicenses,
   packumentCache
 } = constants
-const { readJson, readJsonSync } = require('./fs')
-const {
-  getOwnPropertyValues,
-  isObject,
-  isObjectObject,
-  merge,
-  objectEntries,
-  objectFromEntries
-} = require('./objects')
-const { isNodeModules, normalizePath } = require('./path')
-const { escapeRegExp } = require('./regexps')
-const { isNonEmptyString } = require('./strings')
 
 const BINARY_OPERATION_NODE_TYPE = 'BinaryOperation'
 const LICENSE_NODE_TYPE = 'License'
@@ -97,15 +101,6 @@ function getPack() {
     _pack = require(/* webpackIgnore: true */ id)
   }
   return _pack
-}
-
-let _PackageURL
-function getPackageURL() {
-  if (_PackageURL === undefined) {
-    const id = 'packageurl-js'
-    _PackageURL = require(/* webpackIgnore: true */ id).PackageURL
-  }
-  return _PackageURL
 }
 
 let _pacote
@@ -805,7 +800,6 @@ function resolvePackageName(purlObj, delimiter = '/') {
 }
 
 function resolveRegistryPackageName(pkgName) {
-  const PackageURL = getPackageURL()
   const purlObj = PackageURL.fromString(`pkg:npm/${pkgName}`)
   return purlObj.namespace
     ? `${purlObj.namespace.slice(1)}${REGISTRY_SCOPE_DELIMITER}${purlObj.name}`

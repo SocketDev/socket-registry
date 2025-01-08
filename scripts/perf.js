@@ -3,8 +3,9 @@
 const { glob: tinyGlob } = require('tinyglobby')
 
 const constants = require('@socketregistry/scripts/constants')
-const { perfNpmPath } = constants
 const { runBin } = require('@socketsecurity/registry/lib/npm')
+
+const { perfNpmPath } = constants
 
 void (async () => {
   for (const perfFile of await tinyGlob([`*.perf.ts`], {

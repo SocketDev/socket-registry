@@ -1,5 +1,21 @@
 'use strict'
 
+const constants = require('@socketregistry/scripts/constants')
+const {
+  getModifiedPackagesSync,
+  getStagedPackagesSync
+} = require('@socketregistry/scripts/lib/git')
+
+const { LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE } = constants
+
+let _cliArgs
+function getCliArgs() {
+  if (_cliArgs === undefined) {
+    _cliArgs = getUtil().parseArgs(constants.parseArgsConfig).values
+  }
+  return _cliArgs
+}
+
 let _util
 function getUtil() {
   if (_util === undefined) {
@@ -7,22 +23,6 @@ function getUtil() {
     _util = require(id)
   }
   return _util
-}
-
-const constants = require('@socketregistry/scripts/constants')
-const { LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE, parseArgsConfig } =
-  constants
-const {
-  getModifiedPackagesSync,
-  getStagedPackagesSync
-} = require('@socketregistry/scripts/lib/git')
-
-let _cliArgs
-function getCliArgs() {
-  if (_cliArgs === undefined) {
-    _cliArgs = getUtil().parseArgs(parseArgsConfig).values
-  }
-  return _cliArgs
 }
 
 function isPackageTestingSkipped(eco, regPkgName) {

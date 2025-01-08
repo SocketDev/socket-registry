@@ -1,9 +1,10 @@
 'use strict'
 
 const constants = require('@socketregistry/scripts/constants')
-const { abortSignal, rootPackageJsonPath, rootPath } = constants
 const { runScript } = require('@socketsecurity/registry/lib/npm')
 const { readPackageJson } = require('@socketsecurity/registry/lib/packages')
+
+const { abortSignal, rootPackageJsonPath, rootPath } = constants
 
 void (async () => {
   const rootEditablePkgJson = await readPackageJson(rootPackageJsonPath, {

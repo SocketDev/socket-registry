@@ -4,22 +4,9 @@ const fs = require('node:fs/promises')
 const path = require('node:path')
 const util = require('node:util')
 
-const { PackageURL } = require('packageurl-js')
-
+const { PackageURL } = require('@socketregistry/packageurl-js')
 const purlJsPkgJson = require('@socketregistry/packageurl-js/package.json')
 const constants = require('@socketregistry/scripts/constants')
-const {
-  AT_LATEST,
-  NPM,
-  UNLICENSED,
-  npmPackagesPath,
-  parseArgsConfig,
-  registryExtensionsJsonPath,
-  registryManifestJsonPath,
-  relRegistryManifestJsonPath,
-  rootPackagesPath,
-  testNpmPkgJsonPath
-} = constants
 const { getModifiedFiles } = require('@socketregistry/scripts/lib/git')
 const { Spinner } = require('@socketregistry/scripts/lib/spinner')
 const {
@@ -38,22 +25,26 @@ const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { localeCompare } = require('@socketsecurity/registry/lib/sorts')
 const { prettierFormat } = require('@socketsecurity/registry/lib/strings')
 
-const registryExtensionsJson = require(registryExtensionsJsonPath)
+const { AT_LATEST, NPM, UNLICENSED } = constants
 
-const { values: cliArgs } = util.parseArgs(parseArgsConfig)
+const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
 async function addNpmManifestData(manifest) {
   const eco = NPM
+  // Lazily access constants.registryExtensionsJsonPath.
+  const registryExtensionsJson = require(constants.registryExtensionsJsonPath)
   const manifestData = [
     [
-      `pkg:${NPM}/%40socketregistry/packageurl-js@${purlJsPkgJson.version}`,
+      PackageURL.fromString(
+        `pkg:${eco}/${purlJsPkgJson.name}@${purlJsPkgJson.version}`
+      ).toString(),
       {
         categories: purlJsPkgJson.socket.categories,
         engines: purlJsPkgJson.engines,
         interop: ['cjs'],
         license: purlJsPkgJson.license,
         name: purlJsPkgJson.name,
-        package: 'packageurl-js',
+        package: resolveOriginalPackageName(purlJsPkgJson.name),
         version: purlJsPkgJson.version
       }
     ],
@@ -63,7 +54,8 @@ async function addNpmManifestData(manifest) {
   // Lazily access constants.npmPackageNames.
   await pEach(constants.npmPackageNames, 3, async regPkgName => {
     const origPkgName = resolveOriginalPackageName(regPkgName)
-    const testNpmPkgJson = await readPackageJson(testNpmPkgJsonPath)
+    // Lazily access constants.testNpmPkgJsonPath.
+    const testNpmPkgJson = await readPackageJson(constants.testNpmPkgJsonPath)
     const nmPkgSpec = testNpmPkgJson.devDependencies[origPkgName]
     const nmPkgId = `${origPkgName}@${nmPkgSpec}`
     const nmPkgManifest = await fetchPackageManifest(nmPkgId)
@@ -78,7 +70,8 @@ async function addNpmManifestData(manifest) {
       nwPkgLicense = nmPkgJson.license
     })
 
-    const pkgPath = path.join(npmPackagesPath, regPkgName)
+    // Lazily access constants.npmPackagesPath.
+    const pkgPath = path.join(constants.npmPackagesPath, regPkgName)
     const pkgJson = await readPackageJson(pkgPath)
     const { engines, name, socket, version } = pkgJson
     const entryExports = resolvePackageJsonEntryExports(pkgJson.exports)
@@ -150,15 +143,19 @@ void (async () => {
   // Exit early if no relevant files have been modified.
   if (
     !cliArgs.force &&
-    (await getModifiedFiles({ cwd: rootPackagesPath })).length === 0
+    // Lazily access constants.rootPackagesPath.
+    (await getModifiedFiles({ cwd: constants.rootPackagesPath })).length === 0
   ) {
     return
   }
   const spinner = Spinner({
-    text: `Updating ${relRegistryManifestJsonPath}...`
+    // Lazily access constants.relRegistryManifestJsonPath.
+    text: `Updating ${constants.relRegistryManifestJsonPath}...`
   }).start()
   const manifest = {}
   await addNpmManifestData(manifest)
+  // Lazily access constants.registryManifestJsonPath.
+  const { registryManifestJsonPath } = constants
   const output = await prettierFormat(JSON.stringify(manifest), {
     filepath: registryManifestJsonPath
   })

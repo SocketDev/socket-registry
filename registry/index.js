@@ -1,18 +1,11 @@
 'use strict'
 
-let _PackageURL
-function getPackageURL() {
-  if (_PackageURL === undefined) {
-    const id = 'packageurl-js'
-    _PackageURL = require(/* webpackIgnore: true */ id).PackageURL
-  }
-  return _PackageURL
-}
+// The 'packageurl-js' package is browser safe.
+const { PackageURL } = require('@socketregistry/packageurl-js')
 
 function getManifestData(eco, regPkgName) {
   const registryManifest = require('./manifest.json')
   if (eco) {
-    const PackageURL = getPackageURL()
     const entries = registryManifest[eco]
     return regPkgName
       ? entries?.find(

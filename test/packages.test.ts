@@ -39,13 +39,12 @@ const {
   OVERRIDES,
   PACKAGE_JSON,
   README_GLOB,
-  ignoreGlobs,
-  parseArgsConfig
+  ignoreGlobs
 } = constants
 
 // Pass args as tap --test-arg:
 // npm run test:unit ./test/packages.test.ts -- --test-arg="--force"
-const { values: cliArgs } = util.parseArgs(parseArgsConfig)
+const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
 const overridesWithSlash = `${OVERRIDES}/`
 const shimApiKeys = ['getPolyfill', 'implementation', 'shim']

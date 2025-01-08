@@ -5,12 +5,12 @@ const path = require('node:path')
 const util = require('node:util')
 
 const constants = require('@socketregistry/scripts/constants')
-const { README_MD, npmPackagesPath, npmTemplatesReadmePath, parseArgsConfig } =
-  constants
 const { isModified } = require('@socketregistry/scripts/lib/git')
 const { getNpmReadmeAction } = require('@socketregistry/scripts/lib/templates')
 
-const { values: cliArgs } = util.parseArgs(parseArgsConfig)
+const { README_MD, npmPackagesPath, npmTemplatesReadmePath } = constants
+
+const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
 void (async () => {
   // Exit early if no relevant files have been modified.

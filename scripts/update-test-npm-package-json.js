@@ -10,27 +10,6 @@ const semver = require('semver')
 const { glob: tinyGlob } = require('tinyglobby')
 
 const constants = require('@socketregistry/scripts/constants')
-const {
-  COLUMN_LIMIT,
-  LATEST,
-  LICENSE_GLOB_RECURSIVE,
-  NODE_MODULES_GLOB_RECURSIVE,
-  PACKAGE_JSON,
-  PACKAGE_SCOPE,
-  README_GLOB_RECURSIVE,
-  ignoreGlobs,
-  lifecycleScriptNames,
-  npmPackagesPath,
-  parseArgsConfig,
-  relNpmPackagesPath,
-  relTestNpmNodeModulesPath,
-  relTestNpmPath,
-  testNpmNodeModulesPath,
-  testNpmNodeWorkspacesPath,
-  testNpmPath,
-  testNpmPkgJsonPath,
-  testNpmPkgLockPath
-} = constants
 const { Spinner } = require('@socketregistry/scripts/lib/spinner')
 const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
 const {
@@ -59,8 +38,29 @@ const { pEach, pFilter } = require('@socketsecurity/registry/lib/promises')
 const { isNonEmptyString } = require('@socketsecurity/registry/lib/strings')
 const { pluralize } = require('@socketsecurity/registry/lib/words')
 
+const {
+  COLUMN_LIMIT,
+  LATEST,
+  LICENSE_GLOB_RECURSIVE,
+  NODE_MODULES_GLOB_RECURSIVE,
+  PACKAGE_JSON,
+  PACKAGE_SCOPE,
+  README_GLOB_RECURSIVE,
+  ignoreGlobs,
+  lifecycleScriptNames,
+  npmPackagesPath,
+  relNpmPackagesPath,
+  relTestNpmNodeModulesPath,
+  relTestNpmPath,
+  testNpmNodeModulesPath,
+  testNpmNodeWorkspacesPath,
+  testNpmPath,
+  testNpmPkgJsonPath,
+  testNpmPkgLockPath
+} = constants
+
 const { values: cliArgs } = util.parseArgs(
-  merge(parseArgsConfig, {
+  merge(constants.parseArgsConfig, {
     options: {
       add: {
         type: 'string',

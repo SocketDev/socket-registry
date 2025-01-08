@@ -11,6 +11,8 @@ const unicornPlugin = require('eslint-plugin-unicorn')
 const tsEslint = require('typescript-eslint')
 
 const constants = require('@socketregistry/scripts/constants')
+const { readJsonSync } = require('@socketsecurity/registry/lib/fs')
+
 const {
   LATEST,
   PACKAGE_JSON,
@@ -21,7 +23,6 @@ const {
   relRegistryPkgPath,
   rootTsConfigPath
 } = constants
-const { readJsonSync } = require('@socketsecurity/registry/lib/fs')
 
 const { flatConfigs: origImportXFlatConfigs } = importXPlugin
 
