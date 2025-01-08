@@ -6,8 +6,7 @@ let _prettier
 function getPrettier() {
   if (_prettier === undefined) {
     const id = 'prettier'
-    // Use a template string to avoid "Critical dependency" warnings in Webpack.
-    _prettier = require(`${id}`)
+    _prettier = require(/* webpackIgnore: true */ id)
   }
   return _prettier
 }

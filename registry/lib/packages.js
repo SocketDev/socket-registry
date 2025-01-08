@@ -41,8 +41,7 @@ let _cacache
 function getCacache() {
   if (_cacache === undefined) {
     const id = 'cacache'
-    // Use a template string to avoid "Critical dependency" warnings in Webpack.
-    _cacache = require(`${id}`)
+    _cacache = require(/* webpackIgnore: true */ id)
   }
   return _cacache
 }
@@ -51,7 +50,7 @@ let _fetcher
 function getFetcher() {
   if (_fetcher === undefined) {
     const id = 'make-fetch-happen'
-    const makeFetchHappen = require(`${id}`)
+    const makeFetchHappen = require(/* webpackIgnore: true */ id)
     _fetcher = makeFetchHappen.defaults({
       // Lazily access constants.pacoteCachePath.
       cachePath: constants.pacoteCachePath,
@@ -68,7 +67,7 @@ let _fs
 function getFs() {
   if (_fs === undefined) {
     const id = 'node:fs'
-    _fs = require(`${id}`)
+    _fs = require(/* webpackIgnore: true */ id)
   }
   return _fs
 }
@@ -77,7 +76,7 @@ let _normalizePackageData
 function getNormalizePackageData() {
   if (_normalizePackageData === undefined) {
     const id = 'normalize-package-data'
-    _normalizePackageData = require(`${id}`)
+    _normalizePackageData = require(/* webpackIgnore: true */ id)
   }
   return _normalizePackageData
 }
@@ -86,7 +85,7 @@ let _npmPackageArg
 function getNpmPackageArg() {
   if (_npmPackageArg === undefined) {
     const id = 'npm-package-arg'
-    _npmPackageArg = require(`${id}`)
+    _npmPackageArg = require(/* webpackIgnore: true */ id)
   }
   return _npmPackageArg
 }
@@ -95,7 +94,7 @@ let _pack
 function getPack() {
   if (_pack === undefined) {
     const id = 'libnpmpack'
-    _pack = require(`${id}`)
+    _pack = require(/* webpackIgnore: true */ id)
   }
   return _pack
 }
@@ -104,7 +103,7 @@ let _PackageURL
 function getPackageURL() {
   if (_PackageURL === undefined) {
     const id = 'packageurl-js'
-    _PackageURL = require(`${id}`).PackageURL
+    _PackageURL = require(/* webpackIgnore: true */ id).PackageURL
   }
   return _PackageURL
 }
@@ -113,7 +112,7 @@ let _pacote
 function getPacote() {
   if (_pacote === undefined) {
     const id = 'pacote'
-    _pacote = require(`${id}`)
+    _pacote = require(/* webpackIgnore: true */ id)
   }
   return _pacote
 }
@@ -122,7 +121,7 @@ let _path
 function getPath() {
   if (_path === undefined) {
     const id = 'node:path'
-    _path = require(`${id}`)
+    _path = require(/* webpackIgnore: true */ id)
   }
   return _path
 }
@@ -131,7 +130,7 @@ let _semver
 function getSemver() {
   if (_semver === undefined) {
     const id = 'semver'
-    _semver = require(`${id}`)
+    _semver = require(/* webpackIgnore: true */ id)
   }
   return _semver
 }
@@ -140,7 +139,7 @@ let _spdxCorrect
 function getSpdxCorrect() {
   if (_spdxCorrect === undefined) {
     const id = 'spdx-correct'
-    _spdxCorrect = require(`${id}`)
+    _spdxCorrect = require(/* webpackIgnore: true */ id)
   }
   return _spdxCorrect
 }
@@ -149,7 +148,7 @@ let _spdxExpParse
 function getSpdxExpParse() {
   if (_spdxExpParse === undefined) {
     const id = 'spdx-expression-parse'
-    _spdxExpParse = require(`${id}`)
+    _spdxExpParse = require(/* webpackIgnore: true */ id)
   }
   return _spdxExpParse
 }
@@ -158,7 +157,7 @@ let _validateNpmPackageName
 function getValidateNpmPackageName() {
   if (_validateNpmPackageName === undefined) {
     const id = 'validate-npm-package-name'
-    _validateNpmPackageName = require(`${id}`)
+    _validateNpmPackageName = require(/* webpackIgnore: true */ id)
   }
   return _validateNpmPackageName
 }
@@ -167,7 +166,7 @@ let _EditablePackageJsonClass
 function getEditablePackageJsonClass() {
   if (_EditablePackageJsonClass === undefined) {
     const id = '@npmcli/package-json'
-    const EditablePackageJsonBase = require(`${id}`)
+    const EditablePackageJsonBase = require(/* webpackIgnore: true */ id)
     _EditablePackageJsonClass = class EditablePackageJson extends (
       EditablePackageJsonBase
     ) {
