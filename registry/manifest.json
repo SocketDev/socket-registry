@@ -1100,7 +1100,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/querystringify@1.0.5",
+      "pkg:npm/%40socketregistry/querystringify@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -1108,7 +1108,7 @@
         "license": "MIT",
         "name": "@socketregistry/querystringify",
         "package": "querystringify",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
