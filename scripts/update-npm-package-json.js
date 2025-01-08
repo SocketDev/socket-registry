@@ -5,7 +5,6 @@ const path = require('node:path')
 const { glob: tinyGlob } = require('tinyglobby')
 
 const constants = require('@socketregistry/scripts/constants')
-const { PACKAGE_JSON, npmPackagesPath } = constants
 const {
   createPackageJson,
   getSubpaths,
@@ -14,6 +13,8 @@ const {
   resolvePackageJsonEntryExports
 } = require('@socketsecurity/registry/lib/packages')
 const { trimLeadingDotSlash } = require('@socketsecurity/registry/lib/path')
+
+const { PACKAGE_JSON, npmPackagesPath } = constants
 
 void (async () => {
   await Promise.all(

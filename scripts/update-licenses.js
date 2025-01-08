@@ -3,8 +3,9 @@
 const fs = require('node:fs/promises')
 
 const constants = require('@socketregistry/scripts/constants')
-const { LICENSE, LICENSE_CONTENT, ignoreGlobs, rootPath } = constants
 const { globLicenses } = require('@socketsecurity/registry/lib/globs')
+
+const { LICENSE, LICENSE_CONTENT, ignoreGlobs, rootPath } = constants
 
 void (async () => {
   await Promise.all(

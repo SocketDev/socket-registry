@@ -1,7 +1,7 @@
 import { PathLike } from 'node:path'
 import { Content as NPMCliPackageJson } from '@npmcli/package-json'
 import { CategoryString, ManifestEntryData } from '@socketsecurity/registry'
-import { PackageURL } from 'packageurl-js'
+import { PackageURL } from '@socketregistry/packageurl-js'
 import { SemVer } from 'semver'
 
 declare type LicenseAction = {

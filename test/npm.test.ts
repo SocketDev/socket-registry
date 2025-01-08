@@ -22,14 +22,13 @@ const {
   PACKAGE_JSON,
   README_GLOB_RECURSIVE,
   abortSignal,
-  parseArgsConfig,
   testNpmNodeWorkspacesPath,
   win32EnsureTestsByEcosystem
 } = constants
 
 // Pass args as tap --test-arg:
 // npm run test:unit ./test/npm.test.ts -- --test-arg="--force"
-const { values: cliArgs } = util.parseArgs(parseArgsConfig)
+const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 const eco = NPM
 
 const testNpmNodeWorkspacesPackages = (<string[]>(

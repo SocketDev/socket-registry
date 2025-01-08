@@ -7,11 +7,11 @@ const util = require('node:util')
 const { glob: tinyGlob } = require('tinyglobby')
 
 const constants = require('@socketregistry/scripts/constants')
-const { EMPTY_FILE, ignoreGlobs, npmTemplatesPath, parseArgsConfig, rootPath } =
-  constants
 const { getModifiedFiles } = require('@socketregistry/scripts/lib/git')
 
-const { values: cliArgs } = util.parseArgs(parseArgsConfig)
+const { EMPTY_FILE, ignoreGlobs, npmTemplatesPath, rootPath } = constants
+
+const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
 const AUTO_FILE_GLOB_RECURSIVE = '**/auto.{d.ts,js}'
 

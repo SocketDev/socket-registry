@@ -6,6 +6,12 @@ const util = require('node:util')
 const semver = require('semver')
 
 const constants = require('@socketregistry/scripts/constants')
+const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
+const { readDirNames } = require('@socketsecurity/registry/lib/fs')
+const { execNpm } = require('@socketsecurity/registry/lib/npm')
+const { pEach } = require('@socketsecurity/registry/lib/promises')
+const { pluralize } = require('@socketsecurity/registry/lib/words')
+
 const {
   COLUMN_LIMIT,
   LATEST,
@@ -13,16 +19,10 @@ const {
   PACKAGE_JSON,
   PACKAGE_SCOPE,
   npmPackagesPath,
-  parseArgsConfig,
   registryPkgPath
 } = constants
-const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
-const { readDirNames } = require('@socketsecurity/registry/lib/fs')
-const { execNpm } = require('@socketsecurity/registry/lib/npm')
-const { pEach } = require('@socketsecurity/registry/lib/promises')
-const { pluralize } = require('@socketsecurity/registry/lib/words')
 
-const { values: cliArgs } = util.parseArgs(parseArgsConfig)
+const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
 function packageData(data) {
   const {

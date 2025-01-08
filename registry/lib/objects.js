@@ -1,6 +1,8 @@
 'use strict'
 
 const constants = require('./constants')
+const { localeCompare } = require('./sorts')
+
 const {
   LOOP_SENTINEL,
   kInternalsSymbol,
@@ -12,7 +14,6 @@ const {
     objectFromEntries
   }
 } = constants
-const { localeCompare } = require('./sorts')
 
 function getOwnPropertyValues(obj) {
   if (obj === null || obj === undefined) {

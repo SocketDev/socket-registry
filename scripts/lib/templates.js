@@ -1,5 +1,38 @@
 'use strict'
 
+const { PackageURL } = require('@socketregistry/packageurl-js')
+const constants = require('@socketregistry/scripts/constants')
+const { getManifestData } = require('@socketsecurity/registry')
+const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
+const { globLicenses } = require('@socketsecurity/registry/lib/globs')
+const {
+  isObjectObject,
+  objectFromEntries
+} = require('@socketsecurity/registry/lib/objects')
+const {
+  readPackageJson,
+  resolveOriginalPackageName
+} = require('@socketsecurity/registry/lib/packages')
+const { prettierFormat } = require('@socketsecurity/registry/lib/strings')
+const {
+  capitalize,
+  determineArticle
+} = require('@socketsecurity/registry/lib/words')
+
+const {
+  LICENSE_CONTENT,
+  NPM,
+  PACKAGE_DEFAULT_SOCKET_CATEGORIES,
+  PACKAGE_JSON,
+  README_MD,
+  TEMPLATE_CJS,
+  TEMPLATE_CJS_BROWSER,
+  TEMPLATE_CJS_ESM,
+  TEMPLATE_ES_SHIM_CONSTRUCTOR,
+  TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
+  TEMPLATE_ES_SHIM_STATIC_METHOD
+} = constants
+
 let _eta
 function getEta() {
   if (_eta === undefined) {
@@ -16,15 +49,6 @@ function getFs() {
     _fs = require(id)
   }
   return _fs
-}
-
-let _PackageURL
-function getPackageURL() {
-  if (_PackageURL === undefined) {
-    const id = 'packageurl-js'
-    _PackageURL = require(id).PackageURL
-  }
-  return _PackageURL
 }
 
 let _path
@@ -53,37 +77,6 @@ function getTinyGlobby() {
   }
   return _tinyGlobby
 }
-
-const constants = require('@socketregistry/scripts/constants')
-const {
-  LICENSE_CONTENT,
-  NPM,
-  PACKAGE_DEFAULT_SOCKET_CATEGORIES,
-  PACKAGE_JSON,
-  README_MD,
-  TEMPLATE_CJS,
-  TEMPLATE_CJS_BROWSER,
-  TEMPLATE_CJS_ESM,
-  TEMPLATE_ES_SHIM_CONSTRUCTOR,
-  TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
-  TEMPLATE_ES_SHIM_STATIC_METHOD
-} = constants
-const { getManifestData } = require('@socketsecurity/registry')
-const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
-const { globLicenses } = require('@socketsecurity/registry/lib/globs')
-const {
-  isObjectObject,
-  objectFromEntries
-} = require('@socketsecurity/registry/lib/objects')
-const {
-  readPackageJson,
-  resolveOriginalPackageName
-} = require('@socketsecurity/registry/lib/packages')
-const { prettierFormat } = require('@socketsecurity/registry/lib/strings')
-const {
-  capitalize,
-  determineArticle
-} = require('@socketsecurity/registry/lib/words')
 
 let _templates
 function getTemplates() {
@@ -128,7 +121,6 @@ async function getLicenseActions(pkgPath) {
 async function getNpmReadmeAction(pkgPath, options) {
   const { interop } = { __proto__: null, ...options }
   const eco = NPM
-  const PackageURL = getPackageURL()
   const path = getPath()
   const semver = getSemver()
   const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)

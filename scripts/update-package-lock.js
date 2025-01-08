@@ -6,15 +6,15 @@ const util = require('node:util')
 const updateBrowserslistDb = require('update-browserslist-db')
 
 const constants = require('@socketregistry/scripts/constants')
-const { parseArgsConfig, rootPackageLockPath, rootPath, yarnPkgExtsJsonPath } =
-  constants
 const { readJson, writeJson } = require('@socketsecurity/registry/lib/fs')
 const { execNpm } = require('@socketsecurity/registry/lib/npm')
 const {
   normalizePackageJson
 } = require('@socketsecurity/registry/lib/packages')
 
-const { values: cliArgs } = util.parseArgs(parseArgsConfig)
+const { rootPackageLockPath, rootPath, yarnPkgExtsJsonPath } = constants
+
+const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
 async function modifyRootPkgLock() {
   if (existsSync(rootPackageLockPath)) {

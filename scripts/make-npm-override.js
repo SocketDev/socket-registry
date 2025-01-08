@@ -11,23 +11,6 @@ const { glob: tinyGlob } = require('tinyglobby')
 
 const constants = require('@socketregistry/scripts/constants')
 const {
-  ESNEXT,
-  LICENSE,
-  LICENSE_ORIGINAL,
-  TEMPLATE_CJS,
-  TEMPLATE_CJS_BROWSER,
-  TEMPLATE_CJS_ESM,
-  TEMPLATE_ES_SHIM_CONSTRUCTOR,
-  TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
-  TEMPLATE_ES_SHIM_STATIC_METHOD,
-  abortSignal,
-  npmPackagesPath,
-  parseArgsConfig,
-  rootPath,
-  tsLibsAvailable,
-  tsTypesAvailable
-} = constants
-const {
   getLicenseActions,
   getNpmReadmeAction,
   getPackageJsonAction,
@@ -65,8 +48,26 @@ const {
 const { indentString } = require('@socketsecurity/registry/lib/strings')
 const { pluralize } = require('@socketsecurity/registry/lib/words')
 
-const { positionals: cliPositionals, values: cliArgs } =
-  util.parseArgs(parseArgsConfig)
+const {
+  ESNEXT,
+  LICENSE,
+  LICENSE_ORIGINAL,
+  TEMPLATE_CJS,
+  TEMPLATE_CJS_BROWSER,
+  TEMPLATE_CJS_ESM,
+  TEMPLATE_ES_SHIM_CONSTRUCTOR,
+  TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
+  TEMPLATE_ES_SHIM_STATIC_METHOD,
+  abortSignal,
+  npmPackagesPath,
+  rootPath,
+  tsLibsAvailable,
+  tsTypesAvailable
+} = constants
+
+const { positionals: cliPositionals, values: cliArgs } = util.parseArgs(
+  constants.parseArgsConfig
+)
 
 const bcaKeysMap = new Map()
 
