@@ -80,8 +80,8 @@ function getProcess() {
 let _semver
 function getSemver() {
   if (_semver === undefined) {
-    const id = 'semver'
-    _semver = require(/* webpackIgnore: true */ id)
+    // The 'semver' package is browser safe.
+    _semver = require('semver')
   }
   return _semver
 }
