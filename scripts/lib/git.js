@@ -49,6 +49,7 @@ const gitDiffSpawnArgs = defineLazyGetters(
       {
         // Lazily access constants.rootPath.
         cwd: constants.rootPath,
+        // Encoding option used for spawnSync.
         encoding: 'utf8'
       }
     ],
@@ -60,6 +61,7 @@ const gitDiffSpawnArgs = defineLazyGetters(
         // Lazily access constants.rootPath.
         cwd: constants.rootPath,
         shell: true,
+        // Encoding option used for spawnSync.
         encoding: 'utf8'
       }
     ]
