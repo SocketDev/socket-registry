@@ -1,6 +1,9 @@
-import yoctoSpinner from '@socketregistry/yocto-spinner'
+import { Options, Spinner } from '@socketregistry/yocto-spinner'
 
 declare const spinnerModule: {
-  Spinner: typeof yoctoSpinner
+  Spinner: {
+    new (options?: Options): Spinner
+    (options?: Options): Spinner
+  } & Spinner
 }
 export = spinnerModule
