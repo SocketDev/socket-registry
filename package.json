@@ -56,7 +56,6 @@
     "@npmcli/promise-spawn": "^8.0.2",
     "@socketregistry/packageurl-js": "^1.0.1",
     "@socketregistry/scripts": "file:./scripts",
-    "@socketregistry/yocto-spinner": "^1.0.2",
     "@socketsecurity/registry": "file:./registry",
     "@tapjs/run": "^4.0.1",
     "@types/fs-extra": "^11.0.4",

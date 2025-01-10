@@ -91,6 +91,10 @@
       "types": "./lib/sorts.d.ts",
       "default": "./lib/sorts.js"
     },
+    "./lib/spinner": {
+      "types": "./lib/spinner.d.ts",
+      "default": "./lib/spinner.js"
+    },
     "./lib/strings": {
       "types": "./lib/strings.d.ts",
       "default": "./lib/strings.js"
@@ -113,6 +117,7 @@
     "@npmcli/package-json": "^6.1.0",
     "@npmcli/promise-spawn": "^8.0.2",
     "@socketregistry/packageurl-js": "^1.0.1",
+    "@socketregistry/yocto-spinner": "^1.0.2",
     "@yarnpkg/extensions": "^2.0.4",
     "browserslist": "^4.24.3",
     "cacache": "^19.0.1",
