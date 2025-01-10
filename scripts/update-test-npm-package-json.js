@@ -10,7 +10,6 @@ const semver = require('semver')
 const { glob: tinyGlob } = require('tinyglobby')
 
 const constants = require('@socketregistry/scripts/constants')
-const { Spinner } = require('@socketregistry/scripts/lib/spinner')
 const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
 const {
   isSymbolicLinkSync,
@@ -35,6 +34,7 @@ const {
 } = require('@socketsecurity/registry/lib/packages')
 const { splitPath } = require('@socketsecurity/registry/lib/path')
 const { pEach, pFilter } = require('@socketsecurity/registry/lib/promises')
+const { Spinner } = require('@socketsecurity/registry/lib/spinner')
 const { isNonEmptyString } = require('@socketsecurity/registry/lib/strings')
 const { pluralize } = require('@socketsecurity/registry/lib/words')
 

@@ -1,6 +1,6 @@
 'use strict'
 
-const constants = require('@socketregistry/scripts/constants')
+const constants = require('./constants')
 
 let _yoctoSpinner
 function getYoctoSpinner() {

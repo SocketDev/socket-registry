@@ -8,7 +8,6 @@ const { PackageURL } = require('@socketregistry/packageurl-js')
 const purlJsPkgJson = require('@socketregistry/packageurl-js/package.json')
 const constants = require('@socketregistry/scripts/constants')
 const { getModifiedFiles } = require('@socketregistry/scripts/lib/git')
-const { Spinner } = require('@socketregistry/scripts/lib/spinner')
 const {
   objectEntries,
   toSortedObject,
@@ -23,6 +22,7 @@ const {
 } = require('@socketsecurity/registry/lib/packages')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { localeCompare } = require('@socketsecurity/registry/lib/sorts')
+const { Spinner } = require('@socketsecurity/registry/lib/spinner')
 const { prettierFormat } = require('@socketsecurity/registry/lib/strings')
 
 const { AT_LATEST, NPM, UNLICENSED } = constants

@@ -6,7 +6,6 @@ const semver = require('semver')
 const ssri = require('ssri')
 
 const constants = require('@socketregistry/scripts/constants')
-const { Spinner } = require('@socketregistry/scripts/lib/spinner')
 const { readDirNames } = require('@socketsecurity/registry/lib/fs')
 const { execNpm, runScript } = require('@socketsecurity/registry/lib/npm')
 const {
@@ -15,6 +14,7 @@ const {
   readPackageJson
 } = require('@socketsecurity/registry/lib/packages')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
+const { Spinner } = require('@socketsecurity/registry/lib/spinner')
 
 const {
   LATEST,
