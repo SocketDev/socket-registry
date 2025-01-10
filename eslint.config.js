@@ -124,7 +124,6 @@ function getImportXFlatConfigs(isEsm) {
       plugins: origImportXFlatConfigs.recommended.plugins,
       settings: {
         ...origImportXFlatConfigs.typescript.settings,
-        ...sharedRulesForImportX,
         'import-x/resolver-next': [
           createOxcImportResolver({
             tsConfig: {
@@ -133,6 +132,12 @@ function getImportXFlatConfigs(isEsm) {
             }
           })
         ]
+      },
+      rules: {
+        ...sharedRulesForImportX,
+        // TypeScript compilation already ensures that named imports exist in
+        // the referenced module.
+        'import-x/named': 'off'
       }
     }
   }
