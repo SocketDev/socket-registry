@@ -137,7 +137,8 @@ function getImportXFlatConfigs(isEsm) {
         ...sharedRulesForImportX,
         // TypeScript compilation already ensures that named imports exist in
         // the referenced module.
-        'import-x/named': 'off'
+        'import-x/named': 'off',
+        'import-x/no-named-as-default-member': 'off'
       }
     }
   }
