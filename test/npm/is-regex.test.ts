@@ -26,7 +26,12 @@ describe(
     skip:
       isPackageTestingSkipped(eco, regPkgName) ||
       // Add check to avoid errors in CI.
-      !(existsSync(pkgRequireIndexJsPath) && existsSync(pkgRequireIndexCjsPath))
+      // Lazily access constants.ENV.
+      (constants.ENV.CI &&
+        !(
+          existsSync(pkgRequireIndexJsPath) &&
+          existsSync(pkgRequireIndexCjsPath)
+        ))
   },
   () => {
     const implementations = [
