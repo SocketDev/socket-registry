@@ -376,7 +376,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/es-set-tostringtag@1.0.5",
+      "pkg:npm/%40socketregistry/es-set-tostringtag@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -384,7 +384,7 @@
         "license": "MIT",
         "name": "@socketregistry/es-set-tostringtag",
         "package": "es-set-tostringtag",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
@@ -884,7 +884,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/json-stable-stringify@1.0.7",
+      "pkg:npm/%40socketregistry/json-stable-stringify@1.0.8",
       {
         "categories": ["cleanup", "levelup"],
         "engines": { "node": ">=18.20.4" },
@@ -892,7 +892,7 @@
         "license": "MIT",
         "name": "@socketregistry/json-stable-stringify",
         "package": "json-stable-stringify",
-        "version": "1.0.7"
+        "version": "1.0.8"
       }
     ],
     [
