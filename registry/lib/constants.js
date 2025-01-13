@@ -355,6 +355,7 @@ const README_GLOB_RECURSIVE = `**/${README_GLOB}`
 const README_MD = 'README.md'
 const REGISTRY = 'registry'
 const REGISTRY_SCOPE_DELIMITER = '__'
+const RESOLUTIONS = 'resolutions'
 const SOCKET_PUBLIC_API_TOKEN =
   'sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api'
 const SOCKET_PUBLIC_API_KEY = SOCKET_PUBLIC_API_TOKEN
@@ -727,6 +728,7 @@ const constants = createConstantsObject(
     README_MD,
     REGISTRY_SCOPE_DELIMITER,
     REGISTRY,
+    RESOLUTIONS,
     SOCKET_PUBLIC_API_KEY,
     SOCKET_PUBLIC_API_TOKEN,
     SOCKET_REPO_ORG,

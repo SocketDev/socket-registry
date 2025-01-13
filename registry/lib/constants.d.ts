@@ -131,6 +131,7 @@ declare const constantsModule: {
   readonly README_MD: 'README.md'
   readonly REGISTRY: 'registry'
   readonly REGISTRY_SCOPE_DELIMITER: '__'
+  readonly RESOLUTIONS: 'resolutions'
   readonly SOCKET_PUBLIC_API_KEY: string
   readonly SOCKET_PUBLIC_API_TOKEN: string
   readonly SOCKET_REPO_ORG: 'SocketDev'
