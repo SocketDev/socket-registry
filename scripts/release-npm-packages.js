@@ -23,6 +23,7 @@ const {
   OVERRIDES,
   PACKAGE_JSON,
   PACKAGE_SCOPE,
+  RESOLUTIONS,
   abortSignal,
   npmPackagesPath,
   registryPkgPath,
@@ -118,7 +119,13 @@ async function installBundledDependencies(pkg) {
 async function maybeBumpPackage(pkg, options = {}) {
   const {
     signal,
-    state = { bumped: [], changed: [], changedPrerelease: [], prerelease: [] }
+    state = {
+      bumped: [],
+      bumpedPrerelease: [],
+      changed: [],
+      changedPrerelease: [],
+      prerelease: []
+    }
   } = {
     __proto__: null,
     ...options
@@ -155,6 +162,9 @@ async function maybeBumpPackage(pkg, options = {}) {
       console.log(`+${pkg.name}@${manifest.version} -> ${version}`)
     }
     state.bumped.push(pkg)
+    if (isPrerelease) {
+      state.bumpedPrerelease.push(pkg)
+    }
   }
 }
 
@@ -186,8 +196,8 @@ async function updateOverrideVersionInParent(pkg, version) {
   const { overrides: oldOverrides, resolutions: oldResolutions } =
     editableParentPkgJson.content
   const overrideEntries = [
-    ['overrides', oldOverrides],
-    ['resolutions', oldResolutions]
+    [OVERRIDES, oldOverrides],
+    [RESOLUTIONS, oldResolutions]
   ]
   for (const { 0: overrideField, 1: overrideObj } of overrideEntries) {
     if (overrideObj) {
@@ -228,10 +238,12 @@ void (async () => {
   })
 
   const bumpedPackages = []
+  const bumpedPrereleasePackages = []
   const changedPackages = []
   const changedPrereleasePackages = []
   const state = {
     bumped: bumpedPackages,
+    bumpedPrerelease: bumpedPrereleasePackages,
     changed: changedPackages,
     changedPrerelease: changedPrereleasePackages,
     prerelease: prereleasePackages
@@ -256,7 +268,7 @@ void (async () => {
     pkg => pkg.bundledDependencies
   )
   // Chunk changed prerelease packages to process them in parallel 3 at a time.
-  await pEach(changedPrereleasePackages, 3, async pkg => {
+  await pEach(bumpedPrereleasePackages, 3, async pkg => {
     // Reset override version in parent package BEFORE npm install of bundled
     // dependencies.
     await updateOverrideVersionInParent(pkg, pkg.manifest.version)
@@ -264,7 +276,7 @@ void (async () => {
   // Chunk bundled packages to process them in parallel 3 at a time.
   await pEach(bundledPackages, 3, installBundledDependencies)
   // Chunk changed prerelease packages to process them in parallel 3 at a time.
-  await pEach(changedPrereleasePackages, 3, async pkg => {
+  await pEach(bumpedPrereleasePackages, 3, async pkg => {
     // Update override version in parent package AFTER npm install of bundled
     // dependencies.
     await updateOverrideVersionInParent(pkg, pkg.version)
