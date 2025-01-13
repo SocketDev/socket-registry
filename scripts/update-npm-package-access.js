@@ -26,6 +26,7 @@ void (async () => {
   if (!(cliArgs.force || ENV.CI)) {
     return
   }
+
   const fails = []
   const packages = [
     packageData({ name: '@socketsecurity/registry', path: registryPkgPath }),
@@ -38,6 +39,7 @@ void (async () => {
       })
     )
   ]
+
   // Chunk package names to process them in parallel 3 at a time.
   await pEach(packages, 3, async pkg => {
     try {
@@ -59,6 +61,7 @@ void (async () => {
       console.log(e)
     }
   })
+
   if (fails.length) {
     const msg = `⚠️ Unable to set access for ${fails.length} ${pluralize('package', fails.length)}:`
     const msgList = joinAsList(fails)

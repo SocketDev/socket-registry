@@ -1,5 +1,6 @@
 'use strict'
 
+const { promises: fs } = require('node:fs')
 const path = require('node:path')
 
 const semver = require('semver')
@@ -18,6 +19,7 @@ const { Spinner } = require('@socketsecurity/registry/lib/spinner')
 
 const {
   LATEST,
+  NODE_MODULES,
   OVERRIDES,
   PACKAGE_JSON,
   PACKAGE_SCOPE,
@@ -33,34 +35,12 @@ const registryPkg = packageData({
   path: registryPkgPath
 })
 
-function packageData(data) {
-  const { printName = data.name, tag = LATEST } = data
-  return Object.assign(data, { printName, tag })
-}
-
-void (async () => {
-  const spinner = Spinner({
-    text: `Bumping ${relNpmPackagesPath} versions (semver patch)...`
-  }).start()
-  const packages = [
-    registryPkg,
-    // Lazily access constants.npmPackageNames.
-    ...constants.npmPackageNames.map(regPkgName => {
-      const pkgPath = path.join(npmPackagesPath, regPkgName)
-      const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
-      const pkgJson = require(pkgJsonPath)
-      return packageData({
-        name: `${PACKAGE_SCOPE}/${regPkgName}`,
-        path: pkgPath,
-        printName: regPkgName,
-        bundledDependencies: !!pkgJson.bundleDependencies
-      })
-    })
-  ]
+async function filterPrereleasePackages(packages, options = {}) {
+  const { signal } = { __proto__: null, ...options }
   const prereleasePackages = []
   // Chunk packages data to process them in parallel 3 at a time.
   await pEach(packages, 3, async pkg => {
-    if (abortSignal.aborted) {
+    if (signal.aborted) {
       return
     }
     const overridesPath = path.join(pkg.path, OVERRIDES)
@@ -86,91 +66,221 @@ void (async () => {
       )
     }
   })
+  return prereleasePackages
+}
 
-  if (abortSignal.aborted) {
-    spinner.stop()
+async function hasPackageChanged(pkg, manifest_) {
+  const manifest =
+    manifest_ ?? (await fetchPackageManifest(`${pkg.name}@${pkg.tag}`))
+  if (!manifest) {
+    throw new Error(
+      `hasPackageChanged: Failed to fetch manifest for ${pkg.name}`
+    )
+  }
+  // Compare the shasum of the latest package from registry.npmjs.org against
+  // the local version. If they are different then bump the local version.
+  return (
+    ssri
+      .fromData(
+        await packPackage(`${pkg.name}@${manifest.version}`, {
+          signal: abortSignal
+        })
+      )
+      .sha512[0].hexDigest() !==
+    ssri
+      .fromData(await packPackage(pkg.path, { signal: abortSignal }))
+      .sha512[0].hexDigest()
+  )
+}
+
+async function installBundledDependencies(pkg) {
+  try {
+    // Install bundled dependencies, including overrides.
+    await execNpm(
+      [
+        'install',
+        '--silent',
+        '--workspaces',
+        'false',
+        '--install-strategy',
+        'hoisted'
+      ],
+      {
+        cwd: pkg.path,
+        stdio: 'ignore'
+      }
+    )
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+async function maybeBumpPackage(pkg, options = {}) {
+  const {
+    signal,
+    state = { bumped: [], changed: [], changedPrerelease: [], prerelease: [] }
+  } = {
+    __proto__: null,
+    ...options
+  }
+  if (signal.aborted) {
     return
   }
+  const manifest = await fetchPackageManifest(`${pkg.name}@${pkg.tag}`)
+  if (!manifest) {
+    return
+  }
+  pkg.manifest = manifest
+  pkg.version = manifest.version
+  // Compare the shasum of the @socketregistry the latest package from
+  // registry.npmjs.org against the local version. If they are different
+  // then bump the local version.
+  if (await hasPackageChanged(pkg, manifest)) {
+    const isPrerelease = state.prerelease.includes(pkg)
+    let version = semver.inc(manifest.version, 'patch')
+    if (isPrerelease) {
+      version = `${semver.inc(version, 'patch')}-${pkg.tag}`
+    }
+    pkg.version = version
+    const editablePkgJson = await readPackageJson(pkg.path, {
+      editable: true
+    })
+    if (editablePkgJson.content.version !== version) {
+      editablePkgJson.update({ version })
+      await editablePkgJson.save()
+      state.changed.push(pkg)
+      if (isPrerelease) {
+        state.changedPrerelease.push(pkg)
+      }
+      console.log(`+${pkg.name}@${manifest.version} -> ${version}`)
+    }
+    state.bumped.push(pkg)
+  }
+}
 
-  packages.push(...prereleasePackages)
-  const bundledPackages = packages.filter(pkg => pkg.bundledDependencies)
-  // Chunk bundled package names to process them in parallel 3 at a time.
-  await pEach(bundledPackages, 3, async pkg => {
-    if (abortSignal.aborted) {
-      return
-    }
-    // Install bundled dependencies, including overrides.
-    try {
-      await execNpm(
-        [
-          'install',
-          '--silent',
-          '--workspaces',
-          'false',
-          '--install-strategy',
-          'hoisted'
-        ],
-        {
-          cwd: pkg.path,
-          stdio: 'ignore'
+function packageData(data) {
+  const {
+    bundledDependencies = false,
+    manifest,
+    printName = data.name,
+    tag = LATEST,
+    version
+  } = data
+  return Object.assign(data, {
+    bundledDependencies,
+    manifest,
+    printName,
+    tag,
+    version
+  })
+}
+
+async function updateOverrideVersionInParent(pkg, version) {
+  // Reset prerelease version in parent dependencies.
+  const parentPkgPath = path.resolve(pkg.path, '../..')
+  const editableParentPkgJson = await readPackageJson(parentPkgPath, {
+    editable: true
+  })
+  const spec = `npm:${pkg.name}@${version}`
+  const overrideName = path.basename(pkg.path)
+  const { overrides: oldOverrides, resolutions: oldResolutions } =
+    editableParentPkgJson.content
+  const overrideEntries = [
+    ['overrides', oldOverrides],
+    ['resolutions', oldResolutions]
+  ]
+  for (const { 0: overrideField, 1: overrideObj } of overrideEntries) {
+    if (overrideObj) {
+      editableParentPkgJson.update({
+        [overrideField]: {
+          ...overrideObj,
+          [overrideName]: spec
         }
-      )
-    } catch (e) {
-      console.log(e)
+      })
     }
+  }
+  await editableParentPkgJson.save()
+}
+
+void (async () => {
+  const spinner = Spinner({
+    text: `Bumping ${relNpmPackagesPath} versions (semver patch)...`
+  }).start()
+
+  const packages = [
+    registryPkg,
+    // Lazily access constants.npmPackageNames.
+    ...constants.npmPackageNames.map(regPkgName => {
+      const pkgPath = path.join(npmPackagesPath, regPkgName)
+      const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
+      const pkgJson = require(pkgJsonPath)
+      return packageData({
+        name: `${PACKAGE_SCOPE}/${regPkgName}`,
+        path: pkgPath,
+        printName: regPkgName,
+        bundledDependencies: !!pkgJson.bundleDependencies
+      })
+    })
+  ]
+
+  const prereleasePackages = await filterPrereleasePackages(packages, {
+    signal: abortSignal
   })
 
+  const bumpedPackages = []
+  const changedPackages = []
+  const changedPrereleasePackages = []
+  const state = {
+    bumped: bumpedPackages,
+    changed: changedPackages,
+    changedPrerelease: changedPrereleasePackages,
+    prerelease: prereleasePackages
+  }
+
+  // Chunk prerelease packages to process them in parallel 3 at a time.
+  await pEach(
+    prereleasePackages,
+    3,
+    async pkg => {
+      await maybeBumpPackage(pkg, { signal: abortSignal, state })
+    },
+    { signal: abortSignal }
+  )
+
   if (abortSignal.aborted) {
     spinner.stop()
     return
   }
 
-  let registryPkgManifest
-  const bumpedPackages = []
-  const changedPackages = []
-  // Chunk package names to process them in parallel 3 at a time.
+  const bundledPackages = [...packages, ...prereleasePackages].filter(
+    pkg => pkg.bundledDependencies
+  )
+  // Chunk changed prerelease packages to process them in parallel 3 at a time.
+  await pEach(changedPrereleasePackages, 3, async pkg => {
+    // Reset override version in parent package BEFORE npm install of bundled
+    // dependencies.
+    await updateOverrideVersionInParent(pkg, pkg.manifest.version)
+  })
+  // Chunk bundled packages to process them in parallel 3 at a time.
+  await pEach(bundledPackages, 3, installBundledDependencies)
+  // Chunk changed prerelease packages to process them in parallel 3 at a time.
+  await pEach(changedPrereleasePackages, 3, async pkg => {
+    // Update override version in parent package AFTER npm install of bundled
+    // dependencies.
+    await updateOverrideVersionInParent(pkg, pkg.version)
+    // Copy overrides/<name> to node_modules/<name>.
+    const parentPkgPath = path.resolve(pkg.path, '../..')
+    const parentPkgNmPath = path.join(parentPkgPath, NODE_MODULES)
+    const overrideNmPath = path.join(parentPkgNmPath, pkg.name)
+    await fs.cp(pkg.path, overrideNmPath, { recursive: true })
+  })
+
+  // Chunk packages data to process them in parallel 3 at a time.
   await pEach(
     packages,
     3,
     async pkg => {
-      if (abortSignal.aborted) {
-        return
-      }
-      const manifest = await fetchPackageManifest(`${pkg.name}@${pkg.tag}`)
-      if (manifest) {
-        if (pkg === registryPkg) {
-          registryPkgManifest = manifest
-        }
-        // Compare the shasum of the @socketregistry the latest package from
-        // registry.npmjs.org against the local version. If they are different
-        // then bump the local version.
-        if (
-          ssri
-            .fromData(
-              await packPackage(`${pkg.name}@${manifest.version}`, {
-                signal: abortSignal
-              })
-            )
-            .sha512[0].hexDigest() !==
-          ssri
-            .fromData(await packPackage(pkg.path, { signal: abortSignal }))
-            .sha512[0].hexDigest()
-        ) {
-          const maybePrerelease = pkg.tag === LATEST ? '' : `-${pkg.tag}`
-          const version =
-            semver.inc(manifest.version, 'patch') + maybePrerelease
-          const editablePkgJson = await readPackageJson(pkg.path, {
-            editable: true
-          })
-          if (editablePkgJson.content.version !== version) {
-            editablePkgJson.update({ version })
-            await editablePkgJson.save()
-            changedPackages.push(pkg)
-          }
-          bumpedPackages.push(pkg)
-          console.log(`+${pkg.name}@${manifest.version} -> ${version}`)
-        }
-      }
+      await maybeBumpPackage(pkg, { signal: abortSignal, state })
     },
     { signal: abortSignal }
   )
@@ -189,26 +299,18 @@ void (async () => {
   await runScript('update:manifest', ['--', '--force'], spawnOptions)
 
   if (!bumpedPackages.find(pkg => pkg === registryPkg)) {
-    const version = semver.inc(registryPkgManifest.version, 'patch')
+    const version = semver.inc(registryPkg.manifest.version, 'patch')
     const editablePkgJson = await readPackageJson(registryPkg.path, {
       editable: true
     })
     editablePkgJson.update({ version })
     await editablePkgJson.save()
     console.log(
-      `+${registryPkg.name}@${registryPkgManifest.version} -> ${version}`
+      `+${registryPkg.name}@${registryPkg.manifest.version} -> ${version}`
     )
   }
 
-  if (abortSignal.aborted) {
-    return
-  }
-
   await runScript('update:package-json', [], spawnOptions)
-
-  if (abortSignal.aborted) {
-    return
-  }
 
   if (
     changedPackages.length > 1 ||
