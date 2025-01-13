@@ -5,17 +5,18 @@ import { describe, it } from 'node:test'
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 
-const { NPM } = constants
+const { NPM, testNpmNodeWorkspacesPath } = constants
 
 const eco = NPM
 const regPkgName = path.basename(__filename, '.test.ts')
+const pkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
 
 describe(
   `${eco} > ${regPkgName}`,
   { skip: isPackageTestingSkipped(eco, regPkgName) },
   () => {
-    const flattenLegacy = require(regPkgName)
-    const { flatten } = require(regPkgName)
+    const flattenLegacy = require(path.join(pkgPath, 'index.js'))
+    const { flatten } = flattenLegacy
 
     // array-flatten v3 unit tests.
     // https://github.com/blakeembrey/array-flatten/blob/v3.0.0/src/index.spec.ts

@@ -5,12 +5,12 @@ import { describe, it } from 'node:test'
 
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
-import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/packages'
 
-const { NPM } = constants
+const { NPM, testNpmNodeWorkspacesPath } = constants
 
 const eco = NPM
 const regPkgName = path.basename(__filename, '.test.ts')
+const pkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
 
 // @hyrious/bun.lockb has no unit tests.
 // https://github.com/hyrious/bun.lockb/tree/v0.0.4
@@ -19,8 +19,9 @@ describe(
   `${eco} > ${regPkgName}`,
   { skip: isPackageTestingSkipped(eco, regPkgName) },
   () => {
+    const hyriousBunLockb = require(path.join(pkgPath, 'index.cjs'))
+
     const { testNpmFixturesPath } = constants
-    const hyriousBunLockb = require(resolveOriginalPackageName(regPkgName))
 
     it('parses bun.lockb into yarn.lock contents', () => {
       const lockbPath = path.join(testNpmFixturesPath, 'fixture-bun.lockb')
