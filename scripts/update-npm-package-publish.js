@@ -115,7 +115,9 @@ async function publish(pkg, state = { fails: [] }) {
 }
 
 async function publishPackages(packages, state = { fails: [] }) {
-  const okayPackages = packages.filter(pkg => !state.fails.includes(pkg.printName))
+  const okayPackages = packages.filter(
+    pkg => !state.fails.includes(pkg.printName)
+  )
   // Chunk non-failed package names to process them in parallel 3 at a time.
   await pEach(okayPackages, 3, publish)
 }
