@@ -89,7 +89,7 @@ declare namespace PackagesModule {
       scriptShell?: string
       stdioString?: boolean
     }
-  ): Awaited<ReturnType<typeof PacoteTarballFn>>
+  ): Promise<Awaited<ReturnType<typeof PacoteTarballFn>>>
   export function readPackageJson(
     filepath: string,
     options: { editable: true; preserve?: string[] }
