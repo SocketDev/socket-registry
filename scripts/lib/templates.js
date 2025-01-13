@@ -39,7 +39,7 @@ const {
   TEMPLATE_ES_SHIM_STATIC_METHOD
 } = constants
 
-const eta = new require('eta').Eta()
+const eta = new (require('eta').Eta)()
 
 let _templates
 function getTemplates() {
