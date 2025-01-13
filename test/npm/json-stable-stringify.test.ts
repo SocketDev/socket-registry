@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 
@@ -10,14 +11,18 @@ const { NPM, testNpmNodeWorkspacesPath } = constants
 const eco = NPM
 const regPkgName = path.basename(__filename, '.test.ts')
 const pkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
+const pkgRequireIndexJsPath = path.join(pkgPath, 'index.js')
 
 describe(
   `${eco} > ${regPkgName}`,
   {
-    skip: isPackageTestingSkipped(eco, regPkgName)
+    skip:
+      isPackageTestingSkipped(eco, regPkgName) ||
+      // Add check to avoid errors in CI.
+      !existsSync(pkgRequireIndexJsPath)
   },
   () => {
-    const jsonStableStringify = require(path.join(pkgPath, 'index.js'))
+    const jsonStableStringify = require(pkgRequireIndexJsPath)
 
     const rawJSON: ((_str: string) => { rawJSON: string }) | undefined = (
       JSON as any

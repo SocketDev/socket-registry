@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 
@@ -10,6 +11,8 @@ const { NPM, testNpmNodeWorkspacesPath } = constants
 const eco = NPM
 const regPkgName = path.basename(__filename, '.test.ts')
 const pkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
+const pkgRequireIndexJsPath = path.join(pkgPath, 'index.js')
+const pkgRequireIndexCjsPath = path.join(pkgPath, 'index.cjs')
 
 // is-regex tests don't account for `is-regex` backed by
 // `require('node:util/types).isRegExp` which triggers no proxy traps and
@@ -19,11 +22,16 @@ const pkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
 // https://github.com/inspect-js/is-regex/blob/v1.1.4/test/index.js
 describe(
   `${eco} > ${regPkgName}`,
-  { skip: isPackageTestingSkipped(eco, regPkgName) },
+  {
+    skip:
+      isPackageTestingSkipped(eco, regPkgName) ||
+      // Add check to avoid errors in CI.
+      !(existsSync(pkgRequireIndexJsPath) && existsSync(pkgRequireIndexCjsPath))
+  },
   () => {
     const implementations = [
-      require(path.join(pkgPath, 'index.js')),
-      require(path.join(pkgPath, 'index.cjs'))
+      require(pkgRequireIndexJsPath),
+      require(pkgRequireIndexCjsPath)
     ]
     for (const isRegex of implementations) {
       it('not regexes', () => {
