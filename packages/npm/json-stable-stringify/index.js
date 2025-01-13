@@ -233,8 +233,8 @@ module.exports = function stableStringify(obj, opts = {}) {
           const get = cmpOpt.length > 2 ? k => node[k] : undefined
           return (a, b) =>
             cmpOpt(
-              { __proto__: null, key: a, value: node[a] },
-              { __proto__: null, key: b, value: node[b] },
+              { key: a, value: node[a] },
+              { key: b, value: node[b] },
               get ? { __proto__: null, get } : undefined
             )
         }
