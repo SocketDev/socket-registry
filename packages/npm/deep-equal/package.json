@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/deep-equal",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "license": "MIT",
   "description": "Socket.dev optimized package override for deep-equal",
   "keywords": [
@@ -41,7 +41,7 @@
   ],
   "overrides": {
     "array-buffer-byte-length": "npm:@socketregistry/array-buffer-byte-length@^1",
-    "call-bind": "npm:@socketregistry/deep-equal@1.0.3-overrides-call-bind",
+    "call-bind": "npm:@socketregistry/deep-equal@1.0.4-overrides-call-bind",
     "es-get-iterator": "npm:@socketregistry/es-get-iterator@^1",
     "get-intrinsic": "npm:@socketregistry/deep-equal@1.0.3-overrides-get-intrinsic",
     "is-arguments": "npm:@socketregistry/is-arguments@^1",
@@ -61,7 +61,7 @@
   },
   "resolutions": {
     "array-buffer-byte-length": "npm:@socketregistry/array-buffer-byte-length@^1",
-    "call-bind": "npm:@socketregistry/deep-equal@1.0.3-overrides-call-bind",
+    "call-bind": "npm:@socketregistry/deep-equal@1.0.4-overrides-call-bind",
     "es-get-iterator": "npm:@socketregistry/es-get-iterator@^1",
     "get-intrinsic": "npm:@socketregistry/deep-equal@1.0.3-overrides-get-intrinsic",
     "is-arguments": "npm:@socketregistry/is-arguments@^1",
