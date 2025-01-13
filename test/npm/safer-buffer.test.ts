@@ -7,10 +7,11 @@ import { describe, it } from 'node:test'
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 
-const { NPM } = constants
+const { NPM, testNpmNodeWorkspacesPath } = constants
 
 const eco = NPM
 const regPkgName = path.basename(__filename, '.test.ts')
+const pkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
 
 // safer-buffer tests assume Buffer.alloc, Buffer.allocUnsafe, and
 // Buffer.allocUnsafeSlow throw for a size of 2 * (1 << 30), i.e. 2147483648,
@@ -21,15 +22,12 @@ describe(
   `${eco} > ${regPkgName}`,
   { skip: isPackageTestingSkipped(eco, regPkgName) },
   () => {
-    const index = require(regPkgName)
-    const safer = require(`${regPkgName}/safer`)
-    const dangerous = require(`${regPkgName}/dangerous`)
-    const implementations = [index, safer, dangerous]
+    const safer = require(path.join(pkgPath, 'safer.js'))
+    const dangerous = require(path.join(pkgPath, 'dangerous.js'))
+    const implementations = [safer, dangerous]
 
     it('Default is Safer', () => {
-      assert.equal(index, safer)
       assert.notEqual(safer, dangerous)
-      assert.notEqual(index, dangerous)
     })
 
     it('Is not a function', () => {
@@ -82,10 +80,8 @@ describe(
     })
 
     it('Unsafe methods exist only in Dangerous', () => {
-      for (const impl of [index, safer]) {
-        assert.equal(typeof impl.Buffer.allocUnsafe, 'undefined')
-        assert.equal(typeof impl.Buffer.allocUnsafeSlow, 'undefined')
-      }
+      assert.equal(typeof safer.Buffer.allocUnsafe, 'undefined')
+      assert.equal(typeof safer.Buffer.allocUnsafeSlow, 'undefined')
       assert.equal(typeof dangerous.Buffer.allocUnsafe, 'function')
       assert.equal(typeof dangerous.Buffer.allocUnsafeSlow, 'function')
     })
@@ -402,8 +398,8 @@ describe(
     })
 
     it('Buffers have appropriate lengths (2)', () => {
-      assert.equal(index.Buffer.alloc, safer.Buffer.alloc)
-      assert.equal(index.Buffer.alloc, dangerous.Buffer.alloc)
+      assert.equal(safer.Buffer.alloc, safer.Buffer.alloc)
+      assert.equal(safer.Buffer.alloc, dangerous.Buffer.alloc)
       let ok = true
       for (const method of [
         safer.Buffer.alloc,
@@ -421,12 +417,12 @@ describe(
     })
 
     it('.alloc(size) is zero-filled and has correct length', () => {
-      assert.equal(index.Buffer.alloc, safer.Buffer.alloc)
-      assert.equal(index.Buffer.alloc, dangerous.Buffer.alloc)
+      assert.equal(safer.Buffer.alloc, safer.Buffer.alloc)
+      assert.equal(safer.Buffer.alloc, dangerous.Buffer.alloc)
       let ok = true
       for (let i = 0; i < 1e2; i += 1) {
         const length = Math.round(Math.random() * 2e6)
-        const buf = index.Buffer.alloc(length)
+        const buf = safer.Buffer.alloc(length)
         if (!buffer.Buffer.isBuffer(buf)) ok = false
         if (buf.length !== length) ok = false
         let j
@@ -464,13 +460,13 @@ describe(
     })
 
     it('.alloc(size, fill) is `fill`-filled', () => {
-      assert.equal(index.Buffer.alloc, safer.Buffer.alloc)
-      assert.equal(index.Buffer.alloc, dangerous.Buffer.alloc)
+      assert.equal(safer.Buffer.alloc, safer.Buffer.alloc)
+      assert.equal(safer.Buffer.alloc, dangerous.Buffer.alloc)
       let ok = true
       for (let i = 0; i < 1e2; i += 1) {
         const length = Math.round(Math.random() * 2e6)
         const fill = Math.round(Math.random() * 255)
-        const buf = index.Buffer.alloc(length, fill)
+        const buf = safer.Buffer.alloc(length, fill)
         if (!buffer.Buffer.isBuffer(buf)) ok = false
         if (buf.length !== length) ok = false
         for (let j = 0; j < length; j += 1) {
@@ -481,13 +477,13 @@ describe(
     })
 
     it('.alloc(size, fill) is `fill`-filled', () => {
-      assert.equal(index.Buffer.alloc, safer.Buffer.alloc)
-      assert.equal(index.Buffer.alloc, dangerous.Buffer.alloc)
+      assert.equal(safer.Buffer.alloc, safer.Buffer.alloc)
+      assert.equal(safer.Buffer.alloc, dangerous.Buffer.alloc)
       let ok = true
       for (let i = 0; i < 1e2; i += 1) {
         const length = Math.round(Math.random() * 2e6)
         const fill = Math.round(Math.random() * 255)
-        const buf = index.Buffer.alloc(length, fill)
+        const buf = safer.Buffer.alloc(length, fill)
         if (!buffer.Buffer.isBuffer(buf)) ok = false
         if (buf.length !== length) ok = false
         for (let j = 0; j < length; j += 1) {
@@ -495,26 +491,26 @@ describe(
         }
       }
       assert.ok(ok)
-      assert.deepEqual(index.Buffer.alloc(9, 'a'), index.Buffer.alloc(9, 97))
-      assert.notDeepEqual(index.Buffer.alloc(9, 'a'), index.Buffer.alloc(9, 98))
+      assert.deepEqual(safer.Buffer.alloc(9, 'a'), safer.Buffer.alloc(9, 97))
+      assert.notDeepEqual(safer.Buffer.alloc(9, 'a'), safer.Buffer.alloc(9, 98))
 
       const tmp = new buffer.Buffer(2)
       tmp.fill('ok')
       if (tmp[1] === tmp[0]) {
         // Outdated Node.js
         assert.deepEqual(
-          index.Buffer.alloc(5, 'ok'),
-          index.Buffer.from('ooooo')
+          safer.Buffer.alloc(5, 'ok'),
+          safer.Buffer.from('ooooo')
         )
       } else {
         assert.deepEqual(
-          index.Buffer.alloc(5, 'ok'),
-          index.Buffer.from('okoko')
+          safer.Buffer.alloc(5, 'ok'),
+          safer.Buffer.from('okoko')
         )
       }
       assert.notDeepEqual(
-        index.Buffer.alloc(5, 'ok'),
-        index.Buffer.from('kokok')
+        safer.Buffer.alloc(5, 'ok'),
+        safer.Buffer.from('kokok')
       )
     })
 

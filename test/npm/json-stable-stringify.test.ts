@@ -5,22 +5,20 @@ import { describe, it } from 'node:test'
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 
-const { NPM } = constants
+const { NPM, testNpmNodeWorkspacesPath } = constants
 
 const eco = NPM
 const regPkgName = path.basename(__filename, '.test.ts')
-
-const jsonStableStringify = require(regPkgName)
-const pkgJson = require(`${regPkgName}/package.json`)
+const pkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
 
 describe(
   `${eco} > ${regPkgName}`,
   {
-    skip:
-      isPackageTestingSkipped(eco, regPkgName) ||
-      !pkgJson.name.startsWith('@socketregistry')
+    skip: isPackageTestingSkipped(eco, regPkgName)
   },
   () => {
+    const jsonStableStringify = require(path.join(pkgPath, 'index.js'))
+
     const rawJSON: ((_str: string) => { rawJSON: string }) | undefined = (
       JSON as any
     ).rawJSON

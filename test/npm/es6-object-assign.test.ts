@@ -5,10 +5,11 @@ import { describe, it } from 'node:test'
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 
-const { NPM } = constants
+const { NPM, testNpmNodeWorkspacesPath } = constants
 
 const eco = NPM
 const regPkgName = path.basename(__filename, '.test.ts')
+const pkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
 
 // es6-object-assign has no unit tests.
 // https://github.com/rubennorte/es6-object-assign/tree/v1.1.0
@@ -17,7 +18,7 @@ describe(
   `${eco} > ${regPkgName}`,
   { skip: isPackageTestingSkipped(eco, regPkgName) },
   () => {
-    const es6oa = require(regPkgName)
+    const es6oa = require(path.join(pkgPath, 'index.js'))
 
     it('does not have "pending exception" logic in implementation', () => {
       /*
