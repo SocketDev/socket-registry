@@ -61,7 +61,12 @@ async function installBundledDependencies(pkg, state = { fails: [] }) {
     await execNpm(
       [
         'install',
+        // Even though the 'silent' flag is passed npm will still run through
+        // code paths for 'audit' and 'fund' unless '--no-audit' and '--no-fund'
+        // flags are passed.
         '--silent',
+        '--no-audit',
+        '--no-fund',
         '--workspaces',
         'false',
         '--install-strategy',
