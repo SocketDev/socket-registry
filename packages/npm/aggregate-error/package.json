@@ -31,6 +31,10 @@
         "default": "./index.js"
       }
     },
+    "./index.cjs": {
+      "types": "./index.d.ts",
+      "default": "./index.cjs"
+    },
     "./package.json": "./package.json"
   },
   "sideEffects": false,
