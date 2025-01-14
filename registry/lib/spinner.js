@@ -5,8 +5,9 @@ const constants = require('./constants')
 let _yoctoSpinner
 function getYoctoSpinner() {
   if (_yoctoSpinner === undefined) {
-    // Lazily load yocto-spinner to avoid up front experimental-require-module warnings.
-    _yoctoSpinner = require('@socketregistry/yocto-spinner')
+    // Load '@socketregistry/yocto-spinner/index.cjs' to avoid the
+    // experimental-require-module warning.
+    _yoctoSpinner = require('@socketregistry/yocto-spinner/index.cjs')
   }
   return _yoctoSpinner
 }
@@ -21,7 +22,6 @@ const ciSpinner = {
 }
 
 function Spinner(options) {
-  // Lazy load to defer experimental ES module in require() warning.
   const yoctoSpinner = getYoctoSpinner()
   return yoctoSpinner({
     // Lazily access constants.ENV.
