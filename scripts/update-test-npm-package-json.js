@@ -117,7 +117,15 @@ async function installTestNpmNodeModules(options) {
         ).map(p => remove(p))
       : [])
   ])
-  const args = ['install', '--silent']
+  const args = [
+    'install',
+    // Even though the 'silent' flag is passed npm will still run through code
+    // paths for 'audit' and 'fund' unless '--no-audit' and '--no-fund' flags
+    // are passed.
+    '--silent',
+    '--no-audit',
+    '--no-fund'
+  ]
   if (Array.isArray(specs)) {
     args.push('--save-dev', ...specs)
   }
