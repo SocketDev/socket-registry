@@ -368,6 +368,7 @@ const TEMPLATE_ES_SHIM_CONSTRUCTOR = 'es-shim-constructor'
 const TEMPLATE_ES_SHIM_PROTOTYPE_METHOD = 'es-shim-prototype-method'
 const TEMPLATE_ES_SHIM_STATIC_METHOD = 'es-shim-static-method'
 const TSCONFIG_JSON = 'tsconfig.json'
+const UNDEFINED_TOKEN = {}
 const UNLICENCED = 'UNLICENCED'
 const UNLICENSED = 'UNLICENSED'
 
@@ -743,6 +744,7 @@ const constants = createConstantsObject(
     TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
     TEMPLATE_ES_SHIM_STATIC_METHOD,
     TSCONFIG_JSON,
+    UNDEFINED_TOKEN,
     UNLICENCED,
     UNLICENSED,
     WIN32: undefined,

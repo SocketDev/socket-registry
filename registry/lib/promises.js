@@ -1,8 +1,7 @@
 'use strict'
 
 const { arrayChunk } = require('./arrays')
-
-const UNDEFINED = {}
+const { UNDEFINED_TOKEN } = require('./constants')
 
 async function pEach(array, concurrency, callbackFn, options) {
   await pEachChunk(arrayChunk(array, concurrency), callbackFn, options)
@@ -59,18 +58,18 @@ async function pRetry(callbackFn, options) {
   }
   let attempts = retries
   return (async () => {
-    let error = UNDEFINED
+    let error = UNDEFINED_TOKEN
     while (attempts-- >= 0 && !signal?.aborted) {
       try {
         // eslint-disable-next-line no-await-in-loop
         return await callbackFn(...args, { signal })
       } catch (e) {
-        if (error === UNDEFINED) {
+        if (error === UNDEFINED_TOKEN) {
           error = e
         }
       }
     }
-    if (error !== UNDEFINED) {
+    if (error !== UNDEFINED_TOKEN) {
       throw error
     }
     return undefined

@@ -146,6 +146,7 @@ declare const constantsModule: {
   readonly TEMPLATE_ES_SHIM_PROTOTYPE_METHOD: 'es-shim-prototype-method'
   readonly TEMPLATE_ES_SHIM_STATIC_METHOD: 'es-shim-static-method'
   readonly TSCONFIG_JSON: 'tsconfig.json'
+  readonly UNDEFINED_TOKEN: {}
   readonly UNLICENCED: 'UNLICENCED'
   readonly UNLICENSED: 'UNLICENSED'
   readonly WIN32: boolean
