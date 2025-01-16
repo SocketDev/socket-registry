@@ -14,7 +14,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/aggregate-error@1.0.10",
+      "pkg:npm/%40socketregistry/aggregate-error@1.0.11",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -22,7 +22,7 @@
         "license": "MIT",
         "name": "@socketregistry/aggregate-error",
         "package": "aggregate-error",
-        "version": "1.0.10"
+        "version": "1.0.11"
       }
     ],
     [
@@ -582,7 +582,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/hyrious__bun.lockb@1.0.10",
+      "pkg:npm/%40socketregistry/hyrious__bun.lockb@1.0.11",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -591,11 +591,11 @@
         "name": "@socketregistry/hyrious__bun.lockb",
         "package": "@hyrious/bun.lockb",
         "skipTests": true,
-        "version": "1.0.10"
+        "version": "1.0.11"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/indent-string@1.0.8",
+      "pkg:npm/%40socketregistry/indent-string@1.0.9",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -603,7 +603,7 @@
         "license": "MIT",
         "name": "@socketregistry/indent-string",
         "package": "indent-string",
-        "version": "1.0.8"
+        "version": "1.0.9"
       }
     ],
     [
@@ -703,7 +703,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-interactive@1.0.0",
+      "pkg:npm/%40socketregistry/is-interactive@1.0.1",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -711,7 +711,7 @@
         "license": "MIT",
         "name": "@socketregistry/is-interactive",
         "package": "is-interactive",
-        "version": "1.0.0"
+        "version": "1.0.1"
       }
     ],
     [
@@ -833,6 +833,18 @@
         "name": "@socketregistry/is-typed-array",
         "package": "is-typed-array",
         "version": "1.0.6"
+      }
+    ],
+    [
+      "pkg:npm/%40socketregistry/is-unicode-supported@1.0.0",
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["cjs", "esm"],
+        "license": "MIT",
+        "name": "@socketregistry/is-unicode-supported",
+        "package": "is-unicode-supported",
+        "version": "1.0.0"
       }
     ],
     [
@@ -1569,7 +1581,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/yocto-spinner@1.0.3",
+      "pkg:npm/%40socketregistry/yocto-spinner@1.0.4",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -1577,7 +1589,7 @@
         "license": "MIT",
         "name": "@socketregistry/yocto-spinner",
         "package": "yocto-spinner",
-        "version": "1.0.3"
+        "version": "1.0.4"
       }
     ],
     [

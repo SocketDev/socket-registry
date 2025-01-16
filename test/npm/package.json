@@ -75,6 +75,7 @@
     "is-string": "^1.0.7",
     "is-symbol": "^1.0.4",
     "is-typed-array": "^1.1.13",
+    "is-unicode-supported": "https://github.com/sindresorhus/is-unicode-supported/archive/8b8001453e47deadb216c3b94c4b4af63477da6a.tar.gz",
     "is-weakmap": "^2.0.2",
     "is-weakref": "^1.0.2",
     "is-weakset": "^2.0.3",
