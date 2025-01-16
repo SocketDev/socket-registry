@@ -16,7 +16,9 @@ setTimeout(() => {
 }, 2000)
 ```
 */
-declare function yoctoSpinner(options?: yoctoSpinner.Options | undefined): yoctoSpinner.Spinner
+declare function yoctoSpinner(
+  options?: yoctoSpinner.Options | undefined
+): yoctoSpinner.Spinner
 declare namespace yoctoSpinner {
   export type SpinnerStyle = {
     readonly frames: string[]
