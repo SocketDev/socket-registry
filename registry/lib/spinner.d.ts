@@ -1,7 +1,7 @@
 import {
   Options as YoctoOptions,
   Spinner as YoctoSpinner
-} from '@socketregistry/yocto-spinner'
+} from '@socketregistry/yocto-spinner/index.cjs'
 
 declare const spinnerModule: {
   Spinner: {
