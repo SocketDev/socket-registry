@@ -1,0 +1,53 @@
+{
+  "name": "@socketregistry/is-unicode-supported",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "Socket.dev optimized package override for is-unicode-supported",
+  "keywords": [
+    "Socket.dev",
+    "package-overrides"
+  ],
+  "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/is-unicode-supported",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SocketDev/socket-registry.git",
+    "directory": "packages/npm/is-unicode-supported"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "node": {
+        "module-sync": {
+          "types": "./index.d.mts",
+          "default": "./index.js"
+        },
+        "default": {
+          "types": "./index.d.cts",
+          "default": "./index.cjs"
+        }
+      },
+      "default": {
+        "types": "./index.d.mts",
+        "default": "./index.js"
+      }
+    },
+    "./index.cjs": {
+      "types": "./index.d.cts",
+      "default": "./index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.20.4"
+  },
+  "files": [
+    "*.d.{c,m}ts",
+    "*.{c,}js"
+  ],
+  "socket": {
+    "categories": [
+      "cleanup"
+    ]
+  }
+}
