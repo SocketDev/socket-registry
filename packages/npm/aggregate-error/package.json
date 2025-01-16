@@ -18,21 +18,21 @@
     ".": {
       "node": {
         "module-sync": {
-          "types": "./index.d.ts",
+          "types": "./index.d.mts",
           "default": "./index.js"
         },
         "default": {
-          "types": "./index.d.ts",
+          "types": "./index.d.cts",
           "default": "./index.cjs"
         }
       },
       "default": {
-        "types": "./index.d.ts",
+        "types": "./index.d.mts",
         "default": "./index.js"
       }
     },
     "./index.cjs": {
-      "types": "./index.d.ts",
+      "types": "./index.d.cts",
       "default": "./index.cjs"
     },
     "./package.json": "./package.json"
@@ -42,7 +42,7 @@
     "node": ">=18.20.4"
   },
   "files": [
-    "*.d.ts",
+    "*.d.{c,m}ts",
     "*.{c,}js"
   ],
   "socket": {

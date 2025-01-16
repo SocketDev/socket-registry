@@ -7,6 +7,7 @@
  * parse(await file.arrayBuffer())
  * ```
  */
-declare function parse(buf: Uint8Array | ArrayBuffer): string
-
-export { parse }
+declare namespace hyriousBunLockbModule {
+  function parse(buf: Uint8Array | ArrayBuffer): string
+}
+export = hyriousBunLockbModule

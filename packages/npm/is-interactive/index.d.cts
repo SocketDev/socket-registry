@@ -9,9 +9,9 @@ the terminal.
 
 @example
 ```
-import isInteractive from 'is-interactive';
+import isInteractive from 'is-interactive'
 
-isInteractive();
+isInteractive()
 //=> true
 ```
 */
