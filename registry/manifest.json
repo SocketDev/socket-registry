@@ -703,6 +703,18 @@
       }
     ],
     [
+      "pkg:npm/%40socketregistry/is-interactive@1.0.0",
+      {
+        "categories": ["cleanup"],
+        "engines": { "node": ">=18.20.4" },
+        "interop": ["cjs", "esm"],
+        "license": "MIT",
+        "name": "@socketregistry/is-interactive",
+        "package": "is-interactive",
+        "version": "1.0.0"
+      }
+    ],
+    [
       "pkg:npm/%40socketregistry/is-map@1.0.6",
       {
         "categories": ["cleanup"],
