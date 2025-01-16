@@ -64,6 +64,7 @@
     "is-core-module": "^2.15.1",
     "is-date-object": "^1.0.5",
     "is-generator-function": "^1.0.10",
+    "is-interactive": "https://github.com/sindresorhus/is-interactive/archive/f6e820b30c1820ea41bca9f8cdbf392e14d62267.tar.gz",
     "is-map": "^2.0.3",
     "is-nan": "^1.3.2",
     "is-negative-zero": "^2.0.3",

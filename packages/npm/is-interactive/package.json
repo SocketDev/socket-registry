@@ -1,0 +1,53 @@
+{
+  "name": "@socketregistry/is-interactive",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "Socket.dev optimized package override for is-interactive",
+  "keywords": [
+    "Socket.dev",
+    "package-overrides"
+  ],
+  "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/is-interactive",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SocketDev/socket-registry.git",
+    "directory": "packages/npm/is-interactive"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "node": {
+        "module-sync": {
+          "types": "./index.d.ts",
+          "default": "./index.js"
+        },
+        "default": {
+          "types": "./index.d.ts",
+          "default": "./index.cjs"
+        }
+      },
+      "default": {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      }
+    },
+    "./index.cjs": {
+      "types": "./index.d.ts",
+      "default": "./index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.20.4"
+  },
+  "files": [
+    "*.d.{c,}ts",
+    "*.{c,}js"
+  ],
+  "socket": {
+    "categories": [
+      "cleanup"
+    ]
+  }
+}
