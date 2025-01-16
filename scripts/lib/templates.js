@@ -1,6 +1,6 @@
 'use strict'
 
-const fs = require('node:fs')
+const { promises: fs } = require('node:fs')
 const path = require('node:path')
 
 const semver = require('semver')
