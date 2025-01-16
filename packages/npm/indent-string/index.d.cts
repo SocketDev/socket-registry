@@ -1,18 +1,3 @@
-declare interface Options {
-  /**
-	The string to use for the indent.
-
-	@default ' '
-	*/
-  readonly indent?: string
-
-  /**
-	Also indent empty lines.
-
-	@default false
-	*/
-  readonly includeEmptyLines?: boolean
-}
 /**
 Indent each line in a string.
 
@@ -35,4 +20,21 @@ declare function indentString(
   count?: number,
   options?: Options
 ): string
+declare namespace indentString {
+  declare interface Options {
+    /**
+    The string to use for the indent.
+
+    @default ' '
+    */
+    readonly indent?: string
+
+    /**
+    Also indent empty lines.
+
+    @default false
+    */
+    readonly includeEmptyLines?: boolean
+  }
+}
 export = indentString
