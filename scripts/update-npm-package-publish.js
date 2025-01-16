@@ -107,7 +107,9 @@ async function publish(pkg, state = { fails: [] }) {
         }
       }
     )
-    console.log(stdout)
+    if (stdout) {
+      console.log(stdout)
+    }
   } catch (e) {
     const stderr = e?.stderr ?? ''
     const isPublishOverError =
