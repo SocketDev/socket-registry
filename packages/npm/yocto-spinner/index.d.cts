@@ -20,11 +20,6 @@ declare function yoctoSpinner(
   options?: yoctoSpinner.Options | undefined
 ): yoctoSpinner.Spinner
 declare namespace yoctoSpinner {
-  export type SpinnerStyle = {
-    readonly frames: string[]
-    readonly interval?: number
-  }
-
   export type Color =
     | 'black'
     | 'blue'
@@ -152,6 +147,11 @@ declare namespace yoctoSpinner {
     @returns The spinner instance.
     */
     warning(text?: string | undefined): Spinner
+  }
+
+  export type SpinnerStyle = {
+    readonly frames: string[]
+    readonly interval?: number
   }
 }
 export = yoctoSpinner
