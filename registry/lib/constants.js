@@ -131,6 +131,7 @@ const matcherCache = new Map()
 const internalsMixin = {
   createConstantsObject,
   createLazyGetter,
+  defineGetter,
   defineLazyGetter,
   defineLazyGetters,
   getGlobMatcher,
@@ -195,13 +196,13 @@ function createLazyGetter(name, getter, stats) {
   return lazyGetter
 }
 
-function defineLazyGetter(object, propKey, getter, stats) {
-  __defineGetter__.call(
-    object,
-    propKey,
-    createLazyGetter(propKey, getter, stats)
-  )
+function defineGetter(object, propKey, getter) {
+  __defineGetter__.call(object, propKey, getter)
   return object
+}
+
+function defineLazyGetter(object, propKey, getter, stats) {
+  return defineGetter(object, propKey, createLazyGetter(propKey, getter, stats))
 }
 
 function defineLazyGetters(object, getterDefObj, stats) {

@@ -32,6 +32,11 @@ interface Internals {
     getter: () => T,
     stats?: LazyGetterStats
   ) => () => T
+  readonly defineGetter: <T>(
+    object: object,
+    propKey: PropertyKey,
+    getter: () => T
+  ) => object
   readonly defineLazyGetter: <T>(
     object: object,
     propKey: PropertyKey,
