@@ -22,6 +22,7 @@ declare function toSortedObjectFromEntries<T>(
 }
 declare const objectsModule: {
   createLazyGetter: Internals['createLazyGetter']
+  defineGetter: Internals['defineGetter']
   defineLazyGetter: Internals['defineLazyGetter']
   defineLazyGetters: Internals['defineLazyGetters']
   getOwnPropertyValues: typeof getOwnPropertyValues

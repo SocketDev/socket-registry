@@ -8,6 +8,7 @@ const {
   kInternalsSymbol,
   [kInternalsSymbol]: {
     createLazyGetter,
+    defineGetter,
     defineLazyGetter,
     defineLazyGetters,
     objectEntries,
@@ -126,6 +127,7 @@ function toSortedObjectFromEntries(entries) {
 
 module.exports = {
   createLazyGetter,
+  defineGetter,
   defineLazyGetter,
   defineLazyGetters,
   getOwnPropertyValues,
