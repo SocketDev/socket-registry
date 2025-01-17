@@ -357,6 +357,7 @@ const README_MD = 'README.md'
 const REGISTRY = 'registry'
 const REGISTRY_SCOPE_DELIMITER = '__'
 const RESOLUTIONS = 'resolutions'
+const SOCKET_IPC_HANDSHAKE = 'SOCKET_IPC_HANDSHAKE'
 const SOCKET_PUBLIC_API_TOKEN =
   'sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api'
 const SOCKET_PUBLIC_API_KEY = SOCKET_PUBLIC_API_TOKEN
@@ -372,6 +373,26 @@ const TSCONFIG_JSON = 'tsconfig.json'
 const UNDEFINED_TOKEN = {}
 const UNLICENCED = 'UNLICENCED'
 const UNLICENSED = 'UNLICENSED'
+
+// https://nodejs.org/api/all.html#all_cli_--disable-warningcode-or-type
+const LAZY_SUPPORTS_NODE_DISABLE_WARNING_FLAG = () =>
+  // Lazily access constants.NODE_VERSION.
+  getSemver().satisfies(constants.NODE_VERSION, '>=21.3.0||^20.11.0')
+
+// https://nodejs.org/api/all.html#all_cli_--run
+const LAZY_SUPPORTS_NODE_RUN = () =>
+  // Lazily access constants.NODE_VERSION.
+  getSemver().satisfies(constants.NODE_VERSION, '>=22.3.0')
+
+// https://nodejs.org/docs/latest-v22.x/api/all.html#all_cli_--experimental-require-module
+const LAZY_SUPPORTS_NODE_REQUIRE_MODULE = () =>
+  // Lazily access constants.NODE_VERSION.
+  getSemver().satisfies(constants.NODE_VERSION, '>=22.12')
+
+const LAZY_SUPPORTS_PROCESS_SEND = () =>
+  // Forked subprocesses have the process.send method.
+  // https://nodejs.org/api/child_process.html#subprocesssendmessage-sendhandle-options-callback
+  typeof getProcess().send === 'function'
 
 const LAZY_ENV = () => {
   const {
@@ -399,20 +420,66 @@ const LAZY_PACKAGE_DEFAULT_NODE_RANGE = () =>
   // Lazily access constants.maintainedNodeVersions.
   `>=${constants.maintainedNodeVersions.previous}`
 
-// https://nodejs.org/api/all.html#all_cli_--disable-warningcode-or-type
-const LAZY_SUPPORTS_NODE_DISABLE_WARNING_FLAG = () =>
-  // Lazily access constants.NODE_VERSION.
-  getSemver().satisfies(constants.NODE_VERSION, '>=21.3.0||^20.11.0')
-
-// https://nodejs.org/api/all.html#all_cli_--run
-const LAZY_SUPPORTS_NODE_RUN = () =>
-  // Lazily access constants.NODE_VERSION.
-  getSemver().satisfies(constants.NODE_VERSION, '>=22.3.0')
-
-// https://nodejs.org/docs/latest-v22.x/api/all.html#all_cli_--experimental-require-module
-const LAZY_SUPPORTS_NODE_REQUIRE_MODULE = () =>
-  // Lazily access constants.NODE_VERSION.
-  getSemver().satisfies(constants.NODE_VERSION, '>=22.12')
+const LAZY_IPC = (() => {
+  // Initialize and wire-up immediately.
+  const target = { __proto__: null }
+  // Simulate a frozen target.
+  const handler = {
+    __proto__: null,
+    defineProperty: () => true,
+    deleteProperty: () => false,
+    preventExtensions() {
+      // Prevent a proxy trap invariant error.
+      // https://tc39.es/ecma262/#sec-proxy-object-internal-methods-and-internal-slots-isextensible
+      Object.preventExtensions(target)
+      return true
+    },
+    set: () => false,
+    setPrototypeOf: () => false
+  }
+  const proxy = new Proxy(target, handler)
+  void new Promise(
+    // The Promise executor is immediately executed.
+    resolve => {
+      if (
+        !(typeof process === 'object' && process !== null) ||
+        // Manually check instead of lazily accessing constants.SUPPORTS_PROCESS_SEND
+        // because constants is not initialized yet.
+        process.send !== 'function'
+      ) {
+        resolve()
+        return
+      }
+      const onmessage = rawData => {
+        finish()
+        if (rawData !== null && typeof rawData === 'object') {
+          const { [SOCKET_IPC_HANDSHAKE]: source } = {
+            __proto__: null,
+            ...rawData
+          }
+          Object.assign(target, source)
+          Object.freeze(target)
+          // The handler of a Proxy is mutable after proxy instantiation.
+          // We delete the traps to defer to native behavior.
+          for (const trapName in handler) {
+            delete handler[trapName]
+          }
+        }
+      }
+      const finish = () => {
+        abortSignal.removeEventListener('abort', finish)
+        process.removeListener('message', onmessage)
+        resolve()
+      }
+      abortSignal.addEventListener('abort', finish, { once: true })
+      process.on('message', onmessage)
+      // The timeout of 100ms is to prevent an unresolved promised. It should be
+      // more than enough time for the IPC handshake.
+      setTimeout(finish, 100)
+    }
+  )
+  return () => proxy
+})()
 
 const LAZY_WIN32 = () => getProcess().platform === 'win32'
 
@@ -699,6 +766,7 @@ const constants = createConstantsObject(
     EXTENSIONS,
     EXTENSIONS_JSON,
     GIT_IGNORE,
+    IPC: undefined,
     LATEST,
     LICENSE,
     LICENSE_GLOB,
@@ -731,6 +799,7 @@ const constants = createConstantsObject(
     REGISTRY_SCOPE_DELIMITER,
     REGISTRY,
     RESOLUTIONS,
+    SOCKET_IPC_HANDSHAKE,
     SOCKET_PUBLIC_API_KEY,
     SOCKET_PUBLIC_API_TOKEN,
     SOCKET_REPO_ORG,
@@ -738,6 +807,7 @@ const constants = createConstantsObject(
     SUPPORTS_NODE_DISABLE_WARNING_FLAG: undefined,
     SUPPORTS_NODE_REQUIRE_MODULE: undefined,
     SUPPORTS_NODE_RUN: undefined,
+    SUPPORTS_PROCESS_SEND: undefined,
     TEMPLATE_CJS,
     TEMPLATE_CJS_BROWSER,
     TEMPLATE_CJS_ESM,
@@ -770,12 +840,14 @@ const constants = createConstantsObject(
   {
     getters: {
       ENV: LAZY_ENV,
+      IPC: LAZY_IPC,
       NODE_VERSION: LAZY_NODE_VERSION,
       PACKAGE_DEFAULT_NODE_RANGE: LAZY_PACKAGE_DEFAULT_NODE_RANGE,
       SUPPORTS_NODE_DISABLE_WARNING_FLAG:
         LAZY_SUPPORTS_NODE_DISABLE_WARNING_FLAG,
       SUPPORTS_NODE_REQUIRE_MODULE: LAZY_SUPPORTS_NODE_REQUIRE_MODULE,
       SUPPORTS_NODE_RUN: LAZY_SUPPORTS_NODE_RUN,
+      SUPPORTS_PROCESS_SEND: LAZY_SUPPORTS_PROCESS_SEND,
       WIN32: LAZY_WIN32,
       execPath: lazyExecPath,
       ignoreGlobs: lazyIgnoreGlobs,
