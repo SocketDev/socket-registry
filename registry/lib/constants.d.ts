@@ -1,3 +1,5 @@
+/// <reference types="node" />
+import { Serializable } from 'node:child_process'
 import { IFastSort } from 'fast-sort'
 
 declare const kInternalsSymbol: unique symbol
@@ -106,6 +108,7 @@ declare const constantsModule: {
   readonly EXTENSIONS: 'extensions'
   readonly EXTENSIONS_JSON: 'extensions.json'
   readonly GIT_IGNORE: '.gitignore'
+  readonly IPC: { [key: string]: Serializable }
   readonly LATEST: 'latest'
   readonly LICENSE: 'LICENSE'
   readonly LICENSE_GLOB: 'LICEN[CS]E{[.-]*,}'
@@ -137,6 +140,7 @@ declare const constantsModule: {
   readonly REGISTRY: 'registry'
   readonly REGISTRY_SCOPE_DELIMITER: '__'
   readonly RESOLUTIONS: 'resolutions'
+  readonly SOCKET_IPC_HANDSHAKE: 'SOCKET_IPC_HANDSHAKE'
   readonly SOCKET_PUBLIC_API_KEY: string
   readonly SOCKET_PUBLIC_API_TOKEN: string
   readonly SOCKET_REPO_ORG: 'SocketDev'
@@ -144,6 +148,7 @@ declare const constantsModule: {
   readonly SUPPORTS_NODE_DISABLE_WARNING_FLAG: boolean
   readonly SUPPORTS_NODE_REQUIRE_MODULE: boolean
   readonly SUPPORTS_NODE_RUN: boolean
+  readonly SUPPORTS_PROCESS_SEND: boolean
   readonly TEMPLATE_CJS: 'cjs'
   readonly TEMPLATE_CJS_BROWSER: 'cjs-browser'
   readonly TEMPLATE_CJS_ESM: 'cjs-esm'
