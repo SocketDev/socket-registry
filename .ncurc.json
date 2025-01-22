@@ -1,0 +1,5 @@
+{
+  "loglevel": "silent",
+  "packageFile": ".{,/packages/**,/perf/npm,/registry,/test/npm}/package.json",
+  "upgrade": true
+}
