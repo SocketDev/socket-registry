@@ -41,10 +41,8 @@ const {
   search,
   select
 } = require('@socketsecurity/registry/lib/prompts')
-const {
-  localeCompare,
-  naturalSort
-} = require('@socketsecurity/registry/lib/sorts')
+const { naturalSorter } = require('@socketsecurity/registry/lib/sorts')
+const { naturalCompare } = require('@socketsecurity/registry/lib/sorts')
 const { indentString } = require('@socketsecurity/registry/lib/strings')
 const { pluralize } = require('@socketsecurity/registry/lib/words')
 
@@ -352,7 +350,7 @@ void (async () => {
             }
             const firstMatch = matches[0]
             const sortedTail =
-              matches.length > 1 ? naturalSort(matches.slice(1)).desc() : []
+              matches.length > 1 ? naturalSorter(matches.slice(1)).desc() : []
             // If a match starts with input then don't include input in the results.
             if (matches.some(m => m.startsWith(input))) {
               return [firstMatch, ...sortedTail].map(toChoice)
@@ -447,7 +445,7 @@ void (async () => {
       main: useNmEntryExports ? undefined : pkgPath.content.main,
       exports: useNmEntryExports ? nmEntryExports : entryExports,
       files: [...editablePkgJson.content.files, ...filesFieldAdditions].sort(
-        localeCompare
+        naturalCompare
       )
     })
     await editablePkgJson.save()

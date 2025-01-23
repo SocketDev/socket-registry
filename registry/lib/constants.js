@@ -36,17 +36,34 @@ function localeCompare(x, y) {
   return _localeCompare(x, y)
 }
 
+let _naturalCompare
+function naturalCompare(x, y) {
+  if (_naturalCompare === undefined) {
+    // Lazily call new Intl.Collator() because in Node it can take 10-14ms.
+    _naturalCompare = new Intl.Collator(
+      // The `undefined` locale means it uses the default locale of the user's
+      // environment.
+      undefined,
+      {
+        // Enables numeric sorting: numbers in strings are compared by value,
+        // e.g. 'file2' comes before 'file10' as numbers and not 'file10' before
+        // 'file2' as plain text.
+        numeric: true,
+        // Makes the comparison case-insensitive and ignores diacritics, e.g.
+        // 'a', 'A', and 'á' are treated as equivalent.
+        sensitivity: 'base'
+      }
+    ).compare
+  }
+  return _naturalCompare(x, y)
+}
+
 let _naturalSort
-function naturalSort(arrayToSort) {
+function naturalSorter(arrayToSort) {
   if (_naturalSort === undefined) {
     // The 'fast-sort' package is browser safe.
     const fastSort = require('fast-sort')
-    _naturalSort = fastSort.createNewSortInstance({
-      comparer: new Intl.Collator(undefined, {
-        numeric: true,
-        sensitivity: 'base'
-      }).compare
-    })
+    _naturalSort = fastSort.createNewSortInstance({ comparer: naturalCompare })
   }
   return _naturalSort(arrayToSort)
 }
@@ -138,7 +155,8 @@ const internalsMixin = {
   innerReadDirNames,
   isDirEmptySync,
   localeCompare,
-  naturalSort,
+  naturalCompare,
+  naturalSorter,
   objectEntries,
   objectFromEntries,
   readDirNamesSync
@@ -252,7 +270,7 @@ function innerReadDirNames(dirents, options) {
         (includeEmpty || !isDirEmptySync(path.join(d.parentPath, d.name)))
     )
     .map(d => d.name)
-  return sort ? names.sort(localeCompare) : names
+  return sort ? names.sort(naturalCompare) : names
 }
 
 function isDirEmptySync(dirname) {
@@ -400,12 +418,12 @@ const LAZY_ENV = () => {
   } = getProcess()
   return Object.freeze({
     __proto__: null,
-    // CI is always set to "true" in a GitHub action.
+    // CI is always set to 'true' in a GitHub action.
     // https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables
     CI: envAsBoolean(CI),
     // .github/workflows/provenance.yml defines this.
     NODE_AUTH_TOKEN: envAsString(NODE_AUTH_TOKEN),
-    // PRE_COMMIT is set to "1" by our "test-pre-commit" script run by the
+    // PRE_COMMIT is set to '1' by our 'test-pre-commit' script run by the
     // .husky/pre-commit hook.
     PRE_COMMIT: envAsBoolean(PRE_COMMIT),
     // TAP=1 is set by the tap-run test runner.
@@ -536,11 +554,10 @@ const lazyMaintainedNodeVersions = () => {
   const manualNext = '22.10.0'
 
   const browsersList = getBrowserList()
-  const query = naturalSort(
-    browsersList('maintained node versions')
-      // Trim value, e.g. 'node 22.5.0' to '22.5.0'.
-      .map(s => s.slice(5 /*'node '.length*/))
-  ).asc()
+  const query = browsersList('maintained node versions')
+    // Trim value, e.g. 'node 22.5.0' to '22.5.0'.
+    .map(s => s.slice(5 /*'node '.length*/))
+    .sort(naturalCompare)
   const queryPrev = query.at(0) ?? manualPrev
   const queryCurr = query.at(1) ?? manualCurr
   const queryNext = query.at(2) ?? manualNext
@@ -669,7 +686,7 @@ const lazySkipTestsByEcosystem = () =>
       'harmony-reflect',
       // is-regex tests don't account for `is-regex` backed by
       // `require('node:util/types).isRegExp` which triggers no proxy traps and
-      // assumes instead that the "getOwnPropertyDescriptor" trap will be triggered
+      // assumes instead that the 'getOwnPropertyDescriptor' trap will be triggered
       // by `Object.getOwnPropertyDescriptor(value, 'lastIndex')`.
       // https://github.com/inspect-js/is-regex/issues/35
       // https://github.com/inspect-js/is-regex/blob/v1.1.4/test/index.js

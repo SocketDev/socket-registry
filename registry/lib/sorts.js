@@ -2,10 +2,11 @@
 
 const {
   kInternalsSymbol,
-  [kInternalsSymbol]: { localeCompare, naturalSort }
+  [kInternalsSymbol]: { localeCompare, naturalCompare, naturalSorter }
 } = require('./constants')
 
 module.exports = {
   localeCompare,
-  naturalSort
+  naturalCompare,
+  naturalSorter
 }

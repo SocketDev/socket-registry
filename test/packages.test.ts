@@ -29,7 +29,7 @@ import {
   resolveOriginalPackageName
 } from '@socketsecurity/registry/lib/packages'
 import { trimLeadingDotSlash } from '@socketsecurity/registry/lib/path'
-import { localeCompare } from '@socketsecurity/registry/lib/sorts'
+import { naturalCompare } from '@socketsecurity/registry/lib/sorts'
 import { isNonEmptyString } from '@socketsecurity/registry/lib/strings'
 
 const {
@@ -139,7 +139,7 @@ for (const eco of constants.ecosystems) {
             cwd: pkgPath,
             dot: true
           })
-        ).sort(localeCompare)
+        ).sort(naturalCompare)
         const filesPatternsAsArray = Array.isArray(filesPatterns)
           ? filesPatterns
           : []
@@ -160,7 +160,7 @@ for (const eco of constants.ecosystems) {
               dot: true
             }
           )
-        ).sort(localeCompare)
+        ).sort(naturalCompare)
         const dotFilePatterns = filesPatternsAsArray.filter(isDotPattern)
         const dotFileMatches = new Set(
           await tinyGlob(dotFilePatterns, {
@@ -170,7 +170,7 @@ for (const eco of constants.ecosystems) {
         )
         const jsonFiles = files
           .filter(p => path.extname(p) === '.json')
-          .sort(localeCompare)
+          .sort(naturalCompare)
         const localOverridesFiles = filesFieldMatches.filter(p =>
           p.startsWith(overridesWithSlash)
         )

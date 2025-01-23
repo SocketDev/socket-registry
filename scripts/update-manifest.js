@@ -21,7 +21,7 @@ const {
   resolvePackageJsonEntryExports
 } = require('@socketsecurity/registry/lib/packages')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
-const { localeCompare } = require('@socketsecurity/registry/lib/sorts')
+const { naturalCompare } = require('@socketsecurity/registry/lib/sorts')
 const { Spinner } = require('@socketsecurity/registry/lib/spinner')
 const { prettierFormat } = require('@socketsecurity/registry/lib/strings')
 
@@ -94,7 +94,7 @@ async function addNpmManifestData(manifest) {
     const skipTests = constants.skipTestsByEcosystem[eco].has(regPkgName)
     const metaEntries = [
       ['name', name],
-      ['interop', interop.sort(localeCompare)],
+      ['interop', interop.sort(naturalCompare)],
       ['license', nwPkgLicense ?? UNLICENSED],
       ['package', origPkgName],
       ['version', version],
@@ -134,7 +134,7 @@ async function addNpmManifestData(manifest) {
   })
 
   if (manifestData.length) {
-    manifest[eco] = manifestData.sort((a, b) => localeCompare(a[0], b[0]))
+    manifest[eco] = manifestData.sort((a, b) => naturalCompare(a[0], b[0]))
   }
   return manifest
 }
