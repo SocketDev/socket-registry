@@ -5,7 +5,6 @@ const path = require('node:path')
 const util = require('node:util')
 
 const { PackageURL } = require('@socketregistry/packageurl-js')
-const purlJsPkgJson = require('@socketregistry/packageurl-js/package.json')
 const constants = require('@socketregistry/scripts/constants')
 const { getModifiedFiles } = require('@socketregistry/scripts/lib/git')
 const {
@@ -16,6 +15,7 @@ const {
 const {
   extractPackage,
   fetchPackageManifest,
+  isBlessedPackageName,
   readPackageJson,
   resolveOriginalPackageName,
   resolvePackageJsonEntryExports
@@ -31,25 +31,40 @@ const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
 async function addNpmManifestData(manifest) {
   const eco = NPM
+  const manifestData = []
   // Lazily access constants.registryExtensionsJsonPath.
-  const registryExtensionsJson = require(constants.registryExtensionsJsonPath)
-  const manifestData = [
-    [
+  const registryExtJson = require(constants.registryExtensionsJsonPath)
+  const registryExt = registryExtJson[eco] ?? []
+
+  // Chunk registry ext names to process them in parallel 3 at a time.
+  await pEach(registryExt, 3, async ({ 1: data }) => {
+    const nmPkgId = `${data.name}@latest`
+    const nmPkgManifest = await fetchPackageManifest(nmPkgId)
+    if (!nmPkgManifest) {
+      console.warn(`⚠️ ${nmPkgId}: Not found in ${NPM} registry`)
+      return
+    }
+    let nmPkgJson
+    await extractPackage(nmPkgId, async nmPkgPath => {
+      nmPkgJson = await readPackageJson(nmPkgPath)
+    })
+    const isBlessed = isBlessedPackageName(nmPkgJson.name)
+    manifestData.push([
       PackageURL.fromString(
-        `pkg:${eco}/${purlJsPkgJson.name}@${purlJsPkgJson.version}`
+        `pkg:${eco}/${nmPkgJson.name}@${nmPkgJson.version}`
       ).toString(),
       {
-        categories: purlJsPkgJson.socket.categories,
-        engines: purlJsPkgJson.engines,
-        interop: ['cjs'],
-        license: purlJsPkgJson.license,
-        name: purlJsPkgJson.name,
-        package: resolveOriginalPackageName(purlJsPkgJson.name),
-        version: purlJsPkgJson.version
+        categories: nmPkgJson.socket?.categories ?? data.categories,
+        engines: isBlessed ? (nmPkgJson.engines ?? data.engines) : data.engines,
+        interop: data.interop,
+        license: nmPkgJson.license ?? data.license,
+        name: nmPkgJson.name,
+        package: nmPkgJson.name,
+        version: nmPkgJson.version
       }
-    ],
-    ...(registryExtensionsJson[eco] ?? [])
-  ]
+    ])
+  })
+
   // Chunk package names to process them in parallel 3 at a time.
   // Lazily access constants.npmPackageNames.
   await pEach(constants.npmPackageNames, 3, async regPkgName => {
@@ -63,13 +78,10 @@ async function addNpmManifestData(manifest) {
       console.warn(`⚠️ ${nmPkgId}: Not found in ${NPM} registry`)
       return
     }
-    const { deprecated: nmPkgDeprecated } = nmPkgManifest
-    let nwPkgLicense
+    let nmPkgJson
     await extractPackage(nmPkgId, async nmPkgPath => {
-      const nmPkgJson = await readPackageJson(nmPkgPath)
-      nwPkgLicense = nmPkgJson.license
+      nmPkgJson = await readPackageJson(nmPkgPath)
     })
-
     // Lazily access constants.npmPackagesPath.
     const pkgPath = path.join(constants.npmPackagesPath, regPkgName)
     const pkgJson = await readPackageJson(pkgPath)
@@ -95,10 +107,10 @@ async function addNpmManifestData(manifest) {
     const metaEntries = [
       ['name', name],
       ['interop', interop.sort(naturalCompare)],
-      ['license', nwPkgLicense ?? UNLICENSED],
+      ['license', nmPkgJson.license ?? UNLICENSED],
       ['package', origPkgName],
       ['version', version],
-      ...(nmPkgDeprecated ? [['deprecated', true]] : []),
+      ...(nmPkgManifest.deprecated ? [['deprecated', true]] : []),
       // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
       ...(engines
         ? [['engines', toSortedObject(engines)]]
