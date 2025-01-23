@@ -68,7 +68,8 @@ interface Internals {
   readonly isDirEmptySync: (dirname: string) => boolean
   get lazyGetterStats(): { initialized: Set<PropertyKey> }
   readonly localeCompare: Intl.Collator['compare']
-  readonly naturalSort: <T>(arrayToSort: T[]) => IFastSort<T>
+  readonly naturalCompare: Intl.Collator['compare']
+  readonly naturalSorter: <T>(arrayToSort: T[]) => IFastSort<T>
   readonly objectEntries: typeof objectEntries
   readonly objectFromEntries: typeof objectFromEntries
   readonly readDirNamesSync: (
