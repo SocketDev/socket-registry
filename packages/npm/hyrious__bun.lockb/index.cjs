@@ -1,6 +1,13 @@
 'use strict'
 
-const { compare: localeCompare } = new Intl.Collator()
+let _localeCompare
+function localeCompare(x, y) {
+  if (_localeCompare === undefined) {
+    // Lazily call new Intl.Collator() because in Node it can take 10-14ms.
+    _localeCompare = new Intl.Collator().compare
+  }
+  return _localeCompare(x, y)
+}
 
 function assert(truthy, message = 'assert failed') {
   if (truthy) {
@@ -171,8 +178,7 @@ function fmt_resolution(a, buffers) {
 }
 
 function fmt_specs(name, specs, version) {
-  specs = Array.from(new Set(specs.map(e => e || `^${version}`)))
-  specs.sort(localeCompare)
+  specs = Array.from(new Set(specs.map(e => e || `^${version}`))).sort()
   let out = ''
   let comma = false
   for (const spec of specs) {
