@@ -1076,15 +1076,15 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/packageurl-js@1.0.1",
+      "pkg:npm/%40socketregistry/packageurl-js@1.0.2",
       {
         "categories": ["levelup"],
         "engines": { "node": ">=18.20.4" },
         "interop": ["cjs"],
         "license": "MIT",
         "name": "@socketregistry/packageurl-js",
-        "package": "packageurl-js",
-        "version": "1.0.1"
+        "package": "@socketregistry/packageurl-js",
+        "version": "1.0.2"
       }
     ],
     [
