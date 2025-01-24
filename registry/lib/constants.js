@@ -56,14 +56,16 @@ function naturalCompare(x, y) {
   return _naturalCompare(x, y)
 }
 
-let _naturalSort
+let _naturalSorter
 function naturalSorter(arrayToSort) {
-  if (_naturalSort === undefined) {
+  if (_naturalSorter === undefined) {
     // The 'fast-sort' package is browser safe.
     const fastSort = require('fast-sort')
-    _naturalSort = fastSort.createNewSortInstance({ comparer: naturalCompare })
+    _naturalSorter = fastSort.createNewSortInstance({
+      comparer: naturalCompare
+    })
   }
-  return _naturalSort(arrayToSort)
+  return _naturalSorter(arrayToSort)
 }
 
 let _pacote
