@@ -12,7 +12,8 @@ const { signal: abortSignal } = abortController
 let _browserList
 function getBrowserList() {
   if (_browserList === undefined) {
-    _browserList = require(/* webpackIgnore: true */ 'browserslist')
+    const id = 'browserslist'
+    _browserList = require(/* webpackIgnore: true */ id)
   }
   return _browserList
 }
@@ -20,7 +21,8 @@ function getBrowserList() {
 let _fs
 function getFs() {
   if (_fs === undefined) {
-    _fs = require(/* webpackIgnore: true */ 'node:fs')
+    const id = 'node:fs'
+    _fs = require(/* webpackIgnore: true */ id)
   }
   return _fs
 }
@@ -71,7 +73,8 @@ function naturalSorter(arrayToSort) {
 let _pacote
 function getPacote() {
   if (_pacote === undefined) {
-    _pacote = require(/* webpackIgnore: true */ 'pacote')
+    const id = 'pacote'
+    _pacote = require(/* webpackIgnore: true */ id)
   }
   return _pacote
 }
@@ -79,7 +82,8 @@ function getPacote() {
 let _path
 function getPath() {
   if (_path === undefined) {
-    _path = require(/* webpackIgnore: true */ 'node:path')
+    const id = 'node:path'
+    _path = require(/* webpackIgnore: true */ id)
   }
   return _path
 }
@@ -96,7 +100,8 @@ function getPicomatch() {
 let _process
 function getProcess() {
   if (_process === undefined) {
-    _process = require(/* webpackIgnore: true */ 'node:process')
+    const id = 'node:process'
+    _process = require(/* webpackIgnore: true */ id)
   }
   return _process
 }
@@ -113,7 +118,8 @@ function getSemver() {
 let _which
 function getWhich() {
   if (_which === undefined) {
-    _which = require(/* webpackIgnore: true */ 'which')
+    const id = 'which'
+    _which = require(/* webpackIgnore: true */ id)
   }
   return _which
 }

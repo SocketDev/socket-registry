@@ -3,7 +3,8 @@
 let _fs
 function getFs() {
   if (_fs === undefined) {
-    _fs = require(/* webpackIgnore: true */ 'node:fs')
+    const id = 'node:fs'
+    _fs = require(/* webpackIgnore: true */ id)
   }
   return _fs
 }
@@ -11,7 +12,8 @@ function getFs() {
 let _path
 function getPath() {
   if (_path === undefined) {
-    _path = require(/* webpackIgnore: true */ 'node:path')
+    const id = 'node:path'
+    _path = require(/* webpackIgnore: true */ id)
   }
   return _path
 }

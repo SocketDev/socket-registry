@@ -13,7 +13,8 @@ const {
 let _child_process
 function getChildProcess() {
   if (_child_process === undefined) {
-    _child_process = require('node:child_process')
+    const id = 'node:child_process'
+    _child_process = require(id)
   }
   return _child_process
 }
@@ -21,7 +22,8 @@ function getChildProcess() {
 let _path
 function getPath() {
   if (_path === undefined) {
-    _path = require('node:path')
+    const id = 'node:path'
+    _path = require(id)
   }
   return _path
 }
@@ -29,7 +31,8 @@ function getPath() {
 let _spawn
 function getSpawn() {
   if (_spawn === undefined) {
-    _spawn = require('@npmcli/promise-spawn')
+    const id = '@npmcli/promise-spawn'
+    _spawn = require(id)
   }
   return _spawn
 }

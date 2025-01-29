@@ -5,7 +5,8 @@ const constants = require('./constants')
 let _spawn
 function getSpawn() {
   if (_spawn === undefined) {
-    _spawn = require(/* webpackIgnore: true */ '@npmcli/promise-spawn')
+    const id = '@npmcli/promise-spawn'
+    _spawn = require(/* webpackIgnore: true */ id)
   }
   return _spawn
 }

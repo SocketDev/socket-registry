@@ -41,7 +41,8 @@ const pkgScopePrefixRegExp = new RegExp(`^${escapeRegExp(PACKAGE_SCOPE)}/`)
 let _cacache
 function getCacache() {
   if (_cacache === undefined) {
-    _cacache = require(/* webpackIgnore: true */ 'cacache')
+    const id = 'cacache'
+    _cacache = require(/* webpackIgnore: true */ id)
   }
   return _cacache
 }
@@ -66,7 +67,8 @@ function getFetcher() {
 let _fs
 function getFs() {
   if (_fs === undefined) {
-    _fs = require(/* webpackIgnore: true */ 'node:fs')
+    const id = 'node:fs'
+    _fs = require(/* webpackIgnore: true */ id)
   }
   return _fs
 }
@@ -74,7 +76,8 @@ function getFs() {
 let _normalizePackageData
 function getNormalizePackageData() {
   if (_normalizePackageData === undefined) {
-    _normalizePackageData = require(/* webpackIgnore: true */ 'normalize-package-data')
+    const id = 'normalize-package-data'
+    _normalizePackageData = require(/* webpackIgnore: true */ id)
   }
   return _normalizePackageData
 }
@@ -82,7 +85,8 @@ function getNormalizePackageData() {
 let _npmPackageArg
 function getNpmPackageArg() {
   if (_npmPackageArg === undefined) {
-    _npmPackageArg = require(/* webpackIgnore: true */ 'npm-package-arg')
+    const id = 'npm-package-arg'
+    _npmPackageArg = require(/* webpackIgnore: true */ id)
   }
   return _npmPackageArg
 }
@@ -90,7 +94,8 @@ function getNpmPackageArg() {
 let _pack
 function getPack() {
   if (_pack === undefined) {
-    _pack = require(/* webpackIgnore: true */ 'libnpmpack')
+    const id = 'libnpmpack'
+    _pack = require(/* webpackIgnore: true */ id)
   }
   return _pack
 }
@@ -107,7 +112,8 @@ function getPackageURL() {
 let _pacote
 function getPacote() {
   if (_pacote === undefined) {
-    _pacote = require(/* webpackIgnore: true */ 'pacote')
+    const id = 'pacote'
+    _pacote = require(/* webpackIgnore: true */ id)
   }
   return _pacote
 }
@@ -115,7 +121,8 @@ function getPacote() {
 let _path
 function getPath() {
   if (_path === undefined) {
-    _path = require(/* webpackIgnore: true */ 'node:path')
+    const id = 'node:path'
+    _path = require(/* webpackIgnore: true */ id)
   }
   return _path
 }
@@ -150,7 +157,8 @@ function getSpdxExpParse() {
 let _validateNpmPackageName
 function getValidateNpmPackageName() {
   if (_validateNpmPackageName === undefined) {
-    _validateNpmPackageName = require(/* webpackIgnore: true */ 'validate-npm-package-name')
+    const id = 'validate-npm-package-name'
+    _validateNpmPackageName = require(/* webpackIgnore: true */ id)
   }
   return _validateNpmPackageName
 }
