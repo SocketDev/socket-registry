@@ -5,7 +5,8 @@ const registryConstants = require('@socketsecurity/registry/lib/constants')
 let _eslintCompat
 function getEslintCompat() {
   if (_eslintCompat === undefined) {
-    _eslintCompat = require('@eslint/compat')
+    const id = '@eslint/compat'
+    _eslintCompat = require(id)
   }
   return _eslintCompat
 }
@@ -13,7 +14,8 @@ function getEslintCompat() {
 let _fs
 function getFs() {
   if (_fs === undefined) {
-    _fs = require('node:fs')
+    const id = 'node:fs'
+    _fs = require(id)
   }
   return _fs
 }
@@ -21,7 +23,8 @@ function getFs() {
 let _path
 function getPath() {
   if (_path === undefined) {
-    _path = require('node:path')
+    const id = 'node:path'
+    _path = require(id)
   }
   return _path
 }
@@ -29,7 +32,8 @@ function getPath() {
 let _prettier
 function getPrettier() {
   if (_prettier === undefined) {
-    _prettier = require('prettier')
+    const id = 'prettier'
+    _prettier = require(id)
   }
   return _prettier
 }
@@ -37,7 +41,8 @@ function getPrettier() {
 let _process
 function getProcess() {
   if (_process === undefined) {
-    _process = require('node:process')
+    const id = 'node:process'
+    _process = require(id)
   }
   return _process
 }
@@ -45,7 +50,8 @@ function getProcess() {
 let _which
 function getWhich() {
   if (_which === undefined) {
-    _which = require('which')
+    const id = 'which'
+    _which = require(id)
   }
   return _which
 }
