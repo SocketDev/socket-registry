@@ -12,8 +12,7 @@ const { signal: abortSignal } = abortController
 let _browserList
 function getBrowserList() {
   if (_browserList === undefined) {
-    const id = 'browserslist'
-    _browserList = require(/* webpackIgnore: true */ id)
+    _browserList = require('browserslist')
   }
   return _browserList
 }
@@ -73,8 +72,7 @@ function naturalSorter(arrayToSort) {
 let _pacote
 function getPacote() {
   if (_pacote === undefined) {
-    const id = 'pacote'
-    _pacote = require(/* webpackIgnore: true */ id)
+    _pacote = require('pacote')
   }
   return _pacote
 }
@@ -118,8 +116,7 @@ function getSemver() {
 let _which
 function getWhich() {
   if (_which === undefined) {
-    const id = 'which'
-    _which = require(/* webpackIgnore: true */ id)
+    _which = require('which')
   }
   return _which
 }

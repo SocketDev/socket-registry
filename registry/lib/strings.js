@@ -5,8 +5,7 @@ const constants = require('./constants')
 let _prettier
 function getPrettier() {
   if (_prettier === undefined) {
-    const id = 'prettier'
-    _prettier = require(/* webpackIgnore: true */ id)
+    _prettier = require('prettier')
   }
   return _prettier
 }

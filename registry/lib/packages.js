@@ -41,8 +41,7 @@ const pkgScopePrefixRegExp = new RegExp(`^${escapeRegExp(PACKAGE_SCOPE)}/`)
 let _cacache
 function getCacache() {
   if (_cacache === undefined) {
-    const id = 'cacache'
-    _cacache = require(/* webpackIgnore: true */ id)
+    _cacache = require('cacache')
   }
   return _cacache
 }
@@ -50,8 +49,7 @@ function getCacache() {
 let _fetcher
 function getFetcher() {
   if (_fetcher === undefined) {
-    const id = 'make-fetch-happen'
-    const makeFetchHappen = require(/* webpackIgnore: true */ id)
+    const makeFetchHappen = require('make-fetch-happen')
     _fetcher = makeFetchHappen.defaults({
       // Lazily access constants.pacoteCachePath.
       cachePath: constants.pacoteCachePath,
@@ -76,8 +74,7 @@ function getFs() {
 let _normalizePackageData
 function getNormalizePackageData() {
   if (_normalizePackageData === undefined) {
-    const id = 'normalize-package-data'
-    _normalizePackageData = require(/* webpackIgnore: true */ id)
+    _normalizePackageData = require('normalize-package-data')
   }
   return _normalizePackageData
 }
@@ -85,8 +82,7 @@ function getNormalizePackageData() {
 let _npmPackageArg
 function getNpmPackageArg() {
   if (_npmPackageArg === undefined) {
-    const id = 'npm-package-arg'
-    _npmPackageArg = require(/* webpackIgnore: true */ id)
+    _npmPackageArg = require('npm-package-arg')
   }
   return _npmPackageArg
 }
@@ -94,8 +90,7 @@ function getNpmPackageArg() {
 let _pack
 function getPack() {
   if (_pack === undefined) {
-    const id = 'libnpmpack'
-    _pack = require(/* webpackIgnore: true */ id)
+    _pack = require('libnpmpack')
   }
   return _pack
 }
@@ -112,8 +107,7 @@ function getPackageURL() {
 let _pacote
 function getPacote() {
   if (_pacote === undefined) {
-    const id = 'pacote'
-    _pacote = require(/* webpackIgnore: true */ id)
+    _pacote = require('pacote')
   }
   return _pacote
 }
@@ -157,8 +151,7 @@ function getSpdxExpParse() {
 let _validateNpmPackageName
 function getValidateNpmPackageName() {
   if (_validateNpmPackageName === undefined) {
-    const id = 'validate-npm-package-name'
-    _validateNpmPackageName = require(/* webpackIgnore: true */ id)
+    _validateNpmPackageName = require('validate-npm-package-name')
   }
   return _validateNpmPackageName
 }
@@ -166,8 +159,7 @@ function getValidateNpmPackageName() {
 let _EditablePackageJsonClass
 function getEditablePackageJsonClass() {
   if (_EditablePackageJsonClass === undefined) {
-    const id = '@npmcli/package-json'
-    const EditablePackageJsonBase = require(/* webpackIgnore: true */ id)
+    const EditablePackageJsonBase = require('@npmcli/package-json')
     _EditablePackageJsonClass = class EditablePackageJson extends (
       EditablePackageJsonBase
     ) {
