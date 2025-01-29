@@ -65,8 +65,9 @@ function getFetcher() {
 let _fs
 function getFs() {
   if (_fs === undefined) {
-    const id = 'node:fs'
-    _fs = require(/* webpackIgnore: true */ id)
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _fs = require('fs')
   }
   return _fs
 }
@@ -115,8 +116,9 @@ function getPacote() {
 let _path
 function getPath() {
   if (_path === undefined) {
-    const id = 'node:path'
-    _path = require(/* webpackIgnore: true */ id)
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _path = require('path')
   }
   return _path
 }
