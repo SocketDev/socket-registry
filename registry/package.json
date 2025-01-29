@@ -23,6 +23,7 @@
     "cacache": false,
     "libnpmpack": false,
     "make-fetch-happen": false,
+    "normalize-package-data": false,
     "npm-package-arg": false,
     "pacote": false,
     "prettier": false,

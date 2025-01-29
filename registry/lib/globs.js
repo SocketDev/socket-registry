@@ -3,8 +3,7 @@
 let _tinyGlobby
 function getTinyGlobby() {
   if (_tinyGlobby === undefined) {
-    const id = 'tinyglobby'
-    _tinyGlobby = require(/* webpackIgnore: true */ id)
+    _tinyGlobby = require('tinyglobby')
   }
   return _tinyGlobby
 }
