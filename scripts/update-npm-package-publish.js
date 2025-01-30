@@ -126,7 +126,9 @@ async function publishPackages(packages, state = { fails: [] }) {
     pkg => !state.fails.includes(pkg.printName)
   )
   // Chunk non-failed package names to process them in parallel 3 at a time.
-  await pEach(okayPackages, 3, publish)
+  await pEach(okayPackages, 3, async pkg => {
+    await publish(pkg, state)
+  })
 }
 
 void (async () => {
