@@ -112,9 +112,7 @@ async function publish(pkg, state = { fails: [] }) {
     }
   } catch (e) {
     const stderr = e?.stderr ?? ''
-    const isPublishOverError =
-      stderr.includes('code E403') && stderr.includes('cannot publish over')
-    if (!isPublishOverError) {
+    if (!stderr.includes('cannot publish over')) {
       state.fails.push(pkg.printName)
       console.log(stderr)
     }
