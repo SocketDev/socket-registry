@@ -15,8 +15,14 @@
   },
   "exports": {
     ".": {
-      "types": "./index.d.ts",
-      "default": "./index.js"
+      "node": {
+        "types": "./index.d.cts",
+        "default": "./index.cjs"
+      },
+      "default": {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      }
     },
     "./core.json": "./core.json",
     "./package.json": "./package.json"
@@ -26,8 +32,8 @@
     "node": ">=18.20.4"
   },
   "files": [
-    "*.d.ts",
-    "*.js",
+    "*.d.{c,}ts",
+    "*.{c,}js",
     "*.json"
   ],
   "socket": {
