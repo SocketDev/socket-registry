@@ -667,7 +667,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-core-module@1.0.6",
+      "pkg:npm/%40socketregistry/is-core-module@1.0.7",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -675,7 +675,7 @@
         "license": "MIT",
         "name": "@socketregistry/is-core-module",
         "package": "is-core-module",
-        "version": "1.0.6"
+        "version": "1.0.7"
       }
     ],
     [
