@@ -671,7 +671,7 @@
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
-        "interop": ["cjs"],
+        "interop": ["browserify", "cjs"],
         "license": "MIT",
         "name": "@socketregistry/is-core-module",
         "package": "is-core-module",
