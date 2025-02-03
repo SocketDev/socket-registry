@@ -1,6 +1,6 @@
 {
   "name": "@socketsecurity/registry",
-  "version": "1.0.80",
+  "version": "1.0.81",
   "license": "MIT",
   "description": "Socket.dev registry helpers methods and metadata",
   "keywords": [
@@ -112,11 +112,11 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@inquirer/confirm": "^5.1.4",
-    "@inquirer/input": "^4.1.4",
-    "@inquirer/password": "^4.0.7",
-    "@inquirer/search": "^3.0.7",
-    "@inquirer/select": "^4.0.7",
+    "@inquirer/confirm": "^5.1.5",
+    "@inquirer/input": "^4.1.5",
+    "@inquirer/password": "^4.0.8",
+    "@inquirer/search": "^3.0.8",
+    "@inquirer/select": "^4.0.8",
     "@npmcli/package-json": "^6.1.1",
     "@npmcli/promise-spawn": "^8.0.2",
     "@socketregistry/packageurl-js": "^1.0.2",
