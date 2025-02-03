@@ -55,9 +55,12 @@ interface Internals {
     glob: string | string[],
     options?: object
   ) => (path: string) => boolean
-  readonly getIPC: <K extends keyof IPC | undefined>(
-    key?: K
-  ) => Promise<K extends keyof IPC ? IPC[K] : IPC>
+  readonly getIPC: {
+    (): Promise<IPC>
+    <K extends keyof IPC | undefined>(
+      key?: K
+    ): Promise<K extends keyof IPC ? IPC[K] : IPC>
+  }
   readonly innerReadDirNames: (
     dirents: Array<{
       isDirectory(): boolean
