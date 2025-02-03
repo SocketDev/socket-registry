@@ -154,6 +154,7 @@ const internalsMixin = {
   defineLazyGetter,
   defineLazyGetters,
   getGlobMatcher,
+  getIPC,
   innerReadDirNames,
   isDirEmptySync,
   localeCompare,
@@ -255,6 +256,13 @@ function getGlobMatcher(glob, options) {
   })
   matcherCache.set(key, matcher)
   return matcher
+}
+
+// ipcPromise is defined inside the LAZY_IPC assignment IIFE below.
+let ipcPromise
+async function getIPC(key) {
+  const data = await ipcPromise
+  return key === undefined ? data : data[key]
 }
 
 function innerReadDirNames(dirents, options) {
@@ -458,20 +466,24 @@ const LAZY_IPC = (() => {
     setPrototypeOf: () => false
   }
   const proxy = new Proxy(target, handler)
-  void new Promise(
+  ipcPromise = new Promise(
     // The Promise executor is immediately executed.
     resolve => {
       if (
         !(typeof process === 'object' && process !== null) ||
         // Manually check instead of lazily accessing constants.SUPPORTS_PROCESS_SEND
         // because constants is not initialized yet.
-        process.send !== 'function'
+        typeof process.send !== 'function'
       ) {
-        resolve()
+        resolve(proxy)
         return
       }
+      const finish = () => {
+        abortSignal.removeEventListener('abort', finish)
+        process.removeListener('message', onmessage)
+        resolve(proxy)
+      }
       const onmessage = rawData => {
-        finish()
         if (rawData !== null && typeof rawData === 'object') {
           const { [SOCKET_IPC_HANDSHAKE]: source } = {
             __proto__: null,
@@ -485,17 +497,14 @@ const LAZY_IPC = (() => {
             delete handler[trapName]
           }
         }
-      }
-      const finish = () => {
-        abortSignal.removeEventListener('abort', finish)
-        process.removeListener('message', onmessage)
-        resolve()
+        finish()
       }
       abortSignal.addEventListener('abort', finish, { once: true })
       process.on('message', onmessage)
-      // The timeout of 100ms is to prevent an unresolved promised. It should be
-      // more than enough time for the IPC handshake.
-      setTimeout(finish, 100)
+      // The timeout of 1,000 milliseconds, i.e. 1 second, is to prevent an
+      // unresolved promised. It should be more than enough time for the IPC
+      // handshake.
+      setTimeout(finish, 1000)
     }
   )
   return () => proxy
