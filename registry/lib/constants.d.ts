@@ -23,6 +23,7 @@ interface ENV {
   readonly TAP: boolean
 }
 declare type GetterDefObj = { [key: PropertyKey]: () => any }
+declare type IPC = Readonly<{ [key: string]: Serializable }>
 declare type LazyGetterStats = { initialized?: Set<PropertyKey> | undefined }
 interface Internals {
   readonly createConstantsObject: (
@@ -54,6 +55,9 @@ interface Internals {
     glob: string | string[],
     options?: object
   ) => (path: string) => boolean
+  readonly getIPC: <K extends keyof IPC | undefined>(
+    key?: K
+  ) => Promise<K extends keyof IPC ? IPC[K] : IPC>
   readonly innerReadDirNames: (
     dirents: Array<{
       isDirectory(): boolean
@@ -109,7 +113,7 @@ declare const constantsModule: {
   readonly EXTENSIONS: 'extensions'
   readonly EXTENSIONS_JSON: 'extensions.json'
   readonly GIT_IGNORE: '.gitignore'
-  readonly IPC: { [key: string]: Serializable }
+  readonly IPC: IPC
   readonly LATEST: 'latest'
   readonly LICENSE: 'LICENSE'
   readonly LICENSE_GLOB: 'LICEN[CS]E{[.-]*,}'
