@@ -48,18 +48,18 @@ async function addNpmManifestData(manifest) {
     await extractPackage(nmPkgId, async nmPkgPath => {
       nmPkgJson = await readPackageJson(nmPkgPath)
     })
-    const isBlessed = isBlessedPackageName(nmPkgJson.name)
+    const isBlessed = isBlessedPackageName(data.name)
     manifestData.push([
       PackageURL.fromString(
-        `pkg:${eco}/${nmPkgJson.name}@${nmPkgJson.version}`
+        `pkg:${eco}/${data.name}@${nmPkgJson.version}`
       ).toString(),
       {
         categories: nmPkgJson.socket?.categories ?? data.categories,
         engines: isBlessed ? (nmPkgJson.engines ?? data.engines) : data.engines,
         interop: data.interop,
         license: nmPkgJson.license ?? data.license,
-        name: nmPkgJson.name,
-        package: nmPkgJson.name,
+        name: data.name,
+        package: data.package,
         version: nmPkgJson.version
       }
     ])
