@@ -1083,7 +1083,7 @@
         "interop": ["cjs"],
         "license": "MIT",
         "name": "@socketregistry/packageurl-js",
-        "package": "@socketregistry/packageurl-js",
+        "package": "packageurl-js",
         "version": "1.0.2"
       }
     ],
