@@ -12,6 +12,8 @@
     "directory": "registry"
   },
   "browser": {
+    "@biomejs/js-api": false,
+    "@biomejs/wasm-nodejs": false,
     "@inquirer/confirm": false,
     "@inquirer/input": false,
     "@inquirer/password": false,
@@ -27,7 +29,6 @@
     "npm-package-arg": false,
     "pacote": false,
     "path": false,
-    "prettier": false,
     "process": false,
     "tinyglobby": false,
     "validate-npm-package-name": false,
@@ -112,6 +113,8 @@
   },
   "sideEffects": false,
   "dependencies": {
+    "@biomejs/js-api": "^0.7.1",
+    "@biomejs/wasm-nodejs": "^1.9.4",
     "@inquirer/confirm": "^5.1.5",
     "@inquirer/input": "^4.1.5",
     "@inquirer/password": "^4.0.8",
@@ -131,7 +134,6 @@
     "npm-package-arg": "^12.0.1",
     "pacote": "^21.0.0",
     "picomatch": "^4.0.2",
-    "prettier": "^3.4.2",
     "semver": "^7.7.0",
     "signal-exit": "^4.1.0",
     "spdx-correct": "^3.2.0",

@@ -108,6 +108,7 @@ declare const constantsModule: {
   readonly [kInternalsSymbol]: Internals
   readonly 'Symbol(kInternalsSymbol)': Internals
   readonly AT_LATEST: '@latest'
+  readonly BIOME_JSON: 'biome.json'
   readonly COLUMN_LIMIT: 80
   readonly EMPTY_FILE: '/* empty */\n'
   readonly ENV: ENV
@@ -140,8 +141,6 @@ declare const constantsModule: {
   readonly PACKAGE_JSON: 'package.json'
   readonly PACKAGE_LOCK: 'package-lock.json'
   readonly PACKAGE_SCOPE: '@socketregistry'
-  readonly PRETTIER_IGNORE: '.prettierignore'
-  readonly PRETTIER_RC: '.prettierrc'
   readonly README_GLOB: 'README{.*,}'
   readonly README_GLOB_RECURSIVE: '**/README{.*,}'
   readonly README_MD: 'README.md'

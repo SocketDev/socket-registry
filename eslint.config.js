@@ -2,6 +2,7 @@
 
 const path = require('node:path')
 
+const { convertIgnorePatternToMinimatch } = require('@eslint/compat')
 const js = require('@eslint/js')
 const { createOxcImportResolver } = require('eslint-import-resolver-oxc')
 const importXPlugin = require('eslint-plugin-import-x')
@@ -14,17 +15,23 @@ const constants = require('@socketregistry/scripts/constants')
 const { readJsonSync } = require('@socketsecurity/registry/lib/fs')
 
 const {
+  BIOME_JSON,
+  GIT_IGNORE,
   LATEST,
   PACKAGE_JSON,
   gitIgnoreFile,
   npmPackagesPath,
-  prettierIgnoreFile,
   relNpmPackagesPath,
   relRegistryPkgPath,
   rootTsConfigPath
 } = constants
 
 const { flatConfigs: origImportXFlatConfigs } = importXPlugin
+
+const rootPath = __dirname
+const gitignorePath = path.join(rootPath, GIT_IGNORE)
+
+const biomeConfig = require(path.join(rootPath, BIOME_JSON))
 
 const sharedPlugins = {
   'sort-destructure-keys': sortDestructureKeysPlugin,
@@ -312,7 +319,10 @@ function configs(sourceType) {
 
 module.exports = [
   gitIgnoreFile,
-  prettierIgnoreFile,
+  {
+    name: 'Imported biome.json ignore patterns',
+    ignores: biomeConfig.files.ignore.map(convertIgnorePatternToMinimatch)
+  },
   ...configs('script'),
   ...configs('module')
 ]

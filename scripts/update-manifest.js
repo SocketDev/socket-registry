@@ -23,7 +23,7 @@ const {
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { naturalCompare } = require('@socketsecurity/registry/lib/sorts')
 const { Spinner } = require('@socketsecurity/registry/lib/spinner')
-const { prettierFormat } = require('@socketsecurity/registry/lib/strings')
+const { biomeFormat } = require('@socketsecurity/registry/lib/strings')
 
 const { AT_LATEST, NPM, UNLICENSED } = constants
 
@@ -168,7 +168,7 @@ void (async () => {
   await addNpmManifestData(manifest)
   // Lazily access constants.registryManifestJsonPath.
   const { registryManifestJsonPath } = constants
-  const output = await prettierFormat(JSON.stringify(manifest), {
+  const output = await biomeFormat(JSON.stringify(manifest), {
     filepath: registryManifestJsonPath
   })
   await fs.writeFile(registryManifestJsonPath, output, 'utf8')

@@ -3,12 +3,11 @@ declare function flatten<T extends ArrayLike<any>>(
 ): flatten.FlatArray<T>
 declare namespace flatten {
   export type FlatArray<T extends ArrayLike<any>> = Array<PickValue<T[number]>>
-  export type PickValue<T> =
-    T extends ReadonlyArray<any>
-      ? {
-          [K in Extract<keyof T, number>]: PickValue<T[K]>
-        }[number]
-      : T
+  export type PickValue<T> = T extends ReadonlyArray<any>
+    ? {
+        [K in Extract<keyof T, number>]: PickValue<T[K]>
+      }[number]
+    : T
   export interface NestedArray<T> extends ReadonlyArray<T | NestedArray<T>> {}
   export interface NestedList<T> {
     [index: number]: T | NestedList<T>

@@ -1,5 +1,6 @@
-.github/
 scripts/templates
-**/fixtures
+test/npm/node_workspaces
+perf/**/fixtures
+test/**/fixtures
 packages/**/*.original*
 package-lock.json
