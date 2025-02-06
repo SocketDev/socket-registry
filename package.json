@@ -23,9 +23,9 @@
     "clean:node_workspaces": "del-cli 'test/**/node_workspaces'",
     "knip:dependencies": "knip --dependencies",
     "knip:exports": "knip --include exports,duplicates",
-    "lint": "oxlint -c=./.oxlintrc.json --ignore-path=./.prettierignore --tsconfig=./tsconfig.json .",
+    "lint": "oxlint -c=./.oxlintrc.json --ignore-path=./.oxlintignore --tsconfig=./tsconfig.json .",
     "lint:fix": "npm run lint -- --fix && npm run lint:fix:fast",
-    "lint:fix:fast": "prettier --cache --log-level warn --write .",
+    "lint:fix:fast": "biome format --write",
     "lint-staged": "lint-staged",
     "perf": "node ./scripts/perf.js",
     "precommit": "lint-staged",
@@ -54,6 +54,7 @@
     "update:longtask:test:npm:package-json": "node ./scripts/update-test-npm-package-json.js"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@eslint/compat": "^1.2.6",
     "@eslint/js": "^9.19.0",
     "@mdn/browser-compat-data": "^5.6.35",
@@ -92,7 +93,6 @@
     "out-url": "^1.2.2",
     "oxlint": "0.15.9",
     "packageurl-js": "^2.0.1",
-    "prettier": "3.4.2",
     "read-yaml-file": "^2.1.0",
     "semver": "^7.7.0",
     "signal-exit": "^4.1.0",
@@ -115,7 +115,7 @@
   "lint-staged": {
     "*.{cjs,js,json,md,mjs,ts}": [
       "npm run lint -- --fix",
-      "npm run lint:fix:fast"
+      "npm run lint:fix:fast -- --no-errors-on-unmatched --files-ignore-unknown=true --colors=off"
     ]
   }
 }

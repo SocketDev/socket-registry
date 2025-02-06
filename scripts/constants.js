@@ -26,14 +26,6 @@ function getPath() {
   return _path
 }
 
-let _prettier
-function getPrettier() {
-  if (_prettier === undefined) {
-    _prettier = require('prettier')
-  }
-  return _prettier
-}
-
 let _process
 function getProcess() {
   if (_process === undefined) {
@@ -61,8 +53,6 @@ const {
   NPM,
   PACKAGE_JSON,
   PACKAGE_LOCK,
-  PRETTIER_IGNORE,
-  PRETTIER_RC,
   README_MD,
   REGISTRY,
   TSCONFIG_JSON,
@@ -113,12 +103,10 @@ const lazyEcosystems = () =>
 const lazyGitExecPath = () => whichSync('git')
 
 const lazyGitIgnoreFile = () =>
-  // Lazily access constants.gitIgnorePath.
-  getEslintCompat().includeIgnoreFile(constants.gitIgnorePath)
-
-const lazyGitIgnorePath = () =>
-  // Lazily access constants.rootPath.
-  getPath().join(constants.rootPath, GIT_IGNORE)
+  getEslintCompat().includeIgnoreFile(
+    // Lazily access constants.rootPath.
+    getPath().join(constants.rootPath, GIT_IGNORE)
+  )
 
 const lazyIgnoreGlobs = () =>
   Object.freeze([
@@ -161,24 +149,6 @@ const lazyPerfNpmPath = () =>
 const lazyPerfNpmFixturesPath = () =>
   // Lazily access constants.perfNpmPath.
   getPath().join(constants.perfNpmPath, 'fixtures')
-
-const lazyPrettierConfigPath = () =>
-  // Lazily access constants.rootPath.
-  getPath().join(constants.rootPath, PRETTIER_RC)
-
-const lazyPrettierConfigPromise = () =>
-  // Lazily access constants.gitIgnorePath.
-  getPrettier().resolveConfig(constants.prettierConfigPath, {
-    editorconfig: true
-  })
-
-const lazyPrettierIgnorePath = () =>
-  // Lazily access constants.rootPath.
-  getPath().join(constants.rootPath, PRETTIER_IGNORE)
-
-const lazyPrettierIgnoreFile = () =>
-  // Lazily access constants.prettierIgnorePath.
-  getEslintCompat().includeIgnoreFile(constants.prettierIgnorePath)
 
 const lazyRootLicensePath = () =>
   // Lazily access constants.rootPath.
@@ -304,7 +274,6 @@ const constants = createConstantsObject(
     ecosystems: undefined,
     gitExecPath: undefined,
     gitIgnoreFile: undefined,
-    gitIgnorePath: undefined,
     kInternalsSymbol,
     ignoreGlobs: undefined,
     npmPackageNames: undefined,
@@ -313,10 +282,6 @@ const constants = createConstantsObject(
     npmTemplatesReadmePath: undefined,
     perfNpmPath: undefined,
     perfNpmFixturesPath: undefined,
-    prettierConfigPath: undefined,
-    prettierConfigPromise: undefined,
-    prettierIgnoreFile: undefined,
-    prettierIgnorePath: undefined,
     registryExtensionsJsonPath: undefined,
     registryManifestJsonPath: undefined,
     registryPkgPath: undefined,
@@ -355,7 +320,6 @@ const constants = createConstantsObject(
       ecosystems: lazyEcosystems,
       gitExecPath: lazyGitExecPath,
       gitIgnoreFile: lazyGitIgnoreFile,
-      gitIgnorePath: lazyGitIgnorePath,
       ignoreGlobs: lazyIgnoreGlobs,
       npmPackageNames: lazyNpmPackageNames,
       npmPackagesPath: lazyNpmPackagesPath,
@@ -363,10 +327,6 @@ const constants = createConstantsObject(
       npmTemplatesReadmePath: lazyNpmTemplatesReadmePath,
       perfNpmPath: lazyPerfNpmPath,
       perfNpmFixturesPath: lazyPerfNpmFixturesPath,
-      prettierConfigPath: lazyPrettierConfigPath,
-      prettierConfigPromise: lazyPrettierConfigPromise,
-      prettierIgnoreFile: lazyPrettierIgnoreFile,
-      prettierIgnorePath: lazyPrettierIgnorePath,
       registryExtensionsJsonPath: lazyRegistryExtensionsJsonPath,
       registryManifestJsonPath: lazyRegistryManifestJsonPath,
       registryPkgPath: lazyRegistryPkgPath,

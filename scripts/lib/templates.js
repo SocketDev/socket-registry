@@ -19,7 +19,7 @@ const {
   readPackageJson,
   resolveOriginalPackageName
 } = require('@socketsecurity/registry/lib/packages')
-const { prettierFormat } = require('@socketsecurity/registry/lib/strings')
+const { biomeFormat } = require('@socketsecurity/registry/lib/strings')
 const {
   capitalize,
   determineArticle
@@ -194,7 +194,7 @@ async function renderAction(action) {
   const prepared = prepareTemplate(content)
   const modified = await eta.renderStringAsync(prepared, data)
   return ext === '.json' || ext === '.md'
-    ? await prettierFormat(modified, { filepath })
+    ? await biomeFormat(modified, { filepath })
     : modified
 }
 

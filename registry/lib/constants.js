@@ -348,6 +348,7 @@ function readDirNamesSync(dirname, options) {
   return []
 }
 
+const BIOME_JSON = 'biome.json'
 const COLUMN_LIMIT = 80
 const EMPTY_FILE = '/* empty */\n'
 const ESLINT_CONFIG_JS = 'eslint.config.js'
@@ -377,8 +378,6 @@ const PACKAGE_DEFAULT_VERSION = '1.0.0'
 const PACKAGE_JSON = 'package.json'
 const PACKAGE_LOCK = 'package-lock.json'
 const PACKAGE_SCOPE = `@${NPM_ORG}`
-const PRETTIER_IGNORE = '.prettierignore'
-const PRETTIER_RC = '.prettierrc'
 const README_GLOB = 'README{.*,}'
 const README_GLOB_RECURSIVE = `**/${README_GLOB}`
 const README_MD = 'README.md'
@@ -786,6 +785,7 @@ const tsTypesAvailable = new Set(['node'])
 const constants = createConstantsObject(
   {
     AT_LATEST,
+    BIOME_JSON,
     COLUMN_LIMIT,
     EMPTY_FILE,
     ENV: undefined,
@@ -819,8 +819,6 @@ const constants = createConstantsObject(
     PACKAGE_JSON,
     PACKAGE_LOCK,
     PACKAGE_SCOPE,
-    PRETTIER_IGNORE,
-    PRETTIER_RC,
     README_GLOB,
     README_GLOB_RECURSIVE,
     README_MD,

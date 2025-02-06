@@ -1,13 +1,68 @@
 'use strict'
 
-const constants = require('./constants')
-
-let _prettier
-function getPrettier() {
-  if (_prettier === undefined) {
-    _prettier = require('prettier')
+const DEFAULT_BIOME_CONFIG = {
+  __proto__: null,
+  $schema: './node_modules/@biomejs/biome/configuration_schema.json',
+  formatter: {
+    enabled: true,
+    attributePosition: 'auto',
+    bracketSpacing: true,
+    formatWithErrors: false,
+    indentStyle: 'space',
+    indentWidth: 2,
+    lineEnding: 'lf',
+    lineWidth: 80,
+    useEditorconfig: true
+  },
+  javascript: {
+    formatter: {
+      arrowParentheses: 'asNeeded',
+      attributePosition: 'auto',
+      bracketSameLine: false,
+      bracketSpacing: true,
+      jsxQuoteStyle: 'double',
+      quoteProperties: 'asNeeded',
+      quoteStyle: 'single',
+      semicolons: 'asNeeded',
+      trailingCommas: 'none'
+    }
+  },
+  json: {
+    formatter: {
+      enabled: true,
+      trailingCommas: 'none'
+    },
+    parser: {
+      allowComments: true,
+      allowTrailingCommas: true
+    }
   }
-  return _prettier
+}
+
+let _biome
+async function getBiome() {
+  if (_biome === undefined) {
+    const { Biome, Distribution } = require('@biomejs/js-api')
+    _biome = await Biome.create({
+      distribution: Distribution.NODE
+    })
+  }
+  return _biome
+}
+
+async function biomeFormat(str, options) {
+  let {
+    filepath,
+    filePath = filepath,
+    ...biomeConfig
+  } = { __proto__: null, ...options }
+  const biome = await getBiome()
+  biome.applyConfiguration({
+    __proto__: null,
+    ...DEFAULT_BIOME_CONFIG,
+    ...biomeConfig
+  })
+  return biome.formatContent(str, { filePath }).content
 }
 
 function indentString(str, count = 1) {
@@ -16,16 +71,6 @@ function indentString(str, count = 1) {
 
 function isNonEmptyString(value) {
   return typeof value === 'string' && value.length > 0
-}
-
-async function prettierFormat(str, options) {
-  const prettier = getPrettier()
-  return prettier.format(str, {
-    __proto__: null,
-    // Lazily access constants.prettierConfigPromise.
-    ...(await constants.prettierConfigPromise),
-    ...options
-  })
 }
 
 function search(str, regexp, fromIndex = 0) {
@@ -44,9 +89,9 @@ function stripBom(str) {
 }
 
 module.exports = {
+  biomeFormat,
   indentString,
   isNonEmptyString,
-  prettierFormat,
   search,
   stripBom
 }
