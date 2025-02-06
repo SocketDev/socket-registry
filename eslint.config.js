@@ -16,7 +16,6 @@ const { readJsonSync } = require('@socketsecurity/registry/lib/fs')
 
 const {
   BIOME_JSON,
-  GIT_IGNORE,
   LATEST,
   PACKAGE_JSON,
   gitIgnoreFile,
@@ -29,9 +28,10 @@ const {
 const { flatConfigs: origImportXFlatConfigs } = importXPlugin
 
 const rootPath = __dirname
-const gitignorePath = path.join(rootPath, GIT_IGNORE)
 
-const biomeConfig = require(path.join(rootPath, BIOME_JSON))
+const biomeConfigPath = path.join(rootPath, BIOME_JSON)
+
+const biomeConfig = require(biomeConfigPath)
 
 const sharedPlugins = {
   'sort-destructure-keys': sortDestructureKeysPlugin,
