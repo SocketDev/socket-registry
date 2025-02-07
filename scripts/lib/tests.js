@@ -18,14 +18,14 @@ function getCliArgs() {
   return _cliArgs
 }
 
-function isPackageTestingSkipped(eco, regPkgName) {
+function isPackageTestingSkipped(eco, sockRegPkgName) {
   // Lazily access constants.ENV.
   const { ENV } = constants
   return getCliArgs().force || ENV.CI
     ? false
     : !(ENV.PRE_COMMIT ? getStagedPackagesSync : getModifiedPackagesSync)(eco, {
         ignore: [LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE]
-      }).includes(regPkgName)
+      }).includes(sockRegPkgName)
 }
 
 module.exports = {

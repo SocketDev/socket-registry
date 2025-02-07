@@ -138,17 +138,17 @@ function innerGetPackages(eco, files, options) {
   const packageNames = new Set()
   for (const filepath of files) {
     if (matcher(filepath)) {
-      let regPkgName
+      let sockRegPkgName
       // Lazily access constants.relRegistryPkgPath.
       if (eco === NPM && filepath.startsWith(constants.relRegistryPkgPath)) {
-        regPkgName = '@socketsecurity/registry'
+        sockRegPkgName = '@socketsecurity/registry'
       } else {
-        regPkgName = filepath.slice(
+        sockRegPkgName = filepath.slice(
           sliceStart,
           filepath.indexOf('/', sliceStart)
         )
       }
-      packageNames.add(regPkgName)
+      packageNames.add(sockRegPkgName)
     }
   }
   return asSet ? packageNames : [...packageNames]

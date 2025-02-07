@@ -8,12 +8,12 @@ import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 const { NPM, testNpmNodeWorkspacesPath } = constants
 
 const eco = NPM
-const regPkgName = path.basename(__filename, '.test.ts')
-const pkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
+const sockRegPkgName = path.basename(__filename, '.test.ts')
+const pkgPath = path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
 
 describe(
-  `${eco} > ${regPkgName}`,
-  { skip: isPackageTestingSkipped(eco, regPkgName) },
+  `${eco} > ${sockRegPkgName}`,
+  { skip: isPackageTestingSkipped(eco, sockRegPkgName) },
   () => {
     const flattenLegacy = require(path.join(pkgPath, 'index.js'))
     const { flatten } = flattenLegacy

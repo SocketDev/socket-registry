@@ -9,14 +9,14 @@ function getPackageURL() {
   return _PackageURL
 }
 
-function getManifestData(eco, regPkgName) {
+function getManifestData(eco, sockRegPkgName) {
   const registryManifest = require('./manifest.json')
   if (eco) {
     const entries = registryManifest[eco]
-    return regPkgName
+    return sockRegPkgName
       ? entries?.find(
           ({ 0: purlStr }) =>
-            getPackageURL().fromString(purlStr).name === regPkgName
+            getPackageURL().fromString(purlStr).name === sockRegPkgName
         )?.[1]
       : entries
   }

@@ -95,13 +95,13 @@ for (const eco of constants.ecosystems) {
         })()
 
   describe(eco, { skip: !packageNames.length }, () => {
-    for (const regPkgName of packageNames) {
+    for (const sockRegPkgName of packageNames) {
       // Lazily access constants.npmPackagesPath.
-      const pkgPath = path.join(constants.npmPackagesPath, regPkgName)
+      const pkgPath = path.join(constants.npmPackagesPath, sockRegPkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
       const pkgJsonExists = existsSync(pkgJsonPath)
       const pkgLicensePath = path.join(pkgPath, LICENSE)
-      const origPkgName = resolveOriginalPackageName(regPkgName)
+      const origPkgName = resolveOriginalPackageName(sockRegPkgName)
 
       describe(origPkgName, async () => {
         it('should have a package.json', () => {
@@ -182,13 +182,13 @@ for (const eco of constants.ecosystems) {
         })
 
         it('package name should be "name" field of package.json', () => {
-          assert.strictEqual(pkgJson.name, `@socketregistry/${regPkgName}`)
+          assert.strictEqual(pkgJson.name, `@socketregistry/${sockRegPkgName}`)
         })
 
         it('package name should be included in "repository.directory" field of package.json', () => {
           assert.strictEqual(
             (pkgJson.repository as { directory?: string })?.directory,
-            `packages/npm/${regPkgName}`
+            `packages/npm/${sockRegPkgName}`
           )
         })
 
@@ -263,7 +263,7 @@ for (const eco of constants.ecosystems) {
           assert.ok((await fs.readFile(pkgLicensePath, 'utf8')).includes('MIT'))
         })
 
-        const manifestData = getManifestData(eco, regPkgName)
+        const manifestData = getManifestData(eco, sockRegPkgName)
         if (manifestData?.license !== 'Public Domain') {
           it(`should have an original license file`, () => {
             assert.ok(files.some(p => p.includes('.original')))

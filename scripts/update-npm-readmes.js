@@ -19,8 +19,8 @@ void (async () => {
   }
   await Promise.all(
     // Lazily access constants.npmPackageNames.
-    constants.npmPackageNames.map(async regPkgName => {
-      const pkgPath = path.join(npmPackagesPath, regPkgName)
+    constants.npmPackageNames.map(async sockRegPkgName => {
+      const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
       const readmePath = path.join(pkgPath, README_MD)
       const { 1: data } = await getNpmReadmeAction(pkgPath)
       return fs.writeFile(readmePath, data.readme, 'utf8')

@@ -13,33 +13,37 @@ const rootPath = path.resolve(__dirname, '..')
 const rootRegistryPath = path.join(rootPath, 'registry')
 
 const eco = NPM
-const regPkgName = '@socketsecurity/registry'
+const sockRegPkgName = '@socketsecurity/registry'
 
-describe(regPkgName, { skip: isPackageTestingSkipped(eco, regPkgName) }, () => {
-  it('should not trigger lazy getter on module initialization', async () => {
-    const jsFilepaths = (
-      await tinyGlob(['**/*.js'], {
-        absolute: true,
-        cwd: rootRegistryPath,
-        ignore: ['**/node_modules']
-      })
-    )
-      // Normalize filepaths for Windows.
-      .map(path.normalize)
-    for (const filepath of jsFilepaths) {
-      delete require.cache[filepath]
-    }
-    for (const filepath of jsFilepaths) {
-      require(filepath)
-    }
-    const registryConstants = require(
-      path.join(rootRegistryPath, 'lib/constants.js')
-    )
-    const {
-      kInternalsSymbol,
-      [kInternalsSymbol]: { lazyGetterStats }
-    } = registryConstants
+describe(
+  sockRegPkgName,
+  { skip: isPackageTestingSkipped(eco, sockRegPkgName) },
+  () => {
+    it('should not trigger lazy getter on module initialization', async () => {
+      const jsFilepaths = (
+        await tinyGlob(['**/*.js'], {
+          absolute: true,
+          cwd: rootRegistryPath,
+          ignore: ['**/node_modules']
+        })
+      )
+        // Normalize filepaths for Windows.
+        .map(path.normalize)
+      for (const filepath of jsFilepaths) {
+        delete require.cache[filepath]
+      }
+      for (const filepath of jsFilepaths) {
+        require(filepath)
+      }
+      const registryConstants = require(
+        path.join(rootRegistryPath, 'lib/constants.js')
+      )
+      const {
+        kInternalsSymbol,
+        [kInternalsSymbol]: { lazyGetterStats }
+      } = registryConstants
 
-    assert.strictEqual(lazyGetterStats.initialized.size, 0)
-  })
-})
+      assert.strictEqual(lazyGetterStats.initialized.size, 0)
+    })
+  }
+)

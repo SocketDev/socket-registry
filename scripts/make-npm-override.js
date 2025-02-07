@@ -153,8 +153,8 @@ void (async () => {
     // Exit if user force closed the prompt.
     return
   }
-  const regPkgName = resolveRegistryPackageName(origPkgName)
-  const pkgPath = path.join(npmPackagesPath, regPkgName)
+  const sockRegPkgName = resolveRegistryPackageName(origPkgName)
+  const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
   if (existsSync(pkgPath) && !isDirEmptySync(pkgPath)) {
     const relPkgPath = path.relative(rootPath, pkgPath)
     console.warn(`⚠️ ${origPkgName} already exists at ${relPkgPath}`)

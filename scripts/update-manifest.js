@@ -67,8 +67,8 @@ async function addNpmManifestData(manifest) {
 
   // Chunk package names to process them in parallel 3 at a time.
   // Lazily access constants.npmPackageNames.
-  await pEach(constants.npmPackageNames, 3, async regPkgName => {
-    const origPkgName = resolveOriginalPackageName(regPkgName)
+  await pEach(constants.npmPackageNames, 3, async sockRegPkgName => {
+    const origPkgName = resolveOriginalPackageName(sockRegPkgName)
     // Lazily access constants.testNpmPkgJsonPath.
     const testNpmPkgJson = await readPackageJson(constants.testNpmPkgJsonPath)
     const nmPkgSpec = testNpmPkgJson.devDependencies[origPkgName]
@@ -83,7 +83,7 @@ async function addNpmManifestData(manifest) {
       nmPkgJson = await readPackageJson(nmPkgPath)
     })
     // Lazily access constants.npmPackagesPath.
-    const pkgPath = path.join(constants.npmPackagesPath, regPkgName)
+    const pkgPath = path.join(constants.npmPackagesPath, sockRegPkgName)
     const pkgJson = await readPackageJson(pkgPath)
     const { engines, name, socket, version } = pkgJson
     const entryExports = resolvePackageJsonEntryExports(pkgJson.exports)
@@ -103,7 +103,7 @@ async function addNpmManifestData(manifest) {
       interop.push('browserify')
     }
     // Lazily access constants.skipTestsByEcosystem.
-    const skipTests = constants.skipTestsByEcosystem[eco].has(regPkgName)
+    const skipTests = constants.skipTestsByEcosystem[eco].has(sockRegPkgName)
     const metaEntries = [
       ['name', name],
       ['interop', interop.sort(naturalCompare)],

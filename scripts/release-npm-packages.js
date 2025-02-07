@@ -225,14 +225,14 @@ void (async () => {
   const packages = [
     registryPkg,
     // Lazily access constants.npmPackageNames.
-    ...constants.npmPackageNames.map(regPkgName => {
-      const pkgPath = path.join(npmPackagesPath, regPkgName)
+    ...constants.npmPackageNames.map(sockRegPkgName => {
+      const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
       const pkgJson = require(pkgJsonPath)
       return packageData({
-        name: `${PACKAGE_SCOPE}/${regPkgName}`,
+        name: `${PACKAGE_SCOPE}/${sockRegPkgName}`,
         path: pkgPath,
-        printName: regPkgName,
+        printName: sockRegPkgName,
         bundledDependencies: !!pkgJson.bundleDependencies
       })
     })

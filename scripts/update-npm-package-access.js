@@ -31,11 +31,11 @@ void (async () => {
   const packages = [
     packageData({ name: '@socketsecurity/registry', path: registryPkgPath }),
     // Lazily access constants.npmPackageNames.
-    ...constants.npmPackageNames.map(regPkgName =>
+    ...constants.npmPackageNames.map(sockRegPkgName =>
       packageData({
-        name: `${PACKAGE_SCOPE}/${regPkgName}`,
-        path: path.join(npmPackagesPath, regPkgName),
-        printName: regPkgName
+        name: `${PACKAGE_SCOPE}/${sockRegPkgName}`,
+        path: path.join(npmPackagesPath, sockRegPkgName),
+        printName: sockRegPkgName
       })
     )
   ]

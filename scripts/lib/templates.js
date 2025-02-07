@@ -88,8 +88,8 @@ async function getNpmReadmeAction(pkgPath, options) {
   const pkgPurlObj = PackageURL.fromString(
     `pkg:${eco}/${pkgJson.name}@${pkgJson.version}`
   )
-  const { name: regPkgName } = pkgPurlObj
-  const manifestData = getManifestData(eco, regPkgName)
+  const { name: sockRegPkgName } = pkgPurlObj
+  const manifestData = getManifestData(eco, sockRegPkgName)
   const categories = Array.isArray(manifestData?.categories)
     ? manifestData.categories
     : [...PACKAGE_DEFAULT_SOCKET_CATEGORIES]
@@ -114,7 +114,7 @@ async function getNpmReadmeAction(pkgPath, options) {
           adjectivesText: `${capitalize(determineArticle(adjectives[0]))} ${joinAsList(adjectives)}`,
           categories,
           dependencies: isObjectObject(pkgJson.dependencies) ?? {},
-          originalName: resolveOriginalPackageName(regPkgName),
+          originalName: resolveOriginalPackageName(sockRegPkgName),
           purl: pkgPurlObj,
           version: semver.parse(pkgJson.version)
         }
@@ -126,16 +126,16 @@ async function getNpmReadmeAction(pkgPath, options) {
 async function getPackageJsonAction(pkgPath, options) {
   const { engines } = { __proto__: null, ...options }
   const eco = NPM
-  const regPkgName = path.basename(pkgPath)
-  const manifestData = getManifestData(eco, regPkgName)
+  const sockRegPkgName = path.basename(pkgPath)
+  const manifestData = getManifestData(eco, sockRegPkgName)
   const categories = manifestData?.categories
   return [
     path.join(pkgPath, PACKAGE_JSON),
     {
       __proto__: null,
       ...manifestData,
-      name: regPkgName,
-      originalName: resolveOriginalPackageName(regPkgName),
+      name: sockRegPkgName,
+      originalName: resolveOriginalPackageName(sockRegPkgName),
       categories: Array.isArray(categories)
         ? categories
         : [...PACKAGE_DEFAULT_SOCKET_CATEGORIES],
