@@ -14,7 +14,9 @@ const {
   kStringMaxLength,
   resolveObjectURL,
   transcode
-} = require('node:buffer')
+  // Use non-'node:' prefixed require to avoid Webpack errors.
+  // eslint-disable-next-line n/prefer-node-protocol
+} = require('buffer')
 
 const { builtinBufferExportsDescMap } = require('./shared')
 
