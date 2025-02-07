@@ -103,8 +103,6 @@ function getIgnores(isEsm) {
     const ignored = []
     if (shouldIgnore) {
       ignored.push(`${relNpmPackagesPath}/${regPkgName}/*`)
-    } else if (isEsm) {
-      ignored.push(`${relNpmPackagesPath}/${regPkgName}/index.js`)
     } else {
       ignored.push(`${relNpmPackagesPath}/${regPkgName}/*.mjs`)
     }
