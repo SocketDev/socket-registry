@@ -259,8 +259,8 @@ async function readCachedEditablePackageJson(filepath_) {
 
 async function resolveDevDependencies(packageNames, options) {
   let { devDependencies } = await readPackageJson(testNpmPkgJsonPath)
-  const missingPackages = packageNames.filter(regPkgName => {
-    const origPkgName = resolveOriginalPackageName(regPkgName)
+  const missingPackages = packageNames.filter(sockRegPkgName => {
+    const origPkgName = resolveOriginalPackageName(sockRegPkgName)
     // Missing packages can occur if the script is stopped part way through
     return (
       !devDependencies?.[origPkgName] ||
@@ -280,8 +280,8 @@ async function resolveDevDependencies(packageNames, options) {
   const missingPackageTests = await pFilter(
     packageNames,
     3,
-    async regPkgName => {
-      const origPkgName = resolveOriginalPackageName(regPkgName)
+    async sockRegPkgName => {
+      const origPkgName = resolveOriginalPackageName(sockRegPkgName)
       const parsedSpec = npmPackageArg.resolve(
         origPkgName,
         devDependencies?.[origPkgName] ?? LATEST,
@@ -326,19 +326,19 @@ async function linkPackages(packageNames, options) {
   const linkedPackageNames = []
   let issueCount = 0
   // Chunk package names to process them in parallel 3 at a time.
-  await pEach(packageNames, 3, async regPkgName => {
-    const pkgPath = path.join(npmPackagesPath, regPkgName)
+  await pEach(packageNames, 3, async sockRegPkgName => {
+    const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
     if (!existsSync(pkgPath)) {
       issueCount += 1
-      console.warn(`⚠️ ${regPkgName}: Missing from ${relNpmPackagesPath}`)
+      console.warn(`⚠️ ${sockRegPkgName}: Missing from ${relNpmPackagesPath}`)
       return
     }
-    const origPkgName = resolveOriginalPackageName(regPkgName)
+    const origPkgName = resolveOriginalPackageName(sockRegPkgName)
     const nmPkgPath = path.join(testNpmNodeModulesPath, origPkgName)
     if (isSymbolicLinkSync(nmPkgPath)) {
       if (
         realpathSync(nmPkgPath) ===
-        path.join(testNpmNodeWorkspacesPath, regPkgName)
+        path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
       ) {
         return
       }
@@ -547,7 +547,7 @@ async function linkPackages(packageNames, options) {
     // Chunk actions to process them in parallel 3 at a time.
     await pEach([...actions.values()], 3, a => a())
     await nmEditablePkgJson.save()
-    linkedPackageNames.push(regPkgName)
+    linkedPackageNames.push(sockRegPkgName)
   })
   if (!issueCount || cliArgs.quiet) {
     spinner.stop()

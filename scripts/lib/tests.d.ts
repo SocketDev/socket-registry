@@ -1,5 +1,5 @@
 declare interface Tests {
-  isPackageTestingSkipped(eco: string, regPkgName: string): boolean
+  isPackageTestingSkipped(eco: string, sockRegPkgName: string): boolean
 }
 declare const tests: Tests
 export = tests

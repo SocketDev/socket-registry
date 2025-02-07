@@ -19,13 +19,13 @@ const { PACKAGE_JSON, npmPackagesPath } = constants
 void (async () => {
   await Promise.all(
     // Lazily access constants.npmPackageNames.
-    constants.npmPackageNames.map(async regPkgName => {
-      const pkgPath = path.join(npmPackagesPath, regPkgName)
+    constants.npmPackageNames.map(async sockRegPkgName => {
+      const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
       const editablePkgJson = await readPackageJson(pkgJsonPath, {
         editable: true
       })
-      const directory = `packages/npm/${regPkgName}`
+      const directory = `packages/npm/${sockRegPkgName}`
       const entryExports = resolvePackageJsonEntryExports(
         editablePkgJson.content.exports
       )
@@ -41,14 +41,14 @@ void (async () => {
         for (const subpath of subpaths) {
           if (!availableFiles.includes(subpath)) {
             console.warn(
-              `${regPkgName}: ${subpath} subpath file does not exist`
+              `${sockRegPkgName}: ${subpath} subpath file does not exist`
             )
           }
         }
         for (const relPath of availableFiles) {
           if (!subpaths.includes(relPath)) {
             console.warn(
-              `${regPkgName}: ${relPath} missing from subpath exports`
+              `${sockRegPkgName}: ${relPath} missing from subpath exports`
             )
           }
         }

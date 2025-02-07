@@ -9,8 +9,8 @@ import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 const { NPM, testNpmNodeWorkspacesPath } = constants
 
 const eco = NPM
-const regPkgName = path.basename(__filename, '.test.ts')
-const pkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
+const sockRegPkgName = path.basename(__filename, '.test.ts')
+const pkgPath = path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
 const pkgRequireIndexJsPath = path.join(pkgPath, 'index.js')
 const pkgRequireIndexCjsPath = path.join(pkgPath, 'index.cjs')
 
@@ -21,10 +21,10 @@ const pkgRequireIndexCjsPath = path.join(pkgPath, 'index.cjs')
 // https://github.com/inspect-js/is-regex/issues/35
 // https://github.com/inspect-js/is-regex/blob/v1.1.4/test/index.js
 describe(
-  `${eco} > ${regPkgName}`,
+  `${eco} > ${sockRegPkgName}`,
   {
     skip:
-      isPackageTestingSkipped(eco, regPkgName) ||
+      isPackageTestingSkipped(eco, sockRegPkgName) ||
       // Add check to avoid errors in CI.
       // Lazily access constants.ENV.
       (constants.ENV.CI &&

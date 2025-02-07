@@ -8,14 +8,14 @@ import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 const { NPM, testNpmNodeWorkspacesPath } = constants
 
 const eco = NPM
-const regPkgName = path.basename(__filename, '.test.ts')
-const pkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
+const sockRegPkgName = path.basename(__filename, '.test.ts')
+const pkgPath = path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
 
 // harmony-reflect has known failures in its package and requires running tests in browser.
 // https://github.com/tvcutsem/harmony-reflect/tree/v1.6.2/test
 describe(
-  `${eco} > ${regPkgName}`,
-  { skip: isPackageTestingSkipped(eco, regPkgName) },
+  `${eco} > ${sockRegPkgName}`,
+  { skip: isPackageTestingSkipped(eco, sockRegPkgName) },
   () => {
     const harmonyReflect = require(path.join(pkgPath, 'index.js'))
 

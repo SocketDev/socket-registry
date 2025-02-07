@@ -10,8 +10,8 @@ import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 const { NPM, testNpmNodeWorkspacesPath } = constants
 
 const eco = NPM
-const regPkgName = path.basename(__filename, '.test.ts')
-const pkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
+const sockRegPkgName = path.basename(__filename, '.test.ts')
+const pkgPath = path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
 
 // safer-buffer tests assume Buffer.alloc, Buffer.allocUnsafe, and
 // Buffer.allocUnsafeSlow throw for a size of 2 * (1 << 30), i.e. 2147483648,
@@ -19,8 +19,8 @@ const pkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
 // https://github.com/ChALkeR/safer-buffer/issues/16
 // https://github.com/ChALkeR/safer-buffer/blob/v2.1.2/tests.js
 describe(
-  `${eco} > ${regPkgName}`,
-  { skip: isPackageTestingSkipped(eco, regPkgName) },
+  `${eco} > ${sockRegPkgName}`,
+  { skip: isPackageTestingSkipped(eco, sockRegPkgName) },
   () => {
     const safer = require(path.join(pkgPath, 'safer.js'))
     const dangerous = require(path.join(pkgPath, 'dangerous.js'))

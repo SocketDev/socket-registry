@@ -59,12 +59,12 @@ const packageNames: string[] =
       })()
 
 describe(eco, { skip: !packageNames.length }, () => {
-  for (const regPkgName of packageNames) {
-    const nwPkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
+  for (const sockRegPkgName of packageNames) {
+    const nwPkgPath = path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
     const nwPkgJson = readJsonSync(path.join(nwPkgPath, PACKAGE_JSON))
-    const manifestData = getManifestData(eco, regPkgName)
+    const manifestData = getManifestData(eco, sockRegPkgName)
     const nodeRange = nwPkgJson.engines?.['node']
-    const origPkgName = resolveOriginalPackageName(regPkgName)
+    const origPkgName = resolveOriginalPackageName(sockRegPkgName)
     const skip =
       !nwPkgJson.scripts?.test ||
       // Lazily access constants.WIN32.

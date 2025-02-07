@@ -8,15 +8,15 @@ import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 const { NPM, testNpmNodeWorkspacesPath } = constants
 
 const eco = NPM
-const regPkgName = path.basename(__filename, '.test.ts')
-const pkgPath = path.join(testNpmNodeWorkspacesPath, regPkgName)
+const sockRegPkgName = path.basename(__filename, '.test.ts')
+const pkgPath = path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
 
 // es6-object-assign has no unit tests.
 // https://github.com/rubennorte/es6-object-assign/tree/v1.1.0
 // Tests from https://github.com/ljharb/object.assign/tree/v4.1.5/test.
 describe(
-  `${eco} > ${regPkgName}`,
-  { skip: isPackageTestingSkipped(eco, regPkgName) },
+  `${eco} > ${sockRegPkgName}`,
+  { skip: isPackageTestingSkipped(eco, sockRegPkgName) },
   () => {
     const es6oa = require(path.join(pkgPath, 'index.js'))
 

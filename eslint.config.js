@@ -95,16 +95,16 @@ function conditionalConfig(config, isEsm) {
 
 function getIgnores(isEsm) {
   // Lazily access constants.npmPackageNames.
-  return constants.npmPackageNames.flatMap(regPkgName => {
-    const pkgPath = path.join(npmPackagesPath, regPkgName)
+  return constants.npmPackageNames.flatMap(sockRegPkgName => {
+    const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
     const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
     const { type } = readJsonSync(pkgJsonPath)
     const shouldIgnore = isEsm ? type !== 'module' : type === 'module'
     const ignored = []
     if (shouldIgnore) {
-      ignored.push(`${relNpmPackagesPath}/${regPkgName}/*`)
+      ignored.push(`${relNpmPackagesPath}/${sockRegPkgName}/*`)
     } else {
-      ignored.push(`${relNpmPackagesPath}/${regPkgName}/*.mjs`)
+      ignored.push(`${relNpmPackagesPath}/${sockRegPkgName}/*.mjs`)
     }
     return ignored
   })

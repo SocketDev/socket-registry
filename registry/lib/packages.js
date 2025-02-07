@@ -257,7 +257,7 @@ function createLicenseNode(rawNode) {
   return { __proto__: null, ...rawNode, type: LICENSE_NODE_TYPE }
 }
 
-function createPackageJson(regPkgName, directory, options) {
+function createPackageJson(sockRegPkgName, directory, options) {
   const {
     dependencies,
     description,
@@ -275,7 +275,7 @@ function createPackageJson(regPkgName, directory, options) {
   } = { __proto__: null, ...options }
   // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
   const { PACKAGE_DEFAULT_NODE_RANGE } = constants
-  const name = `${PACKAGE_SCOPE}/${regPkgName.replace(pkgScopePrefixRegExp, '')}`
+  const name = `${PACKAGE_SCOPE}/${sockRegPkgName.replace(pkgScopePrefixRegExp, '')}`
   const entryExports = resolvePackageJsonEntryExports(entryExportsRaw)
   const githubUrl = `https://github.com/${SOCKET_REPO_ORG}/${SOCKET_REGISTRY_REPO_NAME}`
   return {
@@ -663,8 +663,8 @@ function readPackageJsonSync(filepath, options) {
     : normalizePackageJson(pkgJson, otherOptions)
 }
 
-function resolveEscapedScope(regPkgName) {
-  return escapedScopeRegExp.exec(regPkgName)?.[0] ?? ''
+function resolveEscapedScope(sockRegPkgName) {
+  return escapedScopeRegExp.exec(sockRegPkgName)?.[0] ?? ''
 }
 
 async function resolveGitHubTgzUrl(pkgNameOrId, where) {
@@ -714,10 +714,10 @@ async function resolveGitHubTgzUrl(pkgNameOrId, where) {
   return ''
 }
 
-function resolveOriginalPackageName(regPkgName) {
-  const name = regPkgName.startsWith(`${PACKAGE_SCOPE}/`)
-    ? regPkgName.slice(PACKAGE_SCOPE.length + 1)
-    : regPkgName
+function resolveOriginalPackageName(sockRegPkgName) {
+  const name = sockRegPkgName.startsWith(`${PACKAGE_SCOPE}/`)
+    ? sockRegPkgName.slice(PACKAGE_SCOPE.length + 1)
+    : sockRegPkgName
   const escapedScope = resolveEscapedScope(name)
   return escapedScope
     ? `${unescapeScope(escapedScope)}/${name.slice(escapedScope.length)}`

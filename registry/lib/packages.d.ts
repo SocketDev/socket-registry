@@ -37,7 +37,7 @@ declare namespace PackagesModule {
   ): LicenseNode[]
   export function collectLicenseWarnings(licenseNodes: LicenseNode[]): string[]
   export function createPackageJson(
-    regPkgName: string,
+    sockRegPkgName: string,
     directory: string,
     options: PackageJson
   ): PackageJson
@@ -106,12 +106,12 @@ declare namespace PackagesModule {
     filepath: string,
     options?: { editable?: false; preserve?: string[] }
   ): PackageJson
-  export function resolveEscapedScope(regPkgName: string): string
+  export function resolveEscapedScope(sockRegPkgName: string): string
   export function resolveGitHubTgzUrl(
     pkgNameOrId: string,
     where: string
   ): Promise<string>
-  export function resolveOriginalPackageName(regPkgName: string): string
+  export function resolveOriginalPackageName(sockRegPkgName: string): string
   export function resolvePackageJsonDirname(filepath: string): string
   export function resolvePackageJsonEntryExports(
     entryExports: any

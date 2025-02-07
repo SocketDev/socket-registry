@@ -38,7 +38,7 @@ declare namespace SocketSecurityRegistry {
   export function getManifestData(eco: EcosystemString): ManifestEntry[]
   export function getManifestData(
     eco: EcosystemString,
-    regPkgName: string
+    sockRegPkgName: string
   ): ManifestEntryData | undefined
 }
 export = SocketSecurityRegistry
