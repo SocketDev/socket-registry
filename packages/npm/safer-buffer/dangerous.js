@@ -1,11 +1,10 @@
 'use strict'
 
 const {
-  Buffer: {
-    allocUnsafe: builtinAllocUnsafe,
-    allocUnsafeSlow: builtinAllocUnsafeSlow
-  }
-} = require('node:buffer')
+  Buffer: { allocUnsafe, allocUnsafeSlow }
+  // Use non-'node:' prefixed require to avoid Webpack errors.
+  // eslint-disable-next-line n/prefer-node-protocol
+} = require('buffer')
 
 const safer = require('./safer')
 const { builtinBufferExportsDescMap } = require('./shared')
@@ -28,8 +27,8 @@ const {
 
 const Dangerous = Object.defineProperties(
   {
-    allocUnsafe: builtinAllocUnsafe,
-    allocUnsafeSlow: builtinAllocUnsafeSlow
+    allocUnsafe,
+    allocUnsafeSlow
   },
   Object.getOwnPropertyDescriptors(Safer)
 )
