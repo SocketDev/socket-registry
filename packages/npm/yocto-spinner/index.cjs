@@ -1,6 +1,7 @@
 'use strict'
 
 const process = require('node:process')
+const { stripVTControlCharacters } = require('node:util')
 
 const yoctocolors = require('yoctocolors-cjs')
 
@@ -91,7 +92,7 @@ class YoctoSpinner {
 
   clear() {
     if (!this.#isInteractive) {
-      return
+      return this
     }
     this.#stream.cursorTo(0)
     for (let index = 0; index < this.#lines; index += 1) {
@@ -101,6 +102,7 @@ class YoctoSpinner {
       this.#stream.clearLine(1)
     }
     this.#lines = 0
+    return this
   }
 
   error(text) {
@@ -121,11 +123,9 @@ class YoctoSpinner {
     this.#hideCursor()
     this.#render()
     this.#subscribeToProcessEvents()
-
     this.#timer = setInterval(() => {
       this.#render()
     }, this.#interval)
-
     return this
   }
 
@@ -138,7 +138,6 @@ class YoctoSpinner {
     this.#showCursor()
     this.clear()
     this.#unsubscribeFromProcessEvents()
-
     if (finalText) {
       this.#stream.write(`${finalText}\n`)
     }
@@ -153,25 +152,10 @@ class YoctoSpinner {
     return this.#symbolStop(warningSymbol, text)
   }
 
-  #exitHandler(signal) {
+  #exitHandler() {
     if (this.isSpinning) {
       this.stop()
     }
-    // SIGINT: 128 + 2
-    // SIGTERM: 128 + 15
-    const exitCode = signal === 'SIGINT' ? 130 : signal === 'SIGTERM' ? 143 : 1
-    process.exitCode = exitCode
-  }
-
-  #lineCount(text) {
-    const width = this.#stream.columns ?? 80
-    const lines = text.split('\n')
-
-    let lineCount = 0
-    for (const line of lines) {
-      lineCount += Math.max(1, Math.ceil(line.length / width))
-    }
-    return lineCount
   }
 
   #hideCursor() {
@@ -180,20 +164,29 @@ class YoctoSpinner {
     }
   }
 
+  #lineCount(text) {
+    const width = this.#stream.columns ?? 80
+    const lines = stripVTControlCharacters(text).split('\n')
+    let lineCount = 0
+    for (const line of lines) {
+      lineCount += Math.max(1, Math.ceil(line.length / width))
+    }
+    return lineCount
+  }
+
   #render() {
-    const currentTime = Date.now()
     // Ensure we only update the spinner frame at the wanted interval,
-    // even if the render method is called more often.
+    // even if the frame method is called more often.
+    const now = Date.now()
     if (
       this.#currentFrame === -1 ||
-      currentTime - this.#lastSpinnerFrameTime >= this.#interval
+      now - this.#lastSpinnerFrameTime >= this.#interval
     ) {
       this.#currentFrame = (this.#currentFrame + 1) % this.#frames.length
-      this.#lastSpinnerFrameTime = currentTime
+      this.#lastSpinnerFrameTime = now
     }
     const applyColor = yoctocolors[this.#color] ?? yoctocolors.cyan
     const frame = this.#frames[this.#currentFrame]
-
     let string = `${applyColor(frame)} ${this.#text}`
     if (!this.#isInteractive) {
       string += '\n'
