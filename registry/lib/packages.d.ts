@@ -49,11 +49,11 @@ declare namespace PackagesModule {
   export function fetchPackageManifest(
     pkgNameOrId: string,
     options?: PacoteOptions
-  ): ReturnType<typeof PacoteManifestFn>
+  ): Promise<Awaited<ReturnType<typeof PacoteManifestFn>> | null>
   export function fetchPackagePackument(
     pkgNameOrId: string,
     options?: PacoteOptions
-  ): ReturnType<typeof PacotePackumentFn>
+  ): Promise<Awaited<ReturnType<typeof PacotePackumentFn>> | null>
   export function findTypesForSubpath(
     entryExports: Exports,
     subpath: string
