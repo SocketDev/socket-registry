@@ -56,7 +56,7 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@eslint/compat": "^1.2.6",
-    "@eslint/js": "^9.19.0",
+    "@eslint/js": "^9.20.0",
     "@mdn/browser-compat-data": "^5.6.37",
     "@npmcli/package-json": "^6.1.1",
     "@npmcli/promise-spawn": "^8.0.2",
@@ -77,7 +77,7 @@
     "custompatch": "^1.1.4",
     "del-cli": "^6.0.0",
     "didyoumean2": "^7.0.4",
-    "eslint": "^9.19.0",
+    "eslint": "^9.20.0",
     "eslint-import-resolver-oxc": "^0.10.1",
     "eslint-plugin-import-x": "^4.6.1",
     "eslint-plugin-n": "^17.15.1",
