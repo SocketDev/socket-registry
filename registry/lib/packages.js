@@ -403,12 +403,16 @@ async function fetchPackageManifest(pkgNameOrId, options) {
 }
 
 async function fetchPackagePackument(pkgNameOrId, options) {
-  return await getPacote().packument(pkgNameOrId, {
-    __proto__: null,
-    ...options,
-    packumentCache,
-    preferOffline: true
-  })
+  const pacote = getPacote()
+  try {
+    return await pacote.packument(pkgNameOrId, {
+      __proto__: null,
+      ...options,
+      packumentCache,
+      preferOffline: true
+    })
+  } catch {}
+  return null
 }
 
 function findPackageExtensions(pkgName, pkgVer) {
