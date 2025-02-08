@@ -106,6 +106,7 @@ async function installBundledDependencies(pkg) {
         '--silent',
         '--no-audit',
         '--no-fund',
+        '--no-progress',
         '--workspaces',
         'false',
         '--install-strategy',

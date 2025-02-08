@@ -124,7 +124,8 @@ async function installTestNpmNodeModules(options) {
     // are passed.
     '--silent',
     '--no-audit',
-    '--no-fund'
+    '--no-fund',
+    '--no-progress'
   ]
   if (Array.isArray(specs)) {
     args.push('--save-dev', ...specs)

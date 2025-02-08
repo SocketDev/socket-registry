@@ -67,6 +67,7 @@ async function installBundledDependencies(pkg, state = { fails: [] }) {
         '--silent',
         '--no-audit',
         '--no-fund',
+        '--no-progress',
         '--workspaces',
         'false',
         '--install-strategy',
