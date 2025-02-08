@@ -1,6 +1,6 @@
 {
   "name": "@socketsecurity/registry",
-  "version": "1.0.86",
+  "version": "1.0.87",
   "license": "MIT",
   "description": "Socket.dev registry helpers methods and metadata",
   "keywords": [
@@ -123,7 +123,7 @@
     "@npmcli/package-json": "^6.1.1",
     "@npmcli/promise-spawn": "^8.0.2",
     "@socketregistry/packageurl-js": "^1.0.2",
-    "@socketregistry/yocto-spinner": "^1.0.5",
+    "@socketregistry/yocto-spinner": "^1.0.6",
     "@yarnpkg/extensions": "^2.0.4",
     "browserslist": "^4.24.4",
     "cacache": "^19.0.1",
