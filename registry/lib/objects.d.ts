@@ -4,10 +4,15 @@ declare type Internals = (typeof constants)[typeof constants.kInternalsSymbol]
 declare function getOwnPropertyValues<T>(
   obj: { [key: string]: T } | null | undefined
 ): T[]
-declare function hasKeys(obj: any): obj is { [key: string]: any }
-declare function hasOwn(obj: any, propKey: PropertyKey): boolean
-declare function isObject(value: any): value is object
-declare function isObjectObject(value: any): value is { [key: string]: any }
+declare function hasKeys(obj: any): obj is Record<string, any>
+declare function hasOwn(
+  obj: any,
+  propKey: PropertyKey
+): obj is object & Record<PropertyKey, any>
+declare function isObject(value: any): value is { [key: PropertyKey]: any }
+declare function isObjectObject(
+  value: any
+): value is { [key: PropertyKey]: any }
 declare function merge<T extends object, U extends object>(
   target: T,
   source: U
