@@ -1,7 +1,8 @@
 'use strict'
 
 // The 'signal-exit' package is browser safe.
-// Do NOT defer loading, otherwise mystery errors may occur at the end of the event loop.
+// Do NOT defer loading, otherwise mystery errors may occur at the end of the
+// event loop.
 const signalExit = require('signal-exit')
 
 const { envAsBoolean, envAsString } = require('./env')

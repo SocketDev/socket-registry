@@ -1,22 +1,21 @@
 import { PartialFilesConfiguration as BiomeConfiguration } from '@biomejs/wasm-nodejs'
+import { Remap } from './objects'
 
-declare function biomeFormat(
-  str: string,
-  options?: BiomeConfiguration & {
+declare type BiomeFormatOptions = Remap<
+  BiomeConfiguration & {
     filePath: string
     filepath?: string
     range?: [number, number]
   }
-): Promise<string>
-declare function indentString(str: string, count?: number): string
-declare function isNonEmptyString(value: any): value is string
-declare function search(str: string, regexp: RegExp, fromIndex?: number): number
-declare function stripBom(str: string): string
-declare const stringsModule: {
-  biomeFormat: typeof biomeFormat
-  indentString: typeof indentString
-  isNonEmptyString: typeof isNonEmptyString
-  search: typeof search
-  stripBom: typeof stripBom
+>
+declare const Strings: {
+  biomeFormat(str: string, options?: BiomeFormatOptions): Promise<string>
+  indentString(str: string, count?: number): string
+  isNonEmptyString(value: any): value is string
+  search(str: string, regexp: RegExp, fromIndex?: number): number
+  stripBom(str: string): string
 }
-export = stringsModule
+declare namespace Strings {
+  export { BiomeFormatOptions }
+}
+export = Strings

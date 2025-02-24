@@ -1,9 +1,7 @@
-declare function capitalize(word: string): string
-declare function determineArticle(word: string): 'a' | 'an'
-declare function pluralize(word: string, count?: number | undefined): string
-declare const wordsModule: {
-  capitalize: typeof capitalize
-  determineArticle: typeof determineArticle
-  pluralize: typeof pluralize
+declare const Words: {
+  capitalize(word: string): string
+  determineArticle(word: string): 'a' | 'an'
+  pluralize(word: string, count?: number | undefined): string
 }
-export = wordsModule
+declare namespace Words {}
+export = Words

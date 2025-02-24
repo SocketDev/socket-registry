@@ -24,7 +24,6 @@ interface ENV {
 }
 declare type GetterDefObj = { [key: PropertyKey]: () => any }
 declare type IPC = Readonly<{ [key: string]: Serializable }>
-declare type LazyGetterStats = { initialized?: Set<PropertyKey> | undefined }
 interface Internals {
   readonly createConstantsObject: (
     props: object,
@@ -87,6 +86,7 @@ interface Internals {
     }
   ) => string[]
 }
+declare type LazyGetterStats = { initialized?: Set<PropertyKey> | undefined }
 interface MaintainedNodeVersions extends Array<string> {
   readonly previous: string
   readonly current: string
@@ -104,7 +104,7 @@ interface ParseArgsConfig {
   }
   readonly strict: false
 }
-declare const constantsModule: {
+declare const Constants: {
   readonly [kInternalsSymbol]: Internals
   readonly 'Symbol(kInternalsSymbol)': Internals
   readonly AT_LATEST: '@latest'
@@ -220,4 +220,16 @@ declare const constantsModule: {
     Record<string, ReadonlySet<string>>
   >
 }
-export = constantsModule
+declare namespace Constants {
+  export {
+    ConstantsObjectOptions,
+    ENV,
+    GetterDefObj,
+    Internals,
+    IPC,
+    LazyGetterStats,
+    MaintainedNodeVersions,
+    ParseArgsConfig
+  }
+}
+export = Constants

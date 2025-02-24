@@ -6,13 +6,16 @@ import inquirerSelect, {
   Separator as InquirerSeparator
 } from '@inquirer/select'
 
+declare type Separator = InquirerSeparator
+declare const Prompts: {
+  Separator: typeof InquirerSeparator
+  confirm: typeof inquirerConfirm
+  input: typeof inquirerInput
+  password: typeof inquirerPassword
+  search: typeof inquirerSearch
+  select: typeof inquirerSelect
+}
 declare namespace Prompts {
-  export type Separator = InquirerSeparator
-  export const Separator: typeof InquirerSeparator
-  export const confirm: typeof inquirerConfirm
-  export const input: typeof inquirerInput
-  export const password: typeof inquirerPassword
-  export const search: typeof inquirerSearch
-  export const select: typeof inquirerSelect
+  export { Separator }
 }
 export = Prompts

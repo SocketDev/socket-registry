@@ -1,13 +1,9 @@
-declare function isNodeModules(filepath: string): boolean
-declare function isRelative(filepath: string): boolean
-declare function normalizePath(filePath: string): string
-declare function splitPath(filepath: string): string[]
-declare function trimLeadingDotSlash(filepath: string): string
-declare const pathModule: {
-  isNodeModules: typeof isNodeModules
-  isRelative: typeof isRelative
-  normalizePath: typeof normalizePath
-  splitPath: typeof splitPath
-  trimLeadingDotSlash: typeof trimLeadingDotSlash
+declare const Path: {
+  isNodes(filepath: string): boolean
+  isRelative(filepath: string): boolean
+  normalizePath(filePath: string): string
+  splitPath(filepath: string): string[]
+  trimLeadingDotSlash(filepath: string): string
 }
-export = pathModule
+declare namespace Path {}
+export = Path

@@ -86,7 +86,7 @@ class YoctoSpinner {
   }
 
   set text(value = '') {
-    this.#text = value
+    this.#text = typeof value === 'string' ? value : String(value)
     this.#render()
   }
 

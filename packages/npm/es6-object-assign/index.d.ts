@@ -1,6 +1,6 @@
-declare interface ES6ObjectAssign {
+declare const Es6ObjectAssign: {
   assign: typeof Object.assign
   polyfill: () => void
 }
-declare const es6ObjectAssign: ES6ObjectAssign
-export = es6ObjectAssign
+declare namespace Es6ObjectAssign {}
+export = Es6ObjectAssign
