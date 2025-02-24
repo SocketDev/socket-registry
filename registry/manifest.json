@@ -1,7 +1,7 @@
 {
   "npm": [
     [
-      "pkg:npm/%40socketregistry/abab@1.0.5",
+      "pkg:npm/%40socketregistry/abab@1.0.6",
       {
         "categories": ["cleanup"],
         "deprecated": true,
@@ -10,7 +10,7 @@
         "license": "BSD-3-Clause",
         "name": "@socketregistry/abab",
         "package": "abab",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
@@ -38,7 +38,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/array-flatten@1.0.6",
+      "pkg:npm/%40socketregistry/array-flatten@1.0.7",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -47,7 +47,7 @@
         "name": "@socketregistry/array-flatten",
         "package": "array-flatten",
         "skipTests": true,
-        "version": "1.0.6"
+        "version": "1.0.7"
       }
     ],
     [
@@ -388,7 +388,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/es6-object-assign@1.0.5",
+      "pkg:npm/%40socketregistry/es6-object-assign@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -397,7 +397,7 @@
         "name": "@socketregistry/es6-object-assign",
         "package": "es6-object-assign",
         "skipTests": true,
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
@@ -582,7 +582,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/hyrious__bun.lockb@1.0.12",
+      "pkg:npm/%40socketregistry/hyrious__bun.lockb@1.0.13",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -591,11 +591,11 @@
         "name": "@socketregistry/hyrious__bun.lockb",
         "package": "@hyrious/bun.lockb",
         "skipTests": true,
-        "version": "1.0.12"
+        "version": "1.0.13"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/indent-string@1.0.9",
+      "pkg:npm/%40socketregistry/indent-string@1.0.10",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -603,7 +603,7 @@
         "license": "MIT",
         "name": "@socketregistry/indent-string",
         "package": "indent-string",
-        "version": "1.0.9"
+        "version": "1.0.10"
       }
     ],
     [
@@ -1208,7 +1208,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/safer-buffer@1.0.6",
+      "pkg:npm/%40socketregistry/safer-buffer@1.0.7",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -1217,11 +1217,11 @@
         "name": "@socketregistry/safer-buffer",
         "package": "safer-buffer",
         "skipTests": true,
-        "version": "1.0.6"
+        "version": "1.0.7"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/set-function-length@1.0.5",
+      "pkg:npm/%40socketregistry/set-function-length@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -1229,7 +1229,7 @@
         "license": "MIT",
         "name": "@socketregistry/set-function-length",
         "package": "set-function-length",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
@@ -1533,7 +1533,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/util.promisify@1.0.5",
+      "pkg:npm/%40socketregistry/util.promisify@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -1541,7 +1541,7 @@
         "license": "MIT",
         "name": "@socketregistry/util.promisify",
         "package": "util.promisify",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
@@ -1581,7 +1581,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/yocto-spinner@1.0.6",
+      "pkg:npm/%40socketregistry/yocto-spinner@1.0.7",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -1589,7 +1589,7 @@
         "license": "MIT",
         "name": "@socketregistry/yocto-spinner",
         "package": "yocto-spinner",
-        "version": "1.0.6"
+        "version": "1.0.7"
       }
     ],
     [

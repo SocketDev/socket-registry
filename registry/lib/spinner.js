@@ -81,7 +81,7 @@ function getSpinnerFactory() {
         return this.#apply('warning', args)
       }
 
-      #apply(methodName, ...args) {
+      #apply(methodName, args) {
         let extras
         let text = args.at(0) ?? ''
         if (typeof text !== 'string') {
@@ -92,12 +92,12 @@ function getSpinnerFactory() {
         }
         const result = super[methodName](text)
         if (extras.length) {
-          console.log(extras)
+          console.log(...extras)
         }
         return result
       }
 
-      #applyAndKeepSpinning(methodName, ...args) {
+      #applyAndKeepSpinning(methodName, args) {
         const { isSpinning } = this
         const result = this.#apply(methodName, args)
         if (isSpinning) {
