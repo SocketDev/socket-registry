@@ -17,10 +17,12 @@
   "scripts": {
     "check": "run-p --continue-on-error --aggregate-output check:*",
     "check:lint": "eslint --report-unused-disable-directives .",
+    "check:lint:fix": "npm run check:lint -- --fix",
     "check:tsc": "tsc",
     "clean": "run-p --aggregate-output clean:*",
     "clean:node_modules": "del-cli '**/node_modules'",
     "clean:node_workspaces": "del-cli 'test/**/node_workspaces'",
+    "fix": "run-s lint:fix check:lint:fix",
     "knip:dependencies": "knip --dependencies",
     "knip:exports": "knip --include exports,duplicates",
     "lint": "oxlint -c=./.oxlintrc.json --ignore-path=./.oxlintignore --tsconfig=./tsconfig.json .",
