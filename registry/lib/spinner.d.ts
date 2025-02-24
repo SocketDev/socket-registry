@@ -1,41 +1,45 @@
 import {
-  Color,
-  Options,
+  Color as YoctoColor,
+  Options as YoctoOptions,
   Spinner as YoctoSpinner,
-  SpinnerStyle
+  SpinnerStyle as YoctoSpinnerStyle
 } from '@socketregistry/yocto-spinner/index.cjs'
 import { Remap } from './objects'
 
-declare type Spinner = Remap<
+declare type SpinnerType = Remap<
   Omit<
     YoctoSpinner,
     'error' | 'info' | 'start' | 'stop' | 'success' | 'warning'
   > & {
-    error(text?: string | undefined, ...extras: any[]): Spinner
-    errorAndStop(text?: string | undefined, ...extras: any[]): Spinner
+    error(text?: string | undefined, ...extras: any[]): SpinnerType
+    errorAndStop(text?: string | undefined, ...extras: any[]): SpinnerType
     getText(): string
-    info(text?: string | undefined, ...extras: any[]): Spinner
-    infoAndStop(text?: string | undefined, ...extras: any[]): Spinner
-    log(text?: string | undefined, ...extras: any[]): Spinner
-    logAndStop(text?: string | undefined, ...extras: any[]): Spinner
-    setText(text?: string | undefined): Spinner
-    start(text?: string | undefined, ...extras: any[]): Spinner
-    stop(finalText?: string | undefined, ...extras: any[]): Spinner
-    success(text?: string | undefined, ...extras: any[]): Spinner
-    successAndStop(text?: string | undefined, ...extras: any[]): Spinner
-    warn(text?: string | undefined, ...extras: any[]): Spinner
-    warnAndStop(text?: string | undefined, ...extras: any[]): Spinner
-    warning(text?: string | undefined, ...extras: any[]): Spinner
-    warningAndStop(text?: string | undefined, ...extras: any[]): Spinner
+    info(text?: string | undefined, ...extras: any[]): SpinnerType
+    infoAndStop(text?: string | undefined, ...extras: any[]): SpinnerType
+    log(text?: string | undefined, ...extras: any[]): SpinnerType
+    logAndStop(text?: string | undefined, ...extras: any[]): SpinnerType
+    setText(text?: string | undefined): SpinnerType
+    start(text?: string | undefined, ...extras: any[]): SpinnerType
+    stop(finalText?: string | undefined, ...extras: any[]): SpinnerType
+    success(text?: string | undefined, ...extras: any[]): SpinnerType
+    successAndStop(text?: string | undefined, ...extras: any[]): SpinnerType
+    warn(text?: string | undefined, ...extras: any[]): SpinnerType
+    warnAndStop(text?: string | undefined, ...extras: any[]): SpinnerType
+    warning(text?: string | undefined, ...extras: any[]): SpinnerType
+    warningAndStop(text?: string | undefined, ...extras: any[]): SpinnerType
   }
 >
+
 declare const SpinnerModule: {
-  Spinner: Spinner & {
-    new (options?: Options): Spinner
-    (options?: Options): Spinner
-  }
+  Spinner: {
+    new (options?: YoctoOptions): SpinnerType
+    (options?: YoctoOptions): SpinnerType
+  } & SpinnerType
 }
 declare namespace SpinnerModule {
-  export { Color, Options, SpinnerStyle, Spinner }
+  export type Color = YoctoColor
+  export type Options = YoctoOptions
+  export type Spinner = SpinnerType
+  export type SpinnerStyle = YoctoSpinnerStyle
 }
 export = SpinnerModule
