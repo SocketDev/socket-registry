@@ -29,7 +29,8 @@ const { AT_LATEST, NPM, UNLICENSED } = constants
 
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
-async function addNpmManifestData(manifest) {
+async function addNpmManifestData(manifest, options) {
+  const { spinner } = { __proto__: null, ...options }
   const eco = NPM
   const manifestData = []
   // Lazily access constants.registryExtensionsJsonPath.
@@ -41,7 +42,7 @@ async function addNpmManifestData(manifest) {
     const nmPkgId = `${data.name}@latest`
     const nmPkgManifest = await fetchPackageManifest(nmPkgId)
     if (!nmPkgManifest) {
-      console.warn(`⚠️ ${nmPkgId}: Not found in ${NPM} registry`)
+      spinner?.warn(`${nmPkgId}: Not found in ${NPM} registry`)
       return
     }
     let nmPkgJson
@@ -75,7 +76,7 @@ async function addNpmManifestData(manifest) {
     const nmPkgId = `${origPkgName}@${nmPkgSpec}`
     const nmPkgManifest = await fetchPackageManifest(nmPkgId)
     if (!nmPkgManifest) {
-      console.warn(`⚠️ ${nmPkgId}: Not found in ${NPM} registry`)
+      spinner?.warn(`${nmPkgId}: Not found in ${NPM} registry`)
       return
     }
     let nmPkgJson
@@ -137,7 +138,7 @@ async function addNpmManifestData(manifest) {
     const nmPkgId = `${entry[1].name}${AT_LATEST}`
     const nmPkgManifest = await fetchPackageManifest(nmPkgId)
     if (!nmPkgManifest) {
-      console.warn(`⚠️ ${nmPkgId}: Not found in ${NPM} registry`)
+      spinner?.warn(`${nmPkgId}: Not found in ${NPM} registry`)
       return
     }
     const { version } = nmPkgManifest
@@ -165,7 +166,7 @@ void (async () => {
     text: `Updating ${constants.relRegistryManifestJsonPath}...`
   }).start()
   const manifest = {}
-  await addNpmManifestData(manifest)
+  await addNpmManifestData(manifest, { spinner })
   // Lazily access constants.registryManifestJsonPath.
   const { registryManifestJsonPath } = constants
   const output = await biomeFormat(JSON.stringify(manifest), {

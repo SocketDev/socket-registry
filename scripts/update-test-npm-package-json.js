@@ -137,12 +137,12 @@ async function installMissingPackages(packageNames, options) {
   const {
     devDependencies = (await readPackageJson(testNpmPkgJsonPath))
       .devDependencies,
-    spinner = Spinner()
+    spinner
   } = { __proto__: null, ...options }
   const originalNames = packageNames.map(resolveOriginalPackageName)
   const msg = `Refreshing ${originalNames.length} ${pluralize('package', originalNames.length)}...`
   const msgList = joinAsList(originalNames)
-  spinner.start(
+  spinner?.start(
     msg.length + msgList.length + 3 > COLUMN_LIMIT
       ? `${msg}:\n${msgList}`
       : `${msg} ${msgList}...`
@@ -173,17 +173,19 @@ async function installMissingPackages(packageNames, options) {
       })
     }
     if (cliArgs.quiet) {
-      spinner.stop()
+      spinner?.stop()
     } else {
-      spinner.success(`Refreshed ${pluralize('package', originalNames.length)}`)
+      spinner?.successAndStop(
+        `Refreshed ${pluralize('package', originalNames.length)}`
+      )
     }
   } catch {
-    spinner.error('Failed to refresh packages')
+    spinner?.errorAndStop('Failed to refresh packages')
   }
 }
 
 async function installMissingPackageTests(packageNames, options) {
-  const { spinner = Spinner() } = { __proto__: null, ...options }
+  const { spinner } = { __proto__: null, ...options }
   const originalNames = packageNames.map(resolveOriginalPackageName)
   const resolvable = []
   const unresolvable = []
@@ -198,7 +200,7 @@ async function installMissingPackageTests(packageNames, options) {
       content: { version: nmPkgVer }
     } = await readCachedEditablePackageJson(nmPkgPath)
     const pkgId = `${origPkgName}@${nmPkgVer}`
-    spinner.start(`Resolving GitHub tarball URL for ${pkgId}...`)
+    spinner?.start(`Resolving GitHub tarball URL for ${pkgId}...`)
 
     const gitHubTgzUrl = await resolveGitHubTgzUrl(pkgId, nmPkgPath)
     if (gitHubTgzUrl) {
@@ -218,10 +220,10 @@ async function installMissingPackageTests(packageNames, options) {
       // Collect package names we failed to resolve tarballs for.
       unresolvable.push(origPkgName)
     }
-    spinner.stop()
+    spinner?.stop()
   })
   if (resolvable.length) {
-    spinner.start(
+    spinner?.start(
       `Refreshing ${resolvable.join(', ')} from ${pluralize('tarball', resolvable.length)}...`
     )
     try {
@@ -231,12 +233,12 @@ async function installMissingPackageTests(packageNames, options) {
         spinner
       })
       if (cliArgs.quiet) {
-        spinner.stop()
+        spinner?.stop()
       } else {
-        spinner.success('Refreshed packages from tarball')
+        spinner?.successAndStop('Refreshed packages from tarball')
       }
     } catch {
-      spinner.error('Failed to refresh packages from tarball')
+      spinner?.errorAndStop('Failed to refresh packages from tarball')
     }
   }
   if (unresolvable.length) {
@@ -321,8 +323,8 @@ async function resolveDevDependencies(packageNames, options) {
 
 async function linkPackages(packageNames, options) {
   // Link files and cleanup package.json scripts of test/npm/node_modules packages.
-  const { spinner = Spinner() } = { __proto__: null, ...options }
-  spinner.start('Linking packages...')
+  const { spinner } = { __proto__: null, ...options }
+  spinner?.start('Linking packages...')
 
   const linkedPackageNames = []
   let issueCount = 0
@@ -505,7 +507,7 @@ async function linkPackages(packageNames, options) {
     const isModuleTypeMismatch = isNmPkgTypeModule !== isPkgTypeModule
     if (isModuleTypeMismatch) {
       issueCount += 1
-      spinner.text = `⚠️ ${origPkgName}: Module type mismatch`
+      spinner?.warn(`${origPkgName}: Module type mismatch`)
     }
     const actions = new Map()
     for (const jsFile of await tinyGlob(['**/*.{cjs,js,json}'], {
@@ -551,9 +553,9 @@ async function linkPackages(packageNames, options) {
     linkedPackageNames.push(sockRegPkgName)
   })
   if (!issueCount || cliArgs.quiet) {
-    spinner.stop()
+    spinner?.stop()
   } else if (issueCount) {
-    spinner.success('Packages linked')
+    spinner?.successAndStop('Packages linked')
   }
   return linkedPackageNames
 }
@@ -561,8 +563,8 @@ async function linkPackages(packageNames, options) {
 async function cleanupNodeWorkspaces(linkedPackageNames, options) {
   // Cleanup up override packages and move them from
   // test/npm/node_modules/ to test/npm/node_workspaces/
-  const { spinner = Spinner() } = { __proto__: null, ...options }
-  spinner.start(`Cleaning up ${relTestNpmPath} workspaces...`)
+  const { spinner } = { __proto__: null, ...options }
+  spinner?.start(`Cleaning up ${relTestNpmPath} workspaces...`)
 
   // Chunk package names to process them in parallel 3 at a time.
   await pEach(linkedPackageNames, 3, async n => {
@@ -609,22 +611,21 @@ async function cleanupNodeWorkspaces(linkedPackageNames, options) {
     await move(srcPath, destPath, { overwrite: true })
   })
   if (cliArgs.quiet) {
-    spinner.stop()
+    spinner?.stop()
   } else {
-    spinner.success('Workspaces cleaned (so fresh and so clean, clean)')
+    spinner?.successAndStop('Workspaces cleaned (so fresh and so clean, clean)')
   }
 }
 
 async function installNodeWorkspaces(options) {
-  const { spinner = Spinner() } = { __proto__: null, ...options }
-  spinner.start(`Installing ${relTestNpmPath} workspaces... (☕ break)`)
+  const { spinner } = { __proto__: null, ...options }
+  spinner?.start(`Installing ${relTestNpmPath} workspaces... (☕ break)`)
   // Finally install workspaces.
   try {
     await installTestNpmNodeModules({ clean: 'deep', spinner })
-    spinner.stop()
+    spinner?.stop()
   } catch (e) {
-    spinner.error('Installation encountered an error:')
-    console.log(e)
+    spinner?.errorAndStop('Installation encountered an error:', e)
   }
 }
 
@@ -650,11 +651,10 @@ void (async () => {
       if (cliArgs.quiet) {
         spinner.stop()
       } else {
-        spinner.success(`Initialized ${relTestNpmNodeModulesPath}`)
+        spinner.successAndStop(`Initialized ${relTestNpmNodeModulesPath}`)
       }
     } catch (e) {
-      spinner.error('Initialization encountered an error:')
-      console.log(e)
+      spinner.errorAndStop('Initialization encountered an error:', e)
     }
   }
   const packageNames = addingPkgNames
