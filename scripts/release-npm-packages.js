@@ -94,7 +94,8 @@ async function hasPackageChanged(pkg, manifest_) {
   )
 }
 
-async function installBundledDependencies(pkg) {
+async function installBundledDependencies(pkg, options) {
+  const { spinner } = { __proto__: null, ...options }
   try {
     // Install bundled dependencies, including overrides.
     await execNpm(
@@ -118,13 +119,14 @@ async function installBundledDependencies(pkg) {
       }
     )
   } catch (e) {
-    console.log(e)
+    spinner?.error(e)
   }
 }
 
 async function maybeBumpPackage(pkg, options = {}) {
   const {
     signal,
+    spinner,
     state = {
       bumped: [],
       bumpedPrerelease: [],
@@ -165,7 +167,7 @@ async function maybeBumpPackage(pkg, options = {}) {
       if (isPrerelease) {
         state.changedPrerelease.push(pkg)
       }
-      console.log(`+${pkg.name}@${manifest.version} -> ${version}`)
+      spinner?.log(`+${pkg.name}@${manifest.version} -> ${version}`)
     }
     state.bumped.push(pkg)
     if (isPrerelease) {
@@ -260,7 +262,7 @@ void (async () => {
     prereleasePackages,
     3,
     async pkg => {
-      await maybeBumpPackage(pkg, { signal: abortSignal, state })
+      await maybeBumpPackage(pkg, { signal: abortSignal, spinner, state })
     },
     { signal: abortSignal }
   )
@@ -280,7 +282,11 @@ void (async () => {
     await updateOverrideVersionInParent(pkg, pkg.manifest.version)
   })
   // Chunk bundled packages to process them in parallel 3 at a time.
-  await pEach(bundledPackages, 3, installBundledDependencies)
+  await pEach(
+    bundledPackages,
+    3,
+    async pkg => await installBundledDependencies(pkg, { spinner })
+  )
   // Chunk changed prerelease packages to process them in parallel 3 at a time.
   await pEach(bumpedPrereleasePackages, 3, async pkg => {
     // Update override version in parent package AFTER npm install of bundled
@@ -317,13 +323,14 @@ void (async () => {
   await runScript('update:manifest', ['--', '--force'], spawnOptions)
 
   if (!bumpedPackages.find(pkg => pkg === registryPkg)) {
+    spinner.start()
     const version = semver.inc(registryPkg.manifest.version, 'patch')
     const editablePkgJson = await readPackageJson(registryPkg.path, {
       editable: true
     })
     editablePkgJson.update({ version })
     await editablePkgJson.save()
-    console.log(
+    spinner.stop(
       `+${registryPkg.name}@${registryPkg.manifest.version} -> ${version}`
     )
   }
