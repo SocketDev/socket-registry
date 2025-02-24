@@ -1,8 +1,8 @@
-declare interface Env {
+declare const Env: {
   boundFnsHaveConfigurableLengths: boolean
   boundFnsHaveWritableLengths: boolean
   functionsHaveConfigurableLengths: boolean
   functionsHaveWritableLengths: boolean
 }
-declare const env: Env
-export = env
+declare namespace Env {}
+export = Env

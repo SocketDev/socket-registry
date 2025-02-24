@@ -1,7 +1,7 @@
 /// <reference types="node" />
-declare interface Abab {
+declare const Abab: {
   atob: typeof atob
   btoa: typeof btoa
 }
-declare const abab: Abab
-export = abab
+declare namespace Abab {}
+export = Abab

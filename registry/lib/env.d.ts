@@ -1,7 +1,6 @@
-declare function envAsBoolean(value: any): boolean
-declare function envAsString(value: any): string
-declare const envModule: {
-  envAsBoolean: typeof envAsBoolean
-  envAsString: typeof envAsString
+declare const Env: {
+  envAsBoolean(value: any): boolean
+  envAsString(value: any): string
 }
-export = envModule
+declare namespace Env {}
+export = Env

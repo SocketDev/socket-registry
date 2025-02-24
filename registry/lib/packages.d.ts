@@ -7,75 +7,67 @@ import {
 } from 'pacote'
 import { CategoryString } from '../index'
 
-declare namespace PackagesModule {
-  export type Exports = Exclude<PackageJson['exports'], undefined>
-  export type PackageJson = NPMCliPackageJson.Content & {
-    socket?: { categories: CategoryString }
-  }
-  export class EditablePackageJson extends NPMCliPackageJson {
-    content: Readonly<PackageJson>
-    saveSync: () => void
-  }
-  export type NormalizedPackageJson = Omit<PackageJson, 'repository'> & {
-    repository?: Exclude<PackageJson['repository'], string>
-  }
-  export type PacoteOptions = PacoteOptionsRaw & {
-    signal?: AbortSignal
-  }
-  export type ExtractOptions = PacoteOptions & {
-    dest?: string
-    tmpPrefix?: string
-  }
-  export interface LicenseNode {
-    license: string
-    exception?: string
-    inFile?: string
-    plus?: boolean
-  }
-  export function collectIncompatibleLicenses(
-    licenseNodes: LicenseNode[]
-  ): LicenseNode[]
-  export function collectLicenseWarnings(licenseNodes: LicenseNode[]): string[]
-  export function createPackageJson(
+declare class EditablePackageJson extends NPMCliPackageJson {
+  content: Readonly<PackageJson>
+  saveSync: () => void
+}
+declare type Exports = Exclude<PackageJson['exports'], undefined>
+declare type ExtractOptions = PacoteOptions & {
+  dest?: string
+  tmpPrefix?: string
+}
+declare interface LicenseNode {
+  license: string
+  exception?: string
+  inFile?: string
+  plus?: boolean
+}
+declare type NormalizedPackageJson = Omit<PackageJson, 'repository'> & {
+  repository?: Exclude<PackageJson['repository'], string>
+}
+declare type PackageJson = NPMCliPackageJson.Content & {
+  socket?: { categories: CategoryString }
+}
+declare type PacoteOptions = PacoteOptionsRaw & {
+  signal?: AbortSignal
+}
+declare const Packages: {
+  collectIncompatibleLicenses(licenseNodes: LicenseNode[]): LicenseNode[]
+  collectLicenseWarnings(licenseNodes: LicenseNode[]): string[]
+  createPackageJson(
     sockRegPkgName: string,
     directory: string,
     options: PackageJson
   ): PackageJson
-  export function extractPackage(
+  extractPackage(
     pkgNameOrId: string,
     options: ExtractOptions,
     callback: (destPath: string) => Promise<any>
   ): Promise<void>
-  export function fetchPackageManifest(
+  fetchPackageManifest(
     pkgNameOrId: string,
     options?: PacoteOptions
   ): Promise<Awaited<ReturnType<typeof PacoteManifestFn>> | null>
-  export function fetchPackagePackument(
+  fetchPackagePackument(
     pkgNameOrId: string,
     options?: PacoteOptions
   ): Promise<Awaited<ReturnType<typeof PacotePackumentFn>> | null>
-  export function findTypesForSubpath(
+  findTypesForSubpath(
     entryExports: Exports,
     subpath: string
   ): string | undefined
-  export function getSubpaths(entryExports: Exports): string[]
-  export function isBlessedPackageName(name: any): boolean
-  export function isConditionalExports(entryExports: Exports): boolean
-  export function isGitHubTgzSpec(
-    spec: string,
-    where?: string | undefined
-  ): boolean
-  export function isGitHubUrlSpec(
-    spec: string,
-    where?: string | undefined
-  ): boolean
-  export function isSubpathExports(entryExports: Exports): boolean
-  export function isValidPackageName(name: any): boolean
-  export function normalizePackageJson(
+  getSubpaths(entryExports: Exports): string[]
+  isBlessedPackageName(name: any): boolean
+  isConditionalExports(entryExports: Exports): boolean
+  isGitHubTgzSpec(spec: string, where?: string | undefined): boolean
+  isGitHubUrlSpec(spec: string, where?: string | undefined): boolean
+  isSubpathExports(entryExports: Exports): boolean
+  isValidPackageName(name: any): boolean
+  normalizePackageJson(
     pkgJson: PackageJson,
     options?: { preserve?: string[] }
   ): NormalizedPackageJson
-  export function packPackage(
+  packPackage(
     spec: string,
     options?: PacoteOptions & {
       args?: string[]
@@ -90,54 +82,59 @@ declare namespace PackagesModule {
       stdioString?: boolean
     }
   ): Promise<Awaited<ReturnType<typeof PacoteTarballFn>>>
-  export function readPackageJson(
+  readPackageJson(
     filepath: string,
     options: { editable: true; preserve?: string[] }
   ): Promise<EditablePackageJson>
-  export function readPackageJson(
+  readPackageJson(
     filepath: string,
     options?: { editable?: false; preserve?: string[] }
   ): Promise<PackageJson>
-  export function readPackageJsonSync(
+  readPackageJsonSync(
     filepath: string,
     options: { editable: true; preserve?: string[] }
   ): EditablePackageJson
-  export function readPackageJsonSync(
+  readPackageJsonSync(
     filepath: string,
     options?: { editable?: false; preserve?: string[] }
   ): PackageJson
-  export function resolveEscapedScope(sockRegPkgName: string): string
-  export function resolveGitHubTgzUrl(
-    pkgNameOrId: string,
-    where: string
-  ): Promise<string>
-  export function resolveOriginalPackageName(sockRegPkgName: string): string
-  export function resolvePackageJsonDirname(filepath: string): string
-  export function resolvePackageJsonEntryExports(
-    entryExports: any
-  ): Exports | undefined
-  export function resolvePackageJsonPath(filepath: string): string
-  export function resolvePackageLicenses(
+  resolveEscapedScope(sockRegPkgName: string): string
+  resolveGitHubTgzUrl(pkgNameOrId: string, where: string): Promise<string>
+  resolveOriginalPackageName(sockRegPkgName: string): string
+  resolvePackageJsonDirname(filepath: string): string
+  resolvePackageJsonEntryExports(entryExports: any): Exports | undefined
+  resolvePackageJsonPath(filepath: string): string
+  resolvePackageLicenses(
     licenseFieldValue: string,
     where: string
   ): LicenseNode[]
-  export function resolvePackageName(
+  resolvePackageName(
     purlObj: {
       name: string
       namespace?: string | undefined
     },
     delimiter?: string | undefined
   ): string
-  export function resolveRegistryPackageName(pkgName: string): string
-  export function toEditablePackageJson(
+  resolveRegistryPackageName(pkgName: string): string
+  toEditablePackageJson(
     pkgJson: PackageJson,
     options: { path?: string; preserve?: string[] }
   ): Promise<EditablePackageJson>
-  export function toEditablePackageJsonSync(
+  toEditablePackageJsonSync(
     pkgJson: PackageJson,
     options: { path?: string; preserve?: string[] }
   ): EditablePackageJson
-  export function unescapeScope(escapedScope: string): string
+  unescapeScope(escapedScope: string): string
 }
-declare const packagesModule: typeof PackagesModule
-export = packagesModule
+declare namespace Packages {
+  export type EditablePackageJson = typeof EditablePackageJson
+  export {
+    Exports,
+    ExtractOptions,
+    LicenseNode,
+    NormalizedPackageJson,
+    PackageJson,
+    PacoteOptions
+  }
+}
+export = Packages

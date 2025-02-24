@@ -1,30 +1,35 @@
 // <reference types="node" />
 import { SpawnOptions } from 'node:child_process'
+import { Remap } from './objects'
 
-declare type PromiseSpawnOptions = {
-  cwd?: string
-  stdioString?: boolean
-} & SpawnOptions
-declare interface RunScriptOptions extends PromiseSpawnOptions {
-  prepost?: boolean
+declare type PromiseSpawnOptions = Remap<
+  {
+    cwd?: string
+    stdioString?: boolean
+  } & SpawnOptions
+>
+declare type RunScriptOptions = Remap<
+  PromiseSpawnOptions & {
+    prepost?: boolean
+  }
+>
+declare const Npm: {
+  execNpm(
+    args: string[],
+    options?: PromiseSpawnOptions
+  ): Promise<{ stdout: string; stderr: string }>
+  runBin(
+    binPath: string,
+    args: string[],
+    options?: PromiseSpawnOptions
+  ): Promise<{ stdout: string; stderr: string }>
+  runScript(
+    scriptName: string,
+    args: string[],
+    options?: RunScriptOptions
+  ): Promise<{ stdout: string; stderr: string }>
 }
-declare function execNpm(
-  args: string[],
-  options?: PromiseSpawnOptions
-): Promise<{ stdout: string; stderr: string }>
-declare function runBin(
-  binPath: string,
-  args: string[],
-  options?: PromiseSpawnOptions
-): Promise<{ stdout: string; stderr: string }>
-declare function runScript(
-  scriptName: string,
-  args: string[],
-  options?: RunScriptOptions
-): Promise<{ stdout: string; stderr: string }>
-declare const npmModule: {
-  execNpm: typeof execNpm
-  runBin: typeof runBin
-  runScript: typeof runScript
+declare namespace Npm {
+  export { PromiseSpawnOptions, RunScriptOptions }
 }
-export = npmModule
+export = Npm

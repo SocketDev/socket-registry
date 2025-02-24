@@ -1,5 +1,5 @@
-declare function escapeRegExp(str: string): string
-declare const regexpsModule: {
-  escapeRegExp: typeof escapeRegExp
+declare const Regexps: {
+  escapeRegExp(str: string): string
 }
-export = regexpsModule
+declare namespace Regexps {}
+export = Regexps

@@ -7,78 +7,82 @@ import {
 } from 'node:fs'
 import NPMCliPackageJson from '@npmcli/package-json'
 import constants from './constants'
+import { Remap } from './objects'
 
 declare type Internals = (typeof constants)[typeof constants.kInternalsSymbol]
 declare type BufferEncoding =
   | 'ascii'
+  | 'binary'
+  | 'base64'
+  | 'base64url'
+  | 'hex'
+  | 'latin1'
   | 'utf8'
   | 'utf-8'
   | 'utf16le'
   | 'utf-16le'
   | 'ucs2'
   | 'ucs-2'
-  | 'base64'
-  | 'base64url'
-  | 'latin1'
-  | 'binary'
-  | 'hex'
 declare type ReadFileOptions =
-  | (ObjectEncodingOptions & {
-      flag?: string | undefined
-    })
+  | Remap<
+      ObjectEncodingOptions & {
+        flag?: string | undefined
+      }
+    >
   | BufferEncoding
   | null
-declare type ReadJsonOptions = ReadFileOptions & {
-  throws?: boolean
-  reviver?: Parameters<typeof JSON.parse>[1]
-}
-declare interface ReadDirOptions {
+declare type ReadJsonOptions = Remap<
+  ReadFileOptions & {
+    throws?: boolean
+    reviver?: Parameters<typeof JSON.parse>[1]
+  }
+>
+declare type ReadDirOptions = {
   includeEmpty?: boolean
   sort?: boolean
 }
-declare type WriteJsonOptions = WriteFileOptions & {
-  EOL?: string
-  finalEOL?: boolean
-  replacer?: Parameters<typeof JSON.stringify>[1]
-  spaces?: Parameters<typeof JSON.stringify>[2]
-}
-declare function isSymbolicLinkSync(filepath: PathLike): boolean
-declare function readDirNames(
-  dirname: PathLike,
-  options?: ReadDirOptions
-): Promise<string[]>
-declare function readJson(
-  filepath: PathLike,
-  options?: ReadJsonOptions
-): Promise<NPMCliPackageJson.Content>
-declare function readJsonSync(
-  filepath: PathLike,
-  options?: ReadJsonOptions
-): NPMCliPackageJson.Content
-declare function remove(filepath: PathLike, options?: RmOptions): Promise<void>
-declare function removeSync(filepath: PathLike, options?: RmOptions): void
-declare function uniqueSync(filepath: PathLike): string
-declare function writeJson(
-  filepath: PathLike,
-  json: NPMCliPackageJson.Content,
-  options?: WriteJsonOptions
-): Promise<void>
-declare function writeJsonSync(
-  filepath: PathLike,
-  json: NPMCliPackageJson.Content,
-  options?: WriteJsonOptions
-): void
-declare const fs: {
+declare type WriteJsonOptions = Remap<
+  WriteFileOptions & {
+    EOL?: string
+    finalEOL?: boolean
+    replacer?: Parameters<typeof JSON.stringify>[1]
+    spaces?: Parameters<typeof JSON.stringify>[2]
+  }
+>
+declare const Fs: {
   isDirEmptySync: Internals['isDirEmptySync']
-  isSymbolicLinkSync: typeof isSymbolicLinkSync
-  readDirNames: typeof readDirNames
+  isSymbolicLinkSync(filepath: PathLike): boolean
+  readDirNames(dirname: PathLike, options?: ReadDirOptions): Promise<string[]>
   readDirNamesSync: Internals['readDirNamesSync']
-  readJson: typeof readJson
-  readJsonSync: typeof readJsonSync
-  remove: typeof remove
-  removeSync: typeof removeSync
-  uniqueSync: typeof uniqueSync
-  writeJson: typeof writeJson
-  writeJsonSync: typeof writeJsonSync
+  readJson(
+    filepath: PathLike,
+    options?: ReadJsonOptions
+  ): Promise<NPMCliPackageJson.Content>
+  readJsonSync(
+    filepath: PathLike,
+    options?: ReadJsonOptions
+  ): NPMCliPackageJson.Content
+  remove(filepath: PathLike, options?: RmOptions): Promise<void>
+  removeSync(filepath: PathLike, options?: RmOptions): void
+  uniqueSync(filepath: PathLike): string
+  writeJson(
+    filepath: PathLike,
+    json: NPMCliPackageJson.Content,
+    options?: WriteJsonOptions
+  ): Promise<void>
+  writeJsonSync(
+    filepath: PathLike,
+    json: NPMCliPackageJson.Content,
+    options?: WriteJsonOptions
+  ): void
 }
-export = fs
+declare namespace Fs {
+  export {
+    BufferEncoding,
+    ReadFileOptions,
+    ReadJsonOptions,
+    ReadDirOptions,
+    WriteJsonOptions
+  }
+}
+export = Fs

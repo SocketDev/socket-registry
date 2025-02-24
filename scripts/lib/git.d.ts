@@ -1,83 +1,62 @@
 import { PathLike } from 'node:fs'
 
-declare interface DiffOptions {
-  cache?: boolean
-  absolute?: boolean
-  cwd?: string
+declare type DiffOptions = {
+  cache?: boolean | undefined
+  absolute?: boolean | undefined
+  cwd?: string | undefined
   [key: string]: any
 }
-declare interface GetPackagesOptionsAsArray {
-  asSet?: false
+declare type GetPackagesOptionsAsArray = {
+  asSet?: false | undefined
   [key: string]: any
 }
-declare interface GetPackagesOptionsAsSet {
+declare type GetPackagesOptionsAsSet = {
   asSet: true
   [key: string]: any
 }
-declare function getModifiedFiles(options?: DiffOptions): Promise<string[]>
-declare function getModifiedFilesSync(options?: DiffOptions): string[]
-declare function getModifiedPackages(
-  eco: string,
-  options?: GetPackagesOptionsAsArray
-): Promise<string[]>
-declare function getModifiedPackages(
-  eco: string,
-  options: GetPackagesOptionsAsSet
-): Promise<Set<string>>
-declare function getModifiedPackagesSync(
-  eco: string,
-  options?: GetPackagesOptionsAsArray
-): string[]
-declare function getModifiedPackagesSync(
-  eco: string,
-  options: GetPackagesOptionsAsSet
-): Set<string>
-declare function getStagedFiles(options?: DiffOptions): Promise<string[]>
-declare function getStagedFilesSync(options?: DiffOptions): string[]
-declare function getStagedPackages(
-  eco: string,
-  options?: GetPackagesOptionsAsArray
-): Promise<string[]>
-declare function getStagedPackages(
-  eco: string,
-  options: GetPackagesOptionsAsSet
-): Promise<Set<string>>
-declare function getStagedPackagesSync(
-  eco: string,
-  options?: GetPackagesOptionsAsArray
-): string[]
-declare function getStagedPackagesSync(
-  eco: string,
-  options: GetPackagesOptionsAsSet
-): Set<string>
-declare function isModified(
-  pathname: PathLike,
-  options?: DiffOptions
-): Promise<boolean>
-declare function isModifiedSync(
-  pathname: PathLike,
-  options?: DiffOptions
-): boolean
-declare function isStaged(
-  pathname: PathLike,
-  options?: DiffOptions
-): Promise<boolean>
-declare function isStagedSync(
-  pathname: PathLike,
-  options?: DiffOptions
-): boolean
-declare const gitModule: {
-  getModifiedFiles: typeof getModifiedFiles
-  getModifiedFilesSync: typeof getModifiedFilesSync
-  getModifiedPackages: typeof getModifiedPackages
-  getModifiedPackagesSync: typeof getModifiedPackagesSync
-  getStagedFiles: typeof getStagedFiles
-  getStagedFilesSync: typeof getStagedFilesSync
-  getStagedPackages: typeof getStagedPackages
-  getStagedPackagesSync: typeof getStagedPackagesSync
-  isModified: typeof isModified
-  isModifiedSync: typeof isModifiedSync
-  isStaged: typeof isStaged
-  isStagedSync: typeof isStagedSync
+declare const Git: {
+  getModifiedFiles(options?: DiffOptions): Promise<string[]>
+  getModifiedFilesSync(options?: DiffOptions): string[]
+  getModifiedPackages(
+    eco: string,
+    options?: GetPackagesOptionsAsArray
+  ): Promise<string[]>
+  getModifiedPackages(
+    eco: string,
+    options: GetPackagesOptionsAsSet
+  ): Promise<Set<string>>
+  getModifiedPackagesSync(
+    eco: string,
+    options?: GetPackagesOptionsAsArray
+  ): string[]
+  getModifiedPackagesSync(
+    eco: string,
+    options: GetPackagesOptionsAsSet
+  ): Set<string>
+  getStagedFiles(options?: DiffOptions): Promise<string[]>
+  getStagedFilesSync(options?: DiffOptions): string[]
+  getStagedPackages(
+    eco: string,
+    options?: GetPackagesOptionsAsArray
+  ): Promise<string[]>
+  getStagedPackages(
+    eco: string,
+    options: GetPackagesOptionsAsSet
+  ): Promise<Set<string>>
+  getStagedPackagesSync(
+    eco: string,
+    options?: GetPackagesOptionsAsArray
+  ): string[]
+  getStagedPackagesSync(
+    eco: string,
+    options: GetPackagesOptionsAsSet
+  ): Set<string>
+  isModified(pathname: PathLike, options?: DiffOptions): Promise<boolean>
+  isModifiedSync(pathname: PathLike, options?: DiffOptions): boolean
+  isStaged(pathname: PathLike, options?: DiffOptions): Promise<boolean>
+  isStagedSync(pathname: PathLike, options?: DiffOptions): boolean
 }
-export = gitModule
+declare namespace Git {
+  export { DiffOptions, GetPackagesOptionsAsArray, GetPackagesOptionsAsSet }
+}
+export = Git
