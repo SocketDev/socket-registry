@@ -406,6 +406,7 @@ const TSCONFIG_JSON = 'tsconfig.json'
 const UNDEFINED_TOKEN = {}
 const UNLICENCED = 'UNLICENCED'
 const UNLICENSED = 'UNLICENSED'
+const VITEST = 'VITEST'
 
 // https://nodejs.org/api/all.html#all_cli_--disable-warningcode-or-type
 const LAZY_SUPPORTS_NODE_DISABLE_WARNING_FLAG = () =>
@@ -429,27 +430,30 @@ const LAZY_SUPPORTS_PROCESS_SEND = () =>
 
 const LAZY_ENV = () => {
   const {
-    env: { CI, NODE_AUTH_TOKEN, NODE_ENV, PRE_COMMIT, TAP }
+    env: { CI, NODE_AUTH_TOKEN, NODE_ENV, PRE_COMMIT, TAP, VITEST }
   } = getProcess()
   return Object.freeze({
     __proto__: null,
     // CI is always set to 'true' in a GitHub action.
     // https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables
-    CI: envAsBoolean(CI),
+    [CI]: envAsBoolean(CI),
     // .github/workflows/provenance.yml defines this.
     // https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-nodejs-packages
-    NODE_AUTH_TOKEN: envAsString(NODE_AUTH_TOKEN),
+    [NODE_AUTH_TOKEN]: envAsString(NODE_AUTH_TOKEN),
     // NODE_ENV is a recognized convention, but not a built-in Node.js feature.
-    NODE_ENV:
+    [NODE_ENV]:
       envAsString(NODE_ENV).toLowerCase() === 'development'
         ? 'development'
         : 'production',
     // PRE_COMMIT is set to '1' by our 'test-pre-commit' script run by the
     // .husky/pre-commit hook.
-    PRE_COMMIT: envAsBoolean(PRE_COMMIT),
+    [PRE_COMMIT]: envAsBoolean(PRE_COMMIT),
     // TAP=1 is set by the tap-run test runner.
     // https://node-tap.org/environment/#environment-variables-used-by-tap
-    TAP: envAsBoolean(TAP)
+    [TAP]: envAsBoolean(TAP),
+    // VITEST=true is set by the Vitest test runner.
+    // https://vitest.dev/config/#configuring-vitest
+    [VITEST]: envAsBoolean(VITEST)
   })
 }
 
@@ -861,6 +865,7 @@ const constants = createConstantsObject(
     UNDEFINED_TOKEN,
     UNLICENCED,
     UNLICENSED,
+    VITEST,
     WIN32: undefined,
     abortController,
     abortSignal,

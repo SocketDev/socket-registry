@@ -22,6 +22,7 @@ interface ENV {
   readonly NODE_ENV: string
   readonly PRE_COMMIT: boolean
   readonly TAP: boolean
+  readonly VITEST: boolean
 }
 declare type GetterDefObj = { [key: PropertyKey]: () => any }
 declare type IPC = Readonly<{ [key: string]: Serializable }>
@@ -172,6 +173,7 @@ declare const Constants: {
   readonly UNDEFINED_TOKEN: {}
   readonly UNLICENCED: 'UNLICENCED'
   readonly UNLICENSED: 'UNLICENSED'
+  readonly VITEST: 'VITEST'
   readonly WIN32: boolean
   readonly abortController: AbortController
   readonly abortSignal: AbortSignal
