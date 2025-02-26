@@ -19,6 +19,7 @@ declare type ConstantsObjectOptions = {
 interface ENV {
   readonly CI: boolean
   readonly NODE_AUTH_TOKEN: string
+  readonly NODE_ENV: string
   readonly PRE_COMMIT: boolean
   readonly TAP: boolean
 }
@@ -109,6 +110,7 @@ declare const Constants: {
   readonly 'Symbol(kInternalsSymbol)': Internals
   readonly AT_LATEST: '@latest'
   readonly BIOME_JSON: 'biome.json'
+  readonly CI: 'CI'
   readonly COLUMN_LIMIT: 80
   readonly EMPTY_FILE: '/* empty */\n'
   readonly ENV: ENV
@@ -128,6 +130,8 @@ declare const Constants: {
   readonly LOOP_SENTINEL: 1_000_000
   readonly MANIFEST_JSON: 'manifest.json'
   readonly MIT: 'MIT'
+  readonly NODE_AUTH_TOKEN: 'NODE_AUTH_TOKEN'
+  readonly NODE_ENV: 'NODE_ENV'
   readonly NODE_MODULES: 'node_modules'
   readonly NODE_MODULES_GLOB_RECURSIVE: '**/node_modules'
   readonly NODE_WORKSPACES: 'node_workspaces'
@@ -141,6 +145,7 @@ declare const Constants: {
   readonly PACKAGE_JSON: 'package.json'
   readonly PACKAGE_LOCK: 'package-lock.json'
   readonly PACKAGE_SCOPE: '@socketregistry'
+  readonly PRE_COMMIT: 'PRE_COMMIT'
   readonly README_GLOB: 'README{.*,}'
   readonly README_GLOB_RECURSIVE: '**/README{.*,}'
   readonly README_MD: 'README.md'
@@ -156,6 +161,7 @@ declare const Constants: {
   readonly SUPPORTS_NODE_REQUIRE_MODULE: boolean
   readonly SUPPORTS_NODE_RUN: boolean
   readonly SUPPORTS_PROCESS_SEND: boolean
+  readonly TAP: 'TAP'
   readonly TEMPLATE_CJS: 'cjs'
   readonly TEMPLATE_CJS_BROWSER: 'cjs-browser'
   readonly TEMPLATE_CJS_ESM: 'cjs-esm'

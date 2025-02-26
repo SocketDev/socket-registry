@@ -350,6 +350,7 @@ function readDirNamesSync(dirname, options) {
 }
 
 const BIOME_JSON = 'biome.json'
+const CI = 'CI'
 const COLUMN_LIMIT = 80
 const EMPTY_FILE = '/* empty */\n'
 const ESLINT_CONFIG_JS = 'eslint.config.js'
@@ -368,6 +369,8 @@ const LOOP_SENTINEL = 1_000_000
 const GIT_IGNORE = '.gitignore'
 const MANIFEST_JSON = 'manifest.json'
 const MIT = 'MIT'
+const NODE_AUTH_TOKEN = 'NODE_AUTH_TOKEN'
+const NODE_ENV = 'NODE_ENV'
 const NODE_MODULES = 'node_modules'
 const NODE_MODULES_GLOB_RECURSIVE = `**/${NODE_MODULES}`
 const NODE_WORKSPACES = 'node_workspaces'
@@ -379,6 +382,7 @@ const PACKAGE_DEFAULT_VERSION = '1.0.0'
 const PACKAGE_JSON = 'package.json'
 const PACKAGE_LOCK = 'package-lock.json'
 const PACKAGE_SCOPE = `@${NPM_ORG}`
+const PRE_COMMIT = 'PRE_COMMIT'
 const README_GLOB = 'README{.*,}'
 const README_GLOB_RECURSIVE = `**/${README_GLOB}`
 const README_MD = 'README.md'
@@ -391,6 +395,7 @@ const SOCKET_PUBLIC_API_TOKEN =
 const SOCKET_PUBLIC_API_KEY = SOCKET_PUBLIC_API_TOKEN
 const SOCKET_REPO_ORG = 'SocketDev'
 const SOCKET_REGISTRY_REPO_NAME = 'socket-registry'
+const TAP = 'TAP'
 const TEMPLATE_CJS = 'cjs'
 const TEMPLATE_CJS_BROWSER = 'cjs-browser'
 const TEMPLATE_CJS_ESM = 'cjs-esm'
@@ -793,6 +798,7 @@ const constants = createConstantsObject(
   {
     AT_LATEST,
     BIOME_JSON,
+    CI,
     COLUMN_LIMIT,
     EMPTY_FILE,
     ENV: undefined,
@@ -812,6 +818,8 @@ const constants = createConstantsObject(
     LOOP_SENTINEL,
     MANIFEST_JSON,
     MIT,
+    NODE_AUTH_TOKEN,
+    NODE_ENV,
     NODE_MODULES,
     NODE_MODULES_GLOB_RECURSIVE,
     NODE_WORKSPACES,
@@ -826,6 +834,7 @@ const constants = createConstantsObject(
     PACKAGE_JSON,
     PACKAGE_LOCK,
     PACKAGE_SCOPE,
+    PRE_COMMIT,
     README_GLOB,
     README_GLOB_RECURSIVE,
     README_MD,
@@ -841,6 +850,7 @@ const constants = createConstantsObject(
     SUPPORTS_NODE_REQUIRE_MODULE: undefined,
     SUPPORTS_NODE_RUN: undefined,
     SUPPORTS_PROCESS_SEND: undefined,
+    TAP,
     TEMPLATE_CJS,
     TEMPLATE_CJS_BROWSER,
     TEMPLATE_CJS_ESM,
