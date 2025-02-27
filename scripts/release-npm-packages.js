@@ -11,9 +11,11 @@ const { readDirNames } = require('@socketsecurity/registry/lib/fs')
 const { execNpm, runScript } = require('@socketsecurity/registry/lib/npm')
 const {
   fetchPackageManifest,
+  getReleaseTag,
   packPackage,
   readPackageJson
 } = require('@socketsecurity/registry/lib/packages')
+const { readPackageJsonSync } = require('@socketsecurity/registry/lib/packages')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { Spinner } = require('@socketsecurity/registry/lib/spinner')
 
@@ -21,9 +23,10 @@ const {
   LATEST,
   NODE_MODULES,
   OVERRIDES,
-  PACKAGE_JSON,
   PACKAGE_SCOPE,
   RESOLUTIONS,
+  SOCKET_OVERRIDE_SCOPE,
+  SOCKET_REGISTRY_PACKAGE_NAME,
   abortSignal,
   npmPackagesPath,
   registryPkgPath,
@@ -32,13 +35,13 @@ const {
 } = constants
 
 const registryPkg = packageData({
-  name: '@socketsecurity/registry',
+  name: SOCKET_REGISTRY_PACKAGE_NAME,
   path: registryPkgPath
 })
 
-async function filterPrereleasePackages(packages, options = {}) {
+async function filterSocketOverrideScopePackages(packages, options = {}) {
   const { signal } = { __proto__: null, ...options }
-  const prereleasePackages = []
+  const socketOverridePackages = []
   // Chunk packages data to process them in parallel 3 at a time.
   await pEach(packages, 3, async pkg => {
     if (signal.aborted) {
@@ -47,27 +50,25 @@ async function filterPrereleasePackages(packages, options = {}) {
     const overridesPath = path.join(pkg.path, OVERRIDES)
     const overrideNames = await readDirNames(overridesPath)
     for (const overrideName of overrideNames) {
-      const overridesPkgPath = path.join(overridesPath, overrideName)
-      const overridesPkgJsonPath = path.join(overridesPkgPath, PACKAGE_JSON)
-      const overridesPkgJson = require(overridesPkgJsonPath)
-      const overridePrintName = `${pkg.printName}/${path.relative(pkg.path, overridesPkgPath)}`
-      const tag = semver.prerelease(overridesPkgJson.version) ?? undefined
-      if (!tag) {
+      const overridePkgPath = path.join(overridesPath, overrideName)
+      const overridePkgJson = readPackageJsonSync(overridePkgPath)
+      const overridePrintName = `${pkg.printName}/${path.relative(pkg.path, overridePkgPath)}`
+      if (!overridePkgJson.name?.startsWith(`${SOCKET_OVERRIDE_SCOPE}/`)) {
         continue
       }
-      // Add prerelease override variant data.
-      prereleasePackages.push(
+      // Add @socketoverride package data.
+      socketOverridePackages.push(
         packageData({
           name: pkg.name,
-          bundledDependencies: !!overridesPkgJson.bundleDependencies,
-          path: overridesPkgPath,
+          bundledDependencies: !!overridePkgJson.bundleDependencies,
+          path: overridePkgPath,
           printName: overridePrintName,
-          tag
+          tag: getReleaseTag(overridePkgJson.version)
         })
       )
     }
   })
-  return prereleasePackages
+  return socketOverridePackages
 }
 
 async function hasPackageChanged(pkg, manifest_) {
@@ -230,36 +231,39 @@ void (async () => {
     // Lazily access constants.npmPackageNames.
     ...constants.npmPackageNames.map(sockRegPkgName => {
       const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
-      const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
-      const pkgJson = require(pkgJsonPath)
+      const pkgJson = readPackageJsonSync(pkgPath)
       return packageData({
         name: `${PACKAGE_SCOPE}/${sockRegPkgName}`,
         path: pkgPath,
         printName: sockRegPkgName,
-        bundledDependencies: !!pkgJson.bundleDependencies
+        bundledDependencies: !!pkgJson.bundleDependencies,
+        tag: getReleaseTag(pkgJson.version)
       })
     })
   ]
 
-  const prereleasePackages = await filterPrereleasePackages(packages, {
-    signal: abortSignal
-  })
+  const socketOverridePackages = await filterSocketOverrideScopePackages(
+    packages,
+    {
+      signal: abortSignal
+    }
+  )
 
   const bumpedPackages = []
-  const bumpedPrereleasePackages = []
+  const bumpedSocketOverrideScopePackages = []
   const changedPackages = []
-  const changedPrereleasePackages = []
+  const changedSocketOverrideScopePackages = []
   const state = {
     bumped: bumpedPackages,
-    bumpedPrerelease: bumpedPrereleasePackages,
+    bumpedPrerelease: bumpedSocketOverrideScopePackages,
     changed: changedPackages,
-    changedPrerelease: changedPrereleasePackages,
-    prerelease: prereleasePackages
+    changedPrerelease: changedSocketOverrideScopePackages,
+    prerelease: socketOverridePackages
   }
 
   // Chunk prerelease packages to process them in parallel 3 at a time.
   await pEach(
-    prereleasePackages,
+    socketOverridePackages,
     3,
     async pkg => {
       await maybeBumpPackage(pkg, { signal: abortSignal, spinner, state })
@@ -272,11 +276,11 @@ void (async () => {
     return
   }
 
-  const bundledPackages = [...packages, ...prereleasePackages].filter(
+  const bundledPackages = [...packages, ...socketOverridePackages].filter(
     pkg => pkg.bundledDependencies
   )
   // Chunk changed prerelease packages to process them in parallel 3 at a time.
-  await pEach(bumpedPrereleasePackages, 3, async pkg => {
+  await pEach(bumpedSocketOverrideScopePackages, 3, async pkg => {
     // Reset override version in parent package BEFORE npm install of bundled
     // dependencies.
     await updateOverrideVersionInParent(pkg, pkg.manifest.version)
@@ -288,7 +292,7 @@ void (async () => {
     async pkg => await installBundledDependencies(pkg, { spinner })
   )
   // Chunk changed prerelease packages to process them in parallel 3 at a time.
-  await pEach(bumpedPrereleasePackages, 3, async pkg => {
+  await pEach(bumpedSocketOverrideScopePackages, 3, async pkg => {
     // Update override version in parent package AFTER npm install of bundled
     // dependencies.
     await updateOverrideVersionInParent(pkg, pkg.version)

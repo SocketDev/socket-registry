@@ -22,13 +22,13 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@socketregistry/original__assert": "npm:assert@2.1.0"
+    "commonjs-assert": "npm:assert@2.1.0"
   },
   "bundleDependencies": [
-    "@socketregistry/original__assert"
+    "commonjs-assert"
   ],
   "overrides": {
-    "call-bind": "npm:@socketregistry/assert@1.0.7-overrides-call-bind",
+    "call-bind": "npm:@socketoverride/assert__call-bind@1.0.7",
     "inherits": "npm:inherits@2.0.4",
     "is-arguments": "npm:@socketregistry/is-arguments@^1",
     "is-generator-function": "npm:@socketregistry/is-generator-function@^1",
@@ -40,7 +40,7 @@
     "which-typed-array": "npm:@socketregistry/which-typed-array@^1"
   },
   "resolutions": {
-    "call-bind": "npm:@socketregistry/assert@1.0.7-overrides-call-bind",
+    "call-bind": "npm:@socketoverride/assert__call-bind@1.0.7",
     "inherits": "npm:inherits@2.0.4",
     "is-arguments": "npm:@socketregistry/is-arguments@^1",
     "is-generator-function": "npm:@socketregistry/is-generator-function@^1",

@@ -3,12 +3,14 @@
 const path = require('node:path')
 const util = require('node:util')
 
-const semver = require('semver')
-
 const constants = require('@socketregistry/scripts/constants')
 const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
 const { readDirNames } = require('@socketsecurity/registry/lib/fs')
 const { execNpm } = require('@socketsecurity/registry/lib/npm')
+const {
+  getReleaseTag,
+  readPackageJsonSync
+} = require('@socketsecurity/registry/lib/packages')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { pluralize } = require('@socketsecurity/registry/lib/words')
 
@@ -16,43 +18,44 @@ const {
   COLUMN_LIMIT,
   LATEST,
   OVERRIDES,
-  PACKAGE_JSON,
   PACKAGE_SCOPE,
+  SOCKET_OVERRIDE_SCOPE,
   npmPackagesPath,
   registryPkgPath
 } = constants
 
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
-async function filterPrereleasePackages(packages, state = { fails: [] }) {
-  const prereleasePackages = []
+async function filterSocketOverrideScopePackages(
+  packages,
+  state = { fails: [] }
+) {
+  const socketOverridePackages = []
   // Chunk packages data to process them in parallel 3 at a time.
   await pEach(packages, 3, async pkg => {
     const overridesPath = path.join(pkg.path, OVERRIDES)
     const overrideNames = await readDirNames(overridesPath)
     for (const overrideName of overrideNames) {
-      const overridesPkgPath = path.join(overridesPath, overrideName)
-      const overridesPkgJsonPath = path.join(overridesPkgPath, PACKAGE_JSON)
-      const overridesPkgJson = require(overridesPkgJsonPath)
-      const overridePrintName = `${pkg.printName}/${path.relative(pkg.path, overridesPkgPath)}`
-      const tag = semver.prerelease(overridesPkgJson.version) ?? undefined
-      if (!tag) {
+      const overridePkgPath = path.join(overridesPath, overrideName)
+      const overridePkgJson = readPackageJsonSync(overridePkgPath)
+      const overridePrintName = `${pkg.printName}/${path.relative(pkg.path, overridePkgPath)}`
+      if (!overridePkgJson.name?.startsWith(`${SOCKET_OVERRIDE_SCOPE}/`)) {
         state.fails.push(overridePrintName)
         continue
       }
-      // Add prerelease override variant data.
-      prereleasePackages.push(
+      // Add @socketoverride package data.
+      socketOverridePackages.push(
         packageData({
           name: pkg.name,
-          bundledDependencies: !!overridesPkgJson.bundleDependencies,
-          path: overridesPkgPath,
+          bundledDependencies: !!overridePkgJson.bundleDependencies,
+          path: overridePkgPath,
           printName: overridePrintName,
-          tag
+          tag: getReleaseTag(overridePkgJson.version)
         })
       )
     }
   })
-  return prereleasePackages
+  return socketOverridePackages
 }
 
 async function installBundledDependencies(pkg, state = { fails: [] }) {
@@ -143,21 +146,24 @@ void (async () => {
     // Lazily access constants.npmPackageNames.
     ...constants.npmPackageNames.map(sockRegPkgName => {
       const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
-      const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
-      const pkgJson = require(pkgJsonPath)
+      const pkgJson = readPackageJsonSync(pkgPath)
       return packageData({
         name: `${PACKAGE_SCOPE}/${sockRegPkgName}`,
         bundledDependencies: !!pkgJson.bundleDependencies,
         path: pkgPath,
-        printName: sockRegPkgName
+        printName: sockRegPkgName,
+        tag: getReleaseTag(pkgJson.version)
       })
     })
   ]
 
-  const prereleasePackages = await filterPrereleasePackages(packages, { fails })
-  await publishPackages(prereleasePackages, { fails })
+  const socketOverridePackages = await filterSocketOverrideScopePackages(
+    packages,
+    { fails }
+  )
+  await publishPackages(socketOverridePackages, { fails })
 
-  const bundledPackages = [...packages, ...prereleasePackages].filter(
+  const bundledPackages = [...packages, ...socketOverridePackages].filter(
     pkg => pkg.bundledDependencies
   )
   // Chunk bundled package names to process them in parallel 3 at a time.
