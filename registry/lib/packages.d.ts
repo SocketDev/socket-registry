@@ -58,6 +58,11 @@ declare namespace Packages {
     entryExports: Exports,
     subpath: string
   ): string | undefined
+  export function getReleaseTag(version: string): string
+  export function getRepoUrlDetails(repoUrl: string): {
+    user: string
+    project: string
+  }
   export function getSubpaths(entryExports: Exports): string[]
   export function isBlessedPackageName(name: any): boolean
   export function isConditionalExports(entryExports: Exports): boolean
