@@ -153,11 +153,15 @@ declare const Constants: {
   readonly REGISTRY: 'registry'
   readonly REGISTRY_SCOPE_DELIMITER: '__'
   readonly RESOLUTIONS: 'resolutions'
+  readonly SOCKET_GITHUB_ORG: 'SocketDev'
   readonly SOCKET_IPC_HANDSHAKE: 'SOCKET_IPC_HANDSHAKE'
+  readonly SOCKET_OVERRIDE_SCOPE: '@socketoverride'
   readonly SOCKET_PUBLIC_API_KEY: string
   readonly SOCKET_PUBLIC_API_TOKEN: string
-  readonly SOCKET_REPO_ORG: 'SocketDev'
+  readonly SOCKET_REGISTRY_PACKAGE_NAME: '@socketsecurity/registry'
   readonly SOCKET_REGISTRY_REPO_NAME: 'socket-registry'
+  readonly SOCKET_REGISTRY_SCOPE: '@socketregistry'
+  readonly SOCKET_SECURITY_SCOPE: '@socketsecurity'
   readonly SUPPORTS_NODE_DISABLE_WARNING_FLAG: boolean
   readonly SUPPORTS_NODE_REQUIRE_MODULE: boolean
   readonly SUPPORTS_NODE_RUN: boolean
