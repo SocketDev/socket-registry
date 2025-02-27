@@ -1,6 +1,6 @@
 {
   "name": "@socketoverride/deep-equal__get-intrinsic",
-  "version": "1.0.3",
+  "version": "1.0.3-deep-equal--get-intrinsic",
   "license": "MIT",
   "description": "Socket.dev optimized package override for deep-equal/get-intrinsic",
   "keywords": [

@@ -28,7 +28,7 @@
     "commonjs-assert"
   ],
   "overrides": {
-    "call-bind": "npm:@socketoverride/assert__call-bind@1.0.7",
+    "call-bind": "npm:@socketoverride/assert__call-bind@1.0.7-assert--call-bind",
     "inherits": "npm:inherits@2.0.4",
     "is-arguments": "npm:@socketregistry/is-arguments@^1",
     "is-generator-function": "npm:@socketregistry/is-generator-function@^1",
@@ -40,7 +40,7 @@
     "which-typed-array": "npm:@socketregistry/which-typed-array@^1"
   },
   "resolutions": {
-    "call-bind": "npm:@socketoverride/assert__call-bind@1.0.7",
+    "call-bind": "npm:@socketoverride/assert__call-bind@1.0.7-assert--call-bind",
     "inherits": "npm:inherits@2.0.4",
     "is-arguments": "npm:@socketregistry/is-arguments@^1",
     "is-generator-function": "npm:@socketregistry/is-generator-function@^1",
