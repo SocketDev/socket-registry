@@ -1,3 +1,3 @@
 'use strict'
 
-module.exports = require('@socketregistry/original__deep-equal')
+module.exports = require('deep-equal')
