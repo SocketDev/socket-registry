@@ -138,14 +138,12 @@ declare const Constants: {
   readonly NODE_WORKSPACES: 'node_workspaces'
   readonly NODE_VERSION: string
   readonly NPM: 'npm'
-  readonly NPM_ORG: 'socketregistry'
   readonly OVERRIDES: 'overrides'
   readonly PACKAGE_DEFAULT_SOCKET_CATEGORIES: readonly ['cleanup']
   readonly PACKAGE_DEFAULT_NODE_RANGE: string
   readonly PACKAGE_DEFAULT_VERSION: '1.0.0'
   readonly PACKAGE_JSON: 'package.json'
   readonly PACKAGE_LOCK: 'package-lock.json'
-  readonly PACKAGE_SCOPE: '@socketregistry'
   readonly PRE_COMMIT: 'PRE_COMMIT'
   readonly README_GLOB: 'README{.*,}'
   readonly README_GLOB_RECURSIVE: '**/README{.*,}'
@@ -158,6 +156,7 @@ declare const Constants: {
   readonly SOCKET_OVERRIDE_SCOPE: '@socketoverride'
   readonly SOCKET_PUBLIC_API_KEY: string
   readonly SOCKET_PUBLIC_API_TOKEN: string
+  readonly SOCKET_REGISTRY_NPM_ORG: 'socketregistry'
   readonly SOCKET_REGISTRY_PACKAGE_NAME: '@socketsecurity/registry'
   readonly SOCKET_REGISTRY_REPO_NAME: 'socket-registry'
   readonly SOCKET_REGISTRY_SCOPE: '@socketregistry'

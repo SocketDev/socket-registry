@@ -44,8 +44,8 @@ const {
   LICENSE_GLOB_RECURSIVE,
   NODE_MODULES_GLOB_RECURSIVE,
   PACKAGE_JSON,
-  PACKAGE_SCOPE,
   README_GLOB_RECURSIVE,
+  SOCKET_REGISTRY_SCOPE,
   ignoreGlobs,
   lifecycleScriptNames,
   npmPackagesPath,
@@ -391,7 +391,7 @@ async function linkPackages(packageNames, options) {
     // Add dependencies and overrides of the @socketregistry/xyz package
     // as dependencies of the test/npm/node_modules/xyz package.
     if (dependencies ?? overrides) {
-      const socketRegistryPrefix = `npm:${PACKAGE_SCOPE}/`
+      const socketRegistryPrefix = `npm:${SOCKET_REGISTRY_SCOPE}/`
       const overridesAsDeps =
         overrides &&
         objectFromEntries(

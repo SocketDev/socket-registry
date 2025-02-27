@@ -18,8 +18,8 @@ const {
   COLUMN_LIMIT,
   LATEST,
   OVERRIDES,
-  PACKAGE_SCOPE,
   SOCKET_OVERRIDE_SCOPE,
+  SOCKET_REGISTRY_SCOPE,
   npmPackagesPath,
   registryPkgPath
 } = constants
@@ -38,18 +38,17 @@ async function filterSocketOverrideScopePackages(
     for (const overrideName of overrideNames) {
       const overridePkgPath = path.join(overridesPath, overrideName)
       const overridePkgJson = readPackageJsonSync(overridePkgPath)
-      const overridePrintName = `${pkg.printName}/${path.relative(pkg.path, overridePkgPath)}`
-      if (!overridePkgJson.name?.startsWith(`${SOCKET_OVERRIDE_SCOPE}/`)) {
-        state.fails.push(overridePrintName)
+      const { name: overridePkgName } = overridePkgJson
+      if (!overridePkgName.startsWith(`${SOCKET_OVERRIDE_SCOPE}/`)) {
+        state.fails.push(overridePkgName)
         continue
       }
-      // Add @socketoverride package data.
+      // Add @socketoverride scoped package data.
       socketOverridePackages.push(
         packageData({
-          name: pkg.name,
+          name: overridePkgName,
           bundledDependencies: !!overridePkgJson.bundleDependencies,
           path: overridePkgPath,
-          printName: overridePrintName,
           tag: getReleaseTag(overridePkgJson.version)
         })
       )
@@ -148,7 +147,7 @@ void (async () => {
       const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
       const pkgJson = readPackageJsonSync(pkgPath)
       return packageData({
-        name: `${PACKAGE_SCOPE}/${sockRegPkgName}`,
+        name: `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`,
         bundledDependencies: !!pkgJson.bundleDependencies,
         path: pkgPath,
         printName: sockRegPkgName,

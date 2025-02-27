@@ -22,7 +22,6 @@ const {
   MIT,
   PACKAGE_DEFAULT_SOCKET_CATEGORIES,
   PACKAGE_JSON,
-  PACKAGE_SCOPE,
   REGISTRY_SCOPE_DELIMITER,
   SOCKET_GITHUB_ORG,
   SOCKET_OVERRIDE_SCOPE,
@@ -42,7 +41,9 @@ const escapedScopeRegExp = new RegExp(
   `^[^${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0])}]+${escapeRegExp(REGISTRY_SCOPE_DELIMITER)}(?!${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0])})`
 )
 const fileReferenceRegExp = /^SEE LICEN[CS]E IN (.+)$/
-const pkgScopePrefixRegExp = new RegExp(`^${escapeRegExp(PACKAGE_SCOPE)}/`)
+const pkgScopePrefixRegExp = new RegExp(
+  `^${escapeRegExp(SOCKET_REGISTRY_SCOPE)}/`
+)
 
 let _cacache
 function getCacache() {
@@ -281,7 +282,7 @@ function createPackageJson(sockRegPkgName, directory, options) {
   } = { __proto__: null, ...options }
   // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
   const { PACKAGE_DEFAULT_NODE_RANGE } = constants
-  const name = `${PACKAGE_SCOPE}/${sockRegPkgName.replace(pkgScopePrefixRegExp, '')}`
+  const name = `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName.replace(pkgScopePrefixRegExp, '')}`
   const entryExports = resolvePackageJsonEntryExports(entryExportsRaw)
   const githubUrl = `https://github.com/${SOCKET_GITHUB_ORG}/${SOCKET_REGISTRY_REPO_NAME}`
   return {
@@ -730,8 +731,8 @@ async function resolveGitHubTgzUrl(pkgNameOrId, where) {
 }
 
 function resolveOriginalPackageName(sockRegPkgName) {
-  const name = sockRegPkgName.startsWith(`${PACKAGE_SCOPE}/`)
-    ? sockRegPkgName.slice(PACKAGE_SCOPE.length + 1)
+  const name = sockRegPkgName.startsWith(`${SOCKET_REGISTRY_SCOPE}/`)
+    ? sockRegPkgName.slice(SOCKET_REGISTRY_SCOPE.length + 1)
     : sockRegPkgName
   const escapedScope = resolveEscapedScope(name)
   return escapedScope
