@@ -1,6 +1,6 @@
 {
   "name": "@socketoverride/deep-equal__call-bind",
-  "version": "1.0.4",
+  "version": "1.0.4-deep-equal--call-bind",
   "license": "MIT",
   "description": "Socket.dev optimized package override for deep-equal/call-bind",
   "keywords": [

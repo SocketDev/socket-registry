@@ -35,9 +35,9 @@
   ],
   "overrides": {
     "array-buffer-byte-length": "npm:@socketregistry/array-buffer-byte-length@^1",
-    "call-bind": "npm:@socketoverride/deep-equal__call-bind@1.0.4",
+    "call-bind": "npm:@socketoverride/deep-equal__call-bind@1.0.4-deep-equal--call-bind",
     "es-get-iterator": "npm:@socketregistry/es-get-iterator@^1",
-    "get-intrinsic": "npm:@socketoverride/deep-equal__get-intrinsic@1.0.3",
+    "get-intrinsic": "npm:@socketoverride/deep-equal__get-intrinsic@1.0.3-deep-equal--get-intrinsic",
     "is-arguments": "npm:@socketregistry/is-arguments@^1",
     "is-array-buffer": "npm:@socketregistry/is-array-buffer@^1",
     "is-date-object": "npm:@socketregistry/is-date-object@^1",
@@ -55,9 +55,9 @@
   },
   "resolutions": {
     "array-buffer-byte-length": "npm:@socketregistry/array-buffer-byte-length@^1",
-    "call-bind": "npm:@socketoverride/deep-equal__call-bind@1.0.4",
+    "call-bind": "npm:@socketoverride/deep-equal__call-bind@1.0.4-deep-equal--call-bind",
     "es-get-iterator": "npm:@socketregistry/es-get-iterator@^1",
-    "get-intrinsic": "npm:@socketoverride/deep-equal__get-intrinsic@1.0.3",
+    "get-intrinsic": "npm:@socketoverride/deep-equal__get-intrinsic@1.0.3-deep-equal--get-intrinsic",
     "is-arguments": "npm:@socketregistry/is-arguments@^1",
     "is-array-buffer": "npm:@socketregistry/is-array-buffer@^1",
     "is-date-object": "npm:@socketregistry/is-date-object@^1",
