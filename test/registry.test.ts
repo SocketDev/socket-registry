@@ -7,17 +7,16 @@ import { glob as tinyGlob } from 'tinyglobby'
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 
-const { NPM } = constants
+const { NPM, SOCKET_REGISTRY_PACKAGE_NAME } = constants
 
 const rootPath = path.resolve(__dirname, '..')
 const rootRegistryPath = path.join(rootPath, 'registry')
 
 const eco = NPM
-const sockRegPkgName = '@socketsecurity/registry'
 
 describe(
-  sockRegPkgName,
-  { skip: isPackageTestingSkipped(eco, sockRegPkgName) },
+  SOCKET_REGISTRY_PACKAGE_NAME,
+  { skip: isPackageTestingSkipped(eco, SOCKET_REGISTRY_PACKAGE_NAME) },
   () => {
     it('should not trigger lazy getter on module initialization', async () => {
       const jsFilepaths = (
