@@ -1,5 +1,7 @@
 'use strict'
 
+const semver = require('semver')
+
 const constants = require('./constants')
 const { readJson, readJsonSync } = require('./fs')
 const {
@@ -15,14 +17,18 @@ const { escapeRegExp } = require('./regexps')
 const { isNonEmptyString } = require('./strings')
 
 const {
+  LATEST,
   LOOP_SENTINEL,
   MIT,
   PACKAGE_DEFAULT_SOCKET_CATEGORIES,
   PACKAGE_JSON,
   PACKAGE_SCOPE,
   REGISTRY_SCOPE_DELIMITER,
+  SOCKET_GITHUB_ORG,
+  SOCKET_OVERRIDE_SCOPE,
   SOCKET_REGISTRY_REPO_NAME,
-  SOCKET_REPO_ORG,
+  SOCKET_REGISTRY_SCOPE,
+  SOCKET_SECURITY_SCOPE,
   UNLICENCED,
   UNLICENSED,
   copyLeftLicenses,
@@ -277,7 +283,7 @@ function createPackageJson(sockRegPkgName, directory, options) {
   const { PACKAGE_DEFAULT_NODE_RANGE } = constants
   const name = `${PACKAGE_SCOPE}/${sockRegPkgName.replace(pkgScopePrefixRegExp, '')}`
   const entryExports = resolvePackageJsonEntryExports(entryExportsRaw)
-  const githubUrl = `https://github.com/${SOCKET_REPO_ORG}/${SOCKET_REGISTRY_REPO_NAME}`
+  const githubUrl = `https://github.com/${SOCKET_GITHUB_ORG}/${SOCKET_REGISTRY_REPO_NAME}`
   return {
     __proto__: null,
     name,
@@ -471,6 +477,10 @@ function findTypesForSubpath(entryExports, subpath) {
   return undefined
 }
 
+function getReleaseTag(version) {
+  return semver.prerelease(version)?.join('.') ?? LATEST
+}
+
 function getRepoUrlDetails(repoUrl = '') {
   const userAndRepo = repoUrl.replace(/^.+github.com\//, '').split('/')
   const { 0: user } = userAndRepo
@@ -513,8 +523,9 @@ function isBlessedPackageName(name) {
   return (
     typeof name === 'string' &&
     (name === 'socket' ||
-      name.startsWith('@socketregistry/') ||
-      name.startsWith('@socketsecurity/'))
+      name.startsWith(`@${SOCKET_OVERRIDE_SCOPE}/`) ||
+      name.startsWith(`@${SOCKET_REGISTRY_SCOPE}/`) ||
+      name.startsWith(`@${SOCKET_SECURITY_SCOPE}/`))
   )
 }
 
@@ -905,6 +916,8 @@ module.exports = {
   fetchPackageManifest,
   fetchPackagePackument,
   findTypesForSubpath,
+  getReleaseTag,
+  getRepoUrlDetails,
   getSubpaths,
   isBlessedPackageName,
   isConditionalExports,
