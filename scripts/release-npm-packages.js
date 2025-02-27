@@ -23,10 +23,10 @@ const {
   LATEST,
   NODE_MODULES,
   OVERRIDES,
-  PACKAGE_SCOPE,
   RESOLUTIONS,
   SOCKET_OVERRIDE_SCOPE,
   SOCKET_REGISTRY_PACKAGE_NAME,
+  SOCKET_REGISTRY_SCOPE,
   abortSignal,
   npmPackagesPath,
   registryPkgPath,
@@ -52,17 +52,16 @@ async function filterSocketOverrideScopePackages(packages, options = {}) {
     for (const overrideName of overrideNames) {
       const overridePkgPath = path.join(overridesPath, overrideName)
       const overridePkgJson = readPackageJsonSync(overridePkgPath)
-      const overridePrintName = `${pkg.printName}/${path.relative(pkg.path, overridePkgPath)}`
-      if (!overridePkgJson.name?.startsWith(`${SOCKET_OVERRIDE_SCOPE}/`)) {
+      const { name: overridePkgName } = overridePkgJson
+      if (!overridePkgName.startsWith(`${SOCKET_OVERRIDE_SCOPE}/`)) {
         continue
       }
-      // Add @socketoverride package data.
+      // Add @socketoverride scoped package data.
       socketOverridePackages.push(
         packageData({
-          name: pkg.name,
+          name: overridePkgName,
           bundledDependencies: !!overridePkgJson.bundleDependencies,
           path: overridePkgPath,
-          printName: overridePrintName,
           tag: getReleaseTag(overridePkgJson.version)
         })
       )
@@ -130,10 +129,10 @@ async function maybeBumpPackage(pkg, options = {}) {
     spinner,
     state = {
       bumped: [],
-      bumpedPrerelease: [],
+      bumpedOverrideScoped: [],
       changed: [],
-      changedPrerelease: [],
-      prerelease: []
+      changedOverrideScoped: [],
+      overrideScoped: []
     }
   } = {
     __proto__: null,
@@ -152,9 +151,9 @@ async function maybeBumpPackage(pkg, options = {}) {
   // registry.npmjs.org against the local version. If they are different
   // then bump the local version.
   if (await hasPackageChanged(pkg, manifest)) {
-    const isPrerelease = state.prerelease.includes(pkg)
+    const isOverrideScoped = state.overrideScoped.includes(pkg)
     let version = semver.inc(manifest.version, 'patch')
-    if (isPrerelease) {
+    if (pkg.tag !== LATEST) {
       version = `${semver.inc(version, 'patch')}-${pkg.tag}`
     }
     pkg.version = version
@@ -165,14 +164,15 @@ async function maybeBumpPackage(pkg, options = {}) {
       editablePkgJson.update({ version })
       await editablePkgJson.save()
       state.changed.push(pkg)
-      if (isPrerelease) {
-        state.changedPrerelease.push(pkg)
+      if (isOverrideScoped) {
+        console.log(pkg.name)
+        state.changedOverrideScoped.push(pkg)
       }
       spinner?.log(`+${pkg.name}@${manifest.version} -> ${version}`)
     }
     state.bumped.push(pkg)
-    if (isPrerelease) {
-      state.bumpedPrerelease.push(pkg)
+    if (isOverrideScoped) {
+      state.bumpedOverrideScoped.push(pkg)
     }
   }
 }
@@ -194,8 +194,7 @@ function packageData(data) {
   })
 }
 
-async function updateOverrideVersionInParent(pkg, version) {
-  // Reset prerelease version in parent dependencies.
+async function updateOverrideScopedVersionInParent(pkg, version) {
   const parentPkgPath = path.resolve(pkg.path, '../..')
   const editableParentPkgJson = await readPackageJson(parentPkgPath, {
     editable: true
@@ -233,7 +232,7 @@ void (async () => {
       const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
       const pkgJson = readPackageJsonSync(pkgPath)
       return packageData({
-        name: `${PACKAGE_SCOPE}/${sockRegPkgName}`,
+        name: `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`,
         path: pkgPath,
         printName: sockRegPkgName,
         bundledDependencies: !!pkgJson.bundleDependencies,
@@ -250,18 +249,18 @@ void (async () => {
   )
 
   const bumpedPackages = []
-  const bumpedSocketOverrideScopePackages = []
+  const bumpedSocketOverrideScopedPackages = []
   const changedPackages = []
-  const changedSocketOverrideScopePackages = []
+  const changedSocketOverrideScopedPackages = []
   const state = {
     bumped: bumpedPackages,
-    bumpedPrerelease: bumpedSocketOverrideScopePackages,
+    bumpedOverrideScoped: bumpedSocketOverrideScopedPackages,
     changed: changedPackages,
-    changedPrerelease: changedSocketOverrideScopePackages,
-    prerelease: socketOverridePackages
+    changedOverrideScoped: changedSocketOverrideScopedPackages,
+    overrideScoped: socketOverridePackages
   }
 
-  // Chunk prerelease packages to process them in parallel 3 at a time.
+  // Chunk @socketoverride scoped packages to process them in parallel 3 at a time.
   await pEach(
     socketOverridePackages,
     3,
@@ -279,11 +278,11 @@ void (async () => {
   const bundledPackages = [...packages, ...socketOverridePackages].filter(
     pkg => pkg.bundledDependencies
   )
-  // Chunk changed prerelease packages to process them in parallel 3 at a time.
-  await pEach(bumpedSocketOverrideScopePackages, 3, async pkg => {
+  // Chunk changed @socketoverride scoped packages to process them in parallel 3 at a time.
+  await pEach(bumpedSocketOverrideScopedPackages, 3, async pkg => {
     // Reset override version in parent package BEFORE npm install of bundled
     // dependencies.
-    await updateOverrideVersionInParent(pkg, pkg.manifest.version)
+    await updateOverrideScopedVersionInParent(pkg, pkg.manifest.version)
   })
   // Chunk bundled packages to process them in parallel 3 at a time.
   await pEach(
@@ -291,11 +290,11 @@ void (async () => {
     3,
     async pkg => await installBundledDependencies(pkg, { spinner })
   )
-  // Chunk changed prerelease packages to process them in parallel 3 at a time.
-  await pEach(bumpedSocketOverrideScopePackages, 3, async pkg => {
+  // Chunk changed @override scoped packages to process them in parallel 3 at a time.
+  await pEach(bumpedSocketOverrideScopedPackages, 3, async pkg => {
     // Update override version in parent package AFTER npm install of bundled
     // dependencies.
-    await updateOverrideVersionInParent(pkg, pkg.version)
+    await updateOverrideScopedVersionInParent(pkg, pkg.version)
     // Copy overrides/<name> to node_modules/<name>.
     const parentPkgPath = path.resolve(pkg.path, '../..')
     const parentPkgNmPath = path.join(parentPkgPath, NODE_MODULES)

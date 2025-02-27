@@ -139,13 +139,74 @@ signalExit.onExit(() => {
   abortController.abort()
 })
 
+const BIOME_JSON = 'biome.json'
+const CI = 'CI'
+const COLUMN_LIMIT = 80
+const EMPTY_FILE = '/* empty */\n'
+const ESLINT_CONFIG_JS = 'eslint.config.js'
+const ESNEXT = 'esnext'
+const EXTENSIONS = 'extensions'
+const EXTENSIONS_JSON = `${EXTENSIONS}.json`
+const LATEST = 'latest'
+const AT_LATEST = `@${LATEST}`
+const LICENSE = 'LICENSE'
+const LICENSE_GLOB = 'LICEN[CS]E{[.-]*,}'
+const LICENSE_GLOB_RECURSIVE = `**/${LICENSE_GLOB}`
+const LICENSE_ORIGINAL = `${LICENSE}.original`
+const LICENSE_ORIGINAL_GLOB = '*.original{.*,}'
+const LICENSE_ORIGINAL_GLOB_RECURSIVE = `**/${LICENSE_ORIGINAL_GLOB}`
+const LOOP_SENTINEL = 1_000_000
+const GIT_IGNORE = '.gitignore'
+const MANIFEST_JSON = 'manifest.json'
+const MIT = 'MIT'
+const NODE_AUTH_TOKEN = 'NODE_AUTH_TOKEN'
+const NODE_ENV = 'NODE_ENV'
+const NODE_MODULES = 'node_modules'
+const NODE_MODULES_GLOB_RECURSIVE = `**/${NODE_MODULES}`
+const NODE_WORKSPACES = 'node_workspaces'
+const NPM = 'npm'
+const OVERRIDES = 'overrides'
+const PACKAGE_DEFAULT_SOCKET_CATEGORIES = Object.freeze(['cleanup'])
+const PACKAGE_DEFAULT_VERSION = '1.0.0'
+const PACKAGE_JSON = 'package.json'
+const PACKAGE_LOCK = 'package-lock.json'
+const PRE_COMMIT = 'PRE_COMMIT'
+const README_GLOB = 'README{.*,}'
+const README_GLOB_RECURSIVE = `**/${README_GLOB}`
+const README_MD = 'README.md'
+const REGISTRY = 'registry'
+const REGISTRY_SCOPE_DELIMITER = '__'
+const RESOLUTIONS = 'resolutions'
+const SOCKET_GITHUB_ORG = 'SocketDev'
+const SOCKET_IPC_HANDSHAKE = 'SOCKET_IPC_HANDSHAKE'
+const SOCKET_OVERRIDE_SCOPE = '@socketoverride'
+const SOCKET_PUBLIC_API_TOKEN =
+  'sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api'
+const SOCKET_PUBLIC_API_KEY = SOCKET_PUBLIC_API_TOKEN
+const SOCKET_SECURITY_SCOPE = '@socketsecurity'
+const SOCKET_REGISTRY_NPM_ORG = 'socketregistry'
+const SOCKET_REGISTRY_SCOPE = `@${SOCKET_REGISTRY_NPM_ORG}`
+const SOCKET_REGISTRY_PACKAGE_NAME = `${SOCKET_SECURITY_SCOPE}/registry`
+const SOCKET_REGISTRY_REPO_NAME = 'socket-registry'
 const UNDEFINED_LAZY_VALUE = {}
+const TAP = 'TAP'
+const TEMPLATE_CJS = 'cjs'
+const TEMPLATE_CJS_BROWSER = 'cjs-browser'
+const TEMPLATE_CJS_ESM = 'cjs-esm'
+const TEMPLATE_ES_SHIM_CONSTRUCTOR = 'es-shim-constructor'
+const TEMPLATE_ES_SHIM_PROTOTYPE_METHOD = 'es-shim-prototype-method'
+const TEMPLATE_ES_SHIM_STATIC_METHOD = 'es-shim-static-method'
+const TSCONFIG_JSON = 'tsconfig.json'
+const UNDEFINED_TOKEN = {}
+const UNLICENCED = 'UNLICENCED'
+const UNLICENSED = 'UNLICENSED'
+const VITEST = 'VITEST'
 
 const { __defineGetter__ } = Object.prototype
 
 const packumentCache = new Map()
 
-const kInternalsSymbol = Symbol('@socketregistry.constants.internals')
+const kInternalsSymbol = Symbol(`${SOCKET_REGISTRY_SCOPE}.constants.internals`)
 const matcherCache = new Map()
 
 const internalsMixin = {
@@ -348,69 +409,6 @@ function readDirNamesSync(dirname, options) {
   } catch {}
   return []
 }
-
-const BIOME_JSON = 'biome.json'
-const CI = 'CI'
-const COLUMN_LIMIT = 80
-const EMPTY_FILE = '/* empty */\n'
-const ESLINT_CONFIG_JS = 'eslint.config.js'
-const ESNEXT = 'esnext'
-const EXTENSIONS = 'extensions'
-const EXTENSIONS_JSON = `${EXTENSIONS}.json`
-const LATEST = 'latest'
-const AT_LATEST = `@${LATEST}`
-const LICENSE = 'LICENSE'
-const LICENSE_GLOB = 'LICEN[CS]E{[.-]*,}'
-const LICENSE_GLOB_RECURSIVE = `**/${LICENSE_GLOB}`
-const LICENSE_ORIGINAL = `${LICENSE}.original`
-const LICENSE_ORIGINAL_GLOB = '*.original{.*,}'
-const LICENSE_ORIGINAL_GLOB_RECURSIVE = `**/${LICENSE_ORIGINAL_GLOB}`
-const LOOP_SENTINEL = 1_000_000
-const GIT_IGNORE = '.gitignore'
-const MANIFEST_JSON = 'manifest.json'
-const MIT = 'MIT'
-const NODE_AUTH_TOKEN = 'NODE_AUTH_TOKEN'
-const NODE_ENV = 'NODE_ENV'
-const NODE_MODULES = 'node_modules'
-const NODE_MODULES_GLOB_RECURSIVE = `**/${NODE_MODULES}`
-const NODE_WORKSPACES = 'node_workspaces'
-const NPM = 'npm'
-const NPM_ORG = 'socketregistry'
-const OVERRIDES = 'overrides'
-const PACKAGE_DEFAULT_SOCKET_CATEGORIES = Object.freeze(['cleanup'])
-const PACKAGE_DEFAULT_VERSION = '1.0.0'
-const PACKAGE_JSON = 'package.json'
-const PACKAGE_LOCK = 'package-lock.json'
-const PACKAGE_SCOPE = `@${NPM_ORG}`
-const PRE_COMMIT = 'PRE_COMMIT'
-const README_GLOB = 'README{.*,}'
-const README_GLOB_RECURSIVE = `**/${README_GLOB}`
-const README_MD = 'README.md'
-const REGISTRY = 'registry'
-const REGISTRY_SCOPE_DELIMITER = '__'
-const RESOLUTIONS = 'resolutions'
-const SOCKET_GITHUB_ORG = 'SocketDev'
-const SOCKET_IPC_HANDSHAKE = 'SOCKET_IPC_HANDSHAKE'
-const SOCKET_OVERRIDE_SCOPE = '@socketoverride'
-const SOCKET_PUBLIC_API_TOKEN =
-  'sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api'
-const SOCKET_PUBLIC_API_KEY = SOCKET_PUBLIC_API_TOKEN
-const SOCKET_SECURITY_SCOPE = '@socketsecurity'
-const SOCKET_REGISTRY_PACKAGE_NAME = `${SOCKET_SECURITY_SCOPE}/registry`
-const SOCKET_REGISTRY_REPO_NAME = 'socket-registry'
-const SOCKET_REGISTRY_SCOPE = '@socketregistry'
-const TAP = 'TAP'
-const TEMPLATE_CJS = 'cjs'
-const TEMPLATE_CJS_BROWSER = 'cjs-browser'
-const TEMPLATE_CJS_ESM = 'cjs-esm'
-const TEMPLATE_ES_SHIM_CONSTRUCTOR = 'es-shim-constructor'
-const TEMPLATE_ES_SHIM_PROTOTYPE_METHOD = 'es-shim-prototype-method'
-const TEMPLATE_ES_SHIM_STATIC_METHOD = 'es-shim-static-method'
-const TSCONFIG_JSON = 'tsconfig.json'
-const UNDEFINED_TOKEN = {}
-const UNLICENCED = 'UNLICENCED'
-const UNLICENSED = 'UNLICENSED'
-const VITEST = 'VITEST'
 
 // https://nodejs.org/api/all.html#all_cli_--disable-warningcode-or-type
 const LAZY_SUPPORTS_NODE_DISABLE_WARNING_FLAG = () =>
@@ -831,7 +829,6 @@ const constants = createConstantsObject(
     NODE_WORKSPACES,
     NODE_VERSION: undefined,
     NPM,
-    NPM_ORG,
     OVERRIDES,
     PACKAGE_DEFAULT_SOCKET_CATEGORIES,
     // Lazily defined values are initialized as `undefined` to keep their key order.
@@ -839,7 +836,6 @@ const constants = createConstantsObject(
     PACKAGE_DEFAULT_VERSION,
     PACKAGE_JSON,
     PACKAGE_LOCK,
-    PACKAGE_SCOPE,
     PRE_COMMIT,
     README_GLOB,
     README_GLOB_RECURSIVE,
@@ -852,6 +848,7 @@ const constants = createConstantsObject(
     SOCKET_OVERRIDE_SCOPE,
     SOCKET_PUBLIC_API_KEY,
     SOCKET_PUBLIC_API_TOKEN,
+    SOCKET_REGISTRY_NPM_ORG,
     SOCKET_REGISTRY_PACKAGE_NAME,
     SOCKET_REGISTRY_REPO_NAME,
     SOCKET_REGISTRY_SCOPE,
