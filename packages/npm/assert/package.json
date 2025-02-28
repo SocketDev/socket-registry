@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/assert",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "license": "MIT",
   "description": "Socket.dev optimized package override for assert",
   "keywords": [
