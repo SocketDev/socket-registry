@@ -658,8 +658,8 @@ void (async () => {
   spinner.start(`Initializing ${relTestNpmNodeModulesPath}...`)
   // Refresh/initialize test/npm/node_modules
   try {
+    await remove(testNpmNodeWorkspacesPath)
     await installTestNpmNodeModules({ clean: true, spinner })
-    // await remove(testNpmNodeWorkspacesPath)
     if (cliArgs.quiet) {
       spinner.stop()
     } else {
