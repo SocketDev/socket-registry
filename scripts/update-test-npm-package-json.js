@@ -244,10 +244,10 @@ async function installMissingPackageTests(packageNames, options) {
     }
   }
   if (unresolvable.length) {
-    const msg = `⚠️ Unable to resolve tests for ${unresolvable.length} ${pluralize('package', unresolvable.length)}:`
+    const msg = `Unable to resolve tests for ${unresolvable.length} ${pluralize('package', unresolvable.length)}:`
     const msgList = joinAsList(unresolvable)
     const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
-    console.warn(`${msg}${separator}${msgList}`)
+    spinner?.warn(`${msg}${separator}${msgList}`)
   }
 }
 
@@ -335,7 +335,7 @@ async function linkPackages(packageNames, options) {
     const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
     if (!existsSync(pkgPath)) {
       issueCount += 1
-      console.warn(`⚠️ ${sockRegPkgName}: Missing from ${relNpmPackagesPath}`)
+      spinner?.warn(`${sockRegPkgName}: Missing from ${relNpmPackagesPath}`)
       return
     }
     const origPkgName = resolveOriginalPackageName(sockRegPkgName)
@@ -550,7 +550,7 @@ async function linkPackages(packageNames, options) {
             }
           } else {
             issueCount += 1
-            console.error(`✖️ ${origPkgName}: Cannot convert ESM to CJS`)
+            spinner?.error(`${origPkgName}: Cannot convert ESM to CJS`)
           }
         }
         await remove(destPath)
