@@ -165,7 +165,6 @@ async function maybeBumpPackage(pkg, options = {}) {
       await editablePkgJson.save()
       state.changed.push(pkg)
       if (isOverrideScoped) {
-        console.log(pkg.name)
         state.changedOverrideScoped.push(pkg)
       }
       spinner?.log(`+${pkg.name}@${manifest.version} -> ${version}`)
