@@ -18,6 +18,7 @@
     "unicorn/no-new-array": "off",
     "no-control-regex": "off",
     "no-extend-native": "off",
+    "no-func-assign": "off",
     "no-new": "off",
     "no-self-assign": "off",
     "no-unused-vars": "off"

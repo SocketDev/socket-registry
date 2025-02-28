@@ -1,6 +1,6 @@
 {
   "name": "@socketoverride/assert__call-bind",
-  "version": "1.0.7-assert--call-bind",
+  "version": "1.0.7",
   "license": "MIT",
   "description": "Socket.dev optimized package override for assert/call-bind",
   "keywords": [
