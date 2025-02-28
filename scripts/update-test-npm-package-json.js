@@ -521,7 +521,7 @@ async function linkPackages(packageNames, options) {
     }
     const actions = new Map()
     for (const jsFile of await tinyGlob(['**/*.{cjs,js,json}'], {
-      ignore: ['**/package.json'],
+      ignore: ['**/node_modules', '**/package.json'],
       cwd: pkgPath
     })) {
       let targetPath = path.join(pkgPath, jsFile)
