@@ -21,43 +21,17 @@
       },
       "default": {
         "types": "./index.d.ts",
-        "default": "./index.js"
+        "default": "./package/index.js"
       }
     },
     "./package.json": "./package.json"
   },
   "sideEffects": false,
   "dependencies": {
-    "deep-equal": "2.2.3"
-  },
-  "bundleDependencies": [
-    "deep-equal"
-  ],
-  "overrides": {
+    "@socketoverride/deep-equal__call-bind": "^1.0.4",
+    "@socketoverride/deep-equal__get-intrinsic": "^1.0.3",
     "array-buffer-byte-length": "npm:@socketregistry/array-buffer-byte-length@^1",
-    "call-bind": "npm:@socketoverride/deep-equal__call-bind@1.0.4-deep-equal--call-bind",
     "es-get-iterator": "npm:@socketregistry/es-get-iterator@^1",
-    "get-intrinsic": "npm:@socketoverride/deep-equal__get-intrinsic@1.0.3-deep-equal--get-intrinsic",
-    "is-arguments": "npm:@socketregistry/is-arguments@^1",
-    "is-array-buffer": "npm:@socketregistry/is-array-buffer@^1",
-    "is-date-object": "npm:@socketregistry/is-date-object@^1",
-    "is-regex": "npm:@socketregistry/is-regex@^1",
-    "is-shared-array-buffer": "npm:@socketregistry/is-shared-array-buffer@^1",
-    "isarray": "npm:@socketregistry/isarray@^1",
-    "object-is": "npm:@socketregistry/object-is@^1",
-    "object-keys": "npm:@socketregistry/object-keys@^1",
-    "object.assign": "npm:@socketregistry/object.assign@^1",
-    "regexp.prototype.flags": "npm:@socketregistry/regexp.prototype.flags@^1",
-    "side-channel": "npm:@socketregistry/side-channel@^1",
-    "which-boxed-primitive": "npm:@socketregistry/which-boxed-primitive@^1",
-    "which-collection": "npm:@socketregistry/which-collection@^1",
-    "which-typed-array": "npm:@socketregistry/which-typed-array@^1"
-  },
-  "resolutions": {
-    "array-buffer-byte-length": "npm:@socketregistry/array-buffer-byte-length@^1",
-    "call-bind": "npm:@socketoverride/deep-equal__call-bind@1.0.4-deep-equal--call-bind",
-    "es-get-iterator": "npm:@socketregistry/es-get-iterator@^1",
-    "get-intrinsic": "npm:@socketoverride/deep-equal__get-intrinsic@1.0.3-deep-equal--get-intrinsic",
     "is-arguments": "npm:@socketregistry/is-arguments@^1",
     "is-array-buffer": "npm:@socketregistry/is-array-buffer@^1",
     "is-date-object": "npm:@socketregistry/is-date-object@^1",

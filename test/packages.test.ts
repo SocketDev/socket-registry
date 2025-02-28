@@ -31,6 +31,7 @@ import {
 import { trimLeadingDotSlash } from '@socketsecurity/registry/lib/path'
 import { naturalCompare } from '@socketsecurity/registry/lib/sorts'
 import { isNonEmptyString } from '@socketsecurity/registry/lib/strings'
+import {} from '@socketsecurity/registry/lib/constants'
 
 const {
   LICENSE,
@@ -39,6 +40,8 @@ const {
   OVERRIDES,
   PACKAGE_JSON,
   README_GLOB,
+  SOCKET_OVERRIDE_SCOPE,
+  SOCKET_REGISTRY_SCOPE,
   ignoreGlobs
 } = constants
 
@@ -46,7 +49,6 @@ const {
 // npm run test:unit ./test/packages.test.ts -- --test-arg="--force"
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
-const overridesWithSlash = `${OVERRIDES}/`
 const shimApiKeys = ['getPolyfill', 'implementation', 'shim']
 
 function findLeakedApiKey(keys: any[]): string | undefined {
@@ -117,6 +119,7 @@ for (const eco of constants.ecosystems) {
 
         const pkgJson = await readPackageJson(pkgJsonPath)
         const {
+          dependencies,
           engines,
           files: filesPatterns,
           main: mainPath,
@@ -140,42 +143,6 @@ for (const eco of constants.ecosystems) {
             dot: true
           })
         ).sort(naturalCompare)
-        const filesPatternsAsArray = Array.isArray(filesPatterns)
-          ? filesPatterns
-          : []
-        const filesFieldMatches = (
-          await tinyGlob(
-            [
-              // Certain files are always included, regardless of settings:
-              // https://docs.npmjs.com/cli/v10/configuring-npm/package-json#files
-              PACKAGE_JSON,
-              LICENSE_GLOB,
-              README_GLOB,
-              ...filesPatternsAsArray
-            ],
-            {
-              ignore: [...ignoreGlobs],
-              caseSensitiveMatch: false,
-              cwd: pkgPath,
-              dot: true
-            }
-          )
-        ).sort(naturalCompare)
-        const dotFilePatterns = filesPatternsAsArray.filter(isDotPattern)
-        const dotFileMatches = new Set(
-          await tinyGlob(dotFilePatterns, {
-            cwd: pkgPath,
-            dot: true
-          })
-        )
-        const jsonFiles = files
-          .filter(p => path.extname(p) === '.json')
-          .sort(naturalCompare)
-        const localOverridesFiles = filesFieldMatches.filter(p =>
-          p.startsWith(overridesWithSlash)
-        )
-        const hasOverrides =
-          !!pkgOverrides || !!pkgResolutions || localOverridesFiles.length > 0
 
         it('package name should be valid', () => {
           assert.ok(isValidPackageName(pkgJson.name))
@@ -237,6 +204,10 @@ for (const eco of constants.ecosystems) {
             }
           })
         }
+
+        const jsonFiles = files
+          .filter(p => path.extname(p) === '.json')
+          .sort(naturalCompare)
 
         if (jsonFiles.length) {
           it('should have valid .json files', async () => {
@@ -342,11 +313,59 @@ for (const eco of constants.ecosystems) {
           })
         }
 
-        if (hasOverrides) {
-          it('should have overrides and resolutions fields in package.json', () => {
-            assert.ok(isObjectObject(pkgOverrides))
-            assert.ok(isObjectObject(pkgResolutions))
+        const filesPatternsAsArray = Array.isArray(filesPatterns)
+          ? filesPatterns
+          : []
+        const filesFieldMatches = (
+          await tinyGlob(
+            [
+              // Certain files are always included, regardless of settings:
+              // https://docs.npmjs.com/cli/v10/configuring-npm/package-json#files
+              PACKAGE_JSON,
+              LICENSE_GLOB,
+              README_GLOB,
+              ...filesPatternsAsArray
+            ],
+            {
+              ignore: [...ignoreGlobs],
+              caseSensitiveMatch: false,
+              cwd: pkgPath,
+              dot: true
+            }
+          )
+        ).sort(naturalCompare)
+
+        const dotFilePatterns = filesPatternsAsArray.filter(isDotPattern)
+        const dotFileMatches = new Set(
+          await tinyGlob(dotFilePatterns, {
+            cwd: pkgPath,
+            dot: true
           })
+        )
+
+        const localOverridesFiles = filesFieldMatches.filter(p =>
+          p.startsWith(`${OVERRIDES}/`)
+        )
+
+        const hasOverridesAsDeps = Object.keys(dependencies ?? {}).some(
+          k =>
+            k.startsWith(SOCKET_OVERRIDE_SCOPE) ||
+            k.startsWith(SOCKET_REGISTRY_SCOPE)
+        )
+
+        const hasOverrides =
+          hasOverridesAsDeps ||
+          !!pkgOverrides ||
+          !!pkgResolutions ||
+          localOverridesFiles.length > 0
+
+        if (hasOverrides) {
+          if (!hasOverridesAsDeps) {
+            it('should have overrides and resolutions fields in package.json', () => {
+              assert.ok(isObjectObject(pkgOverrides))
+              assert.ok(isObjectObject(pkgResolutions))
+            })
+          }
 
           it('should not have overrides directory', () => {
             assert.strictEqual(localOverridesFiles.length, 0)

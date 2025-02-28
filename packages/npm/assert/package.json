@@ -15,41 +15,18 @@
   },
   "exports": {
     ".": {
-      "types": "./index.d.ts",
-      "default": "./index.js"
+      "types": "./assert.d.ts",
+      "default": "./package/build/assert.js"
     },
     "./package.json": "./package.json"
   },
   "sideEffects": false,
   "dependencies": {
-    "commonjs-assert": "npm:assert@2.1.0"
-  },
-  "bundleDependencies": [
-    "commonjs-assert"
-  ],
-  "overrides": {
-    "call-bind": "npm:@socketoverride/assert__call-bind@1.0.7-assert--call-bind",
-    "inherits": "npm:inherits@2.0.4",
-    "is-arguments": "npm:@socketregistry/is-arguments@^1",
-    "is-generator-function": "npm:@socketregistry/is-generator-function@^1",
+    "@socketoverride/assert__call-bind": "^1.0.7",
     "is-nan": "npm:@socketregistry/is-nan@^1",
-    "is-typed-array": "npm:@socketregistry/is-typed-array@^1",
     "object-is": "npm:@socketregistry/object-is@^1",
     "object.assign": "npm:@socketregistry/object.assign@^1",
-    "util": "npm:util@0.12.5",
-    "which-typed-array": "npm:@socketregistry/which-typed-array@^1"
-  },
-  "resolutions": {
-    "call-bind": "npm:@socketoverride/assert__call-bind@1.0.7-assert--call-bind",
-    "inherits": "npm:inherits@2.0.4",
-    "is-arguments": "npm:@socketregistry/is-arguments@^1",
-    "is-generator-function": "npm:@socketregistry/is-generator-function@^1",
-    "is-nan": "npm:@socketregistry/is-nan@^1",
-    "is-typed-array": "npm:@socketregistry/is-typed-array@^1",
-    "object-is": "npm:@socketregistry/object-is@^1",
-    "object.assign": "npm:@socketregistry/object.assign@^1",
-    "util": "npm:util@0.12.5",
-    "which-typed-array": "npm:@socketregistry/which-typed-array@^1"
+    "util": "npm:util@0.12.5"
   },
   "engines": {
     "node": ">=18.20.4"

@@ -12,12 +12,11 @@ const unicornPlugin = require('eslint-plugin-unicorn')
 const tsEslint = require('typescript-eslint')
 
 const constants = require('@socketregistry/scripts/constants')
-const { readJsonSync } = require('@socketsecurity/registry/lib/fs')
+const { readPackageJsonSync } = require('@socketsecurity/registry/lib/packages')
 
 const {
   BIOME_JSON,
   LATEST,
-  PACKAGE_JSON,
   gitIgnoreFile,
   npmPackagesPath,
   relNpmPackagesPath,
@@ -97,8 +96,7 @@ function getIgnores(isEsm) {
   // Lazily access constants.npmPackageNames.
   return constants.npmPackageNames.flatMap(sockRegPkgName => {
     const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
-    const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
-    const { type } = readJsonSync(pkgJsonPath)
+    const { type } = readPackageJsonSync(pkgPath)
     const shouldIgnore = isEsm ? type !== 'module' : type === 'module'
     const ignored = []
     if (shouldIgnore) {
@@ -320,6 +318,9 @@ module.exports = [
   {
     name: 'Imported biome.json ignore patterns',
     ignores: biomeConfig.files.ignore.map(convertIgnorePatternToMinimatch)
+  },
+  {
+    ignores: ['packages/npm/**/package']
   },
   ...configs('script'),
   ...configs('module')
