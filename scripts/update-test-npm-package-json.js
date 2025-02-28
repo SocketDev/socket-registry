@@ -256,7 +256,9 @@ async function readCachedEditablePackageJson(filepath_) {
     ? filepath_
     : path.join(filepath_, PACKAGE_JSON)
   const cached = editablePackageJsonCache.get(filepath)
-  if (cached) return cached
+  if (cached) {
+    return cached
+  }
   const result = await readPackageJson(filepath, { editable: true })
   editablePackageJsonCache.set(filepath, result)
   return result
@@ -653,19 +655,18 @@ void (async () => {
     return
   }
   const spinner = Spinner()
-  if (!nodeModulesExists) {
-    spinner.start(`Initializing ${relTestNpmNodeModulesPath}...`)
-    // Refresh/initialize test/npm/node_modules
-    try {
-      await installTestNpmNodeModules({ spinner })
-      if (cliArgs.quiet) {
-        spinner.stop()
-      } else {
-        spinner.successAndStop(`Initialized ${relTestNpmNodeModulesPath}`)
-      }
-    } catch (e) {
-      spinner.errorAndStop('Initialization encountered an error:', e)
+  spinner.start(`Initializing ${relTestNpmNodeModulesPath}...`)
+  // Refresh/initialize test/npm/node_modules
+  try {
+    await installTestNpmNodeModules({ clean: true, spinner })
+    // await remove(testNpmNodeWorkspacesPath)
+    if (cliArgs.quiet) {
+      spinner.stop()
+    } else {
+      spinner.successAndStop(`Initialized ${relTestNpmNodeModulesPath}`)
     }
+  } catch (e) {
+    spinner.errorAndStop('Initialization encountered an error:', e)
   }
   const packageNames = addingPkgNames
     ? cliArgs.add
