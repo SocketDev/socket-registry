@@ -14,7 +14,7 @@ const {
 } = require('@socketsecurity/registry/lib/packages')
 const { trimLeadingDotSlash } = require('@socketsecurity/registry/lib/path')
 
-const { PACKAGE_JSON, npmPackagesPath } = constants
+const { PACKAGE_JSON, SOCKET_REGISTRY_SCOPE, npmPackagesPath } = constants
 
 void (async () => {
   await Promise.all(
@@ -30,6 +30,7 @@ void (async () => {
         editablePkgJson.content.exports
       )
       if (isSubpathExports(entryExports)) {
+        const fullName = `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`
         const availableFiles = await tinyGlob(
           ['**/*.{[cm],}js', '**/*.d.{[cm],}ts', '**/*.json'],
           {
@@ -40,16 +41,12 @@ void (async () => {
         const subpaths = getSubpaths(entryExports).map(trimLeadingDotSlash)
         for (const subpath of subpaths) {
           if (!availableFiles.includes(subpath)) {
-            console.warn(
-              `${sockRegPkgName}: ${subpath} subpath file does not exist`
-            )
+            console.warn(`${fullName}: ${subpath} subpath file does not exist`)
           }
         }
         for (const relPath of availableFiles) {
-          if (!subpaths.includes(relPath)) {
-            console.warn(
-              `${sockRegPkgName}: ${relPath} missing from subpath exports`
-            )
+          if (!relPath.startsWith(`package/`) && !subpaths.includes(relPath)) {
+            console.warn(`${fullName}: ${relPath} missing from subpath exports`)
           }
         }
       }
