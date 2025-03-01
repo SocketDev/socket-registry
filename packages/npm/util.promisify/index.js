@@ -1,7 +1,5 @@
 'use strict'
 
-const { promisify: UtilPromisify } = require('node:util')
-
 const impl = require('./implementation')
 
 const desc = value => ({
@@ -13,7 +11,7 @@ const desc = value => ({
 
 module.exports = Object.defineProperties(
   function promisify(original) {
-    return UtilPromisify(original)
+    return impl(original)
   },
   {
     custom: desc(impl.custom),
