@@ -63,6 +63,10 @@
       "types": "./lib/globs.d.ts",
       "default": "./lib/globs.js"
     },
+    "./lib/logger": {
+      "types": "./lib/logger.d.ts",
+      "default": "./lib/logger.js"
+    },
     "./lib/npm": {
       "types": "./lib/npm.d.ts",
       "default": "./lib/npm.js"
