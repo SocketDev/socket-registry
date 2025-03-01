@@ -73,7 +73,7 @@
     "@types/semver": "^7.5.8",
     "@types/validate-npm-package-name": "^4.0.2",
     "@types/which": "^3.0.4",
-    "@yarnpkg/extensions": "2.0.4",
+    "@yarnpkg/extensions": "2.0.5",
     "@zkochan/js-yaml": "^0.0.7",
     "cross-env": "^7.0.3",
     "custompatch": "^1.1.4",

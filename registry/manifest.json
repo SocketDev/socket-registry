@@ -836,7 +836,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-unicode-supported@1.0.0",
+      "pkg:npm/%40socketregistry/is-unicode-supported@1.0.1",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -844,7 +844,7 @@
         "license": "MIT",
         "name": "@socketregistry/is-unicode-supported",
         "package": "is-unicode-supported",
-        "version": "1.0.0"
+        "version": "1.0.1"
       }
     ],
     [
@@ -1533,7 +1533,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/util.promisify@1.0.6",
+      "pkg:npm/%40socketregistry/util.promisify@1.0.7",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -1541,7 +1541,7 @@
         "license": "MIT",
         "name": "@socketregistry/util.promisify",
         "package": "util.promisify",
-        "version": "1.0.6"
+        "version": "1.0.7"
       }
     ],
     [
@@ -1581,7 +1581,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/yocto-spinner@1.0.7",
+      "pkg:npm/%40socketregistry/yocto-spinner@1.0.8",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -1589,7 +1589,7 @@
         "license": "MIT",
         "name": "@socketregistry/yocto-spinner",
         "package": "yocto-spinner",
-        "version": "1.0.7"
+        "version": "1.0.8"
       }
     ],
     [
