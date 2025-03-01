@@ -95,6 +95,10 @@
       "types": "./lib/sorts.d.ts",
       "default": "./lib/sorts.js"
     },
+    "./lib/spawn": {
+      "types": "./lib/spawn.d.ts",
+      "default": "./lib/spawn.js"
+    },
     "./lib/spinner": {
       "types": "./lib/spinner.d.ts",
       "default": "./lib/spinner.js"

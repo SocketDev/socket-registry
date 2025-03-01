@@ -3,6 +3,7 @@
 const constants = require('@socketregistry/scripts/constants')
 const { getGlobMatcher } = require('@socketsecurity/registry/lib/globs')
 const { normalizePath } = require('@socketsecurity/registry/lib/path')
+const { spawn, spawnSync } = require('@socketsecurity/registry/lib/spawn')
 
 const {
   NPM,
@@ -10,28 +11,12 @@ const {
   [kInternalsSymbol]: { defineLazyGetters }
 } = constants
 
-let _child_process
-function getChildProcess() {
-  if (_child_process === undefined) {
-    _child_process = require('node:child_process')
-  }
-  return _child_process
-}
-
 let _path
 function getPath() {
   if (_path === undefined) {
     _path = require('node:path')
   }
   return _path
-}
-
-let _spawn
-function getSpawn() {
-  if (_spawn === undefined) {
-    _spawn = require('@npmcli/promise-spawn')
-  }
-  return _spawn
 }
 
 const gitDiffCache = new Map()
@@ -74,7 +59,6 @@ async function innerDiff(args, options) {
       return result
     }
   }
-  const spawn = getSpawn()
   let result
   try {
     result = parseGitDiffStdout((await spawn(...args)).stdout, parseOptions)
@@ -98,10 +82,7 @@ function innerDiffSync(args, options) {
   }
   let result
   try {
-    result = parseGitDiffStdout(
-      getChildProcess().spawnSync(...args).stdout,
-      parseOptions
-    )
+    result = parseGitDiffStdout(spawnSync(...args).stdout, parseOptions)
   } catch {
     return []
   }

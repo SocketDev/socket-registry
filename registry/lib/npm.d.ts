@@ -1,37 +1,31 @@
 // <reference types="node" />
-import { SpawnOptions } from 'node:child_process'
+import { SpawnOptions } from './spawn'
 import { Remap } from './objects'
 import { Spinner } from './spinner'
 
-declare type PromiseSpawnOptions = Remap<
-  {
-    cwd?: string
-    stdioString?: boolean
-  } & SpawnOptions
->
-declare type RunScriptOptions = Remap<
-  PromiseSpawnOptions & {
+declare type NpmSpawnOptions = SpawnOptions
+declare type NpmRunScriptOptions = Remap<
+  NpmSpawnOptions & {
     prepost?: boolean
-    spinner?: Spinner
   }
 >
 declare const Npm: {
   execNpm(
     args: string[],
-    options?: PromiseSpawnOptions
+    options?: SpawnOptions
   ): Promise<{ stdout: string; stderr: string }>
   runBin(
     binPath: string,
     args: string[],
-    options?: PromiseSpawnOptions
+    options?: SpawnOptions
   ): Promise<{ stdout: string; stderr: string }>
   runScript(
     scriptName: string,
     args: string[],
-    options?: RunScriptOptions
+    options?: NpmRunScriptOptions
   ): Promise<{ stdout: string; stderr: string }>
 }
 declare namespace Npm {
-  export { PromiseSpawnOptions, RunScriptOptions }
+  export { NpmRunScriptOptions, NpmSpawnOptions }
 }
 export = Npm
