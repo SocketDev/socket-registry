@@ -21,12 +21,12 @@ declare const Prompts: {
   password: (
     config: Remap<Parameters<typeof inquirerPassword>[0] & OptionalSpinner>
   ) => ReturnType<typeof inquirerPassword>
-  search: (
+  search: <Value>(
     config: Remap<Parameters<typeof inquirerSearch>[0] & OptionalSpinner>
-  ) => ReturnType<typeof inquirerSearch>
-  select: (
+  ) => ReturnType<typeof inquirerSearch<Value>>
+  select: <Value>(
     config: Remap<Parameters<typeof inquirerSelect>[0] & OptionalSpinner>
-  ) => ReturnType<typeof inquirerSelect>
+  ) => ReturnType<typeof inquirerSelect<Value>>
 }
 declare namespace Prompts {
   export { Separator }
