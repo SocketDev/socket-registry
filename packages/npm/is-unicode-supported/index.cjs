@@ -17,14 +17,18 @@ module.exports = function isUnicodeSupported() {
     return process.env.TERM !== 'linux'
   }
   const { env } = process
-  const { TERM, TERM_PROGRAM } = env
-  return (
+  if (
     // Windows Terminal.
     !!env.WT_SESSION ||
     // Terminus (<0.2.27).
     !!env.TERMINUS_SUBLIME ||
     // ConEmu and cmder.
-    env.ConEmuTask === '{cmd::Cmder}' ||
+    env.ConEmuTask === '{cmd::Cmder}'
+  ) {
+    return true
+  }
+  const { TERM, TERM_PROGRAM } = env
+  return (
     TERM_PROGRAM === 'Terminus-Sublime' ||
     TERM_PROGRAM === 'vscode' ||
     TERM === 'xterm-256color' ||
