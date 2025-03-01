@@ -42,7 +42,7 @@ describe(
         [kInternalsSymbol]: { lazyGetterStats }
       } = registryConstants
 
-      assert.strictEqual(lazyGetterStats.initialized.size, 0)
+      assert.deepStrictEqual([...lazyGetterStats.initialized], [])
     })
   }
 )

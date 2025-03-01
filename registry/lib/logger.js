@@ -23,7 +23,7 @@ function getYoctocolors() {
   return _yoctocolors
 }
 
-export class Logger {
+class Logger {
   #symbolApply(symbolType, args) {
     let extras
     let text = args.at(0) ?? ''
@@ -63,4 +63,9 @@ export class Logger {
   }
 }
 
-export const logger = new Logger()
+const logger = new Logger()
+
+module.exports = {
+  Logger,
+  logger
+}
