@@ -220,10 +220,8 @@ async function updateOverrideScopedVersionInParent(pkg, version) {
 }
 
 void (async () => {
-  const spinner = Spinner({
-    text: `Bumping ${relNpmPackagesPath} versions (semver patch)...`
-  }).start()
-
+  const spinner = new Spinner()
+  spinner.start(`Bumping ${relNpmPackagesPath} versions (semver patch)...`)
   const packages = [
     registryPkg,
     // Lazily access constants.npmPackageNames.
@@ -239,29 +237,18 @@ void (async () => {
       })
     })
   ]
-
-  const socketOverridePackages = await filterSocketOverrideScopePackages(
-    packages,
-    {
-      signal: abortSignal
-    }
-  )
-
-  const bumpedPackages = []
-  const bumpedSocketOverrideScopedPackages = []
-  const changedPackages = []
-  const changedSocketOverrideScopedPackages = []
   const state = {
-    bumped: bumpedPackages,
-    bumpedOverrideScoped: bumpedSocketOverrideScopedPackages,
-    changed: changedPackages,
-    changedOverrideScoped: changedSocketOverrideScopedPackages,
-    overrideScoped: socketOverridePackages
+    bumped: [],
+    bumpedOverrideScoped: [],
+    changed: [],
+    changedOverrideScoped: [],
+    overrideScoped: await filterSocketOverrideScopePackages(packages, {
+      signal: abortSignal
+    })
   }
-
   // Chunk @socketoverride scoped packages to process them in parallel 3 at a time.
   await pEach(
-    socketOverridePackages,
+    state.overrideScoped,
     3,
     async pkg => {
       await maybeBumpPackage(pkg, { signal: abortSignal, spinner, state })
@@ -274,11 +261,11 @@ void (async () => {
     return
   }
 
-  const bundledPackages = [...packages, ...socketOverridePackages].filter(
+  const bundledPackages = [...packages, ...state.overrideScoped].filter(
     pkg => pkg.bundledDependencies
   )
   // Chunk changed @socketoverride scoped packages to process them in parallel 3 at a time.
-  await pEach(bumpedSocketOverrideScopedPackages, 3, async pkg => {
+  await pEach(state.bumpedOverrideScoped, 3, async pkg => {
     // Reset override version in parent package BEFORE npm install of bundled
     // dependencies.
     await updateOverrideScopedVersionInParent(pkg, pkg.manifest.version)
@@ -290,7 +277,7 @@ void (async () => {
     async pkg => await installBundledDependencies(pkg, { spinner })
   )
   // Chunk changed @override scoped packages to process them in parallel 3 at a time.
-  await pEach(bumpedSocketOverrideScopedPackages, 3, async pkg => {
+  await pEach(state.bumpedOverrideScoped, 3, async pkg => {
     // Update override version in parent package AFTER npm install of bundled
     // dependencies.
     await updateOverrideScopedVersionInParent(pkg, pkg.version)
@@ -300,7 +287,6 @@ void (async () => {
     const overrideNmPath = path.join(parentPkgNmPath, pkg.name)
     await fs.cp(pkg.path, overrideNmPath, { recursive: true })
   })
-
   // Chunk packages data to process them in parallel 3 at a time.
   await pEach(
     packages,
@@ -311,28 +297,28 @@ void (async () => {
     { signal: abortSignal }
   )
 
-  spinner.stop()
-  if (abortSignal.aborted || !bumpedPackages.length) {
+  if (abortSignal.aborted || !state.bumped.length) {
+    spinner.stop()
     return
   }
 
   const spawnOptions = {
     cwd: rootPath,
     signal: abortSignal,
+    spinner,
     stdio: 'inherit'
   }
 
   await runScript('update:manifest', ['--', '--force'], spawnOptions)
 
-  if (!bumpedPackages.find(pkg => pkg === registryPkg)) {
-    spinner.start()
+  if (!state.bumped.find(pkg => pkg === registryPkg)) {
     const version = semver.inc(registryPkg.manifest.version, 'patch')
     const editablePkgJson = await readPackageJson(registryPkg.path, {
       editable: true
     })
     editablePkgJson.update({ version })
     await editablePkgJson.save()
-    spinner.stop(
+    spinner.log(
       `+${registryPkg.name}@${registryPkg.manifest.version} -> ${version}`
     )
   }
@@ -340,8 +326,8 @@ void (async () => {
   await runScript('update:package-json', [], spawnOptions)
 
   if (
-    changedPackages.length > 1 ||
-    (changedPackages.length === 1 && changedPackages[0] !== registryPkg)
+    state.changed.length > 1 ||
+    (state.changed.length === 1 && state.changed[0] !== registryPkg)
   ) {
     await runScript(
       'update:longtask:test:npm:package-json',
@@ -349,4 +335,6 @@ void (async () => {
       spawnOptions
     )
   }
+
+  spinner.stop()
 })()

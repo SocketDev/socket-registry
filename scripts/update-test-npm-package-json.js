@@ -654,19 +654,18 @@ void (async () => {
   ) {
     return
   }
-  const spinner = Spinner()
+  const spinner = new Spinner()
   spinner.start(`Initializing ${relTestNpmNodeModulesPath}...`)
   // Refresh/initialize test/npm/node_modules
   try {
     await remove(testNpmNodeWorkspacesPath)
     await installTestNpmNodeModules({ clean: true, spinner })
-    if (cliArgs.quiet) {
-      spinner.stop()
-    } else {
-      spinner.successAndStop(`Initialized ${relTestNpmNodeModulesPath}`)
+    if (!cliArgs.quiet) {
+      spinner.success(`Initialized ${relTestNpmNodeModulesPath}`)
     }
   } catch (e) {
     spinner.errorAndStop('Initialization encountered an error:', e)
+    return
   }
   const packageNames = addingPkgNames
     ? cliArgs.add
