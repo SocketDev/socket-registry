@@ -1,20 +1,5 @@
 'use strict'
 
-let _logSymbols
-function getLogSymbols() {
-  if (_logSymbols === undefined) {
-    const supported = require('@socketregistry/is-unicode-supported')()
-    const colors = getYoctocolors()
-    _logSymbols = {
-      error: colors.red(supported ? '✖️' : '×'),
-      info: colors.blue(supported ? 'ℹ' : 'i'),
-      success: colors.green(supported ? '✔' : '√'),
-      warning: colors.yellow(supported ? '⚠' : '‼')
-    }
-  }
-  return _logSymbols
-}
-
 let _yoctocolors
 function getYoctocolors() {
   if (_yoctocolors === undefined) {
@@ -33,12 +18,26 @@ class Logger {
     } else {
       extras = args.slice(1)
     }
-    const symbols = getLogSymbols()
-    console.log(`${symbols[symbolType]} ${text}`)
+    console.log(`${Logger.LOG_SYMBOLS[symbolType]} ${text}`)
     if (extras.length) {
       console.log(...extras)
     }
     return this
+  }
+
+  static #LOG_SYMBOLS
+  static get LOG_SYMBOLS() {
+    if (this.#LOG_SYMBOLS === undefined) {
+      const supported = require('@socketregistry/is-unicode-supported')()
+      const colors = getYoctocolors()
+      this.#LOG_SYMBOLS = {
+        error: colors.red(supported ? '✖️' : '×'),
+        info: colors.blue(supported ? 'ℹ' : 'i'),
+        success: colors.green(supported ? '✔' : '√'),
+        warning: colors.yellow(supported ? '⚠' : '‼')
+      }
+    }
+    return this.#LOG_SYMBOLS
   }
 
   error(...args) {
