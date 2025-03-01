@@ -1,17 +1,30 @@
 'use strict'
 
-const process = require('node:process')
+let _process
+function getProcess() {
+  if (_process === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _process = require('process')
+  }
+  return _process
+}
 
 module.exports = function isUnicodeSupported() {
+  const process = getProcess()
+  if (process.platform !== 'win32') {
+    // Linux console (kernel).
+    return process.env.TERM !== 'linux'
+  }
   const { env } = process
   const { TERM, TERM_PROGRAM } = env
-  if (process.platform !== 'win32') {
-    return TERM !== 'linux' // Linux console (kernel)
-  }
   return (
-    Boolean(env.WT_SESSION) || // Windows Terminal
-    Boolean(env.TERMINUS_SUBLIME) || // Terminus (<0.2.27)
-    env.ConEmuTask === '{cmd::Cmder}' || // ConEmu and cmder
+    // Windows Terminal.
+    !!env.WT_SESSION ||
+    // Terminus (<0.2.27).
+    !!env.TERMINUS_SUBLIME ||
+    // ConEmu and cmder.
+    env.ConEmuTask === '{cmd::Cmder}' ||
     TERM_PROGRAM === 'Terminus-Sublime' ||
     TERM_PROGRAM === 'vscode' ||
     TERM === 'xterm-256color' ||

@@ -3,10 +3,14 @@
 const {
   promisify: UtilPromisify,
   promisify: { custom }
-} = require('node:util')
+  // Use non-'node:' prefixed require to avoid Webpack errors.
+  // eslint-disable-next-line n/prefer-node-protocol
+} = require('util')
 
 const customPromisifyArgs = Object.getOwnPropertySymbols(
-  require('node:fs').read
+  // Use non-'node:' prefixed require to avoid Webpack errors.
+  // eslint-disable-next-line n/prefer-node-protocol
+  require('fs').read
 ).find(s => s.description === 'customPromisifyArgs')
 
 module.exports = Object.assign(
