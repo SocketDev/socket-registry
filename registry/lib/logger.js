@@ -56,12 +56,13 @@ class Logger {
     if (this.#LOG_SYMBOLS === undefined) {
       const supported = require('@socketregistry/is-unicode-supported')()
       const colors = getYoctocolors()
-      this.#LOG_SYMBOLS = {
+      this.#LOG_SYMBOLS = Object.freeze({
+        __proto__: null,
         error: colors.red(supported ? '✖️' : '×'),
         info: colors.blue(supported ? 'ℹ' : 'i'),
         success: colors.green(supported ? '✔' : '√'),
         warning: colors.yellow(supported ? '⚠' : '‼')
-      }
+      })
     }
     return this.#LOG_SYMBOLS
   }

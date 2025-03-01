@@ -1,12 +1,12 @@
 /// <reference types="node" />
 import { Console, ConsoleConstructorOptions } from 'node:console'
 
-declare type LoggerMethods = {
-  [K in keyof Console]: Console[K] extends (...args: infer A) => any
-    ? (...args: A) => Logger
-    : Console[K]
-}
 declare namespace LoggerModule {
+  type LoggerMethods = {
+    [K in keyof Console]: Console[K] extends (...args: infer A) => any
+      ? (...args: A) => Logger
+      : Console[K]
+  }
   export type LogSymbols = {
     error: string
     info: string
