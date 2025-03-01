@@ -2,13 +2,31 @@
 
 const { Separator, default: selectRaw } = require('@inquirer/select')
 
-const { silentWrapAsync } = require('./functions')
+function wrapPrompt(fn) {
+  return async (...args) => {
+    const { length } = args
+    const { spinner, ...config } = length ? args[0] : {}
+    if (length) {
+      args[0] = config
+    }
+    const isSpinning = spinner?.isSpinning ?? false
+    spinner?.stop()
+    let result
+    try {
+      result = await fn(...args)
+    } catch {}
+    if (isSpinning) {
+      spinner?.start()
+    }
+    return result
+  }
+}
 
-const confirm = silentWrapAsync(require('@inquirer/confirm').default)
-const input = silentWrapAsync(require('@inquirer/input').default)
-const password = silentWrapAsync(require('@inquirer/password').default)
-const search = silentWrapAsync(require('@inquirer/search').default)
-const select = silentWrapAsync(selectRaw)
+const confirm = wrapPrompt(require('@inquirer/confirm').default)
+const input = wrapPrompt(require('@inquirer/input').default)
+const password = wrapPrompt(require('@inquirer/password').default)
+const search = wrapPrompt(require('@inquirer/search').default)
+const select = wrapPrompt(selectRaw)
 
 module.exports = {
   Separator,
