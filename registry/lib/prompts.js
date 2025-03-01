@@ -2,12 +2,21 @@
 
 const { Separator, default: selectRaw } = require('@inquirer/select')
 
+const constants = require('./constants')
+
+const { abortSignal } = constants
+
 function wrapPrompt(inquirerPrompt) {
   return async (...args) => {
     const origContext = args.length > 1 ? args[1] : undefined
     const { spinner, ...contextWithoutSpinner } = origContext ?? {}
     if (origContext) {
-      args[1] = contextWithoutSpinner
+      args[1] = {
+        signal: abortSignal,
+        ...contextWithoutSpinner
+      }
+    } else {
+      args[1] = { signal: abortSignal }
     }
     const isSpinning = spinner?.isSpinning ?? false
     spinner?.stop()
