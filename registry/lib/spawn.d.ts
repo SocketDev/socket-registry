@@ -5,6 +5,7 @@ import {
   SpawnOptions as BuiltinSpawnOptions
 } from 'node:child_process'
 import { Remap } from './objects'
+import { Spinner } from './spinner'
 
 declare type NativeSpawnResult = ReturnType<typeof builtinSpawn>
 declare type SpawnResult<Output, Extra> = Promise<
@@ -18,17 +19,18 @@ declare type SpawnResult<Output, Extra> = Promise<
   } & Extra
 > & { process: NativeSpawnResult; stdin: NativeSpawnResult['stdin'] }
 declare type SpawnOptions = Remap<
-  {
-    stdioString?: boolean
-  } & BuiltinSpawnOptions
+  BuiltinSpawnOptions & {
+    spinner?: Spinner | undefined
+    stdioString?: boolean | undefined
+  }
 >
 
 declare const Spawn: {
   spawn<O extends SpawnOptions = SpawnOptions>(
     cmd: string,
     args: string[],
-    options?: O,
-    extra?: Record<any, any>
+    options?: O | undefined,
+    extra?: Record<any, any> | undefined
   ): SpawnResult<
     O extends { stdioString: false } ? Buffer : string,
     typeof extra
