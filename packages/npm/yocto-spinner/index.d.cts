@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import Writable from 'node:stream'
 
 /**
