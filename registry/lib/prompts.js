@@ -2,18 +2,18 @@
 
 const { Separator, default: selectRaw } = require('@inquirer/select')
 
-function wrapPrompt(fn) {
+function wrapPrompt(inquirerPrompt) {
   return async (...args) => {
-    const { length } = args
-    const { spinner, ...config } = length ? args[0] : {}
-    if (length) {
-      args[0] = config
+    const origContext = args.length > 1 ? args[1] : undefined
+    const { spinner, ...contextWithoutSpinner } = origContext ?? {}
+    if (origContext) {
+      args[1] = contextWithoutSpinner
     }
     const isSpinning = spinner?.isSpinning ?? false
     spinner?.stop()
     let result
     try {
-      result = await fn(...args)
+      result = await inquirerPrompt(...args)
     } catch {}
     if (isSpinning) {
       spinner?.start()
