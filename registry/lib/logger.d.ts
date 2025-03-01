@@ -1,5 +1,12 @@
 declare namespace LoggerModule {
+  export type LogSymbols = {
+    error: string
+    info: string
+    success: string
+    warning: string
+  }
   export class Logger {
+    static get LOG_SYMBOLS(): LogSymbols
     constructor()
     error(...args: any[]): Logger
     info(...args: any[]): Logger
