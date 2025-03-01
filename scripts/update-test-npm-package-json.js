@@ -679,6 +679,7 @@ void (async () => {
     await cleanupNodeWorkspaces(linkedPackageNames, { spinner })
     await installNodeWorkspaces({ spinner })
   }
+  spinner.stop()
   if (!cliArgs.quiet) {
     console.log('Finished 🎉')
   }
