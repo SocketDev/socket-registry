@@ -1,6 +1,7 @@
 // <reference types="node" />
 import { SpawnOptions } from 'node:child_process'
 import { Remap } from './objects'
+import { Spinner } from './spinner'
 
 declare type PromiseSpawnOptions = Remap<
   {
@@ -11,6 +12,7 @@ declare type PromiseSpawnOptions = Remap<
 declare type RunScriptOptions = Remap<
   PromiseSpawnOptions & {
     prepost?: boolean
+    spinner?: Spinner
   }
 >
 declare const Npm: {

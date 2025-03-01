@@ -10,25 +10,40 @@ function getSpawn() {
   return _spawn
 }
 
-async function execNpm(args, options) {
+function execNpm(args, options) {
+  const { spinner, ...spawnOptions } = { __proto__: null, ...options }
   const spawn = getSpawn()
-  return await spawn(
+  const isSpinning = spinner?.isSpinning ?? false
+  spinner?.stop()
+  let spawnPromise = spawn(
     // Lazily access constants.npmExecPath.
     constants.npmExecPath,
     args,
     {
       __proto__: null,
-      ...options,
+      ...spawnOptions,
       shell: true
     }
   )
+  if (isSpinning) {
+    const oldSpawnPromise = spawnPromise
+    spawnPromise = spawnPromise.finally(() => {
+      spinner?.start()
+    })
+    spawnPromise.process = oldSpawnPromise.process
+    spawnPromise.stdin = oldSpawnPromise.stdin
+  }
+  return spawnPromise
 }
 
-async function runBin(binPath, args, options) {
+function runBin(binPath, args, options) {
+  const { spinner, ...spawnOptions } = { __proto__: null, ...options }
   // Lazily access constants.WIN32.
   const { WIN32 } = constants
   const spawn = getSpawn()
-  return await spawn(
+  const isSpinning = spinner?.isSpinning ?? false
+  spinner?.stop()
+  let spawnPromise = spawn(
     // Lazily access constants.execPath.
     WIN32 ? binPath : constants.execPath,
     [
@@ -43,20 +58,31 @@ async function runBin(binPath, args, options) {
     ],
     {
       __proto__: null,
-      ...options,
+      ...spawnOptions,
       shell: true
     }
   )
+  if (isSpinning) {
+    const oldSpawnPromise = spawnPromise
+    spawnPromise = spawnPromise.finally(() => {
+      spinner?.start()
+    })
+    spawnPromise.process = oldSpawnPromise.process
+    spawnPromise.stdin = oldSpawnPromise.stdin
+  }
+  return spawnPromise
 }
 
-async function runScript(scriptName, args, options) {
-  const { prepost, ...spawnOptions } = { __proto__: null, ...options }
+function runScript(scriptName, args, options) {
+  const { prepost, spinner, ...spawnOptions } = { __proto__: null, ...options }
   // Lazily access constants.SUPPORTS_NODE_RUN.
   const useNodeRun = !prepost && constants.SUPPORTS_NODE_RUN
   // Lazily access constants.execPath and constants.npmExecPath.
   const cmd = useNodeRun ? constants.execPath : constants.npmExecPath
   const spawn = getSpawn()
-  return await spawn(
+  const isSpinning = spinner?.isSpinning ?? false
+  spinner?.stop()
+  let spawnPromise = spawn(
     cmd,
     [
       ...(useNodeRun
@@ -75,6 +101,15 @@ async function runScript(scriptName, args, options) {
       shell: true
     }
   )
+  if (isSpinning) {
+    const oldSpawnPromise = spawnPromise
+    spawnPromise = spawnPromise.finally(() => {
+      spinner?.start()
+    })
+    spawnPromise.process = oldSpawnPromise.process
+    spawnPromise.stdin = oldSpawnPromise.stdin
+  }
+  return spawnPromise
 }
 
 module.exports = {

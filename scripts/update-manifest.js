@@ -161,10 +161,9 @@ void (async () => {
   ) {
     return
   }
-  const spinner = Spinner({
-    // Lazily access constants.relRegistryManifestJsonPath.
-    text: `Updating ${constants.relRegistryManifestJsonPath}...`
-  }).start()
+  const spinner = new Spinner()
+  // Lazily access constants.relRegistryManifestJsonPath.
+  spinner.start(`Updating ${constants.relRegistryManifestJsonPath}...`)
   const manifest = {}
   await addNpmManifestData(manifest, { spinner })
   // Lazily access constants.registryManifestJsonPath.
