@@ -62,24 +62,29 @@ function isUnicodeSupported() {
     if (process.platform !== 'win32') {
       // Linux console (kernel).
       _unicodeSupported = process.env.TERM !== 'linux'
-    } else {
-      const { env } = process
-      const { TERM, TERM_PROGRAM } = env
-      _unicodeSupported =
-        // Windows Terminal.
-        !!env.WT_SESSION ||
-        // Terminus (<0.2.27).
-        !!env.TERMINUS_SUBLIME ||
-        // ConEmu and cmder.
-        env.ConEmuTask === '{cmd::Cmder}' ||
-        TERM_PROGRAM === 'Terminus-Sublime' ||
-        TERM_PROGRAM === 'vscode' ||
-        TERM === 'xterm-256color' ||
-        TERM === 'alacritty' ||
-        TERM === 'rxvt-unicode' ||
-        TERM === 'rxvt-unicode-256color' ||
-        env.TERMINAL_EMULATOR === 'JetBrains-JediTerm'
+      return _unicodeSupported
     }
+    const { env } = process
+    if (
+      // Windows Terminal.
+      !!env.WT_SESSION ||
+      // Terminus (<0.2.27).
+      !!env.TERMINUS_SUBLIME ||
+      // ConEmu and cmder.
+      env.ConEmuTask === '{cmd::Cmder}'
+    ) {
+      _unicodeSupported = true
+      return _unicodeSupported
+    }
+    const { TERM, TERM_PROGRAM } = env
+    _unicodeSupported =
+      TERM_PROGRAM === 'Terminus-Sublime' ||
+      TERM_PROGRAM === 'vscode' ||
+      TERM === 'xterm-256color' ||
+      TERM === 'alacritty' ||
+      TERM === 'rxvt-unicode' ||
+      TERM === 'rxvt-unicode-256color' ||
+      env.TERMINAL_EMULATOR === 'JetBrains-JediTerm'
   }
   return _unicodeSupported
 }

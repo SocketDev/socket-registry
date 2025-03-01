@@ -11,14 +11,39 @@ const ciSpinner = {
   interval: 2147483647
 }
 
-let _spinnerFactory
-function getSpinnerFactory() {
-  if (_spinnerFactory === undefined) {
+let _Spinner
+function Spinner(options) {
+  if (_Spinner === undefined) {
     // Load '@socketregistry/yocto-spinner/index.cjs' to avoid the
     // experimental-require-module warning.
     const yoctoFactory = require('@socketregistry/yocto-spinner/index.cjs')
     const { constructor: YoctoCtor } = yoctoFactory()
-    class Spinner extends YoctoCtor {
+    _Spinner = class Spinner extends YoctoCtor {
+      #apply(methodName, args) {
+        let extras
+        let text = args.at(0) ?? ''
+        if (typeof text !== 'string') {
+          text = ''
+          extras = args
+        } else {
+          extras = args.slice(1)
+        }
+        super[methodName](text)
+        if (extras.length) {
+          console.log(...extras)
+        }
+        return this
+      }
+
+      #applyAndKeepSpinning(methodName, args) {
+        const { isSpinning } = this
+        this.#apply(methodName, args)
+        if (isSpinning) {
+          this.start()
+        }
+        return this
+      }
+
       error(...args) {
         return this.#applyAndKeepSpinning('error', args)
       }
@@ -80,44 +105,11 @@ function getSpinnerFactory() {
       warnAndStop(...args) {
         return this.#apply('warning', args)
       }
-
-      #apply(methodName, args) {
-        let extras
-        let text = args.at(0) ?? ''
-        if (typeof text !== 'string') {
-          text = ''
-          extras = args
-        } else {
-          extras = args.slice(1)
-        }
-        const result = super[methodName](text)
-        if (extras.length) {
-          console.log(...extras)
-        }
-        return result
-      }
-
-      #applyAndKeepSpinning(methodName, args) {
-        const { isSpinning } = this
-        const result = this.#apply(methodName, args)
-        if (isSpinning) {
-          this.start()
-        }
-        return result
-      }
     }
-    Spinner.prototype.warning = Spinner.prototype.warn
-    Spinner.prototype.warningAndStop = Spinner.prototype.warnAndStop
-    _spinnerFactory = function spinnerFactory(options) {
-      return new Spinner(options)
-    }
+    _Spinner.prototype.warning = _Spinner.prototype.warn
+    _Spinner.prototype.warningAndStop = _Spinner.prototype.warnAndStop
   }
-  return _spinnerFactory
-}
-
-function Spinner(options) {
-  const spinnerFactory = getSpinnerFactory()
-  return spinnerFactory({
+  return new _Spinner({
     // Lazily access constants.ENV.
     spinner: constants.ENV.CI ? ciSpinner : undefined,
     ...options
