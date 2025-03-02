@@ -186,11 +186,11 @@ class YoctoSpinner {
   }
 
   #setTimer() {
-    const immediate = setInterval(() => {
+    const timeout = setInterval(() => {
       this.#render()
     }, this.#interval)
-    immediate?.unref?.()
-    this.#timer = immediate
+    timeout?.unref?.()
+    this.#timer = timeout
   }
 
   #showCursor() {
