@@ -34,7 +34,7 @@ void (async () => {
       assert.strictEqual(a, v)
       return v
     })
-    const bench = new Bench({ time: 100 })
+    const bench = new Bench({ time: 100, warmup: true })
     bench
       .add('@socketregistry/json-stable-stringify', () => {
         overrideJsonStableStringify(data)
@@ -45,8 +45,6 @@ void (async () => {
       .add('fast-json-stable-stringify', () => {
         fastJsonStableStringify(data)
       })
-    // eslint-disable-next-line no-await-in-loop
-    await bench.warmup()
     // eslint-disable-next-line no-await-in-loop
     await bench.run()
     logger.log(name)
