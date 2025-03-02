@@ -17,7 +17,17 @@ function Spinner(options) {
     // experimental-require-module warning.
     const yoctoFactory = require('@socketregistry/yocto-spinner/index.cjs')
     const { constructor: YoctoCtor } = yoctoFactory()
+    // Lazily access require('./constants') to avoid cyclical imports.
+    const constants = require('./constants')
+    const { abortSignal } = constants
     _Spinner = class Spinner extends YoctoCtor {
+      constructor(options) {
+        super({
+          signal: abortSignal,
+          ...options
+        })
+      }
+
       #apply(methodName, args) {
         let extras
         let text = args.at(0) ?? ''
@@ -107,8 +117,8 @@ function Spinner(options) {
     }
     _Spinner.prototype.warning = _Spinner.prototype.warn
     _Spinner.prototype.warningAndStop = _Spinner.prototype.warnAndStop
-    // Lazily access require('./constants').ENV.CI to avoid cyclical imports.
-    _defaultSpinner = require('./constants').ENV.CI ? ciSpinner : undefined
+    // Lazily access constants.ENV.CI.
+    _defaultSpinner = constants.ENV.CI ? ciSpinner : undefined
   }
   return new _Spinner({
     spinner: _defaultSpinner,
