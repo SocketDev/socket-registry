@@ -20,6 +20,9 @@ function Spinner(options) {
     // Lazily access require('./constants') to avoid cyclical imports.
     const constants = require('./constants')
     const { abortSignal } = constants
+    // Lazily access require('./logger') to avoid a future cyclical import.
+    const { logger } = require('./logger')
+
     _Spinner = class Spinner extends YoctoCtor {
       constructor(options) {
         super({
@@ -39,7 +42,7 @@ function Spinner(options) {
         }
         super[methodName](text)
         if (extras.length) {
-          console.log(...extras)
+          logger.log(...extras)
         }
         return this
       }
@@ -82,7 +85,7 @@ function Spinner(options) {
       }
 
       setText(text) {
-        this.text = text
+        this.text = text ?? ''
         return this
       }
 
@@ -90,7 +93,7 @@ function Spinner(options) {
         let text = args.at(0) ?? ''
         if (typeof text !== 'string' || args.length > 1) {
           text = ''
-          console.log(...args)
+          logger.log(...args)
         }
         return super.start(text)
       }
