@@ -5,6 +5,7 @@ const path = require('node:path')
 const { glob: tinyGlob } = require('tinyglobby')
 
 const constants = require('@socketregistry/scripts/constants')
+const { logger } = require('@socketsecurity/registry/lib/logger')
 const {
   createPackageJson,
   getSubpaths,
@@ -41,12 +42,12 @@ void (async () => {
         const subpaths = getSubpaths(entryExports).map(trimLeadingDotSlash)
         for (const subpath of subpaths) {
           if (!availableFiles.includes(subpath)) {
-            console.warn(`${fullName}: ${subpath} subpath file does not exist`)
+            logger.warn(`${fullName}: ${subpath} subpath file does not exist`)
           }
         }
         for (const relPath of availableFiles) {
           if (!relPath.startsWith(`package/`) && !subpaths.includes(relPath)) {
-            console.warn(`${fullName}: ${relPath} missing from subpath exports`)
+            logger.warn(`${fullName}: ${relPath} missing from subpath exports`)
           }
         }
       }
