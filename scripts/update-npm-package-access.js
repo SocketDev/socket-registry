@@ -5,6 +5,7 @@ const util = require('node:util')
 
 const constants = require('@socketregistry/scripts/constants')
 const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
+const { logger } = require('@socketsecurity/registry/lib/logger')
 const { execNpm } = require('@socketsecurity/registry/lib/npm')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { pluralize } = require('@socketsecurity/registry/lib/words')
@@ -59,17 +60,17 @@ void (async () => {
           }
         }
       )
-      console.log(stdout)
+      logger.log(stdout)
     } catch (e) {
       fails.push(pkg.printName)
-      console.log(e)
+      logger.log(e)
     }
   })
 
   if (fails.length) {
-    const msg = `⚠️ Unable to set access for ${fails.length} ${pluralize('package', fails.length)}:`
+    const msg = `Unable to set access for ${fails.length} ${pluralize('package', fails.length)}:`
     const msgList = joinAsList(fails)
     const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
-    console.warn(`${msg}${separator}${msgList}`)
+    logger.warn(`${msg}${separator}${msgList}`)
   }
 })()

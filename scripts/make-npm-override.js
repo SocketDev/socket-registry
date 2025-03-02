@@ -20,7 +20,7 @@ const {
 } = require('@socketregistry/scripts/lib/templates')
 const { isDirEmptySync } = require('@socketsecurity/registry/lib/fs')
 const { globLicenses } = require('@socketsecurity/registry/lib/globs')
-const { logger } = require('@socketsecurity/registry/lib/logger')
+const { LOG_SYMBOLS, logger } = require('@socketsecurity/registry/lib/logger')
 const { runScript } = require('@socketsecurity/registry/lib/npm')
 const { isObject } = require('@socketsecurity/registry/lib/objects')
 const {
@@ -213,7 +213,7 @@ void (async () => {
   if (badLicenses.length) {
     const singularOrPlural = pluralize('license', badLicenses.length)
     const badLicenseNames = badLicenses.map(n => n.license)
-    const warning = `⚠️ ${origPkgName} has incompatible ${singularOrPlural} ${badLicenseNames.join(', ')}.`
+    const warning = `${LOG_SYMBOLS.warn} ${origPkgName} has incompatible ${singularOrPlural} ${badLicenseNames.join(', ')}.`
     const answer = await confirm(
       {
         message: `${warning}.\nDo you want to continue?`,
@@ -470,6 +470,6 @@ void (async () => {
     }
   } catch (e) {
     logger.error('Package override finalization encountered an error:')
-    logger.log(e)
+    logger.error(e)
   }
 })()

@@ -8,6 +8,7 @@ import origJsonStableStringify from 'json-stable-stringify'
 import overrideJsonStableStringify from '@socketregistry/json-stable-stringify'
 
 import constants from '@socketregistry/scripts/constants'
+import { logger } from '@socketsecurity/registry/lib/logger'
 
 const { perfNpmFixturesPath } = constants
 
@@ -48,7 +49,7 @@ void (async () => {
     await bench.warmup()
     // eslint-disable-next-line no-await-in-loop
     await bench.run()
-    console.log(name)
-    console.table(bench.table())
+    logger.log(name)
+    logger.table(bench.table())
   }
 })()

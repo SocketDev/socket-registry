@@ -4,6 +4,7 @@ import { describe, it } from 'node:test'
 
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
+import { logger } from '@socketsecurity/registry/lib/logger'
 
 const { NPM, testNpmNodeWorkspacesPath } = constants
 
@@ -308,7 +309,7 @@ describe(
         ;(letters as any)[letter] = letter
       }
       const n = 5
-      console.log(`run the next test ${n} times`)
+      logger.info(`run the next test ${n} times`)
       const object = es6oa.assign({}, letters)
       let actual = ''
       for (const k in object) {
