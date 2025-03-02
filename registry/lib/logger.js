@@ -40,11 +40,13 @@ const LOG_SYMBOLS = (() => {
       delete handler[trapName]
     }
   }
-  for (const trapName of Object.keys(Reflect)) {
+  for (const trapName of Reflect.ownKeys(Reflect)) {
     const fn = Reflect[trapName]
-    handler[trapName] = function (...args) {
-      init()
-      return fn(...args)
+    if (typeof fn === 'function') {
+      handler[trapName] = function (...args) {
+        init()
+        return fn(...args)
+      }
     }
   }
   return new Proxy(target, handler)
