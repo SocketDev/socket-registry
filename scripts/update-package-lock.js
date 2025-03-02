@@ -71,7 +71,7 @@ void (async () => {
     (await modifyYarnpkgExtsPkgJson())
   ) {
     // Reinstall packages with the updated package-lock.json. (should be quick)
-    await execNpm(['install', '--no-audit', '--no-fund'], {
+    await execNpm(['install'], {
       cwd: rootPath,
       stdio: 'inherit'
     })
