@@ -214,8 +214,9 @@ class YoctoSpinner {
     return this.#text
   }
 
-  set text(value = '') {
-    this.#text = typeof value === 'string' ? value : String(value)
+  set text(value) {
+    const text = value ?? ''
+    this.#text = typeof text === 'string' ? text : String(text)
     this.#render()
   }
 
