@@ -1,9 +1,12 @@
-// <reference types="node" />
 import { SpawnOptions } from './spawn'
 import { Remap } from './objects'
 import { Spinner } from './spinner'
 
-declare type NpmSpawnOptions = SpawnOptions
+declare type NpmSpawnOptions = Remap<
+  SpawnOptions & {
+    spinner?: Spinner | undefined
+  }
+>
 declare type NpmRunScriptOptions = Remap<
   NpmSpawnOptions & {
     prepost?: boolean
@@ -12,8 +15,12 @@ declare type NpmRunScriptOptions = Remap<
 declare const Npm: {
   execNpm(
     args: string[],
-    options?: SpawnOptions
+    options?: NpmSpawnOptions
   ): Promise<{ stdout: string; stderr: string }>
+  isAuditFlag(cmdArg: string): boolean
+  isFundFlag(cmdArg: string): boolean
+  isLoglevelFlag(cmdArg: string): boolean
+  isProgressFlag(cmdArg: string): boolean
   runBin(
     binPath: string,
     args: string[],

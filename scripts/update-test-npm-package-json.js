@@ -119,20 +119,10 @@ async function installTestNpmNodeModules(options) {
         ).map(p => remove(p))
       : [])
   ])
-  const args = [
-    'install',
-    // Even though the 'silent' flag is passed npm will still run through code
-    // paths for 'audit' and 'fund' unless '--no-audit' and '--no-fund' flags
-    // are passed.
-    '--silent',
-    '--no-audit',
-    '--no-fund',
-    '--no-progress'
-  ]
-  if (Array.isArray(specs)) {
-    args.push('--save-dev', ...specs)
-  }
-  return await execNpm(args, { cwd: testNpmPath, stdio: 'ignore' })
+  return await execNpm(
+    ['install', ...(Array.isArray(specs) ? ['--save-dev', ...specs] : [])],
+    { cwd: testNpmPath, stdio: 'ignore' }
+  )
 }
 
 async function installMissingPackages(packageNames, options) {

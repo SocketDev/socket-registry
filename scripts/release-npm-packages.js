@@ -1,6 +1,5 @@
 'use strict'
 
-const { promises: fs } = require('node:fs')
 const path = require('node:path')
 
 const semver = require('semver')
@@ -8,7 +7,7 @@ const ssri = require('ssri')
 
 const constants = require('@socketregistry/scripts/constants')
 const { readDirNames } = require('@socketsecurity/registry/lib/fs')
-const { execNpm, runScript } = require('@socketsecurity/registry/lib/npm')
+const { runScript } = require('@socketsecurity/registry/lib/npm')
 const {
   fetchPackageManifest,
   getReleaseTag,
@@ -20,7 +19,6 @@ const { pEach } = require('@socketsecurity/registry/lib/promises')
 
 const {
   LATEST,
-  NODE_MODULES,
   OVERRIDES,
   RESOLUTIONS,
   SOCKET_OVERRIDE_SCOPE,
@@ -59,7 +57,6 @@ async function filterSocketOverrideScopePackages(packages, options = {}) {
       socketOverridePackages.push(
         packageData({
           name: overridePkgName,
-          bundledDependencies: !!overridePkgJson.bundleDependencies,
           path: overridePkgPath,
           tag: getReleaseTag(overridePkgJson.version)
         })
@@ -91,35 +88,6 @@ async function hasPackageChanged(pkg, manifest_) {
       .fromData(await packPackage(pkg.path, { signal: abortSignal }))
       .sha512[0].hexDigest()
   )
-}
-
-async function installBundledDependencies(pkg, options) {
-  const { spinner } = { __proto__: null, ...options }
-  try {
-    // Install bundled dependencies, including overrides.
-    await execNpm(
-      [
-        'install',
-        // Even though the 'silent' flag is passed npm will still run through
-        // code paths for 'audit' and 'fund' unless '--no-audit' and '--no-fund'
-        // flags are passed.
-        '--silent',
-        '--no-audit',
-        '--no-fund',
-        '--no-progress',
-        '--workspaces',
-        'false',
-        '--install-strategy',
-        'hoisted'
-      ],
-      {
-        cwd: pkg.path,
-        stdio: 'ignore'
-      }
-    )
-  } catch (e) {
-    spinner?.error(e)
-  }
 }
 
 async function maybeBumpPackage(pkg, options = {}) {
@@ -176,15 +144,8 @@ async function maybeBumpPackage(pkg, options = {}) {
 }
 
 function packageData(data) {
-  const {
-    bundledDependencies = false,
-    manifest,
-    printName = data.name,
-    tag = LATEST,
-    version
-  } = data
+  const { manifest, printName = data.name, tag = LATEST, version } = data
   return Object.assign(data, {
-    bundledDependencies,
     manifest,
     printName,
     tag,
@@ -221,7 +182,9 @@ async function updateOverrideScopedVersionInParent(pkg, version) {
 void (async () => {
   // Lazily access constants.spinner.
   const { spinner } = constants
+
   spinner.start(`Bumping ${relNpmPackagesPath} versions (semver patch)...`)
+
   const packages = [
     registryPkg,
     // Lazily access constants.npmPackageNames.
@@ -232,11 +195,11 @@ void (async () => {
         name: `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`,
         path: pkgPath,
         printName: sockRegPkgName,
-        bundledDependencies: !!pkgJson.bundleDependencies,
         tag: getReleaseTag(pkgJson.version)
       })
     })
   ]
+
   const state = {
     bumped: [],
     bumpedOverrideScoped: [],
@@ -246,6 +209,7 @@ void (async () => {
       signal: abortSignal
     })
   }
+
   // Chunk @socketoverride scoped packages to process them in parallel 3 at a time.
   await pEach(
     state.overrideScoped,
@@ -261,31 +225,9 @@ void (async () => {
     return
   }
 
-  const bundledPackages = [...packages, ...state.overrideScoped].filter(
-    pkg => pkg.bundledDependencies
-  )
-  // Chunk changed @socketoverride scoped packages to process them in parallel 3 at a time.
-  await pEach(state.bumpedOverrideScoped, 3, async pkg => {
-    // Reset override version in parent package BEFORE npm install of bundled
-    // dependencies.
-    await updateOverrideScopedVersionInParent(pkg, pkg.manifest.version)
-  })
-  // Chunk bundled packages to process them in parallel 3 at a time.
-  await pEach(
-    bundledPackages,
-    3,
-    async pkg => await installBundledDependencies(pkg, { spinner })
-  )
   // Chunk changed @override scoped packages to process them in parallel 3 at a time.
   await pEach(state.bumpedOverrideScoped, 3, async pkg => {
-    // Update override version in parent package AFTER npm install of bundled
-    // dependencies.
     await updateOverrideScopedVersionInParent(pkg, pkg.version)
-    // Copy overrides/<name> to node_modules/<name>.
-    const parentPkgPath = path.resolve(pkg.path, '../..')
-    const parentPkgNmPath = path.join(parentPkgPath, NODE_MODULES)
-    const overrideNmPath = path.join(parentPkgNmPath, pkg.name)
-    await fs.cp(pkg.path, overrideNmPath, { recursive: true })
   })
   // Chunk packages data to process them in parallel 3 at a time.
   await pEach(

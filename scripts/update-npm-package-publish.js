@@ -48,7 +48,6 @@ async function filterSocketOverrideScopePackages(
       socketOverridePackages.push(
         packageData({
           name: overridePkgName,
-          bundledDependencies: !!overridePkgJson.bundleDependencies,
           path: overridePkgPath,
           tag: getReleaseTag(overridePkgJson.version)
         })
@@ -58,42 +57,9 @@ async function filterSocketOverrideScopePackages(
   return socketOverridePackages
 }
 
-async function installBundledDependencies(pkg, state = { fails: [] }) {
-  try {
-    // Install bundled dependencies, including overrides.
-    await execNpm(
-      [
-        'install',
-        // Even though the 'silent' flag is passed npm will still run through
-        // code paths for 'audit' and 'fund' unless '--no-audit' and '--no-fund'
-        // flags are passed.
-        '--silent',
-        '--no-audit',
-        '--no-fund',
-        '--no-progress',
-        '--workspaces',
-        'false',
-        '--install-strategy',
-        'hoisted'
-      ],
-      {
-        cwd: pkg.path,
-        stdio: 'ignore'
-      }
-    )
-  } catch (e) {
-    state.fails.push(pkg.printName)
-    logger.log(e)
-  }
-}
-
 function packageData(data) {
-  const {
-    bundledDependencies = false,
-    printName = data.name,
-    tag = LATEST
-  } = data
-  return Object.assign(data, { bundledDependencies, printName, tag })
+  const { printName = data.name, tag = LATEST } = data
+  return Object.assign(data, { printName, tag })
 }
 
 async function publish(pkg, state = { fails: [] }) {
@@ -139,7 +105,6 @@ void (async () => {
   if (!(cliArgs.force || constants.ENV.CI)) {
     return
   }
-
   const fails = []
   const packages = [
     packageData({ name: '@socketsecurity/registry', path: registryPkgPath }),
@@ -149,30 +114,18 @@ void (async () => {
       const pkgJson = readPackageJsonSync(pkgPath)
       return packageData({
         name: `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`,
-        bundledDependencies: !!pkgJson.bundleDependencies,
         path: pkgPath,
         printName: sockRegPkgName,
         tag: getReleaseTag(pkgJson.version)
       })
     })
   ]
-
   const socketOverridePackages = await filterSocketOverrideScopePackages(
     packages,
     { fails }
   )
   await publishPackages(socketOverridePackages, { fails })
-
-  const bundledPackages = [...packages, ...socketOverridePackages].filter(
-    pkg => pkg.bundledDependencies
-  )
-  // Chunk bundled package names to process them in parallel 3 at a time.
-  await pEach(bundledPackages, 3, async pkg => {
-    await installBundledDependencies(pkg, { fails })
-  })
-
   await publishPackages(packages, { fails })
-
   if (fails.length) {
     const msg = `Unable to publish ${fails.length} ${pluralize('package', fails.length)}:`
     const msgList = joinAsList(fails)
