@@ -34,7 +34,6 @@ const {
 } = require('@socketsecurity/registry/lib/packages')
 const { splitPath } = require('@socketsecurity/registry/lib/path')
 const { pEach, pFilter } = require('@socketsecurity/registry/lib/promises')
-const { Spinner } = require('@socketsecurity/registry/lib/spinner')
 const { isNonEmptyString } = require('@socketsecurity/registry/lib/strings')
 const { pluralize } = require('@socketsecurity/registry/lib/words')
 
@@ -654,7 +653,8 @@ void (async () => {
   ) {
     return
   }
-  const spinner = new Spinner()
+  // Lazily access constants.spinner.
+  const { spinner } = constants
   spinner.start(`Initializing ${relTestNpmNodeModulesPath}...`)
   // Refresh/initialize test/npm/node_modules
   try {

@@ -1,5 +1,9 @@
 'use strict'
 
+const constants = require('./constants')
+
+const { abortSignal } = constants
+
 let _child_process
 function getChildProcess() {
   if (_child_process === undefined) {
@@ -17,11 +21,23 @@ function getSpawn() {
 }
 
 function spawn(cmd, args, options, extra) {
-  const { spinner, ...spawnOptions } = { __proto__: null, ...options }
+  const {
+    // Lazily access constants.spinner.
+    spinner = constants.spinner,
+    ...spawnOptions
+  } = { __proto__: null, ...options }
   const spawn = getSpawn()
   const isSpinning = spinner?.isSpinning ?? false
   spinner?.stop()
-  let spawnPromise = spawn(cmd, args, spawnOptions, extra)
+  let spawnPromise = spawn(
+    cmd,
+    args,
+    {
+      signal: abortSignal,
+      ...spawnOptions
+    },
+    extra
+  )
   if (isSpinning) {
     const oldSpawnPromise = spawnPromise
     spawnPromise = spawnPromise.finally(() => {
