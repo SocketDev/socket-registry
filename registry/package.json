@@ -47,6 +47,10 @@
       "types": "./lib/constants.d.ts",
       "default": "./lib/constants.js"
     },
+    "./lib/debug": {
+      "types": "./lib/debug.d.ts",
+      "default": "./lib/debug.js"
+    },
     "./lib/env": {
       "types": "./lib/env.d.ts",
       "default": "./lib/env.js"
