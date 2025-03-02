@@ -1,7 +1,5 @@
 'use strict'
 
-const constants = require('./constants')
-
 const ciSpinner = {
   frames: [''],
   // The delay argument is converted to a signed 32-bit integer. This effectively
@@ -12,6 +10,7 @@ const ciSpinner = {
 }
 
 let _Spinner
+let _defaultSpinner
 function Spinner(options) {
   if (_Spinner === undefined) {
     // Load '@socketregistry/yocto-spinner/index.cjs' to avoid the
@@ -108,10 +107,11 @@ function Spinner(options) {
     }
     _Spinner.prototype.warning = _Spinner.prototype.warn
     _Spinner.prototype.warningAndStop = _Spinner.prototype.warnAndStop
+    // Lazily access require('./constants').ENV.CI to avoid cyclical imports.
+    _defaultSpinner = require('./constants').ENV.CI ? ciSpinner : undefined
   }
   return new _Spinner({
-    // Lazily access constants.ENV.
-    spinner: constants.ENV.CI ? ciSpinner : undefined,
+    spinner: _defaultSpinner,
     ...options
   })
 }

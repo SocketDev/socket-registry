@@ -1,6 +1,7 @@
 /// <reference types="node" />
 import { Serializable } from 'node:child_process'
 import { IFastSort } from 'fast-sort'
+import { Spinner } from './spinner'
 
 declare const kInternalsSymbol: unique symbol
 declare function objectEntries<T>(
@@ -225,6 +226,7 @@ declare const Constants: {
   readonly pacoteCachePath: string
   readonly parseArgsConfig: ParseArgsConfig
   readonly skipTestsByEcosystem: Readonly<Record<string, ReadonlySet<string>>>
+  readonly spinner: Spinner
   readonly tsLibsAvailable: ReadonlySet<string>
   readonly tsTypesAvailable: ReadonlySet<string>
   readonly win32EnsureTestsByEcosystem: Readonly<

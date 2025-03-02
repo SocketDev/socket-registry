@@ -726,6 +726,10 @@ const lazySkipTestsByEcosystem = () =>
     ])
   })
 
+const lazySpinner = () =>
+  // Lazily access require('./spinner').Spinner to avoid cyclical imports.
+  require('./spinner').Spinner()
+
 const lazyWin32EnsureTestsByEcosystem = () =>
   Object.freeze({
     __proto__: null,
@@ -884,6 +888,7 @@ const constants = createConstantsObject(
     pacoteCachePath: undefined,
     parseArgsConfig: undefined,
     skipTestsByEcosystem: undefined,
+    spinner: undefined,
     tsLibsAvailable,
     tsTypesAvailable,
     win32EnsureTestsByEcosystem: undefined
@@ -909,6 +914,7 @@ const constants = createConstantsObject(
       pacoteCachePath: lazyPacoteCachePath,
       parseArgsConfig: lazyParseArgsConfig,
       skipTestsByEcosystem: lazySkipTestsByEcosystem,
+      spinner: lazySpinner,
       win32EnsureTestsByEcosystem: lazyWin32EnsureTestsByEcosystem
     }
   }
