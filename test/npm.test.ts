@@ -12,6 +12,7 @@ import {
 } from '@socketregistry/scripts/lib/git'
 import { getManifestData } from '@socketsecurity/registry'
 import { readDirNamesSync, readJsonSync } from '@socketsecurity/registry/lib/fs'
+import { logger } from '@socketsecurity/registry/lib/logger'
 import { runScript } from '@socketsecurity/registry/lib/npm'
 import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/packages'
 import { isNonEmptyString } from '@socketsecurity/registry/lib/strings'
@@ -80,7 +81,8 @@ describe(eco, { skip: !packageNames.length }, () => {
         await runScript('test', [], { cwd: nwPkgPath, signal: abortSignal })
         assert.ok(true)
       } catch (e: any) {
-        console.error(`✖️ ${origPkgName}`, e)
+        logger.error(`${origPkgName}`)
+        logger.error(e)
         assert.ok(false)
       }
     })

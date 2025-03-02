@@ -6,6 +6,7 @@ const util = require('node:util')
 const constants = require('@socketregistry/scripts/constants')
 const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
 const { readDirNames } = require('@socketsecurity/registry/lib/fs')
+const { logger } = require('@socketsecurity/registry/lib/logger')
 const { execNpm } = require('@socketsecurity/registry/lib/npm')
 const {
   getReleaseTag,
@@ -82,7 +83,7 @@ async function installBundledDependencies(pkg, state = { fails: [] }) {
     )
   } catch (e) {
     state.fails.push(pkg.printName)
-    console.log(e)
+    logger.log(e)
   }
 }
 
@@ -111,13 +112,13 @@ async function publish(pkg, state = { fails: [] }) {
       }
     )
     if (stdout) {
-      console.log(stdout)
+      logger.log(stdout)
     }
   } catch (e) {
     const stderr = e?.stderr ?? ''
     if (!stderr.includes('cannot publish over')) {
       state.fails.push(pkg.printName)
-      console.log(stderr)
+      logger.log(stderr)
     }
   }
 }
@@ -173,9 +174,9 @@ void (async () => {
   await publishPackages(packages, { fails })
 
   if (fails.length) {
-    const msg = `⚠️ Unable to publish ${fails.length} ${pluralize('package', fails.length)}:`
+    const msg = `Unable to publish ${fails.length} ${pluralize('package', fails.length)}:`
     const msgList = joinAsList(fails)
     const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
-    console.warn(`${msg}${separator}${msgList}`)
+    logger.warn(`${msg}${separator}${msgList}`)
   }
 })()

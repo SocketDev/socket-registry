@@ -6,6 +6,7 @@ import { describe, it } from 'node:test'
 
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
+import { logger } from '@socketsecurity/registry/lib/logger'
 
 const { NPM, testNpmNodeWorkspacesPath } = constants
 
@@ -344,7 +345,7 @@ describe(
           dangerous.Buffer[method](Infinity)
         })
         if (dangerous.Buffer[method] === buffer.Buffer.allocUnsafe) {
-          console.log(
+          logger.info(
             'Skipping, older impl of allocUnsafe coerced negative sizes to 0'
           )
         } else {
