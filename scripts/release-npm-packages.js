@@ -17,7 +17,6 @@ const {
 } = require('@socketsecurity/registry/lib/packages')
 const { readPackageJsonSync } = require('@socketsecurity/registry/lib/packages')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
-const { Spinner } = require('@socketsecurity/registry/lib/spinner')
 
 const {
   LATEST,
@@ -220,7 +219,8 @@ async function updateOverrideScopedVersionInParent(pkg, version) {
 }
 
 void (async () => {
-  const spinner = new Spinner()
+  // Lazily access constants.spinner.
+  const { spinner } = constants
   spinner.start(`Bumping ${relNpmPackagesPath} versions (semver patch)...`)
   const packages = [
     registryPkg,

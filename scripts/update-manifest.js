@@ -22,7 +22,6 @@ const {
 } = require('@socketsecurity/registry/lib/packages')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { naturalCompare } = require('@socketsecurity/registry/lib/sorts')
-const { Spinner } = require('@socketsecurity/registry/lib/spinner')
 const { biomeFormat } = require('@socketsecurity/registry/lib/strings')
 
 const { AT_LATEST, NPM, UNLICENSED } = constants
@@ -161,7 +160,8 @@ void (async () => {
   ) {
     return
   }
-  const spinner = new Spinner()
+  // Lazily access constants.spinner.
+  const { spinner } = constants
   spinner.start(
     // Lazily access constants.relRegistryManifestJsonPath.
     `Updating ${constants.relRegistryManifestJsonPath}...`

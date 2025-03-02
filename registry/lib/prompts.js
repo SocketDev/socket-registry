@@ -9,7 +9,11 @@ const { abortSignal } = constants
 function wrapPrompt(inquirerPrompt) {
   return async (...args) => {
     const origContext = args.length > 1 ? args[1] : undefined
-    const { spinner, ...contextWithoutSpinner } = origContext ?? {}
+    const {
+      // Lazily access constants.spinner.
+      spinner = constants.spinner,
+      ...contextWithoutSpinner
+    } = origContext ?? {}
     if (origContext) {
       args[1] = {
         signal: abortSignal,
