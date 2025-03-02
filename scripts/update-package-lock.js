@@ -7,6 +7,7 @@ const updateBrowserslistDb = require('update-browserslist-db')
 
 const constants = require('@socketregistry/scripts/constants')
 const { readJson, writeJson } = require('@socketsecurity/registry/lib/fs')
+const { logger } = require('@socketsecurity/registry/lib/logger')
 const { execNpm } = require('@socketsecurity/registry/lib/npm')
 const {
   normalizePackageJson
@@ -60,7 +61,7 @@ void (async () => {
     updateBrowserslistDb()
   } catch (e) {
     if (e.name === 'BrowserslistUpdateError') {
-      console.error(`update-browserslist-db: ${e.message}\n`)
+      logger.error(`update-browserslist-db: ${e.message}`)
     } else {
       throw e
     }
