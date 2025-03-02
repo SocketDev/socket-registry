@@ -464,9 +464,8 @@ const LAZY_PACKAGE_DEFAULT_NODE_RANGE = () =>
   `>=${constants.maintainedNodeVersions.previous}`
 
 const LAZY_IPC = (() => {
-  // Initialize and wire-up immediately.
   const target = { __proto__: null }
-  // Simulate a frozen target.
+  // Mutable handler to simulate a frozen target.
   const handler = {
     __proto__: null,
     defineProperty: () => true,
