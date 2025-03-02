@@ -189,6 +189,8 @@ class YoctoSpinner {
     const timeout = setInterval(() => {
       this.#render()
     }, this.#interval)
+    // Guard unref usage in case this is somehow built to run in a browser.
+    // https://nodejs.org/api/timers.html#timeoutunref
     timeout?.unref?.()
     this.#timer = timeout
   }
