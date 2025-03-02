@@ -20,6 +20,7 @@ const {
 } = require('@socketregistry/scripts/lib/templates')
 const { isDirEmptySync } = require('@socketsecurity/registry/lib/fs')
 const { globLicenses } = require('@socketsecurity/registry/lib/globs')
+const { logger } = require('@socketsecurity/registry/lib/logger')
 const { runScript } = require('@socketsecurity/registry/lib/npm')
 const { isObject } = require('@socketsecurity/registry/lib/objects')
 const {
@@ -157,7 +158,7 @@ void (async () => {
   const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
   if (existsSync(pkgPath) && !isDirEmptySync(pkgPath)) {
     const relPkgPath = path.relative(rootPath, pkgPath)
-    console.warn(`⚠️ ${origPkgName} already exists at ${relPkgPath}`)
+    logger.warn(`${origPkgName} already exists at ${relPkgPath}`)
     if (
       !(await confirm(
         {
@@ -198,15 +199,15 @@ void (async () => {
     }
   })
   if (!nmPkgJson) {
-    console.error(`✖️ Failed to extract ${origPkgName}`)
+    logger.error(`Failed to extract ${origPkgName}`)
     return
   }
   if (licenseWarnings.length) {
     const formattedWarnings = licenseWarnings.map(w =>
       indentString(`• ${w}`, 2)
     )
-    console.warn(
-      `⚠️ ${origPkgName} has license warnings:\n${formattedWarnings.join('\n')}`
+    logger.warn(
+      `${origPkgName} has license warnings:\n${formattedWarnings.join('\n')}`
     )
   }
   if (badLicenses.length) {
@@ -465,9 +466,10 @@ void (async () => {
       spawnOptions
     )
     if (!cliArgs.quiet) {
-      console.log('Finished 🎉')
+      logger.log('Finished 🎉')
     }
   } catch (e) {
-    console.error('✖️ Package override finalization encountered an error:', e)
+    logger.error('Package override finalization encountered an error:')
+    logger.log(e)
   }
 })()

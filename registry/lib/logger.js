@@ -20,6 +20,38 @@ function getYoctocolors() {
   return _yoctocolors
 }
 
+const LOG_SYMBOLS = (() => {
+  const target = { __proto__: null }
+  // Mutable handler to simulate a frozen target.
+  const handler = { __proto__: null }
+  const init = () => {
+    const supported = require('@socketregistry/is-unicode-supported')()
+    const colors = getYoctocolors()
+    Object.assign(target, {
+      error: colors.red(supported ? '✖️' : '×'),
+      info: colors.blue(supported ? 'ℹ' : 'i'),
+      success: colors.green(supported ? '✔' : '√'),
+      warning: colors.yellow(supported ? '⚠' : '‼')
+    })
+    Object.freeze(target)
+    // The handler of a Proxy is mutable after proxy instantiation.
+    // We delete the traps to defer to native behavior.
+    for (const trapName in handler) {
+      delete handler[trapName]
+    }
+  }
+  for (const trapName of Object.keys(Reflect)) {
+    const fn = Reflect[trapName]
+    handler[trapName] = function (...args) {
+      init()
+      return fn(...args)
+    }
+  }
+  return new Proxy(target, handler)
+})()
+
+const privateConsole = new WeakMap()
+
 const symbolTypeToMethodName = {
   error: 'error',
   info: 'info',
@@ -27,12 +59,13 @@ const symbolTypeToMethodName = {
   warning: 'warn'
 }
 
-const privateConsole = new WeakMap()
-
 class Logger {
+  static LOG_SYMBOLS = LOG_SYMBOLS
+
   constructor(...args) {
     privateConsole.set(this, args.length ? constructConsole(args) : console)
   }
+
   #symbolApply(symbolType, args) {
     let extras
     let text = args.at(0) ?? ''
@@ -44,27 +77,11 @@ class Logger {
     }
     const methodName = symbolTypeToMethodName[symbolType]
     const console = privateConsole.get(this)
-    console[methodName](`${Logger.LOG_SYMBOLS[symbolType]} ${text}`)
+    console[methodName](`${LOG_SYMBOLS[symbolType]} ${text}`)
     if (extras.length) {
       console[methodName](...extras)
     }
     return this
-  }
-
-  static #LOG_SYMBOLS
-  static get LOG_SYMBOLS() {
-    if (this.#LOG_SYMBOLS === undefined) {
-      const supported = require('@socketregistry/is-unicode-supported')()
-      const colors = getYoctocolors()
-      this.#LOG_SYMBOLS = Object.freeze({
-        __proto__: null,
-        error: colors.red(supported ? '✖️' : '×'),
-        info: colors.blue(supported ? 'ℹ' : 'i'),
-        success: colors.green(supported ? '✔' : '√'),
-        warning: colors.yellow(supported ? '⚠' : '‼')
-      })
-    }
-    return this.#LOG_SYMBOLS
   }
 
   error(...args) {
@@ -115,6 +132,7 @@ if (mixinKeys.length) {
 const logger = new Logger()
 
 module.exports = {
+  LOG_SYMBOLS,
   Logger,
   logger
 }

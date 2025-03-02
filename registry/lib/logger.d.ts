@@ -48,6 +48,7 @@ declare namespace LoggerModule {
     trace: LoggerMethods['trace']
     warn: LoggerMethods['warn']
   }
+  export const LOG_SYMBOLS: LogSymbols
   export const logger: Logger
 }
 export = LoggerModule
