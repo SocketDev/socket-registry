@@ -205,7 +205,7 @@ class YoctoSpinner {
   }
 
   #subscribeToSignalEvents() {
-    this.#signal?.once('abort', this.#abortHandlerBound)
+    this.#signal?.addEventListener('abort', this.#abortHandlerBound)
   }
 
   #symbolStop(symbolType, text) {
@@ -214,7 +214,7 @@ class YoctoSpinner {
   }
 
   #unsubscribeFromSignalEvents() {
-    this.#signal?.off('abort', this.#abortHandlerBound)
+    this.#signal?.removeEventListener('abort', this.#abortHandlerBound)
   }
 
   #unsubscribeFromProcessEvents() {
