@@ -55,6 +55,11 @@ declare namespace yoctoSpinner {
     readonly spinner?: SpinnerStyle | undefined
 
     /**
+    An AbortSignal that can be used to cancel the spinner animation.
+    */
+    readonly signal?: AbortSignal | undefined
+
+    /**
     The stream to which the spinner is written.
 
     @default process.stderr
@@ -152,7 +157,7 @@ declare namespace yoctoSpinner {
 
   export type SpinnerStyle = {
     readonly frames: string[]
-    readonly interval?: number
+    readonly interval?: number | undefined
   }
 }
 export = yoctoSpinner

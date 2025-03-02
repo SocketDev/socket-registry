@@ -100,6 +100,7 @@ function stripVTControlCharacters(string) {
 }
 
 class YoctoSpinner {
+  #abortHandlerBound
   #color
   #currentFrame = -1
   #exitHandlerBound
@@ -108,6 +109,7 @@ class YoctoSpinner {
   #isInteractive
   #lastSpinnerFrameTime = 0
   #lines = 0
+  #signal
   #stream
   #text
   #timer
@@ -116,13 +118,24 @@ class YoctoSpinner {
     const opts = { __proto__: null, ...options }
     const spinner = opts.spinner ?? getDefaultSpinner()
     const stream = opts.stream ?? getProcess().stderr
+    this.#abortHandlerBound = this.#abortHandler.bind(this)
     this.#color = opts.color ?? 'cyan'
     this.#exitHandlerBound = this.#exitHandler.bind(this)
     this.#frames = spinner.frames
-    this.#interval = spinner.interval
+    this.#interval = spinner.interval ?? getDefaultSpinner().interval
     this.#isInteractive = !!stream.isTTY && isProcessInteractive()
+    this.#signal = opts.signal
     this.#stream = stream
     this.#text = opts.text ?? ''
+  }
+
+  #abortHandler() {
+    this.#clearTimer()
+  }
+
+  #clearTimer() {
+    clearInterval(this.#timer)
+    this.#timer = undefined
   }
 
   #exitHandler() {
@@ -172,6 +185,14 @@ class YoctoSpinner {
     }
   }
 
+  #setTimer() {
+    const immediate = setInterval(() => {
+      this.#render()
+    }, this.#interval)
+    immediate?.unref?.()
+    this.#timer = immediate
+  }
+
   #showCursor() {
     if (this.#isInteractive) {
       this.#write('\u001B[?25h')
@@ -183,9 +204,17 @@ class YoctoSpinner {
     process.once('SIGTERM', this.#exitHandlerBound)
   }
 
+  #subscribeToSignalEvents() {
+    this.#signal?.once('abort', this.#abortHandlerBound)
+  }
+
   #symbolStop(symbolType, text) {
     const symbols = getLogSymbols()
     return this.stop(`${symbols[symbolType]} ${text ?? this.#text}`)
+  }
+
+  #unsubscribeFromSignalEvents() {
+    this.#signal?.off('abort', this.#abortHandlerBound)
   }
 
   #unsubscribeFromProcessEvents() {
@@ -252,10 +281,9 @@ class YoctoSpinner {
     }
     this.#hideCursor()
     this.#render()
+    this.#setTimer()
+    this.#subscribeToSignalEvents()
     this.#subscribeToProcessEvents()
-    this.#timer = setInterval(() => {
-      this.#render()
-    }, this.#interval)
     return this
   }
 
@@ -263,10 +291,10 @@ class YoctoSpinner {
     if (!this.isSpinning) {
       return this
     }
-    clearInterval(this.#timer)
-    this.#timer = undefined
     this.#showCursor()
     this.clear()
+    this.#clearTimer()
+    this.#unsubscribeFromSignalEvents()
     this.#unsubscribeFromProcessEvents()
     if (finalText) {
       this.#stream.write(`${finalText}\n`)
