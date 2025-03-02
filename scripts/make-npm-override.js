@@ -455,7 +455,6 @@ void (async () => {
   try {
     const spawnOptions = {
       cwd: rootPath,
-      signal: abortSignal,
       stdio: 'inherit'
     }
     await runScript('update:manifest', [], spawnOptions)
