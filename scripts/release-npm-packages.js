@@ -304,8 +304,6 @@ void (async () => {
 
   const spawnOptions = {
     cwd: rootPath,
-    signal: abortSignal,
-    spinner,
     stdio: 'inherit'
   }
 
