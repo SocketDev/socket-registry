@@ -35,12 +35,15 @@ declare type Templates = {
   TEMPLATE_ES_SHIM_STATIC_METHOD: string
 }
 declare type TypeScripAction = {
-  references: string[]
+  references: string[] | Readonly<string[]>
 }
 declare type TypeScriptOptions = {
-  references?: string[] | undefined
+  references?: string[] | Readonly<string[]> | undefined
   transform?:
-    | ((filepath: string, data: { references: string[] }) => Promise<any>)
+    | ((
+        filepath: string,
+        data: { references: string[] | Readonly<string[]> }
+      ) => Promise<any>)
     | undefined
 }
 declare const templatesModule: {

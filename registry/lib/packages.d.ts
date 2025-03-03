@@ -14,14 +14,14 @@ declare namespace Packages {
   }
   export type Exports = Exclude<PackageJson['exports'], undefined>
   export type ExtractOptions = PacoteOptions & {
-    dest?: string
-    tmpPrefix?: string
+    dest?: string | undefined
+    tmpPrefix?: string | undefined
   }
   export interface LicenseNode {
     license: string
-    exception?: string
-    inFile?: string
-    plus?: boolean
+    exception?: string | undefined
+    inFile?: string | undefined
+    plus?: boolean | undefined
   }
   export type NormalizedPackageJson = Omit<PackageJson, 'repository'> & {
     repository?: Exclude<PackageJson['repository'], string>
@@ -30,7 +30,7 @@ declare namespace Packages {
     socket?: { categories: CategoryString }
   }
   export type PacoteOptions = PacoteOptionsRaw & {
-    signal?: AbortSignal
+    signal?: AbortSignal | undefined
   }
   export function collectIncompatibleLicenses(
     licenseNodes: LicenseNode[]
@@ -48,11 +48,11 @@ declare namespace Packages {
   ): Promise<void>
   export function fetchPackageManifest(
     pkgNameOrId: string,
-    options?: PacoteOptions
+    options?: PacoteOptions | undefined
   ): Promise<Awaited<ReturnType<typeof PacoteManifestFn>> | null>
   export function fetchPackagePackument(
     pkgNameOrId: string,
-    options?: PacoteOptions
+    options?: PacoteOptions | undefined
   ): Promise<Awaited<ReturnType<typeof PacotePackumentFn>> | null>
   export function findTypesForSubpath(
     entryExports: Exports,
@@ -78,38 +78,38 @@ declare namespace Packages {
   export function isValidPackageName(name: any): boolean
   export function normalizePackageJson(
     pkgJson: PackageJson,
-    options?: { preserve?: string[] }
+    options?: { preserve?: string[] | Readonly<string[]> }
   ): NormalizedPackageJson
   export function packPackage(
     spec: string,
     options?: PacoteOptions & {
-      args?: string[]
-      binPaths?: string[]
-      cmd?: string
-      dryRun?: boolean
+      args?: string[] | Readonly<string[]>
+      binPaths?: string[] | Readonly<string[]>
+      cmd?: string | undefined
+      dryRun?: boolean | undefined
       env?: { [key: string]: string }
-      foregroundScripts?: boolean
-      ignoreScripts?: boolean
-      packDestination?: string
-      scriptShell?: string
-      stdioString?: boolean
+      foregroundScripts?: boolean | undefined
+      ignoreScripts?: boolean | undefined
+      packDestination?: string | undefined
+      scriptShell?: string | undefined
+      stdioString?: boolean | undefined
     }
   ): Promise<Awaited<ReturnType<typeof PacoteTarballFn>>>
   export function readPackageJson(
     filepath: string,
-    options: { editable: true; preserve?: string[] }
+    options: { editable: true; preserve?: string[] | Readonly<string[]> }
   ): Promise<EditablePackageJson>
   export function readPackageJson(
     filepath: string,
-    options?: { editable?: false; preserve?: string[] }
+    options?: { editable?: false; preserve?: string[] | Readonly<string[]> }
   ): Promise<PackageJson>
   export function readPackageJsonSync(
     filepath: string,
-    options: { editable: true; preserve?: string[] }
+    options: { editable: true; preserve?: string[] | Readonly<string[]> }
   ): EditablePackageJson
   export function readPackageJsonSync(
     filepath: string,
-    options?: { editable?: false; preserve?: string[] }
+    options?: { editable?: false; preserve?: string[] | Readonly<string[]> }
   ): PackageJson
   export function resolveEscapedScope(sockRegPkgName: string): string
   export function resolveGitHubTgzUrl(
@@ -136,11 +136,11 @@ declare namespace Packages {
   export function resolveRegistryPackageName(pkgName: string): string
   export function toEditablePackageJson(
     pkgJson: PackageJson,
-    options: { path?: string; preserve?: string[] }
+    options: { path?: string; preserve?: string[] | Readonly<string[]> }
   ): Promise<EditablePackageJson>
   export function toEditablePackageJsonSync(
     pkgJson: PackageJson,
-    options: { path?: string; preserve?: string[] }
+    options: { path?: string; preserve?: string[] | Readonly<string[]> }
   ): EditablePackageJson
   export function unescapeScope(escapedScope: string): string
 }

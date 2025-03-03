@@ -4,8 +4,8 @@ import { Remap } from './objects'
 
 declare type GlobOptions = Remap<
   TinyGlobOptions & {
-    ignoreOriginals?: boolean
-    recursive?: boolean
+    ignoreOriginals?: boolean | undefined
+    recursive?: boolean | undefined
   }
 >
 declare type Internals = (typeof constants)[typeof constants.kInternalsSymbol]

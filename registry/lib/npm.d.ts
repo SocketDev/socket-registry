@@ -9,13 +9,13 @@ declare type NpmSpawnOptions = Remap<
 >
 declare type NpmRunScriptOptions = Remap<
   NpmSpawnOptions & {
-    prepost?: boolean
+    prepost?: boolean | undefined
   }
 >
 declare const Npm: {
   execNpm(
-    args: string[],
-    options?: NpmSpawnOptions
+    args: string[] | Readonly<string[]>,
+    options?: NpmSpawnOptions | undefined
   ): Promise<{ stdout: string; stderr: string }>
   isAuditFlag(cmdArg: string): boolean
   isFundFlag(cmdArg: string): boolean
@@ -23,13 +23,13 @@ declare const Npm: {
   isProgressFlag(cmdArg: string): boolean
   runBin(
     binPath: string,
-    args: string[],
-    options?: SpawnOptions
+    args: string[] | Readonly<string[]>,
+    options?: SpawnOptions | undefined
   ): Promise<{ stdout: string; stderr: string }>
   runScript(
     scriptName: string,
-    args: string[],
-    options?: NpmRunScriptOptions
+    args: string[] | Readonly<string[]>,
+    options?: NpmRunScriptOptions | undefined
   ): Promise<{ stdout: string; stderr: string }>
 }
 declare namespace Npm {

@@ -11,7 +11,7 @@ declare type NativeSpawnResult = ReturnType<typeof builtinSpawn>
 declare type SpawnResult<Output, Extra> = Promise<
   {
     cmd: string
-    args: string[]
+    args: string[] | Readonly<string[]>
     code: number
     signal: NodeJS.Signals | null
     stdout: Output
@@ -28,7 +28,7 @@ declare type SpawnOptions = Remap<
 declare const Spawn: {
   spawn<O extends SpawnOptions = SpawnOptions>(
     cmd: string,
-    args: string[],
+    args: string[] | Readonly<string[]>,
     options?: O | undefined,
     extra?: Record<any, any> | undefined
   ): SpawnResult<

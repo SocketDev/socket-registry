@@ -33,18 +33,18 @@ declare type ReadFileOptions =
   | null
 declare type ReadJsonOptions = Remap<
   ReadFileOptions & {
-    throws?: boolean
+    throws?: boolean | undefined
     reviver?: Parameters<typeof JSON.parse>[1]
   }
 >
 declare type ReadDirOptions = {
-  includeEmpty?: boolean
-  sort?: boolean
+  includeEmpty?: boolean | undefined
+  sort?: boolean | undefined
 }
 declare type WriteJsonOptions = Remap<
   WriteFileOptions & {
-    EOL?: string
-    finalEOL?: boolean
+    EOL?: string | undefined
+    finalEOL?: boolean | undefined
     replacer?: Parameters<typeof JSON.stringify>[1]
     spaces?: Parameters<typeof JSON.stringify>[2]
   }
@@ -56,11 +56,11 @@ declare const Fs: {
   readDirNamesSync: Internals['readDirNamesSync']
   readJson(
     filepath: PathLike,
-    options?: ReadJsonOptions
+    options?: ReadJsonOptions | undefined
   ): Promise<NPMCliPackageJson.Content>
   readJsonSync(
     filepath: PathLike,
-    options?: ReadJsonOptions
+    options?: ReadJsonOptions | undefined
   ): NPMCliPackageJson.Content
   remove(filepath: PathLike, options?: RmOptions): Promise<void>
   removeSync(filepath: PathLike, options?: RmOptions): void
@@ -68,12 +68,12 @@ declare const Fs: {
   writeJson(
     filepath: PathLike,
     json: NPMCliPackageJson.Content,
-    options?: WriteJsonOptions
+    options?: WriteJsonOptions | undefined
   ): Promise<void>
   writeJsonSync(
     filepath: PathLike,
     json: NPMCliPackageJson.Content,
-    options?: WriteJsonOptions
+    options?: WriteJsonOptions | undefined
   ): void
 }
 declare namespace Fs {
