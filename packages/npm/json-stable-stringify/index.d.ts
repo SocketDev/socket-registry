@@ -13,6 +13,6 @@ declare interface StableStringifyOptions {
 }
 declare function stableStringify(
   value: any,
-  opts?: StableStringifyOptions
+  opts?: StableStringifyOptions | undefined
 ): string | undefined
 export = stableStringify

@@ -35,7 +35,7 @@ interface Internals {
   readonly createLazyGetter: <T>(
     name: PropertyKey,
     getter: () => T,
-    stats?: LazyGetterStats
+    stats?: LazyGetterStats | undefined
   ) => () => T
   readonly defineGetter: <T>(
     object: object,
@@ -46,21 +46,21 @@ interface Internals {
     object: object,
     propKey: PropertyKey,
     getter: () => T,
-    stats?: LazyGetterStats
+    stats?: LazyGetterStats | undefined
   ) => object
   readonly defineLazyGetters: (
     object: object,
     getterDefObj: GetterDefObj | undefined,
-    stats?: LazyGetterStats
+    stats?: LazyGetterStats | undefined
   ) => object
   readonly getGlobMatcher: (
-    glob: string | string[],
-    options?: object
+    glob: string | string[] | Readonly<string[]>,
+    options?: object | undefined
   ) => (path: string) => boolean
   readonly getIPC: {
     (): Promise<IPC>
     <K extends keyof IPC | undefined>(
-      key?: K
+      key?: K | undefined
     ): Promise<K extends keyof IPC ? IPC[K] : IPC>
   }
   readonly innerReadDirNames: (
@@ -70,8 +70,8 @@ interface Internals {
       name: string
     }>,
     options?: {
-      includeEmpty?: boolean
-      sort?: boolean
+      includeEmpty?: boolean | undefined
+      sort?: boolean | undefined
     }
   ) => string[]
   readonly isDirEmptySync: (dirname: string) => boolean
@@ -84,8 +84,8 @@ interface Internals {
   readonly readDirNamesSync: (
     dirname: string,
     options?: {
-      includeEmpty?: boolean
-      sort?: boolean
+      includeEmpty?: boolean | undefined
+      sort?: boolean | undefined
     }
   ) => string[]
 }

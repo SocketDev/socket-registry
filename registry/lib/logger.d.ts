@@ -21,7 +21,7 @@ declare namespace LoggerModule {
     new(
       stdout: NodeJS.WritableStream,
       stderr?: NodeJS.WritableStream,
-      ignoreErrors?: boolean
+      ignoreErrors?: boolean | undefined
     ): Logger
     new(options: ConsoleConstructorOptions): Logger
     assert: LoggerMethods['assert']

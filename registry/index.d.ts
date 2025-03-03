@@ -23,12 +23,12 @@ declare type ManifestEntryData = {
   name: string
   package: string
   version: string
-  deprecated?: boolean
+  deprecated?: boolean | undefined
   engines: {
     node: string
-    npm?: string
+    npm?: string | undefined
   }
-  skipTests?: boolean
+  skipTests?: boolean | undefined
 }
 declare enum PURL_Type {
   NPM = 'npm'

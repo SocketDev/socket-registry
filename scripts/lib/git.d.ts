@@ -19,7 +19,7 @@ declare const Git: {
   getModifiedFilesSync(options?: DiffOptions): string[]
   getModifiedPackages(
     eco: string,
-    options?: GetPackagesOptionsAsArray
+    options?: GetPackagesOptionsAsArray | undefined
   ): Promise<string[]>
   getModifiedPackages(
     eco: string,
@@ -27,7 +27,7 @@ declare const Git: {
   ): Promise<Set<string>>
   getModifiedPackagesSync(
     eco: string,
-    options?: GetPackagesOptionsAsArray
+    options?: GetPackagesOptionsAsArray | undefined
   ): string[]
   getModifiedPackagesSync(
     eco: string,
@@ -37,7 +37,7 @@ declare const Git: {
   getStagedFilesSync(options?: DiffOptions): string[]
   getStagedPackages(
     eco: string,
-    options?: GetPackagesOptionsAsArray
+    options?: GetPackagesOptionsAsArray | undefined
   ): Promise<string[]>
   getStagedPackages(
     eco: string,
@@ -45,7 +45,7 @@ declare const Git: {
   ): Promise<Set<string>>
   getStagedPackagesSync(
     eco: string,
-    options?: GetPackagesOptionsAsArray
+    options?: GetPackagesOptionsAsArray | undefined
   ): string[]
   getStagedPackagesSync(
     eco: string,

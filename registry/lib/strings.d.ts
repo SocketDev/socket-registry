@@ -4,7 +4,7 @@ import { Remap } from './objects'
 declare type BiomeFormatOptions = Remap<
   BiomeConfiguration & {
     filePath: string
-    filepath?: string
+    filepath?: string | undefined
     range?: [number, number]
   }
 >

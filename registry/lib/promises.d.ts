@@ -1,6 +1,6 @@
 declare type pOptions = {
-  retries?: number
-  signal?: AbortSignal
+  retries?: number | undefined
+  signal?: AbortSignal | undefined
 }
 
 declare const Promises: {
@@ -8,27 +8,27 @@ declare const Promises: {
     array: T[],
     concurrency: number,
     callbackFn: (value: T, options: pOptions) => Promise<any>,
-    options?: pOptions
+    options?: pOptions | undefined
   ): Promise<void>
   pEachChunk<T>(
     chunks: T[][],
     callbackFn: (value: T, options: pOptions) => Promise<any>,
-    options?: pOptions
+    options?: pOptions | undefined
   ): Promise<void>
   pFilter<T>(
     array: T[],
     concurrency: number,
     callbackFn: (value: T, options: pOptions) => Promise<boolean>,
-    options?: pOptions
+    options?: pOptions | undefined
   ): Promise<T[]>
   pFilterChunk<T>(
     chunks: T[][],
     callbackFn: (value: T, options: pOptions) => Promise<boolean>,
-    options?: pOptions
+    options?: pOptions | undefined
   ): Promise<T[][]>
   pRetry<T, P extends (value: T, options: pOptions) => Promise<any>>(
     callbackFn: P,
-    options?: pOptions
+    options?: pOptions | undefined
   ): ReturnType<P>
 }
 declare namespace Promises {
