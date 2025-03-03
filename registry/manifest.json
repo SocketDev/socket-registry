@@ -38,7 +38,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/array-flatten@1.0.7",
+      "pkg:npm/%40socketregistry/array-flatten@1.0.8",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -47,11 +47,11 @@
         "name": "@socketregistry/array-flatten",
         "package": "array-flatten",
         "skipTests": true,
-        "version": "1.0.7"
+        "version": "1.0.8"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/array-includes@1.0.5",
+      "pkg:npm/%40socketregistry/array-includes@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -59,7 +59,7 @@
         "license": "MIT",
         "name": "@socketregistry/array-includes",
         "package": "array-includes",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
@@ -87,7 +87,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/array.prototype.at@1.0.5",
+      "pkg:npm/%40socketregistry/array.prototype.at@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -95,11 +95,11 @@
         "license": "MIT",
         "name": "@socketregistry/array.prototype.at",
         "package": "array.prototype.at",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/array.prototype.every@1.0.5",
+      "pkg:npm/%40socketregistry/array.prototype.every@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -107,11 +107,11 @@
         "license": "MIT",
         "name": "@socketregistry/array.prototype.every",
         "package": "array.prototype.every",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/array.prototype.filter@1.0.5",
+      "pkg:npm/%40socketregistry/array.prototype.filter@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -119,11 +119,11 @@
         "license": "MIT",
         "name": "@socketregistry/array.prototype.filter",
         "package": "array.prototype.filter",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/array.prototype.find@1.0.5",
+      "pkg:npm/%40socketregistry/array.prototype.find@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -131,11 +131,11 @@
         "license": "MIT",
         "name": "@socketregistry/array.prototype.find",
         "package": "array.prototype.find",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/array.prototype.findlast@1.0.5",
+      "pkg:npm/%40socketregistry/array.prototype.findlast@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -143,11 +143,11 @@
         "license": "MIT",
         "name": "@socketregistry/array.prototype.findlast",
         "package": "array.prototype.findlast",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/array.prototype.findlastindex@1.0.5",
+      "pkg:npm/%40socketregistry/array.prototype.findlastindex@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -155,11 +155,11 @@
         "license": "MIT",
         "name": "@socketregistry/array.prototype.findlastindex",
         "package": "array.prototype.findlastindex",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/array.prototype.flat@1.0.5",
+      "pkg:npm/%40socketregistry/array.prototype.flat@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -167,11 +167,11 @@
         "license": "MIT",
         "name": "@socketregistry/array.prototype.flat",
         "package": "array.prototype.flat",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/array.prototype.flatmap@1.0.5",
+      "pkg:npm/%40socketregistry/array.prototype.flatmap@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -179,11 +179,11 @@
         "license": "MIT",
         "name": "@socketregistry/array.prototype.flatmap",
         "package": "array.prototype.flatmap",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/array.prototype.foreach@1.0.5",
+      "pkg:npm/%40socketregistry/array.prototype.foreach@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -191,11 +191,11 @@
         "license": "MIT",
         "name": "@socketregistry/array.prototype.foreach",
         "package": "array.prototype.foreach",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/array.prototype.map@1.0.5",
+      "pkg:npm/%40socketregistry/array.prototype.map@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -203,11 +203,11 @@
         "license": "MIT",
         "name": "@socketregistry/array.prototype.map",
         "package": "array.prototype.map",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/array.prototype.reduce@1.0.5",
+      "pkg:npm/%40socketregistry/array.prototype.reduce@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -215,11 +215,11 @@
         "license": "MIT",
         "name": "@socketregistry/array.prototype.reduce",
         "package": "array.prototype.reduce",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/array.prototype.toreversed@1.0.6",
+      "pkg:npm/%40socketregistry/array.prototype.toreversed@1.0.7",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -227,11 +227,11 @@
         "license": "MIT",
         "name": "@socketregistry/array.prototype.toreversed",
         "package": "array.prototype.toreversed",
-        "version": "1.0.6"
+        "version": "1.0.7"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/array.prototype.tosorted@1.0.6",
+      "pkg:npm/%40socketregistry/array.prototype.tosorted@1.0.7",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -239,7 +239,7 @@
         "license": "MIT",
         "name": "@socketregistry/array.prototype.tosorted",
         "package": "array.prototype.tosorted",
-        "version": "1.0.6"
+        "version": "1.0.7"
       }
     ],
     [
@@ -364,7 +364,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/es-iterator-helpers@1.0.9",
+      "pkg:npm/%40socketregistry/es-iterator-helpers@1.0.10",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -372,11 +372,11 @@
         "license": "MIT",
         "name": "@socketregistry/es-iterator-helpers",
         "package": "es-iterator-helpers",
-        "version": "1.0.9"
+        "version": "1.0.10"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/es-set-tostringtag@1.0.6",
+      "pkg:npm/%40socketregistry/es-set-tostringtag@1.0.7",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -384,7 +384,7 @@
         "license": "MIT",
         "name": "@socketregistry/es-set-tostringtag",
         "package": "es-set-tostringtag",
-        "version": "1.0.6"
+        "version": "1.0.7"
       }
     ],
     [
@@ -413,7 +413,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/for-each@1.0.4",
+      "pkg:npm/%40socketregistry/for-each@1.0.5",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -421,7 +421,7 @@
         "license": "MIT",
         "name": "@socketregistry/for-each",
         "package": "for-each",
-        "version": "1.0.4"
+        "version": "1.0.5"
       }
     ],
     [
@@ -908,7 +908,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/json-stable-stringify@1.0.8",
+      "pkg:npm/%40socketregistry/json-stable-stringify@1.0.9",
       {
         "categories": ["cleanup", "levelup"],
         "engines": { "node": ">=18.20.4" },
@@ -916,7 +916,7 @@
         "license": "MIT",
         "name": "@socketregistry/json-stable-stringify",
         "package": "json-stable-stringify",
-        "version": "1.0.8"
+        "version": "1.0.9"
       }
     ],
     [
@@ -1172,7 +1172,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/safe-array-concat@1.0.5",
+      "pkg:npm/%40socketregistry/safe-array-concat@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -1180,7 +1180,7 @@
         "license": "MIT",
         "name": "@socketregistry/safe-array-concat",
         "package": "safe-array-concat",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
@@ -1221,7 +1221,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/set-function-length@1.0.6",
+      "pkg:npm/%40socketregistry/set-function-length@1.0.7",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -1229,7 +1229,7 @@
         "license": "MIT",
         "name": "@socketregistry/set-function-length",
         "package": "set-function-length",
-        "version": "1.0.6"
+        "version": "1.0.7"
       }
     ],
     [
@@ -1581,7 +1581,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/yocto-spinner@1.0.9",
+      "pkg:npm/%40socketregistry/yocto-spinner@1.0.10",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -1589,7 +1589,7 @@
         "license": "MIT",
         "name": "@socketregistry/yocto-spinner",
         "package": "yocto-spinner",
-        "version": "1.0.9"
+        "version": "1.0.10"
       }
     ],
     [
