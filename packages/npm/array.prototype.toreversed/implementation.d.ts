@@ -1,3 +1,3 @@
 /// <reference lib="es2023" />
-declare const Impl: Array<any>['toReversed']
+declare const Impl: any[]['toReversed']
 export = Impl

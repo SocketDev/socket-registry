@@ -208,7 +208,6 @@ describe(
     })
 
     it('only iterates over own keys', () => {
-      // eslint-disable-next-line @typescript-eslint/no-extraneous-class
       class Foo {}
       ;(Foo.prototype as any).bar = true
       const foo = new Foo()

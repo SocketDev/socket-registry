@@ -51,6 +51,11 @@ const sharedRules = {
 
 const sharedRulesForImportX = {
   ...origImportXFlatConfigs.recommended.rules,
+  'import-x/extensions': [
+    'error',
+    'never',
+    { js: 'ignorePackages', json: 'always', mjs: 'ignorePackages' }
+  ],
   'import-x/order': [
     'warn',
     {
@@ -245,19 +250,12 @@ function configs(sourceType) {
         },
         rules: {
           ...sharedRules,
-          // Define @typescript-eslint/no-extraneous-class because oxlint defines
-          // "no-extraneous-class": ["deny"] and trying to eslint-disable it will
-          // cause an eslint "Definition not found" error otherwise.
-          '@typescript-eslint/no-extraneous-class': ['error'],
-          '@typescript-eslint/no-floating-promises': ['error'],
-          // Define @typescript-eslint/no-misused-new because oxlint defines
-          // "no-misused-new": ["deny"] and trying to eslint-disable it will
-          // cause an eslint "Definition not found" error otherwise.
+          '@typescript-eslint/array-type': [
+            'error',
+            { default: 'array-simple' }
+          ],
+          '@typescript-eslint/no-extraneous-class': 'off',
           '@typescript-eslint/no-misused-new': ['error'],
-          '@typescript-eslint/no-misused-promises': ['error'],
-          // Define @typescript-eslint/no-this-alias because oxlint defines
-          // "no-this-alias": ["deny"] and trying to eslint-disable it will
-          // cause an eslint "Definition not found" error otherwise.
           '@typescript-eslint/no-this-alias': [
             'error',
             { allowDestructuring: true }

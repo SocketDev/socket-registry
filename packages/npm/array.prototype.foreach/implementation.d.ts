@@ -1,2 +1,2 @@
-declare const Impl: Array<any>['forEach']
+declare const Impl: any[]['forEach']
 export = Impl
