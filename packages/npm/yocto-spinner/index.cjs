@@ -1,5 +1,7 @@
 'use strict'
 
+const defaultTtyColumns = 80
+
 let _defaultSpinner
 function getDefaultSpinner() {
   if (_defaultSpinner === undefined) {
@@ -100,7 +102,6 @@ function stripVTControlCharacters(string) {
 }
 
 class YoctoSpinner {
-  #abortHandlerBound
   #color
   #currentFrame = -1
   #exitHandlerBound
@@ -118,7 +119,6 @@ class YoctoSpinner {
     const opts = { __proto__: null, ...options }
     const spinner = opts.spinner ?? getDefaultSpinner()
     const stream = opts.stream ?? getProcess().stderr
-    this.#abortHandlerBound = this.#abortHandler.bind(this)
     this.#color = opts.color ?? 'cyan'
     this.#exitHandlerBound = this.#exitHandler.bind(this)
     this.#frames = spinner.frames
@@ -127,10 +127,6 @@ class YoctoSpinner {
     this.#signal = opts.signal
     this.#stream = stream
     this.#text = opts.text ?? ''
-  }
-
-  #abortHandler() {
-    this.#clearTimer()
   }
 
   #clearTimer() {
@@ -151,7 +147,7 @@ class YoctoSpinner {
   }
 
   #lineCount(text) {
-    const width = this.#stream.columns ?? 80
+    const width = this.#stream.columns ?? defaultTtyColumns
     const lines = stripVTControlCharacters(text).split('\n')
     let lineCount = 0
     for (const line of lines) {
@@ -189,7 +185,7 @@ class YoctoSpinner {
     const timeout = setInterval(() => {
       this.#render()
     }, this.#interval)
-    // Guard unref usage in case this is somehow built to run in a browser.
+    // Guard unref usage in case yocto-spinner is somehow built to run in a browser.
     // https://nodejs.org/api/timers.html#timeoutunref
     timeout?.unref?.()
     this.#timer = timeout
@@ -201,13 +197,10 @@ class YoctoSpinner {
     }
   }
 
-  #subscribeToProcessEvents() {
+  #subscribeToExitEvents() {
+    this.#signal?.addEventListener('abort', this.#exitHandlerBound)
     process.once('SIGINT', this.#exitHandlerBound)
     process.once('SIGTERM', this.#exitHandlerBound)
-  }
-
-  #subscribeToSignalEvents() {
-    this.#signal?.addEventListener('abort', this.#abortHandlerBound)
   }
 
   #symbolStop(symbolType, text) {
@@ -215,11 +208,8 @@ class YoctoSpinner {
     return this.stop(`${symbols[symbolType]} ${text ?? this.#text}`)
   }
 
-  #unsubscribeFromSignalEvents() {
-    this.#signal?.removeEventListener('abort', this.#abortHandlerBound)
-  }
-
-  #unsubscribeFromProcessEvents() {
+  #unsubscribeFromExitEvents() {
+    this.#signal?.removeEventListener('abort', this.#exitHandlerBound)
     process.off('SIGINT', this.#exitHandlerBound)
     process.off('SIGTERM', this.#exitHandlerBound)
   }
@@ -284,8 +274,7 @@ class YoctoSpinner {
     this.#hideCursor()
     this.#render()
     this.#setTimer()
-    this.#subscribeToSignalEvents()
-    this.#subscribeToProcessEvents()
+    this.#subscribeToExitEvents()
     return this
   }
 
@@ -296,8 +285,7 @@ class YoctoSpinner {
     this.#showCursor()
     this.clear()
     this.#clearTimer()
-    this.#unsubscribeFromSignalEvents()
-    this.#unsubscribeFromProcessEvents()
+    this.#unsubscribeFromExitEvents()
     if (finalText) {
       this.#stream.write(`${finalText}\n`)
     }
