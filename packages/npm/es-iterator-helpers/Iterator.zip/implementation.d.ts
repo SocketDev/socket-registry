@@ -1,4 +1,4 @@
 declare function zip<T>(
-  ...items: Iterable<T>[]
+  ...items: Array<Iterable<T>>
 ): Iterator<T> & { return(): IteratorResult<T> }
 export = zip

@@ -4,7 +4,7 @@ declare interface NestedList<T> {
   [index: number]: T | NestedList<T>
   length: number
 }
-declare type PickValue<T> = T extends ReadonlyArray<any>
+declare type PickValue<T> = T extends readonly any[]
   ? {
       [K in Extract<keyof T, number>]: PickValue<T[K]>
     }[number]

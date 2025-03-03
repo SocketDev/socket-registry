@@ -1,2 +1,2 @@
-declare const Impl: Array<any>['filter']
+declare const Impl: any[]['filter']
 export = Impl

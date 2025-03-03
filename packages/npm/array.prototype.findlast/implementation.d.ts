@@ -1,3 +1,3 @@
 /// <reference lib="es2023" />
-declare const Impl: Array<any>['findLast']
+declare const Impl: any[]['findLast']
 export = Impl
