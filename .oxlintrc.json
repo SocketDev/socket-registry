@@ -10,7 +10,7 @@
   "rules": {
     "@typescript-eslint/array-type": ["error", { "default": "array-simple" }],
     "@typescript-eslint/no-extraneous-class": "off",
-    "@typescript-eslint/no-misused-new": ["error"],
+    "@typescript-eslint/no-misused-new": "error",
     "@typescript-eslint/no-this-alias": [
       "error",
       { "allowDestructuring": true }
@@ -23,6 +23,7 @@
     "no-func-assign": "off",
     "no-new": "off",
     "no-self-assign": "off",
+    "no-undef": "off",
     "no-unused-vars": "off"
   }
 }
