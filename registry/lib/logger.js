@@ -55,7 +55,7 @@ const LOG_SYMBOLS = (() => {
 const privateConsole = new WeakMap()
 
 const symbolTypeToMethodName = {
-  error: 'error',
+  fail: 'fail',
   info: 'info',
   success: 'log',
   warn: 'warn'
@@ -87,7 +87,7 @@ class Logger {
   }
 
   fail(...args) {
-    return this.#symbolApply('error', args)
+    return this.#symbolApply('fail', args)
   }
 
   info(...args) {
