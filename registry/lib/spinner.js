@@ -55,11 +55,11 @@ function Spinner(options) {
         return this
       }
 
-      error(...args) {
+      fail(...args) {
         return this.#applyAndKeepSpinning('error', args)
       }
 
-      errorAndStop(...args) {
+      failAndStop(...args) {
         return this.#apply('error', args)
       }
 
@@ -117,6 +117,9 @@ function Spinner(options) {
         return this.#apply('warning', args)
       }
     }
+    // Add aliases.
+    _Spinner.prototype.error = _Spinner.prototype.fail
+    _Spinner.prototype.errorAndStop = _Spinner.prototype.failAndStop
     _Spinner.prototype.warning = _Spinner.prototype.warn
     _Spinner.prototype.warningAndStop = _Spinner.prototype.warnAndStop
     // Lazily access constants.ENV.CI.

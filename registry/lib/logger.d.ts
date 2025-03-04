@@ -8,10 +8,10 @@ declare namespace LoggerModule {
       : Console[K]
   }
   export type LogSymbols = {
-    error: string
+    fail: string
     info: string
     success: string
-    warning: string
+    warn: string
   }
   export interface Task {
     run<T>(f: () => T): T
@@ -33,6 +33,7 @@ declare namespace LoggerModule {
     dir: LoggerMethods['dir']
     dirxml: LoggerMethods['dirxml']
     error: LoggerMethods['error']
+    fail(...args: any[]): Logger
     group: LoggerMethods['group']
     groupCollapsed: LoggerMethods['groupCollapsed']
     groupEnd: LoggerMethods['groupEnd']

@@ -199,7 +199,7 @@ void (async () => {
     }
   })
   if (!nmPkgJson) {
-    logger.error(`Failed to extract ${origPkgName}`)
+    logger.fail(`Failed to extract ${origPkgName}`)
     return
   }
   if (licenseWarnings.length) {
@@ -469,7 +469,7 @@ void (async () => {
       logger.log('Finished 🎉')
     }
   } catch (e) {
-    logger.error('Package override finalization encountered an error:')
+    logger.fail('Package override finalization encountered an error:')
     logger.error(e)
   }
 })()
