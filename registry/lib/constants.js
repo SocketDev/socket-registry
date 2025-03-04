@@ -186,6 +186,7 @@ const NODE_MODULES = 'node_modules'
 const NODE_MODULES_GLOB_RECURSIVE = `**/${NODE_MODULES}`
 const NODE_WORKSPACES = 'node_workspaces'
 const NPM = 'npm'
+const NPX = 'npx'
 const OVERRIDES = 'overrides'
 const PACKAGE_DEFAULT_SOCKET_CATEGORIES = Object.freeze(['cleanup'])
 const PACKAGE_DEFAULT_VERSION = '1.0.0'
@@ -803,7 +804,7 @@ const lifecycleScriptNames = new Set(
 
 const tsLibsAvailable = new Set([
   // Defined in priority order.
-  'esnext',
+  ESNEXT,
   'es2024',
   'es2023',
   'dom',
@@ -855,6 +856,7 @@ const constants = createConstantsObject(
     NODE_WORKSPACES,
     NODE_VERSION: undefined,
     NPM,
+    NPX,
     OVERRIDES,
     PACKAGE_DEFAULT_SOCKET_CATEGORIES,
     // Lazily defined values are initialized as `undefined` to keep their key order.

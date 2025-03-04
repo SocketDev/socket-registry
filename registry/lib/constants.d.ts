@@ -139,6 +139,7 @@ declare const Constants: {
   readonly NODE_WORKSPACES: 'node_workspaces'
   readonly NODE_VERSION: string
   readonly NPM: 'npm'
+  readonly NPX: 'npx'
   readonly OVERRIDES: 'overrides'
   readonly PACKAGE_DEFAULT_SOCKET_CATEGORIES: readonly ['cleanup']
   readonly PACKAGE_DEFAULT_NODE_RANGE: string
