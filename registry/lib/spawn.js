@@ -7,7 +7,9 @@ const { abortSignal } = constants
 let _child_process
 function getChildProcess() {
   if (_child_process === undefined) {
-    _child_process = require('node:child_process')
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _child_process = require('child_process')
   }
   return _child_process
 }
