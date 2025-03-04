@@ -813,6 +813,7 @@ function resolvePackageLicenses(licenseFieldValue, where) {
   return licenseNodes
 }
 
+/*#__PURE__*/
 function resolvePackageName(purlObj, delimiter = '/') {
   const { name, namespace } = purlObj
   return `${namespace ? `${namespace}${delimiter}` : ''}${name}`
