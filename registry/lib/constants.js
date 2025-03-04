@@ -5,11 +5,6 @@
 // event loop.
 const signalExit = require('signal-exit')
 
-const { envAsBoolean, envAsString } = require('./env')
-
-const abortController = new AbortController()
-const { signal: abortSignal } = abortController
-
 let _browserList
 function getBrowserList() {
   if (_browserList === undefined) {
@@ -133,6 +128,32 @@ function getYarnPkgExtensions() {
   }
   return _yarnPkgExtensions
 }
+
+const abortController = new AbortController()
+
+const { signal: abortSignal } = abortController
+;(() => {
+  // By manually setting `kMaxEventTargetListeners` on `abortSignal` we avoid:
+  //   TypeError [ERR_INVALID_ARG_TYPE]: The "emitter" argument must be an
+  //   instance of EventEmitter or EventTarget. Received an instance of
+  //   AbortSignal
+  //
+  // in some patch releases of Node 18-23 when calling events.getMaxListeners(abortSignal).
+  // See https://github.com/nodejs/node/pull/56807.
+  //
+  // Instead of calling events.setMaxListeners(10, abortSignal) we set the symbol
+  // property directly to keep the constants initialization platform agnostic and
+  // not rely on the Node specific 'node:events' module up front.
+  const symbols = Object.getOwnPropertySymbols(abortSignal)
+  const kMaxEventTargetListeners = symbols.find(
+    s => s.description === 'events.maxEventTargetListeners'
+  )
+  if (kMaxEventTargetListeners) {
+    // The default events.defaultMaxListeners value is 10.
+    // https://nodejs.org/api/events.html#eventsdefaultmaxlisteners
+    abortSignal[kMaxEventTargetListeners] = 10
+  }
+})()
 
 // Detect ^C, i.e. Ctrl + C.
 signalExit.onExit(() => {
@@ -431,6 +452,8 @@ const LAZY_SUPPORTS_PROCESS_SEND = () =>
   typeof getProcess().send === 'function'
 
 const LAZY_ENV = () => {
+  // Lazily require('./env').
+  const { envAsBoolean, envAsString } = require('./env')
   const { env } = getProcess()
   return Object.freeze({
     __proto__: null,
@@ -726,7 +749,7 @@ const lazySkipTestsByEcosystem = () =>
   })
 
 const lazySpinner = () =>
-  // Lazily access require('./spinner').Spinner to avoid cyclical imports.
+  // Lazily require('./spinner').Spinner to avoid cyclical imports.
   require('./spinner').Spinner()
 
 const lazyWin32EnsureTestsByEcosystem = () =>
