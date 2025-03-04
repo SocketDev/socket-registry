@@ -13,6 +13,8 @@ declare type SpinnerType = Remap<
   > & {
     error(text?: string | undefined, ...extras: any[]): SpinnerType
     errorAndStop(text?: string | undefined, ...extras: any[]): SpinnerType
+    fail(text?: string | undefined, ...extras: any[]): SpinnerType
+    failAndStop(text?: string | undefined, ...extras: any[]): SpinnerType
     getText(): string
     info(text?: string | undefined, ...extras: any[]): SpinnerType
     infoAndStop(text?: string | undefined, ...extras: any[]): SpinnerType

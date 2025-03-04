@@ -61,7 +61,7 @@ void (async () => {
     updateBrowserslistDb()
   } catch (e) {
     if (e.name === 'BrowserslistUpdateError') {
-      logger.error(`update-browserslist-db: ${e.message}`)
+      logger.fail(`update-browserslist-db: ${e.message}`)
     } else {
       throw e
     }

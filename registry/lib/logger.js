@@ -28,10 +28,10 @@ const LOG_SYMBOLS = (() => {
     const supported = require('@socketregistry/is-unicode-supported')()
     const colors = getYoctocolors()
     Object.assign(target, {
-      error: colors.red(supported ? '✖️' : '×'),
+      fail: colors.red(supported ? '✖️' : '×'),
       info: colors.blue(supported ? 'ℹ' : 'i'),
       success: colors.green(supported ? '✔' : '√'),
-      warning: colors.yellow(supported ? '⚠' : '‼')
+      warn: colors.yellow(supported ? '⚠' : '‼')
     })
     Object.freeze(target)
     // The handler of a Proxy is mutable after proxy instantiation.
@@ -58,7 +58,7 @@ const symbolTypeToMethodName = {
   error: 'error',
   info: 'info',
   success: 'log',
-  warning: 'warn'
+  warn: 'warn'
 }
 
 class Logger {
@@ -86,7 +86,7 @@ class Logger {
     return this
   }
 
-  error(...args) {
+  fail(...args) {
     return this.#symbolApply('error', args)
   }
 
@@ -99,7 +99,7 @@ class Logger {
   }
 
   warn(...args) {
-    return this.#symbolApply('warning', args)
+    return this.#symbolApply('warn', args)
   }
 }
 
