@@ -22,6 +22,7 @@
     "@npmcli/package-json": false,
     "@npmcli/promise-spawn": false,
     "@socketregistry/yocto-spinner": false,
+    "@socketregistry/yocto-spinner/index.cjs": false,
     "browserslist": false,
     "cacache": false,
     "console": false,
