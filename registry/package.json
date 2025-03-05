@@ -37,7 +37,8 @@
     "process": false,
     "tinyglobby": false,
     "validate-npm-package-name": false,
-    "which": false
+    "which": false,
+    "yoctocolors-cjs": false
   },
   "exports": {
     ".": {
