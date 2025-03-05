@@ -1,13 +1,5 @@
 'use strict'
 
-let _tinyGlobby
-function getTinyGlobby() {
-  if (_tinyGlobby === undefined) {
-    _tinyGlobby = require('tinyglobby')
-  }
-  return _tinyGlobby
-}
-
 const {
   LICENSE_GLOB,
   LICENSE_GLOB_RECURSIVE,
@@ -16,6 +8,16 @@ const {
   [kInternalsSymbol]: { getGlobMatcher }
 } = require('./constants')
 
+let _tinyGlobby
+/*@__NO_SIDE_EFFECTS__*/
+function getTinyGlobby() {
+  if (_tinyGlobby === undefined) {
+    _tinyGlobby = require('tinyglobby')
+  }
+  return _tinyGlobby
+}
+
+/*@__NO_SIDE_EFFECTS__*/
 async function globLicenses(dirname, options) {
   const {
     ignore: ignoreOpt,

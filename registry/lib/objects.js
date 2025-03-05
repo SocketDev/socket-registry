@@ -16,6 +16,7 @@ const {
   }
 } = constants
 
+/*@__NO_SIDE_EFFECTS__*/
 function getOwnPropertyValues(obj) {
   if (obj === null || obj === undefined) {
     return []
@@ -29,6 +30,7 @@ function getOwnPropertyValues(obj) {
   return values
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function hasKeys(obj) {
   if (obj === null || obj === undefined) {
     return false
@@ -41,6 +43,7 @@ function hasKeys(obj) {
   return false
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function hasOwn(obj, propKey) {
   if (obj === null || obj === undefined) {
     return false
@@ -48,14 +51,17 @@ function hasOwn(obj, propKey) {
   return Object.hasOwn(obj, propKey)
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function isObject(value) {
   return value !== null && typeof value === 'object'
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function isObjectObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function merge(target, source) {
   if (!isObject(target) || !isObject(source)) {
     return target
@@ -117,10 +123,12 @@ function merge(target, source) {
   return target
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function toSortedObject(obj) {
   return toSortedObjectFromEntries(objectEntries(obj))
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function toSortedObjectFromEntries(entries) {
   return objectFromEntries(entries.sort((a, b) => localeCompare(a[0], b[0])))
 }
