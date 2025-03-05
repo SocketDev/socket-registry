@@ -249,8 +249,8 @@ void (async () => {
       .filter(p => p !== 'es' && p !== 'helpers')
     const compatData = getCompatData(['javascript', 'builtins', ...parts])
     const versionAdded =
-      compatData?.support?.nodejs?.version_added ??
-      maintainedNodeVersions.previous
+      compatData?.support?.nodejs?.version_added ?? maintainedNodeVersions.last
+
     nodeRange = `>=${maintainedNodeVersions.next}`
     if (!semver.satisfies(versionAdded, nodeRange)) {
       nodeRange = `>=${maintainedNodeVersions.current}`

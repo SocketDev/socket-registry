@@ -91,6 +91,7 @@ interface Internals {
 }
 declare type LazyGetterStats = { initialized?: Set<PropertyKey> | undefined }
 interface MaintainedNodeVersions extends Array<string> {
+  readonly last: string
   readonly previous: string
   readonly current: string
   readonly next: string
