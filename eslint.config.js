@@ -55,7 +55,12 @@ const sharedRulesForImportX = {
   'import-x/extensions': [
     'error',
     'never',
-    { js: 'ignorePackages', json: 'always', mjs: 'ignorePackages' }
+    {
+      cjs: 'ignorePackages',
+      js: 'ignorePackages',
+      json: 'always',
+      mjs: 'ignorePackages'
+    }
   ],
   'import-x/order': [
     'warn',
