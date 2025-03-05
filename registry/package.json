@@ -21,6 +21,7 @@
     "@inquirer/select": false,
     "@npmcli/package-json": false,
     "@npmcli/promise-spawn": false,
+    "@socketregistry/yocto-spinner": false,
     "browserslist": false,
     "cacache": false,
     "console": false,
