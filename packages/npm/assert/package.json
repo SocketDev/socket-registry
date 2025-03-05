@@ -29,7 +29,7 @@
     "util": "npm:util@0.12.5"
   },
   "engines": {
-    "node": ">=18.20.4"
+    "node": ">=18.20.7"
   },
   "files": [
     "*.d.ts",

@@ -623,7 +623,7 @@ const lazyMaintainedNodeVersions = () => {
   const semver = getSemver()
   const last = semver.maxSatisfying(
     [queryLast, manualLast],
-    `^${semver.major(queryPrev)}`
+    `^${semver.major(queryLast)}`
   )
   const previous = semver.maxSatisfying(
     [queryPrev, manualPrev],
@@ -638,7 +638,7 @@ const lazyMaintainedNodeVersions = () => {
     `^${semver.major(queryNext)}`
   )
   return Object.freeze(
-    Object.assign([previous, current, next], {
+    Object.assign([last, previous, current, next], {
       last,
       previous,
       current,
