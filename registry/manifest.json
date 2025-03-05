@@ -1088,7 +1088,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/path-parse@1.0.5",
+      "pkg:npm/%40socketregistry/path-parse@1.0.6",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.4" },
@@ -1096,7 +1096,7 @@
         "license": "MIT",
         "name": "@socketregistry/path-parse",
         "package": "path-parse",
-        "version": "1.0.5"
+        "version": "1.0.6"
       }
     ],
     [
