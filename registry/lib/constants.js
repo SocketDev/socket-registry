@@ -488,7 +488,7 @@ const LAZY_NODE_VERSION = () => getProcess().versions.node
 
 const LAZY_PACKAGE_DEFAULT_NODE_RANGE = () =>
   // Lazily access constants.maintainedNodeVersions.
-  `>=${constants.maintainedNodeVersions.previous}`
+  `>=${constants.maintainedNodeVersions.last}`
 
 const LAZY_IPC = /*@__PURE__*/ (() => {
   const target = { __proto__: null }
@@ -599,22 +599,32 @@ const lazyIgnoreGlobs = () =>
 const lazyMaintainedNodeVersions = () => {
   // Under the hood browserlist uses the node-releases package which is out of date:
   // https://github.com/chicoxyzzy/node-releases/issues/37
+  //
   // So we maintain a manual version list for now.
   // https://nodejs.org/en/about/previous-releases#looking-for-latest-release-of-a-version-branch
-  const manualPrev = '18.20.4'
-  const manualCurr = '20.18.0'
-  const manualNext = '22.10.0'
+  //
+  // Updated March 5th, 2025.
+  const manualLast = '18.20.7'
+  const manualPrev = '20.18.3'
+  const manualCurr = '22.14.0'
+  const manualNext = '23.9.0'
 
   const browsersList = getBrowserList()
   const query = browsersList('maintained node versions')
     // Trim value, e.g. 'node 22.5.0' to '22.5.0'.
     .map(s => s.slice(5 /*'node '.length*/))
     .sort(naturalCompare)
-  const queryPrev = query.at(0) ?? manualPrev
-  const queryCurr = query.at(1) ?? manualCurr
-  const queryNext = query.at(2) ?? manualNext
+
+  const queryLast = query.at(0) ?? manualLast
+  const queryPrev = query.at(-3) ?? manualPrev
+  const queryCurr = query.at(-2) ?? manualCurr
+  const queryNext = query.at(-1) ?? manualNext
 
   const semver = getSemver()
+  const last = semver.maxSatisfying(
+    [queryLast, manualLast],
+    `^${semver.major(queryPrev)}`
+  )
   const previous = semver.maxSatisfying(
     [queryPrev, manualPrev],
     `^${semver.major(queryPrev)}`
@@ -629,6 +639,7 @@ const lazyMaintainedNodeVersions = () => {
   )
   return Object.freeze(
     Object.assign([previous, current, next], {
+      last,
       previous,
       current,
       next

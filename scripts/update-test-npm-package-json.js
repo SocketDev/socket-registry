@@ -419,10 +419,7 @@ async function linkPackages(packageNames, options) {
     if (
       nodeRange &&
       // Lazily access constants.maintainedNodeVersions.
-      semver.gt(
-        semver.coerce(nodeRange),
-        constants.maintainedNodeVersions.previous
-      )
+      semver.gt(semver.coerce(nodeRange), constants.maintainedNodeVersions.last)
     ) {
       // Replace engines field if the @socketregistry/xyz's engines.node range
       // is greater than the previous Node version.
