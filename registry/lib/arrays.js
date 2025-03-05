@@ -1,5 +1,6 @@
 'use strict'
 
+/*@__NO_SIDE_EFFECTS__*/
 function arrayChunk(arr, size = 2) {
   const { length } = arr
   const chunkSize = Math.min(length, size)
@@ -10,10 +11,12 @@ function arrayChunk(arr, size = 2) {
   return chunks
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function arrayUnique(arr) {
   return [...new Set(arr)]
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function joinAsList(arr) {
   const { length } = arr
   if (length === 0) {

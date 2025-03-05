@@ -6,10 +6,12 @@ const leadingDotSlashRegExp = /^\.\.?[/\\]/
 const slashRegExp = /[/\\]/
 const nodeModulesPathRegExp = /(?:^|[/\\])node_modules(?:[/\\]|$)/
 
+/*@__NO_SIDE_EFFECTS__*/
 function isNodeModules(filepath) {
   return nodeModulesPathRegExp.test(filepath)
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function isRelative(filepath) {
   if (typeof filepath !== 'string') {
     return false
@@ -31,6 +33,7 @@ function isRelative(filepath) {
   return false
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function normalizePath(filePath) {
   const { length } = filePath
   if (length < 2) {
@@ -98,10 +101,12 @@ function normalizePath(filePath) {
   return prefix + collapsed
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function splitPath(filepath) {
   return filepath.split(slashRegExp)
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function trimLeadingDotSlash(filepath) {
   return filepath.replace(leadingDotSlashRegExp, '')
 }

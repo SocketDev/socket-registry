@@ -22,6 +22,7 @@ const logFlags = new Set([
 
 const progressFlags = new Set(['--progress', '--no-progress'])
 
+/*@__NO_SIDE_EFFECTS__*/
 function execNpm(args, options) {
   const terminatorPos = args.indexOf('--')
   const npmArgs = (
@@ -56,23 +57,28 @@ function execNpm(args, options) {
   )
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function isAuditFlag(cmdArg) {
   return auditFlags.has(cmdArg)
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function isFundFlag(cmdArg) {
   return fundFlags.has(cmdArg)
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function isLoglevelFlag(cmdArg) {
   // https://docs.npmjs.com/cli/v11/using-npm/logging#setting-log-levels
   return cmdArg.startsWith('--loglevel=') || logFlags.has(cmdArg)
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function isProgressFlag(cmdArg) {
   return progressFlags.has(cmdArg)
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function runBin(binPath, args, options) {
   // Lazily access constants.WIN32.
   const { WIN32 } = constants
@@ -97,6 +103,7 @@ function runBin(binPath, args, options) {
   )
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function runScript(scriptName, args, options) {
   const { prepost, ...spawnOptions } = { __proto__: null, ...options }
   // Lazily access constants.SUPPORTS_NODE_RUN.

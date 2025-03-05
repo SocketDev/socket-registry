@@ -11,6 +11,7 @@ const ciSpinner = {
 
 let _Spinner
 let _defaultSpinner
+/*@__NO_SIDE_EFFECTS__*/
 function Spinner(options) {
   if (_Spinner === undefined) {
     // Load '@socketregistry/yocto-spinner/index.cjs' to avoid the
@@ -22,6 +23,7 @@ function Spinner(options) {
     const { logger } = require('./logger')
     const { abortSignal } = constants
 
+    /*@__PURE__*/
     _Spinner = class Spinner extends YoctoCtor {
       constructor(options) {
         super({

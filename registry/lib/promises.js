@@ -3,16 +3,19 @@
 const { arrayChunk } = require('./arrays')
 const { UNDEFINED_TOKEN } = require('./constants')
 
+/*@__NO_SIDE_EFFECTS__*/
 async function pEach(array, concurrency, callbackFn, options) {
   await pEachChunk(arrayChunk(array, concurrency), callbackFn, options)
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 async function pFilter(array, concurrency, callbackFn, options) {
   return (
     await pFilterChunk(arrayChunk(array, concurrency), callbackFn, options)
   ).flat()
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 async function pEachChunk(chunks, callbackFn, options) {
   const { retries, signal } = { __proto__: null, ...options }
   for (const chunk of chunks) {
@@ -26,6 +29,7 @@ async function pEachChunk(chunks, callbackFn, options) {
   }
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 async function pFilterChunk(chunks, callbackFn, options) {
   const { retries, signal } = { __proto__: null, ...options }
   const { length } = chunks
@@ -48,6 +52,7 @@ async function pFilterChunk(chunks, callbackFn, options) {
   return filteredChunks
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 async function pRetry(callbackFn, options) {
   const { args = [], retries = 0, signal } = { __proto__: null, ...options }
   if (signal?.aborted) {

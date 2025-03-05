@@ -40,6 +40,7 @@ const DEFAULT_BIOME_CONFIG = {
 }
 
 let _biome
+/*@__NO_SIDE_EFFECTS__*/
 async function getBiome() {
   if (_biome === undefined) {
     const { Biome, Distribution } = require('@biomejs/js-api')
@@ -50,6 +51,7 @@ async function getBiome() {
   return _biome
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 async function biomeFormat(str, options) {
   let {
     filepath,
@@ -65,14 +67,17 @@ async function biomeFormat(str, options) {
   return biome.formatContent(str, { filePath }).content
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function indentString(str, count = 1) {
   return str.replace(/^(?!\s*$)/gm, ' '.repeat(count))
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function isNonEmptyString(value) {
   return typeof value === 'string' && value.length > 0
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function search(str, regexp, fromIndex = 0) {
   const { length } = str
   if (fromIndex >= length) return -1
@@ -82,6 +87,7 @@ function search(str, regexp, fromIndex = 0) {
   return result === -1 ? -1 : result + offset
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function stripBom(str) {
   // In JavaScript, string data is stored as UTF-16, so BOM is 0xFEFF.
   // https://tc39.es/ecma262/#sec-unicode-format-control-characters

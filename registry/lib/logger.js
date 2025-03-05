@@ -3,6 +3,7 @@
 const { construct: ReflectConstruct } = Reflect
 
 let _Console
+/*@__NO_SIDE_EFFECTS__*/
 function constructConsole(args) {
   if (_Console === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
@@ -13,6 +14,7 @@ function constructConsole(args) {
 }
 
 let _yoctocolors
+/*@__NO_SIDE_EFFECTS__*/
 function getYoctocolors() {
   if (_yoctocolors === undefined) {
     _yoctocolors = { ...require('yoctocolors-cjs') }
@@ -20,7 +22,7 @@ function getYoctocolors() {
   return _yoctocolors
 }
 
-const LOG_SYMBOLS = (() => {
+const LOG_SYMBOLS = /*@__PURE__*/ (() => {
   const target = { __proto__: null }
   // Mutable handler to simulate a frozen target.
   const handler = { __proto__: null }
@@ -61,6 +63,7 @@ const symbolTypeToMethodName = {
   warn: 'warn'
 }
 
+/*@__PURE__*/
 class Logger {
   static LOG_SYMBOLS = LOG_SYMBOLS
 

@@ -46,6 +46,7 @@ const pkgScopePrefixRegExp = new RegExp(
 )
 
 let _cacache
+/*@__NO_SIDE_EFFECTS__*/
 function getCacache() {
   if (_cacache === undefined) {
     _cacache = require('cacache')
@@ -54,6 +55,7 @@ function getCacache() {
 }
 
 let _fetcher
+/*@__NO_SIDE_EFFECTS__*/
 function getFetcher() {
   if (_fetcher === undefined) {
     const makeFetchHappen = require('make-fetch-happen')
@@ -70,6 +72,7 @@ function getFetcher() {
 }
 
 let _fs
+/*@__NO_SIDE_EFFECTS__*/
 function getFs() {
   if (_fs === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
@@ -80,6 +83,7 @@ function getFs() {
 }
 
 let _normalizePackageData
+/*@__NO_SIDE_EFFECTS__*/
 function getNormalizePackageData() {
   if (_normalizePackageData === undefined) {
     _normalizePackageData = require('normalize-package-data')
@@ -88,6 +92,7 @@ function getNormalizePackageData() {
 }
 
 let _npmPackageArg
+/*@__NO_SIDE_EFFECTS__*/
 function getNpmPackageArg() {
   if (_npmPackageArg === undefined) {
     _npmPackageArg = require('npm-package-arg')
@@ -96,6 +101,7 @@ function getNpmPackageArg() {
 }
 
 let _pack
+/*@__NO_SIDE_EFFECTS__*/
 function getPack() {
   if (_pack === undefined) {
     _pack = require('libnpmpack')
@@ -104,6 +110,7 @@ function getPack() {
 }
 
 let _PackageURL
+/*@__NO_SIDE_EFFECTS__*/
 function getPackageURL() {
   if (_PackageURL === undefined) {
     // The 'packageurl-js' package is browser safe.
@@ -113,6 +120,7 @@ function getPackageURL() {
 }
 
 let _pacote
+/*@__NO_SIDE_EFFECTS__*/
 function getPacote() {
   if (_pacote === undefined) {
     _pacote = require('pacote')
@@ -121,6 +129,7 @@ function getPacote() {
 }
 
 let _path
+/*@__NO_SIDE_EFFECTS__*/
 function getPath() {
   if (_path === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
@@ -131,6 +140,7 @@ function getPath() {
 }
 
 let _semver
+/*@__NO_SIDE_EFFECTS__*/
 function getSemver() {
   if (_semver === undefined) {
     // The 'semver' package is browser safe.
@@ -140,6 +150,7 @@ function getSemver() {
 }
 
 let _spdxCorrect
+/*@__NO_SIDE_EFFECTS__*/
 function getSpdxCorrect() {
   if (_spdxCorrect === undefined) {
     // The 'spdx-correct' package is browser safe.
@@ -149,6 +160,7 @@ function getSpdxCorrect() {
 }
 
 let _spdxExpParse
+/*@__NO_SIDE_EFFECTS__*/
 function getSpdxExpParse() {
   if (_spdxExpParse === undefined) {
     // The 'spdx-expression-parse' package is browser safe.
@@ -158,6 +170,7 @@ function getSpdxExpParse() {
 }
 
 let _validateNpmPackageName
+/*@__NO_SIDE_EFFECTS__*/
 function getValidateNpmPackageName() {
   if (_validateNpmPackageName === undefined) {
     _validateNpmPackageName = require('validate-npm-package-name')
@@ -166,6 +179,7 @@ function getValidateNpmPackageName() {
 }
 
 let _EditablePackageJsonClass
+/*@__NO_SIDE_EFFECTS__*/
 function getEditablePackageJsonClass() {
   if (_EditablePackageJsonClass === undefined) {
     const EditablePackageJsonBase = require('@npmcli/package-json')
@@ -202,6 +216,7 @@ function getEditablePackageJsonClass() {
   return _EditablePackageJsonClass
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function collectIncompatibleLicenses(licenseNodes) {
   const result = []
   for (let i = 0, { length } = licenseNodes; i < length; i += 1) {
@@ -213,6 +228,7 @@ function collectIncompatibleLicenses(licenseNodes) {
   return result
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function collectLicenseWarnings(licenseNodes) {
   const warnings = new Map()
   for (let i = 0, { length } = licenseNodes; i < length; i += 1) {
@@ -227,12 +243,14 @@ function collectLicenseWarnings(licenseNodes) {
   return [...warnings.values()]
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function createAstNode(rawNode) {
   return Object.hasOwn(rawNode, 'license')
     ? createLicenseNode(rawNode)
     : createBinaryOperationNode(rawNode)
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function createBinaryOperationNode(rawNode) {
   let left
   let right
@@ -260,10 +278,12 @@ function createBinaryOperationNode(rawNode) {
   }
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function createLicenseNode(rawNode) {
   return { __proto__: null, ...rawNode, type: LICENSE_NODE_TYPE }
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function createPackageJson(sockRegPkgName, directory, options) {
   const {
     dependencies,
@@ -338,6 +358,7 @@ function createPackageJson(sockRegPkgName, directory, options) {
   }
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 async function extractPackage(pkgNameOrId, options, callback) {
   if (arguments.length === 2 && typeof options === 'function') {
     callback = options
@@ -377,6 +398,7 @@ async function extractPackage(pkgNameOrId, options, callback) {
   }
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 async function fetchPackageManifest(pkgNameOrId, options) {
   const pacoteOptions = {
     __proto__: null,
@@ -409,6 +431,7 @@ async function fetchPackageManifest(pkgNameOrId, options) {
     : null
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 async function fetchPackagePackument(pkgNameOrId, options) {
   const pacote = getPacote()
   try {
@@ -422,6 +445,7 @@ async function fetchPackagePackument(pkgNameOrId, options) {
   return null
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function findPackageExtensions(pkgName, pkgVer) {
   let result
   // Lazily access constants.packageExtensions.
@@ -442,6 +466,7 @@ function findPackageExtensions(pkgName, pkgVer) {
   return result
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function findTypesForSubpath(entryExports, subpath) {
   const queue = [entryExports]
   let pos = 0
@@ -478,10 +503,12 @@ function findTypesForSubpath(entryExports, subpath) {
   return undefined
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function getReleaseTag(version) {
   return semver.prerelease(version)?.join('.') ?? LATEST
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function getRepoUrlDetails(repoUrl = '') {
   const userAndRepo = repoUrl.replace(/^.+github.com\//, '').split('/')
   const { 0: user } = userAndRepo
@@ -490,6 +517,7 @@ function getRepoUrlDetails(repoUrl = '') {
   return { user, project }
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function getSubpaths(entryExports) {
   const result = []
   const queue = getOwnPropertyValues(entryExports)
@@ -512,14 +540,17 @@ function getSubpaths(entryExports) {
   return result
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function gitHubTagRefUrl(user, project, tag) {
   return `https://api.github.com/repos/${user}/${project}/git/ref/tags/${tag}`
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function gitHubTgzUrl(user, project, sha) {
   return `https://github.com/${user}/${project}/archive/${sha}.tar.gz`
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function isBlessedPackageName(name) {
   return (
     typeof name === 'string' &&
@@ -530,6 +561,7 @@ function isBlessedPackageName(name) {
   )
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function isConditionalExports(entryExports) {
   if (!isObjectObject(entryExports)) {
     return false
@@ -552,6 +584,7 @@ function isConditionalExports(entryExports) {
   return true
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function isGitHubTgzSpec(spec, where) {
   let parsedSpec
   if (isObjectObject(spec)) {
@@ -565,6 +598,7 @@ function isGitHubTgzSpec(spec, where) {
   )
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function isGitHubUrlSpec(spec, where) {
   let parsedSpec
   if (isObjectObject(spec)) {
@@ -580,6 +614,7 @@ function isGitHubUrlSpec(spec, where) {
   )
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function isRegistryFetcherType(type) {
   // RegistryFetcher spec.type check based on:
   // https://github.com/npm/pacote/blob/v19.0.0/lib/fetcher.js#L467-L488
@@ -588,6 +623,7 @@ function isRegistryFetcherType(type) {
   )
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function isSubpathExports(entryExports) {
   if (isObjectObject(entryExports)) {
     const keys = Object.getOwnPropertyNames(entryExports)
@@ -604,11 +640,13 @@ function isSubpathExports(entryExports) {
   return false
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function isValidPackageName(name) {
   const validateNpmPackageName = getValidateNpmPackageName()
   return validateNpmPackageName(name).validForOldPackages
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function jsonToEditablePackageJson(pkgJson, options) {
   const EditablePackageJson = getEditablePackageJsonClass()
   return new EditablePackageJson().fromContent(
@@ -616,6 +654,7 @@ function jsonToEditablePackageJson(pkgJson, options) {
   )
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function normalizePackageJson(pkgJson, options) {
   const { preserve } = { __proto__: null, ...options }
   const preserved = [
@@ -643,6 +682,7 @@ function normalizePackageJson(pkgJson, options) {
   return pkgJson
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 async function packPackage(spec, options) {
   const pack = getPack()
   return await pack(spec, {
@@ -653,6 +693,7 @@ async function packPackage(spec, options) {
   })
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function parseSpdxExp(spdxExp) {
   const spdxExpParse = getSpdxExpParse()
   try {
@@ -663,6 +704,7 @@ function parseSpdxExp(spdxExp) {
   return corrected ? spdxExpParse(corrected) : null
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 async function readPackageJson(filepath, options) {
   const { editable, ...otherOptions } = { __proto__: null, ...options }
   const pkgJson = await readJson(resolvePackageJsonPath(filepath))
@@ -671,6 +713,7 @@ async function readPackageJson(filepath, options) {
     : normalizePackageJson(pkgJson, otherOptions)
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function readPackageJsonSync(filepath, options) {
   const { editable, ...otherOptions } = { __proto__: null, ...options }
   const pkgJson = readJsonSync(resolvePackageJsonPath(filepath))
@@ -679,10 +722,12 @@ function readPackageJsonSync(filepath, options) {
     : normalizePackageJson(pkgJson, otherOptions)
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function resolveEscapedScope(sockRegPkgName) {
   return escapedScopeRegExp.exec(sockRegPkgName)?.[0] ?? ''
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 async function resolveGitHubTgzUrl(pkgNameOrId, where) {
   const whereIsPkgJson = isObjectObject(where)
   const pkgJson = whereIsPkgJson ? where : await readPackageJson(where)
@@ -730,6 +775,7 @@ async function resolveGitHubTgzUrl(pkgNameOrId, where) {
   return ''
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function resolveOriginalPackageName(sockRegPkgName) {
   const name = sockRegPkgName.startsWith(`${SOCKET_REGISTRY_SCOPE}/`)
     ? sockRegPkgName.slice(SOCKET_REGISTRY_SCOPE.length + 1)
@@ -740,6 +786,7 @@ function resolveOriginalPackageName(sockRegPkgName) {
     : name
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function resolvePackageJsonDirname(filepath) {
   if (filepath.endsWith(PACKAGE_JSON)) {
     const path = getPath()
@@ -748,6 +795,7 @@ function resolvePackageJsonDirname(filepath) {
   return filepath
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function resolvePackageJsonEntryExports(entryExports) {
   // If conditional exports main sugar
   // https://nodejs.org/api/packages.html#exports-sugar
@@ -760,6 +808,7 @@ function resolvePackageJsonEntryExports(entryExports) {
   return isObject(entryExports) ? entryExports : undefined
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function resolvePackageJsonPath(filepath) {
   if (filepath.endsWith(PACKAGE_JSON)) {
     return filepath
@@ -768,6 +817,7 @@ function resolvePackageJsonPath(filepath) {
   return path.join(filepath, PACKAGE_JSON)
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function resolvePackageLicenses(licenseFieldValue, where) {
   // Based off of validate-npm-package-license which npm, by way of normalize-package-data,
   // uses to validate license field values:
@@ -813,12 +863,13 @@ function resolvePackageLicenses(licenseFieldValue, where) {
   return licenseNodes
 }
 
-/*#__PURE__*/
+/*@__NO_SIDE_EFFECTS__*/
 function resolvePackageName(purlObj, delimiter = '/') {
   const { name, namespace } = purlObj
   return `${namespace ? `${namespace}${delimiter}` : ''}${name}`
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function resolveRegistryPackageName(pkgName) {
   const purlObj = getPackageURL().fromString(`pkg:npm/${pkgName}`)
   return purlObj.namespace
@@ -826,6 +877,7 @@ function resolveRegistryPackageName(pkgName) {
     : pkgName
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 async function toEditablePackageJson(pkgJson, options) {
   const { path: filepath, ...normalizeOptions } = {
     __proto__: null,
@@ -851,6 +903,7 @@ async function toEditablePackageJson(pkgJson, options) {
   )
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function toEditablePackageJsonSync(pkgJson, options) {
   const { path: filepath, ...normalizeOptions } = {
     __proto__: null,
@@ -874,10 +927,12 @@ function toEditablePackageJsonSync(pkgJson, options) {
   )
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function unescapeScope(escapedScope) {
   return `@${escapedScope.slice(0, -REGISTRY_SCOPE_DELIMITER.length)}`
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function visitLicenses(ast, visitor) {
   const queue = [[createAstNode(ast), undefined]]
   let pos = 0

@@ -1,25 +1,5 @@
 'use strict'
 
-let _fs
-function getFs() {
-  if (_fs === undefined) {
-    // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _fs = require('fs')
-  }
-  return _fs
-}
-
-let _path
-function getPath() {
-  if (_path === undefined) {
-    // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _path = require('path')
-  }
-  return _path
-}
-
 const {
   kInternalsSymbol,
   [kInternalsSymbol]: { innerReadDirNames, isDirEmptySync, readDirNamesSync }
@@ -34,6 +14,29 @@ const defaultRemoveOptions = Object.freeze({
   retryDelay: 200
 })
 
+let _fs
+/*@__NO_SIDE_EFFECTS__*/
+function getFs() {
+  if (_fs === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _fs = require('fs')
+  }
+  return _fs
+}
+
+let _path
+/*@__NO_SIDE_EFFECTS__*/
+function getPath() {
+  if (_path === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _path = require('path')
+  }
+  return _path
+}
+
+/*@__NO_SIDE_EFFECTS__*/
 function isSymbolicLinkSync(filepath) {
   const fs = getFs()
   try {
@@ -42,6 +45,7 @@ function isSymbolicLinkSync(filepath) {
   return false
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function parse(filepath, content, reviver, shouldThrow) {
   const str = Buffer.isBuffer(content) ? content.toString('utf8') : content
   try {
@@ -57,6 +61,7 @@ function parse(filepath, content, reviver, shouldThrow) {
   return null
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 async function readDirNames(dirname, options) {
   const fs = getFs()
   try {
@@ -68,6 +73,7 @@ async function readDirNames(dirname, options) {
   return []
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 async function readJson(filepath, options) {
   if (typeof options === 'string') {
     options = { encoding: options }
@@ -88,6 +94,7 @@ async function readJson(filepath, options) {
   )
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function readJsonSync(filepath, options) {
   if (typeof options === 'string') {
     options = { encoding: options }
@@ -108,6 +115,7 @@ function readJsonSync(filepath, options) {
   )
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 async function remove(filepath, options) {
   // Attempt to workaround occasional ENOTEMPTY errors in Windows.
   // https://github.com/jprichardson/node-fs-extra/issues/532#issuecomment-1178360589
@@ -119,6 +127,7 @@ async function remove(filepath, options) {
   })
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function removeSync(filepath, options) {
   const fs = getFs()
   fs.rmSync(filepath, {
@@ -128,12 +137,14 @@ function removeSync(filepath, options) {
   })
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function stringify(json, EOL = '\n', finalEOL = true, replacer = null, spaces) {
   const EOF = finalEOL ? EOL : ''
   const str = JSON.stringify(json, replacer, spaces)
   return `${str.replace(/\n/g, EOL)}${EOF}`
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function uniqueSync(filepath) {
   const fs = getFs()
   const path = getPath()
@@ -145,6 +156,7 @@ function uniqueSync(filepath) {
   return path.join(dirname, basename)
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 async function writeJson(filepath, json, options) {
   if (typeof options === 'string') {
     options = { encoding: options }
@@ -163,6 +175,7 @@ async function writeJson(filepath, json, options) {
   await fs.promises.writeFile(filepath, str, fsOptions)
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function writeJsonSync(filepath, json, options) {
   if (typeof options === 'string') {
     options = { encoding: options }
