@@ -43,7 +43,7 @@ let _biome
 /*@__NO_SIDE_EFFECTS__*/
 async function getBiome() {
   if (_biome === undefined) {
-    const { Biome, Distribution } = require('@biomejs/js-api')
+    const { Biome, Distribution } = /*@__PURE__*/ require('@biomejs/js-api')
     _biome = await Biome.create({
       distribution: Distribution.NODE
     })

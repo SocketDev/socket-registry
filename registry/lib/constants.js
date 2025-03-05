@@ -3,12 +3,12 @@
 // The 'signal-exit' package is browser safe.
 // Do NOT defer loading, otherwise mystery errors may occur at the end of the
 // event loop.
-const signalExit = require('signal-exit')
+const signalExit = /*@__PURE__*/ require('signal-exit')
 
 let _browserList
 function getBrowserList() {
   if (_browserList === undefined) {
-    _browserList = require('browserslist')
+    _browserList = /*@__PURE__*/ require('browserslist')
   }
   return _browserList
 }
@@ -18,7 +18,7 @@ function getFs() {
   if (_fs === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
     // eslint-disable-next-line n/prefer-node-protocol
-    _fs = require('fs')
+    _fs = /*@__PURE__*/ require('fs')
   }
   return _fs
 }
@@ -58,7 +58,7 @@ let _naturalSorter
 function naturalSorter(arrayToSort) {
   if (_naturalSorter === undefined) {
     // The 'fast-sort' package is browser safe.
-    const fastSort = require('fast-sort')
+    const fastSort = /*@__PURE__*/ require('fast-sort')
     _naturalSorter = fastSort.createNewSortInstance({
       comparer: naturalCompare
     })
@@ -69,7 +69,7 @@ function naturalSorter(arrayToSort) {
 let _pacote
 function getPacote() {
   if (_pacote === undefined) {
-    _pacote = require('pacote')
+    _pacote = /*@__PURE__*/ require('pacote')
   }
   return _pacote
 }
@@ -79,7 +79,7 @@ function getPath() {
   if (_path === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
     // eslint-disable-next-line n/prefer-node-protocol
-    _path = require('path')
+    _path = /*@__PURE__*/ require('path')
   }
   return _path
 }
@@ -88,7 +88,7 @@ let _picomatch
 function getPicomatch() {
   if (_picomatch === undefined) {
     // The 'picomatch' package is browser safe.
-    _picomatch = require('picomatch')
+    _picomatch = /*@__PURE__*/ require('picomatch')
   }
   return _picomatch
 }
@@ -98,7 +98,7 @@ function getProcess() {
   if (_process === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
     // eslint-disable-next-line n/prefer-node-protocol
-    _process = require('process')
+    _process = /*@__PURE__*/ require('process')
   }
   return _process
 }
@@ -107,7 +107,7 @@ let _semver
 function getSemver() {
   if (_semver === undefined) {
     // The 'semver' package is browser safe.
-    _semver = require('semver')
+    _semver = /*@__PURE__*/ require('semver')
   }
   return _semver
 }
@@ -115,7 +115,7 @@ function getSemver() {
 let _which
 function getWhich() {
   if (_which === undefined) {
-    _which = require('which')
+    _which = /*@__PURE__*/ require('which')
   }
   return _which
 }
@@ -124,7 +124,8 @@ let _yarnPkgExtensions
 function getYarnPkgExtensions() {
   if (_yarnPkgExtensions === undefined) {
     // The '@yarnpkg/extensions' package is browser safe.
-    _yarnPkgExtensions = require('@yarnpkg/extensions').packageExtensions
+    _yarnPkgExtensions =
+      /*@__PURE__*/ require('@yarnpkg/extensions').packageExtensions
   }
   return _yarnPkgExtensions
 }
@@ -132,6 +133,8 @@ function getYarnPkgExtensions() {
 const abortController = new AbortController()
 
 const { signal: abortSignal } = abortController
+
+/*@__PURE__*/
 ;(() => {
   // By manually setting `kMaxEventTargetListeners` on `abortSignal` we avoid:
   //   TypeError [ERR_INVALID_ARG_TYPE]: The "emitter" argument must be an
@@ -454,7 +457,7 @@ const LAZY_SUPPORTS_PROCESS_SEND = () =>
 
 const LAZY_ENV = () => {
   // Lazily require('./env').
-  const { envAsBoolean, envAsString } = require('./env')
+  const { envAsBoolean, envAsString } = /*@__PURE__*/ require('./env')
   const { env } = getProcess()
   return Object.freeze({
     __proto__: null,
@@ -487,7 +490,7 @@ const LAZY_PACKAGE_DEFAULT_NODE_RANGE = () =>
   // Lazily access constants.maintainedNodeVersions.
   `>=${constants.maintainedNodeVersions.previous}`
 
-const LAZY_IPC = (() => {
+const LAZY_IPC = /*@__PURE__*/ (() => {
   const target = { __proto__: null }
   // Mutable handler to simulate a frozen target.
   const handler = {

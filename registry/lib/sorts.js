@@ -3,7 +3,7 @@
 const {
   kInternalsSymbol,
   [kInternalsSymbol]: { localeCompare, naturalCompare, naturalSorter }
-} = require('./constants')
+} = /*@__PURE__*/ require('./constants')
 
 module.exports = {
   localeCompare,

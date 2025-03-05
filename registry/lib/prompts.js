@@ -1,8 +1,11 @@
 'use strict'
 
-const { Separator, default: selectRaw } = require('@inquirer/select')
+const {
+  Separator,
+  default: selectRaw
+} = /*@__PURE__*/ require('@inquirer/select')
 
-const constants = require('./constants')
+const constants = /*@__PURE__*/ require('./constants')
 
 const { abortSignal } = constants
 

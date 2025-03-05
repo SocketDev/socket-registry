@@ -8,7 +8,7 @@ function constructConsole(args) {
   if (_Console === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
     // eslint-disable-next-line n/prefer-node-protocol
-    _Console = require('console').Console
+    _Console = /*@__PURE__*/ require('console').Console
   }
   return ReflectConstruct(_Console, args)
 }
@@ -27,7 +27,8 @@ const LOG_SYMBOLS = /*@__PURE__*/ (() => {
   // Mutable handler to simulate a frozen target.
   const handler = { __proto__: null }
   const init = () => {
-    const supported = require('@socketregistry/is-unicode-supported')()
+    const supported =
+      /*@__PURE__*/ require('@socketregistry/is-unicode-supported')()
     const colors = getYoctocolors()
     Object.assign(target, {
       fail: colors.red(supported ? '✖️' : '×'),

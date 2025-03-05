@@ -16,11 +16,11 @@ function Spinner(options) {
   if (_Spinner === undefined) {
     // Load '@socketregistry/yocto-spinner/index.cjs' to avoid the
     // experimental-require-module warning.
-    const yoctoFactory = require('@socketregistry/yocto-spinner/index.cjs')
+    const yoctoFactory = /*@__PURE__*/ require('@socketregistry/yocto-spinner/index.cjs')
     const { constructor: YoctoCtor } = yoctoFactory()
     // Lazily require('./constants') and require('./logger') to avoid cyclical imports.
-    const constants = require('./constants')
-    const { logger } = require('./logger')
+    const constants = /*@__PURE__*/ require('./constants')
+    const { logger } = /*@__PURE__*/ require('./logger')
     const { abortSignal } = constants
 
     /*@__PURE__*/

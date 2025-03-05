@@ -1,6 +1,6 @@
 'use strict'
 
-const constants = require('./constants')
+const constants = /*@__PURE__*/ require('./constants')
 
 const { abortSignal } = constants
 
@@ -10,7 +10,7 @@ function getChildProcess() {
   if (_child_process === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
     // eslint-disable-next-line n/prefer-node-protocol
-    _child_process = require('child_process')
+    _child_process = /*@__PURE__*/ require('child_process')
   }
   return _child_process
 }
@@ -19,7 +19,7 @@ let _spawn
 /*@__NO_SIDE_EFFECTS__*/
 function getSpawn() {
   if (_spawn === undefined) {
-    _spawn = require('@npmcli/promise-spawn')
+    _spawn = /*@__PURE__*/ require('@npmcli/promise-spawn')
   }
   return _spawn
 }
