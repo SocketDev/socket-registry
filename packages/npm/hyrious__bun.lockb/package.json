@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/hyrious__bun.lockb",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "license": "MIT",
   "description": "Socket.dev optimized package override for @hyrious/bun.lockb",
   "keywords": [
