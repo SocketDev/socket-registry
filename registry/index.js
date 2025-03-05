@@ -1,16 +1,19 @@
 'use strict'
 
 let _PackageURL
+/*@__NO_SIDE_EFFECTS__*/
 function getPackageURL() {
   if (_PackageURL === undefined) {
     // The 'packageurl-js' package is browser safe.
-    _PackageURL = require('@socketregistry/packageurl-js').PackageURL
+    _PackageURL =
+      /*@__PURE__*/ require('@socketregistry/packageurl-js').PackageURL
   }
   return _PackageURL
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function getManifestData(eco, sockRegPkgName) {
-  const registryManifest = require('./manifest.json')
+  const registryManifest = /*@__PURE__*/ require('./manifest.json')
   if (eco) {
     const entries = registryManifest[eco]
     return sockRegPkgName

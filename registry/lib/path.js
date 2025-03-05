@@ -1,6 +1,6 @@
 'use strict'
 
-const { search } = require('./strings')
+const { search } = /*@__PURE__*/ require('./strings')
 
 const leadingDotSlashRegExp = /^\.\.?[/\\]/
 const slashRegExp = /[/\\]/

@@ -3,8 +3,8 @@
 const {
   kInternalsSymbol,
   [kInternalsSymbol]: { innerReadDirNames, isDirEmptySync, readDirNamesSync }
-} = require('./constants')
-const { stripBom } = require('./strings')
+} = /*@__PURE__*/ require('./constants')
+const { stripBom } = /*@__PURE__*/ require('./strings')
 
 const defaultRemoveOptions = Object.freeze({
   __proto__: null,
@@ -20,7 +20,7 @@ function getFs() {
   if (_fs === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
     // eslint-disable-next-line n/prefer-node-protocol
-    _fs = require('fs')
+    _fs = /*@__PURE__*/ require('fs')
   }
   return _fs
 }
@@ -31,7 +31,7 @@ function getPath() {
   if (_path === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
     // eslint-disable-next-line n/prefer-node-protocol
-    _path = require('path')
+    _path = /*@__PURE__*/ require('path')
   }
   return _path
 }

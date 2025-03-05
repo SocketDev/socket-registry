@@ -6,13 +6,13 @@ const {
   LICENSE_ORIGINAL_GLOB_RECURSIVE,
   kInternalsSymbol,
   [kInternalsSymbol]: { getGlobMatcher }
-} = require('./constants')
+} = /*@__PURE__*/ require('./constants')
 
 let _tinyGlobby
 /*@__NO_SIDE_EFFECTS__*/
 function getTinyGlobby() {
   if (_tinyGlobby === undefined) {
-    _tinyGlobby = require('tinyglobby')
+    _tinyGlobby = /*@__PURE__*/ require('tinyglobby')
   }
   return _tinyGlobby
 }

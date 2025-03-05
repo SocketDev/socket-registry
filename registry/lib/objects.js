@@ -1,7 +1,7 @@
 'use strict'
 
-const constants = require('./constants')
-const { localeCompare } = require('./sorts')
+const constants = /*@__PURE__*/ require('./constants')
+const { localeCompare } = /*@__PURE__*/ require('./sorts')
 
 const {
   LOOP_SENTINEL,

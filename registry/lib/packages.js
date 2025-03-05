@@ -1,9 +1,9 @@
 'use strict'
 
-const semver = require('semver')
+const semver = /*@__PURE__*/ require('semver')
 
-const constants = require('./constants')
-const { readJson, readJsonSync } = require('./fs')
+const constants = /*@__PURE__*/ require('./constants')
+const { readJson, readJsonSync } = /*@__PURE__*/ require('./fs')
 const {
   getOwnPropertyValues,
   isObject,
@@ -11,10 +11,10 @@ const {
   merge,
   objectEntries,
   objectFromEntries
-} = require('./objects')
-const { isNodeModules, normalizePath } = require('./path')
-const { escapeRegExp } = require('./regexps')
-const { isNonEmptyString } = require('./strings')
+} = /*@__PURE__*/ require('./objects')
+const { isNodeModules, normalizePath } = /*@__PURE__*/ require('./path')
+const { escapeRegExp } = /*@__PURE__*/ require('./regexps')
+const { isNonEmptyString } = /*@__PURE__*/ require('./strings')
 
 const {
   LATEST,
@@ -49,7 +49,7 @@ let _cacache
 /*@__NO_SIDE_EFFECTS__*/
 function getCacache() {
   if (_cacache === undefined) {
-    _cacache = require('cacache')
+    _cacache = /*@__PURE__*/ require('cacache')
   }
   return _cacache
 }
@@ -58,7 +58,7 @@ let _fetcher
 /*@__NO_SIDE_EFFECTS__*/
 function getFetcher() {
   if (_fetcher === undefined) {
-    const makeFetchHappen = require('make-fetch-happen')
+    const makeFetchHappen = /*@__PURE__*/ require('make-fetch-happen')
     _fetcher = makeFetchHappen.defaults({
       // Lazily access constants.pacoteCachePath.
       cachePath: constants.pacoteCachePath,
@@ -77,7 +77,7 @@ function getFs() {
   if (_fs === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
     // eslint-disable-next-line n/prefer-node-protocol
-    _fs = require('fs')
+    _fs = /*@__PURE__*/ require('fs')
   }
   return _fs
 }
@@ -86,7 +86,7 @@ let _normalizePackageData
 /*@__NO_SIDE_EFFECTS__*/
 function getNormalizePackageData() {
   if (_normalizePackageData === undefined) {
-    _normalizePackageData = require('normalize-package-data')
+    _normalizePackageData = /*@__PURE__*/ require('normalize-package-data')
   }
   return _normalizePackageData
 }
@@ -95,7 +95,7 @@ let _npmPackageArg
 /*@__NO_SIDE_EFFECTS__*/
 function getNpmPackageArg() {
   if (_npmPackageArg === undefined) {
-    _npmPackageArg = require('npm-package-arg')
+    _npmPackageArg = /*@__PURE__*/ require('npm-package-arg')
   }
   return _npmPackageArg
 }
@@ -104,7 +104,7 @@ let _pack
 /*@__NO_SIDE_EFFECTS__*/
 function getPack() {
   if (_pack === undefined) {
-    _pack = require('libnpmpack')
+    _pack = /*@__PURE__*/ require('libnpmpack')
   }
   return _pack
 }
@@ -114,7 +114,8 @@ let _PackageURL
 function getPackageURL() {
   if (_PackageURL === undefined) {
     // The 'packageurl-js' package is browser safe.
-    _PackageURL = require('@socketregistry/packageurl-js').PackageURL
+    _PackageURL =
+      /*@__PURE__*/ require('@socketregistry/packageurl-js').PackageURL
   }
   return _PackageURL
 }
@@ -123,7 +124,7 @@ let _pacote
 /*@__NO_SIDE_EFFECTS__*/
 function getPacote() {
   if (_pacote === undefined) {
-    _pacote = require('pacote')
+    _pacote = /*@__PURE__*/ require('pacote')
   }
   return _pacote
 }
@@ -134,7 +135,7 @@ function getPath() {
   if (_path === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
     // eslint-disable-next-line n/prefer-node-protocol
-    _path = require('path')
+    _path = /*@__PURE__*/ require('path')
   }
   return _path
 }
@@ -144,7 +145,7 @@ let _semver
 function getSemver() {
   if (_semver === undefined) {
     // The 'semver' package is browser safe.
-    _semver = require('semver')
+    _semver = /*@__PURE__*/ require('semver')
   }
   return _semver
 }
@@ -154,7 +155,7 @@ let _spdxCorrect
 function getSpdxCorrect() {
   if (_spdxCorrect === undefined) {
     // The 'spdx-correct' package is browser safe.
-    _spdxCorrect = require('spdx-correct')
+    _spdxCorrect = /*@__PURE__*/ require('spdx-correct')
   }
   return _spdxCorrect
 }
@@ -164,7 +165,7 @@ let _spdxExpParse
 function getSpdxExpParse() {
   if (_spdxExpParse === undefined) {
     // The 'spdx-expression-parse' package is browser safe.
-    _spdxExpParse = require('spdx-expression-parse')
+    _spdxExpParse = /*@__PURE__*/ require('spdx-expression-parse')
   }
   return _spdxExpParse
 }
@@ -173,7 +174,7 @@ let _validateNpmPackageName
 /*@__NO_SIDE_EFFECTS__*/
 function getValidateNpmPackageName() {
   if (_validateNpmPackageName === undefined) {
-    _validateNpmPackageName = require('validate-npm-package-name')
+    _validateNpmPackageName = /*@__PURE__*/ require('validate-npm-package-name')
   }
   return _validateNpmPackageName
 }
@@ -182,7 +183,7 @@ let _EditablePackageJsonClass
 /*@__NO_SIDE_EFFECTS__*/
 function getEditablePackageJsonClass() {
   if (_EditablePackageJsonClass === undefined) {
-    const EditablePackageJsonBase = require('@npmcli/package-json')
+    const EditablePackageJsonBase = /*@__PURE__*/ require('@npmcli/package-json')
     _EditablePackageJsonClass = class EditablePackageJson extends (
       EditablePackageJsonBase
     ) {

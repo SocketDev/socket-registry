@@ -1,8 +1,8 @@
 'use strict'
 
-const constants = require('./constants')
-const { isDebug } = require('./debug')
-const { spawn } = require('./spawn')
+const constants = /*@__PURE__*/ require('./constants')
+const { isDebug } = /*@__PURE__*/ require('./debug')
+const { spawn } = /*@__PURE__*/ require('./spawn')
 
 const auditFlags = new Set(['--audit', '--no-audit'])
 

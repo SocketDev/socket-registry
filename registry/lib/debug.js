@@ -1,7 +1,7 @@
 'use strict'
 
-const constants = require('./constants')
-const { logger } = require('./logger')
+const constants = /*@__PURE__*/ require('./constants')
+const { logger } = /*@__PURE__*/ require('./logger')
 
 /*@__NO_SIDE_EFFECTS__*/
 function debugLog(...args) {

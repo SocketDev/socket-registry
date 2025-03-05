@@ -1,7 +1,7 @@
 'use strict'
 
-const { arrayChunk } = require('./arrays')
-const { UNDEFINED_TOKEN } = require('./constants')
+const { arrayChunk } = /*@__PURE__*/ require('./arrays')
+const { UNDEFINED_TOKEN } = /*@__PURE__*/ require('./constants')
 
 /*@__NO_SIDE_EFFECTS__*/
 async function pEach(array, concurrency, callbackFn, options) {
