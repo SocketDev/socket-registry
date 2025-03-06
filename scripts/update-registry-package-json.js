@@ -6,19 +6,22 @@ const { toSortedObject } = require('@socketsecurity/registry/lib/objects')
 const { readPackageJson } = require('@socketsecurity/registry/lib/packages')
 
 void (async () => {
-  // Lazily access constants.registryPkgPath.
   const registryEditablePkgJson = await readPackageJson(
+    // Lazily access constants.registryPkgPath.
     constants.registryPkgPath,
     {
       editable: true
     }
   )
-  const browser = { ...registryEditablePkgJson.content.browser }
+  const { content: registryPkgJson } = registryEditablePkgJson
+  const browser = { ...registryPkgJson.browser }
   for (const builtinName of builtinNames) {
     browser[builtinName] = false
   }
   registryEditablePkgJson.update({
-    browser: toSortedObject(browser)
+    browser: toSortedObject(browser),
+    // Lazily access constants.maintainedNodeVersions.
+    engines: { node: `>=${constants.maintainedNodeVersions.last}` }
   })
   await registryEditablePkgJson.save()
 })()
