@@ -24,13 +24,14 @@ const progressFlags = new Set(['--progress', '--no-progress'])
 
 /*@__NO_SIDE_EFFECTS__*/
 function execNpm(args, options) {
+  const useDebug = isDebug()
   const terminatorPos = args.indexOf('--')
   const npmArgs = (
     terminatorPos === -1 ? args : args.slice(0, terminatorPos)
   ).filter(a => !isAuditFlag(a) && !isFundFlag(a) && !isProgressFlag(a))
   const otherArgs = terminatorPos === -1 ? [] : args.slice(terminatorPos)
-  const useDebug = isDebug()
-  const isSilent = !useDebug && !npmArgs.some(isLoglevelFlag)
+  const logLevelArgs =
+    useDebug || npmArgs.some(isLoglevelFlag) ? [] : ['--loglevel', 'error']
   return spawn(
     // Lazily access constants.npmExecPath.
     constants.npmExecPath,
@@ -45,7 +46,7 @@ function execNpm(args, options) {
       '--no-progress',
       // Add '--loglevel=error' if a loglevel flag is not provided and the
       // SOCKET_CLI_DEBUG environment variable is not truthy.
-      ...(isSilent ? ['--loglevel', 'error'] : []),
+      ...logLevelArgs,
       ...npmArgs,
       ...otherArgs
     ],
