@@ -6,11 +6,11 @@ declare type DiffOptions = {
   cwd?: string | undefined
   [key: string]: any
 }
-declare type GetPackagesOptionsAsArray = {
+declare type OptionsAsSetFalse = {
   asSet?: false | undefined
   [key: string]: any
 }
-declare type GetPackagesOptionsAsSet = {
+declare type OptionsAsSetTrue = {
   asSet: true
   [key: string]: any
 }
@@ -19,44 +19,38 @@ declare const Git: {
   getModifiedFilesSync(options?: DiffOptions): string[]
   getModifiedPackages(
     eco: string,
-    options?: GetPackagesOptionsAsArray | undefined
+    options?: OptionsAsSetFalse | undefined
   ): Promise<string[]>
   getModifiedPackages(
     eco: string,
-    options: GetPackagesOptionsAsSet
+    options: OptionsAsSetTrue
   ): Promise<Set<string>>
   getModifiedPackagesSync(
     eco: string,
-    options?: GetPackagesOptionsAsArray | undefined
+    options?: OptionsAsSetFalse | undefined
   ): string[]
-  getModifiedPackagesSync(
-    eco: string,
-    options: GetPackagesOptionsAsSet
-  ): Set<string>
+  getModifiedPackagesSync(eco: string, options: OptionsAsSetTrue): Set<string>
   getStagedFiles(options?: DiffOptions): Promise<string[]>
   getStagedFilesSync(options?: DiffOptions): string[]
   getStagedPackages(
     eco: string,
-    options?: GetPackagesOptionsAsArray | undefined
+    options?: OptionsAsSetFalse | undefined
   ): Promise<string[]>
   getStagedPackages(
     eco: string,
-    options: GetPackagesOptionsAsSet
+    options: OptionsAsSetTrue
   ): Promise<Set<string>>
   getStagedPackagesSync(
     eco: string,
-    options?: GetPackagesOptionsAsArray | undefined
+    options?: OptionsAsSetFalse | undefined
   ): string[]
-  getStagedPackagesSync(
-    eco: string,
-    options: GetPackagesOptionsAsSet
-  ): Set<string>
+  getStagedPackagesSync(eco: string, options: OptionsAsSetTrue): Set<string>
   isModified(pathname: PathLike, options?: DiffOptions): Promise<boolean>
   isModifiedSync(pathname: PathLike, options?: DiffOptions): boolean
   isStaged(pathname: PathLike, options?: DiffOptions): Promise<boolean>
   isStagedSync(pathname: PathLike, options?: DiffOptions): boolean
 }
 declare namespace Git {
-  export { DiffOptions, GetPackagesOptionsAsArray, GetPackagesOptionsAsSet }
+  export { DiffOptions, OptionsAsSetFalse, OptionsAsSetTrue }
 }
 export = Git

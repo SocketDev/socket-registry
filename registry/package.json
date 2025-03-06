@@ -231,7 +231,7 @@
     "@types/pacote": "^11.1.8"
   },
   "engines": {
-    "node": ">=18.20.4"
+    "node": ">=18.20.7"
   },
   "files": [
     "*.d.ts",
