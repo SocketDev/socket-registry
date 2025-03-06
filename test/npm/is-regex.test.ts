@@ -138,7 +138,7 @@ describe(
           const handler = new Handler()
           const proxy = new Proxy(
             { lastIndex: 0 },
-            <ProxyHandler<typeof target>>handler
+            handler as ProxyHandler<typeof target>
           )
 
           assert.strictEqual(
@@ -159,7 +159,7 @@ describe(
         await t.test('proxy of RegExp instance', () => {
           const target = /a/
           const handler = new Handler()
-          const proxy = new Proxy(/a/, <ProxyHandler<typeof target>>handler)
+          const proxy = new Proxy(/a/, handler as ProxyHandler<typeof target>)
 
           assert.strictEqual(
             isRegex(proxy),

@@ -260,6 +260,10 @@ function configs(sourceType) {
             'error',
             { default: 'array-simple' }
           ],
+          '@typescript-eslint/consistent-type-assertions': [
+            'error',
+            { assertionStyle: 'as' }
+          ],
           '@typescript-eslint/no-extraneous-class': 'off',
           '@typescript-eslint/no-misused-new': 'error',
           '@typescript-eslint/no-this-alias': [
