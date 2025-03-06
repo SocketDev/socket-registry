@@ -1,7 +1,7 @@
 'use strict'
 
 const { arrayChunk } = /*@__PURE__*/ require('./arrays')
-const { UNDEFINED_TOKEN } = /*@__PURE__*/ require('./constants')
+const { UNDEFINED_TOKEN, abortSignal } = /*@__PURE__*/ require('./constants')
 
 /*@__NO_SIDE_EFFECTS__*/
 async function pEach(array, concurrency, callbackFn, options) {
@@ -17,7 +17,7 @@ async function pFilter(array, concurrency, callbackFn, options) {
 
 /*@__NO_SIDE_EFFECTS__*/
 async function pEachChunk(chunks, callbackFn, options) {
-  const { retries, signal } = { __proto__: null, ...options }
+  const { retries, signal = abortSignal } = { __proto__: null, ...options }
   for (const chunk of chunks) {
     if (signal?.aborted) {
       return
@@ -31,7 +31,7 @@ async function pEachChunk(chunks, callbackFn, options) {
 
 /*@__NO_SIDE_EFFECTS__*/
 async function pFilterChunk(chunks, callbackFn, options) {
-  const { retries, signal } = { __proto__: null, ...options }
+  const { retries, signal = abortSignal } = { __proto__: null, ...options }
   const { length } = chunks
   const filteredChunks = Array(length)
   for (let i = 0; i < length; i += 1) {
@@ -54,7 +54,11 @@ async function pFilterChunk(chunks, callbackFn, options) {
 
 /*@__NO_SIDE_EFFECTS__*/
 async function pRetry(callbackFn, options) {
-  const { args = [], retries = 0, signal } = { __proto__: null, ...options }
+  const {
+    args = [],
+    retries = 0,
+    signal = abortSignal
+  } = { __proto__: null, ...options }
   if (signal?.aborted) {
     return undefined
   }
