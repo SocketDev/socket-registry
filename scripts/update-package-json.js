@@ -4,8 +4,6 @@ const constants = require('@socketregistry/scripts/constants')
 const { runScript } = require('@socketsecurity/registry/lib/npm')
 const { readPackageJson } = require('@socketsecurity/registry/lib/packages')
 
-const { abortSignal } = constants
-
 void (async () => {
   // Lazily access constants.rootPackageJsonPath.
   const rootEditablePkgJson = await readPackageJson(
@@ -24,7 +22,6 @@ void (async () => {
   await runScript('update:package-lock', ['--', '--force'], {
     // Lazily access constants.rootPath.
     cwd: constants.rootPath,
-    signal: abortSignal,
     stdio: 'inherit'
   })
 })()

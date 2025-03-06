@@ -36,12 +36,11 @@ const registryPkg = packageData({
   path: registryPkgPath
 })
 
-async function filterSocketOverrideScopePackages(packages, options = {}) {
-  const { signal } = { __proto__: null, ...options }
+async function filterSocketOverrideScopePackages(packages) {
   const socketOverridePackages = []
   // Chunk packages data to process them in parallel 3 at a time.
   await pEach(packages, 3, async pkg => {
-    if (signal.aborted) {
+    if (abortSignal.aborted) {
       return
     }
     const overridesPath = path.join(pkg.path, OVERRIDES)
@@ -78,21 +77,14 @@ async function hasPackageChanged(pkg, manifest_) {
   // the local version. If they are different then bump the local version.
   return (
     ssri
-      .fromData(
-        await packPackage(`${pkg.name}@${manifest.version}`, {
-          signal: abortSignal
-        })
-      )
+      .fromData(await packPackage(`${pkg.name}@${manifest.version}`))
       .sha512[0].hexDigest() !==
-    ssri
-      .fromData(await packPackage(pkg.path, { signal: abortSignal }))
-      .sha512[0].hexDigest()
+    ssri.fromData(await packPackage(pkg.path)).sha512[0].hexDigest()
   )
 }
 
 async function maybeBumpPackage(pkg, options = {}) {
   const {
-    signal,
     spinner,
     state = {
       bumped: [],
@@ -105,7 +97,8 @@ async function maybeBumpPackage(pkg, options = {}) {
     __proto__: null,
     ...options
   }
-  if (signal.aborted) {
+  if (abortSignal.aborted) {
+    spinner?.stop()
     return
   }
   const manifest = await fetchPackageManifest(`${pkg.name}@${pkg.tag}`)
@@ -205,20 +198,13 @@ void (async () => {
     bumpedOverrideScoped: [],
     changed: [],
     changedOverrideScoped: [],
-    overrideScoped: await filterSocketOverrideScopePackages(packages, {
-      signal: abortSignal
-    })
+    overrideScoped: await filterSocketOverrideScopePackages(packages)
   }
 
   // Chunk @socketoverride scoped packages to process them in parallel 3 at a time.
-  await pEach(
-    state.overrideScoped,
-    3,
-    async pkg => {
-      await maybeBumpPackage(pkg, { signal: abortSignal, spinner, state })
-    },
-    { signal: abortSignal }
-  )
+  await pEach(state.overrideScoped, 3, async pkg => {
+    await maybeBumpPackage(pkg, { spinner, state })
+  })
 
   if (abortSignal.aborted) {
     spinner.stop()
@@ -230,14 +216,9 @@ void (async () => {
     await updateOverrideScopedVersionInParent(pkg, pkg.version)
   })
   // Chunk packages data to process them in parallel 3 at a time.
-  await pEach(
-    packages,
-    3,
-    async pkg => {
-      await maybeBumpPackage(pkg, { signal: abortSignal, state })
-    },
-    { signal: abortSignal }
-  )
+  await pEach(packages, 3, async pkg => {
+    await maybeBumpPackage(pkg, { state })
+  })
 
   if (abortSignal.aborted || !state.bumped.length) {
     spinner.stop()
