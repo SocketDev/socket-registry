@@ -32,9 +32,9 @@ const {
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 const eco = NPM
 
-const testNpmNodeWorkspacesPackages = (<string[]>(
-  readDirNamesSync(testNpmNodeWorkspacesPath)
-)).filter(
+const testNpmNodeWorkspacesPackages = (
+  readDirNamesSync(testNpmNodeWorkspacesPath) as string[]
+).filter(
   // Lazily access constants.skipTestsByEcosystem.
   n => !constants.skipTestsByEcosystem[eco]?.has(n)
 )

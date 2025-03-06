@@ -127,7 +127,7 @@ for (const eco of constants.ecosystems) {
           resolutions: pkgResolutions
         } = pkgJson
 
-        const entryExports = <
+        const entryExports = pkgJson.exports as
           | {
               [condition: string]: Exclude<
                 typeof pkgJson.exports,
@@ -135,7 +135,6 @@ for (const eco of constants.ecosystems) {
               >
             }
           | undefined
-        >pkgJson.exports
 
         const files = (
           await tinyGlob(['**/*'], {
@@ -172,8 +171,8 @@ for (const eco of constants.ecosystems) {
           })
 
           it('should have a .d.ts file for every .js file', () => {
-            const jsSubpaths = (<string[]>getSubpaths(entryExports)).filter(s =>
-              /\.[cm]?js$/.test(s)
+            const jsSubpaths = (getSubpaths(entryExports) as string[]).filter(
+              s => /\.[cm]?js$/.test(s)
             )
             for (const subpath of jsSubpaths) {
               const types = trimLeadingDotSlash(
