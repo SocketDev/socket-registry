@@ -30,6 +30,7 @@ const {
   SOCKET_SECURITY_SCOPE,
   UNLICENCED,
   UNLICENSED,
+  abortSignal,
   copyLeftLicenses,
   packumentCache
 } = constants
@@ -403,6 +404,7 @@ async function extractPackage(pkgNameOrId, options, callback) {
 async function fetchPackageManifest(pkgNameOrId, options) {
   const pacoteOptions = {
     __proto__: null,
+    signal: abortSignal,
     ...options,
     packumentCache,
     preferOffline: true
@@ -438,6 +440,7 @@ async function fetchPackagePackument(pkgNameOrId, options) {
   try {
     return await pacote.packument(pkgNameOrId, {
       __proto__: null,
+      signal: abortSignal,
       ...options,
       packumentCache,
       preferOffline: true
@@ -688,6 +691,7 @@ async function packPackage(spec, options) {
   const pack = getPack()
   return await pack(spec, {
     __proto__: null,
+    signal: abortSignal,
     ...options,
     packumentCache,
     preferOffline: true
