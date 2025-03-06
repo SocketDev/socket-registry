@@ -12,6 +12,8 @@ function debugLog(...args) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function isDebug() {
+  // eslint-disable-next-line no-warning-comments
+  // TODO: Make the environment variable name configurable.
   // Lazily access constants.ENV.
   return constants.ENV.SOCKET_CLI_DEBUG
 }
