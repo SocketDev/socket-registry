@@ -122,6 +122,7 @@ declare const Constants: {
   readonly EXTENSIONS: 'extensions'
   readonly EXTENSIONS_JSON: 'extensions.json'
   readonly GIT_IGNORE: '.gitignore'
+  readonly HIDDEN_PACKAGE_LOCK: '.package-lock.json'
   readonly IPC: IPC
   readonly LATEST: 'latest'
   readonly LICENSE: 'LICENSE'
