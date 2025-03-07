@@ -559,7 +559,17 @@ const AssertionError = /*#__PURE__*/ (function (_Error, _inspect$custom) {
     let actual = options.actual,
       expected = options.expected
     const limit = Error.stackTraceLimit
-    Error.stackTraceLimit = 0
+    // Skip the Error.stackTraceLimit assignment if the property is NOT writable
+    // to avoid triggering a strict mode mutation error when the --frozen-intrinsics
+    // flag is used.
+    // https://nodejs.org/api/cli.html#--frozen-intrinsics
+    const stackTraceLimitWritable = !!Object.getOwnPropertyDescriptor(
+      Error,
+      'stackTraceLimit'
+    )?.writable
+    if (stackTraceLimitWritable) {
+      Error.stackTraceLimit = 0
+    }
     if (message != null) {
       _this = _super.call(this, String(message))
     } else {
@@ -664,7 +674,9 @@ const AssertionError = /*#__PURE__*/ (function (_Error, _inspect$custom) {
         _this = _super.call(this, ''.concat(_res).concat(other))
       }
     }
-    Error.stackTraceLimit = limit
+    if (stackTraceLimitWritable) {
+      Error.stackTraceLimit = limit
+    }
     _this.generatedMessage = !message
     Object.defineProperty(_assertThisInitialized(_this), 'name', {
       value: 'AssertionError [ERR_ASSERTION]',
