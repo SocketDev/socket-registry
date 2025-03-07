@@ -84,7 +84,7 @@ module.exports = function zip(iterables, options) {
       // Step 14.b.iv: Perform the following steps iterCount times:
       for (let i = 0; i < iterCount; i += 1) {
         if (usingIterator) {
-          let nextPadding = paddingIter.next()
+          const nextPadding = paddingIter.next()
           if (nextPadding.done) {
             usingIterator = false
           } else {

@@ -4,9 +4,9 @@
 'use strict'
 
 function ownKeys(e, r) {
-  var t = Object.keys(e)
+  const t = Object.keys(e)
   if (Object.getOwnPropertySymbols) {
-    var o = Object.getOwnPropertySymbols(e)
+    let o = Object.getOwnPropertySymbols(e)
     r &&
       (o = o.filter(function (r) {
         return Object.getOwnPropertyDescriptor(e, r).enumerable
@@ -16,8 +16,8 @@ function ownKeys(e, r) {
   return t
 }
 function _objectSpread(e) {
-  for (var r = 1; r < arguments.length; r++) {
-    var t = null != arguments[r] ? arguments[r] : {}
+  for (let r = 1; r < arguments.length; r++) {
+    const t = null != arguments[r] ? arguments[r] : {}
     r % 2
       ? ownKeys(Object(t), !0).forEach(function (r) {
           _defineProperty(e, r, t[r])
@@ -50,8 +50,8 @@ function _classCallCheck(instance, Constructor) {
   }
 }
 function _defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i]
+  for (let i = 0; i < props.length; i++) {
+    const descriptor = props[i]
     descriptor.enumerable = descriptor.enumerable || false
     descriptor.configurable = true
     if ('value' in descriptor) descriptor.writable = true
@@ -65,14 +65,14 @@ function _createClass(Constructor, protoProps, staticProps) {
   return Constructor
 }
 function _toPropertyKey(arg) {
-  var key = _toPrimitive(arg, 'string')
+  const key = _toPrimitive(arg, 'string')
   return _typeof(key) === 'symbol' ? key : String(key)
 }
 function _toPrimitive(input, hint) {
   if (_typeof(input) !== 'object' || input === null) return input
-  var prim = input[Symbol.toPrimitive]
+  const prim = input[Symbol.toPrimitive]
   if (prim !== undefined) {
-    var res = prim.call(input, hint || 'default')
+    const res = prim.call(input, hint || 'default')
     if (_typeof(res) !== 'object') return res
     throw new TypeError('@@toPrimitive must return a primitive value.')
   }
@@ -89,12 +89,12 @@ function _inherits(subClass, superClass) {
   if (superClass) _setPrototypeOf(subClass, superClass)
 }
 function _createSuper(Derived) {
-  var hasNativeReflectConstruct = _isNativeReflectConstruct()
+  const hasNativeReflectConstruct = _isNativeReflectConstruct()
   return function _createSuperInternal() {
-    var Super = _getPrototypeOf(Derived),
+    let Super = _getPrototypeOf(Derived),
       result
     if (hasNativeReflectConstruct) {
-      var NewTarget = _getPrototypeOf(this).constructor
+      const NewTarget = _getPrototypeOf(this).constructor
       result = Reflect.construct(Super, arguments, NewTarget)
     } else {
       result = Super.apply(this, arguments)
@@ -121,7 +121,7 @@ function _assertThisInitialized(self) {
   return self
 }
 function _wrapNativeSuper(Class) {
-  var _cache = typeof Map === 'function' ? new Map() : undefined
+  const _cache = typeof Map === 'function' ? new Map() : undefined
   _wrapNativeSuper = function _wrapNativeSuper(Class) {
     if (Class === null || !_isNativeFunction(Class)) return Class
     if (typeof Class !== 'function') {
@@ -151,10 +151,10 @@ function _construct(Parent, args, Class) {
     _construct = Reflect.construct.bind()
   } else {
     _construct = function _construct(Parent, args, Class) {
-      var a = [null]
+      const a = [null]
       a.push.apply(a, args)
-      var Constructor = Function.bind.apply(Parent, a)
-      var instance = new Constructor()
+      const Constructor = Function.bind.apply(Parent, a)
+      const instance = new Constructor()
       if (Class) _setPrototypeOf(instance, Class.prototype)
       return instance
     }
@@ -213,10 +213,10 @@ function _typeof(o) {
     _typeof(o)
   )
 }
-var _require = require('util/'),
+const _require = require('util/'),
   inspect = _require.inspect
 
-var _require2 = require('../errors'),
+const _require2 = require('../errors'),
   ERR_INVALID_ARG_TYPE = _require2.codes.ERR_INVALID_ARG_TYPE
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith
@@ -231,7 +231,7 @@ function endsWith(str, search, this_len) {
 function repeat(str, count) {
   count = Math.floor(count)
   if (str.length == 0 || count == 0) return ''
-  var maxCount = str.length * count
+  const maxCount = str.length * count
   count = Math.floor(Math.log(count) / Math.log(2))
   while (count) {
     str += str
@@ -240,11 +240,11 @@ function repeat(str, count) {
   str += str.substring(0, maxCount - str.length)
   return str
 }
-var blue = ''
-var green = ''
-var red = ''
-var white = ''
-var kReadableOperator = {
+let blue = ''
+let green = ''
+let red = ''
+let white = ''
+const kReadableOperator = {
   deepStrictEqual: 'Expected values to be strictly deep-equal:',
   strictEqual: 'Expected values to be strictly equal:',
   strictEqualObject: 'Expected "actual" to be reference-equal to "expected":',
@@ -261,10 +261,10 @@ var kReadableOperator = {
 
 // Comparing short primitives should just show === / !== instead of using the
 // diff.
-var kMaxShortLength = 10
+const kMaxShortLength = 10
 function copyError(source) {
-  var keys = Object.keys(source)
-  var target = Object.create(Object.getPrototypeOf(source))
+  const keys = Object.keys(source)
+  const target = Object.create(Object.getPrototypeOf(source))
   keys.forEach(function (key) {
     target[key] = source[key]
   })
@@ -297,16 +297,16 @@ function inspectValue(val) {
   })
 }
 function createErrDiff(actual, expected, operator) {
-  var other = ''
-  var res = ''
-  var lastPos = 0
-  var end = ''
-  var skipped = false
-  var actualInspected = inspectValue(actual)
-  var actualLines = actualInspected.split('\n')
-  var expectedLines = inspectValue(expected).split('\n')
-  var i = 0
-  var indicator = ''
+  let other = ''
+  let res = ''
+  let lastPos = 0
+  let end = ''
+  let skipped = false
+  const actualInspected = inspectValue(actual)
+  const actualLines = actualInspected.split('\n')
+  const expectedLines = inspectValue(expected).split('\n')
+  let i = 0
+  let indicator = ''
 
   // In case both values are objects explicitly mark them as not reference equal
   // for the `strictEqual` operator.
@@ -327,7 +327,7 @@ function createErrDiff(actual, expected, operator) {
     expectedLines.length === 1 &&
     actualLines[0] !== expectedLines[0]
   ) {
-    var inputLength = actualLines[0].length + expectedLines[0].length
+    const inputLength = actualLines[0].length + expectedLines[0].length
     // If the character length of "actual" and "expected" together is less than
     // kMaxShortLength and if neither is an object and at least one of them is
     // not `zero`, use the strict equal comparison to visualize the output.
@@ -347,7 +347,7 @@ function createErrDiff(actual, expected, operator) {
       // If the stderr is a tty and the input length is lower than the current
       // columns per line, add a mismatch indicator below the output. If it is
       // not a tty, use a default value of 80 characters.
-      var maxLength =
+      const maxLength =
         process.stderr && process.stderr.isTTY ? process.stderr.columns : 80
       if (inputLength < maxLength) {
         while (actualLines[0][i] === expectedLines[0][i]) {
@@ -366,8 +366,8 @@ function createErrDiff(actual, expected, operator) {
 
   // Remove all ending lines that match (this optimizes the output for
   // readability by reducing the number of total changed lines).
-  var a = actualLines[actualLines.length - 1]
-  var b = expectedLines[expectedLines.length - 1]
+  let a = actualLines[actualLines.length - 1]
+  let b = expectedLines[expectedLines.length - 1]
   while (a === b) {
     if (i++ < 2) {
       end = '\n  '.concat(a).concat(end)
@@ -380,12 +380,12 @@ function createErrDiff(actual, expected, operator) {
     a = actualLines[actualLines.length - 1]
     b = expectedLines[expectedLines.length - 1]
   }
-  var maxLines = Math.max(actualLines.length, expectedLines.length)
+  const maxLines = Math.max(actualLines.length, expectedLines.length)
   // Strict equal with identical objects that are not identical by reference.
   // E.g., assert.deepStrictEqual({ a: Symbol() }, { a: Symbol() })
   if (maxLines === 0) {
     // We have to get the result again. The lines were all removed before.
-    var _actualLines = actualInspected.split('\n')
+    const _actualLines = actualInspected.split('\n')
 
     // Only remove lines in case it makes sense to collapse those.
     // TODO: Accept env to always show the full error.
@@ -407,18 +407,18 @@ function createErrDiff(actual, expected, operator) {
     end = '\n  '.concat(other).concat(end)
     other = ''
   }
-  var printedLines = 0
-  var msg =
+  let printedLines = 0
+  const msg =
     kReadableOperator[operator] +
     '\n'
       .concat(green, '+ actual')
       .concat(white, ' ')
       .concat(red, '- expected')
       .concat(white)
-  var skippedMsg = ' '.concat(blue, '...').concat(white, ' Lines skipped')
+  const skippedMsg = ' '.concat(blue, '...').concat(white, ' Lines skipped')
   for (i = 0; i < maxLines; i++) {
     // Only extra expected lines exist
-    var cur = i - lastPos
+    const cur = i - lastPos
     if (actualLines.length < i + 1) {
       // If the last diverging line is more than one line above and the
       // current line is at least line three, add some of the former lines and
@@ -462,12 +462,12 @@ function createErrDiff(actual, expected, operator) {
       printedLines++
       // Lines diverge
     } else {
-      var expectedLine = expectedLines[i]
-      var actualLine = actualLines[i]
+      const expectedLine = expectedLines[i]
+      let actualLine = actualLines[i]
       // If the lines diverge, specifically check for lines that only diverge by
       // a trailing comma. In that case it is actually identical and we should
       // mark it as such.
-      var divergingLines =
+      let divergingLines =
         actualLine !== expectedLine &&
         (!endsWith(actualLine, ',') || actualLine.slice(0, -1) !== expectedLine)
       // If the expected line has a trailing comma but is otherwise identical,
@@ -544,21 +544,21 @@ function createErrDiff(actual, expected, operator) {
     .concat(end)
     .concat(indicator)
 }
-var AssertionError = /*#__PURE__*/ (function (_Error, _inspect$custom) {
+const AssertionError = /*#__PURE__*/ (function (_Error, _inspect$custom) {
   _inherits(AssertionError, _Error)
-  var _super = _createSuper(AssertionError)
+  const _super = _createSuper(AssertionError)
   function AssertionError(options) {
-    var _this
+    let _this
     _classCallCheck(this, AssertionError)
     if (_typeof(options) !== 'object' || options === null) {
       throw new ERR_INVALID_ARG_TYPE('options', 'Object', options)
     }
-    var message = options.message,
+    const message = options.message,
       operator = options.operator,
       stackStartFn = options.stackStartFn
-    var actual = options.actual,
+    let actual = options.actual,
       expected = options.expected
-    var limit = Error.stackTraceLimit
+    const limit = Error.stackTraceLimit
     Error.stackTraceLimit = 0
     if (message != null) {
       _this = _super.call(this, String(message))
@@ -606,8 +606,8 @@ var AssertionError = /*#__PURE__*/ (function (_Error, _inspect$custom) {
       ) {
         // In case the objects are equal but the operator requires unequal, show
         // the first object and say A equals B
-        var base = kReadableOperator[operator]
-        var res = inspectValue(actual).split('\n')
+        let base = kReadableOperator[operator]
+        const res = inspectValue(actual).split('\n')
 
         // In case "actual" is an object, it should not be reference equal.
         if (
@@ -637,9 +637,9 @@ var AssertionError = /*#__PURE__*/ (function (_Error, _inspect$custom) {
           )
         }
       } else {
-        var _res = inspectValue(actual)
-        var other = ''
-        var knownOperators = kReadableOperator[operator]
+        let _res = inspectValue(actual)
+        let other = ''
+        const knownOperators = kReadableOperator[operator]
         if (operator === 'notDeepEqual' || operator === 'notEqual') {
           _res = ''.concat(kReadableOperator[operator], '\n\n').concat(_res)
           if (_res.length > 1024) {

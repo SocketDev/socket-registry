@@ -340,7 +340,7 @@ describe(
       const sourceCValue = {}
       ;(source as any).b = sourceBValue
       ;(source as any).c = sourceCValue
-      var result = es6oa.assign(target, source)
+      const result = es6oa.assign(target, source)
       assert.strictEqual(result, target, 'sanity check: result is === target')
       assert.strictEqual(
         result.b,
