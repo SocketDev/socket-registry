@@ -163,6 +163,10 @@ signalExit.onExit(() => {
   abortController.abort()
 })
 
+const LATEST = 'latest'
+const PACKAGE_LOCK = 'package-lock.json'
+
+const AT_LATEST = `@${LATEST}`
 const BIOME_JSON = 'biome.json'
 const CI = 'CI'
 const COLUMN_LIMIT = 80
@@ -171,8 +175,7 @@ const ESLINT_CONFIG_JS = 'eslint.config.js'
 const ESNEXT = 'esnext'
 const EXTENSIONS = 'extensions'
 const EXTENSIONS_JSON = `${EXTENSIONS}.json`
-const LATEST = 'latest'
-const AT_LATEST = `@${LATEST}`
+const HIDDEN_PACKAGE_LOCK = `.${PACKAGE_LOCK}`
 const LICENSE = 'LICENSE'
 const LICENSE_GLOB = 'LICEN[CS]E{[.-]*,}'
 const LICENSE_GLOB_RECURSIVE = `**/${LICENSE_GLOB}`
@@ -194,7 +197,6 @@ const OVERRIDES = 'overrides'
 const PACKAGE_DEFAULT_SOCKET_CATEGORIES = Object.freeze(['cleanup'])
 const PACKAGE_DEFAULT_VERSION = '1.0.0'
 const PACKAGE_JSON = 'package.json'
-const PACKAGE_LOCK = 'package-lock.json'
 const PRE_COMMIT = 'PRE_COMMIT'
 const README_GLOB = 'README{.*,}'
 const README_GLOB_RECURSIVE = `**/${README_GLOB}`
@@ -852,6 +854,7 @@ const constants = createConstantsObject(
     EXTENSIONS,
     EXTENSIONS_JSON,
     GIT_IGNORE,
+    HIDDEN_PACKAGE_LOCK,
     IPC: undefined,
     LATEST,
     LICENSE,
