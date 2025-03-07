@@ -19,7 +19,7 @@ function _nonIterableRest() {
 function _unsupportedIterableToArray(o, minLen) {
   if (!o) return
   if (typeof o === 'string') return _arrayLikeToArray(o, minLen)
-  var n = Object.prototype.toString.call(o).slice(8, -1)
+  let n = Object.prototype.toString.call(o).slice(8, -1)
   if (n === 'Object' && o.constructor) n = o.constructor.name
   if (n === 'Map' || n === 'Set') return Array.from(o)
   if (n === 'Arguments' || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n))
@@ -27,16 +27,16 @@ function _unsupportedIterableToArray(o, minLen) {
 }
 function _arrayLikeToArray(arr, len) {
   if (len == null || len > arr.length) len = arr.length
-  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]
+  for (let i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]
   return arr2
 }
 function _iterableToArrayLimit(r, l) {
-  var t =
+  let t =
     null == r
       ? null
       : ('undefined' != typeof Symbol && r[Symbol.iterator]) || r['@@iterator']
   if (null != t) {
-    var e,
+    let e,
       n,
       i,
       u,
@@ -90,35 +90,35 @@ function _typeof(o) {
     _typeof(o)
   )
 }
-var regexFlagsSupported = /a/g.flags !== undefined
-var arrayFromSet = function arrayFromSet(set) {
-  var array = []
+const regexFlagsSupported = /a/g.flags !== undefined
+const arrayFromSet = function arrayFromSet(set) {
+  const array = []
   set.forEach(function (value) {
     return array.push(value)
   })
   return array
 }
-var arrayFromMap = function arrayFromMap(map) {
-  var array = []
+const arrayFromMap = function arrayFromMap(map) {
+  const array = []
   map.forEach(function (value, key) {
     return array.push([key, value])
   })
   return array
 }
-var objectIs = Object.is ? Object.is : require('object-is')
-var objectGetOwnPropertySymbols = Object.getOwnPropertySymbols
+const objectIs = Object.is ? Object.is : require('object-is')
+const objectGetOwnPropertySymbols = Object.getOwnPropertySymbols
   ? Object.getOwnPropertySymbols
   : function () {
       return []
     }
-var numberIsNaN = Number.isNaN ? Number.isNaN : require('is-nan')
+const numberIsNaN = Number.isNaN ? Number.isNaN : require('is-nan')
 function uncurryThis(f) {
   return f.call.bind(f)
 }
-var hasOwnProperty = uncurryThis(Object.prototype.hasOwnProperty)
-var propertyIsEnumerable = uncurryThis(Object.prototype.propertyIsEnumerable)
-var objectToString = uncurryThis(Object.prototype.toString)
-var _require$types = require('util/').types,
+const hasOwnProperty = uncurryThis(Object.prototype.hasOwnProperty)
+const propertyIsEnumerable = uncurryThis(Object.prototype.propertyIsEnumerable)
+const objectToString = uncurryThis(Object.prototype.toString)
+const _require$types = require('util/').types,
   isAnyArrayBuffer = _require$types.isAnyArrayBuffer,
   isArrayBufferView = _require$types.isArrayBufferView,
   isDate = _require$types.isDate,
@@ -136,8 +136,8 @@ var _require$types = require('util/').types,
   isFloat64Array = _require$types.isFloat64Array
 function isNonIndex(key) {
   if (key.length === 0 || key.length > 10) return true
-  for (var i = 0; i < key.length; i++) {
-    var code = key.charCodeAt(i)
+  for (let i = 0; i < key.length; i++) {
+    const code = key.charCodeAt(i)
     if (code < 48 || code > 57) return true
   }
   // The maximum size for an array is 2 ** 32 -1.
@@ -165,9 +165,9 @@ function compare(a, b) {
   if (a === b) {
     return 0
   }
-  var x = a.length
-  var y = b.length
-  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
+  let x = a.length
+  let y = b.length
+  for (let i = 0, len = Math.min(x, y); i < len; ++i) {
     if (a[i] !== b[i]) {
       x = a[i]
       y = b[i]
@@ -182,13 +182,13 @@ function compare(a, b) {
   }
   return 0
 }
-var ONLY_ENUMERABLE = undefined
-var kStrict = true
-var kLoose = false
-var kNoIterator = 0
-var kIsArray = 1
-var kIsSet = 2
-var kIsMap = 3
+const ONLY_ENUMERABLE = undefined
+const kStrict = true
+const kLoose = false
+const kNoIterator = 0
+const kIsArray = 1
+const kIsSet = 2
+const kIsMap = 3
 
 // Check if they have the same source and flags
 function areSimilarRegExps(a, b) {
@@ -200,7 +200,7 @@ function areSimilarFloatArrays(a, b) {
   if (a.byteLength !== b.byteLength) {
     return false
   }
-  for (var offset = 0; offset < a.byteLength; offset++) {
+  for (let offset = 0; offset < a.byteLength; offset++) {
     if (a[offset] !== b[offset]) {
       return false
     }
@@ -309,8 +309,8 @@ function innerDeepEqual(val1, val2, strict, memos) {
       return false
     }
   }
-  var val1Tag = objectToString(val1)
-  var val2Tag = objectToString(val2)
+  const val1Tag = objectToString(val1)
+  const val2Tag = objectToString(val2)
   if (val1Tag !== val2Tag) {
     return false
   }
@@ -319,8 +319,8 @@ function innerDeepEqual(val1, val2, strict, memos) {
     if (val1.length !== val2.length) {
       return false
     }
-    var keys1 = getOwnNonIndexProperties(val1, ONLY_ENUMERABLE)
-    var keys2 = getOwnNonIndexProperties(val2, ONLY_ENUMERABLE)
+    const keys1 = getOwnNonIndexProperties(val1, ONLY_ENUMERABLE)
+    const keys2 = getOwnNonIndexProperties(val2, ONLY_ENUMERABLE)
     if (keys1.length !== keys2.length) {
       return false
     }
@@ -363,8 +363,8 @@ function innerDeepEqual(val1, val2, strict, memos) {
     // Buffer.compare returns true, so val1.length === val2.length. If they both
     // only contain numeric keys, we don't need to exam further than checking
     // the symbols.
-    var _keys = getOwnNonIndexProperties(val1, ONLY_ENUMERABLE)
-    var _keys2 = getOwnNonIndexProperties(val2, ONLY_ENUMERABLE)
+    const _keys = getOwnNonIndexProperties(val1, ONLY_ENUMERABLE)
+    const _keys2 = getOwnNonIndexProperties(val2, ONLY_ENUMERABLE)
     if (_keys.length !== _keys2.length) {
       return false
     }
@@ -403,7 +403,7 @@ function keyCheck(val1, val2, strict, memos, iterationType, aKeys) {
   // Note: this accounts for both named and indexed properties on Arrays.
   if (arguments.length === 5) {
     aKeys = Object.keys(val1)
-    var bKeys = Object.keys(val2)
+    const bKeys = Object.keys(val2)
 
     // The pair must have the same number of owned properties.
     if (aKeys.length !== bKeys.length) {
@@ -412,18 +412,18 @@ function keyCheck(val1, val2, strict, memos, iterationType, aKeys) {
   }
 
   // Cheap key test
-  var i = 0
+  let i = 0
   for (; i < aKeys.length; i++) {
     if (!hasOwnProperty(val2, aKeys[i])) {
       return false
     }
   }
   if (strict && arguments.length === 5) {
-    var symbolKeysA = objectGetOwnPropertySymbols(val1)
+    const symbolKeysA = objectGetOwnPropertySymbols(val1)
     if (symbolKeysA.length !== 0) {
-      var count = 0
+      let count = 0
       for (i = 0; i < symbolKeysA.length; i++) {
-        var key = symbolKeysA[i]
+        const key = symbolKeysA[i]
         if (propertyIsEnumerable(val1, key)) {
           if (!propertyIsEnumerable(val2, key)) {
             return false
@@ -434,7 +434,7 @@ function keyCheck(val1, val2, strict, memos, iterationType, aKeys) {
           return false
         }
       }
-      var symbolKeysB = objectGetOwnPropertySymbols(val2)
+      const symbolKeysB = objectGetOwnPropertySymbols(val2)
       if (
         symbolKeysA.length !== symbolKeysB.length &&
         getEnumerables(val2, symbolKeysB).length !== count
@@ -442,7 +442,7 @@ function keyCheck(val1, val2, strict, memos, iterationType, aKeys) {
         return false
       }
     } else {
-      var _symbolKeysB = objectGetOwnPropertySymbols(val2)
+      const _symbolKeysB = objectGetOwnPropertySymbols(val2)
       if (
         _symbolKeysB.length !== 0 &&
         getEnumerables(val2, _symbolKeysB).length !== 0
@@ -471,9 +471,9 @@ function keyCheck(val1, val2, strict, memos, iterationType, aKeys) {
     // We prevent up to two map.has(x) calls by directly retrieving the value
     // and checking for undefined. The map can only contain numbers, so it is
     // safe to check for undefined only.
-    var val2MemoA = memos.val1.get(val1)
+    const val2MemoA = memos.val1.get(val1)
     if (val2MemoA !== undefined) {
-      var val2MemoB = memos.val2.get(val2)
+      const val2MemoB = memos.val2.get(val2)
       if (val2MemoB !== undefined) {
         return val2MemoA === val2MemoB
       }
@@ -482,16 +482,16 @@ function keyCheck(val1, val2, strict, memos, iterationType, aKeys) {
   }
   memos.val1.set(val1, memos.position)
   memos.val2.set(val2, memos.position)
-  var areEq = objEquiv(val1, val2, strict, aKeys, memos, iterationType)
+  const areEq = objEquiv(val1, val2, strict, aKeys, memos, iterationType)
   memos.val1.delete(val1)
   memos.val2.delete(val2)
   return areEq
 }
 function setHasEqualElement(set, val1, strict, memo) {
   // Go looking.
-  var setValues = arrayFromSet(set)
-  for (var i = 0; i < setValues.length; i++) {
-    var val2 = setValues[i]
+  const setValues = arrayFromSet(set)
+  for (let i = 0; i < setValues.length; i++) {
+    const val2 = setValues[i]
     if (innerDeepEqual(val1, val2, strict, memo)) {
       // Remove the matching element to make sure we do not check that again.
       set.delete(val2)
@@ -527,16 +527,16 @@ function findLooseMatchingPrimitives(prim) {
   return true
 }
 function setMightHaveLoosePrim(a, b, prim) {
-  var altValue = findLooseMatchingPrimitives(prim)
+  const altValue = findLooseMatchingPrimitives(prim)
   if (altValue != null) return altValue
   return b.has(altValue) && !a.has(altValue)
 }
 function mapMightHaveLoosePrim(a, b, prim, item, memo) {
-  var altValue = findLooseMatchingPrimitives(prim)
+  const altValue = findLooseMatchingPrimitives(prim)
   if (altValue != null) {
     return altValue
   }
-  var curB = b.get(altValue)
+  const curB = b.get(altValue)
   if (
     (curB === undefined && !b.has(altValue)) ||
     !innerDeepEqual(item, curB, false, memo)
@@ -548,10 +548,10 @@ function mapMightHaveLoosePrim(a, b, prim, item, memo) {
 function setEquiv(a, b, strict, memo) {
   // This is a lazily initiated Set of entries which have to be compared
   // pairwise.
-  var set = null
-  var aValues = arrayFromSet(a)
-  for (var i = 0; i < aValues.length; i++) {
-    var val = aValues[i]
+  let set = null
+  const aValues = arrayFromSet(a)
+  for (let i = 0; i < aValues.length; i++) {
+    const val = aValues[i]
     // Note: Checking for the objects first improves the performance for object
     // heavy sets but it is a minor slow down for primitives. As they are fast
     // to check this improves the worst case scenario instead.
@@ -578,9 +578,9 @@ function setEquiv(a, b, strict, memo) {
     }
   }
   if (set !== null) {
-    var bValues = arrayFromSet(b)
-    for (var _i = 0; _i < bValues.length; _i++) {
-      var _val = bValues[_i]
+    const bValues = arrayFromSet(b)
+    for (let _i = 0; _i < bValues.length; _i++) {
+      const _val = bValues[_i]
       // We have to check if a primitive value is already
       // matching and only if it's not, go hunting for it.
       if (_typeof(_val) === 'object' && _val !== null) {
@@ -601,9 +601,9 @@ function mapHasEqualEntry(set, map, key1, item1, strict, memo) {
   // To be able to handle cases like:
   //   Map([[{}, 'a'], [{}, 'b']]) vs Map([[{}, 'b'], [{}, 'a']])
   // ... we need to consider *all* matching keys, not just the first we find.
-  var setValues = arrayFromSet(set)
-  for (var i = 0; i < setValues.length; i++) {
-    var key2 = setValues[i]
+  const setValues = arrayFromSet(set)
+  for (let i = 0; i < setValues.length; i++) {
+    const key2 = setValues[i]
     if (
       innerDeepEqual(key1, key2, strict, memo) &&
       innerDeepEqual(item1, map.get(key2), strict, memo)
@@ -615,10 +615,10 @@ function mapHasEqualEntry(set, map, key1, item1, strict, memo) {
   return false
 }
 function mapEquiv(a, b, strict, memo) {
-  var set = null
-  var aEntries = arrayFromMap(a)
-  for (var i = 0; i < aEntries.length; i++) {
-    var _aEntries$i = _slicedToArray(aEntries[i], 2),
+  let set = null
+  const aEntries = arrayFromMap(a)
+  for (let i = 0; i < aEntries.length; i++) {
+    const _aEntries$i = _slicedToArray(aEntries[i], 2),
       key = _aEntries$i[0],
       item1 = _aEntries$i[1]
     if (_typeof(key) === 'object' && key !== null) {
@@ -629,7 +629,7 @@ function mapEquiv(a, b, strict, memo) {
     } else {
       // By directly retrieving the value we prevent another b.has(key) check in
       // almost all possible cases.
-      var item2 = b.get(key)
+      const item2 = b.get(key)
       if (
         (item2 === undefined && !b.has(key)) ||
         !innerDeepEqual(item1, item2, strict, memo)
@@ -646,9 +646,9 @@ function mapEquiv(a, b, strict, memo) {
     }
   }
   if (set !== null) {
-    var bEntries = arrayFromMap(b)
-    for (var _i2 = 0; _i2 < bEntries.length; _i2++) {
-      var _bEntries$_i = _slicedToArray(bEntries[_i2], 2),
+    const bEntries = arrayFromMap(b)
+    for (let _i2 = 0; _i2 < bEntries.length; _i2++) {
+      const _bEntries$_i = _slicedToArray(bEntries[_i2], 2),
         _key = _bEntries$_i[0],
         item = _bEntries$_i[1]
       if (_typeof(_key) === 'object' && _key !== null) {
@@ -668,7 +668,7 @@ function mapEquiv(a, b, strict, memo) {
 function objEquiv(a, b, strict, keys, memos, iterationType) {
   // Sets and maps don't have their entries accessible via normal object
   // properties.
-  var i = 0
+  let i = 0
   if (iterationType === kIsSet) {
     if (!setEquiv(a, b, strict, memos)) {
       return false
@@ -690,9 +690,9 @@ function objEquiv(a, b, strict, keys, memos, iterationType) {
         return false
       } else {
         // Array is sparse.
-        var keysA = Object.keys(a)
+        const keysA = Object.keys(a)
         for (; i < keysA.length; i++) {
-          var key = keysA[i]
+          const key = keysA[i]
           if (
             !hasOwnProperty(b, key) ||
             !innerDeepEqual(a[key], b[key], strict, memos)
@@ -711,7 +711,7 @@ function objEquiv(a, b, strict, keys, memos, iterationType) {
   // The pair must have equivalent values for every corresponding key.
   // Possibly expensive deep test:
   for (i = 0; i < keys.length; i++) {
-    var _key2 = keys[i]
+    const _key2 = keys[i]
     if (!innerDeepEqual(a[_key2], b[_key2], strict, memos)) {
       return false
     }

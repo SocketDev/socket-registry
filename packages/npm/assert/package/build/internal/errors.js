@@ -32,8 +32,8 @@ function _typeof(o) {
   )
 }
 function _defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i]
+  for (let i = 0; i < props.length; i++) {
+    const descriptor = props[i]
     descriptor.enumerable = descriptor.enumerable || false
     descriptor.configurable = true
     if ('value' in descriptor) descriptor.writable = true
@@ -47,14 +47,14 @@ function _createClass(Constructor, protoProps, staticProps) {
   return Constructor
 }
 function _toPropertyKey(arg) {
-  var key = _toPrimitive(arg, 'string')
+  const key = _toPrimitive(arg, 'string')
   return _typeof(key) === 'symbol' ? key : String(key)
 }
 function _toPrimitive(input, hint) {
   if (_typeof(input) !== 'object' || input === null) return input
-  var prim = input[Symbol.toPrimitive]
+  const prim = input[Symbol.toPrimitive]
   if (prim !== undefined) {
-    var res = prim.call(input, hint || 'default')
+    const res = prim.call(input, hint || 'default')
     if (_typeof(res) !== 'object') return res
     throw new TypeError('@@toPrimitive must return a primitive value.')
   }
@@ -85,12 +85,12 @@ function _setPrototypeOf(o, p) {
   return _setPrototypeOf(o, p)
 }
 function _createSuper(Derived) {
-  var hasNativeReflectConstruct = _isNativeReflectConstruct()
+  const hasNativeReflectConstruct = _isNativeReflectConstruct()
   return function _createSuperInternal() {
-    var Super = _getPrototypeOf(Derived),
+    let Super = _getPrototypeOf(Derived),
       result
     if (hasNativeReflectConstruct) {
-      var NewTarget = _getPrototypeOf(this).constructor
+      const NewTarget = _getPrototypeOf(this).constructor
       result = Reflect.construct(Super, arguments, NewTarget)
     } else {
       result = Super.apply(this, arguments)
@@ -137,11 +137,11 @@ function _getPrototypeOf(o) {
       }
   return _getPrototypeOf(o)
 }
-var codes = {}
+const codes = {}
 
 // Lazy loaded
-var assert
-var util
+let assert
+let util
 function createErrorType(code, message, Base) {
   if (!Base) {
     Base = Error
@@ -153,11 +153,11 @@ function createErrorType(code, message, Base) {
       return message(arg1, arg2, arg3)
     }
   }
-  var NodeError = /*#__PURE__*/ (function (_Base) {
+  const NodeError = /*#__PURE__*/ (function (_Base) {
     _inherits(NodeError, _Base)
-    var _super = _createSuper(NodeError)
+    const _super = _createSuper(NodeError)
     function NodeError(arg1, arg2, arg3) {
-      var _this
+      let _this
       _classCallCheck(this, NodeError)
       _this = _super.call(this, getMessage(arg1, arg2, arg3))
       _this.code = code
@@ -171,7 +171,7 @@ function createErrorType(code, message, Base) {
 // https://github.com/nodejs/node/blob/v10.8.0/lib/internal/errors.js
 function oneOf(expected, thing) {
   if (Array.isArray(expected)) {
-    var len = expected.length
+    const len = expected.length
     expected = expected.map(function (i) {
       return String(i)
     })
@@ -231,14 +231,14 @@ createErrorType(
     assert(typeof name === 'string', "'name' must be a string")
 
     // determiner: 'must be' or 'must not be'
-    var determiner
+    let determiner
     if (typeof expected === 'string' && startsWith(expected, 'not ')) {
       determiner = 'must not be'
       expected = expected.replace(/^not /, '')
     } else {
       determiner = 'must be'
     }
-    var msg
+    let msg
     if (endsWith(name, ' argument')) {
       // For cases like 'first argument'
       msg = 'The '
@@ -246,7 +246,7 @@ createErrorType(
         .concat(determiner, ' ')
         .concat(oneOf(expected, 'type'))
     } else {
-      var type = includes(name, '.') ? 'property' : 'argument'
+      const type = includes(name, '.') ? 'property' : 'argument'
       msg = 'The "'
         .concat(name, '" ')
         .concat(type, ' ')
@@ -263,12 +263,12 @@ createErrorType(
 createErrorType(
   'ERR_INVALID_ARG_VALUE',
   function (name, value) {
-    var reason =
+    const reason =
       arguments.length > 2 && arguments[2] !== undefined
         ? arguments[2]
         : 'is invalid'
     if (util === undefined) util = require('util/')
-    var inspected = util.inspect(value)
+    let inspected = util.inspect(value)
     if (inspected.length > 128) {
       inspected = ''.concat(inspected.slice(0, 128), '...')
     }
@@ -283,7 +283,7 @@ createErrorType(
 createErrorType(
   'ERR_INVALID_RETURN_VALUE',
   function (input, name, value) {
-    var type
+    let type
     if (value && value.constructor && value.constructor.name) {
       type = 'instance of '.concat(value.constructor.name)
     } else {
@@ -301,7 +301,7 @@ createErrorType(
   'ERR_MISSING_ARGS',
   function () {
     for (
-      var _len = arguments.length, args = new Array(_len), _key = 0;
+      let _len = arguments.length, args = new Array(_len), _key = 0;
       _key < _len;
       _key++
     ) {
@@ -309,8 +309,8 @@ createErrorType(
     }
     if (assert === undefined) assert = require('../assert')
     assert(args.length > 0, 'At least one arg needs to be specified')
-    var msg = 'The '
-    var len = args.length
+    let msg = 'The '
+    const len = args.length
     args = args.map(function (a) {
       return '"'.concat(a, '"')
     })

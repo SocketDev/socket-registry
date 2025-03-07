@@ -53,7 +53,7 @@ async function getBiome() {
 
 /*@__NO_SIDE_EFFECTS__*/
 async function biomeFormat(str, options) {
-  let {
+  const {
     filepath,
     filePath = filepath,
     ...biomeConfig

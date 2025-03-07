@@ -1,43 +1,43 @@
 'use strict'
 
-var assign = require('object.assign')
-var callBound = require('@socketoverride/deep-equal__call-bind/callBound')
-var flags = require('regexp.prototype.flags')
-var GetIntrinsic = require('@socketoverride/deep-equal__get-intrinsic')
-var getIterator = require('es-get-iterator')
-var getSideChannel = require('side-channel')
-var is = require('object-is')
-var isArguments = require('is-arguments')
-var isArray = require('isarray')
-var isArrayBuffer = require('is-array-buffer')
-var isDate = require('is-date-object')
-var isRegex = require('is-regex')
-var isSharedArrayBuffer = require('is-shared-array-buffer')
-var objectKeys = require('object-keys')
-var whichBoxedPrimitive = require('which-boxed-primitive')
-var whichCollection = require('which-collection')
-var whichTypedArray = require('which-typed-array')
-var byteLength = require('array-buffer-byte-length')
+const assign = require('object.assign')
+const callBound = require('@socketoverride/deep-equal__call-bind/callBound')
+const flags = require('regexp.prototype.flags')
+const GetIntrinsic = require('@socketoverride/deep-equal__get-intrinsic')
+const getIterator = require('es-get-iterator')
+const getSideChannel = require('side-channel')
+const is = require('object-is')
+const isArguments = require('is-arguments')
+const isArray = require('isarray')
+const isArrayBuffer = require('is-array-buffer')
+const isDate = require('is-date-object')
+const isRegex = require('is-regex')
+const isSharedArrayBuffer = require('is-shared-array-buffer')
+const objectKeys = require('object-keys')
+const whichBoxedPrimitive = require('which-boxed-primitive')
+const whichCollection = require('which-collection')
+const whichTypedArray = require('which-typed-array')
+const byteLength = require('array-buffer-byte-length')
 
-var sabByteLength = callBound('SharedArrayBuffer.prototype.byteLength', true)
+const sabByteLength = callBound('SharedArrayBuffer.prototype.byteLength', true)
 
-var $getTime = callBound('Date.prototype.getTime')
-var gPO = Object.getPrototypeOf
-var $objToString = callBound('Object.prototype.toString')
+const $getTime = callBound('Date.prototype.getTime')
+const gPO = Object.getPrototypeOf
+const $objToString = callBound('Object.prototype.toString')
 
-var $Set = GetIntrinsic('%Set%', true)
-var $mapHas = callBound('Map.prototype.has', true)
-var $mapGet = callBound('Map.prototype.get', true)
-var $mapSize = callBound('Map.prototype.size', true)
-var $setAdd = callBound('Set.prototype.add', true)
-var $setDelete = callBound('Set.prototype.delete', true)
-var $setHas = callBound('Set.prototype.has', true)
-var $setSize = callBound('Set.prototype.size', true)
+const $Set = GetIntrinsic('%Set%', true)
+const $mapHas = callBound('Map.prototype.has', true)
+const $mapGet = callBound('Map.prototype.get', true)
+const $mapSize = callBound('Map.prototype.size', true)
+const $setAdd = callBound('Set.prototype.add', true)
+const $setDelete = callBound('Set.prototype.delete', true)
+const $setHas = callBound('Set.prototype.has', true)
+const $setSize = callBound('Set.prototype.size', true)
 
 // taken from https://github.com/browserify/commonjs-assert/blob/bba838e9ba9e28edf3127ce6974624208502f6bc/internal/util/comparisons.js#L401-L414
 function setHasEqualElement(set, val1, opts, channel) {
-  var i = getIterator(set)
-  var result
+  const i = getIterator(set)
+  let result
   while ((result = i.next()) && !result.done) {
     if (internalDeepEqual(val1, result.value, opts, channel)) {
       // eslint-disable-line no-use-before-define
@@ -71,12 +71,12 @@ function findLooseMatchingPrimitives(prim) {
 
 // taken from https://github.com/browserify/commonjs-assert/blob/bba838e9ba9e28edf3127ce6974624208502f6bc/internal/util/comparisons.js#L449-L460
 function mapMightHaveLoosePrim(a, b, prim, item, opts, channel) {
-  var altValue = findLooseMatchingPrimitives(prim)
+  const altValue = findLooseMatchingPrimitives(prim)
   if (altValue != null) {
     return altValue
   }
-  var curB = $mapGet(b, altValue)
-  var looseOpts = assign({}, opts, { strict: false })
+  const curB = $mapGet(b, altValue)
+  const looseOpts = assign({}, opts, { strict: false })
   if (
     (typeof curB === 'undefined' && !$mapHas(b, altValue)) ||
     // eslint-disable-next-line no-use-before-define
@@ -92,7 +92,7 @@ function mapMightHaveLoosePrim(a, b, prim, item, opts, channel) {
 
 // taken from https://github.com/browserify/commonjs-assert/blob/bba838e9ba9e28edf3127ce6974624208502f6bc/internal/util/comparisons.js#L441-L447
 function setMightHaveLoosePrim(a, b, prim) {
-  var altValue = findLooseMatchingPrimitives(prim)
+  const altValue = findLooseMatchingPrimitives(prim)
   if (altValue != null) {
     return altValue
   }
@@ -102,9 +102,9 @@ function setMightHaveLoosePrim(a, b, prim) {
 
 // taken from https://github.com/browserify/commonjs-assert/blob/bba838e9ba9e28edf3127ce6974624208502f6bc/internal/util/comparisons.js#L518-L533
 function mapHasEqualEntry(set, map, key1, item1, opts, channel) {
-  var i = getIterator(set)
-  var result
-  var key2
+  const i = getIterator(set)
+  let result
+  let key2
   while ((result = i.next()) && !result.done) {
     key2 = result.value
     if (
@@ -122,15 +122,15 @@ function mapHasEqualEntry(set, map, key1, item1, opts, channel) {
 }
 
 function internalDeepEqual(actual, expected, options, channel) {
-  var opts = options || {}
+  const opts = options || {}
 
   // 7.1. All identical values are equivalent, as determined by ===.
   if (opts.strict ? is(actual, expected) : actual === expected) {
     return true
   }
 
-  var actualBoxed = whichBoxedPrimitive(actual)
-  var expectedBoxed = whichBoxedPrimitive(expected)
+  const actualBoxed = whichBoxedPrimitive(actual)
+  const expectedBoxed = whichBoxedPrimitive(expected)
   if (actualBoxed !== expectedBoxed) {
     return false
   }
@@ -154,9 +154,9 @@ function internalDeepEqual(actual, expected, options, channel) {
    */
   // see https://github.com/nodejs/node/commit/d3aafd02efd3a403d646a3044adcf14e63a88d32 for memos/channel inspiration
 
-  var hasActual = channel.has(actual)
-  var hasExpected = channel.has(expected)
-  var sentinel
+  const hasActual = channel.has(actual)
+  const hasExpected = channel.has(expected)
+  let sentinel
   if (hasActual && hasExpected) {
     if (channel.get(actual) === channel.get(expected)) {
       return true
@@ -197,11 +197,11 @@ function setEquiv(a, b, opts, channel) {
   if ($setSize(a) !== $setSize(b)) {
     return false
   }
-  var iA = getIterator(a)
-  var iB = getIterator(b)
-  var resultA
-  var resultB
-  var set
+  const iA = getIterator(a)
+  const iB = getIterator(b)
+  let resultA
+  let resultB
+  let set
   while ((resultA = iA.next()) && !resultA.done) {
     if (resultA.value && typeof resultA.value === 'object') {
       if (!set) {
@@ -245,14 +245,14 @@ function mapEquiv(a, b, opts, channel) {
   if ($mapSize(a) !== $mapSize(b)) {
     return false
   }
-  var iA = getIterator(a)
-  var iB = getIterator(b)
-  var resultA
-  var resultB
-  var set
-  var key
-  var item1
-  var item2
+  const iA = getIterator(a)
+  const iB = getIterator(b)
+  let resultA
+  let resultB
+  let set
+  let key
+  let item1
+  let item2
   while ((resultA = iA.next()) && !resultA.done) {
     key = resultA.value[0]
     item1 = resultA.value[1]
@@ -312,7 +312,7 @@ function mapEquiv(a, b, opts, channel) {
 
 function objEquiv(a, b, opts, channel) {
   /* eslint max-statements: [2, 100], max-lines-per-function: [2, 120], max-depth: [2, 5], max-lines: [2, 400] */
-  var i, key
+  let i, key
 
   if (typeof a !== typeof b) {
     return false
@@ -329,15 +329,15 @@ function objEquiv(a, b, opts, channel) {
     return false
   }
 
-  var aIsArray = isArray(a)
-  var bIsArray = isArray(b)
+  const aIsArray = isArray(a)
+  const bIsArray = isArray(b)
   if (aIsArray !== bIsArray) {
     return false
   }
 
   // TODO: replace when a cross-realm brand check is available
-  var aIsError = a instanceof Error
-  var bIsError = b instanceof Error
+  const aIsError = a instanceof Error
+  const bIsError = b instanceof Error
   if (aIsError !== bIsError) {
     return false
   }
@@ -347,8 +347,8 @@ function objEquiv(a, b, opts, channel) {
     }
   }
 
-  var aIsRegex = isRegex(a)
-  var bIsRegex = isRegex(b)
+  const aIsRegex = isRegex(a)
+  const bIsRegex = isRegex(b)
   if (aIsRegex !== bIsRegex) {
     return false
   }
@@ -359,8 +359,8 @@ function objEquiv(a, b, opts, channel) {
     return false
   }
 
-  var aIsDate = isDate(a)
-  var bIsDate = isDate(b)
+  const aIsDate = isDate(a)
+  const bIsDate = isDate(b)
   if (aIsDate !== bIsDate) {
     return false
   }
@@ -374,8 +374,8 @@ function objEquiv(a, b, opts, channel) {
     return false
   }
 
-  var aWhich = whichTypedArray(a)
-  var bWhich = whichTypedArray(b)
+  const aWhich = whichTypedArray(a)
+  const bWhich = whichTypedArray(b)
   if (aWhich !== bWhich) {
     return false
   }
@@ -392,8 +392,8 @@ function objEquiv(a, b, opts, channel) {
     return true
   }
 
-  var aIsBuffer = isBuffer(a)
-  var bIsBuffer = isBuffer(b)
+  const aIsBuffer = isBuffer(a)
+  const bIsBuffer = isBuffer(b)
   if (aIsBuffer !== bIsBuffer) {
     return false
   }
@@ -410,8 +410,8 @@ function objEquiv(a, b, opts, channel) {
     return true
   }
 
-  var aIsArrayBuffer = isArrayBuffer(a)
-  var bIsArrayBuffer = isArrayBuffer(b)
+  const aIsArrayBuffer = isArrayBuffer(a)
+  const bIsArrayBuffer = isArrayBuffer(b)
   if (aIsArrayBuffer !== bIsArrayBuffer) {
     return false
   }
@@ -426,8 +426,8 @@ function objEquiv(a, b, opts, channel) {
     )
   }
 
-  var aIsSAB = isSharedArrayBuffer(a)
-  var bIsSAB = isSharedArrayBuffer(b)
+  const aIsSAB = isSharedArrayBuffer(a)
+  const bIsSAB = isSharedArrayBuffer(b)
   if (aIsSAB !== bIsSAB) {
     return false
   }
@@ -446,8 +446,8 @@ function objEquiv(a, b, opts, channel) {
     return false
   }
 
-  var ka = objectKeys(a)
-  var kb = objectKeys(b)
+  const ka = objectKeys(a)
+  const kb = objectKeys(b)
   // having the same number of owned properties (keys incorporates hasOwnProperty)
   if (ka.length !== kb.length) {
     return false
@@ -471,8 +471,8 @@ function objEquiv(a, b, opts, channel) {
     }
   }
 
-  var aCollection = whichCollection(a)
-  var bCollection = whichCollection(b)
+  const aCollection = whichCollection(a)
+  const bCollection = whichCollection(b)
   if (aCollection !== bCollection) {
     return false
   }
