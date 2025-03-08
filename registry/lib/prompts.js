@@ -26,7 +26,7 @@ function wrapPrompt(inquirerPrompt) {
     } else {
       args[1] = { signal: abortSignal }
     }
-    const isSpinning = spinner?.isSpinning ?? false
+    const isSpinning = !!spinner?.isSpinning
     spinner?.stop()
     let result
     try {
