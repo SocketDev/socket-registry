@@ -32,7 +32,7 @@ function spawn(cmd, args, options, extra) {
     ...spawnOptions
   } = { __proto__: null, ...options }
   const spawn = getSpawn()
-  const isSpinning = spinner?.isSpinning ?? false
+  const isSpinning = !!spinner?.isSpinning
   spinner?.stop()
   let spawnPromise = spawn(
     cmd,
