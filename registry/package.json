@@ -197,11 +197,11 @@
   "dependencies": {
     "@biomejs/js-api": "0.7.1",
     "@biomejs/wasm-nodejs": "1.9.4",
-    "@inquirer/confirm": "5.1.6",
-    "@inquirer/input": "4.1.6",
-    "@inquirer/password": "4.0.9",
-    "@inquirer/search": "3.0.9",
-    "@inquirer/select": "4.0.9",
+    "@inquirer/confirm": "5.1.7",
+    "@inquirer/input": "4.1.7",
+    "@inquirer/password": "4.0.10",
+    "@inquirer/search": "3.0.10",
+    "@inquirer/select": "4.0.10",
     "@npmcli/package-json": "6.1.1",
     "@npmcli/promise-spawn": "8.0.2",
     "@socketregistry/is-unicode-supported": "1.0.2",
@@ -227,7 +227,7 @@
     "yoctocolors-cjs": "2.1.2"
   },
   "devDependencies": {
-    "@inquirer/type": "^3.0.4",
+    "@inquirer/type": "^3.0.5",
     "@types/pacote": "^11.1.8"
   },
   "engines": {
