@@ -31,7 +31,9 @@ function execNpm(args, options) {
   ).filter(a => !isAuditFlag(a) && !isFundFlag(a) && !isProgressFlag(a))
   const otherArgs = terminatorPos === -1 ? [] : args.slice(terminatorPos)
   const logLevelArgs =
-    useDebug || npmArgs.some(isLoglevelFlag) ? [] : ['--loglevel', 'error']
+    // The default value of loglevel is "notice". We default to "warn" which is
+    // one level quieter.
+    useDebug || npmArgs.some(isLoglevelFlag) ? [] : ['--loglevel', 'warn']
   return spawn(
     // Lazily access constants.npmExecPath.
     constants.npmExecPath,
