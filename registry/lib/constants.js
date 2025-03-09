@@ -164,7 +164,7 @@ signalExit.onExit(() => {
 })
 
 const LATEST = 'latest'
-const PACKAGE_LOCK = 'package-lock.json'
+const PACKAGE_LOCK_JSON = 'package-lock.json'
 
 const AT_LATEST = `@${LATEST}`
 const BIOME_JSON = 'biome.json'
@@ -175,7 +175,7 @@ const ESLINT_CONFIG_JS = 'eslint.config.js'
 const ESNEXT = 'esnext'
 const EXTENSIONS = 'extensions'
 const EXTENSIONS_JSON = `${EXTENSIONS}.json`
-const HIDDEN_PACKAGE_LOCK = `.${PACKAGE_LOCK}`
+const HIDDEN_PACKAGE_LOCK_JSON = `.${PACKAGE_LOCK_JSON}`
 const LICENSE = 'LICENSE'
 const LICENSE_GLOB = 'LICEN[CS]E{[.-]*,}'
 const LICENSE_GLOB_RECURSIVE = `**/${LICENSE_GLOB}`
@@ -568,7 +568,7 @@ const lazyIgnoreGlobs = () =>
     '**/.npmrc',
     '**/bun.lockb?',
     NODE_MODULES_GLOB_RECURSIVE,
-    `**/${PACKAGE_LOCK}`,
+    `**/${PACKAGE_LOCK_JSON}`,
     '**/pnpm-lock.ya?ml',
     '**/yarn.lock',
     // Include npm-packlist defaults:
@@ -854,7 +854,7 @@ const constants = createConstantsObject(
     EXTENSIONS,
     EXTENSIONS_JSON,
     GIT_IGNORE,
-    HIDDEN_PACKAGE_LOCK,
+    HIDDEN_PACKAGE_LOCK_JSON,
     IPC: undefined,
     LATEST,
     LICENSE,
@@ -880,7 +880,7 @@ const constants = createConstantsObject(
     PACKAGE_DEFAULT_NODE_RANGE: undefined,
     PACKAGE_DEFAULT_VERSION,
     PACKAGE_JSON,
-    PACKAGE_LOCK,
+    PACKAGE_LOCK_JSON,
     PRE_COMMIT,
     README_GLOB,
     README_GLOB_RECURSIVE,
