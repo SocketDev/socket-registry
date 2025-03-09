@@ -52,7 +52,7 @@ const {
   NODE_WORKSPACES,
   NPM,
   PACKAGE_JSON,
-  PACKAGE_LOCK,
+  PACKAGE_LOCK_JSON,
   README_MD,
   REGISTRY,
   TSCONFIG_JSON,
@@ -172,7 +172,7 @@ const lazyRootPackageJsonPath = () =>
 
 const lazyRootPackageLockPath = () =>
   // Lazily access constants.rootPath.
-  getPath().join(constants.rootPath, PACKAGE_LOCK)
+  getPath().join(constants.rootPath, PACKAGE_LOCK_JSON)
 
 const lazyRootPackagesPath = () =>
   // Lazily access constants.rootPath.
@@ -254,7 +254,7 @@ const lazyTestNpmPkgJsonPath = () =>
 
 const lazyTestNpmPkgLockPath = () =>
   // Lazily access constants.testNpmPath.
-  getPath().join(constants.testNpmPath, PACKAGE_LOCK)
+  getPath().join(constants.testNpmPath, PACKAGE_LOCK_JSON)
 
 const lazyTsxExecPath = () => whichSync('tsx')
 

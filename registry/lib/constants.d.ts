@@ -122,7 +122,7 @@ declare const Constants: {
   readonly EXTENSIONS: 'extensions'
   readonly EXTENSIONS_JSON: 'extensions.json'
   readonly GIT_IGNORE: '.gitignore'
-  readonly HIDDEN_PACKAGE_LOCK: '.package-lock.json'
+  readonly HIDDEN_PACKAGE_LOCK_JSON: '.package-lock.json'
   readonly IPC: IPC
   readonly LATEST: 'latest'
   readonly LICENSE: 'LICENSE'
@@ -147,7 +147,7 @@ declare const Constants: {
   readonly PACKAGE_DEFAULT_NODE_RANGE: string
   readonly PACKAGE_DEFAULT_VERSION: '1.0.0'
   readonly PACKAGE_JSON: 'package.json'
-  readonly PACKAGE_LOCK: 'package-lock.json'
+  readonly PACKAGE_LOCK_JSON: 'package-lock.json'
   readonly PRE_COMMIT: 'PRE_COMMIT'
   readonly README_GLOB: 'README{.*,}'
   readonly README_GLOB_RECURSIVE: '**/README{.*,}'
