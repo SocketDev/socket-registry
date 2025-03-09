@@ -1076,7 +1076,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/packageurl-js@1.0.2",
+      "pkg:npm/%40socketregistry/packageurl-js@1.0.3",
       {
         "categories": ["levelup"],
         "engines": { "node": ">=18.20.4" },
@@ -1084,7 +1084,7 @@
         "license": "MIT",
         "name": "@socketregistry/packageurl-js",
         "package": "packageurl-js",
-        "version": "1.0.2"
+        "version": "1.0.3"
       }
     ],
     [
