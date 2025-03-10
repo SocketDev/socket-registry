@@ -117,6 +117,7 @@ function resolveBinPath(binPath) {
     if (binPath !== noCmdOrPs1Ext && fs.existsSync(noCmdOrPs1Ext)) {
       binPath = noCmdOrPs1Ext
     }
+    return fs.realpathSync(binPath)
   }
   return fs.realpathSync.native(binPath)
 }
