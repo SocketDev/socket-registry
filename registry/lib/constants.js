@@ -563,6 +563,19 @@ const lazyMaintainedNodeVersions = () => {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
+const lazyNodeHardenFlags = () =>
+  // Lazily access constants.WIN32.
+  constants.WIN32
+    ? []
+    : // Harden Node security.
+      // https://nodejs.org/en/learn/getting-started/security-best-practices
+      // We have contributed the following patches to our dependencies to make
+      // Node's --frozen-intrinsics workable.
+      // √ https://github.com/SBoudrias/Inquirer.js/pull/1683
+      // √ https://github.com/pnpm/components/pull/23
+      ['--disable-proto', 'delete', '--frozen-intrinsics', '--no-deprecation']
+
+/*@__NO_SIDE_EFFECTS__*/
 const lazyNodeNoWarningsFlags = () =>
   Object.freeze(
     // Lazily access constants.SUPPORTS_NODE_DISABLE_WARNING_FLAG.
@@ -850,6 +863,7 @@ const constants = createConstantsObject(
     ignoreGlobs: undefined,
     lifecycleScriptNames,
     maintainedNodeVersions: undefined,
+    nodeHardenFlags: undefined,
     nodeNoWarningsFlags: undefined,
     npmExecPath: undefined,
     packageExtensions: undefined,
@@ -877,6 +891,7 @@ const constants = createConstantsObject(
       execPath: lazyExecPath,
       ignoreGlobs: lazyIgnoreGlobs,
       maintainedNodeVersions: lazyMaintainedNodeVersions,
+      nodeHardenFlags: lazyNodeHardenFlags,
       nodeNoWarningsFlags: lazyNodeNoWarningsFlags,
       npmExecPath: lazyNpmExecPath,
       packageExtensions: lazyPackageExtensions,

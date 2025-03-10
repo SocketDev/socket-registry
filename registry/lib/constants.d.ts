@@ -163,6 +163,7 @@ declare const Constants: {
   readonly kInternalsSymbol: typeof kInternalsSymbol
   readonly lifecycleScriptNames: ReadonlySet<string>
   readonly maintainedNodeVersions: MaintainedNodeVersions
+  readonly nodeHardenFlags: ReadonlyArray<string>
   readonly nodeNoWarningsFlags: ReadonlyArray<string>
   readonly npmExecPath: string
   readonly packageExtensions: ReadonlyArray<[string, object]>
