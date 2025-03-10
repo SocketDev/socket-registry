@@ -58,6 +58,8 @@ function execNpm(args, options) {
     // Lazily access constants.execPath.
     constants.execPath,
     [
+      // Lazily access constants.nodeHardenFlags.
+      ...constants.nodeHardenFlags,
       // Lazily access constants.nodeNoWarningsFlags.
       ...constants.nodeNoWarningsFlags,
       // Lazily access constants.npmExecPath.
