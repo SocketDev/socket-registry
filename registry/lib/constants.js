@@ -34,6 +34,17 @@ function getPacote() {
   return _pacote
 }
 
+let _path
+/*@__NO_SIDE_EFFECTS__*/
+function getPath() {
+  if (_path === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _path = /*@__PURE__*/ require('path')
+  }
+  return _path
+}
+
 let _process
 /*@__NO_SIDE_EFFECTS__*/
 function getProcess() {
@@ -326,20 +337,6 @@ function objectFromEntries(entries) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function resolveBinPath(binPath) {
-  const fs = getFs()
-  // Lazily access constants.WIN32.
-  if (constants.WIN32) {
-    // Trim trailing .cmd and .ps1 extensions.
-    const noCmdOrPs1Ext = binPath.replace(/\.(?:cmd|ps1)$/, '')
-    if (binPath !== noCmdOrPs1Ext && fs.existsSync(noCmdOrPs1Ext)) {
-      binPath = noCmdOrPs1Ext
-    }
-  }
-  return fs.realpathSync.native(binPath)
-}
-
-/*@__NO_SIDE_EFFECTS__*/
 const LAZY_SUPPORTS_NODE_DISABLE_WARNING_FLAG = () =>
   // https://nodejs.org/api/all.html#all_cli_--disable-warningcode-or-type
   // Lazily access constants.NODE_VERSION.
@@ -585,9 +582,41 @@ const lazyNodeNoWarningsFlags = () =>
   )
 
 /*@__NO_SIDE_EFFECTS__*/
-const lazyNpmExecPath = () =>
+const lazyNpmExecPath = () => {
   // Will throw if not found.
-  resolveBinPath(getWhich().sync(NPM))
+  let binPath = getWhich().sync(NPM)
+  const fs = getFs()
+  // Lazily access constants.WIN32.
+  if (constants.WIN32) {
+    // The npm.CMD looks like:
+    // :: Created by npm, please don't edit manually.
+    // @ECHO OFF
+    //
+    // SETLOCAL
+    //
+    // SET "NODE_EXE=%~dp0\node.exe"
+    // IF NOT EXIST "%NODE_EXE%" (
+    //   SET "NODE_EXE=node"
+    // )
+    //
+    // SET "NPM_PREFIX_JS=%~dp0\node_modules\npm\bin\npm-prefix.js"
+    // SET "NPM_CLI_JS=%~dp0\node_modules\npm\bin\npm-cli.js"
+    // FOR /F "delims=" %%F IN ('CALL "%NODE_EXE%" "%NPM_PREFIX_JS%"') DO (
+    //   SET "NPM_PREFIX_NPM_CLI_JS=%%F\node_modules\npm\bin\npm-cli.js"
+    // )
+    // IF EXIST "%NPM_PREFIX_NPM_CLI_JS%" (
+    //   SET "NPM_CLI_JS=%NPM_PREFIX_NPM_CLI_JS%"
+    // )
+    //
+    // "%NODE_EXE%" "%NPM_CLI_JS%" %*
+    const path = getPath()
+    binPath = path.join(
+      path.dirname(binPath),
+      'node_modules/npm/bin/npm-cli.js'
+    )
+  }
+  return fs.realpathSync.native(binPath)
+}
 
 /*@__NO_SIDE_EFFECTS__*/
 const lazyPackageExtensions = () =>
