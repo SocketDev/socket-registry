@@ -3,10 +3,18 @@
 const {
   LICENSE_GLOB,
   LICENSE_GLOB_RECURSIVE,
-  LICENSE_ORIGINAL_GLOB_RECURSIVE,
-  kInternalsSymbol,
-  [kInternalsSymbol]: { getGlobMatcher }
+  LICENSE_ORIGINAL_GLOB_RECURSIVE
 } = /*@__PURE__*/ require('./constants')
+
+let _picomatch
+/*@__NO_SIDE_EFFECTS__*/
+function getPicomatch() {
+  if (_picomatch === undefined) {
+    // The 'picomatch' package is browser safe.
+    _picomatch = /*@__PURE__*/ require('picomatch')
+  }
+  return _picomatch
+}
 
 let _tinyGlobby
 /*@__NO_SIDE_EFFECTS__*/
@@ -44,6 +52,25 @@ async function globLicenses(dirname, options) {
       ...(ignore ? { ignore } : {})
     }
   )
+}
+
+const matcherCache = new Map()
+/*@__NO_SIDE_EFFECTS__*/
+function getGlobMatcher(glob, options) {
+  const patterns = Array.isArray(glob) ? glob : [glob]
+  const key = JSON.stringify({ patterns, options })
+  let matcher = matcherCache.get(key)
+  if (matcher) {
+    return matcher
+  }
+  const picomatch = getPicomatch()
+  matcher = picomatch(patterns, {
+    dot: true,
+    nocase: true,
+    ...options
+  })
+  matcherCache.set(key, matcher)
+  return matcher
 }
 
 module.exports = {

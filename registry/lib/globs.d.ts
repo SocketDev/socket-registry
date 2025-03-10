@@ -1,5 +1,4 @@
 import { GlobOptions as TinyGlobOptions } from 'tinyglobby'
-import constants from './constants'
 import { Remap } from './objects'
 
 declare type GlobOptions = Remap<
@@ -8,12 +7,14 @@ declare type GlobOptions = Remap<
     recursive?: boolean | undefined
   }
 >
-declare type Internals = (typeof constants)[typeof constants.kInternalsSymbol]
 declare const Globs: {
-  getGlobMatcher: Internals['getGlobMatcher']
+  getGlobMatcher: (
+    glob: string | string[] | Readonly<string[]>,
+    options?: object | undefined
+  ) => (path: string) => boolean
   globLicenses(dirname: string, options?: GlobOptions): Promise<string[]>
 }
 declare namespace Globs {
-  export { GlobOptions, Internals }
+  export { GlobOptions }
 }
 export = Globs

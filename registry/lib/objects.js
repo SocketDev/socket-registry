@@ -3,18 +3,52 @@
 const constants = /*@__PURE__*/ require('./constants')
 const { localeCompare } = /*@__PURE__*/ require('./sorts')
 
-const {
-  LOOP_SENTINEL,
-  kInternalsSymbol,
-  [kInternalsSymbol]: {
-    createLazyGetter,
-    defineGetter,
-    defineLazyGetter,
-    defineLazyGetters,
-    objectEntries,
-    objectFromEntries
+const { LOOP_SENTINEL, UNDEFINED_TOKEN } = constants
+
+const { __defineGetter__ } = Object.prototype
+
+/*@__NO_SIDE_EFFECTS__*/
+function createLazyGetter(name, getter, stats) {
+  let lazyValue = UNDEFINED_TOKEN
+  // Dynamically name the getter without using Object.defineProperty.
+  const { [name]: lazyGetter } = {
+    [name]() {
+      if (lazyValue === UNDEFINED_TOKEN) {
+        stats?.initialized?.add(name)
+        lazyValue = getter()
+      }
+      return lazyValue
+    }
   }
-} = constants
+  return lazyGetter
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function defineGetter(object, propKey, getter) {
+  __defineGetter__.call(object, propKey, getter)
+  return object
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function defineLazyGetter(object, propKey, getter, stats) {
+  return defineGetter(object, propKey, createLazyGetter(propKey, getter, stats))
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function defineLazyGetters(object, getterDefObj, stats) {
+  if (getterDefObj !== null && typeof getterDefObj === 'object') {
+    const keys = Reflect.ownKeys(getterDefObj)
+    for (let i = 0, { length } = keys; i < length; i += 1) {
+      const key = keys[i]
+      defineLazyGetter(
+        object,
+        key,
+        createLazyGetter(key, getterDefObj[key], stats)
+      )
+    }
+  }
+  return object
+}
 
 /*@__NO_SIDE_EFFECTS__*/
 function getOwnPropertyValues(obj) {
@@ -59,6 +93,40 @@ function isObject(value) {
 /*@__NO_SIDE_EFFECTS__*/
 function isObjectObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function objectEntries(obj) {
+  if (obj === null || obj === undefined) {
+    return []
+  }
+  const entries = Object.entries(obj)
+  const symbols = Object.getOwnPropertySymbols(obj)
+  for (let i = 0, { length } = symbols; i < length; i += 1) {
+    const symbol = symbols[i]
+    entries.push([symbol, obj[symbol]])
+  }
+  return entries
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function objectFromEntries(entries) {
+  const keyEntries = []
+  const symbolEntries = []
+  for (let i = 0, { length } = entries; i < length; i += 1) {
+    const entry = entries[i]
+    if (typeof entry[0] === 'symbol') {
+      symbolEntries.push(entry)
+    } else {
+      keyEntries.push(entry)
+    }
+  }
+  const object = Object.fromEntries(keyEntries)
+  for (let i = 0, { length } = symbolEntries; i < length; i += 1) {
+    const entry = symbolEntries[i]
+    object[entry[0]] = entry[1]
+  }
+  return object
 }
 
 /*@__NO_SIDE_EFFECTS__*/
