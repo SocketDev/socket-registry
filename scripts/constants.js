@@ -1,6 +1,7 @@
 'use strict'
 
 const registryConstants = require('@socketsecurity/registry/lib/constants')
+const { whichBinSync } = require('@socketsecurity/registry/lib/npm')
 
 let _eslintCompat
 function getEslintCompat() {
@@ -74,24 +75,6 @@ function getDefaultWhichOptions() {
   return _defaultWhichOptions
 }
 
-function which(cmd, options) {
-  const whichFn = getWhich()
-  return whichFn(cmd, {
-    __proto__: null,
-    ...getDefaultWhichOptions(),
-    ...options
-  })
-}
-
-function whichSync(cmd, options) {
-  const whichFn = getWhich()
-  return whichFn.sync(cmd, {
-    __proto__: null,
-    ...getDefaultWhichOptions(),
-    ...options
-  })
-}
-
 const LAZY_LICENSE_CONTENT = () =>
   // Lazily access constants.rootLicensePath.
   getFs().readFileSync(constants.rootLicensePath, 'utf8')
@@ -105,7 +88,8 @@ const lazyEcosystems = () => {
   return Object.freeze(readDirNamesSync(constants.rootPackagesPath))
 }
 
-const lazyGitExecPath = () => whichSync('git')
+const lazyGitExecPath = () =>
+  getWhich().sync('git', { ...getDefaultWhichOptions() })
 
 const lazyGitIgnoreFile = () =>
   getEslintCompat().includeIgnoreFile(
@@ -238,7 +222,8 @@ const lazyTapConfigPath = () =>
   // Lazily access constants.rootPath.
   getPath().join(constants.rootPath, '.taprc')
 
-const lazyTapRunExecPath = () => whichSync('tap-run')
+const lazyTapRunExecPath = () =>
+  whichBinSync('tap-run', { ...getDefaultWhichOptions() })
 
 const lazyTemplatesPath = () => getPath().join(__dirname, 'templates')
 
@@ -266,7 +251,8 @@ const lazyTestNpmPkgLockPath = () =>
   // Lazily access constants.testNpmPath.
   getPath().join(constants.testNpmPath, PACKAGE_LOCK_JSON)
 
-const lazyTsxExecPath = () => whichSync('tsx')
+const lazyTsxExecPath = () =>
+  whichBinSync('tsx', { ...getDefaultWhichOptions() })
 
 const lazyYarnPkgExtsPath = () =>
   // Lazily access constants.rootNodeModulesPath.
@@ -368,10 +354,6 @@ const constants = createConstantsObject(
       tsxExecPath: lazyTsxExecPath,
       yarnPkgExtsPath: lazyYarnPkgExtsPath,
       yarnPkgExtsJsonPath: lazyYarnPkgExtsJsonPath
-    },
-    internals: {
-      which,
-      whichSync
     },
     mixin: registryConstants
   }
