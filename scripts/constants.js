@@ -57,7 +57,7 @@ const {
   REGISTRY,
   TSCONFIG_JSON,
   kInternalsSymbol,
-  [kInternalsSymbol]: { createConstantsObject, readDirNamesSync }
+  [kInternalsSymbol]: { createConstantsObject }
 } = registryConstants
 
 let _defaultWhichOptions
@@ -96,9 +96,14 @@ const LAZY_LICENSE_CONTENT = () =>
   // Lazily access constants.rootLicensePath.
   getFs().readFileSync(constants.rootLicensePath, 'utf8')
 
-const lazyEcosystems = () =>
+const lazyEcosystems = () => {
+  // Lazily require('@socketsecurity/registry/lib/fs').
+  const {
+    readDirNamesSync
+  } = /*@__PURE__*/ require('@socketsecurity/registry/lib/fs')
   // Lazily access constants.rootPackagesPath.
-  Object.freeze(readDirNamesSync(constants.rootPackagesPath))
+  return Object.freeze(readDirNamesSync(constants.rootPackagesPath))
+}
 
 const lazyGitExecPath = () => whichSync('git')
 
@@ -126,9 +131,14 @@ const lazyIgnoreGlobs = () =>
     ])
   ])
 
-const lazyNpmPackageNames = () =>
+const lazyNpmPackageNames = () => {
+  // Lazily require('@socketsecurity/registry/lib/fs').
+  const {
+    readDirNamesSync
+  } = /*@__PURE__*/ require('@socketsecurity/registry/lib/fs')
   // Lazily access constants.npmPackagesPath.
-  Object.freeze(readDirNamesSync(constants.npmPackagesPath))
+  return Object.freeze(readDirNamesSync(constants.npmPackagesPath))
+}
 
 const lazyNpmPackagesPath = () =>
   // Lazily access constants.rootPackagesPath.

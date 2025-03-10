@@ -1,9 +1,8 @@
 'use strict'
 
-const {
-  kInternalsSymbol,
-  [kInternalsSymbol]: { innerReadDirNames, isDirEmptySync, readDirNamesSync }
-} = /*@__PURE__*/ require('./constants')
+const constants = /*@__PURE__*/ require('./constants')
+const { getGlobMatcher } = /*@__PURE__*/ require('./globs')
+const { naturalCompare } = /*@__PURE__*/ require('./sorts')
 const { stripBom } = /*@__PURE__*/ require('./strings')
 
 const defaultRemoveOptions = Object.freeze({
@@ -37,6 +36,48 @@ function getPath() {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
+function innerReadDirNames(dirents, options) {
+  const { includeEmpty, sort } = {
+    __proto__: null,
+    sort: true,
+    includeEmpty: false,
+    ...options
+  }
+  const path = getPath()
+  const names = dirents
+    .filter(
+      d =>
+        d.isDirectory() &&
+        (includeEmpty || !isDirEmptySync(path.join(d.parentPath, d.name)))
+    )
+    .map(d => d.name)
+  return sort ? names.sort(naturalCompare) : names
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function isDirEmptySync(dirname) {
+  const fs = getFs()
+  try {
+    const files = fs.readdirSync(dirname)
+    const { length } = files
+    if (length === 0) {
+      return true
+    }
+    // Lazily access constants.ignoreGlobs.
+    const matcher = getGlobMatcher(constants.ignoreGlobs, { cwd: dirname })
+    let ignoredCount = 0
+    for (let i = 0; i < length; i += 1) {
+      if (matcher(files[i])) {
+        ignoredCount += 1
+      }
+    }
+    return ignoredCount === length
+  } catch (e) {
+    return e?.code === 'ENOENT'
+  }
+}
+
+/*@__NO_SIDE_EFFECTS__*/
 function isSymbolicLinkSync(filepath) {
   const fs = getFs()
   try {
@@ -67,6 +108,18 @@ async function readDirNames(dirname, options) {
   try {
     return innerReadDirNames(
       await fs.promises.readdir(dirname, { withFileTypes: true }),
+      options
+    )
+  } catch {}
+  return []
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function readDirNamesSync(dirname, options) {
+  const fs = getFs()
+  try {
+    return innerReadDirNames(
+      fs.readdirSync(dirname, { withFileTypes: true }),
       options
     )
   } catch {}

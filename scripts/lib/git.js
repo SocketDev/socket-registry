@@ -2,14 +2,11 @@
 
 const constants = require('@socketregistry/scripts/constants')
 const { getGlobMatcher } = require('@socketsecurity/registry/lib/globs')
+const { defineLazyGetters } = require('@socketsecurity/registry/lib/objects')
 const { normalizePath } = require('@socketsecurity/registry/lib/path')
 const { spawn, spawnSync } = require('@socketsecurity/registry/lib/spawn')
 
-const {
-  NPM,
-  kInternalsSymbol,
-  [kInternalsSymbol]: { defineLazyGetters }
-} = constants
+const { NPM } = constants
 
 let _path
 function getPath() {

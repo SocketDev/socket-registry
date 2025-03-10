@@ -6,6 +6,7 @@
 const signalExit = /*@__PURE__*/ require('signal-exit')
 
 let _browserList
+/*@__NO_SIDE_EFFECTS__*/
 function getBrowserList() {
   if (_browserList === undefined) {
     _browserList = /*@__PURE__*/ require('browserslist')
@@ -14,6 +15,7 @@ function getBrowserList() {
 }
 
 let _fs
+/*@__NO_SIDE_EFFECTS__*/
 function getFs() {
   if (_fs === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
@@ -23,50 +25,8 @@ function getFs() {
   return _fs
 }
 
-let _localeCompare
-function localeCompare(x, y) {
-  if (_localeCompare === undefined) {
-    // Lazily call new Intl.Collator() because in Node it can take 10-14ms.
-    _localeCompare = new Intl.Collator().compare
-  }
-  return _localeCompare(x, y)
-}
-
-let _naturalCompare
-function naturalCompare(x, y) {
-  if (_naturalCompare === undefined) {
-    // Lazily call new Intl.Collator() because in Node it can take 10-14ms.
-    _naturalCompare = new Intl.Collator(
-      // The `undefined` locale means it uses the default locale of the user's
-      // environment.
-      undefined,
-      {
-        // Enables numeric sorting: numbers in strings are compared by value,
-        // e.g. 'file2' comes before 'file10' as numbers and not 'file10' before
-        // 'file2' as plain text.
-        numeric: true,
-        // Makes the comparison case-insensitive and ignores diacritics, e.g.
-        // 'a', 'A', and 'á' are treated as equivalent.
-        sensitivity: 'base'
-      }
-    ).compare
-  }
-  return _naturalCompare(x, y)
-}
-
-let _naturalSorter
-function naturalSorter(arrayToSort) {
-  if (_naturalSorter === undefined) {
-    // The 'fast-sort' package is browser safe.
-    const fastSort = /*@__PURE__*/ require('fast-sort')
-    _naturalSorter = fastSort.createNewSortInstance({
-      comparer: naturalCompare
-    })
-  }
-  return _naturalSorter(arrayToSort)
-}
-
 let _pacote
+/*@__NO_SIDE_EFFECTS__*/
 function getPacote() {
   if (_pacote === undefined) {
     _pacote = /*@__PURE__*/ require('pacote')
@@ -74,26 +34,8 @@ function getPacote() {
   return _pacote
 }
 
-let _path
-function getPath() {
-  if (_path === undefined) {
-    // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _path = /*@__PURE__*/ require('path')
-  }
-  return _path
-}
-
-let _picomatch
-function getPicomatch() {
-  if (_picomatch === undefined) {
-    // The 'picomatch' package is browser safe.
-    _picomatch = /*@__PURE__*/ require('picomatch')
-  }
-  return _picomatch
-}
-
 let _process
+/*@__NO_SIDE_EFFECTS__*/
 function getProcess() {
   if (_process === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
@@ -104,6 +46,7 @@ function getProcess() {
 }
 
 let _semver
+/*@__NO_SIDE_EFFECTS__*/
 function getSemver() {
   if (_semver === undefined) {
     // The 'semver' package is browser safe.
@@ -113,6 +56,7 @@ function getSemver() {
 }
 
 let _which
+/*@__NO_SIDE_EFFECTS__*/
 function getWhich() {
   if (_which === undefined) {
     _which = /*@__PURE__*/ require('which')
@@ -121,6 +65,7 @@ function getWhich() {
 }
 
 let _yarnPkgExtensions
+/*@__NO_SIDE_EFFECTS__*/
 function getYarnPkgExtensions() {
   if (_yarnPkgExtensions === undefined) {
     // The '@yarnpkg/extensions' package is browser safe.
@@ -215,7 +160,6 @@ const SOCKET_REGISTRY_NPM_ORG = 'socketregistry'
 const SOCKET_REGISTRY_SCOPE = `@${SOCKET_REGISTRY_NPM_ORG}`
 const SOCKET_REGISTRY_PACKAGE_NAME = `${SOCKET_SECURITY_SCOPE}/registry`
 const SOCKET_REGISTRY_REPO_NAME = 'socket-registry'
-const UNDEFINED_LAZY_VALUE = {}
 const TAP = 'TAP'
 const TEMPLATE_CJS = 'cjs'
 const TEMPLATE_CJS_BROWSER = 'cjs-browser'
@@ -234,26 +178,13 @@ const { __defineGetter__ } = Object.prototype
 const packumentCache = new Map()
 
 const kInternalsSymbol = Symbol(`${SOCKET_REGISTRY_SCOPE}.constants.internals`)
-const matcherCache = new Map()
 
 const internalsMixin = {
   createConstantsObject,
-  createLazyGetter,
-  defineGetter,
-  defineLazyGetter,
-  defineLazyGetters,
-  getGlobMatcher,
-  getIPC,
-  innerReadDirNames,
-  isDirEmptySync,
-  localeCompare,
-  naturalCompare,
-  naturalSorter,
-  objectEntries,
-  objectFromEntries,
-  readDirNamesSync
+  getIPC
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function createConstantsObject(props, options) {
   const {
     getters = {},
@@ -291,12 +222,13 @@ function createConstantsObject(props, options) {
   return Object.freeze(object)
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function createLazyGetter(name, getter, stats) {
-  let lazyValue = UNDEFINED_LAZY_VALUE
+  let lazyValue = UNDEFINED_TOKEN
   // Dynamically name the getter without using Object.defineProperty.
   const { [name]: lazyGetter } = {
     [name]() {
-      if (lazyValue === UNDEFINED_LAZY_VALUE) {
+      if (lazyValue === UNDEFINED_TOKEN) {
         stats?.initialized?.add(name)
         lazyValue = getter()
       }
@@ -306,15 +238,18 @@ function createLazyGetter(name, getter, stats) {
   return lazyGetter
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function defineGetter(object, propKey, getter) {
   __defineGetter__.call(object, propKey, getter)
   return object
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function defineLazyGetter(object, propKey, getter, stats) {
   return defineGetter(object, propKey, createLazyGetter(propKey, getter, stats))
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function defineLazyGetters(object, getterDefObj, stats) {
   if (getterDefObj !== null && typeof getterDefObj === 'object') {
     const keys = Reflect.ownKeys(getterDefObj)
@@ -330,70 +265,33 @@ function defineLazyGetters(object, getterDefObj, stats) {
   return object
 }
 
-function getGlobMatcher(glob, options) {
-  const patterns = Array.isArray(glob) ? glob : [glob]
-  const key = JSON.stringify({ patterns, options })
-  let matcher = matcherCache.get(key)
-  if (matcher) {
-    return matcher
+/*@__NO_SIDE_EFFECTS__*/
+function envAsBoolean(value) {
+  return typeof value === 'string'
+    ? value === '1' || value.toLowerCase() === 'true'
+    : !!value
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function envAsString(value) {
+  if (typeof value === 'string') {
+    return value
   }
-  const picomatch = getPicomatch()
-  matcher = picomatch(patterns, {
-    dot: true,
-    nocase: true,
-    ...options
-  })
-  matcherCache.set(key, matcher)
-  return matcher
+  if (value === null || value === undefined) {
+    return ''
+  }
+  return String(value)
 }
 
 // ipcPromise is defined inside the LAZY_IPC assignment IIFE below.
 let ipcPromise
+/*@__NO_SIDE_EFFECTS__*/
 async function getIPC(key) {
   const data = await ipcPromise
   return key === undefined ? data : data[key]
 }
 
-function innerReadDirNames(dirents, options) {
-  const { includeEmpty, sort } = {
-    __proto__: null,
-    sort: true,
-    includeEmpty: false,
-    ...options
-  }
-  const path = getPath()
-  const names = dirents
-    .filter(
-      d =>
-        d.isDirectory() &&
-        (includeEmpty || !isDirEmptySync(path.join(d.parentPath, d.name)))
-    )
-    .map(d => d.name)
-  return sort ? names.sort(naturalCompare) : names
-}
-
-function isDirEmptySync(dirname) {
-  const fs = getFs()
-  try {
-    const files = fs.readdirSync(dirname)
-    const { length } = files
-    if (length === 0) {
-      return true
-    }
-    // Lazily access constants.ignoreGlobs.
-    const matcher = getGlobMatcher(constants.ignoreGlobs, { cwd: dirname })
-    let ignoredCount = 0
-    for (let i = 0; i < length; i += 1) {
-      if (matcher(files[i])) {
-        ignoredCount += 1
-      }
-    }
-    return ignoredCount === length
-  } catch (e) {
-    return e?.code === 'ENOENT'
-  }
-}
-
+/*@__NO_SIDE_EFFECTS__*/
 function objectEntries(obj) {
   if (obj === null || obj === undefined) {
     return []
@@ -407,6 +305,7 @@ function objectEntries(obj) {
   return entries
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 function objectFromEntries(entries) {
   const keyEntries = []
   const symbolEntries = []
@@ -426,40 +325,46 @@ function objectFromEntries(entries) {
   return object
 }
 
-function readDirNamesSync(dirname, options) {
+/*@__NO_SIDE_EFFECTS__*/
+function resolveBinPath(binPath) {
   const fs = getFs()
-  try {
-    return innerReadDirNames(
-      fs.readdirSync(dirname, { withFileTypes: true }),
-      options
-    )
-  } catch {}
-  return []
+  // Lazily access constants.WIN32.
+  if (constants.WIN32) {
+    // Trim trailing .cmd and .ps1 extensions.
+    const noCmdOrPs1Ext = binPath.replace(/\.(?:cmd|ps1)$/, '')
+    if (binPath !== noCmdOrPs1Ext && fs.existsSync(noCmdOrPs1Ext)) {
+      binPath = noCmdOrPs1Ext
+    }
+  }
+  return fs.realpathSync.native(binPath)
 }
 
-// https://nodejs.org/api/all.html#all_cli_--disable-warningcode-or-type
+/*@__NO_SIDE_EFFECTS__*/
 const LAZY_SUPPORTS_NODE_DISABLE_WARNING_FLAG = () =>
+  // https://nodejs.org/api/all.html#all_cli_--disable-warningcode-or-type
   // Lazily access constants.NODE_VERSION.
   getSemver().satisfies(constants.NODE_VERSION, '>=21.3.0||^20.11.0')
 
-// https://nodejs.org/api/all.html#all_cli_--run
+/*@__NO_SIDE_EFFECTS__*/
 const LAZY_SUPPORTS_NODE_RUN = () =>
+  // https://nodejs.org/api/all.html#all_cli_--run
   // Lazily access constants.NODE_VERSION.
   getSemver().satisfies(constants.NODE_VERSION, '>=22.3.0')
 
-// https://nodejs.org/docs/latest-v22.x/api/all.html#all_cli_--experimental-require-module
+/*@__NO_SIDE_EFFECTS__*/
 const LAZY_SUPPORTS_NODE_REQUIRE_MODULE = () =>
+  // https://nodejs.org/docs/latest-v22.x/api/all.html#all_cli_--experimental-require-module
   // Lazily access constants.NODE_VERSION.
   getSemver().satisfies(constants.NODE_VERSION, '>=22.12')
 
+/*@__NO_SIDE_EFFECTS__*/
 const LAZY_SUPPORTS_PROCESS_SEND = () =>
   // Forked subprocesses have the process.send method.
   // https://nodejs.org/api/child_process.html#subprocesssendmessage-sendhandle-options-callback
   typeof getProcess().send === 'function'
 
+/*@__NO_SIDE_EFFECTS__*/
 const LAZY_ENV = () => {
-  // Lazily require('./env').
-  const { envAsBoolean, envAsString } = /*@__PURE__*/ require('./env')
   const { env } = getProcess()
   return Object.freeze({
     __proto__: null,
@@ -486,12 +391,15 @@ const LAZY_ENV = () => {
   })
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 const LAZY_NODE_VERSION = () => getProcess().versions.node
 
+/*@__NO_SIDE_EFFECTS__*/
 const LAZY_PACKAGE_DEFAULT_NODE_RANGE = () =>
   // Lazily access constants.maintainedNodeVersions.
   `>=${constants.maintainedNodeVersions.last}`
 
+/*@__NO_SIDE_EFFECTS__*/
 const LAZY_IPC = /*@__PURE__*/ (() => {
   const target = { __proto__: null }
   // Mutable handler to simulate a frozen target.
@@ -550,13 +458,17 @@ const LAZY_IPC = /*@__PURE__*/ (() => {
       setTimeout(finish, 1000)
     }
   )
+  /*@__NO_SIDE_EFFECTS__*/
   return () => proxy
 })()
 
+/*@__NO_SIDE_EFFECTS__*/
 const LAZY_WIN32 = () => getProcess().platform === 'win32'
 
+/*@__NO_SIDE_EFFECTS__*/
 const lazyExecPath = () => getProcess().execPath
 
+/*@__NO_SIDE_EFFECTS__*/
 const lazyIgnoreGlobs = () =>
   Object.freeze([
     // Most of these ignored files can be included specifically if included in the
@@ -598,6 +510,7 @@ const lazyIgnoreGlobs = () =>
     '**/Thumbs.db'
   ])
 
+/*@__NO_SIDE_EFFECTS__*/
 const lazyMaintainedNodeVersions = () => {
   // Under the hood browserlist uses the node-releases package which is out of date:
   // https://github.com/chicoxyzzy/node-releases/issues/37
@@ -606,38 +519,38 @@ const lazyMaintainedNodeVersions = () => {
   // https://nodejs.org/en/about/previous-releases#looking-for-latest-release-of-a-version-branch
   //
   // Updated March 5th, 2025.
-  const manualLast = '18.20.7'
-  const manualPrev = '20.18.3'
-  const manualCurr = '22.14.0'
   const manualNext = '23.9.0'
+  const manualCurr = '22.14.0'
+  const manualPrev = '20.18.3'
+  const manualLast = '18.20.7'
 
   const browsersList = getBrowserList()
+  const semver = getSemver()
+
   const query = browsersList('maintained node versions')
     // Trim value, e.g. 'node 22.5.0' to '22.5.0'.
     .map(s => s.slice(5 /*'node '.length*/))
-    .sort(naturalCompare)
+  // browsersList returns results in descending order.
+  const queryNext = query.at(0) ?? manualNext
+  const queryCurr = query.at(1) ?? manualCurr
+  const queryPrev = query.at(2) ?? manualPrev
+  const queryLast = query.at(-1) ?? manualLast
 
-  const queryLast = query.at(0) ?? manualLast
-  const queryPrev = query.at(-3) ?? manualPrev
-  const queryCurr = query.at(-2) ?? manualCurr
-  const queryNext = query.at(-1) ?? manualNext
-
-  const semver = getSemver()
-  const last = semver.maxSatisfying(
-    [queryLast, manualLast],
-    `^${semver.major(queryLast)}`
-  )
-  const previous = semver.maxSatisfying(
-    [queryPrev, manualPrev],
-    `^${semver.major(queryPrev)}`
+  const next = semver.maxSatisfying(
+    [queryNext, manualNext],
+    `^${semver.major(queryNext)}`
   )
   const current = semver.maxSatisfying(
     [queryCurr, manualCurr],
     `^${semver.major(queryCurr)}`
   )
-  const next = semver.maxSatisfying(
-    [queryNext, manualNext],
-    `^${semver.major(queryNext)}`
+  const previous = semver.maxSatisfying(
+    [queryPrev, manualPrev],
+    `^${semver.major(queryPrev)}`
+  )
+  const last = semver.maxSatisfying(
+    [queryLast, manualLast],
+    `^${semver.major(queryLast)}`
   )
   return Object.freeze(
     Object.assign([last, previous, current, next], {
@@ -649,6 +562,7 @@ const lazyMaintainedNodeVersions = () => {
   )
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 const lazyNodeNoWarningsFlags = () =>
   Object.freeze(
     // Lazily access constants.SUPPORTS_NODE_DISABLE_WARNING_FLAG.
@@ -657,11 +571,12 @@ const lazyNodeNoWarningsFlags = () =>
       : ['--no-warnings']
   )
 
-const lazyNpmExecPath = () => {
-  const which = getWhich()
-  return which.sync(NPM)
-}
+/*@__NO_SIDE_EFFECTS__*/
+const lazyNpmExecPath = () =>
+  // Will throw if not found.
+  resolveBinPath(getWhich().sync(NPM))
 
+/*@__NO_SIDE_EFFECTS__*/
 const lazyPackageExtensions = () =>
   Object.freeze(
     [
@@ -691,14 +606,21 @@ const lazyPackageExtensions = () =>
           }
         }
       ]
-    ].sort((a, b) =>
-      localeCompare(
-        a[0].slice(0, a[0].lastIndexOf('@')),
-        b[0].slice(0, b[0].lastIndexOf('@'))
-      )
-    )
+    ].sort((a_, b_) => {
+      const a = a_[0].slice(0, a_[0].lastIndexOf('@'))
+      const b = b_[0].slice(0, b_[0].lastIndexOf('@'))
+      // Simulate the default compareFn of String.prototype.sort.
+      if (a < b) {
+        return -1
+      }
+      if (a > b) {
+        return 1
+      }
+      return 0
+    })
   )
 
+/*@__NO_SIDE_EFFECTS__*/
 const lazyPacoteCachePath = () => {
   const pacote = getPacote()
   const { constructor: PacoteFetcherBase } = Reflect.getPrototypeOf(
@@ -707,6 +629,7 @@ const lazyPacoteCachePath = () => {
   return new PacoteFetcherBase(/*dummy package spec*/ 'x', {}).cache
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 const lazyParseArgsConfig = () =>
   Object.freeze({
     __proto__: null,
@@ -725,6 +648,7 @@ const lazyParseArgsConfig = () =>
     strict: false
   })
 
+/*@__NO_SIDE_EFFECTS__*/
 const lazySkipTestsByEcosystem = () =>
   Object.freeze({
     __proto__: null,
@@ -765,10 +689,14 @@ const lazySkipTestsByEcosystem = () =>
     ])
   })
 
-const lazySpinner = () =>
+/*@__NO_SIDE_EFFECTS__*/
+const lazySpinner = () => {
   // Lazily require('./spinner').Spinner to avoid cyclical imports.
-  require('./spinner').Spinner()
+  const { Spinner } = /*@__PURE__*/ require('./spinner')
+  return Spinner()
+}
 
+/*@__NO_SIDE_EFFECTS__*/
 const lazyWin32EnsureTestsByEcosystem = () =>
   Object.freeze({
     __proto__: null,

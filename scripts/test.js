@@ -7,11 +7,7 @@ void (async () => {
   await runBin(
     // Lazily access constants.tapRunExecPath.
     constants.tapRunExecPath,
-    [
-      // Lazily access constants.nodeNoWarningsFlags.
-      ...constants.nodeNoWarningsFlags.flatMap(f => ['--node-arg', f]),
-      ...process.argv.slice(2)
-    ],
+    process.argv.slice(2),
     {
       // Lazily access constants.rootPath.
       cwd: constants.rootPath,

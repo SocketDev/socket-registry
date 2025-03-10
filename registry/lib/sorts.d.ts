@@ -1,10 +1,9 @@
-import constants from './constants'
+import { IFastSort } from 'fast-sort'
 
-declare type Internals = (typeof constants)[typeof constants.kInternalsSymbol]
 declare const Sorts: {
-  localeCompare: Internals['localeCompare']
-  naturalCompare: Internals['naturalCompare']
-  naturalSorter: Internals['naturalSorter']
+  localeCompare: Intl.Collator['compare']
+  naturalCompare: Intl.Collator['compare']
+  naturalSorter: <T>(arrayToSort: T[]) => IFastSort<T>
 }
 declare namespace Sorts {}
 export = Sorts

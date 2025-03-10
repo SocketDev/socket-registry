@@ -4,6 +4,26 @@ const constants = /*@__PURE__*/ require('./constants')
 const { isDebug } = /*@__PURE__*/ require('./debug')
 const { spawn } = /*@__PURE__*/ require('./spawn')
 
+let _fs
+/*@__NO_SIDE_EFFECTS__*/
+function getFs() {
+  if (_fs === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _fs = /*@__PURE__*/ require('fs')
+  }
+  return _fs
+}
+
+let _which
+/*@__NO_SIDE_EFFECTS__*/
+function getWhich() {
+  if (_which === undefined) {
+    _which = /*@__PURE__*/ require('which')
+  }
+  return _which
+}
+
 const auditFlags = new Set(['--audit', '--no-audit'])
 
 const fundFlags = new Set(['--fund', '--no-fund'])
@@ -35,9 +55,13 @@ function execNpm(args, options) {
     // one level quieter.
     useDebug || npmArgs.some(isLoglevelFlag) ? [] : ['--loglevel', 'warn']
   return spawn(
-    // Lazily access constants.npmExecPath.
-    constants.npmExecPath,
+    // Lazily access constants.execPath.
+    constants.execPath,
     [
+      // Lazily access constants.nodeNoWarningsFlags.
+      ...constants.nodeNoWarningsFlags,
+      // Lazily access constants.npmExecPath.
+      constants.npmExecPath,
       // Even though '--loglevel=error' is passed npm will still run through
       // code paths for 'audit' and 'fund' unless '--no-audit' and '--no-fund'
       // flags are passed.
@@ -82,27 +106,33 @@ function isProgressFlag(cmdArg) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function runBin(binPath, args, options) {
+function resolveBinPath(binPath) {
+  const fs = getFs()
   // Lazily access constants.WIN32.
-  const { WIN32 } = constants
+  if (constants.WIN32) {
+    // Trim trailing .cmd and .ps1 extensions.
+    const noCmdOrPs1Ext = binPath.replace(/\.(?:cmd|ps1)$/, '')
+    if (binPath !== noCmdOrPs1Ext && fs.existsSync(noCmdOrPs1Ext)) {
+      binPath = noCmdOrPs1Ext
+    }
+  }
+  return fs.realpathSync.native(binPath)
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function runBin(binPath, args, options) {
   return spawn(
     // Lazily access constants.execPath.
-    WIN32 ? binPath : constants.execPath,
+    constants.execPath,
     [
-      ...(WIN32
-        ? []
-        : [
-            // Lazily access constants.nodeNoWarningsFlags.
-            ...constants.nodeNoWarningsFlags,
-            binPath
-          ]),
+      // Lazily access constants.nodeNoWarningsFlags.
+      ...constants.nodeNoWarningsFlags,
+      binPath.includes('/') || binPath.includes('\\')
+        ? resolveBinPath(binPath)
+        : whichBinSync(binPath),
       ...args
     ],
-    {
-      __proto__: null,
-      ...options,
-      shell: true
-    }
+    options
   )
 }
 
@@ -111,18 +141,16 @@ function runScript(scriptName, args, options) {
   const { prepost, ...spawnOptions } = { __proto__: null, ...options }
   // Lazily access constants.SUPPORTS_NODE_RUN.
   const useNodeRun = !prepost && constants.SUPPORTS_NODE_RUN
-  // Lazily access constants.execPath and constants.npmExecPath.
-  const cmd = useNodeRun ? constants.execPath : constants.npmExecPath
   return spawn(
-    cmd,
+    // Lazily access constants.execPath.
+    constants.execPath,
     [
+      // Lazily access constants.nodeNoWarningsFlags.
+      ...constants.nodeNoWarningsFlags,
       ...(useNodeRun
-        ? [
-            // Lazily access constants.nodeNoWarningsFlags.
-            ...constants.nodeNoWarningsFlags,
-            '--run'
-          ]
-        : ['run']),
+        ? ['--run']
+        : // Lazily access constants.npmExecPath.
+          [constants.npmExecPath, 'run']),
       scriptName,
       ...args
     ],
@@ -134,12 +162,28 @@ function runScript(scriptName, args, options) {
   )
 }
 
+async function whichBin(binName, options) {
+  const which = getWhich()
+  // Depending on options `which` may throw if `binName` is not found.
+  // The default behavior is to throw when `binName` is not found.
+  return resolveBinPath(await which(binName, options))
+}
+
+function whichBinSync(binName, options) {
+  // Depending on options `which` may throw if `binName` is not found.
+  // The default behavior is to throw when `binName` is not found.
+  return resolveBinPath(getWhich().sync(binName, options))
+}
+
 module.exports = {
   execNpm,
   isAuditFlag,
   isFundFlag,
   isLoglevelFlag,
   isProgressFlag,
+  resolveBinPath,
   runBin,
-  runScript
+  runScript,
+  whichBin,
+  whichBinSync
 }

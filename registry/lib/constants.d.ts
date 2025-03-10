@@ -1,17 +1,8 @@
 /// <reference types="node" />
 import { Serializable } from 'node:child_process'
-import { IFastSort } from 'fast-sort'
 import { Spinner } from './spinner'
 
 declare const kInternalsSymbol: unique symbol
-declare function objectEntries<T>(
-  obj: { [key: string | symbol]: T } | ArrayLike<T> | null | undefined
-): [string | symbol, T][]
-declare function objectEntries(obj: {}): [string | symbol, any][]
-declare function objectFromEntries<T = any>(
-  entries: Iterable<readonly [string | symbol, T]>
-): { [k: string | symbol]: T }
-declare function objectFromEntries(entries: Iterable<readonly any[]>): any
 declare type ConstantsObjectOptions = {
   getters?: GetterDefObj | undefined
   internals?: object | undefined
@@ -32,64 +23,14 @@ interface Internals {
     props: object,
     options?: ConstantsObjectOptions | undefined
   ) => Readonly<object>
-  readonly createLazyGetter: <T>(
-    name: PropertyKey,
-    getter: () => T,
-    stats?: LazyGetterStats | undefined
-  ) => () => T
-  readonly defineGetter: <T>(
-    object: object,
-    propKey: PropertyKey,
-    getter: () => T
-  ) => object
-  readonly defineLazyGetter: <T>(
-    object: object,
-    propKey: PropertyKey,
-    getter: () => T,
-    stats?: LazyGetterStats | undefined
-  ) => object
-  readonly defineLazyGetters: (
-    object: object,
-    getterDefObj: GetterDefObj | undefined,
-    stats?: LazyGetterStats | undefined
-  ) => object
-  readonly getGlobMatcher: (
-    glob: string | string[] | Readonly<string[]>,
-    options?: object | undefined
-  ) => (path: string) => boolean
   readonly getIPC: {
     (): Promise<IPC>
     <K extends keyof IPC | undefined>(
       key?: K | undefined
     ): Promise<K extends keyof IPC ? IPC[K] : IPC>
   }
-  readonly innerReadDirNames: (
-    dirents: Array<{
-      isDirectory(): boolean
-      parentPath: string
-      name: string
-    }>,
-    options?: {
-      includeEmpty?: boolean | undefined
-      sort?: boolean | undefined
-    }
-  ) => string[]
-  readonly isDirEmptySync: (dirname: string) => boolean
   get lazyGetterStats(): { initialized: Set<PropertyKey> }
-  readonly localeCompare: Intl.Collator['compare']
-  readonly naturalCompare: Intl.Collator['compare']
-  readonly naturalSorter: <T>(arrayToSort: T[]) => IFastSort<T>
-  readonly objectEntries: typeof objectEntries
-  readonly objectFromEntries: typeof objectFromEntries
-  readonly readDirNamesSync: (
-    dirname: string,
-    options?: {
-      includeEmpty?: boolean | undefined
-      sort?: boolean | undefined
-    }
-  ) => string[]
 }
-declare type LazyGetterStats = { initialized?: Set<PropertyKey> | undefined }
 interface MaintainedNodeVersions extends Array<string> {
   readonly last: string
   readonly previous: string
@@ -243,7 +184,6 @@ declare namespace Constants {
     GetterDefObj,
     Internals,
     IPC,
-    LazyGetterStats,
     MaintainedNodeVersions,
     ParseArgsConfig
   }
