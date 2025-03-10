@@ -112,8 +112,8 @@ function resolveBinPath(binPath) {
   const fs = getFs()
   // Lazily access constants.WIN32.
   if (constants.WIN32) {
-    // Trim trailing .cmd and .ps1 extensions.
-    const noCmdOrPs1Ext = binPath.replace(/\.(?:cmd|ps1)$/, '')
+    // Trim case-insensitive trailing .cmd and .ps1 extensions.
+    const noCmdOrPs1Ext = binPath.replace(/\.(?:cmd|ps1)$/i, '')
     if (binPath !== noCmdOrPs1Ext && fs.existsSync(noCmdOrPs1Ext)) {
       binPath = noCmdOrPs1Ext
     }
