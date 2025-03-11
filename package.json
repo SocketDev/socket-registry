@@ -103,7 +103,7 @@
     "tinyglobby": "^0.2.12",
     "tsx": "^4.19.3",
     "typescript": "5.8.2",
-    "typescript-eslint": "^8.26.0",
+    "typescript-eslint": "^8.26.1",
     "update-browserslist-db": "^1.1.3",
     "which": "^5.0.0"
   },
