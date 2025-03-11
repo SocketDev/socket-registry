@@ -57,6 +57,7 @@ const {
   TEMPLATE_ES_SHIM_CONSTRUCTOR,
   TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
   TEMPLATE_ES_SHIM_STATIC_METHOD,
+  UTF8,
   npmPackagesPath,
   rootPath,
   tsLibsAvailable,
@@ -129,7 +130,7 @@ async function readLicenses(dirname) {
   return await Promise.all(
     (await globLicenses(dirname)).map(async p => ({
       name: path.basename(p),
-      content: await fs.readFile(p, 'utf8')
+      content: await fs.readFile(p, UTF8)
     }))
   )
 }
@@ -406,7 +407,7 @@ void (async () => {
     ) {
       filesFieldAdditions.push(originalLicenseName)
     }
-    fs.writeFile(path.join(pkgPath, originalLicenseName), content, 'utf8')
+    fs.writeFile(path.join(pkgPath, originalLicenseName), content, UTF8)
   }
   if (filesFieldAdditions.length) {
     // Load the freshly written package.json and edit its "exports" and "files" fields.

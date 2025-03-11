@@ -24,7 +24,7 @@ const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { naturalCompare } = require('@socketsecurity/registry/lib/sorts')
 const { biomeFormat } = require('@socketsecurity/registry/lib/strings')
 
-const { AT_LATEST, NPM, UNLICENSED } = constants
+const { AT_LATEST, NPM, UNLICENSED, UTF8 } = constants
 
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
@@ -173,6 +173,6 @@ void (async () => {
   const output = await biomeFormat(JSON.stringify(manifest), {
     filepath: registryManifestJsonPath
   })
-  await fs.writeFile(registryManifestJsonPath, output, 'utf8')
+  await fs.writeFile(registryManifestJsonPath, output, UTF8)
   spinner.stop()
 })()

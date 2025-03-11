@@ -36,7 +36,8 @@ const {
   TEMPLATE_CJS_ESM,
   TEMPLATE_ES_SHIM_CONSTRUCTOR,
   TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
-  TEMPLATE_ES_SHIM_STATIC_METHOD
+  TEMPLATE_ES_SHIM_STATIC_METHOD,
+  UTF8
 } = constants
 
 const eta = new (require('eta').Eta)()
@@ -190,7 +191,7 @@ async function renderAction(action) {
   const { 0: filepath, 1: dataRaw } = action
   const data = typeof dataRaw === 'function' ? await dataRaw() : dataRaw
   const ext = path.extname(filepath)
-  const content = await fs.readFile(filepath, 'utf8')
+  const content = await fs.readFile(filepath, UTF8)
   const prepared = prepareTemplate(content)
   const modified = await eta.renderStringAsync(prepared, data)
   return ext === '.json' || ext === '.md'
@@ -200,7 +201,7 @@ async function renderAction(action) {
 
 async function writeAction(action) {
   const { 0: filepath } = action
-  return await fs.writeFile(filepath, await renderAction(action), 'utf8')
+  return await fs.writeFile(filepath, await renderAction(action), UTF8)
 }
 
 module.exports = {

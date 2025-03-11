@@ -57,6 +57,7 @@ const {
   README_MD,
   REGISTRY,
   TSCONFIG_JSON,
+  UTF8,
   kInternalsSymbol,
   [kInternalsSymbol]: { createConstantsObject }
 } = registryConstants
@@ -77,7 +78,7 @@ function getDefaultWhichOptions() {
 
 const LAZY_LICENSE_CONTENT = () =>
   // Lazily access constants.rootLicensePath.
-  getFs().readFileSync(constants.rootLicensePath, 'utf8')
+  getFs().readFileSync(constants.rootLicensePath, UTF8)
 
 const lazyEcosystems = () => {
   // Lazily require('@socketsecurity/registry/lib/fs').

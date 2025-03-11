@@ -42,6 +42,7 @@ const {
   README_GLOB,
   SOCKET_OVERRIDE_SCOPE,
   SOCKET_REGISTRY_SCOPE,
+  UTF8,
   ignoreGlobs
 } = constants
 
@@ -230,7 +231,7 @@ for (const eco of constants.ecosystems) {
 
         it(`should have a MIT ${LICENSE} file`, async () => {
           assert.ok(files.includes(LICENSE))
-          assert.ok((await fs.readFile(pkgLicensePath, 'utf8')).includes('MIT'))
+          assert.ok((await fs.readFile(pkgLicensePath, UTF8)).includes('MIT'))
         })
 
         const manifestData = getManifestData(eco, sockRegPkgName)

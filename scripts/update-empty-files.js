@@ -9,7 +9,7 @@ const { glob: tinyGlob } = require('tinyglobby')
 const constants = require('@socketregistry/scripts/constants')
 const { getModifiedFiles } = require('@socketregistry/scripts/lib/git')
 
-const { EMPTY_FILE, ignoreGlobs, npmTemplatesPath, rootPath } = constants
+const { EMPTY_FILE, UTF8, ignoreGlobs, npmTemplatesPath, rootPath } = constants
 
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
@@ -32,13 +32,13 @@ void (async () => {
   if (autoFile === undefined) {
     return
   }
-  const OLD_EMPTY_CONTENT = await fs.readFile(autoFile, 'utf8')
-  const OLD_EMPTY_CONTENT_BYTES = Buffer.byteLength(OLD_EMPTY_CONTENT, 'utf8')
+  const OLD_EMPTY_CONTENT = await fs.readFile(autoFile, UTF8)
+  const OLD_EMPTY_CONTENT_BYTES = Buffer.byteLength(OLD_EMPTY_CONTENT, UTF8)
 
   await Promise.all(
     autoFiles.map(async filepath => {
       if ((await fs.stat(filepath)).size === OLD_EMPTY_CONTENT_BYTES) {
-        await fs.writeFile(filepath, EMPTY_FILE, 'utf8')
+        await fs.writeFile(filepath, EMPTY_FILE, UTF8)
       }
     })
   )
@@ -52,9 +52,9 @@ void (async () => {
     ).map(async filepath => {
       if (
         (await fs.stat(filepath)).size === OLD_EMPTY_CONTENT_BYTES &&
-        (await fs.readFile(filepath, 'utf8')) === OLD_EMPTY_CONTENT
+        (await fs.readFile(filepath, UTF8)) === OLD_EMPTY_CONTENT
       ) {
-        await fs.writeFile(filepath, EMPTY_FILE, 'utf8')
+        await fs.writeFile(filepath, EMPTY_FILE, UTF8)
       }
     })
   )

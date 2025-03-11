@@ -5,7 +5,7 @@ const fs = require('node:fs/promises')
 const constants = require('@socketregistry/scripts/constants')
 const { globLicenses } = require('@socketsecurity/registry/lib/globs')
 
-const { LICENSE, LICENSE_CONTENT, ignoreGlobs, rootPath } = constants
+const { LICENSE, LICENSE_CONTENT, UTF8, ignoreGlobs, rootPath } = constants
 
 void (async () => {
   await Promise.all(
@@ -15,6 +15,6 @@ void (async () => {
         ignoreOriginals: true,
         ignore: [LICENSE, 'scripts/templates', ...ignoreGlobs]
       })
-    ).map(licensePath => fs.writeFile(licensePath, LICENSE_CONTENT, 'utf8'))
+    ).map(licensePath => fs.writeFile(licensePath, LICENSE_CONTENT, UTF8))
   )
 })()

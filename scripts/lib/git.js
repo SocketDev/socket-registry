@@ -6,7 +6,7 @@ const { defineLazyGetters } = require('@socketsecurity/registry/lib/objects')
 const { normalizePath } = require('@socketsecurity/registry/lib/path')
 const { spawn, spawnSync } = require('@socketsecurity/registry/lib/spawn')
 
-const { NPM } = constants
+const { NPM, UTF8 } = constants
 
 let _path
 function getPath() {
@@ -29,7 +29,7 @@ const gitDiffSpawnArgs = defineLazyGetters(
         // Lazily access constants.rootPath.
         cwd: constants.rootPath,
         // Encoding option used for spawnSync.
-        encoding: 'utf8'
+        encoding: UTF8
       }
     ],
     staged: () => [
@@ -41,7 +41,7 @@ const gitDiffSpawnArgs = defineLazyGetters(
         cwd: constants.rootPath,
         shell: true,
         // Encoding option used for spawnSync.
-        encoding: 'utf8'
+        encoding: UTF8
       }
     ]
   }
