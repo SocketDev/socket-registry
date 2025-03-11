@@ -9,7 +9,7 @@ const readYamlFile = require('read-yaml-file')
 const constants = require('@socketregistry/scripts/constants')
 const { isModified } = require('@socketregistry/scripts/lib/git')
 
-const { tapCiConfigPath, tapConfigPath } = constants
+const { UTF8, tapCiConfigPath, tapConfigPath } = constants
 
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
@@ -30,5 +30,5 @@ void (async () => {
       passes: true
     }
   )}`
-  await fs.writeFile(tapCiConfigPath, content, 'utf8')
+  await fs.writeFile(tapCiConfigPath, content, UTF8)
 })()

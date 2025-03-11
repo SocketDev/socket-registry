@@ -5,6 +5,8 @@ const { getGlobMatcher } = /*@__PURE__*/ require('./globs')
 const { naturalCompare } = /*@__PURE__*/ require('./sorts')
 const { stripBom } = /*@__PURE__*/ require('./strings')
 
+const { UTF8 } = constants
+
 const defaultRemoveOptions = Object.freeze({
   __proto__: null,
   force: true,
@@ -88,7 +90,7 @@ function isSymbolicLinkSync(filepath) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function parse(filepath, content, reviver, shouldThrow) {
-  const str = Buffer.isBuffer(content) ? content.toString('utf8') : content
+  const str = Buffer.isBuffer(content) ? content.toString(UTF8) : content
   try {
     return JSON.parse(stripBom(str), reviver)
   } catch (e) {
@@ -134,7 +136,7 @@ async function readJson(filepath, options) {
   const { reviver, throws, ...fsOptionsRaw } = { __proto__: null, ...options }
   const fsOptions = {
     __proto__: null,
-    encoding: 'utf8',
+    encoding: UTF8,
     ...fsOptionsRaw
   }
   const fs = getFs()
@@ -155,7 +157,7 @@ function readJsonSync(filepath, options) {
   const { reviver, throws, ...fsOptionsRaw } = { __proto__: null, ...options }
   const fsOptions = {
     __proto__: null,
-    encoding: 'utf8',
+    encoding: UTF8,
     ...fsOptionsRaw
   }
   const fs = getFs()
@@ -220,7 +222,7 @@ async function writeJson(filepath, json, options) {
   }
   const fsOptions = {
     __proto__: null,
-    encoding: 'utf8',
+    encoding: UTF8,
     ...fsOptionsRaw
   }
   const fs = getFs()
@@ -239,7 +241,7 @@ function writeJsonSync(filepath, json, options) {
   }
   const fsOptions = {
     __proto__: null,
-    encoding: 'utf8',
+    encoding: UTF8,
     ...fsOptionsRaw
   }
   const fs = getFs()

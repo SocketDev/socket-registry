@@ -6,7 +6,7 @@ import { describe, it } from 'node:test'
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 
-const { NPM, testNpmNodeWorkspacesPath } = constants
+const { NPM, UTF8, testNpmNodeWorkspacesPath } = constants
 
 const eco = NPM
 const sockRegPkgName = path.basename(__filename, '.test.ts')
@@ -27,7 +27,7 @@ describe(
       const lockbPath = path.join(testNpmFixturesPath, 'fixture-bun.lockb')
       const yarnLockPath = path.join(testNpmFixturesPath, 'fixture-yarn.lock')
       const lockb = readFileSync(lockbPath)
-      const yarnLock = readFileSync(yarnLockPath, 'utf8')
+      const yarnLock = readFileSync(yarnLockPath, UTF8)
       assert.strictEqual(hyriousBunLockb.parse(lockb), yarnLock)
     })
   }

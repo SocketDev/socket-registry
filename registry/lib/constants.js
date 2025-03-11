@@ -129,6 +129,8 @@ const COLUMN_LIMIT = 80
 const EMPTY_FILE = '/* empty */\n'
 const ESLINT_CONFIG_JS = 'eslint.config.js'
 const ESNEXT = 'esnext'
+const EXT_CMD = '.cmd'
+const EXT_PS1 = '.ps1'
 const EXTENSIONS = 'extensions'
 const EXTENSIONS_JSON = `${EXTENSIONS}.json`
 const HIDDEN_PACKAGE_LOCK_JSON = `.${PACKAGE_LOCK_JSON}`
@@ -182,6 +184,7 @@ const TSCONFIG_JSON = 'tsconfig.json'
 const UNDEFINED_TOKEN = {}
 const UNLICENCED = 'UNLICENCED'
 const UNLICENSED = 'UNLICENSED'
+const UTF8 = 'utf8'
 const VITEST = 'VITEST'
 
 const { __defineGetter__ } = Object.prototype
@@ -821,6 +824,8 @@ const constants = createConstantsObject(
     ENV: undefined,
     ESLINT_CONFIG_JS,
     ESNEXT,
+    EXT_CMD,
+    EXT_PS1,
     EXTENSIONS,
     EXTENSIONS_JSON,
     GIT_IGNORE,
@@ -883,6 +888,7 @@ const constants = createConstantsObject(
     UNDEFINED_TOKEN,
     UNLICENCED,
     UNLICENSED,
+    UTF8,
     VITEST,
     WIN32: undefined,
     abortController,

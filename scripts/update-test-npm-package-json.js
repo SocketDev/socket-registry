@@ -47,6 +47,7 @@ const {
   README_GLOB_RECURSIVE,
   SOCKET_OVERRIDE_SCOPE,
   SOCKET_REGISTRY_SCOPE,
+  UTF8,
   ignoreGlobs,
   lifecycleScriptNames,
   npmPackagesPath,
@@ -534,7 +535,7 @@ async function linkPackages(packageNames, options) {
               const uniquePath = uniqueSync(`${destPath.slice(0, -3)}.cjs`)
               await fs.copyFile(targetPath, uniquePath)
               await remove(destPath)
-              await outputFile(destPath, createStubEsModule(uniquePath), 'utf8')
+              await outputFile(destPath, createStubEsModule(uniquePath), UTF8)
               return
             }
           } else {

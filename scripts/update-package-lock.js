@@ -13,13 +13,13 @@ const {
   normalizePackageJson
 } = require('@socketsecurity/registry/lib/packages')
 
-const { rootPackageLockPath, rootPath, yarnPkgExtsJsonPath } = constants
+const { UTF8, rootPackageLockPath, rootPath, yarnPkgExtsJsonPath } = constants
 
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
 async function modifyRootPkgLock() {
   if (existsSync(rootPackageLockPath)) {
-    const rootPkgLockJson = await readJson(rootPackageLockPath, 'utf8')
+    const rootPkgLockJson = await readJson(rootPackageLockPath, UTF8)
     // The @yarnpkg/extensions package is a zero dependency package, however it
     // includes @yarnpkg/core as peer dependency which npm happily installs as a
     // direct dependency. Later when check:tsc is run it will fail with errors

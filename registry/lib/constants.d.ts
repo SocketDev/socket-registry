@@ -60,6 +60,8 @@ declare const Constants: {
   readonly ENV: ENV
   readonly ESLINT_CONFIG_JS: 'eslint.config.js'
   readonly ESNEXT: 'esnext'
+  readonly EXT_CMD: '.cmd'
+  readonly EXT_PS1: '.ps1'
   readonly EXTENSIONS: 'extensions'
   readonly EXTENSIONS_JSON: 'extensions.json'
   readonly GIT_IGNORE: '.gitignore'
@@ -121,6 +123,7 @@ declare const Constants: {
   readonly UNDEFINED_TOKEN: {}
   readonly UNLICENCED: 'UNLICENCED'
   readonly UNLICENSED: 'UNLICENSED'
+  readonly UTF8: 'utf8'
   readonly VITEST: 'VITEST'
   readonly WIN32: boolean
   readonly abortController: AbortController
