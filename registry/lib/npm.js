@@ -98,12 +98,14 @@ function execNpm(args, options) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function getNotResolvedError(binPath) {
+function getNotResolvedError(binPath, source = '') {
   // Based on node-which:
   // ISC License
   // Copyright (c) Isaac Z. Schlueter and Contributors
   // https://github.com/npm/node-which/blob/v5.0.0/lib/index.js#L15
-  const error = new Error(`not resolved: ${binPath}`)
+  const error = new Error(
+    `not resolved: ${binPath}${source ? `:\n\n${source}` : ''}`
+  )
   error.code = 'ENOENT'
   return error
 }
@@ -217,7 +219,7 @@ function resolveBinPath(binPath) {
         relPath = /(?<="\$basedir\/).*(?=" $args\n)/.exec(source)?.[0]
       }
       if (!relPath) {
-        throw getNotResolvedError(binPath)
+        throw getNotResolvedError(binPath, source)
       }
       binPath = path.join(path.dirname(binPath), relPath)
     } else if (
