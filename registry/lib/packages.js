@@ -336,6 +336,8 @@ function createPackageJson(sockRegPkgName, directory, options) {
                 const { 1: range } = pair
                 if (
                   !semver.satisfies(
+                    // Roughly check Node range as semver.coerce will strip leading
+                    // v's, carets (^), comparators (<,<=,>,>=,=), and tildes (~).
                     semver.coerce(range),
                     PACKAGE_DEFAULT_NODE_RANGE
                   )
