@@ -1,3 +1,3 @@
 'use strict'
 
-module.exports = ['cleanup']
+module.exports = Object.freeze(['cleanup'])
