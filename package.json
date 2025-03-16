@@ -60,7 +60,7 @@
     "@biomejs/biome": "^1.9.4",
     "@eslint/compat": "^1.2.7",
     "@eslint/js": "^9.22.0",
-    "@mdn/browser-compat-data": "^5.7.1",
+    "@mdn/browser-compat-data": "^5.7.3",
     "@npmcli/package-json": "^6.1.1",
     "@npmcli/promise-spawn": "^8.0.2",
     "@socketregistry/packageurl-js": "^1.0.3",
@@ -81,20 +81,21 @@
     "del-cli": "^6.0.0",
     "didyoumean2": "^7.0.4",
     "eslint": "^9.22.0",
-    "eslint-import-resolver-oxc": "^0.12.0",
-    "eslint-plugin-import-x": "^4.6.1",
+    "eslint-import-resolver-oxc": "^0.13.1",
+    "eslint-plugin-import-x": "^4.8.0",
     "eslint-plugin-n": "^17.16.2",
     "eslint-plugin-sort-destructure-keys": "^2.0.0",
     "eslint-plugin-unicorn": "^56.0.1",
     "eta": "^3.5.0",
     "fs-extra": "^11.3.0",
+    "globals": "^16.0.0",
     "husky": "^9.1.7",
-    "knip": "^5.45.0",
-    "lint-staged": "^15.4.3",
+    "knip": "^5.46.0",
+    "lint-staged": "^15.5.0",
     "npm-package-arg": "^12.0.2",
     "npm-run-all2": "^7.0.2",
     "out-url": "^1.2.2",
-    "oxlint": "0.15.13",
+    "oxlint": "0.16.0",
     "packageurl-js": "^2.0.1",
     "read-yaml-file": "^2.1.0",
     "semver": "^7.7.1",
@@ -116,7 +117,7 @@
     "node": "^22.14.0 || >=23.9.0"
   },
   "lint-staged": {
-    "*.{cjs,js,json,md,mjs,ts}": [
+    "*.{cjs,cts,js,json,md,mjs,mts,ts}": [
       "npm run lint -- --fix",
       "npm run lint:fix:fast -- --no-errors-on-unmatched --files-ignore-unknown=true --colors=off"
     ]
