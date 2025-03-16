@@ -36,7 +36,7 @@ const testNpmNodeWorkspacesPackages = (
   readDirNamesSync(testNpmNodeWorkspacesPath) as string[]
 ).filter(
   // Lazily access constants.skipTestsByEcosystem.
-  n => !constants.skipTestsByEcosystem[eco]?.has(n)
+  n => !constants.skipTestsByEcosystem?.get(eco)?.has(n)
 )
 
 const packageNames: string[] =
@@ -71,7 +71,7 @@ describe(eco, { skip: !packageNames.length }, () => {
       // Lazily access constants.WIN32.
       (constants.WIN32 &&
         !manifestData?.interop.includes('browserify') &&
-        !win32EnsureTestsByEcosystem?.[eco]?.has(origPkgName)) ||
+        !win32EnsureTestsByEcosystem?.get(eco)?.has(origPkgName)) ||
       (isNonEmptyString(nodeRange) &&
         // Lazily access constants.NODE_VERSION.
         !semver.satisfies(constants.NODE_VERSION, nodeRange))

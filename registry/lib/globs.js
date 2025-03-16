@@ -1,11 +1,5 @@
 'use strict'
 
-const {
-  LICENSE_GLOB,
-  LICENSE_GLOB_RECURSIVE,
-  LICENSE_ORIGINAL_GLOB_RECURSIVE
-} = /*@__PURE__*/ require('./constants')
-
 let _picomatch
 /*@__NO_SIDE_EFFECTS__*/
 function getPicomatch() {
@@ -33,15 +27,22 @@ async function globLicenses(dirname, options) {
     recursive,
     ...globOptions
   } = { __proto__: null, ...options }
-  let ignore = ignoreOpt
+  const ignore = [
+    ...(Array.isArray(ignoreOpt) ? ignoreOpt : []),
+    '**/*.{cjs,cts,js,json,mjs,mts,ts}'
+  ]
   if (ignoreOriginals) {
-    ignore = Array.isArray(ignoreOpt)
-      ? ignoreOpt.concat([LICENSE_ORIGINAL_GLOB_RECURSIVE])
-      : [LICENSE_ORIGINAL_GLOB_RECURSIVE]
+    ignore.push(
+      /*@__PURE__*/ require('./constants/license-original-glob-recursive')
+    )
   }
   const tinyGlobby = getTinyGlobby()
   return await tinyGlobby.glob(
-    [recursive ? LICENSE_GLOB_RECURSIVE : LICENSE_GLOB],
+    [
+      recursive
+        ? /*@__PURE__*/ require('./constants/license-glob-recursive')
+        : /*@__PURE__*/ require('./constants/license-glob')
+    ],
     {
       __proto__: null,
       absolute: true,

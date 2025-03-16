@@ -1,6 +1,7 @@
 import { Options as WhichOptions } from 'which'
-import { SpawnOptions } from './spawn'
+
 import { Remap } from './objects'
+import { SpawnOptions } from './spawn'
 import { Spinner } from './spinner'
 
 declare type NpmSpawnOptions = Remap<
@@ -15,7 +16,7 @@ declare type NpmRunScriptOptions = Remap<
 >
 declare const Npm: {
   execNpm(
-    args: string[] | Readonly<string[]>,
+    args: string[] | readonly string[],
     options?: NpmSpawnOptions | undefined
   ): Promise<{ stdout: string; stderr: string }>
   isAuditFlag(cmdArg: string): boolean
@@ -25,12 +26,12 @@ declare const Npm: {
   resolveBinPath(binPath: string): string
   runBin(
     binPath: string,
-    args: string[] | Readonly<string[]>,
+    args: string[] | readonly string[],
     options?: SpawnOptions | undefined
   ): Promise<{ stdout: string; stderr: string }>
   runScript(
     scriptName: string,
-    args: string[] | Readonly<string[]>,
+    args: string[] | readonly string[],
     options?: NpmRunScriptOptions | undefined
   ): Promise<{ stdout: string; stderr: string }>
   whichBin<T extends WhichOptions>(

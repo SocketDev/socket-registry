@@ -1,0 +1,2 @@
+declare const README_GLOB_RECURSIVE: '**/README{.*,}'
+export = README_GLOB_RECURSIVE

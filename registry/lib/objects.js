@@ -1,14 +1,10 @@
 'use strict'
 
-const constants = /*@__PURE__*/ require('./constants')
-const { localeCompare } = /*@__PURE__*/ require('./sorts')
-
-const { LOOP_SENTINEL, UNDEFINED_TOKEN } = constants
-
 const { __defineGetter__ } = Object.prototype
 
 /*@__NO_SIDE_EFFECTS__*/
 function createLazyGetter(name, getter, stats) {
+  const UNDEFINED_TOKEN = /*@__PURE__*/ require('./constants/undefined-token')
   let lazyValue = UNDEFINED_TOKEN
   // Dynamically name the getter without using Object.defineProperty.
   const { [name]: lazyGetter } = {
@@ -21,6 +17,44 @@ function createLazyGetter(name, getter, stats) {
     }
   }
   return lazyGetter
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function createConstantsObject(props, options) {
+  const {
+    getters = {},
+    internals = {},
+    mixin
+  } = { __proto__: null, ...options }
+  const kInternalsSymbol = /*@__PURE__*/ require('./constants/k-internals-symbol')
+  const lazyGetterStats = { initialized: new Set() }
+  const object = defineLazyGetters(
+    {
+      __proto__: null,
+      [kInternalsSymbol]: Object.freeze({
+        __proto__: null,
+        get lazyGetterStats() {
+          return lazyGetterStats
+        },
+        ...internals
+      }),
+      kInternalsSymbol,
+      ...props
+    },
+    getters,
+    lazyGetterStats
+  )
+  if (mixin) {
+    Object.defineProperties(
+      object,
+      objectFromEntries(
+        objectEntries(Object.getOwnPropertyDescriptors(mixin)).filter(
+          p => !Object.hasOwn(object, p[0])
+        )
+      )
+    )
+  }
+  return Object.freeze(object)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -134,6 +168,7 @@ function merge(target, source) {
   if (!isObject(target) || !isObject(source)) {
     return target
   }
+  const LOOP_SENTINEL = /*@__PURE__*/ require('./constants/loop-sentinel')
   const queue = [[target, source]]
   let pos = 0
   let { length: queueLength } = queue
@@ -198,10 +233,12 @@ function toSortedObject(obj) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function toSortedObjectFromEntries(entries) {
+  const { localeCompare } = /*@__PURE__*/ require('./sorts')
   return objectFromEntries(entries.sort((a, b) => localeCompare(a[0], b[0])))
 }
 
 module.exports = {
+  createConstantsObject,
   createLazyGetter,
   defineGetter,
   defineLazyGetter,

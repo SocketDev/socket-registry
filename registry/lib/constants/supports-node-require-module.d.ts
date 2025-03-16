@@ -1,0 +1,2 @@
+declare const SUPPORTS_NODE_REQUIRE_MODULE: boolean
+export = SUPPORTS_NODE_REQUIRE_MODULE

@@ -5,19 +5,15 @@ const {
   default: selectRaw
 } = /*@__PURE__*/ require('@inquirer/select')
 
-const constants = /*@__PURE__*/ require('./constants')
-
-const { abortSignal } = constants
-
 /*@__NO_SIDE_EFFECTS__*/
 function wrapPrompt(inquirerPrompt) {
   return async (...args) => {
     const origContext = args.length > 1 ? args[1] : undefined
     const {
-      // Lazily access constants.spinner.
-      spinner = constants.spinner,
+      spinner = /*@__PURE__*/ require('./constants/spinner'),
       ...contextWithoutSpinner
     } = origContext ?? {}
+    const abortSignal = /*@__PURE__*/ require('./constants/abort-signal')
     if (origContext) {
       args[1] = {
         signal: abortSignal,

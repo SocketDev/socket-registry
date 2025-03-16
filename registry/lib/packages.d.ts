@@ -1,10 +1,11 @@
 import NPMCliPackageJson from '@npmcli/package-json'
 import {
   manifest as PacoteManifestFn,
-  packument as PacotePackumentFn,
   Options as PacoteOptionsRaw,
+  packument as PacotePackumentFn,
   tarball as PacoteTarballFn
 } from 'pacote'
+
 import { CategoryString } from '../index'
 
 declare namespace Packages {
@@ -78,13 +79,13 @@ declare namespace Packages {
   export function isValidPackageName(name: any): boolean
   export function normalizePackageJson(
     pkgJson: PackageJson,
-    options?: { preserve?: string[] | Readonly<string[]> }
+    options?: { preserve?: string[] | readonly string[] }
   ): NormalizedPackageJson
   export function packPackage(
     spec: string,
     options?: PacoteOptions & {
-      args?: string[] | Readonly<string[]>
-      binPaths?: string[] | Readonly<string[]>
+      args?: string[] | readonly string[]
+      binPaths?: string[] | readonly string[]
       cmd?: string | undefined
       dryRun?: boolean | undefined
       env?: { [key: string]: string }
@@ -97,19 +98,19 @@ declare namespace Packages {
   ): Promise<Awaited<ReturnType<typeof PacoteTarballFn>>>
   export function readPackageJson(
     filepath: string,
-    options: { editable: true; preserve?: string[] | Readonly<string[]> }
+    options: { editable: true; preserve?: string[] | readonly string[] }
   ): Promise<EditablePackageJson>
   export function readPackageJson(
     filepath: string,
-    options?: { editable?: false; preserve?: string[] | Readonly<string[]> }
+    options?: { editable?: false; preserve?: string[] | readonly string[] }
   ): Promise<PackageJson>
   export function readPackageJsonSync(
     filepath: string,
-    options: { editable: true; preserve?: string[] | Readonly<string[]> }
+    options: { editable: true; preserve?: string[] | readonly string[] }
   ): EditablePackageJson
   export function readPackageJsonSync(
     filepath: string,
-    options?: { editable?: false; preserve?: string[] | Readonly<string[]> }
+    options?: { editable?: false; preserve?: string[] | readonly string[] }
   ): PackageJson
   export function resolveEscapedScope(sockRegPkgName: string): string
   export function resolveGitHubTgzUrl(
@@ -136,11 +137,11 @@ declare namespace Packages {
   export function resolveRegistryPackageName(pkgName: string): string
   export function toEditablePackageJson(
     pkgJson: PackageJson,
-    options: { path?: string; preserve?: string[] | Readonly<string[]> }
+    options: { path?: string; preserve?: string[] | readonly string[] }
   ): Promise<EditablePackageJson>
   export function toEditablePackageJsonSync(
     pkgJson: PackageJson,
-    options: { path?: string; preserve?: string[] | Readonly<string[]> }
+    options: { path?: string; preserve?: string[] | readonly string[] }
   ): EditablePackageJson
   export function unescapeScope(escapedScope: string): string
 }

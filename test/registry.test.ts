@@ -35,7 +35,7 @@ describe(
         require(filepath)
       }
       const registryConstants = require(
-        path.join(rootRegistryPath, 'lib/constants.js')
+        path.join(rootRegistryPath, 'lib/constants/index.js')
       )
       const {
         kInternalsSymbol,
