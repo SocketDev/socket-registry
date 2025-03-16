@@ -14,7 +14,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/aggregate-error@1.0.12",
+      "pkg:npm/%40socketregistry/aggregate-error@1.0.13",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.7" },
@@ -22,7 +22,7 @@
         "license": "MIT",
         "name": "@socketregistry/aggregate-error",
         "package": "aggregate-error",
-        "version": "1.0.12"
+        "version": "1.0.13"
       }
     ],
     [
@@ -255,7 +255,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/assert@1.0.15",
+      "pkg:npm/%40socketregistry/assert@1.0.16",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.7" },
@@ -263,7 +263,7 @@
         "license": "MIT",
         "name": "@socketregistry/assert",
         "package": "assert",
-        "version": "1.0.15"
+        "version": "1.0.16"
       }
     ],
     [
@@ -304,7 +304,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/deep-equal@1.0.14",
+      "pkg:npm/%40socketregistry/deep-equal@1.0.15",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.7" },
@@ -312,7 +312,7 @@
         "license": "MIT",
         "name": "@socketregistry/deep-equal",
         "package": "deep-equal",
-        "version": "1.0.14"
+        "version": "1.0.15"
       }
     ],
     [
@@ -582,7 +582,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/hyrious__bun.lockb@1.0.15",
+      "pkg:npm/%40socketregistry/hyrious__bun.lockb@1.0.16",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.7" },
@@ -591,11 +591,11 @@
         "name": "@socketregistry/hyrious__bun.lockb",
         "package": "@hyrious/bun.lockb",
         "skipTests": true,
-        "version": "1.0.15"
+        "version": "1.0.16"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/indent-string@1.0.11",
+      "pkg:npm/%40socketregistry/indent-string@1.0.12",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.7" },
@@ -603,7 +603,7 @@
         "license": "MIT",
         "name": "@socketregistry/indent-string",
         "package": "indent-string",
-        "version": "1.0.11"
+        "version": "1.0.12"
       }
     ],
     [
@@ -703,7 +703,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-interactive@1.0.2",
+      "pkg:npm/%40socketregistry/is-interactive@1.0.3",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.7" },
@@ -711,7 +711,7 @@
         "license": "MIT",
         "name": "@socketregistry/is-interactive",
         "package": "is-interactive",
-        "version": "1.0.2"
+        "version": "1.0.3"
       }
     ],
     [
@@ -836,7 +836,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-unicode-supported@1.0.2",
+      "pkg:npm/%40socketregistry/is-unicode-supported@1.0.3",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.7" },
@@ -844,7 +844,7 @@
         "license": "MIT",
         "name": "@socketregistry/is-unicode-supported",
         "package": "is-unicode-supported",
-        "version": "1.0.2"
+        "version": "1.0.3"
       }
     ],
     [
@@ -1581,7 +1581,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/yocto-spinner@1.0.11",
+      "pkg:npm/%40socketregistry/yocto-spinner@1.0.12",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.7" },
@@ -1589,7 +1589,7 @@
         "license": "MIT",
         "name": "@socketregistry/yocto-spinner",
         "package": "yocto-spinner",
-        "version": "1.0.11"
+        "version": "1.0.12"
       }
     ],
     [
