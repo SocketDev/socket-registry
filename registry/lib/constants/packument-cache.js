@@ -1,3 +1,3 @@
 'use strict'
 
-module.export = new Map()
+module.exports = new Map()

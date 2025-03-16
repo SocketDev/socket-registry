@@ -6,4 +6,4 @@ const { constructor: PacoteFetcherBase } = Reflect.getPrototypeOf(
   pacote.RegistryFetcher.prototype
 )
 
-module.export = new PacoteFetcherBase(/*dummy package spec*/ 'x', {}).cache
+module.exports = new PacoteFetcherBase(/*dummy package spec*/ 'x', {}).cache
