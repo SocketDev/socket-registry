@@ -1,4 +1,5 @@
 import { PartialFilesConfiguration as BiomeConfiguration } from '@biomejs/wasm-nodejs'
+
 import { Remap } from './objects'
 
 declare type BiomeFormatOptions = Remap<

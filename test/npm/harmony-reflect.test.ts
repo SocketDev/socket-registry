@@ -70,7 +70,7 @@ describe(
       const target = Object.create(Object.prototype, {
         x: { value: 1, enumerable: true },
         y: { value: 2, enumerable: false },
-        z: { get() {}, enumerable: true }
+        z: { get: () => undefined, enumerable: true }
       })
       const result = harmonyReflect.ownKeys(target)
       assert.strictEqual(result.length, 3)

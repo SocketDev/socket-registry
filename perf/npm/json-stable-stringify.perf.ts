@@ -1,12 +1,11 @@
 import assert from 'node:assert/strict'
 import path from 'node:path'
 
-import { Bench } from 'tinybench'
-
 import fastJsonStableStringify from 'fast-json-stable-stringify'
 import origJsonStableStringify from 'json-stable-stringify'
-import overrideJsonStableStringify from '@socketregistry/json-stable-stringify'
+import { Bench } from 'tinybench'
 
+import overrideJsonStableStringify from '@socketregistry/json-stable-stringify'
 import constants from '@socketregistry/scripts/constants'
 import { logger } from '@socketsecurity/registry/lib/logger'
 
@@ -25,7 +24,7 @@ void (async () => {
     { name: '2MB json file', data: sampleData2MbJson },
     { name: '6MB json file', data: sampleData6MbJson }
   ]
-  for (const { name, data } of tests) {
+  for (const { data, name } of tests) {
     ;[
       overrideJsonStableStringify(data),
       origJsonStableStringify(data),

@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import Writable from 'node:stream'
+import { Writable } from 'node:stream'
 
 /**
 Creates a new spinner instance.

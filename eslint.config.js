@@ -9,6 +9,8 @@ const importXPlugin = require('eslint-plugin-import-x')
 const nodePlugin = require('eslint-plugin-n')
 const sortDestructureKeysPlugin = require('eslint-plugin-sort-destructure-keys')
 const unicornPlugin = require('eslint-plugin-unicorn')
+const globals = require('globals')
+const { globSync } = require('tinyglobby')
 const tsEslint = require('typescript-eslint')
 
 const constants = require('@socketregistry/scripts/constants')
@@ -20,7 +22,6 @@ const {
   gitIgnoreFile,
   npmPackagesPath,
   relNpmPackagesPath,
-  relRegistryPkgPath,
   rootTsConfigPath
 } = constants
 
@@ -31,6 +32,9 @@ const rootPath = __dirname
 const biomeConfigPath = path.join(rootPath, BIOME_JSON)
 
 const biomeConfig = require(biomeConfigPath)
+const nodeGlobalsConfig = Object.fromEntries(
+  Object.entries(globals.node).map(([k]) => [k, 'readonly'])
+)
 
 const sharedPlugins = {
   'sort-destructure-keys': sortDestructureKeysPlugin,
@@ -44,8 +48,17 @@ const sharedRules = {
   'no-new': 'error',
   'no-proto': 'error',
   'no-undef': 'error',
+  'no-self-assign': ['error', { props: false }],
+  'no-unused-vars': [
+    'error',
+    {
+      argsIgnorePattern: '^_|^this$',
+      ignoreRestSiblings: true,
+      varsIgnorePattern: '^_'
+    }
+  ],
   'no-var': 'error',
-  'no-warning-comments': ['warn', { terms: ['fixme'] }],
+  'no-warning-comments': 'error',
   'prefer-const': 'error',
   'sort-destructure-keys/sort-destructure-keys': 'error',
   'sort-imports': ['error', { ignoreDeclarationSort: true }],
@@ -89,33 +102,25 @@ const sharedRulesForImportX = {
   ]
 }
 
-function conditionalConfig(config, isEsm) {
-  const files = Array.isArray(config.files)
-    ? isEsm
-      ? config.files.filter(p => p.startsWith(relNpmPackagesPath))
-      : config.files
-    : undefined
-  return files?.length
-    ? [
-        {
-          ...config,
-          files
-        }
-      ]
-    : []
-}
-
 function getIgnores(isEsm) {
   // Lazily access constants.npmPackageNames.
   return constants.npmPackageNames.flatMap(sockRegPkgName => {
     const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
     const { type } = readPackageJsonSync(pkgPath)
-    const shouldIgnore = isEsm ? type !== 'module' : type === 'module'
     const ignored = []
-    if (shouldIgnore) {
+    if (isEsm ? type !== 'module' : type === 'module') {
       ignored.push(`${relNpmPackagesPath}/${sockRegPkgName}/*`)
-    } else {
+    } else if (!isEsm) {
       ignored.push(`${relNpmPackagesPath}/${sockRegPkgName}/*.mjs`)
+      if (
+        globSync(['**/*.cjs'], {
+          cwd: pkgPath,
+          // Lazily access constants.ignoreGlobs.
+          ignores: constants.ignoreGlobs
+        }).length
+      ) {
+        ignored.push(`${relNpmPackagesPath}/${sockRegPkgName}/*.js`)
+      }
     }
     return ignored
   })
@@ -129,15 +134,14 @@ function getImportXFlatConfigs(isEsm) {
         ...origImportXFlatConfigs.recommended.languageOptions,
         ecmaVersion: LATEST,
         sourceType: isEsm ? 'module' : 'script'
-      },
-      rules: {
-        ...sharedRulesForImportX,
-        'import-x/no-named-as-default-member': 'off'
       }
     },
     typescript: {
       ...origImportXFlatConfigs.typescript,
-      plugins: origImportXFlatConfigs.recommended.plugins,
+      plugins: {
+        ...origImportXFlatConfigs.recommended.plugins,
+        ...origImportXFlatConfigs.typescript.plugins
+      },
       settings: {
         ...origImportXFlatConfigs.typescript.settings,
         'import-x/resolver-next': [
@@ -165,12 +169,37 @@ function configs(sourceType) {
   const isEsm = sourceType === 'module'
   const ignores = getIgnores(isEsm)
   const importFlatConfigs = getImportXFlatConfigs(isEsm)
+  const nodePluginConfigs =
+    nodePlugin.configs[`flat/recommended-${isEsm ? 'module' : 'script'}`]
   return [
     {
+      ...js.configs.recommended,
+      ...importFlatConfigs.recommended,
+      ...nodePluginConfigs,
       ignores,
-      ...nodePlugin.configs['flat/recommended-script'],
+      languageOptions: {
+        ...js.configs.recommended.languageOptions,
+        ...importFlatConfigs.recommended.languageOptions,
+        ...nodePluginConfigs.languageOptions,
+        globals: {
+          ...js.configs.recommended.languageOptions?.globals,
+          ...importFlatConfigs.recommended.languageOptions?.globals,
+          ...nodePluginConfigs.languageOptions?.globals,
+          ...nodeGlobalsConfig
+        },
+        sourceType: isEsm ? 'module' : 'script'
+      },
+      plugins: {
+        ...js.configs.recommended.plugins,
+        ...importFlatConfigs.recommended.plugins,
+        ...nodePluginConfigs.plugins,
+        ...sharedPlugins
+      },
       rules: {
-        ...nodePlugin.configs['flat/recommended-script'].rules,
+        ...js.configs.recommended.rules,
+        ...importFlatConfigs.recommended.rules,
+        ...nodePluginConfigs.rules,
+        ...sharedRules,
         'n/exports-style': ['error', 'module.exports'],
         // The n/no-unpublished-bin rule does does not support non-trivial glob
         // patterns used in package.json "files" fields. In those cases we simplify
@@ -204,122 +233,63 @@ function configs(sourceType) {
       }
     },
     {
+      files: ['**/*.ts'],
+      ...js.configs.recommended,
+      ...importFlatConfigs.typescript,
       ignores,
-      ...importFlatConfigs.recommended
-    },
-    {
-      ignores,
-      ...importFlatConfigs.typescript
-    },
-    {
-      files: [
-        `${relNpmPackagesPath}/**/*.{c,}js`,
-        `${relRegistryPkgPath}/**/*.{c,}js`,
-        'scripts/**/*.{c,}js',
-        'test/**/*.{c,}js'
-      ],
-      ignores,
-      linterOptions: {
-        reportUnusedDisableDirectives: 'off'
+      languageOptions: {
+        ...js.configs.recommended.languageOptions,
+        ...importFlatConfigs.typescript.languageOptions,
+        ecmaVersion: LATEST,
+        sourceType,
+        parser: tsEslint.parser,
+        parserOptions: {
+          ...importFlatConfigs.typescript.languageOptions?.parserOptions,
+          projectService: {
+            ...importFlatConfigs.typescript.languageOptions?.parserOptions
+              ?.projectService,
+            allowDefaultProject: [],
+            defaultProject: 'tsconfig.json',
+            tsconfigRootDir: __dirname
+          }
+        }
       },
       plugins: {
-        ...sharedPlugins
+        ...js.configs.recommended.plugins,
+        ...importFlatConfigs.typescript.plugins,
+        ...sharedPlugins,
+        '@typescript-eslint': tsEslint.plugin
       },
       rules: {
         ...js.configs.recommended.rules,
+        ...importFlatConfigs.typescript.rules,
         ...sharedRules,
-        'no-self-assign': ['error', { props: false }],
-        'no-unused-vars': [
+        '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
+        '@typescript-eslint/consistent-type-assertions': [
           'error',
-          { argsIgnorePattern: '^_|^this$', ignoreRestSiblings: true }
+          { assertionStyle: 'as' }
         ],
-        'no-warning-comments': 'error'
+        '@typescript-eslint/no-extraneous-class': 'off',
+        '@typescript-eslint/no-misused-new': 'error',
+        '@typescript-eslint/no-this-alias': [
+          'error',
+          { allowDestructuring: true }
+        ],
+        // Returning unawaited promises in a try/catch/finally is dangerous
+        // (the `catch` won't catch if the promise is rejected, and the `finally`
+        // won't wait for the promise to resolve). Returning unawaited promises
+        // elsewhere is probably fine, but this lint rule doesn't have a way
+        // to only apply to try/catch/finally (the 'in-try-catch' option *enforces*
+        // not awaiting promises *outside* of try/catch/finally, which is not what
+        // we want), and it's nice to await before returning anyways, since you get
+        // a slightly more comprehensive stack trace upon promise rejection.
+        '@typescript-eslint/return-await': ['error', 'always'],
+        // Disable no-redeclare and no-unused-vars rule because they don't play
+        // well with TypeScript.
+        'no-redeclare': 'off',
+        'no-unused-vars': 'off'
       }
-    },
-    ...conditionalConfig(
-      {
-        files: [`${relNpmPackagesPath}/**/*.ts`, 'test/**/*.ts'],
-        ignores,
-        languageOptions: {
-          ecmaVersion: LATEST,
-          sourceType,
-          parser: tsEslint.parser,
-          parserOptions: {
-            projectService: {
-              allowDefaultProject: [],
-              defaultProject: 'tsconfig.json',
-              tsconfigRootDir: __dirname
-            }
-          }
-        },
-        plugins: {
-          ...sharedPlugins,
-          '@typescript-eslint': tsEslint.plugin
-        },
-        rules: {
-          ...sharedRules,
-          '@typescript-eslint/array-type': [
-            'error',
-            { default: 'array-simple' }
-          ],
-          '@typescript-eslint/consistent-type-assertions': [
-            'error',
-            { assertionStyle: 'as' }
-          ],
-          '@typescript-eslint/no-extraneous-class': 'off',
-          '@typescript-eslint/no-misused-new': 'error',
-          '@typescript-eslint/no-this-alias': [
-            'error',
-            { allowDestructuring: true }
-          ],
-          // Returning unawaited promises in a try/catch/finally is dangerous
-          // (the `catch` won't catch if the promise is rejected, and the `finally`
-          // won't wait for the promise to resolve). Returning unawaited promises
-          // elsewhere is probably fine, but this lint rule doesn't have a way
-          // to only apply to try/catch/finally (the 'in-try-catch' option *enforces*
-          // not awaiting promises *outside* of try/catch/finally, which is not what
-          // we want), and it's nice to await before returning anyways, since you get
-          // a slightly more comprehensive stack trace upon promise rejection.
-          '@typescript-eslint/return-await': ['error', 'always']
-        }
-      },
-      isEsm
-    ),
-    ...conditionalConfig(
-      {
-        files: ['test/**/*.ts'],
-        ignores,
-        rules: {
-          '@typescript-eslint/no-floating-promises': 'off'
-        }
-      },
-      isEsm
-    ),
-    ...conditionalConfig(
-      {
-        files: [`${relNpmPackagesPath}/**/*.d.ts`, 'test/**/*.d.ts'],
-        ignores,
-        rules: {
-          'no-unused-vars': 'off'
-        }
-      },
-      isEsm
-    ),
-    ...conditionalConfig(
-      {
-        files: [
-          `${relNpmPackagesPath}/**/*.{c,}js`,
-          `${relRegistryPkgPath}/**/*.{c,}js`,
-          'scripts/**/*.{c,}js',
-          'test/**/*.{c,}js'
-        ],
-        ignores,
-        rules: {
-          ...js.configs.recommended.rules
-        }
-      },
-      isEsm
-    )
+    }
   ]
 }
 

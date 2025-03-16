@@ -1,6 +1,6 @@
-scripts/templates
-test/npm/node_workspaces
-perf/**/fixtures
-test/**/fixtures
-packages/**/*.original*
 package-lock.json
+packages/**/*.original*
+perf/**/fixtures
+scripts/templates
+test/**/fixtures
+test/npm/node_workspaces
