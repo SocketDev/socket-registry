@@ -1,8 +1,9 @@
 {
   "private": true,
-  "name": "",
+  "name": "perf-npm",
   "version": "",
   "devDependencies": {
+    "@socketregistry/json-stable-stringify": "*",
     "@socketregistry/scripts": "*",
     "@socketsecurity/registry": "*",
     "fast-json-stable-stringify": "^2.1.0",

@@ -1,9 +1,11 @@
 /// <reference types="node" />
 import { PathLike } from 'node:fs'
+
 import { Content as NPMCliPackageJson } from '@npmcli/package-json'
-import { CategoryString, ManifestEntryData } from '@socketsecurity/registry'
-import { PackageURL } from '@socketregistry/packageurl-js'
 import { SemVer } from 'semver'
+
+import { PackageURL } from '@socketregistry/packageurl-js'
+import { CategoryString, ManifestEntryData } from '@socketsecurity/registry'
 import { Remap } from '@socketsecurity/registry/lib/objects'
 
 declare type Action =
@@ -35,32 +37,32 @@ declare type Templates = {
   TEMPLATE_ES_SHIM_STATIC_METHOD: string
 }
 declare type TypeScripAction = {
-  references: string[] | Readonly<string[]>
+  references: string[] | readonly string[]
 }
 declare type TypeScriptOptions = {
-  references?: string[] | Readonly<string[]> | undefined
+  references?: string[] | readonly string[] | undefined
   transform?:
     | ((
         filepath: string,
-        data: { references: string[] | Readonly<string[]> }
+        data: { references: string[] | readonly string[] }
       ) => Promise<any>)
     | undefined
 }
 declare const templatesModule: {
-  getLicenseActions(pkgPath: string): Promise<[string, LicenseAction][]>
+  getLicenseActions(pkgPath: string): Promise<Array<[string, LicenseAction]>>
   getNpmReadmeAction(
     pkgPath: string,
     options?: { interop?: ManifestEntryData['interop'] } | undefined
-  ): Promise<[string, NpmReadmeAction][]>
+  ): Promise<Array<[string, NpmReadmeAction]>>
   getPackageJsonAction(
     pkgPath: string,
     options?: { engines?: ManifestEntryData['engines'] } | undefined
-  ): Promise<[string, PackageAction][]>
+  ): Promise<Array<[string, PackageAction]>>
   getTemplate<T extends keyof Templates>(templateName: T): Templates[T]
   getTypeScriptActions(
     pkgPath: string,
     options?: TypeScriptOptions | undefined
-  ): Promise<[string, TypeScripAction][]>
+  ): Promise<Array<[string, TypeScripAction]>>
   renderAction(action: [PathLike, Action]): Promise<string>
   writeAction(action: [PathLike, Action]): Promise<void>
 }

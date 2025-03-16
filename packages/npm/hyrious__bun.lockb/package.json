@@ -42,6 +42,8 @@
       "types": "./index.d.cts",
       "default": "./index.cjs"
     },
+    "./index.d.cts": "./index.d.cts",
+    "./index.d.mts": "./index.d.mts",
     "./package.json": "./package.json"
   },
   "sideEffects": false,

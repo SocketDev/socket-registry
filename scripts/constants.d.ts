@@ -1,6 +1,7 @@
+import which from 'which'
+
 import registryConstants from '@socketsecurity/registry/lib/constants'
 import { Remap } from '@socketsecurity/registry/lib/objects'
-import which from 'which'
 
 declare const kInternalsSymbol: (typeof registryConstants)['kInternalsSymbol']
 type Internals = Remap<
