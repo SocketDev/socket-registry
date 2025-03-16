@@ -173,7 +173,7 @@ void (async () => {
   let relJsFilepaths
   await extractPackage(origPkgName, async nmPkgPath => {
     nmPkgJson = await readPackageJson(nmPkgPath)
-    relJsFilepaths = await tinyGlob(['**/*.{cjs,js,json}'], {
+    relJsFilepaths = await tinyGlob(['*.js'], {
       ignore: ['**/package.json'],
       cwd: nmPkgPath
     })
