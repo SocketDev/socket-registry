@@ -153,7 +153,7 @@ function createErrorType(code, message, Base) {
       return message(arg1, arg2, arg3)
     }
   }
-  const NodeError = /*#__PURE__*/ (function (_Base) {
+  const NodeError = /*@__PURE__*/ (function (_Base) {
     _inherits(NodeError, _Base)
     const _super = _createSuper(NodeError)
     function NodeError(arg1, arg2, arg3) {

@@ -544,7 +544,7 @@ function createErrDiff(actual, expected, operator) {
     .concat(end)
     .concat(indicator)
 }
-const AssertionError = /*#__PURE__*/ (function (_Error, _inspect$custom) {
+const AssertionError = /*@__PURE__*/ (function (_Error, _inspect$custom) {
   _inherits(AssertionError, _Error)
   const _super = _createSuper(AssertionError)
   function AssertionError(options) {
@@ -730,5 +730,5 @@ const AssertionError = /*#__PURE__*/ (function (_Error, _inspect$custom) {
     }
   ])
   return AssertionError
-})(/*#__PURE__*/ _wrapNativeSuper(Error), inspect.custom)
+})(/*@__PURE__*/ _wrapNativeSuper(Error), inspect.custom)
 module.exports = AssertionError
