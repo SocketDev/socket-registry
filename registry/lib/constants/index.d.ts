@@ -1,0 +1,204 @@
+import abortController from './abort-controller'
+import abortSignal from './abort-signal'
+import AT_LATEST from './at-latest'
+import BIOME_JSON from './biome-json'
+import CI from './ci'
+import COLUMN_LIMIT from './column-limit'
+import copyLeftLicenses from './copy-left-licenses'
+import EMPTY_FILE from './empty-file'
+import ENV from './env'
+import ESLINT_CONFIG_JS from './eslint-config-js'
+import ESNEXT from './esnext'
+import execPath from './exec-path'
+import EXT_CMD from './ext-cmd'
+import EXT_PS1 from './ext-ps1'
+import EXTENSIONS from './extensions'
+import EXTENSIONS_JSON from './extensions-json'
+import getIpc from './get-ipc'
+import GITIGNORE from './gitignore'
+import HIDDEN_PACKAGE_LOCK_JSON from './hidden-package-lock-json'
+import ignoreGlobs from './ignore-globs'
+import IPC from './ipc'
+import kInternalsSymbol from './k-internals-symbol'
+import LATEST from './latest'
+import LICENSE from './license'
+import LICENSE_GLOB from './license-glob'
+import LICENSE_GLOB_RECURSIVE from './license-glob-recursive'
+import LICENSE_ORIGINAL from './license-original'
+import LICENSE_ORIGINAL_GLOB from './license-original-glob'
+import LICENSE_ORIGINAL_GLOB_RECURSIVE from './license-original-glob-recursive'
+import lifecycleScriptNames from './lifecycle-script-names'
+import LOOP_SENTINEL from './loop-sentinel'
+import maintainedNodeVersions from './maintained-node-versions'
+import MANIFEST_JSON from './manifest-json'
+import MIT from './mit'
+import NODE_AUTH_TOKEN from './node-auth-token'
+import NODE_ENV from './node-env'
+import nodeHardenFlags from './node-harden-flags'
+import NODE_MODULES from './node-modules'
+import NODE_MODULES_GLOB_RECURSIVE from './node-modules-glob-recursive'
+import nodeNoWarningsFlags from './node-no-warnings-flags'
+import NODE_VERSION from './node-version'
+import NODE_WORKSPACES from './node-workspaces'
+import NPM from './npm'
+import npmExecPath from './npm-exec-path'
+import NPX from './npx'
+import OVERRIDES from './overrides'
+import PACKAGE_DEFAULT_NODE_RANGE from './package-default-node-range'
+import PACKAGE_DEFAULT_SOCKET_CATEGORIES from './package-default-socket-categories'
+import PACKAGE_DEFAULT_VERSION from './package-default-version'
+import packageExtensions from './package-extensions'
+import PACKAGE_JSON from './package-json'
+import PACKAGE_LOCK_JSON from './package-lock-json'
+import packumentCache from './packument-cache'
+import pacoteCachePath from './pacote-cache-path'
+import parseArgsConfig from './parse-args-config'
+import PRE_COMMIT from './pre-commit'
+import README_GLOB from './readme-glob'
+import README_GLOB_RECURSIVE from './readme-glob-recursive'
+import README_MD from './readme-md'
+import REGISTRY from './registry'
+import REGISTRY_SCOPE_DELIMITER from './registry-scope-delimiter'
+import RESOLUTIONS from './resolutions'
+import skipTestsByEcosystem from './skip-tests-by-ecosystem'
+import SOCKET_GITHUB_ORG from './socket-github-org'
+import SOCKET_IPC_HANDSHAKE from './socket-ipc-handshake'
+import SOCKET_OVERRIDE_SCOPE from './socket-override-scope'
+import SOCKET_PUBLIC_API_KEY from './socket-public-api-key'
+import SOCKET_PUBLIC_API_TOKEN from './socket-public-api-token'
+import SOCKET_REGISTRY_NPM_ORG from './socket-registry-npm-org'
+import SOCKET_REGISTRY_PACKAGE_NAME from './socket-registry-package-name'
+import SOCKET_REGISTRY_REPO_NAME from './socket-registry-repo-name'
+import SOCKET_REGISTRY_SCOPE from './socket-registry-scope'
+import SOCKET_SECURITY_SCOPE from './socket-security-scope'
+import spinner from './spinner'
+import SUPPORTS_NODE_DISABLE_WARNING_FLAG from './supports-node-disable-warning-flag'
+import SUPPORTS_NODE_REQUIRE_MODULE from './supports-node-require-module'
+import SUPPORTS_NODE_RUN from './supports-node-run'
+import SUPPORTS_PROCESS_SEND from './supports-process-send'
+import TAP from './tap'
+import TEMPLATE_CJS from './template-cjs'
+import TEMPLATE_CJS_BROWSER from './template-cjs-browser'
+import TEMPLATE_CJS_ESM from './template-cjs-esm'
+import TEMPLATE_ES_SHIM_CONSTRUCTOR from './template-es-shim-constructor'
+import TEMPLATE_ES_SHIM_PROTOTYPE_METHOD from './template-es-shim-prototype-method'
+import TEMPLATE_ES_SHIM_STATIC_METHOD from './template-es-shim-static-method'
+import tsLibsAvailable from './ts-libs-available'
+import tsTypesAvailable from './ts-types-available'
+import TSCONFIG_JSON from './tsconfig-json'
+import UNDEFINED_TOKEN from './undefined-token'
+import UNLICENCED from './unlicenced'
+import UNLICENSED from './unlicensed'
+import UTF8 from './utf8'
+import VITEST from './vitest'
+import WIN32 from './win32'
+import win32EnsureTestsByEcosystem from './win32-ensure-tests-by-ecosystem'
+import { createConstantsObject } from '../objects'
+
+interface Internals {
+  readonly createConstantsObject: typeof createConstantsObject
+  readonly getIpc: typeof getIpc
+  get lazyGetterStats(): { initialized: Set<PropertyKey> }
+}
+declare const Constants: {
+  readonly [kInternalsSymbol]: Internals
+  readonly 'Symbol(kInternalsSymbol)': Internals
+  readonly AT_LATEST: typeof AT_LATEST
+  readonly BIOME_JSON: typeof BIOME_JSON
+  readonly CI: typeof CI
+  readonly COLUMN_LIMIT: typeof COLUMN_LIMIT
+  readonly EMPTY_FILE: typeof EMPTY_FILE
+  readonly ENV: typeof ENV
+  readonly ESLINT_CONFIG_JS: typeof ESLINT_CONFIG_JS
+  readonly ESNEXT: typeof ESNEXT
+  readonly EXT_CMD: typeof EXT_CMD
+  readonly EXT_PS1: typeof EXT_PS1
+  readonly EXTENSIONS: typeof EXTENSIONS
+  readonly EXTENSIONS_JSON: typeof EXTENSIONS_JSON
+  readonly GITIGNORE: typeof GITIGNORE
+  readonly HIDDEN_PACKAGE_LOCK_JSON: typeof HIDDEN_PACKAGE_LOCK_JSON
+  readonly IPC: typeof IPC
+  readonly LATEST: typeof LATEST
+  readonly LICENSE: typeof LICENSE
+  readonly LICENSE_GLOB: typeof LICENSE_GLOB
+  readonly LICENSE_GLOB_RECURSIVE: typeof LICENSE_GLOB_RECURSIVE
+  readonly LICENSE_ORIGINAL: typeof LICENSE_ORIGINAL
+  readonly LICENSE_ORIGINAL_GLOB: typeof LICENSE_ORIGINAL_GLOB
+  readonly LICENSE_ORIGINAL_GLOB_RECURSIVE: typeof LICENSE_ORIGINAL_GLOB_RECURSIVE
+  readonly LOOP_SENTINEL: typeof LOOP_SENTINEL
+  readonly MANIFEST_JSON: typeof MANIFEST_JSON
+  readonly MIT: typeof MIT
+  readonly NODE_AUTH_TOKEN: typeof NODE_AUTH_TOKEN
+  readonly NODE_ENV: typeof NODE_ENV
+  readonly NODE_MODULES: typeof NODE_MODULES
+  readonly NODE_MODULES_GLOB_RECURSIVE: typeof NODE_MODULES_GLOB_RECURSIVE
+  readonly NODE_WORKSPACES: typeof NODE_WORKSPACES
+  readonly NODE_VERSION: typeof NODE_VERSION
+  readonly NPM: typeof NPM
+  readonly NPX: typeof NPX
+  readonly OVERRIDES: typeof OVERRIDES
+  readonly PACKAGE_DEFAULT_SOCKET_CATEGORIES: typeof PACKAGE_DEFAULT_SOCKET_CATEGORIES
+  readonly PACKAGE_DEFAULT_NODE_RANGE: typeof PACKAGE_DEFAULT_NODE_RANGE
+  readonly PACKAGE_DEFAULT_VERSION: typeof PACKAGE_DEFAULT_VERSION
+  readonly PACKAGE_JSON: typeof PACKAGE_JSON
+  readonly PACKAGE_LOCK_JSON: typeof PACKAGE_LOCK_JSON
+  readonly PRE_COMMIT: typeof PRE_COMMIT
+  readonly README_GLOB: typeof README_GLOB
+  readonly README_GLOB_RECURSIVE: typeof README_GLOB_RECURSIVE
+  readonly README_MD: typeof README_MD
+  readonly REGISTRY: typeof REGISTRY
+  readonly REGISTRY_SCOPE_DELIMITER: typeof REGISTRY_SCOPE_DELIMITER
+  readonly RESOLUTIONS: typeof RESOLUTIONS
+  readonly SOCKET_GITHUB_ORG: typeof SOCKET_GITHUB_ORG
+  readonly SOCKET_IPC_HANDSHAKE: typeof SOCKET_IPC_HANDSHAKE
+  readonly SOCKET_OVERRIDE_SCOPE: typeof SOCKET_OVERRIDE_SCOPE
+  readonly SOCKET_PUBLIC_API_KEY: typeof SOCKET_PUBLIC_API_KEY
+  readonly SOCKET_PUBLIC_API_TOKEN: typeof SOCKET_PUBLIC_API_TOKEN
+  readonly SOCKET_REGISTRY_NPM_ORG: typeof SOCKET_REGISTRY_NPM_ORG
+  readonly SOCKET_REGISTRY_PACKAGE_NAME: typeof SOCKET_REGISTRY_PACKAGE_NAME
+  readonly SOCKET_REGISTRY_REPO_NAME: typeof SOCKET_REGISTRY_REPO_NAME
+  readonly SOCKET_REGISTRY_SCOPE: typeof SOCKET_REGISTRY_SCOPE
+  readonly SOCKET_SECURITY_SCOPE: typeof SOCKET_SECURITY_SCOPE
+  readonly SUPPORTS_NODE_DISABLE_WARNING_FLAG: typeof SUPPORTS_NODE_DISABLE_WARNING_FLAG
+  readonly SUPPORTS_NODE_REQUIRE_MODULE: typeof SUPPORTS_NODE_REQUIRE_MODULE
+  readonly SUPPORTS_NODE_RUN: typeof SUPPORTS_NODE_RUN
+  readonly SUPPORTS_PROCESS_SEND: typeof SUPPORTS_PROCESS_SEND
+  readonly TAP: typeof TAP
+  readonly TEMPLATE_CJS: typeof TEMPLATE_CJS
+  readonly TEMPLATE_CJS_BROWSER: typeof TEMPLATE_CJS_BROWSER
+  readonly TEMPLATE_CJS_ESM: typeof TEMPLATE_CJS_ESM
+  readonly TEMPLATE_ES_SHIM_CONSTRUCTOR: typeof TEMPLATE_ES_SHIM_CONSTRUCTOR
+  readonly TEMPLATE_ES_SHIM_PROTOTYPE_METHOD: typeof TEMPLATE_ES_SHIM_PROTOTYPE_METHOD
+  readonly TEMPLATE_ES_SHIM_STATIC_METHOD: typeof TEMPLATE_ES_SHIM_STATIC_METHOD
+  readonly TSCONFIG_JSON: typeof TSCONFIG_JSON
+  readonly UNDEFINED_TOKEN: typeof UNDEFINED_TOKEN
+  readonly UNLICENCED: typeof UNLICENCED
+  readonly UNLICENSED: typeof UNLICENSED
+  readonly UTF8: typeof UTF8
+  readonly VITEST: typeof VITEST
+  readonly WIN32: typeof WIN32
+  readonly abortController: typeof abortController
+  readonly abortSignal: typeof abortSignal
+  readonly copyLeftLicenses: typeof copyLeftLicenses
+  readonly execPath: typeof execPath
+  readonly ignoreGlobs: typeof ignoreGlobs
+  readonly kInternalsSymbol: typeof kInternalsSymbol
+  readonly lifecycleScriptNames: typeof lifecycleScriptNames
+  readonly maintainedNodeVersions: typeof maintainedNodeVersions
+  readonly nodeHardenFlags: typeof nodeHardenFlags
+  readonly nodeNoWarningsFlags: typeof nodeNoWarningsFlags
+  readonly npmExecPath: typeof npmExecPath
+  readonly packageExtensions: typeof packageExtensions
+  readonly packumentCache: typeof packumentCache
+  readonly pacoteCachePath: typeof pacoteCachePath
+  readonly parseArgsConfig: typeof parseArgsConfig
+  readonly skipTestsByEcosystem: typeof skipTestsByEcosystem
+  readonly spinner: typeof spinner
+  readonly tsLibsAvailable: typeof tsLibsAvailable
+  readonly tsTypesAvailable: typeof tsTypesAvailable
+  readonly win32EnsureTestsByEcosystem: typeof win32EnsureTestsByEcosystem
+}
+declare namespace Constants {
+  export { Internals }
+}
+export = Constants

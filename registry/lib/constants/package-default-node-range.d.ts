@@ -1,0 +1,2 @@
+declare const PACKAGE_DEFAULT_NODE_RANGE: string
+export = PACKAGE_DEFAULT_NODE_RANGE

@@ -1,5 +1,6 @@
 /// <reference types="node" />
 import { Console, ConsoleConstructorOptions } from 'node:console'
+import { Writable } from 'node:stream'
 
 declare namespace LoggerModule {
   type LoggerMethods = {
@@ -18,12 +19,12 @@ declare namespace LoggerModule {
   }
   export class Logger extends Console {
     static get LOG_SYMBOLS(): LogSymbols
-    new(
-      stdout: NodeJS.WritableStream,
-      stderr?: NodeJS.WritableStream,
+    constructor(
+      stdout: Writable,
+      stderr?: Writable,
       ignoreErrors?: boolean | undefined
-    ): Logger
-    new(options: ConsoleConstructorOptions): Logger
+    )
+    constructor(options: ConsoleConstructorOptions)
     assert: LoggerMethods['assert']
     clear: LoggerMethods['clear']
     count: LoggerMethods['count']

@@ -103,7 +103,9 @@ async function addNpmManifestData(manifest, options) {
       interop.push('browserify')
     }
     // Lazily access constants.skipTestsByEcosystem.
-    const skipTests = constants.skipTestsByEcosystem[eco].has(sockRegPkgName)
+    const skipTests = constants.skipTestsByEcosystem
+      .get(eco)
+      .has(sockRegPkgName)
     const metaEntries = [
       ['name', name],
       ['interop', interop.sort(naturalCompare)],

@@ -3,7 +3,8 @@ import {
   Options as YoctoOptions,
   Spinner as YoctoSpinner,
   SpinnerStyle as YoctoSpinnerStyle
-} from '@socketregistry/yocto-spinner/index.cjs'
+} from '@socketregistry/yocto-spinner/index.d.cjs'
+
 import { Remap } from './objects'
 
 declare type SpinnerType = Remap<

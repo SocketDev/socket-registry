@@ -2,7 +2,15 @@
 
 const semver = /*@__PURE__*/ require('semver')
 
-const constants = /*@__PURE__*/ require('./constants')
+const abortSignal = /*@__PURE__*/ require('./constants/abort-signal')
+const copyLeftLicenses = /*@__PURE__*/ require('./constants/copy-left-licenses')
+const LOOP_SENTINEL = /*@__PURE__*/ require('./constants/loop-sentinel')
+const PACKAGE_DEFAULT_SOCKET_CATEGORIES = /*@__PURE__*/ require('./constants/package-default-socket-categories')
+const packumentCache = /*@__PURE__*/ require('./constants/packument-cache')
+const REGISTRY_SCOPE_DELIMITER = /*@__PURE__*/ require('./constants/registry-scope-delimiter')
+const SOCKET_GITHUB_ORG = /*@__PURE__*/ require('./constants/socket-github-org')
+const SOCKET_REGISTRY_REPO_NAME = /*@__PURE__*/ require('./constants/socket-registry-repo-name')
+const SOCKET_REGISTRY_SCOPE = /*@__PURE__*/ require('./constants/socket-registry-scope')
 const { readJson, readJsonSync } = /*@__PURE__*/ require('./fs')
 const {
   getOwnPropertyValues,
@@ -16,25 +24,6 @@ const { isNodeModules, normalizePath } = /*@__PURE__*/ require('./path')
 const { escapeRegExp } = /*@__PURE__*/ require('./regexps')
 const { isNonEmptyString } = /*@__PURE__*/ require('./strings')
 
-const {
-  LATEST,
-  LOOP_SENTINEL,
-  MIT,
-  PACKAGE_DEFAULT_SOCKET_CATEGORIES,
-  PACKAGE_JSON,
-  REGISTRY_SCOPE_DELIMITER,
-  SOCKET_GITHUB_ORG,
-  SOCKET_OVERRIDE_SCOPE,
-  SOCKET_REGISTRY_REPO_NAME,
-  SOCKET_REGISTRY_SCOPE,
-  SOCKET_SECURITY_SCOPE,
-  UNLICENCED,
-  UNLICENSED,
-  abortSignal,
-  copyLeftLicenses,
-  packumentCache
-} = constants
-
 const BINARY_OPERATION_NODE_TYPE = 'BinaryOperation'
 const LICENSE_NODE_TYPE = 'License'
 
@@ -42,9 +31,7 @@ const escapedScopeRegExp = new RegExp(
   `^[^${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0])}]+${escapeRegExp(REGISTRY_SCOPE_DELIMITER)}(?!${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0])})`
 )
 const fileReferenceRegExp = /^SEE LICEN[CS]E IN (.+)$/
-const pkgScopePrefixRegExp = new RegExp(
-  `^${escapeRegExp(SOCKET_REGISTRY_SCOPE)}/`
-)
+const pkgScopePrefixRegExp = /^@socketregistry\//
 
 let _cacache
 /*@__NO_SIDE_EFFECTS__*/
@@ -61,8 +48,7 @@ function getFetcher() {
   if (_fetcher === undefined) {
     const makeFetchHappen = /*@__PURE__*/ require('make-fetch-happen')
     _fetcher = makeFetchHappen.defaults({
-      // Lazily access constants.pacoteCachePath.
-      cachePath: constants.pacoteCachePath,
+      cachePath: /*@__PURE__*/ require('./constants/pacote-cache-path'),
       // Prefer-offline: Staleness checks for cached data will be bypassed, but
       // missing data will be requested from the server.
       // https://github.com/npm/make-fetch-happen?tab=readme-ov-file#--optscache
@@ -236,8 +222,8 @@ function collectLicenseWarnings(licenseNodes) {
   for (let i = 0, { length } = licenseNodes; i < length; i += 1) {
     const node = licenseNodes[i]
     const { license } = node
-    if (license === UNLICENSED) {
-      warnings.set(UNLICENSED, `Package is unlicensed`)
+    if (license === 'UNLICENSED') {
+      warnings.set('UNLICENSED', `Package is unlicensed`)
     } else if (node.inFile !== undefined) {
       warnings.set('IN_FILE', `License terms specified in ${node.inFile}`)
     }
@@ -302,16 +288,15 @@ function createPackageJson(sockRegPkgName, directory, options) {
     type,
     version
   } = { __proto__: null, ...options }
-  // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
-  const { PACKAGE_DEFAULT_NODE_RANGE } = constants
-  const name = `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName.replace(pkgScopePrefixRegExp, '')}`
+  const PACKAGE_DEFAULT_NODE_RANGE = /*@__PURE__*/ require('./constants/package-default-node-range')
+  const name = `@socketregistry/${sockRegPkgName.replace(pkgScopePrefixRegExp, '')}`
   const entryExports = resolvePackageJsonEntryExports(entryExportsRaw)
   const githubUrl = `https://github.com/${SOCKET_GITHUB_ORG}/${SOCKET_REGISTRY_REPO_NAME}`
   return {
     __proto__: null,
     name,
     version,
-    license: MIT,
+    license: 'MIT',
     description,
     keywords,
     homepage: `${githubUrl}/tree/main/${directory}`,
@@ -389,8 +374,7 @@ async function extractPackage(pkgNameOrId, options, callback) {
     // It DOES returns a promise.
     const cacache = getCacache()
     await cacache.tmp.withTmp(
-      // Lazily access constants.pacoteCachePath.
-      constants.pacoteCachePath,
+      /*@__PURE__*/ require('./constants/pacote-cache-path'),
       { tmpPrefix },
       async tmpDirPath => {
         await pacote.extract(pkgNameOrId, tmpDirPath, extractOptions)
@@ -454,8 +438,8 @@ async function fetchPackagePackument(pkgNameOrId, options) {
 /*@__NO_SIDE_EFFECTS__*/
 function findPackageExtensions(pkgName, pkgVer) {
   let result
-  // Lazily access constants.packageExtensions.
-  for (const { 0: selector, 1: ext } of constants.packageExtensions) {
+  const packageExtensions = /*@__PURE__*/ require('./constants/package-extensions')
+  for (const { 0: selector, 1: ext } of packageExtensions) {
     const lastAtSignIndex = selector.lastIndexOf('@')
     const name = selector.slice(0, lastAtSignIndex)
     if (pkgName === name) {
@@ -511,7 +495,7 @@ function findTypesForSubpath(entryExports, subpath) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function getReleaseTag(version) {
-  return semver.prerelease(version)?.join('.') ?? LATEST
+  return semver.prerelease(version)?.join('.') ?? 'latest'
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -561,9 +545,9 @@ function isBlessedPackageName(name) {
   return (
     typeof name === 'string' &&
     (name === 'socket' ||
-      name.startsWith(`@${SOCKET_OVERRIDE_SCOPE}/`) ||
-      name.startsWith(`@${SOCKET_REGISTRY_SCOPE}/`) ||
-      name.startsWith(`@${SOCKET_SECURITY_SCOPE}/`))
+      name.startsWith('@socketoverride/') ||
+      name.startsWith('@socketregistry/') ||
+      name.startsWith('@socketsecurity/'))
   )
 }
 
@@ -795,7 +779,7 @@ function resolveOriginalPackageName(sockRegPkgName) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function resolvePackageJsonDirname(filepath) {
-  if (filepath.endsWith(PACKAGE_JSON)) {
+  if (filepath.endsWith('package.json')) {
     const path = getPath()
     return path.dirname(filepath)
   }
@@ -817,11 +801,11 @@ function resolvePackageJsonEntryExports(entryExports) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function resolvePackageJsonPath(filepath) {
-  if (filepath.endsWith(PACKAGE_JSON)) {
+  if (filepath.endsWith('package.json')) {
     return filepath
   }
   const path = getPath()
-  return path.join(filepath, PACKAGE_JSON)
+  return path.join(filepath, 'package.json')
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -829,8 +813,11 @@ function resolvePackageLicenses(licenseFieldValue, where) {
   // Based off of validate-npm-package-license which npm, by way of normalize-package-data,
   // uses to validate license field values:
   // https://github.com/kemitchell/validate-npm-package-license.js/blob/v3.0.4/index.js#L40-L41
-  if (licenseFieldValue === UNLICENSED || licenseFieldValue === UNLICENCED) {
-    return [{ license: UNLICENSED }]
+  if (
+    licenseFieldValue === 'UNLICENSED' ||
+    licenseFieldValue === 'UNLICENCED'
+  ) {
+    return [{ license: 'UNLICENSED' }]
   }
   // Match "SEE LICENSE IN <relativeFilepathToLicense>"
   // https://github.com/kemitchell/validate-npm-package-license.js/blob/v3.0.4/index.js#L48-L53

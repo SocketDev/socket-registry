@@ -6,6 +6,7 @@ import inquirerSelect, {
   Separator as InquirerSeparator
 } from '@inquirer/select'
 import { Context as InquirerContext } from '@inquirer/type'
+
 import { Remap } from './objects'
 import { Spinner } from './spinner'
 
@@ -42,10 +43,10 @@ declare const Prompts: {
   select: <Value>(
     config: Omit<Parameters<typeof inquirerSelect<Value>>[0], 'choices'> & {
       choices:
-        | (string | Separator)[]
-        | (Separator | Choice<Value>)[]
-        | readonly (string | Separator)[]
-        | readonly (Separator | Choice<Value>)[]
+        | Array<string | Separator>
+        | Array<Separator | Choice<Value>>
+        | ReadonlyArray<string | Separator>
+        | ReadonlyArray<Separator | Choice<Value>>
     },
     context?: Context | undefined
   ) => ReturnType<typeof inquirerSelect<Value>>

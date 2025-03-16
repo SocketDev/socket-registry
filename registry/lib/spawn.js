@@ -1,9 +1,5 @@
 'use strict'
 
-const constants = /*@__PURE__*/ require('./constants')
-
-const { abortSignal } = constants
-
 let _child_process
 /*@__NO_SIDE_EFFECTS__*/
 function getChildProcess() {
@@ -27,8 +23,7 @@ function getSpawn() {
 /*@__NO_SIDE_EFFECTS__*/
 function spawn(cmd, args, options, extra) {
   const {
-    // Lazily access constants.spinner.
-    spinner = constants.spinner,
+    spinner = /*@__PURE__*/ require('./constants/spinner'),
     ...spawnOptions
   } = { __proto__: null, ...options }
   const spawn = getSpawn()
@@ -38,7 +33,7 @@ function spawn(cmd, args, options, extra) {
     cmd,
     args,
     {
-      signal: abortSignal,
+      signal: /*@__PURE__*/ require('./constants/abort-signal'),
       ...spawnOptions
     },
     extra

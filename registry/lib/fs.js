@@ -1,11 +1,8 @@
 'use strict'
 
-const constants = /*@__PURE__*/ require('./constants')
 const { getGlobMatcher } = /*@__PURE__*/ require('./globs')
 const { naturalCompare } = /*@__PURE__*/ require('./sorts')
 const { stripBom } = /*@__PURE__*/ require('./strings')
-
-const { UTF8 } = constants
 
 const defaultRemoveOptions = Object.freeze({
   __proto__: null,
@@ -65,8 +62,10 @@ function isDirEmptySync(dirname) {
     if (length === 0) {
       return true
     }
-    // Lazily access constants.ignoreGlobs.
-    const matcher = getGlobMatcher(constants.ignoreGlobs, { cwd: dirname })
+    const matcher = getGlobMatcher(
+      /*@__PURE__*/ require('./constants/ignore-globs'),
+      { cwd: dirname }
+    )
     let ignoredCount = 0
     for (let i = 0; i < length; i += 1) {
       if (matcher(files[i])) {
@@ -90,7 +89,7 @@ function isSymbolicLinkSync(filepath) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function parse(filepath, content, reviver, shouldThrow) {
-  const str = Buffer.isBuffer(content) ? content.toString(UTF8) : content
+  const str = Buffer.isBuffer(content) ? content.toString('utf8') : content
   try {
     return JSON.parse(stripBom(str), reviver)
   } catch (e) {
@@ -136,7 +135,7 @@ async function readJson(filepath, options) {
   const { reviver, throws, ...fsOptionsRaw } = { __proto__: null, ...options }
   const fsOptions = {
     __proto__: null,
-    encoding: UTF8,
+    encoding: 'utf8',
     ...fsOptionsRaw
   }
   const fs = getFs()
@@ -157,7 +156,7 @@ function readJsonSync(filepath, options) {
   const { reviver, throws, ...fsOptionsRaw } = { __proto__: null, ...options }
   const fsOptions = {
     __proto__: null,
-    encoding: UTF8,
+    encoding: 'utf8',
     ...fsOptionsRaw
   }
   const fs = getFs()
@@ -222,7 +221,7 @@ async function writeJson(filepath, json, options) {
   }
   const fsOptions = {
     __proto__: null,
-    encoding: UTF8,
+    encoding: 'utf8',
     ...fsOptionsRaw
   }
   const fs = getFs()
@@ -241,7 +240,7 @@ function writeJsonSync(filepath, json, options) {
   }
   const fsOptions = {
     __proto__: null,
-    encoding: UTF8,
+    encoding: 'utf8',
     ...fsOptionsRaw
   }
   const fs = getFs()

@@ -46,7 +46,7 @@ function getWhich() {
 const {
   ESLINT_CONFIG_JS,
   EXTENSIONS_JSON,
-  GIT_IGNORE,
+  GITIGNORE,
   LICENSE,
   MANIFEST_JSON,
   NODE_MODULES,
@@ -95,7 +95,7 @@ const lazyGitExecPath = () =>
 const lazyGitIgnoreFile = () =>
   getEslintCompat().includeIgnoreFile(
     // Lazily access constants.rootPath.
-    getPath().join(constants.rootPath, GIT_IGNORE)
+    getPath().join(constants.rootPath, GITIGNORE)
   )
 
 const lazyIgnoreGlobs = () =>

@@ -109,13 +109,414 @@
       "types": "./index.d.ts",
       "default": "./index.js"
     },
+    "./extensions.json": "./extensions.json",
+    "./index": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
     "./lib/arrays": {
-      "types": "./lib/array.d.ts",
+      "types": "./lib/arrays.d.ts",
       "default": "./lib/arrays.js"
     },
     "./lib/constants": {
-      "types": "./lib/constants.d.ts",
-      "default": "./lib/constants.js"
+      "types": "./lib/constants/index.d.ts",
+      "default": "./lib/constants/index.js"
+    },
+    "./lib/constants/abort-controller": {
+      "types": "./lib/constants/abort-controller.d.ts",
+      "default": "./lib/constants/abort-controller.js"
+    },
+    "./lib/constants/abort-signal": {
+      "types": "./lib/constants/abort-signal.d.ts",
+      "default": "./lib/constants/abort-signal.js"
+    },
+    "./lib/constants/at-latest": {
+      "types": "./lib/constants/at-latest.d.ts",
+      "default": "./lib/constants/at-latest.js"
+    },
+    "./lib/constants/biome-json": {
+      "types": "./lib/constants/biome-json.d.ts",
+      "default": "./lib/constants/biome-json.js"
+    },
+    "./lib/constants/ci": {
+      "types": "./lib/constants/ci.d.ts",
+      "default": "./lib/constants/ci.js"
+    },
+    "./lib/constants/column-limit": {
+      "types": "./lib/constants/column-limit.d.ts",
+      "default": "./lib/constants/column-limit.js"
+    },
+    "./lib/constants/copy-left-licenses": {
+      "types": "./lib/constants/copy-left-licenses.d.ts",
+      "default": "./lib/constants/copy-left-licenses.js"
+    },
+    "./lib/constants/empty-file": {
+      "types": "./lib/constants/empty-file.d.ts",
+      "default": "./lib/constants/empty-file.js"
+    },
+    "./lib/constants/env": {
+      "types": "./lib/constants/env.d.ts",
+      "default": "./lib/constants/env.js"
+    },
+    "./lib/constants/eslint-config-js": {
+      "types": "./lib/constants/eslint-config-js.d.ts",
+      "default": "./lib/constants/eslint-config-js.js"
+    },
+    "./lib/constants/esnext": {
+      "types": "./lib/constants/esnext.d.ts",
+      "default": "./lib/constants/esnext.js"
+    },
+    "./lib/constants/exec-path": {
+      "types": "./lib/constants/exec-path.d.ts",
+      "default": "./lib/constants/exec-path.js"
+    },
+    "./lib/constants/ext-cmd": {
+      "types": "./lib/constants/ext-cmd.d.ts",
+      "default": "./lib/constants/ext-cmd.js"
+    },
+    "./lib/constants/ext-ps1": {
+      "types": "./lib/constants/ext-ps1.d.ts",
+      "default": "./lib/constants/ext-ps1.js"
+    },
+    "./lib/constants/extensions": {
+      "types": "./lib/constants/extensions.d.ts",
+      "default": "./lib/constants/extensions.js"
+    },
+    "./lib/constants/extensions-json": {
+      "types": "./lib/constants/extensions-json.d.ts",
+      "default": "./lib/constants/extensions-json.js"
+    },
+    "./lib/constants/get-ipc": {
+      "types": "./lib/constants/get-ipc.d.ts",
+      "default": "./lib/constants/get-ipc.js"
+    },
+    "./lib/constants/gitignore": {
+      "types": "./lib/constants/gitignore.d.ts",
+      "default": "./lib/constants/gitignore.js"
+    },
+    "./lib/constants/hidden-package-lock-json": {
+      "types": "./lib/constants/hidden-package-lock-json.d.ts",
+      "default": "./lib/constants/hidden-package-lock-json.js"
+    },
+    "./lib/constants/ignore-globs": {
+      "types": "./lib/constants/ignore-globs.d.ts",
+      "default": "./lib/constants/ignore-globs.js"
+    },
+    "./lib/constants/index": {
+      "types": "./lib/constants/index.d.ts",
+      "default": "./lib/constants/index.js"
+    },
+    "./lib/constants/ipc": {
+      "types": "./lib/constants/ipc.d.ts",
+      "default": "./lib/constants/ipc.js"
+    },
+    "./lib/constants/ipc-handler": {
+      "types": "./lib/constants/ipc-handler.d.ts",
+      "default": "./lib/constants/ipc-handler.js"
+    },
+    "./lib/constants/ipc-promise": {
+      "types": "./lib/constants/ipc-promise.d.ts",
+      "default": "./lib/constants/ipc-promise.js"
+    },
+    "./lib/constants/ipc-target": {
+      "types": "./lib/constants/ipc-target.d.ts",
+      "default": "./lib/constants/ipc-target.js"
+    },
+    "./lib/constants/k-internals-symbol": {
+      "types": "./lib/constants/k-internals-symbol.d.ts",
+      "default": "./lib/constants/k-internals-symbol.js"
+    },
+    "./lib/constants/latest": {
+      "types": "./lib/constants/latest.d.ts",
+      "default": "./lib/constants/latest.js"
+    },
+    "./lib/constants/license": {
+      "types": "./lib/constants/license.d.ts",
+      "default": "./lib/constants/license.js"
+    },
+    "./lib/constants/license-glob": {
+      "types": "./lib/constants/license-glob.d.ts",
+      "default": "./lib/constants/license-glob.js"
+    },
+    "./lib/constants/license-glob-recursive": {
+      "types": "./lib/constants/license-glob-recursive.d.ts",
+      "default": "./lib/constants/license-glob-recursive.js"
+    },
+    "./lib/constants/license-original": {
+      "types": "./lib/constants/license-original.d.ts",
+      "default": "./lib/constants/license-original.js"
+    },
+    "./lib/constants/license-original-glob": {
+      "types": "./lib/constants/license-original-glob.d.ts",
+      "default": "./lib/constants/license-original-glob.js"
+    },
+    "./lib/constants/license-original-glob-recursive": {
+      "types": "./lib/constants/license-original-glob-recursive.d.ts",
+      "default": "./lib/constants/license-original-glob-recursive.js"
+    },
+    "./lib/constants/lifecycle-script-names": {
+      "types": "./lib/constants/lifecycle-script-names.d.ts",
+      "default": "./lib/constants/lifecycle-script-names.js"
+    },
+    "./lib/constants/loop-sentinel": {
+      "types": "./lib/constants/loop-sentinel.d.ts",
+      "default": "./lib/constants/loop-sentinel.js"
+    },
+    "./lib/constants/maintained-node-versions": {
+      "types": "./lib/constants/maintained-node-versions.d.ts",
+      "default": "./lib/constants/maintained-node-versions.js"
+    },
+    "./lib/constants/manifest-json": {
+      "types": "./lib/constants/manifest-json.d.ts",
+      "default": "./lib/constants/manifest-json.js"
+    },
+    "./lib/constants/mit": {
+      "types": "./lib/constants/mit.d.ts",
+      "default": "./lib/constants/mit.js"
+    },
+    "./lib/constants/node-auth-token": {
+      "types": "./lib/constants/node-auth-token.d.ts",
+      "default": "./lib/constants/node-auth-token.js"
+    },
+    "./lib/constants/node-env": {
+      "types": "./lib/constants/node-env.d.ts",
+      "default": "./lib/constants/node-env.js"
+    },
+    "./lib/constants/node-harden-flags": {
+      "types": "./lib/constants/node-harden-flags.d.ts",
+      "default": "./lib/constants/node-harden-flags.js"
+    },
+    "./lib/constants/node-modules": {
+      "types": "./lib/constants/node-modules.d.ts",
+      "default": "./lib/constants/node-modules.js"
+    },
+    "./lib/constants/node-modules-glob-recursive": {
+      "types": "./lib/constants/node-modules-glob-recursive.d.ts",
+      "default": "./lib/constants/node-modules-glob-recursive.js"
+    },
+    "./lib/constants/node-no-warnings-flags": {
+      "types": "./lib/constants/node-no-warnings-flags.d.ts",
+      "default": "./lib/constants/node-no-warnings-flags.js"
+    },
+    "./lib/constants/node-version": {
+      "types": "./lib/constants/node-version.d.ts",
+      "default": "./lib/constants/node-version.js"
+    },
+    "./lib/constants/node-workspaces": {
+      "types": "./lib/constants/node-workspaces.d.ts",
+      "default": "./lib/constants/node-workspaces.js"
+    },
+    "./lib/constants/npm": {
+      "types": "./lib/constants/npm.d.ts",
+      "default": "./lib/constants/npm.js"
+    },
+    "./lib/constants/npm-exec-path": {
+      "types": "./lib/constants/npm-exec-path.d.ts",
+      "default": "./lib/constants/npm-exec-path.js"
+    },
+    "./lib/constants/npx": {
+      "types": "./lib/constants/npx.d.ts",
+      "default": "./lib/constants/npx.js"
+    },
+    "./lib/constants/overrides": {
+      "types": "./lib/constants/overrides.d.ts",
+      "default": "./lib/constants/overrides.js"
+    },
+    "./lib/constants/package-default-node-range": {
+      "types": "./lib/constants/package-default-node-range.d.ts",
+      "default": "./lib/constants/package-default-node-range.js"
+    },
+    "./lib/constants/package-default-socket-categories": {
+      "types": "./lib/constants/package-default-socket-categories.d.ts",
+      "default": "./lib/constants/package-default-socket-categories.js"
+    },
+    "./lib/constants/package-default-version": {
+      "types": "./lib/constants/package-default-version.d.ts",
+      "default": "./lib/constants/package-default-version.js"
+    },
+    "./lib/constants/package-extensions": {
+      "types": "./lib/constants/package-extensions.d.ts",
+      "default": "./lib/constants/package-extensions.js"
+    },
+    "./lib/constants/package-json": {
+      "types": "./lib/constants/package-json.d.ts",
+      "default": "./lib/constants/package-json.js"
+    },
+    "./lib/constants/package-lock-json": {
+      "types": "./lib/constants/package-lock-json.d.ts",
+      "default": "./lib/constants/package-lock-json.js"
+    },
+    "./lib/constants/packument-cache": {
+      "types": "./lib/constants/packument-cache.d.ts",
+      "default": "./lib/constants/packument-cache.js"
+    },
+    "./lib/constants/pacote-cache-path": {
+      "types": "./lib/constants/pacote-cache-path.d.ts",
+      "default": "./lib/constants/pacote-cache-path.js"
+    },
+    "./lib/constants/parse-args-config": {
+      "types": "./lib/constants/parse-args-config.d.ts",
+      "default": "./lib/constants/parse-args-config.js"
+    },
+    "./lib/constants/pre-commit": {
+      "types": "./lib/constants/pre-commit.d.ts",
+      "default": "./lib/constants/pre-commit.js"
+    },
+    "./lib/constants/readme-glob": {
+      "types": "./lib/constants/readme-glob.d.ts",
+      "default": "./lib/constants/readme-glob.js"
+    },
+    "./lib/constants/readme-glob-recursive": {
+      "types": "./lib/constants/readme-glob-recursive.d.ts",
+      "default": "./lib/constants/readme-glob-recursive.js"
+    },
+    "./lib/constants/readme-md": {
+      "types": "./lib/constants/readme-md.d.ts",
+      "default": "./lib/constants/readme-md.js"
+    },
+    "./lib/constants/registry": {
+      "types": "./lib/constants/registry.d.ts",
+      "default": "./lib/constants/registry.js"
+    },
+    "./lib/constants/registry-scope-delimiter": {
+      "types": "./lib/constants/registry-scope-delimiter.d.ts",
+      "default": "./lib/constants/registry-scope-delimiter.js"
+    },
+    "./lib/constants/resolutions": {
+      "types": "./lib/constants/resolutions.d.ts",
+      "default": "./lib/constants/resolutions.js"
+    },
+    "./lib/constants/skip-tests-by-ecosystem": {
+      "types": "./lib/constants/skip-tests-by-ecosystem.d.ts",
+      "default": "./lib/constants/skip-tests-by-ecosystem.js"
+    },
+    "./lib/constants/socket-github-org": {
+      "types": "./lib/constants/socket-github-org.d.ts",
+      "default": "./lib/constants/socket-github-org.js"
+    },
+    "./lib/constants/socket-ipc-handshake": {
+      "types": "./lib/constants/socket-ipc-handshake.d.ts",
+      "default": "./lib/constants/socket-ipc-handshake.js"
+    },
+    "./lib/constants/socket-override-scope": {
+      "types": "./lib/constants/socket-override-scope.d.ts",
+      "default": "./lib/constants/socket-override-scope.js"
+    },
+    "./lib/constants/socket-public-api-key": {
+      "types": "./lib/constants/socket-public-api-key.d.ts",
+      "default": "./lib/constants/socket-public-api-key.js"
+    },
+    "./lib/constants/socket-public-api-token": {
+      "types": "./lib/constants/socket-public-api-token.d.ts",
+      "default": "./lib/constants/socket-public-api-token.js"
+    },
+    "./lib/constants/socket-registry-npm-org": {
+      "types": "./lib/constants/socket-registry-npm-org.d.ts",
+      "default": "./lib/constants/socket-registry-npm-org.js"
+    },
+    "./lib/constants/socket-registry-package-name": {
+      "types": "./lib/constants/socket-registry-package-name.d.ts",
+      "default": "./lib/constants/socket-registry-package-name.js"
+    },
+    "./lib/constants/socket-registry-repo-name": {
+      "types": "./lib/constants/socket-registry-repo-name.d.ts",
+      "default": "./lib/constants/socket-registry-repo-name.js"
+    },
+    "./lib/constants/socket-registry-scope": {
+      "types": "./lib/constants/socket-registry-scope.d.ts",
+      "default": "./lib/constants/socket-registry-scope.js"
+    },
+    "./lib/constants/socket-security-scope": {
+      "types": "./lib/constants/socket-security-scope.d.ts",
+      "default": "./lib/constants/socket-security-scope.js"
+    },
+    "./lib/constants/spinner": {
+      "types": "./lib/constants/spinner.d.ts",
+      "default": "./lib/constants/spinner.js"
+    },
+    "./lib/constants/supports-node-disable-warning-flag": {
+      "types": "./lib/constants/supports-node-disable-warning-flag.d.ts",
+      "default": "./lib/constants/supports-node-disable-warning-flag.js"
+    },
+    "./lib/constants/supports-node-require-module": {
+      "types": "./lib/constants/supports-node-require-module.d.ts",
+      "default": "./lib/constants/supports-node-require-module.js"
+    },
+    "./lib/constants/supports-node-run": {
+      "types": "./lib/constants/supports-node-run.d.ts",
+      "default": "./lib/constants/supports-node-run.js"
+    },
+    "./lib/constants/supports-process-send": {
+      "types": "./lib/constants/supports-process-send.d.ts",
+      "default": "./lib/constants/supports-process-send.js"
+    },
+    "./lib/constants/tap": {
+      "types": "./lib/constants/tap.d.ts",
+      "default": "./lib/constants/tap.js"
+    },
+    "./lib/constants/template-cjs": {
+      "types": "./lib/constants/template-cjs.d.ts",
+      "default": "./lib/constants/template-cjs.js"
+    },
+    "./lib/constants/template-cjs-browser": {
+      "types": "./lib/constants/template-cjs-browser.d.ts",
+      "default": "./lib/constants/template-cjs-browser.js"
+    },
+    "./lib/constants/template-cjs-esm": {
+      "types": "./lib/constants/template-cjs-esm.d.ts",
+      "default": "./lib/constants/template-cjs-esm.js"
+    },
+    "./lib/constants/template-es-shim-constructor": {
+      "types": "./lib/constants/template-es-shim-constructor.d.ts",
+      "default": "./lib/constants/template-es-shim-constructor.js"
+    },
+    "./lib/constants/template-es-shim-prototype-method": {
+      "types": "./lib/constants/template-es-shim-prototype-method.d.ts",
+      "default": "./lib/constants/template-es-shim-prototype-method.js"
+    },
+    "./lib/constants/template-es-shim-static-method": {
+      "types": "./lib/constants/template-es-shim-static-method.d.ts",
+      "default": "./lib/constants/template-es-shim-static-method.js"
+    },
+    "./lib/constants/ts-libs-available": {
+      "types": "./lib/constants/ts-libs-available.d.ts",
+      "default": "./lib/constants/ts-libs-available.js"
+    },
+    "./lib/constants/ts-types-available": {
+      "types": "./lib/constants/ts-types-available.d.ts",
+      "default": "./lib/constants/ts-types-available.js"
+    },
+    "./lib/constants/tsconfig-json": {
+      "types": "./lib/constants/tsconfig-json.d.ts",
+      "default": "./lib/constants/tsconfig-json.js"
+    },
+    "./lib/constants/undefined-token": {
+      "types": "./lib/constants/undefined-token.d.ts",
+      "default": "./lib/constants/undefined-token.js"
+    },
+    "./lib/constants/unlicenced": {
+      "types": "./lib/constants/unlicenced.d.ts",
+      "default": "./lib/constants/unlicenced.js"
+    },
+    "./lib/constants/unlicensed": {
+      "types": "./lib/constants/unlicensed.d.ts",
+      "default": "./lib/constants/unlicensed.js"
+    },
+    "./lib/constants/utf8": {
+      "types": "./lib/constants/utf8.d.ts",
+      "default": "./lib/constants/utf8.js"
+    },
+    "./lib/constants/vitest": {
+      "types": "./lib/constants/vitest.d.ts",
+      "default": "./lib/constants/vitest.js"
+    },
+    "./lib/constants/win32": {
+      "types": "./lib/constants/win32.d.ts",
+      "default": "./lib/constants/win32.js"
+    },
+    "./lib/constants/win32-ensure-tests-by-ecosystem": {
+      "types": "./lib/constants/win32-ensure-tests-by-ecosystem.d.ts",
+      "default": "./lib/constants/win32-ensure-tests-by-ecosystem.js"
     },
     "./lib/debug": {
       "types": "./lib/debug.d.ts",
@@ -189,7 +590,6 @@
       "types": "./lib/words.d.ts",
       "default": "./lib/words.js"
     },
-    "./extensions.json": "./extensions.json",
     "./manifest.json": "./manifest.json",
     "./package.json": "./package.json"
   },
@@ -237,6 +637,6 @@
     "*.d.ts",
     "*.{c,}js",
     "*.json",
-    "lib/*.js"
+    "lib/**/*.js"
   ]
 }

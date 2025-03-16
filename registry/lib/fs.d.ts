@@ -5,7 +5,9 @@ import {
   RmOptions,
   WriteFileOptions
 } from 'node:fs'
+
 import NPMCliPackageJson from '@npmcli/package-json'
+
 import { Remap } from './objects'
 
 declare type BufferEncoding =

@@ -1,9 +1,10 @@
 /// <reference types="node" />
 import {
+  SpawnOptions as BuiltinSpawnOptions,
   spawn as builtinSpawn,
-  spawnSync as builtinSpawnSync,
-  SpawnOptions as BuiltinSpawnOptions
+  spawnSync as builtinSpawnSync
 } from 'node:child_process'
+
 import { Remap } from './objects'
 import { Spinner } from './spinner'
 
@@ -11,9 +12,9 @@ declare type NativeSpawnResult = ReturnType<typeof builtinSpawn>
 declare type SpawnResult<Output, Extra> = Promise<
   {
     cmd: string
-    args: string[] | Readonly<string[]>
+    args: string[] | readonly string[]
     code: number
-    signal: NodeJS.Signals | null
+    signal: AbortSignal | null
     stdout: Output
     stderr: Output
   } & Extra
@@ -28,7 +29,7 @@ declare type SpawnOptions = Remap<
 declare const Spawn: {
   spawn<O extends SpawnOptions = SpawnOptions>(
     cmd: string,
-    args: string[] | Readonly<string[]>,
+    args: string[] | readonly string[],
     options?: O | undefined,
     extra?: Record<any, any> | undefined
   ): SpawnResult<
