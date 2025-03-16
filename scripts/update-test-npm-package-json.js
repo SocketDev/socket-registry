@@ -121,7 +121,11 @@ async function installTestNpmNodeModules(options) {
       : [])
   ])
   return await execNpm(
-    ['install', ...(Array.isArray(specs) ? ['--save-dev', ...specs] : [])],
+    [
+      'install',
+      '--ignore-scripts',
+      ...(Array.isArray(specs) ? ['--save-dev', ...specs] : [])
+    ],
     { cwd: testNpmPath, stdio: 'ignore' }
   )
 }
