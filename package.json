@@ -63,7 +63,7 @@
     "@mdn/browser-compat-data": "^5.7.3",
     "@npmcli/package-json": "^6.1.1",
     "@npmcli/promise-spawn": "^8.0.2",
-    "@socketregistry/packageurl-js": "^1.0.3",
+    "@socketregistry/packageurl-js": "^1.0.4",
     "@socketregistry/scripts": "file:./scripts",
     "@socketsecurity/registry": "file:./registry",
     "@tapjs/run": "^4.0.2",
