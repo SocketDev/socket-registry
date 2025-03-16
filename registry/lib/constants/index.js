@@ -112,7 +112,7 @@ const constantsObj = {
   win32EnsureTestsByEcosystem: undefined
 }
 
-const constants = createConstantsObject(constantsObj, {
+module.exports = createConstantsObject(constantsObj, {
   getters: Object.fromEntries(
     Object.keys(constantsObj).map(k => [
       k,
@@ -124,5 +124,3 @@ const constants = createConstantsObject(constantsObj, {
     getIpc
   }
 })
-
-module.exports = constants
