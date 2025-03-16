@@ -366,7 +366,7 @@ assert.notStrictEqual = function notStrictEqual(actual, expected, message) {
     })
   }
 }
-const Comparison = /*#__PURE__*/ _createClass(
+const Comparison = /*@__PURE__*/ _createClass(
   function Comparison(obj, keys, actual) {
     const _this = this
     _classCallCheck(this, Comparison)
