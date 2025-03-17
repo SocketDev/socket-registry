@@ -233,7 +233,7 @@ function configs(sourceType) {
       }
     },
     {
-      files: ['**/*.ts'],
+      files: ['**/*.{cts,mts,ts}'],
       ...js.configs.recommended,
       ...importFlatConfigs.typescript,
       ignores,
@@ -248,8 +248,13 @@ function configs(sourceType) {
           projectService: {
             ...importFlatConfigs.typescript.languageOptions?.parserOptions
               ?.projectService,
-            allowDefaultProject: [],
+            allowDefaultProject: [
+              'packages/*/*/*.d.{cts,mts}',
+              'vitest.config.mts'
+            ],
             defaultProject: 'tsconfig.json',
+            // Need this to glob packages/npm/* files.
+            maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 1_000,
             tsconfigRootDir: __dirname
           }
         }
@@ -284,10 +289,18 @@ function configs(sourceType) {
         // we want), and it's nice to await before returning anyways, since you get
         // a slightly more comprehensive stack trace upon promise rejection.
         '@typescript-eslint/return-await': ['error', 'always'],
-        // Disable no-redeclare and no-unused-vars rule because they don't play
-        // well with TypeScript.
+        // Disable the following rules because they don't play well with TypeScript.
         'no-redeclare': 'off',
         'no-unused-vars': 'off'
+      }
+    },
+    {
+      files: ['**/*.d.{cts,mts,ts}'],
+      ignores,
+      rules: {
+        // Disable the following rules because they don't play well with TypeScript
+        // definition files.
+        'n/no-missing-import': 'off'
       }
     }
   ]
