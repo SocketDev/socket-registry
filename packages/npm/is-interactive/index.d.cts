@@ -1,3 +1,6 @@
+/// <reference types="node" />
+import { Writable } from 'node:stream'
+
 /**
 Check if stdout or stderr is [interactive](https://unix.stackexchange.com/a/43389/7678).
 
@@ -23,7 +26,7 @@ declare namespace isInteractive {
 
     @default process.stdout
     */
-    readonly stream?: NodeJS.WritableStream
+    readonly stream?: Writable
   }
 }
 export = isInteractive
