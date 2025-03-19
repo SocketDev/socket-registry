@@ -703,7 +703,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-interactive@1.0.3",
+      "pkg:npm/%40socketregistry/is-interactive@1.0.4",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.7" },
@@ -711,7 +711,7 @@
         "license": "MIT",
         "name": "@socketregistry/is-interactive",
         "package": "is-interactive",
-        "version": "1.0.3"
+        "version": "1.0.4"
       }
     ],
     [
@@ -1148,7 +1148,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/reflect.ownkeys@1.0.7",
+      "pkg:npm/%40socketregistry/reflect.ownkeys@1.0.8",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.7" },
@@ -1156,7 +1156,7 @@
         "license": "MIT",
         "name": "@socketregistry/reflect.ownkeys",
         "package": "reflect.ownkeys",
-        "version": "1.0.7"
+        "version": "1.0.8"
       }
     ],
     [
