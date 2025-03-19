@@ -14,22 +14,10 @@
     "directory": "packages/npm/reflect.ownkeys"
   },
   "exports": {
-    ".": [
-      {
-        "import": {
-          "types": "./index.d.ts",
-          "default": "./index.mjs"
-        },
-        "require": {
-          "types": "./index.d.ts",
-          "default": "./index.js"
-        }
-      },
-      {
-        "types": "./index.d.ts",
-        "default": "./index.js"
-      }
-    ],
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
     "./auto": {
       "types": "./auto.d.ts",
       "default": "./auto.js"
