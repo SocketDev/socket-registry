@@ -20,6 +20,10 @@ module.exports = Object.freeze({
   // PRE_COMMIT is set to '1' by our 'test-pre-commit' script run by the
   // .husky/pre-commit hook.
   PRE_COMMIT: envAsBoolean(env.PRE_COMMIT),
+  // Flag set to help debug Socket CLI.
+  // eslint-disable-next-line no-warning-comments
+  // TODO: Make the environment variable name configurable.
+  SOCKET_CLI_DEBUG: envAsBoolean(env.SOCKET_CLI_DEBUG),
   // TAP=1 is set by the tap-run test runner.
   // https://node-tap.org/environment/#environment-variables-used-by-tap
   TAP: envAsBoolean(env.TAP),
