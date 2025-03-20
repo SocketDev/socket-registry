@@ -31,7 +31,6 @@ import {
 import { trimLeadingDotSlash } from '@socketsecurity/registry/lib/path'
 import { naturalCompare } from '@socketsecurity/registry/lib/sorts'
 import { isNonEmptyString } from '@socketsecurity/registry/lib/strings'
-import {} from '@socketsecurity/registry/lib/constants'
 
 const {
   LICENSE,
