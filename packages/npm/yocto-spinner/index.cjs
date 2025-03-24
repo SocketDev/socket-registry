@@ -51,8 +51,8 @@ function getYoctocolors() {
 let _processInteractive
 function isProcessInteractive() {
   if (_processInteractive === undefined) {
-    const process = getProcess()
-    _processInteractive = process.env.TERM !== 'dumb' && !('CI' in process.env)
+    const { env } = getProcess()
+    _processInteractive = env.TERM !== 'dumb' && !('CI' in env)
   }
   return _processInteractive
 }
