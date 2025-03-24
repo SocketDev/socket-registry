@@ -67,7 +67,7 @@
     "@socketsecurity/registry": "file:./registry",
     "@tapjs/run": "^4.0.2",
     "@types/fs-extra": "^11.0.4",
-    "@types/node": "^22.13.11",
+    "@types/node": "^22.13.13",
     "@types/npmcli__package-json": "^4.0.4",
     "@types/npmcli__promise-spawn": "^6.0.3",
     "@types/semver": "^7.5.8",
