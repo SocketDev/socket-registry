@@ -703,7 +703,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-interactive@1.0.4",
+      "pkg:npm/%40socketregistry/is-interactive@1.0.5",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.7" },
@@ -711,7 +711,7 @@
         "license": "MIT",
         "name": "@socketregistry/is-interactive",
         "package": "is-interactive",
-        "version": "1.0.4"
+        "version": "1.0.5"
       }
     ],
     [
@@ -1581,7 +1581,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/yocto-spinner@1.0.12",
+      "pkg:npm/%40socketregistry/yocto-spinner@1.0.13",
       {
         "categories": ["cleanup"],
         "engines": { "node": ">=18.20.7" },
@@ -1589,7 +1589,7 @@
         "license": "MIT",
         "name": "@socketregistry/yocto-spinner",
         "package": "yocto-spinner",
-        "version": "1.0.12"
+        "version": "1.0.13"
       }
     ],
     [
