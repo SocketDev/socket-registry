@@ -17,17 +17,30 @@ function _nonIterableRest() {
   )
 }
 function _unsupportedIterableToArray(o, minLen) {
-  if (!o) return
-  if (typeof o === 'string') return _arrayLikeToArray(o, minLen)
-  let n = Object.prototype.toString.call(o).slice(8, -1)
-  if (n === 'Object' && o.constructor) n = o.constructor.name
-  if (n === 'Map' || n === 'Set') return Array.from(o)
-  if (n === 'Arguments' || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n))
+  if (!o) {
+    return
+  }
+  if (typeof o === 'string') {
     return _arrayLikeToArray(o, minLen)
+  }
+  let n = Object.prototype.toString.call(o).slice(8, -1)
+  if (n === 'Object' && o.constructor) {
+    n = o.constructor.name
+  }
+  if (n === 'Map' || n === 'Set') {
+    return Array.from(o)
+  }
+  if (n === 'Arguments' || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) {
+    return _arrayLikeToArray(o, minLen)
+  }
 }
 function _arrayLikeToArray(arr, len) {
-  if (len == null || len > arr.length) len = arr.length
-  for (let i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]
+  if (len == null || len > arr.length) {
+    len = arr.length
+  }
+  for (let i = 0, arr2 = new Array(len); i < len; i++) {
+    arr2[i] = arr[i]
+  }
   return arr2
 }
 function _iterableToArrayLimit(r, l) {
@@ -45,31 +58,39 @@ function _iterableToArrayLimit(r, l) {
       o = !1
     try {
       if (((i = (t = t.call(r)).next), 0 === l)) {
-        if (Object(t) !== t) return
+        if (Object(t) !== t) {
+          return
+        }
         f = !1
-      } else
+      } else {
         for (
           ;
           !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l);
           f = !0
-        );
+        ) {}
+      }
     } catch (r) {
       ;(o = !0), (n = r)
     } finally {
       try {
-        if (!f && null != t.return && ((u = t.return()), Object(u) !== u))
+        if (!f && null != t.return && ((u = t.return()), Object(u) !== u)) {
           // eslint-disable-next-line no-unsafe-finally
           return
+        }
       } finally {
         // eslint-disable-next-line no-unsafe-finally
-        if (o) throw n
+        if (o) {
+          throw n
+        }
       }
     }
     return a
   }
 }
 function _arrayWithHoles(arr) {
-  if (Array.isArray(arr)) return arr
+  if (Array.isArray(arr)) {
+    return arr
+  }
 }
 function _typeof(o) {
   '@babel/helpers - typeof'
@@ -135,10 +156,14 @@ const _require$types = require('util/').types,
   isFloat32Array = _require$types.isFloat32Array,
   isFloat64Array = _require$types.isFloat64Array
 function isNonIndex(key) {
-  if (key.length === 0 || key.length > 10) return true
+  if (key.length === 0 || key.length > 10) {
+    return true
+  }
   for (let i = 0; i < key.length; i++) {
     const code = key.charCodeAt(i)
-    if (code < 48 || code > 57) return true
+    if (code < 48 || code > 57) {
+      return true
+    }
   }
   // The maximum size for an array is 2 ** 32 -1.
   return key.length === 10 && key >= Math.pow(2, 32)
@@ -283,7 +308,9 @@ function isEqualBoxedPrimitive(val1, val2) {
 function innerDeepEqual(val1, val2, strict, memos) {
   // All identical values are equivalent, as determined by ===.
   if (val1 === val2) {
-    if (val1 !== 0) return true
+    if (val1 !== 0) {
+      return true
+    }
     return strict ? objectIs(val1, val2) : true
   }
 
@@ -528,7 +555,9 @@ function findLooseMatchingPrimitives(prim) {
 }
 function setMightHaveLoosePrim(a, b, prim) {
   const altValue = findLooseMatchingPrimitives(prim)
-  if (altValue != null) return altValue
+  if (altValue != null) {
+    return altValue
+  }
   return b.has(altValue) && !a.has(altValue)
 }
 function mapMightHaveLoosePrim(a, b, prim, item, memo) {
@@ -565,7 +594,9 @@ function setEquiv(a, b, strict, memo) {
       // O(n log n) complexity we have to copy these values in a new set first.
       set.add(val)
     } else if (!b.has(val)) {
-      if (strict) return false
+      if (strict) {
+        return false
+      }
 
       // Fast path to detect missing string, symbol, undefined and null values.
       if (!setMightHaveLoosePrim(a, b, val)) {
@@ -584,7 +615,9 @@ function setEquiv(a, b, strict, memo) {
       // We have to check if a primitive value is already
       // matching and only if it's not, go hunting for it.
       if (_typeof(_val) === 'object' && _val !== null) {
-        if (!setHasEqualElement(set, _val, strict, memo)) return false
+        if (!setHasEqualElement(set, _val, strict, memo)) {
+          return false
+        }
       } else if (
         !strict &&
         !a.has(_val) &&
@@ -634,10 +667,14 @@ function mapEquiv(a, b, strict, memo) {
         (item2 === undefined && !b.has(key)) ||
         !innerDeepEqual(item1, item2, strict, memo)
       ) {
-        if (strict) return false
+        if (strict) {
+          return false
+        }
         // Fast path to detect missing string, symbol, undefined and null
         // keys.
-        if (!mapMightHaveLoosePrim(a, b, key, item1, memo)) return false
+        if (!mapMightHaveLoosePrim(a, b, key, item1, memo)) {
+          return false
+        }
         if (set === null) {
           set = new Set()
         }
@@ -652,7 +689,9 @@ function mapEquiv(a, b, strict, memo) {
         _key = _bEntries$_i[0],
         item = _bEntries$_i[1]
       if (_typeof(_key) === 'object' && _key !== null) {
-        if (!mapHasEqualEntry(set, a, _key, item, strict, memo)) return false
+        if (!mapHasEqualEntry(set, a, _key, item, strict, memo)) {
+          return false
+        }
       } else if (
         !strict &&
         (!a.has(_key) || !innerDeepEqual(a.get(_key), item, false, memo)) &&

@@ -83,7 +83,9 @@ function fmt_integrity(a) {
 }
 
 function fmt_resolution(a, buffers) {
-  if (a.byteLength < 64) throw new TypeError('resolution too short')
+  if (a.byteLength < 64) {
+    throw new TypeError('resolution too short')
+  }
   const tag = a[0]
   const view2 = new DataView(a.buffer, a.byteOffset, a.byteLength)
   let pos = 8
@@ -446,7 +448,9 @@ function parse(buf) {
             out.push('  dependencies:')
           } else if ((dep_behavior & 8) /* dev */ > 0) {
             out.push('  devDependencies:')
-          } else continue
+          } else {
+            continue
+          }
           behavior = dep_behavior
         }
         const dep_name = str(dependency.subarray(0, 8), buffers)

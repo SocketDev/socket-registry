@@ -274,7 +274,9 @@ for (const eco of constants.ecosystems) {
             }
 
             it('should not leak api', async t => {
-              if (skipping) return t.skip(skipMessage)
+              if (skipping) {
+                return t.skip(skipMessage)
+              }
               const getPolyfill = req('./polyfill.js')
               const beforeKeys = Reflect.ownKeys(getPolyfill())
               const maybeLeakBefore = findLeakedApiKey(beforeKeys)
@@ -292,13 +294,17 @@ for (const eco of constants.ecosystems) {
             })
 
             it('index.js exports es-shim api', async t => {
-              if (skipping) return t.skip(skipMessage)
+              if (skipping) {
+                return t.skip(skipMessage)
+              }
               const keys = Reflect.ownKeys(req('./index.js'))
               assert.ok(shimApiKeys.every(k => keys.includes(k)))
             })
 
             it('getPolyfill() is like implementation', async t => {
-              if (skipping) return t.skip(skipMessage)
+              if (skipping) {
+                return t.skip(skipMessage)
+              }
               const impl = req('./implementation.js')
               const polyfill = req('./polyfill.js')()
               assert.strictEqual(typeof impl, typeof polyfill)

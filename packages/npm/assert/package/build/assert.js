@@ -47,13 +47,19 @@ function _defineProperties(target, props) {
     const descriptor = props[i]
     descriptor.enumerable = descriptor.enumerable || false
     descriptor.configurable = true
-    if ('value' in descriptor) descriptor.writable = true
+    if ('value' in descriptor) {
+      descriptor.writable = true
+    }
     Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor)
   }
 }
 function _createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) _defineProperties(Constructor.prototype, protoProps)
-  if (staticProps) _defineProperties(Constructor, staticProps)
+  if (protoProps) {
+    _defineProperties(Constructor.prototype, protoProps)
+  }
+  if (staticProps) {
+    _defineProperties(Constructor, staticProps)
+  }
   Object.defineProperty(Constructor, 'prototype', { writable: false })
   return Constructor
 }
@@ -62,11 +68,15 @@ function _toPropertyKey(arg) {
   return _typeof(key) === 'symbol' ? key : String(key)
 }
 function _toPrimitive(input, hint) {
-  if (_typeof(input) !== 'object' || input === null) return input
+  if (_typeof(input) !== 'object' || input === null) {
+    return input
+  }
   const prim = input[Symbol.toPrimitive]
   if (prim !== undefined) {
     const res = prim.call(input, hint || 'default')
-    if (_typeof(res) !== 'object') return res
+    if (_typeof(res) !== 'object') {
+      return res
+    }
     throw new TypeError('@@toPrimitive must return a primitive value.')
   }
   return (hint === 'string' ? String : Number)(input)
@@ -155,7 +165,9 @@ const NO_EXCEPTION_SENTINEL = {}
 // display purposes.
 
 function innerFail(obj) {
-  if (obj.message instanceof Error) throw obj.message
+  if (obj.message instanceof Error) {
+    throw obj.message
+  }
   throw new AssertionError(obj)
 }
 function fail(actual, expected, message, operator, stackStartFn) {
@@ -179,9 +191,13 @@ function fail(actual, expected, message, operator, stackStartFn) {
         'DEP0094'
       )
     }
-    if (argsLen === 2) operator = '!='
+    if (argsLen === 2) {
+      operator = '!='
+    }
   }
-  if (message instanceof Error) throw message
+  if (message instanceof Error) {
+    throw message
+  }
   const errArgs = {
     actual: actual,
     expected: expected,
@@ -278,7 +294,9 @@ assert.deepEqual = function deepEqual(actual, expected, message) {
   if (arguments.length < 2) {
     throw new ERR_MISSING_ARGS('actual', 'expected')
   }
-  if (isDeepEqual === undefined) lazyLoadComparison()
+  if (isDeepEqual === undefined) {
+    lazyLoadComparison()
+  }
   if (!isDeepEqual(actual, expected)) {
     innerFail({
       actual: actual,
@@ -295,7 +313,9 @@ assert.notDeepEqual = function notDeepEqual(actual, expected, message) {
   if (arguments.length < 2) {
     throw new ERR_MISSING_ARGS('actual', 'expected')
   }
-  if (isDeepEqual === undefined) lazyLoadComparison()
+  if (isDeepEqual === undefined) {
+    lazyLoadComparison()
+  }
   if (isDeepEqual(actual, expected)) {
     innerFail({
       actual: actual,
@@ -311,7 +331,9 @@ assert.deepStrictEqual = function deepStrictEqual(actual, expected, message) {
   if (arguments.length < 2) {
     throw new ERR_MISSING_ARGS('actual', 'expected')
   }
-  if (isDeepEqual === undefined) lazyLoadComparison()
+  if (isDeepEqual === undefined) {
+    lazyLoadComparison()
+  }
   if (!isDeepStrictEqual(actual, expected)) {
     innerFail({
       actual: actual,
@@ -327,7 +349,9 @@ function notDeepStrictEqual(actual, expected, message) {
   if (arguments.length < 2) {
     throw new ERR_MISSING_ARGS('actual', 'expected')
   }
-  if (isDeepEqual === undefined) lazyLoadComparison()
+  if (isDeepEqual === undefined) {
+    lazyLoadComparison()
+  }
   if (isDeepStrictEqual(actual, expected)) {
     innerFail({
       actual: actual,
@@ -414,7 +438,9 @@ function compareExceptionKey(actual, expected, key, message, keys, fn) {
 }
 function expectedException(actual, expected, msg, fn) {
   if (typeof expected !== 'function') {
-    if (isRegExp(expected)) return RegExpPrototypeTest(expected, actual)
+    if (isRegExp(expected)) {
+      return RegExpPrototypeTest(expected, actual)
+    }
     // assert.doesNotThrow does not accept objects.
     if (arguments.length === 2) {
       throw new ERR_INVALID_ARG_TYPE(
@@ -448,7 +474,9 @@ function expectedException(actual, expected, msg, fn) {
         'may not be an empty object'
       )
     }
-    if (isDeepEqual === undefined) lazyLoadComparison()
+    if (isDeepEqual === undefined) {
+      lazyLoadComparison()
+    }
     keys.forEach(function (key) {
       if (
         typeof actual[key] === 'string' &&
@@ -591,7 +619,9 @@ function expectsError(stackStartFn, actual, error, message) {
   }
 }
 function expectsNoError(stackStartFn, actual, error, message) {
-  if (actual === NO_EXCEPTION_SENTINEL) return
+  if (actual === NO_EXCEPTION_SENTINEL) {
+    return
+  }
   if (typeof error === 'string') {
     message = error
     error = undefined

@@ -36,13 +36,19 @@ function _defineProperties(target, props) {
     const descriptor = props[i]
     descriptor.enumerable = descriptor.enumerable || false
     descriptor.configurable = true
-    if ('value' in descriptor) descriptor.writable = true
+    if ('value' in descriptor) {
+      descriptor.writable = true
+    }
     Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor)
   }
 }
 function _createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) _defineProperties(Constructor.prototype, protoProps)
-  if (staticProps) _defineProperties(Constructor, staticProps)
+  if (protoProps) {
+    _defineProperties(Constructor.prototype, protoProps)
+  }
+  if (staticProps) {
+    _defineProperties(Constructor, staticProps)
+  }
   Object.defineProperty(Constructor, 'prototype', { writable: false })
   return Constructor
 }
@@ -51,11 +57,15 @@ function _toPropertyKey(arg) {
   return _typeof(key) === 'symbol' ? key : String(key)
 }
 function _toPrimitive(input, hint) {
-  if (_typeof(input) !== 'object' || input === null) return input
+  if (_typeof(input) !== 'object' || input === null) {
+    return input
+  }
   const prim = input[Symbol.toPrimitive]
   if (prim !== undefined) {
     const res = prim.call(input, hint || 'default')
-    if (_typeof(res) !== 'object') return res
+    if (_typeof(res) !== 'object') {
+      return res
+    }
     throw new TypeError('@@toPrimitive must return a primitive value.')
   }
   return (hint === 'string' ? String : Number)(input)
@@ -73,7 +83,9 @@ function _inherits(subClass, superClass) {
     constructor: { value: subClass, writable: true, configurable: true }
   })
   Object.defineProperty(subClass, 'prototype', { writable: false })
-  if (superClass) _setPrototypeOf(subClass, superClass)
+  if (superClass) {
+    _setPrototypeOf(subClass, superClass)
+  }
 }
 function _setPrototypeOf(o, p) {
   _setPrototypeOf = Object.setPrototypeOf
@@ -117,9 +129,15 @@ function _assertThisInitialized(self) {
   return self
 }
 function _isNativeReflectConstruct() {
-  if (typeof Reflect === 'undefined' || !Reflect.construct) return false
-  if (Reflect.construct.sham) return false
-  if (typeof Proxy === 'function') return true
+  if (typeof Reflect === 'undefined' || !Reflect.construct) {
+    return false
+  }
+  if (Reflect.construct.sham) {
+    return false
+  }
+  if (typeof Proxy === 'function') {
+    return true
+  }
   try {
     Boolean.prototype.valueOf.call(
       Reflect.construct(Boolean, [], function () {})
@@ -227,7 +245,9 @@ createErrorType(
 createErrorType(
   'ERR_INVALID_ARG_TYPE',
   function (name, expected, actual) {
-    if (assert === undefined) assert = require('../assert')
+    if (assert === undefined) {
+      assert = require('../assert')
+    }
     assert(typeof name === 'string', "'name' must be a string")
 
     // determiner: 'must be' or 'must not be'
@@ -267,7 +287,9 @@ createErrorType(
       arguments.length > 2 && arguments[2] !== undefined
         ? arguments[2]
         : 'is invalid'
-    if (util === undefined) util = require('util/')
+    if (util === undefined) {
+      util = require('util/')
+    }
     let inspected = util.inspect(value)
     if (inspected.length > 128) {
       inspected = ''.concat(inspected.slice(0, 128), '...')
@@ -307,7 +329,9 @@ createErrorType(
     ) {
       args[_key] = arguments[_key]
     }
-    if (assert === undefined) assert = require('../assert')
+    if (assert === undefined) {
+      assert = require('../assert')
+    }
     assert(args.length > 0, 'At least one arg needs to be specified')
     let msg = 'The '
     const len = args.length

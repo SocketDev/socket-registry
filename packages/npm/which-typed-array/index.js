@@ -33,7 +33,9 @@ module.exports = function whichTypedArray(value) {
   if (value !== null && typeof value === 'object') {
     for (let i = 0; i < attempts; i += 1) {
       const attempt = attempters[i]
-      if (attempt.check(value)) return attempt.name
+      if (attempt.check(value)) {
+        return attempt.name
+      }
     }
   }
   return false

@@ -16,6 +16,7 @@
       { "allowDestructuring": true }
     ],
     "@typescript-eslint/return-await": ["error", "always"],
+    "curly": "error",
     "no-control-regex": "off",
     "no-extend-native": "off",
     "no-func-assign": "off",
