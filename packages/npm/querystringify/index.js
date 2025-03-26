@@ -14,7 +14,9 @@ function parse(query) {
       query.charCodeAt(0) === 35 /*'#'*/ ? query.slice(1) : query
     ).forEach((value, key_) => {
       const key = decode(key_)
-      if (key === undefined || key in result) return
+      if (key === undefined || key in result) {
+        return
+      }
       result[key] = decode(value)
     })
   }

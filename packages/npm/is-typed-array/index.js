@@ -29,7 +29,9 @@ const { length: attempts } = attempters
 module.exports = function isTypedArray(value) {
   if (value !== null && typeof value === 'object') {
     for (let i = 0; i < attempts; i += 1) {
-      if (attempters[i](value)) return true
+      if (attempters[i](value)) {
+        return true
+      }
     }
   }
   return false

@@ -303,10 +303,14 @@ void (async () => {
       const searchResult = await search({
         message: 'Which one?',
         source: async input => {
-          if (!input) return []
+          if (!input) {
+            return []
+          }
           // Trim, truncate, and lower input.
           const formatted = input.trim().slice(0, maxTsRefLength).toLowerCase()
-          if (!formatted) return [input]
+          if (!formatted) {
+            return [input]
+          }
           let matches
           // Simple search.
           for (const p of ['es2', 'es', 'e', 'de', 'd', 'n', 'w']) {

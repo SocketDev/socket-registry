@@ -54,13 +54,19 @@ function _defineProperties(target, props) {
     const descriptor = props[i]
     descriptor.enumerable = descriptor.enumerable || false
     descriptor.configurable = true
-    if ('value' in descriptor) descriptor.writable = true
+    if ('value' in descriptor) {
+      descriptor.writable = true
+    }
     Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor)
   }
 }
 function _createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) _defineProperties(Constructor.prototype, protoProps)
-  if (staticProps) _defineProperties(Constructor, staticProps)
+  if (protoProps) {
+    _defineProperties(Constructor.prototype, protoProps)
+  }
+  if (staticProps) {
+    _defineProperties(Constructor, staticProps)
+  }
   Object.defineProperty(Constructor, 'prototype', { writable: false })
   return Constructor
 }
@@ -69,11 +75,15 @@ function _toPropertyKey(arg) {
   return _typeof(key) === 'symbol' ? key : String(key)
 }
 function _toPrimitive(input, hint) {
-  if (_typeof(input) !== 'object' || input === null) return input
+  if (_typeof(input) !== 'object' || input === null) {
+    return input
+  }
   const prim = input[Symbol.toPrimitive]
   if (prim !== undefined) {
     const res = prim.call(input, hint || 'default')
-    if (_typeof(res) !== 'object') return res
+    if (_typeof(res) !== 'object') {
+      return res
+    }
     throw new TypeError('@@toPrimitive must return a primitive value.')
   }
   return (hint === 'string' ? String : Number)(input)
@@ -86,7 +96,9 @@ function _inherits(subClass, superClass) {
     constructor: { value: subClass, writable: true, configurable: true }
   })
   Object.defineProperty(subClass, 'prototype', { writable: false })
-  if (superClass) _setPrototypeOf(subClass, superClass)
+  if (superClass) {
+    _setPrototypeOf(subClass, superClass)
+  }
 }
 function _createSuper(Derived) {
   const hasNativeReflectConstruct = _isNativeReflectConstruct()
@@ -123,12 +135,16 @@ function _assertThisInitialized(self) {
 function _wrapNativeSuper(Class) {
   const _cache = typeof Map === 'function' ? new Map() : undefined
   _wrapNativeSuper = function _wrapNativeSuper(Class) {
-    if (Class === null || !_isNativeFunction(Class)) return Class
+    if (Class === null || !_isNativeFunction(Class)) {
+      return Class
+    }
     if (typeof Class !== 'function') {
       throw new TypeError('Super expression must either be null or a function')
     }
     if (typeof _cache !== 'undefined') {
-      if (_cache.has(Class)) return _cache.get(Class)
+      if (_cache.has(Class)) {
+        return _cache.get(Class)
+      }
       _cache.set(Class, Wrapper)
     }
     function Wrapper() {
@@ -155,16 +171,24 @@ function _construct(Parent, args, Class) {
       a.push.apply(a, args)
       const Constructor = Function.bind.apply(Parent, a)
       const instance = new Constructor()
-      if (Class) _setPrototypeOf(instance, Class.prototype)
+      if (Class) {
+        _setPrototypeOf(instance, Class.prototype)
+      }
       return instance
     }
   }
   return _construct.apply(null, arguments)
 }
 function _isNativeReflectConstruct() {
-  if (typeof Reflect === 'undefined' || !Reflect.construct) return false
-  if (Reflect.construct.sham) return false
-  if (typeof Proxy === 'function') return true
+  if (typeof Reflect === 'undefined' || !Reflect.construct) {
+    return false
+  }
+  if (Reflect.construct.sham) {
+    return false
+  }
+  if (typeof Proxy === 'function') {
+    return true
+  }
   try {
     Boolean.prototype.valueOf.call(
       Reflect.construct(Boolean, [], function () {})
@@ -230,7 +254,9 @@ function endsWith(str, search, this_len) {
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/repeat
 function repeat(str, count) {
   count = Math.floor(count)
-  if (str.length == 0 || count == 0) return ''
+  if (str.length == 0 || count == 0) {
+    return ''
+  }
   const maxCount = str.length * count
   count = Math.floor(Math.log(count) / Math.log(2))
   while (count) {
@@ -376,7 +402,9 @@ function createErrDiff(actual, expected, operator) {
     }
     actualLines.pop()
     expectedLines.pop()
-    if (actualLines.length === 0 || expectedLines.length === 0) break
+    if (actualLines.length === 0 || expectedLines.length === 0) {
+      break
+    }
     a = actualLines[actualLines.length - 1]
     b = expectedLines[expectedLines.length - 1]
   }

@@ -102,7 +102,9 @@ describe(
 
     it('Built-in buffer static methods/properties are inherited', () => {
       for (const method of Object.keys(buffer)) {
-        if (method === 'SlowBuffer' || method === 'Buffer') continue
+        if (method === 'SlowBuffer' || method === 'Buffer') {
+          continue
+        }
         for (const impl of implementations) {
           assert.equal(impl[method], (buffer as any)[method], method)
           assert.notEqual(typeof impl[method], 'undefined', method)
@@ -112,7 +114,9 @@ describe(
 
     it('Built-in Buffer static methods/properties are inherited', () => {
       for (const method of Object.keys(buffer.Buffer)) {
-        if (method === 'allocUnsafe' || method === 'allocUnsafeSlow') continue
+        if (method === 'allocUnsafe' || method === 'allocUnsafeSlow') {
+          continue
+        }
         for (const impl of implementations) {
           assert.equal(
             impl.Buffer[method],
@@ -137,7 +141,9 @@ describe(
 
     it('All Safer methods are present in Dangerous', () => {
       for (const method of Object.keys(safer)) {
-        if (method === 'Buffer') continue
+        if (method === 'Buffer') {
+          continue
+        }
         for (const impl of implementations) {
           assert.equal(impl[method], safer[method], method)
           if (method !== 'kStringMaxLength') {
@@ -155,7 +161,9 @@ describe(
 
     it('Safe methods from Dangerous methods are present in Safer', () => {
       for (const method of Object.keys(dangerous)) {
-        if (method === 'Buffer') continue
+        if (method === 'Buffer') {
+          continue
+        }
         for (const impl of implementations) {
           assert.equal(impl[method], dangerous[method], method)
           if (method !== 'kStringMaxLength') {
@@ -164,7 +172,9 @@ describe(
         }
       }
       for (const method of Object.keys(dangerous.Buffer)) {
-        if (method === 'allocUnsafe' || method === 'allocUnsafeSlow') continue
+        if (method === 'allocUnsafe' || method === 'allocUnsafeSlow') {
+          continue
+        }
         for (const impl of implementations) {
           assert.equal(impl.Buffer[method], dangerous.Buffer[method], method)
           assert.notEqual(typeof impl.Buffer[method], 'undefined', method)
@@ -410,8 +420,12 @@ describe(
         for (let i = 0; i < 1e2; i += 1) {
           const length = Math.round(Math.random() * 1e5)
           const buf = method(length)
-          if (!buffer.Buffer.isBuffer(buf)) ok = false
-          if (buf.length !== length) ok = false
+          if (!buffer.Buffer.isBuffer(buf)) {
+            ok = false
+          }
+          if (buf.length !== length) {
+            ok = false
+          }
         }
       }
       assert.ok(ok)
@@ -424,15 +438,23 @@ describe(
       for (let i = 0; i < 1e2; i += 1) {
         const length = Math.round(Math.random() * 2e6)
         const buf = safer.Buffer.alloc(length)
-        if (!buffer.Buffer.isBuffer(buf)) ok = false
-        if (buf.length !== length) ok = false
+        if (!buffer.Buffer.isBuffer(buf)) {
+          ok = false
+        }
+        if (buf.length !== length) {
+          ok = false
+        }
         let j
         for (j = 0; j < length; j += 1) {
-          if (buf[j] !== 0) ok = false
+          if (buf[j] !== 0) {
+            ok = false
+          }
         }
         buf.fill(1)
         for (j = 0; j < length; j += 1) {
-          if (buf[j] !== 1) ok = false
+          if (buf[j] !== 1) {
+            ok = false
+          }
         }
       }
       assert.ok(ok)
@@ -444,16 +466,24 @@ describe(
         for (let i = 0; i < 1e2; i += 1) {
           const length = Math.round(Math.random() * 2e6)
           const buf = dangerous.Buffer[method](length)
-          if (!buffer.Buffer.isBuffer(buf)) ok = false
-          if (buf.length !== length) ok = false
+          if (!buffer.Buffer.isBuffer(buf)) {
+            ok = false
+          }
+          if (buf.length !== length) {
+            ok = false
+          }
           buf.fill(0, 0, length)
           let j
           for (j = 0; j < length; j += 1) {
-            if (buf[j] !== 0) ok = false
+            if (buf[j] !== 0) {
+              ok = false
+            }
           }
           buf.fill(1, 0, length)
           for (j = 0; j < length; j += 1) {
-            if (buf[j] !== 1) ok = false
+            if (buf[j] !== 1) {
+              ok = false
+            }
           }
         }
         assert.ok(ok, method)
@@ -468,10 +498,16 @@ describe(
         const length = Math.round(Math.random() * 2e6)
         const fill = Math.round(Math.random() * 255)
         const buf = safer.Buffer.alloc(length, fill)
-        if (!buffer.Buffer.isBuffer(buf)) ok = false
-        if (buf.length !== length) ok = false
+        if (!buffer.Buffer.isBuffer(buf)) {
+          ok = false
+        }
+        if (buf.length !== length) {
+          ok = false
+        }
         for (let j = 0; j < length; j += 1) {
-          if (buf[j] !== fill) ok = false
+          if (buf[j] !== fill) {
+            ok = false
+          }
         }
       }
       assert.ok(ok)
@@ -485,10 +521,16 @@ describe(
         const length = Math.round(Math.random() * 2e6)
         const fill = Math.round(Math.random() * 255)
         const buf = safer.Buffer.alloc(length, fill)
-        if (!buffer.Buffer.isBuffer(buf)) ok = false
-        if (buf.length !== length) ok = false
+        if (!buffer.Buffer.isBuffer(buf)) {
+          ok = false
+        }
+        if (buf.length !== length) {
+          ok = false
+        }
         for (let j = 0; j < length; j += 1) {
-          if (buf[j] !== fill) ok = false
+          if (buf[j] !== fill) {
+            ok = false
+          }
         }
       }
       assert.ok(ok)
