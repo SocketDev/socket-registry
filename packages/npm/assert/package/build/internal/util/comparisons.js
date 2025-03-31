@@ -78,8 +78,8 @@ function _iterableToArrayLimit(r, l) {
           return
         }
       } finally {
-        // eslint-disable-next-line no-unsafe-finally
         if (o) {
+          // eslint-disable-next-line no-unsafe-finally
           throw n
         }
       }
