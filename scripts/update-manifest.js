@@ -1,12 +1,12 @@
 'use strict'
 
-const fs = require('node:fs/promises')
 const path = require('node:path')
 const util = require('node:util')
 
 const { PackageURL } = require('@socketregistry/packageurl-js')
 const constants = require('@socketregistry/scripts/constants')
 const { getModifiedFiles } = require('@socketregistry/scripts/lib/git')
+const { writeJson } = require('@socketsecurity/registry/lib/fs')
 const {
   objectEntries,
   toSortedObject,
@@ -22,9 +22,8 @@ const {
 } = require('@socketsecurity/registry/lib/packages')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { naturalCompare } = require('@socketsecurity/registry/lib/sorts')
-const { biomeFormat } = require('@socketsecurity/registry/lib/strings')
 
-const { AT_LATEST, NPM, UNLICENSED, UTF8 } = constants
+const { AT_LATEST, NPM, UNLICENSED } = constants
 
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
@@ -171,10 +170,6 @@ void (async () => {
   const manifest = {}
   await addNpmManifestData(manifest, { spinner })
   // Lazily access constants.registryManifestJsonPath.
-  const { registryManifestJsonPath } = constants
-  const output = await biomeFormat(JSON.stringify(manifest), {
-    filepath: registryManifestJsonPath
-  })
-  await fs.writeFile(registryManifestJsonPath, output, UTF8)
+  await writeJson(constants.registryManifestJsonPath, manifest, { spaces: 2 })
   spinner.stop()
 })()

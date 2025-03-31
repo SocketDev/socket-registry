@@ -192,7 +192,13 @@ function removeSync(filepath, options) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function stringify(json, EOL = '\n', finalEOL = true, replacer = null, spaces) {
+function stringify(
+  json,
+  EOL = '\n',
+  finalEOL = true,
+  replacer = null,
+  spaces = 2
+) {
   const EOF = finalEOL ? EOL : ''
   const str = JSON.stringify(json, replacer, spaces)
   return `${str.replace(/\n/g, EOL)}${EOF}`
