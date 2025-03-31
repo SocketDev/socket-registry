@@ -26,8 +26,6 @@
     "_stream_writable": false,
     "_tls_common": false,
     "_tls_wrap": false,
-    "@biomejs/js-api": false,
-    "@biomejs/wasm-nodejs": false,
     "@inquirer/confirm": false,
     "@inquirer/input": false,
     "@inquirer/password": false,
@@ -595,8 +593,6 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@biomejs/js-api": "0.7.1",
-    "@biomejs/wasm-nodejs": "1.9.4",
     "@inquirer/confirm": "5.1.8",
     "@inquirer/input": "4.1.8",
     "@inquirer/password": "4.0.11",
