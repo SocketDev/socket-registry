@@ -62,7 +62,7 @@
     "@eslint/js": "^9.23.0",
     "@mdn/browser-compat-data": "^6.0.1",
     "@npmcli/package-json": "^6.1.1",
-    "@socketregistry/packageurl-js": "^1.0.4",
+    "@socketregistry/packageurl-js": "^1.0.5",
     "@socketregistry/scripts": "file:./scripts",
     "@socketsecurity/registry": "file:./registry",
     "@tapjs/run": "^4.0.2",
