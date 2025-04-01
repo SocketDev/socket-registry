@@ -36,73 +36,6 @@ const nodeGlobalsConfig = Object.fromEntries(
   Object.entries(globals.node).map(([k]) => [k, 'readonly'])
 )
 
-const sharedPlugins = {
-  'sort-destructure-keys': sortDestructureKeysPlugin,
-  unicorn: unicornPlugin
-}
-
-const sharedRules = {
-  curly: 'error',
-  'no-await-in-loop': 'error',
-  'no-control-regex': 'error',
-  'no-empty': ['error', { allowEmptyCatch: true }],
-  'no-new': 'error',
-  'no-proto': 'error',
-  'no-undef': 'error',
-  'no-self-assign': ['error', { props: false }],
-  'no-unused-vars': [
-    'error',
-    {
-      argsIgnorePattern: '^_|^this$',
-      ignoreRestSiblings: true,
-      varsIgnorePattern: '^_'
-    }
-  ],
-  'no-var': 'error',
-  'no-warning-comments': 'error',
-  'prefer-const': 'error',
-  'sort-destructure-keys/sort-destructure-keys': 'error',
-  'sort-imports': ['error', { ignoreDeclarationSort: true }],
-  'unicorn/consistent-function-scoping': 'error'
-}
-
-const sharedRulesForImportX = {
-  ...origImportXFlatConfigs.recommended.rules,
-  'import-x/extensions': [
-    'error',
-    'never',
-    {
-      cjs: 'ignorePackages',
-      js: 'ignorePackages',
-      json: 'always',
-      mjs: 'ignorePackages'
-    }
-  ],
-  'import-x/order': [
-    'warn',
-    {
-      groups: [
-        'builtin',
-        'external',
-        'internal',
-        ['parent', 'sibling', 'index'],
-        'type'
-      ],
-      pathGroups: [
-        {
-          pattern: '@socket{registry,security}/**',
-          group: 'internal'
-        }
-      ],
-      pathGroupsExcludedImportTypes: ['type'],
-      'newlines-between': 'always',
-      alphabetize: {
-        order: 'asc'
-      }
-    }
-  ]
-}
-
 function getIgnores(isEsm) {
   // Lazily access constants.npmPackageNames.
   return constants.npmPackageNames.flatMap(sockRegPkgName => {
@@ -155,7 +88,40 @@ function getImportXFlatConfigs(isEsm) {
         ]
       },
       rules: {
-        ...sharedRulesForImportX,
+        ...origImportXFlatConfigs.recommended.rules,
+        'import-x/extensions': [
+          'error',
+          'never',
+          {
+            cjs: 'ignorePackages',
+            js: 'ignorePackages',
+            json: 'always',
+            mjs: 'ignorePackages'
+          }
+        ],
+        'import-x/order': [
+          'warn',
+          {
+            groups: [
+              'builtin',
+              'external',
+              'internal',
+              ['parent', 'sibling', 'index'],
+              'type'
+            ],
+            pathGroups: [
+              {
+                pattern: '@socket{registry,security}/**',
+                group: 'internal'
+              }
+            ],
+            pathGroupsExcludedImportTypes: ['type'],
+            'newlines-between': 'always',
+            alphabetize: {
+              order: 'asc'
+            }
+          }
+        ],
         // TypeScript compilation already ensures that named imports exist in
         // the referenced module.
         'import-x/named': 'off',
@@ -172,6 +138,66 @@ function configs(sourceType) {
   const importFlatConfigs = getImportXFlatConfigs(isEsm)
   const nodePluginConfigs =
     nodePlugin.configs[`flat/recommended-${isEsm ? 'module' : 'script'}`]
+  const sharedPlugins = {
+    ...nodePluginConfigs.plugins,
+    'sort-destructure-keys': sortDestructureKeysPlugin,
+    unicorn: unicornPlugin
+  }
+  const sharedRules = {
+    'n/exports-style': ['error', 'module.exports'],
+    // The n/no-unpublished-bin rule does does not support non-trivial glob
+    // patterns used in package.json "files" fields. In those cases we simplify
+    // the glob patterns used.
+    'n/no-unpublished-bin': 'error',
+    'n/no-unsupported-features/es-builtins': [
+      'error',
+      {
+        ignores: ['Object.groupBy'],
+        // Lazily access constants.maintainedNodeVersions.
+        version: constants.maintainedNodeVersions.current
+      }
+    ],
+    'n/no-unsupported-features/es-syntax': [
+      'error',
+      {
+        ignores: ['object-map-groupby'],
+        // Lazily access constants.maintainedNodeVersions.
+        version: constants.maintainedNodeVersions.current
+      }
+    ],
+    'n/no-unsupported-features/node-builtins': [
+      'error',
+      {
+        ignores: ['buffer.resolveObjectURL', 'fetch', 'fs.promises.cp'],
+        // Lazily access constants.maintainedNodeVersions.
+        version: constants.maintainedNodeVersions.current
+      }
+    ],
+    'n/prefer-node-protocol': 'error',
+    'unicorn/consistent-function-scoping': 'error',
+    curly: 'error',
+    'no-await-in-loop': 'error',
+    'no-control-regex': 'error',
+    'no-empty': ['error', { allowEmptyCatch: true }],
+    'no-new': 'error',
+    'no-proto': 'error',
+    'no-undef': 'error',
+    'no-self-assign': ['error', { props: false }],
+    'no-unused-vars': [
+      'error',
+      {
+        argsIgnorePattern: '^_|^this$',
+        ignoreRestSiblings: true,
+        varsIgnorePattern: '^_'
+      }
+    ],
+    'no-var': 'error',
+    'no-warning-comments': 'error',
+    'prefer-const': 'error',
+    'sort-destructure-keys/sort-destructure-keys': 'error',
+    'sort-imports': ['error', { ignoreDeclarationSort: true }]
+  }
+
   return [
     {
       ...js.configs.recommended,
@@ -193,44 +219,13 @@ function configs(sourceType) {
       plugins: {
         ...js.configs.recommended.plugins,
         ...importFlatConfigs.recommended.plugins,
-        ...nodePluginConfigs.plugins,
         ...sharedPlugins
       },
       rules: {
         ...js.configs.recommended.rules,
         ...importFlatConfigs.recommended.rules,
         ...nodePluginConfigs.rules,
-        ...sharedRules,
-        'n/exports-style': ['error', 'module.exports'],
-        // The n/no-unpublished-bin rule does does not support non-trivial glob
-        // patterns used in package.json "files" fields. In those cases we simplify
-        // the glob patterns used.
-        'n/no-unpublished-bin': 'error',
-        'n/no-unsupported-features/es-builtins': [
-          'error',
-          {
-            ignores: ['Object.groupBy'],
-            // Lazily access constants.maintainedNodeVersions.
-            version: constants.maintainedNodeVersions.current
-          }
-        ],
-        'n/no-unsupported-features/es-syntax': [
-          'error',
-          {
-            ignores: ['object-map-groupby'],
-            // Lazily access constants.maintainedNodeVersions.
-            version: constants.maintainedNodeVersions.current
-          }
-        ],
-        'n/no-unsupported-features/node-builtins': [
-          'error',
-          {
-            ignores: ['buffer.resolveObjectURL', 'fetch', 'fs.promises.cp'],
-            // Lazily access constants.maintainedNodeVersions.
-            version: constants.maintainedNodeVersions.current
-          }
-        ],
-        'n/prefer-node-protocol': 'error'
+        ...sharedRules
       }
     },
     {
