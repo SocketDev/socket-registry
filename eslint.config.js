@@ -294,8 +294,7 @@ function configs(sourceType) {
       files: ['**/*.d.{cts,mts,ts}'],
       ignores,
       rules: {
-        // Disable the following rules because they don't play well with TypeScript
-        // definition files.
+        // Disable the following rules because they don't play well with TypeScript.
         'n/no-missing-import': 'off'
       }
     }
