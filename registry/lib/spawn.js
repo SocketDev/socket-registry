@@ -28,7 +28,19 @@ function spawn(cmd, args, options, extra) {
   } = { __proto__: null, ...options }
   const spawn = getSpawn()
   const isSpinning = !!spinner?.isSpinning
-  spinner?.stop()
+  const { stdio } = spawnOptions
+  // The stdio option can be a string or an array.
+  // https://nodejs.org/api/child_process.html#optionsstdio
+  const isStdioIgnored =
+    stdio === 'ignore' ||
+    (Array.isArray(stdio) &&
+      stdio.length > 2 &&
+      stdio[0] === 'ignore' &&
+      stdio[1] === 'ignore' &&
+      stdio[2] === 'ignore')
+  if (!isStdioIgnored) {
+    spinner?.stop()
+  }
   let spawnPromise = spawn(
     cmd,
     args,
@@ -38,7 +50,7 @@ function spawn(cmd, args, options, extra) {
     },
     extra
   )
-  if (isSpinning) {
+  if (!isStdioIgnored && isSpinning) {
     const oldSpawnPromise = spawnPromise
     spawnPromise = spawnPromise.finally(() => {
       spinner?.start()
