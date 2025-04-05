@@ -593,11 +593,11 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@inquirer/confirm": "5.1.8",
-    "@inquirer/input": "4.1.8",
-    "@inquirer/password": "4.0.11",
-    "@inquirer/search": "3.0.11",
-    "@inquirer/select": "4.1.0",
+    "@inquirer/confirm": "5.1.9",
+    "@inquirer/input": "4.1.9",
+    "@inquirer/password": "4.0.12",
+    "@inquirer/search": "3.0.12",
+    "@inquirer/select": "4.1.1",
     "@npmcli/package-json": "6.1.1",
     "@npmcli/promise-spawn": "8.0.2",
     "@socketregistry/is-unicode-supported": "1.0.3",
@@ -623,7 +623,7 @@
     "yoctocolors-cjs": "2.1.2"
   },
   "devDependencies": {
-    "@inquirer/type": "^3.0.5",
+    "@inquirer/type": "^3.0.6",
     "@types/pacote": "^11.1.8"
   },
   "engines": {
