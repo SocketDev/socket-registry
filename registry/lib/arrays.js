@@ -1,5 +1,29 @@
 'use strict'
 
+let _conjunctionFormatter
+/*@__NO_SIDE_EFFECTS__*/
+function getConjunctionFormatter() {
+  if (_conjunctionFormatter === undefined) {
+    _conjunctionFormatter = new Intl.ListFormat('en', {
+      style: 'long',
+      type: 'conjunction' // "and" lists.
+    })
+  }
+  return _conjunctionFormatter
+}
+
+let _disjunctionFormatter
+/*@__NO_SIDE_EFFECTS__*/
+function getDisjunctionFormatter() {
+  if (_disjunctionFormatter === undefined) {
+    _disjunctionFormatter = new Intl.ListFormat('en', {
+      style: 'long',
+      type: 'disjunction' // "or" lists.
+    })
+  }
+  return _conjunctionFormatter
+}
+
 /*@__NO_SIDE_EFFECTS__*/
 function arrayChunk(arr, size = 2) {
   const { length } = arr
@@ -17,22 +41,18 @@ function arrayUnique(arr) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function joinAsList(arr) {
-  const { length } = arr
-  if (length === 0) {
-    return ''
-  }
-  if (length === 1) {
-    return arr[0]
-  }
-  if (length === 2) {
-    return `${arr[0]} and ${arr[1]}`
-  }
-  return `${arr.slice(0, -1).join(', ')}, and ${arr.at(-1)}`
+function joinAnd(arr) {
+  return getConjunctionFormatter().format(arr)
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function joinOr(arr) {
+  return getDisjunctionFormatter().format(arr)
 }
 
 module.exports = {
   arrayChunk,
   arrayUnique,
-  joinAsList
+  joinAnd,
+  joinOr
 }

@@ -9,7 +9,7 @@ const tinyglobby = require('tinyglobby')
 const { PackageURL } = require('@socketregistry/packageurl-js')
 const constants = require('@socketregistry/scripts/constants')
 const { getManifestData } = require('@socketsecurity/registry')
-const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
+const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
 const { globLicenses } = require('@socketsecurity/registry/lib/globs')
 const {
   isObjectObject,
@@ -111,7 +111,7 @@ async function getNpmReadmeAction(pkgPath, options) {
           ...manifestData,
           ...pkgJson,
           ...(interop ? { interop } : {}),
-          adjectivesText: `${capitalize(determineArticle(adjectives[0]))} ${joinAsList(adjectives)}`,
+          adjectivesText: `${capitalize(determineArticle(adjectives[0]))} ${joinAnd(adjectives)}`,
           categories,
           dependencies: isObjectObject(pkgJson.dependencies) ?? {},
           originalName: resolveOriginalPackageName(sockRegPkgName),
