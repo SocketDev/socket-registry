@@ -21,7 +21,7 @@ function getDisjunctionFormatter() {
       type: 'disjunction' // "or" lists.
     })
   }
-  return _conjunctionFormatter
+  return _disjunctionFormatter
 }
 
 /*@__NO_SIDE_EFFECTS__*/
