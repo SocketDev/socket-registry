@@ -4,7 +4,7 @@ const path = require('node:path')
 const util = require('node:util')
 
 const constants = require('@socketregistry/scripts/constants')
-const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
+const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
 const { readDirNames } = require('@socketsecurity/registry/lib/fs')
 const { logger } = require('@socketsecurity/registry/lib/logger')
 const { execNpm } = require('@socketsecurity/registry/lib/npm')
@@ -128,7 +128,7 @@ void (async () => {
   await publishPackages(packages, { fails })
   if (fails.length) {
     const msg = `Unable to publish ${fails.length} ${pluralize('package', fails.length)}:`
-    const msgList = joinAsList(fails)
+    const msgList = joinAnd(fails)
     const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
     logger.warn(`${msg}${separator}${msgList}`)
   }

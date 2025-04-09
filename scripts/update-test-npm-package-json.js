@@ -10,7 +10,7 @@ const semver = require('semver')
 const { glob: tinyGlob } = require('tinyglobby')
 
 const constants = require('@socketregistry/scripts/constants')
-const { joinAsList } = require('@socketsecurity/registry/lib/arrays')
+const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
 const {
   isSymbolicLinkSync,
   remove,
@@ -138,7 +138,7 @@ async function installMissingPackages(packageNames, options) {
   } = { __proto__: null, ...options }
   const originalNames = packageNames.map(resolveOriginalPackageName)
   const msg = `Refreshing ${originalNames.length} ${pluralize('package', originalNames.length)}...`
-  const msgList = joinAsList(originalNames)
+  const msgList = joinAnd(originalNames)
   spinner?.start(
     msg.length + msgList.length + 3 > COLUMN_LIMIT
       ? `${msg}:\n${msgList}`
@@ -240,7 +240,7 @@ async function installMissingPackageTests(packageNames, options) {
   }
   if (unresolvable.length) {
     const msg = `Unable to resolve tests for ${unresolvable.length} ${pluralize('package', unresolvable.length)}:`
-    const msgList = joinAsList(unresolvable)
+    const msgList = joinAnd(unresolvable)
     const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
     spinner?.warn(`${msg}${separator}${msgList}`)
   }
