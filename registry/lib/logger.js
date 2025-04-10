@@ -4,7 +4,7 @@ const { construct: ReflectConstruct } = Reflect
 
 let _Console
 /*@__NO_SIDE_EFFECTS__*/
-function constructConsole(args) {
+function constructConsole(...args) {
   if (_Console === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
     // eslint-disable-next-line n/prefer-node-protocol
@@ -69,7 +69,12 @@ class Logger {
   static LOG_SYMBOLS = LOG_SYMBOLS
 
   constructor(...args) {
-    privateConsole.set(this, args.length ? constructConsole(args) : console)
+    privateConsole.set(
+      this,
+      args.length
+        ? constructConsole(...args)
+        : constructConsole({ stdout: process.stdout, stderr: process.stderr })
+    )
   }
 
   #symbolApply(symbolType, args) {
