@@ -1,4 +1,2 @@
-declare const nodeHardenFlags: Readonly<
-  ['--disable-proto', 'delete', '--frozen-intrinsics', '--no-deprecation']
->
+declare const nodeHardenFlags: readonly string[]
 export = nodeHardenFlags

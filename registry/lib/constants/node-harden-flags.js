@@ -1,8 +1,9 @@
 'use strict'
 
-module.exports = Object.freeze([
-  '--disable-proto',
-  'delete',
-  '--frozen-intrinsics',
-  '--no-deprecation'
-])
+const WIN32 = require('./win32')
+
+module.exports = Object.freeze(
+  WIN32
+    ? []
+    : ['--disable-proto', 'throw', '--frozen-intrinsics', '--no-deprecation']
+)
