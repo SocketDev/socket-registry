@@ -423,7 +423,7 @@ void (async () => {
     const useNmEntryExports =
       entryExports === undefined && isSubpathExports(nmEntryExports)
     editablePkgJson.update({
-      main: useNmEntryExports ? undefined : pkgPath.content.main,
+      main: useNmEntryExports ? undefined : editablePkgJson.content.main,
       exports: useNmEntryExports ? nmEntryExports : entryExports,
       files: [...editablePkgJson.content.files, ...filesFieldAdditions].sort(
         naturalCompare
