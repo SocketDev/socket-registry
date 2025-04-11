@@ -55,6 +55,13 @@ const LOG_SYMBOLS = /*@__PURE__*/ (() => {
   return new Proxy(target, handler)
 })()
 
+const boundConsoleMethods = new Map(
+  ['debug', 'dir', 'dirxml', 'error', 'info', 'log', 'trace', 'warn'].map(n => [
+    n,
+    console[n].bind(console)
+  ])
+)
+
 const privateConsole = new WeakMap()
 
 const symbolTypeToMethodName = {
@@ -69,12 +76,20 @@ class Logger {
   static LOG_SYMBOLS = LOG_SYMBOLS
 
   constructor(...args) {
-    privateConsole.set(
-      this,
-      args.length
-        ? constructConsole(...args)
-        : constructConsole({ stdout: process.stdout, stderr: process.stderr })
-    )
+    if (args.length) {
+      privateConsole.set(this, constructConsole(...args))
+    } else {
+      // Create a new console that acts like the builtin one so that it will
+      // work with Node's --frozen-intrinsics flag.
+      const newConsole = constructConsole({
+        stdout: process.stdout,
+        stderr: process.stderr
+      })
+      for (const { 0: key, 1: method } of boundConsoleMethods) {
+        newConsole[key] = method
+      }
+      privateConsole.set(this, newConsole)
+    }
   }
 
   #symbolApply(symbolType, args) {
