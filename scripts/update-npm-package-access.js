@@ -62,8 +62,11 @@ void (async () => {
       )
       logger.log(stdout)
     } catch (e) {
+      const stderr = e?.stderr ?? ''
       fails.push(pkg.printName)
-      logger.log(e)
+      if (stderr) {
+        logger.log(stderr)
+      }
     }
   })
 

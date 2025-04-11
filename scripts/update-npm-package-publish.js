@@ -84,7 +84,9 @@ async function publish(pkg, state = { fails: [] }) {
     const stderr = e?.stderr ?? ''
     if (!stderr.includes('cannot publish over')) {
       state.fails.push(pkg.printName)
-      logger.log(stderr)
+      if (stderr) {
+        logger.log(stderr)
+      }
     }
   }
 }
