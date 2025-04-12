@@ -124,7 +124,7 @@ async function installTestNpmNodeModules(options) {
     [
       'install',
       '--ignore-scripts',
-      ...(Array.isArray(specs) ? ['--save-dev', ...specs] : [])
+      ...(Array.isArray(specs) ? ['--save-dev', '--save-exact', ...specs] : [])
     ],
     { cwd: testNpmPath, stdio: 'ignore' }
   )

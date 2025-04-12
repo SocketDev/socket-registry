@@ -623,8 +623,8 @@
     "yoctocolors-cjs": "2.1.2"
   },
   "devDependencies": {
-    "@inquirer/type": "^3.0.6",
-    "@types/pacote": "^11.1.8"
+    "@inquirer/type": "3.0.6",
+    "@types/pacote": "11.1.8"
   },
   "engines": {
     "node": ">=18.20.7"
