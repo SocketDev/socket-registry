@@ -32,6 +32,7 @@
     "@inquirer/search": false,
     "@inquirer/select": false,
     "@npmcli/package-json": false,
+    "@npmcli/package-json/lib/sort": false,
     "@npmcli/promise-spawn": false,
     "@socketregistry/yocto-spinner": false,
     "@socketregistry/yocto-spinner/index.cjs": false,

@@ -11,6 +11,8 @@ import { CategoryString } from '../index'
 declare namespace Packages {
   export class EditablePackageJson extends NPMCliPackageJson {
     content: Readonly<PackageJson>
+    // @ts-ignore TypeScript doesn't like an override with a different return type.
+    override save: () => Promise<boolean>
     saveSync: () => void
   }
   export type Exports = Exclude<PackageJson['exports'], undefined>

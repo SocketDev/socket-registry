@@ -171,15 +171,89 @@ let _EditablePackageJsonClass
 function getEditablePackageJsonClass() {
   if (_EditablePackageJsonClass === undefined) {
     const EditablePackageJsonBase = /*@__PURE__*/ require('@npmcli/package-json')
+    const {
+      packageSort
+    } = /*@__PURE__*/ require('@npmcli/package-json/lib/sort')
     _EditablePackageJsonClass = class EditablePackageJson extends (
       EditablePackageJsonBase
     ) {
       #_canSave = true
+      #_path
+      #_readFileContent = ''
+
+      create(path) {
+        super.create(path)
+        this.#_path = path
+        return this
+      }
 
       fromContent(data) {
         super.fromContent(data)
         this.#_canSave = false
         return this
+      }
+
+      async load(path, parseIndex) {
+        this.#_path = path
+        const { promises: fsPromises } = getFs()
+        let parseErr
+        try {
+          this.#_readFileContent = await fsPromises.read(this.filename)
+        } catch (err) {
+          if (!parseIndex) {
+            throw err
+          }
+          parseErr = err
+        }
+        if (parseErr) {
+          const indexFile = path.resolve(this.path, 'index.js')
+          let indexFileContent
+          try {
+            indexFileContent = await fsPromises.readFile(indexFile, 'utf8')
+          } catch {
+            throw parseErr
+          }
+          try {
+            this.fromComment(indexFileContent)
+          } catch {
+            throw parseErr
+          }
+          // This wasn't a package.json so prevent saving
+          this.#_canSave = false
+          return this
+        }
+        return this.fromJSON(this.#_readFileContent)
+      }
+
+      get path() {
+        return this.#_path
+      }
+
+      async save({ sort } = {}) {
+        if (!this.#_canSave) {
+          throw new Error('No package.json to save to')
+        }
+        const {
+          [Symbol.for('indent')]: indent,
+          [Symbol.for('newline')]: newline,
+          ...rest
+        } = this.content
+        const format = indent === undefined ? '  ' : indent
+        const eol = newline === undefined ? '\n' : newline
+        const content = sort ? packageSort(rest) : rest
+        const fileContent = `${JSON.stringify(
+          content,
+          null,
+          format
+        )}\n`.replace(/\n/g, eol)
+
+        if (fileContent.trim() === this.#_readFileContent.trim()) {
+          return false
+        }
+        const { promises: fsPromises } = getFs()
+        await fsPromises.writeFile(this.filename, fileContent)
+        this.#_readFileContent = fileContent
+        return true
       }
 
       async saveSync() {
