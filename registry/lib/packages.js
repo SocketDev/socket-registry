@@ -172,33 +172,95 @@ function getEditablePackageJsonClass() {
   if (_EditablePackageJsonClass === undefined) {
     const EditablePackageJsonBase = /*@__PURE__*/ require('@npmcli/package-json')
     const {
+      read
+    } = /*@__PURE__*/ require('@npmcli/package-json/lib/read-package')
+    const {
       packageSort
     } = /*@__PURE__*/ require('@npmcli/package-json/lib/sort')
     _EditablePackageJsonClass = class EditablePackageJson extends (
       EditablePackageJsonBase
     ) {
-      #_canSave = true
-      #_path
-      #_readFileContent = ''
+      static fixSteps = EditablePackageJsonBase.fixSteps
+      static normalizeSteps = EditablePackageJsonBase.normalizeSteps
+      static prepareSteps = EditablePackageJsonBase.prepareSteps
+
+      _canSave = true
+      _path = undefined
+      _readFileContent = ''
+
+      static async create(path, opts = {}) {
+        const p = new _EditablePackageJsonClass()
+        await p.create(path)
+        return opts.data ? p.update(opts.data) : p
+      }
+
+      static async fix(path, opts) {
+        const p = new _EditablePackageJsonClass()
+        await p.load(path, true)
+        return p.fix(opts)
+      }
+
+      static async load(path, opts = {}) {
+        const p = new _EditablePackageJsonClass()
+        // Avoid try/catch if we aren't going to create
+        if (!opts.create) {
+          return await p.load(path)
+        }
+        try {
+          return await p.load(path)
+        } catch (err) {
+          if (!err.message.startsWith('Could not read package.json')) {
+            throw err
+          }
+          return await p.create(path)
+        }
+      }
+
+      static async normalize(path, opts) {
+        const p = new _EditablePackageJsonClass()
+        await p.load(path)
+        return await p.normalize(opts)
+      }
+
+      static async prepare(path, opts) {
+        const p = new _EditablePackageJsonClass()
+        await p.load(path, true)
+        return await p.prepare(opts)
+      }
 
       create(path) {
         super.create(path)
-        this.#_path = path
+        this._path = path
+        return this
+      }
+
+      async fix(opts = {}) {
+        await super.fix(opts)
+        return this
+      }
+
+      fromComment(data) {
+        super.fromComment(data)
         return this
       }
 
       fromContent(data) {
         super.fromContent(data)
-        this.#_canSave = false
+        this._canSave = false
+        return this
+      }
+
+      fromJSON(data) {
+        super.fromJSON(data)
         return this
       }
 
       async load(path, parseIndex) {
-        this.#_path = path
+        this._path = path
         const { promises: fsPromises } = getFs()
         let parseErr
         try {
-          this.#_readFileContent = await fsPromises.read(this.filename)
+          this._readFileContent = await read(this.filename)
         } catch (err) {
           if (!parseIndex) {
             throw err
@@ -219,18 +281,28 @@ function getEditablePackageJsonClass() {
             throw parseErr
           }
           // This wasn't a package.json so prevent saving
-          this.#_canSave = false
+          this._canSave = false
           return this
         }
-        return this.fromJSON(this.#_readFileContent)
+        return this.fromJSON(this._readFileContent)
+      }
+
+      async normalize(opts = {}) {
+        await super.normalize(opts)
+        return this
       }
 
       get path() {
-        return this.#_path
+        return this._path
+      }
+
+      async prepare(opts = {}) {
+        await super.prepare(opts)
+        return this
       }
 
       async save({ sort } = {}) {
-        if (!this.#_canSave) {
+        if (!this._canSave) {
           throw new Error('No package.json to save to')
         }
         const {
@@ -247,17 +319,17 @@ function getEditablePackageJsonClass() {
           format
         )}\n`.replace(/\n/g, eol)
 
-        if (fileContent.trim() === this.#_readFileContent.trim()) {
+        if (fileContent.trim() === this._readFileContent.trim()) {
           return false
         }
         const { promises: fsPromises } = getFs()
         await fsPromises.writeFile(this.filename, fileContent)
-        this.#_readFileContent = fileContent
+        this._readFileContent = fileContent
         return true
       }
 
       async saveSync() {
-        if (!this.#_canSave || this.content === undefined) {
+        if (!this._canSave || this.content === undefined) {
           throw new Error('No package.json to save to')
         }
         const {
@@ -272,6 +344,11 @@ function getEditablePackageJsonClass() {
         }
         const fs = getFs()
         fs.writeFileSync(this.filename, fileContent)
+      }
+
+      update(content) {
+        super.update(content)
+        return this
       }
     }
   }
