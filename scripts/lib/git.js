@@ -205,7 +205,7 @@ function parseGitDiffStdout(stdout, options) {
     ...matcherOptions
   } = { __proto__: null, ...options }
   const path = getPath()
-  const rawFiles = stdout?.split('\n') ?? []
+  const rawFiles = stdout?.trim().split('\n') ?? []
   const files = absolute
     ? rawFiles.map(relPath => normalizePath(path.join(rootPath, relPath)))
     : rawFiles.map(relPath => normalizePath(relPath))
