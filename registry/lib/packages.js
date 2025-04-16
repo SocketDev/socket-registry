@@ -848,20 +848,29 @@ function parseSpdxExp(spdxExp) {
 
 /*@__NO_SIDE_EFFECTS__*/
 async function readPackageJson(filepath, options) {
-  const { editable, ...otherOptions } = { __proto__: null, ...options }
-  const pkgJson = await readJson(resolvePackageJsonPath(filepath))
-  return editable
-    ? await toEditablePackageJson(pkgJson, { path: filepath, ...otherOptions })
-    : normalizePackageJson(pkgJson, otherOptions)
+  const { editable, throws, ...otherOptions } = { __proto__: null, ...options }
+  const pkgJson = await readJson(resolvePackageJsonPath(filepath), { throws })
+  if (pkgJson) {
+    return editable
+      ? await toEditablePackageJson(pkgJson, {
+          path: filepath,
+          ...otherOptions
+        })
+      : normalizePackageJson(pkgJson, otherOptions)
+  }
+  return null
 }
 
 /*@__NO_SIDE_EFFECTS__*/
 function readPackageJsonSync(filepath, options) {
-  const { editable, ...otherOptions } = { __proto__: null, ...options }
-  const pkgJson = readJsonSync(resolvePackageJsonPath(filepath))
-  return editable
-    ? toEditablePackageJsonSync(pkgJson, { path: filepath, ...otherOptions })
-    : normalizePackageJson(pkgJson, otherOptions)
+  const { editable, throws, ...otherOptions } = { __proto__: null, ...options }
+  const pkgJson = readJsonSync(resolvePackageJsonPath(filepath), { throws })
+  if (pkgJson) {
+    return editable
+      ? toEditablePackageJsonSync(pkgJson, { path: filepath, ...otherOptions })
+      : normalizePackageJson(pkgJson, otherOptions)
+  }
+  return null
 }
 
 /*@__NO_SIDE_EFFECTS__*/

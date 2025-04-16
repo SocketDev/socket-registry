@@ -102,24 +102,76 @@ declare namespace Packages {
   ): Promise<Awaited<ReturnType<typeof PacoteTarballFn>>>
   export function readPackageJson(
     filepath: string,
-    options: { editable: true; preserve?: string[] | readonly string[] }
+    options: {
+      editable: true
+      preserve?: string[] | readonly string[] | undefined
+      throws: false
+    }
+  ): Promise<EditablePackageJson | null>
+  export function readPackageJson(
+    filepath: string,
+    options: {
+      editable: true
+      preserve?: string[] | readonly string[] | undefined
+      throws?: true | undefined
+    }
   ): Promise<EditablePackageJson>
   export function readPackageJson(
     filepath: string,
+    options: {
+      editable?: false | undefined
+      preserve?: string[] | readonly string[] | undefined
+      throws: false
+    }
+  ): Promise<PackageJson | null>
+  export function readPackageJson(
+    filepath: string,
     options?:
-      | { editable?: false; preserve?: string[] | readonly string[] }
+      | {
+          editable?: false | undefined
+          preserve?: string[] | readonly string[] | undefined
+          throws?: true | undefined
+        }
       | undefined
   ): Promise<PackageJson>
   export function readPackageJsonSync(
     filepath: string,
     options?:
-      | { editable: true; preserve?: string[] | readonly string[] }
+      | {
+          editable: true
+          preserve?: string[] | readonly string[] | undefined
+          throws: false
+        }
+      | undefined
+  ): EditablePackageJson | null
+  export function readPackageJsonSync(
+    filepath: string,
+    options?:
+      | {
+          editable: true
+          preserve?: string[] | readonly string[] | undefined
+          throws?: true | undefined
+        }
       | undefined
   ): EditablePackageJson
   export function readPackageJsonSync(
     filepath: string,
     options?:
-      | { editable?: false; preserve?: string[] | readonly string[] }
+      | {
+          editable?: false | undefined
+          preserve?: string[] | readonly string[] | undefined
+          throws: false
+        }
+      | undefined
+  ): PackageJson | null
+  export function readPackageJsonSync(
+    filepath: string,
+    options?:
+      | {
+          editable?: false | undefined
+          preserve?: string[] | readonly string[] | undefined
+          throws?: true | undefined
+        }
       | undefined
   ): PackageJson
   export function resolveEscapedScope(sockRegPkgName: string): string
