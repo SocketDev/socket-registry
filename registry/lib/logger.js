@@ -28,7 +28,7 @@ const LOG_SYMBOLS = /*@__PURE__*/ (() => {
   const handler = { __proto__: null }
   const init = () => {
     const supported =
-      /*@__PURE__*/ require('@socketregistry/is-unicode-supported')()
+      /*@__PURE__*/ require('@socketregistry/is-unicode-supported/index.cjs')()
     const colors = getYoctocolors()
     Object.assign(target, {
       fail: colors.red(supported ? '✖️' : '×'),
