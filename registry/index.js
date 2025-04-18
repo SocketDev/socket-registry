@@ -6,7 +6,7 @@ function getPackageURL() {
   if (_PackageURL === undefined) {
     // The 'packageurl-js' package is browser safe.
     _PackageURL =
-      /*@__PURE__*/ require('@socketregistry/packageurl-js').PackageURL
+      /*@__PURE__*/ require('./external/@socketregistry/packageurl-js').PackageURL
   }
   return _PackageURL
 }

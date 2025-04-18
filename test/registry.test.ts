@@ -23,7 +23,7 @@ describe(
         await tinyGlob(['**/*.js'], {
           absolute: true,
           cwd: rootRegistryPath,
-          ignore: ['**/node_modules']
+          ignore: ['**/node_modules', 'src/**']
         })
       )
         // Normalize filepaths for Windows.
@@ -32,7 +32,12 @@ describe(
         delete require.cache[filepath]
       }
       for (const filepath of jsFilepaths) {
-        require(filepath)
+        try {
+          require(filepath)
+        } catch (e) {
+          console.error(`Failed to load ${filepath}`)
+          throw e
+        }
       }
       const registryConstants = require(
         path.join(rootRegistryPath, 'lib/constants/index.js')

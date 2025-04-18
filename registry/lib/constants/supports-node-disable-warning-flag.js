@@ -1,6 +1,6 @@
 'use strict'
 
-const semver = /*@__PURE__*/ require('semver')
+const semver = /*@__PURE__*/ require('../../external/semver')
 
 const NODE_VERSION = /*@__PURE__*/ require('./node-version')
 

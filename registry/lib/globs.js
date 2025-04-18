@@ -5,7 +5,7 @@ let _picomatch
 function getPicomatch() {
   if (_picomatch === undefined) {
     // The 'picomatch' package is browser safe.
-    _picomatch = /*@__PURE__*/ require('picomatch')
+    _picomatch = /*@__PURE__*/ require('../external/picomatch')
   }
   return _picomatch
 }
@@ -14,7 +14,7 @@ let _tinyGlobby
 /*@__NO_SIDE_EFFECTS__*/
 function getTinyGlobby() {
   if (_tinyGlobby === undefined) {
-    _tinyGlobby = /*@__PURE__*/ require('tinyglobby')
+    _tinyGlobby = /*@__PURE__*/ require('../external/tinyglobby')
   }
   return _tinyGlobby
 }

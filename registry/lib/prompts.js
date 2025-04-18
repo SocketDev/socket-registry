@@ -3,7 +3,7 @@
 const {
   Separator,
   default: selectRaw
-} = /*@__PURE__*/ require('@inquirer/select')
+} = /*@__PURE__*/ require('../external/@inquirer/select')
 
 /*@__NO_SIDE_EFFECTS__*/
 function wrapPrompt(inquirerPrompt) {
@@ -35,10 +35,18 @@ function wrapPrompt(inquirerPrompt) {
   }
 }
 
-const confirm = /*@__PURE__*/ wrapPrompt(require('@inquirer/confirm').default)
-const input = /*@__PURE__*/ wrapPrompt(require('@inquirer/input').default)
-const password = /*@__PURE__*/ wrapPrompt(require('@inquirer/password').default)
-const search = /*@__PURE__*/ wrapPrompt(require('@inquirer/search').default)
+const confirm = /*@__PURE__*/ wrapPrompt(
+  require('../external/@inquirer/confirm').default
+)
+const input = /*@__PURE__*/ wrapPrompt(
+  require('../external/@inquirer/input').default
+)
+const password = /*@__PURE__*/ wrapPrompt(
+  require('../external/@inquirer/password').default
+)
+const search = /*@__PURE__*/ wrapPrompt(
+  require('../external/@inquirer/search').default
+)
 const select = /*@__PURE__*/ wrapPrompt(selectRaw)
 
 module.exports = {

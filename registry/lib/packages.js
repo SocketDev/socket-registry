@@ -1,6 +1,6 @@
 'use strict'
 
-const semver = /*@__PURE__*/ require('semver')
+const semver = /*@__PURE__*/ require('../external/semver')
 
 const abortSignal = /*@__PURE__*/ require('./constants/abort-signal')
 const copyLeftLicenses = /*@__PURE__*/ require('./constants/copy-left-licenses')
@@ -37,7 +37,7 @@ let _cacache
 /*@__NO_SIDE_EFFECTS__*/
 function getCacache() {
   if (_cacache === undefined) {
-    _cacache = /*@__PURE__*/ require('cacache')
+    _cacache = /*@__PURE__*/ require('../external/cacache')
   }
   return _cacache
 }
@@ -46,7 +46,7 @@ let _fetcher
 /*@__NO_SIDE_EFFECTS__*/
 function getFetcher() {
   if (_fetcher === undefined) {
-    const makeFetchHappen = /*@__PURE__*/ require('make-fetch-happen')
+    const makeFetchHappen = /*@__PURE__*/ require('../external/make-fetch-happen')
     _fetcher = makeFetchHappen.defaults({
       cachePath: /*@__PURE__*/ require('./constants/pacote-cache-path'),
       // Prefer-offline: Staleness checks for cached data will be bypassed, but
@@ -73,7 +73,7 @@ let _normalizePackageData
 /*@__NO_SIDE_EFFECTS__*/
 function getNormalizePackageData() {
   if (_normalizePackageData === undefined) {
-    _normalizePackageData = /*@__PURE__*/ require('normalize-package-data')
+    _normalizePackageData = /*@__PURE__*/ require('../external/normalize-package-data')
   }
   return _normalizePackageData
 }
@@ -82,7 +82,7 @@ let _npmPackageArg
 /*@__NO_SIDE_EFFECTS__*/
 function getNpmPackageArg() {
   if (_npmPackageArg === undefined) {
-    _npmPackageArg = /*@__PURE__*/ require('npm-package-arg')
+    _npmPackageArg = /*@__PURE__*/ require('../external/npm-package-arg')
   }
   return _npmPackageArg
 }
@@ -91,7 +91,7 @@ let _pack
 /*@__NO_SIDE_EFFECTS__*/
 function getPack() {
   if (_pack === undefined) {
-    _pack = /*@__PURE__*/ require('libnpmpack')
+    _pack = /*@__PURE__*/ require('../external/libnpmpack')
   }
   return _pack
 }
@@ -102,7 +102,7 @@ function getPackageURL() {
   if (_PackageURL === undefined) {
     // The 'packageurl-js' package is browser safe.
     _PackageURL =
-      /*@__PURE__*/ require('@socketregistry/packageurl-js').PackageURL
+      /*@__PURE__*/ require('../external/@socketregistry/packageurl-js').PackageURL
   }
   return _PackageURL
 }
@@ -111,7 +111,7 @@ let _pacote
 /*@__NO_SIDE_EFFECTS__*/
 function getPacote() {
   if (_pacote === undefined) {
-    _pacote = /*@__PURE__*/ require('pacote')
+    _pacote = /*@__PURE__*/ require('../external/pacote')
   }
   return _pacote
 }
@@ -132,7 +132,7 @@ let _semver
 function getSemver() {
   if (_semver === undefined) {
     // The 'semver' package is browser safe.
-    _semver = /*@__PURE__*/ require('semver')
+    _semver = /*@__PURE__*/ require('../external/semver')
   }
   return _semver
 }
@@ -142,7 +142,7 @@ let _spdxCorrect
 function getSpdxCorrect() {
   if (_spdxCorrect === undefined) {
     // The 'spdx-correct' package is browser safe.
-    _spdxCorrect = /*@__PURE__*/ require('spdx-correct')
+    _spdxCorrect = /*@__PURE__*/ require('../external/spdx-correct')
   }
   return _spdxCorrect
 }
@@ -152,7 +152,7 @@ let _spdxExpParse
 function getSpdxExpParse() {
   if (_spdxExpParse === undefined) {
     // The 'spdx-expression-parse' package is browser safe.
-    _spdxExpParse = /*@__PURE__*/ require('spdx-expression-parse')
+    _spdxExpParse = /*@__PURE__*/ require('../external/spdx-expression-parse')
   }
   return _spdxExpParse
 }
@@ -161,7 +161,7 @@ let _validateNpmPackageName
 /*@__NO_SIDE_EFFECTS__*/
 function getValidateNpmPackageName() {
   if (_validateNpmPackageName === undefined) {
-    _validateNpmPackageName = /*@__PURE__*/ require('validate-npm-package-name')
+    _validateNpmPackageName = /*@__PURE__*/ require('../external/validate-npm-package-name')
   }
   return _validateNpmPackageName
 }
@@ -170,13 +170,13 @@ let _EditablePackageJsonClass
 /*@__NO_SIDE_EFFECTS__*/
 function getEditablePackageJsonClass() {
   if (_EditablePackageJsonClass === undefined) {
-    const EditablePackageJsonBase = /*@__PURE__*/ require('@npmcli/package-json')
+    const EditablePackageJsonBase = /*@__PURE__*/ require('../external/@npmcli/package-json')
     const {
       read
-    } = /*@__PURE__*/ require('@npmcli/package-json/lib/read-package')
+    } = /*@__PURE__*/ require('../external/@npmcli/package-json/lib/read-package')
     const {
       packageSort
-    } = /*@__PURE__*/ require('@npmcli/package-json/lib/sort')
+    } = /*@__PURE__*/ require('../external/@npmcli/package-json/lib/sort')
     _EditablePackageJsonClass = class EditablePackageJson extends (
       EditablePackageJsonBase
     ) {

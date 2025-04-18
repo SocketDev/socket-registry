@@ -12,8 +12,8 @@ const manualCurr = '22.14.0'
 const manualPrev = '20.18.3'
 const manualLast = '18.20.7'
 
-const browsersList = /*@__PURE__*/ require('browserslist')
-const semver = /*@__PURE__*/ require('semver')
+const browsersList = /*@__PURE__*/ require('../../external/browserslist')
+const semver = /*@__PURE__*/ require('../../external/semver')
 
 const query = browsersList('maintained node versions')
   // Trim value, e.g. 'node 22.5.0' to '22.5.0'.

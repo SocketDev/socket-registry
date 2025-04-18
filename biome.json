@@ -10,6 +10,7 @@
       "**/package.json",
       "**/package-lock.json",
       "perf/**/fixtures",
+      "registry/external",
       "scripts/templates",
       "test/**/fixtures",
       "test/**/node_workspaces"

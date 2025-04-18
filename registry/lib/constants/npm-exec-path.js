@@ -4,7 +4,7 @@
 // eslint-disable-next-line n/prefer-node-protocol
 const fs = /*@__PURE__*/ require('fs')
 
-const which = /*@__PURE__*/ require('which')
+const which = /*@__PURE__*/ require('../../external/which')
 
 const WIN32 = require('./win32')
 
