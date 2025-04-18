@@ -15,7 +15,7 @@ let _spawn
 /*@__NO_SIDE_EFFECTS__*/
 function getSpawn() {
   if (_spawn === undefined) {
-    _spawn = /*@__PURE__*/ require('@npmcli/promise-spawn')
+    _spawn = /*@__PURE__*/ require('../external/@npmcli/promise-spawn')
   }
   return _spawn
 }

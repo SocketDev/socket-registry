@@ -29,7 +29,7 @@ let _which
 /*@__NO_SIDE_EFFECTS__*/
 function getWhich() {
   if (_which === undefined) {
-    _which = /*@__PURE__*/ require('which')
+    _which = /*@__PURE__*/ require('../external/which')
   }
   return _which
 }

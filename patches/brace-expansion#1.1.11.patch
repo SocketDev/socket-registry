@@ -1,0 +1,15 @@
+Index: /brace-expansion/index.js
+===================================================================
+--- /brace-expansion/index.js
++++ /brace-expansion/index.js
+@@ -100,9 +100,9 @@
+ function expand(str, isTop) {
+   var expansions = [];
+ 
+   var m = balanced('{', '}', str);
+-  if (!m || /\$$/.test(m.pre)) return [str];
++  if (!m || m.pre.endsWith('$')) return [str];
+ 
+   var isNumericSequence = /^-?\d+\.\.-?\d+(?:\.\.-?\d+)?$/.test(m.body);
+   var isAlphaSequence = /^[a-zA-Z]\.\.[a-zA-Z](?:\.\.-?\d+)?$/.test(m.body);
+   var isSequence = isNumericSequence || isAlphaSequence;

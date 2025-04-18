@@ -1,6 +1,6 @@
 'use strict'
 
-const yarnPkgExtensions = /*@__PURE__*/ require('@yarnpkg/extensions')
+const yarnPkgExtensions = /*@__PURE__*/ require('../../external/@yarnpkg/extensions')
 
 module.exports = Object.freeze(
   [

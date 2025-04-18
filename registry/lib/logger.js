@@ -17,7 +17,7 @@ let _yoctocolors
 /*@__NO_SIDE_EFFECTS__*/
 function getYoctocolors() {
   if (_yoctocolors === undefined) {
-    _yoctocolors = { ...require('yoctocolors-cjs') }
+    _yoctocolors = { ...require('../external/yoctocolors-cjs') }
   }
   return _yoctocolors
 }
@@ -28,7 +28,7 @@ const LOG_SYMBOLS = /*@__PURE__*/ (() => {
   const handler = { __proto__: null }
   const init = () => {
     const supported =
-      /*@__PURE__*/ require('@socketregistry/is-unicode-supported/index.cjs')()
+      /*@__PURE__*/ require('../external/@socketregistry/is-unicode-supported')()
     const colors = getYoctocolors()
     Object.assign(target, {
       fail: colors.red(supported ? '✖️' : '×'),

@@ -38,7 +38,7 @@ let _naturalSorter
 function naturalSorter(arrayToSort) {
   if (_naturalSorter === undefined) {
     // The 'fast-sort' package is browser safe.
-    const fastSort = /*@__PURE__*/ require('fast-sort')
+    const fastSort = /*@__PURE__*/ require('../external/fast-sort')
     _naturalSorter = fastSort.createNewSortInstance({
       comparer: naturalCompare
     })
