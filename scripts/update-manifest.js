@@ -1,12 +1,12 @@
 'use strict'
 
+const fs = require('node:fs/promises')
 const path = require('node:path')
 const util = require('node:util')
 
 const { PackageURL } = require('@socketregistry/packageurl-js')
 const constants = require('@socketregistry/scripts/constants')
 const { getModifiedFiles } = require('@socketregistry/scripts/lib/git')
-const { writeJson } = require('@socketsecurity/registry/lib/fs')
 const {
   objectEntries,
   toSortedObject,
@@ -22,6 +22,7 @@ const {
 } = require('@socketsecurity/registry/lib/packages')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { naturalCompare } = require('@socketsecurity/registry/lib/sorts')
+const { biomeFormat } = require('./lib/biome')
 
 const { AT_LATEST, NPM, UNLICENSED } = constants
 
@@ -170,6 +171,10 @@ void (async () => {
   const manifest = {}
   await addNpmManifestData(manifest, { spinner })
   // Lazily access constants.registryManifestJsonPath.
-  await writeJson(constants.registryManifestJsonPath, manifest, { spaces: 2 })
+  const { registryManifestJsonPath } = constants
+  const output = await biomeFormat(JSON.stringify(manifest, null, 2), {
+    filepath: registryManifestJsonPath
+  })
+  await fs.writeFile(registryManifestJsonPath, output, 'utf8')
   spinner.stop()
 })()
