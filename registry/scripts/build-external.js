@@ -57,6 +57,7 @@ const builtinAliases = Module.builtinModules.reduce((o, n) => {
           if (
             warning.code === 'CIRCULAR_DEPENDENCY' ||
             warning.code === 'INVALID_ANNOTATION' ||
+            warning.code === 'MIXED_EXPORTS' ||
             warning.code === 'THIS_IS_UNDEFINED'
           ) {
             return

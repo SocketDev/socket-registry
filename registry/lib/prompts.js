@@ -27,7 +27,11 @@ function wrapPrompt(inquirerPrompt) {
     let result
     try {
       result = await inquirerPrompt(...args)
-    } catch {}
+    } catch (e) {
+      if (e instanceof TypeError) {
+        throw e
+      }
+    }
     if (isSpinning) {
       spinner?.start()
     }
@@ -36,13 +40,11 @@ function wrapPrompt(inquirerPrompt) {
 }
 
 const confirm = /*@__PURE__*/ wrapPrompt(
-  require('../external/@inquirer/confirm').default
+  require('../external/@inquirer/confirm')
 )
-const input = /*@__PURE__*/ wrapPrompt(
-  require('../external/@inquirer/input').default
-)
+const input = /*@__PURE__*/ wrapPrompt(require('../external/@inquirer/input'))
 const password = /*@__PURE__*/ wrapPrompt(
-  require('../external/@inquirer/password').default
+  require('../external/@inquirer/password')
 )
 const search = /*@__PURE__*/ wrapPrompt(
   require('../external/@inquirer/search').default
