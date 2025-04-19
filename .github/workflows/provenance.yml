@@ -21,9 +21,9 @@ jobs:
           scope: "@socketregistry"
       - run: npm install -g npm@latest
       - run: npm ci
-      - run: npm run update:npm:package-publish
+      - run: npm run package:npm:publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - run: npm run update:npm:package-access
+      - run: npm run package:npm:access
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

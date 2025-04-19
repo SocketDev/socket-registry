@@ -27,8 +27,13 @@ void (async () => {
   const registryPkgFiles = await tinyGlob(['**/*.{cjs,js,json,d.ts}'], {
     // Lazily access constants.registryPkgPath.
     cwd: constants.registryPkgPath,
-    // Lazily access constants.ignoreGlobs.
-    ignore: constants.ignoreGlobs
+    ignore: [
+      // Lazily access constants.ignoreGlobs.
+      ...constants.ignoreGlobs,
+      'external/**',
+      'scripts/**',
+      'src/**'
+    ]
   })
 
   const subpathExports = registryPkgFiles.reduce((o, p) => {
