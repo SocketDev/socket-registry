@@ -20,10 +20,9 @@ describe(
   () => {
     it('should not trigger lazy getter on module initialization', async () => {
       const jsFilepaths = (
-        await tinyGlob(['**/*.js'], {
+        await tinyGlob(['index.js', 'external/**/*.js', 'lib/**/*.js'], {
           absolute: true,
-          cwd: rootRegistryPath,
-          ignore: ['**/node_modules', 'src/**']
+          cwd: rootRegistryPath
         })
       )
         // Normalize filepaths for Windows.
