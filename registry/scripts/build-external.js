@@ -1,12 +1,21 @@
 'use strict'
 
+const Module = require('node:module')
 const path = require('node:path')
 
 const commonjsPlugin = require('@rollup/plugin-commonjs')
 const jsonPlugin = require('@rollup/plugin-json')
 const { nodeResolve } = require('@rollup/plugin-node-resolve')
+const replacePlugin = require('@rollup/plugin-replace')
 const { rollup } = require('rollup')
 const { glob: tinyGlob } = require('tinyglobby')
+
+const builtinAliases = Module.builtinModules.reduce((o, n) => {
+  if (!n.startsWith('node:')) {
+    o[`node:${n}`] = n
+  }
+  return o
+}, {})
 ;(async () => {
   const rootPath = path.join(__dirname, '..')
   const srcPath = path.join(rootPath, 'src')
@@ -28,12 +37,18 @@ const { glob: tinyGlob } = require('tinyglobby')
           }),
           jsonPlugin(),
           commonjsPlugin({
-            defaultIsModuleExports: 'auto',
+            defaultIsModuleExports: true,
             extensions: ['.cjs', '.js'],
             ignoreDynamicRequires: true,
             ignoreGlobal: true,
             ignoreTryCatch: true,
             strictRequires: true
+          }),
+          // Convert un-prefixed built-in imports into "node:"" prefixed forms.
+          replacePlugin({
+            delimiters: ['(?<=(?:require\\(|from\\s*)["\'])', '(?=["\'])'],
+            preventAssignment: false,
+            values: builtinAliases
           })
         ],
         onwarn(warning, warn) {
