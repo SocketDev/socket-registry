@@ -23,6 +23,7 @@ const {
   capitalize,
   determineArticle
 } = require('@socketsecurity/registry/lib/words')
+const { biomeFormat } = require('./biome')
 
 const {
   LICENSE_CONTENT,
@@ -189,9 +190,13 @@ function prepareTemplate(content) {
 async function renderAction(action) {
   const { 0: filepath, 1: dataRaw } = action
   const data = typeof dataRaw === 'function' ? await dataRaw() : dataRaw
+  const ext = path.extname(filepath)
   const content = await fs.readFile(filepath, UTF8)
   const prepared = prepareTemplate(content)
-  return await eta.renderStringAsync(prepared, data)
+  const modified = await eta.renderStringAsync(prepared, data)
+  return ext === '.json' || ext === '.md'
+    ? await biomeFormat(modified, { filepath })
+    : modified
 }
 
 async function writeAction(action) {
