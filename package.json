@@ -41,7 +41,7 @@
     "test-ci": "run-s test:*",
     "make:npm-override": "node ./scripts/make-npm-override.js",
     "package:npm:access": "node ./scripts/update-npm-package-access.js",
-    "package:nom:publish": "node ./scripts/update-npm-package-publish.js",
+    "package:npm:publish": "node ./scripts/update-npm-package-publish.js",
     "release:npm": "node ./scripts/release-npm-packages.js",
     "setup": "npm run build && run-p --aggregate-output update:package-lock update:tap-config",
     "update": "run-p --aggregate-output update:* update:npm:* && run-s update:longtask:**",
