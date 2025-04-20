@@ -575,10 +575,16 @@
   "sideEffects": false,
   "scripts": {
     "build": "run-p -c --aggregate-output build:*",
-    "build:external": "del-cli 'external' && node ./scripts/build-external.js",
+    "build:external": "del-cli 'external' && node ./scripts/rollup/build-external.js",
     "prepare": "custompatch"
   },
   "devDependencies": {
+    "@babel/core": "7.26.10",
+    "@babel/plugin-proposal-export-default-from": "7.25.9",
+    "@babel/plugin-transform-export-namespace-from": "7.25.9",
+    "@babel/plugin-transform-runtime": "7.26.10",
+    "@babel/preset-typescript": "7.27.0",
+    "@babel/runtime": "7.27.0",
     "@inquirer/confirm": "5.1.9",
     "@inquirer/input": "4.1.9",
     "@inquirer/password": "4.0.12",
@@ -587,6 +593,7 @@
     "@inquirer/type": "3.0.6",
     "@npmcli/package-json": "6.1.1",
     "@npmcli/promise-spawn": "8.0.2",
+    "@rollup/plugin-babel": "6.0.4",
     "@rollup/plugin-commonjs": "28.0.3",
     "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-node-resolve": "16.0.1",
