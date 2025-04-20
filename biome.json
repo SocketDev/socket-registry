@@ -10,11 +10,11 @@
       "**/package.json",
       "**/package-lock.json",
       "perf/**/fixtures",
-      "registry/external",
       "scripts/templates",
       "test/**/fixtures",
       "test/**/node_workspaces"
-    ]
+    ],
+    "maxSize": 8388608
   },
   "formatter": {
     "enabled": true,
