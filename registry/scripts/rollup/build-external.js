@@ -8,12 +8,11 @@ const { glob: tinyGlob } = require('tinyglobby')
 const scriptsPath = path.join(__dirname, '..')
 const rootPath = path.join(scriptsPath, '..')
 const configPath = path.join(rootPath, '.config')
+const srcPath = path.join(rootPath, 'src')
+const srcExternalPath = path.join(srcPath, 'external')
 
 const getConfig = require(path.join(configPath, 'rollup.base.config.js'))
 ;(async () => {
-  const rootPath = path.join(__dirname, '../..')
-  const srcPath = path.join(rootPath, 'src')
-  const srcExternalPath = path.join(srcPath, 'external')
   const filepaths = await tinyGlob(['**/*.js'], {
     absolute: true,
     cwd: srcExternalPath
