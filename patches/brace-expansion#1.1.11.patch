@@ -8,7 +8,7 @@ Index: /brace-expansion/index.js
  
    var m = balanced('{', '}', str);
 -  if (!m || /\$$/.test(m.pre)) return [str];
-+  if (!m || m.pre.endsWith('$')) return [str];
++  if (!m || m.pre.endsWith('\u0024' /*'$'*/)) return [str];
  
    var isNumericSequence = /^-?\d+\.\.-?\d+(?:\.\.-?\d+)?$/.test(m.body);
    var isAlphaSequence = /^[a-zA-Z]\.\.[a-zA-Z](?:\.\.-?\d+)?$/.test(m.body);
