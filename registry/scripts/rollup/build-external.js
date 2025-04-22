@@ -22,6 +22,7 @@ const getConfig = require(path.join(configPath, 'rollup.base.config.js'))
       const relPath = path.relative(srcPath, filepath)
       const bundle = await rollup(getConfig(filepath))
       await bundle.write({
+        // Outputs to ./external in root of package.
         file: path.join(rootPath, relPath),
         format: 'cjs',
         sourcemap: true,
