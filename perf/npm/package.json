@@ -6,8 +6,8 @@
     "@socketregistry/json-stable-stringify": "*",
     "@socketregistry/scripts": "*",
     "@socketsecurity/registry": "*",
-    "fast-json-stable-stringify": "^2.1.0",
-    "json-stable-stringify": "^1.2.1",
-    "tinybench": "^4.0.1"
+    "fast-json-stable-stringify": "2.1.0",
+    "json-stable-stringify": "1.3.0",
+    "tinybench": "4.0.1"
   }
 }

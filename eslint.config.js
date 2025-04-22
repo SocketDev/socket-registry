@@ -2,7 +2,10 @@
 
 const path = require('node:path')
 
-const { convertIgnorePatternToMinimatch, includeIgnoreFile } = require('@eslint/compat')
+const {
+  convertIgnorePatternToMinimatch,
+  includeIgnoreFile
+} = require('@eslint/compat')
 const js = require('@eslint/js')
 const {
   createTypeScriptImportResolver
