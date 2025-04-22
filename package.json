@@ -23,13 +23,14 @@
     "clean:node_workspaces": "del-cli 'test/**/node_workspaces'",
     "build": "run-p -c --aggregate-output build:*",
     "build:registry": "npm run build --workspace registry",
-    "fix": "run-s lint:fix check:lint:fix",
+    "fix": "npm run lint:fix",
     "knip:dependencies": "knip --dependencies",
     "knip:exports": "knip --include exports,duplicates",
     "lint": "oxlint -c=./.oxlintrc.json --ignore-path=./.oxlintignore --tsconfig=./tsconfig.json .",
-    "lint:fix": "npm run lint -- --quiet --fix && run-s lint:fix:*",
-    "lint:fix:fast": "biome format --write .",
-    "lint:fix:slow": "npm run check:lint -- --fix",
+    "lint:fix": "run-s lint:fix:*",
+    "lint:fix:oxlint": "oxlint -c=./.oxlintrc.json --ignore-path=./.oxlintignore --tsconfig=./tsconfig.json --quiet --fix .",
+    "lint:fix:biome": "biome format --fix .",
+    "lint:fix:eslint": "eslint --report-unused-disable-directives --fix .",
     "lint-staged": "lint-staged",
     "perf": "node ./scripts/perf.js",
     "precommit": "lint-staged",
@@ -118,8 +119,8 @@
   },
   "lint-staged": {
     "*.{cjs,cts,js,json,md,mjs,mts,ts}": [
-      "npm run lint -- --fix",
-      "npm run lint:fix:fast -- --no-errors-on-unmatched --files-ignore-unknown=true --colors=off"
+      "npm run lint:fix:oxlint",
+      "npm run lint:fix:biome -- --no-errors-on-unmatched --files-ignore-unknown=true --colors=off"
     ]
   }
 }
