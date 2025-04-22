@@ -2,7 +2,7 @@
 
 const path = require('node:path')
 
-const { convertIgnorePatternToMinimatch } = require('@eslint/compat')
+const { convertIgnorePatternToMinimatch, includeIgnoreFile } = require('@eslint/compat')
 const js = require('@eslint/js')
 const {
   createTypeScriptImportResolver
@@ -20,6 +20,7 @@ const { readPackageJsonSync } = require('@socketsecurity/registry/lib/packages')
 
 const {
   BIOME_JSON,
+  GITIGNORE,
   LATEST,
   gitIgnoreFile,
   npmPackagesPath,
@@ -31,12 +32,25 @@ const { flatConfigs: origImportXFlatConfigs } = importXPlugin
 
 const rootPath = __dirname
 
-const biomeConfigPath = path.join(rootPath, BIOME_JSON)
-
-const biomeConfig = require(biomeConfigPath)
 const nodeGlobalsConfig = Object.fromEntries(
   Object.entries(globals.node).map(([k]) => [k, 'readonly'])
 )
+
+const biomeConfigPath = path.join(rootPath, BIOME_JSON)
+const biomeConfig = require(biomeConfigPath)
+const biomeIgnores = {
+  name: 'Imported biome.json ignore patterns',
+  ignores: biomeConfig.files.ignore.map(convertIgnorePatternToMinimatch)
+}
+
+const gitignorePath = path.join(rootPath, GITIGNORE)
+const gitIgnores = includeIgnoreFile(gitignorePath)
+
+if (process.env.LINT_EXTERNAL) {
+  const isNotExternalGlobPattern = p => !/(?:^|[\\/])external/.test(p)
+  biomeIgnores.ignores = biomeIgnores.ignores?.filter(isNotExternalGlobPattern)
+  gitIgnores.ignores = gitIgnores.ignores?.filter(isNotExternalGlobPattern)
+}
 
 function getIgnores(isEsm) {
   // Lazily access constants.npmPackageNames.
