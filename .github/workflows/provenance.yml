@@ -2,6 +2,15 @@ name: Publish Packages to npm
 
 on:
   workflow_dispatch:
+    inputs:
+      debug:
+        description: 'Enable debug output'
+        required: false
+        default: '0'
+        type: string
+        options:
+          - '0'
+          - '1'
 
 jobs:
   build:
@@ -24,6 +33,8 @@ jobs:
       - run: npm run package:npm:publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          SOCKET_CLI_DEBUG: ${{ inputs.debug }}
       - run: npm run package:npm:access
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          SOCKET_CLI_DEBUG: ${{ inputs.debug }}
