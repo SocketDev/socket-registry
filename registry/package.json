@@ -579,8 +579,7 @@
     "lint:external:fix": "run-s lint:external:fix:*",
     "lint:external:fix:oxlint": "cross-env LINT_EXTERNAL=1 oxlint -c=../.oxlintrc.json --ignore-path=../.oxlintignore --tsconfig=../tsconfig.json --silent --fix ./external | dev-null",
     "lint:external:fix:biome": "cross-env LINT_EXTERNAL=1 biome format --log-level=none --fix ./external | dev-null",
-    "lint:external:fix:eslint": "cross-env LINT_EXTERNAL=1 eslint -c=../eslint.config.js --report-unused-disable-directives --quiet --fix ./external | dev-null",
-    "prepare": "custompatch"
+    "//lint:external:fix:eslint": "cross-env LINT_EXTERNAL=1 eslint -c=../eslint.config.js --report-unused-disable-directives --quiet --fix ./external | dev-null"
   },
   "devDependencies": {
     "@babel/core": "7.26.10",
@@ -611,7 +610,6 @@
     "browserslist": "4.24.4",
     "cacache": "19.0.1",
     "cross-env": "7.0.3",
-    "custompatch": "1.1.4",
     "del-cli": "6.0.0",
     "dev-null-cli": "2.0.0",
     "eslint": "9.25.1",
