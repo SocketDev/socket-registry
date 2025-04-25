@@ -594,7 +594,7 @@
     "@inquirer/input": "4.1.9",
     "@inquirer/password": "4.0.12",
     "@inquirer/search": "3.0.12",
-    "@inquirer/select": "4.1.1",
+    "@inquirer/select": "4.2.0",
     "@inquirer/type": "3.0.6",
     "@npmcli/package-json": "6.1.1",
     "@npmcli/promise-spawn": "8.0.2",
