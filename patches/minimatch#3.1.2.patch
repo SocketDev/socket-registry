@@ -1,0 +1,19 @@
+Index: /minimatch/minimatch.js
+===================================================================
+--- /minimatch/minimatch.js
++++ /minimatch/minimatch.js
+@@ -790,12 +790,10 @@
+     { 'this': this, file: file, pattern: pattern })
+ 
+   this.debug('matchOne', file.length, pattern.length)
+ 
+-  for (var fi = 0,
+-      pi = 0,
+-      fl = file.length,
+-      pl = pattern.length
++  var fi = 0, pi = 0, fl = file.length, pl = pattern.length
++  for (
+       ; (fi < fl) && (pi < pl)
+       ; fi++, pi++) {
+     this.debug('matchOne loop')
+     var p = pattern[pi]
