@@ -8,6 +8,8 @@ declare interface StableStringifyOptions {
     b: ComparatorValue,
     helper?: { get(key: string): any }
   ) => number
+  collapseEmpty?: boolean
+  cycles?: boolean
   replacer?: (this: any, key: string, value: any) => any
   space?: string | number
 }

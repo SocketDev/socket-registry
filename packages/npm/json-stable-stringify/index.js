@@ -41,7 +41,14 @@ function getCallStackSizeExceededErrorDetails() {
   return callStackSizeExceededErrorDetails
 }
 
-function stableStringifyNonRecursive(obj, cmp, cycles, replacer, space) {
+function stableStringifyNonRecursive(
+  obj,
+  cmp,
+  collapseEmpty,
+  cycles,
+  replacer,
+  space
+) {
   let result = ''
   let depth = 0
   let needsComma = false
@@ -54,10 +61,11 @@ function stableStringifyNonRecursive(obj, cmp, cycles, replacer, space) {
     }
     const stack = queue.pop()
     const { 0: parent, 1: seen, 2: type, 3: parentIsArr, 4: level } = stack
-    const indent = space ? `\n${space.repeat(level)}` : ''
+    const nl = space ? '\n' : ''
+    const indent = space ? space.repeat(level) : ''
     if (type === TYPE_CLOSE) {
       seen.delete(parent)
-      result = `${result}${indent}${parentIsArr ? ']' : '}'}`
+      result = `${result}${nl}${indent}${parentIsArr ? ']' : '}'}`
       needsComma = true
       continue
     }
@@ -74,11 +82,9 @@ function stableStringifyNonRecursive(obj, cmp, cycles, replacer, space) {
       if (needsComma) {
         result = `${result},`
       }
-      if (parentIsArr) {
-        result = `${result}${indent}`
-      } else {
-        result = `${result}${indent}${stringify(key)}${space ? ': ' : ':'}`
-      }
+      result = parentIsArr
+        ? `${result}${nl}${indent}`
+        : `${result}${nl}${indent}${stringify(key)}${space ? ': ' : ':'}`
     }
     needsComma = true
     if (parentIsArr && node === undefined) {
@@ -125,11 +131,19 @@ function stableStringifyNonRecursive(obj, cmp, cycles, replacer, space) {
         continue
       }
     }
+    const { length } = keys
+    if (!length) {
+      needsComma = true
+      result = collapseEmpty
+        ? `${result}${nodeIsArr ? '[]' : '{}'}`
+        : `${result}${nodeIsArr ? `[${nl}${indent}]` : `{${nl}${indent}}`}`
+      continue
+    }
     needsComma = false
     result = `${result}${nodeIsArr ? '[' : '{'}`
     seen.add(node)
     queue.push([node, seen, TYPE_CLOSE, nodeIsArr, level])
-    for (let i = keys.length - 1; i >= 0; i -= 1) {
+    for (let i = length - 1; i >= 0; i -= 1) {
       const k = nodeIsArr ? i : keys[i]
       queue.push([
         node,
@@ -145,7 +159,14 @@ function stableStringifyNonRecursive(obj, cmp, cycles, replacer, space) {
   return result
 }
 
-function stableStringifyRecursive(obj, cmp, cycles, replacer, space) {
+function stableStringifyRecursive(
+  obj,
+  cmp,
+  collapseEmpty,
+  cycles,
+  replacer,
+  space
+) {
   const seen = new Set()
   return (function recursive(parent, key, rawNode, level) {
     let node =
@@ -190,12 +211,23 @@ function stableStringifyRecursive(obj, cmp, cycles, replacer, space) {
         return node.rawJSON
       }
     }
+    const nl = space ? '\n' : ''
+    const indent = space ? space.repeat(level) : ''
+    const { length } = keys
+    if (!length) {
+      return collapseEmpty
+        ? nodeIsArr
+          ? '[]'
+          : '{}'
+        : nodeIsArr
+          ? `[${nl}${indent}]`
+          : `{${nl}${indent}}`
+    }
     seen.add(node)
-    const indent = space ? `\n${space.repeat(level)}` : ''
     const childIndent = space ? `${indent}${space}` : ''
-    const joiner = `,${childIndent}`
-    let result = `${nodeIsArr ? '[' : '{'}${childIndent}`
-    for (let i = 0, j = 0, { length } = keys; i < length; i += 1) {
+    const joiner = `,${nl}${childIndent}`
+    let result = `${nodeIsArr ? '[' : '{'}${nl}${childIndent}`
+    for (let i = 0, j = 0; i < length; i += 1) {
       const k = nodeIsArr ? i : keys[i]
       const v = recursive(node, k, node[k], level + 1)
       if (v == undefined) {
@@ -211,16 +243,23 @@ function stableStringifyRecursive(obj, cmp, cycles, replacer, space) {
       }
     }
     seen.delete(node)
-    return `${result}${indent}${nodeIsArr ? ']' : '}'}`
+    return `${result}${nl}${indent}${nodeIsArr ? ']' : '}'}`
   })({ '': obj }, '', obj, 0)
 }
 
 let callStackLimitTripped = false
 
 module.exports = function stableStringify(obj, opts = {}) {
+  if (
+    typeof opts.collapseEmpty !== 'undefined' &&
+    typeof opts.collapseEmpty !== 'boolean'
+  ) {
+    throw new TypeError('`collapseEmpty` must be a boolean, if provided')
+  }
+  const collapseEmpty = opts.collapseEmpty === true
+  const cycles = opts.cycles === true
   const rawReplacer = opts.replacer
   const rawSpace = opts.space || ''
-  const cycles = opts.cycles === true
   const replacer =
     typeof rawReplacer === 'function'
       ? (thisArg, key, value) => rawReplacer.call(thisArg, key, value)
@@ -240,10 +279,24 @@ module.exports = function stableStringify(obj, opts = {}) {
         }
       : undefined
   if (callStackLimitTripped) {
-    return stableStringifyNonRecursive(obj, cmp, cycles, replacer, space)
+    return stableStringifyNonRecursive(
+      obj,
+      cmp,
+      collapseEmpty,
+      cycles,
+      replacer,
+      space
+    )
   }
   try {
-    return stableStringifyRecursive(obj, cmp, cycles, replacer, space)
+    return stableStringifyRecursive(
+      obj,
+      cmp,
+      collapseEmpty,
+      cycles,
+      replacer,
+      space
+    )
   } catch (e) {
     if (e) {
       const { Ctor, message } = getCallStackSizeExceededErrorDetails()
