@@ -1058,7 +1058,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/json-stable-stringify@1.0.10",
+      "pkg:npm/%40socketregistry/json-stable-stringify@1.0.11",
       {
         "categories": ["cleanup", "levelup"],
         "engines": {
@@ -1068,7 +1068,7 @@
         "license": "MIT",
         "name": "@socketregistry/json-stable-stringify",
         "package": "json-stable-stringify",
-        "version": "1.0.10"
+        "version": "1.0.11"
       }
     ],
     [
