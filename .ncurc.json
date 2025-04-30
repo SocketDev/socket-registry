@@ -1,6 +1,6 @@
 {
   "loglevel": "silent",
   "packageFile": ".{,/packages/**,/perf/npm,/registry,/test/npm}/package.json",
-  "reject": ["eslint-plugin-unicorn", "normalize-package-data"],
+  "reject": ["eslint-plugin-unicorn", "minimatch", "normalize-package-data"],
   "upgrade": true
 }
