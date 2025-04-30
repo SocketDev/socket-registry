@@ -23,6 +23,7 @@ declare const Npm: {
   isFundFlag(cmdArg: string): boolean
   isLoglevelFlag(cmdArg: string): boolean
   isProgressFlag(cmdArg: string): boolean
+  realExecPathSync(npmOrNpxExecPath: string): string
   resolveBinPath(binPath: string): string
   runBin(
     binPath: string,
