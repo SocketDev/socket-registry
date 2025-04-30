@@ -69,7 +69,7 @@ function execNpm(args, options) {
     [
       .../*@__PURE__*/ require('./constants/node-harden-flags'),
       .../*@__PURE__*/ require('./constants/node-no-warnings-flags'),
-      /*@__PURE__*/ require('./constants/npm-exec-path'),
+      /*@__PURE__*/ require('./constants/npm-real-exec-path'),
       // Even though '--loglevel=error' is passed npm will still run through
       // code paths for 'audit' and 'fund' unless '--no-audit' and '--no-fund'
       // flags are passed.
@@ -86,8 +86,7 @@ function execNpm(args, options) {
     ],
     {
       __proto__: null,
-      ...options,
-      shell: true
+      ...options
     }
   )
 }
@@ -285,14 +284,13 @@ function runScript(scriptName, args, options) {
       .../*@__PURE__*/ require('./constants/node-no-warnings-flags'),
       ...(useNodeRun
         ? ['--run']
-        : [/*@__PURE__*/ require('./constants/npm-exec-path'), 'run']),
+        : [/*@__PURE__*/ require('./constants/npm-real-exec-path'), 'run']),
       scriptName,
       ...args
     ],
     {
       __proto__: null,
-      ...spawnOptions,
-      shell: true
+      ...spawnOptions
     }
   )
 }

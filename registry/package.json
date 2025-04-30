@@ -293,6 +293,10 @@
       "types": "./lib/constants/npm-exec-path.d.ts",
       "default": "./lib/constants/npm-exec-path.js"
     },
+    "./lib/constants/npm-real-exec-path": {
+      "types": "./lib/constants/npm-real-exec-path.d.ts",
+      "default": "./lib/constants/npm-real-exec-path.js"
+    },
     "./lib/constants/npx": {
       "types": "./lib/constants/npx.d.ts",
       "default": "./lib/constants/npx.js"

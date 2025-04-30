@@ -42,6 +42,7 @@ import NODE_VERSION from './node-version'
 import NODE_WORKSPACES from './node-workspaces'
 import NPM from './npm'
 import npmExecPath from './npm-exec-path'
+import npmRealExecPath from './npm-real-exec-path'
 import NPX from './npx'
 import OVERRIDES from './overrides'
 import PACKAGE_DEFAULT_NODE_RANGE from './package-default-node-range'
@@ -188,6 +189,7 @@ declare const Constants: {
   readonly nodeHardenFlags: typeof nodeHardenFlags
   readonly nodeNoWarningsFlags: typeof nodeNoWarningsFlags
   readonly npmExecPath: typeof npmExecPath
+  readonly npmRealExecPath: typeof npmRealExecPath
   readonly packageExtensions: typeof packageExtensions
   readonly packumentCache: typeof packumentCache
   readonly pacoteCachePath: typeof pacoteCachePath

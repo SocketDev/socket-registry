@@ -101,6 +101,7 @@ const constantsObj = {
   nodeHardenFlags: undefined,
   nodeNoWarningsFlags: undefined,
   npmExecPath: undefined,
+  npmRealExecPath: undefined,
   packageExtensions: undefined,
   packumentCache: undefined,
   pacoteCachePath: undefined,
