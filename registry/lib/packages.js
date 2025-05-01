@@ -42,6 +42,233 @@ function getCacache() {
   return _cacache
 }
 
+let _EditablePackageJsonClass
+/*@__NO_SIDE_EFFECTS__*/
+function getEditablePackageJsonClass() {
+  if (_EditablePackageJsonClass === undefined) {
+    const EditablePackageJsonBase = /*@__PURE__*/ require('../external/@npmcli/package-json')
+    const {
+      parse,
+      read
+    } = /*@__PURE__*/ require('../external/@npmcli/package-json/lib/read-package')
+    const {
+      packageSort
+    } = /*@__PURE__*/ require('../external/@npmcli/package-json/lib/sort')
+    _EditablePackageJsonClass = class EditablePackageJson extends (
+      EditablePackageJsonBase
+    ) {
+      static fixSteps = EditablePackageJsonBase.fixSteps
+      static normalizeSteps = EditablePackageJsonBase.normalizeSteps
+      static prepareSteps = EditablePackageJsonBase.prepareSteps
+
+      _canSave = true
+      _path = undefined
+      _readFileContent = ''
+      _readFileJson = null
+
+      static async create(path, opts = {}) {
+        const p = new _EditablePackageJsonClass()
+        await p.create(path)
+        return opts.data ? p.update(opts.data) : p
+      }
+
+      static async fix(path, opts) {
+        const p = new _EditablePackageJsonClass()
+        await p.load(path, true)
+        return p.fix(opts)
+      }
+
+      static async load(path, opts = {}) {
+        const p = new _EditablePackageJsonClass()
+        // Avoid try/catch if we aren't going to create
+        if (!opts.create) {
+          return await p.load(path)
+        }
+        try {
+          return await p.load(path)
+        } catch (err) {
+          if (!err.message.startsWith('Could not read package.json')) {
+            throw err
+          }
+          return await p.create(path)
+        }
+      }
+
+      static async normalize(path, opts) {
+        const p = new _EditablePackageJsonClass()
+        await p.load(path)
+        return await p.normalize(opts)
+      }
+
+      static async prepare(path, opts) {
+        const p = new _EditablePackageJsonClass()
+        await p.load(path, true)
+        return await p.prepare(opts)
+      }
+
+      create(path) {
+        super.create(path)
+        this._path = path
+        return this
+      }
+
+      async fix(opts = {}) {
+        await super.fix(opts)
+        return this
+      }
+
+      fromComment(data) {
+        super.fromComment(data)
+        return this
+      }
+
+      fromContent(data) {
+        super.fromContent(data)
+        this._canSave = false
+        return this
+      }
+
+      fromJSON(data) {
+        super.fromJSON(data)
+        return this
+      }
+
+      async load(path, parseIndex) {
+        this._path = path
+        const { promises: fsPromises } = getFs()
+        let parseErr
+        try {
+          this._readFileContent = await read(this.filename)
+        } catch (err) {
+          if (!parseIndex) {
+            throw err
+          }
+          parseErr = err
+        }
+        if (parseErr) {
+          const indexFile = path.resolve(this.path, 'index.js')
+          let indexFileContent
+          try {
+            indexFileContent = await fsPromises.readFile(indexFile, 'utf8')
+          } catch {
+            throw parseErr
+          }
+          try {
+            this.fromComment(indexFileContent)
+          } catch {
+            throw parseErr
+          }
+          // This wasn't a package.json so prevent saving
+          this._canSave = false
+          return this
+        }
+        this.fromJSON(this._readFileContent)
+        // Add AFTER fromJSON is called in case it errors.
+        this._readFileJson = parse(this._readFileContent)
+        return this
+      }
+
+      async normalize(opts = {}) {
+        await super.normalize(opts)
+        return this
+      }
+
+      get path() {
+        return this._path
+      }
+
+      async prepare(opts = {}) {
+        await super.prepare(opts)
+        return this
+      }
+
+      async save({ ignoreWhitespace = false, sort = false } = {}) {
+        if (!this._canSave) {
+          throw new Error('No package.json to save to')
+        }
+        const {
+          [Symbol.for('indent')]: indent,
+          [Symbol.for('newline')]: newline,
+          ...rest
+        } = this.content
+        const content = sort ? packageSort(rest) : rest
+
+        if (
+          ignoreWhitespace &&
+          getUtil().isDeepStrictEqual(content, this._readFileJson)
+        ) {
+          return false
+        }
+
+        const format = indent === undefined ? '  ' : indent
+        const eol = newline === undefined ? '\n' : newline
+        const fileContent = `${JSON.stringify(
+          content,
+          null,
+          format
+        )}\n`.replace(/\n/g, eol)
+
+        if (
+          !ignoreWhitespace &&
+          fileContent.trim() === this._readFileContent.trim()
+        ) {
+          return false
+        }
+
+        const { promises: fsPromises } = getFs()
+        await fsPromises.writeFile(this.filename, fileContent)
+        this._readFileContent = fileContent
+        return true
+      }
+
+      async saveSync({ ignoreWhitespace = false, sort = false } = {}) {
+        if (!this._canSave || this.content === undefined) {
+          throw new Error('No package.json to save to')
+        }
+        const {
+          [Symbol.for('indent')]: indent,
+          [Symbol.for('newline')]: newline,
+          ...rest
+        } = this.content
+        const content = sort ? packageSort(rest) : rest
+
+        if (
+          ignoreWhitespace &&
+          getUtil().isDeepStrictEqual(content, this._readFileJson)
+        ) {
+          return false
+        }
+
+        const format = indent === undefined ? '  ' : indent
+        const eol = newline === undefined ? '\n' : newline
+        const fileContent = `${JSON.stringify(
+          content,
+          null,
+          format
+        )}\n`.replace(/\n/g, eol)
+
+        if (
+          !ignoreWhitespace &&
+          fileContent.trim() === this._readFileContent.trim()
+        ) {
+          return false
+        }
+
+        const fs = getFs()
+        fs.writeFileSync(this.filename, fileContent)
+        this._readFileContent = fileContent
+        return true
+      }
+
+      update(content) {
+        super.update(content)
+        return this
+      }
+    }
+  }
+  return _EditablePackageJsonClass
+}
+
 let _fetcher
 /*@__NO_SIDE_EFFECTS__*/
 function getFetcher() {
@@ -157,6 +384,17 @@ function getSpdxExpParse() {
   return _spdxExpParse
 }
 
+let _util
+/*@__NO_SIDE_EFFECTS__*/
+function getUtil() {
+  if (_util === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _util = /*@__PURE__*/ require('util')
+  }
+  return _util
+}
+
 let _validateNpmPackageName
 /*@__NO_SIDE_EFFECTS__*/
 function getValidateNpmPackageName() {
@@ -164,195 +402,6 @@ function getValidateNpmPackageName() {
     _validateNpmPackageName = /*@__PURE__*/ require('../external/validate-npm-package-name')
   }
   return _validateNpmPackageName
-}
-
-let _EditablePackageJsonClass
-/*@__NO_SIDE_EFFECTS__*/
-function getEditablePackageJsonClass() {
-  if (_EditablePackageJsonClass === undefined) {
-    const EditablePackageJsonBase = /*@__PURE__*/ require('../external/@npmcli/package-json')
-    const {
-      read
-    } = /*@__PURE__*/ require('../external/@npmcli/package-json/lib/read-package')
-    const {
-      packageSort
-    } = /*@__PURE__*/ require('../external/@npmcli/package-json/lib/sort')
-    _EditablePackageJsonClass = class EditablePackageJson extends (
-      EditablePackageJsonBase
-    ) {
-      static fixSteps = EditablePackageJsonBase.fixSteps
-      static normalizeSteps = EditablePackageJsonBase.normalizeSteps
-      static prepareSteps = EditablePackageJsonBase.prepareSteps
-
-      _canSave = true
-      _path = undefined
-      _readFileContent = ''
-
-      static async create(path, opts = {}) {
-        const p = new _EditablePackageJsonClass()
-        await p.create(path)
-        return opts.data ? p.update(opts.data) : p
-      }
-
-      static async fix(path, opts) {
-        const p = new _EditablePackageJsonClass()
-        await p.load(path, true)
-        return p.fix(opts)
-      }
-
-      static async load(path, opts = {}) {
-        const p = new _EditablePackageJsonClass()
-        // Avoid try/catch if we aren't going to create
-        if (!opts.create) {
-          return await p.load(path)
-        }
-        try {
-          return await p.load(path)
-        } catch (err) {
-          if (!err.message.startsWith('Could not read package.json')) {
-            throw err
-          }
-          return await p.create(path)
-        }
-      }
-
-      static async normalize(path, opts) {
-        const p = new _EditablePackageJsonClass()
-        await p.load(path)
-        return await p.normalize(opts)
-      }
-
-      static async prepare(path, opts) {
-        const p = new _EditablePackageJsonClass()
-        await p.load(path, true)
-        return await p.prepare(opts)
-      }
-
-      create(path) {
-        super.create(path)
-        this._path = path
-        return this
-      }
-
-      async fix(opts = {}) {
-        await super.fix(opts)
-        return this
-      }
-
-      fromComment(data) {
-        super.fromComment(data)
-        return this
-      }
-
-      fromContent(data) {
-        super.fromContent(data)
-        this._canSave = false
-        return this
-      }
-
-      fromJSON(data) {
-        super.fromJSON(data)
-        return this
-      }
-
-      async load(path, parseIndex) {
-        this._path = path
-        const { promises: fsPromises } = getFs()
-        let parseErr
-        try {
-          this._readFileContent = await read(this.filename)
-        } catch (err) {
-          if (!parseIndex) {
-            throw err
-          }
-          parseErr = err
-        }
-        if (parseErr) {
-          const indexFile = path.resolve(this.path, 'index.js')
-          let indexFileContent
-          try {
-            indexFileContent = await fsPromises.readFile(indexFile, 'utf8')
-          } catch {
-            throw parseErr
-          }
-          try {
-            this.fromComment(indexFileContent)
-          } catch {
-            throw parseErr
-          }
-          // This wasn't a package.json so prevent saving
-          this._canSave = false
-          return this
-        }
-        return this.fromJSON(this._readFileContent)
-      }
-
-      async normalize(opts = {}) {
-        await super.normalize(opts)
-        return this
-      }
-
-      get path() {
-        return this._path
-      }
-
-      async prepare(opts = {}) {
-        await super.prepare(opts)
-        return this
-      }
-
-      async save({ sort } = {}) {
-        if (!this._canSave) {
-          throw new Error('No package.json to save to')
-        }
-        const {
-          [Symbol.for('indent')]: indent,
-          [Symbol.for('newline')]: newline,
-          ...rest
-        } = this.content
-        const format = indent === undefined ? '  ' : indent
-        const eol = newline === undefined ? '\n' : newline
-        const content = sort ? packageSort(rest) : rest
-        const fileContent = `${JSON.stringify(
-          content,
-          null,
-          format
-        )}\n`.replace(/\n/g, eol)
-
-        if (fileContent.trim() === this._readFileContent.trim()) {
-          return false
-        }
-        const { promises: fsPromises } = getFs()
-        await fsPromises.writeFile(this.filename, fileContent)
-        this._readFileContent = fileContent
-        return true
-      }
-
-      async saveSync() {
-        if (!this._canSave || this.content === undefined) {
-          throw new Error('No package.json to save to')
-        }
-        const {
-          [Symbol.for('indent')]: indent,
-          [Symbol.for('newline')]: newline
-        } = this.content
-        const format = indent === undefined ? '  ' : indent
-        const eol = newline === undefined ? '\n' : newline
-        let fileContent = `${JSON.stringify(this.content, null, format)}\n`
-        if (eol !== '\n') {
-          fileContent = fileContent.replace(/\n/g, eol)
-        }
-        const fs = getFs()
-        fs.writeFileSync(this.filename, fileContent)
-      }
-
-      update(content) {
-        super.update(content)
-        return this
-      }
-    }
-  }
-  return _EditablePackageJsonClass
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -457,12 +506,14 @@ function createPackageJson(sockRegPkgName, directory, options) {
       directory
     },
     ...(type ? { type } : {}),
-    ...(entryExports ? { exports: entryExports } : {}),
+    ...(entryExports ? { exports: { ...entryExports } } : {}),
     ...(entryExports ? {} : { main: `${main ?? './index.js'}` }),
     sideEffects: sideEffects !== undefined && !!sideEffects,
-    ...(isObjectObject(dependencies) ? { dependencies } : {}),
-    ...(isObjectObject(overrides) ? { overrides } : {}),
-    ...(isObjectObject(resolutions) ? { resolutions } : {}),
+    ...(isObjectObject(dependencies)
+      ? { dependencies: { ...dependencies } }
+      : {}),
+    ...(isObjectObject(overrides) ? { overrides: { ...overrides } } : {}),
+    ...(isObjectObject(resolutions) ? { resolutions: { ...resolutions } } : {}),
     ...(isObjectObject(engines)
       ? {
           engines: objectFromEntries(
@@ -486,9 +537,9 @@ function createPackageJson(sockRegPkgName, directory, options) {
           )
         }
       : { engines: { node: PACKAGE_DEFAULT_NODE_RANGE } }),
-    files: Array.isArray(files) ? files : ['*.d.ts', '*.js'],
+    files: Array.isArray(files) ? files.slice() : ['*.d.ts', '*.js'],
     ...(isObjectObject(socket)
-      ? { socket }
+      ? { socket: { ...socket } }
       : {
           socket: {
             // Valid categories are: cleanup, levelup, speedup, tuneup

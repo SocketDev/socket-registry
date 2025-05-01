@@ -12,8 +12,8 @@ declare namespace Packages {
   export class EditablePackageJson extends NPMCliPackageJson {
     content: Readonly<PackageJson>
     // @ts-ignore TypeScript doesn't like an override with a different return type.
-    override save: () => Promise<boolean>
-    saveSync: () => void
+    override save: (options?: SaveOptions | undefined) => Promise<boolean>
+    saveSync: (options?: SaveOptions | undefined) => boolean
   }
   export type Exports = Exclude<PackageJson['exports'], undefined>
   export type ExtractOptions = PacoteOptions & {
@@ -34,6 +34,10 @@ declare namespace Packages {
   }
   export type PacoteOptions = PacoteOptionsRaw & {
     signal?: AbortSignal | undefined
+  }
+  export type SaveOptions = {
+    ignoreWhitespace?: boolean | undefined
+    sort?: boolean | undefined
   }
   export function collectIncompatibleLicenses(
     licenseNodes: LicenseNode[]

@@ -433,7 +433,7 @@ async function linkPackages(packageNames, options) {
     ) {
       // Replace engines field if the @socketregistry/xyz's engines.node range
       // is greater than the previous Node version.
-      nmEditablePkgJson.update({ engines })
+      nmEditablePkgJson.update({ engines: { ...engines } })
     } else {
       // Remove engines field.
       // Properties with undefined values are omitted when saved as JSON.
