@@ -218,6 +218,7 @@ function getEditablePackageJsonClass() {
         const { promises: fsPromises } = getFs()
         await fsPromises.writeFile(this.filename, fileContent)
         this._readFileContent = fileContent
+        this._readFileJson = parse(fileContent)
         return true
       }
 
@@ -257,6 +258,7 @@ function getEditablePackageJsonClass() {
         const fs = getFs()
         fs.writeFileSync(this.filename, fileContent)
         this._readFileContent = fileContent
+        this._readFileJson = parse(fileContent)
         return true
       }
 
