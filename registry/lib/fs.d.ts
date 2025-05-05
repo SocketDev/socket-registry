@@ -23,6 +23,7 @@ declare type BufferEncoding =
   | 'utf-16le'
   | 'ucs2'
   | 'ucs-2'
+declare type JsonContent = NPMCliPackageJson.Content
 declare type ReadFileOptions =
   | Remap<
       ObjectEncodingOptions & {
@@ -63,28 +64,29 @@ declare const Fs: {
   readJson(
     filepath: PathLike,
     options?: ReadJsonOptions | undefined
-  ): Promise<NPMCliPackageJson.Content>
+  ): Promise<JsonContent>
   readJsonSync(
     filepath: PathLike,
     options?: ReadJsonOptions | undefined
-  ): NPMCliPackageJson.Content
+  ): JsonContent
   remove(filepath: PathLike, options?: RmOptions): Promise<void>
   removeSync(filepath: PathLike, options?: RmOptions): void
   uniqueSync(filepath: PathLike): string
   writeJson(
     filepath: PathLike,
-    json: NPMCliPackageJson.Content,
+    json: JsonContent,
     options?: WriteJsonOptions | undefined
   ): Promise<void>
   writeJsonSync(
     filepath: PathLike,
-    json: NPMCliPackageJson.Content,
+    json: JsonContent,
     options?: WriteJsonOptions | undefined
   ): void
 }
 declare namespace Fs {
   export {
     BufferEncoding,
+    JsonContent,
     ReadFileOptions,
     ReadJsonOptions,
     ReadDirOptions,
