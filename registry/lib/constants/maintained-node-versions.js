@@ -6,17 +6,15 @@
 // So we maintain a manual version list for now.
 // https://nodejs.org/en/about/previous-releases#looking-for-latest-release-of-a-version-branch
 //
-// Updated March 5th, 2025.
-const manualNext = '23.9.0'
-const manualCurr = '22.14.0'
-const manualPrev = '20.18.3'
-const manualLast = '18.20.7'
+// Updated May 5th, 2025.
+const manualNext = '23.11.0'
+const manualCurr = '22.15.0'
+const manualPrev = '20.19.1'
+const manualLast = '20.19.1'
 
 const browsersList = /*@__PURE__*/ require('../../external/browserslist')
-const semver = /*@__PURE__*/ require('../../external/semver')
-
 const query = browsersList('maintained node versions')
-  // Trim value, e.g. 'node 22.5.0' to '22.5.0'.
+  // Trim value, e.g. 'node 22.15.0' to '22.15.0'.
   .map(s => s.slice(5 /*'node '.length*/))
 // browsersList returns results in descending order.
 const queryNext = query.at(0) ?? manualNext
@@ -24,6 +22,7 @@ const queryCurr = query.at(1) ?? manualCurr
 const queryPrev = query.at(2) ?? manualPrev
 const queryLast = query.at(-1) ?? manualLast
 
+const semver = /*@__PURE__*/ require('../../external/semver')
 const next = semver.maxSatisfying(
   [queryNext, manualNext],
   `^${semver.major(queryNext)}`
