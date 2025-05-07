@@ -626,7 +626,7 @@
     "oxlint": "0.16.9",
     "pacote": "21.0.0",
     "picomatch": "4.0.2",
-    "rollup": "4.40.1",
+    "rollup": "4.40.2",
     "semver": "7.7.1",
     "signal-exit": "4.1.0",
     "spdx-correct": "3.2.0",
@@ -637,7 +637,7 @@
     "yoctocolors-cjs": "2.1.2"
   },
   "engines": {
-    "node": ">=18.20.7"
+    "node": ">=18.20.8"
   },
   "files": [
     "*.d.ts",
