@@ -7,10 +7,10 @@
 // https://nodejs.org/en/about/previous-releases#looking-for-latest-release-of-a-version-branch
 //
 // Updated May 5th, 2025.
-const manualNext = '23.11.0'
+const manualNext = '24.0.0'
 const manualCurr = '22.15.0'
 const manualPrev = '20.19.1'
-const manualLast = '20.19.1'
+const manualLast = '18.20.8'
 
 const browsersList = /*@__PURE__*/ require('../../external/browserslist')
 const query = browsersList('maintained node versions')
@@ -23,10 +23,8 @@ const queryPrev = query.at(2) ?? manualPrev
 const queryLast = query.at(-1) ?? manualLast
 
 const semver = /*@__PURE__*/ require('../../external/semver')
-const next = semver.maxSatisfying(
-  [queryNext, manualNext],
-  `^${semver.major(queryNext)}`
-)
+const next = semver.gt(manualNext, queryNext) ? manualNext : queryNext
+
 const current = semver.maxSatisfying(
   [queryCurr, manualCurr],
   `^${semver.major(queryCurr)}`
@@ -35,10 +33,7 @@ const previous = semver.maxSatisfying(
   [queryPrev, manualPrev],
   `^${semver.major(queryPrev)}`
 )
-const last = semver.maxSatisfying(
-  [queryLast, manualLast],
-  `^${semver.major(queryLast)}`
-)
+const last = semver.lt(manualLast, queryLast) ? manualLast : queryLast
 
 module.exports = Object.freeze(
   Object.assign([last, previous, current, next], {
