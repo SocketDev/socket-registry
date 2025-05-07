@@ -242,7 +242,7 @@ describe(
         )
         assert.equal(
           dangerous.Buffer.allocUnsafeSlow(arg).constructor,
-          (buffer as any).SlowBuffer(0).constructor
+          buffer.Buffer
         )
       }
     })
