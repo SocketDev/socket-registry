@@ -129,6 +129,10 @@
       "types": "./lib/constants/copy-left-licenses.d.ts",
       "default": "./lib/constants/copy-left-licenses.js"
     },
+    "./lib/constants/darwin": {
+      "types": "./lib/constants/darwin.d.ts",
+      "default": "./lib/constants/darwin.js"
+    },
     "./lib/constants/empty-file": {
       "types": "./lib/constants/empty-file.d.ts",
       "default": "./lib/constants/empty-file.js"

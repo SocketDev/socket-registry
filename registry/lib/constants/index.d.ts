@@ -5,6 +5,7 @@ import BIOME_JSON from './biome-json'
 import CI from './ci'
 import COLUMN_LIMIT from './column-limit'
 import copyLeftLicenses from './copy-left-licenses'
+import DARWIN from './darwin'
 import EMPTY_FILE from './empty-file'
 import ENV from './env'
 import ESLINT_CONFIG_JS from './eslint-config-js'
@@ -108,6 +109,7 @@ declare const Constants: {
   readonly BIOME_JSON: typeof BIOME_JSON
   readonly CI: typeof CI
   readonly COLUMN_LIMIT: typeof COLUMN_LIMIT
+  readonly DARWIN: typeof DARWIN
   readonly EMPTY_FILE: typeof EMPTY_FILE
   readonly ENV: typeof ENV
   readonly ESLINT_CONFIG_JS: typeof ESLINT_CONFIG_JS

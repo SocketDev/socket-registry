@@ -21,6 +21,7 @@ const constantsObj = {
   BIOME_JSON: undefined,
   CI: undefined,
   COLUMN_LIMIT: undefined,
+  DARWIN: undefined,
   EMPTY_FILE: undefined,
   ENV: undefined,
   ESLINT_CONFIG_JS: undefined,
