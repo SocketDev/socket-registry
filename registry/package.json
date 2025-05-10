@@ -421,6 +421,14 @@
       "types": "./lib/constants/spinner.d.ts",
       "default": "./lib/constants/spinner.js"
     },
+    "./lib/constants/supports-node-compile-cache-api": {
+      "types": "./lib/constants/supports-node-compile-cache-api.d.ts",
+      "default": "./lib/constants/supports-node-compile-cache-api.js"
+    },
+    "./lib/constants/supports-node-compile-cache-flag": {
+      "types": "./lib/constants/supports-node-compile-cache-flag.d.ts",
+      "default": "./lib/constants/supports-node-compile-cache-flag.js"
+    },
     "./lib/constants/supports-node-disable-warning-flag": {
       "types": "./lib/constants/supports-node-disable-warning-flag.d.ts",
       "default": "./lib/constants/supports-node-disable-warning-flag.js"
