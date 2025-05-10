@@ -20,35 +20,54 @@ function createLazyGetter(name, getter, stats) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function createConstantsObject(props, options) {
-  const {
-    getters = {},
-    internals = {},
-    mixin
-  } = { __proto__: null, ...options }
+function createConstantsObject(props, options_) {
+  const options = { __proto__: null, ...options_ }
+  const config = Object.freeze({
+    __proto__: null,
+    getters: options.getters
+      ? Object.freeze({ __proto__: null, ...options.getters })
+      : undefined,
+    internals: options.internals
+      ? Object.freeze({ __proto__: null, ...options.internals })
+      : undefined,
+    mixin: options.mixin
+      ? Object.freeze(
+          Object.setPrototypeOf(
+            objectFromEntries(objectEntries(options.mixin)),
+            null
+          )
+        )
+      : undefined
+  })
   const kInternalsSymbol = /*@__PURE__*/ require('./constants/k-internals-symbol')
-  const lazyGetterStats = { initialized: new Set() }
+  const lazyGetterStats = Object.freeze({
+    __proto__: null,
+    initialized: new Set()
+  })
   const object = defineLazyGetters(
     {
       __proto__: null,
       [kInternalsSymbol]: Object.freeze({
         __proto__: null,
+        get config() {
+          return config
+        },
         get lazyGetterStats() {
           return lazyGetterStats
         },
-        ...internals
+        ...config.internals
       }),
       kInternalsSymbol,
       ...props
     },
-    getters,
+    config.getters,
     lazyGetterStats
   )
-  if (mixin) {
+  if (config.mixin) {
     Object.defineProperties(
       object,
       objectFromEntries(
-        objectEntries(Object.getOwnPropertyDescriptors(mixin)).filter(
+        objectEntries(Object.getOwnPropertyDescriptors(config.mixin)).filter(
           p => !Object.hasOwn(object, p[0])
         )
       )

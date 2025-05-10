@@ -102,7 +102,12 @@ import { createConstantsObject } from '../objects'
 interface Internals {
   readonly createConstantsObject: typeof createConstantsObject
   readonly getIpc: typeof getIpc
-  get lazyGetterStats(): { initialized: Set<PropertyKey> }
+  get config(): Readonly<{
+    getters: Readonly<{ [key: string | symbol]: () => any }> | undefined
+    internals: Readonly<{ [key: string | symbol]: any }> | undefined
+    mixin: Readonly<{ [key: string | symbol]: any }> | undefined
+  }>
+  get lazyGetterStats(): Readonly<{ initialized: Set<PropertyKey> }>
 }
 declare const Constants: {
   readonly [kInternalsSymbol]: Internals

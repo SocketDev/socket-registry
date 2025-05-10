@@ -6,6 +6,7 @@ import { glob as tinyGlob } from 'tinyglobby'
 
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
+import { isObjectObject } from '@socketsecurity/registry/lib/objects'
 
 const { NPM, SOCKET_REGISTRY_PACKAGE_NAME } = constants
 
@@ -47,6 +48,24 @@ describe(
       } = registryConstants
 
       assert.deepStrictEqual([...lazyGetterStats.initialized], [])
+    })
+
+    it('should expose internal config', async () => {
+      const registryConstants = require(
+        path.join(rootRegistryPath, 'lib/constants/index.js')
+      )
+      const {
+        kInternalsSymbol,
+        [kInternalsSymbol]: { config }
+      } = registryConstants
+      const configKeys = ['getters', 'internals', 'mixin']
+      assert.deepStrictEqual(Object.keys(config), configKeys)
+      for (const key of configKeys) {
+        assert.ok(
+          isObjectObject(config[key]) || config[key] === undefined,
+          `config.${key} is an object or undefined`
+        )
+      }
     })
   }
 )
