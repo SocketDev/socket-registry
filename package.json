@@ -116,7 +116,7 @@
     "registry"
   ],
   "engines": {
-    "node": "^22.15.0 || >=24.0.0"
+    "node": "^22.15.0 || >=24.0.1"
   },
   "lint-staged": {
     "*.{cjs,cts,js,json,md,mjs,mts,ts}": [
