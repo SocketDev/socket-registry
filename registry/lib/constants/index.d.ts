@@ -77,6 +77,7 @@ import spinner from './spinner'
 import SUPPORTS_NODE_COMPILE_CACHE_API from './supports-node-compile-cache-api'
 import SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR from './supports-node-compile-cache-env-var'
 import SUPPORTS_NODE_DISABLE_WARNING_FLAG from './supports-node-disable-warning-flag'
+import SUPPORTS_NODE_PERMISSION_FLAG from './supports-node-permission-flag'
 import SUPPORTS_NODE_REQUIRE_MODULE from './supports-node-require-module'
 import SUPPORTS_NODE_RUN from './supports-node-run'
 import SUPPORTS_PROCESS_SEND from './supports-process-send'
@@ -173,6 +174,7 @@ declare const Constants: {
   readonly SUPPORTS_NODE_COMPILE_CACHE_API: typeof SUPPORTS_NODE_COMPILE_CACHE_API
   readonly SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR: typeof SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR
   readonly SUPPORTS_NODE_DISABLE_WARNING_FLAG: typeof SUPPORTS_NODE_DISABLE_WARNING_FLAG
+  readonly SUPPORTS_NODE_PERMISSION_FLAG: typeof SUPPORTS_NODE_PERMISSION_FLAG
   readonly SUPPORTS_NODE_REQUIRE_MODULE: typeof SUPPORTS_NODE_REQUIRE_MODULE
   readonly SUPPORTS_NODE_RUN: typeof SUPPORTS_NODE_RUN
   readonly SUPPORTS_PROCESS_SEND: typeof SUPPORTS_PROCESS_SEND
