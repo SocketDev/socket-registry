@@ -11,10 +11,7 @@ const constants = require('@socketregistry/scripts/constants')
 const { getManifestData } = require('@socketsecurity/registry')
 const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
 const { globLicenses } = require('@socketsecurity/registry/lib/globs')
-const {
-  isObjectObject,
-  objectFromEntries
-} = require('@socketsecurity/registry/lib/objects')
+const { isObjectObject } = require('@socketsecurity/registry/lib/objects')
 const {
   readPackageJson,
   resolveOriginalPackageName
@@ -47,7 +44,7 @@ function getTemplates() {
   if (_templates === undefined) {
     _templates = Object.freeze({
       __proto__: null,
-      ...objectFromEntries(
+      ...Object.fromEntries(
         [
           TEMPLATE_CJS,
           TEMPLATE_CJS_BROWSER,
