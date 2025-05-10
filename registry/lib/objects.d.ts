@@ -9,10 +9,6 @@ declare function objectEntries<T>(
   obj: { [key: string | symbol]: T } | ArrayLike<T> | null | undefined
 ): Array<[string | symbol, T]>
 declare function objectEntries(obj: {}): Array<[string | symbol, any]>
-declare function objectFromEntries<T = any>(
-  entries: Iterable<readonly [string | symbol, T]>
-): { [k: string | symbol]: T }
-declare function objectFromEntries(entries: Iterable<readonly any[]>): any
 declare const Objects: {
   readonly createConstantsObject: (
     props: object,
@@ -49,7 +45,6 @@ declare const Objects: {
   isObjectObject(value: any): value is { [key: PropertyKey]: any }
   merge<T extends object, U extends object>(target: T, source: U): T & U
   objectEntries: typeof objectEntries
-  objectFromEntries: typeof objectFromEntries
   toSortedObject<T>(obj: { [key: string | symbol]: T }): {
     [key: string | symbol]: T
   }

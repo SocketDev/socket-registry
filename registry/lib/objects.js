@@ -25,20 +25,26 @@ function createConstantsObject(props, options_) {
   const attributes = Object.freeze({
     __proto__: null,
     getters: options.getters
-      ? Object.freeze({ __proto__: null, ...options.getters })
+      ? Object.freeze(
+          Object.setPrototypeOf(toSortedObject(options.getters), null)
+        )
       : undefined,
     internals: options.internals
-      ? Object.freeze({ __proto__: null, ...options.internals })
+      ? Object.freeze(
+          Object.setPrototypeOf(toSortedObject(options.internals), null)
+        )
       : undefined,
     mixin: options.mixin
       ? Object.freeze(
-          Object.setPrototypeOf(
-            objectFromEntries(objectEntries(options.mixin)),
-            null
+          Object.defineProperties(
+            { __proto__: null },
+            Object.getOwnPropertyDescriptors(options.mixin)
           )
         )
       : undefined,
-    props: props ? Object.freeze({ __proto__: null, ...props }) : undefined
+    props: props
+      ? Object.freeze(Object.setPrototypeOf(toSortedObject(props), null))
+      : undefined
   })
   const kInternalsSymbol = /*@__PURE__*/ require('./constants/k-internals-symbol')
   const lazyGetterStats = Object.freeze({
@@ -59,7 +65,7 @@ function createConstantsObject(props, options_) {
         ...attributes.internals
       }),
       kInternalsSymbol,
-      ...props
+      ...attributes.props
     },
     attributes.getters,
     lazyGetterStats
@@ -67,7 +73,7 @@ function createConstantsObject(props, options_) {
   if (attributes.mixin) {
     Object.defineProperties(
       object,
-      objectFromEntries(
+      toSortedObjectFromEntries(
         objectEntries(
           Object.getOwnPropertyDescriptors(attributes.mixin)
         ).filter(p => !Object.hasOwn(object, p[0]))
@@ -154,33 +160,14 @@ function objectEntries(obj) {
   if (obj === null || obj === undefined) {
     return []
   }
-  const entries = Object.entries(obj)
-  const symbols = Object.getOwnPropertySymbols(obj)
-  for (let i = 0, { length } = symbols; i < length; i += 1) {
-    const symbol = symbols[i]
-    entries.push([symbol, obj[symbol]])
+  const keys = Reflect.ownKeys(obj)
+  const { length } = keys
+  const entries = Array(length)
+  for (let i = 0; i < length; i += 1) {
+    const key = keys[i]
+    entries[i] = [key, obj[key]]
   }
   return entries
-}
-
-/*@__NO_SIDE_EFFECTS__*/
-function objectFromEntries(entries) {
-  const keyEntries = []
-  const symbolEntries = []
-  for (let i = 0, { length } = entries; i < length; i += 1) {
-    const entry = entries[i]
-    if (typeof entry[0] === 'symbol') {
-      symbolEntries.push(entry)
-    } else {
-      keyEntries.push(entry)
-    }
-  }
-  const object = Object.fromEntries(keyEntries)
-  for (let i = 0, { length } = symbolEntries; i < length; i += 1) {
-    const entry = symbolEntries[i]
-    object[entry[0]] = entry[1]
-  }
-  return object
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -253,8 +240,26 @@ function toSortedObject(obj) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function toSortedObjectFromEntries(entries) {
+  const { length } = entries
+  if (!length) {
+    return {}
+  }
+  const stringEntries = []
+  const symbolEntries = []
+  for (let i = 0; i < length; i += 1) {
+    const entry = entries[i]
+    if (typeof entry[0] === 'symbol') {
+      symbolEntries.push(entry)
+    } else {
+      stringEntries.push(entry)
+    }
+  }
   const { localeCompare } = /*@__PURE__*/ require('./sorts')
-  return objectFromEntries(entries.sort((a, b) => localeCompare(a[0], b[0])))
+  return Object.fromEntries([
+    // The String constructor is safe to use with symbols.
+    ...symbolEntries.sort((a, b) => localeCompare(String(a[0]), String(b[0]))),
+    ...stringEntries.sort((a, b) => localeCompare(a[0], b[0]))
+  ])
 }
 
 module.exports = {
@@ -270,7 +275,6 @@ module.exports = {
   isObjectObject,
   merge,
   objectEntries,
-  objectFromEntries,
   toSortedObject,
   toSortedObjectFromEntries
 }
