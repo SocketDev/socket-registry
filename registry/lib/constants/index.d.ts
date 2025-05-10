@@ -75,7 +75,7 @@ import SOCKET_REGISTRY_SCOPE from './socket-registry-scope'
 import SOCKET_SECURITY_SCOPE from './socket-security-scope'
 import spinner from './spinner'
 import SUPPORTS_NODE_COMPILE_CACHE_API from './supports-node-compile-cache-api'
-import SUPPORTS_NODE_COMPILE_CACHE_FLAG from './supports-node-compile-cache-flag'
+import SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR from './supports-node-compile-cache-env-var'
 import SUPPORTS_NODE_DISABLE_WARNING_FLAG from './supports-node-disable-warning-flag'
 import SUPPORTS_NODE_REQUIRE_MODULE from './supports-node-require-module'
 import SUPPORTS_NODE_RUN from './supports-node-run'
@@ -165,7 +165,7 @@ declare const Constants: {
   readonly SOCKET_REGISTRY_SCOPE: typeof SOCKET_REGISTRY_SCOPE
   readonly SOCKET_SECURITY_SCOPE: typeof SOCKET_SECURITY_SCOPE
   readonly SUPPORTS_NODE_COMPILE_CACHE_API: typeof SUPPORTS_NODE_COMPILE_CACHE_API
-  readonly SUPPORTS_NODE_COMPILE_CACHE_FLAG: typeof SUPPORTS_NODE_COMPILE_CACHE_FLAG
+  readonly SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR: typeof SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR
   readonly SUPPORTS_NODE_DISABLE_WARNING_FLAG: typeof SUPPORTS_NODE_DISABLE_WARNING_FLAG
   readonly SUPPORTS_NODE_REQUIRE_MODULE: typeof SUPPORTS_NODE_REQUIRE_MODULE
   readonly SUPPORTS_NODE_RUN: typeof SUPPORTS_NODE_RUN
