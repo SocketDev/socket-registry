@@ -4,6 +4,16 @@ const WIN32 = require('./win32')
 
 module.exports = Object.freeze(
   WIN32
-    ? []
-    : ['--disable-proto', 'throw', '--frozen-intrinsics', '--no-deprecation']
+    ? ['--disallow-code-generation-from-strings']
+    : [
+        // https://nodejs.org/api/cli.html#--disable-protomode
+        '--disable-proto',
+        'throw',
+        // https://nodejs.org/api/cli.html#--disallow-code-generation-from-strings
+        '--disallow-code-generation-from-strings',
+        // https://nodejs.org/api/cli.html#--frozen-intrinsics
+        '--frozen-intrinsics',
+        // https://nodejs.org/api/cli.html#--no-deprecation
+        '--no-deprecation'
+      ]
 )
