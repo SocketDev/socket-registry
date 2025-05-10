@@ -17,8 +17,7 @@ const {
   isObject,
   isObjectObject,
   merge,
-  objectEntries,
-  objectFromEntries
+  objectEntries
 } = /*@__PURE__*/ require('./objects')
 const { isNodeModules, normalizePath } = /*@__PURE__*/ require('./path')
 const { escapeRegExp } = /*@__PURE__*/ require('./regexps')
@@ -518,7 +517,7 @@ function createPackageJson(sockRegPkgName, directory, options) {
     ...(isObjectObject(resolutions) ? { resolutions: { ...resolutions } } : {}),
     ...(isObjectObject(engines)
       ? {
-          engines: objectFromEntries(
+          engines: Object.fromEntries(
             objectEntries(engines).map(pair => {
               if (pair[0] === 'node') {
                 const semver = getSemver()

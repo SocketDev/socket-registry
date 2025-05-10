@@ -18,11 +18,7 @@ const {
 } = require('@socketsecurity/registry/lib/fs')
 const { logger } = require('@socketsecurity/registry/lib/logger')
 const { execNpm } = require('@socketsecurity/registry/lib/npm')
-const {
-  merge,
-  objectEntries,
-  objectFromEntries
-} = require('@socketsecurity/registry/lib/objects')
+const { merge, objectEntries } = require('@socketsecurity/registry/lib/objects')
 const {
   extractPackage,
   isGitHubTgzSpec,
@@ -358,7 +354,7 @@ async function linkPackages(packageNames, options) {
     scripts.test = scripts[testScriptName] ?? ''
     // Remove lifecycle and test script variants.
     nmEditablePkgJson.update({
-      scripts: objectFromEntries(
+      scripts: Object.fromEntries(
         objectEntries(scripts)
           .filter(
             ({ 0: key }) =>
@@ -394,7 +390,7 @@ async function linkPackages(packageNames, options) {
       const socketRegistryPrefix = `npm:${SOCKET_REGISTRY_SCOPE}/`
       const overridesAsDeps =
         overrides &&
-        objectFromEntries(
+        Object.fromEntries(
           objectEntries(overrides).map(pair => {
             const { 1: value } = pair
             if (value.startsWith(socketRegistryPrefix)) {
@@ -405,7 +401,7 @@ async function linkPackages(packageNames, options) {
         )
       nmEditablePkgJson.update({
         dependencies: {
-          ...objectFromEntries(
+          ...Object.fromEntries(
             objectEntries(nmPkgDeps).filter(
               pair =>
                 !dependencies[
