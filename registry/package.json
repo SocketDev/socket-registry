@@ -433,6 +433,10 @@
       "types": "./lib/constants/supports-node-disable-warning-flag.d.ts",
       "default": "./lib/constants/supports-node-disable-warning-flag.js"
     },
+    "./lib/constants/supports-node-permission-flag": {
+      "types": "./lib/constants/supports-node-permission-flag.d.ts",
+      "default": "./lib/constants/supports-node-permission-flag.js"
+    },
     "./lib/constants/supports-node-require-module": {
       "types": "./lib/constants/supports-node-require-module.d.ts",
       "default": "./lib/constants/supports-node-require-module.js"
