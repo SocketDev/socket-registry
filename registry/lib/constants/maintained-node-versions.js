@@ -4,10 +4,10 @@
 // https://github.com/chicoxyzzy/node-releases/issues/37
 //
 // So we maintain a manual version list for now.
-// https://nodejs.org/en/about/previous-releases#looking-for-latest-release-of-a-version-branch
+// https://nodejs.org/en/about/previous-releases#looking-for-the-latest-release-of-a-version-branch
 //
-// Updated May 5th, 2025.
-const manualNext = '24.0.0'
+// Updated May 10th, 2025.
+const manualNext = '24.0.1'
 const manualCurr = '22.15.0'
 const manualPrev = '20.19.1'
 const manualLast = '18.20.8'
