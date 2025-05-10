@@ -602,7 +602,6 @@
     "@babel/plugin-proposal-export-default-from": "7.27.1",
     "@babel/plugin-transform-export-namespace-from": "7.27.1",
     "@babel/plugin-transform-runtime": "7.27.1",
-    "@babel/preset-typescript": "7.27.1",
     "@babel/runtime": "7.27.1",
     "@biomejs/biome": "1.9.4",
     "@inquirer/confirm": "5.1.9",
