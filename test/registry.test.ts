@@ -50,19 +50,19 @@ describe(
       assert.deepStrictEqual([...lazyGetterStats.initialized], [])
     })
 
-    it('should expose internal config', async () => {
+    it('should expose internal attributes', async () => {
       const registryConstants = require(
         path.join(rootRegistryPath, 'lib/constants/index.js')
       )
       const {
         kInternalsSymbol,
-        [kInternalsSymbol]: { config }
+        [kInternalsSymbol]: { attributes }
       } = registryConstants
-      const configKeys = ['getters', 'internals', 'mixin']
-      assert.deepStrictEqual(Object.keys(config), configKeys)
-      for (const key of configKeys) {
+      const attribKeys = ['getters', 'internals', 'mixin', 'props']
+      assert.deepStrictEqual(Object.keys(attributes), attribKeys)
+      for (const key of attribKeys) {
         assert.ok(
-          isObjectObject(config[key]) || config[key] === undefined,
+          isObjectObject(attributes[key]) || attributes[key] === undefined,
           `config.${key} is an object or undefined`
         )
       }
