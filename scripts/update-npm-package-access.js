@@ -54,8 +54,8 @@ void (async () => {
           cwd: pkg.path,
           stdio: 'pipe',
           env: {
-            __proto__: null,
             ...process.env,
+            // Lazily access constants.ENV.NODE_AUTH_TOKEN.
             NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
           }
         }

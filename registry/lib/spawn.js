@@ -28,7 +28,7 @@ function spawn(cmd, args, options, extra) {
   } = { __proto__: null, ...options }
   const spawn = getSpawn()
   const isSpinning = !!spinner?.isSpinning
-  const { stdio } = spawnOptions
+  const { env, stdio } = spawnOptions
   // The stdio option can be a string or an array.
   // https://nodejs.org/api/child_process.html#optionsstdio
   const isStdioIgnored =
@@ -46,7 +46,13 @@ function spawn(cmd, args, options, extra) {
     args,
     {
       signal: /*@__PURE__*/ require('./constants/abort-signal'),
-      ...spawnOptions
+      ...spawnOptions,
+      // Node includes inherited properties of options.env when it normalizes
+      // it due to backwards compatibility. However, this is a prototype sink and
+      // undesired behavior so to prevent it we spread options.env onto a fresh
+      // object with a null [[Prototype]].
+      // https://github.com/nodejs/node/blob/v24.0.1/lib/child_process.js#L674-L678
+      env: { __proto__: null, ...env }
     },
     extra
   )
