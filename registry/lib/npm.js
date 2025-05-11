@@ -1,6 +1,7 @@
 'use strict'
 
 const { isDebug } = /*@__PURE__*/ require('./debug')
+const { isRelative } = /*@__PURE__*/ require('./path')
 const { spawn } = /*@__PURE__*/ require('./spawn')
 
 let _fs
@@ -306,7 +307,7 @@ function runBin(binPath, args, options) {
     /*@__PURE__*/ require('./constants/exec-path'),
     [
       .../*@__PURE__*/ require('./constants/node-no-warnings-flags'),
-      binPath.includes('/') || binPath.includes('\\')
+      isRelative(binPath) || getPath().isAbsolute(binPath)
         ? resolveBinPath(binPath)
         : whichBinSync(binPath),
       ...args
