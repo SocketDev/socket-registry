@@ -80,7 +80,7 @@ describe(eco, { skip: !packageNames.length }, () => {
       try {
         await runScript('test', [], { cwd: nwPkgPath, signal: abortSignal })
         assert.ok(true)
-      } catch (e: any) {
+      } catch (e) {
         logger.fail(`${origPkgName}`)
         logger.error(e)
         assert.ok(false)
