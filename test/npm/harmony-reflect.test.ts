@@ -248,8 +248,11 @@ describe(
     it('should correctly implement setPrototypeOf', () => {
       try {
         harmonyReflect.setPrototypeOf({}, {})
-      } catch (e: any) {
-        if (e?.message === 'setPrototypeOf not supported on this platform') {
+      } catch (e) {
+        if (
+          (e as Error)?.message ===
+          'setPrototypeOf not supported on this platform'
+        ) {
           return
         } else {
           throw e
