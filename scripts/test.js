@@ -14,9 +14,8 @@ void (async () => {
         cwd: constants.rootPath,
         stdio: 'inherit',
         env: {
-          __proto__: null,
           ...process.env,
-          // Lazily access constants.ENV.
+          // Lazily access constants.ENV.CI.
           TAP_RCFILE: constants.ENV.CI
             ? // Lazily access constants.tapCiConfigPath and constants.tapConfigPath.
               constants.tapCiConfigPath
