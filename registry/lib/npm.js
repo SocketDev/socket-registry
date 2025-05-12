@@ -122,6 +122,12 @@ function isLoglevelFlag(cmdArg) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
+function isNodeOptionsFlag(cmdArg) {
+  // https://docs.npmjs.com/cli/v9/using-npm/config#node-options
+  return cmdArg.startsWith('--node-options=')
+}
+
+/*@__NO_SIDE_EFFECTS__*/
 function isProgressFlag(cmdArg) {
   return progressFlags.has(cmdArg)
 }
@@ -356,6 +362,7 @@ module.exports = {
   isAuditFlag,
   isFundFlag,
   isLoglevelFlag,
+  isNodeOptionsFlag,
   isProgressFlag,
   realExecPathSync,
   resolveBinPath,

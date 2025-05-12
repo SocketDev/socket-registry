@@ -22,6 +22,7 @@ declare const Npm: {
   isAuditFlag(cmdArg: string): boolean
   isFundFlag(cmdArg: string): boolean
   isLoglevelFlag(cmdArg: string): boolean
+  isNodeOptionsFlag(cmdArg: string): boolean
   isProgressFlag(cmdArg: string): boolean
   realExecPathSync(npmOrNpxExecPath: string): string
   resolveBinPath(binPath: string): string
