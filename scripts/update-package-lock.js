@@ -60,11 +60,7 @@ void (async () => {
     // Surprisingly update-browserslist-db runs synchronously.
     updateBrowserslistDb()
   } catch (e) {
-    if (e.name === 'BrowserslistUpdateError') {
-      logger.fail(`update-browserslist-db: ${e.message}`)
-    } else {
-      throw e
-    }
+    logger.fail(`update-browserslist-db: ${e.message}`)
   }
   if (
     cliArgs.force ||
