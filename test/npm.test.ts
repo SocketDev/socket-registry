@@ -82,8 +82,7 @@ describe(eco, { skip: !packageNames.length }, () => {
         assert.ok(true)
       } catch (e) {
         logger.fail(`${origPkgName}`)
-        logger.error(e)
-        assert.ok(false)
+        assert.ok(false, (e as any)?.stderr ?? 'command failed')
       }
     })
   }
