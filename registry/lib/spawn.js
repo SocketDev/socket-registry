@@ -52,7 +52,11 @@ function spawn(cmd, args, options, extra) {
       // undesired behavior so to prevent it we spread options.env onto a fresh
       // object with a null [[Prototype]].
       // https://github.com/nodejs/node/blob/v24.0.1/lib/child_process.js#L674-L678
-      env: { __proto__: null, ...env }
+      env: {
+        __proto__: null,
+        ...process.env,
+        ...env
+      }
     },
     extra
   )
