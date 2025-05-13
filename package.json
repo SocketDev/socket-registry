@@ -22,6 +22,7 @@
     "clean:cache": "del-cli '.cache'",
     "clean:node_modules": "del-cli '**/node_modules'",
     "clean:node_workspaces": "del-cli 'test/**/node_workspaces'",
+    "clean:registry": "dotenvx -q run -f .env.local -- npm run clean --workspace registry",
     "build": "run-p -c --aggregate-output build:*",
     "build:registry": "dotenvx -q run -f .env.local -- npm run build --workspace registry",
     "fix": "npm run lint:fix",
