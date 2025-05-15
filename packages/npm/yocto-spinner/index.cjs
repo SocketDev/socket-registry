@@ -69,9 +69,9 @@ function isUnicodeSupported() {
     const { env } = process
     if (
       // Windows Terminal.
-      !!env.WT_SESSION ||
+      env.WT_SESSION ||
       // Terminus (<0.2.27).
-      !!env.TERMINUS_SUBLIME ||
+      env.TERMINUS_SUBLIME ||
       // ConEmu and cmder.
       env.ConEmuTask === '{cmd::Cmder}'
     ) {
@@ -170,8 +170,8 @@ class YoctoSpinner {
     const colors = getYoctocolors()
     const applyColor = colors[this.#color] ?? colors.cyan
     const frame = this.#frames[this.#currentFrame]
-    let string = `${applyColor(frame)} ${this.#text}`
-    if (!this.#isInteractive) {
+    let string = `${frame ? applyColor(frame) : ''}${this.#text ? ` ${this.#text}` : ''}`
+    if (string && !this.#isInteractive) {
       string += '\n'
     }
     this.clear()

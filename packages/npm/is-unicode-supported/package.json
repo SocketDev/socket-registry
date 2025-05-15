@@ -41,7 +41,7 @@
   },
   "sideEffects": false,
   "engines": {
-    "node": ">=18.20.7"
+    "node": ">=18.20.8"
   },
   "files": [
     "*.d.{c,m}ts",

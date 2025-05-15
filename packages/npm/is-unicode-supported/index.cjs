@@ -19,9 +19,9 @@ module.exports = function isUnicodeSupported() {
   const { env } = process
   if (
     // Windows Terminal.
-    !!env.WT_SESSION ||
+    env.WT_SESSION ||
     // Terminus (<0.2.27).
-    !!env.TERMINUS_SUBLIME ||
+    env.TERMINUS_SUBLIME ||
     // ConEmu and cmder.
     env.ConEmuTask === '{cmd::Cmder}'
   ) {

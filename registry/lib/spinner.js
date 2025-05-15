@@ -14,8 +14,6 @@ let _defaultSpinner
 /*@__NO_SIDE_EFFECTS__*/
 function Spinner(options) {
   if (_Spinner === undefined) {
-    // Load '@socketregistry/yocto-spinner/index.cjs' to avoid the
-    // experimental-require-module warning.
     const yoctoFactory = /*@__PURE__*/ require('../external/@socketregistry/yocto-spinner')
     const { constructor: YoctoCtor } = yoctoFactory()
     const ENV = /*@__PURE__*/ require('./constants/env')
