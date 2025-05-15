@@ -18,7 +18,6 @@ function Spinner(options) {
     const { constructor: YoctoCtor } = yoctoFactory()
     const ENV = /*@__PURE__*/ require('./constants/env')
     const abortSignal = /*@__PURE__*/ require('./constants/abort-signal')
-    const { logger } = /*@__PURE__*/ require('./logger')
 
     /*@__PURE__*/
     _Spinner = class Spinner extends YoctoCtor {
@@ -40,6 +39,7 @@ function Spinner(options) {
         }
         super[methodName](text)
         if (extras.length) {
+          const { logger } = /*@__PURE__*/ require('./logger')
           logger.log(...extras)
         }
         return this
@@ -50,6 +50,22 @@ function Spinner(options) {
         this.#apply(methodName, args)
         if (isSpinning) {
           this.start()
+        }
+        return this
+      }
+
+      debug(...args) {
+        const { isDebug } = /*@__PURE__*/ require('./debug')
+        if (isDebug()) {
+          return this.#applyAndKeepSpinning('info', args)
+        }
+        return this
+      }
+
+      debugAndStop(...args) {
+        const { isDebug } = /*@__PURE__*/ require('./debug')
+        if (isDebug()) {
+          return this.#apply('info', args)
         }
         return this
       }
@@ -90,6 +106,7 @@ function Spinner(options) {
       start(...args) {
         let text = args.at(0) ?? ''
         if (typeof text !== 'string' || args.length > 1) {
+          const { logger } = /*@__PURE__*/ require('./logger')
           text = ''
           logger.log(...args)
         }
