@@ -12,6 +12,8 @@ declare type SpinnerType = Remap<
     YoctoSpinner,
     'error' | 'info' | 'start' | 'stop' | 'success' | 'warning'
   > & {
+    debug(text?: string | undefined, ...extras: any[]): SpinnerType
+    debugAndStop(text?: string | undefined, ...extras: any[]): SpinnerType
     error(text?: string | undefined, ...extras: any[]): SpinnerType
     errorAndStop(text?: string | undefined, ...extras: any[]): SpinnerType
     fail(text?: string | undefined, ...extras: any[]): SpinnerType
