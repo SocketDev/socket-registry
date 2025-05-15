@@ -32,6 +32,9 @@ const escapedScopeRegExp = new RegExp(
 const fileReferenceRegExp = /^SEE LICEN[CS]E IN (.+)$/
 const pkgScopePrefixRegExp = /^@socketregistry\//
 
+const identSymbol = Symbol.for('indent')
+const newlineSymbol = Symbol.for('newline')
+
 let _cacache
 /*@__NO_SIDE_EFFECTS__*/
 function getCacache() {
@@ -186,15 +189,20 @@ function getEditablePackageJsonClass() {
           throw new Error('No package.json to save to')
         }
         const {
-          [Symbol.for('indent')]: indent,
-          [Symbol.for('newline')]: newline,
+          [identSymbol]: indent,
+          [newlineSymbol]: newline,
           ...rest
         } = this.content
         const content = sort ? packageSort(rest) : rest
+        const {
+          [identSymbol]: _indent,
+          [newlineSymbol]: _newline,
+          ...origContent
+        } = this._readFileJson
 
         if (
           ignoreWhitespace &&
-          getUtil().isDeepStrictEqual(content, this._readFileJson)
+          getUtil().isDeepStrictEqual(content, origContent)
         ) {
           return false
         }
