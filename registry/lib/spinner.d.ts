@@ -10,19 +10,30 @@ import { Remap } from './objects'
 declare type SpinnerType = Remap<
   Omit<
     YoctoSpinner,
-    'error' | 'info' | 'start' | 'stop' | 'success' | 'warning'
+    | 'dedent'
+    | 'error'
+    | 'indent'
+    | 'info'
+    | 'resetIndent'
+    | 'start'
+    | 'stop'
+    | 'success'
+    | 'warning'
   > & {
     debug(text?: string | undefined, ...extras: any[]): SpinnerType
     debugAndStop(text?: string | undefined, ...extras: any[]): SpinnerType
+    dedent(spaces: number): SpinnerType
     error(text?: string | undefined, ...extras: any[]): SpinnerType
     errorAndStop(text?: string | undefined, ...extras: any[]): SpinnerType
     fail(text?: string | undefined, ...extras: any[]): SpinnerType
     failAndStop(text?: string | undefined, ...extras: any[]): SpinnerType
     getText(): string
+    indent(spaces: number): SpinnerType
     info(text?: string | undefined, ...extras: any[]): SpinnerType
     infoAndStop(text?: string | undefined, ...extras: any[]): SpinnerType
     log(text?: string | undefined, ...extras: any[]): SpinnerType
     logAndStop(text?: string | undefined, ...extras: any[]): SpinnerType
+    resetIndent(): SpinnerType
     setText(text?: string | undefined): SpinnerType
     start(text?: string | undefined, ...extras: any[]): SpinnerType
     stop(finalText?: string | undefined, ...extras: any[]): SpinnerType
