@@ -22,13 +22,13 @@ declare type SpinnerType = Remap<
   > & {
     debug(text?: string | undefined, ...extras: any[]): SpinnerType
     debugAndStop(text?: string | undefined, ...extras: any[]): SpinnerType
-    dedent(spaces: number): SpinnerType
+    dedent(spaces?: number | undefined): SpinnerType
     error(text?: string | undefined, ...extras: any[]): SpinnerType
     errorAndStop(text?: string | undefined, ...extras: any[]): SpinnerType
     fail(text?: string | undefined, ...extras: any[]): SpinnerType
     failAndStop(text?: string | undefined, ...extras: any[]): SpinnerType
     getText(): string
-    indent(spaces: number): SpinnerType
+    indent(spaces?: number | undefined): SpinnerType
     info(text?: string | undefined, ...extras: any[]): SpinnerType
     infoAndStop(text?: string | undefined, ...extras: any[]): SpinnerType
     log(text?: string | undefined, ...extras: any[]): SpinnerType

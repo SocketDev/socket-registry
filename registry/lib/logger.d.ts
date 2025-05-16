@@ -31,7 +31,7 @@ declare namespace LoggerModule {
     countReset: LoggerMethods['countReset']
     createTask(name: string): Task
     debug: LoggerMethods['debug']
-    dedent(spaces: number): Logger
+    dedent(spaces?: number | undefined): Logger
     dir: LoggerMethods['dir']
     dirxml: LoggerMethods['dirxml']
     error: LoggerMethods['error']
@@ -39,7 +39,7 @@ declare namespace LoggerModule {
     group: LoggerMethods['group']
     groupCollapsed: LoggerMethods['groupCollapsed']
     groupEnd: LoggerMethods['groupEnd']
-    indent(spaces: number): Logger
+    indent(spaces?: number | undefined): Logger
     info: LoggerMethods['info']
     log: LoggerMethods['log']
     profile: LoggerMethods['profile']
