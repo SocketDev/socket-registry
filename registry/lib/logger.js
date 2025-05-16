@@ -174,12 +174,14 @@ for (const { 0: key, 1: value } of Object.entries(console)) {
     mixinKeys.push(key)
   }
 }
-
+mixinKeys.push(
+  ...Object.getOwnPropertySymbols(console).filter(s => s !== Symbol.toStringTag)
+)
 if (mixinKeys.length) {
   Object.defineProperties(
     Logger.prototype,
-    Object.fromEntries(
-      mixinKeys.map(key => [
+    Object.fromEntries([
+      ...mixinKeys.map(key => [
         key,
         {
           __proto__: null,
@@ -191,8 +193,16 @@ if (mixinKeys.length) {
           },
           writable: true
         }
-      ])
-    )
+      ]),
+      [
+        Symbol.toStringTag,
+        {
+          __proto__: null,
+          configurable: true,
+          value: 'logger'
+        }
+      ]
+    ])
   )
 }
 
