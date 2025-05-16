@@ -628,7 +628,7 @@
     "@rollup/plugin-replace": "6.0.2",
     "@socketregistry/is-unicode-supported": "1.0.4",
     "@socketregistry/packageurl-js": "1.0.6",
-    "@socketregistry/yocto-spinner": "1.0.14",
+    "@socketregistry/yocto-spinner": "1.0.15",
     "@types/pacote": "11.1.8",
     "@yarnpkg/extensions": "2.0.5",
     "browserslist": "4.24.5",
