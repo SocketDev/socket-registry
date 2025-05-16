@@ -75,6 +75,8 @@ const symbolTypeToMethodName = {
 class Logger {
   static LOG_SYMBOLS = LOG_SYMBOLS
 
+  #indention = ''
+
   constructor(...args) {
     if (args.length) {
       privateConsole.set(this, constructConsole(...args))
@@ -92,30 +94,69 @@ class Logger {
     }
   }
 
-  #symbolApply(symbolType, args) {
-    let extras
-    let text = args.at(0) ?? ''
-    if (typeof text !== 'string') {
-      text = ''
-      extras = args
-    } else {
-      extras = args.slice(1)
-    }
-    const methodName = symbolTypeToMethodName[symbolType]
+  #apply(methodName, args) {
+    const text = args.at(0)
     const console = privateConsole.get(this)
-    console[methodName](`${LOG_SYMBOLS[symbolType]} ${text}`)
+    let extras
+    if (typeof text === 'string') {
+      extras = args.slice(1)
+      console[methodName](`${this.#indention}${text}`)
+    } else {
+      extras = args
+    }
     if (extras.length) {
       console[methodName](...extras)
     }
     return this
   }
 
+  #symbolApply(symbolType, args) {
+    let extras
+    let text = args.at(0)
+    if (typeof text === 'string') {
+      extras = args.slice(1)
+    } else {
+      extras = args
+      text = ''
+    }
+    const methodName = symbolTypeToMethodName[symbolType]
+    const console = privateConsole.get(this)
+    console[methodName](`${this.#indention}${LOG_SYMBOLS[symbolType]} ${text}`)
+    if (extras.length) {
+      console[methodName](...extras)
+    }
+    return this
+  }
+
+  dedent(spaces = 2) {
+    this.#indention = this.#indention.slice(0, -spaces)
+    return this
+  }
+
+  error(...args) {
+    return this.#apply('error', args)
+  }
+
   fail(...args) {
     return this.#symbolApply('fail', args)
   }
 
+  indent(spaces = 2) {
+    this.#indention += ' '.repeat(spaces)
+    return this
+  }
+
   info(...args) {
     return this.#symbolApply('info', args)
+  }
+
+  log(...args) {
+    return this.#apply('log', args)
+  }
+
+  resetIndent() {
+    this.#indention = ''
+    return this
   }
 
   success(...args) {

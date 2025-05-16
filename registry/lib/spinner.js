@@ -30,12 +30,12 @@ function Spinner(options) {
 
       #apply(methodName, args) {
         let extras
-        let text = args.at(0) ?? ''
-        if (typeof text !== 'string') {
-          text = ''
-          extras = args
-        } else {
+        let text = args.at(0)
+        if (typeof text === 'string') {
           extras = args.slice(1)
+        } else {
+          extras = args
+          text = ''
         }
         super[methodName](text)
         if (extras.length) {
@@ -104,13 +104,7 @@ function Spinner(options) {
       }
 
       start(...args) {
-        let text = args.at(0) ?? ''
-        if (typeof text !== 'string' || args.length > 1) {
-          const { logger } = /*@__PURE__*/ require('./logger')
-          text = ''
-          logger.log(...args)
-        }
-        return super.start(text)
+        return this.#apply('start', args)
       }
 
       stop(...args) {
