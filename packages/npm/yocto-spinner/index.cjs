@@ -106,6 +106,7 @@ class YoctoSpinner {
   #currentFrame = -1
   #exitHandlerBound
   #frames
+  #indention = ''
   #interval
   #isInteractive
   #lastSpinnerFrameTime = 0
@@ -171,8 +172,13 @@ class YoctoSpinner {
     const applyColor = colors[this.#color] ?? colors.cyan
     const frame = this.#frames[this.#currentFrame]
     let string = `${frame ? applyColor(frame) : ''}${this.#text ? ` ${this.#text}` : ''}`
-    if (string && !this.#isInteractive) {
-      string += '\n'
+    if (string) {
+      if (this.#indention.length) {
+        string = `${this.#indention}${string}`
+      }
+      if (!this.#isInteractive) {
+        string += '\n'
+      }
     }
     this.clear()
     this.#write(string)
@@ -256,12 +262,27 @@ class YoctoSpinner {
     return this
   }
 
+  dedent(spaces = 2) {
+    this.#indention = this.#indention.slice(0, -spaces)
+    return this
+  }
+
   error(text) {
     return this.#symbolStop('error', text)
   }
 
+  indent(spaces = 2) {
+    this.#indention += ' '.repeat(spaces)
+    return this
+  }
+
   info(text) {
     return this.#symbolStop('info', text)
+  }
+
+  resetIndent() {
+    this.#indention = ''
+    return this
   }
 
   start(text) {
@@ -287,7 +308,7 @@ class YoctoSpinner {
     this.#clearTimer()
     this.#unsubscribeFromExitEvents()
     if (finalText) {
-      this.#stream.write(`${finalText}\n`)
+      this.#write(`${this.#indention}${finalText}\n`)
     }
     return this
   }

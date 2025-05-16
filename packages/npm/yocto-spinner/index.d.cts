@@ -103,6 +103,14 @@ declare namespace yoctoSpinner {
     clear(): Spinner
 
     /**
+    Decrements spinner indentation by number of spaces.
+
+    @param [spaces=2] - The number of spaces to dedent.
+    @returns The spinner instance.
+    */
+    dedent(spaces: number): Spinner
+
+    /**
     Stops the spinner and displays an error symbol with the message.
 
     @param text - The error message to display.
@@ -111,12 +119,27 @@ declare namespace yoctoSpinner {
     error(text?: string | undefined): Spinner
 
     /**
+    Increments spinner indentation by number of spaces.
+
+    @param [spaces=2] - The number of spaces to indent.
+    @returns The spinner instance.
+    */
+    indent(spaces: number): Spinner
+
+    /**
     Stops the spinner and displays an info symbol with the message.
 
     @param text - The info message to display.
     @returns The spinner instance.
     */
     info(text?: string | undefined): Spinner
+
+    /**
+    Resets spinner indentation to 0 spaces.
+
+    @returns The spinner instance.
+    */
+    resetIndent(): Spinner
 
     /**
     Starts the spinner.
