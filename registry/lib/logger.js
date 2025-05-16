@@ -62,6 +62,10 @@ const boundConsoleMethods = new Map(
   ])
 )
 
+const consoleSymbols = Object.getOwnPropertySymbols(console).filter(
+  s => s !== Symbol.toStringTag
+)
+
 const privateConsole = new WeakMap()
 
 const symbolTypeToMethodName = {
@@ -92,6 +96,24 @@ class Logger {
       }
       privateConsole.set(this, newConsole)
     }
+    Object.defineProperties(
+      this,
+      Object.fromEntries(
+        consoleSymbols.map(key => [
+          key,
+          {
+            __proto__: null,
+            configurable: true,
+            value: function (...args) {
+              const console = privateConsole.get(this)
+              const result = console[key](...args)
+              return result === undefined ? this : result
+            },
+            writable: true
+          }
+        ])
+      )
+    )
   }
 
   #apply(methodName, args) {
@@ -174,37 +196,33 @@ for (const { 0: key, 1: value } of Object.entries(console)) {
     mixinKeys.push(key)
   }
 }
-mixinKeys.push(
-  ...Object.getOwnPropertySymbols(console).filter(s => s !== Symbol.toStringTag)
+
+Object.defineProperties(
+  Logger.prototype,
+  Object.fromEntries([
+    ...mixinKeys.map(key => [
+      key,
+      {
+        __proto__: null,
+        configurable: true,
+        value: function (...args) {
+          const console = privateConsole.get(this)
+          const result = console[key](...args)
+          return result === undefined ? this : result
+        },
+        writable: true
+      }
+    ]),
+    [
+      Symbol.toStringTag,
+      {
+        __proto__: null,
+        configurable: true,
+        value: 'logger'
+      }
+    ]
+  ])
 )
-if (mixinKeys.length) {
-  Object.defineProperties(
-    Logger.prototype,
-    Object.fromEntries([
-      ...mixinKeys.map(key => [
-        key,
-        {
-          __proto__: null,
-          configurable: true,
-          value: function (...args) {
-            const console = privateConsole.get(this)
-            const result = console[key](...args)
-            return result === undefined ? this : result
-          },
-          writable: true
-        }
-      ]),
-      [
-        Symbol.toStringTag,
-        {
-          __proto__: null,
-          configurable: true,
-          value: 'logger'
-        }
-      ]
-    ])
-  )
-}
 
 const logger = new Logger()
 
