@@ -108,7 +108,7 @@ declare namespace yoctoSpinner {
     @param [spaces=2] - The number of spaces to dedent.
     @returns The spinner instance.
     */
-    dedent(spaces: number): Spinner
+    dedent(spaces?: number | undefined): Spinner
 
     /**
     Stops the spinner and displays an error symbol with the message.
@@ -124,7 +124,7 @@ declare namespace yoctoSpinner {
     @param [spaces=2] - The number of spaces to indent.
     @returns The spinner instance.
     */
-    indent(spaces: number): Spinner
+    indent(spaces?: number | undefined): Spinner
 
     /**
     Stops the spinner and displays an info symbol with the message.
