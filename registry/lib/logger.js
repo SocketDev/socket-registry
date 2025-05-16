@@ -104,11 +104,7 @@ class Logger {
           {
             __proto__: null,
             configurable: true,
-            value: function (...args) {
-              const console = privateConsole.get(this)
-              const result = console[key](...args)
-              return result === undefined ? this : result
-            },
+            value: console[key],
             writable: true
           }
         ])
@@ -208,7 +204,7 @@ Object.defineProperties(
         value: function (...args) {
           const console = privateConsole.get(this)
           const result = console[key](...args)
-          return result === undefined ? this : result
+          return result === undefined || result === console ? this : result
         },
         writable: true
       }
