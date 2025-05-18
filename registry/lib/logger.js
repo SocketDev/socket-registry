@@ -80,6 +80,7 @@ class Logger {
   static LOG_SYMBOLS = LOG_SYMBOLS
 
   #indention = ''
+  #logCallCount = 0
 
   constructor(...args) {
     if (args.length) {
@@ -119,11 +120,13 @@ class Logger {
     if (typeof text === 'string') {
       extras = args.slice(1)
       console[methodName](`${this.#indention}${text}`)
+      this.#logCallCount += 1
     } else {
       extras = args
     }
     if (extras.length) {
       console[methodName](...extras)
+      this.#logCallCount += 1
     }
     return this
   }
@@ -140,10 +143,16 @@ class Logger {
     const methodName = symbolTypeToMethodName[symbolType]
     const console = privateConsole.get(this)
     console[methodName](`${this.#indention}${LOG_SYMBOLS[symbolType]} ${text}`)
+    this.#logCallCount += 1
     if (extras.length) {
       console[methodName](...extras)
+      this.#logCallCount += 1
     }
     return this
+  }
+
+  get logCallCount() {
+    return this.#logCallCount
   }
 
   dedent(spaces = 2) {
