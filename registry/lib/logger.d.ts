@@ -42,6 +42,7 @@ declare namespace LoggerModule {
     indent(spaces?: number | undefined): Logger
     info: LoggerMethods['info']
     log: LoggerMethods['log']
+    logCallCount: number
     profile: LoggerMethods['profile']
     profileEnd: LoggerMethods['profileEnd']
     resetIndent(): Logger
