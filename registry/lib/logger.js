@@ -46,7 +46,7 @@ const LOG_SYMBOLS = /*@__PURE__*/ (() => {
   for (const trapName of Reflect.ownKeys(Reflect)) {
     const fn = Reflect[trapName]
     if (typeof fn === 'function') {
-      handler[trapName] = function (...args) {
+      handler[trapName] = (...args) => {
         init()
         return fn(...args)
       }
@@ -56,6 +56,11 @@ const LOG_SYMBOLS = /*@__PURE__*/ (() => {
 })()
 
 const boundConsoleEntries = [
+  // Add bound properties from console[kBindProperties](ignoreErrors, colorMode, groupIndentation).
+  // https://github.com/nodejs/node/blob/v24.0.1/lib/internal/console/constructor.js#L230-L265
+  '_stderrErrorHandler',
+  '_stdoutErrorHandler',
+  // Add methods that need to be bound to function properly.
   'debug',
   'dir',
   'dirxml',
@@ -68,11 +73,16 @@ const boundConsoleEntries = [
   'timeEnd',
   'trace',
   'warn'
-].map(n => [n, console[n].bind(console)])
+]
+  .filter(n => typeof console[n] === 'function')
+  .map(n => [n, console[n].bind(console)])
 
-const consoleSymbols = Object.getOwnPropertySymbols(console).filter(
-  s => s !== Symbol.toStringTag
-)
+const consolePropAttributes = {
+  __proto__: null,
+  writable: true,
+  enumerable: false,
+  configurable: true
+}
 
 const incLogCallCountSymbol = Symbol.for('logger.logCallCount++')
 
@@ -100,35 +110,21 @@ class Logger {
       }
       privateConsole.set(this, newConsole)
     }
-    Object.defineProperties(
-      this,
-      Object.fromEntries(
-        consoleSymbols.map(key => [
-          key,
-          {
-            __proto__: null,
-            configurable: true,
-            value: console[key],
-            writable: true
-          }
-        ])
-      )
-    )
   }
 
   #apply(methodName, args) {
     const text = args.at(0)
-    const console = privateConsole.get(this)
+    const con = privateConsole.get(this)
     let extras
     if (typeof text === 'string') {
       extras = args.slice(1)
-      console[methodName](`${this.#indention}${text}`)
+      con[methodName](`${this.#indention}${text}`)
       this[incLogCallCountSymbol]()
     } else {
       extras = args
     }
     if (extras.length) {
-      console[methodName](...extras)
+      con[methodName](...extras)
       this[incLogCallCountSymbol]()
     }
     return this
@@ -143,12 +139,13 @@ class Logger {
       extras = args
       text = ''
     }
-    const console = privateConsole.get(this)
+    const con = privateConsole.get(this)
     // Note: meta status messages (info/fail/etc) always go to stderr
-    console.error(`${this.#indention}${LOG_SYMBOLS[symbolType]} ${text}`)
+    con.error(`${this.#indention}${LOG_SYMBOLS[symbolType]} ${text}`)
     this[incLogCallCountSymbol]()
     if (extras.length) {
-      console.error(...extras)
+      con.error(...extras)
+      this[incLogCallCountSymbol]()
     }
     return this
   }
@@ -175,12 +172,12 @@ class Logger {
   }
 
   group(...label) {
-    const console = privateConsole.get(this)
+    const con = privateConsole.get(this)
     if (label.length) {
-      console.group(...label)
+      con.group(...label)
       this[incLogCallCountSymbol]()
     } else {
-      console.group()
+      con.group()
     }
     return this
   }
@@ -228,19 +225,20 @@ Object.defineProperties(
       ]
       for (const { 0: key, 1: value } of Object.entries(console)) {
         if (!Logger.prototype[key] && typeof value === 'function') {
+          // Dynamically name the log method without using Object.defineProperty.
+          const { [key]: func } = {
+            [key](...args) {
+              const con = privateConsole.get(this)
+              const result = con[key](...args)
+              return result === undefined || result === con ? this : result
+            }
+          }
           entries.push([
             key,
             {
               __proto__: null,
-              configurable: true,
-              value: function (...args) {
-                const console = privateConsole.get(this)
-                const result = console[key](...args)
-                return result === undefined || result === console
-                  ? this
-                  : result
-              },
-              writable: true
+              ...consolePropAttributes,
+              value: func
             }
           ])
         }
