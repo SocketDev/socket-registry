@@ -55,13 +55,20 @@ const LOG_SYMBOLS = /*@__PURE__*/ (() => {
   return new Proxy(target, handler)
 })()
 
-const boundConsoleMethods = new Map(
-  // what about group, groupEnd, time, timeEnd ?
-  ['debug', 'dir', 'dirxml', 'error', 'info', 'log', 'trace', 'warn'].map(n => [
-    n,
-    console[n].bind(console)
-  ])
-)
+const boundConsoleEntries = [
+  'debug',
+  'dir',
+  'dirxml',
+  'error',
+  'group',
+  'groupEnd',
+  'info',
+  'log',
+  'time',
+  'timeEnd',
+  'trace',
+  'warn'
+].map(n => [n, console[n].bind(console)])
 
 const consoleSymbols = Object.getOwnPropertySymbols(console).filter(
   s => s !== Symbol.toStringTag
@@ -88,7 +95,7 @@ class Logger {
         stdout: process.stdout,
         stderr: process.stderr
       })
-      for (const [key, method] of boundConsoleMethods) {
+      for (const { 0: key, 1: method } of boundConsoleEntries) {
         newConsole[key] = method
       }
       privateConsole.set(this, newConsole)
