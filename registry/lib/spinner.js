@@ -38,8 +38,12 @@ function Spinner(options) {
           text = ''
         }
         super[methodName](text)
+        const {
+          incLogCallCountSymbol,
+          logger
+        } = /*@__PURE__*/ require('./logger')
+        logger[incLogCallCountSymbol]()
         if (extras.length) {
-          const { logger } = /*@__PURE__*/ require('./logger')
           logger.log(...extras)
         }
         return this

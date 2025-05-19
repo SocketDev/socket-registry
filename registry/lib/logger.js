@@ -66,6 +66,8 @@ const consoleSymbols = Object.getOwnPropertySymbols(console).filter(
   s => s !== Symbol.toStringTag
 )
 
+const incLogCallCountSymbol = Symbol.for('logger.logCallCount++')
+
 const privateConsole = new WeakMap()
 
 const symbolTypeToMethodName = {
@@ -120,13 +122,13 @@ class Logger {
     if (typeof text === 'string') {
       extras = args.slice(1)
       console[methodName](`${this.#indention}${text}`)
-      this.#logCallCount += 1
+      this[incLogCallCountSymbol]()
     } else {
       extras = args
     }
     if (extras.length) {
       console[methodName](...extras)
-      this.#logCallCount += 1
+      this[incLogCallCountSymbol]()
     }
     return this
   }
@@ -143,16 +145,20 @@ class Logger {
     const methodName = symbolTypeToMethodName[symbolType]
     const console = privateConsole.get(this)
     console[methodName](`${this.#indention}${LOG_SYMBOLS[symbolType]} ${text}`)
-    this.#logCallCount += 1
+    this[incLogCallCountSymbol]()
     if (extras.length) {
       console[methodName](...extras)
-      this.#logCallCount += 1
+      this[incLogCallCountSymbol]()
     }
     return this
   }
 
   get logCallCount() {
     return this.#logCallCount
+  }
+
+  [incLogCallCountSymbol]() {
+    this.#logCallCount += 1
   }
 
   dedent(spaces = 2) {
@@ -232,6 +238,7 @@ Object.defineProperties(
 const logger = new Logger()
 
 module.exports = {
+  incLogCallCountSymbol,
   LOG_SYMBOLS,
   Logger,
   logger
