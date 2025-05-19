@@ -194,17 +194,43 @@ class Logger {
   }
 }
 
-for (const [key, value] of Object.entries(console)) {
-  if (!Logger.prototype[key] && typeof value === 'function') {
-    Logger.prototype[key] = function (...args) {
-      const console = privateConsole.get(this)
-      const result = console[key](...args)
-      return result === undefined ? this : result
-    }
-  }
-}
-
-Logger.prototype[Symbol.toStringTag] = 'logger'
+Object.defineProperties(
+  Logger.prototype,
+  Object.fromEntries(
+    (() => {
+      const entries = [
+        [
+          Symbol.toStringTag,
+          {
+            __proto__: null,
+            configurable: true,
+            value: 'logger'
+          }
+        ]
+      ]
+      for (const { 0: key, 1: value } of Object.entries(console)) {
+        if (!Logger.prototype[key] && typeof value === 'function') {
+          entries.push([
+            key,
+            {
+              __proto__: null,
+              configurable: true,
+              value: function (...args) {
+                const console = privateConsole.get(this)
+                const result = console[key](...args)
+                return result === undefined || result === console
+                  ? this
+                  : result
+              },
+              writable: true
+            }
+          ])
+        }
+      }
+      return entries
+    })()
+  )
+)
 
 const logger = new Logger()
 
