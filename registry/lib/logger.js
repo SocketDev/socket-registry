@@ -174,6 +174,17 @@ class Logger {
     return this.#symbolApply('fail', args)
   }
 
+  group(...label) {
+    const console = privateConsole.get(this)
+    if (label.length) {
+      console.group(...label)
+      this[incLogCallCountSymbol]()
+    } else {
+      console.group()
+    }
+    return this
+  }
+
   indent(spaces = 2) {
     this.#indention += ' '.repeat(spaces)
     return this
