@@ -17,6 +17,8 @@ declare namespace LoggerModule {
   export interface Task {
     run<T>(f: () => T): T
   }
+  export const incLogCallCountSymbol: symbol
+  export const LOG_SYMBOLS: LogSymbols
   export class Logger extends Console {
     static get LOG_SYMBOLS(): LogSymbols
     constructor(
@@ -54,7 +56,6 @@ declare namespace LoggerModule {
     trace: LoggerMethods['trace']
     warn: LoggerMethods['warn']
   }
-  export const LOG_SYMBOLS: LogSymbols
   export const logger: Logger
 }
 export = LoggerModule
