@@ -31,8 +31,8 @@ const LOG_SYMBOLS = /*@__PURE__*/ (() => {
       /*@__PURE__*/ require('../external/@socketregistry/is-unicode-supported')()
     const colors = getYoctocolors()
     Object.assign(target, {
-      fail: colors.red(supported ? '✖️' : '×'),
-      info: colors.blue(supported ? 'ℹ' : 'i'),
+      fail: colors.red(supported ? '✖' : '×'),
+      info: colors.blue(supported ? '🛈' : 'i'),
       success: colors.green(supported ? '✔' : '√'),
       warn: colors.yellow(supported ? '⚠' : '‼')
     })
@@ -56,6 +56,7 @@ const LOG_SYMBOLS = /*@__PURE__*/ (() => {
 })()
 
 const boundConsoleMethods = new Map(
+  // what about group, groupEnd, time, timeEnd ?
   ['debug', 'dir', 'dirxml', 'error', 'info', 'log', 'trace', 'warn'].map(n => [
     n,
     console[n].bind(console)
@@ -69,13 +70,6 @@ const consoleSymbols = Object.getOwnPropertySymbols(console).filter(
 const incLogCallCountSymbol = Symbol.for('logger.logCallCount++')
 
 const privateConsole = new WeakMap()
-
-const symbolTypeToMethodName = {
-  fail: 'error',
-  info: 'info',
-  success: 'log',
-  warn: 'warn'
-}
 
 /*@__PURE__*/
 class Logger {
@@ -94,7 +88,7 @@ class Logger {
         stdout: process.stdout,
         stderr: process.stderr
       })
-      for (const { 0: key, 1: method } of boundConsoleMethods) {
+      for (const [key, method] of boundConsoleMethods) {
         newConsole[key] = method
       }
       privateConsole.set(this, newConsole)
@@ -142,13 +136,12 @@ class Logger {
       extras = args
       text = ''
     }
-    const methodName = symbolTypeToMethodName[symbolType]
     const console = privateConsole.get(this)
-    console[methodName](`${this.#indention}${LOG_SYMBOLS[symbolType]} ${text}`)
+    // Note: meta status messages (info/fail/etc) always go to stderr
+    console.error(`${this.#indention}${LOG_SYMBOLS[symbolType]} ${text}`)
     this[incLogCallCountSymbol]()
     if (extras.length) {
-      console[methodName](...extras)
-      this[incLogCallCountSymbol]()
+      console.error(...extras)
     }
     return this
   }
@@ -201,39 +194,17 @@ class Logger {
   }
 }
 
-const mixinKeys = []
-for (const { 0: key, 1: value } of Object.entries(console)) {
+for (const [key, value] of Object.entries(console)) {
   if (!Logger.prototype[key] && typeof value === 'function') {
-    mixinKeys.push(key)
+    Logger.prototype[key] = function (...args) {
+      const console = privateConsole.get(this)
+      const result = console[key](...args)
+      return result === undefined ? this : result
+    }
   }
 }
 
-Object.defineProperties(
-  Logger.prototype,
-  Object.fromEntries([
-    ...mixinKeys.map(key => [
-      key,
-      {
-        __proto__: null,
-        configurable: true,
-        value: function (...args) {
-          const console = privateConsole.get(this)
-          const result = console[key](...args)
-          return result === undefined || result === console ? this : result
-        },
-        writable: true
-      }
-    ]),
-    [
-      Symbol.toStringTag,
-      {
-        __proto__: null,
-        configurable: true,
-        value: 'logger'
-      }
-    ]
-  ])
-)
+Logger.prototype[Symbol.toStringTag] = 'logger'
 
 const logger = new Logger()
 
