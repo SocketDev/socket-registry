@@ -70,9 +70,11 @@ const boundConsoleEntries = [
   'dir',
   'dirxml',
   'error',
-  'group',
-  'groupCollapsed',
-  'groupEnd',
+  // Skip group methods because in at least Node 20 with the Node --frozen-intrinsics
+  // flag it triggers a readonly property for Symbol(kGroupIndent).
+  //'group',
+  //'groupCollapsed',
+  //'groupEnd',
   'info',
   'log',
   'table',
