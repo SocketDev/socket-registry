@@ -612,7 +612,7 @@
     "@babel/plugin-transform-runtime": "7.27.1",
     "@babel/runtime": "7.27.1",
     "@biomejs/biome": "1.9.4",
-    "@dotenvx/dotenvx": "1.44.0",
+    "@dotenvx/dotenvx": "1.44.1",
     "@inquirer/confirm": "5.1.10",
     "@inquirer/input": "4.1.10",
     "@inquirer/password": "4.0.13",
