@@ -31,7 +31,7 @@ const LOG_SYMBOLS = /*@__PURE__*/ (() => {
       /*@__PURE__*/ require('../external/@socketregistry/is-unicode-supported')()
     const colors = getYoctocolors()
     Object.assign(target, {
-      fail: colors.red(supported ? '✖️' : '×'),
+      fail: colors.red(supported ? '✖' : '×'),
       info: colors.blue(supported ? 'ℹ' : 'i'),
       success: colors.green(supported ? '✔' : '√'),
       warn: colors.yellow(supported ? '⚠' : '‼')

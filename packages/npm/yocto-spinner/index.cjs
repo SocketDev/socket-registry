@@ -21,7 +21,7 @@ function getLogSymbols() {
     const supported = isUnicodeSupported()
     const colors = getYoctocolors()
     _logSymbols = {
-      error: colors.red(supported ? '✖️' : '×'),
+      error: colors.red(supported ? '✖' : '×'),
       info: colors.blue(supported ? 'ℹ' : 'i'),
       success: colors.green(supported ? '✔' : '√'),
       warning: colors.yellow(supported ? '⚠' : '‼')
