@@ -1,6 +1,6 @@
 {
   "name": "@socketsecurity/registry",
-  "version": "1.0.187",
+  "version": "1.0.188",
   "license": "MIT",
   "description": "Socket.dev registry helpers methods and metadata",
   "keywords": [
@@ -641,7 +641,7 @@
     "make-fetch-happen": "14.0.3",
     "normalize-package-data": "6.0.1",
     "npm-package-arg": "12.0.2",
-    "npm-run-all2": "8.0.2",
+    "npm-run-all2": "8.0.3",
     "oxlint": "0.16.11",
     "pacote": "21.0.0",
     "picomatch": "4.0.2",
