@@ -38,7 +38,11 @@ module.exports = new Map([
       // which is no longer the case.
       // https://github.com/ChALkeR/safer-buffer/issues/16
       // https://github.com/ChALkeR/safer-buffer/blob/v2.1.2/tests.js
-      'safer-buffer'
+      'safer-buffer',
+      // yocto-spinner has an open issue with its '✖' string containing an invisible
+      // U+FE0F character. Skipping tests until issues/8 is resolved.
+      // https://github.com/sindresorhus/yocto-spinner/issues/8
+      'yocto-spinner'
     ])
   ]
 ])
