@@ -17,7 +17,7 @@ declare namespace LoggerModule {
   export interface Task {
     run<T>(f: () => T): T
   }
-  export const incLogCallCountSymbol: symbol
+  export const incLogCallCountSymbol: unique symbol
   export const LOG_SYMBOLS: LogSymbols
   export class Logger extends Console {
     static get LOG_SYMBOLS(): LogSymbols
@@ -27,6 +27,8 @@ declare namespace LoggerModule {
       ignoreErrors?: boolean | undefined
     )
     constructor(options: ConsoleConstructorOptions)
+    [incLogCallCountSymbol](): Logger
+    'Symbol(logger.logCallCount++)': Logger
     assert: LoggerMethods['assert']
     clear: LoggerMethods['clear']
     count: LoggerMethods['count']
