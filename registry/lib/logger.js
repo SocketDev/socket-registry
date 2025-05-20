@@ -121,8 +121,8 @@ class Logger {
   }
 
   #apply(methodName, args) {
-    const text = args.at(0)
     const con = privateConsole.get(this)
+    const text = args.at(0)
     let extras
     if (typeof text === 'string') {
       extras = args.slice(1)
@@ -139,16 +139,16 @@ class Logger {
   }
 
   #symbolApply(symbolType, args) {
-    let extras
+    const con = privateConsole.get(this)
     let text = args.at(0)
+    let extras
     if (typeof text === 'string') {
       extras = args.slice(1)
     } else {
       extras = args
       text = ''
     }
-    const con = privateConsole.get(this)
-    // Note: meta status messages (info/fail/etc) always go to stderr
+    // Note: Meta status messages (info/fail/etc) always go to stderr.
     con.error(`${this.#indention}${LOG_SYMBOLS[symbolType]} ${text}`)
     this[incLogCallCountSymbol]()
     if (extras.length) {
@@ -164,11 +164,45 @@ class Logger {
 
   [incLogCallCountSymbol]() {
     this.#logCallCount += 1
+    return this
+  }
+
+  assert(value, ...message) {
+    const con = privateConsole.get(this)
+    con.assert(value, ...message)
+    return value ? this : this[incLogCallCountSymbol]()
+  }
+
+  clear() {
+    const con = privateConsole.get(this)
+    con.clear()
+    if (con._stdout.isTTY) {
+      this.#logCallCount = 0
+    }
+    return this
+  }
+
+  count(label) {
+    const con = privateConsole.get(this)
+    con.count(label)
+    return this[incLogCallCountSymbol]()
   }
 
   dedent(spaces = 2) {
     this.#indention = this.#indention.slice(0, -spaces)
     return this
+  }
+
+  dir(obj, options) {
+    const con = privateConsole.get(this)
+    con.dir(obj, options)
+    return this[incLogCallCountSymbol]()
+  }
+
+  dirxml(...data) {
+    const con = privateConsole.get(this)
+    con.dirxml(data)
+    return this[incLogCallCountSymbol]()
   }
 
   error(...args) {
@@ -181,13 +215,14 @@ class Logger {
 
   group(...label) {
     const con = privateConsole.get(this)
-    if (label.length) {
-      con.group(...label)
-      this[incLogCallCountSymbol]()
-    } else {
-      con.group()
-    }
-    return this
+    con.group(...label)
+    return label.length ? this[incLogCallCountSymbol]() : this
+  }
+
+  // groupCollapsed is an alias of group.
+  // https://nodejs.org/api/console.html#consolegroupcollapsed
+  groupCollapsed(...label) {
+    return this.group(...label)
   }
 
   indent(spaces = 2) {
@@ -210,6 +245,30 @@ class Logger {
 
   success(...args) {
     return this.#symbolApply('success', args)
+  }
+
+  table(tabularData, properties) {
+    const con = privateConsole.get(this)
+    con.table(tabularData, properties)
+    return this[incLogCallCountSymbol]()
+  }
+
+  timeEnd(label) {
+    const con = privateConsole.get(this)
+    con.timeEnd(label)
+    return this[incLogCallCountSymbol]()
+  }
+
+  timeLog(label, ...data) {
+    const con = privateConsole.get(this)
+    con.timeLog(label, ...data)
+    return this[incLogCallCountSymbol]()
+  }
+
+  trace(message, ...args) {
+    const con = privateConsole.get(this)
+    con.trace(message, ...args)
+    return this[incLogCallCountSymbol]()
   }
 
   warn(...args) {
