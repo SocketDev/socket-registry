@@ -18,6 +18,7 @@ declare namespace LoggerModule {
     run<T>(f: () => T): T
   }
   export const incLogCallCountSymbol: unique symbol
+  export const lastWasBlankSymbol: unique symbol
   export const LOG_SYMBOLS: LogSymbols
   export class Logger extends Console {
     static get LOG_SYMBOLS(): LogSymbols
@@ -28,7 +29,9 @@ declare namespace LoggerModule {
     )
     constructor(options: ConsoleConstructorOptions)
     [incLogCallCountSymbol](): Logger
-    'Symbol(logger.logCallCount++)': Logger
+    'Symbol(logger.logCallCount++)'(): Logger
+    [lastWasBlankSymbol](value: boolean): Logger
+    'Symbol(logger.lastWasBlank)'(value: boolean): Logger
     assert: LoggerMethods['assert']
     clear: LoggerMethods['clear']
     count: LoggerMethods['count']

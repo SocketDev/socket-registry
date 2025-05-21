@@ -5,6 +5,11 @@ function indentString(str, count = 1) {
   return str.replace(/^(?!\s*$)/gm, ' '.repeat(count))
 }
 
+/*@__PURE__*/
+function isBlankString(value) {
+  return typeof value === 'string' && (!value.length || /^\s+$/.test(value))
+}
+
 /*@__NO_SIDE_EFFECTS__*/
 function isNonEmptyString(value) {
   return typeof value === 'string' && value.length > 0
@@ -33,6 +38,7 @@ function stripBom(str) {
 
 module.exports = {
   indentString,
+  isBlankString,
   isNonEmptyString,
   search,
   stripBom

@@ -14,10 +14,11 @@ let _defaultSpinner
 /*@__NO_SIDE_EFFECTS__*/
 function Spinner(options) {
   if (_Spinner === undefined) {
-    const yoctoFactory = /*@__PURE__*/ require('../external/@socketregistry/yocto-spinner')
-    const { constructor: YoctoCtor } = yoctoFactory()
     const ENV = /*@__PURE__*/ require('./constants/env')
     const abortSignal = /*@__PURE__*/ require('./constants/abort-signal')
+    const { isBlankString } = /*@__PURE__*/ require('./strings')
+    const yoctoFactory = /*@__PURE__*/ require('../external/@socketregistry/yocto-spinner')
+    const { constructor: YoctoCtor } = yoctoFactory()
 
     /*@__PURE__*/
     _Spinner = class Spinner extends YoctoCtor {
@@ -40,8 +41,12 @@ function Spinner(options) {
         super[methodName](text)
         const {
           incLogCallCountSymbol,
+          lastWasBlankSymbol,
           logger
         } = /*@__PURE__*/ require('./logger')
+        logger[lastWasBlankSymbol](
+          methodName === 'stop' ? isBlankString(text) : false
+        )
         logger[incLogCallCountSymbol]()
         if (extras.length) {
           logger.log(...extras)
