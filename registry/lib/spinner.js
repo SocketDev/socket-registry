@@ -38,18 +38,24 @@ function Spinner(options) {
           extras = args
           text = ''
         }
+        const { isSpinning: wasSpinning } = this
         super[methodName](text)
         const {
           incLogCallCountSymbol,
           lastWasBlankSymbol,
           logger
         } = /*@__PURE__*/ require('./logger')
-        logger[lastWasBlankSymbol](
-          methodName === 'stop' ? isBlankString(text) : false
-        )
+        if (methodName === 'stop') {
+          if (wasSpinning && text) {
+            logger[lastWasBlankSymbol](isBlankString(text))
+          }
+        } else {
+          logger[lastWasBlankSymbol](false)
+        }
         logger[incLogCallCountSymbol]()
         if (extras.length) {
           logger.log(...extras)
+          logger[lastWasBlankSymbol](false)
         }
         return this
       }
