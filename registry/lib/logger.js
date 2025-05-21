@@ -99,10 +99,16 @@ const incLogCallCountSymbol = Symbol.for('logger.logCallCount++')
 const privateConsole = new WeakMap()
 
 /*@__PURE__*/
+function isBlankLine(line) {
+  return /^\s*$/.test(line)
+}
+
+/*@__PURE__*/
 class Logger {
   static LOG_SYMBOLS = LOG_SYMBOLS
 
   #indention = ''
+  #lastWasBlank = false
   #logCallCount = 0
 
   constructor(...args) {
@@ -128,10 +134,13 @@ class Logger {
     let extras
     if (typeof text === 'string') {
       extras = args.slice(1)
-      con[methodName](`${this.#indention}${text}`)
+      const fullText = `${this.#indention}${text}`
+      con[methodName](fullText)
       this[incLogCallCountSymbol]()
+      this.#lastWasBlank = isBlankLine(text)
     } else {
       extras = args
+      this.#lastWasBlank = false
     }
     if (extras.length) {
       con[methodName](...extras)
@@ -151,7 +160,9 @@ class Logger {
       text = ''
     }
     // Note: Meta status messages (info/fail/etc) always go to stderr.
-    con.error(`${this.#indention}${LOG_SYMBOLS[symbolType]} ${text}`)
+    const fullText = `${this.#indention}${LOG_SYMBOLS[symbolType]} ${text}`
+    con.error(fullText)
+    this.#lastWasBlank = false
     this[incLogCallCountSymbol]()
     if (extras.length) {
       con.error(...extras)
@@ -172,12 +183,14 @@ class Logger {
   assert(value, ...message) {
     const con = privateConsole.get(this)
     con.assert(value, ...message)
+    this.#lastWasBlank = false
     return value ? this : this[incLogCallCountSymbol]()
   }
 
   clear() {
     const con = privateConsole.get(this)
     con.clear()
+    this.#lastWasBlank = false
     if (con._stdout.isTTY) {
       this.#logCallCount = 0
     }
@@ -187,6 +200,7 @@ class Logger {
   count(label) {
     const con = privateConsole.get(this)
     con.count(label)
+    this.#lastWasBlank = false
     return this[incLogCallCountSymbol]()
   }
 
@@ -198,17 +212,23 @@ class Logger {
   dir(obj, options) {
     const con = privateConsole.get(this)
     con.dir(obj, options)
+    this.#lastWasBlank = false
     return this[incLogCallCountSymbol]()
   }
 
   dirxml(...data) {
     const con = privateConsole.get(this)
     con.dirxml(data)
+    this.#lastWasBlank = false
     return this[incLogCallCountSymbol]()
   }
 
   error(...args) {
     return this.#apply('error', args)
+  }
+
+  errorNewline() {
+    return this.#lastWasBlank ? this : this.error('')
   }
 
   fail(...args) {
@@ -218,7 +238,11 @@ class Logger {
   group(...label) {
     const con = privateConsole.get(this)
     con.group(...label)
-    return label.length ? this[incLogCallCountSymbol]() : this
+    if (label.length) {
+      this.#lastWasBlank = false
+      this[incLogCallCountSymbol]()
+    }
+    return this
   }
 
   // groupCollapsed is an alias of group.
@@ -240,6 +264,10 @@ class Logger {
     return this.#apply('log', args)
   }
 
+  logNewline() {
+    return this.#lastWasBlank ? this : this.log('')
+  }
+
   resetIndent() {
     this.#indention = ''
     return this
@@ -252,24 +280,28 @@ class Logger {
   table(tabularData, properties) {
     const con = privateConsole.get(this)
     con.table(tabularData, properties)
+    this.#lastWasBlank = false
     return this[incLogCallCountSymbol]()
   }
 
   timeEnd(label) {
     const con = privateConsole.get(this)
     con.timeEnd(label)
+    this.#lastWasBlank = false
     return this[incLogCallCountSymbol]()
   }
 
   timeLog(label, ...data) {
     const con = privateConsole.get(this)
     con.timeLog(label, ...data)
+    this.#lastWasBlank = false
     return this[incLogCallCountSymbol]()
   }
 
   trace(message, ...args) {
     const con = privateConsole.get(this)
     con.trace(message, ...args)
+    this.#lastWasBlank = false
     return this[incLogCallCountSymbol]()
   }
 

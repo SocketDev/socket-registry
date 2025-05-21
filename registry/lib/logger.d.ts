@@ -39,6 +39,7 @@ declare namespace LoggerModule {
     dir: LoggerMethods['dir']
     dirxml: LoggerMethods['dirxml']
     error: LoggerMethods['error']
+    errorNewline(): Logger
     fail(...args: any[]): Logger
     group: LoggerMethods['group']
     groupCollapsed: LoggerMethods['groupCollapsed']
@@ -47,6 +48,7 @@ declare namespace LoggerModule {
     info: LoggerMethods['info']
     log: LoggerMethods['log']
     logCallCount: number
+    logNewline(): Logger
     profile: LoggerMethods['profile']
     profileEnd: LoggerMethods['profileEnd']
     resetIndent(): Logger
