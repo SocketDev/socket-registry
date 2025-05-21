@@ -24,7 +24,8 @@ void (async () => {
       const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
       const editablePkgJson = await readPackageJson(pkgJsonPath, {
-        editable: true
+        editable: true,
+        normalize: true
       })
       const directory = `packages/npm/${sockRegPkgName}`
       const entryExports = resolvePackageJsonEntryExports(

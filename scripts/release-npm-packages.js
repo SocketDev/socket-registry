@@ -118,7 +118,8 @@ async function maybeBumpPackage(pkg, options = {}) {
     }
     pkg.version = version
     const editablePkgJson = await readPackageJson(pkg.path, {
-      editable: true
+      editable: true,
+      normalize: true
     })
     if (editablePkgJson.content.version !== version) {
       editablePkgJson.update({ version })
@@ -149,7 +150,8 @@ function packageData(data) {
 async function updateOverrideScopedVersionInParent(pkg, version) {
   const parentPkgPath = path.resolve(pkg.path, '../..')
   const editableParentPkgJson = await readPackageJson(parentPkgPath, {
-    editable: true
+    editable: true,
+    normalize: true
   })
   const spec = `npm:${pkg.name}@${version}`
   const overrideName = path.basename(pkg.path)
@@ -235,7 +237,8 @@ void (async () => {
   if (!state.bumped.find(pkg => pkg === registryPkg)) {
     const version = semver.inc(registryPkg.manifest.version, 'patch')
     const editablePkgJson = await readPackageJson(registryPkg.path, {
-      editable: true
+      editable: true,
+      normalize: true
     })
     editablePkgJson.update({ version })
     await editablePkgJson.save()

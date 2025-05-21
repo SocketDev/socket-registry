@@ -848,10 +848,11 @@ function isValidPackageName(name) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function jsonToEditablePackageJson(pkgJson, options) {
+function pkgJsonToEditable(pkgJson, options) {
+  const { normalize, ...normalizeOptions } = { __proto__: null, ...options }
   const EditablePackageJson = getEditablePackageJsonClass()
   return new EditablePackageJson().fromContent(
-    normalizePackageJson(pkgJson, options)
+    normalize ? normalizePackageJson(pkgJson, normalizeOptions) : pkgJson
   )
 }
 
@@ -908,27 +909,42 @@ function parseSpdxExp(spdxExp) {
 
 /*@__NO_SIDE_EFFECTS__*/
 async function readPackageJson(filepath, options) {
-  const { editable, throws, ...otherOptions } = { __proto__: null, ...options }
+  const { editable, normalize, throws, ...normalizeOptions } = {
+    __proto__: null,
+    ...options
+  }
   const pkgJson = await readJson(resolvePackageJsonPath(filepath), { throws })
   if (pkgJson) {
     return editable
       ? await toEditablePackageJson(pkgJson, {
           path: filepath,
-          ...otherOptions
+          normalize,
+          ...normalizeOptions
         })
-      : normalizePackageJson(pkgJson, otherOptions)
+      : normalize
+        ? normalizePackageJson(pkgJson, normalizeOptions)
+        : pkgJson
   }
   return null
 }
 
 /*@__NO_SIDE_EFFECTS__*/
 function readPackageJsonSync(filepath, options) {
-  const { editable, throws, ...otherOptions } = { __proto__: null, ...options }
+  const { editable, normalize, throws, ...normalizeOptions } = {
+    __proto__: null,
+    ...options
+  }
   const pkgJson = readJsonSync(resolvePackageJsonPath(filepath), { throws })
   if (pkgJson) {
     return editable
-      ? toEditablePackageJsonSync(pkgJson, { path: filepath, ...otherOptions })
-      : normalizePackageJson(pkgJson, otherOptions)
+      ? toEditablePackageJsonSync(pkgJson, {
+          path: filepath,
+          normalize,
+          ...normalizeOptions
+        })
+      : normalize
+        ? normalizePackageJson(pkgJson, normalizeOptions)
+        : pkgJson
   }
   return null
 }
@@ -941,7 +957,9 @@ function resolveEscapedScope(sockRegPkgName) {
 /*@__NO_SIDE_EFFECTS__*/
 async function resolveGitHubTgzUrl(pkgNameOrId, where) {
   const whereIsPkgJson = isObjectObject(where)
-  const pkgJson = whereIsPkgJson ? where : await readPackageJson(where)
+  const pkgJson = whereIsPkgJson
+    ? where
+    : await readPackageJson(where, { normalize: true })
   const { version } = pkgJson
   const npmPackageArg = getNpmPackageArg()
   const parsedSpec = npmPackageArg(
@@ -1093,12 +1111,13 @@ function resolveRegistryPackageName(pkgName) {
 
 /*@__NO_SIDE_EFFECTS__*/
 async function toEditablePackageJson(pkgJson, options) {
-  const { path: filepath, ...normalizeOptions } = {
+  const { path: filepath, ...pkgJsonToEditableOptions } = {
     __proto__: null,
     ...options
   }
+  const { normalize, ...normalizeOptions } = pkgJsonToEditableOptions
   if (typeof filepath !== 'string') {
-    return jsonToEditablePackageJson(pkgJson, normalizeOptions)
+    return pkgJsonToEditable(pkgJson, pkgJsonToEditableOptions)
   }
   const EditablePackageJson = getEditablePackageJsonClass()
   const pkgJsonPath = resolvePackageJsonDirname(filepath)
@@ -1106,11 +1125,13 @@ async function toEditablePackageJson(pkgJson, options) {
     await EditablePackageJson.load(pkgJsonPath, { create: true })
   ).fromJSON(
     `${JSON.stringify(
-      normalizePackageJson(pkgJson, {
-        __proto__: null,
-        ...(isNodeModules(pkgJsonPath) ? {} : { preserve: ['repository'] }),
-        ...normalizeOptions
-      }),
+      normalize
+        ? normalizePackageJson(pkgJson, {
+            __proto__: null,
+            ...(isNodeModules(pkgJsonPath) ? {} : { preserve: ['repository'] }),
+            ...normalizeOptions
+          })
+        : pkgJson,
       null,
       2
     )}\n`
@@ -1119,22 +1140,25 @@ async function toEditablePackageJson(pkgJson, options) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function toEditablePackageJsonSync(pkgJson, options) {
-  const { path: filepath, ...normalizeOptions } = {
+  const { path: filepath, ...pkgJsonToEditableOptions } = {
     __proto__: null,
     ...options
   }
+  const { normalize, ...normalizeOptions } = pkgJsonToEditableOptions
   if (typeof filepath !== 'string') {
-    return jsonToEditablePackageJson(pkgJson, normalizeOptions)
+    return pkgJsonToEditable(pkgJson, pkgJsonToEditableOptions)
   }
   const EditablePackageJson = getEditablePackageJsonClass()
   const pkgJsonPath = resolvePackageJsonDirname(filepath)
   return new EditablePackageJson().create(pkgJsonPath).fromJSON(
     `${JSON.stringify(
-      normalizePackageJson(pkgJson, {
-        __proto__: null,
-        ...(isNodeModules(pkgJsonPath) ? {} : { preserve: ['repository'] }),
-        ...normalizeOptions
-      }),
+      normalize
+        ? normalizePackageJson(pkgJson, {
+            __proto__: null,
+            ...(isNodeModules(pkgJsonPath) ? {} : { preserve: ['repository'] }),
+            ...normalizeOptions
+          })
+        : pkgJson,
       null,
       2
     )}\n`
