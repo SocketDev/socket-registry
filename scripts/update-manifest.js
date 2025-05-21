@@ -46,7 +46,7 @@ async function addNpmManifestData(manifest, options) {
     }
     let nmPkgJson
     await extractPackage(nmPkgId, async nmPkgPath => {
-      nmPkgJson = await readPackageJson(nmPkgPath)
+      nmPkgJson = await readPackageJson(nmPkgPath, { normalize: true })
     })
     const isBlessed = isBlessedPackageName(data.name)
     manifestData.push([
@@ -70,7 +70,9 @@ async function addNpmManifestData(manifest, options) {
   await pEach(constants.npmPackageNames, 3, async sockRegPkgName => {
     const origPkgName = resolveOriginalPackageName(sockRegPkgName)
     // Lazily access constants.testNpmPkgJsonPath.
-    const testNpmPkgJson = await readPackageJson(constants.testNpmPkgJsonPath)
+    const testNpmPkgJson = await readPackageJson(constants.testNpmPkgJsonPath, {
+      normalize: true
+    })
     const nmPkgSpec = testNpmPkgJson.devDependencies[origPkgName]
     const nmPkgId = `${origPkgName}@${nmPkgSpec}`
     const nmPkgManifest = await fetchPackageManifest(nmPkgId)
@@ -80,11 +82,11 @@ async function addNpmManifestData(manifest, options) {
     }
     let nmPkgJson
     await extractPackage(nmPkgId, async nmPkgPath => {
-      nmPkgJson = await readPackageJson(nmPkgPath)
+      nmPkgJson = await readPackageJson(nmPkgPath, { normalize: true })
     })
     // Lazily access constants.npmPackagesPath.
     const pkgPath = path.join(constants.npmPackagesPath, sockRegPkgName)
-    const pkgJson = await readPackageJson(pkgPath)
+    const pkgJson = await readPackageJson(pkgPath, { normalize: true })
     const { engines, name, socket, version } = pkgJson
     const entryExports = resolvePackageJsonEntryExports(pkgJson.exports)
 

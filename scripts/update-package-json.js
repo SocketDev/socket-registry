@@ -9,7 +9,8 @@ void (async () => {
   const rootEditablePkgJson = await readPackageJson(
     constants.rootPackageJsonPath,
     {
-      editable: true
+      editable: true,
+      normalize: true
     }
   )
   // Lazily access constants.maintainedNodeVersions.

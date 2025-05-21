@@ -128,8 +128,9 @@ async function installTestNpmNodeModules(options) {
 
 async function installMissingPackages(packageNames, options) {
   const {
-    devDependencies = (await readPackageJson(testNpmPkgJsonPath))
-      .devDependencies,
+    devDependencies = (
+      await readPackageJson(testNpmPkgJsonPath, { normalize: true })
+    ).devDependencies,
     spinner
   } = { __proto__: null, ...options }
   const originalNames = packageNames.map(resolveOriginalPackageName)
@@ -199,7 +200,8 @@ async function installMissingPackageTests(packageNames, options) {
     if (gitHubTgzUrl) {
       // Replace the dev dep version range with the tarball URL.
       const testNpmEditablePkgJson = await readPackageJson(testNpmPkgJsonPath, {
-        editable: true
+        editable: true,
+        normalize: true
       })
       testNpmEditablePkgJson.update({
         devDependencies: {
@@ -250,13 +252,18 @@ async function readCachedEditablePackageJson(filepath_) {
   if (cached) {
     return cached
   }
-  const result = await readPackageJson(filepath, { editable: true })
+  const result = await readPackageJson(filepath, {
+    editable: true,
+    normalize: true
+  })
   editablePackageJsonCache.set(filepath, result)
   return result
 }
 
 async function resolveDevDependencies(packageNames, options) {
-  let { devDependencies } = await readPackageJson(testNpmPkgJsonPath)
+  let { devDependencies } = await readPackageJson(testNpmPkgJsonPath, {
+    normalize: true
+  })
   const missingPackages = packageNames.filter(sockRegPkgName => {
     const origPkgName = resolveOriginalPackageName(sockRegPkgName)
     // Missing packages can occur if the script is stopped part way through
@@ -271,8 +278,9 @@ async function resolveDevDependencies(packageNames, options) {
       devDependencies
     })
     // Refresh devDependencies object.
-    devDependencies = (await readPackageJson(testNpmPkgJsonPath))
-      .devDependencies
+    devDependencies = (
+      await readPackageJson(testNpmPkgJsonPath, { normalize: true })
+    ).devDependencies
   }
   // Chunk package names to process them in parallel 3 at a time.
   const missingPackageTests = await pFilter(
@@ -344,7 +352,7 @@ async function linkPackages(packageNames, options) {
 
     const nmEditablePkgJson = await readCachedEditablePackageJson(nmPkgPath)
     const { dependencies: nmPkgDeps } = nmEditablePkgJson.content
-    const pkgJson = await readPackageJson(pkgPath)
+    const pkgJson = await readPackageJson(pkgPath, { normalize: true })
 
     // Cleanup package scripts
     const scripts = nmEditablePkgJson.content.scripts ?? {}

@@ -172,7 +172,7 @@ void (async () => {
   let nmPkgJson
   let relJsFilepaths
   await extractPackage(origPkgName, async nmPkgPath => {
-    nmPkgJson = await readPackageJson(nmPkgPath)
+    nmPkgJson = await readPackageJson(nmPkgPath, { normalize: true })
     relJsFilepaths = await tinyGlob(['*.js'], {
       ignore: ['**/package.json'],
       cwd: nmPkgPath
@@ -415,7 +415,10 @@ void (async () => {
   }
   if (filesFieldAdditions.length) {
     // Load the freshly written package.json and edit its "exports" and "files" fields.
-    const editablePkgJson = await readPackageJson(pkgPath, { editable: true })
+    const editablePkgJson = await readPackageJson(pkgPath, {
+      editable: true,
+      normalize: true
+    })
     const entryExports = resolvePackageJsonEntryExports(
       editablePkgJson.content.exports
     )

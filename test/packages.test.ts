@@ -117,7 +117,7 @@ for (const eco of constants.ecosystems) {
         const req = (id: string) => req_(prepareReqId(id))
         req.resolve = (id: string) => req_.resolve(prepareReqId(id))
 
-        const pkgJson = await readPackageJson(pkgJsonPath)
+        const pkgJson = await readPackageJson(pkgJsonPath, { normalize: true })
         const {
           dependencies,
           engines,

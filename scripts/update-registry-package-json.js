@@ -14,7 +14,8 @@ void (async () => {
     // Lazily access constants.registryPkgPath.
     constants.registryPkgPath,
     {
-      editable: true
+      editable: true,
+      normalize: true
     }
   )
   const { content: registryPkgJson } = registryEditablePkgJson

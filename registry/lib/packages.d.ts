@@ -108,6 +108,7 @@ declare namespace Packages {
     filepath: string,
     options: {
       editable: true
+      normalize?: boolean | undefined
       preserve?: string[] | readonly string[] | undefined
       throws: false
     }
@@ -116,6 +117,7 @@ declare namespace Packages {
     filepath: string,
     options: {
       editable: true
+      normalize?: boolean | undefined
       preserve?: string[] | readonly string[] | undefined
       throws?: true | undefined
     }
@@ -124,6 +126,7 @@ declare namespace Packages {
     filepath: string,
     options: {
       editable?: false | undefined
+      normalize?: boolean | undefined
       preserve?: string[] | readonly string[] | undefined
       throws: false
     }
@@ -133,6 +136,7 @@ declare namespace Packages {
     options?:
       | {
           editable?: false | undefined
+          normalize?: boolean | undefined
           preserve?: string[] | readonly string[] | undefined
           throws?: true | undefined
         }
@@ -143,6 +147,7 @@ declare namespace Packages {
     options?:
       | {
           editable: true
+          normalize?: boolean | undefined
           preserve?: string[] | readonly string[] | undefined
           throws: false
         }
@@ -153,6 +158,7 @@ declare namespace Packages {
     options?:
       | {
           editable: true
+          normalize?: boolean | undefined
           preserve?: string[] | readonly string[] | undefined
           throws?: true | undefined
         }
@@ -163,6 +169,7 @@ declare namespace Packages {
     options?:
       | {
           editable?: false | undefined
+          normalize?: boolean | undefined
           preserve?: string[] | readonly string[] | undefined
           throws: false
         }
@@ -173,6 +180,7 @@ declare namespace Packages {
     options?:
       | {
           editable?: false | undefined
+          normalize?: boolean | undefined
           preserve?: string[] | readonly string[] | undefined
           throws?: true | undefined
         }
@@ -204,13 +212,21 @@ declare namespace Packages {
   export function toEditablePackageJson(
     pkgJson: PackageJson,
     options?:
-      | { path?: string; preserve?: string[] | readonly string[] }
+      | {
+          normalize?: boolean | undefined
+          path?: string | undefined
+          preserve?: string[] | readonly string[]
+        }
       | undefined
   ): Promise<EditablePackageJson>
   export function toEditablePackageJsonSync(
     pkgJson: PackageJson,
     options?:
-      | { path?: string; preserve?: string[] | readonly string[] }
+      | {
+          normalize?: boolean | undefined
+          path?: string | undefined
+          preserve?: string[] | readonly string[]
+        }
       | undefined
   ): EditablePackageJson
   export function unescapeScope(escapedScope: string): string

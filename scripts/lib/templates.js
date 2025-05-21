@@ -82,7 +82,7 @@ async function getNpmReadmeAction(pkgPath, options) {
   const { interop } = { __proto__: null, ...options }
   const eco = NPM
   const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
-  const pkgJson = await readPackageJson(pkgJsonPath)
+  const pkgJson = await readPackageJson(pkgJsonPath, { normalize: true })
   const pkgPurlObj = PackageURL.fromString(
     `pkg:${eco}/${pkgJson.name}@${pkgJson.version}`
   )
