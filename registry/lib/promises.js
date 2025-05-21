@@ -2,6 +2,59 @@
 
 const { arrayChunk } = /*@__PURE__*/ require('./arrays')
 
+let _timers
+/*@__NO_SIDE_EFFECTS__*/
+function getTimers() {
+  if (_timers === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _timers = /*@__PURE__*/ require('timers/promises')
+  }
+  return _timers
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function normalizeRetryOptions(options) {
+  const {
+    // Arguments to pass to the callback function.
+    args = [],
+    // Multiplier for exponential backoff (e.g., 2 doubles delay each retry).
+    backoffFactor = 2,
+    // Initial delay before the first retry (in milliseconds).
+    baseDelayMs = 200,
+    // Whether to apply randomness to spread out retries.
+    jitter = true,
+    // Upper limit for any backoff delay (in milliseconds).
+    maxDelayMs = 10000,
+    // Optional callback invoked on each retry attempt:
+    // (attempt: number, error: unknown, delay: number) => void
+    onRetry,
+    // Number of retry attempts (0 = no retries, only initial attempt).
+    retries = 0,
+    // AbortSignal used to support cancellation.
+    signal = /*@__PURE__*/ require('./constants/abort-signal')
+  } = resolveRetryOptions(options)
+  return {
+    __proto__: null,
+    args,
+    backoffFactor,
+    baseDelayMs,
+    jitter,
+    maxDelayMs,
+    onRetry,
+    retries,
+    signal
+  }
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function resolveRetryOptions(options) {
+  return {
+    __proto__: null,
+    ...(typeof options === 'number' ? { retries: options } : options)
+  }
+}
+
 /*@__NO_SIDE_EFFECTS__*/
 async function pEach(array, concurrency, callbackFn, options) {
   await pEachChunk(arrayChunk(array, concurrency), callbackFn, options)
@@ -26,7 +79,13 @@ async function pEachChunk(chunks, callbackFn, options) {
     }
     // eslint-disable-next-line no-await-in-loop
     await Promise.all(
-      chunk.map(value => pRetry(callbackFn, { args: [value], retries, signal }))
+      chunk.map(value =>
+        pRetry(callbackFn, {
+          signal,
+          ...resolveRetryOptions(retries),
+          args: [value]
+        })
+      )
     )
   }
 }
@@ -48,7 +107,11 @@ async function pFilterChunk(chunks, callbackFn, options) {
       // eslint-disable-next-line no-await-in-loop
       const predicateResults = await Promise.all(
         chunk.map(value =>
-          pRetry(callbackFn, { args: [value], retries, signal })
+          pRetry(callbackFn, {
+            signal,
+            ...resolveRetryOptions(retries),
+            args: [value]
+          })
         )
       )
       filteredChunks[i] = chunk.filter((_v, i) => predicateResults[i])
@@ -60,35 +123,62 @@ async function pFilterChunk(chunks, callbackFn, options) {
 /*@__NO_SIDE_EFFECTS__*/
 async function pRetry(callbackFn, options) {
   const {
-    args = [],
-    retries = 0,
-    signal = /*@__PURE__*/ require('./constants/abort-signal')
-  } = { __proto__: null, ...options }
+    args,
+    backoffFactor,
+    baseDelayMs,
+    jitter,
+    maxDelayMs,
+    onRetry,
+    retries,
+    signal
+  } = normalizeRetryOptions(options)
   if (signal?.aborted) {
     return undefined
   }
   if (retries === 0) {
     return await callbackFn(...args, { signal })
   }
+
+  const UNDEFINED_TOKEN = /*@__PURE__*/ require('./constants/undefined-token')
+  const timers = getTimers()
+
   let attempts = retries
-  return (async () => {
-    const UNDEFINED_TOKEN = /*@__PURE__*/ require('./constants/undefined-token')
-    let error = UNDEFINED_TOKEN
-    while (attempts-- >= 0 && !signal?.aborted) {
-      try {
-        // eslint-disable-next-line no-await-in-loop
-        return await callbackFn(...args, { signal })
-      } catch (e) {
-        if (error === UNDEFINED_TOKEN) {
-          error = e
-        }
+  let delay = baseDelayMs
+  let error = UNDEFINED_TOKEN
+
+  while (attempts-- >= 0 && !signal?.aborted) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      return await callbackFn(...args, { signal })
+    } catch (e) {
+      if (error === UNDEFINED_TOKEN) {
+        error = e
       }
+      if (attempts < 0) {
+        break
+      }
+      let waitTime = delay
+      if (jitter) {
+        // Add randomness: Pick a value between 0 and `delay`.
+        waitTime += Math.floor(Math.random() * delay)
+      }
+      // Clamp wait time to max delay.
+      waitTime = Math.min(waitTime, maxDelayMs)
+      if (typeof onRetry === 'function') {
+        try {
+          onRetry(retries - attempts, e, waitTime)
+        } catch {}
+      }
+      // eslint-disable-next-line no-await-in-loop
+      await timers.wait(waitTime, undefined, { signal })
+      // Exponentially increase the delay for the next attempt, capping at maxDelayMs.
+      delay = Math.min(delay * backoffFactor, maxDelayMs)
     }
-    if (error !== UNDEFINED_TOKEN) {
-      throw error
-    }
-    return undefined
-  })()
+  }
+  if (error !== UNDEFINED_TOKEN) {
+    throw error
+  }
+  return undefined
 }
 
 module.exports = {

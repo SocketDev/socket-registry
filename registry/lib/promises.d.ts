@@ -1,8 +1,22 @@
+declare type pRetryOptions =
+  | number
+  | {
+      backoffFactor?: number | undefined
+      baseDelayMs?: number | undefined
+      jitter?: boolean | undefined
+      maxDelayMs?: number | undefined
+      onRetry?: (
+        attempt: number,
+        error: unknown,
+        delay: number
+      ) => void | undefined
+      retries?: number | undefined
+      signal?: AbortSignal | undefined
+    }
 declare type pOptions = {
-  retries?: number | undefined
+  retries?: pRetryOptions | undefined
   signal?: AbortSignal | undefined
 }
-
 declare const Promises: {
   pEach<T>(
     array: T[],
@@ -28,10 +42,10 @@ declare const Promises: {
   ): Promise<T[][]>
   pRetry<T, P extends (value: T, options: pOptions) => Promise<any>>(
     callbackFn: P,
-    options?: pOptions | undefined
+    options?: pRetryOptions | undefined
   ): ReturnType<P>
 }
 declare namespace Promises {
-  export { pOptions }
+  export { pOptions, pRetryOptions }
 }
 export = Promises
