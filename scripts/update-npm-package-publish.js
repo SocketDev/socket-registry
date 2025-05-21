@@ -64,18 +64,20 @@ function packageData(data) {
 
 async function publish(pkg, state = { fails: [] }) {
   try {
-    const { stdout } = await execNpm(
-      ['publish', '--provenance', '--tag', pkg.tag, '--access', 'public'],
-      {
-        cwd: pkg.path,
-        stdio: 'pipe',
-        env: {
-          ...process.env,
-          // Lazily access constants.ENV.NODE_AUTH_TOKEN.
-          NODE_AUTH_TOKEN: constants.ENV.NODE_AUTH_TOKEN
+    const stdout = (
+      await execNpm(
+        ['publish', '--provenance', '--tag', pkg.tag, '--access', 'public'],
+        {
+          cwd: pkg.path,
+          stdio: 'pipe',
+          env: {
+            ...process.env,
+            // Lazily access constants.ENV.NODE_AUTH_TOKEN.
+            NODE_AUTH_TOKEN: constants.ENV.NODE_AUTH_TOKEN
+          }
         }
-      }
-    )
+      )
+    ).stdout.trim()
     if (stdout) {
       logger.log(stdout)
     }

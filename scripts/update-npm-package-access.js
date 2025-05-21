@@ -48,9 +48,8 @@ void (async () => {
   // Chunk package names to process them in parallel 3 at a time.
   await pEach(packages, 3, async pkg => {
     try {
-      const { stdout } = await execNpm(
-        ['access', 'set', 'mfa=automation', pkg.name],
-        {
+      const stdout = (
+        await execNpm(['access', 'set', 'mfa=automation', pkg.name], {
           cwd: pkg.path,
           stdio: 'pipe',
           env: {
@@ -58,8 +57,8 @@ void (async () => {
             // Lazily access constants.ENV.NODE_AUTH_TOKEN.
             NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
           }
-        }
-      )
+        })
+      ).stdout.trim()
       logger.log(stdout)
     } catch (e) {
       const stderr = e?.stderr ?? ''
