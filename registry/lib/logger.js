@@ -2,7 +2,8 @@
 
 const { isBlankString } = /*@__PURE__*/ require('./strings')
 
-const { construct: ReflectConstruct } = Reflect
+const globalConsole = console
+const { apply: ReflectApply, construct: ReflectConstruct } = Reflect
 
 let _Console
 /*@__NO_SIDE_EFFECTS__*/
@@ -73,7 +74,8 @@ const boundConsoleEntries = [
   'dirxml',
   'error',
   // Skip group methods because in at least Node 20 with the Node --frozen-intrinsics
-  // flag it triggers a readonly property for Symbol(kGroupIndent).
+  // flag it triggers a readonly property for Symbol(kGroupIndent). Instead, we
+  // implement these methods ourselves.
   //'group',
   //'groupCollapsed',
   //'groupEnd',
@@ -86,8 +88,8 @@ const boundConsoleEntries = [
   'trace',
   'warn'
 ]
-  .filter(n => typeof console[n] === 'function')
-  .map(n => [n, console[n].bind(console)])
+  .filter(n => typeof globalConsole[n] === 'function')
+  .map(n => [n, globalConsole[n].bind(globalConsole)])
 
 const consolePropAttributes = {
   __proto__: null,
@@ -95,11 +97,22 @@ const consolePropAttributes = {
   enumerable: false,
   configurable: true
 }
+const maxIndentation = 1000
+const privateConsole = new WeakMap()
 
+const consoleSymbols = Object.getOwnPropertySymbols(globalConsole)
 const incLogCallCountSymbol = Symbol.for('logger.logCallCount++')
+const kGroupIndentationWidthSymbol =
+  consoleSymbols.find(s => s.label === 'kGroupIndentWidth') ??
+  Symbol('kGroupIndentWidth')
 const lastWasBlankSymbol = Symbol.for('logger.lastWasBlank')
 
-const privateConsole = new WeakMap()
+/*@__PURE__*/
+function applyIndent(text, indent) {
+  return indent.length
+    ? `${indent}${text.includes('\n') ? text.replace(/\n/g, `\n${indent}`) : text}`
+    : text
+}
 
 /*@__PURE__*/
 class Logger {
@@ -115,14 +128,14 @@ class Logger {
     } else {
       // Create a new console that acts like the builtin one so that it will
       // work with Node's --frozen-intrinsics flag.
-      const newConsole = constructConsole({
+      const con = constructConsole({
         stdout: process.stdout,
         stderr: process.stderr
       })
       for (const { 0: key, 1: method } of boundConsoleEntries) {
-        newConsole[key] = method
+        con[key] = method
       }
-      privateConsole.set(this, newConsole)
+      privateConsole.set(this, con)
     }
   }
 
@@ -132,8 +145,7 @@ class Logger {
     let extras
     if (typeof text === 'string') {
       extras = args.slice(1)
-      const fullText = `${this.#indention}${text}`
-      con[methodName](fullText)
+      con[methodName](applyIndent(text, this.#indention))
       this[lastWasBlankSymbol](isBlankString(text))
       this[incLogCallCountSymbol]()
     } else {
@@ -158,8 +170,9 @@ class Logger {
       text = ''
     }
     // Note: Meta status messages (info/fail/etc) always go to stderr.
-    const fullText = `${this.#indention}${LOG_SYMBOLS[symbolType]} ${text}`
-    con.error(fullText)
+    con.error(
+      applyIndent(`${LOG_SYMBOLS[symbolType]} ${text}`, this.#indention)
+    )
     this.#lastWasBlank = false
     this[incLogCallCountSymbol]()
     if (extras.length) {
@@ -239,9 +252,12 @@ class Logger {
   }
 
   group(...label) {
-    const con = privateConsole.get(this)
-    con.group(...label)
-    if (label.length) {
+    const { length } = label
+    if (length) {
+      ReflectApply(this.log, this, label)
+    }
+    this.indent(this[kGroupIndentationWidthSymbol])
+    if (length) {
       this[lastWasBlankSymbol](false)
       this[incLogCallCountSymbol]()
     }
@@ -251,11 +267,16 @@ class Logger {
   // groupCollapsed is an alias of group.
   // https://nodejs.org/api/console.html#consolegroupcollapsed
   groupCollapsed(...label) {
-    return this.group(...label)
+    return ReflectApply(this.group, this, label)
+  }
+
+  groupEnd() {
+    this.dedent(this[kGroupIndentationWidthSymbol])
+    return this
   }
 
   indent(spaces = 2) {
-    this.#indention += ' '.repeat(spaces)
+    this.#indention += ' '.repeat(Math.min(spaces, maxIndentation))
     return this
   }
 
@@ -319,6 +340,14 @@ Object.defineProperties(
     (() => {
       const entries = [
         [
+          kGroupIndentationWidthSymbol,
+          {
+            __proto__: null,
+            ...consolePropAttributes,
+            value: 2
+          }
+        ],
+        [
           Symbol.toStringTag,
           {
             __proto__: null,
@@ -327,7 +356,7 @@ Object.defineProperties(
           }
         ]
       ]
-      for (const { 0: key, 1: value } of Object.entries(console)) {
+      for (const { 0: key, 1: value } of Object.entries(globalConsole)) {
         if (!Logger.prototype[key] && typeof value === 'function') {
           // Dynamically name the log method without using Object.defineProperty.
           const { [key]: func } = {
