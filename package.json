@@ -95,7 +95,7 @@
     "fs-extra": "11.3.0",
     "globals": "16.1.0",
     "husky": "9.1.7",
-    "knip": "5.57.1",
+    "knip": "5.57.2",
     "lint-staged": "16.0.0",
     "minimatch": "9.0.5",
     "npm-package-arg": "12.0.2",
