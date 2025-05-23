@@ -170,7 +170,7 @@ async function pRetry(callbackFn, options) {
         } catch {}
       }
       // eslint-disable-next-line no-await-in-loop
-      await timers.wait(waitTime, undefined, { signal })
+      await timers.setTimeout(waitTime, undefined, { signal })
       // Exponentially increase the delay for the next attempt, capping at maxDelayMs.
       delay = Math.min(delay * backoffFactor, maxDelayMs)
     }
