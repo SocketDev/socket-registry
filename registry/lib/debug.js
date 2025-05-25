@@ -1,10 +1,20 @@
 'use strict'
 
+const { apply: ReflectApply } = Reflect
+
+/*@__NO_SIDE_EFFECTS__*/
+function debugDir(...args) {
+  if (isDebug()) {
+    const { logger } = /*@__PURE__*/ require('./logger')
+    ReflectApply(logger.dir, logger, args)
+  }
+}
+
 /*@__NO_SIDE_EFFECTS__*/
 function debugLog(...args) {
   if (isDebug()) {
     const { logger } = /*@__PURE__*/ require('./logger')
-    logger.info(...args)
+    ReflectApply(logger.info, logger, args)
   }
 }
 
@@ -17,6 +27,7 @@ function isDebug() {
 }
 
 module.exports = {
+  debugDir,
   debugLog,
   isDebug
 }
