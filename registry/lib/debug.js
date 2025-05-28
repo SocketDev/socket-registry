@@ -1,33 +1,39 @@
-'use strict'
-
+// Purposefully in sloppy mode to aid with debuggability.
+// 'use strict'
 const { apply: ReflectApply } = Reflect
 
 /*@__NO_SIDE_EFFECTS__*/
-function debugDir(...args) {
+function debugDir() {
+  'use strict'
   if (isDebug()) {
     const { logger } = /*@__PURE__*/ require('./logger')
-    ReflectApply(logger.dir, logger, args)
+    ReflectApply(logger.dir, logger, arguments)
   }
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function debugFn(fn, ...args) {
+function debugFn() {
+  // Purposefully in sloppy mode to aid with debuggability.
+  // 'use strict'
   if (isDebug()) {
     const { logger } = /*@__PURE__*/ require('./logger')
-    logger.info(`[DEBUG] ${fn.name} >`, ...args)
+    const name = debugFn.caller?.name ?? ''
+    logger.info(`[DEBUG]${name ? ` ${name} >` : ''}`, ...Array.from(arguments))
   }
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function debugLog(...args) {
+function debugLog() {
+  'use strict'
   if (isDebug()) {
     const { logger } = /*@__PURE__*/ require('./logger')
-    ReflectApply(logger.info, logger, args)
+    ReflectApply(logger.info, logger, arguments)
   }
 }
 
 /*@__NO_SIDE_EFFECTS__*/
 function isDebug() {
+  'use strict'
   const ENV = /*@__PURE__*/ require('./constants/env')
   // eslint-disable-next-line no-warning-comments
   // TODO: Make the environment variable name configurable.
