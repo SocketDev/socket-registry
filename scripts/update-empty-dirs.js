@@ -9,16 +9,20 @@ const {
 const { isDirEmptySync, remove } = require('@socketsecurity/registry/lib/fs')
 
 void (async () => {
-  await Promise.all(
-    (
-      await tinyGlob(['**/'], {
-        ignore: [NODE_MODULES_GLOB_RECURSIVE],
-        absolute: true,
-        cwd: rootPath,
-        onlyDirectories: true
-      })
-    )
-      .filter(isDirEmptySync)
-      .map(d => remove(d))
+  const dirPaths = (
+    await tinyGlob(['**/'], {
+      ignore: [NODE_MODULES_GLOB_RECURSIVE],
+      absolute: true,
+      cwd: rootPath,
+      onlyDirectories: true
+    })
   )
+    // Sort directory paths longest to shortest.
+    .sort((a, b) => b.length - a.length)
+  for (const dirPath of dirPaths) {
+    if (isDirEmptySync(dirPath)) {
+      // eslint-disable-next-line no-await-in-loop
+      await remove(dirPath)
+    }
+  }
 })()
