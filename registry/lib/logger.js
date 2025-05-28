@@ -142,20 +142,13 @@ class Logger {
   #apply(methodName, args) {
     const con = privateConsole.get(this)
     const text = args.at(0)
-    let extras
-    if (typeof text === 'string') {
-      extras = args.slice(1)
-      con[methodName](applyIndent(text, this.#indention))
-      this[lastWasBlankSymbol](isBlankString(text))
-      this[incLogCallCountSymbol]()
-    } else {
-      extras = args
-      this[lastWasBlankSymbol](false)
-    }
-    if (extras.length) {
-      con[methodName](...extras)
-      this[incLogCallCountSymbol]()
-    }
+    const hasText = typeof text === 'string'
+    const logArgs = hasText
+      ? [applyIndent(text, this.#indention), ...args.slice(1)]
+      : args
+    ReflectApply(con[methodName], con, logArgs)
+    this[lastWasBlankSymbol](hasText && isBlankString(logArgs[0]))
+    this[incLogCallCountSymbol]()
     return this
   }
 
@@ -171,14 +164,11 @@ class Logger {
     }
     // Note: Meta status messages (info/fail/etc) always go to stderr.
     con.error(
-      applyIndent(`${LOG_SYMBOLS[symbolType]} ${text}`, this.#indention)
+      applyIndent(`${LOG_SYMBOLS[symbolType]} ${text}`, this.#indention),
+      ...extras
     )
     this.#lastWasBlank = false
     this[incLogCallCountSymbol]()
-    if (extras.length) {
-      con.error(...extras)
-      this[incLogCallCountSymbol]()
-    }
     return this
   }
 
