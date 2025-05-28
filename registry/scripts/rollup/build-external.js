@@ -25,7 +25,7 @@ const getConfig = require(path.join(configPath, 'rollup.base.config.js'))
         // Outputs to ./external in root of package.
         file: path.join(rootPath, relPath),
         format: 'cjs',
-        sourcemap: true,
+        sourcemap: false,
         inlineDynamicImports: true
       })
       console.log(`✅ Built ${relPath}`)
