@@ -1,30 +1,59 @@
-// Purposefully in sloppy mode to aid with debuggability.
-// 'use strict'
+'use strict'
+
 const { apply: ReflectApply } = Reflect
 
 /*@__NO_SIDE_EFFECTS__*/
 function debugDir() {
-  'use strict'
   if (isDebug()) {
     const { logger } = /*@__PURE__*/ require('./logger')
     ReflectApply(logger.dir, logger, arguments)
   }
 }
 
+let pointingTriangle
 /*@__NO_SIDE_EFFECTS__*/
 function debugFn() {
-  // Purposefully in sloppy mode to aid with debuggability.
-  // 'use strict'
   if (isDebug()) {
     const { logger } = /*@__PURE__*/ require('./logger')
-    const name = debugFn.caller?.name ?? ''
-    logger.info(`[DEBUG]${name ? ` ${name} >` : ''}`, ...Array.from(arguments))
+    const { stack } = new Error()
+    let lineCount = 0
+    let lineStart = 0
+    let name = 'anonymous'
+    // Scan the stack trace character-by-character to find the 4th line
+    // (index 3), which is typically the caller of debugFn.
+    for (let i = 0, { length } = stack; i < length; i += 1) {
+      if (stack.charCodeAt(i) === 10 /*'\n'*/) {
+        lineCount += 1
+        if (lineCount < 4) {
+          // Store the start index of the next line.
+          lineStart = i + 1
+        } else {
+          // Extract the full line and trim it.
+          const line = stack.slice(lineStart, i).trimStart()
+          // Match the function name portion (e.g., "async runFix").
+          const match = /(?<=^at\s+).*?(?=\s+\(|$)/.exec(line)?.[0]
+          if (match) {
+            // Strip known V8 invocation prefixes to get the clean name.
+            name = match.replace(/^(?:async|bound|get|new|set)\s+/, '')
+          }
+          break
+        }
+      }
+    }
+    if (pointingTriangle === undefined) {
+      const supported =
+        /*@__PURE__*/ require('../external/@socketregistry/is-unicode-supported')()
+      pointingTriangle = supported ? '▸' : '>'
+    }
+    logger.info(
+      `[DEBUG]${name ? ` ${name} ${pointingTriangle}` : ''}`,
+      ...arguments
+    )
   }
 }
 
 /*@__NO_SIDE_EFFECTS__*/
 function debugLog() {
-  'use strict'
   if (isDebug()) {
     const { logger } = /*@__PURE__*/ require('./logger')
     ReflectApply(logger.info, logger, arguments)
@@ -33,7 +62,6 @@ function debugLog() {
 
 /*@__NO_SIDE_EFFECTS__*/
 function isDebug() {
-  'use strict'
   const ENV = /*@__PURE__*/ require('./constants/env')
   // eslint-disable-next-line no-warning-comments
   // TODO: Make the environment variable name configurable.
