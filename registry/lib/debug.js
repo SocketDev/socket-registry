@@ -11,6 +11,14 @@ function debugDir(...args) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
+function debugFn(fn, ...args) {
+  if (isDebug()) {
+    const { logger } = /*@__PURE__*/ require('./logger')
+    logger.info(`[DEBUG] ${fn.name} >`, ...args)
+  }
+}
+
+/*@__NO_SIDE_EFFECTS__*/
 function debugLog(...args) {
   if (isDebug()) {
     const { logger } = /*@__PURE__*/ require('./logger')
@@ -28,6 +36,7 @@ function isDebug() {
 
 module.exports = {
   debugDir,
+  debugFn,
   debugLog,
   isDebug
 }
