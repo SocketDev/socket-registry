@@ -48,11 +48,12 @@ function Spinner(options) {
         if (methodName === 'stop') {
           if (wasSpinning && text) {
             logger[lastWasBlankSymbol](isBlankString(text))
+            logger[incLogCallCountSymbol]()
           }
         } else {
           logger[lastWasBlankSymbol](false)
+          logger[incLogCallCountSymbol]()
         }
-        logger[incLogCallCountSymbol]()
         if (extras.length) {
           logger.log(...extras)
           logger[lastWasBlankSymbol](false)
