@@ -1,5 +1,7 @@
 'use strict'
 
+const { applyLinePrefix } = /*@__PURE__*/ require('./strings')
+
 const { apply: ReflectApply } = Reflect
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -12,7 +14,7 @@ function debugDir() {
 
 let pointingTriangle
 /*@__NO_SIDE_EFFECTS__*/
-function debugFn() {
+function debugFn(...args) {
   if (isDebug()) {
     const { logger } = /*@__PURE__*/ require('./logger')
     const { stack } = new Error()
@@ -45,10 +47,18 @@ function debugFn() {
         /*@__PURE__*/ require('../external/@socketregistry/is-unicode-supported')()
       pointingTriangle = supported ? '▸' : '>'
     }
-    logger.info(
-      `[DEBUG]${name ? ` ${name} ${pointingTriangle}` : ''}`,
-      ...arguments
-    )
+    const text = args.at(0)
+    const hasText = typeof text === 'string'
+    const logArgs = hasText
+      ? [
+          applyLinePrefix(
+            `${name ? `${name} ${pointingTriangle} ` : ''}${text}`,
+            '[DEBUG] '
+          ),
+          ...args.slice(1)
+        ]
+      : args
+    ReflectApply(logger.info, logger, logArgs)
   }
 }
 

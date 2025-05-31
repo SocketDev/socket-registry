@@ -1,6 +1,6 @@
 'use strict'
 
-const { isBlankString } = /*@__PURE__*/ require('./strings')
+const { applyLinePrefix, isBlankString } = /*@__PURE__*/ require('./strings')
 
 const globalConsole = console
 const { apply: ReflectApply, construct: ReflectConstruct } = Reflect
@@ -108,13 +108,6 @@ const kGroupIndentationWidthSymbol =
 const lastWasBlankSymbol = Symbol.for('logger.lastWasBlank')
 
 /*@__PURE__*/
-function applyIndent(text, indent) {
-  return indent.length
-    ? `${indent}${text.includes('\n') ? text.replace(/\n/g, `\n${indent}`) : text}`
-    : text
-}
-
-/*@__PURE__*/
 class Logger {
   static LOG_SYMBOLS = LOG_SYMBOLS
 
@@ -144,7 +137,7 @@ class Logger {
     const text = args.at(0)
     const hasText = typeof text === 'string'
     const logArgs = hasText
-      ? [applyIndent(text, this.#indention), ...args.slice(1)]
+      ? [applyLinePrefix(text, this.#indention), ...args.slice(1)]
       : args
     ReflectApply(con[methodName], con, logArgs)
     this[lastWasBlankSymbol](hasText && isBlankString(logArgs[0]))
@@ -164,7 +157,7 @@ class Logger {
     }
     // Note: Meta status messages (info/fail/etc) always go to stderr.
     con.error(
-      applyIndent(`${LOG_SYMBOLS[symbolType]} ${text}`, this.#indention),
+      applyLinePrefix(`${LOG_SYMBOLS[symbolType]} ${text}`, this.#indention),
       ...extras
     )
     this.#lastWasBlank = false
