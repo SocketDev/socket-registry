@@ -1,11 +1,18 @@
 'use strict'
 
 /*@__NO_SIDE_EFFECTS__*/
+function applyLinePrefix(str, prefix = '') {
+  return prefix.length
+    ? `${prefix}${str.includes('\n') ? str.replace(/\n/g, `\n${prefix}`) : str}`
+    : str
+}
+
+/*@__NO_SIDE_EFFECTS__*/
 function indentString(str, count = 1) {
   return str.replace(/^(?!\s*$)/gm, ' '.repeat(count))
 }
 
-/*@__PURE__*/
+/*__NO_SIDE_EFFECTS__*/
 function isBlankString(value) {
   return typeof value === 'string' && (!value.length || /^\s+$/.test(value))
 }
@@ -37,6 +44,7 @@ function stripBom(str) {
 }
 
 module.exports = {
+  applyLinePrefix,
   indentString,
   isBlankString,
   isNonEmptyString,
