@@ -30,8 +30,12 @@ declare type ManifestEntryData = {
   }
   skipTests?: boolean | undefined
 }
+// Based on https://github.com/SocketDev/socket-sdk-js/blob/v1.4.41/types/api.d.ts#L3292.
 declare enum PURL_Type {
-  NPM = 'npm'
+  GOLANG = 'golang',
+  NPM = 'npm',
+  PYPI = 'pypi',
+  UNKNOWN = 'unknown'
 }
 declare const SocketSecurityRegistry: {
   Categories: typeof Categories
