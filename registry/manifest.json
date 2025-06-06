@@ -1857,7 +1857,7 @@
       }
     ],
     [
-      "pkg:npm/shell-quote@1.8.2",
+      "pkg:npm/shell-quote@1.8.3",
       {
         "categories": ["tuneup"],
         "engines": {
@@ -1867,7 +1867,7 @@
         "license": "MIT",
         "name": "shell-quote",
         "package": "shell-quote",
-        "version": "1.8.2"
+        "version": "1.8.3"
       }
     ]
   ]
