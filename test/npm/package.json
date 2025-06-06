@@ -136,7 +136,7 @@
     "which-boxed-primitive": "1.1.1",
     "which-collection": "1.0.2",
     "which-typed-array": "1.1.19",
-    "yocto-spinner": "https://github.com/sindresorhus/yocto-spinner/archive/2645ac52ffe1fcda97d53d8213de45be3ca20c6f.tar.gz"
+    "yocto-spinner": "https://github.com/sindresorhus/yocto-spinner/archive/20fb6cfc5214ac6aca57e1eb56b7ba4ad23313cd.tar.gz"
   },
   "workspaces": [
     "node_workspaces/*"
