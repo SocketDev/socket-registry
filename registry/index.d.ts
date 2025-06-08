@@ -32,9 +32,35 @@ declare type ManifestEntryData = {
 }
 // Based on https://github.com/SocketDev/socket-sdk-js/blob/v1.4.41/types/api.d.ts#L3292.
 declare enum PURL_Type {
+  ALPM = 'alpm',
+  APK = 'apk',
+  BITBUCKET = 'bitbucket',
+  COCOAPODS = 'cocoapods',
+  CARGO = 'cargo',
+  COMPOSER = 'composer',
+  CONAN = 'conan',
+  CONDA = 'conda',
+  CRAN = 'cran',
+  DEB = 'deb',
+  DOCKER = 'docker',
+  GEM = 'gem',
+  GENERIC = 'generic',
+  GITHUB = 'github',
   GOLANG = 'golang',
+  HACKAGE = 'hackage',
+  HEX = 'hex',
+  HUGGINGFACE = 'huggingface',
+  MAVEN = 'maven',
+  MLFLOW = 'mlflow',
   NPM = 'npm',
+  NUGET = 'nuget',
+  QPKG = 'qpkg',
+  OCI = 'oci',
+  PUB = 'pub',
   PYPI = 'pypi',
+  RPM = 'rpm',
+  SWID = 'swid',
+  SWIFT = 'swift',
   UNKNOWN = 'unknown'
 }
 declare const SocketSecurityRegistry: {
