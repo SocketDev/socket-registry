@@ -1,6 +1,6 @@
 {
   "name": "@socketsecurity/registry",
-  "version": "1.0.206",
+  "version": "1.0.207",
   "license": "MIT",
   "description": "Socket.dev registry helpers methods and metadata",
   "keywords": [
@@ -627,8 +627,8 @@
     "@rollup/plugin-node-resolve": "16.0.1",
     "@rollup/plugin-replace": "6.0.2",
     "@socketregistry/is-unicode-supported": "1.0.4",
-    "@socketregistry/packageurl-js": "1.0.6",
-    "@socketregistry/yocto-spinner": "1.0.18",
+    "@socketregistry/packageurl-js": "1.0.7",
+    "@socketregistry/yocto-spinner": "1.0.19",
     "@types/pacote": "11.1.8",
     "@yarnpkg/extensions": "2.0.6",
     "browserslist": "4.25.0",
