@@ -102,18 +102,19 @@ function stripVTControlCharacters(string) {
 }
 
 class YoctoSpinner {
-  #frames
-  #interval
-  #currentFrame = -1
-  #timer
-  #text
-  #stream
   #color
-  #lines = 0
+  #currentFrame = -1
   #exitHandlerBound
+  #frames
+  #indention = ''
+  #interval
   #isInteractive
-  #lastSpinnerFrameTime = 0
   #isSpinning = false
+  #lastSpinnerFrameTime = 0
+  #lines = 0
+  #stream
+  #text
+  #timer
 
   constructor(options = {}) {
     const opts = { __proto__: null, ...options }
@@ -126,6 +127,160 @@ class YoctoSpinner {
     this.#color = options.color ?? 'cyan'
     this.#isInteractive = !!stream.isTTY && isProcessInteractive()
     this.#exitHandlerBound = this.#exitHandler.bind(this)
+  }
+
+  #exitHandler(signal) {
+    if (this.isSpinning) {
+      this.stop()
+    }
+
+    // SIGINT: 128 + 2
+    // SIGTERM: 128 + 15
+    const exitCode = signal === 'SIGINT' ? 130 : signal === 'SIGTERM' ? 143 : 1
+    // eslint-disable-next-line n/no-process-exit
+    process.exit(exitCode)
+  }
+
+  #hideCursor() {
+    if (this.#isInteractive) {
+      this.#write('\u001B[?25l')
+    }
+  }
+
+  #lineCount(text) {
+    const width = this.#stream.columns ?? defaultTtyColumns
+    const lines = stripVTControlCharacters(text).split('\n')
+
+    let lineCount = 0
+    for (const line of lines) {
+      lineCount += Math.max(1, Math.ceil(line.length / width))
+    }
+
+    return lineCount
+  }
+
+  #render() {
+    // Ensure we only update the spinner frame at the wanted interval,
+    // even if the frame method is called more often.
+    const now = Date.now()
+    if (
+      this.#currentFrame === -1 ||
+      now - this.#lastSpinnerFrameTime >= this.#interval
+    ) {
+      this.#currentFrame = ++this.#currentFrame % this.#frames.length
+      this.#lastSpinnerFrameTime = now
+    }
+
+    const colors = getYoctocolors()
+    const applyColor = colors[this.#color] ?? colors.cyan
+    const frame = this.#frames[this.#currentFrame]
+    let string = `${applyColor(frame)} ${this.#text}`
+
+    if (string) {
+      if (this.#indention.length) {
+        string = `${this.#indention}${string}`
+      }
+      if (!this.#isInteractive) {
+        string += '\n'
+      }
+    }
+
+    this.clear()
+    this.#write(string)
+
+    if (this.#isInteractive) {
+      this.#lines = this.#lineCount(string)
+    }
+  }
+
+  #showCursor() {
+    if (this.#isInteractive) {
+      this.#write('\u001B[?25h')
+    }
+  }
+
+  #subscribeToProcessEvents() {
+    process.once('SIGINT', this.#exitHandlerBound)
+    process.once('SIGTERM', this.#exitHandlerBound)
+  }
+
+  #symbolStop(symbolType, text) {
+    const symbols = getLogSymbols()
+    return this.stop(`${symbols[symbolType]} ${text ?? this.#text}`)
+  }
+
+  #write(text) {
+    this.#stream.write(text)
+  }
+
+  #unsubscribeFromProcessEvents() {
+    process.off('SIGINT', this.#exitHandlerBound)
+    process.off('SIGTERM', this.#exitHandlerBound)
+  }
+
+  get color() {
+    return this.#color
+  }
+
+  set color(value) {
+    this.#color = value
+    this.#render()
+  }
+
+  get isSpinning() {
+    return this.#isSpinning
+  }
+
+  get text() {
+    return this.#text
+  }
+
+  set text(value) {
+    this.#text = value ?? ''
+    this.#render()
+  }
+
+  clear() {
+    if (!this.#isInteractive) {
+      return this
+    }
+
+    this.#stream.cursorTo(0)
+
+    for (let index = 0; index < this.#lines; index++) {
+      if (index > 0) {
+        this.#stream.moveCursor(0, -1)
+      }
+
+      this.#stream.clearLine(1)
+    }
+
+    this.#lines = 0
+
+    return this
+  }
+
+  dedent(spaces = 2) {
+    this.#indention = this.#indention.slice(0, -spaces)
+    return this
+  }
+
+  error(text) {
+    return this.#symbolStop('error', text)
+  }
+
+  indent(spaces = 2) {
+    this.#indention += ' '.repeat(spaces)
+    return this
+  }
+
+  info(text) {
+    return this.#symbolStop('info', text)
+  }
+
+  resetIndent() {
+    this.#indention = ''
+    return this
   }
 
   start(text) {
@@ -168,152 +323,18 @@ class YoctoSpinner {
     this.#unsubscribeFromProcessEvents()
 
     if (finalText) {
-      this.#stream.write(`${finalText}\n`)
+      this.#stream.write(`${this.#indention}${finalText}\n`)
     }
 
     return this
-  }
-
-  #symbolStop(symbolType, text) {
-    const symbols = getLogSymbols()
-    return this.stop(`${symbols[symbolType]} ${text ?? this.#text}`)
   }
 
   success(text) {
     return this.#symbolStop('success', text)
   }
 
-  error(text) {
-    return this.#symbolStop('error', text)
-  }
-
   warning(text) {
     return this.#symbolStop('warning', text)
-  }
-
-  info(text) {
-    return this.#symbolStop('info', text)
-  }
-
-  get isSpinning() {
-    return this.#isSpinning
-  }
-
-  get text() {
-    return this.#text
-  }
-
-  set text(value) {
-    this.#text = value ?? ''
-    this.#render()
-  }
-
-  get color() {
-    return this.#color
-  }
-
-  set color(value) {
-    this.#color = value
-    this.#render()
-  }
-
-  clear() {
-    if (!this.#isInteractive) {
-      return this
-    }
-
-    this.#stream.cursorTo(0)
-
-    for (let index = 0; index < this.#lines; index++) {
-      if (index > 0) {
-        this.#stream.moveCursor(0, -1)
-      }
-
-      this.#stream.clearLine(1)
-    }
-
-    this.#lines = 0
-
-    return this
-  }
-
-  #render() {
-    // Ensure we only update the spinner frame at the wanted interval,
-    // even if the frame method is called more often.
-    const now = Date.now()
-    if (
-      this.#currentFrame === -1 ||
-      now - this.#lastSpinnerFrameTime >= this.#interval
-    ) {
-      this.#currentFrame = ++this.#currentFrame % this.#frames.length
-      this.#lastSpinnerFrameTime = now
-    }
-
-    const colors = getYoctocolors()
-    const applyColor = colors[this.#color] ?? colors.cyan
-    const frame = this.#frames[this.#currentFrame]
-    let string = `${applyColor(frame)} ${this.#text}`
-
-    if (!this.#isInteractive) {
-      string += '\n'
-    }
-
-    this.clear()
-    this.#write(string)
-
-    if (this.#isInteractive) {
-      this.#lines = this.#lineCount(string)
-    }
-  }
-
-  #write(text) {
-    this.#stream.write(text)
-  }
-
-  #lineCount(text) {
-    const width = this.#stream.columns ?? defaultTtyColumns
-    const lines = stripVTControlCharacters(text).split('\n')
-
-    let lineCount = 0
-    for (const line of lines) {
-      lineCount += Math.max(1, Math.ceil(line.length / width))
-    }
-
-    return lineCount
-  }
-
-  #hideCursor() {
-    if (this.#isInteractive) {
-      this.#write('\u001B[?25l')
-    }
-  }
-
-  #showCursor() {
-    if (this.#isInteractive) {
-      this.#write('\u001B[?25h')
-    }
-  }
-
-  #subscribeToProcessEvents() {
-    process.once('SIGINT', this.#exitHandlerBound)
-    process.once('SIGTERM', this.#exitHandlerBound)
-  }
-
-  #unsubscribeFromProcessEvents() {
-    process.off('SIGINT', this.#exitHandlerBound)
-    process.off('SIGTERM', this.#exitHandlerBound)
-  }
-
-  #exitHandler(signal) {
-    if (this.isSpinning) {
-      this.stop()
-    }
-
-    // SIGINT: 128 + 2
-    // SIGTERM: 128 + 15
-    const exitCode = signal === 'SIGINT' ? 130 : signal === 'SIGTERM' ? 143 : 1
-    // eslint-disable-next-line n/no-process-exit
-    process.exit(exitCode)
   }
 }
 
