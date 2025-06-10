@@ -642,7 +642,7 @@
     "normalize-package-data": "6.0.1",
     "npm-package-arg": "12.0.2",
     "npm-run-all2": "8.0.4",
-    "oxlint": "0.18.0",
+    "oxlint": "1.0.0",
     "pacote": "21.0.0",
     "picomatch": "4.0.2",
     "rollup": "4.42.0",
@@ -656,7 +656,7 @@
     "yoctocolors-cjs": "2.1.2"
   },
   "engines": {
-    "node": ">=18.20.8"
+    "node": ">=18"
   },
   "files": [
     "*.d.ts",

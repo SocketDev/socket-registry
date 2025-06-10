@@ -13,11 +13,10 @@ void (async () => {
       normalize: true
     }
   )
-  // Lazily access constants.maintainedNodeVersions.
-  const { current, next } = constants.maintainedNodeVersions
   // Update engines field.
   rootEditablePkgJson.update({
-    engines: { node: `^${current} || >=${next}` }
+    // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
+    engines: { node: constants.PACKAGE_DEFAULT_NODE_RANGE }
   })
   await rootEditablePkgJson.save()
   await runScript('update:package-lock', ['--', '--force'], {

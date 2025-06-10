@@ -74,8 +74,8 @@ void (async () => {
   registryEditablePkgJson.update({
     browser: toSortedObject(browser),
     exports: toSortedObject(subpathExports),
-    // Lazily access constants.maintainedNodeVersions.
-    engines: { node: `>=${constants.maintainedNodeVersions.last}` }
+    // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
+    engines: { node: constants.PACKAGE_DEFAULT_NODE_RANGE }
   })
   await registryEditablePkgJson.save()
 })()
