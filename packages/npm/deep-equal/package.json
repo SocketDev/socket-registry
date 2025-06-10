@@ -48,7 +48,7 @@
     "which-typed-array": "npm:@socketregistry/which-typed-array@^1"
   },
   "engines": {
-    "node": ">=18.20.7"
+    "node": ">=18"
   },
   "files": [
     "*.d.{c,}ts",

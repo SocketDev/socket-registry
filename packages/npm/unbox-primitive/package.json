@@ -22,7 +22,7 @@
   },
   "sideEffects": false,
   "engines": {
-    "node": ">=18.20.7"
+    "node": ">=18"
   },
   "files": [
     "*.d.ts",
