@@ -118,7 +118,7 @@
     "registry"
   ],
   "engines": {
-    "node": "^20.18.0 || >=24.0.1"
+    "node": ">=18"
   },
   "lint-staged": {
     "*.{cjs,cts,js,json,md,mjs,mts,ts}": [
