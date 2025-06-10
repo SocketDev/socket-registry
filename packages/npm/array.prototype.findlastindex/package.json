@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/array.prototype.findlastindex",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "license": "MIT",
   "description": "Socket.dev optimized package override for array.prototype.findlastindex",
   "keywords": [
