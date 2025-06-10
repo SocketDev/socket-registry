@@ -1254,17 +1254,17 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/packageurl-js@1.0.6",
+      "pkg:npm/%40socketregistry/packageurl-js@1.0.7",
       {
         "categories": ["levelup"],
         "engines": {
-          "node": ">=18.20.4"
+          "node": ">=18"
         },
         "interop": ["cjs"],
         "license": "MIT",
         "name": "@socketregistry/packageurl-js",
         "package": "packageurl-js",
-        "version": "1.0.6"
+        "version": "1.0.7"
       }
     ],
     [
