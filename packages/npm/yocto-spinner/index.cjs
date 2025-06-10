@@ -323,7 +323,7 @@ class YoctoSpinner {
     this.#unsubscribeFromProcessEvents()
 
     if (finalText) {
-      this.#stream.write(`${this.#indention}${finalText}\n`)
+      this.#write(`${this.#indention}${finalText}\n`)
     }
 
     return this
