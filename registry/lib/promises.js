@@ -29,6 +29,10 @@ function normalizeRetryOptions(options) {
     // Optional callback invoked on each retry attempt:
     // (attempt: number, error: unknown, delay: number) => void
     onRetry,
+    // Whether onRetry can cancel retries by returning `false`.
+    onRetryCancelOnFalse = false,
+    // Whether onRetry will rethrow errors.
+    onRetryRethrow = false,
     // Number of retry attempts (0 = no retries, only initial attempt).
     retries = 0,
     // AbortSignal used to support cancellation.
@@ -42,6 +46,8 @@ function normalizeRetryOptions(options) {
     jitter,
     maxDelayMs,
     onRetry,
+    onRetryCancelOnFalse,
+    onRetryRethrow,
     retries,
     signal
   }
@@ -129,6 +135,8 @@ async function pRetry(callbackFn, options) {
     jitter,
     maxDelayMs,
     onRetry,
+    onRetryCancelOnFalse,
+    onRetryRethrow,
     retries,
     signal
   } = normalizeRetryOptions(options)
@@ -166,8 +174,15 @@ async function pRetry(callbackFn, options) {
       waitTime = Math.min(waitTime, maxDelayMs)
       if (typeof onRetry === 'function') {
         try {
-          onRetry(retries - attempts, e, waitTime)
-        } catch {}
+          const result = onRetry(retries - attempts, e, waitTime)
+          if (result === false && onRetryCancelOnFalse) {
+            break
+          }
+        } catch (e) {
+          if (onRetryRethrow) {
+            throw e
+          }
+        }
       }
       // eslint-disable-next-line no-await-in-loop
       await timers.setTimeout(waitTime, undefined, { signal })
