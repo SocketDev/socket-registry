@@ -10,6 +10,8 @@ declare type pRetryOptions =
         error: unknown,
         delay: number
       ) => void | undefined
+      onRetryCancelOnFalse?: boolean | undefined
+      onRetryRethrow?: boolean | undefined
       retries?: number | undefined
       signal?: AbortSignal | undefined
     }
