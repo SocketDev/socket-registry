@@ -1,18 +1,19 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
-    "ignore": [
-      "**/.git",
-      "**/.github",
-      "**/.husky",
-      "**/.tap",
-      "**/.vscode",
-      "**/package.json",
-      "**/package-lock.json",
-      "perf/**/fixtures",
-      "scripts/templates",
-      "test/**/fixtures",
-      "test/**/node_workspaces"
+    "includes": [
+      "**",
+      "!**/.git",
+      "!**/.github",
+      "!**/.husky",
+      "!**/.tap",
+      "!**/.vscode",
+      "!**/package.json",
+      "!**/package-lock.json",
+      "!perf/**/fixtures",
+      "!scripts/templates",
+      "!test/**/fixtures",
+      "!test/**/node_workspaces"
     ],
     "maxSize": 8388608
   },

@@ -1,7 +1,8 @@
 import {
   Diagnostic,
+  FilesConfiguration,
   FixFileMode,
-  PartialFilesConfiguration
+  TextRange
 } from '@biomejs/wasm-nodejs'
 
 import { Remap } from '@socketsecurity/registry/lib/objects'
@@ -38,7 +39,7 @@ declare interface FormatContentOptions {
   /**
    * The range where to format the content
    */
-  range?: [number, number]
+  range?: TextRange
 }
 declare interface FormatResult {
   /**
@@ -138,10 +139,10 @@ declare class Biome {
   ): string
 }
 declare type BiomeFormatOptions = Remap<
-  PartialFilesConfiguration & {
+  FilesConfiguration & {
     filePath: string
     filepath?: string | undefined
-    range?: [number, number]
+    range?: TextRange
   }
 >
 declare const BiomeExports: {
