@@ -6,29 +6,29 @@ Index: /iconv-lite/encodings/dbcs-codec.js
      //         <= SEQ_START  -> index of the start of a character code sequence, in decodeTableSeq.
      this.decodeTables = [];
      this.decodeTables[0] = UNASSIGNED_NODE.slice(0); // Create root node.
-
--    // Sometimes a MBCS char corresponds to a sequence of unicode chars. We store them as arrays of integers here.
+ 
+-    // Sometimes a MBCS char corresponds to a sequence of unicode chars. We store them as arrays of integers here. 
 +    // Sometimes a MBCS char corresponds to a sequence of unicode chars. We store them as arrays of integers here.
      this.decodeTableSeq = [];
-
+ 
      // Actual mapping tables consist of chunks. Use them to fill up decode tables.
      for (var i = 0; i < mappingTable.length; i++)
 @@ -92,18 +92,18 @@
      }
-
+ 
      this.defaultCharUnicode = iconv.defaultCharUnicode;
-
--
+ 
+-    
 +
      // Encode tables: Unicode -> DBCS.
-
+ 
      // `encodeTable` is array mapping from unicode char to encoded char. All its values are integers for performance.
      // Because it can be sparse, it is represented as array of buckets by 256 chars each. Bucket can be null.
      // Values: >=  0 -> it is a normal char. Write the value (if <=256 then 1 byte, if <=65536 then 2 bytes, etc.).
      //         == UNASSIGNED -> no conversion found. Output a default char.
      //         <= SEQ_START  -> it's an index in encodeTableSeq, see below. The character starts a sequence.
      this.encodeTable = [];
--
+-    
 +
      // `encodeTableSeq` is used when a sequence of unicode characters is encoded as a single code. We use a tree of
      // objects where keys correspond to characters in sequence and leafs are the encoded dbcs values. A special DEF_CHAR key
@@ -39,18 +39,18 @@ Index: /iconv-lite/encodings/dbcs-codec.js
                  for (var j = val.from; j <= val.to; j++)
                      skipEncodeChars[j] = true;
          }
--
+-        
 +
      // Use decode trie to recursively fill out encode tables.
      this._fillEncodeTable(0, 0, skipEncodeChars);
-
+ 
      // Add more encoding pairs when needed.
 @@ -197,9 +197,9 @@
                  }
                  else
                      writeTable[curAddr++] = code; // Basic char
              }
--        }
+-        } 
 +        }
          else if (typeof part === "number") { // Integer, meaning increasing sequence starting with prev character.
              var charCode = writeTable[curAddr - 1] + 1;
@@ -59,9 +59,9 @@ Index: /iconv-lite/encodings/dbcs-codec.js
 @@ -228,9 +228,9 @@
          bucket[low] = dbcsCode;
  }
-
+ 
  DBCSCodec.prototype._setEncodeSequence = function(seq, dbcsCode) {
--
+-    
 +
      // Get the root of character tree according to first character of the sequence.
      var uCode = seq[0];
@@ -72,7 +72,7 @@ Index: /iconv-lite/encodings/dbcs-codec.js
      // Encoder state
      this.leadSurrogate = -1;
      this.seqObj = undefined;
--
+-    
 +
      // Static data
      this.encodeTable = codec.encodeTable;
@@ -83,10 +83,10 @@ Index: /iconv-lite/encodings/dbcs-codec.js
          }
          else {
              var uCode = nextChar;
--            nextChar = -1;
+-            nextChar = -1;    
 +            nextChar = -1;
          }
-
+ 
          // 1. Handle surrogates.
          if (0xD800 <= uCode && uCode < 0xE000) { // Char is one of surrogates.
 @@ -346,9 +346,9 @@
@@ -94,7 +94,7 @@ Index: /iconv-lite/encodings/dbcs-codec.js
                      // Incomplete surrogate pair - only trail surrogate found.
                      uCode = UNASSIGNED;
                  }
--
+-                
 +
              }
          }
@@ -105,7 +105,7 @@ Index: /iconv-lite/encodings/dbcs-codec.js
              var subtable = this.encodeTable[uCode >> 8];
              if (subtable !== undefined)
                  dbcsCode = subtable[uCode & 0xFF];
--
+-            
 +
              if (dbcsCode <= SEQ_START) { // Sequence start
                  seqObj = this.encodeTableSeq[SEQ_START-dbcsCode];
@@ -123,11 +123,11 @@ Index: /iconv-lite/encodings/dbcs-codec.js
                      newBuf[j++] = 0x81 + Math.floor(dbcsCode / 10); dbcsCode = dbcsCode % 10;
                      newBuf[j++] = 0x30 + dbcsCode;
 @@ -410,9 +410,9 @@
-
+ 
          // 3. Write dbcsCode character.
          if (dbcsCode === UNASSIGNED)
              dbcsCode = this.defaultCharSingleByte;
--
+-        
 +
          if (dbcsCode < 0x100) {
              newBuf[j++] = dbcsCode;
@@ -136,10 +136,10 @@ Index: /iconv-lite/encodings/dbcs-codec.js
 @@ -440,11 +440,12 @@
      if (this.leadSurrogate === -1 && this.seqObj === undefined)
          return; // All clean. Most often case.
-
+ 
      var newBuf = Buffer.alloc(10), j = 0;
 +    var dbcsCode;
-
+ 
      if (this.seqObj) { // We're in the sequence.
 -        var dbcsCode = this.seqObj[DEF_CHAR];
 +        dbcsCode = this.seqObj[DEF_CHAR];
@@ -152,29 +152,29 @@ Index: /iconv-lite/encodings/dbcs-codec.js
          newBuf[j++] = this.defaultCharSingleByte;
          this.leadSurrogate = -1;
      }
--
+-    
 +
      return newBuf.slice(0, j);
  }
-
+ 
  // Export for testing
 @@ -486,9 +487,9 @@
  }
-
+ 
  DBCSDecoder.prototype.write = function(buf) {
      var newBuf = Buffer.alloc(buf.length*2),
--        nodeIdx = this.nodeIdx,
+-        nodeIdx = this.nodeIdx, 
 +        nodeIdx = this.nodeIdx,
          prevBytes = this.prevBytes, prevOffset = this.prevBytes.length,
          seqStart = -this.prevBytes.length, // idx of the start of current parsed sequence.
          uCode;
-
+ 
 @@ -497,9 +498,9 @@
-
+ 
          // Lookup in current trie node.
          var uCode = this.decodeTables[nodeIdx][curByte];
-
--        if (uCode >= 0) {
+ 
+-        if (uCode >= 0) { 
 +        if (uCode >= 0) {
              // Normal character, just use it.
          }
@@ -185,9 +185,9 @@ Index: /iconv-lite/encodings/dbcs-codec.js
              if (i >= 3) {
                  var ptr = (buf[i-3]-0x81)*12600 + (buf[i-2]-0x30)*1260 + (buf[i-1]-0x81)*10 + (curByte-0x30);
              } else {
--                var ptr = (prevBytes[i-3+prevOffset]-0x81)*12600 +
--                          (((i-2 >= 0) ? buf[i-2] : prevBytes[i-2+prevOffset])-0x30)*1260 +
--                          (((i-1 >= 0) ? buf[i-1] : prevBytes[i-1+prevOffset])-0x81)*10 +
+-                var ptr = (prevBytes[i-3+prevOffset]-0x81)*12600 + 
+-                          (((i-2 >= 0) ? buf[i-2] : prevBytes[i-2+prevOffset])-0x30)*1260 + 
+-                          (((i-1 >= 0) ? buf[i-1] : prevBytes[i-1+prevOffset])-0x81)*10 + 
 +                var ptr = (prevBytes[i-3+prevOffset]-0x81)*12600 +
 +                          (((i-2 >= 0) ? buf[i-2] : prevBytes[i-2+prevOffset])-0x30)*1260 +
 +                          (((i-1 >= 0) ? buf[i-1] : prevBytes[i-1+prevOffset])-0x81)*10 +
@@ -198,9 +198,9 @@ Index: /iconv-lite/encodings/dbcs-codec.js
 @@ -534,9 +535,9 @@
          else
              throw new Error("iconv-lite internal error: invalid decoding table value " + uCode + " at " + nodeIdx + "/" + curByte);
-
+ 
          // Write the character to buffer, handling higher planes using surrogate pair.
--        if (uCode >= 0x10000) {
+-        if (uCode >= 0x10000) { 
 +        if (uCode >= 0x10000) {
              uCode -= 0x10000;
              var uCodeLead = 0xD800 | (uCode >> 10);
