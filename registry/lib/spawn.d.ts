@@ -25,13 +25,13 @@ declare type SpawnOptions = Remap<
     stdioString?: boolean | undefined
   }
 >
-
+declare type SpawnExtra = Record<any, any>
 declare const Spawn: {
   spawn<O extends SpawnOptions = SpawnOptions>(
     cmd: string,
     args: string[] | readonly string[],
     options?: O | undefined,
-    extra?: Record<any, any> | undefined
+    extra?: SpawnExtra | undefined
   ): SpawnResult<
     O extends { stdioString: false } ? Buffer : string,
     typeof extra
@@ -39,6 +39,6 @@ declare const Spawn: {
   spawnSync: typeof builtinSpawnSync
 }
 declare namespace Spawn {
-  export { NativeSpawnResult, SpawnOptions, SpawnResult }
+  export { NativeSpawnResult, SpawnExtra, SpawnOptions, SpawnResult }
 }
 export = Spawn
