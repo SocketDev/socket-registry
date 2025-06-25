@@ -2,6 +2,7 @@ import {
   Diagnostic,
   FilesConfiguration,
   FixFileMode,
+  OpenProjectResult,
   TextRange
 } from '@biomejs/wasm-nodejs'
 
@@ -89,6 +90,8 @@ declare interface PrintDiagnosticsOptions {
 declare class Biome {
   private readonly module
   private readonly workspace
+  private tryCatchWrapper
+  private withFile
   private constructor()
   /**
    * It creates a new instance of the class {Biome}.
@@ -106,27 +109,49 @@ declare class Biome {
    *
    * If fails when the configuration is incorrect.
    *
-   * @param configuration
+   * @param {ProjectKey} projectKey The identifier of the project
+   * @param {Configuration} configuration
    */
-  applyConfiguration(configuration: BiomeFormatOptions): void
-  registerProjectFolder(): void
-  private tryCatchWrapper
-  private withFile
-  formatContent(content: string, options: FormatContentOptions): FormatResult
+  applyConfiguration(
+    projectKey: number,
+    configuration: BiomeFormatOptions
+  ): void
+  /**
+   * If formats some content.
+   *
+   * @param {ProjectKey} projectKey The identifier of the project
+   * @param {String} content The content to format
+   * @param {FormatContentOptions | FormatContentDebugOptions} options Options needed when formatting some content
+   */
   formatContent(
+    projectKey: number,
+    content: string,
+    options: FormatContentOptions
+  ): FormatResult
+  formatContent(
+    projectKey: number,
     content: string,
     options: FormatContentDebugOptions
   ): FormatDebugResult
   /**
    * Lint the content of a file.
    *
+   * @param {ProjectKey} projectKey The identifier of the project
    * @param {String} content The content to lint
    * @param {LintContentOptions} options Options needed when linting some content
    */
   lintContent(
+    projectKey: number,
     content: string,
     { filePath, fixFileMode }: LintContentOptions
   ): LintResult
+  /**
+   * Open a possible workspace project folder. Returns the key of said project.
+   * Use this key when you want to switch to different projects.
+   *
+   * @param {string} [path]
+   */
+  openProject(path?: string): OpenProjectResult
   /**
    * Print a list of diagnostics to an HTML string.
    *
