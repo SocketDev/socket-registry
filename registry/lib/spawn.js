@@ -38,7 +38,16 @@ function spawn(cmd, args, options, extra) {
       stdio[0] === 'ignore' &&
       stdio[1] === 'ignore' &&
       stdio[2] === 'ignore')
-  if (!isStdioIgnored) {
+  const isStdioPiped =
+    stdio === undefined ||
+    stdio === 'pipe' ||
+    (Array.isArray(stdio) &&
+      stdio.length > 2 &&
+      stdio[0] === 'pipe' &&
+      stdio[1] === 'pipe' &&
+      stdio[2] === 'pipe')
+  const shouldPauseSpinner = !isStdioIgnored && !isStdioPiped
+  if (shouldPauseSpinner) {
     spinner?.stop()
   }
   let spawnPromise = spawn(
@@ -60,7 +69,7 @@ function spawn(cmd, args, options, extra) {
     },
     extra
   )
-  if (!isStdioIgnored && isSpinning) {
+  if (shouldPauseSpinner && isSpinning) {
     const oldSpawnPromise = spawnPromise
     spawnPromise = spawnPromise.finally(() => {
       spinner?.start()
