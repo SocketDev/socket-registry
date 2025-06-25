@@ -36,6 +36,22 @@ const getDefaultBiomeConfig = () => ({
       allowComments: true,
       allowTrailingCommas: true
     }
+  },
+  linter: {
+    rules: {
+      style: {
+        noParameterAssign: 'error',
+        useAsConstAssertion: 'error',
+        useDefaultParameterLast: 'error',
+        useEnumInitializers: 'error',
+        useSelfClosingElements: 'error',
+        useSingleVarDeclarator: 'error',
+        noUnusedTemplateLiteral: 'error',
+        useNumberNamespace: 'error',
+        noInferrableTypes: 'error',
+        noUselessElse: 'error'
+      }
+    }
   }
 })
 
@@ -51,6 +67,17 @@ async function getBiome() {
   return _biome
 }
 
+let _path
+/*@__NO_SIDE_EFFECTS__*/
+function getPath() {
+  if (_path === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _path = /*@__PURE__*/ require('path')
+  }
+  return _path
+}
+
 /*@__NO_SIDE_EFFECTS__*/
 async function biomeFormat(str, options) {
   const {
@@ -58,13 +85,20 @@ async function biomeFormat(str, options) {
     filePath = filepath,
     ...biomeConfig
   } = { __proto__: null, ...options }
+  let projectDir = ''
+  if (filePath) {
+    const path = getPath()
+    projectDir = path.dirname(filePath)
+  }
   const biome = await getBiome()
-  biome.applyConfiguration({
+  const { projectKey } = biome.openProject(projectDir)
+  biome.applyConfiguration(projectKey, {
     __proto__: null,
     ...getDefaultBiomeConfig(),
     ...biomeConfig
   })
-  return biome.formatContent(str, { filePath }).content
+  return biome.formatContent(projectKey, str, { __proto__: null, filePath })
+    .content
 }
 
 module.exports = {
