@@ -21,7 +21,7 @@ const {
 const { isDirEmptySync } = require('@socketsecurity/registry/lib/fs')
 const { globLicenses } = require('@socketsecurity/registry/lib/globs')
 const { LOG_SYMBOLS, logger } = require('@socketsecurity/registry/lib/logger')
-const { runScript } = require('@socketsecurity/registry/lib/npm')
+const { runNpmScript } = require('@socketsecurity/registry/lib/npm')
 const { isObject } = require('@socketsecurity/registry/lib/objects')
 const {
   collectIncompatibleLicenses,
@@ -441,9 +441,9 @@ void (async () => {
       cwd: rootPath,
       stdio: 'inherit'
     }
-    await runScript('update:manifest', [], spawnOptions)
-    await runScript('update:package-json', [], spawnOptions)
-    await runScript(
+    await runNpmScript('update:manifest', [], spawnOptions)
+    await runNpmScript('update:package-json', [], spawnOptions)
+    await runNpmScript(
       'update:longtask:test:npm:package-json',
       ['--', '--quiet', '--add', origPkgName],
       spawnOptions

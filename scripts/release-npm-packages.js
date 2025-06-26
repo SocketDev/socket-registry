@@ -7,7 +7,7 @@ const ssri = require('ssri')
 
 const constants = require('@socketregistry/scripts/constants')
 const { readDirNames } = require('@socketsecurity/registry/lib/fs')
-const { runScript } = require('@socketsecurity/registry/lib/npm')
+const { runNpmScript } = require('@socketsecurity/registry/lib/npm')
 const {
   fetchPackageManifest,
   getReleaseTag,
@@ -232,7 +232,7 @@ void (async () => {
     stdio: 'inherit'
   }
 
-  await runScript('update:manifest', ['--', '--force'], spawnOptions)
+  await runNpmScript('update:manifest', ['--', '--force'], spawnOptions)
 
   if (!state.bumped.find(pkg => pkg === registryPkg)) {
     const version = semver.inc(registryPkg.manifest.version, 'patch')
@@ -247,13 +247,13 @@ void (async () => {
     )
   }
 
-  await runScript('update:package-json', [], spawnOptions)
+  await runNpmScript('update:package-json', [], spawnOptions)
 
   if (
     state.changed.length > 1 ||
     (state.changed.length === 1 && state.changed[0] !== registryPkg)
   ) {
-    await runScript(
+    await runNpmScript(
       'update:longtask:test:npm:package-json',
       ['--', '--quiet', '--force'],
       spawnOptions
