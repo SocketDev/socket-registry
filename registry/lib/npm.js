@@ -136,52 +136,11 @@ function isNpmProgressFlag(cmdArg) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function realNpmExecPathSync(npmOrNpxExecPath) {
-  const fs = getFs()
-  const WIN32 = /*@__PURE__*/ require('./constants/win32')
-  let binPath = npmOrNpxExecPath
-  if (WIN32) {
-    const path = getPath()
-    const basename = path.basename(npmOrNpxExecPath).toLoweCase()
-    if (basename.endsWith('.cmd')) {
-      const basenameWithoutExt = basename.slice(0, -4)
-      if (basenameWithoutExt === 'npm' || basenameWithoutExt === 'npx') {
-        // The npm.CMD looks like:
-        // :: Created by npm, please don't edit manually.
-        // @ECHO OFF
-        //
-        // SETLOCAL
-        //
-        // SET "NODE_EXE=%~dp0\node.exe"
-        // IF NOT EXIST "%NODE_EXE%" (
-        //   SET "NODE_EXE=node"
-        // )
-        //
-        // SET "NPM_PREFIX_JS=%~dp0\node_modules\npm\bin\npm-prefix.js"
-        // SET "NPM_CLI_JS=%~dp0\node_modules\npm\bin\npm-cli.js"
-        // FOR /F "delims=" %%F IN ('CALL "%NODE_EXE%" "%NPM_PREFIX_JS%"') DO (
-        //   SET "NPM_PREFIX_NPM_CLI_JS=%%F\node_modules\npm\bin\npm-cli.js"
-        // )
-        // IF EXIST "%NPM_PREFIX_NPM_CLI_JS%" (
-        //   SET "NPM_CLI_JS=%NPM_PREFIX_NPM_CLI_JS%"
-        // )
-        //
-        // "%NODE_EXE%" "%NPM_CLI_JS%" %*
-        binPath = path.join(
-          path.dirname(npmOrNpxExecPath),
-          `node_modules/npm/bin/${basenameWithoutExt}-cli.js`
-        )
-      }
-    }
-  }
-  return fs.realpathSync.native(binPath)
-}
-
-/*@__NO_SIDE_EFFECTS__*/
-function resolveBinPath(binPath) {
+function resolveBinPathSync(binPath) {
   const fs = getFs()
   const path = getPath()
   const ext = path.extname(binPath)
+  const extLowered = ext.toLowerCase()
   const basename = path.basename(binPath, ext)
   const voltaIndex =
     basename === 'node'
@@ -239,33 +198,47 @@ function resolveBinPath(binPath) {
       return fs.realpathSync.native(voltaBinPath)
     }
   }
+
   const WIN32 = /*@__PURE__*/ require('./constants/win32')
   if (WIN32) {
-    const extLowered = ext.toLowerCase()
-    if (extLowered === '' || extLowered === '.cmd' || extLowered === '.ps1') {
-      const source = fs.readFileSync(binPath, 'utf8')
-      let relPath
-      if (basename === 'npm' || basename === 'npx') {
+    const hasKnownExt =
+      extLowered === '' || extLowered === '.cmd' || extLowered === '.ps1'
+    const isNpmOrNpx = basename === 'npm' || basename === 'npx'
+    if (hasKnownExt && isNpmOrNpx) {
+      // The quick route assumes a bin path like: C:\Program Files\nodejs\npm.cmd
+      const quickPath = path.join(
+        path.dirname(binPath),
+        `node_modules/npm/bin/${basename}-cli.js`
+      )
+      if (fs.existsSync(quickPath)) {
+        return fs.realpathSync.native(quickPath)
+      }
+    }
+
+    let relPath = ''
+    const source = fs.readFileSync(binPath, 'utf8')
+    if (hasKnownExt) {
+      if (isNpmOrNpx) {
         if (extLowered === '.cmd') {
           // "npm.cmd" and "npx.cmd" defined by
-          // https://github.com/npm/cli/blob/v11.2.0/bin/npm.cmd
-          // https://github.com/npm/cli/blob/v11.2.0/bin/npx.cmd
+          // https://github.com/npm/cli/blob/v11.4.2/bin/npm.cmd
+          // https://github.com/npm/cli/blob/v11.4.2/bin/npx.cmd
           relPath =
             basename === 'npm'
               ? /(?<="NPM_CLI_JS=%~dp0\\).*(?=")/.exec(source)?.[0]
               : /(?<="NPX_CLI_JS=%~dp0\\).*(?=")/.exec(source)?.[0]
         } else if (extLowered === '') {
           // Extensionless "npm" and "npx" defined by
-          // https://github.com/npm/cli/blob/v11.2.0/bin/npm.cmd
-          // https://github.com/npm/cli/blob/v11.2.0/bin/npx.cmd
+          // https://github.com/npm/cli/blob/v11.4.2/bin/npm
+          // https://github.com/npm/cli/blob/v11.4.2/bin/npx
           relPath =
             basename === 'npm'
               ? /(?<=NPM_CLI_JS="\$CLI_BASEDIR\/).*(?=")/.exec(source)?.[0]
               : /(?<=NPX_CLI_JS="\$CLI_BASEDIR\/).*(?=")/.exec(source)?.[0]
         } else if (extLowered === '.ps1') {
           // "npm.ps1" and "npx.ps1" defined by
-          // https://github.com/npm/cli/blob/v11.2.0/bin/npm.ps1
-          // https://github.com/npm/cli/blob/v11.2.0/bin/npx.ps1
+          // https://github.com/npm/cli/blob/v11.4.2/bin/npm.ps1
+          // https://github.com/npm/cli/blob/v11.4.2/bin/npx.ps1
           relPath =
             basename === 'npm'
               ? /(?<=\$NPM_CLI_JS="\$PSScriptRoot\/).*(?=")/.exec(source)?.[0]
@@ -373,7 +346,7 @@ function runBin(binPath, args, options) {
     [
       .../*@__PURE__*/ require('./constants/node-no-warnings-flags'),
       isRelative(binPath) || getPath().isAbsolute(binPath)
-        ? resolveBinPath(binPath)
+        ? resolveBinPathSync(binPath)
         : whichBinSync(binPath),
       ...args
     ],
@@ -407,13 +380,13 @@ async function whichBin(binName, options) {
   const which = getWhich()
   // Depending on options `which` may throw if `binName` is not found.
   // The default behavior is to throw when `binName` is not found.
-  return resolveBinPath(await which(binName, options))
+  return resolveBinPathSync(await which(binName, options))
 }
 
 function whichBinSync(binName, options) {
   // Depending on options `which` may throw if `binName` is not found.
   // The default behavior is to throw when `binName` is not found.
-  return resolveBinPath(getWhich().sync(binName, options))
+  return resolveBinPathSync(getWhich().sync(binName, options))
 }
 
 module.exports = {
@@ -423,8 +396,7 @@ module.exports = {
   isNpmLoglevelFlag,
   isNpmNodeOptionsFlag,
   isNpmProgressFlag,
-  realNpmExecPathSync,
-  resolveBinPath,
+  resolveBinPathSync,
   runBin,
   runNpmScript,
   whichBin,
