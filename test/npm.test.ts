@@ -13,7 +13,7 @@ import {
 import { getManifestData } from '@socketsecurity/registry'
 import { readDirNamesSync, readJsonSync } from '@socketsecurity/registry/lib/fs'
 import { logger } from '@socketsecurity/registry/lib/logger'
-import { runScript } from '@socketsecurity/registry/lib/npm'
+import { runNpmScript } from '@socketsecurity/registry/lib/npm'
 import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/packages'
 import { isNonEmptyString } from '@socketsecurity/registry/lib/strings'
 
@@ -78,7 +78,7 @@ describe(eco, { skip: !packageNames.length }, () => {
 
     it(`${origPkgName} passes all its tests`, { skip }, async () => {
       try {
-        await runScript('test', [], { cwd: nwPkgPath, signal: abortSignal })
+        await runNpmScript('test', [], { cwd: nwPkgPath, signal: abortSignal })
         assert.ok(true)
       } catch (e) {
         logger.fail(`${origPkgName}`)

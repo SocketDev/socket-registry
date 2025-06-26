@@ -59,12 +59,14 @@ function execNpm(args, options) {
   const terminatorPos = args.indexOf('--')
   const npmArgs = (
     terminatorPos === -1 ? args : args.slice(0, terminatorPos)
-  ).filter(a => !isAuditFlag(a) && !isFundFlag(a) && !isProgressFlag(a))
+  ).filter(
+    a => !isNpmAuditFlag(a) && !isNpmFundFlag(a) && !isNpmProgressFlag(a)
+  )
   const otherArgs = terminatorPos === -1 ? [] : args.slice(terminatorPos)
   const logLevelArgs =
     // The default value of loglevel is "notice". We default to "warn" which is
     // one level quieter.
-    useDebug || npmArgs.some(isLoglevelFlag) ? [] : ['--loglevel', 'warn']
+    useDebug || npmArgs.some(isNpmLoglevelFlag) ? [] : ['--loglevel', 'warn']
   return spawn(
     /*@__PURE__*/ require('./constants/exec-path'),
     [
@@ -106,34 +108,34 @@ function getNotResolvedError(binPath, source = '') {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function isAuditFlag(cmdArg) {
+function isNpmAuditFlag(cmdArg) {
   return auditFlags.has(cmdArg)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function isFundFlag(cmdArg) {
+function isNpmFundFlag(cmdArg) {
   return fundFlags.has(cmdArg)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function isLoglevelFlag(cmdArg) {
+function isNpmLoglevelFlag(cmdArg) {
   // https://docs.npmjs.com/cli/v11/using-npm/logging#setting-log-levels
   return cmdArg.startsWith('--loglevel=') || logFlags.has(cmdArg)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function isNodeOptionsFlag(cmdArg) {
+function isNpmNodeOptionsFlag(cmdArg) {
   // https://docs.npmjs.com/cli/v9/using-npm/config#node-options
   return cmdArg.startsWith('--node-options=')
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function isProgressFlag(cmdArg) {
+function isNpmProgressFlag(cmdArg) {
   return progressFlags.has(cmdArg)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function realExecPathSync(npmOrNpxExecPath) {
+function realNpmExecPathSync(npmOrNpxExecPath) {
   const fs = getFs()
   const WIN32 = /*@__PURE__*/ require('./constants/win32')
   let binPath = npmOrNpxExecPath
@@ -323,7 +325,7 @@ function runBin(binPath, args, options) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function runScript(scriptName, args, options) {
+function runNpmScript(scriptName, args, options) {
   const { prepost, ...spawnOptions } = { __proto__: null, ...options }
   const useNodeRun =
     !prepost && /*@__PURE__*/ require('./constants/supports-node-run')
@@ -359,15 +361,15 @@ function whichBinSync(binName, options) {
 
 module.exports = {
   execNpm,
-  isAuditFlag,
-  isFundFlag,
-  isLoglevelFlag,
-  isNodeOptionsFlag,
-  isProgressFlag,
-  realExecPathSync,
+  isNpmAuditFlag,
+  isNpmFundFlag,
+  isNpmLoglevelFlag,
+  isNpmNodeOptionsFlag,
+  isNpmProgressFlag,
+  realNpmExecPathSync,
   resolveBinPath,
   runBin,
-  runScript,
+  runNpmScript,
   whichBin,
   whichBinSync
 }
