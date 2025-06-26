@@ -1,6 +1,7 @@
 'use strict'
 
 const { isDebug } = /*@__PURE__*/ require('./debug')
+const { readJsonSync } = /*@__PURE__*/ require('./fs')
 const { isRelative } = /*@__PURE__*/ require('./path')
 const { spawn } = /*@__PURE__*/ require('./spawn')
 
@@ -179,13 +180,69 @@ function realNpmExecPathSync(npmOrNpxExecPath) {
 /*@__NO_SIDE_EFFECTS__*/
 function resolveBinPath(binPath) {
   const fs = getFs()
+  const path = getPath()
+  const ext = path.extname(binPath)
+  const basename = path.basename(binPath, ext)
+  const voltaIndex =
+    basename === 'node'
+      ? -1
+      : (/(?<=[\\/]\.volta[\\/])/i.exec(binPath)?.index ?? -1)
+
+  if (voltaIndex !== -1) {
+    const voltaPath = binPath.slice(0, voltaIndex)
+    const voltaToolsPath = path.join(voltaPath, 'tools')
+    const voltaImagePath = path.join(voltaToolsPath, 'image')
+    const voltaUserPath = path.join(voltaToolsPath, 'user')
+    const voltaPlatform = readJsonSync(
+      path.join(voltaUserPath, 'platform.json')
+    )
+    const voltaNodeVersion = voltaPlatform?.node?.runtime
+    const voltaNpmVersion = voltaPlatform?.node?.npm
+    let voltaBinPath = ''
+    if (basename === 'npm' || basename === 'npx') {
+      if (voltaNpmVersion) {
+        const relCliPath = `bin/${basename}-cli.js`
+        voltaBinPath = path.join(
+          voltaImagePath,
+          `npm/${voltaNpmVersion}/${relCliPath}`
+        )
+        if (voltaNodeVersion && !fs.existsSync(voltaBinPath)) {
+          voltaBinPath = path.join(
+            voltaImagePath,
+            `node/${voltaNodeVersion}/lib/node_modules/npm/${relCliPath}`
+          )
+          if (!fs.existsSync(voltaBinPath)) {
+            voltaBinPath = ''
+          }
+        }
+      }
+    } else {
+      const voltaUserBinPath = path.join(voltaUserPath, 'bin')
+      const binInfo = readJsonSync(
+        path.join(voltaUserBinPath, `${basename}.json`)
+      )
+      const binPackage = binInfo?.package
+      if (binPackage) {
+        voltaBinPath = path.join(
+          voltaImagePath,
+          `packages/${binPackage}/bin/${basename}`
+        )
+        if (!fs.existsSync(voltaBinPath)) {
+          voltaBinPath = `${voltaBinPath}.cmd`
+          if (!fs.existsSync(voltaBinPath)) {
+            voltaBinPath = ''
+          }
+        }
+      }
+    }
+    if (voltaBinPath) {
+      return fs.realpathSync.native(voltaBinPath)
+    }
+  }
   const WIN32 = /*@__PURE__*/ require('./constants/win32')
   if (WIN32) {
-    const path = getPath()
-    const ext = path.extname(binPath)
     const extLowered = ext.toLowerCase()
     if (extLowered === '' || extLowered === '.cmd' || extLowered === '.ps1') {
-      const basename = path.basename(binPath, ext)
       const source = fs.readFileSync(binPath, 'utf8')
       let relPath
       if (basename === 'npm' || basename === 'npx') {
