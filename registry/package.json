@@ -606,7 +606,7 @@
     "//lint:external:fix:eslint": "dotenvx -q run -f .env.external -- eslint -c=../eslint.config.js --report-unused-disable-directives --quiet --fix ./external | dev-null"
   },
   "devDependencies": {
-    "@babel/core": "7.27.4",
+    "@babel/core": "7.27.7",
     "@babel/plugin-proposal-export-default-from": "7.27.1",
     "@babel/plugin-transform-export-namespace-from": "7.27.1",
     "@babel/plugin-transform-runtime": "7.27.4",
