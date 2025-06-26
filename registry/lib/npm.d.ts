@@ -18,8 +18,7 @@ declare const Npm: {
   isNpmLoglevelFlag(cmdArg: string): boolean
   isNpmNodeOptionsFlag(cmdArg: string): boolean
   isNpmProgressFlag(cmdArg: string): boolean
-  realNpmExecPathSync(npmOrNpxExecPath: string): string
-  resolveBinPath(binPath: string): string
+  resolveBinPathSync(binPath: string): string
   runBin(
     binPath: string,
     args: string[] | readonly string[],
