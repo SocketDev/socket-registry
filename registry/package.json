@@ -611,7 +611,7 @@
     "@babel/plugin-transform-export-namespace-from": "7.27.1",
     "@babel/plugin-transform-runtime": "7.27.4",
     "@babel/runtime": "7.27.6",
-    "@biomejs/biome": "2.0.5",
+    "@biomejs/biome": "2.0.6",
     "@dotenvx/dotenvx": "1.45.1",
     "@inquirer/confirm": "5.1.12",
     "@inquirer/input": "4.1.12",
