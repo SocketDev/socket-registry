@@ -120,6 +120,12 @@ function Spinner(options) {
       }
 
       start(...args) {
+        const text = args.at(0)
+        // We clear this.text on start when `text` is falsy because yocto-spinner
+        // would not clear it otherwise.
+        if (typeof text !== 'string' || !text) {
+          this.setText('')
+        }
         return this.#apply('start', args)
       }
 
