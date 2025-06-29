@@ -59,9 +59,9 @@ function spawn(cmd, args, options, extra) {
   // The stdio option can be a string or an array.
   // https://nodejs.org/api/child_process.html#optionsstdio
   const shouldPauseSpinner =
-    !isStdioType(stdio, 'ignore') && !isStdioType(stdio, 'pipe')
+    isSpinning && !isStdioType(stdio, 'ignore') && !isStdioType(stdio, 'pipe')
   if (shouldPauseSpinner) {
-    spinner?.stop()
+    spinner.stop()
   }
   let spawnPromise = spawn(
     cmd,
@@ -88,9 +88,9 @@ function spawn(cmd, args, options, extra) {
       .then(stripAnsiFromSpawnResult)
       .catch(stripAnsiFromSpawnResult)
   }
-  if (spinner && shouldPauseSpinner && isSpinning) {
+  if (shouldPauseSpinner) {
     spawnPromise = spawnPromise.finally(() => {
-      spinner?.start()
+      spinner.start()
     })
   }
   spawnPromise.process = oldSpawnPromise.process
