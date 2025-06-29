@@ -23,6 +23,7 @@ declare type SpawnOptions = Remap<
   BuiltinSpawnOptions & {
     spinner?: Spinner | undefined
     stdioString?: boolean | undefined
+    stripAnsi?: boolean | undefined
   }
 >
 declare type SpawnExtra = Record<any, any>
