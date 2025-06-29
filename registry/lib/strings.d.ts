@@ -6,6 +6,7 @@ declare const Strings: {
   isBlankString(value: unknown): value is BlankString
   isNonEmptyString(value: unknown): value is Exclude<string, EmptyString>
   search(str: string, regexp: RegExp, fromIndex?: number | undefined): number
+  stripAnsi(str: string): string
   stripBom(str: string): string
 }
 declare namespace Strings {
