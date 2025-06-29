@@ -636,7 +636,7 @@
     "cacache": "19.0.1",
     "del-cli": "6.0.0",
     "dev-null-cli": "2.0.0",
-    "eslint": "9.29.0",
+    "eslint": "9.30.0",
     "fast-sort": "3.4.1",
     "libnpmpack": "9.0.5",
     "make-fetch-happen": "14.0.3",
