@@ -5,6 +5,7 @@ const { getGlobMatcher } = require('@socketsecurity/registry/lib/globs')
 const { defineLazyGetters } = require('@socketsecurity/registry/lib/objects')
 const { normalizePath } = require('@socketsecurity/registry/lib/path')
 const { spawn, spawnSync } = require('@socketsecurity/registry/lib/spawn')
+const { stripAnsi } = require('@socketsecurity/registry/lib/strings')
 
 const { NPM, UTF8 } = constants
 
@@ -205,7 +206,7 @@ function parseGitDiffStdout(stdout, options) {
     ...matcherOptions
   } = { __proto__: null, ...options }
   const path = getPath()
-  const rawFiles = stdout?.trim().split('\n') ?? []
+  const rawFiles = stdout ? stripAnsi(stdout.trim()).split('\n') : []
   const files = absolute
     ? rawFiles.map(relPath => normalizePath(path.join(rootPath, relPath)))
     : rawFiles.map(relPath => normalizePath(relPath))
