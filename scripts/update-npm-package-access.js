@@ -58,7 +58,7 @@ void (async () => {
             NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
           }
         })
-      ).stdout.trim()
+      ).stdout
       logger.log(stdout)
     } catch (e) {
       const stderr = e?.stderr ?? ''

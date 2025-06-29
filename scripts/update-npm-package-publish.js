@@ -77,7 +77,7 @@ async function publish(pkg, state = { fails: [] }) {
           }
         }
       )
-    ).stdout.trim()
+    ).stdout
     if (stdout) {
       logger.log(stdout)
     }
