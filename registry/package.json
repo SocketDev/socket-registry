@@ -631,6 +631,7 @@
     "@socketregistry/yocto-spinner": "1.0.19",
     "@types/pacote": "11.1.8",
     "@yarnpkg/extensions": "2.0.6",
+    "ansi-regex": "6.1.0",
     "browserslist": "4.25.1",
     "cacache": "19.0.1",
     "del-cli": "6.0.0",
@@ -654,6 +655,9 @@
     "validate-npm-package-name": "6.0.1",
     "which": "5.0.0",
     "yoctocolors-cjs": "2.1.2"
+  },
+  "overrides": {
+    "ansi-regex": "$ansi-regex"
   },
   "engines": {
     "node": ">=18"

@@ -1,5 +1,15 @@
 'use strict'
 
+let _ansiRegex
+/*@__NO_SIDE_EFFECTS__*/
+function getAnsiRegex() {
+  if (_ansiRegex === undefined) {
+    // The 'ansi-regex' package is browser safe.
+    _ansiRegex = /*@__PURE__*/ require('../external/ansi-regex')()
+  }
+  return _ansiRegex
+}
+
 /*@__NO_SIDE_EFFECTS__*/
 function applyLinePrefix(str, prefix = '') {
   return prefix.length
@@ -37,6 +47,11 @@ function search(str, regexp, fromIndex = 0) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
+function stripAnsi(str) {
+  return str.replace(getAnsiRegex(), '')
+}
+
+/*@__NO_SIDE_EFFECTS__*/
 function stripBom(str) {
   // In JavaScript, string data is stored as UTF-16, so BOM is 0xFEFF.
   // https://tc39.es/ecma262/#sec-unicode-format-control-characters
@@ -49,5 +64,6 @@ module.exports = {
   isBlankString,
   isNonEmptyString,
   search,
+  stripAnsi,
   stripBom
 }
