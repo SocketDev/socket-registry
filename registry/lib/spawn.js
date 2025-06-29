@@ -1,5 +1,7 @@
 'use strict'
 
+const { stripAnsi } = /*@__PURE__*/ require('./strings')
+
 let _child_process
 /*@__NO_SIDE_EFFECTS__*/
 function getChildProcess() {
@@ -21,32 +23,43 @@ function getSpawn() {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
+function isStdioType(stdio, type) {
+  return (
+    stdio === type ||
+    (Array.isArray(stdio) &&
+      stdio.length > 2 &&
+      stdio[0] === type &&
+      stdio[1] === type &&
+      stdio[2] === type)
+  )
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function stripAnsiFromSpawnResult(result) {
+  const { stderr, stdout } = result
+  if (typeof stdout === 'string') {
+    result.stdout = stripAnsi(stdout)
+  }
+  if (typeof stderr === 'string') {
+    result.stderr = stripAnsi(stderr)
+  }
+  return result
+}
+
+/*@__NO_SIDE_EFFECTS__*/
 function spawn(cmd, args, options, extra) {
   const {
     spinner = /*@__PURE__*/ require('./constants/spinner'),
+    stripAnsi: shouldStripAnsi = true,
     ...spawnOptions
   } = { __proto__: null, ...options }
   const spawn = getSpawn()
   const isSpinning = !!spinner?.isSpinning
-  const { env, stdio } = spawnOptions
+  const { env, stdio, stdioString = true } = spawnOptions
   // The stdio option can be a string or an array.
   // https://nodejs.org/api/child_process.html#optionsstdio
-  const isStdioIgnored =
-    stdio === 'ignore' ||
-    (Array.isArray(stdio) &&
-      stdio.length > 2 &&
-      stdio[0] === 'ignore' &&
-      stdio[1] === 'ignore' &&
-      stdio[2] === 'ignore')
-  const isStdioPiped =
-    stdio === undefined ||
-    stdio === 'pipe' ||
-    (Array.isArray(stdio) &&
-      stdio.length > 2 &&
-      stdio[0] === 'pipe' &&
-      stdio[1] === 'pipe' &&
-      stdio[2] === 'pipe')
-  const shouldPauseSpinner = !isStdioIgnored && !isStdioPiped
+  const shouldPauseSpinner =
+    !isStdioType(stdio, 'ignore') && !isStdioType(stdio, 'pipe')
   if (shouldPauseSpinner) {
     spinner?.stop()
   }
@@ -69,14 +82,20 @@ function spawn(cmd, args, options, extra) {
     },
     extra
   )
-  if (shouldPauseSpinner && isSpinning) {
-    const oldSpawnPromise = spawnPromise
+  const oldSpawnPromise = spawnPromise
+  if (shouldStripAnsi && stdioString) {
+    spawnPromise = spawnPromise
+      .then(stripAnsiFromSpawnResult)
+      .catch(stripAnsiFromSpawnResult)
+  }
+  if (spinner && shouldPauseSpinner && isSpinning) {
     spawnPromise = spawnPromise.finally(() => {
       spinner?.start()
     })
-    spawnPromise.process = oldSpawnPromise.process
-    spawnPromise.stdin = oldSpawnPromise.stdin
   }
+  spawnPromise.process = oldSpawnPromise.process
+  spawnPromise.stdin = oldSpawnPromise.stdin
+
   return spawnPromise
 }
 
