@@ -2,6 +2,8 @@
 
 const { stripAnsi } = /*@__PURE__*/ require('./strings')
 
+const { keys: ObjectKeys } = Object
+
 let _child_process
 /*@__NO_SIDE_EFFECTS__*/
 function getChildProcess() {
@@ -84,18 +86,18 @@ function spawn(cmd, args, options, extra) {
   )
   const oldSpawnPromise = spawnPromise
   if (shouldStripAnsi && stdioString) {
-    spawnPromise = spawnPromise
-      .then(stripAnsiFromSpawnResult)
-      .catch(stripAnsiFromSpawnResult)
+    spawnPromise = spawnPromise.then(stripAnsiFromSpawnResult).catch(error => {
+      throw stripAnsiFromSpawnResult(error)
+    })
   }
   if (shouldPauseSpinner) {
     spawnPromise = spawnPromise.finally(() => {
       spinner.start()
     })
   }
-  spawnPromise.process = oldSpawnPromise.process
-  spawnPromise.stdin = oldSpawnPromise.stdin
-
+  for (const key of ObjectKeys(oldSpawnPromise)) {
+    spawnPromise[key] = oldSpawnPromise[key]
+  }
   return spawnPromise
 }
 
