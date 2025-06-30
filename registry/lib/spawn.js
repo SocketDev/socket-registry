@@ -28,6 +28,7 @@ function getSpawn() {
 function isStdioType(stdio, type) {
   return (
     stdio === type ||
+    (!stdio && type === 'pipe') ||
     (Array.isArray(stdio) &&
       stdio.length > 2 &&
       stdio[0] === type &&
@@ -60,9 +61,10 @@ function spawn(cmd, args, options, extra) {
   const { env, stdio, stdioString = true } = spawnOptions
   // The stdio option can be a string or an array.
   // https://nodejs.org/api/child_process.html#optionsstdio
-  const shouldPauseSpinner =
+  const shouldStopSpinner =
     isSpinning && !isStdioType(stdio, 'ignore') && !isStdioType(stdio, 'pipe')
-  if (shouldPauseSpinner) {
+  const shouldRestartSpinner = shouldStopSpinner
+  if (shouldStopSpinner) {
     spinner.stop()
   }
   let spawnPromise = spawn(
@@ -90,7 +92,7 @@ function spawn(cmd, args, options, extra) {
       throw stripAnsiFromSpawnResult(error)
     })
   }
-  if (shouldPauseSpinner) {
+  if (shouldRestartSpinner) {
     spawnPromise = spawnPromise.finally(() => {
       spinner.start()
     })
