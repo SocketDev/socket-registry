@@ -1,9 +1,9 @@
 'use strict'
 
-const { applyLinePrefix, isBlankString } = /*@__PURE__*/ require('./strings')
-
 const globalConsole = console
 const { apply: ReflectApply, construct: ReflectConstruct } = Reflect
+
+const { applyLinePrefix, isBlankString } = /*@__PURE__*/ require('./strings')
 
 let _Console
 /*@__NO_SIDE_EFFECTS__*/
