@@ -634,6 +634,7 @@
     "ansi-regex": "6.1.0",
     "browserslist": "4.25.1",
     "cacache": "19.0.1",
+    "debug": "4.4.1",
     "del-cli": "6.0.0",
     "dev-null-cli": "2.0.0",
     "eslint": "9.30.0",
