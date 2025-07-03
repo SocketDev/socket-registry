@@ -26,7 +26,12 @@ function getDebugJsInstance(namespace) {
   const debugJs = getDebugJs()
   inst = debugJs(namespace)
   inst.log = customLog
-  if (!ENV.DEBUG && ENV.SOCKET_CLI_DEBUG) {
+  if (
+    !ENV.DEBUG &&
+    ENV.SOCKET_CLI_DEBUG &&
+    // Ignore 'inspect' namespace by default.
+    namespace !== 'inspect'
+  ) {
     debugJs.enable(namespace)
   }
   debugByNamespace.set(namespace, inst)
