@@ -1,7 +1,5 @@
 'use strict'
 
-const semver = /*@__PURE__*/ require('../external/semver')
-
 const abortSignal = /*@__PURE__*/ require('./constants/abort-signal')
 const copyLeftLicenses = /*@__PURE__*/ require('./constants/copy-left-licenses')
 const LOOP_SENTINEL = /*@__PURE__*/ require('./constants/loop-sentinel')
@@ -706,6 +704,7 @@ function findTypesForSubpath(entryExports, subpath) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function getReleaseTag(version) {
+  const semver = getSemver()
   return semver.prerelease(version)?.join('.') ?? 'latest'
 }
 
