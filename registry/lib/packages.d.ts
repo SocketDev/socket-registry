@@ -5,7 +5,6 @@ import {
   Options as BasePacoteOptions,
   PackumentResult,
   manifest,
-  packument,
   tarball
 } from 'pacote'
 
@@ -37,6 +36,7 @@ declare namespace Packages {
   export type NormalizedPackageJson = Omit<PackageJson, 'repository'> & {
     repository?: Exclude<PackageJson['repository'], string>
   }
+  export type Packument = AbbreviatedPackument | FullPackument
   export type PackageJson = NPMCliPackageJson.Content & {
     socket?: { categories: CategoryString } | undefined
   }
@@ -72,7 +72,7 @@ declare namespace Packages {
   export function fetchPackagePackument(
     pkgNameOrId: string,
     options?: PacoteOptions | undefined
-  ): Promise<AbbreviatedPackument | FullPackument | null>
+  ): Promise<Packument | null>
   export function findTypesForSubpath(
     entryExports: Exports,
     subpath: string
