@@ -647,7 +647,7 @@
     "oxlint": "1.5.0",
     "pacote": "21.0.0",
     "picomatch": "4.0.2",
-    "rollup": "4.44.1",
+    "rollup": "4.44.2",
     "semver": "7.7.2",
     "signal-exit": "4.1.0",
     "spdx-correct": "3.2.0",
