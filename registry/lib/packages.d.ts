@@ -1,14 +1,21 @@
 import NPMCliPackageJson from '@npmcli/package-json'
 import {
-  manifest as PacoteManifestFn,
-  Options as PacoteOptionsRaw,
-  packument as PacotePackumentFn,
-  tarball as PacoteTarballFn
+  AbbreviatedPackument as BaseAbbreviatedPackument,
+  Packument as BaseFullPackument,
+  Options as BasePacoteOptions,
+  PackumentResult,
+  manifest,
+  packument,
+  tarball
 } from 'pacote'
 
 import { CategoryString } from '../index'
+import { Remap } from './objects'
 
 declare namespace Packages {
+  export type AbbreviatedPackument = Remap<
+    BaseAbbreviatedPackument & PackumentResult
+  >
   export class EditablePackageJson extends NPMCliPackageJson {
     content: Readonly<PackageJson>
     // @ts-ignore TypeScript doesn't like an override with a different return type.
@@ -20,6 +27,7 @@ declare namespace Packages {
     dest?: string | undefined
     tmpPrefix?: string | undefined
   }
+  export type FullPackument = Remap<BaseFullPackument & PackumentResult>
   export interface LicenseNode {
     license: string
     exception?: string | undefined
@@ -32,7 +40,7 @@ declare namespace Packages {
   export type PackageJson = NPMCliPackageJson.Content & {
     socket?: { categories: CategoryString } | undefined
   }
-  export type PacoteOptions = PacoteOptionsRaw & {
+  export type PacoteOptions = BasePacoteOptions & {
     signal?: AbortSignal | undefined
   }
   export type SaveOptions = {
@@ -56,11 +64,15 @@ declare namespace Packages {
   export function fetchPackageManifest(
     pkgNameOrId: string,
     options?: PacoteOptions | undefined
-  ): Promise<Awaited<ReturnType<typeof PacoteManifestFn>> | null>
+  ): Promise<Awaited<ReturnType<typeof manifest>> | null>
+  export function fetchPackagePackument(
+    pkgNameOrId: string,
+    options: PacoteOptions & { fullMetadata: true }
+  ): Promise<FullPackument>
   export function fetchPackagePackument(
     pkgNameOrId: string,
     options?: PacoteOptions | undefined
-  ): Promise<Awaited<ReturnType<typeof PacotePackumentFn>> | null>
+  ): Promise<AbbreviatedPackument | FullPackument | null>
   export function findTypesForSubpath(
     entryExports: Exports,
     subpath: string
@@ -103,7 +115,7 @@ declare namespace Packages {
           stdioString?: boolean | undefined
         })
       | undefined
-  ): Promise<Awaited<ReturnType<typeof PacoteTarballFn>>>
+  ): Promise<Awaited<ReturnType<typeof tarball>>>
   export function readPackageJson(
     filepath: string,
     options: {

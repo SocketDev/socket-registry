@@ -1,14 +1,14 @@
 /// <reference types="node" />
 import {
-  SpawnOptions as BuiltinSpawnOptions,
-  spawn as builtinSpawn,
-  spawnSync as builtinSpawnSync
+  SpawnOptions as BaseSpawnOptions,
+  ChildProcess,
+  spawnSync as childProcessSpawnSync
 } from 'node:child_process'
+import Stream from 'node:stream'
 
 import { Remap } from './objects'
 import { Spinner } from './spinner'
 
-declare type NativeSpawnResult = ReturnType<typeof builtinSpawn>
 declare type SpawnResult<Output, Extra> = Promise<
   {
     cmd: string
@@ -18,9 +18,9 @@ declare type SpawnResult<Output, Extra> = Promise<
     stdout: Output
     stderr: Output
   } & Extra
-> & { process: NativeSpawnResult; stdin: NativeSpawnResult['stdin'] }
+> & { process: ChildProcess; stdin: Stream.Writable | null }
 declare type SpawnOptions = Remap<
-  BuiltinSpawnOptions & {
+  BaseSpawnOptions & {
     spinner?: Spinner | undefined
     stdioString?: boolean | undefined
     stripAnsi?: boolean | undefined
@@ -37,9 +37,9 @@ declare const Spawn: {
     O extends { stdioString: false } ? Buffer : string,
     typeof extra
   >
-  spawnSync: typeof builtinSpawnSync
+  spawnSync: typeof childProcessSpawnSync
 }
 declare namespace Spawn {
-  export { NativeSpawnResult, SpawnExtra, SpawnOptions, SpawnResult }
+  export { SpawnExtra, SpawnOptions, SpawnResult }
 }
 export = Spawn
