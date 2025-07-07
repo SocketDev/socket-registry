@@ -127,7 +127,7 @@
     ]
   },
   "dependencies": {
-    "caniuse-lite": "^1.0.30001726"
+    "caniuse-lite": "^1.0.30001727"
   },
   "overrides": {
     "aggregate-error": "npm:@socketregistry/aggregate-error@^1",
