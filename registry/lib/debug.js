@@ -22,10 +22,8 @@ function getDebugJsInstance(namespace) {
   if (inst) {
     return inst
   }
-  const ENV = /*@__PURE__*/ require('./constants/env')
   const debugJs = getDebugJs()
-  inst = debugJs(namespace)
-  inst.log = customLog
+  const ENV = /*@__PURE__*/ require('./constants/env')
   if (
     !ENV.DEBUG &&
     ENV.SOCKET_CLI_DEBUG &&
@@ -34,6 +32,8 @@ function getDebugJsInstance(namespace) {
   ) {
     debugJs.enable(namespace)
   }
+  inst = debugJs(namespace)
+  inst.log = customLog
   debugByNamespace.set(namespace, inst)
   return inst
 }
@@ -60,65 +60,90 @@ function customLog() {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function debugDir(namespace, obj, options) {
-  const inst = isDebug() ? getDebugJsInstance(namespace) : undefined
-  if (inst?.enabled) {
-    const { logger } = /*@__PURE__*/ require('./logger')
-    if (options === undefined) {
-      const debugJs = getDebugJs()
-      options = debugJs.inspectOpts
-    }
-    logger.dir(obj, options)
+function isEnabled(namespaces) {
+  if (typeof namespaces !== 'string' || !namespaces || namespaces === '*') {
+    return true
   }
+  const split = namespaces
+    .trim()
+    .replace(/\s+/g, ',')
+    .split(',')
+    .filter(Boolean)
+  const names = []
+  const skips = []
+  for (const ns of split) {
+    if (ns.startsWith('-')) {
+      skips.push(ns.slice(1))
+    } else {
+      names.push(ns)
+    }
+  }
+  if (names.length && !names.some(ns => !!getDebugJsInstance(ns).enabled)) {
+    return false
+  }
+  return skips.every(ns => !getDebugJsInstance(ns).enabled)
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function debugDir(namespaces, obj, options) {
+  if (!isEnabled(namespaces)) {
+    return
+  }
+  if (options === undefined) {
+    const debugJs = getDebugJs()
+    options = debugJs.inspectOpts
+  }
+  const { logger } = /*@__PURE__*/ require('./logger')
+  logger.dir(obj, options)
 }
 
 let pointingTriangle
 /*@__NO_SIDE_EFFECTS__*/
-function debugFn(namespace, ...args) {
-  const inst = isDebug() ? getDebugJsInstance(namespace) : undefined
-  if (inst?.enabled) {
-    const { logger } = /*@__PURE__*/ require('./logger')
-    const { stack } = new Error()
-    let lineCount = 0
-    let lineStart = 0
-    let name = 'anonymous'
-    // Scan the stack trace character-by-character to find the 4th line
-    // (index 3), which is typically the caller of debugFn.
-    for (let i = 0, { length } = stack; i < length; i += 1) {
-      if (stack.charCodeAt(i) === 10 /*'\n'*/) {
-        lineCount += 1
-        if (lineCount < 4) {
-          // Store the start index of the next line.
-          lineStart = i + 1
-        } else {
-          // Extract the full line and trim it.
-          const line = stack.slice(lineStart, i).trimStart()
-          // Match the function name portion (e.g., "async runFix").
-          const match = /(?<=^at\s+).*?(?=\s+\(|$)/.exec(line)?.[0]
-          if (match) {
-            name = match
-              // Strip known V8 invocation prefixes to get the name.
-              .replace(/^(?:async|bound|get|new|set)\s+/, '')
-            if (name.startsWith('Object.')) {
-              // Strip leading 'Object.' if not an own property of Object.
-              const afterDot = name.slice(7 /*'Object.'.length*/)
-              if (!hasOwn(Object, afterDot)) {
-                name = afterDot
-              }
+function debugFn(namespaces, ...args) {
+  if (!isEnabled(namespaces)) {
+    return
+  }
+  const { stack } = new Error()
+  let lineCount = 0
+  let lineStart = 0
+  let name = 'anonymous'
+  // Scan the stack trace character-by-character to find the 4th line
+  // (index 3), which is typically the caller of debugFn.
+  for (let i = 0, { length } = stack; i < length; i += 1) {
+    if (stack.charCodeAt(i) === 10 /*'\n'*/) {
+      lineCount += 1
+      if (lineCount < 4) {
+        // Store the start index of the next line.
+        lineStart = i + 1
+      } else {
+        // Extract the full line and trim it.
+        const line = stack.slice(lineStart, i).trimStart()
+        // Match the function name portion (e.g., "async runFix").
+        const match = /(?<=^at\s+).*?(?=\s+\(|$)/.exec(line)?.[0]
+        if (match) {
+          name = match
+            // Strip known V8 invocation prefixes to get the name.
+            .replace(/^(?:async|bound|get|new|set)\s+/, '')
+          if (name.startsWith('Object.')) {
+            // Strip leading 'Object.' if not an own property of Object.
+            const afterDot = name.slice(7 /*'Object.'.length*/)
+            if (!hasOwn(Object, afterDot)) {
+              name = afterDot
             }
           }
-          break
         }
+        break
       }
     }
-    if (pointingTriangle === undefined) {
-      const supported =
-        /*@__PURE__*/ require('../external/@socketregistry/is-unicode-supported')()
-      pointingTriangle = supported ? '▸' : '>'
-    }
-    const text = args.at(0)
-    const hasText = typeof text === 'string'
-    const logArgs = hasText
+  }
+  if (pointingTriangle === undefined) {
+    const supported =
+      /*@__PURE__*/ require('../external/@socketregistry/is-unicode-supported')()
+    pointingTriangle = supported ? '▸' : '>'
+  }
+  const text = args.at(0)
+  const logArgs =
+    typeof text === 'string'
       ? [
           applyLinePrefix(
             `${name ? `${name} ${pointingTriangle} ` : ''}${text}`,
@@ -127,25 +152,22 @@ function debugFn(namespace, ...args) {
           ...args.slice(1)
         ]
       : args
-    ReflectApply(logger.info, logger, logArgs)
-  }
+  const { logger } = /*@__PURE__*/ require('./logger')
+  ReflectApply(logger.info, logger, logArgs)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function debugLog(namespace, ...args) {
-  const inst = isDebug() ? getDebugJsInstance(namespace) : undefined
-  if (inst?.enabled) {
-    ReflectApply(inst.log, inst, args)
+function debugLog(namespaces, ...args) {
+  if (!isEnabled(namespaces)) {
+    return
   }
+  ReflectApply(customLog, undefined, args)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function isDebug(namespace) {
+function isDebug(namespaces) {
   const ENV = /*@__PURE__*/ require('./constants/env')
-  if (!ENV.SOCKET_CLI_DEBUG) {
-    return false
-  }
-  return !namespace || !!getDebugJsInstance(namespace)?.enabled
+  return ENV.SOCKET_CLI_DEBUG && isEnabled(namespaces)
 }
 
 module.exports = {
