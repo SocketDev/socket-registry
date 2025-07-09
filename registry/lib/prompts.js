@@ -35,7 +35,7 @@ function wrapPrompt(inquirerPrompt) {
     if (isSpinning) {
       spinner?.start()
     }
-    return result
+    return typeof result === 'string' ? result.trim() : result
   }
 }
 
