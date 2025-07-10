@@ -27,8 +27,7 @@ function getDebugJsInstance(namespace) {
   if (
     !ENV.DEBUG &&
     ENV.SOCKET_CLI_DEBUG &&
-    // Ignore 'inspect' namespace by default.
-    namespace !== 'inspect'
+    (namespace === 'error' || namespace === 'notice')
   ) {
     debugJs.enable(namespace)
   }
@@ -61,13 +60,11 @@ function customLog() {
 
 /*@__NO_SIDE_EFFECTS__*/
 function isEnabled(namespaces) {
-  if (namespaces === '*') {
+  if (typeof namespaces !== 'string' || !namespaces || namespaces === '*') {
     return true
   }
-  if (typeof namespaces !== 'string' || !namespaces) {
-    namespaces = 'notice,error'
-  }
-  const ENV = /*@__PURE__*/ require('./constants/env')
+  // Namespace splitting logic is based the 'debug' package implementation:
+  // https://github.com/debug-js/debug/blob/4.4.1/src/common.js#L169-L173.
   const split = namespaces
     .trim()
     .replace(/\s+/g, ',')
@@ -82,16 +79,8 @@ function isEnabled(namespaces) {
       names.push(ns)
     }
   }
-  if (names.length) {
-    const someEnabled = names.some(ns => {
-      if (!ENV.DEBUG && (ns === 'error' || ns === 'notice')) {
-        return true
-      }
-      return !!getDebugJsInstance(ns).enabled
-    })
-    if (!someEnabled) {
-      return false
-    }
+  if (names.length && !names.some(ns => getDebugJsInstance(ns).enabled)) {
+    return false
   }
   return skips.every(ns => !getDebugJsInstance(ns).enabled)
 }
