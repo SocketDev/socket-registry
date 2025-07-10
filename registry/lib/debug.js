@@ -61,9 +61,13 @@ function customLog() {
 
 /*@__NO_SIDE_EFFECTS__*/
 function isEnabled(namespaces) {
-  if (typeof namespaces !== 'string' || !namespaces || namespaces === '*') {
+  if (namespaces === '*') {
     return true
   }
+  if (typeof namespaces !== 'string' || !namespaces) {
+    namespaces = 'notice,error'
+  }
+  const ENV = /*@__PURE__*/ require('./constants/env')
   const split = namespaces
     .trim()
     .replace(/\s+/g, ',')
@@ -78,8 +82,16 @@ function isEnabled(namespaces) {
       names.push(ns)
     }
   }
-  if (names.length && !names.some(ns => !!getDebugJsInstance(ns).enabled)) {
-    return false
+  if (names.length) {
+    const someEnabled = names.some(ns => {
+      if (!ENV.DEBUG && (ns === 'error' || ns === 'notice')) {
+        return true
+      }
+      return !!getDebugJsInstance(ns).enabled
+    })
+    if (!someEnabled) {
+      return false
+    }
   }
   return skips.every(ns => !getDebugJsInstance(ns).enabled)
 }
