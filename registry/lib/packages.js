@@ -182,9 +182,13 @@ function getEditablePackageJsonClass() {
         return this
       }
 
-      async save({ ignoreWhitespace = false, sort = false } = {}) {
-        if (!this._canSave) {
+      async save(options) {
+        if (!this._canSave || this.content === undefined) {
           throw new Error('No package.json to save to')
+        }
+        const { ignoreWhitespace = false, sort = false } = {
+          __proto__: null,
+          ...options
         }
         const {
           [identSymbol]: indent,
@@ -227,9 +231,13 @@ function getEditablePackageJsonClass() {
         return true
       }
 
-      async saveSync({ ignoreWhitespace = false, sort = false } = {}) {
+      async saveSync(options) {
         if (!this._canSave || this.content === undefined) {
           throw new Error('No package.json to save to')
+        }
+        const { ignoreWhitespace = false, sort = false } = {
+          __proto__: null,
+          ...options
         }
         const {
           [Symbol.for('indent')]: indent,
@@ -270,6 +278,45 @@ function getEditablePackageJsonClass() {
       update(content) {
         super.update(content)
         return this
+      }
+
+      willSave(options) {
+        const { ignoreWhitespace = false, sort = false } = {
+          __proto__: null,
+          ...options
+        }
+        if (!this._canSave || this.content === undefined) {
+          return false
+        }
+        const {
+          [Symbol.for('indent')]: indent,
+          [Symbol.for('newline')]: newline,
+          ...rest
+        } = this.content
+        const content = sort ? packageSort(rest) : rest
+
+        if (
+          ignoreWhitespace &&
+          getUtil().isDeepStrictEqual(content, this._readFileJson)
+        ) {
+          return false
+        }
+
+        const format = indent === undefined ? '  ' : indent
+        const eol = newline === undefined ? '\n' : newline
+        const fileContent = `${JSON.stringify(
+          content,
+          null,
+          format
+        )}\n`.replace(/\n/g, eol)
+
+        if (
+          !ignoreWhitespace &&
+          fileContent.trim() === this._readFileContent.trim()
+        ) {
+          return false
+        }
+        return true
       }
     }
   }

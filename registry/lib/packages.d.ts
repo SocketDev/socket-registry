@@ -20,6 +20,7 @@ declare namespace Packages {
     // @ts-ignore TypeScript doesn't like an override with a different return type.
     override save: (options?: SaveOptions | undefined) => Promise<boolean>
     saveSync: (options?: SaveOptions | undefined) => boolean
+    willSave: (options?: SaveOptions | undefined) => boolean
   }
   export type Exports = Exclude<PackageJson['exports'], undefined>
   export type ExtractOptions = PacoteOptions & {
