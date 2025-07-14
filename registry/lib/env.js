@@ -3,19 +3,19 @@
 /*@__NO_SIDE_EFFECTS__*/
 function envAsBoolean(value) {
   return typeof value === 'string'
-    ? value === '1' || value.toLowerCase() === 'true'
+    ? value.trim() === '1' || value.trim().toLowerCase() === 'true'
     : !!value
 }
 
 /*@__NO_SIDE_EFFECTS__*/
 function envAsString(value) {
   if (typeof value === 'string') {
-    return value
+    return value.trim()
   }
   if (value === null || value === undefined) {
     return ''
   }
-  return String(value)
+  return String(value).trim()
 }
 
 module.exports = {
