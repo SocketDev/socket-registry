@@ -10,10 +10,31 @@ import Stream from 'node:stream'
 import { Remap } from './objects'
 import { Spinner } from './spinner'
 
-declare type SpawnError<Output = string, Extra = undefined> = Error &
-  SpawnStdioResult<Output, Extra> & {
-    message: 'command failed'
-  }
+declare type SpawnError = {
+  args: string[] | readonly string[]
+  cmd: string
+  code: number
+  name: 'Error'
+  message: 'command failed'
+  signal: AbortSignal | null
+  stack: string
+  stderr: string | Buffer
+  stdout: string | Buffer
+}
+declare type SpawnErrorWithOutputString = Omit<
+  SpawnError,
+  'stderr' | 'stdout'
+> & {
+  stdout: string
+  stderr: string
+}
+declare type SpawnErrorWithOutputBuffer = Omit<
+  SpawnError,
+  'stderr' | 'stdout'
+> & {
+  stdout: Buffer
+  stderr: Buffer
+}
 declare type SpawnExtra = Record<any, any>
 declare type SpawnStdioResult<Output = string, Extra = undefined> = {
   cmd: string
@@ -35,7 +56,7 @@ declare type SpawnOptions = Remap<
 >
 declare type StdioType = IOType | 'ipc' | Array<IOType | 'ipc'>
 declare const Spawn: {
-  isSpawnError(value: any): value is SpawnError<any>
+  isSpawnError(value: any): value is SpawnError
   isStdioType(
     stdio: string | string[] | readonly string[],
     type: StdioType
@@ -54,6 +75,8 @@ declare const Spawn: {
 declare namespace Spawn {
   export {
     SpawnError,
+    SpawnErrorWithOutputString,
+    SpawnErrorWithOutputBuffer,
     SpawnExtra,
     SpawnOptions,
     SpawnResult,
