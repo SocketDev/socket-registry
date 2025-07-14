@@ -2,6 +2,7 @@
 import {
   SpawnOptions as BaseSpawnOptions,
   ChildProcess,
+  IOType,
   spawnSync as childProcessSpawnSync
 } from 'node:child_process'
 import Stream from 'node:stream'
@@ -9,12 +10,12 @@ import Stream from 'node:stream'
 import { Remap } from './objects'
 import { Spinner } from './spinner'
 
-declare type SpawnError<Output, Extra> = Error &
+declare type SpawnError<Output = string, Extra = undefined> = Error &
   SpawnStdioResult<Output, Extra> & {
     message: 'command failed'
   }
 declare type SpawnExtra = Record<any, any>
-declare type SpawnStdioResult<Output, Extra> = {
+declare type SpawnStdioResult<Output = string, Extra = undefined> = {
   cmd: string
   args: string[] | readonly string[]
   code: number
@@ -22,7 +23,7 @@ declare type SpawnStdioResult<Output, Extra> = {
   stdout: Output
   stderr: Output
 } & Extra
-declare type SpawnResult<Output, Extra> = Promise<
+declare type SpawnResult<Output = string, Extra = undefined> = Promise<
   SpawnStdioResult<Output, Extra>
 > & { process: ChildProcess; stdin: Stream.Writable | null }
 declare type SpawnOptions = Remap<
@@ -32,7 +33,13 @@ declare type SpawnOptions = Remap<
     stripAnsi?: boolean | undefined
   }
 >
+declare type StdioType = IOType | 'ipc' | Array<IOType | 'ipc'>
 declare const Spawn: {
+  isSpawnError(value: any): value is SpawnError<any>
+  isStdioType(
+    stdio: string | string[] | readonly string[],
+    type: StdioType
+  ): boolean
   spawn<O extends SpawnOptions = SpawnOptions>(
     cmd: string,
     args: string[] | readonly string[],
@@ -45,6 +52,13 @@ declare const Spawn: {
   spawnSync: typeof childProcessSpawnSync
 }
 declare namespace Spawn {
-  export { SpawnError, SpawnExtra, SpawnOptions, SpawnResult, SpawnStdioResult }
+  export {
+    SpawnError,
+    SpawnExtra,
+    SpawnOptions,
+    SpawnResult,
+    SpawnStdioResult,
+    StdioType
+  }
 }
 export = Spawn
