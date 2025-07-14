@@ -2,7 +2,8 @@
 
 const { stripAnsi } = /*@__PURE__*/ require('./strings')
 
-const { keys: ObjectKeys } = Object
+const { isArray: ArrayIsArray } = Array
+const { hasOwn: ObjectHasOwn, keys: ObjectKeys } = Object
 
 let _child_process
 /*@__NO_SIDE_EFFECTS__*/
@@ -25,11 +26,25 @@ function getSpawn() {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
+function isSpawnError(value) {
+  return (
+    value !== null &&
+    typeof value === 'object' &&
+    ObjectHasOwn(value, 'code') &&
+    typeof value.code === 'number' &&
+    ObjectHasOwn(value, 'cmd') &&
+    typeof value.code === 'string' &&
+    ObjectHasOwn(value, 'args') &&
+    ArrayIsArray(value.args)
+  )
+}
+
+/*@__NO_SIDE_EFFECTS__*/
 function isStdioType(stdio, type) {
   return (
     stdio === type ||
-    (!stdio && type === 'pipe') ||
-    (Array.isArray(stdio) &&
+    ((stdio === null || stdio === undefined) && type === 'pipe') ||
+    (ArrayIsArray(stdio) &&
       stdio.length > 2 &&
       stdio[0] === type &&
       stdio[1] === type &&
@@ -109,6 +124,8 @@ function spawnSync(...args) {
 }
 
 module.exports = {
+  isSpawnError,
+  isStdioType,
   spawn,
   spawnSync
 }
