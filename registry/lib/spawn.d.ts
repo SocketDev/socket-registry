@@ -9,15 +9,21 @@ import Stream from 'node:stream'
 import { Remap } from './objects'
 import { Spinner } from './spinner'
 
+declare type SpawnError<Output, Extra> = Error &
+  SpawnStdioResult<Output, Extra> & {
+    message: 'command failed'
+  }
+declare type SpawnExtra = Record<any, any>
+declare type SpawnStdioResult<Output, Extra> = {
+  cmd: string
+  args: string[] | readonly string[]
+  code: number
+  signal: AbortSignal | null
+  stdout: Output
+  stderr: Output
+} & Extra
 declare type SpawnResult<Output, Extra> = Promise<
-  {
-    cmd: string
-    args: string[] | readonly string[]
-    code: number
-    signal: AbortSignal | null
-    stdout: Output
-    stderr: Output
-  } & Extra
+  SpawnStdioResult<Output, Extra>
 > & { process: ChildProcess; stdin: Stream.Writable | null }
 declare type SpawnOptions = Remap<
   BaseSpawnOptions & {
@@ -26,7 +32,6 @@ declare type SpawnOptions = Remap<
     stripAnsi?: boolean | undefined
   }
 >
-declare type SpawnExtra = Record<any, any>
 declare const Spawn: {
   spawn<O extends SpawnOptions = SpawnOptions>(
     cmd: string,
@@ -40,6 +45,6 @@ declare const Spawn: {
   spawnSync: typeof childProcessSpawnSync
 }
 declare namespace Spawn {
-  export { SpawnExtra, SpawnOptions, SpawnResult }
+  export { SpawnError, SpawnExtra, SpawnOptions, SpawnResult, SpawnStdioResult }
 }
 export = Spawn
