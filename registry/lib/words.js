@@ -19,7 +19,7 @@ function determineArticle(word) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function pluralize(word, count = 1) {
-  return count > 1 ? `${word}s` : word
+  return count === 0 || count > 1 ? `${word}s` : word
 }
 
 module.exports = {
