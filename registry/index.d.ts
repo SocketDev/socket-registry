@@ -30,13 +30,14 @@ declare type ManifestEntryData = {
   }
   skipTests?: boolean | undefined
 }
-// Based on https://github.com/SocketDev/socket-sdk-js/blob/v1.4.41/types/api.d.ts#L3292.
+// Based on SocketPURL_Type:
+// https://github.com/SocketDev/socket-sdk-js/blob/v1.4.55/types/api.d.ts#L3573.
 declare enum PURL_Type {
-  ALPM = 'alpm',
   APK = 'apk',
   BITBUCKET = 'bitbucket',
   COCOAPODS = 'cocoapods',
   CARGO = 'cargo',
+  CHROME = 'chrome',
   COMPOSER = 'composer',
   CONAN = 'conan',
   CONDA = 'conda',
