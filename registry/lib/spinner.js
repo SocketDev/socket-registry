@@ -38,16 +38,17 @@ function Spinner(options) {
           extras = args
           text = ''
         }
+        const trimmed = text.trimStart()
         const { isSpinning: wasSpinning } = this
-        super[methodName](text)
+        super[methodName](trimmed)
         const {
           incLogCallCountSymbol,
           lastWasBlankSymbol,
           logger
         } = /*@__PURE__*/ require('./logger')
         if (methodName === 'stop') {
-          if (wasSpinning && text) {
-            logger[lastWasBlankSymbol](isBlankString(text))
+          if (wasSpinning && trimmed) {
+            logger[lastWasBlankSymbol](isBlankString(trimmed))
             logger[incLogCallCountSymbol]()
           }
         } else {
@@ -62,12 +63,21 @@ function Spinner(options) {
       }
 
       #applyAndKeepSpinning(methodName, args) {
-        const { isSpinning } = this
+        const { isSpinning: wasSpinning } = this
         this.#apply(methodName, args)
-        if (isSpinning) {
+        if (wasSpinning) {
           this.start()
         }
         return this
+      }
+
+      get text() {
+        return super.text
+      }
+
+      set text(value) {
+        const trimmed = typeof value === 'string' ? value.trimStart() : ''
+        super.text = trimmed
       }
 
       debug(...args) {
@@ -115,15 +125,17 @@ function Spinner(options) {
       }
 
       setText(text) {
-        this.text = text ?? ''
+        const trimmed = typeof text === 'string' ? text.trimStart() : ''
+        this.text = trimmed
         return this
       }
 
       start(...args) {
         const text = args.at(0)
+        const trimmed = typeof text === 'string' ? text.trimStart() : ''
         // We clear this.text on start when `text` is falsy because yocto-spinner
         // would not clear it otherwise.
-        if (typeof text !== 'string' || !text) {
+        if (typeof text !== 'string' || !trimmed) {
           this.setText('')
         }
         return this.#apply('start', args)
