@@ -59,6 +59,13 @@ function customLog() {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
+function extractOptions(namespaces) {
+  return namespaces !== null && typeof namespaces === 'object'
+    ? { __proto__: null, ...namespaces }
+    : { __proto__: null, namespaces }
+}
+
+/*@__NO_SIDE_EFFECTS__*/
 function isEnabled(namespaces) {
   if (typeof namespaces !== 'string' || !namespaces || namespaces === '*') {
     return true
@@ -86,21 +93,31 @@ function isEnabled(namespaces) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function debugDir(namespaces, obj, options) {
+function debugDir(namespacesOrOpts, obj, inspectOpts) {
+  const options = extractOptions(namespacesOrOpts)
+  const { namespaces } = options
   if (!isEnabled(namespaces)) {
     return
   }
-  if (options === undefined) {
+  if (inspectOpts === undefined) {
     const debugJs = getDebugJs()
-    options = debugJs.inspectOpts
+    inspectOpts = debugJs.inspectOpts
   }
+  const { spinner = /*@__PURE__*/ require('./constants/spinner') } = options
+  const { isSpinning: wasSpinning } = spinner
+  spinner.stop()
   const { logger } = /*@__PURE__*/ require('./logger')
-  logger.dir(obj, options)
+  logger.dir(obj, inspectOpts)
+  if (wasSpinning) {
+    spinner.start()
+  }
 }
 
 let pointingTriangle
 /*@__NO_SIDE_EFFECTS__*/
-function debugFn(namespaces, ...args) {
+function debugFn(namespacesOrOpts, ...args) {
+  const options = extractOptions(namespacesOrOpts)
+  const { namespaces } = options
   if (!isEnabled(namespaces)) {
     return
   }
@@ -153,16 +170,30 @@ function debugFn(namespaces, ...args) {
           ...args.slice(1)
         ]
       : args
+  const { spinner = /*@__PURE__*/ require('./constants/spinner') } = options
+  const { isSpinning: wasSpinning } = spinner
+  spinner.stop()
   const { logger } = /*@__PURE__*/ require('./logger')
   ReflectApply(logger.info, logger, logArgs)
+  if (wasSpinning) {
+    spinner.start()
+  }
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function debugLog(namespaces, ...args) {
+function debugLog(namespacesOrOpts, ...args) {
+  const options = extractOptions(namespacesOrOpts)
+  const { namespaces } = options
   if (!isEnabled(namespaces)) {
     return
   }
+  const { spinner = /*@__PURE__*/ require('./constants/spinner') } = options
+  const { isSpinning: wasSpinning } = spinner
+  spinner.stop()
   ReflectApply(customLog, undefined, args)
+  if (wasSpinning) {
+    spinner.start()
+  }
 }
 
 /*@__NO_SIDE_EFFECTS__*/
