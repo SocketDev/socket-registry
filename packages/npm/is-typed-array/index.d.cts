@@ -1,2 +1,2 @@
-declare function isSymbol(value: unknown): value is symbol | Symbol
+declare function isSymbol(value: unknown): value is symbol | symbol
 export = isSymbol
