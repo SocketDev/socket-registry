@@ -1,5 +1,7 @@
 'use strict'
 
+const { freeze: ObjectFreeze } = Object
+
 const registryConstants = require('@socketsecurity/registry/lib/constants')
 const { whichBinSync } = require('@socketsecurity/registry/lib/npm')
 
@@ -86,7 +88,7 @@ const lazyEcosystems = () => {
     readDirNamesSync
   } = /*@__PURE__*/ require('@socketsecurity/registry/lib/fs')
   // Lazily access constants.rootPackagesPath.
-  return Object.freeze(readDirNamesSync(constants.rootPackagesPath))
+  return ObjectFreeze(readDirNamesSync(constants.rootPackagesPath))
 }
 
 const lazyGitExecPath = () =>
@@ -99,7 +101,7 @@ const lazyGitIgnoreFile = () =>
   )
 
 const lazyIgnoreGlobs = () =>
-  Object.freeze([
+  ObjectFreeze([
     ...new Set([
       // Most of these ignored files can be included specifically if included in the
       // files globs. Exceptions to this are:
@@ -122,7 +124,7 @@ const lazyNpmPackageNames = () => {
     readDirNamesSync
   } = /*@__PURE__*/ require('@socketsecurity/registry/lib/fs')
   // Lazily access constants.npmPackagesPath.
-  return Object.freeze(readDirNamesSync(constants.npmPackagesPath))
+  return ObjectFreeze(readDirNamesSync(constants.npmPackagesPath))
 }
 
 const lazyNpmPackagesPath = () =>

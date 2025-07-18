@@ -1,5 +1,8 @@
 'use strict'
 
+const { isArray: ArrayIsArray } = Array
+const { hasOwn: ObjectHasOwn } = Object
+
 const abortSignal = /*@__PURE__*/ require('./constants/abort-signal')
 const copyLeftLicenses = /*@__PURE__*/ require('./constants/copy-left-licenses')
 const LOOP_SENTINEL = /*@__PURE__*/ require('./constants/loop-sentinel')
@@ -487,7 +490,7 @@ function collectLicenseWarnings(licenseNodes) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function createAstNode(rawNode) {
-  return Object.hasOwn(rawNode, 'license')
+  return ObjectHasOwn(rawNode, 'license')
     ? createLicenseNode(rawNode)
     : createBinaryOperationNode(rawNode)
 }
@@ -591,7 +594,7 @@ function createPackageJson(sockRegPkgName, directory, options) {
           )
         }
       : { engines: { node: PACKAGE_DEFAULT_NODE_RANGE } }),
-    files: Array.isArray(files) ? files.slice() : ['*.d.ts', '*.js'],
+    files: ArrayIsArray(files) ? files.slice() : ['*.d.ts', '*.js'],
     ...(isObjectObject(socket)
       ? { socket: { ...socket } }
       : {
@@ -723,7 +726,7 @@ function findTypesForSubpath(entryExports, subpath) {
       )
     }
     const value = queue[pos++]
-    if (Array.isArray(value)) {
+    if (ArrayIsArray(value)) {
       for (let i = 0, { length } = value; i < length; i += 1) {
         const item = value[i]
         if (item === subpath) {
@@ -778,7 +781,7 @@ function getSubpaths(entryExports) {
     const value = queue[pos++]
     if (typeof value === 'string') {
       result.push(value)
-    } else if (Array.isArray(value)) {
+    } else if (ArrayIsArray(value)) {
       queue.push(...value)
     } else if (isObject(value)) {
       queue.push(...getOwnPropertyValues(value))
@@ -908,14 +911,14 @@ function normalizePackageJson(pkgJson, options) {
   const preserved = [
     ['_id', undefined],
     ['readme', undefined],
-    ...(Object.hasOwn(pkgJson, 'bugs') ? [] : [['bugs', undefined]]),
-    ...(Object.hasOwn(pkgJson, 'homepage') ? [] : [['homepage', undefined]]),
-    ...(Object.hasOwn(pkgJson, 'name') ? [] : [['name', undefined]]),
-    ...(Object.hasOwn(pkgJson, 'version') ? [] : [['version', undefined]]),
-    ...(Array.isArray(preserve)
+    ...(ObjectHasOwn(pkgJson, 'bugs') ? [] : [['bugs', undefined]]),
+    ...(ObjectHasOwn(pkgJson, 'homepage') ? [] : [['homepage', undefined]]),
+    ...(ObjectHasOwn(pkgJson, 'name') ? [] : [['name', undefined]]),
+    ...(ObjectHasOwn(pkgJson, 'version') ? [] : [['version', undefined]]),
+    ...(ArrayIsArray(preserve)
       ? preserve.map(k => [
           k,
-          Object.hasOwn(pkgJson, k) ? pkgJson[k] : undefined
+          ObjectHasOwn(pkgJson, k) ? pkgJson[k] : undefined
         ])
       : [])
   ]
@@ -1074,7 +1077,7 @@ function resolvePackageJsonDirname(filepath) {
 function resolvePackageJsonEntryExports(entryExports) {
   // If conditional exports main sugar
   // https://nodejs.org/api/packages.html#exports-sugar
-  if (typeof entryExports === 'string' || Array.isArray(entryExports)) {
+  if (typeof entryExports === 'string' || ArrayIsArray(entryExports)) {
     return { '.': entryExports }
   }
   if (isConditionalExports(entryExports)) {

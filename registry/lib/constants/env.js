@@ -1,12 +1,14 @@
 'use strict'
 
+const { freeze: ObjectFreeze, hasOwn: ObjectHasOwn } = Object
+
 const { envAsBoolean, envAsString } = /*@__PURE__*/ require('../env')
 
 const { env } = process
 
 const DEBUG = envAsString(env.DEBUG)
 
-module.exports = Object.freeze({
+module.exports = ObjectFreeze({
   __proto__: null,
   // CI is always set to 'true' in a GitHub action.
   // https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables

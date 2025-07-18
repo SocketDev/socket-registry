@@ -1,5 +1,7 @@
 'use strict'
 
+const { freeze: ObjectFreeze } = Object
+
 // Under the hood browserlist uses the node-releases package which is out of date:
 // https://github.com/chicoxyzzy/node-releases/issues/37
 //
@@ -35,7 +37,7 @@ const previous = semver.maxSatisfying(
 )
 const last = semver.lt(manualLast, queryLast) ? manualLast : queryLast
 
-module.exports = Object.freeze(
+module.exports = ObjectFreeze(
   Object.assign([last, previous, current, next], {
     last,
     previous,

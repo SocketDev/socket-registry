@@ -1,8 +1,10 @@
 'use strict'
 
+const { freeze: ObjectFreeze } = Object
+
 const yarnPkgExtensions = /*@__PURE__*/ require('../../external/@yarnpkg/extensions')
 
-module.exports = Object.freeze(
+module.exports = ObjectFreeze(
   [
     yarnPkgExtensions.packageExtensions,
     [

@@ -1,5 +1,7 @@
 'use strict'
 
+const { assign: ObjectAssign, freeze: ObjectFreeze } = Object
+
 module.exports = new Promise(
   // The Promise executor is immediately executed.
   resolve => {
@@ -25,8 +27,8 @@ module.exports = new Promise(
           ...rawData
         }
         const target = /*@__PURE__*/ require('./ipc-target')
-        Object.assign(target, source)
-        Object.freeze(target)
+        ObjectAssign(target, source)
+        ObjectFreeze(target)
         // The handler of a Proxy is mutable after proxy instantiation.
         // We delete the traps to defer to native behavior.
         const handler = /*@__PURE__*/ require('./ipc-handler')
