@@ -1,8 +1,10 @@
 'use strict'
 
+const { freeze: ObjectFreeze } = Object
+
 const WIN32 = require('./win32')
 
-module.exports = Object.freeze(
+module.exports = ObjectFreeze(
   WIN32
     ? ['--disallow-code-generation-from-strings']
     : [

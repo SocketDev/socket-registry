@@ -1,6 +1,7 @@
 'use strict'
 
 const globalConsole = console
+const { assign: ObjectAssign, freeze: ObjectFreeze } = Object
 const { apply: ReflectApply, construct: ReflectConstruct } = Reflect
 
 const { applyLinePrefix, isBlankString } = /*@__PURE__*/ require('./strings')
@@ -33,13 +34,13 @@ const LOG_SYMBOLS = /*@__PURE__*/ (() => {
     const supported =
       /*@__PURE__*/ require('../external/@socketregistry/is-unicode-supported')()
     const colors = getYoctocolors()
-    Object.assign(target, {
+    ObjectAssign(target, {
       fail: colors.red(supported ? '✖' : '×'),
       info: colors.blue(supported ? 'ℹ' : 'i'),
       success: colors.green(supported ? '✔' : '√'),
       warn: colors.yellow(supported ? '⚠' : '‼')
     })
-    Object.freeze(target)
+    ObjectFreeze(target)
     // The handler of a Proxy is mutable after proxy instantiation.
     // We delete the traps to defer to native behavior.
     for (const trapName in handler) {

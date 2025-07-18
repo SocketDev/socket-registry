@@ -1,6 +1,17 @@
 'use strict'
 
+const { isArray: ArrayIsArray } = Array
+const {
+  defineProperties: ObjectDefineProperties,
+  freeze: ObjectFreeze,
+  fromEntries: ObjectFromEntries,
+  getOwnPropertyDescriptors: ObjectGetOwnPropertyDescriptors,
+  getOwnPropertyNames: ObjectGetOwnPropertyNames,
+  hasOwn: ObjectHasOwn,
+  setPrototypeOf: ObjectSetPrototypeOf
+} = Object
 const { __defineGetter__ } = Object.prototype
+const { ownKeys: ReflectOwnKeys } = Reflect
 
 /*@__NO_SIDE_EFFECTS__*/
 function createLazyGetter(name, getter, stats) {
@@ -22,39 +33,39 @@ function createLazyGetter(name, getter, stats) {
 /*@__NO_SIDE_EFFECTS__*/
 function createConstantsObject(props, options_) {
   const options = { __proto__: null, ...options_ }
-  const attributes = Object.freeze({
+  const attributes = ObjectFreeze({
     __proto__: null,
     getters: options.getters
-      ? Object.freeze(
-          Object.setPrototypeOf(toSortedObject(options.getters), null)
+      ? ObjectFreeze(
+          ObjectSetPrototypeOf(toSortedObject(options.getters), null)
         )
       : undefined,
     internals: options.internals
-      ? Object.freeze(
-          Object.setPrototypeOf(toSortedObject(options.internals), null)
+      ? ObjectFreeze(
+          ObjectSetPrototypeOf(toSortedObject(options.internals), null)
         )
       : undefined,
     mixin: options.mixin
-      ? Object.freeze(
-          Object.defineProperties(
+      ? ObjectFreeze(
+          ObjectDefineProperties(
             { __proto__: null },
-            Object.getOwnPropertyDescriptors(options.mixin)
+            ObjectGetOwnPropertyDescriptors(options.mixin)
           )
         )
       : undefined,
     props: props
-      ? Object.freeze(Object.setPrototypeOf(toSortedObject(props), null))
+      ? ObjectFreeze(ObjectSetPrototypeOf(toSortedObject(props), null))
       : undefined
   })
   const kInternalsSymbol = /*@__PURE__*/ require('./constants/k-internals-symbol')
-  const lazyGetterStats = Object.freeze({
+  const lazyGetterStats = ObjectFreeze({
     __proto__: null,
     initialized: new Set()
   })
   const object = defineLazyGetters(
     {
       __proto__: null,
-      [kInternalsSymbol]: Object.freeze({
+      [kInternalsSymbol]: ObjectFreeze({
         __proto__: null,
         get attributes() {
           return attributes
@@ -71,16 +82,16 @@ function createConstantsObject(props, options_) {
     lazyGetterStats
   )
   if (attributes.mixin) {
-    Object.defineProperties(
+    ObjectDefineProperties(
       object,
       toSortedObjectFromEntries(
-        objectEntries(
-          Object.getOwnPropertyDescriptors(attributes.mixin)
-        ).filter(p => !Object.hasOwn(object, p[0]))
+        objectEntries(ObjectGetOwnPropertyDescriptors(attributes.mixin)).filter(
+          p => !ObjectHasOwn(object, p[0])
+        )
       )
     )
   }
-  return Object.freeze(object)
+  return ObjectFreeze(object)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -97,7 +108,7 @@ function defineLazyGetter(object, propKey, getter, stats) {
 /*@__NO_SIDE_EFFECTS__*/
 function defineLazyGetters(object, getterDefObj, stats) {
   if (getterDefObj !== null && typeof getterDefObj === 'object') {
-    const keys = Reflect.ownKeys(getterDefObj)
+    const keys = ReflectOwnKeys(getterDefObj)
     for (let i = 0, { length } = keys; i < length; i += 1) {
       const key = keys[i]
       defineLazyGetter(
@@ -115,7 +126,7 @@ function getOwnPropertyValues(obj) {
   if (obj === null || obj === undefined) {
     return []
   }
-  const keys = Object.getOwnPropertyNames(obj)
+  const keys = ObjectGetOwnPropertyNames(obj)
   const { length } = keys
   const values = Array(length)
   for (let i = 0; i < length; i += 1) {
@@ -130,7 +141,7 @@ function hasKeys(obj) {
     return false
   }
   for (const key in obj) {
-    if (Object.hasOwn(obj, key)) {
+    if (ObjectHasOwn(obj, key)) {
       return true
     }
   }
@@ -142,7 +153,7 @@ function hasOwn(obj, propKey) {
   if (obj === null || obj === undefined) {
     return false
   }
-  return Object.hasOwn(obj, propKey)
+  return ObjectHasOwn(obj, propKey)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -152,7 +163,7 @@ function isObject(value) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function isObjectObject(value) {
-  return value !== null && typeof value === 'object' && !Array.isArray(value)
+  return value !== null && typeof value === 'object' && !ArrayIsArray(value)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -160,7 +171,7 @@ function objectEntries(obj) {
   if (obj === null || obj === undefined) {
     return []
   }
-  const keys = Reflect.ownKeys(obj)
+  const keys = ReflectOwnKeys(obj)
   const { length } = keys
   const entries = Array(length)
   for (let i = 0; i < length; i += 1) {
@@ -184,8 +195,8 @@ function merge(target, source) {
       throw new Error('Detected infinite loop in object crawl of merge')
     }
     const { 0: currentTarget, 1: currentSource } = queue[pos++]
-    const isSourceArray = Array.isArray(currentSource)
-    if (Array.isArray(currentTarget)) {
+    const isSourceArray = ArrayIsArray(currentSource)
+    if (ArrayIsArray(currentTarget)) {
       if (isSourceArray) {
         const seen = new Set(currentTarget)
         for (let i = 0, { length } = currentSource; i < length; i += 1) {
@@ -201,13 +212,13 @@ function merge(target, source) {
     if (isSourceArray) {
       continue
     }
-    const keys = Reflect.ownKeys(currentSource)
+    const keys = ReflectOwnKeys(currentSource)
     for (let i = 0, { length } = keys; i < length; i += 1) {
       const key = keys[i]
       const srcVal = currentSource[key]
       const targetVal = currentTarget[key]
-      if (Array.isArray(srcVal)) {
-        if (Array.isArray(targetVal)) {
+      if (ArrayIsArray(srcVal)) {
+        if (ArrayIsArray(targetVal)) {
           const seen = new Set(targetVal)
           for (let i = 0, { length } = srcVal; i < length; i += 1) {
             const item = srcVal[i]
@@ -220,7 +231,7 @@ function merge(target, source) {
           currentTarget[key] = srcVal
         }
       } else if (isObject(srcVal)) {
-        if (isObject(targetVal) && !Array.isArray(targetVal)) {
+        if (isObject(targetVal) && !ArrayIsArray(targetVal)) {
           queue[queueLength++] = [targetVal, srcVal]
         } else {
           currentTarget[key] = srcVal
@@ -255,7 +266,7 @@ function toSortedObjectFromEntries(entries) {
     }
   }
   const { localeCompare } = /*@__PURE__*/ require('./sorts')
-  return Object.fromEntries([
+  return ObjectFromEntries([
     // The String constructor is safe to use with symbols.
     ...symbolEntries.sort((a, b) => localeCompare(String(a[0]), String(b[0]))),
     ...stringEntries.sort((a, b) => localeCompare(a[0], b[0]))

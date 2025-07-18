@@ -1,9 +1,9 @@
 'use strict'
 
-const { stripAnsi } = /*@__PURE__*/ require('./strings')
-
 const { isArray: ArrayIsArray } = Array
 const { hasOwn: ObjectHasOwn, keys: ObjectKeys } = Object
+
+const { stripAnsi } = /*@__PURE__*/ require('./strings')
 
 let _child_process
 /*@__NO_SIDE_EFFECTS__*/

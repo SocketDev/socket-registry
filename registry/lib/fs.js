@@ -1,10 +1,12 @@
 'use strict'
 
+const { freeze: ObjectFreeze } = Object
+
 const { getGlobMatcher } = /*@__PURE__*/ require('./globs')
 const { naturalCompare } = /*@__PURE__*/ require('./sorts')
 const { stripBom } = /*@__PURE__*/ require('./strings')
 
-const defaultRemoveOptions = Object.freeze({
+const defaultRemoveOptions = ObjectFreeze({
   __proto__: null,
   force: true,
   maxRetries: 3,
