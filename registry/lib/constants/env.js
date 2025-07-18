@@ -12,7 +12,9 @@ module.exports = ObjectFreeze({
   __proto__: null,
   // CI is always set to 'true' in a GitHub action.
   // https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables
-  CI: envAsBoolean(env.CI),
+  // Libraries like yocto-colors check for CI not by value but my existence,
+  // e.g. `'CI' in process.env`.
+  CI: ObjectHasOwn(env, 'CI'),
   // Flag set to enable debug logging.
   DEBUG,
   // Variable to set the debug log level
