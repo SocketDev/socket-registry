@@ -978,7 +978,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18.20.8"
+          "node": ">=18"
         },
         "interop": ["cjs", "esm"],
         "license": "MIT",
@@ -1847,7 +1847,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18.20.8"
+          "node": ">=18"
         },
         "interop": ["cjs", "esm"],
         "license": "MIT",
@@ -1861,7 +1861,7 @@
       {
         "categories": ["tuneup"],
         "engines": {
-          "node": ">=18.20.4"
+          "node": ">=18"
         },
         "interop": ["cjs"],
         "license": "MIT",
