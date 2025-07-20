@@ -43,7 +43,7 @@ function getProcess() {
 let _yoctocolors
 function getYoctocolors() {
   if (_yoctocolors === undefined) {
-    _yoctocolors = { ...require('yoctocolors-cjs') }
+    _yoctocolors = { .../*@__PURE__*/ require('yoctocolors-cjs') }
   }
   return _yoctocolors
 }
@@ -101,6 +101,10 @@ function stripVTControlCharacters(string) {
   return _stripVTControlCharacters(string)
 }
 
+function normalizeText(value) {
+  return typeof value === 'string' ? value.trimStart() : ''
+}
+
 class YoctoSpinner {
   #color
   #currentFrame = -1
@@ -123,7 +127,7 @@ class YoctoSpinner {
     const { frames } = spinner
     this.#frames = (frames?.length ?? 0) < 1 ? [''] : frames.map(f => f.trim())
     this.#interval = spinner.interval
-    this.#text = options.text ?? ''
+    this.#text = normalizeText(options.text)
     this.#stream = stream ?? process.stderr
     this.#color = options.color ?? 'cyan'
     this.#isInteractive = !!stream.isTTY && isProcessInteractive()
@@ -239,7 +243,7 @@ class YoctoSpinner {
   }
 
   set text(value) {
-    this.#text = value ?? ''
+    this.#text = normalizeText(value)
     this.#render()
   }
 
@@ -287,8 +291,9 @@ class YoctoSpinner {
   }
 
   start(text) {
-    if (text) {
-      this.#text = text
+    const normalized = normalizeText(text)
+    if (normalized) {
+      this.#text = normalized
     }
 
     if (this.isSpinning) {
