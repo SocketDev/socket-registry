@@ -9,6 +9,10 @@ const ciSpinner = {
   interval: 2147483647
 }
 
+function normalizeText(value) {
+  return typeof value === 'string' ? value.trimStart() : ''
+}
+
 let _Spinner
 let _defaultSpinner
 /*@__NO_SIDE_EFFECTS__*/
@@ -38,17 +42,17 @@ function Spinner(options) {
           extras = args
           text = ''
         }
-        const trimmed = text.trimStart()
         const { isSpinning: wasSpinning } = this
-        super[methodName](trimmed)
+        const normalized = normalizeText(text)
+        super[methodName](normalized)
         const {
           incLogCallCountSymbol,
           lastWasBlankSymbol,
           logger
         } = /*@__PURE__*/ require('./logger')
         if (methodName === 'stop') {
-          if (wasSpinning && trimmed) {
-            logger[lastWasBlankSymbol](isBlankString(trimmed))
+          if (wasSpinning && normalized) {
+            logger[lastWasBlankSymbol](isBlankString(normalized))
             logger[incLogCallCountSymbol]()
           }
         } else {
@@ -69,15 +73,6 @@ function Spinner(options) {
           this.start()
         }
         return this
-      }
-
-      get text() {
-        return super.text
-      }
-
-      set text(value) {
-        const trimmed = typeof value === 'string' ? value.trimStart() : ''
-        super.text = trimmed
       }
 
       debug(...args) {
@@ -124,18 +119,17 @@ function Spinner(options) {
         return this.#apply('stop', args)
       }
 
-      setText(text) {
-        const trimmed = typeof text === 'string' ? text.trimStart() : ''
-        this.text = trimmed
+      setText(value) {
+        this.text = normalizeText(value)
         return this
       }
 
       start(...args) {
         const text = args.at(0)
-        const trimmed = typeof text === 'string' ? text.trimStart() : ''
+        const normalized = normalizeText(text)
         // We clear this.text on start when `text` is falsy because yocto-spinner
         // would not clear it otherwise.
-        if (typeof text !== 'string' || !trimmed) {
+        if (!normalized) {
           this.setText('')
         }
         return this.#apply('start', args)
