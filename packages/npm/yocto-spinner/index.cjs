@@ -120,7 +120,8 @@ class YoctoSpinner {
     const opts = { __proto__: null, ...options }
     const spinner = opts.spinner ?? getDefaultSpinner()
     const stream = opts.stream ?? getProcess().stderr
-    this.#frames = spinner.frames
+    const { frames } = spinner
+    this.#frames = (frames?.length ?? 0) < 1 ? [''] : frames.map(f => f.trim())
     this.#interval = spinner.interval
     this.#text = options.text ?? ''
     this.#stream = stream ?? process.stderr
@@ -133,7 +134,6 @@ class YoctoSpinner {
     if (this.isSpinning) {
       this.stop()
     }
-
     // SIGINT: 128 + 2
     // SIGTERM: 128 + 15
     const exitCode = signal === 'SIGINT' ? 130 : signal === 'SIGTERM' ? 143 : 1
@@ -174,7 +174,7 @@ class YoctoSpinner {
     const colors = getYoctocolors()
     const applyColor = colors[this.#color] ?? colors.cyan
     const frame = this.#frames[this.#currentFrame]
-    let string = `${applyColor(frame)} ${this.#text}`
+    let string = `${frame ? `${applyColor(frame)} ` : ''}${this.#text}`
 
     if (string) {
       if (this.#indention.length) {
@@ -185,9 +185,12 @@ class YoctoSpinner {
       }
     }
 
-    this.clear()
-    this.#write(string)
-
+    if (this.#isInteractive) {
+      this.clear()
+    }
+    if (string) {
+      this.#write(string)
+    }
     if (this.#isInteractive) {
       this.#lines = this.#lineCount(string)
     }
@@ -247,7 +250,7 @@ class YoctoSpinner {
 
     this.#stream.cursorTo(0)
 
-    for (let index = 0; index < this.#lines; index++) {
+    for (let index = 0; index < this.#lines; index += 1) {
       if (index > 0) {
         this.#stream.moveCursor(0, -1)
       }
