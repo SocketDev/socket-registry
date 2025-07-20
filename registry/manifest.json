@@ -974,7 +974,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-unicode-supported@1.0.4",
+      "pkg:npm/%40socketregistry/is-unicode-supported@1.0.5",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -984,7 +984,7 @@
         "license": "MIT",
         "name": "@socketregistry/is-unicode-supported",
         "package": "is-unicode-supported",
-        "version": "1.0.4"
+        "version": "1.0.5"
       }
     ],
     [
@@ -1843,7 +1843,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/yocto-spinner@1.0.19",
+      "pkg:npm/%40socketregistry/yocto-spinner@1.0.20",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -1853,7 +1853,7 @@
         "license": "MIT",
         "name": "@socketregistry/yocto-spinner",
         "package": "yocto-spinner",
-        "version": "1.0.19"
+        "version": "1.0.20"
       }
     ],
     [
