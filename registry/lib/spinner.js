@@ -9,6 +9,15 @@ const ciSpinner = {
   interval: 2147483647
 }
 
+function desc(value) {
+  return {
+    __proto__: null,
+    configurable: true,
+    value,
+    writable: true
+  }
+}
+
 function normalizeText(value) {
   return typeof value === 'string' ? value.trimStart() : ''
 }
@@ -156,11 +165,12 @@ function Spinner(options) {
       }
     }
     // Add aliases.
-    _Spinner.prototype.error = _Spinner.prototype.fail
-    _Spinner.prototype.errorAndStop = _Spinner.prototype.failAndStop
-    _Spinner.prototype.warning = _Spinner.prototype.warn
-    _Spinner.prototype.warningAndStop = _Spinner.prototype.warnAndStop
-
+    Object.defineProperties(_Spinner.prototype, {
+      error: desc(_Spinner.prototype.fail),
+      errorAndStop: desc(_Spinner.prototype.failAndStop),
+      warning: desc(_Spinner.prototype.warn),
+      warningAndStop: desc(_Spinner.prototype.warnAndStop)
+    })
     _defaultSpinner = ENV.CI ? ciSpinner : undefined
   }
   return new _Spinner({
