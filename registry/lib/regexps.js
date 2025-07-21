@@ -1,6 +1,6 @@
 'use strict'
 
-// Inlined "escape-string-regexp":
+// Inlined escape-string-regexp:
 // https://socket.dev/npm/package/escape-string-regexp/overview/5.0.0
 // MIT License
 // Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
