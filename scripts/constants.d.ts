@@ -29,7 +29,7 @@ declare const Constants: Remap<
     readonly relNpmPackagesPath: string
     readonly relPackagesPath: string
     readonly relRegistryManifestJsonPath: string
-    readonly relRegistryPkgPath: String
+    readonly relRegistryPkgPath: string
     readonly relTestNpmPath: string
     readonly relTestNpmNodesPath: string
     readonly rootEslintConfigPath: string

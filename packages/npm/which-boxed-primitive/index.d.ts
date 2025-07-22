@@ -1,8 +1,8 @@
-declare function whichBoxedPrimitive(value: BigInt): 'BigInt'
-declare function whichBoxedPrimitive(value: Boolean): 'Boolean'
-declare function whichBoxedPrimitive(value: Number): 'Number'
-declare function whichBoxedPrimitive(value: String): 'String'
-declare function whichBoxedPrimitive(value: Symbol): 'Symbol'
+declare function whichBoxedPrimitive(value: bigint): 'BigInt'
+declare function whichBoxedPrimitive(value: boolean): 'Boolean'
+declare function whichBoxedPrimitive(value: number): 'Number'
+declare function whichBoxedPrimitive(value: string): 'String'
+declare function whichBoxedPrimitive(value: symbol): 'Symbol'
 declare function whichBoxedPrimitive(
   value: bigint | boolean | null | number | string | symbol | undefined
 ): null

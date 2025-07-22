@@ -1,8 +1,8 @@
-declare function unboxPrimitive(value: BigInt): bigint
-declare function unboxPrimitive(value: Boolean): boolean
-declare function unboxPrimitive(value: Number): number
-declare function unboxPrimitive(value: String): string
-declare function unboxPrimitive(value: Symbol): symbol
+declare function unboxPrimitive(value: bigint): bigint
+declare function unboxPrimitive(value: boolean): boolean
+declare function unboxPrimitive(value: number): number
+declare function unboxPrimitive(value: string): string
+declare function unboxPrimitive(value: symbol): symbol
 declare function unboxPrimitive(
   value:
     | bigint
