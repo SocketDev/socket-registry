@@ -749,7 +749,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-bigint@1.0.9",
+      "pkg:npm/%40socketregistry/is-bigint@1.0.10",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -759,11 +759,11 @@
         "license": "MIT",
         "name": "@socketregistry/is-bigint",
         "package": "is-bigint",
-        "version": "1.0.9"
+        "version": "1.0.10"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-boolean-object@1.0.9",
+      "pkg:npm/%40socketregistry/is-boolean-object@1.0.10",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -773,7 +773,7 @@
         "license": "MIT",
         "name": "@socketregistry/is-boolean-object",
         "package": "is-boolean-object",
-        "version": "1.0.9"
+        "version": "1.0.10"
       }
     ],
     [
@@ -875,7 +875,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-number-object@1.0.8",
+      "pkg:npm/%40socketregistry/is-number-object@1.0.9",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -885,7 +885,7 @@
         "license": "MIT",
         "name": "@socketregistry/is-number-object",
         "package": "is-number-object",
-        "version": "1.0.8"
+        "version": "1.0.9"
       }
     ],
     [
@@ -932,7 +932,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-string@1.0.9",
+      "pkg:npm/%40socketregistry/is-string@1.0.10",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -942,11 +942,11 @@
         "license": "MIT",
         "name": "@socketregistry/is-string",
         "package": "is-string",
-        "version": "1.0.9"
+        "version": "1.0.10"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-symbol@1.0.9",
+      "pkg:npm/%40socketregistry/is-symbol@1.0.10",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -956,7 +956,7 @@
         "license": "MIT",
         "name": "@socketregistry/is-symbol",
         "package": "is-symbol",
-        "version": "1.0.9"
+        "version": "1.0.10"
       }
     ],
     [
@@ -1773,7 +1773,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/unbox-primitive@1.0.7",
+      "pkg:npm/%40socketregistry/unbox-primitive@1.0.8",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -1783,7 +1783,7 @@
         "license": "MIT",
         "name": "@socketregistry/unbox-primitive",
         "package": "unbox-primitive",
-        "version": "1.0.7"
+        "version": "1.0.8"
       }
     ],
     [
@@ -1801,7 +1801,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/which-boxed-primitive@1.0.7",
+      "pkg:npm/%40socketregistry/which-boxed-primitive@1.0.8",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -1811,7 +1811,7 @@
         "license": "MIT",
         "name": "@socketregistry/which-boxed-primitive",
         "package": "which-boxed-primitive",
-        "version": "1.0.7"
+        "version": "1.0.8"
       }
     ],
     [
