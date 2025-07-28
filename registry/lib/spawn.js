@@ -120,19 +120,26 @@ function spawn(cmd, args, options, extra) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function spawnSync(cmd, args, options) {
-  const { stripAnsi: shouldStripAnsi = true, ...spawnOptions } = {
+  const { stripAnsi: shouldStripAnsi = true, ...rawSpawnOptions } = {
     __proto__: null,
     ...options
   }
-  const { stdioString = true } = spawnOptions
-  const encoding = stdioString ? 'utf8' : 'buffer'
-  const result = getChildProcess().spawnSync(cmd, args, {
-    encoding,
-    ...spawnOptions
-  })
+  const { stdioString: rawStdioString = true } = spawnOptions
+  const rawEncoding = rawStdioString ? 'utf8' : 'buffer'
+  const spawnOptions = {
+    encoding: rawEncoding,
+    ...rawSpawnOptions
+  }
+  const stdioString = spawnOptions.encoding !== 'buffer'
+  const result = getChildProcess().spawnSync(cmd, args, spawnOptions)
   if (stdioString) {
-    result.stdout = result.stdout.toString().trim()
-    result.stderr = result.stderr.toString().trim()
+    const { stderr, stdout } = result
+    if (stdout) {
+      result.stdout = stdout.toString().trim()
+    }
+    if (stderr) {
+      result.stderr = stderr.toString().trim()
+    }
   }
   return shouldStripAnsi && stdioString
     ? stripAnsiFromSpawnResult(result)
