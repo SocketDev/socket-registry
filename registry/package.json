@@ -629,6 +629,7 @@
     "@socketregistry/is-unicode-supported": "1.0.5",
     "@socketregistry/packageurl-js": "1.0.8",
     "@socketregistry/yocto-spinner": "1.0.20",
+    "@types/node": "24.1.0",
     "@types/pacote": "11.1.8",
     "@yarnpkg/extensions": "2.0.6",
     "ansi-regex": "6.1.0",

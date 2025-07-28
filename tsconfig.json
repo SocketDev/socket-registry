@@ -19,6 +19,7 @@
     "strict": true,
     "strictNullChecks": true,
     "target": "esnext",
+    "types": ["node"],
     "useUnknownInCatchVariables": true,
 
     /* New checks being tried out */
