@@ -124,7 +124,7 @@ function spawnSync(cmd, args, options) {
     __proto__: null,
     ...options
   }
-  const { stdioString: rawStdioString = true } = spawnOptions
+  const { stdioString: rawStdioString = true } = rawSpawnOptions
   const rawEncoding = rawStdioString ? 'utf8' : 'buffer'
   const spawnOptions = {
     encoding: rawEncoding,
