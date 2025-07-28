@@ -235,7 +235,8 @@ function configs(sourceType) {
           ...js.configs.recommended.languageOptions?.globals,
           ...importFlatConfigs.recommended.languageOptions?.globals,
           ...nodePluginConfigs.languageOptions?.globals,
-          ...nodeGlobalsConfig
+          ...nodeGlobalsConfig,
+          NodeJS: false
         },
         sourceType: isEsm ? 'module' : 'script'
       },

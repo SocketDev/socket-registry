@@ -2,8 +2,7 @@
 import {
   SpawnOptions as BaseSpawnOptions,
   ChildProcess,
-  IOType,
-  spawnSync as childProcessSpawnSync
+  IOType
 } from 'node:child_process'
 import Stream from 'node:stream'
 
@@ -54,6 +53,22 @@ declare type SpawnOptions = Remap<
     stripAnsi?: boolean | undefined
   }
 >
+declare type SpawnSyncOptions = Omit<SpawnOptions, 'spinner'>
+declare interface SpawnSyncOptionsWithStringEncoding extends SpawnSyncOptions {
+  encoding: NodeJS.BufferEncoding
+}
+declare interface SpawnSyncOptionsWithBufferEncoding extends SpawnSyncOptions {
+  encoding?: 'buffer' | null | undefined
+}
+declare interface SpawnSyncReturns<T> {
+  pid: number
+  output: Array<T | null>
+  stdout: T
+  stderr: T
+  status: number | null
+  signal: NodeJS.Signals | null
+  error?: Error | undefined
+}
 declare type StdioType = IOType | 'ipc' | Array<IOType | 'ipc'>
 declare const Spawn: {
   isSpawnError(value: any): value is SpawnError
@@ -70,7 +85,35 @@ declare const Spawn: {
     O extends { stdioString: false } ? Buffer : string,
     typeof extra
   >
-  spawnSync: typeof childProcessSpawnSync
+  spawnSync(command: string): SpawnSyncReturns<Buffer>
+  spawnSync(
+    command: string,
+    options: SpawnSyncOptionsWithStringEncoding
+  ): SpawnSyncReturns<string>
+  spawnSync(
+    command: string,
+    options: SpawnSyncOptionsWithBufferEncoding
+  ): SpawnSyncReturns<Buffer>
+  spawnSync(
+    command: string,
+    options?: SpawnSyncOptions
+  ): SpawnSyncReturns<string | Buffer>
+  spawnSync(command: string, args: readonly string[]): SpawnSyncReturns<Buffer>
+  spawnSync(
+    command: string,
+    args: readonly string[],
+    options: SpawnSyncOptionsWithStringEncoding
+  ): SpawnSyncReturns<string>
+  spawnSync(
+    command: string,
+    args: readonly string[],
+    options: SpawnSyncOptionsWithBufferEncoding
+  ): SpawnSyncReturns<Buffer>
+  spawnSync(
+    command: string,
+    args?: readonly string[],
+    options?: SpawnSyncOptions
+  ): SpawnSyncReturns<string | Buffer>
 }
 declare namespace Spawn {
   export {
