@@ -28,6 +28,12 @@ module.exports = ObjectFreeze({
     envAsString(env.NODE_ENV).toLowerCase() === 'development'
       ? 'development'
       : 'production',
+  // A space-separated list of command-line options. `options...` are interpreted
+  // before command-line options, so command-line options will override or compound
+  // after anything in `options...`. Node.js will exit with an error if an option
+  // that is not allowed in the environment is used, such as `-p` or a script file.
+  // https://nodejs.org/api/cli.html#node_optionsoptions
+  NODE_OPTIONS: envAsString(env.NODE_OPTIONS),
   // PRE_COMMIT is set to '1' by our 'test-pre-commit' script run by the
   // .husky/pre-commit hook.
   PRE_COMMIT: envAsBoolean(env.PRE_COMMIT),
