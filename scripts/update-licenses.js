@@ -3,18 +3,23 @@
 const fs = require('node:fs/promises')
 
 const constants = require('@socketregistry/scripts/constants')
-const { globLicenses } = require('@socketsecurity/registry/lib/globs')
+const { globStreamLicenses } = require('@socketsecurity/registry/lib/globs')
+const { transform } = require('@socketsecurity/registry/lib/streams')
 
 const { LICENSE, LICENSE_CONTENT, UTF8, ignoreGlobs, rootPath } = constants
 
 void (async () => {
-  await Promise.all(
-    (
-      await globLicenses(rootPath, {
-        recursive: true,
-        ignoreOriginals: true,
-        ignore: [LICENSE, 'scripts/templates', ...ignoreGlobs]
-      })
-    ).map(licensePath => fs.writeFile(licensePath, LICENSE_CONTENT, UTF8))
-  )
+  const stream = await globStreamLicenses(rootPath, {
+    recursive: true,
+    ignoreOriginals: true,
+    ignore: [LICENSE, 'scripts/templates', ...ignoreGlobs]
+  })
+
+  for await (const licensePath of transform(
+    8, // Concurrency level.
+    async filepath => filepath,
+    stream
+  )) {
+    fs.writeFile(licensePath, LICENSE_CONTENT, UTF8)
+  }
 })()
