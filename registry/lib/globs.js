@@ -48,7 +48,6 @@ async function globStreamLicenses(dirname, options) {
       absolute: true,
       caseSensitiveMatch: false,
       cwd: dirname,
-      expandDirectories: recursive,
       ...globOptions,
       ...(ignore ? { ignore } : {})
     }
