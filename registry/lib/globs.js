@@ -10,17 +10,17 @@ function getPicomatch() {
   return _picomatch
 }
 
-let _tinyGlobby
+let _fastGlob
 /*@__NO_SIDE_EFFECTS__*/
-function getTinyGlobby() {
-  if (_tinyGlobby === undefined) {
-    _tinyGlobby = /*@__PURE__*/ require('../external/tinyglobby')
+function getFastGlob() {
+  if (_fastGlob === undefined) {
+    _fastGlob = /*@__PURE__*/ require('../external/fast-glob')
   }
-  return _tinyGlobby
+  return _fastGlob
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-async function globLicenses(dirname, options) {
+async function globStreamLicenses(dirname, options) {
   const {
     ignore: ignoreOpt,
     ignoreOriginals,
@@ -36,8 +36,8 @@ async function globLicenses(dirname, options) {
       /*@__PURE__*/ require('./constants/license-original-glob-recursive')
     )
   }
-  const tinyGlobby = getTinyGlobby()
-  return await tinyGlobby.glob(
+  const fastGlob = getFastGlob()
+  return fastGlob.globStream(
     [
       recursive
         ? /*@__PURE__*/ require('./constants/license-glob-recursive')
@@ -76,5 +76,5 @@ function getGlobMatcher(glob, options) {
 
 module.exports = {
   getGlobMatcher,
-  globLicenses
+  globStreamLicenses
 }
