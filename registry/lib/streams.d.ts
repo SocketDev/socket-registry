@@ -1,9 +1,13 @@
-declare type AnyIterable<T> = Iterable<T> | AsyncIterable<T>
+/// <reference types="node" />
+declare type AnyIterable<T> =
+  | Iterable<T>
+  | AsyncIterable<T>
+  | NodeJS.ReadableStream
 declare const Streams: {
   parallelForEach<T>(
     concurrency: number,
     func: (data: T) => Promise<void>,
-    iterable: AsyncIterable<T>
+    iterable: AnyIterable<T>
   ): Promise<void>
   parallelMap<T, R>(
     concurrency: number
