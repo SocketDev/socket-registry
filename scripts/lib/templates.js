@@ -10,7 +10,7 @@ const { PackageURL } = require('@socketregistry/packageurl-js')
 const constants = require('@socketregistry/scripts/constants')
 const { getManifestData } = require('@socketsecurity/registry')
 const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
-const { globLicenses } = require('@socketsecurity/registry/lib/globs')
+const { globStreamLicenses } = require('@socketsecurity/registry/lib/globs')
 const { isObjectObject } = require('@socketsecurity/registry/lib/objects')
 const {
   readPackageJson,
@@ -72,7 +72,9 @@ async function getLicenseActions(pkgPath) {
     license: LICENSE_CONTENT
   }
   const actions = []
-  for (const filepath of await globLicenses(pkgPath, { recursive: true })) {
+  for (const filepath of await globStreamLicenses(pkgPath, {
+    recursive: true
+  })) {
     actions.push([filepath, licenseData])
   }
   return actions
