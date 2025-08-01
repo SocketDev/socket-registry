@@ -15,7 +15,7 @@ const nodePlugin = require('eslint-plugin-n')
 const sortDestructureKeysPlugin = require('eslint-plugin-sort-destructure-keys')
 const unicornPlugin = require('eslint-plugin-unicorn')
 const globals = require('globals')
-const { globSync } = require('tinyglobby')
+const { globSync } = require('fast-glob')
 const tsEslint = require('typescript-eslint')
 
 const constants = require('@socketregistry/scripts/constants')

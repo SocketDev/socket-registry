@@ -7,7 +7,7 @@ const util = require('node:util')
 const { ReturnTypeEnums, default: didYouMean } = require('didyoumean2')
 const { open } = require('out-url')
 const semver = require('semver')
-const { glob: tinyGlob } = require('tinyglobby')
+const { glob } = require('fast-glob')
 
 const constants = require('@socketregistry/scripts/constants')
 const {
@@ -181,7 +181,7 @@ void (async () => {
   let relJsFilepaths
   await extractPackage(origPkgName, async nmPkgPath => {
     nmPkgJson = await readPackageJson(nmPkgPath, { normalize: true })
-    relJsFilepaths = await tinyGlob(['*.js'], {
+    relJsFilepaths = await glob(['*.js'], {
       ignore: ['**/package.json'],
       cwd: nmPkgPath
     })

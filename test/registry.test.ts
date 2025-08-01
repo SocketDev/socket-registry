@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 
-import { glob as tinyGlob } from 'tinyglobby'
+import { glob } from 'fast-glob'
 
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
@@ -21,7 +21,7 @@ describe(
   () => {
     it('should not trigger lazy getter on module initialization', async () => {
       const jsFilepaths = (
-        await tinyGlob(['index.js', 'external/**/*.js', 'lib/**/*.js'], {
+        await glob(['index.js', 'external/**/*.js', 'lib/**/*.js'], {
           absolute: true,
           cwd: rootRegistryPath
         })

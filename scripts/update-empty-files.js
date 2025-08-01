@@ -4,7 +4,7 @@ const fs = require('node:fs/promises')
 const path = require('node:path')
 const util = require('node:util')
 
-const { glob: tinyGlob } = require('tinyglobby')
+const { glob } = require('fast-glob')
 
 const constants = require('@socketregistry/scripts/constants')
 const { getModifiedFiles } = require('@socketregistry/scripts/lib/git')
@@ -23,7 +23,7 @@ void (async () => {
   if (!cliArgs.force && !modifiedAutoFile) {
     return
   }
-  const autoFiles = await tinyGlob([AUTO_FILE_GLOB_RECURSIVE], {
+  const autoFiles = await glob([AUTO_FILE_GLOB_RECURSIVE], {
     ignore: ignoreGlobs,
     absolute: true,
     cwd: npmTemplatesPath
@@ -44,7 +44,7 @@ void (async () => {
   )
   await Promise.all(
     (
-      await tinyGlob(['**/*.{d.ts,js}'], {
+      await glob(['**/*.{d.ts,js}'], {
         ignore: [AUTO_FILE_GLOB_RECURSIVE, ...ignoreGlobs],
         absolute: true,
         cwd: rootPath

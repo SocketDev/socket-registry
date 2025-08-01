@@ -2,7 +2,7 @@
 
 const path = require('node:path')
 
-const { glob: tinyGlob } = require('tinyglobby')
+const { glob } = require('fast-glob')
 
 const constants = require('@socketregistry/scripts/constants')
 const { logger } = require('@socketsecurity/registry/lib/logger')
@@ -33,7 +33,7 @@ void (async () => {
       )
       if (isSubpathExports(entryExports)) {
         const fullName = `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`
-        const availableFiles = await tinyGlob(
+        const availableFiles = await glob(
           ['**/*.{[cm],}js', '**/*.d.{[cm],}ts', '**/*.json'],
           {
             ignore: ['**/overrides/*', '**/shared.{js,d.ts}'],

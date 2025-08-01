@@ -1,6 +1,6 @@
 'use strict'
 
-const { glob: tinyGlob } = require('tinyglobby')
+const { glob } = require('fast-glob')
 
 const {
   NODE_MODULES_GLOB_RECURSIVE,
@@ -10,7 +10,7 @@ const { isDirEmptySync, remove } = require('@socketsecurity/registry/lib/fs')
 
 void (async () => {
   const dirPaths = (
-    await tinyGlob(['**/'], {
+    await glob(['**/'], {
       ignore: [NODE_MODULES_GLOB_RECURSIVE],
       absolute: true,
       cwd: rootPath,

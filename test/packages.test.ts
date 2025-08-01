@@ -7,8 +7,8 @@ import { describe, it } from 'node:test'
 import util from 'node:util'
 
 import { fix } from '@npmcli/package-json'
+import { glob } from 'fast-glob'
 import semver from 'semver'
-import { glob as tinyGlob } from 'tinyglobby'
 
 import constants from '@socketregistry/scripts/constants'
 import {
@@ -137,7 +137,7 @@ for (const eco of constants.ecosystems) {
           | undefined
 
         const files = (
-          await tinyGlob(['**/*'], {
+          await glob(['**/*'], {
             cwd: pkgPath,
             dot: true
           })
@@ -322,7 +322,7 @@ for (const eco of constants.ecosystems) {
           ? filesPatterns
           : []
         const filesFieldMatches = (
-          await tinyGlob(
+          await glob(
             [
               // Certain files are always included, regardless of settings:
               // https://docs.npmjs.com/cli/v10/configuring-npm/package-json#files
@@ -342,7 +342,7 @@ for (const eco of constants.ecosystems) {
 
         const dotFilePatterns = filesPatternsAsArray.filter(isDotPattern)
         const dotFileMatches = new Set(
-          await tinyGlob(dotFilePatterns, {
+          await glob(dotFilePatterns, {
             cwd: pkgPath,
             dot: true
           })
