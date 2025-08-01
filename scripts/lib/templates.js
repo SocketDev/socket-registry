@@ -72,7 +72,7 @@ async function getLicenseActions(pkgPath) {
     license: LICENSE_CONTENT
   }
   const actions = []
-  for (const filepath of await globStreamLicenses(pkgPath, {
+  for await (const filepath of globStreamLicenses(pkgPath, {
     recursive: true
   })) {
     actions.push([filepath, licenseData])
