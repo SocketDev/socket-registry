@@ -7,7 +7,7 @@ const util = require('node:util')
 const { ensureSymlink, move, outputFile } = require('fs-extra')
 const npmPackageArg = require('npm-package-arg')
 const semver = require('semver')
-const { glob: tinyGlob } = require('tinyglobby')
+const { glob } = require('fast-glob')
 
 const constants = require('@socketregistry/scripts/constants')
 const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
@@ -108,7 +108,7 @@ async function installTestNpmNodeModules(options) {
     ...(clean ? [remove(testNpmNodeModulesPath)] : []),
     ...(clean === 'deep'
       ? (
-          await tinyGlob([NODE_MODULES_GLOB_RECURSIVE], {
+          await glob([NODE_MODULES_GLOB_RECURSIVE], {
             absolute: true,
             cwd: testNpmNodeWorkspacesPath,
             onlyDirectories: true
@@ -304,7 +304,7 @@ async function resolveDevDependencies(packageNames, options) {
           // Search for the presence of test files anywhere in the package.
           // The glob pattern ".{[cm],}[jt]s" matches .js, .cjs, .cts, .mjs, .mts, .ts file extensions.
           (
-            await tinyGlob(
+            await glob(
               [
                 'test{s,}/*',
                 '**/test{s,}{.{[cm],}[jt]s,}',
@@ -523,7 +523,7 @@ async function linkPackages(packageNames, options) {
       spinner?.warn(`${origPkgName}: Module type mismatch`)
     }
     const actions = new Map()
-    for (const jsFile of await tinyGlob(['**/*.{cjs,js,json}'], {
+    for (const jsFile of await glob(['**/*.{cjs,js,json}'], {
       ignore: ['**/node_modules', '**/package.json'],
       cwd: pkgPath
     })) {
@@ -589,7 +589,7 @@ async function cleanupNodeWorkspaces(linkedPackageNames, options) {
     // Remove unnecessary directories/files.
     await Promise.all(
       (
-        await tinyGlob(
+        await glob(
           [
             '**/.editorconfig',
             '**/.eslintignore',

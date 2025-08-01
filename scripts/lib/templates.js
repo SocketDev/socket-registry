@@ -4,7 +4,7 @@ const { promises: fs } = require('node:fs')
 const path = require('node:path')
 
 const semver = require('semver')
-const tinyglobby = require('tinyglobby')
+const { glob } = require('fast-glob')
 
 const { PackageURL } = require('@socketregistry/packageurl-js')
 const constants = require('@socketregistry/scripts/constants')
@@ -152,7 +152,7 @@ async function getPackageJsonAction(pkgPath, options) {
 async function getTypeScriptActions(pkgPath, options) {
   const { references, transform } = { __proto__: null, ...options }
   const doTransform = typeof transform === 'function'
-  const filepaths = await tinyglobby.glob(['**/*.{[cm],}ts'], {
+  const filepaths = await glob(['**/*.{[cm],}ts'], {
     absolute: true,
     cwd: pkgPath
   })

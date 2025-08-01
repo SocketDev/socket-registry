@@ -2,7 +2,7 @@
 
 const path = require('node:path')
 
-const { glob: tinyGlob } = require('tinyglobby')
+const { glob } = require('fast-glob')
 
 const builtinNames = require('@socketregistry/packageurl-js/data/npm/builtin-names.json')
 const constants = require('@socketregistry/scripts/constants')
@@ -25,7 +25,7 @@ void (async () => {
     browser[builtinName] = false
   }
 
-  const registryPkgFiles = await tinyGlob(['**/*.{cjs,js,json,d.ts}'], {
+  const registryPkgFiles = await glob(['**/*.{cjs,js,json,d.ts}'], {
     // Lazily access constants.registryPkgPath.
     cwd: constants.registryPkgPath,
     ignore: [
