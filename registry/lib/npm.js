@@ -216,8 +216,8 @@ function resolveBinPathSync(binPath) {
     }
 
     let relPath = ''
-    const source = fs.readFileSync(binPath, 'utf8')
     if (hasKnownExt) {
+      const source = fs.readFileSync(binPath, 'utf8')
       if (isNpmOrNpx) {
         if (extLowered === '.cmd') {
           // "npm.cmd" and "npx.cmd" defined by
