@@ -4,7 +4,7 @@ const fs = require('node:fs/promises')
 
 const constants = require('@socketregistry/scripts/constants')
 const { globStreamLicenses } = require('@socketsecurity/registry/lib/globs')
-const { transform } = require('@socketsecurity/registry/lib/streams')
+const { parallelForEach } = require('@socketsecurity/registry/lib/streams')
 
 const { LICENSE, LICENSE_CONTENT, UTF8, ignoreGlobs, rootPath } = constants
 
@@ -14,12 +14,9 @@ void (async () => {
     ignoreOriginals: true,
     ignore: [LICENSE, 'scripts/templates', ...ignoreGlobs]
   })
-
-  for await (const licensePath of transform(
+  await parallelForEach(
     8, // Concurrency level.
-    async filepath => filepath,
+    licensePath => fs.writeFile(licensePath, LICENSE_CONTENT, UTF8),
     stream
-  )) {
-    fs.writeFile(licensePath, LICENSE_CONTENT, UTF8)
-  }
+  )
 })()

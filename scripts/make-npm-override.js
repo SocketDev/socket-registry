@@ -23,7 +23,7 @@ const { globStreamLicenses } = require('@socketsecurity/registry/lib/globs')
 const { LOG_SYMBOLS, logger } = require('@socketsecurity/registry/lib/logger')
 const { runNpmScript } = require('@socketsecurity/registry/lib/npm')
 const { isObject } = require('@socketsecurity/registry/lib/objects')
-const { parallelMap } = require('@socketsecurity/registry/lib/streams')
+const { transform } = require('@socketsecurity/registry/lib/streams')
 const {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
@@ -130,7 +130,7 @@ function getCompatData(props) {
 async function readLicenses(dirname) {
   const stream = await globStreamLicenses(dirname)
   const results = []
-  for await (const license of parallelMap(
+  for await (const license of transform(
     8, // Concurrency level.
     async filepath => ({
       name: path.basename(filepath),
