@@ -19,10 +19,11 @@ const {
   writeAction
 } = require('@socketregistry/scripts/lib/templates')
 const { isDirEmptySync } = require('@socketsecurity/registry/lib/fs')
-const { globLicenses } = require('@socketsecurity/registry/lib/globs')
+const { globStreamLicenses } = require('@socketsecurity/registry/lib/globs')
 const { LOG_SYMBOLS, logger } = require('@socketsecurity/registry/lib/logger')
 const { runNpmScript } = require('@socketsecurity/registry/lib/npm')
 const { isObject } = require('@socketsecurity/registry/lib/objects')
+const { parallelMap } = require('@socketsecurity/registry/lib/streams')
 const {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
@@ -127,12 +128,19 @@ function getCompatData(props) {
 }
 
 async function readLicenses(dirname) {
-  return await Promise.all(
-    (await globLicenses(dirname)).map(async p => ({
-      name: path.basename(p),
-      content: await fs.readFile(p, UTF8)
-    }))
-  )
+  const stream = await globStreamLicenses(dirname)
+  const results = []
+  for await (const license of parallelMap(
+    8, // Concurrency level.
+    async filepath => ({
+      name: path.basename(filepath),
+      content: await fs.readFile(filepath, UTF8)
+    }),
+    stream
+  )) {
+    results.push(license)
+  }
+  return results
 }
 
 function toChoice(value) {

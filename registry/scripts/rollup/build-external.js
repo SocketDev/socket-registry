@@ -3,7 +3,7 @@
 const path = require('node:path')
 
 const { rollup } = require('rollup')
-const { glob: tinyGlob } = require('tinyglobby')
+const { glob } = require('fast-glob')
 
 const scriptsPath = path.join(__dirname, '..')
 const rootPath = path.join(scriptsPath, '..')
@@ -13,7 +13,7 @@ const srcExternalPath = path.join(srcPath, 'external')
 
 const getConfig = require(path.join(configPath, 'rollup.base.config.js'))
 ;(async () => {
-  const filepaths = await tinyGlob(['**/*.js'], {
+  const filepaths = await glob(['**/*.js'], {
     absolute: true,
     cwd: srcExternalPath
   })
