@@ -18,7 +18,6 @@ import EXTENSIONS_JSON from './extensions-json'
 import getIpc from './get-ipc'
 import GITIGNORE from './gitignore'
 import HIDDEN_PACKAGE_LOCK_JSON from './hidden-package-lock-json'
-import ignoreGlobs from './ignore-globs'
 import IPC from './ipc'
 import kInternalsSymbol from './k-internals-symbol'
 import LATEST from './latest'
@@ -196,7 +195,6 @@ declare const Constants: {
   readonly abortSignal: typeof abortSignal
   readonly copyLeftLicenses: typeof copyLeftLicenses
   readonly execPath: typeof execPath
-  readonly ignoreGlobs: typeof ignoreGlobs
   readonly kInternalsSymbol: typeof kInternalsSymbol
   readonly lifecycleScriptNames: typeof lifecycleScriptNames
   readonly maintainedNodeVersions: typeof maintainedNodeVersions

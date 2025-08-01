@@ -6,6 +6,46 @@ const { getGlobMatcher } = /*@__PURE__*/ require('./globs')
 const { naturalCompare } = /*@__PURE__*/ require('./sorts')
 const { stripBom } = /*@__PURE__*/ require('./strings')
 
+const defaultIgnore = ObjectFreeze([
+  // Most of these ignored files can be included specifically if included in the
+  // files globs. Exceptions to this are:
+  // https://docs.npmjs.com/cli/v10/configuring-npm/package-json#files
+  // These can NOT be included.
+  // https://github.com/npm/npm-packlist/blob/v10.0.0/lib/index.js#L280
+  '**/.git',
+  '**/.npmrc',
+  // '**/bun.lockb?',
+  // '**/node_modules',
+  // '**/package-lock.json',
+  // '**/pnpm-lock.ya?ml',
+  // '**/yarn.lock',
+  // Include npm-packlist defaults:
+  // https://github.com/npm/npm-packlist/blob/v10.0.0/lib/index.js#L15-L38
+  '**/.DS_Store',
+  '**/.gitignore',
+  '**/.hg',
+  '**/.lock-wscript',
+  '**/.npmignore',
+  '**/.svn',
+  '**/.wafpickle-*',
+  '**/.*.swp',
+  '**/._*/**',
+  '**/archived-packages/**',
+  '**/build/config.gypi',
+  '**/CVS',
+  '**/npm-debug.log',
+  '**/*.orig',
+  // Inline generic .gitignore entries from the socket-registry repository root.
+  '**/.env',
+  '**/.eslintcache',
+  '**/.nvm',
+  '**/.tap',
+  '**/.tapci.yaml',
+  '**/.vscode',
+  '**/*.tsbuildinfo',
+  '**/Thumbs.db'
+])
+
 const defaultRemoveOptions = ObjectFreeze({
   __proto__: null,
   force: true,
@@ -38,25 +78,26 @@ function getPath() {
 
 /*@__NO_SIDE_EFFECTS__*/
 function innerReadDirNames(dirents, options) {
-  const { includeEmpty, sort } = {
-    __proto__: null,
-    sort: true,
-    includeEmpty: false,
-    ...options
-  }
+  const {
+    ignore,
+    includeEmpty = false,
+    sort = true
+  } = { __proto__: null, ...options }
   const path = getPath()
   const names = dirents
     .filter(
       d =>
         d.isDirectory() &&
-        (includeEmpty || !isDirEmptySync(path.join(d.parentPath, d.name)))
+        (includeEmpty ||
+          !isDirEmptySync(path.join(d.parentPath, d.name), { ignore }))
     )
     .map(d => d.name)
   return sort ? names.sort(naturalCompare) : names
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function isDirEmptySync(dirname) {
+function isDirEmptySync(dirname, options) {
+  const { ignore = defaultIgnore } = { __proto__: null, ...options }
   const fs = getFs()
   try {
     const files = fs.readdirSync(dirname)
@@ -64,10 +105,7 @@ function isDirEmptySync(dirname) {
     if (length === 0) {
       return true
     }
-    const matcher = getGlobMatcher(
-      /*@__PURE__*/ require('./constants/ignore-globs'),
-      { cwd: dirname }
-    )
+    const matcher = getGlobMatcher(ignore, { cwd: dirname })
     let ignoredCount = 0
     for (let i = 0; i < length; i += 1) {
       if (matcher(files[i])) {
