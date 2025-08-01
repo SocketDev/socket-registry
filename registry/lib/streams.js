@@ -1,5 +1,7 @@
 'use strict'
 
+const { apply: ReflectApply } = Reflect
+
 let _streamingIterables
 /*@__NO_SIDE_EFFECTS__*/
 function getStreamingIterables() {
@@ -10,11 +12,26 @@ function getStreamingIterables() {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function parallelMap(concurrency, func) {
+async function parallelForEach(concurrency, func, iterable) {
+  for await (const _ of parallelMap(concurrency, func, iterable)) {
+    /* empty block */
+  }
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function parallelMap(...args) {
   const streamingIterables = getStreamingIterables()
-  return streamingIterables.parallelMap(concurrency, func)
+  return ReflectApply(streamingIterables.parallelMap, undefined, args)
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function transform(...args) {
+  const streamingIterables = getStreamingIterables()
+  return ReflectApply(streamingIterables.transform, undefined, args)
 }
 
 module.exports = {
-  parallelMap
+  parallelForEach,
+  parallelMap,
+  transform
 }
