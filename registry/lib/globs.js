@@ -20,7 +20,7 @@ function getFastGlob() {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-async function globStreamLicenses(dirname, options) {
+function globStreamLicenses(dirname, options) {
   const {
     ignore: ignoreOpt,
     ignoreOriginals,

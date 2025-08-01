@@ -1,1 +1,1 @@
-export { parallelMap } from 'streaming-iterables'
+export { parallelMap, transform } from 'streaming-iterables'

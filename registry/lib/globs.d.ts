@@ -151,7 +151,7 @@ declare const Globs: {
   globStreamLicenses(
     dirname: string,
     options?: GlobOptions
-  ): Promise<NodeJS.ReadableStream>
+  ): NodeJS.ReadableStream
 }
 declare namespace Globs {
   export { GlobOptions }

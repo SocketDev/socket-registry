@@ -128,7 +128,7 @@ function getCompatData(props) {
 }
 
 async function readLicenses(dirname) {
-  const stream = await globStreamLicenses(dirname)
+  const stream = globStreamLicenses(dirname)
   const results = []
   for await (const license of transform(
     8, // Concurrency level.
