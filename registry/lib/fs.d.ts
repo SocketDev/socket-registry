@@ -23,6 +23,9 @@ declare type BufferEncoding =
   | 'utf-16le'
   | 'ucs2'
   | 'ucs-2'
+declare type IsDirEmptyOptions = {
+  ignore?: string[] | readonly string[] | undefined
+}
 declare type JsonContent = NPMCliPackageJson.Content
 declare type ReadFileOptions =
   | Remap<
@@ -39,6 +42,7 @@ declare type ReadJsonOptions = Remap<
   }
 >
 declare type ReadDirOptions = {
+  ignore?: string[] | readonly string[] | undefined
   includeEmpty?: boolean | undefined
   sort?: boolean | undefined
 }
@@ -51,15 +55,18 @@ declare type WriteJsonOptions = Remap<
   }
 >
 declare const Fs: {
-  isDirEmptySync: (dirname: string) => boolean
+  isDirEmptySync: (
+    dirname: string,
+    options?: IsDirEmptyOptions | undefined
+  ) => boolean
   isSymbolicLinkSync(filepath: PathLike): boolean
-  readDirNames(dirname: PathLike, options?: ReadDirOptions): Promise<string[]>
+  readDirNames(
+    dirname: PathLike,
+    options?: ReadDirOptions | undefined
+  ): Promise<string[]>
   readDirNamesSync: (
     dirname: string,
-    options?: {
-      includeEmpty?: boolean | undefined
-      sort?: boolean | undefined
-    }
+    options?: ReadDirOptions | undefined
   ) => string[]
   readJson(
     filepath: PathLike,

@@ -181,10 +181,6 @@
       "types": "./lib/constants/hidden-package-lock-json.d.ts",
       "default": "./lib/constants/hidden-package-lock-json.js"
     },
-    "./lib/constants/ignore-globs": {
-      "types": "./lib/constants/ignore-globs.d.ts",
-      "default": "./lib/constants/ignore-globs.js"
-    },
     "./lib/constants/index": {
       "types": "./lib/constants/index.d.ts",
       "default": "./lib/constants/index.js"
