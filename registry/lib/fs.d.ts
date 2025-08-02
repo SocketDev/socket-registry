@@ -1,14 +1,23 @@
 /// <reference types="node" />
-import {
-  ObjectEncodingOptions,
-  PathLike,
-  RmOptions,
-  WriteFileOptions
-} from 'node:fs'
-
 import NPMCliPackageJson from '@npmcli/package-json'
 
 import { Remap } from './objects'
+
+import type { Abortable } from 'node:events'
+import type {
+  BigIntStats,
+  ObjectEncodingOptions,
+  OpenMode,
+  PathLike,
+  PathOrFileDescriptor,
+  RmOptions,
+  StatSyncOptions,
+  Stats,
+  WriteFileOptions,
+  readFile,
+  readFileSync
+} from 'node:fs'
+import type { FileHandle } from 'node:fs/promises'
 
 declare type BufferEncoding =
   | 'ascii'
@@ -29,9 +38,10 @@ declare type IsDirEmptyOptions = {
 declare type JsonContent = NPMCliPackageJson.Content
 declare type ReadFileOptions =
   | Remap<
-      ObjectEncodingOptions & {
-        flag?: string | undefined
-      }
+      ObjectEncodingOptions &
+        Abortable & {
+          flag?: OpenMode | undefined
+        }
     >
   | BufferEncoding
   | null
@@ -68,6 +78,14 @@ declare const Fs: {
     dirname: string,
     options?: ReadDirOptions | undefined
   ) => string[]
+  readFileBinary(
+    filepath: PathLike | FileHandle,
+    options?: ReadFileOptions | undefined
+  ): Promise<Buffer>
+  readFileUtf8(
+    filepath: PathLike | FileHandle,
+    options?: ReadFileOptions | undefined
+  ): Promise<string>
   readJson(
     filepath: PathLike,
     options?: ReadJsonOptions | undefined
@@ -78,6 +96,51 @@ declare const Fs: {
   ): JsonContent
   remove(filepath: PathLike, options?: RmOptions): Promise<void>
   removeSync(filepath: PathLike, options?: RmOptions): void
+  safeReadFile(
+    filepath: PathLike | FileHandle,
+    options?: 'utf8' | 'utf-8' | { encoding: 'utf8' | 'utf-8' } | undefined
+  ): Promise<string | undefined>
+  safeReadFile(
+    filepath: PathLike | FileHandle,
+    options?: ReadFileOptions | NodeJS.BufferEncoding | undefined
+  ): Promise<Awaited<ReturnType<typeof readFile>> | undefined>
+  safeReadFileSync(
+    filepath: PathOrFileDescriptor,
+    options?: 'utf8' | 'utf-8' | { encoding: 'utf8' | 'utf-8' } | undefined
+  ): string | undefined
+  safeReadFileSync(
+    filepath: PathOrFileDescriptor,
+    options?:
+      | {
+          encoding?: NodeJS.BufferEncoding | undefined
+          flag?: string | undefined
+        }
+      | NodeJS.BufferEncoding
+      | undefined
+  ): ReturnType<typeof readFileSync> | undefined
+  safeStatsSync(filepath: PathLike, options?: undefined): Stats | undefined
+  safeStatsSync(
+    filepath: PathLike,
+    options?: StatSyncOptions & {
+      bigint?: false | undefined
+    }
+  ): Stats | undefined
+  safeStatsSync(
+    filepath: PathLike,
+    options: StatSyncOptions & {
+      bigint: true
+    }
+  ): BigIntStats | undefined
+  safeStatsSync(
+    filepath: PathLike,
+    options: StatSyncOptions & {
+      bigint: boolean
+    }
+  ): Stats | BigIntStats | undefined
+  safeStatsSync(
+    filepath: PathLike,
+    options?: StatSyncOptions
+  ): Stats | BigIntStats | undefined
   uniqueSync(filepath: PathLike): string
   writeJson(
     filepath: PathLike,
