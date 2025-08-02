@@ -6,13 +6,37 @@ const leadingDotSlashRegExp = /^\.\.?[/\\]/
 const slashRegExp = /[/\\]/
 const nodeModulesPathRegExp = /(?:^|[/\\])node_modules(?:[/\\]|$)/
 
+let _buffer
 /*@__NO_SIDE_EFFECTS__*/
-function isNodeModules(filepath) {
+function getBuffer() {
+  if (_buffer === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _buffer = /*@__PURE__*/ require('buffer')
+  }
+  return _buffer
+}
+
+let _url
+/*@__NO_SIDE_EFFECTS__*/
+function getUrl() {
+  if (_url === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _url = /*@__PURE__*/ require('url')
+  }
+  return _url
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function isNodeModules(pathLike) {
+  const filepath = pathLikeToString(pathLike)
   return nodeModulesPathRegExp.test(filepath)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function isRelative(filepath) {
+function isRelative(pathLike) {
+  const filepath = pathLikeToString(pathLike)
   if (typeof filepath !== 'string') {
     return false
   }
@@ -34,12 +58,13 @@ function isRelative(filepath) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function normalizePath(filePath) {
-  const { length } = filePath
+function normalizePath(pathLike) {
+  const filepath = pathLikeToString(pathLike)
+  const { length } = filepath
   if (length < 2) {
-    return length === 1 && filePath.charCodeAt(0) === 92 /*'\\'*/
+    return length === 1 && filepath.charCodeAt(0) === 92 /*'\\'*/
       ? '/'
-      : filePath
+      : filepath
   }
 
   let code = 0
@@ -53,13 +78,13 @@ function normalizePath(filePath) {
   // are okay to convert to forward slashes.
   // https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions
   let prefix = ''
-  if (length > 4 && filePath.charCodeAt(3) === 92 /*'\\'*/) {
-    const code2 = filePath.charCodeAt(2)
+  if (length > 4 && filepath.charCodeAt(3) === 92 /*'\\'*/) {
+    const code2 = filepath.charCodeAt(2)
     // Look for \\?\ or \\.\
     if (
       (code2 === 63 /*'?'*/ || code2 === 46) /*'.'*/ &&
-      filePath.charCodeAt(0) === 92 /*'\\'*/ &&
-      filePath.charCodeAt(1) === 92 /*'\\'*/
+      filepath.charCodeAt(0) === 92 /*'\\'*/ &&
+      filepath.charCodeAt(1) === 92 /*'\\'*/
     ) {
       start = 2
       prefix = '//'
@@ -68,7 +93,7 @@ function normalizePath(filePath) {
   if (start === 0) {
     // Trim leading slashes
     while (
-      ((code = filePath.charCodeAt(start)),
+      ((code = filepath.charCodeAt(start)),
       code === 47 /*'/'*/ || code === 92) /*'\\'*/
     ) {
       start += 1
@@ -77,24 +102,24 @@ function normalizePath(filePath) {
       prefix = '/'
     }
   }
-  let nextIndex = search(filePath, slashRegExp, start)
+  let nextIndex = search(filepath, slashRegExp, start)
   if (nextIndex === -1) {
-    return prefix + filePath.slice(start)
+    return prefix + filepath.slice(start)
   }
   // Discard any empty string segments by collapsing repeated segment separator slashes.
   while (nextIndex !== -1) {
-    const segment = filePath.slice(start, nextIndex)
+    const segment = filepath.slice(start, nextIndex)
     collapsed = collapsed + (collapsed.length === 0 ? '' : '/') + segment
     start = nextIndex + 1
     while (
-      ((code = filePath.charCodeAt(start)),
+      ((code = filepath.charCodeAt(start)),
       code === 47 /*'/'*/ || code === 92) /*'\\'*/
     ) {
       start += 1
     }
-    nextIndex = search(filePath, slashRegExp, start)
+    nextIndex = search(filepath, slashRegExp, start)
   }
-  const lastSegment = filePath.slice(start)
+  const lastSegment = filepath.slice(start)
   if (lastSegment.length !== 0) {
     collapsed = collapsed + '/' + lastSegment
   }
@@ -102,12 +127,30 @@ function normalizePath(filePath) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function splitPath(filepath) {
+function pathLikeToString(pathLike) {
+  if (typeof pathLike === 'string') {
+    return pathLike
+  }
+  const Buffer = getBuffer()
+  if (Buffer.isBuffer(pathLike)) {
+    return pathLike.toString('utf8')
+  }
+  const url = getUrl()
+  if (pathLike instanceof URL) {
+    return url.fileURLToPath(pathLike)
+  }
+  return String(pathLike)
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function splitPath(pathLike) {
+  const filepath = pathLikeToString(pathLike)
   return filepath.split(slashRegExp)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function trimLeadingDotSlash(filepath) {
+function trimLeadingDotSlash(pathLike) {
+  const filepath = pathLikeToString(pathLike)
   return filepath.replace(leadingDotSlashRegExp, '')
 }
 
@@ -115,6 +158,7 @@ module.exports = {
   isNodeModules,
   isRelative,
   normalizePath,
+  pathLikeToString,
   splitPath,
   trimLeadingDotSlash
 }

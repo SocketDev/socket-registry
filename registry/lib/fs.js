@@ -4,6 +4,7 @@ const { freeze: ObjectFreeze } = Object
 
 const { getGlobMatcher } = /*@__PURE__*/ require('./globs')
 const { naturalCompare } = /*@__PURE__*/ require('./sorts')
+const { pathLikeToString } = /*@__PURE__*/ require('./path')
 const { stripBom } = /*@__PURE__*/ require('./strings')
 
 const defaultIgnore = ObjectFreeze([
@@ -111,7 +112,7 @@ function isDirEmptySync(dirname, options) {
     if (length === 0) {
       return true
     }
-    const matcher = getGlobMatcher(ignore, { cwd: dirname })
+    const matcher = getGlobMatcher(ignore, { cwd: pathLikeToString(dirname) })
     let ignoredCount = 0
     for (let i = 0; i < length; i += 1) {
       if (matcher(files[i])) {
@@ -135,9 +136,9 @@ function isSymLinkSync(filepath) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function parse(filepath, content, reviver, shouldThrow) {
-  const str = Buffer.isBuffer(content) ? content.toString('utf8') : content
+  const jsonStr = Buffer.isBuffer(content) ? content.toString('utf8') : content
   try {
-    return JSON.parse(stripBom(str), reviver)
+    return JSON.parse(stripBom(jsonStr), reviver)
   } catch (e) {
     if (shouldThrow) {
       if (e) {
@@ -323,7 +324,7 @@ function uniqueSync(filepath) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-async function writeJson(filepath, json, options) {
+async function writeJson(filepath, jsonContent, options) {
   if (typeof options === 'string') {
     options = { encoding: options }
   }
@@ -332,8 +333,8 @@ async function writeJson(filepath, json, options) {
     ...options
   }
   const fs = getFs()
-  const str = stringify(json, EOL, finalEOL, replacer, spaces)
-  await fs.promises.writeFile(filepath, str, {
+  const jsonString = stringify(jsonContent, EOL, finalEOL, replacer, spaces)
+  await fs.promises.writeFile(filepath, jsonString, {
     __proto__: null,
     encoding: 'utf8',
     ...fsOptions
@@ -341,7 +342,7 @@ async function writeJson(filepath, json, options) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function writeJsonSync(filepath, json, options) {
+function writeJsonSync(filepath, jsonContent, options) {
   if (typeof options === 'string') {
     options = { encoding: options }
   }
@@ -350,8 +351,8 @@ function writeJsonSync(filepath, json, options) {
     ...options
   }
   const fs = getFs()
-  const str = stringify(json, EOL, finalEOL, replacer, spaces)
-  fs.writeFileSync(filepath, str, {
+  const jsonString = stringify(jsonContent, EOL, finalEOL, replacer, spaces)
+  fs.writeFileSync(filepath, jsonString, {
     __proto__: null,
     encoding: 'utf8',
     ...fsOptions
