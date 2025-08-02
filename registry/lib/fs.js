@@ -96,6 +96,12 @@ function innerReadDirNames(dirents, options) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
+function isDirSync(filepath) {
+  const fs = getFs()
+  return fs.existsSync(filepath) && !!safeStatsSync(filepath)?.isDirectory()
+}
+
+/*@__NO_SIDE_EFFECTS__*/
 function isDirEmptySync(dirname, options) {
   const { ignore = defaultIgnore } = { __proto__: null, ...options }
   const fs = getFs()
@@ -148,7 +154,10 @@ async function readDirNames(dirname, options) {
   const fs = getFs()
   try {
     return innerReadDirNames(
-      await fs.promises.readdir(dirname, { withFileTypes: true }),
+      await fs.promises.readdir(dirname, {
+        __proto__: null,
+        withFileTypes: true
+      }),
       options
     )
   } catch {}
@@ -160,7 +169,7 @@ function readDirNamesSync(dirname, options) {
   const fs = getFs()
   try {
     return innerReadDirNames(
-      fs.readdirSync(dirname, { withFileTypes: true }),
+      fs.readdirSync(dirname, { __proto__: null, withFileTypes: true }),
       options
     )
   } catch {}
@@ -168,21 +177,40 @@ function readDirNamesSync(dirname, options) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
+async function readFileBinary(filepath, options) {
+  const fs = getFs()
+  return await fs.promises.readFile(filepath, {
+    signal: /*@__PURE__*/ require('./constants/abort-signal'),
+    ...options,
+    encoding: 'binary'
+  })
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+async function readFileUtf8(filepath, options) {
+  const fs = getFs()
+  return await fs.promises.readFile(filepath, {
+    signal: /*@__PURE__*/ require('./constants/abort-signal'),
+    ...options,
+    encoding: 'utf8'
+  })
+}
+
+/*@__NO_SIDE_EFFECTS__*/
 async function readJson(filepath, options) {
   if (typeof options === 'string') {
     options = { encoding: options }
   }
-  const { reviver, throws, ...fsOptionsRaw } = { __proto__: null, ...options }
-  const fsOptions = {
-    __proto__: null,
-    encoding: 'utf8',
-    ...fsOptionsRaw
-  }
+  const { reviver, throws, ...fsOptions } = { __proto__: null, ...options }
   const fs = getFs()
   const shouldThrow = throws === undefined || !!throws
   return parse(
     filepath,
-    await fs.promises.readFile(filepath, fsOptions),
+    await fs.promises.readFile(filepath, {
+      __proto__: null,
+      encoding: 'utf8',
+      ...fsOptions
+    }),
     reviver,
     shouldThrow
   )
@@ -193,17 +221,16 @@ function readJsonSync(filepath, options) {
   if (typeof options === 'string') {
     options = { encoding: options }
   }
-  const { reviver, throws, ...fsOptionsRaw } = { __proto__: null, ...options }
-  const fsOptions = {
-    __proto__: null,
-    encoding: 'utf8',
-    ...fsOptionsRaw
-  }
+  const { reviver, throws, ...fsOptions } = { __proto__: null, ...options }
   const fs = getFs()
   const shouldThrow = throws === undefined || !!throws
   return parse(
     filepath,
-    fs.readFileSync(filepath, fsOptions),
+    fs.readFileSync(filepath, {
+      __proto__: null,
+      encoding: 'utf8',
+      ...fsOptions
+    }),
     reviver,
     shouldThrow
   )
@@ -229,6 +256,45 @@ function removeSync(filepath, options) {
     ...defaultRemoveOptions,
     ...options
   })
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+async function safeReadFile(filepath, options) {
+  const fs = getFs()
+  try {
+    return await fs.promises.readFile(filepath, {
+      encoding: 'utf8',
+      signal: /*@__PURE__*/ require('./constants/abort-signal'),
+      ...(typeof options === 'string' ? { encoding: options } : options)
+    })
+  } catch {}
+  return undefined
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function safeStatsSync(filepath, options) {
+  const fs = getFs()
+  try {
+    return fs.statSync(filepath, {
+      __proto__: null,
+      throwIfNoEntry: false,
+      ...options
+    })
+  } catch {}
+  return undefined
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function safeReadFileSync(filepath, options) {
+  const fs = getFs()
+  try {
+    return fs.readFileSync(filepath, {
+      __proto__: null,
+      encoding: 'utf8',
+      ...(typeof options === 'string' ? { encoding: options } : options)
+    })
+  } catch {}
+  return undefined
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -261,18 +327,17 @@ async function writeJson(filepath, json, options) {
   if (typeof options === 'string') {
     options = { encoding: options }
   }
-  const { EOL, finalEOL, replacer, spaces, ...fsOptionsRaw } = {
+  const { EOL, finalEOL, replacer, spaces, ...fsOptions } = {
     __proto__: null,
     ...options
   }
-  const fsOptions = {
-    __proto__: null,
-    encoding: 'utf8',
-    ...fsOptionsRaw
-  }
   const fs = getFs()
   const str = stringify(json, EOL, finalEOL, replacer, spaces)
-  await fs.promises.writeFile(filepath, str, fsOptions)
+  await fs.promises.writeFile(filepath, str, {
+    __proto__: null,
+    encoding: 'utf8',
+    ...fsOptions
+  })
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -280,29 +345,34 @@ function writeJsonSync(filepath, json, options) {
   if (typeof options === 'string') {
     options = { encoding: options }
   }
-  const { EOL, finalEOL, replacer, spaces, ...fsOptionsRaw } = {
+  const { EOL, finalEOL, replacer, spaces, ...fsOptions } = {
     __proto__: null,
     ...options
   }
-  const fsOptions = {
-    __proto__: null,
-    encoding: 'utf8',
-    ...fsOptionsRaw
-  }
   const fs = getFs()
   const str = stringify(json, EOL, finalEOL, replacer, spaces)
-  fs.writeFileSync(filepath, str, fsOptions)
+  fs.writeFileSync(filepath, str, {
+    __proto__: null,
+    encoding: 'utf8',
+    ...fsOptions
+  })
 }
 
 module.exports = {
+  isDirSync,
   isDirEmptySync,
   isSymLinkSync,
+  readFileBinary,
+  readFileUtf8,
   readJson,
   readJsonSync,
   readDirNames,
   readDirNamesSync,
   remove,
   removeSync,
+  safeReadFile,
+  safeReadFileSync,
+  safeStatsSync,
   uniqueSync,
   writeJson,
   writeJsonSync
