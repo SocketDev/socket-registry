@@ -119,7 +119,7 @@ function isDirEmptySync(dirname, options) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function isSymbolicLinkSync(filepath) {
+function isSymLinkSync(filepath) {
   const fs = getFs()
   try {
     return fs.lstatSync(filepath).isSymbolicLink()
@@ -296,7 +296,7 @@ function writeJsonSync(filepath, json, options) {
 
 module.exports = {
   isDirEmptySync,
-  isSymbolicLinkSync,
+  isSymLinkSync,
   readJson,
   readJsonSync,
   readDirNames,

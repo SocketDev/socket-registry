@@ -12,7 +12,7 @@ const { glob } = require('fast-glob')
 const constants = require('@socketregistry/scripts/constants')
 const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
 const {
-  isSymbolicLinkSync,
+  isSymLinkSync,
   remove,
   uniqueSync
 } = require('@socketsecurity/registry/lib/fs')
@@ -341,7 +341,7 @@ async function linkPackages(packageNames, options) {
     }
     const origPkgName = resolveOriginalPackageName(sockRegPkgName)
     const nmPkgPath = path.join(testNpmNodeModulesPath, origPkgName)
-    if (isSymbolicLinkSync(nmPkgPath)) {
+    if (isSymLinkSync(nmPkgPath)) {
       if (
         realpathSync(nmPkgPath) ===
         path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
@@ -533,7 +533,7 @@ async function linkPackages(packageNames, options) {
       for (let i = 0, { length } = dirs; i < length; i += 1) {
         const crumbs = dirs.slice(0, i + 1)
         const destPathDir = path.join(nmPkgPath, ...crumbs)
-        if (!existsSync(destPathDir) || isSymbolicLinkSync(destPathDir)) {
+        if (!existsSync(destPathDir) || isSymLinkSync(destPathDir)) {
           targetPath = path.join(pkgPath, ...crumbs)
           destPath = destPathDir
           break

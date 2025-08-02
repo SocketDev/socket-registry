@@ -59,7 +59,7 @@ declare const Fs: {
     dirname: string,
     options?: IsDirEmptyOptions | undefined
   ) => boolean
-  isSymbolicLinkSync(filepath: PathLike): boolean
+  isSymLinkSync(filepath: PathLike): boolean
   readDirNames(
     dirname: PathLike,
     options?: ReadDirOptions | undefined
