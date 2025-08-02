@@ -65,8 +65,9 @@ declare type WriteJsonOptions = Remap<
   }
 >
 declare const Fs: {
+  isDirSync: (filepath: PathLike) => boolean
   isDirEmptySync: (
-    dirname: string,
+    dirname: PathLike,
     options?: IsDirEmptyOptions | undefined
   ) => boolean
   isSymLinkSync(filepath: PathLike): boolean
@@ -75,7 +76,7 @@ declare const Fs: {
     options?: ReadDirOptions | undefined
   ): Promise<string[]>
   readDirNamesSync: (
-    dirname: string,
+    dirname: PathLike,
     options?: ReadDirOptions | undefined
   ) => string[]
   readFileBinary(
@@ -144,12 +145,12 @@ declare const Fs: {
   uniqueSync(filepath: PathLike): string
   writeJson(
     filepath: PathLike,
-    json: JsonContent,
+    jsonContent: JsonContent,
     options?: WriteJsonOptions | undefined
   ): Promise<void>
   writeJsonSync(
     filepath: PathLike,
-    json: JsonContent,
+    jsonContent: JsonContent,
     options?: WriteJsonOptions | undefined
   ): void
 }
