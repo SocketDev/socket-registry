@@ -144,7 +144,9 @@ declare type GlobOptions = Remap<
   }
 >
 declare const Globs: {
-  defaultIgnore: readonly string[]
+  // defaultIgnore: readonly string[] makes 'fast-glob' types grumpy because
+  // they expect defaultIgnore: string[].
+  defaultIgnore: string[]
   getGlobMatcher: (
     glob: string | string[] | readonly string[],
     options?: object | undefined
