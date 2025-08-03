@@ -144,6 +144,7 @@ declare type GlobOptions = Remap<
   }
 >
 declare const Globs: {
+  defaultIgnore: readonly string[]
   getGlobMatcher: (
     glob: string | string[] | readonly string[],
     options?: object | undefined
