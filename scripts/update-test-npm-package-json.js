@@ -157,14 +157,20 @@ async function installMissingPackages(packageNames, options) {
     )
     if (downloadDeps.length) {
       // Chunk dependencies to download and process them in parallel 3 at a time.
-      await pEach(downloadDeps, 3, async n => {
-        const nmPkgPath = path.join(testNpmNodeModulesPath, n)
-        // Broken symlinks are treated an non-existent by fs.existsSync, however
-        // they will cause fs.mkdir to throw an ENOENT error, so we remove any
-        // existing file beforehand just in case.
-        await remove(nmPkgPath)
-        await extractPackage(`${n}@${devDependencies[n]}`, { dest: nmPkgPath })
-      })
+      await pEach(
+        downloadDeps,
+        async n => {
+          const nmPkgPath = path.join(testNpmNodeModulesPath, n)
+          // Broken symlinks are treated an non-existent by fs.existsSync, however
+          // they will cause fs.mkdir to throw an ENOENT error, so we remove any
+          // existing file beforehand just in case.
+          await remove(nmPkgPath)
+          await extractPackage(`${n}@${devDependencies[n]}`, {
+            dest: nmPkgPath
+          })
+        },
+        { concurrency: 3 }
+      )
     }
     if (cliArgs.quiet) {
       spinner?.stop()
@@ -184,39 +190,46 @@ async function installMissingPackageTests(packageNames, options) {
   const resolvable = []
   const unresolvable = []
   // Chunk package names to process them in parallel 3 at a time.
-  await pEach(originalNames, 3, async origPkgName => {
-    // When tests aren't included in the installed package we convert the
-    // package version to a GitHub release tag, then we convert the release
-    // tag to a sha, then finally we resolve the URL of the GitHub tarball
-    // to use in place of the version range for its devDependencies entry.
-    const nmPkgPath = path.join(testNpmNodeModulesPath, origPkgName)
-    const {
-      content: { version: nmPkgVer }
-    } = await readCachedEditablePackageJson(nmPkgPath)
-    const pkgId = `${origPkgName}@${nmPkgVer}`
-    spinner?.start(`Resolving GitHub tarball URL for ${pkgId}...`)
+  await pEach(
+    originalNames,
+    async origPkgName => {
+      // When tests aren't included in the installed package we convert the
+      // package version to a GitHub release tag, then we convert the release
+      // tag to a sha, then finally we resolve the URL of the GitHub tarball
+      // to use in place of the version range for its devDependencies entry.
+      const nmPkgPath = path.join(testNpmNodeModulesPath, origPkgName)
+      const {
+        content: { version: nmPkgVer }
+      } = await readCachedEditablePackageJson(nmPkgPath)
+      const pkgId = `${origPkgName}@${nmPkgVer}`
+      spinner?.start(`Resolving GitHub tarball URL for ${pkgId}...`)
 
-    const gitHubTgzUrl = await resolveGitHubTgzUrl(pkgId, nmPkgPath)
-    if (gitHubTgzUrl) {
-      // Replace the dev dep version range with the tarball URL.
-      const testNpmEditablePkgJson = await readPackageJson(testNpmPkgJsonPath, {
-        editable: true,
-        normalize: true
-      })
-      testNpmEditablePkgJson.update({
-        devDependencies: {
-          ...testNpmEditablePkgJson.content.devDependencies,
-          [origPkgName]: gitHubTgzUrl
-        }
-      })
-      await testNpmEditablePkgJson.save()
-      resolvable.push(origPkgName)
-    } else {
-      // Collect package names we failed to resolve tarballs for.
-      unresolvable.push(origPkgName)
-    }
-    spinner?.stop()
-  })
+      const gitHubTgzUrl = await resolveGitHubTgzUrl(pkgId, nmPkgPath)
+      if (gitHubTgzUrl) {
+        // Replace the dev dep version range with the tarball URL.
+        const testNpmEditablePkgJson = await readPackageJson(
+          testNpmPkgJsonPath,
+          {
+            editable: true,
+            normalize: true
+          }
+        )
+        testNpmEditablePkgJson.update({
+          devDependencies: {
+            ...testNpmEditablePkgJson.content.devDependencies,
+            [origPkgName]: gitHubTgzUrl
+          }
+        })
+        await testNpmEditablePkgJson.save()
+        resolvable.push(origPkgName)
+      } else {
+        // Collect package names we failed to resolve tarballs for.
+        unresolvable.push(origPkgName)
+      }
+      spinner?.stop()
+    },
+    { concurrency: 3 }
+  )
   if (resolvable.length) {
     spinner?.start(
       `Refreshing ${resolvable.join(', ')} from ${pluralize('tarball', resolvable.length)}...`
@@ -285,7 +298,6 @@ async function resolveDevDependencies(packageNames, options) {
   // Chunk package names to process them in parallel 3 at a time.
   const missingPackageTests = await pFilter(
     packageNames,
-    3,
     async sockRegPkgName => {
       const origPkgName = resolveOriginalPackageName(sockRegPkgName)
       const parsedSpec = npmPackageArg.resolve(
@@ -317,7 +329,8 @@ async function resolveDevDependencies(packageNames, options) {
             )
           ).length === 0)
       )
-    }
+    },
+    { concurrency: 3 }
   )
   if (missingPackageTests.length) {
     await installMissingPackageTests(missingPackageTests, options)
@@ -332,7 +345,7 @@ async function linkPackages(packageNames, options) {
   const linkedPackageNames = []
   let issueCount = 0
   // Chunk package names to process them in parallel 3 at a time.
-  await pEach(packageNames, 3, async sockRegPkgName => {
+  await pEach(packageNames, async sockRegPkgName => {
     const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
     if (!existsSync(pkgPath)) {
       issueCount += 1
@@ -361,32 +374,35 @@ async function linkPackages(packageNames, options) {
       testScripts.find(n => isNonEmptyString(scripts[n])) ?? 'test'
     scripts.test = scripts[testScriptName] ?? ''
     // Remove lifecycle and test script variants.
-    nmEditablePkgJson.update({
-      scripts: Object.fromEntries(
-        objectEntries(scripts)
-          .filter(
-            ({ 0: key }) =>
-              key === 'test' ||
-              !(
-                key === testScriptName ||
-                key === 'lint' ||
-                key === 'prelint' ||
-                key === 'postlint' ||
-                key === 'pretest' ||
-                key === 'posttest' ||
-                key.startsWith('test:browsers') ||
-                lifecycleScriptNames.has(key)
-              )
-          )
-          .map(pair => {
-            const { 0: key, 1: value } = pair
-            if (key.startsWith('test')) {
-              pair[1] = cleanTestScript(value)
-            }
-            return pair
-          })
-      )
-    })
+    nmEditablePkgJson.update(
+      {
+        scripts: Object.fromEntries(
+          objectEntries(scripts)
+            .filter(
+              ({ 0: key }) =>
+                key === 'test' ||
+                !(
+                  key === testScriptName ||
+                  key === 'lint' ||
+                  key === 'prelint' ||
+                  key === 'postlint' ||
+                  key === 'pretest' ||
+                  key === 'posttest' ||
+                  key.startsWith('test:browsers') ||
+                  lifecycleScriptNames.has(key)
+                )
+            )
+            .map(pair => {
+              const { 0: key, 1: value } = pair
+              if (key.startsWith('test')) {
+                pair[1] = cleanTestScript(value)
+              }
+              return pair
+            })
+        )
+      },
+      { concurrency: 3 }
+    )
 
     const { dependencies, engines, overrides } = pkgJson
     const entryExports = resolvePackageJsonEntryExports(pkgJson.exports)
@@ -561,7 +577,7 @@ async function linkPackages(packageNames, options) {
       })
     }
     // Chunk actions to process them in parallel 3 at a time.
-    await pEach([...actions.values()], 3, a => a())
+    await pEach([...actions.values()], a => a(), { concurrency: 3 })
     await nmEditablePkgJson.save()
     linkedPackageNames.push(sockRegPkgName)
   })
@@ -580,49 +596,53 @@ async function cleanupNodeWorkspaces(linkedPackageNames, options) {
   spinner?.start(`Cleaning up ${relTestNpmPath} workspaces...`)
 
   // Chunk package names to process them in parallel 3 at a time.
-  await pEach(linkedPackageNames, 3, async n => {
-    const srcPath = path.join(
-      testNpmNodeModulesPath,
-      resolveOriginalPackageName(n)
-    )
-    const destPath = path.join(testNpmNodeWorkspacesPath, n)
-    // Remove unnecessary directories/files.
-    await Promise.all(
-      (
-        await glob(
-          [
-            '**/.editorconfig',
-            '**/.eslintignore',
-            '**/.eslintrc.json',
-            '**/.gitattributes',
-            '**/.github',
-            '**/.idea',
-            '**/.nvmrc',
-            '**/.travis.yml',
-            '**/*.md',
-            '**/tslint.json',
-            '**/doc{s,}/',
-            '**/example{s,}/',
-            '**/CHANGE{LOG,S}{.*,}',
-            '**/CONTRIBUTING{.*,}',
-            '**/FUND{ING,}{.*,}',
-            README_GLOB_RECURSIVE,
-            ...ignoreGlobs
-          ],
-          {
-            ignore: [LICENSE_GLOB_RECURSIVE],
-            absolute: true,
-            caseSensitiveMatch: false,
-            cwd: srcPath,
-            dot: true,
-            onlyFiles: false
-          }
-        )
-      ).map(p => remove(p))
-    )
-    // Move override package from test/npm/node_modules/ to test/npm/node_workspaces/
-    await move(srcPath, destPath, { overwrite: true })
-  })
+  await pEach(
+    linkedPackageNames,
+    async n => {
+      const srcPath = path.join(
+        testNpmNodeModulesPath,
+        resolveOriginalPackageName(n)
+      )
+      const destPath = path.join(testNpmNodeWorkspacesPath, n)
+      // Remove unnecessary directories/files.
+      await Promise.all(
+        (
+          await glob(
+            [
+              '**/.editorconfig',
+              '**/.eslintignore',
+              '**/.eslintrc.json',
+              '**/.gitattributes',
+              '**/.github',
+              '**/.idea',
+              '**/.nvmrc',
+              '**/.travis.yml',
+              '**/*.md',
+              '**/tslint.json',
+              '**/doc{s,}/',
+              '**/example{s,}/',
+              '**/CHANGE{LOG,S}{.*,}',
+              '**/CONTRIBUTING{.*,}',
+              '**/FUND{ING,}{.*,}',
+              README_GLOB_RECURSIVE,
+              ...ignoreGlobs
+            ],
+            {
+              ignore: [LICENSE_GLOB_RECURSIVE],
+              absolute: true,
+              caseSensitiveMatch: false,
+              cwd: srcPath,
+              dot: true,
+              onlyFiles: false
+            }
+          )
+        ).map(p => remove(p))
+      )
+      // Move override package from test/npm/node_modules/ to test/npm/node_workspaces/
+      await move(srcPath, destPath, { overwrite: true })
+    },
+    { concurrency: 3 }
+  )
   if (cliArgs.quiet) {
     spinner?.stop()
   } else {

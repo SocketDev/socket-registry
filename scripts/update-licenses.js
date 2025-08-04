@@ -15,8 +15,8 @@ void (async () => {
     ignore: [LICENSE, 'scripts/templates', ...ignoreGlobs]
   })
   await parallelForEach(
-    8, // Concurrency level.
+    stream,
     licensePath => fs.writeFile(licensePath, LICENSE_CONTENT, UTF8),
-    stream
+    { concurrency: 8 }
   )
 })()

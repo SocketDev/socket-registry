@@ -33,27 +33,31 @@ async function filterSocketOverrideScopePackages(
 ) {
   const socketOverridePackages = []
   // Chunk packages data to process them in parallel 3 at a time.
-  await pEach(packages, 3, async pkg => {
-    const overridesPath = path.join(pkg.path, OVERRIDES)
-    const overrideNames = await readDirNames(overridesPath)
-    for (const overrideName of overrideNames) {
-      const overridePkgPath = path.join(overridesPath, overrideName)
-      const overridePkgJson = readPackageJsonSync(overridePkgPath)
-      const { name: overridePkgName } = overridePkgJson
-      if (!overridePkgName.startsWith(`${SOCKET_OVERRIDE_SCOPE}/`)) {
-        state.fails.push(overridePkgName)
-        continue
+  await pEach(
+    packages,
+    async pkg => {
+      const overridesPath = path.join(pkg.path, OVERRIDES)
+      const overrideNames = await readDirNames(overridesPath)
+      for (const overrideName of overrideNames) {
+        const overridePkgPath = path.join(overridesPath, overrideName)
+        const overridePkgJson = readPackageJsonSync(overridePkgPath)
+        const { name: overridePkgName } = overridePkgJson
+        if (!overridePkgName.startsWith(`${SOCKET_OVERRIDE_SCOPE}/`)) {
+          state.fails.push(overridePkgName)
+          continue
+        }
+        // Add @socketoverride scoped package data.
+        socketOverridePackages.push(
+          packageData({
+            name: overridePkgName,
+            path: overridePkgPath,
+            tag: getReleaseTag(overridePkgJson.version)
+          })
+        )
       }
-      // Add @socketoverride scoped package data.
-      socketOverridePackages.push(
-        packageData({
-          name: overridePkgName,
-          path: overridePkgPath,
-          tag: getReleaseTag(overridePkgJson.version)
-        })
-      )
-    }
-  })
+    },
+    { concurrency: 3 }
+  )
   return socketOverridePackages
 }
 
@@ -97,9 +101,13 @@ async function publishPackages(packages, state = { fails: [] }) {
     pkg => !state.fails.includes(pkg.printName)
   )
   // Chunk non-failed package names to process them in parallel 3 at a time.
-  await pEach(okayPackages, 3, async pkg => {
-    await publish(pkg, state)
-  })
+  await pEach(
+    okayPackages,
+    async pkg => {
+      await publish(pkg, state)
+    },
+    { concurrency: 3 }
+  )
 }
 
 void (async () => {
