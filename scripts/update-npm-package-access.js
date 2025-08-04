@@ -46,28 +46,32 @@ void (async () => {
   ]
 
   // Chunk package names to process them in parallel 3 at a time.
-  await pEach(packages, 3, async pkg => {
-    try {
-      const stdout = (
-        await execNpm(['access', 'set', 'mfa=automation', pkg.name], {
-          cwd: pkg.path,
-          stdio: 'pipe',
-          env: {
-            ...process.env,
-            // Lazily access constants.ENV.NODE_AUTH_TOKEN.
-            NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
-          }
-        })
-      ).stdout
-      logger.log(stdout)
-    } catch (e) {
-      const stderr = e?.stderr ?? ''
-      fails.push(pkg.printName)
-      if (stderr) {
-        logger.log(stderr)
+  await pEach(
+    packages,
+    async pkg => {
+      try {
+        const stdout = (
+          await execNpm(['access', 'set', 'mfa=automation', pkg.name], {
+            cwd: pkg.path,
+            stdio: 'pipe',
+            env: {
+              ...process.env,
+              // Lazily access constants.ENV.NODE_AUTH_TOKEN.
+              NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
+            }
+          })
+        ).stdout
+        logger.log(stdout)
+      } catch (e) {
+        const stderr = e?.stderr ?? ''
+        fails.push(pkg.printName)
+        if (stderr) {
+          logger.log(stderr)
+        }
       }
-    }
-  })
+    },
+    { concurrency: 3 }
+  )
 
   if (fails.length) {
     const msg = `Unable to set access for ${fails.length} ${pluralize('package', fails.length)}:`

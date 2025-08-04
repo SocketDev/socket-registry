@@ -14,6 +14,25 @@ function getTimers() {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
+function normalizeIterationOptions(options) {
+  const {
+    // The number of concurrent executions performed at one time.
+    concurrency = 1,
+    // Retries as a number or options object.
+    retries,
+    // AbortSignal used to support cancellation.
+    signal = /*@__PURE__*/ require('./constants/abort-signal')
+  } = { __proto__: null, ...options }
+  const retryOpts = resolveRetryOptions(retries)
+  return {
+    __proto__: null,
+    concurrency,
+    retries: normalizeRetryOptions({ signal, ...retryOpts }),
+    signal
+  }
+}
+
+/*@__NO_SIDE_EFFECTS__*/
 function normalizeRetryOptions(options) {
   const {
     // Arguments to pass to the callback function.
@@ -62,23 +81,31 @@ function resolveRetryOptions(options) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-async function pEach(array, concurrency, callbackFn, options) {
-  await pEachChunk(arrayChunk(array, concurrency), callbackFn, options)
+async function pEach(array, callbackFn, options) {
+  const iterOpts = normalizeIterationOptions(options)
+  await pEachChunk(
+    arrayChunk(array, iterOpts.concurrency),
+    callbackFn,
+    iterOpts.retries
+  )
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-async function pFilter(array, concurrency, callbackFn, options) {
+async function pFilter(array, callbackFn, options) {
+  const iterOpts = normalizeIterationOptions(options)
   return (
-    await pFilterChunk(arrayChunk(array, concurrency), callbackFn, options)
+    await pFilterChunk(
+      arrayChunk(array, iterOpts.concurrency),
+      callbackFn,
+      iterOpts.retries
+    )
   ).flat()
 }
 
 /*@__NO_SIDE_EFFECTS__*/
 async function pEachChunk(chunks, callbackFn, options) {
-  const {
-    retries,
-    signal = /*@__PURE__*/ require('./constants/abort-signal')
-  } = { __proto__: null, ...options }
+  const retryOpts = normalizeRetryOptions(options)
+  const { signal } = retryOpts
   for (const chunk of chunks) {
     if (signal?.aborted) {
       return
@@ -87,8 +114,7 @@ async function pEachChunk(chunks, callbackFn, options) {
     await Promise.all(
       chunk.map(value =>
         pRetry(callbackFn, {
-          signal,
-          ...resolveRetryOptions(retries),
+          ...retryOpts,
           args: [value]
         })
       )
@@ -98,10 +124,8 @@ async function pEachChunk(chunks, callbackFn, options) {
 
 /*@__NO_SIDE_EFFECTS__*/
 async function pFilterChunk(chunks, callbackFn, options) {
-  const {
-    retries,
-    signal = /*@__PURE__*/ require('./constants/abort-signal')
-  } = { __proto__: null, ...options }
+  const retryOpts = normalizeRetryOptions(options)
+  const { signal } = retryOpts
   const { length } = chunks
   const filteredChunks = Array(length)
   for (let i = 0; i < length; i += 1) {
@@ -114,8 +138,7 @@ async function pFilterChunk(chunks, callbackFn, options) {
       const predicateResults = await Promise.all(
         chunk.map(value =>
           pRetry(callbackFn, {
-            signal,
-            ...resolveRetryOptions(retries),
+            ...retryOpts,
             args: [value]
           })
         )
@@ -197,9 +220,12 @@ async function pRetry(callbackFn, options) {
 }
 
 module.exports = {
+  normalizeIterationOptions,
+  normalizeRetryOptions,
   pEach,
   pEachChunk,
   pFilter,
   pFilterChunk,
-  pRetry
+  pRetry,
+  resolveRetryOptions
 }

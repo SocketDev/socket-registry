@@ -39,29 +39,33 @@ const registryPkg = packageData({
 async function filterSocketOverrideScopePackages(packages) {
   const socketOverridePackages = []
   // Chunk packages data to process them in parallel 3 at a time.
-  await pEach(packages, 3, async pkg => {
-    if (abortSignal.aborted) {
-      return
-    }
-    const overridesPath = path.join(pkg.path, OVERRIDES)
-    const overrideNames = await readDirNames(overridesPath)
-    for (const overrideName of overrideNames) {
-      const overridePkgPath = path.join(overridesPath, overrideName)
-      const overridePkgJson = readPackageJsonSync(overridePkgPath)
-      const { name: overridePkgName } = overridePkgJson
-      if (!overridePkgName.startsWith(`${SOCKET_OVERRIDE_SCOPE}/`)) {
-        continue
+  await pEach(
+    packages,
+    async pkg => {
+      if (abortSignal.aborted) {
+        return
       }
-      // Add @socketoverride scoped package data.
-      socketOverridePackages.push(
-        packageData({
-          name: overridePkgName,
-          path: overridePkgPath,
-          tag: getReleaseTag(overridePkgJson.version)
-        })
-      )
-    }
-  })
+      const overridesPath = path.join(pkg.path, OVERRIDES)
+      const overrideNames = await readDirNames(overridesPath)
+      for (const overrideName of overrideNames) {
+        const overridePkgPath = path.join(overridesPath, overrideName)
+        const overridePkgJson = readPackageJsonSync(overridePkgPath)
+        const { name: overridePkgName } = overridePkgJson
+        if (!overridePkgName.startsWith(`${SOCKET_OVERRIDE_SCOPE}/`)) {
+          continue
+        }
+        // Add @socketoverride scoped package data.
+        socketOverridePackages.push(
+          packageData({
+            name: overridePkgName,
+            path: overridePkgPath,
+            tag: getReleaseTag(overridePkgJson.version)
+          })
+        )
+      }
+    },
+    { concurrency: 3 }
+  )
   return socketOverridePackages
 }
 
@@ -204,9 +208,13 @@ void (async () => {
   }
 
   // Chunk @socketoverride scoped packages to process them in parallel 3 at a time.
-  await pEach(state.overrideScoped, 3, async pkg => {
-    await maybeBumpPackage(pkg, { spinner, state })
-  })
+  await pEach(
+    state.overrideScoped,
+    async pkg => {
+      await maybeBumpPackage(pkg, { spinner, state })
+    },
+    { concurrency: 3 }
+  )
 
   if (abortSignal.aborted) {
     spinner.stop()
@@ -214,13 +222,21 @@ void (async () => {
   }
 
   // Chunk changed @override scoped packages to process them in parallel 3 at a time.
-  await pEach(state.bumpedOverrideScoped, 3, async pkg => {
-    await updateOverrideScopedVersionInParent(pkg, pkg.version)
-  })
+  await pEach(
+    state.bumpedOverrideScoped,
+    async pkg => {
+      await updateOverrideScopedVersionInParent(pkg, pkg.version)
+    },
+    { concurrency: 3 }
+  )
   // Chunk packages data to process them in parallel 3 at a time.
-  await pEach(packages, 3, async pkg => {
-    await maybeBumpPackage(pkg, { state })
-  })
+  await pEach(
+    packages,
+    async pkg => {
+      await maybeBumpPackage(pkg, { state })
+    },
+    { concurrency: 3 }
+  )
 
   if (abortSignal.aborted || !state.bumped.length) {
     spinner.stop()
