@@ -1,6 +1,6 @@
 {
   "name": "@socketsecurity/registry",
-  "version": "1.0.260",
+  "version": "1.0.261",
   "license": "MIT",
   "description": "Socket.dev registry helpers methods and metadata",
   "keywords": [
