@@ -15,7 +15,7 @@ function getStreamingIterables() {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-async function parallelForEach(iterable, func, options) {
+async function parallelEach(iterable, func, options) {
   for await (const _ of parallelMap(iterable, func, options)) {
     /* empty block */
   }
@@ -52,7 +52,7 @@ function transform(iterable, func, options) {
 }
 
 module.exports = {
-  parallelForEach,
+  parallelEach,
   parallelMap,
   transform
 }
