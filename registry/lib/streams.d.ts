@@ -7,7 +7,7 @@ declare type AnyIterable<T> =
   | AsyncIterable<T>
   | NodeJS.ReadableStream
 declare const Streams: {
-  parallelForEach<T>(
+  parallelEach<T>(
     iterable: AnyIterable<T>,
     func: (data: T) => Promise<void>,
     options?: sIterationOptions | undefined
