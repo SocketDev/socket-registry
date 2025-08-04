@@ -131,12 +131,12 @@ async function readLicenses(dirname) {
   const stream = globStreamLicenses(dirname)
   const results = []
   for await (const license of transform(
-    8, // Concurrency level.
+    stream,
     async filepath => ({
       name: path.basename(filepath),
       content: await fs.readFile(filepath, UTF8)
     }),
-    stream
+    { concurrency: 8 }
   )) {
     results.push(license)
   }
