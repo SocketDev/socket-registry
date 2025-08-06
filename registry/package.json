@@ -646,7 +646,7 @@
     "normalize-package-data": "6.0.1",
     "npm-package-arg": "13.0.0",
     "npm-run-all2": "8.0.4",
-    "oxlint": "1.9.0",
+    "oxlint": "1.10.0",
     "pacote": "21.0.0",
     "picomatch": "4.0.3",
     "rollup": "4.46.2",
