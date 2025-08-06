@@ -15,7 +15,8 @@ module.exports = ObjectFreeze({
   // Libraries like yocto-colors check for CI not by value but my existence,
   // e.g. `'CI' in process.env`.
   CI: ObjectHasOwn(env, 'CI'),
-  // Flag set to enable debug logging.
+  // Flag set to enable debug logging based on the 'debug' package.
+  // https://socket.dev/npm/package/debug/overview/4.4.1
   DEBUG,
   // Variable to set the debug log level
   // (notice, error, warn, info, verbose, http, silly).
