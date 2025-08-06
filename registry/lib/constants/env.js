@@ -15,11 +15,10 @@ module.exports = ObjectFreeze({
   // Libraries like yocto-colors check for CI not by value but my existence,
   // e.g. `'CI' in process.env`.
   CI: ObjectHasOwn(env, 'CI'),
-  // Variable to enable debug logging based on the 'debug' package.
+  // Enable debug logging based on the 'debug' package.
   // https://socket.dev/npm/package/debug/overview/4.4.1
   DEBUG,
-  // Variable to set the debug log level
-  // (notice, error, warn, info, verbose, http, silly).
+  // Set the debug log level (notice, error, warn, info, verbose, http, silly).
   LOG_LEVEL: envAsString(env.LOG_LEVEL),
   // .github/workflows/provenance.yml defines this.
   // https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-nodejs-packages
@@ -38,7 +37,7 @@ module.exports = ObjectFreeze({
   // PRE_COMMIT is set to '1' by our 'test-pre-commit' script run by the
   // .husky/pre-commit hook.
   PRE_COMMIT: envAsBoolean(env.PRE_COMMIT),
-  // Variable to enable debug logging in Socket CLI.
+  // Enable debug logging in Socket CLI.
   SOCKET_CLI_DEBUG: !!DEBUG || envAsBoolean(env.SOCKET_CLI_DEBUG),
   // TAP=1 is set by the tap-run test runner.
   // https://node-tap.org/environment/#environment-variables-used-by-tap
