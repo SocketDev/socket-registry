@@ -17,6 +17,17 @@ function getBuffer() {
   return _buffer
 }
 
+let _path
+/*@__NO_SIDE_EFFECTS__*/
+function getPath() {
+  if (_path === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _path = /*@__PURE__*/ require('path')
+  }
+  return _path
+}
+
 let _url
 /*@__NO_SIDE_EFFECTS__*/
 function getUrl() {
@@ -32,6 +43,11 @@ function getUrl() {
 function isNodeModules(pathLike) {
   const filepath = pathLikeToString(pathLike)
   return nodeModulesPathRegExp.test(filepath)
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function isPath(pathLike) {
+  return isRelative(pathLike) || getPath().isAbsolute(pathLike)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -156,6 +172,7 @@ function trimLeadingDotSlash(pathLike) {
 
 module.exports = {
   isNodeModules,
+  isPath,
   isRelative,
   normalizePath,
   pathLikeToString,

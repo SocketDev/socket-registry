@@ -3,6 +3,7 @@ import { PathLike } from 'node:fs'
 
 declare const Path: {
   isNodeModules(pathLike: PathLike): boolean
+  isPath(pathLike: PathLike): boolean
   isRelative(pathLike: PathLike): boolean
   normalizePath(pathLike: PathLike): string
   pathLikeToString(pathLike: PathLike): string
