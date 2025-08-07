@@ -2,7 +2,7 @@
 
 const { isDebug } = /*@__PURE__*/ require('./debug')
 const { readJsonSync } = /*@__PURE__*/ require('./fs')
-const { isRelative } = /*@__PURE__*/ require('./path')
+const { isPath } = /*@__PURE__*/ require('./path')
 const { spawn } = /*@__PURE__*/ require('./spawn')
 
 let _fs
@@ -345,9 +345,7 @@ function runBin(binPath, args, options) {
     /*@__PURE__*/ require('./constants/exec-path'),
     [
       .../*@__PURE__*/ require('./constants/node-no-warnings-flags'),
-      isRelative(binPath) || getPath().isAbsolute(binPath)
-        ? resolveBinPathSync(binPath)
-        : whichBinSync(binPath),
+      isPath(binPath) ? resolveBinPathSync(binPath) : whichBinSync(binPath),
       ...args
     ],
     options
