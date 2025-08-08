@@ -58,6 +58,41 @@ function stripBom(str) {
   return str.length > 0 && str.charCodeAt(0) === 0xfeff ? str.slice(1) : str
 }
 
+/*@__NO_SIDE_EFFECTS__*/
+function trimNewlines(str) {
+  const { length } = str
+  if (length === 0) {
+    return str
+  }
+  const first = str.charCodeAt(0)
+  const noFirstNewline = first !== 13 /*'\r'*/ && first !== 10 /*'\n'*/
+  if (length === 1) {
+    return noFirstNewline ? str : ''
+  }
+  const last = str.charCodeAt(length - 1)
+  const noLastNewline = last !== 13 /*'\r'*/ && last !== 10 /*'\n'*/
+  if (noFirstNewline && noLastNewline) {
+    return str
+  }
+  let start = 0
+  let end = length
+  while (start < end) {
+    const code = str.charCodeAt(start)
+    if (code !== 13 /*'\r'*/ && code !== 10 /*'\n'*/) {
+      break
+    }
+    start += 1
+  }
+  while (end > start) {
+    const code = str.charCodeAt(end - 1)
+    if (code !== 13 /*'\r'*/ && code !== 10 /*'\n'*/) {
+      break
+    }
+    end -= 1
+  }
+  return start === 0 && end === length ? str : str.slice(start, end)
+}
+
 module.exports = {
   applyLinePrefix,
   indentString,
@@ -65,5 +100,6 @@ module.exports = {
   isNonEmptyString,
   search,
   stripAnsi,
-  stripBom
+  stripBom,
+  trimNewlines
 }
