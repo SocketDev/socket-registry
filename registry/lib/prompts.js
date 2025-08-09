@@ -1,10 +1,5 @@
 'use strict'
 
-const {
-  Separator,
-  default: selectRaw
-} = /*@__PURE__*/ require('../external/@inquirer/select')
-
 /*@__NO_SIDE_EFFECTS__*/
 function wrapPrompt(inquirerPrompt) {
   return async (...args) => {
@@ -39,16 +34,23 @@ function wrapPrompt(inquirerPrompt) {
   }
 }
 
-const confirm = /*@__PURE__*/ wrapPrompt(
-  require('../external/@inquirer/confirm')
-)
-const input = /*@__PURE__*/ wrapPrompt(require('../external/@inquirer/input'))
-const password = /*@__PURE__*/ wrapPrompt(
-  require('../external/@inquirer/password')
-)
-const search = /*@__PURE__*/ wrapPrompt(
-  require('../external/@inquirer/search').default
-)
+const selectExport = /*@__PURE__*/ require('../external/@inquirer/select')
+const selectRaw = selectExport.default
+const Separator = selectExport.Separator
+
+const confirmRaw = /*@__PURE__*/ require('../external/@inquirer/confirm')
+const confirm = /*@__PURE__*/ wrapPrompt(confirmRaw)
+
+const inputRaw = /*@__PURE__*/ require('../external/@inquirer/input')
+const input = /*@__PURE__*/ wrapPrompt(inputRaw)
+
+const passwordRaw = /*@__PURE__*/ require('../external/@inquirer/password')
+const password = /*@__PURE__*/ wrapPrompt(passwordRaw)
+
+const searchExport = /*@__PURE__*/ require('../external/@inquirer/search')
+const searchRaw = searchExport.default
+
+const search = /*@__PURE__*/ wrapPrompt(searchRaw)
 const select = /*@__PURE__*/ wrapPrompt(selectRaw)
 
 module.exports = {

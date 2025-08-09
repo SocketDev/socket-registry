@@ -2,48 +2,13 @@
 
 const { freeze: ObjectFreeze } = Object
 
+const fs = require('node:fs')
+const path = require('node:path')
+
+const eslintCompat = require('@eslint/compat')
 const registryConstants = require('@socketsecurity/registry/lib/constants')
 const { whichBinSync } = require('@socketsecurity/registry/lib/npm')
-
-let _eslintCompat
-function getEslintCompat() {
-  if (_eslintCompat === undefined) {
-    _eslintCompat = require('@eslint/compat')
-  }
-  return _eslintCompat
-}
-
-let _fs
-function getFs() {
-  if (_fs === undefined) {
-    _fs = require('node:fs')
-  }
-  return _fs
-}
-
-let _path
-function getPath() {
-  if (_path === undefined) {
-    _path = require('node:path')
-  }
-  return _path
-}
-
-let _process
-function getProcess() {
-  if (_process === undefined) {
-    _process = require('node:process')
-  }
-  return _process
-}
-
-let _which
-function getWhich() {
-  if (_which === undefined) {
-    _which = require('which')
-  }
-  return _which
-}
+const which = require('which')
 
 const {
   ESLINT_CONFIG_JS,
@@ -67,8 +32,6 @@ const {
 let _defaultWhichOptions
 function getDefaultWhichOptions() {
   if (_defaultWhichOptions === undefined) {
-    const path = getPath()
-    const process = getProcess()
     _defaultWhichOptions = {
       __proto__: null,
       // Lazily access constants.rootNodeModulesBinPath.
@@ -80,24 +43,22 @@ function getDefaultWhichOptions() {
 
 const LAZY_LICENSE_CONTENT = () =>
   // Lazily access constants.rootLicensePath.
-  getFs().readFileSync(constants.rootLicensePath, UTF8)
+  fs.readFileSync(constants.rootLicensePath, UTF8)
 
 const lazyEcosystems = () => {
   // Lazily require('@socketsecurity/registry/lib/fs').
-  const {
-    readDirNamesSync
-  } = /*@__PURE__*/ require('@socketsecurity/registry/lib/fs')
+  const registryLibFs = /*@__PURE__*/ require('@socketsecurity/registry/lib/fs')
+  const readDirNamesSync = registryLibFs.readDirNamesSync
   // Lazily access constants.rootPackagesPath.
   return ObjectFreeze(readDirNamesSync(constants.rootPackagesPath))
 }
 
-const lazyGitExecPath = () =>
-  getWhich().sync('git', { ...getDefaultWhichOptions() })
+const lazyGitExecPath = () => which.sync('git', { ...getDefaultWhichOptions() })
 
 const lazyGitIgnoreFile = () =>
-  getEslintCompat().includeIgnoreFile(
+  eslintCompat.includeIgnoreFile(
     // Lazily access constants.rootPath.
-    getPath().join(constants.rootPath, GITIGNORE)
+    path.join(constants.rootPath, GITIGNORE)
   )
 
 const lazyIgnoreGlobs = () =>
@@ -120,150 +81,149 @@ const lazyIgnoreGlobs = () =>
 
 const lazyNpmPackageNames = () => {
   // Lazily require('@socketsecurity/registry/lib/fs').
-  const {
-    readDirNamesSync
-  } = /*@__PURE__*/ require('@socketsecurity/registry/lib/fs')
+  const registryLibFs = /*@__PURE__*/ require('@socketsecurity/registry/lib/fs')
+  const readDirNamesSync = registryLibFs.readDirNamesSync
   // Lazily access constants.npmPackagesPath.
   return ObjectFreeze(readDirNamesSync(constants.npmPackagesPath))
 }
 
 const lazyNpmPackagesPath = () =>
   // Lazily access constants.rootPackagesPath.
-  getPath().join(constants.rootPackagesPath, NPM)
+  path.join(constants.rootPackagesPath, NPM)
 
 const lazyNpmTemplatesPath = () =>
   // Lazily access constants.templatesPath.
-  getPath().join(constants.templatesPath, NPM)
+  path.join(constants.templatesPath, NPM)
 
 const lazyNpmTemplatesReadmePath = () =>
   // Lazily access constants.npmTemplatesPath.
-  getPath().join(constants.npmTemplatesPath, README_MD)
+  path.join(constants.npmTemplatesPath, README_MD)
 
 const lazyPerfNpmPath = () =>
   // Lazily access constants.rootPath.
-  getPath().join(constants.rootPath, `perf/${NPM}`)
+  path.join(constants.rootPath, `perf/${NPM}`)
 
 const lazyPerfNpmFixturesPath = () =>
   // Lazily access constants.perfNpmPath.
-  getPath().join(constants.perfNpmPath, 'fixtures')
+  path.join(constants.perfNpmPath, 'fixtures')
 
 const lazyRootLicensePath = () =>
   // Lazily access constants.rootPath.
-  getPath().join(constants.rootPath, LICENSE)
+  path.join(constants.rootPath, LICENSE)
 
 const lazyRootEslintConfigPath = () =>
   // Lazily access constants.rootPath.
-  getPath().join(constants.rootPath, ESLINT_CONFIG_JS)
+  path.join(constants.rootPath, ESLINT_CONFIG_JS)
 
 const lazyRootNodeModulesPath = () =>
   // Lazily access constants.rootPath.
-  getPath().join(constants.rootPath, NODE_MODULES)
+  path.join(constants.rootPath, NODE_MODULES)
 
 const lazyRootNodeModulesBinPath = () =>
   // Lazily access constants.rootNodeModulesPath.
-  getPath().join(constants.rootNodeModulesPath, '.bin')
+  path.join(constants.rootNodeModulesPath, '.bin')
 
 const lazyRootPackageJsonPath = () =>
   // Lazily access constants.rootPath.
-  getPath().join(constants.rootPath, PACKAGE_JSON)
+  path.join(constants.rootPath, PACKAGE_JSON)
 
 const lazyRootPackageLockPath = () =>
   // Lazily access constants.rootPath.
-  getPath().join(constants.rootPath, PACKAGE_LOCK_JSON)
+  path.join(constants.rootPath, PACKAGE_LOCK_JSON)
 
 const lazyRootPackagesPath = () =>
   // Lazily access constants.rootPath.
-  getPath().join(constants.rootPath, 'packages')
+  path.join(constants.rootPath, 'packages')
 
-const lazyRootPath = () => getPath().resolve(__dirname, '..')
+const lazyRootPath = () => path.resolve(__dirname, '..')
 
 const lazyRootTsConfigPath = () =>
   // Lazily access constants.rootPath.
-  getPath().join(constants.rootPath, TSCONFIG_JSON)
+  path.join(constants.rootPath, TSCONFIG_JSON)
 
 const lazyRegistryPkgPath = () =>
   // Lazily access constants.rootPath.
-  getPath().join(constants.rootPath, REGISTRY)
+  path.join(constants.rootPath, REGISTRY)
 
 const lazyRegistryExtensionsJsonPath = () =>
   // Lazily access constants.registryPkgPath.
-  getPath().join(constants.registryPkgPath, EXTENSIONS_JSON)
+  path.join(constants.registryPkgPath, EXTENSIONS_JSON)
 
 const lazyRegistryManifestJsonPath = () =>
   // Lazily access constants.registryPkgPath.
-  getPath().join(constants.registryPkgPath, MANIFEST_JSON)
+  path.join(constants.registryPkgPath, MANIFEST_JSON)
 
 const lazyRelNpmPackagesPath = () =>
   // Lazily access constants.rootPath and constants.npmPackagesPath.
-  getPath().relative(constants.rootPath, constants.npmPackagesPath)
+  path.relative(constants.rootPath, constants.npmPackagesPath)
 
 const lazyRelPackagesPath = () =>
   // Lazily access constants.rootPath and constants.rootPackagesPath.
-  getPath().relative(constants.rootPath, constants.rootPackagesPath)
+  path.relative(constants.rootPath, constants.rootPackagesPath)
 
 const lazyRelRegistryPkgPath = () =>
   // Lazily access constants.rootPath and constants.registryPkgPath.
-  getPath().relative(constants.rootPath, constants.registryPkgPath)
+  path.relative(constants.rootPath, constants.registryPkgPath)
 
 const lazyRelRegistryManifestJsonPath = () =>
   // Lazily access constants.rootPath and constants.registryManifestJsonPath.
-  getPath().relative(constants.rootPath, constants.registryManifestJsonPath)
+  path.relative(constants.rootPath, constants.registryManifestJsonPath)
 
 const lazyRelTestNpmPath = () =>
   // Lazily access constants.rootPath and constants.testNpmPath.
-  getPath().relative(constants.rootPath, constants.testNpmPath)
+  path.relative(constants.rootPath, constants.testNpmPath)
 
 const lazyRelTestNpmNodeModulesPath = () =>
   // Lazily access constants.rootPath and constants.testNpmNodeModulesPath.
-  getPath().relative(constants.rootPath, constants.testNpmNodeModulesPath)
+  path.relative(constants.rootPath, constants.testNpmNodeModulesPath)
 
 const lazyTapCiConfigPath = () =>
   // Lazily access constants.rootPath.
-  getPath().join(constants.rootPath, '.tapci.yaml')
+  path.join(constants.rootPath, '.tapci.yaml')
 
 const lazyTapConfigPath = () =>
   // Lazily access constants.rootPath.
-  getPath().join(constants.rootPath, '.taprc')
+  path.join(constants.rootPath, '.taprc')
 
 const lazyTapRunExecPath = () =>
   whichBinSync('tap-run', { ...getDefaultWhichOptions() })
 
-const lazyTemplatesPath = () => getPath().join(__dirname, 'templates')
+const lazyTemplatesPath = () => path.join(__dirname, 'templates')
 
 const lazyTestNpmPath = () =>
   // Lazily access constants.rootPath.
-  getPath().join(constants.rootPath, `test/${NPM}`)
+  path.join(constants.rootPath, `test/${NPM}`)
 
 const lazyTestNpmFixturesPath = () =>
   // Lazily access constants.testNpmPath.
-  getPath().join(constants.testNpmPath, 'fixtures')
+  path.join(constants.testNpmPath, 'fixtures')
 
 const lazyTestNpmNodeModulesPath = () =>
   // Lazily access constants.testNpmPath.
-  getPath().join(constants.testNpmPath, NODE_MODULES)
+  path.join(constants.testNpmPath, NODE_MODULES)
 
 const lazyTestNpmNodeWorkspacesPath = () =>
   // Lazily access constants.testNpmPath.
-  getPath().join(constants.testNpmPath, NODE_WORKSPACES)
+  path.join(constants.testNpmPath, NODE_WORKSPACES)
 
 const lazyTestNpmPkgJsonPath = () =>
   // Lazily access constants.testNpmPath.
-  getPath().join(constants.testNpmPath, PACKAGE_JSON)
+  path.join(constants.testNpmPath, PACKAGE_JSON)
 
 const lazyTestNpmPkgLockPath = () =>
   // Lazily access constants.testNpmPath.
-  getPath().join(constants.testNpmPath, PACKAGE_LOCK_JSON)
+  path.join(constants.testNpmPath, PACKAGE_LOCK_JSON)
 
 const lazyTsxExecPath = () =>
   whichBinSync('tsx', { ...getDefaultWhichOptions() })
 
 const lazyYarnPkgExtsPath = () =>
   // Lazily access constants.rootNodeModulesPath.
-  getPath().join(constants.rootNodeModulesPath, '@yarnpkg/extensions')
+  path.join(constants.rootNodeModulesPath, '@yarnpkg/extensions')
 
 const lazyYarnPkgExtsJsonPath = () =>
   // Lazily access constants.yarnPkgExtsPath.
-  getPath().join(constants.yarnPkgExtsPath, PACKAGE_JSON)
+  path.join(constants.yarnPkgExtsPath, PACKAGE_JSON)
 
 const constants = createConstantsObject(
   {

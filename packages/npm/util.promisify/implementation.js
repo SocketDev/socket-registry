@@ -1,17 +1,18 @@
 'use strict'
 
-const {
-  promisify: UtilPromisify,
-  promisify: { custom }
-  // Use non-'node:' prefixed require to avoid Webpack errors.
-  // eslint-disable-next-line n/prefer-node-protocol
-} = require('util')
+// Use non-'node:' prefixed require to avoid Webpack errors.
+// eslint-disable-next-line n/prefer-node-protocol
+const nodeUtil = /*@__PURE__*/ require('util')
+const UtilPromisify = nodeUtil.promisify
+const { custom } = UtilPromisify
 
-const customPromisifyArgs = Object.getOwnPropertySymbols(
-  // Use non-'node:' prefixed require to avoid Webpack errors.
-  // eslint-disable-next-line n/prefer-node-protocol
-  require('fs').read
-).find(s => s.description === 'customPromisifyArgs')
+// Use non-'node:' prefixed require to avoid Webpack errors.
+// eslint-disable-next-line n/prefer-node-protocol
+const nodeFs = /*@__PURE__*/ require('fs')
+const read = nodeFs.read
+const customPromisifyArgs = Object.getOwnPropertySymbols(read).find(
+  s => s.description === 'customPromisifyArgs'
+)
 
 module.exports = Object.assign(
   function promisify(original) {

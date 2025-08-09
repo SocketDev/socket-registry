@@ -5,8 +5,8 @@ let _PackageURL
 function getPackageURL() {
   if (_PackageURL === undefined) {
     // The 'packageurl-js' package is browser safe.
-    _PackageURL =
-      /*@__PURE__*/ require('./external/@socketregistry/packageurl-js').PackageURL
+    const packageUrlJs = /*@__PURE__*/ require('./external/@socketregistry/packageurl-js')
+    _PackageURL = packageUrlJs.PackageURL
   }
   return _PackageURL
 }

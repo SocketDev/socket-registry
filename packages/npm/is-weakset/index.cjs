@@ -1,3 +1,4 @@
 'use strict'
 
-module.exports = require('node:util/types').isWeakSet
+const nodeUtilTypes = /*@__PURE__*/ require('node:util/types')
+module.exports = nodeUtilTypes.isWeakSet

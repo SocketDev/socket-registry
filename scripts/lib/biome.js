@@ -1,5 +1,7 @@
 'use strict'
 
+const path = require('node:path')
+
 const getDefaultBiomeConfig = () => ({
   __proto__: null,
   $schema: './node_modules/@biomejs/biome/configuration_schema.json',
@@ -56,7 +58,6 @@ const getDefaultBiomeConfig = () => ({
 })
 
 let _biome
-/*@__NO_SIDE_EFFECTS__*/
 async function getBiome() {
   if (_biome === undefined) {
     const { Biome, Distribution } = /*@__PURE__*/ require('@biomejs/js-api')
@@ -67,18 +68,6 @@ async function getBiome() {
   return _biome
 }
 
-let _path
-/*@__NO_SIDE_EFFECTS__*/
-function getPath() {
-  if (_path === undefined) {
-    // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _path = /*@__PURE__*/ require('path')
-  }
-  return _path
-}
-
-/*@__NO_SIDE_EFFECTS__*/
 async function biomeFormat(str, options) {
   const {
     filepath,
@@ -87,7 +76,6 @@ async function biomeFormat(str, options) {
   } = { __proto__: null, ...options }
   let projectDir = ''
   if (filePath) {
-    const path = getPath()
     projectDir = path.dirname(filePath)
   }
   const biome = await getBiome()
