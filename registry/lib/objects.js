@@ -121,6 +121,20 @@ function defineLazyGetters(object, getterDefObj, stats) {
   return object
 }
 
+let _localeCompare
+/*@__NO_SIDE_EFFECTS__*/
+function entryKeyComparator(a, b) {
+  if (_localeCompare === undefined) {
+    const sorts = /*@__PURE__*/ require('./sorts')
+    _localeCompare = sorts.localeCompare
+  }
+  const keyA = a[0]
+  const keyB = b[0]
+  const strKeyA = typeof keyA === 'string' ? keyA : String(keyA)
+  const strKeyB = typeof keyB === 'string' ? keyB : String(keyB)
+  return _localeCompare(strKeyA, strKeyB)
+}
+
 /*@__NO_SIDE_EFFECTS__*/
 function getOwnPropertyValues(obj) {
   if (obj === null || obj === undefined) {
@@ -251,25 +265,23 @@ function toSortedObject(obj) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function toSortedObjectFromEntries(entries) {
-  const { length } = entries
-  if (!length) {
-    return {}
-  }
-  const stringEntries = []
+  const otherEntries = []
   const symbolEntries = []
-  for (let i = 0; i < length; i += 1) {
-    const entry = entries[i]
+  // Use for-of to work with entries iterators.
+  for (const entry of entries) {
     if (typeof entry[0] === 'symbol') {
       symbolEntries.push(entry)
     } else {
-      stringEntries.push(entry)
+      otherEntries.push(entry)
     }
   }
-  const { localeCompare } = /*@__PURE__*/ require('./sorts')
+  if (!otherEntries.length && !symbolEntries.length) {
+    return []
+  }
   return ObjectFromEntries([
     // The String constructor is safe to use with symbols.
-    ...symbolEntries.sort((a, b) => localeCompare(String(a[0]), String(b[0]))),
-    ...stringEntries.sort((a, b) => localeCompare(a[0], b[0]))
+    ...symbolEntries.sort(entryKeyComparator),
+    ...otherEntries.sort(entryKeyComparator)
   ])
 }
 
