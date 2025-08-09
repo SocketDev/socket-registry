@@ -35,8 +35,10 @@ declare const Objects: {
     getterDefObj: GetterDefObj | undefined,
     stats?: LazyGetterStats | undefined
   ) => object
-  getOwnPropertyValues<T>(obj: { [key: string]: T } | null | undefined): T[]
-  hasKeys(obj: any): obj is Record<string, any>
+  getOwnPropertyValues<T>(
+    obj: { [key: PropertyKey]: T } | null | undefined
+  ): T[]
+  hasKeys(obj: any): obj is Record<PropertyKey, any>
   hasOwn(
     obj: any,
     propKey: PropertyKey
@@ -45,11 +47,11 @@ declare const Objects: {
   isObjectObject(value: any): value is { [key: PropertyKey]: any }
   merge<T extends object, U extends object>(target: T, source: U): T & U
   objectEntries: typeof objectEntries
-  toSortedObject<T>(obj: { [key: string | symbol]: T }): {
-    [key: string | symbol]: T
+  toSortedObject<T>(obj: { [key: PropertyKey]: T }): {
+    [key: PropertyKey]: T
   }
-  toSortedObjectFromEntries<T>(entries: Array<[string | symbol, T]>): {
-    [key: string]: T
+  toSortedObjectFromEntries<T>(entries: Iterable<[PropertyKey, T]>): {
+    [key: PropertyKey]: T
   }
 }
 declare namespace Objects {
