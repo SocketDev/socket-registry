@@ -1,5 +1,7 @@
 'use strict'
 
+const path = require('node:path')
+
 const constants = require('@socketregistry/scripts/constants')
 const { getGlobMatcher } = require('@socketsecurity/registry/lib/globs')
 const { defineLazyGetters } = require('@socketsecurity/registry/lib/objects')
@@ -8,14 +10,6 @@ const { spawn, spawnSync } = require('@socketsecurity/registry/lib/spawn')
 const { stripAnsi } = require('@socketsecurity/registry/lib/strings')
 
 const { NPM, UTF8 } = constants
-
-let _path
-function getPath() {
-  if (_path === undefined) {
-    _path = require('node:path')
-  }
-  return _path
-}
 
 const gitDiffCache = new Map()
 
@@ -92,7 +86,6 @@ function innerDiffSync(args, options) {
 
 function innerGetPackages(eco, files, options) {
   const { asSet = false, ...matcherOptions } = { __proto__: null, ...options }
-  const path = getPath()
   // Lazily access constants.rootPackagesPath.
   const ecoPackagesPath = path.join(constants.rootPackagesPath, eco)
   // Lazily access constants.rootPath.
@@ -135,7 +128,7 @@ function innerGetPackages(eco, files, options) {
 
 function diffIncludes(files, pathname) {
   // Lazily access constants.rootPath.
-  return files.includes(getPath().relative(constants.rootPath, pathname))
+  return files.includes(path.relative(constants.rootPath, pathname))
 }
 
 async function forceRelative(fn, options) {
@@ -205,7 +198,6 @@ function parseGitDiffStdout(stdout, options) {
     cwd = rootPath,
     ...matcherOptions
   } = { __proto__: null, ...options }
-  const path = getPath()
   const rawFiles = stdout ? stripAnsi(stdout.trim()).split('\n') : []
   const files = absolute
     ? rawFiles.map(relPath => normalizePath(path.join(rootPath, relPath)))

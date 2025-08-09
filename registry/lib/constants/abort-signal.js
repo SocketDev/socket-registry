@@ -1,6 +1,7 @@
 'use strict'
 
-const abortSignal = /*@__PURE__*/ require('./abort-controller').signal
+const abortController = /*@__PURE__*/ require('./abort-controller')
+const abortSignal = abortController.signal
 
 // By manually setting `kMaxEventTargetListeners` on `abortSignal` we avoid:
 //   TypeError [ERR_INVALID_ARG_TYPE]: The "emitter" argument must be an

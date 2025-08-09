@@ -37,7 +37,9 @@ const {
   UTF8
 } = constants
 
-const eta = new (require('eta').Eta)()
+const etaExport = /*@__PURE__*/ require('eta')
+const EtaCtor = etaExport.Eta
+const eta = new EtaCtor()
 
 let _templates
 function getTemplates() {

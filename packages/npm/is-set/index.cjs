@@ -1,3 +1,5 @@
 'use strict'
 
-module.exports = require('node:util/types').isSet
+// eslint-disable-next-line n/prefer-node-protocol
+const nodeUtilTypes = /*@__PURE__*/ require('util/types')
+module.exports = nodeUtilTypes.isSet

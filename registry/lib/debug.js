@@ -10,7 +10,8 @@ let _debugJs
 function getDebugJs() {
   if (_debugJs === undefined) {
     // The 'debug' package is browser safe.
-    _debugJs = /*@__PURE__*/ require('../external/debug').default
+    const debugExport = /*@__PURE__*/ require('../external/debug')
+    _debugJs = debugExport.default
   }
   return _debugJs
 }

@@ -96,7 +96,8 @@ function stripVTControlCharacters(string) {
   if (_stripVTControlCharacters === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
     // eslint-disable-next-line n/prefer-node-protocol
-    _stripVTControlCharacters = require('util').stripVTControlCharacters
+    const nodeUtil = /*@__PURE__*/ require('util')
+    _stripVTControlCharacters = nodeUtil.stripVTControlCharacters
   }
   return _stripVTControlCharacters(string)
 }

@@ -12,7 +12,8 @@ function constructConsole(...args) {
   if (_Console === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
     // eslint-disable-next-line n/prefer-node-protocol
-    _Console = /*@__PURE__*/ require('console').Console
+    const nodeConsole = /*@__PURE__*/ require('console')
+    _Console = nodeConsole.Console
   }
   return ReflectConstruct(_Console, args)
 }
