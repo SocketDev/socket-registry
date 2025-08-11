@@ -138,7 +138,7 @@ function Spinner(options) {
           const text = args.at(0)
           const normalized = normalizeText(text)
           // We clear this.text on start when `text` is falsy because yocto-spinner
-          // would not clear it otherwise.
+          // will not clear it otherwise.
           if (!normalized) {
             this.setText('')
           }
@@ -147,6 +147,8 @@ function Spinner(options) {
       }
 
       stop(...args) {
+        // We clear this.text on stop because yocto-spinner will not clear it.
+        this.setText('')
         return this.#apply('stop', args)
       }
 
