@@ -6,6 +6,11 @@ const SUPPORTS_NODE_DISABLE_WARNING_FLAG = /*@__PURE__*/ require('./supports-nod
 
 module.exports = ObjectFreeze(
   SUPPORTS_NODE_DISABLE_WARNING_FLAG
-    ? ['--disable-warning', 'DeprecationWarning', 'ExperimentalWarning']
+    ? [
+        '--disable-warning',
+        'DeprecationWarning',
+        '--disable-warning',
+        'ExperimentalWarning'
+      ]
     : ['--no-warnings']
 )
