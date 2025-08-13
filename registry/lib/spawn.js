@@ -71,17 +71,17 @@ function spawn(cmd, args, options, extra) {
     stripAnsi: shouldStripAnsi = true,
     ...spawnOptions
   } = { __proto__: null, ...options }
-  const spawn = getSpawn()
-  const isSpinning = !!spinner?.isSpinning
   const { env, stdio, stdioString = true } = spawnOptions
   // The stdio option can be a string or an array.
   // https://nodejs.org/api/child_process.html#optionsstdio
+  const wasSpinning = !!spinner?.isSpinning
   const shouldStopSpinner =
-    isSpinning && !isStdioType(stdio, 'ignore') && !isStdioType(stdio, 'pipe')
+    wasSpinning && !isStdioType(stdio, 'ignore') && !isStdioType(stdio, 'pipe')
   const shouldRestartSpinner = shouldStopSpinner
   if (shouldStopSpinner) {
     spinner.stop()
   }
+  const spawn = getSpawn()
   let spawnPromise = spawn(
     cmd,
     args,

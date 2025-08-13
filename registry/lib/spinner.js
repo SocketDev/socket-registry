@@ -51,7 +51,7 @@ function Spinner(options) {
           extras = args
           text = ''
         }
-        const { isSpinning: wasSpinning } = this
+        const wasSpinning = this.isSpinning
         const normalized = normalizeText(text)
         super[methodName](normalized)
         const {
@@ -76,7 +76,7 @@ function Spinner(options) {
       }
 
       #applyAndKeepSpinning(methodName, args) {
-        const { isSpinning: wasSpinning } = this
+        const wasSpinning = this.isSpinning
         this.#apply(methodName, args)
         if (wasSpinning) {
           this.start()
