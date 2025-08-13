@@ -153,7 +153,8 @@ function resolveBinPathSync(binPath) {
     const voltaImagePath = path.join(voltaToolsPath, 'image')
     const voltaUserPath = path.join(voltaToolsPath, 'user')
     const voltaPlatform = readJsonSync(
-      path.join(voltaUserPath, 'platform.json')
+      path.join(voltaUserPath, 'platform.json'),
+      { throws: false }
     )
     const voltaNodeVersion = voltaPlatform?.node?.runtime
     const voltaNpmVersion = voltaPlatform?.node?.npm
@@ -178,7 +179,8 @@ function resolveBinPathSync(binPath) {
     } else {
       const voltaUserBinPath = path.join(voltaUserPath, 'bin')
       const binInfo = readJsonSync(
-        path.join(voltaUserBinPath, `${basename}.json`)
+        path.join(voltaUserBinPath, `${basename}.json`),
+        { throws: false }
       )
       const binPackage = binInfo?.package
       if (binPackage) {
