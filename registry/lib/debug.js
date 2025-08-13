@@ -105,7 +105,7 @@ function debugDir(namespacesOrOpts, obj, inspectOpts) {
     inspectOpts = debugJs.inspectOpts
   }
   const { spinner = /*@__PURE__*/ require('./constants/spinner') } = options
-  const { isSpinning: wasSpinning } = spinner
+  const wasSpinning = spinner.isSpinning
   spinner.stop()
   const { logger } = /*@__PURE__*/ require('./logger')
   logger.dir(obj, inspectOpts)
@@ -172,7 +172,7 @@ function debugFn(namespacesOrOpts, ...args) {
         ]
       : args
   const { spinner = /*@__PURE__*/ require('./constants/spinner') } = options
-  const { isSpinning: wasSpinning } = spinner
+  const wasSpinning = spinner.isSpinning
   spinner.stop()
   const { logger } = /*@__PURE__*/ require('./logger')
   ReflectApply(logger.info, logger, logArgs)
@@ -189,7 +189,7 @@ function debugLog(namespacesOrOpts, ...args) {
     return
   }
   const { spinner = /*@__PURE__*/ require('./constants/spinner') } = options
-  const { isSpinning: wasSpinning } = spinner
+  const wasSpinning = spinner.isSpinning
   spinner.stop()
   ReflectApply(customLog, undefined, args)
   if (wasSpinning) {

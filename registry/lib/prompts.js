@@ -17,7 +17,7 @@ function wrapPrompt(inquirerPrompt) {
     } else {
       args[1] = { signal: abortSignal }
     }
-    const isSpinning = !!spinner?.isSpinning
+    const wasSpinning = !!spinner?.isSpinning
     spinner?.stop()
     let result
     try {
@@ -27,8 +27,8 @@ function wrapPrompt(inquirerPrompt) {
         throw e
       }
     }
-    if (isSpinning) {
-      spinner?.start()
+    if (wasSpinning) {
+      spinner.start()
     }
     return typeof result === 'string' ? result.trim() : result
   }
