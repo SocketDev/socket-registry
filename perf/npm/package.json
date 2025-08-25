@@ -8,6 +8,6 @@
     "@socketsecurity/registry": "*",
     "fast-json-stable-stringify": "2.1.0",
     "json-stable-stringify": "1.3.0",
-    "tinybench": "4.1.0"
+    "tinybench": "5.0.1"
   }
 }
