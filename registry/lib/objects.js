@@ -8,6 +8,7 @@ const {
   getOwnPropertyDescriptors: ObjectGetOwnPropertyDescriptors,
   getOwnPropertyNames: ObjectGetOwnPropertyNames,
   hasOwn: ObjectHasOwn,
+  keys: ObjectKeys,
   setPrototypeOf: ObjectSetPrototypeOf
 } = Object
 const { __defineGetter__ } = Object.prototype
@@ -133,6 +134,19 @@ function entryKeyComparator(a, b) {
   const strKeyA = typeof keyA === 'string' ? keyA : String(keyA)
   const strKeyB = typeof keyB === 'string' ? keyB : String(keyB)
   return _localeCompare(strKeyA, strKeyB)
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function getKeys(obj) {
+  return isObject(obj) ? ObjectKeys(obj) : []
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function getOwn(obj, propKey) {
+  if (obj === null || obj === undefined) {
+    return undefined
+  }
+  return ObjectHasOwn(obj, propKey) ? obj[propKey] : undefined
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -291,6 +305,8 @@ module.exports = {
   defineGetter,
   defineLazyGetter,
   defineLazyGetters,
+  getKeys,
+  getOwn,
   getOwnPropertyValues,
   hasKeys,
   hasOwn,
