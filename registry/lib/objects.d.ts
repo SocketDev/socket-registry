@@ -35,6 +35,8 @@ declare const Objects: {
     getterDefObj: GetterDefObj | undefined,
     stats?: LazyGetterStats | undefined
   ) => object
+  getKeys(obj: any): string[]
+  getOwn(obj: any, propKey: PropertyKey): any
   getOwnPropertyValues<T>(
     obj: { [key: PropertyKey]: T } | null | undefined
   ): T[]
