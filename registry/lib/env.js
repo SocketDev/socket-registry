@@ -1,31 +1,40 @@
 'use strict'
 
-const { isFinite: NumberIsFinite, parseInt: NumberParseInt } = Number
+const NumberCtor = Number
+const { isFinite: NumberIsFinite, parseInt: NumberParseInt } = NumberCtor
+const StringCtor = String
 
 /*@__NO_SIDE_EFFECTS__*/
-function envAsBoolean(value) {
-  return typeof value === 'string'
-    ? value.trim() === '1' || value.trim().toLowerCase() === 'true'
-    : !!value
+function envAsBoolean(value, defaultValue = false) {
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    return trimmed === '1' || trimmed.toLowerCase() === 'true'
+  }
+  if (value === null || value === undefined) {
+    return !!defaultValue
+  }
+  return !!value
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function envAsNumber(value) {
+function envAsNumber(value, defaultValue = 0) {
   const numOrNaN = NumberParseInt(value, 10)
-  const numMayBeNegZero = NumberIsFinite(numOrNaN) ? numOrNaN : 0
+  const numMayBeNegZero = NumberIsFinite(numOrNaN)
+    ? numOrNaN
+    : NumberCtor(defaultValue)
   // Ensure -0 is treated as 0.
   return numMayBeNegZero || 0
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function envAsString(value) {
+function envAsString(value, defaultValue = '') {
   if (typeof value === 'string') {
     return value.trim()
   }
   if (value === null || value === undefined) {
-    return ''
+    return defaultValue === '' ? defaultValue : StringCtor(defaultValue).trim()
   }
-  return String(value).trim()
+  return StringCtor(value).trim()
 }
 
 module.exports = {
