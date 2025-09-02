@@ -140,7 +140,7 @@ async function getPackageJsonAction(pkgPath, options) {
       originalName: resolveOriginalPackageName(sockRegPkgName),
       categories: Array.isArray(categories)
         ? categories
-        : [...PACKAGE_DEFAULT_SOCKET_CATEGORIES],
+        : Array.from(PACKAGE_DEFAULT_SOCKET_CATEGORIES),
       // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
       engines: engines ?? { node: constants.PACKAGE_DEFAULT_NODE_RANGE },
       // Lazily access constants.PACKAGE_DEFAULT_VERSION.

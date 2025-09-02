@@ -187,7 +187,7 @@ void (async () => {
   const packages = [
     registryPkg,
     // Lazily access constants.npmPackageNames.
-    ...constants.npmPackageNames.map(sockRegPkgName => {
+    ...Array.from(constants.npmPackageNames, sockRegPkgName => {
       const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
       const pkgJson = readPackageJsonSync(pkgPath)
       return packageData({

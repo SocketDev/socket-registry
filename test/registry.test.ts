@@ -47,7 +47,7 @@ describe(
         [kInternalsSymbol]: { lazyGetterStats }
       } = registryConstants
 
-      assert.deepStrictEqual([...lazyGetterStats.initialized], [])
+      assert.deepStrictEqual(Array.from(lazyGetterStats.initialized), [])
     })
 
     it('should expose internal attributes', async () => {

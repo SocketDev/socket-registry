@@ -332,7 +332,7 @@ for (const eco of constants.ecosystems) {
               ...filesPatternsAsArray
             ],
             {
-              ignore: [...ignoreGlobs],
+              ignore: Array.from(ignoreGlobs),
               caseSensitiveMatch: false,
               cwd: pkgPath,
               dot: true
