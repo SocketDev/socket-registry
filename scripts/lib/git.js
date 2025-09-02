@@ -123,7 +123,7 @@ function innerGetPackages(eco, files, options) {
       packageNames.add(sockRegPkgName)
     }
   }
-  return asSet ? packageNames : [...packageNames]
+  return asSet ? packageNames : Array.from(packageNames)
 }
 
 function diffIncludes(files, pathname) {
