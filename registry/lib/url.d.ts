@@ -1,9 +1,9 @@
-declare const Env: {
+declare const Url: {
   urlSearchParamAsArray(value: any): string[]
   urlSearchParamAsBoolean(
     value: any,
     defaultValue?: boolean | undefined
   ): boolean
 }
-declare namespace Env {}
-export = Env
+declare namespace Url {}
+export = Url
