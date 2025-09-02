@@ -73,7 +73,6 @@ async function publish(pkg, state = { fails: [] }) {
         ['publish', '--provenance', '--tag', pkg.tag, '--access', 'public'],
         {
           cwd: pkg.path,
-          stdio: 'pipe',
           env: {
             ...process.env,
             // Lazily access constants.ENV.NODE_AUTH_TOKEN.
