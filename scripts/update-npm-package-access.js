@@ -53,7 +53,6 @@ void (async () => {
         const stdout = (
           await execNpm(['access', 'set', 'mfa=automation', pkg.name], {
             cwd: pkg.path,
-            stdio: 'pipe',
             env: {
               ...process.env,
               // Lazily access constants.ENV.NODE_AUTH_TOKEN.
