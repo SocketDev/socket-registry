@@ -585,6 +585,10 @@
       "types": "./lib/strings.d.ts",
       "default": "./lib/strings.js"
     },
+    "./lib/url": {
+      "types": "./lib/url.d.ts",
+      "default": "./lib/url.js"
+    },
     "./lib/words": {
       "types": "./lib/words.d.ts",
       "default": "./lib/words.js"
