@@ -25,9 +25,9 @@ module.exports = ObjectFreeze({
   NODE_AUTH_TOKEN: envAsString(env.NODE_AUTH_TOKEN),
   // NODE_ENV is a recognized convention, but not a built-in Node.js feature.
   NODE_ENV:
-    envAsString(env.NODE_ENV).toLowerCase() === 'development'
-      ? 'development'
-      : 'production',
+    envAsString(env.NODE_ENV).toLowerCase() === 'production'
+      ? 'production'
+      : 'development',
   // A space-separated list of command-line options. `options...` are interpreted
   // before command-line options, so command-line options will override or compound
   // after anything in `options...`. Node.js will exit with an error if an option
