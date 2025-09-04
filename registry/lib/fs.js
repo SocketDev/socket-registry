@@ -3,9 +3,9 @@
 const { freeze: ObjectFreeze } = Object
 
 const { defaultIgnore, getGlobMatcher } = /*@__PURE__*/ require('./globs')
+const { jsonParse } = /*@__PURE__*/ require('./json')
 const { naturalCompare } = /*@__PURE__*/ require('./sorts')
 const { pathLikeToString } = /*@__PURE__*/ require('./path')
-const { stripBom } = /*@__PURE__*/ require('./strings')
 
 const defaultRemoveOptions = ObjectFreeze({
   __proto__: null,
@@ -95,22 +95,6 @@ function isSymLinkSync(filepath) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function parse(filepath, content, reviver, shouldThrow) {
-  const jsonStr = Buffer.isBuffer(content) ? content.toString('utf8') : content
-  try {
-    return JSON.parse(stripBom(jsonStr), reviver)
-  } catch (e) {
-    if (shouldThrow) {
-      if (e) {
-        e.message = `${filepath}: ${e.message}`
-      }
-      throw e
-    }
-  }
-  return null
-}
-
-/*@__NO_SIDE_EFFECTS__*/
 async function readDirNames(dirname, options) {
   const fs = getFs()
   try {
@@ -164,16 +148,17 @@ async function readJson(filepath, options) {
   }
   const { reviver, throws, ...fsOptions } = { __proto__: null, ...options }
   const fs = getFs()
-  const shouldThrow = throws === undefined || !!throws
-  return parse(
-    filepath,
+  return jsonParse(
     await fs.promises.readFile(filepath, {
       __proto__: null,
       encoding: 'utf8',
       ...fsOptions
     }),
-    reviver,
-    shouldThrow
+    {
+      filepath,
+      reviver,
+      throws
+    }
   )
 }
 
@@ -184,16 +169,17 @@ function readJsonSync(filepath, options) {
   }
   const { reviver, throws, ...fsOptions } = { __proto__: null, ...options }
   const fs = getFs()
-  const shouldThrow = throws === undefined || !!throws
-  return parse(
-    filepath,
+  return jsonParse(
     fs.readFileSync(filepath, {
       __proto__: null,
       encoding: 'utf8',
       ...fsOptions
     }),
-    reviver,
-    shouldThrow
+    {
+      filepath,
+      reviver,
+      throws
+    }
   )
 }
 
