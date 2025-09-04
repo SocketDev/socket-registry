@@ -18,7 +18,7 @@ declare type JsonValue = JsonPrimitive | JsonObject | JsonArray
 declare type JsonReviver = (this: any, key: string, value: any) => any
 declare const Json: {
   jsonParse: (
-    content: string,
+    content: string | Buffer,
     options?: JsonParseOptions | undefined
   ) => JsonValue
 }
