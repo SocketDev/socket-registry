@@ -41,7 +41,6 @@ const {
   NODE_MODULES_GLOB_RECURSIVE,
   PACKAGE_JSON,
   README_GLOB_RECURSIVE,
-  SOCKET_OVERRIDE_SCOPE,
   SOCKET_REGISTRY_SCOPE,
   UTF8,
   ignoreGlobs,
@@ -425,14 +424,7 @@ async function linkPackages(packageNames, options) {
         )
       nmEditablePkgJson.update({
         dependencies: {
-          ...Object.fromEntries(
-            objectEntries(nmPkgDeps).filter(
-              pair =>
-                !dependencies[
-                  `${SOCKET_OVERRIDE_SCOPE}/${origPkgName}__${pair[0]}`
-                ]
-            )
-          ),
+          ...nmPkgDeps,
           ...dependencies,
           ...overridesAsDeps
         }

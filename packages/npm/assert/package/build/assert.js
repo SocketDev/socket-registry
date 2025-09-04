@@ -86,10 +86,9 @@ function _classCallCheck(instance, Constructor) {
     throw new TypeError('Cannot call a class as a function')
   }
 }
-const RegExpPrototypeTest =
-  require('@socketoverride/assert__call-bind/callBound')(
-    'RegExp.prototype.test'
-  )
+const RegExpPrototypeTest = require('../external/call-bind')(
+  'RegExp.prototype.test'
+)
 const objectIs = require('object-is/polyfill')()
 const objectAssign = require('object.assign/polyfill')()
 const _require$types = require('util/').types,

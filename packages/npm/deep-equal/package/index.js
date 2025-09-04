@@ -1,9 +1,9 @@
 'use strict'
 
 const assign = require('object.assign')
-const callBound = require('@socketoverride/deep-equal__call-bind/callBound')
+const callBound = require('./external/call-bind')
 const flags = require('regexp.prototype.flags')
-const GetIntrinsic = require('@socketoverride/deep-equal__get-intrinsic')
+const GetIntrinsic = require('./external/get-intrinsic')
 const getIterator = require('es-get-iterator')
 const getSideChannel = require('side-channel')
 const is = require('object-is')
@@ -186,11 +186,8 @@ function isBuffer(x) {
     return false
   }
 
-  return !!(
-    x.constructor &&
-    x.constructor.isBuffer &&
-    x.constructor.isBuffer(x)
-  )
+  const Ctor = x.constructor
+  return !!(typeof Ctor?.isBuffer === 'function' && Ctor.isBuffer(x))
 }
 
 function setEquiv(a, b, opts, channel) {
