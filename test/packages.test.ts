@@ -36,10 +36,8 @@ const {
   LICENSE,
   LICENSE_GLOB,
   NPM,
-  OVERRIDES,
   PACKAGE_JSON,
   README_GLOB,
-  SOCKET_OVERRIDE_SCOPE,
   SOCKET_REGISTRY_SCOPE,
   UTF8,
   ignoreGlobs
@@ -348,21 +346,12 @@ for (const eco of constants.ecosystems) {
           })
         )
 
-        const localOverridesFiles = filesFieldMatches.filter(p =>
-          p.startsWith(`${OVERRIDES}/`)
-        )
-
-        const hasOverridesAsDeps = Object.keys(dependencies ?? {}).some(
-          k =>
-            k.startsWith(SOCKET_OVERRIDE_SCOPE) ||
-            k.startsWith(SOCKET_REGISTRY_SCOPE)
+        const hasOverridesAsDeps = Object.keys(dependencies ?? {}).some(k =>
+          k.startsWith(SOCKET_REGISTRY_SCOPE)
         )
 
         const hasOverrides =
-          hasOverridesAsDeps ||
-          !!pkgOverrides ||
-          !!pkgResolutions ||
-          localOverridesFiles.length > 0
+          hasOverridesAsDeps || !!pkgOverrides || !!pkgResolutions
 
         if (hasOverrides) {
           if (!hasOverridesAsDeps) {
@@ -371,10 +360,6 @@ for (const eco of constants.ecosystems) {
               assert.ok(isObjectObject(pkgResolutions))
             })
           }
-
-          it('should not have overrides directory', () => {
-            assert.strictEqual(localOverridesFiles.length, 0)
-          })
         } else {
           it('package files should match "files" field', () => {
             const filesToCompare = files.filter(p =>

@@ -28,8 +28,6 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@socketoverride/deep-equal__call-bind": "^1.0.4",
-    "@socketoverride/deep-equal__get-intrinsic": "^1.0.3",
     "array-buffer-byte-length": "npm:@socketregistry/array-buffer-byte-length@^1",
     "es-get-iterator": "npm:@socketregistry/es-get-iterator@^1",
     "is-arguments": "npm:@socketregistry/is-arguments@^1",
@@ -54,7 +52,7 @@
     "*.d.{c,}ts",
     "*.{c,}js",
     "**/*.js",
-    "!overrides"
+    "**/LICENSE{.original,}"
   ],
   "socket": {
     "categories": [

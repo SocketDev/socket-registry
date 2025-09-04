@@ -22,7 +22,6 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@socketoverride/assert__call-bind": "^1.0.7",
     "is-nan": "npm:@socketregistry/is-nan@^1",
     "object-is": "npm:@socketregistry/object-is@^1",
     "object.assign": "npm:@socketregistry/object.assign@^1",
@@ -34,7 +33,7 @@
   "files": [
     "*.d.ts",
     "**/*.js",
-    "!overrides"
+    "**/LICENSE{.original,}"
   ],
   "socket": {
     "categories": [
