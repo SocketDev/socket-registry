@@ -297,7 +297,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/assert@1.0.18",
+      "pkg:npm/%40socketregistry/assert@1.0.19",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -307,7 +307,7 @@
         "license": "MIT",
         "name": "@socketregistry/assert",
         "package": "assert",
-        "version": "1.0.18"
+        "version": "1.0.19"
       }
     ],
     [
@@ -354,7 +354,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/deep-equal@1.0.17",
+      "pkg:npm/%40socketregistry/deep-equal@1.0.18",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -364,7 +364,7 @@
         "license": "MIT",
         "name": "@socketregistry/deep-equal",
         "package": "deep-equal",
-        "version": "1.0.17"
+        "version": "1.0.18"
       }
     ],
     [
