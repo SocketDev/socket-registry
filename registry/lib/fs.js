@@ -147,19 +147,26 @@ async function readJson(filepath, options) {
     options = { encoding: options }
   }
   const { reviver, throws, ...fsOptions } = { __proto__: null, ...options }
+  const shouldThrow = throws === undefined || !!throws
   const fs = getFs()
-  return jsonParse(
-    await fs.promises.readFile(filepath, {
+  let content = ''
+  try {
+    content = await fs.promises.readFile(filepath, {
       __proto__: null,
       encoding: 'utf8',
       ...fsOptions
-    }),
-    {
-      filepath,
-      reviver,
-      throws
+    })
+  } catch (e) {
+    if (shouldThrow) {
+      throw e
     }
-  )
+    return null
+  }
+  return jsonParse(content, {
+    filepath,
+    reviver,
+    throws: shouldThrow
+  })
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -168,19 +175,26 @@ function readJsonSync(filepath, options) {
     options = { encoding: options }
   }
   const { reviver, throws, ...fsOptions } = { __proto__: null, ...options }
+  const shouldThrow = throws === undefined || !!throws
   const fs = getFs()
-  return jsonParse(
-    fs.readFileSync(filepath, {
+  let content = ''
+  try {
+    content = fs.readFileSync(filepath, {
       __proto__: null,
       encoding: 'utf8',
       ...fsOptions
-    }),
-    {
-      filepath,
-      reviver,
-      throws
+    })
+  } catch (e) {
+    if (shouldThrow) {
+      throw e
     }
-  )
+    return null
+  }
+  return jsonParse(content, {
+    filepath,
+    reviver,
+    throws: shouldThrow
+  })
 }
 
 /*@__NO_SIDE_EFFECTS__*/
