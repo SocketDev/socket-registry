@@ -1,5 +1,5 @@
-import ipcObject from './ipc-object'
+import IpcObject from './ipc-object'
 
-declare const ipcPromise: Promise<typeof ipcObject>
+declare const IpcPromise: Promise<typeof IpcObject>
 
-export = ipcPromise
+export = IpcPromise

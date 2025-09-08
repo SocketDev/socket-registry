@@ -1,7 +1,7 @@
-import ipcObject from './ipc-object'
+import IpcObject from './ipc-object'
 
-declare function getIpc(): Promise<typeof ipcObject>
-declare function getIpc<K extends keyof ipcObject | undefined>(
+declare function getIpc(): Promise<typeof IpcObject>
+declare function getIpc<K extends keyof IpcObject | undefined>(
   key?: K | undefined
-): Promise<K extends keyof ipcObject ? ipcObject[K] : typeof ipcObject>
+): Promise<K extends keyof IpcObject ? IpcObject[K] : typeof IpcObject>
 export = getIpc

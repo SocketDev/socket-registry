@@ -7,7 +7,7 @@ import COLUMN_LIMIT from './column-limit'
 import copyLeftLicenses from './copy-left-licenses'
 import DARWIN from './darwin'
 import EMPTY_FILE from './empty-file'
-import ENV from './env'
+import EnvObject from './env'
 import ESLINT_CONFIG_JS from './eslint-config-js'
 import ESNEXT from './esnext'
 import execPath from './exec-path'
@@ -19,7 +19,7 @@ import EXTENSIONS_JSON from './extensions-json'
 import getIpc from './get-ipc'
 import GITIGNORE from './gitignore'
 import HIDDEN_PACKAGE_LOCK_JSON from './hidden-package-lock-json'
-import ipcObject from './ipc-object'
+import IpcObject from './ipc-object'
 import kInternalsSymbol from './k-internals-symbol'
 import LATEST from './latest'
 import LICENSE from './license'
@@ -122,7 +122,7 @@ declare const Constants: {
   readonly COLUMN_LIMIT: typeof COLUMN_LIMIT
   readonly DARWIN: typeof DARWIN
   readonly EMPTY_FILE: typeof EMPTY_FILE
-  readonly ENV: typeof ENV
+  readonly ENV: typeof EnvObject
   readonly ESLINT_CONFIG_JS: typeof ESLINT_CONFIG_JS
   readonly ESNEXT: typeof ESNEXT
   readonly EXT_CMD: typeof EXT_CMD
@@ -132,7 +132,7 @@ declare const Constants: {
   readonly EXTENSIONS_JSON: typeof EXTENSIONS_JSON
   readonly GITIGNORE: typeof GITIGNORE
   readonly HIDDEN_PACKAGE_LOCK_JSON: typeof HIDDEN_PACKAGE_LOCK_JSON
-  readonly ipcObject: typeof ipcObject
+  readonly ipcObject: typeof IpcObject
   readonly LATEST: typeof LATEST
   readonly LICENSE: typeof LICENSE
   readonly LICENSE_GLOB: typeof LICENSE_GLOB
