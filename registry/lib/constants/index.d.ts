@@ -12,13 +12,14 @@ import ESLINT_CONFIG_JS from './eslint-config-js'
 import ESNEXT from './esnext'
 import execPath from './exec-path'
 import EXT_CMD from './ext-cmd'
+import EXT_LOCK from './ext-lock'
 import EXT_PS1 from './ext-ps1'
 import EXTENSIONS from './extensions'
 import EXTENSIONS_JSON from './extensions-json'
 import getIpc from './get-ipc'
 import GITIGNORE from './gitignore'
 import HIDDEN_PACKAGE_LOCK_JSON from './hidden-package-lock-json'
-import IPC from './ipc'
+import ipcObject from './ipc-object'
 import kInternalsSymbol from './k-internals-symbol'
 import LATEST from './latest'
 import LICENSE from './license'
@@ -33,6 +34,7 @@ import maintainedNodeVersions from './maintained-node-versions'
 import MANIFEST_JSON from './manifest-json'
 import MIT from './mit'
 import NODE_AUTH_TOKEN from './node-auth-token'
+import nodeDebugFlags from './node-debug-flags'
 import NODE_ENV from './node-env'
 import nodeHardenFlags from './node-harden-flags'
 import NODE_MODULES from './node-modules'
@@ -54,6 +56,7 @@ import PACKAGE_LOCK_JSON from './package-lock-json'
 import packumentCache from './packument-cache'
 import pacoteCachePath from './pacote-cache-path'
 import parseArgsConfig from './parse-args-config'
+import PNPM from './pnpm'
 import PRE_COMMIT from './pre-commit'
 import README_GLOB from './readme-glob'
 import README_GLOB_RECURSIVE from './readme-glob-recursive'
@@ -65,7 +68,6 @@ import skipTestsByEcosystem from './skip-tests-by-ecosystem'
 import SOCKET_GITHUB_ORG from './socket-github-org'
 import SOCKET_IPC_HANDSHAKE from './socket-ipc-handshake'
 import SOCKET_OVERRIDE_SCOPE from './socket-override-scope'
-import SOCKET_PUBLIC_API_KEY from './socket-public-api-key'
 import SOCKET_PUBLIC_API_TOKEN from './socket-public-api-token'
 import SOCKET_REGISTRY_NPM_ORG from './socket-registry-npm-org'
 import SOCKET_REGISTRY_PACKAGE_NAME from './socket-registry-package-name'
@@ -97,6 +99,7 @@ import UTF8 from './utf8'
 import VITEST from './vitest'
 import WIN32 from './win32'
 import win32EnsureTestsByEcosystem from './win32-ensure-tests-by-ecosystem'
+import YARN_LOCK from './yarn-lock'
 import { createConstantsObject } from '../objects'
 
 interface Internals {
@@ -123,12 +126,13 @@ declare const Constants: {
   readonly ESLINT_CONFIG_JS: typeof ESLINT_CONFIG_JS
   readonly ESNEXT: typeof ESNEXT
   readonly EXT_CMD: typeof EXT_CMD
+  readonly EXT_LOCK: typeof EXT_LOCK
   readonly EXT_PS1: typeof EXT_PS1
   readonly EXTENSIONS: typeof EXTENSIONS
   readonly EXTENSIONS_JSON: typeof EXTENSIONS_JSON
   readonly GITIGNORE: typeof GITIGNORE
   readonly HIDDEN_PACKAGE_LOCK_JSON: typeof HIDDEN_PACKAGE_LOCK_JSON
-  readonly IPC: typeof IPC
+  readonly ipcObject: typeof ipcObject
   readonly LATEST: typeof LATEST
   readonly LICENSE: typeof LICENSE
   readonly LICENSE_GLOB: typeof LICENSE_GLOB
@@ -153,6 +157,7 @@ declare const Constants: {
   readonly PACKAGE_DEFAULT_VERSION: typeof PACKAGE_DEFAULT_VERSION
   readonly PACKAGE_JSON: typeof PACKAGE_JSON
   readonly PACKAGE_LOCK_JSON: typeof PACKAGE_LOCK_JSON
+  readonly PNPM: typeof PNPM
   readonly PRE_COMMIT: typeof PRE_COMMIT
   readonly README_GLOB: typeof README_GLOB
   readonly README_GLOB_RECURSIVE: typeof README_GLOB_RECURSIVE
@@ -163,7 +168,6 @@ declare const Constants: {
   readonly SOCKET_GITHUB_ORG: typeof SOCKET_GITHUB_ORG
   readonly SOCKET_IPC_HANDSHAKE: typeof SOCKET_IPC_HANDSHAKE
   readonly SOCKET_OVERRIDE_SCOPE: typeof SOCKET_OVERRIDE_SCOPE
-  readonly SOCKET_PUBLIC_API_KEY: typeof SOCKET_PUBLIC_API_KEY
   readonly SOCKET_PUBLIC_API_TOKEN: typeof SOCKET_PUBLIC_API_TOKEN
   readonly SOCKET_REGISTRY_NPM_ORG: typeof SOCKET_REGISTRY_NPM_ORG
   readonly SOCKET_REGISTRY_PACKAGE_NAME: typeof SOCKET_REGISTRY_PACKAGE_NAME
@@ -191,6 +195,7 @@ declare const Constants: {
   readonly UTF8: typeof UTF8
   readonly VITEST: typeof VITEST
   readonly WIN32: typeof WIN32
+  readonly YARN_LOCK: typeof YARN_LOCK
   readonly abortController: typeof abortController
   readonly abortSignal: typeof abortSignal
   readonly copyLeftLicenses: typeof copyLeftLicenses
@@ -199,6 +204,7 @@ declare const Constants: {
   readonly lifecycleScriptNames: typeof lifecycleScriptNames
   readonly maintainedNodeVersions: typeof maintainedNodeVersions
   readonly nodeHardenFlags: typeof nodeHardenFlags
+  readonly nodeDebugFlags: typeof nodeDebugFlags
   readonly nodeNoWarningsFlags: typeof nodeNoWarningsFlags
   readonly npmExecPath: typeof npmExecPath
   readonly npmRealExecPath: typeof npmRealExecPath

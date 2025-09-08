@@ -59,6 +59,21 @@ function stripBom(str) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
+function toKebabCase(str) {
+  if (!str.length) {
+    return str
+  }
+  return (
+    str
+      // Convert camelCase to kebab-case
+      .replace(/([a-z]+[0-9]*)([A-Z])/g, '$1-$2')
+      // Convert underscores to hyphens
+      .replace(/_/g, '-')
+      .toLowerCase()
+  )
+}
+
+/*@__NO_SIDE_EFFECTS__*/
 function trimNewlines(str) {
   const { length } = str
   if (length === 0) {
@@ -101,5 +116,6 @@ module.exports = {
   search,
   stripAnsi,
   stripBom,
+  toKebabCase,
   trimNewlines
 }

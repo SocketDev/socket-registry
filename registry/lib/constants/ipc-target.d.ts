@@ -1,3 +1,3 @@
-import IPC from './ipc'
+import ipcObject from './ipc-object'
 
-export = IPC
+export = ipcObject
