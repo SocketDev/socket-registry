@@ -614,9 +614,9 @@
   },
   "sideEffects": false,
   "scripts": {
-    "build": "run-p -c --aggregate-output build:*",
+    "build": "run-s -c build:*",
     "build:external": "run-s build:external:src lint:external:fix",
-    "build:external:src": "run-p -c clean:external && dotenvx -q run -f ../.env.local -- node ./scripts/rollup/build-external.js",
+    "build:external:src": "run-s -c clean:external && dotenvx -q run -f ../.env.local -- node ./scripts/rollup/build-external.js",
     "build:inline-constants": "run-s build:inline-constants:src",
     "build:inline-constants:src": "dotenvx -q run -f ../.env.local -- node ./scripts/inline-constants.js",
     "clean": "run-p -c --aggregate-output clean:*",
