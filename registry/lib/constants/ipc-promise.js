@@ -11,14 +11,14 @@ module.exports = new Promise(
       // because constants is not initialized yet.
       typeof process.send !== 'function'
     ) {
-      resolve(/*@__PURE__*/ require('./ipc'))
+      resolve(/*@__PURE__*/ require('./ipc-object'))
       return
     }
     const abortSignal = /*@__PURE__*/ require('./abort-signal')
     const finish = () => {
       abortSignal.removeEventListener('abort', finish)
       process.removeListener('message', onmessage)
-      resolve(/*@__PURE__*/ require('./ipc'))
+      resolve(/*@__PURE__*/ require('./ipc-object'))
     }
     const onmessage = rawData => {
       if (rawData !== null && typeof rawData === 'object') {
@@ -40,9 +40,8 @@ module.exports = new Promise(
     }
     abortSignal.addEventListener('abort', finish, { once: true })
     process.on('message', onmessage)
-    // The timeout of 1,000 milliseconds, i.e. 1 second, is to prevent an
-    // unresolved promised. It should be more than enough time for the IPC
-    // handshake.
+    // The timeout of 1,000 milliseconds, i.e. 1 second, is to prevent an unresolved
+    // promised. It should be more than enough time for the ipc object handshake.
     setTimeout(finish, 1000)
   }
 )

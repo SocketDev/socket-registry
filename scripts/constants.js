@@ -21,10 +21,12 @@ const {
   NPM,
   PACKAGE_JSON,
   PACKAGE_LOCK_JSON,
+  PNPM,
   README_MD,
   REGISTRY,
   TSCONFIG_JSON,
   UTF8,
+  YARN_LOCK,
   kInternalsSymbol,
   [kInternalsSymbol]: { createConstantsObject }
 } = registryConstants
@@ -70,10 +72,10 @@ const lazyIgnoreGlobs = () =>
       // These can not be included.
       '.git',
       '.npmrc',
-      '**/node_modules',
-      '**/package-lock.json',
-      '**/pnpm-lock.ya?ml',
-      '**/yarn.lock',
+      `**/${NODE_MODULES}`,
+      `**/${PACKAGE_LOCK_JSON}`,
+      `**/${PNPM}-lock.ya?ml`,
+      `**/${YARN_LOCK}`,
       // Lazily access constants.gitIgnoreFile.
       ...constants.gitIgnoreFile.ignores
     ])

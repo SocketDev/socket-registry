@@ -8,6 +8,7 @@ declare const Strings: {
   search(str: string, regexp: RegExp, fromIndex?: number | undefined): number
   stripAnsi(str: string): string
   stripBom(str: string): string
+  toKebabCase(str: string): string
   trimNewlines(str: string): string
 }
 declare namespace Strings {

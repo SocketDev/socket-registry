@@ -157,6 +157,10 @@
       "types": "./lib/constants/ext-cmd.d.ts",
       "default": "./lib/constants/ext-cmd.js"
     },
+    "./lib/constants/ext-lock": {
+      "types": "./lib/constants/ext-lock.d.ts",
+      "default": "./lib/constants/ext-lock.js"
+    },
     "./lib/constants/ext-ps1": {
       "types": "./lib/constants/ext-ps1.d.ts",
       "default": "./lib/constants/ext-ps1.js"
@@ -185,13 +189,13 @@
       "types": "./lib/constants/index.d.ts",
       "default": "./lib/constants/index.js"
     },
-    "./lib/constants/ipc": {
-      "types": "./lib/constants/ipc.d.ts",
-      "default": "./lib/constants/ipc.js"
-    },
     "./lib/constants/ipc-handler": {
       "types": "./lib/constants/ipc-handler.d.ts",
       "default": "./lib/constants/ipc-handler.js"
+    },
+    "./lib/constants/ipc-object": {
+      "types": "./lib/constants/ipc-object.d.ts",
+      "default": "./lib/constants/ipc-object.js"
     },
     "./lib/constants/ipc-promise": {
       "types": "./lib/constants/ipc-promise.d.ts",
@@ -256,6 +260,10 @@
     "./lib/constants/node-auth-token": {
       "types": "./lib/constants/node-auth-token.d.ts",
       "default": "./lib/constants/node-auth-token.js"
+    },
+    "./lib/constants/node-debug-flags": {
+      "types": "./lib/constants/node-debug-flags.d.ts",
+      "default": "./lib/constants/node-debug-flags.js"
     },
     "./lib/constants/node-env": {
       "types": "./lib/constants/node-env.d.ts",
@@ -341,6 +349,10 @@
       "types": "./lib/constants/parse-args-config.d.ts",
       "default": "./lib/constants/parse-args-config.js"
     },
+    "./lib/constants/pnpm": {
+      "types": "./lib/constants/pnpm.d.ts",
+      "default": "./lib/constants/pnpm.js"
+    },
     "./lib/constants/pre-commit": {
       "types": "./lib/constants/pre-commit.d.ts",
       "default": "./lib/constants/pre-commit.js"
@@ -384,10 +396,6 @@
     "./lib/constants/socket-override-scope": {
       "types": "./lib/constants/socket-override-scope.d.ts",
       "default": "./lib/constants/socket-override-scope.js"
-    },
-    "./lib/constants/socket-public-api-key": {
-      "types": "./lib/constants/socket-public-api-key.d.ts",
-      "default": "./lib/constants/socket-public-api-key.js"
     },
     "./lib/constants/socket-public-api-token": {
       "types": "./lib/constants/socket-public-api-token.d.ts",
@@ -513,6 +521,10 @@
       "types": "./lib/constants/win32-ensure-tests-by-ecosystem.d.ts",
       "default": "./lib/constants/win32-ensure-tests-by-ecosystem.js"
     },
+    "./lib/constants/yarn-lock": {
+      "types": "./lib/constants/yarn-lock.d.ts",
+      "default": "./lib/constants/yarn-lock.js"
+    },
     "./lib/debug": {
       "types": "./lib/debug.d.ts",
       "default": "./lib/debug.js"
@@ -605,6 +617,8 @@
     "build": "run-p -c --aggregate-output build:*",
     "build:external": "run-s build:external:src lint:external:fix",
     "build:external:src": "run-p -c clean:external && dotenvx -q run -f ../.env.local -- node ./scripts/rollup/build-external.js",
+    "build:inline-constants": "run-s build:inline-constants:src",
+    "build:inline-constants:src": "dotenvx -q run -f ../.env.local -- node ./scripts/inline-constants.js",
     "clean": "run-p -c --aggregate-output clean:*",
     "clean:external": "del-cli 'external'",
     "clean:node_modules": "del-cli '**/node_modules'",
@@ -640,7 +654,7 @@
     "@types/node": "24.3.1",
     "@types/pacote": "11.1.8",
     "@yarnpkg/extensions": "2.0.6",
-    "ansi-regex": "6.2.0",
+    "ansi-regex": "6.2.2",
     "browserslist": "4.25.4",
     "cacache": "20.0.1",
     "debug": "4.4.1",
@@ -650,6 +664,7 @@
     "fast-glob": "^3.3.3",
     "fast-sort": "3.4.1",
     "libnpmpack": "9.0.7",
+    "magic-string": "0.30.19",
     "make-fetch-happen": "14.0.3",
     "normalize-package-data": "6.0.1",
     "npm-package-arg": "13.0.0",
@@ -657,7 +672,7 @@
     "oxlint": "1.14.0",
     "pacote": "21.0.1",
     "picomatch": "4.0.3",
-    "rollup": "4.50.0",
+    "rollup": "4.50.1",
     "semver": "7.7.2",
     "signal-exit": "4.1.0",
     "spdx-correct": "3.2.0",
