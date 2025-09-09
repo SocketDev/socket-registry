@@ -17,6 +17,7 @@ declare type JsonPrimitive = string | number | boolean | null
 declare type JsonValue = JsonPrimitive | JsonObject | JsonArray
 declare type JsonReviver = (this: any, key: string, value: any) => any
 declare const Json: {
+  isJsonPrimitive: (value: any) => value is boolean | null | number | string
   jsonParse: (
     content: string | Buffer,
     options?: JsonParseOptions | undefined
