@@ -39,9 +39,6 @@ module.exports = ObjectFreeze({
   PRE_COMMIT: envAsBoolean(env.PRE_COMMIT),
   // Enable debug logging in Socket CLI.
   SOCKET_CLI_DEBUG: !!DEBUG || envAsBoolean(env.SOCKET_CLI_DEBUG),
-  // TAP=1 is set by the tap-run test runner.
-  // https://node-tap.org/environment/#environment-variables-used-by-tap
-  TAP: envAsBoolean(env.TAP),
   // VITEST=true is set by the Vitest test runner.
   // https://vitest.dev/config/#configuring-vitest
   VITEST: envAsBoolean(env.VITEST)

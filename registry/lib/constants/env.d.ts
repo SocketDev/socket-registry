@@ -7,7 +7,6 @@ declare interface ENV {
   readonly NODE_OPTIONS: string
   readonly PRE_COMMIT: boolean
   readonly SOCKET_CLI_DEBUG: boolean
-  readonly TAP: boolean
   readonly VITEST: boolean
 }
 declare const ENV: ENV

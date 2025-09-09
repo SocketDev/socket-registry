@@ -82,7 +82,6 @@ import SUPPORTS_NODE_PERMISSION_FLAG from './supports-node-permission-flag'
 import SUPPORTS_NODE_REQUIRE_MODULE from './supports-node-require-module'
 import SUPPORTS_NODE_RUN from './supports-node-run'
 import SUPPORTS_PROCESS_SEND from './supports-process-send'
-import TAP from './tap'
 import TEMPLATE_CJS from './template-cjs'
 import TEMPLATE_CJS_BROWSER from './template-cjs-browser'
 import TEMPLATE_CJS_ESM from './template-cjs-esm'
@@ -181,7 +180,6 @@ declare const Constants: {
   readonly SUPPORTS_NODE_REQUIRE_MODULE: typeof SUPPORTS_NODE_REQUIRE_MODULE
   readonly SUPPORTS_NODE_RUN: typeof SUPPORTS_NODE_RUN
   readonly SUPPORTS_PROCESS_SEND: typeof SUPPORTS_PROCESS_SEND
-  readonly TAP: typeof TAP
   readonly TEMPLATE_CJS: typeof TEMPLATE_CJS
   readonly TEMPLATE_CJS_BROWSER: typeof TEMPLATE_CJS_BROWSER
   readonly TEMPLATE_CJS_ESM: typeof TEMPLATE_CJS_ESM

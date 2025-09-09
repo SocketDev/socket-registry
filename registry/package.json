@@ -161,6 +161,10 @@
       "types": "./lib/constants/ext-lock.d.ts",
       "default": "./lib/constants/ext-lock.js"
     },
+    "./lib/constants/ext-lockb": {
+      "types": "./lib/constants/ext-lockb.d.ts",
+      "default": "./lib/constants/ext-lockb.js"
+    },
     "./lib/constants/ext-ps1": {
       "types": "./lib/constants/ext-ps1.d.ts",
       "default": "./lib/constants/ext-ps1.js"
@@ -452,10 +456,6 @@
     "./lib/constants/supports-process-send": {
       "types": "./lib/constants/supports-process-send.d.ts",
       "default": "./lib/constants/supports-process-send.js"
-    },
-    "./lib/constants/tap": {
-      "types": "./lib/constants/tap.d.ts",
-      "default": "./lib/constants/tap.js"
     },
     "./lib/constants/template-cjs": {
       "types": "./lib/constants/template-cjs.d.ts",
