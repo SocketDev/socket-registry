@@ -17,8 +17,8 @@
   "scripts": {
     "check": "run-p -c --aggregate-output check:*",
     "check:lint": "eslint --report-unused-disable-directives .",
-    "check:tsc": "dotenvx -q run -f .env.local -- tsc",
     "check:registry-package-types": "dotenvx -q run -f .env.local -- node ./scripts/check-registry-package-types.js",
+    "check:tsc": "dotenvx -q run -f .env.local -- tsc",
     "clean": "run-p --aggregate-output clean:*",
     "clean:cache": "del-cli '.cache'",
     "clean:node_modules": "del-cli '**/node_modules'",
