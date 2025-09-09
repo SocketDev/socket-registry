@@ -13,6 +13,7 @@ import ESNEXT from './esnext'
 import execPath from './exec-path'
 import EXT_CMD from './ext-cmd'
 import EXT_LOCK from './ext-lock'
+import EXT_LOCKB from './ext-lockb'
 import EXT_PS1 from './ext-ps1'
 import EXTENSIONS from './extensions'
 import EXTENSIONS_JSON from './extensions-json'
@@ -126,6 +127,7 @@ declare const Constants: {
   readonly ESNEXT: typeof ESNEXT
   readonly EXT_CMD: typeof EXT_CMD
   readonly EXT_LOCK: typeof EXT_LOCK
+  readonly EXT_LOCKB: typeof EXT_LOCKB
   readonly EXT_PS1: typeof EXT_PS1
   readonly EXTENSIONS: typeof EXTENSIONS
   readonly EXTENSIONS_JSON: typeof EXTENSIONS_JSON
