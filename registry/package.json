@@ -157,6 +157,14 @@
       "types": "./lib/constants/ext-cmd.d.ts",
       "default": "./lib/constants/ext-cmd.js"
     },
+    "./lib/constants/ext-js": {
+      "types": "./lib/constants/ext-js.d.ts",
+      "default": "./lib/constants/ext-js.js"
+    },
+    "./lib/constants/ext-json": {
+      "types": "./lib/constants/ext-json.d.ts",
+      "default": "./lib/constants/ext-json.js"
+    },
     "./lib/constants/ext-lock": {
       "types": "./lib/constants/ext-lock.d.ts",
       "default": "./lib/constants/ext-lock.js"
@@ -164,6 +172,10 @@
     "./lib/constants/ext-lockb": {
       "types": "./lib/constants/ext-lockb.d.ts",
       "default": "./lib/constants/ext-lockb.js"
+    },
+    "./lib/constants/ext-md": {
+      "types": "./lib/constants/ext-md.d.ts",
+      "default": "./lib/constants/ext-md.js"
     },
     "./lib/constants/ext-ps1": {
       "types": "./lib/constants/ext-ps1.d.ts",
