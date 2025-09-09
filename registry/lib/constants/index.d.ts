@@ -12,8 +12,11 @@ import ESLINT_CONFIG_JS from './eslint-config-js'
 import ESNEXT from './esnext'
 import execPath from './exec-path'
 import EXT_CMD from './ext-cmd'
+import EXT_JS from './ext-js'
+import EXT_JSON from './ext-json'
 import EXT_LOCK from './ext-lock'
 import EXT_LOCKB from './ext-lockb'
+import EXT_MD from './ext-md'
 import EXT_PS1 from './ext-ps1'
 import EXTENSIONS from './extensions'
 import EXTENSIONS_JSON from './extensions-json'
@@ -126,8 +129,11 @@ declare const Constants: {
   readonly ESLINT_CONFIG_JS: typeof ESLINT_CONFIG_JS
   readonly ESNEXT: typeof ESNEXT
   readonly EXT_CMD: typeof EXT_CMD
+  readonly EXT_JS: typeof EXT_JS
+  readonly EXT_JSON: typeof EXT_JSON
   readonly EXT_LOCK: typeof EXT_LOCK
   readonly EXT_LOCKB: typeof EXT_LOCKB
+  readonly EXT_MD: typeof EXT_MD
   readonly EXT_PS1: typeof EXT_PS1
   readonly EXTENSIONS: typeof EXTENSIONS
   readonly EXTENSIONS_JSON: typeof EXTENSIONS_JSON
