@@ -13,7 +13,7 @@ const srcExternalPath = path.join(srcPath, 'external')
 
 const getConfig = require(path.join(configPath, 'rollup.base.config.js'))
 
-;(async () => {
+void (async () => {
   const filepaths = await glob(['**/*.js'], {
     absolute: true,
     cwd: srcExternalPath
