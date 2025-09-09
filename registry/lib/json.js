@@ -21,6 +21,16 @@ function isBuffer(x) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
+function isJsonPrimitive(value) {
+  return (
+    value === null ||
+    typeof value === 'boolean' ||
+    typeof value === 'number' ||
+    typeof value === 'string'
+  )
+}
+
+/*@__NO_SIDE_EFFECTS__*/
 function jsonParse(content, options) {
   const { filepath, reviver, throws } = { __proto__: null, ...options }
   const shouldThrow = throws === undefined || !!throws
@@ -38,5 +48,6 @@ function jsonParse(content, options) {
   return null
 }
 module.exports = {
+  isJsonPrimitive,
   jsonParse
 }
