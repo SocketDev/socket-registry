@@ -4,7 +4,7 @@ const getIpc = /*@__PURE__*/ require('./get-ipc')
 const { createConstantsObject } = /*@__PURE__*/ require('../objects')
 const { toKebabCase } = /*@__PURE__*/ require('../strings')
 
-const constantsObj = {
+const props = {
   // Lazily defined values are initialized as `undefined` to keep their key order.
   AT_LATEST: '@latest',
   BIOME_JSON: 'biome.json',
@@ -109,10 +109,10 @@ const constantsObj = {
   win32EnsureTestsByEcosystem: undefined
 }
 
-module.exports = createConstantsObject(constantsObj, {
+module.exports = createConstantsObject(props, {
   getters: Object.fromEntries(
-    Object.keys(constantsObj)
-      .filter(k => constantsObj[k] === undefined)
+    Object.keys(props)
+      .filter(k => props[k] === undefined)
       .map(k => [k, () => require(`./${toKebabCase(k)}`)])
   ),
   internals: {

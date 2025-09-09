@@ -5,6 +5,7 @@ const { promises: fs } = require('node:fs')
 
 const MagicString = require('magic-string')
 
+const { isJsonPrimitive } = require('../lib/json')
 const { escapeRegExp } = require('../lib/regexps')
 const { toKebabCase } = require('../lib/strings')
 
@@ -16,15 +17,6 @@ const libConstantsJsPath = path.join(constantsPath, 'index.js')
 
 const exportJsonPrimitiveRegExp =
   /module\.exports *= *(?:null|undefined|\d|'|")/
-
-function isJsonPrimitive(value) {
-  return (
-    value === null ||
-    value === undefined ||
-    typeof value === 'number' ||
-    typeof value === 'string'
-  )
-}
 
 const excludedKeys = new Set([
   'ENV',
@@ -65,12 +57,12 @@ const excludedKeys = new Set([
   'win32EnsureTestsByEcosystem'
 ])
 
-;(async () => {
-  const constantsObj = require(libConstantsJsPath)
-  const constantsContent = await fs.readFile(libConstantsJsPath, 'utf8')
-  const constantsMagicString = new MagicString(constantsContent)
+void (async () => {
+  const constObj = require(libConstantsJsPath)
+  const constContent = await fs.readFile(libConstantsJsPath, 'utf8')
+  const constMagicString = new MagicString(constContent)
 
-  for (const key of Object.keys(constantsObj)) {
+  for (const key of Object.keys(constObj)) {
     if (excludedKeys.has(key)) {
       continue
     }
@@ -81,25 +73,22 @@ const excludedKeys = new Set([
       continue
     }
     const value = require(path.join(constantsPath, `${toKebabCase(key)}.js`))
-    if (!isJsonPrimitive(value)) {
-      continue
-    }
     const pattern = new RegExp(`\\b${escapeRegExp(key)}:.+`)
-    const match = pattern.exec(constantsContent)
+    const match = pattern.exec(constContent)
     if (!match) {
       continue
     }
     const start = match.index
     const end = start + match[0].length
+    if (!isJsonPrimitive(value)) {
+      constMagicString.overwrite(start, end, `${key}: undefined,`)
+      continue
+    }
     const rawStr = JSON.stringify(value)
-    const str = typeof value === 'string' ? `'${rawStr.slice(1, -1)}'` : rawStr
-    const replacement = `${key}: ${str},`
-    constantsMagicString.overwrite(start, end, replacement)
+    const inlineStr =
+      typeof value === 'string' ? `'${rawStr.slice(1, -1)}'` : rawStr
+    constMagicString.overwrite(start, end, `${key}: ${inlineStr},`)
   }
-  await fs.writeFile(
-    libConstantsJsPath,
-    constantsMagicString.toString(),
-    'utf8'
-  )
+  await fs.writeFile(libConstantsJsPath, constMagicString.toString(), 'utf8')
   console.log(`✅ Inlined constants`)
 })()
