@@ -32,7 +32,6 @@ async function addNpmManifestData(manifest, options) {
   const { spinner } = { __proto__: null, ...options }
   const eco = NPM
   const manifestData = []
-  // Lazily access constants.registryExtensionsJsonPath.
   const registryExtJson = require(constants.registryExtensionsJsonPath)
   const registryExt = registryExtJson[eco] ?? []
 
@@ -72,12 +71,10 @@ async function addNpmManifestData(manifest, options) {
   )
 
   // Chunk package names to process them in parallel 3 at a time.
-  // Lazily access constants.npmPackageNames.
   await pEach(
     constants.npmPackageNames,
     async sockRegPkgName => {
       const origPkgName = resolveOriginalPackageName(sockRegPkgName)
-      // Lazily access constants.testNpmPkgJsonPath.
       const testNpmPkgJson = await readPackageJson(
         constants.testNpmPkgJsonPath,
         {
@@ -95,7 +92,6 @@ async function addNpmManifestData(manifest, options) {
       await extractPackage(nmPkgId, async nmPkgPath => {
         nmPkgJson = await readPackageJson(nmPkgPath, { normalize: true })
       })
-      // Lazily access constants.npmPackagesPath.
       const pkgPath = path.join(constants.npmPackagesPath, sockRegPkgName)
       const pkgJson = await readPackageJson(pkgPath, { normalize: true })
       const { engines, name, socket, version } = pkgJson
@@ -115,7 +111,6 @@ async function addNpmManifestData(manifest, options) {
       if (isBrowserify) {
         interop.push('browserify')
       }
-      // Lazily access constants.skipTestsByEcosystem.
       const skipTests = constants.skipTestsByEcosystem
         .get(eco)
         .has(sockRegPkgName)
@@ -126,7 +121,6 @@ async function addNpmManifestData(manifest, options) {
         ['package', origPkgName],
         ['version', version],
         ...(nmPkgManifest.deprecated ? [['deprecated', true]] : []),
-        // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
         ...(engines
           ? [['engines', toSortedObject(engines)]]
           : [['engines', { node: constants.PACKAGE_DEFAULT_NODE_RANGE }]]),
@@ -176,20 +170,14 @@ void (async () => {
   // Exit early if no relevant files have been modified.
   if (
     !cliArgs.force &&
-    // Lazily access constants.rootPackagesPath.
     (await getModifiedFiles({ cwd: constants.rootPackagesPath })).length === 0
   ) {
     return
   }
-  // Lazily access constants.spinner.
   const { spinner } = constants
-  spinner.start(
-    // Lazily access constants.relRegistryManifestJsonPath.
-    `Updating ${constants.relRegistryManifestJsonPath}...`
-  )
+  spinner.start(`Updating ${constants.relRegistryManifestJsonPath}...`)
   const manifest = {}
   await addNpmManifestData(manifest, { spinner })
-  // Lazily access constants.registryManifestJsonPath.
   const { registryManifestJsonPath } = constants
   const output = await biomeFormat(JSON.stringify(manifest, null, 2), {
     filepath: registryManifestJsonPath

@@ -12,14 +12,9 @@ void (async () => {
     cwd: perfNpmPath
   })) {
     // eslint-disable-next-line no-await-in-loop
-    await runBin(
-      // Lazily access constants.tsxExecPath.
-      constants.tsxExecPath,
-      [perfFile],
-      {
-        cwd: perfNpmPath,
-        stdio: 'inherit'
-      }
-    )
+    await runBin(constants.tsxExecPath, [perfFile], {
+      cwd: perfNpmPath,
+      stdio: 'inherit'
+    })
   }
 })()
