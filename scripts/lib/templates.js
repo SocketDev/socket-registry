@@ -56,10 +56,7 @@ function getTemplates() {
           TEMPLATE_ES_SHIM_CONSTRUCTOR,
           TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
           TEMPLATE_ES_SHIM_STATIC_METHOD
-        ].map(k =>
-          // Lazily access constants.npmTemplatesPath.
-          [k, path.join(constants.npmTemplatesPath, k)]
-        )
+        ].map(k => [k, path.join(constants.npmTemplatesPath, k)])
       )
     })
   }
@@ -108,7 +105,6 @@ async function getNpmReadmeAction(pkgPath, options) {
     {
       __proto__: null,
       readme: await renderAction([
-        // Lazily access constants.npmTemplatesPath.
         path.join(constants.npmTemplatesPath, README_MD),
         {
           __proto__: null,
@@ -143,9 +139,7 @@ async function getPackageJsonAction(pkgPath, options) {
       categories: Array.isArray(categories)
         ? categories
         : Array.from(PACKAGE_DEFAULT_SOCKET_CATEGORIES),
-      // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
       engines: engines ?? { node: constants.PACKAGE_DEFAULT_NODE_RANGE },
-      // Lazily access constants.PACKAGE_DEFAULT_VERSION.
       version: semver.parse(
         manifestData?.version ?? constants.PACKAGE_DEFAULT_VERSION
       )

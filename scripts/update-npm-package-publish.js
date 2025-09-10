@@ -38,7 +38,6 @@ async function publish(pkg, state = { fails: [] }) {
           cwd: pkg.path,
           env: {
             ...process.env,
-            // Lazily access constants.ENV.NODE_AUTH_TOKEN.
             NODE_AUTH_TOKEN: constants.ENV.NODE_AUTH_TOKEN
           }
         }
@@ -74,7 +73,6 @@ async function publishPackages(packages, state = { fails: [] }) {
 
 void (async () => {
   // Exit early if not running in CI or with --force.
-  // Lazily access constants.ENV.
   if (!(cliArgs.force || constants.ENV.CI)) {
     return
   }
@@ -82,7 +80,6 @@ void (async () => {
   const fails = []
   const packages = [
     packageData({ name: '@socketsecurity/registry', path: registryPkgPath }),
-    // Lazily access constants.npmPackageNames.
     ...constants.npmPackageNames.map(sockRegPkgName => {
       const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
       const pkgJson = readPackageJsonSync(pkgPath)

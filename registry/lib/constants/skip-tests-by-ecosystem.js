@@ -17,7 +17,6 @@ module.exports = new Map([
       // Win32 environments for the time being.
       // https://github.com/es-shims/Date/issues/3
       // https://github.com/es-shims/Date/tree/v2.0.5
-      // Lazily access constants.ENV.
       ...(WIN32 ? [] : ['date']),
       // es6-object-assign has no unit tests.
       // https://github.com/rubennorte/es6-object-assign/tree/v1.1.0

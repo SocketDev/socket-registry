@@ -21,7 +21,6 @@ function packageData(data) {
 
 void (async () => {
   // Exit early if not running in CI or with --force.
-  // Lazily access constants.ENV.
   const { ENV } = constants
   if (!(cliArgs.force || ENV.CI)) {
     return
@@ -33,7 +32,6 @@ void (async () => {
       name: '@socketsecurity/registry',
       path: constants.registryPkgPath
     }),
-    // Lazily access constants.npmPackageNames.
     ...constants.npmPackageNames.map(sockRegPkgName =>
       packageData({
         name: `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`,
@@ -53,7 +51,6 @@ void (async () => {
             cwd: pkg.path,
             env: {
               ...process.env,
-              // Lazily access constants.ENV.NODE_AUTH_TOKEN.
               NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
             }
           })

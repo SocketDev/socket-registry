@@ -16,7 +16,6 @@ const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 void (async () => {
   const { tapConfigPath } = constants
   // Exit early if no relevant files have been modified.
-  // Lazily access constants.ENV.
   if (
     !cliArgs.force &&
     !constants.ENV.CI &&
