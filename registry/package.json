@@ -89,12 +89,12 @@
       "default": "./index.js"
     },
     "./extensions.json": "./extensions.json",
+    "./external/signal-exit": {
+      "default": "./external/signal-exit.js"
+    },
     "./index": {
       "types": "./index.d.ts",
       "default": "./index.js"
-    },
-    "./external/signal-exit": {
-      "default": "./external/signal-exit.js"
     },
     "./lib/arrays": {
       "types": "./lib/arrays.d.ts",

@@ -12,9 +12,17 @@ const { readPackageJson } = require('@socketsecurity/registry/lib/packages')
 const { EXT_DTS, EXT_JSON } = constants
 
 void (async () => {
+  const { registryPkgPath } = constants
+  const externalPath = path.join(registryPkgPath, 'external')
+  const externalSignalExitPath = path.join(externalPath, 'signal-exit.js')
+  const relSignalExitPath = path.relative(
+    registryPkgPath,
+    externalSignalExitPath
+  )
+
   const registryEditablePkgJson = await readPackageJson(
     // Lazily access constants.registryPkgPath.
-    constants.registryPkgPath,
+    registryPkgPath,
     {
       editable: true,
       normalize: true
@@ -27,17 +35,20 @@ void (async () => {
     browser[builtinName] = false
   }
 
-  const registryPkgFiles = await glob(['**/*.{cjs,js,json,d.ts}'], {
-    // Lazily access constants.registryPkgPath.
-    cwd: constants.registryPkgPath,
-    ignore: [
-      // Lazily access constants.ignoreGlobs.
-      ...constants.ignoreGlobs,
-      'external/**',
-      'scripts/**',
-      'src/**'
-    ]
-  })
+  const registryPkgFiles = [
+    ...(await glob(['**/*.{cjs,js,json,d.ts}'], {
+      // Lazily access constants.registryPkgPath.
+      cwd: registryPkgPath,
+      ignore: [
+        // Lazily access constants.ignoreGlobs.
+        ...constants.ignoreGlobs,
+        'external/**',
+        'scripts/**',
+        'src/**'
+      ]
+    })),
+    relSignalExitPath
+  ]
 
   const subpathExports = registryPkgFiles.reduce((o, p) => {
     const ext = p.endsWith(EXT_DTS) ? EXT_DTS : path.extname(p)
@@ -57,6 +68,7 @@ void (async () => {
       }
       const basename = path.basename(p, ext)
       if (basename === 'index') {
+        console.log(p)
         const dirname = path.dirname(p)
         const dirPath = dirname === '.' ? dirname : `./${path.dirname(p)}`
         if (o[dirPath]) {
