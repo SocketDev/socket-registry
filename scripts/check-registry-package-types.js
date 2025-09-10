@@ -3,18 +3,19 @@
 const { promises: fs } = require('node:fs')
 const path = require('node:path')
 
+const constants = require('@socketregistry/scripts/constants')
+
 const { escapeRegExp } = require('../registry/lib/regexps')
 
-const scriptsPath = __dirname
-const rootPath = path.join(scriptsPath, '..')
-const registryPkgPath = path.join(rootPath, 'registry')
-const libPath = path.join(registryPkgPath, 'lib')
-const constantsPath = path.join(libPath, 'constants')
-const libConstantsJsPath = path.join(constantsPath, 'index.js')
-const libConstantsDtsPath = path.join(constantsPath, 'index.d.ts')
-const relLibConstDtsPath = path.relative(rootPath, libConstantsDtsPath)
-
 void (async () => {
+  const { registryPkgPath, rootPath } = constants
+
+  const libPath = path.join(registryPkgPath, 'lib')
+  const constantsPath = path.join(libPath, 'constants')
+  const libConstantsJsPath = path.join(constantsPath, 'index.js')
+  const libConstantsDtsPath = path.join(constantsPath, 'index.d.ts')
+  const relLibConstDtsPath = path.relative(rootPath, libConstantsDtsPath)
+
   const constObj = require(libConstantsJsPath)
   const constDtsContent = await fs.readFile(libConstantsDtsPath, 'utf8')
 

@@ -2,18 +2,17 @@
 
 const { glob } = require('fast-glob')
 
-const {
-  NODE_MODULES_GLOB_RECURSIVE,
-  rootPath
-} = require('@socketregistry/scripts/constants')
+const constants = require('@socketregistry/scripts/constants')
 const { isDirEmptySync, remove } = require('@socketsecurity/registry/lib/fs')
+
+const { NODE_MODULES_GLOB_RECURSIVE } = constants
 
 void (async () => {
   const dirPaths = (
     await glob(['**/'], {
       ignore: [NODE_MODULES_GLOB_RECURSIVE],
       absolute: true,
-      cwd: rootPath,
+      cwd: constants.rootPath,
       onlyDirectories: true
     })
   )
