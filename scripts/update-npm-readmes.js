@@ -18,7 +18,6 @@ void (async () => {
     return
   }
   await Promise.all(
-    // Lazily access constants.npmPackageNames.
     constants.npmPackageNames.map(async sockRegPkgName => {
       const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
       const readmePath = path.join(pkgPath, README_MD)

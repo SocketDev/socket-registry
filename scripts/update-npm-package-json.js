@@ -19,7 +19,6 @@ const { PACKAGE_JSON, SOCKET_REGISTRY_SCOPE } = constants
 
 void (async () => {
   await Promise.all(
-    // Lazily access constants.npmPackageNames.
     constants.npmPackageNames.map(async sockRegPkgName => {
       const pkgPath = path.join(constants.npmPackagesPath, sockRegPkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)

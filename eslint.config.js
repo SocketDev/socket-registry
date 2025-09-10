@@ -58,7 +58,6 @@ if (process.env.LINT_EXTERNAL) {
 }
 
 function getIgnores(isEsm) {
-  // Lazily access constants.npmPackageNames.
   return constants.npmPackageNames.flatMap(sockRegPkgName => {
     const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
     const { type } = readPackageJsonSync(pkgPath)
@@ -70,7 +69,6 @@ function getIgnores(isEsm) {
       if (
         globSync(['**/*.cjs'], {
           cwd: pkgPath,
-          // Lazily access constants.ignoreGlobs.
           ignores: constants.ignoreGlobs
         }).length
       ) {
@@ -171,7 +169,6 @@ function configs(sourceType) {
       'error',
       {
         ignores: ['Object.groupBy'],
-        // Lazily access constants.maintainedNodeVersions.
         version: constants.maintainedNodeVersions.current
       }
     ],
@@ -179,7 +176,6 @@ function configs(sourceType) {
       'error',
       {
         ignores: ['object-map-groupby'],
-        // Lazily access constants.maintainedNodeVersions.
         version: constants.maintainedNodeVersions.current
       }
     ],
@@ -192,7 +188,6 @@ function configs(sourceType) {
           'fs.promises.cp',
           'process.features.require_module'
         ],
-        // Lazily access constants.maintainedNodeVersions.
         version: constants.maintainedNodeVersions.current
       }
     ],

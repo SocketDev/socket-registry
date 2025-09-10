@@ -19,7 +19,6 @@ describe(
     skip:
       isPackageTestingSkipped(eco, sockRegPkgName) ||
       // Add check to avoid errors in CI.
-      // Lazily access constants.ENV.
       (constants.ENV.CI && !existsSync(pkgRequireIndexJsPath))
   },
   () => {

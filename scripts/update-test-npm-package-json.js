@@ -439,7 +439,6 @@ async function linkPackages(packageNames, options) {
         // Roughly check Node range as semver.coerce will strip leading
         // v's, carets (^), comparators (<,<=,>,>=,=), and tildes (~).
         semver.coerce(nodeRange),
-        // Lazily access constants.maintainedNodeVersions.
         constants.maintainedNodeVersions.last
       )
     ) {
@@ -667,7 +666,6 @@ void (async () => {
   ) {
     return
   }
-  // Lazily access constants.spinner.
   const { spinner } = constants
   spinner.start(`Initializing ${relTestNpmNodeModulesPath}...`)
   // Refresh/initialize test/npm/node_modules
@@ -681,10 +679,7 @@ void (async () => {
     spinner.errorAndStop('Initialization encountered an error:', e)
     return
   }
-  const packageNames = addingPkgNames
-    ? cliArgs.add
-    : // Lazily access constants.npmPackageNames.
-      constants.npmPackageNames
+  const packageNames = addingPkgNames ? cliArgs.add : constants.npmPackageNames
   await resolveDevDependencies(packageNames, { spinner })
   const linkedPackageNames = packageNames.length
     ? await linkPackages(packageNames, { spinner })

@@ -34,26 +34,20 @@ const eco = NPM
 
 const testNpmNodeWorkspacesPackages = (
   readDirNamesSync(testNpmNodeWorkspacesPath) as string[]
-).filter(
-  // Lazily access constants.skipTestsByEcosystem.
-  n => !constants.skipTestsByEcosystem?.get(eco)?.has(n)
-)
+).filter(n => !constants.skipTestsByEcosystem?.get(eco)?.has(n))
 
 const packageNames: string[] =
-  // Lazily access constants.ENV.
   cliArgs.force || constants.ENV.CI
     ? testNpmNodeWorkspacesPackages
     : (() => {
-        const testablePackages =
-          // Lazily access constants.ENV.
-          (
-            constants.ENV.PRE_COMMIT
-              ? getStagedPackagesSync
-              : getModifiedPackagesSync
-          )(eco, {
-            asSet: true,
-            ignore: [LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE]
-          })
+        const testablePackages = (
+          constants.ENV.PRE_COMMIT
+            ? getStagedPackagesSync
+            : getModifiedPackagesSync
+        )(eco, {
+          asSet: true,
+          ignore: [LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE]
+        })
         return testNpmNodeWorkspacesPackages.filter((n: string) =>
           testablePackages.has(n)
         )
@@ -68,12 +62,10 @@ describe(eco, { skip: !packageNames.length }, () => {
     const origPkgName = resolveOriginalPackageName(sockRegPkgName)
     const skip =
       !nwPkgJson.scripts?.test ||
-      // Lazily access constants.WIN32.
       (constants.WIN32 &&
         !manifestData?.interop.includes('browserify') &&
         !win32EnsureTestsByEcosystem?.get(eco)?.has(origPkgName)) ||
       (isNonEmptyString(nodeRange) &&
-        // Lazily access constants.NODE_VERSION.
         !semver.satisfies(constants.NODE_VERSION, nodeRange))
 
     it(`${origPkgName} passes all its tests`, { skip }, async () => {

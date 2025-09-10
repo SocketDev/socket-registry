@@ -78,17 +78,14 @@ for (const eco of constants.ecosystems) {
   if (eco !== NPM) {
     continue
   }
-  // Lazily access constants.ENV.
   const { ENV } = constants
   const packageNames: readonly string[] =
     cliArgs.force || ENV.CI
-      ? // Lazily access constants.npmPackageNames.
-        constants.npmPackageNames
+      ? constants.npmPackageNames
       : (() => {
           const testablePackages: Set<string> = ENV.PRE_COMMIT
             ? getStagedPackagesSync(eco, { asSet: true })
             : getModifiedPackagesSync(eco, { asSet: true })
-          // Lazily access constants.npmPackageNames.
           return constants.npmPackageNames.filter((n: string) =>
             testablePackages.has(n)
           )
@@ -96,7 +93,6 @@ for (const eco of constants.ecosystems) {
 
   describe(eco, { skip: !packageNames.length }, () => {
     for (const sockRegPkgName of packageNames) {
-      // Lazily access constants.npmPackagesPath.
       const pkgPath = path.join(constants.npmPackagesPath, sockRegPkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
       const pkgJsonExists = existsSync(pkgJsonPath)
@@ -251,7 +247,6 @@ for (const eco of constants.ecosystems) {
           files.includes('polyfill.js')
         ) {
           describe('es-shim', () => {
-            // Lazily access constants.NODE_VERSION.
             const { NODE_VERSION } = constants
             const nodeRange = pkgJson?.engines?.['node']
             const skipping =
