@@ -10,7 +10,7 @@ import { fix } from '@npmcli/package-json'
 import { glob } from 'fast-glob'
 import semver from 'semver'
 
-import constants from '@socketregistry/scripts/constants'
+import constants, { EXT_JSON } from '@socketregistry/scripts/constants'
 import {
   getModifiedPackagesSync,
   getStagedPackagesSync
@@ -203,7 +203,7 @@ for (const eco of constants.ecosystems) {
         }
 
         const jsonFiles = files
-          .filter(p => path.extname(p) === '.json')
+          .filter(p => path.extname(p) === EXT_JSON)
           .sort(naturalCompare)
 
         if (jsonFiles.length) {

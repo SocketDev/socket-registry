@@ -153,9 +153,21 @@
       "types": "./lib/constants/exec-path.d.ts",
       "default": "./lib/constants/exec-path.js"
     },
+    "./lib/constants/ext-cjs": {
+      "types": "./lib/constants/ext-cjs.d.ts",
+      "default": "./lib/constants/ext-cjs.js"
+    },
     "./lib/constants/ext-cmd": {
       "types": "./lib/constants/ext-cmd.d.ts",
       "default": "./lib/constants/ext-cmd.js"
+    },
+    "./lib/constants/ext-cts": {
+      "types": "./lib/constants/ext-cts.d.ts",
+      "default": "./lib/constants/ext-cts.js"
+    },
+    "./lib/constants/ext-dts": {
+      "types": "./lib/constants/ext-dts.d.ts",
+      "default": "./lib/constants/ext-dts.js"
     },
     "./lib/constants/ext-js": {
       "types": "./lib/constants/ext-js.d.ts",
@@ -176,6 +188,14 @@
     "./lib/constants/ext-md": {
       "types": "./lib/constants/ext-md.d.ts",
       "default": "./lib/constants/ext-md.js"
+    },
+    "./lib/constants/ext-mjs": {
+      "types": "./lib/constants/ext-mjs.d.ts",
+      "default": "./lib/constants/ext-mjs.js"
+    },
+    "./lib/constants/ext-mts": {
+      "types": "./lib/constants/ext-mts.d.ts",
+      "default": "./lib/constants/ext-mts.js"
     },
     "./lib/constants/ext-ps1": {
       "types": "./lib/constants/ext-ps1.d.ts",
