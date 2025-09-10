@@ -20,14 +20,10 @@ void (async () => {
     externalSignalExitPath
   )
 
-  const registryEditablePkgJson = await readPackageJson(
-    // Lazily access constants.registryPkgPath.
-    registryPkgPath,
-    {
-      editable: true,
-      normalize: true
-    }
-  )
+  const registryEditablePkgJson = await readPackageJson(registryPkgPath, {
+    editable: true,
+    normalize: true
+  })
   const { content: registryPkgJson } = registryEditablePkgJson
 
   const browser = { ...registryPkgJson.browser }
@@ -37,15 +33,8 @@ void (async () => {
 
   const registryPkgFiles = [
     ...(await glob(['**/*.{cjs,js,json,d.ts}'], {
-      // Lazily access constants.registryPkgPath.
       cwd: registryPkgPath,
-      ignore: [
-        // Lazily access constants.ignoreGlobs.
-        ...constants.ignoreGlobs,
-        'external/**',
-        'scripts/**',
-        'src/**'
-      ]
+      ignore: [...constants.ignoreGlobs, 'external/**', 'scripts/**', 'src/**']
     })),
     relSignalExitPath
   ]
@@ -88,7 +77,6 @@ void (async () => {
   registryEditablePkgJson.update({
     browser: toSortedObject(browser),
     exports: toSortedObject(subpathExports),
-    // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
     engines: { node: constants.PACKAGE_DEFAULT_NODE_RANGE }
   })
   await registryEditablePkgJson.save()

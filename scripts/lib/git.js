@@ -17,22 +17,18 @@ const gitDiffSpawnArgs = defineLazyGetters(
   { __proto__: null },
   {
     modified: () => [
-      // Lazily access constants.gitExecPath.
       constants.gitExecPath,
       ['diff', '--name-only'],
       {
-        // Lazily access constants.rootPath.
         cwd: constants.rootPath,
         // Encoding option used for spawnSync.
         encoding: UTF8
       }
     ],
     staged: () => [
-      // Lazily access constants.gitExecPath.
       constants.gitExecPath,
       ['diff', '--cached', '--name-only'],
       {
-        // Lazily access constants.rootPath.
         cwd: constants.rootPath,
         shell: true,
         // Encoding option used for spawnSync.
@@ -86,9 +82,7 @@ function innerDiffSync(args, options) {
 
 function innerGetPackages(eco, files, options) {
   const { asSet = false, ...matcherOptions } = { __proto__: null, ...options }
-  // Lazily access constants.rootPackagesPath.
   const ecoPackagesPath = path.join(constants.rootPackagesPath, eco)
-  // Lazily access constants.rootPath.
   const { rootPath } = constants
   const relEcoPackagesPath = normalizePath(
     path.relative(rootPath, ecoPackagesPath)
@@ -96,7 +90,6 @@ function innerGetPackages(eco, files, options) {
   const matcher = getGlobMatcher(
     [
       `${relEcoPackagesPath}/**`,
-      // Lazily access constants.relRegistryPkgPath.
       ...(eco === NPM ? [`${constants.relRegistryPkgPath}/**`] : [])
     ],
     {
@@ -111,7 +104,6 @@ function innerGetPackages(eco, files, options) {
   for (const filepath of files) {
     if (matcher(filepath)) {
       let sockRegPkgName
-      // Lazily access constants.relRegistryPkgPath.
       if (eco === NPM && filepath.startsWith(constants.relRegistryPkgPath)) {
         sockRegPkgName = '@socketsecurity/registry'
       } else {
@@ -127,7 +119,6 @@ function innerGetPackages(eco, files, options) {
 }
 
 function diffIncludes(files, pathname) {
-  // Lazily access constants.rootPath.
   return files.includes(path.relative(constants.rootPath, pathname))
 }
 
@@ -191,7 +182,6 @@ function isStagedSync(pathname, options) {
 }
 
 function parseGitDiffStdout(stdout, options) {
-  // Lazily access constants.rootPath.
   const { rootPath } = constants
   const {
     absolute = false,

@@ -19,7 +19,6 @@ function getCliArgs() {
 }
 
 function isPackageTestingSkipped(eco, sockRegPkgName) {
-  // Lazily access constants.ENV.
   const { ENV } = constants
   return getCliArgs().force || ENV.CI
     ? false

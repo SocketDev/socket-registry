@@ -105,14 +105,12 @@ function packageData(data) {
 }
 
 void (async () => {
-  // Lazily access constants.spinner.
   const { spinner } = constants
 
   spinner.start(`Bumping ${relNpmPackagesPath} versions (semver patch)...`)
 
   const packages = [
     registryPkg,
-    // Lazily access constants.npmPackageNames.
     ...Array.from(constants.npmPackageNames, sockRegPkgName => {
       const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
       const pkgJson = readPackageJsonSync(pkgPath)

@@ -239,9 +239,7 @@ void (async () => {
   let templateChoice
   const tsRefs = []
   if (isEsShim) {
-    // Lazily access constants.maintainedNodeVersions.
     const { maintainedNodeVersions } = constants
-    // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
     const { PACKAGE_DEFAULT_NODE_RANGE } = constants
     const parts = origPkgName
       .split(/[-.]/)
@@ -378,7 +376,6 @@ void (async () => {
   await writeAction(
     await getPackageJsonAction(pkgPath, {
       engines: {
-        // Lazily access constants.PACKAGE_DEFAULT_NODE_RANGE.
         node: nodeRange ?? constants.PACKAGE_DEFAULT_NODE_RANGE
       }
     })
