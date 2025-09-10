@@ -9,6 +9,8 @@ const constants = require('@socketregistry/scripts/constants')
 const { toSortedObject } = require('@socketsecurity/registry/lib/objects')
 const { readPackageJson } = require('@socketsecurity/registry/lib/packages')
 
+const { EXT_DTS, EXT_JSON } = constants
+
 void (async () => {
   const registryEditablePkgJson = await readPackageJson(
     // Lazily access constants.registryPkgPath.
@@ -38,12 +40,12 @@ void (async () => {
   })
 
   const subpathExports = registryPkgFiles.reduce((o, p) => {
-    const ext = p.endsWith('.d.ts') ? '.d.ts' : path.extname(p)
-    if (ext === '.json') {
+    const ext = p.endsWith(EXT_DTS) ? EXT_DTS : path.extname(p)
+    if (ext === EXT_JSON) {
       o[`./${p}`] = `./${p}`
     } else {
       const extLessPath = `./${p.slice(0, -ext.length)}`
-      const isDts = ext === '.d.ts'
+      const isDts = ext === EXT_DTS
       if (o[extLessPath]) {
         o[extLessPath][isDts ? 'types' : 'default'] = `./${p}`
       } else {

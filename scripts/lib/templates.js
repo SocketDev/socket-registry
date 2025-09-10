@@ -23,6 +23,8 @@ const {
 const { biomeFormat } = require('./biome')
 
 const {
+  EXT_JSON,
+  EXT_MD,
   LICENSE_CONTENT,
   NPM,
   PACKAGE_DEFAULT_SOCKET_CATEGORIES,
@@ -195,7 +197,7 @@ async function renderAction(action) {
   const content = await fs.readFile(filepath, UTF8)
   const prepared = prepareTemplate(content)
   const modified = await eta.renderStringAsync(prepared, data)
-  return ext === '.json' || ext === '.md'
+  return ext === EXT_JSON || ext === EXT_MD
     ? await biomeFormat(modified, { filepath })
     : modified
 }
