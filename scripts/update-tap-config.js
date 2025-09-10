@@ -9,11 +9,12 @@ const readYamlFile = require('read-yaml-file')
 const constants = require('@socketregistry/scripts/constants')
 const { isModified } = require('@socketregistry/scripts/lib/git')
 
-const { UTF8, tapCiConfigPath, tapConfigPath } = constants
+const { UTF8 } = constants
 
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
 void (async () => {
+  const { tapConfigPath } = constants
   // Exit early if no relevant files have been modified.
   // Lazily access constants.ENV.
   if (
@@ -30,5 +31,5 @@ void (async () => {
       passes: true
     }
   )}`
-  await fs.writeFile(tapCiConfigPath, content, UTF8)
+  await fs.writeFile(constants.tapCiConfigPath, content, UTF8)
 })()

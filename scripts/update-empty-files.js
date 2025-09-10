@@ -9,13 +9,14 @@ const { glob } = require('fast-glob')
 const constants = require('@socketregistry/scripts/constants')
 const { getModifiedFiles } = require('@socketregistry/scripts/lib/git')
 
-const { EMPTY_FILE, UTF8, ignoreGlobs, npmTemplatesPath, rootPath } = constants
+const { EMPTY_FILE, UTF8 } = constants
 
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
 const AUTO_FILE_GLOB_RECURSIVE = '**/auto.{d.ts,js}'
 
 void (async () => {
+  const { ignoreGlobs, npmTemplatesPath } = constants
   const modifiedAutoFile = (
     await getModifiedFiles({ absolute: true, cwd: npmTemplatesPath })
   ).find(p => path.basename(p).startsWith('auto.'))
@@ -47,7 +48,7 @@ void (async () => {
       await glob(['**/*.{d.ts,js}'], {
         ignore: [AUTO_FILE_GLOB_RECURSIVE, ...ignoreGlobs],
         absolute: true,
-        cwd: rootPath
+        cwd: constants.rootPath
       })
     ).map(async filepath => {
       if (

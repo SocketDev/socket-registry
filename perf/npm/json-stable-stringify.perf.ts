@@ -9,11 +9,9 @@ import overrideJsonStableStringify from '@socketregistry/json-stable-stringify'
 import constants from '@socketregistry/scripts/constants'
 import { logger } from '@socketsecurity/registry/lib/logger'
 
-const { perfNpmFixturesPath } = constants
-
 void (async () => {
   const sampleData2MbJson = require(
-    path.join(perfNpmFixturesPath, 'sample_data_2mb.json')
+    path.join(constants.perfNpmFixturesPath, 'sample_data_2mb.json')
   )
   const sampleData6MbJson = {
     a: sampleData2MbJson,

@@ -10,12 +10,7 @@ const { execNpm } = require('@socketsecurity/registry/lib/npm')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { pluralize } = require('@socketsecurity/registry/lib/words')
 
-const {
-  COLUMN_LIMIT,
-  SOCKET_REGISTRY_SCOPE,
-  npmPackagesPath,
-  registryPkgPath
-} = constants
+const { COLUMN_LIMIT, SOCKET_REGISTRY_SCOPE } = constants
 
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
@@ -34,12 +29,15 @@ void (async () => {
 
   const fails = []
   const packages = [
-    packageData({ name: '@socketsecurity/registry', path: registryPkgPath }),
+    packageData({
+      name: '@socketsecurity/registry',
+      path: constants.registryPkgPath
+    }),
     // Lazily access constants.npmPackageNames.
     ...constants.npmPackageNames.map(sockRegPkgName =>
       packageData({
         name: `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`,
-        path: path.join(npmPackagesPath, sockRegPkgName),
+        path: path.join(constants.npmPackagesPath, sockRegPkgName),
         printName: sockRegPkgName
       })
     )

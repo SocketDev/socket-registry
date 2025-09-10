@@ -15,13 +15,13 @@ const {
 } = require('@socketsecurity/registry/lib/packages')
 const { trimLeadingDotSlash } = require('@socketsecurity/registry/lib/path')
 
-const { PACKAGE_JSON, SOCKET_REGISTRY_SCOPE, npmPackagesPath } = constants
+const { PACKAGE_JSON, SOCKET_REGISTRY_SCOPE } = constants
 
 void (async () => {
   await Promise.all(
     // Lazily access constants.npmPackageNames.
     constants.npmPackageNames.map(async sockRegPkgName => {
-      const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
+      const pkgPath = path.join(constants.npmPackagesPath, sockRegPkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
       const editablePkgJson = await readPackageJson(pkgJsonPath, {
         editable: true,
