@@ -142,6 +142,11 @@ declare namespace yoctoSpinner {
     resetIndent(): Spinner
 
     /**
+    Change the spinner style.
+    */
+    spinner: SpinnerStyle
+
+    /**
     Starts the spinner.
 
     Optionally, updates the text.
