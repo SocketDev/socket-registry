@@ -1,5 +1,7 @@
 'use strict'
 
+const { defineProperty: ObjectDefineProperty } = Object
+
 const defaultTtyColumns = 80
 
 let _defaultSpinner
@@ -102,6 +104,18 @@ function stripVTControlCharacters(string) {
   return _stripVTControlCharacters(string)
 }
 
+function getFrame(spinner, index) {
+  const { frames } = spinner
+  const length = frames?.length ?? 0
+  return index > -1 && index < length ? frames[index].trim() : ''
+}
+
+function getFrameCount(spinner) {
+  const { frames } = spinner
+  const length = frames?.length ?? 0
+  return length < 1 ? 1 : length
+}
+
 function normalizeText(value) {
   return typeof value === 'string' ? value.trimStart() : ''
 }
@@ -110,24 +124,44 @@ class YoctoSpinner {
   #color
   #currentFrame = -1
   #exitHandlerBound
-  #frames
   #indention = ''
-  #interval
   #isInteractive
   #isSpinning = false
   #lastSpinnerFrameTime = 0
   #lines = 0
+  #spinner
   #stream
   #text
   #timer
 
+  static spinners = {
+    get default() {
+      return getDefaultSpinner()
+    },
+    set default(spinner) {
+      ObjectDefineProperty(this, 'default', {
+        __proto__: null,
+        configurable: true,
+        enumerable: true,
+        value: spinner,
+        writable: true
+      })
+    },
+    ci: {
+      frames: [''],
+      // The delay argument is converted to a signed 32-bit integer. This effectively
+      // limits delay to 2147483647 ms, roughly 24.8 days, since it's specified as a
+      // signed integer in the IDL.
+      // https://developer.mozilla.org/en-US/docs/Web/API/Window/setInterval?utm_source=chatgpt.com#return_value
+      interval: 2147483647
+    }
+  }
+
   constructor(options = {}) {
     const opts = { __proto__: null, ...options }
-    const spinner = opts.spinner ?? getDefaultSpinner()
     const stream = opts.stream ?? getProcess().stderr
-    const { frames } = spinner
-    this.#frames = (frames?.length ?? 0) < 1 ? [''] : frames.map(f => f.trim())
-    this.#interval = spinner.interval
+    this.#spinner =
+      opts.spinner ?? YoctoSpinner.spinners.default ?? getDefaultSpinner()
     this.#text = normalizeText(options.text)
     this.#stream = stream ?? process.stderr
     this.#color = options.color ?? 'cyan'
@@ -170,15 +204,15 @@ class YoctoSpinner {
     const now = Date.now()
     if (
       this.#currentFrame === -1 ||
-      now - this.#lastSpinnerFrameTime >= this.#interval
+      now - this.#lastSpinnerFrameTime >= this.#spinner.interval
     ) {
-      this.#currentFrame = ++this.#currentFrame % this.#frames.length
+      this.#currentFrame = ++this.#currentFrame % getFrameCount(this.#spinner)
       this.#lastSpinnerFrameTime = now
     }
 
     const colors = getYoctocolors()
     const applyColor = colors[this.#color] ?? colors.cyan
-    const frame = this.#frames[this.#currentFrame]
+    const frame = getFrame(this.#spinner, this.#currentFrame)
     let string = `${frame ? `${applyColor(frame)} ` : ''}${this.#text}`
 
     if (string) {
@@ -237,6 +271,14 @@ class YoctoSpinner {
 
   get isSpinning() {
     return this.#isSpinning
+  }
+
+  get spinner() {
+    return this.#spinner
+  }
+
+  set spinner(spinner) {
+    this.#spinner = spinner
   }
 
   get text() {
@@ -310,7 +352,7 @@ class YoctoSpinner {
     if (this.#isInteractive) {
       this.#timer = setInterval(() => {
         this.#render()
-      }, this.#interval)
+      }, this.#spinner.interval)
     }
 
     return this
