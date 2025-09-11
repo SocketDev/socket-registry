@@ -1,5 +1,7 @@
 'use strict'
 
+const { hasOwn } = /*@__PURE__*/ require('./objects')
+
 const ciSpinner = {
   frames: [''],
   // The delay argument is converted to a signed 32-bit integer. This effectively
@@ -20,6 +22,20 @@ function desc(value) {
 
 function normalizeText(value) {
   return typeof value === 'string' ? value.trimStart() : ''
+}
+
+let _cliSpinners
+/*@__NO_SIDE_EFFECTS__*/
+function getCliSpinners(styleName) {
+  if (_cliSpinners === undefined) {
+    const yoctoFactory = /*@__PURE__*/ require('../external/@socketregistry/yocto-spinner')
+    const { constructor: YoctoCtor } = yoctoFactory()
+    _cliSpinners = YoctoCtor.spinners
+  }
+  if (typeof styleName === 'string') {
+    return hasOwn(_cliSpinners, styleName) ? _cliSpinners[styleName] : undefined
+  }
+  return _cliSpinners
 }
 
 let _Spinner
@@ -184,5 +200,6 @@ function Spinner(options) {
 }
 
 module.exports = {
+  getCliSpinners,
   Spinner
 }
