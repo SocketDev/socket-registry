@@ -42,6 +42,7 @@ declare type Spinner = {
   logAndStop(text?: string | undefined, ...extras: any[]): Spinner
   resetIndent(): Spinner
   setText(text?: string | undefined): Spinner
+  spinner: SpinnerStyle
   start(text?: string | undefined, ...extras: any[]): Spinner
   stop(finalText?: string | undefined, ...extras: any[]): Spinner
   success(text?: string | undefined, ...extras: any[]): Spinner
@@ -53,6 +54,7 @@ declare type Spinner = {
 }
 declare const SpinnerModule: {
   Spinner: {
+    spinners: { [key: string]: SpinnerStyle }
     new (options?: Options): Spinner
     (options?: Options): Spinner
   } & Spinner
