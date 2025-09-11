@@ -1843,7 +1843,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/yocto-spinner@1.0.22",
+      "pkg:npm/%40socketregistry/yocto-spinner@1.0.23",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -1853,7 +1853,7 @@
         "license": "MIT",
         "name": "@socketregistry/yocto-spinner",
         "package": "yocto-spinner",
-        "version": "1.0.22"
+        "version": "1.0.23"
       }
     ],
     [
