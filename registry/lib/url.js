@@ -1,23 +1,23 @@
 'use strict'
 
 const BooleanCtor = Boolean
+const UrlCtor = URL
 
 /*@__NO_SIDE_EFFECTS__*/
 function isUrl(value) {
-  const isStr = typeof value === 'string'
-  if (isStr && value === '') {
-    return false
-  }
-  const isObj = !isStr && value !== null && typeof value === 'object'
-  if (!isStr && !isObj) {
-    return false
-  }
+  return (
+    ((typeof value === 'string' && value !== '') ||
+      (value !== null && typeof value === 'object')) &&
+    !!parseUrl(value)
+  )
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function parseUrl(value) {
   try {
-    // eslint-disable-next-line no-new
-    new URL(value)
-    return true
+    return new UrlCtor(value)
   } catch {}
-  return false
+  return null
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -41,6 +41,7 @@ function urlSearchParamAsBoolean(value, defaultValue = false) {
 
 module.exports = {
   isUrl,
+  parseUrl,
   urlSearchParamAsArray,
   urlSearchParamAsBoolean
 }
