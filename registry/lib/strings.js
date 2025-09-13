@@ -1,13 +1,24 @@
 'use strict'
 
-let _ansiRegex
+const { fromCharCode } = String
+
+// Inlined ansi-regex:
+// https://socket.dev/npm/package/ansi-regexp/overview/6.2.2
+// MIT License
+// Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
+
 /*@__NO_SIDE_EFFECTS__*/
-function getAnsiRegex() {
-  if (_ansiRegex === undefined) {
-    // The 'ansi-regex' package is browser safe.
-    _ansiRegex = /*@__PURE__*/ require('../external/ansi-regex')()
-  }
-  return _ansiRegex
+function ansiRegex(options) {
+  const { onlyFirst } = { __proto__: null, ...options }
+  // Valid string terminator sequences are BEL, ESC\, and 0x9c.
+  const ST = '(?:\\u0007|\\u001B\\u005C|\\u009C)'
+  // OSC sequences only: ESC ] ... ST (non-greedy until the first ST).
+  const osc = `(?:\\u001B\\][\\s\\S]*?${ST})`
+  // CSI and related: ESC/C1, optional intermediates, optional params (supports ; and :) then final byte.
+  const csi =
+    '[\\u001B\\u009B][[\\]()#;?]*(?:\\d{1,4}(?:[;:]\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]'
+  const pattern = `${osc}|${csi}`
+  return new RegExp(pattern, onlyFirst ? undefined : 'g')
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -15,6 +26,49 @@ function applyLinePrefix(str, prefix = '') {
   return prefix.length
     ? `${prefix}${str.includes('\n') ? str.replace(/\n/g, `\n${prefix}`) : str}`
     : str
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function camelToKebab(str) {
+  const { length } = str
+  if (!length) {
+    return ''
+  }
+  let result = ''
+  let i = 0
+  while (i < length) {
+    const char = str[i]
+    const charCode = char.charCodeAt(0)
+    // Check if current character is uppercase letter.
+    // A = 65, Z = 90
+    const isUpperCase = charCode >= 65 /*'A'*/ && charCode <= 90 /*'Z'*/
+    if (isUpperCase) {
+      // Add dash before uppercase sequence (except at start).
+      if (result.length > 0) {
+        result += '-'
+      }
+      // Collect all consecutive uppercase letters.
+      while (i < length) {
+        const currChar = str[i]
+        const currCharCode = currChar.charCodeAt(0)
+        const isCurrUpper =
+          currCharCode >= 65 /*'A'*/ && currCharCode <= 90 /*'Z'*/
+        if (isCurrUpper) {
+          // Convert uppercase to lowercase: subtract 32 (A=65 -> a=97, diff=32)
+          result += fromCharCode(currCharCode + 32 /*'a'-'A'*/)
+          i += 1
+        } else {
+          // Stop when we hit non-uppercase.
+          break
+        }
+      }
+    } else {
+      // Handle lowercase letters, digits, and other characters.
+      result += char
+      i += 1
+    }
+  }
+  return result
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -48,7 +102,7 @@ function search(str, regexp, fromIndex = 0) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function stripAnsi(str) {
-  return str.replace(getAnsiRegex(), '')
+  return str.replace(ansiRegex(), '')
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -110,6 +164,7 @@ function trimNewlines(str) {
 
 module.exports = {
   applyLinePrefix,
+  camelToKebab,
   indentString,
   isBlankString,
   isNonEmptyString,
