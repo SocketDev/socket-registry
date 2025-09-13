@@ -53,7 +53,7 @@ jobs:
             ${{ runner.os }}-node-${{ steps.npm-timed-expiration.outputs.prefix }}-
 
       - name: Install dependencies
-        run: npx @socketsecurity/cli npm install --no-audit --no-fund --config '{"settings":{"reportLevel":"error"}}'
+        run: npx @socketsecurity/cli --config '{"settings":{"reportLevel":"error"}}' npm install --no-audit --no-fund
 
       - name: Run tests
         run: npm run test-ci
