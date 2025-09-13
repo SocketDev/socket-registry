@@ -2,6 +2,7 @@
   "loglevel": "silent",
   "packageFile": ".{,/packages/**,/perf/npm,/registry,/test/npm}/package.json",
   "reject": [
+    "debug",
     "eslint-plugin-unicorn",
     "make-fetch-happen",
     "minimatch",
