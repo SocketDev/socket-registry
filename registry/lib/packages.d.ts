@@ -17,6 +17,7 @@ declare namespace Packages {
   >
   export class EditablePackageJson extends NPMCliPackageJson {
     content: Readonly<PackageJson>
+    override update: (content: Partial<PackageJson>) => this
     // @ts-ignore TypeScript doesn't like an override with a different return type.
     override save: (options?: SaveOptions | undefined) => Promise<boolean>
     saveSync: (options?: SaveOptions | undefined) => boolean
