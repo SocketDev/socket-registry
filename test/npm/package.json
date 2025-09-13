@@ -117,7 +117,7 @@
     "string.prototype.padend": "3.1.6",
     "string.prototype.padstart": "3.1.7",
     "string.prototype.repeat": "1.0.0",
-    "string.prototype.replaceall": "1.0.10",
+    "string.prototype.replaceall": "1.0.11",
     "string.prototype.split": "1.0.9",
     "string.prototype.startswith": "1.0.1",
     "string.prototype.trim": "1.2.10",
