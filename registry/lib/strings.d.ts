@@ -2,6 +2,7 @@ declare type BlankString = string & { __blankBrand: true }
 declare type EmptyString = string & { __emptyBrand: true }
 declare const Strings: {
   applyLinePrefix(str: string, prefix?: string | undefined): string
+  camelToKebab(str: string): string
   indentString(str: string, count?: number | undefined): string
   isBlankString(value: unknown): value is BlankString
   isNonEmptyString(value: unknown): value is Exclude<string, EmptyString>
