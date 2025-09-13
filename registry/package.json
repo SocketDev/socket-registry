@@ -689,7 +689,6 @@
     "@types/node": "24.3.3",
     "@types/pacote": "11.1.8",
     "@yarnpkg/extensions": "2.0.6",
-    "ansi-regex": "6.2.2",
     "browserslist": "4.26.0",
     "cacache": "20.0.1",
     "debug": "4.4.1",
