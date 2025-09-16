@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - uses: SocketDev/socket-registry/.github/actions/setup@fad2a47cc9022ff59d5ae7256fcf9fabb246a943
+      - uses: SocketDev/socket-registry/.github/actions/setup@9220b765c2da603758f4072ac79427b492135a03
         with:
           node-version: '22'
       - run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}

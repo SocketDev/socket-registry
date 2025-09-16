@@ -53,6 +53,13 @@ const packageNames: string[] =
       })()
 
 describe(eco, { skip: !packageNames.length }, () => {
+  if (!packageNames.length) {
+    it('no packages to test', () => {
+      expect(true).toBe(true)
+    })
+    return
+  }
+
   for (const sockRegPkgName of packageNames) {
     const nwPkgPath = path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
     const nwPkgJson = readJsonSync(path.join(nwPkgPath, PACKAGE_JSON))
