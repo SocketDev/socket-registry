@@ -596,9 +596,6 @@
       "types": "./lib/agent.d.ts",
       "default": "./lib/agent.js"
     },
-    "./lib/npm_temp": {
-      "default": "./lib/npm_temp.js"
-    },
     "./lib/objects": {
       "types": "./lib/objects.d.ts",
       "default": "./lib/objects.js"
