@@ -55,7 +55,7 @@
     "update:licenses": "dotenvx -q run -f .env.local -- node ./scripts/update-licenses.js",
     "update:manifest": "dotenvx -q run -f .env.local -- node ./scripts/update-manifest.js",
     "update:package-json": "dotenvx -q run -f .env.local -- node ./scripts/update-package-json.js",
-    "update:package-lock": "dotenvx -q run -f .env.local -- node ./scripts/update-package-lock.js",
+    "update:caniuse-lite": "dotenvx -q run -f .env.local -- node ./scripts/update-caniuse-lite.js",
     "update:registry-package-json": "dotenvx -q run -f .env.local -- node ./scripts/update-registry-package-json.js",
     "update:npm:package-json": "dotenvx -q run -f .env.local -- node ./scripts/update-npm-package-json.js",
     "update:npm:readmes": "dotenvx -q run -f .env.local -- node ./scripts/update-npm-readmes.js",
