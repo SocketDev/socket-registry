@@ -124,6 +124,10 @@
     ]
   },
   "pnpm": {
+    "patchedDependencies": {
+      "brace-expansion@2.0.2": "patches/brace-expansion@2.0.2.patch",
+      "minimatch@9.0.5": "patches/minimatch@9.0.5.patch"
+    },
     "overrides": {
       "aggregate-error": "npm:@socketregistry/aggregate-error@^1",
       "ansi-regex": "6.1.0",
