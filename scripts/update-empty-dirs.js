@@ -1,9 +1,10 @@
 'use strict'
 
 const { glob } = require('fast-glob')
+const trash = require('trash').default || require('trash')
 
 const constants = require('@socketregistry/scripts/constants')
-const { isDirEmptySync, remove } = require('@socketsecurity/registry/lib/fs')
+const { isDirEmptySync } = require('@socketsecurity/registry/lib/fs')
 
 const { NODE_MODULES_GLOB_RECURSIVE } = constants
 
@@ -21,7 +22,7 @@ void (async () => {
   for (const dirPath of dirPaths) {
     if (isDirEmptySync(dirPath)) {
       // eslint-disable-next-line no-await-in-loop
-      await remove(dirPath)
+      await trash(dirPath)
     }
   }
 })()
