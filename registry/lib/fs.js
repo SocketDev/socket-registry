@@ -15,22 +15,6 @@ const defaultRemoveOptions = ObjectFreeze({
   retryDelay: 200
 })
 
-let _trash
-/*@__NO_SIDE_EFFECTS__*/
-function getTrash() {
-  if (_trash === undefined) {
-    try {
-      // Try to load trash if available (dev dependency)
-      const trashModule = require('trash')
-      _trash = trashModule.default || trashModule
-    } catch {
-      // Fallback to null if not available (production)
-      _trash = null
-    }
-  }
-  return _trash
-}
-
 let _fs
 /*@__NO_SIDE_EFFECTS__*/
 function getFs() {
@@ -215,22 +199,6 @@ function readJsonSync(filepath, options) {
 
 /*@__NO_SIDE_EFFECTS__*/
 async function remove(filepath, options) {
-  const trash = getTrash()
-
-  // Use trash if available and not explicitly disabled
-  if (trash && !options?.preferNativeDelete) {
-    try {
-      // Convert to array if needed for trash API
-      const paths = Array.isArray(filepath) ? filepath : [filepath]
-      await trash(paths)
-      return
-    } catch (error) {
-      // Fall through to native delete if trash fails
-      console.warn('Trash operation failed, falling back to native delete:', error.message)
-    }
-  }
-
-  // Fallback to native fs.rm
   // Attempt to workaround occasional ENOTEMPTY errors in Windows.
   // https://github.com/jprichardson/node-fs-extra/issues/532#issuecomment-1178360589
   const fs = getFs()
@@ -243,8 +211,6 @@ async function remove(filepath, options) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function removeSync(filepath, options) {
-  // Note: trash package is async-only, so removeSync always uses native delete
-  // For trash functionality, use the async remove() function
   const fs = getFs()
   fs.rmSync(filepath, {
     __proto__: null,
