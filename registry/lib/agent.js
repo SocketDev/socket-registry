@@ -9,10 +9,11 @@ const {
 const { isDebug } = /*@__PURE__*/ require('./debug')
 const { spawn } = /*@__PURE__*/ require('./spawn')
 
-const auditFlags = new Set(['--audit', '--no-audit'])
-const fundFlags = new Set(['--fund', '--no-fund'])
-const ignoreScriptsFlags = new Set(['--ignore-scripts', '--no-ignore-scripts'])
-const logFlags = new Set([
+const npmAuditFlags = new Set(['--audit', '--no-audit'])
+
+const npmFundFlags = new Set(['--fund', '--no-fund'])
+
+const npmLogFlags = new Set([
   // --loglevel has several aliases:
   // https://docs.npmjs.com/cli/v11/using-npm/logging#aliases
   '--loglevel',
@@ -24,7 +25,13 @@ const logFlags = new Set([
   '-s',
   '--silent'
 ])
-const progressFlags = new Set(['--progress', '--no-progress'])
+
+const npmProgressFlags = new Set(['--progress', '--no-progress'])
+
+const pnpmIgnoreScriptsFlags = new Set([
+  '--ignore-scripts',
+  '--no-ignore-scripts'
+])
 
 /*@__NO_SIDE_EFFECTS__*/
 function execNpm(args, options) {
@@ -102,19 +109,51 @@ function execPnpm(args, options) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
+function execYarn(args, options) {
+  const useDebug = isDebug()
+  const terminatorPos = args.indexOf('--')
+  const yarnArgs = (
+    terminatorPos === -1 ? args : args.slice(0, terminatorPos)
+  ).filter(a => !isNpmProgressFlag(a))
+  const otherArgs = terminatorPos === -1 ? [] : args.slice(terminatorPos)
+  // Yarn uses --silent flag for quieter output
+  const logLevelArgs =
+    useDebug || yarnArgs.some(isNpmLoglevelFlag) ? [] : ['--silent']
+  // Check if --ignore-scripts is already present
+  const hasIgnoreScriptsFlag = yarnArgs.some(isPnpmIgnoreScriptsFlag)
+  const ignoreScriptsArgs = hasIgnoreScriptsFlag ? [] : ['--ignore-scripts']
+
+  return runBin(
+    'yarn',
+    [
+      // Add '--silent' if a loglevel flag is not provided and debug is off
+      ...logLevelArgs,
+      // Add '--ignore-scripts' by default for security unless explicitly disabled
+      ...ignoreScriptsArgs,
+      ...yarnArgs,
+      ...otherArgs
+    ],
+    {
+      __proto__: null,
+      ...options
+    }
+  )
+}
+
+/*@__NO_SIDE_EFFECTS__*/
 function isNpmAuditFlag(cmdArg) {
-  return auditFlags.has(cmdArg)
+  return npmAuditFlags.has(cmdArg)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
 function isNpmFundFlag(cmdArg) {
-  return fundFlags.has(cmdArg)
+  return npmFundFlags.has(cmdArg)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
 function isNpmLoglevelFlag(cmdArg) {
   // https://docs.npmjs.com/cli/v11/using-npm/logging#setting-log-levels
-  return cmdArg.startsWith('--loglevel=') || logFlags.has(cmdArg)
+  return cmdArg.startsWith('--loglevel=') || npmLogFlags.has(cmdArg)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -125,12 +164,12 @@ function isNpmNodeOptionsFlag(cmdArg) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function isNpmProgressFlag(cmdArg) {
-  return progressFlags.has(cmdArg)
+  return npmProgressFlags.has(cmdArg)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
 function isPnpmIgnoreScriptsFlag(cmdArg) {
-  return ignoreScriptsFlags.has(cmdArg)
+  return pnpmIgnoreScriptsFlags.has(cmdArg)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -158,6 +197,7 @@ function runNpmScript(scriptName, args, options) {
 module.exports = {
   execNpm,
   execPnpm,
+  execYarn,
   isNpmAuditFlag,
   isNpmFundFlag,
   isNpmLoglevelFlag,

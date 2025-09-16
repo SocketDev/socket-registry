@@ -17,7 +17,7 @@ const {
   uniqueSync
 } = require('@socketsecurity/registry/lib/fs')
 const { logger } = require('@socketsecurity/registry/lib/logger')
-const { execNpm } = require('@socketsecurity/registry/lib/npm')
+const { execNpm } = require('@socketsecurity/registry/lib/agent')
 const { merge, objectEntries } = require('@socketsecurity/registry/lib/objects')
 const {
   extractPackage,

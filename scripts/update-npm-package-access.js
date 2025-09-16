@@ -6,7 +6,7 @@ const util = require('node:util')
 const constants = require('@socketregistry/scripts/constants')
 const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
 const { logger } = require('@socketsecurity/registry/lib/logger')
-const { execNpm } = require('@socketsecurity/registry/lib/npm')
+const { execNpm } = require('@socketsecurity/registry/lib/agent')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { pluralize } = require('@socketsecurity/registry/lib/words')
 
