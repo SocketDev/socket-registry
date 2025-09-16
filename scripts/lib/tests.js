@@ -20,7 +20,7 @@ function getCliArgs() {
 
 function isPackageTestingSkipped(eco, sockRegPkgName) {
   const { ENV } = constants
-  return getCliArgs().force || ENV.CI
+  return getCliArgs().force || ENV.CI || process.env.FORCE_TEST === '1'
     ? false
     : !(ENV.PRE_COMMIT ? getStagedPackagesSync : getModifiedPackagesSync)(eco, {
         ignore: [LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE]

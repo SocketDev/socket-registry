@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest'
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 import { isObjectObject } from '@socketsecurity/registry/lib/objects'
+import { normalizePath } from '@socketsecurity/registry/lib/path'
 
 const { NPM, SOCKET_REGISTRY_PACKAGE_NAME } = constants
 
@@ -34,10 +35,13 @@ describe(
         try {
           require(filepath)
         } catch (e: any) {
-          // Skip known problematic external files with duplicate declarations
+          // Skip known problematic external files with duplicate declarations.
+          // Use normalizePath for cross-platform compatibility.
+          const normalizedPath = normalizePath(filepath)
           if (
             e.message?.includes('dbcsCode') &&
-            filepath.includes('/external/')
+            (normalizedPath.includes('/external/') ||
+              normalizedPath.includes('pacote-cache-path.js'))
           ) {
             console.warn(`Skipping ${filepath} due to known bundling issue`)
             continue

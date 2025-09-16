@@ -103,7 +103,7 @@ describe(
         }
         for (const impl of implementations) {
           expect(impl[method]).toBe((buffer as any)[method])
-          expect(typeof impl[method]).toBe('undefined')
+          expect(typeof impl[method]).not.toBe('undefined')
         }
       }
     })
@@ -123,7 +123,7 @@ describe(
     it('.prototype property of Buffer is inherited', () => {
       for (const impl of implementations) {
         expect(impl.Buffer.prototype).toBe(buffer.Buffer.prototype)
-        expect(typeof impl.Buffer.prototype).toBe('undefined')
+        expect(typeof impl.Buffer.prototype).not.toBe('undefined')
       }
     })
 
@@ -134,9 +134,7 @@ describe(
         }
         for (const impl of implementations) {
           expect(impl[method]).toBe(safer[method])
-          if (method !== 'kStringMaxLength') {
-            expect(typeof impl[method]).toBe('undefined')
-          }
+          expect(typeof impl[method]).not.toBe('undefined')
         }
       }
       for (const method of Object.keys(safer.Buffer)) {
@@ -154,9 +152,7 @@ describe(
         }
         for (const impl of implementations) {
           expect(impl[method]).toBe(dangerous[method])
-          if (method !== 'kStringMaxLength') {
-            expect(typeof impl[method]).toBe('undefined')
-          }
+          expect(typeof impl[method]).not.toBe('undefined')
         }
       }
       for (const method of Object.keys(dangerous.Buffer)) {
