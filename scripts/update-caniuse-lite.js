@@ -21,13 +21,15 @@ try {
     throw result.error
   }
 
-  if (result.status !== 0) {
+  if (result.status) {
     logger.fail(`update caniuse-lite: pnpm exited with code ${result.status}`)
+    // eslint-disable-next-line n/no-process-exit
     process.exit(1)
   }
 
   logger.log('Done')
 } catch (e) {
   logger.fail(`update caniuse-lite: ${e.message}`)
+  // eslint-disable-next-line n/no-process-exit
   process.exit(1)
 }
