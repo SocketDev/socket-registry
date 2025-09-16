@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isPnpmIgnoreScriptsFlag } from '@socketsecurity/registry/lib/npm'
+import { isPnpmIgnoreScriptsFlag } from '@socketsecurity/registry/lib/agent'
 
 // Note: execPnpm integration testing would require mocking the spawn/runBin functions
 // which is complex due to the module structure. The implementation can be tested

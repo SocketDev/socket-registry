@@ -1,7 +1,7 @@
 'use strict'
 
 const constants = require('@socketregistry/scripts/constants')
-const { runNpmScript } = require('@socketsecurity/registry/lib/npm')
+const { runNpmScript } = require('@socketsecurity/registry/lib/agent')
 const { readPackageJson } = require('@socketsecurity/registry/lib/packages')
 
 void (async () => {

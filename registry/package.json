@@ -592,9 +592,13 @@
       "types": "./lib/logger.d.ts",
       "default": "./lib/logger.js"
     },
+    "./lib/agent": {
+      "types": "./lib/agent.d.ts",
+      "default": "./lib/agent.js"
+    },
     "./lib/npm": {
-      "types": "./lib/npm.d.ts",
-      "default": "./lib/npm.js"
+      "types": "./lib/agent.d.ts",
+      "default": "./lib/agent.js"
     },
     "./lib/npm_temp": {
       "default": "./lib/npm_temp.js"

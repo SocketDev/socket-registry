@@ -182,7 +182,23 @@ function resolveBinPathSync(binPath) {
           }
         } else if (extLowered === '') {
           // Extensionless pnpm/yarn - try common shebang formats
-          relPath = /(?<="$basedir\/).*(?=" "\$@"\n)/.exec(source)?.[0]
+          // Handle pnpm installed via standalone installer or global install
+          // Format: exec "$basedir/node"  "$basedir/.tools/pnpm/VERSION/..." "$@"
+          // Note: may have multiple spaces between arguments
+          relPath = /(?<="\$basedir\/)\.tools\/pnpm\/[^"]+(?="\s+"\$@")/.exec(
+            source
+          )?.[0]
+          if (!relPath) {
+            // Also try: exec node  "$basedir/.tools/pnpm/VERSION/..." "$@"
+            relPath =
+              /(?<=exec\s+node\s+"\$basedir\/)\.tools\/pnpm\/[^"]+(?="\s+"\$@")/.exec(
+                source
+              )?.[0]
+          }
+          if (!relPath) {
+            // Try standard cmd-shim format: exec node "$basedir/../package/bin/binary.js" "$@"
+            relPath = /(?<="\$basedir\/).*(?=" "\$@"\n)/.exec(source)?.[0]
+          }
         } else if (extLowered === '.ps1') {
           // PowerShell format
           relPath = /(?<="\$basedir\/).*(?=" $args\n)/.exec(source)?.[0]
@@ -277,6 +293,39 @@ function resolveBinPathSync(binPath) {
       extLowered !== '.mts'
     ) {
       throw getNotResolvedError(binPath)
+    }
+  } else {
+    // Handle Unix shell scripts (non-Windows platforms)
+    const hasNoExt = extLowered === ''
+    const isPnpmOrYarn = basename === 'pnpm' || basename === 'yarn'
+    const isNpmOrNpx = basename === 'npm' || basename === 'npx'
+
+    if (hasNoExt && (isPnpmOrYarn || isNpmOrNpx)) {
+      const source = fs.readFileSync(binPath, 'utf8')
+      let relPath = ''
+
+      if (isPnpmOrYarn) {
+        // Handle pnpm/yarn Unix shell scripts
+        // Format: exec "$basedir/node" "$basedir/.tools/pnpm/VERSION/..." "$@"
+        // or: exec node "$basedir/.tools/pnpm/VERSION/..." "$@"
+        relPath = /(?<="\$basedir\/)\.tools\/[^"]+(?="\s+"\$@")/.exec(
+          source
+        )?.[0]
+        if (!relPath) {
+          // Try standard cmd-shim format: exec node "$basedir/../package/bin/binary.js" "$@"
+          relPath = /(?<="\$basedir\/).*(?="\s+"\$@")/.exec(source)?.[0]
+        }
+      } else if (isNpmOrNpx) {
+        // Handle npm/npx Unix shell scripts
+        relPath =
+          basename === 'npm'
+            ? /(?<=NPM_CLI_JS="\$CLI_BASEDIR\/).*(?=")/.exec(source)?.[0]
+            : /(?<=NPX_CLI_JS="\$CLI_BASEDIR\/).*(?=")/.exec(source)?.[0]
+      }
+
+      if (relPath) {
+        binPath = path.join(path.dirname(binPath), relPath)
+      }
     }
   }
   return fs.realpathSync.native(binPath)

@@ -6,7 +6,7 @@ const semver = require('semver')
 const ssri = require('ssri')
 
 const constants = require('@socketregistry/scripts/constants')
-const { runNpmScript } = require('@socketsecurity/registry/lib/npm')
+const { runNpmScript } = require('@socketsecurity/registry/lib/agent')
 const {
   fetchPackageManifest,
   getReleaseTag,

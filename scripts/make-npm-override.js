@@ -21,7 +21,7 @@ const {
 const { isDirEmptySync } = require('@socketsecurity/registry/lib/fs')
 const { globStreamLicenses } = require('@socketsecurity/registry/lib/globs')
 const { LOG_SYMBOLS, logger } = require('@socketsecurity/registry/lib/logger')
-const { runNpmScript } = require('@socketsecurity/registry/lib/npm')
+const { runNpmScript } = require('@socketsecurity/registry/lib/agent')
 const { isObject } = require('@socketsecurity/registry/lib/objects')
 const { transform } = require('@socketsecurity/registry/lib/streams')
 const {

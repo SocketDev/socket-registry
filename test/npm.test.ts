@@ -10,9 +10,9 @@ import {
   getStagedPackagesSync
 } from '@socketregistry/scripts/lib/git'
 import { getManifestData } from '@socketsecurity/registry'
+import { runNpmScript } from '@socketsecurity/registry/lib/agent'
 import { readDirNamesSync, readJsonSync } from '@socketsecurity/registry/lib/fs'
 import { logger } from '@socketsecurity/registry/lib/logger'
-import { runNpmScript } from '@socketsecurity/registry/lib/npm'
 import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/packages'
 import { isNonEmptyString } from '@socketsecurity/registry/lib/strings'
 

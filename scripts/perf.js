@@ -3,7 +3,7 @@
 const { glob } = require('fast-glob')
 
 const constants = require('@socketregistry/scripts/constants')
-const { runBin } = require('@socketsecurity/registry/lib/npm')
+const { runBin } = require('@socketsecurity/registry/lib/agent')
 
 const { perfNpmPath } = constants
 

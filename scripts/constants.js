@@ -7,7 +7,7 @@ const path = require('node:path')
 
 const eslintCompat = require('@eslint/compat')
 const registryConstants = require('@socketsecurity/registry/lib/constants')
-const { whichBinSync } = require('@socketsecurity/registry/lib/npm')
+const { whichBinSync } = require('@socketsecurity/registry/lib/agent')
 const which = require('which')
 
 const {
