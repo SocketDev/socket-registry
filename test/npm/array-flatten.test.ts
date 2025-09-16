@@ -1,6 +1,6 @@
-import assert from 'node:assert/strict'
 import path from 'node:path'
-import { describe, it } from 'node:test'
+
+import { describe, expect, it } from 'vitest'
 
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
@@ -24,20 +24,20 @@ describe(
       it('should flatten an array', () => {
         const result = flatten([1, [2, [3, [4, [5]]], 6, [[7], 8], 9], 10])
 
-        assert.deepStrictEqual(result, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        expect(result).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
       })
 
       it('should work with array-like', () => {
         const result = flatten('test')
 
-        assert.deepStrictEqual(result, ['t', 'e', 's', 't'])
+        expect(result).toEqual(['t', 'e', 's', 't'])
       })
 
       it('should work with readonly array', () => {
         const input = [1, [2, [3, [4]]]] as const
         const result = flatten(input)
 
-        assert.deepStrictEqual(result, [1, 2, 3, 4])
+        expect(result).toEqual([1, 2, 3, 4])
       })
 
       it('should work with arguments', () => {
@@ -46,7 +46,7 @@ describe(
         })()
         const result = flatten(input)
 
-        assert.deepStrictEqual(result, [])
+        expect(result).toEqual([])
       })
 
       it('should work with mixed types', () => {
@@ -55,14 +55,14 @@ describe(
         const input = [1, ['test', [fn, [true]]]]
         const result = flatten(input)
 
-        assert.deepStrictEqual(result, [1, 'test', fn, true])
+        expect(result).toEqual([1, 'test', fn, true])
       })
 
       it('should work with tuples', () => {
         const input: [number, [number, number], [number]] = [1, [1, 2], [3]]
         const result = flatten(input)
 
-        assert.deepStrictEqual(result, [1, 1, 2, 3])
+        expect(result).toEqual([1, 1, 2, 3])
       })
     })
 
@@ -77,19 +77,19 @@ describe(
             10
           ])
 
-          assert.deepStrictEqual(result, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+          expect(result).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
         })
 
         it('should throw on non-array', () => {
-          assert.throws(() => {
+          expect(() => {
             flattenLegacy('test')
-          }, TypeError)
+          }).toThrow(TypeError)
         })
 
         it('should work with non-array', () => {
           const result = flattenLegacy.from('test')
 
-          assert.deepStrictEqual(result, ['t', 'e', 's', 't'])
+          expect(result).toEqual(['t', 'e', 's', 't'])
         })
       })
 
@@ -97,33 +97,33 @@ describe(
         it('should flatten an array to a specific depth', () => {
           const result = flattenLegacy.depth([1, [2, [3], 4], 5], 1)
 
-          assert.deepStrictEqual(result, [1, 2, [3], 4, 5])
+          expect(result).toEqual([1, 2, [3], 4, 5])
         })
 
         it('should clone an array when no depth is specified', () => {
           const array = [1, [2, 3]]
           const clone = flattenLegacy.depth(array, 0)
 
-          assert.ok(clone !== array)
-          assert.deepStrictEqual(clone, array)
+          expect(clone !== array).toBe(true)
+          expect(clone).toEqual(array)
         })
 
         it('should throw on non-array', () => {
-          assert.throws(() => {
+          expect(() => {
             flattenLegacy.depth('test', 10)
-          }, TypeError)
+          }).toThrow(TypeError)
         })
 
         it('should throw on non-numeric depth', () => {
-          assert.throws(() => {
+          expect(() => {
             flattenLegacy.fromDepth('test', 'test')
-          }, TypeError)
+          }).toThrow(TypeError)
         })
 
         it('should work with "from"', () => {
           const result = flattenLegacy.fromDepth('test', 1)
 
-          assert.deepStrictEqual(result, ['t', 'e', 's', 't'])
+          expect(result).toEqual(['t', 'e', 's', 't'])
         })
       })
     })
@@ -134,21 +134,21 @@ describe(
       it('should flatten an array', () => {
         const res = flattenLegacy([1, [2, [3, [4, [5]]], 6, [[7], 8], 9], 10])
 
-        assert.deepStrictEqual(res, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        expect(res).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
       })
 
       it('should flatten an array to a specific depth', () => {
         const res = flattenLegacy([1, [2, [3], 4], 5], 1)
 
-        assert.deepStrictEqual(res, [1, 2, [3], 4, 5])
+        expect(res).toEqual([1, 2, [3], 4, 5])
       })
 
       it('should clone an array when no depth is specified', () => {
         const array = [1, [2, 3]]
         const clone = flattenLegacy(array, 0)
 
-        assert.ok(clone !== array)
-        assert.deepStrictEqual(clone, array)
+        expect(clone !== array).toBe(true)
+        expect(clone).toEqual(array)
       })
     })
   }

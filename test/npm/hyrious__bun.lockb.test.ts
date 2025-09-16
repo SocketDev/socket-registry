@@ -1,7 +1,7 @@
-import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
-import { describe, it } from 'node:test'
+
+import { describe, expect, it } from 'vitest'
 
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
@@ -28,7 +28,7 @@ describe(
       const yarnLockPath = path.join(testNpmFixturesPath, 'fixture-yarn.lock')
       const lockb = readFileSync(lockbPath)
       const yarnLock = readFileSync(yarnLockPath, UTF8)
-      assert.strictEqual(hyriousBunLockb.parse(lockb), yarnLock)
+      expect(hyriousBunLockb.parse(lockb)).toBe(yarnLock)
     })
   }
 )

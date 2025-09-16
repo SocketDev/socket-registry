@@ -1,7 +1,7 @@
-import assert from 'node:assert/strict'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-import { describe, it } from 'node:test'
+
+import { describe, expect, it } from 'vitest'
 
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
@@ -39,19 +39,15 @@ describe(
     ]
     for (const isRegex of implementations) {
       it('not regexes', () => {
-        assert.strictEqual(isRegex(), false, 'undefined is not regex')
-        assert.strictEqual(isRegex(null), false, 'null is not regex')
-        assert.strictEqual(isRegex(false), false, 'false is not regex')
-        assert.strictEqual(isRegex(true), false, 'true is not regex')
-        assert.strictEqual(isRegex(42), false, 'number is not regex')
-        assert.strictEqual(isRegex('foo'), false, 'string is not regex')
-        assert.strictEqual(isRegex([]), false, 'array is not regex')
-        assert.strictEqual(isRegex({}), false, 'object is not regex')
-        assert.strictEqual(
-          isRegex(function () {}),
-          false,
-          'function is not regex'
-        )
+        expect(isRegex()).toBe(false)
+        expect(isRegex(null)).toBe(false)
+        expect(isRegex(false)).toBe(false)
+        expect(isRegex(true)).toBe(false)
+        expect(isRegex(42)).toBe(false)
+        expect(isRegex('foo')).toBe(false)
+        expect(isRegex([])).toBe(false)
+        expect(isRegex({})).toBe(false)
+        expect(isRegex(function () {})).toBe(false)
       })
 
       it('@@toStringTag', () => {
@@ -66,46 +62,36 @@ describe(
           [Symbol.toStringTag]: 'RegExp'
         }
 
-        assert.strictEqual(
-          isRegex(fakeRegex),
-          false,
-          'fake RegExp with @@toStringTag "RegExp" is not regex'
-        )
+        expect(isRegex(fakeRegex)).toBe(false)
       })
 
       it('regexes', () => {
-        assert.ok(isRegex(/a/g), 'regex literal is regex')
-        assert.ok(isRegex(new RegExp('a', 'g')), 'regex object is regex')
+        expect(isRegex(/a/g)).toBe(true)
+        expect(isRegex(new RegExp('a', 'g'))).toBe(true)
       })
 
-      it('does not mutate regexes', async t => {
-        await t.test('lastIndex is a marker object', () => {
+      it('does not mutate regexes', () => {
+        // Test lastIndex is a marker object
+        {
           const regex = /a/
           const marker = {}
           ;(regex as any).lastIndex = marker
-          assert.strictEqual(
-            regex.lastIndex,
-            marker,
-            'lastIndex is the marker object'
-          )
-          assert.ok(isRegex(regex), 'is regex')
-          assert.strictEqual(
-            regex.lastIndex,
-            marker,
-            'lastIndex is the marker object after isRegex'
-          )
-        })
+          expect(regex.lastIndex).toBe(marker)
+          expect(isRegex(regex)).toBe(true)
+          expect(regex.lastIndex).toBe(marker)
+        }
 
-        await t.test('lastIndex is nonzero', () => {
+        // Test lastIndex is nonzero
+        {
           const regex = /a/
           regex.lastIndex = 3
-          assert.equal(regex.lastIndex, 3, 'lastIndex is 3')
-          assert.ok(isRegex(regex), 'is regex')
-          assert.equal(regex.lastIndex, 3, 'lastIndex is 3 after isRegex')
-        })
+          expect(regex.lastIndex).toBe(3)
+          expect(isRegex(regex)).toBe(true)
+          expect(regex.lastIndex).toBe(3)
+        }
       })
 
-      it('does not perform operations observable to Proxies', async t => {
+      it('does not perform operations observable to Proxies', () => {
         class Handler {
           trapCalls: string[]
           constructor() {
@@ -132,7 +118,8 @@ describe(
           }
         }
 
-        await t.test('proxy of object', () => {
+        // Test proxy of object
+        {
           const target = { lastIndex: 0 }
           const handler = new Handler()
           const proxy = new Proxy(
@@ -140,40 +127,29 @@ describe(
             handler as ProxyHandler<typeof target>
           )
 
-          assert.strictEqual(
-            isRegex(proxy),
-            false,
-            'proxy of plain object is not regex'
-          )
+          expect(isRegex(proxy)).toBe(false)
           // Support `isRegex` backed by `require('node:util/types').isRegExp`
           // which triggers no proxy traps.
           // https://github.com/inspect-js/is-regex/issues/35
-          assert.deepStrictEqual(
-            handler.trapCalls,
-            handler.trapCalls.length ? ['getOwnPropertyDescriptor'] : [],
-            'no unexpected proxy traps were triggered'
+          expect(handler.trapCalls).toEqual(
+            handler.trapCalls.length ? ['getOwnPropertyDescriptor'] : []
           )
-        })
+        }
 
-        await t.test('proxy of RegExp instance', () => {
+        // Test proxy of RegExp instance
+        {
           const target = /a/
           const handler = new Handler()
           const proxy = new Proxy(/a/, handler as ProxyHandler<typeof target>)
 
-          assert.strictEqual(
-            isRegex(proxy),
-            false,
-            'proxy of RegExp instance is not regex'
-          )
+          expect(isRegex(proxy)).toBe(false)
           // Support `isRegex` backed by `require('node:util/types').isRegExp`
           // which triggers no proxy traps.
           // https://github.com/inspect-js/is-regex/issues/35
-          assert.deepStrictEqual(
-            handler.trapCalls,
-            handler.trapCalls.length ? ['getOwnPropertyDescriptor'] : [],
-            'no unexpected proxy traps were triggered'
+          expect(handler.trapCalls).toEqual(
+            handler.trapCalls.length ? ['getOwnPropertyDescriptor'] : []
           )
-        })
+        }
       })
     }
   }

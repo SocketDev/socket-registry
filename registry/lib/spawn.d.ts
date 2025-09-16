@@ -85,10 +85,9 @@ declare const Spawn: {
     O extends { stdioString: false } ? Buffer : string,
     typeof extra
   >
-  spawnSync(command: string): SpawnSyncReturns<Buffer>
   spawnSync(
     command: string,
-    options: SpawnSyncOptionsWithStringEncoding
+    options?: SpawnSyncOptionsWithStringEncoding | undefined
   ): SpawnSyncReturns<string>
   spawnSync(
     command: string,
@@ -98,20 +97,19 @@ declare const Spawn: {
     command: string,
     options?: SpawnSyncOptions
   ): SpawnSyncReturns<string | Buffer>
-  spawnSync(command: string, args: readonly string[]): SpawnSyncReturns<Buffer>
   spawnSync(
     command: string,
-    args: readonly string[],
-    options: SpawnSyncOptionsWithStringEncoding
+    args: string[] | readonly string[],
+    options?: SpawnSyncOptionsWithStringEncoding | undefined
   ): SpawnSyncReturns<string>
   spawnSync(
     command: string,
-    args: readonly string[],
+    args: string[] | readonly string[],
     options: SpawnSyncOptionsWithBufferEncoding
   ): SpawnSyncReturns<Buffer>
   spawnSync(
     command: string,
-    args?: readonly string[],
+    args?: string[] | readonly string[],
     options?: SpawnSyncOptions
   ): SpawnSyncReturns<string | Buffer>
 }

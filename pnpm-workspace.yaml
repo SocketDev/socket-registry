@@ -1,0 +1,13 @@
+packages:
+  - packages/npm/*
+  - perf/*
+  - registry
+  - scripts
+  # test/npm is managed by npm, not pnpm
+  # - test/npm
+  # - test/npm/node_workspaces/*
+
+patchedDependencies:
+  brace-expansion@2.0.2: patches/brace-expansion@2.0.2.patch
+  iconv-lite@0.6.3: patches/iconv-lite@0.6.3.patch
+  minimatch@9.0.5: patches/minimatch@9.0.5.patch

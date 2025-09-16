@@ -1,22 +1,27 @@
 'use strict'
 
+const { spawn } = require('node:child_process')
+const path = require('node:path')
 const constants = require('@socketregistry/scripts/constants')
-const { runBin } = require('@socketsecurity/registry/lib/npm')
 
 void (async () => {
   try {
-    await runBin(constants.tapRunExecPath, process.argv.slice(2), {
+    const vitestPath = path.join(constants.rootPath, 'node_modules/.bin/vitest')
+    const args = ['run', ...process.argv.slice(2)]
+
+    const child = spawn(vitestPath, args, {
       cwd: constants.rootPath,
       stdio: 'inherit',
-      env: {
-        ...process.env,
-        TAP_RCFILE: constants.ENV.CI
-          ? constants.tapCiConfigPath
-          : constants.tapConfigPath
-      }
+      env: process.env
     })
-  } catch {
-    // Shallow error here since we're running the bin with stdio: 'inherit' and
-    // all stdout and stderr will be logged to the console.
+
+    child.on('exit', code => {
+      // eslint-disable-next-line n/no-process-exit
+      process.exit(code || 0)
+    })
+  } catch (e) {
+    console.error('Error running tests:', e)
+    // eslint-disable-next-line n/no-process-exit
+    process.exit(1)
   }
 })()

@@ -112,7 +112,22 @@ const lazyRootPackageLockPath = () =>
 
 const lazyRootPackagesPath = () => path.join(constants.rootPath, 'packages')
 
-const lazyRootPath = () => path.resolve(__dirname, '..')
+const lazyRootPath = () => {
+  // Find project root by looking for pnpm-workspace.yaml
+  // Start from current working directory and walk up
+  let currentPath = process.cwd()
+  const root = path.parse(currentPath).root
+
+  while (currentPath !== root) {
+    if (fs.existsSync(path.join(currentPath, 'pnpm-workspace.yaml'))) {
+      return currentPath
+    }
+    currentPath = path.dirname(currentPath)
+  }
+
+  // Fallback if not found (shouldn't happen in normal operation)
+  return path.resolve(__dirname, '..')
+}
 
 const lazyRootTsConfigPath = () => path.join(constants.rootPath, TSCONFIG_JSON)
 
@@ -141,13 +156,6 @@ const lazyRelTestNpmPath = () =>
 
 const lazyRelTestNpmNodeModulesPath = () =>
   path.relative(constants.rootPath, constants.testNpmNodeModulesPath)
-
-const lazyTapCiConfigPath = () => path.join(constants.rootPath, '.tapci.yaml')
-
-const lazyTapConfigPath = () => path.join(constants.rootPath, '.taprc')
-
-const lazyTapRunExecPath = () =>
-  whichBinSync('tap-run', { ...getDefaultWhichOptions() })
 
 const lazyTemplatesPath = () => path.join(__dirname, 'templates')
 
@@ -211,9 +219,6 @@ const constants = createConstantsObject(
     rootPackagesPath: undefined,
     rootPath: undefined,
     rootTsConfigPath: undefined,
-    tapCiConfigPath: undefined,
-    tapConfigPath: undefined,
-    tapRunExecPath: undefined,
     templatesPath: undefined,
     testNpmPath: undefined,
     testNpmFixturesPath: undefined,
@@ -256,9 +261,6 @@ const constants = createConstantsObject(
       rootPackagesPath: lazyRootPackagesPath,
       rootPath: lazyRootPath,
       rootTsConfigPath: lazyRootTsConfigPath,
-      tapCiConfigPath: lazyTapCiConfigPath,
-      tapConfigPath: lazyTapConfigPath,
-      tapRunExecPath: lazyTapRunExecPath,
       templatesPath: lazyTemplatesPath,
       testNpmPath: lazyTestNpmPath,
       testNpmFixturesPath: lazyTestNpmFixturesPath,

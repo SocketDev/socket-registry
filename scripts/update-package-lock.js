@@ -3,12 +3,10 @@
 const { existsSync } = require('node:fs')
 const util = require('node:util')
 
-const updateBrowserslistDb = require('update-browserslist-db')
-
 const constants = require('@socketregistry/scripts/constants')
 const { readJson, writeJson } = require('@socketsecurity/registry/lib/fs')
 const { logger } = require('@socketsecurity/registry/lib/logger')
-const { execNpm } = require('@socketsecurity/registry/lib/npm')
+const { execPnpm } = require('@socketsecurity/registry/lib/npm')
 const {
   normalizePackageJson
 } = require('@socketsecurity/registry/lib/packages')
@@ -57,20 +55,24 @@ async function modifyYarnpkgExtsPkgJson() {
 
 void (async () => {
   try {
-    // Surprisingly update-browserslist-db runs synchronously.
-    updateBrowserslistDb()
+    // Manually update caniuse-lite to avoid triggering prepare script
+    logger.log('Updating caniuse-lite version')
+    await execPnpm(['up', 'caniuse-lite'], {
+      stdio: 'inherit',
+      cwd: rootPath
+    })
   } catch (e) {
-    logger.fail(`update-browserslist-db: ${e.message}`)
+    logger.fail(`update caniuse-lite: ${e.message}`)
   }
   if (
     cliArgs.force ||
     (await modifyRootPkgLock()) ||
     (await modifyYarnpkgExtsPkgJson())
   ) {
-    // Reinstall packages with the updated package-lock.json. (should be quick)
-    await execNpm(['install', '--ignore-scripts'], {
-      cwd: rootPath,
-      stdio: 'inherit'
+    // Reinstall packages with pnpm (should be quick)
+    await execPnpm(['install'], {
+      stdio: 'inherit',
+      cwd: rootPath
     })
   }
 })()

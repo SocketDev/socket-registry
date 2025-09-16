@@ -6,7 +6,7 @@ const util = require('node:util')
 const constants = require('@socketregistry/scripts/constants')
 const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
 const { logger } = require('@socketsecurity/registry/lib/logger')
-const { execNpm } = require('@socketsecurity/registry/lib/npm')
+const { spawn } = require('@socketsecurity/registry/lib/spawn')
 const {
   getReleaseTag,
   readPackageJsonSync
@@ -31,20 +31,27 @@ function packageData(data) {
 
 async function publish(pkg, state = { fails: [] }) {
   try {
-    const stdout = (
-      await execNpm(
-        ['publish', '--provenance', '--tag', pkg.tag, '--access', 'public'],
-        {
-          cwd: pkg.path,
-          env: {
-            ...process.env,
-            NODE_AUTH_TOKEN: constants.ENV.NODE_AUTH_TOKEN
-          }
+    const result = await spawn(
+      'pnpm',
+      [
+        'publish',
+        '--provenance',
+        '--access',
+        'public',
+        '--no-git-checks',
+        '--tag',
+        pkg.tag
+      ],
+      {
+        cwd: pkg.path,
+        env: {
+          ...process.env,
+          NODE_AUTH_TOKEN: constants.ENV.NODE_AUTH_TOKEN
         }
-      )
-    ).stdout
-    if (stdout) {
-      logger.log(stdout)
+      }
+    )
+    if (result.stdout) {
+      logger.log(result.stdout)
     }
   } catch (e) {
     const stderr = e?.stderr ?? ''

@@ -1,7 +1,7 @@
-Index: /brace-expansion/index.js
-===================================================================
---- /brace-expansion/index.js
-+++ /brace-expansion/index.js
+diff --git a/index.js b/index.js
+index 1234567890123456789012345678901234567890..1234567890123456789012345678901234567890 100644
+--- a/index.js
++++ b/index.js
 @@ -103,9 +103,9 @@
    var post = m.post.length
      ? expand(m.post, false)

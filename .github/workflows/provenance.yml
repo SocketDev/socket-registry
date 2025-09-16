@@ -22,19 +22,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+      - uses: SocketDev/socket-registry/.github/actions/setup@fad2a47cc9022ff59d5ae7256fcf9fabb246a943
         with:
           node-version: '22'
-          registry-url: 'https://registry.npmjs.org'
-          cache: npm
-          scope: '@socketregistry'
-      - run: npm install -g npm@latest
-      - run: npm ci
-      - run: npm run package:npm:publish
+      - run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
+      - run: pnpm run package:npm:publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           SOCKET_CLI_DEBUG: ${{ inputs.debug }}
-      - run: npm run package:npm:access
+      - run: pnpm run package:npm:access
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           SOCKET_CLI_DEBUG: ${{ inputs.debug }}

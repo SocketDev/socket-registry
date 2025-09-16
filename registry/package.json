@@ -100,6 +100,10 @@
       "types": "./lib/arrays.d.ts",
       "default": "./lib/arrays.js"
     },
+    "./lib/bin": {
+      "types": "./lib/bin.d.ts",
+      "default": "./lib/bin.js"
+    },
     "./lib/constants": {
       "types": "./lib/constants/index.d.ts",
       "default": "./lib/constants/index.js"
@@ -592,6 +596,9 @@
       "types": "./lib/npm.d.ts",
       "default": "./lib/npm.js"
     },
+    "./lib/npm_temp": {
+      "default": "./lib/npm_temp.js"
+    },
     "./lib/objects": {
       "types": "./lib/objects.d.ts",
       "default": "./lib/objects.js"
@@ -712,6 +719,7 @@
     "spdx-correct": "3.2.0",
     "spdx-expression-parse": "4.0.0",
     "streaming-iterables": "^8.0.1",
+    "taze": "19.6.0",
     "validate-npm-package-name": "6.0.2",
     "which": "5.0.0",
     "yoctocolors-cjs": "2.1.3"

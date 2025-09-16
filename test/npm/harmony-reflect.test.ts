@@ -1,6 +1,6 @@
-import assert from 'node:assert/strict'
 import path from 'node:path'
-import { describe, it } from 'node:test'
+
+import { describe, expect, it } from 'vitest'
 
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
@@ -24,19 +24,15 @@ describe(
         [key: string]: any
       } = {}
       harmonyReflect.defineProperty(obj, 'x', { value: 1 })
-      assert.strictEqual(obj['x'], 1, 'defineProperty should work')
+      expect(obj['x']).toBe(1)
     })
 
     it('should correctly implement getOwnPropertyDescriptor', () => {
-      assert.strictEqual(
-        harmonyReflect.getOwnPropertyDescriptor({ x: 1 }, 'x').value,
-        1,
-        'getOwnPropertyDescriptor existent property'
+      expect(harmonyReflect.getOwnPropertyDescriptor({ x: 1 }, 'x').value).toBe(
+        1
       )
-      assert.strictEqual(
-        harmonyReflect.getOwnPropertyDescriptor({ x: 1 }, 'y'),
-        undefined,
-        'getOwnPropertyDescriptor non-existent property'
+      expect(harmonyReflect.getOwnPropertyDescriptor({ x: 1 }, 'y')).toBe(
+        undefined
       )
     })
 
@@ -44,26 +40,23 @@ describe(
       const target: {
         [key: string]: any
       } = { x: 1 }
-      assert.strictEqual(
-        harmonyReflect.defineProperty(target, 'x', { value: 2 }),
+      expect(harmonyReflect.defineProperty(target, 'x', { value: 2 })).toBe(
         true
       )
-      assert.strictEqual(target['x'], 2, 'defineProperty update success')
-      assert.strictEqual(
-        harmonyReflect.defineProperty(target, 'y', { value: 3 }),
+      expect(target['x']).toBe(2)
+      expect(harmonyReflect.defineProperty(target, 'y', { value: 3 })).toBe(
         true
       )
-      assert.strictEqual(target['y'], 3, 'defineProperty addition success')
+      expect(target['y']).toBe(3)
       Object.defineProperty(target, 'z', {
         value: 0,
         writable: false,
         configurable: false
       })
-      assert.strictEqual(
-        harmonyReflect.defineProperty(target, 'z', { value: 1 }),
+      expect(harmonyReflect.defineProperty(target, 'z', { value: 1 })).toBe(
         false
       )
-      assert.strictEqual(target['z'], 0, 'defineProperty update failure')
+      expect(target['z']).toBe(0)
     })
 
     it('should correctly implement ownKeys', () => {
@@ -73,10 +66,10 @@ describe(
         z: { get: () => undefined, enumerable: true }
       })
       const result = harmonyReflect.ownKeys(target)
-      assert.strictEqual(result.length, 3)
-      assert.notStrictEqual(result.indexOf('x'), -1)
-      assert.notStrictEqual(result.indexOf('y'), -1)
-      assert.notStrictEqual(result.indexOf('z'), -1)
+      expect(result.length).toBe(3)
+      expect(result.indexOf('x')).not.toBe(-1)
+      expect(result.indexOf('y')).not.toBe(-1)
+      expect(result.indexOf('z')).not.toBe(-1)
     })
 
     it('should correctly implement deleteProperty', () => {
@@ -84,35 +77,27 @@ describe(
         x: { value: 1, configurable: true },
         y: { value: 2, configurable: false }
       })
-      assert.strictEqual(harmonyReflect.deleteProperty(target, 'x'), true)
-      assert.strictEqual(target.x, undefined, 'deleteProperty success')
-      assert.strictEqual(harmonyReflect.deleteProperty(target, 'y'), false)
-      assert.strictEqual(target.y, 2, 'deleteProperty failure')
+      expect(harmonyReflect.deleteProperty(target, 'x')).toBe(true)
+      expect(target.x).toBe(undefined)
+      expect(harmonyReflect.deleteProperty(target, 'y')).toBe(false)
+      expect(target.y).toBe(2)
     })
 
     it('should correctly implement preventExtensions', () => {
       const target = { x: 1 }
-      assert.strictEqual(
-        harmonyReflect.preventExtensions(target),
-        true,
-        'pE success'
-      )
-      assert.strictEqual(
-        Object.isExtensible(target),
-        false,
-        'pE -> non-extensible'
-      )
+      expect(harmonyReflect.preventExtensions(target)).toBe(true)
+      expect(Object.isExtensible(target)).toBe(false)
       const desc = harmonyReflect.getOwnPropertyDescriptor(target, 'x')
-      assert.strictEqual(desc.configurable, true, 'pE -/-> non-configurable')
-      assert.strictEqual(desc.writable, true, 'pE -/-> non-writable')
+      expect(desc.configurable).toBe(true)
+      expect(desc.writable).toBe(true)
     })
 
     it('should correctly implement has', () => {
       const proto = { x: 1 }
       const target = Object.create(proto, { y: { value: 2 } })
-      assert.strictEqual(harmonyReflect.has(target, 'x'), true, 'has proto ok')
-      assert.strictEqual(harmonyReflect.has(target, 'y'), true, 'has own ok')
-      assert.strictEqual(harmonyReflect.has(target, 'z'), false, 'has failure')
+      expect(harmonyReflect.has(target, 'x')).toBe(true)
+      expect(harmonyReflect.has(target, 'y')).toBe(true)
+      expect(harmonyReflect.has(target, 'z')).toBe(false)
     })
 
     it('should correctly implement get', () => {
@@ -133,23 +118,11 @@ describe(
         }
       )
       const receiver = {}
-      assert.strictEqual(harmonyReflect.get(target, 'x', receiver), 1, 'get x')
-      assert.strictEqual(
-        harmonyReflect.get(target, 'y', receiver),
-        receiver,
-        'get y'
-      )
-      assert.strictEqual(harmonyReflect.get(target, 'z', receiver), 3, 'get z')
-      assert.strictEqual(
-        harmonyReflect.get(target, 'w', receiver),
-        receiver,
-        'get w'
-      )
-      assert.strictEqual(
-        harmonyReflect.get(target, 'u', receiver),
-        undefined,
-        'get u'
-      )
+      expect(harmonyReflect.get(target, 'x', receiver)).toBe(1)
+      expect(harmonyReflect.get(target, 'y', receiver)).toBe(receiver)
+      expect(harmonyReflect.get(target, 'z', receiver)).toBe(3)
+      expect(harmonyReflect.get(target, 'w', receiver)).toBe(receiver)
+      expect(harmonyReflect.get(target, 'u', receiver)).toBe(undefined)
     })
 
     it('should correctly implement set', () => {
@@ -174,75 +147,67 @@ describe(
         }
       )
 
-      assert.strictEqual(harmonyReflect.set(target, 'x', 2, target), true)
-      assert.strictEqual(target.x, 2, 'set x')
+      expect(harmonyReflect.set(target, 'x', 2, target)).toBe(true)
+      expect(target.x).toBe(2)
 
       out = null
-      assert.strictEqual(harmonyReflect.set(target, 'y', 1, target), true)
-      assert.strictEqual(out, target, 'set y')
+      expect(harmonyReflect.set(target, 'y', 1, target)).toBe(true)
+      expect(out).toBe(target)
 
-      assert.strictEqual(harmonyReflect.set(target, 'z', 4, target), true)
-      assert.strictEqual(target.z, 4, 'set z')
+      expect(harmonyReflect.set(target, 'z', 4, target)).toBe(true)
+      expect(target.z).toBe(4)
 
       out = null
-      assert.strictEqual(harmonyReflect.set(target, 'w', 1, target), true)
-      assert.strictEqual(out, target, 'set w')
+      expect(harmonyReflect.set(target, 'w', 1, target)).toBe(true)
+      expect(out).toBe(target)
 
-      assert.strictEqual(harmonyReflect.set(target, 'u', 0, target), true)
-      assert.strictEqual(target.u, 0, 'set u')
+      expect(harmonyReflect.set(target, 'u', 0, target)).toBe(true)
+      expect(target.u).toBe(0)
 
-      assert.strictEqual(harmonyReflect.set(target, 'c', 2, target), false)
-      assert.strictEqual(target.c, 1, 'set c')
+      expect(harmonyReflect.set(target, 'c', 2, target)).toBe(false)
+      expect(target.c).toBe(1)
     })
 
     it('should correctly implement apply', () => {
-      assert.strictEqual(
+      expect(
         harmonyReflect.apply(
           function (x: number) {
             return x
           },
           undefined,
           [1]
-        ),
-        1,
-        'apply identity'
-      )
+        )
+      ).toBe(1)
 
       const receiver = {}
-      assert.strictEqual(
+      expect(
         harmonyReflect.apply(
           function (this: any) {
             return this
           },
           receiver,
           []
-        ),
-        receiver,
-        'apply this'
-      )
+        )
+      ).toBe(receiver)
     })
 
     it('should correctly implement construct', () => {
-      assert.notStrictEqual(
+      expect(
         harmonyReflect.construct(
           function (x: number) {
             return x
           },
           [1]
-        ),
-        1,
-        'construct identity'
-      )
-      assert.strictEqual(
+        )
+      ).not.toBe(1)
+      expect(
         harmonyReflect.construct(
           function (this: { x: number }, x: number) {
             this.x = x
           },
           [1, 2, 3]
-        ).x,
-        1,
-        'construct this'
-      )
+        ).x
+      ).toBe(1)
     })
 
     it('should correctly implement setPrototypeOf', () => {
@@ -263,15 +228,10 @@ describe(
       const target = Object.create(oldProto)
       const newProto = {}
       harmonyReflect.setPrototypeOf(target, newProto)
-      assert.strictEqual(harmonyReflect.getPrototypeOf(target), newProto)
-      assert.throws(
-        () => {
-          harmonyReflect.setPrototypeOf(target, undefined)
-        },
-        {
-          message: 'Object prototype may only be an Object or null: undefined'
-        }
-      )
+      expect(harmonyReflect.getPrototypeOf(target)).toBe(newProto)
+      expect(() => {
+        harmonyReflect.setPrototypeOf(target, undefined)
+      }).toThrow('Object prototype may only be an Object or null: undefined')
     })
 
     it('should correctly implement [[Construct]] newTarget', () => {
@@ -288,44 +248,20 @@ describe(
         }
       }
       const instance: any = harmonyReflect.construct(Super, [], Sub)
-      assert.strictEqual(
-        instance.x,
-        42,
-        'construct correctly initializes instance when using newTarget'
-      )
-      assert.strictEqual(
-        Object.getPrototypeOf(instance),
-        Sub.prototype,
-        'instance prototype === newTarget'
-      )
+      expect(instance.x).toBe(42)
+      expect(Object.getPrototypeOf(instance)).toBe(Sub.prototype)
 
       const instance2: any = harmonyReflect.construct(Super, [])
-      assert.strictEqual(
-        instance2.x,
-        42,
-        'construct correctly initializes instance with default newTarget'
-      )
-      assert.strictEqual(
-        Object.getPrototypeOf(instance2),
-        Super.prototype,
-        'newTarget defaults to target'
-      )
+      expect(instance2.x).toBe(42)
+      expect(Object.getPrototypeOf(instance2)).toBe(Super.prototype)
 
       const instance3: any = harmonyReflect.construct(ES2015Class, [])
-      assert.strictEqual(
-        instance3.prop,
-        'someValue',
-        'correctly instantiates ES2015 classes 1/2'
-      )
-      assert.strictEqual(
-        Object.getPrototypeOf(instance3),
-        ES2015Class.prototype,
-        'correctly instantiates ES2015 classes 2/2'
-      )
+      expect(instance3.prop).toBe('someValue')
+      expect(Object.getPrototypeOf(instance3)).toBe(ES2015Class.prototype)
 
-      assert.doesNotThrow(() => {
+      expect(() => {
         harmonyReflect.construct(ES2015Class, [], Sub)
-      })
+      }).not.toThrow()
     })
   }
 )
