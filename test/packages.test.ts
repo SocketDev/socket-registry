@@ -90,6 +90,13 @@ for (const eco of constants.ecosystems) {
         })()
 
   describe(eco, { skip: !packageNames.length }, () => {
+    if (!packageNames.length) {
+      it('no packages to test', () => {
+        expect(true).toBe(true)
+      })
+      return
+    }
+
     for (const sockRegPkgName of packageNames) {
       const pkgPath = path.join(constants.npmPackagesPath, sockRegPkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
