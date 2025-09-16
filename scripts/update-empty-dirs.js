@@ -1,7 +1,7 @@
 'use strict'
 
 const { glob } = require('fast-glob')
-const trash = require('trash').default || require('trash')
+const trash = require('trash')
 
 const constants = require('@socketregistry/scripts/constants')
 const { isDirEmptySync } = require('@socketsecurity/registry/lib/fs')
@@ -19,10 +19,12 @@ void (async () => {
   )
     // Sort directory paths longest to shortest.
     .sort((a, b) => b.length - a.length)
-  for (const dirPath of dirPaths) {
-    if (isDirEmptySync(dirPath)) {
-      // eslint-disable-next-line no-await-in-loop
-      await trash(dirPath)
-    }
+
+  // Collect all empty directories.
+  const emptyDirs = dirPaths.filter(dirPath => isDirEmptySync(dirPath))
+
+  // Trash them all at once if there are any.
+  if (emptyDirs.length) {
+    await trash(emptyDirs)
   }
 })()

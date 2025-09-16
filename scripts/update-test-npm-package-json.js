@@ -8,14 +8,11 @@ const { ensureSymlink, move, outputFile } = require('fs-extra')
 const npmPackageArg = require('npm-package-arg')
 const semver = require('semver')
 const { glob } = require('fast-glob')
-const trash = require('trash').default || require('trash')
+const trash = require('trash')
 
 const constants = require('@socketregistry/scripts/constants')
 const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
-const {
-  isSymLinkSync,
-  uniqueSync
-} = require('@socketsecurity/registry/lib/fs')
+const { isSymLinkSync, uniqueSync } = require('@socketsecurity/registry/lib/fs')
 const { logger } = require('@socketsecurity/registry/lib/logger')
 const { execNpm } = require('@socketsecurity/registry/lib/agent')
 const { merge, objectEntries } = require('@socketsecurity/registry/lib/objects')
@@ -102,19 +99,21 @@ function createStubEsModule(srcPath) {
 
 async function installTestNpmNodeModules(options) {
   const { clean, specs } = { __proto__: null, ...options }
-  await Promise.all([
-    ...(clean ? [trash(testNpmPkgLockPath)] : []),
-    ...(clean ? [trash(testNpmNodeModulesPath)] : []),
-    ...(clean === 'deep'
-      ? (
-          await glob([NODE_MODULES_GLOB_RECURSIVE], {
-            absolute: true,
-            cwd: testNpmNodeWorkspacesPath,
-            onlyDirectories: true
-          })
-        ).map(p => trash(p))
-      : [])
-  ])
+  const pathsToTrash = []
+  if (clean) {
+    pathsToTrash.push(testNpmPkgLockPath, testNpmNodeModulesPath)
+  }
+  if (clean === 'deep') {
+    const deepPaths = await glob([NODE_MODULES_GLOB_RECURSIVE], {
+      absolute: true,
+      cwd: testNpmNodeWorkspacesPath,
+      onlyDirectories: true
+    })
+    pathsToTrash.push(...deepPaths)
+  }
+  if (pathsToTrash.length) {
+    await trash(pathsToTrash)
+  }
   return await execNpm(
     [
       'install',
@@ -596,39 +595,38 @@ async function cleanupNodeWorkspaces(linkedPackageNames, options) {
       )
       const destPath = path.join(testNpmNodeWorkspacesPath, n)
       // Remove unnecessary directories/files.
-      await Promise.all(
-        (
-          await glob(
-            [
-              '**/.editorconfig',
-              '**/.eslintignore',
-              '**/.eslintrc.json',
-              '**/.gitattributes',
-              '**/.github',
-              '**/.idea',
-              '**/.nvmrc',
-              '**/.travis.yml',
-              '**/*.md',
-              '**/tslint.json',
-              '**/doc{s,}/',
-              '**/example{s,}/',
-              '**/CHANGE{LOG,S}{.*,}',
-              '**/CONTRIBUTING{.*,}',
-              '**/FUND{ING,}{.*,}',
-              README_GLOB_RECURSIVE,
-              ...ignoreGlobs
-            ],
-            {
-              ignore: [LICENSE_GLOB_RECURSIVE],
-              absolute: true,
-              caseSensitiveMatch: false,
-              cwd: srcPath,
-              dot: true,
-              onlyFiles: false
-            }
-          )
-        ).map(p => trash(p))
+      const unnecessaryPaths = await glob(
+        [
+          '**/.editorconfig',
+          '**/.eslintignore',
+          '**/.eslintrc.json',
+          '**/.gitattributes',
+          '**/.github',
+          '**/.idea',
+          '**/.nvmrc',
+          '**/.travis.yml',
+          '**/*.md',
+          '**/tslint.json',
+          '**/doc{s,}/',
+          '**/example{s,}/',
+          '**/CHANGE{LOG,S}{.*,}',
+          '**/CONTRIBUTING{.*,}',
+          '**/FUND{ING,}{.*,}',
+          README_GLOB_RECURSIVE,
+          ...ignoreGlobs
+        ],
+        {
+          ignore: [LICENSE_GLOB_RECURSIVE],
+          absolute: true,
+          caseSensitiveMatch: false,
+          cwd: srcPath,
+          dot: true,
+          onlyFiles: false
+        }
       )
+      if (unnecessaryPaths.length) {
+        await trash(unnecessaryPaths)
+      }
       // Move override package from test/npm/node_modules/ to test/npm/node_workspaces/
       await move(srcPath, destPath, { overwrite: true })
     },
