@@ -8,12 +8,12 @@ const { ensureSymlink, move, outputFile } = require('fs-extra')
 const npmPackageArg = require('npm-package-arg')
 const semver = require('semver')
 const { glob } = require('fast-glob')
+const trash = require('trash').default || require('trash')
 
 const constants = require('@socketregistry/scripts/constants')
 const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
 const {
   isSymLinkSync,
-  remove,
   uniqueSync
 } = require('@socketsecurity/registry/lib/fs')
 const { logger } = require('@socketsecurity/registry/lib/logger')
@@ -103,8 +103,8 @@ function createStubEsModule(srcPath) {
 async function installTestNpmNodeModules(options) {
   const { clean, specs } = { __proto__: null, ...options }
   await Promise.all([
-    ...(clean ? [remove(testNpmPkgLockPath)] : []),
-    ...(clean ? [remove(testNpmNodeModulesPath)] : []),
+    ...(clean ? [trash(testNpmPkgLockPath)] : []),
+    ...(clean ? [trash(testNpmNodeModulesPath)] : []),
     ...(clean === 'deep'
       ? (
           await glob([NODE_MODULES_GLOB_RECURSIVE], {
@@ -112,7 +112,7 @@ async function installTestNpmNodeModules(options) {
             cwd: testNpmNodeWorkspacesPath,
             onlyDirectories: true
           })
-        ).map(p => remove(p))
+        ).map(p => trash(p))
       : [])
   ])
   return await execNpm(
@@ -163,7 +163,7 @@ async function installMissingPackages(packageNames, options) {
           // Broken symlinks are treated an non-existent by fs.existsSync, however
           // they will cause fs.mkdir to throw an ENOENT error, so we remove any
           // existing file beforehand just in case.
-          await remove(nmPkgPath)
+          await trash(nmPkgPath)
           await extractPackage(`${n}@${devDependencies[n]}`, {
             dest: nmPkgPath
           })
@@ -554,7 +554,7 @@ async function linkPackages(packageNames, options) {
               // We can go from CJS by creating an ESM stub.
               const uniquePath = uniqueSync(`${destPath.slice(0, -3)}.cjs`)
               await fs.copyFile(targetPath, uniquePath)
-              await remove(destPath)
+              await trash(destPath)
               await outputFile(destPath, createStubEsModule(uniquePath), UTF8)
               return
             }
@@ -563,7 +563,7 @@ async function linkPackages(packageNames, options) {
             spinner?.error(`${origPkgName}: Cannot convert ESM to CJS`)
           }
         }
-        await remove(destPath)
+        await trash(destPath)
         await ensureSymlink(targetPath, destPath)
       })
     }
@@ -627,7 +627,7 @@ async function cleanupNodeWorkspaces(linkedPackageNames, options) {
               onlyFiles: false
             }
           )
-        ).map(p => remove(p))
+        ).map(p => trash(p))
       )
       // Move override package from test/npm/node_modules/ to test/npm/node_workspaces/
       await move(srcPath, destPath, { overwrite: true })
@@ -670,7 +670,7 @@ void (async () => {
   spinner.start(`Initializing ${relTestNpmNodeModulesPath}...`)
   // Refresh/initialize test/npm/node_modules
   try {
-    await remove(testNpmNodeWorkspacesPath)
+    await trash(testNpmNodeWorkspacesPath)
     await installTestNpmNodeModules({ clean: true, spinner })
     if (!cliArgs.quiet) {
       spinner.success(`Initialized ${relTestNpmNodeModulesPath}`)
