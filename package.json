@@ -47,7 +47,7 @@
     "package:npm:access": "dotenvx -q run -f .env.local -- node ./scripts/update-npm-package-access.js",
     "package:npm:publish": "dotenvx -q run -f .env.local -- node ./scripts/update-npm-package-publish.js",
     "release:npm": "dotenvx -q run -f .env.local -- node ./scripts/release-npm-packages.js",
-    "setup": "pnpm run build && run-p --aggregate-output update:package-lock",
+    "setup": "pnpm run build",
     "update": "run-p --aggregate-output update:* update:npm:* && run-s update:longtask:**",
     "update:deps": "taze",
     "update:empty-dirs": "dotenvx -q run -f .env.local -- node ./scripts/update-empty-dirs.js",
