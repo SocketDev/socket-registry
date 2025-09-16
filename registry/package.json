@@ -596,10 +596,6 @@
       "types": "./lib/agent.d.ts",
       "default": "./lib/agent.js"
     },
-    "./lib/npm": {
-      "types": "./lib/agent.d.ts",
-      "default": "./lib/agent.js"
-    },
     "./lib/npm_temp": {
       "default": "./lib/npm_temp.js"
     },
