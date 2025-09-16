@@ -1,14 +1,12 @@
-import assertLoose from 'node:assert'
-import assert from 'node:assert/strict'
 import { existsSync, promises as fs } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
-import { describe, it } from 'node:test'
 import util from 'node:util'
 
 import { fix } from '@npmcli/package-json'
 import { glob } from 'fast-glob'
 import semver from 'semver'
+import { describe, expect, it } from 'vitest'
 
 import constants, { EXT_JSON } from '@socketregistry/scripts/constants'
 import {
@@ -43,8 +41,8 @@ const {
   ignoreGlobs
 } = constants
 
-// Pass args as tap --test-arg:
-// npm run test:unit ./test/packages.test.ts -- --test-arg="--force"
+// Pass args:
+// npm run test:unit ./test/packages.test.ts -- --force
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
 const shimApiKeys = ['getPolyfill', 'implementation', 'shim']
@@ -101,7 +99,7 @@ for (const eco of constants.ecosystems) {
 
       describe(origPkgName, async () => {
         it('should have a package.json', () => {
-          assert.ok(pkgJsonExists)
+          expect(pkgJsonExists).toBe(true)
         })
 
         if (!pkgJsonExists) {
@@ -138,29 +136,28 @@ for (const eco of constants.ecosystems) {
         ).sort(naturalCompare)
 
         it('package name should be valid', () => {
-          assert.ok(isValidPackageName(pkgJson.name))
+          expect(isValidPackageName(pkgJson.name)).toBe(true)
         })
 
         it('package name should be "name" field of package.json', () => {
-          assert.strictEqual(pkgJson.name, `@socketregistry/${sockRegPkgName}`)
+          expect(pkgJson.name).toBe(`@socketregistry/${sockRegPkgName}`)
         })
 
         it('package name should be included in "repository.directory" field of package.json', () => {
-          assert.strictEqual(
-            (pkgJson.repository as { directory?: string })?.directory,
-            `packages/npm/${sockRegPkgName}`
-          )
+          expect(
+            (pkgJson.repository as { directory?: string })?.directory
+          ).toBe(`packages/npm/${sockRegPkgName}`)
         })
 
         it('should not have "main" field in package.json', () => {
-          assert.ok(!Object.hasOwn(pkgJson, 'main'))
+          expect(Object.hasOwn(pkgJson, 'main')).toBe(false)
         })
 
         if (entryExports) {
           it('file exists for every "export" entry of package.json', () => {
-            assert.ok(isObjectObject(entryExports))
+            expect(isObjectObject(entryExports)).toBe(true)
             for (const subpath of getSubpaths(entryExports)) {
-              assert.ok(existsSync(path.join(pkgPath, subpath)))
+              expect(existsSync(path.join(pkgPath, subpath))).toBe(true)
             }
           })
 
@@ -172,28 +169,27 @@ for (const eco of constants.ecosystems) {
               const types = trimLeadingDotSlash(
                 findTypesForSubpath(entryExports, subpath) ?? ''
               )
-              assert.ok(files.includes(types))
+              expect(files.includes(types)).toBe(true)
             }
           })
         }
 
         if (mainPath) {
           it('should not have "exports" field in package.json', () => {
-            assert.ok(!Object.hasOwn(pkgJson, 'exports'))
+            expect(Object.hasOwn(pkgJson, 'exports')).toBe(false)
           })
 
           it('file exists for "main" field of package.json', () => {
-            assert.doesNotThrow(() => req.resolve(mainPath))
+            expect(() => req.resolve(mainPath)).not.toThrow()
           })
         }
 
         if (engines) {
           it('should have valid "engine" entry version ranges', () => {
-            for (const { 0: key, 1: value } of objectEntries(engines)) {
-              assert.ok(
-                typeof value === 'string' && semver.validRange(value),
-                String(key)
-              )
+            for (const { 1: value } of objectEntries(engines)) {
+              expect(
+                typeof value === 'string' && semver.validRange(value)
+              ).toBe(true)
             }
           })
         }
@@ -205,41 +201,45 @@ for (const eco of constants.ecosystems) {
         if (jsonFiles.length) {
           it('should have valid .json files', async () => {
             await Promise.all(
-              jsonFiles.map(jsonPath =>
-                assert.doesNotReject(readJson(req.resolve(jsonPath)))
-              )
+              jsonFiles.map(async jsonPath => {
+                await expect(
+                  readJson(req.resolve(jsonPath))
+                ).resolves.toBeDefined()
+              })
             )
           })
         }
 
         it('should have a "sideEffects" field of `false` in package.json', () => {
-          assert.strictEqual(pkgJson.sideEffects, false)
+          expect(pkgJson.sideEffects).toBe(false)
         })
 
         it('should not need package.json fixing', () => {
           const changes: string[] = []
           fix(pkgPath, { changes })
-          assert.strictEqual(changes.length, 0)
+          expect(changes.length).toBe(0)
         })
 
         it(`should have a MIT ${LICENSE} file`, async () => {
-          assert.ok(files.includes(LICENSE))
-          assert.ok((await fs.readFile(pkgLicensePath, UTF8)).includes('MIT'))
+          expect(files.includes(LICENSE)).toBe(true)
+          expect(
+            (await fs.readFile(pkgLicensePath, UTF8)).includes('MIT')
+          ).toBe(true)
         })
 
         const manifestData = getManifestData(eco, sockRegPkgName)
         if (manifestData?.license !== 'Public Domain') {
           it(`should have an original license file`, () => {
-            assert.ok(files.some(p => p.includes('.original')))
+            expect(files.some(p => p.includes('.original'))).toBe(true)
           })
         }
 
         it('should have a "files" field in package.json', () => {
-          assert.ok(
+          expect(
             Array.isArray(filesPatterns) &&
               filesPatterns.length > 0 &&
               filesPatterns.every(p => typeof p === 'string')
-          )
+          ).toBe(true)
         })
 
         if (
@@ -262,7 +262,7 @@ for (const eco of constants.ecosystems) {
                 const defaultMainEntry = Array.isArray(mainEntry)
                   ? (mainEntry.at(-1) as { default: string })?.default
                   : (mainEntry as { default: string })?.default
-                assert.doesNotThrow(() => req.resolve(defaultMainEntry))
+                expect(() => req.resolve(defaultMainEntry)).not.toThrow()
               })
             }
 
@@ -273,17 +273,10 @@ for (const eco of constants.ecosystems) {
               const getPolyfill = req('./polyfill.js')
               const beforeKeys = Reflect.ownKeys(getPolyfill())
               const maybeLeakBefore = findLeakedApiKey(beforeKeys)
-              assert.ok(
-                !maybeLeakBefore,
-                `leaking BEFORE index.js required ('${maybeLeakBefore}')`
-              )
+              expect(maybeLeakBefore).toBeFalsy()
               req('./index.js')
               const afterKeys = Reflect.ownKeys(getPolyfill())
-              assert.deepEqual(
-                afterKeys,
-                beforeKeys,
-                'leaking AFTER index.js required'
-              )
+              expect(afterKeys).toEqual(beforeKeys)
             })
 
             it('index.js exports es-shim api', async t => {
@@ -291,7 +284,7 @@ for (const eco of constants.ecosystems) {
                 return t.skip(skipMessage)
               }
               const keys = Reflect.ownKeys(req('./index.js'))
-              assert.ok(shimApiKeys.every(k => keys.includes(k)))
+              expect(shimApiKeys.every(k => keys.includes(k))).toBe(true)
             })
 
             it('getPolyfill() is like implementation', async t => {
@@ -300,12 +293,12 @@ for (const eco of constants.ecosystems) {
               }
               const impl = req('./implementation.js')
               const polyfill = req('./polyfill.js')()
-              assert.strictEqual(typeof impl, typeof polyfill)
+              expect(typeof impl).toBe(typeof polyfill)
               if (typeof impl === 'function') {
-                assert.strictEqual(impl.name, polyfill.name)
-                assert.strictEqual(impl.length, polyfill.length)
+                expect(impl.name).toBe(polyfill.name)
+                expect(impl.length).toBe(polyfill.length)
               } else {
-                assertLoose.equal(impl, polyfill)
+                expect(impl).toEqual(polyfill)
               }
             })
           })
@@ -351,8 +344,8 @@ for (const eco of constants.ecosystems) {
         if (hasOverrides) {
           if (!hasOverridesAsDeps) {
             it('should have overrides and resolutions fields in package.json', () => {
-              assert.ok(isObjectObject(pkgOverrides))
-              assert.ok(isObjectObject(pkgResolutions))
+              expect(isObjectObject(pkgOverrides)).toBe(true)
+              expect(isObjectObject(pkgResolutions)).toBe(true)
             })
           }
         } else {
@@ -360,7 +353,7 @@ for (const eco of constants.ecosystems) {
             const filesToCompare = files.filter(p =>
               isDotFile(p) ? dotFileMatches.has(p) : !isSrcFile(p)
             )
-            assert.deepEqual(filesFieldMatches, filesToCompare)
+            expect(filesFieldMatches).toEqual(filesToCompare)
           })
         }
       })

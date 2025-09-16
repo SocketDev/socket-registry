@@ -6,7 +6,6 @@
       "!**/.git",
       "!**/.github",
       "!**/.husky",
-      "!**/.tap",
       "!**/.vscode",
       "!**/package.json",
       "!**/package-lock.json",

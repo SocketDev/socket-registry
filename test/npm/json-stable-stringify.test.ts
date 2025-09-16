@@ -1,7 +1,7 @@
-import assert from 'node:assert/strict'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-import { describe, it } from 'node:test'
+
+import { describe, expect, it } from 'vitest'
 
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
@@ -36,8 +36,7 @@ describe(
     ]) {
       it(`${methodName}: space parameter (nested objects)`, () => {
         const obj = { one: 1, two: { b: 4, a: [2, 3] } }
-        assert.equal(
-          jsonStableStringify(obj, { space: '  ' }),
+        expect(jsonStableStringify(obj, { space: '  ' })).toBe(
           '' +
             '{\n' +
             '  "one": 1,\n' +
@@ -53,31 +52,28 @@ describe(
       })
 
       it(`${methodName}: space parameter (same as native)`, () => {
-        // for this test, properties need to be in alphabetical order
+        // For this test, properties need to be in alphabetical order.
         const obj = { one: 1, two: { a: [2, 3], b: 4 } }
-        assert.equal(
-          jsonStableStringify(obj, { space: '  ' }),
+        expect(jsonStableStringify(obj, { space: '  ' })).toBe(
           JSON.stringify(obj, null, '  ')
         )
       })
 
       it(`${methodName}: space parameter base empty behavior: empty arrays and objects have added newline and space`, () => {
         const obj = { emptyArr: [], emptyObj: {} }
-        assert.equal(
-          jsonStableStringify(obj, { space: '  ' }),
+        expect(jsonStableStringify(obj, { space: '  ' })).toBe(
           '{\n  "emptyArr": [\n  ],\n  "emptyObj": {\n  }\n}'
         )
       })
 
       it(`${methodName}: space parameter, with collapseEmpty: true`, () => {
         const obj = { emptyArr: [], emptyObj: {} }
-        assert.throws(function () {
+        expect(function () {
           jsonStableStringify(obj, { collapseEmpty: 'not a boolean' })
-        }, TypeError)
-        assert.equal(
-          jsonStableStringify(obj, { collapseEmpty: true, space: '  ' }),
-          '{\n  "emptyArr": [],\n  "emptyObj": {}\n}'
-        )
+        }).toThrow(TypeError)
+        expect(
+          jsonStableStringify(obj, { collapseEmpty: true, space: '  ' })
+        ).toBe('{\n  "emptyArr": [],\n  "emptyObj": {}\n}')
       })
 
       it(
@@ -86,7 +82,7 @@ describe(
         () => {
           // Test case from MDN example:
           // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/isRawJSON#examples.
-          assert.strictEqual(
+          expect(
             jsonStableStringify({
               name: 'Josh',
               userId: rawJSON!('12345678901234567890'),
@@ -94,7 +90,8 @@ describe(
                 { name: 'Alice', userId: rawJSON!('9876543210987654321') },
                 { name: 'Bob', userId: rawJSON!('56789012345678901234') }
               ]
-            }),
+            })
+          ).toBe(
             '{"friends":[{"name":"Alice","userId":9876543210987654321},{"name":"Bob","userId":56789012345678901234}],"name":"Josh","userId":12345678901234567890}'
           )
         }
@@ -119,9 +116,9 @@ describe(
           } catch {}
           return result
         }
-        assert.doesNotThrow(() =>
+        expect(() =>
           jsonStableStringify(createCallStackBusterObject())
-        )
+        ).not.toThrow()
       })
     }
   }

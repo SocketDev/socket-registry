@@ -1,8 +1,8 @@
 /* eslint-disable n/no-deprecated-api */
-import assert from 'node:assert/strict'
 import buffer from 'node:buffer'
 import path from 'node:path'
-import { describe, it } from 'node:test'
+
+import { describe, expect, it } from 'vitest'
 
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
@@ -28,74 +28,70 @@ describe(
     const implementations = [safer, dangerous]
 
     it('Default is Safer', () => {
-      assert.notEqual(safer, dangerous)
+      expect(safer === dangerous).toBe(false)
     })
 
     it('Is not a function', () => {
       for (const impl of implementations) {
-        assert.equal(typeof impl, 'object')
-        assert.equal(typeof impl.Buffer, 'object')
+        expect(typeof impl).toBe('object')
+        expect(typeof impl.Buffer).toBe('object')
       }
-      assert.equal(typeof buffer, 'object')
-      assert.equal(typeof buffer.Buffer, 'function')
+      expect(typeof buffer).toBe('object')
+      expect(typeof buffer.Buffer).toBe('function')
     })
 
     it('Constructor throws', () => {
       for (const impl of implementations) {
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer()
-        })
-        assert.throws(() => {
+        }).toThrow()
+        expect(() => {
           impl.Buffer(0)
-        })
-        assert.throws(() => {
+        }).toThrow()
+        expect(() => {
           impl.Buffer('a')
-        })
-        assert.throws(() => {
+        }).toThrow()
+        expect(() => {
           impl.Buffer('a', 'utf-8')
-        })
-        assert.throws(() => {
+        }).toThrow()
+        expect(() => {
           // eslint-disable-next-line no-new
           new impl.Buffer()
-        })
-        assert.throws(() => {
+        }).toThrow()
+        expect(() => {
           // eslint-disable-next-line no-new
           new impl.Buffer(0)
-        })
-        assert.throws(() => {
+        }).toThrow()
+        expect(() => {
           // eslint-disable-next-line no-new
           new impl.Buffer('a')
-        })
-        assert.throws(() => {
+        }).toThrow()
+        expect(() => {
           // eslint-disable-next-line no-new
           new impl.Buffer('a', 'utf-8')
-        })
+        }).toThrow()
       }
     })
 
     it('Safe methods exist', () => {
       for (const impl of implementations) {
-        assert.equal(typeof impl.Buffer.alloc, 'function', 'alloc')
-        assert.equal(typeof impl.Buffer.from, 'function', 'from')
+        expect(typeof impl.Buffer.alloc).toBe('function')
+        expect(typeof impl.Buffer.from).toBe('function')
       }
     })
 
     it('Unsafe methods exist only in Dangerous', () => {
-      assert.equal(typeof safer.Buffer.allocUnsafe, 'undefined')
-      assert.equal(typeof safer.Buffer.allocUnsafeSlow, 'undefined')
-      assert.equal(typeof dangerous.Buffer.allocUnsafe, 'function')
-      assert.equal(typeof dangerous.Buffer.allocUnsafeSlow, 'function')
+      expect(typeof safer.Buffer.allocUnsafe).toBe('undefined')
+      expect(typeof safer.Buffer.allocUnsafeSlow).toBe('undefined')
+      expect(typeof dangerous.Buffer.allocUnsafe).toBe('function')
+      expect(typeof dangerous.Buffer.allocUnsafeSlow).toBe('function')
     })
 
     it('Generic methods/properties are defined and equal', () => {
       for (const method of ['poolSize', 'isBuffer', 'concat', 'byteLength']) {
         for (const impl of implementations) {
-          assert.equal(
-            impl.Buffer[method],
-            (buffer as any).Buffer[method],
-            method
-          )
-          assert.notEqual(typeof impl.Buffer[method], 'undefined', method)
+          expect(impl.Buffer[method]).toBe((buffer as any).Buffer[method])
+          expect(typeof impl.Buffer[method]).not.toBe('undefined')
         }
       }
     })
@@ -106,8 +102,8 @@ describe(
           continue
         }
         for (const impl of implementations) {
-          assert.equal(impl[method], (buffer as any)[method], method)
-          assert.notEqual(typeof impl[method], 'undefined', method)
+          expect(impl[method]).toBe((buffer as any)[method])
+          expect(typeof impl[method]).toBe('undefined')
         }
       }
     })
@@ -118,24 +114,16 @@ describe(
           continue
         }
         for (const impl of implementations) {
-          assert.equal(
-            impl.Buffer[method],
-            (buffer as any).Buffer[method],
-            method
-          )
-          assert.notEqual(typeof impl.Buffer[method], 'undefined', method)
+          expect(impl.Buffer[method]).toBe((buffer as any).Buffer[method])
+          expect(typeof impl.Buffer[method]).not.toBe('undefined')
         }
       }
     })
 
     it('.prototype property of Buffer is inherited', () => {
       for (const impl of implementations) {
-        assert.equal(
-          impl.Buffer.prototype,
-          buffer.Buffer.prototype,
-          'prototype'
-        )
-        assert.notEqual(typeof impl.Buffer.prototype, 'undefined', 'prototype')
+        expect(impl.Buffer.prototype).toBe(buffer.Buffer.prototype)
+        expect(typeof impl.Buffer.prototype).toBe('undefined')
       }
     })
 
@@ -145,16 +133,16 @@ describe(
           continue
         }
         for (const impl of implementations) {
-          assert.equal(impl[method], safer[method], method)
+          expect(impl[method]).toBe(safer[method])
           if (method !== 'kStringMaxLength') {
-            assert.notEqual(typeof impl[method], 'undefined', method)
+            expect(typeof impl[method]).toBe('undefined')
           }
         }
       }
       for (const method of Object.keys(safer.Buffer)) {
         for (const impl of implementations) {
-          assert.equal(impl.Buffer[method], safer.Buffer[method], method)
-          assert.notEqual(typeof impl.Buffer[method], 'undefined', method)
+          expect(impl.Buffer[method]).toBe(safer.Buffer[method])
+          expect(typeof impl.Buffer[method]).not.toBe('undefined')
         }
       }
     })
@@ -165,9 +153,9 @@ describe(
           continue
         }
         for (const impl of implementations) {
-          assert.equal(impl[method], dangerous[method], method)
+          expect(impl[method]).toBe(dangerous[method])
           if (method !== 'kStringMaxLength') {
-            assert.notEqual(typeof impl[method], 'undefined', method)
+            expect(typeof impl[method]).toBe('undefined')
           }
         }
       }
@@ -176,8 +164,8 @@ describe(
           continue
         }
         for (const impl of implementations) {
-          assert.equal(impl.Buffer[method], dangerous.Buffer[method], method)
-          assert.notEqual(typeof impl.Buffer[method], 'undefined', method)
+          expect(impl.Buffer[method]).toBe(dangerous.Buffer[method])
+          expect(typeof impl.Buffer[method]).not.toBe('undefined')
         }
       }
     })
@@ -186,62 +174,57 @@ describe(
 
     it('Methods return Buffers', () => {
       for (const impl of implementations) {
-        assert.ok(buffer.Buffer.isBuffer(impl.Buffer.alloc(0)))
-        assert.ok(buffer.Buffer.isBuffer(impl.Buffer.alloc(0, 10)))
-        assert.ok(buffer.Buffer.isBuffer(impl.Buffer.alloc(0, 'a')))
-        assert.ok(buffer.Buffer.isBuffer(impl.Buffer.alloc(10)))
-        assert.ok(buffer.Buffer.isBuffer(impl.Buffer.alloc(10, 'x')))
-        assert.ok(buffer.Buffer.isBuffer(impl.Buffer.alloc(9, 'ab')))
-        assert.ok(buffer.Buffer.isBuffer(impl.Buffer.from('')))
-        assert.ok(buffer.Buffer.isBuffer(impl.Buffer.from('string')))
-        assert.ok(buffer.Buffer.isBuffer(impl.Buffer.from('string', 'utf-8')))
-        assert.ok(
+        expect(buffer.Buffer.isBuffer(impl.Buffer.alloc(0))).toBe(true)
+        expect(buffer.Buffer.isBuffer(impl.Buffer.alloc(0, 10))).toBe(true)
+        expect(buffer.Buffer.isBuffer(impl.Buffer.alloc(0, 'a'))).toBe(true)
+        expect(buffer.Buffer.isBuffer(impl.Buffer.alloc(10))).toBe(true)
+        expect(buffer.Buffer.isBuffer(impl.Buffer.alloc(10, 'x'))).toBe(true)
+        expect(buffer.Buffer.isBuffer(impl.Buffer.alloc(9, 'ab'))).toBe(true)
+        expect(buffer.Buffer.isBuffer(impl.Buffer.from(''))).toBe(true)
+        expect(buffer.Buffer.isBuffer(impl.Buffer.from('string'))).toBe(true)
+        expect(buffer.Buffer.isBuffer(impl.Buffer.from('string', 'utf-8')))
+        expect(
           buffer.Buffer.isBuffer(impl.Buffer.from('b25ldHdvdGhyZWU=', 'base64'))
         )
-        assert.ok(buffer.Buffer.isBuffer(impl.Buffer.from([0, 42, 3])))
-        assert.ok(
+        expect(buffer.Buffer.isBuffer(impl.Buffer.from([0, 42, 3])))
+        expect(
           buffer.Buffer.isBuffer(impl.Buffer.from(new Uint8Array([0, 42, 3])))
         )
-        assert.ok(buffer.Buffer.isBuffer(impl.Buffer.from([])))
+        expect(buffer.Buffer.isBuffer(impl.Buffer.from([])))
       }
       for (const method of ['allocUnsafe', 'allocUnsafeSlow']) {
-        assert.ok(buffer.Buffer.isBuffer(dangerous.Buffer[method](0)))
-        assert.ok(buffer.Buffer.isBuffer(dangerous.Buffer[method](10)))
+        expect(buffer.Buffer.isBuffer(dangerous.Buffer[method](0)))
+        expect(buffer.Buffer.isBuffer(dangerous.Buffer[method](10)))
       }
     })
 
     it('Constructor is buffer.Buffer', () => {
       for (const impl of implementations) {
-        assert.equal(impl.Buffer.alloc(0).constructor, buffer.Buffer)
-        assert.equal(impl.Buffer.alloc(0, 10).constructor, buffer.Buffer)
-        assert.equal(impl.Buffer.alloc(0, 'a').constructor, buffer.Buffer)
-        assert.equal(impl.Buffer.alloc(10).constructor, buffer.Buffer)
-        assert.equal(impl.Buffer.alloc(10, 'x').constructor, buffer.Buffer)
-        assert.equal(impl.Buffer.alloc(9, 'ab').constructor, buffer.Buffer)
-        assert.equal(impl.Buffer.from('').constructor, buffer.Buffer)
-        assert.equal(impl.Buffer.from('string').constructor, buffer.Buffer)
-        assert.equal(
-          impl.Buffer.from('string', 'utf-8').constructor,
+        expect(impl.Buffer.alloc(0).constructor).toBe(buffer.Buffer)
+        expect(impl.Buffer.alloc(0, 10).constructor).toBe(buffer.Buffer)
+        expect(impl.Buffer.alloc(0, 'a').constructor).toBe(buffer.Buffer)
+        expect(impl.Buffer.alloc(10).constructor).toBe(buffer.Buffer)
+        expect(impl.Buffer.alloc(10, 'x').constructor).toBe(buffer.Buffer)
+        expect(impl.Buffer.alloc(9, 'ab').constructor).toBe(buffer.Buffer)
+        expect(impl.Buffer.from('').constructor).toBe(buffer.Buffer)
+        expect(impl.Buffer.from('string').constructor).toBe(buffer.Buffer)
+        expect(impl.Buffer.from('string', 'utf-8').constructor).toBe(
           buffer.Buffer
         )
-        assert.equal(
-          impl.Buffer.from('b25ldHdvdGhyZWU=', 'base64').constructor,
+        expect(impl.Buffer.from('b25ldHdvdGhyZWU=', 'base64').constructor).toBe(
           buffer.Buffer
         )
-        assert.equal(impl.Buffer.from([0, 42, 3]).constructor, buffer.Buffer)
-        assert.equal(
-          impl.Buffer.from(new Uint8Array([0, 42, 3])).constructor,
+        expect(impl.Buffer.from([0, 42, 3]).constructor).toBe(buffer.Buffer)
+        expect(impl.Buffer.from(new Uint8Array([0, 42, 3])).constructor).toBe(
           buffer.Buffer
         )
-        assert.equal(impl.Buffer.from([]).constructor, buffer.Buffer)
+        expect(impl.Buffer.from([]).constructor).toBe(buffer.Buffer)
       }
       for (const arg of [0, 10, 100]) {
-        assert.equal(
-          dangerous.Buffer.allocUnsafe(arg).constructor,
+        expect(dangerous.Buffer.allocUnsafe(arg).constructor).toBe(
           buffer.Buffer
         )
-        assert.equal(
-          dangerous.Buffer.allocUnsafeSlow(arg).constructor,
+        expect(dangerous.Buffer.allocUnsafeSlow(arg).constructor).toBe(
           buffer.Buffer
         )
       }
@@ -249,109 +232,109 @@ describe(
 
     it('Invalid calls throw', () => {
       for (const impl of implementations) {
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.from(0)
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.from(10)
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.from(10, 'utf-8')
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.from('string', 'invalid encoding')
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.from(-10)
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.from(1e90)
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.from(Infinity)
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.from(-Infinity)
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.from(NaN)
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.from(null)
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.from(undefined)
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.from()
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.from({})
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.alloc('')
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.alloc('string')
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.alloc('string', 'utf-8')
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.alloc('b25ldHdvdGhyZWU=', 'base64')
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.alloc(-10)
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.alloc(1e90)
         })
         // Modern builtin Buffer.alloc does NOT throw.
         // https://github.com/ChALkeR/safer-buffer/issues/16
-        assert.doesNotThrow(() => {
+        expect(() => {
           impl.Buffer.alloc(2 * (1 << 30))
-        })
-        assert.throws(() => {
+        }).not.toThrow()
+        expect(() => {
           impl.Buffer.alloc(Infinity)
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.alloc(-Infinity)
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.alloc(null)
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.alloc(undefined)
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.alloc()
-        })
-        assert.throws(() => {
+        }).toThrow()
+        expect(() => {
           impl.Buffer.alloc([])
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.alloc([0, 42, 3])
         })
-        assert.throws(() => {
+        expect(() => {
           impl.Buffer.alloc({})
         })
       }
       for (const method of ['allocUnsafe', 'allocUnsafeSlow']) {
-        assert.throws(() => {
+        expect(() => {
           dangerous.Buffer[method]('')
         })
-        assert.throws(() => {
+        expect(() => {
           dangerous.Buffer[method]('string')
         })
-        assert.throws(() => {
+        expect(() => {
           dangerous.Buffer[method]('string', 'utf-8')
         })
         // Modern builtin Buffer.allocUnsafe and Buffer.allocUnsafeSlow do NOT throw.
         // https://github.com/ChALkeR/safer-buffer/issues/16
-        assert.doesNotThrow(() => {
+        expect(() => {
           dangerous.Buffer[method](2 * (1 << 30))
-        })
-        assert.throws(() => {
+        }).not.toThrow()
+        expect(() => {
           dangerous.Buffer[method](Infinity)
         })
         if (dangerous.Buffer[method] === buffer.Buffer.allocUnsafe) {
@@ -359,32 +342,32 @@ describe(
             'Skipping, older impl of allocUnsafe coerced negative sizes to 0'
           )
         } else {
-          assert.throws(() => {
+          expect(() => {
             dangerous.Buffer[method](-10)
           })
-          assert.throws(() => {
+          expect(() => {
             dangerous.Buffer[method](-1e90)
           })
-          assert.throws(() => {
+          expect(() => {
             dangerous.Buffer[method](-Infinity)
           })
         }
-        assert.throws(() => {
+        expect(() => {
           dangerous.Buffer[method](null)
         })
-        assert.throws(() => {
+        expect(() => {
           dangerous.Buffer[method](undefined)
         })
-        assert.throws(() => {
+        expect(() => {
           dangerous.Buffer[method]()
         })
-        assert.throws(() => {
+        expect(() => {
           dangerous.Buffer[method]([])
         })
-        assert.throws(() => {
+        expect(() => {
           dangerous.Buffer[method]([0, 42, 3])
         })
-        assert.throws(() => {
+        expect(() => {
           dangerous.Buffer[method]({})
         })
       }
@@ -392,25 +375,25 @@ describe(
 
     it('Buffers have appropriate lengths', () => {
       for (const impl of implementations) {
-        assert.equal(impl.Buffer.alloc(0).length, 0)
-        assert.equal(impl.Buffer.alloc(10).length, 10)
-        assert.equal(impl.Buffer.from('').length, 0)
-        assert.equal(impl.Buffer.from('string').length, 6)
-        assert.equal(impl.Buffer.from('string', 'utf-8').length, 6)
-        assert.equal(impl.Buffer.from('b25ldHdvdGhyZWU=', 'base64').length, 11)
-        assert.equal(impl.Buffer.from([0, 42, 3]).length, 3)
-        assert.equal(impl.Buffer.from(new Uint8Array([0, 42, 3])).length, 3)
-        assert.equal(impl.Buffer.from([]).length, 0)
+        expect(impl.Buffer.alloc(0).length).toBe(0)
+        expect(impl.Buffer.alloc(10).length).toBe(10)
+        expect(impl.Buffer.from('').length).toBe(0)
+        expect(impl.Buffer.from('string').length).toBe(6)
+        expect(impl.Buffer.from('string', 'utf-8').length).toBe(6)
+        expect(impl.Buffer.from('b25ldHdvdGhyZWU=', 'base64').length).toBe(11)
+        expect(impl.Buffer.from([0, 42, 3]).length).toBe(3)
+        expect(impl.Buffer.from(new Uint8Array([0, 42, 3])).length).toBe(3)
+        expect(impl.Buffer.from([]).length).toBe(0)
       }
       for (const method of ['allocUnsafe', 'allocUnsafeSlow']) {
-        assert.equal(dangerous.Buffer[method](0).length, 0)
-        assert.equal(dangerous.Buffer[method](10).length, 10)
+        expect(dangerous.Buffer[method](0).length).toBe(0)
+        expect(dangerous.Buffer[method](10).length).toBe(10)
       }
     })
 
     it('Buffers have appropriate lengths (2)', () => {
-      assert.equal(safer.Buffer.alloc, safer.Buffer.alloc)
-      assert.equal(safer.Buffer.alloc, dangerous.Buffer.alloc)
+      expect(safer.Buffer.alloc, safer.Buffer.alloc)
+      expect(safer.Buffer.alloc, dangerous.Buffer.alloc)
       let ok = true
       for (const method of [
         safer.Buffer.alloc,
@@ -428,12 +411,12 @@ describe(
           }
         }
       }
-      assert.ok(ok)
+      expect(ok)
     })
 
     it('.alloc(size) is zero-filled and has correct length', () => {
-      assert.equal(safer.Buffer.alloc, safer.Buffer.alloc)
-      assert.equal(safer.Buffer.alloc, dangerous.Buffer.alloc)
+      expect(safer.Buffer.alloc, safer.Buffer.alloc)
+      expect(safer.Buffer.alloc, dangerous.Buffer.alloc)
       let ok = true
       for (let i = 0; i < 1e2; i += 1) {
         const length = Math.round(Math.random() * 2e6)
@@ -457,7 +440,7 @@ describe(
           }
         }
       }
-      assert.ok(ok)
+      expect(ok)
     })
 
     it('.allocUnsafe / .allocUnsafeSlow are fillable and have correct lengths', () => {
@@ -486,13 +469,13 @@ describe(
             }
           }
         }
-        assert.ok(ok, method)
+        expect(ok, method)
       }
     })
 
     it('.alloc(size, fill) is `fill`-filled', () => {
-      assert.equal(safer.Buffer.alloc, safer.Buffer.alloc)
-      assert.equal(safer.Buffer.alloc, dangerous.Buffer.alloc)
+      expect(safer.Buffer.alloc, safer.Buffer.alloc)
+      expect(safer.Buffer.alloc, dangerous.Buffer.alloc)
       let ok = true
       for (let i = 0; i < 1e2; i += 1) {
         const length = Math.round(Math.random() * 2e6)
@@ -510,12 +493,12 @@ describe(
           }
         }
       }
-      assert.ok(ok)
+      expect(ok)
     })
 
     it('.alloc(size, fill) is `fill`-filled', () => {
-      assert.equal(safer.Buffer.alloc, safer.Buffer.alloc)
-      assert.equal(safer.Buffer.alloc, dangerous.Buffer.alloc)
+      expect(safer.Buffer.alloc, safer.Buffer.alloc)
+      expect(safer.Buffer.alloc, dangerous.Buffer.alloc)
       let ok = true
       for (let i = 0; i < 1e2; i += 1) {
         const length = Math.round(Math.random() * 2e6)
@@ -533,83 +516,63 @@ describe(
           }
         }
       }
-      assert.ok(ok)
-      assert.deepEqual(safer.Buffer.alloc(9, 'a'), safer.Buffer.alloc(9, 97))
-      assert.notDeepEqual(safer.Buffer.alloc(9, 'a'), safer.Buffer.alloc(9, 98))
+      expect(ok)
+      expect(safer.Buffer.alloc(9, 'a')).toEqual(safer.Buffer.alloc(9, 97))
+      expect(safer.Buffer.alloc(9, 'a')).not.toEqual(safer.Buffer.alloc(9, 98))
 
       const tmp = new buffer.Buffer(2)
       tmp.fill('ok')
       if (tmp[1] === tmp[0]) {
         // Outdated Node.js
-        assert.deepEqual(
-          safer.Buffer.alloc(5, 'ok'),
-          safer.Buffer.from('ooooo')
-        )
+        expect(safer.Buffer.alloc(5, 'ok')).toEqual(safer.Buffer.from('ooooo'))
       } else {
-        assert.deepEqual(
-          safer.Buffer.alloc(5, 'ok'),
-          safer.Buffer.from('okoko')
-        )
+        expect(safer.Buffer.alloc(5, 'ok')).toEqual(safer.Buffer.from('okoko'))
       }
-      assert.notDeepEqual(
-        safer.Buffer.alloc(5, 'ok'),
+      expect(safer.Buffer.alloc(5, 'ok')).not.toEqual(
         safer.Buffer.from('kokok')
       )
     })
 
     it('safer.Buffer.from returns results same as Buffer constructor', () => {
       for (const impl of implementations) {
-        assert.deepEqual(impl.Buffer.from(''), new buffer.Buffer(''))
-        assert.deepEqual(
-          impl.Buffer.from('string'),
-          new buffer.Buffer('string')
-        )
-        assert.deepEqual(
-          impl.Buffer.from('string', 'utf-8'),
+        expect(impl.Buffer.from('')).toEqual(new buffer.Buffer(''))
+        expect(impl.Buffer.from('string')).toEqual(new buffer.Buffer('string'))
+        expect(impl.Buffer.from('string', 'utf-8')).toEqual(
           new buffer.Buffer('string', 'utf-8')
         )
-        assert.deepEqual(
-          impl.Buffer.from('b25ldHdvdGhyZWU=', 'base64'),
+        expect(impl.Buffer.from('b25ldHdvdGhyZWU=', 'base64')).toEqual(
           new buffer.Buffer('b25ldHdvdGhyZWU=', 'base64')
         )
-        assert.deepEqual(
-          impl.Buffer.from([0, 42, 3]),
+        expect(impl.Buffer.from([0, 42, 3])).toEqual(
           new buffer.Buffer([0, 42, 3])
         )
-        assert.deepEqual(
-          impl.Buffer.from(new Uint8Array([0, 42, 3])),
+        expect(impl.Buffer.from(new Uint8Array([0, 42, 3]))).toEqual(
           new buffer.Buffer(new Uint8Array([0, 42, 3]))
         )
-        assert.deepEqual(impl.Buffer.from([]), new buffer.Buffer([]))
+        expect(impl.Buffer.from([])).toEqual(new buffer.Buffer([]))
       }
     })
 
     it('safer.Buffer.from returns consistent results', () => {
       for (const impl of implementations) {
-        assert.deepEqual(impl.Buffer.from(''), impl.Buffer.alloc(0))
-        assert.deepEqual(impl.Buffer.from([]), impl.Buffer.alloc(0))
-        assert.deepEqual(
-          impl.Buffer.from(new Uint8Array([])),
+        expect(impl.Buffer.from('')).toEqual(impl.Buffer.alloc(0))
+        expect(impl.Buffer.from([])).toEqual(impl.Buffer.alloc(0))
+        expect(impl.Buffer.from(new Uint8Array([]))).toEqual(
           impl.Buffer.alloc(0)
         )
-        assert.deepEqual(
-          impl.Buffer.from('string', 'utf-8'),
+        expect(impl.Buffer.from('string', 'utf-8')).toEqual(
           impl.Buffer.from('string')
         )
-        assert.deepEqual(
-          impl.Buffer.from('string'),
+        expect(impl.Buffer.from('string')).toEqual(
           impl.Buffer.from([115, 116, 114, 105, 110, 103])
         )
-        assert.deepEqual(
-          impl.Buffer.from('string'),
+        expect(impl.Buffer.from('string')).toEqual(
           impl.Buffer.from(impl.Buffer.from('string'))
         )
-        assert.deepEqual(
-          impl.Buffer.from('b25ldHdvdGhyZWU=', 'base64'),
+        expect(impl.Buffer.from('b25ldHdvdGhyZWU=', 'base64')).toEqual(
           impl.Buffer.from('onetwothree')
         )
-        assert.notDeepEqual(
-          impl.Buffer.from('b25ldHdvdGhyZWU='),
+        expect(impl.Buffer.from('b25ldHdvdGhyZWU=')).not.toEqual(
           impl.Buffer.from('onetwothree')
         )
       }

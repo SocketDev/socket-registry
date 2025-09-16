@@ -1,17 +1,14 @@
 'use strict'
 
-const {
-  resolveBinPathSync,
-  runBin,
-  whichBin,
-  whichBinSync
-} = /*@__PURE__*/ require('./bin')
+const { resolveBinPathSync } = /*@__PURE__*/ require('./bin')
 const { isDebug } = /*@__PURE__*/ require('./debug')
+const { isPath } = /*@__PURE__*/ require('./path')
 const { spawn } = /*@__PURE__*/ require('./spawn')
+
+let _which
 
 const auditFlags = new Set(['--audit', '--no-audit'])
 const fundFlags = new Set(['--fund', '--no-fund'])
-const ignoreScriptsFlags = new Set(['--ignore-scripts', '--no-ignore-scripts'])
 const logFlags = new Set([
   // --loglevel has several aliases:
   // https://docs.npmjs.com/cli/v11/using-npm/logging#aliases
@@ -68,37 +65,11 @@ function execNpm(args, options) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function execPnpm(args, options) {
-  const useDebug = isDebug()
-  const terminatorPos = args.indexOf('--')
-  const pnpmArgs = (
-    terminatorPos === -1 ? args : args.slice(0, terminatorPos)
-  ).filter(a => !isNpmProgressFlag(a))
-  const otherArgs = terminatorPos === -1 ? [] : args.slice(terminatorPos)
-  const logLevelArgs =
-    // pnpm uses similar loglevel settings as npm
-    useDebug || pnpmArgs.some(isNpmLoglevelFlag) ? [] : ['--loglevel', 'warn']
-  // Check if --ignore-scripts or --no-ignore-scripts is already present
-  const hasIgnoreScriptsFlag = pnpmArgs.some(isPnpmIgnoreScriptsFlag)
-  const ignoreScriptsArgs = hasIgnoreScriptsFlag ? [] : ['--ignore-scripts']
-
-  return runBin(
-    'pnpm',
-    [
-      // Add `--no-progress` to fix input being swallowed by the spinner
-      '--no-progress',
-      // Add '--loglevel=warn' if a loglevel flag is not provided and debug is off
-      ...logLevelArgs,
-      // Add '--ignore-scripts' by default for security unless explicitly disabled
-      ...ignoreScriptsArgs,
-      ...pnpmArgs,
-      ...otherArgs
-    ],
-    {
-      __proto__: null,
-      ...options
-    }
-  )
+function getWhich() {
+  if (_which === undefined) {
+    _which = /*@__PURE__*/ require('../external/which')
+  }
+  return _which
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -129,8 +100,18 @@ function isNpmProgressFlag(cmdArg) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function isPnpmIgnoreScriptsFlag(cmdArg) {
-  return ignoreScriptsFlags.has(cmdArg)
+
+/*@__NO_SIDE_EFFECTS__*/
+function runBin(binPath, args, options) {
+  return spawn(
+    /*@__PURE__*/ require('./constants/exec-path'),
+    [
+      .../*@__PURE__*/ require('./constants/node-no-warnings-flags'),
+      isPath(binPath) ? resolveBinPathSync(binPath) : whichBinSync(binPath),
+      ...args
+    ],
+    options
+  )
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -155,15 +136,26 @@ function runNpmScript(scriptName, args, options) {
   )
 }
 
+async function whichBin(binName, options) {
+  const which = getWhich()
+  // Depending on options `which` may throw if `binName` is not found.
+  // The default behavior is to throw when `binName` is not found.
+  return resolveBinPathSync(await which(binName, options))
+}
+
+function whichBinSync(binName, options) {
+  // Depending on options `which` may throw if `binName` is not found.
+  // The default behavior is to throw when `binName` is not found.
+  return resolveBinPathSync(getWhich().sync(binName, options))
+}
+
 module.exports = {
   execNpm,
-  execPnpm,
   isNpmAuditFlag,
   isNpmFundFlag,
   isNpmLoglevelFlag,
   isNpmNodeOptionsFlag,
   isNpmProgressFlag,
-  isPnpmIgnoreScriptsFlag,
   resolveBinPathSync,
   runBin,
   runNpmScript,

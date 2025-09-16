@@ -1,8 +1,7 @@
-import assert from 'node:assert/strict'
 import path from 'node:path'
-import { describe, it } from 'node:test'
 
 import { glob } from 'fast-glob'
+import { describe, expect, it } from 'vitest'
 
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
@@ -47,7 +46,7 @@ describe(
         [kInternalsSymbol]: { lazyGetterStats }
       } = registryConstants
 
-      assert.deepStrictEqual(Array.from(lazyGetterStats.initialized), [])
+      expect(Array.from(lazyGetterStats.initialized)).toEqual([])
     })
 
     it('should expose internal attributes', async () => {
@@ -59,12 +58,11 @@ describe(
         [kInternalsSymbol]: { attributes }
       } = registryConstants
       const attribKeys = ['getters', 'internals', 'mixin', 'props']
-      assert.deepStrictEqual(Object.keys(attributes), attribKeys)
+      expect(Object.keys(attributes)).toEqual(attribKeys)
       for (const key of attribKeys) {
-        assert.ok(
-          isObjectObject(attributes[key]) || attributes[key] === undefined,
-          `config.${key} is an object or undefined`
-        )
+        expect(
+          isObjectObject(attributes[key]) || attributes[key] === undefined
+        ).toBe(true)
       }
     })
   }

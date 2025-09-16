@@ -13,11 +13,16 @@ declare const Npm: {
     args: string[] | readonly string[],
     options?: SpawnOptions | undefined
   ): Promise<{ stdout: string; stderr: string }>
+  execPnpm(
+    args: string[] | readonly string[],
+    options?: SpawnOptions | undefined
+  ): Promise<{ stdout: string; stderr: string }>
   isNpmAuditFlag(cmdArg: string): boolean
   isNpmFundFlag(cmdArg: string): boolean
   isNpmLoglevelFlag(cmdArg: string): boolean
   isNpmNodeOptionsFlag(cmdArg: string): boolean
   isNpmProgressFlag(cmdArg: string): boolean
+  isPnpmIgnoreScriptsFlag(cmdArg: string): boolean
   resolveBinPathSync(binPath: string): string
   runBin(
     binPath: string,

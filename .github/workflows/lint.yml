@@ -20,7 +20,12 @@ concurrency:
 jobs:
   linting:
     name: 'Linting'
-    uses: SocketDev/workflows/.github/workflows/reusable-base.yml@master
-    with:
-      no-lockfile: true
-      npm-test-script: 'check'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: SocketDev/socket-registry/.github/actions/setup@fad2a47cc9022ff59d5ae7256fcf9fabb246a943
+        with:
+          node-version: '22'
+
+      - name: Run linting
+        run: pnpm run check

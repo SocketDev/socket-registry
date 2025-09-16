@@ -1,6 +1,6 @@
-import assert from 'node:assert/strict'
 import path from 'node:path'
-import { describe, it } from 'node:test'
+
+import { describe, expect, it } from 'vitest'
 
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
@@ -27,145 +27,89 @@ describe(
        * which is 72% slower than our shim, and Firefox 40's native implementation.
        */
       const thrower = Object.preventExtensions({ 1: '2' })
-      assert.throws(() => {
+      expect(() => {
         es6oa.assign(thrower, 'xy')
-      }, TypeError)
-      assert.strictEqual(thrower[1], '2', 'thrower[1] === "2"')
+      }).toThrow(TypeError)
+      expect(thrower[1]).toBe('2')
     })
 
     it('error cases', () => {
-      assert.throws(
-        () => {
-          es6oa.assign(null)
-        },
-        TypeError,
-        'target must be an object'
-      )
-      assert.throws(
-        () => {
-          es6oa.assign(undefined)
-        },
-        TypeError,
-        'target must be an object'
-      )
-      assert.throws(
-        () => {
-          es6oa.assign(null, {})
-        },
-        TypeError,
-        'target must be an object'
-      )
-      assert.throws(
-        () => {
-          es6oa.assign(undefined, {})
-        },
-        TypeError,
-        'target must be an object'
-      )
+      expect(() => {
+        es6oa.assign(null)
+      }).toThrow(TypeError)
+      expect(() => {
+        es6oa.assign(undefined)
+      }).toThrow(TypeError)
+      expect(() => {
+        es6oa.assign(null, {})
+      }).toThrow(TypeError)
+      expect(() => {
+        es6oa.assign(undefined, {})
+      }).toThrow(TypeError)
     })
 
     it('non-object target, no sources', () => {
       const bool = es6oa.assign(true)
-      assert.strictEqual(typeof bool, 'object', 'bool is object')
-      assert.strictEqual(
-        Boolean.prototype.valueOf.call(bool),
-        true,
-        'bool coerces to `true`'
-      )
+      expect(typeof bool).toBe('object')
+      expect(Boolean.prototype.valueOf.call(bool)).toBe(true)
 
       const number = es6oa.assign(1)
-      assert.strictEqual(typeof number, 'object', 'number is object')
-      assert.strictEqual(
-        Number.prototype.valueOf.call(number),
-        1,
-        'number coerces to `1`'
-      )
+      expect(typeof number).toBe('object')
+      expect(Number.prototype.valueOf.call(number)).toBe(1)
 
       const string = es6oa.assign('1')
-      assert.strictEqual(typeof string, 'object', 'number is object')
-      assert.strictEqual(
-        String.prototype.valueOf.call(string),
-        '1',
-        'number coerces to `"1"`'
-      )
+      expect(typeof string).toBe('object')
+      expect(String.prototype.valueOf.call(string)).toBe('1')
     })
 
-    it('non-object target, with sources', async t => {
+    it('non-object target, with sources', () => {
       const signal = {}
 
-      await t.test('boolean', () => {
-        const bool = es6oa.assign(true, { a: signal })
-        assert.strictEqual(typeof bool, 'object', 'bool is object')
-        assert.strictEqual(
-          Boolean.prototype.valueOf.call(bool),
-          true,
-          'bool coerces to `true`'
-        )
-        assert.strictEqual(bool.a, signal, 'source properties copied')
-      })
+      // Test boolean
+      const bool = es6oa.assign(true, { a: signal })
+      expect(typeof bool).toBe('object')
+      expect(Boolean.prototype.valueOf.call(bool)).toBe(true)
+      expect(bool.a).toBe(signal)
 
-      await t.test('number', () => {
-        const number = es6oa.assign(1, { a: signal })
-        assert.strictEqual(typeof number, 'object', 'number is object')
-        assert.strictEqual(
-          Number.prototype.valueOf.call(number),
-          1,
-          'number coerces to `1`'
-        )
-        assert.strictEqual(number.a, signal, 'source properties copied')
-      })
+      // Test number
+      const number = es6oa.assign(1, { a: signal })
+      expect(typeof number).toBe('object')
+      expect(Number.prototype.valueOf.call(number)).toBe(1)
+      expect(number.a).toBe(signal)
 
-      await t.test('string', () => {
-        const string = es6oa.assign('1', { a: signal })
-        assert.strictEqual(typeof string, 'object', 'number is object')
-        assert.strictEqual(
-          String.prototype.valueOf.call(string),
-          '1',
-          'number coerces to `"1"`'
-        )
-        assert.strictEqual(string.a, signal, 'source properties copied')
-      })
+      // Test string
+      const string = es6oa.assign('1', { a: signal })
+      expect(typeof string).toBe('object')
+      expect(String.prototype.valueOf.call(string)).toBe('1')
+      expect(string.a).toBe(signal)
     })
 
     it('non-object sources', () => {
-      assert.deepStrictEqual(
-        es6oa.assign({ a: 1 }, null, { b: 2 }),
-        { a: 1, b: 2 },
-        'ignores null source'
-      )
-      assert.deepStrictEqual(
-        es6oa.assign({ a: 1 }, { b: 2 }, undefined),
-        { a: 1, b: 2 },
-        'ignores undefined source'
-      )
+      expect(es6oa.assign({ a: 1 }, null, { b: 2 })).toEqual({ a: 1, b: 2 })
+      expect(es6oa.assign({ a: 1 }, { b: 2 }, undefined)).toEqual({
+        a: 1,
+        b: 2
+      })
     })
 
     it('returns the modified target object', () => {
       const target = {}
       const returned = es6oa.assign(target, { a: 1 })
-      assert.strictEqual(
-        returned,
-        target,
-        'returned object is the same reference as the target object'
-      )
+      expect(returned).toBe(target)
     })
 
     it('has the right name', () => {
-      assert.strictEqual(es6oa.assign.name, 'assign')
+      expect(es6oa.assign.name).toBe('assign')
     })
 
     it('has the right length', () => {
-      assert.strictEqual(es6oa.assign.length, 2)
+      expect(es6oa.assign.length).toBe(2)
     })
 
     it('merge two objects', () => {
       const target = { a: 1 }
       const returned = es6oa.assign(target, { b: 2 })
-      assert.deepStrictEqual(
-        returned,
-        { a: 1, b: 2 },
-        'returned object has properties from both'
-      )
+      expect(returned).toEqual({ a: 1, b: 2 })
     })
 
     it('works with functions', () => {
@@ -173,26 +117,18 @@ describe(
       const target = () => {}
       ;(target as any).a = 1
       const returned = es6oa.assign(target, { b: 2 })
-      assert.strictEqual(target, returned, 'returned object is target')
-      assert.strictEqual(returned.a, 1)
-      assert.strictEqual(returned.b, 2)
+      expect(target).toBe(returned)
+      expect(returned.a).toBe(1)
+      expect(returned.b).toBe(2)
     })
 
     it('works with primitives', () => {
       const target = 2
       const source = { b: 42 }
       const returned = es6oa.assign(target, source)
-      assert.strictEqual(
-        Object.prototype.toString.call(returned),
-        '[object Number]',
-        'returned is object form of number primitive'
-      )
-      assert.strictEqual(
-        Number(returned),
-        target,
-        'returned and target have same valueOf'
-      )
-      assert.strictEqual(returned.b, source.b)
+      expect(Object.prototype.toString.call(returned)).toBe('[object Number]')
+      expect(Number(returned)).toBe(target)
+      expect(returned.b).toBe(source.b)
     })
 
     it('merge N objects', () => {
@@ -200,11 +136,7 @@ describe(
       const source1 = { b: 2 }
       const source2 = { c: 3 }
       const returned = es6oa.assign(target, source1, source2)
-      assert.deepStrictEqual(
-        returned,
-        { a: 1, b: 2, c: 3 },
-        'returned object has properties from all sources'
-      )
+      expect(returned).toEqual({ a: 1, b: 2, c: 3 })
     })
 
     it('only iterates over own keys', () => {
@@ -214,16 +146,8 @@ describe(
       ;(foo as any).baz = true
       const target = { a: 1 }
       const returned = es6oa.assign(target, foo)
-      assert.strictEqual(
-        returned,
-        target,
-        'returned object is the same reference as the target object'
-      )
-      assert.deepStrictEqual(
-        target,
-        { a: 1, baz: true },
-        'returned object has only own properties from both'
-      )
+      expect(returned).toBe(target)
+      expect(target).toEqual({ a: 1, baz: true })
     })
 
     it('includes enumerable symbols, after keys', () => {
@@ -253,18 +177,10 @@ describe(
         }
       })
       const target = es6oa.assign({}, obj)
-      assert.deepStrictEqual(
-        visited,
-        ['a', symbol],
-        'key is visited first, then symbol'
-      )
-      assert.strictEqual(target.a, 42, 'targeassert.a is 42')
-      assert.strictEqual(target[symbol], Infinity, 'target[symbol] is Infinity')
-      assert.notEqual(
-        target[nonEnumSymbol],
-        -Infinity,
-        'target[nonEnumSymbol] is not -Infinity'
-      )
+      expect(visited).toEqual(['a', symbol])
+      expect(target.a).toBe(42)
+      expect(target[symbol]).toBe(Infinity)
+      expect(target[nonEnumSymbol]).not.toBe(-Infinity)
     })
 
     it('does not fail when symbols are not present', () => {
@@ -288,13 +204,9 @@ describe(
       })
       keys.push(symbol)
       const target = es6oa.assign({}, obj)
-      assert.deepStrictEqual(
-        visited,
-        keys,
-        'Object.assign visits expected keys'
-      )
-      assert.strictEqual(target.a, 42, 'target.a is 42')
-      assert.strictEqual(target[symbol], Infinity)
+      expect(visited).toEqual(keys)
+      expect(target.a).toBe(42)
+      expect(target[symbol]).toBe(Infinity)
     })
 
     it('preserves correct property enumeration order', () => {
@@ -315,11 +227,7 @@ describe(
         actual += k
       }
       for (let i = 0; i < n; i += 1) {
-        assert.strictEqual(
-          actual,
-          str,
-          'property enumeration order should be followed'
-        )
+        expect(actual).toBe(str)
       }
     })
 
@@ -341,17 +249,9 @@ describe(
       ;(source as any).b = sourceBValue
       ;(source as any).c = sourceCValue
       const result = es6oa.assign(target, source)
-      assert.strictEqual(result, target, 'sanity check: result is === target')
-      assert.strictEqual(
-        result.b,
-        targetBValue,
-        'target key not overwritten by deleted source key'
-      )
-      assert.strictEqual(
-        result.c,
-        targetCValue,
-        'target key not overwritten by non-enumerable source key'
-      )
+      expect(result).toBe(target)
+      expect(result.b).toBe(targetBValue)
+      expect(result.c).toBe(targetCValue)
     })
   }
 )

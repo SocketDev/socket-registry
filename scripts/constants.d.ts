@@ -41,9 +41,6 @@ declare const Constants: Remap<
     readonly rootPackagesPath: string
     readonly rootPath: string
     readonly rootTsConfigPath: string
-    readonly tapCiConfigPath: string
-    readonly tapConfigPath: string
-    readonly tapRunExecPath: string
     readonly templatesPath: string
     readonly testNpmPath: string
     readonly testNpmFixturesPath: string

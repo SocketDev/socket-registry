@@ -1,0 +1,24 @@
+{
+  "name": "@socketregistry/scripts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scripts for Socket Registry monorepo",
+  "dependencies": {
+    "@biomejs/js-api": "3.0.0",
+    "@biomejs/wasm-nodejs": "2.2.4",
+    "@eslint/compat": "1.3.2",
+    "@npmcli/package-json": "7.0.0",
+    "@socketregistry/packageurl-js": "1.0.9",
+    "@socketsecurity/registry": "workspace:*",
+    "didyoumean2": "7.0.4",
+    "eta": "3.5.0",
+    "fast-glob": "3.3.3",
+    "fs-extra": "11.3.1",
+    "npm-package-arg": "13.0.0",
+    "out-url": "1.2.2",
+    "semver": "7.7.2",
+    "@mdn/browser-compat-data": "7.1.5",
+    "ssri": "12.0.0",
+    "which": "5.0.0"
+  }
+}

@@ -3,9 +3,9 @@
   "name": "perf-npm",
   "version": "",
   "devDependencies": {
-    "@socketregistry/json-stable-stringify": "*",
-    "@socketregistry/scripts": "*",
-    "@socketsecurity/registry": "*",
+    "@socketregistry/json-stable-stringify": "^1.0.12",
+    "@socketregistry/scripts": "file:../../scripts",
+    "@socketsecurity/registry": "file:../../registry",
     "fast-json-stable-stringify": "2.1.0",
     "json-stable-stringify": "1.3.0",
     "tinybench": "5.0.1"

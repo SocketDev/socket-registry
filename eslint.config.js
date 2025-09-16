@@ -264,8 +264,10 @@ function configs(sourceType) {
             ...importFlatConfigs.typescript.languageOptions?.parserOptions
               ?.projectService,
             allowDefaultProject: [
-              'packages/*/*/*.d.{cts,mts}',
-              'vitest.config.mts'
+              // Allow configs.
+              '*.config.mts',
+              // Add package type definitions.
+              'packages/*/*/*.d.{cts,mts}'
             ],
             defaultProject: 'tsconfig.json',
             // Need this to glob packages/npm/* files.

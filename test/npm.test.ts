@@ -1,9 +1,8 @@
-import assert from 'node:assert/strict'
 import path from 'node:path'
-import { describe, it } from 'node:test'
 import util from 'node:util'
 
 import semver from 'semver'
+import { describe, expect, it } from 'vitest'
 
 import constants from '@socketregistry/scripts/constants'
 import {
@@ -27,8 +26,8 @@ const {
   win32EnsureTestsByEcosystem
 } = constants
 
-// Pass args as tap --test-arg:
-// npm run test:unit ./test/npm.test.ts -- --test-arg="--force"
+// Pass args:
+// npm run test:unit ./test/npm.test.ts -- --force
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 const eco = NPM
 
@@ -71,10 +70,11 @@ describe(eco, { skip: !packageNames.length }, () => {
     it(`${origPkgName} passes all its tests`, { skip }, async () => {
       try {
         await runNpmScript('test', [], { cwd: nwPkgPath, signal: abortSignal })
-        assert.ok(true)
+        expect(true).toBe(true)
       } catch (e) {
         logger.fail(`${origPkgName}`)
-        assert.ok(false, (e as any)?.stderr ?? 'command failed')
+        // const error = e as { stderr?: string } | null | undefined
+        expect(false).toBe(true)
       }
     })
   }
