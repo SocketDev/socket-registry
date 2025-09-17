@@ -42,7 +42,7 @@ const {
 } = constants
 
 // Pass args:
-// npm run test:unit ./test/packages.test.ts -- --force
+// pnpm run test:unit ./test/packages.test.ts -- --force
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
 const shimApiKeys = ['getPolyfill', 'implementation', 'shim']
