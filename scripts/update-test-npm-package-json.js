@@ -75,6 +75,42 @@ const testScripts = [
   'test'
 ]
 
+/**
+ * Safely remove files/directories using trash, with fallback to fs.rm.
+ * @param {string|string[]} paths - Path(s) to remove
+ * @param {object} options - Options for fs.rm fallback
+ * @returns {Promise<void>}
+ */
+async function safeRemove(paths, options = {}) {
+  const pathArray = Array.isArray(paths) ? paths : [paths]
+  if (pathArray.length === 0) {
+    return
+  }
+
+  try {
+    await trash(pathArray)
+  } catch {
+    // If trash fails, fallback to fs.rm.
+    const { concurrency = 3, ...rmOptions } = options
+    const defaultRmOptions = { force: true, recursive: true, ...rmOptions }
+
+    await pEach(
+      pathArray,
+      async p => {
+        try {
+          await fs.rm(p, defaultRmOptions)
+        } catch (rmError) {
+          // Only warn about non-ENOENT errors if a spinner is provided.
+          if (rmError.code !== 'ENOENT' && options.spinner) {
+            options.spinner.warn(`Failed to remove ${p}: ${rmError.message}`)
+          }
+        }
+      },
+      { concurrency }
+    )
+  }
+}
+
 function cleanTestScript(testScript) {
   return (
     testScript
@@ -98,10 +134,10 @@ function createStubEsModule(srcPath) {
 
 async function installTestNpmNodeModules(options) {
   const { clean, specs } = { __proto__: null, ...options }
-  const pathsToTrash = []
+  const pathsToRemove = []
   if (clean) {
     // Only clean node_modules, not lockfiles since we use pnpm now.
-    pathsToTrash.push(testNpmNodeModulesPath)
+    pathsToRemove.push(testNpmNodeModulesPath)
   }
   if (clean === 'deep') {
     const deepPaths = await glob([NODE_MODULES_GLOB_RECURSIVE], {
@@ -109,10 +145,10 @@ async function installTestNpmNodeModules(options) {
       cwd: testNpmNodeWorkspacesPath,
       onlyDirectories: true
     })
-    pathsToTrash.push(...deepPaths)
+    pathsToRemove.push(...deepPaths)
   }
-  if (pathsToTrash.length) {
-    await trash(pathsToTrash)
+  if (pathsToRemove.length) {
+    await safeRemove(pathsToRemove)
   }
   // Use pnpm since test/npm is now a pnpm workspace.
   // In CI, we want to see pnpm errors if they occur.
@@ -167,7 +203,7 @@ async function installMissingPackages(packageNames, options) {
           // Broken symlinks are treated an non-existent by fs.existsSync, however
           // they will cause fs.mkdir to throw an ENOENT error, so we remove any
           // existing file beforehand just in case.
-          await trash(nmPkgPath)
+          await safeRemove(nmPkgPath)
           await extractPackage(`${n}@${devDependencies[n]}`, {
             dest: nmPkgPath
           })
@@ -364,6 +400,8 @@ async function linkPackages(packageNames, options) {
       ) {
         return
       }
+      // If it's a symlink but pointing to the wrong location, remove it.
+      await safeRemove(nmPkgPath)
     }
 
     const nmEditablePkgJson = await readCachedEditablePackageJson(nmPkgPath)
@@ -558,7 +596,7 @@ async function linkPackages(packageNames, options) {
               // We can go from CJS by creating an ESM stub.
               const uniquePath = uniqueSync(`${destPath.slice(0, -3)}.cjs`)
               await fs.copyFile(targetPath, uniquePath)
-              await trash(destPath)
+              await safeRemove(destPath)
               await outputFile(destPath, createStubEsModule(uniquePath), UTF8)
               return
             }
@@ -567,8 +605,19 @@ async function linkPackages(packageNames, options) {
             spinner?.error(`${origPkgName}: Cannot convert ESM to CJS`)
           }
         }
-        await trash(destPath)
-        await ensureSymlink(targetPath, destPath)
+        // Remove any existing file/symlink at the destination.
+        await safeRemove(destPath)
+        try {
+          await ensureSymlink(targetPath, destPath)
+        } catch (symlinkError) {
+          // If symlink creation fails, check if file exists and try once more.
+          if (symlinkError.code === 'EEXIST') {
+            await safeRemove(destPath)
+            await ensureSymlink(targetPath, destPath)
+          } else {
+            throw symlinkError
+          }
+        }
       })
     }
     // Chunk actions to process them in parallel 3 at a time.
@@ -630,25 +679,8 @@ async function cleanupNodeWorkspaces(linkedPackageNames, options) {
         }
       )
       if (unnecessaryPaths.length) {
-        try {
-          await trash(unnecessaryPaths)
-        } catch {
-          // Fallback to fs.rm if trash fails (e.g., for .github directories on macOS).
-          await pEach(
-            unnecessaryPaths,
-            async p => {
-              try {
-                await fs.rm(p, { recursive: true, force: true })
-              } catch (rmError) {
-                // Log but don't fail if we can't remove a file.
-                if (rmError.code !== 'ENOENT') {
-                  spinner?.warn(`Failed to remove ${p}: ${rmError.message}`)
-                }
-              }
-            },
-            { concurrency: 3 }
-          )
-        }
+        // Fallback to fs.rm if trash fails (e.g., for .github directories on macOS).
+        await safeRemove(unnecessaryPaths, { spinner })
       }
       // Move override package from test/npm/node_modules/ to test/npm/node_workspaces/
       await move(srcPath, destPath, { overwrite: true })
@@ -691,7 +723,7 @@ void (async () => {
   spinner.start(`Initializing ${relTestNpmNodeModulesPath}...`)
   // Refresh/initialize test/npm/node_modules
   try {
-    await trash(testNpmNodeWorkspacesPath)
+    await safeRemove(testNpmNodeWorkspacesPath)
     await installTestNpmNodeModules({ clean: true, spinner })
     if (!cliArgs.quiet) {
       spinner.success(`Initialized ${relTestNpmNodeModulesPath}`)
