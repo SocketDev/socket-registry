@@ -31,6 +31,7 @@ declare const Agent: {
   isNpmNodeOptionsFlag(cmdArg: string): boolean
   isNpmProgressFlag(cmdArg: string): boolean
   isPnpmIgnoreScriptsFlag(cmdArg: string): boolean
+  isPnpmLoglevelFlag(cmdArg: string): boolean
   resolveBinPathSync(binPath: string): string
   execBin(
     binPath: string,

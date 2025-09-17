@@ -82,6 +82,36 @@ function execNpm(args, options) {
   )
 }
 
+// Commands that support --ignore-scripts flag in pnpm:
+// Installation-related: install, add, update, remove, link, unlink, import, rebuild.
+const pnpmInstallCommands = new Set([
+  'install',
+  'i',
+  'add',
+  'update',
+  'up',
+  'remove',
+  'rm',
+  'link',
+  'ln',
+  'unlink',
+  'import',
+  'rebuild',
+  'rb'
+])
+
+// Commands that support --ignore-scripts flag in yarn:
+// Similar to npm/pnpm: installation-related commands.
+const yarnInstallCommands = new Set([
+  'install',
+  'add',
+  'upgrade',
+  'remove',
+  'link',
+  'unlink',
+  'import'
+])
+
 /**
  * Execute pnpm commands with optimized flags and settings.
  * @param {string[] | readonly string[]} args - Command arguments to pass to pnpm.
@@ -98,28 +128,11 @@ function execPnpm(args, options) {
   const otherArgs = terminatorPos === -1 ? [] : args.slice(terminatorPos)
 
   const firstArg = pnpmArgs[0]
-  // Commands that support --ignore-scripts flag:
-  // Installation-related: install, add, update, remove, link, unlink, import, rebuild.
-  const installationCommands = new Set([
-    'install',
-    'i',
-    'add',
-    'update',
-    'up',
-    'remove',
-    'rm',
-    'link',
-    'ln',
-    'unlink',
-    'import',
-    'rebuild',
-    'rb'
-  ])
-  const supportsIgnoreScripts = installationCommands.has(firstArg)
+  const supportsIgnoreScripts = pnpmInstallCommands.has(firstArg)
 
   // pnpm uses --loglevel for all commands.
   const logLevelArgs =
-    useDebug || pnpmArgs.some(isNpmLoglevelFlag) ? [] : ['--loglevel', 'warn']
+    useDebug || pnpmArgs.some(isPnpmLoglevelFlag) ? [] : ['--loglevel', 'warn']
 
   // Only add --ignore-scripts for commands that support it.
   const hasIgnoreScriptsFlag = pnpmArgs.some(isPnpmIgnoreScriptsFlag)
@@ -162,18 +175,7 @@ function execYarn(args, options) {
   const otherArgs = terminatorPos === -1 ? [] : args.slice(terminatorPos)
 
   const firstArg = yarnArgs[0]
-  // Commands that support --ignore-scripts flag in yarn:
-  // Similar to npm/pnpm: installation-related commands.
-  const installationCommands = new Set([
-    'install',
-    'add',
-    'upgrade',
-    'remove',
-    'link',
-    'unlink',
-    'import'
-  ])
-  const supportsIgnoreScripts = installationCommands.has(firstArg)
+  const supportsIgnoreScripts = yarnInstallCommands.has(firstArg)
 
   // Yarn uses --silent flag for quieter output.
   const logLevelArgs =
@@ -269,6 +271,13 @@ function isPnpmIgnoreScriptsFlag(cmdArg) {
 }
 
 /**
+ * Alias for isNpmLoglevelFlag for pnpm usage.
+ * @param {string} cmdArg - The command argument to check.
+ * @returns {boolean} True if the argument is a loglevel flag.
+ */
+const isPnpmLoglevelFlag = isNpmLoglevelFlag
+
+/**
  * Execute a package.json script using the appropriate package manager.
  * Automatically detects pnpm, yarn, or npm based on lockfiles.
  * @param {string} scriptName - The name of the script to run.
@@ -331,6 +340,7 @@ module.exports = {
   isNpmNodeOptionsFlag,
   isNpmProgressFlag,
   isPnpmIgnoreScriptsFlag,
+  isPnpmLoglevelFlag,
   resolveBinPathSync,
   whichBin,
   whichBinSync
