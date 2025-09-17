@@ -8,7 +8,7 @@ declare type NpmRunScriptOptions = Remap<
     prepost?: boolean | undefined
   }
 >
-declare const Npm: {
+declare const Agent: {
   execNpm(
     args: string[] | readonly string[],
     options?: SpawnOptions | undefined
@@ -43,7 +43,7 @@ declare const Npm: {
     options: T
   ): T extends { nothrow: true } ? string | null : string
 }
-declare namespace Npm {
+declare namespace Agent {
   export { NpmRunScriptOptions }
 }
-export = Npm
+export = Agent
