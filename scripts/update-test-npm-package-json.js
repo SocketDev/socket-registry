@@ -121,6 +121,8 @@ async function installTestNpmNodeModules(options) {
     [
       'install',
       '--ignore-scripts',
+      // CI environments freeze lockfiles by default, but we need to update it here.
+      ...(constants.ENV.CI ? ['--no-frozen-lockfile'] : []),
       ...(Array.isArray(specs) ? ['--save-dev', '--save-exact', ...specs] : [])
     ],
     { cwd: testNpmPath, stdio }
