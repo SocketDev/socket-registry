@@ -1,7 +1,7 @@
 'use strict'
 
 const { readJsonSync } = /*@__PURE__*/ require('./fs')
-const { isPath } = /*@__PURE__*/ require('./path')
+const { isPath, normalizePath } = /*@__PURE__*/ require('./path')
 const { spawn } = /*@__PURE__*/ require('./spawn')
 
 let _fs
@@ -75,15 +75,17 @@ function getNotResolvedError(binPath, source = '') {
  * @throws {Error} If the binary cannot be resolved.
  */
 function resolveBinPathSync(binPath) {
+  // Normalize the path once for consistent pattern matching.
+  binPath = normalizePath(binPath)
+
   const fs = getFs()
   const path = getPath()
+
   const ext = path.extname(binPath)
   const extLowered = ext.toLowerCase()
   const basename = path.basename(binPath, ext)
   const voltaIndex =
-    basename === 'node'
-      ? -1
-      : (/(?<=[\\/]\.volta[\\/])/i.exec(binPath)?.index ?? -1)
+    basename === 'node' ? -1 : (/(?<=\/)\.volta\//i.exec(binPath)?.index ?? -1)
   if (voltaIndex !== -1) {
     const voltaPath = binPath.slice(0, voltaIndex)
     const voltaToolsPath = path.join(voltaPath, 'tools')
@@ -308,7 +310,7 @@ function resolveBinPathSync(binPath) {
       if (!relPath) {
         throw getNotResolvedError(binPath, source)
       }
-      binPath = path.join(path.dirname(binPath), relPath)
+      binPath = normalizePath(path.join(path.dirname(binPath), relPath))
     } else if (
       extLowered !== '.js' &&
       extLowered !== '.cjs' &&
@@ -326,6 +328,17 @@ function resolveBinPathSync(binPath) {
     const isNpmOrNpx = basename === 'npm' || basename === 'npx'
 
     if (hasNoExt && (isPnpmOrYarn || isNpmOrNpx)) {
+      // Handle special case where pnpm path in CI has extra segments.
+      // In setup-pnpm GitHub Action, the path might be malformed like:
+      // /home/runner/setup-pnpm/node_modules/.bin/pnpm/bin/pnpm.cjs
+      if (isPnpmOrYarn && binPath.includes('/.bin/pnpm/bin/pnpm')) {
+        // Extract the correct pnpm bin path.
+        const binIndex = binPath.indexOf('/.bin/pnpm')
+        if (binIndex !== -1) {
+          binPath = binPath.slice(0, binIndex + '/.bin/pnpm'.length)
+        }
+      }
+
       const source = fs.readFileSync(binPath, 'utf8')
       let relPath = ''
 
@@ -349,7 +362,7 @@ function resolveBinPathSync(binPath) {
       }
 
       if (relPath) {
-        binPath = path.join(path.dirname(binPath), relPath)
+        binPath = normalizePath(path.join(path.dirname(binPath), relPath))
       }
     }
   }
