@@ -28,29 +28,33 @@ const {
 
 // Pass args:
 // pnpm run test:unit ./test/npm.test.ts -- --force
+// Note: --force is converted to FORCE_TEST env var by test.js because
+// Vitest runs tests in worker processes that don't receive CLI args.
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
+const useForce =
+  cliArgs.force || constants.ENV.CI || process.env['FORCE_TEST'] === '1'
+
 const eco = NPM
 
 const testNpmNodeWorkspacesPackages = (
   readDirNamesSync(testNpmNodeWorkspacesPath) as string[]
 ).filter(n => !constants.skipTestsByEcosystem?.get(eco)?.has(n))
 
-const packageNames: string[] =
-  cliArgs.force || constants.ENV.CI
-    ? testNpmNodeWorkspacesPackages
-    : (() => {
-        const testablePackages = (
-          constants.ENV.PRE_COMMIT
-            ? getStagedPackagesSync
-            : getModifiedPackagesSync
-        )(eco, {
-          asSet: true,
-          ignore: [LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE]
-        })
-        return testNpmNodeWorkspacesPackages.filter((n: string) =>
-          testablePackages.has(n)
-        )
-      })()
+const packageNames: string[] = useForce
+  ? testNpmNodeWorkspacesPackages
+  : (() => {
+      const testablePackages = (
+        constants.ENV.PRE_COMMIT
+          ? getStagedPackagesSync
+          : getModifiedPackagesSync
+      )(eco, {
+        asSet: true,
+        ignore: [LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE]
+      })
+      return testNpmNodeWorkspacesPackages.filter((n: string) =>
+        testablePackages.has(n)
+      )
+    })()
 
 describe(eco, { skip: !packageNames.length }, () => {
   if (!packageNames.length) {
