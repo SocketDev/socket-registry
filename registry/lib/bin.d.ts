@@ -1,6 +1,5 @@
-import { Options as WhichOptions } from 'which'
-
-import { SpawnOptions } from './spawn'
+import type { SpawnOptions } from './spawn'
+import type { Options as WhichOptions } from 'which'
 
 declare const Bin: {
   resolveBinPathSync(binPath: string): string

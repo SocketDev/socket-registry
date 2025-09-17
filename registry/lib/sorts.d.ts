@@ -1,4 +1,4 @@
-import { IFastSort } from 'fast-sort'
+import type { IFastSort } from 'fast-sort'
 
 declare const Sorts: {
   localeCompare: Intl.Collator['compare']

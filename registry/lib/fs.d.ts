@@ -1,8 +1,6 @@
 /// <reference types="node" />
-import NPMCliPackageJson from '@npmcli/package-json'
-
-import { Remap } from './objects'
-
+import type { Remap } from './objects'
+import type NPMCliPackageJson from '@npmcli/package-json'
 import type { Abortable } from 'node:events'
 import type {
   BigIntStats,

@@ -1,5 +1,7 @@
-import NPMCliPackageJson from '@npmcli/package-json'
-import {
+import type { Remap } from './objects'
+import type { CategoryString } from '../index'
+import type NPMCliPackageJson from '@npmcli/package-json'
+import type {
   AbbreviatedPackument as BaseAbbreviatedPackument,
   Packument as BaseFullPackument,
   Options as BasePacoteOptions,
@@ -7,9 +9,6 @@ import {
   manifest,
   tarball
 } from 'pacote'
-
-import { CategoryString } from '../index'
-import { Remap } from './objects'
 
 declare namespace Packages {
   export type AbbreviatedPackument = Remap<
