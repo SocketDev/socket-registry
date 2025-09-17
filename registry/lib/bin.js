@@ -337,10 +337,16 @@ function resolveBinPathSync(binPath) {
         // Get the base path up to /.bin/pnpm.
         const baseBinPath = binPath.slice(0, binIndex + '/.bin/pnpm'.length)
         // Check if the original shell script exists.
-        if (fs.existsSync(baseBinPath)) {
-          binPath = baseBinPath
-          // Recompute hasNoExt since we changed the path.
-          hasNoExt = !path.extname(binPath)
+        try {
+          const stats = fs.statSync(baseBinPath)
+          // Only use this path if it's a file (the shell script).
+          if (stats.isFile()) {
+            binPath = baseBinPath
+            // Recompute hasNoExt since we changed the path.
+            hasNoExt = !path.extname(binPath)
+          }
+        } catch {
+          // If stat fails, continue with the original path.
         }
       }
     }
@@ -373,7 +379,15 @@ function resolveBinPathSync(binPath) {
       }
     }
   }
-  return fs.realpathSync.native(binPath)
+  try {
+    return fs.realpathSync.native(binPath)
+  } catch (error) {
+    // Provide more context when realpath fails.
+    if (error.code === 'ENOTDIR') {
+      throw new Error(`Path resolution failed - not a directory: ${binPath}`)
+    }
+    throw error
+  }
 }
 
 /*@__NO_SIDE_EFFECTS__*/
