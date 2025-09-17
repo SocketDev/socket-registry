@@ -1,9 +1,8 @@
 diff --git a/dist/commonjs/index.js b/dist/commonjs/index.js
-index 1234567890123456789012345678901234567890..1234567890123456789012345678901234567890 100644
+index 64a0f1f833222e446dcc0fbd59a04aca2328d532..924777527e9ccdeabb7bf6fbab69f0f862d44813 100644
 --- a/dist/commonjs/index.js
 +++ b/dist/commonjs/index.js
-@@ -649,9 +649,10 @@
-             file = this.levelTwoFileOptimize(file);
+@@ -650,7 +650,8 @@ class Minimatch {
          }
          this.debug('matchOne', this, { file, pattern });
          this.debug('matchOne', file.length, pattern.length);
@@ -13,21 +12,11 @@ index 1234567890123456789012345678901234567890..12345678901234567890123456789012
              this.debug('matchOne loop');
              var p = pattern[pi];
              var f = file[fi];
-             this.debug(pattern, p, f);
-@@ -1013,5 +1014,5 @@
- exports.minimatch.AST = ast_js_1.AST;
- exports.minimatch.Minimatch = Minimatch;
- exports.minimatch.escape = escape_js_1.escape;
- exports.minimatch.unescape = unescape_js_1.unescape;
--//# sourceMappingURL=index.js.map
-\ No newline at end of file
-+//# sourceMappingURL=index.js.map
 diff --git a/dist/esm/index.js b/dist/esm/index.js
-index 1234567890123456789012345678901234567890..1234567890123456789012345678901234567890 100644
+index 84b577b0472cb6cb2fe4d5f2a146867fc5bdd8c5..85c0d52b4de726aaef68490b3165d5b517b4a675 100644
 --- a/dist/esm/index.js
 +++ b/dist/esm/index.js
-@@ -637,9 +637,10 @@
-             file = this.levelTwoFileOptimize(file);
+@@ -638,7 +638,8 @@ export class Minimatch {
          }
          this.debug('matchOne', this, { file, pattern });
          this.debug('matchOne', file.length, pattern.length);
@@ -37,12 +26,3 @@ index 1234567890123456789012345678901234567890..12345678901234567890123456789012
              this.debug('matchOne loop');
              var p = pattern[pi];
              var f = file[fi];
-             this.debug(pattern, p, f);
-@@ -997,5 +998,5 @@
- minimatch.AST = AST;
- minimatch.Minimatch = Minimatch;
- minimatch.escape = escape;
- minimatch.unescape = unescape;
--//# sourceMappingURL=index.js.map
-\ No newline at end of file
-+//# sourceMappingURL=index.js.map
