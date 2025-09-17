@@ -2,32 +2,35 @@
 
 const { spawn } = require('node:child_process')
 const path = require('node:path')
-const util = require('node:util')
 
 const constants = require('@socketregistry/scripts/constants')
 
 void (async () => {
   try {
-    // Parse arguments to check for force flag.
-    const { positionals, values: cliArgs } = util.parseArgs({
-      ...constants.parseArgsConfig,
-      args: process.argv.slice(2),
-      allowPositionals: true
-    })
+    // Separate force flag from other arguments.
+    const args = process.argv.slice(2)
+    const forceIndex = args.indexOf('--force')
 
-    // Set environment variable if force flag is present.
-    if (cliArgs.force) {
-      process.env.FORCE_TEST = '1'
+    let hasForce = false
+    if (forceIndex !== -1) {
+      hasForce = true
+      // Remove --force from arguments.
+      args.splice(forceIndex, 1)
+    }
+
+    const spawnEnv = {
+      ...process.env,
+      ...(hasForce ? { FORCE_TEST: '1' } : {})
     }
 
     const vitestPath = path.join(constants.rootPath, 'node_modules/.bin/vitest')
-    // Only pass non-flag arguments to vitest.
-    const args = ['run', ...positionals]
+    // Pass remaining arguments to vitest.
+    const vitestArgs = ['run', ...args]
 
-    const child = spawn(vitestPath, args, {
+    const child = spawn(vitestPath, vitestArgs, {
       cwd: constants.rootPath,
       stdio: 'inherit',
-      env: process.env
+      env: spawnEnv
     })
 
     child.on('exit', code => {
