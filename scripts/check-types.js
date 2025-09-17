@@ -24,13 +24,6 @@ void (async () => {
 
   console.log(`Checking ${dtsPaths.length} TypeScript declaration files...`)
 
-  // Show the files being checked.
-  for (const dtsPath of dtsPaths) {
-    console.log(`  - ${path.relative(rootDir, dtsPath)}`)
-  }
-
-  console.log('')
-
   // Run tsc on the filtered files.
   const result = spawnSync(
     'npx',
