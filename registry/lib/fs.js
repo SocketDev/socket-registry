@@ -1,5 +1,6 @@
 'use strict'
 
+const { isArray: ArrayIsArray } = Array
 const { freeze: ObjectFreeze } = Object
 
 const { defaultIgnore, getGlobMatcher } = /*@__PURE__*/ require('./globs')
@@ -35,6 +36,98 @@ function getPath() {
     _path = /*@__PURE__*/ require('path')
   }
   return _path
+}
+
+/**
+ * Find a file or directory by traversing up parent directories.
+ * @param {string | string[]} name - Name(s) to search for.
+ * @param {FindUpOptions} [options] - Search options.
+ * @returns {Promise<string | undefined>} Path to found file/directory.
+ * @typedef {{cwd?: string; onlyDirectories?: boolean; onlyFiles?: boolean; signal?: AbortSignal}} FindUpOptions
+ */
+/*@__NO_SIDE_EFFECTS__*/
+async function findUp(name, options) {
+  const {
+    cwd = process.cwd(),
+    signal = /*@__PURE__*/ require('./constants/abort-signal')
+  } = { __proto__: null, ...options }
+  let { onlyDirectories = false, onlyFiles = true } = {
+    __proto__: null,
+    ...options
+  }
+  if (onlyDirectories) {
+    onlyFiles = false
+  }
+  if (onlyFiles) {
+    onlyDirectories = false
+  }
+  const fs = getFs()
+  const path = getPath()
+  let dir = path.resolve(cwd)
+  const { root } = path.parse(dir)
+  const names = ArrayIsArray(name) ? name : [name]
+  while (dir && dir !== root) {
+    for (const n of names) {
+      if (signal?.aborted) {
+        return undefined
+      }
+      const thePath = path.join(dir, n)
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        const stats = await fs.promises.stat(thePath)
+        if (!onlyDirectories && stats.isFile()) {
+          return thePath
+        }
+        if (!onlyFiles && stats.isDirectory()) {
+          return thePath
+        }
+      } catch {}
+    }
+    dir = path.dirname(dir)
+  }
+  return undefined
+}
+
+/**
+ * Synchronously find a file or directory by traversing up parent directories.
+ * @param {string | string[]} name - Name(s) to search for.
+ * @param {Omit<FindUpOptions, 'signal'>} [options] - Search options.
+ * @returns {string | undefined} Path to found file/directory.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function findUpSync(name, options) {
+  const { cwd = process.cwd() } = { __proto__: null, ...options }
+  let { onlyDirectories = false, onlyFiles = true } = {
+    __proto__: null,
+    ...options
+  }
+  if (onlyDirectories) {
+    onlyFiles = false
+  }
+  if (onlyFiles) {
+    onlyDirectories = false
+  }
+  const fs = getFs()
+  const path = getPath()
+  let dir = path.resolve(cwd)
+  const { root } = path.parse(dir)
+  const names = ArrayIsArray(name) ? name : [name]
+  while (dir && dir !== root) {
+    for (const n of names) {
+      const thePath = path.join(dir, n)
+      try {
+        const stats = fs.statSync(thePath)
+        if (!onlyDirectories && stats.isFile()) {
+          return thePath
+        }
+        if (!onlyFiles && stats.isDirectory()) {
+          return thePath
+        }
+      } catch {}
+    }
+    dir = path.dirname(dir)
+  }
+  return undefined
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -320,15 +413,17 @@ function writeJsonSync(filepath, jsonContent, options) {
 }
 
 module.exports = {
+  findUp,
+  findUpSync,
   isDirSync,
   isDirEmptySync,
   isSymLinkSync,
+  readDirNames,
+  readDirNamesSync,
   readFileBinary,
   readFileUtf8,
   readJson,
   readJsonSync,
-  readDirNames,
-  readDirNamesSync,
   remove,
   removeSync,
   safeReadFile,
