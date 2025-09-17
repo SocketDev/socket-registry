@@ -254,26 +254,36 @@ function isNpmFundFlag(cmdArg) {
   return npmFundFlags.has(cmdArg)
 }
 
-/*@__NO_SIDE_EFFECTS__*/
 /**
- * Check if a command argument is an npm node-options flag.
+ * Check if a command argument is an npm loglevel flag.
  * @param {string} cmdArg - The command argument to check.
- * @returns {boolean} True if the argument is a node-options flag.
+ * @returns {boolean} True if the argument is a loglevel flag.
  */
+/*@__NO_SIDE_EFFECTS__*/
 function isNpmLoglevelFlag(cmdArg) {
   // https://docs.npmjs.com/cli/v11/using-npm/logging#setting-log-levels
   return cmdArg.startsWith('--loglevel=') || npmLogFlags.has(cmdArg)
 }
 
+/**
+ * Check if a command argument is an npm node-options flag.
+ * @param {string} cmdArg - The command argument to check.
+ * @returns {boolean} True if the argument is a node-options flag.
+ */
 /*@__NO_SIDE_EFFECTS__*/
+function isNpmNodeOptionsFlag(cmdArg) {
+  // https://docs.npmjs.com/cli/v9/using-npm/config#node-options
+  return cmdArg.startsWith('--node-options=')
+}
+
 /**
  * Check if a command argument is an npm progress flag.
  * @param {string} cmdArg - The command argument to check.
  * @returns {boolean} True if the argument is a progress flag.
  */
-function isNpmNodeOptionsFlag(cmdArg) {
-  // https://docs.npmjs.com/cli/v9/using-npm/config#node-options
-  return cmdArg.startsWith('--node-options=')
+/*@__NO_SIDE_EFFECTS__*/
+function isNpmProgressFlag(cmdArg) {
+  return npmProgressFlags.has(cmdArg)
 }
 
 /**
@@ -282,8 +292,8 @@ function isNpmNodeOptionsFlag(cmdArg) {
  * @returns {boolean} True if the argument is an ignore-scripts flag.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function isNpmProgressFlag(cmdArg) {
-  return npmProgressFlags.has(cmdArg)
+function isPnpmIgnoreScriptsFlag(cmdArg) {
+  return pnpmIgnoreScriptsFlags.has(cmdArg)
 }
 
 /**
@@ -295,11 +305,6 @@ function isNpmProgressFlag(cmdArg) {
  * @returns {Promise<{ stdout: string; stderr: string }>} Command output.
  * @typedef {import('./objects').Remap<import('./spawn').SpawnOptions & {prepost?: boolean}>} ExecScriptOptions
  */
-/*@__NO_SIDE_EFFECTS__*/
-function isPnpmIgnoreScriptsFlag(cmdArg) {
-  return pnpmIgnoreScriptsFlags.has(cmdArg)
-}
-
 /*@__NO_SIDE_EFFECTS__*/
 function execScript(scriptName, args, options) {
   const { prepost, ...spawnOptions } = { __proto__: null, ...options }

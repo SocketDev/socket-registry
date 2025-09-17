@@ -37,6 +37,11 @@ const identSymbol = Symbol.for('indent')
 const newlineSymbol = Symbol.for('newline')
 
 let _cacache
+/**
+ * Get the cacache module for cache operations.
+ * @returns {Object} The cacache module.
+ * @private
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getCacache() {
   if (_cacache === undefined) {
@@ -46,6 +51,11 @@ function getCacache() {
 }
 
 let _EditablePackageJsonClass
+/**
+ * Get the EditablePackageJson class for package.json manipulation.
+ * @returns {Class} The EditablePackageJson class.
+ * @private
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getEditablePackageJsonClass() {
   if (_EditablePackageJsonClass === undefined) {
@@ -461,6 +471,11 @@ function getValidateNpmPackageName() {
   return _validateNpmPackageName
 }
 
+/**
+ * Collect licenses that are incompatible (copyleft).
+ * @param {Object[]} licenseNodes - Array of license nodes.
+ * @returns {Object[]} Array of incompatible license nodes.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function collectIncompatibleLicenses(licenseNodes) {
   const result = []
@@ -473,6 +488,11 @@ function collectIncompatibleLicenses(licenseNodes) {
   return result
 }
 
+/**
+ * Collect warnings from license nodes.
+ * @param {Object[]} licenseNodes - Array of license nodes.
+ * @returns {string[]} Array of warning messages.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function collectLicenseWarnings(licenseNodes) {
   const warnings = new Map()
@@ -488,6 +508,11 @@ function collectLicenseWarnings(licenseNodes) {
   return [...warnings.values()]
 }
 
+/**
+ * Create an AST node from a raw node.
+ * @param {Object} rawNode - Raw node data.
+ * @returns {Object} AST node.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function createAstNode(rawNode) {
   return ObjectHasOwn(rawNode, 'license')
@@ -495,6 +520,11 @@ function createAstNode(rawNode) {
     : createBinaryOperationNode(rawNode)
 }
 
+/**
+ * Create a binary operation AST node.
+ * @param {Object} rawNode - Raw node with left, right, and conjunction.
+ * @returns {Object} Binary operation node.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function createBinaryOperationNode(rawNode) {
   let left
@@ -523,11 +553,23 @@ function createBinaryOperationNode(rawNode) {
   }
 }
 
+/**
+ * Create a license AST node.
+ * @param {Object} rawNode - Raw license node data.
+ * @returns {Object} License node.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function createLicenseNode(rawNode) {
   return { __proto__: null, ...rawNode, type: LICENSE_NODE_TYPE }
 }
 
+/**
+ * Create a package.json object for a Socket registry package.
+ * @param {string} sockRegPkgName - Socket registry package name.
+ * @param {string} directory - Directory path.
+ * @param {Object} [options] - Creation options.
+ * @returns {Object} Package.json object.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function createPackageJson(sockRegPkgName, directory, options) {
   const {
@@ -606,6 +648,13 @@ function createPackageJson(sockRegPkgName, directory, options) {
   }
 }
 
+/**
+ * Extract a package to a destination directory.
+ * @param {string} pkgNameOrId - Package name or identifier.
+ * @param {Object} [options] - Extraction options.
+ * @param {Function} [callback] - Callback to execute after extraction.
+ * @returns {Promise<void>} Resolves when extraction is complete.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 async function extractPackage(pkgNameOrId, options, callback) {
   if (arguments.length === 2 && typeof options === 'function') {
@@ -645,6 +694,12 @@ async function extractPackage(pkgNameOrId, options, callback) {
   }
 }
 
+/**
+ * Fetch the manifest for a package.
+ * @param {string} pkgNameOrId - Package name or identifier.
+ * @param {Object} [options] - Fetch options.
+ * @returns {Promise<Object|null>} Package manifest or null if failed.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 async function fetchPackageManifest(pkgNameOrId, options) {
   const pacoteOptions = {
@@ -679,6 +734,12 @@ async function fetchPackageManifest(pkgNameOrId, options) {
     : null
 }
 
+/**
+ * Fetch the packument (package document) for a package.
+ * @param {string} pkgNameOrId - Package name or identifier.
+ * @param {Object} [options] - Fetch options.
+ * @returns {Promise<Object|null>} Package packument or null if failed.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 async function fetchPackagePackument(pkgNameOrId, options) {
   const pacote = getPacote()
@@ -694,6 +755,12 @@ async function fetchPackagePackument(pkgNameOrId, options) {
   return null
 }
 
+/**
+ * Find package extensions for a given package.
+ * @param {string} pkgName - Package name.
+ * @param {string} pkgVer - Package version.
+ * @returns {Object} Package extensions.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function findPackageExtensions(pkgName, pkgVer) {
   let result
@@ -715,6 +782,12 @@ function findPackageExtensions(pkgName, pkgVer) {
   return result
 }
 
+/**
+ * Find types for a subpath in package exports.
+ * @param {Object} entryExports - Package exports object.
+ * @param {string} subpath - Subpath to find types for.
+ * @returns {string|undefined} Types path if found.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function findTypesForSubpath(entryExports, subpath) {
   const queue = [entryExports]
@@ -752,12 +825,22 @@ function findTypesForSubpath(entryExports, subpath) {
   return undefined
 }
 
+/**
+ * Get the release tag for a version.
+ * @param {string} version - Version string.
+ * @returns {string} Release tag.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getReleaseTag(version) {
   const semver = getSemver()
   return semver.prerelease(version)?.join('.') ?? 'latest'
 }
 
+/**
+ * Extract details from a repository URL.
+ * @param {string} [repoUrl=''] - Repository URL.
+ * @returns {Object} Repository details with host, user, and project.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getRepoUrlDetails(repoUrl = '') {
   const userAndRepo = repoUrl.replace(/^.+github.com\//, '').split('/')
@@ -767,6 +850,11 @@ function getRepoUrlDetails(repoUrl = '') {
   return { user, project }
 }
 
+/**
+ * Get subpaths from package exports.
+ * @param {Object} entryExports - Package exports object.
+ * @returns {string[]} Array of subpaths.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getSubpaths(entryExports) {
   const result = []

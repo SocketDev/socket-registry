@@ -7,6 +7,11 @@ const slashRegExp = /[/\\]/
 const nodeModulesPathRegExp = /(?:^|[/\\])node_modules(?:[/\\]|$)/
 
 let _buffer
+/**
+ * Lazily load the buffer module.
+ * @returns {import('buffer')} The Node.js buffer module.
+ * @private
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getBuffer() {
   if (_buffer === undefined) {
@@ -18,6 +23,11 @@ function getBuffer() {
 }
 
 let _path
+/**
+ * Lazily load the path module.
+ * @returns {import('path')} The Node.js path module.
+ * @private
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getPath() {
   if (_path === undefined) {
@@ -29,6 +39,11 @@ function getPath() {
 }
 
 let _url
+/**
+ * Lazily load the url module.
+ * @returns {import('url')} The Node.js url module.
+ * @private
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getUrl() {
   if (_url === undefined) {
@@ -39,17 +54,32 @@ function getUrl() {
   return _url
 }
 
+/**
+ * Check if a path contains node_modules directory.
+ * @param {string | Buffer | URL} pathLike - The path to check.
+ * @returns {boolean} True if the path contains node_modules.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function isNodeModules(pathLike) {
   const filepath = pathLikeToString(pathLike)
   return nodeModulesPathRegExp.test(filepath)
 }
 
+/**
+ * Check if a value is a valid file path (absolute or relative).
+ * @param {any} pathLike - The value to check.
+ * @returns {boolean} True if the value is a valid path.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function isPath(pathLike) {
   return isRelative(pathLike) || getPath().isAbsolute(pathLike)
 }
 
+/**
+ * Check if a path is relative (starts with . or ..).
+ * @param {any} pathLike - The path to check.
+ * @returns {boolean} True if the path is relative.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function isRelative(pathLike) {
   const filepath = pathLikeToString(pathLike)
@@ -73,6 +103,11 @@ function isRelative(pathLike) {
   return false
 }
 
+/**
+ * Normalize a path by converting backslashes to forward slashes and collapsing segments.
+ * @param {string | Buffer | URL} pathLike - The path to normalize.
+ * @returns {string} The normalized path.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function normalizePath(pathLike) {
   const filepath = pathLikeToString(pathLike)
@@ -142,6 +177,11 @@ function normalizePath(pathLike) {
   return prefix + collapsed
 }
 
+/**
+ * Convert a path-like value to a string.
+ * @param {string | Buffer | URL | any} pathLike - The path-like value to convert.
+ * @returns {string} The path as a string.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function pathLikeToString(pathLike) {
   if (typeof pathLike === 'string') {
@@ -158,12 +198,22 @@ function pathLikeToString(pathLike) {
   return String(pathLike)
 }
 
+/**
+ * Split a path into an array of segments.
+ * @param {string | Buffer | URL} pathLike - The path to split.
+ * @returns {string[]} Array of path segments.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function splitPath(pathLike) {
   const filepath = pathLikeToString(pathLike)
   return filepath.split(slashRegExp)
 }
 
+/**
+ * Remove leading ./ or ../ from a path.
+ * @param {string | Buffer | URL} pathLike - The path to trim.
+ * @returns {string} The path without leading dot-slash.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function trimLeadingDotSlash(pathLike) {
   const filepath = pathLikeToString(pathLike)
