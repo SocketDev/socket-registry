@@ -199,6 +199,18 @@ const constants = createConstantsObject(
     npmPackagesPath: undefined,
     npmTemplatesPath: undefined,
     npmTemplatesReadmePath: undefined,
+    parseArgsConfig: {
+      options: {
+        force: {
+          type: 'boolean',
+          short: 'f'
+        },
+        quiet: {
+          type: 'boolean'
+        }
+      },
+      strict: false
+    },
     perfNpmPath: undefined,
     perfNpmFixturesPath: undefined,
     registryExtensionsJsonPath: undefined,
