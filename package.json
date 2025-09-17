@@ -126,10 +126,7 @@
   "pnpm": {
     "overrides": {
       "aggregate-error": "npm:@socketregistry/aggregate-error@^1",
-      "ansi-regex": "6.1.0",
       "brace-expansion": "2.0.2",
-      "iconv-lite": "0.6.3",
-      "minimatch": "9.0.5",
       "array-buffer-byte-length": "npm:@socketregistry/array-buffer-byte-length@^1",
       "available-typed-arrays": "npm:@socketregistry/available-typed-arrays@^1",
       "es-define-property": "npm:@socketregistry/es-define-property@^1",
@@ -142,6 +139,7 @@
       "has-symbols": "npm:@socketregistry/has-symbols@^1",
       "has-tostringtag": "npm:@socketregistry/has-tostringtag@^1",
       "hasown": "npm:@socketregistry/hasown@^1",
+      "iconv-lite": "0.6.3",
       "indent-string": "npm:@socketregistry/indent-string@^1",
       "is-arguments": "npm:@socketregistry/is-arguments@^1",
       "is-array-buffer": "npm:@socketregistry/is-array-buffer@^1",
@@ -158,6 +156,7 @@
       "object-is": "npm:@socketregistry/object-is@^1",
       "object-keys": "npm:@socketregistry/object-keys@^1",
       "object.assign": "npm:@socketregistry/object.assign@^1",
+      "minimatch": "9.0.5",
       "path-parse": "npm:@socketregistry/path-parse@^1",
       "regexp.prototype.flags": "npm:@socketregistry/regexp.prototype.flags@^1",
       "safe-regex-test": "npm:@socketregistry/safe-regex-test@^1",
