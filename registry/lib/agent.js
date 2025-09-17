@@ -7,37 +7,9 @@ const {
   whichBinSync
 } = /*@__PURE__*/ require('./bin')
 const { isDebug } = /*@__PURE__*/ require('./debug')
+const { findUpSync } = /*@__PURE__*/ require('./fs')
+const { getOwn } = /*@__PURE__*/ require('./objects')
 const { spawn } = /*@__PURE__*/ require('./spawn')
-
-let _fs
-/**
- * Lazily load the fs module to avoid Webpack errors.
- * @returns {import('fs')} The Node.js fs module.
- */
-/*@__NO_SIDE_EFFECTS__*/
-function getFs() {
-  if (_fs === undefined) {
-    // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _fs = /*@__PURE__*/ require('fs')
-  }
-  return _fs
-}
-
-let _path
-/**
- * Lazily load the path module to avoid Webpack errors.
- * @returns {import('path')} The Node.js path module.
- */
-/*@__NO_SIDE_EFFECTS__*/
-function getPath() {
-  if (_path === undefined) {
-    // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _path = /*@__PURE__*/ require('path')
-  }
-  return _path
-}
 
 const npmAuditFlags = new Set(['--audit', '--no-audit'])
 
@@ -311,25 +283,22 @@ function execScript(scriptName, args, options) {
   const useNodeRun =
     !prepost && /*@__PURE__*/ require('./constants/supports-node-run')
 
-  // Detect package manager based on lockfile in the current package.
-  // Only check the immediate directory with package.json, not parents.
-  const fs = getFs()
-  const path = getPath()
-  const cwd = spawnOptions.cwd || process.cwd()
+  // Detect package manager based on lockfile by traversing up from current directory.
+  const cwd = getOwn(spawnOptions, 'cwd') ?? process.cwd()
 
-  // Check for pnpm-lock.yaml in the same directory as package.json.
+  // Check for pnpm-lock.yaml.
   const PNPM_LOCK_YAML = /*@__PURE__*/ require('./constants/pnpm-lock-yaml')
-  const usePnpm = fs.existsSync(path.join(cwd, PNPM_LOCK_YAML))
+  const pnpmLockPath = findUpSync(PNPM_LOCK_YAML, { cwd })
 
-  if (usePnpm) {
+  if (pnpmLockPath) {
     return execPnpm(['run', scriptName, ...args], spawnOptions)
   }
 
-  // Check for yarn.lock in the same directory as package.json.
+  // Check for yarn.lock.
   const YARN_LOCK = /*@__PURE__*/ require('./constants/yarn-lock')
-  const useYarn = fs.existsSync(path.join(cwd, YARN_LOCK))
+  const yarnLockPath = findUpSync(YARN_LOCK, { cwd })
 
-  if (useYarn) {
+  if (yarnLockPath) {
     return execYarn(['run', scriptName, ...args], spawnOptions)
   }
 
