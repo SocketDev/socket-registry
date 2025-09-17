@@ -28,4 +28,4 @@ jobs:
           node-version: '22'
 
       - name: Run linting
-        run: pnpm run check
+        run: pnpm run check-ci
