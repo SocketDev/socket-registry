@@ -30,6 +30,12 @@ declare type BufferEncoding =
   | 'utf-16le'
   | 'ucs2'
   | 'ucs-2'
+declare type FindUpOptions = {
+  cwd?: string | undefined
+  onlyDirectories?: boolean | undefined
+  onlyFiles?: boolean | undefined
+  signal?: AbortSignal | undefined
+}
 declare type IsDirEmptyOptions = {
   ignore?: string[] | readonly string[] | undefined
 }
@@ -63,6 +69,14 @@ declare type WriteJsonOptions = Remap<
   }
 >
 declare const Fs: {
+  findUp(
+    name: string | string[],
+    options?: FindUpOptions | undefined
+  ): Promise<string | undefined>
+  findUpSync(
+    name: string | string[],
+    options?: Omit<FindUpOptions, 'signal'> | undefined
+  ): string | undefined
   isDirSync: (filepath: PathLike) => boolean
   isDirEmptySync: (
     dirname: PathLike,
@@ -155,10 +169,11 @@ declare const Fs: {
 declare namespace Fs {
   export {
     BufferEncoding,
+    FindUpOptions,
     JsonContent,
+    ReadDirOptions,
     ReadFileOptions,
     ReadJsonOptions,
-    ReadDirOptions,
     WriteJsonOptions
   }
 }
