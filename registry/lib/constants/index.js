@@ -94,6 +94,8 @@ const props = {
   TEMPLATE_ES_SHIM_STATIC_METHOD: 'es-shim-static-method',
   TSCONFIG_JSON: 'tsconfig.json',
   UNDEFINED_TOKEN: undefined,
+  UNKNOWN_ERROR: 'Unknown error',
+  UNKNOWN_VALUE: '<unknown>',
   UNLICENCED: 'UNLICENCED',
   UNLICENSED: 'UNLICENSED',
   UTF8: 'utf8',
