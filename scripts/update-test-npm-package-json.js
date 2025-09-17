@@ -115,13 +115,15 @@ async function installTestNpmNodeModules(options) {
     await trash(pathsToTrash)
   }
   // Use pnpm since test/npm is now a pnpm workspace.
+  // In CI, we want to see pnpm errors if they occur.
+  const stdio = constants.ENV.CI ? 'inherit' : 'ignore'
   return await execPnpm(
     [
       'install',
       '--ignore-scripts',
       ...(Array.isArray(specs) ? ['--save-dev', '--save-exact', ...specs] : [])
     ],
-    { cwd: testNpmPath, stdio: 'ignore' }
+    { cwd: testNpmPath, stdio }
   )
 }
 
