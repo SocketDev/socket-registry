@@ -36,7 +36,6 @@ const defaultIgnore = ObjectFreeze([
   '**/.eslintcache',
   '**/.nvm',
   '**/.tap',
-  '**/.tapci.yaml',
   '**/.vscode',
   '**/*.tsbuildinfo',
   '**/Thumbs.db',
