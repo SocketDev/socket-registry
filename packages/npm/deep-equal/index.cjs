@@ -8,10 +8,12 @@ const nodeUtil = /*@__PURE__*/ require('util')
 const isDeepStrictEqual = nodeUtil.isDeepStrictEqual
 
 module.exports = function deepEqual(value1, value2, options) {
+  if ({ __proto__: null, ...options }.strict) {
+    return isDeepStrictEqual(value1, value2)
+  }
   try {
-    return { __proto__: null, ...options }.strict
-      ? isDeepStrictEqual(value1, value2)
-      : assertIsDeepEqual(value1, value2)
+    assertIsDeepEqual(value1, value2)
+    return true
   } catch {}
   return false
 }
