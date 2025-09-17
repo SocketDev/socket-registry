@@ -332,7 +332,14 @@ function resolveBinPathSync(binPath) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function runBin(binPath, args, options) {
+/**
+ * Execute a binary with the given arguments.
+ * @param {string} binPath - Path or name of the binary to execute.
+ * @param {string[] | readonly string[]} args - Arguments to pass to the binary.
+ * @param {import('./spawn').SpawnOptions} [options] - Spawn options.
+ * @returns {Promise<{ stdout: string; stderr: string }>} Command output.
+ */
+function execBin(binPath, args, options) {
   return spawn(
     /*@__PURE__*/ require('./constants/exec-path'),
     [
@@ -358,8 +365,8 @@ function whichBinSync(binName, options) {
 }
 
 module.exports = {
+  execBin,
   resolveBinPathSync,
-  runBin,
   whichBin,
   whichBinSync
 }

@@ -1,8 +1,8 @@
 'use strict'
 
 const {
+  execBin,
   resolveBinPathSync,
-  runBin,
   whichBin,
   whichBinSync
 } = /*@__PURE__*/ require('./bin')
@@ -104,21 +104,45 @@ function execPnpm(args, options) {
     terminatorPos === -1 ? args : args.slice(0, terminatorPos)
   ).filter(a => !isNpmProgressFlag(a))
   const otherArgs = terminatorPos === -1 ? [] : args.slice(terminatorPos)
-  const logLevelArgs =
-    // pnpm uses similar loglevel settings as npm
-    useDebug || pnpmArgs.some(isNpmLoglevelFlag) ? [] : ['--loglevel', 'warn']
-  // Check if --ignore-scripts or --no-ignore-scripts is already present
-  const hasIgnoreScriptsFlag = pnpmArgs.some(isPnpmIgnoreScriptsFlag)
-  const ignoreScriptsArgs = hasIgnoreScriptsFlag ? [] : ['--ignore-scripts']
 
-  return runBin(
+  const firstArg = pnpmArgs[0]
+  // Commands that support --ignore-scripts flag:
+  // Installation-related: install, add, update, remove, link, unlink, import, rebuild.
+  const installationCommands = new Set([
+    'install',
+    'i',
+    'add',
+    'update',
+    'up',
+    'remove',
+    'rm',
+    'link',
+    'ln',
+    'unlink',
+    'import',
+    'rebuild',
+    'rb'
+  ])
+  const supportsIgnoreScripts = installationCommands.has(firstArg)
+
+  // pnpm uses --loglevel for all commands.
+  const logLevelArgs =
+    useDebug || pnpmArgs.some(isNpmLoglevelFlag) ? [] : ['--loglevel', 'warn']
+
+  // Only add --ignore-scripts for commands that support it.
+  const hasIgnoreScriptsFlag = pnpmArgs.some(isPnpmIgnoreScriptsFlag)
+  const ignoreScriptsArgs =
+    !supportsIgnoreScripts || hasIgnoreScriptsFlag ? [] : ['--ignore-scripts']
+
+  // Note: pnpm doesn't have a --no-progress flag. It uses --reporter instead.
+  // We removed --no-progress as it causes "Unknown option" errors with pnpm.
+
+  return execBin(
     'pnpm',
     [
-      // Add `--no-progress` to fix input being swallowed by the spinner
-      '--no-progress',
-      // Add '--loglevel=warn' if a loglevel flag is not provided and debug is off
+      // Add '--loglevel=warn' if a loglevel flag is not provided and debug is off.
       ...logLevelArgs,
-      // Add '--ignore-scripts' by default for security unless explicitly disabled
+      // Add '--ignore-scripts' by default for security (only for installation commands).
       ...ignoreScriptsArgs,
       ...pnpmArgs,
       ...otherArgs
@@ -138,19 +162,36 @@ function execYarn(args, options) {
     terminatorPos === -1 ? args : args.slice(0, terminatorPos)
   ).filter(a => !isNpmProgressFlag(a))
   const otherArgs = terminatorPos === -1 ? [] : args.slice(terminatorPos)
-  // Yarn uses --silent flag for quieter output
+
+  const firstArg = yarnArgs[0]
+  // Commands that support --ignore-scripts flag in yarn:
+  // Similar to npm/pnpm: installation-related commands.
+  const installationCommands = new Set([
+    'install',
+    'add',
+    'upgrade',
+    'remove',
+    'link',
+    'unlink',
+    'import'
+  ])
+  const supportsIgnoreScripts = installationCommands.has(firstArg)
+
+  // Yarn uses --silent flag for quieter output.
   const logLevelArgs =
     useDebug || yarnArgs.some(isNpmLoglevelFlag) ? [] : ['--silent']
-  // Check if --ignore-scripts is already present
-  const hasIgnoreScriptsFlag = yarnArgs.some(isPnpmIgnoreScriptsFlag)
-  const ignoreScriptsArgs = hasIgnoreScriptsFlag ? [] : ['--ignore-scripts']
 
-  return runBin(
+  // Only add --ignore-scripts for commands that support it.
+  const hasIgnoreScriptsFlag = yarnArgs.some(isPnpmIgnoreScriptsFlag)
+  const ignoreScriptsArgs =
+    !supportsIgnoreScripts || hasIgnoreScriptsFlag ? [] : ['--ignore-scripts']
+
+  return execBin(
     'yarn',
     [
-      // Add '--silent' if a loglevel flag is not provided and debug is off
+      // Add '--silent' if a loglevel flag is not provided and debug is off.
       ...logLevelArgs,
-      // Add '--ignore-scripts' by default for security unless explicitly disabled
+      // Add '--ignore-scripts' by default for security (only for installation commands).
       ...ignoreScriptsArgs,
       ...yarnArgs,
       ...otherArgs
@@ -240,6 +281,7 @@ function execScript(scriptName, args, options) {
 }
 
 module.exports = {
+  execBin,
   execNpm,
   execPnpm,
   execScript,
@@ -251,7 +293,6 @@ module.exports = {
   isNpmProgressFlag,
   isPnpmIgnoreScriptsFlag,
   resolveBinPathSync,
-  runBin,
   whichBin,
   whichBinSync
 }

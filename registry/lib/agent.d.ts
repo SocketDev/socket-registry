@@ -32,7 +32,7 @@ declare const Agent: {
   isNpmProgressFlag(cmdArg: string): boolean
   isPnpmIgnoreScriptsFlag(cmdArg: string): boolean
   resolveBinPathSync(binPath: string): string
-  runBin(
+  execBin(
     binPath: string,
     args: string[] | readonly string[],
     options?: SpawnOptions | undefined

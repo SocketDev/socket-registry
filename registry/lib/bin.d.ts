@@ -2,12 +2,12 @@ import type { SpawnOptions } from './spawn'
 import type { Options as WhichOptions } from 'which'
 
 declare const Bin: {
-  resolveBinPathSync(binPath: string): string
-  runBin(
+  execBin(
     binPath: string,
     args: string[] | readonly string[],
     options?: SpawnOptions | undefined
   ): Promise<{ stdout: string; stderr: string }>
+  resolveBinPathSync(binPath: string): string
   whichBin<T extends WhichOptions>(
     binName: string,
     options: T
