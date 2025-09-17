@@ -21,6 +21,18 @@ declare const Constants: Remap<
     readonly npmPackagesPath: string
     readonly npmTemplatesPath: string
     readonly npmTemplatesReadmePath: string
+    readonly parseArgsConfig: {
+      readonly options: {
+        readonly force: {
+          readonly type: 'boolean'
+          readonly short: 'f'
+        }
+        readonly quiet: {
+          readonly type: 'boolean'
+        }
+      }
+      readonly strict: false
+    }
     readonly perfNpmPath: string
     readonly perfNpmFixturesPath: string
     readonly registryExtensionsJsonPath: string
