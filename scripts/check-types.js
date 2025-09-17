@@ -2,7 +2,10 @@
 
 const { spawnSync } = require('node:child_process')
 const path = require('node:path')
+
 const fastGlob = require('fast-glob')
+
+const constants = require('@socketregistry/scripts/constants')
 
 const rootDir = path.resolve(__dirname, '..')
 
@@ -34,7 +37,7 @@ void (async () => {
     ['tsc', '--noEmit', '--skipLibCheck', ...dtsPaths],
     {
       stdio: 'inherit',
-      shell: true
+      shell: constants.WIN32
     }
   )
 

@@ -1,6 +1,7 @@
 'use strict'
 
 const { spawnSync } = require('node:child_process')
+
 const constants = require('@socketregistry/scripts/constants')
 const { logger } = require('@socketsecurity/registry/lib/logger')
 
@@ -14,7 +15,7 @@ try {
   const result = spawnSync('pnpm', ['up', 'caniuse-lite'], {
     stdio: 'inherit',
     cwd: rootPath,
-    shell: true
+    shell: constants.WIN32
   })
 
   if (result.error) {
