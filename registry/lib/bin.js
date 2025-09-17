@@ -323,22 +323,29 @@ function resolveBinPathSync(binPath) {
     }
   } else {
     // Handle Unix shell scripts (non-Windows platforms)
-    const hasNoExt = extLowered === ''
+    let hasNoExt = extLowered === ''
     const isPnpmOrYarn = basename === 'pnpm' || basename === 'yarn'
     const isNpmOrNpx = basename === 'npm' || basename === 'npx'
 
-    if (hasNoExt && (isPnpmOrYarn || isNpmOrNpx)) {
-      // Handle special case where pnpm path in CI has extra segments.
-      // In setup-pnpm GitHub Action, the path might be malformed like:
-      // /home/runner/setup-pnpm/node_modules/.bin/pnpm/bin/pnpm.cjs
-      if (isPnpmOrYarn && binPath.includes('/.bin/pnpm/bin/pnpm')) {
-        // Extract the correct pnpm bin path.
-        const binIndex = binPath.indexOf('/.bin/pnpm')
-        if (binIndex !== -1) {
-          binPath = binPath.slice(0, binIndex + '/.bin/pnpm'.length)
+    // Handle special case where pnpm path in CI has extra segments.
+    // In setup-pnpm GitHub Action, the path might be malformed like:
+    // /home/runner/setup-pnpm/node_modules/.bin/pnpm/bin/pnpm.cjs
+    if (isPnpmOrYarn && binPath.includes('/.bin/pnpm/bin/')) {
+      // Extract the correct pnpm bin path.
+      const binIndex = binPath.indexOf('/.bin/pnpm')
+      if (binIndex !== -1) {
+        // Get the base path up to /.bin/pnpm.
+        const baseBinPath = binPath.slice(0, binIndex + '/.bin/pnpm'.length)
+        // Check if the original shell script exists.
+        if (fs.existsSync(baseBinPath)) {
+          binPath = baseBinPath
+          // Recompute hasNoExt since we changed the path.
+          hasNoExt = !path.extname(binPath)
         }
       }
+    }
 
+    if (hasNoExt && (isPnpmOrYarn || isNpmOrNpx)) {
       const source = fs.readFileSync(binPath, 'utf8')
       let relPath = ''
 
