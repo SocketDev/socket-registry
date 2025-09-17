@@ -14,7 +14,7 @@ const constants = require('@socketregistry/scripts/constants')
 const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
 const { isSymLinkSync, uniqueSync } = require('@socketsecurity/registry/lib/fs')
 const { logger } = require('@socketsecurity/registry/lib/logger')
-const { execNpm } = require('@socketsecurity/registry/lib/agent')
+const { execPnpm } = require('@socketsecurity/registry/lib/agent')
 const { merge, objectEntries } = require('@socketsecurity/registry/lib/objects')
 const {
   extractPackage,
@@ -49,8 +49,7 @@ const {
   testNpmNodeModulesPath,
   testNpmNodeWorkspacesPath,
   testNpmPath,
-  testNpmPkgJsonPath,
-  testNpmPkgLockPath
+  testNpmPkgJsonPath
 } = constants
 
 const { values: cliArgs } = util.parseArgs(
@@ -101,7 +100,8 @@ async function installTestNpmNodeModules(options) {
   const { clean, specs } = { __proto__: null, ...options }
   const pathsToTrash = []
   if (clean) {
-    pathsToTrash.push(testNpmPkgLockPath, testNpmNodeModulesPath)
+    // Only clean node_modules, not lockfiles since we use pnpm now.
+    pathsToTrash.push(testNpmNodeModulesPath)
   }
   if (clean === 'deep') {
     const deepPaths = await glob([NODE_MODULES_GLOB_RECURSIVE], {
@@ -114,7 +114,8 @@ async function installTestNpmNodeModules(options) {
   if (pathsToTrash.length) {
     await trash(pathsToTrash)
   }
-  return await execNpm(
+  // Use pnpm since test/npm is now a pnpm workspace.
+  return await execPnpm(
     [
       'install',
       '--ignore-scripts',
@@ -625,7 +626,25 @@ async function cleanupNodeWorkspaces(linkedPackageNames, options) {
         }
       )
       if (unnecessaryPaths.length) {
-        await trash(unnecessaryPaths)
+        try {
+          await trash(unnecessaryPaths)
+        } catch {
+          // Fallback to fs.rm if trash fails (e.g., for .github directories on macOS).
+          await pEach(
+            unnecessaryPaths,
+            async p => {
+              try {
+                await fs.rm(p, { recursive: true, force: true })
+              } catch (rmError) {
+                // Log but don't fail if we can't remove a file.
+                if (rmError.code !== 'ENOENT') {
+                  spinner?.warn(`Failed to remove ${p}: ${rmError.message}`)
+                }
+              }
+            },
+            { concurrency: 3 }
+          )
+        }
       }
       // Move override package from test/npm/node_modules/ to test/npm/node_workspaces/
       await move(srcPath, destPath, { overwrite: true })
