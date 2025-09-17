@@ -6,10 +6,7 @@ settings:
 
 overrides:
   aggregate-error: npm:@socketregistry/aggregate-error@^1
-  ansi-regex: 6.1.0
   brace-expansion: 2.0.2
-  iconv-lite: 0.6.3
-  minimatch: 9.0.5
   array-buffer-byte-length: npm:@socketregistry/array-buffer-byte-length@^1
   available-typed-arrays: npm:@socketregistry/available-typed-arrays@^1
   es-define-property: npm:@socketregistry/es-define-property@^1
@@ -22,6 +19,7 @@ overrides:
   has-symbols: npm:@socketregistry/has-symbols@^1
   has-tostringtag: npm:@socketregistry/has-tostringtag@^1
   hasown: npm:@socketregistry/hasown@^1
+  iconv-lite: 0.6.3
   indent-string: npm:@socketregistry/indent-string@^1
   is-arguments: npm:@socketregistry/is-arguments@^1
   is-array-buffer: npm:@socketregistry/is-array-buffer@^1
@@ -38,6 +36,7 @@ overrides:
   object-is: npm:@socketregistry/object-is@^1
   object-keys: npm:@socketregistry/object-keys@^1
   object.assign: npm:@socketregistry/object.assign@^1
+  minimatch: 9.0.5
   path-parse: npm:@socketregistry/path-parse@^1
   regexp.prototype.flags: npm:@socketregistry/regexp.prototype.flags@^1
   safe-regex-test: npm:@socketregistry/safe-regex-test@^1
@@ -54,7 +53,7 @@ patchedDependencies:
     hash: eac47f4a81cd7be766bd391c6bf91ac462816eb2f3c5f99270419ac752d6f02d
     path: patches/brace-expansion@2.0.2.patch
   iconv-lite@0.6.3:
-    hash: 4a1c38f927b6e883e94002ac122d377708cd7f1d5f6592756517defb8343c053
+    hash: ace5bc78beaaed0e8584c45ef917f0204bd698f4516bc83e8996137854875f06
     path: patches/iconv-lite@0.6.3.patch
   minimatch@9.0.5:
     hash: 5ba6ef947d5f7b176eb7fcfe274a11e6d0a1a8bde7ae1cb7e939295aad0e8ec1
@@ -2216,6 +2215,10 @@ packages:
   ansi-escapes@7.1.0:
     resolution: {integrity: sha512-YdhtCd19sKRKfAAUsrcC1wzm4JuzJoiX4pOJqIoW2qmKj5WzG/dL8uUJ0361zaXtHqK7gEhOwtAtz7t3Yq3X5g==}
     engines: {node: '>=18'}
+
+  ansi-regex@5.0.1:
+    resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
+    engines: {node: '>=8'}
 
   ansi-regex@6.1.0:
     resolution: {integrity: sha512-7HSX4QQb4CspciLpVFwyRe79O3xsIZDDLER21kERQ71oaPodF8jL725AgJMFAYbooIqolJoRLuM81SpeUkpkvA==}
@@ -5696,6 +5699,8 @@ snapshots:
     dependencies:
       environment: 1.1.0
 
+  ansi-regex@5.0.1: {}
+
   ansi-regex@6.1.0: {}
 
   ansi-styles@4.3.0:
@@ -6005,7 +6010,7 @@ snapshots:
 
   encoding@0.1.13:
     dependencies:
-      iconv-lite: 0.6.3(patch_hash=4a1c38f927b6e883e94002ac122d377708cd7f1d5f6592756517defb8343c053)
+      iconv-lite: 0.6.3(patch_hash=ace5bc78beaaed0e8584c45ef917f0204bd698f4516bc83e8996137854875f06)
     optional: true
 
   end-of-stream@1.4.5:
@@ -6507,7 +6512,7 @@ snapshots:
 
   husky@9.1.7: {}
 
-  iconv-lite@0.6.3(patch_hash=4a1c38f927b6e883e94002ac122d377708cd7f1d5f6592756517defb8343c053):
+  iconv-lite@0.6.3(patch_hash=ace5bc78beaaed0e8584c45ef917f0204bd698f4516bc83e8996137854875f06):
     dependencies:
       safer-buffer: '@socketregistry/safer-buffer@1.0.9'
     optional: true
@@ -7504,7 +7509,7 @@ snapshots:
 
   strip-ansi@6.0.1:
     dependencies:
-      ansi-regex: 6.1.0
+      ansi-regex: 5.0.1
 
   strip-ansi@7.1.2:
     dependencies:
