@@ -26,7 +26,7 @@
     "clean:node_modules": "del-cli '**/node_modules'",
     "build": "run-p -c --aggregate-output build:*",
     "build:registry": "dotenvx -q run -f .env.local -- pnpm --filter registry run build",
-    "fix": "npm run lint:fix",
+    "fix": "pnpm run lint:fix",
     "knip:dependencies": "knip --dependencies",
     "knip:exports": "knip --include exports,duplicates",
     "lint": "dotenvx -q run -f .env.local -- oxlint -c=.oxlintrc.json --ignore-path=.oxlintignore --tsconfig=tsconfig.json .",
@@ -119,8 +119,8 @@
   },
   "lint-staged": {
     "*.{cjs,cts,js,json,md,mjs,mts,ts}": [
-      "npm run lint:fix:oxlint",
-      "npm run lint:fix:biome -- --no-errors-on-unmatched --files-ignore-unknown=true --colors=off"
+      "pnpm run lint:fix:oxlint",
+      "pnpm run lint:fix:biome -- --no-errors-on-unmatched --files-ignore-unknown=true --colors=off"
     ]
   },
   "pnpm": {
