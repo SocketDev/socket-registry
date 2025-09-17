@@ -5,6 +5,10 @@ const { isPath } = /*@__PURE__*/ require('./path')
 const { spawn } = /*@__PURE__*/ require('./spawn')
 
 let _fs
+/**
+ * Lazily load the fs module to avoid Webpack errors.
+ * @returns {import('fs')} The Node.js fs module.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getFs() {
   if (_fs === undefined) {
@@ -16,6 +20,10 @@ function getFs() {
 }
 
 let _path
+/**
+ * Lazily load the path module to avoid Webpack errors.
+ * @returns {import('path')} The Node.js path module.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getPath() {
   if (_path === undefined) {
@@ -27,6 +35,10 @@ function getPath() {
 }
 
 let _which
+/**
+ * Lazily load the which module for finding executables.
+ * @returns {import('which')} The which module.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getWhich() {
   if (_which === undefined) {
@@ -36,6 +48,12 @@ function getWhich() {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
+/**
+ * Create an error for when a binary path cannot be resolved.
+ * @param {string} binPath - The binary path that couldn't be resolved.
+ * @param {string} [source=''] - Optional source context for debugging.
+ * @returns {Error} The error object.
+ */
 function getNotResolvedError(binPath, source = '') {
   // Based on node-which:
   // ISC License
@@ -49,6 +67,13 @@ function getNotResolvedError(binPath, source = '') {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
+/**
+ * Resolve a binary path to its actual executable file.
+ * Handles Windows .cmd wrappers and Unix shell scripts.
+ * @param {string} binPath - The binary path to resolve.
+ * @returns {string} The resolved executable path.
+ * @throws {Error} If the binary cannot be resolved.
+ */
 function resolveBinPathSync(binPath) {
   const fs = getFs()
   const path = getPath()
@@ -351,6 +376,14 @@ function execBin(binPath, args, options) {
   )
 }
 
+/**
+ * Find and resolve a binary in the system PATH asynchronously.
+ * @template {import('which').Options} T
+ * @param {string} binName - Name of the binary to find.
+ * @param {T} options - Options for the which module.
+ * @returns {T extends {nothrow: true} ? Promise<string | null> : Promise<string>} The resolved binary path.
+ * @throws {Error} If the binary is not found and nothrow is false.
+ */
 async function whichBin(binName, options) {
   const which = getWhich()
   // Depending on options `which` may throw if `binName` is not found.
@@ -358,6 +391,14 @@ async function whichBin(binName, options) {
   return resolveBinPathSync(await which(binName, options))
 }
 
+/**
+ * Find and resolve a binary in the system PATH synchronously.
+ * @template {import('which').Options} T
+ * @param {string} binName - Name of the binary to find.
+ * @param {T} options - Options for the which module.
+ * @returns {T extends {nothrow: true} ? string | null : string} The resolved binary path.
+ * @throws {Error} If the binary is not found and nothrow is false.
+ */
 function whichBinSync(binName, options) {
   // Depending on options `which` may throw if `binName` is not found.
   // The default behavior is to throw when `binName` is not found.
