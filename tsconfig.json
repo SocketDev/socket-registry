@@ -37,5 +37,5 @@
     "noUncheckedSideEffectImports": true
   },
   "include": ["**/*.ts"],
-  "exclude": ["test/**/node_workspaces/**/*"]
+  "exclude": ["**/node_modules/**/*", "test/**/node_workspaces/**/*"]
 }
