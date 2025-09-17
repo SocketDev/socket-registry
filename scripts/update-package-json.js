@@ -1,7 +1,6 @@
 'use strict'
 
 const constants = require('@socketregistry/scripts/constants')
-const { runNpmScript } = require('@socketsecurity/registry/lib/agent')
 const { readPackageJson } = require('@socketsecurity/registry/lib/packages')
 
 void (async () => {
@@ -14,11 +13,10 @@ void (async () => {
   )
   // Update engines field.
   rootEditablePkgJson.update({
-    engines: { node: constants.PACKAGE_DEFAULT_NODE_RANGE }
+    engines: {
+      ...rootEditablePkgJson.content.engines,
+      node: constants.PACKAGE_DEFAULT_NODE_RANGE
+    }
   })
   await rootEditablePkgJson.save()
-  await runNpmScript('update:package-lock', ['--', '--force'], {
-    cwd: constants.rootPath,
-    stdio: 'inherit'
-  })
 })()
