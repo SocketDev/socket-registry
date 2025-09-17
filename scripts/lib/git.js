@@ -30,7 +30,7 @@ const gitDiffSpawnArgs = defineLazyGetters(
       ['diff', '--cached', '--name-only'],
       {
         cwd: constants.rootPath,
-        shell: true,
+        shell: constants.WIN32,
         // Encoding option used for spawnSync.
         encoding: UTF8
       }
