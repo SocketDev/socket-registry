@@ -1,7 +1,6 @@
-import { Options as WhichOptions } from 'which'
-
-import { Remap } from './objects'
-import { SpawnOptions } from './spawn'
+import type { Remap } from './objects'
+import type { SpawnOptions } from './spawn'
+import type { Options as WhichOptions } from 'which'
 
 declare type NpmRunScriptOptions = Remap<
   SpawnOptions & {

@@ -1,14 +1,12 @@
-import inquirerConfirm from '@inquirer/confirm'
-import inquirerInput from '@inquirer/input'
-import inquirerPassword from '@inquirer/password'
-import inquirerSearch from '@inquirer/search'
-import inquirerSelect, {
-  Separator as InquirerSeparator
-} from '@inquirer/select'
-import { Context as InquirerContext } from '@inquirer/type'
-
-import { Remap } from './objects'
-import { Spinner } from './spinner'
+import type { Remap } from './objects'
+import type { Spinner } from './spinner'
+import type inquirerConfirm from '@inquirer/confirm'
+import type inquirerInput from '@inquirer/input'
+import type inquirerPassword from '@inquirer/password'
+import type inquirerSearch from '@inquirer/search'
+import type inquirerSelect from '@inquirer/select'
+import type { Separator as InquirerSeparator } from '@inquirer/select'
+import type { Context as InquirerContext } from '@inquirer/type'
 
 declare type Choice<Value> = {
   value: Value
