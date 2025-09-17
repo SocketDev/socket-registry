@@ -3,7 +3,7 @@
 const { glob } = require('fast-glob')
 
 const constants = require('@socketregistry/scripts/constants')
-const { runBin } = require('@socketsecurity/registry/lib/agent')
+const { execBin } = require('@socketsecurity/registry/lib/agent')
 
 const { perfNpmPath } = constants
 
@@ -12,7 +12,7 @@ void (async () => {
     cwd: perfNpmPath
   })) {
     // eslint-disable-next-line no-await-in-loop
-    await runBin(constants.tsxExecPath, [perfFile], {
+    await execBin(constants.tsxExecPath, [perfFile], {
       cwd: perfNpmPath,
       stdio: 'inherit'
     })

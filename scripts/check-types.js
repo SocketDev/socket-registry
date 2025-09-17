@@ -1,11 +1,9 @@
 'use strict'
 
-const { spawnSync } = require('node:child_process')
 const path = require('node:path')
 
 const fastGlob = require('fast-glob')
-
-const constants = require('@socketregistry/scripts/constants')
+const { execPnpm } = require('@socketsecurity/registry/lib/agent')
 
 const rootDir = path.resolve(__dirname, '..')
 
@@ -24,19 +22,11 @@ void (async () => {
 
   console.log(`Checking ${dtsPaths.length} TypeScript declaration files...`)
 
-  // Run tsc on the filtered files.
-  const result = spawnSync(
-    'npx',
-    ['tsc', '--noEmit', '--skipLibCheck', ...dtsPaths],
-    {
-      stdio: 'inherit',
-      shell: constants.WIN32
-    }
-  )
-
-  if (result.status !== 0) {
-    throw new Error(
-      `TypeScript type checking failed with exit code ${result.status}`
-    )
+  try {
+    await execPnpm(['exec', 'tsc', '--noEmit', '--skipLibCheck', ...dtsPaths], {
+      stdio: 'inherit'
+    })
+  } catch (error) {
+    throw new Error(`TypeScript type checking failed: ${error.message}`)
   }
 })()
