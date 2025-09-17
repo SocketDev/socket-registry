@@ -43,7 +43,11 @@ const {
 
 // Pass args:
 // pnpm run test:unit ./test/packages.test.ts -- --force
+// Note: --force is converted to FORCE_TEST env var by test.js because
+// Vitest runs tests in worker processes that don't receive CLI args.
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
+const useForce =
+  cliArgs.force || constants.ENV.CI || process.env['FORCE_TEST'] === '1'
 
 const shimApiKeys = ['getPolyfill', 'implementation', 'shim']
 
@@ -77,17 +81,16 @@ for (const eco of constants.ecosystems) {
     continue
   }
   const { ENV } = constants
-  const packageNames: readonly string[] =
-    cliArgs.force || ENV.CI
-      ? constants.npmPackageNames
-      : (() => {
-          const testablePackages: Set<string> = ENV.PRE_COMMIT
-            ? getStagedPackagesSync(eco, { asSet: true })
-            : getModifiedPackagesSync(eco, { asSet: true })
-          return constants.npmPackageNames.filter((n: string) =>
-            testablePackages.has(n)
-          )
-        })()
+  const packageNames: readonly string[] = useForce
+    ? constants.npmPackageNames
+    : (() => {
+        const testablePackages: Set<string> = ENV.PRE_COMMIT
+          ? getStagedPackagesSync(eco, { asSet: true })
+          : getModifiedPackagesSync(eco, { asSet: true })
+        return constants.npmPackageNames.filter((n: string) =>
+          testablePackages.has(n)
+        )
+      })()
 
   describe(eco, { skip: !packageNames.length }, () => {
     if (!packageNames.length) {
