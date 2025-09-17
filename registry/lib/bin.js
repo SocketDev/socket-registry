@@ -330,6 +330,8 @@ function resolveBinPathSync(binPath) {
     // Handle special case where pnpm path in CI has extra segments.
     // In setup-pnpm GitHub Action, the path might be malformed like:
     // /home/runner/setup-pnpm/node_modules/.bin/pnpm/bin/pnpm.cjs
+    // This happens when the shell script contains a relative path that
+    // when resolved, creates an invalid nested structure.
     if (isPnpmOrYarn && binPath.includes('/.bin/pnpm/bin/')) {
       // Extract the correct pnpm bin path.
       const binIndex = binPath.indexOf('/.bin/pnpm')
@@ -356,7 +358,7 @@ function resolveBinPathSync(binPath) {
       let relPath = ''
 
       if (isPnpmOrYarn) {
-        // Handle pnpm/yarn Unix shell scripts
+        // Handle pnpm/yarn Unix shell scripts.
         // Format: exec "$basedir/node" "$basedir/.tools/pnpm/VERSION/..." "$@"
         // or: exec node "$basedir/.tools/pnpm/VERSION/..." "$@"
         relPath = /(?<="\$basedir\/)\.tools\/[^"]+(?="\s+"\$@")/.exec(
@@ -364,7 +366,28 @@ function resolveBinPathSync(binPath) {
         )?.[0]
         if (!relPath) {
           // Try standard cmd-shim format: exec node "$basedir/../package/bin/binary.js" "$@"
-          relPath = /(?<="\$basedir\/).*(?="\s+"\$@")/.exec(source)?.[0]
+          // Example: exec node  "$basedir/../pnpm/bin/pnpm.cjs" "$@"
+          //                              ^^^^^^^^^^^^^^^^^^^^^ captures this part
+          // This regex needs to be more careful to not match "$@" at the end.
+          relPath = /(?<="\$basedir\/)[^"]+(?="\s+"\$@")/.exec(source)?.[0]
+        }
+        // Special case for setup-pnpm GitHub Action which may use a different format.
+        // The setup-pnpm action creates a shell script that references ../pnpm/bin/pnpm.cjs
+        if (!relPath) {
+          // Try to match: exec node  "$basedir/../pnpm/bin/pnpm.cjs" "$@"
+          const match = /exec\s+node\s+"?\$basedir\/([^"]+)"?\s+"\$@"/.exec(
+            source
+          )
+          if (match) {
+            relPath = match[1]
+          }
+        }
+        // Check if the extracted path looks wrong (e.g., pnpm/bin/pnpm.cjs without ../).
+        // This happens with setup-pnpm action when it creates a malformed shell script.
+        if (relPath && basename === 'pnpm' && relPath.startsWith('pnpm/')) {
+          // The path should be ../pnpm/... not pnpm/...
+          // Prepend ../ to fix the relative path.
+          relPath = '../' + relPath
         }
       } else if (isNpmOrNpx) {
         // Handle npm/npx Unix shell scripts
@@ -375,7 +398,9 @@ function resolveBinPathSync(binPath) {
       }
 
       if (relPath) {
-        binPath = normalizePath(path.join(path.dirname(binPath), relPath))
+        // Normalize the relative path to handle .. segments properly.
+        const resolvedPath = path.resolve(path.dirname(binPath), relPath)
+        binPath = normalizePath(resolvedPath)
       }
     }
   }
