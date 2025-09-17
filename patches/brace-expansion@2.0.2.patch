@@ -1,9 +1,8 @@
 diff --git a/index.js b/index.js
-index 1234567890123456789012345678901234567890..1234567890123456789012345678901234567890 100644
+index a27f81ce041e7cf9b7dd9d95533813527f918fb6..daa176639b8449966dc295b298bbe08366b88869 100644
 --- a/index.js
 +++ b/index.js
-@@ -103,9 +103,9 @@
-   var post = m.post.length
+@@ -104,7 +104,7 @@ function expand(str, isTop) {
      ? expand(m.post, false)
      : [''];
  
@@ -12,4 +11,3 @@ index 1234567890123456789012345678901234567890..12345678901234567890123456789012
      for (var k = 0; k < post.length; k++) {
        var expansion = pre+ '{' + m.body + '}' + post[k];
        expansions.push(expansion);
-     }

@@ -1,0 +1,29 @@
+Index: /jsbn/index.js
+===================================================================
+--- /jsbn/index.js
++++ /jsbn/index.js
+@@ -1229,8 +1229,11 @@
+
+     var rng_state;
+     var rng_pool;
+     var rng_pptr;
++    // Pool size must be a multiple of 4 and greater than 32.
++    // An array of bytes the size of the pool will be passed to init()
++    var rng_psize = 256;
+
+     // Mix in a 32-bit integer into the pool
+     function rng_seed_int(x) {
+       rng_pool[rng_pptr++] ^= x & 255;
+@@ -1340,12 +1343,8 @@
+     function prng_newstate() {
+       return new Arcfour();
+     }
+
+-    // Pool size must be a multiple of 4 and greater than 32.
+-    // An array of bytes the size of the pool will be passed to init()
+-    var rng_psize = 256;
+
+     if (typeof exports !== 'undefined') {
+         exports = module.exports = {
+             default: BigInteger,
+             BigInteger: BigInteger,
