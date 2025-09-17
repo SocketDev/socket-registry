@@ -4,17 +4,16 @@ const { existsSync, promises: fs, realpathSync } = require('node:fs')
 const path = require('node:path')
 const util = require('node:util')
 
-const { ensureSymlink, move, outputFile } = require('fs-extra')
+const { move } = require('fs-extra')
 const npmPackageArg = require('npm-package-arg')
 const semver = require('semver')
-const { glob } = require('fast-glob')
+const fastGlob = require('fast-glob')
 const trash = require('trash')
 
 const constants = require('@socketregistry/scripts/constants')
 const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
-const { isSymLinkSync, uniqueSync } = require('@socketsecurity/registry/lib/fs')
+const { isSymLinkSync } = require('@socketsecurity/registry/lib/fs')
 const { logger } = require('@socketsecurity/registry/lib/logger')
-const { execPnpm } = require('@socketsecurity/registry/lib/agent')
 const { merge, objectEntries } = require('@socketsecurity/registry/lib/objects')
 const {
   extractPackage,
@@ -26,7 +25,6 @@ const {
   resolveOriginalPackageName,
   resolvePackageJsonEntryExports
 } = require('@socketsecurity/registry/lib/packages')
-const { splitPath } = require('@socketsecurity/registry/lib/path')
 const { pEach, pFilter } = require('@socketsecurity/registry/lib/promises')
 const { isNonEmptyString } = require('@socketsecurity/registry/lib/strings')
 const { pluralize } = require('@socketsecurity/registry/lib/words')
@@ -39,7 +37,6 @@ const {
   PACKAGE_JSON,
   README_GLOB_RECURSIVE,
   SOCKET_REGISTRY_SCOPE,
-  UTF8,
   ignoreGlobs,
   lifecycleScriptNames,
   npmPackagesPath,
@@ -127,20 +124,95 @@ function cleanTestScript(testScript) {
   )
 }
 
-function createStubEsModule(srcPath) {
-  const relPath = `./${path.basename(srcPath)}`
-  return `export * from '${relPath}'\nexport { default, default as 'module.exports' } from '${relPath}'\n`
+async function installAndMergePackage(pkgName, pkgVersion, options) {
+  const { spinner } = { __proto__: null, ...options }
+  // Sanitize package name for filesystem (replace / with -)
+  const safePkgName = pkgName.replace('/', '-')
+  const tempPath = path.join(testNpmPath, `.tmp-${safePkgName}-${Date.now()}`)
+
+  try {
+    // Check if there's a Socket override for this package.
+    // Convert npm package name to Socket registry name (e.g., @hyrious/bun.lockb -> hyrious__bun.lockb).
+    const socketPkgName = pkgName.startsWith('@')
+      ? pkgName.slice(1).replace('/', '__')
+      : pkgName
+    const overridePkgPath = path.join(npmPackagesPath, socketPkgName)
+    const hasOverride = existsSync(overridePkgPath)
+
+    // Determine the final destination path.
+    // Packages with Socket overrides go to node_workspaces, others to node_modules.
+    const finalPath = hasOverride
+      ? path.join(testNpmNodeWorkspacesPath, socketPkgName)
+      : path.join(testNpmNodeModulesPath, pkgName)
+
+    // Handle local file: dependencies differently.
+    if (pkgVersion.startsWith('file:')) {
+      // For local file dependencies, just copy them directly.
+      const localPath = path.resolve(testNpmPath, pkgVersion.slice(5))
+      if (existsSync(localPath)) {
+        const { copy } = require('fs-extra')
+        await copy(localPath, finalPath, { dereference: true })
+        return
+      }
+    }
+
+    // Use pacote's extract method to download and extract in one step.
+    spinner?.start(`Downloading ${pkgName}@${pkgVersion}...`)
+
+    try {
+      // Just use extractPackage which already uses pacote internally.
+      await extractPackage(`${pkgName}@${pkgVersion}`, { dest: tempPath })
+    } catch (extractError) {
+      if (!cliArgs.quiet) {
+        console.error(
+          `Failed to extract ${pkgName}@${pkgVersion}:`,
+          extractError.message
+        )
+      }
+      // For GitHub tarballs, try extracting directly.
+      if (pkgVersion.startsWith('https://')) {
+        await extractPackage(pkgVersion, { dest: tempPath })
+      } else {
+        throw extractError
+      }
+    }
+
+    if (hasOverride) {
+      // Copy Socket override files on top of the extracted package.
+      spinner?.start(`Applying Socket overrides for ${pkgName}...`)
+      const { copy } = require('fs-extra')
+
+      await copy(overridePkgPath, tempPath, {
+        overwrite: true,
+        dereference: true,
+        filter: src => {
+          // Skip copying node_modules and .DS_Store files.
+          return !src.includes('node_modules') && !src.endsWith('.DS_Store')
+        }
+      })
+    }
+
+    // Move the merged package to its final location.
+    await safeRemove(finalPath)
+    await move(tempPath, finalPath, { overwrite: true })
+
+    spinner?.stop()
+  } catch (error) {
+    // Clean up temp directory on error.
+    await safeRemove(tempPath)
+    throw error
+  }
 }
 
 async function installTestNpmNodeModules(options) {
-  const { clean, specs } = { __proto__: null, ...options }
+  const { clean, specs, spinner } = { __proto__: null, ...options }
   const pathsToRemove = []
   if (clean) {
-    // Only clean node_modules, not lockfiles since we use pnpm now.
+    // Clean node_modules directory.
     pathsToRemove.push(testNpmNodeModulesPath)
   }
   if (clean === 'deep') {
-    const deepPaths = await glob([NODE_MODULES_GLOB_RECURSIVE], {
+    const deepPaths = await fastGlob.glob([NODE_MODULES_GLOB_RECURSIVE], {
       absolute: true,
       cwd: testNpmNodeWorkspacesPath,
       onlyDirectories: true
@@ -150,19 +222,106 @@ async function installTestNpmNodeModules(options) {
   if (pathsToRemove.length) {
     await safeRemove(pathsToRemove)
   }
-  // Use pnpm since test/npm is now a pnpm workspace.
-  // In CI, we want to see pnpm errors if they occur.
-  const stdio = constants.ENV.CI ? 'inherit' : 'ignore'
-  return await execPnpm(
-    [
-      'install',
-      '--ignore-scripts',
-      // CI environments freeze lockfiles by default, but we need to update it here.
-      ...(constants.ENV.CI ? ['--no-frozen-lockfile'] : []),
-      ...(Array.isArray(specs) ? ['--save-dev', '--save-exact', ...specs] : [])
-    ],
-    { cwd: testNpmPath, stdio }
-  )
+
+  // Get all devDependencies from test/npm/package.json.
+  const testNpmPkgJson = await readPackageJson(testNpmPkgJsonPath, {
+    normalize: true
+  })
+  const { devDependencies } = testNpmPkgJson
+
+  if (devDependencies) {
+    // Ensure test/npm/node_modules exists.
+    await fs.mkdir(testNpmNodeModulesPath, { recursive: true })
+
+    // If specs are provided, only install those packages.
+    const packagesToInstall = specs
+      ? specs.map(spec => {
+          // Handle scoped packages correctly (e.g., @hyrious/bun.lockb@version).
+          const atIndex = spec.startsWith('@')
+            ? spec.indexOf('@', 1)
+            : spec.indexOf('@')
+          const pkgName = atIndex === -1 ? spec : spec.slice(0, atIndex)
+          const version =
+            atIndex === -1
+              ? devDependencies[pkgName] || 'latest'
+              : spec.slice(atIndex + 1)
+          return { name: pkgName, version: devDependencies[pkgName] || version }
+        })
+      : Object.entries(devDependencies).map(({ 0: name, 1: version }) => ({
+          name,
+          version
+        }))
+
+    // Count packages with Socket overrides.
+    const packagesWithOverrides = packagesToInstall.filter(({ name }) => {
+      const socketPkgName = name.startsWith('@')
+        ? name.slice(1).replace('/', '__')
+        : name
+      return existsSync(path.join(npmPackagesPath, socketPkgName))
+    })
+
+    if (!cliArgs.quiet) {
+      spinner?.start(
+        `Installing ${packagesToInstall.length} packages (${packagesWithOverrides.length} with Socket overrides)...`
+      )
+    }
+
+    // Install packages in parallel, but limit concurrency.
+    await pEach(
+      packagesToInstall,
+      async ({ name, version }) => {
+        // Check both possible locations for the package.
+        const socketPkgName = name.startsWith('@')
+          ? name.slice(1).replace('/', '__')
+          : name
+        const hasOverride = existsSync(
+          path.join(npmPackagesPath, socketPkgName)
+        )
+        const existingPath = hasOverride
+          ? path.join(testNpmNodeWorkspacesPath, socketPkgName)
+          : path.join(testNpmNodeModulesPath, name)
+
+        // Skip if package already exists and we're not forcing clean install.
+        if (!clean && existsSync(existingPath)) {
+          return
+        }
+        await installAndMergePackage(name, version, options)
+      },
+      { concurrency: 3 }
+    )
+
+    // After all packages are installed, update the package.json if specs were provided.
+    if (specs && specs.length > 0) {
+      const editablePkgJson = await readPackageJson(testNpmPkgJsonPath, {
+        editable: true,
+        normalize: true
+      })
+      const newDevDeps = {}
+      for (const spec of specs) {
+        const pkgName = spec.split('@')[0]
+        // Get the actual installed version.
+        const installedPkgJsonPath = path.join(
+          testNpmNodeModulesPath,
+          pkgName,
+          'package.json'
+        )
+        if (existsSync(installedPkgJsonPath)) {
+          // eslint-disable-next-line no-await-in-loop
+          const installedPkg = await readPackageJson(installedPkgJsonPath, {
+            normalize: true
+          })
+          newDevDeps[pkgName] = installedPkg.version
+        }
+      }
+      editablePkgJson.update({
+        devDependencies: {
+          ...editablePkgJson.content.devDependencies,
+          ...newDevDeps
+        }
+      })
+      await editablePkgJson.save()
+    }
+  }
 }
 
 async function installMissingPackages(packageNames, options) {
@@ -355,7 +514,7 @@ async function resolveDevDependencies(packageNames, options) {
           // Search for the presence of test files anywhere in the package.
           // The glob pattern ".{[cm],}[jt]s" matches .js, .cjs, .cts, .mjs, .mts, .ts file extensions.
           (
-            await glob(
+            await fastGlob.glob(
               [
                 'test{s,}/*',
                 '**/test{s,}{.{[cm],}[jt]s,}',
@@ -377,9 +536,10 @@ async function resolveDevDependencies(packageNames, options) {
 }
 
 async function linkPackages(packageNames, options) {
-  // Link files and cleanup package.json scripts of test/npm/node_modules packages.
+  // Process and cleanup package.json scripts of test/npm/node_modules packages.
+  // With the new approach, Socket overrides are already applied during installation.
   const { spinner } = { __proto__: null, ...options }
-  spinner?.start('Linking packages...')
+  spinner?.start('Processing packages...')
 
   const linkedPackageNames = []
   let issueCount = 0
@@ -393,15 +553,20 @@ async function linkPackages(packageNames, options) {
     }
     const origPkgName = resolveOriginalPackageName(sockRegPkgName)
     const nmPkgPath = path.join(testNpmNodeModulesPath, origPkgName)
+
+    // Check if the package exists in test/npm/node_modules.
+    if (!existsSync(nmPkgPath)) {
+      // Package doesn't exist, skip it.
+      return
+    }
+
+    // Check if it's already a symlink to node_workspaces (already processed).
     if (isSymLinkSync(nmPkgPath)) {
-      if (
-        realpathSync(nmPkgPath) ===
-        path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
-      ) {
+      const realPath = realpathSync(nmPkgPath)
+      if (realPath === path.join(testNpmNodeWorkspacesPath, sockRegPkgName)) {
+        // Already processed and linked.
         return
       }
-      // If it's a symlink but pointing to the wrong location, remove it.
-      await safeRemove(nmPkgPath)
     }
 
     const nmEditablePkgJson = await readCachedEditablePackageJson(nmPkgPath)
@@ -562,66 +727,8 @@ async function linkPackages(packageNames, options) {
       })
     }
 
-    // Symlink files from the @socketregistry/xyz override package to the
-    // test/npm/node_modules/xyz package.
-    const isPkgTypeModule = pkgJson.type === 'module'
-    const isNmPkgTypeModule = nmEditablePkgJson.content.type === 'module'
-    const isModuleTypeMismatch = isNmPkgTypeModule !== isPkgTypeModule
-    if (isModuleTypeMismatch) {
-      issueCount += 1
-      spinner?.warn(`${origPkgName}: Module type mismatch`)
-    }
-    const actions = new Map()
-    for (const jsFile of await glob(['**/*.{cjs,js,json}'], {
-      ignore: ['**/node_modules', '**/package.json'],
-      cwd: pkgPath
-    })) {
-      let targetPath = path.join(pkgPath, jsFile)
-      let destPath = path.join(nmPkgPath, jsFile)
-      const dirs = splitPath(path.dirname(jsFile))
-      for (let i = 0, { length } = dirs; i < length; i += 1) {
-        const crumbs = dirs.slice(0, i + 1)
-        const destPathDir = path.join(nmPkgPath, ...crumbs)
-        if (!existsSync(destPathDir) || isSymLinkSync(destPathDir)) {
-          targetPath = path.join(pkgPath, ...crumbs)
-          destPath = destPathDir
-          break
-        }
-      }
-      actions.set(destPath, async () => {
-        if (isModuleTypeMismatch) {
-          const destExt = path.extname(destPath)
-          if (isNmPkgTypeModule && !isPkgTypeModule) {
-            if (destExt === '.js') {
-              // We can go from CJS by creating an ESM stub.
-              const uniquePath = uniqueSync(`${destPath.slice(0, -3)}.cjs`)
-              await fs.copyFile(targetPath, uniquePath)
-              await safeRemove(destPath)
-              await outputFile(destPath, createStubEsModule(uniquePath), UTF8)
-              return
-            }
-          } else {
-            issueCount += 1
-            spinner?.error(`${origPkgName}: Cannot convert ESM to CJS`)
-          }
-        }
-        // Remove any existing file/symlink at the destination.
-        await safeRemove(destPath)
-        try {
-          await ensureSymlink(targetPath, destPath)
-        } catch (symlinkError) {
-          // If symlink creation fails, check if file exists and try once more.
-          if (symlinkError.code === 'EEXIST') {
-            await safeRemove(destPath)
-            await ensureSymlink(targetPath, destPath)
-          } else {
-            throw symlinkError
-          }
-        }
-      })
-    }
-    // Chunk actions to process them in parallel 3 at a time.
-    await pEach([...actions.values()], a => a(), { concurrency: 3 })
+    // Socket overrides are already applied during package installation.
+    // Just save the updated package.json.
     await nmEditablePkgJson.save()
     linkedPackageNames.push(sockRegPkgName)
   })
@@ -649,7 +756,7 @@ async function cleanupNodeWorkspaces(linkedPackageNames, options) {
       )
       const destPath = path.join(testNpmNodeWorkspacesPath, n)
       // Remove unnecessary directories/files.
-      const unnecessaryPaths = await glob(
+      const unnecessaryPaths = await fastGlob.glob(
         [
           '**/.editorconfig',
           '**/.eslintignore',
