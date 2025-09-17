@@ -10,6 +10,10 @@ const { isDebug } = /*@__PURE__*/ require('./debug')
 const { spawn } = /*@__PURE__*/ require('./spawn')
 
 let _fs
+/**
+ * Lazily load the fs module to avoid Webpack errors.
+ * @returns {import('fs')} The Node.js fs module.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getFs() {
   if (_fs === undefined) {
@@ -21,6 +25,10 @@ function getFs() {
 }
 
 let _path
+/**
+ * Lazily load the path module to avoid Webpack errors.
+ * @returns {import('path')} The Node.js path module.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getPath() {
   if (_path === undefined) {
@@ -55,6 +63,12 @@ const pnpmIgnoreScriptsFlags = new Set([
   '--no-ignore-scripts'
 ])
 
+/**
+ * Execute npm commands with optimized flags and settings.
+ * @param {string[] | readonly string[]} args - Command arguments to pass to npm.
+ * @param {import('./spawn').SpawnOptions} [options] - Spawn options.
+ * @returns {Promise<{ stdout: string; stderr: string }>} Command output.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function execNpm(args, options) {
   const useDebug = isDebug()
@@ -96,6 +110,12 @@ function execNpm(args, options) {
   )
 }
 
+/**
+ * Execute pnpm commands with optimized flags and settings.
+ * @param {string[] | readonly string[]} args - Command arguments to pass to pnpm.
+ * @param {import('./spawn').SpawnOptions} [options] - Spawn options.
+ * @returns {Promise<{ stdout: string; stderr: string }>} Command output.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function execPnpm(args, options) {
   const useDebug = isDebug()
@@ -149,6 +169,12 @@ function execPnpm(args, options) {
     ],
     {
       __proto__: null,
+      /**
+       * Execute yarn commands with optimized flags and settings.
+       * @param {string[] | readonly string[]} args - Command arguments to pass to yarn.
+       * @param {import('./spawn').SpawnOptions} [options] - Spawn options.
+       * @returns {Promise<{ stdout: string; stderr: string }>} Command output.
+       */
       ...options
     }
   )
@@ -198,38 +224,77 @@ function execYarn(args, options) {
     ],
     {
       __proto__: null,
+      /**
+       * Check if a command argument is an npm audit flag.
+       * @param {string} cmdArg - The command argument to check.
+       * @returns {boolean} True if the argument is an audit flag.
+       */
       ...options
     }
   )
 }
 
+/**
+ * Check if a command argument is an npm fund flag.
+ * @param {string} cmdArg - The command argument to check.
+ * @returns {boolean} True if the argument is a fund flag.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function isNpmAuditFlag(cmdArg) {
   return npmAuditFlags.has(cmdArg)
 }
 
+/**
+ * Check if a command argument is an npm loglevel flag.
+ * @param {string} cmdArg - The command argument to check.
+ * @returns {boolean} True if the argument is a loglevel flag.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function isNpmFundFlag(cmdArg) {
   return npmFundFlags.has(cmdArg)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
+/**
+ * Check if a command argument is an npm node-options flag.
+ * @param {string} cmdArg - The command argument to check.
+ * @returns {boolean} True if the argument is a node-options flag.
+ */
 function isNpmLoglevelFlag(cmdArg) {
   // https://docs.npmjs.com/cli/v11/using-npm/logging#setting-log-levels
   return cmdArg.startsWith('--loglevel=') || npmLogFlags.has(cmdArg)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
+/**
+ * Check if a command argument is an npm progress flag.
+ * @param {string} cmdArg - The command argument to check.
+ * @returns {boolean} True if the argument is a progress flag.
+ */
 function isNpmNodeOptionsFlag(cmdArg) {
   // https://docs.npmjs.com/cli/v9/using-npm/config#node-options
   return cmdArg.startsWith('--node-options=')
 }
 
+/**
+ * Check if a command argument is a pnpm ignore-scripts flag.
+ * @param {string} cmdArg - The command argument to check.
+ * @returns {boolean} True if the argument is an ignore-scripts flag.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function isNpmProgressFlag(cmdArg) {
   return npmProgressFlags.has(cmdArg)
 }
 
+/**
+ * Execute a package.json script using the appropriate package manager.
+ * Automatically detects pnpm, yarn, or npm based on lockfiles.
+ * @param {string} scriptName - The name of the script to run.
+ * @param {string[] | readonly string[]} args - Additional arguments to pass to the script.
+ * @param {ExecScriptOptions} [options] - Spawn options with optional prepost flag.
+ * @returns {Promise<{ stdout: string; stderr: string }>} Command output.
+ * @typedef {import('./objects').Remap<import('./spawn').SpawnOptions & {prepost?: boolean}>} ExecScriptOptions
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function isPnpmIgnoreScriptsFlag(cmdArg) {
   return pnpmIgnoreScriptsFlags.has(cmdArg)
