@@ -2,7 +2,7 @@ import type { Remap } from './objects'
 import type { SpawnOptions } from './spawn'
 import type { Options as WhichOptions } from 'which'
 
-declare type NpmRunScriptOptions = Remap<
+declare type ExecScriptOptions = Remap<
   SpawnOptions & {
     prepost?: boolean | undefined
   }
@@ -13,6 +13,15 @@ declare const Agent: {
     options?: SpawnOptions | undefined
   ): Promise<{ stdout: string; stderr: string }>
   execPnpm(
+    args: string[] | readonly string[],
+    options?: SpawnOptions | undefined
+  ): Promise<{ stdout: string; stderr: string }>
+  execScript(
+    scriptName: string,
+    args: string[] | readonly string[],
+    options?: ExecScriptOptions | undefined
+  ): Promise<{ stdout: string; stderr: string }>
+  execYarn(
     args: string[] | readonly string[],
     options?: SpawnOptions | undefined
   ): Promise<{ stdout: string; stderr: string }>
@@ -28,11 +37,6 @@ declare const Agent: {
     args: string[] | readonly string[],
     options?: SpawnOptions | undefined
   ): Promise<{ stdout: string; stderr: string }>
-  runNpmScript(
-    scriptName: string,
-    args: string[] | readonly string[],
-    options?: NpmRunScriptOptions | undefined
-  ): Promise<{ stdout: string; stderr: string }>
   whichBin<T extends WhichOptions>(
     binName: string,
     options: T
@@ -43,6 +47,6 @@ declare const Agent: {
   ): T extends { nothrow: true } ? string | null : string
 }
 declare namespace Agent {
-  export { NpmRunScriptOptions }
+  export { ExecScriptOptions }
 }
 export = Agent

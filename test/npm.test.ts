@@ -10,7 +10,7 @@ import {
   getStagedPackagesSync
 } from '@socketregistry/scripts/lib/git'
 import { getManifestData } from '@socketsecurity/registry'
-import { runNpmScript } from '@socketsecurity/registry/lib/agent'
+import { execScript } from '@socketsecurity/registry/lib/agent'
 import { readDirNamesSync, readJsonSync } from '@socketsecurity/registry/lib/fs'
 import { logger } from '@socketsecurity/registry/lib/logger'
 import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/packages'
@@ -80,7 +80,7 @@ describe(eco, { skip: !packageNames.length }, () => {
 
     it(`${origPkgName} passes all its tests`, { skip }, async () => {
       try {
-        await runNpmScript('test', [], { cwd: nwPkgPath, signal: abortSignal })
+        await execScript('test', [], { cwd: nwPkgPath, signal: abortSignal })
         expect(true).toBe(true)
       } catch (e) {
         logger.fail(`${origPkgName}`)

@@ -6,7 +6,7 @@ const semver = require('semver')
 const ssri = require('ssri')
 
 const constants = require('@socketregistry/scripts/constants')
-const { runNpmScript } = require('@socketsecurity/registry/lib/agent')
+const { execScript } = require('@socketsecurity/registry/lib/agent')
 const {
   fetchPackageManifest,
   getReleaseTag,
@@ -147,7 +147,7 @@ void (async () => {
     stdio: 'inherit'
   }
 
-  await runNpmScript('update:manifest', ['--', '--force'], spawnOptions)
+  await execScript('update:manifest', ['--', '--force'], spawnOptions)
 
   if (!state.bumped.find(pkg => pkg === registryPkg)) {
     const version = semver.inc(registryPkg.manifest.version, 'patch')
@@ -162,13 +162,13 @@ void (async () => {
     )
   }
 
-  await runNpmScript('update:package-json', [], spawnOptions)
+  await execScript('update:package-json', [], spawnOptions)
 
   if (
     state.changed.length > 1 ||
     (state.changed.length === 1 && state.changed[0] !== registryPkg)
   ) {
-    await runNpmScript(
+    await execScript(
       'update:longtask:test:npm:package-json',
       ['--', '--quiet', '--force'],
       spawnOptions

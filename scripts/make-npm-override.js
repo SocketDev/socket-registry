@@ -21,7 +21,7 @@ const {
 const { isDirEmptySync } = require('@socketsecurity/registry/lib/fs')
 const { globStreamLicenses } = require('@socketsecurity/registry/lib/globs')
 const { LOG_SYMBOLS, logger } = require('@socketsecurity/registry/lib/logger')
-const { runNpmScript } = require('@socketsecurity/registry/lib/agent')
+const { execScript } = require('@socketsecurity/registry/lib/agent')
 const { isObject } = require('@socketsecurity/registry/lib/objects')
 const { transform } = require('@socketsecurity/registry/lib/streams')
 const {
@@ -446,9 +446,9 @@ void (async () => {
       cwd: rootPath,
       stdio: 'inherit'
     }
-    await runNpmScript('update:manifest', [], spawnOptions)
-    await runNpmScript('update:package-json', [], spawnOptions)
-    await runNpmScript(
+    await execScript('update:manifest', [], spawnOptions)
+    await execScript('update:package-json', [], spawnOptions)
+    await execScript(
       'update:longtask:test:npm:package-json',
       ['--', '--quiet', '--add', origPkgName],
       spawnOptions
