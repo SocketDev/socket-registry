@@ -27,9 +27,9 @@ You are a **Principal Software Engineer** responsible for:
 
 ### 3. Testing
 - Always run lint and typecheck before committing:
-  - `npm run lint`
-  - `npm run typecheck`
-- Run tests with: `npm test`
+  - `pnpm run lint`
+  - `pnpm run typecheck`
+- Run tests with: `pnpm test`
 - Pre-commit hooks will run automatically
 
 ### 4. Git Workflow
@@ -77,22 +77,22 @@ You are a **Principal Software Engineer** responsible for:
 ## Commands
 
 ### Development Commands
-- **Build**: `npm run build` (builds registry)
-- **Test**: `npm run test` (runs check + all tests)
-- **Test unit only**: `npm run test:unit`
-- **Test pre-commit**: `npm run test-pre-commit`
-- **Lint**: `npm run check:lint` (uses eslint)
-- **Type check**: `npm run check:tsc`
-- **Check all**: `npm run check` (runs all checks in parallel)
-- **Fix linting**: `npm run lint:fix`
+- **Build**: `pnpm run build` (builds registry)
+- **Test**: `pnpm run test` (runs check + all tests)
+- **Test unit only**: `pnpm run test:unit`
+- **Test pre-commit**: `pnpm run test-pre-commit`
+- **Lint**: `pnpm run check:lint` (uses eslint)
+- **Type check**: `pnpm run check:tsc`
+- **Check all**: `pnpm run check` (runs all checks in parallel)
+- **Fix linting**: `pnpm run lint:fix`
 
 ### Registry Management Commands
-- **Update packages**: `npm run update` (updates all packages and metadata)
-- **Update empty dirs**: `npm run update:empty-dirs`
-- **Update licenses**: `npm run update:licenses`
-- **Update manifest**: `npm run update:manifest`
-- **Make npm override**: `npm run make:npm-override`
-- **Release packages**: `npm run release:npm`
+- **Update packages**: `pnpm run update` (updates all packages and metadata)
+- **Update empty dirs**: `pnpm run update:empty-dirs`
+- **Update licenses**: `pnpm run update:licenses`
+- **Update manifest**: `pnpm run update:manifest`
+- **Make npm override**: `pnpm run make:npm-override`
+- **Release packages**: `pnpm run release:npm`
 
 ### Workspace Commands
 ```bash
@@ -103,10 +103,10 @@ pnpm add -D -w package-name@version --save-exact
 pnpm add package-name --filter @socketregistry/scripts
 
 # Clean build artifacts
-npm run clean
+pnpm run clean
 
 # Run specific test
-npm run test:unit -- path/to/test
+pnpm run test:unit -- path/to/test
 ```
 
 ## Project Structure
