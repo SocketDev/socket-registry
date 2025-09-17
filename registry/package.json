@@ -729,6 +729,7 @@
     "*.{c,}js",
     "*.json",
     "external/**/*.js",
+    "lib/**/*.d.ts",
     "lib/**/*.js"
   ]
 }
