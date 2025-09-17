@@ -2,10 +2,13 @@ import abortController from './abort-controller'
 import abortSignal from './abort-signal'
 import AT_LATEST from './at-latest'
 import BIOME_JSON from './biome-json'
+import BUN from './bun'
 import CI from './ci'
 import COLUMN_LIMIT from './column-limit'
 import copyLeftLicenses from './copy-left-licenses'
 import DARWIN from './darwin'
+import DOT_GIT_DIR from './dot-git-dir'
+import DOT_SOCKET_DIR from './dot-socket-dir'
 import EMPTY_FILE from './empty-file'
 import EnvObject from './env'
 import ESLINT_CONFIG_JS from './eslint-config-js'
@@ -23,6 +26,8 @@ import EXT_MD from './ext-md'
 import EXT_MJS from './ext-mjs'
 import EXT_MTS from './ext-mts'
 import EXT_PS1 from './ext-ps1'
+import EXT_YAML from './ext-yaml'
+import EXT_YML from './ext-yml'
 import EXTENSIONS from './extensions'
 import EXTENSIONS_JSON from './extensions-json'
 import getIpc from './get-ipc'
@@ -64,8 +69,8 @@ import PACKAGE_JSON from './package-json'
 import PACKAGE_LOCK_JSON from './package-lock-json'
 import packumentCache from './packument-cache'
 import pacoteCachePath from './pacote-cache-path'
-import parseArgsConfig from './parse-args-config'
 import PNPM from './pnpm'
+import PNPM_LOCK_YAML from './pnpm-lock-yaml'
 import PRE_COMMIT from './pre-commit'
 import README_GLOB from './readme-glob'
 import README_GLOB_RECURSIVE from './readme-glob-recursive'
@@ -105,8 +110,12 @@ import UNLICENCED from './unlicenced'
 import UNLICENSED from './unlicensed'
 import UTF8 from './utf8'
 import VITEST from './vitest'
+import VLT from './vlt'
 import WIN32 from './win32'
 import win32EnsureTestsByEcosystem from './win32-ensure-tests-by-ecosystem'
+import YARN from './yarn'
+import YARN_BERRY from './yarn-berry'
+import YARN_CLASSIC from './yarn-classic'
 import YARN_LOCK from './yarn-lock'
 import { createConstantsObject } from '../objects'
 
@@ -126,9 +135,12 @@ declare const Constants: {
   readonly 'Symbol(kInternalsSymbol)': Internals
   readonly AT_LATEST: typeof AT_LATEST
   readonly BIOME_JSON: typeof BIOME_JSON
+  readonly BUN: typeof BUN
   readonly CI: typeof CI
   readonly COLUMN_LIMIT: typeof COLUMN_LIMIT
   readonly DARWIN: typeof DARWIN
+  readonly DOT_GIT_DIR: typeof DOT_GIT_DIR
+  readonly DOT_SOCKET_DIR: typeof DOT_SOCKET_DIR
   readonly EMPTY_FILE: typeof EMPTY_FILE
   readonly ENV: typeof EnvObject
   readonly ESLINT_CONFIG_JS: typeof ESLINT_CONFIG_JS
@@ -145,6 +157,8 @@ declare const Constants: {
   readonly EXT_MJS: typeof EXT_MJS
   readonly EXT_MTS: typeof EXT_MTS
   readonly EXT_PS1: typeof EXT_PS1
+  readonly EXT_YAML: typeof EXT_YAML
+  readonly EXT_YML: typeof EXT_YML
   readonly EXTENSIONS: typeof EXTENSIONS
   readonly EXTENSIONS_JSON: typeof EXTENSIONS_JSON
   readonly GITIGNORE: typeof GITIGNORE
@@ -175,6 +189,7 @@ declare const Constants: {
   readonly PACKAGE_JSON: typeof PACKAGE_JSON
   readonly PACKAGE_LOCK_JSON: typeof PACKAGE_LOCK_JSON
   readonly PNPM: typeof PNPM
+  readonly PNPM_LOCK_YAML: typeof PNPM_LOCK_YAML
   readonly PRE_COMMIT: typeof PRE_COMMIT
   readonly README_GLOB: typeof README_GLOB
   readonly README_GLOB_RECURSIVE: typeof README_GLOB_RECURSIVE
@@ -210,7 +225,11 @@ declare const Constants: {
   readonly UNLICENSED: typeof UNLICENSED
   readonly UTF8: typeof UTF8
   readonly VITEST: typeof VITEST
+  readonly VLT: typeof VLT
   readonly WIN32: typeof WIN32
+  readonly YARN: typeof YARN
+  readonly YARN_BERRY: typeof YARN_BERRY
+  readonly YARN_CLASSIC: typeof YARN_CLASSIC
   readonly YARN_LOCK: typeof YARN_LOCK
   readonly abortController: typeof abortController
   readonly abortSignal: typeof abortSignal
@@ -227,7 +246,6 @@ declare const Constants: {
   readonly packageExtensions: typeof packageExtensions
   readonly packumentCache: typeof packumentCache
   readonly pacoteCachePath: typeof pacoteCachePath
-  readonly parseArgsConfig: typeof parseArgsConfig
   readonly skipTestsByEcosystem: typeof skipTestsByEcosystem
   readonly spinner: typeof spinner
   readonly tsLibsAvailable: typeof tsLibsAvailable

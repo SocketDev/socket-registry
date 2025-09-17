@@ -96,6 +96,10 @@
       "types": "./index.d.ts",
       "default": "./index.js"
     },
+    "./lib/agent": {
+      "types": "./lib/agent.d.ts",
+      "default": "./lib/agent.js"
+    },
     "./lib/arrays": {
       "types": "./lib/arrays.d.ts",
       "default": "./lib/arrays.js"
@@ -124,6 +128,10 @@
       "types": "./lib/constants/biome-json.d.ts",
       "default": "./lib/constants/biome-json.js"
     },
+    "./lib/constants/bun": {
+      "types": "./lib/constants/bun.d.ts",
+      "default": "./lib/constants/bun.js"
+    },
     "./lib/constants/ci": {
       "types": "./lib/constants/ci.d.ts",
       "default": "./lib/constants/ci.js"
@@ -139,6 +147,14 @@
     "./lib/constants/darwin": {
       "types": "./lib/constants/darwin.d.ts",
       "default": "./lib/constants/darwin.js"
+    },
+    "./lib/constants/dot-git-dir": {
+      "types": "./lib/constants/dot-git-dir.d.ts",
+      "default": "./lib/constants/dot-git-dir.js"
+    },
+    "./lib/constants/dot-socket-dir": {
+      "types": "./lib/constants/dot-socket-dir.d.ts",
+      "default": "./lib/constants/dot-socket-dir.js"
     },
     "./lib/constants/empty-file": {
       "types": "./lib/constants/empty-file.d.ts",
@@ -207,6 +223,14 @@
     "./lib/constants/ext-ps1": {
       "types": "./lib/constants/ext-ps1.d.ts",
       "default": "./lib/constants/ext-ps1.js"
+    },
+    "./lib/constants/ext-yaml": {
+      "types": "./lib/constants/ext-yaml.d.ts",
+      "default": "./lib/constants/ext-yaml.js"
+    },
+    "./lib/constants/ext-yml": {
+      "types": "./lib/constants/ext-yml.d.ts",
+      "default": "./lib/constants/ext-yml.js"
     },
     "./lib/constants/extensions": {
       "types": "./lib/constants/extensions.d.ts",
@@ -388,13 +412,13 @@
       "types": "./lib/constants/pacote-cache-path.d.ts",
       "default": "./lib/constants/pacote-cache-path.js"
     },
-    "./lib/constants/parse-args-config": {
-      "types": "./lib/constants/parse-args-config.d.ts",
-      "default": "./lib/constants/parse-args-config.js"
-    },
     "./lib/constants/pnpm": {
       "types": "./lib/constants/pnpm.d.ts",
       "default": "./lib/constants/pnpm.js"
+    },
+    "./lib/constants/pnpm-lock-yaml": {
+      "types": "./lib/constants/pnpm-lock-yaml.d.ts",
+      "default": "./lib/constants/pnpm-lock-yaml.js"
     },
     "./lib/constants/pre-commit": {
       "types": "./lib/constants/pre-commit.d.ts",
@@ -552,6 +576,10 @@
       "types": "./lib/constants/vitest.d.ts",
       "default": "./lib/constants/vitest.js"
     },
+    "./lib/constants/vlt": {
+      "types": "./lib/constants/vlt.d.ts",
+      "default": "./lib/constants/vlt.js"
+    },
     "./lib/constants/win32": {
       "types": "./lib/constants/win32.d.ts",
       "default": "./lib/constants/win32.js"
@@ -559,6 +587,18 @@
     "./lib/constants/win32-ensure-tests-by-ecosystem": {
       "types": "./lib/constants/win32-ensure-tests-by-ecosystem.d.ts",
       "default": "./lib/constants/win32-ensure-tests-by-ecosystem.js"
+    },
+    "./lib/constants/yarn": {
+      "types": "./lib/constants/yarn.d.ts",
+      "default": "./lib/constants/yarn.js"
+    },
+    "./lib/constants/yarn-berry": {
+      "types": "./lib/constants/yarn-berry.d.ts",
+      "default": "./lib/constants/yarn-berry.js"
+    },
+    "./lib/constants/yarn-classic": {
+      "types": "./lib/constants/yarn-classic.d.ts",
+      "default": "./lib/constants/yarn-classic.js"
     },
     "./lib/constants/yarn-lock": {
       "types": "./lib/constants/yarn-lock.d.ts",
@@ -591,10 +631,6 @@
     "./lib/logger": {
       "types": "./lib/logger.d.ts",
       "default": "./lib/logger.js"
-    },
-    "./lib/agent": {
-      "types": "./lib/agent.d.ts",
-      "default": "./lib/agent.js"
     },
     "./lib/objects": {
       "types": "./lib/objects.d.ts",
