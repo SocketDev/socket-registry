@@ -6,6 +6,11 @@ const { hasOwn } = /*@__PURE__*/ require('./objects')
 const { applyLinePrefix } = /*@__PURE__*/ require('./strings')
 
 let _debugJs
+/**
+ * Lazily load the debug module.
+ * @returns {Function} The debug module.
+ * @private
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getDebugJs() {
   if (_debugJs === undefined) {
@@ -17,6 +22,12 @@ function getDebugJs() {
 }
 
 const debugByNamespace = new Map()
+/**
+ * Get or create a debug instance for a namespace.
+ * @param {string} namespace - The debug namespace.
+ * @returns {Function} The debug instance.
+ * @private
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getDebugJsInstance(namespace) {
   let inst = debugByNamespace.get(namespace)
@@ -39,6 +50,11 @@ function getDebugJsInstance(namespace) {
 }
 
 let _util
+/**
+ * Lazily load the util module.
+ * @returns {import('util')} The Node.js util module.
+ * @private
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getUtil() {
   if (_util === undefined) {
@@ -49,6 +65,10 @@ function getUtil() {
   return _util
 }
 
+/**
+ * Custom log function for debug output.
+ * @private
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function customLog() {
   const { logger } = /*@__PURE__*/ require('./logger')
@@ -59,6 +79,12 @@ function customLog() {
   ])
 }
 
+/**
+ * Extract options from namespaces parameter.
+ * @param {string | Object} namespaces - Namespaces string or options object.
+ * @returns {Object} Normalized options object.
+ * @private
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function extractOptions(namespaces) {
   return namespaces !== null && typeof namespaces === 'object'
@@ -66,6 +92,12 @@ function extractOptions(namespaces) {
     : { __proto__: null, namespaces }
 }
 
+/**
+ * Check if debug is enabled for given namespaces.
+ * @param {string} namespaces - Debug namespaces to check.
+ * @returns {boolean} True if debug is enabled.
+ * @private
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function isEnabled(namespaces) {
   if (typeof namespaces !== 'string' || !namespaces || namespaces === '*') {
@@ -93,6 +125,12 @@ function isEnabled(namespaces) {
   return skips.every(ns => !getDebugJsInstance(ns).enabled)
 }
 
+/**
+ * Debug output for object inspection.
+ * @param {string | Object} namespacesOrOpts - Namespaces or options.
+ * @param {any} obj - Object to inspect.
+ * @param {Object} [inspectOpts] - Inspection options.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function debugDir(namespacesOrOpts, obj, inspectOpts) {
   const options = extractOptions(namespacesOrOpts)
@@ -115,6 +153,11 @@ function debugDir(namespacesOrOpts, obj, inspectOpts) {
 }
 
 let pointingTriangle
+/**
+ * Debug output with function name prefix.
+ * @param {string | Object} namespacesOrOpts - Namespaces or options.
+ * @param {...any} args - Arguments to log.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function debugFn(namespacesOrOpts, ...args) {
   const options = extractOptions(namespacesOrOpts)
@@ -181,6 +224,11 @@ function debugFn(namespacesOrOpts, ...args) {
   }
 }
 
+/**
+ * Debug logging function.
+ * @param {string | Object} namespacesOrOpts - Namespaces or options.
+ * @param {...any} args - Arguments to log.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function debugLog(namespacesOrOpts, ...args) {
   const options = extractOptions(namespacesOrOpts)
@@ -197,6 +245,11 @@ function debugLog(namespacesOrOpts, ...args) {
   }
 }
 
+/**
+ * Check if debug mode is enabled.
+ * @param {string} [namespaces] - Specific namespaces to check.
+ * @returns {boolean} True if debug is enabled.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function isDebug(namespaces) {
   const ENV = /*@__PURE__*/ require('./constants/env')

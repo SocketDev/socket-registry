@@ -130,6 +130,13 @@ function findUpSync(name, options) {
   return undefined
 }
 
+/**
+ * Process directory entries and filter for directories.
+ * @param {import('fs').Dirent[]} dirents - Directory entries to process.
+ * @param {ReadDirOptions} [options] - Options for filtering and sorting.
+ * @returns {string[]} Array of directory names.
+ * @private
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function innerReadDirNames(dirents, options) {
   const {
@@ -149,12 +156,24 @@ function innerReadDirNames(dirents, options) {
   return sort ? names.sort(naturalCompare) : names
 }
 
+/**
+ * Check if a path is a directory synchronously.
+ * @param {import('fs').PathLike} filepath - Path to check.
+ * @returns {boolean} True if the path is a directory.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function isDirSync(filepath) {
   const fs = getFs()
   return fs.existsSync(filepath) && !!safeStatsSync(filepath)?.isDirectory()
 }
 
+/**
+ * Check if a directory is empty synchronously.
+ * @param {import('fs').PathLike} dirname - Directory path to check.
+ * @param {IsDirEmptyOptions} [options] - Options with ignore patterns.
+ * @returns {boolean} True if the directory is empty or only contains ignored files.
+ * @typedef {{ignore?: string[] | readonly string[]}} IsDirEmptyOptions
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function isDirEmptySync(dirname, options) {
   const { ignore = defaultIgnore } = { __proto__: null, ...options }
@@ -178,6 +197,11 @@ function isDirEmptySync(dirname, options) {
   }
 }
 
+/**
+ * Check if a path is a symbolic link synchronously.
+ * @param {import('fs').PathLike} filepath - Path to check.
+ * @returns {boolean} True if the path is a symbolic link.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function isSymLinkSync(filepath) {
   const fs = getFs()
@@ -187,6 +211,13 @@ function isSymLinkSync(filepath) {
   return false
 }
 
+/**
+ * Read directory names asynchronously with filtering and sorting.
+ * @param {import('fs').PathLike} dirname - Directory to read.
+ * @param {ReadDirOptions} [options] - Options for filtering and sorting.
+ * @returns {Promise<string[]>} Array of directory names.
+ * @typedef {{ignore?: string[] | readonly string[]; includeEmpty?: boolean; sort?: boolean}} ReadDirOptions
+ */
 /*@__NO_SIDE_EFFECTS__*/
 async function readDirNames(dirname, options) {
   const fs = getFs()
@@ -202,6 +233,12 @@ async function readDirNames(dirname, options) {
   return []
 }
 
+/**
+ * Read directory names synchronously with filtering and sorting.
+ * @param {import('fs').PathLike} dirname - Directory to read.
+ * @param {ReadDirOptions} [options] - Options for filtering and sorting.
+ * @returns {string[]} Array of directory names.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function readDirNamesSync(dirname, options) {
   const fs = getFs()
@@ -214,6 +251,12 @@ function readDirNamesSync(dirname, options) {
   return []
 }
 
+/**
+ * Read a file as binary data asynchronously.
+ * @param {import('fs').PathLike | import('fs/promises').FileHandle} filepath - Path to the file.
+ * @param {import('fs').ReadFileOptions} [options] - Read options.
+ * @returns {Promise<Buffer>} The file contents as a Buffer.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 async function readFileBinary(filepath, options) {
   const fs = getFs()
@@ -224,6 +267,12 @@ async function readFileBinary(filepath, options) {
   })
 }
 
+/**
+ * Read a file as UTF-8 text asynchronously.
+ * @param {import('fs').PathLike | import('fs/promises').FileHandle} filepath - Path to the file.
+ * @param {import('fs').ReadFileOptions} [options] - Read options.
+ * @returns {Promise<string>} The file contents as a string.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 async function readFileUtf8(filepath, options) {
   const fs = getFs()
@@ -234,6 +283,13 @@ async function readFileUtf8(filepath, options) {
   })
 }
 
+/**
+ * Read and parse a JSON file asynchronously.
+ * @param {import('fs').PathLike} filepath - Path to the JSON file.
+ * @param {ReadJsonOptions} [options] - Read and parse options.
+ * @returns {Promise<any>} The parsed JSON content.
+ * @typedef {{encoding?: string; throws?: boolean; reviver?: Function} & import('fs').ReadFileOptions} ReadJsonOptions
+ */
 /*@__NO_SIDE_EFFECTS__*/
 async function readJson(filepath, options) {
   if (typeof options === 'string') {
@@ -262,6 +318,12 @@ async function readJson(filepath, options) {
   })
 }
 
+/**
+ * Read and parse a JSON file synchronously.
+ * @param {import('fs').PathLike} filepath - Path to the JSON file.
+ * @param {ReadJsonOptions} [options] - Read and parse options.
+ * @returns {any} The parsed JSON content.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function readJsonSync(filepath, options) {
   if (typeof options === 'string') {
@@ -290,6 +352,12 @@ function readJsonSync(filepath, options) {
   })
 }
 
+/**
+ * Remove a file or directory asynchronously.
+ * @param {import('fs').PathLike} filepath - Path to remove.
+ * @param {import('fs').RmOptions} [options] - Remove options.
+ * @returns {Promise<void>}
+ */
 /*@__NO_SIDE_EFFECTS__*/
 async function remove(filepath, options) {
   // Attempt to workaround occasional ENOTEMPTY errors in Windows.
@@ -302,6 +370,12 @@ async function remove(filepath, options) {
   })
 }
 
+/**
+ * Remove a file or directory synchronously.
+ * @param {import('fs').PathLike} filepath - Path to remove.
+ * @param {import('fs').RmOptions} [options] - Remove options.
+ * @returns {void}
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function removeSync(filepath, options) {
   const fs = getFs()
@@ -312,6 +386,12 @@ function removeSync(filepath, options) {
   })
 }
 
+/**
+ * Safely read a file asynchronously, returning undefined on error.
+ * @param {import('fs').PathLike | import('fs/promises').FileHandle} filepath - Path to the file.
+ * @param {import('fs').ReadFileOptions | string} [options] - Read options or encoding.
+ * @returns {Promise<string | undefined>} The file contents or undefined if read fails.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 async function safeReadFile(filepath, options) {
   const fs = getFs()
@@ -325,6 +405,12 @@ async function safeReadFile(filepath, options) {
   return undefined
 }
 
+/**
+ * Safely get file stats synchronously, returning undefined on error.
+ * @param {import('fs').PathLike} filepath - Path to stat.
+ * @param {import('fs').StatSyncOptions} [options] - Stat options.
+ * @returns {import('fs').Stats | undefined} File stats or undefined if stat fails.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function safeStatsSync(filepath, options) {
   const fs = getFs()
@@ -338,6 +424,12 @@ function safeStatsSync(filepath, options) {
   return undefined
 }
 
+/**
+ * Safely read a file synchronously, returning undefined on error.
+ * @param {import('fs').PathOrFileDescriptor} filepath - Path to the file.
+ * @param {import('fs').ReadFileOptions | string} [options] - Read options or encoding.
+ * @returns {string | Buffer | undefined} The file contents or undefined if read fails.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function safeReadFileSync(filepath, options) {
   const fs = getFs()
@@ -351,6 +443,15 @@ function safeReadFileSync(filepath, options) {
   return undefined
 }
 
+/**
+ * Stringify JSON with custom formatting options.
+ * @param {any} json - The JSON object to stringify.
+ * @param {string} [EOL='\n'] - End of line character.
+ * @param {boolean} [finalEOL=true] - Whether to add final EOL.
+ * @param {Function | null} [replacer=null] - JSON replacer function.
+ * @param {number | string} [spaces=2] - Indentation spaces.
+ * @returns {string} The formatted JSON string.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function stringify(
   json,
@@ -364,6 +465,11 @@ function stringify(
   return `${str.replace(/\n/g, EOL)}${EOF}`
 }
 
+/**
+ * Generate a unique filepath by prepending underscores if the path exists.
+ * @param {import('fs').PathLike} filepath - The desired filepath.
+ * @returns {string} A unique filepath that doesn't exist.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function uniqueSync(filepath) {
   const fs = getFs()
@@ -376,6 +482,14 @@ function uniqueSync(filepath) {
   return path.join(dirname, basename)
 }
 
+/**
+ * Write JSON content to a file asynchronously with formatting.
+ * @param {import('fs').PathLike} filepath - Path to write to.
+ * @param {any} jsonContent - The JSON content to write.
+ * @param {WriteJsonOptions} [options] - Write and format options.
+ * @returns {Promise<void>}
+ * @typedef {{EOL?: string; finalEOL?: boolean; replacer?: Function; spaces?: number | string} & import('fs').WriteFileOptions} WriteJsonOptions
+ */
 /*@__NO_SIDE_EFFECTS__*/
 async function writeJson(filepath, jsonContent, options) {
   if (typeof options === 'string') {
@@ -394,6 +508,13 @@ async function writeJson(filepath, jsonContent, options) {
   })
 }
 
+/**
+ * Write JSON content to a file synchronously with formatting.
+ * @param {import('fs').PathLike} filepath - Path to write to.
+ * @param {any} jsonContent - The JSON content to write.
+ * @param {WriteJsonOptions} [options] - Write and format options.
+ * @returns {void}
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function writeJsonSync(filepath, jsonContent, options) {
   if (typeof options === 'string') {

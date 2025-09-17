@@ -7,6 +7,11 @@ const { fromCharCode } = String
 // MIT License
 // Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
 
+/**
+ * Create a regular expression for matching ANSI escape codes.
+ * @param {{onlyFirst?: boolean}} [options] - Configuration options.
+ * @returns {RegExp} Regular expression for matching ANSI codes.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function ansiRegex(options) {
   const { onlyFirst } = { __proto__: null, ...options }
@@ -21,6 +26,12 @@ function ansiRegex(options) {
   return new RegExp(pattern, onlyFirst ? undefined : 'g')
 }
 
+/**
+ * Apply a prefix to each line of a string.
+ * @param {string} str - The string to prefix.
+ * @param {string} [prefix=''] - The prefix to add to each line.
+ * @returns {string} The string with prefixes applied.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function applyLinePrefix(str, prefix = '') {
   return prefix.length
@@ -28,6 +39,11 @@ function applyLinePrefix(str, prefix = '') {
     : str
 }
 
+/**
+ * Convert a camelCase string to kebab-case.
+ * @param {string} str - The camelCase string to convert.
+ * @returns {string} The kebab-case string.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function camelToKebab(str) {
   const { length } = str
@@ -71,21 +87,44 @@ function camelToKebab(str) {
   return result
 }
 
+/**
+ * Indent each line of a string with spaces.
+ * @param {string} str - The string to indent.
+ * @param {number} [count=1] - Number of spaces to indent.
+ * @returns {string} The indented string.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function indentString(str, count = 1) {
   return str.replace(/^(?!\s*$)/gm, ' '.repeat(count))
 }
 
-/*__NO_SIDE_EFFECTS__*/
+/**
+ * Check if a value is a blank string (empty or only whitespace).
+ * @param {any} value - The value to check.
+ * @returns {boolean} True if the value is a blank string.
+ */
+/*@__NO_SIDE_EFFECTS__*/
 function isBlankString(value) {
   return typeof value === 'string' && (!value.length || /^\s+$/.test(value))
 }
 
+/**
+ * Check if a value is a non-empty string.
+ * @param {any} value - The value to check.
+ * @returns {boolean} True if the value is a non-empty string.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function isNonEmptyString(value) {
   return typeof value === 'string' && value.length > 0
 }
 
+/**
+ * Search for a regular expression in a string starting from an index.
+ * @param {string} str - The string to search in.
+ * @param {RegExp} regexp - The regular expression to search for.
+ * @param {number} [fromIndex=0] - The index to start searching from.
+ * @returns {number} The index of the match, or -1 if not found.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function search(str, regexp, fromIndex = 0) {
   const { length } = str
@@ -100,11 +139,21 @@ function search(str, regexp, fromIndex = 0) {
   return result === -1 ? -1 : result + offset
 }
 
+/**
+ * Strip ANSI escape codes from a string.
+ * @param {string} str - The string to strip ANSI codes from.
+ * @returns {string} The string without ANSI codes.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function stripAnsi(str) {
   return str.replace(ansiRegex(), '')
 }
 
+/**
+ * Strip the Byte Order Mark (BOM) from the beginning of a string.
+ * @param {string} str - The string to strip BOM from.
+ * @returns {string} The string without BOM.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function stripBom(str) {
   // In JavaScript, string data is stored as UTF-16, so BOM is 0xFEFF.
@@ -112,6 +161,11 @@ function stripBom(str) {
   return str.length > 0 && str.charCodeAt(0) === 0xfeff ? str.slice(1) : str
 }
 
+/**
+ * Convert a string to kebab-case (handles camelCase and snake_case).
+ * @param {string} str - The string to convert.
+ * @returns {string} The kebab-case string.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function toKebabCase(str) {
   if (!str.length) {
@@ -127,6 +181,11 @@ function toKebabCase(str) {
   )
 }
 
+/**
+ * Trim newlines from the beginning and end of a string.
+ * @param {string} str - The string to trim newlines from.
+ * @returns {string} The string with newlines trimmed.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function trimNewlines(str) {
   const { length } = str

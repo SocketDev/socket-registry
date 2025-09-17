@@ -4,6 +4,11 @@ const { parse: JSONParse } = JSON
 
 const { stripBom } = /*@__PURE__*/ require('./strings')
 
+/**
+ * Check if a value is a Buffer instance.
+ * @param {any} x - The value to check.
+ * @returns {boolean} True if the value is a Buffer.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function isBuffer(x) {
   if (!x || typeof x !== 'object' || typeof x.length !== 'number') {
@@ -20,6 +25,11 @@ function isBuffer(x) {
   return !!(typeof Ctor?.isBuffer === 'function' && Ctor.isBuffer(x))
 }
 
+/**
+ * Check if a value is a JSON primitive (null, boolean, number, or string).
+ * @param {any} value - The value to check.
+ * @returns {boolean} True if the value is a JSON primitive.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function isJsonPrimitive(value) {
   return (
@@ -30,6 +40,12 @@ function isJsonPrimitive(value) {
   )
 }
 
+/**
+ * Parse JSON content with error handling and BOM stripping.
+ * @param {string | Buffer} content - The JSON content to parse.
+ * @param {{filepath?: string; reviver?: Function; throws?: boolean}} [options] - Parse options.
+ * @returns {any} The parsed JSON object, or null if parsing fails and throws is false.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function jsonParse(content, options) {
   const { filepath, reviver, throws } = { __proto__: null, ...options }

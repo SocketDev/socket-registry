@@ -7,6 +7,12 @@ const { apply: ReflectApply, construct: ReflectConstruct } = Reflect
 const { applyLinePrefix, isBlankString } = /*@__PURE__*/ require('./strings')
 
 let _Console
+/**
+ * Construct a new Console instance.
+ * @param {...any} args - Arguments to pass to the Console constructor.
+ * @returns {Console} A new Console instance.
+ * @private
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function constructConsole(...args) {
   if (_Console === undefined) {
@@ -19,6 +25,11 @@ function constructConsole(...args) {
 }
 
 let _yoctocolors
+/**
+ * Get the yoctocolors module for terminal colors.
+ * @returns {Object} The yoctocolors module.
+ * @private
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getYoctocolors() {
   if (_yoctocolors === undefined) {
@@ -109,6 +120,10 @@ const kGroupIndentationWidthSymbol =
   Symbol('kGroupIndentWidth')
 const lastWasBlankSymbol = Symbol.for('logger.lastWasBlank')
 
+/**
+ * Custom Logger class that wraps console with additional features.
+ * Supports indentation, symbols, and blank line tracking.
+ */
 /*@__PURE__*/
 class Logger {
   static LOG_SYMBOLS = LOG_SYMBOLS
@@ -134,6 +149,13 @@ class Logger {
     }
   }
 
+  /**
+   * Apply a console method with indentation.
+   * @param {string} methodName - Name of the console method to call.
+   * @param {any[]} args - Arguments to pass to the method.
+   * @returns {Logger} This Logger instance for chaining.
+   * @private
+   */
   #apply(methodName, args) {
     const con = privateConsole.get(this)
     const text = args.at(0)
@@ -147,6 +169,13 @@ class Logger {
     return this
   }
 
+  /**
+   * Apply a method with a symbol prefix.
+   * @param {string} symbolType - Type of symbol to use (fail, info, success, warn).
+   * @param {any[]} args - Arguments to pass to the method.
+   * @returns {Logger} This Logger instance for chaining.
+   * @private
+   */
   #symbolApply(symbolType, args) {
     const con = privateConsole.get(this)
     let text = args.at(0)
@@ -167,20 +196,39 @@ class Logger {
     return this
   }
 
+  /**
+   * Get the current log call count.
+   * @returns {number} The number of log calls made.
+   */
   get logCallCount() {
     return this.#logCallCount
   }
 
+  /**
+   * Increment the log call count.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   [incLogCallCountSymbol]() {
     this.#logCallCount += 1
     return this
   }
 
+  /**
+   * Set whether the last logged line was blank.
+   * @param {boolean} value - Whether the last line was blank.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   [lastWasBlankSymbol](value) {
     this.#lastWasBlank = !!value
     return this
   }
 
+  /**
+   * Log an assertion.
+   * @param {any} value - Value to assert.
+   * @param {...any} message - Message to log if assertion fails.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   assert(value, ...message) {
     const con = privateConsole.get(this)
     con.assert(value, ...message)
@@ -188,6 +236,10 @@ class Logger {
     return value ? this : this[incLogCallCountSymbol]()
   }
 
+  /**
+   * Clear the console.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   clear() {
     const con = privateConsole.get(this)
     con.clear()
@@ -198,6 +250,11 @@ class Logger {
     return this
   }
 
+  /**
+   * Log a count for the given label.
+   * @param {string} label - Label to count.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   count(label) {
     const con = privateConsole.get(this)
     con.count(label)
@@ -205,11 +262,22 @@ class Logger {
     return this[incLogCallCountSymbol]()
   }
 
+  /**
+   * Decrease indentation level.
+   * @param {number} [spaces=2] - Number of spaces to dedent.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   dedent(spaces = 2) {
     this.#indention = this.#indention.slice(0, -spaces)
     return this
   }
 
+  /**
+   * Display an object's properties.
+   * @param {any} obj - Object to display.
+   * @param {Object} [options] - Display options.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   dir(obj, options) {
     const con = privateConsole.get(this)
     con.dir(obj, options)
@@ -217,6 +285,11 @@ class Logger {
     return this[incLogCallCountSymbol]()
   }
 
+  /**
+   * Display data as XML.
+   * @param {...any} data - Data to display.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   dirxml(...data) {
     const con = privateConsole.get(this)
     con.dirxml(data)
@@ -224,18 +297,37 @@ class Logger {
     return this[incLogCallCountSymbol]()
   }
 
+  /**
+   * Log an error message.
+   * @param {...any} args - Arguments to log.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   error(...args) {
     return this.#apply('error', args)
   }
 
+  /**
+   * Log a newline to stderr if last line wasn't blank.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   errorNewline() {
     return this.#lastWasBlank ? this : this.error('')
   }
 
+  /**
+   * Log a failure message with symbol.
+   * @param {...any} args - Arguments to log.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   fail(...args) {
     return this.#symbolApply('fail', args)
   }
 
+  /**
+   * Start a new log group.
+   * @param {...any} label - Label for the group.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   group(...label) {
     const { length } = label
     if (length) {
@@ -249,43 +341,86 @@ class Logger {
     return this
   }
 
+  /**
+   * Start a new collapsed log group (alias for group).
+   * @param {...any} label - Label for the group.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   // groupCollapsed is an alias of group.
   // https://nodejs.org/api/console.html#consolegroupcollapsed
   groupCollapsed(...label) {
     return ReflectApply(this.group, this, label)
   }
 
+  /**
+   * End the current log group.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   groupEnd() {
     this.dedent(this[kGroupIndentationWidthSymbol])
     return this
   }
 
+  /**
+   * Increase indentation level.
+   * @param {number} [spaces=2] - Number of spaces to indent.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   indent(spaces = 2) {
     this.#indention += ' '.repeat(Math.min(spaces, maxIndentation))
     return this
   }
 
+  /**
+   * Log an info message with symbol.
+   * @param {...any} args - Arguments to log.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   info(...args) {
     return this.#symbolApply('info', args)
   }
 
+  /**
+   * Log a message.
+   * @param {...any} args - Arguments to log.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   log(...args) {
     return this.#apply('log', args)
   }
 
+  /**
+   * Log a newline to stdout if last line wasn't blank.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   logNewline() {
     return this.#lastWasBlank ? this : this.log('')
   }
 
+  /**
+   * Reset indentation to zero.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   resetIndent() {
     this.#indention = ''
     return this
   }
 
+  /**
+   * Log a success message with symbol.
+   * @param {...any} args - Arguments to log.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   success(...args) {
     return this.#symbolApply('success', args)
   }
 
+  /**
+   * Display data in a table format.
+   * @param {any} tabularData - Data to display.
+   * @param {string[]} [properties] - Properties to display.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   table(tabularData, properties) {
     const con = privateConsole.get(this)
     con.table(tabularData, properties)
@@ -293,6 +428,11 @@ class Logger {
     return this[incLogCallCountSymbol]()
   }
 
+  /**
+   * End a timer and log the elapsed time.
+   * @param {string} label - Timer label.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   timeEnd(label) {
     const con = privateConsole.get(this)
     con.timeEnd(label)
@@ -300,6 +440,12 @@ class Logger {
     return this[incLogCallCountSymbol]()
   }
 
+  /**
+   * Log the current timer value.
+   * @param {string} label - Timer label.
+   * @param {...any} data - Additional data to log.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   timeLog(label, ...data) {
     const con = privateConsole.get(this)
     con.timeLog(label, ...data)
@@ -307,6 +453,12 @@ class Logger {
     return this[incLogCallCountSymbol]()
   }
 
+  /**
+   * Log a stack trace.
+   * @param {string} message - Message to log with trace.
+   * @param {...any} args - Additional arguments.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   trace(message, ...args) {
     const con = privateConsole.get(this)
     con.trace(message, ...args)
@@ -314,6 +466,11 @@ class Logger {
     return this[incLogCallCountSymbol]()
   }
 
+  /**
+   * Log a warning message with symbol.
+   * @param {...any} args - Arguments to log.
+   * @returns {Logger} This Logger instance for chaining.
+   */
   warn(...args) {
     return this.#symbolApply('warn', args)
   }

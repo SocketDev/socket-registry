@@ -5,6 +5,11 @@
 // MIT License
 // Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
 
+/**
+ * Escape special characters in a string for use in a regular expression.
+ * @param {string} str - The string to escape.
+ * @returns {string} The escaped string safe for use in a RegExp.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function escapeRegExp(str) {
   // Escape characters with special meaning either inside or outside character sets.

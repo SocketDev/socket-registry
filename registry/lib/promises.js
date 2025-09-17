@@ -3,6 +3,11 @@
 const { arrayChunk } = /*@__PURE__*/ require('./arrays')
 
 let _timers
+/**
+ * Get the timers/promises module.
+ * @returns {Object} The timers/promises module.
+ * @private
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getTimers() {
   if (_timers === undefined) {
@@ -13,6 +18,11 @@ function getTimers() {
   return _timers
 }
 
+/**
+ * Normalize options for iteration functions.
+ * @param {Object} [options] - Iteration options.
+ * @returns {Object} Normalized iteration options.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function normalizeIterationOptions(options) {
   const {
@@ -32,6 +42,11 @@ function normalizeIterationOptions(options) {
   }
 }
 
+/**
+ * Normalize options for retry functionality.
+ * @param {Object|number} [options] - Retry options or number of retries.
+ * @returns {Object} Normalized retry options.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function normalizeRetryOptions(options) {
   const {
@@ -72,6 +87,11 @@ function normalizeRetryOptions(options) {
   }
 }
 
+/**
+ * Resolve retry options from various input formats.
+ * @param {Object|number} [options] - Options object or number of retries.
+ * @returns {Object} Resolved retry options object.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function resolveRetryOptions(options) {
   return {
@@ -80,6 +100,13 @@ function resolveRetryOptions(options) {
   }
 }
 
+/**
+ * Execute an async function for each array element with concurrency control.
+ * @param {any[]} array - Array to iterate over.
+ * @param {Function} callbackFn - Async function to execute for each element.
+ * @param {Object} [options] - Iteration options including concurrency and retries.
+ * @returns {Promise<void>} Resolves when all iterations complete.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 async function pEach(array, callbackFn, options) {
   const iterOpts = normalizeIterationOptions(options)
@@ -90,6 +117,13 @@ async function pEach(array, callbackFn, options) {
   )
 }
 
+/**
+ * Filter an array asynchronously with concurrency control.
+ * @param {any[]} array - Array to filter.
+ * @param {Function} callbackFn - Async predicate function.
+ * @param {Object} [options] - Iteration options including concurrency and retries.
+ * @returns {Promise<any[]>} Filtered array.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 async function pFilter(array, callbackFn, options) {
   const iterOpts = normalizeIterationOptions(options)
@@ -102,6 +136,13 @@ async function pFilter(array, callbackFn, options) {
   ).flat()
 }
 
+/**
+ * Process chunked arrays with an async callback.
+ * @param {any[][]} chunks - Array of array chunks.
+ * @param {Function} callbackFn - Async function to execute for each element.
+ * @param {Object} [options] - Retry options.
+ * @returns {Promise<void>} Resolves when all chunks are processed.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 async function pEachChunk(chunks, callbackFn, options) {
   const retryOpts = normalizeRetryOptions(options)
@@ -122,6 +163,13 @@ async function pEachChunk(chunks, callbackFn, options) {
   }
 }
 
+/**
+ * Filter chunked arrays with an async predicate.
+ * @param {any[][]} chunks - Array of array chunks.
+ * @param {Function} callbackFn - Async predicate function.
+ * @param {Object} [options] - Retry options.
+ * @returns {Promise<any[][]>} Filtered chunks.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 async function pFilterChunk(chunks, callbackFn, options) {
   const retryOpts = normalizeRetryOptions(options)
@@ -149,6 +197,13 @@ async function pFilterChunk(chunks, callbackFn, options) {
   return filteredChunks
 }
 
+/**
+ * Retry an async function with exponential backoff.
+ * @param {Function} callbackFn - Async function to retry.
+ * @param {Object} [options] - Retry options including retries, backoff, and delays.
+ * @returns {Promise<any>} Result of the successful function call.
+ * @throws {Error} The last error if all retries fail.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 async function pRetry(callbackFn, options) {
   const {

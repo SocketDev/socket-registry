@@ -1,6 +1,12 @@
 'use strict'
 
 let _localeCompare
+/**
+ * Compare two strings using locale-aware comparison.
+ * @param {string} x - First string to compare.
+ * @param {string} y - Second string to compare.
+ * @returns {number} Negative if x < y, positive if x > y, 0 if equal.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function localeCompare(x, y) {
   if (_localeCompare === undefined) {
@@ -11,6 +17,12 @@ function localeCompare(x, y) {
 }
 
 let _naturalCompare
+/**
+ * Compare two strings using natural sorting (numeric-aware, case-insensitive).
+ * @param {string} x - First string to compare.
+ * @param {string} y - Second string to compare.
+ * @returns {number} Negative if x < y, positive if x > y, 0 if equal.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function naturalCompare(x, y) {
   if (_naturalCompare === undefined) {
@@ -34,6 +46,11 @@ function naturalCompare(x, y) {
 }
 
 let _naturalSorter
+/**
+ * Sort an array using natural comparison.
+ * @param {any[]} arrayToSort - The array to sort.
+ * @returns {any} The fast-sort instance with natural comparison.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function naturalSorter(arrayToSort) {
   if (_naturalSorter === undefined) {
