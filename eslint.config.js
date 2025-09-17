@@ -315,6 +315,7 @@ function configs(sourceType) {
       files: ['**/*.d.{cts,mts,ts}'],
       ignores,
       rules: {
+        'n/no-unpublished-import': 'off',
         // Disable the following rules because they don't play well with TypeScript.
         'n/no-missing-import': 'off'
       }
