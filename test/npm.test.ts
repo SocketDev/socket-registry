@@ -27,7 +27,7 @@ const {
 } = constants
 
 // Pass args:
-// npm run test:unit ./test/npm.test.ts -- --force
+// pnpm run test:unit ./test/npm.test.ts -- --force
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 const eco = NPM
 
