@@ -298,15 +298,21 @@ function execScript(scriptName, args, options) {
   // Check for pnpm-lock.yaml.
   const PNPM_LOCK_YAML = /*@__PURE__*/ require('./constants/pnpm-lock-yaml')
   const pnpmLockPath = findUpSync(PNPM_LOCK_YAML, { cwd })
-
   if (pnpmLockPath) {
     return execPnpm(['run', scriptName, ...args], spawnOptions)
+  }
+
+  // Check for package-lock.json.
+  // When in an npm workspace, use npm run to ensure workspace binaries are available.
+  const PACKAGE_LOCK = /*@__PURE__*/ require('./constants/package-lock-json')
+  const packageLockPath = findUpSync(PACKAGE_LOCK, { cwd })
+  if (packageLockPath) {
+    return execNpm(['run', scriptName, ...args], spawnOptions)
   }
 
   // Check for yarn.lock.
   const YARN_LOCK = /*@__PURE__*/ require('./constants/yarn-lock')
   const yarnLockPath = findUpSync(YARN_LOCK, { cwd })
-
   if (yarnLockPath) {
     return execYarn(['run', scriptName, ...args], spawnOptions)
   }

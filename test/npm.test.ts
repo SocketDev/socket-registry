@@ -16,6 +16,8 @@ import { logger } from '@socketsecurity/registry/lib/logger'
 import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/packages'
 import { isNonEmptyString } from '@socketsecurity/registry/lib/strings'
 
+import type { SpawnError } from '@socketsecurity/registry/lib/spawn'
+
 const {
   LICENSE_GLOB_RECURSIVE,
   NPM,
@@ -84,7 +86,12 @@ describe(eco, { skip: !packageNames.length }, () => {
         expect(true).toBe(true)
       } catch (e) {
         logger.fail(`${origPkgName}`)
-        // const error = e as { stderr?: string } | null | undefined
+        logger.error(
+          `Failed ${origPkgName}:`,
+          (e as Error)?.message ?? 'Unknown error',
+          'stderr:',
+          (e as SpawnError)?.stderr ?? 'Unknown stderr'
+        )
         expect(false).toBe(true)
       }
     })
