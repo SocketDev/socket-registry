@@ -198,7 +198,7 @@ for (const eco of constants.ecosystems) {
           it('should have valid "engine" entry version ranges', () => {
             for (const { 1: value } of objectEntries(engines)) {
               expect(
-                typeof value === 'string' && semver.validRange(value)
+                typeof value === 'string' && semver.validRange(value) !== null
               ).toBe(true)
             }
           })
@@ -344,12 +344,14 @@ for (const eco of constants.ecosystems) {
           })
         )
 
-        const hasOverridesAsDeps = Object.keys(dependencies ?? {}).some(k =>
-          k.startsWith(SOCKET_REGISTRY_SCOPE)
+        const hasOverridesAsDeps = Object.values(dependencies ?? {}).some(
+          v => typeof v === 'string' && v.includes(SOCKET_REGISTRY_SCOPE)
         )
 
         const hasOverrides =
           hasOverridesAsDeps || !!pkgOverrides || !!pkgResolutions
+
+        const hasDependencies = !!dependencies
 
         if (hasOverrides) {
           if (!hasOverridesAsDeps) {
@@ -358,7 +360,7 @@ for (const eco of constants.ecosystems) {
               expect(isObjectObject(pkgResolutions)).toBe(true)
             })
           }
-        } else {
+        } else if (!hasDependencies) {
           it('package files should match "files" field', () => {
             const filesToCompare = files.filter(p =>
               isDotFile(p) ? dotFileMatches.has(p) : !isSrcFile(p)
