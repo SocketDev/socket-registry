@@ -9,6 +9,28 @@ const {
 const { isDebug } = /*@__PURE__*/ require('./debug')
 const { spawn } = /*@__PURE__*/ require('./spawn')
 
+let _fs
+/*@__NO_SIDE_EFFECTS__*/
+function getFs() {
+  if (_fs === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _fs = /*@__PURE__*/ require('fs')
+  }
+  return _fs
+}
+
+let _path
+/*@__NO_SIDE_EFFECTS__*/
+function getPath() {
+  if (_path === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _path = /*@__PURE__*/ require('path')
+  }
+  return _path
+}
+
 const npmAuditFlags = new Set(['--audit', '--no-audit'])
 
 const npmFundFlags = new Set(['--fund', '--no-fund'])
@@ -173,10 +195,33 @@ function isPnpmIgnoreScriptsFlag(cmdArg) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function runNpmScript(scriptName, args, options) {
+function execScript(scriptName, args, options) {
   const { prepost, ...spawnOptions } = { __proto__: null, ...options }
   const useNodeRun =
     !prepost && /*@__PURE__*/ require('./constants/supports-node-run')
+
+  // Detect package manager based on lockfile in the current package.
+  // Only check the immediate directory with package.json, not parents.
+  const fs = getFs()
+  const path = getPath()
+  const cwd = spawnOptions.cwd || process.cwd()
+
+  // Check for pnpm-lock.yaml in the same directory as package.json.
+  const PNPM_LOCK_YAML = /*@__PURE__*/ require('./constants/pnpm-lock-yaml')
+  const usePnpm = fs.existsSync(path.join(cwd, PNPM_LOCK_YAML))
+
+  if (usePnpm) {
+    return execPnpm(['run', scriptName, ...args], spawnOptions)
+  }
+
+  // Check for yarn.lock in the same directory as package.json.
+  const YARN_LOCK = /*@__PURE__*/ require('./constants/yarn-lock')
+  const useYarn = fs.existsSync(path.join(cwd, YARN_LOCK))
+
+  if (useYarn) {
+    return execYarn(['run', scriptName, ...args], spawnOptions)
+  }
+
   return spawn(
     /*@__PURE__*/ require('./constants/exec-path'),
     [
@@ -197,6 +242,7 @@ function runNpmScript(scriptName, args, options) {
 module.exports = {
   execNpm,
   execPnpm,
+  execScript,
   execYarn,
   isNpmAuditFlag,
   isNpmFundFlag,
@@ -206,7 +252,6 @@ module.exports = {
   isPnpmIgnoreScriptsFlag,
   resolveBinPathSync,
   runBin,
-  runNpmScript,
   whichBin,
   whichBinSync
 }
