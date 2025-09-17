@@ -1,6 +1,6 @@
 {
   "name": "@socketsecurity/registry",
-  "version": "1.1.9",
+  "version": "1.1.10",
   "license": "MIT",
   "description": "Socket.dev registry helpers methods and metadata",
   "keywords": [
@@ -559,6 +559,14 @@
     "./lib/constants/undefined-token": {
       "types": "./lib/constants/undefined-token.d.ts",
       "default": "./lib/constants/undefined-token.js"
+    },
+    "./lib/constants/unknown-error": {
+      "types": "./lib/constants/unknown-error.d.ts",
+      "default": "./lib/constants/unknown-error.js"
+    },
+    "./lib/constants/unknown-value": {
+      "types": "./lib/constants/unknown-value.d.ts",
+      "default": "./lib/constants/unknown-value.js"
     },
     "./lib/constants/unlicenced": {
       "types": "./lib/constants/unlicenced.d.ts",

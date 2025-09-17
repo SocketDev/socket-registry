@@ -106,6 +106,8 @@ import tsLibsAvailable from './ts-libs-available'
 import tsTypesAvailable from './ts-types-available'
 import TSCONFIG_JSON from './tsconfig-json'
 import UNDEFINED_TOKEN from './undefined-token'
+import UNKNOWN_ERROR from './unknown-error'
+import UNKNOWN_VALUE from './unknown-value'
 import UNLICENCED from './unlicenced'
 import UNLICENSED from './unlicensed'
 import UTF8 from './utf8'
@@ -221,6 +223,8 @@ declare const Constants: {
   readonly TEMPLATE_ES_SHIM_STATIC_METHOD: typeof TEMPLATE_ES_SHIM_STATIC_METHOD
   readonly TSCONFIG_JSON: typeof TSCONFIG_JSON
   readonly UNDEFINED_TOKEN: typeof UNDEFINED_TOKEN
+  readonly UNKNOWN_ERROR: typeof UNKNOWN_ERROR
+  readonly UNKNOWN_VALUE: typeof UNKNOWN_VALUE
   readonly UNLICENCED: typeof UNLICENCED
   readonly UNLICENSED: typeof UNLICENSED
   readonly UTF8: typeof UTF8
