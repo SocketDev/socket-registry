@@ -4,6 +4,7 @@ const crypto = require('node:crypto')
 const fs = require('node:fs/promises')
 const path = require('node:path')
 
+const { minimatch } = require('minimatch')
 const semver = require('semver')
 
 const constants = require('@socketregistry/scripts/constants')
@@ -17,7 +18,10 @@ const {
 const { readPackageJsonSync } = require('@socketsecurity/registry/lib/packages')
 const { readFileUtf8 } = require('@socketsecurity/registry/lib/fs')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
-const { toSortedObject } = require('@socketsecurity/registry/lib/objects')
+const {
+  isObjectObject,
+  toSortedObject
+} = require('@socketsecurity/registry/lib/objects')
 
 const {
   LATEST,
@@ -38,10 +42,95 @@ const registryPkg = packageData({
 
 const EXTRACT_PACKAGE_TMP_PREFIX = 'release-npm-'
 
-async function getPackageFileHashes(spec) {
+async function getLocalPackageFileHashes(packagePath) {
   const fileHashes = {}
 
-  // Extract package to a temp directory and compute hashes.
+  // Read package.json to get files field.
+  const pkgJsonPath = path.join(packagePath, PACKAGE_JSON)
+  const pkgJsonContent = await readFileUtf8(pkgJsonPath)
+  const pkgJson = JSON.parse(pkgJsonContent)
+  const filesPatterns = pkgJson.files || []
+
+  // Always include package.json.
+  const pkgJsonRelPath = PACKAGE_JSON
+  const exportsValue = pkgJson.exports
+  const relevantData = {
+    dependencies: toSortedObject(pkgJson.dependencies ?? {}),
+    exports: isObjectObject(exportsValue)
+      ? toSortedObject(exportsValue)
+      : (exportsValue ?? null),
+    files: pkgJson.files ?? null,
+    sideEffects: pkgJson.sideEffects ?? null,
+    engines: pkgJson.engines ?? null
+  }
+  const pkgJsonHash = crypto
+    .createHash('sha256')
+    .update(JSON.stringify(relevantData), 'utf8')
+    .digest('hex')
+  fileHashes[pkgJsonRelPath] = pkgJsonHash
+
+  // Walk and hash files.
+  async function walkDir(dir, baseDir = packagePath) {
+    const entries = await fs.readdir(dir, { withFileTypes: true })
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name)
+      const relativePath = path.relative(baseDir, fullPath)
+
+      if (entry.isDirectory()) {
+        // Always recurse for patterns with ** or when we're at root level and have patterns.
+        const shouldRecurse =
+          relativePath === '' ||
+          filesPatterns.some(pattern => {
+            return (
+              pattern.includes('**') || pattern.startsWith(relativePath + '/')
+            )
+          })
+
+        if (shouldRecurse) {
+          // eslint-disable-next-line no-await-in-loop
+          await walkDir(fullPath, baseDir)
+        }
+      } else if (entry.isFile() && entry.name !== PACKAGE_JSON) {
+        // Check if file is npm auto-included (LICENSE/README with any case/extension in root).
+        const isRootAutoIncluded =
+          relativePath === entry.name && isNpmAutoIncluded(entry.name)
+
+        // Check if file matches any of the patterns.
+        const matchesPattern = filesPatterns.some(pattern => {
+          // Handle patterns like **/LICENSE{.original,}
+          if (pattern.includes('**')) {
+            const fileName = path.basename(relativePath)
+            const filePattern = pattern.replace('**/', '')
+            return (
+              minimatch(fileName, filePattern) ||
+              minimatch(relativePath, pattern)
+            )
+          }
+          return minimatch(relativePath, pattern)
+        })
+
+        if (isRootAutoIncluded || matchesPattern) {
+          // eslint-disable-next-line no-await-in-loop
+          const content = await readFileUtf8(fullPath)
+          const hash = crypto
+            .createHash('sha256')
+            .update(content, 'utf8')
+            .digest('hex')
+          fileHashes[relativePath] = hash
+        }
+      }
+    }
+  }
+
+  await walkDir(packagePath)
+
+  return toSortedObject(fileHashes)
+}
+
+async function getRemotePackageFileHashes(spec) {
+  const fileHashes = {}
+
+  // Extract remote package and hash files.
   await extractPackage(
     spec,
     {
@@ -59,15 +148,36 @@ async function getPackageFileHashes(spec) {
             // Recurse into subdirectories.
             // eslint-disable-next-line no-await-in-loop
             await walkDir(fullPath, baseDir)
-          } else if (entry.isFile() && entry.name !== PACKAGE_JSON) {
-            // Skip package.json files as they contain version info.
+          } else if (entry.isFile()) {
             // eslint-disable-next-line no-await-in-loop
             const content = await readFileUtf8(fullPath)
-            const hash = crypto
-              .createHash('sha256')
-              .update(content, 'utf8')
-              .digest('hex')
-            fileHashes[relativePath] = hash
+
+            if (entry.name === PACKAGE_JSON) {
+              // For package.json, hash only relevant fields (not version).
+              const pkgJson = JSON.parse(content)
+              const exportsValue = pkgJson.exports
+              const relevantData = {
+                dependencies: toSortedObject(pkgJson.dependencies ?? {}),
+                exports: isObjectObject(exportsValue)
+                  ? toSortedObject(exportsValue)
+                  : (exportsValue ?? null),
+                files: pkgJson.files ?? null,
+                sideEffects: pkgJson.sideEffects ?? null,
+                engines: pkgJson.engines ?? null
+              }
+              const hash = crypto
+                .createHash('sha256')
+                .update(JSON.stringify(relevantData), 'utf8')
+                .digest('hex')
+              fileHashes[relativePath] = hash
+            } else {
+              // For other files, hash the entire content.
+              const hash = crypto
+                .createHash('sha256')
+                .update(content, 'utf8')
+                .digest('hex')
+              fileHashes[relativePath] = hash
+            }
           }
         }
       }
@@ -80,6 +190,8 @@ async function getPackageFileHashes(spec) {
 }
 
 async function hasPackageChanged(pkg, manifest_) {
+  const { spinner } = constants
+
   const manifest =
     manifest_ ?? (await fetchPackageManifest(`${pkg.name}@${pkg.tag}`))
 
@@ -89,50 +201,25 @@ async function hasPackageChanged(pkg, manifest_) {
     )
   }
 
-  // First check if package.json version or dependencies have changed.
-  const localPkgJson = readPackageJsonSync(pkg.path)
-
-  // Check if dependencies have changed.
-  const localDeps = toSortedObject(localPkgJson.dependencies ?? {})
-  const remoteDeps = toSortedObject(manifest.dependencies ?? {})
-
-  const localDepsStr = JSON.stringify(localDeps)
-  const remoteDepsStr = JSON.stringify(remoteDeps)
-
-  // If dependencies changed, we need to bump.
-  if (localDepsStr !== remoteDepsStr) {
-    return true
-  }
-
-  // Check if other important fields have changed.
-  const fieldsToCheck = ['exports', 'files', 'sideEffects', 'engines']
-  for (const field of fieldsToCheck) {
-    const localValue = JSON.stringify(localPkgJson[field] ?? null)
-    const remoteValue = JSON.stringify(manifest[field] ?? null)
-    if (localValue !== remoteValue) {
-      return true
-    }
-  }
-
   // Compare actual file contents by extracting packages and comparing SHA hashes.
   try {
     const { 0: remoteHashes, 1: localHashes } = await Promise.all([
-      getPackageFileHashes(`${pkg.name}@${manifest.version}`),
-      getPackageFileHashes(pkg.path, true)
+      getRemotePackageFileHashes(`${pkg.name}@${manifest.version}`),
+      getLocalPackageFileHashes(pkg.path)
     ])
 
-    // Compare the file hashes.
-    const remoteFiles = Object.keys(remoteHashes)
-    const localFiles = Object.keys(localHashes)
-
-    // Check if file lists are different.
-    if (JSON.stringify(remoteFiles) !== JSON.stringify(localFiles)) {
-      return true
-    }
-
-    // Check if any file content is different.
-    for (const file of remoteFiles) {
-      if (remoteHashes[file] !== localHashes[file]) {
+    // Use remote files as source of truth and check if local matches.
+    for (const [file, remoteHash] of Object.entries(remoteHashes)) {
+      const localHash = localHashes[file]
+      if (!localHash) {
+        // File exists in remote but not locally - this is a real difference.
+        spinner?.warn(
+          `${pkg.name}: File '${file}' exists in published package but not locally`
+        )
+        return true
+      }
+      if (remoteHash !== localHash) {
+        spinner?.info(`${pkg.name}: File '${file}' content differs`)
         return true
       }
     }
@@ -140,12 +227,18 @@ async function hasPackageChanged(pkg, manifest_) {
     return false
   } catch (e) {
     // If comparison fails, be conservative and assume changes.
-    console.error(`Error comparing packages for ${pkg.name}:`, e?.message)
+    spinner?.fail(`${pkg.name}: ${e?.message}`)
     return true
   }
 }
 
-async function maybeBumpPackage(pkg, options = {}) {
+function isNpmAutoIncluded(fileName) {
+  const upperName = fileName.toUpperCase()
+  // NPM automatically includes LICENSE and README files with any case and extension.
+  return upperName.startsWith('LICENSE') || upperName.startsWith('README')
+}
+
+async function maybeBumpPackage(pkg, options) {
   const {
     spinner,
     state = {
@@ -169,7 +262,8 @@ async function maybeBumpPackage(pkg, options = {}) {
   // Compare the shasum of the @socketregistry the latest package from
   // registry.npmjs.org against the local version. If they are different
   // then bump the local version.
-  if (await hasPackageChanged(pkg, manifest)) {
+  const hasChanged = await hasPackageChanged(pkg, manifest)
+  if (hasChanged) {
     let version = semver.inc(manifest.version, 'patch')
     if (pkg.tag !== LATEST) {
       version = `${semver.inc(version, 'patch')}-${pkg.tag}`
