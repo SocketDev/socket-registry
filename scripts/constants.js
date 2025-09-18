@@ -8,6 +8,7 @@ const path = require('node:path')
 const eslintCompat = require('@eslint/compat')
 const registryConstants = require('@socketsecurity/registry/lib/constants')
 const { whichBinSync } = require('@socketsecurity/registry/lib/agent')
+const { envAsBoolean } = require('@socketsecurity/registry/lib/env')
 const which = require('which')
 
 const {
@@ -39,6 +40,19 @@ function getDefaultWhichOptions() {
     }
   }
   return _defaultWhichOptions
+}
+
+const LAZY_ENV = () => {
+  const { env } = process
+  // We inline some environment values so that they CANNOT be influenced by user
+  // provided environment variables.
+  return Object.freeze({
+    __proto__: null,
+    // Lazily access registryConstants.ENV.
+    ...registryConstants.ENV,
+    // Enable verbose build output.
+    VERBOSE_BUILD: envAsBoolean(env.VERBOSE_BUILD)
+  })
 }
 
 const LAZY_LICENSE_CONTENT = () =>
@@ -239,6 +253,7 @@ const constants = createConstantsObject(
   {
     // Lazily defined values are initialized as `undefined` to
     // keep their key order.
+    ENV: undefined,
     DEFAULT_CONCURRENCY: 3,
     LICENSE_CONTENT: undefined,
     PACKAGES: 'packages',
@@ -304,6 +319,7 @@ const constants = createConstantsObject(
   },
   {
     getters: {
+      ENV: LAZY_ENV,
       LICENSE_CONTENT: LAZY_LICENSE_CONTENT,
       ecosystems: lazyEcosystems,
       gitExecPath: lazyGitExecPath,

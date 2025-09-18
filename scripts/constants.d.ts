@@ -13,6 +13,11 @@ type Internals = Remap<
 declare const Constants: Remap<
   Exclude<typeof registryConstants, typeof kInternalsSymbol> & {
     readonly [kInternalsSymbol]: Internals
+    readonly ENV: Remap<
+      (typeof registryConstants)['ENV'] & {
+        readonly VERBOSE_BUILD: boolean
+      }
+    >
     readonly DEFAULT_CONCURRENCY: 3
     readonly LICENSE_CONTENT: string
     readonly PACKAGES: 'packages'
