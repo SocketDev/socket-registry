@@ -1,6 +1,7 @@
 'use strict'
 
 const { readJsonSync } = /*@__PURE__*/ require('./fs')
+const { getOwn } = /*@__PURE__*/ require('./objects')
 const { isPath, normalizePath } = /*@__PURE__*/ require('./path')
 const { spawn } = /*@__PURE__*/ require('./spawn')
 
@@ -64,6 +65,213 @@ function getNotResolvedError(binPath, source = '') {
   )
   error.code = 'ENOENT'
   return error
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+/**
+ * Execute a binary with the given arguments.
+ * @param {string} binPath - Path or name of the binary to execute.
+ * @param {string[] | readonly string[]} args - Arguments to pass to the binary.
+ * @param {import('./spawn').SpawnOptions} [options] - Spawn options.
+ * @returns {Promise<{ stdout: string; stderr: string }>} Command output.
+ */
+function execBin(binPath, args, options) {
+  return spawn(
+    /*@__PURE__*/ require('./constants/exec-path'),
+    [
+      .../*@__PURE__*/ require('./constants/node-no-warnings-flags'),
+      isPath(binPath) ? resolveBinPathSync(binPath) : whichBinSync(binPath),
+      ...args
+    ],
+    options
+  )
+}
+
+/**
+ * Find and resolve a binary in the system PATH asynchronously.
+ * @template {import('which').Options} T
+ * @param {string} binName - Name of the binary to find.
+ * @param {T} options - Options for the which module.
+ * @returns {T extends {all: true, nothrow: true} ? Promise<string[] | null> : T extends {all: true} ? Promise<string[]> : T extends {nothrow: true} ? Promise<string | null> : Promise<string>} The resolved binary path(s).
+ * @throws {Error} If the binary is not found and nothrow is false.
+ */
+async function whichBin(binName, options) {
+  const which = getWhich()
+  // Depending on options `which` may throw if `binName` is not found.
+  // The default behavior is to throw when `binName` is not found.
+  const result = await which(binName, options)
+
+  // When 'all: true' is specified, ensure we always return an array.
+  if (options?.all) {
+    const paths = Array.isArray(result)
+      ? result
+      : result != null
+        ? [result]
+        : result
+    // If all is true and we have paths, resolve each one.
+    if (paths && paths.length > 0) {
+      return paths.map(p => resolveBinPathSync(p))
+    }
+    return paths
+  }
+
+  return resolveBinPathSync(result)
+}
+
+/**
+ * Find and resolve a binary in the system PATH synchronously.
+ * @template {import('which').Options} T
+ * @param {string} binName - Name of the binary to find.
+ * @param {T} options - Options for the which module.
+ * @returns {T extends {all: true, nothrow: true} ? string[] | null : T extends {all: true} ? string[] : T extends {nothrow: true} ? string | null : string} The resolved binary path(s).
+ * @throws {Error} If the binary is not found and nothrow is false.
+ */
+function whichBinSync(binName, options) {
+  // Depending on options `which` may throw if `binName` is not found.
+  // The default behavior is to throw when `binName` is not found.
+  const result = getWhich().sync(binName, options)
+
+  // When 'all: true' is specified, ensure we always return an array.
+  if (getOwn(options, 'all')) {
+    const paths = Array.isArray(result)
+      ? result
+      : typeof result === 'string'
+        ? [result]
+        : result
+    // If all is true and we have paths, resolve each one.
+    if (paths && paths.length) {
+      return paths.map(p => resolveBinPathSync(p))
+    }
+    return paths
+  }
+
+  return resolveBinPathSync(result)
+}
+
+/**
+ * Check if a directory path contains any shadow bin patterns.
+ * @param {string} dirPath - Directory path to check.
+ * @returns {boolean} True if the path contains shadow bin patterns.
+ */
+function isShadowBinPath(dirPath) {
+  return (
+    dirPath.includes('shadow-bin') ||
+    dirPath.includes('shadow-npm-bin') ||
+    dirPath.includes('shadow-pnpm-bin') ||
+    dirPath.includes('shadow-yarn-bin')
+  )
+}
+
+/**
+ * Find the real executable for a binary, bypassing shadow bins.
+ * @param {string} binName - Name of the binary to find.
+ * @param {string[]} commonPaths - Common paths to check first.
+ * @returns {string} The path to the real binary.
+ */
+function findRealBin(binName, commonPaths = []) {
+  const fs = getFs()
+  const path = getPath()
+  const which = getWhich()
+
+  // Try common locations first.
+  for (const binPath of commonPaths) {
+    if (fs.existsSync(binPath)) {
+      return binPath
+    }
+  }
+
+  // Fall back to which.sync if no direct path found.
+  try {
+    const binPath = which.sync(binName, { nothrow: true })
+    if (binPath) {
+      const binDir = path.dirname(binPath)
+
+      if (isShadowBinPath(binDir)) {
+        // This is likely a shadowed binary, try to find the real one.
+        const allPaths = which.sync(binName, { all: true, nothrow: true }) || []
+        // Ensure allPaths is an array.
+        const pathsArray = Array.isArray(allPaths)
+          ? allPaths
+          : typeof allPaths === 'string'
+            ? [allPaths]
+            : []
+
+        for (const altPath of pathsArray) {
+          const altDir = path.dirname(altPath)
+          if (!isShadowBinPath(altDir)) {
+            return altPath
+          }
+        }
+      }
+      return binPath
+    }
+  } catch {
+    // Ignore errors.
+  }
+
+  // If all else fails, return the binary name and let the system resolve it.
+  return binName
+}
+
+/**
+ * Find the real npm executable, bypassing any aliases and shadow bins.
+ * @returns {string} The path to the real npm binary.
+ */
+function findRealNpm() {
+  const fs = getFs()
+  const path = getPath()
+
+  // Try to find npm in the same directory as the node executable.
+  const nodeDir = path.dirname(process.execPath)
+  const npmInNodeDir = path.join(nodeDir, 'npm')
+
+  if (fs.existsSync(npmInNodeDir)) {
+    return npmInNodeDir
+  }
+
+  // Try common npm locations.
+  const commonPaths = ['/usr/local/bin/npm', '/usr/bin/npm']
+
+  return findRealBin('npm', commonPaths)
+}
+
+/**
+ * Find the real pnpm executable, bypassing any aliases and shadow bins.
+ * @returns {string} The path to the real pnpm binary.
+ */
+function findRealPnpm() {
+  const path = getPath()
+
+  // Try common pnpm locations.
+  const commonPaths = [
+    '/usr/local/bin/pnpm',
+    '/usr/bin/pnpm',
+    path.join(process.env.HOME || '', '.local/share/pnpm/pnpm'),
+    path.join(process.env.HOME || '', '.pnpm/pnpm')
+  ].filter(Boolean)
+
+  return findRealBin('pnpm', commonPaths)
+}
+
+/**
+ * Find the real yarn executable, bypassing any aliases and shadow bins.
+ * @returns {string} The path to the real yarn binary.
+ */
+function findRealYarn() {
+  const path = getPath()
+
+  // Try common yarn locations.
+  const commonPaths = [
+    '/usr/local/bin/yarn',
+    '/usr/bin/yarn',
+    path.join(process.env.HOME || '', '.yarn/bin/yarn'),
+    path.join(
+      process.env.HOME || '',
+      '.config/yarn/global/node_modules/.bin/yarn'
+    )
+  ].filter(Boolean)
+
+  return findRealBin('yarn', commonPaths)
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -415,57 +623,13 @@ function resolveBinPathSync(binPath) {
   }
 }
 
-/*@__NO_SIDE_EFFECTS__*/
-/**
- * Execute a binary with the given arguments.
- * @param {string} binPath - Path or name of the binary to execute.
- * @param {string[] | readonly string[]} args - Arguments to pass to the binary.
- * @param {import('./spawn').SpawnOptions} [options] - Spawn options.
- * @returns {Promise<{ stdout: string; stderr: string }>} Command output.
- */
-function execBin(binPath, args, options) {
-  return spawn(
-    /*@__PURE__*/ require('./constants/exec-path'),
-    [
-      .../*@__PURE__*/ require('./constants/node-no-warnings-flags'),
-      isPath(binPath) ? resolveBinPathSync(binPath) : whichBinSync(binPath),
-      ...args
-    ],
-    options
-  )
-}
-
-/**
- * Find and resolve a binary in the system PATH asynchronously.
- * @template {import('which').Options} T
- * @param {string} binName - Name of the binary to find.
- * @param {T} options - Options for the which module.
- * @returns {T extends {nothrow: true} ? Promise<string | null> : Promise<string>} The resolved binary path.
- * @throws {Error} If the binary is not found and nothrow is false.
- */
-async function whichBin(binName, options) {
-  const which = getWhich()
-  // Depending on options `which` may throw if `binName` is not found.
-  // The default behavior is to throw when `binName` is not found.
-  return resolveBinPathSync(await which(binName, options))
-}
-
-/**
- * Find and resolve a binary in the system PATH synchronously.
- * @template {import('which').Options} T
- * @param {string} binName - Name of the binary to find.
- * @param {T} options - Options for the which module.
- * @returns {T extends {nothrow: true} ? string | null : string} The resolved binary path.
- * @throws {Error} If the binary is not found and nothrow is false.
- */
-function whichBinSync(binName, options) {
-  // Depending on options `which` may throw if `binName` is not found.
-  // The default behavior is to throw when `binName` is not found.
-  return resolveBinPathSync(getWhich().sync(binName, options))
-}
-
 module.exports = {
   execBin,
+  findRealBin,
+  findRealNpm,
+  findRealPnpm,
+  findRealYarn,
+  isShadowBinPath,
   resolveBinPathSync,
   whichBin,
   whichBinSync
