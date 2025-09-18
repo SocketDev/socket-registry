@@ -175,34 +175,29 @@ function findRealBin(binName, commonPaths = []) {
   }
 
   // Fall back to which.sync if no direct path found.
-  try {
-    const binPath = which.sync(binName, { nothrow: true })
-    if (binPath) {
-      const binDir = path.dirname(binPath)
+  const binPath = which.sync(binName, { nothrow: true })
+  if (binPath) {
+    const binDir = path.dirname(binPath)
 
-      if (isShadowBinPath(binDir)) {
-        // This is likely a shadowed binary, try to find the real one.
-        const allPaths = which.sync(binName, { all: true, nothrow: true }) || []
-        // Ensure allPaths is an array.
-        const pathsArray = Array.isArray(allPaths)
-          ? allPaths
-          : typeof allPaths === 'string'
-            ? [allPaths]
-            : []
+    if (isShadowBinPath(binDir)) {
+      // This is likely a shadowed binary, try to find the real one.
+      const allPaths = which.sync(binName, { all: true, nothrow: true }) || []
+      // Ensure allPaths is an array.
+      const pathsArray = Array.isArray(allPaths)
+        ? allPaths
+        : typeof allPaths === 'string'
+          ? [allPaths]
+          : []
 
-        for (const altPath of pathsArray) {
-          const altDir = path.dirname(altPath)
-          if (!isShadowBinPath(altDir)) {
-            return altPath
-          }
+      for (const altPath of pathsArray) {
+        const altDir = path.dirname(altPath)
+        if (!isShadowBinPath(altDir)) {
+          return altPath
         }
       }
-      return binPath
     }
-  } catch {
-    // Ignore errors.
+    return binPath
   }
-
   // If all else fails, return the binary name and let the system resolve it.
   return binName
 }
@@ -225,8 +220,22 @@ function findRealNpm() {
 
   // Try common npm locations.
   const commonPaths = ['/usr/local/bin/npm', '/usr/bin/npm']
+  const result = findRealBin('npm', commonPaths)
 
-  return findRealBin('npm', commonPaths)
+  // If we found a valid path, return it.
+  if (fs.existsSync(result)) {
+    return result
+  }
+
+  // As a last resort, try to use whichBinSync to find npm.
+  // This handles cases where npm is installed in non-standard locations.
+  const npmPath = whichBinSync('npm', { nothrow: true })
+  if (npmPath && fs.existsSync(npmPath)) {
+    return npmPath
+  }
+
+  // Return the basic 'npm' and let the system resolve it.
+  return 'npm'
 }
 
 /**
@@ -234,15 +243,28 @@ function findRealNpm() {
  * @returns {string} The path to the real pnpm binary.
  */
 function findRealPnpm() {
+  const { ENV } = /*@__PURE__*/ require('./constants')
+  const WIN32 = /*@__PURE__*/ require('./constants/win32')
   const path = getPath()
 
   // Try common pnpm locations.
-  const commonPaths = [
-    '/usr/local/bin/pnpm',
-    '/usr/bin/pnpm',
-    path.join(process.env.HOME || '', '.local/share/pnpm/pnpm'),
-    path.join(process.env.HOME || '', '.pnpm/pnpm')
-  ].filter(Boolean)
+  const commonPaths = WIN32
+    ? [
+        // Windows common paths.
+        path.join(ENV.APPDATA || '', 'npm', 'pnpm.cmd'),
+        path.join(ENV.APPDATA || '', 'npm', 'pnpm'),
+        path.join(ENV.LOCALAPPDATA || '', 'pnpm', 'pnpm.cmd'),
+        path.join(ENV.LOCALAPPDATA || '', 'pnpm', 'pnpm'),
+        'C:\\Program Files\\nodejs\\pnpm.cmd',
+        'C:\\Program Files\\nodejs\\pnpm'
+      ].filter(Boolean)
+    : [
+        // Unix common paths.
+        '/usr/local/bin/pnpm',
+        '/usr/bin/pnpm',
+        path.join(ENV.HOME || '', '.local/share/pnpm/pnpm'),
+        path.join(ENV.HOME || '', '.pnpm/pnpm')
+      ].filter(Boolean)
 
   return findRealBin('pnpm', commonPaths)
 }
@@ -252,15 +274,16 @@ function findRealPnpm() {
  * @returns {string} The path to the real yarn binary.
  */
 function findRealYarn() {
+  const { ENV } = /*@__PURE__*/ require('./constants')
   const path = getPath()
 
   // Try common yarn locations.
   const commonPaths = [
     '/usr/local/bin/yarn',
     '/usr/bin/yarn',
-    path.join(process.env.HOME || '', '.yarn/bin/yarn'),
+    path.join(ENV.HOME || '', '.yarn/bin/yarn'),
     path.join(
-      process.env.HOME || '',
+      ENV.HOME || '',
       '.config/yarn/global/node_modules/.bin/yarn'
     )
   ].filter(Boolean)

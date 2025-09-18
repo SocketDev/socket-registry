@@ -35,6 +35,43 @@ const pnpmIgnoreScriptsFlags = new Set([
   '--no-ignore-scripts'
 ])
 
+const pnpmFrozenLockfileFlags = new Set([
+  '--frozen-lockfile',
+  '--no-frozen-lockfile'
+])
+
+const pnpmInstallCommands = new Set(['install', 'i'])
+
+// Commands that support --ignore-scripts flag in pnpm:
+// Installation-related: install, add, update, remove, link, unlink, import, rebuild.
+const pnpmInstallLikeCommands = new Set([
+  'install',
+  'i',
+  'add',
+  'update',
+  'up',
+  'remove',
+  'rm',
+  'link',
+  'ln',
+  'unlink',
+  'import',
+  'rebuild',
+  'rb'
+])
+
+// Commands that support --ignore-scripts flag in yarn:
+// Similar to npm/pnpm: installation-related commands.
+const yarnInstallLikeCommands = new Set([
+  'install',
+  'add',
+  'upgrade',
+  'remove',
+  'link',
+  'unlink',
+  'import'
+])
+
 /**
  * Execute npm commands with optimized flags and settings.
  * @param {string[] | readonly string[]} args - Command arguments to pass to npm.
@@ -82,36 +119,6 @@ function execNpm(args, options) {
   )
 }
 
-// Commands that support --ignore-scripts flag in pnpm:
-// Installation-related: install, add, update, remove, link, unlink, import, rebuild.
-const pnpmInstallCommands = new Set([
-  'install',
-  'i',
-  'add',
-  'update',
-  'up',
-  'remove',
-  'rm',
-  'link',
-  'ln',
-  'unlink',
-  'import',
-  'rebuild',
-  'rb'
-])
-
-// Commands that support --ignore-scripts flag in yarn:
-// Similar to npm/pnpm: installation-related commands.
-const yarnInstallCommands = new Set([
-  'install',
-  'add',
-  'upgrade',
-  'remove',
-  'link',
-  'unlink',
-  'import'
-])
-
 /**
  * Execute pnpm commands with optimized flags and settings.
  * @param {string[] | readonly string[]} args - Command arguments to pass to pnpm.
@@ -120,6 +127,7 @@ const yarnInstallCommands = new Set([
  */
 /*@__NO_SIDE_EFFECTS__*/
 function execPnpm(args, options) {
+  const { allowLockfileUpdate, ...extBinOpts } = { __proto__: null, ...options }
   const useDebug = isDebug()
   const terminatorPos = args.indexOf('--')
   const pnpmArgs = (
@@ -128,7 +136,7 @@ function execPnpm(args, options) {
   const otherArgs = terminatorPos === -1 ? [] : args.slice(terminatorPos)
 
   const firstArg = pnpmArgs[0]
-  const supportsIgnoreScripts = pnpmInstallCommands.has(firstArg)
+  const supportsIgnoreScripts = pnpmInstallLikeCommands.has(firstArg)
 
   // pnpm uses --loglevel for all commands.
   const logLevelArgs =
@@ -138,6 +146,20 @@ function execPnpm(args, options) {
   const hasIgnoreScriptsFlag = pnpmArgs.some(isPnpmIgnoreScriptsFlag)
   const ignoreScriptsArgs =
     !supportsIgnoreScripts || hasIgnoreScriptsFlag ? [] : ['--ignore-scripts']
+
+  // In CI environments, pnpm uses --frozen-lockfile by default which prevents lockfile updates.
+  // For commands that need to update the lockfile (like install with new packages/overrides),
+  // we need to explicitly add --no-frozen-lockfile in CI mode if not already present.
+  const { ENV } = /*@__PURE__*/ require('./constants')
+  const frozenLockfileArgs = []
+  if (
+    ENV.CI &&
+    allowLockfileUpdate &&
+    isPnpmInstallCommand(firstArg) &&
+    !pnpmArgs.some(isPnpmFrozenLockfileFlag)
+  ) {
+    frozenLockfileArgs.push('--no-frozen-lockfile')
+  }
 
   // Note: pnpm doesn't have a --no-progress flag. It uses --reporter instead.
   // We removed --no-progress as it causes "Unknown option" errors with pnpm.
@@ -149,19 +171,12 @@ function execPnpm(args, options) {
       ...logLevelArgs,
       // Add '--ignore-scripts' by default for security (only for installation commands).
       ...ignoreScriptsArgs,
+      // Add '--no-frozen-lockfile' in CI when lockfile updates are needed.
+      ...frozenLockfileArgs,
       ...pnpmArgs,
       ...otherArgs
     ],
-    {
-      __proto__: null,
-      /**
-       * Execute yarn commands with optimized flags and settings.
-       * @param {string[] | readonly string[]} args - Command arguments to pass to yarn.
-       * @param {import('./spawn').SpawnOptions} [options] - Spawn options.
-       * @returns {Promise<{ stdout: string; stderr: string }>} Command output.
-       */
-      ...options
-    }
+    extBinOpts
   )
 }
 
@@ -175,7 +190,7 @@ function execYarn(args, options) {
   const otherArgs = terminatorPos === -1 ? [] : args.slice(terminatorPos)
 
   const firstArg = yarnArgs[0]
-  const supportsIgnoreScripts = yarnInstallCommands.has(firstArg)
+  const supportsIgnoreScripts = yarnInstallLikeCommands.has(firstArg)
 
   // Yarn uses --silent flag for quieter output.
   const logLevelArgs =
@@ -271,6 +286,26 @@ function isPnpmIgnoreScriptsFlag(cmdArg) {
 }
 
 /**
+ * Check if a command argument is a pnpm frozen-lockfile flag.
+ * @param {string} cmdArg - The command argument to check.
+ * @returns {boolean} True if the argument is a frozen-lockfile flag.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function isPnpmFrozenLockfileFlag(cmdArg) {
+  return pnpmFrozenLockfileFlags.has(cmdArg)
+}
+
+/**
+ * Check if a command argument is a pnpm install command.
+ * @param {string} cmdArg - The command argument to check.
+ * @returns {boolean} True if the argument is an install command.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function isPnpmInstallCommand(cmdArg) {
+  return pnpmInstallCommands.has(cmdArg)
+}
+
+/**
  * Alias for isNpmLoglevelFlag for pnpm usage.
  * @param {string} cmdArg - The command argument to check.
  * @returns {boolean} True if the argument is a loglevel flag.
@@ -345,7 +380,9 @@ module.exports = {
   isNpmLoglevelFlag,
   isNpmNodeOptionsFlag,
   isNpmProgressFlag,
+  isPnpmFrozenLockfileFlag,
   isPnpmIgnoreScriptsFlag,
+  isPnpmInstallCommand,
   isPnpmLoglevelFlag,
   resolveBinPathSync,
   whichBin,
