@@ -1,10 +1,17 @@
+/**
+ * @fileoverview Removes empty directories from the project.
+ * Scans the entire project tree (excluding node_modules) and removes
+ * any empty directories found. Processes directories from deepest to
+ * shallowest to catch newly emptied parent directories.
+ */
 'use strict'
 
 const { glob } = require('fast-glob')
-const trash = require('trash')
 
 const constants = require('@socketregistry/scripts/constants')
+const { safeRemove } = require('@socketregistry/scripts/lib/test-utils')
 const { isDirEmptySync } = require('@socketsecurity/registry/lib/fs')
+const { logger } = require('@socketsecurity/registry/lib/logger')
 
 const { NODE_MODULES_GLOB_RECURSIVE } = constants
 
@@ -23,8 +30,9 @@ void (async () => {
   // Collect all empty directories.
   const emptyDirs = dirPaths.filter(dirPath => isDirEmptySync(dirPath))
 
-  // Trash them all at once if there are any.
+  // Remove them all at once if there are any.
   if (emptyDirs.length) {
-    await trash(emptyDirs)
+    await safeRemove(emptyDirs)
+    logger.log(`Removed ${emptyDirs.length} empty directories`)
   }
 })()

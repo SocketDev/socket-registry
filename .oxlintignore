@@ -3,3 +3,4 @@ packages/**/*.original*
 perf/**/fixtures
 scripts/templates
 test/**/fixtures
+test/npm/packages

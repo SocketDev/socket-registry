@@ -8,15 +8,19 @@ const { move } = require('fs-extra')
 const npmPackageArg = require('npm-package-arg')
 const semver = require('semver')
 const fastGlob = require('fast-glob')
-const trash = require('trash')
 
 const constants = require('@socketregistry/scripts/constants')
+const {
+  cleanTestScript,
+  safeRemove,
+  testScripts
+} = require('@socketregistry/scripts/lib/test-utils')
 const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
 const { isSymLinkSync } = require('@socketsecurity/registry/lib/fs')
 const { logger } = require('@socketsecurity/registry/lib/logger')
+const { execNpm } = require('@socketsecurity/registry/lib/agent')
 const { merge, objectEntries } = require('@socketsecurity/registry/lib/objects')
 const {
-  extractPackage,
   isGitHubTgzSpec,
   isGitHubUrlSpec,
   isSubpathExports,
@@ -31,6 +35,7 @@ const { pluralize } = require('@socketsecurity/registry/lib/words')
 
 const {
   COLUMN_LIMIT,
+  DEFAULT_CONCURRENCY,
   LATEST,
   LICENSE_GLOB_RECURSIVE,
   NODE_MODULES_GLOB_RECURSIVE,
@@ -62,127 +67,77 @@ const { values: cliArgs } = util.parseArgs(
 
 const editablePackageJsonCache = new Map()
 
-const testScripts = [
-  // Order is significant. First in, first tried.
-  'mocha',
-  'specs',
-  'test:source',
-  'tests-only',
-  'test:readable-stream-only',
-  'test'
-]
-
-/**
- * Safely remove files/directories using trash, with fallback to fs.rm.
- * @param {string|string[]} paths - Path(s) to remove
- * @param {object} options - Options for fs.rm fallback
- * @returns {Promise<void>}
- */
-async function safeRemove(paths, options = {}) {
-  const pathArray = Array.isArray(paths) ? paths : [paths]
-  if (pathArray.length === 0) {
-    return
-  }
-
-  try {
-    await trash(pathArray)
-  } catch {
-    // If trash fails, fallback to fs.rm.
-    const { concurrency = 3, ...rmOptions } = options
-    const defaultRmOptions = { force: true, recursive: true, ...rmOptions }
-
-    await pEach(
-      pathArray,
-      async p => {
-        try {
-          await fs.rm(p, defaultRmOptions)
-        } catch (rmError) {
-          // Only warn about non-ENOENT errors if a spinner is provided.
-          if (rmError.code !== 'ENOENT' && options.spinner) {
-            options.spinner.warn(`Failed to remove ${p}: ${rmError.message}`)
-          }
-        }
-      },
-      { concurrency }
-    )
-  }
-}
-
-function cleanTestScript(testScript) {
-  return (
-    testScript
-      // Strip actions BEFORE and AFTER the test runner is invoked.
-      .replace(
-        /^.*?(\b(?:ava|jest|node|npm run|mocha|tape?)\b.*?)(?:&.+|$)/,
-        '$1'
-      )
-      // Remove unsupported Node flag "--es-staging"
-      .replace(/(?<=node)(?: +--[-\w]+)+/, m =>
-        m.replaceAll(' --es-staging', '')
-      )
-      .trim()
-  )
-}
-
 async function installAndMergePackage(pkgName, pkgVersion, options) {
   const { spinner } = { __proto__: null, ...options }
-  // Sanitize package name for filesystem (replace / with -)
-  const safePkgName = pkgName.replace('/', '-')
-  const tempPath = path.join(testNpmPath, `.tmp-${safePkgName}-${Date.now()}`)
+  // Check if there's a Socket override for this package.
+  // Convert npm package name to Socket registry name (e.g., @hyrious/bun.lockb -> hyrious__bun.lockb).
+  const socketPkgName = pkgName.startsWith('@')
+    ? pkgName.slice(1).replace('/', '__')
+    : pkgName
+  const overridePkgPath = path.join(npmPackagesPath, socketPkgName)
+  const hasOverride = existsSync(overridePkgPath)
+
+  // Determine the final destination path.
+  // Packages with Socket overrides go to node_workspaces, others to node_modules.
+  const finalPath = hasOverride
+    ? path.join(testNpmNodeWorkspacesPath, socketPkgName)
+    : path.join(testNpmNodeModulesPath, pkgName)
+
+  // Handle local file: dependencies differently.
+  if (pkgVersion.startsWith('file:')) {
+    // For local file dependencies, just copy them directly.
+    const localPath = path.resolve(testNpmPath, pkgVersion.slice(5))
+    if (existsSync(localPath)) {
+      const { copy } = require('fs-extra')
+      await copy(localPath, finalPath, { dereference: true })
+      return
+    }
+  }
 
   try {
-    // Check if there's a Socket override for this package.
-    // Convert npm package name to Socket registry name (e.g., @hyrious/bun.lockb -> hyrious__bun.lockb).
-    const socketPkgName = pkgName.startsWith('@')
-      ? pkgName.slice(1).replace('/', '__')
-      : pkgName
-    const overridePkgPath = path.join(npmPackagesPath, socketPkgName)
-    const hasOverride = existsSync(overridePkgPath)
+    // Use pnpm to install the package.
+    spinner?.start(`Installing ${pkgName}@${pkgVersion}...`)
 
-    // Determine the final destination path.
-    // Packages with Socket overrides go to node_workspaces, others to node_modules.
-    const finalPath = hasOverride
-      ? path.join(testNpmNodeWorkspacesPath, socketPkgName)
-      : path.join(testNpmNodeModulesPath, pkgName)
+    // Install package to a temp location first.
+    const tempPath = path.join(
+      testNpmPath,
+      `.tmp-${socketPkgName}-${Date.now()}`
+    )
+    await fs.mkdir(tempPath, { recursive: true })
 
-    // Handle local file: dependencies differently.
-    if (pkgVersion.startsWith('file:')) {
-      // For local file dependencies, just copy them directly.
-      const localPath = path.resolve(testNpmPath, pkgVersion.slice(5))
-      if (existsSync(localPath)) {
-        const { copy } = require('fs-extra')
-        await copy(localPath, finalPath, { dereference: true })
-        return
-      }
-    }
+    // Create a minimal package.json in temp directory.
+    await fs.writeFile(
+      path.join(tempPath, 'package.json'),
+      JSON.stringify({ name: 'temp-install', version: '1.0.0' }, null, 2)
+    )
 
-    // Use pacote's extract method to download and extract in one step.
-    spinner?.start(`Downloading ${pkgName}@${pkgVersion}...`)
+    // Prepare pnpm install command.
+    const packageSpec = pkgVersion.startsWith('https://')
+      ? pkgVersion
+      : `${pkgName}@${pkgVersion}`
 
-    try {
-      // Just use extractPackage which already uses pacote internally.
-      await extractPackage(`${pkgName}@${pkgVersion}`, { dest: tempPath })
-    } catch (extractError) {
-      if (!cliArgs.quiet) {
-        console.error(
-          `Failed to extract ${pkgName}@${pkgVersion}:`,
-          extractError.message
-        )
-      }
-      // For GitHub tarballs, try extracting directly.
-      if (pkgVersion.startsWith('https://')) {
-        await extractPackage(pkgVersion, { dest: tempPath })
-      } else {
-        throw extractError
-      }
-    }
+    // Use npm install to install the package (npm supports --no-save).
+    await execNpm(['install', packageSpec, '--no-save'], {
+      cwd: tempPath,
+      stdio: cliArgs.quiet ? 'ignore' : 'inherit'
+    })
+
+    // Find the installed package path.
+    const installedPkgPath = path.join(tempPath, 'node_modules', pkgName)
 
     if (hasOverride) {
-      // Copy Socket override files on top of the extracted package.
+      // Copy Socket override files on top of the installed package.
       spinner?.start(`Applying Socket overrides for ${pkgName}...`)
       const { copy } = require('fs-extra')
 
-      await copy(overridePkgPath, tempPath, {
+      // Save the original package.json scripts before overwriting.
+      const originalPkgJsonPath = path.join(installedPkgPath, 'package.json')
+      const originalPkgJson = await readPackageJson(originalPkgJsonPath, {
+        normalize: true
+      })
+      const originalScripts = originalPkgJson.scripts
+
+      await copy(overridePkgPath, installedPkgPath, {
         overwrite: true,
         dereference: true,
         filter: src => {
@@ -190,15 +145,42 @@ async function installAndMergePackage(pkgName, pkgVersion, options) {
           return !src.includes('node_modules') && !src.endsWith('.DS_Store')
         }
       })
+
+      // Merge back the test scripts if they existed.
+      if (originalScripts) {
+        const editablePkgJson = await readPackageJson(originalPkgJsonPath, {
+          editable: true,
+          normalize: true
+        })
+        // Preserve test-related scripts from original package.
+        const testScriptName =
+          testScripts.find(n => isNonEmptyString(originalScripts[n])) ?? 'test'
+        if (originalScripts[testScriptName]) {
+          editablePkgJson.update({
+            scripts: {
+              ...editablePkgJson.content.scripts,
+              test: cleanTestScript(originalScripts[testScriptName])
+            }
+          })
+          await editablePkgJson.save()
+        }
+      }
     }
 
-    // Move the merged package to its final location.
+    // Move the package to its final location.
     await safeRemove(finalPath)
-    await move(tempPath, finalPath, { overwrite: true })
+    await move(installedPkgPath, finalPath, { overwrite: true })
+
+    // Clean up temp directory.
+    await safeRemove(tempPath)
 
     spinner?.stop()
   } catch (error) {
-    // Clean up temp directory on error.
+    // Clean up any temp directories on error.
+    const tempPath = path.join(
+      testNpmPath,
+      `.tmp-${socketPkgName}-${Date.now()}`
+    )
     await safeRemove(tempPath)
     throw error
   }
@@ -287,7 +269,7 @@ async function installTestNpmNodeModules(options) {
         }
         await installAndMergePackage(name, version, options)
       },
-      { concurrency: 3 }
+      { concurrency: DEFAULT_CONCURRENCY }
     )
 
     // After all packages are installed, update the package.json if specs were provided.
@@ -354,20 +336,13 @@ async function installMissingPackages(packageNames, options) {
         !existsSync(path.join(testNpmNodeModulesPath, n))
     )
     if (downloadDeps.length) {
-      // Chunk dependencies to download and process them in parallel 3 at a time.
+      // Install missing dependencies using installAndMergePackage.
       await pEach(
         downloadDeps,
         async n => {
-          const nmPkgPath = path.join(testNpmNodeModulesPath, n)
-          // Broken symlinks are treated an non-existent by fs.existsSync, however
-          // they will cause fs.mkdir to throw an ENOENT error, so we remove any
-          // existing file beforehand just in case.
-          await safeRemove(nmPkgPath)
-          await extractPackage(`${n}@${devDependencies[n]}`, {
-            dest: nmPkgPath
-          })
+          await installAndMergePackage(n, devDependencies[n], options)
         },
-        { concurrency: 3 }
+        { concurrency: DEFAULT_CONCURRENCY }
       )
     }
     if (cliArgs.quiet) {
@@ -395,7 +370,18 @@ async function installMissingPackageTests(packageNames, options) {
       // package version to a GitHub release tag, then we convert the release
       // tag to a sha, then finally we resolve the URL of the GitHub tarball
       // to use in place of the version range for its devDependencies entry.
-      const nmPkgPath = path.join(testNpmNodeModulesPath, origPkgName)
+
+      // Check if this package has a Socket override.
+      const socketPkgName = origPkgName.startsWith('@')
+        ? origPkgName.slice(1).replace('/', '__')
+        : origPkgName
+      const hasOverride = existsSync(path.join(npmPackagesPath, socketPkgName))
+
+      // Packages with overrides are in node_workspaces, others in node_modules.
+      const nmPkgPath = hasOverride
+        ? path.join(testNpmNodeWorkspacesPath, socketPkgName)
+        : path.join(testNpmNodeModulesPath, origPkgName)
+
       const {
         content: { version: nmPkgVer }
       } = await readCachedEditablePackageJson(nmPkgPath)
@@ -426,7 +412,7 @@ async function installMissingPackageTests(packageNames, options) {
       }
       spinner?.stop()
     },
-    { concurrency: 3 }
+    { concurrency: DEFAULT_CONCURRENCY }
   )
   if (resolvable.length) {
     spinner?.start(
@@ -477,11 +463,13 @@ async function resolveDevDependencies(packageNames, options) {
   })
   const missingPackages = packageNames.filter(sockRegPkgName => {
     const origPkgName = resolveOriginalPackageName(sockRegPkgName)
-    // Missing packages can occur if the script is stopped part way through
-    return (
-      !devDependencies?.[origPkgName] ||
-      !existsSync(path.join(testNpmNodeModulesPath, origPkgName))
-    )
+    // Missing packages can occur if the script is stopped part way through.
+    // Check both node_modules and node_workspaces locations.
+    const hasOverride = existsSync(path.join(npmPackagesPath, sockRegPkgName))
+    const pkgPath = hasOverride
+      ? path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
+      : path.join(testNpmNodeModulesPath, origPkgName)
+    return !devDependencies?.[origPkgName] || !existsSync(pkgPath)
   })
   if (missingPackages.length) {
     await installMissingPackages(missingPackages, {
@@ -505,6 +493,13 @@ async function resolveDevDependencies(packageNames, options) {
       )
       const isTarball = isGitHubTgzSpec(parsedSpec)
       const isGithubUrl = isGitHubUrlSpec(parsedSpec)
+
+      // Check if this package has a Socket override.
+      const hasOverride = existsSync(path.join(npmPackagesPath, sockRegPkgName))
+      const pkgPath = hasOverride
+        ? path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
+        : path.join(testNpmNodeModulesPath, origPkgName)
+
       return (
         // We don't need to resolve the tarball URL if the devDependencies
         // value is already one.
@@ -521,14 +516,14 @@ async function resolveDevDependencies(packageNames, options) {
                 '**/*.{spec,test}{.{[cm],}[jt]s}'
               ],
               {
-                cwd: path.join(testNpmNodeModulesPath, origPkgName),
+                cwd: pkgPath,
                 onlyFiles: false
               }
             )
           ).length === 0)
       )
     },
-    { concurrency: 3 }
+    { concurrency: DEFAULT_CONCURRENCY }
   )
   if (missingPackageTests.length) {
     await installMissingPackageTests(missingPackageTests, options)
@@ -607,7 +602,7 @@ async function linkPackages(packageNames, options) {
             })
         )
       },
-      { concurrency: 3 }
+      { concurrency: DEFAULT_CONCURRENCY }
     )
 
     const { dependencies, engines, overrides } = pkgJson
@@ -792,18 +787,17 @@ async function cleanupNodeWorkspaces(linkedPackageNames, options) {
       // Move override package from test/npm/node_modules/ to test/npm/node_workspaces/
       await move(srcPath, destPath, { overwrite: true })
     },
-    { concurrency: 3 }
+    { concurrency: DEFAULT_CONCURRENCY }
   )
-  if (cliArgs.quiet) {
-    spinner?.stop()
-  } else {
-    spinner?.successAndStop('Workspaces cleaned (so fresh and so clean, clean)')
+  spinner?.stop()
+  if (!cliArgs.quiet) {
+    logger.log('🧽 Workspaces cleaned (so fresh and so clean, clean)')
   }
 }
 
 async function installNodeWorkspaces(options) {
   const { spinner } = { __proto__: null, ...options }
-  spinner?.start(`Installing ${relTestNpmPath} workspaces... (☕ break)`)
+  spinner?.start(`🔨 Installing ${relTestNpmPath} workspaces... (☕ break)`)
   // Finally install workspaces.
   try {
     await installTestNpmNodeModules({ clean: 'deep', spinner })
@@ -827,7 +821,7 @@ void (async () => {
     return
   }
   const { spinner } = constants
-  spinner.start(`Initializing ${relTestNpmNodeModulesPath}...`)
+  spinner.start(`📦 Initializing ${relTestNpmNodeModulesPath}...`)
   // Refresh/initialize test/npm/node_modules
   try {
     await safeRemove(testNpmNodeWorkspacesPath)

@@ -12,7 +12,7 @@
       "!perf/**/fixtures",
       "!scripts/templates",
       "!test/**/fixtures",
-      "!test/**/node_workspaces"
+      "!test/**/packages"
     ],
     "maxSize": 8388608
   },

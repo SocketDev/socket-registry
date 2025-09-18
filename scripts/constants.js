@@ -17,7 +17,6 @@ const {
   LICENSE,
   MANIFEST_JSON,
   NODE_MODULES,
-  NODE_WORKSPACES,
   NPM,
   PACKAGE_JSON,
   PACKAGE_LOCK_JSON,
@@ -157,6 +156,57 @@ const lazyRelTestNpmPath = () =>
 const lazyRelTestNpmNodeModulesPath = () =>
   path.relative(constants.rootPath, constants.testNpmNodeModulesPath)
 
+const lazySkipTestsByEcosystem = () => {
+  const { WIN32 } = registryConstants
+  return new Map([
+    [
+      'npm',
+      new Set([
+        // @hyrious/bun.lockb has no unit tests.
+        // https://github.com/hyrious/bun.lockb/tree/v0.0.4
+        '@hyrious/bun.lockb',
+        'hyrious__bun.lockb',
+        // Our array-flatten override supports v1, v2, and v3 APIs, so we handle
+        // testing ourselves.
+        'array-flatten',
+        // date tests fail for some Node versions and platforms, but pass in CI
+        // Win32 environments for the time being.
+        // https://github.com/es-shims/Date/issues/3
+        // https://github.com/es-shims/Date/tree/v2.0.5
+        ...(WIN32 ? [] : ['date']),
+        // es6-object-assign has no unit tests.
+        // https://github.com/rubennorte/es6-object-assign/tree/v1.1.0
+        'es6-object-assign',
+        // harmony-reflect has known failures in its package and requires running
+        // tests in browser.
+        // https://github.com/tvcutsem/harmony-reflect/tree/v1.6.2/test
+        'harmony-reflect',
+        // is-regex tests don't account for `is-regex` backed by
+        // `require('node:util/types).isRegExp` which triggers no proxy traps and
+        // assumes instead that the 'getOwnPropertyDescriptor' trap will be triggered
+        // by `Object.getOwnPropertyDescriptor(value, 'lastIndex')`.
+        // https://github.com/inspect-js/is-regex/issues/35
+        // https://github.com/inspect-js/is-regex/blob/v1.1.4/test/index.js
+        'is-regex',
+        // safer-buffer tests assume Buffer.alloc, Buffer.allocUnsafe, and
+        // Buffer.allocUnsafeSlow throw for a size of 2 * (1 << 30), i.e. 2147483648,
+        // which is no longer the case.
+        // https://github.com/ChALkeR/safer-buffer/issues/16
+        // https://github.com/ChALkeR/safer-buffer/blob/v2.1.2/tests.js
+        'safer-buffer',
+        // yocto-spinner GitHub source includes tests that require get-stream
+        // but the published npm package doesn't include test files
+        // https://github.com/sindresorhus/yocto-spinner/tree/v1.0.0
+        'yocto-spinner'
+      ])
+    ]
+  ])
+}
+
+const lazyWin32EnsureTestsByEcosystem = () => {
+  return new Map([['npm', new Set(['date'])]])
+}
+
 const lazyTemplatesPath = () => path.join(__dirname, 'templates')
 
 const lazyTestNpmPath = () => path.join(constants.rootPath, `test/${NPM}`)
@@ -168,7 +218,7 @@ const lazyTestNpmNodeModulesPath = () =>
   path.join(constants.testNpmPath, NODE_MODULES)
 
 const lazyTestNpmNodeWorkspacesPath = () =>
-  path.join(constants.testNpmPath, NODE_WORKSPACES)
+  path.join(constants.testNpmPath, constants.PACKAGES)
 
 const lazyTestNpmPkgJsonPath = () =>
   path.join(constants.testNpmPath, PACKAGE_JSON)
@@ -189,7 +239,9 @@ const constants = createConstantsObject(
   {
     // Lazily defined values are initialized as `undefined` to
     // keep their key order.
+    DEFAULT_CONCURRENCY: 3,
     LICENSE_CONTENT: undefined,
+    PACKAGES: 'packages',
     ecosystems: undefined,
     gitExecPath: undefined,
     gitIgnoreFile: undefined,
@@ -231,6 +283,7 @@ const constants = createConstantsObject(
     rootPackagesPath: undefined,
     rootPath: undefined,
     rootTsConfigPath: undefined,
+    skipTestsByEcosystem: undefined,
     templatesPath: undefined,
     testNpmPath: undefined,
     testNpmFixturesPath: undefined,
@@ -239,6 +292,7 @@ const constants = createConstantsObject(
     testNpmPkgJsonPath: undefined,
     testNpmPkgLockPath: undefined,
     tsxExecPath: undefined,
+    win32EnsureTestsByEcosystem: undefined,
     yarnPkgExtsPath: undefined,
     yarnPkgExtsJsonPath: undefined
   },
@@ -273,6 +327,7 @@ const constants = createConstantsObject(
       rootPackagesPath: lazyRootPackagesPath,
       rootPath: lazyRootPath,
       rootTsConfigPath: lazyRootTsConfigPath,
+      skipTestsByEcosystem: lazySkipTestsByEcosystem,
       templatesPath: lazyTemplatesPath,
       testNpmPath: lazyTestNpmPath,
       testNpmFixturesPath: lazyTestNpmFixturesPath,
@@ -281,6 +336,7 @@ const constants = createConstantsObject(
       testNpmPkgJsonPath: lazyTestNpmPkgJsonPath,
       testNpmPkgLockPath: lazyTestNpmPkgLockPath,
       tsxExecPath: lazyTsxExecPath,
+      win32EnsureTestsByEcosystem: lazyWin32EnsureTestsByEcosystem,
       yarnPkgExtsPath: lazyYarnPkgExtsPath,
       yarnPkgExtsJsonPath: lazyYarnPkgExtsJsonPath
     },

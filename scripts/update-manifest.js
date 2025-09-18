@@ -24,7 +24,7 @@ const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { naturalCompare } = require('@socketsecurity/registry/lib/sorts')
 const { biomeFormat } = require('./lib/biome')
 
-const { AT_LATEST, NPM, UNLICENSED } = constants
+const { AT_LATEST, DEFAULT_CONCURRENCY, NPM, UNLICENSED } = constants
 
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
@@ -67,7 +67,7 @@ async function addNpmManifestData(manifest, options) {
         }
       ])
     },
-    { concurrency: 3 }
+    { concurrency: DEFAULT_CONCURRENCY }
   )
 
   // Chunk package names to process them in parallel 3 at a time.
@@ -133,7 +133,7 @@ async function addNpmManifestData(manifest, options) {
         toSortedObjectFromEntries(metaEntries)
       ])
     },
-    { concurrency: 3 }
+    { concurrency: DEFAULT_CONCURRENCY }
   )
 
   const latestIndexes = []
@@ -157,7 +157,7 @@ async function addNpmManifestData(manifest, options) {
       entry[0] = `${entry[0].slice(0, -AT_LATEST.length)}@${version}`
       entry[1].version = version
     },
-    { concurrency: 3 }
+    { concurrency: DEFAULT_CONCURRENCY }
   )
 
   if (manifestData.length) {

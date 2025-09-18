@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "description": "Scripts for Socket Registry monorepo",
+  "exports": {
+    "./constants": "./constants.js",
+    "./lib/*": "./lib/*.js"
+  },
   "dependencies": {
     "@biomejs/js-api": "3.0.0",
     "@biomejs/wasm-nodejs": "2.2.4",

@@ -330,5 +330,16 @@ module.exports = [
     ignores: ['packages/npm/**/package']
   },
   ...configs('script'),
-  ...configs('module')
+  ...configs('module'),
+  {
+    // The external directory contains rollup-bundled dependencies that are
+    // part of the published package. The n/no-unpublished-require rule doesn't
+    // understand that these files are included via the "files" field, so we
+    // disable it for registry/lib. The n/no-missing-require rule still runs
+    // and will catch actual missing dependencies.
+    files: ['registry/lib/**/*.js', 'registry/lib/**/*.cjs'],
+    rules: {
+      'n/no-unpublished-require': 'off'
+    }
+  }
 ]
