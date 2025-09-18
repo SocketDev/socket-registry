@@ -297,7 +297,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/assert@1.0.20",
+      "pkg:npm/%40socketregistry/assert@1.0.21",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -307,7 +307,7 @@
         "license": "MIT",
         "name": "@socketregistry/assert",
         "package": "assert",
-        "version": "1.0.20"
+        "version": "1.0.21"
       }
     ],
     [
@@ -354,7 +354,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/deep-equal@1.0.19",
+      "pkg:npm/%40socketregistry/deep-equal@1.0.20",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -364,7 +364,7 @@
         "license": "MIT",
         "name": "@socketregistry/deep-equal",
         "package": "deep-equal",
-        "version": "1.0.19"
+        "version": "1.0.20"
       }
     ],
     [
@@ -1853,6 +1853,7 @@
         "license": "MIT",
         "name": "@socketregistry/yocto-spinner",
         "package": "yocto-spinner",
+        "skipTests": true,
         "version": "1.0.23"
       }
     ],
