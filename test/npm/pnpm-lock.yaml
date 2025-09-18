@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-nHChoaExSB4JNsHNMRe63iMeDf0Eni7186Na2lJXemE=
+pnpmfileChecksum: sha256-GTD5ieZP0qeR/hZZbS3fPAvYAsoqF+ZfTrs91SSdaFw=
 
 importers:
 
@@ -440,309 +440,7 @@ importers:
 
   packages/array.prototype.findlast: {}
 
-  packages/array.prototype.findlastindex: {}
-
-  packages/array.prototype.flat: {}
-
-  packages/array.prototype.flatmap: {}
-
-  packages/array.prototype.foreach: {}
-
-  packages/array.prototype.map: {}
-
-  packages/array.prototype.reduce: {}
-
-  packages/array.prototype.toreversed: {}
-
-  packages/array.prototype.tosorted: {}
-
-  packages/arraybuffer.prototype.slice: {}
-
-  packages/assert:
-    dependencies:
-      is-nan:
-        specifier: npm:@socketregistry/is-nan@^1.0.7
-        version: '@socketregistry/is-nan@1.0.7'
-      object-is:
-        specifier: npm:@socketregistry/object-is@^1.0.7
-        version: '@socketregistry/object-is@1.0.7'
-      object.assign:
-        specifier: npm:@socketregistry/object.assign@^1.0.7
-        version: '@socketregistry/object.assign@1.0.7'
-      util:
-        specifier: npm:util@0.12.5
-        version: 0.12.5
-
-  packages/asynciterator.prototype: {}
-
-  packages/available-typed-arrays: {}
-
-  packages/date: {}
-
-  packages/deep-equal:
-    dependencies:
-      array-buffer-byte-length:
-        specifier: npm:@socketregistry/array-buffer-byte-length@^1.0.7
-        version: '@socketregistry/array-buffer-byte-length@1.0.7'
-      es-get-iterator:
-        specifier: npm:@socketregistry/es-get-iterator@^1.0.8
-        version: '@socketregistry/es-get-iterator@1.0.8'
-      is-arguments:
-        specifier: npm:@socketregistry/is-arguments@^1.0.9
-        version: '@socketregistry/is-arguments@1.0.9'
-      is-array-buffer:
-        specifier: npm:@socketregistry/is-array-buffer@^1.0.9
-        version: '@socketregistry/is-array-buffer@1.0.9'
-      is-date-object:
-        specifier: npm:@socketregistry/is-date-object@^1.0.9
-        version: '@socketregistry/is-date-object@1.0.9'
-      is-regex:
-        specifier: npm:@socketregistry/is-regex@^1.0.9
-        version: '@socketregistry/is-regex@1.0.9'
-      is-shared-array-buffer:
-        specifier: npm:@socketregistry/is-shared-array-buffer@^1.0.9
-        version: '@socketregistry/is-shared-array-buffer@1.0.9'
-      isarray:
-        specifier: npm:@socketregistry/isarray@^1.0.7
-        version: '@socketregistry/isarray@1.0.7'
-      object-is:
-        specifier: npm:@socketregistry/object-is@^1.0.7
-        version: '@socketregistry/object-is@1.0.7'
-      object-keys:
-        specifier: npm:@socketregistry/object-keys@^1.0.7
-        version: '@socketregistry/object-keys@1.0.7'
-      object.assign:
-        specifier: npm:@socketregistry/object.assign@^1.0.7
-        version: '@socketregistry/object.assign@1.0.7'
-      regexp.prototype.flags:
-        specifier: npm:@socketregistry/regexp.prototype.flags@^1.0.7
-        version: '@socketregistry/regexp.prototype.flags@1.0.7'
-      side-channel:
-        specifier: npm:@socketregistry/side-channel@^1.0.9
-        version: '@socketregistry/side-channel@1.0.9'
-      which-boxed-primitive:
-        specifier: npm:@socketregistry/which-boxed-primitive@^1.0.8
-        version: '@socketregistry/which-boxed-primitive@1.0.8'
-      which-collection:
-        specifier: npm:@socketregistry/which-collection@^1.0.7
-        version: '@socketregistry/which-collection@1.0.7'
-      which-typed-array:
-        specifier: npm:@socketregistry/which-typed-array@^1.0.8
-        version: '@socketregistry/which-typed-array@1.0.8'
-
-  packages/define-properties: {}
-
-  packages/es-aggregate-error: {}
-
-  packages/es-define-property: {}
-
-  packages/es-get-iterator: {}
-
-  packages/es-iterator-helpers: {}
-
-  packages/es-set-tostringtag: {}
-
-  packages/es6-object-assign: {}
-
-  packages/es6-symbol: {}
-
-  packages/for-each: {}
-
-  packages/function-bind: {}
-
-  packages/function.prototype.name: {}
-
-  packages/functions-have-names: {}
-
-  packages/get-symbol-description: {}
-
-  packages/globalthis: {}
-
-  packages/gopd: {}
-
-  packages/harmony-reflect: {}
-
-  packages/has: {}
-
-  packages/has-property-descriptors: {}
-
-  packages/has-proto: {}
-
-  packages/has-symbols: {}
-
-  packages/has-tostringtag: {}
-
-  packages/hasown: {}
-
   packages/hyrious__bun.lockb: {}
-
-  packages/indent-string: {}
-
-  packages/internal-slot: {}
-
-  packages/is-arguments: {}
-
-  packages/is-array-buffer: {}
-
-  packages/is-bigint: {}
-
-  packages/is-boolean-object: {}
-
-  packages/is-core-module: {}
-
-  packages/is-date-object: {}
-
-  packages/is-generator-function: {}
-
-  packages/is-interactive: {}
-
-  packages/is-map: {}
-
-  packages/is-nan: {}
-
-  packages/is-negative-zero: {}
-
-  packages/is-number-object: {}
-
-  packages/is-regex: {}
-
-  packages/is-set: {}
-
-  packages/is-shared-array-buffer: {}
-
-  packages/is-string: {}
-
-  packages/is-symbol: {}
-
-  packages/is-typed-array: {}
-
-  packages/is-unicode-supported: {}
-
-  packages/is-weakmap: {}
-
-  packages/is-weakref: {}
-
-  packages/is-weakset: {}
-
-  packages/isarray: {}
-
-  packages/iterator.prototype: {}
-
-  packages/json-stable-stringify: {}
-
-  packages/jsonify: {}
-
-  packages/number-is-nan: {}
-
-  packages/object-assign: {}
-
-  packages/object-is: {}
-
-  packages/object-keys: {}
-
-  packages/object.assign: {}
-
-  packages/object.entries: {}
-
-  packages/object.fromentries: {}
-
-  packages/object.getownpropertydescriptors: {}
-
-  packages/object.getprototypeof: {}
-
-  packages/object.groupby: {}
-
-  packages/object.hasown: {}
-
-  packages/object.values: {}
-
-  packages/path-parse: {}
-
-  packages/promise.allsettled: {}
-
-  packages/promise.any: {}
-
-  packages/querystringify: {}
-
-  packages/reflect.getprototypeof: {}
-
-  packages/reflect.ownkeys: {}
-
-  packages/regexp.prototype.flags: {}
-
-  packages/safe-array-concat: {}
-
-  packages/safe-buffer: {}
-
-  packages/safe-regex-test: {}
-
-  packages/safer-buffer: {}
-
-  packages/set-function-length: {}
-
-  packages/side-channel: {}
-
-  packages/string.fromcodepoint: {}
-
-  packages/string.prototype.at: {}
-
-  packages/string.prototype.codepointat: {}
-
-  packages/string.prototype.endswith: {}
-
-  packages/string.prototype.includes: {}
-
-  packages/string.prototype.matchall: {}
-
-  packages/string.prototype.padend: {}
-
-  packages/string.prototype.padstart: {}
-
-  packages/string.prototype.repeat: {}
-
-  packages/string.prototype.replaceall: {}
-
-  packages/string.prototype.split: {}
-
-  packages/string.prototype.startswith: {}
-
-  packages/string.prototype.trim: {}
-
-  packages/string.prototype.trimend: {}
-
-  packages/string.prototype.trimleft: {}
-
-  packages/string.prototype.trimright: {}
-
-  packages/string.prototype.trimstart: {}
-
-  packages/typed-array-buffer: {}
-
-  packages/typed-array-byte-length: {}
-
-  packages/typed-array-byte-offset: {}
-
-  packages/typed-array-length: {}
-
-  packages/typedarray: {}
-
-  packages/typedarray.prototype.slice: {}
-
-  packages/unbox-primitive: {}
-
-  packages/util.promisify: {}
-
-  packages/which-boxed-primitive: {}
-
-  packages/which-collection: {}
-
-  packages/which-typed-array: {}
-
-  packages/yocto-spinner:
-    dependencies:
-      yoctocolors-cjs:
-        specifier: 2.1.3
-        version: 2.1.3
 
 packages:
 
@@ -1092,80 +790,12 @@ packages:
     resolution: {integrity: sha512-SME/vtXaJcnQ/HpeV6P82Egy+jThn11IKfwW8+/XVoRD0rmPHVTeKMtww1oWdVnMykzVPjmrDN9S8NBndPEHCQ==}
     engines: {node: '>=8'}
 
-  '@socketregistry/array-buffer-byte-length@1.0.7':
-    resolution: {integrity: sha512-kyHtxU8hrzPt9ruS4Pg/BLoSQrtUYK+5izlWmsrS8SHz1FOA11nwsKrTR4io573MJ4d7MTXwWTSrdqqZYDvw3g==}
-    engines: {node: '>=18'}
-
-  '@socketregistry/es-get-iterator@1.0.8':
-    resolution: {integrity: sha512-nDx2F54qKrO5MOm97qEtRwWTjpVejNfUTZBzvwxvdp6RL3HgxSFpuxRO2idExtANItrE3FuQjBItfY3yqunTGQ==}
-    engines: {node: '>=18'}
-
-  '@socketregistry/is-arguments@1.0.9':
-    resolution: {integrity: sha512-BOzYRYo3G/atW+umyZIJYSzsMT8sE/RmajDrcR6njkmNyjO5ULAdMCRDIpCypuk+at/mImVxOsD6CYZPmPV7NA==}
-    engines: {node: '>=18'}
-
-  '@socketregistry/is-array-buffer@1.0.9':
-    resolution: {integrity: sha512-RBwuX+F49ZAaRy9lh8q1g+2VV9nU2Iup4pdQMupipk9a1oAub25cyR0qFFBuUGmqpAReYjMuEhtm7O3YumMFmg==}
-    engines: {node: '>=18'}
-
-  '@socketregistry/is-date-object@1.0.9':
-    resolution: {integrity: sha512-yRwUbx4lj1Dune2basyPjDkvYc6yLC3jzP6yCm06yG0ZYdh+MMluaEuIY5u4oa0YnlOiOHXTIMn+D4wv0jWffg==}
-    engines: {node: '>=18'}
-
-  '@socketregistry/is-nan@1.0.7':
-    resolution: {integrity: sha512-r9OIzcHzaxNaRyKg3bOTDvZ8a/zEuKliErDfb3B2jbLoDU+2zY1bCNqo6HGFyucGG8C8nAdTV+FXUKKA8F1ZLw==}
-    engines: {node: '>=18'}
-
-  '@socketregistry/is-regex@1.0.9':
-    resolution: {integrity: sha512-uOfP2ttKtzSU6YixfskVNEajCSPSogSkKP2LO9p7HZn5DAjd//vtjEsgHS/Foy9yCbd2FB7nTvKgrboV9UOKFw==}
-    engines: {node: '>=18'}
-
-  '@socketregistry/is-shared-array-buffer@1.0.9':
-    resolution: {integrity: sha512-3W7rz56yNxZFGuhAFZzB9aEj4YcCU4QeKLgBKfsUrlCT/LfhwgNfUZcck4Bx4Di9Sme6rXuZfuY2lMXrD2A3Xw==}
-    engines: {node: '>=18'}
-
-  '@socketregistry/isarray@1.0.7':
-    resolution: {integrity: sha512-G+LghVUHkjihC52gH0ligRdRTUd1fSmoBkWG+tnRNL51k0sQnhDKrptCcc4KEa/4kNjwc7UlarkW3GHA8yQbIA==}
-    engines: {node: '>=18'}
-
-  '@socketregistry/object-is@1.0.7':
-    resolution: {integrity: sha512-O5GdZdYtxfejlK353nbmu+v7Z+CwnJB4U37w/xuuRp0+f/jyUA1250cLfo3S1ts0TeZ0u8jpA3Mrs7YVLUu8Xw==}
-    engines: {node: '>=18'}
-
-  '@socketregistry/object-keys@1.0.7':
-    resolution: {integrity: sha512-nLgGf/568sdQWdstACEVjjEVxZyoYaoXXC9I5VIeqP+g8jFl0QZ8rjQhDrrUR3mWCdL5jfbvLNVzvjkiHygNbA==}
-    engines: {node: '>=18'}
-
-  '@socketregistry/object.assign@1.0.7':
-    resolution: {integrity: sha512-va2VFokL7936edVCGqbwSjuD6eX1ExCnZMxudb2+hr8FTHwuExd1TtGKzyNLsdr9n1Xy9c0aWkyRoQfWGTM0rw==}
-    engines: {node: '>=18'}
-
   '@socketregistry/packageurl-js@1.0.9':
     resolution: {integrity: sha512-q0DbpmRhvD9MNChqFtdbiEjMHayx5LeK6/8ZRDjHdE7L9wPPtAwVo+at5nMk2r3drV7sXoeUjkB/zGrh7r0DRQ==}
     engines: {node: '>=18'}
 
-  '@socketregistry/regexp.prototype.flags@1.0.7':
-    resolution: {integrity: sha512-Z0ooUAwgizXPRID26ETeDo1PLStkebPjOko7v+OHTsR5HvAA6YlopklvI259c5+xBLb+z0elDogAO2mRzMkS8g==}
-    engines: {node: '>=18'}
-
   '@socketregistry/scripts@file:../../scripts':
     resolution: {directory: ../../scripts, type: directory}
-
-  '@socketregistry/side-channel@1.0.9':
-    resolution: {integrity: sha512-EhdxZ8UiOlImFsqR9Wk6/dvU8Ld/NmUhS42GTTES9cpIEcc/deb+qNhUZdIK6UZy3VYoQjenPR8qWJBud5390w==}
-    engines: {node: '>=18'}
-
-  '@socketregistry/which-boxed-primitive@1.0.8':
-    resolution: {integrity: sha512-8b32GM1MRGWKrnREo1fukDdhLkcmtjmOlcrkTJfBcrxB6QAsqkIKJz0ckz8JGiIJZB1O4rgN5lvoiPS+xSrlDw==}
-    engines: {node: '>=18'}
-
-  '@socketregistry/which-collection@1.0.7':
-    resolution: {integrity: sha512-2OZY9sPmgxUFAQ1+yaXDNpXMPkktGIDIDbjPu1Vh6ActVpG8a91XjqWd8cVPMzBonB9n+hUKbHcviV/lQBTY3w==}
-    engines: {node: '>=18'}
-
-  '@socketregistry/which-typed-array@1.0.8':
-    resolution: {integrity: sha512-cotlP5jrJOH6tnoTAyNouFr/iWm5OeYaaTma5OkhCuw/yrCfhBY+7AdGAbrwevyg8RP3D69v8V3vC5PSa3o0Rg==}
-    engines: {node: '>=18'}
 
   '@socketsecurity/registry@file:../../registry':
     resolution: {directory: ../../registry, type: directory}
@@ -2642,10 +2272,6 @@ packages:
     version: 1.0.0
     engines: {node: '>=18.19'}
 
-  yoctocolors-cjs@2.1.3:
-    resolution: {integrity: sha512-U/PBtDf35ff0D8X8D0jfdzHYEPFxAI7jJlxZXwCSez5M3190m+QobIfh+sWDWSHMCWWJN2AWamkegn6vr6YBTw==}
-    engines: {node: '>=18'}
-
   yoctocolors@2.1.2:
     resolution: {integrity: sha512-CzhO+pFNo8ajLM2d2IW/R93ipy99LWjtwblvC1RsoSUMZgyLbYFr221TnSNT7GjGdYui6P459mw9JH/g/zW2ug==}
     engines: {node: '>=18'}
@@ -2867,33 +2493,7 @@ snapshots:
     dependencies:
       execa: 2.1.0
 
-  '@socketregistry/array-buffer-byte-length@1.0.7': {}
-
-  '@socketregistry/es-get-iterator@1.0.8': {}
-
-  '@socketregistry/is-arguments@1.0.9': {}
-
-  '@socketregistry/is-array-buffer@1.0.9': {}
-
-  '@socketregistry/is-date-object@1.0.9': {}
-
-  '@socketregistry/is-nan@1.0.7': {}
-
-  '@socketregistry/is-regex@1.0.9': {}
-
-  '@socketregistry/is-shared-array-buffer@1.0.9': {}
-
-  '@socketregistry/isarray@1.0.7': {}
-
-  '@socketregistry/object-is@1.0.7': {}
-
-  '@socketregistry/object-keys@1.0.7': {}
-
-  '@socketregistry/object.assign@1.0.7': {}
-
   '@socketregistry/packageurl-js@1.0.9': {}
-
-  '@socketregistry/regexp.prototype.flags@1.0.7': {}
 
   '@socketregistry/scripts@file:../../scripts':
     dependencies:
@@ -2917,14 +2517,6 @@ snapshots:
       - '@biomejs/wasm-bundler'
       - '@biomejs/wasm-web'
       - eslint
-
-  '@socketregistry/side-channel@1.0.9': {}
-
-  '@socketregistry/which-boxed-primitive@1.0.8': {}
-
-  '@socketregistry/which-collection@1.0.7': {}
-
-  '@socketregistry/which-typed-array@1.0.8': {}
 
   '@socketsecurity/registry@file:../../registry': {}
 
@@ -4816,7 +4408,5 @@ snapshots:
   yocto-spinner@https://github.com/sindresorhus/yocto-spinner/archive/3a0f3cc1a682418de29ce20df8d87a2609c89d47.tar.gz:
     dependencies:
       yoctocolors: 2.1.2
-
-  yoctocolors-cjs@2.1.3: {}
 
   yoctocolors@2.1.2: {}

@@ -12,3 +12,4 @@ Thumbs.db
 
 registry/external
 test/**/packages
+test/**/.tmp-*

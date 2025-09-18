@@ -25,6 +25,7 @@
     "clean:node_workspaces": "del-cli 'test/**/node_workspaces'",
     "clean:registry": "dotenvx -q run -f .env.local -- pnpm --filter registry run clean",
     "clean:node_modules": "del-cli '**/node_modules'",
+    "clean:temp": "del-cli 'test/**/.tmp-*'",
     "build": "run-p -c --aggregate-output build:*",
     "build:registry": "dotenvx -q run -f .env.local -- pnpm --filter registry run build",
     "fix": "pnpm run lint:fix",
