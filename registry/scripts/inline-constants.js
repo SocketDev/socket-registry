@@ -5,6 +5,7 @@ const { promises: fs } = require('node:fs')
 
 const MagicString = require('magic-string')
 
+const { ENV } = require('../lib/constants')
 const { isJsonPrimitive } = require('../lib/json')
 const { escapeRegExp } = require('../lib/regexps')
 const { toKebabCase } = require('../lib/strings')
@@ -87,5 +88,13 @@ void (async () => {
     constMagicString.overwrite(start, end, `${key}: ${inlineStr},`)
   }
   await fs.writeFile(libConstantsJsPath, constMagicString.toString(), 'utf8')
-  console.log(`✅ Inlined constants`)
+  // Show output in CI or when explicitly requested, otherwise be quiet during install-related lifecycle events.
+  const lifecycleEvent = process.env.npm_lifecycle_event
+  const isQuietLifecycle =
+    lifecycleEvent &&
+    (lifecycleEvent === 'prepare' || lifecycleEvent.includes('install'))
+  const shouldShowOutput = ENV.CI || ENV.VERBOSE_BUILD || !isQuietLifecycle
+  if (shouldShowOutput) {
+    console.log(`✅ Inlined constants`)
+  }
 })()
