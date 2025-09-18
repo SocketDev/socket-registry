@@ -512,30 +512,6 @@
       "types": "./lib/constants/supports-process-send.d.ts",
       "default": "./lib/constants/supports-process-send.js"
     },
-    "./lib/constants/template-cjs": {
-      "types": "./lib/constants/template-cjs.d.ts",
-      "default": "./lib/constants/template-cjs.js"
-    },
-    "./lib/constants/template-cjs-browser": {
-      "types": "./lib/constants/template-cjs-browser.d.ts",
-      "default": "./lib/constants/template-cjs-browser.js"
-    },
-    "./lib/constants/template-cjs-esm": {
-      "types": "./lib/constants/template-cjs-esm.d.ts",
-      "default": "./lib/constants/template-cjs-esm.js"
-    },
-    "./lib/constants/template-es-shim-constructor": {
-      "types": "./lib/constants/template-es-shim-constructor.d.ts",
-      "default": "./lib/constants/template-es-shim-constructor.js"
-    },
-    "./lib/constants/template-es-shim-prototype-method": {
-      "types": "./lib/constants/template-es-shim-prototype-method.d.ts",
-      "default": "./lib/constants/template-es-shim-prototype-method.js"
-    },
-    "./lib/constants/template-es-shim-static-method": {
-      "types": "./lib/constants/template-es-shim-static-method.d.ts",
-      "default": "./lib/constants/template-es-shim-static-method.js"
-    },
     "./lib/constants/ts-libs-available": {
       "types": "./lib/constants/ts-libs-available.d.ts",
       "default": "./lib/constants/ts-libs-available.js"
