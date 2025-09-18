@@ -251,10 +251,10 @@ function findRealPnpm() {
   const commonPaths = WIN32
     ? [
         // Windows common paths.
-        path.join(ENV.APPDATA || '', 'npm', 'pnpm.cmd'),
-        path.join(ENV.APPDATA || '', 'npm', 'pnpm'),
-        path.join(ENV.LOCALAPPDATA || '', 'pnpm', 'pnpm.cmd'),
-        path.join(ENV.LOCALAPPDATA || '', 'pnpm', 'pnpm'),
+        path.join(ENV.APPDATA, 'npm', 'pnpm.cmd'),
+        path.join(ENV.APPDATA, 'npm', 'pnpm'),
+        path.join(ENV.LOCALAPPDATA, 'pnpm', 'pnpm.cmd'),
+        path.join(ENV.LOCALAPPDATA, 'pnpm', 'pnpm'),
         'C:\\Program Files\\nodejs\\pnpm.cmd',
         'C:\\Program Files\\nodejs\\pnpm'
       ].filter(Boolean)
@@ -262,8 +262,8 @@ function findRealPnpm() {
         // Unix common paths.
         '/usr/local/bin/pnpm',
         '/usr/bin/pnpm',
-        path.join(ENV.HOME || '', '.local/share/pnpm/pnpm'),
-        path.join(ENV.HOME || '', '.pnpm/pnpm')
+        path.join(ENV.XDG_DATA_HOME, 'pnpm/pnpm'),
+        path.join(ENV.HOME, '.pnpm/pnpm')
       ].filter(Boolean)
 
   return findRealBin('pnpm', commonPaths)
@@ -281,8 +281,8 @@ function findRealYarn() {
   const commonPaths = [
     '/usr/local/bin/yarn',
     '/usr/bin/yarn',
-    path.join(ENV.HOME || '', '.yarn/bin/yarn'),
-    path.join(ENV.HOME || '', '.config/yarn/global/node_modules/.bin/yarn')
+    path.join(ENV.HOME, '.yarn/bin/yarn'),
+    path.join(ENV.HOME, '.config/yarn/global/node_modules/.bin/yarn')
   ].filter(Boolean)
 
   return findRealBin('yarn', commonPaths)

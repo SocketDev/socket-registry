@@ -11,6 +11,7 @@ declare interface ENV {
   readonly PRE_COMMIT: boolean
   readonly SOCKET_CLI_DEBUG: boolean
   readonly VITEST: boolean
+  readonly XDG_DATA_HOME: string
 }
 declare const ENV: ENV
 export = ENV
