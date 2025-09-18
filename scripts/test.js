@@ -36,39 +36,41 @@ void (async () => {
     if (hasForce) {
       // Remove --force from arguments.
       args.splice(forceIndex, 1)
+    }
 
-      // Check if we're running npm tests and need to set up the test environment.
-      const isNpmTest = args.some(arg => arg.includes('npm.test'))
-      if (isNpmTest) {
-        // Check if test environment needs setup.
-        const needsSetup =
-          !existsSync(constants.testNpmNodeWorkspacesPath) ||
-          !existsSync(constants.testNpmNodeModulesPath)
+    // Check if we're running npm tests.
+    const isNpmTest = args.length === 0 || args.some(arg => arg.includes('npm'))
 
-        if (needsSetup) {
-          logger.log('Setting up test environment...')
-          const setupResult = spawnSync(
-            'node',
-            [
-              path.join(
-                constants.rootPath,
-                'scripts',
-                'update-test-npm-package-json.js'
-              ),
-              '--force'
-            ],
-            {
-              cwd: constants.rootPath,
-              stdio: 'inherit',
-              shell: WIN32
-            }
-          )
+    // Set up test environment if needed (happens regardless of --force flag).
+    if (isNpmTest) {
+      // Check if test environment needs setup.
+      const needsSetup =
+        !existsSync(constants.testNpmNodeWorkspacesPath) ||
+        !existsSync(constants.testNpmNodeModulesPath)
 
-          if (setupResult.status !== 0) {
-            logger.error('Failed to set up test environment')
-            // eslint-disable-next-line n/no-process-exit
-            process.exit(1)
+      if (needsSetup) {
+        logger.log('Setting up test environment...')
+        const setupResult = spawnSync(
+          'node',
+          [
+            path.join(
+              constants.rootPath,
+              'scripts',
+              'update-test-npm-package-json.js'
+            ),
+            '--force'
+          ],
+          {
+            cwd: constants.rootPath,
+            stdio: 'inherit',
+            shell: WIN32
           }
+        )
+
+        if (setupResult.status) {
+          logger.error('Failed to set up test environment')
+          // eslint-disable-next-line n/no-process-exit
+          process.exit(1)
         }
       }
     }
