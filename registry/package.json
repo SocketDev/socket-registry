@@ -425,6 +425,7 @@
       "default": "./lib/constants/pnpm.js"
     },
     "./lib/constants/pnpm-exec-path": {
+      "types": "./lib/constants/pnpm-exec-path.d.ts",
       "default": "./lib/constants/pnpm-exec-path.js"
     },
     "./lib/constants/pnpm-lock-yaml": {
