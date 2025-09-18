@@ -57,7 +57,6 @@ void (async () => {
       }
       const basename = path.basename(p, ext)
       if (basename === 'index') {
-        console.log(p)
         const dirname = path.dirname(p)
         const dirPath = dirname === '.' ? dirname : `./${path.dirname(p)}`
         if (o[dirPath]) {

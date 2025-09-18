@@ -1,3 +1,13 @@
+/**
+ * @fileoverview Creates Socket registry package overrides for npm packages.
+ * Interactive CLI tool that guides users through creating secure package overrides:
+ * - Fetches and extracts the original npm package
+ * - Analyzes package structure and licenses
+ * - Generates appropriate override templates (CJS, ESM, ES-shim, etc.)
+ * - Sets up TypeScript support if needed
+ * - Creates README and LICENSE files
+ * - Handles browser compatibility and shim requirements
+ */
 'use strict'
 
 const { existsSync, promises: fs } = require('node:fs')

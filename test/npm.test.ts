@@ -23,6 +23,7 @@ const {
   NPM,
   PACKAGE_JSON,
   README_GLOB_RECURSIVE,
+  UNKNOWN_ERROR,
   abortSignal,
   testNpmNodeWorkspacesPath,
   win32EnsureTestsByEcosystem
@@ -38,9 +39,14 @@ const useForce =
 
 const eco = NPM
 
-const testNpmNodeWorkspacesPackages = (
-  readDirNamesSync(testNpmNodeWorkspacesPath) as string[]
-).filter(n => !constants.skipTestsByEcosystem?.get(eco)?.has(n))
+const testNpmNodeWorkspacesPackages = readDirNamesSync(
+  testNpmNodeWorkspacesPath
+).filter(
+  n =>
+    !n.startsWith('.') &&
+    // Skip hidden directories like .cache.
+    !constants.skipTestsByEcosystem?.get(eco)?.has(n)
+)
 
 const packageNames: string[] = useForce
   ? testNpmNodeWorkspacesPackages
@@ -82,13 +88,27 @@ describe(eco, { skip: !packageNames.length }, () => {
 
     it(`${origPkgName} passes all its tests`, { skip }, async () => {
       try {
-        await execScript('test', [], { cwd: nwPkgPath, signal: abortSignal })
+        // Add root node_modules/.bin to PATH so test runners are available.
+        const rootBinPath = path.join(
+          constants.rootPath,
+          'node_modules',
+          '.bin'
+        )
+        const env = {
+          ...process.env,
+          PATH: `${rootBinPath}:${process.env.PATH}`
+        }
+        await execScript('test', [], {
+          cwd: nwPkgPath,
+          signal: abortSignal,
+          env
+        })
         expect(true).toBe(true)
       } catch (e) {
         logger.fail(`${origPkgName}`)
         logger.error(
           `Failed ${origPkgName}:`,
-          (e as Error)?.message ?? 'Unknown error',
+          (e as Error)?.message ?? UNKNOWN_ERROR,
           'stderr:',
           (e as SpawnError)?.stderr ?? 'Unknown stderr'
         )

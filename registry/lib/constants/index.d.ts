@@ -55,7 +55,6 @@ import NODE_MODULES from './node-modules'
 import NODE_MODULES_GLOB_RECURSIVE from './node-modules-glob-recursive'
 import nodeNoWarningsFlags from './node-no-warnings-flags'
 import NODE_VERSION from './node-version'
-import NODE_WORKSPACES from './node-workspaces'
 import NPM from './npm'
 import npmExecPath from './npm-exec-path'
 import npmRealExecPath from './npm-real-exec-path'
@@ -78,7 +77,6 @@ import README_MD from './readme-md'
 import REGISTRY from './registry'
 import REGISTRY_SCOPE_DELIMITER from './registry-scope-delimiter'
 import RESOLUTIONS from './resolutions'
-import skipTestsByEcosystem from './skip-tests-by-ecosystem'
 import SOCKET_GITHUB_ORG from './socket-github-org'
 import SOCKET_IPC_HANDSHAKE from './socket-ipc-handshake'
 import SOCKET_OVERRIDE_SCOPE from './socket-override-scope'
@@ -114,7 +112,6 @@ import UTF8 from './utf8'
 import VITEST from './vitest'
 import VLT from './vlt'
 import WIN32 from './win32'
-import win32EnsureTestsByEcosystem from './win32-ensure-tests-by-ecosystem'
 import YARN from './yarn'
 import YARN_BERRY from './yarn-berry'
 import YARN_CLASSIC from './yarn-classic'
@@ -180,7 +177,6 @@ declare const Constants: {
   readonly NODE_ENV: typeof NODE_ENV
   readonly NODE_MODULES: typeof NODE_MODULES
   readonly NODE_MODULES_GLOB_RECURSIVE: typeof NODE_MODULES_GLOB_RECURSIVE
-  readonly NODE_WORKSPACES: typeof NODE_WORKSPACES
   readonly NODE_VERSION: typeof NODE_VERSION
   readonly NPM: typeof NPM
   readonly NPX: typeof NPX
@@ -250,11 +246,9 @@ declare const Constants: {
   readonly packageExtensions: typeof packageExtensions
   readonly packumentCache: typeof packumentCache
   readonly pacoteCachePath: typeof pacoteCachePath
-  readonly skipTestsByEcosystem: typeof skipTestsByEcosystem
   readonly spinner: typeof spinner
   readonly tsLibsAvailable: typeof tsLibsAvailable
   readonly tsTypesAvailable: typeof tsTypesAvailable
-  readonly win32EnsureTestsByEcosystem: typeof win32EnsureTestsByEcosystem
 }
 declare namespace Constants {
   export { Internals }

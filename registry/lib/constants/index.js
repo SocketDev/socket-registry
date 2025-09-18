@@ -50,7 +50,6 @@ const props = {
   NODE_ENV: 'NODE_ENV',
   NODE_MODULES: 'node_modules',
   NODE_MODULES_GLOB_RECURSIVE: '**/node_modules',
-  NODE_WORKSPACES: 'node_workspaces',
   NODE_VERSION: undefined,
   NPM: 'npm',
   NPX: 'npx',
@@ -121,11 +120,9 @@ const props = {
   packageExtensions: undefined,
   packumentCache: undefined,
   pacoteCachePath: undefined,
-  skipTestsByEcosystem: undefined,
   spinner: undefined,
   tsLibsAvailable: undefined,
-  tsTypesAvailable: undefined,
-  win32EnsureTestsByEcosystem: undefined
+  tsTypesAvailable: undefined
 }
 
 module.exports = createConstantsObject(props, {

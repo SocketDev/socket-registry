@@ -3,8 +3,6 @@ packages:
   - perf/*
   - registry
   - scripts
-  - test/npm
-  - test/npm/node_workspaces/*
 
 patchedDependencies:
   brace-expansion@2.0.2: patches/brace-expansion@2.0.2.patch

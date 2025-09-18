@@ -13,7 +13,9 @@ type Internals = Remap<
 declare const Constants: Remap<
   Exclude<typeof registryConstants, typeof kInternalsSymbol> & {
     readonly [kInternalsSymbol]: Internals
+    readonly DEFAULT_CONCURRENCY: 3
     readonly LICENSE_CONTENT: string
+    readonly PACKAGES: 'packages'
     readonly ecosystems: readonly string[]
     readonly gitExecPath: string
     readonly ignoreGlobs: readonly string[]
@@ -53,6 +55,7 @@ declare const Constants: Remap<
     readonly rootPackagesPath: string
     readonly rootPath: string
     readonly rootTsConfigPath: string
+    readonly skipTestsByEcosystem: Map<string, Set<string>>
     readonly templatesPath: string
     readonly testNpmPath: string
     readonly testNpmFixturesPath: string
@@ -61,6 +64,7 @@ declare const Constants: Remap<
     readonly testNpmPkgJsonPath: string
     readonly testNpmPkgLockPath: string
     readonly tsxExecPath: string
+    readonly win32EnsureTestsByEcosystem: Map<string, ReadonlySet<string>>
     readonly yarnPkgExtsPath: string
     readonly yarnPkgExtsJsonPath: string
   }

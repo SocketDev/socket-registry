@@ -49,12 +49,9 @@ const excludedKeys = new Set([
   'packumentCache',
   'pacoteCachePath',
   'packageExtensions',
-  'parseArgsConfig',
-  'skipTestsByEcosystem',
   'spinner',
   'tsLibsAvailable',
-  'tsTypesAvailable',
-  'win32EnsureTestsByEcosystem'
+  'tsTypesAvailable'
 ])
 
 void (async () => {

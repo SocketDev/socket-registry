@@ -1,16 +1,33 @@
+/**
+ * @fileoverview Test runner for the project.
+ * Handles test execution with Vitest, including:
+ * - Force flag processing for running all tests
+ * - Test environment setup for npm package tests
+ * - Glob pattern expansion for test file selection
+ * - Cross-platform compatibility (Windows/Unix)
+ */
 'use strict'
 
-const { spawn } = require('node:child_process')
+const { spawn, spawnSync } = require('node:child_process')
+const { existsSync } = require('node:fs')
 const path = require('node:path')
 
+const fastGlob = require('fast-glob')
+
 const constants = require('@socketregistry/scripts/constants')
+const { logger } = require('@socketsecurity/registry/lib/logger')
 
 void (async () => {
   const { WIN32 } = constants
 
   try {
     // Separate force flag from other arguments.
-    const args = process.argv.slice(2)
+    let args = process.argv.slice(2)
+
+    // Remove the -- separator if it's the first argument.
+    if (args[0] === '--') {
+      args = args.slice(1)
+    }
 
     // Check if --force is present anywhere in the arguments.
     const forceIndex = args.indexOf('--force')
@@ -19,12 +36,41 @@ void (async () => {
     if (hasForce) {
       // Remove --force from arguments.
       args.splice(forceIndex, 1)
-    }
 
-    // Also remove the -- separator if it becomes empty after removing --force.
-    const dashDashIndex = args.indexOf('--')
-    if (dashDashIndex !== -1 && dashDashIndex === args.length - 1) {
-      args.splice(dashDashIndex, 1)
+      // Check if we're running npm tests and need to set up the test environment.
+      const isNpmTest = args.some(arg => arg.includes('npm.test'))
+      if (isNpmTest) {
+        // Check if test environment needs setup.
+        const needsSetup =
+          !existsSync(constants.testNpmNodeWorkspacesPath) ||
+          !existsSync(constants.testNpmNodeModulesPath)
+
+        if (needsSetup) {
+          logger.log('Setting up test environment...')
+          const setupResult = spawnSync(
+            'node',
+            [
+              path.join(
+                constants.rootPath,
+                'scripts',
+                'update-test-npm-package-json.js'
+              ),
+              '--force'
+            ],
+            {
+              cwd: constants.rootPath,
+              stdio: 'inherit',
+              shell: WIN32
+            }
+          )
+
+          if (setupResult.status !== 0) {
+            logger.error('Failed to set up test environment')
+            // eslint-disable-next-line n/no-process-exit
+            process.exit(1)
+          }
+        }
+      }
     }
 
     const spawnEnv = {
@@ -34,15 +80,22 @@ void (async () => {
 
     // Handle Windows vs Unix for vitest executable.
     const vitestCmd = WIN32 ? 'vitest.cmd' : 'vitest'
-    const vitestPath = path.join(
-      constants.rootPath,
-      'node_modules',
-      '.bin',
-      vitestCmd
-    )
+    const vitestPath = path.join(constants.rootNodeModulesBinPath, vitestCmd)
+
+    // Expand glob patterns in arguments.
+    const expandedArgs = []
+    for (const arg of args) {
+      // Check if the argument looks like a glob pattern.
+      if (arg.includes('*') && !arg.startsWith('-')) {
+        const files = fastGlob.sync(arg, { cwd: constants.rootPath })
+        expandedArgs.push(...files)
+      } else {
+        expandedArgs.push(arg)
+      }
+    }
 
     // Pass remaining arguments to vitest.
-    const vitestArgs = ['run', ...args]
+    const vitestArgs = ['run', ...expandedArgs]
 
     const child = spawn(vitestPath, vitestArgs, {
       cwd: constants.rootPath,
@@ -56,7 +109,7 @@ void (async () => {
       process.exit(code || 0)
     })
   } catch (e) {
-    console.error('Error running tests:', e)
+    logger.error('Error running tests:', e)
     // eslint-disable-next-line n/no-process-exit
     process.exit(1)
   }

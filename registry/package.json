@@ -356,10 +356,6 @@
       "types": "./lib/constants/node-version.d.ts",
       "default": "./lib/constants/node-version.js"
     },
-    "./lib/constants/node-workspaces": {
-      "types": "./lib/constants/node-workspaces.d.ts",
-      "default": "./lib/constants/node-workspaces.js"
-    },
     "./lib/constants/npm": {
       "types": "./lib/constants/npm.d.ts",
       "default": "./lib/constants/npm.js"
@@ -447,10 +443,6 @@
     "./lib/constants/resolutions": {
       "types": "./lib/constants/resolutions.d.ts",
       "default": "./lib/constants/resolutions.js"
-    },
-    "./lib/constants/skip-tests-by-ecosystem": {
-      "types": "./lib/constants/skip-tests-by-ecosystem.d.ts",
-      "default": "./lib/constants/skip-tests-by-ecosystem.js"
     },
     "./lib/constants/socket-github-org": {
       "types": "./lib/constants/socket-github-org.d.ts",
@@ -591,10 +583,6 @@
     "./lib/constants/win32": {
       "types": "./lib/constants/win32.d.ts",
       "default": "./lib/constants/win32.js"
-    },
-    "./lib/constants/win32-ensure-tests-by-ecosystem": {
-      "types": "./lib/constants/win32-ensure-tests-by-ecosystem.d.ts",
-      "default": "./lib/constants/win32-ensure-tests-by-ecosystem.js"
     },
     "./lib/constants/yarn": {
       "types": "./lib/constants/yarn.d.ts",

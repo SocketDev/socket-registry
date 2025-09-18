@@ -11,4 +11,4 @@ Thumbs.db
 /*.tsbuildinfo
 
 registry/external
-test/**/node_workspaces
+test/**/packages
