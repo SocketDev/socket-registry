@@ -187,7 +187,7 @@ function pathLikeToString(pathLike) {
   if (typeof pathLike === 'string') {
     return pathLike
   }
-  const Buffer = getBuffer()
+  const { Buffer } = getBuffer()
   if (Buffer.isBuffer(pathLike)) {
     return pathLike.toString('utf8')
   }
