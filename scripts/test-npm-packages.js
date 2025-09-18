@@ -11,6 +11,7 @@ const { copy } = require('fs-extra')
 const constants = require('@socketregistry/scripts/constants')
 const {
   cleanTestScript,
+  safeRemove,
   testRunners
 } = require('@socketregistry/scripts/lib/test-utils')
 const { readPackageJson } = require('@socketsecurity/registry/lib/packages')
@@ -257,7 +258,7 @@ async function testPackage(socketPkgName) {
     return { package: origPkgName, passed: false, reason: error.message }
   } finally {
     // Clean up temp directory.
-    await fs.rm(tempDir, { recursive: true, force: true })
+    await safeRemove(tempDir)
   }
 }
 
