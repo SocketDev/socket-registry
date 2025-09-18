@@ -105,14 +105,11 @@ async function whichBin(binName, options) {
   if (options?.all) {
     const paths = Array.isArray(result)
       ? result
-      : result != null
+      : typeof result === 'string'
         ? [result]
         : result
     // If all is true and we have paths, resolve each one.
-    if (paths && paths.length > 0) {
-      return paths.map(p => resolveBinPathSync(p))
-    }
-    return paths
+    return paths?.length ? paths.map(p => resolveBinPathSync(p)) : paths
   }
 
   return resolveBinPathSync(result)
@@ -139,10 +136,7 @@ function whichBinSync(binName, options) {
         ? [result]
         : result
     // If all is true and we have paths, resolve each one.
-    if (paths && paths.length) {
-      return paths.map(p => resolveBinPathSync(p))
-    }
-    return paths
+    return paths?.length ? paths.map(p => resolveBinPathSync(p)) : paths
   }
 
   return resolveBinPathSync(result)
