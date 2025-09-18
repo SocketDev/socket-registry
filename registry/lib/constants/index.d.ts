@@ -3,11 +3,14 @@ import abortSignal from './abort-signal'
 import AT_LATEST from './at-latest'
 import BIOME_JSON from './biome-json'
 import BUN from './bun'
+import BUN_LOCK from './bun-lock'
+import BUN_LOCKB from './bun-lockb'
 import CI from './ci'
 import COLUMN_LIMIT from './column-limit'
 import copyLeftLicenses from './copy-left-licenses'
 import DARWIN from './darwin'
 import DOT_GIT_DIR from './dot-git-dir'
+import DOT_PACKAGE_LOCK_JSON from './dot-package-lock-json'
 import DOT_SOCKET_DIR from './dot-socket-dir'
 import EMPTY_FILE from './empty-file'
 import EnvObject from './env'
@@ -32,7 +35,6 @@ import EXTENSIONS from './extensions'
 import EXTENSIONS_JSON from './extensions-json'
 import getIpc from './get-ipc'
 import GITIGNORE from './gitignore'
-import HIDDEN_PACKAGE_LOCK_JSON from './hidden-package-lock-json'
 import IpcObject from './ipc-object'
 import kInternalsSymbol from './k-internals-symbol'
 import LATEST from './latest'
@@ -57,6 +59,7 @@ import nodeNoWarningsFlags from './node-no-warnings-flags'
 import NODE_VERSION from './node-version'
 import NPM from './npm'
 import npmExecPath from './npm-exec-path'
+import NPM_SHRINKWRAP_JSON from './npm-shrinkwrap-json'
 import npmRealExecPath from './npm-real-exec-path'
 import NPX from './npx'
 import OVERRIDES from './overrides'
@@ -106,6 +109,7 @@ import UNLICENSED from './unlicensed'
 import UTF8 from './utf8'
 import VITEST from './vitest'
 import VLT from './vlt'
+import VLT_LOCK_JSON from './vlt-lock-json'
 import WIN32 from './win32'
 import YARN from './yarn'
 import YARN_BERRY from './yarn-berry'
@@ -131,10 +135,13 @@ declare const Constants: {
   readonly AT_LATEST: typeof AT_LATEST
   readonly BIOME_JSON: typeof BIOME_JSON
   readonly BUN: typeof BUN
+  readonly BUN_LOCK: typeof BUN_LOCK
+  readonly BUN_LOCKB: typeof BUN_LOCKB
   readonly CI: typeof CI
   readonly COLUMN_LIMIT: typeof COLUMN_LIMIT
   readonly DARWIN: typeof DARWIN
   readonly DOT_GIT_DIR: typeof DOT_GIT_DIR
+  readonly DOT_PACKAGE_LOCK_JSON: typeof DOT_PACKAGE_LOCK_JSON
   readonly DOT_SOCKET_DIR: typeof DOT_SOCKET_DIR
   readonly EMPTY_FILE: typeof EMPTY_FILE
   readonly ENV: typeof EnvObject
@@ -157,7 +164,6 @@ declare const Constants: {
   readonly EXTENSIONS: typeof EXTENSIONS
   readonly EXTENSIONS_JSON: typeof EXTENSIONS_JSON
   readonly GITIGNORE: typeof GITIGNORE
-  readonly HIDDEN_PACKAGE_LOCK_JSON: typeof HIDDEN_PACKAGE_LOCK_JSON
   readonly ipcObject: typeof IpcObject
   readonly LATEST: typeof LATEST
   readonly LICENSE: typeof LICENSE
@@ -175,6 +181,7 @@ declare const Constants: {
   readonly NODE_MODULES_GLOB_RECURSIVE: typeof NODE_MODULES_GLOB_RECURSIVE
   readonly NODE_VERSION: typeof NODE_VERSION
   readonly NPM: typeof NPM
+  readonly NPM_SHRINKWRAP_JSON: typeof NPM_SHRINKWRAP_JSON
   readonly NPX: typeof NPX
   readonly OVERRIDES: typeof OVERRIDES
   readonly PACKAGE_DEFAULT_SOCKET_CATEGORIES: typeof PACKAGE_DEFAULT_SOCKET_CATEGORIES
@@ -216,6 +223,7 @@ declare const Constants: {
   readonly UTF8: typeof UTF8
   readonly VITEST: typeof VITEST
   readonly VLT: typeof VLT
+  readonly VLT_LOCK_JSON: typeof VLT_LOCK_JSON
   readonly WIN32: typeof WIN32
   readonly YARN: typeof YARN
   readonly YARN_BERRY: typeof YARN_BERRY
