@@ -11,9 +11,9 @@ const { copy } = require('fs-extra')
 const constants = require('@socketregistry/scripts/constants')
 const {
   cleanTestScript,
-  safeRemove,
   testRunners
 } = require('@socketregistry/scripts/lib/test-utils')
+const { safeRemove } = require('@socketregistry/scripts/lib/safe-remove')
 const { readPackageJson } = require('@socketsecurity/registry/lib/packages')
 const {
   resolveOriginalPackageName

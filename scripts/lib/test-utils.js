@@ -1,11 +1,5 @@
 'use strict'
 
-const constants = require('@socketregistry/scripts/constants')
-const { pEach } = require('@socketsecurity/registry/lib/promises')
-const trash = require('trash')
-
-const { DEFAULT_CONCURRENCY } = constants
-
 /**
  * Clean test script by removing unsupported flags and pre/post actions.
  * @param {string} testScript - The test script to clean
@@ -25,43 +19,6 @@ function cleanTestScript(testScript) {
       )
       .trim()
   )
-}
-
-/**
- * Safely remove files/directories using trash, with fallback to fs.rm.
- * @param {string|string[]} paths - Path(s) to remove
- * @param {object} options - Options for fs.rm fallback
- * @returns {Promise<void>}
- */
-async function safeRemove(paths, options = {}) {
-  const pathArray = Array.isArray(paths) ? paths : [paths]
-  if (pathArray.length === 0) {
-    return
-  }
-
-  try {
-    await trash(pathArray)
-  } catch {
-    // If trash fails, fallback to fs.rm.
-    const fs = require('node:fs').promises
-    const { concurrency = DEFAULT_CONCURRENCY, ...rmOptions } = options
-    const defaultRmOptions = { force: true, recursive: true, ...rmOptions }
-
-    await pEach(
-      pathArray,
-      async p => {
-        try {
-          await fs.rm(p, defaultRmOptions)
-        } catch (rmError) {
-          // Only warn about non-ENOENT errors if a spinner is provided.
-          if (rmError.code !== 'ENOENT' && options.spinner) {
-            options.spinner.warn(`Failed to remove ${p}: ${rmError.message}`)
-          }
-        }
-      },
-      { concurrency }
-    )
-  }
 }
 
 /**
@@ -95,7 +52,6 @@ const testRunners = [
 
 module.exports = {
   cleanTestScript,
-  safeRemove,
   testRunners,
   testScripts
 }

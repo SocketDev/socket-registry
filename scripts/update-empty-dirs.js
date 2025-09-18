@@ -9,7 +9,7 @@
 const { glob } = require('fast-glob')
 
 const constants = require('@socketregistry/scripts/constants')
-const { safeRemove } = require('@socketregistry/scripts/lib/test-utils')
+const { safeRemove } = require('@socketregistry/scripts/lib/safe-remove')
 const { isDirEmptySync } = require('@socketsecurity/registry/lib/fs')
 const { logger } = require('@socketsecurity/registry/lib/logger')
 

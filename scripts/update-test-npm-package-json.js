@@ -12,9 +12,9 @@ const fastGlob = require('fast-glob')
 const constants = require('@socketregistry/scripts/constants')
 const {
   cleanTestScript,
-  safeRemove,
   testScripts
 } = require('@socketregistry/scripts/lib/test-utils')
+const { safeRemove } = require('@socketregistry/scripts/lib/safe-remove')
 const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
 const { isSymLinkSync } = require('@socketsecurity/registry/lib/fs')
 const { logger } = require('@socketsecurity/registry/lib/logger')
