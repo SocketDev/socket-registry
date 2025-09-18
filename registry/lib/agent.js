@@ -150,7 +150,7 @@ function execPnpm(args, options) {
   // In CI environments, pnpm uses --frozen-lockfile by default which prevents lockfile updates.
   // For commands that need to update the lockfile (like install with new packages/overrides),
   // we need to explicitly add --no-frozen-lockfile in CI mode if not already present.
-  const { ENV } = /*@__PURE__*/ require('./constants')
+  const ENV = /*@__PURE__*/ require('./constants/env')
   const frozenLockfileArgs = []
   if (
     ENV.CI &&

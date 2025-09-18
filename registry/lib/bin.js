@@ -243,7 +243,7 @@ function findRealNpm() {
  * @returns {string} The path to the real pnpm binary.
  */
 function findRealPnpm() {
-  const { ENV } = /*@__PURE__*/ require('./constants')
+  const ENV = /*@__PURE__*/ require('./constants/env')
   const WIN32 = /*@__PURE__*/ require('./constants/win32')
   const path = getPath()
 
@@ -274,7 +274,7 @@ function findRealPnpm() {
  * @returns {string} The path to the real yarn binary.
  */
 function findRealYarn() {
-  const { ENV } = /*@__PURE__*/ require('./constants')
+  const ENV = /*@__PURE__*/ require('./constants/env')
   const path = getPath()
 
   // Try common yarn locations.
