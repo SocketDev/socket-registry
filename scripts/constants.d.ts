@@ -16,6 +16,12 @@ declare const Constants: Remap<
     readonly DEFAULT_CONCURRENCY: 3
     readonly LICENSE_CONTENT: string
     readonly PACKAGES: 'packages'
+    readonly TEMPLATE_CJS: 'cjs'
+    readonly TEMPLATE_CJS_BROWSER: 'cjs-browser'
+    readonly TEMPLATE_CJS_ESM: 'cjs-esm'
+    readonly TEMPLATE_ES_SHIM_CONSTRUCTOR: 'es-shim-constructor'
+    readonly TEMPLATE_ES_SHIM_PROTOTYPE_METHOD: 'es-shim-prototype-method'
+    readonly TEMPLATE_ES_SHIM_STATIC_METHOD: 'es-shim-static-method'
     readonly ecosystems: readonly string[]
     readonly gitExecPath: string
     readonly ignoreGlobs: readonly string[]
@@ -45,11 +51,11 @@ declare const Constants: Remap<
     readonly relRegistryManifestJsonPath: string
     readonly relRegistryPkgPath: string
     readonly relTestNpmPath: string
-    readonly relTestNpmNodesPath: string
+    readonly relTestNpmNodeModulesPath: string
     readonly rootEslintConfigPath: string
     readonly rootLicensePath: string
-    readonly rootNodesBinPath: string
-    readonly rootNodesPath: string
+    readonly rootNodeModulesBinPath: string
+    readonly rootNodeModulesPath: string
     readonly rootPackageJsonPath: string
     readonly rootPackageLockPath: string
     readonly rootPackagesPath: string
@@ -59,7 +65,7 @@ declare const Constants: Remap<
     readonly templatesPath: string
     readonly testNpmPath: string
     readonly testNpmFixturesPath: string
-    readonly testNpmNodesPath: string
+    readonly testNpmNodeModulesPath: string
     readonly testNpmNodeWorkspacesPath: string
     readonly testNpmPkgJsonPath: string
     readonly testNpmPkgLockPath: string

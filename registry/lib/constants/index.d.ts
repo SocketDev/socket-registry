@@ -94,12 +94,6 @@ import SUPPORTS_NODE_PERMISSION_FLAG from './supports-node-permission-flag'
 import SUPPORTS_NODE_REQUIRE_MODULE from './supports-node-require-module'
 import SUPPORTS_NODE_RUN from './supports-node-run'
 import SUPPORTS_PROCESS_SEND from './supports-process-send'
-import TEMPLATE_CJS from './template-cjs'
-import TEMPLATE_CJS_BROWSER from './template-cjs-browser'
-import TEMPLATE_CJS_ESM from './template-cjs-esm'
-import TEMPLATE_ES_SHIM_CONSTRUCTOR from './template-es-shim-constructor'
-import TEMPLATE_ES_SHIM_PROTOTYPE_METHOD from './template-es-shim-prototype-method'
-import TEMPLATE_ES_SHIM_STATIC_METHOD from './template-es-shim-static-method'
 import tsLibsAvailable from './ts-libs-available'
 import tsTypesAvailable from './ts-types-available'
 import TSCONFIG_JSON from './tsconfig-json'
@@ -211,12 +205,6 @@ declare const Constants: {
   readonly SUPPORTS_NODE_REQUIRE_MODULE: typeof SUPPORTS_NODE_REQUIRE_MODULE
   readonly SUPPORTS_NODE_RUN: typeof SUPPORTS_NODE_RUN
   readonly SUPPORTS_PROCESS_SEND: typeof SUPPORTS_PROCESS_SEND
-  readonly TEMPLATE_CJS: typeof TEMPLATE_CJS
-  readonly TEMPLATE_CJS_BROWSER: typeof TEMPLATE_CJS_BROWSER
-  readonly TEMPLATE_CJS_ESM: typeof TEMPLATE_CJS_ESM
-  readonly TEMPLATE_ES_SHIM_CONSTRUCTOR: typeof TEMPLATE_ES_SHIM_CONSTRUCTOR
-  readonly TEMPLATE_ES_SHIM_PROTOTYPE_METHOD: typeof TEMPLATE_ES_SHIM_PROTOTYPE_METHOD
-  readonly TEMPLATE_ES_SHIM_STATIC_METHOD: typeof TEMPLATE_ES_SHIM_STATIC_METHOD
   readonly TSCONFIG_JSON: typeof TSCONFIG_JSON
   readonly UNDEFINED_TOKEN: typeof UNDEFINED_TOKEN
   readonly UNKNOWN_ERROR: typeof UNKNOWN_ERROR
