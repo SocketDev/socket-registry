@@ -282,10 +282,7 @@ function findRealYarn() {
     '/usr/local/bin/yarn',
     '/usr/bin/yarn',
     path.join(ENV.HOME || '', '.yarn/bin/yarn'),
-    path.join(
-      ENV.HOME || '',
-      '.config/yarn/global/node_modules/.bin/yarn'
-    )
+    path.join(ENV.HOME || '', '.config/yarn/global/node_modules/.bin/yarn')
   ].filter(Boolean)
 
   return findRealBin('yarn', commonPaths)
