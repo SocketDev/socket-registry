@@ -3,7 +3,10 @@
 const { isArray: ArrayIsArray } = Array
 const { hasOwn: ObjectHasOwn, keys: ObjectKeys } = Object
 
+const { getOwn } = /*@__PURE__*/ require('./objects')
 const { stripAnsi } = /*@__PURE__*/ require('./strings')
+
+const windowsScriptExtRegExp = /\.(?:cmd|bat|ps1)$/i
 
 let _child_process
 /**
@@ -20,17 +23,32 @@ function getChildProcess() {
   return _child_process
 }
 
-let _spawn
+let _npmCliPromiseSpawn
 /**
  * Lazily load the promise-spawn module for async process spawning.
  * @returns {Function} The promise-spawn module.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function getSpawn() {
-  if (_spawn === undefined) {
-    _spawn = /*@__PURE__*/ require('../external/@npmcli/promise-spawn')
+function getNpmcliPromiseSpawn() {
+  if (_npmCliPromiseSpawn === undefined) {
+    _npmCliPromiseSpawn = /*@__PURE__*/ require('../external/@npmcli/promise-spawn')
   }
-  return _spawn
+  return _npmCliPromiseSpawn
+}
+
+let _path
+/**
+ * Lazily load the path module to avoid Webpack errors.
+ * @returns {import('path')} The Node.js path module.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function getPath() {
+  if (_path === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _path = /*@__PURE__*/ require('path')
+  }
+  return _path
 }
 
 /**
@@ -112,6 +130,19 @@ function stripAnsiFromSpawnResult(result) {
  * @typedef {{cmd: string; args: string[] | readonly string[]; code: number; signal: AbortSignal | null; stdout: string | Buffer; stderr: string | Buffer}} SpawnStdioResult
  */
 function spawn(cmd, args, options, extra) {
+  // On Windows with shell: true, use just the command name, not the full path.
+  // When shell: true is used, Windows cmd.exe has issues executing full paths to
+  // .cmd/.bat files (e.g., 'C:\...\pnpm.cmd'), often resulting in ENOENT errors.
+  // Using just the command name (e.g., 'pnpm') allows cmd.exe to find it via PATH.
+  // See: https://github.com/nodejs/node/issues/3675
+  // Check for .cmd, .bat, .ps1 extensions that indicate a Windows script.
+  const shell = getOwn(options, 'shell')
+  const WIN32 = /*@__PURE__*/ require('./constants/win32')
+  if (WIN32 && shell && windowsScriptExtRegExp.test(cmd)) {
+    const path = getPath()
+    // Extract just the command name without path and extension.
+    cmd = path.basename(cmd, path.extname(cmd))
+  }
   const {
     spinner = /*@__PURE__*/ require('./constants/spinner'),
     stripAnsi: shouldStripAnsi = true,
@@ -127,8 +158,8 @@ function spawn(cmd, args, options, extra) {
   if (shouldStopSpinner) {
     spinner.stop()
   }
-  const spawn = getSpawn()
-  let spawnPromise = spawn(
+  const npmCliPromiseSpawn = getNpmcliPromiseSpawn()
+  let spawnPromise = npmCliPromiseSpawn(
     cmd,
     args,
     {
@@ -174,6 +205,19 @@ function spawn(cmd, args, options, extra) {
  * @typedef {Omit<SpawnOptions, 'spinner'>} SpawnSyncOptions
  */
 function spawnSync(cmd, args, options) {
+  // On Windows with shell: true, use just the command name, not the full path.
+  // When shell: true is used, Windows cmd.exe has issues executing full paths to
+  // .cmd/.bat files (e.g., 'C:\...\pnpm.cmd'), often resulting in ENOENT errors.
+  // Using just the command name (e.g., 'pnpm') allows cmd.exe to find it via PATH.
+  // See: https://github.com/nodejs/node/issues/3675
+  // Check for .cmd, .bat, .ps1 extensions that indicate a Windows script.
+  const shell = getOwn(options, 'shell')
+  const WIN32 = /*@__PURE__*/ require('./constants/win32')
+  if (WIN32 && shell && windowsScriptExtRegExp.test(cmd)) {
+    const path = getPath()
+    // Extract just the command name without path and extension.
+    cmd = path.basename(cmd, path.extname(cmd))
+  }
   const { stripAnsi: shouldStripAnsi = true, ...rawSpawnOptions } = {
     __proto__: null,
     ...options

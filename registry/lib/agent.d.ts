@@ -7,6 +7,11 @@ declare type ExecScriptOptions = Remap<
     prepost?: boolean | undefined
   }
 >
+declare type PnpmSpawnOptions = Remap<
+  SpawnOptions & {
+    allowLockfileUpdate?: boolean | undefined
+  }
+>
 declare const Agent: {
   execNpm(
     args: string[] | readonly string[],
@@ -14,7 +19,7 @@ declare const Agent: {
   ): Promise<{ stdout: string; stderr: string }>
   execPnpm(
     args: string[] | readonly string[],
-    options?: SpawnOptions | undefined
+    options?: PnpmSpawnOptions | undefined
   ): Promise<{ stdout: string; stderr: string }>
   execScript(
     scriptName: string,
@@ -30,7 +35,9 @@ declare const Agent: {
   isNpmLoglevelFlag(cmdArg: string): boolean
   isNpmNodeOptionsFlag(cmdArg: string): boolean
   isNpmProgressFlag(cmdArg: string): boolean
+  isPnpmFrozenLockfileFlag(cmdArg: string): boolean
   isPnpmIgnoreScriptsFlag(cmdArg: string): boolean
+  isPnpmInstallCommand(cmdArg: string): boolean
   isPnpmLoglevelFlag(cmdArg: string): boolean
   resolveBinPathSync(binPath: string): string
   execBin(
@@ -48,6 +55,6 @@ declare const Agent: {
   ): T extends { nothrow: true } ? string | null : string
 }
 declare namespace Agent {
-  export { ExecScriptOptions }
+  export { ExecScriptOptions, PnpmSpawnOptions }
 }
 export = Agent

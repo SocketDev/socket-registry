@@ -10,6 +10,8 @@ const DEBUG = envAsString(env.DEBUG)
 
 module.exports = ObjectFreeze({
   __proto__: null,
+  // Windows-specific AppData folder for application data.
+  APPDATA: envAsString(env.APPDATA),
   // CI is always set to 'true' in a GitHub action.
   // https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables
   // Libraries like yocto-colors check for CI not by value but my existence,
@@ -18,6 +20,12 @@ module.exports = ObjectFreeze({
   // Enable debug logging based on the 'debug' package.
   // https://socket.dev/npm/package/debug/overview/4.4.1
   DEBUG,
+  // User home directory.
+  HOME: envAsString(env.HOME),
+  // The absolute location of the %localappdata% folder on Windows used to store
+  // user-specific, non-roaming application data, like temporary files, cached
+  // data, and program settings, that are specific to the current machine and user.
+  LOCALAPPDATA: envAsString(env.LOCALAPPDATA),
   // Set the debug log level (notice, error, warn, info, verbose, http, silly).
   LOG_LEVEL: envAsString(env.LOG_LEVEL),
   // .github/workflows/provenance.yml defines this.
