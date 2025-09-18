@@ -69,6 +69,7 @@ import PACKAGE_LOCK_JSON from './package-lock-json'
 import packumentCache from './packument-cache'
 import pacoteCachePath from './pacote-cache-path'
 import PNPM from './pnpm'
+import pnpmExecPath from './pnpm-exec-path'
 import PNPM_LOCK_YAML from './pnpm-lock-yaml'
 import PRE_COMMIT from './pre-commit'
 import README_GLOB from './readme-glob'
@@ -109,6 +110,7 @@ import WIN32 from './win32'
 import YARN from './yarn'
 import YARN_BERRY from './yarn-berry'
 import YARN_CLASSIC from './yarn-classic'
+import yarnExecPath from './yarn-exec-path'
 import YARN_LOCK from './yarn-lock'
 import { createConstantsObject } from '../objects'
 
@@ -234,9 +236,11 @@ declare const Constants: {
   readonly packageExtensions: typeof packageExtensions
   readonly packumentCache: typeof packumentCache
   readonly pacoteCachePath: typeof pacoteCachePath
+  readonly pnpmExecPath: typeof pnpmExecPath
   readonly spinner: typeof spinner
   readonly tsLibsAvailable: typeof tsLibsAvailable
   readonly tsTypesAvailable: typeof tsTypesAvailable
+  readonly yarnExecPath: typeof yarnExecPath
 }
 declare namespace Constants {
   export { Internals }

@@ -112,11 +112,13 @@ const props = {
   npmExecPath: undefined,
   npmRealExecPath: undefined,
   packageExtensions: undefined,
+  pnpmExecPath: undefined,
   packumentCache: undefined,
   pacoteCachePath: undefined,
   spinner: undefined,
   tsLibsAvailable: undefined,
-  tsTypesAvailable: undefined
+  tsTypesAvailable: undefined,
+  yarnExecPath: undefined
 }
 
 module.exports = createConstantsObject(props, {
