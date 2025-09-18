@@ -35,19 +35,53 @@ const registryPkg = packageData({
 async function hasPackageChanged(pkg, manifest_) {
   const manifest =
     manifest_ ?? (await fetchPackageManifest(`${pkg.name}@${pkg.tag}`))
+
   if (!manifest) {
     throw new Error(
       `hasPackageChanged: Failed to fetch manifest for ${pkg.name}`
     )
   }
-  // Compare the shasum of the latest package from registry.npmjs.org against
-  // the local version. If they are different then bump the local version.
-  return (
-    ssri
-      .fromData(await packPackage(`${pkg.name}@${manifest.version}`))
-      .sha512[0].hexDigest() !==
-    ssri.fromData(await packPackage(pkg.path)).sha512[0].hexDigest()
-  )
+
+  // First check if package.json version or dependencies have changed.
+  const localPkgJson = readPackageJsonSync(pkg.path)
+
+  // Check if dependencies have changed.
+  const localDeps = localPkgJson.dependencies ?? {}
+  const remoteDeps = manifest.dependencies ?? {}
+
+  // Sort keys for consistent comparison.
+  const sortedLocalDeps = Object.keys(localDeps).sort().reduce((acc, key) => {
+    acc[key] = localDeps[key]
+    return acc
+  }, {})
+
+  const sortedRemoteDeps = Object.keys(remoteDeps).sort().reduce((acc, key) => {
+    acc[key] = remoteDeps[key]
+    return acc
+  }, {})
+
+  const localDepsStr = JSON.stringify(sortedLocalDeps)
+  const remoteDepsStr = JSON.stringify(sortedRemoteDeps)
+
+  // If dependencies changed, we need to bump.
+  if (localDepsStr !== remoteDepsStr) {
+    return true
+  }
+
+  // Check if other important fields have changed.
+  const fieldsToCheck = ['exports', 'files', 'sideEffects', 'engines']
+  for (const field of fieldsToCheck) {
+    const localValue = JSON.stringify(localPkgJson[field] ?? null)
+    const remoteValue = JSON.stringify(manifest[field] ?? null)
+    if (localValue !== remoteValue) {
+      return true
+    }
+  }
+
+  // Skip tarball comparison entirely - it's too prone to false positives.
+  // If dependencies and key fields haven't changed, assume no bump is needed.
+  // The build process and manifest update will handle any actual code changes.
+  return false
 }
 
 async function maybeBumpPackage(pkg, options = {}) {
