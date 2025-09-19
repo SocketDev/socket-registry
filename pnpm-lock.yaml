@@ -5082,6 +5082,7 @@ snapshots:
       eta: 3.5.0
       fast-glob: 3.3.3
       fs-extra: 11.3.1
+      minimatch: 9.0.5(patch_hash=5ba6ef947d5f7b176eb7fcfe274a11e6d0a1a8bde7ae1cb7e939295aad0e8ec1)
       npm-package-arg: 13.0.0
       out-url: 1.2.2
       semver: 7.7.2
