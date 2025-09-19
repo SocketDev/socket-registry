@@ -18,6 +18,7 @@ const props = {
   DOT_PACKAGE_LOCK_JSON: '.package-lock.json',
   DOT_SOCKET_DIR: '.socket',
   EMPTY_FILE: '/* empty */\n',
+  EMPTY_VALUE: '<value>',
   ENV: undefined,
   ESLINT_CONFIG_JS: 'eslint.config.js',
   ESNEXT: 'esnext',

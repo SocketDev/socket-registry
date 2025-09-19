@@ -172,6 +172,10 @@
       "types": "./lib/constants/empty-file.d.ts",
       "default": "./lib/constants/empty-file.js"
     },
+    "./lib/constants/empty-value": {
+      "types": "./lib/constants/empty-value.d.ts",
+      "default": "./lib/constants/empty-value.js"
+    },
     "./lib/constants/env": {
       "types": "./lib/constants/env.d.ts",
       "default": "./lib/constants/env.js"
