@@ -207,11 +207,7 @@ const lazySkipTestsByEcosystem = () => {
         // which is no longer the case.
         // https://github.com/ChALkeR/safer-buffer/issues/16
         // https://github.com/ChALkeR/safer-buffer/blob/v2.1.2/tests.js
-        'safer-buffer',
-        // yocto-spinner GitHub source includes tests that require get-stream
-        // but the published npm package doesn't include test files
-        // https://github.com/sindresorhus/yocto-spinner/tree/v1.0.0
-        'yocto-spinner'
+        'safer-buffer'
       ])
     ]
   ])
