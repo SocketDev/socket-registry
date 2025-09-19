@@ -9,5 +9,5 @@
     "*.js"
   ],
   "project": ["perf/**", "registry/**", "scripts/**", "src/**", "test/**"],
-  "ignore": ["packages/**", "test/npm/node_workspaces/**"]
+  "ignore": ["packages/**", "test/npm/packages/**"]
 }

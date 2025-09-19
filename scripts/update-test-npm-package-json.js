@@ -78,7 +78,7 @@ async function installAndMergePackage(pkgName, pkgVersion, options) {
   const hasOverride = existsSync(overridePkgPath)
 
   // Determine the final destination path.
-  // Packages with Socket overrides go to node_workspaces, others to node_modules.
+  // Packages with Socket overrides go to test/npm/packages, others to test/npm/node_modules.
   const finalPath = hasOverride
     ? path.join(testNpmNodeWorkspacesPath, socketPkgName)
     : path.join(testNpmNodeModulesPath, pkgName)
@@ -377,7 +377,7 @@ async function installMissingPackageTests(packageNames, options) {
         : origPkgName
       const hasOverride = existsSync(path.join(npmPackagesPath, socketPkgName))
 
-      // Packages with overrides are in node_workspaces, others in node_modules.
+      // Packages with overrides are in test/npm/packages, others in test/npm/node_modules.
       const nmPkgPath = hasOverride
         ? path.join(testNpmNodeWorkspacesPath, socketPkgName)
         : path.join(testNpmNodeModulesPath, origPkgName)
@@ -464,7 +464,7 @@ async function resolveDevDependencies(packageNames, options) {
   const missingPackages = packageNames.filter(sockRegPkgName => {
     const origPkgName = resolveOriginalPackageName(sockRegPkgName)
     // Missing packages can occur if the script is stopped part way through.
-    // Check both node_modules and node_workspaces locations.
+    // Check both node_modules and test/npm/packages locations.
     const hasOverride = existsSync(path.join(npmPackagesPath, sockRegPkgName))
     const pkgPath = hasOverride
       ? path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
@@ -555,7 +555,7 @@ async function linkPackages(packageNames, options) {
       return
     }
 
-    // Check if it's already a symlink to node_workspaces (already processed).
+    // Check if it's already a symlink to test/npm/packages (already processed).
     if (isSymLinkSync(nmPkgPath)) {
       const realPath = realpathSync(nmPkgPath)
       if (realPath === path.join(testNpmNodeWorkspacesPath, sockRegPkgName)) {
@@ -737,7 +737,7 @@ async function linkPackages(packageNames, options) {
 
 async function cleanupNodeWorkspaces(linkedPackageNames, options) {
   // Cleanup up override packages and move them from
-  // test/npm/node_modules/ to test/npm/node_workspaces/
+  // test/npm/node_modules to test/npm/packages
   const { spinner } = { __proto__: null, ...options }
   spinner?.start(`Cleaning up ${relTestNpmPath} workspaces...`)
 
@@ -784,7 +784,7 @@ async function cleanupNodeWorkspaces(linkedPackageNames, options) {
         // Fallback to fs.rm if trash fails (e.g., for .github directories on macOS).
         await safeRemove(unnecessaryPaths, { spinner })
       }
-      // Move override package from test/npm/node_modules/ to test/npm/node_workspaces/
+      // Move override package from test/npm/node_modules to test/npm/packages
       await move(srcPath, destPath, { overwrite: true })
     },
     { concurrency: DEFAULT_CONCURRENCY }
