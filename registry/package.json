@@ -597,6 +597,7 @@
       "default": "./lib/constants/yarn-classic.js"
     },
     "./lib/constants/yarn-exec-path": {
+      "types": "./lib/constants/yarn-exec-path.d.ts",
       "default": "./lib/constants/yarn-exec-path.js"
     },
     "./lib/constants/yarn-lock": {
