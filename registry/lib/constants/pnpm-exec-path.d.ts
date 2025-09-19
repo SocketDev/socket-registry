@@ -1,2 +1,2 @@
-declare const pnpmExecPath: string | null
+declare const pnpmExecPath: string
 export = pnpmExecPath

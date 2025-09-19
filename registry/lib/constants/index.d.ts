@@ -13,6 +13,7 @@ import DOT_GIT_DIR from './dot-git-dir'
 import DOT_PACKAGE_LOCK_JSON from './dot-package-lock-json'
 import DOT_SOCKET_DIR from './dot-socket-dir'
 import EMPTY_FILE from './empty-file'
+import EMPTY_VALUE from './empty-value'
 import EnvObject from './env'
 import ESLINT_CONFIG_JS from './eslint-config-js'
 import ESNEXT from './esnext'
@@ -144,6 +145,7 @@ declare const Constants: {
   readonly DOT_PACKAGE_LOCK_JSON: typeof DOT_PACKAGE_LOCK_JSON
   readonly DOT_SOCKET_DIR: typeof DOT_SOCKET_DIR
   readonly EMPTY_FILE: typeof EMPTY_FILE
+  readonly EMPTY_VALUE: typeof EMPTY_VALUE
   readonly ENV: typeof EnvObject
   readonly ESLINT_CONFIG_JS: typeof ESLINT_CONFIG_JS
   readonly ESNEXT: typeof ESNEXT
