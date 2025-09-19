@@ -140,6 +140,6 @@
     "which-boxed-primitive": "1.1.1",
     "which-collection": "1.0.2",
     "which-typed-array": "1.1.19",
-    "yocto-spinner": "https://github.com/sindresorhus/yocto-spinner/archive/3a0f3cc1a682418de29ce20df8d87a2609c89d47.tar.gz"
+    "yocto-spinner": "https://github.com/sindresorhus/yocto-spinner/archive/91e5974f2a21a8f3ca886463c8ca8e502a41639c.tar.gz"
   }
 }

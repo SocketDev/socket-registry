@@ -413,32 +413,10 @@ importers:
         specifier: 1.1.19
         version: 1.1.19
       yocto-spinner:
-        specifier: https://github.com/sindresorhus/yocto-spinner/archive/3a0f3cc1a682418de29ce20df8d87a2609c89d47.tar.gz
-        version: https://github.com/sindresorhus/yocto-spinner/archive/3a0f3cc1a682418de29ce20df8d87a2609c89d47.tar.gz
+        specifier: https://github.com/sindresorhus/yocto-spinner/archive/91e5974f2a21a8f3ca886463c8ca8e502a41639c.tar.gz
+        version: https://github.com/sindresorhus/yocto-spinner/archive/91e5974f2a21a8f3ca886463c8ca8e502a41639c.tar.gz
 
   packages/abab: {}
-
-  packages/aggregate-error: {}
-
-  packages/array-buffer-byte-length: {}
-
-  packages/array-flatten: {}
-
-  packages/array-includes: {}
-
-  packages/array.from: {}
-
-  packages/array.of: {}
-
-  packages/array.prototype.at: {}
-
-  packages/array.prototype.every: {}
-
-  packages/array.prototype.filter: {}
-
-  packages/array.prototype.find: {}
-
-  packages/array.prototype.findlast: {}
 
   packages/hyrious__bun.lockb: {}
 
@@ -979,6 +957,9 @@ packages:
 
   brace-expansion@1.1.12:
     resolution: {integrity: sha512-9T9UjW3r0UW5c1Q7GTwllptXwhvYmEzFhzMfZ9H7FQWt+uZePjZPjBP/W1ZEyZ1twGWom5/56TF4lPcqjnDHcg==}
+
+  brace-expansion@2.0.2:
+    resolution: {integrity: sha512-Jt0vHyM+jmUBqojB7E1NIYadt0vI0Qxjxd2TErW94wDz+E2LAm5vKMXXwg6ZZBTHPuUlDgQHKXvjGBdfcF1ZDQ==}
 
   braces@3.0.3:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
@@ -1599,6 +1580,10 @@ packages:
 
   minimatch@3.1.2:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
+
+  minimatch@9.0.5:
+    resolution: {integrity: sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==}
+    engines: {node: '>=16 || 14 >=14.17'}
 
   minipass@7.1.2:
     resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
@@ -2267,8 +2252,8 @@ packages:
     resolution: {integrity: sha512-N1XQngeqMBoj9wM4ZFadVV2MymImeiFfYD+fJrNlcVcOHsJFFQe7n3b+aBoTPwARuq2HQxukfzVpQmAk1gN4sQ==}
     engines: {node: '>=10'}
 
-  yocto-spinner@https://github.com/sindresorhus/yocto-spinner/archive/3a0f3cc1a682418de29ce20df8d87a2609c89d47.tar.gz:
-    resolution: {tarball: https://github.com/sindresorhus/yocto-spinner/archive/3a0f3cc1a682418de29ce20df8d87a2609c89d47.tar.gz}
+  yocto-spinner@https://github.com/sindresorhus/yocto-spinner/archive/91e5974f2a21a8f3ca886463c8ca8e502a41639c.tar.gz:
+    resolution: {tarball: https://github.com/sindresorhus/yocto-spinner/archive/91e5974f2a21a8f3ca886463c8ca8e502a41639c.tar.gz}
     version: 1.0.0
     engines: {node: '>=18.19'}
 
@@ -2507,6 +2492,7 @@ snapshots:
       eta: 3.5.0
       fast-glob: 3.3.3
       fs-extra: 11.3.1
+      minimatch: 9.0.5
       npm-package-arg: 13.0.0
       out-url: 1.2.2
       semver: 7.7.2
@@ -2778,6 +2764,10 @@ snapshots:
     dependencies:
       balanced-match: 1.0.2
       concat-map: 0.0.1
+
+  brace-expansion@2.0.2:
+    dependencies:
+      balanced-match: 1.0.2
 
   braces@3.0.3:
     dependencies:
@@ -3553,6 +3543,10 @@ snapshots:
   minimatch@3.1.2:
     dependencies:
       brace-expansion: 1.1.12
+
+  minimatch@9.0.5:
+    dependencies:
+      brace-expansion: 2.0.2
 
   minipass@7.1.2: {}
 
@@ -4405,7 +4399,7 @@ snapshots:
       user-home: 2.0.0
       xdg-basedir: 4.0.0
 
-  yocto-spinner@https://github.com/sindresorhus/yocto-spinner/archive/3a0f3cc1a682418de29ce20df8d87a2609c89d47.tar.gz:
+  yocto-spinner@https://github.com/sindresorhus/yocto-spinner/archive/91e5974f2a21a8f3ca886463c8ca8e502a41639c.tar.gz:
     dependencies:
       yoctocolors: 2.1.2
 
