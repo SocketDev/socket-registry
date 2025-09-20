@@ -27,6 +27,7 @@ permissions:
 
 jobs:
   test:
+    name: Run Tests
     runs-on: ${{ inputs.os }}
     timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:

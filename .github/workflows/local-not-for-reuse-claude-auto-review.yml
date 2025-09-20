@@ -3,6 +3,7 @@ name: ⚙️ Claude Auto Review
 on:
   pull_request:
     types: [opened]
+  workflow_dispatch:
 
 jobs:
   auto-review:

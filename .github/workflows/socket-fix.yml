@@ -50,6 +50,7 @@ permissions:
 
 jobs:
   socket-fix:
+    name: Run Socket Fix
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
