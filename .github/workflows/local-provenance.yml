@@ -1,4 +1,4 @@
-name: Publish to registry
+name: Local / Publish to registry
 
 on:
   workflow_dispatch:

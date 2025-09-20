@@ -1,4 +1,4 @@
-name: Linting
+name: Local / Run Linting
 
 on:
   push:
