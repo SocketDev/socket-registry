@@ -1,4 +1,4 @@
-name: 🏠 Publish to registry
+name: ⚙️ Publish to registry
 
 on:
   workflow_dispatch:
