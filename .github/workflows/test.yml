@@ -3,44 +3,115 @@ name: ⚡ Test
 on:
   workflow_call:
     inputs:
-      node-version:
-        description: 'Node version to test'
-        required: true
-        type: string
-      os:
-        description: 'Operating system to run on'
-        required: true
-        type: string
-      timeout-minutes:
-        description: 'Timeout in minutes'
+      continue-on-error:
+        description: 'Continue workflow even if job fails (e.g., true for experimental/nightly Node versions)'
         required: false
-        type: number
-        default: 10
+        type: boolean
+        default: false
       debug:
-        description: 'Enable debug output'
+        description: 'Enable debug output (e.g., "1" for verbose logging)'
         required: false
         type: string
         default: '0'
+      fail-fast:
+        description: 'Cancel all matrix jobs if one fails (e.g., false to run all combinations)'
+        required: false
+        type: boolean
+        default: true
+      matrix-exclude:
+        description: 'Matrix combinations to exclude (e.g., ''[{"node-version": 20, "os": "windows-latest"}]'')'
+        required: false
+        type: string
+        default: '[]'
+      matrix-include:
+        description: 'Additional matrix combinations (e.g., ''[{"node-version": "25-nightly", "os": "ubuntu-latest"}]'')'
+        required: false
+        type: string
+        default: '[]'
+      max-parallel:
+        description: 'Maximum parallel jobs (e.g., 2 for rate-limited APIs, 0 for unlimited)'
+        required: false
+        type: number
+        default: 4
+      node-versions:
+        description: 'Node.js versions to test (e.g., ''[18, 20, 22, "23.0.0-nightly"]'')'
+        required: false
+        type: string
+        default: '[20, 22, 24]'
+      os-versions:
+        description: 'Operating systems (e.g., ''["ubuntu-latest", "windows-latest", "macos-latest"]'')'
+        required: false
+        type: string
+        default: '["ubuntu-latest", "windows-latest"]'
+      retention-days:
+        description: 'Days to retain artifacts (e.g., 7 for one week, 30 for one month)'
+        required: false
+        type: number
+        default: 7
+      setup-script:
+        description: 'Setup script before tests (e.g., "npm run build", "playwright install")'
+        required: false
+        type: string
+        default: ''
+      test-script:
+        description: 'Test command (e.g., "npm test", "pnpm test -- --coverage")'
+        required: false
+        type: string
+        default: 'pnpm run test-ci'
+      timeout-minutes:
+        description: 'Job timeout in minutes (e.g., 30 for large test suites)'
+        required: false
+        type: number
+        default: 10
+      upload-artifacts:
+        description: 'Upload test artifacts like coverage (e.g., true for coverage reports)'
+        required: false
+        type: boolean
+        default: false
+      working-directory:
+        description: 'Working directory (e.g., "packages/core" for monorepos)'
+        required: false
+        type: string
+        default: '.'
 
 permissions:
   contents: read
 
-jobs:
-  test:
-    name: Run Tests
-    runs-on: ${{ inputs.os }}
-    timeout-minutes: ${{ inputs.timeout-minutes }}
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
-      - name: Setup debug
-        uses: SocketDev/socket-registry/.github/actions/debug@main
+jobs:
+  test-matrix:
+    strategy:
+      fail-fast: ${{ inputs.fail-fast }}
+      max-parallel: ${{ inputs.max-parallel }}
+      matrix:
+        node-version: ${{ fromJson(inputs.node-versions) }}
+        os: ${{ fromJson(inputs.os-versions) }}
+        exclude: ${{ fromJson(inputs.matrix-exclude) }}
+        include: ${{ fromJson(inputs.matrix-include) }}
+    name: Test Node ${{ matrix.node-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    continue-on-error: ${{ inputs.continue-on-error }}
+    steps:
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@main
         with:
           debug: ${{ inputs.debug }}
+          node-version: ${{ matrix.node-version }}
+          working-directory: ${{ inputs.working-directory }}
 
-      - uses: SocketDev/socket-registry/.github/actions/setup@main
+      - uses: SocketDev/socket-registry/.github/actions/run-script@main
         with:
-          node-version: ${{ inputs.node-version }}
+          main-script: ${{ inputs.test-script }}
+          setup-script: ${{ inputs.setup-script }}
+          working-directory: ${{ inputs.working-directory }}
 
-      - name: Run tests
-        run: pnpm run test-ci
+      - uses: SocketDev/socket-registry/.github/actions/artifacts@main
+        if: inputs.upload-artifacts
+        with:
+          name: test-results-${{ matrix.os }}-node-${{ matrix.node-version }}
+          type: test
+          working-directory: ${{ inputs.working-directory }}
+          retention-days: ${{ inputs.retention-days }}

@@ -1,0 +1,49 @@
+name: 'Run Script'
+description: 'Run setup and main scripts with proper working directory handling'
+
+inputs:
+  continue-on-error:
+    description: 'Continue on error'
+    required: false
+    default: 'false'
+  main-script:
+    description: 'Main script to run'
+    required: true
+  setup-script:
+    description: 'Optional setup script to run first'
+    required: false
+    default: ''
+  shell:
+    description: 'Shell to use'
+    required: false
+    default: 'bash'
+  working-directory:
+    description: 'Working directory'
+    required: false
+    default: '.'
+
+outputs:
+  exit-code:
+    description: 'Exit code from the main script'
+    value: ${{ steps.main.outputs.exit-code }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Run setup script
+      if: inputs.setup-script != ''
+      shell: ${{ inputs.shell }}
+      working-directory: ${{ inputs.working-directory }}
+      run: ${{ inputs.setup-script }}
+
+    - name: Run main script
+      id: main
+      shell: ${{ inputs.shell }}
+      working-directory: ${{ inputs.working-directory }}
+      continue-on-error: ${{ inputs.continue-on-error == 'true' }}
+      run: |
+        set +e
+        ${{ inputs.main-script }}
+        exit_code=$?
+        echo "exit-code=$exit_code" >> $GITHUB_OUTPUT
+        exit $exit_code

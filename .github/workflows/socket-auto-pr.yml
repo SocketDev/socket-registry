@@ -1,4 +1,4 @@
-name: ⚡ Socket Fix
+name: ⚡ Socket Auto PR
 
 # Recommended schedule for calling workflows:
 # schedule:
@@ -8,26 +8,16 @@ name: ⚡ Socket Fix
 on:
   workflow_call:
     inputs:
-      debug:
-        description: 'Enable debug output'
-        required: false
-        type: string
-        default: '0'
-      node-version:
-        description: 'Node version to use'
-        required: false
-        type: string
-        default: '22'
-      glob-pattern:
-        description: 'Glob pattern for files to fix'
-        required: false
-        type: string
-        default: ''
       autopilot:
         description: 'Enable autopilot mode'
         required: false
         type: boolean
         default: true
+      debug:
+        description: 'Enable debug output'
+        required: false
+        type: string
+        default: '0'
       git-user-email:
         description: 'Git user email for commits'
         required: false
@@ -38,38 +28,46 @@ on:
         required: false
         type: string
         default: 'socket-fix[bot]'
+      glob-pattern:
+        description: 'Glob pattern for files to fix'
+        required: false
+        type: string
+        default: ''
+      node-version:
+        description: 'Node version to use'
+        required: false
+        type: string
+        default: '22'
       timeout-minutes:
         description: 'Timeout in minutes'
         required: false
         type: number
         default: 10
     secrets:
-      socket_cli_api_token:
-        required: true
       gh_token:
+        required: true
+      socket_cli_api_token:
         required: true
 
 permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: false  # Don't cancel auto-fix PRs
+
 jobs:
-  socket-fix:
-    name: Run Socket Fix
+  socket-auto-pr:
+    name: Run Socket Auto PR
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - name: Setup debug
-        uses: SocketDev/socket-registry/.github/actions/debug@main
-        with:
-          debug: ${{ inputs.debug }}
-
-      - uses: SocketDev/socket-cli/.github/actions/setup@main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@main
         with:
           node-version: ${{ inputs.node-version }}
+          debug: ${{ inputs.debug }}
+          package-manager: npm
 
       - name: Run Socket Fix CLI
         env:

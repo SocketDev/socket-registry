@@ -3,41 +3,88 @@ name: ⚡ Type Check
 on:
   workflow_call:
     inputs:
-      node-version:
-        description: 'Node version to use'
+      continue-on-error:
+        description: 'Continue workflow even if type checking fails'
         required: false
-        type: string
-        default: '22'
+        type: boolean
+        default: false
       debug:
-        description: 'Enable debug output'
+        description: 'Enable debug output (e.g., "1" for verbose logging)'
         required: false
         type: string
         default: '0'
+      node-version:
+        description: 'Node.js version to use (e.g., "20", "22", "24")'
+        required: false
+        type: string
+        default: '22'
+      os:
+        description: 'Operating system to run on (e.g., "ubuntu-latest")'
+        required: false
+        type: string
+        default: 'ubuntu-latest'
+      retention-days:
+        description: 'Days to retain artifacts (e.g., 7 for one week)'
+        required: false
+        type: number
+        default: 7
+      setup-script:
+        description: 'Setup script before type checking (e.g., "npm run build")'
+        required: false
+        type: string
+        default: ''
       timeout-minutes:
-        description: 'Timeout in minutes'
+        description: 'Job timeout in minutes (e.g., 15 for complex types)'
         required: false
         type: number
         default: 10
+      type-script:
+        description: 'Type check command (e.g., "tsc --noEmit", "pnpm run check:tsc")'
+        required: false
+        type: string
+        default: 'pnpm run check:tsc'
+      upload-artifacts:
+        description: 'Upload type check results as artifacts'
+        required: false
+        type: boolean
+        default: false
+      working-directory:
+        description: 'Working directory (e.g., "packages/core" for monorepos)'
+        required: false
+        type: string
+        default: '.'
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   type-check:
-    name: Run Type Checking
-    runs-on: ubuntu-latest
+    name: Type Check
+    runs-on: ${{ inputs.os }}
     timeout-minutes: ${{ inputs.timeout-minutes }}
+    continue-on-error: ${{ inputs.continue-on-error }}
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - name: Setup debug
-        uses: SocketDev/socket-registry/.github/actions/debug@main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@main
         with:
           debug: ${{ inputs.debug }}
-
-      - uses: SocketDev/socket-registry/.github/actions/setup@main
-        with:
           node-version: ${{ inputs.node-version }}
+          working-directory: ${{ inputs.working-directory }}
 
-      - name: Run type check
-        run: pnpm run check:tsc
+      - uses: SocketDev/socket-registry/.github/actions/run-script@main
+        with:
+          continue-on-error: ${{ inputs.continue-on-error }}
+          main-script: ${{ inputs.type-script }}
+          setup-script: ${{ inputs.setup-script }}
+          working-directory: ${{ inputs.working-directory }}
+
+      - uses: SocketDev/socket-registry/.github/actions/artifacts@main
+        if: inputs.upload-artifacts
+        with:
+          name: type-check-${{ inputs.os }}-node-${{ inputs.node-version }}
+          type: test
+          working-directory: ${{ inputs.working-directory }}
+          retention-days: ${{ inputs.retention-days }}
