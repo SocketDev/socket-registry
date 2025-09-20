@@ -23,6 +23,11 @@ on:
         required: false
         type: string
         default: ''
+      package-name:
+        description: 'Package name (e.g., @socketregistry/packageurl-js) - used when scripts are not provided'
+        required: false
+        type: string
+        default: ''
     secrets:
       npm_token:
         required: true
@@ -51,7 +56,19 @@ jobs:
         if: inputs.publish-script != ''
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
+          SOCKET_CLI_DEBUG: ${{ inputs.debug }}
+      - run: pnpm publish --provenance --access public --no-git-checks
+        if: inputs.publish-script == '' && inputs.package-name != ''
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
+          SOCKET_CLI_DEBUG: ${{ inputs.debug }}
       - run: pnpm run ${{ inputs.access-script }}
         if: inputs.access-script != ''
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
+          SOCKET_CLI_DEBUG: ${{ inputs.debug }}
+      - run: pnpm access set mfa=automation ${{ inputs.package-name }}
+        if: inputs.access-script == '' && inputs.package-name != ''
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
+          SOCKET_CLI_DEBUG: ${{ inputs.debug }}
