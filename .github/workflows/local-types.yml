@@ -1,4 +1,4 @@
-name: Local / Run Type Checks
+name: 🏠 Type Checks
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: Local / Run Tests
+name: 🏠 Tests
 
 on:
   push:

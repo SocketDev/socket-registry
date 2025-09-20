@@ -1,4 +1,4 @@
-name: Local / Run Claude Code
+name: 🏠 Claude Code
 
 on:
   issue_comment:

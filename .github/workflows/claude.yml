@@ -1,4 +1,4 @@
-name: Claude Code
+name: ⚡ Claude Code
 
 on:
   workflow_call:
