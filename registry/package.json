@@ -132,6 +132,10 @@
       "types": "./lib/constants/bun.d.ts",
       "default": "./lib/constants/bun.js"
     },
+    "./lib/constants/bun-cache-path": {
+      "types": "./lib/constants/bun-cache-path.d.ts",
+      "default": "./lib/constants/bun-cache-path.js"
+    },
     "./lib/constants/bun-lock": {
       "types": "./lib/constants/bun-lock.d.ts",
       "default": "./lib/constants/bun-lock.js"
@@ -376,6 +380,10 @@
       "types": "./lib/constants/npm-exec-path.d.ts",
       "default": "./lib/constants/npm-exec-path.js"
     },
+    "./lib/constants/npm-lifecycle-event": {
+      "types": "./lib/constants/npm-lifecycle-event.d.ts",
+      "default": "./lib/constants/npm-lifecycle-event.js"
+    },
     "./lib/constants/npm-real-exec-path": {
       "types": "./lib/constants/npm-real-exec-path.d.ts",
       "default": "./lib/constants/npm-real-exec-path.js"
@@ -416,6 +424,10 @@
       "types": "./lib/constants/package-lock-json.d.ts",
       "default": "./lib/constants/package-lock-json.js"
     },
+    "./lib/constants/package-manager-cache-names": {
+      "types": "./lib/constants/package-manager-cache-names.d.ts",
+      "default": "./lib/constants/package-manager-cache-names.js"
+    },
     "./lib/constants/packument-cache": {
       "types": "./lib/constants/packument-cache.d.ts",
       "default": "./lib/constants/packument-cache.js"
@@ -435,6 +447,10 @@
     "./lib/constants/pnpm-lock-yaml": {
       "types": "./lib/constants/pnpm-lock-yaml.d.ts",
       "default": "./lib/constants/pnpm-lock-yaml.js"
+    },
+    "./lib/constants/pnpm-store-path": {
+      "types": "./lib/constants/pnpm-store-path.d.ts",
+      "default": "./lib/constants/pnpm-store-path.js"
     },
     "./lib/constants/pre-commit": {
       "types": "./lib/constants/pre-commit.d.ts",
@@ -576,6 +592,10 @@
       "types": "./lib/constants/vlt.d.ts",
       "default": "./lib/constants/vlt.js"
     },
+    "./lib/constants/vlt-cache-path": {
+      "types": "./lib/constants/vlt-cache-path.d.ts",
+      "default": "./lib/constants/vlt-cache-path.js"
+    },
     "./lib/constants/vlt-lock-json": {
       "types": "./lib/constants/vlt-lock-json.d.ts",
       "default": "./lib/constants/vlt-lock-json.js"
@@ -591,6 +611,10 @@
     "./lib/constants/yarn-berry": {
       "types": "./lib/constants/yarn-berry.d.ts",
       "default": "./lib/constants/yarn-berry.js"
+    },
+    "./lib/constants/yarn-cache-path": {
+      "types": "./lib/constants/yarn-cache-path.d.ts",
+      "default": "./lib/constants/yarn-cache-path.js"
     },
     "./lib/constants/yarn-classic": {
       "types": "./lib/constants/yarn-classic.d.ts",

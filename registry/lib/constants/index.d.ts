@@ -3,6 +3,7 @@ import abortSignal from './abort-signal'
 import AT_LATEST from './at-latest'
 import BIOME_JSON from './biome-json'
 import BUN from './bun'
+import bunCachePath from './bun-cache-path'
 import BUN_LOCK from './bun-lock'
 import BUN_LOCKB from './bun-lockb'
 import CI from './ci'
@@ -60,6 +61,7 @@ import nodeNoWarningsFlags from './node-no-warnings-flags'
 import NODE_VERSION from './node-version'
 import NPM from './npm'
 import npmExecPath from './npm-exec-path'
+import npmLifecycleEvent from './npm-lifecycle-event'
 import npmRealExecPath from './npm-real-exec-path'
 import NPM_SHRINKWRAP_JSON from './npm-shrinkwrap-json'
 import NPX from './npx'
@@ -70,11 +72,13 @@ import PACKAGE_DEFAULT_VERSION from './package-default-version'
 import packageExtensions from './package-extensions'
 import PACKAGE_JSON from './package-json'
 import PACKAGE_LOCK_JSON from './package-lock-json'
+import packageManagerCacheNames from './package-manager-cache-names'
 import packumentCache from './packument-cache'
 import pacoteCachePath from './pacote-cache-path'
 import PNPM from './pnpm'
 import pnpmExecPath from './pnpm-exec-path'
 import PNPM_LOCK_YAML from './pnpm-lock-yaml'
+import pnpmStorePath from './pnpm-store-path'
 import PRE_COMMIT from './pre-commit'
 import README_GLOB from './readme-glob'
 import README_GLOB_RECURSIVE from './readme-glob-recursive'
@@ -110,10 +114,12 @@ import UNLICENSED from './unlicensed'
 import UTF8 from './utf8'
 import VITEST from './vitest'
 import VLT from './vlt'
+import vltCachePath from './vlt-cache-path'
 import VLT_LOCK_JSON from './vlt-lock-json'
 import WIN32 from './win32'
 import YARN from './yarn'
 import YARN_BERRY from './yarn-berry'
+import yarnCachePath from './yarn-cache-path'
 import YARN_CLASSIC from './yarn-classic'
 import yarnExecPath from './yarn-exec-path'
 import YARN_LOCK from './yarn-lock'
@@ -136,6 +142,7 @@ declare const Constants: {
   readonly AT_LATEST: typeof AT_LATEST
   readonly BIOME_JSON: typeof BIOME_JSON
   readonly BUN: typeof BUN
+  readonly bunCachePath: typeof bunCachePath
   readonly BUN_LOCK: typeof BUN_LOCK
   readonly BUN_LOCKB: typeof BUN_LOCKB
   readonly CI: typeof CI
@@ -183,6 +190,7 @@ declare const Constants: {
   readonly NODE_MODULES_GLOB_RECURSIVE: typeof NODE_MODULES_GLOB_RECURSIVE
   readonly NODE_VERSION: typeof NODE_VERSION
   readonly NPM: typeof NPM
+  readonly npmLifecycleEvent: typeof npmLifecycleEvent
   readonly NPM_SHRINKWRAP_JSON: typeof NPM_SHRINKWRAP_JSON
   readonly NPX: typeof NPX
   readonly OVERRIDES: typeof OVERRIDES
@@ -193,6 +201,7 @@ declare const Constants: {
   readonly PACKAGE_LOCK_JSON: typeof PACKAGE_LOCK_JSON
   readonly PNPM: typeof PNPM
   readonly PNPM_LOCK_YAML: typeof PNPM_LOCK_YAML
+  readonly pnpmStorePath: typeof pnpmStorePath
   readonly PRE_COMMIT: typeof PRE_COMMIT
   readonly README_GLOB: typeof README_GLOB
   readonly README_GLOB_RECURSIVE: typeof README_GLOB_RECURSIVE
@@ -225,10 +234,12 @@ declare const Constants: {
   readonly UTF8: typeof UTF8
   readonly VITEST: typeof VITEST
   readonly VLT: typeof VLT
+  readonly vltCachePath: typeof vltCachePath
   readonly VLT_LOCK_JSON: typeof VLT_LOCK_JSON
   readonly WIN32: typeof WIN32
   readonly YARN: typeof YARN
   readonly YARN_BERRY: typeof YARN_BERRY
+  readonly yarnCachePath: typeof yarnCachePath
   readonly YARN_CLASSIC: typeof YARN_CLASSIC
   readonly YARN_LOCK: typeof YARN_LOCK
   readonly abortController: typeof abortController
@@ -244,6 +255,7 @@ declare const Constants: {
   readonly npmExecPath: typeof npmExecPath
   readonly npmRealExecPath: typeof npmRealExecPath
   readonly packageExtensions: typeof packageExtensions
+  readonly packageManagerCacheNames: typeof packageManagerCacheNames
   readonly packumentCache: typeof packumentCache
   readonly pacoteCachePath: typeof pacoteCachePath
   readonly pnpmExecPath: typeof pnpmExecPath
