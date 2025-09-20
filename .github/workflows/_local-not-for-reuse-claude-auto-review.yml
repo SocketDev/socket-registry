@@ -15,5 +15,3 @@ jobs:
     uses: SocketDev/socket-registry/.github/workflows/claude-auto-review.yml@main
     secrets:
       anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-    with:
-      timeout_minutes: '60'
