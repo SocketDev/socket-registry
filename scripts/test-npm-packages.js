@@ -294,7 +294,9 @@ async function main() {
   // Calculate total tested (excluding skipped).
   const totalTested = results.length - skipped.length
 
-  logger.success(`Passed: ${passed.length}/${totalTested} (${results.length} total)`)
+  logger.success(
+    `Passed: ${passed.length}/${totalTested} (${results.length} total)`
+  )
   passed.forEach(r => logger.log(`   ${r.package}`))
 
   if (skipped.length > 0) {
@@ -303,7 +305,9 @@ async function main() {
   }
 
   if (failed.length > 0) {
-    logger.fail(`Failed: ${failed.length}/${totalTested} (${results.length} total)`)
+    logger.fail(
+      `Failed: ${failed.length}/${totalTested} (${results.length} total)`
+    )
     failed.forEach(r =>
       logger.log(`   ${r.package}: ${r.reason?.substring(0, 50)}...`)
     )
