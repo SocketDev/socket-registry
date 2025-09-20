@@ -1,0 +1,38 @@
+name: 'Upload Artifacts'
+description: 'Standardized artifact upload for test and lint results'
+
+inputs:
+  name:
+    description: 'Artifact name'
+    required: true
+  retention-days:
+    description: 'Days to retain artifacts'
+    required: false
+    default: '7'
+  type:
+    description: 'Type of artifacts (test, lint, coverage)'
+    required: false
+    default: 'test'
+  working-directory:
+    description: 'Working directory containing artifacts'
+    required: false
+    default: '.'
+runs:
+  using: 'composite'
+  steps:
+    - name: Upload artifacts
+      if: always()
+      uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+      with:
+        name: ${{ inputs.name }}
+        retention-days: ${{ inputs.retention-days }}
+        if-no-files-found: ignore
+        path: |
+          ${{ inputs.working-directory }}/coverage/
+          ${{ inputs.working-directory }}/test-results/
+          ${{ inputs.working-directory }}/junit.xml
+          ${{ inputs.working-directory }}/eslint-report.json
+          ${{ inputs.working-directory }}/lint-results/
+          ${{ inputs.working-directory }}/*.log
+          ${{ inputs.working-directory }}/.nyc_output/
+          ${{ inputs.working-directory }}/reports/
