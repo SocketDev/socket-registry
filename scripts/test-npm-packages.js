@@ -291,7 +291,10 @@ async function main() {
   const failed = results.filter(r => !r.passed && r.reason !== 'Skipped')
   const skipped = results.filter(r => r.reason === 'Skipped')
 
-  logger.success(`Passed: ${passed.length}/${results.length}`)
+  // Calculate total tested (excluding skipped).
+  const totalTested = results.length - skipped.length
+
+  logger.success(`Passed: ${passed.length}/${totalTested} (${results.length} total)`)
   passed.forEach(r => logger.log(`   ${r.package}`))
 
   if (skipped.length > 0) {
@@ -300,10 +303,14 @@ async function main() {
   }
 
   if (failed.length > 0) {
-    logger.fail(`Failed: ${failed.length}/${results.length}`)
+    logger.fail(`Failed: ${failed.length}/${totalTested} (${results.length} total)`)
     failed.forEach(r =>
       logger.log(`   ${r.package}: ${r.reason?.substring(0, 50)}...`)
     )
+  } else if (totalTested > 0) {
+    // All non-skipped tests passed!
+    logger.log('')
+    logger.success('🎉 All tests passed! (excluding skipped packages)')
   }
 
   // eslint-disable-next-line n/no-process-exit
