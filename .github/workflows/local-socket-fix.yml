@@ -1,4 +1,4 @@
-name: Socket Fix
+name: Local / Run Socket Fix
 
 on:
   schedule:
