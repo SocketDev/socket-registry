@@ -13,6 +13,16 @@ on:
         required: false
         type: string
         default: '22'
+      scope:
+        description: 'NPM registry scope for package authentication'
+        required: false
+        type: string
+        default: ''
+      registry-url:
+        description: 'NPM registry URL'
+        required: false
+        type: string
+        default: 'https://registry.npmjs.org'
       publish-script:
         description: 'NPM script to run for publishing'
         required: false
@@ -24,7 +34,7 @@ on:
         type: string
         default: ''
       package-name:
-        description: 'Package name (e.g., @socketregistry/packageurl-js) - used when scripts are not provided'
+        description: 'Package name (e.g., @socketregistry/sdk) - used when scripts are not provided'
         required: false
         type: string
         default: ''
@@ -51,24 +61,22 @@ jobs:
       - uses: SocketDev/socket-registry/.github/actions/setup@main
         with:
           node-version: ${{ inputs.node-version }}
+          scope: ${{ inputs.scope }}
+          registry-url: ${{ inputs.registry-url }}
       - run: pnpm config set //registry.npmjs.org/:_authToken ${{ secrets.npm_token }}
       - run: pnpm run ${{ inputs.publish-script }}
         if: inputs.publish-script != ''
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
-          SOCKET_CLI_DEBUG: ${{ inputs.debug }}
       - run: pnpm publish --provenance --access public --no-git-checks
         if: inputs.publish-script == '' && inputs.package-name != ''
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
-          SOCKET_CLI_DEBUG: ${{ inputs.debug }}
       - run: pnpm run ${{ inputs.access-script }}
         if: inputs.access-script != ''
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
-          SOCKET_CLI_DEBUG: ${{ inputs.debug }}
       - run: pnpm access set mfa=automation ${{ inputs.package-name }}
         if: inputs.access-script == '' && inputs.package-name != ''
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
-          SOCKET_CLI_DEBUG: ${{ inputs.debug }}
