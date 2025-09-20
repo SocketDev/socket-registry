@@ -11,25 +11,14 @@ on:
         options:
           - '0'
           - '1'
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      id-token: write
-
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - uses: SocketDev/socket-registry/.github/actions/setup@main
-        with:
-          node-version: '22'
-      - run: pnpm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
-      - run: pnpm run package:npm:publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          SOCKET_CLI_DEBUG: ${{ inputs.debug }}
-      - run: pnpm run package:npm:access
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          SOCKET_CLI_DEBUG: ${{ inputs.debug }}
+  publish:
+    uses: SocketDev/socket-registry/.github/actions/workflows/provenance.yml@main
+    with:
+      debug: ${{ inputs.debug }}
+      node-version: '22'
+      publish-script: 'package:npm:publish'
+      access-script: 'package:npm:access'
+    secrets:
+      npm_token: ${{ secrets.NPM_TOKEN }}

@@ -1,0 +1,42 @@
+name: 'Setup Debug'
+description: 'Parse and setup debug environment variables'
+
+inputs:
+  debug:
+    description: 'Debug input - accepts "0", "1", or DEBUG="..." format'
+    required: false
+    default: '0'
+
+outputs:
+  socket_cli_debug:
+    description: 'The processed SOCKET_CLI_DEBUG value'
+    value: ${{ steps.parse.outputs.socket_cli_debug }}
+  debug_value:
+    description: 'The processed DEBUG value'
+    value: ${{ steps.parse.outputs.debug_value }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Parse debug input
+      id: parse
+      shell: bash
+      run: |
+        debug_input="${{ inputs.debug }}"
+
+        # Check if input is in DEBUG='...' format
+        if [[ "$debug_input" =~ ^DEBUG=[\'\"]*(.+)[\'\"]*$ ]]; then
+          debug_value="${BASH_REMATCH[1]}"
+          echo "socket_cli_debug=$debug_value" >> $GITHUB_OUTPUT
+          echo "debug_value=$debug_value" >> $GITHUB_OUTPUT
+          echo "DEBUG=$debug_value" >> $GITHUB_ENV
+          echo "SOCKET_CLI_DEBUG=$debug_value" >> $GITHUB_ENV
+        # Check if it's just a simple value (0, 1, or debug string)
+        else
+          echo "socket_cli_debug=$debug_input" >> $GITHUB_OUTPUT
+          echo "debug_value=$debug_input" >> $GITHUB_OUTPUT
+          echo "SOCKET_CLI_DEBUG=$debug_input" >> $GITHUB_ENV
+          if [[ "$debug_input" != "0" ]]; then
+            echo "DEBUG=$debug_input" >> $GITHUB_ENV
+          fi
+        fi
