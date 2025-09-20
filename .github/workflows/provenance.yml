@@ -38,6 +38,11 @@ on:
         required: false
         type: string
         default: ''
+      timeout-minutes:
+        description: 'Timeout in minutes'
+        required: false
+        type: number
+        default: 10
     secrets:
       npm_token:
         required: true
@@ -50,6 +55,7 @@ jobs:
   build-and-publish:
     name: Build and Publish
     runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
