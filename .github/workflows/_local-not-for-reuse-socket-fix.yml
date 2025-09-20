@@ -20,7 +20,6 @@ jobs:
     uses: SocketDev/socket-registry/.github/workflows/socket-fix.yml@main
     with:
       debug: ${{ inputs.debug }}
-      node-version: '22'
       autopilot: true
     secrets:
       socket_cli_api_token: ${{ secrets.SOCKET_CLI_API_TOKEN }}

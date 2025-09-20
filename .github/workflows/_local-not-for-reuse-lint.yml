@@ -21,5 +21,3 @@ concurrency:
 jobs:
   linting:
     uses: SocketDev/socket-registry/.github/workflows/lint.yml@main
-    with:
-      node-version: '22'
