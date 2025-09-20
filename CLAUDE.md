@@ -80,6 +80,7 @@ You are a **Principal Software Engineer** responsible for:
 - **Build**: `pnpm run build` (builds registry)
 - **Test**: `pnpm run test` (runs check + all tests)
 - **Test unit only**: `pnpm run test:unit`
+- **Test npm packages**: `pnpm run test:npm:packages` (⚠️ Takes a long time to complete - tests all npm package overrides. Note: The setup phase includes package installation, Socket override application, and dependency installation which may take several minutes per package and affect timeout considerations)
 - **Test pre-commit**: `pnpm run test-pre-commit`
 - **Lint**: `pnpm run check:lint` (uses eslint)
 - **Type check**: `pnpm run check:tsc`
