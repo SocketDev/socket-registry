@@ -19,18 +19,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
+  test-matrix:
     strategy:
       matrix:
         node-version: [20, 22, 24]
         os: [ubuntu-latest, windows-latest]
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - uses: SocketDev/socket-registry/.github/actions/setup@main
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Run tests
-        run: pnpm run test-ci
+    name: Test Node ${{ matrix.node-version }} on ${{ matrix.os }}
+    uses: SocketDev/socket-registry/.github/actions/workflows/test.yml@main
+    with:
+      node-version: '${{ matrix.node-version }}'
+      os: ${{ matrix.os }}
+      timeout-minutes: 10

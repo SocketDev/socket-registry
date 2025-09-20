@@ -1,0 +1,39 @@
+name: Claude Code
+
+on:
+  workflow_call:
+    inputs:
+      debug:
+        description: 'Enable debug output'
+        required: false
+        type: string
+        default: '0'
+    secrets:
+      anthropic_api_key:
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  id-token: write
+
+jobs:
+  claude:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 1
+
+      - name: Setup debug
+        uses: SocketDev/socket-registry/.github/actions/debug@main
+        with:
+          debug: ${{ inputs.debug }}
+
+      - name: Run Claude Code
+        id: claude
+        uses: anthropics/claude-code-action@28f83620103c48a57093dcc2837eec89e036bb9f # beta
+        with:
+          anthropic_api_key: ${{ secrets.anthropic_api_key }}

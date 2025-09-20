@@ -19,13 +19,6 @@ concurrency:
 
 jobs:
   linting:
-    name: 'Linting'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - uses: SocketDev/socket-registry/.github/actions/setup@main
-        with:
-          node-version: '22'
-
-      - name: Run linting
-        run: pnpm run check-ci
+    uses: SocketDev/socket-registry/.github/actions/workflows/lint.yml@main
+    with:
+      node-version: '22'
