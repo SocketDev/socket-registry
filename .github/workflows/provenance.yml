@@ -1,4 +1,4 @@
-name: Publish Packages to npm
+name: Publish to registry
 
 on:
   workflow_dispatch:
@@ -11,7 +11,6 @@ on:
         options:
           - '0'
           - '1'
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,10 +21,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - uses: SocketDev/socket-registry/.github/actions/setup@d1687f08833e7355042a1addedd474e84bebacd7
+      - uses: SocketDev/socket-registry/.github/actions/setup@main
         with:
           node-version: '22'
-      - run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
+      - run: pnpm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
       - run: pnpm run package:npm:publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
