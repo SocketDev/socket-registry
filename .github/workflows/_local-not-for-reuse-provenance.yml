@@ -17,7 +17,6 @@ jobs:
     uses: SocketDev/socket-registry/.github/workflows/provenance.yml@main
     with:
       debug: ${{ inputs.debug }}
-      node-version: '22'
       publish-script: 'package:npm:publish'
       access-script: 'package:npm:access'
     secrets:

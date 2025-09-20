@@ -29,4 +29,3 @@ jobs:
     with:
       node-version: '${{ matrix.node-version }}'
       os: ${{ matrix.os }}
-      timeout-minutes: 10
