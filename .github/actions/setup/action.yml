@@ -38,5 +38,7 @@ runs:
     - name: Install dependencies
       shell: bash
       run: |
+        pnpm add -g @socketsecurity/cli
+        alias pnpm='socket-pnpm'
+        export SOCKET_CLI_CONFIG='{"issueRules":{"malware":true,"gptMalware":true}}'
         pnpm install
-        # pnpm dlx @socketsecurity/cli pnpm install --config '{"issueRules":{"malware":true}}'
