@@ -38,6 +38,11 @@ on:
         required: false
         type: string
         default: 'socket-fix[bot]'
+      timeout-minutes:
+        description: 'Timeout in minutes'
+        required: false
+        type: number
+        default: 10
     secrets:
       socket_cli_api_token:
         required: true
@@ -52,6 +57,7 @@ jobs:
   socket-fix:
     name: Run Socket Fix
     runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0

@@ -8,6 +8,11 @@ on:
         required: false
         type: string
         default: '0'
+      timeout-minutes:
+        description: 'Timeout in minutes'
+        required: false
+        type: number
+        default: 10
     secrets:
       anthropic_api_key:
         required: true
@@ -22,6 +27,7 @@ jobs:
   claude:
     name: Run Claude Code
     runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
