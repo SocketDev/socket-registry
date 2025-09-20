@@ -45,6 +45,7 @@ permissions:
 
 jobs:
   auto-review:
+    name: Run Auto Review
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

@@ -20,6 +20,7 @@ permissions:
 
 jobs:
   claude:
+    name: Run Claude Code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
