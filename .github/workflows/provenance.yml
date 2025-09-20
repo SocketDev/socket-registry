@@ -1,24 +1,56 @@
-name: Publish to registry
+name: Provenance
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       debug:
         description: 'Enable debug output'
         required: false
-        default: '0'
         type: string
-        options:
-          - '0'
-          - '1'
+        default: '0'
+      node-version:
+        description: 'Node version to use'
+        required: false
+        type: string
+        default: '22'
+      publish-script:
+        description: 'NPM script to run for publishing'
+        required: false
+        type: string
+        default: ''
+      access-script:
+        description: 'NPM script to run for access control'
+        required: false
+        type: string
+        default: ''
+    secrets:
+      npm_token:
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
 
 jobs:
-  publish:
-    uses: SocketDev/socket-registry/.github/actions/workflows/provenance.yml@main
-    with:
-      debug: ${{ inputs.debug }}
-      node-version: '22'
-      publish-script: 'package:npm:publish'
-      access-script: 'package:npm:access'
-    secrets:
-      npm_token: ${{ secrets.NPM_TOKEN }}
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Setup debug
+        uses: SocketDev/socket-registry/.github/actions/debug@main
+        with:
+          debug: ${{ inputs.debug }}
+
+      - uses: SocketDev/socket-registry/.github/actions/setup@main
+        with:
+          node-version: ${{ inputs.node-version }}
+      - run: pnpm config set //registry.npmjs.org/:_authToken ${{ secrets.npm_token }}
+      - run: pnpm run ${{ inputs.publish-script }}
+        if: inputs.publish-script != ''
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
+      - run: pnpm run ${{ inputs.access-script }}
+        if: inputs.access-script != ''
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.npm_token }}

@@ -1,32 +1,45 @@
-name: CI
+name: Test
 
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - '*'
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node version to test'
+        required: true
+        type: string
+      os:
+        description: 'Operating system to run on'
+        required: true
+        type: string
+      timeout-minutes:
+        description: 'Timeout in minutes'
+        required: false
+        type: number
+        default: 10
+      debug:
+        description: 'Enable debug output'
+        required: false
+        type: string
+        default: '0'
 
 permissions:
   contents: read
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
-
 jobs:
-  test-matrix:
-    strategy:
-      matrix:
-        node-version: [20, 22, 24]
-        os: [ubuntu-latest, windows-latest]
-    name: Test Node ${{ matrix.node-version }} on ${{ matrix.os }}
-    uses: SocketDev/socket-registry/.github/actions/workflows/test.yml@main
-    with:
-      node-version: '${{ matrix.node-version }}'
-      os: ${{ matrix.os }}
-      timeout-minutes: 10
+  test:
+    runs-on: ${{ inputs.os }}
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Setup debug
+        uses: SocketDev/socket-registry/.github/actions/debug@main
+        with:
+          debug: ${{ inputs.debug }}
+
+      - uses: SocketDev/socket-registry/.github/actions/setup@main
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Run tests
+        run: pnpm run test-ci

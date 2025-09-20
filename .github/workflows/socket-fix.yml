@@ -1,27 +1,85 @@
 name: Socket Fix
 
+# Recommended schedule for calling workflows:
+# schedule:
+#   - cron: '0 0 * * *'   # Run daily at midnight UTC
+#   - cron: '0 12 * * *'  # Run daily at noon UTC
+
 on:
-  schedule:
-    - cron: '0 0 * * *'   # Run daily at midnight UTC
-    - cron: '0 12 * * *'  # Run daily at noon UTC
-  workflow_dispatch:
+  workflow_call:
     inputs:
       debug:
         description: 'Enable debug output'
         required: false
-        default: '0'
         type: string
-        options:
-          - '0'
-          - '1'
+        default: '0'
+      node-version:
+        description: 'Node version to use'
+        required: false
+        type: string
+        default: '22'
+      glob-pattern:
+        description: 'Glob pattern for files to fix'
+        required: false
+        type: string
+        default: ''
+      autopilot:
+        description: 'Enable autopilot mode'
+        required: false
+        type: boolean
+        default: true
+      git-user-email:
+        description: 'Git user email for commits'
+        required: false
+        type: string
+        default: 'socket-fix[bot]@users.noreply.github.com'
+      git-user-name:
+        description: 'Git user name for commits'
+        required: false
+        type: string
+        default: 'socket-fix[bot]'
+    secrets:
+      socket_cli_api_token:
+        required: true
+      gh_token:
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
-  fix:
-    uses: SocketDev/socket-registry/.github/actions/workflows/socket-fix.yml@main
-    with:
-      debug: ${{ inputs.debug }}
-      node-version: '22'
-      autopilot: true
-    secrets:
-      socket_cli_api_token: ${{ secrets.SOCKET_CLI_API_TOKEN }}
-      github_token: ${{ secrets.GITHUB_TOKEN }}
+  socket-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Setup debug
+        uses: SocketDev/socket-registry/.github/actions/debug@main
+        with:
+          debug: ${{ inputs.debug }}
+
+      - uses: SocketDev/socket-cli/.github/actions/setup@main
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Run Socket Fix CLI
+        env:
+          SOCKET_CLI_GITHUB_TOKEN: ${{ secrets.gh_token }}
+          SOCKET_CLI_GIT_USER_EMAIL: ${{ inputs.git-user-email }}
+          SOCKET_CLI_GIT_USER_NAME: ${{ inputs.git-user-name }}
+          SOCKET_CLI_API_TOKEN: ${{ secrets.socket_cli_api_token }}
+        run: |
+          AUTOPILOT_FLAG=""
+          GLOB_FLAG=""
+
+          if [[ "${{ inputs.autopilot }}" == "true" ]]; then
+            AUTOPILOT_FLAG="--autopilot"
+          fi
+
+          if [[ -n "${{ inputs.glob-pattern }}" ]]; then
+            GLOB_FLAG="--glob '${{ inputs.glob-pattern }}'"
+          fi
+
+          pnpm dlx @socketsecurity/cli fix $AUTOPILOT_FLAG $GLOB_FLAG
