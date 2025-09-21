@@ -22,6 +22,10 @@ inputs:
     description: 'npm registry URL'
     required: false
     default: 'https://registry.npmjs.org'
+  working-directory:
+    description: 'Working directory'
+    required: false
+    default: '.'
 
 runs:
   using: 'composite'
@@ -41,5 +45,6 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'pnpm'
+        cache-dependency-path: ${{ inputs.working-directory != '.' && format('{0}/pnpm-lock.yaml', inputs.working-directory) || 'pnpm-lock.yaml' }}
         registry-url: ${{ inputs.registry-url }}
         scope: ${{ inputs.scope }}
