@@ -1,5 +1,8 @@
 name: ⚡ Provenance
 
+# Dependencies:
+#   - SocketDev/socket-registry/.github/actions/setup-and-install@main
+
 on:
   workflow_call:
     inputs:

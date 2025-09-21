@@ -1,5 +1,8 @@
 name: ⚙️ Socket Fix
 
+# Dependencies:
+#   - SocketDev/socket-registry/.github/workflows/socket-auto-pr.yml@main
+
 on:
   schedule:
     - cron: '0 0 * * *'   # Run daily at midnight UTC

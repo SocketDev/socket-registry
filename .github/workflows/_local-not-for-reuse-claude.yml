@@ -1,5 +1,8 @@
 name: ⚙️ Claude Code
 
+# Dependencies:
+#   - SocketDev/socket-registry/.github/workflows/claude.yml@main
+
 on:
   issue_comment:
     types: [created]

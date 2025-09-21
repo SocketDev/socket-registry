@@ -1,5 +1,8 @@
 name: ⚙️ Publish to registry
 
+# Dependencies:
+#   - SocketDev/socket-registry/.github/workflows/provenance.yml@main
+
 on:
   workflow_dispatch:
     inputs:

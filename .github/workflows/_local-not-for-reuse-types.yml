@@ -1,5 +1,8 @@
 name: ⚙️ Type Checks
 
+# Dependencies:
+#   - SocketDev/socket-registry/.github/workflows/types.yml@main
+
 on:
   push:
     branches: [main]

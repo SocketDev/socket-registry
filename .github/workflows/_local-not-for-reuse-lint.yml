@@ -1,5 +1,8 @@
 name: ⚙️ Linting
 
+# Dependencies:
+#   - SocketDev/socket-registry/.github/workflows/lint.yml@main
+
 on:
   push:
     branches: [main]

@@ -1,5 +1,8 @@
 name: ⚙️ Claude Auto Review
 
+# Dependencies:
+#   - SocketDev/socket-registry/.github/workflows/claude-auto-review.yml@main
+
 on:
   pull_request:
     types: [opened]

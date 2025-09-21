@@ -1,6 +1,14 @@
 name: 'Setup and Install'
 description: 'Checkout code, setup environment, and install dependencies'
 
+# Dependencies:
+#   - actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+#   - SocketDev/socket-registry/.github/actions/setup@main
+#     - SocketDev/socket-registry/.github/actions/debug@main
+#     - pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda  # v4.1.0
+#     - actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444  # v5.0.0
+#   - SocketDev/socket-registry/.github/actions/install@main
+
 inputs:
   checkout:
     description: 'Whether to checkout code'
