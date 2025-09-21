@@ -67,7 +67,6 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           debug: ${{ inputs.debug }}
-          package-manager: npm
 
       - name: Run Socket Fix CLI
         env:
