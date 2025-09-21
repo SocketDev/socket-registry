@@ -1,4 +1,4 @@
-name: ⚙️ Publish to registry
+name: ⚙️ Publish to npm registry
 
 # Dependencies:
 #   - SocketDev/socket-registry/.github/workflows/provenance.yml@main
