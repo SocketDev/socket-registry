@@ -68,7 +68,7 @@ concurrency:
 
 jobs:
   type-check:
-    name: Type Check
+    name: Run Type Check
     runs-on: ${{ inputs.os }}
     timeout-minutes: ${{ inputs.timeout-minutes }}
     continue-on-error: ${{ inputs.continue-on-error }}

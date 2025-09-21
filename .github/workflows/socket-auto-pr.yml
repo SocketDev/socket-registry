@@ -1,4 +1,4 @@
-name: ⚡ Socket Auto PR
+name: ⚡ Socket Fix Auto Pull Request
 
 # Dependencies:
 #   - SocketDev/socket-registry/.github/actions/setup-and-install@main
@@ -62,7 +62,7 @@ concurrency:
 
 jobs:
   socket-auto-pr:
-    name: Run Socket Auto PR
+    name: Run Socket Fix Autopilot
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
