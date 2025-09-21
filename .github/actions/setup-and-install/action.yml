@@ -30,6 +30,10 @@ inputs:
     description: 'npm registry URL'
     required: false
     default: 'https://registry.npmjs.org'
+  working-directory:
+    description: 'Working directory'
+    required: false
+    default: '.'
 
 runs:
   using: 'composite'
@@ -39,6 +43,7 @@ runs:
       uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       with:
         ref: ${{ inputs.checkout-ref }}
+        path: ${{ inputs.working-directory != '.' && inputs.working-directory || '' }}
 
     - name: Setup environment
       uses: SocketDev/socket-registry/.github/actions/setup@main
@@ -48,6 +53,9 @@ runs:
         pnpm-version: ${{ inputs.pnpm-version }}
         scope: ${{ inputs.scope }}
         registry-url: ${{ inputs.registry-url }}
+        working-directory: ${{ inputs.working-directory }}
 
     - name: Install dependencies
       uses: SocketDev/socket-registry/.github/actions/install@main
+      with:
+        working-directory: ${{ inputs.working-directory }}

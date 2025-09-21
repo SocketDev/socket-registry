@@ -1,11 +1,18 @@
 name: 'Install'
 description: 'Install dependencies with Socket CLI'
 
+inputs:
+  working-directory:
+    description: 'Working directory'
+    required: false
+    default: '.'
+
 runs:
   using: 'composite'
   steps:
     - name: Install dependencies
       shell: bash
+      working-directory: ${{ inputs.working-directory }}
       run: |
         pnpm add -g @socketsecurity/cli
         alias pnpm='socket-pnpm'
