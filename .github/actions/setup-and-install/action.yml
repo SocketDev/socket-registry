@@ -1,5 +1,5 @@
 name: 'Setup and Install'
-description: 'Complete setup including checkout, debug, Node.js, cache, and dependency installation'
+description: 'Checkout code, setup environment, and install dependencies'
 
 inputs:
   checkout:
@@ -18,7 +18,18 @@ inputs:
     description: 'Node.js version to use'
     required: false
     default: '22'
-
+  pnpm-version:
+    description: 'pnpm version'
+    required: false
+    default: '10.16.0'
+  scope:
+    description: 'npm registry scope for package authentication'
+    required: false
+    default: ''
+  registry-url:
+    description: 'npm registry URL'
+    required: false
+    default: 'https://registry.npmjs.org'
 
 runs:
   using: 'composite'
@@ -29,12 +40,14 @@ runs:
       with:
         ref: ${{ inputs.checkout-ref }}
 
-    - name: Setup debug
-      uses: SocketDev/socket-registry/.github/actions/debug@main
-      with:
-        debug: ${{ inputs.debug }}
-
-    - name: Setup Node.js
+    - name: Setup environment
       uses: SocketDev/socket-registry/.github/actions/setup@main
       with:
+        debug: ${{ inputs.debug }}
         node-version: ${{ inputs.node-version }}
+        pnpm-version: ${{ inputs.pnpm-version }}
+        scope: ${{ inputs.scope }}
+        registry-url: ${{ inputs.registry-url }}
+
+    - name: Install dependencies
+      uses: SocketDev/socket-registry/.github/actions/install@main

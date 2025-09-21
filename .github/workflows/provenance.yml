@@ -72,10 +72,6 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           debug: ${{ inputs.debug }}
-
-      - uses: SocketDev/socket-registry/.github/actions/setup@main
-        with:
-          node-version: ${{ inputs.node-version }}
           scope: ${{ inputs.scope }}
           registry-url: ${{ inputs.registry-url }}
       - run: pnpm config set //registry.npmjs.org/:_authToken ${{ secrets.npm_token }}

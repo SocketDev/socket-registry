@@ -1,0 +1,13 @@
+name: 'Install'
+description: 'Install dependencies with Socket CLI'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install dependencies
+      shell: bash
+      run: |
+        pnpm add -g @socketsecurity/cli
+        alias pnpm='socket-pnpm'
+        export SOCKET_CLI_CONFIG='{"issueRules":{"gptMalware":true,"malware":true}}'
+        pnpm install

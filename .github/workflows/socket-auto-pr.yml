@@ -22,12 +22,12 @@ on:
         description: 'Git user email for commits'
         required: false
         type: string
-        default: 'socket-fix[bot]@users.noreply.github.com'
+        default: '94589996+socket-bot@users.noreply.github.com'
       git-user-name:
         description: 'Git user name for commits'
         required: false
         type: string
-        default: 'socket-fix[bot]'
+        default: 'Socket Bot'
       glob-pattern:
         description: 'Glob pattern for files to fix'
         required: false
