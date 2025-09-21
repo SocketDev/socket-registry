@@ -1,7 +1,11 @@
 name: 'Setup'
-description: 'Setup Node.js and pnpm with caching'
+description: 'Setup debug, Node.js, and pnpm with caching'
 
 inputs:
+  debug:
+    description: 'Enable debug output'
+    required: false
+    default: '0'
   node-version:
     description: 'Node.js version'
     required: false
@@ -11,17 +15,22 @@ inputs:
     required: false
     default: '^10.16.0'
   scope:
-    description: 'NPM registry scope for package authentication'
+    description: 'npm registry scope for package authentication'
     required: false
     default: ''
   registry-url:
-    description: 'NPM registry URL'
+    description: 'npm registry URL'
     required: false
     default: 'https://registry.npmjs.org'
 
 runs:
   using: 'composite'
   steps:
+    - name: Setup debug
+      uses: SocketDev/socket-registry/.github/actions/debug@main
+      with:
+        debug: ${{ inputs.debug }}
+
     - name: Setup pnpm
       uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
       with:
@@ -34,11 +43,3 @@ runs:
         cache: 'pnpm'
         registry-url: ${{ inputs.registry-url }}
         scope: ${{ inputs.scope }}
-
-    - name: Install dependencies
-      shell: bash
-      run: |
-        pnpm add -g @socketsecurity/cli
-        alias pnpm='socket-pnpm'
-        export SOCKET_CLI_CONFIG='{"issueRules":{"malware":true,"gptMalware":true}}'
-        pnpm install
