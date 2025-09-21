@@ -1,5 +1,10 @@
 name: ⚡ Test
 
+# Dependencies:
+#   - SocketDev/socket-registry/.github/actions/setup-and-install@main
+#   - SocketDev/socket-registry/.github/actions/run-script@main
+#   - SocketDev/socket-registry/.github/actions/artifacts@main
+
 on:
   workflow_call:
     inputs:

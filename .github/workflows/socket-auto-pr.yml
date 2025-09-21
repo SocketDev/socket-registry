@@ -1,5 +1,8 @@
 name: ⚡ Socket Auto PR
 
+# Dependencies:
+#   - SocketDev/socket-registry/.github/actions/setup-and-install@main
+
 # Recommended schedule for calling workflows:
 # schedule:
 #   - cron: '0 0 * * *'   # Run daily at midnight UTC

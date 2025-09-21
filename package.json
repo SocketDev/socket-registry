@@ -28,6 +28,8 @@
     "build": "run-p -c --aggregate-output build:*",
     "build:registry": "dotenvx -q run -f .env.local -- pnpm --filter registry run build",
     "fix": "pnpm run lint:fix",
+    "generate:actions-allow-list": "node ./scripts/generate-actions-allow-list.js",
+    "generate:actions-tree": "node ./scripts/show-actions-tree.js",
     "knip:dependencies": "knip --dependencies",
     "knip:exports": "knip --include exports,duplicates",
     "lint": "dotenvx -q run -f .env.local -- oxlint -c=.oxlintrc.json --ignore-path=.oxlintignore --tsconfig=tsconfig.json .",
