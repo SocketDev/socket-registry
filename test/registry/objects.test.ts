@@ -74,7 +74,7 @@ describe('objects module', () => {
     })
 
     it('should handle null prototype objects', () => {
-      const obj = Object.create(null)
+      const obj: any = Object.create(null)
       obj.prop = true
       expect(hasOwn(obj, 'prop')).toBe(true)
     })
@@ -104,7 +104,7 @@ describe('objects module', () => {
     })
 
     it('should handle objects with null prototype', () => {
-      const obj = Object.create(null)
+      const obj: any = Object.create(null)
       expect(hasKeys(obj)).toBe(false)
       obj.prop = true
       expect(hasKeys(obj)).toBe(true)
@@ -127,7 +127,7 @@ describe('objects module', () => {
     })
 
     it('should handle objects with null prototype', () => {
-      const obj = Object.create(null)
+      const obj: any = Object.create(null)
       obj.a = 1
       obj.b = 2
       expect(getKeys(obj)).toEqual(['a', 'b'])
@@ -167,7 +167,7 @@ describe('objects module', () => {
     })
 
     it('should handle objects with null prototype', () => {
-      const obj = Object.create(null)
+      const obj: any = Object.create(null)
       obj.x = 10
       obj.y = 20
       expect(objectEntries(obj)).toEqual([
@@ -244,7 +244,7 @@ describe('objects module', () => {
 
     it('should detect circular references', () => {
       const target = { a: 1 }
-      const source = { b: 2 }
+      const source: any = { b: 2 }
       source.circular = source
       const result = merge(target, source)
       expect(result.b).toBe(2)
@@ -254,7 +254,7 @@ describe('objects module', () => {
 
   describe('defineGetter', () => {
     it('should define a getter on an object', () => {
-      const obj = {}
+      const obj: any = {}
       let callCount = 0
       defineGetter(obj, 'prop', () => {
         callCount++
@@ -274,7 +274,7 @@ describe('objects module', () => {
 
   describe('defineLazyGetter', () => {
     it('should define a lazy getter that caches result', () => {
-      const obj = {}
+      const obj: any = {}
       let callCount = 0
       defineLazyGetter(obj, 'prop', () => {
         callCount++
@@ -286,7 +286,7 @@ describe('objects module', () => {
     })
 
     it('should track stats if provided', () => {
-      const obj = {}
+      const obj: any = {}
       const stats = { initialized: new Set() }
       defineLazyGetter(obj, 'prop', () => 'value', stats)
       expect(stats.initialized.has('prop')).toBe(false)
@@ -297,7 +297,7 @@ describe('objects module', () => {
 
   describe('defineLazyGetters', () => {
     it('should define multiple lazy getters', () => {
-      const obj = {}
+      const obj: any = {}
       let countA = 0
       let countB = 0
       defineLazyGetters(obj, {

@@ -23,10 +23,12 @@ describe('globs module', () => {
 
     it('should include various file types to ignore', () => {
       const hasTestFiles = defaultIgnore.some(
-        p => p.includes('test') || p.includes('spec') || p.includes('*.test.*'),
+        (p: string) =>
+          p.includes('test') || p.includes('spec') || p.includes('*.test.*'),
       )
       const hasBuildFiles = defaultIgnore.some(
-        p => p.includes('dist') || p.includes('build') || p.includes('out'),
+        (p: string) =>
+          p.includes('dist') || p.includes('build') || p.includes('out'),
       )
       expect(hasTestFiles || hasBuildFiles).toBe(true)
     })
@@ -89,21 +91,16 @@ describe('globs module', () => {
       const files: string[] = []
 
       return await new Promise<void>((resolve, reject) => {
-        stream.on('data', chunk => {
+        stream.on('data', (chunk: any) => {
           files.push(chunk.toString())
         })
 
         stream.on('end', () => {
-          const hasLicense = files.some(
-            f =>
-              f.toLowerCase().includes('license') ||
-              f.toLowerCase().includes('licence'),
-          )
           expect(files.length).toBeGreaterThanOrEqual(0)
           resolve()
         })
 
-        stream.on('error', err => {
+        stream.on('error', (err: any) => {
           reject(err)
         })
       })

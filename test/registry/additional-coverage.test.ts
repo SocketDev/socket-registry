@@ -300,18 +300,18 @@ describe('additional coverage tests', () => {
     const debug = require('@socketsecurity/registry/lib/debug')
 
     it('should handle debug state', () => {
-      const originalDebug = process.env.DEBUG
+      const originalDebug = process.env['DEBUG']
 
-      process.env.DEBUG = ''
+      process.env['DEBUG'] = ''
       expect(debug.isDebug()).toBe(false)
 
-      process.env.DEBUG = '*'
+      process.env['DEBUG'] = '*'
       expect(debug.isDebug()).toBe(true)
 
-      process.env.DEBUG = 'app:*'
+      process.env['DEBUG'] = 'app:*'
       expect(debug.isDebug()).toBe(true)
 
-      process.env.DEBUG = originalDebug
+      process.env['DEBUG'] = originalDebug
     })
 
     it('should provide debuglog function', () => {

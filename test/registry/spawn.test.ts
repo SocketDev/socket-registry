@@ -32,13 +32,13 @@ describe('spawn module', () => {
 
   describe('isSpawnError', () => {
     it('should identify spawn errors', () => {
-      const error = new Error('spawn error')
+      const error: any = new Error('spawn error')
       error.code = 'ENOENT'
       expect(isSpawnError(error)).toBe(true)
     })
 
     it('should identify errors with errno', () => {
-      const error = new Error('spawn error')
+      const error: any = new Error('spawn error')
       error.errno = -2
       expect(isSpawnError(error)).toBe(true)
     })

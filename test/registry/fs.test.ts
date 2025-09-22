@@ -282,7 +282,7 @@ describe('fs module', () => {
     it('should handle replacer function', async () => {
       const data = { a: 1, b: undefined, c: 3 }
       await writeJson(testJson, data, {
-        replacer: (key: string, value: any) =>
+        replacer: (_key: string, value: any) =>
           value === undefined ? null : value,
       })
       const result = JSON.parse(fs.readFileSync(testJson, 'utf8'))
