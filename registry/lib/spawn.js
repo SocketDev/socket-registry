@@ -68,15 +68,14 @@ function getPath() {
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isSpawnError(value) {
+  if (value === null || typeof value !== 'object') {
+    return false
+  }
+  // Check for spawn-specific error properties.
   return (
-    value !== null &&
-    typeof value === 'object' &&
-    ObjectHasOwn(value, 'code') &&
-    typeof value.code === 'number' &&
-    ObjectHasOwn(value, 'cmd') &&
-    typeof value.code === 'string' &&
-    ObjectHasOwn(value, 'args') &&
-    ArrayIsArray(value.args)
+    (ObjectHasOwn(value, 'code') && typeof value.code !== 'undefined') ||
+    (ObjectHasOwn(value, 'errno') && typeof value.errno !== 'undefined') ||
+    (ObjectHasOwn(value, 'syscall') && typeof value.syscall === 'string')
   )
 }
 
@@ -88,6 +87,12 @@ function isSpawnError(value) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isStdioType(stdio, type) {
+  // If called with one argument, check if it's a valid stdio type.
+  if (arguments.length === 1) {
+    const validTypes = ['pipe', 'ignore', 'inherit', 'overlapped']
+    return validTypes.includes(stdio)
+  }
+  // Original two-argument behavior.
   return (
     stdio === type ||
     ((stdio === null || stdio === undefined) && type === 'pipe') ||
@@ -180,8 +185,25 @@ function spawn(cmd, args, options, extra) {
   )
   const oldSpawnPromise = spawnPromise
   if (shouldStripAnsi && stdioString) {
-    spawnPromise = spawnPromise.then(stripAnsiFromSpawnResult).catch(error => {
-      throw stripAnsiFromSpawnResult(error)
+    spawnPromise = spawnPromise
+      .then(result => {
+        result = stripAnsiFromSpawnResult(result)
+        // Add exitCode as an alias for code.
+        if ('code' in result) {
+          result.exitCode = result.code
+        }
+        return result
+      })
+      .catch(error => {
+        throw stripAnsiFromSpawnResult(error)
+      })
+  } else {
+    spawnPromise = spawnPromise.then(result => {
+      // Add exitCode as an alias for code.
+      if ('code' in result) {
+        result.exitCode = result.code
+      }
+      return result
     })
   }
   if (shouldRestartSpinner) {

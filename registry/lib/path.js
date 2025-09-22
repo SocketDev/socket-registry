@@ -1,8 +1,6 @@
 'use strict'
 
-const { search } = /*@__PURE__*/ require('./strings')
-
-const leadingDotSlashRegExp = /^\.\.?[/\\]/
+// Removed unused imports.
 const slashRegExp = /[/\\]/
 const nodeModulesPathRegExp = /(?:^|[/\\])node_modules(?:[/\\]|$)/
 
@@ -72,7 +70,39 @@ function isNodeModules(pathLike) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isPath(pathLike) {
-  return isRelative(pathLike) || getPath().isAbsolute(pathLike)
+  const filepath = pathLikeToString(pathLike)
+  if (typeof filepath !== 'string' || filepath.length === 0) {
+    return false
+  }
+
+  // Special case for npm package names (not paths)
+  if (filepath.startsWith('@') && !filepath.startsWith('@/')) {
+    // This looks like a scoped package name
+    const parts = filepath.split('/')
+    if (parts.length <= 2 && !parts[1]?.includes('\\')) {
+      return false
+    }
+  }
+
+  // Single names without path separators (like 'package-name') are not paths
+  if (
+    !filepath.includes('/') &&
+    !filepath.includes('\\') &&
+    filepath !== '.' &&
+    filepath !== '..' &&
+    !getPath().isAbsolute(filepath)
+  ) {
+    return false
+  }
+
+  // Check if it looks like a path
+  return (
+    filepath.includes('/') ||
+    filepath.includes('\\') ||
+    filepath === '.' ||
+    filepath === '..' ||
+    getPath().isAbsolute(filepath)
+  )
 }
 
 /**
@@ -86,21 +116,12 @@ function isRelative(pathLike) {
   if (typeof filepath !== 'string') {
     return false
   }
-  const { length } = filepath
-  if (length === 0) {
-    return false
+  // Empty string is considered relative.
+  if (filepath.length === 0) {
+    return true
   }
-  if (filepath.charCodeAt(0) === 46 /*'.'*/) {
-    if (length === 1) {
-      return true
-    }
-    let code = filepath.charCodeAt(1)
-    if (code === 46 /*'.'*/) {
-      code = filepath.charCodeAt(2)
-    }
-    return code === 47 /*'/'*/ || code === 92 /*'\\'*/
-  }
-  return false
+  // A path is relative if it's not absolute.
+  return !getPath().isAbsolute(filepath)
 }
 
 /**
@@ -111,70 +132,20 @@ function isRelative(pathLike) {
 /*@__NO_SIDE_EFFECTS__*/
 function normalizePath(pathLike) {
   const filepath = pathLikeToString(pathLike)
-  const { length } = filepath
-  if (length < 2) {
-    return length === 1 && filepath.charCodeAt(0) === 92 /*'\\'*/
-      ? '/'
-      : filepath
+  if (filepath === '') {
+    return '.'
   }
 
-  let code = 0
-  let collapsed = ''
-  let start = 0
+  // Use Node.js path.posix.normalize for consistent forward slashes.
+  const path = getPath()
+  let normalized = path.posix.normalize(filepath.replace(/\\/g, '/'))
 
-  // Ensure win32 namespaces have two leading slashes so they are handled properly
-  // by path.win32.parse() after being normalized.
-  // https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#namespaces
-  // UNC paths, paths starting with double slashes, e.g. "\\\\wsl.localhost\\Ubuntu\home\\",
-  // are okay to convert to forward slashes.
-  // https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions
-  let prefix = ''
-  if (length > 4 && filepath.charCodeAt(3) === 92 /*'\\'*/) {
-    const code2 = filepath.charCodeAt(2)
-    // Look for \\?\ or \\.\
-    if (
-      (code2 === 63 /*'?'*/ || code2 === 46) /*'.'*/ &&
-      filepath.charCodeAt(0) === 92 /*'\\'*/ &&
-      filepath.charCodeAt(1) === 92 /*'\\'*/
-    ) {
-      start = 2
-      prefix = '//'
-    }
+  // Remove trailing slashes unless it's the root.
+  if (normalized.length > 1 && normalized.endsWith('/')) {
+    normalized = normalized.slice(0, -1)
   }
-  if (start === 0) {
-    // Trim leading slashes
-    while (
-      ((code = filepath.charCodeAt(start)),
-      code === 47 /*'/'*/ || code === 92) /*'\\'*/
-    ) {
-      start += 1
-    }
-    if (start) {
-      prefix = '/'
-    }
-  }
-  let nextIndex = search(filepath, slashRegExp, start)
-  if (nextIndex === -1) {
-    return prefix + filepath.slice(start)
-  }
-  // Discard any empty string segments by collapsing repeated segment separator slashes.
-  while (nextIndex !== -1) {
-    const segment = filepath.slice(start, nextIndex)
-    collapsed = collapsed + (collapsed.length === 0 ? '' : '/') + segment
-    start = nextIndex + 1
-    while (
-      ((code = filepath.charCodeAt(start)),
-      code === 47 /*'/'*/ || code === 92) /*'\\'*/
-    ) {
-      start += 1
-    }
-    nextIndex = search(filepath, slashRegExp, start)
-  }
-  const lastSegment = filepath.slice(start)
-  if (lastSegment.length !== 0) {
-    collapsed = collapsed + '/' + lastSegment
-  }
-  return prefix + collapsed
+
+  return normalized
 }
 
 /**
@@ -184,6 +155,9 @@ function normalizePath(pathLike) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 function pathLikeToString(pathLike) {
+  if (pathLike === null || pathLike === undefined) {
+    return ''
+  }
   if (typeof pathLike === 'string') {
     return pathLike
   }
@@ -206,6 +180,9 @@ function pathLikeToString(pathLike) {
 /*@__NO_SIDE_EFFECTS__*/
 function splitPath(pathLike) {
   const filepath = pathLikeToString(pathLike)
+  if (filepath === '') {
+    return []
+  }
   return filepath.split(slashRegExp)
 }
 
@@ -217,7 +194,22 @@ function splitPath(pathLike) {
 /*@__NO_SIDE_EFFECTS__*/
 function trimLeadingDotSlash(pathLike) {
   const filepath = pathLikeToString(pathLike)
-  return filepath.replace(leadingDotSlashRegExp, '')
+  // Only trim ./ not ../
+  if (filepath.startsWith('./') || filepath.startsWith('.\\')) {
+    return filepath.slice(2)
+  }
+  return filepath
+}
+
+/**
+ * Get the relative path from one path to another.
+ * @param {string} from - The source path.
+ * @param {string} to - The target path.
+ * @returns {string} The relative path.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function relativeResolve(from, to) {
+  return getPath().relative(from, to)
 }
 
 module.exports = {
@@ -226,6 +218,7 @@ module.exports = {
   isRelative,
   normalizePath,
   pathLikeToString,
+  relativeResolve,
   splitPath,
   trimLeadingDotSlash
 }

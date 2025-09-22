@@ -4,6 +4,7 @@ Thumbs.db
 /.env
 /.nvm
 /.vscode
+/coverage
 /npm-debug.log
 /yarn.lock
 **/.cache

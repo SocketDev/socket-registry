@@ -3,7 +3,6 @@
 const { readJsonSync } = /*@__PURE__*/ require('./fs')
 const { getOwn } = /*@__PURE__*/ require('./objects')
 const { isPath, normalizePath } = /*@__PURE__*/ require('./path')
-const { spawn } = /*@__PURE__*/ require('./spawn')
 
 let _fs
 /**
@@ -75,16 +74,21 @@ function getNotResolvedError(binPath, source = '') {
  * @param {import('./spawn').SpawnOptions} [options] - Spawn options.
  * @returns {Promise<{ stdout: string; stderr: string }>} Command output.
  */
-function execBin(binPath, args, options) {
-  return spawn(
-    /*@__PURE__*/ require('./constants/exec-path'),
-    [
-      .../*@__PURE__*/ require('./constants/node-no-warnings-flags'),
-      isPath(binPath) ? resolveBinPathSync(binPath) : whichBinSync(binPath),
-      ...args
-    ],
-    options
-  )
+async function execBin(binPath, args, options) {
+  const { spawn } = require('./spawn')
+  // Resolve the binary path.
+  const resolvedPath = isPath(binPath)
+    ? resolveBinPathSync(binPath)
+    : await whichBin(binPath)
+
+  if (!resolvedPath) {
+    const error = new Error(`Binary not found: ${binPath}`)
+    error.code = 'ENOENT'
+    throw error
+  }
+
+  // Execute the binary directly.
+  return spawn(resolvedPath, args || [], options)
 }
 
 /**
@@ -97,9 +101,11 @@ function execBin(binPath, args, options) {
  */
 async function whichBin(binName, options) {
   const which = getWhich()
+  // Default to nothrow: true if not specified to return null instead of throwing
+  const opts = { nothrow: true, ...options }
   // Depending on options `which` may throw if `binName` is not found.
-  // The default behavior is to throw when `binName` is not found.
-  const result = await which(binName, options)
+  // With nothrow: true, it returns null when `binName` is not found.
+  const result = await which(binName, opts)
 
   // When 'all: true' is specified, ensure we always return an array.
   if (options?.all) {
@@ -110,6 +116,11 @@ async function whichBin(binName, options) {
         : result
     // If all is true and we have paths, resolve each one.
     return paths?.length ? paths.map(p => resolveBinPathSync(p)) : paths
+  }
+
+  // If result is null (binary not found), return null
+  if (!result) {
+    return null
   }
 
   return resolveBinPathSync(result)
@@ -124,9 +135,11 @@ async function whichBin(binName, options) {
  * @throws {Error} If the binary is not found and nothrow is false.
  */
 function whichBinSync(binName, options) {
+  // Default to nothrow: true if not specified to return null instead of throwing
+  const opts = { nothrow: true, ...options }
   // Depending on options `which` may throw if `binName` is not found.
-  // The default behavior is to throw when `binName` is not found.
-  const result = getWhich().sync(binName, options)
+  // With nothrow: true, it returns null when `binName` is not found.
+  const result = getWhich().sync(binName, opts)
 
   // When 'all: true' is specified, ensure we always return an array.
   if (getOwn(options, 'all')) {
@@ -139,6 +152,11 @@ function whichBinSync(binName, options) {
     return paths?.length ? paths.map(p => resolveBinPathSync(p)) : paths
   }
 
+  // If result is null (binary not found), return null
+  if (!result) {
+    return null
+  }
+
   return resolveBinPathSync(result)
 }
 
@@ -148,12 +166,12 @@ function whichBinSync(binName, options) {
  * @returns {boolean} True if the path contains shadow bin patterns.
  */
 function isShadowBinPath(dirPath) {
-  return (
-    dirPath.includes('shadow-bin') ||
-    dirPath.includes('shadow-npm-bin') ||
-    dirPath.includes('shadow-pnpm-bin') ||
-    dirPath.includes('shadow-yarn-bin')
-  )
+  if (!dirPath) {
+    return false
+  }
+  // Check for node_modules/.bin pattern (Unix and Windows)
+  const normalized = dirPath.replace(/\\/g, '/')
+  return normalized.includes('node_modules/.bin')
 }
 
 /**
@@ -198,8 +216,8 @@ function findRealBin(binName, commonPaths = []) {
     }
     return binPath
   }
-  // If all else fails, return the binary name and let the system resolve it.
-  return binName
+  // If all else fails, return null to indicate binary not found.
+  return null
 }
 
 /**
@@ -297,11 +315,21 @@ function findRealYarn() {
  * @throws {Error} If the binary cannot be resolved.
  */
 function resolveBinPathSync(binPath) {
-  // Normalize the path once for consistent pattern matching.
-  binPath = normalizePath(binPath)
-
   const fs = getFs()
   const path = getPath()
+
+  // If it's not an absolute path, try to find it in PATH first
+  if (!path.isAbsolute(binPath)) {
+    try {
+      const resolved = whichBinSync(binPath)
+      if (resolved) {
+        binPath = resolved
+      }
+    } catch {}
+  }
+
+  // Normalize the path once for consistent pattern matching.
+  binPath = normalizePath(binPath)
 
   const ext = path.extname(binPath)
   const extLowered = ext.toLowerCase()
@@ -629,7 +657,11 @@ function resolveBinPathSync(binPath) {
   try {
     return fs.realpathSync.native(binPath)
   } catch (error) {
-    // Provide more context when realpath fails.
+    // If the file doesn't exist, return the normalized path
+    if (error.code === 'ENOENT') {
+      return binPath
+    }
+    // Provide more context when realpath fails for other reasons
     if (error.code === 'ENOTDIR') {
       throw new Error(`Path resolution failed - not a directory: ${binPath}`)
     }

@@ -11,24 +11,7 @@ const { findUpSync } = /*@__PURE__*/ require('./fs')
 const { getOwn } = /*@__PURE__*/ require('./objects')
 const { spawn } = /*@__PURE__*/ require('./spawn')
 
-const npmAuditFlags = new Set(['--audit', '--no-audit'])
-
-const npmFundFlags = new Set(['--fund', '--no-fund'])
-
-const npmLogFlags = new Set([
-  // --loglevel has several aliases:
-  // https://docs.npmjs.com/cli/v11/using-npm/logging#aliases
-  '--loglevel',
-  '-d',
-  '--dd',
-  '--ddd',
-  '-q',
-  '--quiet',
-  '-s',
-  '--silent'
-])
-
-const npmProgressFlags = new Set(['--progress', '--no-progress'])
+// Note: npm flag checking is done with regex patterns in the is*Flag functions below.
 
 const pnpmIgnoreScriptsFlags = new Set([
   '--ignore-scripts',
@@ -224,23 +207,23 @@ function execYarn(args, options) {
 }
 
 /**
+ * Check if a command argument is an npm audit flag.
+ * @param {string} cmdArg - The command argument to check.
+ * @returns {boolean} True if the argument is an audit flag.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function isNpmAuditFlag(cmdArg) {
+  return /^--(no-)?audit(=.*)?$/.test(cmdArg)
+}
+
+/**
  * Check if a command argument is an npm fund flag.
  * @param {string} cmdArg - The command argument to check.
  * @returns {boolean} True if the argument is a fund flag.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function isNpmAuditFlag(cmdArg) {
-  return npmAuditFlags.has(cmdArg)
-}
-
-/**
- * Check if a command argument is an npm loglevel flag.
- * @param {string} cmdArg - The command argument to check.
- * @returns {boolean} True if the argument is a loglevel flag.
- */
-/*@__NO_SIDE_EFFECTS__*/
 function isNpmFundFlag(cmdArg) {
-  return npmFundFlags.has(cmdArg)
+  return /^--(no-)?fund(=.*)?$/.test(cmdArg)
 }
 
 /**
@@ -251,7 +234,15 @@ function isNpmFundFlag(cmdArg) {
 /*@__NO_SIDE_EFFECTS__*/
 function isNpmLoglevelFlag(cmdArg) {
   // https://docs.npmjs.com/cli/v11/using-npm/logging#setting-log-levels
-  return cmdArg.startsWith('--loglevel=') || npmLogFlags.has(cmdArg)
+  if (/^--loglevel(=.*)?$/.test(cmdArg)) {
+    return true
+  }
+  // Check for long form flags
+  if (/^--(silent|verbose|info|warn|error|quiet)$/.test(cmdArg)) {
+    return true
+  }
+  // Check for shorthand flags
+  return /^-(s|q|d|dd|ddd|v)$/.test(cmdArg)
 }
 
 /**
@@ -262,7 +253,7 @@ function isNpmLoglevelFlag(cmdArg) {
 /*@__NO_SIDE_EFFECTS__*/
 function isNpmNodeOptionsFlag(cmdArg) {
   // https://docs.npmjs.com/cli/v9/using-npm/config#node-options
-  return cmdArg.startsWith('--node-options=')
+  return /^--node-options(=.*)?$/.test(cmdArg)
 }
 
 /**
@@ -272,7 +263,7 @@ function isNpmNodeOptionsFlag(cmdArg) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isNpmProgressFlag(cmdArg) {
-  return npmProgressFlags.has(cmdArg)
+  return /^--(no-)?progress(=.*)?$/.test(cmdArg)
 }
 
 /**
@@ -323,7 +314,19 @@ const isPnpmLoglevelFlag = isNpmLoglevelFlag
  */
 /*@__NO_SIDE_EFFECTS__*/
 function execScript(scriptName, args, options) {
+  // Handle overloaded signatures: execScript(name, options) or execScript(name, args, options).
+  if (!Array.isArray(args) && typeof args === 'object') {
+    options = args
+    args = []
+  }
+  args = args || []
   const { prepost, ...spawnOptions } = { __proto__: null, ...options }
+
+  // If shell: true is passed, run the command directly as a shell command.
+  if (spawnOptions.shell === true) {
+    return spawn(scriptName, args, spawnOptions)
+  }
+
   const useNodeRun =
     !prepost && /*@__PURE__*/ require('./constants/supports-node-run')
 

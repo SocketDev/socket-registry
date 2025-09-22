@@ -3,12 +3,15 @@
 const { isArray: ArrayIsArray } = Array
 const {
   defineProperties: ObjectDefineProperties,
+  defineProperty: ObjectDefineProperty,
   freeze: ObjectFreeze,
   fromEntries: ObjectFromEntries,
   getOwnPropertyDescriptors: ObjectGetOwnPropertyDescriptors,
   getOwnPropertyNames: ObjectGetOwnPropertyNames,
+  getPrototypeOf: ObjectGetPrototypeOf,
   hasOwn: ObjectHasOwn,
   keys: ObjectKeys,
+  prototype: ObjectPrototype,
   setPrototypeOf: ObjectSetPrototypeOf
 } = Object
 const { __defineGetter__ } = Object.prototype
@@ -120,7 +123,11 @@ function createConstantsObject(props, options_) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 function defineGetter(object, propKey, getter) {
-  __defineGetter__.call(object, propKey, getter)
+  ObjectDefineProperty(object, propKey, {
+    get: getter,
+    enumerable: false,
+    configurable: true
+  })
   return object
 }
 
@@ -267,13 +274,17 @@ function isObject(value) {
 }
 
 /**
- * Check if a value is a plain object (not an array).
+ * Check if a value is a plain object (not an array, not a built-in).
  * @param {any} value - The value to check.
  * @returns {boolean} True if the value is a plain object.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isObjectObject(value) {
-  return value !== null && typeof value === 'object' && !ArrayIsArray(value)
+  if (value === null || typeof value !== 'object' || ArrayIsArray(value)) {
+    return false
+  }
+  const proto = ObjectGetPrototypeOf(value)
+  return proto === null || proto === ObjectPrototype
 }
 
 /**
@@ -317,20 +328,10 @@ function merge(target, source) {
     }
     const { 0: currentTarget, 1: currentSource } = queue[pos++]
     const isSourceArray = ArrayIsArray(currentSource)
-    if (ArrayIsArray(currentTarget)) {
-      if (isSourceArray) {
-        const seen = new Set(currentTarget)
-        for (let i = 0, { length } = currentSource; i < length; i += 1) {
-          const item = currentSource[i]
-          if (!seen.has(item)) {
-            currentTarget.push(item)
-            seen.add(item)
-          }
-        }
-      }
-      continue
-    }
-    if (isSourceArray) {
+    const isTargetArray = ArrayIsArray(currentTarget)
+
+    // Skip array merging - arrays in source replace arrays in target
+    if (isSourceArray || isTargetArray) {
       continue
     }
     const keys = ReflectOwnKeys(currentSource)
@@ -339,18 +340,8 @@ function merge(target, source) {
       const srcVal = currentSource[key]
       const targetVal = currentTarget[key]
       if (ArrayIsArray(srcVal)) {
-        if (ArrayIsArray(targetVal)) {
-          const seen = new Set(targetVal)
-          for (let i = 0, { length } = srcVal; i < length; i += 1) {
-            const item = srcVal[i]
-            if (!seen.has(item)) {
-              targetVal.push(item)
-              seen.add(item)
-            }
-          }
-        } else {
-          currentTarget[key] = srcVal
-        }
+        // Replace arrays entirely
+        currentTarget[key] = srcVal
       } else if (isObject(srcVal)) {
         if (isObject(targetVal) && !ArrayIsArray(targetVal)) {
           queue[queueLength++] = [targetVal, srcVal]
@@ -393,7 +384,7 @@ function toSortedObjectFromEntries(entries) {
     }
   }
   if (!otherEntries.length && !symbolEntries.length) {
-    return []
+    return {}
   }
   return ObjectFromEntries([
     // The String constructor is safe to use with symbols.

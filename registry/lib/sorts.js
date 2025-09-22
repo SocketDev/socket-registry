@@ -63,7 +63,45 @@ function naturalSorter(arrayToSort) {
   return _naturalSorter(arrayToSort)
 }
 
+/**
+ * Simple string comparison.
+ * @param {string} a - First string.
+ * @param {string} b - Second string.
+ * @returns {number} Comparison result.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function compareStr(a, b) {
+  return a < b ? -1 : a > b ? 1 : 0
+}
+
+/**
+ * Compare semantic versions.
+ * @param {string} a - First version.
+ * @param {string} b - Second version.
+ * @returns {number} Comparison result.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function compareSemver(a, b) {
+  const semver = /*@__PURE__*/ require('semver')
+  const validA = semver.valid(a)
+  const validB = semver.valid(b)
+
+  if (!validA && !validB) {
+    return 0
+  }
+  if (!validA) {
+    return -1
+  }
+  if (!validB) {
+    return 1
+  }
+
+  return semver.compare(a, b)
+}
+
 module.exports = {
+  compareSemver,
+  compareStr,
   localeCompare,
   naturalCompare,
   naturalSorter

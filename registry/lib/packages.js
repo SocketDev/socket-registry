@@ -14,7 +14,6 @@ const SOCKET_REGISTRY_REPO_NAME = /*@__PURE__*/ require('./constants/socket-regi
 const SOCKET_REGISTRY_SCOPE = /*@__PURE__*/ require('./constants/socket-registry-scope')
 const { readJson, readJsonSync } = /*@__PURE__*/ require('./fs')
 const {
-  getOwnPropertyValues,
   isObject,
   isObjectObject,
   merge,
@@ -831,9 +830,23 @@ function findTypesForSubpath(entryExports, subpath) {
  * @returns {string} Release tag.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function getReleaseTag(version) {
-  const semver = getSemver()
-  return semver.prerelease(version)?.join('.') ?? 'latest'
+function getReleaseTag(spec) {
+  if (!spec) {
+    return ''
+  }
+  // Handle scoped packages like @scope/package vs @scope/package@tag.
+  let atIndex = -1
+  if (spec.startsWith('@')) {
+    // Find the second @ for scoped packages.
+    atIndex = spec.indexOf('@', 1)
+  } else {
+    // Find the first @ for unscoped packages.
+    atIndex = spec.indexOf('@')
+  }
+  if (atIndex !== -1) {
+    return spec.slice(atIndex + 1)
+  }
+  return ''
 }
 
 /**
@@ -857,25 +870,13 @@ function getRepoUrlDetails(repoUrl = '') {
  */
 /*@__NO_SIDE_EFFECTS__*/
 function getSubpaths(entryExports) {
-  const result = []
-  const queue = getOwnPropertyValues(entryExports)
-  let pos = 0
-  while (pos < queue.length) {
-    if (pos === LOOP_SENTINEL) {
-      throw new Error(
-        'Detected infinite loop in entry exports crawl of getSubpaths'
-      )
-    }
-    const value = queue[pos++]
-    if (typeof value === 'string') {
-      result.push(value)
-    } else if (ArrayIsArray(value)) {
-      queue.push(...value)
-    } else if (isObject(value)) {
-      queue.push(...getOwnPropertyValues(value))
-    }
+  if (!isObject(entryExports)) {
+    return []
   }
-  return result
+  // Return the keys of the exports object (the subpaths)
+  return Object.getOwnPropertyNames(entryExports).filter(key =>
+    key.startsWith('.')
+  )
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -996,13 +997,16 @@ function pkgJsonToEditable(pkgJson, options) {
 /*@__NO_SIDE_EFFECTS__*/
 function normalizePackageJson(pkgJson, options) {
   const { preserve } = { __proto__: null, ...options }
+  // Add default version if not present.
+  if (!ObjectHasOwn(pkgJson, 'version')) {
+    pkgJson.version = '0.0.0'
+  }
   const preserved = [
     ['_id', undefined],
     ['readme', undefined],
     ...(ObjectHasOwn(pkgJson, 'bugs') ? [] : [['bugs', undefined]]),
     ...(ObjectHasOwn(pkgJson, 'homepage') ? [] : [['homepage', undefined]]),
     ...(ObjectHasOwn(pkgJson, 'name') ? [] : [['name', undefined]]),
-    ...(ObjectHasOwn(pkgJson, 'version') ? [] : [['version', undefined]]),
     ...(ArrayIsArray(preserve)
       ? preserve.map(k => [
           k,
@@ -1088,7 +1092,8 @@ function readPackageJsonSync(filepath, options) {
 
 /*@__NO_SIDE_EFFECTS__*/
 function resolveEscapedScope(sockRegPkgName) {
-  return escapedScopeRegExp.exec(sockRegPkgName)?.[0] ?? ''
+  const match = escapedScopeRegExp.exec(sockRegPkgName)?.[0]
+  return match || null
 }
 
 /*@__NO_SIDE_EFFECTS__*/
