@@ -23,7 +23,7 @@ const {
   safeStatsSync,
   uniqueSync,
   writeJson,
-  writeJsonSync
+  writeJsonSync,
 } = require('@socketsecurity/registry/lib/fs')
 
 describe('fs module', () => {
@@ -159,7 +159,7 @@ describe('fs module', () => {
 
     it('should reject for non-existent files', async () => {
       await expect(
-        readFileUtf8(path.join(tmpDir, 'nonexistent'))
+        readFileUtf8(path.join(tmpDir, 'nonexistent')),
       ).rejects.toThrow()
     })
   })
@@ -283,7 +283,7 @@ describe('fs module', () => {
       const data = { a: 1, b: undefined, c: 3 }
       await writeJson(testJson, data, {
         replacer: (key: string, value: any) =>
-          value === undefined ? null : value
+          value === undefined ? null : value,
       })
       const result = JSON.parse(fs.readFileSync(testJson, 'utf8'))
       expect(result.b).toBe(null)
@@ -316,7 +316,7 @@ describe('fs module', () => {
 
     it('should not throw for non-existent paths', async () => {
       await expect(remove(path.join(tmpDir, 'nonexistent'))).resolves.toBe(
-        undefined
+        undefined,
       )
     })
   })
@@ -394,7 +394,7 @@ describe('fs module', () => {
       fs.writeFileSync(path.join(tmpDir, 'target.txt'), 'found')
       const result = findUpSync('target.txt', {
         cwd: subDir,
-        stopAt: subDir
+        stopAt: subDir,
       })
       expect(result).toBe(undefined)
     })

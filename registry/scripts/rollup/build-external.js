@@ -18,7 +18,7 @@ const getConfig = require(path.join(configPath, 'rollup.base.config.js'))
 void (async () => {
   const filepaths = await glob(['**/*.js'], {
     absolute: true,
-    cwd: srcExternalPath
+    cwd: srcExternalPath,
   })
   await Promise.all(
     filepaths.map(async filepath => {
@@ -29,7 +29,7 @@ void (async () => {
         file: path.join(rootPath, relPath),
         format: 'cjs',
         sourcemap: false,
-        inlineDynamicImports: true
+        inlineDynamicImports: true,
       })
       // Show output in CI or when explicitly requested, otherwise be quiet during install-related lifecycle events.
       const lifecycleEvent = process.env.npm_lifecycle_event
@@ -40,6 +40,6 @@ void (async () => {
       if (shouldShowOutput) {
         console.log(`✅ Built ${relPath}`)
       }
-    })
+    }),
   )
 })()

@@ -13,7 +13,7 @@ const {
   kMaxLength,
   kStringMaxLength,
   resolveObjectURL,
-  transcode
+  transcode,
   // Use non-'node:' prefixed require to avoid Webpack errors.
   // eslint-disable-next-line n/prefer-node-protocol
 } = require('buffer')
@@ -21,7 +21,7 @@ const {
 const { builtinBufferExportsDescMap } = require('./shared')
 
 const Safer = {
-  prototype: UnsafeBuffer.prototype
+  prototype: UnsafeBuffer.prototype,
 }
 for (const key of Reflect.ownKeys(UnsafeBuffer)) {
   if (
@@ -46,7 +46,7 @@ module.exports = {
   kStringMaxLength,
   resolveObjectURL,
   transcode,
-  Buffer: Safer
+  Buffer: Safer,
 }
 // Redefine INSPECT_MAX_BYTES, Blob, File, and resolveObjectURL as their
 // builtin getter/setters.

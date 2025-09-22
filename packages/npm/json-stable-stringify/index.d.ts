@@ -6,7 +6,7 @@ declare interface StableStringifyOptions {
   cmp?: (
     a: ComparatorValue,
     b: ComparatorValue,
-    helper?: { get(key: string): any }
+    helper?: { get(key: string): any },
   ) => number
   collapseEmpty?: boolean
   cycles?: boolean
@@ -15,6 +15,6 @@ declare interface StableStringifyOptions {
 }
 declare function stableStringify(
   value: any,
-  opts?: StableStringifyOptions | undefined
+  opts?: StableStringifyOptions | undefined,
 ): string | undefined
 export = stableStringify

@@ -34,7 +34,7 @@ function normalizeIterationOptions(options) {
     // Retries as a number or options object.
     retries,
     // AbortSignal used to support cancellation.
-    signal = /*@__PURE__*/ require('./constants/abort-signal')
+    signal = /*@__PURE__*/ require('./constants/abort-signal'),
   } = { __proto__: null, ...opts }
 
   // Ensure concurrency is at least 1
@@ -44,7 +44,7 @@ function normalizeIterationOptions(options) {
     __proto__: null,
     concurrency: normalizedConcurrency,
     retries: normalizeRetryOptions({ signal, ...retryOpts }),
-    signal
+    signal,
   }
 }
 
@@ -77,7 +77,7 @@ function normalizeRetryOptions(options) {
     // Number of retry attempts (0 = no retries, only initial attempt).
     retries = resolved.retries || 0,
     // AbortSignal used to support cancellation.
-    signal = /*@__PURE__*/ require('./constants/abort-signal')
+    signal = /*@__PURE__*/ require('./constants/abort-signal'),
   } = resolved
   return {
     __proto__: null,
@@ -92,7 +92,7 @@ function normalizeRetryOptions(options) {
     onRetryCancelOnFalse,
     onRetryRethrow,
     retries,
-    signal
+    signal,
   }
 }
 
@@ -108,7 +108,7 @@ function resolveRetryOptions(options) {
     retries: 0,
     minTimeout: 200,
     maxTimeout: 10000,
-    factor: 2
+    factor: 2,
   }
 
   if (typeof options === 'number') {
@@ -143,9 +143,9 @@ async function pEach(array, callbackFn, options) {
         pRetry(callbackFn, {
           ...retries,
           args: [item],
-          signal
-        })
-      )
+          signal,
+        }),
+      ),
     )
   }
 }
@@ -164,7 +164,7 @@ async function pFilter(array, callbackFn, options) {
     await pFilterChunk(
       arrayChunk(array, iterOpts.concurrency),
       callbackFn,
-      iterOpts.retries
+      iterOpts.retries,
     )
   ).flat()
 }
@@ -189,7 +189,7 @@ async function pEachChunk(array, callbackFn, options) {
     // eslint-disable-next-line no-await-in-loop
     await pRetry(callbackFn, {
       ...normalizedRetryOpts,
-      args: [chunk]
+      args: [chunk],
     })
   }
 }
@@ -218,9 +218,9 @@ async function pFilterChunk(chunks, callbackFn, options) {
         chunk.map(value =>
           pRetry(callbackFn, {
             ...retryOpts,
-            args: [value]
-          })
-        )
+            args: [value],
+          }),
+        ),
       )
       filteredChunks[i] = chunk.filter((_v, i) => predicateResults[i])
     }
@@ -247,7 +247,7 @@ async function pRetry(callbackFn, options) {
     onRetryCancelOnFalse,
     onRetryRethrow,
     retries,
-    signal
+    signal,
   } = normalizeRetryOptions(options)
   if (signal?.aborted) {
     return undefined
@@ -313,5 +313,5 @@ module.exports = {
   pFilter,
   pFilterChunk,
   pRetry,
-  resolveRetryOptions
+  resolveRetryOptions,
 }

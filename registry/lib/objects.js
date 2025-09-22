@@ -12,7 +12,7 @@ const {
   hasOwn: ObjectHasOwn,
   keys: ObjectKeys,
   prototype: ObjectPrototype,
-  setPrototypeOf: ObjectSetPrototypeOf
+  setPrototypeOf: ObjectSetPrototypeOf,
 } = Object
 const { __defineGetter__ } = Object.prototype
 const { ownKeys: ReflectOwnKeys } = Reflect
@@ -36,7 +36,7 @@ function createLazyGetter(name, getter, stats) {
         lazyValue = getter()
       }
       return lazyValue
-    }
+    },
   }
   return lazyGetter
 }
@@ -57,30 +57,30 @@ function createConstantsObject(props, options_) {
     __proto__: null,
     getters: options.getters
       ? ObjectFreeze(
-          ObjectSetPrototypeOf(toSortedObject(options.getters), null)
+          ObjectSetPrototypeOf(toSortedObject(options.getters), null),
         )
       : undefined,
     internals: options.internals
       ? ObjectFreeze(
-          ObjectSetPrototypeOf(toSortedObject(options.internals), null)
+          ObjectSetPrototypeOf(toSortedObject(options.internals), null),
         )
       : undefined,
     mixin: options.mixin
       ? ObjectFreeze(
           ObjectDefineProperties(
             { __proto__: null },
-            ObjectGetOwnPropertyDescriptors(options.mixin)
-          )
+            ObjectGetOwnPropertyDescriptors(options.mixin),
+          ),
         )
       : undefined,
     props: props
       ? ObjectFreeze(ObjectSetPrototypeOf(toSortedObject(props), null))
-      : undefined
+      : undefined,
   })
   const kInternalsSymbol = /*@__PURE__*/ require('./constants/k-internals-symbol')
   const lazyGetterStats = ObjectFreeze({
     __proto__: null,
-    initialized: new Set()
+    initialized: new Set(),
   })
   const object = defineLazyGetters(
     {
@@ -93,22 +93,22 @@ function createConstantsObject(props, options_) {
         get lazyGetterStats() {
           return lazyGetterStats
         },
-        ...attributes.internals
+        ...attributes.internals,
       }),
       kInternalsSymbol,
-      ...attributes.props
+      ...attributes.props,
     },
     attributes.getters,
-    lazyGetterStats
+    lazyGetterStats,
   )
   if (attributes.mixin) {
     ObjectDefineProperties(
       object,
       toSortedObjectFromEntries(
         objectEntries(ObjectGetOwnPropertyDescriptors(attributes.mixin)).filter(
-          p => !ObjectHasOwn(object, p[0])
-        )
-      )
+          p => !ObjectHasOwn(object, p[0]),
+        ),
+      ),
     )
   }
   return ObjectFreeze(object)
@@ -126,7 +126,7 @@ function defineGetter(object, propKey, getter) {
   ObjectDefineProperty(object, propKey, {
     get: getter,
     enumerable: false,
-    configurable: true
+    configurable: true,
   })
   return object
 }
@@ -160,7 +160,7 @@ function defineLazyGetters(object, getterDefObj, stats) {
       defineLazyGetter(
         object,
         key,
-        createLazyGetter(key, getterDefObj[key], stats)
+        createLazyGetter(key, getterDefObj[key], stats),
       )
     }
   }
@@ -389,7 +389,7 @@ function toSortedObjectFromEntries(entries) {
   return ObjectFromEntries([
     // The String constructor is safe to use with symbols.
     ...symbolEntries.sort(entryKeyComparator),
-    ...otherEntries.sort(entryKeyComparator)
+    ...otherEntries.sort(entryKeyComparator),
   ])
 }
 
@@ -409,5 +409,5 @@ module.exports = {
   merge,
   objectEntries,
   toSortedObject,
-  toSortedObjectFromEntries
+  toSortedObjectFromEntries,
 }

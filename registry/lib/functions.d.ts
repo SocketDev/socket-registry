@@ -3,7 +3,7 @@ declare type AsyncFunction<TArgs extends any[], TResult> = (
 ) => Promise<TResult>
 declare const Functions: {
   silentWrapAsync<TArgs extends any[], TResult>(
-    fn: AsyncFunction<TArgs, TResult>
+    fn: AsyncFunction<TArgs, TResult>,
   ): (...args: TArgs) => Promise<TResult | undefined>
 }
 declare namespace Functions {

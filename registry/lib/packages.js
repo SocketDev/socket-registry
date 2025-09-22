@@ -17,7 +17,7 @@ const {
   isObject,
   isObjectObject,
   merge,
-  objectEntries
+  objectEntries,
 } = /*@__PURE__*/ require('./objects')
 const { isNodeModules, normalizePath } = /*@__PURE__*/ require('./path')
 const { escapeRegExp } = /*@__PURE__*/ require('./regexps')
@@ -27,7 +27,7 @@ const BINARY_OPERATION_NODE_TYPE = 'BinaryOperation'
 const LICENSE_NODE_TYPE = 'License'
 
 const escapedScopeRegExp = new RegExp(
-  `^[^${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0])}]+${escapeRegExp(REGISTRY_SCOPE_DELIMITER)}(?!${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0])})`
+  `^[^${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0])}]+${escapeRegExp(REGISTRY_SCOPE_DELIMITER)}(?!${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0])})`,
 )
 const fileReferenceRegExp = /^SEE LICEN[CS]E IN (.+)$/
 const pkgScopePrefixRegExp = /^@socketregistry\//
@@ -61,10 +61,10 @@ function getEditablePackageJsonClass() {
     const EditablePackageJsonBase = /*@__PURE__*/ require('../external/@npmcli/package-json')
     const {
       parse,
-      read
+      read,
     } = /*@__PURE__*/ require('../external/@npmcli/package-json/lib/read-package')
     const {
-      packageSort
+      packageSort,
     } = /*@__PURE__*/ require('../external/@npmcli/package-json/lib/sort')
     _EditablePackageJsonClass = class EditablePackageJson extends (
       EditablePackageJsonBase
@@ -200,7 +200,7 @@ function getEditablePackageJsonClass() {
         }
         const { ignoreWhitespace = false, sort = false } = {
           __proto__: null,
-          ...options
+          ...options,
         }
         const {
           [identSymbol]: indent,
@@ -226,7 +226,7 @@ function getEditablePackageJsonClass() {
         const fileContent = `${JSON.stringify(
           content,
           null,
-          format
+          format,
         )}\n`.replace(/\n/g, eol)
 
         if (
@@ -249,7 +249,7 @@ function getEditablePackageJsonClass() {
         }
         const { ignoreWhitespace = false, sort = false } = {
           __proto__: null,
-          ...options
+          ...options,
         }
         const {
           [Symbol.for('indent')]: indent,
@@ -270,7 +270,7 @@ function getEditablePackageJsonClass() {
         const fileContent = `${JSON.stringify(
           content,
           null,
-          format
+          format,
         )}\n`.replace(/\n/g, eol)
 
         if (
@@ -295,7 +295,7 @@ function getEditablePackageJsonClass() {
       willSave(options) {
         const { ignoreWhitespace = false, sort = false } = {
           __proto__: null,
-          ...options
+          ...options,
         }
         if (!this._canSave || this.content === undefined) {
           return false
@@ -319,7 +319,7 @@ function getEditablePackageJsonClass() {
         const fileContent = `${JSON.stringify(
           content,
           null,
-          format
+          format,
         )}\n`.replace(/\n/g, eol)
 
         if (
@@ -345,7 +345,7 @@ function getFetcher() {
       // Prefer-offline: Staleness checks for cached data will be bypassed, but
       // missing data will be requested from the server.
       // https://github.com/npm/make-fetch-happen?tab=readme-ov-file#--optscache
-      cache: 'force-cache'
+      cache: 'force-cache',
     })
   }
   return _fetcher
@@ -548,7 +548,7 @@ function createBinaryOperationNode(rawNode) {
         rawRight = undefined
       }
       return right
-    }
+    },
   }
 }
 
@@ -584,7 +584,7 @@ function createPackageJson(sockRegPkgName, directory, options) {
     sideEffects,
     socket,
     type,
-    version
+    version,
   } = { __proto__: null, ...options }
   const PACKAGE_DEFAULT_NODE_RANGE = /*@__PURE__*/ require('./constants/package-default-node-range')
   const name = `@socketregistry/${sockRegPkgName.replace(pkgScopePrefixRegExp, '')}`
@@ -601,7 +601,7 @@ function createPackageJson(sockRegPkgName, directory, options) {
     repository: {
       type: 'git',
       url: `git+${githubUrl}.git`,
-      directory
+      directory,
     },
     ...(type ? { type } : {}),
     ...(entryExports ? { exports: { ...entryExports } } : {}),
@@ -624,15 +624,15 @@ function createPackageJson(sockRegPkgName, directory, options) {
                     // Roughly check Node range as semver.coerce will strip leading
                     // v's, carets (^), comparators (<,<=,>,>=,=), and tildes (~).
                     semver.coerce(range),
-                    PACKAGE_DEFAULT_NODE_RANGE
+                    PACKAGE_DEFAULT_NODE_RANGE,
                   )
                 ) {
                   pair[1] = PACKAGE_DEFAULT_NODE_RANGE
                 }
               }
               return pair
-            })
-          )
+            }),
+          ),
         }
       : { engines: { node: PACKAGE_DEFAULT_NODE_RANGE } }),
     files: ArrayIsArray(files) ? files.slice() : ['*.d.ts', '*.js'],
@@ -641,9 +641,9 @@ function createPackageJson(sockRegPkgName, directory, options) {
       : {
           socket: {
             // Valid categories are: cleanup, levelup, speedup, tuneup
-            categories: PACKAGE_DEFAULT_SOCKET_CATEGORIES
-          }
-        })
+            categories: PACKAGE_DEFAULT_SOCKET_CATEGORIES,
+          },
+        }),
   }
 }
 
@@ -662,13 +662,13 @@ async function extractPackage(pkgNameOrId, options, callback) {
   }
   const { dest, tmpPrefix, ...extractOptions_ } = {
     __proto__: null,
-    ...options
+    ...options,
   }
   const extractOptions = {
     __proto__: null,
     packumentCache,
     preferOffline: true,
-    ...extractOptions_
+    ...extractOptions_,
   }
   const pacote = getPacote()
   if (typeof dest === 'string') {
@@ -688,7 +688,7 @@ async function extractPackage(pkgNameOrId, options, callback) {
         if (typeof callback === 'function') {
           await callback(tmpDirPath)
         }
-      }
+      },
     )
   }
 }
@@ -706,7 +706,7 @@ async function fetchPackageManifest(pkgNameOrId, options) {
     signal: abortSignal,
     ...options,
     packumentCache,
-    preferOffline: true
+    preferOffline: true,
   }
   const { signal } = pacoteOptions
   if (signal?.aborted) {
@@ -748,7 +748,7 @@ async function fetchPackagePackument(pkgNameOrId, options) {
       signal: abortSignal,
       ...options,
       packumentCache,
-      preferOffline: true
+      preferOffline: true,
     })
   } catch {}
   return null
@@ -794,7 +794,7 @@ function findTypesForSubpath(entryExports, subpath) {
   while (pos < queue.length) {
     if (pos === LOOP_SENTINEL) {
       throw new Error(
-        'Detected infinite loop in entry exports crawl of getTypesForSubpath'
+        'Detected infinite loop in entry exports crawl of getTypesForSubpath',
       )
     }
     const value = queue[pos++]
@@ -875,7 +875,7 @@ function getSubpaths(entryExports) {
   }
   // Return the keys of the exports object (the subpaths)
   return Object.getOwnPropertyNames(entryExports).filter(key =>
-    key.startsWith('.')
+    key.startsWith('.'),
   )
 }
 
@@ -990,7 +990,7 @@ function pkgJsonToEditable(pkgJson, options) {
   const { normalize, ...normalizeOptions } = { __proto__: null, ...options }
   const EditablePackageJson = getEditablePackageJsonClass()
   return new EditablePackageJson().fromContent(
-    normalize ? normalizePackageJson(pkgJson, normalizeOptions) : pkgJson
+    normalize ? normalizePackageJson(pkgJson, normalizeOptions) : pkgJson,
   )
 }
 
@@ -1010,9 +1010,9 @@ function normalizePackageJson(pkgJson, options) {
     ...(ArrayIsArray(preserve)
       ? preserve.map(k => [
           k,
-          ObjectHasOwn(pkgJson, k) ? pkgJson[k] : undefined
+          ObjectHasOwn(pkgJson, k) ? pkgJson[k] : undefined,
         ])
-      : [])
+      : []),
   ]
   const normalizePackageData = getNormalizePackageData()
   normalizePackageData(pkgJson)
@@ -1033,7 +1033,7 @@ async function packPackage(spec, options) {
     signal: abortSignal,
     ...options,
     packumentCache,
-    preferOffline: true
+    preferOffline: true,
   })
 }
 
@@ -1052,7 +1052,7 @@ function parseSpdxExp(spdxExp) {
 async function readPackageJson(filepath, options) {
   const { editable, normalize, throws, ...normalizeOptions } = {
     __proto__: null,
-    ...options
+    ...options,
   }
   const pkgJson = await readJson(resolvePackageJsonPath(filepath), { throws })
   if (pkgJson) {
@@ -1060,7 +1060,7 @@ async function readPackageJson(filepath, options) {
       ? await toEditablePackageJson(pkgJson, {
           path: filepath,
           normalize,
-          ...normalizeOptions
+          ...normalizeOptions,
         })
       : normalize
         ? normalizePackageJson(pkgJson, normalizeOptions)
@@ -1073,7 +1073,7 @@ async function readPackageJson(filepath, options) {
 function readPackageJsonSync(filepath, options) {
   const { editable, normalize, throws, ...normalizeOptions } = {
     __proto__: null,
-    ...options
+    ...options,
   }
   const pkgJson = readJsonSync(resolvePackageJsonPath(filepath), { throws })
   if (pkgJson) {
@@ -1081,7 +1081,7 @@ function readPackageJsonSync(filepath, options) {
       ? toEditablePackageJsonSync(pkgJson, {
           path: filepath,
           normalize,
-          ...normalizeOptions
+          ...normalizeOptions,
         })
       : normalize
         ? normalizePackageJson(pkgJson, normalizeOptions)
@@ -1106,7 +1106,7 @@ async function resolveGitHubTgzUrl(pkgNameOrId, where) {
   const npmPackageArg = getNpmPackageArg()
   const parsedSpec = npmPackageArg(
     pkgNameOrId,
-    whereIsPkgJson ? undefined : where
+    whereIsPkgJson ? undefined : where,
   )
   const isTarballUrl = isGitHubTgzSpec(parsedSpec)
   if (isTarballUrl) {
@@ -1207,8 +1207,8 @@ function resolvePackageLicenses(licenseFieldValue, where) {
     return [
       {
         license: licenseFieldValue,
-        inFile: normalizePath(path.relative(where, match[1]))
-      }
+        inFile: normalizePath(path.relative(where, match[1])),
+      },
     ]
   }
   const licenseNodes = []
@@ -1231,7 +1231,7 @@ function resolvePackageLicenses(licenseFieldValue, where) {
           return false
         }
         licenseNodes.push(node)
-      }
+      },
     })
   }
   return licenseNodes
@@ -1255,7 +1255,7 @@ function resolveRegistryPackageName(pkgName) {
 async function toEditablePackageJson(pkgJson, options) {
   const { path: filepath, ...pkgJsonToEditableOptions } = {
     __proto__: null,
-    ...options
+    ...options,
   }
   const { normalize, ...normalizeOptions } = pkgJsonToEditableOptions
   if (typeof filepath !== 'string') {
@@ -1271,12 +1271,12 @@ async function toEditablePackageJson(pkgJson, options) {
         ? normalizePackageJson(pkgJson, {
             __proto__: null,
             ...(isNodeModules(pkgJsonPath) ? {} : { preserve: ['repository'] }),
-            ...normalizeOptions
+            ...normalizeOptions,
           })
         : pkgJson,
       null,
-      2
-    )}\n`
+      2,
+    )}\n`,
   )
 }
 
@@ -1284,7 +1284,7 @@ async function toEditablePackageJson(pkgJson, options) {
 function toEditablePackageJsonSync(pkgJson, options) {
   const { path: filepath, ...pkgJsonToEditableOptions } = {
     __proto__: null,
-    ...options
+    ...options,
   }
   const { normalize, ...normalizeOptions } = pkgJsonToEditableOptions
   if (typeof filepath !== 'string') {
@@ -1298,12 +1298,12 @@ function toEditablePackageJsonSync(pkgJson, options) {
         ? normalizePackageJson(pkgJson, {
             __proto__: null,
             ...(isNodeModules(pkgJsonPath) ? {} : { preserve: ['repository'] }),
-            ...normalizeOptions
+            ...normalizeOptions,
           })
         : pkgJson,
       null,
-      2
-    )}\n`
+      2,
+    )}\n`,
   )
 }
 
@@ -1377,5 +1377,5 @@ module.exports = {
   resolveRegistryPackageName,
   toEditablePackageJson,
   toEditablePackageJsonSync,
-  unescapeScope
+  unescapeScope,
 }

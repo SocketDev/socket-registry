@@ -10,7 +10,7 @@ module.exports = ObjectFreeze(
   WIN32
     ? [
         // https://nodejs.org/api/cli.html#--disallow-code-generation-from-strings
-        '--disallow-code-generation-from-strings'
+        '--disallow-code-generation-from-strings',
       ]
     : [
         '--disallow-code-generation-from-strings',
@@ -24,6 +24,6 @@ module.exports = ObjectFreeze(
         // √ https://github.com/pnpm/components/pull/23
         '--frozen-intrinsics',
         // https://nodejs.org/api/cli.html#--no-deprecation
-        '--no-deprecation'
-      ]
+        '--no-deprecation',
+      ],
 )

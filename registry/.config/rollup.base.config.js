@@ -25,7 +25,7 @@ module.exports = function getConfig(filepath) {
       nodeResolve({
         exportConditions: ['node'],
         extensions: ['.mjs', '.js', '.json'],
-        preferBuiltins: true
+        preferBuiltins: true,
       }),
       jsonPlugin(),
       commonjsPlugin({
@@ -34,20 +34,20 @@ module.exports = function getConfig(filepath) {
         ignoreDynamicRequires: true,
         ignoreGlobal: true,
         ignoreTryCatch: true,
-        strictRequires: true
+        strictRequires: true,
       }),
       babelPlugin({
         babelHelpers: 'runtime',
         babelrc: false,
         configFile: path.join(configPath, 'babel.config.js'),
-        extensions: ['.js', '.cjs', '.mjs']
+        extensions: ['.js', '.cjs', '.mjs'],
       }),
       // Convert un-prefixed built-in imports into "node:"" prefixed forms.
       replacePlugin({
         delimiters: ['(?<=(?:require\\(|from\\s*)["\'])', '(?=["\'])'],
         preventAssignment: false,
-        values: builtinAliases
-      })
+        values: builtinAliases,
+      }),
     ],
     onwarn(warning, warn) {
       // Suppress warnings.
@@ -61,6 +61,6 @@ module.exports = function getConfig(filepath) {
       }
       // Forward other warnings.
       warn(warning)
-    }
+    },
   }
 }

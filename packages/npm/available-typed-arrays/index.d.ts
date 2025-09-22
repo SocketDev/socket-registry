@@ -9,7 +9,7 @@ type AllPossibleTypedArrays = [
   'Uint16Array',
   'Uint32Array',
   'BigInt64Array',
-  'BigUint64Array'
+  'BigUint64Array',
 ]
 declare function availableTypedArrays():
   | []

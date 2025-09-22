@@ -13,7 +13,7 @@ module.exports = function shimArrayProtoToReversed() {
       configurable: true,
       enumerable: false,
       value: polyfill,
-      writable: true
+      writable: true,
     })
   }
   map['toReversed'] = true

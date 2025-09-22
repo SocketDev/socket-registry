@@ -30,12 +30,12 @@ describe(
         !(
           existsSync(pkgRequireIndexJsPath) &&
           existsSync(pkgRequireIndexCjsPath)
-        ))
+        )),
   },
   () => {
     const implementations = [
       require(pkgRequireIndexJsPath),
-      require(pkgRequireIndexCjsPath)
+      require(pkgRequireIndexCjsPath),
     ]
     for (const isRegex of implementations) {
       it('not regexes', () => {
@@ -59,7 +59,7 @@ describe(
           valueOf() {
             return regex
           },
-          [Symbol.toStringTag]: 'RegExp'
+          [Symbol.toStringTag]: 'RegExp',
         }
 
         expect(isRegex(fakeRegex)).toBe(false)
@@ -110,7 +110,7 @@ describe(
           'ownKeys',
           'preventExtensions',
           'set',
-          'setPrototypeOf'
+          'setPrototypeOf',
         ]) {
           ;(Handler.prototype as any)[trapName] = function () {
             this.trapCalls.push(trapName)
@@ -124,7 +124,7 @@ describe(
           const handler = new Handler()
           const proxy = new Proxy(
             { lastIndex: 0 },
-            handler as ProxyHandler<typeof target>
+            handler as ProxyHandler<typeof target>,
           )
 
           expect(isRegex(proxy)).toBe(false)
@@ -132,7 +132,7 @@ describe(
           // which triggers no proxy traps.
           // https://github.com/inspect-js/is-regex/issues/35
           expect(handler.trapCalls).toEqual(
-            handler.trapCalls.length ? ['getOwnPropertyDescriptor'] : []
+            handler.trapCalls.length ? ['getOwnPropertyDescriptor'] : [],
           )
         }
 
@@ -147,10 +147,10 @@ describe(
           // which triggers no proxy traps.
           // https://github.com/inspect-js/is-regex/issues/35
           expect(handler.trapCalls).toEqual(
-            handler.trapCalls.length ? ['getOwnPropertyDescriptor'] : []
+            handler.trapCalls.length ? ['getOwnPropertyDescriptor'] : [],
           )
         }
       })
     }
-  }
+  },
 )

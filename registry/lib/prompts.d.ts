@@ -24,19 +24,19 @@ declare const Prompts: {
   Separator: typeof InquirerSeparator
   confirm: (
     config: Parameters<typeof inquirerConfirm>[0],
-    context?: Context | undefined
+    context?: Context | undefined,
   ) => ReturnType<typeof inquirerConfirm>
   input: (
     config: Parameters<typeof inquirerInput>[0],
-    context?: Context | undefined
+    context?: Context | undefined,
   ) => ReturnType<typeof inquirerInput>
   password: (
     config: Parameters<typeof inquirerPassword>[0],
-    context?: Context | undefined
+    context?: Context | undefined,
   ) => ReturnType<typeof inquirerPassword>
   search: <Value>(
     config: Parameters<typeof inquirerSearch<Value>>[0],
-    context?: Context | undefined
+    context?: Context | undefined,
   ) => ReturnType<typeof inquirerSearch<Value>>
   select: <Value>(
     config: Omit<Parameters<typeof inquirerSelect<Value>>[0], 'choices'> & {
@@ -46,7 +46,7 @@ declare const Prompts: {
         | ReadonlyArray<string | Separator>
         | ReadonlyArray<Separator | Choice<Value>>
     },
-    context?: Context | undefined
+    context?: Context | undefined,
   ) => ReturnType<typeof inquirerSelect<Value>>
 }
 declare namespace Prompts {

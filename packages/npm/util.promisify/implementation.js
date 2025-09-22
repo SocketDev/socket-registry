@@ -11,7 +11,7 @@ const { custom } = UtilPromisify
 const nodeFs = /*@__PURE__*/ require('fs')
 const read = nodeFs.read
 const customPromisifyArgs = Object.getOwnPropertySymbols(read).find(
-  s => s.description === 'customPromisifyArgs'
+  s => s.description === 'customPromisifyArgs',
 )
 
 module.exports = Object.assign(
@@ -20,8 +20,8 @@ module.exports = Object.assign(
   },
   {
     custom,
-    customPromisifyArgs
-  }
+    customPromisifyArgs,
+  },
 )
 module.exports.custom = module.exports.custom
 module.exports.customPromisifyArgs = module.exports.customPromisifyArgs

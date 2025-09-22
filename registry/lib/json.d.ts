@@ -20,7 +20,7 @@ declare const Json: {
   isJsonPrimitive: (value: any) => value is boolean | null | number | string
   jsonParse: (
     content: string | Buffer,
-    options?: JsonParseOptions | undefined
+    options?: JsonParseOptions | undefined,
   ) => JsonValue
 }
 declare namespace Json {
@@ -30,7 +30,7 @@ declare namespace Json {
     JsonParseOptions,
     JsonPrimitive,
     JsonValue,
-    JsonReviver
+    JsonReviver,
   }
 }
 export = Json

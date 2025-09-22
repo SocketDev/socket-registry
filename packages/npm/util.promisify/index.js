@@ -6,7 +6,7 @@ const desc = value => ({
   __proto__: null,
   configurable: true,
   value,
-  writable: true
+  writable: true,
 })
 
 module.exports = Object.defineProperties(
@@ -18,8 +18,8 @@ module.exports = Object.defineProperties(
     customPromisifyArgs: desc(impl.customPromisifyArgs),
     getPolyfill: desc(require('./polyfill')),
     implementation: desc(impl),
-    shim: desc(require('./shim'))
-  }
+    shim: desc(require('./shim')),
+  },
 )
 module.exports.custom = module.exports.custom
 module.exports.customPromisifyArgs = module.exports.customPromisifyArgs

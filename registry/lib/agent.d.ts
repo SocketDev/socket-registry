@@ -15,20 +15,20 @@ declare type PnpmSpawnOptions = Remap<
 declare const Agent: {
   execNpm(
     args: string[] | readonly string[],
-    options?: SpawnOptions | undefined
+    options?: SpawnOptions | undefined,
   ): Promise<{ stdout: string; stderr: string }>
   execPnpm(
     args: string[] | readonly string[],
-    options?: PnpmSpawnOptions | undefined
+    options?: PnpmSpawnOptions | undefined,
   ): Promise<{ stdout: string; stderr: string }>
   execScript(
     scriptName: string,
     args: string[] | readonly string[],
-    options?: ExecScriptOptions | undefined
+    options?: ExecScriptOptions | undefined,
   ): Promise<{ stdout: string; stderr: string }>
   execYarn(
     args: string[] | readonly string[],
-    options?: SpawnOptions | undefined
+    options?: SpawnOptions | undefined,
   ): Promise<{ stdout: string; stderr: string }>
   isNpmAuditFlag(cmdArg: string): boolean
   isNpmFundFlag(cmdArg: string): boolean
@@ -43,15 +43,15 @@ declare const Agent: {
   execBin(
     binPath: string,
     args: string[] | readonly string[],
-    options?: SpawnOptions | undefined
+    options?: SpawnOptions | undefined,
   ): Promise<{ stdout: string; stderr: string }>
   whichBin<T extends WhichOptions>(
     binName: string,
-    options: T
+    options: T,
   ): T extends { nothrow: true } ? Promise<string | null> : Promise<string>
   whichBinSync<T extends WhichOptions>(
     binName: string,
-    options: T
+    options: T,
   ): T extends { nothrow: true } ? string | null : string
 }
 declare namespace Agent {

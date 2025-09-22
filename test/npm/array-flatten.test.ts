@@ -74,7 +74,7 @@ describe(
           const result = flattenLegacy([
             1,
             [2, [3, [4, [5]]], 6, [[7], 8], 9],
-            10
+            10,
           ])
 
           expect(result).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
@@ -151,5 +151,5 @@ describe(
         expect(clone).toEqual(array)
       })
     })
-  }
+  },
 )

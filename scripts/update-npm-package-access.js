@@ -30,15 +30,15 @@ void (async () => {
   const packages = [
     packageData({
       name: '@socketsecurity/registry',
-      path: constants.registryPkgPath
+      path: constants.registryPkgPath,
     }),
     ...constants.npmPackageNames.map(sockRegPkgName =>
       packageData({
         name: `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`,
         path: path.join(constants.npmPackagesPath, sockRegPkgName),
-        printName: sockRegPkgName
-      })
-    )
+        printName: sockRegPkgName,
+      }),
+    ),
   ]
 
   // Chunk package names to process them in parallel 3 at a time.
@@ -51,8 +51,8 @@ void (async () => {
             cwd: pkg.path,
             env: {
               ...process.env,
-              NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN
-            }
+              NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN,
+            },
           })
         ).stdout
         logger.log(stdout)
@@ -64,7 +64,7 @@ void (async () => {
         }
       }
     },
-    { concurrency: 3 }
+    { concurrency: 3 },
   )
 
   if (fails.length) {

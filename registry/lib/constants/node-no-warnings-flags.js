@@ -10,7 +10,7 @@ module.exports = ObjectFreeze(
         '--disable-warning',
         'DeprecationWarning',
         '--disable-warning',
-        'ExperimentalWarning'
+        'ExperimentalWarning',
       ]
-    : ['--no-warnings']
+    : ['--no-warnings'],
 )

@@ -12,7 +12,7 @@ module.exports =
           // throw a TypeError exception.
           if (!new.target || this.constructor === Iterator) {
             throw new TypeErrorCtor(
-              '`Iterator` cannot be called or constructed directly'
+              '`Iterator` cannot be called or constructed directly',
             )
           }
           // Step 2: Return OrdinaryCreateFromConstructor(NewTarget, "%Iterator.prototype%").
@@ -21,6 +21,6 @@ module.exports =
         {
           __proto__: null,
           value: IteratorPrototype,
-          writable: false // Prevents modification of the prototype.
-        }
+          writable: false, // Prevents modification of the prototype.
+        },
       )

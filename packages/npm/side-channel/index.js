@@ -42,7 +42,7 @@ module.exports = function getSideChannel() {
         }
         map.set(key, value)
       }
-    }
+    },
   }
   return channel
 }

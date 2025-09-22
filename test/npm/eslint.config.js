@@ -4,6 +4,6 @@ const { rootEslintConfigPath } = require('@socketregistry/scripts/constants')
 
 module.exports = [
   {
-    extends: rootEslintConfigPath
-  }
+    extends: rootEslintConfigPath,
+  },
 ]

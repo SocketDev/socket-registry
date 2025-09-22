@@ -11,11 +11,11 @@ function cleanTestScript(testScript) {
       // Strip actions BEFORE and AFTER the test runner is invoked.
       .replace(
         /^.*?(\b(?:ava|jest|node|npm run|mocha|tape?)\b.*?)(?:&.+|$)/,
-        '$1'
+        '$1',
       )
       // Remove unsupported Node flag "--es-staging".
       .replace(/(?<=node)(?: +--[-\w]+)+/, m =>
-        m.replaceAll(' --es-staging', '')
+        m.replaceAll(' --es-staging', ''),
       )
       .trim()
   )
@@ -31,7 +31,7 @@ const testScripts = [
   'test:source',
   'tests-only',
   'test:readable-stream-only',
-  'test'
+  'test',
 ]
 
 /**
@@ -47,11 +47,11 @@ const testRunners = [
   'tests-only',
   'test:source',
   'test:stock',
-  'test:all'
+  'test:all',
 ]
 
 module.exports = {
   cleanTestScript,
   testRunners,
-  testScripts
+  testScripts,
 }

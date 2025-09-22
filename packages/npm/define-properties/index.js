@@ -23,7 +23,7 @@ function defineProperties(object, map, predicates = {}) {
       configurable: true,
       enumerable: false,
       value,
-      writable: true
+      writable: true,
     })
   }
 }

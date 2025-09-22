@@ -54,21 +54,21 @@ declare interface InternalShared {
   getIteratorFlattenable(obj: any): IteratorRecord<any>
   getMethod(
     obj: any,
-    key: string | symbol
+    key: string | symbol,
   ): ((...args: any[]) => any) | undefined
   getOptionsObject<T = any>(options: T): T extends object ? T : {}
   getSlot(O: any, slot: string): any
   ifAbruptCloseIterator(iterator: Iterator<any>, error: any): void
   isIteratorProtoNextCheckBuggy(
     method: (...args: any[]) => any,
-    arg: any
+    arg: any,
   ): boolean
   iteratorClose<T>(iterator: Iterator<T>, completion: T): T
   iteratorZip<T, U = T>(
     iters: Array<IteratorRecord<T>>,
     mode: Mode,
     padding: Array<U | undefined>,
-    finishResults?: FinishResults<T, U>
+    finishResults?: FinishResults<T, U>,
   ): Generator<U, void, unknown>
   resolveSlots(O: any, slot: string): any
   setSlot(O: any, slot: string, value: any): void

@@ -11,7 +11,7 @@ function parse(query) {
   const result = {}
   if (typeof query === 'string' && query.length > 0) {
     new URLSearchParams(
-      query.charCodeAt(0) === 35 /*'#'*/ ? query.slice(1) : query
+      query.charCodeAt(0) === 35 /*'#'*/ ? query.slice(1) : query,
     ).forEach((value, key_) => {
       const key = decode(key_)
       if (key === undefined || key in result) {
@@ -35,8 +35,8 @@ function stringify(obj, prefix = '') {
                 (!value && isNaN(value))
                 ? [pair[0], '']
                 : pair
-            })
-          )
+            }),
+          ),
         ).toString()
       : ''
   if (params.length === 0) {
@@ -53,5 +53,5 @@ function stringify(obj, prefix = '') {
 
 module.exports = {
   parse,
-  stringify
+  stringify,
 }

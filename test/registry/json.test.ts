@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 const {
   isJsonPrimitive,
-  jsonParse
+  jsonParse,
 } = require('@socketsecurity/registry/lib/json')
 
 describe('json module', () => {
@@ -52,7 +52,7 @@ describe('json module', () => {
       expect(result).toEqual({
         name: 'test',
         value: 123,
-        nested: { array: [1, 2, 3] }
+        nested: { array: [1, 2, 3] },
       })
     })
 
@@ -79,7 +79,7 @@ describe('json module', () => {
       const json = '{"a": {"b": {"c": [1, 2, {"d": true}]}}}'
       const result = jsonParse(json)
       expect(result).toEqual({
-        a: { b: { c: [1, 2, { d: true }] } }
+        a: { b: { c: [1, 2, { d: true }] } },
       })
     })
 

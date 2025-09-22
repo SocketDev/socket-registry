@@ -1,5 +1,5 @@
 declare const {
-  x: ObjectKeys
+  x: ObjectKeys,
 }: {
   x: typeof Object.keys & {
     shim(): () => typeof Object.keys

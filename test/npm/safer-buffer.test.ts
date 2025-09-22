@@ -180,11 +180,13 @@ describe(
         expect(buffer.Buffer.isBuffer(impl.Buffer.from('string'))).toBe(true)
         expect(buffer.Buffer.isBuffer(impl.Buffer.from('string', 'utf-8')))
         expect(
-          buffer.Buffer.isBuffer(impl.Buffer.from('b25ldHdvdGhyZWU=', 'base64'))
+          buffer.Buffer.isBuffer(
+            impl.Buffer.from('b25ldHdvdGhyZWU=', 'base64'),
+          ),
         )
         expect(buffer.Buffer.isBuffer(impl.Buffer.from([0, 42, 3])))
         expect(
-          buffer.Buffer.isBuffer(impl.Buffer.from(new Uint8Array([0, 42, 3])))
+          buffer.Buffer.isBuffer(impl.Buffer.from(new Uint8Array([0, 42, 3]))),
         )
         expect(buffer.Buffer.isBuffer(impl.Buffer.from([])))
       }
@@ -205,23 +207,23 @@ describe(
         expect(impl.Buffer.from('').constructor).toBe(buffer.Buffer)
         expect(impl.Buffer.from('string').constructor).toBe(buffer.Buffer)
         expect(impl.Buffer.from('string', 'utf-8').constructor).toBe(
-          buffer.Buffer
+          buffer.Buffer,
         )
         expect(impl.Buffer.from('b25ldHdvdGhyZWU=', 'base64').constructor).toBe(
-          buffer.Buffer
+          buffer.Buffer,
         )
         expect(impl.Buffer.from([0, 42, 3]).constructor).toBe(buffer.Buffer)
         expect(impl.Buffer.from(new Uint8Array([0, 42, 3])).constructor).toBe(
-          buffer.Buffer
+          buffer.Buffer,
         )
         expect(impl.Buffer.from([]).constructor).toBe(buffer.Buffer)
       }
       for (const arg of [0, 10, 100]) {
         expect(dangerous.Buffer.allocUnsafe(arg).constructor).toBe(
-          buffer.Buffer
+          buffer.Buffer,
         )
         expect(dangerous.Buffer.allocUnsafeSlow(arg).constructor).toBe(
-          buffer.Buffer
+          buffer.Buffer,
         )
       }
     })
@@ -335,7 +337,7 @@ describe(
         })
         if (dangerous.Buffer[method] === buffer.Buffer.allocUnsafe) {
           logger.info(
-            'Skipping, older impl of allocUnsafe coerced negative sizes to 0'
+            'Skipping, older impl of allocUnsafe coerced negative sizes to 0',
           )
         } else {
           expect(() => {
@@ -394,7 +396,7 @@ describe(
       for (const method of [
         safer.Buffer.alloc,
         dangerous.Buffer.allocUnsafe,
-        dangerous.Buffer.allocUnsafeSlow
+        dangerous.Buffer.allocUnsafeSlow,
       ]) {
         for (let i = 0; i < 1e2; i += 1) {
           const length = Math.round(Math.random() * 1e5)
@@ -525,7 +527,7 @@ describe(
         expect(safer.Buffer.alloc(5, 'ok')).toEqual(safer.Buffer.from('okoko'))
       }
       expect(safer.Buffer.alloc(5, 'ok')).not.toEqual(
-        safer.Buffer.from('kokok')
+        safer.Buffer.from('kokok'),
       )
     })
 
@@ -534,16 +536,16 @@ describe(
         expect(impl.Buffer.from('')).toEqual(new buffer.Buffer(''))
         expect(impl.Buffer.from('string')).toEqual(new buffer.Buffer('string'))
         expect(impl.Buffer.from('string', 'utf-8')).toEqual(
-          new buffer.Buffer('string', 'utf-8')
+          new buffer.Buffer('string', 'utf-8'),
         )
         expect(impl.Buffer.from('b25ldHdvdGhyZWU=', 'base64')).toEqual(
-          new buffer.Buffer('b25ldHdvdGhyZWU=', 'base64')
+          new buffer.Buffer('b25ldHdvdGhyZWU=', 'base64'),
         )
         expect(impl.Buffer.from([0, 42, 3])).toEqual(
-          new buffer.Buffer([0, 42, 3])
+          new buffer.Buffer([0, 42, 3]),
         )
         expect(impl.Buffer.from(new Uint8Array([0, 42, 3]))).toEqual(
-          new buffer.Buffer(new Uint8Array([0, 42, 3]))
+          new buffer.Buffer(new Uint8Array([0, 42, 3])),
         )
         expect(impl.Buffer.from([])).toEqual(new buffer.Buffer([]))
       }
@@ -554,24 +556,24 @@ describe(
         expect(impl.Buffer.from('')).toEqual(impl.Buffer.alloc(0))
         expect(impl.Buffer.from([])).toEqual(impl.Buffer.alloc(0))
         expect(impl.Buffer.from(new Uint8Array([]))).toEqual(
-          impl.Buffer.alloc(0)
+          impl.Buffer.alloc(0),
         )
         expect(impl.Buffer.from('string', 'utf-8')).toEqual(
-          impl.Buffer.from('string')
+          impl.Buffer.from('string'),
         )
         expect(impl.Buffer.from('string')).toEqual(
-          impl.Buffer.from([115, 116, 114, 105, 110, 103])
+          impl.Buffer.from([115, 116, 114, 105, 110, 103]),
         )
         expect(impl.Buffer.from('string')).toEqual(
-          impl.Buffer.from(impl.Buffer.from('string'))
+          impl.Buffer.from(impl.Buffer.from('string')),
         )
         expect(impl.Buffer.from('b25ldHdvdGhyZWU=', 'base64')).toEqual(
-          impl.Buffer.from('onetwothree')
+          impl.Buffer.from('onetwothree'),
         )
         expect(impl.Buffer.from('b25ldHdvdGhyZWU=')).not.toEqual(
-          impl.Buffer.from('onetwothree')
+          impl.Buffer.from('onetwothree'),
         )
       }
     })
-  }
+  },
 )

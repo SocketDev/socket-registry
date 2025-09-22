@@ -30,5 +30,5 @@ describe(
       const yarnLock = readFileSync(yarnLockPath, UTF8)
       expect(hyriousBunLockb.parse(lockb)).toBe(yarnLock)
     })
-  }
+  },
 )

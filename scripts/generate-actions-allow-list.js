@@ -116,14 +116,14 @@ void (async () => {
   logger.log('## Instructions:')
   logger.log(`${indent}1. Go to your repository Settings → Actions → General`)
   logger.log(
-    `${indent}2. Under "Actions permissions", select "Allow SocketDev, and select non-SocketDev, actions and reusable workflows"`
+    `${indent}2. Under "Actions permissions", select "Allow SocketDev, and select non-SocketDev, actions and reusable workflows"`,
   )
   logger.log(`${indent}3. Check "Allow actions created by GitHub"`)
   logger.log(
-    `${indent}4. Check "Allow actions by Marketplace verified creators" (optional)`
+    `${indent}4. Check "Allow actions by Marketplace verified creators" (optional)`,
   )
   logger.log(
-    `${indent}5. In "Allow specified actions and reusable workflows", paste the list below:`
+    `${indent}5. In "Allow specified actions and reusable workflows", paste the list below:`,
   )
   logger.log()
   logger.log('## Allow List:')
@@ -138,7 +138,7 @@ void (async () => {
   logger.info(`Total: ${allActions.length} actions/workflows`)
   logger.log()
   logger.info(
-    'For a detailed dependency tree, run: `pnpm run generate:actions-tree`'
+    'For a detailed dependency tree, run: `pnpm run generate:actions-tree`',
   )
 
   // Check if --copy flag was passed.

@@ -13,7 +13,7 @@ const defaultRemoveOptions = ObjectFreeze({
   force: true,
   maxRetries: 3,
   recursive: true,
-  retryDelay: 200
+  retryDelay: 200,
 })
 
 let _fs
@@ -49,11 +49,11 @@ function getPath() {
 async function findUp(name, options) {
   const {
     cwd = process.cwd(),
-    signal = /*@__PURE__*/ require('./constants/abort-signal')
+    signal = /*@__PURE__*/ require('./constants/abort-signal'),
   } = { __proto__: null, ...options }
   let { onlyDirectories = false, onlyFiles = true } = {
     __proto__: null,
-    ...options
+    ...options,
   }
   if (onlyDirectories) {
     onlyFiles = false
@@ -99,7 +99,7 @@ function findUpSync(name, options) {
   const { cwd = process.cwd(), stopAt } = { __proto__: null, ...options }
   let { onlyDirectories = false, onlyFiles = true } = {
     __proto__: null,
-    ...options
+    ...options,
   }
   if (onlyDirectories) {
     onlyFiles = false
@@ -160,7 +160,7 @@ function innerReadDirNames(dirents, dirname, options) {
   const {
     ignore,
     includeEmpty = true,
-    sort = true
+    sort = true,
   } = { __proto__: null, ...options }
   const path = getPath()
   const names = dirents
@@ -168,7 +168,9 @@ function innerReadDirNames(dirents, dirname, options) {
       d =>
         d.isDirectory() &&
         (includeEmpty ||
-          !isDirEmptySync(path.join(dirname || d.parentPath, d.name), { ignore }))
+          !isDirEmptySync(path.join(dirname || d.parentPath, d.name), {
+            ignore,
+          })),
     )
     .map(d => d.name)
   return sort ? names.sort(naturalCompare) : names
@@ -244,10 +246,10 @@ async function readDirNames(dirname, options) {
     return innerReadDirNames(
       await fs.promises.readdir(dirname, {
         __proto__: null,
-        withFileTypes: true
+        withFileTypes: true,
       }),
       dirname,
-      options
+      options,
     )
   } catch {}
   return []
@@ -266,7 +268,7 @@ function readDirNamesSync(dirname, options) {
     return innerReadDirNames(
       fs.readdirSync(dirname, { __proto__: null, withFileTypes: true }),
       dirname,
-      options
+      options,
     )
   } catch {}
   return []
@@ -285,7 +287,7 @@ async function readFileBinary(filepath, options) {
   return await fs.promises.readFile(filepath, {
     signal: /*@__PURE__*/ require('./constants/abort-signal'),
     ...options,
-    encoding: null
+    encoding: null,
   })
 }
 
@@ -301,7 +303,7 @@ async function readFileUtf8(filepath, options) {
   return await fs.promises.readFile(filepath, {
     signal: /*@__PURE__*/ require('./constants/abort-signal'),
     ...options,
-    encoding: 'utf8'
+    encoding: 'utf8',
   })
 }
 
@@ -325,7 +327,7 @@ async function readJson(filepath, options) {
     content = await fs.promises.readFile(filepath, {
       __proto__: null,
       encoding: 'utf8',
-      ...fsOptions
+      ...fsOptions,
     })
   } catch (e) {
     if (shouldThrow) {
@@ -336,7 +338,7 @@ async function readJson(filepath, options) {
   return jsonParse(content, {
     filepath,
     reviver,
-    throws: shouldThrow
+    throws: shouldThrow,
   })
 }
 
@@ -359,7 +361,7 @@ function readJsonSync(filepath, options) {
     content = fs.readFileSync(filepath, {
       __proto__: null,
       encoding: 'utf8',
-      ...fsOptions
+      ...fsOptions,
     })
   } catch (e) {
     if (shouldThrow) {
@@ -370,7 +372,7 @@ function readJsonSync(filepath, options) {
   return jsonParse(content, {
     filepath,
     reviver,
-    throws: shouldThrow
+    throws: shouldThrow,
   })
 }
 
@@ -388,7 +390,7 @@ async function remove(filepath, options) {
   await fs.promises.rm(filepath, {
     __proto__: null,
     ...defaultRemoveOptions,
-    ...options
+    ...options,
   })
 }
 
@@ -404,7 +406,7 @@ function removeSync(filepath, options) {
   fs.rmSync(filepath, {
     __proto__: null,
     ...defaultRemoveOptions,
-    ...options
+    ...options,
   })
 }
 
@@ -422,7 +424,7 @@ async function safeReadFile(filepath, options) {
 
     return await fs.promises.readFile(filepath, {
       signal: /*@__PURE__*/ require('./constants/abort-signal'),
-      ...opts
+      ...opts,
     })
   } catch {}
   return undefined
@@ -441,7 +443,7 @@ function safeStatsSync(filepath, options) {
     return fs.statSync(filepath, {
       __proto__: null,
       throwIfNoEntry: false,
-      ...options
+      ...options,
     })
   } catch {}
   return undefined
@@ -461,7 +463,7 @@ function safeReadFileSync(filepath, options) {
 
     return fs.readFileSync(filepath, {
       __proto__: null,
-      ...opts
+      ...opts,
     })
   } catch {}
   return undefined
@@ -482,7 +484,7 @@ function stringify(
   EOL = '\n',
   finalEOL = true,
   replacer = null,
-  spaces = 2
+  spaces = 2,
 ) {
   const EOF = finalEOL ? EOL : ''
   const str = JSON.stringify(json, replacer, spaces)
@@ -534,14 +536,14 @@ async function writeJson(filepath, jsonContent, options) {
   }
   const { EOL, finalEOL, replacer, spaces, ...fsOptions } = {
     __proto__: null,
-    ...options
+    ...options,
   }
   const fs = getFs()
   const jsonString = stringify(jsonContent, EOL, finalEOL, replacer, spaces)
   await fs.promises.writeFile(filepath, jsonString, {
     __proto__: null,
     encoding: 'utf8',
-    ...fsOptions
+    ...fsOptions,
   })
 }
 
@@ -559,14 +561,14 @@ function writeJsonSync(filepath, jsonContent, options) {
   }
   const { EOL, finalEOL, replacer, spaces, ...fsOptions } = {
     __proto__: null,
-    ...options
+    ...options,
   }
   const fs = getFs()
   const jsonString = stringify(jsonContent, EOL, finalEOL, replacer, spaces)
   fs.writeFileSync(filepath, jsonString, {
     __proto__: null,
     encoding: 'utf8',
-    ...fsOptions
+    ...fsOptions,
   })
 }
 
@@ -589,5 +591,5 @@ module.exports = {
   safeStatsSync,
   uniqueSync,
   writeJson,
-  writeJsonSync
+  writeJsonSync,
 }

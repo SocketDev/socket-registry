@@ -10,11 +10,11 @@ function isRegExpProtoFlagsOrderBuggy(flagsGetter) {
     // eslint-disable-next-line getter-return
     get sticky() {
       calls += 'y'
-    }
+    },
   })
   return calls !== 'dy'
 }
 
 module.exports = {
-  isRegExpProtoFlagsOrderBuggy
+  isRegExpProtoFlagsOrderBuggy,
 }

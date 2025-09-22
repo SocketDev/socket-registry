@@ -5,7 +5,7 @@ const patternThrowsMarker = {
   __proto__: null,
   [Symbol.toPrimitive]() {
     throw this
-  }
+  },
 }
 module.exports = function isRegex(value) {
   if (value !== null && typeof value === 'object') {

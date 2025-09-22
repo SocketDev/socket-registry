@@ -11,20 +11,20 @@ import { describe, expect, it } from 'vitest'
 import constants, { EXT_JSON } from '@socketregistry/scripts/constants'
 import {
   getModifiedPackagesSync,
-  getStagedPackagesSync
+  getStagedPackagesSync,
 } from '@socketregistry/scripts/lib/git'
 import { getManifestData } from '@socketsecurity/registry'
 import { readJson } from '@socketsecurity/registry/lib/fs'
 import {
   isObjectObject,
-  objectEntries
+  objectEntries,
 } from '@socketsecurity/registry/lib/objects'
 import {
   findTypesForSubpath,
   getSubpaths,
   isValidPackageName,
   readPackageJson,
-  resolveOriginalPackageName
+  resolveOriginalPackageName,
 } from '@socketsecurity/registry/lib/packages'
 import { trimLeadingDotSlash } from '@socketsecurity/registry/lib/path'
 import { naturalCompare } from '@socketsecurity/registry/lib/sorts'
@@ -38,7 +38,7 @@ const {
   README_GLOB,
   SOCKET_REGISTRY_SCOPE,
   UTF8,
-  ignoreGlobs
+  ignoreGlobs,
 } = constants
 
 // Pass args:
@@ -88,7 +88,7 @@ for (const eco of constants.ecosystems) {
           ? getStagedPackagesSync(eco, { asSet: true })
           : getModifiedPackagesSync(eco, { asSet: true })
         return constants.npmPackageNames.filter((n: string) =>
-          testablePackages.has(n)
+          testablePackages.has(n),
         )
       })()
 
@@ -126,7 +126,7 @@ for (const eco of constants.ecosystems) {
           files: filesPatterns,
           main: mainPath,
           overrides: pkgOverrides,
-          resolutions: pkgResolutions
+          resolutions: pkgResolutions,
         } = pkgJson
 
         const entryExports = pkgJson.exports as
@@ -141,7 +141,7 @@ for (const eco of constants.ecosystems) {
         const files = (
           await glob(['**/*'], {
             cwd: pkgPath,
-            dot: true
+            dot: true,
           })
         ).sort(naturalCompare)
 
@@ -155,7 +155,7 @@ for (const eco of constants.ecosystems) {
 
         it('package name should be included in "repository.directory" field of package.json', () => {
           expect(
-            (pkgJson.repository as { directory?: string })?.directory
+            (pkgJson.repository as { directory?: string })?.directory,
           ).toBe(`packages/npm/${sockRegPkgName}`)
         })
 
@@ -173,11 +173,11 @@ for (const eco of constants.ecosystems) {
 
           it('should have a .d.ts file for every .js file', () => {
             const jsSubpaths = (getSubpaths(entryExports) as string[]).filter(
-              s => /\.[cm]?js$/.test(s)
+              s => /\.[cm]?js$/.test(s),
             )
             for (const subpath of jsSubpaths) {
               const types = trimLeadingDotSlash(
-                findTypesForSubpath(entryExports, subpath) ?? ''
+                findTypesForSubpath(entryExports, subpath) ?? '',
               )
               expect(files.includes(types)).toBe(true)
             }
@@ -198,7 +198,7 @@ for (const eco of constants.ecosystems) {
           it('should have valid "engine" entry version ranges', () => {
             for (const { 1: value } of objectEntries(engines)) {
               expect(
-                typeof value === 'string' && semver.validRange(value) !== null
+                typeof value === 'string' && semver.validRange(value) !== null,
               ).toBe(true)
             }
           })
@@ -213,9 +213,9 @@ for (const eco of constants.ecosystems) {
             await Promise.all(
               jsonFiles.map(async jsonPath => {
                 await expect(
-                  readJson(req.resolve(jsonPath))
+                  readJson(req.resolve(jsonPath)),
                 ).resolves.toBeDefined()
-              })
+              }),
             )
           })
         }
@@ -233,7 +233,7 @@ for (const eco of constants.ecosystems) {
         it(`should have a MIT ${LICENSE} file`, async () => {
           expect(files.includes(LICENSE)).toBe(true)
           expect(
-            (await fs.readFile(pkgLicensePath, UTF8)).includes('MIT')
+            (await fs.readFile(pkgLicensePath, UTF8)).includes('MIT'),
           ).toBe(true)
         })
 
@@ -248,7 +248,7 @@ for (const eco of constants.ecosystems) {
           expect(
             Array.isArray(filesPatterns) &&
               filesPatterns.length > 0 &&
-              filesPatterns.every(p => typeof p === 'string')
+              filesPatterns.every(p => typeof p === 'string'),
           ).toBe(true)
         })
 
@@ -325,14 +325,14 @@ for (const eco of constants.ecosystems) {
               PACKAGE_JSON,
               LICENSE_GLOB,
               README_GLOB,
-              ...filesPatternsAsArray
+              ...filesPatternsAsArray,
             ],
             {
               ignore: Array.from(ignoreGlobs),
               caseSensitiveMatch: false,
               cwd: pkgPath,
-              dot: true
-            }
+              dot: true,
+            },
           )
         ).sort(naturalCompare)
 
@@ -340,12 +340,12 @@ for (const eco of constants.ecosystems) {
         const dotFileMatches = new Set(
           await glob(dotFilePatterns, {
             cwd: pkgPath,
-            dot: true
-          })
+            dot: true,
+          }),
         )
 
         const hasOverridesAsDeps = Object.values(dependencies ?? {}).some(
-          v => typeof v === 'string' && v.includes(SOCKET_REGISTRY_SCOPE)
+          v => typeof v === 'string' && v.includes(SOCKET_REGISTRY_SCOPE),
         )
 
         const hasOverrides =
@@ -363,7 +363,7 @@ for (const eco of constants.ecosystems) {
         } else if (!hasDependencies) {
           it('package files should match "files" field', () => {
             const filesToCompare = files.filter(p =>
-              isDotFile(p) ? dotFileMatches.has(p) : !isSrcFile(p)
+              isDotFile(p) ? dotFileMatches.has(p) : !isSrcFile(p),
             )
             expect(filesFieldMatches).toEqual(filesToCompare)
           })

@@ -14,11 +14,11 @@ const { globStreamLicenses } = require('@socketsecurity/registry/lib/globs')
 const { isObjectObject } = require('@socketsecurity/registry/lib/objects')
 const {
   readPackageJson,
-  resolveOriginalPackageName
+  resolveOriginalPackageName,
 } = require('@socketsecurity/registry/lib/packages')
 const {
   capitalize,
-  determineArticle
+  determineArticle,
 } = require('@socketsecurity/registry/lib/words')
 const { biomeFormat } = require('./biome')
 
@@ -36,7 +36,7 @@ const {
   TEMPLATE_ES_SHIM_CONSTRUCTOR,
   TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
   TEMPLATE_ES_SHIM_STATIC_METHOD,
-  UTF8
+  UTF8,
 } = constants
 
 const etaExport = /*@__PURE__*/ require('eta')
@@ -55,9 +55,9 @@ function getTemplates() {
           TEMPLATE_CJS_ESM,
           TEMPLATE_ES_SHIM_CONSTRUCTOR,
           TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
-          TEMPLATE_ES_SHIM_STATIC_METHOD
-        ].map(k => [k, path.join(constants.npmTemplatesPath, k)])
-      )
+          TEMPLATE_ES_SHIM_STATIC_METHOD,
+        ].map(k => [k, path.join(constants.npmTemplatesPath, k)]),
+      ),
     })
   }
   return _templates
@@ -70,11 +70,11 @@ function getTemplate(name) {
 async function getLicenseActions(pkgPath) {
   const licenseData = {
     __proto__: null,
-    license: LICENSE_CONTENT
+    license: LICENSE_CONTENT,
   }
   const actions = []
   for await (const filepath of globStreamLicenses(pkgPath, {
-    recursive: true
+    recursive: true,
   })) {
     actions.push([filepath, licenseData])
   }
@@ -87,7 +87,7 @@ async function getNpmReadmeAction(pkgPath, options) {
   const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
   const pkgJson = await readPackageJson(pkgJsonPath, { normalize: true })
   const pkgPurlObj = PackageURL.fromString(
-    `pkg:${eco}/${pkgJson.name}@${pkgJson.version}`
+    `pkg:${eco}/${pkgJson.name}@${pkgJson.version}`,
   )
   const { name: sockRegPkgName } = pkgPurlObj
   const manifestData = getManifestData(eco, sockRegPkgName)
@@ -98,7 +98,7 @@ async function getNpmReadmeAction(pkgPath, options) {
     ...(categories.includes('speedup') ? ['fast'] : []),
     ...(categories.includes('levelup') ? ['enhanced'] : []),
     ...(categories.includes('tuneup') ? ['secure'] : []),
-    'tested'
+    'tested',
   ]
   return [
     path.join(pkgPath, README_MD),
@@ -116,10 +116,10 @@ async function getNpmReadmeAction(pkgPath, options) {
           dependencies: isObjectObject(pkgJson.dependencies) ?? {},
           originalName: resolveOriginalPackageName(sockRegPkgName),
           purl: pkgPurlObj,
-          version: semver.parse(pkgJson.version)
-        }
-      ])
-    }
+          version: semver.parse(pkgJson.version),
+        },
+      ]),
+    },
   ]
 }
 
@@ -141,9 +141,9 @@ async function getPackageJsonAction(pkgPath, options) {
         : Array.from(PACKAGE_DEFAULT_SOCKET_CATEGORIES),
       engines: engines ?? { node: constants.PACKAGE_DEFAULT_NODE_RANGE },
       version: semver.parse(
-        manifestData?.version ?? constants.PACKAGE_DEFAULT_VERSION
-      )
-    }
+        manifestData?.version ?? constants.PACKAGE_DEFAULT_VERSION,
+      ),
+    },
   ]
 }
 
@@ -152,20 +152,20 @@ async function getTypeScriptActions(pkgPath, options) {
   const doTransform = typeof transform === 'function'
   const filepaths = await glob(['**/*.{[cm],}ts'], {
     absolute: true,
-    cwd: pkgPath
+    cwd: pkgPath,
   })
   const actions = []
   await Promise.all(
     filepaths.map(async filepath => {
       const data = {
         __proto__: null,
-        references: Array.isArray(references) ? references : []
+        references: Array.isArray(references) ? references : [],
       }
       actions.push([
         filepath,
-        doTransform ? await transform(filepath, data) : data
+        doTransform ? await transform(filepath, data) : data,
       ])
-    })
+    }),
   )
   return actions
 }
@@ -177,7 +177,7 @@ function prepareTemplate(content) {
       // Enquoting the tags avoids syntax errors in JSON template files.
       .replace(
         /(["'])\/\/_\s*(<%[-_]?[=~]?[\s\S]+%>)\1/g,
-        (_match, _quote, tag) => tag
+        (_match, _quote, tag) => tag,
       )
       // Strip single line comments start with //_
       .replace(/\/\/_\s*/g, '')
@@ -208,5 +208,5 @@ module.exports = {
   getTemplate,
   getTypeScriptActions,
   renderAction,
-  writeAction
+  writeAction,
 }

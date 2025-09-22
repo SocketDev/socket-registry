@@ -10,7 +10,7 @@ const { getModifiedFiles } = require('@socketregistry/scripts/lib/git')
 const {
   objectEntries,
   toSortedObject,
-  toSortedObjectFromEntries
+  toSortedObjectFromEntries,
 } = require('@socketsecurity/registry/lib/objects')
 const {
   extractPackage,
@@ -18,7 +18,7 @@ const {
   isBlessedPackageName,
   readPackageJson,
   resolveOriginalPackageName,
-  resolvePackageJsonEntryExports
+  resolvePackageJsonEntryExports,
 } = require('@socketsecurity/registry/lib/packages')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { naturalCompare } = require('@socketsecurity/registry/lib/sorts')
@@ -52,7 +52,7 @@ async function addNpmManifestData(manifest, options) {
       const isBlessed = isBlessedPackageName(data.name)
       manifestData.push([
         PackageURL.fromString(
-          `pkg:${eco}/${data.name}@${nmPkgJson.version}`
+          `pkg:${eco}/${data.name}@${nmPkgJson.version}`,
         ).toString(),
         {
           categories: nmPkgJson.socket?.categories ?? data.categories,
@@ -63,11 +63,11 @@ async function addNpmManifestData(manifest, options) {
           license: nmPkgJson.license ?? data.license,
           name: data.name,
           package: data.package,
-          version: nmPkgJson.version
-        }
+          version: nmPkgJson.version,
+        },
       ])
     },
-    { concurrency: DEFAULT_CONCURRENCY }
+    { concurrency: DEFAULT_CONCURRENCY },
   )
 
   // Chunk package names to process them in parallel 3 at a time.
@@ -78,8 +78,8 @@ async function addNpmManifestData(manifest, options) {
       const testNpmPkgJson = await readPackageJson(
         constants.testNpmPkgJsonPath,
         {
-          normalize: true
-        }
+          normalize: true,
+        },
       )
       const nmPkgSpec = testNpmPkgJson.devDependencies[origPkgName]
       const nmPkgId = `${origPkgName}@${nmPkgSpec}`
@@ -125,15 +125,15 @@ async function addNpmManifestData(manifest, options) {
           ? [['engines', toSortedObject(engines)]]
           : [['engines', { node: constants.PACKAGE_DEFAULT_NODE_RANGE }]]),
         ...(skipTests ? [['skipTests', true]] : []),
-        ...(socket ? objectEntries(socket) : [])
+        ...(socket ? objectEntries(socket) : []),
       ]
       const purlObj = PackageURL.fromString(`pkg:${eco}/${name}@${version}`)
       manifestData.push([
         purlObj.toString(),
-        toSortedObjectFromEntries(metaEntries)
+        toSortedObjectFromEntries(metaEntries),
       ])
     },
-    { concurrency: DEFAULT_CONCURRENCY }
+    { concurrency: DEFAULT_CONCURRENCY },
   )
 
   const latestIndexes = []
@@ -157,7 +157,7 @@ async function addNpmManifestData(manifest, options) {
       entry[0] = `${entry[0].slice(0, -AT_LATEST.length)}@${version}`
       entry[1].version = version
     },
-    { concurrency: DEFAULT_CONCURRENCY }
+    { concurrency: DEFAULT_CONCURRENCY },
   )
 
   if (manifestData.length) {
@@ -180,7 +180,7 @@ void (async () => {
   await addNpmManifestData(manifest, { spinner })
   const { registryManifestJsonPath } = constants
   const output = await biomeFormat(JSON.stringify(manifest, null, 2), {
-    filepath: registryManifestJsonPath
+    filepath: registryManifestJsonPath,
   })
   await fs.writeFile(registryManifestJsonPath, output, 'utf8')
   spinner.stop()

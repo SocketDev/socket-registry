@@ -17,12 +17,12 @@ void (async () => {
   const externalSignalExitPath = path.join(externalPath, 'signal-exit.js')
   const relSignalExitPath = path.relative(
     registryPkgPath,
-    externalSignalExitPath
+    externalSignalExitPath,
   )
 
   const registryEditablePkgJson = await readPackageJson(registryPkgPath, {
     editable: true,
-    normalize: true
+    normalize: true,
   })
   const { content: registryPkgJson } = registryEditablePkgJson
 
@@ -34,9 +34,9 @@ void (async () => {
   const registryPkgFiles = [
     ...(await glob(['**/*.{cjs,js,json,d.ts}'], {
       cwd: registryPkgPath,
-      ignore: [...constants.ignoreGlobs, 'external/**', 'scripts/**', 'src/**']
+      ignore: [...constants.ignoreGlobs, 'external/**', 'scripts/**', 'src/**'],
     })),
-    relSignalExitPath
+    relSignalExitPath,
   ]
 
   const subpathExports = registryPkgFiles.reduce((o, p) => {
@@ -52,7 +52,7 @@ void (async () => {
         o[extLessPath] = {
           // Order is significant. Default should be specified last.
           types: isDts ? `./${p}` : undefined,
-          default: isDts ? undefined : `./${p}`
+          default: isDts ? undefined : `./${p}`,
         }
       }
       const basename = path.basename(p, ext)
@@ -65,7 +65,7 @@ void (async () => {
           o[dirPath] = {
             // Order is significant. Default should be specified last.
             types: isDts ? `./${p}` : undefined,
-            default: isDts ? undefined : `./${p}`
+            default: isDts ? undefined : `./${p}`,
           }
         }
       }
@@ -76,7 +76,7 @@ void (async () => {
   registryEditablePkgJson.update({
     browser: toSortedObject(browser),
     exports: toSortedObject(subpathExports),
-    engines: { node: constants.PACKAGE_DEFAULT_NODE_RANGE }
+    engines: { node: constants.PACKAGE_DEFAULT_NODE_RANGE },
   })
   await registryEditablePkgJson.save()
 })()

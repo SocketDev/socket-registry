@@ -40,7 +40,7 @@ const defaultIgnore = ObjectFreeze([
   '**/*.tsbuildinfo',
   '**/Thumbs.db',
   // Inline additional ignores.
-  '**/bower_components'
+  '**/bower_components',
 ])
 
 let _picomatch
@@ -88,11 +88,11 @@ function globStreamLicenses(dirname, options) {
   } = { __proto__: null, ...options }
   const ignore = [
     ...(Array.isArray(ignoreOpt) ? ignoreOpt : defaultIgnore),
-    '**/*.{cjs,cts,js,json,mjs,mts,ts}'
+    '**/*.{cjs,cts,js,json,mjs,mts,ts}',
   ]
   if (ignoreOriginals) {
     ignore.push(
-      /*@__PURE__*/ require('./constants/license-original-glob-recursive')
+      /*@__PURE__*/ require('./constants/license-original-glob-recursive'),
     )
   }
   const fastGlob = getFastGlob()
@@ -100,7 +100,7 @@ function globStreamLicenses(dirname, options) {
     [
       recursive
         ? /*@__PURE__*/ require('./constants/license-glob-recursive')
-        : /*@__PURE__*/ require('./constants/license-glob')
+        : /*@__PURE__*/ require('./constants/license-glob'),
     ],
     {
       __proto__: null,
@@ -108,8 +108,8 @@ function globStreamLicenses(dirname, options) {
       caseSensitiveMatch: false,
       cwd: dirname,
       ...globOptions,
-      ...(ignore ? { ignore } : {})
-    }
+      ...(ignore ? { ignore } : {}),
+    },
   )
 }
 
@@ -142,12 +142,12 @@ function getGlobMatcher(glob, options) {
     dot: true,
     nocase: true,
     ...options,
-    ...(negativePatterns.length > 0 ? { ignore: negativePatterns } : {})
+    ...(negativePatterns.length > 0 ? { ignore: negativePatterns } : {}),
   }
 
   matcher = picomatch(
     positivePatterns.length > 0 ? positivePatterns : patterns,
-    matchOptions
+    matchOptions,
   )
 
   matcherCache.set(key, matcher)
@@ -157,5 +157,5 @@ function getGlobMatcher(glob, options) {
 module.exports = {
   defaultIgnore,
   getGlobMatcher,
-  globStreamLicenses
+  globStreamLicenses,
 }

@@ -1,6 +1,6 @@
 import Impl from './implementation'
 declare const {
-  x: RegExpProtoFlags
+  x: RegExpProtoFlags,
 }: {
   x: typeof Impl & {
     getPolyfill(): typeof Impl

@@ -231,5 +231,5 @@ module.exports = {
   stripAnsi,
   stripBom,
   toKebabCase,
-  trimNewlines
+  trimNewlines,
 }

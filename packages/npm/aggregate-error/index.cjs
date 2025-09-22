@@ -11,7 +11,7 @@ const desc = (value, configurable = true, writable = true) => ({
   __proto__: null,
   configurable,
   value,
-  writable
+  writable,
 })
 
 function indentString(str, count = 1) {
@@ -53,7 +53,7 @@ function AggregateErrorLike(errors, message) {
   // https://tc39.es/ecma262/#sec-aggregate-error-constructor
   return new AggregateErrorCtor(
     errorObjs,
-    `\n${indentString(stacks.join('\n'), 4)}`
+    `\n${indentString(stacks.join('\n'), 4)}`,
   )
 }
 
@@ -64,15 +64,17 @@ const AggregateErrorLikeProto = Object.defineProperties(
   {
     // Copy "message", "name", and any future added prototype properties.
     ...Object.getOwnPropertyDescriptors(AggregateErrorCtor.prototype),
-    constructor: desc(AggregateErrorLike)
-  }
+    constructor: desc(AggregateErrorLike),
+  },
 )
 // and has a [[Prototype]] internal slot whose value is %Error.prototype%.
 Reflect.setPrototypeOf(AggregateErrorLikeProto, ErrorCtor.prototype)
 
 Object.defineProperties(AggregateErrorLike, {
   prototype: desc(AggregateErrorLikeProto, false, false),
-  [Symbol.hasInstance]: desc(instance => instance instanceof AggregateErrorCtor)
+  [Symbol.hasInstance]: desc(
+    instance => instance instanceof AggregateErrorCtor,
+  ),
 })
 
 module.exports = AggregateErrorLike

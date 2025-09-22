@@ -15,7 +15,7 @@ const {
   resolveEscapedScope,
   resolveOriginalPackageName,
   resolvePackageName,
-  resolveRegistryPackageName
+  resolveRegistryPackageName,
 } = require('@socketsecurity/registry/lib/packages')
 
 describe('packages module', () => {
@@ -65,7 +65,7 @@ describe('packages module', () => {
     it('should identify GitHub tarball specs', () => {
       // These need to be actual tarball URLs
       expect(
-        isGitHubTgzSpec('https://github.com/user/repo/archive/main.tar.gz')
+        isGitHubTgzSpec('https://github.com/user/repo/archive/main.tar.gz'),
       ).toBe(true)
       expect(isGitHubTgzSpec('user/repo')).toBe(false) // Not a tarball spec
       expect(isGitHubTgzSpec('org/project')).toBe(false)
@@ -108,21 +108,21 @@ describe('packages module', () => {
       expect(
         isConditionalExports({
           import: './index.mjs',
-          require: './index.cjs'
-        })
+          require: './index.cjs',
+        }),
       ).toBe(true)
 
       expect(
         isConditionalExports({
           node: './node.js',
-          browser: './browser.js'
-        })
+          browser: './browser.js',
+        }),
       ).toBe(true)
 
       expect(
         isConditionalExports({
-          default: './index.js'
-        })
+          default: './index.js',
+        }),
       ).toBe(true)
     })
 
@@ -130,8 +130,8 @@ describe('packages module', () => {
       expect(isConditionalExports('./index.js')).toBe(false)
       expect(
         isConditionalExports({
-          './sub': './sub/index.js'
-        })
+          './sub': './sub/index.js',
+        }),
       ).toBe(false)
       expect(isConditionalExports(null)).toBe(false)
       expect(isConditionalExports(undefined)).toBe(false)
@@ -143,17 +143,17 @@ describe('packages module', () => {
       expect(
         isSubpathExports({
           '.': './index.js',
-          './sub': './sub/index.js'
-        })
+          './sub': './sub/index.js',
+        }),
       ).toBe(true)
 
       expect(
         isSubpathExports({
           './feature': {
             import: './feature.mjs',
-            require: './feature.cjs'
-          }
-        })
+            require: './feature.cjs',
+          },
+        }),
       ).toBe(true)
     })
 
@@ -162,8 +162,8 @@ describe('packages module', () => {
       expect(
         isSubpathExports({
           import: './index.mjs',
-          require: './index.cjs'
-        })
+          require: './index.cjs',
+        }),
       ).toBe(false)
       expect(isSubpathExports(null)).toBe(false)
     })
@@ -185,7 +185,7 @@ describe('packages module', () => {
     it('should return unchanged if not a registry package', () => {
       expect(resolveOriginalPackageName('lodash')).toBe('lodash')
       expect(resolveOriginalPackageName('@scope/package')).toBe(
-        '@scope/package'
+        '@scope/package',
       )
     })
   })
@@ -227,7 +227,7 @@ describe('packages module', () => {
       const exports = {
         '.': './index.js',
         './sub': './sub/index.js',
-        './utils': './utils/index.js'
+        './utils': './utils/index.js',
       }
       const subpaths = getSubpaths(exports)
       expect(subpaths).toContain('.')
@@ -239,8 +239,8 @@ describe('packages module', () => {
       const exports = {
         '.': {
           import: './index.mjs',
-          require: './index.cjs'
-        }
+          require: './index.cjs',
+        },
       }
       const subpaths = getSubpaths(exports)
       expect(subpaths).toContain('.')
@@ -261,7 +261,7 @@ describe('packages module', () => {
     it('should normalize package.json object', () => {
       const pkg = {
         name: 'test-package',
-        version: '1.0.0'
+        version: '1.0.0',
       }
       const normalized = normalizePackageJson(pkg)
       expect(normalized.name).toBe('test-package')
@@ -279,8 +279,8 @@ describe('packages module', () => {
       const pkg = {
         name: 'test',
         dependencies: {
-          lodash: '^4.17.0'
-        }
+          lodash: '^4.17.0',
+        },
       }
       const normalized = normalizePackageJson(pkg)
       expect(normalized.dependencies).toBeDefined()
@@ -295,7 +295,7 @@ describe('packages module', () => {
     it('should preserve extra fields', () => {
       const pkg = {
         name: 'test',
-        customField: 'value'
+        customField: 'value',
       }
       const normalized = normalizePackageJson(pkg)
       expect(normalized.customField).toBe('value')

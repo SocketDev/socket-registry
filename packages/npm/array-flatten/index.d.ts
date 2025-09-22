@@ -14,14 +14,14 @@ declare namespace flatten {
   export { FlatArray, NestedArray, NestedList, PickValue }
   export function depth<T extends ArrayLike<any>>(
     array: NestedArray<T>,
-    depth: number
+    depth: number,
   ): NestedArray<T>
   export function depthFrom<T extends ArrayLike<any>>(
     array: NestedList<T>,
-    depth: number
+    depth: number,
   ): NestedArray<T>
   export function from<T extends ArrayLike<any>>(
-    array: NestedList<T>
+    array: NestedList<T>,
   ): FlatArray<T>
 }
 export = flatten

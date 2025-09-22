@@ -3,7 +3,7 @@ import {
   FilesConfiguration,
   FixFileMode,
   OpenProjectResult,
-  TextRange
+  TextRange,
 } from '@biomejs/wasm-nodejs'
 
 import { Remap } from '@socketsecurity/registry/lib/objects'
@@ -23,7 +23,7 @@ declare enum Distribution {
   /**
    * Use this if you want to communicate with the WebAssembly client built for the Web
    */
-  WEB = 2
+  WEB = 2,
 }
 declare interface FormatContentDebugOptions extends FormatContentOptions {
   /**
@@ -114,7 +114,7 @@ declare class Biome {
    */
   applyConfiguration(
     projectKey: number,
-    configuration: BiomeFormatOptions
+    configuration: BiomeFormatOptions,
   ): void
   /**
    * If formats some content.
@@ -126,12 +126,12 @@ declare class Biome {
   formatContent(
     projectKey: number,
     content: string,
-    options: FormatContentOptions
+    options: FormatContentOptions,
   ): FormatResult
   formatContent(
     projectKey: number,
     content: string,
-    options: FormatContentDebugOptions
+    options: FormatContentDebugOptions,
   ): FormatDebugResult
   /**
    * Lint the content of a file.
@@ -143,7 +143,7 @@ declare class Biome {
   lintContent(
     projectKey: number,
     content: string,
-    { filePath, fixFileMode }: LintContentOptions
+    { filePath, fixFileMode }: LintContentOptions,
   ): LintResult
   /**
    * Open a possible workspace project folder. Returns the key of said project.
@@ -160,7 +160,7 @@ declare class Biome {
    */
   printDiagnostics(
     diagnostics: Diagnostic[],
-    options: PrintDiagnosticsOptions
+    options: PrintDiagnosticsOptions,
   ): string
 }
 declare type BiomeFormatOptions = Remap<

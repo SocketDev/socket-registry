@@ -30,7 +30,7 @@ async function readCachedEditablePackageJson(pkgPath, options = {}) {
     const editablePackageJson = await readPackageJson(pkgPath, {
       ...options,
       editable: true,
-      normalize: true
+      normalize: true,
     })
     editablePackageJsonCache.set(cacheKey, editablePackageJson)
   }
@@ -65,7 +65,7 @@ async function updatePackagesJson(packages, options = {}) {
         spinner.log(`Updated ${pkgPath} to version ${updates.version}`)
       }
     },
-    { concurrency }
+    { concurrency },
   )
 }
 
@@ -78,7 +78,7 @@ async function updatePackagesJson(packages, options = {}) {
 async function collectPackageData(paths, options = {}) {
   const {
     concurrency = DEFAULT_CONCURRENCY,
-    fields = ['name', 'version', 'description']
+    fields = ['name', 'version', 'description'],
   } = options
 
   const results = []
@@ -97,7 +97,7 @@ async function collectPackageData(paths, options = {}) {
 
       results.push(data)
     },
-    { concurrency }
+    { concurrency },
   )
 
   return results
@@ -116,7 +116,7 @@ async function processWithSpinner(items, processor, options = {}) {
     errorMessage,
     spinner,
     startMessage,
-    successMessage
+    successMessage,
   } = options
 
   if (spinner && startMessage) {
@@ -136,7 +136,7 @@ async function processWithSpinner(items, processor, options = {}) {
         errors.push({ item, error })
       }
     },
-    { concurrency }
+    { concurrency },
   )
 
   if (spinner) {
@@ -158,5 +158,5 @@ module.exports = {
   editablePackageJsonCache,
   processWithSpinner,
   readCachedEditablePackageJson,
-  updatePackagesJson
+  updatePackagesJson,
 }

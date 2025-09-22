@@ -60,5 +60,5 @@ module.exports = {
   noop,
   once,
   silentWrapAsync,
-  trampoline
+  trampoline,
 }

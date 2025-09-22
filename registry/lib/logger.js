@@ -50,7 +50,7 @@ const LOG_SYMBOLS = /*@__PURE__*/ (() => {
       fail: colors.red(supported ? '✖' : '×'),
       info: colors.blue(supported ? 'ℹ' : 'i'),
       success: colors.green(supported ? '✔' : '√'),
-      warn: colors.yellow(supported ? '⚠' : '‼')
+      warn: colors.yellow(supported ? '⚠' : '‼'),
     })
     ObjectFreeze(target)
     // The handler of a Proxy is mutable after proxy instantiation.
@@ -99,7 +99,7 @@ const boundConsoleEntries = [
   'timeEnd',
   'timeLog',
   'trace',
-  'warn'
+  'warn',
 ]
   .filter(n => typeof globalConsole[n] === 'function')
   .map(n => [n, globalConsole[n].bind(globalConsole)])
@@ -108,7 +108,7 @@ const consolePropAttributes = {
   __proto__: null,
   writable: true,
   enumerable: false,
-  configurable: true
+  configurable: true,
 }
 const maxIndentation = 1000
 const privateConsole = new WeakMap()
@@ -140,7 +140,7 @@ class Logger {
       // work with Node's --frozen-intrinsics flag.
       const con = constructConsole({
         stdout: process.stdout,
-        stderr: process.stderr
+        stderr: process.stderr,
       })
       for (const { 0: key, 1: method } of boundConsoleEntries) {
         con[key] = method
@@ -189,7 +189,7 @@ class Logger {
     // Note: Meta status messages (info/fail/etc) always go to stderr.
     con.error(
       applyLinePrefix(`${LOG_SYMBOLS[symbolType]} ${text}`, this.#indention),
-      ...extras
+      ...extras,
     )
     this.#lastWasBlank = false
     this[incLogCallCountSymbol]()
@@ -486,17 +486,17 @@ Object.defineProperties(
           {
             __proto__: null,
             ...consolePropAttributes,
-            value: 2
-          }
+            value: 2,
+          },
         ],
         [
           Symbol.toStringTag,
           {
             __proto__: null,
             configurable: true,
-            value: 'logger'
-          }
-        ]
+            value: 'logger',
+          },
+        ],
       ]
       for (const { 0: key, 1: value } of Object.entries(globalConsole)) {
         if (!Logger.prototype[key] && typeof value === 'function') {
@@ -506,21 +506,21 @@ Object.defineProperties(
               const con = privateConsole.get(this)
               const result = con[key](...args)
               return result === undefined || result === con ? this : result
-            }
+            },
           }
           entries.push([
             key,
             {
               __proto__: null,
               ...consolePropAttributes,
-              value: func
-            }
+              value: func,
+            },
           ])
         }
       }
       return entries
-    })()
-  )
+    })(),
+  ),
 )
 
 const logger = new Logger()
@@ -530,5 +530,5 @@ module.exports = {
   lastWasBlankSymbol,
   LOG_SYMBOLS,
   Logger,
-  logger
+  logger,
 }

@@ -7,7 +7,7 @@ const {
   ensureObject,
   getIteratorDirect,
   ifAbruptCloseIterator,
-  iteratorClose
+  iteratorClose,
 } = require('../shared')
 
 const { find: IteratorProtoFind } = IteratorPrototype

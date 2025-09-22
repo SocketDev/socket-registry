@@ -6,7 +6,7 @@ const {
   TypeErrorCtor,
   ensureObject,
   getIteratorDirect,
-  ifAbruptCloseIterator
+  ifAbruptCloseIterator,
 } = require('../shared')
 
 const { forEach: IteratorProtoForEach } = IteratorPrototype

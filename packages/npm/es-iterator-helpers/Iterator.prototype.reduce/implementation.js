@@ -6,7 +6,7 @@ const {
   TypeErrorCtor,
   ensureObject,
   getIteratorDirect,
-  ifAbruptCloseIterator
+  ifAbruptCloseIterator,
 } = require('../shared')
 
 const { reduce: IteratorProtoReduce } = IteratorPrototype
@@ -46,7 +46,7 @@ module.exports =
           // Step 5.b: If accumulator is done, throw a TypeError exception.
           if (result.done) {
             throw new TypeErrorCtor(
-              '`reduce` requires an initial value if the iterator is done'
+              '`reduce` requires an initial value if the iterator is done',
             )
           }
           // Step 5.c: Let counter be 1.
@@ -66,7 +66,7 @@ module.exports =
             accumulator = ReflectApply(reducer, undefined, [
               accumulator,
               result.value,
-              index
+              index,
             ])
           } catch (e) {
             // Step 7.d: IfAbruptCloseIterator(result, iterated).

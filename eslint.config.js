@@ -4,11 +4,11 @@ const path = require('node:path')
 
 const {
   convertIgnorePatternToMinimatch,
-  includeIgnoreFile
+  includeIgnoreFile,
 } = require('@eslint/compat')
 const js = require('@eslint/js')
 const {
-  createTypeScriptImportResolver
+  createTypeScriptImportResolver,
 } = require('eslint-import-resolver-typescript')
 const importXPlugin = require('eslint-plugin-import-x')
 const nodePlugin = require('eslint-plugin-n')
@@ -28,7 +28,7 @@ const {
   gitIgnoreFile,
   npmPackagesPath,
   relNpmPackagesPath,
-  rootTsConfigPath
+  rootTsConfigPath,
 } = constants
 
 const { flatConfigs: origImportXFlatConfigs } = importXPlugin
@@ -36,7 +36,7 @@ const { flatConfigs: origImportXFlatConfigs } = importXPlugin
 const rootPath = __dirname
 
 const nodeGlobalsConfig = Object.fromEntries(
-  Object.entries(globals.node).map(([k]) => [k, 'readonly'])
+  Object.entries(globals.node).map(([k]) => [k, 'readonly']),
 )
 
 const biomeConfigPath = path.join(rootPath, BIOME_JSON)
@@ -45,7 +45,7 @@ const biomeIgnores = {
   name: 'Imported biome.json ignore patterns',
   ignores: biomeConfig.files.includes
     .filter(p => p.startsWith('!'))
-    .map(p => convertIgnorePatternToMinimatch(p.slice(1)))
+    .map(p => convertIgnorePatternToMinimatch(p.slice(1))),
 }
 
 const gitignorePath = path.join(rootPath, GITIGNORE)
@@ -69,7 +69,7 @@ function getIgnores(isEsm) {
       if (
         globSync(['**/*.cjs'], {
           cwd: pkgPath,
-          ignores: constants.ignoreGlobs
+          ignores: constants.ignoreGlobs,
         }).length
       ) {
         ignored.push(`${relNpmPackagesPath}/${sockRegPkgName}/*.js`)
@@ -86,22 +86,22 @@ function getImportXFlatConfigs(isEsm) {
       languageOptions: {
         ...origImportXFlatConfigs.recommended.languageOptions,
         ecmaVersion: LATEST,
-        sourceType: isEsm ? 'module' : 'script'
-      }
+        sourceType: isEsm ? 'module' : 'script',
+      },
     },
     typescript: {
       ...origImportXFlatConfigs.typescript,
       plugins: {
         ...origImportXFlatConfigs.recommended.plugins,
-        ...origImportXFlatConfigs.typescript.plugins
+        ...origImportXFlatConfigs.typescript.plugins,
       },
       settings: {
         ...origImportXFlatConfigs.typescript.settings,
         'import-x/resolver-next': [
           createTypeScriptImportResolver({
-            project: rootTsConfigPath
-          })
-        ]
+            project: rootTsConfigPath,
+          }),
+        ],
       },
       rules: {
         ...origImportXFlatConfigs.recommended.rules,
@@ -112,8 +112,8 @@ function getImportXFlatConfigs(isEsm) {
             cjs: 'ignorePackages',
             js: 'ignorePackages',
             json: 'always',
-            mjs: 'ignorePackages'
-          }
+            mjs: 'ignorePackages',
+          },
         ],
         'import-x/order': [
           'warn',
@@ -123,28 +123,28 @@ function getImportXFlatConfigs(isEsm) {
               'external',
               'internal',
               ['parent', 'sibling', 'index'],
-              'type'
+              'type',
             ],
             pathGroups: [
               {
                 pattern: '@socket{registry,security}/**',
-                group: 'internal'
-              }
+                group: 'internal',
+              },
             ],
             pathGroupsExcludedImportTypes: ['type'],
             'newlines-between': 'always',
             alphabetize: {
-              order: 'asc'
-            }
-          }
+              order: 'asc',
+            },
+          },
         ],
         // TypeScript compilation already ensures that named imports exist in
         // the referenced module.
         'import-x/named': 'off',
         'import-x/no-named-as-default-member': 'off',
-        'import-x/no-unresolved': 'off'
-      }
-    }
+        'import-x/no-unresolved': 'off',
+      },
+    },
   }
 }
 
@@ -157,7 +157,7 @@ function configs(sourceType) {
   const sharedPlugins = {
     ...nodePluginConfigs.plugins,
     'sort-destructure-keys': sortDestructureKeysPlugin,
-    unicorn: unicornPlugin
+    unicorn: unicornPlugin,
   }
   const sharedRules = {
     'n/exports-style': ['error', 'module.exports'],
@@ -169,15 +169,15 @@ function configs(sourceType) {
       'error',
       {
         ignores: ['Object.groupBy'],
-        version: constants.maintainedNodeVersions.current
-      }
+        version: constants.maintainedNodeVersions.current,
+      },
     ],
     'n/no-unsupported-features/es-syntax': [
       'error',
       {
         ignores: ['object-map-groupby'],
-        version: constants.maintainedNodeVersions.current
-      }
+        version: constants.maintainedNodeVersions.current,
+      },
     ],
     'n/no-unsupported-features/node-builtins': [
       'error',
@@ -186,10 +186,10 @@ function configs(sourceType) {
           'buffer.resolveObjectURL',
           'fetch',
           'fs.promises.cp',
-          'process.features.require_module'
+          'process.features.require_module',
         ],
-        version: constants.maintainedNodeVersions.current
-      }
+        version: constants.maintainedNodeVersions.current,
+      },
     ],
     'n/prefer-node-protocol': 'error',
     'unicorn/consistent-function-scoping': 'error',
@@ -206,14 +206,14 @@ function configs(sourceType) {
       {
         argsIgnorePattern: '^_|^this$',
         ignoreRestSiblings: true,
-        varsIgnorePattern: '^_'
-      }
+        varsIgnorePattern: '^_',
+      },
     ],
     'no-var': 'error',
     'no-warning-comments': 'error',
     'prefer-const': 'error',
     'sort-destructure-keys/sort-destructure-keys': 'error',
-    'sort-imports': ['error', { ignoreDeclarationSort: true }]
+    'sort-imports': ['error', { ignoreDeclarationSort: true }],
   }
 
   return [
@@ -231,21 +231,21 @@ function configs(sourceType) {
           ...importFlatConfigs.recommended.languageOptions?.globals,
           ...nodePluginConfigs.languageOptions?.globals,
           ...nodeGlobalsConfig,
-          NodeJS: false
+          NodeJS: false,
         },
-        sourceType: isEsm ? 'module' : 'script'
+        sourceType: isEsm ? 'module' : 'script',
       },
       plugins: {
         ...js.configs.recommended.plugins,
         ...importFlatConfigs.recommended.plugins,
-        ...sharedPlugins
+        ...sharedPlugins,
       },
       rules: {
         ...js.configs.recommended.rules,
         ...importFlatConfigs.recommended.rules,
         ...nodePluginConfigs.rules,
-        ...sharedRules
-      }
+        ...sharedRules,
+      },
     },
     {
       files: ['**/*.{cts,mts,ts}'],
@@ -267,20 +267,20 @@ function configs(sourceType) {
               // Allow configs.
               '*.config.mts',
               // Add package type definitions.
-              'packages/*/*/*.d.{cts,mts}'
+              'packages/*/*/*.d.{cts,mts}',
             ],
             defaultProject: 'tsconfig.json',
             // Need this to glob packages/npm/* files.
             maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 1_000,
-            tsconfigRootDir: __dirname
-          }
-        }
+            tsconfigRootDir: __dirname,
+          },
+        },
       },
       plugins: {
         ...js.configs.recommended.plugins,
         ...importFlatConfigs.typescript.plugins,
         ...sharedPlugins,
-        '@typescript-eslint': tsEslint.plugin
+        '@typescript-eslint': tsEslint.plugin,
       },
       rules: {
         ...js.configs.recommended.rules,
@@ -289,13 +289,13 @@ function configs(sourceType) {
         '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
         '@typescript-eslint/consistent-type-assertions': [
           'error',
-          { assertionStyle: 'as' }
+          { assertionStyle: 'as' },
         ],
         '@typescript-eslint/no-extraneous-class': 'off',
         '@typescript-eslint/no-misused-new': 'error',
         '@typescript-eslint/no-this-alias': [
           'error',
-          { allowDestructuring: true }
+          { allowDestructuring: true },
         ],
         // Returning unawaited promises in a try/catch/finally is dangerous
         // (the `catch` won't catch if the promise is rejected, and the `finally`
@@ -308,8 +308,8 @@ function configs(sourceType) {
         '@typescript-eslint/return-await': ['error', 'always'],
         // Disable the following rules because they don't play well with TypeScript.
         'no-redeclare': 'off',
-        'no-unused-vars': 'off'
-      }
+        'no-unused-vars': 'off',
+      },
     },
     {
       files: ['**/*.d.{cts,mts,ts}'],
@@ -317,9 +317,9 @@ function configs(sourceType) {
       rules: {
         'n/no-unpublished-import': 'off',
         // Disable the following rules because they don't play well with TypeScript.
-        'n/no-missing-import': 'off'
-      }
-    }
+        'n/no-missing-import': 'off',
+      },
+    },
   ]
 }
 
@@ -339,7 +339,7 @@ module.exports = [
     // and will catch actual missing dependencies.
     files: ['registry/lib/**/*.js', 'registry/lib/**/*.cjs'],
     rules: {
-      'n/no-unpublished-require': 'off'
-    }
-  }
+      'n/no-unpublished-require': 'off',
+    },
+  },
 ]

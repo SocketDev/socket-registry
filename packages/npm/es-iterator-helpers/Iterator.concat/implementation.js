@@ -10,7 +10,7 @@ const {
   ensureObject,
   getIteratorDirect,
   getMethod,
-  setUnderlyingIterator
+  setUnderlyingIterator,
 } = require('../shared')
 
 const IteratorConcat = IteratorCtor?.concat
@@ -39,7 +39,7 @@ module.exports =
           // Step 2.c: If method is undefined, throw a TypeError exception.
           if (method === undefined) {
             throw new TypeErrorCtor(
-              '`Iterator.concat` requires all arguments to be iterable'
+              '`Iterator.concat` requires all arguments to be iterable',
             )
           }
           // Step 2.d: Append the Record { [[OpenMethod]]: method, [[Iterable]]: item } to iterables.
@@ -110,7 +110,7 @@ module.exports =
             // Skip remaining iterables and propagate the error.
             iterablesIndex = length
             throw error
-          }
+          },
         }
 
         // Step 4: Let gen be CreateIteratorFromClosure(closure, "Iterator Helper", %IteratorHelperPrototype%, « [[UnderlyingIterators]] »).

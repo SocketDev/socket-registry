@@ -18,5 +18,5 @@ module.exports = new Set([
   'es6',
   'es5',
   'decorators',
-  'scripthost'
+  'scripthost',
 ])

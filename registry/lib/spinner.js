@@ -8,7 +8,7 @@ const ciSpinner = {
   // limits delay to 2147483647 ms, roughly 24.8 days, since it's specified as a
   // signed integer in the IDL.
   // https://developer.mozilla.org/en-US/docs/Web/API/Window/setInterval?utm_source=chatgpt.com#return_value
-  interval: 2147483647
+  interval: 2147483647,
 }
 
 function desc(value) {
@@ -16,7 +16,7 @@ function desc(value) {
     __proto__: null,
     configurable: true,
     value,
-    writable: true
+    writable: true,
   }
 }
 
@@ -54,7 +54,7 @@ function Spinner(options) {
       constructor(options) {
         super({
           signal: abortSignal,
-          ...options
+          ...options,
         })
       }
 
@@ -73,7 +73,7 @@ function Spinner(options) {
         const {
           incLogCallCountSymbol,
           lastWasBlankSymbol,
-          logger
+          logger,
         } = /*@__PURE__*/ require('./logger')
         if (methodName === 'stop') {
           if (wasSpinning && normalized) {
@@ -189,17 +189,17 @@ function Spinner(options) {
       error: desc(_Spinner.prototype.fail),
       errorAndStop: desc(_Spinner.prototype.failAndStop),
       warning: desc(_Spinner.prototype.warn),
-      warningAndStop: desc(_Spinner.prototype.warnAndStop)
+      warningAndStop: desc(_Spinner.prototype.warnAndStop),
     })
     _defaultSpinner = ENV.CI ? ciSpinner : undefined
   }
   return new _Spinner({
     spinner: _defaultSpinner,
-    ...options
+    ...options,
   })
 }
 
 module.exports = {
   getCliSpinners,
-  Spinner
+  Spinner,
 }

@@ -24,7 +24,7 @@ async function logCoveragePercentage(argv) {
   const coverageJsonPath = path.join(
     process.cwd(),
     'coverage',
-    'coverage-final.json'
+    'coverage-final.json',
   )
 
   if (!existsSync(coverageJsonPath)) {
@@ -34,7 +34,7 @@ async function logCoveragePercentage(argv) {
     try {
       result = await spawn('pnpm', ['run', 'test:unit:coverage'], {
         stdio: 'ignore',
-        shell: constants.WIN32
+        shell: constants.WIN32,
       })
     } catch (error) {
       spinner.stop()
@@ -146,44 +146,44 @@ async function logCoveragePercentage(argv) {
           statements: {
             percent: stmtPercent,
             covered: coveredStatements,
-            total: totalStatements
+            total: totalStatements,
           },
           branches: {
             percent: branchPercent,
             covered: coveredBranches,
-            total: totalBranches
+            total: totalBranches,
           },
           functions: {
             percent: funcPercent,
             covered: coveredFunctions,
-            total: totalFunctions
+            total: totalFunctions,
           },
           lines: {
             percent: linePercent,
             covered: coveredLines,
-            total: totalLines
+            total: totalLines,
           },
-          overall: overall
+          overall: overall,
         },
         null,
-        2
-      )
+        2,
+      ),
     )
   } else if (argv.simple) {
     logger.log(stmtPercent)
   } else {
     logger.info(`Coverage Summary:`)
     logger.info(
-      `${indent}Statements: ${stmtPercent}% (${coveredStatements}/${totalStatements})`
+      `${indent}Statements: ${stmtPercent}% (${coveredStatements}/${totalStatements})`,
     )
     logger.info(
-      `${indent}Branches:   ${branchPercent}% (${coveredBranches}/${totalBranches})`
+      `${indent}Branches:   ${branchPercent}% (${coveredBranches}/${totalBranches})`,
     )
     logger.info(
-      `${indent}Functions:  ${funcPercent}% (${coveredFunctions}/${totalFunctions})`
+      `${indent}Functions:  ${funcPercent}% (${coveredFunctions}/${totalFunctions})`,
     )
     logger.info(
-      `${indent}Lines:      ${linePercent}% (${coveredLines}/${totalLines})`
+      `${indent}Lines:      ${linePercent}% (${coveredLines}/${totalLines})`,
     )
     logger.info('')
     logger.info(colors.bold(`Current coverage: ${overall}% overall!${emoji}`))
@@ -195,8 +195,8 @@ void (async () => {
     boolean: ['json', 'simple'],
     alias: {
       j: 'json',
-      s: 'simple'
-    }
+      s: 'simple',
+    },
   })
   await logCoveragePercentage(argv)
 })()

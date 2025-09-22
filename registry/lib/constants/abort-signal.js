@@ -16,7 +16,7 @@ const abortSignal = abortController.signal
 // not rely on the Node specific 'node:events' module up front.
 const symbols = Object.getOwnPropertySymbols(abortSignal)
 const kMaxEventTargetListeners = symbols.find(
-  s => s.description === 'events.maxEventTargetListeners'
+  s => s.description === 'events.maxEventTargetListeners',
 )
 if (kMaxEventTargetListeners) {
   // The default events.defaultMaxListeners value is 10.

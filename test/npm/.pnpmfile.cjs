@@ -32,6 +32,6 @@ module.exports = {
         }
       }
       return pkg
-    }
-  }
+    },
+  },
 }

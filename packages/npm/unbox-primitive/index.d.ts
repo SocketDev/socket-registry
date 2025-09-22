@@ -13,6 +13,6 @@ declare function unboxPrimitive(
     | string
     | symbol
     | undefined
-    | unknown
+    | unknown,
 ): never
 export = unboxPrimitive

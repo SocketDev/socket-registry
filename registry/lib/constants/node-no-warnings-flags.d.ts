@@ -2,6 +2,6 @@ declare const nodeNoWarningsFlags: readonly [
   '--disable-warning',
   'DeprecationWarning',
   '--disable-warning',
-  'ExperimentalWarning'
+  'ExperimentalWarning',
 ]
 export = nodeNoWarningsFlags

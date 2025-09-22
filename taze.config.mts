@@ -7,7 +7,7 @@ export default defineConfig({
     'eslint-plugin-unicorn',
     'make-fetch-happen',
     'minimatch',
-    'normalize-package-data'
+    'normalize-package-data',
   ],
   // Interactive mode disabled for automation.
   interactive: false,
@@ -20,5 +20,5 @@ export default defineConfig({
   // Recursive mode to handle all package.json files.
   recursive: true,
   // Write to package.json automatically.
-  write: true
+  write: true,
 })

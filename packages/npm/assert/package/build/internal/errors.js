@@ -80,7 +80,7 @@ function _inherits(subClass, superClass) {
     throw new TypeError('Super expression must either be null or a function')
   }
   subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: { value: subClass, writable: true, configurable: true }
+    constructor: { value: subClass, writable: true, configurable: true },
   })
   Object.defineProperty(subClass, 'prototype', { writable: false })
   if (superClass) {
@@ -115,7 +115,7 @@ function _possibleConstructorReturn(self, call) {
     return call
   } else if (call !== void 0) {
     throw new TypeError(
-      'Derived constructors may only return object or undefined'
+      'Derived constructors may only return object or undefined',
     )
   }
   return _assertThisInitialized(self)
@@ -123,7 +123,7 @@ function _possibleConstructorReturn(self, call) {
 function _assertThisInitialized(self) {
   if (self === void 0) {
     throw new ReferenceError(
-      "this hasn't been initialised - super() hasn't been called"
+      "this hasn't been initialised - super() hasn't been called",
     )
   }
   return self
@@ -140,7 +140,7 @@ function _isNativeReflectConstruct() {
   }
   try {
     Boolean.prototype.valueOf.call(
-      Reflect.construct(Boolean, [], function () {})
+      Reflect.construct(Boolean, [], function () {}),
     )
     return true
   } catch (e) {
@@ -240,7 +240,7 @@ function includes(str, search, start) {
 createErrorType(
   'ERR_AMBIGUOUS_ARGUMENT',
   'The "%s" argument is ambiguous. %s',
-  TypeError
+  TypeError,
 )
 createErrorType(
   'ERR_INVALID_ARG_TYPE',
@@ -278,7 +278,7 @@ createErrorType(
     msg += '. Received type '.concat(_typeof(actual))
     return msg
   },
-  TypeError
+  TypeError,
 )
 createErrorType(
   'ERR_INVALID_ARG_VALUE',
@@ -300,7 +300,7 @@ createErrorType(
       .concat(inspected)
   },
   TypeError,
-  RangeError
+  RangeError,
 )
 createErrorType(
   'ERR_INVALID_RETURN_VALUE',
@@ -317,7 +317,7 @@ createErrorType(
         .concat(name, '"') + ' function but got '.concat(type, '.')
     )
   },
-  TypeError
+  TypeError,
 )
 createErrorType(
   'ERR_MISSING_ARGS',
@@ -352,6 +352,6 @@ createErrorType(
     }
     return ''.concat(msg, ' must be specified')
   },
-  TypeError
+  TypeError,
 )
 module.exports.codes = codes

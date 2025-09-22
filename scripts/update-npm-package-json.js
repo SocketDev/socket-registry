@@ -11,7 +11,7 @@ const {
   getSubpaths,
   isSubpathExports,
   readPackageJson,
-  resolvePackageJsonEntryExports
+  resolvePackageJsonEntryExports,
 } = require('@socketsecurity/registry/lib/packages')
 const { trimLeadingDotSlash } = require('@socketsecurity/registry/lib/path')
 
@@ -24,11 +24,11 @@ void (async () => {
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
       const editablePkgJson = await readPackageJson(pkgJsonPath, {
         editable: true,
-        normalize: true
+        normalize: true,
       })
       const directory = `packages/npm/${sockRegPkgName}`
       const entryExports = resolvePackageJsonEntryExports(
-        editablePkgJson.content.exports
+        editablePkgJson.content.exports,
       )
       if (isSubpathExports(entryExports)) {
         const fullName = `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`
@@ -36,8 +36,8 @@ void (async () => {
           ['**/*.{[cm],}js', '**/*.d.{[cm],}ts', '**/*.json'],
           {
             ignore: ['**/overrides/*', '**/shared.{js,d.ts}'],
-            cwd: pkgPath
-          }
+            cwd: pkgPath,
+          },
         )
         const subpaths = getSubpaths(entryExports).map(trimLeadingDotSlash)
         for (const subpath of subpaths) {
@@ -53,10 +53,10 @@ void (async () => {
       }
       editablePkgJson.update(
         createPackageJson(editablePkgJson.content.name, directory, {
-          ...editablePkgJson.content
-        })
+          ...editablePkgJson.content,
+        }),
       )
       await editablePkgJson.save()
-    })
+    }),
   )
 })()

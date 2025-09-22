@@ -11,27 +11,27 @@ module.exports = ObjectFreeze(
       '@yarnpkg/extensions@>=1.1.0',
       {
         // Properties with undefined values are omitted when saved as JSON.
-        peerDependencies: undefined
-      }
+        peerDependencies: undefined,
+      },
     ],
     [
       'abab@>=2.0.0',
       {
         devDependencies: {
           // Lower the Webpack from v4.x to one supported by abab's peers.
-          webpack: '^3.12.0'
-        }
-      }
+          webpack: '^3.12.0',
+        },
+      },
     ],
     [
       'is-generator-function@>=1.0.7',
       {
         scripts: {
           // Make the script a silent no-op.
-          'test:uglified': ''
-        }
-      }
-    ]
+          'test:uglified': '',
+        },
+      },
+    ],
   ].sort((a_, b_) => {
     const a = a_[0].slice(0, a_[0].lastIndexOf('@'))
     const b = b_[0].slice(0, b_[0].lastIndexOf('@'))
@@ -43,5 +43,5 @@ module.exports = ObjectFreeze(
       return 1
     }
     return 0
-  })
+  }),
 )

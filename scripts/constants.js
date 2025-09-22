@@ -28,7 +28,7 @@ const {
   UTF8,
   YARN_LOCK,
   kInternalsSymbol,
-  [kInternalsSymbol]: { createConstantsObject }
+  [kInternalsSymbol]: { createConstantsObject },
 } = registryConstants
 
 let _defaultWhichOptions
@@ -36,7 +36,7 @@ function getDefaultWhichOptions() {
   if (_defaultWhichOptions === undefined) {
     _defaultWhichOptions = {
       __proto__: null,
-      path: `${constants.rootNodeModulesBinPath}${path.delimiter}${process.env.PATH}`
+      path: `${constants.rootNodeModulesBinPath}${path.delimiter}${process.env.PATH}`,
     }
   }
   return _defaultWhichOptions
@@ -51,7 +51,7 @@ const LAZY_ENV = () => {
     // Lazily access registryConstants.ENV.
     ...registryConstants.ENV,
     // Enable verbose build output.
-    VERBOSE_BUILD: envAsBoolean(env.VERBOSE_BUILD)
+    VERBOSE_BUILD: envAsBoolean(env.VERBOSE_BUILD),
   })
 }
 
@@ -83,8 +83,8 @@ const lazyIgnoreGlobs = () =>
       `**/${PACKAGE_LOCK_JSON}`,
       `**/${PNPM}-lock.ya?ml`,
       `**/${YARN_LOCK}`,
-      ...constants.gitIgnoreFile.ignores
-    ])
+      ...constants.gitIgnoreFile.ignores,
+    ]),
   ])
 
 const lazyNpmPackageNames = () => {
@@ -207,9 +207,9 @@ const lazySkipTestsByEcosystem = () => {
         // which is no longer the case.
         // https://github.com/ChALkeR/safer-buffer/issues/16
         // https://github.com/ChALkeR/safer-buffer/blob/v2.1.2/tests.js
-        'safer-buffer'
-      ])
-    ]
+        'safer-buffer',
+      ]),
+    ],
   ])
 }
 
@@ -272,13 +272,13 @@ const constants = createConstantsObject(
       options: {
         force: {
           type: 'boolean',
-          short: 'f'
+          short: 'f',
         },
         quiet: {
-          type: 'boolean'
-        }
+          type: 'boolean',
+        },
       },
-      strict: false
+      strict: false,
     },
     perfNpmPath: undefined,
     perfNpmFixturesPath: undefined,
@@ -311,7 +311,7 @@ const constants = createConstantsObject(
     tsxExecPath: undefined,
     win32EnsureTestsByEcosystem: undefined,
     yarnPkgExtsPath: undefined,
-    yarnPkgExtsJsonPath: undefined
+    yarnPkgExtsJsonPath: undefined,
   },
   {
     getters: {
@@ -356,9 +356,9 @@ const constants = createConstantsObject(
       tsxExecPath: lazyTsxExecPath,
       win32EnsureTestsByEcosystem: lazyWin32EnsureTestsByEcosystem,
       yarnPkgExtsPath: lazyYarnPkgExtsPath,
-      yarnPkgExtsJsonPath: lazyYarnPkgExtsJsonPath
+      yarnPkgExtsJsonPath: lazyYarnPkgExtsJsonPath,
     },
-    mixin: registryConstants
-  }
+    mixin: registryConstants,
+  },
 )
 module.exports = constants

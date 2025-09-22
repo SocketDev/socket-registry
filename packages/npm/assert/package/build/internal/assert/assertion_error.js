@@ -37,7 +37,7 @@ function _defineProperty(obj, key, value) {
       value: value,
       enumerable: true,
       configurable: true,
-      writable: true
+      writable: true,
     })
   } else {
     obj[key] = value
@@ -93,7 +93,7 @@ function _inherits(subClass, superClass) {
     throw new TypeError('Super expression must either be null or a function')
   }
   subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: { value: subClass, writable: true, configurable: true }
+    constructor: { value: subClass, writable: true, configurable: true },
   })
   Object.defineProperty(subClass, 'prototype', { writable: false })
   if (superClass) {
@@ -119,7 +119,7 @@ function _possibleConstructorReturn(self, call) {
     return call
   } else if (call !== void 0) {
     throw new TypeError(
-      'Derived constructors may only return object or undefined'
+      'Derived constructors may only return object or undefined',
     )
   }
   return _assertThisInitialized(self)
@@ -127,7 +127,7 @@ function _possibleConstructorReturn(self, call) {
 function _assertThisInitialized(self) {
   if (self === void 0) {
     throw new ReferenceError(
-      "this hasn't been initialised - super() hasn't been called"
+      "this hasn't been initialised - super() hasn't been called",
     )
   }
   return self
@@ -155,8 +155,8 @@ function _wrapNativeSuper(Class) {
         value: Wrapper,
         enumerable: false,
         writable: true,
-        configurable: true
-      }
+        configurable: true,
+      },
     })
     return _setPrototypeOf(Wrapper, Class)
   }
@@ -191,7 +191,7 @@ function _isNativeReflectConstruct() {
   }
   try {
     Boolean.prototype.valueOf.call(
-      Reflect.construct(Boolean, [], function () {})
+      Reflect.construct(Boolean, [], function () {}),
     )
     return true
   } catch (e) {
@@ -282,7 +282,7 @@ const kReadableOperator = {
     'Expected "actual" not to be reference-equal to "expected":',
   notDeepEqual: 'Expected "actual" not to be loosely deep-equal to:',
   notEqual: 'Expected "actual" to be loosely unequal to:',
-  notIdentical: 'Values identical but not reference-equal:'
+  notIdentical: 'Values identical but not reference-equal:',
 }
 
 // Comparing short primitives should just show === / !== instead of using the
@@ -295,7 +295,7 @@ function copyError(source) {
     target[key] = source[key]
   })
   Object.defineProperty(target, 'message', {
-    value: source.message
+    value: source.message,
   })
   return target
 }
@@ -319,7 +319,7 @@ function inspectValue(val) {
     showProxy: false,
     sorted: true,
     // Inspect getters as we also check them when comparing entries.
-    getters: true
+    getters: true,
   })
 }
 function createErrDiff(actual, expected, operator) {
@@ -593,7 +593,7 @@ const AssertionError = /*@__PURE__*/ (function (_Error, _inspect$custom) {
     // https://nodejs.org/api/cli.html#--frozen-intrinsics
     const stackTraceLimitWritable = !!Object.getOwnPropertyDescriptor(
       Error,
-      'stackTraceLimit'
+      'stackTraceLimit',
     )?.writable
     if (stackTraceLimitWritable) {
       Error.stackTraceLimit = 0
@@ -671,7 +671,7 @@ const AssertionError = /*@__PURE__*/ (function (_Error, _inspect$custom) {
         } else {
           _this = _super.call(
             this,
-            ''.concat(base, '\n\n').concat(res.join('\n'), '\n')
+            ''.concat(base, '\n\n').concat(res.join('\n'), '\n'),
           )
         }
       } else {
@@ -710,7 +710,7 @@ const AssertionError = /*@__PURE__*/ (function (_Error, _inspect$custom) {
       value: 'AssertionError [ERR_ASSERTION]',
       enumerable: false,
       writable: true,
-      configurable: true
+      configurable: true,
     })
     _this.code = 'ERR_ASSERTION'
     _this.actual = actual
@@ -734,7 +734,7 @@ const AssertionError = /*@__PURE__*/ (function (_Error, _inspect$custom) {
           .concat(this.name, ' [')
           .concat(this.code, ']: ')
           .concat(this.message)
-      }
+      },
     },
     {
       key: _inspect$custom,
@@ -750,12 +750,12 @@ const AssertionError = /*@__PURE__*/ (function (_Error, _inspect$custom) {
             {},
             {
               customInspect: false,
-              depth: 0
-            }
-          )
+              depth: 0,
+            },
+          ),
         )
-      }
-    }
+      },
+    },
   ])
   return AssertionError
 })(/*@__PURE__*/ _wrapNativeSuper(Error), inspect.custom)

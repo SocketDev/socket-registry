@@ -13,7 +13,7 @@ function _slicedToArray(arr, i) {
 }
 function _nonIterableRest() {
   throw new TypeError(
-    'Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.'
+    'Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.',
   )
 }
 function _unsupportedIterableToArray(o, minLen) {
@@ -173,8 +173,8 @@ function getOwnNonIndexProperties(value) {
     .filter(isNonIndex)
     .concat(
       objectGetOwnPropertySymbols(value).filter(
-        Object.prototype.propertyIsEnumerable.bind(value)
-      )
+        Object.prototype.propertyIsEnumerable.bind(value),
+      ),
     )
 }
 
@@ -239,7 +239,7 @@ function areSimilarTypedArrays(a, b) {
   return (
     compare(
       new Uint8Array(a.buffer, a.byteOffset, a.byteLength),
-      new Uint8Array(b.buffer, b.byteOffset, b.byteLength)
+      new Uint8Array(b.buffer, b.byteOffset, b.byteLength),
     ) === 0
   )
 }
@@ -255,7 +255,7 @@ function isEqualBoxedPrimitive(val1, val2) {
       isNumberObject(val2) &&
       objectIs(
         Number.prototype.valueOf.call(val1),
-        Number.prototype.valueOf.call(val2)
+        Number.prototype.valueOf.call(val2),
       )
     )
   }
@@ -492,7 +492,7 @@ function keyCheck(val1, val2, strict, memos, iterationType, aKeys) {
     memos = {
       val1: new Map(),
       val2: new Map(),
-      position: 0
+      position: 0,
     }
   } else {
     // We prevent up to two map.has(x) calls by directly retrieving the value
@@ -765,5 +765,5 @@ function isDeepStrictEqual(val1, val2) {
 }
 module.exports = {
   isDeepEqual: isDeepEqual,
-  isDeepStrictEqual: isDeepStrictEqual
+  isDeepStrictEqual: isDeepStrictEqual,
 }

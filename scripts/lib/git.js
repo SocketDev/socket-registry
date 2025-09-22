@@ -22,8 +22,8 @@ const gitDiffSpawnArgs = defineLazyGetters(
       {
         cwd: constants.rootPath,
         // Encoding option used for spawnSync.
-        encoding: UTF8
-      }
+        encoding: UTF8,
+      },
     ],
     staged: () => [
       constants.gitExecPath,
@@ -32,10 +32,10 @@ const gitDiffSpawnArgs = defineLazyGetters(
         cwd: constants.rootPath,
         shell: constants.WIN32,
         // Encoding option used for spawnSync.
-        encoding: UTF8
-      }
-    ]
-  }
+        encoding: UTF8,
+      },
+    ],
+  },
 )
 
 async function innerDiff(args, options) {
@@ -85,19 +85,19 @@ function innerGetPackages(eco, files, options) {
   const ecoPackagesPath = path.join(constants.rootPackagesPath, eco)
   const { rootPath } = constants
   const relEcoPackagesPath = normalizePath(
-    path.relative(rootPath, ecoPackagesPath)
+    path.relative(rootPath, ecoPackagesPath),
   )
   const matcher = getGlobMatcher(
     [
       `${relEcoPackagesPath}/**`,
-      ...(eco === NPM ? [`${constants.relRegistryPkgPath}/**`] : [])
+      ...(eco === NPM ? [`${constants.relRegistryPkgPath}/**`] : []),
     ],
     {
       __proto__: null,
       ...matcherOptions,
       absolute: false,
-      cwd: rootPath
-    }
+      cwd: rootPath,
+    },
   )
   const sliceStart = relEcoPackagesPath.length + 1
   const packageNames = new Set()
@@ -109,7 +109,7 @@ function innerGetPackages(eco, files, options) {
       } else {
         sockRegPkgName = filepath.slice(
           sliceStart,
-          filepath.indexOf('/', sliceStart)
+          filepath.indexOf('/', sliceStart),
         )
       }
       packageNames.add(sockRegPkgName)
@@ -169,7 +169,7 @@ async function isModified(pathname, options) {
 function isModifiedSync(pathname, options) {
   return diffIncludes(
     forceRelativeSync(getModifiedFilesSync, options),
-    pathname
+    pathname,
   )
 }
 
@@ -200,7 +200,7 @@ function parseGitDiffStdout(stdout, options) {
     __proto__: null,
     ...matcherOptions,
     absolute,
-    cwd: rootPath
+    cwd: rootPath,
   })
   const filtered = []
   for (const filepath of files) {
@@ -223,5 +223,5 @@ module.exports = {
   isModified,
   isModifiedSync,
   isStaged,
-  isStagedSync
+  isStagedSync,
 }

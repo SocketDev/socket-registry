@@ -1,6 +1,6 @@
 import Impl from './implementation'
 declare const {
-  x: ObjectGroupBy
+  x: ObjectGroupBy,
 }: {
   x: typeof Impl & {
     getPolyfill(): typeof Impl

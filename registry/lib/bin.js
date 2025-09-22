@@ -60,7 +60,7 @@ function getNotResolvedError(binPath, source = '') {
   // Copyright (c) Isaac Z. Schlueter and Contributors
   // https://github.com/npm/node-which/blob/v5.0.0/lib/index.js#L15
   const error = new Error(
-    `not resolved: ${binPath}${source ? `:\n\n${source}` : ''}`
+    `not resolved: ${binPath}${source ? `:\n\n${source}` : ''}`,
   )
   error.code = 'ENOENT'
   return error
@@ -274,14 +274,14 @@ function findRealPnpm() {
         path.join(ENV.LOCALAPPDATA, 'pnpm', 'pnpm.cmd'),
         path.join(ENV.LOCALAPPDATA, 'pnpm', 'pnpm'),
         'C:\\Program Files\\nodejs\\pnpm.cmd',
-        'C:\\Program Files\\nodejs\\pnpm'
+        'C:\\Program Files\\nodejs\\pnpm',
       ].filter(Boolean)
     : [
         // Unix common paths.
         '/usr/local/bin/pnpm',
         '/usr/bin/pnpm',
         path.join(ENV.XDG_DATA_HOME, 'pnpm/pnpm'),
-        path.join(ENV.HOME, '.pnpm/pnpm')
+        path.join(ENV.HOME, '.pnpm/pnpm'),
       ].filter(Boolean)
 
   return findRealBin('pnpm', commonPaths)
@@ -300,7 +300,7 @@ function findRealYarn() {
     '/usr/local/bin/yarn',
     '/usr/bin/yarn',
     path.join(ENV.HOME, '.yarn/bin/yarn'),
-    path.join(ENV.HOME, '.config/yarn/global/node_modules/.bin/yarn')
+    path.join(ENV.HOME, '.config/yarn/global/node_modules/.bin/yarn'),
   ].filter(Boolean)
 
   return findRealBin('yarn', commonPaths)
@@ -343,7 +343,7 @@ function resolveBinPathSync(binPath) {
     const voltaUserPath = path.join(voltaToolsPath, 'user')
     const voltaPlatform = readJsonSync(
       path.join(voltaUserPath, 'platform.json'),
-      { throws: false }
+      { throws: false },
     )
     const voltaNodeVersion = voltaPlatform?.node?.runtime
     const voltaNpmVersion = voltaPlatform?.node?.npm
@@ -353,12 +353,12 @@ function resolveBinPathSync(binPath) {
         const relCliPath = `bin/${basename}-cli.js`
         voltaBinPath = path.join(
           voltaImagePath,
-          `npm/${voltaNpmVersion}/${relCliPath}`
+          `npm/${voltaNpmVersion}/${relCliPath}`,
         )
         if (voltaNodeVersion && !fs.existsSync(voltaBinPath)) {
           voltaBinPath = path.join(
             voltaImagePath,
-            `node/${voltaNodeVersion}/lib/node_modules/npm/${relCliPath}`
+            `node/${voltaNodeVersion}/lib/node_modules/npm/${relCliPath}`,
           )
           if (!fs.existsSync(voltaBinPath)) {
             voltaBinPath = ''
@@ -369,13 +369,13 @@ function resolveBinPathSync(binPath) {
       const voltaUserBinPath = path.join(voltaUserPath, 'bin')
       const binInfo = readJsonSync(
         path.join(voltaUserBinPath, `${basename}.json`),
-        { throws: false }
+        { throws: false },
       )
       const binPackage = binInfo?.package
       if (binPackage) {
         voltaBinPath = path.join(
           voltaImagePath,
-          `packages/${binPackage}/bin/${basename}`
+          `packages/${binPackage}/bin/${basename}`,
         )
         if (!fs.existsSync(voltaBinPath)) {
           voltaBinPath = `${voltaBinPath}.cmd`
@@ -399,7 +399,7 @@ function resolveBinPathSync(binPath) {
       // The quick route assumes a bin path like: C:\Program Files\nodejs\npm.cmd
       const quickPath = path.join(
         path.dirname(binPath),
-        `node_modules/npm/bin/${basename}-cli.js`
+        `node_modules/npm/bin/${basename}-cli.js`,
       )
       if (fs.existsSync(quickPath)) {
         return fs.realpathSync.native(quickPath)
@@ -449,7 +449,7 @@ function resolveBinPathSync(binPath) {
           if (!relPath) {
             relPath =
               /(?<="%~dp0\\[^"]*node[^"]*"\s+")%~dp0\\([^"]+)(?="\s+%\*)/.exec(
-                source
+                source,
               )?.[1]
           }
 
@@ -463,13 +463,13 @@ function resolveBinPathSync(binPath) {
           // Format: exec "$basedir/node"  "$basedir/.tools/pnpm/VERSION/..." "$@"
           // Note: may have multiple spaces between arguments
           relPath = /(?<="\$basedir\/)\.tools\/pnpm\/[^"]+(?="\s+"\$@")/.exec(
-            source
+            source,
           )?.[0]
           if (!relPath) {
             // Also try: exec node  "$basedir/.tools/pnpm/VERSION/..." "$@"
             relPath =
               /(?<=exec\s+node\s+"\$basedir\/)\.tools\/pnpm\/[^"]+(?="\s+"\$@")/.exec(
-                source
+                source,
               )?.[0]
           }
           if (!relPath) {
@@ -612,7 +612,7 @@ function resolveBinPathSync(binPath) {
         // Format: exec "$basedir/node" "$basedir/.tools/pnpm/VERSION/..." "$@"
         // or: exec node "$basedir/.tools/pnpm/VERSION/..." "$@"
         relPath = /(?<="\$basedir\/)\.tools\/[^"]+(?="\s+"\$@")/.exec(
-          source
+          source,
         )?.[0]
         if (!relPath) {
           // Try standard cmd-shim format: exec node "$basedir/../package/bin/binary.js" "$@"
@@ -626,7 +626,7 @@ function resolveBinPathSync(binPath) {
         if (!relPath) {
           // Try to match: exec node  "$basedir/../pnpm/bin/pnpm.cjs" "$@"
           const match = /exec\s+node\s+"?\$basedir\/([^"]+)"?\s+"\$@"/.exec(
-            source
+            source,
           )
           if (match) {
             relPath = match[1]
@@ -678,5 +678,5 @@ module.exports = {
   isShadowBinPath,
   resolveBinPathSync,
   whichBin,
-  whichBinSync
+  whichBinSync,
 }

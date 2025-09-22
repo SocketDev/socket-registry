@@ -11,12 +11,12 @@ const { copy } = require('fs-extra')
 const constants = require('@socketregistry/scripts/constants')
 const {
   cleanTestScript,
-  testRunners
+  testRunners,
 } = require('@socketregistry/scripts/lib/test-utils')
 const { safeRemove } = require('@socketregistry/scripts/lib/safe-remove')
 const { readPackageJson } = require('@socketsecurity/registry/lib/packages')
 const {
-  resolveOriginalPackageName
+  resolveOriginalPackageName,
 } = require('@socketsecurity/registry/lib/packages')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { logger } = require('@socketsecurity/registry/lib/logger')
@@ -25,13 +25,13 @@ const { values: cliArgs } = util.parseArgs({
   options: {
     package: {
       type: 'string',
-      multiple: true
+      multiple: true,
     },
     concurrency: {
       type: 'string',
-      default: '3'
-    }
-  }
+      default: '3',
+    },
+  },
 })
 
 const concurrency = parseInt(cliArgs.concurrency, 10)
@@ -41,7 +41,7 @@ async function runCommand(command, args, options = {}) {
     const child = spawn(command, args, {
       stdio: 'pipe',
       shell: process.platform === 'win32',
-      ...options
+      ...options,
     })
 
     let stdout = ''
@@ -91,13 +91,13 @@ async function testPackage(socketPkgName) {
 
   // Create temp directory.
   const tempDir = await fs.mkdtemp(
-    path.join(os.tmpdir(), `test-${socketPkgName}-`)
+    path.join(os.tmpdir(), `test-${socketPkgName}-`),
   )
 
   try {
     // Read the test/npm/package.json to get the version spec.
     const testPkgJson = await readPackageJson(constants.testNpmPkgJsonPath, {
-      normalize: true
+      normalize: true,
     })
     const versionSpec = testPkgJson.devDependencies?.[origPkgName]
 
@@ -106,7 +106,7 @@ async function testPackage(socketPkgName) {
       return {
         package: origPkgName,
         passed: false,
-        reason: 'Not in devDependencies'
+        reason: 'Not in devDependencies',
       }
     }
 
@@ -117,11 +117,11 @@ async function testPackage(socketPkgName) {
         {
           name: 'test-temp',
           version: '1.0.0',
-          private: true
+          private: true,
         },
         null,
-        2
-      )
+        2,
+      ),
     )
 
     logger.log(`📦 ${origPkgName}: Installing ${versionSpec}...`)
@@ -132,7 +132,7 @@ async function testPackage(socketPkgName) {
       : `${origPkgName}@${versionSpec}`
 
     await runCommand('npm', ['install', packageSpec, '--no-save'], {
-      cwd: tempDir
+      cwd: tempDir,
     })
 
     // Copy Socket override files on top.
@@ -141,14 +141,15 @@ async function testPackage(socketPkgName) {
 
     // Save original scripts before copying.
     const originalPkgJson = await readPackageJson(installedPath, {
-      normalize: true
+      normalize: true,
     })
     const originalScripts = originalPkgJson.scripts
 
     await copy(overridePath, installedPath, {
       overwrite: true,
       dereference: true,
-      filter: src => !src.includes('node_modules') && !src.endsWith('.DS_Store')
+      filter: src =>
+        !src.includes('node_modules') && !src.endsWith('.DS_Store'),
     })
 
     // Merge back the test scripts and devDependencies if they existed.
@@ -167,7 +168,7 @@ async function testPackage(socketPkgName) {
       // Look for actual test runner in scripts.
       const additionalTestRunners = [...testRunners, 'test:stock', 'test:all']
       let actualTestScript = additionalTestRunners.find(
-        runner => originalScripts[runner]
+        runner => originalScripts[runner],
       )
 
       if (!actualTestScript && originalScripts.test) {
@@ -181,12 +182,12 @@ async function testPackage(socketPkgName) {
       // Use the actual test script or cleaned version.
       if (actualTestScript && originalScripts[actualTestScript]) {
         pkgJson.scripts.test = cleanTestScript(
-          originalScripts[actualTestScript]
+          originalScripts[actualTestScript],
         )
         // Also preserve the actual script if it's referenced.
         if (actualTestScript !== 'test') {
           pkgJson.scripts[actualTestScript] = cleanTestScript(
-            originalScripts[actualTestScript]
+            originalScripts[actualTestScript],
           )
         }
       } else if (originalScripts.test) {
@@ -226,7 +227,7 @@ async function testPackage(socketPkgName) {
     const rootBinPath = path.join(constants.rootPath, 'node_modules', '.bin')
     const env = {
       ...process.env,
-      PATH: `${rootBinPath}:${process.env.PATH}`
+      PATH: `${rootBinPath}:${process.env.PATH}`,
     }
 
     await runCommand('npm', ['test'], { cwd: installedPath, env })
@@ -242,7 +243,7 @@ async function testPackage(socketPkgName) {
           .split('\n')
           .slice(0, 20)
           .map(line => `     ${line}`)
-          .join('\n')
+          .join('\n'),
       )
     }
     if (error.stdout) {
@@ -252,7 +253,7 @@ async function testPackage(socketPkgName) {
           .split('\n')
           .slice(-20)
           .map(line => `     ${line}`)
-          .join('\n')
+          .join('\n'),
       )
     }
     return { package: origPkgName, passed: false, reason: error.message }
@@ -268,7 +269,7 @@ async function main() {
     : constants.npmPackageNames
 
   logger.log(
-    `Testing ${packages.length} packages with concurrency ${concurrency}...\n`
+    `Testing ${packages.length} packages with concurrency ${concurrency}...\n`,
   )
 
   const results = []
@@ -279,7 +280,7 @@ async function main() {
       const result = await testPackage(pkgName)
       results.push(result)
     },
-    { concurrency }
+    { concurrency },
   )
 
   // Summary.
@@ -295,7 +296,7 @@ async function main() {
   const totalTested = results.length - skipped.length
 
   logger.success(
-    `Passed: ${passed.length}/${totalTested} (${results.length} total)`
+    `Passed: ${passed.length}/${totalTested} (${results.length} total)`,
   )
   passed.forEach(r => logger.log(`   ${r.package}`))
 
@@ -306,10 +307,10 @@ async function main() {
 
   if (failed.length > 0) {
     logger.fail(
-      `Failed: ${failed.length}/${totalTested} (${results.length} total)`
+      `Failed: ${failed.length}/${totalTested} (${results.length} total)`,
     )
     failed.forEach(r =>
-      logger.log(`   ${r.package}: ${r.reason?.substring(0, 50)}...`)
+      logger.log(`   ${r.package}: ${r.reason?.substring(0, 50)}...`),
     )
   } else if (totalTested > 0) {
     // All non-skipped tests passed!

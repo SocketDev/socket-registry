@@ -7,7 +7,7 @@ const desc = value => ({
   __proto__: null,
   configurable: true,
   value,
-  writable: true
+  writable: true,
 })
 
 module.exports = Object.defineProperties(
@@ -17,8 +17,8 @@ module.exports = Object.defineProperties(
   {
     getPolyfill: desc(getPolyfill),
     implementation: desc(require('./implementation')),
-    shim: desc(require('./shim'))
-  }
+    shim: desc(require('./shim')),
+  },
 )
 module.exports.getPolyfill = module.exports.getPolyfill
 module.exports.implementation = module.exports.implementation

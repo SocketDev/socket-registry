@@ -178,10 +178,10 @@ function spawn(cmd, args, options, extra) {
       env: {
         __proto__: null,
         ...process.env,
-        ...env
-      }
+        ...env,
+      },
     },
-    extra
+    extra,
   )
   const oldSpawnPromise = spawnPromise
   if (shouldStripAnsi && stdioString) {
@@ -242,13 +242,13 @@ function spawnSync(cmd, args, options) {
   }
   const { stripAnsi: shouldStripAnsi = true, ...rawSpawnOptions } = {
     __proto__: null,
-    ...options
+    ...options,
   }
   const { stdioString: rawStdioString = true } = rawSpawnOptions
   const rawEncoding = rawStdioString ? 'utf8' : 'buffer'
   const spawnOptions = {
     encoding: rawEncoding,
-    ...rawSpawnOptions
+    ...rawSpawnOptions,
   }
   const stdioString = spawnOptions.encoding !== 'buffer'
   const result = getChildProcess().spawnSync(cmd, args, spawnOptions)
@@ -270,5 +270,5 @@ module.exports = {
   isSpawnError,
   isStdioType,
   spawn,
-  spawnSync
+  spawnSync,
 }

@@ -9,7 +9,7 @@ const {
   normalizePath,
   pathLikeToString,
   splitPath,
-  trimLeadingDotSlash
+  trimLeadingDotSlash,
 } = require('@socketsecurity/registry/lib/path')
 
 describe('path module', () => {
@@ -177,7 +177,7 @@ describe('path module', () => {
       const obj = {
         toString() {
           return '/custom/path'
-        }
+        },
       }
       expect(pathLikeToString(obj)).toBe('/custom/path')
     })

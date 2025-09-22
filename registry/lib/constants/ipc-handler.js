@@ -13,7 +13,7 @@ const handler = {
     return true
   },
   set: () => false,
-  setPrototypeOf: () => false
+  setPrototypeOf: () => false,
 }
 
 module.exports = handler

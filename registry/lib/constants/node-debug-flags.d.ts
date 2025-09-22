@@ -1,5 +1,5 @@
 declare const nodeNoWarningsFlags: readonly [
   '--trace-uncaught',
-  '--trace-warnings'
+  '--trace-warnings',
 ]
 export = nodeNoWarningsFlags

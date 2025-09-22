@@ -296,7 +296,7 @@ function mapEquiv(a, b, opts, channel) {
           key,
           item2,
           assign({}, opts, { strict: false }),
-          channel
+          channel,
         )
       ) {
         return false

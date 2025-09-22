@@ -1,6 +1,6 @@
 declare function setFunctionLength<T extends Function>(
   fn: T,
   length: number,
-  loose?: boolean | undefined
+  loose?: boolean | undefined,
 ): T
 export = setFunctionLength

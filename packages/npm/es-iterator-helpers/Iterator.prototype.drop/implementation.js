@@ -10,7 +10,7 @@ const {
   ensureObject,
   getIteratorDirect,
   setUnderlyingIterator,
-  toIntegerOrInfinity
+  toIntegerOrInfinity,
 } = require('../shared')
 
 // Based on https://tc39.es/ecma262/#sec-iterator.prototype.drop.
@@ -60,7 +60,7 @@ module.exports = function drop(limit) {
       }
       // Step 8.c: Repeat, yield the remaining values.
       return ReflectApply(nextMethod, iterator, [])
-    }
+    },
   })
   // Step 10: Set result.[[UnderlyingIterator]] to iterated.
   setUnderlyingIterator(wrapper, iterator)

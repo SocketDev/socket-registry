@@ -2,7 +2,7 @@
 import {
   SpawnOptions as BaseSpawnOptions,
   ChildProcess,
-  IOType
+  IOType,
 } from 'node:child_process'
 import Stream from 'node:stream'
 
@@ -74,43 +74,43 @@ declare const Spawn: {
   isSpawnError(value: any): value is SpawnError
   isStdioType(
     stdio: string | string[] | readonly string[],
-    type: StdioType
+    type: StdioType,
   ): boolean
   spawn<O extends SpawnOptions = SpawnOptions>(
     cmd: string,
     args: string[] | readonly string[],
     options?: O | undefined,
-    extra?: SpawnExtra | undefined
+    extra?: SpawnExtra | undefined,
   ): SpawnResult<
     O extends { stdioString: false } ? Buffer : string,
     typeof extra
   >
   spawnSync(
     command: string,
-    options?: SpawnSyncOptionsWithStringEncoding | undefined
+    options?: SpawnSyncOptionsWithStringEncoding | undefined,
   ): SpawnSyncReturns<string>
   spawnSync(
     command: string,
-    options: SpawnSyncOptionsWithBufferEncoding
+    options: SpawnSyncOptionsWithBufferEncoding,
   ): SpawnSyncReturns<Buffer>
   spawnSync(
     command: string,
-    options?: SpawnSyncOptions
+    options?: SpawnSyncOptions,
   ): SpawnSyncReturns<string | Buffer>
   spawnSync(
     command: string,
     args: string[] | readonly string[],
-    options?: SpawnSyncOptionsWithStringEncoding | undefined
+    options?: SpawnSyncOptionsWithStringEncoding | undefined,
   ): SpawnSyncReturns<string>
   spawnSync(
     command: string,
     args: string[] | readonly string[],
-    options: SpawnSyncOptionsWithBufferEncoding
+    options: SpawnSyncOptionsWithBufferEncoding,
   ): SpawnSyncReturns<Buffer>
   spawnSync(
     command: string,
     args?: string[] | readonly string[],
-    options?: SpawnSyncOptions
+    options?: SpawnSyncOptions,
   ): SpawnSyncReturns<string | Buffer>
 }
 declare namespace Spawn {
@@ -122,7 +122,7 @@ declare namespace Spawn {
     SpawnOptions,
     SpawnResult,
     SpawnStdioResult,
-    StdioType
+    StdioType,
   }
 }
 export = Spawn

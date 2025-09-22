@@ -41,34 +41,34 @@ declare type pNormalizedRetryOptions = {
 }
 declare const Promises: {
   normalizeIterationOptions(
-    options?: pIterationOptions | undefined
+    options?: pIterationOptions | undefined,
   ): pNormalizedIterationOptions
   normalizeRetryOptions(
-    options?: pRetryOptions | undefined
+    options?: pRetryOptions | undefined,
   ): pNormalizedRetryOptions
   pEach<T>(
     array: T[],
     callbackFn: (value: T, context: pIterationContext) => Promise<any>,
-    options?: pIterationOptions | undefined
+    options?: pIterationOptions | undefined,
   ): Promise<void>
   pEachChunk<T>(
     chunks: T[][],
     callbackFn: (value: T, context: pIterationContext) => Promise<any>,
-    options?: pRetryOptions | undefined
+    options?: pRetryOptions | undefined,
   ): Promise<void>
   pFilter<T>(
     array: T[],
     callbackFn: (value: T, context: pIterationContext) => Promise<boolean>,
-    options?: pIterationOptions | undefined
+    options?: pIterationOptions | undefined,
   ): Promise<T[]>
   pFilterChunk<T>(
     chunks: T[][],
     callbackFn: (value: T, context: pIterationContext) => Promise<boolean>,
-    options?: pRetryOptions | undefined
+    options?: pRetryOptions | undefined,
   ): Promise<T[][]>
   pRetry<T, P extends (value: T, context: pIterationContext) => Promise<any>>(
     callbackFn: P,
-    options?: pRetryOptions | undefined
+    options?: pRetryOptions | undefined,
   ): ReturnType<P>
   resolveRetryOptions(options?: pRetryOptions | undefined): pRetryOptions
 }
@@ -79,7 +79,7 @@ declare namespace Promises {
     pIterationOptions,
     pNormalizedIterationOptions,
     pNormalizedRetryOptions,
-    pRetryOptions
+    pRetryOptions,
   }
 }
 export = Promises

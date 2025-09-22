@@ -1,6 +1,6 @@
 import Impl from './implementation'
 declare const {
-  x: StringProtoReplaceAll
+  x: StringProtoReplaceAll,
 }: {
   x: typeof Impl & {
     getPolyfill(): typeof Impl

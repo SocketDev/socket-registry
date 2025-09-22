@@ -12,7 +12,7 @@ const {
   getIteratorDirect,
   iteratorClose,
   setUnderlyingIterator,
-  toIntegerOrInfinity
+  toIntegerOrInfinity,
 } = require('../shared')
 
 const { take: IteratorProtoTake } = IteratorPrototype
@@ -67,7 +67,7 @@ module.exports =
             }
             // Step 8.b.v: Return the value yielded by the iterator.
             return result
-          }
+          },
         })
         // Step 10: Set result.[[UnderlyingIterator]] to iterated.
         setUnderlyingIterator(wrapper, iterator)

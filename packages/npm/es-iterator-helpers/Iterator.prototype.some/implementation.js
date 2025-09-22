@@ -7,7 +7,7 @@ const {
   ensureObject,
   getIteratorDirect,
   ifAbruptCloseIterator,
-  iteratorClose
+  iteratorClose,
 } = require('../shared')
 
 const { some: IteratorProtoSome } = IteratorPrototype
@@ -50,7 +50,7 @@ module.exports =
             // Step 6.c: Let result be Completion(Call(predicate, undefined,<< value, F(counter) >>)).
             predicateResult = ReflectApply(predicate, undefined, [
               result.value,
-              index
+              index,
             ])
           } catch (e) {
             // Step 6.d: IfAbruptCloseIterator(result, iterated).

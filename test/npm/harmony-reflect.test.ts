@@ -29,10 +29,10 @@ describe(
 
     it('should correctly implement getOwnPropertyDescriptor', () => {
       expect(harmonyReflect.getOwnPropertyDescriptor({ x: 1 }, 'x').value).toBe(
-        1
+        1,
       )
       expect(harmonyReflect.getOwnPropertyDescriptor({ x: 1 }, 'y')).toBe(
-        undefined
+        undefined,
       )
     })
 
@@ -41,20 +41,20 @@ describe(
         [key: string]: any
       } = { x: 1 }
       expect(harmonyReflect.defineProperty(target, 'x', { value: 2 })).toBe(
-        true
+        true,
       )
       expect(target['x']).toBe(2)
       expect(harmonyReflect.defineProperty(target, 'y', { value: 3 })).toBe(
-        true
+        true,
       )
       expect(target['y']).toBe(3)
       Object.defineProperty(target, 'z', {
         value: 0,
         writable: false,
-        configurable: false
+        configurable: false,
       })
       expect(harmonyReflect.defineProperty(target, 'z', { value: 1 })).toBe(
-        false
+        false,
       )
       expect(target['z']).toBe(0)
     })
@@ -63,7 +63,7 @@ describe(
       const target = Object.create(Object.prototype, {
         x: { value: 1, enumerable: true },
         y: { value: 2, enumerable: false },
-        z: { get: () => undefined, enumerable: true }
+        z: { get: () => undefined, enumerable: true },
       })
       const result = harmonyReflect.ownKeys(target)
       expect(result.length).toBe(3)
@@ -75,7 +75,7 @@ describe(
     it('should correctly implement deleteProperty', () => {
       const target = Object.create(Object.prototype, {
         x: { value: 1, configurable: true },
-        y: { value: 2, configurable: false }
+        y: { value: 2, configurable: false },
       })
       expect(harmonyReflect.deleteProperty(target, 'x')).toBe(true)
       expect(target.x).toBe(undefined)
@@ -106,16 +106,16 @@ describe(
           z: 3,
           get w() {
             return this
-          }
+          },
         },
         {
           x: { value: 1 },
           y: {
             get() {
               return this
-            }
-          }
-        }
+            },
+          },
+        },
       )
       const receiver = {}
       expect(harmonyReflect.get(target, 'x', receiver)).toBe(1)
@@ -133,7 +133,7 @@ describe(
           set w(_v: any) {
             // eslint-disable-next-line @typescript-eslint/no-this-alias
             out = this
-          }
+          },
         },
         {
           x: { value: 1, writable: true, configurable: true },
@@ -141,10 +141,10 @@ describe(
             set: function (_v) {
               // eslint-disable-next-line @typescript-eslint/no-this-alias
               out = this
-            }
+            },
           },
-          c: { value: 1, writable: false, configurable: false }
-        }
+          c: { value: 1, writable: false, configurable: false },
+        },
       )
 
       expect(harmonyReflect.set(target, 'x', 2, target)).toBe(true)
@@ -175,8 +175,8 @@ describe(
             return x
           },
           undefined,
-          [1]
-        )
+          [1],
+        ),
       ).toBe(1)
 
       const receiver = {}
@@ -186,8 +186,8 @@ describe(
             return this
           },
           receiver,
-          []
-        )
+          [],
+        ),
       ).toBe(receiver)
     })
 
@@ -197,16 +197,16 @@ describe(
           function (x: number) {
             return x
           },
-          [1]
-        )
+          [1],
+        ),
       ).not.toBe(1)
       expect(
         harmonyReflect.construct(
           function (this: { x: number }, x: number) {
             this.x = x
           },
-          [1, 2, 3]
-        ).x
+          [1, 2, 3],
+        ).x,
       ).toBe(1)
     })
 
@@ -263,5 +263,5 @@ describe(
         harmonyReflect.construct(ES2015Class, [], Sub)
       }).not.toThrow()
     })
-  }
+  },
 )

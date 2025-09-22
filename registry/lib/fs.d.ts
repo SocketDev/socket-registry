@@ -13,7 +13,7 @@ import type {
   Stats,
   WriteFileOptions,
   readFile,
-  readFileSync
+  readFileSync,
 } from 'node:fs'
 import type { FileHandle } from 'node:fs/promises'
 
@@ -71,55 +71,55 @@ declare type WriteJsonOptions = Remap<
 declare const Fs: {
   findUp(
     name: string | string[],
-    options?: FindUpOptions | undefined
+    options?: FindUpOptions | undefined,
   ): Promise<string | undefined>
   findUpSync(
     name: string | string[],
-    options?: Omit<FindUpOptions, 'signal'> | undefined
+    options?: Omit<FindUpOptions, 'signal'> | undefined,
   ): string | undefined
   isDirSync: (filepath: PathLike) => boolean
   isDirEmptySync: (
     dirname: PathLike,
-    options?: IsDirEmptyOptions | undefined
+    options?: IsDirEmptyOptions | undefined,
   ) => boolean
   isSymLinkSync(filepath: PathLike): boolean
   readDirNames(
     dirname: PathLike,
-    options?: ReadDirOptions | undefined
+    options?: ReadDirOptions | undefined,
   ): Promise<string[]>
   readDirNamesSync: (
     dirname: PathLike,
-    options?: ReadDirOptions | undefined
+    options?: ReadDirOptions | undefined,
   ) => string[]
   readFileBinary(
     filepath: PathLike | FileHandle,
-    options?: ReadFileOptions | undefined
+    options?: ReadFileOptions | undefined,
   ): Promise<Buffer>
   readFileUtf8(
     filepath: PathLike | FileHandle,
-    options?: ReadFileOptions | undefined
+    options?: ReadFileOptions | undefined,
   ): Promise<string>
   readJson(
     filepath: PathLike,
-    options?: ReadJsonOptions | undefined
+    options?: ReadJsonOptions | undefined,
   ): Promise<JsonContent>
   readJsonSync(
     filepath: PathLike,
-    options?: ReadJsonOptions | undefined
+    options?: ReadJsonOptions | undefined,
   ): JsonContent
   remove(filepath: PathLike, options?: RmOptions): Promise<void>
   removeSync(filepath: PathLike, options?: RmOptions): void
   safeReadFile(
     filepath: PathLike | FileHandle,
-    options?: 'utf8' | 'utf-8' | { encoding: 'utf8' | 'utf-8' } | undefined
+    options?: 'utf8' | 'utf-8' | { encoding: 'utf8' | 'utf-8' } | undefined,
   ): Promise<string | undefined>
   safeReadFile(
     filepath: PathLike | FileHandle,
-    options?: ReadFileOptions | NodeJS.BufferEncoding | undefined
+    options?: ReadFileOptions | NodeJS.BufferEncoding | undefined,
   ): Promise<Awaited<ReturnType<typeof readFile>> | undefined>
   safeReadFileSync(
     filepath: PathOrFileDescriptor,
-    options?: 'utf8' | 'utf-8' | { encoding: 'utf8' | 'utf-8' } | undefined
+    options?: 'utf8' | 'utf-8' | { encoding: 'utf8' | 'utf-8' } | undefined,
   ): string | undefined
   safeReadFileSync(
     filepath: PathOrFileDescriptor,
@@ -129,41 +129,41 @@ declare const Fs: {
           flag?: string | undefined
         }
       | NodeJS.BufferEncoding
-      | undefined
+      | undefined,
   ): ReturnType<typeof readFileSync> | undefined
   safeStatsSync(filepath: PathLike, options?: undefined): Stats | undefined
   safeStatsSync(
     filepath: PathLike,
     options?: StatSyncOptions & {
       bigint?: false | undefined
-    }
+    },
   ): Stats | undefined
   safeStatsSync(
     filepath: PathLike,
     options: StatSyncOptions & {
       bigint: true
-    }
+    },
   ): BigIntStats | undefined
   safeStatsSync(
     filepath: PathLike,
     options: StatSyncOptions & {
       bigint: boolean
-    }
+    },
   ): Stats | BigIntStats | undefined
   safeStatsSync(
     filepath: PathLike,
-    options?: StatSyncOptions
+    options?: StatSyncOptions,
   ): Stats | BigIntStats | undefined
   uniqueSync(filepath: PathLike): string
   writeJson(
     filepath: PathLike,
     jsonContent: JsonContent,
-    options?: WriteJsonOptions | undefined
+    options?: WriteJsonOptions | undefined,
   ): Promise<void>
   writeJsonSync(
     filepath: PathLike,
     jsonContent: JsonContent,
-    options?: WriteJsonOptions | undefined
+    options?: WriteJsonOptions | undefined,
   ): void
 }
 declare namespace Fs {
@@ -174,7 +174,7 @@ declare namespace Fs {
     ReadDirOptions,
     ReadFileOptions,
     ReadJsonOptions,
-    WriteJsonOptions
+    WriteJsonOptions,
   }
 }
 export = Fs

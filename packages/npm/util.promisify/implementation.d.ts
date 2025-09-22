@@ -2,7 +2,7 @@
 import { promisify } from 'node:util'
 
 declare const {
-  x: Impl
+  x: Impl,
 }: {
   x: typeof promisify & {
     custom: symbol

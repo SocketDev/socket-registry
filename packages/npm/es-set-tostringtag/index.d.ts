@@ -4,6 +4,6 @@ declare function setToStringTag(
   options?: {
     force?: boolean | undefined
     nonConfigurable?: boolean | undefined
-  }
+  },
 ): void
 export = setToStringTag
