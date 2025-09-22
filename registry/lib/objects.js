@@ -399,6 +399,7 @@ module.exports = {
   defineGetter,
   defineLazyGetter,
   defineLazyGetters,
+  entryKeyComparator,
   getKeys,
   getOwn,
   getOwnPropertyValues,

@@ -182,15 +182,18 @@ describe('debug module', () => {
       )
     })
 
-    it('should include timestamp or time diff', () => {
+    it('should include timestamp or time diff', async () => {
       process.env['DEBUG'] = 'test:*'
       const fn = debugFn('test:time')
       fn('first')
-      setTimeout(() => {
-        fn('second')
-        const calls = consoleSpy.log.mock.calls
-        expect(calls.length).toBeGreaterThanOrEqual(1)
-      }, 10)
+      await new Promise(resolve => {
+        setTimeout(() => {
+          fn('second')
+          const calls = consoleSpy.log.mock.calls
+          expect(calls.length).toBeGreaterThanOrEqual(1)
+          resolve(undefined)
+        }, 10)
+      })
     })
   })
 })

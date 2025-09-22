@@ -53,6 +53,7 @@ declare type Spinner = {
   warningAndStop(text?: string | undefined, ...extras: any[]): Spinner
 }
 declare const SpinnerModule: {
+  ciSpinner: SpinnerStyle
   getCliSpinners(styleName?: string | undefined): SpinnerStyle | undefined
   Spinner: {
     new (options?: Options): Spinner

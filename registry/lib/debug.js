@@ -132,7 +132,7 @@ function isEnabled(namespaces) {
  * @param {Object} [inspectOpts] - Inspection options.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start */
+/* c8 ignore start - Debug utilities only used in development. */
 function debugDir(namespacesOrOpts, obj, inspectOpts) {
   const options = extractOptions(namespacesOrOpts)
   const { namespaces } = options
@@ -161,7 +161,7 @@ let pointingTriangle
  * @param {...any} args - Arguments to log.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start */
+/* c8 ignore start - Debug utilities only used in development. */
 function debugFn(namespacesOrOpts, ...args) {
   const options = extractOptions(namespacesOrOpts)
   const { namespaces } = options
@@ -234,7 +234,7 @@ function debugFn(namespacesOrOpts, ...args) {
  * @param {...any} args - Arguments to log.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start */
+/* c8 ignore start - Debug utilities only used in development. */
 function debugLog(namespacesOrOpts, ...args) {
   const options = extractOptions(namespacesOrOpts)
   const { namespaces } = options
@@ -257,7 +257,7 @@ function debugLog(namespacesOrOpts, ...args) {
  * @returns {boolean} True if debug is enabled.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start */
+/* c8 ignore start - Debug utilities only used in development. */
 function isDebug(namespaces) {
   const ENV = /*@__PURE__*/ require('./constants/env')
   return ENV.SOCKET_CLI_DEBUG && isEnabled(namespaces)
@@ -269,7 +269,7 @@ function isDebug(namespaces) {
  * @returns {boolean} True if DEBUG is set and truthy.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start */
+/* c8 ignore start - Debug utilities only used in development. */
 function isDebugSimple() {
   const debug = process.env.DEBUG
   if (!debug || debug === '' || debug === '0' || debug === 'false') {
@@ -284,7 +284,7 @@ function isDebugSimple() {
  * @param {...any} args - Arguments to log.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start */
+/* c8 ignore start - Debug utilities only used in development. */
 function debugLogSimple(...args) {
   if (isDebugSimple()) {
     console.log(...args)
@@ -298,7 +298,7 @@ function debugLogSimple(...args) {
  * @param {Object} [options] - Console.dir options.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start */
+/* c8 ignore start - Debug utilities only used in development. */
 function debugDirSimple(obj, options) {
   if (isDebugSimple()) {
     console.dir(obj, options || { depth: null, colors: true })
@@ -312,7 +312,7 @@ function debugDirSimple(obj, options) {
  * @returns {Function} A debug function for the namespace.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start */
+/* c8 ignore start - Debug utilities only used in development. */
 function matchPattern(ns, pattern) {
   if (pattern === '*') {
     return true
@@ -373,7 +373,7 @@ function debugFnSimple(namespace) {
  * @returns {Function} A debug function.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start */
+/* c8 ignore start - Debug utilities only used in development. */
 function debuglog(section) {
   const log = (...args) => {
     if (isDebugSimple()) {
@@ -390,7 +390,7 @@ function debuglog(section) {
  * @returns {Object} An object with start and end methods.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start */
+/* c8 ignore start - Debug utilities only used in development. */
 function debugtime(section) {
   const timers = new Map()
 
