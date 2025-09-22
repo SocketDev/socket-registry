@@ -1,5 +1,3 @@
-import path from 'node:path'
-
 import { describe, expect, it } from 'vitest'
 
 const {
@@ -14,8 +12,6 @@ const {
   normalizePackageJson,
   resolveEscapedScope,
   resolveOriginalPackageName,
-  resolvePackageName,
-  resolveRegistryPackageName,
 } = require('@socketsecurity/registry/lib/packages')
 
 describe('packages module', () => {

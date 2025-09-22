@@ -15,7 +15,7 @@ describe('promises module', () => {
   describe('pEach', () => {
     it('should iterate over array', async () => {
       const results: number[] = []
-      await pEach([1, 2, 3], async x => {
+      await pEach([1, 2, 3], async (x: number) => {
         await new Promise(r => setTimeout(r, 10))
         results.push(x * 2)
       })
@@ -27,7 +27,7 @@ describe('promises module', () => {
       let maxConcurrent = 0
       await pEach(
         [1, 2, 3, 4, 5],
-        async x => {
+        async (_x: number) => {
           concurrent++
           maxConcurrent = Math.max(maxConcurrent, concurrent)
           await new Promise(r => setTimeout(r, 20))
@@ -48,7 +48,7 @@ describe('promises module', () => {
       const results: number[] = []
       await pEach(
         [3, 1, 2],
-        async x => {
+        async (x: number) => {
           await new Promise(r => setTimeout(r, x * 10))
           results.push(x)
         },
@@ -63,7 +63,7 @@ describe('promises module', () => {
       const chunks: number[][] = []
       await pEachChunk(
         [1, 2, 3, 4, 5],
-        async chunk => {
+        async (chunk: number[]) => {
           chunks.push(chunk)
         },
         { chunkSize: 2 },
@@ -75,7 +75,7 @@ describe('promises module', () => {
       const chunks: number[][] = []
       await pEachChunk(
         [1, 2, 3],
-        async chunk => {
+        async (chunk: number[]) => {
           chunks.push(chunk)
         },
         { chunkSize: 5 },
@@ -94,7 +94,7 @@ describe('promises module', () => {
       let maxConcurrent = 0
       await pEachChunk(
         [1, 2, 3, 4, 5, 6],
-        async chunk => {
+        async (_chunk: number[]) => {
           concurrent++
           maxConcurrent = Math.max(maxConcurrent, concurrent)
           await new Promise(r => setTimeout(r, 20))
@@ -108,7 +108,7 @@ describe('promises module', () => {
 
   describe('pFilter', () => {
     it('should filter array with async predicate', async () => {
-      const result = await pFilter([1, 2, 3, 4, 5], async x => {
+      const result = await pFilter([1, 2, 3, 4, 5], async (x: number) => {
         await new Promise(r => setTimeout(r, 10))
         return x % 2 === 0
       })
@@ -120,7 +120,7 @@ describe('promises module', () => {
       let maxConcurrent = 0
       const result = await pFilter(
         [1, 2, 3, 4, 5],
-        async x => {
+        async (x: number) => {
           concurrent++
           maxConcurrent = Math.max(maxConcurrent, concurrent)
           await new Promise(r => setTimeout(r, 20))
@@ -134,12 +134,12 @@ describe('promises module', () => {
     })
 
     it('should handle empty arrays', async () => {
-      const result = await pFilter([], async x => true)
+      const result = await pFilter([], async (_x: any) => true)
       expect(result).toEqual([])
     })
 
     it('should preserve order', async () => {
-      const result = await pFilter([3, 1, 4, 2, 5], async x => {
+      const result = await pFilter([3, 1, 4, 2, 5], async (x: number) => {
         await new Promise(r => setTimeout(r, x * 10))
         return x > 2
       })
@@ -153,7 +153,7 @@ describe('promises module', () => {
         [1, 2, 3],
         [4, 5, 6],
       ]
-      const result = await pFilterChunk(chunks, async value => {
+      const result = await pFilterChunk(chunks, async (value: number) => {
         await new Promise(r => setTimeout(r, 10))
         return value % 2 === 0
       })
@@ -161,13 +161,16 @@ describe('promises module', () => {
     })
 
     it('should handle empty chunks', async () => {
-      const result = await pFilterChunk([], async value => true)
+      const result = await pFilterChunk([], async (_value: any) => true)
       expect(result).toEqual([])
     })
 
     it('should filter out all values when predicate is false', async () => {
       const chunks = [[1, 2, 3]]
-      const result = await pFilterChunk(chunks, async value => value > 10)
+      const result = await pFilterChunk(
+        chunks,
+        async (value: number) => value > 10,
+      )
       expect(result).toEqual([[]])
     })
   })

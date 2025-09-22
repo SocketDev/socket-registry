@@ -793,6 +793,12 @@ importers:
       which:
         specifier: 5.0.0
         version: 5.0.0
+      yargs-parser:
+        specifier: 21.1.1
+        version: 21.1.1
+      yoctocolors-cjs:
+        specifier: 2.1.3
+        version: 2.1.3
 
 packages:
 

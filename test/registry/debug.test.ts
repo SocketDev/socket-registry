@@ -27,36 +27,36 @@ describe('debug module', () => {
 
   describe('isDebug', () => {
     it('should return true when DEBUG env is set', () => {
-      process.env.DEBUG = '1'
+      process.env['DEBUG'] = '1'
       expect(isDebug()).toBe(true)
 
-      process.env.DEBUG = 'true'
+      process.env['DEBUG'] = 'true'
       expect(isDebug()).toBe(true)
 
-      process.env.DEBUG = '*'
+      process.env['DEBUG'] = '*'
       expect(isDebug()).toBe(true)
     })
 
     it('should return false when DEBUG env is not set', () => {
-      delete process.env.DEBUG
+      delete process.env['DEBUG']
       expect(isDebug()).toBe(false)
     })
 
     it('should return false when DEBUG is set to falsy value', () => {
-      process.env.DEBUG = '0'
+      process.env['DEBUG'] = '0'
       expect(isDebug()).toBe(false)
 
-      process.env.DEBUG = 'false'
+      process.env['DEBUG'] = 'false'
       expect(isDebug()).toBe(false)
 
-      process.env.DEBUG = ''
+      process.env['DEBUG'] = ''
       expect(isDebug()).toBe(false)
     })
   })
 
   describe('debugLog', () => {
     it('should log when debug is enabled', () => {
-      process.env.DEBUG = '1'
+      process.env['DEBUG'] = '1'
       debugLog('test message', 'arg1', 'arg2')
       expect(consoleSpy.log).toHaveBeenCalledWith(
         'test message',
@@ -66,13 +66,13 @@ describe('debug module', () => {
     })
 
     it('should not log when debug is disabled', () => {
-      delete process.env.DEBUG
+      delete process.env['DEBUG']
       debugLog('test message')
       expect(consoleSpy.log).not.toHaveBeenCalled()
     })
 
     it('should handle multiple arguments', () => {
-      process.env.DEBUG = '1'
+      process.env['DEBUG'] = '1'
       debugLog('msg', 1, true, { obj: 'value' }, ['array'])
       expect(consoleSpy.log).toHaveBeenCalledWith(
         'msg',
@@ -84,7 +84,7 @@ describe('debug module', () => {
     })
 
     it('should handle no arguments', () => {
-      process.env.DEBUG = '1'
+      process.env['DEBUG'] = '1'
       debugLog()
       expect(consoleSpy.log).toHaveBeenCalledWith()
     })
@@ -92,20 +92,20 @@ describe('debug module', () => {
 
   describe('debugDir', () => {
     it('should dir when debug is enabled', () => {
-      process.env.DEBUG = '1'
+      process.env['DEBUG'] = '1'
       const obj = { key: 'value', nested: { deep: true } }
       debugDir(obj)
       expect(consoleSpy.dir).toHaveBeenCalledWith(obj, expect.any(Object))
     })
 
     it('should not dir when debug is disabled', () => {
-      delete process.env.DEBUG
+      delete process.env['DEBUG']
       debugDir({ test: 'value' })
       expect(consoleSpy.dir).not.toHaveBeenCalled()
     })
 
     it('should pass options to console.dir', () => {
-      process.env.DEBUG = '1'
+      process.env['DEBUG'] = '1'
       const obj = { test: 'value' }
       const options = { colors: true, depth: 2 }
       debugDir(obj, options)
@@ -116,7 +116,7 @@ describe('debug module', () => {
     })
 
     it('should handle circular references', () => {
-      process.env.DEBUG = '1'
+      process.env['DEBUG'] = '1'
       const obj: any = { a: 1 }
       obj.circular = obj
       debugDir(obj)
@@ -131,7 +131,7 @@ describe('debug module', () => {
     })
 
     it('should log with namespace when debug matches', () => {
-      process.env.DEBUG = 'test:*'
+      process.env['DEBUG'] = 'test:*'
       const fn = debugFn('test:namespace')
       fn('message')
       expect(consoleSpy.log).toHaveBeenCalledWith(
@@ -141,21 +141,21 @@ describe('debug module', () => {
     })
 
     it('should not log when namespace does not match', () => {
-      process.env.DEBUG = 'other:*'
+      process.env['DEBUG'] = 'other:*'
       const fn = debugFn('test:namespace')
       fn('message')
       expect(consoleSpy.log).not.toHaveBeenCalled()
     })
 
     it('should handle wildcard patterns', () => {
-      process.env.DEBUG = '*'
+      process.env['DEBUG'] = '*'
       const fn = debugFn('any:namespace')
       fn('message')
       expect(consoleSpy.log).toHaveBeenCalled()
     })
 
     it('should handle multiple debug patterns', () => {
-      process.env.DEBUG = 'test:*,other:*'
+      process.env['DEBUG'] = 'test:*,other:*'
       const fn1 = debugFn('test:one')
       const fn2 = debugFn('other:two')
       const fn3 = debugFn('skip:this')
@@ -168,7 +168,7 @@ describe('debug module', () => {
     })
 
     it('should handle negation patterns', () => {
-      process.env.DEBUG = '*,-test:skip'
+      process.env['DEBUG'] = '*,-test:skip'
       const fn1 = debugFn('test:include')
       const fn2 = debugFn('test:skip')
 
@@ -183,7 +183,7 @@ describe('debug module', () => {
     })
 
     it('should include timestamp or time diff', () => {
-      process.env.DEBUG = 'test:*'
+      process.env['DEBUG'] = 'test:*'
       const fn = debugFn('test:time')
       fn('first')
       setTimeout(() => {
