@@ -78,6 +78,8 @@ void (async () => {
     const spawnEnv = {
       ...process.env,
       ...(hasForce ? { FORCE_TEST: '1' } : {}),
+      // Increase Node.js heap size to prevent out of memory errors in tests.
+      NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --max-old-space-size=4096`.trim(),
     }
 
     // Handle Windows vs Unix for vitest executable.
