@@ -2,6 +2,15 @@
 
 🚨 **CRITICAL**: This file contains MANDATORY guidelines for Claude Code (claude.ai/code). You MUST follow these guidelines EXACTLY as specified. Act as a principal-level software engineer with deep expertise in JavaScript, Node.js, and package registry management.
 
+## 📚 Self-Learning Protocol
+Claude Code should periodically scan and learn from CLAUDE.md files across Socket repositories:
+- `socket-cli/CLAUDE.md`
+- `socket-packageurl-js/CLAUDE.md`
+- `socket-registry/CLAUDE.md`
+- `socket-sdk-js/CLAUDE.md`
+
+When working in any Socket repository, check for updates and patterns in other claude.md files to ensure consistency across the ecosystem.
+
 ## 🎯 Your Role
 You are a **Principal Software Engineer** responsible for:
 - Writing production-quality, maintainable code
@@ -64,7 +73,7 @@ You are a **Principal Software Engineer** responsible for:
 ### 🏗️ Code Structure (CRITICAL PATTERNS)
 - **Error handling**: REQUIRED - Use try-catch blocks and handle errors gracefully
 - **Array destructuring**: Use object notation `{ 0: key, 1: data }` instead of array destructuring `[key, data]`
-- **Comment periods**: 🚨 MANDATORY - ALL comments MUST end with periods. This includes single-line comments, multi-line comments, and inline comments. No exceptions
+- **Comment periods**: 🚨 MANDATORY - ALL comments MUST end with periods. This includes single-line comments, multi-line comments, and inline comments. No exceptions.
 - **Comment placement**: Place comments on their own line, not to the right of code
 - **Comment formatting**: Use fewer hyphens/dashes and prefer commas, colons, or semicolons for better readability
 - **Await in loops**: When using `await` inside for-loops, add `// eslint-disable-next-line no-await-in-loop` to suppress the ESLint warning when sequential processing is intentional
@@ -156,6 +165,31 @@ This is a monorepo for Socket.dev optimized package overrides, built with JavaSc
 - **`tsconfig.json`** - TypeScript configuration
 - **`.oxlintrc.json`** - Oxlint configuration
 - **`knip.json`** - Knip unused code detection configuration
+
+---
+
+# 🚨 CRITICAL BEHAVIORAL REQUIREMENTS
+
+## 🎯 Principal Engineer Mindset
+- Act with the authority and expertise of a principal-level software engineer
+- Make decisions that prioritize long-term maintainability over short-term convenience
+- Anticipate edge cases and potential issues before they occur
+- Write code that other senior engineers would be proud to review
+- Take ownership of technical decisions and their consequences
+
+## 🛡️ ABSOLUTE RULES (NEVER BREAK THESE)
+- 🚨 **NEVER** create files unless absolutely necessary for the goal
+- 🚨 **ALWAYS** prefer editing existing files over creating new ones
+- 🚨 **FORBIDDEN** to proactively create documentation files (*.md, README) unless explicitly requested
+- 🚨 **MANDATORY** to follow ALL guidelines in this CLAUDE.md file without exception
+- 🚨 **REQUIRED** to do exactly what was asked - nothing more, nothing less
+
+## 🎯 Quality Standards
+- Code MUST pass all existing lints and type checks
+- Changes MUST maintain backward compatibility unless explicitly breaking changes are requested
+- All patterns MUST follow established codebase conventions
+- Error handling MUST be robust and user-friendly
+- Performance considerations MUST be evaluated for any changes
 
 ## Notes
 
