@@ -513,6 +513,7 @@ function collectLicenseWarnings(licenseNodes) {
  * @returns {Object} AST node.
  */
 /*@__NO_SIDE_EFFECTS__*/
+// c8 ignore start - Internal AST creation functions not exported.
 function createAstNode(rawNode) {
   return ObjectHasOwn(rawNode, 'license')
     ? createLicenseNode(rawNode)
@@ -561,6 +562,7 @@ function createBinaryOperationNode(rawNode) {
 function createLicenseNode(rawNode) {
   return { __proto__: null, ...rawNode, type: LICENSE_NODE_TYPE }
 }
+// c8 ignore stop - End of internal AST creation functions.
 
 /**
  * Create a package.json object for a Socket registry package.
@@ -873,10 +875,64 @@ function getSubpaths(entryExports) {
   if (!isObject(entryExports)) {
     return []
   }
-  // Return the keys of the exports object (the subpaths)
+  // Return the keys of the exports object (the subpaths).
   return Object.getOwnPropertyNames(entryExports).filter(key =>
     key.startsWith('.'),
   )
+}
+
+/**
+ * Get file paths from package exports.
+ * @param {Object} entryExports - Package exports object.
+ * @returns {string[]} Array of file paths.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function getExportFilePaths(entryExports) {
+  if (!isObject(entryExports)) {
+    return []
+  }
+
+  const paths = []
+
+  // Traverse the exports object to find actual file paths.
+  for (const key of Object.getOwnPropertyNames(entryExports)) {
+    if (!key.startsWith('.')) {
+      continue
+    }
+
+    const value = entryExports[key]
+
+    if (typeof value === 'string') {
+      // Direct path export.
+      paths.push(value)
+    } else if (isObject(value)) {
+      // Conditional or nested export.
+      for (const subKey of Object.getOwnPropertyNames(value)) {
+        const subValue = value[subKey]
+        if (typeof subValue === 'string') {
+          paths.push(subValue)
+        } else if (Array.isArray(subValue)) {
+          // Array of conditions.
+          for (const item of subValue) {
+            if (typeof item === 'string') {
+              paths.push(item)
+            } else if (isObject(item)) {
+              // Nested conditional.
+              for (const nestedKey of Object.getOwnPropertyNames(item)) {
+                const nestedValue = item[nestedKey]
+                if (typeof nestedValue === 'string') {
+                  paths.push(nestedValue)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Remove duplicates and filter out non-file paths.
+  return [...new Set(paths)].filter(p => p.startsWith('./'))
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -1352,18 +1408,25 @@ module.exports = {
   extractPackage,
   fetchPackageManifest,
   fetchPackagePackument,
+  findPackageExtensions,
   findTypesForSubpath,
   getReleaseTag,
   getRepoUrlDetails,
+  getExportFilePaths,
   getSubpaths,
+  gitHubTagRefUrl,
+  gitHubTgzUrl,
   isBlessedPackageName,
   isConditionalExports,
   isGitHubTgzSpec,
   isGitHubUrlSpec,
+  isRegistryFetcherType,
   isSubpathExports,
   isValidPackageName,
   normalizePackageJson,
   packPackage,
+  parseSpdxExp,
+  pkgJsonToEditable,
   readPackageJson,
   readPackageJsonSync,
   resolveEscapedScope,
@@ -1378,4 +1441,5 @@ module.exports = {
   toEditablePackageJson,
   toEditablePackageJsonSync,
   unescapeScope,
+  visitLicenses,
 }

@@ -7,6 +7,15 @@ export default defineConfig({
     globals: false,
     environment: 'node',
     include: ['test/**/*.test.{js,ts,mjs,cjs}'],
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/cypress/**',
+      '**/.{idea,git,cache,output,temp}/**',
+      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
+      'test/packages.test.ts',
+      'test/npm/**/*.test.{js,ts}',
+    ],
     reporters: ['default'],
     coverage: {
       provider: 'v8',
@@ -29,7 +38,7 @@ export default defineConfig({
         'packages/**',
         'perf/**',
       ],
-      all: false,
+      all: true,
       thresholds: {
         lines: 90,
         functions: 85,

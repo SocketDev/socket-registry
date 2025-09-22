@@ -35,6 +35,7 @@ declare const Objects: {
     getterDefObj: GetterDefObj | undefined,
     stats?: LazyGetterStats | undefined,
   ) => object
+  entryKeyComparator: (a: [PropertyKey, any], b: [PropertyKey, any]) => number
   getKeys(obj: any): string[]
   getOwn(obj: any, propKey: PropertyKey): any
   getOwnPropertyValues<T>(

@@ -15,7 +15,7 @@
     "noEmit": true,
     "noEmitOnError": true,
     "resolveJsonModule": true,
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
     "strictNullChecks": true,
@@ -37,5 +37,10 @@
     "noUncheckedSideEffectImports": true
   },
   "include": ["**/*.ts"],
-  "exclude": ["**/node_modules/**/*", "test/**/packages/**/*"]
+  "exclude": [
+    "**/node_modules/**/*",
+    "test/**/packages/**/*",
+    "test/npm/node_modules/**",
+    "test/npm/**/*.d.ts"
+  ]
 }

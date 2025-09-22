@@ -74,16 +74,28 @@ declare namespace Packages {
     pkgNameOrId: string,
     options?: PacoteOptions | undefined,
   ): Promise<Packument | null>
+  export function findPackageExtensions(pkgName: string, pkgVer: string): any
   export function findTypesForSubpath(
     entryExports: Exports,
     subpath: string,
   ): string | undefined
+  export function gitHubTagRefUrl(
+    user: string,
+    project: string,
+    tag: string,
+  ): string
+  export function gitHubTgzUrl(
+    user: string,
+    project: string,
+    sha: string,
+  ): string
   export function getReleaseTag(version: string): string
   export function getRepoUrlDetails(repoUrl: string): {
     user: string
     project: string
   }
   export function getSubpaths(entryExports: Exports): string[]
+  export function getExportFilePaths(entryExports: Exports): string[]
   export function isBlessedPackageName(name: any): boolean
   export function isConditionalExports(entryExports: Exports): boolean
   export function isGitHubTgzSpec(
@@ -94,12 +106,18 @@ declare namespace Packages {
     spec: string,
     where?: string | undefined,
   ): boolean
+  export function isRegistryFetcherType(type: string): boolean
   export function isSubpathExports(entryExports: Exports): boolean
   export function isValidPackageName(name: any): boolean
   export function normalizePackageJson(
     pkgJson: PackageJson,
     options?: { preserve?: string[] | readonly string[] } | undefined,
   ): NormalizedPackageJson
+  export function parseSpdxExp(spdxExp: string): any
+  export function pkgJsonToEditable(
+    pkgJson: PackageJson,
+    options?: any,
+  ): EditablePackageJson
   export function packPackage(
     spec: string,
     options?:
@@ -243,5 +261,9 @@ declare namespace Packages {
       | undefined,
   ): EditablePackageJson
   export function unescapeScope(escapedScope: string): string
+  export function visitLicenses(
+    ast: any,
+    visitor: (node: LicenseNode) => void,
+  ): void
 }
 export = Packages
