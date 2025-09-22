@@ -2,7 +2,9 @@
 
 🚨 **CRITICAL**: This file contains MANDATORY guidelines for Claude Code (claude.ai/code). You MUST follow these guidelines EXACTLY as specified. Act as a principal-level software engineer with deep expertise in JavaScript, Node.js, and package registry management.
 
-## 📚 Self-Learning Protocol
+## 📚 Learning & Knowledge Sharing
+
+### Self-Learning Protocol
 Claude Code should periodically scan and learn from CLAUDE.md files across Socket repositories:
 - `socket-cli/CLAUDE.md`
 - `socket-packageurl-js/CLAUDE.md`
@@ -10,6 +12,11 @@ Claude Code should periodically scan and learn from CLAUDE.md files across Socke
 - `socket-sdk-js/CLAUDE.md`
 
 When working in any Socket repository, check for updates and patterns in other claude.md files to ensure consistency across the ecosystem.
+
+### Cross-Project Learning
+- When discovering generally applicable patterns or guidelines, update CLAUDE.md files in other socket- projects
+- Examples: c8 comment formatting, error handling patterns, code style rules
+- This ensures consistency across the Socket ecosystem
 
 ## 🎯 Your Role
 You are a **Principal Software Engineer** responsible for:
@@ -62,6 +69,13 @@ You are a **Principal Software Engineer** responsible for:
 - Provide fallback behavior when optional dependencies aren't available
 - Use try-catch blocks for resilient code
 
+### 8. Test Coverage
+- All `c8 ignore` comments MUST include a reason why the code is being ignored
+- All c8 ignore comments MUST end with periods for consistency
+- Format: `// c8 ignore start - Reason for ignoring.`
+- Example: `// c8 ignore start - Internal helper functions not exported.`
+- This helps maintain clarity about why certain code paths aren't tested
+
 ## 📋 Code Style (MANDATORY PATTERNS)
 
 ### 🔧 Formatting Rules
@@ -73,7 +87,7 @@ You are a **Principal Software Engineer** responsible for:
 ### 🏗️ Code Structure (CRITICAL PATTERNS)
 - **Error handling**: REQUIRED - Use try-catch blocks and handle errors gracefully
 - **Array destructuring**: Use object notation `{ 0: key, 1: data }` instead of array destructuring `[key, data]`
-- **Comment periods**: 🚨 MANDATORY - ALL comments MUST end with periods. This includes single-line comments, multi-line comments, and inline comments. No exceptions.
+- **Comment periods**: 🚨 MANDATORY - ALL comments MUST end with periods. This includes single-line comments, multi-line comments, inline comments, and c8 ignore comments. No exceptions.
 - **Comment placement**: Place comments on their own line, not to the right of code
 - **Comment formatting**: Use fewer hyphens/dashes and prefer commas, colons, or semicolons for better readability
 - **Await in loops**: When using `await` inside for-loops, add `// eslint-disable-next-line no-await-in-loop` to suppress the ESLint warning when sequential processing is intentional
