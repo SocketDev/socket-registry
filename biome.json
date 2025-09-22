@@ -9,7 +9,7 @@
       "!**/.vscode",
       "!**/coverage",
       "!**/package.json",
-      "!**/package-lock.json",
+      "!**/pnpm-lock.yaml",
       "!perf/**/fixtures",
       "!scripts/templates",
       "!test/**/fixtures",
