@@ -54,9 +54,13 @@ You are a **Principal Software Engineer** responsible for:
 - Always provide clear, descriptive commit messages
 
 ### 5. Package Management
-- Project uses pnpm (not npm)
-- Use `-w` flag when adding packages to workspace root
-- Pin exact versions for dev dependencies (use --save-exact)
+- **Package Manager**: This project uses pnpm (not npm)
+- **Install dependencies**: `pnpm install`
+- **Add dependency**: `pnpm add <package> --save-exact`
+- **Add dev dependency**: `pnpm add -D <package> --save-exact`
+- **Update dependencies**: `pnpm update`
+- **Workspace root**: Use `-w` flag when adding packages to workspace root
+- **🚨 MANDATORY**: Always add dependencies with exact versions using `--save-exact` flag to ensure reproducible builds
 
 ### 6. Code Style
 - Follow existing patterns in the codebase
