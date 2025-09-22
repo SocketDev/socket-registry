@@ -3,7 +3,7 @@
 const impl = require('./implementation')
 const {
   IteratorPrototype,
-  isIteratorProtoNextCheckBuggy
+  isIteratorProtoNextCheckBuggy,
 } = require('../shared')
 
 module.exports = function getPolyfill() {

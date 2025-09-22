@@ -7,7 +7,7 @@ const {
   ensureObject,
   getIteratorDirect,
   ifAbruptCloseIterator,
-  iteratorClose
+  iteratorClose,
 } = require('../shared')
 
 const { every: IteratorProtoEvery } = IteratorPrototype
@@ -50,7 +50,7 @@ module.exports =
           try {
             predicateResult = ReflectApply(predicate, undefined, [
               result.value,
-              index
+              index,
             ])
           } catch (e) {
             // Step 6.d: IfAbruptCloseIterator(result, iterated).

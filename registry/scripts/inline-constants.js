@@ -52,7 +52,7 @@ const excludedKeys = new Set([
   'packageExtensions',
   'spinner',
   'tsLibsAvailable',
-  'tsTypesAvailable'
+  'tsTypesAvailable',
 ])
 
 void (async () => {

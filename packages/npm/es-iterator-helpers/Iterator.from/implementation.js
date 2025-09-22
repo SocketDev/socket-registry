@@ -7,7 +7,7 @@ const {
   TypeErrorCtor,
   WrapForValidIteratorPrototype,
   getIteratorFlattenable,
-  setIterated
+  setIterated,
 } = require('../shared')
 
 const IteratorFrom = IteratorCtorRaw?.from

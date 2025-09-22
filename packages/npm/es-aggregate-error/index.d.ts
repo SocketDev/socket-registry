@@ -1,6 +1,6 @@
 import Impl from './implementation'
 declare const {
-  x: AggregateErrorCtor
+  x: AggregateErrorCtor,
 }: {
   x: typeof Impl & {
     getPolyfill(): typeof Impl

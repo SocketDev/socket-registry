@@ -58,5 +58,5 @@ function envAsString(value, defaultValue = '') {
 module.exports = {
   envAsBoolean,
   envAsNumber,
-  envAsString
+  envAsString,
 }

@@ -7,7 +7,7 @@ const {
   ensureObject,
   getIteratorDirect,
   ifAbruptCloseIterator,
-  setUnderlyingIterator
+  setUnderlyingIterator,
 } = require('../shared')
 
 // Based on https://tc39.es/ecma262/#sec-iterator.prototype.map
@@ -53,7 +53,7 @@ module.exports = function map(mapper) {
       // Step 5.b.v: Let completion be Completion(Yield(mapped)).
       // The `Yield(mapped)` part is simply the return value from the closure.
       return { value: mappedValue, done: false }
-    }
+    },
   })
   // Step 7: Set result.[[UnderlyingIterator]] to iterated.
   setUnderlyingIterator(wrapper, iterator)

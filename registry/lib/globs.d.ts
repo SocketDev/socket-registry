@@ -149,11 +149,11 @@ declare const Globs: {
   defaultIgnore: string[]
   getGlobMatcher: (
     glob: string | string[] | readonly string[],
-    options?: object | undefined
+    options?: object | undefined,
   ) => (path: string) => boolean
   globStreamLicenses(
     dirname: string,
-    options?: GlobOptions
+    options?: GlobOptions,
   ): NodeJS.ReadableStream
 }
 declare namespace Globs {

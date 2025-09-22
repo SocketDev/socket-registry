@@ -5,5 +5,5 @@ module.exports = {
   boundFnsHaveConfigurableLengths: true,
   boundFnsHaveWritableLengths: false,
   functionsHaveConfigurableLengths: true,
-  functionsHaveWritableLengths: false
+  functionsHaveWritableLengths: false,
 }

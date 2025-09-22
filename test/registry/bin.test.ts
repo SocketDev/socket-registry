@@ -11,7 +11,7 @@ const {
   isShadowBinPath,
   resolveBinPathSync,
   whichBin,
-  whichBinSync
+  whichBinSync,
 } = require('@socketsecurity/registry/lib/bin')
 
 describe('bin module', () => {
@@ -24,7 +24,7 @@ describe('bin module', () => {
 
     it('should handle Windows paths', () => {
       expect(isShadowBinPath('C:\\project\\node_modules\\.bin\\tool.cmd')).toBe(
-        true
+        true,
       )
       expect(isShadowBinPath('C:\\Program Files\\nodejs\\npm.cmd')).toBe(false)
     })
@@ -177,8 +177,8 @@ describe('bin module', () => {
         'node',
         ['-e', 'console.log(process.env.TEST_VAR)'],
         {
-          env: { ...process.env, TEST_VAR: 'test_value' }
-        }
+          env: { ...process.env, TEST_VAR: 'test_value' },
+        },
       )
       expect(result.stdout).toContain('test_value')
     })
@@ -188,8 +188,8 @@ describe('bin module', () => {
         'node',
         ['-e', 'console.log(process.cwd())'],
         {
-          cwd: '/tmp'
-        }
+          cwd: '/tmp',
+        },
       )
       expect(result.stdout).toContain('/tmp')
     })

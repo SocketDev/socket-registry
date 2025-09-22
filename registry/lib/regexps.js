@@ -19,5 +19,5 @@ function escapeRegExp(str) {
 }
 
 module.exports = {
-  escapeRegExp
+  escapeRegExp,
 }

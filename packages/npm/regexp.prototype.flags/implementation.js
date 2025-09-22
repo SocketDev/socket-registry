@@ -41,5 +41,5 @@ module.exports = !isRegExpProtoFlagsOrderBuggy(flagsGetter)
           result += 'y'
         }
         return result
-      }
+      },
     }.__lookupGetter__('flags')

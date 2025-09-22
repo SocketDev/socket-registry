@@ -10,7 +10,7 @@ const {
   stripAnsi,
   stripBom,
   toKebabCase,
-  trimNewlines
+  trimNewlines,
 } = require('@socketsecurity/registry/lib/strings')
 
 describe('strings module', () => {
@@ -109,7 +109,7 @@ describe('strings module', () => {
     it('should remove ANSI escape codes', () => {
       expect(stripAnsi('\u001b[31mRed Text\u001b[0m')).toBe('Red Text')
       expect(stripAnsi('\u001b[1m\u001b[32mBold Green\u001b[0m')).toBe(
-        'Bold Green'
+        'Bold Green',
       )
     })
 
@@ -120,14 +120,14 @@ describe('strings module', () => {
 
     it('should handle multiple ANSI codes', () => {
       expect(stripAnsi('\u001b[31mRed\u001b[0m \u001b[32mGreen\u001b[0m')).toBe(
-        'Red Green'
+        'Red Green',
       )
     })
 
     it('should handle complex ANSI sequences', () => {
       expect(stripAnsi('\u001b[1;31mBold Red\u001b[0m')).toBe('Bold Red')
       expect(stripAnsi('\u001b[38;5;196mExtended Color\u001b[0m')).toBe(
-        'Extended Color'
+        'Extended Color',
       )
     })
   })
@@ -176,7 +176,7 @@ describe('strings module', () => {
 
     it('should handle empty lines', () => {
       expect(applyLinePrefix('line1\n\nline3', '> ')).toBe(
-        '> line1\n> \n> line3'
+        '> line1\n> \n> line3',
       )
     })
 

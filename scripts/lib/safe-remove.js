@@ -43,11 +43,11 @@ async function safeRemove(paths, options) {
           }
         }
       },
-      { concurrency }
+      { concurrency },
     )
   }
 }
 
 module.exports = {
-  safeRemove
+  safeRemove,
 }

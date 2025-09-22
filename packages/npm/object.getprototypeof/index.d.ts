@@ -1,6 +1,6 @@
 import Impl from './implementation'
 declare const {
-  x: ObjectGetPrototypeOf
+  x: ObjectGetPrototypeOf,
 }: {
   x: typeof Impl & {
     getPolyfill(): typeof Impl

@@ -7,7 +7,7 @@ const {
   urlSearchParamAsArray,
   urlSearchParamAsBoolean,
   urlSearchParamsGetArray,
-  urlSearchParamsGetBoolean
+  urlSearchParamsGetBoolean,
 } = require('@socketsecurity/registry/lib/url')
 
 describe('url module', () => {
@@ -74,7 +74,7 @@ describe('url module', () => {
       expect(urlSearchParamAsArray('one, two, three')).toEqual([
         'one',
         'two',
-        'three'
+        'three',
       ])
     })
 
@@ -193,12 +193,12 @@ describe('url module', () => {
 
       const falseUrl = new URL('https://example.com?flag=false')
       expect(urlSearchParamsGetBoolean(falseUrl.searchParams, 'flag')).toBe(
-        false
+        false,
       )
 
       const zeroUrl = new URL('https://example.com?flag=0')
       expect(urlSearchParamsGetBoolean(zeroUrl.searchParams, 'flag')).toBe(
-        false
+        false,
       )
     })
 
@@ -206,22 +206,22 @@ describe('url module', () => {
       const url = new URL('https://example.com')
       expect(urlSearchParamsGetBoolean(url.searchParams, 'missing')).toBe(false)
       expect(urlSearchParamsGetBoolean(url.searchParams, 'missing', true)).toBe(
-        true
+        true,
       )
       expect(
-        urlSearchParamsGetBoolean(url.searchParams, 'missing', false)
+        urlSearchParamsGetBoolean(url.searchParams, 'missing', false),
       ).toBe(false)
     })
 
     it('should handle empty value', () => {
       const emptyUrl = new URL('https://example.com?flag=')
       expect(urlSearchParamsGetBoolean(emptyUrl.searchParams, 'flag')).toBe(
-        false
+        false,
       )
 
       const noValueUrl = new URL('https://example.com?flag')
       expect(urlSearchParamsGetBoolean(noValueUrl.searchParams, 'flag')).toBe(
-        false
+        false,
       )
     })
 
@@ -242,7 +242,7 @@ describe('url module', () => {
       expect(createRelativeUrl('resource', '/base')).toBe('/base/resource')
       expect(createRelativeUrl('/resource', '/base/')).toBe('/base/resource')
       expect(createRelativeUrl('path/resource', '/base')).toBe(
-        '/base/path/resource'
+        '/base/path/resource',
       )
     })
 

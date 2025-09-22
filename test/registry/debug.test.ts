@@ -4,7 +4,7 @@ const {
   debugDir,
   debugFn,
   debugLog,
-  isDebug
+  isDebug,
 } = require('@socketsecurity/registry/lib/debug')
 
 describe('debug module', () => {
@@ -16,7 +16,7 @@ describe('debug module', () => {
     consoleSpy = {
       log: vi.spyOn(console, 'log').mockImplementation(() => {}),
       dir: vi.spyOn(console, 'dir').mockImplementation(() => {}),
-      error: vi.spyOn(console, 'error').mockImplementation(() => {})
+      error: vi.spyOn(console, 'error').mockImplementation(() => {}),
     }
   })
 
@@ -61,7 +61,7 @@ describe('debug module', () => {
       expect(consoleSpy.log).toHaveBeenCalledWith(
         'test message',
         'arg1',
-        'arg2'
+        'arg2',
       )
     })
 
@@ -79,7 +79,7 @@ describe('debug module', () => {
         1,
         true,
         { obj: 'value' },
-        ['array']
+        ['array'],
       )
     })
 
@@ -111,7 +111,7 @@ describe('debug module', () => {
       debugDir(obj, options)
       expect(consoleSpy.dir).toHaveBeenCalledWith(
         obj,
-        expect.objectContaining(options)
+        expect.objectContaining(options),
       )
     })
 
@@ -136,7 +136,7 @@ describe('debug module', () => {
       fn('message')
       expect(consoleSpy.log).toHaveBeenCalledWith(
         expect.stringContaining('test:namespace'),
-        'message'
+        'message',
       )
     })
 
@@ -178,7 +178,7 @@ describe('debug module', () => {
       expect(consoleSpy.log).toHaveBeenCalledWith(expect.anything(), 'included')
       expect(consoleSpy.log).not.toHaveBeenCalledWith(
         expect.anything(),
-        'skipped'
+        'skipped',
       )
     })
 

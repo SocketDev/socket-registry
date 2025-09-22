@@ -56,15 +56,15 @@ void (async () => {
             path.join(
               constants.rootPath,
               'scripts',
-              'update-test-npm-package-json.js'
+              'update-test-npm-package-json.js',
             ),
-            '--force'
+            '--force',
           ],
           {
             cwd: constants.rootPath,
             stdio: 'inherit',
-            shell: WIN32
-          }
+            shell: WIN32,
+          },
         )
 
         if (setupResult.status) {
@@ -77,7 +77,7 @@ void (async () => {
 
     const spawnEnv = {
       ...process.env,
-      ...(hasForce ? { FORCE_TEST: '1' } : {})
+      ...(hasForce ? { FORCE_TEST: '1' } : {}),
     }
 
     // Handle Windows vs Unix for vitest executable.
@@ -103,7 +103,7 @@ void (async () => {
       cwd: constants.rootPath,
       stdio: 'inherit',
       env: spawnEnv,
-      shell: WIN32
+      shell: WIN32,
     })
 
     child.on('exit', code => {

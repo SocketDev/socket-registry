@@ -75,7 +75,7 @@ function customLog() {
   const debugJs = getDebugJs()
   const util = getUtil()
   ReflectApply(logger.info, logger, [
-    util.formatWithOptions(debugJs.inspectOpts, ...arguments)
+    util.formatWithOptions(debugJs.inspectOpts, ...arguments),
   ])
 }
 
@@ -212,9 +212,9 @@ function debugFn(namespacesOrOpts, ...args) {
       ? [
           applyLinePrefix(
             `${name ? `${name} ${pointingTriangle} ` : ''}${text}`,
-            '[DEBUG] '
+            '[DEBUG] ',
           ),
-          ...args.slice(1)
+          ...args.slice(1),
         ]
       : args
   const { spinner = /*@__PURE__*/ require('./constants/spinner') } = options
@@ -434,5 +434,5 @@ module.exports = {
   debuglog,
   debugtime,
   isDebug: isDebugSimple,
-  isDebugComplex: isDebug
+  isDebugComplex: isDebug,
 }

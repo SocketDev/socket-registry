@@ -10,7 +10,7 @@ module.exports = function setToStringTag(object, value, options) {
     (nonConfigurable !== undefined && typeof nonConfigurable !== 'boolean')
   ) {
     throw new TypeErrorCtor(
-      'if provided, the `force` and `nonConfigurable` options must be booleans'
+      'if provided, the `force` and `nonConfigurable` options must be booleans',
     )
   }
   if (force || !ObjectHasOwn(object, Symbol.toStringTag)) {
@@ -19,7 +19,7 @@ module.exports = function setToStringTag(object, value, options) {
       configurable: !nonConfigurable,
       enumerable: false,
       value,
-      writable: false
+      writable: false,
     })
   }
 }

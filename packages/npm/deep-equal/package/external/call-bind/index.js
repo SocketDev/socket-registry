@@ -8,7 +8,7 @@ const { apply: ReflectApply } = Reflect
 const {
   add: SetProtoAdd,
   delete: SetProtoDelete,
-  has: SetProtoHas
+  has: SetProtoHas,
 } = Set.prototype
 const SetProtoSizeGetter = Set.prototype.__lookupGetter__('size')
 const SharedArrayBufferByteLengthGetter =

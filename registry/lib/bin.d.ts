@@ -5,7 +5,7 @@ declare const Bin: {
   execBin(
     binPath: string,
     args: string[] | readonly string[],
-    options?: SpawnOptions | undefined
+    options?: SpawnOptions | undefined,
   ): Promise<{ stdout: string; stderr: string }>
   findRealBin(binName: string, commonPaths?: string[]): string
   findRealNpm(): string
@@ -15,7 +15,7 @@ declare const Bin: {
   resolveBinPathSync(binPath: string): string
   whichBin<T extends WhichOptions>(
     binName: string,
-    options: T
+    options: T,
   ): T extends { all: true; nothrow: true }
     ? Promise<string[] | null>
     : T extends { all: true }
@@ -25,7 +25,7 @@ declare const Bin: {
         : Promise<string>
   whichBinSync<T extends WhichOptions>(
     binName: string,
-    options: T
+    options: T,
   ): T extends { all: true; nothrow: true }
     ? string[] | null
     : T extends { all: true }

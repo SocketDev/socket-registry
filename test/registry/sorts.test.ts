@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 const {
   localeCompare,
   naturalCompare,
-  naturalSorter
+  naturalSorter,
 } = require('@socketsecurity/registry/lib/sorts')
 
 describe('sorts module', () => {
@@ -140,7 +140,7 @@ describe('sorts module', () => {
         'file1.txt',
         'file2.txt',
         'file10.txt',
-        'file20.txt'
+        'file20.txt',
       ])
     })
   })

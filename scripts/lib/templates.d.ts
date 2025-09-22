@@ -44,7 +44,7 @@ declare type TypeScriptOptions = {
   transform?:
     | ((
         filepath: string,
-        data: { references: string[] | readonly string[] }
+        data: { references: string[] | readonly string[] },
       ) => Promise<any>)
     | undefined
 }
@@ -52,16 +52,16 @@ declare const templatesModule: {
   getLicenseActions(pkgPath: string): Promise<Array<[string, LicenseAction]>>
   getNpmReadmeAction(
     pkgPath: string,
-    options?: { interop?: ManifestEntryData['interop'] } | undefined
+    options?: { interop?: ManifestEntryData['interop'] } | undefined,
   ): Promise<Array<[string, NpmReadmeAction]>>
   getPackageJsonAction(
     pkgPath: string,
-    options?: { engines?: ManifestEntryData['engines'] } | undefined
+    options?: { engines?: ManifestEntryData['engines'] } | undefined,
   ): Promise<Array<[string, PackageAction]>>
   getTemplate<T extends keyof Templates>(templateName: T): Templates[T]
   getTypeScriptActions(
     pkgPath: string,
-    options?: TypeScriptOptions | undefined
+    options?: TypeScriptOptions | undefined,
   ): Promise<Array<[string, TypeScripAction]>>
   renderAction(action: [PathLike, Action]): Promise<string>
   writeAction(action: [PathLike, Action]): Promise<void>
@@ -74,7 +74,7 @@ declare namespace TemplatesModule {
     PackageAction,
     Templates,
     TypeScripAction,
-    TypeScriptOptions
+    TypeScriptOptions,
   }
 }
 export = TemplatesModule

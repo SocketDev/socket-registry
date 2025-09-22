@@ -4,7 +4,7 @@ const {
   arrayChunk,
   arrayUnique,
   joinAnd,
-  joinOr
+  joinOr,
 } = require('@socketsecurity/registry/lib/arrays')
 
 describe('arrays module', () => {
@@ -14,11 +14,11 @@ describe('arrays module', () => {
       expect(arrayChunk([1, 2, 3, 4, 5, 6], 2)).toEqual([
         [1, 2],
         [3, 4],
-        [5, 6]
+        [5, 6],
       ])
       expect(arrayChunk([1, 2, 3, 4, 5, 6], 3)).toEqual([
         [1, 2, 3],
-        [4, 5, 6]
+        [4, 5, 6],
       ])
     })
 
@@ -74,7 +74,7 @@ describe('arrays module', () => {
     it('should handle null and undefined', () => {
       expect(arrayUnique([null, undefined, null, undefined])).toEqual([
         null,
-        undefined
+        undefined,
       ])
     })
 
@@ -88,7 +88,7 @@ describe('arrays module', () => {
   describe('joinAnd', () => {
     it('should join array with "and"', () => {
       expect(joinAnd(['apple', 'banana', 'orange'])).toBe(
-        'apple, banana, and orange'
+        'apple, banana, and orange',
       )
       expect(joinAnd(['one', 'two'])).toBe('one and two')
       expect(joinAnd(['single'])).toBe('single')
@@ -110,7 +110,7 @@ describe('arrays module', () => {
   describe('joinOr', () => {
     it('should join array with "or"', () => {
       expect(joinOr(['apple', 'banana', 'orange'])).toBe(
-        'apple, banana, or orange'
+        'apple, banana, or orange',
       )
       expect(joinOr(['yes', 'no'])).toBe('yes or no')
       expect(joinOr(['single'])).toBe('single')

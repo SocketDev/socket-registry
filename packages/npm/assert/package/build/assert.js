@@ -87,7 +87,7 @@ function _classCallCheck(instance, Constructor) {
   }
 }
 const RegExpPrototypeTest = require('../external/call-bind')(
-  'RegExp.prototype.test'
+  'RegExp.prototype.test',
 )
 const objectIs = require('object-is/polyfill')()
 const objectAssign = require('object.assign/polyfill')()
@@ -146,7 +146,7 @@ const meta = [
   '\\u001c',
   '\\u001d',
   '\\u001e',
-  '\\u001f'
+  '\\u001f',
 ]
 let warned = false
 
@@ -187,7 +187,7 @@ function fail(actual, expected, message, operator, stackStartFn) {
         'assert.fail() with more than one argument is deprecated. ' +
           'Please use assert.strictEqual() instead or only pass a message.',
         'DeprecationWarning',
-        'DEP0094'
+        'DEP0094',
       )
     }
     if (argsLen === 2) {
@@ -201,7 +201,7 @@ function fail(actual, expected, message, operator, stackStartFn) {
     actual: actual,
     expected: expected,
     operator: operator === undefined ? 'fail' : operator,
-    stackStartFn: stackStartFn || fail
+    stackStartFn: stackStartFn || fail,
   }
   if (message !== undefined) {
     errArgs.message = message
@@ -231,7 +231,7 @@ function innerOk(fn, argLen, value, message) {
       expected: true,
       message: message,
       operator: '==',
-      stackStartFn: fn
+      stackStartFn: fn,
     })
     err.generatedMessage = generatedMessage
     throw err
@@ -265,7 +265,7 @@ assert.equal = function equal(actual, expected, message) {
       expected: expected,
       message: message,
       operator: '==',
-      stackStartFn: equal
+      stackStartFn: equal,
     })
   }
 }
@@ -283,7 +283,7 @@ assert.notEqual = function notEqual(actual, expected, message) {
       expected: expected,
       message: message,
       operator: '!=',
-      stackStartFn: notEqual
+      stackStartFn: notEqual,
     })
   }
 }
@@ -302,7 +302,7 @@ assert.deepEqual = function deepEqual(actual, expected, message) {
       expected: expected,
       message: message,
       operator: 'deepEqual',
-      stackStartFn: deepEqual
+      stackStartFn: deepEqual,
     })
   }
 }
@@ -321,7 +321,7 @@ assert.notDeepEqual = function notDeepEqual(actual, expected, message) {
       expected: expected,
       message: message,
       operator: 'notDeepEqual',
-      stackStartFn: notDeepEqual
+      stackStartFn: notDeepEqual,
     })
   }
 }
@@ -339,7 +339,7 @@ assert.deepStrictEqual = function deepStrictEqual(actual, expected, message) {
       expected: expected,
       message: message,
       operator: 'deepStrictEqual',
-      stackStartFn: deepStrictEqual
+      stackStartFn: deepStrictEqual,
     })
   }
 }
@@ -357,7 +357,7 @@ function notDeepStrictEqual(actual, expected, message) {
       expected: expected,
       message: message,
       operator: 'notDeepStrictEqual',
-      stackStartFn: notDeepStrictEqual
+      stackStartFn: notDeepStrictEqual,
     })
   }
 }
@@ -371,7 +371,7 @@ assert.strictEqual = function strictEqual(actual, expected, message) {
       expected: expected,
       message: message,
       operator: 'strictEqual',
-      stackStartFn: strictEqual
+      stackStartFn: strictEqual,
     })
   }
 }
@@ -385,7 +385,7 @@ assert.notStrictEqual = function notStrictEqual(actual, expected, message) {
       expected: expected,
       message: message,
       operator: 'notStrictEqual',
-      stackStartFn: notStrictEqual
+      stackStartFn: notStrictEqual,
     })
   }
 }
@@ -407,7 +407,7 @@ const Comparison = /*@__PURE__*/ _createClass(
         }
       }
     })
-  }
+  },
 )
 function compareExceptionKey(actual, expected, key, message, keys, fn) {
   if (!(key in actual) || !isDeepStrictEqual(actual[key], expected[key])) {
@@ -419,7 +419,7 @@ function compareExceptionKey(actual, expected, key, message, keys, fn) {
         actual: a,
         expected: b,
         operator: 'deepStrictEqual',
-        stackStartFn: fn
+        stackStartFn: fn,
       })
       err.actual = actual
       err.expected = expected
@@ -431,7 +431,7 @@ function compareExceptionKey(actual, expected, key, message, keys, fn) {
       expected: expected,
       message: message,
       operator: fn.name,
-      stackStartFn: fn
+      stackStartFn: fn,
     })
   }
 }
@@ -445,7 +445,7 @@ function expectedException(actual, expected, msg, fn) {
       throw new ERR_INVALID_ARG_TYPE(
         'expected',
         ['Function', 'RegExp'],
-        expected
+        expected,
       )
     }
 
@@ -456,7 +456,7 @@ function expectedException(actual, expected, msg, fn) {
         expected: expected,
         message: msg,
         operator: 'deepStrictEqual',
-        stackStartFn: fn
+        stackStartFn: fn,
       })
       err.operator = fn.name
       throw err
@@ -470,7 +470,7 @@ function expectedException(actual, expected, msg, fn) {
       throw new ERR_INVALID_ARG_VALUE(
         'error',
         expected,
-        'may not be an empty object'
+        'may not be an empty object',
       )
     }
     if (isDeepEqual === undefined) {
@@ -536,7 +536,7 @@ function waitForActual(promiseFn) {
         throw new ERR_INVALID_RETURN_VALUE(
           'instance of Promise',
           'promiseFn',
-          resultPromise
+          resultPromise,
         )
       }
     } else if (checkIsPromise(promiseFn)) {
@@ -545,7 +545,7 @@ function waitForActual(promiseFn) {
       throw new ERR_INVALID_ARG_TYPE(
         'promiseFn',
         ['Function', 'Promise'],
-        promiseFn
+        promiseFn,
       )
     }
     return Promise.resolve()
@@ -566,7 +566,7 @@ function expectsError(stackStartFn, actual, error, message) {
       throw new ERR_INVALID_ARG_TYPE(
         'error',
         ['Object', 'Error', 'Function', 'RegExp'],
-        error
+        error,
       )
     }
     if (_typeof(actual) === 'object' && actual !== null) {
@@ -575,14 +575,14 @@ function expectsError(stackStartFn, actual, error, message) {
           'error/message',
           'The error message "'.concat(
             actual.message,
-            '" is identical to the message.'
-          )
+            '" is identical to the message.',
+          ),
         )
       }
     } else if (actual === error) {
       throw new ERR_AMBIGUOUS_ARGUMENT(
         'error/message',
-        'The error "'.concat(actual, '" is identical to the message.')
+        'The error "'.concat(actual, '" is identical to the message.'),
       )
     }
     message = error
@@ -595,7 +595,7 @@ function expectsError(stackStartFn, actual, error, message) {
     throw new ERR_INVALID_ARG_TYPE(
       'error',
       ['Object', 'Error', 'Function', 'RegExp'],
-      error
+      error,
     )
   }
   if (actual === NO_EXCEPTION_SENTINEL) {
@@ -610,7 +610,7 @@ function expectsError(stackStartFn, actual, error, message) {
       expected: error,
       operator: stackStartFn.name,
       message: 'Missing expected '.concat(fnType).concat(details),
-      stackStartFn: stackStartFn
+      stackStartFn: stackStartFn,
     })
   }
   if (error && !expectedException(actual, error, message, stackStartFn)) {
@@ -636,7 +636,7 @@ function expectsNoError(stackStartFn, actual, error, message) {
       message:
         'Got unwanted '.concat(fnType).concat(details, '\n') +
         'Actual message: "'.concat(actual && actual.message, '"'),
-      stackStartFn: stackStartFn
+      stackStartFn: stackStartFn,
     })
   }
   throw actual
@@ -710,7 +710,7 @@ assert.ifError = function ifError(err) {
       expected: null,
       operator: 'ifError',
       message: message,
-      stackStartFn: ifError
+      stackStartFn: ifError,
     })
 
     // Make sure we actually have a stack trace!
@@ -771,7 +771,7 @@ function internalMatch(string, regexp, message, fn, fnName) {
       expected: regexp,
       message: message,
       operator: fnName,
-      stackStartFn: fn
+      stackStartFn: fn,
     })
     err.generatedMessage = generatedMessage
     throw err
@@ -799,6 +799,6 @@ assert.strict = objectAssign(strict, assert, {
   equal: assert.strictEqual,
   deepEqual: assert.deepStrictEqual,
   notEqual: assert.notStrictEqual,
-  notDeepEqual: assert.notDeepStrictEqual
+  notDeepEqual: assert.notDeepStrictEqual,
 })
 assert.strict.strict = assert.strict

@@ -154,7 +154,7 @@ void (async () => {
           const transContinuation = isLastDep ? '  ' : '│ '
 
           logger.log(
-            `${indent}${continuationPrefix} ${transContinuation} ${transPrefix} ${transitive}`
+            `${indent}${continuationPrefix} ${transContinuation} ${transPrefix} ${transitive}`,
           )
         }
       }

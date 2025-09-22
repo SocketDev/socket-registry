@@ -25,7 +25,7 @@ declare namespace LoggerModule {
     constructor(
       stdout: Writable,
       stderr?: Writable,
-      ignoreErrors?: boolean | undefined
+      ignoreErrors?: boolean | undefined,
     )
     constructor(options: ConsoleConstructorOptions)
     [incLogCallCountSymbol](): Logger

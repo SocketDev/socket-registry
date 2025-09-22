@@ -42,5 +42,5 @@ function pluralize(word, count = 1) {
 module.exports = {
   capitalize,
   determineArticle,
-  pluralize
+  pluralize,
 }

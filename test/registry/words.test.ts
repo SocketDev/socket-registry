@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 const {
   capitalize,
   determineArticle,
-  pluralize
+  pluralize,
 } = require('@socketsecurity/registry/lib/words')
 
 describe('words module', () => {

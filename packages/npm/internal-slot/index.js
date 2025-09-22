@@ -42,5 +42,5 @@ module.exports = Object.freeze({
       channel.set(O, slots)
     }
     slots[slot] = value
-  }
+  },
 })

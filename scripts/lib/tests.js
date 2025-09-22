@@ -5,7 +5,7 @@ const util = require('node:util')
 const constants = require('@socketregistry/scripts/constants')
 const {
   getModifiedPackagesSync,
-  getStagedPackagesSync
+  getStagedPackagesSync,
 } = require('@socketregistry/scripts/lib/git')
 
 const { LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE } = constants
@@ -23,10 +23,10 @@ function isPackageTestingSkipped(eco, sockRegPkgName) {
   return getCliArgs().force || ENV.CI || process.env.FORCE_TEST === '1'
     ? false
     : !(ENV.PRE_COMMIT ? getStagedPackagesSync : getModifiedPackagesSync)(eco, {
-        ignore: [LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE]
+        ignore: [LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE],
       }).includes(sockRegPkgName)
 }
 
 module.exports = {
-  isPackageTestingSkipped
+  isPackageTestingSkipped,
 }

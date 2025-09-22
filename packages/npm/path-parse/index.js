@@ -2,13 +2,13 @@
 
 const {
   posix: { parse: PathPosixParse },
-  win32: { parse: PathWin32Parse }
+  win32: { parse: PathWin32Parse },
 } = require('node:path')
 
 function validatePathString(pathString) {
   if (typeof pathString !== 'string') {
     throw new TypeError(
-      `Parameter 'pathString' must be a string, not ${typeof pathString}`
+      `Parameter 'pathString' must be a string, not ${typeof pathString}`,
     )
   }
   return pathString
@@ -20,7 +20,7 @@ const variants = {
   },
   win32: function parse(pathString) {
     return PathWin32Parse(validatePathString(pathString))
-  }
+  },
 }
 
 Object.assign(variants.posix, variants)

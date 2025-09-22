@@ -9,12 +9,12 @@ const { perfNpmPath } = constants
 
 void (async () => {
   for (const perfFile of await glob([`*.perf.ts`], {
-    cwd: perfNpmPath
+    cwd: perfNpmPath,
   })) {
     // eslint-disable-next-line no-await-in-loop
     await execBin(constants.tsxExecPath, [perfFile], {
       cwd: perfNpmPath,
-      stdio: 'inherit'
+      stdio: 'inherit',
     })
   }
 })()

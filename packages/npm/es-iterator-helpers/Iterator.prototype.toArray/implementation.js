@@ -4,7 +4,7 @@ const {
   ReflectApply,
   TypeErrorCtor,
   ensureObject,
-  getIteratorDirect
+  getIteratorDirect,
 } = require('../shared')
 
 // Based on https://tc39.es/ecma262/#sec-iterator.prototype.toarray.

@@ -166,5 +166,5 @@ module.exports = {
   urlSearchParamAsNumber,
   urlSearchParamAsString,
   urlSearchParamsGetArray,
-  urlSearchParamsGetBoolean
+  urlSearchParamsGetBoolean,
 }

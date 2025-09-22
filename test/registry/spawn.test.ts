@@ -4,7 +4,7 @@ const {
   isSpawnError,
   isStdioType,
   spawn,
-  spawnSync
+  spawnSync,
 } = require('@socketsecurity/registry/lib/spawn')
 
 describe('spawn module', () => {
@@ -89,29 +89,29 @@ describe('spawn module', () => {
         'node',
         ['-e', 'console.log(process.env.TEST_VAR)'],
         {
-          env: { ...process.env, TEST_VAR: 'test_value' }
-        }
+          env: { ...process.env, TEST_VAR: 'test_value' },
+        },
       )
       expect(result.stdout).toContain('test_value')
     })
 
     it('should support working directory', async () => {
       const result = await spawn('node', ['-e', 'console.log(process.cwd())'], {
-        cwd: '/tmp'
+        cwd: '/tmp',
       })
       expect(result.stdout).toContain('/tmp')
     })
 
     it('should support shell option', async () => {
       const result = await spawn('echo hello', [], {
-        shell: true
+        shell: true,
       })
       expect(result.stdout).toContain('hello')
     })
 
     it('should handle encoding option', async () => {
       const result = await spawn('echo', ['test'], {
-        encoding: 'utf8'
+        encoding: 'utf8',
       })
       expect(typeof result.stdout).toBe('string')
     })
@@ -119,7 +119,7 @@ describe('spawn module', () => {
     it('should handle timeout', async () => {
       try {
         await spawn('node', ['-e', 'setTimeout(() => {}, 5000)'], {
-          timeout: 100
+          timeout: 100,
         })
         expect.fail('Should have timed out')
       } catch (error) {
@@ -151,36 +151,36 @@ describe('spawn module', () => {
         'node',
         ['-e', 'console.log(process.env.SYNC_VAR)'],
         {
-          env: { ...process.env, SYNC_VAR: 'sync_value' }
-        }
+          env: { ...process.env, SYNC_VAR: 'sync_value' },
+        },
       )
       expect(result.stdout.toString()).toContain('sync_value')
     })
 
     it('should support working directory', () => {
       const result = spawnSync('node', ['-e', 'console.log(process.cwd())'], {
-        cwd: '/tmp'
+        cwd: '/tmp',
       })
       expect(result.stdout.toString()).toContain('/tmp')
     })
 
     it('should support shell option', () => {
       const result = spawnSync('echo foo', [], {
-        shell: true
+        shell: true,
       })
       expect(result.stdout.toString()).toContain('foo')
     })
 
     it('should handle timeout', () => {
       const result = spawnSync('node', ['-e', 'setTimeout(() => {}, 5000)'], {
-        timeout: 100
+        timeout: 100,
       })
       expect(result.error).toBeDefined()
     })
 
     it('should handle encoding option', () => {
       const result = spawnSync('echo', ['test'], {
-        encoding: 'utf8'
+        encoding: 'utf8',
       })
       expect(typeof result.stdout).toBe('string')
     })

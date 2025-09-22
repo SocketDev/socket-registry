@@ -11,7 +11,7 @@ module.exports = function shimIteratorProtoTake() {
       configurable: true,
       enumerable: false,
       value: polyfill,
-      writable: true
+      writable: true,
     })
   }
   return polyfill

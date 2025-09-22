@@ -2,7 +2,7 @@
 
 const {
   normalizeIterationOptions,
-  pRetry
+  pRetry,
 } = /*@__PURE__*/ require('./promises')
 
 let _streamingIterables
@@ -49,9 +49,9 @@ function parallelMap(iterable, func, options) {
     item =>
       pRetry(func, {
         ...opts.retries,
-        args: [item]
+        args: [item],
       }),
-    iterable
+    iterable,
   )
 }
 
@@ -71,14 +71,14 @@ function transform(iterable, func, options) {
     item =>
       pRetry(func, {
         ...opts.retries,
-        args: [item]
+        args: [item],
       }),
-    iterable
+    iterable,
   )
 }
 
 module.exports = {
   parallelEach,
   parallelMap,
-  transform
+  transform,
 }

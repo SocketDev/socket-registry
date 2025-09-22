@@ -12,7 +12,7 @@ function wrapPrompt(inquirerPrompt) {
     if (origContext) {
       args[1] = {
         signal: abortSignal,
-        ...contextWithoutSpinner
+        ...contextWithoutSpinner,
       }
     } else {
       args[1] = { signal: abortSignal }
@@ -59,5 +59,5 @@ module.exports = {
   input,
   password,
   search,
-  select
+  select,
 }

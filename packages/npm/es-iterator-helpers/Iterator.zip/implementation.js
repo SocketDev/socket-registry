@@ -6,7 +6,7 @@ const {
   getIterator,
   getIteratorFlattenable,
   getOptionsObject,
-  iteratorZip
+  iteratorZip,
 } = require('../shared')
 
 // Based on https://tc39.es/proposal-joint-iteration/#sec-iterator.zip.
@@ -106,6 +106,6 @@ module.exports = function zip(iterables, options) {
     function finishResults(results) {
       // Step 15.a: Return CreateArrayFromList(results).
       return results
-    }
+    },
   )
 }

@@ -21,7 +21,7 @@ void (async () => {
       ignore: [NODE_MODULES_GLOB_RECURSIVE],
       absolute: true,
       cwd: constants.rootPath,
-      onlyDirectories: true
+      onlyDirectories: true,
     })
   )
     // Sort directory paths longest to shortest.

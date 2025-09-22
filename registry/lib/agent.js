@@ -4,7 +4,7 @@ const {
   execBin,
   resolveBinPathSync,
   whichBin,
-  whichBinSync
+  whichBinSync,
 } = /*@__PURE__*/ require('./bin')
 const { isDebug } = /*@__PURE__*/ require('./debug')
 const { findUpSync } = /*@__PURE__*/ require('./fs')
@@ -15,12 +15,12 @@ const { spawn } = /*@__PURE__*/ require('./spawn')
 
 const pnpmIgnoreScriptsFlags = new Set([
   '--ignore-scripts',
-  '--no-ignore-scripts'
+  '--no-ignore-scripts',
 ])
 
 const pnpmFrozenLockfileFlags = new Set([
   '--frozen-lockfile',
-  '--no-frozen-lockfile'
+  '--no-frozen-lockfile',
 ])
 
 const pnpmInstallCommands = new Set(['install', 'i'])
@@ -40,7 +40,7 @@ const pnpmInstallLikeCommands = new Set([
   'unlink',
   'import',
   'rebuild',
-  'rb'
+  'rb',
 ])
 
 // Commands that support --ignore-scripts flag in yarn:
@@ -52,7 +52,7 @@ const yarnInstallLikeCommands = new Set([
   'remove',
   'link',
   'unlink',
-  'import'
+  'import',
 ])
 
 /**
@@ -68,7 +68,7 @@ function execNpm(args, options) {
   const npmArgs = (
     terminatorPos === -1 ? args : args.slice(0, terminatorPos)
   ).filter(
-    a => !isNpmAuditFlag(a) && !isNpmFundFlag(a) && !isNpmProgressFlag(a)
+    a => !isNpmAuditFlag(a) && !isNpmFundFlag(a) && !isNpmProgressFlag(a),
   )
   const otherArgs = terminatorPos === -1 ? [] : args.slice(terminatorPos)
   const logLevelArgs =
@@ -93,12 +93,12 @@ function execNpm(args, options) {
       // SOCKET_CLI_DEBUG environment variable is not truthy.
       ...logLevelArgs,
       ...npmArgs,
-      ...otherArgs
+      ...otherArgs,
     ],
     {
       __proto__: null,
-      ...options
-    }
+      ...options,
+    },
   )
 }
 
@@ -157,9 +157,9 @@ function execPnpm(args, options) {
       // Add '--no-frozen-lockfile' in CI when lockfile updates are needed.
       ...frozenLockfileArgs,
       ...pnpmArgs,
-      ...otherArgs
+      ...otherArgs,
     ],
-    extBinOpts
+    extBinOpts,
   )
 }
 
@@ -192,7 +192,7 @@ function execYarn(args, options) {
       // Add '--ignore-scripts' by default for security (only for installation commands).
       ...ignoreScriptsArgs,
       ...yarnArgs,
-      ...otherArgs
+      ...otherArgs,
     ],
     {
       __proto__: null,
@@ -201,8 +201,8 @@ function execYarn(args, options) {
        * @param {string} cmdArg - The command argument to check.
        * @returns {boolean} True if the argument is an audit flag.
        */
-      ...options
-    }
+      ...options,
+    },
   )
 }
 
@@ -363,12 +363,12 @@ function execScript(scriptName, args, options) {
         ? ['--run']
         : [/*@__PURE__*/ require('./constants/npm-real-exec-path'), 'run']),
       scriptName,
-      ...args
+      ...args,
     ],
     {
       __proto__: null,
-      ...spawnOptions
-    }
+      ...spawnOptions,
+    },
   )
 }
 
@@ -389,5 +389,5 @@ module.exports = {
   isPnpmLoglevelFlag,
   resolveBinPathSync,
   whichBin,
-  whichBinSync
+  whichBinSync,
 }

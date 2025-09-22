@@ -18,7 +18,7 @@ if (process.argv[2] === '-h' || process.argv[2] === '--help') {
 `)
 } else if (process.argv[2]?.toLowerCase() === '-v') {
   const pkg = require(
-    /* webpackIgnore: true */ path.join(rootPath, 'package.json')
+    /* webpackIgnore: true */ path.join(rootPath, 'package.json'),
   )
   console.log(`${pkg.name}, ${pkg.version}`)
 } else {

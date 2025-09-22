@@ -13,7 +13,7 @@ module.exports = function shimRegExpProtoFlags() {
       __proto__: null,
       configurable: true,
       enumerable: false,
-      get: polyfill
+      get: polyfill,
     })
   }
   return polyfill

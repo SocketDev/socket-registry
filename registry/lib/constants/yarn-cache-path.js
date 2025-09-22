@@ -26,7 +26,7 @@ function getYarnCachePaths() {
   const paths = {
     __proto__: null,
     classic: '',
-    berry: '.yarn/cache'
+    berry: '.yarn/cache',
   }
 
   // Check for explicit YARN_CACHE_FOLDER environment variable (Yarn Classic).

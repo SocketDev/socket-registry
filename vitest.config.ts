@@ -28,16 +28,16 @@ export default defineConfig({
         '**/pnpmfile.*',
         '**/vitest.config.*',
         '**/.prettierrc.*',
-        '**/prettier.config.*'
-      ]
+        '**/prettier.config.*',
+      ],
     },
     testTimeout: 60000,
-    hookTimeout: 60000
+    hookTimeout: 60000,
   },
   resolve: {
     alias: {
       '@socketregistry/scripts': path.resolve(__dirname, './scripts'),
-      '@socketsecurity/registry': path.resolve(__dirname, './registry')
-    }
-  }
+      '@socketsecurity/registry': path.resolve(__dirname, './registry'),
+    },
+  },
 })

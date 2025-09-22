@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 const {
   defaultIgnore,
   getGlobMatcher,
-  globStreamLicenses
+  globStreamLicenses,
 } = require('@socketsecurity/registry/lib/globs')
 
 describe('globs module', () => {
@@ -23,10 +23,10 @@ describe('globs module', () => {
 
     it('should include various file types to ignore', () => {
       const hasTestFiles = defaultIgnore.some(
-        p => p.includes('test') || p.includes('spec') || p.includes('*.test.*')
+        p => p.includes('test') || p.includes('spec') || p.includes('*.test.*'),
       )
       const hasBuildFiles = defaultIgnore.some(
-        p => p.includes('dist') || p.includes('build') || p.includes('out')
+        p => p.includes('dist') || p.includes('build') || p.includes('out'),
       )
       expect(hasTestFiles || hasBuildFiles).toBe(true)
     })
@@ -97,7 +97,7 @@ describe('globs module', () => {
           const hasLicense = files.some(
             f =>
               f.toLowerCase().includes('license') ||
-              f.toLowerCase().includes('licence')
+              f.toLowerCase().includes('licence'),
           )
           expect(files.length).toBeGreaterThanOrEqual(0)
           resolve()
@@ -112,7 +112,7 @@ describe('globs module', () => {
     it('should handle options', () => {
       const stream = globStreamLicenses('.', {
         ignore: ['node_modules/**'],
-        cwd: process.cwd()
+        cwd: process.cwd(),
       })
       expect(stream).toBeInstanceOf(Readable)
       stream.destroy()

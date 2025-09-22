@@ -14,7 +14,7 @@ const getDefaultBiomeConfig = () => ({
     indentWidth: 2,
     lineEnding: 'lf',
     lineWidth: 80,
-    useEditorconfig: true
+    useEditorconfig: true,
   },
   javascript: {
     formatter: {
@@ -26,18 +26,18 @@ const getDefaultBiomeConfig = () => ({
       quoteProperties: 'asNeeded',
       quoteStyle: 'single',
       semicolons: 'asNeeded',
-      trailingCommas: 'none'
-    }
+      trailingCommas: 'none',
+    },
   },
   json: {
     formatter: {
       enabled: true,
-      trailingCommas: 'none'
+      trailingCommas: 'none',
     },
     parser: {
       allowComments: true,
-      allowTrailingCommas: true
-    }
+      allowTrailingCommas: true,
+    },
   },
   linter: {
     rules: {
@@ -51,10 +51,10 @@ const getDefaultBiomeConfig = () => ({
         noUnusedTemplateLiteral: 'error',
         useNumberNamespace: 'error',
         noInferrableTypes: 'error',
-        noUselessElse: 'error'
-      }
-    }
-  }
+        noUselessElse: 'error',
+      },
+    },
+  },
 })
 
 let _biome
@@ -62,7 +62,7 @@ async function getBiome() {
   if (_biome === undefined) {
     const { Biome, Distribution } = /*@__PURE__*/ require('@biomejs/js-api')
     _biome = await Biome.create({
-      distribution: Distribution.NODE
+      distribution: Distribution.NODE,
     })
   }
   return _biome
@@ -83,7 +83,7 @@ async function biomeFormat(str, options) {
   biome.applyConfiguration(projectKey, {
     __proto__: null,
     ...getDefaultBiomeConfig(),
-    ...biomeConfig
+    ...biomeConfig,
   })
   return biome.formatContent(projectKey, str, { __proto__: null, filePath })
     .content
@@ -92,5 +92,5 @@ async function biomeFormat(str, options) {
 module.exports = {
   biomeFormat,
   getBiome,
-  getDefaultBiomeConfig
+  getDefaultBiomeConfig,
 }

@@ -19,7 +19,7 @@ function getManifestData(eco, sockRegPkgName) {
     return sockRegPkgName
       ? entries?.find(
           ({ 0: purlStr }) =>
-            getPackageURL().fromString(purlStr).name === sockRegPkgName
+            getPackageURL().fromString(purlStr).name === sockRegPkgName,
         )?.[1]
       : entries
   }
@@ -27,5 +27,5 @@ function getManifestData(eco, sockRegPkgName) {
 }
 
 module.exports = {
-  getManifestData
+  getManifestData,
 }

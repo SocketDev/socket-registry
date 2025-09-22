@@ -88,7 +88,7 @@ describe(
       expect(es6oa.assign({ a: 1 }, null, { b: 2 })).toEqual({ a: 1, b: 2 })
       expect(es6oa.assign({ a: 1 }, { b: 2 }, undefined)).toEqual({
         a: 1,
-        b: 2
+        b: 2,
       })
     })
 
@@ -158,7 +158,7 @@ describe(
         get() {
           visited.push('a')
           return 42
-        }
+        },
       })
       const symbol = Symbol('enumerable')
       Object.defineProperty(obj, symbol, {
@@ -166,7 +166,7 @@ describe(
         get() {
           visited.push(symbol)
           return Infinity
-        }
+        },
       })
       const nonEnumSymbol = Symbol('non-enumerable')
       Object.defineProperty(obj, nonEnumSymbol, {
@@ -174,7 +174,7 @@ describe(
         get() {
           visited.push(nonEnumSymbol)
           return -Infinity
-        }
+        },
       })
       const target = es6oa.assign({}, obj)
       expect(visited).toEqual(['a', symbol])
@@ -191,7 +191,7 @@ describe(
         get() {
           visited.push('a')
           return 42
-        }
+        },
       })
       const keys: PropertyKey[] = ['a']
       const symbol = Symbol('sym')
@@ -200,7 +200,7 @@ describe(
         get() {
           visited.push(symbol)
           return Infinity
-        }
+        },
       })
       keys.push(symbol)
       const target = es6oa.assign({}, obj)
@@ -242,7 +242,7 @@ describe(
           delete this.b
           Object.defineProperty(this, 'c', { enumerable: false })
           return 'a'
-        }
+        },
       })
       const sourceBValue = {}
       const sourceCValue = {}
@@ -253,5 +253,5 @@ describe(
       expect(result.b).toBe(targetBValue)
       expect(result.c).toBe(targetCValue)
     })
-  }
+  },
 )

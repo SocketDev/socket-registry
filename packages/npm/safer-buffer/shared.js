@@ -6,10 +6,10 @@ const builtinBufferExports = require('buffer')
 
 const builtinBufferExportsDescMap = Object.fromEntries(
   Object.entries(Object.getOwnPropertyDescriptors(builtinBufferExports)).filter(
-    ({ 0: key }) => key !== 'Buffer' && key !== 'SlowBuffer'
-  )
+    ({ 0: key }) => key !== 'Buffer' && key !== 'SlowBuffer',
+  ),
 )
 
 module.exports = {
-  builtinBufferExportsDescMap
+  builtinBufferExportsDescMap,
 }

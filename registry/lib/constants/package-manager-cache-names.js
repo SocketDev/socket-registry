@@ -31,5 +31,5 @@ module.exports = ObjectFreeze({
   // Bun cache directory name.
   BUN_CACHE_DIR: 'bun',
   // Vlt cache directory name.
-  VLT_CACHE_DIR: 'vlt'
+  VLT_CACHE_DIR: 'vlt',
 })

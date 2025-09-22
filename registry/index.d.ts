@@ -2,14 +2,14 @@ declare enum Categories {
   CLEANUP = 'cleanup',
   LEVELUP = 'levelup',
   SPEEDUP = 'speedup',
-  TUNEUP = 'tuneup'
+  TUNEUP = 'tuneup',
 }
 declare type CategoryString = `${Categories}`
 declare type EcosystemString = `${PURL_Type}`
 declare enum Interop {
   BROWSERIFY = 'browserify',
   CJS = 'cjs',
-  ESM = 'esm'
+  ESM = 'esm',
 }
 declare type InteropString = `${Interop}`
 declare type Manifest = {
@@ -62,7 +62,7 @@ declare enum PURL_Type {
   RPM = 'rpm',
   SWID = 'swid',
   SWIFT = 'swift',
-  UNKNOWN = 'unknown'
+  UNKNOWN = 'unknown',
 }
 declare const SocketSecurityRegistry: {
   Categories: typeof Categories
@@ -72,7 +72,7 @@ declare const SocketSecurityRegistry: {
   getManifestData(eco: EcosystemString): ManifestEntry[]
   getManifestData(
     eco: EcosystemString,
-    sockRegPkgName: string
+    sockRegPkgName: string,
   ): ManifestEntryData | undefined
 }
 declare namespace SocketSecurityRegistry {
@@ -82,7 +82,7 @@ declare namespace SocketSecurityRegistry {
     InteropString,
     Manifest,
     ManifestEntry,
-    ManifestEntryData
+    ManifestEntryData,
   }
 }
 export = SocketSecurityRegistry

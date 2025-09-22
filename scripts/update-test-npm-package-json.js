@@ -12,7 +12,7 @@ const fastGlob = require('fast-glob')
 const constants = require('@socketregistry/scripts/constants')
 const {
   cleanTestScript,
-  testScripts
+  testScripts,
 } = require('@socketregistry/scripts/lib/test-utils')
 const { safeRemove } = require('@socketregistry/scripts/lib/safe-remove')
 const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
@@ -27,7 +27,7 @@ const {
   readPackageJson,
   resolveGitHubTgzUrl,
   resolveOriginalPackageName,
-  resolvePackageJsonEntryExports
+  resolvePackageJsonEntryExports,
 } = require('@socketsecurity/registry/lib/packages')
 const { pEach, pFilter } = require('@socketsecurity/registry/lib/promises')
 const { isNonEmptyString } = require('@socketsecurity/registry/lib/strings')
@@ -51,7 +51,7 @@ const {
   testNpmNodeModulesPath,
   testNpmNodeWorkspacesPath,
   testNpmPath,
-  testNpmPkgJsonPath
+  testNpmPkgJsonPath,
 } = constants
 
 const { values: cliArgs } = util.parseArgs(
@@ -59,10 +59,10 @@ const { values: cliArgs } = util.parseArgs(
     options: {
       add: {
         type: 'string',
-        multiple: true
-      }
-    }
-  })
+        multiple: true,
+      },
+    },
+  }),
 )
 
 const editablePackageJsonCache = new Map()
@@ -101,14 +101,14 @@ async function installAndMergePackage(pkgName, pkgVersion, options) {
     // Install package to a temp location first.
     const tempPath = path.join(
       testNpmPath,
-      `.tmp-${socketPkgName}-${Date.now()}`
+      `.tmp-${socketPkgName}-${Date.now()}`,
     )
     await fs.mkdir(tempPath, { recursive: true })
 
     // Create a minimal package.json in temp directory.
     await fs.writeFile(
       path.join(tempPath, 'package.json'),
-      JSON.stringify({ name: 'temp-install', version: '1.0.0' }, null, 2)
+      JSON.stringify({ name: 'temp-install', version: '1.0.0' }, null, 2),
     )
 
     // Prepare pnpm install command.
@@ -119,7 +119,7 @@ async function installAndMergePackage(pkgName, pkgVersion, options) {
     // Use npm install to install the package (npm supports --no-save).
     await execNpm(['install', packageSpec, '--no-save'], {
       cwd: tempPath,
-      stdio: cliArgs.quiet ? 'ignore' : 'inherit'
+      stdio: cliArgs.quiet ? 'ignore' : 'inherit',
     })
 
     // Find the installed package path.
@@ -133,7 +133,7 @@ async function installAndMergePackage(pkgName, pkgVersion, options) {
       // Save the original package.json scripts before overwriting.
       const originalPkgJsonPath = path.join(installedPkgPath, 'package.json')
       const originalPkgJson = await readPackageJson(originalPkgJsonPath, {
-        normalize: true
+        normalize: true,
       })
       const originalScripts = originalPkgJson.scripts
 
@@ -143,14 +143,14 @@ async function installAndMergePackage(pkgName, pkgVersion, options) {
         filter: src => {
           // Skip copying node_modules and .DS_Store files.
           return !src.includes('node_modules') && !src.endsWith('.DS_Store')
-        }
+        },
       })
 
       // Merge back the test scripts if they existed.
       if (originalScripts) {
         const editablePkgJson = await readPackageJson(originalPkgJsonPath, {
           editable: true,
-          normalize: true
+          normalize: true,
         })
         // Preserve test-related scripts from original package.
         const testScriptName =
@@ -159,8 +159,8 @@ async function installAndMergePackage(pkgName, pkgVersion, options) {
           editablePkgJson.update({
             scripts: {
               ...editablePkgJson.content.scripts,
-              test: cleanTestScript(originalScripts[testScriptName])
-            }
+              test: cleanTestScript(originalScripts[testScriptName]),
+            },
           })
           await editablePkgJson.save()
         }
@@ -179,7 +179,7 @@ async function installAndMergePackage(pkgName, pkgVersion, options) {
     // Clean up any temp directories on error.
     const tempPath = path.join(
       testNpmPath,
-      `.tmp-${socketPkgName}-${Date.now()}`
+      `.tmp-${socketPkgName}-${Date.now()}`,
     )
     await safeRemove(tempPath)
     throw error
@@ -197,7 +197,7 @@ async function installTestNpmNodeModules(options) {
     const deepPaths = await fastGlob.glob([NODE_MODULES_GLOB_RECURSIVE], {
       absolute: true,
       cwd: testNpmNodeWorkspacesPath,
-      onlyDirectories: true
+      onlyDirectories: true,
     })
     pathsToRemove.push(...deepPaths)
   }
@@ -207,7 +207,7 @@ async function installTestNpmNodeModules(options) {
 
   // Get all devDependencies from test/npm/package.json.
   const testNpmPkgJson = await readPackageJson(testNpmPkgJsonPath, {
-    normalize: true
+    normalize: true,
   })
   const { devDependencies } = testNpmPkgJson
 
@@ -231,7 +231,7 @@ async function installTestNpmNodeModules(options) {
         })
       : Object.entries(devDependencies).map(({ 0: name, 1: version }) => ({
           name,
-          version
+          version,
         }))
 
     // Count packages with Socket overrides.
@@ -244,7 +244,7 @@ async function installTestNpmNodeModules(options) {
 
     if (!cliArgs.quiet) {
       spinner?.start(
-        `Installing ${packagesToInstall.length} packages (${packagesWithOverrides.length} with Socket overrides)...`
+        `Installing ${packagesToInstall.length} packages (${packagesWithOverrides.length} with Socket overrides)...`,
       )
     }
 
@@ -257,7 +257,7 @@ async function installTestNpmNodeModules(options) {
           ? name.slice(1).replace('/', '__')
           : name
         const hasOverride = existsSync(
-          path.join(npmPackagesPath, socketPkgName)
+          path.join(npmPackagesPath, socketPkgName),
         )
         const existingPath = hasOverride
           ? path.join(testNpmNodeWorkspacesPath, socketPkgName)
@@ -269,14 +269,14 @@ async function installTestNpmNodeModules(options) {
         }
         await installAndMergePackage(name, version, options)
       },
-      { concurrency: DEFAULT_CONCURRENCY }
+      { concurrency: DEFAULT_CONCURRENCY },
     )
 
     // After all packages are installed, update the package.json if specs were provided.
     if (specs && specs.length > 0) {
       const editablePkgJson = await readPackageJson(testNpmPkgJsonPath, {
         editable: true,
-        normalize: true
+        normalize: true,
       })
       const newDevDeps = {}
       for (const spec of specs) {
@@ -285,12 +285,12 @@ async function installTestNpmNodeModules(options) {
         const installedPkgJsonPath = path.join(
           testNpmNodeModulesPath,
           pkgName,
-          'package.json'
+          'package.json',
         )
         if (existsSync(installedPkgJsonPath)) {
           // eslint-disable-next-line no-await-in-loop
           const installedPkg = await readPackageJson(installedPkgJsonPath, {
-            normalize: true
+            normalize: true,
           })
           newDevDeps[pkgName] = installedPkg.version
         }
@@ -298,8 +298,8 @@ async function installTestNpmNodeModules(options) {
       editablePkgJson.update({
         devDependencies: {
           ...editablePkgJson.content.devDependencies,
-          ...newDevDeps
-        }
+          ...newDevDeps,
+        },
       })
       await editablePkgJson.save()
     }
@@ -311,7 +311,7 @@ async function installMissingPackages(packageNames, options) {
     devDependencies = (
       await readPackageJson(testNpmPkgJsonPath, { normalize: true })
     ).devDependencies,
-    spinner
+    spinner,
   } = { __proto__: null, ...options }
   const originalNames = packageNames.map(resolveOriginalPackageName)
   const msg = `Refreshing ${originalNames.length} ${pluralize('package', originalNames.length)}...`
@@ -319,7 +319,7 @@ async function installMissingPackages(packageNames, options) {
   spinner?.start(
     msg.length + msgList.length + 3 > COLUMN_LIMIT
       ? `${msg}:\n${msgList}`
-      : `${msg} ${msgList}...`
+      : `${msg} ${msgList}...`,
   )
   try {
     const newDeps = originalNames.filter(n => !devDependencies?.[n])
@@ -327,13 +327,13 @@ async function installMissingPackages(packageNames, options) {
       await installTestNpmNodeModules({
         clean: true,
         specs: newDeps,
-        spinner
+        spinner,
       })
     }
     const downloadDeps = originalNames.filter(
       n =>
         devDependencies?.[n] &&
-        !existsSync(path.join(testNpmNodeModulesPath, n))
+        !existsSync(path.join(testNpmNodeModulesPath, n)),
     )
     if (downloadDeps.length) {
       // Install missing dependencies using installAndMergePackage.
@@ -342,14 +342,14 @@ async function installMissingPackages(packageNames, options) {
         async n => {
           await installAndMergePackage(n, devDependencies[n], options)
         },
-        { concurrency: DEFAULT_CONCURRENCY }
+        { concurrency: DEFAULT_CONCURRENCY },
       )
     }
     if (cliArgs.quiet) {
       spinner?.stop()
     } else {
       spinner?.successAndStop(
-        `Refreshed ${pluralize('package', originalNames.length)}`
+        `Refreshed ${pluralize('package', originalNames.length)}`,
       )
     }
   } catch {
@@ -383,7 +383,7 @@ async function installMissingPackageTests(packageNames, options) {
         : path.join(testNpmNodeModulesPath, origPkgName)
 
       const {
-        content: { version: nmPkgVer }
+        content: { version: nmPkgVer },
       } = await readCachedEditablePackageJson(nmPkgPath)
       const pkgId = `${origPkgName}@${nmPkgVer}`
       spinner?.start(`Resolving GitHub tarball URL for ${pkgId}...`)
@@ -395,14 +395,14 @@ async function installMissingPackageTests(packageNames, options) {
           testNpmPkgJsonPath,
           {
             editable: true,
-            normalize: true
-          }
+            normalize: true,
+          },
         )
         testNpmEditablePkgJson.update({
           devDependencies: {
             ...testNpmEditablePkgJson.content.devDependencies,
-            [origPkgName]: gitHubTgzUrl
-          }
+            [origPkgName]: gitHubTgzUrl,
+          },
         })
         await testNpmEditablePkgJson.save()
         resolvable.push(origPkgName)
@@ -412,17 +412,17 @@ async function installMissingPackageTests(packageNames, options) {
       }
       spinner?.stop()
     },
-    { concurrency: DEFAULT_CONCURRENCY }
+    { concurrency: DEFAULT_CONCURRENCY },
   )
   if (resolvable.length) {
     spinner?.start(
-      `Refreshing ${resolvable.join(', ')} from ${pluralize('tarball', resolvable.length)}...`
+      `Refreshing ${resolvable.join(', ')} from ${pluralize('tarball', resolvable.length)}...`,
     )
     try {
       await installTestNpmNodeModules({
         clean: true,
         specs: resolvable,
-        spinner
+        spinner,
       })
       if (cliArgs.quiet) {
         spinner?.stop()
@@ -451,7 +451,7 @@ async function readCachedEditablePackageJson(filepath_) {
   }
   const result = await readPackageJson(filepath, {
     editable: true,
-    normalize: true
+    normalize: true,
   })
   editablePackageJsonCache.set(filepath, result)
   return result
@@ -459,7 +459,7 @@ async function readCachedEditablePackageJson(filepath_) {
 
 async function resolveDevDependencies(packageNames, options) {
   let { devDependencies } = await readPackageJson(testNpmPkgJsonPath, {
-    normalize: true
+    normalize: true,
   })
   const missingPackages = packageNames.filter(sockRegPkgName => {
     const origPkgName = resolveOriginalPackageName(sockRegPkgName)
@@ -474,7 +474,7 @@ async function resolveDevDependencies(packageNames, options) {
   if (missingPackages.length) {
     await installMissingPackages(missingPackages, {
       ...options,
-      devDependencies
+      devDependencies,
     })
     // Refresh devDependencies object.
     devDependencies = (
@@ -489,7 +489,7 @@ async function resolveDevDependencies(packageNames, options) {
       const parsedSpec = npmPackageArg.resolve(
         origPkgName,
         devDependencies?.[origPkgName] ?? LATEST,
-        testNpmNodeModulesPath
+        testNpmNodeModulesPath,
       )
       const isTarball = isGitHubTgzSpec(parsedSpec)
       const isGithubUrl = isGitHubUrlSpec(parsedSpec)
@@ -513,17 +513,17 @@ async function resolveDevDependencies(packageNames, options) {
               [
                 'test{s,}/*',
                 '**/test{s,}{.{[cm],}[jt]s,}',
-                '**/*.{spec,test}{.{[cm],}[jt]s}'
+                '**/*.{spec,test}{.{[cm],}[jt]s}',
               ],
               {
                 cwd: pkgPath,
-                onlyFiles: false
-              }
+                onlyFiles: false,
+              },
             )
           ).length === 0)
       )
     },
-    { concurrency: DEFAULT_CONCURRENCY }
+    { concurrency: DEFAULT_CONCURRENCY },
   )
   if (missingPackageTests.length) {
     await installMissingPackageTests(missingPackageTests, options)
@@ -591,7 +591,7 @@ async function linkPackages(packageNames, options) {
                   key === 'posttest' ||
                   key.startsWith('test:browsers') ||
                   lifecycleScriptNames.has(key)
-                )
+                ),
             )
             .map(pair => {
               const { 0: key, 1: value } = pair
@@ -599,10 +599,10 @@ async function linkPackages(packageNames, options) {
                 pair[1] = cleanTestScript(value)
               }
               return pair
-            })
-        )
+            }),
+        ),
       },
-      { concurrency: DEFAULT_CONCURRENCY }
+      { concurrency: DEFAULT_CONCURRENCY },
     )
 
     const { dependencies, engines, overrides } = pkgJson
@@ -622,14 +622,14 @@ async function linkPackages(packageNames, options) {
               pair[1] = `file:../${value.slice(socketRegistryPrefix.length, value.lastIndexOf('@'))}`
             }
             return pair
-          })
+          }),
         )
       nmEditablePkgJson.update({
         dependencies: {
           ...nmPkgDeps,
           ...dependencies,
-          ...overridesAsDeps
-        }
+          ...overridesAsDeps,
+        },
       })
     }
 
@@ -641,7 +641,7 @@ async function linkPackages(packageNames, options) {
         // Roughly check Node range as semver.coerce will strip leading
         // v's, carets (^), comparators (<,<=,>,>=,=), and tildes (~).
         semver.coerce(nodeRange),
-        constants.maintainedNodeVersions.last
+        constants.maintainedNodeVersions.last,
       )
     ) {
       // Replace engines field if the @socketregistry/xyz's engines.node range
@@ -686,7 +686,7 @@ async function linkPackages(packageNames, options) {
           // The exports object must either be an object of package subpath
           // keys OR an object of main entry condition name keys only.
           ...(nmEntryExportsHasDotKeys ? nmEntryExports : {}),
-          ...entryExports
+          ...entryExports,
         }
       } else {
         updatedEntryExports = {
@@ -706,19 +706,19 @@ async function linkPackages(packageNames, options) {
             module: undefined,
             require: undefined,
             // The "default" entry must be defined last.
-            default: nodeEntryExportsDefault ?? nmNodeEntryExportsDefault
+            default: nodeEntryExportsDefault ?? nmNodeEntryExportsDefault,
           },
           // Properties with undefined values are omitted when saved as JSON.
           browser: undefined,
           module: undefined,
           require: undefined,
           // The "default" entry must be defined last.
-          default: entryExportsDefault ?? nmEntryExportsDefault
+          default: entryExportsDefault ?? nmEntryExportsDefault,
         }
       }
       nmEditablePkgJson.update({
         ...(updatedEntryExports ? { main: undefined } : {}),
-        exports: updatedEntryExports
+        exports: updatedEntryExports,
       })
     }
 
@@ -747,7 +747,7 @@ async function cleanupNodeWorkspaces(linkedPackageNames, options) {
     async n => {
       const srcPath = path.join(
         testNpmNodeModulesPath,
-        resolveOriginalPackageName(n)
+        resolveOriginalPackageName(n),
       )
       const destPath = path.join(testNpmNodeWorkspacesPath, n)
       // Remove unnecessary directories/files.
@@ -769,7 +769,7 @@ async function cleanupNodeWorkspaces(linkedPackageNames, options) {
           '**/CONTRIBUTING{.*,}',
           '**/FUND{ING,}{.*,}',
           README_GLOB_RECURSIVE,
-          ...ignoreGlobs
+          ...ignoreGlobs,
         ],
         {
           ignore: [LICENSE_GLOB_RECURSIVE],
@@ -777,8 +777,8 @@ async function cleanupNodeWorkspaces(linkedPackageNames, options) {
           caseSensitiveMatch: false,
           cwd: srcPath,
           dot: true,
-          onlyFiles: false
-        }
+          onlyFiles: false,
+        },
       )
       if (unnecessaryPaths.length) {
         // Fallback to fs.rm if trash fails (e.g., for .github directories on macOS).
@@ -787,7 +787,7 @@ async function cleanupNodeWorkspaces(linkedPackageNames, options) {
       // Move override package from test/npm/node_modules to test/npm/packages
       await move(srcPath, destPath, { overwrite: true })
     },
-    { concurrency: DEFAULT_CONCURRENCY }
+    { concurrency: DEFAULT_CONCURRENCY },
   )
   spinner?.stop()
   if (!cliArgs.quiet) {

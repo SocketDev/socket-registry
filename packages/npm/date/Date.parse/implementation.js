@@ -27,7 +27,7 @@ module.exports = !isDateParseDaysOfMonthBuggy(DateParse)
       //   months[2] = 59: March starts on day 59 (31 days for January + 28 days for February).
       // These are the day offsets for each month, assuming a non-leap year.
       const months = [
-        0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365
+        0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365,
       ]
 
       // Calculates how many days have passed in a given year up to the specified month,

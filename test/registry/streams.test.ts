@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 const {
   parallelEach,
   parallelMap,
-  transform
+  transform,
 } = require('@socketsecurity/registry/lib/streams')
 
 // Helper generators moved to outer scope.
@@ -75,7 +75,10 @@ describe('streams module', () => {
     })
 
     it('should handle async transform functions', async () => {
-      const result = transform(makeFixedStringIterable(), lowerCaseTransformAsync)
+      const result = transform(
+        makeFixedStringIterable(),
+        lowerCaseTransformAsync,
+      )
       const output: string[] = []
 
       for await (const item of result) {
@@ -109,7 +112,7 @@ describe('streams module', () => {
       }
 
       const result = transform(makeNumberIterable(1, 5), transformFn, {
-        concurrency: 2
+        concurrency: 2,
       })
       const output: number[] = []
 
@@ -125,7 +128,7 @@ describe('streams module', () => {
   describe('parallelMap', () => {
     it('should map async iterable items in parallel', async () => {
       const result = parallelMap(makeNumberIterable(1, 5), doubleMapperAsync, {
-        concurrency: 2
+        concurrency: 2,
       })
       const output: number[] = []
 
@@ -151,7 +154,7 @@ describe('streams module', () => {
       makeNumberIterable(1, 5)
 
       const result = parallelMap(makeNumberIterable(1, 5), mapper, {
-        concurrency: 2
+        concurrency: 2,
       })
 
       for await (const _ of result) {
@@ -194,7 +197,9 @@ describe('streams module', () => {
 
       makeNumberIterable(1, 5)
 
-      await parallelEach(makeNumberIterable(1, 5), processor, { concurrency: 2 })
+      await parallelEach(makeNumberIterable(1, 5), processor, {
+        concurrency: 2,
+      })
 
       expect(results.sort((a, b) => a - b)).toEqual([2, 4, 6, 8, 10])
     })
@@ -221,14 +226,16 @@ describe('streams module', () => {
         concurrent--
       }
 
-      await parallelEach(makeNumberIterable(1, 5), processor, { concurrency: 3 })
+      await parallelEach(makeNumberIterable(1, 5), processor, {
+        concurrency: 3,
+      })
 
       expect(maxConcurrent).toBeLessThanOrEqual(3)
     })
 
     it('should handle errors in processor', async () => {
       await expect(
-        parallelEach(makeNumberIterable(1, 3), errorProcessorAt2)
+        parallelEach(makeNumberIterable(1, 3), errorProcessorAt2),
       ).rejects.toThrow('Process error')
     })
 

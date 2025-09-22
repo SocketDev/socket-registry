@@ -13,14 +13,14 @@ const {
   extractPackage,
   fetchPackageManifest,
   getReleaseTag,
-  readPackageJson
+  readPackageJson,
 } = require('@socketsecurity/registry/lib/packages')
 const { readPackageJsonSync } = require('@socketsecurity/registry/lib/packages')
 const { readFileUtf8 } = require('@socketsecurity/registry/lib/fs')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 const {
   isObjectObject,
-  toSortedObject
+  toSortedObject,
 } = require('@socketsecurity/registry/lib/objects')
 
 const {
@@ -32,12 +32,12 @@ const {
   npmPackagesPath,
   registryPkgPath,
   relNpmPackagesPath,
-  rootPath
+  rootPath,
 } = constants
 
 const registryPkg = packageData({
   name: SOCKET_REGISTRY_PACKAGE_NAME,
-  path: registryPkgPath
+  path: registryPkgPath,
 })
 
 const EXTRACT_PACKAGE_TMP_PREFIX = 'release-npm-'
@@ -61,7 +61,7 @@ async function getLocalPackageFileHashes(packagePath) {
       : (exportsValue ?? null),
     files: pkgJson.files ?? null,
     sideEffects: pkgJson.sideEffects ?? null,
-    engines: pkgJson.engines ?? null
+    engines: pkgJson.engines ?? null,
   }
   const pkgJsonHash = crypto
     .createHash('sha256')
@@ -134,7 +134,7 @@ async function getRemotePackageFileHashes(spec) {
   await extractPackage(
     spec,
     {
-      tmpPrefix: EXTRACT_PACKAGE_TMP_PREFIX
+      tmpPrefix: EXTRACT_PACKAGE_TMP_PREFIX,
     },
     async tmpDir => {
       // Walk the directory and compute hashes for all files.
@@ -163,7 +163,7 @@ async function getRemotePackageFileHashes(spec) {
                   : (exportsValue ?? null),
                 files: pkgJson.files ?? null,
                 sideEffects: pkgJson.sideEffects ?? null,
-                engines: pkgJson.engines ?? null
+                engines: pkgJson.engines ?? null,
               }
               const hash = crypto
                 .createHash('sha256')
@@ -183,7 +183,7 @@ async function getRemotePackageFileHashes(spec) {
       }
 
       await walkDir(tmpDir)
-    }
+    },
   )
 
   return toSortedObject(fileHashes)
@@ -197,7 +197,7 @@ async function hasPackageChanged(pkg, manifest_) {
 
   if (!manifest) {
     throw new Error(
-      `hasPackageChanged: Failed to fetch manifest for ${pkg.name}`
+      `hasPackageChanged: Failed to fetch manifest for ${pkg.name}`,
     )
   }
 
@@ -205,7 +205,7 @@ async function hasPackageChanged(pkg, manifest_) {
   try {
     const { 0: remoteHashes, 1: localHashes } = await Promise.all([
       getRemotePackageFileHashes(`${pkg.name}@${manifest.version}`),
-      getLocalPackageFileHashes(pkg.path)
+      getLocalPackageFileHashes(pkg.path),
     ])
 
     // Use remote files as source of truth and check if local matches.
@@ -214,7 +214,7 @@ async function hasPackageChanged(pkg, manifest_) {
       if (!localHash) {
         // File exists in remote but not locally - this is a real difference.
         spinner?.warn(
-          `${pkg.name}: File '${file}' exists in published package but not locally`
+          `${pkg.name}: File '${file}' exists in published package but not locally`,
         )
         return true
       }
@@ -243,11 +243,11 @@ async function maybeBumpPackage(pkg, options) {
     spinner,
     state = {
       bumped: [],
-      changed: []
-    }
+      changed: [],
+    },
   } = {
     __proto__: null,
-    ...options
+    ...options,
   }
   if (abortSignal.aborted) {
     spinner?.stop()
@@ -271,7 +271,7 @@ async function maybeBumpPackage(pkg, options) {
     pkg.version = version
     const editablePkgJson = await readPackageJson(pkg.path, {
       editable: true,
-      normalize: true
+      normalize: true,
     })
     if (editablePkgJson.content.version !== version) {
       editablePkgJson.update({ version })
@@ -289,7 +289,7 @@ function packageData(data) {
     manifest,
     printName,
     tag,
-    version
+    version,
   })
 }
 
@@ -307,14 +307,14 @@ void (async () => {
         name: `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`,
         path: pkgPath,
         printName: sockRegPkgName,
-        tag: getReleaseTag(pkgJson.version)
+        tag: getReleaseTag(pkgJson.version),
       })
-    })
+    }),
   ]
 
   const state = {
     bumped: [],
-    changed: []
+    changed: [],
   }
 
   // Chunk packages data to process them in parallel 3 at a time.
@@ -323,7 +323,7 @@ void (async () => {
     async pkg => {
       await maybeBumpPackage(pkg, { state })
     },
-    { concurrency: 3 }
+    { concurrency: 3 },
   )
 
   if (abortSignal.aborted || !state.bumped.length) {
@@ -333,7 +333,7 @@ void (async () => {
 
   const spawnOptions = {
     cwd: rootPath,
-    stdio: 'inherit'
+    stdio: 'inherit',
   }
 
   await execScript('update:manifest', ['--', '--force'], spawnOptions)
@@ -342,12 +342,12 @@ void (async () => {
     const version = semver.inc(registryPkg.manifest.version, 'patch')
     const editablePkgJson = await readPackageJson(registryPkg.path, {
       editable: true,
-      normalize: true
+      normalize: true,
     })
     editablePkgJson.update({ version })
     await editablePkgJson.save()
     spinner.log(
-      `+${registryPkg.name}@${registryPkg.manifest.version} -> ${version}`
+      `+${registryPkg.name}@${registryPkg.manifest.version} -> ${version}`,
     )
   }
 
@@ -360,7 +360,7 @@ void (async () => {
     await execScript(
       'update:longtask:test:npm:package-json',
       ['--', '--quiet', '--force'],
-      spawnOptions
+      spawnOptions,
     )
   }
 

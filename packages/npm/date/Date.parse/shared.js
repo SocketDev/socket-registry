@@ -5,5 +5,5 @@ function isDateParseDaysOfMonthBuggy(parse) {
 }
 
 module.exports = {
-  isDateParseDaysOfMonthBuggy
+  isDateParseDaysOfMonthBuggy,
 }

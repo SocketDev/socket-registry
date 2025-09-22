@@ -10,7 +10,7 @@ const {
   isNpmFundFlag,
   isNpmLoglevelFlag,
   isNpmNodeOptionsFlag,
-  isNpmProgressFlag
+  isNpmProgressFlag,
 } = require('@socketsecurity/registry/lib/agent')
 
 describe('agent module', () => {
@@ -93,7 +93,7 @@ describe('agent module', () => {
     it('should identify npm node-options flags', () => {
       expect(isNpmNodeOptionsFlag('--node-options')).toBe(true)
       expect(
-        isNpmNodeOptionsFlag('--node-options=--max-old-space-size=4096')
+        isNpmNodeOptionsFlag('--node-options=--max-old-space-size=4096'),
       ).toBe(true)
     })
 
@@ -178,8 +178,8 @@ describe('agent module', () => {
         'node -e "console.log(process.env.SCRIPT_VAR)"',
         {
           shell: true,
-          env: { ...process.env, SCRIPT_VAR: 'script_value' }
-        }
+          env: { ...process.env, SCRIPT_VAR: 'script_value' },
+        },
       )
       expect(result.stdout).toContain('script_value')
     })

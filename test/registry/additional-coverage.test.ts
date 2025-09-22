@@ -37,7 +37,7 @@ describe('additional coverage tests', () => {
     it('should handle findUpSync edge cases', () => {
       const result = fsUtils.findUpSync('definitely-does-not-exist.xyz', {
         cwd: tmpDir,
-        stopAt: tmpDir
+        stopAt: tmpDir,
       })
       expect(result).toBe(undefined)
     })
@@ -57,7 +57,7 @@ describe('additional coverage tests', () => {
       // Test with includeEmpty option
       await fs.mkdir(path.join(tmpDir, 'empty-dir'))
       const dirsWithEmpty = await fsUtils.readDirNames(tmpDir, {
-        includeEmpty: true
+        includeEmpty: true,
       })
       expect(dirsWithEmpty).toContain('empty-dir')
     })
@@ -68,7 +68,7 @@ describe('additional coverage tests', () => {
 
       await fsUtils.writeJson(jsonPath, data, {
         spaces: 4,
-        replacer: ['a', 'c']
+        replacer: ['a', 'c'],
       })
 
       const content = await fs.readFile(jsonPath, 'utf8')
@@ -105,7 +105,7 @@ describe('additional coverage tests', () => {
       expect(text).toBe('Hello World')
 
       const missing = await fsUtils.safeReadFile(
-        path.join(tmpDir, 'missing.txt')
+        path.join(tmpDir, 'missing.txt'),
       )
       expect(missing).toBe(undefined)
     })
@@ -120,10 +120,10 @@ describe('additional coverage tests', () => {
         './sub': {
           import: './sub.mjs',
           require: './sub.cjs',
-          default: './sub.js'
+          default: './sub.js',
         },
         './utils/*': './utils/*.js',
-        './package.json': './package.json'
+        './package.json': './package.json',
       }
 
       const subpaths = packages.getSubpaths(exports)
@@ -138,15 +138,15 @@ describe('additional coverage tests', () => {
         packages.isConditionalExports({
           import: './index.mjs',
           require: './index.cjs',
-          types: './index.d.ts'
-        })
+          types: './index.d.ts',
+        }),
       ).toBe(true)
 
       expect(
         packages.isConditionalExports({
           node: { import: './node.mjs' },
-          browser: './browser.js'
-        })
+          browser: './browser.js',
+        }),
       ).toBe(true)
 
       expect(packages.isConditionalExports(['./index.js'])).toBe(false)
@@ -156,15 +156,15 @@ describe('additional coverage tests', () => {
       expect(
         packages.isSubpathExports({
           '.': './index.js',
-          './feature': './feature.js'
-        })
+          './feature': './feature.js',
+        }),
       ).toBe(true)
 
       expect(
         packages.isSubpathExports({
           import: './index.mjs',
-          require: './index.cjs'
-        })
+          require: './index.cjs',
+        }),
       ).toBe(false)
     })
 
@@ -181,12 +181,12 @@ describe('additional coverage tests', () => {
         version: '1.0.0',
         dependencies: {
           lodash: '^4.17.0',
-          react: '18.0.0'
+          react: '18.0.0',
         },
         scripts: {
           test: 'vitest',
-          build: 'tsc'
-        }
+          build: 'tsc',
+        },
       }
 
       const normalized = packages.normalizePackageJson(input)
@@ -200,7 +200,7 @@ describe('additional coverage tests', () => {
       // Just verify it returns boolean
       expect(typeof packages.isBlessedPackageName('typescript')).toBe('boolean')
       expect(typeof packages.isBlessedPackageName('unknown-pkg-xyz')).toBe(
-        'boolean'
+        'boolean',
       )
     })
   })
@@ -224,8 +224,8 @@ describe('additional coverage tests', () => {
         [1, 2, 3, 4, 5, 6],
         pFilterPredicate,
         {
-          concurrency: 3
-        }
+          concurrency: 3,
+        },
       )
       expect(result).toEqual([2, 4, 6])
     })
@@ -257,7 +257,7 @@ describe('additional coverage tests', () => {
         retries: 5,
         factor: 2,
         minTimeout: 100,
-        maxTimeout: 5000
+        maxTimeout: 5000,
       })
       expect(opts2.retries).toBe(5)
       expect(opts2.factor).toBe(2)
@@ -280,7 +280,7 @@ describe('additional coverage tests', () => {
 
       expect(urlUtils.urlSearchParamAsString(params, 'a')).toBe('1')
       expect(
-        urlUtils.urlSearchParamAsString(params, 'missing', 'default')
+        urlUtils.urlSearchParamAsString(params, 'missing', 'default'),
       ).toBe('default')
 
       expect(urlUtils.urlSearchParamAsNumber(params, 'b')).toBe(2)
@@ -288,10 +288,10 @@ describe('additional coverage tests', () => {
 
       const boolParams = new URLSearchParams('enabled=true&disabled=false')
       expect(urlUtils.urlSearchParamsGetBoolean(boolParams, 'enabled')).toBe(
-        true
+        true,
       )
       expect(urlUtils.urlSearchParamsGetBoolean(boolParams, 'disabled')).toBe(
-        false
+        false,
       )
     })
   })

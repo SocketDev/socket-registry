@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 const {
   envAsBoolean,
   envAsNumber,
-  envAsString
+  envAsString,
 } = require('@socketsecurity/registry/lib/env')
 
 describe('env module', () => {

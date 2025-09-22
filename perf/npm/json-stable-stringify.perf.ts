@@ -13,22 +13,22 @@ import { logger } from '@socketsecurity/registry/lib/logger'
 
 void (async () => {
   const sampleData2MbJson = require(
-    path.join(constants.perfNpmFixturesPath, 'sample_data_2mb.json')
+    path.join(constants.perfNpmFixturesPath, 'sample_data_2mb.json'),
   )
   const sampleData6MbJson = {
     a: sampleData2MbJson,
     b: sampleData2MbJson,
-    c: sampleData2MbJson
+    c: sampleData2MbJson,
   }
   const tests = [
     { name: '2MB json file', data: sampleData2MbJson },
-    { name: '6MB json file', data: sampleData6MbJson }
+    { name: '6MB json file', data: sampleData6MbJson },
   ]
   for (const { data, name } of tests) {
     ;[
       overrideJsonStableStringify(data),
       origJsonStableStringify(data),
-      fastJsonStableStringify(data)
+      fastJsonStableStringify(data),
     ].reduce((a, v) => {
       assert.strictEqual(a, v)
       return v

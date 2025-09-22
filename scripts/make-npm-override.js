@@ -26,7 +26,7 @@ const {
   getPackageJsonAction,
   getTemplate,
   getTypeScriptActions,
-  writeAction
+  writeAction,
 } = require('@socketregistry/scripts/lib/templates')
 const { isDirEmptySync } = require('@socketsecurity/registry/lib/fs')
 const { globStreamLicenses } = require('@socketsecurity/registry/lib/globs')
@@ -45,13 +45,13 @@ const {
   resolveGitHubTgzUrl,
   resolvePackageJsonEntryExports,
   resolvePackageLicenses,
-  resolveRegistryPackageName
+  resolveRegistryPackageName,
 } = require('@socketsecurity/registry/lib/packages')
 const {
   confirm,
   input,
   search,
-  select
+  select,
 } = require('@socketsecurity/registry/lib/prompts')
 const { naturalSorter } = require('@socketsecurity/registry/lib/sorts')
 const { naturalCompare } = require('@socketsecurity/registry/lib/sorts')
@@ -72,11 +72,11 @@ const {
   npmPackagesPath,
   rootPath,
   tsLibsAvailable,
-  tsTypesAvailable
+  tsTypesAvailable,
 } = constants
 
 const { positionals: cliPositionals, values: cliArgs } = util.parseArgs(
-  constants.parseArgsConfig
+  constants.parseArgsConfig,
 )
 
 const bcaKeysMap = new Map()
@@ -84,10 +84,10 @@ const bcaKeysMap = new Map()
 const esShimChoices = [
   {
     name: 'es-shim prototype method',
-    value: TEMPLATE_ES_SHIM_PROTOTYPE_METHOD
+    value: TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
   },
   { name: 'es-shim static method', value: TEMPLATE_ES_SHIM_STATIC_METHOD },
-  { name: 'es-shim constructor', value: TEMPLATE_ES_SHIM_CONSTRUCTOR }
+  { name: 'es-shim constructor', value: TEMPLATE_ES_SHIM_CONSTRUCTOR },
 ]
 
 const possibleTsRefs = [...tsLibsAvailable, ...tsTypesAvailable]
@@ -144,9 +144,9 @@ async function readLicenses(dirname) {
     stream,
     async filepath => ({
       name: path.basename(filepath),
-      content: await fs.readFile(filepath, UTF8)
+      content: await fs.readFile(filepath, UTF8),
     }),
-    { concurrency: 8 }
+    { concurrency: 8 },
   )) {
     results.push(license)
   }
@@ -163,7 +163,7 @@ void (async () => {
     default: cliPositionals.at(0),
     required: true,
     validate: async pkgName =>
-      isValidPackageName(pkgName) && !!(await fetchPackageManifest(pkgName))
+      isValidPackageName(pkgName) && !!(await fetchPackageManifest(pkgName)),
   })
   if (origPkgName === undefined) {
     // Exit if user force closed the prompt.
@@ -177,7 +177,7 @@ void (async () => {
     if (
       !(await confirm({
         message: 'Do you want to overwrite it?',
-        default: false
+        default: false,
       }))
     ) {
       return
@@ -193,7 +193,7 @@ void (async () => {
     nmPkgJson = await readPackageJson(nmPkgPath, { normalize: true })
     relJsFilepaths = await glob(['*.js'], {
       ignore: ['**/package.json'],
-      cwd: nmPkgPath
+      cwd: nmPkgPath,
     })
     licenses = resolvePackageLicenses(nmPkgJson.license, nmPkgPath)
     licenseWarnings = collectLicenseWarnings(licenses)
@@ -216,10 +216,10 @@ void (async () => {
   }
   if (licenseWarnings.length) {
     const formattedWarnings = licenseWarnings.map(w =>
-      indentString(`• ${w}`, 2)
+      indentString(`• ${w}`, 2),
     )
     logger.warn(
-      `${origPkgName} has license warnings:\n${formattedWarnings.join('\n')}`
+      `${origPkgName} has license warnings:\n${formattedWarnings.join('\n')}`,
     )
   }
   if (badLicenses.length) {
@@ -228,7 +228,7 @@ void (async () => {
     const warning = `${LOG_SYMBOLS.warn} ${origPkgName} has incompatible ${singularOrPlural} ${badLicenseNames.join(', ')}.`
     const answer = await confirm({
       message: `${warning}.\nDo you want to continue?`,
-      default: false
+      default: false,
     })
     if (!answer) {
       if (answer === false) {
@@ -288,7 +288,7 @@ void (async () => {
     } else {
       templateChoice = await select({
         message: 'Pick the es-shim template to use',
-        choices: esShimChoices
+        choices: esShimChoices,
       })
     }
   } else if (isEsm) {
@@ -298,8 +298,8 @@ void (async () => {
       message: 'Pick the package template to use',
       choices: [
         { name: 'cjs', value: TEMPLATE_CJS },
-        { name: 'cjs and browser', value: TEMPLATE_CJS_BROWSER }
-      ]
+        { name: 'cjs and browser', value: TEMPLATE_CJS_BROWSER },
+      ],
     })
   }
   if (templateChoice === undefined) {
@@ -309,7 +309,7 @@ void (async () => {
   if (tsRefs.length === 0) {
     const answer = await confirm({
       message: 'Need a TypeScript lib/types reference?',
-      default: false
+      default: false,
     })
     if (answer === undefined) {
       // Exit if user force closed the prompt.
@@ -341,7 +341,7 @@ void (async () => {
               caseSensitive: true,
               deburr: false,
               returnType: ReturnTypeEnums.ALL_CLOSEST_MATCHES,
-              threshold: 0.2
+              threshold: 0.2,
             })
           }
           if (matches.length === 0) {
@@ -361,7 +361,7 @@ void (async () => {
             second = firstMatch
           }
           return [first, second, ...sortedTail].map(toChoice)
-        }
+        },
       })
       if (searchResult === undefined) {
         // Exit if user force closed the prompt.
@@ -377,7 +377,7 @@ void (async () => {
   const interop = [
     'cjs',
     ...(TEMPLATE_CJS_ESM ? ['esm'] : []),
-    ...(TEMPLATE_CJS_BROWSER ? ['browserify'] : [])
+    ...(TEMPLATE_CJS_BROWSER ? ['browserify'] : []),
   ]
 
   // First copy the template directory contents to the package path.
@@ -386,9 +386,9 @@ void (async () => {
   await writeAction(
     await getPackageJsonAction(pkgPath, {
       engines: {
-        node: nodeRange ?? constants.PACKAGE_DEFAULT_NODE_RANGE
-      }
-    })
+        node: nodeRange ?? constants.PACKAGE_DEFAULT_NODE_RANGE,
+      },
+    }),
   )
   // Finally, modify other package file sources and write to disk.
   await Promise.all(
@@ -401,12 +401,12 @@ void (async () => {
           // them in .d.cts files.
           const isCts = filepath.endsWith('.d.cts')
           data.references = tsRefs.filter(
-            r => isCts || !(r.name === 'types' && r.value === 'node')
+            r => isCts || !(r.name === 'types' && r.value === 'node'),
           )
           return data
-        }
-      }))
-    ].map(writeAction)
+        },
+      })),
+    ].map(writeAction),
   )
   // Create LICENSE.original files.
   const { length: licenseCount } = licenseContents
@@ -432,10 +432,10 @@ void (async () => {
     // Load the freshly written package.json and edit its "exports" and "files" fields.
     const editablePkgJson = await readPackageJson(pkgPath, {
       editable: true,
-      normalize: true
+      normalize: true,
     })
     const entryExports = resolvePackageJsonEntryExports(
-      editablePkgJson.content.exports
+      editablePkgJson.content.exports,
     )
     const nmEntryExports = resolvePackageJsonEntryExports(nmPkgJson.exports)
     const useNmEntryExports =
@@ -444,8 +444,8 @@ void (async () => {
       main: useNmEntryExports ? undefined : editablePkgJson.content.main,
       exports: useNmEntryExports ? nmEntryExports : entryExports,
       files: [...editablePkgJson.content.files, ...filesFieldAdditions].sort(
-        naturalCompare
-      )
+        naturalCompare,
+      ),
     })
     await editablePkgJson.save()
   }
@@ -454,14 +454,14 @@ void (async () => {
   try {
     const spawnOptions = {
       cwd: rootPath,
-      stdio: 'inherit'
+      stdio: 'inherit',
     }
     await execScript('update:manifest', [], spawnOptions)
     await execScript('update:package-json', [], spawnOptions)
     await execScript(
       'update:longtask:test:npm:package-json',
       ['--', '--quiet', '--add', origPkgName],
-      spawnOptions
+      spawnOptions,
     )
     if (!cliArgs.quiet) {
       logger.log('Finished 🎉')

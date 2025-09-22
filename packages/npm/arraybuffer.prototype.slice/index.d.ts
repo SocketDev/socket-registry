@@ -1,6 +1,6 @@
 import Impl from './implementation'
 declare const {
-  x: ArrayBufferProtoSlice
+  x: ArrayBufferProtoSlice,
 }: {
   x: typeof Impl & {
     getPolyfill(): typeof Impl

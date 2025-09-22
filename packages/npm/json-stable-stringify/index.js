@@ -34,7 +34,7 @@ function getCallStackSizeExceededErrorDetails() {
       callStackSizeExceededErrorDetails = ObjectFreeze({
         Ctor: constructor,
         limit,
-        message
+        message,
       })
     }
   }
@@ -47,7 +47,7 @@ function stableStringifyNonRecursive(
   collapseEmpty,
   cycles,
   replacer,
-  space
+  space,
 ) {
   let result = ''
   let depth = 0
@@ -56,7 +56,7 @@ function stableStringifyNonRecursive(
   while (queue.length > 0) {
     if (depth++ === LOOP_SENTINEL) {
       throw new Error(
-        'Detected infinite loop in object crawl of stableStringify'
+        'Detected infinite loop in object crawl of stableStringify',
       )
     }
     const stack = queue.pop()
@@ -152,7 +152,7 @@ function stableStringifyNonRecursive(
         nodeIsArr,
         level + 1,
         k,
-        node[k]
+        node[k],
       ])
     }
   }
@@ -165,7 +165,7 @@ function stableStringifyRecursive(
   collapseEmpty,
   cycles,
   replacer,
-  space
+  space,
 ) {
   const seen = new Set()
   return (function recursive(parent, key, rawNode, level) {
@@ -274,7 +274,7 @@ module.exports = function stableStringify(obj, opts = {}) {
             cmpOpt(
               { key: a, value: node[a] },
               { key: b, value: node[b] },
-              get ? { __proto__: null, get } : undefined
+              get ? { __proto__: null, get } : undefined,
             )
         }
       : undefined
@@ -285,7 +285,7 @@ module.exports = function stableStringify(obj, opts = {}) {
       collapseEmpty,
       cycles,
       replacer,
-      space
+      space,
     )
   }
   try {
@@ -295,7 +295,7 @@ module.exports = function stableStringify(obj, opts = {}) {
       collapseEmpty,
       cycles,
       replacer,
-      space
+      space,
     )
   } catch (e) {
     if (e) {

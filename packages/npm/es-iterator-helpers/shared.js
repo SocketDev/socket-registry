@@ -8,12 +8,12 @@ const {
   create: ObjectCreate,
   defineProperty: ObjectDefineProperty,
   getOwnPropertyDescriptor: ObjectGetOwnPropertyDescriptor,
-  hasOwn: ObjectHasOwn
+  hasOwn: ObjectHasOwn,
 } = Object
 const {
   apply: ReflectApply,
   getPrototypeOf: ReflectGetPrototypeOf,
-  ownKeys: ReflectOwnKeys
+  ownKeys: ReflectOwnKeys,
 } = Reflect
 const { iterator: SymbolIterator, toStringTag: SymbolToStringTag } = Symbol
 const NumberCtor = Number
@@ -92,7 +92,7 @@ const IteratorHelperPrototype = ObjectCreate(IteratorPrototype, {
         processedContexts.delete(generator)
       }
     },
-    writable: true
+    writable: true,
   },
   return: {
     __proto__: null,
@@ -127,15 +127,15 @@ const IteratorHelperPrototype = ObjectCreate(IteratorPrototype, {
         throw error
       }
     },
-    writable: true
+    writable: true,
   },
   // Based on https://tc39.es/ecma262/#sec-%iteratorhelperprototype%-%symbol.tostringtag%.
   [SymbolToStringTag]: {
     configurable: true,
     enumerable: false,
     value: 'Iterator Helper',
-    writable: false
-  }
+    writable: false,
+  },
 })
 
 // Based on https://tc39.es/ecma262/#sec-%wrapforvaliditeratorprototype%-object.
@@ -159,7 +159,7 @@ const WrapForValidIteratorPrototype = ObjectCreate(IteratorPrototype, {
       // Step 4: Return Call(iteratorRecord.[[NextMethod]], iteratorRecord.[[Iterator]]).
       return ReflectApply(nextMethod, iterator, [])
     },
-    writable: true
+    writable: true,
   },
   // Based on https://tc39.es/ecma262/#sec-%wrapforvaliditeratorprototype%.return.
   return: {
@@ -189,8 +189,8 @@ const WrapForValidIteratorPrototype = ObjectCreate(IteratorPrototype, {
       // Step 7: Return Call(returnMethod, iterator).
       return ReflectApply(returnMethod, iterator, [])
     },
-    writable: true
-  }
+    writable: true,
+  },
 })
 
 // Based on https://tc39.es/ecma262/#sec-createiteratorfromclosure.
@@ -210,7 +210,7 @@ function createIteratorFromClosure(closure) {
     __proto__: null,
     [SLOT_GENERATOR_CONTEXT]: closure,
     [SLOT_GENERATOR_STATE]: GENERATOR_STATE_SUSPENDED_STARTED,
-    [SLOT_UNDERLYING_ITERATOR]: undefined
+    [SLOT_UNDERLYING_ITERATOR]: undefined,
   })
   // Step 16: Return generator.
   return generator
@@ -398,7 +398,7 @@ function iteratorZip(iters, mode, padding, finishResults = v => v) {
           // Step 3.b.iii.2.a: Assert: mode is "longest".
           if (mode !== 'longest') {
             throw new ErrorCtor(
-              'Invalid state: null iterator in non-longest mode'
+              'Invalid state: null iterator in non-longest mode',
             )
           }
           // Step 3.b.iii.2.b: Let result be padding[i].
@@ -442,7 +442,7 @@ function iteratorZip(iters, mode, padding, finishResults = v => v) {
     [SymbolIterator]() {
       // Step 3: The generator must be iterable.
       return this
-    }
+    },
   }
   // Step 5: Set generator.[[UnderlyingIterators]] to openIters.
   setUnderlyingIterator(generator, openIters)
@@ -472,7 +472,7 @@ function setSlot(O, slot, value) {
       __proto__: null,
       [SLOT_GENERATOR_CONTEXT]: undefined,
       [SLOT_GENERATOR_STATE]: GENERATOR_STATE_SUSPENDED_STARTED,
-      [SLOT_UNDERLYING_ITERATOR]: undefined
+      [SLOT_UNDERLYING_ITERATOR]: undefined,
     }
     SLOT.set(O, slots)
   }
@@ -529,5 +529,5 @@ module.exports = {
   isIteratorProtoNextCheckBuggy,
   setIterated,
   setUnderlyingIterator,
-  toIntegerOrInfinity
+  toIntegerOrInfinity,
 }

@@ -27,7 +27,7 @@ void (async () => {
   const autoFiles = await glob([AUTO_FILE_GLOB_RECURSIVE], {
     ignore: ignoreGlobs,
     absolute: true,
-    cwd: npmTemplatesPath
+    cwd: npmTemplatesPath,
   })
   const autoFile = modifiedAutoFile || autoFiles.at(0)
   if (autoFile === undefined) {
@@ -41,14 +41,14 @@ void (async () => {
       if ((await fs.stat(filepath)).size === OLD_EMPTY_CONTENT_BYTES) {
         await fs.writeFile(filepath, EMPTY_FILE, UTF8)
       }
-    })
+    }),
   )
   await Promise.all(
     (
       await glob(['**/*.{d.ts,js}'], {
         ignore: [AUTO_FILE_GLOB_RECURSIVE, ...ignoreGlobs],
         absolute: true,
-        cwd: constants.rootPath
+        cwd: constants.rootPath,
       })
     ).map(async filepath => {
       if (
@@ -57,6 +57,6 @@ void (async () => {
       ) {
         await fs.writeFile(filepath, EMPTY_FILE, UTF8)
       }
-    })
+    }),
   )
 })()

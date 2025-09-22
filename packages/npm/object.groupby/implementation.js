@@ -25,7 +25,7 @@ module.exports =
               matched += 1
               if (matched > 1) {
                 throw new TypeErrorCtor(
-                  'Assertion failed: Exactly one element of groups meets this criterion'
+                  'Assertion failed: Exactly one element of groups meets this criterion',
                 )
               }
               // Step 1.a.ii: Append value to g.[[Elements]].
@@ -46,7 +46,7 @@ module.exports =
           // Step 1: Perform RequireObjectCoercible(items).
           if (items === null || items === undefined) {
             throw new TypeErrorCtor(
-              'Cannot convert null or undefined to object'
+              'Cannot convert null or undefined to object',
             )
           }
           // Step 2: If IsCallable(callback) is false, throw a TypeError exception.

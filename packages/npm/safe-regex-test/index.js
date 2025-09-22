@@ -5,7 +5,7 @@ const patternThrowsMarker = {
   __proto__: null,
   [Symbol.toPrimitive]() {
     throw this
-  }
+  },
 }
 function isRegex(v) {
   try {

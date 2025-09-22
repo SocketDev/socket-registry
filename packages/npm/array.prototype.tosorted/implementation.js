@@ -30,7 +30,7 @@ module.exports =
           // is `false`, throw a TypeError exception.
           if (comparator !== undefined && typeof comparator !== 'function') {
             throw new TypeErrorCtor(
-              'Comparator must be a function or undefined'
+              'Comparator must be a function or undefined',
             )
           }
           // Step 2: Let O be ToObject(this value).

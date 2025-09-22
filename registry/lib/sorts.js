@@ -38,8 +38,8 @@ function naturalCompare(x, y) {
         numeric: true,
         // Makes the comparison case-insensitive and ignores diacritics, e.g.
         // 'a', 'A', and 'á' are treated as equivalent.
-        sensitivity: 'base'
-      }
+        sensitivity: 'base',
+      },
     ).compare
   }
   return _naturalCompare(x, y)
@@ -57,7 +57,7 @@ function naturalSorter(arrayToSort) {
     // The 'fast-sort' package is browser safe.
     const fastSort = /*@__PURE__*/ require('../external/fast-sort')
     _naturalSorter = fastSort.createNewSortInstance({
-      comparer: naturalCompare
+      comparer: naturalCompare,
     })
   }
   return _naturalSorter(arrayToSort)
@@ -104,5 +104,5 @@ module.exports = {
   compareStr,
   localeCompare,
   naturalCompare,
-  naturalSorter
+  naturalSorter,
 }

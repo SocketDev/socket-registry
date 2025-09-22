@@ -129,17 +129,17 @@ const props = {
   spinner: undefined,
   tsLibsAvailable: undefined,
   tsTypesAvailable: undefined,
-  yarnExecPath: undefined
+  yarnExecPath: undefined,
 }
 
 module.exports = createConstantsObject(props, {
   getters: Object.fromEntries(
     Object.keys(props)
       .filter(k => props[k] === undefined)
-      .map(k => [k, () => require(`./${toKebabCase(k)}`)])
+      .map(k => [k, () => require(`./${toKebabCase(k)}`)]),
   ),
   internals: {
     createConstantsObject,
-    getIpc
-  }
+    getIpc,
+  },
 })

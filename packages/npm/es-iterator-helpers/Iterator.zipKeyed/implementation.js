@@ -8,7 +8,7 @@ const {
   getIteratorFlattenable,
   getOptionsObject,
   ifAbruptCloseIterator,
-  iteratorZip
+  iteratorZip,
 } = require('../shared')
 
 // Based on https://tc39.es/proposal-joint-iteration/#sec-iterator.zipkeyed.
@@ -132,6 +132,6 @@ module.exports = function zipKeyed(iterables, options) {
       }
       // Step 15.c: Return obj.
       return obj
-    }
+    },
   )
 }

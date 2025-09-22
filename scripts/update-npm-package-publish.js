@@ -9,7 +9,7 @@ const { logger } = require('@socketsecurity/registry/lib/logger')
 const { spawn } = require('@socketsecurity/registry/lib/spawn')
 const {
   getReleaseTag,
-  readPackageJsonSync
+  readPackageJsonSync,
 } = require('@socketsecurity/registry/lib/packages')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { pluralize } = require('@socketsecurity/registry/lib/words')
@@ -19,7 +19,7 @@ const {
   LATEST,
   SOCKET_REGISTRY_SCOPE,
   npmPackagesPath,
-  registryPkgPath
+  registryPkgPath,
 } = constants
 
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
@@ -40,15 +40,15 @@ async function publish(pkg, state = { fails: [] }) {
         'public',
         '--no-git-checks',
         '--tag',
-        pkg.tag
+        pkg.tag,
       ],
       {
         cwd: pkg.path,
         env: {
           ...process.env,
-          NODE_AUTH_TOKEN: constants.ENV.NODE_AUTH_TOKEN
-        }
-      }
+          NODE_AUTH_TOKEN: constants.ENV.NODE_AUTH_TOKEN,
+        },
+      },
     )
     if (result.stdout) {
       logger.log(result.stdout)
@@ -66,7 +66,7 @@ async function publish(pkg, state = { fails: [] }) {
 
 async function publishPackages(packages, state = { fails: [] }) {
   const okayPackages = packages.filter(
-    pkg => !state.fails.includes(pkg.printName)
+    pkg => !state.fails.includes(pkg.printName),
   )
   // Chunk non-failed package names to process them in parallel 3 at a time.
   await pEach(
@@ -74,7 +74,7 @@ async function publishPackages(packages, state = { fails: [] }) {
     async pkg => {
       await publish(pkg, state)
     },
-    { concurrency: 3 }
+    { concurrency: 3 },
   )
 }
 
@@ -94,9 +94,9 @@ void (async () => {
         name: `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`,
         path: pkgPath,
         printName: sockRegPkgName,
-        tag: getReleaseTag(pkgJson.version)
+        tag: getReleaseTag(pkgJson.version),
       })
-    })
+    }),
   ]
 
   await publishPackages(packages, { fails })

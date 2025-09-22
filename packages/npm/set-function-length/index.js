@@ -23,7 +23,7 @@ module.exports = function setFunctionLength(fn, length, loose = false) {
       configurable,
       enumerable: false,
       value: length,
-      writable: false
+      writable: false,
     })
   }
   return fn

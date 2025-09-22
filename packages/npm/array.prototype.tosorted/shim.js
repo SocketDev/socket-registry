@@ -13,7 +13,7 @@ module.exports = function shimArrayProtoToSorted() {
       configurable: true,
       enumerable: false,
       value: polyfill,
-      writable: true
+      writable: true,
     })
   }
   map['toSorted'] = true

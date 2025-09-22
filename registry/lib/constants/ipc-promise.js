@@ -24,7 +24,7 @@ module.exports = new Promise(
       if (rawData !== null && typeof rawData === 'object') {
         const { SOCKET_IPC_HANDSHAKE: source } = {
           __proto__: null,
-          ...rawData
+          ...rawData,
         }
         const target = /*@__PURE__*/ require('./ipc-target')
         ObjectAssign(target, source)
@@ -43,5 +43,5 @@ module.exports = new Promise(
     // The timeout of 1,000 milliseconds, i.e. 1 second, is to prevent an unresolved
     // promised. It should be more than enough time for the ipc object handshake.
     setTimeout(finish, 1000)
-  }
+  },
 )

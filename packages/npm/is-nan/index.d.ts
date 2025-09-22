@@ -1,6 +1,6 @@
 import Impl from './implementation'
 declare const {
-  x: NumberIsNaN
+  x: NumberIsNaN,
 }: {
   x: typeof Impl & {
     getPolyfill(): typeof Impl

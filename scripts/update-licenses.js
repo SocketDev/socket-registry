@@ -19,13 +19,13 @@ void (async () => {
   const stream = globStreamLicenses(constants.rootPath, {
     recursive: true,
     ignoreOriginals: true,
-    ignore: [LICENSE, 'scripts/templates', ...constants.ignoreGlobs]
+    ignore: [LICENSE, 'scripts/templates', ...constants.ignoreGlobs],
   })
 
   // Update each LICENSE file with the root LICENSE content.
   await parallelEach(
     stream,
     licensePath => fs.writeFile(licensePath, LICENSE_CONTENT, UTF8),
-    { concurrency: 8 }
+    { concurrency: 8 },
   )
 })()

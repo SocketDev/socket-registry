@@ -220,5 +220,5 @@ module.exports = {
   pathLikeToString,
   relativeResolve,
   splitPath,
-  trimLeadingDotSlash
+  trimLeadingDotSlash,
 }

@@ -65,5 +65,5 @@ function jsonParse(content, options) {
 }
 module.exports = {
   isJsonPrimitive,
-  jsonParse
+  jsonParse,
 }

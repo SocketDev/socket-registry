@@ -19,30 +19,30 @@ declare const Git: {
   getModifiedFilesSync(options?: DiffOptions): string[]
   getModifiedPackages(
     eco: string,
-    options?: OptionsAsSetFalse | undefined
+    options?: OptionsAsSetFalse | undefined,
   ): Promise<string[]>
   getModifiedPackages(
     eco: string,
-    options: OptionsAsSetTrue
+    options: OptionsAsSetTrue,
   ): Promise<Set<string>>
   getModifiedPackagesSync(
     eco: string,
-    options?: OptionsAsSetFalse | undefined
+    options?: OptionsAsSetFalse | undefined,
   ): string[]
   getModifiedPackagesSync(eco: string, options: OptionsAsSetTrue): Set<string>
   getStagedFiles(options?: DiffOptions): Promise<string[]>
   getStagedFilesSync(options?: DiffOptions): string[]
   getStagedPackages(
     eco: string,
-    options?: OptionsAsSetFalse | undefined
+    options?: OptionsAsSetFalse | undefined,
   ): Promise<string[]>
   getStagedPackages(
     eco: string,
-    options: OptionsAsSetTrue
+    options: OptionsAsSetTrue,
   ): Promise<Set<string>>
   getStagedPackagesSync(
     eco: string,
-    options?: OptionsAsSetFalse | undefined
+    options?: OptionsAsSetFalse | undefined,
   ): string[]
   getStagedPackagesSync(eco: string, options: OptionsAsSetTrue): Set<string>
   isModified(pathname: PathLike, options?: DiffOptions): Promise<boolean>

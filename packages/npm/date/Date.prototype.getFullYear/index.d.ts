@@ -1,6 +1,6 @@
 import Impl from './implementation'
 declare const {
-  x: DateProtoGetFullYear
+  x: DateProtoGetFullYear,
 }: {
   x: typeof Impl & {
     getPolyfill(): typeof Impl

@@ -8,7 +8,7 @@ const {
   pFilter,
   pFilterChunk,
   pRetry,
-  resolveRetryOptions
+  resolveRetryOptions,
 } = require('@socketsecurity/registry/lib/promises')
 
 describe('promises module', () => {
@@ -33,7 +33,7 @@ describe('promises module', () => {
           await new Promise(r => setTimeout(r, 20))
           concurrent--
         },
-        { concurrency: 2 }
+        { concurrency: 2 },
       )
       expect(maxConcurrent).toBeLessThanOrEqual(2)
     })
@@ -52,7 +52,7 @@ describe('promises module', () => {
           await new Promise(r => setTimeout(r, x * 10))
           results.push(x)
         },
-        { concurrency: 1 }
+        { concurrency: 1 },
       )
       expect(results).toEqual([3, 1, 2])
     })
@@ -66,7 +66,7 @@ describe('promises module', () => {
         async chunk => {
           chunks.push(chunk)
         },
-        { chunkSize: 2 }
+        { chunkSize: 2 },
       )
       expect(chunks).toEqual([[1, 2], [3, 4], [5]])
     })
@@ -78,7 +78,7 @@ describe('promises module', () => {
         async chunk => {
           chunks.push(chunk)
         },
-        { chunkSize: 5 }
+        { chunkSize: 5 },
       )
       expect(chunks).toEqual([[1, 2, 3]])
     })
@@ -100,7 +100,7 @@ describe('promises module', () => {
           await new Promise(r => setTimeout(r, 20))
           concurrent--
         },
-        { chunkSize: 2, concurrency: 2 }
+        { chunkSize: 2, concurrency: 2 },
       )
       expect(maxConcurrent).toBeLessThanOrEqual(2)
     })
@@ -127,7 +127,7 @@ describe('promises module', () => {
           concurrent--
           return x > 2
         },
-        { concurrency: 2 }
+        { concurrency: 2 },
       )
       expect(result).toEqual([3, 4, 5])
       expect(maxConcurrent).toBeLessThanOrEqual(2)
@@ -151,7 +151,7 @@ describe('promises module', () => {
     it('should filter chunks of arrays', async () => {
       const chunks = [
         [1, 2, 3],
-        [4, 5, 6]
+        [4, 5, 6],
       ]
       const result = await pFilterChunk(chunks, async value => {
         await new Promise(r => setTimeout(r, 10))
@@ -183,7 +183,7 @@ describe('promises module', () => {
           }
           return 'success'
         },
-        { retries: 5, minTimeout: 10 }
+        { retries: 5, minTimeout: 10 },
       )
       expect(result).toBe('success')
       expect(attempts).toBe(3)
@@ -197,8 +197,8 @@ describe('promises module', () => {
             attempts++
             throw new Error('always fails')
           },
-          { retries: 2, minTimeout: 10 }
-        )
+          { retries: 2, minTimeout: 10 },
+        ),
       ).rejects.toThrow('always fails')
       expect(attempts).toBe(3)
     })
@@ -210,7 +210,7 @@ describe('promises module', () => {
           attempts++
           return 'immediate success'
         },
-        { retries: 3, minTimeout: 10 }
+        { retries: 3, minTimeout: 10 },
       )
       expect(result).toBe('immediate success')
       expect(attempts).toBe(1)
@@ -262,7 +262,7 @@ describe('promises module', () => {
       const options = normalizeRetryOptions({
         retries: 2,
         minTimeout: 100,
-        maxTimeout: 1000
+        maxTimeout: 1000,
       })
       expect(options.minTimeout).toBe(100)
       expect(options.maxTimeout).toBe(1000)

@@ -64,7 +64,7 @@ describe('functions module', () => {
         value: 42,
         getValue() {
           return this.value
-        }
+        },
       }
       const wrapped = silentWrapAsync(obj.getValue.bind(obj))
       const result = await wrapped()

@@ -1,6 +1,6 @@
 import Impl from './implementation'
 declare const {
-  x: UtilPromisify
+  x: UtilPromisify,
 }: {
   x: typeof Impl & {
     getPolyfill(): typeof Impl

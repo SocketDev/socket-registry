@@ -57,5 +57,5 @@ module.exports = ObjectFreeze({
   // user-specific data files, defaulting to $HOME/.local/share if not set or empty.
   XDG_DATA_HOME: WIN32
     ? ''
-    : envAsString(env['XDG_DATA_HOME']) || (HOME ? `${HOME}/.local/share` : '')
+    : envAsString(env['XDG_DATA_HOME']) || (HOME ? `${HOME}/.local/share` : ''),
 })

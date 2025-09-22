@@ -1,6 +1,6 @@
 import Impl from './implementation'
 declare const {
-  x: ReflectOwnKeys
+  x: ReflectOwnKeys,
 }: {
   x: typeof Impl & {
     getPolyfill(): typeof Impl

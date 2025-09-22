@@ -19,7 +19,7 @@ describe(
     skip:
       isPackageTestingSkipped(eco, sockRegPkgName) ||
       // Add check to avoid errors in CI.
-      (constants.ENV.CI && !existsSync(pkgRequireIndexJsPath))
+      (constants.ENV.CI && !existsSync(pkgRequireIndexJsPath)),
   },
   () => {
     const jsonStableStringify = require(pkgRequireIndexJsPath)
@@ -32,7 +32,7 @@ describe(
 
     for (const methodName of [
       'stableStringifyRecursive',
-      'stableStringifyNonRecursive'
+      'stableStringifyNonRecursive',
     ]) {
       it(`${methodName}: space parameter (nested objects)`, () => {
         const obj = { one: 1, two: { b: 4, a: [2, 3] } }
@@ -47,7 +47,7 @@ describe(
             '    ],\n' +
             '    "b": 4\n' +
             '  }\n' +
-            '}'
+            '}',
         )
       })
 
@@ -55,14 +55,14 @@ describe(
         // For this test, properties need to be in alphabetical order.
         const obj = { one: 1, two: { a: [2, 3], b: 4 } }
         expect(jsonStableStringify(obj, { space: '  ' })).toBe(
-          JSON.stringify(obj, null, '  ')
+          JSON.stringify(obj, null, '  '),
         )
       })
 
       it(`${methodName}: space parameter base empty behavior: empty arrays and objects have added newline and space`, () => {
         const obj = { emptyArr: [], emptyObj: {} }
         expect(jsonStableStringify(obj, { space: '  ' })).toBe(
-          '{\n  "emptyArr": [\n  ],\n  "emptyObj": {\n  }\n}'
+          '{\n  "emptyArr": [\n  ],\n  "emptyObj": {\n  }\n}',
         )
       })
 
@@ -72,7 +72,7 @@ describe(
           jsonStableStringify(obj, { collapseEmpty: 'not a boolean' })
         }).toThrow(TypeError)
         expect(
-          jsonStableStringify(obj, { collapseEmpty: true, space: '  ' })
+          jsonStableStringify(obj, { collapseEmpty: true, space: '  ' }),
         ).toBe('{\n  "emptyArr": [],\n  "emptyObj": {}\n}')
       })
 
@@ -88,13 +88,13 @@ describe(
               userId: rawJSON!('12345678901234567890'),
               friends: [
                 { name: 'Alice', userId: rawJSON!('9876543210987654321') },
-                { name: 'Bob', userId: rawJSON!('56789012345678901234') }
-              ]
-            })
+                { name: 'Bob', userId: rawJSON!('56789012345678901234') },
+              ],
+            }),
           ).toBe(
-            '{"friends":[{"name":"Alice","userId":9876543210987654321},{"name":"Bob","userId":56789012345678901234}],"name":"Josh","userId":12345678901234567890}'
+            '{"friends":[{"name":"Alice","userId":9876543210987654321},{"name":"Bob","userId":56789012345678901234}],"name":"Josh","userId":12345678901234567890}',
           )
-        }
+        },
       )
 
       // This test must be last because it triggers the internal switch from
@@ -117,9 +117,9 @@ describe(
           return result
         }
         expect(() =>
-          jsonStableStringify(createCallStackBusterObject())
+          jsonStableStringify(createCallStackBusterObject()),
         ).not.toThrow()
       })
     }
-  }
+  },
 )

@@ -12,5 +12,5 @@ function polyfill() {
 
 module.exports = {
   assign,
-  polyfill
+  polyfill,
 }

@@ -1,7 +1,7 @@
 'use strict'
 
 const {
-  Buffer: { allocUnsafe, allocUnsafeSlow }
+  Buffer: { allocUnsafe, allocUnsafeSlow },
   // Use non-'node:' prefixed require to avoid Webpack errors.
   // eslint-disable-next-line n/prefer-node-protocol
 } = require('buffer')
@@ -22,15 +22,15 @@ const {
   kMaxLength,
   kStringMaxLength,
   resolveObjectURL,
-  transcode
+  transcode,
 } = safer
 
 const Dangerous = Object.defineProperties(
   {
     allocUnsafe,
-    allocUnsafeSlow
+    allocUnsafeSlow,
   },
-  Object.getOwnPropertyDescriptors(Safer)
+  Object.getOwnPropertyDescriptors(Safer),
 )
 
 module.exports = {
@@ -46,6 +46,6 @@ module.exports = {
   kStringMaxLength,
   resolveObjectURL,
   transcode,
-  Buffer: Dangerous
+  Buffer: Dangerous,
 }
 Object.defineProperties(module.exports, builtinBufferExportsDescMap)

@@ -9,7 +9,7 @@ const {
   getIteratorFlattenable,
   getMethod,
   ifAbruptCloseIterator,
-  setUnderlyingIterator
+  setUnderlyingIterator,
 } = require('../shared')
 
 // Based on https://tc39.es/ecma262/#sec-iterator.prototype.flatmap.
@@ -82,7 +82,7 @@ module.exports = function flatMap(mapper) {
           innerReturnResult = ReflectApply(
             innerIteratorReturnMethod,
             innerIterator,
-            []
+            [],
           )
           ensureObject(innerReturnResult, 'Iterator.return')
         }
@@ -93,7 +93,7 @@ module.exports = function flatMap(mapper) {
         outerReturnResult = ReflectApply(
           outerIteratorReturnMethod,
           iterator,
-          []
+          [],
         )
         ensureObject(outerReturnResult, 'Iterator.return')
       }

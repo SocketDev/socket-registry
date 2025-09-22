@@ -7,7 +7,7 @@ const {
   ensureObject,
   getIteratorDirect,
   ifAbruptCloseIterator,
-  setUnderlyingIterator
+  setUnderlyingIterator,
 } = require('../shared')
 
 // Based on https://tc39.es/ecma262/#sec-iterator.prototype.filter.
@@ -55,7 +55,7 @@ module.exports = function filter(predicate) {
           return { value: result.value, done: false }
         }
       }
-    }
+    },
   })
   // Step 7: Set result.[[UnderlyingIterator]] to iterated.
   setUnderlyingIterator(wrapper, iterator)

@@ -11,7 +11,7 @@ const attempters = [
   'Uint16Array',
   'Uint32Array',
   'BigInt64Array',
-  'BigUint64Array'
+  'BigUint64Array',
 ].map(name => {
   const Ctor = globalThis[name]
   const getter = Ctor.prototype.__lookupGetter__(Symbol.toStringTag)

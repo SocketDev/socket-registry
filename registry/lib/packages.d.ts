@@ -7,7 +7,7 @@ import type {
   Options as BasePacoteOptions,
   PackumentResult,
   manifest,
-  tarball
+  tarball,
 } from 'pacote'
 
 declare namespace Packages {
@@ -49,34 +49,34 @@ declare namespace Packages {
     sort?: boolean | undefined
   }
   export function collectIncompatibleLicenses(
-    licenseNodes: LicenseNode[]
+    licenseNodes: LicenseNode[],
   ): LicenseNode[]
   export function collectLicenseWarnings(licenseNodes: LicenseNode[]): string[]
   export function createPackageJson(
     sockRegPkgName: string,
     directory: string,
-    options: PackageJson
+    options: PackageJson,
   ): PackageJson
   export function extractPackage(
     pkgNameOrId: string,
     options: ExtractOptions,
-    callback: (destPath: string) => Promise<any>
+    callback: (destPath: string) => Promise<any>,
   ): Promise<void>
   export function fetchPackageManifest(
     pkgNameOrId: string,
-    options?: PacoteOptions | undefined
+    options?: PacoteOptions | undefined,
   ): Promise<Awaited<ReturnType<typeof manifest>> | null>
   export function fetchPackagePackument(
     pkgNameOrId: string,
-    options: PacoteOptions & { fullMetadata: true }
+    options: PacoteOptions & { fullMetadata: true },
   ): Promise<FullPackument>
   export function fetchPackagePackument(
     pkgNameOrId: string,
-    options?: PacoteOptions | undefined
+    options?: PacoteOptions | undefined,
   ): Promise<Packument | null>
   export function findTypesForSubpath(
     entryExports: Exports,
-    subpath: string
+    subpath: string,
   ): string | undefined
   export function getReleaseTag(version: string): string
   export function getRepoUrlDetails(repoUrl: string): {
@@ -88,17 +88,17 @@ declare namespace Packages {
   export function isConditionalExports(entryExports: Exports): boolean
   export function isGitHubTgzSpec(
     spec: string,
-    where?: string | undefined
+    where?: string | undefined,
   ): boolean
   export function isGitHubUrlSpec(
     spec: string,
-    where?: string | undefined
+    where?: string | undefined,
   ): boolean
   export function isSubpathExports(entryExports: Exports): boolean
   export function isValidPackageName(name: any): boolean
   export function normalizePackageJson(
     pkgJson: PackageJson,
-    options?: { preserve?: string[] | readonly string[] } | undefined
+    options?: { preserve?: string[] | readonly string[] } | undefined,
   ): NormalizedPackageJson
   export function packPackage(
     spec: string,
@@ -115,7 +115,7 @@ declare namespace Packages {
           scriptShell?: string | undefined
           stdioString?: boolean | undefined
         })
-      | undefined
+      | undefined,
   ): Promise<Awaited<ReturnType<typeof tarball>>>
   export function readPackageJson(
     filepath: string,
@@ -124,7 +124,7 @@ declare namespace Packages {
       normalize?: boolean | undefined
       preserve?: string[] | readonly string[] | undefined
       throws: false
-    }
+    },
   ): Promise<EditablePackageJson | null>
   export function readPackageJson(
     filepath: string,
@@ -133,7 +133,7 @@ declare namespace Packages {
       normalize?: boolean | undefined
       preserve?: string[] | readonly string[] | undefined
       throws?: true | undefined
-    }
+    },
   ): Promise<EditablePackageJson>
   export function readPackageJson(
     filepath: string,
@@ -142,7 +142,7 @@ declare namespace Packages {
       normalize?: boolean | undefined
       preserve?: string[] | readonly string[] | undefined
       throws: false
-    }
+    },
   ): Promise<PackageJson | null>
   export function readPackageJson(
     filepath: string,
@@ -153,7 +153,7 @@ declare namespace Packages {
           preserve?: string[] | readonly string[] | undefined
           throws?: true | undefined
         }
-      | undefined
+      | undefined,
   ): Promise<PackageJson>
   export function readPackageJsonSync(
     filepath: string,
@@ -164,7 +164,7 @@ declare namespace Packages {
           preserve?: string[] | readonly string[] | undefined
           throws: false
         }
-      | undefined
+      | undefined,
   ): EditablePackageJson | null
   export function readPackageJsonSync(
     filepath: string,
@@ -175,7 +175,7 @@ declare namespace Packages {
           preserve?: string[] | readonly string[] | undefined
           throws?: true | undefined
         }
-      | undefined
+      | undefined,
   ): EditablePackageJson
   export function readPackageJsonSync(
     filepath: string,
@@ -186,7 +186,7 @@ declare namespace Packages {
           preserve?: string[] | readonly string[] | undefined
           throws: false
         }
-      | undefined
+      | undefined,
   ): PackageJson | null
   export function readPackageJsonSync(
     filepath: string,
@@ -197,29 +197,29 @@ declare namespace Packages {
           preserve?: string[] | readonly string[] | undefined
           throws?: true | undefined
         }
-      | undefined
+      | undefined,
   ): PackageJson
   export function resolveEscapedScope(sockRegPkgName: string): string
   export function resolveGitHubTgzUrl(
     pkgNameOrId: string,
-    where: string
+    where: string,
   ): Promise<string>
   export function resolveOriginalPackageName(sockRegPkgName: string): string
   export function resolvePackageJsonDirname(filepath: string): string
   export function resolvePackageJsonEntryExports(
-    entryExports: any
+    entryExports: any,
   ): Exports | undefined
   export function resolvePackageJsonPath(filepath: string): string
   export function resolvePackageLicenses(
     licenseFieldValue: string,
-    where: string
+    where: string,
   ): LicenseNode[]
   export function resolvePackageName(
     purlObj: {
       name: string
       namespace?: string | undefined
     },
-    delimiter?: string | undefined
+    delimiter?: string | undefined,
   ): string
   export function resolveRegistryPackageName(pkgName: string): string
   export function toEditablePackageJson(
@@ -230,7 +230,7 @@ declare namespace Packages {
           path?: string | undefined
           preserve?: string[] | readonly string[]
         }
-      | undefined
+      | undefined,
   ): Promise<EditablePackageJson>
   export function toEditablePackageJsonSync(
     pkgJson: PackageJson,
@@ -240,7 +240,7 @@ declare namespace Packages {
           path?: string | undefined
           preserve?: string[] | readonly string[]
         }
-      | undefined
+      | undefined,
   ): EditablePackageJson
   export function unescapeScope(escapedScope: string): string
 }

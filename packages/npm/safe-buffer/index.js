@@ -7,11 +7,11 @@ const { Buffer: UnsafeBuffer } = require('buffer')
 const SafeBuffer = Object.defineProperties(function SafeBuffer(
   arg,
   encodingOrOffset,
-  length
+  length,
 ) {
   return UnsafeBuffer.from(arg, encodingOrOffset, length)
 }, Object.getOwnPropertyDescriptors(UnsafeBuffer))
 
 module.exports = {
-  Buffer: SafeBuffer
+  Buffer: SafeBuffer,
 }

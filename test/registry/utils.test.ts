@@ -18,7 +18,7 @@ describe('utility modules tests', () => {
       expect(arrays.arrayChunk([1, 2, 3, 4, 5], 2)).toEqual([
         [1, 2],
         [3, 4],
-        [5]
+        [5],
       ])
       expect(arrays.arrayChunk([], 3)).toEqual([])
     })
@@ -54,7 +54,7 @@ describe('utility modules tests', () => {
 
     it('should parse with reviver', () => {
       expect(json.jsonParse('{"a": 1}', { reviver: jsonReviver })).toEqual({
-        a: 2
+        a: 2,
       })
     })
   })

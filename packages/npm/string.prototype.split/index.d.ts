@@ -1,6 +1,6 @@
 import Impl from './implementation'
 declare const {
-  x: StringProtoSplit
+  x: StringProtoSplit,
 }: {
   x: typeof Impl & {
     getPolyfill(): typeof Impl

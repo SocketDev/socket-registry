@@ -23,6 +23,6 @@ void (async () => {
       const readmePath = path.join(pkgPath, README_MD)
       const { 1: data } = await getNpmReadmeAction(pkgPath)
       return fs.writeFile(readmePath, data.readme, UTF8)
-    })
+    }),
   )
 })()

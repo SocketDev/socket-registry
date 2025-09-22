@@ -16,7 +16,7 @@ const {
   merge,
   objectEntries,
   toSortedObject,
-  toSortedObjectFromEntries
+  toSortedObjectFromEntries,
 } = require('@socketsecurity/registry/lib/objects')
 
 describe('objects module', () => {
@@ -114,7 +114,7 @@ describe('objects module', () => {
       const obj = {}
       Object.defineProperty(obj, 'hidden', {
         value: true,
-        enumerable: false
+        enumerable: false,
       })
       expect(hasKeys(obj)).toBe(false)
     })
@@ -144,7 +144,7 @@ describe('objects module', () => {
       const obj = { visible: true }
       Object.defineProperty(obj, 'hidden', {
         value: 'secret',
-        enumerable: false
+        enumerable: false,
       })
       const values = getOwnPropertyValues(obj)
       expect(values).toContain(true)
@@ -158,7 +158,7 @@ describe('objects module', () => {
       expect(objectEntries(obj)).toEqual([
         ['a', 1],
         ['b', 2],
-        ['c', 3]
+        ['c', 3],
       ])
     })
 
@@ -172,7 +172,7 @@ describe('objects module', () => {
       obj.y = 20
       expect(objectEntries(obj)).toEqual([
         ['x', 10],
-        ['y', 20]
+        ['y', 20],
       ])
     })
   })
@@ -196,7 +196,7 @@ describe('objects module', () => {
       const entries = [
         ['z', 3],
         ['a', 1],
-        ['m', 2]
+        ['m', 2],
       ]
       const sorted = toSortedObjectFromEntries(entries)
       expect(Object.keys(sorted)).toEqual(['a', 'm', 'z'])
@@ -224,7 +224,7 @@ describe('objects module', () => {
       expect(result).toEqual({
         a: { x: 1, y: 20, z: 30 },
         b: 3,
-        c: 4
+        c: 4,
       })
     })
 
@@ -308,7 +308,7 @@ describe('objects module', () => {
         b: () => {
           countB++
           return 'valueB'
-        }
+        },
       })
       expect(obj.a).toBe('valueA')
       expect(obj.a).toBe('valueA')
@@ -348,8 +348,8 @@ describe('objects module', () => {
           LAZY: () => {
             callCount++
             return 'lazy'
-          }
-        }
+          },
+        },
       })
       expect(constants.LAZY).toBe('lazy')
       expect(constants.LAZY).toBe('lazy')
@@ -360,8 +360,8 @@ describe('objects module', () => {
       const props = { CONST_A: 1 }
       const constants = createConstantsObject(props, {
         internals: {
-          internal: 'value'
-        }
+          internal: 'value',
+        },
       })
       const kInternalsSymbol = constants.kInternalsSymbol
       expect(constants[kInternalsSymbol]).toBeDefined()

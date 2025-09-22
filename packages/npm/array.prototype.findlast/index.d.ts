@@ -1,6 +1,6 @@
 import Impl from './implementation'
 declare const {
-  x: ArrayProtoFindLast
+  x: ArrayProtoFindLast,
 }: {
   x: typeof Impl & {
     getPolyfill(): typeof Impl

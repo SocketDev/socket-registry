@@ -90,7 +90,7 @@ module.exports = function isCore(moduleName, maybeNodeVersion) {
     throw new TypeError(
       nodeVersion === undefined
         ? 'Unable to determine current node version'
-        : 'If provided, a valid node version is required'
+        : 'If provided, a valid node version is required',
     )
   }
   const data = getData()

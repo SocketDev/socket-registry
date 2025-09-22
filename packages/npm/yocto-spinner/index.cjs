@@ -11,7 +11,7 @@ function getDefaultSpinner() {
       frames: isUnicodeSupported()
         ? ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
         : ['-', '\\', '|', '/'],
-      interval: 80
+      interval: 80,
     }
   }
   return _defaultSpinner
@@ -26,7 +26,7 @@ function getLogSymbols() {
       error: colors.red(supported ? '✖' : '×'),
       info: colors.blue(supported ? 'ℹ' : 'i'),
       success: colors.green(supported ? '✔' : '√'),
-      warning: colors.yellow(supported ? '⚠' : '‼')
+      warning: colors.yellow(supported ? '⚠' : '‼'),
     }
   }
   return _logSymbols
@@ -144,7 +144,7 @@ class YoctoSpinner {
         configurable: true,
         enumerable: true,
         value: spinner,
-        writable: true
+        writable: true,
       })
     },
     ci: {
@@ -153,8 +153,8 @@ class YoctoSpinner {
       // limits delay to 2147483647 ms, roughly 24.8 days, since it's specified as a
       // signed integer in the IDL.
       // https://developer.mozilla.org/en-US/docs/Web/API/Window/setInterval?utm_source=chatgpt.com#return_value
-      interval: 2147483647
-    }
+      interval: 2147483647,
+    },
   }
 
   constructor(options = {}) {

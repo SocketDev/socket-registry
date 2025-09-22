@@ -11,7 +11,7 @@ function getConjunctionFormatter() {
   if (_conjunctionFormatter === undefined) {
     _conjunctionFormatter = new Intl.ListFormat('en', {
       style: 'long',
-      type: 'conjunction' // "and" lists.
+      type: 'conjunction', // "and" lists.
     })
   }
   return _conjunctionFormatter
@@ -28,7 +28,7 @@ function getDisjunctionFormatter() {
   if (_disjunctionFormatter === undefined) {
     _disjunctionFormatter = new Intl.ListFormat('en', {
       style: 'long',
-      type: 'disjunction' // "or" lists.
+      type: 'disjunction', // "or" lists.
     })
   }
   return _disjunctionFormatter
@@ -85,5 +85,5 @@ module.exports = {
   arrayChunk,
   arrayUnique,
   joinAnd,
-  joinOr
+  joinOr,
 }

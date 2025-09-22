@@ -29,11 +29,11 @@ const next = semver.gt(manualNext, queryNext) ? manualNext : queryNext
 
 const current = semver.maxSatisfying(
   [queryCurr, manualCurr],
-  `^${semver.major(queryCurr)}`
+  `^${semver.major(queryCurr)}`,
 )
 const previous = semver.maxSatisfying(
   [queryPrev, manualPrev],
-  `^${semver.major(queryPrev)}`
+  `^${semver.major(queryPrev)}`,
 )
 const last = semver.lt(manualLast, queryLast) ? manualLast : queryLast
 
@@ -42,6 +42,6 @@ module.exports = ObjectFreeze(
     last,
     previous,
     current,
-    next
-  })
+    next,
+  }),
 )

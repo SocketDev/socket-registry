@@ -15,6 +15,6 @@ module.exports = Object.defineProperty(
     value() {
       return this
     },
-    writable: true
-  }
+    writable: true,
+  },
 )

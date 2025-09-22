@@ -15,7 +15,7 @@ try {
   const result = spawnSync('pnpm', ['up', 'caniuse-lite'], {
     stdio: 'inherit',
     cwd: rootPath,
-    shell: constants.WIN32
+    shell: constants.WIN32,
   })
 
   if (result.error) {

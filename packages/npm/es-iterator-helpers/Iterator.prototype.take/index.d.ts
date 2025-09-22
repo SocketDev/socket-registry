@@ -1,6 +1,6 @@
 import Impl from './implementation'
 declare const {
-  x: EsIteratorProtoTake
+  x: EsIteratorProtoTake,
 }: {
   x: typeof Impl & {
     getPolyfill(): typeof Impl

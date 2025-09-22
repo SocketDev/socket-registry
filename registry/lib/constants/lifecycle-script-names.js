@@ -12,7 +12,7 @@ module.exports = new Set(
       'restart',
       'start',
       'stop',
-      'version'
-    ].map(n => [`pre${n}`, n, `post${n}`])
-  ].flat()
+      'version',
+    ].map(n => [`pre${n}`, n, `post${n}`]),
+  ].flat(),
 )

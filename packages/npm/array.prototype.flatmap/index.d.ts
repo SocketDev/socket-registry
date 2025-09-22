@@ -1,6 +1,6 @@
 import Impl from './implementation'
 declare const {
-  x: ArrayProtoFlatMap
+  x: ArrayProtoFlatMap,
 }: {
   x: typeof Impl & {
     getPolyfill(): typeof Impl

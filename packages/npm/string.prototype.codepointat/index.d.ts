@@ -1,6 +1,6 @@
 import Impl from './implementation'
 declare const {
-  x: StringProtoCodePointAt
+  x: StringProtoCodePointAt,
 }: {
   x: typeof Impl & {
     getPolyfill(): typeof Impl

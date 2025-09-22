@@ -23,7 +23,7 @@ describe(
       const jsFilepaths = (
         await glob(['index.js', 'external/**/*.js', 'lib/**/*.js'], {
           absolute: true,
-          cwd: rootRegistryPath
+          cwd: rootRegistryPath,
         })
       )
         // Normalize filepaths for Windows.
@@ -51,11 +51,11 @@ describe(
         }
       }
       const registryConstants = require(
-        path.join(rootRegistryPath, 'lib/constants/index.js')
+        path.join(rootRegistryPath, 'lib/constants/index.js'),
       )
       const {
         kInternalsSymbol,
-        [kInternalsSymbol]: { lazyGetterStats }
+        [kInternalsSymbol]: { lazyGetterStats },
       } = registryConstants
 
       expect(Array.from(lazyGetterStats.initialized)).toEqual([])
@@ -63,19 +63,19 @@ describe(
 
     it('should expose internal attributes', async () => {
       const registryConstants = require(
-        path.join(rootRegistryPath, 'lib/constants/index.js')
+        path.join(rootRegistryPath, 'lib/constants/index.js'),
       )
       const {
         kInternalsSymbol,
-        [kInternalsSymbol]: { attributes }
+        [kInternalsSymbol]: { attributes },
       } = registryConstants
       const attribKeys = ['getters', 'internals', 'mixin', 'props']
       expect(Object.keys(attributes)).toEqual(attribKeys)
       for (const key of attribKeys) {
         expect(
-          isObjectObject(attributes[key]) || attributes[key] === undefined
+          isObjectObject(attributes[key]) || attributes[key] === undefined,
         ).toBe(true)
       }
     })
-  }
+  },
 )

@@ -24,5 +24,5 @@ const btoaFn = function btoa(...args) {
 
 module.exports = {
   atob: atobFn,
-  btoa: btoaFn
+  btoa: btoaFn,
 }

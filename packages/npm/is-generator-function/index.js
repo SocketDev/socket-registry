@@ -10,7 +10,7 @@ module.exports = function isGeneratorFunction(fn) {
   return (
     typeof fn === 'function' &&
     (ReflectApply(RegExpProtoTest, isFnRegExp, [
-      ReflectApply(fnToStr, fn, [])
+      ReflectApply(fnToStr, fn, []),
     ]) ||
       ReflectGetPrototypeOf(fn) === genFuncProto)
   )

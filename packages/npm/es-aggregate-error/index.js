@@ -6,7 +6,7 @@ const desc = (value, configurable = true, writable = true) => ({
   __proto__: null,
   configurable,
   value,
-  writable
+  writable,
 })
 
 const EsAggregateError = function AggregateError(errors, message) {
@@ -23,8 +23,8 @@ const EsAggregateErrorProto = Object.defineProperties(
   {
     // Copy "message", "name", and any future added prototype properties.
     ...Object.getOwnPropertyDescriptors(Impl.prototype),
-    constructor: desc(EsAggregateError)
-  }
+    constructor: desc(EsAggregateError),
+  },
 )
 
 // and has as a [[Prototype]] internal slot whose value is %Error.prototype%.
@@ -35,7 +35,7 @@ module.exports = Object.defineProperties(EsAggregateError, {
   getPolyfill: desc(require('./polyfill')),
   implementation: desc(Impl),
   shim: desc(require('./shim')),
-  [Symbol.hasInstance]: desc(instance => instance instanceof Impl)
+  [Symbol.hasInstance]: desc(instance => instance instanceof Impl),
 })
 module.exports.getPolyfill = module.exports.getPolyfill
 module.exports.implementation = module.exports.implementation
