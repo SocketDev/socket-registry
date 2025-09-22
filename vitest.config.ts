@@ -17,7 +17,18 @@ export default defineConfig({
         '**/*.d.ts',
         '**/*.config.*',
         '**/dist/**',
-        '**/build/**'
+        '**/build/**',
+        '**/taze.config.*',
+        '**/biome.json',
+        '**/.biome*',
+        '**/eslint.config.*',
+        '**/.eslintrc.*',
+        '**/oxlint.*',
+        '**/.oxlintrc.*',
+        '**/pnpmfile.*',
+        '**/vitest.config.*',
+        '**/.prettierrc.*',
+        '**/prettier.config.*'
       ]
     },
     testTimeout: 60000,

@@ -22,9 +22,11 @@
     "check-ci": "pnpm check:lint",
     "clean": "run-s -c clean:*",
     "clean:cache": "del-cli '**/.cache'",
+    "clean:coverage": "del-cli 'coverage'",
     "clean:registry": "dotenvx -q run -f .env.local -- pnpm --filter registry run clean",
     "clean:node_modules": "del-cli '**/node_modules'",
     "clean:test": "del-cli 'test/**/.tmp-*' 'test/**/packages'",
+    "coverage:percent": "node scripts/get-coverage-percentage.js",
     "build": "run-p -c --aggregate-output build:*",
     "build:registry": "dotenvx -q run -f .env.local -- pnpm --filter registry run build",
     "fix": "pnpm run lint:fix",
@@ -46,6 +48,7 @@
     "test": "run-s check test:*",
     "test:npm:packages": "dotenvx -q run -f .env.local -- node ./scripts/test-npm-packages.js",
     "test:unit": "dotenvx -q run -f .env.local -- node ./scripts/test.js",
+    "test:unit:coverage": "dotenvx -q run -f .env.local -- vitest run --coverage",
     "test-ci": "run-s test:*",
     "test-pre-commit": "dotenvx -q run -f .env.precommit -- pnpm test",
     "package:npm:access": "dotenvx -q run -f .env.local -- node ./scripts/update-npm-package-access.js",
@@ -84,6 +87,7 @@
     "@types/semver": "7.7.1",
     "@types/validate-npm-package-name": "4.0.2",
     "@types/which": "3.0.4",
+    "@vitest/coverage-v8": "3.2.4",
     "@vitest/ui": "^3.2.4",
     "@zkochan/js-yaml": "0.0.10",
     "del-cli": "6.0.0",
@@ -115,7 +119,9 @@
     "typescript-eslint": "8.43.0",
     "update-browserslist-db": "1.1.3",
     "vitest": "^3.2.4",
-    "which": "5.0.0"
+    "which": "5.0.0",
+    "yargs-parser": "21.1.1",
+    "yoctocolors-cjs": "2.1.3"
   },
   "engines": {
     "node": ">=18",

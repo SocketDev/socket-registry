@@ -35,7 +35,8 @@ function determineArticle(word) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 function pluralize(word, count = 1) {
-  return count === 0 || count > 1 ? `${word}s` : word
+  // Handle 0, negatives, decimals, and values > 1 as plural.
+  return count === 1 ? word : `${word}s`
 }
 
 module.exports = {

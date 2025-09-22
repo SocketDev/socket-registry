@@ -327,7 +327,7 @@ module.exports = [
   gitIgnoreFile,
   biomeIgnores,
   {
-    ignores: ['packages/npm/**/package']
+    ignores: ['coverage/**', 'packages/npm/**/package'],
   },
   ...configs('script'),
   ...configs('module'),

@@ -25,6 +25,9 @@ function getTimers() {
  */
 /*@__NO_SIDE_EFFECTS__*/
 function normalizeIterationOptions(options) {
+  // Handle number as concurrency shorthand
+  const opts = typeof options === 'number' ? { concurrency: options } : options
+
   const {
     // The number of concurrent executions performed at one time.
     concurrency = 1,
@@ -32,11 +35,14 @@ function normalizeIterationOptions(options) {
     retries,
     // AbortSignal used to support cancellation.
     signal = /*@__PURE__*/ require('./constants/abort-signal')
-  } = { __proto__: null, ...options }
+  } = { __proto__: null, ...opts }
+
+  // Ensure concurrency is at least 1
+  const normalizedConcurrency = Math.max(1, concurrency)
   const retryOpts = resolveRetryOptions(retries)
   return {
     __proto__: null,
-    concurrency,
+    concurrency: normalizedConcurrency,
     retries: normalizeRetryOptions({ signal, ...retryOpts }),
     signal
   }
@@ -49,17 +55,18 @@ function normalizeIterationOptions(options) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 function normalizeRetryOptions(options) {
+  const resolved = resolveRetryOptions(options)
   const {
     // Arguments to pass to the callback function.
     args = [],
     // Multiplier for exponential backoff (e.g., 2 doubles delay each retry).
-    backoffFactor = 2,
+    backoffFactor = resolved.factor || 2,
     // Initial delay before the first retry (in milliseconds).
-    baseDelayMs = 200,
+    baseDelayMs = resolved.minTimeout || 200,
     // Whether to apply randomness to spread out retries.
     jitter = true,
     // Upper limit for any backoff delay (in milliseconds).
-    maxDelayMs = 10000,
+    maxDelayMs = resolved.maxTimeout || 10000,
     // Optional callback invoked on each retry attempt:
     // (attempt: number, error: unknown, delay: number) => void
     onRetry,
@@ -68,10 +75,10 @@ function normalizeRetryOptions(options) {
     // Whether onRetry will rethrow errors.
     onRetryRethrow = false,
     // Number of retry attempts (0 = no retries, only initial attempt).
-    retries = 0,
+    retries = resolved.retries || 0,
     // AbortSignal used to support cancellation.
     signal = /*@__PURE__*/ require('./constants/abort-signal')
-  } = resolveRetryOptions(options)
+  } = resolved
   return {
     __proto__: null,
     args,
@@ -79,6 +86,8 @@ function normalizeRetryOptions(options) {
     baseDelayMs,
     jitter,
     maxDelayMs,
+    minTimeout: baseDelayMs,
+    maxTimeout: maxDelayMs,
     onRetry,
     onRetryCancelOnFalse,
     onRetryRethrow,
@@ -94,10 +103,19 @@ function normalizeRetryOptions(options) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 function resolveRetryOptions(options) {
-  return {
+  const defaults = {
     __proto__: null,
-    ...(typeof options === 'number' ? { retries: options } : options)
+    retries: 0,
+    minTimeout: 200,
+    maxTimeout: 10000,
+    factor: 2
   }
+
+  if (typeof options === 'number') {
+    return { ...defaults, retries: options }
+  }
+
+  return options ? { ...defaults, ...options } : defaults
 }
 
 /**
@@ -110,11 +128,26 @@ function resolveRetryOptions(options) {
 /*@__NO_SIDE_EFFECTS__*/
 async function pEach(array, callbackFn, options) {
   const iterOpts = normalizeIterationOptions(options)
-  await pEachChunk(
-    arrayChunk(array, iterOpts.concurrency),
-    callbackFn,
-    iterOpts.retries
-  )
+  const { concurrency, retries, signal } = iterOpts
+
+  // Process items with concurrency control.
+  const chunks = arrayChunk(array, concurrency)
+  for (const chunk of chunks) {
+    if (signal?.aborted) {
+      return
+    }
+    // Process each item in the chunk concurrently.
+    // eslint-disable-next-line no-await-in-loop
+    await Promise.all(
+      chunk.map(item =>
+        pRetry(callbackFn, {
+          ...retries,
+          args: [item],
+          signal
+        })
+      )
+    )
+  }
 }
 
 /**
@@ -137,29 +170,27 @@ async function pFilter(array, callbackFn, options) {
 }
 
 /**
- * Process chunked arrays with an async callback.
- * @param {any[][]} chunks - Array of array chunks.
- * @param {Function} callbackFn - Async function to execute for each element.
- * @param {Object} [options] - Retry options.
+ * Process array in chunks with an async callback.
+ * @param {any[]} array - Array to process.
+ * @param {Function} callbackFn - Async function to execute for each chunk.
+ * @param {Object} [options] - Options including chunkSize and retry options.
  * @returns {Promise<void>} Resolves when all chunks are processed.
  */
 /*@__NO_SIDE_EFFECTS__*/
-async function pEachChunk(chunks, callbackFn, options) {
-  const retryOpts = normalizeRetryOptions(options)
-  const { signal } = retryOpts
+async function pEachChunk(array, callbackFn, options) {
+  const { chunkSize = 100, ...retryOpts } = options || {}
+  const chunks = arrayChunk(array, chunkSize)
+  const normalizedRetryOpts = normalizeRetryOptions(retryOpts)
+  const { signal } = normalizedRetryOpts
   for (const chunk of chunks) {
     if (signal?.aborted) {
       return
     }
     // eslint-disable-next-line no-await-in-loop
-    await Promise.all(
-      chunk.map(value =>
-        pRetry(callbackFn, {
-          ...retryOpts,
-          args: [value]
-        })
-      )
-    )
+    await pRetry(callbackFn, {
+      ...normalizedRetryOpts,
+      args: [chunk]
+    })
   }
 }
 

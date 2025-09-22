@@ -128,12 +128,28 @@ function getGlobMatcher(glob, options) {
   if (matcher) {
     return matcher
   }
+
+  // Separate positive and negative patterns.
+  const positivePatterns = patterns.filter(p => !p.startsWith('!'))
+  const negativePatterns = patterns
+    .filter(p => p.startsWith('!'))
+    .map(p => p.slice(1))
+
   const picomatch = getPicomatch()
-  matcher = picomatch(patterns, {
+
+  // Use ignore option for negation patterns.
+  const matchOptions = {
     dot: true,
     nocase: true,
-    ...options
-  })
+    ...options,
+    ...(negativePatterns.length > 0 ? { ignore: negativePatterns } : {})
+  }
+
+  matcher = picomatch(
+    positivePatterns.length > 0 ? positivePatterns : patterns,
+    matchOptions
+  )
+
   matcherCache.set(key, matcher)
   return matcher
 }

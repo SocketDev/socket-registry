@@ -96,7 +96,7 @@ async function findUp(name, options) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 function findUpSync(name, options) {
-  const { cwd = process.cwd() } = { __proto__: null, ...options }
+  const { cwd = process.cwd(), stopAt } = { __proto__: null, ...options }
   let { onlyDirectories = false, onlyFiles = true } = {
     __proto__: null,
     ...options
@@ -111,8 +111,26 @@ function findUpSync(name, options) {
   const path = getPath()
   let dir = path.resolve(cwd)
   const { root } = path.parse(dir)
+  const stopDir = stopAt ? path.resolve(stopAt) : undefined
   const names = ArrayIsArray(name) ? name : [name]
   while (dir && dir !== root) {
+    // Check if we should stop at this directory.
+    if (stopDir && dir === stopDir) {
+      // Check current directory but don't go up.
+      for (const n of names) {
+        const thePath = path.join(dir, n)
+        try {
+          const stats = fs.statSync(thePath)
+          if (!onlyDirectories && stats.isFile()) {
+            return thePath
+          }
+          if (!onlyFiles && stats.isDirectory()) {
+            return thePath
+          }
+        } catch {}
+      }
+      return undefined
+    }
     for (const n of names) {
       const thePath = path.join(dir, n)
       try {
@@ -138,10 +156,10 @@ function findUpSync(name, options) {
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
-function innerReadDirNames(dirents, options) {
+function innerReadDirNames(dirents, dirname, options) {
   const {
     ignore,
-    includeEmpty = false,
+    includeEmpty = true,
     sort = true
   } = { __proto__: null, ...options }
   const path = getPath()
@@ -150,7 +168,7 @@ function innerReadDirNames(dirents, options) {
       d =>
         d.isDirectory() &&
         (includeEmpty ||
-          !isDirEmptySync(path.join(d.parentPath, d.name), { ignore }))
+          !isDirEmptySync(path.join(dirname || d.parentPath, d.name), { ignore }))
     )
     .map(d => d.name)
   return sort ? names.sort(naturalCompare) : names
@@ -192,8 +210,9 @@ function isDirEmptySync(dirname, options) {
       }
     }
     return ignoredCount === length
-  } catch (e) {
-    return e?.code === 'ENOENT'
+  } catch {
+    // Return false for non-existent paths or other errors.
+    return false
   }
 }
 
@@ -227,6 +246,7 @@ async function readDirNames(dirname, options) {
         __proto__: null,
         withFileTypes: true
       }),
+      dirname,
       options
     )
   } catch {}
@@ -245,6 +265,7 @@ function readDirNamesSync(dirname, options) {
   try {
     return innerReadDirNames(
       fs.readdirSync(dirname, { __proto__: null, withFileTypes: true }),
+      dirname,
       options
     )
   } catch {}
@@ -260,10 +281,11 @@ function readDirNamesSync(dirname, options) {
 /*@__NO_SIDE_EFFECTS__*/
 async function readFileBinary(filepath, options) {
   const fs = getFs()
+  // Don't specify encoding to get a Buffer
   return await fs.promises.readFile(filepath, {
     signal: /*@__PURE__*/ require('./constants/abort-signal'),
     ...options,
-    encoding: 'binary'
+    encoding: null
   })
 }
 
@@ -396,10 +418,11 @@ function removeSync(filepath, options) {
 async function safeReadFile(filepath, options) {
   const fs = getFs()
   try {
+    const opts = typeof options === 'string' ? { encoding: options } : options
+
     return await fs.promises.readFile(filepath, {
-      encoding: 'utf8',
       signal: /*@__PURE__*/ require('./constants/abort-signal'),
-      ...(typeof options === 'string' ? { encoding: options } : options)
+      ...opts
     })
   } catch {}
   return undefined
@@ -434,10 +457,11 @@ function safeStatsSync(filepath, options) {
 function safeReadFileSync(filepath, options) {
   const fs = getFs()
   try {
+    const opts = typeof options === 'string' ? { encoding: options } : options
+
     return fs.readFileSync(filepath, {
       __proto__: null,
-      encoding: 'utf8',
-      ...(typeof options === 'string' ? { encoding: options } : options)
+      ...opts
     })
   } catch {}
   return undefined
@@ -466,7 +490,7 @@ function stringify(
 }
 
 /**
- * Generate a unique filepath by prepending underscores if the path exists.
+ * Generate a unique filepath by adding number suffix if the path exists.
  * @param {import('fs').PathLike} filepath - The desired filepath.
  * @returns {string} A unique filepath that doesn't exist.
  */
@@ -474,12 +498,25 @@ function stringify(
 function uniqueSync(filepath) {
   const fs = getFs()
   const path = getPath()
-  const dirname = path.dirname(filepath)
-  let basename = path.basename(filepath)
-  while (fs.existsSync(`${dirname}/${basename}`)) {
-    basename = `_${basename}`
+  const filepathStr = String(filepath)
+
+  // If the file doesn't exist, return as is
+  if (!fs.existsSync(filepathStr)) {
+    return filepathStr
   }
-  return path.join(dirname, basename)
+
+  const dirname = path.dirname(filepathStr)
+  const ext = path.extname(filepathStr)
+  const basename = path.basename(filepathStr, ext)
+
+  let counter = 1
+  let uniquePath
+  do {
+    uniquePath = path.join(dirname, `${basename}-${counter}${ext}`)
+    counter++
+  } while (fs.existsSync(uniquePath))
+
+  return uniquePath
 }
 
 /**
