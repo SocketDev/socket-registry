@@ -91,8 +91,8 @@ describe('path normalization and utilities', () => {
 
     it('should identify absolute paths', () => {
       expect(isRelative('/absolute')).toBe(false)
-      // Windows drive paths are considered relative on Unix systems.
-      expect(isRelative('C:\\Windows')).toBe(true)
+      // Windows drive paths are considered absolute on Windows systems.
+      expect(isRelative('C:\\Windows')).toBe(process.platform !== 'win32')
     })
 
     it('should handle invalid input', () => {
@@ -217,7 +217,7 @@ describe('path normalization and utilities', () => {
 
       try {
         const result = pathLikeToString(url)
-        // On Unix, should keep pathname as-is.
+        // Should keep pathname as-is regardless of platform.
         expect(result).toBe('/path/to/file')
       } finally {
         require('node:url').fileURLToPath = originalFileURLToPath
