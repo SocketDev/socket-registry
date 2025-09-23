@@ -17,3 +17,5 @@ permissions:
 jobs:
   lint-check:
     uses: SocketDev/socket-registry/.github/workflows/lint.yml@main
+    with:
+      setup-script: 'pnpm run build'

@@ -12,37 +12,37 @@ on:
   workflow_call:
     inputs:
       autopilot:
-        description: 'Enable autopilot mode'
+        description: 'Enable autopilot mode (e.g., true for automatic fixes, false for manual review)'
         required: false
         type: boolean
         default: true
       debug:
-        description: 'Enable debug output'
+        description: 'Enable debug output (e.g., "0" or "1")'
         required: false
         type: string
         default: '0'
       git-user-email:
-        description: 'Git user email for commits'
+        description: 'Git user email for commits (e.g., "bot@example.com")'
         required: false
         type: string
         default: '94589996+socket-bot@users.noreply.github.com'
       git-user-name:
-        description: 'Git user name for commits'
+        description: 'Git user name for commits (e.g., "Socket Bot")'
         required: false
         type: string
         default: 'Socket Bot'
       glob-pattern:
-        description: 'Glob pattern for files to fix'
+        description: 'Glob pattern for files to fix (e.g., "**/*.js", "src/**/*.ts")'
         required: false
         type: string
         default: ''
       node-version:
-        description: 'Node version to use'
+        description: 'Node version to use (e.g., "20", "22", "24")'
         required: false
         type: string
         default: '22'
       timeout-minutes:
-        description: 'Timeout in minutes'
+        description: 'Timeout in minutes (e.g., 10 for quick fixes, 30 for extensive changes)'
         required: false
         type: number
         default: 10
