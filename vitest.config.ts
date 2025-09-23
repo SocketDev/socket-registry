@@ -9,7 +9,7 @@ export default defineConfig({
     include: ['test/**/*.test.{js,ts,mjs,cjs}'],
     reporters: ['default'],
     // Improve memory usage by running tests sequentially in CI.
-    pool: process.env['CI'] ? 'forks' : 'threads',
+    pool: 'forks',
     poolOptions: {
       forks: {
         singleFork: true,
@@ -18,9 +18,9 @@ export default defineConfig({
         isolate: true,
       },
       threads: {
-        singleThread: false,
+        singleThread: true,
         // Limit thread concurrency to prevent RegExp compiler exhaustion.
-        maxThreads: process.env['CI'] ? 1 : 2,
+        maxThreads: 1,
       },
     },
     coverage: {
