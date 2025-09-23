@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 
+import semver from 'semver'
 import { describe, expect, it } from 'vitest'
 
 import constants from '@socketregistry/scripts/constants'
@@ -103,7 +104,8 @@ describe(
         `${methodName}: can handle exceeding call stack limits`,
         {
           // Skip in CI due to memory exhaustion issues.
-          skip: constants.ENV.CI,
+          // Also skip on Node < 24 due to V8 bug causing "Fatal JavaScript invalid size error 169220804".
+          skip: constants.ENV.CI || !semver.satisfies(constants.NODE_VERSION, '>=24'),
         },
         () => {
           // eslint-disable-next-line unicorn/consistent-function-scoping
