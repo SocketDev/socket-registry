@@ -18,4 +18,5 @@ jobs:
   test:
     uses: SocketDev/socket-registry/.github/workflows/test.yml@main
     with:
+      node-versions: '[22, 24]'
       setup-script: 'pnpm run build'
