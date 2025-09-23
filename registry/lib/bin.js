@@ -409,9 +409,15 @@ function resolveBinPathSync(binPath) {
       }
     }
     let relPath = ''
-    // Only parse shell scripts and batch files, not actual executables.
-    // .exe files are already executables and don't need path resolution from wrapper scripts.
-    if (hasKnownExt && extLowered !== '.exe') {
+    const isNotExe = extLowered !== '.exe'
+    if (
+      hasKnownExt &&
+      // Only parse shell scripts and batch files, not actual executables.
+      // .exe files are already executables and don't need path resolution from wrapper scripts.
+      isNotExe &&
+      // Check if file exists before attempting to read it to avoid ENOENT errors.
+      fs.existsSync(binPath)
+    ) {
       const source = fs.readFileSync(binPath, 'utf8')
       if (isNpmOrNpx) {
         if (extLowered === '.cmd') {
@@ -567,9 +573,9 @@ function resolveBinPathSync(binPath) {
       }
       binPath = normalizePath(path.join(path.dirname(binPath), relPath))
     } else if (
+      isNotExe &&
       extLowered !== '.cjs' &&
       extLowered !== '.cts' &&
-      extLowered !== '.exe' &&
       extLowered !== '.js' &&
       extLowered !== '.mjs' &&
       extLowered !== '.mts' &&
@@ -609,7 +615,13 @@ function resolveBinPathSync(binPath) {
       }
     }
 
-    if (hasNoExt && (isPnpmOrYarn || isNpmOrNpx)) {
+    if (
+      hasNoExt &&
+      (isPnpmOrYarn || isNpmOrNpx) &&
+      // For extensionless files (Unix shell scripts), verify existence before reading.
+      // This prevents ENOENT errors when the bin path doesn't exist.
+      fs.existsSync(binPath)
+    ) {
       const source = fs.readFileSync(binPath, 'utf8')
       let relPath = ''
 
