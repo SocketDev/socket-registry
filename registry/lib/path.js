@@ -167,15 +167,77 @@ function normalizePath(pathLike) {
     }
   }
   if (start === 0) {
-    // Trim leading slashes
-    while (
-      ((code = filepath.charCodeAt(start)),
-      code === 47 /*'/'*/ || code === 92) /*'\\'*/
+    // Check for UNC paths first (\\server\share or //server/share)
+    // UNC paths must start with exactly two slashes, not more
+    if (
+      length > 2 &&
+      ((filepath.charCodeAt(0) === 92 /*'\\'*/ &&
+        filepath.charCodeAt(1) === 92 /*'\\'*/ &&
+        filepath.charCodeAt(2) !== 92) /*'\\'*/ ||
+        (filepath.charCodeAt(0) === 47 /*'/'*/ &&
+          filepath.charCodeAt(1) === 47 /*'/'*/ &&
+          filepath.charCodeAt(2) !== 47)) /*'/'*/
     ) {
-      start += 1
-    }
-    if (start) {
-      prefix = '/'
+      // Check if this is a valid UNC path: must have server/share format
+      // Find the first segment (server name) and second segment (share name)
+      let firstSegmentEnd = -1
+      let hasSecondSegment = false
+
+      // Skip leading slashes after the initial double slash
+      let i = 2
+      while (i < length && (filepath.charCodeAt(i) === 47 /*'/'*/ || filepath.charCodeAt(i) === 92 /*'\\'*/)) {
+        i++
+      }
+
+      // Find the end of first segment (server name)
+      while (i < length) {
+        const char = filepath.charCodeAt(i)
+        if (char === 47 /*'/'*/ || char === 92 /*'\\'*/) {
+          firstSegmentEnd = i
+          break
+        }
+        i++
+      }
+
+      if (firstSegmentEnd > 2) {
+        // Skip slashes after server name
+        i = firstSegmentEnd
+        while (i < length && (filepath.charCodeAt(i) === 47 /*'/'*/ || filepath.charCodeAt(i) === 92 /*'\\'*/)) {
+          i++
+        }
+        // Check if there's a share name (second segment)
+        if (i < length) {
+          hasSecondSegment = true
+        }
+      }
+
+      if (firstSegmentEnd > 2 && hasSecondSegment) {
+        // Valid UNC path - preserve double leading slashes
+        start = 2
+        prefix = '//'
+      } else {
+        // Just repeated slashes, treat as regular path
+        while (
+          ((code = filepath.charCodeAt(start)),
+          code === 47 /*'/'*/ || code === 92) /*'\\'*/
+        ) {
+          start += 1
+        }
+        if (start) {
+          prefix = '/'
+        }
+      }
+    } else {
+      // Trim leading slashes for regular paths
+      while (
+        ((code = filepath.charCodeAt(start)),
+        code === 47 /*'/'*/ || code === 92) /*'\\'*/
+      ) {
+        start += 1
+      }
+      if (start) {
+        prefix = '/'
+      }
     }
   }
   let nextIndex = search(filepath, slashRegExp, start)
