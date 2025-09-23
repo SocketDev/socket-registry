@@ -308,6 +308,37 @@ async function readFileUtf8(filepath, options) {
 }
 
 /**
+ * Read a file as binary data synchronously.
+ * @param {import('fs').PathLike} filepath - Path to the file.
+ * @param {import('fs').ReadFileOptions} [options] - Read options.
+ * @returns {Buffer} The file contents as a Buffer.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function readFileBinarySync(filepath, options) {
+  const fs = getFs()
+  // Don't specify encoding to get a Buffer
+  return fs.readFileSync(filepath, {
+    ...options,
+    encoding: null,
+  })
+}
+
+/**
+ * Read a file as UTF-8 text synchronously.
+ * @param {import('fs').PathLike} filepath - Path to the file.
+ * @param {import('fs').ReadFileOptions} [options] - Read options.
+ * @returns {string} The file contents as a string.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function readFileUtf8Sync(filepath, options) {
+  const fs = getFs()
+  return fs.readFileSync(filepath, {
+    ...options,
+    encoding: 'utf8',
+  })
+}
+
+/**
  * Read and parse a JSON file asynchronously.
  * @param {import('fs').PathLike} filepath - Path to the JSON file.
  * @param {ReadJsonOptions} [options] - Read and parse options.
@@ -581,7 +612,9 @@ module.exports = {
   readDirNames,
   readDirNamesSync,
   readFileBinary,
+  readFileBinarySync,
   readFileUtf8,
+  readFileUtf8Sync,
   readJson,
   readJsonSync,
   remove,

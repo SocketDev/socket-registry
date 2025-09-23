@@ -95,10 +95,18 @@ declare const Fs: {
     filepath: PathLike | FileHandle,
     options?: ReadFileOptions | undefined,
   ): Promise<Buffer>
+  readFileBinarySync(
+    filepath: PathLike,
+    options?: ReadFileOptions | undefined,
+  ): Buffer
   readFileUtf8(
     filepath: PathLike | FileHandle,
     options?: ReadFileOptions | undefined,
   ): Promise<string>
+  readFileUtf8Sync(
+    filepath: PathLike,
+    options?: ReadFileOptions | undefined,
+  ): string
   readJson(
     filepath: PathLike,
     options?: ReadJsonOptions | undefined,
