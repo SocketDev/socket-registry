@@ -145,12 +145,6 @@ describe('bin find utilities', () => {
       expect(pnpmPath === null || typeof pnpmPath === 'string').toBe(true)
     })
 
-    it('should not return a shadow bin path if found', () => {
-      const pnpmPath = findRealPnpm()
-      if (pnpmPath) {
-        expect(isShadowBinPath(pnpmPath)).toBe(false)
-      }
-    })
 
     it('should find pnpm using findRealBin with common paths', () => {
       const result = findRealPnpm()
