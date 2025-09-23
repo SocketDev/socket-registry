@@ -49,25 +49,6 @@ function getWhich() {
 
 /*@__NO_SIDE_EFFECTS__*/
 /**
- * Create an error for when a binary path cannot be resolved.
- * @param {string} binPath - The binary path that couldn't be resolved.
- * @param {string} [source=''] - Optional source context for debugging.
- * @returns {Error} The error object.
- */
-function getNotResolvedError(binPath, source = '') {
-  // Based on node-which:
-  // ISC License
-  // Copyright (c) Isaac Z. Schlueter and Contributors
-  // https://github.com/npm/node-which/blob/v5.0.0/lib/index.js#L15
-  const error = new Error(
-    `not resolved: ${binPath}${source ? `:\n\n${source}` : ''}`,
-  )
-  error.code = 'ENOENT'
-  return error
-}
-
-/*@__NO_SIDE_EFFECTS__*/
-/**
  * Execute a binary with the given arguments.
  * @param {string} binPath - Path or name of the binary to execute.
  * @param {string[] | readonly string[]} args - Arguments to pass to the binary.
@@ -312,7 +293,6 @@ function findRealYarn() {
  * Handles Windows .cmd wrappers and Unix shell scripts.
  * @param {string} binPath - The binary path to resolve.
  * @returns {string} The resolved executable path.
- * @throws {Error} If the binary cannot be resolved.
  */
 function resolveBinPathSync(binPath) {
   const fs = getFs()
@@ -386,7 +366,10 @@ function resolveBinPathSync(binPath) {
       }
     }
     if (voltaBinPath) {
-      return fs.realpathSync.native(voltaBinPath)
+      try {
+        return fs.realpathSync.native(voltaBinPath)
+      } catch {}
+      return voltaBinPath
     }
   }
   const WIN32 = /*@__PURE__*/ require('./constants/win32')
@@ -405,16 +388,18 @@ function resolveBinPathSync(binPath) {
         `node_modules/npm/bin/${basename}-cli.js`,
       )
       if (fs.existsSync(quickPath)) {
-        return fs.realpathSync.native(quickPath)
+        try {
+          return fs.realpathSync.native(quickPath)
+        } catch {}
+        return quickPath
       }
     }
     let relPath = ''
-    const isNotExe = extLowered !== '.exe'
     if (
       hasKnownExt &&
       // Only parse shell scripts and batch files, not actual executables.
       // .exe files are already executables and don't need path resolution from wrapper scripts.
-      isNotExe &&
+      extLowered !== '.exe' &&
       // Check if file exists before attempting to read it to avoid ENOENT errors.
       fs.existsSync(binPath)
     ) {
@@ -568,20 +553,9 @@ function resolveBinPathSync(binPath) {
         // exit $ret
         relPath = /(?<="\$basedir\/).*(?=" $args\n)/.exec(source)?.[0]
       }
-      if (!relPath) {
-        throw getNotResolvedError(binPath, source)
+      if (relPath) {
+        binPath = normalizePath(path.join(path.dirname(binPath), relPath))
       }
-      binPath = normalizePath(path.join(path.dirname(binPath), relPath))
-    } else if (
-      isNotExe &&
-      extLowered !== '.cjs' &&
-      extLowered !== '.cts' &&
-      extLowered !== '.js' &&
-      extLowered !== '.mjs' &&
-      extLowered !== '.mts' &&
-      extLowered !== '.ts'
-    ) {
-      throw getNotResolvedError(binPath)
     }
   } else {
     // Handle Unix shell scripts (non-Windows platforms)
@@ -674,15 +648,8 @@ function resolveBinPathSync(binPath) {
   }
   try {
     return fs.realpathSync.native(binPath)
-  } catch (e) {
-    // If the path cannot be resolved (file doesn't exist or component is not a directory),
-    // return the original path and let the execution layer handle the error with proper context.
-    const code = e?.code
-    if (code === 'ENOENT' || code === 'ENOTDIR') {
-      return binPath
-    }
-    throw e
-  }
+  } catch {}
+  return binPath
 }
 
 module.exports = {

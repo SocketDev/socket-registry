@@ -55,19 +55,18 @@ describe('bin module', () => {
     })
 
     it('should handle non-existent paths', () => {
-      // resolveBinPathSync returns the original path when it doesn't exist.
+      // resolveBinPathSync returns the path when it doesn't exist.
       // Create a proper absolute path that works on all platforms.
       // Use tmpdir's root as base to ensure we get a fully qualified path.
       const tmpRoot = path.parse(os.tmpdir()).root
       const nonExistentPath = path.join(tmpRoot, 'non', 'existent', 'binary')
       const result = resolveBinPathSync(nonExistentPath)
-      expect(result).toBeTruthy()
       expect(result).toBe(nonExistentPath)
     })
 
     it('should handle paths where a file is used as a directory', async () => {
       // When a component in the path exists but is not a directory,
-      // resolveBinPathSync returns the original path (letting spawn handle the error).
+      // resolveBinPathSync returns the path (letting spawn handle the error).
       // Create a temporary file.
       const tmpFile = path.join(os.tmpdir(), `test-file-${Date.now()}.txt`)
       fs.writeFileSync(tmpFile, 'test')
@@ -76,8 +75,6 @@ describe('bin module', () => {
         // Try to use the file as a directory.
         const invalidPath = path.join(tmpFile, 'somebinary')
         const result = resolveBinPathSync(invalidPath)
-
-        // Should return the original path, not throw.
         expect(result).toBe(invalidPath)
       } finally {
         // Clean up.
