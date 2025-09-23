@@ -109,9 +109,19 @@ You are a **Principal Software Engineer** responsible for:
 ### 🏗️ Code Structure (CRITICAL PATTERNS)
 - **Error handling**: REQUIRED - Use try-catch blocks and handle errors gracefully
 - **Array destructuring**: Use object notation `{ 0: key, 1: data }` instead of array destructuring `[key, data]`
-- **Comment periods**: 🚨 MANDATORY - ALL comments MUST end with periods. This includes single-line comments, multi-line comments, inline comments, and c8 ignore comments. No exceptions.
-- **Comment placement**: Place comments on their own line, not to the right of code
-- **Comment formatting**: Use fewer hyphens/dashes and prefer commas, colons, or semicolons for better readability
+- **Comment formatting**: 🚨 MANDATORY - ALL comments MUST follow these rules:
+  - **Periods required**: Every comment MUST end with a period, except ESLint disable comments and URLs which are directives/references. This includes single-line, multi-line, inline, and c8 ignore comments.
+  - **Sentence structure**: Comments should be complete sentences with proper capitalization and grammar.
+  - **Placement**: Place comments on their own line above the code they describe, not trailing to the right of code.
+  - **Style**: Use fewer hyphens/dashes and prefer commas, colons, or semicolons for better readability.
+  - **Examples**:
+    - ✅ CORRECT: `// This function validates user input.`
+    - ✅ CORRECT: `/* This is a multi-line comment that explains the complex logic below. */`
+    - ✅ CORRECT: `// eslint-disable-next-line no-await-in-loop` (directive, no period)
+    - ✅ CORRECT: `// See https://example.com/docs` (URL reference, no period)
+    - ✅ CORRECT: `// c8 ignore start - Reason for ignoring.` (explanation has period)
+    - ❌ WRONG: `// this validates input` (no period, not capitalized)
+    - ❌ WRONG: `const x = 5 // some value` (trailing comment)
 - **Await in loops**: When using `await` inside for-loops, add `// eslint-disable-next-line no-await-in-loop` to suppress the ESLint warning when sequential processing is intentional
 - **If statement returns**: Never use single-line return if statements; always use proper block syntax with braces
 - **List formatting**: Use `-` for bullet points in text output, not `•` or other Unicode characters, for better terminal compatibility
