@@ -311,6 +311,11 @@ function resolveBinPathSync(binPath) {
   // Normalize the path once for consistent pattern matching.
   binPath = normalizePath(binPath)
 
+  // Handle empty string that normalized to '.' (current directory)
+  if (binPath === '.') {
+    return binPath
+  }
+
   const ext = path.extname(binPath)
   const extLowered = ext.toLowerCase()
   const basename = path.basename(binPath, ext)
@@ -554,7 +559,7 @@ function resolveBinPathSync(binPath) {
         relPath = /(?<="\$basedir\/).*(?=" $args\n)/.exec(source)?.[0]
       }
       if (relPath) {
-        binPath = normalizePath(path.join(path.dirname(binPath), relPath))
+        binPath = normalizePath(path.resolve(path.dirname(binPath), relPath))
       }
     }
   } else {
@@ -640,18 +645,17 @@ function resolveBinPathSync(binPath) {
       }
 
       if (relPath) {
-        // Normalize the relative path to handle .. segments properly.
-        const resolvedPath = path.resolve(path.dirname(binPath), relPath)
-        binPath = normalizePath(resolvedPath)
+        // Resolve the relative path to handle .. segments properly.
+        binPath = normalizePath(path.resolve(path.dirname(binPath), relPath))
       }
     }
   }
   try {
-    // Normalize the result from realpathSync.native to use forward slashes.
-    return normalizePath(fs.realpathSync.native(binPath))
+    const realPath = fs.realpathSync.native(binPath)
+    return normalizePath(realPath)
   } catch {}
   // Return normalized path even if realpath fails.
-  return binPath
+  return normalizePath(binPath)
 }
 
 module.exports = {

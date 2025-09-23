@@ -1,5 +1,7 @@
 'use strict'
 
+const { search } = /*@__PURE__*/ require('./strings')
+
 // Removed unused imports.
 const slashRegExp = /[/\\]/
 const nodeModulesPathRegExp = /(?:^|[/\\])node_modules(?:[/\\]|$)/
@@ -132,24 +134,126 @@ function isRelative(pathLike) {
 /*@__NO_SIDE_EFFECTS__*/
 function normalizePath(pathLike) {
   const filepath = pathLikeToString(pathLike)
-  if (filepath === '') {
+  const { length } = filepath
+  if (length === 0) {
     return '.'
   }
-
-  // Use Node.js path.posix.normalize for consistent forward slashes.
-  const path = getPath()
-  // Replace backslashes with forward slashes before normalizing.
-  // This is necessary because path.posix.normalize() only recognizes forward slashes
-  // as path separators. Without this, Windows paths with backslashes would not be
-  // properly normalized (e.g., 'C:\\Users\\..\\Documents' needs to become 'C:/Documents').
-  let normalized = path.posix.normalize(filepath.replaceAll('\\', '/'))
-
-  // Remove trailing slashes unless it's the root.
-  if (normalized.length > 1 && normalized.endsWith('/')) {
-    normalized = normalized.slice(0, -1)
+  if (length < 2) {
+    return length === 1 && filepath.charCodeAt(0) === 92 /*'\\'*/
+      ? '/'
+      : filepath
   }
 
-  return normalized
+  let code = 0
+  let start = 0
+
+  // Ensure win32 namespaces have two leading slashes so they are handled properly
+  // by path.win32.parse() after being normalized.
+  // https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#namespaces
+  // UNC paths, paths starting with double slashes, e.g. "\\\\wsl.localhost\\Ubuntu\home\\",
+  // are okay to convert to forward slashes.
+  // https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions
+  let prefix = ''
+  if (length > 4 && filepath.charCodeAt(3) === 92 /*'\\'*/) {
+    const code2 = filepath.charCodeAt(2)
+    // Look for \\?\ or \\.\
+    if (
+      (code2 === 63 /*'?'*/ || code2 === 46) /*'.'*/ &&
+      filepath.charCodeAt(0) === 92 /*'\\'*/ &&
+      filepath.charCodeAt(1) === 92 /*'\\'*/
+    ) {
+      start = 2
+      prefix = '//'
+    }
+  }
+  if (start === 0) {
+    // Trim leading slashes
+    while (
+      ((code = filepath.charCodeAt(start)),
+      code === 47 /*'/'*/ || code === 92) /*'\\'*/
+    ) {
+      start += 1
+    }
+    if (start) {
+      prefix = '/'
+    }
+  }
+  let nextIndex = search(filepath, slashRegExp, start)
+  if (nextIndex === -1) {
+    const segment = filepath.slice(start)
+    if (segment === '.' || segment.length === 0) {
+      return prefix || '.'
+    }
+    if (segment === '..') {
+      return prefix ? prefix.slice(0, -1) || '/' : '..'
+    }
+    return prefix + segment
+  }
+  // Process segments and handle '.', '..', and empty segments.
+  let collapsed = ''
+  let segmentCount = 0
+  while (nextIndex !== -1) {
+    const segment = filepath.slice(start, nextIndex)
+    if (segment.length > 0 && segment !== '.') {
+      if (segment === '..') {
+        // Handle '..' by removing the last segment if possible.
+        if (segmentCount > 0) {
+          // Find the last separator and remove the last segment.
+          const lastSeparatorIndex = collapsed.lastIndexOf('/')
+          if (lastSeparatorIndex === -1) {
+            // Only one segment, remove it entirely.
+            collapsed = ''
+            segmentCount = 0
+          } else {
+            collapsed = collapsed.slice(0, lastSeparatorIndex)
+            segmentCount -= 1
+          }
+        } else if (!prefix) {
+          // Preserve '..' for relative paths.
+          collapsed = collapsed + (collapsed.length === 0 ? '' : '/') + segment
+          segmentCount += 1
+        }
+      } else {
+        collapsed = collapsed + (collapsed.length === 0 ? '' : '/') + segment
+        segmentCount += 1
+      }
+    }
+    start = nextIndex + 1
+    while (
+      ((code = filepath.charCodeAt(start)),
+      code === 47 /*'/'*/ || code === 92) /*'\\'*/
+    ) {
+      start += 1
+    }
+    nextIndex = search(filepath, slashRegExp, start)
+  }
+  const lastSegment = filepath.slice(start)
+  if (lastSegment.length > 0 && lastSegment !== '.') {
+    if (lastSegment === '..') {
+      if (segmentCount > 0) {
+        const lastSeparatorIndex = collapsed.lastIndexOf('/')
+        if (lastSeparatorIndex === -1) {
+          collapsed = ''
+          segmentCount = 0
+        } else {
+          collapsed = collapsed.slice(0, lastSeparatorIndex)
+          segmentCount -= 1
+        }
+      } else if (!prefix) {
+        collapsed =
+          collapsed + (collapsed.length === 0 ? '' : '/') + lastSegment
+        segmentCount += 1
+      }
+    } else {
+      collapsed = collapsed + (collapsed.length === 0 ? '' : '/') + lastSegment
+      segmentCount += 1
+    }
+  }
+
+  if (collapsed.length === 0) {
+    return prefix || '.'
+  }
+  return prefix + collapsed
 }
 
 /**
@@ -183,11 +287,23 @@ function pathLikeToString(pathLike) {
       // - Windows valid: file:///C:/path → handled by fileURLToPath()
       // - Windows invalid: file:///path → pathname '/path' → strips to 'path'
       const pathname = pathLike.pathname
-      // URL pathnames always start with `/`, but Windows paths shouldn't
-      // (e.g., `/C:/path` should be `C:/path`). So on Windows, strip the leading slash.
-      if (pathname.startsWith('/')) {
-        const WIN32 = /*@__PURE__*/ require('./constants/win32')
-        if (WIN32) {
+      // URL pathnames always start with `/`.
+      // On Windows, strip the leading slash only for malformed URLs that lack drive letters
+      // (e.g., `/path` should be `path`, but `/C:/path` should be `C:/path`).
+      // On Unix, keep the leading slash for absolute paths (e.g., `/home/user`).
+      const WIN32 = /*@__PURE__*/ require('./constants/win32')
+      if (WIN32 && pathname.startsWith('/')) {
+        // Check for drive letter pattern following Node.js source: /[a-zA-Z]:/
+        // Character at index 1 should be a letter, character at index 2 should be ':'
+        const letter = pathname.charCodeAt(1) | 0x20 // Convert to lowercase
+        const hasValidDriveLetter =
+          pathname.length >= 3 &&
+          letter >= 97 &&
+          letter <= 122 && // 'a' to 'z'
+          pathname.charAt(2) === ':'
+
+        if (!hasValidDriveLetter) {
+          // On Windows, for paths that don't start with a drive letter, strip the leading slash.
           return pathname.slice(1)
         }
       }

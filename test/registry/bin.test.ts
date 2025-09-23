@@ -289,7 +289,6 @@ describe('bin module', () => {
     })
   })
 
-
   describe('resolveBinPathSync - Script Wrappers', () => {
     it('should handle npm wrapper scripts', async () => {
       // Create a mock npm wrapper script.
@@ -623,7 +622,6 @@ exec node  "$basedir/lib/cli.js" "$@"`
       expect(result.stdout).toBeDefined()
     })
   })
-
 
   describe('whichBin async', () => {
     it('should find binary asynchronously', async () => {
