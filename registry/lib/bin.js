@@ -292,7 +292,7 @@ function findRealYarn() {
  * Resolve a binary path to its actual executable file.
  * Handles Windows .cmd wrappers and Unix shell scripts.
  * @param {string} binPath - The binary path to resolve.
- * @returns {string} The resolved executable path.
+ * @returns {string} The resolved executable path with normalized slashes.
  */
 function resolveBinPathSync(binPath) {
   const fs = getFs()
@@ -367,7 +367,7 @@ function resolveBinPathSync(binPath) {
     }
     if (voltaBinPath) {
       try {
-        return fs.realpathSync.native(voltaBinPath)
+        return normalizePath(fs.realpathSync.native(voltaBinPath))
       } catch {}
       return voltaBinPath
     }
@@ -579,7 +579,7 @@ function resolveBinPathSync(binPath) {
           const stats = fs.statSync(baseBinPath)
           // Only use this path if it's a file (the shell script).
           if (stats.isFile()) {
-            binPath = baseBinPath
+            binPath = normalizePath(baseBinPath)
             // Recompute hasNoExt since we changed the path.
             hasNoExt = !path.extname(binPath)
           }
@@ -647,8 +647,10 @@ function resolveBinPathSync(binPath) {
     }
   }
   try {
-    return fs.realpathSync.native(binPath)
+    // Normalize the result from realpathSync.native to use forward slashes.
+    return normalizePath(fs.realpathSync.native(binPath))
   } catch {}
+  // Return normalized path even if realpath fails.
   return binPath
 }
 
