@@ -1,3 +1,5 @@
+import os from 'node:os'
+
 import { describe, expect, it } from 'vitest'
 
 const {
@@ -96,10 +98,11 @@ describe('spawn module', () => {
     })
 
     it('should support working directory', async () => {
+      const tmpDir = os.tmpdir()
       const result = await spawn('node', ['-e', 'console.log(process.cwd())'], {
-        cwd: '/tmp',
+        cwd: tmpDir,
       })
-      expect(result.stdout).toContain('/tmp')
+      expect(result.stdout).toContain(tmpDir)
     })
 
     it('should support shell option', async () => {
@@ -158,10 +161,11 @@ describe('spawn module', () => {
     })
 
     it('should support working directory', () => {
+      const tmpDir = os.tmpdir()
       const result = spawnSync('node', ['-e', 'console.log(process.cwd())'], {
-        cwd: '/tmp',
+        cwd: tmpDir,
       })
-      expect(result.stdout.toString()).toContain('/tmp')
+      expect(result.stdout.toString()).toContain(tmpDir)
     })
 
     it('should support shell option', () => {
