@@ -1,3 +1,4 @@
+import os from 'node:os'
 import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -184,14 +185,15 @@ describe('bin module', () => {
     })
 
     it('should support working directory', async () => {
+      const tmpDir = os.tmpdir()
       const result = await execBin(
         'node',
         ['-e', 'console.log(process.cwd())'],
         {
-          cwd: '/tmp',
+          cwd: tmpDir,
         },
       )
-      expect(result.stdout).toContain('/tmp')
+      expect(result.stdout).toContain(tmpDir)
     })
   })
 })
