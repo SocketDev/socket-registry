@@ -13,18 +13,13 @@ const { EXT_DTS, EXT_JSON } = constants
 
 void (async () => {
   const { registryPkgPath } = constants
-  const externalPath = path.join(registryPkgPath, 'external')
-  const externalSignalExitPath = path.join(externalPath, 'signal-exit.js')
-  const relSignalExitPath = path.relative(
-    registryPkgPath,
-    externalSignalExitPath,
-  )
 
   const registryEditablePkgJson = await readPackageJson(registryPkgPath, {
     editable: true,
     normalize: true,
   })
-  const { content: registryPkgJson } = registryEditablePkgJson
+
+  const registryPkgJson = registryEditablePkgJson.content
 
   const browser = { ...registryPkgJson.browser }
   for (const builtinName of builtinNames) {
@@ -36,7 +31,6 @@ void (async () => {
       cwd: registryPkgPath,
       ignore: [...constants.ignoreGlobs, 'external/**', 'scripts/**', 'src/**'],
     })),
-    relSignalExitPath,
   ]
 
   const subpathExports = registryPkgFiles.reduce((o, p) => {
