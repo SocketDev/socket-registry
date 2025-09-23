@@ -42,6 +42,9 @@ function getDisjunctionFormatter() {
  */
 /*@__NO_SIDE_EFFECTS__*/
 function arrayChunk(arr, size = 2) {
+  if (size <= 0) {
+    throw new Error('Chunk size must be greater than 0')
+  }
   const { length } = arr
   const chunkSize = Math.min(length, size)
   const chunks = []
