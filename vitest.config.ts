@@ -8,6 +8,19 @@ export default defineConfig({
     environment: 'node',
     include: ['test/**/*.test.{js,ts,mjs,cjs}'],
     reporters: ['default'],
+    // Improve memory usage by running tests sequentially in CI.
+    pool: process.env['CI'] ? 'forks' : 'threads',
+    poolOptions: {
+      forks: {
+        singleFork: true,
+        maxForks: 1,
+        // Isolate tests to prevent memory leaks between test files.
+        isolate: true,
+      },
+      threads: {
+        singleThread: false,
+      },
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

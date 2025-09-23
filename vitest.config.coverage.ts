@@ -7,6 +7,19 @@ export default defineConfig({
     globals: false,
     environment: 'node',
     include: ['test/**/*.test.{js,ts,mjs,cjs}'],
+    // Improve memory usage by running tests sequentially in CI.
+    pool: process.env['CI'] ? 'forks' : 'threads',
+    poolOptions: {
+      forks: {
+        singleFork: true,
+        maxForks: 1,
+        // Isolate tests to prevent memory leaks between test files.
+        isolate: true,
+      },
+      threads: {
+        singleThread: false,
+      },
+    },
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
