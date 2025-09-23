@@ -718,7 +718,7 @@
     "build:external:src": "run-s -c clean:external && dotenvx -q run -f ../.env.local -- node ./scripts/rollup/build-external.js",
     "build:inline-constants": "run-s build:inline-constants:src",
     "build:inline-constants:src": "dotenvx -q run -f ../.env.local -- node ./scripts/inline-constants.js",
-    "clean": "run-p -c --aggregate-output clean:*",
+    "clean": "run-s -c clean:*",
     "clean:external": "del-cli 'external'",
     "clean:node_modules": "del-cli '**/node_modules'",
     "lint:external:fix": "run-s -c lint:external:fix:*",
