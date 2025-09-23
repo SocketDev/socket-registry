@@ -67,6 +67,7 @@ You are a **Principal Software Engineer** responsible for:
 - Don't add comments unless specifically requested
 - Maintain consistency with surrounding code
 - Use existing utilities from registry/lib where available
+- **Dynamic imports**: Only use dynamic imports for test mocking (e.g., `vi.importActual` in Vitest). Avoid runtime dynamic imports in production code
 
 ### 7. Error Handling
 - Scripts should use trash for safer deletion
