@@ -2,7 +2,7 @@ name: ⚡ Claude Auto Review
 
 # Dependencies:
 #   - actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
-#   - anthropics/claude-code-action@28f83620103c48a57093dcc2837eec89e036bb9f  # beta
+#   - anthropics/claude-code-action@28f83620103c48a57093dcc2837eec89e036bb9f # beta v1.0.88
 #     - oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76  # v2.0.2
 #   - SocketDev/socket-registry/.github/actions/debug@main
 
@@ -15,7 +15,7 @@ on:
         type: string
         default: 'mcp__github__create_pending_pull_request_review,mcp__github__add_pull_request_review_comment_to_pending_review,mcp__github__submit_pending_pull_request_review,mcp__github__get_pull_request_diff'
       debug:
-        description: 'Enable debug output'
+        description: 'Enable debug output (e.g., "0" or "1")'
         required: false
         type: string
         default: '0'
@@ -36,7 +36,7 @@ on:
           Provide constructive feedback with specific suggestions for improvement.
           Use inline comments to highlight specific areas of concern. Be concise and clear in your feedback.
       timeout_minutes:
-        description: 'Timeout in minutes'
+        description: 'Timeout in minutes (e.g., "60" for code reviews, "120" for extensive reviews)'
         required: false
         type: string
         default: '60'
@@ -67,7 +67,7 @@ jobs:
           debug: ${{ inputs.debug }}
 
       - name: Automatic PR Review
-        uses: anthropics/claude-code-action@28f83620103c48a57093dcc2837eec89e036bb9f # beta
+        uses: anthropics/claude-code-action@28f83620103c48a57093dcc2837eec89e036bb9f # beta v1.0.88
         with:
           allowed_tools: ${{ inputs.allowed_tools }}
           anthropic_api_key: ${{ secrets.anthropic_api_key }}

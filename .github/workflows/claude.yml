@@ -2,7 +2,7 @@ name: ⚡ Claude Code
 
 # Dependencies:
 #   - actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
-#   - anthropics/claude-code-action@28f83620103c48a57093dcc2837eec89e036bb9f  # beta
+#   - anthropics/claude-code-action@28f83620103c48a57093dcc2837eec89e036bb9f # beta v1.0.88
 #     - oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76  # v2.0.2
 #   - SocketDev/socket-registry/.github/actions/debug@main
 
@@ -10,12 +10,12 @@ on:
   workflow_call:
     inputs:
       debug:
-        description: 'Enable debug output'
+        description: 'Enable debug output (e.g., "0" or "1")'
         required: false
         type: string
         default: '0'
       timeout-minutes:
-        description: 'Timeout in minutes'
+        description: 'Timeout in minutes (e.g., 10 for standard tasks, 30 for complex operations)'
         required: false
         type: number
         default: 10
@@ -49,6 +49,6 @@ jobs:
 
       - name: Run Claude Code
         id: claude
-        uses: anthropics/claude-code-action@28f83620103c48a57093dcc2837eec89e036bb9f # beta
+        uses: anthropics/claude-code-action@28f83620103c48a57093dcc2837eec89e036bb9f # beta v1.0.88
         with:
           anthropic_api_key: ${{ secrets.anthropic_api_key }}

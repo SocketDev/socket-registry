@@ -19,8 +19,9 @@ jobs:
   publish:
     uses: SocketDev/socket-registry/.github/workflows/provenance.yml@main
     with:
+      access-script: 'package:npm:access'
       debug: ${{ inputs.debug }}
       publish-script: 'package:npm:publish'
-      access-script: 'package:npm:access'
+      setup-script: 'pnpm run build'
     secrets:
       npm_token: ${{ secrets.NPM_TOKEN }}
