@@ -41,19 +41,36 @@ You are a **Principal Software Engineer** responsible for:
 - `execNpm`, `execPnpm`, `execYarn` functions available
 - Bin path resolution works across different installation methods
 
-### 3. Testing
+### 3. Cross-Platform Compatibility - CRITICAL: Windows and POSIX
+- **🚨 MANDATORY**: Tests and functionality MUST work on both POSIX (macOS/Linux) and Windows systems
+- **Path handling**: ALWAYS use `path.join()`, `path.resolve()`, `path.sep` for file paths
+  - ❌ WRONG: `'/usr/local/bin/npm'` (hard-coded POSIX path)
+  - ✅ CORRECT: `path.join(path.sep, 'usr', 'local', 'bin', 'npm')` (cross-platform)
+  - ❌ WRONG: `'/project/package-lock.json'` (hard-coded forward slashes)
+  - ✅ CORRECT: `path.join('project', 'package-lock.json')` (uses correct separator)
+- **Temp directories**: Use `os.tmpdir()` for temporary file paths in tests
+  - ❌ WRONG: `'/tmp/test-project'` (POSIX-specific)
+  - ✅ CORRECT: `path.join(os.tmpdir(), 'test-project')` (cross-platform)
+- **Path separators**: Never hard-code `/` or `\` in paths
+  - Use `path.sep` when you need the separator character
+  - Use `path.join()` to construct paths correctly
+- **File URLs**: Use `pathToFileURL()` and `fileURLToPath()` from `node:url` when working with file:// URLs
+- **Line endings**: Be aware of CRLF (Windows) vs LF (Unix) differences when processing text files
+- **Shell commands**: Consider platform differences in shell commands and utilities
+
+### 4. Testing
 - Always run lint and typecheck before committing:
   - `pnpm run lint`
   - `pnpm run typecheck`
 - Run tests with: `pnpm test`
 - Pre-commit hooks will run automatically
 
-### 4. Git Workflow
+### 5. Git Workflow
 - **DO NOT commit automatically** - let the user review changes first
 - Use `--no-verify` flag only when explicitly requested
 - Always provide clear, descriptive commit messages
 
-### 5. Package Management
+### 6. Package Management
 - **Package Manager**: This project uses pnpm (not npm)
 - **Install dependencies**: `pnpm install`
 - **Add dependency**: `pnpm add <package> --save-exact`
