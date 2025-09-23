@@ -19,6 +19,8 @@ export default defineConfig({
       },
       threads: {
         singleThread: false,
+        // Limit thread concurrency to prevent RegExp compiler exhaustion.
+        maxThreads: process.env['CI'] ? 1 : 2,
       },
     },
     coverage: {
