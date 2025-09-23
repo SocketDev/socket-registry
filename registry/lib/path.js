@@ -303,8 +303,10 @@ function pathLikeToString(pathLike) {
           pathname.charAt(2) === ':'
 
         if (!hasValidDriveLetter) {
-          // On Windows, for paths that don't start with a drive letter, strip the leading slash.
-          return pathname.slice(1)
+          // On Windows, preserve Unix-style absolute paths that don't start with a drive letter.
+          // Only strip the leading slash for truly malformed Windows paths.
+          // Since fileURLToPath() failed, this is likely a valid Unix-style absolute path.
+          return pathname
         }
       }
       return pathname

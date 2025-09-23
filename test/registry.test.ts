@@ -6,7 +6,6 @@ import { describe, expect, it } from 'vitest'
 import constants from '@socketregistry/scripts/constants'
 import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
 import { isObjectObject } from '@socketsecurity/registry/lib/objects'
-import { normalizePath } from '@socketsecurity/registry/lib/path'
 
 const { NPM, SOCKET_REGISTRY_PACKAGE_NAME } = constants
 
@@ -36,8 +35,8 @@ describe(
           require(filepath)
         } catch (e: any) {
           // Skip known problematic external files with duplicate declarations.
-          // Use normalizePath for cross-platform compatibility.
-          const normalizedPath = normalizePath(filepath)
+          // Use replaceAll for cross-platform path comparison.
+          const normalizedPath = filepath.replaceAll('\\', '/')
           if (
             e.message?.includes('dbcsCode') &&
             (normalizedPath.includes('/external/') ||

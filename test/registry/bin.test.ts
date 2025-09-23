@@ -47,7 +47,8 @@ describe('bin module', () => {
       const regularPath = process.execPath
       const resolved = resolveBinPathSync(regularPath)
       expect(resolved).toBeTruthy()
-      expect(resolved).toBe(regularPath)
+      // Normalize expected result for cross-platform comparison.
+      expect(resolved).toBe(regularPath.replaceAll('\\', '/'))
     })
 
     it('should handle non-existent paths', () => {
@@ -124,7 +125,8 @@ describe('bin module', () => {
         const resolved = resolveBinPathSync(symlinkPath)
 
         // Should resolve to the real path (handles /private vs /var on macOS).
-        expect(resolved).toBe(fs.realpathSync(targetFile))
+        // Normalize expected result for cross-platform comparison.
+        expect(resolved).toBe(fs.realpathSync(targetFile).replaceAll('\\', '/'))
       } finally {
         // Clean up.
         if (fs.existsSync(symlinkPath)) {
@@ -150,7 +152,8 @@ describe('bin module', () => {
         'binary',
       )
       const result = resolveBinPathSync(deepPath)
-      expect(result).toBe(deepPath)
+      // Normalize expected result for cross-platform comparison.
+      expect(result).toBe(deepPath.replaceAll('\\', '/'))
     })
 
     it('should handle paths with special characters', () => {
@@ -162,7 +165,8 @@ describe('bin module', () => {
         'binary',
       )
       const result = resolveBinPathSync(specialPath)
-      expect(result).toBe(specialPath)
+      // Normalize expected result for cross-platform comparison.
+      expect(result).toBe(specialPath.replaceAll('\\', '/'))
     })
 
     it('should handle relative paths with dots', () => {
@@ -178,7 +182,8 @@ describe('bin module', () => {
       if (process.platform === 'win32') {
         const uncPath = '\\\\server\\share\\binary.exe'
         const result = resolveBinPathSync(uncPath)
-        expect(result).toBe(uncPath)
+        // Normalize expected result for cross-platform comparison.
+        expect(result).toBe(uncPath.replaceAll('\\', '/'))
       }
     })
   })
@@ -316,7 +321,10 @@ fi`
         const resolved = resolveBinPathSync(wrapperPath)
         // On Unix, script parsing extracts the target. Returns real path.
         // The function returns the resolved wrapper path (not parsed target on macOS).
-        expect(resolved).toBe(fs.realpathSync(wrapperPath))
+        // Normalize expected result for cross-platform comparison.
+        expect(resolved).toBe(
+          fs.realpathSync(wrapperPath).replaceAll('\\', '/'),
+        )
       } finally {
         // Clean up.
         await trash([wrapperPath, targetPath])
@@ -434,7 +442,10 @@ exec node  "$basedir/lib/cli.js" "$@"`
       try {
         const resolved = resolveBinPathSync(wrapperPath)
         // Returns the resolved wrapper path.
-        expect(resolved).toBe(fs.realpathSync(wrapperPath))
+        // Normalize expected result for cross-platform comparison.
+        expect(resolved).toBe(
+          fs.realpathSync(wrapperPath).replaceAll('\\', '/'),
+        )
       } finally {
         // Clean up.
         await trash([wrapperPath, path.dirname(targetPath)])
@@ -483,7 +494,8 @@ exec node  "$basedir/lib/cli.js" "$@"`
       const longPath = path.join(os.tmpdir(), longName)
 
       const result = resolveBinPathSync(longPath)
-      expect(result).toBe(longPath)
+      // Normalize expected result for cross-platform comparison.
+      expect(result).toBe(longPath.replaceAll('\\', '/'))
     })
   })
 
@@ -858,7 +870,10 @@ exec node  "$basedir/lib/cli.js" "$@"`
 
       const result = resolveBinPathSync(malformedPath)
       // Should correct the malformed path.
-      expect(result).toBe(fs.realpathSync(shellScriptPath))
+      // Normalize expected result for cross-platform comparison.
+      expect(result).toBe(
+        fs.realpathSync(shellScriptPath).replaceAll('\\', '/'),
+      )
 
       // Clean up.
       fs.rmSync(path.join(tmpDir, 'node_modules'), {
@@ -1060,7 +1075,8 @@ exec node "$basedir/../pnpm/bin/pnpm.cjs" "$@"`
       try {
         const result = resolveBinPathSync(invalidPath)
         // Should return the path even if realpath fails.
-        expect(result).toBe(invalidPath)
+        // Normalize expected result for cross-platform comparison.
+        expect(result).toBe(invalidPath.replaceAll('\\', '/'))
       } finally {
         fs.rmSync(tmpFile, { force: true })
       }
