@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import { isPnpmIgnoreScriptsFlag } from '@socketsecurity/registry/lib/agent'
 
-// Note: execPnpm integration testing would require mocking the spawn/execBin functions
-// which is complex due to the module structure. The implementation can be tested
+// Note: execPnpm integration testing would require mocking the spawn/execBin functions.
+// which is complex due to the module structure. The implementation can be tested.
 // through integration tests with actual pnpm commands.
 
 describe('isPnpmIgnoreScriptsFlag', () => {

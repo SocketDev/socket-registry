@@ -14,7 +14,7 @@ const pkgRequireIndexJsPath = path.join(pkgPath, 'index.js')
 describe(
   `${eco} > ${sockRegPkgName}`,
   {
-    skip: true,
+    skip: constants.ENV.CI,
   },
   () => {
     const jsonStableStringify = require(pkgRequireIndexJsPath)
@@ -76,7 +76,7 @@ describe(
         { skip: !SUPPORTS_JSON_RAW_JSON },
         () => {
           // Test case from MDN example:
-          // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/isRawJSON#examples.
+          // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/isRawJSON#examples
           expect(
             jsonStableStringify({
               name: 'Josh',

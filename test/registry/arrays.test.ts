@@ -39,7 +39,7 @@ describe('arrays module', () => {
     })
 
     it('should handle invalid chunk sizes', () => {
-      // Invalid sizes cause issues, so test for throws or skip
+      // Invalid sizes cause issues, so test for throws or skip.
       expect(() => arrayChunk([1, 2, 3], 0)).toThrow()
       expect(() => arrayChunk([1, 2, 3], -1)).toThrow()
     })
