@@ -14,9 +14,9 @@ const pkgPath = path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
 const pkgRequireIndexJsPath = path.join(pkgPath, 'index.js')
 const pkgRequireIndexCjsPath = path.join(pkgPath, 'index.cjs')
 
-// is-regex tests don't account for `is-regex` backed by
-// `require('node:util/types).isRegExp` which triggers no proxy traps and
-// assumes instead that the "getOwnPropertyDescriptor" trap will be triggered
+// is-regex tests don't account for `is-regex` backed by.
+// `require('node:util/types).isRegExp` which triggers no proxy traps and.
+// assumes instead that the "getOwnPropertyDescriptor" trap will be triggered.
 // by `Object.getOwnPropertyDescriptor(value, 'lastIndex')`.
 // https://github.com/inspect-js/is-regex/issues/35
 // https://github.com/inspect-js/is-regex/blob/v1.1.4/test/index.js
@@ -71,7 +71,7 @@ describe(
       })
 
       it('does not mutate regexes', () => {
-        // Test lastIndex is a marker object
+        // Test lastIndex is a marker object.
         {
           const regex = /a/
           const marker = {}
@@ -81,7 +81,7 @@ describe(
           expect(regex.lastIndex).toBe(marker)
         }
 
-        // Test lastIndex is nonzero
+        // Test lastIndex is nonzero.
         {
           const regex = /a/
           regex.lastIndex = 3
@@ -118,7 +118,7 @@ describe(
           }
         }
 
-        // Test proxy of object
+        // Test proxy of object.
         {
           const target = { lastIndex: 0 }
           const handler = new Handler()
@@ -128,7 +128,7 @@ describe(
           )
 
           expect(isRegex(proxy)).toBe(false)
-          // Support `isRegex` backed by `require('node:util/types').isRegExp`
+          // Support `isRegex` backed by `require('node:util/types').isRegExp`.
           // which triggers no proxy traps.
           // https://github.com/inspect-js/is-regex/issues/35
           expect(handler.trapCalls).toEqual(
@@ -136,14 +136,14 @@ describe(
           )
         }
 
-        // Test proxy of RegExp instance
+        // Test proxy of RegExp instance.
         {
           const target = /a/
           const handler = new Handler()
           const proxy = new Proxy(/a/, handler as ProxyHandler<typeof target>)
 
           expect(isRegex(proxy)).toBe(false)
-          // Support `isRegex` backed by `require('node:util/types').isRegExp`
+          // Support `isRegex` backed by `require('node:util/types').isRegExp`.
           // which triggers no proxy traps.
           // https://github.com/inspect-js/is-regex/issues/35
           expect(handler.trapCalls).toEqual(

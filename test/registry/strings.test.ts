@@ -86,17 +86,22 @@ describe('strings module', () => {
     it('should convert various formats to kebab-case', () => {
       expect(toKebabCase('HelloWorld')).toBe('hello-world')
       expect(toKebabCase('hello_world')).toBe('hello-world')
-      expect(toKebabCase('hello world')).toBe('hello world') // spaces not converted
-      expect(toKebabCase('Hello World')).toBe('hello world') // spaces preserved, just lowercase
+      // Spaces not converted.
+      expect(toKebabCase('hello world')).toBe('hello world')
+      // Spaces preserved, just lowercase.
+      expect(toKebabCase('Hello World')).toBe('hello world')
     })
 
     it('should handle multiple spaces and underscores', () => {
-      expect(toKebabCase('hello  world')).toBe('hello  world') // spaces preserved
-      expect(toKebabCase('hello__world')).toBe('hello--world') // each _ becomes -
+      // Spaces preserved.
+      expect(toKebabCase('hello  world')).toBe('hello  world')
+      // Each _ becomes -.
+      expect(toKebabCase('hello__world')).toBe('hello--world')
     })
 
     it('should handle mixed separators', () => {
-      expect(toKebabCase('hello_world test')).toBe('hello-world test') // only _ converted
+      // Only _ converted.
+      expect(toKebabCase('hello_world test')).toBe('hello-world test')
       expect(toKebabCase('hello-world_test')).toBe('hello-world-test')
     })
 
@@ -229,7 +234,8 @@ describe('strings module', () => {
 
     it('should handle empty strings', () => {
       expect(search('', /test/)).toBe(-1)
-      expect(search('test', /^/)).toBe(0) // empty pattern matches at start
+      // Empty pattern matches at start.
+      expect(search('test', /^/)).toBe(0)
     })
   })
 })

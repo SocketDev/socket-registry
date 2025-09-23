@@ -65,19 +65,19 @@ describe(
     it('non-object target, with sources', () => {
       const signal = {}
 
-      // Test boolean
+      // Test boolean.
       const bool = es6oa.assign(true, { a: signal })
       expect(typeof bool).toBe('object')
       expect(Boolean.prototype.valueOf.call(bool)).toBe(true)
       expect(bool.a).toBe(signal)
 
-      // Test number
+      // Test number.
       const number = es6oa.assign(1, { a: signal })
       expect(typeof number).toBe('object')
       expect(Number.prototype.valueOf.call(number)).toBe(1)
       expect(number.a).toBe(signal)
 
-      // Test string
+      // Test string.
       const string = es6oa.assign('1', { a: signal })
       expect(typeof string).toBe('object')
       expect(String.prototype.valueOf.call(string)).toBe('1')
