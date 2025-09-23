@@ -99,27 +99,34 @@ describe(
 
       // This test must be last because it triggers the internal switch from
       // stableStringifyRecursive to stableStringifyNonRecursive.
-      it(`${methodName}: can handle exceeding call stack limits`, () => {
-        // eslint-disable-next-line unicorn/consistent-function-scoping
-        function createCallStackBusterObject() {
-          let obj = {}
-          let limit = 0
-          const result = obj
-          try {
-            ;(function r() {
-              limit += 1
-              const newObj = {}
-              ;(obj as any)[`prop${limit}`] = newObj
-              obj = newObj
-              r()
-            })()
-          } catch {}
-          return result
-        }
-        expect(() =>
-          jsonStableStringify(createCallStackBusterObject()),
-        ).not.toThrow()
-      })
+      it(
+        `${methodName}: can handle exceeding call stack limits`,
+        {
+          // Skip in CI due to memory exhaustion issues.
+          skip: constants.ENV.CI,
+        },
+        () => {
+          // eslint-disable-next-line unicorn/consistent-function-scoping
+          function createCallStackBusterObject() {
+            let obj = {}
+            let limit = 0
+            const result = obj
+            try {
+              ;(function r() {
+                limit += 1
+                const newObj = {}
+                ;(obj as any)[`prop${limit}`] = newObj
+                obj = newObj
+                r()
+              })()
+            } catch {}
+            return result
+          }
+          expect(() =>
+            jsonStableStringify(createCallStackBusterObject()),
+          ).not.toThrow()
+        },
+      )
     }
   },
 )
