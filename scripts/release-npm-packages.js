@@ -265,7 +265,7 @@ async function maybeBumpPackage(pkg, options) {
   const hasChanged = await hasPackageChanged(pkg, manifest)
   if (hasChanged) {
     let version = semver.inc(manifest.version, 'patch')
-    if (pkg.tag !== LATEST) {
+    if (pkg.tag !== LATEST && pkg.tag) {
       version = `${semver.inc(version, 'patch')}-${pkg.tag}`
     }
     pkg.version = version
