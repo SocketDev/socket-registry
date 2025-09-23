@@ -127,7 +127,9 @@ describe('bin module', () => {
         // Should resolve to the real path (handles /private vs /var on macOS).
         // Normalize both paths for cross-platform comparison.
         const normalizedResolved = resolved.replaceAll('\\', '/')
-        const normalizedExpected = realpathSync.native(targetFile).replaceAll('\\', '/')
+        const normalizedExpected = realpathSync
+          .native(targetFile)
+          .replaceAll('\\', '/')
         expect(normalizedResolved).toBe(normalizedExpected)
       } finally {
         // Clean up.
@@ -179,13 +181,16 @@ describe('bin module', () => {
       // Should attempt to resolve through whichBinSync since it's not absolute.
     })
 
-    it.skipIf(process.platform !== 'win32')('should handle UNC paths on Windows', () => {
-      const uncPath = '\\\\server\\share\\binary.exe'
-      const result = resolveBinPathSync(uncPath)
-      // For UNC paths, normalizePath should preserve the leading double slashes.
-      // The expected result should maintain UNC format with forward slashes.
-      expect(result).toBe('//server/share/binary.exe')
-    })
+    it.skipIf(process.platform !== 'win32')(
+      'should handle UNC paths on Windows',
+      () => {
+        const uncPath = '\\\\server\\share\\binary.exe'
+        const result = resolveBinPathSync(uncPath)
+        // For UNC paths, normalizePath should preserve the leading double slashes.
+        // The expected result should maintain UNC format with forward slashes.
+        expect(result).toBe('//server/share/binary.exe')
+      },
+    )
   })
 
   describe('whichBinSync', () => {
@@ -323,7 +328,9 @@ fi`
         // The function returns the resolved wrapper path (not parsed target on macOS).
         // Normalize both paths for cross-platform comparison.
         const normalizedResolved = resolved.replaceAll('\\', '/')
-        const normalizedExpected = realpathSync.native(wrapperPath).replaceAll('\\', '/')
+        const normalizedExpected = realpathSync
+          .native(wrapperPath)
+          .replaceAll('\\', '/')
         expect(normalizedResolved).toBe(normalizedExpected)
       } finally {
         // Clean up.
@@ -379,17 +386,18 @@ endLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & "%_prog%"  "%dp0%\\..\\
       }
     })
 
-    it.skipIf(process.platform !== 'win32')('should handle PowerShell wrapper scripts', async () => {
+    it.skipIf(process.platform !== 'win32')(
+      'should handle PowerShell wrapper scripts',
+      async () => {
+        // Test PowerShell wrapper detection.
+        const tmpDir = os.tmpdir()
+        const ps1Path = path.join(tmpDir, `test-ps1-${Date.now()}.ps1`)
+        const targetPath = path.join(tmpDir, 'target.js')
 
-      // Test PowerShell wrapper detection.
-      const tmpDir = os.tmpdir()
-      const ps1Path = path.join(tmpDir, `test-ps1-${Date.now()}.ps1`)
-      const targetPath = path.join(tmpDir, 'target.js')
+        await fs.writeFile(targetPath, 'console.log("ps1 target")')
 
-      await fs.writeFile(targetPath, 'console.log("ps1 target")')
-
-      // Create a PowerShell wrapper.
-      const ps1Content = `#!/usr/bin/env pwsh
+        // Create a PowerShell wrapper.
+        const ps1Content = `#!/usr/bin/env pwsh
 $basedir=Split-Path $MyInvocation.MyCommand.Definition -Parent
 
 $exe=""
@@ -406,17 +414,18 @@ if (Test-Path "$basedir/node$exe") {
 }
 exit $ret`
 
-      await fs.writeFile(ps1Path, ps1Content)
+        await fs.writeFile(ps1Path, ps1Content)
 
-      try {
-        const resolved = resolveBinPathSync(ps1Path)
-        // Should handle PowerShell scripts.
-        expect(resolved).toBeTruthy()
-      } finally {
-        // Clean up.
-        await trash([ps1Path, targetPath])
-      }
-    })
+        try {
+          const resolved = resolveBinPathSync(ps1Path)
+          // Should handle PowerShell scripts.
+          expect(resolved).toBeTruthy()
+        } finally {
+          // Clean up.
+          await trash([ps1Path, targetPath])
+        }
+      },
+    )
 
     it('should handle extensionless wrapper scripts', async () => {
       // Test extensionless Unix wrapper scripts.
@@ -440,7 +449,9 @@ exec node  "$basedir/lib/cli.js" "$@"`
         // Returns the resolved wrapper path.
         // Normalize both paths for cross-platform comparison.
         const normalizedResolved = resolved.replaceAll('\\', '/')
-        const normalizedExpected = realpathSync.native(wrapperPath).replaceAll('\\', '/')
+        const normalizedExpected = realpathSync
+          .native(wrapperPath)
+          .replaceAll('\\', '/')
         expect(normalizedResolved).toBe(normalizedExpected)
       } finally {
         // Clean up.
@@ -619,7 +630,6 @@ exec node  "$basedir/lib/cli.js" "$@"`
       await expect(execBin('node', ['-e', 'process.exit(1)'])).rejects.toThrow()
     })
 
-
     it('should handle undefined args', async () => {
       const result = await execBin('echo', undefined)
       expect(result).toBeDefined()
@@ -772,7 +782,10 @@ exec node  "$basedir/lib/cli.js" "$@"`
       const binInfo = {
         package: 'typescript@5.0.0',
       }
-      await fs.writeFile(path.join(binPath, 'tsc.json'), JSON.stringify(binInfo))
+      await fs.writeFile(
+        path.join(binPath, 'tsc.json'),
+        JSON.stringify(binInfo),
+      )
 
       // Create tsc binary.
       const tscPath = path.join(imagePath, 'packages/typescript@5.0.0/bin/tsc')
@@ -792,7 +805,10 @@ exec node  "$basedir/lib/cli.js" "$@"`
       const binInfo = {
         package: 'typescript@5.0.0',
       }
-      await fs.writeFile(path.join(binPath, 'tsc.json'), JSON.stringify(binInfo))
+      await fs.writeFile(
+        path.join(binPath, 'tsc.json'),
+        JSON.stringify(binInfo),
+      )
 
       // Create tsc.cmd binary.
       const tscPath = path.join(
@@ -855,9 +871,13 @@ exec node  "$basedir/lib/cli.js" "$@"`
 
       // Create the directory structure for the malformed path.
       await fs.mkdir(path.dirname(malformedPath), { recursive: true })
-      await fs.writeFile(malformedPath, '#!/usr/bin/env node\nconsole.log("pnpm")', {
-        mode: 0o755,
-      })
+      await fs.writeFile(
+        malformedPath,
+        '#!/usr/bin/env node\nconsole.log("pnpm")',
+        {
+          mode: 0o755,
+        },
+      )
 
       const result = resolveBinPathSync(malformedPath)
       // The function may detect the malformed path structure and handle it appropriately.
