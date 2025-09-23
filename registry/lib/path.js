@@ -138,7 +138,11 @@ function normalizePath(pathLike) {
 
   // Use Node.js path.posix.normalize for consistent forward slashes.
   const path = getPath()
-  let normalized = path.posix.normalize(filepath.replace(/\\/g, '/'))
+  // Replace backslashes with forward slashes before normalizing.
+  // This is necessary because path.posix.normalize() only recognizes forward slashes
+  // as path separators. Without this, Windows paths with backslashes would not be
+  // properly normalized (e.g., 'C:\\Users\\..\\Documents' needs to become 'C:/Documents').
+  let normalized = path.posix.normalize(filepath.replaceAll('\\', '/'))
 
   // Remove trailing slashes unless it's the root.
   if (normalized.length > 1 && normalized.endsWith('/')) {
