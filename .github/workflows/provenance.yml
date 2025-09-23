@@ -7,37 +7,42 @@ on:
   workflow_call:
     inputs:
       access-script:
-        description: 'NPM script to run for access control'
+        description: 'pnpm script to run for access control (e.g., "package:npm:access")'
         required: false
         type: string
         default: ''
       debug:
-        description: 'Enable debug output'
+        description: 'Enable debug output (e.g., "0" or "1")'
         required: false
         type: string
         default: '0'
       node-version:
-        description: 'Node version to use'
+        description: 'Node version to use (e.g., "20", "22", "24")'
         required: false
         type: string
         default: '22'
       package-name:
-        description: 'Package name (e.g., @socketregistry/sdk) - used when scripts are not provided'
+        description: 'Package name (e.g., "@socketregistry/sdk") - used when scripts are not provided'
         required: false
         type: string
         default: ''
       publish-script:
-        description: 'NPM script to run for publishing'
+        description: 'pnpm script to run for publishing (e.g., "package:npm:publish")'
         required: false
         type: string
         default: ''
       registry-url:
-        description: 'NPM registry URL'
+        description: 'npm registry URL'
         required: false
         type: string
         default: 'https://registry.npmjs.org'
       scope:
-        description: 'NPM registry scope for package authentication'
+        description: 'npm registry scope for package authentication'
+        required: false
+        type: string
+        default: ''
+      setup-script:
+        description: 'Setup script before publishing (e.g., "pnpm run build")'
         required: false
         type: string
         default: ''
@@ -77,6 +82,8 @@ jobs:
           debug: ${{ inputs.debug }}
           scope: ${{ inputs.scope }}
           registry-url: ${{ inputs.registry-url }}
+      - run: ${{ inputs.setup-script }}
+        if: inputs.setup-script != ''
       - run: pnpm config set //registry.npmjs.org/:_authToken ${{ secrets.npm_token }}
       - run: pnpm run ${{ inputs.publish-script }}
         if: inputs.publish-script != ''
