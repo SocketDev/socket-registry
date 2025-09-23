@@ -1,3 +1,5 @@
+import path from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
 // Helper functions moved to outer scope.
@@ -230,7 +232,7 @@ describe('utility modules tests', () => {
 
     it('should get relative path', () => {
       expect(pathUtils.relativeResolve('/a/b', '/a/b/c')).toBe('c')
-      expect(pathUtils.relativeResolve('/a/b', '/a/d')).toBe('../d')
+      expect(pathUtils.relativeResolve('/a/b', '/a/d')).toBe(`..${path.sep}d`)
     })
   })
 })
