@@ -392,7 +392,10 @@ function resolveBinPathSync(binPath) {
   const WIN32 = /*@__PURE__*/ require('./constants/win32')
   if (WIN32) {
     const hasKnownExt =
-      extLowered === '' || extLowered === '.cmd' || extLowered === '.ps1'
+      extLowered === '' ||
+      extLowered === '.cmd' ||
+      extLowered === '.exe' ||
+      extLowered === '.ps1'
     const isNpmOrNpx = basename === 'npm' || basename === 'npx'
     const isPnpmOrYarn = basename === 'pnpm' || basename === 'yarn'
     if (hasKnownExt && isNpmOrNpx) {
@@ -406,7 +409,9 @@ function resolveBinPathSync(binPath) {
       }
     }
     let relPath = ''
-    if (hasKnownExt) {
+    // Only parse shell scripts and batch files, not actual executables.
+    // .exe files are already executables and don't need path resolution from wrapper scripts.
+    if (hasKnownExt && extLowered !== '.exe') {
       const source = fs.readFileSync(binPath, 'utf8')
       if (isNpmOrNpx) {
         if (extLowered === '.cmd') {
@@ -562,12 +567,13 @@ function resolveBinPathSync(binPath) {
       }
       binPath = normalizePath(path.join(path.dirname(binPath), relPath))
     } else if (
-      extLowered !== '.js' &&
       extLowered !== '.cjs' &&
-      extLowered !== '.mjs' &&
-      extLowered !== '.ts' &&
       extLowered !== '.cts' &&
-      extLowered !== '.mts'
+      extLowered !== '.exe' &&
+      extLowered !== '.js' &&
+      extLowered !== '.mjs' &&
+      extLowered !== '.mts' &&
+      extLowered !== '.ts'
     ) {
       throw getNotResolvedError(binPath)
     }

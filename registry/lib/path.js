@@ -167,7 +167,28 @@ function pathLikeToString(pathLike) {
   }
   const url = getUrl()
   if (pathLike instanceof URL) {
-    return url.fileURLToPath(pathLike)
+    try {
+      return url.fileURLToPath(pathLike)
+    } catch {
+      // On Windows, file URLs like `file:///C:/path` include drive letters.
+      // If a file URL is missing its drive letter (malformed), fileURLToPath() throws an error.
+      // This fallback extracts the pathname directly from the URL object.
+      //
+      // Example flows:
+      // - Unix: file:///home/user → pathname '/home/user' → keep as-is
+      // - Windows valid: file:///C:/path → handled by fileURLToPath()
+      // - Windows invalid: file:///path → pathname '/path' → strips to 'path'
+      const pathname = pathLike.pathname
+      // URL pathnames always start with `/`, but Windows paths shouldn't
+      // (e.g., `/C:/path` should be `C:/path`). So on Windows, strip the leading slash.
+      if (pathname.startsWith('/')) {
+        const WIN32 = /*@__PURE__*/ require('./constants/win32')
+        if (WIN32) {
+          return pathname.slice(1)
+        }
+      }
+      return pathname
+    }
   }
   return String(pathLike)
 }
