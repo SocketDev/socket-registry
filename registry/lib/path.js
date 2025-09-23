@@ -185,7 +185,11 @@ function normalizePath(pathLike) {
 
       // Skip leading slashes after the initial double slash
       let i = 2
-      while (i < length && (filepath.charCodeAt(i) === 47 /*'/'*/ || filepath.charCodeAt(i) === 92 /*'\\'*/)) {
+      while (
+        i < length &&
+        (filepath.charCodeAt(i) === 47 /*'/'*/ ||
+          filepath.charCodeAt(i) === 92) /*'\\'*/
+      ) {
         i++
       }
 
@@ -202,7 +206,11 @@ function normalizePath(pathLike) {
       if (firstSegmentEnd > 2) {
         // Skip slashes after server name
         i = firstSegmentEnd
-        while (i < length && (filepath.charCodeAt(i) === 47 /*'/'*/ || filepath.charCodeAt(i) === 92 /*'\\'*/)) {
+        while (
+          i < length &&
+          (filepath.charCodeAt(i) === 47 /*'/'*/ ||
+            filepath.charCodeAt(i) === 92) /*'\\'*/
+        ) {
           i++
         }
         // Check if there's a share name (second segment)
