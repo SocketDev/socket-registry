@@ -145,7 +145,6 @@ describe('bin find utilities', () => {
       expect(pnpmPath === null || typeof pnpmPath === 'string').toBe(true)
     })
 
-
     it('should find pnpm using findRealBin with common paths', () => {
       const result = findRealPnpm()
       expect(result !== undefined).toBe(true)

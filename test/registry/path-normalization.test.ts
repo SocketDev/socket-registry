@@ -146,6 +146,27 @@ describe('path normalization and utilities', () => {
       expect(normalizePath('a/b/../c/../d')).toBe('a/d')
       expect(normalizePath('../a/b/../c')).toBe('../a/c')
     })
+
+    it('should collapse repeated separators', () => {
+      // Forward slash collapsing
+      expect(normalizePath('/a////b////c')).toBe('/a/b/c')
+      expect(normalizePath('path//to///file')).toBe('path/to/file')
+      expect(normalizePath('////absolute////path////')).toBe('/absolute/path')
+      expect(normalizePath('relative////path///file///')).toBe(
+        'relative/path/file',
+      )
+
+      // Backslash collapsing
+      expect(normalizePath('path\\\\\\\\to\\\\\\\\file')).toBe('path/to/file')
+      expect(normalizePath('C:\\\\\\\\Users\\\\\\\\name')).toBe('C:/Users/name')
+      expect(normalizePath('\\\\\\\\absolute\\\\\\\\path\\\\\\\\')).toBe(
+        '/absolute/path',
+      )
+
+      // Mixed separator collapsing
+      expect(normalizePath('/a\\/\\b\\//c')).toBe('/a/b/c')
+      expect(normalizePath('path//\\\\to\\/\\file')).toBe('path/to/file')
+    })
   })
 
   describe('pathLikeToString', () => {
