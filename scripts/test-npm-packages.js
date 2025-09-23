@@ -29,7 +29,8 @@ const { values: cliArgs } = util.parseArgs({
     },
     concurrency: {
       type: 'string',
-      default: '3',
+      // Reduce concurrency in CI to avoid memory issues.
+      default: process.env.CI ? '1' : '3',
     },
   },
 })
