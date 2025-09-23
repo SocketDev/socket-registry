@@ -1,6 +1,8 @@
+import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import trash from 'trash'
 import { describe, expect, it } from 'vitest'
 
 const {
@@ -45,14 +47,42 @@ describe('bin module', () => {
     })
 
     it('should return the same path for non-links', () => {
-      const regularPath = '/usr/bin/node'
+      // Use process.execPath which exists on all platforms.
+      const regularPath = process.execPath
       const resolved = resolveBinPathSync(regularPath)
       expect(resolved).toBeTruthy()
+      expect(resolved).toBe(regularPath)
     })
 
     it('should handle non-existent paths', () => {
-      const result = resolveBinPathSync('/non/existent/binary')
-      expect(result).toBeTruthy() // Returns the path even if it doesn't exist
+      // resolveBinPathSync returns the original path when it doesn't exist.
+      // Create a proper absolute path that works on all platforms.
+      // Use tmpdir's root as base to ensure we get a fully qualified path.
+      const tmpRoot = path.parse(os.tmpdir()).root
+      const nonExistentPath = path.join(tmpRoot, 'non', 'existent', 'binary')
+      const result = resolveBinPathSync(nonExistentPath)
+      expect(result).toBeTruthy()
+      expect(result).toBe(nonExistentPath)
+    })
+
+    it('should handle paths where a file is used as a directory', async () => {
+      // When a component in the path exists but is not a directory,
+      // resolveBinPathSync returns the original path (letting spawn handle the error).
+      // Create a temporary file.
+      const tmpFile = path.join(os.tmpdir(), `test-file-${Date.now()}.txt`)
+      fs.writeFileSync(tmpFile, 'test')
+
+      try {
+        // Try to use the file as a directory.
+        const invalidPath = path.join(tmpFile, 'somebinary')
+        const result = resolveBinPathSync(invalidPath)
+
+        // Should return the original path, not throw.
+        expect(result).toBe(invalidPath)
+      } finally {
+        // Clean up.
+        await trash(tmpFile)
+      }
     })
   })
 

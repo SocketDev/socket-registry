@@ -674,16 +674,14 @@ function resolveBinPathSync(binPath) {
   }
   try {
     return fs.realpathSync.native(binPath)
-  } catch (error) {
-    // If the file doesn't exist, return the normalized path
-    if (error.code === 'ENOENT') {
+  } catch (e) {
+    // If the path cannot be resolved (file doesn't exist or component is not a directory),
+    // return the original path and let the execution layer handle the error with proper context.
+    const code = e?.code
+    if (code === 'ENOENT' || code === 'ENOTDIR') {
       return binPath
     }
-    // Provide more context when realpath fails for other reasons
-    if (error.code === 'ENOTDIR') {
-      throw new Error(`Path resolution failed - not a directory: ${binPath}`)
-    }
-    throw error
+    throw e
   }
 }
 

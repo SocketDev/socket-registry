@@ -198,6 +198,9 @@ importers:
       taze:
         specifier: 19.6.0
         version: 19.6.0
+      trash:
+        specifier: 7.2.0
+        version: 7.2.0
       tsx:
         specifier: 4.20.5
         version: 4.20.5
