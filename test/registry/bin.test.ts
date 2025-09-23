@@ -127,7 +127,7 @@ describe('bin module', () => {
         // Should resolve to the real path (handles /private vs /var on macOS).
         // Normalize both paths for cross-platform comparison.
         const normalizedResolved = resolved.replaceAll('\\', '/')
-        const normalizedExpected = realpathSync(targetFile).replaceAll('\\', '/')
+        const normalizedExpected = realpathSync.native(targetFile).replaceAll('\\', '/')
         expect(normalizedResolved).toBe(normalizedExpected)
       } finally {
         // Clean up.
@@ -323,7 +323,7 @@ fi`
         // The function returns the resolved wrapper path (not parsed target on macOS).
         // Normalize both paths for cross-platform comparison.
         const normalizedResolved = resolved.replaceAll('\\', '/')
-        const normalizedExpected = realpathSync(wrapperPath).replaceAll('\\', '/')
+        const normalizedExpected = realpathSync.native(wrapperPath).replaceAll('\\', '/')
         expect(normalizedResolved).toBe(normalizedExpected)
       } finally {
         // Clean up.
@@ -440,7 +440,7 @@ exec node  "$basedir/lib/cli.js" "$@"`
         // Returns the resolved wrapper path.
         // Normalize both paths for cross-platform comparison.
         const normalizedResolved = resolved.replaceAll('\\', '/')
-        const normalizedExpected = realpathSync(wrapperPath).replaceAll('\\', '/')
+        const normalizedExpected = realpathSync.native(wrapperPath).replaceAll('\\', '/')
         expect(normalizedResolved).toBe(normalizedExpected)
       } finally {
         // Clean up.

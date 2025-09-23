@@ -557,7 +557,7 @@ async function linkPackages(packageNames, options) {
 
     // Check if it's already a symlink to test/npm/packages (already processed).
     if (isSymLinkSync(nmPkgPath)) {
-      const realPath = realpathSync(nmPkgPath)
+      const realPath = realpathSync.native(nmPkgPath)
       if (realPath === path.join(testNpmNodeWorkspacesPath, sockRegPkgName)) {
         // Already processed and linked.
         return
