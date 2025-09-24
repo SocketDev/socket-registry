@@ -249,6 +249,7 @@ const constants = createConstantsObject(
   {
     // Lazily defined values are initialized as `undefined` to
     // keep their key order.
+    BIOME_JSON: 'biome.json',
     ENV: undefined,
     DEFAULT_CONCURRENCY: 3,
     LICENSE_CONTENT: undefined,
