@@ -1,12 +1,16 @@
 'use strict'
 
-const fs = require('node:fs/promises')
-const path = require('node:path')
-const util = require('node:util')
+import { createRequire } from 'node:module'
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import util from 'node:util'
 
-const { PackageURL } = require('@socketregistry/packageurl-js')
-const constants = require('@socketregistry/scripts/constants')
-const { getModifiedFiles } = require('@socketregistry/scripts/lib/git')
+import { PackageURL } from '@socketregistry/packageurl-js'
+import constants from '@socketregistry/scripts/constants'
+import { getModifiedFiles } from '@socketregistry/scripts/lib/git'
+import { biomeFormat } from './lib/biome.mjs'
+
+const require = createRequire(import.meta.url)
 const {
   objectEntries,
   toSortedObject,
@@ -22,7 +26,6 @@ const {
 } = require('@socketsecurity/registry/lib/packages')
 const { pEach } = require('@socketsecurity/registry/lib/promises')
 const { naturalCompare } = require('@socketsecurity/registry/lib/sorts')
-const { biomeFormat } = require('./lib/biome')
 
 const { AT_LATEST, DEFAULT_CONCURRENCY, NPM, UNLICENSED } = constants
 

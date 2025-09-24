@@ -1,14 +1,15 @@
 'use strict'
 
-const { glob } = require('fast-glob')
+import fastGlob from 'fast-glob'
 
-const constants = require('@socketregistry/scripts/constants')
-const { execBin } = require('@socketsecurity/registry/lib/agent')
+import { execBin } from '@socketsecurity/registry/lib/agent'
+
+import constants from '@socketregistry/scripts/constants'
 
 const { perfNpmPath } = constants
 
 void (async () => {
-  for (const perfFile of await glob([`*.perf.ts`], {
+  for (const perfFile of await fastGlob.glob([`*.perf.ts`], {
     cwd: perfNpmPath,
   })) {
     // eslint-disable-next-line no-await-in-loop

@@ -5,9 +5,9 @@
  */
 'use strict'
 
-const constants = require('@socketregistry/scripts/constants')
-const { readPackageJson } = require('@socketsecurity/registry/lib/packages')
-const { pEach } = require('@socketsecurity/registry/lib/promises')
+import constants from '@socketregistry/scripts/constants'
+import { readPackageJson } from '@socketsecurity/registry/lib/packages'
+import { pEach } from '@socketsecurity/registry/lib/promises'
 
 const { DEFAULT_CONCURRENCY } = constants
 
@@ -152,7 +152,7 @@ async function processWithSpinner(items, processor, options = {}) {
   return { results, errors }
 }
 
-module.exports = {
+export {
   clearPackageJsonCache,
   collectPackageData,
   editablePackageJsonCache,

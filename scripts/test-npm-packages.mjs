@@ -1,19 +1,21 @@
 'use strict'
 
-const { existsSync, promises: fs } = require('node:fs')
-const os = require('node:os')
-const path = require('node:path')
-const { spawn } = require('node:child_process')
-const util = require('node:util')
+import { createRequire } from 'node:module'
+import { existsSync, promises as fs } from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import { spawn } from 'node:child_process'
+import util from 'node:util'
 
-const { copy } = require('fs-extra')
-
-const constants = require('@socketregistry/scripts/constants')
-const {
+import constants from '@socketregistry/scripts/constants'
+import {
   cleanTestScript,
   testRunners,
-} = require('@socketregistry/scripts/lib/test-utils')
-const { safeRemove } = require('@socketregistry/scripts/lib/safe-remove')
+} from '@socketregistry/scripts/lib/test-utils'
+import { safeRemove } from '@socketregistry/scripts/lib/safe-remove'
+
+const require = createRequire(import.meta.url)
+const { copy } = require('fs-extra')
 const { readPackageJson } = require('@socketsecurity/registry/lib/packages')
 const {
   resolveOriginalPackageName,

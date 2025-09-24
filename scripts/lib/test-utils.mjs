@@ -50,8 +50,4 @@ const testRunners = [
   'test:all',
 ]
 
-module.exports = {
-  cleanTestScript,
-  testRunners,
-  testScripts,
-}
+export { cleanTestScript, testRunners, testScripts }

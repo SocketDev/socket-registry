@@ -1,21 +1,24 @@
 'use strict'
 
-const { existsSync, promises: fs, realpathSync } = require('node:fs')
-const os = require('node:os')
-const path = require('node:path')
-const util = require('node:util')
+import { createRequire } from 'node:module'
+import { existsSync, promises as fs, realpathSync } from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import util from 'node:util'
 
-const { move } = require('fs-extra')
-const npmPackageArg = require('npm-package-arg')
-const semver = require('semver')
-const fastGlob = require('fast-glob')
+import semver from 'semver'
+import fastGlob from 'fast-glob'
 
-const constants = require('@socketregistry/scripts/constants')
-const {
+import constants from '@socketregistry/scripts/constants'
+import {
   cleanTestScript,
   testScripts,
-} = require('@socketregistry/scripts/lib/test-utils')
-const { safeRemove } = require('@socketregistry/scripts/lib/safe-remove')
+} from '@socketregistry/scripts/lib/test-utils'
+import { safeRemove } from '@socketregistry/scripts/lib/safe-remove'
+
+const require = createRequire(import.meta.url)
+const { move } = require('fs-extra')
+const npmPackageArg = require('npm-package-arg')
 const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
 const { isSymLinkSync } = require('@socketsecurity/registry/lib/fs')
 const { logger } = require('@socketsecurity/registry/lib/logger')

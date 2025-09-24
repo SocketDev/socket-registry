@@ -1,6 +1,6 @@
 'use strict'
 
-const path = require('node:path')
+import path from 'node:path'
 
 const getDefaultBiomeConfig = () => ({
   __proto__: null,
@@ -60,7 +60,7 @@ const getDefaultBiomeConfig = () => ({
 let _biome
 async function getBiome() {
   if (_biome === undefined) {
-    const { Biome, Distribution } = /*@__PURE__*/ require('@biomejs/js-api')
+    const { Biome, Distribution } = await import('@biomejs/js-api')
     _biome = await Biome.create({
       distribution: Distribution.NODE,
     })
@@ -89,8 +89,4 @@ async function biomeFormat(str, options) {
     .content
 }
 
-module.exports = {
-  biomeFormat,
-  getBiome,
-  getDefaultBiomeConfig,
-}
+export { biomeFormat, getBiome, getDefaultBiomeConfig }

@@ -1,12 +1,12 @@
 'use strict'
 
-const util = require('node:util')
+import util from 'node:util'
 
-const constants = require('@socketregistry/scripts/constants')
-const {
+import constants from '@socketregistry/scripts/constants'
+import {
   getModifiedPackagesSync,
   getStagedPackagesSync,
-} = require('@socketregistry/scripts/lib/git')
+} from '@socketregistry/scripts/lib/git'
 
 const { LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE } = constants
 
@@ -27,6 +27,4 @@ function isPackageTestingSkipped(eco, sockRegPkgName) {
       }).includes(sockRegPkgName)
 }
 
-module.exports = {
-  isPackageTestingSkipped,
-}
+export { isPackageTestingSkipped }

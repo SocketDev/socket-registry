@@ -8,33 +8,23 @@
  * - Creates README and LICENSE files
  * - Handles browser compatibility and shim requirements
  */
-'use strict'
 
-const { existsSync, promises: fs } = require('node:fs')
-const path = require('node:path')
-const util = require('node:util')
+import { createRequire } from 'node:module'
+import { existsSync, promises as fs } from 'node:fs'
+import path from 'node:path'
+import util from 'node:util'
 
-const { ReturnTypeEnums, default: didYouMean } = require('didyoumean2')
-const { open } = require('out-url')
-const semver = require('semver')
-const { glob } = require('fast-glob')
+import { ReturnTypeEnums, default as didYouMean } from 'didyoumean2'
+import fastGlob from 'fast-glob'
+import { open } from 'out-url'
+import semver from 'semver'
 
-const constants = require('@socketregistry/scripts/constants')
-const {
-  getLicenseActions,
-  getNpmReadmeAction,
-  getPackageJsonAction,
-  getTemplate,
-  getTypeScriptActions,
-  writeAction,
-} = require('@socketregistry/scripts/lib/templates')
-const { isDirEmptySync } = require('@socketsecurity/registry/lib/fs')
-const { globStreamLicenses } = require('@socketsecurity/registry/lib/globs')
-const { LOG_SYMBOLS, logger } = require('@socketsecurity/registry/lib/logger')
-const { execScript } = require('@socketsecurity/registry/lib/agent')
-const { isObject } = require('@socketsecurity/registry/lib/objects')
-const { transform } = require('@socketsecurity/registry/lib/streams')
-const {
+import { execScript } from '@socketsecurity/registry/lib/agent'
+import { isDirEmptySync } from '@socketsecurity/registry/lib/fs'
+import { globStreamLicenses } from '@socketsecurity/registry/lib/globs'
+import { LOG_SYMBOLS, logger } from '@socketsecurity/registry/lib/logger'
+import { isObject } from '@socketsecurity/registry/lib/objects'
+import {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
   extractPackage,
@@ -46,17 +36,32 @@ const {
   resolvePackageJsonEntryExports,
   resolvePackageLicenses,
   resolveRegistryPackageName,
-} = require('@socketsecurity/registry/lib/packages')
-const {
+} from '@socketsecurity/registry/lib/packages'
+import {
   confirm,
   input,
   search,
   select,
-} = require('@socketsecurity/registry/lib/prompts')
-const { naturalSorter } = require('@socketsecurity/registry/lib/sorts')
-const { naturalCompare } = require('@socketsecurity/registry/lib/sorts')
-const { indentString } = require('@socketsecurity/registry/lib/strings')
-const { pluralize } = require('@socketsecurity/registry/lib/words')
+} from '@socketsecurity/registry/lib/prompts'
+import {
+  naturalCompare,
+  naturalSorter,
+} from '@socketsecurity/registry/lib/sorts'
+import { transform } from '@socketsecurity/registry/lib/streams'
+import { indentString } from '@socketsecurity/registry/lib/strings'
+import { pluralize } from '@socketsecurity/registry/lib/words'
+
+import constants from '@socketregistry/scripts/constants'
+import {
+  getLicenseActions,
+  getNpmReadmeAction,
+  getPackageJsonAction,
+  getTemplate,
+  getTypeScriptActions,
+  writeAction,
+} from '@socketregistry/scripts/lib/templates'
+
+const require = createRequire(import.meta.url)
 
 const {
   ESNEXT,
@@ -110,7 +115,8 @@ function getBcdKeysMap(obj) {
 function getCompatDataRaw(props) {
   // Defer loading @mdn/browser-compat-data until needed.
   // It's a single 15.3 MB json file.
-  let obj = require('@mdn/browser-compat-data')
+  const browserCompatData = require('@mdn/browser-compat-data')
+  let obj = browserCompatData.default
   for (let i = 0, { length } = props; i < length; i += 1) {
     const rawProp = props[i]
     let prop = rawProp.toLowerCase()
@@ -134,7 +140,8 @@ function getCompatDataRaw(props) {
 }
 
 function getCompatData(props) {
-  return getCompatDataRaw(props)?.__compat
+  const data = getCompatDataRaw(props)
+  return data?.__compat
 }
 
 async function readLicenses(dirname) {
@@ -191,7 +198,7 @@ void (async () => {
   let relJsFilepaths
   await extractPackage(origPkgName, async nmPkgPath => {
     nmPkgJson = await readPackageJson(nmPkgPath, { normalize: true })
-    relJsFilepaths = await glob(['*.js'], {
+    relJsFilepaths = await fastGlob.glob(['*.js'], {
       ignore: ['**/package.json'],
       cwd: nmPkgPath,
     })
