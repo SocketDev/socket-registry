@@ -5,7 +5,7 @@ declare type OnExitOptions = {
 declare const SignalExit: {
   onExit: (
     callback: (code: number | null, signal: NodeJS.Signals | null) => void,
-    options?: OnExitOptions
+    options?: OnExitOptions,
   ) => () => void
   load: () => void
   unload: () => void
