@@ -1,3 +1,3 @@
 'use strict'
 
-module.exports = 1000000
+module.exports = 1_000_000
