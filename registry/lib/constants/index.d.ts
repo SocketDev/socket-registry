@@ -6,6 +6,7 @@ import BUN from './bun'
 import bunCachePath from './bun-cache-path'
 import BUN_LOCK from './bun-lock'
 import BUN_LOCKB from './bun-lockb'
+import CHANGELOG_MD from './changelog-md'
 import CI from './ci'
 import COLUMN_LIMIT from './column-limit'
 import copyLeftLicenses from './copy-left-licenses'
@@ -145,6 +146,7 @@ declare const Constants: {
   readonly bunCachePath: typeof bunCachePath
   readonly BUN_LOCK: typeof BUN_LOCK
   readonly BUN_LOCKB: typeof BUN_LOCKB
+  readonly CHANGELOG_MD: typeof CHANGELOG_MD
   readonly CI: typeof CI
   readonly COLUMN_LIMIT: typeof COLUMN_LIMIT
   readonly DARWIN: typeof DARWIN

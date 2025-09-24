@@ -12,6 +12,7 @@ const props = {
   BUN_LOCK: 'bun.lock',
   BUN_LOCKB: 'bun.lockb',
   bunCachePath: undefined,
+  CHANGELOG_MD: 'CHANGELOG.md',
   CI: 'CI',
   COLUMN_LIMIT: 80,
   DARWIN: undefined,
