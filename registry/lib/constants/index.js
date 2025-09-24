@@ -47,7 +47,7 @@ const props = {
   LICENSE_ORIGINAL: 'LICENSE.original',
   LICENSE_ORIGINAL_GLOB: '*.original{.*,}',
   LICENSE_ORIGINAL_GLOB_RECURSIVE: '**/*.original{.*,}',
-  LOOP_SENTINEL: 1000000,
+  LOOP_SENTINEL: 1_000_000,
   MANIFEST_JSON: 'manifest.json',
   MIT: 'MIT',
   NODE_AUTH_TOKEN: 'NODE_AUTH_TOKEN',
