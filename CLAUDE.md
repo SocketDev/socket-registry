@@ -35,6 +35,12 @@ You are a **Principal Software Engineer** responsible for:
 - Scripts should use trash for safety (files go to system trash/recycle bin)
 - `trash` accepts arrays - optimize by collecting paths and passing as array
 
+### 1.5. Performance Critical Operations
+- This registry serves Socket's security analysis infrastructure
+- Optimize for speed without sacrificing correctness in package processing
+- Benchmark performance-sensitive changes against existing baselines
+- Avoid unnecessary allocations in hot paths
+
 ### 2. Package Manager Agent
 - `registry/lib/agent.js` (formerly npm.js) handles npm, pnpm, and yarn
 - Supports both Windows and Unix platforms
@@ -51,6 +57,9 @@ You are a **Principal Software Engineer** responsible for:
 - **Temp directories**: Use `os.tmpdir()` for temporary file paths in tests
   - ❌ WRONG: `'/tmp/test-project'` (POSIX-specific)
   - ✅ CORRECT: `path.join(os.tmpdir(), 'test-project')` (cross-platform)
+  - **Unique temp dirs**: Use `fs.mkdtemp()` or `fs.mkdtempSync()` for collision-free directories
+  - ✅ PREFERRED: `await fs.mkdtemp(path.join(os.tmpdir(), 'socket-test-'))` (async)
+  - ✅ ACCEPTABLE: `fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))` (sync)
 - **Path separators**: Never hard-code `/` or `\` in paths
   - Use `path.sep` when you need the separator character
   - Use `path.join()` to construct paths correctly
@@ -78,6 +87,7 @@ You are a **Principal Software Engineer** responsible for:
 - **Update dependencies**: `pnpm update`
 - **Workspace root**: Use `-w` flag when adding packages to workspace root
 - **🚨 MANDATORY**: Always add dependencies with exact versions using `--save-exact` flag to ensure reproducible builds
+- **Dependency validation**: All dependencies MUST be pinned to exact versions without range specifiers like `^` or `~`
 
 ### 6. Code Style
 - Follow existing patterns in the codebase
@@ -195,6 +205,26 @@ This is a monorepo for Socket.dev optimized package overrides, built with JavaSc
 - Test files use `.test.js` extension
 - Fixtures in `test/fixtures/`
 - Pre-commit hooks for quality assurance
+
+#### Vitest Memory Optimization (CRITICAL)
+- **Pool configuration**: Use `pool: 'forks'` with `singleFork: true`, `maxForks: 1`, `isolate: true`
+- **Memory limits**: Set `NODE_OPTIONS="--max-old-space-size=4096 --max-semi-space-size=512"` in `.env.test`
+- **Timeout settings**: Use `testTimeout: 60000, hookTimeout: 60000` for stability
+- **Thread limits**: Use `singleThread: true, maxThreads: 1` to prevent RegExp compiler exhaustion
+- **Test cleanup**: 🚨 MANDATORY - Import and use `trash` package: `import { trash } from 'trash'` then `await trash([paths])`
+
+### 🗑️ Safe File Operations (SECURITY CRITICAL)
+- **Import and use `trash` package**: `import { trash } from 'trash'` then `await trash(paths)`
+- **ALL deletion operations**: Use `await trash()` for scripts, tests, and any cleanup
+- **Array optimization**: `trash` accepts arrays - collect paths and pass as array
+- **Async requirement**: Always `await trash()` - it's an async operation
+- **NO rmSync**: 🚨 ABSOLUTELY FORBIDDEN - NEVER use `fs.rmSync()` or `rm -rf`
+- **Examples**:
+  - ❌ CATASTROPHIC: `rm -rf directory` (permanent deletion - DATA LOSS RISK)
+  - ❌ REPOSITORY DESTROYER: `rm -rf "$(pwd)"` (deletes entire repository)
+  - ❌ FORBIDDEN: `fs.rmSync(tmpDir, { recursive: true, force: true })` (test cleanup)
+  - ✅ SAFE: `await trash([tmpDir])` (recoverable deletion)
+- **Why this matters**: `trash` enables recovery from accidental deletions via system trash/recycle bin
 
 ## Environment and Configuration
 
