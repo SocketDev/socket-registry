@@ -27,5 +27,4 @@ jobs:
       debug: ${{ inputs.debug }}
       publish-script: 'package:npm:publish'
       setup-script: 'pnpm run build'
-    secrets:
-      npm_token: ${{ secrets.NPM_TOKEN }}
+      use-trusted-publishing: true

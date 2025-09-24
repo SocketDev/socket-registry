@@ -51,9 +51,14 @@ on:
         required: false
         type: number
         default: 10
+      use-trusted-publishing:
+        description: 'Use npm trusted publishing with OIDC instead of npm token'
+        required: false
+        type: boolean
+        default: false
     secrets:
       npm_token:
-        required: true
+        required: false
 
 permissions:
   contents: read
@@ -75,6 +80,10 @@ jobs:
             echo "Error: package-name is required when publish-script or access-script is not provided"
             exit 1
           fi
+          if [ "${{ inputs.use-trusted-publishing }}" = "false" ] && [ -z "${{ secrets.npm_token }}" ]; then
+            echo "Error: npm_token secret is required when use-trusted-publishing is false"
+            exit 1
+          fi
 
       - uses: SocketDev/socket-registry/.github/actions/setup-and-install@main
         with:
@@ -84,20 +93,47 @@ jobs:
           registry-url: ${{ inputs.registry-url }}
       - run: ${{ inputs.setup-script }}
         if: inputs.setup-script != ''
-      - run: pnpm config set //registry.npmjs.org/:_authToken ${{ secrets.npm_token }}
-      - run: pnpm run ${{ inputs.publish-script }}
-        if: inputs.publish-script != ''
+
+      - name: Setup npm authentication (token-based)
+        if: inputs.use-trusted-publishing == false
+        run: pnpm config set //registry.npmjs.org/:_authToken ${{ secrets.npm_token }}
+
+      - name: Publish with custom script (token-based)
+        if: inputs.publish-script != '' && inputs.use-trusted-publishing == false
+        run: pnpm run ${{ inputs.publish-script }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
-      - run: pnpm publish --provenance --access public --no-git-checks
-        if: inputs.publish-script == '' && inputs.package-name != ''
+
+      - name: Publish with custom script (trusted publishing)
+        if: inputs.publish-script != '' && inputs.use-trusted-publishing == true
+        run: pnpm run ${{ inputs.publish-script }}
+
+      - name: Publish package (token-based)
+        if: inputs.publish-script == '' && inputs.package-name != '' && inputs.use-trusted-publishing == false
+        run: pnpm publish --provenance --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
-      - run: pnpm run ${{ inputs.access-script }}
-        if: inputs.access-script != ''
+
+      - name: Publish package (trusted publishing)
+        if: inputs.publish-script == '' && inputs.package-name != '' && inputs.use-trusted-publishing == true
+        run: pnpm publish --access public --no-git-checks
+
+      - name: Set package access (token-based)
+        if: inputs.access-script != '' && inputs.use-trusted-publishing == false
+        run: pnpm run ${{ inputs.access-script }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
-      - run: pnpm access set mfa=automation ${{ inputs.package-name }}
-        if: inputs.access-script == '' && inputs.package-name != ''
+
+      - name: Set package access (trusted publishing)
+        if: inputs.access-script != '' && inputs.use-trusted-publishing == true
+        run: pnpm run ${{ inputs.access-script }}
+
+      - name: Set MFA automation (token-based)
+        if: inputs.access-script == '' && inputs.package-name != '' && inputs.use-trusted-publishing == false
+        run: pnpm access set mfa=automation ${{ inputs.package-name }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
+
+      - name: Set MFA automation (trusted publishing)
+        if: inputs.access-script == '' && inputs.package-name != '' && inputs.use-trusted-publishing == true
+        run: pnpm access set mfa=automation ${{ inputs.package-name }}
