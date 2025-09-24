@@ -203,7 +203,7 @@ void (async () => {
       if (licenseContents.length === 0) {
         const tgzUrl = await resolveGitHubTgzUrl(origPkgName, nmPkgJson)
         if (tgzUrl) {
-          extractPackage(tgzUrl, async tarDirPath => {
+          await extractPackage(tgzUrl, async tarDirPath => {
             licenseContents = await readLicenses(tarDirPath)
           })
         }
@@ -243,7 +243,7 @@ void (async () => {
     relJsFilepaths.includes('implementation.js') &&
     relJsFilepaths.includes('index.js') &&
     relJsFilepaths.includes('polyfill.js') &&
-    relJsFilepaths.includes('shim.js.js')
+    relJsFilepaths.includes('shim.js')
 
   let nodeRange
   let templateChoice
@@ -426,7 +426,8 @@ void (async () => {
     ) {
       filesFieldAdditions.push(originalLicenseName)
     }
-    fs.writeFile(path.join(pkgPath, originalLicenseName), content, UTF8)
+    // eslint-disable-next-line no-await-in-loop
+    await fs.writeFile(path.join(pkgPath, originalLicenseName), content, UTF8)
   }
   if (filesFieldAdditions.length) {
     // Load the freshly written package.json and edit its "exports" and "files" fields.

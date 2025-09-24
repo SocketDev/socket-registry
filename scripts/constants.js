@@ -126,8 +126,8 @@ const lazyRootPackageLockPath = () =>
 const lazyRootPackagesPath = () => path.join(constants.rootPath, 'packages')
 
 const lazyRootPath = () => {
-  // Find project root by looking for pnpm-workspace.yaml
-  // Start from current working directory and walk up
+  // Find project root by looking for pnpm-workspace.yaml.
+  // Start from current working directory and walk up.
   let currentPath = process.cwd()
   const root = path.parse(currentPath).root
 
@@ -138,7 +138,7 @@ const lazyRootPath = () => {
     currentPath = path.dirname(currentPath)
   }
 
-  // Fallback if not found (shouldn't happen in normal operation)
+  // Fallback if not found (shouldn't happen in normal operation).
   return path.resolve(__dirname, '..')
 }
 

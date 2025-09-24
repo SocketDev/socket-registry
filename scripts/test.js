@@ -69,8 +69,8 @@ void (async () => {
 
         if (setupResult.status) {
           logger.error('Failed to set up test environment')
-          // eslint-disable-next-line n/no-process-exit
-          process.exit(1)
+          process.exitCode = 1
+          return
         }
       }
     }
@@ -112,12 +112,10 @@ void (async () => {
     })
 
     child.on('exit', code => {
-      // eslint-disable-next-line n/no-process-exit
-      process.exit(code || 0)
+      process.exitCode = code || 0
     })
   } catch (e) {
     logger.error('Error running tests:', e)
-    // eslint-disable-next-line n/no-process-exit
-    process.exit(1)
+    process.exitCode = 1
   }
 })()
