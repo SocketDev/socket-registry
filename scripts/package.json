@@ -6,10 +6,12 @@
   "exports": {
     "./constants": {
       "import": "./constants.mjs",
+      "module-sync": "./constants.mjs",
       "types": "./constants.d.ts"
     },
     "./lib/*": {
       "import": "./lib/*.mjs",
+      "module-sync": "./lib/*.mjs",
       "types": "./lib/*.d.ts"
     }
   },
