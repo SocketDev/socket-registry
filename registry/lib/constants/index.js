@@ -7,7 +7,6 @@ const { toKebabCase } = /*@__PURE__*/ require('../strings')
 const props = {
   // Lazily defined values are initialized as `undefined` to keep their key order.
   AT_LATEST: '@latest',
-  BIOME_JSON: 'biome.json',
   BUN: 'bun',
   BUN_LOCK: 'bun.lock',
   BUN_LOCKB: 'bun.lockb',
@@ -55,6 +54,7 @@ const props = {
   NODE_ENV: 'NODE_ENV',
   NODE_MODULES: 'node_modules',
   NODE_MODULES_GLOB_RECURSIVE: '**/node_modules',
+  NODE_SEA_FUSE: 'NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2',
   NODE_VERSION: undefined,
   NPM: 'npm',
   npmLifecycleEvent: undefined,
