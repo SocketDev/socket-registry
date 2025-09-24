@@ -27,45 +27,60 @@ void (async () => {
   }
 
   const fails = []
-  const packages = [
+  const trustedPublishingPackages = [
     packageData({
       name: '@socketsecurity/registry',
       path: constants.registryPkgPath,
+      isTrustedPublisher: true,
     }),
-    ...constants.npmPackageNames.map(sockRegPkgName =>
-      packageData({
-        name: `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`,
-        path: path.join(constants.npmPackagesPath, sockRegPkgName),
-        printName: sockRegPkgName,
-      }),
-    ),
   ]
 
-  // Chunk package names to process them in parallel 3 at a time.
-  await pEach(
-    packages,
-    async pkg => {
-      try {
-        const stdout = (
-          await execNpm(['access', 'set', 'mfa=automation', pkg.name], {
-            cwd: pkg.path,
-            env: {
-              ...process.env,
-              NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN,
-            },
-          })
-        ).stdout
-        logger.log(stdout)
-      } catch (e) {
-        const stderr = e?.stderr ?? ''
-        fails.push(pkg.printName)
-        if (stderr) {
-          logger.log(stderr)
-        }
-      }
-    },
-    { concurrency: 3 },
+  const tokenBasedPackages = constants.npmPackageNames.map(sockRegPkgName =>
+    packageData({
+      name: `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`,
+      path: path.join(constants.npmPackagesPath, sockRegPkgName),
+      printName: sockRegPkgName,
+      isTrustedPublisher: false,
+    }),
   )
+
+  // Process trusted publishing packages (skip MFA automation as it requires npm_token).
+  logger.log('Skipping MFA automation for trusted publishing packages:')
+  for (const pkg of trustedPublishingPackages) {
+    logger.log(
+      `  ${pkg.printName}: Trusted publishing uses OIDC tokens which don't support npm access commands. ` +
+        'MFA settings should be configured through npm web interface.',
+    )
+  }
+
+  // Process token-based packages with MFA automation.
+  if (tokenBasedPackages.length) {
+    logger.log('Setting MFA automation for token-based packages...')
+    await pEach(
+      tokenBasedPackages,
+      async pkg => {
+        try {
+          const stdout = (
+            await execNpm(['access', 'set', 'mfa=automation', pkg.name], {
+              cwd: pkg.path,
+              env: {
+                ...process.env,
+                NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN,
+              },
+            })
+          ).stdout
+          logger.log(stdout)
+        } catch (e) {
+          const stderr = e?.stderr ?? ''
+          fails.push(pkg.printName)
+          if (stderr) {
+            logger.log(stderr)
+          }
+        }
+      },
+      { concurrency: 3 },
+    )
+  }
 
   if (fails.length) {
     const msg = `Unable to set access for ${fails.length} ${pluralize('package', fails.length)}:`
