@@ -6,6 +6,7 @@ const util = require('node:util')
 const constants = require('@socketregistry/scripts/constants')
 const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
 const { logger } = require('@socketsecurity/registry/lib/logger')
+const { isObjectObject } = require('@socketsecurity/registry/lib/objects')
 const { spawn } = require('@socketsecurity/registry/lib/spawn')
 const {
   getReleaseTag,
@@ -25,12 +26,44 @@ const {
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
 function packageData(data) {
-  const { printName = data.name, tag = LATEST } = data
-  return Object.assign(data, { printName, tag })
+  const {
+    isTrustedPublisher = false,
+    printName = data.name,
+    tag = LATEST,
+  } = data
+  return Object.assign(data, { isTrustedPublisher, printName, tag })
 }
 
-async function publish(pkg, state = { fails: [] }) {
+async function publishTrusted(pkg, state) {
+  if (!isObjectObject(state)) {
+    throw new TypeError('A state object is required.')
+  }
   try {
+    // Use npm for trusted publishing with OIDC tokens.
+    const result = await spawn('npm', ['publish', '--access', 'public'], {
+      cwd: pkg.path,
+      // Don't set NODE_AUTH_TOKEN for trusted publishing - uses OIDC.
+    })
+    if (result.stdout) {
+      logger.log(result.stdout)
+    }
+  } catch (e) {
+    const stderr = e?.stderr ?? ''
+    if (!stderr.includes('cannot publish over')) {
+      state.fails.push(pkg.printName)
+      if (stderr) {
+        logger.log(stderr)
+      }
+    }
+  }
+}
+
+async function publishToken(pkg, state) {
+  if (!isObjectObject(state)) {
+    throw new TypeError('A state object is required.')
+  }
+  try {
+    // Use pnpm with token-based authentication and provenance.
     const result = await spawn(
       'pnpm',
       [
@@ -64,7 +97,15 @@ async function publish(pkg, state = { fails: [] }) {
   }
 }
 
-async function publishPackages(packages, state = { fails: [] }) {
+async function publish(pkg, state) {
+  if (pkg.isTrustedPublisher) {
+    await publishTrusted(pkg, state)
+  } else {
+    await publishToken(pkg, state)
+  }
+}
+
+async function publishPackages(packages, state) {
   const okayPackages = packages.filter(
     pkg => !state.fails.includes(pkg.printName),
   )
@@ -86,7 +127,11 @@ void (async () => {
 
   const fails = []
   const packages = [
-    packageData({ name: '@socketsecurity/registry', path: registryPkgPath }),
+    packageData({
+      name: '@socketsecurity/registry',
+      path: registryPkgPath,
+      isTrustedPublisher: true,
+    }),
     ...constants.npmPackageNames.map(sockRegPkgName => {
       const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
       const pkgJson = readPackageJsonSync(pkgPath)
@@ -95,6 +140,7 @@ void (async () => {
         path: pkgPath,
         printName: sockRegPkgName,
         tag: getReleaseTag(pkgJson.version),
+        isTrustedPublisher: false,
       })
     }),
   ]
