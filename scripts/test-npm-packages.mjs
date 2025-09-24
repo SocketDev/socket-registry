@@ -34,6 +34,10 @@ const { values: cliArgs } = util.parseArgs({
       // Reduce concurrency in CI to avoid memory issues.
       default: process.env.CI ? '1' : '3',
     },
+    force: {
+      type: 'boolean',
+      default: false,
+    },
   },
 })
 
@@ -308,7 +312,7 @@ async function main() {
     skipped.forEach(r => logger.log(`   ${r.package}`))
   }
 
-  if (failed.length > 0) {
+  if (failed.length) {
     logger.fail(
       `Failed: ${failed.length}/${totalTested} (${results.length} total)`,
     )
@@ -322,7 +326,8 @@ async function main() {
   }
 
   // Set exit code for process termination.
-  process.exitCode = failed.length > 0 ? 1 : 0
+  // With --force flag, always exit with 0 regardless of failures.
+  process.exitCode = cliArgs.force ? 0 : failed.length ? 1 : 0
 }
 
 main().catch(error => {
