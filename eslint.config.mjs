@@ -1,35 +1,30 @@
-'use strict'
+import { createRequire } from 'node:module'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const path = require('node:path')
-
-const {
+import {
   convertIgnorePatternToMinimatch,
   includeIgnoreFile,
-} = require('@eslint/compat')
-const js = require('@eslint/js')
-const {
-  createTypeScriptImportResolver,
-} = require('eslint-import-resolver-typescript')
-const importXPlugin = require('eslint-plugin-import-x')
-const nodePlugin = require('eslint-plugin-n')
-const sortDestructureKeysPlugin = require('eslint-plugin-sort-destructure-keys')
-const unicornPlugin = require('eslint-plugin-unicorn')
-const globals = require('globals')
-const { globSync } = require('fast-glob')
-const tsEslint = require('typescript-eslint')
+} from '@eslint/compat'
+import js from '@eslint/js'
+import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript'
+import importXPlugin from 'eslint-plugin-import-x'
+import nodePlugin from 'eslint-plugin-n'
+import sortDestructureKeysPlugin from 'eslint-plugin-sort-destructure-keys'
+import unicornPlugin from 'eslint-plugin-unicorn'
+import globals from 'globals'
+import fastGlob from 'fast-glob'
+import tsEslint from 'typescript-eslint'
 
-const constants = require('@socketregistry/scripts/constants')
-const { readPackageJsonSync } = require('@socketsecurity/registry/lib/packages')
+import constants from '@socketregistry/scripts/constants'
+import { readPackageJsonSync } from '@socketsecurity/registry/lib/packages'
 
-const {
-  BIOME_JSON,
-  GITIGNORE,
-  LATEST,
-  gitIgnoreFile,
-  npmPackagesPath,
-  relNpmPackagesPath,
-  rootTsConfigPath,
-} = constants
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const require = createRequire(import.meta.url)
+
+const { gitIgnoreFile, npmPackagesPath, relNpmPackagesPath, rootTsConfigPath } =
+  constants
 
 const { flatConfigs: origImportXFlatConfigs } = importXPlugin
 
@@ -39,7 +34,7 @@ const nodeGlobalsConfig = Object.fromEntries(
   Object.entries(globals.node).map(([k]) => [k, 'readonly']),
 )
 
-const biomeConfigPath = path.join(rootPath, BIOME_JSON)
+const biomeConfigPath = path.join(rootPath, 'biome.json')
 const biomeConfig = require(biomeConfigPath)
 const biomeIgnores = {
   name: 'Imported biome.json ignore patterns',
@@ -48,8 +43,11 @@ const biomeIgnores = {
     .map(p => convertIgnorePatternToMinimatch(p.slice(1))),
 }
 
-const gitignorePath = path.join(rootPath, GITIGNORE)
-const gitIgnores = includeIgnoreFile(gitignorePath)
+const gitignorePath = path.join(rootPath, '.gitignore')
+const gitIgnores = {
+  ...includeIgnoreFile(gitignorePath),
+  name: `Imported .gitignore ignore patterns`,
+}
 
 if (process.env.LINT_EXTERNAL) {
   const isNotExternalGlobPattern = p => !/(?:^|[\\/])external/.test(p)
@@ -67,7 +65,7 @@ function getIgnores(isEsm) {
     } else if (!isEsm) {
       ignored.push(`${relNpmPackagesPath}/${sockRegPkgName}/*.mjs`)
       if (
-        globSync(['**/*.cjs'], {
+        fastGlob.globSync(['**/*.cjs'], {
           cwd: pkgPath,
           ignores: constants.ignoreGlobs,
         }).length
@@ -85,7 +83,7 @@ function getImportXFlatConfigs(isEsm) {
       ...origImportXFlatConfigs.recommended,
       languageOptions: {
         ...origImportXFlatConfigs.recommended.languageOptions,
-        ecmaVersion: LATEST,
+        ecmaVersion: 'latest',
         sourceType: isEsm ? 'module' : 'script',
       },
     },
@@ -255,7 +253,7 @@ function configs(sourceType) {
       languageOptions: {
         ...js.configs.recommended.languageOptions,
         ...importFlatConfigs.typescript.languageOptions,
-        ecmaVersion: LATEST,
+        ecmaVersion: 'latest',
         sourceType,
         parser: tsEslint.parser,
         parserOptions: {
@@ -323,7 +321,7 @@ function configs(sourceType) {
   ]
 }
 
-module.exports = [
+export default [
   gitIgnoreFile,
   biomeIgnores,
   {
