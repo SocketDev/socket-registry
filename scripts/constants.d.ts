@@ -18,6 +18,7 @@ declare const Constants: Remap<
         readonly VERBOSE_BUILD: boolean
       }
     >
+    readonly BIOME_JSON: 'biome.json'
     readonly DEFAULT_CONCURRENCY: 3
     readonly LICENSE_CONTENT: string
     readonly PACKAGES: 'packages'
