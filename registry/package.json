@@ -141,6 +141,10 @@
       "types": "./lib/constants/bun-lockb.d.ts",
       "default": "./lib/constants/bun-lockb.js"
     },
+    "./lib/constants/changelog-md": {
+      "types": "./lib/constants/changelog-md.d.ts",
+      "default": "./lib/constants/changelog-md.js"
+    },
     "./lib/constants/ci": {
       "types": "./lib/constants/ci.d.ts",
       "default": "./lib/constants/ci.js"
