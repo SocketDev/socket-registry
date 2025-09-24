@@ -114,9 +114,23 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
 
+      - name: Ensure npm version 11.5.1+ for trusted publishing
+        if: inputs.use-trusted-publishing == true
+        run: |
+          NPM_VERSION=$(npm --version)
+          echo "Current npm version: $NPM_VERSION"
+          # Check if npm version is >= 11.5.1
+          if ! npx --yes semver "$NPM_VERSION" -r ">=11.5.1"; then
+            echo "Installing npm 11.5.1+ for trusted publishing..."
+            npm install -g npm@latest
+            echo "Updated npm version: $(npm --version)"
+          else
+            echo "npm version $NPM_VERSION meets the 11.5.1+ requirement for trusted publishing"
+          fi
+
       - name: Publish package (trusted publishing)
         if: inputs.publish-script == '' && inputs.package-name != '' && inputs.use-trusted-publishing == true
-        run: pnpm publish --access public --no-git-checks
+        run: npm publish --access public
 
       - name: Set package access (token-based)
         if: inputs.access-script != '' && inputs.use-trusted-publishing == false
@@ -136,4 +150,4 @@ jobs:
 
       - name: Set MFA automation (trusted publishing)
         if: inputs.access-script == '' && inputs.package-name != '' && inputs.use-trusted-publishing == true
-        run: pnpm access set mfa=automation ${{ inputs.package-name }}
+        run: npm access set mfa=automation ${{ inputs.package-name }}
