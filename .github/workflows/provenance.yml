@@ -150,4 +150,7 @@ jobs:
 
       - name: Set MFA automation (trusted publishing)
         if: inputs.access-script == '' && inputs.package-name != '' && inputs.use-trusted-publishing == true
-        run: npm access set mfa=automation ${{ inputs.package-name }}
+        run: |
+          echo "Skipping MFA automation - npm access commands require npm_token authentication"
+          echo "Trusted publishing uses OIDC tokens which don't support npm access commands"
+          echo "MFA settings should be configured through npm web interface for trusted publishing"
