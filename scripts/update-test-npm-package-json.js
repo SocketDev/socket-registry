@@ -1,6 +1,7 @@
 'use strict'
 
 const { existsSync, promises: fs, realpathSync } = require('node:fs')
+const os = require('node:os')
 const path = require('node:path')
 const util = require('node:util')
 
@@ -65,6 +66,8 @@ const { values: cliArgs } = util.parseArgs(
   }),
 )
 
+const MAX_CACHE_SIZE = 100
+
 const editablePackageJsonCache = new Map()
 
 async function installAndMergePackage(pkgName, pkgVersion, options) {
@@ -94,16 +97,15 @@ async function installAndMergePackage(pkgName, pkgVersion, options) {
     }
   }
 
+  let tempPath
   try {
     // Use pnpm to install the package.
     spinner?.start(`Installing ${pkgName}@${pkgVersion}...`)
 
     // Install package to a temp location first.
-    const tempPath = path.join(
-      testNpmPath,
-      `.tmp-${socketPkgName}-${Date.now()}`,
+    tempPath = await fs.mkdtemp(
+      path.join(os.tmpdir(), `socket-test-${socketPkgName}-`)
     )
-    await fs.mkdir(tempPath, { recursive: true })
 
     // Create a minimal package.json in temp directory.
     await fs.writeFile(
@@ -176,12 +178,10 @@ async function installAndMergePackage(pkgName, pkgVersion, options) {
 
     spinner?.stop()
   } catch (error) {
-    // Clean up any temp directories on error.
-    const tempPath = path.join(
-      testNpmPath,
-      `.tmp-${socketPkgName}-${Date.now()}`,
-    )
-    await safeRemove(tempPath)
+    // Clean up temp directory on error if it was created.
+    if (tempPath) {
+      await safeRemove(tempPath)
+    }
     throw error
   }
 }
@@ -218,16 +218,24 @@ async function installTestNpmNodeModules(options) {
     // If specs are provided, only install those packages.
     const packagesToInstall = specs
       ? specs.map(spec => {
-          // Handle scoped packages correctly (e.g., @hyrious/bun.lockb@version).
-          const atIndex = spec.startsWith('@')
-            ? spec.indexOf('@', 1)
-            : spec.indexOf('@')
-          const pkgName = atIndex === -1 ? spec : spec.slice(0, atIndex)
-          const version =
-            atIndex === -1
-              ? devDependencies[pkgName] || 'latest'
-              : spec.slice(atIndex + 1)
-          return { name: pkgName, version: devDependencies[pkgName] || version }
+          // Handle scoped packages correctly using npm-package-arg.
+          try {
+            const parsed = npmPackageArg(spec)
+            const pkgName = parsed.name
+            const version = parsed.fetchSpec || devDependencies[pkgName] || 'latest'
+            return { name: pkgName, version: devDependencies[pkgName] || version }
+          } catch {
+            // Fallback for malformed package specs.
+            const atIndex = spec.startsWith('@')
+              ? spec.indexOf('@', 1)
+              : spec.indexOf('@')
+            const pkgName = atIndex === -1 ? spec : spec.slice(0, atIndex)
+            const version =
+              atIndex === -1
+                ? devDependencies[pkgName] || 'latest'
+                : spec.slice(atIndex + 1)
+            return { name: pkgName, version: devDependencies[pkgName] || version }
+          }
         })
       : Object.entries(devDependencies).map(({ 0: name, 1: version }) => ({
           name,
@@ -453,6 +461,12 @@ async function readCachedEditablePackageJson(filepath_) {
     editable: true,
     normalize: true,
   })
+  // Implement cache size limit to prevent memory leaks.
+  if (editablePackageJsonCache.size >= MAX_CACHE_SIZE) {
+    // Remove oldest entry (first key) when cache is full.
+    const firstKey = editablePackageJsonCache.keys().next().value
+    editablePackageJsonCache.delete(firstKey)
+  }
   editablePackageJsonCache.set(filepath, result)
   return result
 }

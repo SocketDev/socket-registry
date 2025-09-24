@@ -35,13 +35,13 @@ const { values: cliArgs } = util.parseArgs({
   },
 })
 
-const concurrency = parseInt(cliArgs.concurrency, 10)
+const concurrency = Math.max(1, parseInt(cliArgs.concurrency, 10) || 3)
 
 async function runCommand(command, args, options = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
       stdio: 'pipe',
-      shell: process.platform === 'win32',
+      shell: process.platform.startsWith('win'),
       ...options,
     })
 
@@ -228,7 +228,7 @@ async function testPackage(socketPkgName) {
     const rootBinPath = path.join(constants.rootPath, 'node_modules', '.bin')
     const env = {
       ...process.env,
-      PATH: `${rootBinPath}:${process.env.PATH}`,
+      PATH: `${rootBinPath}${path.delimiter}${process.env.PATH}`,
     }
 
     await runCommand('npm', ['test'], { cwd: installedPath, env })
@@ -314,17 +314,16 @@ async function main() {
       logger.log(`   ${r.package}: ${r.reason?.substring(0, 50)}...`),
     )
   } else if (totalTested > 0) {
-    // All non-skipped tests passed!
+    // All non-skipped tests passed.
     logger.log('')
     logger.success('🎉 All tests passed! (excluding skipped packages)')
   }
 
-  // eslint-disable-next-line n/no-process-exit
-  process.exit(failed.length > 0 ? 1 : 0)
+  // Set exit code for process termination.
+  process.exitCode = failed.length > 0 ? 1 : 0
 }
 
 main().catch(error => {
   logger.error('Fatal error:', error)
-  // eslint-disable-next-line n/no-process-exit
-  process.exit(1)
+  process.exitCode = 1
 })
