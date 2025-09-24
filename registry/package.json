@@ -121,10 +121,6 @@
       "types": "./lib/constants/at-latest.d.ts",
       "default": "./lib/constants/at-latest.js"
     },
-    "./lib/constants/biome-json": {
-      "types": "./lib/constants/biome-json.d.ts",
-      "default": "./lib/constants/biome-json.js"
-    },
     "./lib/constants/bun": {
       "types": "./lib/constants/bun.d.ts",
       "default": "./lib/constants/bun.js"
@@ -368,6 +364,10 @@
     "./lib/constants/node-no-warnings-flags": {
       "types": "./lib/constants/node-no-warnings-flags.d.ts",
       "default": "./lib/constants/node-no-warnings-flags.js"
+    },
+    "./lib/constants/node-sea-fuse": {
+      "types": "./lib/constants/node-sea-fuse.d.ts",
+      "default": "./lib/constants/node-sea-fuse.js"
     },
     "./lib/constants/node-version": {
       "types": "./lib/constants/node-version.d.ts",

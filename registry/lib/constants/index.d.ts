@@ -1,7 +1,6 @@
 import abortController from './abort-controller'
 import abortSignal from './abort-signal'
 import AT_LATEST from './at-latest'
-import BIOME_JSON from './biome-json'
 import BUN from './bun'
 import bunCachePath from './bun-cache-path'
 import BUN_LOCK from './bun-lock'
@@ -59,6 +58,7 @@ import nodeHardenFlags from './node-harden-flags'
 import NODE_MODULES from './node-modules'
 import NODE_MODULES_GLOB_RECURSIVE from './node-modules-glob-recursive'
 import nodeNoWarningsFlags from './node-no-warnings-flags'
+import NODE_SEA_FUSE from './node-sea-fuse'
 import NODE_VERSION from './node-version'
 import NPM from './npm'
 import npmExecPath from './npm-exec-path'
@@ -141,7 +141,6 @@ declare const Constants: {
   readonly [kInternalsSymbol]: Internals
   readonly 'Symbol(kInternalsSymbol)': Internals
   readonly AT_LATEST: typeof AT_LATEST
-  readonly BIOME_JSON: typeof BIOME_JSON
   readonly BUN: typeof BUN
   readonly bunCachePath: typeof bunCachePath
   readonly BUN_LOCK: typeof BUN_LOCK
@@ -190,6 +189,7 @@ declare const Constants: {
   readonly NODE_ENV: typeof NODE_ENV
   readonly NODE_MODULES: typeof NODE_MODULES
   readonly NODE_MODULES_GLOB_RECURSIVE: typeof NODE_MODULES_GLOB_RECURSIVE
+  readonly NODE_SEA_FUSE: typeof NODE_SEA_FUSE
   readonly NODE_VERSION: typeof NODE_VERSION
   readonly NPM: typeof NPM
   readonly npmLifecycleEvent: typeof npmLifecycleEvent
