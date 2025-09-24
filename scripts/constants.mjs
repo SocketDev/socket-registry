@@ -1,15 +1,15 @@
 'use strict'
 
-const { freeze: ObjectFreeze } = Object
+import { createRequire } from 'node:module'
+import fs from 'node:fs'
+import path from 'node:path'
+import { includeIgnoreFile } from '@eslint/compat'
+import which from 'which'
+import registryConstants from '@socketsecurity/registry/lib/constants'
+import { whichBinSync } from '@socketsecurity/registry/lib/agent'
+import { envAsBoolean } from '@socketsecurity/registry/lib/env'
 
-const fs = require('node:fs')
-const path = require('node:path')
-
-const eslintCompat = require('@eslint/compat')
-const registryConstants = require('@socketsecurity/registry/lib/constants')
-const { whichBinSync } = require('@socketsecurity/registry/lib/agent')
-const { envAsBoolean } = require('@socketsecurity/registry/lib/env')
-const which = require('which')
+const require = createRequire(import.meta.url)
 
 const {
   ESLINT_CONFIG_JS,
@@ -59,19 +59,18 @@ const LAZY_LICENSE_CONTENT = () =>
   fs.readFileSync(constants.rootLicensePath, UTF8)
 
 const lazyEcosystems = () => {
-  // Lazily require('@socketsecurity/registry/lib/fs').
   const registryLibFs = /*@__PURE__*/ require('@socketsecurity/registry/lib/fs')
   const readDirNamesSync = registryLibFs.readDirNamesSync
-  return ObjectFreeze(readDirNamesSync(constants.rootPackagesPath))
+  return Object.freeze(readDirNamesSync(constants.rootPackagesPath))
 }
 
 const lazyGitExecPath = () => which.sync('git', { ...getDefaultWhichOptions() })
 
 const lazyGitIgnoreFile = () =>
-  eslintCompat.includeIgnoreFile(path.join(constants.rootPath, GITIGNORE))
+  includeIgnoreFile(path.join(constants.rootPath, GITIGNORE))
 
 const lazyIgnoreGlobs = () =>
-  ObjectFreeze([
+  Object.freeze([
     ...new Set([
       // Most of these ignored files can be included specifically if included in the
       // files globs. Exceptions to this are:
@@ -88,10 +87,9 @@ const lazyIgnoreGlobs = () =>
   ])
 
 const lazyNpmPackageNames = () => {
-  // Lazily require('@socketsecurity/registry/lib/fs').
   const registryLibFs = /*@__PURE__*/ require('@socketsecurity/registry/lib/fs')
   const readDirNamesSync = registryLibFs.readDirNamesSync
-  return ObjectFreeze(readDirNamesSync(constants.npmPackagesPath))
+  return Object.freeze(readDirNamesSync(constants.npmPackagesPath))
 }
 
 const lazyNpmPackagesPath = () => path.join(constants.rootPackagesPath, NPM)
@@ -362,4 +360,5 @@ const constants = createConstantsObject(
     mixin: registryConstants,
   },
 )
-module.exports = constants
+
+export { constants as default }

@@ -1,26 +1,27 @@
 'use strict'
 
-const { promises: fs } = require('node:fs')
-const path = require('node:path')
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
 
-const semver = require('semver')
-const { glob } = require('fast-glob')
+import fastGlob from 'fast-glob'
+import semver from 'semver'
 
-const { PackageURL } = require('@socketregistry/packageurl-js')
-const constants = require('@socketregistry/scripts/constants')
-const { getManifestData } = require('@socketsecurity/registry')
-const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
-const { globStreamLicenses } = require('@socketsecurity/registry/lib/globs')
-const { isObjectObject } = require('@socketsecurity/registry/lib/objects')
-const {
+import { PackageURL } from '@socketregistry/packageurl-js'
+import { getManifestData } from '@socketsecurity/registry'
+import { joinAnd } from '@socketsecurity/registry/lib/arrays'
+import { globStreamLicenses } from '@socketsecurity/registry/lib/globs'
+import { isObjectObject } from '@socketsecurity/registry/lib/objects'
+import {
   readPackageJson,
   resolveOriginalPackageName,
-} = require('@socketsecurity/registry/lib/packages')
-const {
+} from '@socketsecurity/registry/lib/packages'
+import {
   capitalize,
   determineArticle,
-} = require('@socketsecurity/registry/lib/words')
-const { biomeFormat } = require('./biome')
+} from '@socketsecurity/registry/lib/words'
+
+import constants from '@socketregistry/scripts/constants'
+import { biomeFormat } from './biome.mjs'
 
 const {
   EXT_JSON,
@@ -39,9 +40,15 @@ const {
   UTF8,
 } = constants
 
-const etaExport = /*@__PURE__*/ require('eta')
-const EtaCtor = etaExport.Eta
-const eta = new EtaCtor()
+let eta
+async function getEta() {
+  if (!eta) {
+    const etaExport = await import('eta')
+    const EtaCtor = etaExport.Eta
+    eta = new EtaCtor()
+  }
+  return eta
+}
 
 let _templates
 function getTemplates() {
@@ -150,7 +157,7 @@ async function getPackageJsonAction(pkgPath, options) {
 async function getTypeScriptActions(pkgPath, options) {
   const { references, transform } = { __proto__: null, ...options }
   const doTransform = typeof transform === 'function'
-  const filepaths = await glob(['**/*.{[cm],}ts'], {
+  const filepaths = await fastGlob.glob(['**/*.{[cm],}ts'], {
     absolute: true,
     cwd: pkgPath,
   })
@@ -190,7 +197,8 @@ async function renderAction(action) {
   const ext = path.extname(filepath)
   const content = await fs.readFile(filepath, UTF8)
   const prepared = prepareTemplate(content)
-  const modified = await eta.renderStringAsync(prepared, data)
+  const etaInstance = await getEta()
+  const modified = await etaInstance.renderStringAsync(prepared, data)
   return ext === EXT_JSON || ext === EXT_MD
     ? await biomeFormat(modified, { filepath })
     : modified
@@ -201,7 +209,7 @@ async function writeAction(action) {
   return await fs.writeFile(filepath, await renderAction(action), UTF8)
 }
 
-module.exports = {
+export {
   getLicenseActions,
   getNpmReadmeAction,
   getPackageJsonAction,

@@ -211,10 +211,10 @@ This is a monorepo for Socket.dev optimized package overrides, built with JavaSc
 - **Memory limits**: Set `NODE_OPTIONS="--max-old-space-size=4096 --max-semi-space-size=512"` in `.env.test`
 - **Timeout settings**: Use `testTimeout: 60000, hookTimeout: 60000` for stability
 - **Thread limits**: Use `singleThread: true, maxThreads: 1` to prevent RegExp compiler exhaustion
-- **Test cleanup**: 🚨 MANDATORY - Import and use `trash` package: `import { trash } from 'trash'` then `await trash([paths])`
+- **Test cleanup**: 🚨 MANDATORY - Import and use `trash` package: `import trash from 'trash'` then `await trash([paths])`
 
 ### 🗑️ Safe File Operations (SECURITY CRITICAL)
-- **Import and use `trash` package**: `import { trash } from 'trash'` then `await trash(paths)`
+- **Import and use `trash` package**: `import trash from 'trash'` then `await trash(paths)`
 - **ALL deletion operations**: Use `await trash()` for scripts, tests, and any cleanup
 - **Array optimization**: `trash` accepts arrays - collect paths and pass as array
 - **Async requirement**: Always `await trash()` - it's an async operation

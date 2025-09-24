@@ -1,9 +1,9 @@
 'use strict'
 
-const fs = require('node:fs/promises')
-const path = require('node:path')
+import fs from 'node:fs/promises'
+import path from 'node:path'
 
-const { logger } = require('@socketsecurity/registry/lib/logger')
+import { logger } from '@socketsecurity/registry/lib/logger'
 
 const GITHUB_PATH = '.github'
 const WORKFLOWS_PATH = path.join(GITHUB_PATH, 'workflows')

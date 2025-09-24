@@ -4,7 +4,7 @@ import path from 'node:path'
 import util from 'node:util'
 
 import { fix } from '@npmcli/package-json'
-import { glob } from 'fast-glob'
+import fastGlob from 'fast-glob'
 import semver from 'semver'
 import { describe, expect, it } from 'vitest'
 
@@ -138,7 +138,7 @@ for (const eco of constants.ecosystems) {
           | undefined
 
         const files = (
-          await glob(['**/*'], {
+          await fastGlob.glob(['**/*'], {
             cwd: pkgPath,
             dot: true,
           })
@@ -334,7 +334,7 @@ for (const eco of constants.ecosystems) {
           ? filesPatterns
           : []
         const filesFieldMatches = (
-          await glob(
+          await fastGlob.glob(
             [
               // Certain files are always included, regardless of settings:
               // https://docs.npmjs.com/cli/v10/configuring-npm/package-json#files
@@ -354,7 +354,7 @@ for (const eco of constants.ecosystems) {
 
         const dotFilePatterns = filesPatternsAsArray.filter(isDotPattern)
         const dotFileMatches = new Set(
-          await glob(dotFilePatterns, {
+          await fastGlob.glob(dotFilePatterns, {
             cwd: pkgPath,
             dot: true,
           }),

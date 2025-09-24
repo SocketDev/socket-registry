@@ -1,11 +1,13 @@
 'use strict'
 
-const path = require('node:path')
+import { createRequire } from 'node:module'
+import path from 'node:path'
 
+import constants from '@socketregistry/scripts/constants'
+
+const require = createRequire(import.meta.url)
 const { glob } = require('fast-glob')
-
 const builtinNames = require('@socketregistry/packageurl-js/data/npm/builtin-names.json')
-const constants = require('@socketregistry/scripts/constants')
 const { toSortedObject } = require('@socketsecurity/registry/lib/objects')
 const { readPackageJson } = require('@socketsecurity/registry/lib/packages')
 

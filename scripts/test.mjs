@@ -8,14 +8,15 @@
  */
 'use strict'
 
-const { spawn, spawnSync } = require('node:child_process')
-const { existsSync } = require('node:fs')
-const path = require('node:path')
+import { spawn, spawnSync } from 'node:child_process'
+import { existsSync } from 'node:fs'
+import path from 'node:path'
 
-const fastGlob = require('fast-glob')
+import fastGlob from 'fast-glob'
 
-const constants = require('@socketregistry/scripts/constants')
-const { logger } = require('@socketsecurity/registry/lib/logger')
+import { logger } from '@socketsecurity/registry/lib/logger'
+
+import constants from '@socketregistry/scripts/constants'
 
 void (async () => {
   const { WIN32 } = constants

@@ -1,13 +1,13 @@
 'use strict'
 
-const fs = require('node:fs/promises')
-const path = require('node:path')
-const util = require('node:util')
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import util from 'node:util'
 
-const { glob } = require('fast-glob')
+import fastGlob from 'fast-glob'
 
-const constants = require('@socketregistry/scripts/constants')
-const { getModifiedFiles } = require('@socketregistry/scripts/lib/git')
+import constants from '@socketregistry/scripts/constants'
+import { getModifiedFiles } from '@socketregistry/scripts/lib/git'
 
 const { EMPTY_FILE, UTF8 } = constants
 
@@ -24,7 +24,7 @@ void (async () => {
   if (!cliArgs.force && !modifiedAutoFile) {
     return
   }
-  const autoFiles = await glob([AUTO_FILE_GLOB_RECURSIVE], {
+  const autoFiles = await fastGlob.glob([AUTO_FILE_GLOB_RECURSIVE], {
     ignore: ignoreGlobs,
     absolute: true,
     cwd: npmTemplatesPath,
@@ -45,7 +45,7 @@ void (async () => {
   )
   await Promise.all(
     (
-      await glob(['**/*.{d.ts,js}'], {
+      await fastGlob.glob(['**/*.{d.ts,js}'], {
         ignore: [AUTO_FILE_GLOB_RECURSIVE, ...ignoreGlobs],
         absolute: true,
         cwd: constants.rootPath,

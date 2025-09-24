@@ -4,8 +4,14 @@
   "private": true,
   "description": "Scripts for Socket Registry monorepo",
   "exports": {
-    "./constants": "./constants.js",
-    "./lib/*": "./lib/*.js"
+    "./constants": {
+      "import": "./constants.mjs",
+      "types": "./constants.d.ts"
+    },
+    "./lib/*": {
+      "import": "./lib/*.mjs",
+      "types": "./lib/*.d.ts"
+    }
   },
   "devDependencies": {
     "@biomejs/js-api": "3.0.0",

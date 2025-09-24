@@ -1,10 +1,12 @@
 'use strict'
 
-const path = require('node:path')
+import { createRequire } from 'node:module'
+import path from 'node:path'
 
+import constants from '@socketregistry/scripts/constants'
+
+const require = createRequire(import.meta.url)
 const { glob } = require('fast-glob')
-
-const constants = require('@socketregistry/scripts/constants')
 const { logger } = require('@socketsecurity/registry/lib/logger')
 const {
   createPackageJson,

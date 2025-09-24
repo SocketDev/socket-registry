@@ -1,13 +1,13 @@
 'use strict'
 
-const path = require('node:path')
+import path from 'node:path'
 
-const constants = require('@socketregistry/scripts/constants')
-const { getGlobMatcher } = require('@socketsecurity/registry/lib/globs')
-const { defineLazyGetters } = require('@socketsecurity/registry/lib/objects')
-const { normalizePath } = require('@socketsecurity/registry/lib/path')
-const { spawn, spawnSync } = require('@socketsecurity/registry/lib/spawn')
-const { stripAnsi } = require('@socketsecurity/registry/lib/strings')
+import constants from '@socketregistry/scripts/constants'
+import { getGlobMatcher } from '@socketsecurity/registry/lib/globs'
+import { defineLazyGetters } from '@socketsecurity/registry/lib/objects'
+import { normalizePath } from '@socketsecurity/registry/lib/path'
+import { spawn, spawnSync } from '@socketsecurity/registry/lib/spawn'
+import { stripAnsi } from '@socketsecurity/registry/lib/strings'
 
 const { NPM, UTF8 } = constants
 
@@ -211,7 +211,7 @@ function parseGitDiffStdout(stdout, options) {
   return filtered
 }
 
-module.exports = {
+export {
   getModifiedFiles,
   getModifiedFilesSync,
   getModifiedPackages,

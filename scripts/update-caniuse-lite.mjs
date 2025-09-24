@@ -1,9 +1,10 @@
 'use strict'
 
-const { spawnSync } = require('node:child_process')
+import { spawnSync } from 'node:child_process'
 
-const constants = require('@socketregistry/scripts/constants')
-const { logger } = require('@socketsecurity/registry/lib/logger')
+import { logger } from '@socketsecurity/registry/lib/logger'
+
+import constants from '@socketregistry/scripts/constants'
 
 const { rootPath } = constants
 

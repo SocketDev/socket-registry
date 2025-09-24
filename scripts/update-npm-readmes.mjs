@@ -1,12 +1,12 @@
 'use strict'
 
-const fs = require('node:fs/promises')
-const path = require('node:path')
-const util = require('node:util')
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import util from 'node:util'
 
-const constants = require('@socketregistry/scripts/constants')
-const { isModified } = require('@socketregistry/scripts/lib/git')
-const { getNpmReadmeAction } = require('@socketregistry/scripts/lib/templates')
+import constants from '@socketregistry/scripts/constants'
+import { isModified } from '@socketregistry/scripts/lib/git'
+import { getNpmReadmeAction } from '@socketregistry/scripts/lib/templates'
 
 const { README_MD, UTF8, npmPackagesPath, npmTemplatesReadmePath } = constants
 

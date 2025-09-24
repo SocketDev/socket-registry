@@ -1,9 +1,12 @@
 'use strict'
 
-const path = require('node:path')
-const util = require('node:util')
+import { createRequire } from 'node:module'
+import path from 'node:path'
+import util from 'node:util'
 
-const constants = require('@socketregistry/scripts/constants')
+import constants from '@socketregistry/scripts/constants'
+
+const require = createRequire(import.meta.url)
 const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
 const { logger } = require('@socketsecurity/registry/lib/logger')
 const { execNpm } = require('@socketsecurity/registry/lib/agent')

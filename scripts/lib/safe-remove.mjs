@@ -1,10 +1,9 @@
 'use strict'
 
-const fs = require('node:fs/promises')
-
-const constants = require('@socketregistry/scripts/constants')
-const { pEach } = require('@socketsecurity/registry/lib/promises')
-const trash = require('trash')
+import fs from 'node:fs/promises'
+import trash from 'trash'
+import constants from '@socketregistry/scripts/constants'
+import { pEach } from '@socketsecurity/registry/lib/promises'
 
 const { DEFAULT_CONCURRENCY } = constants
 
@@ -48,6 +47,4 @@ async function safeRemove(paths, options) {
   }
 }
 
-module.exports = {
-  safeRemove,
-}
+export { safeRemove }

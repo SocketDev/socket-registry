@@ -6,9 +6,12 @@
  */
 'use strict'
 
-const fs = require('node:fs/promises')
+import { createRequire } from 'node:module'
+import fs from 'node:fs/promises'
 
-const constants = require('@socketregistry/scripts/constants')
+import constants from '@socketregistry/scripts/constants'
+
+const require = createRequire(import.meta.url)
 const { globStreamLicenses } = require('@socketsecurity/registry/lib/globs')
 const { parallelEach } = require('@socketsecurity/registry/lib/streams')
 

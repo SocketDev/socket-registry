@@ -1,13 +1,16 @@
 'use strict'
 
-const crypto = require('node:crypto')
-const fs = require('node:fs/promises')
-const path = require('node:path')
+import { createRequire } from 'node:module'
+import crypto from 'node:crypto'
+import fs from 'node:fs/promises'
+import path from 'node:path'
 
-const { minimatch } = require('minimatch')
-const semver = require('semver')
+import { minimatch } from 'minimatch'
+import semver from 'semver'
 
-const constants = require('@socketregistry/scripts/constants')
+import constants from '@socketregistry/scripts/constants'
+
+const require = createRequire(import.meta.url)
 const { execScript } = require('@socketsecurity/registry/lib/agent')
 const {
   extractPackage,

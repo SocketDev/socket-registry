@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import { glob } from 'fast-glob'
+import fastGlob from 'fast-glob'
 import { describe, expect, it } from 'vitest'
 
 import constants from '@socketregistry/scripts/constants'
@@ -20,7 +20,7 @@ describe(
   () => {
     it('should not trigger lazy getter on module initialization', async () => {
       const jsFilepaths = (
-        await glob(['index.js', 'external/**/*.js', 'lib/**/*.js'], {
+        await fastGlob.glob(['index.js', 'external/**/*.js', 'lib/**/*.js'], {
           absolute: true,
           cwd: rootRegistryPath,
         })

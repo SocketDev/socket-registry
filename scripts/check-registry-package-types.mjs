@@ -1,11 +1,14 @@
 'use strict'
 
-const { promises: fs } = require('node:fs')
-const path = require('node:path')
+import { createRequire } from 'node:module'
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
 
-const constants = require('@socketregistry/scripts/constants')
+import { escapeRegExp } from '../registry/lib/regexps.js'
 
-const { escapeRegExp } = require('../registry/lib/regexps')
+import constants from '@socketregistry/scripts/constants'
+
+const require = createRequire(import.meta.url)
 
 void (async () => {
   const { registryPkgPath, rootPath } = constants

@@ -6,18 +6,19 @@
  */
 'use strict'
 
-const { glob } = require('fast-glob')
+import fastGlob from 'fast-glob'
 
-const constants = require('@socketregistry/scripts/constants')
-const { safeRemove } = require('@socketregistry/scripts/lib/safe-remove')
-const { isDirEmptySync } = require('@socketsecurity/registry/lib/fs')
-const { logger } = require('@socketsecurity/registry/lib/logger')
+import { isDirEmptySync } from '@socketsecurity/registry/lib/fs'
+import { logger } from '@socketsecurity/registry/lib/logger'
+
+import constants from '@socketregistry/scripts/constants'
+import { safeRemove } from '@socketregistry/scripts/lib/safe-remove'
 
 const { NODE_MODULES_GLOB_RECURSIVE } = constants
 
 void (async () => {
   const dirPaths = (
-    await glob(['**/'], {
+    await fastGlob.glob(['**/'], {
       ignore: [NODE_MODULES_GLOB_RECURSIVE],
       absolute: true,
       cwd: constants.rootPath,
