@@ -104,7 +104,7 @@ async function installAndMergePackage(pkgName, pkgVersion, options) {
 
     // Install package to a temp location first.
     tempPath = await fs.mkdtemp(
-      path.join(os.tmpdir(), `socket-test-${socketPkgName}-`)
+      path.join(os.tmpdir(), `socket-test-${socketPkgName}-`),
     )
 
     // Create a minimal package.json in temp directory.
@@ -222,8 +222,12 @@ async function installTestNpmNodeModules(options) {
           try {
             const parsed = npmPackageArg(spec)
             const pkgName = parsed.name
-            const version = parsed.fetchSpec || devDependencies[pkgName] || 'latest'
-            return { name: pkgName, version: devDependencies[pkgName] || version }
+            const version =
+              parsed.fetchSpec || devDependencies[pkgName] || 'latest'
+            return {
+              name: pkgName,
+              version: devDependencies[pkgName] || version,
+            }
           } catch {
             // Fallback for malformed package specs.
             const atIndex = spec.startsWith('@')
@@ -234,7 +238,10 @@ async function installTestNpmNodeModules(options) {
               atIndex === -1
                 ? devDependencies[pkgName] || 'latest'
                 : spec.slice(atIndex + 1)
-            return { name: pkgName, version: devDependencies[pkgName] || version }
+            return {
+              name: pkgName,
+              version: devDependencies[pkgName] || version,
+            }
           }
         })
       : Object.entries(devDependencies).map(({ 0: name, 1: version }) => ({

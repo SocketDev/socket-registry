@@ -8,7 +8,7 @@ import {
 } from '@eslint/compat'
 import js from '@eslint/js'
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript'
-import importXPlugin from 'eslint-plugin-import-x'
+import { flatConfigs as origImportXFlatConfigs } from 'eslint-plugin-import-x'
 import nodePlugin from 'eslint-plugin-n'
 import sortDestructureKeysPlugin from 'eslint-plugin-sort-destructure-keys'
 import unicornPlugin from 'eslint-plugin-unicorn'
@@ -25,8 +25,6 @@ const require = createRequire(import.meta.url)
 
 const { gitIgnoreFile, npmPackagesPath, relNpmPackagesPath, rootTsConfigPath } =
   constants
-
-const { flatConfigs: origImportXFlatConfigs } = importXPlugin
 
 const rootPath = __dirname
 
