@@ -6,8 +6,8 @@ import util from 'node:util'
 
 import fastGlob from 'fast-glob'
 
-import constants from '@socketregistry/scripts/constants'
-import { getModifiedFiles } from '@socketregistry/scripts/lib/git'
+import constants from './constants.mjs'
+import { getModifiedFiles } from './lib/git.mjs'
 
 const { EMPTY_FILE, UTF8 } = constants
 

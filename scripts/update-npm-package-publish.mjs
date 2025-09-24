@@ -4,7 +4,7 @@ import { createRequire } from 'node:module'
 import path from 'node:path'
 import util from 'node:util'
 
-import constants from '@socketregistry/scripts/constants'
+import constants from './constants.mjs'
 
 const require = createRequire(import.meta.url)
 const { joinAnd } = require('@socketsecurity/registry/lib/arrays')

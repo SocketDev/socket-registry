@@ -16,7 +16,7 @@ import globals from 'globals'
 import fastGlob from 'fast-glob'
 import tsEslint from 'typescript-eslint'
 
-import constants from '@socketregistry/scripts/constants'
+import constants from './scripts/constants.mjs'
 import { readPackageJsonSync } from '@socketsecurity/registry/lib/packages'
 
 const __filename = fileURLToPath(import.meta.url)

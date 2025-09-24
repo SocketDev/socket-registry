@@ -1,7 +1,7 @@
 'use strict'
 
 import { createRequire } from 'node:module'
-import constants from '@socketregistry/scripts/constants'
+import constants from './constants.mjs'
 
 const require = createRequire(import.meta.url)
 const { readPackageJson } = require('@socketsecurity/registry/lib/packages')

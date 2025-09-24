@@ -2,7 +2,7 @@
 
 import fs from 'node:fs/promises'
 import trash from 'trash'
-import constants from '@socketregistry/scripts/constants'
+import constants from '../constants.mjs'
 import { pEach } from '@socketsecurity/registry/lib/promises'
 
 const { DEFAULT_CONCURRENCY } = constants

@@ -3,6 +3,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
+import clipboardy from 'clipboardy'
 import { logger } from '@socketsecurity/registry/lib/logger'
 
 const GITHUB_PATH = '.github'
@@ -144,7 +145,6 @@ void (async () => {
   // Check if --copy flag was passed.
   if (process.argv.includes('--copy')) {
     try {
-      const clipboardy = await import('clipboardy')
       // Copy the non-indented version for easier pasting.
       const clipboardList = allActions.join(',\n') + ','
       clipboardy.writeSync(clipboardList)

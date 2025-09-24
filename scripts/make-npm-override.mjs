@@ -51,7 +51,7 @@ import { transform } from '@socketsecurity/registry/lib/streams'
 import { indentString } from '@socketsecurity/registry/lib/strings'
 import { pluralize } from '@socketsecurity/registry/lib/words'
 
-import constants from '@socketregistry/scripts/constants'
+import constants from './constants.mjs'
 import {
   getLicenseActions,
   getNpmReadmeAction,
@@ -59,7 +59,7 @@ import {
   getTemplate,
   getTypeScriptActions,
   writeAction,
-} from '@socketregistry/scripts/lib/templates'
+} from './lib/templates.mjs'
 
 const require = createRequire(import.meta.url)
 

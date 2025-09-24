@@ -3,8 +3,8 @@ import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import constants from '@socketregistry/scripts/constants'
-import { isPackageTestingSkipped } from '@socketregistry/scripts/lib/tests'
+import constants from '../../scripts/constants'
+import { isPackageTestingSkipped } from '../../scripts/lib/tests'
 
 const { NPM, testNpmNodeWorkspacesPath } = constants
 

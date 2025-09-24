@@ -16,7 +16,7 @@ import fastGlob from 'fast-glob'
 
 import { logger } from '@socketsecurity/registry/lib/logger'
 
-import constants from '@socketregistry/scripts/constants'
+import constants from './constants.mjs'
 
 void (async () => {
   const { WIN32 } = constants

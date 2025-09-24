@@ -20,7 +20,7 @@ import {
   determineArticle,
 } from '@socketsecurity/registry/lib/words'
 
-import constants from '@socketregistry/scripts/constants'
+import constants from '../constants.mjs'
 import { biomeFormat } from './biome.mjs'
 
 const {

@@ -8,11 +8,6 @@ import fastGlob from 'fast-glob'
 import semver from 'semver'
 import { describe, expect, it } from 'vitest'
 
-import constants, { EXT_JSON } from '@socketregistry/scripts/constants'
-import {
-  getModifiedPackagesSync,
-  getStagedPackagesSync,
-} from '@socketregistry/scripts/lib/git'
 import { getManifestData } from '@socketsecurity/registry'
 import { readJson } from '@socketsecurity/registry/lib/fs'
 import {
@@ -28,6 +23,12 @@ import {
 import { trimLeadingDotSlash } from '@socketsecurity/registry/lib/path'
 import { naturalCompare } from '@socketsecurity/registry/lib/sorts'
 import { isNonEmptyString } from '@socketsecurity/registry/lib/strings'
+
+import constants, { EXT_JSON } from '../scripts/constants'
+import {
+  getModifiedPackagesSync,
+  getStagedPackagesSync,
+} from '../scripts/lib/git'
 
 const {
   LICENSE,

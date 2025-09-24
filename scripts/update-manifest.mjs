@@ -6,8 +6,8 @@ import path from 'node:path'
 import util from 'node:util'
 
 import { PackageURL } from '@socketregistry/packageurl-js'
-import constants from '@socketregistry/scripts/constants'
-import { getModifiedFiles } from '@socketregistry/scripts/lib/git'
+import constants from './constants.mjs'
+import { getModifiedFiles } from './lib/git.mjs'
 import { biomeFormat } from './lib/biome.mjs'
 
 const require = createRequire(import.meta.url)

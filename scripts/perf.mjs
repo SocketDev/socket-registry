@@ -4,7 +4,7 @@ import fastGlob from 'fast-glob'
 
 import { execBin } from '@socketsecurity/registry/lib/agent'
 
-import constants from '@socketregistry/scripts/constants'
+import constants from './constants.mjs'
 
 const { perfNpmPath } = constants
 

@@ -2,11 +2,8 @@
 
 import util from 'node:util'
 
-import constants from '@socketregistry/scripts/constants'
-import {
-  getModifiedPackagesSync,
-  getStagedPackagesSync,
-} from '@socketregistry/scripts/lib/git'
+import constants from '../constants.mjs'
+import { getModifiedPackagesSync, getStagedPackagesSync } from './git.mjs'
 
 const { LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE } = constants
 
