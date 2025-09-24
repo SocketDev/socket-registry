@@ -7,12 +7,9 @@ import path from 'node:path'
 import { spawn } from 'node:child_process'
 import util from 'node:util'
 
-import constants from '@socketregistry/scripts/constants'
-import {
-  cleanTestScript,
-  testRunners,
-} from '@socketregistry/scripts/lib/test-utils'
-import { safeRemove } from '@socketregistry/scripts/lib/safe-remove'
+import constants from './constants.mjs'
+import { cleanTestScript, testRunners } from './lib/test-utils.mjs'
+import { safeRemove } from './lib/safe-remove.mjs'
 
 const require = createRequire(import.meta.url)
 const { copy } = require('fs-extra')

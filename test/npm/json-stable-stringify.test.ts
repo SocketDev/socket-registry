@@ -2,7 +2,7 @@ import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import constants from '@socketregistry/scripts/constants'
+import constants from '../../scripts/constants'
 
 const { NPM, testNpmNodeWorkspacesPath } = constants
 

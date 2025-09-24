@@ -4,7 +4,7 @@ import { spawnSync } from 'node:child_process'
 
 import { logger } from '@socketsecurity/registry/lib/logger'
 
-import constants from '@socketregistry/scripts/constants'
+import constants from './constants.mjs'
 
 const { rootPath } = constants
 

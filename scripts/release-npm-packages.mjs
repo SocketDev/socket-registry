@@ -8,7 +8,7 @@ import path from 'node:path'
 import { minimatch } from 'minimatch'
 import semver from 'semver'
 
-import constants from '@socketregistry/scripts/constants'
+import constants from './constants.mjs'
 
 const require = createRequire(import.meta.url)
 const { execScript } = require('@socketsecurity/registry/lib/agent')

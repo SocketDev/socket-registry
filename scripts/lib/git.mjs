@@ -2,7 +2,7 @@
 
 import path from 'node:path'
 
-import constants from '@socketregistry/scripts/constants'
+import constants from '../constants.mjs'
 import { getGlobMatcher } from '@socketsecurity/registry/lib/globs'
 import { defineLazyGetters } from '@socketsecurity/registry/lib/objects'
 import { normalizePath } from '@socketsecurity/registry/lib/path'

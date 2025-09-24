@@ -5,7 +5,7 @@
  */
 'use strict'
 
-import constants from '@socketregistry/scripts/constants'
+import constants from '../constants.mjs'
 import { readPackageJson } from '@socketsecurity/registry/lib/packages'
 import { pEach } from '@socketsecurity/registry/lib/promises'
 

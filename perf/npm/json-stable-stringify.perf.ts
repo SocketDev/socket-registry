@@ -8,8 +8,9 @@ import { Bench } from 'tinybench'
 
 // eslint-disable-next-line import-x/no-duplicates
 import overrideJsonStableStringify from '@socketregistry/json-stable-stringify'
-import constants from '@socketregistry/scripts/constants'
 import { logger } from '@socketsecurity/registry/lib/logger'
+
+import constants from '../../scripts/constants'
 
 void (async () => {
   const sampleData2MbJson = require(

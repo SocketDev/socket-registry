@@ -4,9 +4,9 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import util from 'node:util'
 
-import constants from '@socketregistry/scripts/constants'
-import { isModified } from '@socketregistry/scripts/lib/git'
-import { getNpmReadmeAction } from '@socketregistry/scripts/lib/templates'
+import constants from './constants.mjs'
+import { isModified } from './lib/git.mjs'
+import { getNpmReadmeAction } from './lib/templates.mjs'
 
 const { README_MD, UTF8, npmPackagesPath, npmTemplatesReadmePath } = constants
 

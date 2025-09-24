@@ -11,8 +11,8 @@ import fastGlob from 'fast-glob'
 import { isDirEmptySync } from '@socketsecurity/registry/lib/fs'
 import { logger } from '@socketsecurity/registry/lib/logger'
 
-import constants from '@socketregistry/scripts/constants'
-import { safeRemove } from '@socketregistry/scripts/lib/safe-remove'
+import constants from './constants.mjs'
+import { safeRemove } from './lib/safe-remove.mjs'
 
 const { NODE_MODULES_GLOB_RECURSIVE } = constants
 

@@ -6,7 +6,7 @@ import path from 'node:path'
 
 import { escapeRegExp } from '../registry/lib/regexps.js'
 
-import constants from '@socketregistry/scripts/constants'
+import constants from './constants.mjs'
 
 const require = createRequire(import.meta.url)
 

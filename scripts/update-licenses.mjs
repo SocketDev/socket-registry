@@ -9,7 +9,7 @@
 import { createRequire } from 'node:module'
 import fs from 'node:fs/promises'
 
-import constants from '@socketregistry/scripts/constants'
+import constants from './constants.mjs'
 
 const require = createRequire(import.meta.url)
 const { globStreamLicenses } = require('@socketsecurity/registry/lib/globs')
