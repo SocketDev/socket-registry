@@ -71,9 +71,9 @@ async function addNpmManifestData(manifest, options) {
         ).toString(),
         {
           categories: nmPkgJson.socket?.categories ?? data.categories,
-          engines: filterEngines(isBlessed
-            ? (nmPkgJson.engines ?? data.engines)
-            : data.engines),
+          engines: filterEngines(
+            isBlessed ? (nmPkgJson.engines ?? data.engines) : data.engines,
+          ),
           interop: data.interop,
           license: nmPkgJson.license ?? data.license,
           name: data.name,
