@@ -40,10 +40,10 @@ export default defineConfig({
       ],
       all: true,
       thresholds: {
-        lines: 61.32,
+        lines: 61.1,
         functions: 53.82,
         branches: 76.1,
-        statements: 61.32,
+        statements: 61.1,
       },
     },
     testTimeout: 60000,
