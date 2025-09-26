@@ -6,7 +6,6 @@
  * - Glob pattern expansion for test file selection
  * - Cross-platform compatibility (Windows/Unix)
  */
-'use strict'
 
 import { spawn } from 'node:child_process'
 import path from 'node:path'

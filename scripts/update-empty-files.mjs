@@ -1,5 +1,3 @@
-'use strict'
-
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import util from 'node:util'
@@ -7,7 +5,7 @@ import util from 'node:util'
 import fastGlob from 'fast-glob'
 
 import constants from './constants.mjs'
-import { getModifiedFiles } from './lib/git.mjs'
+import { getModifiedFiles } from './utils/git.mjs'
 
 const { EMPTY_FILE, UTF8 } = constants
 

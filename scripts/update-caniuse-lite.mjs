@@ -1,5 +1,3 @@
-'use strict'
-
 import { spawnSync } from 'node:child_process'
 
 import { logger } from '@socketsecurity/registry/lib/logger'

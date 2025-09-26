@@ -4,7 +4,6 @@
  * the root LICENSE content to all LICENSE files found in the project tree.
  * Ignores original license files and template directories.
  */
-'use strict'
 
 import { createRequire } from 'node:module'
 import fs from 'node:fs/promises'
