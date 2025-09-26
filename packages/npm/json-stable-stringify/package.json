@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/json-stable-stringify",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "license": "MIT",
   "description": "Socket.dev optimized package override for json-stable-stringify",
   "keywords": [
