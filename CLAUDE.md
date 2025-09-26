@@ -88,6 +88,9 @@ You are a **Principal Software Engineer** responsible for:
 - **Workspace root**: Use `-w` flag when adding packages to workspace root
 - **🚨 MANDATORY**: Always add dependencies with exact versions using `--save-exact` flag to ensure reproducible builds
 - **Dependency validation**: All dependencies MUST be pinned to exact versions without range specifiers like `^` or `~`
+- **Script execution**: Always use `pnpm run <script>` for package.json scripts to distinguish from built-in pnpm commands
+  - ✅ CORRECT: `pnpm run build`, `pnpm run test`, `pnpm run check`
+  - ❌ AVOID: `pnpm build`, `pnpm test` (unclear if built-in or script)
 
 ### 6. Code Style
 - Follow existing patterns in the codebase
@@ -109,6 +112,14 @@ You are a **Principal Software Engineer** responsible for:
 - This helps maintain clarity about why certain code paths aren't tested
 
 ## 📋 Code Style (MANDATORY PATTERNS)
+
+### 📁 File Organization
+- **File extensions**: Use `.js` for JavaScript files with JSDoc, `.mjs` for ES modules
+- **Import order**: Node.js built-ins first, then third-party packages, then local imports
+- **Import grouping**: Group imports by source (Node.js, external packages, local modules)
+- **Node.js module imports**: 🚨 MANDATORY - Always use `node:` prefix for Node.js built-in modules
+  - ✅ CORRECT: `import { readFile } from 'node:fs'`, `import path from 'node:path'`
+  - ❌ FORBIDDEN: `import { readFile } from 'fs'`, `import path from 'path'`
 
 ### 🔧 Formatting Rules
 - **Indentation**: 2 spaces (no tabs)
@@ -182,6 +193,22 @@ pnpm run test:unit -- path/to/test
 - `/test/` - Test files
 - `/packages/npm/` - NPM package overrides
 
+## Changelog Management
+
+When updating the changelog (`CHANGELOG.md`):
+- Version headers should be formatted as markdown links to GitHub releases
+- Use the format: `## [version](https://github.com/SocketDev/socket-registry/releases/tag/vversion) - date`
+- Example: `## [1.2.2](https://github.com/SocketDev/socket-registry/releases/tag/v1.2.2) - 2025-01-15`
+- This allows users to click version numbers to view the corresponding GitHub release
+
+### Keep a Changelog Compliance
+Follow the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format:
+- Use standard sections: Added, Changed, Fixed, Removed (Security if applicable)
+- Maintain chronological order with latest version first
+- Include release dates in YYYY-MM-DD format
+- Make entries human-readable, not machine diffs
+- Focus on notable changes that impact users
+
 ## Architecture
 
 This is a monorepo for Socket.dev optimized package overrides, built with JavaScript and managed with pnpm workspaces.
@@ -211,7 +238,7 @@ This is a monorepo for Socket.dev optimized package overrides, built with JavaSc
 - **Memory limits**: Set `NODE_OPTIONS="--max-old-space-size=4096 --max-semi-space-size=512"` in `.env.test`
 - **Timeout settings**: Use `testTimeout: 60000, hookTimeout: 60000` for stability
 - **Thread limits**: Use `singleThread: true, maxThreads: 1` to prevent RegExp compiler exhaustion
-- **Test cleanup**: 🚨 MANDATORY - Import and use `trash` package: `import trash from 'trash'` then `await trash([paths])`
+- **Test cleanup**: 🚨 MANDATORY - Use `await trash([paths])` in test scripts/utilities only. For cleanup within `/src/` test files, use `fs.rm()` with proper error handling
 
 ### 🗑️ Safe File Operations (SECURITY CRITICAL)
 - **Import and use `trash` package**: `import trash from 'trash'` then `await trash(paths)`
