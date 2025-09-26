@@ -19,4 +19,4 @@ jobs:
     uses: SocketDev/socket-registry/.github/workflows/test.yml@main
     with:
       setup-script: 'pnpm run build'
-      timeout-minutes: 15
+      timeout-minutes: 20

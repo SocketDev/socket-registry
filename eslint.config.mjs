@@ -338,4 +338,12 @@ export default [
       'n/no-unpublished-require': 'off',
     },
   },
+  {
+    // Disable import resolution rules for test files importing from scripts
+    files: ['test/**/*.ts'],
+    rules: {
+      'n/no-missing-import': 'off',
+      'import-x/no-unresolved': 'off',
+    },
+  },
 ]
