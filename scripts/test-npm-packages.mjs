@@ -112,16 +112,15 @@ void (async () => {
   try {
     // Phase 1: Download packages (unless test-only mode).
     if (!cliArgs['test-only']) {
-      logger.log('📦 Phase 1: Processing package information...\n')
+      logger.log('Process packages\n')
 
       await runCommand('node', [downloadScript, ...downloadArgs])
 
-      logger.log('\n✅ Download phase completed!\n')
     }
 
     // Phase 2: Install packages (unless test-only mode).
     if (!cliArgs['test-only']) {
-      logger.log('🚀 Phase 2: Installing packages...\n')
+      logger.log('Install packages\n')
 
       await runCommand('node', [installScript, ...installArgs])
 
