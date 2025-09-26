@@ -1,12 +1,10 @@
-'use strict'
-
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import util from 'node:util'
 
 import constants from './constants.mjs'
-import { isModified } from './lib/git.mjs'
-import { getNpmReadmeAction } from './lib/templates.mjs'
+import { isModified } from './utils/git.mjs'
+import { getNpmReadmeAction } from './utils/templates.mjs'
 
 const { README_MD, UTF8, npmPackagesPath, npmTemplatesReadmePath } = constants
 

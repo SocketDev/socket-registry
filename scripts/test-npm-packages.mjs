@@ -1,13 +1,13 @@
 /** @fileoverview Test script for npm packages that handles downloading, installing, and testing. */
-'use strict'
 
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import util from 'node:util'
 
-import { safeRemove } from './lib/safe-remove.mjs'
+import { safeRemove } from './utils/fs.mjs'
 import ENV from '@socketsecurity/registry/lib/constants/env'
+import WIN32 from '@socketsecurity/registry/lib/constants/win32'
 import { logger } from '@socketsecurity/registry/lib/logger'
 import { spawn } from '@socketsecurity/registry/lib/spawn'
 
@@ -19,16 +19,18 @@ const { values: cliArgs } = util.parseArgs({
     },
     'download-concurrency': {
       type: 'string',
-      default: '50',
+      // Reduce concurrency in CI to avoid memory issues, especially on Windows.
+      default: ENV.CI ? (WIN32 ? '5' : '10') : '50',
     },
     'install-concurrency': {
       type: 'string',
-      default: '10',
+      // Reduce concurrency in CI to avoid memory issues, especially on Windows.
+      default: ENV.CI ? (WIN32 ? '3' : '5') : '10',
     },
     'test-concurrency': {
       type: 'string',
-      // Reduce concurrency in CI to avoid memory issues.
-      default: ENV.CI ? '10' : '20',
+      // Reduce concurrency in CI to avoid memory issues, especially on Windows.
+      default: ENV.CI ? (WIN32 ? '2' : '5') : '20',
     },
     force: {
       type: 'boolean',

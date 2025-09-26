@@ -1,15 +1,15 @@
-'use strict'
-
 import { createRequire } from 'node:module'
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import util from 'node:util'
 
-import { cleanTestScript, testRunners } from './lib/test-utils.mjs'
+import { cleanTestScript, testRunners } from './utils/test-utils.mjs'
+import ENV from '@socketsecurity/registry/lib/constants/env'
+import WIN32 from '@socketsecurity/registry/lib/constants/win32'
 import { readPackageJson } from '@socketsecurity/registry/lib/packages'
 import { pEach } from '@socketsecurity/registry/lib/promises'
-import { logger } from '@socketsecurity/registry/lib/logger'
+import { LOG_SYMBOLS, logger } from '@socketsecurity/registry/lib/logger'
 import { spawn } from '@socketsecurity/registry/lib/spawn'
 
 const require = createRequire(import.meta.url)
@@ -23,8 +23,8 @@ const { values: cliArgs } = util.parseArgs({
     },
     concurrency: {
       type: 'string',
-      // Reduce concurrency in CI to avoid memory issues.
-      default: '10',
+      // Reduce concurrency in CI to avoid memory issues, especially on Windows.
+      default: ENV.CI ? (WIN32 ? '3' : '5') : '10',
     },
     'temp-dir': {
       type: 'string',
@@ -82,7 +82,7 @@ async function installPackage(packageInfo) {
       ),
     )
 
-    logger.log(`📦 ${origPkgName}: Installing ${versionSpec}...`)
+    process.stdout.write('📦')
 
     // Install the package.
     const packageSpec = versionSpec.startsWith('https://')
@@ -95,7 +95,7 @@ async function installPackage(packageInfo) {
 
     // Copy Socket override files on top.
     const installedPath = path.join(packageTempDir, 'node_modules', origPkgName)
-    logger.log(`🔧 ${origPkgName}: Applying Socket overrides...`)
+    process.stdout.write('🔧')
 
     // Save original scripts before copying.
     const originalPkgJson = await readPackageJson(installedPath, {
@@ -170,7 +170,7 @@ async function installPackage(packageInfo) {
     const testScript = pkgJson.scripts?.test
 
     if (!testScript) {
-      logger.warn(`${origPkgName}: No test script`)
+      process.stdout.write(LOG_SYMBOLS.warn)
       return {
         package: origPkgName,
         socketPackage: socketPkgName,
@@ -180,10 +180,10 @@ async function installPackage(packageInfo) {
     }
 
     // Install dependencies with pnpm.
-    logger.log(`📚 ${origPkgName}: Installing dependencies...`)
+    process.stdout.write('📚')
     await runCommand('pnpm', ['install'], { cwd: installedPath })
 
-    logger.success(`${origPkgName}: Installation completed!`)
+    process.stdout.write(LOG_SYMBOLS.success)
     return {
       package: origPkgName,
       socketPackage: socketPkgName,
@@ -191,17 +191,7 @@ async function installPackage(packageInfo) {
       tempDir: packageTempDir,
     }
   } catch (error) {
-    logger.fail(`${origPkgName}: Installation failed`)
-    if (error.stderr) {
-      logger.log(`   Error output:`)
-      logger.log(
-        error.stderr
-          .split('\n')
-          .slice(0, 10)
-          .map(line => `     ${line}`)
-          .join('\n'),
-      )
-    }
+    process.stdout.write(LOG_SYMBOLS.fail)
     return {
       package: origPkgName,
       socketPackage: socketPkgName,
@@ -252,7 +242,10 @@ void (async () => {
   logger.log(
     `Installing ${filteredPackages.length} packages with concurrency ${concurrency}...`,
   )
-  logger.log(`Temp directory: ${tempBaseDir}\n`)
+  logger.log(`Temp directory: ${tempBaseDir}`)
+  logger.log(
+    `Progress: 📦 = downloading, 🔧 = overriding, 📚 = dependencies, ${LOG_SYMBOLS.success} = success, ${LOG_SYMBOLS.fail} = failed, ${LOG_SYMBOLS.warn} = no test\n`,
+  )
 
   // Ensure base temp directory exists.
   await fs.mkdir(tempBaseDir, { recursive: true })
@@ -268,45 +261,14 @@ void (async () => {
     { concurrency },
   )
 
-  // Summary.
-  logger.log('\n' + '='.repeat(60))
-  logger.log('INSTALL SUMMARY')
-  logger.log('='.repeat(60))
+  // Add newline after progress indicators.
+  process.stdout.write('\n')
 
-  const installed = results.filter(r => r.installed)
   const failed = results.filter(r => !r.installed && r.reason !== 'Skipped')
-  const skipped = results.filter(r => r.reason === 'Skipped')
-
-  // Calculate total attempted (excluding skipped).
-  const totalAttempted = results.length - skipped.length
-
-  logger.success(
-    `Installed: ${installed.length}/${totalAttempted} (${results.length} total)`,
-  )
-  installed.forEach(r => logger.log(`   ${r.package}`))
-
-  if (skipped.length > 0) {
-    logger.warn(`Skipped: ${skipped.length}/${results.length} (known issues)`)
-    skipped.forEach(r => logger.log(`   ${r.package}`))
-  }
-
-  if (failed.length) {
-    logger.fail(
-      `Failed: ${failed.length}/${totalAttempted} (${results.length} total)`,
-    )
-    failed.forEach(r =>
-      logger.log(`   ${r.package}: ${r.reason?.substring(0, 50)}...`),
-    )
-  } else if (totalAttempted > 0) {
-    // All non-skipped installations succeeded.
-    logger.log('')
-    logger.success('🎉 All packages installed! (excluding skipped packages)')
-  }
 
   // Write results to file for the test runner.
   const resultsFile = path.join(tempBaseDir, 'install-results.json')
   await fs.writeFile(resultsFile, JSON.stringify(results, null, 2))
-  logger.log(`\nInstall results saved to: ${resultsFile}`)
 
   // Set exit code for process termination.
   process.exitCode = failed.length ? 1 : 0

@@ -1,5 +1,3 @@
-'use strict'
-
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import util from 'node:util'
