@@ -30,16 +30,26 @@ You are a **Principal Software Engineer** responsible for:
 ## Important Project-Specific Rules
 
 ### 1. File Deletion Safety
-- **Use `trash` package in scripts**, NOT in registry/lib code
-- Registry/lib should use native fs.rm for performance
-- Scripts should use trash for safety (files go to system trash/recycle bin)
-- `trash` accepts arrays - optimize by collecting paths and passing as array
+- **🚨 DEPRECATED**: Direct `trash` usage is superseded by `safeRemove` utility (see section 1.6)
+- **Registry/lib code**: Use native fs.rm for performance-critical operations
+- **All other code**: Use `safeRemove` utility for safe deletion with CI optimizations
 
 ### 1.5. Performance Critical Operations
 - This registry serves Socket's security analysis infrastructure
 - Optimize for speed without sacrificing correctness in package processing
 - Benchmark performance-sensitive changes against existing baselines
 - Avoid unnecessary allocations in hot paths
+
+### 1.6. Safe File Removal Pattern
+- **🚨 MANDATORY**: Use `safeRemove` from `scripts/utils/fs.mjs` for ALL file deletion operations
+- **Reference Implementation**: Socket-registry contains the canonical implementation for all Socket projects
+- **Behavior**:
+  - **Non-CI**: Uses trash for safety, falls back to fs.rm if trash fails
+  - **CI**: Skips trash for performance, uses fs.rm directly
+  - **Temp directories**: Silently ignores failures (system cleanup will handle them)
+- **Usage**: `import { safeRemove } from './scripts/utils/fs.mjs'` then `await safeRemove(paths, options)`
+- **❌ FORBIDDEN**: Direct use of `trash()`, `fs.rm()`, `fs.rmSync()`, or `rm -rf` commands
+- **Cross-project**: Other Socket projects should copy and adapt this implementation
 
 ### 2. Package Manager Agent
 - `registry/lib/agent.js` (formerly npm.js) handles npm, pnpm, and yarn
@@ -156,11 +166,42 @@ You are a **Principal Software Engineer** responsible for:
     - ❌ WRONG: `// this validates input` (no period, not capitalized)
     - ❌ WRONG: `const x = 5 // some value` (trailing comment)
 - **Await in loops**: When using `await` inside for-loops, add `// eslint-disable-next-line no-await-in-loop` to suppress the ESLint warning when sequential processing is intentional
+- **For...of loop type annotations**: 🚨 FORBIDDEN - Never use type annotations in for...of loop variable declarations. TypeScript cannot parse `for await (const chunk: Buffer of stream)` - use `for await (const chunk of stream)` instead and let TypeScript infer the type
 - **If statement returns**: Never use single-line return if statements; always use proper block syntax with braces
 - **List formatting**: Use `-` for bullet points in text output, not `•` or other Unicode characters, for better terminal compatibility
 - **Existence checks**: Perform simple existence checks first before complex operations
 - **Destructuring order**: Sort destructured properties alphabetically in const declarations
 - **Function ordering**: Place functions in alphabetical order, with private functions first, then exported functions
+- **Object mappings**: Use objects with `__proto__: null` (not `undefined`) for static string-to-string mappings and lookup tables to prevent prototype pollution; use `Map` for dynamic collections that will be mutated
+- **Mapping constants**: Move static mapping objects outside functions as module-level constants with descriptive UPPER_SNAKE_CASE names
+- **Array length checks**: Use `!array.length` instead of `array.length === 0`. For `array.length > 0`, use `!!array.length` when function must return boolean, or `array.length` when used in conditional contexts
+- **Catch parameter naming**: Use `catch (e)` instead of `catch (error)` for consistency
+- **Number formatting**: 🚨 REQUIRED - Use underscore separators (e.g., `20_000`) for large numeric literals. 🚨 FORBIDDEN - Do NOT modify number values inside strings
+- **Node.js fs imports**: 🚨 MANDATORY pattern - `import { someSyncThing, promises as fs } from 'node:fs'`
+- **Process spawning**: 🚨 FORBIDDEN to use Node.js built-in `child_process.spawn` - MUST use `spawn` from `@socketsecurity/registry/lib/spawn`
+
+### 🏗️ Function Options Pattern (MANDATORY)
+- **🚨 REQUIRED**: ALL functions accepting options MUST follow this exact pattern:
+  ```typescript
+  function foo(a: SomeA, b: SomeB, options?: SomeOptions | undefined): FooResult {
+    const opts = { __proto__: null, ...options } as SomeOptions
+    // OR for destructuring with defaults:
+    const { someOption = 'someDefaultValue' } = { __proto__: null, ...options } as SomeOptions
+    // ... rest of function
+  }
+  ```
+- **Key requirements**:
+  - Options parameter MUST be optional with `?` and explicitly typed as `| undefined`
+  - MUST use `{ __proto__: null, ...options }` pattern to prevent prototype pollution
+  - MUST use `as SomeOptions` type assertion after spreading
+  - Use destructuring form when you need defaults for individual options
+  - Use direct assignment form when passing entire options object to other functions
+- **Examples**:
+  - ✅ CORRECT: `const opts = { __proto__: null, ...options } as SomeOptions`
+  - ✅ CORRECT: `const { timeout = 5000, retries = 3 } = { __proto__: null, ...options } as SomeOptions`
+  - ❌ FORBIDDEN: `const opts = { ...options }` (vulnerable to prototype pollution)
+  - ❌ FORBIDDEN: `const opts = options || {}` (doesn't handle null prototype)
+  - ❌ FORBIDDEN: `const opts = Object.assign({}, options)` (inconsistent pattern)
 
 ## Commands
 
@@ -250,20 +291,23 @@ This is a monorepo for Socket.dev optimized package overrides, built with JavaSc
 - **Memory limits**: Set `NODE_OPTIONS="--max-old-space-size=4096 --max-semi-space-size=512"` in `.env.test`
 - **Timeout settings**: Use `testTimeout: 60000, hookTimeout: 60000` for stability
 - **Thread limits**: Use `singleThread: true, maxThreads: 1` to prevent RegExp compiler exhaustion
-- **Test cleanup**: 🚨 MANDATORY - Use `await trash([paths])` in test scripts/utilities only. For cleanup within `/src/` test files, use `fs.rm()` with proper error handling
+- **Test cleanup**: 🚨 MANDATORY - Use `await safeRemove(paths)` for all test cleanup operations
 
 ### 🗑️ Safe File Operations (SECURITY CRITICAL)
-- **Import and use `trash` package**: `import trash from 'trash'` then `await trash(paths)`
-- **ALL deletion operations**: Use `await trash()` for scripts, tests, and any cleanup
-- **Array optimization**: `trash` accepts arrays - collect paths and pass as array
-- **Async requirement**: Always `await trash()` - it's an async operation
-- **NO rmSync**: 🚨 ABSOLUTELY FORBIDDEN - NEVER use `fs.rmSync()` or `rm -rf`
+- **🚨 MANDATORY**: Use `safeRemove` utility from `scripts/utils/fs.mjs` for ALL file deletion operations
+- **Import and usage**: `import { safeRemove } from './scripts/utils/fs.mjs'` then `await safeRemove(paths, options)`
+- **CI Optimized**: Automatically skips trash in CI for performance, uses fs.rm directly
+- **Temp directory aware**: Silently ignores failures for temp paths (system cleanup handles them)
+- **Array support**: Accepts single paths or arrays of paths
+- **Async requirement**: Always `await safeRemove()` - it's an async operation
+- **🚨 ABSOLUTELY FORBIDDEN**: Direct use of `fs.rmSync()`, `fs.rm()`, `trash()`, or `rm -rf` commands
 - **Examples**:
   - ❌ CATASTROPHIC: `rm -rf directory` (permanent deletion - DATA LOSS RISK)
   - ❌ REPOSITORY DESTROYER: `rm -rf "$(pwd)"` (deletes entire repository)
-  - ❌ FORBIDDEN: `fs.rmSync(tmpDir, { recursive: true, force: true })` (test cleanup)
-  - ✅ SAFE: `await trash([tmpDir])` (recoverable deletion)
-- **Why this matters**: `trash` enables recovery from accidental deletions via system trash/recycle bin
+  - ❌ FORBIDDEN: `fs.rmSync(tmpDir, { recursive: true, force: true })` (no safety)
+  - ❌ FORBIDDEN: `await trash([tmpDir])` (no CI optimization)
+  - ✅ SAFE: `await safeRemove(tmpDir)` or `await safeRemove([tmpDir1, tmpDir2])`
+- **Why this matters**: Provides recovery via system trash while optimizing CI performance
 
 ## Environment and Configuration
 
@@ -305,6 +349,31 @@ This is a monorepo for Socket.dev optimized package overrides, built with JavaSc
 - All patterns MUST follow established codebase conventions
 - Error handling MUST be robust and user-friendly
 - Performance considerations MUST be evaluated for any changes
+
+## 📋 Recurring Patterns & Instructions
+
+These are patterns and instructions that should be consistently applied across all Socket projects:
+
+### 🏗️ Mandatory Code Patterns
+1. **Options Parameter Pattern**: Use `{ __proto__: null, ...options } as SomeOptions` for all functions accepting options
+2. **Reflect.apply Pattern**: Use `const { apply: ReflectApply } = Reflect` and `ReflectApply(fn, thisArg, [])` instead of `.call()` for method invocation
+3. **Object Mappings**: Use `{ __proto__: null, ...mapping }` for static string-to-string mappings to prevent prototype pollution
+4. **Import Separation**: ALWAYS separate type imports (`import type`) from runtime imports
+5. **Node.js Imports**: ALWAYS use `node:` prefix for Node.js built-in modules
+
+### 🧪 Test Patterns & Cleanup
+1. **Remove Duplicate Tests**: Eliminate tests that verify the same functionality across multiple files
+2. **Centralize Test Data**: Use shared test fixtures instead of hardcoded values repeated across projects
+3. **Focus Test Scope**: Each project should test its specific functionality, not dependencies' core features
+
+### 🔄 Cross-Project Consistency
+These patterns should be enforced across all Socket repositories:
+- `socket-cli`
+- `socket-packageurl-js`
+- `socket-registry`
+- `socket-sdk-js`
+
+When working in any Socket repository, check CLAUDE.md files in other Socket projects for consistency and apply these patterns universally.
 
 ## Notes
 
