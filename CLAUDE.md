@@ -103,6 +103,10 @@ You are a **Principal Software Engineer** responsible for:
 - **Script execution**: Always use `pnpm run <script>` for package.json scripts to distinguish from built-in pnpm commands
   - ✅ CORRECT: `pnpm run build`, `pnpm run test`, `pnpm run check`
   - ❌ AVOID: `pnpm build`, `pnpm test` (unclear if built-in or script)
+- **README installation examples**: 🚨 MANDATORY - All package installation examples in README.md files MUST use `pnpm install` instead of `npm install`
+  - ✅ CORRECT: `pnpm install @socketregistry/package-name`
+  - ❌ WRONG: `npm install @socketregistry/package-name`
+  - **Rationale**: Maintain consistency with project's chosen package manager across all documentation
 
 ### 6. Code Style
 - Follow existing patterns in the codebase
@@ -179,6 +183,7 @@ You are a **Principal Software Engineer** responsible for:
 - **Number formatting**: 🚨 REQUIRED - Use underscore separators (e.g., `20_000`) for large numeric literals. 🚨 FORBIDDEN - Do NOT modify number values inside strings
 - **Node.js fs imports**: 🚨 MANDATORY pattern - `import { someSyncThing, promises as fs } from 'node:fs'`
 - **Process spawning**: 🚨 FORBIDDEN to use Node.js built-in `child_process.spawn` - MUST use `spawn` from `@socketsecurity/registry/lib/spawn`
+- **Increment operators**: Use `variable += 1` instead of `variable++` for standalone increment statements on their own line. Keep `++` only when used within expressions or when the return value is needed
 
 ### 🏗️ Function Options Pattern (MANDATORY)
 - **🚨 REQUIRED**: ALL functions accepting options MUST follow this exact pattern:
