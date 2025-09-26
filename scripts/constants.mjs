@@ -2,7 +2,6 @@
  * @fileoverview Configuration constants and CLI argument parsing for build scripts.
  * Provides shared configuration, paths, and environment settings for registry operations.
  */
-'use strict'
 
 import { createRequire } from 'node:module'
 import fs from 'node:fs'

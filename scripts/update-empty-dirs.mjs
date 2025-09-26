@@ -4,7 +4,6 @@
  * any empty directories found. Processes directories from deepest to
  * shallowest to catch newly emptied parent directories.
  */
-'use strict'
 
 import fastGlob from 'fast-glob'
 
@@ -12,7 +11,7 @@ import { isDirEmptySync } from '@socketsecurity/registry/lib/fs'
 import { logger } from '@socketsecurity/registry/lib/logger'
 
 import constants from './constants.mjs'
-import { safeRemove } from './lib/safe-remove.mjs'
+import { safeRemove } from './utils/fs.mjs'
 
 const { NODE_MODULES_GLOB_RECURSIVE } = constants
 

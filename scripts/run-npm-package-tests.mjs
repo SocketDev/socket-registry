@@ -1,12 +1,12 @@
-'use strict'
-
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import util from 'node:util'
 
+import WIN32 from '@socketsecurity/registry/lib/constants/win32'
+
 import constants from './constants.mjs'
-import { safeRemove } from './lib/safe-remove.mjs'
+import { safeRemove } from './utils/fs.mjs'
 import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/packages'
 import { pEach } from '@socketsecurity/registry/lib/promises'
 import { logger } from '@socketsecurity/registry/lib/logger'
@@ -20,8 +20,8 @@ const { values: cliArgs } = util.parseArgs({
     },
     concurrency: {
       type: 'string',
-      // Reduce concurrency in CI to avoid memory issues.
-      default: process.env.CI ? '10' : '20',
+      // Reduce concurrency in CI to avoid memory issues, especially on Windows.
+      default: process.env.CI ? (WIN32 ? '2' : '5') : '20',
     },
     'temp-dir': {
       type: 'string',

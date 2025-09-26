@@ -1,5 +1,3 @@
-'use strict'
-
 import { createRequire } from 'node:module'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'

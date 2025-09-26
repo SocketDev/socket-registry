@@ -59,7 +59,7 @@ import {
   getTemplate,
   getTypeScriptActions,
   writeAction,
-} from './lib/templates.mjs'
+} from './utils/templates.mjs'
 
 const require = createRequire(import.meta.url)
 

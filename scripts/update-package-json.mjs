@@ -1,5 +1,3 @@
-'use strict'
-
 import { createRequire } from 'node:module'
 import constants from './constants.mjs'
 

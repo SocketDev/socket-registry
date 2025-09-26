@@ -2,7 +2,6 @@
  * @fileoverview Registry manifest generation and updating script.
  * Creates and maintains the Socket registry manifest file with package metadata.
  */
-'use strict'
 
 import { createRequire } from 'node:module'
 import fs from 'node:fs/promises'
@@ -11,8 +10,8 @@ import util from 'node:util'
 
 import { PackageURL } from '@socketregistry/packageurl-js'
 import constants from './constants.mjs'
-import { getModifiedFiles } from './lib/git.mjs'
-import { biomeFormat } from './lib/biome.mjs'
+import { getModifiedFiles } from './utils/git.mjs'
+import { biomeFormat } from './utils/biome.mjs'
 
 const require = createRequire(import.meta.url)
 const {
