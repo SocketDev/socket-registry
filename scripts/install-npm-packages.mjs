@@ -35,6 +35,22 @@ const { values: cliArgs } = util.parseArgs({
 
 const concurrency = Math.max(1, parseInt(cliArgs.concurrency, 10))
 const tempBaseDir = cliArgs['temp-dir']
+const MAX_PROGRESS_WIDTH = 80
+
+// Progress tracking for line wrapping.
+let currentLinePosition = 0
+let completedPackages = 0
+let totalPackagesCount = 0
+
+function writeProgress(symbol) {
+  if (currentLinePosition >= MAX_PROGRESS_WIDTH) {
+    completedPackages++
+    process.stdout.write(`\n(${completedPackages}/${totalPackagesCount}) `)
+    currentLinePosition = `(${completedPackages}/${totalPackagesCount}) `.length
+  }
+  process.stdout.write(symbol)
+  currentLinePosition++
+}
 
 async function runCommand(command, args, options = {}) {
   try {
@@ -82,7 +98,7 @@ async function installPackage(packageInfo) {
       ),
     )
 
-    process.stdout.write('📦')
+    writeProgress('📦')
 
     // Install the package.
     const packageSpec = versionSpec.startsWith('https://')
@@ -95,7 +111,7 @@ async function installPackage(packageInfo) {
 
     // Copy Socket override files on top.
     const installedPath = path.join(packageTempDir, 'node_modules', origPkgName)
-    process.stdout.write('🔧')
+    writeProgress('🔧')
 
     // Save original scripts before copying.
     const originalPkgJson = await readPackageJson(installedPath, {
@@ -170,7 +186,7 @@ async function installPackage(packageInfo) {
     const testScript = pkgJson.scripts?.test
 
     if (!testScript) {
-      process.stdout.write(LOG_SYMBOLS.warn)
+      writeProgress(LOG_SYMBOLS.warn)
       return {
         package: origPkgName,
         socketPackage: socketPkgName,
@@ -180,10 +196,10 @@ async function installPackage(packageInfo) {
     }
 
     // Install dependencies with pnpm.
-    process.stdout.write('📚')
+    writeProgress('📚')
     await runCommand('pnpm', ['install'], { cwd: installedPath })
 
-    process.stdout.write(LOG_SYMBOLS.success)
+    writeProgress(LOG_SYMBOLS.success)
     return {
       package: origPkgName,
       socketPackage: socketPkgName,
@@ -191,7 +207,7 @@ async function installPackage(packageInfo) {
       tempDir: packageTempDir,
     }
   } catch (error) {
-    process.stdout.write(LOG_SYMBOLS.fail)
+    writeProgress(LOG_SYMBOLS.fail)
     return {
       package: origPkgName,
       socketPackage: socketPkgName,
@@ -246,6 +262,13 @@ void (async () => {
   logger.log(
     `Progress: 📦 = downloading, 🔧 = overriding, 📚 = dependencies, ${LOG_SYMBOLS.success} = success, ${LOG_SYMBOLS.fail} = failed, ${LOG_SYMBOLS.warn} = no test\n`,
   )
+
+  // Initialize progress tracking.
+  totalPackagesCount = filteredPackages.length
+  completedPackages = 0
+  currentLinePosition = 0
+  process.stdout.write('(0/' + totalPackagesCount + ') ')
+  currentLinePosition = ('(0/' + totalPackagesCount + ') ').length
 
   // Ensure base temp directory exists.
   await fs.mkdir(tempBaseDir, { recursive: true })
