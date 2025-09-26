@@ -204,6 +204,8 @@ const lazySkipTestsByEcosystem = () => {
         // https://github.com/inspect-js/is-regex/issues/35
         // https://github.com/inspect-js/is-regex/blob/v1.1.4/test/index.js
         'is-regex',
+        // json-stable-stringify tests timeout during CI due to recursive tests and memory limits.
+        'json-stable-stringify',
         // safer-buffer tests assume Buffer.alloc, Buffer.allocUnsafe, and
         // Buffer.allocUnsafeSlow throw for a size of 2 * (1 << 30), i.e. 2147483648,
         // which is no longer the case.
