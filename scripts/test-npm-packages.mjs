@@ -160,9 +160,6 @@ void (async () => {
         logger.warn(`Could not clean up temp directory: ${error.message}`)
       }
     }
-
-    logger.log('')
-    logger.log('🎉 All phases completed successfully!')
     process.exitCode = 0
   } catch (error) {
     logger.error('')
