@@ -52,7 +52,7 @@
     "test:npm:packages": "dotenvx -q run -f .env.local -- node ./scripts/test-npm-packages.mjs",
     "test:unit": "dotenvx -q run -f .env.local -- node ./scripts/test.mjs",
     "test:unit:coverage": "dotenvx -q run -f .env.local -- vitest run --coverage --config vitest.config.coverage.ts",
-    "test-ci": "run-s test:*",
+    "test-ci": "run-s test:unit test:npm:packages",
     "test-pre-commit": "dotenvx -q run -f .env.precommit -- pnpm test",
     "package:npm:access": "dotenvx -q run -f .env.local -- node ./scripts/update-npm-package-access.mjs",
     "package:npm:publish": "dotenvx -q run -f .env.local -- node ./scripts/update-npm-package-publish.mjs",
