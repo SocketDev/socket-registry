@@ -64,6 +64,8 @@ You are a **Principal Software Engineer** responsible for:
   - Use `path.sep` when you need the separator character
   - Use `path.join()` to construct paths correctly
 - **File URLs**: Use `pathToFileURL()` and `fileURLToPath()` from `node:url` when working with file:// URLs
+  - ❌ WRONG: `path.dirname(new URL(import.meta.url).pathname)` (Windows path doubling)
+  - ✅ CORRECT: `path.dirname(fileURLToPath(import.meta.url))` (cross-platform)
 - **Line endings**: Be aware of CRLF (Windows) vs LF (Unix) differences when processing text files
 - **Shell commands**: Consider platform differences in shell commands and utilities
 

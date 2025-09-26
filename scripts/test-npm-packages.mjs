@@ -1,7 +1,9 @@
+/** @fileoverview Test script for npm packages that handles downloading, installing, and testing. */
 'use strict'
 
 import os from 'node:os'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import util from 'node:util'
 
 import { safeRemove } from './lib/safe-remove.mjs'
@@ -71,7 +73,7 @@ async function runCommand(command, args, options = {}) {
 }
 
 void (async () => {
-  const scriptDir = path.dirname(new URL(import.meta.url).pathname)
+  const scriptDir = path.dirname(fileURLToPath(import.meta.url))
   const downloadScript = path.join(scriptDir, 'download-npm-packages.mjs')
   const installScript = path.join(scriptDir, 'install-npm-packages.mjs')
   const testScript = path.join(scriptDir, 'run-npm-package-tests.mjs')
