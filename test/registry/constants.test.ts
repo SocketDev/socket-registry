@@ -42,7 +42,7 @@ describe('constants module', () => {
     it('should export LOOP_SENTINEL', () => {
       const LOOP_SENTINEL = require('@socketsecurity/registry/lib/constants/loop-sentinel')
       expect(typeof LOOP_SENTINEL).toBe('number')
-      expect(LOOP_SENTINEL).toBe(1000000)
+      expect(LOOP_SENTINEL).toBe(1_000_000)
     })
 
     it('should export NPM constants', () => {
