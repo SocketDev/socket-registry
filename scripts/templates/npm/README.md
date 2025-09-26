@@ -3,6 +3,7 @@
 [![Socket Badge](https://socket.dev/api/badge/npm/package/<%= it.name %>)](https://socket.dev/npm/package/<%= it.name %>)
 [![CI - <%= it.name %>](https://github.com/SocketDev/socket-registry/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+[![Follow @socket.dev on Bluesky](https://img.shields.io/badge/Follow-@socket.dev-1DA1F2?style=social&logo=bluesky)](https://bsky.app/profile/socket.dev)
 
 ><%~ it.adjectivesText %>
 <% if (Object.keys(it.dependencies).length) { %> low <% } else { %> zero <% } %>
@@ -48,7 +49,7 @@ to your `package.json`.
 Install with your favorite package manager.
 
 ```sh
-npm install <%= it.name %>
+pnpm install <%= it.name %>
 
 ```
 
