@@ -11,6 +11,13 @@ const {
   isNpmLoglevelFlag,
   isNpmNodeOptionsFlag,
   isNpmProgressFlag,
+  isPnpmFrozenLockfileFlag,
+  isPnpmIgnoreScriptsFlag,
+  isPnpmInstallCommand,
+  isPnpmLoglevelFlag,
+  resolveBinPathSync,
+  whichBin,
+  whichBinSync,
 } = require('@socketsecurity/registry/lib/agent')
 
 describe('agent module', () => {
@@ -204,6 +211,101 @@ describe('agent module', () => {
       } catch (error) {
         expect(error).toBeDefined()
       }
+    })
+  })
+
+  describe('isPnpmFrozenLockfileFlag', () => {
+    it('should identify pnpm frozen-lockfile flags', () => {
+      expect(isPnpmFrozenLockfileFlag('--frozen-lockfile')).toBe(true)
+    })
+
+    it('should reject non-frozen-lockfile flags', () => {
+      expect(isPnpmFrozenLockfileFlag('--install')).toBe(false)
+      expect(isPnpmFrozenLockfileFlag('frozen-lockfile')).toBe(false)
+      expect(isPnpmFrozenLockfileFlag('')).toBe(false)
+    })
+  })
+
+  describe('isPnpmIgnoreScriptsFlag', () => {
+    it('should identify pnpm ignore-scripts flags', () => {
+      expect(isPnpmIgnoreScriptsFlag('--ignore-scripts')).toBe(true)
+    })
+
+    it('should reject non-ignore-scripts flags', () => {
+      expect(isPnpmIgnoreScriptsFlag('--install')).toBe(false)
+      expect(isPnpmIgnoreScriptsFlag('ignore-scripts')).toBe(false)
+      expect(isPnpmIgnoreScriptsFlag('')).toBe(false)
+    })
+  })
+
+  describe('isPnpmInstallCommand', () => {
+    it('should identify pnpm install commands', () => {
+      expect(isPnpmInstallCommand('install')).toBe(true)
+      expect(isPnpmInstallCommand('i')).toBe(true)
+    })
+
+    it('should reject non-install commands', () => {
+      expect(isPnpmInstallCommand('run')).toBe(false)
+      expect(isPnpmInstallCommand('test')).toBe(false)
+      expect(isPnpmInstallCommand('build')).toBe(false)
+      expect(isPnpmInstallCommand('')).toBe(false)
+    })
+  })
+
+  describe('isPnpmLoglevelFlag', () => {
+    it('should identify pnpm loglevel flags', () => {
+      expect(isPnpmLoglevelFlag('--loglevel')).toBe(true)
+      expect(isPnpmLoglevelFlag('--loglevel=error')).toBe(true)
+    })
+
+    it('should reject non-loglevel flags', () => {
+      expect(isPnpmLoglevelFlag('--install')).toBe(false)
+      expect(isPnpmLoglevelFlag('loglevel')).toBe(false)
+      expect(isPnpmLoglevelFlag('')).toBe(false)
+    })
+  })
+
+  describe('resolveBinPathSync', () => {
+    it('should resolve binary paths synchronously', () => {
+      const path = resolveBinPathSync('node')
+      expect(typeof path).toBe('string')
+      expect(path.length).toBeGreaterThan(0)
+    })
+
+    it('should handle non-existent binaries', () => {
+      const path = resolveBinPathSync('nonexistentbinary12345')
+      expect(path).toBeDefined() // Returns the input when not found
+    })
+  })
+
+  describe('whichBinSync', () => {
+    it('should find binaries synchronously', () => {
+      const path = whichBinSync('node')
+      expect(typeof path).toBe('string')
+      expect(path.length).toBeGreaterThan(0)
+    })
+
+    it('should return null for non-existent binaries', () => {
+      const path = whichBinSync('nonexistentbinary12345')
+      expect(path).toBeNull()
+    })
+  })
+
+  describe('whichBin', () => {
+    it('should find binaries asynchronously', async () => {
+      const path = await whichBin('node')
+      expect(typeof path).toBe('string')
+      expect(path.length).toBeGreaterThan(0)
+    })
+
+    it('should return null for non-existent binaries', async () => {
+      const path = await whichBin('nonexistentbinary12345')
+      expect(path).toBeNull()
+    })
+
+    it('should handle string binary name', async () => {
+      const path = await whichBin('node')
+      expect(typeof path).toBe('string')
     })
   })
 })

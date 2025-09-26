@@ -13,7 +13,9 @@ const {
   readDirNames,
   readDirNamesSync,
   readFileBinary,
+  readFileBinarySync,
   readFileUtf8,
+  readFileUtf8Sync,
   readJson,
   readJsonSync,
   remove,
@@ -177,6 +179,49 @@ describe('fs module', () => {
       fs.writeFileSync(testFile, content)
       const result = await readFileBinary(testFile)
       expect(result.toString()).toBe(content)
+    })
+  })
+
+  describe('readFileUtf8Sync', () => {
+    it('should read text files as UTF-8 synchronously', () => {
+      const content = 'Hello, UTF-8!'
+      fs.writeFileSync(testFile, content)
+      const result = readFileUtf8Sync(testFile)
+      expect(result).toBe(content)
+    })
+
+    it('should handle empty files synchronously', () => {
+      fs.writeFileSync(testFile, '')
+      const result = readFileUtf8Sync(testFile)
+      expect(result).toBe('')
+    })
+
+    it('should throw for non-existent files', () => {
+      expect(() => {
+        readFileUtf8Sync(path.join(tmpDir, 'nonexistent'))
+      }).toThrow()
+    })
+  })
+
+  describe('readFileBinarySync', () => {
+    it('should read files as binary Buffer synchronously', () => {
+      const buffer = Buffer.from([0x01, 0x02, 0x03, 0x04])
+      fs.writeFileSync(testFile, buffer)
+      const result = readFileBinarySync(testFile)
+      expect(result).toEqual(buffer)
+    })
+
+    it('should handle text files synchronously', () => {
+      const content = 'Hello'
+      fs.writeFileSync(testFile, content)
+      const result = readFileBinarySync(testFile)
+      expect(result.toString()).toBe(content)
+    })
+
+    it('should throw for non-existent files', () => {
+      expect(() => {
+        readFileBinarySync(path.join(tmpDir, 'nonexistent'))
+      }).toThrow()
     })
   })
 

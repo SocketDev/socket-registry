@@ -4,6 +4,8 @@ const {
   debugDir,
   debugFn,
   debugLog,
+  debuglog,
+  debugtime,
   isDebug,
 } = require('@socketsecurity/registry/lib/debug')
 
@@ -194,6 +196,158 @@ describe('debug module', () => {
           resolve(undefined)
         }, 10)
       })
+    })
+  })
+
+  describe('debuglog', () => {
+    it('should create a debug logger function', () => {
+      const logger = debuglog('test')
+      expect(typeof logger).toBe('function')
+    })
+
+    it('should log with section prefix when debug is enabled', () => {
+      process.env['DEBUG'] = '1'
+      const logger = debuglog('testsection')
+      logger('test message', 'arg1')
+      expect(consoleSpy.log).toHaveBeenCalledWith(
+        '[testsection]',
+        'test message',
+        'arg1',
+      )
+    })
+
+    it('should not log when debug is disabled', () => {
+      delete process.env['DEBUG']
+      const logger = debuglog('testsection')
+      logger('test message')
+      expect(consoleSpy.log).not.toHaveBeenCalled()
+    })
+
+    it('should handle multiple arguments', () => {
+      process.env['DEBUG'] = '1'
+      const logger = debuglog('multi')
+      logger('msg', 1, true, { obj: 'value' })
+      expect(consoleSpy.log).toHaveBeenCalledWith('[multi]', 'msg', 1, true, {
+        obj: 'value',
+      })
+    })
+  })
+
+  describe('debugtime', () => {
+    it('should create a debug timer function', () => {
+      const timer = debugtime('test')
+      expect(typeof timer).toBe('function')
+      expect(typeof timer.start).toBe('function')
+      expect(typeof timer.end).toBe('function')
+    })
+
+    it('should log basic messages when debug is enabled', () => {
+      process.env['DEBUG'] = '1'
+      const timer = debugtime('testsection')
+      timer('operation')
+      expect(consoleSpy.log).toHaveBeenCalledWith('[testsection] operation')
+    })
+
+    it('should not log when debug is disabled', () => {
+      delete process.env['DEBUG']
+      const timer = debugtime('testsection')
+      timer('operation')
+      timer.start('task')
+      timer.end('task')
+      expect(consoleSpy.log).not.toHaveBeenCalled()
+    })
+
+    it('should log start timing when debug is enabled', () => {
+      process.env['DEBUG'] = '1'
+      const timer = debugtime('timing')
+      timer.start('operation')
+      expect(consoleSpy.log).toHaveBeenCalledWith('[timing] operation: start')
+    })
+
+    it('should log end timing with duration when debug is enabled', async () => {
+      process.env['DEBUG'] = '1'
+      const timer = debugtime('timing')
+
+      timer.start('operation')
+
+      // Wait a small amount of time to ensure duration > 0
+      await new Promise(resolve => setTimeout(resolve, 10))
+
+      timer.end('operation')
+
+      const calls = consoleSpy.log.mock.calls
+      expect(calls).toContainEqual(['[timing] operation: start'])
+      expect(
+        calls.some(
+          (call: any) =>
+            call[0] &&
+            call[0].startsWith('[timing] operation: ') &&
+            call[0].endsWith('ms'),
+        ),
+      ).toBe(true)
+    })
+
+    it('should handle ending timer that was not started', () => {
+      process.env['DEBUG'] = '1'
+      const timer = debugtime('timing')
+      timer.end('nonexistent')
+
+      // Should not crash and should not log duration
+      const calls = consoleSpy.log.mock.calls
+      expect(
+        calls.some((call: any) => call[0] && call[0].includes('nonexistent')),
+      ).toBe(false)
+    })
+
+    it('should handle multiple timers independently', async () => {
+      process.env['DEBUG'] = '1'
+      const timer = debugtime('multi')
+
+      timer.start('task1')
+      timer.start('task2')
+
+      await new Promise(resolve => setTimeout(resolve, 5))
+      timer.end('task1')
+
+      await new Promise(resolve => setTimeout(resolve, 5))
+      timer.end('task2')
+
+      const calls = consoleSpy.log.mock.calls
+      expect(calls).toContainEqual(['[multi] task1: start'])
+      expect(calls).toContainEqual(['[multi] task2: start'])
+      expect(
+        calls.some(
+          (call: any) =>
+            call[0] &&
+            call[0].startsWith('[multi] task1: ') &&
+            call[0].endsWith('ms'),
+        ),
+      ).toBe(true)
+      expect(
+        calls.some(
+          (call: any) =>
+            call[0] &&
+            call[0].startsWith('[multi] task2: ') &&
+            call[0].endsWith('ms'),
+        ),
+      ).toBe(true)
+    })
+
+    it('should remove timer after ending', () => {
+      process.env['DEBUG'] = '1'
+      const timer = debugtime('cleanup')
+
+      timer.start('task')
+      timer.end('task')
+
+      // Clear previous calls
+      consoleSpy.log.mockClear()
+
+      // Try to end the same timer again
+      timer.end('task')
+
+      // Should not log anything since timer was removed
+      expect(consoleSpy.log).not.toHaveBeenCalled()
     })
   })
 })

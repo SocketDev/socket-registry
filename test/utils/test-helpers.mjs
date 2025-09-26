@@ -2,7 +2,7 @@
 
 import path from 'node:path'
 
-import { installPackageForTesting } from '../../scripts/lib/package-utils.mjs'
+import { installPackageForTesting } from '../../scripts/utils/package-utils.mjs'
 
 /**
  * Creates a test setup function for npm package tests.

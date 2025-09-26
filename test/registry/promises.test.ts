@@ -290,4 +290,128 @@ describe('promises module', () => {
       expect(options.factor).toBe(2)
     })
   })
+
+  describe('pEach edge cases', () => {
+    it('should handle async errors', async () => {
+      const error = new Error('test error')
+      await expect(
+        pEach([1, 2, 3], async () => {
+          throw error
+        }),
+      ).rejects.toThrow('test error')
+    })
+
+    it('should handle sync errors', async () => {
+      const error = new Error('sync error')
+      await expect(
+        pEach([1, 2, 3], () => {
+          throw error
+        }),
+      ).rejects.toThrow('sync error')
+    })
+
+    it('should handle mixed success and failure', async () => {
+      const results: number[] = []
+      await expect(
+        pEach([1, 2, 3], async (x: number) => {
+          if (x === 2) {
+            throw new Error('fail on 2')
+          }
+          results.push(x)
+        }),
+      ).rejects.toThrow('fail on 2')
+    })
+
+    it('should handle large arrays efficiently', async () => {
+      const largeArray = Array.from({ length: 100 }, (_, i) => i)
+      const results: number[] = []
+      await pEach(
+        largeArray,
+        async (x: number) => {
+          results.push(x * 2)
+        },
+        { concurrency: 10 },
+      )
+      expect(results).toHaveLength(100)
+    })
+  })
+
+  describe('pRetry edge cases', () => {
+    it('should handle timeout options', async () => {
+      let attempts = 0
+      await expect(
+        pRetry(
+          async () => {
+            attempts++
+            throw new Error('timeout test')
+          },
+          { retries: 2, minTimeout: 1, maxTimeout: 5 },
+        ),
+      ).rejects.toThrow('timeout test')
+      expect(attempts).toBe(3) // initial + 2 retries
+    })
+
+    it('should handle backoff factor', async () => {
+      let attempts = 0
+      await expect(
+        pRetry(
+          async () => {
+            attempts++
+            throw new Error('backoff test')
+          },
+          { retries: 2, minTimeout: 1, factor: 1.5 },
+        ),
+      ).rejects.toThrow('backoff test')
+      expect(attempts).toBe(3)
+    })
+
+    it('should handle randomize option', async () => {
+      let attempts = 0
+      await expect(
+        pRetry(
+          async () => {
+            attempts++
+            throw new Error('randomize test')
+          },
+          { retries: 1, randomize: true, minTimeout: 1 },
+        ),
+      ).rejects.toThrow('randomize test')
+      expect(attempts).toBe(2)
+    })
+  })
+
+  describe('pFilter edge cases', () => {
+    it('should handle predicate errors', async () => {
+      await expect(
+        pFilter([1, 2, 3], async (x: number) => {
+          if (x === 2) {
+            throw new Error('predicate error')
+          }
+          return x > 1
+        }),
+      ).rejects.toThrow('predicate error')
+    })
+
+    it('should handle mixed results', async () => {
+      const result = await pFilter([1, 2, 3, 4, 5], async (x: number) => {
+        await new Promise(r => setTimeout(r, Math.random() * 10))
+        return x % 2 === 0
+      })
+      expect(result).toEqual([2, 4])
+    })
+  })
+
+  describe('additional coverage', () => {
+    it('should test normalization with edge cases', () => {
+      const options = normalizeIterationOptions()
+      expect(options).toBeDefined()
+      expect(options.concurrency).toBeGreaterThan(0)
+    })
+
+    it('should test retry options normalization', () => {
+      const options = normalizeRetryOptions()
+      expect(options).toBeDefined()
+      expect(options.retries).toBeGreaterThanOrEqual(0)
+    })
+  })
 })
