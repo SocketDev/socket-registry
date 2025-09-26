@@ -115,6 +115,15 @@ You are a **Principal Software Engineer** responsible for:
 
 ### 📁 File Organization
 - **File extensions**: Use `.js` for JavaScript files with JSDoc, `.mjs` for ES modules
+- **Module headers**: 🚨 MANDATORY - All JavaScript modules MUST have `@fileoverview` headers
+  - **Format**: Use `/** @fileoverview Brief description of module purpose. */` at the top of each file
+  - **Placement**: Must be the very first content in the file, before `'use strict'` or imports
+  - **Content**: Provide a concise, clear description of what the module does and its primary purpose
+  - **Examples**:
+    - ✅ CORRECT: `/** @fileoverview Package manager agent for executing npm, pnpm, and yarn commands. */`
+    - ✅ CORRECT: `/** @fileoverview Array utility functions for formatting lists and collections. */`
+    - ❌ FORBIDDEN: Missing @fileoverview header entirely
+    - ❌ FORBIDDEN: Placing @fileoverview after imports or other code
 - **Import order**: Node.js built-ins first, then third-party packages, then local imports
 - **Import grouping**: Group imports by source (Node.js, external packages, local modules)
 - **Node.js module imports**: 🚨 MANDATORY - Always use `node:` prefix for Node.js built-in modules
