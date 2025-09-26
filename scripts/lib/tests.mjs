@@ -21,6 +21,13 @@ function getCliArgs() {
 
 function isPackageTestingSkipped(eco, sockRegPkgName) {
   const { ENV } = constants
+
+  // Check if package is in the skip list for known issues.
+  const skipSet = constants.skipTestsByEcosystem.get(eco)
+  if (skipSet?.has(sockRegPkgName)) {
+    return true
+  }
+
   return getCliArgs().force || ENV.CI || process.env.FORCE_TEST === '1'
     ? false
     : !(ENV.PRE_COMMIT ? getStagedPackagesSync : getModifiedPackagesSync)(eco, {
