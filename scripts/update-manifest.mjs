@@ -36,8 +36,10 @@ const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
 // Helper function to filter out package manager engines from engines object.
 function filterEngines(engines) {
-  if (!engines) return engines
-  const { pnpm, npm, yarn, ...filteredEngines } = engines
+  if (!engines) {
+    return engines
+  }
+  const { npm, pnpm, yarn, ...filteredEngines } = engines
   return filteredEngines
 }
 
