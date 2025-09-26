@@ -1,16 +1,16 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import constants from '../../scripts/constants'
+import { installPackageForTesting } from '../../scripts/lib/package-utils'
 import { isPackageTestingSkipped } from '../../scripts/lib/tests'
 
-const { NPM, UTF8, testNpmNodeWorkspacesPath } = constants
+const { NPM, UTF8 } = constants
 
 const eco = NPM
 const sockRegPkgName = path.basename(__filename, '.test.ts')
-const pkgPath = path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
 
 // @hyrious/bun.lockb has no unit tests.
 // https://github.com/hyrious/bun.lockb/tree/v0.0.4
@@ -19,7 +19,17 @@ describe(
   `${eco} > ${sockRegPkgName}`,
   { skip: isPackageTestingSkipped(eco, sockRegPkgName) },
   () => {
-    const hyriousBunLockb = require(path.join(pkgPath, 'index.cjs'))
+    let pkgPath: string
+    let hyriousBunLockb: any
+
+    beforeAll(async () => {
+      const result = await installPackageForTesting(sockRegPkgName)
+      if (!result.installed) {
+        throw new Error(`Failed to install package: ${result.reason}`)
+      }
+      pkgPath = result.packagePath!
+      hyriousBunLockb = require(path.join(pkgPath, 'index.cjs'))
+    })
 
     const { testNpmFixturesPath } = constants
 

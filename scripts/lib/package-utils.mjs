@@ -3,11 +3,21 @@
  * Provides helper functions for reading, updating, and managing package.json
  * files across the project.
  */
-'use strict'
+
+import { existsSync, promises as fs } from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+
+import { copy } from 'fs-extra'
 
 import constants from '../constants.mjs'
-import { readPackageJson } from '@socketsecurity/registry/lib/packages'
+import {
+  readPackageJson,
+  resolveOriginalPackageName,
+} from '@socketsecurity/registry/lib/packages'
 import { pEach } from '@socketsecurity/registry/lib/promises'
+import { spawn } from '@socketsecurity/registry/lib/spawn'
+import { cleanTestScript, testRunners } from './test-utils.mjs'
 
 const { DEFAULT_CONCURRENCY } = constants
 
@@ -152,11 +162,197 @@ async function processWithSpinner(items, processor, options = {}) {
   return { results, errors }
 }
 
+/**
+ * Run a command with spawn.
+ * @param {string} command - Command to run.
+ * @param {string[]} args - Command arguments.
+ * @param {object} options - Spawn options.
+ * @returns {Promise<{stdout: string, stderr: string}>}
+ */
+async function runCommand(command, args, options = {}) {
+  try {
+    const result = await spawn(command, args, {
+      stdio: 'pipe',
+      shell: process.platform.startsWith('win'),
+      ...options,
+    })
+    return { stdout: result.stdout, stderr: result.stderr }
+  } catch (error) {
+    const commandError = new Error(
+      `Command failed: ${command} ${args.join(' ')}`,
+    )
+    commandError.code = error.code || error.exitCode
+    commandError.stdout = error.stdout || ''
+    commandError.stderr = error.stderr || ''
+    throw commandError
+  }
+}
+
+/**
+ * Install a package for testing in a temporary directory.
+ * @param {string} socketPkgName - Socket package name.
+ * @returns {Promise<{installed: boolean, packagePath?: string, reason?: string}>}
+ */
+async function installPackageForTesting(socketPkgName) {
+  const origPkgName = resolveOriginalPackageName(socketPkgName)
+
+  // Check if this package should be skipped.
+  const skipTestsMap = constants.skipTestsByEcosystem
+  const skipSet = skipTestsMap.get('npm')
+  if (skipSet && (skipSet.has(socketPkgName) || skipSet.has(origPkgName))) {
+    return {
+      installed: false,
+      reason: 'Skipped (known issues)',
+    }
+  }
+
+  const overridePath = path.join(constants.npmPackagesPath, socketPkgName)
+
+  if (!existsSync(overridePath)) {
+    return {
+      installed: false,
+      reason: 'No Socket override found',
+    }
+  }
+
+  try {
+    // Read the test/npm/package.json to get the version spec.
+    const testPkgJson = await readPackageJson(constants.testNpmPkgJsonPath, {
+      normalize: true,
+    })
+    const versionSpec = testPkgJson.devDependencies?.[origPkgName]
+
+    if (!versionSpec) {
+      return {
+        installed: false,
+        reason: 'Not in devDependencies',
+      }
+    }
+
+    // Create temp directory for this package.
+    const tempDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), `socket-test-${socketPkgName}-`),
+    )
+    const packageTempDir = path.join(tempDir, socketPkgName)
+    await fs.mkdir(packageTempDir, { recursive: true })
+
+    // Create minimal package.json in temp directory.
+    await fs.writeFile(
+      path.join(packageTempDir, 'package.json'),
+      JSON.stringify(
+        {
+          name: 'test-temp',
+          version: '1.0.0',
+          private: true,
+        },
+        null,
+        2,
+      ),
+    )
+
+    // Install the package.
+    const packageSpec = versionSpec.startsWith('https://')
+      ? versionSpec
+      : `${origPkgName}@${versionSpec}`
+
+    await runCommand('pnpm', ['add', packageSpec], {
+      cwd: packageTempDir,
+    })
+
+    // Copy Socket override files on top.
+    const installedPath = path.join(packageTempDir, 'node_modules', origPkgName)
+
+    // Save original scripts before copying.
+    const originalPkgJson = await readPackageJson(installedPath, {
+      normalize: true,
+    })
+    const originalScripts = originalPkgJson.scripts
+
+    await copy(overridePath, installedPath, {
+      overwrite: true,
+      dereference: true,
+      filter: src =>
+        !src.includes('node_modules') && !src.endsWith('.DS_Store'),
+    })
+
+    // Merge back the test scripts and devDependencies if they existed.
+    const pkgJsonPath = path.join(installedPath, 'package.json')
+    const pkgJson = JSON.parse(await fs.readFile(pkgJsonPath, 'utf8'))
+
+    // Preserve devDependencies from original.
+    if (originalPkgJson.devDependencies) {
+      pkgJson.devDependencies = originalPkgJson.devDependencies
+    }
+
+    // Preserve test scripts.
+    if (originalScripts) {
+      pkgJson.scripts = pkgJson.scripts || {}
+
+      // Look for actual test runner in scripts.
+      const additionalTestRunners = [...testRunners, 'test:stock', 'test:all']
+      let actualTestScript = additionalTestRunners.find(
+        runner => originalScripts[runner],
+      )
+
+      if (!actualTestScript && originalScripts.test) {
+        // Try to extract the test runner from the test script.
+        const testMatch = originalScripts.test.match(/npm run ([-:\w]+)/)
+        if (testMatch && originalScripts[testMatch[1]]) {
+          actualTestScript = testMatch[1]
+        }
+      }
+
+      // Use the actual test script or cleaned version.
+      if (actualTestScript && originalScripts[actualTestScript]) {
+        pkgJson.scripts.test = cleanTestScript(
+          originalScripts[actualTestScript],
+        )
+        // Also preserve the actual script if it's referenced.
+        if (actualTestScript !== 'test') {
+          pkgJson.scripts[actualTestScript] = cleanTestScript(
+            originalScripts[actualTestScript],
+          )
+        }
+      } else if (originalScripts.test) {
+        // Fallback to simple test script if it exists.
+        pkgJson.scripts.test = cleanTestScript(originalScripts.test)
+      }
+
+      // Preserve any test:* and tests-* scripts that might be referenced.
+      for (const [key, value] of Object.entries(originalScripts)) {
+        if (
+          (key.startsWith('test:') || key.startsWith('tests')) &&
+          !pkgJson.scripts[key]
+        ) {
+          pkgJson.scripts[key] = cleanTestScript(value)
+        }
+      }
+    }
+
+    await fs.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 2))
+
+    // Install dependencies with pnpm.
+    await runCommand('pnpm', ['install'], { cwd: installedPath })
+
+    return {
+      installed: true,
+      packagePath: installedPath,
+    }
+  } catch (error) {
+    return {
+      installed: false,
+      reason: error.message,
+    }
+  }
+}
+
 export {
   clearPackageJsonCache,
   collectPackageData,
   editablePackageJsonCache,
+  installPackageForTesting,
   processWithSpinner,
   readCachedEditablePackageJson,
+  runCommand,
   updatePackagesJson,
 }

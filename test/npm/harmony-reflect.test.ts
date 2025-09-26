@@ -1,15 +1,15 @@
 import path from 'node:path'
 
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import constants from '../../scripts/constants'
+import { installPackageForTesting } from '../../scripts/lib/package-utils'
 import { isPackageTestingSkipped } from '../../scripts/lib/tests'
 
-const { NPM, testNpmNodeWorkspacesPath } = constants
+const { NPM } = constants
 
 const eco = NPM
 const sockRegPkgName = path.basename(__filename, '.test.ts')
-const pkgPath = path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
 
 // harmony-reflect has known failures in its package and requires running tests in browser.
 // https://github.com/tvcutsem/harmony-reflect/tree/v1.6.2/test
@@ -17,7 +17,17 @@ describe(
   `${eco} > ${sockRegPkgName}`,
   { skip: isPackageTestingSkipped(eco, sockRegPkgName) },
   () => {
-    const harmonyReflect = require(path.join(pkgPath, 'index.js'))
+    let pkgPath: string
+    let harmonyReflect: any
+
+    beforeAll(async () => {
+      const result = await installPackageForTesting(sockRegPkgName)
+      if (!result.installed) {
+        throw new Error(`Failed to install package: ${result.reason}`)
+      }
+      pkgPath = result.packagePath!
+      harmonyReflect = require(path.join(pkgPath, 'index.js'))
+    })
 
     it('should be able to define a property', () => {
       const obj: {
