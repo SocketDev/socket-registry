@@ -38,6 +38,7 @@ function wrapPrompt(inquirerPrompt) {
   }
 }
 
+// c8 ignore start - Third-party inquirer library integrations not testable in isolation.
 const selectExport = /*@__PURE__*/ require('../external/@inquirer/select')
 const selectRaw = selectExport.default
 const Separator = selectExport.Separator
@@ -56,6 +57,7 @@ const searchRaw = searchExport.default
 
 const search = /*@__PURE__*/ wrapPrompt(searchRaw)
 const select = /*@__PURE__*/ wrapPrompt(selectRaw)
+// c8 ignore stop
 
 module.exports = {
   Separator,
