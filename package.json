@@ -60,7 +60,7 @@
     "release:npm": "dotenvx -q run -f .env.local -- node ./scripts/release-npm-packages.mjs",
     "setup": "pnpm run build",
     "update": "run-p --aggregate-output update:* update:npm:* && run-s update:longtask:**",
-    "update:deps": "taze",
+    "update:deps": "node scripts/taze.mjs",
     "update:empty-dirs": "dotenvx -q run -f .env.local -- node ./scripts/update-empty-dirs.mjs",
     "update:empty-files": "dotenvx -q run -f .env.local -- node ./scripts/update-empty-files.mjs",
     "update:licenses": "dotenvx -q run -f .env.local -- node ./scripts/update-licenses.mjs",
