@@ -95,8 +95,7 @@ async function runPackageTest(socketPkgName) {
       return { package: origPkgName, passed: false, reason: 'No test script' }
     }
 
-    // Run the test.
-    logger.log(`🧪 ${origPkgName}: Running tests...`)
+    // Run the test (removed individual log message for cleaner output).
 
     // Add root node_modules/.bin to PATH for test runners.
     const rootBinPath = path.join(constants.rootPath, 'node_modules', '.bin')
@@ -223,27 +222,8 @@ void (async () => {
   const totalTested = results.length - skipped.length
 
   logger.success(
-    `Passed: ${passed.length}/${totalTested} (${results.length} total)`,
+    `✔ Passed: ${passed.length}/${totalTested} (${results.length} total)`,
   )
-  passed.forEach(r => logger.log(`   ${r.package}`))
-
-  if (skipped.length > 0) {
-    logger.warn(`Skipped: ${skipped.length}/${results.length} (known issues)`)
-    skipped.forEach(r => logger.log(`   ${r.package}`))
-  }
-
-  if (failed.length) {
-    logger.fail(
-      `Failed: ${failed.length}/${totalTested} (${results.length} total)`,
-    )
-    failed.forEach(r =>
-      logger.log(`   ${r.package}: ${r.reason?.substring(0, 50)}...`),
-    )
-  } else if (totalTested > 0) {
-    // All non-skipped tests passed.
-    logger.log('')
-    logger.success('🎉 All tests passed! (excluding skipped packages)')
-  }
 
   // Clean up base temp directory if no packages left and cleanup is enabled.
   if (cliArgs.cleanup && existsSync(tempBaseDir)) {
