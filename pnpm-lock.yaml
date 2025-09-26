@@ -88,10 +88,10 @@ importers:
         specifier: 7.0.0
         version: 7.0.0
       '@socketregistry/packageurl-js':
-        specifier: 1.0.9
-        version: 1.0.9
+        specifier: 1.1.0
+        version: 1.1.0
       '@socketregistry/scripts':
-        specifier: file:./scripts
+        specifier: file:scripts
         version: scripts@file:scripts
       '@socketsecurity/registry':
         specifier: workspace:*
@@ -1789,6 +1789,10 @@ packages:
   '@socketregistry/packageurl-js@1.0.9':
     resolution: {integrity: sha512-q0DbpmRhvD9MNChqFtdbiEjMHayx5LeK6/8ZRDjHdE7L9wPPtAwVo+at5nMk2r3drV7sXoeUjkB/zGrh7r0DRQ==}
     engines: {node: '>=18'}
+
+  '@socketregistry/packageurl-js@1.1.0':
+    resolution: {integrity: sha512-3kz5+04JjEBenLhh2ep5vrJjC506Muva4cODNjQbq7K1mjIx2bwkgey0qf1VL6b2ZLi0mFz0i3jsdpLdXW7uhg==}
+    engines: {node: '>=18', pnpm: '>=10.16.0'}
 
   '@socketregistry/path-parse@1.0.7':
     resolution: {integrity: sha512-Tql/7zg51KKCB+J0bGWQkff1J/8TxEYSM087XoHn3RHJ6X1nZQe/ugZ8bgUuoGmUOEphAdzbQvfaKIPgShBAcQ==}
@@ -5167,6 +5171,8 @@ snapshots:
   '@socketregistry/object.assign@1.0.7': {}
 
   '@socketregistry/packageurl-js@1.0.9': {}
+
+  '@socketregistry/packageurl-js@1.1.0': {}
 
   '@socketregistry/path-parse@1.0.7': {}
 
