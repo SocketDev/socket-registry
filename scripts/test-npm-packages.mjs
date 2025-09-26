@@ -29,7 +29,7 @@ const { values: cliArgs } = util.parseArgs({
     concurrency: {
       type: 'string',
       // Reduce concurrency in CI to avoid memory issues.
-      default: process.env.CI ? '1' : '3',
+      default: process.env.CI ? '5' : '10',
     },
     force: {
       type: 'boolean',
@@ -267,7 +267,7 @@ async function testPackage(socketPkgName) {
   }
 }
 
-async function main() {
+void (async () => {
   const packages = cliArgs.package?.length
     ? cliArgs.package
     : constants.npmPackageNames
@@ -325,9 +325,4 @@ async function main() {
   // Set exit code for process termination.
   // With --force flag, always exit with 0 regardless of failures.
   process.exitCode = cliArgs.force ? 0 : failed.length ? 1 : 0
-}
-
-main().catch(error => {
-  logger.error('Fatal error:', error)
-  process.exitCode = 1
-})
+})()

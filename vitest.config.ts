@@ -3,38 +3,32 @@ import path from 'node:path'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
+  resolve: {
+    preserveSymlinks: false,
+    alias: {
+      '@socketregistry/scripts': path.resolve(__dirname, './scripts'),
+      '@socketsecurity/registry': path.resolve(__dirname, './registry'),
+    },
+  },
   test: {
     globals: false,
     environment: 'node',
     include: ['test/**/*.test.{js,ts,mjs,cjs}'],
     reporters: ['default'],
-    // Improve memory usage by running tests sequentially in CI.
-    pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true,
-        maxForks: 1,
-        // Isolate tests to prevent memory leaks between test files.
-        isolate: true,
-      },
-      threads: {
-        singleThread: true,
-        // Limit thread concurrency to prevent RegExp compiler exhaustion.
-        maxThreads: 1,
-      },
-    },
+    testTimeout: 60000,
+    hookTimeout: 60000,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       exclude: [
         '**/*.config.*',
+        '**/[.]**',
+        '**/*.d.ts',
+        '**/virtual:*',
         '**/dist/**',
         '**/build/**',
         '**/node_modules/**',
-        '**/[.]**',
-        '**/*.d.ts',
         '**/pnpmfile.*',
-        '**/virtual:*',
         'coverage/**',
         'test/**',
         'scripts/**',
@@ -44,21 +38,17 @@ export default defineConfig({
         'packages/**',
         'perf/**',
       ],
-      all: false,
+      include: [
+        'registry/lib/**/*.{js,ts,mjs,cjs}',
+        'registry/src/**/*.{js,ts,mjs,cjs}',
+      ],
+      all: true,
       thresholds: {
         lines: 90,
         functions: 85,
         branches: 90,
         statements: 90,
       },
-    },
-    testTimeout: 60000,
-    hookTimeout: 60000,
-  },
-  resolve: {
-    alias: {
-      '@socketregistry/scripts': path.resolve(__dirname, './scripts'),
-      '@socketsecurity/registry': path.resolve(__dirname, './registry'),
     },
   },
 })
