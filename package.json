@@ -69,8 +69,7 @@
     "update:caniuse-lite": "dotenvx -q run -f .env.local -- node ./scripts/update-caniuse-lite.mjs",
     "update:registry-package-json": "dotenvx -q run -f .env.local -- node ./scripts/update-registry-package-json.mjs",
     "update:npm:package-json": "dotenvx -q run -f .env.local -- node ./scripts/update-npm-package-json.mjs",
-    "update:npm:readmes": "dotenvx -q run -f .env.local -- node ./scripts/update-npm-readmes.mjs",
-    "update:longtask:test:npm:package-json": "dotenvx -q run -f .env.local -- node ./scripts/update-test-npm-package-json.mjs"
+    "update:npm:readmes": "dotenvx -q run -f .env.local -- node ./scripts/update-npm-readmes.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
