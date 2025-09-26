@@ -354,16 +354,6 @@ void (async () => {
 
   await execScript('update:package-json', [], spawnOptions)
 
-  if (
-    state.changed.length > 1 ||
-    (state.changed.length === 1 && state.changed[0] !== registryPkg)
-  ) {
-    await execScript(
-      'update:longtask:test:npm:package-json',
-      ['--', '--quiet', '--force'],
-      spawnOptions,
-    )
-  }
 
   spinner.stop()
 })()
