@@ -1,17 +1,17 @@
 import path from 'node:path'
 
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import { logger } from '@socketsecurity/registry/lib/logger'
 
 import constants from '../../scripts/constants'
+import { installPackageForTesting } from '../../scripts/lib/package-utils'
 import { isPackageTestingSkipped } from '../../scripts/lib/tests'
 
-const { NPM, testNpmNodeWorkspacesPath } = constants
+const { NPM } = constants
 
 const eco = NPM
 const sockRegPkgName = path.basename(__filename, '.test.ts')
-const pkgPath = path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
 
 // es6-object-assign has no unit tests.
 // https://github.com/rubennorte/es6-object-assign/tree/v1.1.0
@@ -20,7 +20,17 @@ describe(
   `${eco} > ${sockRegPkgName}`,
   { skip: isPackageTestingSkipped(eco, sockRegPkgName) },
   () => {
-    const es6oa = require(path.join(pkgPath, 'index.js'))
+    let pkgPath: string
+    let es6oa: any
+
+    beforeAll(async () => {
+      const result = await installPackageForTesting(sockRegPkgName)
+      if (!result.installed) {
+        throw new Error(`Failed to install package: ${result.reason}`)
+      }
+      pkgPath = result.packagePath!
+      es6oa = require(path.join(pkgPath, 'index.js'))
+    })
 
     it('does not have "pending exception" logic in implementation', () => {
       /*

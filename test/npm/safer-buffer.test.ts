@@ -2,18 +2,18 @@
 import buffer from 'node:buffer'
 import path from 'node:path'
 
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import { logger } from '@socketsecurity/registry/lib/logger'
 
 import constants from '../../scripts/constants'
+import { installPackageForTesting } from '../../scripts/lib/package-utils'
 import { isPackageTestingSkipped } from '../../scripts/lib/tests'
 
-const { NPM, testNpmNodeWorkspacesPath } = constants
+const { NPM } = constants
 
 const eco = NPM
 const sockRegPkgName = path.basename(__filename, '.test.ts')
-const pkgPath = path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
 
 // safer-buffer tests assume Buffer.alloc, Buffer.allocUnsafe, and
 // Buffer.allocUnsafeSlow throw for a size of 2 * (1 << 30), i.e. 2147483648,
@@ -24,9 +24,21 @@ describe(
   `${eco} > ${sockRegPkgName}`,
   { skip: isPackageTestingSkipped(eco, sockRegPkgName) },
   () => {
-    const safer = require(path.join(pkgPath, 'safer.js'))
-    const dangerous = require(path.join(pkgPath, 'dangerous.js'))
-    const implementations = [safer, dangerous]
+    let pkgPath: string
+    let safer: any
+    let dangerous: any
+    let implementations: any[]
+
+    beforeAll(async () => {
+      const result = await installPackageForTesting(sockRegPkgName)
+      if (!result.installed) {
+        throw new Error(`Failed to install package: ${result.reason}`)
+      }
+      pkgPath = result.packagePath!
+      safer = require(path.join(pkgPath, 'safer.js'))
+      dangerous = require(path.join(pkgPath, 'dangerous.js'))
+      implementations = [safer, dangerous]
+    })
 
     it('Default is Safer', () => {
       expect(safer === dangerous).toBe(false)

@@ -1,22 +1,33 @@
 import path from 'node:path'
 
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import constants from '../../scripts/constants'
+import { installPackageForTesting } from '../../scripts/lib/package-utils'
 import { isPackageTestingSkipped } from '../../scripts/lib/tests'
 
-const { NPM, testNpmNodeWorkspacesPath } = constants
+const { NPM } = constants
 
 const eco = NPM
 const sockRegPkgName = path.basename(__filename, '.test.ts')
-const pkgPath = path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
 
 describe(
   `${eco} > ${sockRegPkgName}`,
   { skip: isPackageTestingSkipped(eco, sockRegPkgName) },
   () => {
-    const flattenLegacy = require(path.join(pkgPath, 'index.js'))
-    const { flatten } = flattenLegacy
+    let pkgPath: string
+    let flattenLegacy: any
+    let flatten: any
+
+    beforeAll(async () => {
+      const result = await installPackageForTesting(sockRegPkgName)
+      if (!result.installed) {
+        throw new Error(`Failed to install package: ${result.reason}`)
+      }
+      pkgPath = result.packagePath!
+      flattenLegacy = require(path.join(pkgPath, 'index.js'))
+      flatten = flattenLegacy.flatten
+    })
 
     // array-flatten v3 unit tests.
     // https://github.com/blakeembrey/array-flatten/blob/v3.0.0/src/index.spec.ts

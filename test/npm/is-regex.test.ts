@@ -1,18 +1,15 @@
-import { existsSync } from 'node:fs'
 import path from 'node:path'
 
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import constants from '../../scripts/constants'
 import { isPackageTestingSkipped } from '../../scripts/lib/tests'
+import { setupMultiEntryTest } from '../lib/test-helpers'
 
-const { NPM, testNpmNodeWorkspacesPath } = constants
+const { NPM } = constants
 
 const eco = NPM
 const sockRegPkgName = path.basename(__filename, '.test.ts')
-const pkgPath = path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
-const pkgRequireIndexJsPath = path.join(pkgPath, 'index.js')
-const pkgRequireIndexCjsPath = path.join(pkgPath, 'index.cjs')
 
 // is-regex tests don't account for `is-regex` backed by.
 // `require('node:util/types).isRegExp` which triggers no proxy traps and.
@@ -22,23 +19,20 @@ const pkgRequireIndexCjsPath = path.join(pkgPath, 'index.cjs')
 // https://github.com/inspect-js/is-regex/blob/v1.1.4/test/index.js
 describe(
   `${eco} > ${sockRegPkgName}`,
-  {
-    skip:
-      isPackageTestingSkipped(eco, sockRegPkgName) ||
-      // Add check to avoid errors in CI.
-      (constants.ENV.CI &&
-        !(
-          existsSync(pkgRequireIndexJsPath) &&
-          existsSync(pkgRequireIndexCjsPath)
-        )),
-  },
+  { skip: isPackageTestingSkipped(eco, sockRegPkgName) },
   () => {
-    const implementations = [
-      require(pkgRequireIndexJsPath),
-      require(pkgRequireIndexCjsPath),
-    ]
-    for (const isRegex of implementations) {
-      it('not regexes', () => {
+    let implementations: any[]
+
+    beforeAll(async () => {
+      const result = await setupMultiEntryTest(sockRegPkgName, [
+        'index.js',
+        'index.cjs',
+      ])
+      implementations = result.modules
+    })
+
+    it('not regexes', () => {
+      for (const isRegex of implementations) {
         expect(isRegex()).toBe(false)
         expect(isRegex(null)).toBe(false)
         expect(isRegex(false)).toBe(false)
@@ -48,9 +42,11 @@ describe(
         expect(isRegex([])).toBe(false)
         expect(isRegex({})).toBe(false)
         expect(isRegex(function () {})).toBe(false)
-      })
+      }
+    })
 
-      it('@@toStringTag', () => {
+    it('@@toStringTag', () => {
+      for (const isRegex of implementations) {
         const regex = /a/g
         const fakeRegex = {
           toString() {
@@ -63,14 +59,18 @@ describe(
         }
 
         expect(isRegex(fakeRegex)).toBe(false)
-      })
+      }
+    })
 
-      it('regexes', () => {
+    it('regexes', () => {
+      for (const isRegex of implementations) {
         expect(isRegex(/a/g)).toBe(true)
         expect(isRegex(new RegExp('a', 'g'))).toBe(true)
-      })
+      }
+    })
 
-      it('does not mutate regexes', () => {
+    it('does not mutate regexes', () => {
+      for (const isRegex of implementations) {
         // Test lastIndex is a marker object.
         {
           const regex = /a/
@@ -89,9 +89,11 @@ describe(
           expect(isRegex(regex)).toBe(true)
           expect(regex.lastIndex).toBe(3)
         }
-      })
+      }
+    })
 
-      it('does not perform operations observable to Proxies', () => {
+    it('does not perform operations observable to Proxies', () => {
+      for (const isRegex of implementations) {
         class Handler {
           trapCalls: string[]
           constructor() {
@@ -150,7 +152,7 @@ describe(
             handler.trapCalls.length ? ['getOwnPropertyDescriptor'] : [],
           )
         }
-      })
-    }
+      }
+    })
   },
 )

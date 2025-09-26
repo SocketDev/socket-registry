@@ -1,15 +1,14 @@
 import path from 'node:path'
 
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import constants from '../../scripts/constants'
+import { installPackageForTesting } from '../../scripts/lib/package-utils'
 
-const { NPM, testNpmNodeWorkspacesPath } = constants
+const { NPM } = constants
 
 const eco = NPM
 const sockRegPkgName = path.basename(__filename, '.test.ts')
-const pkgPath = path.join(testNpmNodeWorkspacesPath, sockRegPkgName)
-const pkgRequireIndexJsPath = path.join(pkgPath, 'index.js')
 
 describe(
   `${eco} > ${sockRegPkgName}`,
@@ -17,7 +16,19 @@ describe(
     skip: constants.ENV.CI,
   },
   () => {
-    const jsonStableStringify = require(pkgRequireIndexJsPath)
+    let pkgPath: string
+    let pkgRequireIndexJsPath: string
+    let jsonStableStringify: any
+
+    beforeAll(async () => {
+      const result = await installPackageForTesting(sockRegPkgName)
+      if (!result.installed) {
+        throw new Error(`Failed to install package: ${result.reason}`)
+      }
+      pkgPath = result.packagePath!
+      pkgRequireIndexJsPath = path.join(pkgPath, 'index.js')
+      jsonStableStringify = require(pkgRequireIndexJsPath)
+    })
 
     const rawJSON: ((_str: string) => { rawJSON: string }) | undefined = (
       JSON as any
