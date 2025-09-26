@@ -41,15 +41,24 @@ const MAX_PROGRESS_WIDTH = 80
 let currentLinePosition = 0
 let completedPackages = 0
 let totalPackagesCount = 0
+let progressLine = ''
 
 function writeProgress(symbol) {
   if (currentLinePosition >= MAX_PROGRESS_WIDTH) {
-    completedPackages++
-    process.stdout.write(`\n(${completedPackages}/${totalPackagesCount}) `)
-    currentLinePosition = `(${completedPackages}/${totalPackagesCount}) `.length
+    // Flush current progress line and start new one
+    if (progressLine) {
+      logger.log(`(${completedPackages}/${totalPackagesCount}) ${progressLine}`)
+    }
+    progressLine = symbol
+    currentLinePosition = 1
+  } else {
+    progressLine += symbol
+    currentLinePosition += 1
   }
-  process.stdout.write(symbol)
-  currentLinePosition++
+}
+
+function completePackage() {
+  completedPackages += 1
 }
 
 async function runCommand(command, args, options = {}) {
@@ -187,6 +196,7 @@ async function installPackage(packageInfo) {
 
     if (!testScript) {
       writeProgress(LOG_SYMBOLS.warn)
+      completePackage()
       return {
         package: origPkgName,
         socketPackage: socketPkgName,
@@ -200,6 +210,7 @@ async function installPackage(packageInfo) {
     await runCommand('pnpm', ['install'], { cwd: installedPath })
 
     writeProgress(LOG_SYMBOLS.success)
+    completePackage()
     return {
       package: origPkgName,
       socketPackage: socketPkgName,
@@ -208,6 +219,7 @@ async function installPackage(packageInfo) {
     }
   } catch (error) {
     writeProgress(LOG_SYMBOLS.fail)
+    completePackage()
     return {
       package: origPkgName,
       socketPackage: socketPkgName,
@@ -258,17 +270,11 @@ void (async () => {
   logger.log(
     `Installing ${filteredPackages.length} packages with concurrency ${concurrency}...`,
   )
-  logger.log(`Temp directory: ${tempBaseDir}`)
-  logger.log(
-    `Progress: 📦 = downloading, 🔧 = overriding, 📚 = dependencies, ${LOG_SYMBOLS.success} = success, ${LOG_SYMBOLS.fail} = failed, ${LOG_SYMBOLS.warn} = no test\n`,
-  )
 
   // Initialize progress tracking.
   totalPackagesCount = filteredPackages.length
   completedPackages = 0
   currentLinePosition = 0
-  process.stdout.write('(0/' + totalPackagesCount + ') ')
-  currentLinePosition = ('(0/' + totalPackagesCount + ') ').length
 
   // Ensure base temp directory exists.
   await fs.mkdir(tempBaseDir, { recursive: true })
@@ -284,8 +290,10 @@ void (async () => {
     { concurrency },
   )
 
-  // Add newline after progress indicators.
-  process.stdout.write('\n')
+  // Flush final progress line.
+  if (progressLine) {
+    logger.log(`(${results.length}/${totalPackagesCount}) ${progressLine}`)
+  }
 
   const failed = results.filter(r => !r.installed && r.reason !== 'Skipped')
 

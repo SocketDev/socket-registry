@@ -196,7 +196,6 @@ void (async () => {
   logger.log(
     `Running tests for ${packagesToTest.length} packages with concurrency ${concurrency}...`,
   )
-  logger.log(`Temp directory: ${tempBaseDir}\n`)
 
   const results = []
 

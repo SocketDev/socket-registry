@@ -6,6 +6,7 @@ const { promises: fs } = require('node:fs')
 const MagicString = require('magic-string')
 
 const { ENV } = require('../lib/constants')
+const { isDebug } = require('../lib/debug')
 const { isJsonPrimitive } = require('../lib/json')
 const { escapeRegExp } = require('../lib/regexps')
 const { toKebabCase } = require('../lib/strings')
@@ -59,6 +60,7 @@ void (async () => {
   const constObj = require(libConstantsJsPath)
   const constContent = await fs.readFile(libConstantsJsPath, 'utf8')
   const constMagicString = new MagicString(constContent)
+  const inlinedConstants = []
 
   for (const key of Object.keys(constObj)) {
     if (excludedKeys.has(key)) {
@@ -86,6 +88,7 @@ void (async () => {
     const inlineStr =
       typeof value === 'string' ? `'${rawStr.slice(1, -1)}'` : rawStr
     constMagicString.overwrite(start, end, `${key}: ${inlineStr},`)
+    inlinedConstants.push(key)
   }
   await fs.writeFile(libConstantsJsPath, constMagicString.toString(), 'utf8')
   // Show output in CI or when explicitly requested, otherwise be quiet during install-related lifecycle events.
@@ -95,6 +98,10 @@ void (async () => {
     (lifecycleEvent === 'prepare' || lifecycleEvent.includes('install'))
   const shouldShowOutput = ENV.CI || ENV.VERBOSE_BUILD || !isQuietLifecycle
   if (shouldShowOutput) {
-    console.log(`✅ Inlined constants`)
+    if (isDebug()) {
+      inlinedConstants.forEach(key => console.log(`✅ Inlined ${key}`))
+    } else {
+      console.log(`✅ Inlined constants`)
+    }
   }
 })()
