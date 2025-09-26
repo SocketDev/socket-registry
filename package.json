@@ -58,7 +58,7 @@
     "package:npm:publish": "dotenvx -q run -f .env.local -- node ./scripts/update-npm-package-publish.mjs",
     "release:npm": "dotenvx -q run -f .env.local -- node ./scripts/release-npm-packages.mjs",
     "setup": "pnpm run build",
-    "update": "run-p --aggregate-output update:* update:npm:* && run-s update:longtask:**",
+    "update": "run-p --aggregate-output update:* update:npm:*",
     "update:deps": "node scripts/taze.mjs",
     "update:empty-dirs": "dotenvx -q run -f .env.local -- node ./scripts/update-empty-dirs.mjs",
     "update:empty-files": "dotenvx -q run -f .env.local -- node ./scripts/update-empty-files.mjs",
@@ -68,7 +68,8 @@
     "update:caniuse-lite": "dotenvx -q run -f .env.local -- node ./scripts/update-caniuse-lite.mjs",
     "update:registry-package-json": "dotenvx -q run -f .env.local -- node ./scripts/update-registry-package-json.mjs",
     "update:npm:package-json": "dotenvx -q run -f .env.local -- node ./scripts/update-npm-package-json.mjs",
-    "update:npm:readmes": "dotenvx -q run -f .env.local -- node ./scripts/update-npm-readmes.mjs"
+    "update:npm:readmes": "dotenvx -q run -f .env.local -- node ./scripts/update-npm-readmes.mjs",
+    "update:socket": "pnpm update '@socketsecurity/*' '@socketregistry/*' --latest"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
