@@ -8,8 +8,7 @@
  */
 'use strict'
 
-import { spawn, spawnSync } from 'node:child_process'
-import { existsSync } from 'node:fs'
+import { spawn } from 'node:child_process'
 import path from 'node:path'
 
 import fastGlob from 'fast-glob'
@@ -37,43 +36,6 @@ void (async () => {
     if (hasForce) {
       // Remove --force from arguments.
       args.splice(forceIndex, 1)
-    }
-
-    // Check if we're running npm tests.
-    const isNpmTest = args.length === 0 || args.some(arg => arg.includes('npm'))
-
-    // Set up test environment if needed (happens regardless of --force flag).
-    if (isNpmTest) {
-      // Check if test environment needs setup.
-      const needsSetup =
-        !existsSync(constants.testNpmNodeWorkspacesPath) ||
-        !existsSync(constants.testNpmNodeModulesPath)
-
-      if (needsSetup) {
-        logger.log('Setting up test environment...')
-        const setupResult = spawnSync(
-          'node',
-          [
-            path.join(
-              constants.rootPath,
-              'scripts',
-              'update-test-npm-package-json.js',
-            ),
-            '--force',
-          ],
-          {
-            cwd: constants.rootPath,
-            stdio: 'inherit',
-            shell: WIN32,
-          },
-        )
-
-        if (setupResult.status) {
-          logger.error('Failed to set up test environment')
-          process.exitCode = 1
-          return
-        }
-      }
     }
 
     const spawnEnv = {
