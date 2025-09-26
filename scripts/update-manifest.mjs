@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Registry manifest generation and updating script.
+ * Creates and maintains the Socket registry manifest file with package metadata.
+ */
 'use strict'
 
 import { createRequire } from 'node:module'

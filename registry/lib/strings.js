@@ -1,3 +1,7 @@
+/**
+ * @fileoverview String manipulation utilities including ANSI code handling.
+ * Provides string processing, prefix application, and terminal output utilities.
+ */
 'use strict'
 
 const { fromCharCode } = String

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Package manager agent for executing npm, pnpm, and yarn commands.
+ * Provides cross-platform utilities with optimized flags and security defaults.
+ */
 'use strict'
 
 const {

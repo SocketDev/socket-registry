@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Performance benchmarking script runner.
+ * Executes performance tests and benchmarks for registry operations.
+ */
 'use strict'
 
 import fastGlob from 'fast-glob'

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Child process spawning utilities with cross-platform support.
+ * Provides enhanced spawn functionality with stdio handling and error management.
+ */
 'use strict'
 
 const { isArray: ArrayIsArray } = Array

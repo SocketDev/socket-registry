@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Biome code formatter configuration and utilities.
+ * Provides default Biome configuration and formatting helpers for the registry.
+ */
 'use strict'
 
 import path from 'node:path'

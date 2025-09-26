@@ -1,3 +1,7 @@
+/**
+ * @fileoverview File system utilities with cross-platform path handling.
+ * Provides enhanced fs operations, glob matching, and directory traversal functions.
+ */
 'use strict'
 
 const { isArray: ArrayIsArray } = Array

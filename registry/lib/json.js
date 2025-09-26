@@ -1,3 +1,7 @@
+/**
+ * @fileoverview JSON parsing utilities with Buffer detection and BOM stripping.
+ * Provides safe JSON parsing with automatic encoding handling.
+ */
 'use strict'
 
 const { parse: JSONParse } = JSON

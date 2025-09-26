@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Package registry management with Socket.dev specific utilities.
+ * Provides npm package analysis, dependency resolution, and registry operations.
+ */
 'use strict'
 
 const { isArray: ArrayIsArray } = Array

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Sorting comparison functions including locale-aware and natural sorting.
+ * Provides various comparison utilities for arrays and collections.
+ */
 'use strict'
 
 let _localeCompare

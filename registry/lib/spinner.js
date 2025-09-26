@@ -1,3 +1,7 @@
+/**
+ * @fileoverview CLI spinner utilities for long-running operations.
+ * Provides animated progress indicators with CI environment detection.
+ */
 'use strict'
 
 const { hasOwn } = /*@__PURE__*/ require('./objects')

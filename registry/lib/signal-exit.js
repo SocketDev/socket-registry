@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Process signal handling utilities.
+ * Provides cross-platform signal exit detection and cleanup handlers.
+ */
 'use strict'
 
 // Inlined signal-exit:

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Object manipulation and reflection utilities.
+ * Provides type-safe object operations, property access, and structural helpers.
+ */
 'use strict'
 
 const { isArray: ArrayIsArray } = Array

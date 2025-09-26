@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Binary path resolution and execution utilities for package managers.
+ * Provides cross-platform bin path lookup, command execution, and path normalization.
+ */
 'use strict'
 
 const { readJsonSync } = /*@__PURE__*/ require('./fs')

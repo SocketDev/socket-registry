@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Glob pattern matching utilities with default ignore patterns.
+ * Provides file filtering and glob matcher functions for npm-like behavior.
+ */
 'use strict'
 
 const { freeze: ObjectFreeze } = Object

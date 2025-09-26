@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Promise utilities including chunked iteration and timers.
+ * Provides async control flow helpers and promise-based timing functions.
+ */
 'use strict'
 
 const { arrayChunk } = /*@__PURE__*/ require('./arrays')

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Environment variable parsing and conversion utilities.
+ * Provides type-safe conversion functions for boolean, number, and string values.
+ */
 'use strict'
 
 const NumberCtor = Number
