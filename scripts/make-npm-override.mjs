@@ -466,11 +466,6 @@ void (async () => {
     }
     await execScript('update:manifest', [], spawnOptions)
     await execScript('update:package-json', [], spawnOptions)
-    await execScript(
-      'update:longtask:test:npm:package-json',
-      ['--', '--quiet', '--add', origPkgName],
-      spawnOptions,
-    )
     if (!cliArgs.quiet) {
       logger.log('Finished 🎉')
     }

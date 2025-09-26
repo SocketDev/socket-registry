@@ -6,6 +6,7 @@
 import { createRequire } from 'node:module'
 import fs from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { includeIgnoreFile } from '@eslint/compat'
 import which from 'which'
 import registryConstants from '@socketsecurity/registry/lib/constants'
@@ -218,7 +219,7 @@ const lazyWin32EnsureTestsByEcosystem = () => {
   return new Map([['npm', new Set(['date'])]])
 }
 
-const lazyTemplatesPath = () => path.join(__dirname, 'templates')
+const lazyTemplatesPath = () => path.join(path.dirname(fileURLToPath(import.meta.url)), 'templates')
 
 const lazyTestNpmPath = () => path.join(constants.rootPath, `test/${NPM}`)
 
