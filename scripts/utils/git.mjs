@@ -2,7 +2,6 @@
  * @fileoverview Git operations including diff detection and file tracking.
  * Provides utilities for git-based file change detection and repository management.
  */
-'use strict'
 
 import path from 'node:path'
 
