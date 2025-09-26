@@ -46,13 +46,13 @@ let completedPackages = 0
 let totalPackagesCount = 0
 
 function writeProgress(symbol) {
+  completedPackages += 1
   if (currentLinePosition >= MAX_PROGRESS_WIDTH) {
-    completedPackages++
     process.stdout.write(`\n(${completedPackages}/${totalPackagesCount}) `)
     currentLinePosition = `(${completedPackages}/${totalPackagesCount}) `.length
   }
   process.stdout.write(symbol)
-  currentLinePosition++
+  currentLinePosition += 1
 }
 
 async function downloadPackage(socketPkgName) {
