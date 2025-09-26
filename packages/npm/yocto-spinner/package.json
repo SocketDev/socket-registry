@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/yocto-spinner",
-  "version": "1.0.23",
+  "version": "1.0.24",
   "license": "MIT",
   "description": "Socket.dev optimized package override for yocto-spinner",
   "keywords": [
