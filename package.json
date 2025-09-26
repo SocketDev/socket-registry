@@ -48,7 +48,6 @@
     "perf": "dotenvx -q run -f .env.local -- node ./scripts/perf.mjs",
     "precommit": "lint-staged",
     "prepare": "dotenvx -q run -f .env.local -- husky && pnpm run setup",
-    "pretest:unit": "run-s update:longtask:test:**",
     "test": "run-s check test:*",
     "test:npm:packages": "dotenvx -q run -f .env.local -- node ./scripts/test-npm-packages.mjs",
     "test:unit": "dotenvx -q run -f .env.local -- node ./scripts/test.mjs",
