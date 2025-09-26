@@ -28,7 +28,7 @@ import constants, { EXT_JSON } from '../scripts/constants'
 import {
   getModifiedPackagesSync,
   getStagedPackagesSync,
-} from '../scripts/lib/git'
+} from '../scripts/utils/git'
 
 const {
   LICENSE,

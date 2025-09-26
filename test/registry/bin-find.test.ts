@@ -2,8 +2,9 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-import trash from 'trash'
 import { describe, expect, it } from 'vitest'
+
+import { safeRemove } from '../../scripts/utils/fs'
 
 const {
   findRealBin,
@@ -79,7 +80,7 @@ describe('bin find utilities', () => {
         expect(result).toBeTruthy()
         expect(isShadowBinPath(result)).toBe(false)
       } finally {
-        await trash([path.join(tmpDir, 'node_modules')])
+        await safeRemove([path.join(tmpDir, 'node_modules')])
       }
     })
 
@@ -93,7 +94,7 @@ describe('bin find utilities', () => {
         const result = findRealBin('test', [binPath])
         expect(result).toBe(binPath)
       } finally {
-        await trash([binPath])
+        await safeRemove([binPath])
       }
     })
   })

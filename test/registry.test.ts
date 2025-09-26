@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest'
 import { isObjectObject } from '@socketsecurity/registry/lib/objects'
 
 import constants from '../scripts/constants'
-import { isPackageTestingSkipped } from '../scripts/lib/tests'
+import { isPackageTestingSkipped } from '../scripts/utils/tests'
 
 const { NPM, SOCKET_REGISTRY_PACKAGE_NAME } = constants
 

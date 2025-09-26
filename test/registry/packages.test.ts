@@ -1,8 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
 const {
+  collectIncompatibleLicenses,
+  collectLicenseWarnings,
   getReleaseTag,
+  getRepoUrlDetails,
   getSubpaths,
+  gitHubTagRefUrl,
+  gitHubTgzUrl,
   isBlessedPackageName,
   isConditionalExports,
   isGitHubTgzSpec,
@@ -10,8 +15,14 @@ const {
   isSubpathExports,
   isValidPackageName,
   normalizePackageJson,
+  parseSpdxExp,
   resolveEscapedScope,
   resolveOriginalPackageName,
+  resolvePackageJsonDirname,
+  resolvePackageJsonPath,
+  resolvePackageLicenses,
+  unescapeScope,
+  visitLicenses,
 } = require('@socketsecurity/registry/lib/packages')
 
 describe('packages module', () => {
@@ -295,6 +306,172 @@ describe('packages module', () => {
       }
       const normalized = normalizePackageJson(pkg)
       expect(normalized.customField).toBe('value')
+    })
+  })
+
+  describe('unescapeScope', () => {
+    it('should unescape scoped package names', () => {
+      expect(unescapeScope('babel__')).toBe('@babel')
+      expect(unescapeScope('types__')).toBe('@types')
+      expect(unescapeScope('socket__')).toBe('@socket')
+    })
+
+    it('should handle different scope formats', () => {
+      expect(unescapeScope('babel__')).toBe('@babel')
+      expect(unescapeScope('organization__')).toBe('@organization')
+    })
+  })
+
+  describe('gitHubTagRefUrl', () => {
+    it('should generate GitHub tag ref URLs', () => {
+      const url = gitHubTagRefUrl('user', 'repo', 'v1.0.0')
+      expect(url).toContain('github.com')
+      expect(url).toContain('user')
+      expect(url).toContain('repo')
+      expect(url).toContain('v1.0.0')
+    })
+
+    it('should handle different tag formats', () => {
+      const url1 = gitHubTagRefUrl('org', 'project', 'main')
+      const url2 = gitHubTagRefUrl('org', 'project', '1.2.3')
+      expect(url1).toContain('main')
+      expect(url2).toContain('1.2.3')
+    })
+  })
+
+  describe('gitHubTgzUrl', () => {
+    it('should generate GitHub tarball URLs', () => {
+      const url = gitHubTgzUrl('user', 'repo', 'main')
+      expect(url).toContain('github.com')
+      expect(url).toContain('user')
+      expect(url).toContain('repo')
+      expect(url).toContain('main')
+      expect(url).toContain('.tar.gz')
+    })
+  })
+
+  describe('getRepoUrlDetails', () => {
+    it('should handle git URLs', () => {
+      const details = getRepoUrlDetails('git+https://github.com/user/repo.git')
+      expect(details).toBeDefined()
+    })
+
+    it('should handle string input', () => {
+      const details = getRepoUrlDetails('user/repo')
+      expect(details).toBeDefined()
+      expect(details.user).toBe('user')
+    })
+
+    it('should handle GitHub URLs', () => {
+      const details = getRepoUrlDetails(
+        'https://github.com/socketdev/socket-registry',
+      )
+      expect(details).toBeDefined()
+    })
+  })
+
+  describe('parseSpdxExp', () => {
+    it('should parse simple license expressions', () => {
+      const result = parseSpdxExp('MIT')
+      expect(result).toBeDefined()
+      expect(result.license).toBe('MIT')
+    })
+
+    it('should parse complex license expressions', () => {
+      const result = parseSpdxExp('(MIT OR Apache-2.0)')
+      expect(result).toBeDefined()
+    })
+
+    it('should handle invalid expressions', () => {
+      const result = parseSpdxExp('invalid-license')
+      expect(result).toBeDefined()
+    })
+  })
+
+  describe('resolvePackageLicenses', () => {
+    it('should be callable as function', () => {
+      expect(typeof resolvePackageLicenses).toBe('function')
+    })
+  })
+
+  describe('resolvePackageJsonDirname', () => {
+    it('should resolve package.json directory paths', () => {
+      const dirname = resolvePackageJsonDirname('/some/path')
+      expect(typeof dirname).toBe('string')
+    })
+
+    it('should handle relative paths', () => {
+      const dirname = resolvePackageJsonDirname('./test')
+      expect(typeof dirname).toBe('string')
+    })
+  })
+
+  describe('resolvePackageJsonPath', () => {
+    it('should resolve package.json file paths', () => {
+      const filePath = resolvePackageJsonPath('/some/directory')
+      expect(typeof filePath).toBe('string')
+      expect(filePath.endsWith('package.json')).toBe(true)
+    })
+
+    it('should handle existing package.json paths', () => {
+      const filePath = resolvePackageJsonPath('/some/path/package.json')
+      expect(filePath.endsWith('package.json')).toBe(true)
+    })
+  })
+
+  describe('collectIncompatibleLicenses', () => {
+    it('should collect incompatible licenses', () => {
+      const licenses = ['MIT', 'GPL-3.0']
+      const incompatible = collectIncompatibleLicenses(licenses)
+      expect(Array.isArray(incompatible)).toBe(true)
+    })
+
+    it('should handle empty license arrays', () => {
+      const incompatible = collectIncompatibleLicenses([])
+      expect(Array.isArray(incompatible)).toBe(true)
+      expect(incompatible.length).toBe(0)
+    })
+  })
+
+  describe('collectLicenseWarnings', () => {
+    it('should collect license warnings', () => {
+      const licenses = ['MIT', 'UNLICENSED']
+      const warnings = collectLicenseWarnings(licenses)
+      expect(Array.isArray(warnings)).toBe(true)
+    })
+
+    it('should handle valid licenses', () => {
+      const licenses = ['MIT', 'Apache-2.0']
+      const warnings = collectLicenseWarnings(licenses)
+      expect(Array.isArray(warnings)).toBe(true)
+    })
+  })
+
+  describe('visitLicenses', () => {
+    it('should visit license AST nodes', () => {
+      const ast = { license: 'MIT' }
+      const visited: string[] = []
+      visitLicenses(ast, {
+        License: (node: any) => {
+          visited.push(node.license)
+        },
+      })
+      expect(visited).toContain('MIT')
+    })
+
+    it('should handle complex license expressions', () => {
+      const ast = {
+        left: { license: 'MIT' },
+        conjunction: 'OR',
+        right: { license: 'Apache-2.0' },
+      }
+      const visited: string[] = []
+      visitLicenses(ast, {
+        License: (node: any) => {
+          visited.push(node.license)
+        },
+      })
+      expect(visited.length).toBeGreaterThan(0)
     })
   })
 })

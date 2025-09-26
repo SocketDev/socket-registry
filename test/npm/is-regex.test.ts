@@ -3,8 +3,8 @@ import path from 'node:path'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import constants from '../../scripts/constants'
-import { isPackageTestingSkipped } from '../../scripts/lib/tests'
-import { setupMultiEntryTest } from '../lib/test-helpers'
+import { isPackageTestingSkipped } from '../../scripts/utils/tests'
+import { setupMultiEntryTest } from '../utils/test-helpers'
 
 const { NPM } = constants
 
