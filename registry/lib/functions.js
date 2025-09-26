@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Common function utilities for control flow and caching.
+ * Provides noop, once, and other foundational function helpers.
+ */
 'use strict'
 
 /**

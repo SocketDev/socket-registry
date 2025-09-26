@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Test execution coordination and package filtering logic.
+ * Provides utilities for running tests on specific packages and handling test workflows.
+ */
 'use strict'
 
 import util from 'node:util'

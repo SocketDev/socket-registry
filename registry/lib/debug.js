@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Debug logging utilities with lazy loading and environment-based control.
+ * Provides Socket CLI specific debug functionality and logging formatters.
+ */
 'use strict'
 
 const { apply: ReflectApply } = Reflect

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Regular expression utilities including escape-string-regexp implementation.
+ * Provides regex escaping and pattern matching helpers.
+ */
 'use strict'
 
 // Inlined escape-string-regexp:

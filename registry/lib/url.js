@@ -1,3 +1,7 @@
+/**
+ * @fileoverview URL parsing and validation utilities.
+ * Provides URL validation, normalization, and parsing helpers.
+ */
 'use strict'
 
 const BooleanCtor = Boolean

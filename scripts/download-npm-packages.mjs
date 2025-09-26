@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Package downloading utility from npm registry.
+ * Downloads and extracts npm packages for analysis and override generation.
+ */
 'use strict'
 
 import { existsSync, promises as fs } from 'node:fs'

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Path manipulation utilities with cross-platform support.
+ * Provides path normalization, validation, and file extension handling.
+ */
 'use strict'
 
 const { search } = /*@__PURE__*/ require('./strings')

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Safe file removal using trash with fs.rm fallback.
+ * Provides recoverable file deletion that moves files to system trash/recycle bin.
+ */
 'use strict'
 
 import fs from 'node:fs/promises'

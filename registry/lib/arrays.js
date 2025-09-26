@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Array utility functions for formatting lists and collections.
+ * Provides conjunction and disjunction formatters using Intl.ListFormat.
+ */
 'use strict'
 
 let _conjunctionFormatter

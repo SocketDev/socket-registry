@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Stream processing utilities with streaming-iterables integration.
+ * Provides async stream handling and transformation functions.
+ */
 'use strict'
 
 const {

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Console logging utilities with line prefix support.
+ * Provides enhanced console methods with formatted output capabilities.
+ */
 'use strict'
 
 const globalConsole = console

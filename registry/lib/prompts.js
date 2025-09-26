@@ -1,3 +1,7 @@
+/**
+ * @fileoverview User prompt utilities for interactive scripts.
+ * Provides inquirer.js integration with spinner support and context handling.
+ */
 'use strict'
 
 /*@__NO_SIDE_EFFECTS__*/

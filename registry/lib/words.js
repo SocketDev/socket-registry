@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Word manipulation utilities for capitalization and formatting.
+ * Provides text transformation functions for consistent word processing.
+ */
 'use strict'
 
 /**

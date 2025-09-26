@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Package template generation utilities for Socket registry.
+ * Provides template-based package creation and code generation functions.
+ */
 'use strict'
 
 import { promises as fs } from 'node:fs'
