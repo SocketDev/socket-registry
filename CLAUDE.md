@@ -246,6 +246,20 @@ pnpm run test:unit -- path/to/test
 - `/test/` - Test files
 - `/packages/npm/` - NPM package overrides
 
+### Test Directory Structure
+- **Test directory structure**: 🚨 MANDATORY - Standardize test directory organization across all Socket projects:
+  ```
+  test/
+  ├── unit/                   # Unit tests
+  ├── integration/           # Integration tests (if applicable)
+  ├── fixtures/              # Test fixtures and data files
+  └── utils/                 # Test utilities and helpers
+  ```
+- **Test fixtures**: Store reusable test data, mock responses, and sample files in `test/fixtures/` directory
+  - **Organization**: Group fixtures by test category or functionality
+  - **File formats**: Support JSON, text, binary files as needed for comprehensive testing
+  - **Naming**: Use descriptive names that clearly indicate the fixture's purpose
+
 ## Changelog Management
 
 When updating the changelog (`CHANGELOG.md`):
