@@ -34,6 +34,13 @@ const { AT_LATEST, DEFAULT_CONCURRENCY, NPM, UNLICENSED } = constants
 
 const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
 
+// Helper function to filter out package manager engines from engines object.
+function filterEngines(engines) {
+  if (!engines) return engines
+  const { pnpm, npm, yarn, ...filteredEngines } = engines
+  return filteredEngines
+}
+
 async function addNpmManifestData(manifest, options) {
   const { spinner } = { __proto__: null, ...options }
   const eco = NPM
@@ -62,9 +69,9 @@ async function addNpmManifestData(manifest, options) {
         ).toString(),
         {
           categories: nmPkgJson.socket?.categories ?? data.categories,
-          engines: isBlessed
+          engines: filterEngines(isBlessed
             ? (nmPkgJson.engines ?? data.engines)
-            : data.engines,
+            : data.engines),
           interop: data.interop,
           license: nmPkgJson.license ?? data.license,
           name: data.name,
@@ -128,7 +135,7 @@ async function addNpmManifestData(manifest, options) {
         ['version', version],
         ...(nmPkgManifest.deprecated ? [['deprecated', true]] : []),
         ...(engines
-          ? [['engines', toSortedObject(engines)]]
+          ? [['engines', toSortedObject(filterEngines(engines))]]
           : [['engines', { node: constants.PACKAGE_DEFAULT_NODE_RANGE }]]),
         ...(skipTests ? [['skipTests', true]] : []),
         ...(socket ? objectEntries(socket) : []),
