@@ -115,6 +115,7 @@ You are a **Principal Software Engineer** responsible for:
 
 ### 📁 File Organization
 - **File extensions**: Use `.js` for JavaScript files with JSDoc, `.mjs` for ES modules
+- **TypeScript types**: Always export options and return types for better developer experience and type safety
 - **Module headers**: 🚨 MANDATORY - All JavaScript modules MUST have `@fileoverview` headers
   - **Format**: Use `/** @fileoverview Brief description of module purpose. */` at the top of each file
   - **Placement**: Must be the very first content in the file, before `'use strict'` or imports
