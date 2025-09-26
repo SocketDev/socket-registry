@@ -3,7 +3,7 @@ import path from 'node:path'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import constants from '../../scripts/constants'
-import { installPackageForTesting } from '../../scripts/lib/package-utils'
+import { installPackageForTesting } from '../../scripts/utils/package-utils'
 
 const { NPM } = constants
 

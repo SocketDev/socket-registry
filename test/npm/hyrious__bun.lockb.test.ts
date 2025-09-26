@@ -4,8 +4,8 @@ import path from 'node:path'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import constants from '../../scripts/constants'
-import { installPackageForTesting } from '../../scripts/lib/package-utils'
-import { isPackageTestingSkipped } from '../../scripts/lib/tests'
+import { installPackageForTesting } from '../../scripts/utils/package-utils'
+import { isPackageTestingSkipped } from '../../scripts/utils/tests'
 
 const { NPM, UTF8 } = constants
 
