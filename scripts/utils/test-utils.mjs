@@ -2,7 +2,6 @@
  * @fileoverview Test script cleaning and normalization utilities.
  * Provides functions to sanitize and normalize test scripts for execution.
  */
-'use strict'
 
 /**
  * Clean test script by removing unsupported flags and pre/post actions.
