@@ -115,7 +115,6 @@ void (async () => {
       logger.log('Process packages\n')
 
       await runCommand('node', [downloadScript, ...downloadArgs])
-
     }
 
     // Phase 2: Install packages (unless test-only mode).

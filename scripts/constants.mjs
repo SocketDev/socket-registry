@@ -221,7 +221,8 @@ const lazyWin32EnsureTestsByEcosystem = () => {
   return new Map([['npm', new Set(['date'])]])
 }
 
-const lazyTemplatesPath = () => path.join(path.dirname(fileURLToPath(import.meta.url)), 'templates')
+const lazyTemplatesPath = () =>
+  path.join(path.dirname(fileURLToPath(import.meta.url)), 'templates')
 
 const lazyTestNpmPath = () => path.join(constants.rootPath, `test/${NPM}`)
 

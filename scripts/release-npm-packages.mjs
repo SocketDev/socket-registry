@@ -354,6 +354,5 @@ void (async () => {
 
   await execScript('update:package-json', [], spawnOptions)
 
-
   spinner.stop()
 })()
