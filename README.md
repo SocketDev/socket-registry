@@ -2,6 +2,7 @@
 
 [![CI - SocketDev/socket-registry](https://github.com/SocketDev/socket-registry/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry/actions/workflows/test.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+[![Follow @socket.dev on Bluesky](https://img.shields.io/badge/Follow-@socket.dev-1DA1F2?style=social&logo=bluesky)](https://bsky.app/profile/socket.dev)
 
 > A collection of [Socket.dev](https://socket.dev/) optimize package overrides
 > for use with
@@ -37,13 +38,13 @@ Making a new override is simple.
 - Initialize the repository with your favorite package manager.
 
 ```bash
-npm install
+pnpm install
 ```
 
 - Run wizard.
 
 ```bash
-npm run make:npm-override [<package-name>]
+pnpm run make:npm-override [<package-name>]
 ```
 
 - Follow the prompts to create the scaffolding of your shiny new override.
