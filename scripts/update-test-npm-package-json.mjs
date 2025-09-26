@@ -55,6 +55,74 @@ const {
   testNpmPkgJsonPath,
 } = constants
 
+const OPTIMIZED_CONCURRENCY = Math.max(DEFAULT_CONCURRENCY * 3, 12)
+
+/**
+ * Semaphore for controlling concurrency.
+ */
+class Semaphore {
+  constructor(capacity) {
+    this.capacity = capacity
+    this.running = 0
+    this.queue = []
+  }
+
+  async acquire() {
+    return new Promise(resolve => {
+      if (this.running < this.capacity) {
+        this.running += 1
+        resolve()
+      } else {
+        this.queue.push(resolve)
+      }
+    })
+  }
+
+  release() {
+    this.running -= 1
+    if (this.queue.length > 0) {
+      const resolve = this.queue.shift()
+      this.running += 1
+      resolve()
+    }
+  }
+}
+
+/**
+ * Parallel execution with semaphore-controlled concurrency.
+ * More efficient than chunked processing for I/O-bound operations.
+ */
+async function pAllSettledWithSemaphore(
+  array,
+  fn,
+  concurrency = OPTIMIZED_CONCURRENCY,
+) {
+  const semaphore = new Semaphore(concurrency)
+
+  const wrappedFn = async item => {
+    await semaphore.acquire()
+    try {
+      return await fn(item)
+    } finally {
+      semaphore.release()
+    }
+  }
+
+  const results = await Promise.allSettled(array.map(wrappedFn))
+
+  // Collect any rejections.
+  const rejections = results
+    .filter(result => result.status === 'rejected')
+    .map(result => result.reason)
+
+  if (rejections.length > 0) {
+    // Throw the first rejection to maintain error handling behavior.
+    throw rejections[0]
+  }
+
+  return results.map(result => result.value)
+}
+
 const { values: cliArgs } = util.parseArgs(
   merge(constants.parseArgsConfig, {
     options: {
@@ -103,8 +171,9 @@ async function installAndMergePackage(pkgName, pkgVersion, options) {
     spinner?.start(`Installing ${pkgName}@${pkgVersion}...`)
 
     // Install package to a temp location first.
+    // Use a shorter temp path prefix to avoid MAX_PATH issues on Windows.
     tempPath = await fs.mkdtemp(
-      path.join(os.tmpdir(), `socket-test-${socketPkgName}-`),
+      path.join(os.tmpdir(), `st-${socketPkgName.slice(0, 8)}-`),
     )
 
     // Create a minimal package.json in temp directory.
@@ -263,8 +332,8 @@ async function installTestNpmNodeModules(options) {
       )
     }
 
-    // Install packages in parallel, but limit concurrency.
-    await pEach(
+    // Install packages in parallel with optimized semaphore-based concurrency.
+    await pAllSettledWithSemaphore(
       packagesToInstall,
       async ({ name, version }) => {
         // Check both possible locations for the package.
@@ -284,7 +353,7 @@ async function installTestNpmNodeModules(options) {
         }
         await installAndMergePackage(name, version, options)
       },
-      { concurrency: DEFAULT_CONCURRENCY },
+      OPTIMIZED_CONCURRENCY,
     )
 
     // After all packages are installed, update the package.json if specs were provided.
@@ -357,7 +426,7 @@ async function installMissingPackages(packageNames, options) {
         async n => {
           await installAndMergePackage(n, devDependencies[n], options)
         },
-        { concurrency: DEFAULT_CONCURRENCY },
+        { concurrency: OPTIMIZED_CONCURRENCY },
       )
     }
     if (cliArgs.quiet) {
@@ -427,7 +496,7 @@ async function installMissingPackageTests(packageNames, options) {
       }
       spinner?.stop()
     },
-    { concurrency: DEFAULT_CONCURRENCY },
+    { concurrency: OPTIMIZED_CONCURRENCY },
   )
   if (resolvable.length) {
     spinner?.start(
@@ -544,7 +613,7 @@ async function resolveDevDependencies(packageNames, options) {
           ).length === 0)
       )
     },
-    { concurrency: DEFAULT_CONCURRENCY },
+    { concurrency: OPTIMIZED_CONCURRENCY },
   )
   if (missingPackageTests.length) {
     await installMissingPackageTests(missingPackageTests, options)
@@ -623,7 +692,7 @@ async function linkPackages(packageNames, options) {
             }),
         ),
       },
-      { concurrency: DEFAULT_CONCURRENCY },
+      { concurrency: OPTIMIZED_CONCURRENCY },
     )
 
     const { dependencies, engines, overrides } = pkgJson
@@ -772,35 +841,65 @@ async function cleanupNodeWorkspaces(linkedPackageNames, options) {
       )
       const destPath = path.join(testNpmNodeWorkspacesPath, n)
       // Remove unnecessary directories/files.
-      const unnecessaryPaths = await fastGlob.glob(
-        [
-          '**/.editorconfig',
-          '**/.eslintignore',
-          '**/.eslintrc.json',
-          '**/.gitattributes',
-          '**/.github',
-          '**/.idea',
-          '**/.nvmrc',
-          '**/.travis.yml',
-          '**/*.md',
-          '**/tslint.json',
-          '**/doc{s,}/',
-          '**/example{s,}/',
-          '**/CHANGE{LOG,S}{.*,}',
-          '**/CONTRIBUTING{.*,}',
-          '**/FUND{ING,}{.*,}',
-          README_GLOB_RECURSIVE,
-          ...ignoreGlobs,
-        ],
-        {
-          ignore: [LICENSE_GLOB_RECURSIVE],
-          absolute: true,
-          caseSensitiveMatch: false,
-          cwd: srcPath,
-          dot: true,
-          onlyFiles: false,
-        },
-      )
+      // On Windows, optimize glob patterns to reduce I/O operations.
+      const globPatterns =
+        process.platform === 'win32'
+          ? [
+              // More specific patterns for Windows to reduce file system calls.
+              '.editorconfig',
+              '.eslintignore',
+              '.eslintrc.json',
+              '.gitattributes',
+              '.github/**',
+              '.idea/**',
+              '.nvmrc',
+              '.travis.yml',
+              '*.md',
+              'tslint.json',
+              'docs/**',
+              'doc/**',
+              'examples/**',
+              'example/**',
+              'CHANGELOG*',
+              'CHANGES*',
+              'CONTRIBUTING*',
+              'FUNDING*',
+              README_GLOB_RECURSIVE,
+              ...ignoreGlobs,
+            ]
+          : [
+              '**/.editorconfig',
+              '**/.eslintignore',
+              '**/.eslintrc.json',
+              '**/.gitattributes',
+              '**/.github',
+              '**/.idea',
+              '**/.nvmrc',
+              '**/.travis.yml',
+              '**/*.md',
+              '**/tslint.json',
+              '**/doc{s,}/',
+              '**/example{s,}/',
+              '**/CHANGE{LOG,S}{.*,}',
+              '**/CONTRIBUTING{.*,}',
+              '**/FUND{ING,}{.*,}',
+              README_GLOB_RECURSIVE,
+              ...ignoreGlobs,
+            ]
+
+      const unnecessaryPaths = await fastGlob.glob(globPatterns, {
+        ignore: [LICENSE_GLOB_RECURSIVE],
+        absolute: true,
+        caseSensitiveMatch: false,
+        cwd: srcPath,
+        dot: true,
+        onlyFiles: false,
+        // Windows-specific optimizations.
+        ...(process.platform === 'win32' && {
+          followSymbolicLinks: false,
+          suppressErrors: true,
+        }),
+      })
       if (unnecessaryPaths.length) {
         // Fallback to fs.rm if trash fails (e.g., for .github directories on macOS).
         await safeRemove(unnecessaryPaths, { spinner })
@@ -808,7 +907,7 @@ async function cleanupNodeWorkspaces(linkedPackageNames, options) {
       // Move override package from test/npm/node_modules to test/npm/packages
       await move(srcPath, destPath, { overwrite: true })
     },
-    { concurrency: DEFAULT_CONCURRENCY },
+    { concurrency: OPTIMIZED_CONCURRENCY },
   )
   spinner?.stop()
   if (!cliArgs.quiet) {
