@@ -107,6 +107,7 @@ You are a **Principal Software Engineer** responsible for:
 - **DO NOT commit automatically** - let the user review changes first
 - Use `--no-verify` flag only when explicitly requested
 - Always provide clear, descriptive commit messages
+- **Pithy messages**: Keep commit messages concise and to the point - avoid lengthy explanations
 
 ### 6. Package Management
 - **Package Manager**: This project uses pnpm (not npm)
@@ -421,6 +422,7 @@ These are patterns and instructions that should be consistently applied across a
 3. **Object Mappings**: Use `{ __proto__: null, ...mapping }` for static string-to-string mappings to prevent prototype pollution
 4. **Import Separation**: ALWAYS separate type imports (`import type`) from runtime imports
 5. **Node.js Imports**: ALWAYS use `node:` prefix for Node.js built-in modules
+6. **🚨 TSGO PRESERVATION**: NEVER replace tsgo with tsc - tsgo provides enhanced performance and should be maintained across all Socket projects
 
 ### 🧪 Test Patterns & Cleanup
 1. **Remove Duplicate Tests**: Eliminate tests that verify the same functionality across multiple files
