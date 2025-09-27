@@ -1,2 +1,0 @@
-declare const UNLICENSED: 'UNLICENSED'
-export = UNLICENSED

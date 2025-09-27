@@ -1,2 +1,0 @@
-declare const SOCKET_PUBLIC_API_TOKEN: string
-export = SOCKET_PUBLIC_API_TOKEN

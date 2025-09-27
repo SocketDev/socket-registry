@@ -141,6 +141,28 @@ You are a **Principal Software Engineer** responsible for:
     - ✅ CORRECT: `/** @fileoverview Array utility functions for formatting lists and collections. */`
     - ❌ FORBIDDEN: Missing @fileoverview header entirely
     - ❌ FORBIDDEN: Placing @fileoverview after imports or other code
+- **JSDoc function documentation**: 🚨 MANDATORY - Function JSDoc comments MUST follow this exact pattern:
+  - **Format**: Description only, with optional `@throws` - NO `@param` or `@returns` tags
+  - **Order**: Description paragraph, then `@throws` tag (if needed)
+  - **Closure**: End with `*/` immediately after the last JSDoc tag
+  - **Examples**:
+    - ✅ CORRECT:
+      ```javascript
+      /**
+       * Check if a string contains a trusted domain using proper URL parsing.
+       */
+      ```
+    - ✅ CORRECT (with throws):
+      ```javascript
+      /**
+       * Parse a configuration file and validate its contents.
+       * @throws {Error} When file cannot be read or parsed.
+       */
+      ```
+    - ❌ FORBIDDEN: Adding `@param` or `@returns` tags
+    - ❌ FORBIDDEN: Adding extra tags like `@author`, `@since`, `@example`, etc.
+    - ❌ FORBIDDEN: Adding empty lines between JSDoc tags
+    - ❌ FORBIDDEN: Adding extra content after the last JSDoc tag
 - **Import order**: Node.js built-ins first, then third-party packages, then local imports
 - **Import grouping**: Group imports by source (Node.js, external packages, local modules)
 - **Node.js module imports**: 🚨 MANDATORY - Always use `node:` prefix for Node.js built-in modules
@@ -157,11 +179,14 @@ You are a **Principal Software Engineer** responsible for:
 - **Error handling**: REQUIRED - Use try-catch blocks and handle errors gracefully
 - **Array destructuring**: Use object notation `{ 0: key, 1: data }` instead of array destructuring `[key, data]`
 - **Comment formatting**: 🚨 MANDATORY - ALL comments MUST follow these rules:
+  - **Single-line preference**: Prefer single-line comments (`//`) over multiline comments (`/* */`) unless for method headers, module headers, or copyright notices. Use single-line comments for property descriptions, inline explanations, and general code comments.
   - **Periods required**: Every comment MUST end with a period, except ESLint disable comments and URLs which are directives/references. This includes single-line, multi-line, inline, and c8 ignore comments.
   - **Sentence structure**: Comments should be complete sentences with proper capitalization and grammar.
   - **Placement**: Place comments on their own line above the code they describe, not trailing to the right of code.
   - **Style**: Use fewer hyphens/dashes and prefer commas, colons, or semicolons for better readability.
   - **Examples**:
+    - ✅ CORRECT: `// Custom GitHub host (default: github.com).` (property description)
+    - ❌ WRONG: `/** Custom GitHub host (default: github.com). */` (multiline for simple property)
     - ✅ CORRECT: `// This function validates user input.`
     - ✅ CORRECT: `/* This is a multi-line comment that explains the complex logic below. */`
     - ✅ CORRECT: `// eslint-disable-next-line no-await-in-loop` (directive, no period)
