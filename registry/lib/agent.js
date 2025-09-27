@@ -61,9 +61,6 @@ const yarnInstallLikeCommands = new Set([
 
 /**
  * Execute npm commands with optimized flags and settings.
- * @param {string[] | readonly string[]} args - Command arguments to pass to npm.
- * @param {import('./spawn').SpawnOptions} [options] - Spawn options.
- * @returns {Promise<{ stdout: string; stderr: string }>} Command output.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function execNpm(args, options) {
@@ -108,9 +105,6 @@ function execNpm(args, options) {
 
 /**
  * Execute pnpm commands with optimized flags and settings.
- * @param {string[] | readonly string[]} args - Command arguments to pass to pnpm.
- * @param {import('./spawn').SpawnOptions} [options] - Spawn options.
- * @returns {Promise<{ stdout: string; stderr: string }>} Command output.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function execPnpm(args, options) {
@@ -202,8 +196,6 @@ function execYarn(args, options) {
       __proto__: null,
       /**
        * Check if a command argument is an npm audit flag.
-       * @param {string} cmdArg - The command argument to check.
-       * @returns {boolean} True if the argument is an audit flag.
        */
       ...options,
     },
@@ -212,8 +204,6 @@ function execYarn(args, options) {
 
 /**
  * Check if a command argument is an npm audit flag.
- * @param {string} cmdArg - The command argument to check.
- * @returns {boolean} True if the argument is an audit flag.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isNpmAuditFlag(cmdArg) {
@@ -222,8 +212,6 @@ function isNpmAuditFlag(cmdArg) {
 
 /**
  * Check if a command argument is an npm fund flag.
- * @param {string} cmdArg - The command argument to check.
- * @returns {boolean} True if the argument is a fund flag.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isNpmFundFlag(cmdArg) {
@@ -232,8 +220,6 @@ function isNpmFundFlag(cmdArg) {
 
 /**
  * Check if a command argument is an npm loglevel flag.
- * @param {string} cmdArg - The command argument to check.
- * @returns {boolean} True if the argument is a loglevel flag.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isNpmLoglevelFlag(cmdArg) {
@@ -251,8 +237,6 @@ function isNpmLoglevelFlag(cmdArg) {
 
 /**
  * Check if a command argument is an npm node-options flag.
- * @param {string} cmdArg - The command argument to check.
- * @returns {boolean} True if the argument is a node-options flag.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isNpmNodeOptionsFlag(cmdArg) {
@@ -262,8 +246,6 @@ function isNpmNodeOptionsFlag(cmdArg) {
 
 /**
  * Check if a command argument is an npm progress flag.
- * @param {string} cmdArg - The command argument to check.
- * @returns {boolean} True if the argument is a progress flag.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isNpmProgressFlag(cmdArg) {
@@ -272,8 +254,6 @@ function isNpmProgressFlag(cmdArg) {
 
 /**
  * Check if a command argument is a pnpm ignore-scripts flag.
- * @param {string} cmdArg - The command argument to check.
- * @returns {boolean} True if the argument is an ignore-scripts flag.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isPnpmIgnoreScriptsFlag(cmdArg) {
@@ -282,8 +262,6 @@ function isPnpmIgnoreScriptsFlag(cmdArg) {
 
 /**
  * Check if a command argument is a pnpm frozen-lockfile flag.
- * @param {string} cmdArg - The command argument to check.
- * @returns {boolean} True if the argument is a frozen-lockfile flag.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isPnpmFrozenLockfileFlag(cmdArg) {
@@ -292,8 +270,6 @@ function isPnpmFrozenLockfileFlag(cmdArg) {
 
 /**
  * Check if a command argument is a pnpm install command.
- * @param {string} cmdArg - The command argument to check.
- * @returns {boolean} True if the argument is an install command.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isPnpmInstallCommand(cmdArg) {
@@ -302,18 +278,12 @@ function isPnpmInstallCommand(cmdArg) {
 
 /**
  * Alias for isNpmLoglevelFlag for pnpm usage.
- * @param {string} cmdArg - The command argument to check.
- * @returns {boolean} True if the argument is a loglevel flag.
  */
 const isPnpmLoglevelFlag = isNpmLoglevelFlag
 
 /**
  * Execute a package.json script using the appropriate package manager.
  * Automatically detects pnpm, yarn, or npm based on lockfiles.
- * @param {string} scriptName - The name of the script to run.
- * @param {string[] | readonly string[]} args - Additional arguments to pass to the script.
- * @param {ExecScriptOptions} [options] - Spawn options with optional prepost flag.
- * @returns {Promise<{ stdout: string; stderr: string }>} Command output.
  * @typedef {import('./objects').Remap<import('./spawn').SpawnOptions & {prepost?: boolean}>} ExecScriptOptions
  */
 /*@__NO_SIDE_EFFECTS__*/
