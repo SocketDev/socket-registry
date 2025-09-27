@@ -85,633 +85,641 @@
   },
   "exports": {
     ".": {
-      "types": "./index.d.ts",
-      "default": "./index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./extensions.json": "./extensions.json",
     "./index": {
-      "types": "./index.d.ts",
-      "default": "./index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./lib/abort": {
+      "types": "./dist/lib/abort.d.ts",
+      "default": "./dist/lib/abort.js"
     },
     "./lib/agent": {
-      "types": "./lib/agent.d.ts",
-      "default": "./lib/agent.js"
+      "types": "./dist/lib/agent.d.ts",
+      "default": "./dist/lib/agent.js"
     },
     "./lib/arrays": {
-      "types": "./lib/arrays.d.ts",
-      "default": "./lib/arrays.js"
+      "types": "./dist/lib/arrays.d.ts",
+      "default": "./dist/lib/arrays.js"
     },
     "./lib/bin": {
-      "types": "./lib/bin.d.ts",
-      "default": "./lib/bin.js"
+      "types": "./dist/lib/bin.d.ts",
+      "default": "./dist/lib/bin.js"
     },
     "./lib/constants": {
-      "types": "./lib/constants/index.d.ts",
-      "default": "./lib/constants/index.js"
+      "types": "./dist/lib/constants/index.d.ts",
+      "default": "./dist/lib/constants/index.js"
     },
     "./lib/constants/abort-controller": {
-      "types": "./lib/constants/abort-controller.d.ts",
-      "default": "./lib/constants/abort-controller.js"
+      "types": "./dist/lib/constants/abort-controller.d.ts",
+      "default": "./dist/lib/constants/abort-controller.js"
     },
     "./lib/constants/abort-signal": {
-      "types": "./lib/constants/abort-signal.d.ts",
-      "default": "./lib/constants/abort-signal.js"
+      "types": "./dist/lib/constants/abort-signal.d.ts",
+      "default": "./dist/lib/constants/abort-signal.js"
     },
     "./lib/constants/at-latest": {
-      "types": "./lib/constants/at-latest.d.ts",
-      "default": "./lib/constants/at-latest.js"
+      "types": "./dist/lib/constants/AT_LATEST.d.ts",
+      "default": "./dist/lib/constants/AT_LATEST.js"
     },
     "./lib/constants/bun": {
-      "types": "./lib/constants/bun.d.ts",
-      "default": "./lib/constants/bun.js"
+      "types": "./dist/lib/constants/BUN.d.ts",
+      "default": "./dist/lib/constants/BUN.js"
     },
     "./lib/constants/bun-cache-path": {
-      "types": "./lib/constants/bun-cache-path.d.ts",
-      "default": "./lib/constants/bun-cache-path.js"
+      "types": "./dist/lib/constants/bun-cache-path.d.ts",
+      "default": "./dist/lib/constants/bun-cache-path.js"
     },
     "./lib/constants/bun-lock": {
-      "types": "./lib/constants/bun-lock.d.ts",
-      "default": "./lib/constants/bun-lock.js"
+      "types": "./dist/lib/constants/BUN_LOCK.d.ts",
+      "default": "./dist/lib/constants/BUN_LOCK.js"
     },
     "./lib/constants/bun-lockb": {
-      "types": "./lib/constants/bun-lockb.d.ts",
-      "default": "./lib/constants/bun-lockb.js"
+      "types": "./dist/lib/constants/BUN_LOCKB.d.ts",
+      "default": "./dist/lib/constants/BUN_LOCKB.js"
     },
     "./lib/constants/changelog-md": {
-      "types": "./lib/constants/changelog-md.d.ts",
-      "default": "./lib/constants/changelog-md.js"
+      "types": "./dist/lib/constants/CHANGELOG_MD.d.ts",
+      "default": "./dist/lib/constants/CHANGELOG_MD.js"
     },
     "./lib/constants/ci": {
-      "types": "./lib/constants/ci.d.ts",
-      "default": "./lib/constants/ci.js"
+      "types": "./dist/lib/constants/CI.d.ts",
+      "default": "./dist/lib/constants/CI.js"
     },
     "./lib/constants/column-limit": {
-      "types": "./lib/constants/column-limit.d.ts",
-      "default": "./lib/constants/column-limit.js"
+      "types": "./dist/lib/constants/COLUMN_LIMIT.d.ts",
+      "default": "./dist/lib/constants/COLUMN_LIMIT.js"
     },
     "./lib/constants/copy-left-licenses": {
-      "types": "./lib/constants/copy-left-licenses.d.ts",
-      "default": "./lib/constants/copy-left-licenses.js"
+      "types": "./dist/lib/constants/copy-left-licenses.d.ts",
+      "default": "./dist/lib/constants/copy-left-licenses.js"
     },
     "./lib/constants/darwin": {
-      "types": "./lib/constants/darwin.d.ts",
-      "default": "./lib/constants/darwin.js"
+      "types": "./dist/lib/constants/DARWIN.d.ts",
+      "default": "./dist/lib/constants/DARWIN.js"
     },
     "./lib/constants/dot-git-dir": {
-      "types": "./lib/constants/dot-git-dir.d.ts",
-      "default": "./lib/constants/dot-git-dir.js"
+      "types": "./dist/lib/constants/DOT_GIT_DIR.d.ts",
+      "default": "./dist/lib/constants/DOT_GIT_DIR.js"
     },
     "./lib/constants/dot-package-lock-json": {
-      "types": "./lib/constants/dot-package-lock-json.d.ts",
-      "default": "./lib/constants/dot-package-lock-json.js"
+      "types": "./dist/lib/constants/DOT_PACKAGE_LOCK_JSON.d.ts",
+      "default": "./dist/lib/constants/DOT_PACKAGE_LOCK_JSON.js"
     },
     "./lib/constants/dot-socket-dir": {
-      "types": "./lib/constants/dot-socket-dir.d.ts",
-      "default": "./lib/constants/dot-socket-dir.js"
+      "types": "./dist/lib/constants/dot-socket-dir.d.ts",
+      "default": "./dist/lib/constants/dot-socket-dir.js"
     },
     "./lib/constants/empty-file": {
-      "types": "./lib/constants/empty-file.d.ts",
-      "default": "./lib/constants/empty-file.js"
+      "types": "./dist/lib/constants/empty-file.d.ts",
+      "default": "./dist/lib/constants/empty-file.js"
     },
     "./lib/constants/empty-value": {
-      "types": "./lib/constants/empty-value.d.ts",
-      "default": "./lib/constants/empty-value.js"
+      "types": "./dist/lib/constants/empty-value.d.ts",
+      "default": "./dist/lib/constants/empty-value.js"
     },
     "./lib/constants/env": {
-      "types": "./lib/constants/env.d.ts",
-      "default": "./lib/constants/env.js"
+      "types": "./dist/lib/constants/ENV.d.ts",
+      "default": "./dist/lib/constants/ENV.js"
     },
     "./lib/constants/eslint-config-js": {
-      "types": "./lib/constants/eslint-config-js.d.ts",
-      "default": "./lib/constants/eslint-config-js.js"
+      "types": "./dist/lib/constants/eslint-config-js.d.ts",
+      "default": "./dist/lib/constants/eslint-config-js.js"
     },
     "./lib/constants/esnext": {
-      "types": "./lib/constants/esnext.d.ts",
-      "default": "./lib/constants/esnext.js"
+      "types": "./dist/lib/constants/ESNEXT.d.ts",
+      "default": "./dist/lib/constants/ESNEXT.js"
     },
     "./lib/constants/exec-path": {
-      "types": "./lib/constants/exec-path.d.ts",
-      "default": "./lib/constants/exec-path.js"
+      "types": "./dist/lib/constants/exec-path.d.ts",
+      "default": "./dist/lib/constants/exec-path.js"
     },
     "./lib/constants/ext-cjs": {
-      "types": "./lib/constants/ext-cjs.d.ts",
-      "default": "./lib/constants/ext-cjs.js"
+      "types": "./dist/lib/constants/ext-cjs.d.ts",
+      "default": "./dist/lib/constants/ext-cjs.js"
     },
     "./lib/constants/ext-cmd": {
-      "types": "./lib/constants/ext-cmd.d.ts",
-      "default": "./lib/constants/ext-cmd.js"
+      "types": "./dist/lib/constants/ext-cmd.d.ts",
+      "default": "./dist/lib/constants/ext-cmd.js"
     },
     "./lib/constants/ext-cts": {
-      "types": "./lib/constants/ext-cts.d.ts",
-      "default": "./lib/constants/ext-cts.js"
+      "types": "./dist/lib/constants/ext-cts.d.ts",
+      "default": "./dist/lib/constants/ext-cts.js"
     },
     "./lib/constants/ext-dts": {
-      "types": "./lib/constants/ext-dts.d.ts",
-      "default": "./lib/constants/ext-dts.js"
+      "types": "./dist/lib/constants/ext-dts.d.ts",
+      "default": "./dist/lib/constants/ext-dts.js"
     },
     "./lib/constants/ext-js": {
-      "types": "./lib/constants/ext-js.d.ts",
-      "default": "./lib/constants/ext-js.js"
+      "types": "./dist/lib/constants/ext-js.d.ts",
+      "default": "./dist/lib/constants/ext-js.js"
     },
     "./lib/constants/ext-json": {
-      "types": "./lib/constants/ext-json.d.ts",
-      "default": "./lib/constants/ext-json.js"
+      "types": "./dist/lib/constants/ext-json.d.ts",
+      "default": "./dist/lib/constants/ext-json.js"
     },
     "./lib/constants/ext-lock": {
-      "types": "./lib/constants/ext-lock.d.ts",
-      "default": "./lib/constants/ext-lock.js"
+      "types": "./dist/lib/constants/ext-lock.d.ts",
+      "default": "./dist/lib/constants/ext-lock.js"
     },
     "./lib/constants/ext-lockb": {
-      "types": "./lib/constants/ext-lockb.d.ts",
-      "default": "./lib/constants/ext-lockb.js"
+      "types": "./dist/lib/constants/ext-lockb.d.ts",
+      "default": "./dist/lib/constants/ext-lockb.js"
     },
     "./lib/constants/ext-md": {
-      "types": "./lib/constants/ext-md.d.ts",
-      "default": "./lib/constants/ext-md.js"
+      "types": "./dist/lib/constants/ext-md.d.ts",
+      "default": "./dist/lib/constants/ext-md.js"
     },
     "./lib/constants/ext-mjs": {
-      "types": "./lib/constants/ext-mjs.d.ts",
-      "default": "./lib/constants/ext-mjs.js"
+      "types": "./dist/lib/constants/ext-mjs.d.ts",
+      "default": "./dist/lib/constants/ext-mjs.js"
     },
     "./lib/constants/ext-mts": {
-      "types": "./lib/constants/ext-mts.d.ts",
-      "default": "./lib/constants/ext-mts.js"
+      "types": "./dist/lib/constants/ext-mts.d.ts",
+      "default": "./dist/lib/constants/ext-mts.js"
     },
     "./lib/constants/ext-ps1": {
-      "types": "./lib/constants/ext-ps1.d.ts",
-      "default": "./lib/constants/ext-ps1.js"
+      "types": "./dist/lib/constants/ext-ps1.d.ts",
+      "default": "./dist/lib/constants/ext-ps1.js"
     },
     "./lib/constants/ext-yaml": {
-      "types": "./lib/constants/ext-yaml.d.ts",
-      "default": "./lib/constants/ext-yaml.js"
+      "types": "./dist/lib/constants/ext-yaml.d.ts",
+      "default": "./dist/lib/constants/ext-yaml.js"
     },
     "./lib/constants/ext-yml": {
-      "types": "./lib/constants/ext-yml.d.ts",
-      "default": "./lib/constants/ext-yml.js"
+      "types": "./dist/lib/constants/ext-yml.d.ts",
+      "default": "./dist/lib/constants/ext-yml.js"
     },
     "./lib/constants/extensions": {
-      "types": "./lib/constants/extensions.d.ts",
-      "default": "./lib/constants/extensions.js"
+      "types": "./dist/lib/constants/extensions.d.ts",
+      "default": "./dist/lib/constants/extensions.js"
     },
     "./lib/constants/extensions-json": {
-      "types": "./lib/constants/extensions-json.d.ts",
-      "default": "./lib/constants/extensions-json.js"
+      "types": "./dist/lib/constants/extensions-json.d.ts",
+      "default": "./dist/lib/constants/extensions-json.js"
     },
     "./lib/constants/get-ipc": {
-      "types": "./lib/constants/get-ipc.d.ts",
-      "default": "./lib/constants/get-ipc.js"
+      "types": "./dist/lib/constants/get-ipc.d.ts",
+      "default": "./dist/lib/constants/get-ipc.js"
     },
     "./lib/constants/gitignore": {
-      "types": "./lib/constants/gitignore.d.ts",
-      "default": "./lib/constants/gitignore.js"
+      "types": "./dist/lib/constants/gitignore.d.ts",
+      "default": "./dist/lib/constants/gitignore.js"
     },
     "./lib/constants/index": {
-      "types": "./lib/constants/index.d.ts",
-      "default": "./lib/constants/index.js"
+      "types": "./dist/lib/constants/index.d.ts",
+      "default": "./dist/lib/constants/index.js"
     },
     "./lib/constants/ipc-handler": {
-      "types": "./lib/constants/ipc-handler.d.ts",
-      "default": "./lib/constants/ipc-handler.js"
+      "types": "./dist/lib/constants/ipc-handler.d.ts",
+      "default": "./dist/lib/constants/ipc-handler.js"
     },
     "./lib/constants/ipc-object": {
-      "types": "./lib/constants/ipc-object.d.ts",
-      "default": "./lib/constants/ipc-object.js"
+      "types": "./dist/lib/constants/ipc-object.d.ts",
+      "default": "./dist/lib/constants/ipc-object.js"
     },
     "./lib/constants/ipc-promise": {
-      "types": "./lib/constants/ipc-promise.d.ts",
-      "default": "./lib/constants/ipc-promise.js"
+      "types": "./dist/lib/constants/ipc-promise.d.ts",
+      "default": "./dist/lib/constants/ipc-promise.js"
     },
     "./lib/constants/ipc-target": {
-      "types": "./lib/constants/ipc-target.d.ts",
-      "default": "./lib/constants/ipc-target.js"
+      "types": "./dist/lib/constants/ipc-target.d.ts",
+      "default": "./dist/lib/constants/ipc-target.js"
     },
     "./lib/constants/k-internals-symbol": {
-      "types": "./lib/constants/k-internals-symbol.d.ts",
-      "default": "./lib/constants/k-internals-symbol.js"
+      "types": "./dist/lib/constants/k-internals-symbol.d.ts",
+      "default": "./dist/lib/constants/k-internals-symbol.js"
     },
     "./lib/constants/latest": {
-      "types": "./lib/constants/latest.d.ts",
-      "default": "./lib/constants/latest.js"
+      "types": "./dist/lib/constants/LATEST.d.ts",
+      "default": "./dist/lib/constants/LATEST.js"
     },
     "./lib/constants/license": {
-      "types": "./lib/constants/license.d.ts",
-      "default": "./lib/constants/license.js"
+      "types": "./dist/lib/constants/license.d.ts",
+      "default": "./dist/lib/constants/license.js"
     },
     "./lib/constants/license-glob": {
-      "types": "./lib/constants/license-glob.d.ts",
-      "default": "./lib/constants/license-glob.js"
+      "types": "./dist/lib/constants/license-glob.d.ts",
+      "default": "./dist/lib/constants/license-glob.js"
     },
     "./lib/constants/license-glob-recursive": {
-      "types": "./lib/constants/license-glob-recursive.d.ts",
-      "default": "./lib/constants/license-glob-recursive.js"
+      "types": "./dist/lib/constants/license-glob-recursive.d.ts",
+      "default": "./dist/lib/constants/license-glob-recursive.js"
     },
     "./lib/constants/license-original": {
-      "types": "./lib/constants/license-original.d.ts",
-      "default": "./lib/constants/license-original.js"
+      "types": "./dist/lib/constants/license-original.d.ts",
+      "default": "./dist/lib/constants/license-original.js"
     },
     "./lib/constants/license-original-glob": {
-      "types": "./lib/constants/license-original-glob.d.ts",
-      "default": "./lib/constants/license-original-glob.js"
+      "types": "./dist/lib/constants/license-original-glob.d.ts",
+      "default": "./dist/lib/constants/license-original-glob.js"
     },
     "./lib/constants/license-original-glob-recursive": {
-      "types": "./lib/constants/license-original-glob-recursive.d.ts",
-      "default": "./lib/constants/license-original-glob-recursive.js"
+      "types": "./dist/lib/constants/license-original-glob-recursive.d.ts",
+      "default": "./dist/lib/constants/license-original-glob-recursive.js"
     },
     "./lib/constants/lifecycle-script-names": {
-      "types": "./lib/constants/lifecycle-script-names.d.ts",
-      "default": "./lib/constants/lifecycle-script-names.js"
+      "types": "./dist/lib/constants/lifecycle-script-names.d.ts",
+      "default": "./dist/lib/constants/lifecycle-script-names.js"
     },
     "./lib/constants/loop-sentinel": {
-      "types": "./lib/constants/loop-sentinel.d.ts",
-      "default": "./lib/constants/loop-sentinel.js"
+      "types": "./dist/lib/constants/loop-sentinel.d.ts",
+      "default": "./dist/lib/constants/loop-sentinel.js"
     },
     "./lib/constants/maintained-node-versions": {
-      "types": "./lib/constants/maintained-node-versions.d.ts",
-      "default": "./lib/constants/maintained-node-versions.js"
+      "types": "./dist/lib/constants/maintained-node-versions.d.ts",
+      "default": "./dist/lib/constants/maintained-node-versions.js"
     },
     "./lib/constants/manifest-json": {
-      "types": "./lib/constants/manifest-json.d.ts",
-      "default": "./lib/constants/manifest-json.js"
+      "types": "./dist/lib/constants/manifest-json.d.ts",
+      "default": "./dist/lib/constants/manifest-json.js"
     },
     "./lib/constants/mit": {
-      "types": "./lib/constants/mit.d.ts",
-      "default": "./lib/constants/mit.js"
+      "types": "./dist/lib/constants/MIT.d.ts",
+      "default": "./dist/lib/constants/MIT.js"
     },
     "./lib/constants/node-auth-token": {
-      "types": "./lib/constants/node-auth-token.d.ts",
-      "default": "./lib/constants/node-auth-token.js"
+      "types": "./dist/lib/constants/node-auth-token.d.ts",
+      "default": "./dist/lib/constants/node-auth-token.js"
     },
     "./lib/constants/node-debug-flags": {
-      "types": "./lib/constants/node-debug-flags.d.ts",
-      "default": "./lib/constants/node-debug-flags.js"
+      "types": "./dist/lib/constants/node-debug-flags.d.ts",
+      "default": "./dist/lib/constants/node-debug-flags.js"
     },
     "./lib/constants/node-env": {
-      "types": "./lib/constants/node-env.d.ts",
-      "default": "./lib/constants/node-env.js"
+      "types": "./dist/lib/constants/node-env.d.ts",
+      "default": "./dist/lib/constants/node-env.js"
     },
     "./lib/constants/node-harden-flags": {
-      "types": "./lib/constants/node-harden-flags.d.ts",
-      "default": "./lib/constants/node-harden-flags.js"
+      "types": "./dist/lib/constants/node-harden-flags.d.ts",
+      "default": "./dist/lib/constants/node-harden-flags.js"
     },
     "./lib/constants/node-modules": {
-      "types": "./lib/constants/node-modules.d.ts",
-      "default": "./lib/constants/node-modules.js"
+      "types": "./dist/lib/constants/node-modules.d.ts",
+      "default": "./dist/lib/constants/node-modules.js"
     },
     "./lib/constants/node-modules-glob-recursive": {
-      "types": "./lib/constants/node-modules-glob-recursive.d.ts",
-      "default": "./lib/constants/node-modules-glob-recursive.js"
+      "types": "./dist/lib/constants/node-modules-glob-recursive.d.ts",
+      "default": "./dist/lib/constants/node-modules-glob-recursive.js"
     },
     "./lib/constants/node-no-warnings-flags": {
-      "types": "./lib/constants/node-no-warnings-flags.d.ts",
-      "default": "./lib/constants/node-no-warnings-flags.js"
+      "types": "./dist/lib/constants/node-no-warnings-flags.d.ts",
+      "default": "./dist/lib/constants/node-no-warnings-flags.js"
     },
     "./lib/constants/node-sea-fuse": {
-      "types": "./lib/constants/node-sea-fuse.d.ts",
-      "default": "./lib/constants/node-sea-fuse.js"
+      "types": "./dist/lib/constants/node-sea-fuse.d.ts",
+      "default": "./dist/lib/constants/node-sea-fuse.js"
     },
     "./lib/constants/node-version": {
-      "types": "./lib/constants/node-version.d.ts",
-      "default": "./lib/constants/node-version.js"
+      "types": "./dist/lib/constants/node-version.d.ts",
+      "default": "./dist/lib/constants/node-version.js"
     },
     "./lib/constants/npm": {
-      "types": "./lib/constants/npm.d.ts",
-      "default": "./lib/constants/npm.js"
+      "types": "./dist/lib/constants/NPM.d.ts",
+      "default": "./dist/lib/constants/NPM.js"
+    },
+    "./lib/constants/NPM_REGISTRY_URL": {
+      "types": "./dist/lib/constants/NPM_REGISTRY_URL.d.ts",
+      "default": "./dist/lib/constants/NPM_REGISTRY_URL.js"
     },
     "./lib/constants/npm-exec-path": {
-      "types": "./lib/constants/npm-exec-path.d.ts",
-      "default": "./lib/constants/npm-exec-path.js"
+      "types": "./dist/lib/constants/npm-exec-path.d.ts",
+      "default": "./dist/lib/constants/npm-exec-path.js"
     },
     "./lib/constants/npm-lifecycle-event": {
-      "types": "./lib/constants/npm-lifecycle-event.d.ts",
-      "default": "./lib/constants/npm-lifecycle-event.js"
+      "types": "./dist/lib/constants/npm-lifecycle-event.d.ts",
+      "default": "./dist/lib/constants/npm-lifecycle-event.js"
     },
     "./lib/constants/npm-real-exec-path": {
-      "types": "./lib/constants/npm-real-exec-path.d.ts",
-      "default": "./lib/constants/npm-real-exec-path.js"
+      "types": "./dist/lib/constants/npm-real-exec-path.d.ts",
+      "default": "./dist/lib/constants/npm-real-exec-path.js"
     },
     "./lib/constants/npm-shrinkwrap-json": {
-      "types": "./lib/constants/npm-shrinkwrap-json.d.ts",
-      "default": "./lib/constants/npm-shrinkwrap-json.js"
+      "types": "./dist/lib/constants/npm-shrinkwrap-json.d.ts",
+      "default": "./dist/lib/constants/npm-shrinkwrap-json.js"
     },
     "./lib/constants/npx": {
-      "types": "./lib/constants/npx.d.ts",
-      "default": "./lib/constants/npx.js"
+      "types": "./dist/lib/constants/NPX.d.ts",
+      "default": "./dist/lib/constants/NPX.js"
     },
     "./lib/constants/overrides": {
-      "types": "./lib/constants/overrides.d.ts",
-      "default": "./lib/constants/overrides.js"
+      "types": "./dist/lib/constants/overrides.d.ts",
+      "default": "./dist/lib/constants/overrides.js"
     },
     "./lib/constants/package-default-node-range": {
-      "types": "./lib/constants/package-default-node-range.d.ts",
-      "default": "./lib/constants/package-default-node-range.js"
+      "types": "./dist/lib/constants/package-default-node-range.d.ts",
+      "default": "./dist/lib/constants/package-default-node-range.js"
     },
     "./lib/constants/package-default-socket-categories": {
-      "types": "./lib/constants/package-default-socket-categories.d.ts",
-      "default": "./lib/constants/package-default-socket-categories.js"
+      "types": "./dist/lib/constants/package-default-socket-categories.d.ts",
+      "default": "./dist/lib/constants/package-default-socket-categories.js"
     },
     "./lib/constants/package-default-version": {
-      "types": "./lib/constants/package-default-version.d.ts",
-      "default": "./lib/constants/package-default-version.js"
+      "types": "./dist/lib/constants/package-default-version.d.ts",
+      "default": "./dist/lib/constants/package-default-version.js"
     },
     "./lib/constants/package-extensions": {
-      "types": "./lib/constants/package-extensions.d.ts",
-      "default": "./lib/constants/package-extensions.js"
+      "types": "./dist/lib/constants/package-extensions.d.ts",
+      "default": "./dist/lib/constants/package-extensions.js"
     },
     "./lib/constants/package-json": {
-      "types": "./lib/constants/package-json.d.ts",
-      "default": "./lib/constants/package-json.js"
+      "types": "./dist/lib/constants/PACKAGE_JSON.d.ts",
+      "default": "./dist/lib/constants/PACKAGE_JSON.js"
     },
     "./lib/constants/package-lock-json": {
-      "types": "./lib/constants/package-lock-json.d.ts",
-      "default": "./lib/constants/package-lock-json.js"
+      "types": "./dist/lib/constants/PACKAGE_LOCK_JSON.d.ts",
+      "default": "./dist/lib/constants/PACKAGE_LOCK_JSON.js"
     },
     "./lib/constants/package-manager-cache-names": {
-      "types": "./lib/constants/package-manager-cache-names.d.ts",
-      "default": "./lib/constants/package-manager-cache-names.js"
+      "types": "./dist/lib/constants/package-manager-cache-names.d.ts",
+      "default": "./dist/lib/constants/package-manager-cache-names.js"
     },
     "./lib/constants/packument-cache": {
-      "types": "./lib/constants/packument-cache.d.ts",
-      "default": "./lib/constants/packument-cache.js"
+      "types": "./dist/lib/constants/packument-cache.d.ts",
+      "default": "./dist/lib/constants/packument-cache.js"
     },
     "./lib/constants/pacote-cache-path": {
-      "types": "./lib/constants/pacote-cache-path.d.ts",
-      "default": "./lib/constants/pacote-cache-path.js"
+      "types": "./dist/lib/constants/pacote-cache-path.d.ts",
+      "default": "./dist/lib/constants/pacote-cache-path.js"
     },
     "./lib/constants/pnpm": {
-      "types": "./lib/constants/pnpm.d.ts",
-      "default": "./lib/constants/pnpm.js"
+      "types": "./dist/lib/constants/PNPM.d.ts",
+      "default": "./dist/lib/constants/PNPM.js"
     },
     "./lib/constants/pnpm-exec-path": {
-      "types": "./lib/constants/pnpm-exec-path.d.ts",
-      "default": "./lib/constants/pnpm-exec-path.js"
+      "types": "./dist/lib/constants/pnpm-exec-path.d.ts",
+      "default": "./dist/lib/constants/pnpm-exec-path.js"
     },
     "./lib/constants/pnpm-lock-yaml": {
-      "types": "./lib/constants/pnpm-lock-yaml.d.ts",
-      "default": "./lib/constants/pnpm-lock-yaml.js"
+      "types": "./dist/lib/constants/PNPM_LOCK_YAML.d.ts",
+      "default": "./dist/lib/constants/PNPM_LOCK_YAML.js"
     },
     "./lib/constants/pnpm-store-path": {
-      "types": "./lib/constants/pnpm-store-path.d.ts",
-      "default": "./lib/constants/pnpm-store-path.js"
+      "types": "./dist/lib/constants/pnpm-store-path.d.ts",
+      "default": "./dist/lib/constants/pnpm-store-path.js"
     },
     "./lib/constants/pre-commit": {
-      "types": "./lib/constants/pre-commit.d.ts",
-      "default": "./lib/constants/pre-commit.js"
+      "types": "./dist/lib/constants/pre-commit.d.ts",
+      "default": "./dist/lib/constants/pre-commit.js"
     },
     "./lib/constants/readme-glob": {
-      "types": "./lib/constants/readme-glob.d.ts",
-      "default": "./lib/constants/readme-glob.js"
+      "types": "./dist/lib/constants/readme-glob.d.ts",
+      "default": "./dist/lib/constants/readme-glob.js"
     },
     "./lib/constants/readme-glob-recursive": {
-      "types": "./lib/constants/readme-glob-recursive.d.ts",
-      "default": "./lib/constants/readme-glob-recursive.js"
+      "types": "./dist/lib/constants/readme-glob-recursive.d.ts",
+      "default": "./dist/lib/constants/readme-glob-recursive.js"
     },
     "./lib/constants/readme-md": {
-      "types": "./lib/constants/readme-md.d.ts",
-      "default": "./lib/constants/readme-md.js"
+      "types": "./dist/lib/constants/README_MD.d.ts",
+      "default": "./dist/lib/constants/README_MD.js"
     },
     "./lib/constants/registry": {
-      "types": "./lib/constants/registry.d.ts",
-      "default": "./lib/constants/registry.js"
+      "types": "./dist/lib/constants/registry.d.ts",
+      "default": "./dist/lib/constants/registry.js"
     },
     "./lib/constants/registry-scope-delimiter": {
-      "types": "./lib/constants/registry-scope-delimiter.d.ts",
-      "default": "./lib/constants/registry-scope-delimiter.js"
+      "types": "./dist/lib/constants/registry-scope-delimiter.d.ts",
+      "default": "./dist/lib/constants/registry-scope-delimiter.js"
     },
     "./lib/constants/resolutions": {
-      "types": "./lib/constants/resolutions.d.ts",
-      "default": "./lib/constants/resolutions.js"
+      "types": "./dist/lib/constants/resolutions.d.ts",
+      "default": "./dist/lib/constants/resolutions.js"
     },
     "./lib/constants/socket-github-org": {
-      "types": "./lib/constants/socket-github-org.d.ts",
-      "default": "./lib/constants/socket-github-org.js"
+      "types": "./dist/lib/constants/socket-github-org.d.ts",
+      "default": "./dist/lib/constants/socket-github-org.js"
     },
     "./lib/constants/socket-ipc-handshake": {
-      "types": "./lib/constants/socket-ipc-handshake.d.ts",
-      "default": "./lib/constants/socket-ipc-handshake.js"
+      "types": "./dist/lib/constants/socket-ipc-handshake.d.ts",
+      "default": "./dist/lib/constants/socket-ipc-handshake.js"
     },
     "./lib/constants/socket-override-scope": {
-      "types": "./lib/constants/socket-override-scope.d.ts",
-      "default": "./lib/constants/socket-override-scope.js"
+      "types": "./dist/lib/constants/socket-override-scope.d.ts",
+      "default": "./dist/lib/constants/socket-override-scope.js"
     },
     "./lib/constants/socket-public-api-token": {
-      "types": "./lib/constants/socket-public-api-token.d.ts",
-      "default": "./lib/constants/socket-public-api-token.js"
+      "types": "./dist/lib/constants/socket-public-api-token.d.ts",
+      "default": "./dist/lib/constants/socket-public-api-token.js"
     },
     "./lib/constants/socket-registry-npm-org": {
-      "types": "./lib/constants/socket-registry-npm-org.d.ts",
-      "default": "./lib/constants/socket-registry-npm-org.js"
+      "types": "./dist/lib/constants/socket-registry-npm-org.d.ts",
+      "default": "./dist/lib/constants/socket-registry-npm-org.js"
     },
     "./lib/constants/socket-registry-package-name": {
-      "types": "./lib/constants/socket-registry-package-name.d.ts",
-      "default": "./lib/constants/socket-registry-package-name.js"
+      "types": "./dist/lib/constants/socket-registry-package-name.d.ts",
+      "default": "./dist/lib/constants/socket-registry-package-name.js"
     },
     "./lib/constants/socket-registry-repo-name": {
-      "types": "./lib/constants/socket-registry-repo-name.d.ts",
-      "default": "./lib/constants/socket-registry-repo-name.js"
+      "types": "./dist/lib/constants/socket-registry-repo-name.d.ts",
+      "default": "./dist/lib/constants/socket-registry-repo-name.js"
     },
     "./lib/constants/socket-registry-scope": {
-      "types": "./lib/constants/socket-registry-scope.d.ts",
-      "default": "./lib/constants/socket-registry-scope.js"
+      "types": "./dist/lib/constants/socket-registry-scope.d.ts",
+      "default": "./dist/lib/constants/socket-registry-scope.js"
     },
     "./lib/constants/socket-security-scope": {
-      "types": "./lib/constants/socket-security-scope.d.ts",
-      "default": "./lib/constants/socket-security-scope.js"
+      "types": "./dist/lib/constants/socket-security-scope.d.ts",
+      "default": "./dist/lib/constants/socket-security-scope.js"
     },
     "./lib/constants/spinner": {
-      "types": "./lib/constants/spinner.d.ts",
-      "default": "./lib/constants/spinner.js"
+      "types": "./dist/lib/constants/spinner.d.ts",
+      "default": "./dist/lib/constants/spinner.js"
     },
     "./lib/constants/supports-node-compile-cache-api": {
-      "types": "./lib/constants/supports-node-compile-cache-api.d.ts",
-      "default": "./lib/constants/supports-node-compile-cache-api.js"
+      "types": "./dist/lib/constants/supports-node-compile-cache-api.d.ts",
+      "default": "./dist/lib/constants/supports-node-compile-cache-api.js"
     },
     "./lib/constants/supports-node-compile-cache-env-var": {
-      "types": "./lib/constants/supports-node-compile-cache-env-var.d.ts",
-      "default": "./lib/constants/supports-node-compile-cache-env-var.js"
+      "types": "./dist/lib/constants/supports-node-compile-cache-env-var.d.ts",
+      "default": "./dist/lib/constants/supports-node-compile-cache-env-var.js"
     },
     "./lib/constants/supports-node-disable-warning-flag": {
-      "types": "./lib/constants/supports-node-disable-warning-flag.d.ts",
-      "default": "./lib/constants/supports-node-disable-warning-flag.js"
+      "types": "./dist/lib/constants/supports-node-disable-warning-flag.d.ts",
+      "default": "./dist/lib/constants/supports-node-disable-warning-flag.js"
     },
     "./lib/constants/supports-node-permission-flag": {
-      "types": "./lib/constants/supports-node-permission-flag.d.ts",
-      "default": "./lib/constants/supports-node-permission-flag.js"
+      "types": "./dist/lib/constants/supports-node-permission-flag.d.ts",
+      "default": "./dist/lib/constants/supports-node-permission-flag.js"
     },
     "./lib/constants/supports-node-require-module": {
-      "types": "./lib/constants/supports-node-require-module.d.ts",
-      "default": "./lib/constants/supports-node-require-module.js"
+      "types": "./dist/lib/constants/supports-node-require-module.d.ts",
+      "default": "./dist/lib/constants/supports-node-require-module.js"
     },
     "./lib/constants/supports-node-run": {
-      "types": "./lib/constants/supports-node-run.d.ts",
-      "default": "./lib/constants/supports-node-run.js"
+      "types": "./dist/lib/constants/supports-node-run.d.ts",
+      "default": "./dist/lib/constants/supports-node-run.js"
     },
     "./lib/constants/supports-process-send": {
-      "types": "./lib/constants/supports-process-send.d.ts",
-      "default": "./lib/constants/supports-process-send.js"
+      "types": "./dist/lib/constants/supports-process-send.d.ts",
+      "default": "./dist/lib/constants/supports-process-send.js"
     },
     "./lib/constants/ts-libs-available": {
-      "types": "./lib/constants/ts-libs-available.d.ts",
-      "default": "./lib/constants/ts-libs-available.js"
+      "types": "./dist/lib/constants/ts-libs-available.d.ts",
+      "default": "./dist/lib/constants/ts-libs-available.js"
     },
     "./lib/constants/ts-types-available": {
-      "types": "./lib/constants/ts-types-available.d.ts",
-      "default": "./lib/constants/ts-types-available.js"
+      "types": "./dist/lib/constants/ts-types-available.d.ts",
+      "default": "./dist/lib/constants/ts-types-available.js"
     },
     "./lib/constants/tsconfig-json": {
-      "types": "./lib/constants/tsconfig-json.d.ts",
-      "default": "./lib/constants/tsconfig-json.js"
+      "types": "./dist/lib/constants/TSCONFIG_JSON.d.ts",
+      "default": "./dist/lib/constants/TSCONFIG_JSON.js"
     },
     "./lib/constants/undefined-token": {
-      "types": "./lib/constants/undefined-token.d.ts",
-      "default": "./lib/constants/undefined-token.js"
+      "types": "./dist/lib/constants/undefined-token.d.ts",
+      "default": "./dist/lib/constants/undefined-token.js"
     },
     "./lib/constants/unknown-error": {
-      "types": "./lib/constants/unknown-error.d.ts",
-      "default": "./lib/constants/unknown-error.js"
+      "types": "./dist/lib/constants/unknown-error.d.ts",
+      "default": "./dist/lib/constants/unknown-error.js"
     },
     "./lib/constants/unknown-value": {
-      "types": "./lib/constants/unknown-value.d.ts",
-      "default": "./lib/constants/unknown-value.js"
+      "types": "./dist/lib/constants/unknown-value.d.ts",
+      "default": "./dist/lib/constants/unknown-value.js"
     },
     "./lib/constants/unlicenced": {
-      "types": "./lib/constants/unlicenced.d.ts",
-      "default": "./lib/constants/unlicenced.js"
+      "types": "./dist/lib/constants/unlicenced.d.ts",
+      "default": "./dist/lib/constants/unlicenced.js"
     },
     "./lib/constants/unlicensed": {
-      "types": "./lib/constants/unlicensed.d.ts",
-      "default": "./lib/constants/unlicensed.js"
+      "types": "./dist/lib/constants/unlicensed.d.ts",
+      "default": "./dist/lib/constants/unlicensed.js"
     },
     "./lib/constants/utf8": {
-      "types": "./lib/constants/utf8.d.ts",
-      "default": "./lib/constants/utf8.js"
+      "types": "./dist/lib/constants/UTF8.d.ts",
+      "default": "./dist/lib/constants/UTF8.js"
     },
     "./lib/constants/vitest": {
-      "types": "./lib/constants/vitest.d.ts",
-      "default": "./lib/constants/vitest.js"
+      "types": "./dist/lib/constants/VITEST.d.ts",
+      "default": "./dist/lib/constants/VITEST.js"
     },
     "./lib/constants/vlt": {
-      "types": "./lib/constants/vlt.d.ts",
-      "default": "./lib/constants/vlt.js"
+      "types": "./dist/lib/constants/VLT.d.ts",
+      "default": "./dist/lib/constants/VLT.js"
     },
     "./lib/constants/vlt-cache-path": {
-      "types": "./lib/constants/vlt-cache-path.d.ts",
-      "default": "./lib/constants/vlt-cache-path.js"
+      "types": "./dist/lib/constants/vlt-cache-path.d.ts",
+      "default": "./dist/lib/constants/vlt-cache-path.js"
     },
     "./lib/constants/vlt-lock-json": {
-      "types": "./lib/constants/vlt-lock-json.d.ts",
-      "default": "./lib/constants/vlt-lock-json.js"
+      "types": "./dist/lib/constants/VLT_LOCK_JSON.d.ts",
+      "default": "./dist/lib/constants/VLT_LOCK_JSON.js"
     },
     "./lib/constants/win32": {
-      "types": "./lib/constants/win32.d.ts",
-      "default": "./lib/constants/win32.js"
+      "types": "./dist/lib/constants/WIN32.d.ts",
+      "default": "./dist/lib/constants/WIN32.js"
     },
     "./lib/constants/yarn": {
-      "types": "./lib/constants/yarn.d.ts",
-      "default": "./lib/constants/yarn.js"
+      "types": "./dist/lib/constants/YARN.d.ts",
+      "default": "./dist/lib/constants/YARN.js"
     },
     "./lib/constants/yarn-berry": {
-      "types": "./lib/constants/yarn-berry.d.ts",
-      "default": "./lib/constants/yarn-berry.js"
+      "types": "./dist/lib/constants/yarn-berry.d.ts",
+      "default": "./dist/lib/constants/yarn-berry.js"
     },
     "./lib/constants/yarn-cache-path": {
-      "types": "./lib/constants/yarn-cache-path.d.ts",
-      "default": "./lib/constants/yarn-cache-path.js"
+      "types": "./dist/lib/constants/yarn-cache-path.d.ts",
+      "default": "./dist/lib/constants/yarn-cache-path.js"
     },
     "./lib/constants/yarn-classic": {
-      "types": "./lib/constants/yarn-classic.d.ts",
-      "default": "./lib/constants/yarn-classic.js"
+      "types": "./dist/lib/constants/yarn-classic.d.ts",
+      "default": "./dist/lib/constants/yarn-classic.js"
     },
     "./lib/constants/yarn-exec-path": {
-      "types": "./lib/constants/yarn-exec-path.d.ts",
-      "default": "./lib/constants/yarn-exec-path.js"
+      "types": "./dist/lib/constants/yarn-exec-path.d.ts",
+      "default": "./dist/lib/constants/yarn-exec-path.js"
     },
     "./lib/constants/yarn-lock": {
-      "types": "./lib/constants/yarn-lock.d.ts",
-      "default": "./lib/constants/yarn-lock.js"
+      "types": "./dist/lib/constants/YARN_LOCK.d.ts",
+      "default": "./dist/lib/constants/YARN_LOCK.js"
     },
     "./lib/debug": {
-      "types": "./lib/debug.d.ts",
-      "default": "./lib/debug.js"
+      "types": "./dist/lib/debug.d.ts",
+      "default": "./dist/lib/debug.js"
     },
     "./lib/env": {
-      "types": "./lib/env.d.ts",
-      "default": "./lib/env.js"
+      "types": "./dist/lib/env.d.ts",
+      "default": "./dist/lib/env.js"
     },
     "./lib/fs": {
-      "types": "./lib/fs.d.ts",
-      "default": "./lib/fs.js"
+      "types": "./dist/lib/fs.d.ts",
+      "default": "./dist/lib/fs.js"
     },
     "./lib/functions": {
-      "types": "./lib/functions.d.ts",
-      "default": "./lib/functions.js"
+      "types": "./dist/lib/functions.d.ts",
+      "default": "./dist/lib/functions.js"
     },
     "./lib/globs": {
-      "types": "./lib/globs.d.ts",
-      "default": "./lib/globs.js"
+      "types": "./dist/lib/globs.d.ts",
+      "default": "./dist/lib/globs.js"
     },
     "./lib/json": {
-      "types": "./lib/json.d.ts",
-      "default": "./lib/json.js"
+      "types": "./dist/lib/json.d.ts",
+      "default": "./dist/lib/json.js"
     },
     "./lib/logger": {
-      "types": "./lib/logger.d.ts",
-      "default": "./lib/logger.js"
+      "types": "./dist/lib/logger.d.ts",
+      "default": "./dist/lib/logger.js"
     },
     "./lib/objects": {
-      "types": "./lib/objects.d.ts",
-      "default": "./lib/objects.js"
+      "types": "./dist/lib/objects.d.ts",
+      "default": "./dist/lib/objects.js"
     },
     "./lib/packages": {
-      "types": "./lib/packages.d.ts",
-      "default": "./lib/packages.js"
+      "types": "./dist/lib/packages.d.ts",
+      "default": "./dist/lib/packages.js"
     },
     "./lib/path": {
-      "types": "./lib/path.d.ts",
-      "default": "./lib/path.js"
+      "types": "./dist/lib/path.d.ts",
+      "default": "./dist/lib/path.js"
     },
     "./lib/promises": {
-      "types": "./lib/promises.d.ts",
-      "default": "./lib/promises.js"
+      "types": "./dist/lib/promises.d.ts",
+      "default": "./dist/lib/promises.js"
     },
     "./lib/prompts": {
-      "types": "./lib/prompts.d.ts",
-      "default": "./lib/prompts.js"
+      "types": "./dist/lib/prompts.d.ts",
+      "default": "./dist/lib/prompts.js"
     },
     "./lib/regexps": {
-      "types": "./lib/regexps.d.ts",
-      "default": "./lib/regexps.js"
+      "types": "./dist/lib/regexps.d.ts",
+      "default": "./dist/lib/regexps.js"
     },
     "./lib/signal-exit": {
-      "types": "./lib/signal-exit.d.ts",
-      "default": "./lib/signal-exit.js"
+      "types": "./dist/lib/signal-exit.d.ts",
+      "default": "./dist/lib/signal-exit.js"
     },
     "./lib/sorts": {
-      "types": "./lib/sorts.d.ts",
-      "default": "./lib/sorts.js"
+      "types": "./dist/lib/sorts.d.ts",
+      "default": "./dist/lib/sorts.js"
     },
     "./lib/spawn": {
-      "types": "./lib/spawn.d.ts",
-      "default": "./lib/spawn.js"
+      "types": "./dist/lib/spawn.d.ts",
+      "default": "./dist/lib/spawn.js"
     },
     "./lib/spinner": {
-      "types": "./lib/spinner.d.ts",
-      "default": "./lib/spinner.js"
+      "types": "./dist/lib/spinner.d.ts",
+      "default": "./dist/lib/spinner.js"
     },
     "./lib/streams": {
-      "types": "./lib/streams.d.ts",
-      "default": "./lib/streams.js"
+      "types": "./dist/lib/streams.d.ts",
+      "default": "./dist/lib/streams.js"
     },
     "./lib/strings": {
-      "types": "./lib/strings.d.ts",
-      "default": "./lib/strings.js"
+      "types": "./dist/lib/strings.d.ts",
+      "default": "./dist/lib/strings.js"
     },
     "./lib/url": {
-      "types": "./lib/url.d.ts",
-      "default": "./lib/url.js"
+      "types": "./dist/lib/url.d.ts",
+      "default": "./dist/lib/url.js"
     },
     "./lib/words": {
-      "types": "./lib/words.d.ts",
-      "default": "./lib/words.js"
+      "types": "./dist/lib/words.d.ts",
+      "default": "./dist/lib/words.js"
     },
     "./manifest.json": "./manifest.json",
     "./package.json": "./package.json"
@@ -719,11 +727,15 @@
   "sideEffects": false,
   "scripts": {
     "build": "run-s -c build:*",
+    "build:cjs": "pnpm run clean:dist && tsc",
     "build:external": "run-s build:external:src lint:external:fix",
     "build:external:src": "run-s -c clean:external && dotenvx -q run -f ../.env.local -- node ./scripts/rollup/build-external.js",
     "build:inline-constants": "run-s build:inline-constants:src",
     "build:inline-constants:src": "dotenvx -q run -f ../.env.local -- node ./scripts/inline-constants.js",
+    "build:types": "run-s build:cjs",
+    "check:tsc": "tsc --noEmit",
     "clean": "run-s -c clean:*",
+    "clean:dist": "del-cli 'dist'",
     "clean:external": "del-cli 'external'",
     "clean:node_modules": "del-cli '**/node_modules'",
     "lint:external:fix": "run-s -c lint:external:fix:*",
@@ -755,6 +767,9 @@
     "@socketregistry/is-unicode-supported": "1.0.5",
     "@socketregistry/packageurl-js": "1.0.9",
     "@socketregistry/yocto-spinner": "1.0.23",
+    "@types/cacache": "19.0.0",
+    "@types/debug": "4.1.12",
+    "@types/make-fetch-happen": "10.0.4",
     "@types/node": "24.3.3",
     "@types/pacote": "11.1.8",
     "@yarnpkg/extensions": "2.0.6",
@@ -781,6 +796,7 @@
     "spdx-expression-parse": "4.0.0",
     "streaming-iterables": "^8.0.1",
     "taze": "19.6.0",
+    "typescript": "5.7.3",
     "validate-npm-package-name": "6.0.2",
     "which": "5.0.0",
     "yoctocolors-cjs": "2.1.3"
@@ -792,6 +808,7 @@
     "*.d.ts",
     "*.{c,}js",
     "*.json",
+    "dist/**/*",
     "external/**/*.js",
     "lib/**/*.d.ts",
     "lib/**/*.js"
