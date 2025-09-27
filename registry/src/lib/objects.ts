@@ -26,7 +26,7 @@ const { ownKeys: ReflectOwnKeys } = Reflect
  */
 /*@__NO_SIDE_EFFECTS__*/
 function createLazyGetter(name, getter, stats) {
-  const UNDEFINED_TOKEN = /*@__PURE__*/ require('./constants/undefined-token')
+  const UNDEFINED_TOKEN = /*@__PURE__*/ require('./constants/UNDEFINED_TOKEN')
   let lazyValue = UNDEFINED_TOKEN
   // Dynamically name the getter without using Object.defineProperty.
   const { [name]: lazyGetter } = {
@@ -275,7 +275,7 @@ function merge(target, source) {
   if (!isObject(target) || !isObject(source)) {
     return target
   }
-  const LOOP_SENTINEL = /*@__PURE__*/ require('./constants/loop-sentinel')
+  const LOOP_SENTINEL = /*@__PURE__*/ require('./constants/LOOP_SENTINEL')
   const queue = [[target, source]]
   let pos = 0
   let { length: queueLength } = queue

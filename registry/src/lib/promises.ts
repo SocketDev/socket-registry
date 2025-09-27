@@ -234,7 +234,7 @@ async function pRetry(callbackFn, options) {
     return await callbackFn(...args, { signal })
   }
 
-  const UNDEFINED_TOKEN = /*@__PURE__*/ require('./constants/undefined-token')
+  const UNDEFINED_TOKEN = /*@__PURE__*/ require('./constants/UNDEFINED_TOKEN')
   const timers = getTimers()
 
   let attempts = retries

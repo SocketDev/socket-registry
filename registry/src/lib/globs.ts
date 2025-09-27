@@ -91,15 +91,15 @@ function globStreamLicenses(dirname, options) {
   ]
   if (ignoreOriginals) {
     ignore.push(
-      /*@__PURE__*/ require('./constants/license-original-glob-recursive'),
+      /*@__PURE__*/ require('./constants/LICENSE_ORIGINAL_GLOB_RECURSIVE'),
     )
   }
   const fastGlob = getFastGlob()
   return fastGlob.globStream(
     [
       recursive
-        ? /*@__PURE__*/ require('./constants/license-glob-recursive')
-        : /*@__PURE__*/ require('./constants/license-glob'),
+        ? /*@__PURE__*/ require('./constants/LICENSE_GLOB_RECURSIVE')
+        : /*@__PURE__*/ require('./constants/LICENSE_GLOB'),
     ],
     {
       __proto__: null,
