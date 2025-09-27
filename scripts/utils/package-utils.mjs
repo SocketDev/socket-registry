@@ -17,7 +17,8 @@ import {
 } from '@socketsecurity/registry/lib/packages'
 import { pEach } from '@socketsecurity/registry/lib/promises'
 import { spawn } from '@socketsecurity/registry/lib/spawn'
-import { cleanTestScript, testRunners } from './test-utils.mjs'
+import { cleanTestScript } from '../../test/utils/script-cleaning.mjs'
+import { testRunners } from '../../test/utils/test-runners.mjs'
 
 const { DEFAULT_CONCURRENCY } = constants
 

@@ -1,2 +1,0 @@
-declare const REGISTRY_SCOPE_DELIMITER: '__'
-export = REGISTRY_SCOPE_DELIMITER

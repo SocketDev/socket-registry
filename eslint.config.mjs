@@ -323,7 +323,7 @@ export default [
   gitIgnoreFile,
   biomeIgnores,
   {
-    ignores: ['coverage/**', 'packages/npm/**/package'],
+    ignores: ['**/dist/**', 'coverage/**', 'packages/npm/**/package'],
   },
   ...configs('script'),
   ...configs('module'),
@@ -339,7 +339,7 @@ export default [
     },
   },
   {
-    // Disable import resolution rules for test files importing from scripts
+    // Disable import resolution rules for test files importing from scripts.
     files: ['test/**/*.ts'],
     rules: {
       'n/no-missing-import': 'off',

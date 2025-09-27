@@ -12,6 +12,7 @@
       "!**/.husky",
       "!**/.vscode",
       "!**/coverage",
+      "!**/dist",
       "!**/package.json",
       "!**/pnpm-lock.yaml",
       "!perf/**/fixtures",
