@@ -23,10 +23,6 @@ const { ownKeys: ReflectOwnKeys } = Reflect
 
 /**
  * Create a lazy getter function that memoizes its result.
- * @param {string | symbol} name - The property name for the getter.
- * @param {Function} getter - The function to compute the value.
- * @param {{initialized?: Set<string | symbol>}} [stats] - Statistics tracking object.
- * @returns {Function} The lazy getter function.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function createLazyGetter(name, getter, stats) {
@@ -47,12 +43,6 @@ function createLazyGetter(name, getter, stats) {
 
 /**
  * Create a frozen constants object with lazy getters and internal properties.
- * @param {Object} props - Properties to include in the constants object.
- * @param {Object} [options_] - Configuration options.
- * @param {Object} [options_.getters] - Lazy getter definitions.
- * @param {Object} [options_.internals] - Internal properties.
- * @param {Object} [options_.mixin] - Properties to mix in.
- * @returns {Object} The frozen constants object.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function createConstantsObject(props, options_) {
@@ -120,10 +110,6 @@ function createConstantsObject(props, options_) {
 
 /**
  * Define a getter property on an object.
- * @param {Object} object - The object to define the getter on.
- * @param {string | symbol} propKey - The property key.
- * @param {Function} getter - The getter function.
- * @returns {Object} The object with the getter defined.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function defineGetter(object, propKey, getter) {
@@ -137,11 +123,6 @@ function defineGetter(object, propKey, getter) {
 
 /**
  * Define a lazy getter property on an object.
- * @param {Object} object - The object to define the lazy getter on.
- * @param {string | symbol} propKey - The property key.
- * @param {Function} getter - The getter function.
- * @param {{initialized?: Set<string | symbol>}} [stats] - Statistics tracking object.
- * @returns {Object} The object with the lazy getter defined.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function defineLazyGetter(object, propKey, getter, stats) {
@@ -150,10 +131,6 @@ function defineLazyGetter(object, propKey, getter, stats) {
 
 /**
  * Define multiple lazy getter properties on an object.
- * @param {Object} object - The object to define the lazy getters on.
- * @param {Object | null} getterDefObj - Object mapping property keys to getter functions.
- * @param {{initialized?: Set<string | symbol>}} [stats] - Statistics tracking object.
- * @returns {Object} The object with the lazy getters defined.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function defineLazyGetters(object, getterDefObj, stats) {
@@ -174,9 +151,6 @@ function defineLazyGetters(object, getterDefObj, stats) {
 let _localeCompare
 /**
  * Compare two entry arrays by their keys for sorting.
- * @param {[any, any]} a - First entry tuple.
- * @param {[any, any]} b - Second entry tuple.
- * @returns {number} Comparison result for sorting.
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -194,8 +168,6 @@ function entryKeyComparator(a, b) {
 
 /**
  * Get the enumerable own property keys of an object.
- * @param {any} obj - The object to get keys from.
- * @returns {string[]} Array of property keys, or empty array if not an object.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function getKeys(obj) {
@@ -204,9 +176,6 @@ function getKeys(obj) {
 
 /**
  * Get an own property value from an object safely.
- * @param {any} obj - The object to get the property from.
- * @param {string | symbol} propKey - The property key.
- * @returns {any} The property value or undefined.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function getOwn(obj, propKey) {
@@ -218,8 +187,6 @@ function getOwn(obj, propKey) {
 
 /**
  * Get all own property values from an object.
- * @param {any} obj - The object to get values from.
- * @returns {any[]} Array of property values.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function getOwnPropertyValues(obj) {
@@ -237,8 +204,6 @@ function getOwnPropertyValues(obj) {
 
 /**
  * Check if an object has any enumerable own properties.
- * @param {any} obj - The object to check.
- * @returns {boolean} True if the object has at least one own property.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function hasKeys(obj) {
@@ -255,9 +220,6 @@ function hasKeys(obj) {
 
 /**
  * Check if an object has an own property.
- * @param {any} obj - The object to check.
- * @param {string | symbol} propKey - The property key.
- * @returns {boolean} True if the object has the own property.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function hasOwn(obj, propKey) {
@@ -269,8 +231,6 @@ function hasOwn(obj, propKey) {
 
 /**
  * Check if a value is an object (including arrays).
- * @param {any} value - The value to check.
- * @returns {boolean} True if the value is an object.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isObject(value) {
@@ -279,8 +239,6 @@ function isObject(value) {
 
 /**
  * Check if a value is a plain object (not an array, not a built-in).
- * @param {any} value - The value to check.
- * @returns {boolean} True if the value is a plain object.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isObjectObject(value) {
@@ -293,8 +251,6 @@ function isObjectObject(value) {
 
 /**
  * Get all own property entries (key-value pairs) from an object.
- * @param {any} obj - The object to get entries from.
- * @returns {Array<[string | symbol, any]>} Array of [key, value] tuples.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function objectEntries(obj) {
@@ -313,9 +269,6 @@ function objectEntries(obj) {
 
 /**
  * Deep merge source object into target object.
- * @param {any} target - The target object to merge into.
- * @param {any} source - The source object to merge from.
- * @returns {any} The modified target object.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function merge(target, source) {
@@ -362,8 +315,6 @@ function merge(target, source) {
 
 /**
  * Convert an object to a new object with sorted keys.
- * @param {Object} obj - The object to sort.
- * @returns {Object} A new object with keys in sorted order.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function toSortedObject(obj) {
@@ -372,8 +323,6 @@ function toSortedObject(obj) {
 
 /**
  * Create an object from entries with sorted keys.
- * @param {Iterable<[string | symbol, any]>} entries - The entries to create an object from.
- * @returns {Object} A new object with keys in sorted order.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function toSortedObjectFromEntries(entries) {

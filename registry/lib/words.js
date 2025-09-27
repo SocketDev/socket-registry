@@ -6,8 +6,6 @@
 
 /**
  * Capitalize the first letter of a word.
- * @param {string} word - Word to capitalize.
- * @returns {string} Capitalized word.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function capitalize(word) {
@@ -23,8 +21,6 @@ function capitalize(word) {
 
 /**
  * Determine the appropriate article (a/an) for a word.
- * @param {string} word - Word to determine article for.
- * @returns {'a'|'an'} The appropriate article.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function determineArticle(word) {
@@ -33,9 +29,6 @@ function determineArticle(word) {
 
 /**
  * Pluralize a word based on count.
- * @param {string} word - Word to pluralize.
- * @param {number} [count=1] - Count to determine pluralization.
- * @returns {string} Pluralized word if count is 0 or > 1.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function pluralize(word, count = 1) {

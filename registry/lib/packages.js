@@ -10,6 +10,7 @@ const { hasOwn: ObjectHasOwn } = Object
 const abortSignal = /*@__PURE__*/ require('./constants/abort-signal')
 const copyLeftLicenses = /*@__PURE__*/ require('./constants/copy-left-licenses')
 const LOOP_SENTINEL = /*@__PURE__*/ require('./constants/loop-sentinel')
+const NPM_REGISTRY_URL = /*@__PURE__*/ require('./constants/NPM_REGISTRY_URL')
 const PACKAGE_DEFAULT_SOCKET_CATEGORIES = /*@__PURE__*/ require('./constants/package-default-socket-categories')
 const packumentCache = /*@__PURE__*/ require('./constants/packument-cache')
 const REGISTRY_SCOPE_DELIMITER = /*@__PURE__*/ require('./constants/registry-scope-delimiter')
@@ -26,9 +27,15 @@ const {
 const { isNodeModules, normalizePath } = /*@__PURE__*/ require('./path')
 const { escapeRegExp } = /*@__PURE__*/ require('./regexps')
 const { isNonEmptyString } = /*@__PURE__*/ require('./strings')
+const { getUrlDetails, parseUrl } = /*@__PURE__*/ require('./url')
 
+const ABORT_ERROR_NAME = 'AbortError'
 const BINARY_OPERATION_NODE_TYPE = 'BinaryOperation'
+const GITHUB_DOMAIN = 'github.com'
+const GITLAB_DOMAIN = 'gitlab.com'
 const LICENSE_NODE_TYPE = 'License'
+const SLSA_PROVENANCE_V0_2 = 'https://slsa.dev/provenance/v0.2'
+const SLSA_PROVENANCE_V1_0 = 'https://slsa.dev/provenance/v1.0'
 
 const escapedScopeRegExp = new RegExp(
   `^[^${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0])}]+${escapeRegExp(REGISTRY_SCOPE_DELIMITER)}(?!${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0])})`,
@@ -42,8 +49,6 @@ const newlineSymbol = Symbol.for('newline')
 let _cacache
 /**
  * Get the cacache module for cache operations.
- * @returns {Object} The cacache module.
- * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
 function getCacache() {
@@ -56,8 +61,6 @@ function getCacache() {
 let _EditablePackageJsonClass
 /**
  * Get the EditablePackageJson class for package.json manipulation.
- * @returns {Class} The EditablePackageJson class.
- * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
 function getEditablePackageJsonClass() {
@@ -476,8 +479,6 @@ function getValidateNpmPackageName() {
 
 /**
  * Collect licenses that are incompatible (copyleft).
- * @param {Object[]} licenseNodes - Array of license nodes.
- * @returns {Object[]} Array of incompatible license nodes.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function collectIncompatibleLicenses(licenseNodes) {
@@ -493,8 +494,6 @@ function collectIncompatibleLicenses(licenseNodes) {
 
 /**
  * Collect warnings from license nodes.
- * @param {Object[]} licenseNodes - Array of license nodes.
- * @returns {string[]} Array of warning messages.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function collectLicenseWarnings(licenseNodes) {
@@ -513,11 +512,8 @@ function collectLicenseWarnings(licenseNodes) {
 
 /**
  * Create an AST node from a raw node.
- * @param {Object} rawNode - Raw node data.
- * @returns {Object} AST node.
  */
 /*@__NO_SIDE_EFFECTS__*/
-// c8 ignore start - Internal AST creation functions not exported.
 function createAstNode(rawNode) {
   return ObjectHasOwn(rawNode, 'license')
     ? createLicenseNode(rawNode)
@@ -526,8 +522,6 @@ function createAstNode(rawNode) {
 
 /**
  * Create a binary operation AST node.
- * @param {Object} rawNode - Raw node with left, right, and conjunction.
- * @returns {Object} Binary operation node.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function createBinaryOperationNode(rawNode) {
@@ -559,21 +553,15 @@ function createBinaryOperationNode(rawNode) {
 
 /**
  * Create a license AST node.
- * @param {Object} rawNode - Raw license node data.
- * @returns {Object} License node.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function createLicenseNode(rawNode) {
   return { __proto__: null, ...rawNode, type: LICENSE_NODE_TYPE }
 }
-// c8 ignore stop - End of internal AST creation functions.
+
 
 /**
  * Create a package.json object for a Socket registry package.
- * @param {string} sockRegPkgName - Socket registry package name.
- * @param {string} directory - Directory path.
- * @param {Object} [options] - Creation options.
- * @returns {Object} Package.json object.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function createPackageJson(sockRegPkgName, directory, options) {
@@ -655,10 +643,6 @@ function createPackageJson(sockRegPkgName, directory, options) {
 
 /**
  * Extract a package to a destination directory.
- * @param {string} pkgNameOrId - Package name or identifier.
- * @param {Object} [options] - Extraction options.
- * @param {Function} [callback] - Callback to execute after extraction.
- * @returns {Promise<void>} Resolves when extraction is complete.
  */
 /*@__NO_SIDE_EFFECTS__*/
 async function extractPackage(pkgNameOrId, options, callback) {
@@ -701,9 +685,6 @@ async function extractPackage(pkgNameOrId, options, callback) {
 
 /**
  * Fetch the manifest for a package.
- * @param {string} pkgNameOrId - Package name or identifier.
- * @param {Object} [options] - Fetch options.
- * @returns {Promise<Object|null>} Package manifest or null if failed.
  */
 /*@__NO_SIDE_EFFECTS__*/
 async function fetchPackageManifest(pkgNameOrId, options) {
@@ -741,9 +722,6 @@ async function fetchPackageManifest(pkgNameOrId, options) {
 
 /**
  * Fetch the packument (package document) for a package.
- * @param {string} pkgNameOrId - Package name or identifier.
- * @param {Object} [options] - Fetch options.
- * @returns {Promise<Object|null>} Package packument or null if failed.
  */
 /*@__NO_SIDE_EFFECTS__*/
 async function fetchPackagePackument(pkgNameOrId, options) {
@@ -761,10 +739,170 @@ async function fetchPackagePackument(pkgNameOrId, options) {
 }
 
 /**
+ * Check the provenance of a package.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+async function checkPackageProvenance(pkgName, pkgVersion, options) {
+  const {
+    signal,
+    timeout = 10_000
+  } = { __proto__: null, ...options }
+
+  if (signal?.aborted) {
+    return {
+      hasProvenance: false,
+      isTrustedPublisher: false,
+      error: 'Request aborted',
+    }
+  }
+
+  // Use the npm registry attestations API endpoint
+  const attestationsUrl = `${NPM_REGISTRY_URL}/-/npm/v1/attestations/${encodeURIComponent(pkgName)}@${encodeURIComponent(pkgVersion)}`
+
+  try {
+    const fetcher = getFetcher()
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), timeout)
+
+    try {
+      const response = await fetcher(attestationsUrl, {
+        method: 'GET',
+        signal: signal || controller.signal,
+        headers: {
+          'User-Agent': 'socket-registry',
+        },
+      })
+
+      clearTimeout(timeoutId)
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          return {
+            hasProvenance: false,
+            isTrustedPublisher: false,
+            error: null,
+          }
+        }
+        return {
+          hasProvenance: false,
+          isTrustedPublisher: false,
+          error: `HTTP ${response.status}: ${response.statusText}`,
+        }
+      }
+
+      const attestationData = await response.json()
+
+      // Check if we have attestations
+      if (
+        !attestationData.attestations ||
+        !ArrayIsArray(attestationData.attestations)
+      ) {
+        return {
+          hasProvenance: false,
+          isTrustedPublisher: false,
+          error: 'Invalid attestation data format',
+        }
+      }
+
+      const hasProvenance = attestationData.attestations.length > 0
+      let isTrustedPublisher = false
+      let provenanceInfo = {}
+
+      if (hasProvenance) {
+        // Look for SLSA (Supply chain Levels for Software Artifacts) provenance attestations.
+        // SLSA is a framework for improving software supply chain security through provenance tracking.
+        // See: https://slsa.dev/spec/v1.0/provenance
+        for (const attestation of attestationData.attestations) {
+          if (
+            attestation.predicateType === SLSA_PROVENANCE_V0_2 ||
+            attestation.predicateType === SLSA_PROVENANCE_V1_0
+          ) {
+            try {
+              const predicate = attestation.predicate
+              if (predicate?.buildDefinition?.externalParameters) {
+                const { externalParameters } = predicate.buildDefinition
+
+                // Trusted Publisher Detection Logic:
+                // A "trusted publisher" is a CI/CD platform that provides strong guarantees
+                // about build reproducibility and authenticity. We consider GitHub Actions
+                // and GitLab CI/CD as trusted publishers because:
+                //
+                // 1. GitHub Actions: Provides OIDC tokens with verifiable claims about
+                //    the repository, workflow, and commit that triggered the build.
+                //    The workflow_ref contains the full GitHub repository and workflow path.
+                //
+                // 2. GitLab CI/CD: Similar OIDC-based authentication with verifiable
+                //    build context and repository information.
+                //
+                // Detection methods:
+                // - workflow_ref: GitHub Actions workflow reference (e.g., "octocat/Hello-World/.github/workflows/deploy.yml@refs/heads/main")
+                // - context: Additional build context that may contain platform identifiers
+                // - buildType: SLSA build type that identifies the build platform (e.g., "https://github.com/actions/runner")
+                //
+                // Security considerations:
+                // - We use proper URL parsing to avoid false positives from substring matches
+                // - We check for npm trusted publishers (GitHub Actions, GitLab CI/CD)
+                // - Multiple checks provide redundancy in case different SLSA implementations
+                //   populate different fields
+                const workflowDetails = getUrlDetails(externalParameters.workflow_ref)
+                const contextDetails = getUrlDetails(externalParameters.context)
+                const buildTypeDetails = getUrlDetails(predicate.buildDefinition?.buildType)
+
+                if (
+                  workflowDetails.npmTrusted ||
+                  contextDetails.npmTrusted ||
+                  buildTypeDetails.npmTrusted
+                ) {
+                  isTrustedPublisher = true
+                }
+
+                provenanceInfo = {
+                  buildType: predicate.buildDefinition?.buildType,
+                  sourceRepository: externalParameters.repository,
+                  workflow: externalParameters.workflow_ref,
+                  runId: externalParameters.run_id,
+                  ref: externalParameters.ref,
+                  sha: externalParameters.sha,
+                  provider: workflowDetails.provider || contextDetails.provider || buildTypeDetails.provider,
+                }
+              }
+            // c8 ignore start - Error handling for malformed attestation data should continue processing other attestations.
+            } catch {
+              // Continue checking other attestations if one fails to parse
+            }
+            // c8 ignore stop
+          }
+        }
+      }
+
+      return {
+        hasProvenance,
+        isTrustedPublisher,
+        provenanceInfo: hasProvenance ? provenanceInfo : undefined,
+        attestationCount: attestationData.attestations.length,
+        error: null,
+      }
+    } finally {
+      clearTimeout(timeoutId)
+    }
+  } catch (e) {
+    if (signal?.aborted || e.name === ABORT_ERROR_NAME) {
+      return {
+        hasProvenance: false,
+        isTrustedPublisher: false,
+        error: 'Request aborted',
+      }
+    }
+    return {
+      hasProvenance: false,
+      isTrustedPublisher: false,
+      error: e.message,
+    }
+  }
+}
+
+/**
  * Find package extensions for a given package.
- * @param {string} pkgName - Package name.
- * @param {string} pkgVer - Package version.
- * @returns {Object} Package extensions.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function findPackageExtensions(pkgName, pkgVer) {
@@ -789,9 +927,6 @@ function findPackageExtensions(pkgName, pkgVer) {
 
 /**
  * Find types for a subpath in package exports.
- * @param {Object} entryExports - Package exports object.
- * @param {string} subpath - Subpath to find types for.
- * @returns {string|undefined} Types path if found.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function findTypesForSubpath(entryExports, subpath) {
@@ -832,8 +967,6 @@ function findTypesForSubpath(entryExports, subpath) {
 
 /**
  * Get the release tag for a version.
- * @param {string} version - Version string.
- * @returns {string} Release tag.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function getReleaseTag(spec) {
@@ -857,8 +990,6 @@ function getReleaseTag(spec) {
 
 /**
  * Extract details from a repository URL.
- * @param {string} [repoUrl=''] - Repository URL.
- * @returns {Object} Repository details with host, user, and project.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function getRepoUrlDetails(repoUrl = '') {
@@ -871,8 +1002,6 @@ function getRepoUrlDetails(repoUrl = '') {
 
 /**
  * Get subpaths from package exports.
- * @param {Object} entryExports - Package exports object.
- * @returns {string[]} Array of subpaths.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function getSubpaths(entryExports) {
@@ -887,8 +1016,6 @@ function getSubpaths(entryExports) {
 
 /**
  * Get file paths from package exports.
- * @param {Object} entryExports - Package exports object.
- * @returns {string[]} Array of file paths.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function getExportFilePaths(entryExports) {
@@ -1406,17 +1533,22 @@ function visitLicenses(ast, visitor) {
 }
 
 module.exports = {
+  checkPackageProvenance,
   collectIncompatibleLicenses,
   collectLicenseWarnings,
+  createAstNode,
+  createBinaryOperationNode,
+  createLicenseNode,
   createPackageJson,
   extractPackage,
   fetchPackageManifest,
   fetchPackagePackument,
   findPackageExtensions,
   findTypesForSubpath,
+  getEditablePackageJsonClass,
+  getExportFilePaths,
   getReleaseTag,
   getRepoUrlDetails,
-  getExportFilePaths,
   getSubpaths,
   gitHubTagRefUrl,
   gitHubTgzUrl,

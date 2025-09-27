@@ -13,8 +13,6 @@ const { applyLinePrefix, isBlankString } = /*@__PURE__*/ require('./strings')
 let _Console
 /**
  * Construct a new Console instance.
- * @param {...any} args - Arguments to pass to the Console constructor.
- * @returns {Console} A new Console instance.
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -31,7 +29,6 @@ function constructConsole(...args) {
 let _yoctocolors
 /**
  * Get the yoctocolors module for terminal colors.
- * @returns {Object} The yoctocolors module.
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -155,9 +152,6 @@ class Logger {
 
   /**
    * Apply a console method with indentation.
-   * @param {string} methodName - Name of the console method to call.
-   * @param {any[]} args - Arguments to pass to the method.
-   * @returns {Logger} This Logger instance for chaining.
    * @private
    */
   #apply(methodName, args) {
@@ -175,9 +169,6 @@ class Logger {
 
   /**
    * Apply a method with a symbol prefix.
-   * @param {string} symbolType - Type of symbol to use (fail, info, success, warn).
-   * @param {any[]} args - Arguments to pass to the method.
-   * @returns {Logger} This Logger instance for chaining.
    * @private
    */
   #symbolApply(symbolType, args) {
@@ -202,7 +193,6 @@ class Logger {
 
   /**
    * Get the current log call count.
-   * @returns {number} The number of log calls made.
    */
   get logCallCount() {
     return this.#logCallCount
@@ -210,7 +200,6 @@ class Logger {
 
   /**
    * Increment the log call count.
-   * @returns {Logger} This Logger instance for chaining.
    */
   [incLogCallCountSymbol]() {
     this.#logCallCount += 1
@@ -219,8 +208,6 @@ class Logger {
 
   /**
    * Set whether the last logged line was blank.
-   * @param {boolean} value - Whether the last line was blank.
-   * @returns {Logger} This Logger instance for chaining.
    */
   [lastWasBlankSymbol](value) {
     this.#lastWasBlank = !!value
@@ -229,9 +216,6 @@ class Logger {
 
   /**
    * Log an assertion.
-   * @param {any} value - Value to assert.
-   * @param {...any} message - Message to log if assertion fails.
-   * @returns {Logger} This Logger instance for chaining.
    */
   assert(value, ...message) {
     const con = privateConsole.get(this)
@@ -242,7 +226,6 @@ class Logger {
 
   /**
    * Clear the console.
-   * @returns {Logger} This Logger instance for chaining.
    */
   clear() {
     const con = privateConsole.get(this)
@@ -256,8 +239,6 @@ class Logger {
 
   /**
    * Log a count for the given label.
-   * @param {string} label - Label to count.
-   * @returns {Logger} This Logger instance for chaining.
    */
   count(label) {
     const con = privateConsole.get(this)
@@ -268,8 +249,6 @@ class Logger {
 
   /**
    * Decrease indentation level.
-   * @param {number} [spaces=2] - Number of spaces to dedent.
-   * @returns {Logger} This Logger instance for chaining.
    */
   dedent(spaces = 2) {
     this.#indention = this.#indention.slice(0, -spaces)
@@ -278,9 +257,6 @@ class Logger {
 
   /**
    * Display an object's properties.
-   * @param {any} obj - Object to display.
-   * @param {Object} [options] - Display options.
-   * @returns {Logger} This Logger instance for chaining.
    */
   dir(obj, options) {
     const con = privateConsole.get(this)
@@ -291,8 +267,6 @@ class Logger {
 
   /**
    * Display data as XML.
-   * @param {...any} data - Data to display.
-   * @returns {Logger} This Logger instance for chaining.
    */
   dirxml(...data) {
     const con = privateConsole.get(this)
@@ -303,8 +277,6 @@ class Logger {
 
   /**
    * Log an error message.
-   * @param {...any} args - Arguments to log.
-   * @returns {Logger} This Logger instance for chaining.
    */
   error(...args) {
     return this.#apply('error', args)
@@ -312,7 +284,6 @@ class Logger {
 
   /**
    * Log a newline to stderr if last line wasn't blank.
-   * @returns {Logger} This Logger instance for chaining.
    */
   errorNewline() {
     return this.#lastWasBlank ? this : this.error('')
@@ -320,8 +291,6 @@ class Logger {
 
   /**
    * Log a failure message with symbol.
-   * @param {...any} args - Arguments to log.
-   * @returns {Logger} This Logger instance for chaining.
    */
   fail(...args) {
     return this.#symbolApply('fail', args)
@@ -329,8 +298,6 @@ class Logger {
 
   /**
    * Start a new log group.
-   * @param {...any} label - Label for the group.
-   * @returns {Logger} This Logger instance for chaining.
    */
   group(...label) {
     const { length } = label
@@ -347,8 +314,6 @@ class Logger {
 
   /**
    * Start a new collapsed log group (alias for group).
-   * @param {...any} label - Label for the group.
-   * @returns {Logger} This Logger instance for chaining.
    */
   // groupCollapsed is an alias of group.
   // https://nodejs.org/api/console.html#consolegroupcollapsed
@@ -358,7 +323,6 @@ class Logger {
 
   /**
    * End the current log group.
-   * @returns {Logger} This Logger instance for chaining.
    */
   groupEnd() {
     this.dedent(this[kGroupIndentationWidthSymbol])
@@ -367,8 +331,6 @@ class Logger {
 
   /**
    * Increase indentation level.
-   * @param {number} [spaces=2] - Number of spaces to indent.
-   * @returns {Logger} This Logger instance for chaining.
    */
   indent(spaces = 2) {
     this.#indention += ' '.repeat(Math.min(spaces, maxIndentation))
@@ -377,8 +339,6 @@ class Logger {
 
   /**
    * Log an info message with symbol.
-   * @param {...any} args - Arguments to log.
-   * @returns {Logger} This Logger instance for chaining.
    */
   info(...args) {
     return this.#symbolApply('info', args)
@@ -386,8 +346,6 @@ class Logger {
 
   /**
    * Log a message.
-   * @param {...any} args - Arguments to log.
-   * @returns {Logger} This Logger instance for chaining.
    */
   log(...args) {
     return this.#apply('log', args)
@@ -395,7 +353,6 @@ class Logger {
 
   /**
    * Log a newline to stdout if last line wasn't blank.
-   * @returns {Logger} This Logger instance for chaining.
    */
   logNewline() {
     return this.#lastWasBlank ? this : this.log('')
@@ -403,7 +360,6 @@ class Logger {
 
   /**
    * Reset indentation to zero.
-   * @returns {Logger} This Logger instance for chaining.
    */
   resetIndent() {
     this.#indention = ''
@@ -412,8 +368,6 @@ class Logger {
 
   /**
    * Log a success message with symbol.
-   * @param {...any} args - Arguments to log.
-   * @returns {Logger} This Logger instance for chaining.
    */
   success(...args) {
     return this.#symbolApply('success', args)
@@ -421,9 +375,6 @@ class Logger {
 
   /**
    * Display data in a table format.
-   * @param {any} tabularData - Data to display.
-   * @param {string[]} [properties] - Properties to display.
-   * @returns {Logger} This Logger instance for chaining.
    */
   table(tabularData, properties) {
     const con = privateConsole.get(this)
@@ -434,8 +385,6 @@ class Logger {
 
   /**
    * End a timer and log the elapsed time.
-   * @param {string} label - Timer label.
-   * @returns {Logger} This Logger instance for chaining.
    */
   timeEnd(label) {
     const con = privateConsole.get(this)
@@ -446,9 +395,6 @@ class Logger {
 
   /**
    * Log the current timer value.
-   * @param {string} label - Timer label.
-   * @param {...any} data - Additional data to log.
-   * @returns {Logger} This Logger instance for chaining.
    */
   timeLog(label, ...data) {
     const con = privateConsole.get(this)
@@ -459,9 +405,6 @@ class Logger {
 
   /**
    * Log a stack trace.
-   * @param {string} message - Message to log with trace.
-   * @param {...any} args - Additional arguments.
-   * @returns {Logger} This Logger instance for chaining.
    */
   trace(message, ...args) {
     const con = privateConsole.get(this)
@@ -472,8 +415,6 @@ class Logger {
 
   /**
    * Log a warning message with symbol.
-   * @param {...any} args - Arguments to log.
-   * @returns {Logger} This Logger instance for chaining.
    */
   warn(...args) {
     return this.#symbolApply('warn', args)

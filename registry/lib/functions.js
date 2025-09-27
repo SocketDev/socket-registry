@@ -6,15 +6,12 @@
 
 /**
  * A no-op function that does nothing.
- * @returns {undefined} Always returns undefined.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function noop() {}
 
 /**
  * Create a function that only executes once.
- * @param {Function} fn - The function to execute once.
- * @returns {Function} The wrapped function.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function once(fn) {
@@ -31,8 +28,6 @@ function once(fn) {
 
 /**
  * Wrap an async function to silently catch and ignore errors.
- * @param {Function} fn - The async function to wrap.
- * @returns {Function} The wrapped async function that returns undefined on error.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function silentWrapAsync(fn) {
@@ -46,8 +41,6 @@ function silentWrapAsync(fn) {
 
 /**
  * Execute a function with tail call optimization via trampoline.
- * @param {Function} fn - The function to trampoline.
- * @returns {Function} The trampolined function.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function trampoline(fn) {

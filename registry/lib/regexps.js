@@ -11,8 +11,6 @@
 
 /**
  * Escape special characters in a string for use in a regular expression.
- * @param {string} str - The string to escape.
- * @returns {string} The escaped string safe for use in a RegExp.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function escapeRegExp(str) {

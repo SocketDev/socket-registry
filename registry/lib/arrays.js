@@ -7,7 +7,6 @@
 let _conjunctionFormatter
 /**
  * Get a cached Intl.ListFormat instance for conjunction (and) formatting.
- * @returns {Intl.ListFormat} The conjunction formatter.
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -24,7 +23,6 @@ function getConjunctionFormatter() {
 let _disjunctionFormatter
 /**
  * Get a cached Intl.ListFormat instance for disjunction (or) formatting.
- * @returns {Intl.ListFormat} The disjunction formatter.
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -40,9 +38,6 @@ function getDisjunctionFormatter() {
 
 /**
  * Split an array into chunks of a specified size.
- * @param {any[]} arr - The array to chunk.
- * @param {number} [size=2] - The size of each chunk.
- * @returns {any[][]} Array of chunked arrays.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function arrayChunk(arr, size = 2) {
@@ -60,8 +55,6 @@ function arrayChunk(arr, size = 2) {
 
 /**
  * Get unique values from an array.
- * @param {any[]} arr - The array to deduplicate.
- * @returns {any[]} Array with unique values.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function arrayUnique(arr) {
@@ -70,8 +63,6 @@ function arrayUnique(arr) {
 
 /**
  * Join array elements with proper "and" conjunction formatting.
- * @param {string[]} arr - The array to join.
- * @returns {string} The formatted string with "and" conjunction.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function joinAnd(arr) {
@@ -80,8 +71,6 @@ function joinAnd(arr) {
 
 /**
  * Join array elements with proper "or" disjunction formatting.
- * @param {string[]} arr - The array to join.
- * @returns {string} The formatted string with "or" disjunction.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function joinOr(arr) {

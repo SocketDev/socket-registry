@@ -9,8 +9,6 @@ const UrlCtor = URL
 
 /**
  * Check if a value is a valid URL.
- * @param {any} value - Value to check.
- * @returns {boolean} True if value is a valid URL.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isUrl(value) {
@@ -23,8 +21,6 @@ function isUrl(value) {
 
 /**
  * Parse a value as a URL.
- * @param {string|URL} value - Value to parse.
- * @returns {URL|null} Parsed URL object or null if invalid.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function parseUrl(value) {
@@ -36,8 +32,6 @@ function parseUrl(value) {
 
 /**
  * Convert a URL search parameter to an array.
- * @param {string} value - Search parameter value.
- * @returns {string[]} Array of trimmed values.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function urlSearchParamAsArray(value) {
@@ -52,9 +46,6 @@ function urlSearchParamAsArray(value) {
 
 /**
  * Convert a URL search parameter to a boolean.
- * @param {any} value - Search parameter value.
- * @param {boolean} [defaultValue=false] - Default value when null/undefined.
- * @returns {boolean} Boolean representation of the value.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function urlSearchParamAsBoolean(value, defaultValue = false) {
@@ -70,9 +61,6 @@ function urlSearchParamAsBoolean(value, defaultValue = false) {
 
 /**
  * Helper to get array from URLSearchParams.
- * @param {URLSearchParams} params - Search parameters.
- * @param {string} key - Parameter key.
- * @returns {string[]} Array of values.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function urlSearchParamsGetArray(params, key) {
@@ -89,10 +77,6 @@ function urlSearchParamsGetArray(params, key) {
 
 /**
  * Helper to get boolean from URLSearchParams.
- * @param {URLSearchParams} params - Search parameters.
- * @param {string} key - Parameter key.
- * @param {boolean} [defaultValue=false] - Default value.
- * @returns {boolean} Boolean value.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function urlSearchParamsGetBoolean(params, key, defaultValue = false) {
@@ -107,9 +91,6 @@ function urlSearchParamsGetBoolean(params, key, defaultValue = false) {
 
 /**
  * Create a relative URL for testing.
- * @param {string} path - Path to create URL from.
- * @param {string} [base] - Base URL.
- * @returns {string} Relative URL string.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function createRelativeUrl(path, base = '') {
@@ -128,10 +109,6 @@ function createRelativeUrl(path, base = '') {
 
 /**
  * Get string value from URLSearchParams with a default.
- * @param {URLSearchParams} params - Search parameters.
- * @param {string} key - Parameter key.
- * @param {string} [defaultValue=''] - Default value.
- * @returns {string} String value.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function urlSearchParamAsString(params, key, defaultValue = '') {
@@ -144,10 +121,6 @@ function urlSearchParamAsString(params, key, defaultValue = '') {
 
 /**
  * Get number value from URLSearchParams with a default.
- * @param {URLSearchParams} params - Search parameters.
- * @param {string} key - Parameter key.
- * @param {number} [defaultValue=0] - Default value.
- * @returns {number} Number value.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function urlSearchParamAsNumber(params, key, defaultValue = 0) {
