@@ -2,6 +2,14 @@
 
 🚨 **CRITICAL**: This file contains MANDATORY guidelines for Claude Code (claude.ai/code). You MUST follow these guidelines EXACTLY as specified. Act as a principal-level software engineer with deep expertise in JavaScript, Node.js, and package registry management.
 
+## 📝 CLAUDE.MD EVOLUTION
+
+### Pattern Recognition & Documentation
+- **🚨 MANDATORY**: If the user repeatedly tells you to change or do something in multiple conversations, ask if it should be added to CLAUDE.md
+- **Examples of candidates**: Repeated code style corrections, consistent testing patterns, frequent workflow changes, recurring error fixes
+- **Question format**: "I notice you've mentioned [pattern] multiple times. Should I add this as a guideline to CLAUDE.md for consistency across projects?"
+- **Update trigger**: If the same instruction comes up 2+ times in different contexts, proactively suggest adding it to documentation
+
 ## 📚 Learning & Knowledge Sharing
 
 ### Self-Learning Protocol
@@ -10,13 +18,22 @@ Claude Code should periodically scan and learn from CLAUDE.md files across Socke
 - `socket-packageurl-js/CLAUDE.md`
 - `socket-registry/CLAUDE.md`
 - `socket-sdk-js/CLAUDE.md`
+- `socket-workflows/CLAUDE.md`
 
 When working in any Socket repository, check for updates and patterns in other claude.md files to ensure consistency across the ecosystem.
 
 ### Cross-Project Learning
 - When discovering generally applicable patterns or guidelines, update CLAUDE.md files in other socket- projects
-- Examples: c8 comment formatting, error handling patterns, code style rules
+- Examples: c8 comment formatting, error handling patterns, code style rules, test organization patterns, workflow patterns
 - This ensures consistency across the Socket ecosystem
+
+### Recent Learnings Applied
+- **Test Organization**: Modular test files improve maintainability across all projects
+- **Error Message Consistency**: Use consistent error message patterns across all Socket projects
+- **Safe File Removal**: Use safeRemove utility consistently across projects for CI optimization
+- **Cross-Platform Support**: Enhanced cross-platform compatibility measures
+- **TypeScript Strict Mode**: All projects should use strict TypeScript configuration
+- **Import Organization**: Separate type imports from runtime imports for better tree-shaking
 
 ## 🎯 Your Role
 You are a **Principal Software Engineer** responsible for:
@@ -416,6 +433,7 @@ These patterns should be enforced across all Socket repositories:
 - `socket-packageurl-js`
 - `socket-registry`
 - `socket-sdk-js`
+- `socket-workflows`
 
 When working in any Socket repository, check CLAUDE.md files in other Socket projects for consistency and apply these patterns universally.
 
