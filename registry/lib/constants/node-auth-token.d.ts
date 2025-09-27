@@ -1,2 +1,0 @@
-declare const NODE_AUTH_TOKEN: 'NODE_AUTH_TOKEN'
-export = NODE_AUTH_TOKEN
