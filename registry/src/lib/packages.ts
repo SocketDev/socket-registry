@@ -10,13 +10,13 @@ const { hasOwn: ObjectHasOwn } = Object
 const NPM_REGISTRY_URL = /*@__PURE__*/ require('./constants/NPM_REGISTRY_URL')
 const abortSignal = /*@__PURE__*/ require('./constants/abort-signal')
 const copyLeftLicenses = /*@__PURE__*/ require('./constants/copy-left-licenses')
-const LOOP_SENTINEL = /*@__PURE__*/ require('./constants/loop-sentinel')
+const LOOP_SENTINEL = /*@__PURE__*/ require('./constants/LOOP_SENTINEL')
 const PACKAGE_DEFAULT_SOCKET_CATEGORIES = /*@__PURE__*/ require('./constants/package-default-socket-categories')
 const packumentCache = /*@__PURE__*/ require('./constants/packument-cache')
-const REGISTRY_SCOPE_DELIMITER = /*@__PURE__*/ require('./constants/registry-scope-delimiter')
-const SOCKET_GITHUB_ORG = /*@__PURE__*/ require('./constants/socket-github-org')
-const SOCKET_REGISTRY_REPO_NAME = /*@__PURE__*/ require('./constants/socket-registry-repo-name')
-const SOCKET_REGISTRY_SCOPE = /*@__PURE__*/ require('./constants/socket-registry-scope')
+const REGISTRY_SCOPE_DELIMITER = /*@__PURE__*/ require('./constants/REGISTRY_SCOPE_DELIMITER')
+const SOCKET_GITHUB_ORG = /*@__PURE__*/ require('./constants/SOCKET_GITHUB_ORG')
+const SOCKET_REGISTRY_REPO_NAME = /*@__PURE__*/ require('./constants/SOCKET_REGISTRY_REPO_NAME')
+const SOCKET_REGISTRY_SCOPE = /*@__PURE__*/ require('./constants/SOCKET_REGISTRY_SCOPE')
 const { readJson, readJsonSync } = /*@__PURE__*/ require('./fs')
 const {
   isObject,
