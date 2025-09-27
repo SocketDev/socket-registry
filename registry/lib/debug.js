@@ -12,7 +12,6 @@ const { applyLinePrefix } = /*@__PURE__*/ require('./strings')
 let _debugJs
 /**
  * Lazily load the debug module.
- * @returns {Function} The debug module.
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -28,8 +27,6 @@ function getDebugJs() {
 const debugByNamespace = new Map()
 /**
  * Get or create a debug instance for a namespace.
- * @param {string} namespace - The debug namespace.
- * @returns {Function} The debug instance.
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -56,7 +53,6 @@ function getDebugJsInstance(namespace) {
 let _util
 /**
  * Lazily load the util module.
- * @returns {import('util')} The Node.js util module.
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -85,8 +81,6 @@ function customLog() {
 
 /**
  * Extract options from namespaces parameter.
- * @param {string | Object} namespaces - Namespaces string or options object.
- * @returns {Object} Normalized options object.
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -98,8 +92,6 @@ function extractOptions(namespaces) {
 
 /**
  * Check if debug is enabled for given namespaces.
- * @param {string} namespaces - Debug namespaces to check.
- * @returns {boolean} True if debug is enabled.
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -131,9 +123,6 @@ function isEnabled(namespaces) {
 
 /**
  * Debug output for object inspection.
- * @param {string | Object} namespacesOrOpts - Namespaces or options.
- * @param {any} obj - Object to inspect.
- * @param {Object} [inspectOpts] - Inspection options.
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
@@ -161,8 +150,6 @@ function debugDir(namespacesOrOpts, obj, inspectOpts) {
 let pointingTriangle
 /**
  * Debug output with function name prefix.
- * @param {string | Object} namespacesOrOpts - Namespaces or options.
- * @param {...any} args - Arguments to log.
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
@@ -234,8 +221,6 @@ function debugFn(namespacesOrOpts, ...args) {
 
 /**
  * Debug logging function.
- * @param {string | Object} namespacesOrOpts - Namespaces or options.
- * @param {...any} args - Arguments to log.
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
@@ -257,8 +242,6 @@ function debugLog(namespacesOrOpts, ...args) {
 
 /**
  * Check if debug mode is enabled.
- * @param {string} [namespaces] - Specific namespaces to check.
- * @returns {boolean} True if debug is enabled.
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
@@ -270,7 +253,6 @@ function isDebug(namespaces) {
 
 /**
  * Simple debug check based on DEBUG environment variable.
- * @returns {boolean} True if DEBUG is set and truthy.
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
@@ -285,7 +267,6 @@ function isDebugSimple() {
 
 /**
  * Simple debug log that logs to console when DEBUG is set.
- * @param {...any} args - Arguments to log.
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
@@ -298,8 +279,6 @@ function debugLogSimple(...args) {
 
 /**
  * Simple debug dir that logs object to console when DEBUG is set.
- * @param {any} obj - Object to dir.
- * @param {Object} [options] - Console.dir options.
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
@@ -312,8 +291,6 @@ function debugDirSimple(obj, options) {
 
 /**
  * Simple debug function that creates a namespaced debug logger.
- * @param {string} namespace - The namespace for this debug instance.
- * @returns {Function} A debug function for the namespace.
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
@@ -373,8 +350,6 @@ function debugFnSimple(namespace) {
 
 /**
  * Create a debug logger similar to util.debuglog.
- * @param {string} section - The debug section/namespace.
- * @returns {Function} A debug function.
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
@@ -390,8 +365,6 @@ function debuglog(section) {
 
 /**
  * Create a debug timer.
- * @param {string} section - The debug section/namespace.
- * @returns {Object} An object with start and end methods.
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */

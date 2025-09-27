@@ -7,9 +7,6 @@
 let _localeCompare
 /**
  * Compare two strings using locale-aware comparison.
- * @param {string} x - First string to compare.
- * @param {string} y - Second string to compare.
- * @returns {number} Negative if x < y, positive if x > y, 0 if equal.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function localeCompare(x, y) {
@@ -23,9 +20,6 @@ function localeCompare(x, y) {
 let _naturalCompare
 /**
  * Compare two strings using natural sorting (numeric-aware, case-insensitive).
- * @param {string} x - First string to compare.
- * @param {string} y - Second string to compare.
- * @returns {number} Negative if x < y, positive if x > y, 0 if equal.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function naturalCompare(x, y) {
@@ -52,8 +46,6 @@ function naturalCompare(x, y) {
 let _naturalSorter
 /**
  * Sort an array using natural comparison.
- * @param {any[]} arrayToSort - The array to sort.
- * @returns {any} The fast-sort instance with natural comparison.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function naturalSorter(arrayToSort) {
@@ -69,9 +61,6 @@ function naturalSorter(arrayToSort) {
 
 /**
  * Simple string comparison.
- * @param {string} a - First string.
- * @param {string} b - Second string.
- * @returns {number} Comparison result.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function compareStr(a, b) {
@@ -80,9 +69,6 @@ function compareStr(a, b) {
 
 /**
  * Compare semantic versions.
- * @param {string} a - First version.
- * @param {string} b - Second version.
- * @returns {number} Comparison result.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function compareSemver(a, b) {

@@ -24,8 +24,6 @@ const TEMP_DIRS = [
 
 /**
  * Check if a path is within a temporary directory.
- * @param {string} targetPath - Path to check
- * @returns {boolean} True if path is in a temp directory
  */
 function isTempPath(targetPath) {
   const resolved = path.resolve(targetPath)
@@ -45,14 +43,6 @@ function isTempPath(targetPath) {
  * Safely remove files/directories using trash, with fallback to fs.rm.
  * In CI environments, skips trash for performance. For temp directories,
  * silently ignores failures since system cleanup will handle them.
- *
- * @param {string|string[]} paths - Path(s) to remove
- * @param {object} options - Options for removal
- * @param {number} options.concurrency - Concurrency for fs.rm operations
- * @param {object} options.spinner - Spinner instance for warnings
- * @param {boolean} options.force - Force removal (default: true)
- * @param {boolean} options.recursive - Remove recursively (default: true)
- * @returns {Promise<void>}
  */
 async function safeRemove(paths, options) {
   const pathArray = Array.isArray(paths) ? paths : [paths]

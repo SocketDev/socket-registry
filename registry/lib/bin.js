@@ -11,7 +11,6 @@ const { isPath, normalizePath } = /*@__PURE__*/ require('./path')
 let _fs
 /**
  * Lazily load the fs module to avoid Webpack errors.
- * @returns {import('fs')} The Node.js fs module.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function getFs() {
@@ -26,7 +25,6 @@ function getFs() {
 let _path
 /**
  * Lazily load the path module to avoid Webpack errors.
- * @returns {import('path')} The Node.js path module.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function getPath() {
@@ -41,7 +39,6 @@ function getPath() {
 let _which
 /**
  * Lazily load the which module for finding executables.
- * @returns {import('which')} The which module.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function getWhich() {
@@ -54,10 +51,6 @@ function getWhich() {
 /*@__NO_SIDE_EFFECTS__*/
 /**
  * Execute a binary with the given arguments.
- * @param {string} binPath - Path or name of the binary to execute.
- * @param {string[] | readonly string[]} args - Arguments to pass to the binary.
- * @param {import('./spawn').SpawnOptions} [options] - Spawn options.
- * @returns {Promise<{ stdout: string; stderr: string }>} Command output.
  */
 async function execBin(binPath, args, options) {
   const { spawn } = require('./spawn')
@@ -79,9 +72,6 @@ async function execBin(binPath, args, options) {
 /**
  * Find and resolve a binary in the system PATH asynchronously.
  * @template {import('which').Options} T
- * @param {string} binName - Name of the binary to find.
- * @param {T} options - Options for the which module.
- * @returns {T extends {all: true, nothrow: true} ? Promise<string[] | null> : T extends {all: true} ? Promise<string[]> : T extends {nothrow: true} ? Promise<string | null> : Promise<string>} The resolved binary path(s).
  * @throws {Error} If the binary is not found and nothrow is false.
  */
 async function whichBin(binName, options) {
@@ -114,9 +104,6 @@ async function whichBin(binName, options) {
 /**
  * Find and resolve a binary in the system PATH synchronously.
  * @template {import('which').Options} T
- * @param {string} binName - Name of the binary to find.
- * @param {T} options - Options for the which module.
- * @returns {T extends {all: true, nothrow: true} ? string[] | null : T extends {all: true} ? string[] : T extends {nothrow: true} ? string | null : string} The resolved binary path(s).
  * @throws {Error} If the binary is not found and nothrow is false.
  */
 function whichBinSync(binName, options) {
@@ -147,8 +134,6 @@ function whichBinSync(binName, options) {
 
 /**
  * Check if a directory path contains any shadow bin patterns.
- * @param {string} dirPath - Directory path to check.
- * @returns {boolean} True if the path contains shadow bin patterns.
  */
 function isShadowBinPath(dirPath) {
   if (!dirPath) {
@@ -161,9 +146,6 @@ function isShadowBinPath(dirPath) {
 
 /**
  * Find the real executable for a binary, bypassing shadow bins.
- * @param {string} binName - Name of the binary to find.
- * @param {string[]} commonPaths - Common paths to check first.
- * @returns {string} The path to the real binary.
  */
 function findRealBin(binName, commonPaths = []) {
   const fs = getFs()
@@ -207,7 +189,6 @@ function findRealBin(binName, commonPaths = []) {
 
 /**
  * Find the real npm executable, bypassing any aliases and shadow bins.
- * @returns {string} The path to the real npm binary.
  */
 function findRealNpm() {
   const fs = getFs()
@@ -243,7 +224,6 @@ function findRealNpm() {
 
 /**
  * Find the real pnpm executable, bypassing any aliases and shadow bins.
- * @returns {string} The path to the real pnpm binary.
  */
 function findRealPnpm() {
   const ENV = /*@__PURE__*/ require('./constants/env')
@@ -274,7 +254,6 @@ function findRealPnpm() {
 
 /**
  * Find the real yarn executable, bypassing any aliases and shadow bins.
- * @returns {string} The path to the real yarn binary.
  */
 function findRealYarn() {
   const ENV = /*@__PURE__*/ require('./constants/env')
@@ -295,8 +274,6 @@ function findRealYarn() {
 /**
  * Resolve a binary path to its actual executable file.
  * Handles Windows .cmd wrappers and Unix shell scripts.
- * @param {string} binPath - The binary path to resolve.
- * @returns {string} The resolved executable path with normalized slashes.
  */
 function resolveBinPathSync(binPath) {
   const fs = getFs()

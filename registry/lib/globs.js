@@ -50,7 +50,6 @@ const defaultIgnore = ObjectFreeze([
 let _picomatch
 /**
  * Lazily load the picomatch module.
- * @returns {import('picomatch')} The picomatch module.
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -65,7 +64,6 @@ function getPicomatch() {
 let _fastGlob
 /**
  * Lazily load the fast-glob module.
- * @returns {import('fast-glob')} The fast-glob module.
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -78,9 +76,6 @@ function getFastGlob() {
 
 /**
  * Create a stream of license file paths matching glob patterns.
- * @param {string} dirname - The directory to search in.
- * @param {{ignore?: string[]; ignoreOriginals?: boolean; recursive?: boolean}} [options] - Glob options.
- * @returns {import('stream').Stream} Stream of matching file paths.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function globStreamLicenses(dirname, options) {
@@ -120,9 +115,6 @@ function globStreamLicenses(dirname, options) {
 const matcherCache = new Map()
 /**
  * Get a cached glob matcher function.
- * @param {string | string[]} glob - Glob pattern(s) to match.
- * @param {Object} [options] - Picomatch options.
- * @returns {Function} The glob matcher function.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function getGlobMatcher(glob, options) {

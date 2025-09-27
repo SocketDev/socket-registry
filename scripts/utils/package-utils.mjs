@@ -29,9 +29,6 @@ const editablePackageJsonCache = new Map()
 
 /**
  * Reads an editable package.json with caching support.
- * @param {string} pkgPath - Path to the package directory
- * @param {Object} options - Read options
- * @returns {Promise<Object>} The editable package.json object
  */
 async function readCachedEditablePackageJson(pkgPath, options = {}) {
   const cacheKey = pkgPath
@@ -57,9 +54,6 @@ function clearPackageJsonCache() {
 
 /**
  * Updates multiple package.json files in parallel.
- * @param {Array<{path: string, updates: Object}>} packages - Array of packages to update
- * @param {Object} options - Options including concurrency and spinner
- * @returns {Promise<void>}
  */
 async function updatePackagesJson(packages, options = {}) {
   const { concurrency = DEFAULT_CONCURRENCY, spinner } = options
@@ -81,9 +75,6 @@ async function updatePackagesJson(packages, options = {}) {
 
 /**
  * Collects package.json data from multiple packages.
- * @param {Array<string>} paths - Paths to package directories
- * @param {Object} options - Options including fields to extract
- * @returns {Promise<Array<Object>>} Array of package data
  */
 async function collectPackageData(paths, options = {}) {
   const {
@@ -115,10 +106,6 @@ async function collectPackageData(paths, options = {}) {
 
 /**
  * Common patterns for processing packages with spinner feedback.
- * @param {Array} items - Items to process
- * @param {Function} processor - Async function to process each item
- * @param {Object} options - Options including concurrency and spinner
- * @returns {Promise<Array>} Results from processing
  */
 async function processWithSpinner(items, processor, options = {}) {
   const {
@@ -164,10 +151,6 @@ async function processWithSpinner(items, processor, options = {}) {
 
 /**
  * Run a command with spawn.
- * @param {string} command - Command to run.
- * @param {string[]} args - Command arguments.
- * @param {object} options - Spawn options.
- * @returns {Promise<{stdout: string, stderr: string}>}
  */
 async function runCommand(command, args, options = {}) {
   try {
@@ -190,8 +173,6 @@ async function runCommand(command, args, options = {}) {
 
 /**
  * Install a package for testing in a temporary directory.
- * @param {string} socketPkgName - Socket package name.
- * @returns {Promise<{installed: boolean, packagePath?: string, reason?: string}>}
  */
 async function installPackageForTesting(socketPkgName) {
   const origPkgName = resolveOriginalPackageName(socketPkgName)
