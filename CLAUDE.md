@@ -106,8 +106,15 @@ You are a **Principal Software Engineer** responsible for:
 ### 5. Git Workflow
 - **DO NOT commit automatically** - let the user review changes first
 - Use `--no-verify` flag only when explicitly requested
-- Always provide clear, descriptive commit messages
-- **Pithy messages**: Keep commit messages concise and to the point - avoid lengthy explanations
+- **Commit message style**: Use conventional format without prefixes (feat:, fix:, chore:, etc.)
+- **Message guidelines**: Keep commit messages short, pithy, and targeted - avoid lengthy explanations
+- **Small commits**: Make small, focused commits that address a single concern
+- **Version bump commits**: 🚨 MANDATORY - Version bump commits MUST use the format: `Bump to v<version-number>`
+  - ✅ CORRECT: `Bump to v1.2.3`
+  - ❌ WRONG: `chore: bump version`, `Update version to 1.2.3`, `1.2.3`
+- **❌ FORBIDDEN**: Do NOT add Claude Code attribution footer to commit messages
+  - ❌ WRONG: Including "🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>"
+  - ✅ CORRECT: Clean commit messages without attribution footers
 
 ### 6. Package Management
 - **Package Manager**: This project uses pnpm (not npm)
@@ -186,6 +193,11 @@ You are a **Principal Software Engineer** responsible for:
 - **Node.js module imports**: 🚨 MANDATORY - Always use `node:` prefix for Node.js built-in modules
   - ✅ CORRECT: `import { readFile } from 'node:fs'`, `import path from 'node:path'`
   - ❌ FORBIDDEN: `import { readFile } from 'fs'`, `import path from 'path'`
+- **Import patterns**: 🚨 MANDATORY - Avoid `import * as` pattern except when creating re-export wrappers
+  - ✅ CORRECT: `import semver from './external/semver'` (default import)
+  - ✅ CORRECT: `import { satisfies, gt, lt } from './external/semver'` (named imports)
+  - ❌ AVOID: `import * as semver from './external/semver'` (namespace import - only use in external re-export files)
+  - **Exception**: External wrapper files in `src/external/` may use `import * as` to create default exports
 
 ### 🔧 Formatting Rules
 - **Indentation**: 2 spaces (no tabs)
@@ -194,6 +206,14 @@ You are a **Principal Software Engineer** responsible for:
 - **Variables**: Use camelCase for variables and functions
 
 ### 🏗️ Code Structure (CRITICAL PATTERNS)
+- **TypeScript class property declarations**: When extending third-party classes without type definitions, use `declare` to properly type inherited properties
+  - ✅ CORRECT: `class MyClass extends ThirdPartyClass { declare isSpinning: boolean }`
+  - ❌ WRONG: Using bracket notation like `this['isSpinning']` to avoid type errors
+- **Return values**: 🚨 MANDATORY - Use `undefined` instead of `null` for absent values. A value either exists (something) or doesn't exist (undefined). This simplifies type checking and prevents null/undefined confusion.
+  - ✅ CORRECT: `return undefined` when no value exists
+  - ✅ CORRECT: `return result || undefined` for optional returns
+  - ❌ FORBIDDEN: `return null` for absent values
+  - Exception: Only use `null` when interfacing with external APIs that explicitly require it (e.g., JSON.parse, process.exitCode)
 - **Error handling**: REQUIRED - Use try-catch blocks and handle errors gracefully
 - **Array destructuring**: Use object notation `{ 0: key, 1: data }` instead of array destructuring `[key, data]`
 - **Comment formatting**: 🚨 MANDATORY - ALL comments MUST follow these rules:
@@ -244,9 +264,13 @@ You are a **Principal Software Engineer** responsible for:
   - MUST use `as SomeOptions` type assertion after spreading
   - Use destructuring form when you need defaults for individual options
   - Use direct assignment form when passing entire options object to other functions
+- **TypeScript compatibility**:
+  - TypeScript doesn't recognize `__proto__: null` as valid in object literals matching interfaces
+  - ALWAYS use type assertion `as SomeOptions` to resolve TypeScript errors
+  - This pattern is critical for security and MUST NOT be removed to satisfy TypeScript
 - **Examples**:
   - ✅ CORRECT: `const opts = { __proto__: null, ...options } as SomeOptions`
-  - ✅ CORRECT: `const { timeout = 5000, retries = 3 } = { __proto__: null, ...options } as SomeOptions`
+  - ✅ CORRECT: `const { retries = 3, timeout = 5_000 } = { __proto__: null, ...options } as SomeOptions`
   - ❌ FORBIDDEN: `const opts = { ...options }` (vulnerable to prototype pollution)
   - ❌ FORBIDDEN: `const opts = options || {}` (doesn't handle null prototype)
   - ❌ FORBIDDEN: `const opts = Object.assign({}, options)` (inconsistent pattern)
@@ -337,21 +361,33 @@ This is a monorepo for Socket.dev optimized package overrides, built with JavaSc
 
 ### Build System
 - Uses Rollup for building external dependencies
-- TypeScript support with tsconfig
+- TypeScript support with tsconfig (compiles to CommonJS)
+- Post-build script fixes CommonJS exports for backward compatibility
 - Multiple environment configs (.env.local, .env.test, .env.external)
 - Dual linting with oxlint and eslint
 - Formatting with Biome
 
+#### CommonJS Export Compatibility (CRITICAL)
+- **Issue**: TypeScript compiles `export default` to `exports.default = value`, requiring `.default` in CommonJS
+- **Solution**: Post-build script `registry/scripts/fix-commonjs-exports.mjs` transforms exports
+- **Result**: Direct CommonJS require works: `require('@socketsecurity/registry/lib/constants/WIN32')` returns value directly
+- **Implementation**:
+  - Constants use `export default` in TypeScript for consistency
+  - Post-build transforms `exports.default = value` → `module.exports = value`
+  - Also fixes imports in other compiled files to remove `.default` references
+  - Files with type exports keep default export pattern
+- **Maintenance**: Script runs automatically as part of build process (`build:fix-cjs`)
+
 ### Testing
 - Vitest for unit testing
-- Test files use `.test.js` extension
+- Test files use `.test.mts` extension (migrated from .test.ts)
 - Fixtures in `test/fixtures/`
 - Pre-commit hooks for quality assurance
 
 #### Vitest Memory Optimization (CRITICAL)
 - **Pool configuration**: Use `pool: 'forks'` with `singleFork: true`, `maxForks: 1`, `isolate: true`
 - **Memory limits**: Set `NODE_OPTIONS="--max-old-space-size=4096 --max-semi-space-size=512"` in `.env.test`
-- **Timeout settings**: Use `testTimeout: 60000, hookTimeout: 60000` for stability
+- **Timeout settings**: Use `testTimeout: 60_000, hookTimeout: 60_000` for stability
 - **Thread limits**: Use `singleThread: true, maxThreads: 1` to prevent RegExp compiler exhaustion
 - **Test cleanup**: 🚨 MANDATORY - Use `await safeRemove(paths)` for all test cleanup operations
 
@@ -438,6 +474,90 @@ These patterns should be enforced across all Socket repositories:
 - `socket-workflows`
 
 When working in any Socket repository, check CLAUDE.md files in other Socket projects for consistency and apply these patterns universally.
+
+## 📦 Dependency Alignment Standards (CRITICAL)
+
+### 🚨 MANDATORY Dependency Management
+All Socket projects MUST maintain alignment on these core dependencies. Use `taze` for version management - run `pnpm run taze` to check for and apply dependency updates.
+
+#### Core Build Tools & TypeScript
+- **@typescript/native-preview** (tsgo - NEVER use standard tsc)
+- **@types/node** (latest LTS types)
+- **typescript-eslint** (unified package - do NOT use separate @typescript-eslint/* packages)
+
+#### Essential DevDependencies
+- **@biomejs/biome**
+- **@dotenvx/dotenvx**
+- **@eslint/compat**
+- **@eslint/js**
+- **@vitest/coverage-v8**
+- **eslint**
+- **eslint-plugin-import-x**
+- **eslint-plugin-n**
+- **eslint-plugin-sort-destructure-keys**
+- **eslint-plugin-unicorn**
+- **globals**
+- **husky**
+- **knip**
+- **lint-staged**
+- **npm-run-all2**
+- **oxlint**
+- **taze**
+- **trash**
+- **type-coverage**
+- **vitest**
+- **yargs-parser**
+- **yoctocolors-cjs**
+
+### 🔧 TypeScript Compiler Standardization
+- **🚨 MANDATORY**: ALL Socket projects MUST use `tsgo` instead of `tsc`
+- **Package**: `@typescript/native-preview`
+- **Scripts**: Replace `tsc` with `tsgo` in all package.json scripts
+- **Benefits**: Enhanced performance, better memory management, faster compilation
+
+#### Script Examples:
+```json
+{
+  "build": "tsgo",
+  "check:tsc": "tsgo --noEmit",
+  "build:types": "tsgo --project tsconfig.dts.json"
+}
+```
+
+### 🛠️ ESLint Configuration Standardization
+- **🚨 FORBIDDEN**: Do NOT use separate `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser` packages
+- **✅ REQUIRED**: Use unified `typescript-eslint` package only
+- **Migration**: Remove separate packages, add unified package
+
+#### Migration Commands:
+```bash
+pnpm remove @typescript-eslint/eslint-plugin @typescript-eslint/parser
+pnpm add -D typescript-eslint --save-exact
+```
+
+### 📋 Dependency Update Requirements
+When updating dependencies across Socket projects:
+
+1. **Use taze first**: Run `pnpm run taze` to check for and apply dependency updates
+2. **Version Consistency**: All projects MUST use identical versions for shared dependencies
+3. **Exact Versions**: Always use `--save-exact` flag to prevent version drift
+4. **Batch Updates**: Update all Socket projects simultaneously to maintain alignment
+5. **Testing**: Run full test suites after dependency updates to ensure compatibility
+6. **Documentation**: Update CLAUDE.md files when standard versions change
+
+### 🔄 Regular Maintenance
+- **Monthly Audits**: Review dependency versions across all Socket projects
+- **Security Updates**: Apply security patches immediately across all projects
+- **Major Version Updates**: Coordinate across projects, test thoroughly
+- **Legacy Cleanup**: Remove unused dependencies during regular maintenance
+
+### 🚨 Enforcement Rules
+- **Pre-commit Hooks**: Configure to prevent commits with misaligned dependencies
+- **CI/CD Integration**: Fail builds on version mismatches
+- **Code Reviews**: Always verify dependency alignment in PRs
+- **Documentation**: Keep this section updated with current standard versions
+
+This standardization ensures consistency, reduces maintenance overhead, and prevents dependency-related issues across the Socket ecosystem.
 
 ## Notes
 
