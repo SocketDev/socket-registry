@@ -2,24 +2,78 @@
  * @fileoverview CLI spinner utilities for long-running operations.
  * Provides animated progress indicators with CI environment detection.
  */
-'use strict'
 
-const { hasOwn } = /*@__PURE__*/ require('./objects')
+import type { Writable } from 'node:stream'
 
-const ciSpinner = {
+const { hasOwn: ObjectHasOwn } = Object
+
+export type Color =
+  | 'black'
+  | 'blue'
+  | 'cyan'
+  | 'gray'
+  | 'green'
+  | 'magenta'
+  | 'red'
+  | 'white'
+  | 'yellow'
+
+export type SpinnerStyle = {
+  readonly frames: string[]
+  readonly interval?: number | undefined
+}
+
+export type SpinnerOptions = {
+  readonly color?: Color | undefined
+  readonly spinner?: SpinnerStyle | undefined
+  readonly signal?: AbortSignal | undefined
+  readonly stream?: Writable | undefined
+  readonly text?: string | undefined
+}
+
+export type Spinner = {
+  color: Color
+  text: string
+  spinner: SpinnerStyle
+
+  get isSpinning(): boolean
+
+  clear(): Spinner
+  debug(text?: string, ...extras: any[]): Spinner
+  debugAndStop(text?: string, ...extras: any[]): Spinner
+  error(text?: string, ...extras: any[]): Spinner
+  errorAndStop(text?: string, ...extras: any[]): Spinner
+  fail(text?: string, ...extras: any[]): Spinner
+  failAndStop(text?: string, ...extras: any[]): Spinner
+
+  getText(): string
+  setText(text?: string): Spinner
+  indent(spaces?: number): Spinner
+  dedent(spaces?: number): Spinner
+  resetIndent(): Spinner
+
+  info(text?: string, ...extras: any[]): Spinner
+  infoAndStop(text?: string, ...extras: any[]): Spinner
+  log(text?: string, ...extras: any[]): Spinner
+  logAndStop(text?: string, ...extras: any[]): Spinner
+
+  start(text?: string): Spinner
+  stop(text?: string): Spinner
+  stopAndPersist(text?: string): Spinner
+
+  success(text?: string, ...extras: any[]): Spinner
+  successAndStop(text?: string, ...extras: any[]): Spinner
+
+  warn(text?: string, ...extras: any[]): Spinner
+  warnAndStop(text?: string, ...extras: any[]): Spinner
+}
+
+export const ciSpinner: SpinnerStyle = {
   frames: [''],
-  // The delay argument is converted to a signed 32-bit integer. This effectively
-  // limits delay to 2147483647 ms, roughly 24.8 days, since it's specified as a
-  // signed integer in the IDL.
-  // https://developer.mozilla.org/en-US/docs/Web/API/Window/setInterval?utm_source=chatgpt.com#return_value
   interval: 2147483647,
 }
 
-// c8 ignore start
-// Internal helper function for creating property descriptors.
-// Only used internally for defining aliases on the Spinner prototype.
-// Coverage tools may not detect usage in Object.defineProperties.
-function desc(value) {
+function desc(value: any) {
   return {
     __proto__: null,
     configurable: true,
@@ -27,35 +81,37 @@ function desc(value) {
     writable: true,
   }
 }
-// c8 ignore stop
 
-// c8 ignore start
-// Internal helper function for normalizing text values.
-// Used throughout the Spinner class methods but not exposed.
-// Coverage tools may not accurately track all usages.
-function normalizeText(value) {
+function normalizeText(value: any) {
   return typeof value === 'string' ? value.trimStart() : ''
 }
-// c8 ignore stop
 
-let _cliSpinners
+let _cliSpinners: Record<string, SpinnerStyle> | undefined
+
 /*@__NO_SIDE_EFFECTS__*/
-function getCliSpinners(styleName) {
+export function getCliSpinners(
+  styleName?: string,
+): SpinnerStyle | Record<string, SpinnerStyle> | undefined {
   if (_cliSpinners === undefined) {
     const yoctoFactory = /*@__PURE__*/ require('../external/@socketregistry/yocto-spinner')
     const { constructor: YoctoCtor } = yoctoFactory()
     _cliSpinners = YoctoCtor.spinners
   }
-  if (typeof styleName === 'string') {
-    return hasOwn(_cliSpinners, styleName) ? _cliSpinners[styleName] : undefined
+  if (typeof styleName === 'string' && _cliSpinners) {
+    return ObjectHasOwn(_cliSpinners, styleName)
+      ? _cliSpinners[styleName]
+      : undefined
   }
   return _cliSpinners
 }
 
-let _Spinner
-let _defaultSpinner
+let _Spinner: {
+  new (options?: SpinnerOptions | undefined): Spinner
+}
+let _defaultSpinner: SpinnerStyle | undefined
+
 /*@__NO_SIDE_EFFECTS__*/
-function Spinner(options) {
+export function Spinner(options?: SpinnerOptions | undefined): Spinner {
   if (_Spinner === undefined) {
     const ENV = /*@__PURE__*/ require('./constants/ENV')
     const abortSignal = /*@__PURE__*/ require('./constants/abort-signal')
@@ -64,16 +120,16 @@ function Spinner(options) {
     const { constructor: YoctoCtor } = yoctoFactory()
 
     /*@__PURE__*/
-    _Spinner = class Spinner extends YoctoCtor {
-      constructor(options) {
+    _Spinner = class SpinnerClass extends YoctoCtor {
+      constructor(options?: SpinnerOptions) {
         super({
-          signal: abortSignal,
+          signal: abortSignal.default,
           ...options,
         })
       }
 
-      #apply(methodName, args) {
-        let extras
+      #apply(methodName: string, args: any[]) {
+        let extras: any[]
         let text = args.at(0)
         if (typeof text === 'string') {
           extras = args.slice(1)
@@ -105,7 +161,7 @@ function Spinner(options) {
         return this
       }
 
-      #applyAndKeepSpinning(methodName, args) {
+      #applyAndKeepSpinning(methodName: string, args: any[]) {
         const wasSpinning = this.isSpinning
         this.#apply(methodName, args)
         if (wasSpinning) {
@@ -114,7 +170,7 @@ function Spinner(options) {
         return this
       }
 
-      debug(...args) {
+      debug(...args: any[]) {
         const { isDebug } = /*@__PURE__*/ require('./debug')
         if (isDebug()) {
           return this.#applyAndKeepSpinning('info', args)
@@ -122,7 +178,7 @@ function Spinner(options) {
         return this
       }
 
-      debugAndStop(...args) {
+      debugAndStop(...args: any[]) {
         const { isDebug } = /*@__PURE__*/ require('./debug')
         if (isDebug()) {
           return this.#apply('info', args)
@@ -130,11 +186,11 @@ function Spinner(options) {
         return this
       }
 
-      fail(...args) {
+      fail(...args: any[]) {
         return this.#applyAndKeepSpinning('error', args)
       }
 
-      failAndStop(...args) {
+      failAndStop(...args: any[]) {
         return this.#apply('error', args)
       }
 
@@ -142,28 +198,28 @@ function Spinner(options) {
         return this.text
       }
 
-      info(...args) {
+      info(...args: any[]) {
         return this.#applyAndKeepSpinning('info', args)
       }
 
-      infoAndStop(...args) {
+      infoAndStop(...args: any[]) {
         return this.#apply('info', args)
       }
 
-      log(...args) {
+      log(...args: any[]) {
         return this.#applyAndKeepSpinning('stop', args)
       }
 
-      logAndStop(...args) {
+      logAndStop(...args: any[]) {
         return this.#apply('stop', args)
       }
 
-      setText(value) {
+      setText(value: any) {
         this.text = normalizeText(value)
         return this
       }
 
-      start(...args) {
+      start(...args: any[]) {
         if (args.length) {
           const text = args.at(0)
           const normalized = normalizeText(text)
@@ -176,27 +232,29 @@ function Spinner(options) {
         return this.#apply('start', args)
       }
 
-      stop(...args) {
+      stop(...args: any[]) {
         // We clear this.text on stop because yocto-spinner will not clear it.
         this.setText('')
         return this.#apply('stop', args)
       }
 
-      success(...args) {
+      success(...args: any[]) {
         return this.#applyAndKeepSpinning('success', args)
       }
 
-      successAndStop(...args) {
+      successAndStop(...args: any[]) {
         return this.#apply('success', args)
       }
 
-      warn(...args) {
+      warn(...args: any[]) {
         return this.#applyAndKeepSpinning('warning', args)
       }
 
-      warnAndStop(...args) {
+      warnAndStop(...args: any[]) {
         return this.#apply('warning', args)
       }
+    } as unknown as {
+      new (options?: SpinnerOptions | undefined): Spinner
     }
     // Add aliases.
     Object.defineProperties(_Spinner.prototype, {
@@ -205,16 +263,10 @@ function Spinner(options) {
       warning: desc(_Spinner.prototype.warn),
       warningAndStop: desc(_Spinner.prototype.warnAndStop),
     })
-    _defaultSpinner = ENV.CI ? ciSpinner : undefined
+    _defaultSpinner = ENV.default.CI ? ciSpinner : undefined
   }
   return new _Spinner({
     spinner: _defaultSpinner,
     ...options,
   })
-}
-
-module.exports = {
-  ciSpinner,
-  getCliSpinners,
-  Spinner,
 }
