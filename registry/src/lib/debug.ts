@@ -2,14 +2,30 @@
  * @fileoverview Debug logging utilities with lazy loading and environment-based control.
  * Provides Socket CLI specific debug functionality and logging formatters.
  */
-'use strict'
 
 const { apply: ReflectApply } = Reflect
 
 const { hasOwn } = /*@__PURE__*/ require('./objects')
 const { applyLinePrefix } = /*@__PURE__*/ require('./strings')
 
-let _debugJs
+// Type definitions
+interface DebugOptions {
+  namespaces?: string
+  spinner?: { isSpinning: boolean; stop(): void; start(): void }
+  [key: string]: unknown
+}
+
+type NamespacesOrOptions = string | DebugOptions
+
+interface InspectOptions {
+  depth?: number | null
+  colors?: boolean
+  [key: string]: unknown
+}
+
+export type { DebugOptions, NamespacesOrOptions, InspectOptions }
+
+let _debugJs: typeof import('debug').default | undefined
 /**
  * Lazily load the debug module.
  * @private
@@ -18,10 +34,10 @@ let _debugJs
 function getDebugJs() {
   if (_debugJs === undefined) {
     // The 'debug' package is browser safe.
-    const debugExport = /*@__PURE__*/ require('../external/debug')
+    const debugExport = /*@__PURE__*/ require('../external/debug').default
     _debugJs = debugExport.default
   }
-  return _debugJs
+  return _debugJs!
 }
 
 const debugByNamespace = new Map()
@@ -30,13 +46,13 @@ const debugByNamespace = new Map()
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
-function getDebugJsInstance(namespace) {
+function getDebugJsInstance(namespace: string) {
   let inst = debugByNamespace.get(namespace)
   if (inst) {
     return inst
   }
   const debugJs = getDebugJs()
-  const ENV = /*@__PURE__*/ require('./constants/ENV')
+  const ENV = /*@__PURE__*/ require('./constants/ENV').default
   if (
     !ENV.DEBUG &&
     ENV.SOCKET_CLI_DEBUG &&
@@ -50,7 +66,7 @@ function getDebugJsInstance(namespace) {
   return inst
 }
 
-let _util
+let _util: typeof import('util') | undefined
 /**
  * Lazily load the util module.
  * @private
@@ -62,7 +78,7 @@ function getUtil() {
     // eslint-disable-next-line n/prefer-node-protocol
     _util = /*@__PURE__*/ require('util')
   }
-  return _util
+  return _util!
 }
 
 /**
@@ -74,8 +90,17 @@ function customLog() {
   const { logger } = /*@__PURE__*/ require('./logger')
   const debugJs = getDebugJs()
   const util = getUtil()
+  const inspectOpts = debugJs.inspectOpts
+    ? {
+        ...debugJs.inspectOpts,
+        showHidden:
+          debugJs.inspectOpts.showHidden === null
+            ? undefined
+            : debugJs.inspectOpts.showHidden,
+      }
+    : {}
   ReflectApply(logger.info, logger, [
-    util.formatWithOptions(debugJs.inspectOpts, ...arguments),
+    util.formatWithOptions(inspectOpts, ...arguments),
   ])
 }
 
@@ -84,7 +109,7 @@ function customLog() {
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
-function extractOptions(namespaces) {
+function extractOptions(namespaces: any) {
   return namespaces !== null && typeof namespaces === 'object'
     ? { __proto__: null, ...namespaces }
     : { __proto__: null, namespaces }
@@ -95,7 +120,7 @@ function extractOptions(namespaces) {
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
-function isEnabled(namespaces) {
+function isEnabled(namespaces: any) {
   if (typeof namespaces !== 'string' || !namespaces || namespaces === '*') {
     return true
   }
@@ -126,7 +151,7 @@ function isEnabled(namespaces) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
-function debugDir(namespacesOrOpts, obj, inspectOpts) {
+function debugDirComplex(namespacesOrOpts: any, obj: any, inspectOpts?: any) {
   const options = extractOptions(namespacesOrOpts)
   const { namespaces } = options
   if (!isEnabled(namespaces)) {
@@ -136,7 +161,8 @@ function debugDir(namespacesOrOpts, obj, inspectOpts) {
     const debugJs = getDebugJs()
     inspectOpts = debugJs.inspectOpts
   }
-  const { spinner = /*@__PURE__*/ require('./constants/spinner') } = options
+  const { spinner = /*@__PURE__*/ require('./constants/spinner').default } =
+    options
   const wasSpinning = spinner.isSpinning
   spinner.stop()
   const { logger } = /*@__PURE__*/ require('./logger')
@@ -147,13 +173,13 @@ function debugDir(namespacesOrOpts, obj, inspectOpts) {
 }
 /* c8 ignore stop */
 
-let pointingTriangle
+let pointingTriangle: string | undefined
 /**
  * Debug output with function name prefix.
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
-function debugFn(namespacesOrOpts, ...args) {
+function debugFnComplex(namespacesOrOpts: NamespacesOrOptions, ...args: any[]) {
   const options = extractOptions(namespacesOrOpts)
   const { namespaces } = options
   if (!isEnabled(namespaces)) {
@@ -165,36 +191,38 @@ function debugFn(namespacesOrOpts, ...args) {
   let name = 'anonymous'
   // Scan the stack trace character-by-character to find the 4th line
   // (index 3), which is typically the caller of debugFn.
-  for (let i = 0, { length } = stack; i < length; i += 1) {
-    if (stack.charCodeAt(i) === 10 /*'\n'*/) {
-      lineCount += 1
-      if (lineCount < 4) {
-        // Store the start index of the next line.
-        lineStart = i + 1
-      } else {
-        // Extract the full line and trim it.
-        const line = stack.slice(lineStart, i).trimStart()
-        // Match the function name portion (e.g., "async runFix").
-        const match = /(?<=^at\s+).*?(?=\s+\(|$)/.exec(line)?.[0]
-        if (match) {
-          name = match
-            // Strip known V8 invocation prefixes to get the name.
-            .replace(/^(?:async|bound|get|new|set)\s+/, '')
-          if (name.startsWith('Object.')) {
-            // Strip leading 'Object.' if not an own property of Object.
-            const afterDot = name.slice(7 /*'Object.'.length*/)
-            if (!hasOwn(Object, afterDot)) {
-              name = afterDot
+  if (stack) {
+    for (let i = 0, { length } = stack; i < length; i += 1) {
+      if (stack.charCodeAt(i) === 10 /*'\n'*/) {
+        lineCount += 1
+        if (lineCount < 4) {
+          // Store the start index of the next line.
+          lineStart = i + 1
+        } else {
+          // Extract the full line and trim it.
+          const line = stack.slice(lineStart, i).trimStart()
+          // Match the function name portion (e.g., "async runFix").
+          const match = /(?<=^at\s+).*?(?=\s+\(|$)/.exec(line)?.[0]
+          if (match) {
+            name = match
+              // Strip known V8 invocation prefixes to get the name.
+              .replace(/^(?:async|bound|get|new|set)\s+/, '')
+            if (name.startsWith('Object.')) {
+              // Strip leading 'Object.' if not an own property of Object.
+              const afterDot = name.slice(7 /*'Object.'.length*/)
+              if (!hasOwn(Object, afterDot)) {
+                name = afterDot
+              }
             }
           }
+          break
         }
-        break
       }
     }
   }
   if (pointingTriangle === undefined) {
     const supported =
-      /*@__PURE__*/ require('../external/@socketregistry/is-unicode-supported')()
+      /*@__PURE__*/ require('../external/@socketregistry/is-unicode-supported').default()
     pointingTriangle = supported ? '▸' : '>'
   }
   const text = args.at(0)
@@ -208,7 +236,8 @@ function debugFn(namespacesOrOpts, ...args) {
           ...args.slice(1),
         ]
       : args
-  const { spinner = /*@__PURE__*/ require('./constants/spinner') } = options
+  const { spinner = /*@__PURE__*/ require('./constants/spinner').default } =
+    options
   const wasSpinning = spinner.isSpinning
   spinner.stop()
   const { logger } = /*@__PURE__*/ require('./logger')
@@ -224,13 +253,14 @@ function debugFn(namespacesOrOpts, ...args) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
-function debugLog(namespacesOrOpts, ...args) {
+function debugLogComplex(namespacesOrOpts: any, ...args: any[]) {
   const options = extractOptions(namespacesOrOpts)
   const { namespaces } = options
   if (!isEnabled(namespaces)) {
     return
   }
-  const { spinner = /*@__PURE__*/ require('./constants/spinner') } = options
+  const { spinner = /*@__PURE__*/ require('./constants/spinner').default } =
+    options
   const wasSpinning = spinner.isSpinning
   spinner.stop()
   ReflectApply(customLog, undefined, args)
@@ -245,8 +275,8 @@ function debugLog(namespacesOrOpts, ...args) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
-function isDebug(namespaces) {
-  const ENV = /*@__PURE__*/ require('./constants/ENV')
+function isDebugComplex(namespaces: any): boolean {
+  const ENV = /*@__PURE__*/ require('./constants/ENV').default
   return ENV.SOCKET_CLI_DEBUG && isEnabled(namespaces)
 }
 /* c8 ignore stop */
@@ -256,8 +286,8 @@ function isDebug(namespaces) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
-function isDebugSimple() {
-  const debug = process.env.DEBUG
+export function isDebugSimple(): boolean {
+  const debug = process.env['DEBUG']
   if (!debug || debug === '' || debug === '0' || debug === 'false') {
     return false
   }
@@ -270,7 +300,7 @@ function isDebugSimple() {
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
-function debugLogSimple(...args) {
+export function debugLogSimple(...args: any[]): void {
   if (isDebugSimple()) {
     console.log(...args)
   }
@@ -282,7 +312,7 @@ function debugLogSimple(...args) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
-function debugDirSimple(obj, options) {
+export function debugDirSimple(obj: any, options?: any): void {
   if (isDebugSimple()) {
     console.dir(obj, options || { depth: null, colors: true })
   }
@@ -294,7 +324,7 @@ function debugDirSimple(obj, options) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
-function matchPattern(ns, pattern) {
+function matchPattern(ns: any, pattern: any) {
   if (pattern === '*') {
     return true
   }
@@ -309,9 +339,9 @@ function matchPattern(ns, pattern) {
   return ns === pattern
 }
 
-function debugFnSimple(namespace) {
-  const log = (...args) => {
-    const debug = process.env.DEBUG || ''
+export function debugFnSimple(namespace: any) {
+  const log = (...args: any[]) => {
+    const debug = process.env['DEBUG'] || ''
 
     // Parse debug patterns.
     const patterns = debug.split(',').map(p => p.trim())
@@ -353,8 +383,8 @@ function debugFnSimple(namespace) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
-function debuglog(section) {
-  const log = (...args) => {
+export function debuglog(section: any) {
+  const log = (...args: any[]) => {
     if (isDebugSimple()) {
       console.log(`[${section}]`, ...args)
     }
@@ -368,23 +398,23 @@ function debuglog(section) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
-function debugtime(section) {
+export function debugtime(section: any) {
   const timers = new Map()
 
-  const timer = label => {
+  const timer = (label: any) => {
     if (isDebugSimple()) {
       console.log(`[${section}] ${label}`)
     }
   }
 
-  timer.start = label => {
+  timer.start = (label: any) => {
     if (isDebugSimple()) {
       timers.set(label, Date.now())
       console.log(`[${section}] ${label}: start`)
     }
   }
 
-  timer.end = label => {
+  timer.end = (label: any) => {
     if (isDebugSimple()) {
       const start = timers.get(label)
       if (start) {
@@ -399,17 +429,12 @@ function debugtime(section) {
 }
 /* c8 ignore stop */
 
-// Export both the original complex versions and simple versions
-// Tests are expecting the simple versions
-module.exports = {
-  debugDir: debugDirSimple,
-  debugDirComplex: debugDir,
-  debugFn: debugFnSimple,
-  debugFnComplex: debugFn,
-  debugLog: debugLogSimple,
-  debugLogComplex: debugLog,
-  debuglog,
-  debugtime,
-  isDebug: isDebugSimple,
-  isDebugComplex: isDebug,
-}
+// Export aliases for compatibility.
+export { debugDirSimple as debugDir }
+export { debugDirComplex }
+export { debugFnSimple as debugFn }
+export { debugFnComplex }
+export { debugLogSimple as debugLog }
+export { debugLogComplex }
+export { isDebugSimple as isDebug }
+export { isDebugComplex }

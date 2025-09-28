@@ -2,7 +2,6 @@
  * @fileoverview URL parsing and validation utilities.
  * Provides URL validation, normalization, and parsing helpers.
  */
-'use strict'
 
 const BooleanCtor = Boolean
 const UrlCtor = URL
@@ -11,7 +10,7 @@ const UrlCtor = URL
  * Check if a value is a valid URL.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function isUrl(value) {
+export function isUrl(value: string | URL | null | undefined): boolean {
   return (
     ((typeof value === 'string' && value !== '') ||
       (value !== null && typeof value === 'object')) &&
@@ -23,18 +22,20 @@ function isUrl(value) {
  * Parse a value as a URL.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function parseUrl(value) {
+export function parseUrl(value: string | URL): URL | undefined {
   try {
     return new UrlCtor(value)
   } catch {}
-  return null
+  return undefined
 }
 
 /**
  * Convert a URL search parameter to an array.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function urlSearchParamAsArray(value) {
+export function urlSearchParamAsArray(
+  value: string | null | undefined,
+): string[] {
   return typeof value === 'string'
     ? value
         .trim()
@@ -48,7 +49,10 @@ function urlSearchParamAsArray(value) {
  * Convert a URL search parameter to a boolean.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function urlSearchParamAsBoolean(value, defaultValue = false) {
+export function urlSearchParamAsBoolean(
+  value: string | null | undefined,
+  defaultValue: boolean = false,
+): boolean {
   if (typeof value === 'string') {
     const trimmed = value.trim()
     return trimmed === '1' || trimmed.toLowerCase() === 'true'
@@ -63,12 +67,16 @@ function urlSearchParamAsBoolean(value, defaultValue = false) {
  * Helper to get array from URLSearchParams.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function urlSearchParamsGetArray(params, key) {
+export function urlSearchParamsGetArray(
+  params: URLSearchParams | null | undefined,
+  key: string,
+): string[] {
   if (params && typeof params.getAll === 'function') {
     const values = params.getAll(key)
     // If single value contains commas, split it
-    if (values.length === 1 && values[0].includes(',')) {
-      return urlSearchParamAsArray(values[0])
+    const firstValue = values[0]
+    if (values.length === 1 && firstValue && firstValue.includes(',')) {
+      return urlSearchParamAsArray(firstValue)
     }
     return values
   }
@@ -79,7 +87,11 @@ function urlSearchParamsGetArray(params, key) {
  * Helper to get boolean from URLSearchParams.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function urlSearchParamsGetBoolean(params, key, defaultValue = false) {
+export function urlSearchParamsGetBoolean(
+  params: URLSearchParams | null | undefined,
+  key: string,
+  defaultValue: boolean = false,
+): boolean {
   if (params && typeof params.get === 'function') {
     const value = params.get(key)
     return value !== null
@@ -93,7 +105,7 @@ function urlSearchParamsGetBoolean(params, key, defaultValue = false) {
  * Create a relative URL for testing.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function createRelativeUrl(path, base = '') {
+export function createRelativeUrl(path: string, base: string = ''): string {
   // Remove leading slash to make it relative.
   const relativePath = path.replace(/^\//, '')
 
@@ -111,7 +123,11 @@ function createRelativeUrl(path, base = '') {
  * Get string value from URLSearchParams with a default.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function urlSearchParamAsString(params, key, defaultValue = '') {
+export function urlSearchParamAsString(
+  params: URLSearchParams | null | undefined,
+  key: string,
+  defaultValue: string = '',
+): string {
   if (params && typeof params.get === 'function') {
     const value = params.get(key)
     return value !== null ? value : defaultValue
@@ -123,7 +139,11 @@ function urlSearchParamAsString(params, key, defaultValue = '') {
  * Get number value from URLSearchParams with a default.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function urlSearchParamAsNumber(params, key, defaultValue = 0) {
+export function urlSearchParamAsNumber(
+  params: URLSearchParams | null | undefined,
+  key: string,
+  defaultValue: number = 0,
+): number {
   if (params && typeof params.get === 'function') {
     const value = params.get(key)
     if (value !== null) {
@@ -132,16 +152,4 @@ function urlSearchParamAsNumber(params, key, defaultValue = 0) {
     }
   }
   return defaultValue
-}
-
-module.exports = {
-  createRelativeUrl,
-  isUrl,
-  parseUrl,
-  urlSearchParamAsArray,
-  urlSearchParamAsBoolean,
-  urlSearchParamAsNumber,
-  urlSearchParamAsString,
-  urlSearchParamsGetArray,
-  urlSearchParamsGetBoolean,
 }

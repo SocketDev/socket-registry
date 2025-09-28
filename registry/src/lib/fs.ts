@@ -2,15 +2,113 @@
  * @fileoverview File system utilities with cross-platform path handling.
  * Provides enhanced fs operations, glob matching, and directory traversal functions.
  */
-'use strict'
+
+import { defaultIgnore, getGlobMatcher } from './globs'
+import { jsonParse } from './json'
+import { pathLikeToString } from './path'
+import { naturalCompare } from './sorts'
+
+import type { JsonReviver } from './json'
+import type { Remap } from './objects'
+import type { Abortable } from 'node:events'
+import type {
+  Dirent,
+  ObjectEncodingOptions,
+  OpenMode,
+  PathLike,
+  StatSyncOptions,
+  WriteFileOptions,
+} from 'node:fs'
+
+// Type definitions
+export type BufferEncoding =
+  | 'ascii'
+  | 'utf8'
+  | 'utf-8'
+  | 'utf16le'
+  | 'ucs2'
+  | 'ucs-2'
+  | 'base64'
+  | 'base64url'
+  | 'latin1'
+  | 'binary'
+  | 'hex'
+
+export type JsonContent = any
+
+export interface FindUpOptions {
+  cwd?: string
+  onlyDirectories?: boolean
+  onlyFiles?: boolean
+  signal?: AbortSignal
+}
+
+export interface FindUpSyncOptions {
+  cwd?: string
+  stopAt?: string
+  onlyDirectories?: boolean
+  onlyFiles?: boolean
+}
+
+export interface IsDirEmptyOptions {
+  ignore?: string[] | readonly string[] | undefined
+}
+
+export interface ReadOptions extends Abortable {
+  encoding?: BufferEncoding | string
+  flag?: string
+}
+
+export interface ReadDirOptions {
+  ignore?: string[] | readonly string[] | undefined
+  includeEmpty?: boolean | undefined
+  sort?: boolean | undefined
+}
+
+export type ReadFileOptions =
+  | Remap<
+      ObjectEncodingOptions &
+        Abortable & {
+          flag?: OpenMode | undefined
+        }
+    >
+  | BufferEncoding
+  | null
+
+export type ReadJsonOptions = Remap<
+  ReadFileOptions & {
+    throws?: boolean | undefined
+    reviver?: Parameters<typeof JSON.parse>[1]
+  }
+>
+
+export interface RemoveOptions {
+  force?: boolean
+  maxRetries?: number
+  recursive?: boolean
+  retryDelay?: number
+  signal?: AbortSignal
+}
+
+export interface SafeReadOptions extends ReadOptions {
+  defaultValue?: any
+}
+
+export interface WriteOptions extends Abortable {
+  encoding?: BufferEncoding | string
+  mode?: number
+  flag?: string
+}
+
+export interface WriteJsonOptions extends WriteOptions {
+  EOL?: string | undefined
+  finalEOL?: boolean | undefined
+  replacer?: JsonReviver | undefined
+  spaces?: number | string | undefined
+}
 
 const { isArray: ArrayIsArray } = Array
 const { freeze: ObjectFreeze } = Object
-
-const { defaultIgnore, getGlobMatcher } = /*@__PURE__*/ require('./globs')
-const { jsonParse } = /*@__PURE__*/ require('./json')
-const { pathLikeToString } = /*@__PURE__*/ require('./path')
-const { naturalCompare } = /*@__PURE__*/ require('./sorts')
 
 const defaultRemoveOptions = ObjectFreeze({
   __proto__: null,
@@ -20,7 +118,7 @@ const defaultRemoveOptions = ObjectFreeze({
   retryDelay: 200,
 })
 
-let _fs
+let _fs: typeof import('fs') | undefined
 /*@__NO_SIDE_EFFECTS__*/
 function getFs() {
   if (_fs === undefined) {
@@ -28,10 +126,10 @@ function getFs() {
     // eslint-disable-next-line n/prefer-node-protocol
     _fs = /*@__PURE__*/ require('fs')
   }
-  return _fs
+  return _fs!
 }
 
-let _path
+let _path: typeof import('path') | undefined
 /*@__NO_SIDE_EFFECTS__*/
 function getPath() {
   if (_path === undefined) {
@@ -39,23 +137,71 @@ function getPath() {
     // eslint-disable-next-line n/prefer-node-protocol
     _path = /*@__PURE__*/ require('path')
   }
-  return _path
+  return _path!
+}
+
+/**
+ * Process directory entries and filter for directories.
+ * @private
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function innerReadDirNames(
+  dirents: Dirent[],
+  dirname: string | undefined,
+  options?: ReadDirOptions | undefined,
+): string[] {
+  const {
+    ignore,
+    includeEmpty = true,
+    sort = true,
+  } = { __proto__: null, ...options } as ReadDirOptions
+  const path = getPath()
+  const names = dirents
+    .filter(
+      (d: Dirent) =>
+        d.isDirectory() &&
+        (includeEmpty ||
+          !isDirEmptySync(path.join(dirname || d.parentPath, d.name), {
+            ignore,
+          })),
+    )
+    .map((d: Dirent) => d.name)
+  return sort ? names.sort(naturalCompare) : names
+}
+
+/**
+ * Stringify JSON with custom formatting options.
+ * @private
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function stringify(
+  json: any,
+  EOL: string = '\n',
+  finalEOL: boolean = true,
+  replacer: JsonReviver | undefined,
+  spaces: number | string = 2,
+): string {
+  const EOF = finalEOL ? EOL : ''
+  const str = JSON.stringify(json, replacer, spaces)
+  return `${str.replace(/\n/g, EOL)}${EOF}`
 }
 
 /**
  * Find a file or directory by traversing up parent directories.
- * @typedef {{cwd?: string; onlyDirectories?: boolean; onlyFiles?: boolean; signal?: AbortSignal}} FindUpOptions
  */
 /*@__NO_SIDE_EFFECTS__*/
-async function findUp(name, options) {
+export async function findUp(
+  name: string | string[] | readonly string[],
+  options?: FindUpOptions | undefined,
+): Promise<string | undefined> {
   const {
     cwd = process.cwd(),
-    signal = /*@__PURE__*/ require('./constants/abort-signal'),
-  } = { __proto__: null, ...options }
+    signal = /*@__PURE__*/ require('./constants/abort-signal').default,
+  } = { __proto__: null, ...options } as FindUpOptions
   let { onlyDirectories = false, onlyFiles = true } = {
     __proto__: null,
     ...options,
-  }
+  } as FindUpOptions
   if (onlyDirectories) {
     onlyFiles = false
   }
@@ -66,7 +212,7 @@ async function findUp(name, options) {
   const path = getPath()
   let dir = path.resolve(cwd)
   const { root } = path.parse(dir)
-  const names = ArrayIsArray(name) ? name : [name]
+  const names = ArrayIsArray(name) ? name : [name as string]
   while (dir && dir !== root) {
     for (const n of names) {
       if (signal?.aborted) {
@@ -93,12 +239,18 @@ async function findUp(name, options) {
  * Synchronously find a file or directory by traversing up parent directories.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function findUpSync(name, options) {
-  const { cwd = process.cwd(), stopAt } = { __proto__: null, ...options }
+export function findUpSync(
+  name: string | string[] | readonly string[],
+  options?: FindUpSyncOptions | undefined,
+) {
+  const { cwd = process.cwd(), stopAt } = {
+    __proto__: null,
+    ...options,
+  } as FindUpSyncOptions
   let { onlyDirectories = false, onlyFiles = true } = {
     __proto__: null,
     ...options,
-  }
+  } as FindUpSyncOptions
   if (onlyDirectories) {
     onlyFiles = false
   }
@@ -110,7 +262,7 @@ function findUpSync(name, options) {
   let dir = path.resolve(cwd)
   const { root } = path.parse(dir)
   const stopDir = stopAt ? path.resolve(stopAt) : undefined
-  const names = ArrayIsArray(name) ? name : [name]
+  const names = ArrayIsArray(name) ? name : [name as string]
   while (dir && dir !== root) {
     // Check if we should stop at this directory.
     if (stopDir && dir === stopDir) {
@@ -147,46 +299,26 @@ function findUpSync(name, options) {
 }
 
 /**
- * Process directory entries and filter for directories.
- * @private
- */
-/*@__NO_SIDE_EFFECTS__*/
-function innerReadDirNames(dirents, dirname, options) {
-  const {
-    ignore,
-    includeEmpty = true,
-    sort = true,
-  } = { __proto__: null, ...options }
-  const path = getPath()
-  const names = dirents
-    .filter(
-      d =>
-        d.isDirectory() &&
-        (includeEmpty ||
-          !isDirEmptySync(path.join(dirname || d.parentPath, d.name), {
-            ignore,
-          })),
-    )
-    .map(d => d.name)
-  return sort ? names.sort(naturalCompare) : names
-}
-
-/**
  * Check if a path is a directory synchronously.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function isDirSync(filepath) {
+export function isDirSync(filepath: PathLike) {
   const fs = getFs()
   return fs.existsSync(filepath) && !!safeStatsSync(filepath)?.isDirectory()
 }
 
 /**
  * Check if a directory is empty synchronously.
- * @typedef {{ignore?: string[] | readonly string[]}} IsDirEmptyOptions
  */
 /*@__NO_SIDE_EFFECTS__*/
-function isDirEmptySync(dirname, options) {
-  const { ignore = defaultIgnore } = { __proto__: null, ...options }
+export function isDirEmptySync(
+  dirname: PathLike,
+  options?: IsDirEmptyOptions | undefined,
+) {
+  const { ignore = defaultIgnore } = {
+    __proto__: null,
+    ...options,
+  } as IsDirEmptyOptions
   const fs = getFs()
   try {
     const files = fs.readdirSync(dirname)
@@ -194,10 +326,13 @@ function isDirEmptySync(dirname, options) {
     if (length === 0) {
       return true
     }
-    const matcher = getGlobMatcher(ignore, { cwd: pathLikeToString(dirname) })
+    const matcher = getGlobMatcher(ignore as string[], {
+      cwd: pathLikeToString(dirname),
+    })
     let ignoredCount = 0
     for (let i = 0; i < length; i += 1) {
-      if (matcher(files[i])) {
+      const file = files[i]
+      if (file && matcher(file)) {
         ignoredCount += 1
       }
     }
@@ -212,7 +347,7 @@ function isDirEmptySync(dirname, options) {
  * Check if a path is a symbolic link synchronously.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function isSymLinkSync(filepath) {
+export function isSymLinkSync(filepath: PathLike) {
   const fs = getFs()
   try {
     return fs.lstatSync(filepath).isSymbolicLink()
@@ -222,18 +357,21 @@ function isSymLinkSync(filepath) {
 
 /**
  * Read directory names asynchronously with filtering and sorting.
- * @typedef {{ignore?: string[] | readonly string[]; includeEmpty?: boolean; sort?: boolean}} ReadDirOptions
  */
 /*@__NO_SIDE_EFFECTS__*/
-async function readDirNames(dirname, options) {
+export async function readDirNames(
+  dirname: PathLike,
+  options?: ReadDirOptions | undefined,
+) {
   const fs = getFs()
   try {
     return innerReadDirNames(
       await fs.promises.readdir(dirname, {
         __proto__: null,
+        encoding: 'utf8',
         withFileTypes: true,
-      }),
-      dirname,
+      } as ObjectEncodingOptions & { withFileTypes: true }),
+      String(dirname),
       options,
     )
   } catch {}
@@ -244,12 +382,16 @@ async function readDirNames(dirname, options) {
  * Read directory names synchronously with filtering and sorting.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function readDirNamesSync(dirname, options) {
+export function readDirNamesSync(dirname: PathLike, options?: ReadDirOptions) {
   const fs = getFs()
   try {
     return innerReadDirNames(
-      fs.readdirSync(dirname, { __proto__: null, withFileTypes: true }),
-      dirname,
+      fs.readdirSync(dirname, {
+        __proto__: null,
+        encoding: 'utf8',
+        withFileTypes: true,
+      } as ObjectEncodingOptions & { withFileTypes: true }),
+      String(dirname),
       options,
     )
   } catch {}
@@ -260,12 +402,16 @@ function readDirNamesSync(dirname, options) {
  * Read a file as binary data asynchronously.
  */
 /*@__NO_SIDE_EFFECTS__*/
-async function readFileBinary(filepath, options) {
+export async function readFileBinary(
+  filepath: PathLike,
+  options?: ReadFileOptions | undefined,
+) {
+  // Don't specify encoding to get a Buffer.
+  const opts = typeof options === 'string' ? { encoding: options } : options
   const fs = getFs()
-  // Don't specify encoding to get a Buffer
   return await fs.promises.readFile(filepath, {
-    signal: /*@__PURE__*/ require('./constants/abort-signal'),
-    ...options,
+    signal: /*@__PURE__*/ require('./constants/abort-signal').default,
+    ...opts,
     encoding: null,
   })
 }
@@ -274,11 +420,15 @@ async function readFileBinary(filepath, options) {
  * Read a file as UTF-8 text asynchronously.
  */
 /*@__NO_SIDE_EFFECTS__*/
-async function readFileUtf8(filepath, options) {
+export async function readFileUtf8(
+  filepath: PathLike,
+  options?: ReadFileOptions | undefined,
+) {
+  const opts = typeof options === 'string' ? { encoding: options } : options
   const fs = getFs()
   return await fs.promises.readFile(filepath, {
-    signal: /*@__PURE__*/ require('./constants/abort-signal'),
-    ...options,
+    signal: /*@__PURE__*/ require('./constants/abort-signal').default,
+    ...opts,
     encoding: 'utf8',
   })
 }
@@ -287,37 +437,48 @@ async function readFileUtf8(filepath, options) {
  * Read a file as binary data synchronously.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function readFileBinarySync(filepath, options) {
-  const fs = getFs()
+export function readFileBinarySync(
+  filepath: PathLike,
+  options?: ReadFileOptions | undefined,
+) {
   // Don't specify encoding to get a Buffer
+  const opts = typeof options === 'string' ? { encoding: options } : options
+  const fs = getFs()
   return fs.readFileSync(filepath, {
-    ...options,
+    ...opts,
     encoding: null,
-  })
+  } as ObjectEncodingOptions)
 }
 
 /**
  * Read a file as UTF-8 text synchronously.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function readFileUtf8Sync(filepath, options) {
+export function readFileUtf8Sync(
+  filepath: PathLike,
+  options?: ReadFileOptions | undefined,
+) {
+  const opts = typeof options === 'string' ? { encoding: options } : options
   const fs = getFs()
   return fs.readFileSync(filepath, {
-    ...options,
+    ...opts,
     encoding: 'utf8',
-  })
+  } as ObjectEncodingOptions)
 }
 
 /**
  * Read and parse a JSON file asynchronously.
- * @typedef {{encoding?: string; throws?: boolean; reviver?: Function} & import('fs').ReadFileOptions} ReadJsonOptions
  */
 /*@__NO_SIDE_EFFECTS__*/
-async function readJson(filepath, options) {
-  if (typeof options === 'string') {
-    options = { encoding: options }
-  }
-  const { reviver, throws, ...fsOptions } = { __proto__: null, ...options }
+export async function readJson(
+  filepath: PathLike,
+  options?: ReadJsonOptions | string | undefined,
+) {
+  const opts = typeof options === 'string' ? { encoding: options } : options
+  const { reviver, throws, ...fsOptions } = {
+    __proto__: null,
+    ...opts,
+  } as unknown as ReadJsonOptions
   const shouldThrow = throws === undefined || !!throws
   const fs = getFs()
   let content = ''
@@ -326,15 +487,17 @@ async function readJson(filepath, options) {
       __proto__: null,
       encoding: 'utf8',
       ...fsOptions,
+    } as unknown as Parameters<typeof fs.promises.readFile>[1] & {
+      encoding: string
     })
   } catch (e) {
     if (shouldThrow) {
       throw e
     }
-    return null
+    return undefined
   }
   return jsonParse(content, {
-    filepath,
+    filepath: String(filepath),
     reviver,
     throws: shouldThrow,
   })
@@ -344,11 +507,15 @@ async function readJson(filepath, options) {
  * Read and parse a JSON file synchronously.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function readJsonSync(filepath, options) {
-  if (typeof options === 'string') {
-    options = { encoding: options }
-  }
-  const { reviver, throws, ...fsOptions } = { __proto__: null, ...options }
+export function readJsonSync(
+  filepath: PathLike,
+  options?: ReadJsonOptions | string | undefined,
+) {
+  const opts = typeof options === 'string' ? { encoding: options } : options
+  const { reviver, throws, ...fsOptions } = {
+    __proto__: null,
+    ...opts,
+  } as unknown as ReadJsonOptions
   const shouldThrow = throws === undefined || !!throws
   const fs = getFs()
   let content = ''
@@ -357,15 +524,17 @@ function readJsonSync(filepath, options) {
       __proto__: null,
       encoding: 'utf8',
       ...fsOptions,
+    } as unknown as Parameters<typeof fs.readFileSync>[1] & {
+      encoding: string
     })
   } catch (e) {
     if (shouldThrow) {
       throw e
     }
-    return null
+    return undefined
   }
   return jsonParse(content, {
-    filepath,
+    filepath: String(filepath),
     reviver,
     throws: shouldThrow,
   })
@@ -375,12 +544,14 @@ function readJsonSync(filepath, options) {
  * Remove a file or directory asynchronously.
  */
 /*@__NO_SIDE_EFFECTS__*/
-async function remove(filepath, options) {
+export async function remove(
+  filepath: PathLike,
+  options?: RemoveOptions | undefined,
+) {
   // Attempt to workaround occasional ENOTEMPTY errors in Windows.
   // https://github.com/jprichardson/node-fs-extra/issues/532#issuecomment-1178360589
   const fs = getFs()
   await fs.promises.rm(filepath, {
-    __proto__: null,
     ...defaultRemoveOptions,
     ...options,
   })
@@ -390,10 +561,12 @@ async function remove(filepath, options) {
  * Remove a file or directory synchronously.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function removeSync(filepath, options) {
+export function removeSync(
+  filepath: PathLike,
+  options?: RemoveOptions | undefined,
+) {
   const fs = getFs()
   fs.rmSync(filepath, {
-    __proto__: null,
     ...defaultRemoveOptions,
     ...options,
   })
@@ -403,15 +576,17 @@ function removeSync(filepath, options) {
  * Safely read a file asynchronously, returning undefined on error.
  */
 /*@__NO_SIDE_EFFECTS__*/
-async function safeReadFile(filepath, options) {
+export async function safeReadFile(
+  filepath: PathLike,
+  options?: SafeReadOptions | undefined,
+) {
+  const opts = typeof options === 'string' ? { encoding: options } : options
   const fs = getFs()
   try {
-    const opts = typeof options === 'string' ? { encoding: options } : options
-
     return await fs.promises.readFile(filepath, {
-      signal: /*@__PURE__*/ require('./constants/abort-signal'),
+      signal: /*@__PURE__*/ require('./constants/abort-signal').default,
       ...opts,
-    })
+    } as Abortable)
   } catch {}
   return undefined
 }
@@ -420,14 +595,18 @@ async function safeReadFile(filepath, options) {
  * Safely get file stats synchronously, returning undefined on error.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function safeStatsSync(filepath, options) {
+export function safeStatsSync(
+  filepath: PathLike,
+  options?: ReadFileOptions | undefined,
+) {
+  const opts = typeof options === 'string' ? { encoding: options } : options
   const fs = getFs()
   try {
     return fs.statSync(filepath, {
       __proto__: null,
       throwIfNoEntry: false,
-      ...options,
-    })
+      ...opts,
+    } as StatSyncOptions)
   } catch {}
   return undefined
 }
@@ -436,40 +615,26 @@ function safeStatsSync(filepath, options) {
  * Safely read a file synchronously, returning undefined on error.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function safeReadFileSync(filepath, options) {
+export function safeReadFileSync(
+  filepath: PathLike,
+  options?: SafeReadOptions | undefined,
+) {
+  const opts = typeof options === 'string' ? { encoding: options } : options
   const fs = getFs()
   try {
-    const opts = typeof options === 'string' ? { encoding: options } : options
-
     return fs.readFileSync(filepath, {
       __proto__: null,
       ...opts,
-    })
+    } as ObjectEncodingOptions)
   } catch {}
   return undefined
-}
-
-/**
- * Stringify JSON with custom formatting options.
- */
-/*@__NO_SIDE_EFFECTS__*/
-function stringify(
-  json,
-  EOL = '\n',
-  finalEOL = true,
-  replacer = null,
-  spaces = 2,
-) {
-  const EOF = finalEOL ? EOL : ''
-  const str = JSON.stringify(json, replacer, spaces)
-  return `${str.replace(/\n/g, EOL)}${EOF}`
 }
 
 /**
  * Generate a unique filepath by adding number suffix if the path exists.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function uniqueSync(filepath) {
+export function uniqueSync(filepath: PathLike): string {
   const fs = getFs()
   const path = getPath()
   const filepathStr = String(filepath)
@@ -495,31 +660,38 @@ function uniqueSync(filepath) {
 
 /**
  * Write JSON content to a file asynchronously with formatting.
- * @typedef {{EOL?: string; finalEOL?: boolean; replacer?: Function; spaces?: number | string} & import('fs').WriteFileOptions} WriteJsonOptions
  */
 /*@__NO_SIDE_EFFECTS__*/
-async function writeJson(filepath, jsonContent, options) {
+export async function writeJson(
+  filepath: PathLike,
+  jsonContent: any,
+  options?: WriteJsonOptions | string,
+): Promise<void> {
   if (typeof options === 'string') {
     options = { encoding: options }
   }
   const { EOL, finalEOL, replacer, spaces, ...fsOptions } = {
     __proto__: null,
     ...options,
-  }
+  } as WriteJsonOptions
   const fs = getFs()
   const jsonString = stringify(jsonContent, EOL, finalEOL, replacer, spaces)
   await fs.promises.writeFile(filepath, jsonString, {
-    __proto__: null,
     encoding: 'utf8',
     ...fsOptions,
-  })
+    __proto__: null,
+  } as ObjectEncodingOptions)
 }
 
 /**
  * Write JSON content to a file synchronously with formatting.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function writeJsonSync(filepath, jsonContent, options) {
+export function writeJsonSync(
+  filepath: PathLike,
+  jsonContent: any,
+  options?: WriteJsonOptions | string | undefined,
+): void {
   if (typeof options === 'string') {
     options = { encoding: options }
   }
@@ -530,32 +702,8 @@ function writeJsonSync(filepath, jsonContent, options) {
   const fs = getFs()
   const jsonString = stringify(jsonContent, EOL, finalEOL, replacer, spaces)
   fs.writeFileSync(filepath, jsonString, {
-    __proto__: null,
     encoding: 'utf8',
     ...fsOptions,
-  })
-}
-
-module.exports = {
-  findUp,
-  findUpSync,
-  isDirSync,
-  isDirEmptySync,
-  isSymLinkSync,
-  readDirNames,
-  readDirNamesSync,
-  readFileBinary,
-  readFileBinarySync,
-  readFileUtf8,
-  readFileUtf8Sync,
-  readJson,
-  readJsonSync,
-  remove,
-  removeSync,
-  safeReadFile,
-  safeReadFileSync,
-  safeStatsSync,
-  uniqueSync,
-  writeJson,
-  writeJsonSync,
+    __proto__: null,
+  } as WriteFileOptions)
 }

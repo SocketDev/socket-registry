@@ -2,13 +2,12 @@
  * @fileoverview Word manipulation utilities for capitalization and formatting.
  * Provides text transformation functions for consistent word processing.
  */
-'use strict'
 
 /**
  * Capitalize the first letter of a word.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function capitalize(word) {
+export function capitalize(word: string): string {
   const { length } = word
   if (length === 0) {
     return word
@@ -23,7 +22,7 @@ function capitalize(word) {
  * Determine the appropriate article (a/an) for a word.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function determineArticle(word) {
+export function determineArticle(word: string): string {
   return /^[aeiou]/.test(word) ? 'an' : 'a'
 }
 
@@ -31,13 +30,7 @@ function determineArticle(word) {
  * Pluralize a word based on count.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function pluralize(word, count = 1) {
+export function pluralize(word: string, count: number = 1): string {
   // Handle 0, negatives, decimals, and values > 1 as plural.
   return count === 1 ? word : `${word}s`
-}
-
-module.exports = {
-  capitalize,
-  determineArticle,
-  pluralize,
 }

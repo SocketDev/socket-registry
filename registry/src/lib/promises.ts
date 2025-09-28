@@ -2,11 +2,10 @@
  * @fileoverview Promise utilities including chunked iteration and timers.
  * Provides async control flow helpers and promise-based timing functions.
  */
-'use strict'
 
 const { arrayChunk } = /*@__PURE__*/ require('./arrays')
 
-let _timers
+let _timers: typeof import('node:timers/promises') | undefined
 /**
  * Get the timers/promises module.
  * @private
@@ -18,14 +17,18 @@ function getTimers() {
     // eslint-disable-next-line n/prefer-node-protocol
     _timers = /*@__PURE__*/ require('timers/promises')
   }
-  return _timers
+  return _timers!
 }
 
 /**
  * Normalize options for iteration functions.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function normalizeIterationOptions(options) {
+export function normalizeIterationOptions(
+  options?:
+    | number
+    | { concurrency?: number; retries?: any; signal?: AbortSignal },
+): { concurrency: number; retries: any; signal: AbortSignal } {
   // Handle number as concurrency shorthand
   const opts = typeof options === 'number' ? { concurrency: options } : options
 
@@ -35,8 +38,12 @@ function normalizeIterationOptions(options) {
     // Retries as a number or options object.
     retries,
     // AbortSignal used to support cancellation.
-    signal = /*@__PURE__*/ require('./constants/abort-signal'),
-  } = { __proto__: null, ...opts }
+    signal = /*@__PURE__*/ require('./constants/abort-signal').default,
+  } = { __proto__: null, ...opts } as {
+    concurrency?: number
+    retries?: any
+    signal?: AbortSignal
+  }
 
   // Ensure concurrency is at least 1
   const normalizedConcurrency = Math.max(1, concurrency)
@@ -46,14 +53,14 @@ function normalizeIterationOptions(options) {
     concurrency: normalizedConcurrency,
     retries: normalizeRetryOptions({ signal, ...retryOpts }),
     signal,
-  }
+  } as { concurrency: number; retries: any; signal: AbortSignal }
 }
 
 /**
  * Normalize options for retry functionality.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function normalizeRetryOptions(options) {
+export function normalizeRetryOptions(options?: any): any {
   const resolved = resolveRetryOptions(options)
   const {
     // Arguments to pass to the callback function.
@@ -76,7 +83,7 @@ function normalizeRetryOptions(options) {
     // Number of retry attempts (0 = no retries, only initial attempt).
     retries = resolved.retries || 0,
     // AbortSignal used to support cancellation.
-    signal = /*@__PURE__*/ require('./constants/abort-signal'),
+    signal = /*@__PURE__*/ require('./constants/abort-signal').default,
   } = resolved
   return {
     __proto__: null,
@@ -99,7 +106,7 @@ function normalizeRetryOptions(options) {
  * Resolve retry options from various input formats.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function resolveRetryOptions(options) {
+export function resolveRetryOptions(options?: number | any): any {
   const defaults = {
     __proto__: null,
     retries: 0,
@@ -119,7 +126,13 @@ function resolveRetryOptions(options) {
  * Execute an async function for each array element with concurrency control.
  */
 /*@__NO_SIDE_EFFECTS__*/
-async function pEach(array, callbackFn, options) {
+export async function pEach<T>(
+  array: T[],
+  callbackFn: (item: T) => Promise<any>,
+  options?:
+    | number
+    | { concurrency?: number; retries?: any; signal?: AbortSignal },
+): Promise<void> {
   const iterOpts = normalizeIterationOptions(options)
   const { concurrency, retries, signal } = iterOpts
 
@@ -132,7 +145,7 @@ async function pEach(array, callbackFn, options) {
     // Process each item in the chunk concurrently.
     // eslint-disable-next-line no-await-in-loop
     await Promise.all(
-      chunk.map(item =>
+      chunk.map((item: T) =>
         pRetry(callbackFn, {
           ...retries,
           args: [item],
@@ -147,7 +160,13 @@ async function pEach(array, callbackFn, options) {
  * Filter an array asynchronously with concurrency control.
  */
 /*@__NO_SIDE_EFFECTS__*/
-async function pFilter(array, callbackFn, options) {
+export async function pFilter<T>(
+  array: T[],
+  callbackFn: (item: T) => Promise<boolean>,
+  options?:
+    | number
+    | { concurrency?: number; retries?: any; signal?: AbortSignal },
+): Promise<T[]> {
   const iterOpts = normalizeIterationOptions(options)
   return (
     await pFilterChunk(
@@ -162,7 +181,11 @@ async function pFilter(array, callbackFn, options) {
  * Process array in chunks with an async callback.
  */
 /*@__NO_SIDE_EFFECTS__*/
-async function pEachChunk(array, callbackFn, options) {
+export async function pEachChunk<T>(
+  array: T[],
+  callbackFn: (chunk: T[]) => Promise<any>,
+  options?: { chunkSize?: number; [key: string]: any },
+): Promise<void> {
   const { chunkSize = 100, ...retryOpts } = options || {}
   const chunks = arrayChunk(array, chunkSize)
   const normalizedRetryOpts = normalizeRetryOptions(retryOpts)
@@ -183,7 +206,11 @@ async function pEachChunk(array, callbackFn, options) {
  * Filter chunked arrays with an async predicate.
  */
 /*@__NO_SIDE_EFFECTS__*/
-async function pFilterChunk(chunks, callbackFn, options) {
+export async function pFilterChunk<T>(
+  chunks: T[][],
+  callbackFn: (value: T) => Promise<boolean>,
+  options?: any,
+): Promise<T[][]> {
   const retryOpts = normalizeRetryOptions(options)
   const { signal } = retryOpts
   const { length } = chunks
@@ -193,7 +220,7 @@ async function pFilterChunk(chunks, callbackFn, options) {
     if (signal?.aborted) {
       filteredChunks[i] = []
     } else {
-      const chunk = chunks[i]
+      const chunk = chunks[i]!
       // eslint-disable-next-line no-await-in-loop
       const predicateResults = await Promise.all(
         chunk.map(value =>
@@ -214,7 +241,10 @@ async function pFilterChunk(chunks, callbackFn, options) {
  * @throws {Error} The last error if all retries fail.
  */
 /*@__NO_SIDE_EFFECTS__*/
-async function pRetry(callbackFn, options) {
+export async function pRetry<T>(
+  callbackFn: (...args: any[]) => Promise<T>,
+  options?: any,
+): Promise<T | undefined> {
   const {
     args,
     backoffFactor,
@@ -234,7 +264,8 @@ async function pRetry(callbackFn, options) {
     return await callbackFn(...args, { signal })
   }
 
-  const UNDEFINED_TOKEN = /*@__PURE__*/ require('./constants/UNDEFINED_TOKEN')
+  const UNDEFINED_TOKEN =
+    /*@__PURE__*/ require('./constants/UNDEFINED_TOKEN').default
   const timers = getTimers()
 
   let attempts = retries
@@ -281,15 +312,4 @@ async function pRetry(callbackFn, options) {
     throw error
   }
   return undefined
-}
-
-module.exports = {
-  normalizeIterationOptions,
-  normalizeRetryOptions,
-  pEach,
-  pEachChunk,
-  pFilter,
-  pFilterChunk,
-  pRetry,
-  resolveRetryOptions,
 }
