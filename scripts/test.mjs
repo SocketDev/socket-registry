@@ -70,7 +70,6 @@ void (async () => {
       cwd: constants.rootPath,
       stdio: 'inherit',
       env: spawnEnv,
-      shell: WIN32,
     })
 
     child.on('exit', code => {
