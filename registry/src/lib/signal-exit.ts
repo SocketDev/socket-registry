@@ -2,7 +2,6 @@
  * @fileoverview Process signal handling utilities.
  * Provides cross-platform signal exit detection and cleanup handlers.
  */
-'use strict'
 
 // Inlined signal-exit:
 // https://socket.dev/npm/package/signal-exit/overview/4.1.0
@@ -31,13 +30,20 @@
 // listeners.
 
 const { apply: ReflectApply } = Reflect
-const globalProcess = globalThis.process
+const globalProcess = globalThis.process as
+  | (NodeJS.Process & {
+      __signal_exit_emitter__?: any
+      reallyExit?: (code?: number) => never
+    })
+  | undefined
 const originalProcessEmit = globalProcess?.emit
 const platform = globalProcess?.platform ?? ''
-const originalProcessReallyExit = globalProcess?.reallyExit
+const originalProcessReallyExit = globalProcess?.reallyExit as
+  | ((code?: number) => never)
+  | undefined
 const WIN32 = platform === 'win32'
 
-let _events
+let _events: typeof import('node:events') | undefined
 /*@__NO_SIDE_EFFECTS__*/
 function getEvents() {
   if (_events === undefined) {
@@ -45,38 +51,54 @@ function getEvents() {
     // eslint-disable-next-line n/prefer-node-protocol
     _events = /*@__PURE__*/ require('events')
   }
-  return _events
+  return _events!
 }
 
-let _emitter
+// Type for tracking emitted signals.
+type EmittedSignals = {
+  [signal: string]: boolean // Using string as signals can include custom events like 'exit' and 'afterexit'.
+}
+
+type SignalExitEmitter = import('node:events').EventEmitter & {
+  count?: number
+  emitted?: EmittedSignals
+  infinite?: boolean
+}
+let _emitter: SignalExitEmitter | undefined
 /*@__NO_SIDE_EFFECTS__*/
 function getEmitter() {
   if (_emitter === undefined) {
-    if (globalProcess.__signal_exit_emitter__) {
+    if (globalProcess && globalProcess.__signal_exit_emitter__) {
       _emitter = globalProcess.__signal_exit_emitter__
-    } else {
+    } else if (globalProcess) {
       const EventEmitter = getEvents().EventEmitter
-      _emitter = globalProcess.__signal_exit_emitter__ = new EventEmitter()
+      _emitter = globalProcess.__signal_exit_emitter__ =
+        new EventEmitter() as SignalExitEmitter
       _emitter.count = 0
-      _emitter.emitted = { __proto__: null }
+      _emitter.emitted = { __proto__: null } as unknown as EmittedSignals
     }
     // Because this emitter is a global, we have to check to see if a
     // previous version of this library failed to enable infinite listeners.
     // I know what you're about to say.  But literally everything about
     // signal-exit is a compromise with evil.  Get used to it.
-    if (!_emitter.infinite) {
+    if (_emitter && !_emitter.infinite) {
       _emitter.setMaxListeners(Infinity)
       _emitter.infinite = true
     }
   }
-  return _emitter
+  return _emitter!
 }
 
-let _sigListeners
+type SignalListener = () => void
+// Type for signal listeners indexed by signal name.
+type SignalListenerMap = {
+  [signal: string]: SignalListener
+}
+let _sigListeners: SignalListenerMap | undefined
 /*@__NO_SIDE_EFFECTS__*/
 function getSignalListeners() {
   if (_sigListeners === undefined) {
-    _sigListeners = { __proto__: null }
+    _sigListeners = { __proto__: null } as unknown as SignalListenerMap
     const emitter = getEmitter()
     const sigs = getSignals()
     for (const sig of sigs) {
@@ -85,7 +107,7 @@ function getSignalListeners() {
         // Simplest way: remove us and then re-send the signal.
         // We know that this will kill the process, so we can
         // safely emit now.
-        const listeners = globalProcess.listeners(sig)
+        const listeners = globalProcess?.listeners(sig as NodeJS.Signals) || []
         if (listeners.length === emitter.count) {
           unload()
           emit('exit', null, sig)
@@ -93,15 +115,15 @@ function getSignalListeners() {
           // "SIGHUP" throws an `ENOSYS` error on Windows,
           // so use a supported signal instead.
           const killSig = WIN32 && sig === 'SIGHUP' ? 'SIGINT' : sig
-          globalProcess.kill(globalProcess.pid, killSig)
+          globalProcess?.kill(globalProcess?.pid, killSig)
         }
       }
     }
   }
-  return _sigListeners
+  return _sigListeners!
 }
 
-let _signals
+let _signals: string[] | undefined
 /*@__NO_SIDE_EFFECTS__*/
 function getSignals() {
   if (_signals === undefined) {
@@ -125,22 +147,24 @@ function getSignals() {
       _signals.push('SIGIO', 'SIGPOLL', 'SIGPWR', 'SIGSTKFLT', 'SIGUNUSED')
     }
   }
-  return _signals
+  return _signals!
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function emit(event, code, signal) {
+function emit(event: string, code: number | null, signal: string | null): void {
   const emitter = getEmitter()
-  if (emitter.emitted[event]) {
+  if (emitter.emitted && emitter.emitted[event]) {
     return
   }
-  emitter.emitted[event] = true
+  if (emitter.emitted) {
+    emitter.emitted[event] = true
+  }
   emitter.emit(event, code, signal)
 }
 
 let loaded = false
 /*@__NO_SIDE_EFFECTS__*/
-function load() {
+export function load(): void {
   if (loaded || !globalProcess) {
     return
   }
@@ -151,49 +175,77 @@ function load() {
   // listeners on signals, and don't wait for the other one to
   // handle it instead of us.
   const emitter = getEmitter()
-  emitter.count += 1
+  if (emitter.count !== undefined) {
+    emitter.count += 1
+  }
 
   const sigs = getSignals()
   const sigListeners = getSignalListeners()
   _signals = sigs.filter(sig => {
     try {
-      globalProcess.on(sig, sigListeners[sig])
+      globalProcess.on(sig as NodeJS.Signals, sigListeners[sig]!)
       return true
     } catch {}
     return false
   })
 
-  globalProcess.emit = processEmit
+  globalProcess.emit = processEmit as typeof globalProcess.emit
   globalProcess.reallyExit = processReallyExit
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function processEmit(eventName, exitCode) {
+function processEmit(
+  this: NodeJS.Process,
+  eventName: string,
+  exitCode?: number,
+  ...args: any[]
+): boolean {
   if (eventName === 'exit') {
     if (exitCode == undefined) {
-      exitCode = globalProcess.exitCode
-    } else {
+      const processExitCode = globalProcess?.exitCode
+      exitCode =
+        typeof processExitCode === 'number' ? processExitCode : undefined
+    } else if (globalProcess) {
       globalProcess.exitCode = exitCode
     }
-    const result = ReflectApply(originalProcessEmit, this, arguments)
-    emit('exit', exitCode, null)
-    emit('afterexit', exitCode, null)
+    const result = ReflectApply(originalProcessEmit!, this, [
+      eventName,
+      exitCode,
+      ...args,
+    ]) as boolean
+    const numExitCode = typeof exitCode === 'number' ? exitCode : null
+    emit('exit', numExitCode, null)
+    emit('afterexit', numExitCode, null)
     return result
   }
-  return ReflectApply(originalProcessEmit, this, arguments)
+  return ReflectApply(originalProcessEmit!, this, [
+    eventName,
+    exitCode,
+    ...args,
+  ]) as boolean
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function processReallyExit(code) {
+function processReallyExit(code?: number): never {
   const exitCode = code || 0
-  globalProcess.exitCode = exitCode
+  if (globalProcess) {
+    globalProcess.exitCode = exitCode
+  }
   emit('exit', exitCode, null)
   emit('afterexit', exitCode, null)
-  ReflectApply(originalProcessReallyExit, process, [exitCode])
+  ReflectApply(originalProcessReallyExit!, globalProcess, [exitCode])
+  throw new Error('processReallyExit should never return')
+}
+
+export interface OnExitOptions {
+  alwaysLast?: boolean
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function onExit(cb, options) {
+export function onExit(
+  cb: (code: number | null, signal: string | null) => void,
+  options?: OnExitOptions,
+): () => void {
   if (!globalProcess) {
     return function remove() {}
   }
@@ -203,7 +255,7 @@ function onExit(cb, options) {
   if (loaded === false) {
     load()
   }
-  const { alwaysLast } = { __proto__: null, ...options }
+  const { alwaysLast } = { __proto__: null, ...options } as OnExitOptions
 
   let eventName = 'exit'
   if (alwaysLast) {
@@ -225,12 +277,12 @@ function onExit(cb, options) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function signals() {
+export function signals(): string[] | undefined {
   return _signals
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function unload() {
+export function unload(): void {
   if (!loaded || !globalProcess) {
     return
   }
@@ -240,18 +292,13 @@ function unload() {
   const sigListeners = getSignalListeners()
   for (const sig of sigs) {
     try {
-      globalProcess.removeListener(sig, sigListeners[sig])
+      globalProcess.removeListener(sig as NodeJS.Signals, sigListeners[sig]!)
     } catch {}
   }
-  globalProcess.emit = originalProcessEmit
-  globalProcess.reallyExit = originalProcessReallyExit
+  globalProcess.emit = originalProcessEmit!
+  globalProcess.reallyExit = originalProcessReallyExit!
   const emitter = getEmitter()
-  emitter.count -= 1
-}
-
-module.exports = {
-  load,
-  onExit,
-  signals,
-  unload,
+  if (emitter.count !== undefined) {
+    emitter.count -= 1
+  }
 }

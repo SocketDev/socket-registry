@@ -2,7 +2,6 @@
  * @fileoverview Environment variable parsing and conversion utilities.
  * Provides type-safe conversion functions for boolean, number, and string values.
  */
-'use strict'
 
 const NumberCtor = Number
 const { isFinite: NumberIsFinite, parseInt: NumberParseInt } = NumberCtor
@@ -12,7 +11,7 @@ const StringCtor = String
  * Convert an environment variable value to a boolean.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function envAsBoolean(value, defaultValue = false) {
+export function envAsBoolean(value: any, defaultValue = false): boolean {
   if (typeof value === 'string') {
     const trimmed = value.trim()
     return trimmed === '1' || trimmed.toLowerCase() === 'true'
@@ -27,7 +26,7 @@ function envAsBoolean(value, defaultValue = false) {
  * Convert an environment variable value to a number.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function envAsNumber(value, defaultValue = 0) {
+export function envAsNumber(value: any, defaultValue = 0): number {
   const numOrNaN = NumberParseInt(value, 10)
   const numMayBeNegZero = NumberIsFinite(numOrNaN)
     ? numOrNaN
@@ -40,7 +39,7 @@ function envAsNumber(value, defaultValue = 0) {
  * Convert an environment variable value to a trimmed string.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function envAsString(value, defaultValue = '') {
+export function envAsString(value: any, defaultValue = ''): string {
   if (typeof value === 'string') {
     return value.trim()
   }
@@ -48,10 +47,4 @@ function envAsString(value, defaultValue = '') {
     return defaultValue === '' ? defaultValue : StringCtor(defaultValue).trim()
   }
   return StringCtor(value).trim()
-}
-
-module.exports = {
-  envAsBoolean,
-  envAsNumber,
-  envAsString,
 }

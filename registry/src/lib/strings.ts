@@ -2,7 +2,14 @@
  * @fileoverview String manipulation utilities including ANSI code handling.
  * Provides string processing, prefix application, and terminal output utilities.
  */
-'use strict'
+
+// Type definitions
+declare const BlankStringBrand: unique symbol
+type BlankString = string & { [BlankStringBrand]: true }
+declare const EmptyStringBrand: unique symbol
+type EmptyString = string & { [EmptyStringBrand]: true }
+
+export type { BlankString, EmptyString }
 
 const { fromCharCode } = String
 
@@ -15,8 +22,8 @@ const { fromCharCode } = String
  * Create a regular expression for matching ANSI escape codes.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function ansiRegex(options) {
-  const { onlyFirst } = { __proto__: null, ...options }
+function ansiRegex(options?: { onlyFirst?: boolean }): RegExp {
+  const { onlyFirst } = options ?? {}
   // Valid string terminator sequences are BEL, ESC\, and 0x9c.
   const ST = '(?:\\u0007|\\u001B\\u005C|\\u009C)'
   // OSC sequences only: ESC ] ... ST (non-greedy until the first ST).
@@ -32,7 +39,7 @@ function ansiRegex(options) {
  * Apply a prefix to each line of a string.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function applyLinePrefix(str, prefix = '') {
+export function applyLinePrefix(str: string, prefix: string = ''): string {
   return prefix.length
     ? `${prefix}${str.includes('\n') ? str.replace(/\n/g, `\n${prefix}`) : str}`
     : str
@@ -42,7 +49,7 @@ function applyLinePrefix(str, prefix = '') {
  * Convert a camelCase string to kebab-case.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function camelToKebab(str) {
+export function camelToKebab(str: string): string {
   const { length } = str
   if (!length) {
     return ''
@@ -51,6 +58,9 @@ function camelToKebab(str) {
   let i = 0
   while (i < length) {
     const char = str[i]
+    if (!char) {
+      break
+    }
     const charCode = char.charCodeAt(0)
     // Check if current character is uppercase letter.
     // A = 65, Z = 90
@@ -63,6 +73,9 @@ function camelToKebab(str) {
       // Collect all consecutive uppercase letters.
       while (i < length) {
         const currChar = str[i]
+        if (!currChar) {
+          break
+        }
         const currCharCode = currChar.charCodeAt(0)
         const isCurrUpper =
           currCharCode >= 65 /*'A'*/ && currCharCode <= 90 /*'Z'*/
@@ -88,7 +101,7 @@ function camelToKebab(str) {
  * Indent each line of a string with spaces.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function indentString(str, count = 1) {
+export function indentString(str: string, count: number = 1): string {
   return str.replace(/^(?!\s*$)/gm, ' '.repeat(count))
 }
 
@@ -96,7 +109,7 @@ function indentString(str, count = 1) {
  * Check if a value is a blank string (empty or only whitespace).
  */
 /*@__NO_SIDE_EFFECTS__*/
-function isBlankString(value) {
+export function isBlankString(value: unknown): value is BlankString {
   return typeof value === 'string' && (!value.length || /^\s+$/.test(value))
 }
 
@@ -104,7 +117,9 @@ function isBlankString(value) {
  * Check if a value is a non-empty string.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function isNonEmptyString(value) {
+export function isNonEmptyString(
+  value: unknown,
+): value is Exclude<string, EmptyString> {
   return typeof value === 'string' && value.length > 0
 }
 
@@ -112,7 +127,11 @@ function isNonEmptyString(value) {
  * Search for a regular expression in a string starting from an index.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function search(str, regexp, fromIndex = 0) {
+export function search(
+  str: string,
+  regexp: RegExp,
+  fromIndex: number = 0,
+): number {
   const { length } = str
   if (fromIndex >= length) {
     return -1
@@ -129,7 +148,7 @@ function search(str, regexp, fromIndex = 0) {
  * Strip ANSI escape codes from a string.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function stripAnsi(str) {
+export function stripAnsi(str: string): string {
   return str.replace(ansiRegex(), '')
 }
 
@@ -137,7 +156,7 @@ function stripAnsi(str) {
  * Strip the Byte Order Mark (BOM) from the beginning of a string.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function stripBom(str) {
+export function stripBom(str: string): string {
   // In JavaScript, string data is stored as UTF-16, so BOM is 0xFEFF.
   // https://tc39.es/ecma262/#sec-unicode-format-control-characters
   return str.length > 0 && str.charCodeAt(0) === 0xfeff ? str.slice(1) : str
@@ -147,7 +166,7 @@ function stripBom(str) {
  * Convert a string to kebab-case (handles camelCase and snake_case).
  */
 /*@__NO_SIDE_EFFECTS__*/
-function toKebabCase(str) {
+export function toKebabCase(str: string): string {
   if (!str.length) {
     return str
   }
@@ -165,7 +184,7 @@ function toKebabCase(str) {
  * Trim newlines from the beginning and end of a string.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function trimNewlines(str) {
+export function trimNewlines(str: string): string {
   const { length } = str
   if (length === 0) {
     return str
@@ -197,17 +216,4 @@ function trimNewlines(str) {
     end -= 1
   }
   return start === 0 && end === length ? str : str.slice(start, end)
-}
-
-module.exports = {
-  applyLinePrefix,
-  camelToKebab,
-  indentString,
-  isBlankString,
-  isNonEmptyString,
-  search,
-  stripAnsi,
-  stripBom,
-  toKebabCase,
-  trimNewlines,
 }

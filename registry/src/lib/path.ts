@@ -2,7 +2,6 @@
  * @fileoverview Path manipulation utilities with cross-platform support.
  * Provides path normalization, validation, and file extension handling.
  */
-'use strict'
 
 const { search } = /*@__PURE__*/ require('./strings')
 
@@ -10,7 +9,7 @@ const { search } = /*@__PURE__*/ require('./strings')
 const slashRegExp = /[/\\]/
 const nodeModulesPathRegExp = /(?:^|[/\\])node_modules(?:[/\\]|$)/
 
-let _buffer
+let _buffer: typeof import('node:buffer') | undefined
 /**
  * Lazily load the buffer module.
  * @private
@@ -22,10 +21,10 @@ function getBuffer() {
     // eslint-disable-next-line n/prefer-node-protocol
     _buffer = /*@__PURE__*/ require('buffer')
   }
-  return _buffer
+  return _buffer!
 }
 
-let _path
+let _path: typeof import('node:path') | undefined
 /**
  * Lazily load the path module.
  * @private
@@ -37,10 +36,10 @@ function getPath() {
     // eslint-disable-next-line n/prefer-node-protocol
     _path = /*@__PURE__*/ require('path')
   }
-  return _path
+  return _path!
 }
 
-let _url
+let _url: typeof import('node:url') | undefined
 /**
  * Lazily load the url module.
  * @private
@@ -52,14 +51,14 @@ function getUrl() {
     // eslint-disable-next-line n/prefer-node-protocol
     _url = /*@__PURE__*/ require('url')
   }
-  return _url
+  return _url!
 }
 
 /**
  * Check if a path contains node_modules directory.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function isNodeModules(pathLike) {
+export function isNodeModules(pathLike: string | Buffer | URL): boolean {
   const filepath = pathLikeToString(pathLike)
   return nodeModulesPathRegExp.test(filepath)
 }
@@ -68,7 +67,7 @@ function isNodeModules(pathLike) {
  * Check if a value is a valid file path (absolute or relative).
  */
 /*@__NO_SIDE_EFFECTS__*/
-function isPath(pathLike) {
+export function isPath(pathLike: string | Buffer | URL): boolean {
   const filepath = pathLikeToString(pathLike)
   if (typeof filepath !== 'string' || filepath.length === 0) {
     return false
@@ -108,7 +107,7 @@ function isPath(pathLike) {
  * Check if a path is relative (starts with . or ..).
  */
 /*@__NO_SIDE_EFFECTS__*/
-function isRelative(pathLike) {
+export function isRelative(pathLike: string | Buffer | URL): boolean {
   const filepath = pathLikeToString(pathLike)
   if (typeof filepath !== 'string') {
     return false
@@ -125,7 +124,7 @@ function isRelative(pathLike) {
  * Normalize a path by converting backslashes to forward slashes and collapsing segments.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function normalizePath(pathLike) {
+export function normalizePath(pathLike: string | Buffer | URL): string {
   const filepath = pathLikeToString(pathLike)
   const { length } = filepath
   if (length === 0) {
@@ -323,7 +322,9 @@ function normalizePath(pathLike) {
  * Convert a path-like value to a string.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function pathLikeToString(pathLike) {
+export function pathLikeToString(
+  pathLike: string | Buffer | URL | null | undefined,
+): string {
   if (pathLike === null || pathLike === undefined) {
     return ''
   }
@@ -352,7 +353,7 @@ function pathLikeToString(pathLike) {
       // On Windows, strip the leading slash only for malformed URLs that lack drive letters
       // (e.g., `/path` should be `path`, but `/C:/path` should be `C:/path`).
       // On Unix, keep the leading slash for absolute paths (e.g., `/home/user`).
-      const WIN32 = /*@__PURE__*/ require('./constants/WIN32')
+      const WIN32 = /*@__PURE__*/ require('./constants/WIN32').default
       if (WIN32 && pathname.startsWith('/')) {
         // Check for drive letter pattern following Node.js source: /[a-zA-Z]:/
         // Character at index 1 should be a letter, character at index 2 should be ':'
@@ -380,7 +381,7 @@ function pathLikeToString(pathLike) {
  * Split a path into an array of segments.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function splitPath(pathLike) {
+export function splitPath(pathLike: string | Buffer | URL): string[] {
   const filepath = pathLikeToString(pathLike)
   if (filepath === '') {
     return []
@@ -392,7 +393,7 @@ function splitPath(pathLike) {
  * Remove leading ./ or ../ from a path.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function trimLeadingDotSlash(pathLike) {
+export function trimLeadingDotSlash(pathLike: string | Buffer | URL): string {
   const filepath = pathLikeToString(pathLike)
   // Only trim ./ not ../
   if (filepath.startsWith('./') || filepath.startsWith('.\\')) {
@@ -405,17 +406,6 @@ function trimLeadingDotSlash(pathLike) {
  * Get the relative path from one path to another.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function relativeResolve(from, to) {
+export function relativeResolve(from: string, to: string): string {
   return getPath().relative(from, to)
-}
-
-module.exports = {
-  isNodeModules,
-  isPath,
-  isRelative,
-  normalizePath,
-  pathLikeToString,
-  relativeResolve,
-  splitPath,
-  trimLeadingDotSlash,
 }

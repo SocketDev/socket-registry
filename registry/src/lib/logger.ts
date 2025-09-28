@@ -2,7 +2,28 @@
  * @fileoverview Console logging utilities with line prefix support.
  * Provides enhanced console methods with formatted output capabilities.
  */
-'use strict'
+
+// Type definitions
+type LogSymbols = {
+  fail: string
+  info: string
+  success: string
+  warn: string
+}
+
+type LoggerMethods = {
+  [K in keyof typeof console]: (typeof console)[K] extends (
+    ...args: infer A
+  ) => any
+    ? (...args: A) => Logger
+    : (typeof console)[K]
+}
+
+interface Task {
+  run<T>(f: () => T): T
+}
+
+export type { LogSymbols, LoggerMethods, Task }
 
 const globalConsole = console
 const { assign: ObjectAssign, freeze: ObjectFreeze } = Object
@@ -10,23 +31,23 @@ const { apply: ReflectApply, construct: ReflectConstruct } = Reflect
 
 const { applyLinePrefix, isBlankString } = /*@__PURE__*/ require('./strings')
 
-let _Console
+let _Console: typeof import('console').Console | undefined
 /**
  * Construct a new Console instance.
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
-function constructConsole(...args) {
+function constructConsole(...args: any[]) {
   if (_Console === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
     // eslint-disable-next-line n/prefer-node-protocol
     const nodeConsole = /*@__PURE__*/ require('console')
     _Console = nodeConsole.Console
   }
-  return ReflectConstruct(_Console, args)
+  return ReflectConstruct(_Console!, args)
 }
 
-let _yoctocolors
+let _yoctocolors: typeof import('yoctocolors-cjs') | undefined
 /**
  * Get the yoctocolors module for terminal colors.
  * @private
@@ -34,36 +55,36 @@ let _yoctocolors
 /*@__NO_SIDE_EFFECTS__*/
 function getYoctocolors() {
   if (_yoctocolors === undefined) {
-    _yoctocolors = { ...require('../external/yoctocolors-cjs') }
+    _yoctocolors = require('../external/yoctocolors-cjs')
   }
-  return _yoctocolors
+  return _yoctocolors!
 }
 
-const LOG_SYMBOLS = /*@__PURE__*/ (() => {
-  const target = { __proto__: null }
+export const LOG_SYMBOLS = /*@__PURE__*/ (() => {
+  const target: Record<string, string> = { __proto__: null } as any
   // Mutable handler to simulate a frozen target.
-  const handler = { __proto__: null }
+  const handler: ProxyHandler<any> = { __proto__: null } as any
   const init = () => {
     const supported =
-      /*@__PURE__*/ require('../external/@socketregistry/is-unicode-supported')()
+      /*@__PURE__*/ require('../external/@socketregistry/is-unicode-supported').default()
     const colors = getYoctocolors()
     ObjectAssign(target, {
       fail: colors.red(supported ? '✖' : '×'),
-      info: colors.blue(supported ? 'ℹ' : 'i'),
-      success: colors.green(supported ? '✔' : '√'),
-      warn: colors.yellow(supported ? '⚠' : '‼'),
+      info: colors['blue'](supported ? 'ℹ' : 'i'),
+      success: colors['green'](supported ? '✔' : '√'),
+      warn: colors['yellow'](supported ? '⚠' : '‼'),
     })
     ObjectFreeze(target)
     // The handler of a Proxy is mutable after proxy instantiation.
     // We delete the traps to defer to native behavior.
     for (const trapName in handler) {
-      delete handler[trapName]
+      delete handler[trapName as keyof ProxyHandler<any>]
     }
   }
   for (const trapName of Reflect.ownKeys(Reflect)) {
-    const fn = Reflect[trapName]
+    const fn = (Reflect as any)[trapName]
     if (typeof fn === 'function') {
-      handler[trapName] = (...args) => {
+      ;(handler as any)[trapName] = (...args: any[]) => {
         init()
         return fn(...args)
       }
@@ -102,8 +123,8 @@ const boundConsoleEntries = [
   'trace',
   'warn',
 ]
-  .filter(n => typeof globalConsole[n] === 'function')
-  .map(n => [n, globalConsole[n].bind(globalConsole)])
+  .filter(n => typeof (globalConsole as any)[n] === 'function')
+  .map(n => [n, (globalConsole as any)[n].bind(globalConsole)])
 
 const consolePropAttributes = {
   __proto__: null,
@@ -115,25 +136,25 @@ const maxIndentation = 1000
 const privateConsole = new WeakMap()
 
 const consoleSymbols = Object.getOwnPropertySymbols(globalConsole)
-const incLogCallCountSymbol = Symbol.for('logger.logCallCount++')
+export const incLogCallCountSymbol = Symbol.for('logger.logCallCount++')
 const kGroupIndentationWidthSymbol =
-  consoleSymbols.find(s => s.label === 'kGroupIndentWidth') ??
+  consoleSymbols.find(s => (s as any).label === 'kGroupIndentWidth') ??
   Symbol('kGroupIndentWidth')
-const lastWasBlankSymbol = Symbol.for('logger.lastWasBlank')
+export const lastWasBlankSymbol = Symbol.for('logger.lastWasBlank')
 
 /**
  * Custom Logger class that wraps console with additional features.
  * Supports indentation, symbols, and blank line tracking.
  */
 /*@__PURE__*/
-class Logger {
+export class Logger {
   static LOG_SYMBOLS = LOG_SYMBOLS
 
   #indention = ''
   #lastWasBlank = false
   #logCallCount = 0
 
-  constructor(...args) {
+  constructor(...args: any[]) {
     if (args.length) {
       privateConsole.set(this, constructConsole(...args))
     } else {
@@ -154,7 +175,7 @@ class Logger {
    * Apply a console method with indentation.
    * @private
    */
-  #apply(methodName, args) {
+  #apply(methodName: string, args: any[]): this {
     const con = privateConsole.get(this)
     const text = args.at(0)
     const hasText = typeof text === 'string'
@@ -163,7 +184,7 @@ class Logger {
       : args
     ReflectApply(con[methodName], con, logArgs)
     this[lastWasBlankSymbol](hasText && isBlankString(logArgs[0]))
-    this[incLogCallCountSymbol]()
+    ;(this as any)[incLogCallCountSymbol]()
     return this
   }
 
@@ -171,7 +192,7 @@ class Logger {
    * Apply a method with a symbol prefix.
    * @private
    */
-  #symbolApply(symbolType, args) {
+  #symbolApply(symbolType: string, args: any[]): this {
     const con = privateConsole.get(this)
     let text = args.at(0)
     let extras
@@ -187,7 +208,7 @@ class Logger {
       ...extras,
     )
     this.#lastWasBlank = false
-    this[incLogCallCountSymbol]()
+    ;(this as any)[incLogCallCountSymbol]()
     return this
   }
 
@@ -209,7 +230,7 @@ class Logger {
   /**
    * Set whether the last logged line was blank.
    */
-  [lastWasBlankSymbol](value) {
+  [lastWasBlankSymbol](value: any): this {
     this.#lastWasBlank = !!value
     return this
   }
@@ -217,7 +238,7 @@ class Logger {
   /**
    * Log an assertion.
    */
-  assert(value, ...message) {
+  assert(value: any, ...message: any[]): this {
     const con = privateConsole.get(this)
     con.assert(value, ...message)
     this[lastWasBlankSymbol](false)
@@ -231,7 +252,7 @@ class Logger {
     const con = privateConsole.get(this)
     con.clear()
     if (con._stdout.isTTY) {
-      this[lastWasBlankSymbol](true)
+      ;(this as any)[lastWasBlankSymbol](true)
       this.#logCallCount = 0
     }
     return this
@@ -240,11 +261,25 @@ class Logger {
   /**
    * Log a count for the given label.
    */
-  count(label) {
+  count(label?: string): this {
     const con = privateConsole.get(this)
     con.count(label)
     this[lastWasBlankSymbol](false)
     return this[incLogCallCountSymbol]()
+  }
+
+  /**
+   * Create a task with a given name.
+   */
+  createTask(name: string): Task {
+    return {
+      run: <T>(f: () => T): T => {
+        this.log(`Starting task: ${name}`)
+        const result = f()
+        this.log(`Completed task: ${name}`)
+        return result
+      },
+    }
   }
 
   /**
@@ -258,7 +293,7 @@ class Logger {
   /**
    * Display an object's properties.
    */
-  dir(obj, options) {
+  dir(obj: any, options?: any): this {
     const con = privateConsole.get(this)
     con.dir(obj, options)
     this[lastWasBlankSymbol](false)
@@ -268,7 +303,7 @@ class Logger {
   /**
    * Display data as XML.
    */
-  dirxml(...data) {
+  dirxml(...data: any[]): this {
     const con = privateConsole.get(this)
     con.dirxml(data)
     this[lastWasBlankSymbol](false)
@@ -278,7 +313,7 @@ class Logger {
   /**
    * Log an error message.
    */
-  error(...args) {
+  error(...args: any[]): this {
     return this.#apply('error', args)
   }
 
@@ -292,22 +327,22 @@ class Logger {
   /**
    * Log a failure message with symbol.
    */
-  fail(...args) {
+  fail(...args: any[]): this {
     return this.#symbolApply('fail', args)
   }
 
   /**
    * Start a new log group.
    */
-  group(...label) {
+  group(...label: any[]): this {
     const { length } = label
     if (length) {
       ReflectApply(this.log, this, label)
     }
-    this.indent(this[kGroupIndentationWidthSymbol])
+    this.indent((this as any)[kGroupIndentationWidthSymbol])
     if (length) {
-      this[lastWasBlankSymbol](false)
-      this[incLogCallCountSymbol]()
+      ;(this as any)[lastWasBlankSymbol](false)
+      ;(this as any)[incLogCallCountSymbol]()
     }
     return this
   }
@@ -317,7 +352,7 @@ class Logger {
    */
   // groupCollapsed is an alias of group.
   // https://nodejs.org/api/console.html#consolegroupcollapsed
-  groupCollapsed(...label) {
+  groupCollapsed(...label: any[]): this {
     return ReflectApply(this.group, this, label)
   }
 
@@ -325,7 +360,7 @@ class Logger {
    * End the current log group.
    */
   groupEnd() {
-    this.dedent(this[kGroupIndentationWidthSymbol])
+    this.dedent((this as any)[kGroupIndentationWidthSymbol])
     return this
   }
 
@@ -340,14 +375,14 @@ class Logger {
   /**
    * Log an info message with symbol.
    */
-  info(...args) {
+  info(...args: any[]): this {
     return this.#symbolApply('info', args)
   }
 
   /**
    * Log a message.
    */
-  log(...args) {
+  log(...args: any[]): this {
     return this.#apply('log', args)
   }
 
@@ -369,14 +404,14 @@ class Logger {
   /**
    * Log a success message with symbol.
    */
-  success(...args) {
+  success(...args: any[]): this {
     return this.#symbolApply('success', args)
   }
 
   /**
    * Display data in a table format.
    */
-  table(tabularData, properties) {
+  table(tabularData: any, properties?: readonly string[]): this {
     const con = privateConsole.get(this)
     con.table(tabularData, properties)
     this[lastWasBlankSymbol](false)
@@ -386,7 +421,7 @@ class Logger {
   /**
    * End a timer and log the elapsed time.
    */
-  timeEnd(label) {
+  timeEnd(label?: string): this {
     const con = privateConsole.get(this)
     con.timeEnd(label)
     this[lastWasBlankSymbol](false)
@@ -396,7 +431,7 @@ class Logger {
   /**
    * Log the current timer value.
    */
-  timeLog(label, ...data) {
+  timeLog(label?: string, ...data: any[]): this {
     const con = privateConsole.get(this)
     con.timeLog(label, ...data)
     this[lastWasBlankSymbol](false)
@@ -406,7 +441,7 @@ class Logger {
   /**
    * Log a stack trace.
    */
-  trace(message, ...args) {
+  trace(message?: any, ...args: any[]): this {
     const con = privateConsole.get(this)
     con.trace(message, ...args)
     this[lastWasBlankSymbol](false)
@@ -416,7 +451,7 @@ class Logger {
   /**
    * Log a warning message with symbol.
    */
-  warn(...args) {
+  warn(...args: any[]): this {
     return this.#symbolApply('warn', args)
   }
 }
@@ -425,11 +460,10 @@ Object.defineProperties(
   Logger.prototype,
   Object.fromEntries(
     (() => {
-      const entries = [
+      const entries: Array<[string | symbol, PropertyDescriptor]> = [
         [
           kGroupIndentationWidthSymbol,
           {
-            __proto__: null,
             ...consolePropAttributes,
             value: 2,
           },
@@ -440,23 +474,22 @@ Object.defineProperties(
             __proto__: null,
             configurable: true,
             value: 'logger',
-          },
+          } as PropertyDescriptor,
         ],
       ]
       for (const { 0: key, 1: value } of Object.entries(globalConsole)) {
-        if (!Logger.prototype[key] && typeof value === 'function') {
+        if (!(Logger.prototype as any)[key] && typeof value === 'function') {
           // Dynamically name the log method without using Object.defineProperty.
           const { [key]: func } = {
-            [key](...args) {
+            [key](...args: any[]) {
               const con = privateConsole.get(this)
-              const result = con[key](...args)
+              const result = (con as any)[key](...args)
               return result === undefined || result === con ? this : result
             },
           }
           entries.push([
             key,
             {
-              __proto__: null,
               ...consolePropAttributes,
               value: func,
             },
@@ -468,12 +501,4 @@ Object.defineProperties(
   ),
 )
 
-const logger = new Logger()
-
-module.exports = {
-  incLogCallCountSymbol,
-  lastWasBlankSymbol,
-  LOG_SYMBOLS,
-  Logger,
-  logger,
-}
+export const logger = new Logger()

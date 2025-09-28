@@ -2,9 +2,8 @@
  * @fileoverview Array utility functions for formatting lists and collections.
  * Provides conjunction and disjunction formatters using Intl.ListFormat.
  */
-'use strict'
 
-let _conjunctionFormatter
+let _conjunctionFormatter: Intl.ListFormat | undefined
 /**
  * Get a cached Intl.ListFormat instance for conjunction (and) formatting.
  * @private
@@ -20,7 +19,7 @@ function getConjunctionFormatter() {
   return _conjunctionFormatter
 }
 
-let _disjunctionFormatter
+let _disjunctionFormatter: Intl.ListFormat | undefined
 /**
  * Get a cached Intl.ListFormat instance for disjunction (or) formatting.
  * @private
@@ -40,15 +39,19 @@ function getDisjunctionFormatter() {
  * Split an array into chunks of a specified size.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function arrayChunk(arr, size = 2) {
-  if (size <= 0) {
+export function arrayChunk<T>(
+  arr: T[] | readonly T[],
+  size?: number | undefined,
+): T[][] {
+  const chunkSize = size ?? 2
+  if (chunkSize <= 0) {
     throw new Error('Chunk size must be greater than 0')
   }
   const { length } = arr
-  const chunkSize = Math.min(length, size)
+  const actualChunkSize = Math.min(length, chunkSize)
   const chunks = []
-  for (let i = 0; i < length; i += chunkSize) {
-    chunks.push(arr.slice(i, i + chunkSize))
+  for (let i = 0; i < length; i += actualChunkSize) {
+    chunks.push(arr.slice(i, i + actualChunkSize) as T[])
   }
   return chunks
 }
@@ -57,7 +60,7 @@ function arrayChunk(arr, size = 2) {
  * Get unique values from an array.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function arrayUnique(arr) {
+export function arrayUnique<T>(arr: T[] | readonly T[]): T[] {
   return [...new Set(arr)]
 }
 
@@ -65,7 +68,7 @@ function arrayUnique(arr) {
  * Join array elements with proper "and" conjunction formatting.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function joinAnd(arr) {
+export function joinAnd(arr: string[] | readonly string[]): string {
   return getConjunctionFormatter().format(arr)
 }
 
@@ -73,13 +76,6 @@ function joinAnd(arr) {
  * Join array elements with proper "or" disjunction formatting.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function joinOr(arr) {
+export function joinOr(arr: string[] | readonly string[]): string {
   return getDisjunctionFormatter().format(arr)
-}
-
-module.exports = {
-  arrayChunk,
-  arrayUnique,
-  joinAnd,
-  joinOr,
 }
