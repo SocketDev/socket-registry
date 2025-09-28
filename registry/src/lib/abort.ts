@@ -2,13 +2,14 @@
  * @fileoverview Abort utilities for signals and controllers.
  * Provides helpers for creating composite signals from multiple abort sources.
  */
-'use strict'
 
 /**
  * Create a composite AbortSignal that aborts when any of the input signals abort.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function createCompositeAbortSignal(...signals) {
+export function createCompositeAbortSignal(
+  ...signals: Array<AbortSignal | null | undefined>
+): AbortSignal {
   // Filter out null/undefined signals
   const validSignals = signals.filter(signal => signal != null)
 
@@ -19,7 +20,7 @@ function createCompositeAbortSignal(...signals) {
 
   if (validSignals.length === 1) {
     // Only one signal, return it directly
-    return validSignals[0]
+    return validSignals[0]!
   }
 
   // Check if any signal is already aborted
@@ -51,7 +52,7 @@ function createCompositeAbortSignal(...signals) {
  * Create an AbortSignal that aborts after a specified timeout.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function createTimeoutSignal(timeout) {
+export function createTimeoutSignal(timeout: number): AbortSignal {
   if (typeof timeout !== 'number' || timeout <= 0) {
     throw new TypeError('timeout must be a positive number')
   }
@@ -59,11 +60,4 @@ function createTimeoutSignal(timeout) {
   const controller = new AbortController()
   setTimeout(() => controller.abort(), timeout)
   return controller.signal
-}
-
-module.exports = {
-  AbortController,
-  AbortSignal,
-  createCompositeAbortSignal,
-  createTimeoutSignal,
 }

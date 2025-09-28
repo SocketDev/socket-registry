@@ -2,14 +2,13 @@
  * @fileoverview Sorting comparison functions including locale-aware and natural sorting.
  * Provides various comparison utilities for arrays and collections.
  */
-'use strict'
 
-let _localeCompare
+let _localeCompare: ((x: string, y: string) => number) | undefined
 /**
  * Compare two strings using locale-aware comparison.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function localeCompare(x, y) {
+export function localeCompare(x: string, y: string): number {
   if (_localeCompare === undefined) {
     // Lazily call new Intl.Collator() because in Node it can take 10-14ms.
     _localeCompare = new Intl.Collator().compare
@@ -17,12 +16,12 @@ function localeCompare(x, y) {
   return _localeCompare(x, y)
 }
 
-let _naturalCompare
+let _naturalCompare: ((x: string, y: string) => number) | undefined
 /**
  * Compare two strings using natural sorting (numeric-aware, case-insensitive).
  */
 /*@__NO_SIDE_EFFECTS__*/
-function naturalCompare(x, y) {
+export function naturalCompare(x: string, y: string): number {
   if (_naturalCompare === undefined) {
     // Lazily call new Intl.Collator() because in Node it can take 10-14ms.
     _naturalCompare = new Intl.Collator(
@@ -43,27 +42,32 @@ function naturalCompare(x, y) {
   return _naturalCompare(x, y)
 }
 
-let _naturalSorter
+// Type for fast-sort sorter function.
+type FastSortFunction = ReturnType<
+  typeof import('fast-sort').createNewSortInstance
+>
+
+let _naturalSorter: FastSortFunction | undefined
 /**
  * Sort an array using natural comparison.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function naturalSorter(arrayToSort) {
+export function naturalSorter<T>(arrayToSort: T[]): T[] {
   if (_naturalSorter === undefined) {
     // The 'fast-sort' package is browser safe.
-    const fastSort = /*@__PURE__*/ require('../external/fast-sort')
+    const fastSort = /*@__PURE__*/ require('../external/fast-sort').default
     _naturalSorter = fastSort.createNewSortInstance({
       comparer: naturalCompare,
     })
   }
-  return _naturalSorter(arrayToSort)
+  return _naturalSorter!(arrayToSort).asc() as T[]
 }
 
 /**
  * Simple string comparison.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function compareStr(a, b) {
+export function compareStr(a: string, b: string): number {
   return a < b ? -1 : a > b ? 1 : 0
 }
 
@@ -71,7 +75,7 @@ function compareStr(a, b) {
  * Compare semantic versions.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function compareSemver(a, b) {
+export function compareSemver(a: string, b: string): number {
   const semver = /*@__PURE__*/ require('semver')
   const validA = semver.valid(a)
   const validB = semver.valid(b)
@@ -87,12 +91,4 @@ function compareSemver(a, b) {
   }
 
   return semver.compare(a, b)
-}
-
-module.exports = {
-  compareSemver,
-  compareStr,
-  localeCompare,
-  naturalCompare,
-  naturalSorter,
 }

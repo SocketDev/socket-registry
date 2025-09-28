@@ -2,7 +2,35 @@
  * @fileoverview Object manipulation and reflection utilities.
  * Provides type-safe object operations, property access, and structural helpers.
  */
-'use strict'
+
+// Type definitions
+type GetterDefObj = { [key: PropertyKey]: () => any }
+type LazyGetterStats = { initialized?: Set<PropertyKey> | undefined }
+type ConstantsObjectOptions = {
+  getters?: GetterDefObj | undefined
+  internals?: object | undefined
+  mixin?: object | undefined
+}
+type Remap<T> = { [K in keyof T]: T[K] } extends infer O
+  ? { [K in keyof O]: O[K] }
+  : never
+
+// Type for dynamic lazy getter record.
+type LazyGetterRecord<T> = {
+  [key: PropertyKey]: () => T
+}
+
+// Type for generic property bag.
+type PropertyBag = {
+  [key: PropertyKey]: any
+}
+
+// Type for generic sorted object entries.
+type SortedObject<T> = {
+  [key: PropertyKey]: T
+}
+
+export type { GetterDefObj, LazyGetterStats, ConstantsObjectOptions, Remap }
 
 const { isArray: ArrayIsArray } = Array
 const {
@@ -18,6 +46,7 @@ const {
   prototype: ObjectPrototype,
   setPrototypeOf: ObjectSetPrototypeOf,
 } = Object
+// @ts-expect-error - __defineGetter__ exists but not in type definitions.
 const { __defineGetter__ } = Object.prototype
 const { ownKeys: ReflectOwnKeys } = Reflect
 
@@ -25,8 +54,13 @@ const { ownKeys: ReflectOwnKeys } = Reflect
  * Create a lazy getter function that memoizes its result.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function createLazyGetter(name, getter, stats) {
-  const UNDEFINED_TOKEN = /*@__PURE__*/ require('./constants/UNDEFINED_TOKEN')
+export function createLazyGetter<T>(
+  name: PropertyKey,
+  getter: () => T,
+  stats?: LazyGetterStats,
+): () => T {
+  const UNDEFINED_TOKEN =
+    /*@__PURE__*/ require('./constants/UNDEFINED_TOKEN').default
   let lazyValue = UNDEFINED_TOKEN
   // Dynamically name the getter without using Object.defineProperty.
   const { [name]: lazyGetter } = {
@@ -37,16 +71,19 @@ function createLazyGetter(name, getter, stats) {
       }
       return lazyValue
     },
-  }
-  return lazyGetter
+  } as LazyGetterRecord<T>
+  return lazyGetter!
 }
 
 /**
  * Create a frozen constants object with lazy getters and internal properties.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function createConstantsObject(props, options_) {
-  const options = { __proto__: null, ...options_ }
+export function createConstantsObject(
+  props: object,
+  options_?: ConstantsObjectOptions,
+): Readonly<object> {
+  const options = { __proto__: null, ...options_ } as ConstantsObjectOptions
   const attributes = ObjectFreeze({
     __proto__: null,
     getters: options.getters
@@ -71,10 +108,11 @@ function createConstantsObject(props, options_) {
       ? ObjectFreeze(ObjectSetPrototypeOf(toSortedObject(props), null))
       : undefined,
   })
-  const kInternalsSymbol = /*@__PURE__*/ require('./constants/k-internals-symbol')
+  const kInternalsSymbol =
+    /*@__PURE__*/ require('./constants/k-internals-symbol').default
   const lazyGetterStats = ObjectFreeze({
     __proto__: null,
-    initialized: new Set(),
+    initialized: new Set<PropertyKey>(),
   })
   const object = defineLazyGetters(
     {
@@ -112,7 +150,11 @@ function createConstantsObject(props, options_) {
  * Define a getter property on an object.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function defineGetter(object, propKey, getter) {
+export function defineGetter<T>(
+  object: object,
+  propKey: PropertyKey,
+  getter: () => T,
+): object {
   ObjectDefineProperty(object, propKey, {
     get: getter,
     enumerable: false,
@@ -125,7 +167,12 @@ function defineGetter(object, propKey, getter) {
  * Define a lazy getter property on an object.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function defineLazyGetter(object, propKey, getter, stats) {
+export function defineLazyGetter<T>(
+  object: object,
+  propKey: PropertyKey,
+  getter: () => T,
+  stats?: LazyGetterStats,
+): object {
   return defineGetter(object, propKey, createLazyGetter(propKey, getter, stats))
 }
 
@@ -133,28 +180,34 @@ function defineLazyGetter(object, propKey, getter, stats) {
  * Define multiple lazy getter properties on an object.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function defineLazyGetters(object, getterDefObj, stats) {
+export function defineLazyGetters(
+  object: object,
+  getterDefObj: GetterDefObj | undefined,
+  stats?: LazyGetterStats,
+): object {
   if (getterDefObj !== null && typeof getterDefObj === 'object') {
     const keys = ReflectOwnKeys(getterDefObj)
     for (let i = 0, { length } = keys; i < length; i += 1) {
-      const key = keys[i]
+      const key = keys[i]!
       defineLazyGetter(
         object,
         key,
-        createLazyGetter(key, getterDefObj[key], stats),
+        createLazyGetter(key, getterDefObj[key]!, stats),
       )
     }
   }
   return object
 }
 
-let _localeCompare
+let _localeCompare: ((a: string, b: string) => number) | undefined
 /**
  * Compare two entry arrays by their keys for sorting.
- * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
-function entryKeyComparator(a, b) {
+export function entryKeyComparator(
+  a: [PropertyKey, any],
+  b: [PropertyKey, any],
+): number {
   if (_localeCompare === undefined) {
     const sorts = /*@__PURE__*/ require('./sorts')
     _localeCompare = sorts.localeCompare
@@ -163,14 +216,14 @@ function entryKeyComparator(a, b) {
   const keyB = b[0]
   const strKeyA = typeof keyA === 'string' ? keyA : String(keyA)
   const strKeyB = typeof keyB === 'string' ? keyB : String(keyB)
-  return _localeCompare(strKeyA, strKeyB)
+  return _localeCompare!(strKeyA, strKeyB)
 }
 
 /**
  * Get the enumerable own property keys of an object.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function getKeys(obj) {
+export function getKeys(obj: any): string[] {
   return isObject(obj) ? ObjectKeys(obj) : []
 }
 
@@ -178,7 +231,7 @@ function getKeys(obj) {
  * Get an own property value from an object safely.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function getOwn(obj, propKey) {
+export function getOwn(obj: any, propKey: PropertyKey): any {
   if (obj === null || obj === undefined) {
     return undefined
   }
@@ -189,7 +242,9 @@ function getOwn(obj, propKey) {
  * Get all own property values from an object.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function getOwnPropertyValues(obj) {
+export function getOwnPropertyValues<T>(
+  obj: { [key: PropertyKey]: T } | null | undefined,
+): T[] {
   if (obj === null || obj === undefined) {
     return []
   }
@@ -197,7 +252,7 @@ function getOwnPropertyValues(obj) {
   const { length } = keys
   const values = Array(length)
   for (let i = 0; i < length; i += 1) {
-    values[i] = obj[keys[i]]
+    values[i] = obj[keys[i]!]
   }
   return values
 }
@@ -206,7 +261,7 @@ function getOwnPropertyValues(obj) {
  * Check if an object has any enumerable own properties.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function hasKeys(obj) {
+export function hasKeys(obj: any): obj is PropertyBag {
   if (obj === null || obj === undefined) {
     return false
   }
@@ -222,7 +277,10 @@ function hasKeys(obj) {
  * Check if an object has an own property.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function hasOwn(obj, propKey) {
+export function hasOwn(
+  obj: any,
+  propKey: PropertyKey,
+): obj is object & PropertyBag {
   if (obj === null || obj === undefined) {
     return false
   }
@@ -233,7 +291,7 @@ function hasOwn(obj, propKey) {
  * Check if a value is an object (including arrays).
  */
 /*@__NO_SIDE_EFFECTS__*/
-function isObject(value) {
+export function isObject(value: any): value is { [key: PropertyKey]: any } {
   return value !== null && typeof value === 'object'
 }
 
@@ -241,7 +299,9 @@ function isObject(value) {
  * Check if a value is a plain object (not an array, not a built-in).
  */
 /*@__NO_SIDE_EFFECTS__*/
-function isObjectObject(value) {
+export function isObjectObject(
+  value: any,
+): value is { [key: PropertyKey]: any } {
   if (value === null || typeof value !== 'object' || ArrayIsArray(value)) {
     return false
   }
@@ -253,7 +313,7 @@ function isObjectObject(value) {
  * Get all own property entries (key-value pairs) from an object.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function objectEntries(obj) {
+export function objectEntries(obj: any): Array<[PropertyKey, any]> {
   if (obj === null || obj === undefined) {
     return []
   }
@@ -261,7 +321,7 @@ function objectEntries(obj) {
   const { length } = keys
   const entries = Array(length)
   for (let i = 0; i < length; i += 1) {
-    const key = keys[i]
+    const key = keys[i]!
     entries[i] = [key, obj[key]]
   }
   return entries
@@ -271,19 +331,28 @@ function objectEntries(obj) {
  * Deep merge source object into target object.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function merge(target, source) {
+export function merge<T extends object, U extends object>(
+  target: T,
+  source: U,
+): T & U {
   if (!isObject(target) || !isObject(source)) {
-    return target
+    return target as T & U
   }
-  const LOOP_SENTINEL = /*@__PURE__*/ require('./constants/LOOP_SENTINEL')
-  const queue = [[target, source]]
+  const LOOP_SENTINEL =
+    /*@__PURE__*/ require('./constants/LOOP_SENTINEL').default
+  const queue: Array<[unknown, unknown]> = [[target, source]]
   let pos = 0
   let { length: queueLength } = queue
   while (pos < queueLength) {
     if (pos === LOOP_SENTINEL) {
       throw new Error('Detected infinite loop in object crawl of merge')
     }
-    const { 0: currentTarget, 1: currentSource } = queue[pos++]
+    const { 0: currentTarget, 1: currentSource } = queue[pos++]!
+
+    if (!currentSource || !currentTarget) {
+      continue
+    }
+
     const isSourceArray = ArrayIsArray(currentSource)
     const isTargetArray = ArrayIsArray(currentTarget)
 
@@ -291,41 +360,44 @@ function merge(target, source) {
     if (isSourceArray || isTargetArray) {
       continue
     }
-    const keys = ReflectOwnKeys(currentSource)
+
+    const keys = ReflectOwnKeys(currentSource as object)
     for (let i = 0, { length } = keys; i < length; i += 1) {
-      const key = keys[i]
-      const srcVal = currentSource[key]
-      const targetVal = currentTarget[key]
+      const key = keys[i]!
+      const srcVal = (currentSource as any)[key]
+      const targetVal = (currentTarget as any)[key]
       if (ArrayIsArray(srcVal)) {
         // Replace arrays entirely
-        currentTarget[key] = srcVal
+        ;(currentTarget as any)[key] = srcVal
       } else if (isObject(srcVal)) {
         if (isObject(targetVal) && !ArrayIsArray(targetVal)) {
           queue[queueLength++] = [targetVal, srcVal]
         } else {
-          currentTarget[key] = srcVal
+          ;(currentTarget as any)[key] = srcVal
         }
       } else {
-        currentTarget[key] = srcVal
+        ;(currentTarget as any)[key] = srcVal
       }
     }
   }
-  return target
+  return target as T & U
 }
 
 /**
  * Convert an object to a new object with sorted keys.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function toSortedObject(obj) {
-  return toSortedObjectFromEntries(objectEntries(obj))
+export function toSortedObject<T extends object>(obj: T): T {
+  return toSortedObjectFromEntries(objectEntries(obj)) as T
 }
 
 /**
  * Create an object from entries with sorted keys.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function toSortedObjectFromEntries(entries) {
+export function toSortedObjectFromEntries<T = any>(
+  entries: Iterable<[PropertyKey, T]>,
+): SortedObject<T> {
   const otherEntries = []
   const symbolEntries = []
   // Use for-of to work with entries iterators.
@@ -344,24 +416,4 @@ function toSortedObjectFromEntries(entries) {
     ...symbolEntries.sort(entryKeyComparator),
     ...otherEntries.sort(entryKeyComparator),
   ])
-}
-
-module.exports = {
-  createConstantsObject,
-  createLazyGetter,
-  defineGetter,
-  defineLazyGetter,
-  defineLazyGetters,
-  entryKeyComparator,
-  getKeys,
-  getOwn,
-  getOwnPropertyValues,
-  hasKeys,
-  hasOwn,
-  isObject,
-  isObjectObject,
-  merge,
-  objectEntries,
-  toSortedObject,
-  toSortedObjectFromEntries,
 }
