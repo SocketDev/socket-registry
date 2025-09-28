@@ -1,10 +1,13 @@
-'use strict'
+/**
+ * @fileoverview Central exports for all constants modules.
+ * Re-exports all individual constant values from their respective files.
+ */
 
 const getIpc = /*@__PURE__*/ require('./get-ipc')
 const { createConstantsObject } = /*@__PURE__*/ require('../objects')
 const { toKebabCase } = /*@__PURE__*/ require('../strings')
 
-const props = {
+const props: Record<string, any> = {
   // Lazily defined values are initialized as `undefined` to keep their key order.
   AT_LATEST: '@latest',
   BUN: 'bun',
@@ -47,7 +50,7 @@ const props = {
   LICENSE_ORIGINAL: 'LICENSE.original',
   LICENSE_ORIGINAL_GLOB: '*.original{.*,}',
   LICENSE_ORIGINAL_GLOB_RECURSIVE: '**/*.original{.*,}',
-  LOOP_SENTINEL: 1000000,
+  LOOP_SENTINEL: 1_000_000,
   MANIFEST_JSON: 'manifest.json',
   MIT: 'MIT',
   NODE_AUTH_TOKEN: 'NODE_AUTH_TOKEN',
