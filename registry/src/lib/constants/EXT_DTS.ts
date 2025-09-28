@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = '.d.ts'
+export default '.d.ts'

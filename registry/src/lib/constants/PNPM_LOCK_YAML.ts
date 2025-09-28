@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'pnpm-lock.yaml'
+export default 'pnpm-lock.yaml'

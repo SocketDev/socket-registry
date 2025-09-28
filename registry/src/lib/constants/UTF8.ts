@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'utf8'
+export default 'utf8'

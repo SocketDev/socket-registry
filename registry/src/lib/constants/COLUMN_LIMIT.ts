@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 80
+export default 80

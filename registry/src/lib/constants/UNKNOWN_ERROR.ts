@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'Unknown error'
+export default 'Unknown error'

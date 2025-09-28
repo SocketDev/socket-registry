@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'yarn'
+export default 'yarn'

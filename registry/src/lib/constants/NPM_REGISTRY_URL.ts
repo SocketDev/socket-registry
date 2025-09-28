@@ -1,5 +1,3 @@
-'use strict'
-
 const NPM_REGISTRY_URL = 'https://registry.npmjs.org'
 
-module.exports = NPM_REGISTRY_URL
+export default NPM_REGISTRY_URL

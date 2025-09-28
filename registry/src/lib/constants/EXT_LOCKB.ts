@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = '.lockb'
+export default '.lockb'

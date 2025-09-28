@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'PRE_COMMIT'
+export default 'PRE_COMMIT'

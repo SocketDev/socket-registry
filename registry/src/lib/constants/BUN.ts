@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'bun'
+export default 'bun'

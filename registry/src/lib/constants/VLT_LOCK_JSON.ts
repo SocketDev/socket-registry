@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'vlt-lock.json'
+export default 'vlt-lock.json'

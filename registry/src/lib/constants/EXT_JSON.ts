@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = '.json'
+export default '.json'

@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'extensions.json'
+export default 'extensions.json'

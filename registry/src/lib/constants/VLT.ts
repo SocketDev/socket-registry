@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'vlt'
+export default 'vlt'

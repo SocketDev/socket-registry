@@ -1,6 +1,4 @@
-'use strict'
-
-const { envAsString } = /*@__PURE__*/ require('../env')
+import { envAsString } from '../env'
 
 // npm_lifecycle_event is set by npm, pnpm, yarn, bun, and vlt during script execution.
 // This environment variable contains the name of the script being run (e.g., 'test', 'build', 'start').
@@ -20,4 +18,4 @@ const { envAsString } = /*@__PURE__*/ require('../env')
 //
 // This is useful for scripts that need to know which lifecycle event triggered them,
 // allowing conditional behavior based on the current script context.
-module.exports = envAsString(process.env.npm_lifecycle_event)
+export default envAsString(process.env['npm_lifecycle_event'])

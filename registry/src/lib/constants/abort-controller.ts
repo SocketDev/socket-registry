@@ -1,15 +1,13 @@
-'use strict'
-
 // The 'signal-exit' package is browser safe.
 // Do NOT defer loading, otherwise mystery errors may occur at the end of the
 // event loop.
-const { onExit } = /*@__PURE__*/ require('../signal-exit')
+import { onExit } from '../signal-exit'
 
 const abortController = new AbortController()
 
 // Detect ^C, i.e. Ctrl + C.
-onExit(() => {
+onExit((_code, _signal) => {
   abortController.abort()
 })
 
-module.exports = abortController
+export default abortController

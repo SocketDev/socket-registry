@@ -1,5 +1,3 @@
-'use strict'
-
 const { freeze: ObjectFreeze } = Object
 
 // Package manager cache directory names.
@@ -18,7 +16,7 @@ const { freeze: ObjectFreeze } = Object
 // - Creating gitignore patterns
 // - Cleaning up cache directories
 // - Detecting which package manager created a cache
-module.exports = ObjectFreeze({
+export default ObjectFreeze({
   __proto__: null,
   // npm cache directory name (usually in home directory as .npm).
   NPM_CACHE_DIR: '.npm',

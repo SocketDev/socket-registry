@@ -1,9 +1,7 @@
-'use strict'
+import path from 'node:path'
 
-const path = require('node:path')
-
-const ENV = /*@__PURE__*/ require('./env')
-const WIN32 = /*@__PURE__*/ require('./win32')
+import ENV from './ENV.js'
+import WIN32 from './WIN32.js'
 
 // Yarn cache directory paths.
 // Yarn Classic (v1) and Yarn Berry (v2+) use different cache locations.
@@ -31,7 +29,7 @@ function getYarnCachePaths() {
   }
 
   // Check for explicit YARN_CACHE_FOLDER environment variable (Yarn Classic).
-  const yarnCacheFolder = process.env.YARN_CACHE_FOLDER
+  const yarnCacheFolder = process.env['YARN_CACHE_FOLDER']
   if (yarnCacheFolder) {
     paths.classic = yarnCacheFolder
     return paths
@@ -50,4 +48,4 @@ function getYarnCachePaths() {
   return paths
 }
 
-module.exports = getYarnCachePaths()
+export default getYarnCachePaths()

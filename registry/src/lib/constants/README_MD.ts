@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'README.md'
+export default 'README.md'

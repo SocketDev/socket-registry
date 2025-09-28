@@ -1,7 +1,5 @@
-'use strict'
-
-const NODE_VERSION = /*@__PURE__*/ require('./node-version')
-const semver = /*@__PURE__*/ require('../../external/semver')
+import NODE_VERSION from './node-version'
+import semver from '../../external/semver'
 
 // https://nodejs.org/api/cli.html#--permission
-module.exports = semver.satisfies(NODE_VERSION, '>=23.5.0||^22.13.0')
+export default semver.satisfies(NODE_VERSION, '>=23.5.0||^22.13.0')

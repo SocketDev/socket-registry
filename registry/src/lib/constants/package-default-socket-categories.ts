@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = Object.freeze(['cleanup'])
+export default Object.freeze(['cleanup'])

@@ -1,4 +1,2 @@
-'use strict'
-
-const { Spinner } = /*@__PURE__*/ require('../spinner')
-module.exports = new Spinner()
+import { Spinner } from '../spinner'
+export default Spinner({})

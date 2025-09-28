@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'LICENSE.original'
+export default 'LICENSE.original'
