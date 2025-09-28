@@ -121,6 +121,8 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
 
     /*@__PURE__*/
     _Spinner = class SpinnerClass extends YoctoCtor {
+      declare isSpinning: boolean
+      declare text: string
       constructor(options?: SpinnerOptions) {
         super({
           signal: abortSignal.default,
