@@ -1,19 +1,17 @@
-import { createRequire } from 'node:module'
 import path from 'node:path'
 
-import constants from './constants.mjs'
-
-const require = createRequire(import.meta.url)
-const { glob } = require('fast-glob')
-const { logger } = require('@socketsecurity/registry/lib/logger')
-const {
+import { glob } from 'fast-glob'
+import { logger } from '@socketsecurity/registry/lib/logger'
+import {
   createPackageJson,
   getSubpaths,
   isSubpathExports,
   readPackageJson,
   resolvePackageJsonEntryExports,
-} = require('@socketsecurity/registry/lib/packages')
-const { trimLeadingDotSlash } = require('@socketsecurity/registry/lib/path')
+} from '@socketsecurity/registry/lib/packages'
+import { trimLeadingDotSlash } from '@socketsecurity/registry/lib/path'
+
+import constants from './constants.mjs'
 
 const { PACKAGE_JSON, SOCKET_REGISTRY_SCOPE } = constants
 

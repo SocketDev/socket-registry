@@ -1,4 +1,3 @@
-import { createRequire } from 'node:module'
 import crypto from 'node:crypto'
 import fs from 'node:fs/promises'
 import path from 'node:path'
@@ -8,21 +7,20 @@ import semver from 'semver'
 
 import constants from './constants.mjs'
 
-const require = createRequire(import.meta.url)
-const { execScript } = require('@socketsecurity/registry/lib/agent')
-const {
+import { execScript } from '@socketsecurity/registry/lib/agent'
+import {
   extractPackage,
   fetchPackageManifest,
   getReleaseTag,
   readPackageJson,
-} = require('@socketsecurity/registry/lib/packages')
-const { readPackageJsonSync } = require('@socketsecurity/registry/lib/packages')
-const { readFileUtf8 } = require('@socketsecurity/registry/lib/fs')
-const { pEach } = require('@socketsecurity/registry/lib/promises')
-const {
+  readPackageJsonSync,
+} from '@socketsecurity/registry/lib/packages'
+import { readFileUtf8 } from '@socketsecurity/registry/lib/fs'
+import { pEach } from '@socketsecurity/registry/lib/promises'
+import {
   isObjectObject,
   toSortedObject,
-} = require('@socketsecurity/registry/lib/objects')
+} from '@socketsecurity/registry/lib/objects'
 
 const {
   LATEST,

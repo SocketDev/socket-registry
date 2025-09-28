@@ -260,10 +260,8 @@ function configs(sourceType) {
             ...importFlatConfigs.typescript.languageOptions?.parserOptions
               ?.projectService,
             allowDefaultProject: [
-              // Allow configs.
-              '*.config.mts',
-              // Add package type definitions.
-              'packages/*/*/*.d.{cts,mts}',
+              // Add package CTS type definitions not covered by tsconfig.
+              'packages/*/*/*.d.cts',
             ],
             defaultProject: 'tsconfig.json',
             // Need this to glob packages/npm/* files.
@@ -302,9 +300,20 @@ function configs(sourceType) {
         // we want), and it's nice to await before returning anyways, since you get
         // a slightly more comprehensive stack trace upon promise rejection.
         '@typescript-eslint/return-await': ['error', 'always'],
-        // Disable the following rules because they don't play well with TypeScript.
+        '@typescript-eslint/no-unused-vars': [
+          'error',
+          {
+            argsIgnorePattern: '^_|^this$',
+            ignoreRestSiblings: true,
+            varsIgnorePattern: '^_',
+          },
+        ],
+        // Disable base rules that are replaced by TypeScript-specific versions.
         'no-redeclare': 'off',
         'no-unused-vars': 'off',
+        // Disable node plugin rules that can't resolve TypeScript imports.
+        'n/no-missing-import': 'off',
+        'n/no-missing-require': 'off',
       },
     },
     {
@@ -314,6 +323,9 @@ function configs(sourceType) {
         'n/no-unpublished-import': 'off',
         // Disable the following rules because they don't play well with TypeScript.
         'n/no-missing-import': 'off',
+        // Disable no-unused-vars for type definition files since they contain declarations.
+        '@typescript-eslint/no-unused-vars': 'off',
+        'no-unused-vars': 'off',
       },
     },
   ]

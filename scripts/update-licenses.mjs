@@ -5,14 +5,12 @@
  * Ignores original license files and template directories.
  */
 
-import { createRequire } from 'node:module'
 import fs from 'node:fs/promises'
 
-import constants from './constants.mjs'
+import { globStreamLicenses } from '@socketsecurity/registry/lib/globs'
+import { parallelEach } from '@socketsecurity/registry/lib/streams'
 
-const require = createRequire(import.meta.url)
-const { globStreamLicenses } = require('@socketsecurity/registry/lib/globs')
-const { parallelEach } = require('@socketsecurity/registry/lib/streams')
+import constants from './constants.mjs'
 
 const { LICENSE, LICENSE_CONTENT, UTF8 } = constants
 

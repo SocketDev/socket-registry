@@ -1,8 +1,6 @@
-import { createRequire } from 'node:module'
 import constants from './constants.mjs'
 
-const require = createRequire(import.meta.url)
-const { readPackageJson } = require('@socketsecurity/registry/lib/packages')
+import { readPackageJson } from '@socketsecurity/registry/lib/packages'
 
 void (async () => {
   const rootEditablePkgJson = await readPackageJson(

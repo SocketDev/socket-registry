@@ -1,15 +1,13 @@
-import { createRequire } from 'node:module'
 import path from 'node:path'
 import util from 'node:util'
 
-import constants from './constants.mjs'
+import { execNpm } from '@socketsecurity/registry/lib/agent'
+import { joinAnd } from '@socketsecurity/registry/lib/arrays'
+import { logger } from '@socketsecurity/registry/lib/logger'
+import { pEach } from '@socketsecurity/registry/lib/promises'
+import { pluralize } from '@socketsecurity/registry/lib/words'
 
-const require = createRequire(import.meta.url)
-const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
-const { logger } = require('@socketsecurity/registry/lib/logger')
-const { execNpm } = require('@socketsecurity/registry/lib/agent')
-const { pEach } = require('@socketsecurity/registry/lib/promises')
-const { pluralize } = require('@socketsecurity/registry/lib/words')
+import constants from './constants.mjs'
 
 const { COLUMN_LIMIT, SOCKET_REGISTRY_SCOPE } = constants
 
