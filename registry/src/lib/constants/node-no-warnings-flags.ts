@@ -1,10 +1,8 @@
-'use strict'
+import SUPPORTS_NODE_DISABLE_WARNING_FLAG from './SUPPORTS_NODE_DISABLE_WARNING_FLAG'
 
 const { freeze: ObjectFreeze } = Object
 
-const SUPPORTS_NODE_DISABLE_WARNING_FLAG = /*@__PURE__*/ require('./supports-node-disable-warning-flag')
-
-module.exports = ObjectFreeze(
+export default ObjectFreeze(
   SUPPORTS_NODE_DISABLE_WARNING_FLAG
     ? [
         '--disable-warning',

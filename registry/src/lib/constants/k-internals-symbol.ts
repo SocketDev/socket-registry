@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = Symbol('@socketregistry.constants.internals')
+export default Symbol('@socketregistry.constants.internals')

@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = '.mts'
+export default '.mts'

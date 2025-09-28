@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'npm'
+export default 'npm'

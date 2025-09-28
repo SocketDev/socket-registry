@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'yarn.lock'
+export default 'yarn.lock'

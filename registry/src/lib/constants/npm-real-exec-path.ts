@@ -1,6 +1,4 @@
-'use strict'
+import npmExecPath from './npm-exec-path'
+import { resolveBinPathSync } from '../bin'
 
-const npmExecPath = /*@__PURE__*/ require('./npm-exec-path')
-const { resolveBinPathSync } = /*@__PURE__*/ require('../agent')
-
-module.exports = resolveBinPathSync(npmExecPath)
+export default resolveBinPathSync(npmExecPath)

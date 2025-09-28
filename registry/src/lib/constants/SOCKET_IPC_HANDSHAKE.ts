@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'SOCKET_IPC_HANDSHAKE'
+export default 'SOCKET_IPC_HANDSHAKE'

@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'latest'
+export default 'latest'

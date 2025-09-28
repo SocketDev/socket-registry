@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'UNLICENCED'
+export default 'UNLICENCED'

@@ -1,6 +1,4 @@
-'use strict'
+import maintainedNodeVersions from './maintained-node-versions'
+import semver from '../../external/semver'
 
-const maintainedNodeVersions = /*@__PURE__*/ require('./maintained-node-versions')
-const semver = /*@__PURE__*/ require('../../external/semver')
-
-module.exports = `>=${semver.parse(maintainedNodeVersions.last).major}`
+export default `>=${semver.parse(maintainedNodeVersions.last)?.major}`

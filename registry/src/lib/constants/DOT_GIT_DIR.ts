@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = '.git'
+export default '.git'

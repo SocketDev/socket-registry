@@ -1,9 +1,7 @@
-'use strict'
+import ENV from './ENV.js'
 
 const { freeze: ObjectFreeze } = Object
 
-const ENV = /*@__PURE__*/ require('./env')
-
-module.exports = ObjectFreeze(
+export default ObjectFreeze(
   ENV.SOCKET_CLI_DEBUG ? ['--trace-uncaught', '--trace-warnings'] : [],
 )

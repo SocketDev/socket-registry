@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'tsconfig.json'
+export default 'tsconfig.json'

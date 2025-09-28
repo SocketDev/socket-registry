@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'LICEN[CS]E{[.-]*,}'
+export default 'LICEN[CS]E{[.-]*,}'

@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = '*.original{.*,}'
+export default '*.original{.*,}'

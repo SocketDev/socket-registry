@@ -1,9 +1,7 @@
-'use strict'
+import path from 'node:path'
 
-const path = require('node:path')
-
-const ENV = /*@__PURE__*/ require('./env')
-const WIN32 = /*@__PURE__*/ require('./win32')
+import ENV from './ENV.js'
+import WIN32 from './WIN32.js'
 
 // PNPM store path - the global package store location.
 // By default:
@@ -19,7 +17,7 @@ const WIN32 = /*@__PURE__*/ require('./win32')
 // Documentation: https://pnpm.io/npmrc#store-dir
 function getPnpmStorePath() {
   // Check for explicit PNPM_HOME environment variable.
-  const pnpmHome = process.env.PNPM_HOME
+  const pnpmHome = process.env['PNPM_HOME']
   if (pnpmHome) {
     return path.join(pnpmHome, 'store')
   }
@@ -43,4 +41,4 @@ function getPnpmStorePath() {
   return ENV.HOME ? path.join(ENV.HOME, '.local', 'share', 'pnpm', 'store') : ''
 }
 
-module.exports = getPnpmStorePath()
+export default getPnpmStorePath()

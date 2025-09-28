@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'overrides'
+export default 'overrides'

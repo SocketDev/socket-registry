@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = new Set(['node'])
+export default new Set(['node'])

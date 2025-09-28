@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'MIT'
+export default 'MIT'

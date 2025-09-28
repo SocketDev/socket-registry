@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'package-lock.json'
+export default 'package-lock.json'

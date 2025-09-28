@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'manifest.json'
+export default 'manifest.json'

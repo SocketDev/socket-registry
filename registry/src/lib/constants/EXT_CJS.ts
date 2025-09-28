@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = '.cjs'
+export default '.cjs'

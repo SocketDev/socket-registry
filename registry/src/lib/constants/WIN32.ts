@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = process.platform === 'win32'
+export default process.platform === 'win32'

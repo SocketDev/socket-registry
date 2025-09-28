@@ -1,5 +1,3 @@
-'use strict'
+import { findRealYarn } from '../bin'
 
-const { findRealYarn } = /*@__PURE__*/ require('../bin')
-
-module.exports = findRealYarn()
+export default findRealYarn()

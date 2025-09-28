@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 1_000_000
+export default 1_000_000

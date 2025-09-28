@@ -1,4 +1,13 @@
-'use strict'
+import target from './ipc-target'
+
+// Type definitions
+type IpcHandler = ProxyHandler<object> & {
+  defineProperty(): true
+  deleteProperty(): false
+  preventExtensions(): true
+  set(): false
+  setPrototypeOf(): false
+}
 
 // Mutable handler to simulate a frozen target.
 const handler = {
@@ -8,7 +17,6 @@ const handler = {
   preventExtensions() {
     // Prevent a proxy trap invariant error.
     // https://tc39.es/ecma262/#sec-proxy-object-internal-methods-and-internal-slots-isextensible
-    const target = /*@__PURE__*/ require('./ipc-target')
     Object.preventExtensions(target)
     return true
   },
@@ -16,4 +24,5 @@ const handler = {
   setPrototypeOf: () => false,
 }
 
-module.exports = handler
+export type { IpcHandler }
+export default handler

@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = '@socketsecurity'
+export default '@socketsecurity'

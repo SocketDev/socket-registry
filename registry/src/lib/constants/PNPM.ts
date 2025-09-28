@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'pnpm'
+export default 'pnpm'

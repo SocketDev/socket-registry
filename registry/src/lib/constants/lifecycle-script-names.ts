@@ -1,6 +1,4 @@
-'use strict'
-
-module.exports = new Set(
+export default new Set(
   [
     'dependencies',
     'prepublishOnly',

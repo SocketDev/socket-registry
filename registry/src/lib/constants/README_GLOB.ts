@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'README{.*,}'
+export default 'README{.*,}'

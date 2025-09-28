@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = '<value>'
+export default '<value>'

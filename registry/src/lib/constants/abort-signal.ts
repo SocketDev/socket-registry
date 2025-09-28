@@ -1,6 +1,4 @@
-'use strict'
-
-const abortController = /*@__PURE__*/ require('./abort-controller')
+import abortController from './abort-controller'
 const abortSignal = abortController.signal
 
 // By manually setting `kMaxEventTargetListeners` on `abortSignal` we avoid:
@@ -21,7 +19,7 @@ const kMaxEventTargetListeners = symbols.find(
 if (kMaxEventTargetListeners) {
   // The default events.defaultMaxListeners value is 10.
   // https://nodejs.org/api/events.html#eventsdefaultmaxlisteners
-  abortSignal[kMaxEventTargetListeners] = 10
+  ;(abortSignal as any)[kMaxEventTargetListeners] = 10
 }
 
-module.exports = abortSignal
+export default abortSignal

@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = process.version
+export default process.version
