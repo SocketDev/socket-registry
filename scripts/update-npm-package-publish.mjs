@@ -1,20 +1,18 @@
-import { createRequire } from 'node:module'
 import path from 'node:path'
 import util from 'node:util'
 
-import constants from './constants.mjs'
-
-const require = createRequire(import.meta.url)
-const { joinAnd } = require('@socketsecurity/registry/lib/arrays')
-const { logger } = require('@socketsecurity/registry/lib/logger')
-const { isObjectObject } = require('@socketsecurity/registry/lib/objects')
-const { spawn } = require('@socketsecurity/registry/lib/spawn')
-const {
+import { joinAnd } from '@socketsecurity/registry/lib/arrays'
+import { logger } from '@socketsecurity/registry/lib/logger'
+import { isObjectObject } from '@socketsecurity/registry/lib/objects'
+import {
   getReleaseTag,
   readPackageJsonSync,
-} = require('@socketsecurity/registry/lib/packages')
-const { pEach } = require('@socketsecurity/registry/lib/promises')
-const { pluralize } = require('@socketsecurity/registry/lib/words')
+} from '@socketsecurity/registry/lib/packages'
+import { pEach } from '@socketsecurity/registry/lib/promises'
+import { spawn } from '@socketsecurity/registry/lib/spawn'
+import { pluralize } from '@socketsecurity/registry/lib/words'
+
+import constants from './constants.mjs'
 
 const {
   COLUMN_LIMIT,

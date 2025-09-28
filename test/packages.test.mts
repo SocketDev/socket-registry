@@ -156,7 +156,7 @@ for (const eco of constants.ecosystems) {
 
         it('package name should be included in "repository.directory" field of package.json', () => {
           expect(
-            (pkgJson.repository as { directory?: string })?.directory,
+            (pkgJson['repository'] as { directory?: string })?.directory,
           ).toBe(`packages/npm/${sockRegPkgName}`)
         })
 

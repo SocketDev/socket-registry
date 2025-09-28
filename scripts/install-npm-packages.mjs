@@ -1,8 +1,9 @@
-import { createRequire } from 'node:module'
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import util from 'node:util'
+
+import { copy } from 'fs-extra'
 
 import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
 import { testRunners } from '../test/utils/test-runners.mjs'
@@ -12,9 +13,6 @@ import { readPackageJson } from '@socketsecurity/registry/lib/packages'
 import { pEach } from '@socketsecurity/registry/lib/promises'
 import { LOG_SYMBOLS, logger } from '@socketsecurity/registry/lib/logger'
 import { spawn } from '@socketsecurity/registry/lib/spawn'
-
-const require = createRequire(import.meta.url)
-const { copy } = require('fs-extra')
 
 const { values: cliArgs } = util.parseArgs({
   options: {

@@ -13,22 +13,23 @@ import constants from './constants.mjs'
 import { getModifiedFiles } from './utils/git.mjs'
 import { biomeFormat } from './utils/biome.mjs'
 
-const require = createRequire(import.meta.url)
-const {
+import {
   objectEntries,
   toSortedObject,
   toSortedObjectFromEntries,
-} = require('@socketsecurity/registry/lib/objects')
-const {
+} from '@socketsecurity/registry/lib/objects'
+import {
   extractPackage,
   fetchPackageManifest,
   isBlessedPackageName,
   readPackageJson,
   resolveOriginalPackageName,
   resolvePackageJsonEntryExports,
-} = require('@socketsecurity/registry/lib/packages')
-const { pEach } = require('@socketsecurity/registry/lib/promises')
-const { naturalCompare } = require('@socketsecurity/registry/lib/sorts')
+} from '@socketsecurity/registry/lib/packages'
+import { pEach } from '@socketsecurity/registry/lib/promises'
+import { naturalCompare } from '@socketsecurity/registry/lib/sorts'
+
+const require = createRequire(import.meta.url)
 
 const { AT_LATEST, DEFAULT_CONCURRENCY, NPM, UNLICENSED } = constants
 

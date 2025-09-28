@@ -31,12 +31,11 @@
     "noUncheckedIndexedAccess": true,
 
     /* Additional checks */
-    "importsNotUsedAsValues": "remove",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts", "**/*.mts"],
   "exclude": [
     "**/node_modules/**/*",
     "test/**/packages/**/*",
