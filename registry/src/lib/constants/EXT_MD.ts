@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = '.md'
+export default '.md'

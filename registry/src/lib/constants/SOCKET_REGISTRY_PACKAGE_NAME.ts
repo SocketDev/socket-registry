@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = '@socketsecurity/registry'
+export default '@socketsecurity/registry'

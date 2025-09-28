@@ -1,8 +1,11 @@
-'use strict'
+import abortSignal from './abort-signal'
+import handler from './ipc-handler'
+import ipcObject from './ipc-object'
+import target from './ipc-target'
 
 const { assign: ObjectAssign, freeze: ObjectFreeze } = Object
 
-module.exports = new Promise(
+export default new Promise(
   // The Promise executor is immediately executed.
   resolve => {
     if (
@@ -11,29 +14,26 @@ module.exports = new Promise(
       // because constants is not initialized yet.
       typeof process.send !== 'function'
     ) {
-      resolve(/*@__PURE__*/ require('./ipc-object'))
+      resolve(ipcObject)
       return
     }
-    const abortSignal = /*@__PURE__*/ require('./abort-signal')
     const finish = () => {
       abortSignal.removeEventListener('abort', finish)
       process.removeListener('message', onmessage)
-      resolve(/*@__PURE__*/ require('./ipc-object'))
+      resolve(ipcObject)
     }
-    const onmessage = rawData => {
+    const onmessage = (rawData: any) => {
       if (rawData !== null && typeof rawData === 'object') {
-        const { SOCKET_IPC_HANDSHAKE: source } = {
-          __proto__: null,
-          ...rawData,
+        const data = { __proto__: null, ...rawData } as {
+          SOCKET_IPC_HANDSHAKE?: any
         }
-        const target = /*@__PURE__*/ require('./ipc-target')
+        const { SOCKET_IPC_HANDSHAKE: source } = data
         ObjectAssign(target, source)
         ObjectFreeze(target)
         // The handler of a Proxy is mutable after proxy instantiation.
         // We delete the traps to defer to native behavior.
-        const handler = /*@__PURE__*/ require('./ipc-handler')
         for (const trapName in handler) {
-          delete handler[trapName]
+          delete (handler as any)[trapName]
         }
       }
       finish()

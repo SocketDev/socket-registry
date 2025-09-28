@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = process.execPath
+export default process.execPath

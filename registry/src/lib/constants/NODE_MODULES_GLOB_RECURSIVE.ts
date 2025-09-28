@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = '**/node_modules'
+export default '**/node_modules'

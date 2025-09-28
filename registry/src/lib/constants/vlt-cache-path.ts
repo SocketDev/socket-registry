@@ -1,9 +1,7 @@
-'use strict'
+import path from 'node:path'
 
-const path = require('node:path')
-
-const ENV = /*@__PURE__*/ require('./env')
-const WIN32 = /*@__PURE__*/ require('./win32')
+import ENV from './ENV.js'
+import WIN32 from './WIN32.js'
 
 // Vlt cache directory path.
 // Vlt is a next-generation JavaScript package manager created by npm veterans.
@@ -33,7 +31,7 @@ function getVltCachePath() {
   }
 
   // On Linux/Unix, follow XDG Base Directory specification.
-  const xdgCacheHome = process.env.XDG_CACHE_HOME
+  const xdgCacheHome = process.env['XDG_CACHE_HOME']
   if (xdgCacheHome) {
     return path.join(xdgCacheHome, 'vlt')
   }
@@ -42,4 +40,4 @@ function getVltCachePath() {
   return ENV.HOME ? path.join(ENV.HOME, '.cache', 'vlt') : ''
 }
 
-module.exports = getVltCachePath()
+export default getVltCachePath()

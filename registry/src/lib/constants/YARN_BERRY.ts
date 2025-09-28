@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'yarn/berry'
+export default 'yarn/berry'

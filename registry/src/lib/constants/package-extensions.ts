@@ -1,10 +1,8 @@
-'use strict'
+import yarnPkgExtensions from '../../external/@yarnpkg/extensions'
 
 const { freeze: ObjectFreeze } = Object
 
-const yarnPkgExtensions = /*@__PURE__*/ require('../../external/@yarnpkg/extensions')
-
-module.exports = ObjectFreeze(
+export default ObjectFreeze(
   [
     yarnPkgExtensions.packageExtensions,
     [
@@ -33,8 +31,13 @@ module.exports = ObjectFreeze(
       },
     ],
   ].sort((a_, b_) => {
-    const a = a_[0].slice(0, a_[0].lastIndexOf('@'))
-    const b = b_[0].slice(0, b_[0].lastIndexOf('@'))
+    const aEntry = a_[0]
+    const bEntry = b_[0]
+    if (typeof aEntry !== 'string' || typeof bEntry !== 'string') {
+      return 0
+    }
+    const a = aEntry.slice(0, aEntry.lastIndexOf('@'))
+    const b = bEntry.slice(0, bEntry.lastIndexOf('@'))
     // Simulate the default compareFn of String.prototype.sort.
     if (a < b) {
       return -1

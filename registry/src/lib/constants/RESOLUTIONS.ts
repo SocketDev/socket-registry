@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'resolutions'
+export default 'resolutions'

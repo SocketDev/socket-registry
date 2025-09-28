@@ -1,9 +1,8 @@
-'use strict'
+import pacote from '../../external/pacote'
 
-const pacote = /*@__PURE__*/ require('../../external/pacote')
+const proto = Reflect.getPrototypeOf(
+  (pacote as any).RegistryFetcher.prototype,
+) as any
+const PacoteFetcherBase = proto?.constructor
 
-const { constructor: PacoteFetcherBase } = Reflect.getPrototypeOf(
-  pacote.RegistryFetcher.prototype,
-)
-
-module.exports = new PacoteFetcherBase(/*dummy package spec*/ 'x', {}).cache
+export default new PacoteFetcherBase(/*dummy package spec*/ 'x', {}).cache

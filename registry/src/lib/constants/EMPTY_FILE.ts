@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = '/* empty */\n'
+export default '/* empty */\n'

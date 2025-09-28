@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = { __proto__: null }
+export default { __proto__: null }

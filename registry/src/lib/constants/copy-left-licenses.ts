@@ -1,6 +1,4 @@
-'use strict'
-
-module.exports = new Set([
+export default new Set([
   'AGPL-3.0-or-later',
   'AGPL-3.0',
   'AGPL-3.0-only',

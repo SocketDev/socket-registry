@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'NODE_ENV'
+export default 'NODE_ENV'

@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'eslint.config.js'
+export default 'eslint.config.js'

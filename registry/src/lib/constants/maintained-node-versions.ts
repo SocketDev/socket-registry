@@ -1,4 +1,5 @@
-'use strict'
+import browsersList from '../../external/browserslist'
+import semver from '../../external/semver'
 
 const { freeze: ObjectFreeze } = Object
 
@@ -14,9 +15,7 @@ const manualCurr = '22.15.0'
 const manualPrev = '20.19.1'
 const manualLast = '18.20.8'
 
-const browsersList = /*@__PURE__*/ require('../../external/browserslist')
-const query = browsersList
-  .default('maintained node versions')
+const query = browsersList('maintained node versions')
   // Trim value, e.g. 'node 22.15.0' to '22.15.0'.
   .map(s => s.slice(5 /*'node '.length*/))
 // browsersList returns results in descending order.
@@ -25,7 +24,6 @@ const queryCurr = query.at(1) ?? manualCurr
 const queryPrev = query.at(2) ?? manualPrev
 const queryLast = query.at(-1) ?? manualLast
 
-const semver = /*@__PURE__*/ require('../../external/semver')
 const next = semver.gt(manualNext, queryNext) ? manualNext : queryNext
 
 const current = semver.maxSatisfying(
@@ -38,7 +36,7 @@ const previous = semver.maxSatisfying(
 )
 const last = semver.lt(manualLast, queryLast) ? manualLast : queryLast
 
-module.exports = ObjectFreeze(
+export default ObjectFreeze(
   Object.assign([last, previous, current, next], {
     last,
     previous,

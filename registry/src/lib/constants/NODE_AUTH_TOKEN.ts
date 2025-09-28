@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'NODE_AUTH_TOKEN'
+export default 'NODE_AUTH_TOKEN'

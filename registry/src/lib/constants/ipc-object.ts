@@ -1,6 +1,14 @@
-'use strict'
+import handler from './ipc-handler'
+import target from './ipc-target'
 
-const handler = /*@__PURE__*/ require('./ipc-handler')
-const target = /*@__PURE__*/ require('./ipc-target')
+import type { Serializable } from 'node:child_process'
 
-module.exports = new Proxy(target, handler)
+// Type definitions
+interface IpcObject {
+  [key: string]: Serializable
+}
+
+const ipcObject = new Proxy(target, handler) as unknown as IpcObject
+
+export type { IpcObject }
+export default ipcObject

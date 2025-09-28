@@ -1,5 +1,3 @@
-'use strict'
+import { findRealPnpm } from '../bin'
 
-const { findRealPnpm } = /*@__PURE__*/ require('../bin')
-
-module.exports = findRealPnpm()
+export default findRealPnpm()

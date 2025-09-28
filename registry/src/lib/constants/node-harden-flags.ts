@@ -1,10 +1,8 @@
-'use strict'
+import WIN32 from './WIN32'
 
 const { freeze: ObjectFreeze } = Object
 
-const WIN32 = require('./win32')
-
-module.exports = ObjectFreeze(
+export default ObjectFreeze(
   // Harden Node security.
   // https://nodejs.org/en/learn/getting-started/security-best-practices
   WIN32

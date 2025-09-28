@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'bun.lockb'
+export default 'bun.lockb'

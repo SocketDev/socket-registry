@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = '.ps1'
+export default '.ps1'

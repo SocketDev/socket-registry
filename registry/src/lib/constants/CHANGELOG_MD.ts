@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'CHANGELOG.md'
+export default 'CHANGELOG.md'

@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = 'VITEST'
+export default 'VITEST'

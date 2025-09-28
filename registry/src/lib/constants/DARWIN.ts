@@ -1,3 +1,1 @@
-'use strict'
-
-module.exports = process.platform === 'darwin'
+export default process.platform === 'darwin'
