@@ -1,13 +1,11 @@
-import { createRequire } from 'node:module'
 import path from 'node:path'
 
 import constants from './constants.mjs'
 
-const require = createRequire(import.meta.url)
-const { glob } = require('fast-glob')
-const builtinNames = require('@socketregistry/packageurl-js/data/npm/builtin-names.json')
-const { toSortedObject } = require('@socketsecurity/registry/lib/objects')
-const { readPackageJson } = require('@socketsecurity/registry/lib/packages')
+import fastGlob from 'fast-glob'
+import builtinNames from '@socketregistry/packageurl-js/data/npm/builtin-names.json'
+import { toSortedObject } from '@socketsecurity/registry/lib/objects'
+import { readPackageJson } from '@socketsecurity/registry/lib/packages'
 
 const { EXT_DTS, EXT_JSON } = constants
 
@@ -27,7 +25,7 @@ void (async () => {
   }
 
   const registryPkgFiles = [
-    ...(await glob(['**/*.{cjs,js,json,d.ts}'], {
+    ...(await fastGlob.glob(['**/*.{cjs,js,json,d.ts}'], {
       cwd: registryPkgPath,
       ignore: [...constants.ignoreGlobs, 'external/**', 'scripts/**', 'src/**'],
     })),

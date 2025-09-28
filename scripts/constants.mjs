@@ -12,6 +12,7 @@ import which from 'which'
 import registryConstants from '@socketsecurity/registry/lib/constants'
 import { whichBinSync } from '@socketsecurity/registry/lib/agent'
 import { envAsBoolean } from '@socketsecurity/registry/lib/env'
+import { createConstantsObject } from '@socketsecurity/registry/lib/objects'
 
 const require = createRequire(import.meta.url)
 
@@ -32,7 +33,6 @@ const {
   UTF8,
   YARN_LOCK,
   kInternalsSymbol,
-  [kInternalsSymbol]: { createConstantsObject },
 } = registryConstants
 
 let _defaultWhichOptions
