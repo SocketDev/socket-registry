@@ -1,1 +1,2 @@
-export { default } from 'yoctocolors-cjs'
+import colors from 'yoctocolors-cjs'
+export default colors
