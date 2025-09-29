@@ -189,7 +189,7 @@ async function main() {
   }
 
   logger.log(
-    `Running tests for ${packagesToTest.length} packages with concurrency ${concurrency}...`,
+    `Running tests for ${packagesToTest.length} packages (concurrency ${concurrency})...\n`,
   )
 
   const results = []
