@@ -298,7 +298,7 @@ describe('fs utilities', () => {
         reviver: (key: string, value: any) =>
           key === 'num' ? parseInt(value, 10) : value,
       })
-      expect(result.num).toBe(42)
+      expect((result as any).num).toBe(42)
     })
   })
 
@@ -353,6 +353,7 @@ describe('fs utilities', () => {
       const content = 'safe content'
       fs.writeFileSync(filePath, content)
 
+      // @ts-expect-error - Testing runtime behavior with encoding string.
       const result = await safeReadFile(filePath, 'utf8')
       expect(result).toBe(content)
     })
@@ -360,6 +361,7 @@ describe('fs utilities', () => {
     it('should return undefined for non-existent file', async () => {
       const result = await safeReadFile(
         path.join(tmpDir, 'nonexistent.txt'),
+        // @ts-expect-error - Testing runtime behavior with encoding string.
         'utf8',
       )
       expect(result).toBeUndefined()
@@ -369,6 +371,7 @@ describe('fs utilities', () => {
       const filePath = path.join(tmpDir, 'safe.txt')
       fs.writeFileSync(filePath, 'content')
 
+      // @ts-expect-error - Testing runtime behavior with encoding string.
       const result = await safeReadFile(filePath, 'utf8')
       expect(typeof result).toBe('string')
     })
@@ -380,6 +383,7 @@ describe('fs utilities', () => {
       const content = 'safe content'
       fs.writeFileSync(filePath, content)
 
+      // @ts-expect-error - Testing runtime behavior with encoding string.
       const result = safeReadFileSync(filePath, 'utf8')
       expect(result).toBe(content)
     })
@@ -387,6 +391,7 @@ describe('fs utilities', () => {
     it('should return undefined for non-existent file', () => {
       const result = safeReadFileSync(
         path.join(tmpDir, 'nonexistent.txt'),
+        // @ts-expect-error - Testing runtime behavior with encoding string.
         'utf8',
       )
       expect(result).toBeUndefined()
