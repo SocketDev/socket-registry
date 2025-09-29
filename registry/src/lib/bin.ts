@@ -3,9 +3,11 @@
  * Provides cross-platform bin path lookup, command execution, and path normalization.
  */
 
+import ENV from './constants/ENV'
 import { readJsonSync } from './fs'
 import { getOwn } from './objects'
 import { isPath, normalizePath } from './path'
+import { spawn } from './spawn'
 
 let _fs: typeof import('node:fs') | undefined
 /**
@@ -56,7 +58,6 @@ export async function execBin(
   args?: string[],
   options?: import('./spawn').SpawnOptions,
 ) {
-  const { spawn } = require('./spawn')
   // Resolve the binary path.
   const resolvedPath = isPath(binPath)
     ? resolveBinPathSync(binPath)
@@ -71,7 +72,10 @@ export async function execBin(
   }
 
   // Execute the binary directly.
-  return spawn(resolvedPath, args || [], options)
+  const binCommand = Array.isArray(resolvedPath)
+    ? resolvedPath[0]!
+    : resolvedPath
+  return await spawn(binCommand, args ?? [], options)
 }
 
 /**
@@ -240,8 +244,7 @@ export function findRealNpm(): string {
  * Find the real pnpm executable, bypassing any aliases and shadow bins.
  */
 export function findRealPnpm(): string {
-  const ENV = /*@__PURE__*/ require('./constants/ENV').default
-  const WIN32 = /*@__PURE__*/ require('./constants/WIN32').default
+  const WIN32 = /*@__PURE__*/ require('./constants/WIN32.js').default
   const path = getPath()
 
   // Try common pnpm locations.
@@ -273,7 +276,6 @@ export function findRealPnpm(): string {
  * Find the real yarn executable, bypassing any aliases and shadow bins.
  */
 export function findRealYarn(): string {
-  const ENV = /*@__PURE__*/ require('./constants/ENV').default
   const path = getPath()
 
   // Try common yarn locations.
@@ -375,7 +377,7 @@ export function resolveBinPathSync(binPath: string): string {
       return voltaBinPath
     }
   }
-  const WIN32 = /*@__PURE__*/ require('./constants/WIN32').default
+  const WIN32 = /*@__PURE__*/ require('./constants/WIN32.js').default
   if (WIN32) {
     const hasKnownExt =
       extLowered === '' ||
