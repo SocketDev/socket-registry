@@ -32,8 +32,8 @@ indentString('Unicorns\nRainbows', 4, {indent: '♥'})
 */
 declare function indentString(
   string: string,
-  count?: number,
-  options?: Options,
+  count?: number | undefined,
+  options?: Options | undefined,
 ): string
 declare namespace indentString {
   export { Options }

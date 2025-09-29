@@ -17,7 +17,7 @@ let _streamingIterables: any
 function getStreamingIterables() {
   if (_streamingIterables === undefined) {
     _streamingIterables =
-      /*@__PURE__*/ require('../external/streaming-iterables').default
+      /*@__PURE__*/ require('../external/streaming-iterables')
   }
   return _streamingIterables
 }

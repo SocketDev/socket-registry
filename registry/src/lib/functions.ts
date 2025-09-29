@@ -4,12 +4,10 @@
  */
 
 // Type definitions
-type AsyncFunction<TArgs extends unknown[], TResult> = (
+export type AsyncFunction<TArgs extends unknown[], TResult> = (
   ...args: TArgs
 ) => Promise<TResult>
-type AnyFunction = (...args: any[]) => any
-
-export type { AsyncFunction, AnyFunction }
+export type AnyFunction = (...args: any[]) => any
 
 /**
  * A no-op function that does nothing.
@@ -45,7 +43,8 @@ export function silentWrapAsync<TArgs extends unknown[], TResult>(
 ): (...args: TArgs) => Promise<TResult | undefined> {
   return async (...args: TArgs): Promise<TResult | undefined> => {
     try {
-      return await fn(...args)
+      const result = await fn(...args)
+      return result === null ? undefined : result
     } catch {}
     return undefined
   }

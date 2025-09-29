@@ -66,7 +66,7 @@ export const LOG_SYMBOLS = /*@__PURE__*/ (() => {
   const handler: ProxyHandler<any> = { __proto__: null } as any
   const init = () => {
     const supported =
-      /*@__PURE__*/ require('../external/@socketregistry/is-unicode-supported').default()
+      /*@__PURE__*/ require('../external/@socketregistry/is-unicode-supported')()
     const colors = getYoctocolors()
     ObjectAssign(target, {
       fail: colors.red(supported ? '✖' : '×'),

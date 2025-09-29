@@ -4,8 +4,8 @@ interface IteratorRecord<T> {
   next: () => IteratorResult<T>
 }
 declare interface Iterator<T> {
-  next(value?: any): IteratorResult<T>
-  return?(value?: any): IteratorResult<T>
+  next(value?: any | undefined): IteratorResult<T>
+  return?(value?: any | undefined): IteratorResult<T>
   [Symbol.iterator](): Iterator<T>
 }
 declare interface IteratorHelper<T> extends Iterator<T> {
@@ -48,7 +48,7 @@ declare interface InternalShared {
   SymbolToStringTag: symbol
   TypeErrorCtor: typeof TypeError
   createIteratorFromClosure<T>(closure: Iterator<T>): Iterator<T>
-  ensureObject(thisArg: any, what?: string): void
+  ensureObject(thisArg: any, what?: string | undefined): void
   getIterator<T>(obj: any): Iterator<T>
   getIteratorDirect<T>(obj: any): IteratorRecord<T>
   getIteratorFlattenable(obj: any): IteratorRecord<any>

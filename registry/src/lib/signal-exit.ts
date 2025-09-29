@@ -33,13 +33,13 @@ const { apply: ReflectApply } = Reflect
 const globalProcess = globalThis.process as
   | (NodeJS.Process & {
       __signal_exit_emitter__?: any
-      reallyExit?: (code?: number) => never
+      reallyExit?: (code?: number | undefined) => never
     })
   | undefined
 const originalProcessEmit = globalProcess?.emit
 const platform = globalProcess?.platform ?? ''
 const originalProcessReallyExit = globalProcess?.reallyExit as
-  | ((code?: number) => never)
+  | ((code?: number | undefined) => never)
   | undefined
 const WIN32 = platform === 'win32'
 
@@ -56,7 +56,8 @@ function getEvents() {
 
 // Type for tracking emitted signals.
 type EmittedSignals = {
-  [signal: string]: boolean // Using string as signals can include custom events like 'exit' and 'afterexit'.
+  // Using string as signals can include custom events like 'exit' and 'afterexit'.
+  [signal: string]: boolean
 }
 
 type SignalExitEmitter = import('node:events').EventEmitter & {
@@ -197,7 +198,7 @@ export function load(): void {
 function processEmit(
   this: NodeJS.Process,
   eventName: string,
-  exitCode?: number,
+  exitCode?: number | undefined,
   ...args: any[]
 ): boolean {
   if (eventName === 'exit') {
@@ -226,7 +227,7 @@ function processEmit(
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-function processReallyExit(code?: number): never {
+function processReallyExit(code?: number | undefined): never {
   const exitCode = code || 0
   if (globalProcess) {
     globalProcess.exitCode = exitCode
@@ -244,7 +245,7 @@ export interface OnExitOptions {
 /*@__NO_SIDE_EFFECTS__*/
 export function onExit(
   cb: (code: number | null, signal: string | null) => void,
-  options?: OnExitOptions,
+  options?: OnExitOptions | undefined,
 ): () => void {
   if (!globalProcess) {
     return function remove() {}

@@ -10,5 +10,8 @@ type TypedArray =
   | Float64Array
   | BigInt64Array
   | BigUint64Array
-declare function slice(start?: number, end?: number): TypedArray
+declare function slice(
+  start?: number | undefined,
+  end?: number | undefined,
+): TypedArray
 export = slice

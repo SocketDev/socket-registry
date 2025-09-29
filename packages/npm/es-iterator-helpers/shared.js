@@ -253,10 +253,8 @@ function getIteratorFlattenable(obj, allowStrings) {
   // Step 2: Let method be GetMethod(obj, %Symbol.iterator%)
   const method = getMethod(obj, SymbolIterator)
   // Step 3: If method is undefined, set iterator to obj itself
-  const iterator = method
-    ? // Step 4: Call method with obj
-      ReflectApply(method, obj, [])
-    : obj
+  // Step 4: Call method with obj
+  const iterator = method ? ReflectApply(method, obj, []) : obj
   // Step 5: If iterator is not an Object, throw a TypeError
   ensureObject(iterator, 'iterator')
   // Step 6: Return GetIteratorDirect(iterator)
