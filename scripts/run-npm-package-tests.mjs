@@ -251,8 +251,7 @@ async function main() {
   // Never clean up the cache directory - it's persistent by design.
 
   // Set exit code for process termination.
-  // With --force flag, always exit with 0 regardless of failures.
-  process.exitCode = cliArgs.force ? 0 : failed.length ? 1 : 0
+  process.exitCode = failed.length ? 1 : 0
 }
 
 main().catch(console.error)
