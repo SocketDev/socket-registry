@@ -177,6 +177,7 @@ describe('sort utilities', () => {
     it('should sort by object properties', () => {
       const arr = [{ name: 'file10' }, { name: 'file2' }, { name: 'file1' }]
       const sorter = naturalSorter(arr)
+      // @ts-expect-error - Testing runtime behavior with property name string.
       const result = sorter.asc('name')
       expect(result.map((item: any) => item.name)).toEqual([
         'file1',
@@ -193,6 +194,7 @@ describe('sort utilities', () => {
         { category: 'B', name: 'file1' },
       ]
       const sorter = naturalSorter(arr)
+      // @ts-expect-error - Testing runtime behavior with property name array.
       const result = sorter.asc(['category', 'name'])
       expect(result).toEqual([
         { category: 'A', name: 'file1' },

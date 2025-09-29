@@ -21,8 +21,11 @@ describe('spawn module', () => {
     it('should return false for invalid stdio types', () => {
       expect(isStdioType('invalid')).toBe(false)
       expect(isStdioType('')).toBe(false)
+      // @ts-expect-error - Testing runtime behavior with invalid types.
       expect(isStdioType(null)).toBe(false)
+      // @ts-expect-error - Testing runtime behavior with invalid types.
       expect(isStdioType(undefined)).toBe(false)
+      // @ts-expect-error - Testing runtime behavior with invalid types.
       expect(isStdioType(123)).toBe(false)
     })
 
@@ -74,6 +77,7 @@ describe('spawn module', () => {
     it('should capture exit codes', async () => {
       const result = await spawn('node', ['-e', 'process.exit(0)'])
       expect(result).toBeDefined()
+      // @ts-expect-error - Runtime property not in type definition.
       expect(result.exitCode).toBe(0)
     })
 
