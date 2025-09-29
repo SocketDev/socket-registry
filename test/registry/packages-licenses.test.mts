@@ -4,7 +4,7 @@ const {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
   parseSpdxExp,
-} = require('@socketsecurity/registry/lib/packages')
+} = require('../../registry/dist/lib/packages')
 
 describe('packages license handling', () => {
   describe('collectIncompatibleLicenses', () => {

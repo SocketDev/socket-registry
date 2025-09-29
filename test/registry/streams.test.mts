@@ -4,7 +4,7 @@ const {
   parallelEach,
   parallelMap,
   transform,
-} = require('@socketsecurity/registry/lib/streams')
+} = require('../../registry/dist/lib/streams')
 
 // Helper generators moved to outer scope.
 async function* makeStringIterable(items: string[]) {

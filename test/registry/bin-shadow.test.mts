@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-const { isShadowBinPath } = require('@socketsecurity/registry/lib/bin')
+const { isShadowBinPath } = require('../../registry/dist/lib/bin')
 
 describe('bin shadow path detection', () => {
   describe('isShadowBinPath', () => {

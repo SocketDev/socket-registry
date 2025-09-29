@@ -7,7 +7,7 @@ const {
   debuglog,
   debugtime,
   isDebug,
-} = require('@socketsecurity/registry/lib/debug')
+} = require('../../registry/dist/lib/debug')
 
 describe('debug module', () => {
   let originalEnv: NodeJS.ProcessEnv

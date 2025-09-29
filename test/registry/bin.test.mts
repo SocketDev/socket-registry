@@ -12,7 +12,7 @@ const {
   resolveBinPathSync,
   whichBin,
   whichBinSync,
-} = require('@socketsecurity/registry/lib/bin')
+} = require('../../registry/dist/lib/bin')
 
 describe('bin module', () => {
   describe('isShadowBinPath', () => {

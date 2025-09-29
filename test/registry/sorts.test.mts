@@ -4,7 +4,7 @@ const {
   localeCompare,
   naturalCompare,
   naturalSorter,
-} = require('@socketsecurity/registry/lib/sorts')
+} = require('../../registry/dist/lib/sorts')
 
 describe('sorts module', () => {
   describe('localeCompare', () => {

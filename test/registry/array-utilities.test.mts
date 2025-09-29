@@ -5,7 +5,7 @@ const {
   arrayUnique,
   joinAnd,
   joinOr,
-} = require('@socketsecurity/registry/lib/arrays')
+} = require('../../registry/dist/lib/arrays')
 
 describe('array utilities', () => {
   describe('arrayChunk', () => {

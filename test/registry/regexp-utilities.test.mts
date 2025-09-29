@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-const { escapeRegExp } = require('@socketsecurity/registry/lib/regexps')
+const { escapeRegExp } = require('../../registry/dist/lib/regexps')
 
 describe('regexp utilities', () => {
   describe('escapeRegExp', () => {

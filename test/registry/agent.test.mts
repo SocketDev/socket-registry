@@ -14,13 +14,13 @@ const {
   isPnpmIgnoreScriptsFlag,
   isPnpmInstallCommand,
   isPnpmLoglevelFlag,
-} = require('@socketsecurity/registry/lib/agent')
+} = require('../../registry/dist/lib/agent')
 const {
   execBin,
   resolveBinPathSync,
   whichBin,
   whichBinSync,
-} = require('@socketsecurity/registry/lib/bin')
+} = require('../../registry/dist/lib/bin')
 
 describe('agent module', () => {
   describe('isNpmAuditFlag', () => {

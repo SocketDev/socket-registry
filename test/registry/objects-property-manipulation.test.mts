@@ -18,7 +18,7 @@ const {
   objectEntries,
   toSortedObject,
   toSortedObjectFromEntries,
-} = require('@socketsecurity/registry/lib/objects')
+} = require('../../registry/dist/lib/objects')
 
 describe('objects property manipulation and utilities', () => {
   describe('createConstantsObject', () => {

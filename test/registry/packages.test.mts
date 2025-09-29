@@ -23,7 +23,7 @@ const {
   resolvePackageLicenses,
   unescapeScope,
   visitLicenses,
-} = require('@socketsecurity/registry/lib/packages')
+} = require('../../registry/dist/lib/packages')
 
 describe('packages module', () => {
   describe('isValidPackageName', () => {

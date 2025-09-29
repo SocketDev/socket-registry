@@ -9,7 +9,7 @@ const {
   pFilterChunk,
   pRetry,
   resolveRetryOptions,
-} = require('@socketsecurity/registry/lib/promises')
+} = require('../../registry/dist/lib/promises')
 
 describe('promise utilities', () => {
   beforeEach(() => {

@@ -4,7 +4,7 @@ const {
   capitalize,
   determineArticle,
   pluralize,
-} = require('@socketsecurity/registry/lib/words')
+} = require('../../registry/dist/lib/words')
 
 describe('words module', () => {
   describe('capitalize', () => {

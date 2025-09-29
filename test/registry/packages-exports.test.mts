@@ -6,7 +6,7 @@ const {
   getSubpaths,
   isConditionalExports,
   isSubpathExports,
-} = require('@socketsecurity/registry/lib/packages')
+} = require('../../registry/dist/lib/packages')
 
 describe('packages exports tests', () => {
   describe('getSubpaths', () => {

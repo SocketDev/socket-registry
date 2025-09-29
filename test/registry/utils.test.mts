@@ -9,7 +9,7 @@ const jsonReviver = (_key: string, value: any) =>
 // Test multiple utility modules that are simple to test
 describe('utility modules tests', () => {
   describe('arrays utilities', () => {
-    const arrays = require('@socketsecurity/registry/lib/arrays')
+    const arrays = require('../../registry/dist/lib/arrays')
 
     it('should provide arrayUnique function', () => {
       expect(arrays.arrayUnique([1, 2, 2, 3, 3, 3])).toEqual([1, 2, 3])
@@ -40,7 +40,7 @@ describe('utility modules tests', () => {
   })
 
   describe('json utilities', () => {
-    const json = require('@socketsecurity/registry/lib/json')
+    const json = require('../../registry/dist/lib/json')
 
     it('should parse JSON safely', () => {
       expect(json.jsonParse('{"a": 1}')).toEqual({ a: 1 })
@@ -62,7 +62,7 @@ describe('utility modules tests', () => {
   })
 
   describe('functions utilities', () => {
-    const functions = require('@socketsecurity/registry/lib/functions')
+    const functions = require('../../registry/dist/lib/functions')
 
     it('should provide noop function', () => {
       expect(typeof functions.noop).toBe('function')
@@ -95,7 +95,7 @@ describe('utility modules tests', () => {
   })
 
   describe('objects utilities', () => {
-    const objects = require('@socketsecurity/registry/lib/objects')
+    const objects = require('../../registry/dist/lib/objects')
 
     it('should check if value is object', () => {
       expect(objects.isObject({})).toBe(true)
@@ -140,7 +140,7 @@ describe('utility modules tests', () => {
   })
 
   describe('strings utilities', () => {
-    const strings = require('@socketsecurity/registry/lib/strings')
+    const strings = require('../../registry/dist/lib/strings')
 
     it('should check non-empty strings', () => {
       expect(strings.isNonEmptyString('hello')).toBe(true)
@@ -179,7 +179,7 @@ describe('utility modules tests', () => {
   })
 
   describe('regexps utilities', () => {
-    const regexps = require('@socketsecurity/registry/lib/regexps')
+    const regexps = require('../../registry/dist/lib/regexps')
 
     it('should escape regex special characters', () => {
       expect(regexps.escapeRegExp('hello.world')).toBe('hello\\.world')
@@ -195,7 +195,7 @@ describe('utility modules tests', () => {
   })
 
   describe('sorts utilities', () => {
-    const sorts = require('@socketsecurity/registry/lib/sorts')
+    const sorts = require('../../registry/dist/lib/sorts')
 
     it('should provide compareStr', () => {
       expect(sorts.compareStr('a', 'b')).toBeLessThan(0)
@@ -216,7 +216,7 @@ describe('utility modules tests', () => {
   })
 
   describe('path utilities', () => {
-    const pathUtils = require('@socketsecurity/registry/lib/path')
+    const pathUtils = require('../../registry/dist/lib/path')
 
     it('should normalize paths', () => {
       expect(pathUtils.normalizePath('/foo//bar')).toBe('/foo/bar')

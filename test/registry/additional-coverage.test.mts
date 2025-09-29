@@ -13,7 +13,7 @@ const pFilterPredicate = async (value: number) => {
 // Additional tests for maximum coverage
 describe('additional coverage tests', () => {
   describe('fs module extended tests', () => {
-    const fsUtils = require('@socketsecurity/registry/lib/fs')
+    const fsUtils = require('../../registry/dist/lib/fs')
     let tmpDir: string
 
     beforeEach(async () => {
@@ -114,7 +114,7 @@ describe('additional coverage tests', () => {
   })
 
   describe('packages module extended tests', () => {
-    const packages = require('@socketsecurity/registry/lib/packages')
+    const packages = require('../../registry/dist/lib/packages')
 
     it('should handle getSubpaths with complex exports', () => {
       const exports = {
@@ -208,7 +208,7 @@ describe('additional coverage tests', () => {
   })
 
   describe('promises module extended tests', () => {
-    const promises = require('@socketsecurity/registry/lib/promises')
+    const promises = require('../../registry/dist/lib/promises')
 
     it('should handle pEach with different options', async () => {
       const results: number[] = []
@@ -267,7 +267,7 @@ describe('additional coverage tests', () => {
   })
 
   describe('url module extended tests', () => {
-    const urlUtils = require('@socketsecurity/registry/lib/url')
+    const urlUtils = require('../../registry/dist/lib/url')
 
     it('should handle URL creation', () => {
       const url = urlUtils.createRelativeUrl('/path/to/resource')
@@ -299,7 +299,7 @@ describe('additional coverage tests', () => {
   })
 
   describe('debug module extended tests', () => {
-    const debug = require('@socketsecurity/registry/lib/debug')
+    const debug = require('../../registry/dist/lib/debug')
 
     it('should handle debug state', () => {
       const originalDebug = process.env['DEBUG']
@@ -337,7 +337,7 @@ describe('additional coverage tests', () => {
   })
 
   describe('words module extended tests', () => {
-    const words = require('@socketsecurity/registry/lib/words')
+    const words = require('../../registry/dist/lib/words')
 
     it('should capitalize edge cases', () => {
       expect(words.capitalize('')).toBe('')
