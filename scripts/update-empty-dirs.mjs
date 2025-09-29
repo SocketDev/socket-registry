@@ -7,15 +7,15 @@
 
 import fastGlob from 'fast-glob'
 
-import { isDirEmptySync } from '@socketsecurity/registry/lib/fs'
-import { logger } from '@socketsecurity/registry/lib/logger'
+import { isDirEmptySync } from '../registry/dist/lib/fs.js'
+import { logger } from '../registry/dist/lib/logger.js'
 
 import constants from './constants.mjs'
 import { safeRemove } from './utils/fs.mjs'
 
 const { NODE_MODULES_GLOB_RECURSIVE } = constants
 
-void (async () => {
+async function main() {
   const dirPaths = (
     await fastGlob.glob(['**/'], {
       ignore: [NODE_MODULES_GLOB_RECURSIVE],
@@ -35,4 +35,6 @@ void (async () => {
     await safeRemove(emptyDirs)
     logger.log(`Removed ${emptyDirs.length} empty directories`)
   }
-})()
+}
+
+main().catch(console.error)

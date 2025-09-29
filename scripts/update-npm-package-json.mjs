@@ -1,21 +1,21 @@
 import path from 'node:path'
 
 import { glob } from 'fast-glob'
-import { logger } from '@socketsecurity/registry/lib/logger'
+import { logger } from '../registry/dist/lib/logger.js'
 import {
   createPackageJson,
   getSubpaths,
   isSubpathExports,
   readPackageJson,
   resolvePackageJsonEntryExports,
-} from '@socketsecurity/registry/lib/packages'
-import { trimLeadingDotSlash } from '@socketsecurity/registry/lib/path'
+} from '../registry/dist/lib/packages.js'
+import { trimLeadingDotSlash } from '../registry/dist/lib/path.js'
 
 import constants from './constants.mjs'
 
 const { PACKAGE_JSON, SOCKET_REGISTRY_SCOPE } = constants
 
-void (async () => {
+async function main() {
   await Promise.all(
     constants.npmPackageNames.map(async sockRegPkgName => {
       const pkgPath = path.join(constants.npmPackagesPath, sockRegPkgName)
@@ -57,4 +57,6 @@ void (async () => {
       await editablePkgJson.save()
     }),
   )
-})()
+}
+
+main().catch(console.error)

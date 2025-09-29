@@ -27,7 +27,7 @@ export declare function clearPackageJsonCache(): void
 
 export declare function collectPackageData(
   paths: string[],
-  options?: ProcessOptions,
+  options?: ProcessOptions | undefined,
 ): Promise<any[]>
 
 export declare function installPackageForTesting(
@@ -37,12 +37,12 @@ export declare function installPackageForTesting(
 export declare function processWithSpinner<T, R>(
   items: T[],
   processor: (item: T) => Promise<R>,
-  options?: ProcessOptions,
+  options?: ProcessOptions | undefined,
 ): Promise<R[]>
 
 export declare function readCachedEditablePackageJson(
   pkgPath: string,
-  options?: ReadPackageOptions,
+  options?: ReadPackageOptions | undefined,
 ): Promise<any>
 
 export interface CommandResult {
@@ -54,10 +54,10 @@ export interface CommandResult {
 export declare function runCommand(
   command: string,
   args: string[],
-  options?: RunCommandOptions,
+  options?: RunCommandOptions | undefined,
 ): Promise<CommandResult>
 
 export declare function updatePackagesJson(
   packages: string[],
-  options?: UpdatePackagesOptions,
+  options?: UpdatePackagesOptions | undefined,
 ): Promise<void>

@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import util from 'node:util'
+
+import { parseArgs } from '../registry/dist/lib/parse-args.js'
 
 import constants from './constants.mjs'
 import { isModified } from './utils/git.mjs'
@@ -8,9 +9,20 @@ import { getNpmReadmeAction } from './utils/templates.mjs'
 
 const { README_MD, UTF8, npmPackagesPath, npmTemplatesReadmePath } = constants
 
-const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
+const { values: cliArgs } = parseArgs({
+  options: {
+    force: {
+      type: 'boolean',
+      short: 'f',
+    },
+    quiet: {
+      type: 'boolean',
+    },
+  },
+  strict: false,
+})
 
-void (async () => {
+async function main() {
   // Exit early if no relevant files have been modified.
   if (!cliArgs.force && !(await isModified(npmTemplatesReadmePath))) {
     return
@@ -23,4 +35,6 @@ void (async () => {
       return fs.writeFile(readmePath, data.readme, UTF8)
     }),
   )
-})()
+}
+
+main().catch(console.error)

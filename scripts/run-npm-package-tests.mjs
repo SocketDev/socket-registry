@@ -1,18 +1,19 @@
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import util from 'node:util'
 
-import WIN32 from '@socketsecurity/registry/lib/constants/win32'
+import { parseArgs } from '../registry/dist/lib/parse-args.js'
+
+import WIN32 from '../registry/dist/lib/constants/WIN32.js'
 
 import constants from './constants.mjs'
-import { safeRemove } from './utils/fs.mjs'
-import { resolveOriginalPackageName } from '@socketsecurity/registry/lib/packages'
-import { pEach } from '@socketsecurity/registry/lib/promises'
-import { logger } from '@socketsecurity/registry/lib/logger'
-import { spawn } from '@socketsecurity/registry/lib/spawn'
+import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
+import { resolveOriginalPackageName } from '../registry/dist/lib/packages.js'
+import { pEach } from '../registry/dist/lib/promises.js'
+import { logger } from '../registry/dist/lib/logger.js'
+import { spawn } from '../registry/dist/lib/spawn.js'
 
-const { values: cliArgs } = util.parseArgs({
+const { values: cliArgs } = parseArgs({
   options: {
     package: {
       type: 'string',
@@ -21,7 +22,7 @@ const { values: cliArgs } = util.parseArgs({
     concurrency: {
       type: 'string',
       // Reduce concurrency in CI to avoid memory issues, especially on Windows.
-      default: process.env.CI ? (WIN32 ? '2' : '5') : '20',
+      default: process.env.CI ? (WIN32 ? '3' : '8') : '20',
     },
     'temp-dir': {
       type: 'string',
@@ -31,15 +32,12 @@ const { values: cliArgs } = util.parseArgs({
       type: 'boolean',
       default: false,
     },
-    cleanup: {
-      type: 'boolean',
-      default: true,
-    },
   },
+  strict: false,
 })
 
 const concurrency = Math.max(1, parseInt(cliArgs.concurrency, 10) || 3)
-const tempBaseDir = cliArgs['temp-dir']
+const tempBaseDir = cliArgs.tempDir
 
 async function runCommand(command, args, options = {}) {
   try {
@@ -106,10 +104,10 @@ async function runPackageTest(socketPkgName) {
 
     await runCommand('npm', ['test'], { cwd: installedPath, env })
 
-    logger.success(`${origPkgName}: Tests passed!`)
+    logger.success(origPkgName)
     return { package: origPkgName, passed: true }
   } catch (error) {
-    logger.fail(`${origPkgName}: Tests failed`)
+    logger.fail(origPkgName)
     if (error.stderr) {
       logger.log(`   Error output:`)
       logger.log(
@@ -131,15 +129,12 @@ async function runPackageTest(socketPkgName) {
       )
     }
     return { package: origPkgName, passed: false, reason: error.message }
-  } finally {
-    // Clean up package temp directory if requested.
-    if (cliArgs.cleanup) {
-      await safeRemove(packageTempDir)
-    }
   }
 }
 
-void (async () => {
+async function main() {
+  suppressMaxListenersWarning()
+
   // Check if install results exist.
   const installResultsFile = path.join(tempBaseDir, 'install-results.json')
   let installResults = []
@@ -221,23 +216,14 @@ void (async () => {
   const totalTested = results.length - skipped.length
 
   logger.success(
-    `✔ Passed: ${passed.length}/${totalTested} (${results.length} total)`,
+    `Passed: ${passed.length}/${totalTested} (${results.length} total)`,
   )
 
-  // Clean up base temp directory if no packages left and cleanup is enabled.
-  if (cliArgs.cleanup && existsSync(tempBaseDir)) {
-    const remainingFiles = await fs.readdir(tempBaseDir)
-    // Only remove if just the results file remains.
-    if (
-      remainingFiles.length <= 1 &&
-      remainingFiles.includes('download-results.json')
-    ) {
-      await safeRemove(tempBaseDir)
-      logger.log('\nCleaned up temp directory')
-    }
-  }
+  // Never clean up the cache directory - it's persistent by design.
 
   // Set exit code for process termination.
   // With --force flag, always exit with 0 regardless of failures.
   process.exitCode = cliArgs.force ? 0 : failed.length ? 1 : 0
-})()
+}
+
+main().catch(console.error)

@@ -6,7 +6,8 @@
 import { createRequire } from 'node:module'
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import util from 'node:util'
+
+import { parseArgs } from '../registry/dist/lib/parse-args.js'
 
 import { PackageURL } from '@socketregistry/packageurl-js'
 import constants from './constants.mjs'
@@ -17,7 +18,7 @@ import {
   objectEntries,
   toSortedObject,
   toSortedObjectFromEntries,
-} from '@socketsecurity/registry/lib/objects'
+} from '../registry/dist/lib/objects.js'
 import {
   extractPackage,
   fetchPackageManifest,
@@ -25,15 +26,26 @@ import {
   readPackageJson,
   resolveOriginalPackageName,
   resolvePackageJsonEntryExports,
-} from '@socketsecurity/registry/lib/packages'
-import { pEach } from '@socketsecurity/registry/lib/promises'
-import { naturalCompare } from '@socketsecurity/registry/lib/sorts'
+} from '../registry/dist/lib/packages.js'
+import { pEach } from '../registry/dist/lib/promises.js'
+import { naturalCompare } from '../registry/dist/lib/sorts.js'
 
 const require = createRequire(import.meta.url)
 
 const { AT_LATEST, DEFAULT_CONCURRENCY, NPM, UNLICENSED } = constants
 
-const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
+const { values: cliArgs } = parseArgs({
+  options: {
+    force: {
+      type: 'boolean',
+      short: 'f',
+    },
+    quiet: {
+      type: 'boolean',
+    },
+  },
+  strict: false,
+})
 
 // Helper function to filter out package manager engines from engines object.
 function filterEngines(engines) {
@@ -182,7 +194,7 @@ async function addNpmManifestData(manifest, options) {
   return manifest
 }
 
-void (async () => {
+async function main() {
   // Exit early if no relevant files have been modified.
   if (
     !cliArgs.force &&
@@ -200,4 +212,6 @@ void (async () => {
   })
   await fs.writeFile(registryManifestJsonPath, output, 'utf8')
   spinner.stop()
-})()
+}
+
+main().catch(console.error)

@@ -27,8 +27,7 @@ declare enum Distribution {
 }
 declare interface FormatContentDebugOptions extends FormatContentOptions {
   /**
-   * If `true`, you'll be able to inspect the IR of the formatter
-   */
+   * If `true`, you'll be able to inspect the IR of the formatter*/
   debug: boolean
 }
 declare interface FormatContentOptions {
@@ -151,7 +150,7 @@ declare class Biome {
    *
    * @param {string} [path]
    */
-  openProject(path?: string): OpenProjectResult
+  openProject(path?: string | undefined): OpenProjectResult
   /**
    * Print a list of diagnostics to an HTML string.
    *
@@ -171,7 +170,10 @@ declare type BiomeFormatOptions = Remap<
   }
 >
 declare const BiomeExports: {
-  biomeFormat(str: string, options?: BiomeFormatOptions): Promise<string>
+  biomeFormat(
+    str: string,
+    options?: BiomeFormatOptions | undefined,
+  ): Promise<string>
   getBiome(): Promise<Biome>
   getDefaultBiomeConfig(): BiomeFormatOptions
 }

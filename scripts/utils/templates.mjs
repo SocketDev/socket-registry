@@ -10,18 +10,15 @@ import fastGlob from 'fast-glob'
 import semver from 'semver'
 
 import { PackageURL } from '@socketregistry/packageurl-js'
-import { getManifestData } from '@socketsecurity/registry'
-import { joinAnd } from '@socketsecurity/registry/lib/arrays'
-import { globStreamLicenses } from '@socketsecurity/registry/lib/globs'
-import { isObjectObject } from '@socketsecurity/registry/lib/objects'
+import { getManifestData } from '../../registry/dist/index.js'
+import { joinAnd } from '../../registry/dist/lib/arrays.js'
+import { globStreamLicenses } from '../../registry/dist/lib/globs.js'
+import { isObjectObject } from '../../registry/dist/lib/objects.js'
 import {
   readPackageJson,
   resolveOriginalPackageName,
-} from '@socketsecurity/registry/lib/packages'
-import {
-  capitalize,
-  determineArticle,
-} from '@socketsecurity/registry/lib/words'
+} from '../../registry/dist/lib/packages.js'
+import { capitalize, determineArticle } from '../../registry/dist/lib/words.js'
 
 import constants from '../constants.mjs'
 import { biomeFormat } from './biome.mjs'

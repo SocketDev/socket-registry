@@ -1,5 +1,5 @@
-import constants from '@socketsecurity/registry/lib/constants'
-import { spawn } from '@socketsecurity/registry/lib/spawn'
+import constants from '../../registry/dist/lib/constants/index.js'
+import { spawn } from '../../registry/dist/lib/spawn.js'
 
 /**
  * Executes the type-coverage command and extracts the percentage from its output.

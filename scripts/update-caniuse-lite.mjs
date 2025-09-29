@@ -1,12 +1,12 @@
 import { spawnSync } from 'node:child_process'
 
-import { logger } from '@socketsecurity/registry/lib/logger'
+import { logger } from '../registry/dist/lib/logger.js'
 
 import constants from './constants.mjs'
 
 const { rootPath } = constants
 
-void (function main() {
+function main() {
   try {
     // Manually update caniuse-lite to avoid triggering prepare script
     logger.log('Updating caniuse-lite version')
@@ -33,4 +33,6 @@ void (function main() {
     logger.fail(`update caniuse-lite: ${e.message}`)
     process.exitCode = 1
   }
-})()
+}
+
+main()

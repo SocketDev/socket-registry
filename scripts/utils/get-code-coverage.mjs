@@ -1,10 +1,10 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 
-import constants from '@socketsecurity/registry/lib/constants'
-import { readJson } from '@socketsecurity/registry/lib/fs'
-import { isObjectObject } from '@socketsecurity/registry/lib/objects'
-import { spawn } from '@socketsecurity/registry/lib/spawn'
+import constants from '../../registry/dist/lib/constants/index.js'
+import { readJson } from '../../registry/dist/lib/fs.js'
+import { isObjectObject } from '../../registry/dist/lib/objects.js'
+import { spawn } from '../../registry/dist/lib/spawn.js'
 
 function countCovered(counts) {
   return counts.filter(count => count > 0).length

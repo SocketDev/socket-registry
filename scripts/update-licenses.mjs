@@ -7,14 +7,14 @@
 
 import fs from 'node:fs/promises'
 
-import { globStreamLicenses } from '@socketsecurity/registry/lib/globs'
-import { parallelEach } from '@socketsecurity/registry/lib/streams'
+import { globStreamLicenses } from '../registry/dist/lib/globs.js'
+import { parallelEach } from '../registry/dist/lib/streams.js'
 
 import constants from './constants.mjs'
 
 const { LICENSE, LICENSE_CONTENT, UTF8 } = constants
 
-void (async () => {
+async function main() {
   // Stream all LICENSE files in the project, excluding originals and templates.
   const stream = globStreamLicenses(constants.rootPath, {
     recursive: true,
@@ -28,4 +28,6 @@ void (async () => {
     licensePath => fs.writeFile(licensePath, LICENSE_CONTENT, UTF8),
     { concurrency: 8 },
   )
-})()
+}
+
+main().catch(console.error)

@@ -12,11 +12,11 @@ import path from 'node:path'
 
 import fastGlob from 'fast-glob'
 
-import { logger } from '@socketsecurity/registry/lib/logger'
+import { logger } from '../registry/dist/lib/logger.js'
 
 import constants from './constants.mjs'
 
-void (async () => {
+async function main() {
   const { WIN32 } = constants
 
   try {
@@ -79,4 +79,6 @@ void (async () => {
     logger.error('Error running tests:', e)
     process.exitCode = 1
   }
-})()
+}
+
+main().catch(console.error)

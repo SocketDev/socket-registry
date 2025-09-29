@@ -25,5 +25,5 @@ export interface SafeRemoveOptions {
  */
 export function safeRemove(
   paths: string | string[],
-  options?: SafeRemoveOptions,
+  options?: SafeRemoveOptions | undefined,
 ): Promise<void>
