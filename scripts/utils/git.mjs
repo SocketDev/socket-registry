@@ -19,6 +19,15 @@ const gitDiffCache = new Map()
 const gitDiffSpawnArgs = defineLazyGetters(
   { __proto__: null },
   {
+    all: () => [
+      constants.gitExecPath,
+      ['status', '--porcelain'],
+      {
+        cwd: constants.rootPath,
+        shell: constants.WIN32,
+        encoding: UTF8,
+      },
+    ],
     modified: () => [
       constants.gitExecPath,
       ['diff', '--name-only'],
@@ -133,6 +142,30 @@ function forceRelativeSync(fn, options) {
   return fn({ __proto__: null, ...options, absolute: false })
 }
 
+async function getAllChangedFiles(options) {
+  return await innerDiff(gitDiffSpawnArgs.all, {
+    __proto__: null,
+    ...options,
+    porcelain: true,
+  })
+}
+
+function getAllChangedFilesSync(options) {
+  return innerDiffSync(gitDiffSpawnArgs.all, {
+    __proto__: null,
+    ...options,
+    porcelain: true,
+  })
+}
+
+async function getAllChangedPackages(eco, options) {
+  return innerGetPackages(eco, await getAllChangedFiles(), options)
+}
+
+function getAllChangedPackagesSync(eco, options) {
+  return innerGetPackages(eco, getAllChangedFilesSync(), options)
+}
+
 async function getModifiedFiles(options) {
   return await innerDiff(gitDiffSpawnArgs.modified, options)
 }
@@ -189,9 +222,16 @@ function parseGitDiffStdout(stdout, options) {
   const {
     absolute = false,
     cwd = rootPath,
+    porcelain = false,
     ...matcherOptions
   } = { __proto__: null, ...options }
-  const rawFiles = stdout ? stripAnsi(stdout.trim()).split('\n') : []
+  let rawFiles = stdout ? stripAnsi(stdout.trim()).split('\n') : []
+  // Parse porcelain format: strip status codes (first 3 characters).
+  if (porcelain) {
+    rawFiles = rawFiles
+      .filter(line => line.trim())
+      .map(line => line.substring(3))
+  }
   const files = absolute
     ? rawFiles.map(relPath => normalizePath(path.join(rootPath, relPath)))
     : rawFiles.map(relPath => normalizePath(relPath))
@@ -215,6 +255,10 @@ function parseGitDiffStdout(stdout, options) {
 }
 
 export {
+  getAllChangedFiles,
+  getAllChangedFilesSync,
+  getAllChangedPackages,
+  getAllChangedPackagesSync,
   getModifiedFiles,
   getModifiedFilesSync,
   getModifiedPackages,

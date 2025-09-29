@@ -7,6 +7,7 @@ import { parseArgs } from '../registry/dist/lib/parse-args.js'
 import WIN32 from '../registry/dist/lib/constants/WIN32.js'
 
 import constants from './constants.mjs'
+import { getAllChangedPackages } from './utils/git.mjs'
 import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
 import { resolveOriginalPackageName } from '../registry/dist/lib/packages.js'
 import { pEach } from '../registry/dist/lib/promises.js'
@@ -172,14 +173,42 @@ async function main() {
   if (cliArgs.package?.length) {
     // Test specific packages requested.
     packagesToTest = cliArgs.package
-  } else if (installResults.length > 0) {
-    // Test all successfully installed packages.
-    packagesToTest = installResults
-      .filter(r => r.installed)
-      .map(r => r.socketPackage || resolveOriginalPackageName(r.package))
+  } else if (!cliArgs.force) {
+    // Default behavior: only test packages with changed files (staged, unstaged, or untracked).
+    const changedPackages = await getAllChangedPackages('npm')
+    if (changedPackages.length > 0) {
+      logger.log(`Detected ${changedPackages.length} changed packages\n`)
+      if (installResults.length > 0) {
+        // Filter to changed packages that were successfully installed.
+        const installedPackageNames = new Set(
+          installResults
+            .filter(r => r.installed)
+            .map(r => r.socketPackage || resolveOriginalPackageName(r.package)),
+        )
+        packagesToTest = changedPackages.filter(pkg =>
+          installedPackageNames.has(pkg),
+        )
+      } else {
+        packagesToTest = changedPackages
+      }
+    } else {
+      logger.log(
+        'No changed packages detected, use --force to test all packages',
+      )
+      process.exitCode = 0
+      return
+    }
   } else {
-    // Fallback to all packages.
-    packagesToTest = constants.npmPackageNames
+    // Force mode: test all packages.
+    if (installResults.length > 0) {
+      // Test all successfully installed packages.
+      packagesToTest = installResults
+        .filter(r => r.installed)
+        .map(r => r.socketPackage || resolveOriginalPackageName(r.package))
+    } else {
+      // Fallback to all packages.
+      packagesToTest = constants.npmPackageNames
+    }
   }
 
   if (packagesToTest.length === 0) {
@@ -189,7 +218,7 @@ async function main() {
   }
 
   logger.log(
-    `Running tests for ${packagesToTest.length} packages (concurrency ${concurrency})...\n`,
+    `Running tests for ${packagesToTest.length} packages (concurrency ${concurrency})\n`,
   )
 
   const results = []
