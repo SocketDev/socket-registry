@@ -49,7 +49,7 @@ describe('packages normalization and reading', () => {
         },
       }
       const normalized = normalizePackageJson(pkg)
-      expect(normalized.scripts).toBeDefined()
+      expect(normalized['scripts']).toBeDefined()
     })
   })
 
@@ -62,8 +62,8 @@ describe('packages normalization and reading', () => {
 
       try {
         const result = await readPackageJson(tmpDir)
-        expect(result.name).toBe('test')
-        expect(result.version).toBe('1.0.0')
+        expect(result!.name).toBe('test')
+        expect(result!.version).toBe('1.0.0')
       } finally {
         fs.rmSync(tmpDir, { recursive: true, force: true })
       }
@@ -76,8 +76,10 @@ describe('packages normalization and reading', () => {
       fs.writeFileSync(path.join(tmpDir, 'package.json'), JSON.stringify(pkg))
 
       try {
-        const result = await readPackageJson(tmpDir, { normalize: true })
-        expect(result.name).toBe('test')
+        const result = await readPackageJson(tmpDir, {
+          normalize: true,
+        } as any)
+        expect(result!.name).toBe('test')
       } finally {
         fs.rmSync(tmpDir, { recursive: true, force: true })
       }
@@ -93,8 +95,8 @@ describe('packages normalization and reading', () => {
 
       try {
         const result = readPackageJsonSync(tmpDir)
-        expect(result.name).toBe('test')
-        expect(result.version).toBe('1.0.0')
+        expect(result!.name).toBe('test')
+        expect(result!.version).toBe('1.0.0')
       } finally {
         fs.rmSync(tmpDir, { recursive: true, force: true })
       }
@@ -107,8 +109,11 @@ describe('packages normalization and reading', () => {
       fs.writeFileSync(path.join(tmpDir, 'package.json'), JSON.stringify(pkg))
 
       try {
-        const result = readPackageJsonSync(tmpDir, { normalize: true })
-        expect(result.name).toBe('test')
+        const result = readPackageJsonSync(tmpDir, {
+          // @ts-expect-error - Testing runtime behavior.
+          normalize: true,
+        })
+        expect(result!.name).toBe('test')
       } finally {
         fs.rmSync(tmpDir, { recursive: true, force: true })
       }

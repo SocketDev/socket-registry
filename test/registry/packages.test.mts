@@ -294,7 +294,7 @@ describe('packages module', () => {
       }
       const normalized = normalizePackageJson(pkg)
       expect(normalized.dependencies).toBeDefined()
-      expect(normalized.dependencies.lodash).toBe('^4.17.0')
+      expect(normalized.dependencies!['lodash']).toBe('^4.17.0')
     })
 
     it('should handle empty object', () => {
@@ -308,7 +308,7 @@ describe('packages module', () => {
         customField: 'value',
       }
       const normalized = normalizePackageJson(pkg)
-      expect(normalized.customField).toBe('value')
+      expect((normalized as any)['customField']).toBe('value')
     })
   })
 
@@ -377,7 +377,7 @@ describe('packages module', () => {
     it('should parse simple license expressions', () => {
       const result = parseSpdxExp('MIT')
       expect(result).toBeDefined()
-      expect(result.license).toBe('MIT')
+      expect((result! as any).license).toBe('MIT')
     })
 
     it('should parse complex license expressions', () => {
@@ -424,7 +424,7 @@ describe('packages module', () => {
 
   describe('collectIncompatibleLicenses', () => {
     it('should collect incompatible licenses', () => {
-      const licenses = ['MIT', 'GPL-3.0']
+      const licenses = ['MIT', 'GPL-3.0'] as any
       const incompatible = collectIncompatibleLicenses(licenses)
       expect(Array.isArray(incompatible)).toBe(true)
     })
@@ -438,13 +438,13 @@ describe('packages module', () => {
 
   describe('collectLicenseWarnings', () => {
     it('should collect license warnings', () => {
-      const licenses = ['MIT', 'UNLICENSED']
+      const licenses = ['MIT', 'UNLICENSED'] as any
       const warnings = collectLicenseWarnings(licenses)
       expect(Array.isArray(warnings)).toBe(true)
     })
 
     it('should handle valid licenses', () => {
-      const licenses = ['MIT', 'Apache-2.0']
+      const licenses = ['MIT', 'Apache-2.0'] as any
       const warnings = collectLicenseWarnings(licenses)
       expect(Array.isArray(warnings)).toBe(true)
     })
@@ -467,7 +467,7 @@ describe('packages module', () => {
         left: { license: 'MIT' },
         conjunction: 'OR',
         right: { license: 'Apache-2.0' },
-      }
+      } as any
       const visited: string[] = []
       visitLicenses(ast, {
         License: (node: any) => {

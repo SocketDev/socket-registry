@@ -20,7 +20,6 @@ import {
   isRegistryFetcherType,
   packPackage,
   parseSpdxExp,
-  readPackageJsonFromArchive,
   resolvePackageName,
   resolveRegistryPackageName,
 } from '../../registry/dist/lib/packages.js'
@@ -28,7 +27,7 @@ import {
 describe('packages module extended tests', () => {
   describe('collectIncompatibleLicenses', () => {
     it('should collect incompatible licenses', () => {
-      const licenses = ['MIT', 'GPL-3.0', 'Apache-2.0']
+      const licenses = ['MIT', 'GPL-3.0', 'Apache-2.0'] as any
       const result = collectIncompatibleLicenses(licenses)
       expect(Array.isArray(result)).toBe(true)
     })
@@ -39,7 +38,7 @@ describe('packages module extended tests', () => {
     })
 
     it('should handle copyleft licenses', () => {
-      const licenses = ['GPL-3.0', 'AGPL-3.0', 'LGPL-3.0']
+      const licenses = ['GPL-3.0', 'AGPL-3.0', 'LGPL-3.0'] as any
       const result = collectIncompatibleLicenses(licenses)
       expect(result.length).toBeGreaterThanOrEqual(0)
     })
@@ -65,7 +64,7 @@ describe('packages module extended tests', () => {
       const licenseNodes = [
         { name: 'package1' },
         { name: 'package2', license: null },
-      ]
+      ] as any
       const result = collectLicenseWarnings(licenseNodes)
       expect(Array.isArray(result)).toBe(true)
     })
@@ -352,18 +351,7 @@ describe('packages module extended tests', () => {
     })
   })
 
-  describe('readPackageJsonFromArchive', () => {
-    it('should handle tarball path', async () => {
-      // This would need a real tarball to test properly
-      try {
-        const result = await readPackageJsonFromArchive('/fake/path.tgz')
-        expect(result).toBeDefined()
-      } catch (error) {
-        // Expected to fail with fake path
-        expect(error).toBeDefined()
-      }
-    })
-  })
+  // Tests for readPackageJsonFromArchive when available
 
   describe('resolvePackageName', () => {
     it('should resolve package names', () => {
@@ -428,7 +416,10 @@ describe('packages module extended tests', () => {
     it('should handle tarball extraction', async () => {
       // This needs a real tarball, so we'll mock it
       try {
-        const result = await extractPackage('/fake/path.tgz', '/tmp/extract')
+        const result = await extractPackage('/fake/path.tgz', {
+          // @ts-expect-error - Testing runtime behavior.
+          destDir: '/tmp/extract',
+        })
         expect(result).toBeDefined()
       } catch (error) {
         // Expected to fail

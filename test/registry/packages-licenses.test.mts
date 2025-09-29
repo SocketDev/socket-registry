@@ -9,7 +9,7 @@ import {
 describe('packages license handling', () => {
   describe('collectIncompatibleLicenses', () => {
     it('should collect incompatible licenses', () => {
-      const licenses = ['MIT', 'GPL-3.0', 'Apache-2.0']
+      const licenses = ['MIT', 'GPL-3.0', 'Apache-2.0'] as any
       const result = collectIncompatibleLicenses(licenses)
       expect(Array.isArray(result)).toBe(true)
     })
@@ -20,19 +20,19 @@ describe('packages license handling', () => {
     })
 
     it('should handle copyleft licenses', () => {
-      const licenses = ['GPL-3.0', 'AGPL-3.0', 'LGPL-3.0']
+      const licenses = ['GPL-3.0', 'AGPL-3.0', 'LGPL-3.0'] as any
       const result = collectIncompatibleLicenses(licenses)
       expect(result.length).toBeGreaterThanOrEqual(0)
     })
 
     it('should handle permissive licenses', () => {
-      const licenses = ['MIT', 'ISC', 'BSD-3-Clause']
+      const licenses = ['MIT', 'ISC', 'BSD-3-Clause'] as any
       const result = collectIncompatibleLicenses(licenses)
       expect(Array.isArray(result)).toBe(true)
     })
 
     it('should handle mixed license types', () => {
-      const licenses = ['MIT', 'GPL-3.0', 'ISC', 'AGPL-3.0']
+      const licenses = ['MIT', 'GPL-3.0', 'ISC', 'AGPL-3.0'] as any
       const result = collectIncompatibleLicenses(licenses)
       expect(Array.isArray(result)).toBe(true)
     })
@@ -58,7 +58,7 @@ describe('packages license handling', () => {
       const licenseNodes = [
         { name: 'package1' },
         { name: 'package2', license: null },
-      ]
+      ] as any
       const result = collectLicenseWarnings(licenseNodes)
       expect(Array.isArray(result)).toBe(true)
     })
