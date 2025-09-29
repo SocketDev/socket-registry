@@ -18,7 +18,7 @@ describe('constants module', () => {
     })
 
     it('should export CI constant', () => {
-      const CI = require('../../registry/dist/lib/constants/ci')
+      const CI = require('../../registry/dist/lib/constants/CI')
       expect(CI).toBe('CI')
     })
 
@@ -46,7 +46,7 @@ describe('constants module', () => {
     })
 
     it('should export NPM constants', () => {
-      const NPM = require('../../registry/dist/lib/constants/npm')
+      const NPM = require('../../registry/dist/lib/constants/NPM')
       expect(NPM).toBe('npm')
 
       // npm-lock-json doesn't exist, it's package-lock-json
@@ -63,7 +63,7 @@ describe('constants module', () => {
     })
 
     it('should export PNPM constants', () => {
-      const PNPM = require('../../registry/dist/lib/constants/pnpm')
+      const PNPM = require('../../registry/dist/lib/constants/PNPM')
       expect(PNPM).toBe('pnpm')
 
       const PNPM_LOCK_YAML = require('../../registry/dist/lib/constants/PNPM_LOCK_YAML')
@@ -71,7 +71,7 @@ describe('constants module', () => {
     })
 
     it('should export YARN constants', () => {
-      const YARN = require('../../registry/dist/lib/constants/yarn')
+      const YARN = require('../../registry/dist/lib/constants/YARN')
       expect(YARN).toBe('yarn')
 
       const YARN_LOCK = require('../../registry/dist/lib/constants/YARN_LOCK')
@@ -102,7 +102,7 @@ describe('constants module', () => {
 
   describe('env constants', () => {
     it('should export env variables', () => {
-      const env = require('../../registry/dist/lib/constants/env')
+      const env = require('../../registry/dist/lib/constants/ENV')
       expect(env).toBeDefined()
       expect(env.HOME === undefined || typeof env.HOME === 'string').toBe(true)
       expect(env).toHaveProperty('COLUMNS')
