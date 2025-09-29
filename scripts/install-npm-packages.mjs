@@ -117,12 +117,29 @@ async function installPackage(packageInfo) {
       ) {
         // Always reapply Socket override files to ensure they're up-to-date.
         writeProgress('💾')
+
+        // Save existing scripts and devDependencies before copying.
+        const savedScripts = existingPkgJson.scripts
+        const savedDevDeps = existingPkgJson.devDependencies
+
         await copy(overridePath, installedPath, {
           overwrite: true,
           dereference: true,
           filter: src =>
             !src.includes('node_modules') && !src.endsWith('.DS_Store'),
         })
+
+        // Restore scripts and devDependencies after copying.
+        const editablePkgJson = await readPackageJson(installedPath, {
+          editable: true,
+        })
+        if (savedScripts) {
+          editablePkgJson.scripts = savedScripts
+        }
+        if (savedDevDeps) {
+          editablePkgJson.devDependencies = savedDevDeps
+        }
+        await editablePkgJson.save()
 
         // Check mark for cached with refreshed overrides.
         writeProgress('✓')
@@ -210,17 +227,18 @@ async function installPackage(packageInfo) {
     })
 
     // Merge back the test scripts and devDependencies if they existed.
-    const pkgJsonPath = path.join(installedPath, 'package.json')
-    const pkgJson = JSON.parse(await fs.readFile(pkgJsonPath, 'utf8'))
+    const editablePkgJson = await readPackageJson(installedPath, {
+      editable: true,
+    })
 
     // Preserve devDependencies from original.
     if (originalPkgJson.devDependencies) {
-      pkgJson.devDependencies = originalPkgJson.devDependencies
+      editablePkgJson.devDependencies = originalPkgJson.devDependencies
     }
 
     // Preserve test scripts.
     if (originalScripts) {
-      pkgJson.scripts = pkgJson.scripts || {}
+      editablePkgJson.scripts = editablePkgJson.scripts || {}
 
       // Look for actual test runner in scripts.
       const additionalTestRunners = [...testRunners, 'test:stock', 'test:all']
@@ -238,35 +256,35 @@ async function installPackage(packageInfo) {
 
       // Use the actual test script or cleaned version.
       if (actualTestScript && originalScripts[actualTestScript]) {
-        pkgJson.scripts.test = cleanTestScript(
+        editablePkgJson.scripts.test = cleanTestScript(
           originalScripts[actualTestScript],
         )
         // Also preserve the actual script if it's referenced.
         if (actualTestScript !== 'test') {
-          pkgJson.scripts[actualTestScript] = cleanTestScript(
+          editablePkgJson.scripts[actualTestScript] = cleanTestScript(
             originalScripts[actualTestScript],
           )
         }
       } else if (originalScripts.test) {
         // Fallback to simple test script if it exists.
-        pkgJson.scripts.test = cleanTestScript(originalScripts.test)
+        editablePkgJson.scripts.test = cleanTestScript(originalScripts.test)
       }
 
       // Preserve any test:* and tests-* scripts that might be referenced.
       for (const [key, value] of Object.entries(originalScripts)) {
         if (
           (key.startsWith('test:') || key.startsWith('tests')) &&
-          !pkgJson.scripts[key]
+          !editablePkgJson.scripts[key]
         ) {
-          pkgJson.scripts[key] = cleanTestScript(value)
+          editablePkgJson.scripts[key] = cleanTestScript(value)
         }
       }
     }
 
-    await fs.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 2))
+    await editablePkgJson.save()
 
     // Check for test script.
-    const testScript = pkgJson.scripts?.test
+    const testScript = editablePkgJson.scripts?.test
 
     if (!testScript) {
       writeProgress(LOG_SYMBOLS.warn)
