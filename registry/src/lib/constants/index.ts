@@ -140,7 +140,14 @@ export default createConstantsObject(props, {
   getters: Object.fromEntries(
     Object.keys(props)
       .filter(k => props[k] === undefined)
-      .map(k => [k, () => require(`./${toKebabCase(k)}`)]),
+      .map(k => [
+        k,
+        () => {
+          // Keep uppercase for certain constants that are uppercase files
+          const fileName = ['DARWIN', 'ENV', 'WIN32'].includes(k) ? k : toKebabCase(k)
+          return require(`./${fileName}`)
+        },
+      ]),
   ),
   internals: {
     createConstantsObject,
