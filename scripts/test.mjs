@@ -66,11 +66,15 @@ async function main() {
     // Pass remaining arguments to vitest.
     const vitestArgs = ['run', ...expandedArgs]
 
-    const child = spawn(vitestPath, vitestArgs, {
+    // On Windows, .cmd files need to be executed with shell: true.
+    const spawnOptions = {
       cwd: constants.rootPath,
       stdio: 'inherit',
       env: spawnEnv,
-    })
+      ...(WIN32 ? { shell: true } : {}),
+    }
+
+    const child = spawn(vitestPath, vitestArgs, spawnOptions)
 
     child.on('exit', code => {
       process.exitCode = code || 0
