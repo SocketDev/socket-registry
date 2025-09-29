@@ -1,5 +1,5 @@
 import { envAsBoolean, envAsString } from '../env.js'
-import WIN32 from './WIN32.js'
+import WIN32 from './WIN32'
 
 const { freeze: ObjectFreeze, hasOwn: ObjectHasOwn } = Object
 const { env } = process
@@ -48,6 +48,8 @@ export default ObjectFreeze({
   PRE_COMMIT: envAsBoolean(env['PRE_COMMIT']),
   // Enable debug logging in Socket CLI.
   SOCKET_CLI_DEBUG: !!DEBUG || envAsBoolean(env['SOCKET_CLI_DEBUG']),
+  // Enable verbose build output.
+  VERBOSE_BUILD: envAsBoolean(env['VERBOSE_BUILD']),
   // VITEST=true is set by the Vitest test runner.
   // https://vitest.dev/config/#configuring-vitest
   VITEST: envAsBoolean(env['VITEST']),

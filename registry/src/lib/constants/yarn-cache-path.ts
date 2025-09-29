@@ -1,7 +1,7 @@
 import path from 'node:path'
 
-import ENV from './ENV.js'
-import WIN32 from './WIN32.js'
+import ENV from './ENV'
+import WIN32 from './WIN32'
 
 // Yarn cache directory paths.
 // Yarn Classic (v1) and Yarn Berry (v2+) use different cache locations.

@@ -1,5 +1,5 @@
 import abortController from './abort-controller'
-const abortSignal = abortController.signal
+const abortSignal: AbortSignal = abortController.signal
 
 // By manually setting `kMaxEventTargetListeners` on `abortSignal` we avoid:
 //   TypeError [ERR_INVALID_ARG_TYPE]: The "emitter" argument must be an
