@@ -29,40 +29,51 @@ async function main() {
   const registryPkgFiles = [
     ...(await fastGlob.glob(['**/*.{cjs,js,json,d.ts}'], {
       cwd: registryPkgPath,
-      ignore: [...constants.ignoreGlobs, 'external/**', 'scripts/**', 'src/**'],
+      ignore: [
+        ...constants.ignoreGlobs.filter(p => p !== '**/dist'),
+        'dist/external/**',
+        'scripts/**',
+        'src/**',
+      ],
+      gitignore: false,
     })),
   ]
 
   console.log('Found', registryPkgFiles.length, 'files')
   console.log('First 10:', registryPkgFiles.slice(0, 10))
 
+  const jsonExports = {}
   const subpathExports = registryPkgFiles.reduce((o, p) => {
     const ext = p.endsWith(EXT_DTS) ? EXT_DTS : path.extname(p)
+    // Strip 'dist/' prefix from export path but keep it in file path.
+    const exportPath = p.startsWith('dist/') ? p.slice(5) : p
+    const filePath = `./${p}`
+
     if (ext === EXT_JSON) {
-      o[`./${p}`] = `./${p}`
+      jsonExports[`./${exportPath}`] = filePath
     } else {
-      const extLessPath = `./${p.slice(0, -ext.length)}`
+      const extLessExportPath = `./${exportPath.slice(0, -ext.length)}`
       const isDts = ext === EXT_DTS
-      if (o[extLessPath]) {
-        o[extLessPath][isDts ? 'types' : 'default'] = `./${p}`
+      if (o[extLessExportPath]) {
+        o[extLessExportPath][isDts ? 'types' : 'default'] = filePath
       } else {
-        o[extLessPath] = {
+        o[extLessExportPath] = {
           // Order is significant. Default should be specified last.
-          types: isDts ? `./${p}` : undefined,
-          default: isDts ? undefined : `./${p}`,
+          types: isDts ? filePath : undefined,
+          default: isDts ? undefined : filePath,
         }
       }
-      const basename = path.basename(p, ext)
+      const basename = path.basename(exportPath, ext)
       if (basename === 'index') {
-        const dirname = path.dirname(p)
-        const dirPath = dirname === '.' ? dirname : `./${path.dirname(p)}`
+        const dirname = path.dirname(exportPath)
+        const dirPath = dirname === '.' ? dirname : `./${dirname}`
         if (o[dirPath]) {
-          o[dirPath][isDts ? 'types' : 'default'] = `./${p}`
+          o[dirPath][isDts ? 'types' : 'default'] = filePath
         } else {
           o[dirPath] = {
             // Order is significant. Default should be specified last.
-            types: isDts ? `./${p}` : undefined,
-            default: isDts ? undefined : `./${p}`,
+            types: isDts ? filePath : undefined,
+            default: isDts ? undefined : filePath,
           }
         }
       }
@@ -107,7 +118,7 @@ async function main() {
 
   registryEditablePkgJson.update({
     browser: toSortedObject(browser),
-    exports: toSortedObject(subpathExports),
+    exports: toSortedObject({ ...subpathExports, ...jsonExports }),
     engines: { node: constants.PACKAGE_DEFAULT_NODE_RANGE },
   })
   await registryEditablePkgJson.save()
