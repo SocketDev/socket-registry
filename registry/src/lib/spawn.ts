@@ -4,6 +4,7 @@
  */
 
 import abortSignal from './constants/abort-signal'
+import spinner from './constants/spinner'
 import { getOwn } from './objects'
 import { stripAnsi } from './strings'
 
@@ -306,26 +307,27 @@ export function spawn(
   // See: https://github.com/nodejs/node/issues/3675
   // Check for .cmd, .bat, .ps1 extensions that indicate a Windows script.
   const shell = getOwn(options, 'shell')
-  const WIN32 = /*@__PURE__*/ require('./constants/WIN32')
+  const WIN32 = /*@__PURE__*/ require('./constants/WIN32.js')
   if (WIN32 && shell && windowsScriptExtRegExp.test(cmd)) {
     const path = getPath()
     // Extract just the command name without path and extension.
     cmd = path.basename(cmd, path.extname(cmd))
   }
   const {
-    spinner = /*@__PURE__*/ require('./constants/spinner'),
+    spinner: optionsSpinner = spinner,
     stripAnsi: shouldStripAnsi = true,
     ...spawnOptions
   } = { __proto__: null, ...options } as SpawnOptions
+  const spinnerInstance = optionsSpinner
   const { env, stdio, stdioString = true } = spawnOptions
   // The stdio option can be a string or an array.
   // https://nodejs.org/api/child_process.html#optionsstdio
-  const wasSpinning = !!spinner?.isSpinning
+  const wasSpinning = !!spinnerInstance?.isSpinning
   const shouldStopSpinner =
     wasSpinning && !isStdioType(stdio, 'ignore') && !isStdioType(stdio, 'pipe')
   const shouldRestartSpinner = shouldStopSpinner
   if (shouldStopSpinner) {
-    spinner.stop()
+    spinnerInstance.stop()
   }
   const npmCliPromiseSpawn = getNpmcliPromiseSpawn()
   const promiseSpawnOptions: PromiseSpawnOptions = {
@@ -380,7 +382,7 @@ export function spawn(
   }
   if (shouldRestartSpinner) {
     newSpawnPromise = newSpawnPromise.finally(() => {
-      spinner.start()
+      spinnerInstance.start()
     })
   }
   // Copy process and stdin properties from original promise
@@ -406,7 +408,7 @@ export function spawnSync(
   // See: https://github.com/nodejs/node/issues/3675
   // Check for .cmd, .bat, .ps1 extensions that indicate a Windows script.
   const shell = getOwn(options, 'shell')
-  const WIN32 = /*@__PURE__*/ require('./constants/WIN32')
+  const WIN32 = /*@__PURE__*/ require('./constants/WIN32.js')
   if (WIN32 && shell && windowsScriptExtRegExp.test(cmd)) {
     const path = getPath()
     // Extract just the command name without path and extension.
