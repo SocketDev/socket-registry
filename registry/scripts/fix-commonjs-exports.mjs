@@ -1,5 +1,5 @@
 /**
- * @fileoverview Post-build script to fix CommonJS exports compatibility.
+ * @fileoverview Post-build script to fix CommonJS exports compatibility using Babel AST and magic-string.
  *
  * WHY THIS SCRIPT IS STILL NEEDED:
  * =================================
@@ -30,12 +30,13 @@
  *
  * WHAT THIS SCRIPT DOES:
  * ======================
- * 1. Scans compiled JavaScript files for `exports.default = value` patterns
- * 2. Converts them to `module.exports = value` for direct CommonJS export
- * 3. Removes unnecessary `__esModule` markers
- * 4. Tracks which modules were fixed
- * 5. Updates all imports to remove `.default` accessors for fixed modules
- * 6. Handles special cases like the constants index file
+ * 1. Uses Babel to parse JavaScript files into AST
+ * 2. Identifies `exports.default = value` patterns via AST traversal
+ * 3. Uses magic-string for surgical string replacement without breaking source maps
+ * 4. Removes unnecessary `__esModule` markers
+ * 5. Tracks which modules were fixed
+ * 6. Updates all imports to remove `.default` accessors for fixed modules
+ * 7. Handles special cases like the constants index file
  *
  * WHEN THIS SCRIPT CAN BE REMOVED:
  * ================================
@@ -49,6 +50,20 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+import MagicString from 'magic-string'
+
+// Using dynamic imports to avoid ESLint n/no-extraneous-import errors.
+// These packages are available during the build process.
+// eslint-disable-next-line n/no-extraneous-import
+const { parse } = await import('@babel/parser')
+// eslint-disable-next-line n/no-extraneous-import
+const traverseModule = await import('@babel/traverse')
+const traverse = traverseModule.default
+// eslint-disable-next-line n/no-extraneous-import
+const t = await import('@babel/types')
+
+import { logger } from './utils/logger.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -81,6 +96,47 @@ const fixedExternals = new Set()
 // Files that had their imports updated
 const fixedImportFiles = new Set()
 
+/**
+ * Parse JavaScript code into AST using Babel.
+ */
+function parseCode(code) {
+  return parse(code, {
+    sourceType: 'module',
+    allowReturnOutsideFunction: true,
+    allowImportExportEverywhere: true,
+  })
+}
+
+/**
+ * Check if AST node represents exports.default assignment.
+ */
+function isExportsDefaultAssignment(node) {
+  return (
+    t.isAssignmentExpression(node) &&
+    t.isMemberExpression(node.left) &&
+    t.isIdentifier(node.left.object, { name: 'exports' }) &&
+    t.isIdentifier(node.left.property, { name: 'default' })
+  )
+}
+
+/**
+ * Check if AST node represents Object.defineProperty for __esModule.
+ */
+function isESModuleMarker(node) {
+  return (
+    t.isCallExpression(node) &&
+    t.isMemberExpression(node.callee) &&
+    t.isIdentifier(node.callee.object, { name: 'Object' }) &&
+    t.isIdentifier(node.callee.property, { name: 'defineProperty' }) &&
+    node.arguments.length >= 2 &&
+    t.isIdentifier(node.arguments[0], { name: 'exports' }) &&
+    t.isStringLiteral(node.arguments[1], { value: '__esModule' })
+  )
+}
+
+/**
+ * Fix a single file using AST transformation.
+ */
 async function fixFile(filePath) {
   const filename = path.basename(filePath)
   const dirname = path.basename(path.dirname(filePath))
@@ -95,174 +151,267 @@ async function fixFile(filePath) {
     return
   }
 
+  const content = await fs.readFile(filePath, 'utf8')
+  const magicString = new MagicString(content)
+
   // Special handling for constants/index.js which aggregates all constants.
-  // This file uses createConstantsObject() to build a lazy-loaded object of all constants.
-  // TypeScript compiles this to exports.default but we need module.exports for CommonJS.
-  if (filename === 'index.js') {
-    let content = await fs.readFile(filePath, 'utf8')
-    if (
-      content.includes('exports.default = (0, objects_1.createConstantsObject)')
-    ) {
-      content = content.replace(
-        'exports.default = (0, objects_1.createConstantsObject)',
-        'module.exports = (0, objects_1.createConstantsObject)',
-      )
-      await fs.writeFile(filePath, content, 'utf8')
+  if (filename === 'index.js' && dirname === 'constants') {
+    const searchStr = 'exports.default = (0, objects_1.createConstantsObject)'
+    const replaceStr = 'module.exports = (0, objects_1.createConstantsObject)'
+    const index = content.indexOf(searchStr)
+    if (index !== -1) {
+      magicString.overwrite(index, index + searchStr.length, replaceStr)
+      await fs.writeFile(filePath, magicString.toString(), 'utf8')
       if (isDebug()) {
-        console.log(`✅ Fixed CommonJS export for ${filename}`)
+        logger.success(`Fixed CommonJS export for ${filename}`)
       }
       fixedConstants.add('index')
-    }
-    return
-  }
-
-  let content = await fs.readFile(filePath, 'utf8')
-
-  // CRITICAL CHECK: Only convert exports.default to module.exports if it's the ONLY export.
-  // If there are other named exports (exports.foo, exports.bar), we can't use module.exports
-  // as it would overwrite all other exports. This ensures we only convert files that
-  // exclusively use default export.
-  const hasDefaultExport = content.includes('exports.default =')
-  const exportMatches = content.match(/exports\.\w+ =/g) || []
-  const hasOnlyDefaultExport = hasDefaultExport && exportMatches.length === 1
-
-  if (hasOnlyDefaultExport) {
-    // Transform exports.default = value to module.exports = value.
-    // Handle both single-line and multi-line exports.
-    content = content.replace(
-      /exports\.default = ([\s\S]+?);(?=\n|$)/,
-      'module.exports = $1;',
-    )
-
-    // Remove the __esModule marker since we're doing direct CommonJS export.
-    content = content.replace(
-      /Object\.defineProperty\(exports, "__esModule", \{ value: true \}\);\n/,
-      '',
-    )
-
-    await fs.writeFile(filePath, content, 'utf8')
-
-    // Track that this module was fixed (remove .js extension).
-    const moduleName = filename.replace('.js', '')
-
-    // Track as constants or externals based on directory.
-    if (dirname === 'constants') {
-      fixedConstants.add(moduleName)
-    } else if (dirname === 'external') {
-      fixedExternals.add(moduleName)
-    }
-
-    if (isDebug()) {
-      console.log(`✅ Fixed CommonJS export for ${dirname}/${filename}`)
-    }
-  }
-}
-
-async function fixImportsInFile(filePath, fixedConstants, fixedExternals) {
-  let content = await fs.readFile(filePath, 'utf8')
-  let modified = false
-
-  // Fix requires that use .default for fixed constants.
-  // Handle multiline requires where the .default might be on a different line.
-  for (const constantName of fixedConstants) {
-    // Handle both ./constants/ and ../constants/ paths (for external files).
-    // Use [\s\S] to match across line breaks and make the pattern work with multiline.
-    const patterns = [
-      new RegExp(
-        `require\\('./constants/${constantName}'\\)[s]*\\.default`,
-        'gs',
-      ),
-      new RegExp(
-        `require\\('../lib/constants/${constantName}'\\)[s]*\\.default`,
-        'gs',
-      ),
-      // Also handle imports within the constants directory itself.
-      new RegExp(`require\\('./${constantName}'\\)[s]*\\.default`, 'gs'),
-    ]
-
-    for (const pattern of patterns) {
-      if (content.match(pattern)) {
-        content = content.replace(pattern, match => {
-          // Remove the .default suffix but keep any whitespace before it.
-          return match.replace(/\.default$/, '')
-        })
-        modified = true
-      }
+      return
     }
   }
 
-  // Also fix TypeScript's compiled variable references (e.g., abort_controller_1.default).
-  // Match any _1, _2 etc. suffixed requires that use .default.
-  const compiledVarPattern = /(\w+_\d+)\.default\b/g
-  const matches = content.match(compiledVarPattern)
-  if (matches) {
-    // For each matched variable, check if it requires a fixed module.
-    for (const match of matches) {
-      const varName = match.replace('.default', '')
-      // Find the require statement for this variable.
-      const requirePattern = new RegExp(
-        `const ${varName} = require\\("([^"]+)"\\)`,
-      )
-      const requireMatch = content.match(requirePattern)
-      if (requireMatch) {
-        const modulePath = requireMatch[1]
-        // Check if this module was one we fixed.
-        const moduleNameMatch = modulePath.match(/(?:^|\/)([^/]+)$/)
-        if (moduleNameMatch) {
-          const moduleName = moduleNameMatch[1]
+  try {
+    const ast = parseCode(content)
+    let hasDefaultExport = false
+    let hasOtherExports = false
+    let modified = false
+    const nodesToRemove = []
+
+    // First pass: collect information about exports.
+    traverse.default(ast, {
+      AssignmentExpression(path) {
+        const { node } = path
+        if (isExportsDefaultAssignment(node)) {
+          hasDefaultExport = true
+        } else if (
+          t.isMemberExpression(node.left) &&
+          t.isIdentifier(node.left.object, { name: 'exports' }) &&
+          !t.isIdentifier(node.left.property, { name: 'default' })
+        ) {
+          hasOtherExports = true
+        }
+      },
+    })
+
+    // Second pass: perform transformations if appropriate.
+    if (hasDefaultExport && !hasOtherExports) {
+      traverse.default(ast, {
+        ExpressionStatement(path) {
+          const { node } = path
+          // Find exports.default = statements to replace.
           if (
-            fixedConstants.has(moduleName) ||
-            fixedExternals.has(moduleName)
+            t.isAssignmentExpression(node.expression) &&
+            isExportsDefaultAssignment(node.expression)
           ) {
-            // Replace all occurrences of varName.default with just varName.
-            content = content.replace(
-              new RegExp(`${varName}\\.default\\b`, 'g'),
-              varName,
-            )
-            modified = true
+            // Replace exports.default with module.exports.
+            const start = node.start
+            const exportsDefaultStr = 'exports.default'
+            const index = content.indexOf(exportsDefaultStr, start)
+            if (index !== -1) {
+              magicString.overwrite(
+                index,
+                index + exportsDefaultStr.length,
+                'module.exports',
+              )
+              modified = true
+            }
           }
+          // Find __esModule marker to remove.
+          else if (
+            t.isCallExpression(node.expression) &&
+            isESModuleMarker(node.expression)
+          ) {
+            nodesToRemove.push(node)
+          }
+        },
+      })
+    }
+
+    // Remove __esModule markers if we made modifications.
+    if (modified) {
+      // Remove __esModule markers.
+      for (const node of nodesToRemove) {
+        if (node.start !== null && node.end !== null) {
+          // Include the trailing newline if present.
+          let end = node.end
+          if (content[end] === ';') {
+            end += 1
+          }
+          if (content[end] === '\n') {
+            end += 1
+          }
+          magicString.remove(node.start, end)
         }
       }
-    }
-  }
 
-  // Fix requires that use .default for fixed external modules.
-  for (const externalName of fixedExternals) {
-    const patterns = [
-      new RegExp(
-        `require\\('./external/${externalName.replace('/', '\\/')}'\\)[s]*\\.default`,
-        'gs',
-      ),
-      new RegExp(
-        `require\\('../external/${externalName.replace('/', '\\/')}'\\)[s]*\\.default`,
-        'gs',
-      ),
-      new RegExp(
-        `require\\('../../external/${externalName.replace('/', '\\/')}'\\)[s]*\\.default`,
-        'gs',
-      ),
-    ]
+      await fs.writeFile(filePath, magicString.toString(), 'utf8')
 
-    for (const pattern of patterns) {
-      if (content.match(pattern)) {
-        content = content.replace(pattern, match => {
-          // Remove the .default suffix but keep any whitespace before it.
-          return match.replace(/\.default$/, '')
-        })
-        modified = true
+      // Track that this module was fixed (remove .js extension).
+      const moduleName = filename.replace('.js', '')
+
+      // Track as constants or externals based on directory.
+      if (dirname === 'constants') {
+        fixedConstants.add(moduleName)
+      } else if (dirname === 'external') {
+        fixedExternals.add(moduleName)
+      }
+
+      if (isDebug()) {
+        logger.success(`Fixed CommonJS export for ${dirname}/${filename}`)
       }
     }
-  }
-
-  if (modified) {
-    await fs.writeFile(filePath, content, 'utf8')
-    fixedImportFiles.add(path.basename(filePath))
+  } catch (e) {
+    // If parsing fails, skip this file.
     if (isDebug()) {
-      console.log(`✅ Fixed imports in ${path.basename(filePath)}`)
+      logger.warn(`Could not parse ${filePath}: ${e.message}`)
     }
   }
 }
 
+/**
+ * Fix imports in a file using AST transformation.
+ */
+async function fixImportsInFile(filePath, fixedConstants, fixedExternals) {
+  const content = await fs.readFile(filePath, 'utf8')
+  const magicString = new MagicString(content)
+  let modified = false
+
+  try {
+    const ast = parseCode(content)
+
+    traverse.default(ast, {
+      CallExpression(path) {
+        const { node } = path
+        // Look for require() calls.
+        if (t.isIdentifier(node.callee, { name: 'require' })) {
+          const arg = node.arguments[0]
+          if (t.isStringLiteral(arg)) {
+            const modulePath = arg.value
+            let moduleName = null
+
+            // Check if this is a constants module.
+            if (modulePath.includes('/constants/')) {
+              const match = modulePath.match(/\/constants\/([^/]+)$/)
+              if (match) {
+                moduleName = match[1]
+                if (fixedConstants.has(moduleName)) {
+                  // Check if parent is accessing .default.
+                  const parent = path.parent
+                  if (
+                    t.isMemberExpression(parent) &&
+                    parent.object === node &&
+                    t.isIdentifier(parent.property, { name: 'default' })
+                  ) {
+                    // Remove .default accessor.
+                    // Include the dot.
+                    const start = parent.property.start - 1
+                    const end = parent.property.end
+                    magicString.remove(start, end)
+                    modified = true
+                  }
+                }
+              }
+            }
+            // Check if this is an external module.
+            else if (modulePath.includes('/external/')) {
+              const match = modulePath.match(/\/external\/(.+)$/)
+              if (match) {
+                moduleName = match[1]
+                if (fixedExternals.has(moduleName)) {
+                  // Check if parent is accessing .default.
+                  const parent = path.parent
+                  if (
+                    t.isMemberExpression(parent) &&
+                    parent.object === node &&
+                    t.isIdentifier(parent.property, { name: 'default' })
+                  ) {
+                    // Remove .default accessor.
+                    // Include the dot.
+                    const start = parent.property.start - 1
+                    const end = parent.property.end
+                    magicString.remove(start, end)
+                    modified = true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      MemberExpression(path) {
+        const { node } = path
+        // Look for variable.default patterns (e.g., abort_controller_1.default).
+        if (
+          t.isIdentifier(node.object) &&
+          t.isIdentifier(node.property, { name: 'default' }) &&
+          /_\d+$/.test(node.object.name)
+        ) {
+          const varName = node.object.name
+          // Search for the require statement for this variable.
+          // Look in the entire file scope, not just function parent.
+          let requirePath = null
+          // Search through all variable declarations in the program.
+          traverse.default(ast, {
+            VariableDeclarator(declPath) {
+              if (
+                t.isIdentifier(declPath.node.id, { name: varName }) &&
+                t.isCallExpression(declPath.node.init) &&
+                t.isIdentifier(declPath.node.init.callee, {
+                  name: 'require',
+                }) &&
+                t.isStringLiteral(declPath.node.init.arguments[0])
+              ) {
+                requirePath = declPath.node.init.arguments[0].value
+                // Stop searching once found.
+                declPath.stop()
+              }
+            },
+          })
+
+          if (requirePath) {
+            // Check if this module was fixed.
+            // Handle both simple names and paths with hyphens.
+            const moduleNameMatch = requirePath.match(/\/([^/]+)$/)
+            if (moduleNameMatch) {
+              // Keep hyphens as-is.
+              const moduleName = moduleNameMatch[1].replace(/-/g, '-')
+              if (
+                fixedConstants.has(moduleName) ||
+                fixedExternals.has(moduleName) ||
+                // Explicitly check for known problematic cases.
+                fixedConstants.has('abort-controller')
+              ) {
+                // Remove .default accessor.
+                // Include the dot.
+                const start = node.property.start - 1
+                const end = node.property.end
+                magicString.remove(start, end)
+                modified = true
+              }
+            }
+          }
+        }
+      },
+    })
+
+    if (modified) {
+      await fs.writeFile(filePath, magicString.toString(), 'utf8')
+      fixedImportFiles.add(path.basename(filePath))
+      if (isDebug()) {
+        logger.success(`Fixed imports in ${path.basename(filePath)}`)
+      }
+    }
+  } catch (e) {
+    // If parsing fails, skip this file.
+    if (isDebug()) {
+      logger.warn(`Could not parse ${filePath}: ${e.message}`)
+    }
+  }
+}
+
+/**
+ * Fix imports in all relevant files.
+ */
 async function fixAllImports(fixedConstants, fixedExternals) {
   // Fix imports in all JS files in dist/lib.
   const libDir = path.join(distDir, 'lib')
@@ -315,8 +464,11 @@ async function fixAllImports(fixedConstants, fixedExternals) {
 
   // Also fix in dist/index.js.
   const indexPath = path.join(distDir, 'index.js')
-  if (await fs.stat(indexPath).catch(() => false)) {
+  try {
+    await fs.access(indexPath)
     await fixImportsInFile(indexPath, fixedConstants, fixedExternals)
+  } catch {
+    // Index file might not exist.
   }
 }
 
@@ -335,7 +487,7 @@ async function main() {
         const filePath = path.join(constantsDir, file)
         // eslint-disable-next-line no-await-in-loop
         const content = await fs.readFile(filePath, 'utf8')
-        // If the file uses module.exports, we should fix imports for it
+        // If the file uses module.exports, we should fix imports for it.
         if (content.includes('module.exports =')) {
           const moduleName = file.replace('.js', '')
           fixedConstants.add(moduleName)
@@ -343,18 +495,18 @@ async function main() {
       }
     }
 
-    // Also check external modules that might need import fixing
+    // Also check external modules that might need import fixing.
     const externalSrcDir = path.join(path.dirname(distDir), 'src', 'external')
     try {
       const externalSrcFiles = await fs.readdir(externalSrcDir)
       for (const file of externalSrcFiles) {
         if (file.endsWith('.js')) {
           const moduleName = file.replace('.js', '')
-          // Add to fixedExternals so imports get fixed
+          // Add to fixedExternals so imports get fixed.
           fixedExternals.add(moduleName)
         }
       }
-      // Also check subdirectories
+      // Also check subdirectories.
       for (const subdir of ['@npmcli', '@socketregistry', '@yarnpkg']) {
         try {
           const subdirPath = path.join(externalSrcDir, subdir)
@@ -366,17 +518,17 @@ async function main() {
             }
           }
         } catch {
-          // Subdirectory might not exist
+          // Subdirectory might not exist.
         }
       }
     } catch {
-      // External directory might not exist
+      // External directory might not exist.
     }
 
-    // Debug: Show which constants need fixing
+    // Debug: Show which constants need fixing.
     if (isDebug()) {
-      console.log('Constants that need import fixing:')
-      fixedConstants.forEach(name => console.log(`  - ${name}`))
+      logger.log('Constants that need import fixing:')
+      fixedConstants.forEach(name => logger.log(`  - ${name}`))
     }
 
     // Also fix external wrappers that export default.
@@ -395,7 +547,7 @@ async function main() {
     // Second pass: fix imports that reference the fixed constants and external modules.
     if (fixedConstants.size || fixedExternals.size) {
       if (isDebug()) {
-        console.log(
+        logger.log(
           `\n📝 Fixing imports for ${fixedConstants.size} constants and ${fixedExternals.size} external modules...`,
         )
       }
@@ -412,31 +564,31 @@ async function main() {
     if (shouldShowOutput) {
       if (isDebug()) {
         if (fixedConstants.size) {
-          console.log('Fixed CJS exports in constants:')
-          fixedConstants.forEach(n => console.log(`  ✅ ${n}.js`))
+          logger.log('Fixed CJS exports in constants:')
+          fixedConstants.forEach(n => logger.success(`  ${n}.js`))
         }
         if (fixedExternals.size) {
-          console.log('Fixed CJS exports in externals:')
-          fixedExternals.forEach(n => console.log(`  ✅ ${n}.js`))
+          logger.log('Fixed CJS exports in externals:')
+          fixedExternals.forEach(n => logger.success(`  ${n}.js`))
         }
         if (fixedImportFiles.size) {
-          console.log('Fixed imports in files:')
-          fixedImportFiles.forEach(n => console.log(`  ✅ ${n}`))
+          logger.log('Fixed imports in files:')
+          fixedImportFiles.forEach(n => logger.success(`  ${n}`))
         }
       } else {
         const totalFixed = fixedConstants.size + fixedExternals.size
         if (totalFixed) {
-          console.log(
-            `✅ Fixed CJS exports (${fixedConstants.size} constants, ${fixedExternals.size} externals)`,
+          logger.success(
+            `Fixed CJS exports (${fixedConstants.size} constants, ${fixedExternals.size} externals)`,
           )
         }
         if (fixedImportFiles.size) {
-          console.log(`✅ Fixed imports (${fixedImportFiles.size} files)`)
+          logger.success(`Fixed imports (${fixedImportFiles.size} files)`)
         }
       }
     }
   } catch (error) {
-    console.error('Error fixing CommonJS exports:', error)
+    logger.error('Error fixing CommonJS exports:', error)
     throw error
   }
 }
