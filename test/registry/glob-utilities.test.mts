@@ -44,6 +44,7 @@ describe('glob utilities', () => {
 
     it('should not be modifiable', () => {
       expect(() => {
+        // @ts-expect-error - Testing runtime immutability of readonly array.
         defaultIgnore.push('new-pattern')
       }).toThrow()
     })

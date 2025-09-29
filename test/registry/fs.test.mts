@@ -241,6 +241,7 @@ describe('fs module', () => {
     it('should handle encoding option', async () => {
       const content = 'UTF-8 content'
       fs.writeFileSync(testFile, content)
+      // @ts-expect-error - Testing runtime behavior with encoding string.
       const result = await safeReadFile(testFile, 'utf8')
       expect(result).toBe(content)
     })

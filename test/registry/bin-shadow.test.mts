@@ -62,6 +62,7 @@ describe('bin shadow path detection', () => {
 
     it('should handle empty or null paths', () => {
       expect(isShadowBinPath('')).toBe(false)
+      // @ts-expect-error - Testing runtime behavior with null.
       expect(isShadowBinPath(null)).toBe(false)
       expect(isShadowBinPath(undefined)).toBe(false)
     })

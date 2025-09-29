@@ -111,7 +111,9 @@ describe('sorts module', () => {
     it('should sort mixed case naturally', () => {
       const arr = ['Beta', 'alpha', 'Delta', 'charlie']
       const sorted = naturalSorter(arr).asc()
+      // @ts-expect-error - Known string type from test data.
       expect(sorted[0].toLowerCase()).toBe('alpha')
+      // @ts-expect-error - Known string type from test data.
       expect(sorted[sorted.length - 1].toLowerCase()).toBe('delta')
     })
 

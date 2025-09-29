@@ -220,6 +220,7 @@ describe('promises module', () => {
     })
 
     it('should handle sync functions', async () => {
+      // @ts-expect-error - Testing runtime behavior with sync function.
       const result = await pRetry(() => 'sync result', { retries: 1 })
       expect(result).toBe('sync result')
     })

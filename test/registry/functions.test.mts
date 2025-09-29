@@ -36,6 +36,7 @@ describe('functions module', () => {
     })
 
     it('should wrap sync functions and make them async', async () => {
+      // @ts-expect-error - Testing runtime behavior with sync function.
       const wrapped = silentWrapAsync(syncFn)
       const result = await wrapped()
       expect(result).toBe('sync result')
@@ -66,6 +67,7 @@ describe('functions module', () => {
           return this.value
         },
       }
+      // @ts-expect-error - Testing runtime behavior with sync method.
       const wrapped = silentWrapAsync(obj.getValue.bind(obj))
       const result = await wrapped()
       expect(result).toBe(42)

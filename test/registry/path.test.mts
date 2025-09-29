@@ -177,6 +177,7 @@ describe('path module', () => {
           return '/custom/path'
         },
       }
+      // @ts-expect-error - Testing runtime behavior with toString object.
       expect(pathLikeToString(obj)).toBe('/custom/path')
     })
 
