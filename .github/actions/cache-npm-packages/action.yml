@@ -1,0 +1,61 @@
+name: 'Cache NPM Test Packages'
+description: 'Cache npm test packages to speed up subsequent CI runs'
+
+# Dependencies:
+#   - actions/cache@6c4d0c5a42fb47aea2ce2de7ed5a0b70b23ee3e1  # v4.3.0
+
+inputs:
+  path:
+    description: 'Path to cache directory'
+    required: false
+    default: '~/.socket-npm-test-cache'
+  key-prefix:
+    description: 'Cache key prefix'
+    required: false
+    default: 'npm-test-packages'
+  restore-keys:
+    description: 'Restore keys for fallback'
+    required: false
+    default: ''
+
+outputs:
+  cache-hit:
+    description: 'Whether cache was hit'
+    value: ${{ steps.cache.outputs.cache-hit }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Determine cache path
+      id: cache-path
+      shell: bash
+      run: |
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          # On Windows, expand ~ to home directory
+          CACHE_PATH="${USERPROFILE}/.socket-npm-test-cache"
+          CACHE_PATH=$(echo "$CACHE_PATH" | sed 's|\\|/|g')
+        else
+          # On Unix-like systems
+          CACHE_PATH="${HOME}/.socket-npm-test-cache"
+        fi
+        echo "cache-path=$CACHE_PATH" >> $GITHUB_OUTPUT
+        echo "Using cache path: $CACHE_PATH"
+
+    - name: Cache npm test packages
+      id: cache
+      uses: actions/cache@6c4d0c5a42fb47aea2ce2de7ed5a0b70b23ee3e1 # v4.3.0
+      with:
+        path: ${{ steps.cache-path.outputs.cache-path }}
+        # Use package manifest hash and OS in cache key for specificity
+        key: ${{ inputs.key-prefix }}-${{ runner.os }}-${{ hashFiles('packages/npm/*/package.json') }}
+        restore-keys: |
+          ${{ inputs.key-prefix }}-${{ runner.os }}-
+          ${{ inputs.key-prefix }}-
+
+    - name: Create cache directory if missing
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        CACHE_DIR="${{ steps.cache-path.outputs.cache-path }}"
+        mkdir -p "$CACHE_DIR"
+        echo "Cache directory created at $CACHE_DIR"
