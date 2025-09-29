@@ -12,18 +12,19 @@
 import { createRequire } from 'node:module'
 import { existsSync, promises as fs } from 'node:fs'
 import path from 'node:path'
-import util from 'node:util'
+
+import { parseArgs } from '../registry/dist/lib/parse-args.js'
 
 import { ReturnTypeEnums, default as didYouMean } from 'didyoumean2'
 import fastGlob from 'fast-glob'
 import { open } from 'out-url'
 import semver from 'semver'
 
-import { execScript } from '@socketsecurity/registry/lib/agent'
-import { isDirEmptySync } from '@socketsecurity/registry/lib/fs'
-import { globStreamLicenses } from '@socketsecurity/registry/lib/globs'
-import { LOG_SYMBOLS, logger } from '@socketsecurity/registry/lib/logger'
-import { isObject } from '@socketsecurity/registry/lib/objects'
+import { execScript } from '../registry/dist/lib/agent.js'
+import { isDirEmptySync } from '../registry/dist/lib/fs.js'
+import { globStreamLicenses } from '../registry/dist/lib/globs.js'
+import { LOG_SYMBOLS, logger } from '../registry/dist/lib/logger.js'
+import { isObject } from '../registry/dist/lib/objects.js'
 import {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
@@ -36,20 +37,12 @@ import {
   resolvePackageJsonEntryExports,
   resolvePackageLicenses,
   resolveRegistryPackageName,
-} from '@socketsecurity/registry/lib/packages'
-import {
-  confirm,
-  input,
-  search,
-  select,
-} from '@socketsecurity/registry/lib/prompts'
-import {
-  naturalCompare,
-  naturalSorter,
-} from '@socketsecurity/registry/lib/sorts'
-import { transform } from '@socketsecurity/registry/lib/streams'
-import { indentString } from '@socketsecurity/registry/lib/strings'
-import { pluralize } from '@socketsecurity/registry/lib/words'
+} from '../registry/dist/lib/packages.js'
+import { confirm, input, search, select } from '../registry/dist/lib/prompts.js'
+import { naturalCompare, naturalSorter } from '../registry/dist/lib/sorts.js'
+import { transform } from '../registry/dist/lib/streams.js'
+import { indentString } from '../registry/dist/lib/strings.js'
+import { pluralize } from '../registry/dist/lib/words.js'
 
 import constants from './constants.mjs'
 import {
@@ -80,9 +73,18 @@ const {
   tsTypesAvailable,
 } = constants
 
-const { positionals: cliPositionals, values: cliArgs } = util.parseArgs(
-  constants.parseArgsConfig,
-)
+const { positionals: cliPositionals, values: cliArgs } = parseArgs({
+  options: {
+    force: {
+      type: 'boolean',
+      short: 'f',
+    },
+    quiet: {
+      type: 'boolean',
+    },
+  },
+  strict: false,
+})
 
 const bcaKeysMap = new Map()
 
@@ -164,7 +166,7 @@ function toChoice(value) {
   return { name: value, value: value }
 }
 
-void (async () => {
+async function main() {
   const origPkgName = await input({
     message: 'What is the name of the package to override?',
     default: cliPositionals.at(0),
@@ -473,4 +475,6 @@ void (async () => {
     logger.fail('Package override finalization encountered an error:')
     logger.error(e)
   }
-})()
+}
+
+main().catch(console.error)

@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * @fileoverview Verify that Socket packages have trusted package setup correctly.
  * Checks @socketregistry/*, @socketoverride/*, and @socketsecurity/registry packages by default.
@@ -6,12 +5,11 @@
  */
 
 import { spawn } from 'node:child_process'
-import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseArgs } from 'node:util'
+import { parseArgs } from '../registry/dist/lib/parse-args.js'
 
-import { logger } from '@socketsecurity/registry/lib/logger'
+import { logger } from '../registry/dist/lib/logger.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -27,6 +25,7 @@ const { values: args } = parseArgs({
       default: false,
     },
   },
+  strict: false,
 })
 
 if (args.help) {
@@ -45,6 +44,7 @@ By default, checks:
 With --all flag, additionally checks:
   - All other @socketsecurity/* packages
 `)
+  // eslint-disable-next-line n/no-process-exit
   process.exit(0)
 }
 
@@ -82,7 +82,7 @@ async function getPackageInfo(packageName) {
   try {
     const output = await runCommand('npm', ['view', packageName, '--json'])
     return JSON.parse(output)
-  } catch (error) {
+  } catch {
     return null
   }
 }
@@ -103,11 +103,13 @@ async function checkTrustedPackage(packageName) {
 
   const expectedMaintainers = ['socket-security', 'socket-dev', 'socket-admin']
   const hasSocketMaintainer = maintainerNames.some(name =>
-    expectedMaintainers.some(expected => name.includes(expected))
+    expectedMaintainers.some(expected => name.includes(expected)),
   )
 
   if (!hasSocketMaintainer) {
-    logger.warn(`  ⚠ No Socket maintainers found. Current maintainers: ${maintainerNames.join(', ')}`)
+    logger.warn(
+      `  ⚠ No Socket maintainers found. Current maintainers: ${maintainerNames.join(', ')}`,
+    )
   }
 
   // Check repository field
@@ -123,7 +125,9 @@ async function checkTrustedPackage(packageName) {
     if (info.publishConfig.registry.includes('socket')) {
       logger.success(`  ✓ Published via Socket registry`)
     } else {
-      logger.warn(`  ⚠ Published via non-Socket registry: ${info.publishConfig.registry}`)
+      logger.warn(
+        `  ⚠ Published via non-Socket registry: ${info.publishConfig.registry}`,
+      )
     }
   }
 
@@ -139,7 +143,12 @@ async function checkTrustedPackage(packageName) {
 
 async function getPackagesFromScope(scope) {
   try {
-    const output = await runCommand('npm', ['search', '--json', `scope:${scope}`, '--searchlimit=1000'])
+    const output = await runCommand('npm', [
+      'search',
+      '--json',
+      `scope:${scope}`,
+      '--searchlimit=1000',
+    ])
     const results = JSON.parse(output)
     return results.map(pkg => pkg.name)
   } catch (error) {
@@ -166,7 +175,7 @@ async function main() {
   logger.info(`  Found ${socketOverridePackages.length} packages\n`)
 
   // Always check @socketsecurity/registry specifically
-  packagesToCheck.add('@socketsecurity/registry')
+  packagesToCheck.add('../registry/dist/index.js')
 
   // If --all flag, check all @socketsecurity/* packages
   if (args.all) {
@@ -188,13 +197,15 @@ async function main() {
 
   for (const packageName of sortedPackages) {
     try {
+      // eslint-disable-next-line no-await-in-loop
       const success = await checkTrustedPackage(packageName)
       if (success) {
         results.success.push(packageName)
       } else {
         results.failed.push(packageName)
       }
-      console.log() // Empty line between packages
+      // Empty line between packages
+      console.log()
     } catch (error) {
       logger.error(`Error checking ${packageName}:`, error.message)
       results.failed.push(packageName)
@@ -210,6 +221,7 @@ async function main() {
     results.failed.forEach(pkg => {
       logger.fail(`    - ${pkg}`)
     })
+    // eslint-disable-next-line n/no-process-exit
     process.exit(1)
   }
 
@@ -218,5 +230,6 @@ async function main() {
 
 main().catch(error => {
   logger.error('Fatal error:', error)
+  // eslint-disable-next-line n/no-process-exit
   process.exit(1)
 })

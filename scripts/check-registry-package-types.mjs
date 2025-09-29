@@ -8,7 +8,7 @@ import constants from './constants.mjs'
 
 const require = createRequire(import.meta.url)
 
-void (async () => {
+async function main() {
   const { registryPkgPath, rootPath } = constants
 
   const libPath = path.join(registryPkgPath, 'src', 'lib')
@@ -26,4 +26,6 @@ void (async () => {
       throw new Error(`Type '${key}' not declared in ${relLibConstDtsPath}`)
     }
   }
-})()
+}
+
+main().catch(console.error)

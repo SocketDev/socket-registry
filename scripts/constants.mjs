@@ -9,10 +9,10 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { includeIgnoreFile } from '@eslint/compat'
 import which from 'which'
-import registryConstants from '@socketsecurity/registry/lib/constants'
-import { whichBinSync } from '@socketsecurity/registry/lib/agent'
-import { envAsBoolean } from '@socketsecurity/registry/lib/env'
-import { createConstantsObject } from '@socketsecurity/registry/lib/objects'
+import registryConstants from '../registry/dist/lib/constants/index.js'
+import { whichBinSync } from '../registry/dist/lib/bin.js'
+import { envAsBoolean } from '../registry/dist/lib/env.js'
+import { createConstantsObject } from '../registry/dist/lib/objects.js'
 
 const require = createRequire(import.meta.url)
 
@@ -63,7 +63,7 @@ const LAZY_LICENSE_CONTENT = () =>
   fs.readFileSync(constants.rootLicensePath, UTF8)
 
 const lazyEcosystems = () => {
-  const registryLibFs = /*@__PURE__*/ require('@socketsecurity/registry/lib/fs')
+  const registryLibFs = /*@__PURE__*/ require('../registry/dist/lib/fs')
   const readDirNamesSync = registryLibFs.readDirNamesSync
   return Object.freeze(readDirNamesSync(constants.rootPackagesPath))
 }
@@ -71,7 +71,7 @@ const lazyEcosystems = () => {
 const lazyGitExecPath = () => which.sync('git', { ...getDefaultWhichOptions() })
 
 const lazyGitIgnoreFile = () =>
-  includeIgnoreFile(path.join(constants.rootPath, GITIGNORE))
+  includeIgnoreFile(path.join(lazyRootPath(), GITIGNORE))
 
 const lazyIgnoreGlobs = () =>
   Object.freeze([
@@ -91,7 +91,7 @@ const lazyIgnoreGlobs = () =>
   ])
 
 const lazyNpmPackageNames = () => {
-  const registryLibFs = /*@__PURE__*/ require('@socketsecurity/registry/lib/fs')
+  const registryLibFs = /*@__PURE__*/ require('../registry/dist/lib/fs')
   const readDirNamesSync = registryLibFs.readDirNamesSync
   return Object.freeze(readDirNamesSync(constants.npmPackagesPath))
 }
@@ -141,6 +141,8 @@ const lazyRootPath = () => {
   }
 
   // Fallback if not found (shouldn't happen in normal operation).
+  const __filename = fileURLToPath(import.meta.url)
+  const __dirname = path.dirname(__filename)
   return path.resolve(__dirname, '..')
 }
 

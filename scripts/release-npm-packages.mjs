@@ -7,20 +7,17 @@ import semver from 'semver'
 
 import constants from './constants.mjs'
 
-import { execScript } from '@socketsecurity/registry/lib/agent'
+import { execScript } from '../registry/dist/lib/agent.js'
 import {
   extractPackage,
   fetchPackageManifest,
   getReleaseTag,
   readPackageJson,
   readPackageJsonSync,
-} from '@socketsecurity/registry/lib/packages'
-import { readFileUtf8 } from '@socketsecurity/registry/lib/fs'
-import { pEach } from '@socketsecurity/registry/lib/promises'
-import {
-  isObjectObject,
-  toSortedObject,
-} from '@socketsecurity/registry/lib/objects'
+} from '../registry/dist/lib/packages.js'
+import { readFileUtf8 } from '../registry/dist/lib/fs.js'
+import { pEach } from '../registry/dist/lib/promises.js'
+import { isObjectObject, toSortedObject } from '../registry/dist/lib/objects.js'
 
 const {
   LATEST,
@@ -292,7 +289,7 @@ function packageData(data) {
   })
 }
 
-void (async () => {
+async function main() {
   const { spinner } = constants
 
   spinner.start(`Bumping ${relNpmPackagesPath} versions (semver patch)...`)
@@ -353,4 +350,6 @@ void (async () => {
   await execScript('update:package-json', [], spawnOptions)
 
   spinner.stop()
-})()
+}
+
+main().catch(console.error)

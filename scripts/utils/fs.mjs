@@ -9,8 +9,8 @@ import path from 'node:path'
 
 import trash from 'trash'
 import constants from '../constants.mjs'
-import ENV from '@socketsecurity/registry/lib/constants/env'
-import { pEach } from '@socketsecurity/registry/lib/promises'
+import ENV from '../../registry/dist/lib/constants/ENV.js'
+import { pEach } from '../../registry/dist/lib/promises.js'
 
 const { DEFAULT_CONCURRENCY } = constants
 

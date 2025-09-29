@@ -3,7 +3,7 @@
  * Provides utilities for running tests on specific packages and handling test workflows.
  */
 
-import util from 'node:util'
+import { parseArgs } from '../../registry/dist/lib/parse-args.js'
 
 import constants from '../constants.mjs'
 import { getModifiedPackagesSync, getStagedPackagesSync } from './git.mjs'
@@ -13,7 +13,19 @@ const { LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE } = constants
 let _cliArgs
 function getCliArgs() {
   if (_cliArgs === undefined) {
-    _cliArgs = util.parseArgs(constants.parseArgsConfig).values
+    const { values } = parseArgs({
+      options: {
+        force: {
+          type: 'boolean',
+          short: 'f',
+        },
+        quiet: {
+          type: 'boolean',
+        },
+      },
+      strict: false,
+    })
+    _cliArgs = values
   }
   return _cliArgs
 }

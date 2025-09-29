@@ -4,8 +4,8 @@ import path from 'node:path'
 import yargsParser from 'yargs-parser'
 import colors from 'yoctocolors-cjs'
 
-import constants from '@socketsecurity/registry/lib/constants'
-import { logger } from '@socketsecurity/registry/lib/logger'
+import constants from '../registry/dist/lib/constants/index.js'
+import { logger } from '../registry/dist/lib/logger.js'
 
 import { getCodeCoverage } from './utils/get-code-coverage.mjs'
 import { getTypeCoverage } from './utils/get-type-coverage.mjs'
@@ -153,7 +153,7 @@ async function logCoveragePercentage(argv) {
 }
 
 // Main entry point - parse command line arguments and display coverage.
-void (async () => {
+async function main() {
   const argv = yargsParser(process.argv.slice(2), {
     boolean: ['json', 'simple'],
     alias: {
@@ -164,4 +164,6 @@ void (async () => {
     },
   })
   await logCoveragePercentage(argv)
-})()
+}
+
+main().catch(console.error)

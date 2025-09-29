@@ -3,13 +3,15 @@ import path from 'node:path'
 import constants from './constants.mjs'
 
 import fastGlob from 'fast-glob'
-import builtinNames from '@socketregistry/packageurl-js/data/npm/builtin-names.json'
-import { toSortedObject } from '@socketsecurity/registry/lib/objects'
-import { readPackageJson } from '@socketsecurity/registry/lib/packages'
+import builtinNames from '@socketregistry/packageurl-js/data/npm/builtin-names.json' with {
+  type: 'json',
+}
+import { toSortedObject } from '../registry/dist/lib/objects.js'
+import { readPackageJson } from '../registry/dist/lib/packages.js'
 
 const { EXT_DTS, EXT_JSON } = constants
 
-void (async () => {
+async function main() {
   const { registryPkgPath } = constants
 
   const registryEditablePkgJson = await readPackageJson(registryPkgPath, {
@@ -30,6 +32,9 @@ void (async () => {
       ignore: [...constants.ignoreGlobs, 'external/**', 'scripts/**', 'src/**'],
     })),
   ]
+
+  console.log('Found', registryPkgFiles.length, 'files')
+  console.log('First 10:', registryPkgFiles.slice(0, 10))
 
   const subpathExports = registryPkgFiles.reduce((o, p) => {
     const ext = p.endsWith(EXT_DTS) ? EXT_DTS : path.extname(p)
@@ -65,10 +70,47 @@ void (async () => {
     return o
   }, {})
 
+  // Add additional mappings for constants with uppercase names.
+  // Map both lowercase-hyphenated and UPPERCASE_UNDERSCORE paths to the same files.
+  for (const [exportPath, exportValue] of Object.entries(subpathExports)) {
+    if (
+      exportPath.startsWith('./lib/constants/') &&
+      exportPath !== './lib/constants'
+    ) {
+      const pathAfterConstants = exportPath.slice('./lib/constants/'.length)
+
+      // Check if this looks like a lowercase-hyphenated name.
+      if (
+        pathAfterConstants.includes('-') &&
+        pathAfterConstants === pathAfterConstants.toLowerCase()
+      ) {
+        // Convert to UPPERCASE_UNDERSCORE.
+        const uppercasePath = `./lib/constants/${pathAfterConstants.toUpperCase().replace(/-/g, '_')}`
+        if (!subpathExports[uppercasePath]) {
+          subpathExports[uppercasePath] = exportValue
+        }
+      }
+
+      // Check if this looks like an UPPERCASE_UNDERSCORE name.
+      if (
+        pathAfterConstants.includes('_') &&
+        /[A-Z]/.test(pathAfterConstants)
+      ) {
+        // Convert to lowercase-hyphenated.
+        const lowercasePath = `./lib/constants/${pathAfterConstants.toLowerCase().replace(/_/g, '-')}`
+        if (!subpathExports[lowercasePath]) {
+          subpathExports[lowercasePath] = exportValue
+        }
+      }
+    }
+  }
+
   registryEditablePkgJson.update({
     browser: toSortedObject(browser),
     exports: toSortedObject(subpathExports),
     engines: { node: constants.PACKAGE_DEFAULT_NODE_RANGE },
   })
   await registryEditablePkgJson.save()
-})()
+}
+
+main().catch(console.error)

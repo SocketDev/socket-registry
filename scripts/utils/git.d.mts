@@ -15,8 +15,8 @@ declare type OptionsAsSetTrue = {
   [key: string]: any
 }
 declare const Git: {
-  getModifiedFiles(options?: DiffOptions): Promise<string[]>
-  getModifiedFilesSync(options?: DiffOptions): string[]
+  getModifiedFiles(options?: DiffOptions | undefined): Promise<string[]>
+  getModifiedFilesSync(options?: DiffOptions | undefined): string[]
   getModifiedPackages(
     eco: string,
     options?: OptionsAsSetFalse | undefined,
@@ -30,8 +30,8 @@ declare const Git: {
     options?: OptionsAsSetFalse | undefined,
   ): string[]
   getModifiedPackagesSync(eco: string, options: OptionsAsSetTrue): Set<string>
-  getStagedFiles(options?: DiffOptions): Promise<string[]>
-  getStagedFilesSync(options?: DiffOptions): string[]
+  getStagedFiles(options?: DiffOptions | undefined): Promise<string[]>
+  getStagedFilesSync(options?: DiffOptions | undefined): string[]
   getStagedPackages(
     eco: string,
     options?: OptionsAsSetFalse | undefined,
@@ -45,10 +45,16 @@ declare const Git: {
     options?: OptionsAsSetFalse | undefined,
   ): string[]
   getStagedPackagesSync(eco: string, options: OptionsAsSetTrue): Set<string>
-  isModified(pathname: PathLike, options?: DiffOptions): Promise<boolean>
-  isModifiedSync(pathname: PathLike, options?: DiffOptions): boolean
-  isStaged(pathname: PathLike, options?: DiffOptions): Promise<boolean>
-  isStagedSync(pathname: PathLike, options?: DiffOptions): boolean
+  isModified(
+    pathname: PathLike,
+    options?: DiffOptions | undefined,
+  ): Promise<boolean>
+  isModifiedSync(pathname: PathLike, options?: DiffOptions | undefined): boolean
+  isStaged(
+    pathname: PathLike,
+    options?: DiffOptions | undefined,
+  ): Promise<boolean>
+  isStagedSync(pathname: PathLike, options?: DiffOptions | undefined): boolean
 }
 declare namespace Git {
   export { DiffOptions, OptionsAsSetFalse, OptionsAsSetTrue }
