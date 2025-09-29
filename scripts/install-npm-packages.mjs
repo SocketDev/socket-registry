@@ -118,31 +118,34 @@ async function installPackage(packageInfo) {
         // Always reapply Socket override files to ensure they're up-to-date.
         writeProgress('💾')
 
-        // Save existing scripts and devDependencies before copying.
-        const savedScripts = existingPkgJson.scripts
-        const savedDevDeps = existingPkgJson.devDependencies
-
+        // Copy Socket override files (excluding package.json).
         await copy(overridePath, installedPath, {
           overwrite: true,
           dereference: true,
           filter: src =>
-            !src.includes('node_modules') && !src.endsWith('.DS_Store'),
+            !src.includes('node_modules') &&
+            !src.endsWith('.DS_Store') &&
+            !src.endsWith('package.json'),
         })
 
-        // Restore scripts and devDependencies after copying.
-        // Read the package.json after copy and restore the saved data.
-        const restoredPkgJson = JSON.parse(
-          await fs.readFile(packageJsonPath, 'utf8'),
+        // Read the Socket override package.json to get the fields we want.
+        const overridePkgJsonPath = path.join(overridePath, 'package.json')
+        const overridePkgJson = JSON.parse(
+          await fs.readFile(overridePkgJsonPath, 'utf8'),
         )
-        if (savedScripts) {
-          restoredPkgJson.scripts = savedScripts
-        }
-        if (savedDevDeps) {
-          restoredPkgJson.devDependencies = savedDevDeps
-        }
+
+        // Selectively update the fields from Socket override.
+        existingPkgJson.exports = overridePkgJson.exports
+        existingPkgJson.main = overridePkgJson.main
+        existingPkgJson.types = overridePkgJson.types
+        existingPkgJson.files = overridePkgJson.files
+        existingPkgJson.sideEffects = overridePkgJson.sideEffects
+        existingPkgJson.socket = overridePkgJson.socket
+        existingPkgJson.private = true
+
         await fs.writeFile(
           packageJsonPath,
-          JSON.stringify(restoredPkgJson, null, 2),
+          JSON.stringify(existingPkgJson, null, 2),
         )
 
         // Check mark for cached with refreshed overrides.
@@ -189,26 +192,28 @@ async function installPackage(packageInfo) {
       cwd: packageTempDir,
     })
 
-    // Copy Socket override files on top.
+    // Apply Socket overrides selectively.
     const installedPath = path.join(packageTempDir, 'node_modules', origPkgName)
     writeProgress('🔧')
 
-    // Save original scripts before copying.
+    // Read the original installed package.json.
     let originalPkgJson = {}
-    let originalScripts = {}
+    const pkgJsonPath = path.join(installedPath, 'package.json')
+
     try {
-      originalPkgJson = JSON.parse(
-        await fs.readFile(path.join(installedPath, 'package.json'), 'utf8'),
-      )
-      originalScripts = originalPkgJson.scripts || {}
+      originalPkgJson = JSON.parse(await fs.readFile(pkgJsonPath, 'utf8'))
     } catch {
       // Package.json might not exist in the symlink location for some packages.
       // Try the pnpm store location.
+      // For GitHub archive URLs, pnpm encodes special characters.
+      // Convert to pnpm store format: replace : and / with +
+      const pnpmStoreDir = `${origPkgName}@${versionSpec.replaceAll(':', '+').replaceAll('/', '+')}`
+
       const pnpmStorePath = path.join(
         packageTempDir,
         'node_modules',
         '.pnpm',
-        `${origPkgName}@${versionSpec}`,
+        pnpmStoreDir,
         'node_modules',
         origPkgName,
       )
@@ -216,78 +221,113 @@ async function installPackage(packageInfo) {
         originalPkgJson = JSON.parse(
           await fs.readFile(path.join(pnpmStorePath, 'package.json'), 'utf8'),
         )
-        originalScripts = originalPkgJson.scripts || {}
       } catch {
-        // If we still can't read it, that's okay - we'll use the override's package.json.
-        originalScripts = {}
+        // If we still can't read it, that's a problem.
+        throw new Error(`Cannot read package.json for ${origPkgName}`)
       }
     }
 
+    // Copy Socket override files (excluding package.json).
     await copy(overridePath, installedPath, {
       overwrite: true,
       dereference: true,
       filter: src =>
-        !src.includes('node_modules') && !src.endsWith('.DS_Store'),
+        !src.includes('node_modules') &&
+        !src.endsWith('.DS_Store') &&
+        !src.endsWith('package.json'),
     })
 
-    // Merge back the test scripts and devDependencies if they existed.
-    const pkgJsonPath = path.join(installedPath, 'package.json')
-    const pkgJson = JSON.parse(await fs.readFile(pkgJsonPath, 'utf8'))
+    // Read the Socket override package.json to get the fields we want.
+    const overridePkgJsonPath = path.join(overridePath, 'package.json')
+    const overridePkgJson = JSON.parse(
+      await fs.readFile(overridePkgJsonPath, 'utf8'),
+    )
 
-    // Preserve devDependencies from original.
-    if (originalPkgJson.devDependencies) {
-      pkgJson.devDependencies = originalPkgJson.devDependencies
+    // Selectively merge Socket override fields into original package.json.
+    // We want: exports, main, types, files, sideEffects, socket
+    const mergedPkgJson = {
+      ...originalPkgJson,
+      // Override these specific fields from Socket package.
+      exports: overridePkgJson.exports,
+      main: overridePkgJson.main,
+      types: overridePkgJson.types,
+      files: overridePkgJson.files,
+      sideEffects: overridePkgJson.sideEffects,
+      socket: overridePkgJson.socket,
+      // Make the package private for testing.
+      private: true,
     }
 
-    // Preserve test scripts.
-    if (originalScripts) {
-      pkgJson.scripts = pkgJson.scripts || {}
+    // Clean up the test scripts.
+    if (mergedPkgJson.scripts) {
+      // Remove pretest script to avoid lint checks.
+      delete mergedPkgJson.scripts.pretest
+      delete mergedPkgJson.scripts.posttest
 
       // Look for actual test runner in scripts.
       const additionalTestRunners = [...testRunners, 'test:stock', 'test:all']
       let actualTestScript = additionalTestRunners.find(
-        runner => originalScripts[runner],
+        runner => mergedPkgJson.scripts[runner],
       )
 
-      if (!actualTestScript && originalScripts.test) {
+      if (!actualTestScript && mergedPkgJson.scripts.test) {
         // Try to extract the test runner from the test script.
-        const testMatch = originalScripts.test.match(/npm run ([-:\w]+)/)
-        if (testMatch && originalScripts[testMatch[1]]) {
+        const testMatch = mergedPkgJson.scripts.test.match(/npm run ([-:\w]+)/)
+        if (testMatch && mergedPkgJson.scripts[testMatch[1]]) {
           actualTestScript = testMatch[1]
         }
       }
 
-      // Use the actual test script or cleaned version.
-      if (actualTestScript && originalScripts[actualTestScript]) {
-        pkgJson.scripts.test = cleanTestScript(
-          originalScripts[actualTestScript],
+      // If the test script just runs lint or pretest, find a real test runner.
+      if (
+        mergedPkgJson.scripts.test?.includes('lint') ||
+        mergedPkgJson.scripts.test?.includes('pretest')
+      ) {
+        // Find a test runner that actually runs tests.
+        const realTestRunner = testRunners.find(
+          runner =>
+            mergedPkgJson.scripts[runner] &&
+            !mergedPkgJson.scripts[runner].includes('lint'),
         )
-        // Also preserve the actual script if it's referenced.
-        if (actualTestScript !== 'test') {
-          pkgJson.scripts[actualTestScript] = cleanTestScript(
-            originalScripts[actualTestScript],
-          )
+        if (realTestRunner) {
+          mergedPkgJson.scripts.test = mergedPkgJson.scripts[realTestRunner]
         }
-      } else if (originalScripts.test) {
-        // Fallback to simple test script if it exists.
-        pkgJson.scripts.test = cleanTestScript(originalScripts.test)
       }
 
-      // Preserve any test:* and tests-* scripts that might be referenced.
-      for (const [key, value] of Object.entries(originalScripts)) {
+      // If test script just delegates to another script, resolve it.
+      if (mergedPkgJson.scripts.test?.match(/^npm run ([-:\w]+)$/)) {
+        const targetScript =
+          mergedPkgJson.scripts.test.match(/^npm run ([-:\w]+)$/)[1]
         if (
-          (key.startsWith('test:') || key.startsWith('tests')) &&
-          !pkgJson.scripts[key]
+          mergedPkgJson.scripts[targetScript] &&
+          !mergedPkgJson.scripts[targetScript].includes('lint')
         ) {
-          pkgJson.scripts[key] = cleanTestScript(value)
+          mergedPkgJson.scripts.test = mergedPkgJson.scripts[targetScript]
+        }
+      }
+
+      // Clean the test scripts.
+      if (actualTestScript && mergedPkgJson.scripts[actualTestScript]) {
+        mergedPkgJson.scripts[actualTestScript] = cleanTestScript(
+          mergedPkgJson.scripts[actualTestScript],
+        )
+      }
+      if (mergedPkgJson.scripts.test) {
+        mergedPkgJson.scripts.test = cleanTestScript(mergedPkgJson.scripts.test)
+      }
+
+      // Clean any test:* and tests-* scripts.
+      for (const [key, value] of Object.entries(mergedPkgJson.scripts)) {
+        if (key.startsWith('test:') || key.startsWith('tests')) {
+          mergedPkgJson.scripts[key] = cleanTestScript(value)
         }
       }
     }
 
-    await fs.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 2))
+    await fs.writeFile(pkgJsonPath, JSON.stringify(mergedPkgJson, null, 2))
 
     // Check for test script.
-    const testScript = pkgJson.scripts?.test
+    const testScript = mergedPkgJson.scripts?.test
 
     if (!testScript) {
       writeProgress(LOG_SYMBOLS.warn)
