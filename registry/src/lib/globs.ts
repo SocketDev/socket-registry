@@ -3,7 +3,11 @@
  * Provides file filtering and glob matcher functions for npm-like behavior.
  */
 
-const { freeze: ObjectFreeze } = Object
+// IMPORTANT: Do not use destructuring here - use direct assignment instead.
+// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
+// `exports.SomeName = void 0;` which causes runtime errors.
+// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
+const ObjectFreeze = Object.freeze
 
 // Type definitions
 type Pattern = string

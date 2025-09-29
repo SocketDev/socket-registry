@@ -26,8 +26,18 @@ interface Task {
 export type { LogSymbols, LoggerMethods, Task }
 
 const globalConsole = console
-const { assign: ObjectAssign, freeze: ObjectFreeze } = Object
-const { apply: ReflectApply, construct: ReflectConstruct } = Reflect
+// IMPORTANT: Do not use destructuring here - use direct assignment instead.
+// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
+// `exports.SomeName = void 0;` which causes runtime errors.
+// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
+const ObjectAssign = Object.assign
+const ObjectFreeze = Object.freeze
+// IMPORTANT: Do not use destructuring here - use direct assignment instead.
+// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
+// `exports.SomeName = void 0;` which causes runtime errors.
+// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
+const ReflectApply = Reflect.apply
+const ReflectConstruct = Reflect.construct
 
 const { applyLinePrefix, isBlankString } = /*@__PURE__*/ require('./strings')
 

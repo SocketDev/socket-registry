@@ -1,7 +1,12 @@
 import { envAsBoolean, envAsString } from '../env.js'
 import WIN32 from './WIN32'
 
-const { freeze: ObjectFreeze, hasOwn: ObjectHasOwn } = Object
+// IMPORTANT: Do not use destructuring here - use direct assignment instead.
+// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
+// `exports.SomeName = void 0;` which causes runtime errors.
+// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
+const ObjectFreeze = Object.freeze
+const ObjectHasOwn = Object.hasOwn
 const { env } = process
 
 const DEBUG = envAsString(env['DEBUG'])
