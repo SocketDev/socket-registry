@@ -16,7 +16,8 @@ describe('words module', () => {
 
     it('should handle already capitalized words', () => {
       expect(capitalize('Hello')).toBe('Hello')
-      expect(capitalize('WORLD')).toBe('World') // lowercases rest
+      // lowercases rest
+      expect(capitalize('WORLD')).toBe('World')
     })
 
     it('should handle empty strings', () => {
@@ -58,17 +59,23 @@ describe('words module', () => {
     })
 
     it('should handle uppercase words', () => {
-      expect(determineArticle('Apple')).toBe('a') // A is not lowercase vowel
+      // A is not lowercase vowel
+      expect(determineArticle('Apple')).toBe('a')
       expect(determineArticle('Dog')).toBe('a')
-      expect(determineArticle('ELEPHANT')).toBe('a') // E is not lowercase vowel
+      // E is not lowercase vowel
+      expect(determineArticle('ELEPHANT')).toBe('a')
       expect(determineArticle('HOUSE')).toBe('a')
     })
 
     it('should handle special cases', () => {
-      expect(determineArticle('hour')).toBe('a') // h is not a vowel
-      expect(determineArticle('honest')).toBe('a') // h is not a vowel
-      expect(determineArticle('university')).toBe('an') // u is a vowel
-      expect(determineArticle('one')).toBe('an') // o is a vowel
+      // h is not a vowel
+      expect(determineArticle('hour')).toBe('a')
+      // h is not a vowel
+      expect(determineArticle('honest')).toBe('a')
+      // u is a vowel
+      expect(determineArticle('university')).toBe('an')
+      // o is a vowel
+      expect(determineArticle('one')).toBe('an')
     })
 
     it('should handle empty strings', () => {
@@ -76,21 +83,25 @@ describe('words module', () => {
     })
 
     it('should handle strings starting with numbers', () => {
-      expect(determineArticle('8-ball')).toBe('a') // 8 is not a vowel
+      // 8 is not a vowel
+      expect(determineArticle('8-ball')).toBe('a')
       expect(determineArticle('1st')).toBe('a')
     })
   })
 
   describe('pluralize', () => {
     it('should pluralize regular nouns', () => {
-      expect(pluralize('cat')).toBe('cat') // default count is 1
+      // default count is 1
+      expect(pluralize('cat')).toBe('cat')
       expect(pluralize('dog', 2)).toBe('dogs')
-      expect(pluralize('book', 0)).toBe('books') // 0 is plural
+      // 0 is plural
+      expect(pluralize('book', 0)).toBe('books')
       expect(pluralize('table', 5)).toBe('tables')
     })
 
     it('should handle words ending in s, x, z, ch, sh', () => {
-      expect(pluralize('bus', 2)).toBe('buss') // simple s appending
+      // simple s appending
+      expect(pluralize('bus', 2)).toBe('buss')
       expect(pluralize('box', 2)).toBe('boxs')
       expect(pluralize('buzz', 2)).toBe('buzzs')
       expect(pluralize('church', 2)).toBe('churchs')
@@ -98,7 +109,8 @@ describe('words module', () => {
     })
 
     it('should handle words ending in consonant + y', () => {
-      expect(pluralize('baby', 2)).toBe('babys') // simple s appending
+      // simple s appending
+      expect(pluralize('baby', 2)).toBe('babys')
       expect(pluralize('city', 2)).toBe('citys')
       expect(pluralize('story', 2)).toBe('storys')
       expect(pluralize('fly', 2)).toBe('flys')
@@ -112,20 +124,23 @@ describe('words module', () => {
     })
 
     it('should handle words ending in f or fe', () => {
-      expect(pluralize('leaf', 2)).toBe('leafs') // simple s appending
+      // simple s appending
+      expect(pluralize('leaf', 2)).toBe('leafs')
       expect(pluralize('knife', 2)).toBe('knifes')
       expect(pluralize('wife', 2)).toBe('wifes')
       expect(pluralize('shelf', 2)).toBe('shelfs')
     })
 
     it('should handle words ending in o', () => {
-      expect(pluralize('hero', 2)).toBe('heros') // simple s appending
+      // simple s appending
+      expect(pluralize('hero', 2)).toBe('heros')
       expect(pluralize('potato', 2)).toBe('potatos')
       expect(pluralize('tomato', 2)).toBe('tomatos')
     })
 
     it('should handle irregular plurals', () => {
-      expect(pluralize('child', 2)).toBe('childs') // simple s appending
+      // simple s appending
+      expect(pluralize('child', 2)).toBe('childs')
       expect(pluralize('person', 2)).toBe('persons')
       expect(pluralize('man', 2)).toBe('mans')
       expect(pluralize('woman', 2)).toBe('womans')
@@ -136,18 +151,22 @@ describe('words module', () => {
     })
 
     it('should handle unchanged plurals', () => {
-      expect(pluralize('sheep', 1)).toBe('sheep') // count=1, no s
-      expect(pluralize('deer', 2)).toBe('deers') // simple s appending
+      // count=1, no s
+      expect(pluralize('sheep', 1)).toBe('sheep')
+      // simple s appending
+      expect(pluralize('deer', 2)).toBe('deers')
       expect(pluralize('fish', 2)).toBe('fishs')
       expect(pluralize('series', 2)).toBe('seriess')
     })
 
     it('should handle empty strings', () => {
-      expect(pluralize('', 2)).toBe('s') // empty + s
+      // empty + s
+      expect(pluralize('', 2)).toBe('s')
     })
 
     it('should handle already plural words', () => {
-      expect(pluralize('cats', 2)).toBe('catss') // just adds s
+      // just adds s
+      expect(pluralize('cats', 2)).toBe('catss')
       expect(pluralize('dogs', 2)).toBe('dogss')
     })
   })

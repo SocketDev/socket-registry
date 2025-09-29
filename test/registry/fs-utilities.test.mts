@@ -277,11 +277,11 @@ describe('fs utilities', () => {
       expect(result).toEqual(data)
     })
 
-    it('should return null when throws is false and file not found', async () => {
+    it('should return undefined when throws is false and file not found', async () => {
       const result = await readJson(path.join(tmpDir, 'nonexistent.json'), {
         throws: false,
       })
-      expect(result).toBeNull()
+      expect(result).toBeUndefined()
     })
 
     it('should throw when file not found and throws is true', async () => {
@@ -312,11 +312,11 @@ describe('fs utilities', () => {
       expect(result).toEqual(data)
     })
 
-    it('should return null when throws is false and file not found', () => {
+    it('should return undefined when throws is false and file not found', () => {
       const result = readJsonSync(path.join(tmpDir, 'nonexistent.json'), {
         throws: false,
       })
-      expect(result).toBeNull()
+      expect(result).toBeUndefined()
     })
   })
 

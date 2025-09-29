@@ -9,7 +9,7 @@ import { isPackageTestingSkipped } from '../../scripts/utils/tests.mjs'
 const { NPM } = constants
 
 const eco = NPM
-const sockRegPkgName = path.basename(__filename, '.test.ts')
+const sockRegPkgName = path.basename(__filename, '.test.mts')
 
 // harmony-reflect has known failures in its package and requires running tests in browser.
 // https://github.com/tvcutsem/harmony-reflect/tree/v1.6.2/test

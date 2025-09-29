@@ -5,7 +5,6 @@ import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 const {
-  execBin,
   execNpm,
   execPnpm,
   execScript,
@@ -19,10 +18,13 @@ const {
   isPnpmIgnoreScriptsFlag,
   isPnpmInstallCommand,
   isPnpmLoglevelFlag,
+} = require('@socketsecurity/registry/lib/agent')
+const {
+  execBin,
   resolveBinPathSync,
   whichBin,
   whichBinSync,
-} = require('@socketsecurity/registry/lib/agent')
+} = require('@socketsecurity/registry/lib/bin')
 
 describe('agent package manager utilities', () => {
   let tmpDir: string
@@ -85,7 +87,8 @@ describe('agent package manager utilities', () => {
     it('should detect pnpm install commands', () => {
       expect(isPnpmInstallCommand('install')).toBe(true)
       expect(isPnpmInstallCommand('i')).toBe(true)
-      expect(isPnpmInstallCommand('add')).toBe(false) // Not an install command specifically
+      // Not an install command specifically
+      expect(isPnpmInstallCommand('add')).toBe(false)
       expect(isPnpmInstallCommand('other')).toBe(false)
     })
 
@@ -112,17 +115,17 @@ describe('agent package manager utilities', () => {
   describe('which utilities', () => {
     it('should find binaries with whichBinSync', () => {
       const result = whichBinSync('node')
-      expect(result === null || typeof result === 'string').toBe(true)
+      expect(result === undefined || typeof result === 'string').toBe(true)
     })
 
     it('should find binaries with whichBin', async () => {
       const result = await whichBin('node')
-      expect(result === null || typeof result === 'string').toBe(true)
+      expect(result === undefined || typeof result === 'string').toBe(true)
     })
 
-    it('should return null for non-existent binaries', async () => {
+    it('should return undefined for non-existent binaries', async () => {
       const result = await whichBin('definitely-not-a-real-binary-12345')
-      expect(result).toBeNull()
+      expect(result).toBeUndefined()
     })
   })
 

@@ -348,7 +348,8 @@ describe('promises module', () => {
           { retries: 2, minTimeout: 1, maxTimeout: 5 },
         ),
       ).rejects.toThrow('timeout test')
-      expect(attempts).toBe(3) // initial + 2 retries
+      // initial + 2 retries
+      expect(attempts).toBe(3)
     })
 
     it('should handle backoff factor', async () => {

@@ -38,9 +38,12 @@ describe('bin shadow path detection', () => {
 
     it('should handle paths that look similar but are not shadow bins', () => {
       const notShadowPaths = [
-        'node_modules/package/bin/tool', // No .bin directory.
-        '.bin/tool', // Just .bin without node_modules.
-        'some_node_modules_dir/tool', // No .bin at all.
+        // No .bin directory.
+        'node_modules/package/bin/tool',
+        // Just .bin without node_modules.
+        '.bin/tool',
+        // No .bin at all.
+        'some_node_modules_dir/tool',
       ]
 
       notShadowPaths.forEach((p: string) => {

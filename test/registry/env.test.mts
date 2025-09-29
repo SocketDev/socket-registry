@@ -67,7 +67,8 @@ describe('env module', () => {
     })
 
     it('should handle decimal numbers', () => {
-      expect(envAsNumber('3.14')).toBe(3) // parseInt only gets integer part
+      // parseInt only gets integer part
+      expect(envAsNumber('3.14')).toBe(3)
       expect(envAsNumber('5.99')).toBe(5)
     })
 
@@ -82,12 +83,14 @@ describe('env module', () => {
     })
 
     it('should handle scientific notation', () => {
-      expect(envAsNumber('1.23e4')).toBe(1) // parseInt stops at decimal
+      // parseInt stops at decimal
+      expect(envAsNumber('1.23e4')).toBe(1)
       expect(envAsNumber('1e3')).toBe(1)
     })
 
     it('should handle strings with numbers', () => {
-      expect(envAsNumber('42px')).toBe(42) // parseInt extracts number
+      // parseInt extracts number
+      expect(envAsNumber('42px')).toBe(42)
       expect(envAsNumber('  42  ')).toBe(42)
     })
   })
@@ -97,13 +100,15 @@ describe('env module', () => {
       expect(envAsBoolean('true')).toBe(true)
       expect(envAsBoolean('TRUE')).toBe(true)
       expect(envAsBoolean('1')).toBe(true)
-      expect(envAsBoolean(' 1 ')).toBe(true) // trimmed
+      // trimmed
+      expect(envAsBoolean(' 1 ')).toBe(true)
     })
 
     it('should return false for falsy values', () => {
       expect(envAsBoolean('false')).toBe(false)
       expect(envAsBoolean('0')).toBe(false)
-      expect(envAsBoolean('no')).toBe(false) // any string != '1' or 'true' is false
+      // any string != '1' or 'true' is false
+      expect(envAsBoolean('no')).toBe(false)
       expect(envAsBoolean('off')).toBe(false)
     })
 
@@ -122,16 +127,19 @@ describe('env module', () => {
     it('should handle case insensitive values', () => {
       expect(envAsBoolean('TRUE')).toBe(true)
       expect(envAsBoolean('True')).toBe(true)
-      expect(envAsBoolean('False')).toBe(false) // not 'true' or '1'
+      // not 'true' or '1'
+      expect(envAsBoolean('False')).toBe(false)
     })
 
     it('should handle empty string as false', () => {
       expect(envAsBoolean('')).toBe(false)
-      expect(envAsBoolean('   ')).toBe(false) // trimmed to empty
+      // trimmed to empty
+      expect(envAsBoolean('   ')).toBe(false)
     })
 
     it('should handle any non-true/1 string as false', () => {
-      expect(envAsBoolean('anything')).toBe(false) // not 'true' or '1'
+      // not 'true' or '1'
+      expect(envAsBoolean('anything')).toBe(false)
       expect(envAsBoolean('yes')).toBe(false)
       expect(envAsBoolean('on')).toBe(false)
     })

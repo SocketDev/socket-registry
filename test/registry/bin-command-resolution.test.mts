@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('bin.js comprehensive tests', () => {
-  const bin = require('../../registry/lib/bin.js')
+  const bin = require('../../registry/dist/lib/bin.js')
 
   beforeEach(() => {
     vi.clearAllMocks()

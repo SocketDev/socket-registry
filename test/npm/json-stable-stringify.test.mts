@@ -4,16 +4,17 @@ import { beforeAll, describe, expect, it } from 'vitest'
 
 import constants from '../../scripts/constants.mjs'
 import { installPackageForTesting } from '../../scripts/utils/package-utils.mjs'
+import { isPackageTestingSkipped } from '../../scripts/utils/tests.mjs'
 
 const { NPM } = constants
 
 const eco = NPM
-const sockRegPkgName = path.basename(__filename, '.test.ts')
+const sockRegPkgName = path.basename(__filename, '.test.mts')
 
 describe(
   `${eco} > ${sockRegPkgName}`,
   {
-    skip: constants.ENV.CI,
+    skip: isPackageTestingSkipped(eco, sockRegPkgName) || constants.ENV.CI,
   },
   () => {
     let pkgPath: string
@@ -23,6 +24,10 @@ describe(
     beforeAll(async () => {
       const result = await installPackageForTesting(sockRegPkgName)
       if (!result.installed) {
+        // Skip tests if package installation is skipped for known issues
+        if (result.reason === 'Skipped (known issues)') {
+          return
+        }
         throw new Error(`Failed to install package: ${result.reason}`)
       }
       pkgPath = result.packagePath!
@@ -84,7 +89,7 @@ describe(
 
       it(
         `${methodName}: supports JSON.rawJSON`,
-        { skip: !SUPPORTS_JSON_RAW_JSON },
+        { skip: !SUPPORTS_JSON_RAW_JSON || !jsonStableStringify },
         () => {
           // Test case from MDN example:
           // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/isRawJSON#examples

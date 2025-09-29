@@ -9,7 +9,7 @@ import { setupMultiEntryTest } from '../utils/test-helpers.mjs'
 const { NPM } = constants
 
 const eco = NPM
-const sockRegPkgName = path.basename(__filename, '.test.ts')
+const sockRegPkgName = path.basename(__filename, '.test.mts')
 
 // is-regex tests don't account for `is-regex` backed by.
 // `require('node:util/types).isRegExp` which triggers no proxy traps and.

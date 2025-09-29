@@ -9,7 +9,7 @@ import { isPackageTestingSkipped } from '../../scripts/utils/tests.mjs'
 const { NPM } = constants
 
 const eco = NPM
-const sockRegPkgName = path.basename(__filename, '.test.ts')
+const sockRegPkgName = path.basename(__filename, '.test.mts')
 
 describe(
   `${eco} > ${sockRegPkgName}`,

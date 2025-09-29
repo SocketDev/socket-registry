@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
 const {
-  execBin,
   execNpm,
   execPnpm,
   execScript,
@@ -15,10 +14,13 @@ const {
   isPnpmIgnoreScriptsFlag,
   isPnpmInstallCommand,
   isPnpmLoglevelFlag,
+} = require('@socketsecurity/registry/lib/agent')
+const {
+  execBin,
   resolveBinPathSync,
   whichBin,
   whichBinSync,
-} = require('@socketsecurity/registry/lib/agent')
+} = require('@socketsecurity/registry/lib/bin')
 
 describe('agent module', () => {
   describe('isNpmAuditFlag', () => {
@@ -274,7 +276,8 @@ describe('agent module', () => {
 
     it('should handle non-existent binaries', () => {
       const path = resolveBinPathSync('nonexistentbinary12345')
-      expect(path).toBeDefined() // Returns the input when not found
+      // Returns the input when not found
+      expect(path).toBeDefined()
     })
   })
 
@@ -285,9 +288,9 @@ describe('agent module', () => {
       expect(path.length).toBeGreaterThan(0)
     })
 
-    it('should return null for non-existent binaries', () => {
+    it('should return undefined for non-existent binaries', () => {
       const path = whichBinSync('nonexistentbinary12345')
-      expect(path).toBeNull()
+      expect(path).toBeUndefined()
     })
   })
 
@@ -298,9 +301,9 @@ describe('agent module', () => {
       expect(path.length).toBeGreaterThan(0)
     })
 
-    it('should return null for non-existent binaries', async () => {
+    it('should return undefined for non-existent binaries', async () => {
       const path = await whichBin('nonexistentbinary12345')
-      expect(path).toBeNull()
+      expect(path).toBeUndefined()
     })
 
     it('should handle string binary name', async () => {
