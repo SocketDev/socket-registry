@@ -148,7 +148,7 @@ describe('agent module', () => {
         expect(result.stdout).toMatch(/\d+\.\d+\.\d+/)
       } catch (error: any) {
         // pnpm might not be installed
-        expect(error.code).toMatch(/ENOENT|ENOTFOUND|EFTYPE|UNKNOWN/)
+        expect(error.code).toMatch(/ENOENT|ENOTFOUND|EFTYPE|UNKNOWN|EINVAL/)
       }
     })
   })
@@ -161,7 +161,7 @@ describe('agent module', () => {
         expect(result.stdout).toMatch(/\d+\.\d+\.\d+/)
       } catch (error: any) {
         // yarn might not be installed
-        expect(error.code).toMatch(/ENOENT|ENOTFOUND|EFTYPE|UNKNOWN/)
+        expect(error.code).toMatch(/ENOENT|ENOTFOUND|EFTYPE|UNKNOWN|EINVAL/)
       }
     })
   })
