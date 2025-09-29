@@ -1349,15 +1349,16 @@
   },
   "sideEffects": false,
   "scripts": {
-    "build": "pnpm run clean:dist && tsgo && node ./scripts/fix-commonjs-exports.mjs && node ./scripts/inline-constants.mjs && node ./scripts/rollup/build-external.mjs",
+    "build": "pnpm run clean:dist && tsgo --build && node ./scripts/fix-commonjs-exports.mjs && node ./scripts/inline-constants.mjs && node ./scripts/rollup/build-external.mjs",
     "check:tsc": "tsgo --noEmit",
     "clean": "run-s -c clean:*",
-    "clean:dist": "del-cli 'dist'",
+    "clean:dist": "del-cli 'dist' '**/*.tsbuildinfo'",
     "clean:node_modules": "del-cli '**/node_modules'",
     "lint:external:fix": "run-s -c lint:external:fix:*",
     "lint:external:fix:oxlint": "dotenvx -q run -f .env.external -- oxlint -c=../.oxlintrc.json --ignore-path=../.oxlintignore --tsconfig=../tsconfig.json --silent --fix ./dist/external | dev-null",
     "lint:external:fix:biome": "dotenvx -q run -f .env.external -- biome format --log-level=none --fix ./dist/external | dev-null",
-    "//lint:external:fix:eslint": "dotenvx -q run -f .env.external -- eslint -c=../eslint.config.js --report-unused-disable-directives --quiet --fix ./dist/external | dev-null"
+    "//lint:external:fix:eslint": "dotenvx -q run -f .env.external -- eslint -c=../eslint.config.js --report-unused-disable-directives --quiet --fix ./dist/external | dev-null",
+    "prepublishOnly": "pnpm run build"
   },
   "devDependencies": {
     "@babel/core": "7.28.4",
