@@ -39,11 +39,11 @@ const concurrency = Math.max(1, parseInt(cliArgs.concurrency, 10))
 const tempBaseDir = cliArgs.tempDir
 
 // Progress tracking.
-let completedPackages = 0
-let totalPackagesCount = 0
 let cachedCount = 0
-let installedCount = 0
+let completedPackages = 0
 let failedCount = 0
+let installedCount = 0
+let totalPackagesCount = 0
 
 function writeProgress(symbol) {
   // Track counts silently.
@@ -424,23 +424,20 @@ async function main() {
   }
 
   // Initialize progress tracking.
-  totalPackagesCount = filteredPackages.length
-  completedPackages = 0
   cachedCount = 0
-  installedCount = 0
+  completedPackages = 0
   failedCount = 0
+  installedCount = 0
+  totalPackagesCount = filteredPackages.length
 
-  // Start spinner.
-  spinner.start(
-    `Installing ${filteredPackages.length} ${pluralize('package', filteredPackages.length)}`,
-  )
+  spinner.start()
 
   // Update spinner text when progress changes.
   let lastCompletedCount = 0
   const progressInterval = setInterval(() => {
     if (completedPackages !== lastCompletedCount) {
       lastCompletedCount = completedPackages
-      spinner.text = `Installing ${pluralize('package', filteredPackages.length)}\nProgress (${completedPackages}/${totalPackagesCount})`
+      spinner.text = `Installing ${completedPackages}/${totalPackagesCount} ${pluralize('package', filteredPackages.length)}`
     }
   }, 100)
 
