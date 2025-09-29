@@ -48,6 +48,7 @@
  */
 
 import { promises as fs } from 'node:fs'
+import { isBuiltin } from 'node:module'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -340,7 +341,7 @@ async function fixImportsInFile(filePath, fixedConstants, fixedExternals) {
       },
       MemberExpression(path) {
         const { node } = path
-        // Look for variable.default patterns (e.g., abort_controller_1.default).
+        // Look for variable.default patterns (e.g., abort_controller_1.default, node_path_1.default).
         if (
           t.isIdentifier(node.object) &&
           t.isIdentifier(node.property, { name: 'default' }) &&
@@ -369,25 +370,31 @@ async function fixImportsInFile(filePath, fixedConstants, fixedExternals) {
           })
 
           if (requirePath) {
+            // Check if this is a Node.js built-in module.
+            const isNodeBuiltin = isBuiltin(requirePath)
+
             // Check if this module was fixed.
             // Handle both simple names and paths with hyphens.
             const moduleNameMatch = requirePath.match(/\/([^/]+)$/)
-            if (moduleNameMatch) {
+            let shouldFix = isNodeBuiltin
+
+            if (!shouldFix && moduleNameMatch) {
               // Keep hyphens as-is.
               const moduleName = moduleNameMatch[1].replace(/-/g, '-')
-              if (
+              shouldFix =
                 fixedConstants.has(moduleName) ||
                 fixedExternals.has(moduleName) ||
                 // Explicitly check for known problematic cases.
                 fixedConstants.has('abort-controller')
-              ) {
-                // Remove .default accessor.
-                // Include the dot.
-                const start = node.property.start - 1
-                const end = node.property.end
-                magicString.remove(start, end)
-                modified = true
-              }
+            }
+
+            if (shouldFix) {
+              // Remove .default accessor.
+              // Include the dot.
+              const start = node.property.start - 1
+              const end = node.property.end
+              magicString.remove(start, end)
+              modified = true
             }
           }
         }
