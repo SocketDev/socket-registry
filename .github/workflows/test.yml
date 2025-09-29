@@ -2,7 +2,6 @@ name: ⚡ Test
 
 # Dependencies:
 #   - SocketDev/socket-registry/.github/actions/setup-and-install@main
-#   - SocketDev/socket-registry/.github/actions/cache-npm-packages@main
 #   - SocketDev/socket-registry/.github/actions/run-script@main
 #   - SocketDev/socket-registry/.github/actions/artifacts@main
 
@@ -107,12 +106,6 @@ jobs:
           debug: ${{ inputs.debug }}
           node-version: ${{ matrix.node-version }}
           working-directory: ${{ inputs.working-directory }}
-
-      - name: Cache npm test packages
-        uses: SocketDev/socket-registry/.github/actions/cache-npm-packages@main
-        with:
-          path: ~/.socket-npm-test-cache
-          key-prefix: npm-test-packages
 
       - uses: SocketDev/socket-registry/.github/actions/run-script@main
         with:
