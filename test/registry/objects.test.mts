@@ -197,7 +197,7 @@ describe('objects module', () => {
         ['z', 3],
         ['a', 1],
         ['m', 2],
-      ]
+      ] as Iterable<[PropertyKey, string | number]>
       const sorted = toSortedObjectFromEntries(entries)
       expect(Object.keys(sorted)).toEqual(['a', 'm', 'z'])
       expect(sorted).toEqual({ a: 1, m: 2, z: 3 })
@@ -287,7 +287,7 @@ describe('objects module', () => {
 
     it('should track stats if provided', () => {
       const obj: any = {}
-      const stats = { initialized: new Set() }
+      const stats = { initialized: new Set() } as any
       defineLazyGetter(obj, 'prop', () => 'value', stats)
       expect(stats.initialized.has('prop')).toBe(false)
       obj.prop
@@ -336,8 +336,8 @@ describe('objects module', () => {
     it('should create a frozen constants object', () => {
       const props = { CONST_A: 1, CONST_B: 2 }
       const constants = createConstantsObject(props)
-      expect(constants.CONST_A).toBe(1)
-      expect(constants.CONST_B).toBe(2)
+      expect((constants as any).CONST_A).toBe(1)
+      expect((constants as any).CONST_B).toBe(2)
       expect(Object.isFrozen(constants)).toBe(true)
     })
 
@@ -352,8 +352,8 @@ describe('objects module', () => {
           },
         },
       })
-      expect(constants.LAZY).toBe('lazy')
-      expect(constants.LAZY).toBe('lazy')
+      expect((constants as any).LAZY).toBe('lazy')
+      expect((constants as any).LAZY).toBe('lazy')
       expect(callCount).toBe(1)
     })
 
@@ -364,17 +364,17 @@ describe('objects module', () => {
           internal: 'value',
         },
       })
-      const kInternalsSymbol = constants.kInternalsSymbol
-      expect(constants[kInternalsSymbol]).toBeDefined()
-      expect(constants[kInternalsSymbol].internal).toBe('value')
+      const kInternalsSymbol = (constants as any).kInternalsSymbol
+      expect((constants as any)[kInternalsSymbol]).toBeDefined()
+      expect((constants as any)[kInternalsSymbol].internal).toBe('value')
     })
 
     it('should support mixin objects', () => {
       const props = { CONST_A: 1 }
       const mixin = { mixedIn: true }
       const constants = createConstantsObject(props, { mixin })
-      expect(constants.CONST_A).toBe(1)
-      expect(constants.mixedIn).toBe(true)
+      expect((constants as any).CONST_A).toBe(1)
+      expect((constants as any).mixedIn).toBe(true)
     })
   })
 })
