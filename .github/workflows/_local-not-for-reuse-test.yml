@@ -1,7 +1,10 @@
 name: ⚙️ Tests
 
 # Dependencies:
-#   - SocketDev/socket-registry/.github/workflows/test.yml@main
+#   - SocketDev/socket-registry/.github/actions/setup-and-install@main
+#   - SocketDev/socket-registry/.github/actions/cache-npm-packages@main
+#   - SocketDev/socket-registry/.github/actions/run-script@main
+#   - SocketDev/socket-registry/.github/actions/artifacts@main
 
 on:
   push:
@@ -14,9 +17,33 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
-  test:
-    uses: SocketDev/socket-registry/.github/workflows/test.yml@main
-    with:
-      setup-script: 'pnpm run build'
-      timeout-minutes: 90
+  test-matrix:
+    strategy:
+      fail-fast: true
+      max-parallel: 4
+      matrix:
+        node-version: [20, 22, 24]
+        os: ['ubuntu-latest', 'windows-latest']
+    name: Test Node ${{ matrix.node-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    steps:
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@main
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Cache npm test packages
+        uses: SocketDev/socket-registry/.github/actions/cache-npm-packages@main
+        with:
+          path: ~/.socket-npm-test-cache
+          key-prefix: npm-test-packages
+
+      - uses: SocketDev/socket-registry/.github/actions/run-script@main
+        with:
+          setup-script: 'pnpm run build'
+          main-script: 'pnpm run test-ci'
