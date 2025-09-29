@@ -10,7 +10,7 @@ describe('bin which utilities', () => {
       const nodePath = whichBinSync('node')
       expect(nodePath).toBeTruthy()
       expect(typeof nodePath).toBe('string')
-      expect(path.isAbsolute(nodePath)).toBe(true)
+      expect(path.isAbsolute(nodePath as string)).toBe(true)
     })
 
     it('should return undefined for non-existent binaries', () => {
@@ -28,7 +28,7 @@ describe('bin which utilities', () => {
       expect(Array.isArray(result)).toBe(true)
       if (result) {
         expect(result.length).toBeGreaterThan(0)
-        result.forEach((p: string) => {
+        ;(result as string[]).forEach((p: string) => {
           expect(typeof p).toBe('string')
           expect(path.isAbsolute(p)).toBe(true)
         })
@@ -76,7 +76,7 @@ describe('bin which utilities', () => {
     it('should return all paths when all:true', () => {
       const result = whichBinSync('node', { all: true })
       expect(Array.isArray(result)).toBe(true)
-      expect(result.length).toBeGreaterThan(0)
+      expect(result!.length).toBeGreaterThan(0)
     })
 
     it('should handle all:true with non-existent binary', () => {
@@ -93,7 +93,7 @@ describe('bin which utilities', () => {
       const nodePath = await whichBin('node')
       expect(nodePath).toBeTruthy()
       expect(typeof nodePath).toBe('string')
-      expect(path.isAbsolute(nodePath)).toBe(true)
+      expect(path.isAbsolute(nodePath as string)).toBe(true)
     })
 
     it('should return undefined for non-existent binaries', async () => {
@@ -111,7 +111,7 @@ describe('bin which utilities', () => {
       expect(Array.isArray(result)).toBe(true)
       if (result) {
         expect(result.length).toBeGreaterThan(0)
-        result.forEach((p: string) => {
+        ;(result as string[]).forEach((p: string) => {
           expect(typeof p).toBe('string')
           expect(path.isAbsolute(p)).toBe(true)
         })
@@ -135,7 +135,7 @@ describe('bin which utilities', () => {
       const result = await whichBin('npm', { all: true })
       if (result && result.length > 0) {
         // All paths should be resolved (absolute).
-        result.forEach((p: string) => {
+        ;(result as string[]).forEach((p: string) => {
           expect(path.isAbsolute(p)).toBe(true)
         })
       }
@@ -161,7 +161,7 @@ describe('bin which utilities', () => {
     it('should return all paths when all:true', async () => {
       const result = await whichBin('node', { all: true })
       expect(Array.isArray(result)).toBe(true)
-      expect(result.length).toBeGreaterThan(0)
+      expect(result!.length).toBeGreaterThan(0)
     })
 
     it('should handle all:true with non-existent binary', async () => {
