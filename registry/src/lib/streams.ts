@@ -3,10 +3,7 @@
  * Provides async stream handling and transformation functions.
  */
 
-const {
-  normalizeIterationOptions,
-  pRetry,
-} = /*@__PURE__*/ require('./promises')
+import { normalizeIterationOptions, pRetry } from './promises'
 
 let _streamingIterables: any
 /**

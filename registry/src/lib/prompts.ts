@@ -4,6 +4,7 @@
  */
 
 import abortSignal from './constants/abort-signal'
+import spinner from './constants/spinner'
 
 // Type definitions
 
@@ -47,10 +48,9 @@ function wrapPrompt(
 ): (...args: any[]) => Promise<any> {
   return async (...args) => {
     const origContext = args.length > 1 ? args[1] : undefined
-    const {
-      spinner = /*@__PURE__*/ require('./constants/spinner').default,
-      ...contextWithoutSpinner
-    } = origContext ?? {}
+    const { spinner: contextSpinner = spinner, ...contextWithoutSpinner } =
+      origContext ?? {}
+    const spinnerInstance = contextSpinner
     const signal = abortSignal
     if (origContext) {
       args[1] = {
@@ -60,8 +60,8 @@ function wrapPrompt(
     } else {
       args[1] = { signal }
     }
-    const wasSpinning = !!spinner?.isSpinning
-    spinner?.stop()
+    const wasSpinning = !!spinnerInstance?.isSpinning
+    spinnerInstance?.stop()
     let result
     try {
       result = await inquirerPrompt(...args)
@@ -71,7 +71,7 @@ function wrapPrompt(
       }
     }
     if (wasSpinning) {
-      spinner.start()
+      spinnerInstance.start()
     }
     return typeof result === 'string' ? result.trim() : result
   }

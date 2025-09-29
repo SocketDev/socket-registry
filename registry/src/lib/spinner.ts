@@ -3,7 +3,10 @@
  * Provides animated progress indicators with CI environment detection.
  */
 
+import ENV from './constants/ENV'
 import abortSignal from './constants/abort-signal'
+import { isBlankString } from './strings'
+import yoctoSpinnerFactory from '../external/@socketregistry/yocto-spinner'
 
 import type { Writable } from 'node:stream'
 
@@ -119,16 +122,14 @@ let _defaultSpinner: SpinnerStyle | undefined
 /*@__NO_SIDE_EFFECTS__*/
 export function Spinner(options?: SpinnerOptions | undefined): Spinner {
   if (_Spinner === undefined) {
-    const ENV = /*@__PURE__*/ require('./constants/ENV')
-    const { isBlankString } = /*@__PURE__*/ require('./strings')
-    const yoctoFactory = /*@__PURE__*/ require('../external/@socketregistry/yocto-spinner')
-    const { constructor: YoctoCtor } = yoctoFactory()
+    const { constructor: YoctoCtor } = yoctoSpinnerFactory()
 
     /*@__PURE__*/
-    _Spinner = class SpinnerClass extends YoctoCtor {
+    _Spinner = class SpinnerClass extends (YoctoCtor as any) {
       declare isSpinning: boolean
       declare text: string
       constructor(options?: SpinnerOptions | undefined) {
+        // eslint-disable-next-line constructor-super
         super({
           signal: abortSignal,
           ...options,
@@ -151,7 +152,7 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
           incLogCallCountSymbol,
           lastWasBlankSymbol,
           logger,
-        } = /*@__PURE__*/ require('./logger')
+        } = /*@__PURE__*/ require('./logger.js')
         if (methodName === 'stop') {
           if (wasSpinning && normalized) {
             logger[lastWasBlankSymbol](isBlankString(normalized))
@@ -178,7 +179,7 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
       }
 
       debug(...args: any[]) {
-        const { isDebug } = /*@__PURE__*/ require('./debug')
+        const { isDebug } = /*@__PURE__*/ require('./debug.js')
         if (isDebug()) {
           return this.#applyAndKeepSpinning('info', args)
         }
@@ -186,7 +187,7 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
       }
 
       debugAndStop(...args: any[]) {
-        const { isDebug } = /*@__PURE__*/ require('./debug')
+        const { isDebug } = /*@__PURE__*/ require('./debug.js')
         if (isDebug()) {
           return this.#apply('info', args)
         }
