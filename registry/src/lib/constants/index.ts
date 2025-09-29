@@ -144,7 +144,9 @@ export default createConstantsObject(props, {
         k,
         () => {
           // Keep uppercase for certain constants that are uppercase files
-          const fileName = ['DARWIN', 'ENV', 'WIN32'].includes(k) ? k : toKebabCase(k)
+          const fileName = ['DARWIN', 'ENV', 'WIN32'].includes(k)
+            ? k
+            : toKebabCase(k)
           return require(`./${fileName}`)
         },
       ]),
