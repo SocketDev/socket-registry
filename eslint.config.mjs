@@ -156,6 +156,7 @@ function configs(sourceType) {
     unicorn: unicornPlugin,
   }
   const sharedRules = {
+    'line-comment-position': ['error', { position: 'above' }],
     'n/exports-style': ['error', 'module.exports'],
     // The n/no-unpublished-bin rule does does not support non-trivial glob
     // patterns used in package.json "files" fields. In those cases we simplify
@@ -179,10 +180,15 @@ function configs(sourceType) {
       'error',
       {
         ignores: [
+          'buffer.File',
+          'buffer.isAscii',
+          'buffer.isUtf8',
           'buffer.resolveObjectURL',
           'fetch',
           'fs.promises.cp',
+          'module.isBuiltin',
           'process.features.require_module',
+          'Response',
         ],
         version: constants.maintainedNodeVersions.current,
       },
@@ -262,6 +268,8 @@ function configs(sourceType) {
             allowDefaultProject: [
               // Add package CTS type definitions not covered by tsconfig.
               'packages/*/*/*.d.cts',
+              // Add constants type definitions.
+              'registry/src/lib/constants/*.d.ts',
             ],
             defaultProject: 'tsconfig.json',
             // Need this to glob packages/npm/* files.

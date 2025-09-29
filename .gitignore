@@ -12,6 +12,5 @@ Thumbs.db
 **/node_modules
 /*.tsbuildinfo
 
-registry/external
 test/**/packages
 test/**/.tmp-*

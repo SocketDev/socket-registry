@@ -11,8 +11,13 @@ import jsonPkg from '../dist/lib/json.js'
 import regexpsPkg from '../dist/lib/regexps.js'
 import stringsPkg from '../dist/lib/strings.js'
 
-const { ENV } = constantsPkg
-const { isDebug } = debugPkg
+// Inline environment checks to avoid issues during build.
+const ENV = {
+  CI: 'CI' in process.env,
+  VERBOSE_BUILD: process.env.VERBOSE_BUILD === 'true',
+  ...constantsPkg.ENV,
+}
+const { isDebug = () => !!process.env.DEBUG } = debugPkg || {}
 const { isJsonPrimitive } = jsonPkg
 const { escapeRegExp } = regexpsPkg
 const { toKebabCase } = stringsPkg
@@ -122,9 +127,10 @@ void (async () => {
   const shouldShowOutput = ENV.CI || ENV.VERBOSE_BUILD || !isQuietLifecycle
   if (shouldShowOutput) {
     if (isDebug()) {
-      inlinedConstants.forEach(key => console.log(`✅ Inlined ${key}`))
-    } else {
-      console.log(`✅ Inlined constants`)
+      console.log('Inlined constants:')
+      inlinedConstants.forEach(n => console.log(`✅ ${n}`))
+    } else if (inlinedConstants.length) {
+      console.log(`✅ Inlined constants (${inlinedConstants.length})`)
     }
   }
 })()
