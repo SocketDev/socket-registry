@@ -20,7 +20,7 @@ describe('manifest data utilities', () => {
       if (npmEntries && npmEntries.length > 0) {
         // Each entry should be a tuple [purlStr, data].
         expect(Array.isArray(npmEntries[0])).toBe(true)
-        expect(npmEntries[0].length).toBe(2)
+        expect(npmEntries[0]!.length).toBe(2)
       }
     })
 
@@ -28,7 +28,7 @@ describe('manifest data utilities', () => {
       const npmEntries = getManifestData('npm')
       if (npmEntries && npmEntries.length > 0) {
         // Just test that the entries exist and have the expected structure.
-        const { 0: purl, 1: data } = npmEntries[0]
+        const { 0: purl, 1: data } = npmEntries[0]!
         expect(purl).toBeDefined()
         expect(data).toBeDefined()
         expect(data.name).toBeDefined()
@@ -36,6 +36,7 @@ describe('manifest data utilities', () => {
     })
 
     it('should return undefined for non-existent ecosystem', () => {
+      // @ts-expect-error - Testing runtime behavior with invalid ecosystem.
       const result = getManifestData('nonexistent')
       expect(result).toBeUndefined()
     })
@@ -69,12 +70,14 @@ describe('manifest data utilities', () => {
     })
 
     it('should return ecosystem entries when package name is null', () => {
+      // @ts-expect-error - Testing runtime behavior with null.
       const result = getManifestData('npm', null)
       // When no specific package name is given, returns the ecosystem entries
       expect(Array.isArray(result)).toBe(true)
     })
 
     it('should return ecosystem entries when package name is undefined', () => {
+      // @ts-expect-error - Testing runtime behavior with undefined.
       const result = getManifestData('npm', undefined)
       // When no specific package name is given, returns the ecosystem entries
       expect(Array.isArray(result)).toBe(true)
