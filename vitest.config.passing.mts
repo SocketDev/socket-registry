@@ -50,7 +50,6 @@ export default defineConfig({
         'coverage/**',
         'test/**',
         'scripts/**',
-        'registry/external/**',
         'registry/src/external/**',
         'registry/scripts/**',
         'packages/**',
