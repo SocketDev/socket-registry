@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-const {
+import {
   isNodeModules,
   isPath,
   isRelative,
@@ -8,7 +8,7 @@ const {
   pathLikeToString,
   splitPath,
   trimLeadingDotSlash,
-} = require('../../registry/dist/lib/path')
+} from '../../registry/dist/lib/path.js'
 
 describe('path module', () => {
   describe('isPath', () => {

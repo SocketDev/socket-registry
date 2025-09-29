@@ -3,6 +3,7 @@
  * Provides Socket CLI specific debug functionality and logging formatters.
  */
 
+import ENV from './constants/ENV'
 import { hasOwn } from './objects'
 import { applyLinePrefix } from './strings'
 
@@ -56,7 +57,6 @@ function getDebugJsInstance(namespace: string) {
     return inst
   }
   const debugJs = getDebugJs()
-  const ENV = /*@__PURE__*/ require('./constants/ENV').default
   if (
     !ENV.DEBUG &&
     ENV.SOCKET_CLI_DEBUG &&
@@ -91,7 +91,7 @@ function getUtil() {
  */
 /*@__NO_SIDE_EFFECTS__*/
 function customLog() {
-  const { logger } = /*@__PURE__*/ require('./logger')
+  const { logger } = /*@__PURE__*/ require('./logger.js')
   const debugJs = getDebugJs()
   const util = getUtil()
   const inspectOpts = debugJs.inspectOpts
@@ -165,11 +165,11 @@ function debugDirComplex(namespacesOrOpts: any, obj: any, inspectOpts?: any) {
     const debugJs = getDebugJs()
     inspectOpts = debugJs.inspectOpts
   }
-  const { spinner = /*@__PURE__*/ require('./constants/spinner').default } =
+  const { spinner = /*@__PURE__*/ require('./constants/spinner.js').default } =
     options
   const wasSpinning = spinner.isSpinning
   spinner.stop()
-  const { logger } = /*@__PURE__*/ require('./logger')
+  const { logger } = /*@__PURE__*/ require('./logger.js')
   logger.dir(obj, inspectOpts)
   if (wasSpinning) {
     spinner.start()
@@ -240,11 +240,11 @@ function debugFnComplex(namespacesOrOpts: NamespacesOrOptions, ...args: any[]) {
           ...args.slice(1),
         ]
       : args
-  const { spinner = /*@__PURE__*/ require('./constants/spinner').default } =
+  const { spinner = /*@__PURE__*/ require('./constants/spinner.js').default } =
     options
   const wasSpinning = spinner.isSpinning
   spinner.stop()
-  const { logger } = /*@__PURE__*/ require('./logger')
+  const { logger } = /*@__PURE__*/ require('./logger.js')
   ReflectApply(logger.info, logger, logArgs)
   if (wasSpinning) {
     spinner.start()
@@ -263,7 +263,7 @@ function debugLogComplex(namespacesOrOpts: any, ...args: any[]) {
   if (!isEnabled(namespaces)) {
     return
   }
-  const { spinner = /*@__PURE__*/ require('./constants/spinner').default } =
+  const { spinner = /*@__PURE__*/ require('./constants/spinner.js').default } =
     options
   const wasSpinning = spinner.isSpinning
   spinner.stop()
@@ -280,7 +280,6 @@ function debugLogComplex(namespacesOrOpts: any, ...args: any[]) {
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
 function isDebugComplex(namespaces: any): boolean {
-  const ENV = /*@__PURE__*/ require('./constants/ENV').default
   return ENV.SOCKET_CLI_DEBUG && isEnabled(namespaces)
 }
 /* c8 ignore stop */

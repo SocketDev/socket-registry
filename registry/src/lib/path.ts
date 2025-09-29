@@ -353,7 +353,7 @@ export function pathLikeToString(
       // On Windows, strip the leading slash only for malformed URLs that lack drive letters
       // (e.g., `/path` should be `path`, but `/C:/path` should be `C:/path`).
       // On Unix, keep the leading slash for absolute paths (e.g., `/home/user`).
-      const WIN32 = /*@__PURE__*/ require('./constants/WIN32').default
+      const WIN32 = /*@__PURE__*/ require('./constants/WIN32.js').default
       if (WIN32 && pathname.startsWith('/')) {
         // Check for drive letter pattern following Node.js source: /[a-zA-Z]:/
         // Character at index 1 should be a letter, character at index 2 should be ':'

@@ -4,14 +4,14 @@ import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-const {
+import {
   isBlessedPackageName,
   normalizePackageJson,
   readPackageJson,
   readPackageJsonSync,
   resolveOriginalPackageName,
   resolvePackageJsonPath,
-} = require('../../registry/dist/lib/packages')
+} from '../../registry/dist/lib/packages.js'
 
 describe('packages normalization and reading', () => {
   describe('normalizePackageJson', () => {

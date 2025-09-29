@@ -4,7 +4,7 @@ import path from 'node:path'
 
 import { describe, expect, it, vi } from 'vitest'
 
-const {
+import {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
   createPackageJson,
@@ -23,7 +23,7 @@ const {
   readPackageJsonFromArchive,
   resolvePackageName,
   resolveRegistryPackageName,
-} = require('../../registry/dist/lib/packages')
+} from '../../registry/dist/lib/packages.js'
 
 describe('packages module extended tests', () => {
   describe('collectIncompatibleLicenses', () => {

@@ -2,7 +2,7 @@ import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-const { whichBin, whichBinSync } = require('../../registry/dist/lib/bin')
+import { whichBin, whichBinSync } from '../../registry/dist/lib/bin.js'
 
 describe('bin which utilities', () => {
   describe('whichBinSync', () => {

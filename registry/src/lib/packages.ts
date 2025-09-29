@@ -12,7 +12,9 @@ import SOCKET_REGISTRY_REPO_NAME from './constants/SOCKET_REGISTRY_REPO_NAME'
 import SOCKET_REGISTRY_SCOPE from './constants/SOCKET_REGISTRY_SCOPE'
 import abortSignal from './constants/abort-signal'
 import copyLeftLicenses from './constants/copy-left-licenses'
+import packageDefaultNodeRange from './constants/package-default-node-range'
 import PACKAGE_DEFAULT_SOCKET_CATEGORIES from './constants/package-default-socket-categories'
+import packageExtensions from './constants/package-extensions'
 import packumentCache from './constants/packument-cache'
 import pacoteCachePath from './constants/pacote-cache-path'
 import { readJson, readJsonSync } from './fs'
@@ -193,11 +195,19 @@ export function getEditablePackageJsonClass(): EditablePackageJsonConstructor {
         _readFileJson: unknown = undefined
 
         override get content(): Readonly<PackageJson> {
-          return (this as EditablePackageJsonInstance)['content']
+          return super.content
         }
 
         get filename(): string {
-          return (this as unknown as { filename: string })['filename']
+          const path = this._path
+          if (!path) {
+            return ''
+          }
+          if (path.endsWith('package.json')) {
+            return path
+          }
+          const nodePath = getPath()
+          return nodePath.join(path, 'package.json')
         }
 
         static override async create(
@@ -751,8 +761,6 @@ export function createPackageJson(
     type,
     version,
   } = { __proto__: null, ...options } as PackageJson
-  const PACKAGE_DEFAULT_NODE_RANGE =
-    /*@__PURE__*/ require('./constants/package-default-node-range').default
   const name = `@socketregistry/${sockRegPkgName.replace(pkgScopePrefixRegExp, '')}`
   const entryExports = resolvePackageJsonEntryExports(entryExportsRaw)
   const githubUrl = `https://github.com/${SOCKET_GITHUB_ORG}/${SOCKET_REGISTRY_REPO_NAME}`
@@ -792,17 +800,17 @@ export function createPackageJson(
                     // Roughly check Node range as semver.coerce will strip leading
                     // v's, carets (^), comparators (<,<=,>,>=,=), and tildes (~).
                     semver.coerce(range) || '0.0.0',
-                    PACKAGE_DEFAULT_NODE_RANGE,
+                    packageDefaultNodeRange,
                   )
                 ) {
-                  result[1] = PACKAGE_DEFAULT_NODE_RANGE
+                  result[1] = packageDefaultNodeRange
                 }
               }
               return result
             }),
           ),
         }
-      : { engines: { node: PACKAGE_DEFAULT_NODE_RANGE } }),
+      : { engines: { node: packageDefaultNodeRange } }),
     files: ArrayIsArray(files) ? files.slice() : ['*.d.ts', '*.js'],
     ...(isObjectObject(socket)
       ? { socket: { ...socket } }
@@ -1118,9 +1126,9 @@ export async function fetchPackageProvenance(
 /*@__NO_SIDE_EFFECTS__*/
 export function findPackageExtensions(pkgName: string, pkgVer: string): any {
   let result
-  const packageExtensions =
-    /*@__PURE__*/ require('./constants/package-extensions').default
-  for (const { 0: selector, 1: ext } of packageExtensions) {
+  for (const entry of packageExtensions) {
+    const selector = String(entry[0])
+    const ext = entry[1]
     const lastAtSignIndex = selector.lastIndexOf('@')
     const name = selector.slice(0, lastAtSignIndex)
     if (pkgName === name) {
@@ -1130,7 +1138,9 @@ export function findPackageExtensions(pkgName: string, pkgVer: string): any {
         if (result === undefined) {
           result = {}
         }
-        merge(result, ext)
+        if (typeof ext === 'object' && ext !== null) {
+          merge(result, ext)
+        }
       }
     }
   }

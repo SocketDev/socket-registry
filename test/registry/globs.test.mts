@@ -2,11 +2,11 @@ import { Readable } from 'node:stream'
 
 import { describe, expect, it } from 'vitest'
 
-const {
+import {
   defaultIgnore,
   getGlobMatcher,
   globStreamLicenses,
-} = require('../../registry/dist/lib/globs')
+} from '../../registry/dist/lib/globs.js'
 
 describe('globs module', () => {
   describe('defaultIgnore', () => {

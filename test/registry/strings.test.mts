@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-const {
+import {
   applyLinePrefix,
   camelToKebab,
   indentString,
@@ -11,7 +11,7 @@ const {
   stripBom,
   toKebabCase,
   trimNewlines,
-} = require('../../registry/dist/lib/strings')
+} from '../../registry/dist/lib/strings.js'
 
 describe('strings module', () => {
   describe('isNonEmptyString', () => {

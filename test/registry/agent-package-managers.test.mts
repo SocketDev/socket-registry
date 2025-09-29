@@ -4,7 +4,7 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-const {
+import {
   execNpm,
   execPnpm,
   execScript,
@@ -18,13 +18,13 @@ const {
   isPnpmIgnoreScriptsFlag,
   isPnpmInstallCommand,
   isPnpmLoglevelFlag,
-} = require('../../registry/dist/lib/agent')
-const {
+} from '../../registry/dist/lib/agent.js'
+import {
   execBin,
   resolveBinPathSync,
   whichBin,
   whichBinSync,
-} = require('../../registry/dist/lib/bin')
+} from '../../registry/dist/lib/bin.js'
 
 describe('agent package manager utilities', () => {
   let tmpDir: string

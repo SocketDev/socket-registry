@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-const { isJsonPrimitive, jsonParse } = require('../../registry/dist/lib/json')
+import { isJsonPrimitive, jsonParse } from '../../registry/dist/lib/json.js'
 
 describe('json module', () => {
   describe('isJsonPrimitive', () => {

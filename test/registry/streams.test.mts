@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-const {
+import {
   parallelEach,
   parallelMap,
   transform,
-} = require('../../registry/dist/lib/streams')
+} from '../../registry/dist/lib/streams.js'
 
 // Helper generators moved to outer scope.
 async function* makeStringIterable(items: string[]) {

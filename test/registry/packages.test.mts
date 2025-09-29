@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-const {
+import {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
   getReleaseTag,
@@ -23,7 +23,7 @@ const {
   resolvePackageLicenses,
   unescapeScope,
   visitLicenses,
-} = require('../../registry/dist/lib/packages')
+} from '../../registry/dist/lib/packages.js'
 
 describe('packages module', () => {
   describe('isValidPackageName', () => {
