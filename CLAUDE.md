@@ -357,7 +357,6 @@ This is a monorepo for Socket.dev optimized package overrides, built with JavaSc
 - **Scripts**: `/scripts/` - Development and build scripts
 - **Tests**: `/test/` - Test files and fixtures
 - **Package overrides**: `/packages/npm/` - NPM package overrides
-- **External dependencies**: `/registry/external/` - Bundled external dependencies
 
 ### Build System
 - Uses Rollup for building external dependencies
