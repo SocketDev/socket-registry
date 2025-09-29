@@ -28,15 +28,15 @@ describe('objects property manipulation and utilities', () => {
         ['KEY2', 'value2'],
       ]
       const constants = createConstantsObject(entries)
-      expect(constants.length).toBe(2)
-      expect(constants[0]).toEqual(['KEY1', 'value1'])
-      expect(constants[1]).toEqual(['KEY2', 'value2'])
+      expect((constants as any).length).toBe(2)
+      expect((constants as any)[0]).toEqual(['KEY1', 'value1'])
+      expect((constants as any)[1]).toEqual(['KEY2', 'value2'])
       expect(Object.isFrozen(constants)).toBe(true)
     })
 
     it('should handle empty entries', () => {
       const constants = createConstantsObject([])
-      expect(constants.length).toBe(0)
+      expect((constants as any).length).toBe(0)
       expect(Object.isFrozen(constants)).toBe(true)
     })
   })
@@ -109,9 +109,9 @@ describe('objects property manipulation and utilities', () => {
 
   describe('entryKeyComparator', () => {
     it('should compare entry keys', () => {
-      const entry1 = ['a', 1]
-      const entry2 = ['b', 2]
-      const entry3 = ['a', 3]
+      const entry1 = ['a', 1] as [PropertyKey, any]
+      const entry2 = ['b', 2] as [PropertyKey, any]
+      const entry3 = ['a', 3] as [PropertyKey, any]
 
       expect(entryKeyComparator(entry1, entry2)).toBeLessThan(0)
       expect(entryKeyComparator(entry2, entry1)).toBeGreaterThan(0)
@@ -275,7 +275,7 @@ describe('objects property manipulation and utilities', () => {
         ['c', 3],
         ['a', 1],
         ['b', 2],
-      ]
+      ] as Iterable<[PropertyKey, string | number]>
       const sorted = toSortedObjectFromEntries(entries)
       const keys = Object.keys(sorted)
       expect(keys).toEqual(['a', 'b', 'c'])
@@ -292,11 +292,11 @@ describe('objects property manipulation and utilities', () => {
         ['a', 1],
         ['b', 2],
         ['a', 3],
-      ]
+      ] as Iterable<[PropertyKey, string | number]>
       const sorted = toSortedObjectFromEntries(entries)
       // Last value wins
-      expect(sorted.a).toBe(3)
-      expect(sorted.b).toBe(2)
+      expect(sorted['a']).toBe(3)
+      expect(sorted['b']).toBe(2)
     })
   })
 })
