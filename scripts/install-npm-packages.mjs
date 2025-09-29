@@ -435,9 +435,13 @@ async function main() {
     `Installing ${filteredPackages.length} ${pluralize('package', filteredPackages.length)}`,
   )
 
-  // Update spinner text periodically.
+  // Update spinner text when progress changes.
+  let lastCompletedCount = 0
   const progressInterval = setInterval(() => {
-    spinner.text = `Installing ${pluralize('package', filteredPackages.length)}\nProgress (${completedPackages}/${totalPackagesCount})`
+    if (completedPackages !== lastCompletedCount) {
+      lastCompletedCount = completedPackages
+      spinner.text = `Installing ${pluralize('package', filteredPackages.length)}\nProgress (${completedPackages}/${totalPackagesCount})`
+    }
   }, 100)
 
   // Ensure base temp directory exists.
