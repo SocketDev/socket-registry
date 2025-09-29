@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-const {
+import {
   createRelativeUrl,
   isUrl,
   parseUrl,
@@ -10,7 +10,7 @@ const {
   urlSearchParamAsString,
   urlSearchParamsGetArray,
   urlSearchParamsGetBoolean,
-} = require('../../registry/dist/lib/url')
+} from '../../registry/dist/lib/url.js'
 
 describe('url utilities', () => {
   describe('isUrl', () => {
@@ -37,8 +37,11 @@ describe('url utilities', () => {
     it('should reject non-string, non-object values', () => {
       expect(isUrl(null)).toBe(false)
       expect(isUrl(undefined)).toBe(false)
+      // @ts-expect-error - Testing runtime behavior with invalid types.
       expect(isUrl(123)).toBe(false)
+      // @ts-expect-error - Testing runtime behavior with invalid types.
       expect(isUrl(true)).toBe(false)
+      // @ts-expect-error - Testing runtime behavior with invalid types.
       expect(isUrl([])).toBe(false)
     })
 
@@ -131,6 +134,7 @@ describe('url utilities', () => {
     it('should handle non-string values', () => {
       expect(urlSearchParamAsArray(null)).toEqual([])
       expect(urlSearchParamAsArray(undefined)).toEqual([])
+      // @ts-expect-error - Testing runtime behavior with invalid types.
       expect(urlSearchParamAsArray(123)).toEqual([])
     })
 
@@ -178,11 +182,17 @@ describe('url utilities', () => {
     })
 
     it('should handle non-string values', () => {
+      // @ts-expect-error - Testing runtime behavior with invalid types.
       expect(urlSearchParamAsBoolean(true)).toBe(true)
+      // @ts-expect-error - Testing runtime behavior with invalid types.
       expect(urlSearchParamAsBoolean(false)).toBe(false)
+      // @ts-expect-error - Testing runtime behavior with invalid types.
       expect(urlSearchParamAsBoolean(1)).toBe(true)
+      // @ts-expect-error - Testing runtime behavior with invalid types.
       expect(urlSearchParamAsBoolean(0)).toBe(false)
+      // @ts-expect-error - Testing runtime behavior with invalid types.
       expect(urlSearchParamAsBoolean({})).toBe(true)
+      // @ts-expect-error - Testing runtime behavior with invalid types.
       expect(urlSearchParamAsBoolean([])).toBe(true)
     })
   })
@@ -218,6 +228,7 @@ describe('url utilities', () => {
     it('should handle null/invalid URLSearchParams', () => {
       expect(urlSearchParamAsNumber(null, 'key')).toBe(0)
       expect(urlSearchParamAsNumber(undefined, 'key')).toBe(0)
+      // @ts-expect-error - Testing runtime behavior with invalid types.
       expect(urlSearchParamAsNumber({}, 'key')).toBe(0)
     })
 
@@ -250,6 +261,7 @@ describe('url utilities', () => {
     it('should handle null/invalid URLSearchParams', () => {
       expect(urlSearchParamAsString(null, 'key')).toBe('')
       expect(urlSearchParamAsString(undefined, 'key')).toBe('')
+      // @ts-expect-error - Testing runtime behavior with invalid types.
       expect(urlSearchParamAsString({}, 'key')).toBe('')
       expect(urlSearchParamAsString(null, 'key', 'default')).toBe('default')
     })
@@ -297,6 +309,7 @@ describe('url utilities', () => {
     it('should handle null/invalid URLSearchParams', () => {
       expect(urlSearchParamsGetArray(null, 'key')).toEqual([])
       expect(urlSearchParamsGetArray(undefined, 'key')).toEqual([])
+      // @ts-expect-error - Testing runtime behavior with invalid types.
       expect(urlSearchParamsGetArray({}, 'key')).toEqual([])
     })
 
@@ -337,6 +350,7 @@ describe('url utilities', () => {
     it('should handle null/invalid URLSearchParams', () => {
       expect(urlSearchParamsGetBoolean(null, 'key')).toBe(false)
       expect(urlSearchParamsGetBoolean(undefined, 'key')).toBe(false)
+      // @ts-expect-error - Testing runtime behavior with invalid types.
       expect(urlSearchParamsGetBoolean({}, 'key')).toBe(false)
       expect(urlSearchParamsGetBoolean(null, 'key', true)).toBe(true)
     })

@@ -2,12 +2,12 @@ import os from 'node:os'
 
 import { describe, expect, it } from 'vitest'
 
-const {
+import {
   isSpawnError,
   isStdioType,
   spawn,
   spawnSync,
-} = require('../../registry/dist/lib/spawn')
+} from '../../registry/dist/lib/spawn.js'
 
 describe('spawn module', () => {
   describe('isStdioType', () => {
@@ -114,6 +114,7 @@ describe('spawn module', () => {
 
     it('should handle encoding option', async () => {
       const result = await spawn('echo', ['test'], {
+        // @ts-expect-error - Testing runtime behavior with encoding option.
         encoding: 'utf8',
       })
       expect(typeof result.stdout).toBe('string')
@@ -184,6 +185,7 @@ describe('spawn module', () => {
 
     it('should handle encoding option', () => {
       const result = spawnSync('echo', ['test'], {
+        // @ts-expect-error - Testing runtime behavior with encoding option.
         encoding: 'utf8',
       })
       expect(typeof result.stdout).toBe('string')

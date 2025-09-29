@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-const {
+import {
   execNpm,
   execPnpm,
   execScript,
@@ -14,13 +14,13 @@ const {
   isPnpmIgnoreScriptsFlag,
   isPnpmInstallCommand,
   isPnpmLoglevelFlag,
-} = require('../../registry/dist/lib/agent')
-const {
+} from '../../registry/dist/lib/agent.js'
+import {
   execBin,
   resolveBinPathSync,
   whichBin,
   whichBinSync,
-} = require('../../registry/dist/lib/bin')
+} from '../../registry/dist/lib/bin.js'
 
 describe('agent module', () => {
   describe('isNpmAuditFlag', () => {
@@ -285,7 +285,7 @@ describe('agent module', () => {
     it('should find binaries synchronously', () => {
       const path = whichBinSync('node')
       expect(typeof path).toBe('string')
-      expect(path.length).toBeGreaterThan(0)
+      expect(path!.length).toBeGreaterThan(0)
     })
 
     it('should return undefined for non-existent binaries', () => {
@@ -298,7 +298,7 @@ describe('agent module', () => {
     it('should find binaries asynchronously', async () => {
       const path = await whichBin('node')
       expect(typeof path).toBe('string')
-      expect(path.length).toBeGreaterThan(0)
+      expect(path!.length).toBeGreaterThan(0)
     })
 
     it('should return undefined for non-existent binaries', async () => {
