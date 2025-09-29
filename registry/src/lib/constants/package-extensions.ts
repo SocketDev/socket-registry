@@ -1,10 +1,11 @@
-import yarnPkgExtensions from '../../external/@yarnpkg/extensions'
-
 const { freeze: ObjectFreeze } = Object
+
+const yarnPkgExtensions: { packageExtensions: any[] } =
+  /*@__PURE__*/ require('../../external/@yarnpkg/extensions')
 
 export default ObjectFreeze(
   [
-    yarnPkgExtensions.packageExtensions,
+    ...yarnPkgExtensions.packageExtensions,
     [
       '@yarnpkg/extensions@>=1.1.0',
       {

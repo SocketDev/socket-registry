@@ -1,14 +1,5 @@
 import target from './ipc-target'
 
-// Type definitions
-type IpcHandler = ProxyHandler<object> & {
-  defineProperty(): true
-  deleteProperty(): false
-  preventExtensions(): true
-  set(): false
-  setPrototypeOf(): false
-}
-
 // Mutable handler to simulate a frozen target.
 const handler = {
   __proto__: null,
@@ -24,5 +15,4 @@ const handler = {
   setPrototypeOf: () => false,
 }
 
-export type { IpcHandler }
 export default handler

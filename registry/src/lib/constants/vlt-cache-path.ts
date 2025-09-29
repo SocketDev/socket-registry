@@ -1,7 +1,7 @@
 import path from 'node:path'
 
-import ENV from './ENV.js'
-import WIN32 from './WIN32.js'
+import ENV from './ENV'
+import WIN32 from './WIN32'
 
 // Vlt cache directory path.
 // Vlt is a next-generation JavaScript package manager created by npm veterans.
