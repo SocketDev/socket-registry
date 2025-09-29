@@ -1,2 +1,2 @@
-declare function slice(begin: number, end?: number): ArrayBuffer
+declare function slice(begin: number, end?: number | undefined): ArrayBuffer
 export = slice

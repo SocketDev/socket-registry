@@ -13,7 +13,8 @@ function getConjunctionFormatter() {
   if (_conjunctionFormatter === undefined) {
     _conjunctionFormatter = new Intl.ListFormat('en', {
       style: 'long',
-      type: 'conjunction', // "and" lists.
+      // "and" lists.
+      type: 'conjunction',
     })
   }
   return _conjunctionFormatter
@@ -29,7 +30,8 @@ function getDisjunctionFormatter() {
   if (_disjunctionFormatter === undefined) {
     _disjunctionFormatter = new Intl.ListFormat('en', {
       style: 'long',
-      type: 'disjunction', // "or" lists.
+      // "or" lists.
+      type: 'disjunction',
     })
   }
   return _disjunctionFormatter

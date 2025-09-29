@@ -77,18 +77,14 @@ function wrapPrompt(
 }
 
 // c8 ignore start - Third-party inquirer library integrations not testable in isolation.
-const confirmRaw =
-  /*@__PURE__*/ require('../external/@inquirer/confirm').default
+const confirmRaw = /*@__PURE__*/ require('../external/@inquirer/confirm')
 export const confirm: typeof confirmRaw = wrapPrompt(confirmRaw)
-const inputRaw = /*@__PURE__*/ require('../external/@inquirer/input').default
+const inputRaw = /*@__PURE__*/ require('../external/@inquirer/input')
 export const input: typeof inputRaw = wrapPrompt(inputRaw)
-const passwordRaw =
-  /*@__PURE__*/ require('../external/@inquirer/password').default
+const passwordRaw = /*@__PURE__*/ require('../external/@inquirer/password')
 export const password: typeof passwordRaw = wrapPrompt(passwordRaw)
-const searchExport =
-  /*@__PURE__*/ require('../external/@inquirer/search').default
-const selectExport =
-  /*@__PURE__*/ require('../external/@inquirer/select').default
+const searchExport = /*@__PURE__*/ require('../external/@inquirer/search')
+const selectExport = /*@__PURE__*/ require('../external/@inquirer/select')
 const searchRaw = searchExport.default
 const selectRaw = selectExport.default
 // Re-export the actual Separator from @inquirer/select but typed with our local definition

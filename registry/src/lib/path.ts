@@ -357,11 +357,13 @@ export function pathLikeToString(
       if (WIN32 && pathname.startsWith('/')) {
         // Check for drive letter pattern following Node.js source: /[a-zA-Z]:/
         // Character at index 1 should be a letter, character at index 2 should be ':'
-        const letter = pathname.charCodeAt(1) | 0x20 // Convert to lowercase
+        // Convert to lowercase
+        const letter = pathname.charCodeAt(1) | 0x20
         const hasValidDriveLetter =
           pathname.length >= 3 &&
           letter >= 97 &&
-          letter <= 122 && // 'a' to 'z'
+          // 'a' to 'z'
+          letter <= 122 &&
           pathname.charAt(2) === ':'
 
         if (!hasValidDriveLetter) {

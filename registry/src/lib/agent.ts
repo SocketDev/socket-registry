@@ -3,20 +3,13 @@
  * Provides cross-platform utilities with optimized flags and security defaults.
  */
 
-import type { SpawnOptions } from './spawn'
+import { execBin } from './bin'
+import { isDebug } from './debug'
+import { findUpSync } from './fs'
+import { getOwn } from './objects'
+import { spawn } from './spawn'
 
-const {
-  execBin,
-  resolveBinPathSync,
-  whichBin,
-  whichBinSync,
-} = /*@__PURE__*/ require('./bin')
-// Re-export functions from bin module.
-export { execBin, resolveBinPathSync, whichBin, whichBinSync }
-const { isDebug } = /*@__PURE__*/ require('./debug')
-const { findUpSync } = /*@__PURE__*/ require('./fs')
-const { getOwn } = /*@__PURE__*/ require('./objects')
-const { spawn } = /*@__PURE__*/ require('./spawn')
+import type { SpawnOptions } from './spawn'
 
 // Note: npm flag checking is done with regex patterns in the is*Flag functions below.
 
@@ -66,7 +59,7 @@ const yarnInstallLikeCommands = new Set([
  * Execute npm commands with optimized flags and settings.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function execNpm(args: string[], options?: SpawnOptions) {
+export function execNpm(args: string[], options?: SpawnOptions | undefined) {
   const useDebug = isDebug()
   const terminatorPos = args.indexOf('--')
   const npmArgs = (
@@ -81,11 +74,11 @@ export function execNpm(args: string[], options?: SpawnOptions) {
     // one level quieter.
     useDebug || npmArgs.some(isNpmLoglevelFlag) ? [] : ['--loglevel', 'warn']
   return spawn(
-    /*@__PURE__*/ require('./constants/EXEC_PATH').default,
+    /*@__PURE__*/ require('./constants/EXEC_PATH'),
     [
-      .../*@__PURE__*/ require('./constants/NODE_HARDEN_FLAGS').default,
-      .../*@__PURE__*/ require('./constants/NODE_NO_WARNINGS_FLAGS').default,
-      /*@__PURE__*/ require('./constants/NPM_REAL_EXEC_PATH').default,
+      .../*@__PURE__*/ require('./constants/NODE_HARDEN_FLAGS'),
+      .../*@__PURE__*/ require('./constants/NODE_NO_WARNINGS_FLAGS'),
+      /*@__PURE__*/ require('./constants/NPM_REAL_EXEC_PATH'),
       // Even though '--loglevel=error' is passed npm will still run through
       // code paths for 'audit' and 'fund' unless '--no-audit' and '--no-fund'
       // flags are passed.
@@ -103,7 +96,7 @@ export function execNpm(args: string[], options?: SpawnOptions) {
     {
       __proto__: null,
       ...options,
-    },
+    } as SpawnOptions,
   )
 }
 
@@ -116,7 +109,7 @@ export interface PnpmOptions extends SpawnOptions {
  */
 /*@__NO_SIDE_EFFECTS__*/
 
-export function execPnpm(args: string[], options?: PnpmOptions) {
+export function execPnpm(args: string[], options?: PnpmOptions | undefined) {
   const { allowLockfileUpdate, ...extBinOpts } = {
     __proto__: null,
     ...options,
@@ -145,7 +138,7 @@ export function execPnpm(args: string[], options?: PnpmOptions) {
   // In CI environments, pnpm uses --frozen-lockfile by default which prevents lockfile updates.
   // For commands that need to update the lockfile (like install with new packages/overrides),
   // we need to explicitly add --no-frozen-lockfile in CI mode if not already present.
-  const ENV = /*@__PURE__*/ require('./constants/ENV').default
+  const ENV = /*@__PURE__*/ require('./constants/ENV')
   const frozenLockfileArgs = []
   if (
     ENV.CI &&
@@ -218,7 +211,7 @@ export function execYarn(
     {
       __proto__: null,
       ...options,
-    },
+    } as SpawnOptions,
   )
 }
 
@@ -306,21 +299,21 @@ export const isPnpmLoglevelFlag = isNpmLoglevelFlag
  * Automatically detects pnpm, yarn, or npm based on lockfiles.
  */
 export interface ExecScriptOptions extends SpawnOptions {
-  prepost?: boolean
+  prepost?: boolean | undefined
 }
 
 /*@__NO_SIDE_EFFECTS__*/
 export function execScript(
   scriptName: string,
-  args?: string[] | import('./spawn').SpawnOptions,
-  options?: ExecScriptOptions,
+  args?: string[] | readonly string[] | ExecScriptOptions | undefined,
+  options?: ExecScriptOptions | undefined,
 ) {
   // Handle overloaded signatures: execScript(name, options) or execScript(name, args, options).
-  if (!Array.isArray(args) && typeof args === 'object') {
-    options = args
-    args = []
+  if (!Array.isArray(args) && args !== null && typeof args === 'object') {
+    options = args as ExecScriptOptions
+    args = [] as string[]
   }
-  args = args || []
+  args = (args || []) as string[]
   const { prepost, ...spawnOptions } = {
     __proto__: null,
     ...options,
@@ -332,14 +325,13 @@ export function execScript(
   }
 
   const useNodeRun =
-    !prepost && /*@__PURE__*/ require('./constants/SUPPORTS_NODE_RUN').default
+    !prepost && /*@__PURE__*/ require('./constants/SUPPORTS_NODE_RUN')
 
   // Detect package manager based on lockfile by traversing up from current directory.
   const cwd = getOwn(spawnOptions, 'cwd') ?? process.cwd()
 
   // Check for pnpm-lock.yaml.
-  const PNPM_LOCK_YAML =
-    /*@__PURE__*/ require('./constants/PNPM_LOCK_YAML').default
+  const PNPM_LOCK_YAML = /*@__PURE__*/ require('./constants/PNPM_LOCK_YAML')
   const pnpmLockPath = findUpSync(PNPM_LOCK_YAML, { cwd })
   if (pnpmLockPath) {
     return execPnpm(['run', scriptName, ...args], spawnOptions)
@@ -347,30 +339,26 @@ export function execScript(
 
   // Check for package-lock.json.
   // When in an npm workspace, use npm run to ensure workspace binaries are available.
-  const PACKAGE_LOCK =
-    /*@__PURE__*/ require('./constants/PACKAGE_LOCK_JSON').default
+  const PACKAGE_LOCK = /*@__PURE__*/ require('./constants/PACKAGE_LOCK_JSON')
   const packageLockPath = findUpSync(PACKAGE_LOCK, { cwd })
   if (packageLockPath) {
     return execNpm(['run', scriptName, ...args], spawnOptions)
   }
 
   // Check for yarn.lock.
-  const YARN_LOCK = /*@__PURE__*/ require('./constants/YARN_LOCK').default
+  const YARN_LOCK = /*@__PURE__*/ require('./constants/YARN_LOCK')
   const yarnLockPath = findUpSync(YARN_LOCK, { cwd })
   if (yarnLockPath) {
     return execYarn(['run', scriptName, ...args], spawnOptions)
   }
 
   return spawn(
-    /*@__PURE__*/ require('./constants/EXEC_PATH').default,
+    /*@__PURE__*/ require('./constants/EXEC_PATH'),
     [
-      .../*@__PURE__*/ require('./constants/NODE_NO_WARNINGS_FLAGS').default,
+      .../*@__PURE__*/ require('./constants/NODE_NO_WARNINGS_FLAGS'),
       ...(useNodeRun
         ? ['--run']
-        : [
-            /*@__PURE__*/ require('./constants/NPM_REAL_EXEC_PATH').default,
-            'run',
-          ]),
+        : [/*@__PURE__*/ require('./constants/NPM_REAL_EXEC_PATH'), 'run']),
       scriptName,
       ...args,
     ],

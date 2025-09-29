@@ -52,15 +52,17 @@ let _naturalSorter: FastSortFunction | undefined
  * Sort an array using natural comparison.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function naturalSorter<T>(arrayToSort: T[]): T[] {
+export function naturalSorter<T>(
+  arrayToSort: T[],
+): ReturnType<FastSortFunction> {
   if (_naturalSorter === undefined) {
     // The 'fast-sort' package is browser safe.
-    const fastSort = /*@__PURE__*/ require('../external/fast-sort').default
+    const fastSort = /*@__PURE__*/ require('../external/fast-sort')
     _naturalSorter = fastSort.createNewSortInstance({
       comparer: naturalCompare,
     })
   }
-  return _naturalSorter!(arrayToSort).asc() as T[]
+  return _naturalSorter!(arrayToSort)
 }
 
 /**
