@@ -64,10 +64,12 @@ describe('streams module', () => {
     it('should transform async iterable items', async () => {
       const input = ['hello', 'world']
 
+      // @ts-expect-error - Testing runtime behavior with sync transformer.
       const result = transform(makeStringIterable(input), upperCaseTransform)
       const output: string[] = []
 
       for await (const item of result) {
+        // @ts-expect-error - Known type from test data.
         output.push(item)
       }
 
@@ -89,6 +91,7 @@ describe('streams module', () => {
     })
 
     it('should handle errors in transform', async () => {
+      // @ts-expect-error - Testing runtime behavior with sync transformer.
       const result = transform(makeErrorIterable(), errorTransform)
 
       await expect(async () => {
@@ -176,10 +179,12 @@ describe('streams module', () => {
     })
 
     it('should work with sync mappers', async () => {
+      // @ts-expect-error - Testing runtime behavior with sync mapper.
       const result = parallelMap(makeNumberIterable(1, 5), incrementMapper)
       const output: number[] = []
 
       for await (const item of result) {
+        // @ts-expect-error - Known type from test data.
         output.push(item)
       }
 
@@ -245,6 +250,7 @@ describe('streams module', () => {
         processed.push(item)
       }
 
+      // @ts-expect-error - Testing runtime behavior with sync processor.
       await parallelEach(makeNumberIterable(1, 5), processor)
 
       expect(processed).toEqual([1, 2, 3, 4, 5])
