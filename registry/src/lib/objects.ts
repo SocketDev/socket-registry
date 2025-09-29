@@ -3,7 +3,10 @@
  * Provides type-safe object operations, property access, and structural helpers.
  */
 
+import LOOP_SENTINEL from './constants/LOOP_SENTINEL'
 import UNDEFINED_TOKEN from './constants/UNDEFINED_TOKEN'
+import kInternalsSymbol from './constants/k-internals-symbol'
+import { localeCompare } from './sorts'
 
 // Type definitions
 type GetterDefObj = { [key: PropertyKey]: () => any }
@@ -122,8 +125,6 @@ export function createConstantsObject(
       ? ObjectFreeze(ObjectSetPrototypeOf(toSortedObject(props), null))
       : undefined,
   })
-  const kInternalsSymbol =
-    /*@__PURE__*/ require('./constants/k-internals-symbol').default
   const lazyGetterStats = ObjectFreeze({
     __proto__: null,
     initialized: new Set<PropertyKey>(),
@@ -213,7 +214,6 @@ export function defineLazyGetters(
   return object
 }
 
-let _localeCompare: ((a: string, b: string) => number) | undefined
 /**
  * Compare two entry arrays by their keys for sorting.
  */
@@ -222,15 +222,11 @@ export function entryKeyComparator(
   a: [PropertyKey, any],
   b: [PropertyKey, any],
 ): number {
-  if (_localeCompare === undefined) {
-    const sorts = /*@__PURE__*/ require('./sorts')
-    _localeCompare = sorts.localeCompare
-  }
   const keyA = a[0]
   const keyB = b[0]
   const strKeyA = typeof keyA === 'string' ? keyA : String(keyA)
   const strKeyB = typeof keyB === 'string' ? keyB : String(keyB)
-  return _localeCompare!(strKeyA, strKeyB)
+  return localeCompare(strKeyA, strKeyB)
 }
 
 /**
@@ -352,8 +348,6 @@ export function merge<T extends object, U extends object>(
   if (!isObject(target) || !isObject(source)) {
     return target as T & U
   }
-  const LOOP_SENTINEL =
-    /*@__PURE__*/ require('./constants/LOOP_SENTINEL').default
   const queue: Array<[unknown, unknown]> = [[target, source]]
   let pos = 0
   let { length: queueLength } = queue

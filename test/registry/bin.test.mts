@@ -4,15 +4,14 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { safeRemove } from '../../scripts/utils/fs.mjs'
-
-const {
+import {
   execBin,
   isShadowBinPath,
   resolveBinPathSync,
   whichBin,
   whichBinSync,
-} = require('../../registry/dist/lib/bin')
+} from '../../registry/dist/lib/bin.js'
+import { safeRemove } from '../../scripts/utils/fs.mjs'
 
 describe('bin module', () => {
   describe('isShadowBinPath', () => {

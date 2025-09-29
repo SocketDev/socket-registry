@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-const { silentWrapAsync } = require('../../registry/dist/lib/functions')
+import { silentWrapAsync } from '../../registry/dist/lib/functions.js'
 
 // Helper functions moved to outer scope.
 const asyncFn = async () => 'success'

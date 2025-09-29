@@ -55,12 +55,12 @@ import MagicString from 'magic-string'
 
 // Using dynamic imports to avoid ESLint n/no-extraneous-import errors.
 // These packages are available during the build process.
-// eslint-disable-next-line n/no-extraneous-import
+
 const { parse } = await import('@babel/parser')
-// eslint-disable-next-line n/no-extraneous-import
+
 const traverseModule = await import('@babel/traverse')
 const traverse = traverseModule.default
-// eslint-disable-next-line n/no-extraneous-import
+
 const t = await import('@babel/types')
 
 import { logger } from './utils/logger.mjs'

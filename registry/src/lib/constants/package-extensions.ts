@@ -2,10 +2,20 @@
 // tsgo has a bug that incorrectly transpiles destructured exports, resulting in
 // `exports.SomeName = void 0;` which causes runtime errors.
 // See: https://github.com/SocketDev/socket-packageurl-js/issues/3
+import yarnPkgExtensionsModule from '../../external/@yarnpkg/extensions.js'
+
 const ObjectFreeze = Object.freeze
 
-const yarnPkgExtensions: { packageExtensions: any[] } =
-  /*@__PURE__*/ require('../../external/@yarnpkg/extensions')
+export type PackageExtensionData = {
+  dependencies?: Record<string, string> | undefined
+  devDependencies?: Record<string, string> | undefined
+  peerDependencies?: Record<string, string> | undefined
+  scripts?: Record<string, string> | undefined
+}
+
+const yarnPkgExtensions: {
+  packageExtensions: Array<[string, PackageExtensionData]>
+} = yarnPkgExtensionsModule
 
 export default ObjectFreeze(
   [

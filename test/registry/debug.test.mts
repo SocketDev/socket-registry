@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const {
+import {
   debugDir,
   debugFn,
   debugLog,
   debuglog,
   debugtime,
   isDebug,
-} = require('../../registry/dist/lib/debug')
+} from '../../registry/dist/lib/debug.js'
 
 describe('debug module', () => {
   let originalEnv: NodeJS.ProcessEnv

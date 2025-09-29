@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-const {
+import {
   localeCompare,
   naturalCompare,
   naturalSorter,
-} = require('../../registry/dist/lib/sorts')
+} from '../../registry/dist/lib/sorts.js'
 
 describe('sorts module', () => {
   describe('localeCompare', () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-const {
+import {
   normalizeIterationOptions,
   normalizeRetryOptions,
   pEach,
@@ -9,7 +9,7 @@ const {
   pFilterChunk,
   pRetry,
   resolveRetryOptions,
-} = require('../../registry/dist/lib/promises')
+} from '../../registry/dist/lib/promises.js'
 
 describe('promises module', () => {
   describe('pEach', () => {

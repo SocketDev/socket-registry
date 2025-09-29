@@ -4,7 +4,7 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-const {
+import {
   findUp,
   findUpSync,
   isDirEmptySync,
@@ -26,7 +26,7 @@ const {
   uniqueSync,
   writeJson,
   writeJsonSync,
-} = require('../../registry/dist/lib/fs')
+} from '../../registry/dist/lib/fs.js'
 
 describe('fs module', () => {
   let tmpDir: string

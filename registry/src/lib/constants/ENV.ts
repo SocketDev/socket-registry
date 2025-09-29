@@ -1,4 +1,4 @@
-import { envAsBoolean, envAsString } from '../env.js'
+import { envAsBoolean, envAsString } from '../env'
 import WIN32 from './WIN32'
 
 // IMPORTANT: Do not use destructuring here - use direct assignment instead.

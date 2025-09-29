@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-const { escapeRegExp } = require('../../registry/dist/lib/regexps')
+import { escapeRegExp } from '../../registry/dist/lib/regexps.js'
 
 describe('regexp utilities', () => {
   describe('escapeRegExp', () => {

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-const {
+import {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
   parseSpdxExp,
-} = require('../../registry/dist/lib/packages')
+} from '../../registry/dist/lib/packages.js'
 
 describe('packages license handling', () => {
   describe('collectIncompatibleLicenses', () => {

@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-const {
+import {
   envAsBoolean,
   envAsNumber,
   envAsString,
-} = require('../../registry/dist/lib/env')
+} from '../../registry/dist/lib/env.js'
 
 describe('env module', () => {
   let originalEnv: NodeJS.ProcessEnv

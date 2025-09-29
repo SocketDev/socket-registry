@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-const {
+import {
   createConstantsObject,
   createLazyGetter,
   defineGetter,
@@ -17,7 +17,7 @@ const {
   objectEntries,
   toSortedObject,
   toSortedObjectFromEntries,
-} = require('../../registry/dist/lib/objects')
+} from '../../registry/dist/lib/objects.js'
 
 describe('objects module', () => {
   describe('isObject', () => {

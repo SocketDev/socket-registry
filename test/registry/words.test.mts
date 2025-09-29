@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-const {
+import {
   capitalize,
   determineArticle,
   pluralize,
-} = require('../../registry/dist/lib/words')
+} from '../../registry/dist/lib/words.js'
 
 describe('words module', () => {
   describe('capitalize', () => {

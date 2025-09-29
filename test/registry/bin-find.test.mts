@@ -4,15 +4,14 @@ import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { safeRemove } from '../../scripts/utils/fs.mjs'
-
-const {
+import {
   findRealBin,
   findRealNpm,
   findRealPnpm,
   findRealYarn,
   isShadowBinPath,
-} = require('../../registry/dist/lib/bin')
+} from '../../registry/dist/lib/bin.js'
+import { safeRemove } from '../../scripts/utils/fs.mjs'
 
 describe('bin find utilities', () => {
   describe('findRealBin', () => {

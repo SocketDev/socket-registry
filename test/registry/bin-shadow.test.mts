@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-const { isShadowBinPath } = require('../../registry/dist/lib/bin')
+import { isShadowBinPath } from '../../registry/dist/lib/bin.js'
 
 describe('bin shadow path detection', () => {
   describe('isShadowBinPath', () => {

@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-const {
+import {
   arrayChunk,
   arrayUnique,
   joinAnd,
   joinOr,
-} = require('../../registry/dist/lib/arrays')
+} from '../../registry/dist/lib/arrays.js'
 
 describe('arrays module', () => {
   describe('arrayChunk', () => {

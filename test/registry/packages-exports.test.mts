@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-const {
+import {
   findTypesForSubpath,
   getExportFilePaths,
   getSubpaths,
   isConditionalExports,
   isSubpathExports,
-} = require('../../registry/dist/lib/packages')
+} from '../../registry/dist/lib/packages.js'
 
 describe('packages exports tests', () => {
   describe('getSubpaths', () => {
