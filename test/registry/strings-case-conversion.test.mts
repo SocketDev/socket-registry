@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-const {
+import {
   applyLinePrefix,
   camelToKebab,
   indentString,
@@ -11,7 +11,7 @@ const {
   stripBom,
   toKebabCase,
   trimNewlines,
-} = require('../../registry/dist/lib/strings')
+} from '../../registry/dist/lib/strings.js'
 
 describe('strings case conversion and manipulation', () => {
   describe('applyLinePrefix', () => {
@@ -68,7 +68,9 @@ describe('strings case conversion and manipulation', () => {
     })
 
     it('should search strings', () => {
+      // @ts-expect-error - Testing runtime behavior with string patterns.
       expect(search('hello world', 'world')).toBe(6)
+      // @ts-expect-error - Testing runtime behavior with string patterns.
       expect(search('test string', 'missing')).toBe(-1)
     })
 

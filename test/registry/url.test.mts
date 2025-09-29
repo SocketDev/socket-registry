@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-const {
+import {
   createRelativeUrl,
   isUrl,
   parseUrl,
@@ -8,7 +8,7 @@ const {
   urlSearchParamAsBoolean,
   urlSearchParamsGetArray,
   urlSearchParamsGetBoolean,
-} = require('../../registry/dist/lib/url')
+} from '../../registry/dist/lib/url.js'
 
 describe('url module', () => {
   describe('isUrl', () => {
@@ -85,9 +85,9 @@ describe('url module', () => {
 
     it('should return empty array for non-string', () => {
       expect(urlSearchParamAsArray(null)).toEqual([])
-      expect(urlSearchParamAsArray(undefined)).toEqual([])
-      expect(urlSearchParamAsArray(123)).toEqual([])
-      expect(urlSearchParamAsArray({})).toEqual([])
+      expect(urlSearchParamAsArray(undefined as any)).toEqual([])
+      expect(urlSearchParamAsArray(123 as any)).toEqual([])
+      expect(urlSearchParamAsArray({} as any)).toEqual([])
     })
 
     it('should filter empty values after split', () => {
@@ -142,16 +142,16 @@ describe('url module', () => {
     })
 
     it('should handle non-string truthy values', () => {
-      expect(urlSearchParamAsBoolean(123)).toBe(true)
-      expect(urlSearchParamAsBoolean({})).toBe(true)
-      expect(urlSearchParamAsBoolean([])).toBe(true)
-      expect(urlSearchParamAsBoolean(true)).toBe(true)
+      expect(urlSearchParamAsBoolean(123 as any)).toBe(true)
+      expect(urlSearchParamAsBoolean({} as any)).toBe(true)
+      expect(urlSearchParamAsBoolean([] as any)).toBe(true)
+      expect(urlSearchParamAsBoolean(true as any)).toBe(true)
     })
 
     it('should handle non-string falsy values', () => {
-      expect(urlSearchParamAsBoolean(0)).toBe(false)
-      expect(urlSearchParamAsBoolean(false)).toBe(false)
-      expect(urlSearchParamAsBoolean(NaN)).toBe(false)
+      expect(urlSearchParamAsBoolean(0 as any)).toBe(false)
+      expect(urlSearchParamAsBoolean(false as any)).toBe(false)
+      expect(urlSearchParamAsBoolean(NaN as any)).toBe(false)
     })
   })
 
