@@ -31,9 +31,9 @@ describe('bin find utilities', () => {
       }
     })
 
-    it('should return null for non-existent binaries', () => {
+    it('should return undefined for non-existent binaries', () => {
       const result = findRealBin('nonexistentbinary12345')
-      expect(result).toBeNull()
+      expect(result).toBeUndefined()
     })
 
     it('should use common paths when provided', () => {
@@ -60,9 +60,9 @@ describe('bin find utilities', () => {
       expect(result).toBeTruthy()
     })
 
-    it('should return null when binary not found', () => {
+    it('should return undefined when binary not found', () => {
       const result = findRealBin('nonexistent12345xyz', [])
-      expect(result).toBe(null)
+      expect(result).toBeUndefined()
     })
 
     it('should find real binary when first result is shadow bin', async () => {
@@ -141,9 +141,9 @@ describe('bin find utilities', () => {
       }
     })
 
-    it('should return null if pnpm is not installed', () => {
+    it('should return undefined if pnpm is not installed', () => {
       const pnpmPath = findRealPnpm()
-      expect(pnpmPath === null || typeof pnpmPath === 'string').toBe(true)
+      expect(pnpmPath === undefined || typeof pnpmPath === 'string').toBe(true)
     })
 
     it('should find pnpm using findRealBin with common paths', () => {
@@ -162,9 +162,9 @@ describe('bin find utilities', () => {
       }
     })
 
-    it('should return null if yarn is not installed', () => {
+    it('should return undefined if yarn is not installed', () => {
       const yarnPath = findRealYarn()
-      expect(yarnPath === null || typeof yarnPath === 'string').toBe(true)
+      expect(yarnPath === undefined || typeof yarnPath === 'string').toBe(true)
     })
 
     it('should not return a shadow bin path if found', () => {

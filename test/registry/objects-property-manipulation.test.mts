@@ -57,7 +57,8 @@ describe('objects property manipulation and utilities', () => {
 
       expect(result1).toBe('computed value')
       expect(result2).toBe('computed value')
-      expect(callCount).toBe(1) // Should only call once due to caching
+      // Should only call once due to caching
+      expect(callCount).toBe(1)
     })
   })
 
@@ -84,8 +85,10 @@ describe('objects property manipulation and utilities', () => {
       })
 
       expect(obj.lazy).toBe('lazy value')
-      expect(obj.lazy).toBe('lazy value') // Second access
-      expect(callCount).toBe(1) // Should only call once
+      // Second access
+      expect(obj.lazy).toBe('lazy value')
+      // Should only call once
+      expect(callCount).toBe(1)
     })
   })
 
@@ -291,7 +294,8 @@ describe('objects property manipulation and utilities', () => {
         ['a', 3],
       ]
       const sorted = toSortedObjectFromEntries(entries)
-      expect(sorted.a).toBe(3) // Last value wins
+      // Last value wins
+      expect(sorted.a).toBe(3)
       expect(sorted.b).toBe(2)
     })
   })

@@ -420,7 +420,7 @@ describe('packages module extended tests', () => {
 
     it('should handle invalid expressions', () => {
       const result = parseSpdxExp('INVALID-LICENSE')
-      expect(result).toBeDefined()
+      expect(result).toBeUndefined()
     })
   })
 

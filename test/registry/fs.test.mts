@@ -331,7 +331,7 @@ describe('fs module', () => {
           value === undefined ? null : value,
       })
       const result = JSON.parse(fs.readFileSync(testJson, 'utf8'))
-      expect(result.b).toBe(null)
+      expect(result.b).toBeNull()
     })
   })
 

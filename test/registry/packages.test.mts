@@ -39,7 +39,8 @@ describe('packages module', () => {
       expect(isValidPackageName('')).toBe(false)
       expect(isValidPackageName(' package')).toBe(false)
       expect(isValidPackageName('package ')).toBe(false)
-      expect(isValidPackageName('CAPITAL')).toBe(true) // Actually valid
+      // Actually valid
+      expect(isValidPackageName('CAPITAL')).toBe(true)
       expect(isValidPackageName('.hidden')).toBe(false)
       expect(isValidPackageName('_underscore')).toBe(false)
     })
@@ -74,7 +75,8 @@ describe('packages module', () => {
       expect(
         isGitHubTgzSpec('https://github.com/user/repo/archive/main.tar.gz'),
       ).toBe(true)
-      expect(isGitHubTgzSpec('user/repo')).toBe(false) // Not a tarball spec
+      // Not a tarball spec
+      expect(isGitHubTgzSpec('user/repo')).toBe(false)
       expect(isGitHubTgzSpec('org/project')).toBe(false)
       expect(isGitHubTgzSpec('user/repo#branch')).toBe(false)
     })
@@ -99,7 +101,8 @@ describe('packages module', () => {
       expect(isGitHubUrlSpec('user/repo#main')).toBe(true)
       expect(isGitHubUrlSpec('user/repo#v1.0.0')).toBe(true)
       expect(isGitHubUrlSpec('github:user/repo#branch')).toBe(true)
-      expect(isGitHubUrlSpec('user/repo')).toBe(false) // No committish
+      // No committish
+      expect(isGitHubUrlSpec('user/repo')).toBe(false)
     })
 
     it('should reject non-GitHub URLs', () => {
@@ -203,9 +206,9 @@ describe('packages module', () => {
       expect(resolveEscapedScope('org__package')).toBe('org__')
     })
 
-    it('should return null for non-escaped packages', () => {
-      expect(resolveEscapedScope('package')).toBe(null)
-      expect(resolveEscapedScope('package_name')).toBe(null)
+    it('should return undefined for non-escaped packages', () => {
+      expect(resolveEscapedScope('package')).toBeUndefined()
+      expect(resolveEscapedScope('package_name')).toBeUndefined()
     })
   })
 
@@ -384,7 +387,7 @@ describe('packages module', () => {
 
     it('should handle invalid expressions', () => {
       const result = parseSpdxExp('invalid-license')
-      expect(result).toBeDefined()
+      expect(result).toBeUndefined()
     })
   })
 

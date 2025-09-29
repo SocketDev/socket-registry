@@ -29,7 +29,8 @@ describe('sort utilities', () => {
 
     it('should handle numbers as strings', () => {
       expect(compareStr('1', '2')).toBeLessThan(0)
-      expect(compareStr('10', '2')).toBeLessThan(0) // Lexical order
+      // Lexical order
+      expect(compareStr('10', '2')).toBeLessThan(0)
       expect(compareStr('2', '10')).toBeGreaterThan(0)
     })
 
@@ -84,7 +85,8 @@ describe('sort utilities', () => {
 
     it('should handle numeric sorting', () => {
       expect(naturalCompare('file1', 'file2')).toBeLessThan(0)
-      expect(naturalCompare('file2', 'file10')).toBeLessThan(0) // Natural order
+      // Natural order
+      expect(naturalCompare('file2', 'file10')).toBeLessThan(0)
       expect(naturalCompare('file10', 'file2')).toBeGreaterThan(0)
     })
 
@@ -242,7 +244,8 @@ describe('sort utilities', () => {
 
     it('should handle partial versions', () => {
       expect(compareSemver('1.0', '1.0')).toBe(0)
-      expect(compareSemver('1', '2')).toBe(0) // Both invalid
+      // Both invalid
+      expect(compareSemver('1', '2')).toBe(0)
     })
 
     it('should work as sort comparator', () => {

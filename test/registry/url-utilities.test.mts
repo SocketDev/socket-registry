@@ -43,7 +43,8 @@ describe('url utilities', () => {
     })
 
     it('should handle relative URLs', () => {
-      expect(isUrl('/path/to/resource')).toBe(false) // Relative URLs are not valid URLs
+      // Relative URLs are not valid URLs
+      expect(isUrl('/path/to/resource')).toBe(false)
       expect(isUrl('./relative')).toBe(false)
       expect(isUrl('../parent')).toBe(false)
     })
@@ -72,10 +73,10 @@ describe('url utilities', () => {
     })
 
     it('should return null for invalid URLs', () => {
-      expect(parseUrl('not-a-url')).toBeNull()
-      expect(parseUrl('')).toBeNull()
-      expect(parseUrl('http://')).toBeNull()
-      expect(parseUrl('://invalid')).toBeNull()
+      expect(parseUrl('not-a-url')).toBeUndefined()
+      expect(parseUrl('')).toBeUndefined()
+      expect(parseUrl('http://')).toBeUndefined()
+      expect(parseUrl('://invalid')).toBeUndefined()
     })
 
     it('should handle complex URLs', () => {

@@ -102,7 +102,8 @@ describe('bin module', () => {
     it('should handle other filesystem errors by rethrowing them', () => {
       // Mock a scenario where realpathSync.native throws an unexpected error.
       const mockError: any = new Error('Unexpected filesystem error')
-      mockError.code = 'EACCES' // Access denied error.
+      // Access denied error.
+      mockError.code = 'EACCES'
 
       // We can't easily mock fs in this test environment.
       // but we can test that errors other than ENOENT/ENOTDIR would be thrown.
@@ -202,14 +203,14 @@ describe('bin module', () => {
       expect(path.isAbsolute(nodePath)).toBe(true)
     })
 
-    it('should return null for non-existent binaries', () => {
+    it('should return undefined for non-existent binaries', () => {
       const result = whichBinSync('nonexistentbinary12345')
-      expect(result).toBeNull()
+      expect(result).toBeUndefined()
     })
 
     it('should handle options', () => {
       const result = whichBinSync('node', { all: false })
-      expect(result === null || typeof result === 'string').toBe(true)
+      expect(result === undefined || typeof result === 'string').toBe(true)
     })
 
     it('should return array when all option is true', () => {
@@ -230,14 +231,14 @@ describe('bin module', () => {
         all: true,
         nothrow: true,
       })
-      expect(result1 === null || Array.isArray(result1)).toBe(true)
+      expect(result1 === undefined || Array.isArray(result1)).toBe(true)
 
       // Test all: false, nothrow: true.
       const result2 = whichBinSync('nonexistentbinary12345', {
         all: false,
         nothrow: true,
       })
-      expect(result2).toBeNull()
+      expect(result2).toBeUndefined()
 
       // Test nothrow: false.
       expect(() => {
@@ -254,14 +255,14 @@ describe('bin module', () => {
       expect(path.isAbsolute(nodePath)).toBe(true)
     })
 
-    it('should return null for non-existent binaries', async () => {
+    it('should return undefined for non-existent binaries', async () => {
       const result = await whichBin('nonexistentbinary12345')
-      expect(result).toBeNull()
+      expect(result).toBeUndefined()
     })
 
     it('should handle options', async () => {
       const result = await whichBin('node', { all: false })
-      expect(result === null || typeof result === 'string').toBe(true)
+      expect(result === undefined || typeof result === 'string').toBe(true)
     })
 
     it('should return array when all option is true', async () => {
@@ -277,11 +278,11 @@ describe('bin module', () => {
     })
 
     it('should handle nothrow option', async () => {
-      // With nothrow: true (default), should return null for non-existent.
+      // With nothrow: true (default), should return undefined for non-existent.
       const result1 = await whichBin('nonexistentbinary12345', {
         nothrow: true,
       })
-      expect(result1).toBeNull()
+      expect(result1).toBeUndefined()
 
       // With nothrow: false, should throw.
       await expect(
@@ -525,9 +526,12 @@ exec node  "$basedir/lib/cli.js" "$@"`
 
     it('should handle paths that look similar but are not shadow bins', () => {
       const notShadowPaths = [
-        'node_modules/package/bin/tool', // No .bin directory.
-        '.bin/tool', // Just .bin without node_modules.
-        'some_node_modules_dir/tool', // No .bin at all.
+        // No .bin directory.
+        'node_modules/package/bin/tool',
+        // Just .bin without node_modules.
+        '.bin/tool',
+        // No .bin at all.
+        'some_node_modules_dir/tool',
       ]
 
       notShadowPaths.forEach((p: string) => {
@@ -645,9 +649,9 @@ exec node  "$basedir/lib/cli.js" "$@"`
       expect(result).toContain('node')
     })
 
-    it('should return null when binary not found with nothrow', async () => {
+    it('should return undefined when binary not found with nothrow', async () => {
       const result = await whichBin('nonexistent12345', { nothrow: true })
-      expect(result).toBe(null)
+      expect(result).toBeUndefined()
     })
 
     it('should throw when binary not found without nothrow', async () => {
@@ -667,7 +671,7 @@ exec node  "$basedir/lib/cli.js" "$@"`
         all: true,
         nothrow: true,
       })
-      expect(result).toEqual(null)
+      expect(result).toBeUndefined()
     })
   })
 
@@ -678,9 +682,9 @@ exec node  "$basedir/lib/cli.js" "$@"`
       expect(result).toContain('node')
     })
 
-    it('should return null when binary not found with nothrow', () => {
+    it('should return undefined when binary not found with nothrow', () => {
       const result = whichBinSync('nonexistent12345', { nothrow: true })
-      expect(result).toBe(null)
+      expect(result).toBeUndefined()
     })
 
     it('should throw when binary not found without nothrow', () => {
@@ -700,7 +704,7 @@ exec node  "$basedir/lib/cli.js" "$@"`
         all: true,
         nothrow: true,
       })
-      expect(result).toEqual(null)
+      expect(result).toBeUndefined()
     })
   })
 

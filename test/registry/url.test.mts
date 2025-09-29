@@ -56,9 +56,9 @@ describe('url module', () => {
     })
 
     it('should return null for invalid URLs', () => {
-      expect(parseUrl('not a url')).toBe(null)
-      expect(parseUrl('')).toBe(null)
-      expect(parseUrl('//invalid')).toBe(null)
+      expect(parseUrl('not a url')).toBe(undefined)
+      expect(parseUrl('')).toBe(undefined)
+      expect(parseUrl('//invalid')).toBe(undefined)
     })
 
     it('should handle URL objects', () => {
@@ -93,7 +93,8 @@ describe('url module', () => {
     it('should filter empty values after split', () => {
       expect(urlSearchParamAsArray('a,,b,,,c')).toEqual(['a', 'b', 'c'])
       expect(urlSearchParamAsArray('')).toEqual([])
-      expect(urlSearchParamAsArray('   ')).toEqual([]) // trimmed to empty
+      // trimmed to empty
+      expect(urlSearchParamAsArray('   ')).toEqual([])
     })
 
     it('should handle values with spaces', () => {
@@ -126,8 +127,10 @@ describe('url module', () => {
     it('should handle empty and whitespace', () => {
       expect(urlSearchParamAsBoolean('')).toBe(false)
       expect(urlSearchParamAsBoolean('   ')).toBe(false)
-      expect(urlSearchParamAsBoolean(' 1 ')).toBe(true) // trimmed to '1'
-      expect(urlSearchParamAsBoolean(' true ')).toBe(true) // trimmed to 'true'
+      // trimmed to '1'
+      expect(urlSearchParamAsBoolean(' 1 ')).toBe(true)
+      // trimmed to 'true'
+      expect(urlSearchParamAsBoolean(' true ')).toBe(true)
     })
 
     it('should handle null/undefined with default', () => {

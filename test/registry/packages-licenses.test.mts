@@ -98,7 +98,7 @@ describe('packages license handling', () => {
 
     it('should handle invalid expressions', () => {
       const result = parseSpdxExp('INVALID-LICENSE')
-      expect(result).toBeDefined()
+      expect(result).toBeUndefined()
     })
 
     it('should handle WITH exceptions', () => {

@@ -115,7 +115,7 @@ describe('functions module', () => {
       const wrapped1 = silentWrapAsync(nullFn)
       const wrapped2 = silentWrapAsync(undefinedFn)
 
-      expect(await wrapped1()).toBe(null)
+      expect(await wrapped1()).toBeUndefined()
       expect(await wrapped2()).toBe(undefined)
     })
   })

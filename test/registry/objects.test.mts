@@ -327,7 +327,8 @@ describe('objects module', () => {
       })
       expect(getter()).toBe('value')
       expect(getter()).toBe('value')
-      expect(callCount).toBe(1) // Should only call once
+      // Should only call once
+      expect(callCount).toBe(1)
     })
   })
 

@@ -4,8 +4,7 @@ import path from 'node:path'
 
 import { beforeAll, describe, expect, it } from 'vitest'
 
-import { logger } from '@socketsecurity/registry/lib/logger'
-
+import { logger } from '../../registry/dist/lib/logger.js'
 import constants from '../../scripts/constants.mjs'
 import { installPackageForTesting } from '../../scripts/utils/package-utils.mjs'
 import { isPackageTestingSkipped } from '../../scripts/utils/tests.mjs'
@@ -13,7 +12,7 @@ import { isPackageTestingSkipped } from '../../scripts/utils/tests.mjs'
 const { NPM } = constants
 
 const eco = NPM
-const sockRegPkgName = path.basename(__filename, '.test.ts')
+const sockRegPkgName = path.basename(__filename, '.test.mts')
 
 // safer-buffer tests assume Buffer.alloc, Buffer.allocUnsafe, and
 // Buffer.allocUnsafeSlow throw for a size of 2 * (1 << 30), i.e. 2147483648,

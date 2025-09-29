@@ -74,8 +74,10 @@ describe('additional coverage tests', () => {
       const content = await fs.readFile(jsonPath, 'utf8')
       const parsed = JSON.parse(content)
       expect(parsed.a).toBe(1)
-      expect(parsed.b).toBeUndefined() // filtered by replacer
-      expect(content).toContain('    ') // 4 spaces
+      // filtered by replacer
+      expect(parsed.b).toBeUndefined()
+      // 4 spaces
+      expect(content).toContain('    ')
     })
 
     it('should handle uniqueSync with directories', () => {
