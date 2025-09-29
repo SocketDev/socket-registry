@@ -3,6 +3,8 @@
  * Provides enhanced console methods with formatted output capabilities.
  */
 
+import { applyLinePrefix, isBlankString } from './strings'
+
 // Type definitions
 type LogSymbols = {
   fail: string
@@ -38,8 +40,6 @@ const ObjectFreeze = Object.freeze
 // See: https://github.com/SocketDev/socket-packageurl-js/issues/3
 const ReflectApply = Reflect.apply
 const ReflectConstruct = Reflect.construct
-
-const { applyLinePrefix, isBlankString } = /*@__PURE__*/ require('./strings')
 
 let _Console: typeof import('console').Console | undefined
 /**

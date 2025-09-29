@@ -3,6 +3,8 @@
  * Provides inquirer.js integration with spinner support and context handling.
  */
 
+import abortSignal from './constants/abort-signal'
+
 // Type definitions
 
 export interface Choice<Value = unknown> {
@@ -49,15 +51,14 @@ function wrapPrompt(
       spinner = /*@__PURE__*/ require('./constants/spinner').default,
       ...contextWithoutSpinner
     } = origContext ?? {}
-    const abortSignal =
-      /*@__PURE__*/ require('./constants/abort-signal').default
+    const signal = abortSignal
     if (origContext) {
       args[1] = {
-        signal: abortSignal,
+        signal,
         ...contextWithoutSpinner,
       }
     } else {
-      args[1] = { signal: abortSignal }
+      args[1] = { signal }
     }
     const wasSpinning = !!spinner?.isSpinning
     spinner?.stop()

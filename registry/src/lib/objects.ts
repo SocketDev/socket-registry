@@ -3,6 +3,8 @@
  * Provides type-safe object operations, property access, and structural helpers.
  */
 
+import UNDEFINED_TOKEN from './constants/UNDEFINED_TOKEN'
+
 // Type definitions
 type GetterDefObj = { [key: PropertyKey]: () => any }
 type LazyGetterStats = { initialized?: Set<PropertyKey> | undefined }
@@ -73,9 +75,7 @@ export function createLazyGetter<T>(
   getter: () => T,
   stats?: LazyGetterStats,
 ): () => T {
-  const UNDEFINED_TOKEN =
-    /*@__PURE__*/ require('./constants/UNDEFINED_TOKEN').default
-  let lazyValue = UNDEFINED_TOKEN
+  let lazyValue: T | typeof UNDEFINED_TOKEN = UNDEFINED_TOKEN
   // Dynamically name the getter without using Object.defineProperty.
   const { [name]: lazyGetter } = {
     [name]() {
@@ -83,7 +83,7 @@ export function createLazyGetter<T>(
         stats?.initialized?.add(name)
         lazyValue = getter()
       }
-      return lazyValue
+      return lazyValue as T
     },
   } as LazyGetterRecord<T>
   return lazyGetter!

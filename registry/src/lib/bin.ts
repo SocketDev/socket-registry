@@ -3,9 +3,9 @@
  * Provides cross-platform bin path lookup, command execution, and path normalization.
  */
 
-const { readJsonSync } = /*@__PURE__*/ require('./fs')
-const { getOwn } = /*@__PURE__*/ require('./objects')
-const { isPath, normalizePath } = /*@__PURE__*/ require('./path')
+import { readJsonSync } from './fs'
+import { getOwn } from './objects'
+import { isPath, normalizePath } from './path'
 
 let _fs: typeof import('node:fs') | undefined
 /**
@@ -327,7 +327,7 @@ export function resolveBinPathSync(binPath: string): string {
     const voltaPlatform = readJsonSync(
       path!.join(voltaUserPath, 'platform.json'),
       { throws: false },
-    )
+    ) as any
     const voltaNodeVersion = voltaPlatform?.node?.runtime
     const voltaNpmVersion = voltaPlatform?.node?.npm
     let voltaBinPath = ''
@@ -353,7 +353,7 @@ export function resolveBinPathSync(binPath: string): string {
       const binInfo = readJsonSync(
         path!.join(voltaUserBinPath, `${basename}.json`),
         { throws: false },
-      )
+      ) as any
       const binPackage = binInfo?.package
       if (binPackage) {
         voltaBinPath = path!.join(

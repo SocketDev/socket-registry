@@ -3,6 +3,25 @@
  * Provides npm package analysis, dependency resolution, and registry operations.
  */
 
+import { createCompositeAbortSignal, createTimeoutSignal } from './abort'
+import LOOP_SENTINEL from './constants/LOOP_SENTINEL'
+import NPM_REGISTRY_URL from './constants/NPM_REGISTRY_URL'
+import REGISTRY_SCOPE_DELIMITER from './constants/REGISTRY_SCOPE_DELIMITER'
+import SOCKET_GITHUB_ORG from './constants/SOCKET_GITHUB_ORG'
+import SOCKET_REGISTRY_REPO_NAME from './constants/SOCKET_REGISTRY_REPO_NAME'
+import SOCKET_REGISTRY_SCOPE from './constants/SOCKET_REGISTRY_SCOPE'
+import abortSignal from './constants/abort-signal'
+import copyLeftLicenses from './constants/copy-left-licenses'
+import PACKAGE_DEFAULT_SOCKET_CATEGORIES from './constants/package-default-socket-categories'
+import packumentCache from './constants/packument-cache'
+import pacoteCachePath from './constants/pacote-cache-path'
+import { readJson, readJsonSync } from './fs'
+import { isObject, isObjectObject, merge, objectEntries } from './objects'
+import { isNodeModules, normalizePath } from './path'
+import { escapeRegExp } from './regexps'
+import { isNonEmptyString } from './strings'
+import { parseUrl } from './url'
+
 import type { CategoryString } from '../index'
 
 // Type for package.json exports field.
@@ -85,43 +104,13 @@ const ArrayIsArray = Array.isArray
 // See: https://github.com/SocketDev/socket-packageurl-js/issues/3
 const ObjectHasOwn = Object.hasOwn
 
-const LOOP_SENTINEL = /*@__PURE__*/ require('./constants/LOOP_SENTINEL').default
-const NPM_REGISTRY_URL =
-  /*@__PURE__*/ require('./constants/NPM_REGISTRY_URL').default
-const REGISTRY_SCOPE_DELIMITER =
-  /*@__PURE__*/ require('./constants/REGISTRY_SCOPE_DELIMITER').default
-const SOCKET_GITHUB_ORG =
-  /*@__PURE__*/ require('./constants/SOCKET_GITHUB_ORG').default
-const SOCKET_REGISTRY_REPO_NAME =
-  /*@__PURE__*/ require('./constants/SOCKET_REGISTRY_REPO_NAME').default
-const SOCKET_REGISTRY_SCOPE =
-  /*@__PURE__*/ require('./constants/SOCKET_REGISTRY_SCOPE').default
-const abortSignal = /*@__PURE__*/ require('./constants/abort-signal')
-const copyLeftLicenses =
-  /*@__PURE__*/ require('./constants/copy-left-licenses').default
-const PACKAGE_DEFAULT_SOCKET_CATEGORIES =
-  /*@__PURE__*/ require('./constants/package-default-socket-categories').default
-const packumentCache =
-  /*@__PURE__*/ require('./constants/packument-cache').default
-const { readJson, readJsonSync } = /*@__PURE__*/ require('./fs')
-const {
-  isObject,
-  isObjectObject,
-  merge,
-  objectEntries,
-} = /*@__PURE__*/ require('./objects')
-const { isNodeModules, normalizePath } = /*@__PURE__*/ require('./path')
-const { escapeRegExp } = /*@__PURE__*/ require('./regexps')
-const { isNonEmptyString } = /*@__PURE__*/ require('./strings')
-const { parseUrl } = /*@__PURE__*/ require('./url')
-
 const BINARY_OPERATION_NODE_TYPE = 'BinaryOperation'
 const LICENSE_NODE_TYPE = 'License'
 const SLSA_PROVENANCE_V0_2 = 'https://slsa.dev/provenance/v0.2'
 const SLSA_PROVENANCE_V1_0 = 'https://slsa.dev/provenance/v1'
 
 const escapedScopeRegExp = new RegExp(
-  `^[^${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0])}]+${escapeRegExp(REGISTRY_SCOPE_DELIMITER)}(?!${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0])})`,
+  `^[^${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0]!)}]+${escapeRegExp(REGISTRY_SCOPE_DELIMITER)}(?!${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0]!)})`,
 )
 const fileReferenceRegExp = /^SEE LICEN[CS]E IN (.+)$/
 const pkgScopePrefixRegExp = /^@socketregistry\//
@@ -506,7 +495,7 @@ function getFetcher() {
     const makeFetchHappen =
       /*@__PURE__*/ require('../external/make-fetch-happen')
     _fetcher = makeFetchHappen.defaults({
-      cachePath: /*@__PURE__*/ require('./constants/pacote-cache-path').default,
+      cachePath: pacoteCachePath,
       // Prefer-offline: Staleness checks for cached data will be bypassed, but
       // missing data will be requested from the server.
       // https://github.com/npm/make-fetch-happen?tab=readme-ov-file#--optscache
@@ -792,10 +781,12 @@ export function createPackageJson(
     ...(isObjectObject(engines)
       ? {
           engines: Object.fromEntries(
-            objectEntries(engines).map((pair: [string, any]) => {
-              if (pair[0] === 'node') {
+            objectEntries(engines).map((pair: [PropertyKey, any]) => {
+              const strKey = String(pair[0])
+              const result: [string, any] = [strKey, pair[1]]
+              if (strKey === 'node') {
                 const semver = getSemver()
-                const { 1: range } = pair
+                const { 1: range } = result
                 if (
                   !semver.satisfies(
                     // Roughly check Node range as semver.coerce will strip leading
@@ -804,10 +795,10 @@ export function createPackageJson(
                     PACKAGE_DEFAULT_NODE_RANGE,
                   )
                 ) {
-                  pair[1] = PACKAGE_DEFAULT_NODE_RANGE
+                  result[1] = PACKAGE_DEFAULT_NODE_RANGE
                 }
               }
-              return pair
+              return result
             }),
           ),
         }
@@ -821,7 +812,7 @@ export function createPackageJson(
             categories: PACKAGE_DEFAULT_SOCKET_CATEGORIES,
           },
         }),
-  }
+  } as PackageJson
 }
 
 /**
@@ -857,7 +848,7 @@ export async function extractPackage(
     // It DOES returns a promise.
     const cacache = getCacache()
     await cacache.tmp.withTmp(
-      /*@__PURE__*/ require('./constants/pacote-cache-path').default,
+      pacoteCachePath,
       { tmpPrefix },
       async (tmpDirPath: string) => {
         await pacote.extract(pkgNameOrId, tmpDirPath, extractOptions)
@@ -1004,7 +995,9 @@ function isTrustedPublisher(value: any): boolean {
   // Example: "https://github.com/owner/repo/.github/workflows/ci.yml@refs/heads/main"
   if (!url && value.includes('@')) {
     const firstPart = value.split('@')[0]
-    url = parseUrl(firstPart)
+    if (firstPart) {
+      url = parseUrl(firstPart)
+    }
     if (url) {
       hostname = url.hostname
     }
@@ -1094,11 +1087,6 @@ export async function fetchPackageProvenance(
   if (signal?.aborted) {
     return undefined
   }
-
-  const {
-    createCompositeAbortSignal,
-    createTimeoutSignal,
-  } = /*@__PURE__*/ require('./abort')
 
   // Create composite signal combining external signal with timeout
   const timeoutSignal = createTimeoutSignal(timeout)
@@ -1522,7 +1510,9 @@ export async function readPackageJson(
     __proto__: null,
     ...options,
   } as ReadPackageJsonOptions
-  const pkgJson = await readJson(resolvePackageJsonPath(filepath), { throws })
+  const pkgJson = (await readJson(resolvePackageJsonPath(filepath), {
+    throws,
+  })) as PackageJson | undefined
   if (pkgJson) {
     return editable
       ? await toEditablePackageJson(pkgJson, {
@@ -1550,7 +1540,9 @@ export function readPackageJsonSync(
     throws?: boolean
     normalize?: boolean
   }
-  const pkgJson = readJsonSync(resolvePackageJsonPath(filepath), { throws })
+  const pkgJson = readJsonSync(resolvePackageJsonPath(filepath), { throws }) as
+    | PackageJson
+    | undefined
   if (pkgJson) {
     return editable
       ? toEditablePackageJsonSync(pkgJson, {
@@ -1582,6 +1574,9 @@ export async function resolveGitHubTgzUrl(
   const pkgJson = whereIsPkgJson
     ? where
     : await readPackageJson(where, { normalize: true })
+  if (!pkgJson) {
+    return ''
+  }
   const { version } = pkgJson
   const npmPackageArg = getNpmPackageArg()
   const parsedSpec = npmPackageArg(
@@ -1593,9 +1588,10 @@ export async function resolveGitHubTgzUrl(
     return parsedSpec.saveSpec || ''
   }
   const isGitHubUrl = isGitHubUrlSpec(parsedSpec)
+  const repository = pkgJson['repository'] as any
   const { project, user } = (isGitHubUrl
     ? parsedSpec.hosted
-    : getRepoUrlDetails(pkgJson.repository?.url)) || { project: '', user: '' }
+    : getRepoUrlDetails(repository?.url)) || { project: '', user: '' }
 
   if (user && project) {
     let apiUrl = ''

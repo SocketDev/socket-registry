@@ -3,7 +3,9 @@
  * Provides async control flow helpers and promise-based timing functions.
  */
 
-const { arrayChunk } = /*@__PURE__*/ require('./arrays')
+import { arrayChunk } from './arrays'
+import UNDEFINED_TOKEN from './constants/UNDEFINED_TOKEN'
+import abortSignal from './constants/abort-signal'
 
 let _timers: typeof import('node:timers/promises') | undefined
 /**
@@ -38,7 +40,7 @@ export function normalizeIterationOptions(
     // Retries as a number or options object.
     retries,
     // AbortSignal used to support cancellation.
-    signal = /*@__PURE__*/ require('./constants/abort-signal').default,
+    signal = abortSignal,
   } = { __proto__: null, ...opts } as {
     concurrency?: number
     retries?: any
@@ -83,7 +85,7 @@ export function normalizeRetryOptions(options?: any): any {
     // Number of retry attempts (0 = no retries, only initial attempt).
     retries = resolved.retries || 0,
     // AbortSignal used to support cancellation.
-    signal = /*@__PURE__*/ require('./constants/abort-signal').default,
+    signal = abortSignal,
   } = resolved
   return {
     __proto__: null,
@@ -264,13 +266,11 @@ export async function pRetry<T>(
     return await callbackFn(...args, { signal })
   }
 
-  const UNDEFINED_TOKEN =
-    /*@__PURE__*/ require('./constants/UNDEFINED_TOKEN').default
   const timers = getTimers()
 
   let attempts = retries
   let delay = baseDelayMs
-  let error = UNDEFINED_TOKEN
+  let error: any = UNDEFINED_TOKEN
 
   while (attempts-- >= 0 && !signal?.aborted) {
     try {

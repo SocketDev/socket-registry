@@ -3,6 +3,8 @@
  * Provides animated progress indicators with CI environment detection.
  */
 
+import abortSignal from './constants/abort-signal'
+
 import type { Writable } from 'node:stream'
 
 // IMPORTANT: Do not use destructuring here - use direct assignment instead.
@@ -118,7 +120,6 @@ let _defaultSpinner: SpinnerStyle | undefined
 export function Spinner(options?: SpinnerOptions | undefined): Spinner {
   if (_Spinner === undefined) {
     const ENV = /*@__PURE__*/ require('./constants/ENV')
-    const abortSignal = /*@__PURE__*/ require('./constants/abort-signal')
     const { isBlankString } = /*@__PURE__*/ require('./strings')
     const yoctoFactory = /*@__PURE__*/ require('../external/@socketregistry/yocto-spinner')
     const { constructor: YoctoCtor } = yoctoFactory()
@@ -129,7 +130,7 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
       declare text: string
       constructor(options?: SpinnerOptions | undefined) {
         super({
-          signal: abortSignal.default,
+          signal: abortSignal,
           ...options,
         })
       }
