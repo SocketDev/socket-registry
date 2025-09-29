@@ -11,7 +11,7 @@ const {
   readPackageJsonSync,
   resolveOriginalPackageName,
   resolvePackageJsonPath,
-} = require('@socketsecurity/registry/lib/packages')
+} = require('../../registry/dist/lib/packages')
 
 describe('packages normalization and reading', () => {
   describe('normalizePackageJson', () => {

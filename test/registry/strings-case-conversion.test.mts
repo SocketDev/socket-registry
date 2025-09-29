@@ -11,7 +11,7 @@ const {
   stripBom,
   toKebabCase,
   trimNewlines,
-} = require('@socketsecurity/registry/lib/strings')
+} = require('../../registry/dist/lib/strings')
 
 describe('strings case conversion and manipulation', () => {
   describe('applyLinePrefix', () => {

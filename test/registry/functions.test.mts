@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-const { silentWrapAsync } = require('@socketsecurity/registry/lib/functions')
+const { silentWrapAsync } = require('../../registry/dist/lib/functions')
 
 // Helper functions moved to outer scope.
 const asyncFn = async () => 'success'

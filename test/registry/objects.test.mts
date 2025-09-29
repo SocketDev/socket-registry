@@ -17,7 +17,7 @@ const {
   objectEntries,
   toSortedObject,
   toSortedObjectFromEntries,
-} = require('@socketsecurity/registry/lib/objects')
+} = require('../../registry/dist/lib/objects')
 
 describe('objects module', () => {
   describe('isObject', () => {

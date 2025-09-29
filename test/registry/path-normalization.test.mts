@@ -12,7 +12,7 @@ const {
   relativeResolve,
   splitPath,
   trimLeadingDotSlash,
-} = require('@socketsecurity/registry/lib/path')
+} = require('../../registry/dist/lib/path')
 
 describe('path normalization and utilities', () => {
   describe('isNodeModules', () => {
@@ -341,7 +341,7 @@ describe('path normalization and utilities', () => {
   describe('lazy loading', () => {
     it('should lazy load modules', () => {
       // Clear module caches.
-      const pathModule = require('@socketsecurity/registry/lib/path')
+      const pathModule = require('../../registry/dist/lib/path')
 
       // Test that modules are loaded on demand.
       expect(pathModule.isPath('./test')).toBe(true)

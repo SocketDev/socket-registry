@@ -12,7 +12,7 @@ const {
   findRealPnpm,
   findRealYarn,
   isShadowBinPath,
-} = require('@socketsecurity/registry/lib/bin')
+} = require('../../registry/dist/lib/bin')
 
 describe('bin find utilities', () => {
   describe('findRealBin', () => {

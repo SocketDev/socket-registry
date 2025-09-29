@@ -4,7 +4,7 @@ const {
   envAsBoolean,
   envAsNumber,
   envAsString,
-} = require('@socketsecurity/registry/lib/env')
+} = require('../../registry/dist/lib/env')
 
 describe('env module', () => {
   let originalEnv: NodeJS.ProcessEnv

@@ -8,7 +8,7 @@ const {
   urlSearchParamAsBoolean,
   urlSearchParamsGetArray,
   urlSearchParamsGetBoolean,
-} = require('@socketsecurity/registry/lib/url')
+} = require('../../registry/dist/lib/url')
 
 describe('url module', () => {
   describe('isUrl', () => {

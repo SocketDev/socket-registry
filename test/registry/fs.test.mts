@@ -26,7 +26,7 @@ const {
   uniqueSync,
   writeJson,
   writeJsonSync,
-} = require('@socketsecurity/registry/lib/fs')
+} = require('../../registry/dist/lib/fs')
 
 describe('fs module', () => {
   let tmpDir: string

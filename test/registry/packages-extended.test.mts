@@ -23,7 +23,7 @@ const {
   readPackageJsonFromArchive,
   resolvePackageName,
   resolveRegistryPackageName,
-} = require('@socketsecurity/registry/lib/packages')
+} = require('../../registry/dist/lib/packages')
 
 describe('packages module extended tests', () => {
   describe('collectIncompatibleLicenses', () => {

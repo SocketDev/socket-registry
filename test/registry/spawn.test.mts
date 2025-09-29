@@ -7,7 +7,7 @@ const {
   isStdioType,
   spawn,
   spawnSync,
-} = require('@socketsecurity/registry/lib/spawn')
+} = require('../../registry/dist/lib/spawn')
 
 describe('spawn module', () => {
   describe('isStdioType', () => {

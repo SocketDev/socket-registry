@@ -8,7 +8,7 @@ const {
   pathLikeToString,
   splitPath,
   trimLeadingDotSlash,
-} = require('@socketsecurity/registry/lib/path')
+} = require('../../registry/dist/lib/path')
 
 describe('path module', () => {
   describe('isPath', () => {

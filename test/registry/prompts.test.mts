@@ -5,12 +5,12 @@ describe('prompts module', () => {
   describe('wrapPrompt function', () => {
     it('should test the wrapper logic with a mock function', async () => {
       // Test the wrapPrompt function directly
-      const wrapPrompt = require('@socketsecurity/registry/lib/prompts')
-        .__internal?.wrapPrompt
+      const wrapPrompt = require('../../registry/dist/lib/prompts').__internal
+        ?.wrapPrompt
 
       if (!wrapPrompt) {
         // Since wrapPrompt is not exported, we can only test that the module loads
-        const prompts = require('@socketsecurity/registry/lib/prompts')
+        const prompts = require('../../registry/dist/lib/prompts')
         expect(prompts).toBeDefined()
         expect(typeof prompts.confirm).toBe('function')
         expect(typeof prompts.input).toBe('function')
@@ -50,7 +50,7 @@ describe('prompts module', () => {
 
   describe('module exports', () => {
     it('should export prompt functions', () => {
-      const prompts = require('@socketsecurity/registry/lib/prompts')
+      const prompts = require('../../registry/dist/lib/prompts')
 
       expect(typeof prompts.confirm).toBe('function')
       expect(typeof prompts.input).toBe('function')
@@ -61,7 +61,7 @@ describe('prompts module', () => {
     })
 
     it('should have Separator constructor', () => {
-      const { Separator } = require('@socketsecurity/registry/lib/prompts')
+      const { Separator } = require('../../registry/dist/lib/prompts')
 
       // Test that we can construct it (though we won't test the internal logic)
       expect(() => new Separator()).not.toThrow()

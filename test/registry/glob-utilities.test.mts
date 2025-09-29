@@ -8,7 +8,7 @@ const {
   defaultIgnore,
   getGlobMatcher,
   globStreamLicenses,
-} = require('@socketsecurity/registry/lib/globs')
+} = require('../../registry/dist/lib/globs')
 
 describe('glob utilities', () => {
   let tmpDir: string
