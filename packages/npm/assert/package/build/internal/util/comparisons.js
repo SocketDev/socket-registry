@@ -183,7 +183,8 @@ function getOwnNonIndexProperties(value) {
 /*!
  * The buffer module from node.js, for the browser.
  *
- * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ //feross.org>
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http:
  * @license  MIT
  */
 function compare(a, b) {

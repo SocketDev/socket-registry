@@ -88,7 +88,7 @@ const SOCKET_REGISTRY_REPO_NAME =
   /*@__PURE__*/ require('./constants/SOCKET_REGISTRY_REPO_NAME').default
 const SOCKET_REGISTRY_SCOPE =
   /*@__PURE__*/ require('./constants/SOCKET_REGISTRY_SCOPE').default
-const abortSignal = /*@__PURE__*/ require('./constants/abort-signal').default
+const abortSignal = /*@__PURE__*/ require('./constants/abort-signal')
 const copyLeftLicenses =
   /*@__PURE__*/ require('./constants/copy-left-licenses').default
 const PACKAGE_DEFAULT_SOCKET_CATEGORIES =
@@ -121,14 +121,14 @@ const pkgScopePrefixRegExp = /^@socketregistry\//
 const identSymbol = Symbol.for('indent')
 const newlineSymbol = Symbol.for('newline')
 
-let _cacache: typeof import('../external/cacache').default | undefined
+let _cacache: typeof import('../external/cacache') | undefined
 /**
  * Get the cacache module for cache operations.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function getCacache() {
   if (_cacache === undefined) {
-    _cacache = /*@__PURE__*/ require('../external/cacache').default
+    _cacache = /*@__PURE__*/ require('../external/cacache')
   }
   return _cacache!
 }
@@ -179,11 +179,11 @@ let _EditablePackageJsonClass: EditablePackageJsonConstructor | undefined
 export function getEditablePackageJsonClass(): EditablePackageJsonConstructor {
   if (_EditablePackageJsonClass === undefined) {
     const EditablePackageJsonBase =
-      /*@__PURE__*/ require('../external/@npmcli/package-json').default
+      /*@__PURE__*/ require('../external/@npmcli/package-json')
     const { parse, read } =
-      /*@__PURE__*/ require('../external/@npmcli/package-json/lib/read-package').default
+      /*@__PURE__*/ require('../external/@npmcli/package-json/lib/read-package')
     const { packageSort } =
-      /*@__PURE__*/ require('../external/@npmcli/package-json/lib/sort').default
+      /*@__PURE__*/ require('../external/@npmcli/package-json/lib/sort')
     _EditablePackageJsonClass =
       class EditablePackageJson extends (EditablePackageJsonBase as EditablePackageJsonConstructor) {
         static override fixSteps = EditablePackageJsonBase.fixSteps
@@ -496,7 +496,7 @@ let _fetcher: MakeFetchHappenFetcher | undefined
 function getFetcher() {
   if (_fetcher === undefined) {
     const makeFetchHappen =
-      /*@__PURE__*/ require('../external/make-fetch-happen').default
+      /*@__PURE__*/ require('../external/make-fetch-happen')
     _fetcher = makeFetchHappen.defaults({
       cachePath: /*@__PURE__*/ require('./constants/pacote-cache-path').default,
       // Prefer-offline: Staleness checks for cached data will be bypassed, but
@@ -524,7 +524,7 @@ let _normalizePackageData: typeof import('normalize-package-data') | undefined
 function getNormalizePackageData() {
   if (_normalizePackageData === undefined) {
     _normalizePackageData =
-      /*@__PURE__*/ require('../external/normalize-package-data').default
+      /*@__PURE__*/ require('../external/normalize-package-data')
   }
   return _normalizePackageData!
 }
@@ -533,28 +533,29 @@ let _npmPackageArg: typeof import('npm-package-arg') | undefined
 /*@__NO_SIDE_EFFECTS__*/
 function getNpmPackageArg() {
   if (_npmPackageArg === undefined) {
-    _npmPackageArg =
-      /*@__PURE__*/ require('../external/npm-package-arg').default
+    _npmPackageArg = /*@__PURE__*/ require('../external/npm-package-arg')
   }
   return _npmPackageArg!
 }
 
-let _pack: typeof import('../external/libnpmpack').default | undefined
+let _pack: typeof import('../external/libnpmpack') | undefined
 /*@__NO_SIDE_EFFECTS__*/
 function getPack() {
   if (_pack === undefined) {
-    _pack = /*@__PURE__*/ require('../external/libnpmpack').default
+    _pack = /*@__PURE__*/ require('../external/libnpmpack')
   }
   return _pack!
 }
 
-let _PackageURL: typeof import('packageurl-js').PackageURL | undefined
+let _PackageURL:
+  | typeof import('@socketregistry/packageurl-js').PackageURL
+  | undefined
 /*@__NO_SIDE_EFFECTS__*/
 function getPackageURL() {
   if (_PackageURL === undefined) {
     // The 'packageurl-js' package is browser safe.
     const packageUrlJs =
-      /*@__PURE__*/ require('../external/@socketregistry/packageurl-js').default
+      /*@__PURE__*/ require('../external/@socketregistry/packageurl-js')
     _PackageURL = packageUrlJs.PackageURL
   }
   return _PackageURL!
@@ -564,7 +565,7 @@ let _pacote: typeof import('pacote') | undefined
 /*@__NO_SIDE_EFFECTS__*/
 function getPacote() {
   if (_pacote === undefined) {
-    _pacote = /*@__PURE__*/ require('../external/pacote').default
+    _pacote = /*@__PURE__*/ require('../external/pacote')
   }
   return _pacote!
 }
@@ -585,7 +586,7 @@ let _semver: typeof import('semver') | undefined
 function getSemver() {
   if (_semver === undefined) {
     // The 'semver' package is browser safe.
-    _semver = /*@__PURE__*/ require('../external/semver').default
+    _semver = /*@__PURE__*/ require('../external/semver')
   }
   return _semver!
 }
@@ -595,7 +596,7 @@ let _spdxCorrect: typeof import('spdx-correct') | undefined
 function getSpdxCorrect() {
   if (_spdxCorrect === undefined) {
     // The 'spdx-correct' package is browser safe.
-    _spdxCorrect = /*@__PURE__*/ require('../external/spdx-correct').default
+    _spdxCorrect = /*@__PURE__*/ require('../external/spdx-correct')
   }
   return _spdxCorrect!
 }
@@ -605,8 +606,7 @@ let _spdxExpParse: typeof import('spdx-expression-parse') | undefined
 function getSpdxExpParse() {
   if (_spdxExpParse === undefined) {
     // The 'spdx-expression-parse' package is browser safe.
-    _spdxExpParse =
-      /*@__PURE__*/ require('../external/spdx-expression-parse').default
+    _spdxExpParse = /*@__PURE__*/ require('../external/spdx-expression-parse')
   }
   return _spdxExpParse!
 }
@@ -629,7 +629,7 @@ let _validateNpmPackageName:
 function getValidateNpmPackageName() {
   if (_validateNpmPackageName === undefined) {
     _validateNpmPackageName =
-      /*@__PURE__*/ require('../external/validate-npm-package-name').default
+      /*@__PURE__*/ require('../external/validate-npm-package-name')
   }
   return _validateNpmPackageName!
 }
@@ -1090,7 +1090,7 @@ export async function fetchPackageProvenance(
   const {
     createCompositeAbortSignal,
     createTimeoutSignal,
-  } = /*@__PURE__*/ require('./abort-signal')
+  } = /*@__PURE__*/ require('./abort')
 
   // Create composite signal combining external signal with timeout
   const timeoutSignal = createTimeoutSignal(timeout)
@@ -1608,7 +1608,7 @@ export async function resolveGitHubTgzUrl(
     if (apiUrl) {
       const fetcher = getFetcher()
       const resp = await fetcher(apiUrl)
-      const json = await resp.json()
+      const json = (await resp.json()) as { object?: { sha?: string } }
       const sha = json?.object?.sha
       if (sha) {
         return gitHubTgzUrl(user, project, sha)

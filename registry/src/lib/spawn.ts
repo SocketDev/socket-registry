@@ -58,8 +58,8 @@ let _npmCliPromiseSpawn:
   | ((
       cmd: string,
       args: string[],
-      options?: PromiseSpawnOptions,
-      extra?: SpawnExtra,
+      options?: PromiseSpawnOptions | undefined,
+      extra?: SpawnExtra | undefined,
     ) => PromiseSpawnResult)
   | undefined
 /**
@@ -69,7 +69,7 @@ let _npmCliPromiseSpawn:
 function getNpmcliPromiseSpawn() {
   if (_npmCliPromiseSpawn === undefined) {
     _npmCliPromiseSpawn =
-      /*@__PURE__*/ require('../external/@npmcli/promise-spawn').default
+      /*@__PURE__*/ require('../external/@npmcli/promise-spawn')
   }
   return _npmCliPromiseSpawn!
 }
@@ -148,7 +148,7 @@ export function isSpawnError(value: unknown): value is SpawnError {
 /*@__NO_SIDE_EFFECTS__*/
 export function isStdioType(
   stdio: string | string[],
-  type?: StdioType,
+  type?: StdioType | undefined,
 ): boolean {
   // If called with one argument, check if it's a valid stdio type.
   if (arguments.length === 1) {
@@ -227,13 +227,13 @@ interface ChildProcessType {
   send(message: any, callback?: (error: Error | null) => void): boolean
   send(
     message: any,
-    sendHandle?: any,
+    sendHandle?: any | undefined,
     callback?: (error: Error | null) => void,
   ): boolean
   send(
     message: any,
-    sendHandle?: any,
-    options?: any,
+    sendHandle?: any | undefined,
+    options?: any | undefined,
     callback?: (error: Error | null) => void,
   ): boolean
   disconnect(): void
@@ -253,16 +253,16 @@ interface WritableStreamType {
   destroyed: boolean
   write(
     chunk: any,
-    encoding?: BufferEncoding,
+    encoding?: BufferEncoding | undefined,
     callback?: (error?: Error | null) => void,
   ): boolean
   write(chunk: any, callback?: (error?: Error | null) => void): boolean
   end(cb?: () => void): this
   end(chunk: any, cb?: () => void): this
-  end(chunk: any, encoding?: BufferEncoding, cb?: () => void): this
+  end(chunk: any, encoding?: BufferEncoding | undefined, cb?: () => void): this
   cork(): void
   uncork(): void
-  destroy(error?: Error): this
+  destroy(error?: Error | undefined): this
 }
 
 /**
@@ -287,8 +287,8 @@ export type SpawnStdioResult = {
 export function spawn(
   cmd: string,
   args?: string[] | readonly string[],
-  options?: SpawnOptions,
-  extra?: SpawnExtra,
+  options?: SpawnOptions | undefined,
+  extra?: SpawnExtra | undefined,
 ): SpawnResult {
   // On Windows with shell: true, use just the command name, not the full path.
   // When shell: true is used, Windows cmd.exe has issues executing full paths to
@@ -297,14 +297,14 @@ export function spawn(
   // See: https://github.com/nodejs/node/issues/3675
   // Check for .cmd, .bat, .ps1 extensions that indicate a Windows script.
   const shell = getOwn(options, 'shell')
-  const WIN32 = /*@__PURE__*/ require('./constants/WIN32').default
+  const WIN32 = /*@__PURE__*/ require('./constants/WIN32')
   if (WIN32 && shell && windowsScriptExtRegExp.test(cmd)) {
     const path = getPath()
     // Extract just the command name without path and extension.
     cmd = path.basename(cmd, path.extname(cmd))
   }
   const {
-    spinner = /*@__PURE__*/ require('./constants/spinner').default,
+    spinner = /*@__PURE__*/ require('./constants/spinner'),
     stripAnsi: shouldStripAnsi = true,
     ...spawnOptions
   } = { __proto__: null, ...options } as SpawnOptions
@@ -320,7 +320,7 @@ export function spawn(
   }
   const npmCliPromiseSpawn = getNpmcliPromiseSpawn()
   const promiseSpawnOptions: PromiseSpawnOptions = {
-    signal: /*@__PURE__*/ require('./constants/abort-signal').default,
+    signal: /*@__PURE__*/ require('./constants/abort-signal'),
     cwd: typeof spawnOptions.cwd === 'string' ? spawnOptions.cwd : undefined,
     stdio: spawnOptions.stdio,
     stdioString,
@@ -388,7 +388,7 @@ export type SpawnSyncOptions = Omit<SpawnOptions, 'spinner'>
 export function spawnSync(
   cmd: string,
   args?: string[] | readonly string[],
-  options?: SpawnSyncOptions,
+  options?: SpawnSyncOptions | undefined,
 ): SpawnSyncReturns<string | Buffer> {
   // On Windows with shell: true, use just the command name, not the full path.
   // When shell: true is used, Windows cmd.exe has issues executing full paths to
@@ -397,7 +397,7 @@ export function spawnSync(
   // See: https://github.com/nodejs/node/issues/3675
   // Check for .cmd, .bat, .ps1 extensions that indicate a Windows script.
   const shell = getOwn(options, 'shell')
-  const WIN32 = /*@__PURE__*/ require('./constants/WIN32').default
+  const WIN32 = /*@__PURE__*/ require('./constants/WIN32')
   if (WIN32 && shell && windowsScriptExtRegExp.test(cmd)) {
     const path = getPath()
     // Extract just the command name without path and extension.

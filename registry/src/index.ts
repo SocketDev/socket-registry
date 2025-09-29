@@ -76,7 +76,9 @@ type Manifest = {
 }
 
 // Main functionality
-let _PackageURL: typeof import('packageurl-js').PackageURL | undefined
+let _PackageURL:
+  | typeof import('@socketregistry/packageurl-js').PackageURL
+  | undefined
 
 /*@__NO_SIDE_EFFECTS__*/
 function getPackageURL() {
@@ -96,8 +98,8 @@ function getManifestData(
   sockRegPkgName: string,
 ): ManifestEntryData | undefined
 function getManifestData(
-  eco?: EcosystemString,
-  sockRegPkgName?: string,
+  eco?: EcosystemString | undefined,
+  sockRegPkgName?: string | undefined,
 ): Manifest | ManifestEntry[] | ManifestEntryData | undefined {
   const registryManifest = /*@__PURE__*/ require('../manifest.json') as Manifest
   if (eco) {

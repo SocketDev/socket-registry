@@ -5,11 +5,9 @@
 
 // Type definitions
 declare const BlankStringBrand: unique symbol
-type BlankString = string & { [BlankStringBrand]: true }
+export type BlankString = string & { [BlankStringBrand]: true }
 declare const EmptyStringBrand: unique symbol
-type EmptyString = string & { [EmptyStringBrand]: true }
-
-export type { BlankString, EmptyString }
+export type EmptyString = string & { [EmptyStringBrand]: true }
 
 const { fromCharCode } = String
 

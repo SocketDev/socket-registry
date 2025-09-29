@@ -39,33 +39,33 @@ export type Spinner = {
   get isSpinning(): boolean
 
   clear(): Spinner
-  debug(text?: string, ...extras: any[]): Spinner
-  debugAndStop(text?: string, ...extras: any[]): Spinner
-  error(text?: string, ...extras: any[]): Spinner
-  errorAndStop(text?: string, ...extras: any[]): Spinner
-  fail(text?: string, ...extras: any[]): Spinner
-  failAndStop(text?: string, ...extras: any[]): Spinner
+  debug(text?: string | undefined, ...extras: any[]): Spinner
+  debugAndStop(text?: string | undefined, ...extras: any[]): Spinner
+  error(text?: string | undefined, ...extras: any[]): Spinner
+  errorAndStop(text?: string | undefined, ...extras: any[]): Spinner
+  fail(text?: string | undefined, ...extras: any[]): Spinner
+  failAndStop(text?: string | undefined, ...extras: any[]): Spinner
 
   getText(): string
-  setText(text?: string): Spinner
-  indent(spaces?: number): Spinner
-  dedent(spaces?: number): Spinner
+  setText(text?: string | undefined): Spinner
+  indent(spaces?: number | undefined): Spinner
+  dedent(spaces?: number | undefined): Spinner
   resetIndent(): Spinner
 
-  info(text?: string, ...extras: any[]): Spinner
-  infoAndStop(text?: string, ...extras: any[]): Spinner
-  log(text?: string, ...extras: any[]): Spinner
-  logAndStop(text?: string, ...extras: any[]): Spinner
+  info(text?: string | undefined, ...extras: any[]): Spinner
+  infoAndStop(text?: string | undefined, ...extras: any[]): Spinner
+  log(text?: string | undefined, ...extras: any[]): Spinner
+  logAndStop(text?: string | undefined, ...extras: any[]): Spinner
 
-  start(text?: string): Spinner
-  stop(text?: string): Spinner
-  stopAndPersist(text?: string): Spinner
+  start(text?: string | undefined): Spinner
+  stop(text?: string | undefined): Spinner
+  stopAndPersist(text?: string | undefined): Spinner
 
-  success(text?: string, ...extras: any[]): Spinner
-  successAndStop(text?: string, ...extras: any[]): Spinner
+  success(text?: string | undefined, ...extras: any[]): Spinner
+  successAndStop(text?: string | undefined, ...extras: any[]): Spinner
 
-  warn(text?: string, ...extras: any[]): Spinner
-  warnAndStop(text?: string, ...extras: any[]): Spinner
+  warn(text?: string | undefined, ...extras: any[]): Spinner
+  warnAndStop(text?: string | undefined, ...extras: any[]): Spinner
 }
 
 export const ciSpinner: SpinnerStyle = {
@@ -90,7 +90,7 @@ let _cliSpinners: Record<string, SpinnerStyle> | undefined
 
 /*@__NO_SIDE_EFFECTS__*/
 export function getCliSpinners(
-  styleName?: string,
+  styleName?: string | undefined,
 ): SpinnerStyle | Record<string, SpinnerStyle> | undefined {
   if (_cliSpinners === undefined) {
     const yoctoFactory = /*@__PURE__*/ require('../external/@socketregistry/yocto-spinner')
@@ -123,7 +123,7 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
     _Spinner = class SpinnerClass extends YoctoCtor {
       declare isSpinning: boolean
       declare text: string
-      constructor(options?: SpinnerOptions) {
+      constructor(options?: SpinnerOptions | undefined) {
         super({
           signal: abortSignal.default,
           ...options,
@@ -265,7 +265,7 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
       warning: desc(_Spinner.prototype.warn),
       warningAndStop: desc(_Spinner.prototype.warnAndStop),
     })
-    _defaultSpinner = ENV.default.CI ? ciSpinner : undefined
+    _defaultSpinner = ENV.CI ? ciSpinner : undefined
   }
   return new _Spinner({
     spinner: _defaultSpinner,

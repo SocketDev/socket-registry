@@ -25,7 +25,7 @@ interface InspectOptions {
 
 export type { DebugOptions, NamespacesOrOptions, InspectOptions }
 
-let _debugJs: typeof import('debug').default | undefined
+let _debugJs: typeof import('debug') | undefined
 /**
  * Lazily load the debug module.
  * @private
@@ -34,7 +34,7 @@ let _debugJs: typeof import('debug').default | undefined
 function getDebugJs() {
   if (_debugJs === undefined) {
     // The 'debug' package is browser safe.
-    const debugExport = /*@__PURE__*/ require('../external/debug').default
+    const debugExport = /*@__PURE__*/ require('../external/debug')
     _debugJs = debugExport.default
   }
   return _debugJs!
@@ -222,7 +222,7 @@ function debugFnComplex(namespacesOrOpts: NamespacesOrOptions, ...args: any[]) {
   }
   if (pointingTriangle === undefined) {
     const supported =
-      /*@__PURE__*/ require('../external/@socketregistry/is-unicode-supported').default()
+      /*@__PURE__*/ require('../external/@socketregistry/is-unicode-supported')()
     pointingTriangle = supported ? '▸' : '>'
   }
   const text = args.at(0)

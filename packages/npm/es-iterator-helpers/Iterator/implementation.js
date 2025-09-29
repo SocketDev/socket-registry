@@ -21,6 +21,7 @@ module.exports =
         {
           __proto__: null,
           value: IteratorPrototype,
-          writable: false, // Prevents modification of the prototype.
+          // Prevents modification of the prototype.
+          writable: false,
         },
       )

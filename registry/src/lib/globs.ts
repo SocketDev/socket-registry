@@ -90,7 +90,7 @@ let _picomatch: typeof import('picomatch') | undefined
 function getPicomatch() {
   if (_picomatch === undefined) {
     // The 'picomatch' package is browser safe.
-    _picomatch = /*@__PURE__*/ require('../external/picomatch').default
+    _picomatch = /*@__PURE__*/ require('../external/picomatch')
   }
   return _picomatch!
 }
@@ -103,7 +103,7 @@ let _fastGlob: typeof import('fast-glob') | undefined
 /*@__NO_SIDE_EFFECTS__*/
 function getFastGlob() {
   if (_fastGlob === undefined) {
-    _fastGlob = /*@__PURE__*/ require('../external/fast-glob').default
+    _fastGlob = /*@__PURE__*/ require('../external/fast-glob')
   }
   return _fastGlob!
 }
@@ -128,16 +128,15 @@ export function globStreamLicenses(
   ]
   if (ignoreOriginals) {
     ignore.push(
-      /*@__PURE__*/ require('./constants/LICENSE_ORIGINAL_GLOB_RECURSIVE')
-        .default,
+      /*@__PURE__*/ require('./constants/LICENSE_ORIGINAL_GLOB_RECURSIVE'),
     )
   }
   const fastGlob = getFastGlob()
   return fastGlob.globStream(
     [
       recursive
-        ? /*@__PURE__*/ require('./constants/LICENSE_GLOB_RECURSIVE').default
-        : /*@__PURE__*/ require('./constants/LICENSE_GLOB').default,
+        ? /*@__PURE__*/ require('./constants/LICENSE_GLOB_RECURSIVE')
+        : /*@__PURE__*/ require('./constants/LICENSE_GLOB'),
     ],
     {
       absolute: true,
