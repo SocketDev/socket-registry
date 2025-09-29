@@ -30,7 +30,7 @@
     "array.prototype.toreversed": "1.1.2",
     "array.prototype.tosorted": "1.1.4",
     "arraybuffer.prototype.slice": "1.0.4",
-    "assert": "https://github.com/browserify/commonjs-assert/archive/fd563c5764792ccb17fab864cf87fa93f5051d3b.tar.gz",
+    "assert": "https://github.com/browserify/commonjs-assert/archive/fc65923fdbbc3ae72de1ddb15ee54088d201b4f9.tar.gz",
     "asynciterator.prototype": "1.0.0",
     "available-typed-arrays": "1.0.7",
     "date": "2.0.6",
