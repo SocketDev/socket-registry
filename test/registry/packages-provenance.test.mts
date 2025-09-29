@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import {
   fetchPackageProvenance,
   getProvenanceDetails,
-} from '@socketsecurity/registry/lib/packages'
+} from '../../registry/dist/lib/packages.js'
 
 describe('fetchPackageProvenance', () => {
   it('should be defined and exported', () => {
@@ -75,7 +75,8 @@ describe('fetchPackageProvenance', () => {
       'test-package-timeout',
       '1.0.0',
       {
-        timeout: 1, // 1ms timeout should cause abort
+        // 1ms timeout should cause abort
+        timeout: 1,
       },
     )
 
@@ -108,7 +109,8 @@ describe('fetchPackageProvenance', () => {
       'non-existent-package-test',
       '1.0.0',
       {
-        timeout: 30_000, // 30 second timeout
+        // 30 second timeout
+        timeout: 30_000,
       },
     )
 

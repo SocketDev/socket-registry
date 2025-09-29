@@ -42,7 +42,7 @@ describe('json module', () => {
       expect(jsonParse('123')).toBe(123)
       expect(jsonParse('true')).toBe(true)
       expect(jsonParse('false')).toBe(false)
-      expect(jsonParse('null')).toBe(null)
+      expect(jsonParse('null')).toBeNull()
     })
 
     it('should parse complex objects', () => {
@@ -56,11 +56,11 @@ describe('json module', () => {
       })
     })
 
-    it('should return null for invalid JSON when throws is false', () => {
-      expect(jsonParse('{invalid}', { throws: false })).toBe(null)
-      expect(jsonParse('undefined', { throws: false })).toBe(null)
-      expect(jsonParse('', { throws: false })).toBe(null)
-      expect(jsonParse('{key: value}', { throws: false })).toBe(null)
+    it('should return undefined for invalid JSON when throws is false', () => {
+      expect(jsonParse('{invalid}', { throws: false })).toBeUndefined()
+      expect(jsonParse('undefined', { throws: false })).toBeUndefined()
+      expect(jsonParse('', { throws: false })).toBeUndefined()
+      expect(jsonParse('{key: value}', { throws: false })).toBeUndefined()
     })
 
     it('should throw for invalid JSON by default', () => {

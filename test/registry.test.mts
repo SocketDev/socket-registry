@@ -3,8 +3,7 @@ import path from 'node:path'
 import fastGlob from 'fast-glob'
 import { describe, expect, it } from 'vitest'
 
-import { isObjectObject } from '@socketsecurity/registry/lib/objects'
-
+import { isObjectObject } from '../registry/dist/lib/objects.js'
 import constants from '../scripts/constants.mjs'
 import { isPackageTestingSkipped } from '../scripts/utils/tests.mjs'
 
@@ -34,18 +33,7 @@ describe(
       for (const filepath of jsFilepaths) {
         try {
           require(filepath)
-        } catch (e: any) {
-          // Skip known problematic external files with duplicate declarations.
-          // Use replaceAll for cross-platform path comparison.
-          const normalizedPath = filepath.replaceAll('\\', '/')
-          if (
-            e.message?.includes('dbcsCode') &&
-            (normalizedPath.includes('/external/') ||
-              normalizedPath.includes('pacote-cache-path.js'))
-          ) {
-            console.warn(`Skipping ${filepath} due to known bundling issue`)
-            continue
-          }
+        } catch (e) {
           console.error(`Failed to load ${filepath}`)
           throw e
         }

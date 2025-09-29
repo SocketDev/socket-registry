@@ -192,7 +192,8 @@ describe('glob utilities', () => {
           try {
             // Should find files in current directory only
             expect(foundFiles.length).toBeGreaterThanOrEqual(0)
-            expect(foundFiles).not.toContain('COPYING') // In subdirectory
+            // In subdirectory
+            expect(foundFiles).not.toContain('COPYING')
             resolve()
           } catch (error) {
             reject(error)

@@ -31,7 +31,8 @@ describe('promise utilities', () => {
       expect(result.retries).toBe(5)
       expect(result.minTimeout).toBe(100)
       expect(result.maxTimeout).toBe(5000)
-      expect(result.factor).toBe(2) // Default
+      // Default
+      expect(result.factor).toBe(2)
     })
 
     it('should return defaults when no options provided', () => {
@@ -45,9 +46,12 @@ describe('promise utilities', () => {
     it('should merge with defaults', () => {
       const result = resolveRetryOptions({ retries: 2 })
       expect(result.retries).toBe(2)
-      expect(result.minTimeout).toBe(200) // Default
-      expect(result.maxTimeout).toBe(10000) // Default
-      expect(result.factor).toBe(2) // Default
+      // Default
+      expect(result.minTimeout).toBe(200)
+      // Default
+      expect(result.maxTimeout).toBe(10000)
+      // Default
+      expect(result.factor).toBe(2)
     })
   })
 
@@ -160,7 +164,8 @@ describe('promise utilities', () => {
       await expect(pRetry(fn, { retries: 2, baseDelayMs: 1 })).rejects.toThrow(
         'persistent failure',
       )
-      expect(fn).toHaveBeenCalledTimes(3) // Initial + 2 retries
+      // Initial + 2 retries
+      expect(fn).toHaveBeenCalledTimes(3)
     })
 
     it('should pass arguments to function', async () => {
@@ -287,7 +292,8 @@ describe('promise utilities', () => {
         .mockResolvedValueOnce(undefined)
 
       await pEach(items, fn, { retries: 1 })
-      expect(fn).toHaveBeenCalledTimes(3) // Initial fail + retry + second item
+      // Initial fail + retry + second item
+      expect(fn).toHaveBeenCalledTimes(3)
     })
   })
 
@@ -300,7 +306,8 @@ describe('promise utilities', () => {
       })
 
       await pEachChunk(items, fn, { chunkSize: 2 })
-      expect(fn).toHaveBeenCalledTimes(3) // [1,2], [3,4], [5]
+      // [1,2], [3,4], [5]
+      expect(fn).toHaveBeenCalledTimes(3)
       expect(processedChunks).toEqual([[1, 2], [3, 4], [5]])
     })
 
@@ -311,7 +318,8 @@ describe('promise utilities', () => {
       const fn = vi.fn()
 
       await pEachChunk(items, fn)
-      expect(fn).toHaveBeenCalledTimes(2) // 100 + 50
+      // 100 + 50
+      expect(fn).toHaveBeenCalledTimes(2)
     })
 
     it('should handle AbortSignal', async () => {

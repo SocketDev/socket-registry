@@ -50,7 +50,7 @@ describe('utility modules tests', () => {
     })
 
     it('should handle parse errors', () => {
-      expect(json.jsonParse('invalid', { throws: false })).toBe(null)
+      expect(json.jsonParse('invalid', { throws: false })).toBeUndefined()
       expect(() => json.jsonParse('invalid')).toThrow()
     })
 

@@ -10,7 +10,7 @@ import { isPackageTestingSkipped } from '../../scripts/utils/tests.mjs'
 const { NPM, UTF8 } = constants
 
 const eco = NPM
-const sockRegPkgName = path.basename(__filename, '.test.ts')
+const sockRegPkgName = path.basename(__filename, '.test.mts')
 
 // @hyrious/bun.lockb has no unit tests.
 // https://github.com/hyrious/bun.lockb/tree/v0.0.4

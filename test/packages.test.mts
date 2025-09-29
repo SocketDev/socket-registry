@@ -1,30 +1,26 @@
 import { existsSync, promises as fs } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
-import util from 'node:util'
 
 import { fix } from '@npmcli/package-json'
 import fastGlob from 'fast-glob'
 import semver from 'semver'
 import { describe, expect, it } from 'vitest'
 
-import { getManifestData } from '@socketsecurity/registry'
-import { EXT_JSON } from '@socketsecurity/registry/lib/constants'
-import { readJson } from '@socketsecurity/registry/lib/fs'
-import {
-  isObjectObject,
-  objectEntries,
-} from '@socketsecurity/registry/lib/objects'
+import { getManifestData } from '../registry/dist/index.js'
+import EXT_JSON from '../registry/dist/lib/constants/EXT_JSON.js'
+import { readJson } from '../registry/dist/lib/fs.js'
+import { isObjectObject, objectEntries } from '../registry/dist/lib/objects.js'
 import {
   getExportFilePaths,
   isValidPackageName,
   readPackageJson,
   resolveOriginalPackageName,
-} from '@socketsecurity/registry/lib/packages'
-import { trimLeadingDotSlash } from '@socketsecurity/registry/lib/path'
-import { naturalCompare } from '@socketsecurity/registry/lib/sorts'
-import { isNonEmptyString } from '@socketsecurity/registry/lib/strings'
-
+} from '../registry/dist/lib/packages.js'
+import { parseArgs } from '../registry/dist/lib/parse-args.js'
+import { trimLeadingDotSlash } from '../registry/dist/lib/path.js'
+import { naturalCompare } from '../registry/dist/lib/sorts.js'
+import { isNonEmptyString } from '../registry/dist/lib/strings.js'
 import constants from '../scripts/constants.mjs'
 import {
   getModifiedPackagesSync,
@@ -46,9 +42,20 @@ const {
 // pnpm run test:unit ./test/packages.test.ts -- --force
 // Note: --force is converted to FORCE_TEST env var by test.js because
 // Vitest runs tests in worker processes that don't receive CLI args.
-const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
+const { values: cliArgs } = parseArgs({
+  options: {
+    force: {
+      type: 'boolean',
+      short: 'f',
+    },
+    quiet: {
+      type: 'boolean',
+    },
+  },
+  strict: false,
+})
 const useForce =
-  cliArgs.force || constants.ENV.CI || process.env['FORCE_TEST'] === '1'
+  cliArgs['force'] || constants.ENV.CI || process.env['FORCE_TEST'] === '1'
 
 const shimApiKeys = ['getPolyfill', 'implementation', 'shim']
 
@@ -121,14 +128,18 @@ for (const eco of constants.ecosystems) {
         req.resolve = (id: string) => req_.resolve(prepareReqId(id))
 
         const pkgJson = await readPackageJson(pkgJsonPath, { normalize: true })
+        if (!pkgJson) {
+          throw new Error(`Failed to read package.json for ${pkgPath}`)
+        }
         const {
           dependencies,
-          engines,
           files: filesPatterns,
           main: mainPath,
           overrides: pkgOverrides,
           resolutions: pkgResolutions,
         } = pkgJson
+
+        const engines = pkgJson['engines'] as Record<string, string> | undefined
 
         const entryExports = pkgJson.exports as
           | {
@@ -147,7 +158,7 @@ for (const eco of constants.ecosystems) {
         ).sort(naturalCompare)
 
         it('package name should be valid', () => {
-          expect(isValidPackageName(pkgJson.name)).toBe(true)
+          expect(isValidPackageName(pkgJson.name ?? '')).toBe(true)
         })
 
         it('package name should be "name" field of package.json', () => {
@@ -202,7 +213,7 @@ for (const eco of constants.ecosystems) {
           })
         }
 
-        if (mainPath) {
+        if (mainPath && typeof mainPath === 'string') {
           it('should not have "exports" field in package.json', () => {
             expect(Object.hasOwn(pkgJson, 'exports')).toBe(false)
           })
@@ -239,7 +250,7 @@ for (const eco of constants.ecosystems) {
         }
 
         it('should have a "sideEffects" field of `false` in package.json', () => {
-          expect(pkgJson.sideEffects).toBe(false)
+          expect(pkgJson['sideEffects']).toBe(false)
         })
 
         it('should not need package.json fixing', () => {
@@ -276,7 +287,7 @@ for (const eco of constants.ecosystems) {
         ) {
           describe('es-shim', () => {
             const { NODE_VERSION } = constants
-            const nodeRange = pkgJson?.engines?.['node']
+            const nodeRange = engines?.['node']
             const skipping =
               isNonEmptyString(nodeRange) &&
               !semver.satisfies(NODE_VERSION, nodeRange)
@@ -288,9 +299,14 @@ for (const eco of constants.ecosystems) {
               it('index.js exists for exports["."].default field of package.json', () => {
                 const mainEntry = entryExports['.']
                 const defaultMainEntry = Array.isArray(mainEntry)
-                  ? (mainEntry.at(-1) as { default: string })?.default
-                  : (mainEntry as { default: string })?.default
-                expect(() => req.resolve(defaultMainEntry)).not.toThrow()
+                  ? (mainEntry.at(-1) as unknown as { default: string })
+                      ?.default
+                  : typeof mainEntry === 'object' && mainEntry !== null
+                    ? (mainEntry as { default?: string })?.default
+                    : (mainEntry as string | undefined)
+                if (defaultMainEntry) {
+                  expect(() => req.resolve(defaultMainEntry)).not.toThrow()
+                }
               })
             }
 
