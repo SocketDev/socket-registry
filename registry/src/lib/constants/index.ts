@@ -3,9 +3,9 @@
  * Re-exports all individual constant values from their respective files.
  */
 
-const getIpc = /*@__PURE__*/ require('./get-ipc')
-const { createConstantsObject } = /*@__PURE__*/ require('../objects')
-const { toKebabCase } = /*@__PURE__*/ require('../strings')
+import getIpc from './get-ipc'
+import { createConstantsObject } from '../objects'
+import { toKebabCase } from '../strings'
 
 const props: Record<string, any> = {
   // Lazily defined values are initialized as `undefined` to keep their key order.
@@ -136,7 +136,7 @@ const props: Record<string, any> = {
   yarnExecPath: undefined,
 }
 
-module.exports = createConstantsObject(props, {
+export default createConstantsObject(props, {
   getters: Object.fromEntries(
     Object.keys(props)
       .filter(k => props[k] === undefined)

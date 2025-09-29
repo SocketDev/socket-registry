@@ -1,4 +1,4 @@
-import ENV from './ENV.js'
+import ENV from './ENV'
 
 const { freeze: ObjectFreeze } = Object
 

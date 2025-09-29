@@ -17,7 +17,7 @@ const manualLast = '18.20.8'
 
 const query = browsersList('maintained node versions')
   // Trim value, e.g. 'node 22.15.0' to '22.15.0'.
-  .map(s => s.slice(5 /*'node '.length*/))
+  .map((s: string) => s.slice(5 /*'node '.length*/))
 // browsersList returns results in descending order.
 const queryNext = query.at(0) ?? manualNext
 const queryCurr = query.at(1) ?? manualCurr
