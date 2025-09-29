@@ -757,6 +757,9 @@ importers:
       which:
         specifier: 5.0.0
         version: 5.0.0
+      yargs-parser:
+        specifier: 22.0.0
+        version: 22.0.0
       yoctocolors-cjs:
         specifier: 2.1.3
         version: 2.1.3
