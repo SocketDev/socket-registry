@@ -10,7 +10,7 @@ import { isPackageTestingSkipped } from '../scripts/utils/tests.mjs'
 const { NPM, SOCKET_REGISTRY_PACKAGE_NAME } = constants
 
 const rootPath = path.resolve(__dirname, '..')
-const rootRegistryPath = path.join(rootPath, 'registry')
+const rootRegistryPath = path.join(rootPath, 'registry', 'dist')
 
 const eco = NPM
 
