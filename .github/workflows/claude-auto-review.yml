@@ -2,7 +2,7 @@ name: ⚡ Claude Auto Review
 
 # Dependencies:
 #   - actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
-#   - anthropics/claude-code-action@28f83620103c48a57093dcc2837eec89e036bb9f # beta v1.0.88
+#   - anthropics/claude-code-action@426380f01bad0a17200865605a85cb28926dccbf # beta v1.0.88
 #     - oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76  # v2.0.2
 #   - SocketDev/socket-registry/.github/actions/debug@main
 
@@ -67,7 +67,7 @@ jobs:
           debug: ${{ inputs.debug }}
 
       - name: Automatic PR Review
-        uses: anthropics/claude-code-action@28f83620103c48a57093dcc2837eec89e036bb9f # beta v1.0.88
+        uses: anthropics/claude-code-action@426380f01bad0a17200865605a85cb28926dccbf # beta v1.0.88
         with:
           allowed_tools: ${{ inputs.allowed_tools }}
           anthropic_api_key: ${{ secrets.anthropic_api_key }}
