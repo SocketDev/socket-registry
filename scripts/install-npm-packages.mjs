@@ -103,10 +103,10 @@ async function installPackage(packageInfo) {
   // Check if installation is complete and valid.
   if (existsSync(installMarkerPath) && existsSync(packageJsonPath)) {
     try {
-      // Read non-editable version for checking to avoid circular reference issues.
-      const existingPkgJson = await readPackageJson(installedPath, {
-        normalize: true,
-      })
+      // Read package.json directly to avoid readPackageJson issues with circular references.
+      const existingPkgJson = JSON.parse(
+        await fs.readFile(packageJsonPath, 'utf8'),
+      )
       const markerData = JSON.parse(
         await fs.readFile(installMarkerPath, 'utf8'),
       )
