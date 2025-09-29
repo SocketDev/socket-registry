@@ -103,9 +103,10 @@ async function installPackage(packageInfo) {
   // Check if installation is complete and valid.
   if (existsSync(installMarkerPath) && existsSync(packageJsonPath)) {
     try {
-      const existingPkgJson = JSON.parse(
-        await fs.readFile(packageJsonPath, 'utf8'),
-      )
+      // Read non-editable version for checking to avoid circular reference issues.
+      const existingPkgJson = await readPackageJson(installedPath, {
+        normalize: true,
+      })
       const markerData = JSON.parse(
         await fs.readFile(installMarkerPath, 'utf8'),
       )
@@ -130,16 +131,17 @@ async function installPackage(packageInfo) {
         })
 
         // Restore scripts and devDependencies after copying.
-        const editablePkgJson = await readPackageJson(installedPath, {
+        // Re-read the package.json after copy to get fresh editable instance.
+        const restoredPkgJson = await readPackageJson(installedPath, {
           editable: true,
         })
         if (savedScripts) {
-          editablePkgJson.scripts = savedScripts
+          restoredPkgJson.scripts = savedScripts
         }
         if (savedDevDeps) {
-          editablePkgJson.devDependencies = savedDevDeps
+          restoredPkgJson.devDependencies = savedDevDeps
         }
-        await editablePkgJson.save()
+        await restoredPkgJson.save()
 
         // Check mark for cached with refreshed overrides.
         writeProgress('✓')
