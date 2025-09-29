@@ -3,7 +3,11 @@
  * Provides Socket CLI specific debug functionality and logging formatters.
  */
 
-const { apply: ReflectApply } = Reflect
+// IMPORTANT: Do not use destructuring here - use direct assignment instead.
+// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
+// `exports.SomeName = void 0;` which causes runtime errors.
+// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
+const ReflectApply = Reflect.apply
 
 const { hasOwn } = /*@__PURE__*/ require('./objects')
 const { applyLinePrefix } = /*@__PURE__*/ require('./strings')

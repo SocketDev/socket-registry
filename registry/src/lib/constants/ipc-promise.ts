@@ -3,7 +3,12 @@ import handler from './ipc-handler'
 import ipcObject from './ipc-object'
 import target from './ipc-target'
 
-const { assign: ObjectAssign, freeze: ObjectFreeze } = Object
+// IMPORTANT: Do not use destructuring here - use direct assignment instead.
+// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
+// `exports.SomeName = void 0;` which causes runtime errors.
+// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
+const ObjectAssign = Object.assign
+const ObjectFreeze = Object.freeze
 
 export default new Promise(
   // The Promise executor is immediately executed.
