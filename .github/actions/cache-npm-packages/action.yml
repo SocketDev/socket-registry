@@ -2,7 +2,7 @@ name: 'Cache NPM Test Packages'
 description: 'Cache npm test packages to speed up subsequent CI runs'
 
 # Dependencies:
-#   - actions/cache@6c4d0c5a42fb47aea2ce2de7ed5a0b70b23ee3e1  # v4.3.0
+#   - actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
 
 inputs:
   path:
@@ -43,7 +43,7 @@ runs:
 
     - name: Cache npm test packages
       id: cache
-      uses: actions/cache@6c4d0c5a42fb47aea2ce2de7ed5a0b70b23ee3e1 # v4.3.0
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
       with:
         path: ${{ steps.cache-path.outputs.cache-path }}
         # Use package manifest hash and OS in cache key for specificity
