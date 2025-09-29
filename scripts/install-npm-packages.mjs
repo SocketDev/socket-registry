@@ -148,6 +148,20 @@ async function installPackage(packageInfo) {
           JSON.stringify(existingPkgJson, null, 2),
         )
 
+        // Install any missing dependencies.
+        writeProgress('📚')
+        await runCommand(
+          'pnpm',
+          [
+            'install',
+            // Prevent interactive prompts in CI environments.
+            '--config.confirmModulesPurge=false',
+            // Allow lockfile updates (required for optimization).
+            '--no-frozen-lockfile',
+          ],
+          { cwd: packageTempDir },
+        )
+
         // Check mark for cached with refreshed overrides.
         writeProgress('✓')
         completePackage()
@@ -342,7 +356,17 @@ async function installPackage(packageInfo) {
 
     // Install dependencies with pnpm.
     writeProgress('📚')
-    await runCommand('pnpm', ['install'], { cwd: installedPath })
+    await runCommand(
+      'pnpm',
+      [
+        'install',
+        // Prevent interactive prompts in CI environments.
+        '--config.confirmModulesPurge=false',
+        // Allow lockfile updates (required for optimization).
+        '--no-frozen-lockfile',
+      ],
+      { cwd: packageTempDir },
+    )
 
     // Mark installation as complete.
     const installMarkerPath = path.join(
