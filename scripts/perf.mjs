@@ -5,13 +5,13 @@
 
 import fastGlob from 'fast-glob'
 
-import { execBin } from '@socketsecurity/registry/lib/agent'
+import { execBin } from '../registry/dist/lib/bin.js'
 
 import constants from './constants.mjs'
 
 const { perfNpmPath } = constants
 
-void (async () => {
+async function main() {
   for (const perfFile of await fastGlob.glob([`*.perf.ts`], {
     cwd: perfNpmPath,
   })) {
@@ -21,4 +21,6 @@ void (async () => {
       stdio: 'inherit',
     })
   }
-})()
+}
+
+main().catch(console.error)

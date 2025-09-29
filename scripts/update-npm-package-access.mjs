@@ -1,24 +1,36 @@
 import path from 'node:path'
-import util from 'node:util'
 
-import { execNpm } from '@socketsecurity/registry/lib/agent'
-import { joinAnd } from '@socketsecurity/registry/lib/arrays'
-import { logger } from '@socketsecurity/registry/lib/logger'
-import { pEach } from '@socketsecurity/registry/lib/promises'
-import { pluralize } from '@socketsecurity/registry/lib/words'
+import { parseArgs } from '../registry/dist/lib/parse-args.js'
+
+import { execNpm } from '../registry/dist/lib/agent.js'
+import { joinAnd } from '../registry/dist/lib/arrays.js'
+import { logger } from '../registry/dist/lib/logger.js'
+import { pEach } from '../registry/dist/lib/promises.js'
+import { pluralize } from '../registry/dist/lib/words.js'
 
 import constants from './constants.mjs'
 
 const { COLUMN_LIMIT, SOCKET_REGISTRY_SCOPE } = constants
 
-const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
+const { values: cliArgs } = parseArgs({
+  options: {
+    force: {
+      type: 'boolean',
+      short: 'f',
+    },
+    quiet: {
+      type: 'boolean',
+    },
+  },
+  strict: false,
+})
 
 function packageData(data) {
   const { printName = data.name } = data
   return Object.assign(data, { printName })
 }
 
-void (async () => {
+async function main() {
   // Exit early if not running in CI or with --force.
   const { ENV } = constants
   if (!(cliArgs.force || ENV.CI)) {
@@ -28,7 +40,7 @@ void (async () => {
   const fails = []
   const trustedPublishingPackages = [
     packageData({
-      name: '@socketsecurity/registry',
+      name: '../registry/dist/index.js',
       path: constants.registryPkgPath,
       isTrustedPublisher: true,
     }),
@@ -87,4 +99,6 @@ void (async () => {
     const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
     logger.warn(`${msg}${separator}${msgList}`)
   }
-})()
+}
+
+main().catch(console.error)

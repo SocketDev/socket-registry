@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import { logger } from '@socketsecurity/registry/lib/logger'
+import { logger } from '../registry/dist/lib/logger.js'
 
 const GITHUB_PATH = '.github'
 const WORKFLOWS_PATH = path.join(GITHUB_PATH, 'workflows')
@@ -76,9 +76,10 @@ async function getAllYamlFiles(dir) {
   return files
 }
 
-void (async () => {
+async function main() {
   const allDependencies = new Set()
-  const dependencyTree = new Map() // Map of file -> structured dependencies.
+  // Map of file -> structured dependencies.
+  const dependencyTree = new Map()
 
   // Process workflow files.
   const workflowFiles = await getAllYamlFiles(WORKFLOWS_PATH)
@@ -120,7 +121,8 @@ void (async () => {
 
   // Sort files for consistent output.
   const sortedFiles = Array.from(dependencyTree.keys()).sort()
-  const indent = '  ' // Base indentation for the entire tree.
+  // Base indentation for the entire tree.
+  const indent = '  '
 
   for (let fileIndex = 0; fileIndex < sortedFiles.length; fileIndex++) {
     const file = sortedFiles[fileIndex]
@@ -161,4 +163,6 @@ void (async () => {
 
   logger.log()
   logger.info(`Total: ${allDependencies.size} unique actions/workflows`)
-})()
+}
+
+main().catch(console.error)

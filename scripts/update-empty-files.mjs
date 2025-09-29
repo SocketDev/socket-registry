@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import util from 'node:util'
+
+import { parseArgs } from '../registry/dist/lib/parse-args.js'
 
 import fastGlob from 'fast-glob'
 
@@ -9,11 +10,22 @@ import { getModifiedFiles } from './utils/git.mjs'
 
 const { EMPTY_FILE, UTF8 } = constants
 
-const { values: cliArgs } = util.parseArgs(constants.parseArgsConfig)
+const { values: cliArgs } = parseArgs({
+  options: {
+    force: {
+      type: 'boolean',
+      short: 'f',
+    },
+    quiet: {
+      type: 'boolean',
+    },
+  },
+  strict: false,
+})
 
 const AUTO_FILE_GLOB_RECURSIVE = '**/auto.{d.ts,js}'
 
-void (async () => {
+async function main() {
   const { ignoreGlobs, npmTemplatesPath } = constants
   const modifiedAutoFile = (
     await getModifiedFiles({ absolute: true, cwd: npmTemplatesPath })
@@ -57,4 +69,6 @@ void (async () => {
       }
     }),
   )
-})()
+}
+
+main().catch(console.error)

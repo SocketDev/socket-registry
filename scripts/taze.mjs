@@ -7,8 +7,8 @@
  * Usage: node scripts/taze.mjs [taze-args...]
  */
 
-import { logger } from '@socketsecurity/registry/lib/logger'
-import { spawn } from '@socketsecurity/registry/lib/spawn'
+import { logger } from '../registry/dist/lib/logger.js'
+import { spawn } from '../registry/dist/lib/spawn.js'
 
 function includesProvenanceDowngradeWarning(output) {
   const lowered = output.toString().toLowerCase()
@@ -18,7 +18,7 @@ function includesProvenanceDowngradeWarning(output) {
   )
 }
 
-void (async () => {
+async function main() {
   // Run with command line arguments.
   const args = process.argv.slice(2)
 
@@ -58,4 +58,6 @@ void (async () => {
   })
 
   await tazePromise
-})()
+}
+
+main().catch(console.error)

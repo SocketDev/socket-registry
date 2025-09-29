@@ -1,8 +1,8 @@
 import constants from './constants.mjs'
 
-import { readPackageJson } from '@socketsecurity/registry/lib/packages'
+import { readPackageJson } from '../registry/dist/lib/packages.js'
 
-void (async () => {
+async function main() {
   const rootEditablePkgJson = await readPackageJson(
     constants.rootPackageJsonPath,
     {
@@ -18,4 +18,6 @@ void (async () => {
     },
   })
   await rootEditablePkgJson.save()
-})()
+}
+
+main().catch(console.error)

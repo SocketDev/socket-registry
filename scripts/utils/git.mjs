@@ -6,11 +6,11 @@
 import path from 'node:path'
 
 import constants from '../constants.mjs'
-import { getGlobMatcher } from '@socketsecurity/registry/lib/globs'
-import { defineLazyGetters } from '@socketsecurity/registry/lib/objects'
-import { normalizePath } from '@socketsecurity/registry/lib/path'
-import { spawn, spawnSync } from '@socketsecurity/registry/lib/spawn'
-import { stripAnsi } from '@socketsecurity/registry/lib/strings'
+import { getGlobMatcher } from '../../registry/dist/lib/globs.js'
+import { defineLazyGetters } from '../../registry/dist/lib/objects.js'
+import { normalizePath } from '../../registry/dist/lib/path.js'
+import { spawn, spawnSync } from '../../registry/dist/lib/spawn.js'
+import { stripAnsi } from '../../registry/dist/lib/strings.js'
 
 const { NPM, UTF8 } = constants
 
@@ -108,7 +108,7 @@ function innerGetPackages(eco, files, options) {
     if (matcher(filepath)) {
       let sockRegPkgName
       if (eco === NPM && filepath.startsWith(constants.relRegistryPkgPath)) {
-        sockRegPkgName = '@socketsecurity/registry'
+        sockRegPkgName = '../../registry/dist/index.js'
       } else {
         sockRegPkgName = filepath.slice(
           sliceStart,

@@ -14,9 +14,9 @@ import constants from '../constants.mjs'
 import {
   readPackageJson,
   resolveOriginalPackageName,
-} from '@socketsecurity/registry/lib/packages'
-import { pEach } from '@socketsecurity/registry/lib/promises'
-import { spawn } from '@socketsecurity/registry/lib/spawn'
+} from '../../registry/dist/lib/packages.js'
+import { pEach } from '../../registry/dist/lib/promises.js'
+import { spawn } from '../../registry/dist/lib/spawn.js'
 import { cleanTestScript } from '../../test/utils/script-cleaning.mjs'
 import { testRunners } from '../../test/utils/test-runners.mjs'
 

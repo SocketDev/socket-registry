@@ -1,20 +1,24 @@
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import util from 'node:util'
+
+import { parseArgs } from '../registry/dist/lib/parse-args.js'
 
 import { copy } from 'fs-extra'
 
 import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
 import { testRunners } from '../test/utils/test-runners.mjs'
-import ENV from '@socketsecurity/registry/lib/constants/env'
-import WIN32 from '@socketsecurity/registry/lib/constants/win32'
-import { readPackageJson } from '@socketsecurity/registry/lib/packages'
-import { pEach } from '@socketsecurity/registry/lib/promises'
-import { LOG_SYMBOLS, logger } from '@socketsecurity/registry/lib/logger'
-import { spawn } from '@socketsecurity/registry/lib/spawn'
+import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
+import ENV from '../registry/dist/lib/constants/ENV.js'
+import spinner from '../registry/dist/lib/constants/spinner.js'
+import WIN32 from '../registry/dist/lib/constants/WIN32.js'
+import { readPackageJson } from '../registry/dist/lib/packages.js'
+import { pEach } from '../registry/dist/lib/promises.js'
+import { LOG_SYMBOLS, logger } from '../registry/dist/lib/logger.js'
+import { spawn } from '../registry/dist/lib/spawn.js'
+import { pluralize } from '../registry/dist/lib/words.js'
 
-const { values: cliArgs } = util.parseArgs({
+const { values: cliArgs } = parseArgs({
   options: {
     package: {
       type: 'string',
@@ -22,37 +26,34 @@ const { values: cliArgs } = util.parseArgs({
     },
     concurrency: {
       type: 'string',
-      // Reduce concurrency in CI to avoid memory issues, especially on Windows.
-      default: ENV.CI ? (WIN32 ? '3' : '5') : '10',
+      default: ENV.CI ? (WIN32 ? '5' : '10') : '15',
     },
     'temp-dir': {
       type: 'string',
       default: path.join(os.tmpdir(), 'npm-package-tests'),
     },
   },
+  strict: false,
 })
 
 const concurrency = Math.max(1, parseInt(cliArgs.concurrency, 10))
-const tempBaseDir = cliArgs['temp-dir']
-const MAX_PROGRESS_WIDTH = 80
+const tempBaseDir = cliArgs.tempDir
 
-// Progress tracking for line wrapping.
-let currentLinePosition = 0
+// Progress tracking.
 let completedPackages = 0
 let totalPackagesCount = 0
-let progressLine = ''
+let cachedCount = 0
+let installedCount = 0
+let failedCount = 0
 
 function writeProgress(symbol) {
-  if (currentLinePosition >= MAX_PROGRESS_WIDTH) {
-    // Flush current progress line and start new one
-    if (progressLine) {
-      logger.log(`(${completedPackages}/${totalPackagesCount}) ${progressLine}`)
-    }
-    progressLine = symbol
-    currentLinePosition = 1
-  } else {
-    progressLine += symbol
-    currentLinePosition += 1
+  // Track counts silently.
+  if (symbol === '✓' || symbol === '💾') {
+    cachedCount += 1
+  } else if (symbol === LOG_SYMBOLS.success) {
+    installedCount += 1
+  } else if (symbol === LOG_SYMBOLS.fail || symbol === LOG_SYMBOLS.warn) {
+    failedCount += 1
   }
 }
 
@@ -65,6 +66,7 @@ async function runCommand(command, args, options = {}) {
     const result = await spawn(command, args, {
       stdio: 'pipe',
       shell: process.platform.startsWith('win'),
+      env: { ...process.env, NODE_NO_WARNINGS: '1' },
       ...options,
     })
     return { stdout: result.stdout, stderr: result.stderr }
@@ -89,6 +91,55 @@ async function installPackage(packageInfo) {
 
   // Create temp directory for this package.
   const packageTempDir = path.join(tempBaseDir, socketPkgName)
+
+  // Check if package is already installed and has a test script.
+  const installedPath = path.join(packageTempDir, 'node_modules', origPkgName)
+  const packageJsonPath = path.join(installedPath, 'package.json')
+  const installMarkerPath = path.join(
+    packageTempDir,
+    '.socket-install-complete',
+  )
+
+  // Check if installation is complete and valid.
+  if (existsSync(installMarkerPath) && existsSync(packageJsonPath)) {
+    try {
+      const existingPkgJson = JSON.parse(
+        await fs.readFile(packageJsonPath, 'utf8'),
+      )
+      const markerData = JSON.parse(
+        await fs.readFile(installMarkerPath, 'utf8'),
+      )
+
+      // Verify the installation matches the requested version.
+      if (
+        existingPkgJson.scripts?.test &&
+        markerData.versionSpec === versionSpec
+      ) {
+        // Always reapply Socket override files to ensure they're up-to-date.
+        writeProgress('💾')
+        await copy(overridePath, installedPath, {
+          overwrite: true,
+          dereference: true,
+          filter: src =>
+            !src.includes('node_modules') && !src.endsWith('.DS_Store'),
+        })
+
+        // Check mark for cached with refreshed overrides.
+        writeProgress('✓')
+        completePackage()
+        return {
+          package: origPkgName,
+          socketPackage: socketPkgName,
+          installed: true,
+          tempDir: packageTempDir,
+          cached: true,
+        }
+      }
+    } catch {
+      // If we can't read it, reinstall.
+    }
+  }
+
   await fs.mkdir(packageTempDir, { recursive: true })
 
   try {
@@ -122,10 +173,34 @@ async function installPackage(packageInfo) {
     writeProgress('🔧')
 
     // Save original scripts before copying.
-    const originalPkgJson = await readPackageJson(installedPath, {
-      normalize: true,
-    })
-    const originalScripts = originalPkgJson.scripts
+    let originalPkgJson = {}
+    let originalScripts = {}
+    try {
+      originalPkgJson = await readPackageJson(installedPath, {
+        normalize: true,
+      })
+      originalScripts = originalPkgJson.scripts || {}
+    } catch {
+      // Package.json might not exist in the symlink location for some packages.
+      // Try the pnpm store location.
+      const pnpmStorePath = path.join(
+        packageTempDir,
+        'node_modules',
+        '.pnpm',
+        `${origPkgName}@${versionSpec}`,
+        'node_modules',
+        origPkgName,
+      )
+      try {
+        originalPkgJson = await readPackageJson(pnpmStorePath, {
+          normalize: true,
+        })
+        originalScripts = originalPkgJson.scripts || {}
+      } catch {
+        // If we still can't read it, that's okay - we'll use the override's package.json.
+        originalScripts = {}
+      }
+    }
 
     await copy(overridePath, installedPath, {
       overwrite: true,
@@ -208,6 +283,25 @@ async function installPackage(packageInfo) {
     writeProgress('📚')
     await runCommand('pnpm', ['install'], { cwd: installedPath })
 
+    // Mark installation as complete.
+    const installMarkerPath = path.join(
+      packageTempDir,
+      '.socket-install-complete',
+    )
+    await fs.writeFile(
+      installMarkerPath,
+      JSON.stringify(
+        {
+          installedAt: new Date().toISOString(),
+          versionSpec,
+          socketPackage: socketPkgName,
+          originalPackage: origPkgName,
+        },
+        null,
+        2,
+      ),
+    )
+
     writeProgress(LOG_SYMBOLS.success)
     completePackage()
     return {
@@ -228,7 +322,9 @@ async function installPackage(packageInfo) {
   }
 }
 
-void (async () => {
+async function main() {
+  suppressMaxListenersWarning()
+
   // Read download results.
   const downloadResultsFile = path.join(tempBaseDir, 'download-results.json')
 
@@ -266,14 +362,22 @@ void (async () => {
     return
   }
 
-  logger.log(
-    `Installing ${filteredPackages.length} packages with concurrency ${concurrency}...`,
-  )
-
   // Initialize progress tracking.
   totalPackagesCount = filteredPackages.length
   completedPackages = 0
-  currentLinePosition = 0
+  cachedCount = 0
+  installedCount = 0
+  failedCount = 0
+
+  // Start spinner.
+  spinner.start(
+    `Installing ${filteredPackages.length} ${pluralize('package', filteredPackages.length)}`,
+  )
+
+  // Update spinner text periodically.
+  const progressInterval = setInterval(() => {
+    spinner.text = `Installing ${pluralize('package', filteredPackages.length)}\nProgress (${completedPackages}/${totalPackagesCount})`
+  }, 100)
 
   // Ensure base temp directory exists.
   await fs.mkdir(tempBaseDir, { recursive: true })
@@ -289,17 +393,58 @@ void (async () => {
     { concurrency },
   )
 
-  // Flush final progress line.
-  if (progressLine) {
-    logger.log(`(${results.length}/${totalPackagesCount}) ${progressLine}`)
+  clearInterval(progressInterval)
+  spinner.stop()
+
+  // Show progress summary.
+  if (cachedCount > 0) {
+    logger.log(`♻️  Used cache: ${cachedCount}`)
+  }
+  if (installedCount > 0) {
+    logger.log(`📦 Installed: ${installedCount}`)
+  }
+  if (failedCount > 0) {
+    logger.fail(`Failed: ${failedCount}`)
   }
 
-  const failed = results.filter(r => !r.installed && r.reason !== 'Skipped')
+  // Categorize failures.
+  const noTestScript = results.filter(
+    r => !r.installed && r.reason === 'No test script',
+  )
+  const criticalFailures = results.filter(
+    r =>
+      !r.installed && r.reason !== 'Skipped' && r.reason !== 'No test script',
+  )
 
   // Write results to file for the test runner.
   const resultsFile = path.join(tempBaseDir, 'install-results.json')
   await fs.writeFile(resultsFile, JSON.stringify(results, null, 2))
 
-  // Set exit code for process termination.
-  process.exitCode = failed.length ? 1 : 0
-})()
+  // Summary output only if issues.
+  if (noTestScript.length > 0 || criticalFailures.length > 0) {
+    logger.log('')
+    if (noTestScript.length > 0) {
+      logger.warn(`No test script: ${noTestScript.length} packages`)
+      if (noTestScript.length <= 5) {
+        logger.group()
+        for (const pkg of noTestScript) {
+          logger.log(`- ${pkg.package}`)
+        }
+        logger.groupEnd()
+      }
+    }
+    if (criticalFailures.length > 0) {
+      logger.fail(`Failed: ${criticalFailures.length} packages`)
+      logger.group()
+      for (const pkg of criticalFailures) {
+        logger.log(`- ${pkg.package}: ${pkg.reason}`)
+      }
+      logger.groupEnd()
+    }
+  }
+
+  // Only fail on critical errors, not on packages without test scripts.
+  process.exitCode = criticalFailures.length ? 1 : 0
+}
+
+main().catch(console.error)

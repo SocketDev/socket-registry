@@ -3,15 +3,15 @@
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import util from 'node:util'
 
-import { safeRemove } from './utils/fs.mjs'
-import ENV from '@socketsecurity/registry/lib/constants/env'
-import WIN32 from '@socketsecurity/registry/lib/constants/win32'
-import { logger } from '@socketsecurity/registry/lib/logger'
-import { spawn } from '@socketsecurity/registry/lib/spawn'
+import { parseArgs } from '../registry/dist/lib/parse-args.js'
 
-const { values: cliArgs } = util.parseArgs({
+import ENV from '../registry/dist/lib/constants/ENV.js'
+import WIN32 from '../registry/dist/lib/constants/WIN32.js'
+import { logger } from '../registry/dist/lib/logger.js'
+import { spawn } from '../registry/dist/lib/spawn.js'
+
+const { values: cliArgs } = parseArgs({
   options: {
     package: {
       type: 'string',
@@ -19,18 +19,15 @@ const { values: cliArgs } = util.parseArgs({
     },
     'download-concurrency': {
       type: 'string',
-      // Reduce concurrency in CI to avoid memory issues, especially on Windows.
-      default: ENV.CI ? (WIN32 ? '5' : '10') : '50',
+      default: ENV.CI ? (WIN32 ? '10' : '20') : '50',
     },
     'install-concurrency': {
       type: 'string',
-      // Reduce concurrency in CI to avoid memory issues, especially on Windows.
-      default: ENV.CI ? (WIN32 ? '3' : '5') : '10',
+      default: ENV.CI ? (WIN32 ? '5' : '10') : '15',
     },
     'test-concurrency': {
       type: 'string',
-      // Reduce concurrency in CI to avoid memory issues, especially on Windows.
-      default: ENV.CI ? (WIN32 ? '2' : '5') : '20',
+      default: ENV.CI ? (WIN32 ? '3' : '8') : '20',
     },
     force: {
       type: 'boolean',
@@ -48,20 +45,27 @@ const { values: cliArgs } = util.parseArgs({
       type: 'boolean',
       default: false,
     },
-    'no-cleanup': {
+    'clear-cache': {
       type: 'boolean',
       default: false,
     },
+    'cache-dir': {
+      type: 'string',
+      default: path.join(os.homedir(), '.socket-npm-test-cache'),
+    },
   },
+  strict: false,
 })
 
-const tempBaseDir = cliArgs['temp-dir']
+// Use cache directory by default for persistent caching across runs.
+const tempBaseDir = cliArgs.tempDir || cliArgs.cacheDir
 
 async function runCommand(command, args, options = {}) {
   try {
     const result = await spawn(command, args, {
       stdio: 'inherit',
       shell: process.platform.startsWith('win'),
+      env: { ...process.env, NODE_NO_WARNINGS: '1' },
       ...options,
     })
     return { code: result.code }
@@ -74,7 +78,7 @@ async function runCommand(command, args, options = {}) {
   }
 }
 
-void (async () => {
+async function main() {
   const scriptDir = path.dirname(fileURLToPath(import.meta.url))
   const downloadScript = path.join(scriptDir, 'download-npm-packages.mjs')
   const installScript = path.join(scriptDir, 'install-npm-packages.mjs')
@@ -91,44 +95,52 @@ void (async () => {
 
   // Download args with download concurrency.
   const downloadArgs = [...commonArgs]
-  if (cliArgs['download-concurrency']) {
-    downloadArgs.push('--concurrency', cliArgs['download-concurrency'])
+  if (cliArgs.downloadConcurrency) {
+    downloadArgs.push('--concurrency', cliArgs.downloadConcurrency)
   }
 
   // Install args with install concurrency.
   const installArgs = [...commonArgs]
-  if (cliArgs['install-concurrency']) {
-    installArgs.push('--concurrency', cliArgs['install-concurrency'])
+  if (cliArgs.installConcurrency) {
+    installArgs.push('--concurrency', cliArgs.installConcurrency)
   }
 
   // Test args with test concurrency.
   const testArgs = [...commonArgs]
-  if (cliArgs['test-concurrency']) {
-    testArgs.push('--concurrency', cliArgs['test-concurrency'])
+  if (cliArgs.testConcurrency) {
+    testArgs.push('--concurrency', cliArgs.testConcurrency)
   }
 
-  commonArgs.push('--temp-dir', tempBaseDir)
+  downloadArgs.push('--temp-dir', tempBaseDir)
+  installArgs.push('--temp-dir', tempBaseDir)
+  testArgs.push('--temp-dir', tempBaseDir)
 
   try {
     // Phase 1: Download packages (unless test-only mode).
-    if (!cliArgs['test-only']) {
-      logger.log('Process packages\n')
+    if (!cliArgs.testOnly) {
+      logger.log('\n📥 Phase 1: Download packages')
+      logger.log('─'.repeat(50))
+
+      // Add clear-cache flag if specified.
+      if (cliArgs.clearCache) {
+        downloadArgs.push('--clear-cache')
+      }
 
       await runCommand('node', [downloadScript, ...downloadArgs])
     }
 
     // Phase 2: Install packages (unless test-only mode).
-    if (!cliArgs['test-only']) {
-      logger.log('Install packages\n')
+    if (!cliArgs.testOnly) {
+      logger.log('\n📦 Phase 2: Install packages')
+      logger.log('─'.repeat(50))
 
       await runCommand('node', [installScript, ...installArgs])
-
-      logger.log('\n✅ Install phase completed!\n')
     }
 
     // Phase 3: Run tests (unless download-only mode).
-    if (!cliArgs['download-only']) {
-      logger.log('🧪 Phase 3: Running package tests...\n')
+    if (!cliArgs.downloadOnly) {
+      logger.log('\n🧪 Phase 3: Run tests')
+      logger.log('─'.repeat(50))
 
       const finalTestArgs = [...testArgs]
 
@@ -136,32 +148,17 @@ void (async () => {
         finalTestArgs.push('--force')
       }
 
-      if (cliArgs['no-cleanup']) {
-        finalTestArgs.push('--cleanup', 'false')
-      }
-
       await runCommand('node', [testScript, ...finalTestArgs])
-
-      logger.log('\n✅ Test phase completed!')
     }
 
-    // Final cleanup if all phases ran and cleanup is enabled.
-    if (
-      !cliArgs['download-only'] &&
-      !cliArgs['test-only'] &&
-      !cliArgs['no-cleanup']
-    ) {
-      try {
-        await safeRemove(tempBaseDir)
-        logger.log('\n🧹 Cleaned up temp directory')
-      } catch (error) {
-        logger.warn(`Could not clean up temp directory: ${error.message}`)
-      }
-    }
+    // Never clean up the cache directory - it's persistent by design.
+    // Users can explicitly clear it with --clear-cache flag in download phase.
     process.exitCode = 0
   } catch (error) {
     logger.error('')
     logger.fail(`Operation failed: ${error.message}`)
     process.exitCode = cliArgs.force ? 0 : 1
   }
-})()
+}
+
+main().catch(console.error)
