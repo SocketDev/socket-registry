@@ -3,6 +3,7 @@
  * Provides enhanced fs operations, glob matching, and directory traversal functions.
  */
 
+import abortSignal from './constants/abort-signal'
 import { defaultIgnore, getGlobMatcher } from './globs'
 import { jsonParse } from './json'
 import { pathLikeToString } from './path'
@@ -202,10 +203,10 @@ export async function findUp(
   name: string | string[] | readonly string[],
   options?: FindUpOptions | undefined,
 ): Promise<string | undefined> {
-  const {
-    cwd = process.cwd(),
-    signal = /*@__PURE__*/ require('./constants/abort-signal').default,
-  } = { __proto__: null, ...options } as FindUpOptions
+  const { cwd = process.cwd(), signal = abortSignal } = {
+    __proto__: null,
+    ...options,
+  } as FindUpOptions
   let { onlyDirectories = false, onlyFiles = true } = {
     __proto__: null,
     ...options,
@@ -418,7 +419,7 @@ export async function readFileBinary(
   const opts = typeof options === 'string' ? { encoding: options } : options
   const fs = getFs()
   return await fs.promises.readFile(filepath, {
-    signal: /*@__PURE__*/ require('./constants/abort-signal').default,
+    signal: abortSignal,
     ...opts,
     encoding: null,
   })
@@ -435,7 +436,7 @@ export async function readFileUtf8(
   const opts = typeof options === 'string' ? { encoding: options } : options
   const fs = getFs()
   return await fs.promises.readFile(filepath, {
-    signal: /*@__PURE__*/ require('./constants/abort-signal').default,
+    signal: abortSignal,
     ...opts,
     encoding: 'utf8',
   })
@@ -592,7 +593,7 @@ export async function safeReadFile(
   const fs = getFs()
   try {
     return await fs.promises.readFile(filepath, {
-      signal: /*@__PURE__*/ require('./constants/abort-signal').default,
+      signal: abortSignal,
       ...opts,
     } as Abortable)
   } catch {}

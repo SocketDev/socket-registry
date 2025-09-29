@@ -3,7 +3,7 @@
  * Provides path normalization, validation, and file extension handling.
  */
 
-const { search } = /*@__PURE__*/ require('./strings')
+import { search } from './strings'
 
 // Removed unused imports.
 const slashRegExp = /[/\\]/

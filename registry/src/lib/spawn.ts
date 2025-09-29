@@ -3,6 +3,10 @@
  * Provides enhanced spawn functionality with stdio handling and error management.
  */
 
+import abortSignal from './constants/abort-signal'
+import { getOwn } from './objects'
+import { stripAnsi } from './strings'
+
 // Define BufferEncoding type for TypeScript compatibility.
 type BufferEncoding = globalThis.BufferEncoding
 
@@ -16,9 +20,6 @@ const ArrayIsArray = Array.isArray
 // `exports.SomeName = void 0;` which causes runtime errors.
 // See: https://github.com/SocketDev/socket-packageurl-js/issues/3
 const ObjectHasOwn = Object.hasOwn
-
-const { getOwn } = /*@__PURE__*/ require('./objects')
-const { stripAnsi } = /*@__PURE__*/ require('./strings')
 
 const windowsScriptExtRegExp = /\.(?:cmd|bat|ps1)$/i
 
@@ -328,7 +329,7 @@ export function spawn(
   }
   const npmCliPromiseSpawn = getNpmcliPromiseSpawn()
   const promiseSpawnOptions: PromiseSpawnOptions = {
-    signal: /*@__PURE__*/ require('./constants/abort-signal'),
+    signal: abortSignal,
     cwd: typeof spawnOptions.cwd === 'string' ? spawnOptions.cwd : undefined,
     stdio: spawnOptions.stdio,
     stdioString,
