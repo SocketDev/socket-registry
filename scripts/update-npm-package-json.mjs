@@ -1,6 +1,8 @@
 import path from 'node:path'
 
-import { glob } from 'fast-glob'
+import fastGlob from 'fast-glob'
+
+const { glob } = fastGlob
 import { logger } from '../registry/dist/lib/logger.js'
 import {
   createPackageJson,
