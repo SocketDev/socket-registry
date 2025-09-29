@@ -157,7 +157,7 @@ async function main() {
   } catch (error) {
     logger.error('')
     logger.fail(`Operation failed: ${error.message}`)
-    process.exitCode = cliArgs.force ? 0 : 1
+    process.exitCode = 1
   }
 }
 
