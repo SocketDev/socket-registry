@@ -6,7 +6,6 @@
 import ENV from './constants/ENV'
 import abortSignal from './constants/abort-signal'
 import { isBlankString } from './strings'
-// @ts-expect-error - No type definitions for external yocto-spinner wrapper.
 import yoctoSpinnerFactory from '../external/@socketregistry/yocto-spinner'
 
 import type { Writable } from 'node:stream'
