@@ -10,6 +10,7 @@ Thumbs.db
 **/.cache
 **/dist
 **/node_modules
+**/*.tgz
 **/*.tsbuildinfo
 
 test/**/packages
