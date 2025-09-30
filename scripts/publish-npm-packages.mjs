@@ -9,7 +9,6 @@ import { logger } from '../registry/dist/lib/logger.js'
 import { isObjectObject } from '../registry/dist/lib/objects.js'
 import {
   fetchPackageManifest,
-  fetchPackageProvenance,
   getReleaseTag,
   readPackageJsonSync,
 } from '../registry/dist/lib/packages.js'
@@ -153,43 +152,6 @@ async function publishTrusted(pkg, state) {
     throw new TypeError('A state object is required.')
   }
 
-  // Check if package has been published with trusted publishing before.
-  const pkgJson = readPackageJsonSync(pkg.path)
-  const packageName = pkgJson.name
-
-  try {
-    // Fetch the latest published version to check provenance.
-    const manifest = await fetchPackageManifest(packageName)
-    const latestVersion = manifest?.['dist-tags']?.latest
-
-    if (latestVersion) {
-      const provenance = await fetchPackageProvenance(
-        packageName,
-        latestVersion,
-      )
-
-      if (!provenance || provenance.level !== 'trusted') {
-        logger.warn(
-          `Skipping ${pkg.printName}: package not configured for trusted publishing (latest version lacks trusted provenance)`,
-        )
-        state.skipped.push(pkg.printName)
-        return
-      }
-    } else {
-      logger.warn(
-        `Skipping ${pkg.printName}: package not yet published (no token available for initial publish)`,
-      )
-      state.skipped.push(pkg.printName)
-      return
-    }
-  } catch (e) {
-    logger.warn(
-      `Skipping ${pkg.printName}: could not verify trusted publishing configuration - ${e?.message || e}`,
-    )
-    state.skipped.push(pkg.printName)
-    return
-  }
-
   try {
     // Use npm for trusted publishing with OIDC tokens.
     const result = await spawn('npm', ['publish', '--access', 'public'], {
@@ -327,11 +289,6 @@ async function publishAtCommit(sha) {
       logger.log(`${pkg.printName}: ${remoteVersion} → ${localVersion}`)
     } else {
       skipped.push(pkg.printName)
-      if (!cliArgs.quiet) {
-        logger.log(
-          `${pkg.printName}: Skipped (${localVersion} ≤ ${remoteVersion})`,
-        )
-      }
     }
   }
 
@@ -353,9 +310,9 @@ async function publishAtCommit(sha) {
     logger.warn(`${msg}${separator}${msgList}`)
   }
 
-  if (skipped.length && !cliArgs.quiet) {
+  if (skipped.length) {
     logger.log(
-      `\nSkipped ${skipped.length} ${pluralize('package', skipped.length)} (no version bump)`,
+      `Skipped ${skipped.length} ${pluralize('package', skipped.length)}`,
     )
   }
 
@@ -386,20 +343,6 @@ async function main() {
     // Sort by version descending (highest to lowest).
     bumpCommits.sort((a, b) => semver.compare(b.version, a.version))
 
-    const displayCommits = cliArgs.debug
-      ? bumpCommits
-      : bumpCommits.slice(0, 10)
-
-    logger.log(
-      `Found ${bumpCommits.length} version ${pluralize('bump', bumpCommits.length)}${cliArgs.debug ? ':' : ' (showing last 10):'}`,
-    )
-    for (const commit of displayCommits) {
-      logger.log(`  ${commit.sha.slice(0, 7)} - v${commit.version}`)
-    }
-
-    // Find the commit that has the latest published version on npm.
-    let startIndex = 0
-
     // Check the registry package for the latest published version.
     const registryPkgJson = readPackageJsonSync(registryPkgPath)
     const registryManifest = await fetchPackageManifest(
@@ -408,44 +351,40 @@ async function main() {
 
     if (registryManifest) {
       const publishedVersion = registryManifest.version
-      logger.log(`\nLatest published version: v${publishedVersion}`)
+      logger.log(`Latest published version: v${publishedVersion}`)
 
-      // Find where to start publishing by skipping all commits with version <= published version.
-      // Since bumpCommits is sorted descending, we iterate from highest to lowest version.
-      for (let i = 0; i < bumpCommits.length; i += 1) {
-        const commitVersion = bumpCommits[i].version
-        if (semver.gt(commitVersion, publishedVersion)) {
-          // This version is newer than published, we should publish it.
-          break
+      // Filter to only commits with versions newer than published version.
+      const newerCommits = []
+      for (const commit of bumpCommits) {
+        if (semver.gt(commit.version, publishedVersion)) {
+          newerCommits.push(commit)
         }
-        // Skip this commit (already published or older).
-        logger.log(
-          `Skipping ${bumpCommits[i].sha.slice(0, 7)} (v${commitVersion}) - already published or older`,
-        )
-        startIndex = i + 1
       }
 
-      if (startIndex > 0 && startIndex <= bumpCommits.length) {
-        const lastSkipped = bumpCommits[startIndex - 1]
-        logger.log(
-          `Starting from commit after v${lastSkipped.version} (${lastSkipped.sha.slice(0, 7)})`,
-        )
-      }
+      // Update bumpCommits to only include newer versions
+      bumpCommits.length = 0
+      bumpCommits.push(...newerCommits)
     }
 
-    // Publish from startIndex to the end.
-    const commitsToPublish = bumpCommits.slice(startIndex)
-
-    if (commitsToPublish.length === 0) {
-      logger.log('\nAll versions already published')
+    if (bumpCommits.length === 0) {
+      logger.log('All versions already published')
       return
     }
 
     logger.log(
-      `\nPublishing ${commitsToPublish.length} version ${pluralize('bump', commitsToPublish.length)}...\n`,
+      `\nPublishing ${bumpCommits.length} unpublished version ${pluralize('bump', bumpCommits.length)}:`,
     )
 
-    for (const commit of commitsToPublish) {
+    const displayCommits = cliArgs.debug
+      ? bumpCommits
+      : bumpCommits.slice(0, 10)
+
+    for (const commit of displayCommits) {
+      logger.log(`  ${commit.sha.slice(0, 7)} - v${commit.version}`)
+    }
+    logger.log()
+
+    for (const commit of bumpCommits) {
       // eslint-disable-next-line no-await-in-loop
       await publishAtCommit(commit.sha)
     }
