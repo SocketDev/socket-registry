@@ -70,10 +70,16 @@ function getTemplates() {
   return _templates
 }
 
+/**
+ * Retrieve template path by name.
+ */
 function getTemplate(name) {
   return getTemplates()[name]
 }
 
+/**
+ * Generate actions for copying license files to package.
+ */
 async function getLicenseActions(pkgPath) {
   const licenseData = {
     __proto__: null,
@@ -88,6 +94,9 @@ async function getLicenseActions(pkgPath) {
   return actions
 }
 
+/**
+ * Generate action for creating package README with rendered template.
+ */
 async function getNpmReadmeAction(pkgPath, options) {
   const { interop } = { __proto__: null, ...options }
   const eco = NPM
@@ -130,6 +139,9 @@ async function getNpmReadmeAction(pkgPath, options) {
   ]
 }
 
+/**
+ * Generate action for creating or updating package.json.
+ */
 async function getPackageJsonAction(pkgPath, options) {
   const { engines } = { __proto__: null, ...options }
   const eco = NPM
@@ -154,6 +166,9 @@ async function getPackageJsonAction(pkgPath, options) {
   ]
 }
 
+/**
+ * Generate actions for processing TypeScript definition files.
+ */
 async function getTypeScriptActions(pkgPath, options) {
   const { references, transform } = { __proto__: null, ...options }
   const doTransform = typeof transform === 'function'
@@ -177,6 +192,9 @@ async function getTypeScriptActions(pkgPath, options) {
   return actions
 }
 
+/**
+ * Preprocess template content by unwrapping encoded tags and stripping comments.
+ */
 function prepareTemplate(content) {
   return (
     content
@@ -191,6 +209,9 @@ function prepareTemplate(content) {
   )
 }
 
+/**
+ * Render a template action using Eta and format output.
+ */
 async function renderAction(action) {
   const { 0: filepath, 1: dataRaw } = action
   const data = typeof dataRaw === 'function' ? await dataRaw() : dataRaw
@@ -204,6 +225,9 @@ async function renderAction(action) {
     : modified
 }
 
+/**
+ * Render and write a template action to disk.
+ */
 async function writeAction(action) {
   const { 0: filepath } = action
   return await fs.writeFile(filepath, await renderAction(action), UTF8)
