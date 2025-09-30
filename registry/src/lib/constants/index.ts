@@ -143,19 +143,20 @@ export default createConstantsObject(props, {
       .map(k => [
         k,
         () => {
-          // Try UPPER_SNAKE_CASE first (for files like EXEC_PATH, NODE_NO_WARNINGS_FLAGS)
-          // then fall back to kebab-case.
-          const upperSnakeCase = k
-            .replace(/[A-Z]/g, (m, i) => (i > 0 ? '_' : '') + m)
-            .toUpperCase()
+          // Try key as-is first (for already-uppercase keys like SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR).
           try {
-            return require(`./${upperSnakeCase}`)
+            return require(`./${k}`)
           } catch {
-            // Fall back to special cases or kebab-case.
-            const fileName = ['DARWIN', 'ENV', 'WIN32'].includes(k)
-              ? k
-              : toKebabCase(k)
-            return require(`./${fileName}`)
+            // Try UPPER_SNAKE_CASE (for camelCase keys like execPath → EXEC_PATH).
+            const upperSnakeCase = k
+              .replace(/[A-Z]/g, (m, i) => (i > 0 ? '_' : '') + m)
+              .toUpperCase()
+            try {
+              return require(`./${upperSnakeCase}`)
+            } catch {
+              // Fall back to kebab-case.
+              return require(`./${toKebabCase(k)}`)
+            }
           }
         },
       ]),
