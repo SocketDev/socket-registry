@@ -1,2 +1,2 @@
-import { Spinner } from '../spinner'
-export default Spinner({})
+import { spinner } from '../spinner'
+export default spinner
