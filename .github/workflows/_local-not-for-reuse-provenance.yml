@@ -23,7 +23,6 @@ jobs:
   publish:
     uses: SocketDev/socket-registry/.github/workflows/provenance.yml@main
     with:
-      access-script: 'package:npm:access'
       debug: ${{ inputs.debug }}
       publish-script: 'package:npm:publish'
       setup-script: 'pnpm run build'
