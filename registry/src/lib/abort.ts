@@ -53,7 +53,11 @@ export function createCompositeAbortSignal(
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function createTimeoutSignal(timeout: number): AbortSignal {
-  if (typeof timeout !== 'number' || timeout <= 0) {
+  if (
+    typeof timeout !== 'number' ||
+    !Number.isFinite(timeout) ||
+    timeout <= 0
+  ) {
     throw new TypeError('timeout must be a positive number')
   }
 
