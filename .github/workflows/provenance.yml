@@ -76,13 +76,20 @@ jobs:
     steps:
       - name: Validate inputs
         run: |
-          if ([ -z "${{ inputs.publish-script }}" ] || [ -z "${{ inputs.access-script }}" ]) && [ -z "${{ inputs.package-name }}" ]; then
-            echo "Error: package-name is required when publish-script or access-script is not provided"
-            exit 1
-          fi
-          if [ "${{ inputs.use-trusted-publishing }}" = "false" ] && [ -z "${{ secrets.npm_token }}" ]; then
-            echo "Error: npm_token secret is required when use-trusted-publishing is false"
-            exit 1
+          if [ "${{ inputs.use-trusted-publishing }}" = "false" ]; then
+            if [ -z "${{ inputs.publish-script }}" ] && [ -z "${{ inputs.access-script }}" ] && [ -z "${{ inputs.package-name }}" ]; then
+              echo "Error: package-name is required when publish-script and access-script are not provided"
+              exit 1
+            fi
+            if [ -z "${{ secrets.npm_token }}" ]; then
+              echo "Error: npm_token secret is required when use-trusted-publishing is false"
+              exit 1
+            fi
+          else
+            if [ -z "${{ inputs.publish-script }}" ] && [ -z "${{ inputs.package-name }}" ]; then
+              echo "Error: package-name is required when publish-script is not provided"
+              exit 1
+            fi
           fi
 
       - uses: SocketDev/socket-registry/.github/actions/setup-and-install@main
