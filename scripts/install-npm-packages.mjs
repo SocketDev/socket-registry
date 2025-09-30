@@ -1,3 +1,4 @@
+import crypto from 'node:crypto'
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -61,6 +62,22 @@ function completePackage() {
   completedPackages += 1
 }
 
+async function computeOverrideHash(overridePath) {
+  try {
+    const pkgJsonPath = path.join(overridePath, 'package.json')
+    const pkgJson = JSON.parse(await fs.readFile(pkgJsonPath, 'utf8'))
+    // Hash the dependencies to detect changes.
+    const depsString = JSON.stringify({
+      dependencies: pkgJson.dependencies || {},
+      devDependencies: pkgJson.devDependencies || {},
+      version: pkgJson.version,
+    })
+    return crypto.createHash('sha256').update(depsString, 'utf8').digest('hex')
+  } catch {
+    return ''
+  }
+}
+
 async function runCommand(command, args, options = {}) {
   try {
     const result = await spawn(command, args, {
@@ -114,6 +131,9 @@ async function installPackage(packageInfo) {
     '.socket-install-complete',
   )
 
+  // Compute current override hash for cache validation.
+  const currentOverrideHash = await computeOverrideHash(overridePath)
+
   // Check if installation is complete and valid.
   if (existsSync(installMarkerPath) && existsSync(packageJsonPath)) {
     try {
@@ -125,10 +145,11 @@ async function installPackage(packageInfo) {
         await fs.readFile(installMarkerPath, 'utf8'),
       )
 
-      // Verify the installation matches the requested version.
+      // Verify the installation matches the requested version and override hash.
       if (
         existingPkgJson.scripts?.test &&
-        markerData.versionSpec === versionSpec
+        markerData.versionSpec === versionSpec &&
+        markerData.overrideHash === currentOverrideHash
       ) {
         // Always reapply Socket override files to ensure they're up-to-date.
         writeProgress('💾')
@@ -431,12 +452,14 @@ async function installPackage(packageInfo) {
       packageTempDir,
       '.socket-install-complete',
     )
+    const overrideHash = await computeOverrideHash(overridePath)
     await fs.writeFile(
       installMarkerPath,
       JSON.stringify(
         {
           installedAt: new Date().toISOString(),
           versionSpec,
+          overrideHash,
           socketPackage: socketPkgName,
           originalPackage: origPkgName,
         },

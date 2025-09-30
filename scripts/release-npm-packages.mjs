@@ -188,7 +188,6 @@ async function getRemotePackageFileHashes(spec) {
 }
 
 async function hasPackageChanged(pkg, manifest_, options) {
-  const { spinner } = constants
   const { state } = { __proto__: null, ...options }
 
   const manifest =
@@ -214,20 +213,19 @@ async function hasPackageChanged(pkg, manifest_, options) {
       if (!localHash) {
         // File exists in remote but not locally - this is a real difference.
         const message = `${pkg.name}: File '${file}' exists in published package but not locally`
-        spinner?.warn(message)
         state?.warnings.push(message)
         changed = true
       }
       if (remoteHash !== localHash) {
         const message = `${pkg.name}: File '${file}' content differs`
-        spinner?.info(message)
         state?.changes.push(message)
         changed = true
       }
     }
   } catch (e) {
     // If comparison fails, be conservative and assume changes.
-    spinner?.fail(`${pkg.name}: ${e?.message}`)
+    const message = `${pkg.name}: ${e?.message}`
+    state?.warnings.push(message)
     changed = true
   }
   return changed
@@ -340,6 +338,7 @@ async function main() {
   spinner.stop()
 
   if (state.warnings.length) {
+    console.log()
     logSectionHeader('Warnings', { emoji: '⚠️' })
     for (const warning of state.warnings) {
       console.log(warning)
@@ -347,6 +346,7 @@ async function main() {
   }
 
   if (state.changes.length) {
+    console.log()
     logSectionHeader('Changes', { emoji: 'ℹ' })
     for (const change of state.changes) {
       console.log(change)
@@ -359,8 +359,6 @@ async function main() {
     cwd: rootPath,
     stdio: 'inherit',
   }
-
-  await execScript('update:manifest', ['--', '--force'], spawnOptions)
 
   if (!state.bumped.find(pkg => pkg === registryPkg)) {
     const version = semver.inc(registryPkg.manifest.version, 'patch')
@@ -376,6 +374,7 @@ async function main() {
   }
 
   await execScript('update:package-json', [], spawnOptions)
+  await execScript('update:manifest', ['--', '--force'], spawnOptions)
 
   spinner.stop()
 }
