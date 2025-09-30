@@ -197,14 +197,34 @@ async function installPackage(packageInfo) {
 
     writeProgress('📦')
 
-    // Install the package.
+    // Install the package with retry logic for transient failures.
     const packageSpec = versionSpec.startsWith('https://')
       ? versionSpec
       : `${origPkgName}@${versionSpec}`
 
-    await runCommand('pnpm', ['add', packageSpec], {
-      cwd: packageTempDir,
-    })
+    const maxRetries = 3
+    let lastError
+    for (let attempt = 1; attempt <= maxRetries; attempt += 1) {
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await runCommand('pnpm', ['add', packageSpec], {
+          cwd: packageTempDir,
+        })
+        break
+      } catch (error) {
+        lastError = error
+        if (attempt < maxRetries) {
+          // Wait before retrying (exponential backoff).
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise(resolve => {
+            setTimeout(resolve, 1_000 * attempt)
+          })
+        }
+      }
+    }
+    if (lastError) {
+      throw lastError
+    }
 
     // Apply Socket overrides selectively.
     const installedPath = path.join(packageTempDir, 'node_modules', origPkgName)
