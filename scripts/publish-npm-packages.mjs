@@ -1,0 +1,425 @@
+import path from 'node:path'
+
+import semver from 'semver'
+
+import { parseArgs } from '../registry/dist/lib/parse-args.js'
+
+import { joinAnd } from '../registry/dist/lib/arrays.js'
+import { logger } from '../registry/dist/lib/logger.js'
+import { isObjectObject } from '../registry/dist/lib/objects.js'
+import {
+  fetchPackageManifest,
+  getReleaseTag,
+  readPackageJsonSync,
+} from '../registry/dist/lib/packages.js'
+import { pEach } from '../registry/dist/lib/promises.js'
+import { spawn } from '../registry/dist/lib/spawn.js'
+import { pluralize } from '../registry/dist/lib/words.js'
+
+import constants from './constants.mjs'
+
+async function findVersionBumpCommits() {
+  // Get git log with commit messages starting with "Bump".
+  const result = await spawn('git', [
+    'log',
+    '--grep=^Bump',
+    '--format=%H %s',
+    'main',
+  ])
+
+  const commits = []
+  const lines = result.stdout.trim().split('\n')
+
+  for (const line of lines) {
+    const match = /^([a-f0-9]+) (.+)$/.exec(line)
+    if (!match) {
+      continue
+    }
+
+    const sha = match[1]
+    const message = match[2]
+
+    // Skip non-package bump commits (like dependency bumps).
+    if (
+      !message.includes('registry package') &&
+      !message.includes('packages') &&
+      !/^Bump to v/.test(message)
+    ) {
+      continue
+    }
+
+    // Get the registry package.json version at this commit.
+    // eslint-disable-next-line no-await-in-loop
+    const pkgJsonResult = await spawn('git', [
+      'show',
+      `${sha}:registry/package.json`,
+    ])
+
+    try {
+      const pkgJson = JSON.parse(pkgJsonResult.stdout)
+      commits.push({
+        sha,
+        version: pkgJson.version,
+        message,
+      })
+    } catch {
+      // Skip commits where we can't parse package.json.
+    }
+  }
+
+  // Reverse to get chronological order (oldest first).
+  return commits.toReversed()
+}
+
+async function getCurrentBranch() {
+  const result = await spawn('git', ['rev-parse', '--abbrev-ref', 'HEAD'])
+  return result.stdout.trim()
+}
+
+async function getCommitSha(ref) {
+  const result = await spawn('git', ['rev-parse', ref])
+  return result.stdout.trim()
+}
+
+async function checkoutCommit(sha) {
+  await spawn('git', ['checkout', sha])
+}
+
+const {
+  COLUMN_LIMIT,
+  LATEST,
+  SOCKET_REGISTRY_SCOPE,
+  npmPackagesPath,
+  registryPkgPath,
+} = constants
+
+const { values: cliArgs } = parseArgs({
+  options: {
+    force: {
+      type: 'boolean',
+      short: 'f',
+    },
+    quiet: {
+      type: 'boolean',
+    },
+  },
+  strict: false,
+})
+
+function packageData(data) {
+  const {
+    isTrustedPublisher = false,
+    printName = data.name,
+    tag = LATEST,
+  } = data
+  return Object.assign(data, { isTrustedPublisher, printName, tag })
+}
+
+async function publishTrusted(pkg, state) {
+  if (!isObjectObject(state)) {
+    throw new TypeError('A state object is required.')
+  }
+  try {
+    // Use npm for trusted publishing with OIDC tokens.
+    const result = await spawn('npm', ['publish', '--access', 'public'], {
+      cwd: pkg.path,
+      // Don't set NODE_AUTH_TOKEN for trusted publishing - uses OIDC.
+    })
+    if (result.stdout) {
+      logger.log(result.stdout)
+    }
+  } catch (e) {
+    const stderr = e?.stderr ?? ''
+    if (!stderr.includes('cannot publish over')) {
+      state.fails.push(pkg.printName)
+      if (stderr) {
+        logger.log(stderr)
+      }
+    }
+  }
+}
+
+async function publishToken(pkg, state) {
+  if (!isObjectObject(state)) {
+    throw new TypeError('A state object is required.')
+  }
+  try {
+    // Use pnpm with token-based authentication and provenance.
+    const result = await spawn(
+      'pnpm',
+      [
+        'publish',
+        '--provenance',
+        '--access',
+        'public',
+        '--no-git-checks',
+        '--tag',
+        pkg.tag,
+      ],
+      {
+        cwd: pkg.path,
+        env: {
+          ...process.env,
+          NODE_AUTH_TOKEN: constants.ENV.NODE_AUTH_TOKEN,
+        },
+      },
+    )
+    if (result.stdout) {
+      logger.log(result.stdout)
+    }
+  } catch (e) {
+    const stderr = e?.stderr ?? ''
+    if (!stderr.includes('cannot publish over')) {
+      state.fails.push(pkg.printName)
+      if (stderr) {
+        logger.log(stderr)
+      }
+    }
+  }
+}
+
+async function publish(pkg, state) {
+  if (pkg.isTrustedPublisher) {
+    await publishTrusted(pkg, state)
+  } else {
+    await publishToken(pkg, state)
+  }
+}
+
+async function publishPackages(packages, state) {
+  const okayPackages = packages.filter(
+    pkg => !state.fails.includes(pkg.printName),
+  )
+  // Chunk non-failed package names to process them in parallel 3 at a time.
+  await pEach(
+    okayPackages,
+    async pkg => {
+      await publish(pkg, state)
+    },
+    { concurrency: 3 },
+  )
+}
+
+async function publishAtCommit(sha) {
+  logger.log(`\nChecking out commit ${sha}...`)
+  await checkoutCommit(sha)
+
+  // Rebuild at this commit to ensure we have the correct registry dist files.
+  logger.log('Building registry...')
+  await spawn('pnpm', ['run', 'build:registry'])
+
+  const fails = []
+  const skipped = []
+  const allPackages = [
+    packageData({
+      name: '../registry/dist/index.js',
+      path: registryPkgPath,
+      isTrustedPublisher: true,
+    }),
+    ...constants.npmPackageNames.map(sockRegPkgName => {
+      const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
+      const pkgJson = readPackageJsonSync(pkgPath)
+      return packageData({
+        name: `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`,
+        path: pkgPath,
+        printName: sockRegPkgName,
+        tag: getReleaseTag(pkgJson.version),
+        isTrustedPublisher: true,
+      })
+    }),
+  ]
+
+  // Filter packages to only publish those with bumped versions.
+  const packagesToPublish = []
+
+  for (const pkg of allPackages) {
+    const pkgJson = readPackageJsonSync(pkg.path)
+    const localVersion = pkgJson.version
+
+    // Fetch the latest version from npm registry.
+    // eslint-disable-next-line no-await-in-loop
+    const manifest = await fetchPackageManifest(`${pkgJson.name}@${pkg.tag}`)
+
+    if (!manifest) {
+      // Package doesn't exist on npm yet, publish it.
+      packagesToPublish.push(pkg)
+      logger.log(`${pkg.printName}: New package (${localVersion})`)
+      continue
+    }
+
+    const remoteVersion = manifest.version
+
+    // Compare versions - only publish if local is greater than remote.
+    if (semver.gt(localVersion, remoteVersion)) {
+      packagesToPublish.push(pkg)
+      logger.log(`${pkg.printName}: ${remoteVersion} → ${localVersion}`)
+    } else {
+      skipped.push(pkg.printName)
+      if (!cliArgs.quiet) {
+        logger.log(
+          `${pkg.printName}: Skipped (${localVersion} ≤ ${remoteVersion})`,
+        )
+      }
+    }
+  }
+
+  if (packagesToPublish.length === 0) {
+    logger.log('No packages to publish at this commit')
+    return { fails, skipped }
+  }
+
+  logger.log(
+    `\nPublishing ${packagesToPublish.length} ${pluralize('package', packagesToPublish.length)}...\n`,
+  )
+
+  await publishPackages(packagesToPublish, { fails })
+
+  if (fails.length) {
+    const msg = `Unable to publish ${fails.length} ${pluralize('package', fails.length)}:`
+    const msgList = joinAnd(fails)
+    const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
+    logger.warn(`${msg}${separator}${msgList}`)
+  }
+
+  if (skipped.length && !cliArgs.quiet) {
+    logger.log(
+      `\nSkipped ${skipped.length} ${pluralize('package', skipped.length)} (no version bump)`,
+    )
+  }
+
+  return { fails, skipped }
+}
+
+async function main() {
+  // Exit early if not running in CI or with --force.
+  if (!(cliArgs.force || constants.ENV.CI)) {
+    return
+  }
+
+  const originalBranch = await getCurrentBranch()
+  const originalSha = await getCommitSha('HEAD')
+
+  try {
+    // Find all version bump commits.
+    const bumpCommits = await findVersionBumpCommits()
+
+    if (bumpCommits.length === 0) {
+      logger.log('No version bump commits found')
+      return
+    }
+
+    logger.log(
+      `Found ${bumpCommits.length} version ${pluralize('bump', bumpCommits.length)}:`,
+    )
+    for (const commit of bumpCommits) {
+      logger.log(`  ${commit.sha.slice(0, 7)} - v${commit.version}`)
+    }
+
+    // Find the commit that has the latest published version on npm.
+    let startIndex = 0
+
+    // Check the registry package for the latest published version.
+    const registryPkgJson = readPackageJsonSync(registryPkgPath)
+    const registryManifest = await fetchPackageManifest(
+      `${registryPkgJson.name}@latest`,
+    )
+
+    if (registryManifest) {
+      const publishedVersion = registryManifest.version
+      logger.log(`\nLatest published version: v${publishedVersion}`)
+
+      // Find the commit that matches this version.
+      // Some commits may have duplicate versions, so check the last 3 commits
+      // with this version to find the one that's actually published.
+      let matchingCommitIndex = -1
+
+      // Collect all commits with the published version.
+      const matchingIndices = []
+      for (let i = 0; i < bumpCommits.length; i += 1) {
+        if (bumpCommits[i].version === publishedVersion) {
+          matchingIndices.push(i)
+        }
+      }
+
+      if (matchingIndices.length > 0) {
+        // Start from the last matching commit and walk back up to 3 commits
+        // to find which one is actually published.
+        const checkIndices = matchingIndices.slice(-3).toReversed()
+
+        for (const idx of checkIndices) {
+          const commit = bumpCommits[idx]
+          logger.log(
+            `Checking if ${commit.sha.slice(0, 7)} (v${commit.version}) is published...`,
+          )
+
+          // Checkout this commit and check if packages match npm.
+          // eslint-disable-next-line no-await-in-loop
+          await checkoutCommit(commit.sha)
+          // eslint-disable-next-line no-await-in-loop
+          await spawn('pnpm', ['run', 'build:registry'])
+
+          let isPublished = true
+
+          // Check a few key packages to verify this exact commit is published.
+          const testPackages = constants.npmPackageNames.slice(0, 3)
+          for (const pkgName of testPackages) {
+            const pkgPath = path.join(npmPackagesPath, pkgName)
+            const pkgJson = readPackageJsonSync(pkgPath)
+            // eslint-disable-next-line no-await-in-loop
+            const manifest = await fetchPackageManifest(
+              `${pkgJson.name}@${getReleaseTag(pkgJson.version)}`,
+            )
+
+            if (!manifest || manifest.version !== pkgJson.version) {
+              isPublished = false
+              break
+            }
+          }
+
+          if (isPublished) {
+            matchingCommitIndex = idx
+            logger.log(`✓ Found published commit: ${commit.sha.slice(0, 7)}`)
+            break
+          }
+        }
+
+        if (matchingCommitIndex !== -1) {
+          // Start from the next commit after the published version.
+          startIndex = matchingCommitIndex + 1
+          logger.log(
+            `Starting from commit after v${publishedVersion} (${bumpCommits[matchingCommitIndex].sha.slice(0, 7)})`,
+          )
+        }
+      }
+    }
+
+    // Publish from startIndex to the end.
+    const commitsToPublish = bumpCommits.slice(startIndex)
+
+    if (commitsToPublish.length === 0) {
+      logger.log('\nAll versions already published')
+      return
+    }
+
+    logger.log(
+      `\nPublishing ${commitsToPublish.length} version ${pluralize('bump', commitsToPublish.length)}...\n`,
+    )
+
+    for (const commit of commitsToPublish) {
+      // eslint-disable-next-line no-await-in-loop
+      await publishAtCommit(commit.sha)
+    }
+
+    logger.log('\n✓ All versions published successfully')
+  } finally {
+    // Always return to the original branch/commit.
+    logger.log(`\nReturning to ${originalBranch}...`)
+    if (originalBranch === 'HEAD') {
+      await checkoutCommit(originalSha)
+    } else {
+      await spawn('git', ['checkout', originalBranch])
+    }
+  }
+}
+
+main().catch(console.error)
