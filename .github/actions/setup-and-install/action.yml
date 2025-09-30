@@ -52,6 +52,7 @@ runs:
       with:
         ref: ${{ inputs.checkout-ref }}
         path: ${{ inputs.working-directory != '.' && inputs.working-directory || '' }}
+        fetch-depth: 0
 
     - name: Setup environment
       uses: SocketDev/socket-registry/.github/actions/setup@main
