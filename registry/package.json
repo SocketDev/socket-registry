@@ -867,6 +867,10 @@
       "types": "./dist/lib/constants/SOCKET_SECURITY_SCOPE.d.ts",
       "default": "./dist/lib/constants/SOCKET_SECURITY_SCOPE.js"
     },
+    "./lib/constants/logger": {
+      "types": "./dist/lib/constants/logger.d.ts",
+      "default": "./dist/lib/constants/logger.js"
+    },
     "./lib/constants/spinner": {
       "types": "./dist/lib/constants/spinner.d.ts",
       "default": "./dist/lib/constants/spinner.js"
