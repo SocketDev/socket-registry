@@ -25,7 +25,11 @@
       }
     },
     "./core.json": "./core.json",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./index.cjs": {
+      "types": "./index.d.cts",
+      "default": "./index.cjs"
+    }
   },
   "sideEffects": false,
   "engines": {
