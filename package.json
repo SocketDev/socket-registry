@@ -20,6 +20,7 @@
     "check:registry-package-types": "node --experimental-strip-types ./scripts/check-registry-package-types.mjs",
     "check:tsc": "tsgo --noEmit",
     "check-ci": "pnpm run check:lint",
+    "check-trusted": "node ./scripts/check-trusted-packages.mjs",
     "clean": "run-s -c clean:*",
     "clean:cache": "del-cli '**/.cache'",
     "clean:coverage": "del-cli 'coverage'",
