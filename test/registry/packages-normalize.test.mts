@@ -172,6 +172,10 @@ describe('packages normalization and reading', () => {
   })
 
   describe('isBlessedPackageName', () => {
+    it('should accept blessed package "sfw"', () => {
+      expect(isBlessedPackageName('sfw')).toBe(true)
+    })
+
     it('should reject non-blessed packages', () => {
       expect(isBlessedPackageName('lodash')).toBe(false)
       expect(isBlessedPackageName('express')).toBe(false)
