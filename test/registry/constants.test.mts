@@ -107,6 +107,61 @@ describe('constants module', () => {
       expect(env.HOME === undefined || typeof env.HOME === 'string').toBe(true)
       expect(env).toHaveProperty('COLUMNS')
     })
+
+    it('should normalize DEBUG=1 to DEBUG=*', () => {
+      const originalDebug = process.env['DEBUG']
+      process.env['DEBUG'] = '1'
+      delete require.cache[
+        require.resolve('../../registry/dist/lib/constants/ENV')
+      ]
+      const env = require('../../registry/dist/lib/constants/ENV')
+      expect(env['DEBUG']).toBe('*')
+      process.env['DEBUG'] = originalDebug
+    })
+
+    it('should normalize DEBUG=true to DEBUG=*', () => {
+      const originalDebug = process.env['DEBUG']
+      process.env['DEBUG'] = 'true'
+      delete require.cache[
+        require.resolve('../../registry/dist/lib/constants/ENV')
+      ]
+      const env = require('../../registry/dist/lib/constants/ENV')
+      expect(env['DEBUG']).toBe('*')
+      process.env['DEBUG'] = originalDebug
+    })
+
+    it('should normalize DEBUG=0 to DEBUG=""', () => {
+      const originalDebug = process.env['DEBUG']
+      process.env['DEBUG'] = '0'
+      delete require.cache[
+        require.resolve('../../registry/dist/lib/constants/ENV')
+      ]
+      const env = require('../../registry/dist/lib/constants/ENV')
+      expect(env['DEBUG']).toBe('')
+      process.env['DEBUG'] = originalDebug
+    })
+
+    it('should normalize DEBUG=false to DEBUG=""', () => {
+      const originalDebug = process.env['DEBUG']
+      process.env['DEBUG'] = 'false'
+      delete require.cache[
+        require.resolve('../../registry/dist/lib/constants/ENV')
+      ]
+      const env = require('../../registry/dist/lib/constants/ENV')
+      expect(env['DEBUG']).toBe('')
+      process.env['DEBUG'] = originalDebug
+    })
+
+    it('should preserve custom DEBUG namespace patterns', () => {
+      const originalDebug = process.env['DEBUG']
+      process.env['DEBUG'] = 'app:*'
+      delete require.cache[
+        require.resolve('../../registry/dist/lib/constants/ENV')
+      ]
+      const env = require('../../registry/dist/lib/constants/ENV')
+      expect(env['DEBUG']).toBe('app:*')
+      process.env['DEBUG'] = originalDebug
+    })
   })
 
   describe('package defaults', () => {

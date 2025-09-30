@@ -7,9 +7,23 @@ import WIN32 from './WIN32'
 // See: https://github.com/SocketDev/socket-packageurl-js/issues/3
 const ObjectFreeze = Object.freeze
 const ObjectHasOwn = Object.hasOwn
-const { env } = process
 
-const DEBUG = envAsString(env['DEBUG'])
+const { env } = process
+const loweredDebug = envAsString(env['DEBUG']).toLowerCase()
+
+// Normalize DEBUG environment variable for debug package compatibility.
+// - '1' or 'true' enables all debug namespaces (DEBUG='*').
+// - '0' or 'false' disables all debug output (DEBUG='').
+// - Any other value is used as-is for namespace filtering (e.g., 'app:*').
+let DEBUG: string | undefined
+if (loweredDebug === '1' || loweredDebug === 'true') {
+  DEBUG = '*'
+} else if (loweredDebug === '0' || loweredDebug === 'false') {
+  DEBUG = ''
+} else {
+  DEBUG = loweredDebug
+}
+
 const HOME = envAsString(env['HOME'])
 
 export default ObjectFreeze({
