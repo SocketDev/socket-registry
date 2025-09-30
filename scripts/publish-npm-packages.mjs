@@ -82,6 +82,8 @@ async function getCommitSha(ref) {
 }
 
 async function checkoutCommit(sha) {
+  // Discard any uncommitted changes from previous builds.
+  await spawn('git', ['reset', '--hard'])
   await spawn('git', ['checkout', sha])
 }
 
@@ -401,74 +403,22 @@ async function main() {
       const publishedVersion = registryManifest.version
       logger.log(`\nLatest published version: v${publishedVersion}`)
 
-      // Find the commit that matches this version.
-      // Some commits may have duplicate versions, so check the last 3 commits
-      // with this version to find the one that's actually published.
-      let matchingCommitIndex = -1
-
-      // Collect all commits with the published version.
-      const matchingIndices = []
+      // Find all commits with versions <= published version and start after the last one.
       for (let i = 0; i < bumpCommits.length; i += 1) {
-        if (bumpCommits[i].version === publishedVersion) {
-          matchingIndices.push(i)
+        const commitVersion = bumpCommits[i].version
+        if (semver.lte(commitVersion, publishedVersion)) {
+          startIndex = i + 1
+          logger.log(
+            `Skipping ${bumpCommits[i].sha.slice(0, 7)} (v${commitVersion}) - already published or older`,
+          )
         }
       }
 
-      if (matchingIndices.length > 0) {
-        // Start from the last matching commit and walk back up to 3 commits
-        // to find which one is actually published.
-        const checkIndices = matchingIndices.slice(-3).toReversed()
-
-        for (const idx of checkIndices) {
-          const commit = bumpCommits[idx]
-          logger.log(
-            `Checking if ${commit.sha.slice(0, 7)} (v${commit.version}) is published...`,
-          )
-
-          // Checkout this commit and check if packages match npm.
-          // eslint-disable-next-line no-await-in-loop
-          await checkoutCommit(commit.sha)
-          // eslint-disable-next-line no-await-in-loop
-          await spawn('pnpm', ['run', 'build:registry'])
-
-          let isPublished = true
-
-          // Check a few key packages to verify this exact commit is published.
-          const testPackages = constants.npmPackageNames.slice(0, 3)
-          for (const pkgName of testPackages) {
-            const pkgPath = path.join(npmPackagesPath, pkgName)
-            const pkgJson = readPackageJsonSync(pkgPath)
-            // eslint-disable-next-line no-await-in-loop
-            const manifest = await fetchPackageManifest(
-              `${pkgJson.name}@${getReleaseTag(pkgJson.version)}`,
-            )
-
-            if (!manifest || manifest.version !== pkgJson.version) {
-              isPublished = false
-              break
-            }
-          }
-
-          if (isPublished) {
-            matchingCommitIndex = idx
-            logger.success(
-              `Confirmed: ${commit.sha.slice(0, 7)} (v${commit.version}) is published`,
-            )
-            break
-          } else {
-            logger.fail(
-              `Not published: ${commit.sha.slice(0, 7)} (v${commit.version})`,
-            )
-          }
-        }
-
-        if (matchingCommitIndex !== -1) {
-          // Start from the next commit after the published version.
-          startIndex = matchingCommitIndex + 1
-          logger.log(
-            `Starting from commit after v${publishedVersion} (${bumpCommits[matchingCommitIndex].sha.slice(0, 7)})`,
-          )
-        }
+      if (startIndex > 0) {
+        const lastSkipped = bumpCommits[startIndex - 1]
+        logger.log(
+          `Starting from commit after v${lastSkipped.version} (${lastSkipped.sha.slice(0, 7)})`,
+        )
       }
     }
 
