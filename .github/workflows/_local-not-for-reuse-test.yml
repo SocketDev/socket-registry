@@ -42,6 +42,7 @@ jobs:
         with:
           path: ~/.socket-npm-test-cache
           key-prefix: npm-test-packages
+          cache-version: v2
 
       - uses: SocketDev/socket-registry/.github/actions/run-script@main
         with:
