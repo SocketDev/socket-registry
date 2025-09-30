@@ -94,6 +94,9 @@ const {
 
 const { values: cliArgs } = parseArgs({
   options: {
+    debug: {
+      type: 'boolean',
+    },
     force: {
       type: 'boolean',
       short: 'f',
@@ -307,10 +310,12 @@ async function main() {
       return
     }
 
+    const displayCommits = cliArgs.debug ? bumpCommits : bumpCommits.slice(-10)
+
     logger.log(
-      `Found ${bumpCommits.length} version ${pluralize('bump', bumpCommits.length)}:`,
+      `Found ${bumpCommits.length} version ${pluralize('bump', bumpCommits.length)}${cliArgs.debug ? ':' : ' (showing last 10):'}`,
     )
-    for (const commit of bumpCommits) {
+    for (const commit of displayCommits) {
       logger.log(`  ${commit.sha.slice(0, 7)} - v${commit.version}`)
     }
 
