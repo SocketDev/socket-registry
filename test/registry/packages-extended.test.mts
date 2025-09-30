@@ -23,6 +23,7 @@ import {
   resolvePackageName,
   resolveRegistryPackageName,
 } from '../../registry/dist/lib/packages.js'
+import { safeRemove } from '../../scripts/utils/fs.mjs'
 
 describe('packages module extended tests', () => {
   describe('collectIncompatibleLicenses', () => {
@@ -87,7 +88,7 @@ describe('packages module extended tests', () => {
   })
 
   describe('createPackageJson', () => {
-    it('should create a package.json object', () => {
+    it('should create a package.json object', async () => {
       const tmpDir = path.join(os.tmpdir(), `test-${Date.now()}`)
       fs.mkdirSync(tmpDir, { recursive: true })
 
@@ -100,11 +101,11 @@ describe('packages module extended tests', () => {
         expect(pkg).toBeDefined()
         expect(typeof pkg).toBe('object')
       } finally {
-        fs.rmSync(tmpDir, { recursive: true, force: true })
+        await safeRemove(tmpDir)
       }
     })
 
-    it('should handle minimal input', () => {
+    it('should handle minimal input', async () => {
       const tmpDir = path.join(os.tmpdir(), `test-${Date.now()}`)
       fs.mkdirSync(tmpDir, { recursive: true })
 
@@ -112,7 +113,7 @@ describe('packages module extended tests', () => {
         const pkg = createPackageJson('@socketregistry/test', tmpDir)
         expect(pkg).toBeDefined()
       } finally {
-        fs.rmSync(tmpDir, { recursive: true, force: true })
+        await safeRemove(tmpDir)
       }
     })
   })
@@ -346,7 +347,7 @@ describe('packages module extended tests', () => {
         // May fail without npm, that's ok
         expect(error).toBeDefined()
       } finally {
-        fs.rmSync(tmpDir, { recursive: true, force: true })
+        await safeRemove(tmpDir)
       }
     })
   })

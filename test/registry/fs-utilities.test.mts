@@ -25,6 +25,7 @@ import {
   writeJson,
   writeJsonSync,
 } from '../../registry/dist/lib/fs.js'
+import { safeRemove } from '../../scripts/utils/fs.mjs'
 
 describe('fs utilities', () => {
   let tmpDir: string
@@ -34,8 +35,8 @@ describe('fs utilities', () => {
     fs.mkdirSync(tmpDir, { recursive: true })
   })
 
-  afterEach(() => {
-    fs.rmSync(tmpDir, { recursive: true, force: true })
+  afterEach(async () => {
+    await safeRemove(tmpDir)
   })
 
   describe('findUp', () => {
