@@ -85,13 +85,16 @@ export function wrapPrompt(
 }
 
 // c8 ignore start - Third-party inquirer library requires and exports not testable in isolation.
-const confirmRaw = /*@__PURE__*/ require('../external/@inquirer/confirm')
-const inputRaw = /*@__PURE__*/ require('../external/@inquirer/input')
-const passwordRaw = /*@__PURE__*/ require('../external/@inquirer/password')
+const confirmExport = /*@__PURE__*/ require('../external/@inquirer/confirm')
+const inputExport = /*@__PURE__*/ require('../external/@inquirer/input')
+const passwordExport = /*@__PURE__*/ require('../external/@inquirer/password')
 const searchExport = /*@__PURE__*/ require('../external/@inquirer/search')
 const selectExport = /*@__PURE__*/ require('../external/@inquirer/select')
-const searchRaw = searchExport.default
-const selectRaw = selectExport.default
+const confirmRaw = confirmExport.default ?? confirmExport
+const inputRaw = inputExport.default ?? inputExport
+const passwordRaw = passwordExport.default ?? passwordExport
+const searchRaw = searchExport.default ?? searchExport
+const selectRaw = selectExport.default ?? selectExport
 const ActualSeparator = selectExport.Separator
 // c8 ignore stop
 
