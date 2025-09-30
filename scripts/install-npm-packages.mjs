@@ -9,6 +9,7 @@ import { copy } from 'fs-extra'
 import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
 import { testRunners } from '../test/utils/test-runners.mjs'
 import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
+import constants from './constants.mjs'
 import ENV from '../registry/dist/lib/constants/ENV.js'
 import spinner from '../registry/dist/lib/constants/spinner.js'
 import WIN32 from '../registry/dist/lib/constants/WIN32.js'
@@ -87,6 +88,20 @@ async function installPackage(packageInfo) {
     socketPackage: socketPkgName,
     versionSpec,
   } = packageInfo
+
+  // Check if this package should be skipped.
+  const skipSet = constants.skipTestsByEcosystem.get('npm')
+  const skipTests = !!skipSet?.has(socketPkgName) || !!skipSet?.has(origPkgName)
+  if (skipTests) {
+    writeProgress()
+    completePackage()
+    return {
+      installed: false,
+      package: origPkgName,
+      reason: 'Skipped',
+      socketPackage: socketPkgName,
+    }
+  }
 
   // Create temp directory for this package.
   const packageTempDir = path.join(tempBaseDir, socketPkgName)
