@@ -117,6 +117,34 @@ function packageData(data) {
   return Object.assign(data, { isTrustedPublisher, printName, tag })
 }
 
+async function ensureNpmVersion() {
+  const result = await spawn('npm', ['--version'])
+  const npmVersion = result.stdout.trim()
+  logger.log(`Current npm version: ${npmVersion}`)
+
+  // Check if npm version is >= 11.5.1 (required for trusted publishing).
+  try {
+    const semverResult = await spawn('npx', [
+      '--yes',
+      'semver',
+      npmVersion,
+      '-r',
+      '>=11.5.1',
+    ])
+    if (semverResult.stdout.trim() === '') {
+      throw new Error('npm version too old')
+    }
+    logger.log(
+      `npm version ${npmVersion} meets the 11.5.1+ requirement for trusted publishing`,
+    )
+  } catch {
+    logger.log('Installing npm 11.5.1+ for trusted publishing...')
+    await spawn('npm', ['install', '-g', 'npm@latest'])
+    const newResult = await spawn('npm', ['--version'])
+    logger.log(`Updated npm version: ${newResult.stdout.trim()}`)
+  }
+}
+
 async function publishTrusted(pkg, state) {
   if (!isObjectObject(state)) {
     throw new TypeError('A state object is required.')
@@ -297,6 +325,9 @@ async function main() {
   if (!(cliArgs.force || constants.ENV.CI)) {
     return
   }
+
+  // Ensure npm version is >= 11.5.1 for trusted publishing.
+  await ensureNpmVersion()
 
   const originalBranch = await getCurrentBranch()
   const originalSha = await getCommitSha('HEAD')
