@@ -1,50 +1,170 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-// Test only the wrapPrompt function logic, not the third-party integrations
+import { wrapPrompt } from '../../registry/dist/lib/prompts.js'
+
 describe('prompts module', () => {
-  describe('wrapPrompt function', () => {
-    it('should test the wrapper logic with a mock function', async () => {
-      // Test the wrapPrompt function directly
-      const wrapPrompt = require('../../registry/dist/lib/prompts').__internal
-        ?.wrapPrompt
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
 
-      if (!wrapPrompt) {
-        // Since wrapPrompt is not exported, we can only test that the module loads
-        const prompts = require('../../registry/dist/lib/prompts')
-        expect(prompts).toBeDefined()
-        expect(typeof prompts.confirm).toBe('function')
-        expect(typeof prompts.input).toBe('function')
-        expect(typeof prompts.password).toBe('function')
-        expect(typeof prompts.search).toBe('function')
-        expect(typeof prompts.select).toBe('function')
-        expect(prompts.Separator).toBeDefined()
-        return
-      }
+  describe('wrapPrompt', () => {
+    it('should wrap a prompt function and trim string results', async () => {
+      const mockPrompt = vi.fn().mockResolvedValue('  test result  ')
+      const wrapped = wrapPrompt(mockPrompt)
 
-      // Mock a simple prompt function
-      const mockPrompt = vi.fn()
-      const wrappedPrompt = wrapPrompt(mockPrompt)
+      const result = await wrapped({ message: 'test' }, { spinner: null })
 
-      // Test string trimming
-      mockPrompt.mockResolvedValue('  test result  ')
-      const result1 = await wrappedPrompt({ message: 'test' })
-      expect(result1).toBe('test result')
+      expect(result).toBe('test result')
+      expect(mockPrompt).toHaveBeenCalledWith(
+        { message: 'test' },
+        expect.objectContaining({ signal: expect.anything() }),
+      )
+    })
 
-      // Test non-string passthrough
-      mockPrompt.mockResolvedValue(42)
-      const result2 = await wrappedPrompt({ message: 'test' })
-      expect(result2).toBe(42)
+    it('should pass through non-string results unchanged', async () => {
+      const mockPrompt = vi.fn().mockResolvedValue(42)
+      const wrapped = wrapPrompt(mockPrompt)
 
-      // Test TypeError handling
-      mockPrompt.mockRejectedValue(new TypeError('test error'))
-      await expect(wrappedPrompt({ message: 'test' })).rejects.toThrow(
-        TypeError,
+      const result = await wrapped({ message: 'test' }, { spinner: null })
+
+      expect(result).toBe(42)
+    })
+
+    it('should pass through boolean results unchanged', async () => {
+      const mockPrompt = vi.fn().mockResolvedValue(true)
+      const wrapped = wrapPrompt(mockPrompt)
+
+      const result = await wrapped({ message: 'confirm?' }, { spinner: null })
+
+      expect(result).toBe(true)
+    })
+
+    it('should pass through array results unchanged', async () => {
+      const mockPrompt = vi.fn().mockResolvedValue(['a', 'b', 'c'])
+      const wrapped = wrapPrompt(mockPrompt)
+
+      const result = await wrapped({ message: 'select' }, { spinner: null })
+
+      expect(result).toEqual(['a', 'b', 'c'])
+    })
+
+    it('should inject abort signal when no context provided', async () => {
+      const mockPrompt = vi.fn().mockResolvedValue('result')
+      const wrapped = wrapPrompt(mockPrompt)
+
+      await wrapped({ message: 'test' }, { spinner: null })
+
+      expect(mockPrompt).toHaveBeenCalledWith(
+        { message: 'test' },
+        expect.objectContaining({
+          signal: expect.any(Object),
+        }),
+      )
+    })
+
+    it('should merge signal with existing context', async () => {
+      const mockPrompt = vi.fn().mockResolvedValue('result')
+      const wrapped = wrapPrompt(mockPrompt)
+
+      await wrapped(
+        { message: 'test' },
+        { clearPromptOnDone: true, spinner: null },
       )
 
-      // Test non-TypeError handling
-      mockPrompt.mockRejectedValue(new Error('regular error'))
-      const result3 = await wrappedPrompt({ message: 'test' })
-      expect(result3).toBeUndefined()
+      expect(mockPrompt).toHaveBeenCalledWith(
+        { message: 'test' },
+        expect.objectContaining({
+          signal: expect.any(Object),
+          clearPromptOnDone: true,
+        }),
+      )
+    })
+
+    it('should rethrow TypeError', async () => {
+      const mockPrompt = vi.fn().mockRejectedValue(new TypeError('test error'))
+      const wrapped = wrapPrompt(mockPrompt)
+
+      await expect(
+        wrapped({ message: 'test' }, { spinner: null }),
+      ).rejects.toThrow(TypeError)
+      await expect(
+        wrapped({ message: 'test' }, { spinner: null }),
+      ).rejects.toThrow('test error')
+    })
+
+    it('should suppress non-TypeError errors', async () => {
+      const mockPrompt = vi.fn().mockRejectedValue(new Error('regular error'))
+      const wrapped = wrapPrompt(mockPrompt)
+
+      const result = await wrapped({ message: 'test' }, { spinner: null })
+
+      expect(result).toBeUndefined()
+    })
+
+    it('should handle mock spinner that is not spinning', async () => {
+      const mockPrompt = vi.fn().mockResolvedValue('result')
+      const wrapped = wrapPrompt(mockPrompt)
+      const mockSpinner = {
+        isSpinning: false,
+        stop: vi.fn(),
+        start: vi.fn(),
+      }
+
+      await wrapped({ message: 'test' }, { spinner: mockSpinner })
+
+      expect(mockSpinner.stop).toHaveBeenCalled()
+      expect(mockSpinner.start).not.toHaveBeenCalled()
+    })
+
+    it('should handle mock spinner that is spinning', async () => {
+      const mockPrompt = vi.fn().mockResolvedValue('result')
+      const wrapped = wrapPrompt(mockPrompt)
+      const mockSpinner = {
+        isSpinning: true,
+        stop: vi.fn(),
+        start: vi.fn(),
+      }
+
+      await wrapped({ message: 'test' }, { spinner: mockSpinner })
+
+      expect(mockSpinner.stop).toHaveBeenCalled()
+      expect(mockSpinner.start).toHaveBeenCalled()
+    })
+
+    it('should trim string with only spaces', async () => {
+      const mockPrompt = vi.fn().mockResolvedValue('     ')
+      const wrapped = wrapPrompt(mockPrompt)
+
+      const result = await wrapped({ message: 'test' }, { spinner: null })
+
+      expect(result).toBe('')
+    })
+
+    it('should handle empty string', async () => {
+      const mockPrompt = vi.fn().mockResolvedValue('')
+      const wrapped = wrapPrompt(mockPrompt)
+
+      const result = await wrapped({ message: 'test' }, { spinner: null })
+
+      expect(result).toBe('')
+    })
+
+    it('should handle undefined result', async () => {
+      const mockPrompt = vi.fn().mockResolvedValue(undefined)
+      const wrapped = wrapPrompt(mockPrompt)
+
+      const result = await wrapped({ message: 'test' }, { spinner: null })
+
+      expect(result).toBeUndefined()
+    })
+
+    it('should handle null result', async () => {
+      const mockPrompt = vi.fn().mockResolvedValue(null)
+      const wrapped = wrapPrompt(mockPrompt)
+
+      const result = await wrapped({ message: 'test' }, { spinner: null })
+
+      expect(result).toBeNull()
     })
   })
 
