@@ -143,11 +143,20 @@ export default createConstantsObject(props, {
       .map(k => [
         k,
         () => {
-          // Keep uppercase for certain constants that are uppercase files
-          const fileName = ['DARWIN', 'ENV', 'WIN32'].includes(k)
-            ? k
-            : toKebabCase(k)
-          return require(`./${fileName}`)
+          // Try UPPER_SNAKE_CASE first (for files like EXEC_PATH, NODE_NO_WARNINGS_FLAGS)
+          // then fall back to kebab-case.
+          const upperSnakeCase = k
+            .replace(/[A-Z]/g, (m, i) => (i > 0 ? '_' : '') + m)
+            .toUpperCase()
+          try {
+            return require(`./${upperSnakeCase}`)
+          } catch {
+            // Fall back to special cases or kebab-case.
+            const fileName = ['DARWIN', 'ENV', 'WIN32'].includes(k)
+              ? k
+              : toKebabCase(k)
+            return require(`./${fileName}`)
+          }
         },
       ]),
   ),
