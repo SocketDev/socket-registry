@@ -16,7 +16,7 @@ inputs:
   cache-version:
     description: 'Cache version for busting'
     required: false
-    default: 'v1'
+    default: 'v2'
   restore-keys:
     description: 'Restore keys for fallback'
     required: false
