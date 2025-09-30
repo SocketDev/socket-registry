@@ -13,6 +13,10 @@ inputs:
     description: 'Cache key prefix'
     required: false
     default: 'npm-test-packages'
+  cache-version:
+    description: 'Cache version for busting'
+    required: false
+    default: 'v1'
   restore-keys:
     description: 'Restore keys for fallback'
     required: false
@@ -46,11 +50,11 @@ runs:
       uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
       with:
         path: ${{ steps.cache-path.outputs.cache-path }}
-        # Use package manifest hash and OS in cache key for specificity
-        key: ${{ inputs.key-prefix }}-${{ runner.os }}-${{ hashFiles('packages/npm/*/package.json') }}
+        # Use cache version, package manifest hash and OS in cache key for specificity
+        key: ${{ inputs.key-prefix }}-${{ inputs.cache-version }}-${{ runner.os }}-${{ hashFiles('packages/npm/*/package.json') }}
         restore-keys: |
-          ${{ inputs.key-prefix }}-${{ runner.os }}-
-          ${{ inputs.key-prefix }}-
+          ${{ inputs.key-prefix }}-${{ inputs.cache-version }}-${{ runner.os }}-
+          ${{ inputs.key-prefix }}-${{ inputs.cache-version }}-
 
     - name: Create cache directory if missing
       if: steps.cache.outputs.cache-hit != 'true'
