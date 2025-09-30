@@ -67,13 +67,25 @@ You are a **Principal Software Engineer** responsible for:
 - **❌ FORBIDDEN**: Direct use of `trash()`, `fs.rm()`, `fs.rmSync()`, or `rm -rf` commands
 - **Cross-project**: Other Socket projects should copy and adapt this implementation
 
-### 2. Package Manager Agent
+### 2. Node.js Version Compatibility
+- **Minimum Version**: Node.js 18.0.0 (as specified in package.json engines)
+- **🚨 MANDATORY**: All code MUST be compatible with Node.js 18+
+- **ES2023+ Features**: Avoid features not available in Node.js 18
+  - ❌ FORBIDDEN: `Array.prototype.toReversed()` (ES2023 - requires Node.js 20+)
+  - ❌ FORBIDDEN: `Array.prototype.toSorted()` (ES2023 - requires Node.js 20+)
+  - ❌ FORBIDDEN: `Array.prototype.toSpliced()` (ES2023 - requires Node.js 20+)
+  - ❌ FORBIDDEN: `Array.prototype.with()` (ES2023 - requires Node.js 20+)
+  - ✅ CORRECT: Use `array.slice().reverse()` instead of `array.toReversed()`
+  - ✅ CORRECT: Use `array.slice().sort()` instead of `array.toSorted()`
+- **Verification**: Test features against Node.js 18 compatibility before using
+
+### 3. Package Manager Agent
 - `registry/lib/agent.js` (formerly npm.js) handles npm, pnpm, and yarn
 - Supports both Windows and Unix platforms
 - `execNpm`, `execPnpm`, `execYarn` functions available
 - Bin path resolution works across different installation methods
 
-### 3. Cross-Platform Compatibility - CRITICAL: Windows and POSIX
+### 4. Cross-Platform Compatibility - CRITICAL: Windows and POSIX
 - **🚨 MANDATORY**: Tests and functionality MUST work on both POSIX (macOS/Linux) and Windows systems
 - **Path handling**: ALWAYS use `path.join()`, `path.resolve()`, `path.sep` for file paths
   - ❌ WRONG: `'/usr/local/bin/npm'` (hard-coded POSIX path)
@@ -95,14 +107,14 @@ You are a **Principal Software Engineer** responsible for:
 - **Line endings**: Be aware of CRLF (Windows) vs LF (Unix) differences when processing text files
 - **Shell commands**: Consider platform differences in shell commands and utilities
 
-### 4. Testing
+### 5. Testing
 - Always run lint and typecheck before committing:
   - `pnpm run lint`
   - `pnpm run typecheck`
 - Run tests with: `pnpm test`
 - Pre-commit hooks will run automatically
 
-### 5. Git Workflow
+### 6. Git Workflow
 - **DO NOT commit automatically** - let the user review changes first
 - Use `--no-verify` flag only when explicitly requested
 - **Commit message style**: Use conventional format without prefixes (feat:, fix:, chore:, etc.)
@@ -115,7 +127,7 @@ You are a **Principal Software Engineer** responsible for:
   - ❌ WRONG: Including "🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>"
   - ✅ CORRECT: Clean commit messages without attribution footers
 
-### 6. Package Management
+### 7. Package Management
 - **Package Manager**: This project uses pnpm (not npm)
 - **Install dependencies**: `pnpm install`
 - **Add dependency**: `pnpm add <package> --save-exact`
@@ -132,19 +144,19 @@ You are a **Principal Software Engineer** responsible for:
   - ❌ WRONG: `npm install @socketregistry/package-name`
   - **Rationale**: Maintain consistency with project's chosen package manager across all documentation
 
-### 6. Code Style
+### 8. Code Style
 - Follow existing patterns in the codebase
 - Don't add comments unless specifically requested
 - Maintain consistency with surrounding code
 - Use existing utilities from registry/lib where available
 - **Dynamic imports**: Only use dynamic imports for test mocking (e.g., `vi.importActual` in Vitest). Avoid runtime dynamic imports in production code
 
-### 7. Error Handling
+### 9. Error Handling
 - Scripts should use trash for safer deletion
 - Provide fallback behavior when optional dependencies aren't available
 - Use try-catch blocks for resilient code
 
-### 8. Test Coverage
+### 10. Test Coverage
 - All `c8 ignore` comments MUST include a reason why the code is being ignored
 - All c8 ignore comments MUST end with periods for consistency
 - Format: `// c8 ignore start - Reason for ignoring.`
