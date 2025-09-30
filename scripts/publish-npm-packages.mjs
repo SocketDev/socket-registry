@@ -9,6 +9,7 @@ import { logger } from '../registry/dist/lib/logger.js'
 import { isObjectObject } from '../registry/dist/lib/objects.js'
 import {
   fetchPackageManifest,
+  fetchPackageProvenance,
   getReleaseTag,
   readPackageJsonSync,
 } from '../registry/dist/lib/packages.js'
@@ -149,6 +150,38 @@ async function publishTrusted(pkg, state) {
   if (!isObjectObject(state)) {
     throw new TypeError('A state object is required.')
   }
+
+  // Check if package has been published with trusted publishing before.
+  const pkgJson = readPackageJsonSync(pkg.path)
+  const packageName = pkgJson.name
+
+  try {
+    // Fetch the latest published version to check provenance.
+    const manifest = await fetchPackageManifest(packageName)
+    const latestVersion = manifest?.['dist-tags']?.latest
+
+    if (latestVersion) {
+      const provenance = await fetchPackageProvenance(
+        packageName,
+        latestVersion,
+      )
+
+      if (!provenance || provenance.level !== 'trusted') {
+        logger.warn(
+          `Skipping ${pkg.printName}: package not configured for trusted publishing (latest version lacks trusted provenance)`,
+        )
+        state.skipped.push(pkg.printName)
+        return
+      }
+    }
+  } catch {
+    logger.warn(
+      `Skipping ${pkg.printName}: could not verify trusted publishing configuration`,
+    )
+    state.skipped.push(pkg.printName)
+    return
+  }
+
   try {
     // Use npm for trusted publishing with OIDC tokens.
     const result = await spawn('npm', ['publish', '--access', 'public'], {
