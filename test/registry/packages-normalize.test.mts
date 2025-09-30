@@ -12,6 +12,7 @@ import {
   resolveOriginalPackageName,
   resolvePackageJsonPath,
 } from '../../registry/dist/lib/packages.js'
+import { safeRemove } from '../../scripts/utils/fs.mjs'
 
 describe('packages normalization and reading', () => {
   describe('normalizePackageJson', () => {
@@ -65,7 +66,7 @@ describe('packages normalization and reading', () => {
         expect(result!.name).toBe('test')
         expect(result!.version).toBe('1.0.0')
       } finally {
-        fs.rmSync(tmpDir, { recursive: true, force: true })
+        await safeRemove(tmpDir)
       }
     })
 
@@ -81,13 +82,13 @@ describe('packages normalization and reading', () => {
         } as any)
         expect(result!.name).toBe('test')
       } finally {
-        fs.rmSync(tmpDir, { recursive: true, force: true })
+        await safeRemove(tmpDir)
       }
     })
   })
 
   describe('readPackageJsonSync', () => {
-    it('should read package.json file synchronously', () => {
+    it('should read package.json file synchronously', async () => {
       const tmpDir = path.join(os.tmpdir(), `test-${Date.now()}`)
       fs.mkdirSync(tmpDir, { recursive: true })
       const pkg = { name: 'test', version: '1.0.0' }
@@ -98,11 +99,11 @@ describe('packages normalization and reading', () => {
         expect(result!.name).toBe('test')
         expect(result!.version).toBe('1.0.0')
       } finally {
-        fs.rmSync(tmpDir, { recursive: true, force: true })
+        await safeRemove(tmpDir)
       }
     })
 
-    it('should handle options', () => {
+    it('should handle options', async () => {
       const tmpDir = path.join(os.tmpdir(), `test-${Date.now()}`)
       fs.mkdirSync(tmpDir, { recursive: true })
       const pkg = { name: 'test', scripts: { test: 'jest' } }
@@ -115,13 +116,13 @@ describe('packages normalization and reading', () => {
         })
         expect(result!.name).toBe('test')
       } finally {
-        fs.rmSync(tmpDir, { recursive: true, force: true })
+        await safeRemove(tmpDir)
       }
     })
   })
 
   describe('resolvePackageJsonPath', () => {
-    it('should resolve package.json path', () => {
+    it('should resolve package.json path', async () => {
       const tmpDir = path.join(os.tmpdir(), `test-${Date.now()}`)
       fs.mkdirSync(tmpDir, { recursive: true })
       const pkgPath = path.join(tmpDir, 'package.json')
@@ -131,11 +132,11 @@ describe('packages normalization and reading', () => {
         const resolvedPath = resolvePackageJsonPath(tmpDir)
         expect(resolvedPath).toBe(pkgPath)
       } finally {
-        fs.rmSync(tmpDir, { recursive: true, force: true })
+        await safeRemove(tmpDir)
       }
     })
 
-    it('should handle file path input', () => {
+    it('should handle file path input', async () => {
       const tmpDir = path.join(os.tmpdir(), `test-${Date.now()}`)
       fs.mkdirSync(tmpDir, { recursive: true })
       const pkgPath = path.join(tmpDir, 'package.json')
@@ -145,7 +146,7 @@ describe('packages normalization and reading', () => {
         const resolvedPath = resolvePackageJsonPath(pkgPath)
         expect(resolvedPath).toBe(pkgPath)
       } finally {
-        fs.rmSync(tmpDir, { recursive: true, force: true })
+        await safeRemove(tmpDir)
       }
     })
   })

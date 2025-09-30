@@ -25,6 +25,7 @@ import {
   whichBin,
   whichBinSync,
 } from '../../registry/dist/lib/bin.js'
+import { safeRemove } from '../../scripts/utils/fs.mjs'
 
 describe('agent package manager utilities', () => {
   let tmpDir: string
@@ -34,8 +35,8 @@ describe('agent package manager utilities', () => {
     fs.mkdirSync(tmpDir, { recursive: true })
   })
 
-  afterEach(() => {
-    fs.rmSync(tmpDir, { recursive: true, force: true })
+  afterEach(async () => {
+    await safeRemove(tmpDir)
   })
 
   describe('npm flag detection', () => {
