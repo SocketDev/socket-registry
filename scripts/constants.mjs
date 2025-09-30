@@ -36,6 +36,10 @@ const {
 } = registryConstants
 
 let _defaultWhichOptions
+
+/**
+ * Get cached default which command options with augmented PATH.
+ */
 function getDefaultWhichOptions() {
   if (_defaultWhichOptions === undefined) {
     _defaultWhichOptions = {
