@@ -142,6 +142,9 @@ function forceRelativeSync(fn, options) {
   return fn({ __proto__: null, ...options, absolute: false })
 }
 
+/**
+ * Get all changed files including staged, modified, and untracked files.
+ */
 async function getAllChangedFiles(options) {
   return await innerDiff(gitDiffSpawnArgs.all, {
     __proto__: null,
@@ -150,6 +153,9 @@ async function getAllChangedFiles(options) {
   })
 }
 
+/**
+ * Get all changed files including staged, modified, and untracked files.
+ */
 function getAllChangedFilesSync(options) {
   return innerDiffSync(gitDiffSpawnArgs.all, {
     __proto__: null,
@@ -158,50 +164,86 @@ function getAllChangedFilesSync(options) {
   })
 }
 
+/**
+ * Get all changed package names for the specified ecosystem.
+ */
 async function getAllChangedPackages(eco, options) {
   return innerGetPackages(eco, await getAllChangedFiles(), options)
 }
 
+/**
+ * Get all changed package names for the specified ecosystem.
+ */
 function getAllChangedPackagesSync(eco, options) {
   return innerGetPackages(eco, getAllChangedFilesSync(), options)
 }
 
+/**
+ * Get modified files that are not staged.
+ */
 async function getModifiedFiles(options) {
   return await innerDiff(gitDiffSpawnArgs.modified, options)
 }
 
+/**
+ * Get modified files that are not staged.
+ */
 function getModifiedFilesSync(options) {
   return innerDiffSync(gitDiffSpawnArgs.modified, options)
 }
 
+/**
+ * Get modified package names for the specified ecosystem.
+ */
 async function getModifiedPackages(eco, options) {
   return innerGetPackages(eco, await getModifiedFiles(), options)
 }
 
+/**
+ * Get modified package names for the specified ecosystem.
+ */
 function getModifiedPackagesSync(eco, options) {
   return innerGetPackages(eco, getModifiedFilesSync(), options)
 }
 
+/**
+ * Get staged files ready for commit.
+ */
 async function getStagedFiles(options) {
   return await innerDiff(gitDiffSpawnArgs.staged, options)
 }
 
+/**
+ * Get staged files ready for commit.
+ */
 function getStagedFilesSync(options) {
   return innerDiffSync(gitDiffSpawnArgs.staged, options)
 }
 
+/**
+ * Get staged package names for the specified ecosystem.
+ */
 async function getStagedPackages(eco, options) {
   return innerGetPackages(eco, await getStagedFiles(), options)
 }
 
+/**
+ * Get staged package names for the specified ecosystem.
+ */
 function getStagedPackagesSync(eco, options) {
   return innerGetPackages(eco, getStagedFilesSync(), options)
 }
 
+/**
+ * Check if pathname is modified but not staged.
+ */
 async function isModified(pathname, options) {
   return diffIncludes(await forceRelative(getModifiedFiles, options), pathname)
 }
 
+/**
+ * Check if pathname is modified but not staged.
+ */
 function isModifiedSync(pathname, options) {
   return diffIncludes(
     forceRelativeSync(getModifiedFilesSync, options),
@@ -209,10 +251,16 @@ function isModifiedSync(pathname, options) {
   )
 }
 
+/**
+ * Check if pathname is staged for commit.
+ */
 async function isStaged(pathname, options) {
   return diffIncludes(await forceRelative(getStagedFiles, options), pathname)
 }
 
+/**
+ * Check if pathname is staged for commit.
+ */
 function isStagedSync(pathname, options) {
   return diffIncludes(forceRelativeSync(getStagedFilesSync, options), pathname)
 }
