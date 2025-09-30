@@ -67,6 +67,7 @@ declare const Constants: Remap<
     readonly rootPackagesPath: string
     readonly rootPath: string
     readonly rootTsConfigPath: string
+    readonly allowTestFailuresByEcosystem: Map<string, Set<string>>
     readonly skipTestsByEcosystem: Map<string, Set<string>>
     readonly templatesPath: string
     readonly testNpmPath: string
