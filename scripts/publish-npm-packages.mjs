@@ -175,10 +175,16 @@ async function publishTrusted(pkg, state) {
         state.skipped.push(pkg.printName)
         return
       }
+    } else {
+      logger.warn(
+        `Skipping ${pkg.printName}: package not yet published (no token available for initial publish)`,
+      )
+      state.skipped.push(pkg.printName)
+      return
     }
-  } catch {
+  } catch (e) {
     logger.warn(
-      `Skipping ${pkg.printName}: could not verify trusted publishing configuration`,
+      `Skipping ${pkg.printName}: could not verify trusted publishing configuration - ${e?.message || e}`,
     )
     state.skipped.push(pkg.printName)
     return
@@ -188,6 +194,7 @@ async function publishTrusted(pkg, state) {
     // Use npm for trusted publishing with OIDC tokens.
     const result = await spawn('npm', ['publish', '--access', 'public'], {
       cwd: pkg.path,
+      env: process.env,
       // Don't set NODE_AUTH_TOKEN for trusted publishing - uses OIDC.
     })
     if (result.stdout) {
