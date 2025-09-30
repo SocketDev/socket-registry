@@ -1,3 +1,5 @@
+/** @fileoverview Code coverage utilities for retrieving and generating test coverage data. */
+
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 
@@ -6,11 +8,18 @@ import { readJson } from '../../registry/dist/lib/fs.js'
 import { isObjectObject } from '../../registry/dist/lib/objects.js'
 import { spawn } from '../../registry/dist/lib/spawn.js'
 
+/**
+ * Count how many coverage counts are greater than zero.
+ */
 function countCovered(counts) {
   return counts.filter(count => count > 0).length
 }
 
-export async function getCodeCoverage(options = {}) {
+/**
+ * Retrieve or generate code coverage data from test runs.
+ * @throws {Error} When coverage generation fails.
+ */
+export async function getCodeCoverage(options) {
   const { generateIfMissing = true } = { __proto__: null, ...options }
 
   const coverageJsonPath = path.join(
