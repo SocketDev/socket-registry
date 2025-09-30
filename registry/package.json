@@ -252,12 +252,12 @@
       "default": "./dist/lib/constants/ESNEXT.js"
     },
     "./lib/constants/EXEC_PATH": {
-      "types": "./dist/lib/constants/EXEC_PATH.d.ts",
-      "default": "./dist/lib/constants/EXEC_PATH.js"
+      "types": "./dist/lib/constants/exec-path.d.ts",
+      "default": "./dist/lib/constants/exec-path.js"
     },
     "./lib/constants/exec-path": {
-      "types": "./dist/lib/constants/EXEC_PATH.d.ts",
-      "default": "./dist/lib/constants/EXEC_PATH.js"
+      "types": "./dist/lib/constants/exec-path.d.ts",
+      "default": "./dist/lib/constants/exec-path.js"
     },
     "./lib/constants/EXT_CJS": {
       "types": "./dist/lib/constants/EXT_CJS.d.ts",
