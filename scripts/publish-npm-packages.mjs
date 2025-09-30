@@ -49,13 +49,12 @@ async function findVersionBumpCommits() {
     }
 
     // Get the registry package.json version at this commit.
-    // eslint-disable-next-line no-await-in-loop
-    const pkgJsonResult = await spawn('git', [
-      'show',
-      `${sha}:registry/package.json`,
-    ])
-
     try {
+      // eslint-disable-next-line no-await-in-loop
+      const pkgJsonResult = await spawn('git', [
+        'show',
+        `${sha}:registry/package.json`,
+      ])
       const pkgJson = JSON.parse(pkgJsonResult.stdout)
       commits.push({
         sha,
@@ -63,7 +62,7 @@ async function findVersionBumpCommits() {
         message,
       })
     } catch {
-      // Skip commits where we can't parse package.json.
+      // Skip commits where registry/package.json doesn't exist or can't be parsed.
     }
   }
 
