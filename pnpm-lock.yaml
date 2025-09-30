@@ -103,8 +103,8 @@ importers:
         specifier: 7.0.0
         version: 7.0.0
       '@socketregistry/packageurl-js':
-        specifier: 1.1.2
-        version: 1.1.2
+        specifier: 1.1.4
+        version: 1.1.4
       '@socketregistry/scripts':
         specifier: file:scripts
         version: scripts@file:scripts
@@ -692,8 +692,8 @@ importers:
         specifier: 1.0.5
         version: 1.0.5
       '@socketregistry/packageurl-js':
-        specifier: 1.0.9
-        version: 1.0.9
+        specifier: 1.1.4
+        version: 1.1.4
       '@socketregistry/yocto-spinner':
         specifier: 1.0.23
         version: 1.0.23
@@ -1861,12 +1861,8 @@ packages:
     resolution: {integrity: sha512-va2VFokL7936edVCGqbwSjuD6eX1ExCnZMxudb2+hr8FTHwuExd1TtGKzyNLsdr9n1Xy9c0aWkyRoQfWGTM0rw==}
     engines: {node: '>=18'}
 
-  '@socketregistry/packageurl-js@1.0.9':
-    resolution: {integrity: sha512-q0DbpmRhvD9MNChqFtdbiEjMHayx5LeK6/8ZRDjHdE7L9wPPtAwVo+at5nMk2r3drV7sXoeUjkB/zGrh7r0DRQ==}
-    engines: {node: '>=18'}
-
-  '@socketregistry/packageurl-js@1.1.2':
-    resolution: {integrity: sha512-gBN8qUTbUdy+F5R7ULDF/ZAyYD1YUdKhVqLP56Ml65MDM0sQ9k3DpOVBJePQaFgC+ZDJVpWkTxIm4iiN0GooUQ==}
+  '@socketregistry/packageurl-js@1.1.4':
+    resolution: {integrity: sha512-x6z5IDUobW/fkPRM9JboWpUGhAOD95Y71xO+dpb2AeP43uqYewJWBQc3KQ8GilFmydq93ew1tzut9UUi6yEdfg==}
     engines: {node: '>=18'}
 
   '@socketregistry/path-parse@1.0.7':
@@ -5342,9 +5338,7 @@ snapshots:
 
   '@socketregistry/object.assign@1.0.7': {}
 
-  '@socketregistry/packageurl-js@1.0.9': {}
-
-  '@socketregistry/packageurl-js@1.1.2': {}
+  '@socketregistry/packageurl-js@1.1.4': {}
 
   '@socketregistry/path-parse@1.0.7': {}
 
