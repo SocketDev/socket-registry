@@ -451,8 +451,14 @@ async function main() {
 
           if (isPublished) {
             matchingCommitIndex = idx
-            logger.log(`✓ Found published commit: ${commit.sha.slice(0, 7)}`)
+            logger.success(
+              `Confirmed: ${commit.sha.slice(0, 7)} (v${commit.version}) is published`,
+            )
             break
+          } else {
+            logger.fail(
+              `Not published: ${commit.sha.slice(0, 7)} (v${commit.version})`,
+            )
           }
         }
 
@@ -487,6 +493,10 @@ async function main() {
   } finally {
     // Always return to the original branch/commit.
     logger.log(`\nReturning to ${originalBranch}...`)
+
+    // Discard any uncommitted changes from the build process.
+    await spawn('git', ['reset', '--hard'])
+
     if (originalBranch === 'HEAD') {
       await checkoutCommit(originalSha)
     } else {
