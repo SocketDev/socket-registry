@@ -4,6 +4,7 @@ import crypto from 'node:crypto'
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 import { parseArgs } from '../registry/dist/lib/parse-args.js'
 
@@ -102,6 +103,156 @@ async function runCommand(command, args, options = {}) {
     commandError.stderr = error.stderr || ''
     throw commandError
   }
+}
+
+async function generatePnpmOverrides() {
+  const overrides = { __proto__: null }
+  const npmPackagesDir = constants.npmPackagesPath
+
+  // Check if npm packages directory exists.
+  if (!existsSync(npmPackagesDir)) {
+    return overrides
+  }
+
+  // Get all Socket override packages.
+  const entries = await fs.readdir(npmPackagesDir, { withFileTypes: true })
+
+  for (const entry of entries) {
+    if (!entry.isDirectory()) {
+      continue
+    }
+
+    const packageName = entry.name
+    const packagePath = path.join(npmPackagesDir, packageName)
+    const pkgJsonPath = path.join(packagePath, 'package.json')
+
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      const pkgJson = JSON.parse(await fs.readFile(pkgJsonPath, 'utf8'))
+
+      if (pkgJson.name) {
+        // Use file:// protocol to point to local Socket override packages.
+        // This allows unpublished versions to be used in testing.
+        // pathToFileURL ensures correct file URL format on all platforms (Windows/Unix).
+        overrides[packageName] = pathToFileURL(packagePath).href
+      }
+    } catch {
+      // Skip packages without valid package.json.
+    }
+  }
+
+  return overrides
+}
+
+async function applyNestedSocketOverrides(packagePath) {
+  const nodeModulesPath = path.join(packagePath, 'node_modules')
+
+  // Check if node_modules exists.
+  if (!existsSync(nodeModulesPath)) {
+    return
+  }
+
+  // Get list of all installed packages in node_modules.
+  const entries = await fs.readdir(nodeModulesPath, { withFileTypes: true })
+
+  for (const entry of entries) {
+    if (!entry.isDirectory()) {
+      continue
+    }
+
+    // Handle scoped packages (starting with @).
+    if (entry.name.startsWith('@')) {
+      const scopePath = path.join(nodeModulesPath, entry.name)
+      // eslint-disable-next-line no-await-in-loop
+      const scopedEntries = await fs.readdir(scopePath, { withFileTypes: true })
+
+      for (const scopedEntry of scopedEntries) {
+        if (!scopedEntry.isDirectory()) {
+          continue
+        }
+
+        const packageName = `${entry.name}/${scopedEntry.name}`
+        const nestedPackagePath = path.join(scopePath, scopedEntry.name)
+        // eslint-disable-next-line no-await-in-loop
+        await applySocketOverrideIfExists(packageName, nestedPackagePath)
+
+        // Recursively apply to nested dependencies.
+        // eslint-disable-next-line no-await-in-loop
+        await applyNestedSocketOverrides(nestedPackagePath)
+      }
+    } else {
+      // Regular (non-scoped) package.
+      const nestedPackagePath = path.join(nodeModulesPath, entry.name)
+      // eslint-disable-next-line no-await-in-loop
+      await applySocketOverrideIfExists(entry.name, nestedPackagePath)
+
+      // Recursively apply to nested dependencies.
+      // eslint-disable-next-line no-await-in-loop
+      await applyNestedSocketOverrides(nestedPackagePath)
+    }
+  }
+}
+
+async function applySocketOverrideIfExists(packageName, packagePath) {
+  // Check if Socket override exists.
+  const overridePath = path.join(
+    constants.npmPackagesPath,
+    packageName.replace(/^@.*?\//, ''),
+  )
+
+  if (!existsSync(overridePath)) {
+    return
+  }
+
+  // Read the Socket override package.json.
+  const overridePkgJsonPath = path.join(overridePath, 'package.json')
+  let overridePkgJson
+  try {
+    overridePkgJson = JSON.parse(await fs.readFile(overridePkgJsonPath, 'utf8'))
+  } catch {
+    return
+  }
+
+  // Read the existing package.json.
+  const packageJsonPath = path.join(packagePath, 'package.json')
+  let existingPkgJson
+  try {
+    existingPkgJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8'))
+  } catch {
+    return
+  }
+
+  // Copy Socket override files (excluding package.json).
+  try {
+    await copy(overridePath, packagePath, {
+      overwrite: true,
+      dereference: true,
+      filter: src =>
+        !src.includes('node_modules') &&
+        !src.endsWith('.DS_Store') &&
+        !src.endsWith('package.json'),
+    })
+  } catch {
+    // Ignore copy errors.
+    return
+  }
+
+  // Merge exports: Socket exports take precedence.
+  const mergedExports = overridePkgJson.exports
+    ? { ...existingPkgJson.exports, ...overridePkgJson.exports }
+    : existingPkgJson.exports
+
+  // Update package.json with Socket override fields.
+  existingPkgJson.exports = mergedExports
+  existingPkgJson.main = overridePkgJson.main
+  existingPkgJson.module = overridePkgJson.module
+  existingPkgJson.types = overridePkgJson.types
+  existingPkgJson.files = overridePkgJson.files
+  existingPkgJson.sideEffects = overridePkgJson.sideEffects
+  existingPkgJson.socket = overridePkgJson.socket
+
+  // Write updated package.json.
+  await fs.writeFile(packageJsonPath, JSON.stringify(existingPkgJson, null, 2))
 }
 
 async function installPackage(packageInfo) {
@@ -208,6 +359,9 @@ async function installPackage(packageInfo) {
           { cwd: installedPath },
         )
 
+        // Apply Socket overrides to all nested dependencies recursively.
+        await applyNestedSocketOverrides(installedPath)
+
         // Check mark for cached with refreshed overrides.
         writeProgress('✓')
         completePackage()
@@ -227,7 +381,10 @@ async function installPackage(packageInfo) {
   await fs.mkdir(packageTempDir, { recursive: true })
 
   try {
-    // Create minimal package.json in temp directory.
+    // Generate pnpm overrides for all Socket registry packages.
+    const pnpmOverrides = await generatePnpmOverrides()
+
+    // Create minimal package.json in temp directory with pnpm overrides.
     await fs.writeFile(
       path.join(packageTempDir, 'package.json'),
       JSON.stringify(
@@ -235,6 +392,9 @@ async function installPackage(packageInfo) {
           name: 'test-temp',
           version: '1.0.0',
           private: true,
+          pnpm: {
+            overrides: pnpmOverrides,
+          },
         },
         null,
         2,
@@ -434,6 +594,9 @@ async function installPackage(packageInfo) {
         cwd: installedPath,
       },
     )
+
+    // Apply Socket overrides to all nested dependencies recursively.
+    await applyNestedSocketOverrides(installedPath)
 
     // Mark installation as complete.
     const installMarkerPath = path.join(
