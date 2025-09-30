@@ -19,6 +19,8 @@ import { readFileUtf8 } from '../registry/dist/lib/fs.js'
 import { pEach } from '../registry/dist/lib/promises.js'
 import { isObjectObject, toSortedObject } from '../registry/dist/lib/objects.js'
 
+import { logSectionHeader } from './utils/logging.mjs'
+
 const {
   LATEST,
   PACKAGE_JSON,
@@ -185,8 +187,9 @@ async function getRemotePackageFileHashes(spec) {
   return toSortedObject(fileHashes)
 }
 
-async function hasPackageChanged(pkg, manifest_) {
+async function hasPackageChanged(pkg, manifest_, options) {
   const { spinner } = constants
+  const { state } = { __proto__: null, ...options }
 
   const manifest =
     manifest_ ?? (await fetchPackageManifest(`${pkg.name}@${pkg.tag}`))
@@ -197,6 +200,7 @@ async function hasPackageChanged(pkg, manifest_) {
     )
   }
 
+  let changed = false
   // Compare actual file contents by extracting packages and comparing SHA hashes.
   try {
     const { 0: remoteHashes, 1: localHashes } = await Promise.all([
@@ -209,23 +213,24 @@ async function hasPackageChanged(pkg, manifest_) {
       const localHash = localHashes[file]
       if (!localHash) {
         // File exists in remote but not locally - this is a real difference.
-        spinner?.warn(
-          `${pkg.name}: File '${file}' exists in published package but not locally`,
-        )
-        return true
+        const message = `${pkg.name}: File '${file}' exists in published package but not locally`
+        spinner?.warn(message)
+        state?.warnings.push(message)
+        changed = true
       }
       if (remoteHash !== localHash) {
-        spinner?.info(`${pkg.name}: File '${file}' content differs`)
-        return true
+        const message = `${pkg.name}: File '${file}' content differs`
+        spinner?.info(message)
+        state?.changes.push(message)
+        changed = true
       }
     }
-
-    return false
   } catch (e) {
     // If comparison fails, be conservative and assume changes.
     spinner?.fail(`${pkg.name}: ${e?.message}`)
-    return true
+    changed = true
   }
+  return changed
 }
 
 function isNpmAutoIncluded(fileName) {
@@ -240,6 +245,8 @@ async function maybeBumpPackage(pkg, options) {
     state = {
       bumped: [],
       changed: [],
+      changes: [],
+      warnings: [],
     },
   } = {
     __proto__: null,
@@ -258,7 +265,7 @@ async function maybeBumpPackage(pkg, options) {
   // Compare the shasum of the @socketregistry the latest package from
   // registry.npmjs.org against the local version. If they are different
   // then bump the local version.
-  const hasChanged = await hasPackageChanged(pkg, manifest)
+  const hasChanged = await hasPackageChanged(pkg, manifest, { state })
   if (hasChanged) {
     let version = semver.inc(manifest.version, 'patch')
     if (pkg.tag !== LATEST && pkg.tag) {
@@ -311,6 +318,8 @@ async function main() {
   const state = {
     bumped: [],
     changed: [],
+    changes: [],
+    warnings: [],
   }
 
   // Chunk packages data to process them in parallel 3 at a time.
@@ -326,6 +335,25 @@ async function main() {
     spinner.stop()
     return
   }
+
+  // Log grouped warnings and changes.
+  spinner.stop()
+
+  if (state.warnings.length) {
+    logSectionHeader('Warnings', { emoji: '⚠️' })
+    for (const warning of state.warnings) {
+      console.log(warning)
+    }
+  }
+
+  if (state.changes.length) {
+    logSectionHeader('Changes', { emoji: 'ℹ' })
+    for (const change of state.changes) {
+      console.log(change)
+    }
+  }
+
+  spinner.start(`Updating manifest and package.json files...`)
 
   const spawnOptions = {
     cwd: rootPath,
