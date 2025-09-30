@@ -154,6 +154,8 @@ async function installPackage(packageInfo) {
           'pnpm',
           [
             'install',
+            // Install both prod and dev dependencies.
+            '--prod=false',
             // Prevent interactive prompts in CI environments.
             '--config.confirmModulesPurge=false',
             // Allow lockfile updates (required for optimization).
@@ -380,6 +382,8 @@ async function installPackage(packageInfo) {
       'pnpm',
       [
         'install',
+        // Install both prod and dev dependencies.
+        '--prod=false',
         // Prevent interactive prompts in CI environments.
         '--config.confirmModulesPurge=false',
         // Allow lockfile updates (required for optimization).
