@@ -22,6 +22,23 @@ import { testRunners } from '../../test/utils/test-runners.mjs'
 
 const { DEFAULT_CONCURRENCY } = constants
 
+// Shared pnpm flags to make it behave like npm with hoisting.
+const PNPM_NPM_LIKE_FLAGS = [
+  '--config.shamefully-hoist=true',
+  '--config.node-linker=hoisted',
+  '--config.auto-install-peers=false',
+  '--config.strict-peer-dependencies=false',
+]
+
+// Additional pnpm install flags for CI-friendly behavior.
+const PNPM_INSTALL_FLAGS = [
+  ...PNPM_NPM_LIKE_FLAGS,
+  // Prevent interactive prompts in CI environments.
+  '--config.confirmModulesPurge=false',
+  // Allow lockfile updates (required for test package installations).
+  '--no-frozen-lockfile',
+]
+
 /**
  * Reads and caches editable package.json files to avoid redundant disk I/O.
  * @type {Map<string, any>}
@@ -237,7 +254,7 @@ async function installPackageForTesting(socketPkgName) {
       ? versionSpec
       : `${origPkgName}@${versionSpec}`
 
-    await runCommand('pnpm', ['add', packageSpec], {
+    await runCommand('pnpm', ['add', packageSpec, ...PNPM_NPM_LIKE_FLAGS], {
       cwd: packageTempDir,
     })
 
@@ -314,7 +331,9 @@ async function installPackageForTesting(socketPkgName) {
     await fs.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 2))
 
     // Install dependencies with pnpm.
-    await runCommand('pnpm', ['install'], { cwd: installedPath })
+    await runCommand('pnpm', ['install', ...PNPM_INSTALL_FLAGS], {
+      cwd: installedPath,
+    })
 
     return {
       installed: true,
@@ -333,6 +352,8 @@ export {
   collectPackageData,
   editablePackageJsonCache,
   installPackageForTesting,
+  PNPM_INSTALL_FLAGS,
+  PNPM_NPM_LIKE_FLAGS,
   processWithSpinner,
   readCachedEditablePackageJson,
   runCommand,
