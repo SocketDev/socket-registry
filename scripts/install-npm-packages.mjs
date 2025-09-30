@@ -12,7 +12,7 @@ import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
 import ENV from '../registry/dist/lib/constants/ENV.js'
 import spinner from '../registry/dist/lib/constants/spinner.js'
 import WIN32 from '../registry/dist/lib/constants/WIN32.js'
-import { pEach } from '../registry/dist/lib/promises.js'
+import { pEach, pRetry } from '../registry/dist/lib/promises.js'
 import { LOG_SYMBOLS, logger } from '../registry/dist/lib/logger.js'
 import { spawn } from '../registry/dist/lib/spawn.js'
 import { pluralize } from '../registry/dist/lib/words.js'
@@ -199,34 +199,25 @@ async function installPackage(packageInfo) {
 
     writeProgress('📦')
 
-    // Install the package with retry logic for transient failures.
+    // Install the package with retry logic to handle transient network failures,
+    // registry timeouts, and rate limiting from npm registry.
     const packageSpec = versionSpec.startsWith('https://')
       ? versionSpec
       : `${origPkgName}@${versionSpec}`
 
-    const maxRetries = 3
-    let lastError
-    for (let attempt = 1; attempt <= maxRetries; attempt += 1) {
-      try {
-        // eslint-disable-next-line no-await-in-loop
+    // Retry up to 3 times with exponential backoff (1s base delay, 2x multiplier).
+    await pRetry(
+      async () => {
         await runCommand('pnpm', ['add', packageSpec], {
           cwd: packageTempDir,
         })
-        break
-      } catch (error) {
-        lastError = error
-        if (attempt < maxRetries) {
-          // Wait before retrying (exponential backoff).
-          // eslint-disable-next-line no-await-in-loop
-          await new Promise(resolve => {
-            setTimeout(resolve, 1_000 * attempt)
-          })
-        }
-      }
-    }
-    if (lastError) {
-      throw lastError
-    }
+      },
+      {
+        backoffFactor: 2,
+        baseDelayMs: 1_000,
+        retries: 3,
+      },
+    )
 
     // Apply Socket overrides selectively.
     const installedPath = path.join(packageTempDir, 'node_modules', origPkgName)
