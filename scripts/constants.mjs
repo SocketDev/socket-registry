@@ -267,6 +267,21 @@ const constants = createConstantsObject(
     TEMPLATE_ES_SHIM_CONSTRUCTOR: 'es-shim-constructor',
     TEMPLATE_ES_SHIM_PROTOTYPE_METHOD: 'es-shim-prototype-method',
     TEMPLATE_ES_SHIM_STATIC_METHOD: 'es-shim-static-method',
+    allowTestFailuresByEcosystem: new Map([
+      [
+        'npm',
+        new Set([
+          // es-get-iterator installation fails intermittently in CI environments.
+          'es-get-iterator',
+          // function.prototype.name installation fails intermittently in CI environments.
+          'function.prototype.name',
+          // is-boolean-object installation fails intermittently in CI environments.
+          'is-boolean-object',
+          // object.assign installation fails intermittently in CI environments.
+          'object.assign',
+        ]),
+      ],
+    ]),
     ecosystems: undefined,
     gitExecPath: undefined,
     gitIgnoreFile: undefined,
