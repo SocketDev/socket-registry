@@ -4,6 +4,8 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { safeRemove } from '../../scripts/utils/fs.mjs'
+
 // Helper predicate moved to outer scope.
 const pFilterPredicate = async (value: number) => {
   await new Promise(r => setTimeout(r, 5))
@@ -21,9 +23,7 @@ describe('additional coverage tests', () => {
     })
 
     afterEach(async () => {
-      try {
-        await fs.rm(tmpDir, { recursive: true, force: true })
-      } catch {}
+      await safeRemove(tmpDir)
     })
 
     it('should handle findUp with multiple patterns', async () => {

@@ -9,6 +9,7 @@ import {
   getGlobMatcher,
   globStreamLicenses,
 } from '../../registry/dist/lib/globs.js'
+import { safeRemove } from '../../scripts/utils/fs.mjs'
 
 describe('glob utilities', () => {
   let tmpDir: string
@@ -18,8 +19,8 @@ describe('glob utilities', () => {
     fs.mkdirSync(tmpDir, { recursive: true })
   })
 
-  afterEach(() => {
-    fs.rmSync(tmpDir, { recursive: true, force: true })
+  afterEach(async () => {
+    await safeRemove(tmpDir)
   })
 
   describe('defaultIgnore', () => {
