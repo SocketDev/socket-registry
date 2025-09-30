@@ -96,11 +96,13 @@ async function runPackageTest(socketPkgName) {
 
     // Run the test (removed individual log message for cleaner output).
 
-    // Add root node_modules/.bin to PATH for test runners.
+    // Add both package temp, nested package, and root node_modules/.bin to PATH for test runners.
+    const packageBinPath = path.join(packageTempDir, 'node_modules', '.bin')
+    const nestedBinPath = path.join(installedPath, 'node_modules', '.bin')
     const rootBinPath = path.join(constants.rootPath, 'node_modules', '.bin')
     const env = {
       ...process.env,
-      PATH: `${rootBinPath}${path.delimiter}${process.env.PATH}`,
+      PATH: `${nestedBinPath}${path.delimiter}${packageBinPath}${path.delimiter}${rootBinPath}${path.delimiter}${process.env.PATH}`,
     }
 
     await runCommand('npm', ['test'], { cwd: installedPath, env })
