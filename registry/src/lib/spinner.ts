@@ -278,3 +278,5 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
     ...options,
   })
 }
+
+export const spinner = Spinner()
