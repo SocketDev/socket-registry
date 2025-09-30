@@ -403,18 +403,22 @@ async function main() {
       const publishedVersion = registryManifest.version
       logger.log(`\nLatest published version: v${publishedVersion}`)
 
-      // Find all commits with versions <= published version and start after the last one.
+      // Find where to start publishing by skipping all commits with version <= published version.
+      // Since bumpCommits is sorted descending, we iterate from highest to lowest version.
       for (let i = 0; i < bumpCommits.length; i += 1) {
         const commitVersion = bumpCommits[i].version
-        if (semver.lte(commitVersion, publishedVersion)) {
-          startIndex = i + 1
-          logger.log(
-            `Skipping ${bumpCommits[i].sha.slice(0, 7)} (v${commitVersion}) - already published or older`,
-          )
+        if (semver.gt(commitVersion, publishedVersion)) {
+          // This version is newer than published, we should publish it.
+          break
         }
+        // Skip this commit (already published or older).
+        logger.log(
+          `Skipping ${bumpCommits[i].sha.slice(0, 7)} (v${commitVersion}) - already published or older`,
+        )
+        startIndex = i + 1
       }
 
-      if (startIndex > 0) {
+      if (startIndex > 0 && startIndex <= bumpCommits.length) {
         const lastSkipped = bumpCommits[startIndex - 1]
         logger.log(
           `Starting from commit after v${lastSkipped.version} (${lastSkipped.sha.slice(0, 7)})`,
