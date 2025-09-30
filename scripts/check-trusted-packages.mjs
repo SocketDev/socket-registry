@@ -1,22 +1,49 @@
 /**
- * @fileoverview Verify that Socket packages have trusted package setup correctly.
+ * @fileoverview Check that Socket packages have trusted package setup correctly.
  * Checks @socketregistry/*, @socketoverride/*, and @socketsecurity/registry packages by default.
- * Use --all flag to check all @socketsecurity/* packages.
+ * Use --all flag to check all Socket packages across all scopes.
  */
 
+import { readFile } from 'node:fs/promises'
 import { spawn } from 'node:child_process'
-import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import path from 'node:path'
 import { parseArgs } from '../registry/dist/lib/parse-args.js'
 
+import COLUMN_LIMIT from '../registry/dist/lib/constants/COLUMN_LIMIT.js'
 import { logger } from '../registry/dist/lib/logger.js'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+const allowedMaintainers = new Set([
+  'socket-bot <eng@socket.dev>',
+  'feross <feross@feross.org>',
+])
+
+const coreSocketPackages = [
+  '@socketsecurity/cli',
+  '@socketsecurity/registry',
+  '@socketsecurity/sdk',
+  'socket-cli',
+]
+
+const otherSocketPackages = [
+  '@socketsecurity/cli-with-sentry',
+  '@socketsecurity/config',
+  '@socketsecurity/eslint-config',
+  '@socketsecurity/mcp',
+  'socket-mcp',
+  'socket-mpc',
+  'sfw',
+]
 
 const { values: args } = parseArgs({
   options: {
     all: {
+      type: 'boolean',
+      default: false,
+    },
+    debug: {
       type: 'boolean',
       default: false,
     },
@@ -30,19 +57,20 @@ const { values: args } = parseArgs({
 
 if (args.help) {
   console.log(`
-Usage: node verify-trusted-packages.mjs [options]
+Usage: node check-trusted-packages.mjs [options]
 
 Options:
-  --all     Check all @socketsecurity/* packages (not just registry)
+  --all     Check all Socket packages (@socketsecurity/*, @socketregistry/*, @socketoverride/*)
+  --debug   Show detailed information for all packages (not just failures)
   --help    Show this help message
 
 By default, checks:
   - All @socketregistry/* packages
   - All @socketoverride/* packages
-  - @socketsecurity/registry
+  - Core Socket packages (cli, registry, sdk, socket-cli, sfw)
 
-With --all flag, additionally checks:
-  - All other @socketsecurity/* packages
+With --all flag, adds:
+  - Additional Socket packages (cli-with-sentry, config, eslint-config, mcp, socket-mcp, socket-mpc)
 `)
   // eslint-disable-next-line n/no-process-exit
   process.exit(0)
@@ -80,65 +108,140 @@ async function runCommand(command, args = []) {
 
 async function getPackageInfo(packageName) {
   try {
-    const output = await runCommand('npm', ['view', packageName, '--json'])
+    // Get the latest version specifically to ensure we get detailed info
+    const output = await runCommand('npm', [
+      'view',
+      packageName,
+      '--json',
+      'name',
+      'version',
+      'maintainers',
+      'repository',
+      'dist',
+    ])
     return JSON.parse(output)
   } catch {
     return null
   }
 }
 
-async function checkTrustedPackage(packageName) {
-  logger.log(`Checking ${packageName}...`)
-
+async function checkTrustedPackage(packageName, state) {
   const info = await getPackageInfo(packageName)
 
   if (!info) {
-    logger.fail(`  ✗ Package not found on npm`)
+    logger.fail('Package not found on npm')
     return false
   }
 
+  const issues = []
+
   // Check if maintainers include expected Socket accounts
   const maintainers = info.maintainers || []
-  const maintainerNames = maintainers.map(m => m.name || m)
+  const maintainerStrings = maintainers.map(m => {
+    if (typeof m === 'string') {
+      return m
+    }
+    return m.name && m.email ? `${m.name} <${m.email}>` : String(m)
+  })
 
-  const expectedMaintainers = ['socket-security', 'socket-dev', 'socket-admin']
-  const hasSocketMaintainer = maintainerNames.some(name =>
-    expectedMaintainers.some(expected => name.includes(expected)),
-  )
+  const hasAllowedMaintainers =
+    maintainerStrings.length > 0 &&
+    maintainerStrings.every(m => allowedMaintainers.has(m))
 
-  if (!hasSocketMaintainer) {
-    logger.warn(
-      `  ⚠ No Socket maintainers found. Current maintainers: ${maintainerNames.join(', ')}`,
-    )
+  if (!hasAllowedMaintainers) {
+    issues.push(`Unexpected maintainers: ${maintainerStrings.join(', ')}`)
   }
 
   // Check repository field
   const repository = info.repository
   if (!repository || !repository.url) {
-    logger.warn(`  ⚠ No repository URL configured`)
+    issues.push('No repository URL configured')
   } else if (!repository.url.includes('SocketDev')) {
-    logger.warn(`  ⚠ Repository not under SocketDev org: ${repository.url}`)
+    issues.push(`Repository not under SocketDev org: ${repository.url}`)
   }
 
-  // Check if published from Socket registry
-  if (info.publishConfig && info.publishConfig.registry) {
-    if (info.publishConfig.registry.includes('socket')) {
-      logger.success(`  ✓ Published via Socket registry`)
-    } else {
-      logger.warn(
-        `  ⚠ Published via non-Socket registry: ${info.publishConfig.registry}`,
-      )
+  // Check for npm provenance (trusted publishing)
+  const dist = info.dist
+  if (dist && dist.attestations) {
+    // Has provenance - good
+  } else if (dist && dist.signatures) {
+    // Has signatures - acceptable
+  } else {
+    issues.push('No provenance or signatures found')
+  }
+
+  // Display results
+  if (issues.length > 0) {
+    // Add newline if we were writing dots
+    if (!args.debug && state.linePosition > 0) {
+      process.stdout.write('\n')
+      state.linePosition = 0
+    }
+    logger.warn(`${packageName}:`)
+    logger.indent()
+    for (const issue of issues) {
+      logger.fail(issue)
+    }
+    if (info.version) {
+      logger.info(`Latest version: ${info.version}`)
+    }
+    logger.dedent()
+    console.log('\n')
+    return false
+  }
+
+  // Success - show minimal output unless debug mode
+  if (args.debug) {
+    logger.success(`Maintainers: ${maintainerStrings.join(', ')}`)
+    if (repository && repository.url) {
+      logger.success(`Repository: ${repository.url}`)
+    }
+    if (dist && dist.attestations) {
+      logger.success('Published with npm provenance (trusted publishing)')
+    } else if (dist && dist.signatures) {
+      logger.success('Published with signatures')
+    }
+    logger.info(`Latest version: ${info.version}`)
+  } else {
+    // Write a dot for minimal output with line wrapping
+    process.stdout.write('.')
+    state.linePosition += 1
+    if (state.linePosition >= COLUMN_LIMIT) {
+      process.stdout.write('\n')
+      state.linePosition = 0
     }
   }
 
-  logger.success(`  ✓ Package exists on npm`)
-
-  // Check latest version
-  if (info.version) {
-    logger.info(`  ℹ Latest version: ${info.version}`)
-  }
-
   return true
+}
+
+async function getPackagesFromManifest() {
+  try {
+    const manifestPath = path.join(__dirname, '..', 'registry', 'manifest.json')
+    const content = await readFile(manifestPath, 'utf8')
+    const manifest = JSON.parse(content)
+    const packages = new Set()
+
+    if (manifest.npm && Array.isArray(manifest.npm)) {
+      for (const entry of manifest.npm) {
+        const [, data] = entry
+        if (data && data.name) {
+          // Only include @socketregistry/* and @socketoverride/* packages
+          if (
+            data.name.startsWith('@socketregistry/') ||
+            data.name.startsWith('@socketoverride/')
+          ) {
+            packages.add(data.name)
+          }
+        }
+      }
+    }
+
+    return Array.from(packages).sort()
+  } catch (error) {
+    logger.error('Failed to read manifest.json:', error.message)
+    return []
+  }
 }
 
 async function getPackagesFromScope(scope) {
@@ -158,69 +261,82 @@ async function getPackagesFromScope(scope) {
 }
 
 async function main() {
-  logger.log('🔍 Verifying Socket package trusted setup...\n')
-
   const packagesToCheck = new Set()
 
-  // Always check @socketregistry/* packages
-  logger.log('Fetching @socketregistry packages...')
+  // Always include packages from manifest (@socketregistry/*, @socketoverride/*).
+  const manifestPackages = await getPackagesFromManifest()
+  manifestPackages.forEach(pkg => packagesToCheck.add(pkg))
+
+  // Supplement with @socketregistry/* and @socketoverride/* packages from npm.
   const socketRegistryPackages = await getPackagesFromScope('socketregistry')
   socketRegistryPackages.forEach(pkg => packagesToCheck.add(pkg))
-  logger.info(`  Found ${socketRegistryPackages.length} packages\n`)
 
-  // Always check @socketoverride/* packages
-  logger.log('Fetching @socketoverride packages...')
   const socketOverridePackages = await getPackagesFromScope('socketoverride')
   socketOverridePackages.forEach(pkg => packagesToCheck.add(pkg))
-  logger.info(`  Found ${socketOverridePackages.length} packages\n`)
 
-  // Always check @socketsecurity/registry specifically
-  packagesToCheck.add('../registry/dist/index.js')
+  // Always check core Socket packages.
+  coreSocketPackages.forEach(pkg => packagesToCheck.add(pkg))
 
-  // If --all flag, check all @socketsecurity/* packages
   if (args.all) {
-    logger.log('Fetching all @socketsecurity packages...')
+    // Add hardcoded other Socket packages.
+    otherSocketPackages.forEach(pkg => packagesToCheck.add(pkg))
+
+    // Supplement with any additional @socketsecurity/* packages from npm.
     const socketSecurityPackages = await getPackagesFromScope('socketsecurity')
     socketSecurityPackages.forEach(pkg => packagesToCheck.add(pkg))
-    logger.info(`  Found ${socketSecurityPackages.length} packages\n`)
   }
 
-  logger.log(`\n📦 Checking ${packagesToCheck.size} packages total:\n`)
+  logger.write(`🔍 Checking ${packagesToCheck.size} Socket packages`)
 
   const results = {
     success: [],
     failed: [],
   }
 
+  // Track position for line wrapping - pass as state object
+  const state = { linePosition: 0 }
+
   // Sort packages for consistent output
   const sortedPackages = Array.from(packagesToCheck).sort()
 
   for (const packageName of sortedPackages) {
     try {
+      if (args.debug) {
+        logger.group(packageName)
+      }
       // eslint-disable-next-line no-await-in-loop
-      const success = await checkTrustedPackage(packageName)
+      const success = await checkTrustedPackage(packageName, state)
+      if (args.debug) {
+        logger.groupEnd()
+        // Empty line between packages in debug mode
+        console.log()
+      }
       if (success) {
         results.success.push(packageName)
       } else {
         results.failed.push(packageName)
       }
-      // Empty line between packages
-      console.log()
     } catch (error) {
+      if (args.debug) {
+        logger.groupEnd()
+      }
       logger.error(`Error checking ${packageName}:`, error.message)
       results.failed.push(packageName)
     }
   }
 
+  // Add newline if we were writing dots and didn't wrap to a new line.
+  if (!args.debug && state.linePosition > 0) {
+    process.stdout.write('\n')
+  }
+
   // Summary
-  logger.log('\n📊 Summary:')
-  logger.success(`  ✓ ${results.success.length} packages verified`)
+  console.log('\n')
+  logger.log('📊 Summary:')
+  logger.success(`${results.success.length} packages verified`)
 
   if (results.failed.length > 0) {
-    logger.fail(`  ✗ ${results.failed.length} packages need attention:`)
-    results.failed.forEach(pkg => {
-      logger.fail(`    - ${pkg}`)
-    })
+    logger.fail(`${results.failed.length} packages need attention`)
     // eslint-disable-next-line n/no-process-exit
     process.exit(1)
   }
