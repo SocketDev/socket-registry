@@ -8,6 +8,7 @@ import WIN32 from '../registry/dist/lib/constants/WIN32.js'
 
 import constants from './constants.mjs'
 import { getAllChangedPackages } from './utils/git.mjs'
+import { PNPM_INSTALL_FLAGS } from './utils/package-utils.mjs'
 import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
 import { resolveOriginalPackageName } from '../registry/dist/lib/packages.js'
 import { pEach } from '../registry/dist/lib/promises.js'
@@ -57,6 +58,13 @@ async function runCommand(command, args, options = {}) {
     commandError.stderr = error.stderr || ''
     throw commandError
   }
+}
+
+function hasModuleError(stdout, stderr) {
+  const output = `${stdout}\n${stderr}`.toLowerCase()
+  return (
+    output.includes('cannot find module') || output.includes('module not found')
+  )
 }
 
 async function runPackageTest(socketPkgName) {
@@ -110,21 +118,80 @@ async function runPackageTest(socketPkgName) {
     logger.success(origPkgName)
     return { package: origPkgName, passed: true }
   } catch (error) {
+    const errorStdout = error.stdout || ''
+    const errorStderr = error.stderr || ''
+
+    // Check if this is a module resolution error.
+    if (hasModuleError(errorStdout, errorStderr)) {
+      logger.warn(`${origPkgName}: Module error detected, attempting reinstall`)
+
+      try {
+        // Attempt to reinstall with pnpm (consistent with install phase).
+        const packageBinPath = path.join(packageTempDir, 'node_modules', '.bin')
+        const nestedBinPath = path.join(installedPath, 'node_modules', '.bin')
+        const rootBinPath = path.join(
+          constants.rootPath,
+          'node_modules',
+          '.bin',
+        )
+        const env = {
+          ...process.env,
+          PATH: `${nestedBinPath}${path.delimiter}${packageBinPath}${path.delimiter}${rootBinPath}${path.delimiter}${process.env.PATH}`,
+        }
+
+        // First reinstall in the root (installs prod dependencies of main package).
+        await runCommand('pnpm', ['install', ...PNPM_INSTALL_FLAGS], {
+          cwd: packageTempDir,
+          env,
+        })
+
+        // Then reinstall devDependencies of the nested package.
+        await runCommand(
+          'pnpm',
+          ['install', '--prod=false', ...PNPM_INSTALL_FLAGS],
+          { cwd: installedPath, env },
+        )
+
+        // Retry the test after reinstall.
+        await runCommand('npm', ['test'], { cwd: installedPath, env })
+
+        logger.success(`${origPkgName} (after reinstall)`)
+        return { package: origPkgName, passed: true, reinstalled: true }
+      } catch (retryError) {
+        logger.fail(`${origPkgName} (reinstall failed)`)
+        if (retryError.stderr) {
+          logger.log(`   Error output:`)
+          logger.log(
+            retryError.stderr
+              .split('\n')
+              .slice(0, 20)
+              .map(line => `     ${line}`)
+              .join('\n'),
+          )
+        }
+        return {
+          package: origPkgName,
+          passed: false,
+          reason: 'Module error after reinstall',
+        }
+      }
+    }
+
     logger.fail(origPkgName)
-    if (error.stderr) {
+    if (errorStderr) {
       logger.log(`   Error output:`)
       logger.log(
-        error.stderr
+        errorStderr
           .split('\n')
           .slice(0, 20)
           .map(line => `     ${line}`)
           .join('\n'),
       )
     }
-    if (error.stdout) {
+    if (errorStdout) {
       logger.log(`   Test output:`)
       logger.log(
-        error.stdout
+        errorStdout
           .split('\n')
           .slice(-20)
           .map(line => `     ${line}`)
