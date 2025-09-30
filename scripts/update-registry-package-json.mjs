@@ -81,8 +81,8 @@ async function main() {
     return o
   }, {})
 
-  // Add additional mappings for constants with uppercase names.
-  // Map both lowercase-hyphenated and UPPERCASE_UNDERSCORE paths to the same files.
+  // Add kebab-case variants for all SCREAMING_SNAKE_CASE constant paths.
+  // Map both kebab-case and SCREAMING_SNAKE_CASE paths to the same files.
   for (const [exportPath, exportValue] of Object.entries(subpathExports)) {
     if (
       exportPath.startsWith('./lib/constants/') &&
@@ -90,27 +90,27 @@ async function main() {
     ) {
       const pathAfterConstants = exportPath.slice('./lib/constants/'.length)
 
-      // Check if this looks like a lowercase-hyphenated name.
-      if (
-        pathAfterConstants.includes('-') &&
-        pathAfterConstants === pathAfterConstants.toLowerCase()
-      ) {
-        // Convert to UPPERCASE_UNDERSCORE.
-        const uppercasePath = `./lib/constants/${pathAfterConstants.toUpperCase().replace(/-/g, '_')}`
-        if (!subpathExports[uppercasePath]) {
-          subpathExports[uppercasePath] = exportValue
-        }
-      }
-
-      // Check if this looks like an UPPERCASE_UNDERSCORE name.
+      // Check if this is a SCREAMING_SNAKE_CASE name.
       if (
         pathAfterConstants.includes('_') &&
         /[A-Z]/.test(pathAfterConstants)
       ) {
-        // Convert to lowercase-hyphenated.
-        const lowercasePath = `./lib/constants/${pathAfterConstants.toLowerCase().replace(/_/g, '-')}`
-        if (!subpathExports[lowercasePath]) {
-          subpathExports[lowercasePath] = exportValue
+        // Create kebab-case variant.
+        const kebabCasePath = `./lib/constants/${pathAfterConstants.toLowerCase().replace(/_/g, '-')}`
+        if (!subpathExports[kebabCasePath]) {
+          subpathExports[kebabCasePath] = exportValue
+        }
+      }
+
+      // Check if this is a kebab-case name.
+      if (
+        pathAfterConstants.includes('-') &&
+        pathAfterConstants === pathAfterConstants.toLowerCase()
+      ) {
+        // Create SCREAMING_SNAKE_CASE variant.
+        const screamingSnakeCasePath = `./lib/constants/${pathAfterConstants.toUpperCase().replace(/-/g, '_')}`
+        if (!subpathExports[screamingSnakeCasePath]) {
+          subpathExports[screamingSnakeCasePath] = exportValue
         }
       }
     }
