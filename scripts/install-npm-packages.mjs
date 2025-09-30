@@ -1,3 +1,5 @@
+/** @fileoverview Script for installing npm packages with Socket overrides for testing. */
+
 import crypto from 'node:crypto'
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
