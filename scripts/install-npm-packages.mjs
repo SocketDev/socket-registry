@@ -523,13 +523,28 @@ async function main() {
     logger.fail(`Failed: ${failedCount}`)
   }
 
+  // Get the set of packages that are allowed to fail.
+  const allowFailuresSet = constants.allowTestFailuresByEcosystem.get('npm')
+
   // Categorize failures.
   const noTestScript = results.filter(
     r => !r.installed && r.reason === 'No test script',
   )
+  const allowedFailures = results.filter(
+    r =>
+      !r.installed &&
+      r.reason !== 'Skipped' &&
+      r.reason !== 'No test script' &&
+      (allowFailuresSet?.has(r.socketPackage) ||
+        allowFailuresSet?.has(r.package)),
+  )
   const criticalFailures = results.filter(
     r =>
-      !r.installed && r.reason !== 'Skipped' && r.reason !== 'No test script',
+      !r.installed &&
+      r.reason !== 'Skipped' &&
+      r.reason !== 'No test script' &&
+      !allowFailuresSet?.has(r.socketPackage) &&
+      !allowFailuresSet?.has(r.package),
   )
 
   // Write results to file for the test runner.
@@ -537,7 +552,11 @@ async function main() {
   await fs.writeFile(resultsFile, JSON.stringify(results, null, 2))
 
   // Summary output only if issues.
-  if (noTestScript.length > 0 || criticalFailures.length > 0) {
+  if (
+    noTestScript.length > 0 ||
+    allowedFailures.length > 0 ||
+    criticalFailures.length > 0
+  ) {
     logger.log('')
     if (noTestScript.length > 0) {
       logger.warn(`No test script: ${noTestScript.length} packages`)
@@ -545,6 +564,16 @@ async function main() {
         logger.group()
         for (const pkg of noTestScript) {
           logger.log(`- ${pkg.package}`)
+        }
+        logger.groupEnd()
+      }
+    }
+    if (allowedFailures.length > 0) {
+      logger.warn(`Allowed failures: ${allowedFailures.length} packages`)
+      if (allowedFailures.length <= 5) {
+        logger.group()
+        for (const pkg of allowedFailures) {
+          logger.log(`- ${pkg.package}: ${pkg.reason}`)
         }
         logger.groupEnd()
       }
@@ -559,7 +588,7 @@ async function main() {
     }
   }
 
-  // Only fail on critical errors, not on packages without test scripts.
+  // Only fail on critical errors, not on packages without test scripts or allowed failures.
   process.exitCode = criticalFailures.length ? 1 : 0
 }
 
