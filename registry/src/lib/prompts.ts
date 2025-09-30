@@ -3,8 +3,11 @@
  * Provides inquirer.js integration with spinner support and context handling.
  */
 
-import abortSignal from './constants/abort-signal'
-import spinner from './constants/spinner'
+import abortSignalDefault from './constants/abort-signal'
+import spinnerDefault from './constants/spinner'
+
+const abortSignal = abortSignalDefault
+const spinner = spinnerDefault
 
 // Type definitions
 
@@ -42,15 +45,19 @@ declare class SeparatorType {
 
 export type Separator = SeparatorType
 
+/**
+ * Wrap an inquirer prompt with spinner handling and signal injection.
+ */
 /*@__NO_SIDE_EFFECTS__*/
-function wrapPrompt(
+export function wrapPrompt(
   inquirerPrompt: (...args: any[]) => Promise<any>,
 ): (...args: any[]) => Promise<any> {
   return async (...args) => {
     const origContext = args.length > 1 ? args[1] : undefined
-    const { spinner: contextSpinner = spinner, ...contextWithoutSpinner } =
+    const { spinner: contextSpinner, ...contextWithoutSpinner } =
       origContext ?? {}
-    const spinnerInstance = contextSpinner
+    const spinnerInstance =
+      contextSpinner !== undefined ? contextSpinner : spinner
     const signal = abortSignal
     if (origContext) {
       args[1] = {
@@ -77,22 +84,20 @@ function wrapPrompt(
   }
 }
 
-// c8 ignore start - Third-party inquirer library integrations not testable in isolation.
+// c8 ignore start - Third-party inquirer library requires and exports not testable in isolation.
 const confirmRaw = /*@__PURE__*/ require('../external/@inquirer/confirm')
-export const confirm: typeof confirmRaw = wrapPrompt(confirmRaw)
 const inputRaw = /*@__PURE__*/ require('../external/@inquirer/input')
-export const input: typeof inputRaw = wrapPrompt(inputRaw)
 const passwordRaw = /*@__PURE__*/ require('../external/@inquirer/password')
-export const password: typeof passwordRaw = wrapPrompt(passwordRaw)
 const searchExport = /*@__PURE__*/ require('../external/@inquirer/search')
 const selectExport = /*@__PURE__*/ require('../external/@inquirer/select')
 const searchRaw = searchExport.default
 const selectRaw = selectExport.default
-// Re-export the actual Separator from @inquirer/select but typed with our local definition
 const ActualSeparator = selectExport.Separator
+// c8 ignore stop
 
+export const confirm: typeof confirmRaw = wrapPrompt(confirmRaw)
+export const input: typeof inputRaw = wrapPrompt(inputRaw)
+export const password: typeof passwordRaw = wrapPrompt(passwordRaw)
 export const search: typeof searchRaw = wrapPrompt(searchRaw)
 export const select: typeof selectRaw = wrapPrompt(selectRaw)
-// Export Separator is already defined as a class above, just re-export the actual implementation
 export { ActualSeparator as Separator }
-// c8 ignore stop
