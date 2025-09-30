@@ -155,7 +155,7 @@ function isEnabled(namespaces: any) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
-function debugDirComplex(namespacesOrOpts: any, obj: any, inspectOpts?: any) {
+function debugDirNs(namespacesOrOpts: any, obj: any, inspectOpts?: any) {
   const options = extractOptions(namespacesOrOpts)
   const { namespaces } = options
   if (!isEnabled(namespaces)) {
@@ -183,7 +183,7 @@ let pointingTriangle: string | undefined
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
-function debugFnComplex(namespacesOrOpts: NamespacesOrOptions, ...args: any[]) {
+function debugFnNs(namespacesOrOpts: NamespacesOrOptions, ...args: any[]) {
   const options = extractOptions(namespacesOrOpts)
   const { namespaces } = options
   if (!isEnabled(namespaces)) {
@@ -257,7 +257,7 @@ function debugFnComplex(namespacesOrOpts: NamespacesOrOptions, ...args: any[]) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
-function debugLogComplex(namespacesOrOpts: any, ...args: any[]) {
+function debugLogNs(namespacesOrOpts: any, ...args: any[]) {
   const options = extractOptions(namespacesOrOpts)
   const { namespaces } = options
   if (!isEnabled(namespaces)) {
@@ -279,7 +279,7 @@ function debugLogComplex(namespacesOrOpts: any, ...args: any[]) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 /* c8 ignore start - Debug utilities only used in development. */
-function isDebugComplex(namespaces: any): boolean {
+function isDebugNs(namespaces: any): boolean {
   return ENV.SOCKET_CLI_DEBUG && isEnabled(namespaces)
 }
 /* c8 ignore stop */
@@ -434,10 +434,10 @@ export function debugtime(section: any) {
 
 // Export aliases for compatibility.
 export { debugDirSimple as debugDir }
-export { debugDirComplex }
+export { debugDirNs }
 export { debugFnSimple as debugFn }
-export { debugFnComplex }
+export { debugFnNs }
 export { debugLogSimple as debugLog }
-export { debugLogComplex }
+export { debugLogNs }
 export { isDebugSimple as isDebug }
-export { isDebugComplex }
+export { isDebugNs }
