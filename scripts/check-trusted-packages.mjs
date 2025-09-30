@@ -134,6 +134,7 @@ async function checkTrustedPackage(packageName, state) {
   }
 
   const issues = []
+  const successes = []
 
   // Check if maintainers include expected Socket accounts
   const maintainers = info.maintainers || []
@@ -150,6 +151,8 @@ async function checkTrustedPackage(packageName, state) {
 
   if (!hasAllowedMaintainers) {
     issues.push(`Unexpected maintainers: ${maintainerStrings.join(', ')}`)
+  } else {
+    successes.push(`Maintainers: ${maintainerStrings.join(', ')}`)
   }
 
   // Check repository field
@@ -158,16 +161,16 @@ async function checkTrustedPackage(packageName, state) {
     issues.push('No repository URL configured')
   } else if (!repository.url.includes('SocketDev')) {
     issues.push(`Repository not under SocketDev org: ${repository.url}`)
+  } else {
+    successes.push(`Repository: ${repository.url}`)
   }
 
   // Check for npm provenance (trusted publishing)
   const dist = info.dist
   if (dist && dist.attestations) {
-    // Has provenance - good
-  } else if (dist && dist.signatures) {
-    // Has signatures - acceptable
+    successes.push('Trusted-published with npm provenance')
   } else {
-    issues.push('No provenance or signatures found')
+    issues.push('Not trusted-published (missing provenance)')
   }
 
   // Display results
@@ -179,6 +182,9 @@ async function checkTrustedPackage(packageName, state) {
     }
     logger.warn(`${packageName}:`)
     logger.indent()
+    for (const success of successes) {
+      logger.success(success)
+    }
     for (const issue of issues) {
       logger.fail(issue)
     }
@@ -192,14 +198,8 @@ async function checkTrustedPackage(packageName, state) {
 
   // Success - show minimal output unless debug mode
   if (args.debug) {
-    logger.success(`Maintainers: ${maintainerStrings.join(', ')}`)
-    if (repository && repository.url) {
-      logger.success(`Repository: ${repository.url}`)
-    }
-    if (dist && dist.attestations) {
-      logger.success('Published with npm provenance (trusted publishing)')
-    } else if (dist && dist.signatures) {
-      logger.success('Published with signatures')
+    for (const success of successes) {
+      logger.success(success)
     }
     logger.info(`Latest version: ${info.version}`)
   } else {
