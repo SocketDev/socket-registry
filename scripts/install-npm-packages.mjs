@@ -164,7 +164,21 @@ async function installPackage(packageInfo) {
         )
 
         // Install any missing dependencies.
+        // First install in the root (installs prod dependencies of main package).
         writeProgress('📚')
+        await runCommand(
+          'pnpm',
+          [
+            'install',
+            // Prevent interactive prompts in CI environments.
+            '--config.confirmModulesPurge=false',
+            // Allow lockfile updates (required for optimization).
+            '--no-frozen-lockfile',
+          ],
+          { cwd: packageTempDir },
+        )
+
+        // Then install devDependencies of the nested package by running install inside it.
         await runCommand(
           'pnpm',
           [
@@ -173,10 +187,10 @@ async function installPackage(packageInfo) {
             '--prod=false',
             // Prevent interactive prompts in CI environments.
             '--config.confirmModulesPurge=false',
-            // Allow lockfile updates (required for optimization).
+            // Allow lockfile updates.
             '--no-frozen-lockfile',
           ],
-          { cwd: packageTempDir },
+          { cwd: installedPath },
         )
 
         // Check mark for cached with refreshed overrides.
@@ -383,7 +397,21 @@ async function installPackage(packageInfo) {
     }
 
     // Install dependencies with pnpm.
+    // First install in the root (installs prod dependencies of main package).
     writeProgress('📚')
+    await runCommand(
+      'pnpm',
+      [
+        'install',
+        // Prevent interactive prompts in CI environments.
+        '--config.confirmModulesPurge=false',
+        // Allow lockfile updates (required for optimization).
+        '--no-frozen-lockfile',
+      ],
+      { cwd: packageTempDir },
+    )
+
+    // Then install devDependencies of the nested package by running install inside it.
     await runCommand(
       'pnpm',
       [
@@ -392,10 +420,10 @@ async function installPackage(packageInfo) {
         '--prod=false',
         // Prevent interactive prompts in CI environments.
         '--config.confirmModulesPurge=false',
-        // Allow lockfile updates (required for optimization).
+        // Allow lockfile updates.
         '--no-frozen-lockfile',
       ],
-      { cwd: packageTempDir },
+      { cwd: installedPath },
     )
 
     // Mark installation as complete.
