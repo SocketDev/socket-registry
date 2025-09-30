@@ -25,8 +25,10 @@
       }
     },
     "./index.cjs": {
-      "types": "./index.d.cts",
-      "default": "./index.cjs"
+      "require": {
+        "types": "./index.d.cts",
+        "default": "./index.cjs"
+      }
     },
     "./package.json": "./package.json"
   },
