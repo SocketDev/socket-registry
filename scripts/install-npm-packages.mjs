@@ -243,6 +243,7 @@ async function applySocketOverrideIfExists(packageName, packagePath) {
     : existingPkgJson.exports
 
   // Update package.json with Socket override fields.
+  // Preserve scripts to avoid breaking tests.
   existingPkgJson.exports = mergedExports
   existingPkgJson.main = overridePkgJson.main
   existingPkgJson.module = overridePkgJson.module
@@ -250,6 +251,7 @@ async function applySocketOverrideIfExists(packageName, packagePath) {
   existingPkgJson.files = overridePkgJson.files
   existingPkgJson.sideEffects = overridePkgJson.sideEffects
   existingPkgJson.socket = overridePkgJson.socket
+  // Note: We intentionally do NOT overwrite scripts here to preserve test scripts.
 
   // Write updated package.json.
   await fs.writeFile(packageJsonPath, JSON.stringify(existingPkgJson, null, 2))
