@@ -464,6 +464,16 @@ export class Logger {
   warn(...args: any[]): this {
     return this.#symbolApply('warn', args)
   }
+
+  /**
+   * Write to stdout without a newline or indentation.
+   */
+  write(text: string): this {
+    const con = privateConsole.get(this)
+    con._stdout.write(text)
+    this[lastWasBlankSymbol](false)
+    return this
+  }
 }
 
 Object.defineProperties(
