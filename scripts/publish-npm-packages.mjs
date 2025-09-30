@@ -68,7 +68,7 @@ async function findVersionBumpCommits() {
   }
 
   // Reverse to get chronological order (oldest first).
-  return commits.toReversed()
+  return commits.slice().toReversed()
 }
 
 async function getCurrentBranch() {
@@ -344,7 +344,7 @@ async function publishAtCommit(sha) {
     `\nPublishing ${packagesToPublish.length} ${pluralize('package', packagesToPublish.length)}...\n`,
   )
 
-  await publishPackages(packagesToPublish, { fails })
+  await publishPackages(packagesToPublish, { fails, skipped })
 
   if (fails.length) {
     const msg = `Unable to publish ${fails.length} ${pluralize('package', fails.length)}:`
@@ -384,7 +384,7 @@ async function main() {
     }
 
     // Sort by version descending (highest to lowest).
-    bumpCommits.sort((a, b) => (semver.gt(a.version, b.version) ? -1 : 1))
+    bumpCommits.sort((a, b) => semver.compare(b.version, a.version))
 
     const displayCommits = cliArgs.debug
       ? bumpCommits

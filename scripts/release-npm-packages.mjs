@@ -56,10 +56,10 @@ async function getLocalPackageFileHashes(packagePath) {
     dependencies: toSortedObject(pkgJson.dependencies ?? {}),
     exports: isObjectObject(exportsValue)
       ? toSortedObject(exportsValue)
-      : (exportsValue ?? null),
-    files: pkgJson.files ?? null,
-    sideEffects: pkgJson.sideEffects ?? null,
-    engines: pkgJson.engines ?? null,
+      : (exportsValue ?? undefined),
+    files: pkgJson.files ?? undefined,
+    sideEffects: pkgJson.sideEffects ?? undefined,
+    engines: pkgJson.engines ?? undefined,
   }
   const pkgJsonHash = crypto
     .createHash('sha256')
@@ -158,10 +158,10 @@ async function getRemotePackageFileHashes(spec) {
                 dependencies: toSortedObject(pkgJson.dependencies ?? {}),
                 exports: isObjectObject(exportsValue)
                   ? toSortedObject(exportsValue)
-                  : (exportsValue ?? null),
-                files: pkgJson.files ?? null,
-                sideEffects: pkgJson.sideEffects ?? null,
-                engines: pkgJson.engines ?? null,
+                  : (exportsValue ?? undefined),
+                files: pkgJson.files ?? undefined,
+                sideEffects: pkgJson.sideEffects ?? undefined,
+                engines: pkgJson.engines ?? undefined,
               }
               const hash = crypto
                 .createHash('sha256')
