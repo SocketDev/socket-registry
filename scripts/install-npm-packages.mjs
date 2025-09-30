@@ -177,8 +177,12 @@ async function installPackage(packageInfo) {
         )
 
         // Selectively update the fields from Socket override.
+        // Merge exports: use Socket's exports but preserve any original subpaths.
         existingPkgJson.exports = overridePkgJson.exports
+          ? { ...existingPkgJson.exports, ...overridePkgJson.exports }
+          : existingPkgJson.exports
         existingPkgJson.main = overridePkgJson.main
+        existingPkgJson.module = overridePkgJson.module
         existingPkgJson.types = overridePkgJson.types
         existingPkgJson.files = overridePkgJson.files
         existingPkgJson.sideEffects = overridePkgJson.sideEffects
@@ -311,12 +315,20 @@ async function installPackage(packageInfo) {
     )
 
     // Selectively merge Socket override fields into original package.json.
-    // We want: exports, main, types, files, sideEffects, socket
+    // We want: exports, main, module, types, files, sideEffects, socket
+
+    // Merge exports: use Socket's exports but preserve any original subpaths
+    // that don't conflict (like special aliases or paths we don't override).
+    const mergedExports = overridePkgJson.exports
+      ? { ...originalPkgJson.exports, ...overridePkgJson.exports }
+      : originalPkgJson.exports
+
     const mergedPkgJson = {
       ...originalPkgJson,
       // Override these specific fields from Socket package.
-      exports: overridePkgJson.exports,
+      exports: mergedExports,
       main: overridePkgJson.main,
+      module: overridePkgJson.module,
       types: overridePkgJson.types,
       files: overridePkgJson.files,
       sideEffects: overridePkgJson.sideEffects,

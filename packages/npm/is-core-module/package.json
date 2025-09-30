@@ -24,12 +24,12 @@
         "default": "./index.js"
       }
     },
-    "./core.json": "./core.json",
-    "./package.json": "./package.json",
     "./index.cjs": {
       "types": "./index.d.cts",
       "default": "./index.cjs"
-    }
+    },
+    "./core.json": "./core.json",
+    "./package.json": "./package.json"
   },
   "sideEffects": false,
   "engines": {
