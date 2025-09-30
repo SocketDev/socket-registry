@@ -11,6 +11,8 @@ import WIN32 from '../registry/dist/lib/constants/WIN32.js'
 import { logger } from '../registry/dist/lib/logger.js'
 import { spawn } from '../registry/dist/lib/spawn.js'
 
+import { logSectionHeader } from './utils/logging.mjs'
+
 const { values: cliArgs } = parseArgs({
   options: {
     package: {
@@ -118,8 +120,7 @@ async function main() {
   try {
     // Phase 1: Download packages (unless test-only mode).
     if (!cliArgs.testOnly) {
-      logger.log('\n📥 Phase 1: Download packages')
-      logger.log('─'.repeat(50))
+      logSectionHeader('Phase 1: Download packages', { emoji: '📥' })
 
       // Add clear-cache flag if specified.
       if (cliArgs.clearCache) {
@@ -131,16 +132,14 @@ async function main() {
 
     // Phase 2: Install packages (unless test-only mode).
     if (!cliArgs.testOnly) {
-      logger.log('\n📦 Phase 2: Install packages')
-      logger.log('─'.repeat(50))
+      logSectionHeader('Phase 2: Install packages', { emoji: '📦' })
 
       await runCommand('node', [installScript, ...installArgs])
     }
 
     // Phase 3: Run tests (unless download-only mode).
     if (!cliArgs.downloadOnly) {
-      logger.log('\n🧪 Phase 3: Run tests')
-      logger.log('─'.repeat(50))
+      logSectionHeader('Phase 3: Run tests', { emoji: '🧪' })
 
       const finalTestArgs = [...testArgs]
 
