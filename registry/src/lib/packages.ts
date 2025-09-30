@@ -1291,6 +1291,9 @@ export function getExportFilePaths(entryExports: any): string[] {
   return [...new Set(paths)].filter(p => p.startsWith('./'))
 }
 
+/**
+ * Generate GitHub API URL for a tag reference.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function gitHubTagRefUrl(
   user: string,
@@ -1300,6 +1303,9 @@ export function gitHubTagRefUrl(
   return `https://api.github.com/repos/${user}/${project}/git/ref/tags/${tag}`
 }
 
+/**
+ * Generate GitHub tarball download URL for a commit SHA.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function gitHubTgzUrl(
   user: string,
@@ -1309,17 +1315,24 @@ export function gitHubTgzUrl(
   return `https://github.com/${user}/${project}/archive/${sha}.tar.gz`
 }
 
+/**
+ * Check if a package name is blessed (allowed to bypass security checks).
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function isBlessedPackageName(name: any): boolean {
   return (
     typeof name === 'string' &&
-    (name === 'socket' ||
+    (name === 'sfw' ||
+      name === 'socket' ||
       name.startsWith('@socketoverride/') ||
       name.startsWith('@socketregistry/') ||
       name.startsWith('@socketsecurity/'))
   )
 }
 
+/**
+ * Check if package exports use conditional patterns (e.g., import/require).
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function isConditionalExports(entryExports: any): boolean {
   if (!isObjectObject(entryExports)) {
@@ -1343,6 +1356,9 @@ export function isConditionalExports(entryExports: any): boolean {
   return true
 }
 
+/**
+ * Check if a package specifier is a GitHub tarball URL.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function isGitHubTgzSpec(spec: any, where?: string): boolean {
   let parsedSpec
@@ -1357,6 +1373,9 @@ export function isGitHubTgzSpec(spec: any, where?: string): boolean {
   )
 }
 
+/**
+ * Check if a package specifier is a GitHub URL with committish.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function isGitHubUrlSpec(spec: any, where?: string): boolean {
   let parsedSpec
@@ -1373,6 +1392,9 @@ export function isGitHubUrlSpec(spec: any, where?: string): boolean {
   )
 }
 
+/**
+ * Check if a fetcher type is for the npm registry.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function isRegistryFetcherType(type: string): boolean {
   // RegistryFetcher spec.type check based on:
@@ -1382,6 +1404,9 @@ export function isRegistryFetcherType(type: string): boolean {
   )
 }
 
+/**
+ * Check if package exports use subpath patterns (keys starting with '.').
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function isSubpathExports(entryExports: any): boolean {
   if (isObjectObject(entryExports)) {
@@ -1399,12 +1424,18 @@ export function isSubpathExports(entryExports: any): boolean {
   return false
 }
 
+/**
+ * Validate a package name against npm naming rules.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function isValidPackageName(name: string): boolean {
   const validateNpmPackageName = getValidateNpmPackageName()
   return validateNpmPackageName(name).validForOldPackages
 }
 
+/**
+ * Convert a package.json object to an editable instance.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function pkgJsonToEditable(
   pkgJson: PackageJson,
@@ -1420,6 +1451,9 @@ export function pkgJsonToEditable(
   )
 }
 
+/**
+ * Normalize package.json data using npm's normalization rules.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function normalizePackageJson(
   pkgJson: PackageJson,
@@ -1537,6 +1571,9 @@ export async function readPackageJson(
   return undefined
 }
 
+/**
+ * Read and parse package.json from a file path synchronously.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function readPackageJsonSync(
   filepath: string,
@@ -1567,6 +1604,9 @@ export function readPackageJsonSync(
   return undefined
 }
 
+/**
+ * Extract escaped scope from a Socket registry package name.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function resolveEscapedScope(
   sockRegPkgName: string,
@@ -1575,6 +1615,9 @@ export function resolveEscapedScope(
   return match || undefined
 }
 
+/**
+ * Resolve GitHub tarball URL for a package specifier.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export async function resolveGitHubTgzUrl(
   pkgNameOrId: string,
@@ -1632,6 +1675,9 @@ export async function resolveGitHubTgzUrl(
   return ''
 }
 
+/**
+ * Convert Socket registry package name back to original npm package name.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function resolveOriginalPackageName(sockRegPkgName: string): string {
   const name = sockRegPkgName.startsWith(`${SOCKET_REGISTRY_SCOPE}/`)
@@ -1643,6 +1689,9 @@ export function resolveOriginalPackageName(sockRegPkgName: string): string {
     : name
 }
 
+/**
+ * Resolve directory path from a package.json file path.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function resolvePackageJsonDirname(filepath: string): string {
   if (filepath.endsWith('package.json')) {
@@ -1652,6 +1701,9 @@ export function resolvePackageJsonDirname(filepath: string): string {
   return filepath
 }
 
+/**
+ * Normalize package.json exports field to canonical format.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function resolvePackageJsonEntryExports(entryExports: any): any {
   // If conditional exports main sugar
@@ -1665,6 +1717,9 @@ export function resolvePackageJsonEntryExports(entryExports: any): any {
   return isObject(entryExports) ? entryExports : undefined
 }
 
+/**
+ * Resolve full path to package.json from a directory or file path.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function resolvePackageJsonPath(filepath: string): string {
   if (filepath.endsWith('package.json')) {
@@ -1674,6 +1729,9 @@ export function resolvePackageJsonPath(filepath: string): string {
   return path.join(filepath, 'package.json')
 }
 
+/**
+ * Parse package license field into structured license nodes.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function resolvePackageLicenses(
   licenseFieldValue: string,
@@ -1725,6 +1783,9 @@ export function resolvePackageLicenses(
   return licenseNodes
 }
 
+/**
+ * Resolve full package name from a PURL object with custom delimiter.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function resolvePackageName(
   purlObj: any,
@@ -1734,6 +1795,9 @@ export function resolvePackageName(
   return `${namespace ? `${namespace}${delimiter}` : ''}${name}`
 }
 
+/**
+ * Convert npm package name to Socket registry format with delimiter.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function resolveRegistryPackageName(pkgName: string): string {
   const purlObj = getPackageURL().fromString(`pkg:npm/${pkgName}`)
@@ -1742,6 +1806,9 @@ export function resolveRegistryPackageName(pkgName: string): string {
     : pkgName
 }
 
+/**
+ * Convert package.json to editable instance with file persistence.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export async function toEditablePackageJson(
   pkgJson: PackageJson,
@@ -1773,6 +1840,9 @@ export async function toEditablePackageJson(
   )
 }
 
+/**
+ * Convert package.json to editable instance with file persistence synchronously.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function toEditablePackageJsonSync(
   pkgJson: PackageJson,
@@ -1802,6 +1872,9 @@ export function toEditablePackageJsonSync(
   )
 }
 
+/**
+ * Convert escaped scope name back to npm scope format.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function unescapeScope(escapedScope: string): string {
   return `@${escapedScope.slice(0, -REGISTRY_SCOPE_DELIMITER.length)}`
@@ -1818,6 +1891,9 @@ export interface LicenseVisitor {
   ) => boolean | void
 }
 
+/**
+ * Traverse SPDX license AST and invoke visitor callbacks for each node.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function visitLicenses(ast: SpdxAstNode, visitor: LicenseVisitor): void {
   const queue: Array<[InternalAstNode, InternalAstNode | undefined]> = [
