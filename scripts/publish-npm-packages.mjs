@@ -341,7 +341,12 @@ async function main() {
       return
     }
 
-    const displayCommits = cliArgs.debug ? bumpCommits : bumpCommits.slice(-10)
+    // Sort by version descending (highest to lowest).
+    bumpCommits.sort((a, b) => (semver.gt(a.version, b.version) ? -1 : 1))
+
+    const displayCommits = cliArgs.debug
+      ? bumpCommits
+      : bumpCommits.slice(0, 10)
 
     logger.log(
       `Found ${bumpCommits.length} version ${pluralize('bump', bumpCommits.length)}${cliArgs.debug ? ':' : ' (showing last 10):'}`,
