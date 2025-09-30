@@ -1,11 +1,14 @@
 import path from 'node:path'
 
+import semver from 'semver'
+
 import { parseArgs } from '../registry/dist/lib/parse-args.js'
 
 import { joinAnd } from '../registry/dist/lib/arrays.js'
 import { logger } from '../registry/dist/lib/logger.js'
 import { isObjectObject } from '../registry/dist/lib/objects.js'
 import {
+  fetchPackageManifest,
   getReleaseTag,
   readPackageJsonSync,
 } from '../registry/dist/lib/packages.js'
@@ -137,7 +140,8 @@ async function main() {
   }
 
   const fails = []
-  const packages = [
+  const skipped = []
+  const allPackages = [
     packageData({
       name: '../registry/dist/index.js',
       path: registryPkgPath,
@@ -151,18 +155,67 @@ async function main() {
         path: pkgPath,
         printName: sockRegPkgName,
         tag: getReleaseTag(pkgJson.version),
-        isTrustedPublisher: false,
+        isTrustedPublisher: true,
       })
     }),
   ]
 
-  await publishPackages(packages, { fails })
+  // Filter packages to only publish those with bumped versions.
+  const packagesToPublish = []
+
+  for (const pkg of allPackages) {
+    const pkgJson = readPackageJsonSync(pkg.path)
+    const localVersion = pkgJson.version
+
+    // Fetch the latest version from npm registry.
+    // eslint-disable-next-line no-await-in-loop
+    const manifest = await fetchPackageManifest(`${pkgJson.name}@${pkg.tag}`)
+
+    if (!manifest) {
+      // Package doesn't exist on npm yet, publish it.
+      packagesToPublish.push(pkg)
+      logger.log(`${pkg.printName}: New package (${localVersion})`)
+      continue
+    }
+
+    const remoteVersion = manifest.version
+
+    // Compare versions - only publish if local is greater than remote.
+    if (semver.gt(localVersion, remoteVersion)) {
+      packagesToPublish.push(pkg)
+      logger.log(`${pkg.printName}: ${remoteVersion} → ${localVersion}`)
+    } else {
+      skipped.push(pkg.printName)
+      if (!cliArgs.quiet) {
+        logger.log(
+          `${pkg.printName}: Skipped (${localVersion} ≤ ${remoteVersion})`,
+        )
+      }
+    }
+  }
+
+  if (packagesToPublish.length === 0) {
+    logger.log('No packages to publish')
+    return
+  }
+
+  logger.log(
+    `\nPublishing ${packagesToPublish.length} ${pluralize('package', packagesToPublish.length)}...\n`,
+  )
+
+  await publishPackages(packagesToPublish, { fails })
 
   if (fails.length) {
     const msg = `Unable to publish ${fails.length} ${pluralize('package', fails.length)}:`
     const msgList = joinAnd(fails)
     const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
     logger.warn(`${msg}${separator}${msgList}`)
+  }
+
+  if (skipped.length && !cliArgs.quiet) {
+    logger.log(
+      `\nSkipped ${skipped.length} ${pluralize('package', skipped.length)} (no version bump)`,
+    )
   }
 }
 
