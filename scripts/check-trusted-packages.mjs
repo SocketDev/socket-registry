@@ -24,7 +24,8 @@ const coreSocketPackages = [
   '@socketsecurity/cli',
   '@socketsecurity/registry',
   '@socketsecurity/sdk',
-  'socket-cli',
+  'sfw',
+  'socket',
 ]
 
 const otherSocketPackages = [
@@ -34,7 +35,6 @@ const otherSocketPackages = [
   '@socketsecurity/mcp',
   'socket-mcp',
   'socket-mpc',
-  'sfw',
 ]
 
 const { values: args } = parseArgs({
@@ -56,7 +56,7 @@ const { values: args } = parseArgs({
 })
 
 if (args.help) {
-  console.log(`
+  logger.log(`
 Usage: node check-trusted-packages.mjs [options]
 
 Options:
@@ -67,10 +67,10 @@ Options:
 By default, checks:
   - All @socketregistry/* packages
   - All @socketoverride/* packages
-  - Core Socket packages (cli, registry, sdk, socket-cli, sfw)
+  - Core Socket packages (sfw, socket, etc.)
 
 With --all flag, adds:
-  - Additional Socket packages (cli-with-sentry, config, eslint-config, mcp, socket-mcp, socket-mpc)
+  - Additional Socket packages (@socketsecurity/config, @socketsecurity/mcp, etc.)
 `)
   // eslint-disable-next-line n/no-process-exit
   process.exit(0)
@@ -192,7 +192,7 @@ async function checkTrustedPackage(packageName, state) {
       logger.info(`Latest version: ${info.version}`)
     }
     logger.dedent()
-    console.log('\n')
+    logger.log('\n')
     return false
   }
 
@@ -309,7 +309,7 @@ async function main() {
       if (args.debug) {
         logger.groupEnd()
         // Empty line between packages in debug mode
-        console.log()
+        logger.log()
       }
       if (success) {
         results.success.push(packageName)
@@ -331,7 +331,7 @@ async function main() {
   }
 
   // Summary
-  console.log('\n')
+  logger.log('\n')
   logger.log('📊 Summary:')
   logger.success(`${results.success.length} packages verified`)
 
