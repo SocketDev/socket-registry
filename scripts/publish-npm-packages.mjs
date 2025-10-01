@@ -45,7 +45,7 @@ async function findVersionBumpCommits() {
     // Accept "registry" or "registery" (typo), "packages", or "Bump to v" format.
     // Use regex to match both "registry" and "registery" variations.
     if (
-      !/registr[ey]y package/.test(message) &&
+      !/registre?y package/.test(message) &&
       !message.includes('packages') &&
       !/^Bump to v/.test(message)
     ) {
