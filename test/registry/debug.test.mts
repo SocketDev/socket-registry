@@ -1,5 +1,4 @@
-import { execFile } from 'node:child_process'
-import { promisify } from 'node:util'
+import { spawn } from 'node:child_process'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -12,13 +11,15 @@ import {
   isDebug,
 } from '../../registry/dist/lib/debug.js'
 
-const execFileAsync = promisify(execFile)
-
 async function evalEnvDebug(debugValue: string): Promise<string> {
   const code = `import ENV from '../../registry/dist/lib/constants/env.js'; console.log(ENV.DEBUG)`
-  const { stdout } = await execFileAsync('node', ['--eval', code], {
+  const proc = spawn(process.execPath, ['--eval', code], {
     env: { DEBUG: debugValue },
   })
+  let stdout = ''
+  for await (const chunk of proc.stdout) {
+    stdout += chunk
+  }
   return stdout.trim()
 }
 
