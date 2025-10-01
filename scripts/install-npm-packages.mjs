@@ -373,8 +373,6 @@ async function installPackage(packageInfo) {
         markerData.overrideHash === currentOverrideHash
       ) {
         // Always reapply Socket override files to ensure they're up-to-date.
-        writeProgress('💾')
-
         // Resolve symlinks to check if paths are actually the same.
         let realInstalledPath
         try {
@@ -443,15 +441,10 @@ async function installPackage(packageInfo) {
         await existingPkgJson.save()
 
         // Install any missing dependencies.
-        // First install in the root (installs prod dependencies of main package).
-        writeProgress('📚')
+        // Running install in the root will install both prod and dev dependencies
+        // of the nested package due to hoisted configuration.
         await runCommand('pnpm', ['install', ...PNPM_INSTALL_FLAGS], {
           cwd: packageTempDir,
-        })
-
-        // Then install devDependencies of the nested package by running install inside it.
-        await runCommand('pnpm', ['install', '--dev', ...PNPM_INSTALL_FLAGS], {
-          cwd: installedPath,
         })
 
         // Apply Socket overrides to all nested dependencies recursively.
@@ -726,12 +719,6 @@ async function installPackage(packageInfo) {
       }
     }
 
-    // Install devDependencies of the nested package.
-    writeProgress('📚')
-    await runCommand('pnpm', ['install', '--dev', ...PNPM_INSTALL_FLAGS], {
-      cwd: installedPath,
-    })
-
     // Apply Socket overrides to all nested dependencies recursively.
     await applyNestedSocketOverrides(installedPath)
 
@@ -824,13 +811,24 @@ async function main() {
   spinner.start()
 
   // Update spinner text when progress changes.
+  // In CI environments, batch updates to avoid excessive line output.
+  const updateInterval = ENV.CI ? 10 : 1
   let lastCompletedCount = 0
-  const progressInterval = setInterval(() => {
-    if (completedPackages !== lastCompletedCount) {
-      lastCompletedCount = completedPackages
-      spinner.text = `Installing ${completedPackages}/${totalPackagesCount} ${pluralize('package', filteredPackages.length)}`
-    }
-  }, 100)
+  const progressInterval = setInterval(
+    () => {
+      if (completedPackages !== lastCompletedCount) {
+        // Only update display at intervals to reduce output in CI.
+        if (
+          completedPackages % updateInterval === 0 ||
+          completedPackages === totalPackagesCount
+        ) {
+          spinner.text = `Installing ${completedPackages}/${totalPackagesCount} ${pluralize('package', filteredPackages.length)}`
+        }
+        lastCompletedCount = completedPackages
+      }
+    },
+    ENV.CI ? 1_000 : 100,
+  )
 
   // Ensure base temp directory exists.
   await fs.mkdir(tempBaseDir, { recursive: true })
