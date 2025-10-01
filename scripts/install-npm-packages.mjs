@@ -674,28 +674,11 @@ async function installPackage(packageInfo) {
           const { scripts } = editablePkgJson.content
           const cleanedScripts = scripts ? { __proto__: null } : undefined
           if (scripts) {
-            // Collect all scripts referenced by test scripts.
-            const referencedScripts = new Set()
+            // Clean test scripts, keep all other scripts.
             for (const { 0: key, 1: value } of Object.entries(scripts)) {
-              if (key.startsWith('test')) {
-                // Extract referenced scripts like "npm run mocha".
-                const matches = value.matchAll(/npm run ([-:\w]+)/g)
-                for (const match of matches) {
-                  referencedScripts.add(match[1])
-                }
-              }
-            }
-
-            // Keep test-related scripts and referenced scripts, remove lifecycle scripts.
-            for (const { 0: key, 1: value } of Object.entries(scripts)) {
-              if (
-                key.startsWith('test') ||
-                key === 'pretest' ||
-                key === 'posttest' ||
-                referencedScripts.has(key)
-              ) {
-                cleanedScripts[key] = value
-              }
+              cleanedScripts[key] = key.startsWith('test')
+                ? cleanTestScript(value)
+                : value
             }
           }
           editablePkgJson.update({
