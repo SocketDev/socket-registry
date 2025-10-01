@@ -16,6 +16,8 @@
  *    - Downloads and extracts the GitHub tarball
  *    - Removes the "files" field from package.json to preserve test files
  *      (GitHub tarballs often have "files": ["index.js"] which excludes test files)
+ *    - Removes unnecessary lifecycle scripts (prepublishOnly, prepack, etc.)
+ *      while keeping test-related scripts (test*, pretest, posttest)
  *    - Points pnpm to the modified local directory instead of the GitHub URL
  *
  * 2. Package Installation:
@@ -32,7 +34,8 @@
  * 4. Socket Override Application:
  *    - Copies Socket override files (index.js, etc.) to the installed package
  *    - Does NOT overwrite test files or package.json test scripts
- *    - Updates package.json with Socket override metadata (exports, main, module, etc.)
+ *    - Updates package.json with Socket override metadata (exports, main, module, dependencies, etc.)
+ *    - If Socket override has different dependencies, installs them in the package directory
  *    - Recursively applies Socket overrides to nested dependencies
  *
  * 5. Caching:
@@ -366,6 +369,9 @@ async function applySocketOverrideIfExists(packageName, packagePath) {
   // - See: https://nodejs.org/api/packages.html#subpath-exports
   existingPkgJson.update({
     ...(overridePkgJson.exports ? { exports: overridePkgJson.exports } : {}),
+    ...(overridePkgJson.dependencies
+      ? { dependencies: overridePkgJson.dependencies }
+      : {}),
     main: overridePkgJson.main,
     module: overridePkgJson.module,
   })
@@ -489,12 +495,23 @@ async function installPackage(packageInfo) {
           ...(overridePkgJson.exports
             ? { exports: overridePkgJson.exports }
             : {}),
+          ...(overridePkgJson.dependencies
+            ? { dependencies: overridePkgJson.dependencies }
+            : {}),
           main: overridePkgJson.main,
           module: overridePkgJson.module,
           private: true,
         })
 
         await existingPkgJson.save()
+
+        // If Socket override has different dependencies, install them.
+        if (overridePkgJson.dependencies) {
+          await runCommand('pnpm', ['install'], {
+            cwd: installedPath,
+            env: { ...process.env, ...PNPM_INSTALL_ENV },
+          })
+        }
 
         // Install all dependencies including devDependencies at the parent level.
         // Unset NODE_ENV and CI to prevent pnpm from skipping devDependencies.
@@ -781,6 +798,9 @@ async function installPackage(packageInfo) {
     originalPkgJson.update({
       // Override these specific fields from Socket package.
       ...(overridePkgJson.exports ? { exports: overridePkgJson.exports } : {}),
+      ...(overridePkgJson.dependencies
+        ? { dependencies: overridePkgJson.dependencies }
+        : {}),
       main: overridePkgJson.main,
       module: overridePkgJson.module,
       types: overridePkgJson.types,
@@ -881,6 +901,14 @@ async function installPackage(packageInfo) {
         installed: false,
         reason: 'No test script',
       }
+    }
+
+    // If Socket override has different dependencies, install them.
+    if (overridePkgJson.dependencies) {
+      await runCommand('pnpm', ['install'], {
+        cwd: installedPath,
+        env: { ...process.env, ...PNPM_INSTALL_ENV },
+      })
     }
 
     // Install all dependencies including devDependencies at the parent level.
