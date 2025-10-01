@@ -56,19 +56,25 @@ const tempBaseDir = cliArgs.tempDir
  * Clean test script by removing lint commands and unsupported flags.
  */
 function cleanTestScript(testScript) {
-  return (
-    testScript
-      // Strip actions BEFORE and AFTER the test runner is invoked.
-      .replace(
-        /^.*?(\b(?:ava|jest|node|npm run|mocha|tape?)\b.*?)(?:&.+|$)/,
-        '$1',
-      )
-      // Remove unsupported Node flag "--es-staging".
-      .replace(/(?<=node)(?: +--[-\w]+)+/, m =>
-        m.replaceAll(' --es-staging', ''),
-      )
-      .trim()
-  )
+  const cleaned = testScript
+    // Strip actions BEFORE and AFTER the test runner is invoked.
+    .replace(
+      /^.*?(\b(?:ava|jest|node|npm run|mocha|tape?)\b.*?)(?:&.+|$)/,
+      '$1',
+    )
+    // Remove unsupported Node flag "--es-staging".
+    .replace(/(?<=node)(?: +--[-\w]+)+/, m => m.replaceAll(' --es-staging', ''))
+    .trim()
+
+  // Return undefined if the script only runs non-test commands.
+  if (
+    /^npm run (?:lint|build|prepare|prepublish|pretest)$/.test(cleaned) ||
+    cleaned === 'exit 0'
+  ) {
+    return undefined
+  }
+
+  return cleaned
 }
 
 function hasModuleError(stdout, stderr) {
@@ -119,6 +125,16 @@ async function runPackageTest(socketPkgName) {
 
   // Clean test script to remove lint commands and unsupported flags.
   const cleanedScript = cleanTestScript(testScript)
+
+  if (!cleanedScript) {
+    logger.warn(`${origPkgName}: Test script only runs non-test commands`)
+    return {
+      package: origPkgName,
+      passed: true,
+      skipped: true,
+      reason: 'No actual test commands',
+    }
+  }
 
   try {
     // Run the cleaned test script directly.
