@@ -67,7 +67,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-import tar from 'tar'
+import { c as tarCreate, x as tarExtract } from 'tar'
 
 import { parseArgs } from '../registry/dist/lib/parse-args.js'
 
@@ -613,7 +613,7 @@ async function installPackage(packageInfo) {
         }
 
         // Extract using tar package for cross-platform compatibility.
-        await tar.x({
+        await tarExtract({
           file: archivePath,
           cwd: tempExtractDir,
         })
@@ -715,7 +715,7 @@ async function installPackage(packageInfo) {
           // CROSS-PLATFORM: Uses the 'tar' npm package (same as pacote) which works on all platforms
           // including Windows 10+ without requiring external tar command.
           const repackedTarball = path.join(tempExtractDir, 'repacked.tgz')
-          await tar.c(
+          await tarCreate(
             {
               gzip: true,
               file: repackedTarball,
