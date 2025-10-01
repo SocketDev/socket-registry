@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/isarray",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "license": "MIT",
   "description": "Socket.dev optimized package override for isarray",
   "keywords": [
@@ -15,9 +15,18 @@
   },
   "exports": {
     ".": {
-      "types": "./index.d.ts",
-      "default": "./index.js"
+      "import": {
+        "types": "./index.d.mts",
+        "default": "./index.mjs"
+      },
+      "require": {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      }
     },
+    "./index.cjs": "./index.cjs",
+    "./index.js": "./index.js",
+    "./index.mjs": "./index.mjs",
     "./package.json": "./package.json"
   },
   "sideEffects": false,
@@ -25,8 +34,8 @@
     "node": ">=18"
   },
   "files": [
-    "*.d.ts",
-    "*.js"
+    "*.d.{c,m,}ts",
+    "*.{c,m,}js"
   ],
   "socket": {
     "categories": [

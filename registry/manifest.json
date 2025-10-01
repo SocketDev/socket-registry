@@ -693,7 +693,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/indent-string@1.0.14",
+      "pkg:npm/%40socketregistry/indent-string@1.0.15",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -703,7 +703,7 @@
         "license": "MIT",
         "name": "@socketregistry/indent-string",
         "package": "indent-string",
-        "version": "1.0.14"
+        "version": "1.0.15"
       }
     ],
     [
@@ -721,7 +721,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-arguments@1.0.9",
+      "pkg:npm/%40socketregistry/is-arguments@1.0.10",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -731,7 +731,7 @@
         "license": "MIT",
         "name": "@socketregistry/is-arguments",
         "package": "is-arguments",
-        "version": "1.0.9"
+        "version": "1.0.10"
       }
     ],
     [
@@ -1030,17 +1030,17 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/isarray@1.0.7",
+      "pkg:npm/%40socketregistry/isarray@1.0.8",
       {
         "categories": ["cleanup"],
         "engines": {
           "node": ">=18"
         },
-        "interop": ["cjs"],
+        "interop": ["browserify", "cjs"],
         "license": "MIT",
         "name": "@socketregistry/isarray",
         "package": "isarray",
-        "version": "1.0.7"
+        "version": "1.0.8"
       }
     ],
     [
@@ -1068,6 +1068,7 @@
         "license": "MIT",
         "name": "@socketregistry/json-stable-stringify",
         "package": "json-stable-stringify",
+        "skipTests": true,
         "version": "1.0.13"
       }
     ],
@@ -1254,7 +1255,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/packageurl-js@1.1.1",
+      "pkg:npm/%40socketregistry/packageurl-js@1.1.4",
       {
         "categories": ["levelup"],
         "engines": {
@@ -1264,7 +1265,7 @@
         "license": "MIT",
         "name": "@socketregistry/packageurl-js",
         "package": "packageurl-js",
-        "version": "1.1.1"
+        "version": "1.1.4"
       }
     ],
     [
