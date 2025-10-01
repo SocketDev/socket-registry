@@ -1,4 +1,4 @@
-/** @fileoverview TypeScript declaration for package-utils.mjs module. */
+/** @fileoverview TypeScript declaration for package.mjs module. */
 
 interface ProcessOptions {
   concurrency?: number
