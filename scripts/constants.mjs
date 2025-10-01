@@ -18,21 +18,16 @@ const require = createRequire(import.meta.url)
 
 const {
   ESLINT_CONFIG_JS,
-  EXTENSIONS_JSON,
   GITIGNORE,
   LICENSE,
-  MANIFEST_JSON,
   NODE_MODULES,
   NPM,
   PACKAGE_JSON,
   PACKAGE_LOCK_JSON,
   PNPM,
   README_MD,
-  REGISTRY,
-  TSCONFIG_JSON,
   UTF8,
   YARN_LOCK,
-  kInternalsSymbol,
 } = registryConstants
 
 let _defaultWhichOptions
@@ -150,15 +145,17 @@ const lazyRootPath = () => {
   return path.resolve(__dirname, '..')
 }
 
-const lazyRootTsConfigPath = () => path.join(constants.rootPath, TSCONFIG_JSON)
+const lazyRootTsConfigPath = () =>
+  path.join(constants.rootPath, constants.TSCONFIG_JSON)
 
-const lazyRegistryPkgPath = () => path.join(constants.rootPath, REGISTRY)
+const lazyRegistryPkgPath = () =>
+  path.join(constants.rootPath, constants.REGISTRY)
 
 const lazyRegistryExtensionsJsonPath = () =>
-  path.join(constants.registryPkgPath, EXTENSIONS_JSON)
+  path.join(constants.registryPkgPath, constants.EXTENSIONS_JSON)
 
 const lazyRegistryManifestJsonPath = () =>
-  path.join(constants.registryPkgPath, MANIFEST_JSON)
+  path.join(constants.registryPkgPath, constants.MANIFEST_JSON)
 
 const lazyRelNpmPackagesPath = () =>
   path.relative(constants.rootPath, constants.npmPackagesPath)
@@ -239,7 +236,7 @@ const lazyTestNpmNodeModulesPath = () =>
   path.join(constants.testNpmPath, NODE_MODULES)
 
 const lazyTestNpmNodeWorkspacesPath = () =>
-  path.join(constants.testNpmPath, constants.PACKAGES)
+  path.join(constants.testNpmPath, 'packages')
 
 const lazyTestNpmPkgJsonPath = () =>
   path.join(constants.testNpmPath, PACKAGE_JSON)
@@ -289,7 +286,7 @@ const constants = createConstantsObject(
     ecosystems: undefined,
     gitExecPath: undefined,
     gitIgnoreFile: undefined,
-    kInternalsSymbol,
+    kInternalsSymbol: registryConstants.kInternalsSymbol,
     ignoreGlobs: undefined,
     npmPackageNames: undefined,
     npmPackagesPath: undefined,
@@ -389,4 +386,4 @@ const constants = createConstantsObject(
   },
 )
 
-export { constants as default }
+export default constants
