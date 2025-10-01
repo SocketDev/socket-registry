@@ -541,16 +541,12 @@ async function installPackage(packageInfo) {
         devDependencies: devDeps,
       })
 
-      // Install devDependencies (test runners, etc.).
+      // Install devDependencies (test runners, etc.) along with dependencies.
       writeProgress('👷')
-      await runCommand(
-        'pnpm',
-        ['install', '--dev', ...PNPM_HOISTED_INSTALL_FLAGS],
-        {
-          cwd: packageTempDir,
-          env: { ...process.env, ...PNPM_INSTALL_ENV },
-        },
-      )
+      await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
+        cwd: packageTempDir,
+        env: { ...process.env, ...PNPM_INSTALL_ENV },
+      })
     }
 
     // Apply Socket overrides selectively.
