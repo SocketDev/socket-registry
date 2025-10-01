@@ -195,12 +195,14 @@ async function addNpmManifestData(manifest, options) {
 }
 
 async function main() {
-  // Exit early if no relevant files have been modified.
-  if (
-    !cliArgs.force &&
-    (await getModifiedFiles({ cwd: constants.rootPackagesPath })).length === 0
-  ) {
-    return
+  // Exit early if no relevant files have been modified and not forced.
+  if (!cliArgs.force) {
+    const modifiedFiles = await getModifiedFiles({
+      cwd: constants.rootPackagesPath,
+    })
+    if (modifiedFiles.length === 0) {
+      return
+    }
   }
   const { spinner } = constants
   spinner.start(`Updating ${constants.relRegistryManifestJsonPath}...`)

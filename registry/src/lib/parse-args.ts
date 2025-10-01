@@ -105,7 +105,7 @@ export function parseArgs<T = Record<string, unknown>>(
     'boolean-negation': !allowNegative,
     'halt-at-non-option': !allowPositionals,
     configuration: {
-      'strip-aliased': true,
+      'strip-aliased': false,
       'strip-dashed': true,
     },
   }
