@@ -134,7 +134,13 @@ async function main() {
     if (!cliArgs.testOnly) {
       logSectionHeader('Phase 2: Install packages', { emoji: '📦' })
 
-      await runCommand('node', [installScript, ...installArgs])
+      const finalInstallArgs = [...installArgs]
+
+      if (cliArgs.force) {
+        finalInstallArgs.push('--force')
+      }
+
+      await runCommand('node', [installScript, ...finalInstallArgs])
     }
 
     // Phase 3: Run tests (unless download-only mode).
