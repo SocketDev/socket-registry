@@ -451,10 +451,19 @@ async function installPackage(packageInfo) {
 
         // Explicitly install dependencies in the nested package to ensure test
         // runners (tape, mocha, ava, etc.) are available.
-        await runCommand('pnpm', ['install', ...PNPM_INSTALL_FLAGS], {
-          cwd: installedPath,
-          env: { ...process.env, ...PNPM_INSTALL_ENV },
-        })
+        // Use isolated mode (not hoisted) to avoid conflicts with parent installation.
+        await runCommand(
+          'pnpm',
+          [
+            'install',
+            '--config.confirmModulesPurge=false',
+            '--no-frozen-lockfile',
+          ],
+          {
+            cwd: installedPath,
+            env: { ...process.env, ...PNPM_INSTALL_ENV },
+          },
+        )
 
         // Apply Socket overrides to all nested dependencies recursively.
         await applyNestedSocketOverrides(installedPath)
@@ -739,10 +748,15 @@ async function installPackage(packageInfo) {
 
     // Explicitly install dependencies in the nested package to ensure test
     // runners (tape, mocha, ava, etc.) are available.
-    await runCommand('pnpm', ['install', ...PNPM_INSTALL_FLAGS], {
-      cwd: installedPath,
-      env: { ...process.env, ...PNPM_INSTALL_ENV },
-    })
+    // Use isolated mode (not hoisted) to avoid conflicts with parent installation.
+    await runCommand(
+      'pnpm',
+      ['install', '--config.confirmModulesPurge=false', '--no-frozen-lockfile'],
+      {
+        cwd: installedPath,
+        env: { ...process.env, ...PNPM_INSTALL_ENV },
+      },
+    )
 
     // Apply Socket overrides to all nested dependencies recursively.
     await applyNestedSocketOverrides(installedPath)
