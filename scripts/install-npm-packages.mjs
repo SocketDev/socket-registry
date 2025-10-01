@@ -51,8 +51,9 @@
  *    - Always reapplies Socket override files even for cached packages
  *    - Cache directory: ~/.socket-npm-test-cache/ (GitHub Actions caches this)
  *    - Cache invalidation: Hash of all npm package.json files in packages/npm/
- *    - Cache cleanup: Removes node_modules from packages/npm/ before installation
- *      to prevent pnpm workspace symlinks from causing CI failures
+ *    - Cache cleanup (Phase 0): Removes stale artifacts before installation
+ *      - node_modules from packages/npm/* (pnpm workspace symlinks)
+ *      - socket-test-extract-* from /tmp (GitHub tarball extraction directories)
  *
  * OUTPUT:
  *   - Installed packages in: /tmp/npm-package-tests/{package-name}/
