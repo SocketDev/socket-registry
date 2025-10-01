@@ -8,23 +8,20 @@ import { pathToFileURL } from 'node:url'
 
 import { parseArgs } from '../registry/dist/lib/parse-args.js'
 
-import { copy } from 'fs-extra'
-
 import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
 import { testRunners } from '../test/utils/test-runners.mjs'
 import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
-import {
-  PNPM_INSTALL_FLAGS,
-  PNPM_NPM_LIKE_FLAGS,
-} from './utils/package-utils.mjs'
+import { PNPM_INSTALL_FLAGS } from './utils/package-utils.mjs'
 import constants from './constants.mjs'
 import ENV from '../registry/dist/lib/constants/ENV.js'
 import spinner from '../registry/dist/lib/constants/spinner.js'
 import WIN32 from '../registry/dist/lib/constants/WIN32.js'
+import { readPackageJson } from '../registry/dist/lib/packages.js'
 import { pEach, pRetry } from '../registry/dist/lib/promises.js'
 import { LOG_SYMBOLS, logger } from '../registry/dist/lib/logger.js'
 import { spawn } from '../registry/dist/lib/spawn.js'
 import { pluralize } from '../registry/dist/lib/words.js'
+import { writeJson } from '../registry/dist/lib/fs.js'
 
 const { values: cliArgs } = parseArgs({
   options: {
@@ -56,9 +53,9 @@ let totalPackagesCount = 0
 
 function writeProgress(symbol) {
   // Track counts silently.
-  if (symbol === '✓' || symbol === '💾') {
+  if (symbol === '💾') {
     cachedCount += 1
-  } else if (symbol === LOG_SYMBOLS.success) {
+  } else if (symbol === LOG_SYMBOLS.success || symbol === '✓') {
     installedCount += 1
   } else if (symbol === LOG_SYMBOLS.fail || symbol === LOG_SYMBOLS.warn) {
     failedCount += 1
@@ -72,7 +69,7 @@ function completePackage() {
 async function computeOverrideHash(overridePath) {
   try {
     const pkgJsonPath = path.join(overridePath, 'package.json')
-    const pkgJson = JSON.parse(await fs.readFile(pkgJsonPath, 'utf8'))
+    const pkgJson = await readPackageJson(pkgJsonPath)
     // Hash the dependencies to detect changes.
     const depsString = JSON.stringify({
       dependencies: pkgJson.dependencies || {},
@@ -89,7 +86,7 @@ async function runCommand(command, args, options = {}) {
   try {
     const result = await spawn(command, args, {
       stdio: 'pipe',
-      shell: process.platform.startsWith('win'),
+      shell: WIN32,
       env: { ...process.env, NODE_NO_WARNINGS: '1' },
       ...options,
     })
@@ -105,12 +102,28 @@ async function runCommand(command, args, options = {}) {
   }
 }
 
-async function generatePnpmOverrides() {
+let cachedPnpmOverrides
+
+async function generatePnpmOverrides(options) {
+  const opts = { __proto__: null, ...options }
+  const { excludes = [] } = opts
+
+  // Use cache key that includes the excluded packages.
+  const cacheKey =
+    excludes.length > 0 ? excludes.slice().sort().join(',') : '__all__'
+  if (cachedPnpmOverrides?.[cacheKey]) {
+    return cachedPnpmOverrides[cacheKey]
+  }
+
   const overrides = { __proto__: null }
   const npmPackagesDir = constants.npmPackagesPath
 
   // Check if npm packages directory exists.
   if (!existsSync(npmPackagesDir)) {
+    if (!cachedPnpmOverrides) {
+      cachedPnpmOverrides = { __proto__: null }
+    }
+    cachedPnpmOverrides[cacheKey] = overrides
     return overrides
   }
 
@@ -123,12 +136,18 @@ async function generatePnpmOverrides() {
     }
 
     const packageName = entry.name
+
+    // Skip excluded packages so they don't get overridden by pnpm.
+    if (excludes.includes(packageName)) {
+      continue
+    }
+
     const packagePath = path.join(npmPackagesDir, packageName)
     const pkgJsonPath = path.join(packagePath, 'package.json')
 
     try {
       // eslint-disable-next-line no-await-in-loop
-      const pkgJson = JSON.parse(await fs.readFile(pkgJsonPath, 'utf8'))
+      const pkgJson = await readPackageJson(pkgJsonPath)
 
       if (pkgJson.name) {
         // Use file:// protocol to point to local Socket override packages.
@@ -141,6 +160,10 @@ async function generatePnpmOverrides() {
     }
   }
 
+  if (!cachedPnpmOverrides) {
+    cachedPnpmOverrides = { __proto__: null }
+  }
+  cachedPnpmOverrides[cacheKey] = overrides
   return overrides
 }
 
@@ -204,11 +227,31 @@ async function applySocketOverrideIfExists(packageName, packagePath) {
     return
   }
 
+  // Resolve symlinks to check if paths are actually the same.
+  let realPackagePath
+  try {
+    realPackagePath = await fs.realpath(packagePath)
+  } catch {
+    realPackagePath = path.resolve(packagePath)
+  }
+
+  let realOverridePath
+  try {
+    realOverridePath = await fs.realpath(overridePath)
+  } catch {
+    realOverridePath = path.resolve(overridePath)
+  }
+
+  // Skip if source and destination resolve to the same path.
+  if (realOverridePath === realPackagePath) {
+    return
+  }
+
   // Read the Socket override package.json.
   const overridePkgJsonPath = path.join(overridePath, 'package.json')
   let overridePkgJson
   try {
-    overridePkgJson = JSON.parse(await fs.readFile(overridePkgJsonPath, 'utf8'))
+    overridePkgJson = await readPackageJson(overridePkgJsonPath)
   } catch {
     return
   }
@@ -217,44 +260,58 @@ async function applySocketOverrideIfExists(packageName, packagePath) {
   const packageJsonPath = path.join(packagePath, 'package.json')
   let existingPkgJson
   try {
-    existingPkgJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8'))
+    existingPkgJson = await readPackageJson(packageJsonPath, {
+      editable: true,
+    })
   } catch {
     return
   }
 
   // Copy Socket override files (excluding package.json).
   try {
-    await copy(overridePath, packagePath, {
-      overwrite: true,
+    await fs.cp(overridePath, packagePath, {
+      force: true,
+      recursive: true,
       dereference: true,
+      errorOnExist: false,
+      ...(WIN32 ? { retryDelay: 100, maxRetries: 3 } : {}),
       filter: src =>
         !src.includes('node_modules') &&
         !src.endsWith('.DS_Store') &&
         !src.endsWith('package.json'),
     })
-  } catch {
-    // Ignore copy errors.
+  } catch (e) {
+    // Ignore errors about same paths - this happens when pnpm symlinks to our override.
+    if (
+      e.code === 'ERR_FS_CP_EINVAL' ||
+      e.message?.includes('Source and destination must not be the same')
+    ) {
+      return
+    }
+    // Log other errors for debugging if it's not a simple file missing error.
+    if (e.code !== 'ENOENT') {
+      console.error(
+        `Copy error for ${packageName}: ${e.message}\n  From: ${realOverridePath}\n  To: ${realPackagePath}`,
+      )
+    }
     return
   }
 
   // Merge exports: Socket exports take precedence.
   const mergedExports = overridePkgJson.exports
-    ? { ...existingPkgJson.exports, ...overridePkgJson.exports }
-    : existingPkgJson.exports
+    ? { ...existingPkgJson.content.exports, ...overridePkgJson.exports }
+    : existingPkgJson.content.exports
 
   // Update package.json with Socket override fields.
-  // Preserve scripts to avoid breaking tests.
-  existingPkgJson.exports = mergedExports
-  existingPkgJson.main = overridePkgJson.main
-  existingPkgJson.module = overridePkgJson.module
-  existingPkgJson.types = overridePkgJson.types
-  existingPkgJson.files = overridePkgJson.files
-  existingPkgJson.sideEffects = overridePkgJson.sideEffects
-  existingPkgJson.socket = overridePkgJson.socket
   // Note: We intentionally do NOT overwrite scripts here to preserve test scripts.
+  existingPkgJson.update({
+    exports: mergedExports,
+    main: overridePkgJson.main,
+    module: overridePkgJson.module,
+  })
 
   // Write updated package.json.
-  await fs.writeFile(packageJsonPath, JSON.stringify(existingPkgJson, null, 2))
+  await existingPkgJson.save()
 }
 
 async function installPackage(packageInfo) {
@@ -296,56 +353,89 @@ async function installPackage(packageInfo) {
   // Check if installation is complete and valid.
   if (existsSync(installMarkerPath) && existsSync(packageJsonPath)) {
     try {
-      // Read package.json directly to avoid readPackageJson issues with circular references.
-      const existingPkgJson = JSON.parse(
-        await fs.readFile(packageJsonPath, 'utf8'),
-      )
+      // Read package.json to check if installation is valid.
+      const existingPkgJson = await readPackageJson(packageJsonPath, {
+        editable: true,
+      })
       const markerData = JSON.parse(
         await fs.readFile(installMarkerPath, 'utf8'),
       )
 
       // Verify the installation matches the requested version and override hash.
       if (
-        existingPkgJson.scripts?.test &&
+        existingPkgJson.content.scripts?.test &&
         markerData.versionSpec === versionSpec &&
         markerData.overrideHash === currentOverrideHash
       ) {
         // Always reapply Socket override files to ensure they're up-to-date.
         writeProgress('💾')
 
-        // Copy Socket override files (excluding package.json).
-        await copy(overridePath, installedPath, {
-          overwrite: true,
-          dereference: true,
-          filter: src =>
-            !src.includes('node_modules') &&
-            !src.endsWith('.DS_Store') &&
-            !src.endsWith('package.json'),
-        })
+        // Resolve symlinks to check if paths are actually the same.
+        let realInstalledPath
+        try {
+          realInstalledPath = await fs.realpath(installedPath)
+        } catch {
+          realInstalledPath = path.resolve(installedPath)
+        }
+
+        let realOverridePath
+        try {
+          realOverridePath = await fs.realpath(overridePath)
+        } catch {
+          realOverridePath = path.resolve(overridePath)
+        }
+
+        // Skip if source and destination resolve to the same path.
+        if (realOverridePath !== realInstalledPath) {
+          // Copy Socket override files (excluding package.json).
+          try {
+            await fs.cp(overridePath, installedPath, {
+              force: true,
+              recursive: true,
+              dereference: true,
+              errorOnExist: false,
+              ...(WIN32 ? { retryDelay: 100, maxRetries: 3 } : {}),
+              filter: src =>
+                !src.includes('node_modules') &&
+                !src.endsWith('.DS_Store') &&
+                !src.endsWith('package.json'),
+            })
+          } catch (e) {
+            // Ignore errors about same paths - this happens when pnpm symlinks to our override.
+            if (
+              e.code === 'ERR_FS_CP_EINVAL' ||
+              e.message?.includes('Source and destination must not be the same')
+            ) {
+              // Skip silently.
+            } else if (e.code !== 'ENOENT') {
+              console.error(
+                `Copy error (cached path) for ${origPkgName}: ${e.message}\n  From: ${realOverridePath}\n  To: ${realInstalledPath}`,
+              )
+            }
+          }
+        }
 
         // Read the Socket override package.json to get the fields we want.
         const overridePkgJsonPath = path.join(overridePath, 'package.json')
-        const overridePkgJson = JSON.parse(
-          await fs.readFile(overridePkgJsonPath, 'utf8'),
-        )
+        const overridePkgJson = await readPackageJson(overridePkgJsonPath)
 
         // Selectively update the fields from Socket override.
         // Merge exports: use Socket's exports but preserve any original subpaths.
-        existingPkgJson.exports = overridePkgJson.exports
-          ? { ...existingPkgJson.exports, ...overridePkgJson.exports }
-          : existingPkgJson.exports
-        existingPkgJson.main = overridePkgJson.main
-        existingPkgJson.module = overridePkgJson.module
-        existingPkgJson.types = overridePkgJson.types
-        existingPkgJson.files = overridePkgJson.files
-        existingPkgJson.sideEffects = overridePkgJson.sideEffects
-        existingPkgJson.socket = overridePkgJson.socket
-        existingPkgJson.private = true
+        existingPkgJson.update({
+          ...(overridePkgJson.exports
+            ? {
+                exports: {
+                  ...existingPkgJson.exports,
+                  ...overridePkgJson.exports,
+                },
+              }
+            : {}),
+          main: overridePkgJson.main,
+          module: overridePkgJson.module,
+          private: true,
+        })
 
-        await fs.writeFile(
-          packageJsonPath,
-          JSON.stringify(existingPkgJson, null, 2),
-        )
+        await existingPkgJson.save()
 
         // Install any missing dependencies.
         // First install in the root (installs prod dependencies of main package).
@@ -383,38 +473,39 @@ async function installPackage(packageInfo) {
   await fs.mkdir(packageTempDir, { recursive: true })
 
   try {
-    // Generate pnpm overrides for all Socket registry packages.
-    const pnpmOverrides = await generatePnpmOverrides()
+    // Generate pnpm overrides for all Socket registry packages except the one being installed.
+    // This ensures the original package gets installed (not replaced by Socket override),
+    // allowing us to preserve its test scripts.
+    const pnpmOverrides = await generatePnpmOverrides({
+      excludes: [socketPkgName],
+    })
 
-    // Create minimal package.json in temp directory with pnpm overrides.
-    await fs.writeFile(
-      path.join(packageTempDir, 'package.json'),
-      JSON.stringify(
-        {
-          name: 'test-temp',
-          version: '1.0.0',
-          private: true,
-          pnpm: {
-            overrides: pnpmOverrides,
-          },
-        },
-        null,
-        2,
-      ),
-    )
+    // Create package.json with the original package as a dependency.
+    // This allows pnpm to install it along with all its dependencies in one go.
+    const packageSpec = versionSpec.startsWith('https://')
+      ? versionSpec
+      : versionSpec
+
+    await writeJson(path.join(packageTempDir, 'package.json'), {
+      name: 'test-temp',
+      version: '1.0.0',
+      private: true,
+      dependencies: {
+        [origPkgName]: packageSpec,
+      },
+      pnpm: {
+        overrides: pnpmOverrides,
+      },
+    })
 
     writeProgress('📦')
 
     // Install the package with retry logic to handle transient network failures,
     // registry timeouts, and rate limiting from npm registry.
-    const packageSpec = versionSpec.startsWith('https://')
-      ? versionSpec
-      : `${origPkgName}@${versionSpec}`
-
     // Retry up to 3 times with exponential backoff (1s base delay, 2x multiplier).
     await pRetry(
       async () => {
-        await runCommand('pnpm', ['add', packageSpec, ...PNPM_NPM_LIKE_FLAGS], {
+        await runCommand('pnpm', ['install', ...PNPM_INSTALL_FLAGS], {
           cwd: packageTempDir,
         })
       },
@@ -429,12 +520,14 @@ async function installPackage(packageInfo) {
     const installedPath = path.join(packageTempDir, 'node_modules', origPkgName)
     writeProgress('🔧')
 
-    // Read the original installed package.json.
-    let originalPkgJson = {}
+    // Read the original installed package.json with editable support.
     const pkgJsonPath = path.join(installedPath, 'package.json')
+    let originalPkgJson
 
     try {
-      originalPkgJson = JSON.parse(await fs.readFile(pkgJsonPath, 'utf8'))
+      originalPkgJson = await readPackageJson(pkgJsonPath, {
+        editable: true,
+      })
     } catch {
       // Package.json might not exist in the symlink location for some packages.
       // Try the pnpm store location.
@@ -451,8 +544,11 @@ async function installPackage(packageInfo) {
         origPkgName,
       )
       try {
-        originalPkgJson = JSON.parse(
-          await fs.readFile(path.join(pnpmStorePath, 'package.json'), 'utf8'),
+        originalPkgJson = await readPackageJson(
+          path.join(pnpmStorePath, 'package.json'),
+          {
+            editable: true,
+          },
         )
       } catch {
         // If we still can't read it, that's a problem.
@@ -460,21 +556,57 @@ async function installPackage(packageInfo) {
       }
     }
 
-    // Copy Socket override files (excluding package.json).
-    await copy(overridePath, installedPath, {
-      overwrite: true,
-      dereference: true,
-      filter: src =>
-        !src.includes('node_modules') &&
-        !src.endsWith('.DS_Store') &&
-        !src.endsWith('package.json'),
-    })
+    // Resolve symlinks to check if paths are actually the same.
+    let realInstalledPath
+    try {
+      realInstalledPath = await fs.realpath(installedPath)
+    } catch {
+      realInstalledPath = path.resolve(installedPath)
+    }
+
+    let realOverridePath
+    try {
+      realOverridePath = await fs.realpath(overridePath)
+    } catch {
+      realOverridePath = path.resolve(overridePath)
+    }
+
+    // Skip if source and destination resolve to the same path.
+    if (realOverridePath !== realInstalledPath) {
+      // Copy Socket override files (excluding package.json).
+      try {
+        await fs.cp(overridePath, installedPath, {
+          force: true,
+          recursive: true,
+          dereference: true,
+          errorOnExist: false,
+          ...(WIN32 ? { retryDelay: 100, maxRetries: 3 } : {}),
+          filter: src =>
+            !src.includes('node_modules') &&
+            !src.endsWith('.DS_Store') &&
+            !src.endsWith('package.json'),
+        })
+      } catch (e) {
+        // Ignore errors about same paths - this happens when pnpm symlinks to our override.
+        if (
+          e.code === 'ERR_FS_CP_EINVAL' ||
+          e.message?.includes('Source and destination must not be the same')
+        ) {
+          // Skip silently, don't rethrow.
+        } else if (e.code !== 'ENOENT') {
+          console.error(
+            `Copy error (install path) for ${origPkgName}: ${e.message}\n  From: ${realOverridePath}\n  To: ${realInstalledPath}`,
+          )
+          throw e
+        } else {
+          throw e
+        }
+      }
+    }
 
     // Read the Socket override package.json to get the fields we want.
     const overridePkgJsonPath = path.join(overridePath, 'package.json')
-    const overridePkgJson = JSON.parse(
-      await fs.readFile(overridePkgJsonPath, 'utf8'),
-    )
+    const overridePkgJson = await readPackageJson(overridePkgJsonPath)
 
     // Selectively merge Socket override fields into original package.json.
     // We want: exports, main, module, types, files, sideEffects, socket
@@ -482,11 +614,11 @@ async function installPackage(packageInfo) {
     // Merge exports: use Socket's exports but preserve any original subpaths
     // that don't conflict (like special aliases or paths we don't override).
     const mergedExports = overridePkgJson.exports
-      ? { ...originalPkgJson.exports, ...overridePkgJson.exports }
-      : originalPkgJson.exports
+      ? { ...originalPkgJson.content.exports, ...overridePkgJson.exports }
+      : originalPkgJson.content.exports
 
-    const mergedPkgJson = {
-      ...originalPkgJson,
+    // Update the package.json with merged fields.
+    originalPkgJson.update({
       // Override these specific fields from Socket package.
       exports: mergedExports,
       main: overridePkgJson.main,
@@ -497,78 +629,88 @@ async function installPackage(packageInfo) {
       socket: overridePkgJson.socket,
       // Make the package private for testing.
       private: true,
-    }
+    })
 
     // Clean up the test scripts.
-    if (mergedPkgJson.scripts) {
+    if (originalPkgJson.content.scripts) {
       // Remove pretest script to avoid lint checks.
-      delete mergedPkgJson.scripts.pretest
-      delete mergedPkgJson.scripts.posttest
+      delete originalPkgJson.content.scripts.pretest
+      delete originalPkgJson.content.scripts.posttest
 
       // Look for actual test runner in scripts.
       const additionalTestRunners = [...testRunners, 'test:stock', 'test:all']
       let actualTestScript = additionalTestRunners.find(
-        runner => mergedPkgJson.scripts[runner],
+        runner => originalPkgJson.content.scripts[runner],
       )
 
-      if (!actualTestScript && mergedPkgJson.scripts.test) {
+      if (!actualTestScript && originalPkgJson.content.scripts.test) {
         // Try to extract the test runner from the test script.
-        const testMatch = mergedPkgJson.scripts.test.match(/npm run ([-:\w]+)/)
-        if (testMatch && mergedPkgJson.scripts[testMatch[1]]) {
+        const testMatch =
+          originalPkgJson.content.scripts.test.match(/npm run ([-:\w]+)/)
+        if (testMatch && originalPkgJson.content.scripts[testMatch[1]]) {
           actualTestScript = testMatch[1]
         }
       }
 
       // If the test script just runs lint or pretest, find a real test runner.
       if (
-        mergedPkgJson.scripts.test?.includes('lint') ||
-        mergedPkgJson.scripts.test?.includes('pretest')
+        originalPkgJson.content.scripts.test?.includes('lint') ||
+        originalPkgJson.content.scripts.test?.includes('pretest')
       ) {
         // Find a test runner that actually runs tests.
         const realTestRunner = testRunners.find(
           runner =>
-            mergedPkgJson.scripts[runner] &&
-            !mergedPkgJson.scripts[runner].includes('lint'),
+            originalPkgJson.content.scripts[runner] &&
+            !originalPkgJson.content.scripts[runner].includes('lint'),
         )
         if (realTestRunner) {
-          mergedPkgJson.scripts.test = mergedPkgJson.scripts[realTestRunner]
+          originalPkgJson.content.scripts.test =
+            originalPkgJson.content.scripts[realTestRunner]
         }
       }
 
       // If test script just delegates to another script, resolve it.
-      if (mergedPkgJson.scripts.test?.match(/^npm run ([-:\w]+)$/)) {
+      if (originalPkgJson.content.scripts.test?.match(/^npm run ([-:\w]+)$/)) {
         const targetScript =
-          mergedPkgJson.scripts.test.match(/^npm run ([-:\w]+)$/)[1]
+          originalPkgJson.content.scripts.test.match(/^npm run ([-:\w]+)$/)[1]
         if (
-          mergedPkgJson.scripts[targetScript] &&
-          !mergedPkgJson.scripts[targetScript].includes('lint')
+          originalPkgJson.content.scripts[targetScript] &&
+          !originalPkgJson.content.scripts[targetScript].includes('lint')
         ) {
-          mergedPkgJson.scripts.test = mergedPkgJson.scripts[targetScript]
+          originalPkgJson.content.scripts.test =
+            originalPkgJson.content.scripts[targetScript]
         }
       }
 
       // Clean the test scripts.
-      if (actualTestScript && mergedPkgJson.scripts[actualTestScript]) {
-        mergedPkgJson.scripts[actualTestScript] = cleanTestScript(
-          mergedPkgJson.scripts[actualTestScript],
+      if (
+        actualTestScript &&
+        originalPkgJson.content.scripts[actualTestScript]
+      ) {
+        originalPkgJson.content.scripts[actualTestScript] = cleanTestScript(
+          originalPkgJson.content.scripts[actualTestScript],
         )
       }
-      if (mergedPkgJson.scripts.test) {
-        mergedPkgJson.scripts.test = cleanTestScript(mergedPkgJson.scripts.test)
+      if (originalPkgJson.content.scripts.test) {
+        originalPkgJson.content.scripts.test = cleanTestScript(
+          originalPkgJson.content.scripts.test,
+        )
       }
 
       // Clean any test:* and tests-* scripts.
-      for (const [key, value] of Object.entries(mergedPkgJson.scripts)) {
+      for (const [key, value] of Object.entries(
+        originalPkgJson.content.scripts,
+      )) {
         if (key.startsWith('test:') || key.startsWith('tests')) {
-          mergedPkgJson.scripts[key] = cleanTestScript(value)
+          originalPkgJson.content.scripts[key] = cleanTestScript(value)
         }
       }
     }
 
-    await fs.writeFile(pkgJsonPath, JSON.stringify(mergedPkgJson, null, 2))
+    await originalPkgJson.save()
 
     // Check for test script.
-    const testScript = mergedPkgJson.scripts?.test
+    const testScript = originalPkgJson.content.scripts?.test
 
     if (!testScript) {
       writeProgress(LOG_SYMBOLS.warn)
@@ -581,14 +723,8 @@ async function installPackage(packageInfo) {
       }
     }
 
-    // Install dependencies with pnpm.
-    // First install in the root (installs prod dependencies of main package).
+    // Install devDependencies of the nested package.
     writeProgress('📚')
-    await runCommand('pnpm', ['install', ...PNPM_INSTALL_FLAGS], {
-      cwd: packageTempDir,
-    })
-
-    // Then install devDependencies of the nested package by running install inside it.
     await runCommand(
       'pnpm',
       ['install', '--prod=false', ...PNPM_INSTALL_FLAGS],
@@ -606,20 +742,13 @@ async function installPackage(packageInfo) {
       '.socket-install-complete',
     )
     const overrideHash = await computeOverrideHash(overridePath)
-    await fs.writeFile(
-      installMarkerPath,
-      JSON.stringify(
-        {
-          installedAt: new Date().toISOString(),
-          versionSpec,
-          overrideHash,
-          socketPackage: socketPkgName,
-          originalPackage: origPkgName,
-        },
-        null,
-        2,
-      ),
-    )
+    await writeJson(installMarkerPath, {
+      installedAt: new Date().toISOString(),
+      versionSpec,
+      overrideHash,
+      socketPackage: socketPkgName,
+      originalPackage: origPkgName,
+    })
 
     writeProgress(LOG_SYMBOLS.success)
     completePackage()
@@ -753,7 +882,7 @@ async function main() {
 
   // Write results to file for the test runner.
   const resultsFile = path.join(tempBaseDir, 'install-results.json')
-  await fs.writeFile(resultsFile, JSON.stringify(results, null, 2))
+  await writeJson(resultsFile, results)
 
   // Summary output only if issues.
   if (
