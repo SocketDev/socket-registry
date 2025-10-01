@@ -246,8 +246,9 @@ async function publishAtCommit(sha) {
   const skipped = []
   const allPackages = [
     packageData({
-      name: '../registry/dist/index.js',
+      name: readPackageJsonSync(registryPkgPath).name,
       path: registryPkgPath,
+      printName: '@socketsecurity/registry',
       isTrustedPublisher: true,
     }),
     ...constants.npmPackageNames.map(sockRegPkgName => {
