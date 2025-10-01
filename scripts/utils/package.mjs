@@ -38,6 +38,10 @@ const PNPM_INSTALL_FLAGS = [
   '--no-frozen-lockfile',
 ]
 
+// Environment override to force pnpm to install devDependencies.
+// By default, pnpm skips devDependencies when CI or NODE_ENV=production is detected.
+const PNPM_INSTALL_ENV = { CI: undefined, NODE_ENV: undefined }
+
 /**
  * Reads and caches editable package.json files to avoid redundant disk I/O.
  * @type {Map<string, any>}
@@ -462,6 +466,7 @@ export {
   copySocketOverride,
   editablePackageJsonCache,
   installPackageForTesting,
+  PNPM_INSTALL_ENV,
   PNPM_INSTALL_FLAGS,
   PNPM_NPM_LIKE_FLAGS,
   processWithSpinner,
