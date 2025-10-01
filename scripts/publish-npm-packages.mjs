@@ -122,11 +122,14 @@ function packageData(data) {
 }
 
 async function ensureNpmVersion() {
+  // Install npm first to ensure we have the latest version.
+  logger.log('Installing npm@latest for trusted publishing...')
+  await spawn('npm', ['install', '-g', 'npm@latest'])
   const result = await spawn('npm', ['--version'])
   const npmVersion = result.stdout.trim()
-  logger.log(`Current npm version: ${npmVersion}`)
+  logger.log(`npm version: ${npmVersion}`)
 
-  // Check if npm version is >= 11.5.1 (required for trusted publishing).
+  // Verify npm version is >= 11.5.1 (required for trusted publishing).
   try {
     const semverResult = await spawn('npx', [
       '--yes',
@@ -136,16 +139,15 @@ async function ensureNpmVersion() {
       '>=11.5.1',
     ])
     if (semverResult.stdout.trim() === '') {
-      throw new Error('npm version too old')
+      throw new Error(
+        `npm version ${npmVersion} does not meet the 11.5.1+ requirement for trusted publishing`,
+      )
     }
-    logger.log(
-      `npm version ${npmVersion} meets the 11.5.1+ requirement for trusted publishing`,
+  } catch (e) {
+    logger.error(
+      `npm version ${npmVersion} does not meet the 11.5.1+ requirement for trusted publishing`,
     )
-  } catch {
-    logger.log('Installing npm 11.5.1+ for trusted publishing...')
-    await spawn('npm', ['install', '-g', 'npm@latest'])
-    const newResult = await spawn('npm', ['--version'])
-    logger.log(`Updated npm version: ${newResult.stdout.trim()}`)
+    throw e
   }
 }
 
@@ -422,13 +424,14 @@ async function publishAtCommit(sha) {
 }
 
 async function main() {
+  // Ensure npm version is >= 11.5.1 for trusted publishing FIRST.
+  // This must happen before any other operations.
+  await ensureNpmVersion()
+
   // Exit early if not running in CI or with --force.
   if (!(cliArgs.force || constants.ENV.CI)) {
     return
   }
-
-  // Ensure npm version is >= 11.5.1 for trusted publishing.
-  await ensureNpmVersion()
 
   const originalBranch = await getCurrentBranch()
   const originalSha = await getCommitSha('HEAD')
@@ -453,7 +456,9 @@ async function main() {
 
     if (registryManifest) {
       const publishedVersion = registryManifest.version
-      logger.log(`Latest published version: v${publishedVersion}`)
+      logger.log(
+        `Latest published: ${registryPkgJson.name}@${publishedVersion}`,
+      )
 
       // Filter to only commits with versions newer than published version.
       const newerCommits = []
@@ -466,6 +471,10 @@ async function main() {
       // Update bumpCommits to only include newer versions
       bumpCommits.length = 0
       bumpCommits.push(...newerCommits)
+    } else {
+      logger.log(
+        `Latest published: ${registryPkgJson.name}@<not yet published>`,
+      )
     }
 
     if (bumpCommits.length === 0) {
