@@ -594,7 +594,7 @@ async function installPackage(packageInfo) {
       writeProgress('📝')
       const tempExtractDir = path.join(
         os.tmpdir(),
-        `socket-test-extract-${Date.now()}`,
+        `socket-test-extract-${socketPkgName.replace(/[^a-z0-9]/gi, '-')}-${Date.now()}`,
       )
       try {
         await fs.mkdir(tempExtractDir, { recursive: true })
@@ -658,9 +658,7 @@ async function installPackage(packageInfo) {
               if (attempt < 3) {
                 // Wait longer on each retry (200ms, 400ms).
                 // eslint-disable-next-line no-await-in-loop
-                await new Promise(resolve =>
-                  setTimeout(resolve, attempt * 200),
-                )
+                await new Promise(resolve => setTimeout(resolve, attempt * 200))
               }
             }
           }

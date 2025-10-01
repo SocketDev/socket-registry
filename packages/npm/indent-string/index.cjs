@@ -1,13 +1,13 @@
 'use strict'
 
-module.exports = function indentString(string, count = 1, options) {
+module.exports = function indentString(input, count = 1, options) {
   const { includeEmptyLines = false, indent = ' ' } = {
     __proto__: null,
     ...options,
   }
-  if (typeof string !== 'string') {
+  if (typeof input !== 'string') {
     throw new TypeError(
-      `Expected \`input\` to be a \`string\`, got \`${typeof string}\``,
+      `Expected \`input\` to be a \`string\`, got \`${typeof input}\``,
     )
   }
   if (typeof count !== 'number') {
@@ -26,8 +26,8 @@ module.exports = function indentString(string, count = 1, options) {
     )
   }
   if (count === 0) {
-    return string
+    return input
   }
   const regex = includeEmptyLines ? /^/gm : /^(?!\s*$)/gm
-  return string.replace(regex, indent.repeat(count))
+  return input.replace(regex, indent.repeat(count))
 }
