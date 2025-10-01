@@ -118,9 +118,63 @@ async function main() {
     }
   }
 
+  // Create exports object with proper ordering:
+  // 1. Main exports (. and ./index)
+  // 2. SCREAMING_SNAKE_CASE constants
+  // 3. kebab-case constants
+  // 4. Non-constants lib exports
+  // 5. JSON files
+  const mainExports = {}
+  const jsonExports2 = {}
+  const libExports = {}
+  const screamingSnakeCaseExports = {}
+  const kebabCaseExports = {}
+
+  for (const { 0: key, 1: value } of Object.entries({
+    ...subpathExports,
+    ...jsonExports,
+  })) {
+    if (key === '.' || key === './index') {
+      mainExports[key] = value
+    } else if (key.endsWith('.json')) {
+      jsonExports2[key] = value
+    } else if (key.startsWith('./lib/constants/')) {
+      const pathAfterConstants = key.slice('./lib/constants/'.length)
+      // SCREAMING_SNAKE_CASE paths contain _ or start with uppercase
+      if (
+        pathAfterConstants.includes('_') ||
+        /^[A-Z]/.test(pathAfterConstants)
+      ) {
+        screamingSnakeCaseExports[key] = value
+      } else {
+        kebabCaseExports[key] = value
+      }
+    } else {
+      // Non-constants lib paths
+      libExports[key] = value
+    }
+  }
+
+  // Ensure . comes before ./index
+  const sortedMainExports = {}
+  if (mainExports['.']) {
+    sortedMainExports['.'] = mainExports['.']
+  }
+  if (mainExports['./index']) {
+    sortedMainExports['./index'] = mainExports['./index']
+  }
+
+  const exports = {
+    ...sortedMainExports,
+    ...toSortedObject(screamingSnakeCaseExports),
+    ...toSortedObject(kebabCaseExports),
+    ...toSortedObject(libExports),
+    ...toSortedObject(jsonExports2),
+  }
+
   registryEditablePkgJson.update({
     browser: toSortedObject(browser),
-    exports: toSortedObject({ ...subpathExports, ...jsonExports }),
+    exports,
     engines: { node: constants.PACKAGE_DEFAULT_NODE_RANGE },
   })
   await registryEditablePkgJson.save()
