@@ -1,10 +1,11 @@
+/** @fileoverview Publish npm packages with version bump detection and retry logic. */
+
 import path from 'node:path'
 
 import semver from 'semver'
 
-import { parseArgs } from '../registry/dist/lib/parse-args.js'
-
 import { joinAnd } from '../registry/dist/lib/arrays.js'
+import { getChangedFiles } from '../registry/dist/lib/git.js'
 import { logger } from '../registry/dist/lib/logger.js'
 import { isObjectObject } from '../registry/dist/lib/objects.js'
 import {
@@ -12,13 +13,75 @@ import {
   getReleaseTag,
   readPackageJsonSync,
 } from '../registry/dist/lib/packages.js'
+import { parseArgs } from '../registry/dist/lib/parse-args.js'
 import { pEach } from '../registry/dist/lib/promises.js'
 import { spawn } from '../registry/dist/lib/spawn.js'
 import { pluralize } from '../registry/dist/lib/words.js'
 
-import { getChangedFiles } from '../registry/dist/lib/git.js'
-
 import constants from './constants.mjs'
+
+const {
+  COLUMN_LIMIT,
+  LATEST,
+  SOCKET_REGISTRY_SCOPE,
+  npmPackagesPath,
+  registryPkgPath,
+} = constants
+
+const { values: cliArgs } = parseArgs({
+  options: {
+    debug: {
+      type: 'boolean',
+    },
+    force: {
+      type: 'boolean',
+      short: 'f',
+    },
+    quiet: {
+      type: 'boolean',
+    },
+  },
+  strict: false,
+})
+
+async function checkoutCommit(sha) {
+  // Discard any uncommitted changes from previous builds.
+  await spawn('git', ['reset', '--hard'])
+  await spawn('git', ['checkout', sha])
+}
+
+/**
+ * Ensure npm version meets requirements for trusted publishing.
+ */
+async function ensureNpmVersion() {
+  // Install npm first to ensure we have the latest version.
+  logger.log('Installing npm@latest for trusted publishing...')
+  await spawn('npm', ['install', '-g', 'npm@latest'])
+  const result = await spawn('npm', ['--version'])
+  const npmVersion = result.stdout.trim()
+  logger.log(`npm version: ${npmVersion}`)
+
+  // Verify npm version is >= 11.5.1 (required for trusted publishing).
+  try {
+    const semverResult = await spawn('npx', [
+      '--yes',
+      'semver',
+      npmVersion,
+      '-r',
+      '>=11.5.1',
+    ])
+    if (semverResult.stdout.trim() === '') {
+      throw new Error(
+        `npm version ${npmVersion} does not meet the 11.5.1+ requirement for trusted publishing`,
+      )
+    }
+  } catch (e) {
+    logger.error(
+      `npm version ${npmVersion} does not meet the 11.5.1+ requirement for trusted publishing`,
+    )
+    throw e
+  }
+}
 
 async function findVersionBumpCommits() {
   // Get git log with commit messages starting with "Bump".
@@ -75,235 +138,34 @@ async function findVersionBumpCommits() {
   return commits.slice().toReversed()
 }
 
-async function getCurrentBranch() {
-  const result = await spawn('git', ['rev-parse', '--abbrev-ref', 'HEAD'])
-  return result.stdout.trim()
-}
-
 async function getCommitSha(ref) {
   const result = await spawn('git', ['rev-parse', ref])
   return result.stdout.trim()
 }
 
-async function checkoutCommit(sha) {
-  // Discard any uncommitted changes from previous builds.
-  await spawn('git', ['reset', '--hard'])
-  await spawn('git', ['checkout', sha])
+async function getCurrentBranch() {
+  const result = await spawn('git', ['rev-parse', '--abbrev-ref', 'HEAD'])
+  return result.stdout.trim()
 }
 
-const {
-  COLUMN_LIMIT,
-  LATEST,
-  SOCKET_REGISTRY_SCOPE,
-  npmPackagesPath,
-  registryPkgPath,
-} = constants
-
-const { values: cliArgs } = parseArgs({
-  options: {
-    debug: {
-      type: 'boolean',
-    },
-    force: {
-      type: 'boolean',
-      short: 'f',
-    },
-    quiet: {
-      type: 'boolean',
-    },
-  },
-  strict: false,
-})
-
+/**
+ * Create package metadata with defaults.
+ */
 function packageData(data) {
-  const {
-    isTrustedPublisher = false,
-    printName = data.name,
-    tag = LATEST,
-  } = data
-  return Object.assign(data, { isTrustedPublisher, printName, tag })
+  const { isTokenPublisher = false, printName = data.name, tag = LATEST } = data
+  return Object.assign(data, { isTokenPublisher, printName, tag })
 }
 
-async function ensureNpmVersion() {
-  // Install npm first to ensure we have the latest version.
-  logger.log('Installing npm@latest for trusted publishing...')
-  await spawn('npm', ['install', '-g', 'npm@latest'])
-  const result = await spawn('npm', ['--version'])
-  const npmVersion = result.stdout.trim()
-  logger.log(`npm version: ${npmVersion}`)
-
-  // Verify npm version is >= 11.5.1 (required for trusted publishing).
-  try {
-    const semverResult = await spawn('npx', [
-      '--yes',
-      'semver',
-      npmVersion,
-      '-r',
-      '>=11.5.1',
-    ])
-    if (semverResult.stdout.trim() === '') {
-      throw new Error(
-        `npm version ${npmVersion} does not meet the 11.5.1+ requirement for trusted publishing`,
-      )
-    }
-  } catch (e) {
-    logger.error(
-      `npm version ${npmVersion} does not meet the 11.5.1+ requirement for trusted publishing`,
-    )
-    throw e
-  }
-}
-
-async function publishTrusted(pkg, state, options) {
-  const { maxRetries = 3, retryDelay = 1000 } = { __proto__: null, ...options }
-  if (!isObjectObject(state)) {
-    throw new TypeError('A state object is required.')
-  }
-
-  // Retry flow:
-  // 1. Attempt publish with npm using OIDC trusted publishing.
-  // 2. On success, exit immediately.
-  // 3. On error, check if package already exists (cannot publish over) - if so, exit.
-  // 4. On other errors, retry with exponential backoff: 1s, 2s, 4s delays.
-  // 5. After maxRetries exhausted, add to fails list and log final error.
-  let lastError
-  for (let attempt = 0; attempt < maxRetries; attempt += 1) {
-    try {
-      if (attempt > 0) {
-        const delay = retryDelay * 2 ** (attempt - 1)
-        logger.log(
-          `${pkg.printName}: Retry attempt ${attempt + 1}/${maxRetries} after ${delay}ms`,
-        )
-        // eslint-disable-next-line no-await-in-loop
-        await new Promise(resolve => setTimeout(resolve, delay))
-      }
-
-      // Use npm for trusted publishing with OIDC tokens.
-      // eslint-disable-next-line no-await-in-loop
-      const result = await spawn('npm', ['publish', '--access', 'public'], {
-        cwd: pkg.path,
-        env: process.env,
-        // Don't set NODE_AUTH_TOKEN for trusted publishing - uses OIDC.
-      })
-      if (result.stdout) {
-        logger.log(result.stdout)
-      }
-      // Success - exit retry loop.
-      return
-    } catch (e) {
-      lastError = e
-      const stderr = e?.stderr ?? ''
-      // Don't retry if package already exists.
-      if (stderr.includes('cannot publish over')) {
-        return
-      }
-      // Log the error but continue retrying.
-      if (stderr && attempt < maxRetries - 1) {
-        logger.warn(`${pkg.printName}: Publish attempt ${attempt + 1} failed`)
-      }
-    }
-  }
-
-  // All retries exhausted.
-  state.fails.push(pkg.printName)
-  const stderr = lastError?.stderr ?? ''
-  if (stderr) {
-    logger.log(stderr)
-  }
-}
-
-async function publishToken(pkg, state, options) {
-  const { maxRetries = 3, retryDelay = 1000 } = { __proto__: null, ...options }
-  if (!isObjectObject(state)) {
-    throw new TypeError('A state object is required.')
-  }
-
-  // Retry flow:
-  // 1. Attempt publish with pnpm using NODE_AUTH_TOKEN.
-  // 2. On success, exit immediately.
-  // 3. On error, check if package already exists (cannot publish over) - if so, exit.
-  // 4. On other errors, retry with exponential backoff: 1s, 2s, 4s delays.
-  // 5. After maxRetries exhausted, add to fails list and log final error.
-  let lastError
-  for (let attempt = 0; attempt < maxRetries; attempt += 1) {
-    try {
-      if (attempt > 0) {
-        const delay = retryDelay * 2 ** (attempt - 1)
-        logger.log(
-          `${pkg.printName}: Retry attempt ${attempt + 1}/${maxRetries} after ${delay}ms`,
-        )
-        // eslint-disable-next-line no-await-in-loop
-        await new Promise(resolve => setTimeout(resolve, delay))
-      }
-
-      // Use pnpm with token-based authentication and provenance.
-      // eslint-disable-next-line no-await-in-loop
-      const result = await spawn(
-        'pnpm',
-        [
-          'publish',
-          '--provenance',
-          '--access',
-          'public',
-          '--no-git-checks',
-          '--tag',
-          pkg.tag,
-        ],
-        {
-          cwd: pkg.path,
-          env: {
-            ...process.env,
-            NODE_AUTH_TOKEN: constants.ENV.NODE_AUTH_TOKEN,
-          },
-        },
-      )
-      if (result.stdout) {
-        logger.log(result.stdout)
-      }
-      // Success - exit retry loop.
-      return
-    } catch (e) {
-      lastError = e
-      const stderr = e?.stderr ?? ''
-      // Don't retry if package already exists.
-      if (stderr.includes('cannot publish over')) {
-        return
-      }
-      // Log the error but continue retrying.
-      if (stderr && attempt < maxRetries - 1) {
-        logger.warn(`${pkg.printName}: Publish attempt ${attempt + 1} failed`)
-      }
-    }
-  }
-
-  // All retries exhausted.
-  state.fails.push(pkg.printName)
-  const stderr = lastError?.stderr ?? ''
-  if (stderr) {
-    logger.log(stderr)
-  }
-}
-
+/**
+ * Publish package using npm with token authentication.
+ * @throws {TypeError} When state parameter is not an object.
+ */
 async function publish(pkg, state, options) {
-  if (pkg.isTrustedPublisher) {
-    await publishTrusted(pkg, state, options)
-  } else {
+  if (pkg.isTokenPublisher) {
     await publishToken(pkg, state, options)
+  } else {
+    await publishTrusted(pkg, state, options)
   }
-}
-
-async function publishPackages(packages, state, options) {
-  const okayPackages = packages.filter(
-    pkg => !state.fails.includes(pkg.printName),
-  )
-  // Chunk non-failed package names to process them in parallel 3 at a time.
-  await pEach(
-    okayPackages,
-    async pkg => {
-      await publish(pkg, state, options)
-    },
-    { concurrency: 3 },
-  )
 }
 
 async function publishAtCommit(sha) {
@@ -321,7 +183,6 @@ async function publishAtCommit(sha) {
     name: readPackageJsonSync(registryPkgPath).name,
     path: registryPkgPath,
     printName: '@socketsecurity/registry',
-    isTrustedPublisher: true,
   })
   const allPackages = [
     ...constants.npmPackageNames.map(sockRegPkgName => {
@@ -332,7 +193,6 @@ async function publishAtCommit(sha) {
         path: pkgPath,
         printName: sockRegPkgName,
         tag: getReleaseTag(pkgJson.version),
-        isTrustedPublisher: true,
       })
     }),
     registryPackage,
@@ -424,6 +284,162 @@ async function publishAtCommit(sha) {
   }
 
   return { fails, skipped }
+}
+
+/**
+ * Publish multiple packages with concurrency control.
+ * @throws {TypeError} When state parameter is not an object.
+ */
+async function publishPackages(packages, state, options) {
+  const okayPackages = packages.filter(
+    pkg => !state.fails.includes(pkg.printName),
+  )
+  // Chunk non-failed package names to process them in parallel 3 at a time.
+  await pEach(
+    okayPackages,
+    async pkg => {
+      await publish(pkg, state, options)
+    },
+    { concurrency: 3 },
+  )
+}
+
+/**
+ * Publish package using pnpm with token authentication.
+ * @throws {TypeError} When state parameter is not an object.
+ */
+async function publishToken(pkg, state, options) {
+  const { maxRetries = 3, retryDelay = 1000 } = { __proto__: null, ...options }
+  if (!isObjectObject(state)) {
+    throw new TypeError('A state object is required.')
+  }
+
+  // Retry flow:
+  // 1. Attempt publish with pnpm using NODE_AUTH_TOKEN.
+  // 2. On success, exit immediately.
+  // 3. On error, check if package already exists (cannot publish over) - if so, exit.
+  // 4. On other errors, retry with exponential backoff: 1s, 2s, 4s delays.
+  // 5. After maxRetries exhausted, add to fails list and log final error.
+  let lastError
+  for (let attempt = 0; attempt < maxRetries; attempt += 1) {
+    try {
+      if (attempt > 0) {
+        const delay = retryDelay * 2 ** (attempt - 1)
+        logger.log(
+          `${pkg.printName}: Retry attempt ${attempt + 1}/${maxRetries} after ${delay}ms`,
+        )
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise(resolve => setTimeout(resolve, delay))
+      }
+
+      // Use pnpm with token-based authentication and provenance.
+      // eslint-disable-next-line no-await-in-loop
+      const result = await spawn(
+        'pnpm',
+        [
+          'publish',
+          '--provenance',
+          '--access',
+          'public',
+          '--no-git-checks',
+          '--tag',
+          pkg.tag,
+        ],
+        {
+          cwd: pkg.path,
+          env: {
+            ...process.env,
+            NODE_AUTH_TOKEN: constants.ENV.NODE_AUTH_TOKEN,
+          },
+        },
+      )
+      if (result.stdout) {
+        logger.log(result.stdout)
+      }
+      // Success - exit retry loop.
+      return
+    } catch (e) {
+      lastError = e
+      const stderr = e?.stderr ?? ''
+      // Don't retry if package already exists.
+      if (stderr.includes('cannot publish over')) {
+        return
+      }
+      // Log the error but continue retrying.
+      if (stderr && attempt < maxRetries - 1) {
+        logger.warn(`${pkg.printName}: Publish attempt ${attempt + 1} failed`)
+      }
+    }
+  }
+
+  // All retries exhausted.
+  state.fails.push(pkg.printName)
+  const stderr = lastError?.stderr ?? ''
+  if (stderr) {
+    logger.log(stderr)
+  }
+}
+
+/**
+ * Publish package using npm with OIDC trusted publishing.
+ * @throws {TypeError} When state parameter is not an object.
+ */
+async function publishTrusted(pkg, state, options) {
+  const { maxRetries = 3, retryDelay = 1000 } = { __proto__: null, ...options }
+  if (!isObjectObject(state)) {
+    throw new TypeError('A state object is required.')
+  }
+
+  // Retry flow:
+  // 1. Attempt publish with npm using OIDC trusted publishing.
+  // 2. On success, exit immediately.
+  // 3. On error, check if package already exists (cannot publish over) - if so, exit.
+  // 4. On other errors, retry with exponential backoff: 1s, 2s, 4s delays.
+  // 5. After maxRetries exhausted, add to fails list and log final error.
+  let lastError
+  for (let attempt = 0; attempt < maxRetries; attempt += 1) {
+    try {
+      if (attempt > 0) {
+        const delay = retryDelay * 2 ** (attempt - 1)
+        logger.log(
+          `${pkg.printName}: Retry attempt ${attempt + 1}/${maxRetries} after ${delay}ms`,
+        )
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise(resolve => setTimeout(resolve, delay))
+      }
+
+      // Use npm for trusted publishing with OIDC tokens.
+      // eslint-disable-next-line no-await-in-loop
+      const result = await spawn('npm', ['publish', '--access', 'public'], {
+        cwd: pkg.path,
+        env: process.env,
+        // Don't set NODE_AUTH_TOKEN for trusted publishing - uses OIDC.
+      })
+      if (result.stdout) {
+        logger.log(result.stdout)
+      }
+      // Success - exit retry loop.
+      return
+    } catch (e) {
+      lastError = e
+      const stderr = e?.stderr ?? ''
+      // Don't retry if package already exists.
+      if (stderr.includes('cannot publish over')) {
+        return
+      }
+      // Log the error but continue retrying.
+      if (stderr && attempt < maxRetries - 1) {
+        logger.warn(`${pkg.printName}: Publish attempt ${attempt + 1} failed`)
+      }
+    }
+  }
+
+  // All retries exhausted.
+  state.fails.push(pkg.printName)
+  const stderr = lastError?.stderr ?? ''
+  if (stderr) {
+    logger.log(stderr)
+  }
 }
 
 async function main() {
