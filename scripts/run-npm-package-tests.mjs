@@ -122,11 +122,10 @@ async function runPackageTest(socketPkgName) {
         })
 
         // Then reinstall devDependencies of the nested package.
-        await runCommand(
-          'pnpm',
-          ['install', '--prod=false', ...PNPM_INSTALL_FLAGS],
-          { cwd: installedPath, env },
-        )
+        await runCommand('pnpm', ['install', '--dev', ...PNPM_INSTALL_FLAGS], {
+          cwd: installedPath,
+          env,
+        })
 
         // Retry the test after reinstall.
         await runCommand('npm', ['test'], { cwd: installedPath, env })
