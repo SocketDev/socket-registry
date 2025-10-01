@@ -580,10 +580,11 @@ async function installPackage(packageInfo) {
     // When pnpm installs from a GitHub tarball, it respects the "files" field and discards test files.
     // To preserve test files, we:
     // 1. Download and extract the GitHub tarball ourselves (with validation to catch HTTP errors)
-    // 2. Verify the downloaded tarball and extracted package.json are not empty
-    // 3. Remove the "files" field from package.json
-    // 4. Point pnpm to our modified local directory instead of the GitHub URL
-    // If extraction fails (HTTP error, empty files, or JSON parse error), fall back to GitHub URL.
+    // 2. Wait for filesystem to flush, then verify the downloaded tarball and extracted package.json are not empty
+    // 3. Retry reading package.json up to 3 times with exponential backoff to handle filesystem delays on slow CI
+    // 4. Remove the "files" field from package.json
+    // 5. Point pnpm to our modified local directory instead of the GitHub URL
+    // If extraction fails (HTTP error, empty files, or JSON parse error after retries), fall back to GitHub URL.
     let packageSpec = versionSpec
 
     if (versionSpec.startsWith('https://github.com/')) {
