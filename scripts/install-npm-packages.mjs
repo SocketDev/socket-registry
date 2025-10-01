@@ -10,15 +10,22 @@
  *
  * WHAT THIS SCRIPT DOES:
  *
+ * 0. Cleanup Phase (before processing packages):
+ *    - Removes node_modules directories from packages/npm/* to prevent pnpm workspace
+ *      symlink conflicts between local development and CI environments
+ *    - Cleans up old socket-test-extract-* directories from /tmp to prevent stale
+ *      references when cache is restored
+ *
  * For each package in test/npm/package.json devDependencies:
  *
  * 1. GitHub Tarball Handling (if versionSpec is a GitHub URL):
- *    - Downloads and extracts the GitHub tarball
+ *    - Downloads and extracts the GitHub tarball to temporary directory
  *    - Removes the "files" field from package.json to preserve test files
  *      (GitHub tarballs often have "files": ["index.js"] which excludes test files)
  *    - Removes unnecessary lifecycle scripts (prepublishOnly, prepack, etc.)
  *      while keeping test-related scripts (test*, pretest, posttest)
  *    - Points pnpm to the modified local directory instead of the GitHub URL
+ *    - On failure: Falls back to GitHub URL and cleans up failed extraction directory
  *
  * 2. Package Installation:
  *    - Creates a temporary directory with a dummy package.json
@@ -568,11 +575,11 @@ async function installPackage(packageInfo) {
 
     if (versionSpec.startsWith('https://github.com/')) {
       writeProgress('📝')
+      const tempExtractDir = path.join(
+        os.tmpdir(),
+        `socket-test-extract-${Date.now()}`,
+      )
       try {
-        const tempExtractDir = path.join(
-          os.tmpdir(),
-          `socket-test-extract-${Date.now()}`,
-        )
         await fs.mkdir(tempExtractDir, { recursive: true })
 
         // Download and extract GitHub tarball.
@@ -639,6 +646,10 @@ async function installPackage(packageInfo) {
           `Warning: Could not extract GitHub tarball for ${origPkgName}, using URL directly: ${e.message}`,
         )
         packageSpec = versionSpec
+        // Clean up failed extraction directory.
+        await safeRemove(tempExtractDir).catch(() => {
+          // Ignore cleanup errors.
+        })
       }
     }
 
@@ -1016,6 +1027,29 @@ async function main() {
         `Cleaning ${nodeModulesPaths.length} node_modules from override packages`,
       )
       await safeRemove(nodeModulesPaths)
+    }
+  }
+
+  // Clean up old GitHub tarball extraction directories.
+  // These are temporary directories created during package installation
+  // and can accumulate in /tmp or get stale references in the cache.
+  // Cleaning them ensures pnpm doesn't try to use non-existent paths.
+  const tmpDir = os.tmpdir()
+  if (existsSync(tmpDir)) {
+    try {
+      const tmpEntries = await fs.readdir(tmpDir, { withFileTypes: true })
+      const extractDirs = tmpEntries
+        .filter(
+          e => e.isDirectory() && e.name.startsWith('socket-test-extract-'),
+        )
+        .map(e => path.join(tmpDir, e.name))
+
+      if (extractDirs.length > 0) {
+        logger.log(`Cleaning ${extractDirs.length} old extraction directories`)
+        await safeRemove(extractDirs)
+      }
+    } catch {
+      // Ignore errors reading or cleaning temp directory.
     }
   }
 
