@@ -98,6 +98,21 @@ jobs:
           debug: ${{ inputs.debug }}
           scope: ${{ inputs.scope }}
           registry-url: ${{ inputs.registry-url }}
+
+      - name: Ensure npm version 11.5.1+ for trusted publishing
+        if: inputs.use-trusted-publishing == true
+        run: |
+          NPM_VERSION=$(npm --version)
+          echo "Current npm version: $NPM_VERSION"
+          # Check if npm version is >= 11.5.1
+          if ! npx --yes semver "$NPM_VERSION" -r ">=11.5.1"; then
+            echo "Installing npm 11.5.1+ for trusted publishing..."
+            npm install -g npm@latest
+            echo "Updated npm version: $(npm --version)"
+          else
+            echo "npm version $NPM_VERSION meets the 11.5.1+ requirement for trusted publishing"
+          fi
+
       - run: ${{ inputs.setup-script }}
         if: inputs.setup-script != ''
 
@@ -120,20 +135,6 @@ jobs:
         run: pnpm publish --provenance --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
-
-      - name: Ensure npm version 11.5.1+ for trusted publishing
-        if: inputs.use-trusted-publishing == true
-        run: |
-          NPM_VERSION=$(npm --version)
-          echo "Current npm version: $NPM_VERSION"
-          # Check if npm version is >= 11.5.1
-          if ! npx --yes semver "$NPM_VERSION" -r ">=11.5.1"; then
-            echo "Installing npm 11.5.1+ for trusted publishing..."
-            npm install -g npm@latest
-            echo "Updated npm version: $(npm --version)"
-          else
-            echo "npm version $NPM_VERSION meets the 11.5.1+ requirement for trusted publishing"
-          fi
 
       - name: Publish package (trusted publishing)
         if: inputs.publish-script == '' && inputs.package-name != '' && inputs.use-trusted-publishing == true
