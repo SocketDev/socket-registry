@@ -11,6 +11,7 @@ import WIN32 from '../registry/dist/lib/constants/WIN32.js'
 import constants from './constants.mjs'
 import { filterPackagesByChanges } from './utils/git.mjs'
 import {
+  PNPM_INSTALL_ENV,
   PNPM_INSTALL_FLAGS,
   buildTestEnv,
   runCommand,
@@ -113,7 +114,11 @@ async function runPackageTest(socketPkgName) {
 
       try {
         // Attempt to reinstall with pnpm (consistent with install phase).
-        const env = buildTestEnv(packageTempDir, installedPath)
+        // Unset NODE_ENV and CI to prevent pnpm from skipping devDependencies.
+        const env = {
+          ...buildTestEnv(packageTempDir, installedPath),
+          ...PNPM_INSTALL_ENV,
+        }
 
         // First reinstall in the root (installs prod dependencies of main package).
         await runCommand('pnpm', ['install', ...PNPM_INSTALL_FLAGS], {
@@ -121,8 +126,8 @@ async function runPackageTest(socketPkgName) {
           env,
         })
 
-        // Then reinstall devDependencies of the nested package.
-        await runCommand('pnpm', ['install', '--dev', ...PNPM_INSTALL_FLAGS], {
+        // Then reinstall all dependencies (including devDependencies) of the nested package.
+        await runCommand('pnpm', ['install', ...PNPM_INSTALL_FLAGS], {
           cwd: installedPath,
           env,
         })
