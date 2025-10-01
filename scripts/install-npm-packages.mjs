@@ -13,19 +13,21 @@
  * 0. Cleanup Phase (before processing packages):
  *    - Removes node_modules directories from packages/npm/* to prevent pnpm workspace
  *      symlink conflicts between local development and CI environments
- *    - Cleans up old socket-test-extract-* directories from /tmp to prevent stale
- *      references when cache is restored
+ *    - NOTE: socket-test-extract-* directories are NOT cleaned up here, as they may
+ *      still be referenced by cached installations. They accumulate in /tmp but are
+ *      harmless and will be cleaned by OS temp directory cleanup
  *
  * For each package in test/npm/package.json devDependencies:
  *
  * 1. GitHub Tarball Handling (if versionSpec is a GitHub URL):
- *    - Downloads and extracts the GitHub tarball to temporary directory
+ *    - Downloads and extracts the GitHub tarball to /tmp/socket-test-extract-{timestamp}
  *    - Removes the "files" field from package.json to preserve test files
  *      (GitHub tarballs often have "files": ["index.js"] which excludes test files)
  *    - Removes unnecessary lifecycle scripts (prepublishOnly, prepack, etc.)
  *      while keeping test-related scripts (test*, pretest, posttest)
- *    - Points pnpm to the modified local directory instead of the GitHub URL
+ *    - Points pnpm to the modified local directory using file:// URL
  *    - On failure: Falls back to GitHub URL and cleans up failed extraction directory
+ *    - On success: Extraction directory is preserved (cleaned up after installation)
  *
  * 2. Package Installation:
  *    - Creates a temporary directory with a dummy package.json
@@ -51,9 +53,8 @@
  *    - Always reapplies Socket override files even for cached packages
  *    - Cache directory: ~/.socket-npm-test-cache/ (GitHub Actions caches this)
  *    - Cache invalidation: Hash of all npm package.json files in packages/npm/
- *    - Cache cleanup (Phase 0): Removes stale artifacts before installation
- *      - node_modules from packages/npm/* (pnpm workspace symlinks)
- *      - socket-test-extract-* from /tmp (GitHub tarball extraction directories)
+ *    - Cache cleanup (Phase 0): Removes node_modules from packages/npm/* only
+ *      (socket-test-extract-* dirs are preserved for cached installations)
  *
  * OUTPUT:
  *   - Installed packages in: /tmp/npm-package-tests/{package-name}/
@@ -1031,28 +1032,11 @@ async function main() {
     }
   }
 
-  // Clean up old GitHub tarball extraction directories.
-  // These are temporary directories created during package installation
-  // and can accumulate in /tmp or get stale references in the cache.
-  // Cleaning them ensures pnpm doesn't try to use non-existent paths.
-  const tmpDir = os.tmpdir()
-  if (existsSync(tmpDir)) {
-    try {
-      const tmpEntries = await fs.readdir(tmpDir, { withFileTypes: true })
-      const extractDirs = tmpEntries
-        .filter(
-          e => e.isDirectory() && e.name.startsWith('socket-test-extract-'),
-        )
-        .map(e => path.join(tmpDir, e.name))
-
-      if (extractDirs.length > 0) {
-        logger.log(`Cleaning ${extractDirs.length} old extraction directories`)
-        await safeRemove(extractDirs)
-      }
-    } catch {
-      // Ignore errors reading or cleaning temp directory.
-    }
-  }
+  // Note: We do NOT clean up old socket-test-extract-* directories here.
+  // These directories may still be referenced by cached package installations
+  // in ~/.socket-npm-test-cache/. Cleaning them would cause "LINKED_PKG_DIR_NOT_FOUND"
+  // errors when pnpm tries to access dependencies with file:// URLs.
+  // They are cleaned up after successful installation of each package.
 
   // Read download results.
   const downloadResultsFile = path.join(tempBaseDir, 'download-results.json')
