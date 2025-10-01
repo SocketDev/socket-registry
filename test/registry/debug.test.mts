@@ -1,3 +1,6 @@
+import { execFile } from 'node:child_process'
+import { promisify } from 'node:util'
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
@@ -8,6 +11,16 @@ import {
   debugtime,
   isDebug,
 } from '../../registry/dist/lib/debug.js'
+
+const execFileAsync = promisify(execFile)
+
+async function evalEnvDebug(debugValue: string): Promise<string> {
+  const code = `import ENV from '../../registry/dist/lib/constants/env.js'; console.log(ENV.DEBUG)`
+  const { stdout } = await execFileAsync('node', ['--eval', code], {
+    env: { DEBUG: debugValue },
+  })
+  return stdout.trim()
+}
 
 describe('debug module', () => {
   let originalEnv: NodeJS.ProcessEnv
@@ -57,15 +70,6 @@ describe('debug module', () => {
   })
 
   describe('ENV.DEBUG normalization', () => {
-    const evalEnvDebug = async (debugValue: string): Promise<string> => {
-      const { execa } = await import('execa')
-      const code = `import ENV from '../../registry/dist/lib/constants/env.js'; console.log(ENV.DEBUG)`
-      const result = await execa('node', ['--eval', code], {
-        env: { DEBUG: debugValue },
-      })
-      return result.stdout
-    }
-
     it('should normalize DEBUG="1" to "*"', async () => {
       expect(await evalEnvDebug('1')).toBe('*')
     })
