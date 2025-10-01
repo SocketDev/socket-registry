@@ -629,23 +629,42 @@ async function installPackage(packageInfo) {
           const pkgJsonPath = path.join(extractedPath, 'package.json')
 
           // Verify package.json exists and is not empty.
-          const pkgJsonStats = await fs.stat(pkgJsonPath)
-          if (pkgJsonStats.size === 0) {
-            throw new Error('Extracted package.json is empty')
+          // Retry up to 3 times to handle filesystem flush delays on slow CI systems.
+          let editablePkgJson
+          let lastError
+          for (let attempt = 1; attempt <= 3; attempt += 1) {
+            try {
+              // eslint-disable-next-line no-await-in-loop
+              const pkgJsonStats = await fs.stat(pkgJsonPath)
+              if (pkgJsonStats.size === 0) {
+                throw new Error('Extracted package.json is empty')
+              }
+
+              // Remove the "files" field so pnpm includes all files (including tests).
+              // Also remove unnecessary lifecycle scripts that could interfere with testing.
+              // eslint-disable-next-line no-await-in-loop
+              editablePkgJson = await readPackageJson(pkgJsonPath, {
+                editable: true,
+              })
+              break
+            } catch (error) {
+              lastError = error
+              if (attempt < 3) {
+                // Wait longer on each retry (200ms, 400ms).
+                // eslint-disable-next-line no-await-in-loop
+                await new Promise(resolve =>
+                  setTimeout(resolve, attempt * 200),
+                )
+              }
+            }
           }
 
-          // Remove the "files" field so pnpm includes all files (including tests).
-          // Also remove unnecessary lifecycle scripts that could interfere with testing.
-          let editablePkgJson
-          try {
-            editablePkgJson = await readPackageJson(pkgJsonPath, {
-              editable: true,
-            })
-          } catch (parseError) {
-            // If JSON parsing fails, read the file content to help diagnose the issue.
+          if (!editablePkgJson) {
+            // All retries failed, add diagnostic info.
+            const pkgJsonStats = await fs.stat(pkgJsonPath)
             const fileContent = await fs.readFile(pkgJsonPath, 'utf8')
             throw new Error(
-              `Invalid package.json: ${parseError.message}. File size: ${pkgJsonStats.size}, Content preview: ${fileContent.slice(0, 200)}`,
+              `Invalid package.json after 3 retries: ${lastError.message}. File size: ${pkgJsonStats.size}, Content preview: ${fileContent.slice(0, 200)}`,
             )
           }
           const { scripts } = editablePkgJson.content
