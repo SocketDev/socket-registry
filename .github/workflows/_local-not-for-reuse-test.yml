@@ -37,6 +37,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      # Cache npm test packages to speed up CI runs.
+      # The cache stores fully installed test packages in ~/.socket-npm-test-cache/
+      # Cache is invalidated when any packages/npm/*/package.json changes.
+      # install-npm-packages.mjs automatically cleans node_modules from packages/npm/*
+      # to prevent pnpm workspace symlinks from causing installation failures.
       - name: Cache npm test packages
         uses: SocketDev/socket-registry/.github/actions/cache-npm-packages@main
         with:

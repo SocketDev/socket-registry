@@ -83,7 +83,9 @@ async function main() {
 
   // Add kebab-case variants for all SCREAMING_SNAKE_CASE constant paths.
   // Map both kebab-case and SCREAMING_SNAKE_CASE paths to the same files.
-  for (const { 0: exportPath, 1: exportValue } of Object.entries(subpathExports)) {
+  for (const { 0: exportPath, 1: exportValue } of Object.entries(
+    subpathExports,
+  )) {
     if (
       exportPath.startsWith('./lib/constants/') &&
       exportPath !== './lib/constants'

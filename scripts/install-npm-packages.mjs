@@ -42,6 +42,10 @@
  *    - Creates a .socket-install-complete marker with version and override hash
  *    - On subsequent runs, skips installation if marker matches current version/hash
  *    - Always reapplies Socket override files even for cached packages
+ *    - Cache directory: ~/.socket-npm-test-cache/ (GitHub Actions caches this)
+ *    - Cache invalidation: Hash of all npm package.json files in packages/npm/
+ *    - Cache cleanup: Removes node_modules from packages/npm/ before installation
+ *      to prevent pnpm workspace symlinks from causing CI failures
  *
  * OUTPUT:
  *   - Installed packages in: /tmp/npm-package-tests/{package-name}/
@@ -983,6 +987,37 @@ async function installPackage(packageInfo) {
 
 async function main() {
   suppressMaxListenersWarning()
+
+  // Clean up any node_modules directories in Socket override packages.
+  // These can be created by pnpm during local development (workspace linking),
+  // and if they get into the cache, they cause installation failures in CI
+  // because the symlink targets don't exist in the CI environment.
+  // This cleanup ensures we start with a clean state before installation.
+  const npmPackagesDir = constants.npmPackagesPath
+  if (existsSync(npmPackagesDir)) {
+    const entries = await fs.readdir(npmPackagesDir, { withFileTypes: true })
+    const nodeModulesPaths = []
+
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        const nodeModulesPath = path.join(
+          npmPackagesDir,
+          entry.name,
+          'node_modules',
+        )
+        if (existsSync(nodeModulesPath)) {
+          nodeModulesPaths.push(nodeModulesPath)
+        }
+      }
+    }
+
+    if (nodeModulesPaths.length > 0) {
+      logger.log(
+        `Cleaning ${nodeModulesPaths.length} node_modules from override packages`,
+      )
+      await safeRemove(nodeModulesPaths)
+    }
+  }
 
   // Read download results.
   const downloadResultsFile = path.join(tempBaseDir, 'download-results.json')

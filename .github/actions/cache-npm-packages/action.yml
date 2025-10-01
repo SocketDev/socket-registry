@@ -1,6 +1,23 @@
 name: 'Cache NPM Test Packages'
 description: 'Cache npm test packages to speed up subsequent CI runs'
 
+# WHAT GETS CACHED:
+#   - ~/.socket-npm-test-cache/ directory containing all installed test packages
+#   - Each package is in its own subdirectory with node_modules and test files
+#   - Package installations are validated with .socket-install-complete markers
+#   - Cache includes installed dependencies but NOT Socket override source node_modules
+#
+# CACHE INVALIDATION:
+#   - Cache key includes hash of all packages/npm/*/package.json files
+#   - Changing any Socket override package.json invalidates the entire cache
+#   - Cache version (v2) can be bumped to force global cache invalidation
+#   - OS-specific caching ensures platform compatibility
+#
+# CACHE CLEANUP:
+#   - install-npm-packages.mjs cleans node_modules from packages/npm/* before installation
+#   - This prevents pnpm workspace symlinks from interfering with CI installation
+#   - Cached test packages remain untouched in ~/.socket-npm-test-cache/
+#
 # Dependencies:
 #   - actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
 
