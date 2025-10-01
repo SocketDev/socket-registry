@@ -12,7 +12,7 @@ import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
 import { testRunners } from '../test/utils/test-runners.mjs'
 import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
 import { filterPackagesByChanges } from './utils/git.mjs'
-import { PNPM_INSTALL_FLAGS } from './utils/package.mjs'
+import { PNPM_INSTALL_ENV, PNPM_INSTALL_FLAGS } from './utils/package.mjs'
 import constants from './constants.mjs'
 import ENV from '../registry/dist/lib/constants/ENV.js'
 import spinner from '../registry/dist/lib/constants/spinner.js'
@@ -441,10 +441,17 @@ async function installPackage(packageInfo) {
         await existingPkgJson.save()
 
         // Install any missing dependencies.
-        // Running install in the root will install both prod and dev dependencies
-        // of the nested package due to hoisted configuration.
+        // Unset NODE_ENV and CI to prevent pnpm from skipping devDependencies.
         await runCommand('pnpm', ['install', ...PNPM_INSTALL_FLAGS], {
           cwd: packageTempDir,
+          env: { ...process.env, ...PNPM_INSTALL_ENV },
+        })
+
+        // Explicitly install dependencies in the nested package to ensure test
+        // runners (tape, mocha, ava, etc.) are available.
+        await runCommand('pnpm', ['install', ...PNPM_INSTALL_FLAGS], {
+          cwd: installedPath,
+          env: { ...process.env, ...PNPM_INSTALL_ENV },
         })
 
         // Apply Socket overrides to all nested dependencies recursively.
@@ -499,10 +506,12 @@ async function installPackage(packageInfo) {
     // Install the package with retry logic to handle transient network failures,
     // registry timeouts, and rate limiting from npm registry.
     // Retry up to 3 times with exponential backoff (1s base delay, 2x multiplier).
+    // Unset NODE_ENV and CI to prevent pnpm from skipping devDependencies.
     await pRetry(
       async () => {
         await runCommand('pnpm', ['install', ...PNPM_INSTALL_FLAGS], {
           cwd: packageTempDir,
+          env: { ...process.env, ...PNPM_INSTALL_ENV },
         })
       },
       {
