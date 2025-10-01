@@ -8,9 +8,8 @@ import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-import { copy } from 'fs-extra'
-
 import constants from '../constants.mjs'
+import WIN32 from '../../registry/dist/lib/constants/WIN32.js'
 import {
   readPackageJson,
   resolveOriginalPackageName,
@@ -261,15 +260,41 @@ async function installPackageForTesting(socketPkgName) {
     // Copy Socket override files on top.
     const installedPath = path.join(packageTempDir, 'node_modules', origPkgName)
 
+    // Check if the installed path is a symlink to the override path.
+    let realInstalledPath
+    try {
+      realInstalledPath = await fs.realpath(installedPath)
+    } catch {
+      realInstalledPath = path.resolve(installedPath)
+    }
+
+    let realOverridePath
+    try {
+      realOverridePath = await fs.realpath(overridePath)
+    } catch {
+      realOverridePath = path.resolve(overridePath)
+    }
+
+    // Skip if source and destination resolve to the same path.
+    if (realOverridePath === realInstalledPath) {
+      return {
+        installed: false,
+        reason: 'Package is already a Socket override (symlinked)',
+      }
+    }
+
     // Save original scripts before copying.
     const originalPkgJson = await readPackageJson(installedPath, {
       normalize: true,
     })
     const originalScripts = originalPkgJson.scripts
 
-    await copy(overridePath, installedPath, {
-      overwrite: true,
+    await fs.cp(overridePath, installedPath, {
+      force: true,
+      recursive: true,
       dereference: true,
+      errorOnExist: false,
+      ...(WIN32 ? { retryDelay: 100, maxRetries: 3 } : {}),
       filter: src =>
         !src.includes('node_modules') && !src.endsWith('.DS_Store'),
     })
