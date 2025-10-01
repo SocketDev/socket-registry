@@ -309,7 +309,7 @@ async function main() {
       if (args.debug) {
         logger.groupEnd()
         // Empty line between packages in debug mode
-        logger.log()
+        logger.log('')
       }
       if (success) {
         results.success.push(packageName)

@@ -338,7 +338,7 @@ async function main() {
   spinner.stop()
 
   if (state.warnings.length) {
-    console.log()
+    console.log('')
     logSectionHeader('Warnings', { emoji: '⚠️' })
     for (const warning of state.warnings) {
       console.log(warning)
@@ -346,7 +346,7 @@ async function main() {
   }
 
   if (state.changes.length) {
-    console.log()
+    console.log('')
     logSectionHeader('Changes', { emoji: 'ℹ' })
     for (const change of state.changes) {
       console.log(change)
