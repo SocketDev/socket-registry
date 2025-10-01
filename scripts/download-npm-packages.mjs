@@ -1,6 +1,6 @@
 /**
- * @fileoverview Package downloading utility from npm registry.
- * Downloads and extracts npm packages for analysis and override generation.
+ * @fileoverview Package validation utility for npm package testing.
+ * Validates that Socket overrides exist and are properly configured for testing.
  */
 
 import { existsSync, promises as fs } from 'node:fs'
@@ -48,7 +48,7 @@ function writeProgress() {
   // Don't output progress dots, too noisy.
 }
 
-async function downloadPackage(socketPkgName) {
+async function validatePackage(socketPkgName) {
   const origPkgName = resolveOriginalPackageName(socketPkgName)
 
   // Check if this package should be skipped.
@@ -89,7 +89,7 @@ async function downloadPackage(socketPkgName) {
         package: origPkgName,
         socketPackage: socketPkgName,
         downloaded: false,
-        reason: 'Not in devDependencies',
+        reason: 'Not in test/npm/package.json devDependencies',
       }
     }
 
@@ -213,7 +213,7 @@ async function main() {
   await pEach(
     packagesToProcess,
     async pkgName => {
-      const result = await downloadPackage(pkgName)
+      const result = await validatePackage(pkgName)
       results.push(result)
     },
     { concurrency },
