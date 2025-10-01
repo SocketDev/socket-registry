@@ -167,6 +167,88 @@ async function processWithSpinner(items, processor, options = {}) {
 }
 
 /**
+ * Resolves the real path of a file or directory, handling symlinks.
+ */
+async function resolveRealPath(pathStr) {
+  try {
+    return await fs.realpath(pathStr)
+  } catch {
+    return path.resolve(pathStr)
+  }
+}
+
+/**
+ * Computes a hash of override package dependencies for cache validation.
+ */
+async function computeOverrideHash(overridePath) {
+  try {
+    const pkgJsonPath = path.join(overridePath, 'package.json')
+    const pkgJson = await readPackageJson(pkgJsonPath)
+    const depsString = JSON.stringify({
+      dependencies: pkgJson.dependencies || {},
+      devDependencies: pkgJson.devDependencies || {},
+      version: pkgJson.version,
+    })
+    const crypto = await import('node:crypto')
+    return crypto.createHash('sha256').update(depsString, 'utf8').digest('hex')
+  } catch {
+    return ''
+  }
+}
+
+/**
+ * Copies Socket override files to a package directory.
+ */
+async function copySocketOverride(fromPath, toPath, options) {
+  const opts = { __proto__: null, ...options }
+  const { excludePackageJson = true } = opts
+
+  const realFromPath = await resolveRealPath(fromPath)
+  const realToPath = await resolveRealPath(toPath)
+
+  if (realFromPath === realToPath) {
+    return
+  }
+
+  try {
+    await fs.cp(fromPath, toPath, {
+      dereference: true,
+      errorOnExist: false,
+      filter: src =>
+        !src.includes('node_modules') &&
+        !src.endsWith('.DS_Store') &&
+        !(excludePackageJson && src.endsWith('package.json')),
+      force: true,
+      recursive: true,
+      ...(WIN32 ? { maxRetries: 3, retryDelay: 100 } : {}),
+    })
+  } catch (e) {
+    if (
+      e.code === 'ERR_FS_CP_EINVAL' ||
+      e.message?.includes('Source and destination must not be the same')
+    ) {
+      return
+    }
+    if (e.code !== 'ENOENT') {
+      throw e
+    }
+  }
+}
+
+/**
+ * Builds test environment with proper PATH for test runners.
+ */
+function buildTestEnv(packageTempDir, installedPath) {
+  const packageBinPath = path.join(packageTempDir, 'node_modules', '.bin')
+  const nestedBinPath = path.join(installedPath, 'node_modules', '.bin')
+  const rootBinPath = path.join(constants.rootPath, 'node_modules', '.bin')
+  return {
+    ...process.env,
+    PATH: `${nestedBinPath}${path.delimiter}${packageBinPath}${path.delimiter}${rootBinPath}${path.delimiter}${process.env.PATH}`,
+  }
+}
+
+/**
  * Run a command with spawn.
  */
 async function runCommand(command, args, options = {}) {
@@ -373,14 +455,18 @@ async function installPackageForTesting(socketPkgName) {
 }
 
 export {
+  buildTestEnv,
   clearPackageJsonCache,
   collectPackageData,
+  computeOverrideHash,
+  copySocketOverride,
   editablePackageJsonCache,
   installPackageForTesting,
   PNPM_INSTALL_FLAGS,
   PNPM_NPM_LIKE_FLAGS,
   processWithSpinner,
   readCachedEditablePackageJson,
+  resolveRealPath,
   runCommand,
   updatePackagesJson,
 }

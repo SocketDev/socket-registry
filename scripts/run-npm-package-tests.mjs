@@ -10,12 +10,19 @@ import WIN32 from '../registry/dist/lib/constants/WIN32.js'
 
 import constants from './constants.mjs'
 import { getAllChangedPackages } from './utils/git.mjs'
-import { PNPM_INSTALL_FLAGS } from './utils/package-utils.mjs'
+import {
+  PNPM_INSTALL_FLAGS,
+  buildTestEnv,
+  runCommand,
+} from './utils/package.mjs'
+
 import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
-import { resolveOriginalPackageName } from '../registry/dist/lib/packages.js'
+import {
+  readPackageJson,
+  resolveOriginalPackageName,
+} from '../registry/dist/lib/packages.js'
 import { pEach } from '../registry/dist/lib/promises.js'
 import { logger } from '../registry/dist/lib/logger.js'
-import { spawn } from '../registry/dist/lib/spawn.js'
 
 const { values: cliArgs } = parseArgs({
   options: {
@@ -42,25 +49,6 @@ const { values: cliArgs } = parseArgs({
 
 const concurrency = Math.max(1, parseInt(cliArgs.concurrency, 10) || 3)
 const tempBaseDir = cliArgs.tempDir
-
-async function runCommand(command, args, options = {}) {
-  try {
-    const result = await spawn(command, args, {
-      stdio: 'pipe',
-      shell: process.platform.startsWith('win'),
-      ...options,
-    })
-    return { stdout: result.stdout, stderr: result.stderr }
-  } catch (error) {
-    const commandError = new Error(
-      `Command failed: ${command} ${args.join(' ')}`,
-    )
-    commandError.code = error.code || error.exitCode
-    commandError.stdout = error.stdout || ''
-    commandError.stderr = error.stderr || ''
-    throw commandError
-  }
-}
 
 function hasModuleError(stdout, stderr) {
   const output = `${stdout}\n${stderr}`.toLowerCase()
@@ -96,7 +84,7 @@ async function runPackageTest(socketPkgName) {
   try {
     // Check if package.json exists and has test script.
     const pkgJsonPath = path.join(installedPath, 'package.json')
-    const pkgJson = JSON.parse(await fs.readFile(pkgJsonPath, 'utf8'))
+    const pkgJson = await readPackageJson(pkgJsonPath)
     const testScript = pkgJson.scripts?.test
 
     if (!testScript) {
@@ -110,16 +98,7 @@ async function runPackageTest(socketPkgName) {
     }
 
     // Run the test (removed individual log message for cleaner output).
-
-    // Add both package temp, nested package, and root node_modules/.bin to PATH for test runners.
-    const packageBinPath = path.join(packageTempDir, 'node_modules', '.bin')
-    const nestedBinPath = path.join(installedPath, 'node_modules', '.bin')
-    const rootBinPath = path.join(constants.rootPath, 'node_modules', '.bin')
-    const env = {
-      ...process.env,
-      PATH: `${nestedBinPath}${path.delimiter}${packageBinPath}${path.delimiter}${rootBinPath}${path.delimiter}${process.env.PATH}`,
-    }
-
+    const env = buildTestEnv(packageTempDir, installedPath)
     await runCommand('npm', ['test'], { cwd: installedPath, env })
 
     logger.success(origPkgName)
@@ -134,17 +113,7 @@ async function runPackageTest(socketPkgName) {
 
       try {
         // Attempt to reinstall with pnpm (consistent with install phase).
-        const packageBinPath = path.join(packageTempDir, 'node_modules', '.bin')
-        const nestedBinPath = path.join(installedPath, 'node_modules', '.bin')
-        const rootBinPath = path.join(
-          constants.rootPath,
-          'node_modules',
-          '.bin',
-        )
-        const env = {
-          ...process.env,
-          PATH: `${nestedBinPath}${path.delimiter}${packageBinPath}${path.delimiter}${rootBinPath}${path.delimiter}${process.env.PATH}`,
-        }
+        const env = buildTestEnv(packageTempDir, installedPath)
 
         // First reinstall in the root (installs prod dependencies of main package).
         await runCommand('pnpm', ['install', ...PNPM_INSTALL_FLAGS], {
