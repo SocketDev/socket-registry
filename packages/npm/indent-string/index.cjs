@@ -1,9 +1,29 @@
 'use strict'
 
 module.exports = function indentString(input, count = 1, options) {
-  const { includeEmptyLines = false, indent = ' ' } = {
-    __proto__: null,
-    ...options,
+  let includeEmptyLines = false
+  let indent = ' '
+  if (
+    // isV2: indentString(input, indent, count) - 3 args only
+    typeof count === 'string' &&
+    typeof options === 'number'
+  ) {
+    indent = count
+    count = options
+  } else if (
+    // isV3: indentString(input, count, indent)
+    typeof count === 'number' &&
+    typeof options === 'string'
+  ) {
+    indent = options
+  } else if (options !== null && typeof options === 'object') {
+    const opts = { __proto__: null, ...options }
+    if (opts.includeEmptyLines !== undefined) {
+      includeEmptyLines = opts.includeEmptyLines
+    }
+    if (opts.indent !== undefined) {
+      indent = opts.indent
+    }
   }
   if (typeof input !== 'string') {
     throw new TypeError(
