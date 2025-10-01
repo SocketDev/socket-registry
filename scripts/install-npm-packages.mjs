@@ -450,11 +450,9 @@ async function installPackage(packageInfo) {
         })
 
         // Then install devDependencies of the nested package by running install inside it.
-        await runCommand(
-          'pnpm',
-          ['install', '--prod=false', ...PNPM_INSTALL_FLAGS],
-          { cwd: installedPath },
-        )
+        await runCommand('pnpm', ['install', '--dev', ...PNPM_INSTALL_FLAGS], {
+          cwd: installedPath,
+        })
 
         // Apply Socket overrides to all nested dependencies recursively.
         await applyNestedSocketOverrides(installedPath)
@@ -730,13 +728,9 @@ async function installPackage(packageInfo) {
 
     // Install devDependencies of the nested package.
     writeProgress('📚')
-    await runCommand(
-      'pnpm',
-      ['install', '--prod=false', ...PNPM_INSTALL_FLAGS],
-      {
-        cwd: installedPath,
-      },
-    )
+    await runCommand('pnpm', ['install', '--dev', ...PNPM_INSTALL_FLAGS], {
+      cwd: installedPath,
+    })
 
     // Apply Socket overrides to all nested dependencies recursively.
     await applyNestedSocketOverrides(installedPath)
