@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -21,7 +21,7 @@ const envModulePath = path.resolve(
 )
 
 async function evalEnvDebug(debugValue: string): Promise<string> {
-  const code = `import ENV from '${envModulePath}'; console.log(ENV.DEBUG)`
+  const code = `import ENV from '${pathToFileURL(envModulePath).href}'; console.log(ENV.DEBUG)`
   const proc = spawn(
     process.execPath,
     ['--input-type=module', '--eval', code],
