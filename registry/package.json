@@ -1078,6 +1078,10 @@
       "types": "./dist/lib/functions.d.ts",
       "default": "./dist/lib/functions.js"
     },
+    "./lib/git": {
+      "types": "./dist/lib/git.d.ts",
+      "default": "./dist/lib/git.js"
+    },
     "./lib/globs": {
       "types": "./dist/lib/globs.d.ts",
       "default": "./dist/lib/globs.js"

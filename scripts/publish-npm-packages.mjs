@@ -16,6 +16,8 @@ import { pEach } from '../registry/dist/lib/promises.js'
 import { spawn } from '../registry/dist/lib/spawn.js'
 import { pluralize } from '../registry/dist/lib/words.js'
 
+import { getChangedFiles } from '../registry/dist/lib/git.js'
+
 import constants from './constants.mjs'
 
 async function findVersionBumpCommits() {
@@ -147,84 +149,145 @@ async function ensureNpmVersion() {
   }
 }
 
-async function publishTrusted(pkg, state) {
+async function publishTrusted(pkg, state, options) {
+  const { maxRetries = 3, retryDelay = 1000 } = { __proto__: null, ...options }
   if (!isObjectObject(state)) {
     throw new TypeError('A state object is required.')
   }
 
-  try {
-    // Use npm for trusted publishing with OIDC tokens.
-    const result = await spawn(
-      'npm',
-      ['publish', '--provenance', '--access', 'public'],
-      {
+  // Retry flow:
+  // 1. Attempt publish with npm using OIDC trusted publishing.
+  // 2. On success, exit immediately.
+  // 3. On error, check if package already exists (cannot publish over) - if so, exit.
+  // 4. On other errors, retry with exponential backoff: 1s, 2s, 4s delays.
+  // 5. After maxRetries exhausted, add to fails list and log final error.
+  let lastError
+  for (let attempt = 0; attempt < maxRetries; attempt += 1) {
+    try {
+      if (attempt > 0) {
+        const delay = retryDelay * 2 ** (attempt - 1)
+        logger.log(
+          `${pkg.printName}: Retry attempt ${attempt + 1}/${maxRetries} after ${delay}ms`,
+        )
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise(resolve => setTimeout(resolve, delay))
+      }
+
+      // Use npm for trusted publishing with OIDC tokens.
+      // eslint-disable-next-line no-await-in-loop
+      const result = await spawn('npm', ['publish', '--access', 'public'], {
         cwd: pkg.path,
         env: process.env,
         // Don't set NODE_AUTH_TOKEN for trusted publishing - uses OIDC.
-      },
-    )
-    if (result.stdout) {
-      logger.log(result.stdout)
-    }
-  } catch (e) {
-    const stderr = e?.stderr ?? ''
-    if (!stderr.includes('cannot publish over')) {
-      state.fails.push(pkg.printName)
-      if (stderr) {
-        logger.log(stderr)
+      })
+      if (result.stdout) {
+        logger.log(result.stdout)
+      }
+      // Success - exit retry loop.
+      return
+    } catch (e) {
+      lastError = e
+      const stderr = e?.stderr ?? ''
+      // Don't retry if package already exists.
+      if (stderr.includes('cannot publish over')) {
+        return
+      }
+      // Log the error but continue retrying.
+      if (stderr && attempt < maxRetries - 1) {
+        logger.warn(`${pkg.printName}: Publish attempt ${attempt + 1} failed`)
       }
     }
   }
+
+  // All retries exhausted.
+  state.fails.push(pkg.printName)
+  const stderr = lastError?.stderr ?? ''
+  if (stderr) {
+    logger.log(stderr)
+  }
 }
 
-async function publishToken(pkg, state) {
+async function publishToken(pkg, state, options) {
+  const { maxRetries = 3, retryDelay = 1000 } = { __proto__: null, ...options }
   if (!isObjectObject(state)) {
     throw new TypeError('A state object is required.')
   }
-  try {
-    // Use pnpm with token-based authentication and provenance.
-    const result = await spawn(
-      'pnpm',
-      [
-        'publish',
-        '--provenance',
-        '--access',
-        'public',
-        '--no-git-checks',
-        '--tag',
-        pkg.tag,
-      ],
-      {
-        cwd: pkg.path,
-        env: {
-          ...process.env,
-          NODE_AUTH_TOKEN: constants.ENV.NODE_AUTH_TOKEN,
+
+  // Retry flow:
+  // 1. Attempt publish with pnpm using NODE_AUTH_TOKEN.
+  // 2. On success, exit immediately.
+  // 3. On error, check if package already exists (cannot publish over) - if so, exit.
+  // 4. On other errors, retry with exponential backoff: 1s, 2s, 4s delays.
+  // 5. After maxRetries exhausted, add to fails list and log final error.
+  let lastError
+  for (let attempt = 0; attempt < maxRetries; attempt += 1) {
+    try {
+      if (attempt > 0) {
+        const delay = retryDelay * 2 ** (attempt - 1)
+        logger.log(
+          `${pkg.printName}: Retry attempt ${attempt + 1}/${maxRetries} after ${delay}ms`,
+        )
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise(resolve => setTimeout(resolve, delay))
+      }
+
+      // Use pnpm with token-based authentication and provenance.
+      // eslint-disable-next-line no-await-in-loop
+      const result = await spawn(
+        'pnpm',
+        [
+          'publish',
+          '--provenance',
+          '--access',
+          'public',
+          '--no-git-checks',
+          '--tag',
+          pkg.tag,
+        ],
+        {
+          cwd: pkg.path,
+          env: {
+            ...process.env,
+            NODE_AUTH_TOKEN: constants.ENV.NODE_AUTH_TOKEN,
+          },
         },
-      },
-    )
-    if (result.stdout) {
-      logger.log(result.stdout)
-    }
-  } catch (e) {
-    const stderr = e?.stderr ?? ''
-    if (!stderr.includes('cannot publish over')) {
-      state.fails.push(pkg.printName)
-      if (stderr) {
-        logger.log(stderr)
+      )
+      if (result.stdout) {
+        logger.log(result.stdout)
+      }
+      // Success - exit retry loop.
+      return
+    } catch (e) {
+      lastError = e
+      const stderr = e?.stderr ?? ''
+      // Don't retry if package already exists.
+      if (stderr.includes('cannot publish over')) {
+        return
+      }
+      // Log the error but continue retrying.
+      if (stderr && attempt < maxRetries - 1) {
+        logger.warn(`${pkg.printName}: Publish attempt ${attempt + 1} failed`)
       }
     }
   }
-}
 
-async function publish(pkg, state) {
-  if (pkg.isTrustedPublisher) {
-    await publishTrusted(pkg, state)
-  } else {
-    await publishToken(pkg, state)
+  // All retries exhausted.
+  state.fails.push(pkg.printName)
+  const stderr = lastError?.stderr ?? ''
+  if (stderr) {
+    logger.log(stderr)
   }
 }
 
-async function publishPackages(packages, state) {
+async function publish(pkg, state, options) {
+  if (pkg.isTrustedPublisher) {
+    await publishTrusted(pkg, state, options)
+  } else {
+    await publishToken(pkg, state, options)
+  }
+}
+
+async function publishPackages(packages, state, options) {
   const okayPackages = packages.filter(
     pkg => !state.fails.includes(pkg.printName),
   )
@@ -232,7 +295,7 @@ async function publishPackages(packages, state) {
   await pEach(
     okayPackages,
     async pkg => {
-      await publish(pkg, state)
+      await publish(pkg, state, options)
     },
     { concurrency: 3 },
   )
@@ -248,13 +311,14 @@ async function publishAtCommit(sha) {
 
   const fails = []
   const skipped = []
+  // Registry package comes last - publish after all other packages.
+  const registryPackage = packageData({
+    name: readPackageJsonSync(registryPkgPath).name,
+    path: registryPkgPath,
+    printName: '@socketsecurity/registry',
+    isTrustedPublisher: true,
+  })
   const allPackages = [
-    packageData({
-      name: readPackageJsonSync(registryPkgPath).name,
-      path: registryPkgPath,
-      printName: '@socketsecurity/registry',
-      isTrustedPublisher: true,
-    }),
     ...constants.npmPackageNames.map(sockRegPkgName => {
       const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
       const pkgJson = readPackageJsonSync(pkgPath)
@@ -266,6 +330,7 @@ async function publishAtCommit(sha) {
         isTrustedPublisher: true,
       })
     }),
+    registryPackage,
   ]
 
   // Filter packages to only publish those with bumped versions.
@@ -306,7 +371,39 @@ async function publishAtCommit(sha) {
     `\nPublishing ${packagesToPublish.length} ${pluralize('package', packagesToPublish.length)}...\n`,
   )
 
-  await publishPackages(packagesToPublish, { fails, skipped })
+  // Separate registry package from other packages.
+  const registryPkgToPublish = packagesToPublish.find(
+    pkg => pkg.printName === '@socketsecurity/registry',
+  )
+  const otherPackagesToPublish = packagesToPublish.filter(
+    pkg => pkg.printName !== '@socketsecurity/registry',
+  )
+
+  // Publish non-registry packages first.
+  if (otherPackagesToPublish.length > 0) {
+    await publishPackages(otherPackagesToPublish, { fails, skipped })
+  }
+
+  // Update manifest.json with latest published versions before publishing registry.
+  if (registryPkgToPublish && !fails.includes(registryPkgToPublish.printName)) {
+    logger.log('\nUpdating manifest.json with latest npm versions...')
+    await spawn('pnpm', ['run', 'update:manifest', '--force'])
+
+    // Commit manifest changes if there are any.
+    const changedFiles = await getChangedFiles()
+    if (changedFiles.length > 0) {
+      logger.log('Committing manifest.json updates...')
+      await spawn('git', ['add', 'registry/manifest.json'])
+      await spawn('git', [
+        'commit',
+        '-m',
+        'Update manifest.json with latest npm versions',
+      ])
+    }
+
+    // Publish registry package last.
+    await publishPackages([registryPkgToPublish], { fails, skipped })
+  }
 
   if (fails.length) {
     const msg = `Unable to publish ${fails.length} ${pluralize('package', fails.length)}:`
