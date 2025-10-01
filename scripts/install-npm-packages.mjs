@@ -730,6 +730,20 @@ async function installPackage(packageInfo) {
       }
     }
 
+    // Install dependencies to ensure devDependencies (test runners) are available.
+    // Unset NODE_ENV and CI to prevent pnpm from skipping devDependencies.
+    await runCommand('pnpm', ['install', ...PNPM_INSTALL_FLAGS], {
+      cwd: packageTempDir,
+      env: { ...process.env, ...PNPM_INSTALL_ENV },
+    })
+
+    // Explicitly install dependencies in the nested package to ensure test
+    // runners (tape, mocha, ava, etc.) are available.
+    await runCommand('pnpm', ['install', ...PNPM_INSTALL_FLAGS], {
+      cwd: installedPath,
+      env: { ...process.env, ...PNPM_INSTALL_ENV },
+    })
+
     // Apply Socket overrides to all nested dependencies recursively.
     await applyNestedSocketOverrides(installedPath)
 
