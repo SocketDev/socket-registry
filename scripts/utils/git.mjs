@@ -302,7 +302,30 @@ function parseGitDiffStdout(stdout, options) {
   return filtered
 }
 
+/**
+ * Filter packages to only those with changes, unless force mode is enabled.
+ */
+async function filterPackagesByChanges(packages, eco, options) {
+  const { force = false, packageKey = 'socketPackage' } = {
+    __proto__: null,
+    ...options,
+  }
+  if (force) {
+    return packages
+  }
+  const changedPackages = await getAllChangedPackages(eco)
+  if (changedPackages.length === 0) {
+    return []
+  }
+  const changedSet = new Set(changedPackages)
+  return packages.filter(pkg => {
+    const pkgName = pkg[packageKey] || pkg.package
+    return changedSet.has(pkgName)
+  })
+}
+
 export {
+  filterPackagesByChanges,
   getAllChangedFiles,
   getAllChangedFilesSync,
   getAllChangedPackages,
