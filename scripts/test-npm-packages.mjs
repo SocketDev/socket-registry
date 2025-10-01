@@ -128,6 +128,7 @@ async function main() {
       }
 
       await runCommand('node', [downloadScript, ...downloadArgs])
+      logger.log('')
     }
 
     // Phase 2: Install packages (unless test-only mode).
@@ -141,6 +142,7 @@ async function main() {
       }
 
       await runCommand('node', [installScript, ...finalInstallArgs])
+      logger.log('')
     }
 
     // Phase 3: Run tests (unless download-only mode).
