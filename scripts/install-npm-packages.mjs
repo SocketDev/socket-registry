@@ -858,21 +858,22 @@ async function installPackage(packageInfo) {
         }
       }
 
-      // If the test script just runs non-test commands, find a real test runner.
+      // Helper to check if a script contains non-test patterns.
       const nonTestPatterns = ['lint', 'pretest', 'build', 'compile', 'tsc']
-      if (
-        nonTestPatterns.some(pattern =>
-          originalPkgJson.content.scripts.test?.includes(pattern),
-        )
-      ) {
-        // Find a test runner that actually runs tests.
-        const realTestRunner = testRunners.find(
+      const containsNonTestPattern = script =>
+        nonTestPatterns.some(pattern => script?.includes(pattern))
+
+      // Helper to find a real test runner that doesn't run non-test commands.
+      const findRealTestRunner = () =>
+        testRunners.find(
           runner =>
             originalPkgJson.content.scripts[runner] &&
-            !nonTestPatterns.some(pattern =>
-              originalPkgJson.content.scripts[runner].includes(pattern),
-            ),
+            !containsNonTestPattern(originalPkgJson.content.scripts[runner]),
         )
+
+      // If the test script just runs non-test commands, find a real test runner.
+      if (containsNonTestPattern(originalPkgJson.content.scripts.test)) {
+        const realTestRunner = findRealTestRunner()
         if (realTestRunner) {
           originalPkgJson.content.scripts.test =
             originalPkgJson.content.scripts[realTestRunner]
@@ -883,23 +884,17 @@ async function installPackage(packageInfo) {
       if (originalPkgJson.content.scripts.test?.match(/^npm run ([-:\w]+)$/)) {
         const targetScript =
           originalPkgJson.content.scripts.test.match(/^npm run ([-:\w]+)$/)[1]
+        const targetScriptContent =
+          originalPkgJson.content.scripts[targetScript]
+
         if (
-          originalPkgJson.content.scripts[targetScript] &&
-          !nonTestPatterns.some(pattern =>
-            originalPkgJson.content.scripts[targetScript].includes(pattern),
-          )
+          targetScriptContent &&
+          !containsNonTestPattern(targetScriptContent)
         ) {
-          originalPkgJson.content.scripts.test =
-            originalPkgJson.content.scripts[targetScript]
+          originalPkgJson.content.scripts.test = targetScriptContent
         } else {
           // Target script doesn't exist or is non-test, try to find a real test runner.
-          const realTestRunner = testRunners.find(
-            runner =>
-              originalPkgJson.content.scripts[runner] &&
-              !nonTestPatterns.some(pattern =>
-                originalPkgJson.content.scripts[runner].includes(pattern),
-              ),
-          )
+          const realTestRunner = findRealTestRunner()
           if (realTestRunner) {
             originalPkgJson.content.scripts.test =
               originalPkgJson.content.scripts[realTestRunner]
