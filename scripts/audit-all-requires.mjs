@@ -99,7 +99,7 @@ console.log('='.repeat(80))
 let srcTopLevel = 0
 let srcLazy = 0
 
-for (const [file, requires] of Object.entries(srcResults)) {
+for (const { 0: file, 1: requires } of Object.entries(srcResults)) {
   const topLevel = requires.filter(r => !r.isLazy)
   const lazy = requires.filter(r => r.isLazy)
 
@@ -136,7 +136,7 @@ console.log('='.repeat(80))
 let testTopLevel = 0
 let testLazy = 0
 
-for (const [_file, requires] of Object.entries(testResults)) {
+for (const { 0: _file, 1: requires } of Object.entries(testResults)) {
   const topLevel = requires.filter(r => !r.isLazy)
   const lazy = requires.filter(r => r.isLazy)
 
