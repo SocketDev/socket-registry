@@ -387,8 +387,8 @@ async function applySocketOverrideIfExists(packageName, packagePath) {
     ...(overridePkgJson.dependencies
       ? { dependencies: overridePkgJson.dependencies }
       : {}),
-    main: overridePkgJson.main,
-    module: overridePkgJson.module,
+    ...(overridePkgJson.main ? { main: overridePkgJson.main } : {}),
+    ...(overridePkgJson.module ? { module: overridePkgJson.module } : {}),
   })
 
   // Write updated package.json.
@@ -522,8 +522,8 @@ async function installPackage(packageInfo) {
           ...(overridePkgJson.dependencies
             ? { dependencies: overridePkgJson.dependencies }
             : {}),
-          main: overridePkgJson.main,
-          module: overridePkgJson.module,
+          ...(overridePkgJson.main ? { main: overridePkgJson.main } : {}),
+          ...(overridePkgJson.module ? { module: overridePkgJson.module } : {}),
           private: true,
         })
 
@@ -898,12 +898,14 @@ async function installPackage(packageInfo) {
       ...(overridePkgJson.dependencies
         ? { dependencies: overridePkgJson.dependencies }
         : {}),
-      main: overridePkgJson.main,
-      module: overridePkgJson.module,
-      types: overridePkgJson.types,
-      files: overridePkgJson.files,
-      sideEffects: overridePkgJson.sideEffects,
-      socket: overridePkgJson.socket,
+      ...(overridePkgJson.main ? { main: overridePkgJson.main } : {}),
+      ...(overridePkgJson.module ? { module: overridePkgJson.module } : {}),
+      ...(overridePkgJson.types ? { types: overridePkgJson.types } : {}),
+      ...(overridePkgJson.files ? { files: overridePkgJson.files } : {}),
+      ...(overridePkgJson.sideEffects !== undefined
+        ? { sideEffects: overridePkgJson.sideEffects }
+        : {}),
+      ...(overridePkgJson.socket ? { socket: overridePkgJson.socket } : {}),
       // Make the package private for testing.
       private: true,
     })
