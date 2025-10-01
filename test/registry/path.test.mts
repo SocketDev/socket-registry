@@ -110,9 +110,9 @@ describe('path module', () => {
     })
 
     it('should preserve leading .. segments in complex paths', () => {
-      expect(normalizePath('../../../registry/lib/constants/abort-signal')).toBe(
-        '../../../registry/lib/constants/abort-signal',
-      )
+      expect(
+        normalizePath('../../../registry/lib/constants/abort-signal'),
+      ).toBe('../../../registry/lib/constants/abort-signal')
       expect(normalizePath('../../registry/lib/path')).toBe(
         '../../registry/lib/path',
       )
