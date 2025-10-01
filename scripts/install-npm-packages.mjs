@@ -773,11 +773,15 @@ async function installPackage(packageInfo) {
     writeProgress(LOG_SYMBOLS.fail)
     completePackage()
     const errorDetails = [error.message]
+    // Show last 1000 chars of stderr (where actual errors appear)
     if (error.stderr) {
-      errorDetails.push('STDERR:', error.stderr.slice(0, 500))
+      const stderrText = error.stderr.slice(-1_000)
+      errorDetails.push('STDERR (last 1000 chars):', stderrText)
     }
+    // Show last 1000 chars of stdout
     if (error.stdout) {
-      errorDetails.push('STDOUT:', error.stdout.slice(0, 500))
+      const stdoutText = error.stdout.slice(-1_000)
+      errorDetails.push('STDOUT (last 1000 chars):', stdoutText)
     }
     return {
       package: origPkgName,
