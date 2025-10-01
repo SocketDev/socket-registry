@@ -254,6 +254,7 @@ export function normalizePath(pathLike: string | Buffer | URL): string {
   // Process segments and handle '.', '..', and empty segments.
   let collapsed = ''
   let segmentCount = 0
+  let leadingDotDots = 0
   while (nextIndex !== -1) {
     const segment = filepath.slice(start, nextIndex)
     if (segment.length > 0 && segment !== '.') {
@@ -266,14 +267,29 @@ export function normalizePath(pathLike: string | Buffer | URL): string {
             // Only one segment, remove it entirely.
             collapsed = ''
             segmentCount = 0
+            // Check if this was a leading '..', restore it.
+            if (leadingDotDots > 0 && !prefix) {
+              collapsed = '..'
+              leadingDotDots = 1
+            }
           } else {
-            collapsed = collapsed.slice(0, lastSeparatorIndex)
-            segmentCount -= 1
+            const lastSegmentStart = lastSeparatorIndex + 1
+            const lastSegmentValue = collapsed.slice(lastSegmentStart)
+            // Don't collapse leading '..' segments.
+            if (lastSegmentValue === '..') {
+              // Preserve the '..' and add another one.
+              collapsed = collapsed + '/' + segment
+              leadingDotDots += 1
+            } else {
+              // Normal collapse: remove the last segment.
+              collapsed = collapsed.slice(0, lastSeparatorIndex)
+              segmentCount -= 1
+            }
           }
         } else if (!prefix) {
           // Preserve '..' for relative paths.
           collapsed = collapsed + (collapsed.length === 0 ? '' : '/') + segment
-          segmentCount += 1
+          leadingDotDots += 1
         }
       } else {
         collapsed = collapsed + (collapsed.length === 0 ? '' : '/') + segment
@@ -297,14 +313,29 @@ export function normalizePath(pathLike: string | Buffer | URL): string {
         if (lastSeparatorIndex === -1) {
           collapsed = ''
           segmentCount = 0
+          // Check if this was a leading '..', restore it.
+          if (leadingDotDots > 0 && !prefix) {
+            collapsed = '..'
+            leadingDotDots = 1
+          }
         } else {
-          collapsed = collapsed.slice(0, lastSeparatorIndex)
-          segmentCount -= 1
+          const lastSegmentStart = lastSeparatorIndex + 1
+          const lastSegmentValue = collapsed.slice(lastSegmentStart)
+          // Don't collapse leading '..' segments.
+          if (lastSegmentValue === '..') {
+            // Preserve the '..' and add another one.
+            collapsed = collapsed + '/' + lastSegment
+            leadingDotDots += 1
+          } else {
+            // Normal collapse: remove the last segment.
+            collapsed = collapsed.slice(0, lastSeparatorIndex)
+            segmentCount -= 1
+          }
         }
       } else if (!prefix) {
         collapsed =
           collapsed + (collapsed.length === 0 ? '' : '/') + lastSegment
-        segmentCount += 1
+        leadingDotDots += 1
       }
     } else {
       collapsed = collapsed + (collapsed.length === 0 ? '' : '/') + lastSegment

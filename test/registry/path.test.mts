@@ -101,6 +101,43 @@ describe('path module', () => {
       expect(normalizePath('/path/to/dir/')).toBe('/path/to/dir')
       expect(normalizePath('path/')).toBe('path')
     })
+
+    it('should preserve multiple leading .. segments', () => {
+      expect(normalizePath('../path')).toBe('../path')
+      expect(normalizePath('../../path')).toBe('../../path')
+      expect(normalizePath('../../../path')).toBe('../../../path')
+      expect(normalizePath('../../../../path')).toBe('../../../../path')
+    })
+
+    it('should preserve leading .. segments in complex paths', () => {
+      expect(normalizePath('../../../registry/lib/constants/abort-signal')).toBe(
+        '../../../registry/lib/constants/abort-signal',
+      )
+      expect(normalizePath('../../registry/lib/path')).toBe(
+        '../../registry/lib/path',
+      )
+      expect(normalizePath('../a/b/c')).toBe('../a/b/c')
+    })
+
+    it('should collapse normal segments with .. correctly', () => {
+      expect(normalizePath('../a/../b')).toBe('../b')
+      expect(normalizePath('../../a/../b')).toBe('../../b')
+      expect(normalizePath('../a/b/../c')).toBe('../a/c')
+      expect(normalizePath('a/../b')).toBe('b')
+      expect(normalizePath('a/b/../../c')).toBe('c')
+    })
+
+    it('should not collapse leading .. with each other', () => {
+      expect(normalizePath('../..')).toBe('../..')
+      expect(normalizePath('../../..')).toBe('../../..')
+      expect(normalizePath('../../../..')).toBe('../../../..')
+    })
+
+    it('should handle mixed .. and . segments', () => {
+      expect(normalizePath('../.././path')).toBe('../../path')
+      expect(normalizePath('./../path')).toBe('../path')
+      expect(normalizePath('.././../path')).toBe('../../path')
+    })
   })
 
   describe('splitPath', () => {
