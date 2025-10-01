@@ -248,6 +248,7 @@ async function main() {
           ? 'No packages available to test'
           : 'No changed packages detected, use --force to test all packages',
       )
+      logger.log('')
       process.exitCode = 0
       return
     }
@@ -256,7 +257,7 @@ async function main() {
   }
 
   if (packagesToTest.length === 0) {
-    logger.warn('No packages to test')
+    logger.warn('No packages to test\n')
     process.exitCode = 0
     return
   }
@@ -293,7 +294,7 @@ async function main() {
   }
 
   logger.success(
-    `Passed: ${passed.length}/${totalTested} (${results.length} total)`,
+    `Passed: ${passed.length}/${totalTested} (${results.length} total)\n`,
   )
 
   // Never clean up the cache directory - it's persistent by design.
