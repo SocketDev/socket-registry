@@ -772,11 +772,15 @@ async function installPackage(packageInfo) {
   } catch (error) {
     writeProgress(LOG_SYMBOLS.fail)
     completePackage()
+    const errorDetails = [error.message]
+    if (error.stderr) {
+      errorDetails.push(error.stderr.slice(0, 500))
+    }
     return {
       package: origPkgName,
       socketPackage: socketPkgName,
       installed: false,
-      reason: error.message,
+      reason: errorDetails.join('\n'),
     }
   }
 }
