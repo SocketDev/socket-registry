@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/is-arguments",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "license": "MIT",
   "description": "Socket.dev optimized package override for is-arguments",
   "keywords": [
@@ -27,6 +27,10 @@
     "./index.cjs": {
       "types": "./index.d.cts",
       "default": "./index.cjs"
+    },
+    "./index.js": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
     },
     "./package.json": "./package.json"
   },
