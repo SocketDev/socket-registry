@@ -310,8 +310,13 @@ async function applySocketOverrideIfExists(packageName, packagePath) {
 
   // Update package.json with Socket override fields.
   // Note: We intentionally do NOT overwrite scripts here to preserve test scripts.
-  // Note: We use Socket exports entirely to avoid mixing incompatible formats
-  // (conditional exports vs subpath exports).
+  //
+  // Exports handling:
+  // - If Socket override has exports, use them entirely (no merging)
+  // - Cannot merge because mixing conditional exports (e.g., 'import', 'require')
+  //   with subpath exports (e.g., '.', './package.json') creates invalid config
+  // - See: https://nodejs.org/api/packages.html#conditional-exports
+  // - See: https://nodejs.org/api/packages.html#subpath-exports
   existingPkgJson.update({
     ...(overridePkgJson.exports ? { exports: overridePkgJson.exports } : {}),
     main: overridePkgJson.main,
@@ -426,8 +431,13 @@ async function installPackage(packageInfo) {
         const overridePkgJson = await readPackageJson(overridePkgJsonPath)
 
         // Selectively update the fields from Socket override.
-        // Note: Use Socket exports entirely to avoid mixing incompatible formats
-        // (conditional exports vs subpath exports).
+        //
+        // Exports handling:
+        // - If Socket override has exports, use them entirely (no merging)
+        // - Cannot merge because mixing conditional exports (e.g., 'import', 'require')
+        //   with subpath exports (e.g., '.', './package.json') creates invalid config
+        // - See: https://nodejs.org/api/packages.html#conditional-exports
+        // - See: https://nodejs.org/api/packages.html#subpath-exports
         existingPkgJson.update({
           ...(overridePkgJson.exports
             ? { exports: overridePkgJson.exports }
@@ -613,12 +623,15 @@ async function installPackage(packageInfo) {
     const overridePkgJsonPath = path.join(overridePath, 'package.json')
     const overridePkgJson = await readPackageJson(overridePkgJsonPath)
 
-    // Selectively merge Socket override fields into original package.json.
+    // Update package.json with Socket override fields.
     // We want: exports, main, module, types, files, sideEffects, socket
-
-    // Update the package.json with merged fields.
-    // Note: Use Socket exports entirely to avoid mixing incompatible formats
-    // (conditional exports vs subpath exports).
+    //
+    // Exports handling:
+    // - If Socket override has exports, use them entirely (no merging)
+    // - Cannot merge because mixing conditional exports (e.g., 'import', 'require')
+    //   with subpath exports (e.g., '.', './package.json') creates invalid config
+    // - See: https://nodejs.org/api/packages.html#conditional-exports
+    // - See: https://nodejs.org/api/packages.html#subpath-exports
     originalPkgJson.update({
       // Override these specific fields from Socket package.
       ...(overridePkgJson.exports ? { exports: overridePkgJson.exports } : {}),
