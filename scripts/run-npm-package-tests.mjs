@@ -52,6 +52,25 @@ const { values: cliArgs } = parseArgs({
 const concurrency = Math.max(1, parseInt(cliArgs.concurrency, 10) || 3)
 const tempBaseDir = cliArgs.tempDir
 
+/**
+ * Clean test script by removing lint commands and unsupported flags.
+ */
+function cleanTestScript(testScript) {
+  return (
+    testScript
+      // Strip actions BEFORE and AFTER the test runner is invoked.
+      .replace(
+        /^.*?(\b(?:ava|jest|node|npm run|mocha|tape?)\b.*?)(?:&.+|$)/,
+        '$1',
+      )
+      // Remove unsupported Node flag "--es-staging".
+      .replace(/(?<=node)(?: +--[-\w]+)+/, m =>
+        m.replaceAll(' --es-staging', ''),
+      )
+      .trim()
+  )
+}
+
 function hasModuleError(stdout, stderr) {
   const output = `${stdout}\n${stderr}`.toLowerCase()
   return (
@@ -83,25 +102,33 @@ async function runPackageTest(socketPkgName) {
     }
   }
 
-  try {
-    // Check if package.json exists and has test script.
-    const pkgJsonPath = path.join(installedPath, 'package.json')
-    const pkgJson = await readPackageJson(pkgJsonPath)
-    const testScript = pkgJson.scripts?.test
+  // Check if package.json exists and has test script.
+  const pkgJsonPath = path.join(installedPath, 'package.json')
+  const pkgJson = await readPackageJson(pkgJsonPath)
+  const testScript = pkgJson.scripts?.test
 
-    if (!testScript) {
-      logger.warn(`${origPkgName}: No test script`)
-      return {
-        package: origPkgName,
-        passed: true,
-        skipped: true,
-        reason: 'No test script',
-      }
+  if (!testScript) {
+    logger.warn(`${origPkgName}: No test script`)
+    return {
+      package: origPkgName,
+      passed: true,
+      skipped: true,
+      reason: 'No test script',
     }
+  }
 
-    // Run the test (removed individual log message for cleaner output).
+  // Clean test script to remove lint commands and unsupported flags.
+  const cleanedScript = cleanTestScript(testScript)
+
+  try {
+    // Run the cleaned test script directly.
     const env = buildTestEnv(packageTempDir, installedPath)
-    await runCommand('npm', ['test'], { cwd: installedPath, env })
+    const shell = WIN32 ? 'cmd' : 'sh'
+    const shellFlag = WIN32 ? '/c' : '-c'
+    await runCommand(shell, [shellFlag, cleanedScript], {
+      cwd: installedPath,
+      env,
+    })
 
     logger.success(origPkgName)
     return { package: origPkgName, passed: true }
@@ -134,8 +161,13 @@ async function runPackageTest(socketPkgName) {
           env,
         })
 
-        // Retry the test after reinstall.
-        await runCommand('npm', ['test'], { cwd: installedPath, env })
+        // Retry the test after reinstall using cleaned script.
+        const shell = WIN32 ? 'cmd' : 'sh'
+        const shellFlag = WIN32 ? '/c' : '-c'
+        await runCommand(shell, [shellFlag, cleanedScript], {
+          cwd: installedPath,
+          env,
+        })
 
         logger.success(`${origPkgName} (after reinstall)`)
         return { package: origPkgName, passed: true, reinstalled: true }
