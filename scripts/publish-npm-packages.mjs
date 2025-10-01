@@ -382,7 +382,7 @@ async function main() {
     for (const commit of displayCommits) {
       logger.log(`  ${commit.sha.slice(0, 7)} - v${commit.version}`)
     }
-    logger.log()
+    logger.log('')
 
     for (const commit of bumpCommits) {
       // eslint-disable-next-line no-await-in-loop

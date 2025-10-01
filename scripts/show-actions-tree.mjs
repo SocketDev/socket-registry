@@ -117,7 +117,7 @@ async function main() {
 
   // Generate the dependency tree.
   logger.log('# GitHub Actions Dependency Tree')
-  logger.log()
+  logger.log('')
 
   // Sort files for consistent output.
   const sortedFiles = Array.from(dependencyTree.keys()).sort()
@@ -161,7 +161,7 @@ async function main() {
     }
   }
 
-  logger.log()
+  logger.log('')
   logger.info(`Total: ${allDependencies.size} unique actions/workflows`)
 }
 
