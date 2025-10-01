@@ -12,7 +12,11 @@ import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
 import { testRunners } from '../test/utils/test-runners.mjs'
 import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
 import { filterPackagesByChanges } from './utils/git.mjs'
-import { PNPM_INSTALL_ENV, PNPM_INSTALL_FLAGS } from './utils/package.mjs'
+import {
+  PNPM_HOISTED_INSTALL_FLAGS,
+  PNPM_INSTALL_BASE_FLAGS,
+  PNPM_INSTALL_ENV,
+} from './utils/package.mjs'
 import constants from './constants.mjs'
 import ENV from '../registry/dist/lib/constants/ENV.js'
 import spinner from '../registry/dist/lib/constants/spinner.js'
@@ -444,7 +448,7 @@ async function installPackage(packageInfo) {
 
         // Install any missing dependencies.
         // Unset NODE_ENV and CI to prevent pnpm from skipping devDependencies.
-        await runCommand('pnpm', ['install', ...PNPM_INSTALL_FLAGS], {
+        await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
           cwd: packageTempDir,
           env: { ...process.env, ...PNPM_INSTALL_ENV },
         })
@@ -452,18 +456,10 @@ async function installPackage(packageInfo) {
         // Explicitly install dependencies in the nested package to ensure test
         // runners (tape, mocha, ava, etc.) are available.
         // Use isolated mode (not hoisted) to avoid conflicts with parent installation.
-        await runCommand(
-          'pnpm',
-          [
-            'install',
-            '--config.confirmModulesPurge=false',
-            '--no-frozen-lockfile',
-          ],
-          {
-            cwd: installedPath,
-            env: { ...process.env, ...PNPM_INSTALL_ENV },
-          },
-        )
+        await runCommand('pnpm', ['install', ...PNPM_INSTALL_BASE_FLAGS], {
+          cwd: installedPath,
+          env: { ...process.env, ...PNPM_INSTALL_ENV },
+        })
 
         // Apply Socket overrides to all nested dependencies recursively.
         await applyNestedSocketOverrides(installedPath)
@@ -520,7 +516,7 @@ async function installPackage(packageInfo) {
     // Unset NODE_ENV and CI to prevent pnpm from skipping devDependencies.
     await pRetry(
       async () => {
-        await runCommand('pnpm', ['install', ...PNPM_INSTALL_FLAGS], {
+        await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
           cwd: packageTempDir,
           env: { ...process.env, ...PNPM_INSTALL_ENV },
         })
@@ -741,7 +737,7 @@ async function installPackage(packageInfo) {
 
     // Install dependencies to ensure devDependencies (test runners) are available.
     // Unset NODE_ENV and CI to prevent pnpm from skipping devDependencies.
-    await runCommand('pnpm', ['install', ...PNPM_INSTALL_FLAGS], {
+    await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
       cwd: packageTempDir,
       env: { ...process.env, ...PNPM_INSTALL_ENV },
     })
@@ -749,14 +745,10 @@ async function installPackage(packageInfo) {
     // Explicitly install dependencies in the nested package to ensure test
     // runners (tape, mocha, ava, etc.) are available.
     // Use isolated mode (not hoisted) to avoid conflicts with parent installation.
-    await runCommand(
-      'pnpm',
-      ['install', '--config.confirmModulesPurge=false', '--no-frozen-lockfile'],
-      {
-        cwd: installedPath,
-        env: { ...process.env, ...PNPM_INSTALL_ENV },
-      },
-    )
+    await runCommand('pnpm', ['install', ...PNPM_INSTALL_BASE_FLAGS], {
+      cwd: installedPath,
+      env: { ...process.env, ...PNPM_INSTALL_ENV },
+    })
 
     // Apply Socket overrides to all nested dependencies recursively.
     await applyNestedSocketOverrides(installedPath)
