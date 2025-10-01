@@ -231,6 +231,9 @@ importers:
       source-map-support:
         specifier: 0.5.21
         version: 0.5.21
+      tar:
+        specifier: 7.5.1
+        version: 7.5.1
       taze:
         specifier: 19.6.0
         version: 19.6.0
