@@ -154,11 +154,15 @@ async function publishTrusted(pkg, state) {
 
   try {
     // Use npm for trusted publishing with OIDC tokens.
-    const result = await spawn('npm', ['publish', '--access', 'public'], {
-      cwd: pkg.path,
-      env: process.env,
-      // Don't set NODE_AUTH_TOKEN for trusted publishing - uses OIDC.
-    })
+    const result = await spawn(
+      'npm',
+      ['publish', '--provenance', '--access', 'public'],
+      {
+        cwd: pkg.path,
+        env: process.env,
+        // Don't set NODE_AUTH_TOKEN for trusted publishing - uses OIDC.
+      },
+    )
     if (result.stdout) {
       logger.log(result.stdout)
     }

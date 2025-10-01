@@ -122,8 +122,16 @@ async function addNpmManifestData(manifest, options) {
       })
       const pkgPath = path.join(constants.npmPackagesPath, sockRegPkgName)
       const pkgJson = await readPackageJson(pkgPath, { normalize: true })
-      const { engines, name, socket, version } = pkgJson
+      const { engines, name, socket } = pkgJson
       const entryExports = resolvePackageJsonEntryExports(pkgJson.exports)
+
+      // Use latest published version from npm registry.
+      const sockPkgManifest = await fetchPackageManifest(`${name}@latest`)
+      if (!sockPkgManifest) {
+        spinner?.warn(`${name}: Not found in ${NPM} registry`)
+        return
+      }
+      const version = sockPkgManifest.version
 
       const interop = ['cjs']
       const isEsm = pkgJson.type === 'module'
