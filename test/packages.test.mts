@@ -22,10 +22,6 @@ import { trimLeadingDotSlash } from '../registry/dist/lib/path.js'
 import { naturalCompare } from '../registry/dist/lib/sorts.js'
 import { isNonEmptyString } from '../registry/dist/lib/strings.js'
 import constants from '../scripts/constants.mjs'
-import {
-  getModifiedPackagesSync,
-  getStagedPackagesSync,
-} from '../scripts/utils/git.mjs'
 
 const {
   LICENSE,
@@ -42,7 +38,7 @@ const {
 // pnpm run test:unit ./test/packages.test.ts -- --force
 // Note: --force is converted to FORCE_TEST env var by test.js because
 // Vitest runs tests in worker processes that don't receive CLI args.
-const { values: cliArgs } = parseArgs({
+parseArgs({
   options: {
     force: {
       type: 'boolean',
@@ -54,8 +50,6 @@ const { values: cliArgs } = parseArgs({
   },
   strict: false,
 })
-const useForce =
-  cliArgs['force'] || constants.ENV.CI || process.env['FORCE_TEST'] === '1'
 
 const shimApiKeys = ['getPolyfill', 'implementation', 'shim']
 
@@ -88,17 +82,7 @@ for (const eco of constants.ecosystems) {
   if (eco !== NPM) {
     continue
   }
-  const { ENV } = constants
-  const packageNames: readonly string[] = useForce
-    ? constants.npmPackageNames
-    : (() => {
-        const testablePackages: Set<string> = ENV.PRE_COMMIT
-          ? getStagedPackagesSync(eco, { asSet: true })
-          : getModifiedPackagesSync(eco, { asSet: true })
-        return constants.npmPackageNames.filter((n: string) =>
-          testablePackages.has(n),
-        )
-      })()
+  const packageNames: readonly string[] = constants.npmPackageNames
 
   describe(eco, { skip: !packageNames.length }, () => {
     if (!packageNames.length) {

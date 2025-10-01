@@ -61,7 +61,7 @@ on:
         required: false
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 concurrency:
