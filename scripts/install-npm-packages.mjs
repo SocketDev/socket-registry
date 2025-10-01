@@ -308,15 +308,12 @@ async function applySocketOverrideIfExists(packageName, packagePath) {
     return
   }
 
-  // Merge exports: Socket exports take precedence.
-  const mergedExports = overridePkgJson.exports
-    ? { ...existingPkgJson.content.exports, ...overridePkgJson.exports }
-    : existingPkgJson.content.exports
-
   // Update package.json with Socket override fields.
   // Note: We intentionally do NOT overwrite scripts here to preserve test scripts.
+  // Note: We use Socket exports entirely to avoid mixing incompatible formats
+  // (conditional exports vs subpath exports).
   existingPkgJson.update({
-    exports: mergedExports,
+    ...(overridePkgJson.exports ? { exports: overridePkgJson.exports } : {}),
     main: overridePkgJson.main,
     module: overridePkgJson.module,
   })
@@ -429,15 +426,11 @@ async function installPackage(packageInfo) {
         const overridePkgJson = await readPackageJson(overridePkgJsonPath)
 
         // Selectively update the fields from Socket override.
-        // Merge exports: use Socket's exports but preserve any original subpaths.
+        // Note: Use Socket exports entirely to avoid mixing incompatible formats
+        // (conditional exports vs subpath exports).
         existingPkgJson.update({
           ...(overridePkgJson.exports
-            ? {
-                exports: {
-                  ...existingPkgJson.exports,
-                  ...overridePkgJson.exports,
-                },
-              }
+            ? { exports: overridePkgJson.exports }
             : {}),
           main: overridePkgJson.main,
           module: overridePkgJson.module,
@@ -623,16 +616,12 @@ async function installPackage(packageInfo) {
     // Selectively merge Socket override fields into original package.json.
     // We want: exports, main, module, types, files, sideEffects, socket
 
-    // Merge exports: use Socket's exports but preserve any original subpaths
-    // that don't conflict (like special aliases or paths we don't override).
-    const mergedExports = overridePkgJson.exports
-      ? { ...originalPkgJson.content.exports, ...overridePkgJson.exports }
-      : originalPkgJson.content.exports
-
     // Update the package.json with merged fields.
+    // Note: Use Socket exports entirely to avoid mixing incompatible formats
+    // (conditional exports vs subpath exports).
     originalPkgJson.update({
       // Override these specific fields from Socket package.
-      exports: mergedExports,
+      ...(overridePkgJson.exports ? { exports: overridePkgJson.exports } : {}),
       main: overridePkgJson.main,
       module: overridePkgJson.module,
       types: overridePkgJson.types,
