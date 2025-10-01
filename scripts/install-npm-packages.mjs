@@ -774,7 +774,10 @@ async function installPackage(packageInfo) {
     completePackage()
     const errorDetails = [error.message]
     if (error.stderr) {
-      errorDetails.push(error.stderr.slice(0, 500))
+      errorDetails.push('STDERR:', error.stderr.slice(0, 500))
+    }
+    if (error.stdout) {
+      errorDetails.push('STDOUT:', error.stdout.slice(0, 500))
     }
     return {
       package: origPkgName,
