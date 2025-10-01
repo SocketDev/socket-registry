@@ -582,8 +582,9 @@ async function installPackage(packageInfo) {
     // 1. Download and extract the GitHub tarball ourselves (with validation to catch HTTP errors)
     // 2. Wait for filesystem to flush, then verify the downloaded tarball and extracted package.json are not empty
     // 3. Retry reading package.json up to 3 times with exponential backoff to handle filesystem delays on slow CI
-    // 4. Remove the "files" field from package.json
-    // 5. Point pnpm to our modified local directory instead of the GitHub URL
+    // 4. Remove the "files" field from package.json and .npmignore to preserve test files
+    // 5. Repack into a new tarball (ensures pnpm includes all files regardless of files field)
+    // 6. Point pnpm to our repacked tarball instead of the GitHub URL
     // If extraction fails (HTTP error, empty files, or JSON parse error after retries), fall back to GitHub URL.
     let packageSpec = versionSpec
 
@@ -688,8 +689,23 @@ async function installPackage(packageInfo) {
           })
           await editablePkgJson.save()
 
-          // Use file:// URL to point pnpm to our modified local directory.
-          packageSpec = pathToFileURL(extractedPath).href
+          // Remove .npmignore if it exists, as it can also filter out test files.
+          const npmignorePath = path.join(extractedPath, '.npmignore')
+          try {
+            await fs.unlink(npmignorePath)
+          } catch {
+            // File doesn't exist, ignore.
+          }
+
+          // Create a new tarball with all files included (no files field filtering).
+          // This ensures test files are preserved when pnpm installs the package.
+          const repackedTarball = path.join(tempExtractDir, 'repacked.tgz')
+          await runCommand('tar', ['-czf', 'repacked.tgz', extractedDir.name], {
+            cwd: tempExtractDir,
+          })
+
+          // Use file:// URL to point pnpm to our repacked tarball.
+          packageSpec = pathToFileURL(repackedTarball).href
           modifiedPackagePath = tempExtractDir
         }
       } catch (e) {
