@@ -578,6 +578,10 @@ function getPacote() {
 }
 
 let _path: typeof import('path') | undefined
+/**
+ * Lazily load the path module to avoid Webpack errors.
+ * @private
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getPath() {
   if (_path === undefined) {
