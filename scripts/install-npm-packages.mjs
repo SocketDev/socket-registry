@@ -88,11 +88,13 @@ async function computeOverrideHash(overridePath) {
 }
 
 async function runCommand(command, args, options = {}) {
+  const opts = { __proto__: null, ...options }
+  const { env: spawnEnv } = opts
   try {
     const result = await spawn(command, args, {
       stdio: 'pipe',
       shell: WIN32,
-      env: { ...process.env, NODE_NO_WARNINGS: '1' },
+      env: { ...process.env, NODE_NO_WARNINGS: '1', ...spawnEnv },
       ...options,
     })
     return { stdout: result.stdout, stderr: result.stderr }
