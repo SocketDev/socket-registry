@@ -67,6 +67,8 @@ import os from 'node:os'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
+import tar from 'tar'
+
 import { parseArgs } from '../registry/dist/lib/parse-args.js'
 
 import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
@@ -610,7 +612,9 @@ async function installPackage(packageInfo) {
           throw new Error('Downloaded tarball is empty')
         }
 
-        await runCommand('tar', ['-xzf', 'archive.tar.gz'], {
+        // Extract using tar package for cross-platform compatibility.
+        await tar.x({
+          file: archivePath,
           cwd: tempExtractDir,
         })
 
@@ -695,17 +699,32 @@ async function installPackage(packageInfo) {
             // File doesn't exist, ignore.
           })
 
-          // pnpm respects the files field even when installing from file:// directories.
-          // Create a new tarball that includes all files (cross-platform compatible).
+          // CRITICAL: pnpm respects the "files" field even when installing from file:// directories.
+          // Even though we removed the "files" field from package.json, pnpm still filters files
+          // during installation if we point it to a directory. To work around this pnpm limitation,
+          // we create a NEW tarball that contains ALL files (including test files that were
+          // originally excluded by the "files" field).
+          //
+          // WHY THIS IS NECESSARY:
+          // 1. GitHub tarballs often have "files": ["index.js"] which excludes test files
+          // 2. We remove this field from package.json to preserve test files
+          // 3. But pnpm STILL filters files when installing from a file:// directory URL
+          // 4. Creating a new tarball bypasses pnpm's filtering since tarballs don't support
+          //    selective file inclusion - they contain everything that's in them
+          //
+          // CROSS-PLATFORM: Uses the 'tar' npm package (same as pacote) which works on all platforms
+          // including Windows 10+ without requiring external tar command.
           const repackedTarball = path.join(tempExtractDir, 'repacked.tgz')
-          const tarArgs = WIN32
-            ? ['-czf', 'repacked.tgz', extractedDir.name]
-            : ['-czf', 'repacked.tgz', extractedDir.name]
-          await runCommand('tar', tarArgs, {
-            cwd: tempExtractDir,
-          })
+          await tar.c(
+            {
+              gzip: true,
+              file: repackedTarball,
+              cwd: tempExtractDir,
+            },
+            [extractedDir.name],
+          )
 
-          // Use file:// URL to point pnpm to our repacked tarball.
+          // Use file:// URL to point pnpm to our repacked tarball that contains all files.
           packageSpec = pathToFileURL(repackedTarball).href
           modifiedPackagePath = tempExtractDir
         }
