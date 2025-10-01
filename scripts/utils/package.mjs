@@ -29,13 +29,18 @@ const PNPM_NPM_LIKE_FLAGS = [
   '--config.strict-peer-dependencies=false',
 ]
 
-// Additional pnpm install flags for CI-friendly behavior.
-const PNPM_INSTALL_FLAGS = [
-  ...PNPM_NPM_LIKE_FLAGS,
+// Basic pnpm install flags for CI-friendly behavior.
+const PNPM_INSTALL_BASE_FLAGS = [
   // Prevent interactive prompts in CI environments.
   '--config.confirmModulesPurge=false',
   // Allow lockfile updates (required for test package installations).
   '--no-frozen-lockfile',
+]
+
+// Pnpm install flags with hoisting for npm-like behavior.
+const PNPM_HOISTED_INSTALL_FLAGS = [
+  ...PNPM_NPM_LIKE_FLAGS,
+  ...PNPM_INSTALL_BASE_FLAGS,
 ]
 
 // Environment override to force pnpm to install devDependencies.
@@ -442,7 +447,7 @@ async function installPackageForTesting(socketPkgName) {
     await fs.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 2))
 
     // Install dependencies with pnpm.
-    await runCommand('pnpm', ['install', ...PNPM_INSTALL_FLAGS], {
+    await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
       cwd: installedPath,
     })
 
@@ -466,8 +471,9 @@ export {
   copySocketOverride,
   editablePackageJsonCache,
   installPackageForTesting,
+  PNPM_HOISTED_INSTALL_FLAGS,
+  PNPM_INSTALL_BASE_FLAGS,
   PNPM_INSTALL_ENV,
-  PNPM_INSTALL_FLAGS,
   PNPM_NPM_LIKE_FLAGS,
   processWithSpinner,
   readCachedEditablePackageJson,
