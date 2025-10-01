@@ -81,7 +81,7 @@ async function main() {
 
   // Add dual exports for constants (both lowercase and uppercase).
   const constantsExports = {}
-  for (const [exportPath, exportValue] of Object.entries(exports)) {
+  for (const { 0: exportPath, 1: exportValue } of Object.entries(exports)) {
     if (
       exportPath.startsWith('./lib/constants/') &&
       exportPath !== './lib/constants'

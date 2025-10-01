@@ -45,7 +45,7 @@ for (const pkg of packages) {
   }
 
   // 2. Add complex subpaths (objects)
-  for (const [key, value] of Object.entries(exports)) {
+  for (const { 0: key, 1: value } of Object.entries(exports)) {
     if (
       key !== '.' &&
       key !== './package.json' &&
@@ -57,7 +57,7 @@ for (const pkg of packages) {
   }
 
   // 3. Add simple string subpaths
-  for (const [key, value] of Object.entries(exports)) {
+  for (const { 0: key, 1: value } of Object.entries(exports)) {
     if (key !== '.' && key !== './package.json' && typeof value === 'string') {
       reordered[key] = value
     }

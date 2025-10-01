@@ -111,7 +111,7 @@ export function parseArgs<T = Record<string, unknown>>(
   }
 
   // Process each option configuration.
-  for (const [key, optionConfig] of Object.entries(options)) {
+  for (const { 0: key, 1: optionConfig } of Object.entries(options)) {
     const { default: defaultValue, multiple, short, type } = optionConfig
 
     // Set the option type.
