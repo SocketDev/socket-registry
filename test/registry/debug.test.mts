@@ -56,36 +56,48 @@ describe('debug module', () => {
     })
   })
 
-  describe('ENV.DEBUG normalization logic', () => {
-    const normalize = (loweredDebug: string): string =>
-      loweredDebug === '1' || loweredDebug === 'true'
-        ? '*'
-        : loweredDebug === '0' || loweredDebug === 'false'
-          ? ''
-          : loweredDebug
+  describe('ENV.DEBUG normalization', () => {
+    const evalEnvDebug = async (debugValue: string): Promise<string> => {
+      const { execa } = await import('execa')
+      const code = `import ENV from '../../registry/dist/lib/constants/env.js'; console.log(ENV.DEBUG)`
+      const result = await execa('node', ['--eval', code], {
+        env: { DEBUG: debugValue },
+      })
+      return result.stdout
+    }
 
-    it('should normalize "1" to "*"', () => {
-      expect(normalize('1')).toBe('*')
+    it('should normalize DEBUG="1" to "*"', async () => {
+      expect(await evalEnvDebug('1')).toBe('*')
     })
 
-    it('should normalize "true" to "*"', () => {
-      expect(normalize('true')).toBe('*')
+    it('should normalize DEBUG="true" to "*"', async () => {
+      expect(await evalEnvDebug('true')).toBe('*')
     })
 
-    it('should normalize "0" to empty string', () => {
-      expect(normalize('0')).toBe('')
+    it('should normalize DEBUG="TRUE" to "*"', async () => {
+      expect(await evalEnvDebug('TRUE')).toBe('*')
     })
 
-    it('should normalize "false" to empty string', () => {
-      expect(normalize('false')).toBe('')
+    it('should normalize DEBUG="0" to empty string', async () => {
+      expect(await evalEnvDebug('0')).toBe('')
     })
 
-    it('should preserve namespace patterns unchanged', () => {
-      expect(normalize('app:*')).toBe('app:*')
+    it('should normalize DEBUG="false" to empty string', async () => {
+      expect(await evalEnvDebug('false')).toBe('')
     })
 
-    it('should preserve complex patterns unchanged', () => {
-      expect(normalize('test:*,other:*,-skip:*')).toBe('test:*,other:*,-skip:*')
+    it('should normalize DEBUG="FALSE" to empty string', async () => {
+      expect(await evalEnvDebug('FALSE')).toBe('')
+    })
+
+    it('should preserve namespace patterns unchanged', async () => {
+      expect(await evalEnvDebug('app:*')).toBe('app:*')
+    })
+
+    it('should preserve complex patterns unchanged', async () => {
+      expect(await evalEnvDebug('test:*,other:*,-skip:*')).toBe(
+        'test:*,other:*,-skip:*',
+      )
     })
   })
 
