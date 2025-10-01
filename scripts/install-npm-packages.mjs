@@ -14,7 +14,6 @@ import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
 import { filterPackagesByChanges } from './utils/git.mjs'
 import {
   PNPM_HOISTED_INSTALL_FLAGS,
-  PNPM_INSTALL_BASE_FLAGS,
   PNPM_INSTALL_ENV,
 } from './utils/package.mjs'
 import constants from './constants.mjs'
@@ -449,18 +448,11 @@ async function installPackage(packageInfo) {
 
         await existingPkgJson.save()
 
-        // Install any missing dependencies.
+        // Install all dependencies including devDependencies at the parent level.
         // Unset NODE_ENV and CI to prevent pnpm from skipping devDependencies.
+        // The hoisted install at parent level makes test runners available to nested package.
         await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
           cwd: packageTempDir,
-          env: { ...process.env, ...PNPM_INSTALL_ENV },
-        })
-
-        // Explicitly install dependencies in the nested package to ensure test
-        // runners (tape, mocha, ava, etc.) are available.
-        // Use isolated mode (not hoisted) to avoid conflicts with parent installation.
-        await runCommand('pnpm', ['install', ...PNPM_INSTALL_BASE_FLAGS], {
-          cwd: installedPath,
           env: { ...process.env, ...PNPM_INSTALL_ENV },
         })
 
@@ -531,8 +523,37 @@ async function installPackage(packageInfo) {
       },
     )
 
-    // Apply Socket overrides selectively.
+    // Get the installed package path.
     const installedPath = path.join(packageTempDir, 'node_modules', origPkgName)
+
+    // Read the installed package's devDependencies.
+    const installedPkgJson = await readPackageJson(
+      path.join(installedPath, 'package.json'),
+    )
+    const devDeps = installedPkgJson.devDependencies || {}
+
+    // Add the package's devDependencies to our dummy package.json.
+    if (Object.keys(devDeps).length > 0) {
+      const dummyPkgJsonPath = path.join(packageTempDir, 'package.json')
+      const dummyPkgJson = await readPackageJson(dummyPkgJsonPath)
+      await writeJson(dummyPkgJsonPath, {
+        ...dummyPkgJson,
+        devDependencies: devDeps,
+      })
+
+      // Install devDependencies (test runners, etc.).
+      writeProgress('👷')
+      await runCommand(
+        'pnpm',
+        ['install', '--dev', ...PNPM_HOISTED_INSTALL_FLAGS],
+        {
+          cwd: packageTempDir,
+          env: { ...process.env, ...PNPM_INSTALL_ENV },
+        },
+      )
+    }
+
+    // Apply Socket overrides selectively.
     writeProgress('🔧')
 
     // Read the original installed package.json with editable support.
@@ -737,18 +758,11 @@ async function installPackage(packageInfo) {
       }
     }
 
-    // Install dependencies to ensure devDependencies (test runners) are available.
+    // Install all dependencies including devDependencies at the parent level.
     // Unset NODE_ENV and CI to prevent pnpm from skipping devDependencies.
+    // The hoisted install at parent level makes test runners available to nested package.
     await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
       cwd: packageTempDir,
-      env: { ...process.env, ...PNPM_INSTALL_ENV },
-    })
-
-    // Explicitly install dependencies in the nested package to ensure test
-    // runners (tape, mocha, ava, etc.) are available.
-    // Use isolated mode (not hoisted) to avoid conflicts with parent installation.
-    await runCommand('pnpm', ['install', ...PNPM_INSTALL_BASE_FLAGS], {
-      cwd: installedPath,
       env: { ...process.env, ...PNPM_INSTALL_ENV },
     })
 
