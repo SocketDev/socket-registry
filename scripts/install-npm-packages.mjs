@@ -579,9 +579,11 @@ async function installPackage(packageInfo) {
     // GitHub tarballs often have a "files" field in package.json that excludes test files.
     // When pnpm installs from a GitHub tarball, it respects the "files" field and discards test files.
     // To preserve test files, we:
-    // 1. Download and extract the GitHub tarball ourselves
-    // 2. Remove the "files" field from package.json
-    // 3. Point pnpm to our modified local directory instead of the GitHub URL
+    // 1. Download and extract the GitHub tarball ourselves (with validation to catch HTTP errors)
+    // 2. Verify the downloaded tarball and extracted package.json are not empty
+    // 3. Remove the "files" field from package.json
+    // 4. Point pnpm to our modified local directory instead of the GitHub URL
+    // If extraction fails (HTTP error, empty files, or JSON parse error), fall back to GitHub URL.
     let packageSpec = versionSpec
 
     if (versionSpec.startsWith('https://github.com/')) {
@@ -594,18 +596,18 @@ async function installPackage(packageInfo) {
         await fs.mkdir(tempExtractDir, { recursive: true })
 
         // Download and extract GitHub tarball.
-        await runCommand(
-          'curl',
-          [
-            '-sL',
-            versionSpec,
-            '-o',
-            path.join(tempExtractDir, 'archive.tar.gz'),
-          ],
-          {
-            cwd: tempExtractDir,
-          },
-        )
+        // Use -f flag to fail on HTTP errors (404, 500, etc.) instead of downloading error pages.
+        const archivePath = path.join(tempExtractDir, 'archive.tar.gz')
+        await runCommand('curl', ['-fsSL', versionSpec, '-o', archivePath], {
+          cwd: tempExtractDir,
+        })
+
+        // Verify the downloaded file is not empty and is a valid gzip file.
+        const archiveStats = await fs.stat(archivePath)
+        if (archiveStats.size === 0) {
+          throw new Error('Downloaded tarball is empty')
+        }
+
         await runCommand('tar', ['-xzf', 'archive.tar.gz'], {
           cwd: tempExtractDir,
         })
@@ -621,6 +623,12 @@ async function installPackage(packageInfo) {
         if (extractedDir) {
           const extractedPath = path.join(tempExtractDir, extractedDir.name)
           const pkgJsonPath = path.join(extractedPath, 'package.json')
+
+          // Verify package.json exists and is not empty.
+          const pkgJsonStats = await fs.stat(pkgJsonPath)
+          if (pkgJsonStats.size === 0) {
+            throw new Error('Extracted package.json is empty')
+          }
 
           // Remove the "files" field so pnpm includes all files (including tests).
           // Also remove unnecessary lifecycle scripts that could interfere with testing.
