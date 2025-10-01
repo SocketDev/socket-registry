@@ -858,16 +858,20 @@ async function installPackage(packageInfo) {
         }
       }
 
-      // If the test script just runs lint or pretest, find a real test runner.
+      // If the test script just runs non-test commands, find a real test runner.
+      const nonTestPatterns = ['lint', 'pretest', 'build', 'compile', 'tsc']
       if (
-        originalPkgJson.content.scripts.test?.includes('lint') ||
-        originalPkgJson.content.scripts.test?.includes('pretest')
+        nonTestPatterns.some(pattern =>
+          originalPkgJson.content.scripts.test?.includes(pattern),
+        )
       ) {
         // Find a test runner that actually runs tests.
         const realTestRunner = testRunners.find(
           runner =>
             originalPkgJson.content.scripts[runner] &&
-            !originalPkgJson.content.scripts[runner].includes('lint'),
+            !nonTestPatterns.some(pattern =>
+              originalPkgJson.content.scripts[runner].includes(pattern),
+            ),
         )
         if (realTestRunner) {
           originalPkgJson.content.scripts.test =
@@ -881,10 +885,25 @@ async function installPackage(packageInfo) {
           originalPkgJson.content.scripts.test.match(/^npm run ([-:\w]+)$/)[1]
         if (
           originalPkgJson.content.scripts[targetScript] &&
-          !originalPkgJson.content.scripts[targetScript].includes('lint')
+          !nonTestPatterns.some(pattern =>
+            originalPkgJson.content.scripts[targetScript].includes(pattern),
+          )
         ) {
           originalPkgJson.content.scripts.test =
             originalPkgJson.content.scripts[targetScript]
+        } else {
+          // Target script doesn't exist or is non-test, try to find a real test runner.
+          const realTestRunner = testRunners.find(
+            runner =>
+              originalPkgJson.content.scripts[runner] &&
+              !nonTestPatterns.some(pattern =>
+                originalPkgJson.content.scripts[runner].includes(pattern),
+              ),
+          )
+          if (realTestRunner) {
+            originalPkgJson.content.scripts.test =
+              originalPkgJson.content.scripts[realTestRunner]
+          }
         }
       }
 
