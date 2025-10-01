@@ -1036,7 +1036,7 @@
         "engines": {
           "node": ">=18"
         },
-        "interop": ["browserify", "cjs"],
+        "interop": ["cjs"],
         "license": "MIT",
         "name": "@socketregistry/isarray",
         "package": "isarray",
