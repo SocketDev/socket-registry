@@ -9,7 +9,7 @@
     "@socketregistry/scripts": "file:../../scripts",
     "@socketsecurity/registry": "file:../../registry",
     "@hyrious/bun.lockb": "https://github.com/hyrious/bun.lockb/archive/e4bab9e77b8c51c13eb02d526fb294e60955e7d8.tar.gz",
-    "abab": "https://github.com/jsdom/abab/archive/61b3a65077bcddf392c178a0631f1c8a9a218253.tar.gz",
+    "abab": "https://github.com/jsdom/abab/archive/80874ae1fe1cde2e587bb6e51b6d7c9b42ca1d34.tar.gz",
     "aggregate-error": "https://github.com/sindresorhus/aggregate-error/archive/3e2a127d3791176d602782a7806f4ca3a6e7f63a.tar.gz",
     "array-buffer-byte-length": "1.0.2",
     "array-flatten": "https://github.com/blakeembrey/array-flatten/archive/34b6d5a64b9bd844263321c321c86483f5147875.tar.gz",
