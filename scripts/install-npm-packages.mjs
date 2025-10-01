@@ -691,11 +691,9 @@ async function installPackage(packageInfo) {
 
           // Remove .npmignore if it exists, as it can also filter out test files.
           const npmignorePath = path.join(extractedPath, '.npmignore')
-          try {
-            await fs.unlink(npmignorePath)
-          } catch {
+          await safeRemove(npmignorePath).catch(() => {
             // File doesn't exist, ignore.
-          }
+          })
 
           // Create a new tarball with all files included (no files field filtering).
           // This ensures test files are preserved when pnpm installs the package.
