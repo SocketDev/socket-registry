@@ -208,7 +208,7 @@ async function hasPackageChanged(pkg, manifest_, options) {
     ])
 
     // Use remote files as source of truth and check if local matches.
-    for (const [file, remoteHash] of Object.entries(remoteHashes)) {
+    for (const { 0: file, 1: remoteHash } of Object.entries(remoteHashes)) {
       const localHash = localHashes[file]
       if (!localHash) {
         // File exists in remote but not locally - this is a real difference.

@@ -1,4 +1,49 @@
-/** @fileoverview Script for installing npm packages with Socket overrides for testing. */
+/**
+ * @fileoverview Script for installing npm packages with Socket overrides for testing.
+ *
+ * EXECUTION FLOW:
+ *
+ * This script is part of a 3-phase testing pipeline:
+ *   1. download-npm-packages.mjs - Validates packages exist and can be downloaded
+ *   2. install-npm-packages.mjs  - Installs packages with Socket overrides (THIS FILE)
+ *   3. run-npm-package-tests.mjs - Runs tests for installed packages
+ *
+ * WHAT THIS SCRIPT DOES:
+ *
+ * For each package in test/npm/package.json devDependencies:
+ *
+ * 1. GitHub Tarball Handling (if versionSpec is a GitHub URL):
+ *    - Downloads and extracts the GitHub tarball
+ *    - Removes the "files" field from package.json to preserve test files
+ *      (GitHub tarballs often have "files": ["index.js"] which excludes test files)
+ *    - Points pnpm to the modified local directory instead of the GitHub URL
+ *
+ * 2. Package Installation:
+ *    - Creates a temporary directory with a dummy package.json
+ *    - Installs the package via pnpm with Socket registry overrides
+ *    - Socket overrides are applied to all dependencies EXCEPT the package being tested
+ *      (this ensures the original package is installed, not replaced by our override)
+ *
+ * 3. DevDependencies Installation:
+ *    - Reads the installed package's devDependencies (test runners like ava, tape, mocha)
+ *    - Adds them to the dummy package.json
+ *    - Runs pnpm install again to install test dependencies
+ *
+ * 4. Socket Override Application:
+ *    - Copies Socket override files (index.js, etc.) to the installed package
+ *    - Does NOT overwrite test files or package.json test scripts
+ *    - Updates package.json with Socket override metadata (exports, main, module, etc.)
+ *    - Recursively applies Socket overrides to nested dependencies
+ *
+ * 5. Caching:
+ *    - Creates a .socket-install-complete marker with version and override hash
+ *    - On subsequent runs, skips installation if marker matches current version/hash
+ *    - Always reapplies Socket override files even for cached packages
+ *
+ * OUTPUT:
+ *   - Installed packages in: /tmp/npm-package-tests/{package-name}/
+ *   - Install results JSON for run-npm-package-tests.mjs
+ */
 
 import crypto from 'node:crypto'
 import { existsSync, promises as fs } from 'node:fs'
@@ -11,6 +56,7 @@ import { parseArgs } from '../registry/dist/lib/parse-args.js'
 import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
 import { testRunners } from '../test/utils/test-runners.mjs'
 import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
+import { safeRemove } from './utils/fs.mjs'
 import { filterPackagesByChanges } from './utils/git.mjs'
 import {
   PNPM_HOISTED_INSTALL_FLAGS,
@@ -278,6 +324,8 @@ async function applySocketOverrideIfExists(packageName, packagePath) {
   }
 
   // Copy Socket override files (excluding package.json).
+  // Note: We don't filter out test files here because some packages may have
+  // test files in their Socket overrides that should be preserved.
   try {
     await fs.cp(overridePath, packagePath, {
       force: true,
@@ -477,6 +525,9 @@ async function installPackage(packageInfo) {
 
   await fs.mkdir(packageTempDir, { recursive: true })
 
+  // Track modified package path for cleanup.
+  let modifiedPackagePath
+
   try {
     // Generate pnpm overrides for all Socket registry packages except the one being installed.
     // This ensures the original package gets installed (not replaced by Socket override),
@@ -485,12 +536,93 @@ async function installPackage(packageInfo) {
       excludes: [socketPkgName],
     })
 
+    // Handle GitHub tarball URLs specially to preserve test files.
+    // GitHub tarballs often have a "files" field in package.json that excludes test files.
+    // When pnpm installs from a GitHub tarball, it respects the "files" field and discards test files.
+    // To preserve test files, we:
+    // 1. Download and extract the GitHub tarball ourselves
+    // 2. Remove the "files" field from package.json
+    // 3. Point pnpm to our modified local directory instead of the GitHub URL
+    let packageSpec = versionSpec
+
+    if (versionSpec.startsWith('https://github.com/')) {
+      writeProgress('📝')
+      try {
+        const tempExtractDir = path.join(
+          os.tmpdir(),
+          `socket-test-extract-${Date.now()}`,
+        )
+        await fs.mkdir(tempExtractDir, { recursive: true })
+
+        // Download and extract GitHub tarball.
+        await runCommand(
+          'curl',
+          [
+            '-sL',
+            versionSpec,
+            '-o',
+            path.join(tempExtractDir, 'archive.tar.gz'),
+          ],
+          {
+            cwd: tempExtractDir,
+          },
+        )
+        await runCommand('tar', ['-xzf', 'archive.tar.gz'], {
+          cwd: tempExtractDir,
+        })
+
+        // Find the extracted directory (GitHub archives extract to reponame-commitish/).
+        const entries = await fs.readdir(tempExtractDir, {
+          withFileTypes: true,
+        })
+        const extractedDir = entries.find(
+          e => e.isDirectory() && e.name !== 'node_modules',
+        )
+
+        if (extractedDir) {
+          const extractedPath = path.join(tempExtractDir, extractedDir.name)
+          const pkgJsonPath = path.join(extractedPath, 'package.json')
+
+          // Remove the "files" field so pnpm includes all files (including tests).
+          // Also remove unnecessary lifecycle scripts that could interfere with testing.
+          const editablePkgJson = await readPackageJson(pkgJsonPath, {
+            editable: true,
+          })
+          const { scripts } = editablePkgJson.content
+          const cleanedScripts = scripts ? { __proto__: null } : undefined
+          if (scripts) {
+            // Keep test-related scripts, remove lifecycle scripts.
+            for (const { 0: key, 1: value } of Object.entries(scripts)) {
+              if (
+                key.startsWith('test') ||
+                key === 'pretest' ||
+                key === 'posttest'
+              ) {
+                cleanedScripts[key] = value
+              }
+            }
+          }
+          editablePkgJson.update({
+            files: undefined,
+            scripts: cleanedScripts,
+          })
+          await editablePkgJson.save()
+
+          // Use file:// URL to point pnpm to our modified local directory.
+          packageSpec = pathToFileURL(extractedPath).href
+          modifiedPackagePath = tempExtractDir
+        }
+      } catch (e) {
+        // If extraction fails, fall back to the original GitHub URL.
+        console.warn(
+          `Warning: Could not extract GitHub tarball for ${origPkgName}, using URL directly: ${e.message}`,
+        )
+        packageSpec = versionSpec
+      }
+    }
+
     // Create package.json with the original package as a dependency.
     // This allows pnpm to install it along with all its dependencies in one go.
-    const packageSpec = versionSpec.startsWith('https://')
-      ? versionSpec
-      : versionSpec
-
     await writeJson(path.join(packageTempDir, 'package.json'), {
       name: 'test-temp',
       version: '1.0.0',
@@ -522,9 +654,6 @@ async function installPackage(packageInfo) {
         retries: 3,
       },
     )
-
-    // Get the installed package path.
-    const installedPath = path.join(packageTempDir, 'node_modules', origPkgName)
 
     // Read the installed package's devDependencies.
     const installedPkgJson = await readPackageJson(
@@ -779,6 +908,11 @@ async function installPackage(packageInfo) {
       originalPackage: origPkgName,
     })
 
+    // Clean up temporary GitHub tarball extraction directory.
+    if (modifiedPackagePath) {
+      await safeRemove(modifiedPackagePath)
+    }
+
     writeProgress(LOG_SYMBOLS.success)
     completePackage()
     return {
@@ -788,6 +922,15 @@ async function installPackage(packageInfo) {
       tempDir: packageTempDir,
     }
   } catch (error) {
+    // Clean up temporary GitHub tarball extraction directory.
+    if (modifiedPackagePath) {
+      try {
+        await safeRemove(modifiedPackagePath)
+      } catch {
+        // Ignore cleanup errors in error path.
+      }
+    }
+
     writeProgress(LOG_SYMBOLS.fail)
     completePackage()
     const errorDetails = [error.message]
