@@ -15,6 +15,7 @@ async function evalEnvDebug(debugValue: string): Promise<string> {
   const code = `import ENV from '../../registry/dist/lib/constants/env.js'; console.log(ENV.DEBUG)`
   const proc = spawn(process.execPath, ['--eval', code], {
     env: { DEBUG: debugValue },
+    encoding: 'utf8',
   })
   let stdout = ''
   for await (const chunk of proc.stdout) {
