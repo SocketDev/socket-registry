@@ -441,10 +441,19 @@ async function installPackage(packageInfo) {
       )
 
       // Verify the installation matches the requested version and override hash.
+      // Also check if the cached installation references GitHub extraction directories.
+      // If the versionSpec is a GitHub URL but the marker doesn't have an extractPath,
+      // or if it does have an extractPath but that directory no longer exists,
+      // we need to reinstall because pnpm won't be able to access the dependencies.
+      const hasGitHubUrl = versionSpec.startsWith('https://github.com/')
+      const extractPath = markerData.extractPath
+      const extractPathValid = extractPath ? existsSync(extractPath) : true
+
       if (
         existingPkgJson.content.scripts?.test &&
         markerData.versionSpec === versionSpec &&
-        markerData.overrideHash === currentOverrideHash
+        markerData.overrideHash === currentOverrideHash &&
+        (!hasGitHubUrl || extractPathValid)
       ) {
         // Always reapply Socket override files to ensure they're up-to-date.
         // Resolve symlinks to check if paths are actually the same.
@@ -951,12 +960,17 @@ async function installPackage(packageInfo) {
       overrideHash,
       socketPackage: socketPkgName,
       originalPackage: origPkgName,
+      // Store extractPath if this was a GitHub tarball installation.
+      // This allows us to validate that the extraction directory still exists
+      // when checking the cache on subsequent runs.
+      ...(modifiedPackagePath ? { extractPath: modifiedPackagePath } : {}),
     })
 
-    // Clean up temporary GitHub tarball extraction directory.
-    if (modifiedPackagePath) {
-      await safeRemove(modifiedPackagePath)
-    }
+    // Note: We do NOT clean up the modifiedPackagePath (extraction directory) here.
+    // The installed package's node_modules may contain package.json files with
+    // file:// URLs pointing to this directory. Cleaning it would cause
+    // "LINKED_PKG_DIR_NOT_FOUND" errors when the cache is restored on subsequent runs.
+    // The extraction directory will remain in /tmp and be cleaned by OS temp cleanup.
 
     writeProgress(LOG_SYMBOLS.success)
     completePackage()
