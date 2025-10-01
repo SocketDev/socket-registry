@@ -11,6 +11,7 @@ import { parseArgs } from '../registry/dist/lib/parse-args.js'
 import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
 import { testRunners } from '../test/utils/test-runners.mjs'
 import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
+import { filterPackagesByChanges } from './utils/git.mjs'
 import { PNPM_INSTALL_FLAGS } from './utils/package.mjs'
 import constants from './constants.mjs'
 import ENV from '../registry/dist/lib/constants/ENV.js'
@@ -36,6 +37,10 @@ const { values: cliArgs } = parseArgs({
     'temp-dir': {
       type: 'string',
       default: path.join(os.tmpdir(), 'npm-package-tests'),
+    },
+    force: {
+      type: 'boolean',
+      default: ENV.CI,
     },
   },
   strict: false,
@@ -796,7 +801,7 @@ async function main() {
   const packagesToInstall = downloadResults.filter(r => r.downloaded)
 
   // Filter by specific packages if requested.
-  const filteredPackages = cliArgs.package?.length
+  let filteredPackages = cliArgs.package?.length
     ? packagesToInstall.filter(
         pkg =>
           cliArgs.package.includes(pkg.package) ||
@@ -804,8 +809,13 @@ async function main() {
       )
     : packagesToInstall
 
+  // If not in force mode, only install packages that have changes.
+  filteredPackages = await filterPackagesByChanges(filteredPackages, 'npm', {
+    force: cliArgs.force,
+  })
+
   if (filteredPackages.length === 0) {
-    logger.warn('No packages to install')
+    logger.log('No changed packages to install')
     process.exitCode = 0
     return
   }

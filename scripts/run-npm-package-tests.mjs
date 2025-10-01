@@ -9,7 +9,7 @@ import { parseArgs } from '../registry/dist/lib/parse-args.js'
 import WIN32 from '../registry/dist/lib/constants/WIN32.js'
 
 import constants from './constants.mjs'
-import { getAllChangedPackages } from './utils/git.mjs'
+import { filterPackagesByChanges } from './utils/git.mjs'
 import {
   PNPM_INSTALL_FLAGS,
   buildTestEnv,
@@ -218,42 +218,35 @@ async function main() {
   if (cliArgs.package?.length) {
     // Test specific packages requested.
     packagesToTest = cliArgs.package
-  } else if (!cliArgs.force) {
-    // Default behavior: only test packages with changed files (staged, unstaged, or untracked).
-    const changedPackages = await getAllChangedPackages('npm')
-    if (changedPackages.length > 0) {
-      logger.log(`Detected ${changedPackages.length} changed packages\n`)
-      if (installResults.length > 0) {
-        // Filter to changed packages that were successfully installed.
-        const installedPackageNames = new Set(
-          installResults
-            .filter(r => r.installed)
-            .map(r => r.socketPackage || resolveOriginalPackageName(r.package)),
-        )
-        packagesToTest = changedPackages.filter(pkg =>
-          installedPackageNames.has(pkg),
-        )
-      } else {
-        packagesToTest = changedPackages
-      }
-    } else {
+  } else {
+    // Build list of available packages to test.
+    const availablePackages = installResults.length
+      ? installResults
+          .filter(r => r.installed)
+          .map(r => ({
+            socketPackage:
+              r.socketPackage || resolveOriginalPackageName(r.package),
+          }))
+      : constants.npmPackageNames.map(socketPackage => ({ socketPackage }))
+
+    // Filter to only changed packages unless in force mode.
+    const filteredPackages = await filterPackagesByChanges(
+      availablePackages,
+      'npm',
+      { force: cliArgs.force },
+    )
+
+    if (filteredPackages.length === 0) {
       logger.log(
-        'No changed packages detected, use --force to test all packages',
+        cliArgs.force
+          ? 'No packages available to test'
+          : 'No changed packages detected, use --force to test all packages',
       )
       process.exitCode = 0
       return
     }
-  } else {
-    // Force mode: test all packages.
-    if (installResults.length > 0) {
-      // Test all successfully installed packages.
-      packagesToTest = installResults
-        .filter(r => r.installed)
-        .map(r => r.socketPackage || resolveOriginalPackageName(r.package))
-    } else {
-      // Fallback to all packages.
-      packagesToTest = constants.npmPackageNames
-    }
+
+    packagesToTest = filteredPackages.map(pkg => pkg.socketPackage)
   }
 
   if (packagesToTest.length === 0) {
