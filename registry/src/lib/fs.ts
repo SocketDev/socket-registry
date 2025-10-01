@@ -128,6 +128,9 @@ const defaultRemoveOptions = ObjectFreeze({
 })
 
 let _fs: typeof import('fs') | undefined
+/**
+ * Lazily load the fs module to avoid Webpack errors.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getFs() {
   if (_fs === undefined) {
@@ -139,6 +142,10 @@ function getFs() {
 }
 
 let _path: typeof import('path') | undefined
+/**
+ * Lazily load the path module to avoid Webpack errors.
+ * @private
+ */
 /*@__NO_SIDE_EFFECTS__*/
 function getPath() {
   if (_path === undefined) {
