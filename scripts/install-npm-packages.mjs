@@ -695,10 +695,13 @@ async function installPackage(packageInfo) {
             // File doesn't exist, ignore.
           })
 
-          // Create a new tarball with all files included (no files field filtering).
-          // This ensures test files are preserved when pnpm installs the package.
+          // pnpm respects the files field even when installing from file:// directories.
+          // Create a new tarball that includes all files (cross-platform compatible).
           const repackedTarball = path.join(tempExtractDir, 'repacked.tgz')
-          await runCommand('tar', ['-czf', 'repacked.tgz', extractedDir.name], {
+          const tarArgs = WIN32
+            ? ['-czf', 'repacked.tgz', extractedDir.name]
+            : ['-czf', 'repacked.tgz', extractedDir.name]
+          await runCommand('tar', tarArgs, {
             cwd: tempExtractDir,
           })
 
