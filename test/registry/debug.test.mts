@@ -1,4 +1,6 @@
 import { spawn } from 'node:child_process'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -11,15 +13,34 @@ import {
   isDebug,
 } from '../../registry/dist/lib/debug.js'
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+const envModulePath = path.resolve(
+  __dirname,
+  '../../registry/dist/lib/constants/ENV.js',
+)
+
 async function evalEnvDebug(debugValue: string): Promise<string> {
-  const code = `import ENV from '../../registry/dist/lib/constants/env.js'; console.log(ENV.DEBUG)`
-  const proc = spawn(process.execPath, ['--eval', code], {
-    env: { DEBUG: debugValue },
-    encoding: 'utf8',
-  })
+  const code = `import ENV from '${envModulePath}'; console.log(ENV.DEBUG)`
+  const proc = spawn(
+    process.execPath,
+    ['--input-type=module', '--eval', code],
+    {
+      env: { DEBUG: debugValue },
+    },
+  )
+  proc.stdout.setEncoding('utf8')
+  proc.stderr.setEncoding('utf8')
   let stdout = ''
+  let stderr = ''
   for await (const chunk of proc.stdout) {
     stdout += chunk
+  }
+  for await (const chunk of proc.stderr) {
+    stderr += chunk
+  }
+  if (stderr) {
+    throw new Error(`evalEnvDebug failed: ${stderr}`)
   }
   return stdout.trim()
 }
