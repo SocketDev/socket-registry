@@ -8,6 +8,7 @@ import { parseArgs } from '../registry/dist/lib/parse-args.js'
 
 import WIN32 from '../registry/dist/lib/constants/WIN32.js'
 
+import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
 import constants from './constants.mjs'
 import { filterPackagesByChanges } from './utils/git.mjs'
 import {
@@ -53,28 +54,13 @@ const concurrency = Math.max(1, parseInt(cliArgs.concurrency, 10) || 3)
 const tempBaseDir = cliArgs.tempDir
 
 /**
- * Clean test script by removing lint commands and unsupported flags.
+ * Check if cleaned script only runs non-test commands.
  */
-function cleanTestScript(testScript) {
-  const cleaned = testScript
-    // Strip actions BEFORE and AFTER the test runner is invoked.
-    .replace(
-      /^.*?(\b(?:ava|jest|node|npm run|mocha|tape?)\b.*?)(?:&.+|$)/,
-      '$1',
-    )
-    // Remove unsupported Node flag "--es-staging".
-    .replace(/(?<=node)(?: +--[-\w]+)+/, m => m.replaceAll(' --es-staging', ''))
-    .trim()
-
-  // Return undefined if the script only runs non-test commands.
-  if (
-    /^npm run (?:lint|build|prepare|prepublish|pretest)$/.test(cleaned) ||
-    cleaned === 'exit 0'
-  ) {
-    return undefined
-  }
-
-  return cleaned
+function isNonTestScript(cleanedScript) {
+  return (
+    /^npm run (?:lint|build|prepare|prepublish|pretest)$/.test(cleanedScript) ||
+    cleanedScript === 'exit 0'
+  )
 }
 
 function hasModuleError(stdout, stderr) {
@@ -126,7 +112,7 @@ async function runPackageTest(socketPkgName) {
   // Clean test script to remove lint commands and unsupported flags.
   const cleanedScript = cleanTestScript(testScript)
 
-  if (!cleanedScript) {
+  if (isNonTestScript(cleanedScript)) {
     logger.warn(`${origPkgName}: Test script only runs non-test commands`)
     return {
       package: origPkgName,

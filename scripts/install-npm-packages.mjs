@@ -674,12 +674,25 @@ async function installPackage(packageInfo) {
           const { scripts } = editablePkgJson.content
           const cleanedScripts = scripts ? { __proto__: null } : undefined
           if (scripts) {
-            // Keep test-related scripts, remove lifecycle scripts.
+            // Collect all scripts referenced by test scripts.
+            const referencedScripts = new Set()
+            for (const { 0: key, 1: value } of Object.entries(scripts)) {
+              if (key.startsWith('test')) {
+                // Extract referenced scripts like "npm run mocha".
+                const matches = value.matchAll(/npm run ([-:\w]+)/g)
+                for (const match of matches) {
+                  referencedScripts.add(match[1])
+                }
+              }
+            }
+
+            // Keep test-related scripts and referenced scripts, remove lifecycle scripts.
             for (const { 0: key, 1: value } of Object.entries(scripts)) {
               if (
                 key.startsWith('test') ||
                 key === 'pretest' ||
-                key === 'posttest'
+                key === 'posttest' ||
+                referencedScripts.has(key)
               ) {
                 cleanedScripts[key] = value
               }
@@ -946,60 +959,62 @@ async function installPackage(packageInfo) {
             !containsNonTestPattern(originalPkgJson.content.scripts[runner]),
         )
 
-      // If the test script just runs non-test commands, find a real test runner.
-      if (containsNonTestPattern(originalPkgJson.content.scripts.test)) {
-        const realTestRunner = findRealTestRunner()
-        if (realTestRunner) {
-          originalPkgJson.content.scripts.test =
-            originalPkgJson.content.scripts[realTestRunner]
+      // Build cleaned scripts object.
+      const cleanedScripts = { __proto__: null }
+      for (const { 0: key, 1: value } of Object.entries(
+        originalPkgJson.content.scripts,
+      )) {
+        if (key.startsWith('test') || key === actualTestScript) {
+          cleanedScripts[key] = cleanTestScript(value)
+        } else {
+          cleanedScripts[key] = value
         }
       }
 
-      // If test script just delegates to another script, resolve it.
-      if (originalPkgJson.content.scripts.test?.match(/^npm run ([-:\w]+)$/)) {
-        const targetScript =
-          originalPkgJson.content.scripts.test.match(/^npm run ([-:\w]+)$/)[1]
-        const targetScriptContent =
-          originalPkgJson.content.scripts[targetScript]
-
-        if (
-          targetScriptContent &&
-          !containsNonTestPattern(targetScriptContent)
-        ) {
-          originalPkgJson.content.scripts.test = targetScriptContent
-        } else {
-          // Target script doesn't exist or is non-test, try to find a real test runner.
+      // Clean the test script first to extract just the test runner.
+      if (cleanedScripts.test) {
+        // If the test script just runs non-test commands after cleaning, find a real test runner.
+        if (containsNonTestPattern(cleanedScripts.test)) {
           const realTestRunner = findRealTestRunner()
           if (realTestRunner) {
-            originalPkgJson.content.scripts.test =
+            cleanedScripts.test =
               originalPkgJson.content.scripts[realTestRunner]
+          }
+        }
+
+        // If test script just delegates to another script, resolve it.
+        const delegateMatch = cleanedScripts.test?.match(/^npm run ([-:\w]+)$/)
+        if (delegateMatch) {
+          const targetScript = delegateMatch[1]
+          const targetScriptContent =
+            originalPkgJson.content.scripts[targetScript]
+
+          if (
+            targetScriptContent &&
+            !containsNonTestPattern(targetScriptContent)
+          ) {
+            // Resolve to the actual command, not the npm run wrapper.
+            cleanedScripts.test = targetScriptContent
+            // Also preserve the target script itself.
+            cleanedScripts[targetScript] = targetScriptContent
+          } else {
+            // Target script doesn't exist or is non-test, try to find a real test runner.
+            const realTestRunner = findRealTestRunner()
+            if (realTestRunner) {
+              cleanedScripts.test =
+                originalPkgJson.content.scripts[realTestRunner]
+              // Also preserve the real test runner script.
+              cleanedScripts[realTestRunner] =
+                originalPkgJson.content.scripts[realTestRunner]
+            }
           }
         }
       }
 
-      // Clean the test scripts.
-      if (
-        actualTestScript &&
-        originalPkgJson.content.scripts[actualTestScript]
-      ) {
-        originalPkgJson.content.scripts[actualTestScript] = cleanTestScript(
-          originalPkgJson.content.scripts[actualTestScript],
-        )
-      }
-      if (originalPkgJson.content.scripts.test) {
-        originalPkgJson.content.scripts.test = cleanTestScript(
-          originalPkgJson.content.scripts.test,
-        )
-      }
-
-      // Clean any test:* and tests-* scripts.
-      for (const [key, value] of Object.entries(
-        originalPkgJson.content.scripts,
-      )) {
-        if (key.startsWith('test:') || key.startsWith('tests')) {
-          originalPkgJson.content.scripts[key] = cleanTestScript(value)
-        }
-      }
+      // Update scripts using .update().
+      originalPkgJson.update({
+        scripts: cleanedScripts,
+      })
     }
 
     await originalPkgJson.save()
