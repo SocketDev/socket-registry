@@ -101,7 +101,12 @@ async function runPackageTest(socketPkgName) {
 
     if (!testScript) {
       logger.warn(`${origPkgName}: No test script`)
-      return { package: origPkgName, passed: false, reason: 'No test script' }
+      return {
+        package: origPkgName,
+        passed: true,
+        skipped: true,
+        reason: 'No test script',
+      }
     }
 
     // Run the test (removed individual log message for cleaner output).
@@ -308,12 +313,16 @@ async function main() {
   logger.log('TEST SUMMARY')
   logger.log('='.repeat(60))
 
-  const passed = results.filter(r => r.passed)
-  const failed = results.filter(r => !r.passed && r.reason !== 'Skipped')
-  const skipped = results.filter(r => r.reason === 'Skipped')
+  const passed = results.filter(r => r.passed && !r.skipped)
+  const failed = results.filter(r => !r.passed)
+  const skipped = results.filter(r => r.skipped)
 
   // Calculate total tested (excluding skipped).
   const totalTested = results.length - skipped.length
+
+  if (skipped.length > 0) {
+    logger.log(`Skipped: ${skipped.length} (no test script)`)
+  }
 
   logger.success(
     `Passed: ${passed.length}/${totalTested} (${results.length} total)`,
