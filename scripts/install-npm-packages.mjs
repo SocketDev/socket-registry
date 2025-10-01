@@ -632,9 +632,18 @@ async function installPackage(packageInfo) {
 
           // Remove the "files" field so pnpm includes all files (including tests).
           // Also remove unnecessary lifecycle scripts that could interfere with testing.
-          const editablePkgJson = await readPackageJson(pkgJsonPath, {
-            editable: true,
-          })
+          let editablePkgJson
+          try {
+            editablePkgJson = await readPackageJson(pkgJsonPath, {
+              editable: true,
+            })
+          } catch (parseError) {
+            // If JSON parsing fails, read the file content to help diagnose the issue.
+            const fileContent = await fs.readFile(pkgJsonPath, 'utf8')
+            throw new Error(
+              `Invalid package.json: ${parseError.message}. File size: ${pkgJsonStats.size}, Content preview: ${fileContent.slice(0, 200)}`,
+            )
+          }
           const { scripts } = editablePkgJson.content
           const cleanedScripts = scripts ? { __proto__: null } : undefined
           if (scripts) {
