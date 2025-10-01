@@ -612,6 +612,10 @@ async function installPackage(packageInfo) {
           cwd: tempExtractDir,
         })
 
+        // Wait briefly for filesystem to flush after tar extraction.
+        // This prevents reading truncated files on slower CI systems.
+        await new Promise(resolve => setTimeout(resolve, 100))
+
         // Find the extracted directory (GitHub archives extract to reponame-commitish/).
         const entries = await fs.readdir(tempExtractDir, {
           withFileTypes: true,
