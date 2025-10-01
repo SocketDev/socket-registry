@@ -434,7 +434,7 @@ async function installPackageForTesting(socketPkgName) {
       }
 
       // Preserve any test:* and tests-* scripts that might be referenced.
-      for (const [key, value] of Object.entries(originalScripts)) {
+      for (const { 0: key, 1: value } of Object.entries(originalScripts)) {
         if (
           (key.startsWith('test:') || key.startsWith('tests')) &&
           !pkgJson.scripts[key]
