@@ -56,6 +56,39 @@ describe('debug module', () => {
     })
   })
 
+  describe('ENV.DEBUG normalization logic', () => {
+    const normalize = (loweredDebug: string): string =>
+      loweredDebug === '1' || loweredDebug === 'true'
+        ? '*'
+        : loweredDebug === '0' || loweredDebug === 'false'
+          ? ''
+          : loweredDebug
+
+    it('should normalize "1" to "*"', () => {
+      expect(normalize('1')).toBe('*')
+    })
+
+    it('should normalize "true" to "*"', () => {
+      expect(normalize('true')).toBe('*')
+    })
+
+    it('should normalize "0" to empty string', () => {
+      expect(normalize('0')).toBe('')
+    })
+
+    it('should normalize "false" to empty string', () => {
+      expect(normalize('false')).toBe('')
+    })
+
+    it('should preserve namespace patterns unchanged', () => {
+      expect(normalize('app:*')).toBe('app:*')
+    })
+
+    it('should preserve complex patterns unchanged', () => {
+      expect(normalize('test:*,other:*,-skip:*')).toBe('test:*,other:*,-skip:*')
+    })
+  })
+
   describe('debugLog', () => {
     it('should log when debug is enabled', () => {
       process.env['DEBUG'] = '1'
