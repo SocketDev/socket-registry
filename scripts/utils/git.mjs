@@ -1,96 +1,36 @@
 /**
- * @fileoverview Git operations including diff detection and file tracking.
- * Provides utilities for git-based file change detection and repository management.
+ * @fileoverview Git operations with package filtering utilities.
  */
 
 import path from 'node:path'
 
-import constants from '../constants.mjs'
 import { getGlobMatcher } from '../../registry/dist/lib/globs.js'
-import { defineLazyGetters } from '../../registry/dist/lib/objects.js'
 import { normalizePath } from '../../registry/dist/lib/path.js'
-import { spawn, spawnSync } from '../../registry/dist/lib/spawn.js'
-import { stripAnsi } from '../../registry/dist/lib/strings.js'
+import constants from '../constants.mjs'
 
-const { NPM, UTF8 } = constants
+export {
+  getChangedFiles,
+  getChangedFilesSync,
+  getStagedFiles,
+  getStagedFilesSync,
+  getUnstagedFiles,
+  getUnstagedFilesSync,
+  isChanged,
+  isChangedSync,
+  isStaged,
+  isStagedSync,
+  isUnstaged,
+  isUnstagedSync,
+} from '../../registry/dist/lib/git.js'
 
-const gitDiffCache = new Map()
+import {
+  getChangedFiles,
+  getChangedFilesSync,
+  getUnstagedFiles,
+  getUnstagedFilesSync,
+} from '../../registry/dist/lib/git.js'
 
-const gitDiffSpawnArgs = defineLazyGetters(
-  { __proto__: null },
-  {
-    all: () => [
-      constants.gitExecPath,
-      ['status', '--porcelain'],
-      {
-        cwd: constants.rootPath,
-        shell: constants.WIN32,
-        encoding: UTF8,
-      },
-    ],
-    modified: () => [
-      constants.gitExecPath,
-      ['diff', '--name-only'],
-      {
-        cwd: constants.rootPath,
-        // Encoding option used for spawnSync.
-        encoding: UTF8,
-      },
-    ],
-    staged: () => [
-      constants.gitExecPath,
-      ['diff', '--cached', '--name-only'],
-      {
-        cwd: constants.rootPath,
-        shell: constants.WIN32,
-        // Encoding option used for spawnSync.
-        encoding: UTF8,
-      },
-    ],
-  },
-)
-
-async function innerDiff(args, options) {
-  const { cache = true, ...parseOptions } = { __proto__: null, ...options }
-  const cacheKey = cache ? JSON.stringify({ args, parseOptions }) : undefined
-  if (cache) {
-    const result = gitDiffCache.get(cacheKey)
-    if (result) {
-      return result
-    }
-  }
-  let result
-  try {
-    result = parseGitDiffStdout((await spawn(...args)).stdout, parseOptions)
-  } catch {
-    return []
-  }
-  if (cache) {
-    gitDiffCache.set(cacheKey, result)
-  }
-  return result
-}
-
-function innerDiffSync(args, options) {
-  const { cache = true, ...parseOptions } = { __proto__: null, ...options }
-  const cacheKey = cache ? JSON.stringify({ args, parseOptions }) : undefined
-  if (cache) {
-    const result = gitDiffCache.get(cacheKey)
-    if (result) {
-      return result
-    }
-  }
-  let result
-  try {
-    result = parseGitDiffStdout(spawnSync(...args).stdout, parseOptions)
-  } catch {
-    return []
-  }
-  if (cache) {
-    gitDiffCache.set(cacheKey, result)
-  }
-  return result
-}
+const { NPM } = constants
 
 function innerGetPackages(eco, files, options) {
   const { asSet = false, ...matcherOptions } = { __proto__: null, ...options }
@@ -105,7 +45,6 @@ function innerGetPackages(eco, files, options) {
       ...(eco === NPM ? [`${constants.relRegistryPkgPath}/**`] : []),
     ],
     {
-      __proto__: null,
       ...matcherOptions,
       absolute: false,
       cwd: rootPath,
@@ -130,182 +69,92 @@ function innerGetPackages(eco, files, options) {
   return asSet ? packageNames : Array.from(packageNames)
 }
 
-function diffIncludes(files, pathname) {
-  return files.includes(path.relative(constants.rootPath, pathname))
-}
-
-async function forceRelative(fn, options) {
-  return await fn({ __proto__: null, ...options, absolute: false })
-}
-
-function forceRelativeSync(fn, options) {
-  return fn({ __proto__: null, ...options, absolute: false })
-}
-
-/**
- * Get all changed files including staged, modified, and untracked files.
- */
-async function getAllChangedFiles(options) {
-  return await innerDiff(gitDiffSpawnArgs.all, {
-    __proto__: null,
-    ...options,
-    porcelain: true,
-  })
-}
-
-/**
- * Get all changed files including staged, modified, and untracked files.
- */
-function getAllChangedFilesSync(options) {
-  return innerDiffSync(gitDiffSpawnArgs.all, {
-    __proto__: null,
-    ...options,
-    porcelain: true,
-  })
-}
-
 /**
  * Get all changed package names for the specified ecosystem.
  */
 async function getAllChangedPackages(eco, options) {
-  return innerGetPackages(eco, await getAllChangedFiles(), options)
+  return innerGetPackages(eco, await getChangedFiles(), options)
 }
 
 /**
  * Get all changed package names for the specified ecosystem.
  */
 function getAllChangedPackagesSync(eco, options) {
-  return innerGetPackages(eco, getAllChangedFilesSync(), options)
-}
-
-/**
- * Get modified files that are not staged.
- */
-async function getModifiedFiles(options) {
-  return await innerDiff(gitDiffSpawnArgs.modified, options)
-}
-
-/**
- * Get modified files that are not staged.
- */
-function getModifiedFilesSync(options) {
-  return innerDiffSync(gitDiffSpawnArgs.modified, options)
+  return innerGetPackages(eco, getChangedFilesSync(), options)
 }
 
 /**
  * Get modified package names for the specified ecosystem.
  */
 async function getModifiedPackages(eco, options) {
-  return innerGetPackages(eco, await getModifiedFiles(), options)
+  return innerGetPackages(eco, await getUnstagedFiles(), options)
 }
 
 /**
  * Get modified package names for the specified ecosystem.
  */
 function getModifiedPackagesSync(eco, options) {
-  return innerGetPackages(eco, getModifiedFilesSync(), options)
-}
-
-/**
- * Get staged files ready for commit.
- */
-async function getStagedFiles(options) {
-  return await innerDiff(gitDiffSpawnArgs.staged, options)
-}
-
-/**
- * Get staged files ready for commit.
- */
-function getStagedFilesSync(options) {
-  return innerDiffSync(gitDiffSpawnArgs.staged, options)
+  return innerGetPackages(eco, getUnstagedFilesSync(), options)
 }
 
 /**
  * Get staged package names for the specified ecosystem.
  */
 async function getStagedPackages(eco, options) {
-  return innerGetPackages(eco, await getStagedFiles(), options)
+  const { getStagedFiles: getStagedFilesImport } = await import(
+    '../../registry/dist/lib/git.js'
+  )
+  return innerGetPackages(eco, await getStagedFilesImport(), options)
 }
 
 /**
  * Get staged package names for the specified ecosystem.
  */
 function getStagedPackagesSync(eco, options) {
-  return innerGetPackages(eco, getStagedFilesSync(), options)
-}
-
-/**
- * Check if pathname is modified but not staged.
- */
-async function isModified(pathname, options) {
-  return diffIncludes(await forceRelative(getModifiedFiles, options), pathname)
-}
-
-/**
- * Check if pathname is modified but not staged.
- */
-function isModifiedSync(pathname, options) {
-  return diffIncludes(
-    forceRelativeSync(getModifiedFilesSync, options),
-    pathname,
-  )
-}
-
-/**
- * Check if pathname is staged for commit.
- */
-async function isStaged(pathname, options) {
-  return diffIncludes(await forceRelative(getStagedFiles, options), pathname)
-}
-
-/**
- * Check if pathname is staged for commit.
- */
-function isStagedSync(pathname, options) {
-  return diffIncludes(forceRelativeSync(getStagedFilesSync, options), pathname)
-}
-
-function parseGitDiffStdout(stdout, options) {
-  const { rootPath } = constants
   const {
-    absolute = false,
-    cwd = rootPath,
-    porcelain = false,
-    ...matcherOptions
-  } = { __proto__: null, ...options }
-  let rawFiles = stdout ? stripAnsi(stdout.trim()).split('\n') : []
-  // Parse porcelain format: strip status codes (first 3 characters).
-  if (porcelain) {
-    rawFiles = rawFiles
-      .filter(line => line.trim())
-      .map(line => line.substring(3))
-  }
-  const files = absolute
-    ? rawFiles.map(relPath => normalizePath(path.join(rootPath, relPath)))
-    : rawFiles.map(relPath => normalizePath(relPath))
-  if (cwd === rootPath) {
-    return files
-  }
-  const relPath = normalizePath(path.relative(rootPath, cwd))
-  const matcher = getGlobMatcher([`${relPath}/**`], {
-    __proto__: null,
-    ...matcherOptions,
-    absolute,
-    cwd: rootPath,
-  })
-  const filtered = []
-  for (const filepath of files) {
-    if (matcher(filepath)) {
-      filtered.push(filepath)
-    }
-  }
-  return filtered
+    getStagedFilesSync: getStagedFilesSyncImport,
+  } = require('../../registry/dist/lib/git.js')
+  return innerGetPackages(eco, getStagedFilesSyncImport(), options)
+}
+
+/**
+ * Alias for getUnstagedFiles.
+ */
+export async function getModifiedFiles(options) {
+  return await getUnstagedFiles(options)
+}
+
+/**
+ * Alias for getUnstagedFilesSync.
+ */
+export function getModifiedFilesSync(options) {
+  return getUnstagedFilesSync(options)
+}
+
+/**
+ * Alias for isUnstaged.
+ */
+export async function isModified(pathname, options) {
+  const { isUnstaged: isUnstagedImport } = await import(
+    '../../registry/dist/lib/git.js'
+  )
+  return await isUnstagedImport(pathname, options)
+}
+
+/**
+ * Alias for isUnstagedSync.
+ */
+export function isModifiedSync(pathname, options) {
+  const {
+    isUnstagedSync: isUnstagedSyncImport,
+  } = require('../../registry/dist/lib/git.js')
+  return isUnstagedSyncImport(pathname, options)
 }
 
 /**
  * Filter packages to only those with changes, unless force mode is enabled.
  */
-async function filterPackagesByChanges(packages, eco, options) {
+export async function filterPackagesByChanges(packages, eco, options) {
   const { force = false, packageKey = 'socketPackage' } = {
     __proto__: null,
     ...options,
@@ -325,21 +174,10 @@ async function filterPackagesByChanges(packages, eco, options) {
 }
 
 export {
-  filterPackagesByChanges,
-  getAllChangedFiles,
-  getAllChangedFilesSync,
   getAllChangedPackages,
   getAllChangedPackagesSync,
-  getModifiedFiles,
-  getModifiedFilesSync,
   getModifiedPackages,
   getModifiedPackagesSync,
-  getStagedFiles,
-  getStagedFilesSync,
   getStagedPackages,
   getStagedPackagesSync,
-  isModified,
-  isModifiedSync,
-  isStaged,
-  isStagedSync,
 }
