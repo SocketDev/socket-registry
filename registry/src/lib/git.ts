@@ -9,8 +9,6 @@ import { normalizePath } from './path'
 import { spawn, spawnSync } from './spawn'
 import { stripAnsi } from './strings'
 
-const gitDiffCache = new Map<string, string[]>()
-
 /**
  * Options for git diff operations.
  */
@@ -40,9 +38,11 @@ interface GitDiffSpawnArgs {
   staged: SpawnArgs
 }
 
-let _fs: typeof import('node:fs') | undefined
+const gitDiffCache = new Map<string, string[]>()
+
+let _fs: typeof import('fs') | undefined
 /**
- * Lazily load the fs module.
+ * Lazily load the fs module to avoid Webpack errors.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function getFs() {
