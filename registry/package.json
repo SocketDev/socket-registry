@@ -86,30 +86,9 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./extensions.json": "./extensions.json",
     "./index": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    },
-    "./lib/abort": {
-      "types": "./dist/lib/abort.d.ts",
-      "default": "./dist/lib/abort.js"
-    },
-    "./lib/agent": {
-      "types": "./dist/lib/agent.d.ts",
-      "default": "./dist/lib/agent.js"
-    },
-    "./lib/arrays": {
-      "types": "./dist/lib/arrays.d.ts",
-      "default": "./dist/lib/arrays.js"
-    },
-    "./lib/bin": {
-      "types": "./dist/lib/bin.d.ts",
-      "default": "./dist/lib/bin.js"
-    },
-    "./lib/constants": {
-      "types": "./dist/lib/constants/index.d.ts",
-      "default": "./dist/lib/constants/index.js"
     },
     "./lib/constants/ABORT_CONTROLLER": {
       "types": "./dist/lib/constants/abort-controller.d.ts",
@@ -195,14 +174,6 @@
       "types": "./dist/lib/constants/exec-path.d.ts",
       "default": "./dist/lib/constants/exec-path.js"
     },
-    "./lib/constants/EXTENSIONS": {
-      "types": "./dist/lib/constants/EXTENSIONS.d.ts",
-      "default": "./dist/lib/constants/EXTENSIONS.js"
-    },
-    "./lib/constants/EXTENSIONS_JSON": {
-      "types": "./dist/lib/constants/EXTENSIONS_JSON.d.ts",
-      "default": "./dist/lib/constants/EXTENSIONS_JSON.js"
-    },
     "./lib/constants/EXT_CJS": {
       "types": "./dist/lib/constants/EXT_CJS.d.ts",
       "default": "./dist/lib/constants/EXT_CJS.js"
@@ -258,6 +229,14 @@
     "./lib/constants/EXT_YML": {
       "types": "./dist/lib/constants/EXT_YML.d.ts",
       "default": "./dist/lib/constants/EXT_YML.js"
+    },
+    "./lib/constants/EXTENSIONS": {
+      "types": "./dist/lib/constants/EXTENSIONS.d.ts",
+      "default": "./dist/lib/constants/EXTENSIONS.js"
+    },
+    "./lib/constants/EXTENSIONS_JSON": {
+      "types": "./dist/lib/constants/EXTENSIONS_JSON.d.ts",
+      "default": "./dist/lib/constants/EXTENSIONS_JSON.js"
     },
     "./lib/constants/GET_IPC": {
       "types": "./dist/lib/constants/get-ipc.d.ts",
@@ -547,10 +526,6 @@
       "types": "./dist/lib/constants/SUPPORTS_PROCESS_SEND.d.ts",
       "default": "./dist/lib/constants/SUPPORTS_PROCESS_SEND.js"
     },
-    "./lib/constants/TSCONFIG_JSON": {
-      "types": "./dist/lib/constants/TSCONFIG_JSON.d.ts",
-      "default": "./dist/lib/constants/TSCONFIG_JSON.js"
-    },
     "./lib/constants/TS_LIBS_AVAILABLE": {
       "types": "./dist/lib/constants/ts-libs-available.d.ts",
       "default": "./dist/lib/constants/ts-libs-available.js"
@@ -558,6 +533,10 @@
     "./lib/constants/TS_TYPES_AVAILABLE": {
       "types": "./dist/lib/constants/ts-types-available.d.ts",
       "default": "./dist/lib/constants/ts-types-available.js"
+    },
+    "./lib/constants/TSCONFIG_JSON": {
+      "types": "./dist/lib/constants/TSCONFIG_JSON.d.ts",
+      "default": "./dist/lib/constants/TSCONFIG_JSON.js"
     },
     "./lib/constants/UNDEFINED_TOKEN": {
       "types": "./dist/lib/constants/UNDEFINED_TOKEN.d.ts",
@@ -639,10 +618,6 @@
       "types": "./dist/lib/constants/AT_LATEST.d.ts",
       "default": "./dist/lib/constants/AT_LATEST.js"
     },
-    "./lib/constants/bun": {
-      "types": "./dist/lib/constants/BUN.d.ts",
-      "default": "./dist/lib/constants/BUN.js"
-    },
     "./lib/constants/bun-cache-path": {
       "types": "./dist/lib/constants/bun-cache-path.d.ts",
       "default": "./dist/lib/constants/bun-cache-path.js"
@@ -659,10 +634,6 @@
       "types": "./dist/lib/constants/CHANGELOG_MD.d.ts",
       "default": "./dist/lib/constants/CHANGELOG_MD.js"
     },
-    "./lib/constants/ci": {
-      "types": "./dist/lib/constants/CI.d.ts",
-      "default": "./dist/lib/constants/CI.js"
-    },
     "./lib/constants/column-limit": {
       "types": "./dist/lib/constants/COLUMN_LIMIT.d.ts",
       "default": "./dist/lib/constants/COLUMN_LIMIT.js"
@@ -670,10 +641,6 @@
     "./lib/constants/copy-left-licenses": {
       "types": "./dist/lib/constants/copy-left-licenses.d.ts",
       "default": "./dist/lib/constants/copy-left-licenses.js"
-    },
-    "./lib/constants/darwin": {
-      "types": "./dist/lib/constants/DARWIN.d.ts",
-      "default": "./dist/lib/constants/DARWIN.js"
     },
     "./lib/constants/dot-git-dir": {
       "types": "./dist/lib/constants/DOT_GIT_DIR.d.ts",
@@ -695,17 +662,9 @@
       "types": "./dist/lib/constants/EMPTY_VALUE.d.ts",
       "default": "./dist/lib/constants/EMPTY_VALUE.js"
     },
-    "./lib/constants/env": {
-      "types": "./dist/lib/constants/ENV.d.ts",
-      "default": "./dist/lib/constants/ENV.js"
-    },
     "./lib/constants/eslint-config-js": {
       "types": "./dist/lib/constants/ESLINT_CONFIG_JS.d.ts",
       "default": "./dist/lib/constants/ESLINT_CONFIG_JS.js"
-    },
-    "./lib/constants/esnext": {
-      "types": "./dist/lib/constants/ESNEXT.d.ts",
-      "default": "./dist/lib/constants/ESNEXT.js"
     },
     "./lib/constants/exec-path": {
       "types": "./dist/lib/constants/exec-path.d.ts",
@@ -767,10 +726,6 @@
       "types": "./dist/lib/constants/EXT_YML.d.ts",
       "default": "./dist/lib/constants/EXT_YML.js"
     },
-    "./lib/constants/extensions": {
-      "types": "./dist/lib/constants/EXTENSIONS.d.ts",
-      "default": "./dist/lib/constants/EXTENSIONS.js"
-    },
     "./lib/constants/extensions-json": {
       "types": "./dist/lib/constants/EXTENSIONS_JSON.d.ts",
       "default": "./dist/lib/constants/EXTENSIONS_JSON.js"
@@ -778,10 +733,6 @@
     "./lib/constants/get-ipc": {
       "types": "./dist/lib/constants/get-ipc.d.ts",
       "default": "./dist/lib/constants/get-ipc.js"
-    },
-    "./lib/constants/gitignore": {
-      "types": "./dist/lib/constants/GITIGNORE.d.ts",
-      "default": "./dist/lib/constants/GITIGNORE.js"
     },
     "./lib/constants/index": {
       "types": "./dist/lib/constants/index.d.ts",
@@ -806,14 +757,6 @@
     "./lib/constants/k-internals-symbol": {
       "types": "./dist/lib/constants/k-internals-symbol.d.ts",
       "default": "./dist/lib/constants/k-internals-symbol.js"
-    },
-    "./lib/constants/latest": {
-      "types": "./dist/lib/constants/LATEST.d.ts",
-      "default": "./dist/lib/constants/LATEST.js"
-    },
-    "./lib/constants/license": {
-      "types": "./dist/lib/constants/LICENSE.d.ts",
-      "default": "./dist/lib/constants/LICENSE.js"
     },
     "./lib/constants/license-glob": {
       "types": "./dist/lib/constants/LICENSE_GLOB.d.ts",
@@ -855,10 +798,6 @@
       "types": "./dist/lib/constants/MANIFEST_JSON.d.ts",
       "default": "./dist/lib/constants/MANIFEST_JSON.js"
     },
-    "./lib/constants/mit": {
-      "types": "./dist/lib/constants/MIT.d.ts",
-      "default": "./dist/lib/constants/MIT.js"
-    },
     "./lib/constants/node-auth-token": {
       "types": "./dist/lib/constants/NODE_AUTH_TOKEN.d.ts",
       "default": "./dist/lib/constants/NODE_AUTH_TOKEN.js"
@@ -895,10 +834,6 @@
       "types": "./dist/lib/constants/node-version.d.ts",
       "default": "./dist/lib/constants/node-version.js"
     },
-    "./lib/constants/npm": {
-      "types": "./dist/lib/constants/NPM.d.ts",
-      "default": "./dist/lib/constants/NPM.js"
-    },
     "./lib/constants/npm-exec-path": {
       "types": "./dist/lib/constants/npm-exec-path.d.ts",
       "default": "./dist/lib/constants/npm-exec-path.js"
@@ -918,14 +853,6 @@
     "./lib/constants/npm-shrinkwrap-json": {
       "types": "./dist/lib/constants/NPM_SHRINKWRAP_JSON.d.ts",
       "default": "./dist/lib/constants/NPM_SHRINKWRAP_JSON.js"
-    },
-    "./lib/constants/npx": {
-      "types": "./dist/lib/constants/NPX.d.ts",
-      "default": "./dist/lib/constants/NPX.js"
-    },
-    "./lib/constants/overrides": {
-      "types": "./dist/lib/constants/OVERRIDES.d.ts",
-      "default": "./dist/lib/constants/OVERRIDES.js"
     },
     "./lib/constants/package-default-node-range": {
       "types": "./dist/lib/constants/package-default-node-range.d.ts",
@@ -963,10 +890,6 @@
       "types": "./dist/lib/constants/pacote-cache-path.d.ts",
       "default": "./dist/lib/constants/pacote-cache-path.js"
     },
-    "./lib/constants/pnpm": {
-      "types": "./dist/lib/constants/PNPM.d.ts",
-      "default": "./dist/lib/constants/PNPM.js"
-    },
     "./lib/constants/pnpm-exec-path": {
       "types": "./dist/lib/constants/pnpm-exec-path.d.ts",
       "default": "./dist/lib/constants/pnpm-exec-path.js"
@@ -995,17 +918,9 @@
       "types": "./dist/lib/constants/README_MD.d.ts",
       "default": "./dist/lib/constants/README_MD.js"
     },
-    "./lib/constants/registry": {
-      "types": "./dist/lib/constants/REGISTRY.d.ts",
-      "default": "./dist/lib/constants/REGISTRY.js"
-    },
     "./lib/constants/registry-scope-delimiter": {
       "types": "./dist/lib/constants/REGISTRY_SCOPE_DELIMITER.d.ts",
       "default": "./dist/lib/constants/REGISTRY_SCOPE_DELIMITER.js"
-    },
-    "./lib/constants/resolutions": {
-      "types": "./dist/lib/constants/RESOLUTIONS.d.ts",
-      "default": "./dist/lib/constants/RESOLUTIONS.js"
     },
     "./lib/constants/socket-github-org": {
       "types": "./dist/lib/constants/SOCKET_GITHUB_ORG.d.ts",
@@ -1099,26 +1014,6 @@
       "types": "./dist/lib/constants/UNKNOWN_VALUE.d.ts",
       "default": "./dist/lib/constants/UNKNOWN_VALUE.js"
     },
-    "./lib/constants/unlicenced": {
-      "types": "./dist/lib/constants/UNLICENCED.d.ts",
-      "default": "./dist/lib/constants/UNLICENCED.js"
-    },
-    "./lib/constants/unlicensed": {
-      "types": "./dist/lib/constants/UNLICENSED.d.ts",
-      "default": "./dist/lib/constants/UNLICENSED.js"
-    },
-    "./lib/constants/utf8": {
-      "types": "./dist/lib/constants/UTF8.d.ts",
-      "default": "./dist/lib/constants/UTF8.js"
-    },
-    "./lib/constants/vitest": {
-      "types": "./dist/lib/constants/VITEST.d.ts",
-      "default": "./dist/lib/constants/VITEST.js"
-    },
-    "./lib/constants/vlt": {
-      "types": "./dist/lib/constants/VLT.d.ts",
-      "default": "./dist/lib/constants/VLT.js"
-    },
     "./lib/constants/vlt-cache-path": {
       "types": "./dist/lib/constants/vlt-cache-path.d.ts",
       "default": "./dist/lib/constants/vlt-cache-path.js"
@@ -1126,14 +1021,6 @@
     "./lib/constants/vlt-lock-json": {
       "types": "./dist/lib/constants/VLT_LOCK_JSON.d.ts",
       "default": "./dist/lib/constants/VLT_LOCK_JSON.js"
-    },
-    "./lib/constants/win32": {
-      "types": "./dist/lib/constants/WIN32.d.ts",
-      "default": "./dist/lib/constants/WIN32.js"
-    },
-    "./lib/constants/yarn": {
-      "types": "./dist/lib/constants/YARN.d.ts",
-      "default": "./dist/lib/constants/YARN.js"
     },
     "./lib/constants/yarn-berry": {
       "types": "./dist/lib/constants/YARN_BERRY.d.ts",
@@ -1154,6 +1041,26 @@
     "./lib/constants/yarn-lock": {
       "types": "./dist/lib/constants/YARN_LOCK.d.ts",
       "default": "./dist/lib/constants/YARN_LOCK.js"
+    },
+    "./lib/abort": {
+      "types": "./dist/lib/abort.d.ts",
+      "default": "./dist/lib/abort.js"
+    },
+    "./lib/agent": {
+      "types": "./dist/lib/agent.d.ts",
+      "default": "./dist/lib/agent.js"
+    },
+    "./lib/arrays": {
+      "types": "./dist/lib/arrays.d.ts",
+      "default": "./dist/lib/arrays.js"
+    },
+    "./lib/bin": {
+      "types": "./dist/lib/bin.d.ts",
+      "default": "./dist/lib/bin.js"
+    },
+    "./lib/constants": {
+      "types": "./dist/lib/constants/index.d.ts",
+      "default": "./dist/lib/constants/index.js"
     },
     "./lib/debug": {
       "types": "./dist/lib/debug.d.ts",
@@ -1243,6 +1150,7 @@
       "types": "./dist/lib/words.d.ts",
       "default": "./dist/lib/words.js"
     },
+    "./extensions.json": "./extensions.json",
     "./manifest.json": "./manifest.json",
     "./package.json": "./package.json",
     "./tsconfig.json": "./tsconfig.json"
