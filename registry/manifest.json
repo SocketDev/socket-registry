@@ -693,7 +693,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/indent-string@1.0.15",
+      "pkg:npm/%40socketregistry/indent-string@1.0.14",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -703,7 +703,7 @@
         "license": "MIT",
         "name": "@socketregistry/indent-string",
         "package": "indent-string",
-        "version": "1.0.15"
+        "version": "1.0.14"
       }
     ],
     [
@@ -735,7 +735,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-array-buffer@1.0.9",
+      "pkg:npm/%40socketregistry/is-array-buffer@1.0.10",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -745,11 +745,11 @@
         "license": "MIT",
         "name": "@socketregistry/is-array-buffer",
         "package": "is-array-buffer",
-        "version": "1.0.9"
+        "version": "1.0.10"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-bigint@1.0.11",
+      "pkg:npm/%40socketregistry/is-bigint@1.0.12",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -759,11 +759,11 @@
         "license": "MIT",
         "name": "@socketregistry/is-bigint",
         "package": "is-bigint",
-        "version": "1.0.11"
+        "version": "1.0.12"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-boolean-object@1.0.11",
+      "pkg:npm/%40socketregistry/is-boolean-object@1.0.12",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -773,7 +773,7 @@
         "license": "MIT",
         "name": "@socketregistry/is-boolean-object",
         "package": "is-boolean-object",
-        "version": "1.0.11"
+        "version": "1.0.12"
       }
     ],
     [
@@ -791,7 +791,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-date-object@1.0.9",
+      "pkg:npm/%40socketregistry/is-date-object@1.0.10",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -801,7 +801,7 @@
         "license": "MIT",
         "name": "@socketregistry/is-date-object",
         "package": "is-date-object",
-        "version": "1.0.9"
+        "version": "1.0.10"
       }
     ],
     [
@@ -875,7 +875,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-number-object@1.0.10",
+      "pkg:npm/%40socketregistry/is-number-object@1.0.11",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -885,7 +885,7 @@
         "license": "MIT",
         "name": "@socketregistry/is-number-object",
         "package": "is-number-object",
-        "version": "1.0.10"
+        "version": "1.0.11"
       }
     ],
     [
@@ -918,7 +918,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-shared-array-buffer@1.0.9",
+      "pkg:npm/%40socketregistry/is-shared-array-buffer@1.0.10",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -928,11 +928,11 @@
         "license": "MIT",
         "name": "@socketregistry/is-shared-array-buffer",
         "package": "is-shared-array-buffer",
-        "version": "1.0.9"
+        "version": "1.0.10"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-string@1.0.11",
+      "pkg:npm/%40socketregistry/is-string@1.0.12",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -942,11 +942,11 @@
         "license": "MIT",
         "name": "@socketregistry/is-string",
         "package": "is-string",
-        "version": "1.0.11"
+        "version": "1.0.12"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-symbol@1.0.11",
+      "pkg:npm/%40socketregistry/is-symbol@1.0.12",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -956,7 +956,7 @@
         "license": "MIT",
         "name": "@socketregistry/is-symbol",
         "package": "is-symbol",
-        "version": "1.0.11"
+        "version": "1.0.12"
       }
     ],
     [
@@ -988,7 +988,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-weakmap@1.0.9",
+      "pkg:npm/%40socketregistry/is-weakmap@1.0.10",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -998,7 +998,7 @@
         "license": "MIT",
         "name": "@socketregistry/is-weakmap",
         "package": "is-weakmap",
-        "version": "1.0.9"
+        "version": "1.0.10"
       }
     ],
     [
@@ -1016,7 +1016,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/is-weakset@1.0.9",
+      "pkg:npm/%40socketregistry/is-weakset@1.0.10",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -1026,7 +1026,7 @@
         "license": "MIT",
         "name": "@socketregistry/is-weakset",
         "package": "is-weakset",
-        "version": "1.0.9"
+        "version": "1.0.10"
       }
     ],
     [
