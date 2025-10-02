@@ -12,9 +12,6 @@ import os from 'node:os'
 import path from 'node:path'
 
 import trash from 'trash'
-import constants from '../constants.mjs'
-
-const { DEFAULT_CONCURRENCY } = constants
 
 // CI detection without registry dist dependency.
 const IS_CI = Object.hasOwn(process.env, 'CI')
