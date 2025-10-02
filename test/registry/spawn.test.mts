@@ -37,19 +37,19 @@ describe('spawn module', () => {
 
   describe('isSpawnError', () => {
     it('should identify spawn errors', () => {
-      const error: any = new Error('spawn error')
+      const error = new Error('spawn error') as NodeJS.ErrnoException
       error.code = 'ENOENT'
       expect(isSpawnError(error)).toBe(true)
     })
 
     it('should identify errors with errno', () => {
-      const error: any = new Error('spawn error')
+      const error = new Error('spawn error') as NodeJS.ErrnoException
       error.errno = -2
       expect(isSpawnError(error)).toBe(true)
     })
 
     it('should identify errors with syscall', () => {
-      const error: any = new Error('spawn error')
+      const error = new Error('spawn error') as NodeJS.ErrnoException
       error.syscall = 'spawn'
       expect(isSpawnError(error)).toBe(true)
     })

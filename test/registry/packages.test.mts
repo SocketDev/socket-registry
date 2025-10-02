@@ -25,6 +25,8 @@ import {
   visitLicenses,
 } from '../../registry/dist/lib/packages.js'
 
+import type { InternalLicenseNode } from '../../registry/dist/lib/packages.js'
+
 describe('packages module', () => {
   describe('isValidPackageName', () => {
     it('should validate correct package names', () => {
@@ -455,7 +457,7 @@ describe('packages module', () => {
       const ast = { license: 'MIT' }
       const visited: string[] = []
       visitLicenses(ast, {
-        License: (node: any) => {
+        License: (node: InternalLicenseNode) => {
           visited.push(node.license)
         },
       })
@@ -465,12 +467,12 @@ describe('packages module', () => {
     it('should handle complex license expressions', () => {
       const ast = {
         left: { license: 'MIT' },
-        conjunction: 'OR',
+        conjunction: 'or' as const,
         right: { license: 'Apache-2.0' },
-      } as any
+      }
       const visited: string[] = []
       visitLicenses(ast, {
-        License: (node: any) => {
+        License: (node: InternalLicenseNode) => {
           visited.push(node.license)
         },
       })

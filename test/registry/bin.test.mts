@@ -104,7 +104,9 @@ describe('bin module', () => {
 
     it('should handle other filesystem errors by rethrowing them', () => {
       // Mock a scenario where realpathSync.native throws an unexpected error.
-      const mockError: any = new Error('Unexpected filesystem error')
+      const mockError = new Error(
+        'Unexpected filesystem error',
+      ) as NodeJS.ErrnoException
       // Access denied error.
       mockError.code = 'EACCES'
 
@@ -575,10 +577,10 @@ exec node  "$basedir/lib/cli.js" "$@"`
       try {
         await execBin('nonexistentcommand12345', [])
         expect.fail('Should have thrown')
-      } catch (error: any) {
+      } catch (error: unknown) {
         expect(error).toBeDefined()
-        expect(error.code).toBe('ENOENT')
-        expect(error.message).toContain('Binary not found')
+        expect((error as NodeJS.ErrnoException).code).toBe('ENOENT')
+        expect((error as Error).message).toContain('Binary not found')
       }
     })
 
