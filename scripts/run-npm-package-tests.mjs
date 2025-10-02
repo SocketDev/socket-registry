@@ -10,6 +10,7 @@ import WIN32 from '../registry/dist/lib/constants/WIN32.js'
 
 import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
 import constants from './constants.mjs'
+import { extractErrorInfo } from './utils/errors.mjs'
 import { filterPackagesByChanges } from './utils/git.mjs'
 import {
   PNPM_HOISTED_INSTALL_FLAGS,
@@ -61,44 +62,6 @@ function isNonTestScript(cleanedScript) {
     /^npm run (?:lint|build|prepare|prepublish|pretest)$/.test(cleanedScript) ||
     cleanedScript === 'exit 0'
   )
-}
-
-/**
- * Extract concise error information from stderr.
- */
-function extractErrorInfo(stderr) {
-  const lines = stderr.split('\n')
-  const result = []
-
-  // Find the main error message.
-  let foundError = false
-  for (const line of lines) {
-    // Skip Node.js internal stack trace lines.
-    if (/^\s+at\s+/.test(line) || /node:internal/.test(line)) {
-      continue
-    }
-
-    // Include error type and message.
-    if (line.includes('Error:') || line.includes('error:')) {
-      foundError = true
-      result.push(line.trim())
-      continue
-    }
-
-    // Include code property if present.
-    if (foundError && /^\s*code:/.test(line)) {
-      result.push(line.trim())
-    }
-
-    // Stop after collecting essential info.
-    if (result.length >= 3) {
-      break
-    }
-  }
-
-  return result.length > 0
-    ? result.join('\n')
-    : stderr.split('\n').slice(0, 3).join('\n')
 }
 
 function hasModuleError(stdout, stderr) {

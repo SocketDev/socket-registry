@@ -11,6 +11,7 @@ import { pEach } from '../registry/dist/lib/promises.js'
 import { pluralize } from '../registry/dist/lib/words.js'
 
 import constants from './constants.mjs'
+import { extractNpmError } from './utils/errors.mjs'
 
 const { COLUMN_LIMIT, SOCKET_REGISTRY_SCOPE } = constants
 
@@ -93,7 +94,8 @@ async function main() {
           const stderr = e?.stderr ?? ''
           fails.push(pkg.printName)
           if (stderr) {
-            logger.log(stderr)
+            const errorInfo = extractNpmError(stderr)
+            logger.log(`\n${errorInfo}\n`)
           }
         }
       },
