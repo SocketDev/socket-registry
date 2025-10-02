@@ -19,12 +19,6 @@ importers:
       '@socketsecurity/registry':
         specifier: file:../../registry
         version: file:../../registry
-      abab:
-        specifier: https://github.com/jsdom/abab/archive/063700eb38c7c4c74530bb7505ad41d097adde54.tar.gz
-        version: https://github.com/jsdom/abab/archive/063700eb38c7c4c74530bb7505ad41d097adde54.tar.gz
-      aggregate-error:
-        specifier: https://github.com/sindresorhus/aggregate-error/archive/3e2a127d3791176d602782a7806f4ca3a6e7f63a.tar.gz
-        version: https://github.com/sindresorhus/aggregate-error/archive/3e2a127d3791176d602782a7806f4ca3a6e7f63a.tar.gz
       array-buffer-byte-length:
         specifier: 1.0.2
         version: 1.0.2
@@ -83,8 +77,8 @@ importers:
         specifier: 1.0.4
         version: 1.0.4
       assert:
-        specifier: https://github.com/browserify/commonjs-assert/archive/fc65923fdbbc3ae72de1ddb15ee54088d201b4f9.tar.gz
-        version: https://github.com/browserify/commonjs-assert/archive/fc65923fdbbc3ae72de1ddb15ee54088d201b4f9.tar.gz
+        specifier: https://github.com/browserify/commonjs-assert/archive/c628adcf35900c423ae2c14914eab133cfe9f2ad.tar.gz
+        version: https://github.com/browserify/commonjs-assert/archive/c628adcf35900c423ae2c14914eab133cfe9f2ad.tar.gz
       asynciterator.prototype:
         specifier: 1.0.0
         version: 1.0.0
@@ -95,8 +89,8 @@ importers:
         specifier: 2.0.6
         version: 2.0.6
       deep-equal:
-        specifier: 2.2.3
-        version: 2.2.3
+        specifier: https://github.com/inspect-js/node-deep-equal/archive/48d3bb5b7fe3e65fd564b737c69a9411eb40bc65.tar.gz
+        version: https://github.com/inspect-js/node-deep-equal/archive/48d3bb5b7fe3e65fd564b737c69a9411eb40bc65.tar.gz
       define-properties:
         specifier: https://github.com/ljharb/define-properties/archive/d7a4db30214eb06d3997dc3e662c11dfe95b25bd.tar.gz
         version: https://github.com/ljharb/define-properties/archive/d7a4db30214eb06d3997dc3e662c11dfe95b25bd.tar.gz
@@ -166,9 +160,6 @@ importers:
       hasown:
         specifier: https://github.com/inspect-js/hasOwn/archive/e13226d9cf249470c90ff02cea32817ddf66b565.tar.gz
         version: https://github.com/inspect-js/hasOwn/archive/e13226d9cf249470c90ff02cea32817ddf66b565.tar.gz
-      indent-string:
-        specifier: https://github.com/sindresorhus/indent-string/archive/67bc42735baad80c667af8c4da55ad547980dd47.tar.gz
-        version: https://github.com/sindresorhus/indent-string/archive/67bc42735baad80c667af8c4da55ad547980dd47.tar.gz
       internal-slot:
         specifier: 1.1.0
         version: 1.1.0
@@ -182,20 +173,17 @@ importers:
         specifier: 1.1.0
         version: 1.1.0
       is-boolean-object:
-        specifier: 1.2.2
-        version: 1.2.2
+        specifier: https://github.com/inspect-js/is-boolean-object/archive/a17a5a3b37ef995e94161dc77568359446392cfb.tar.gz
+        version: https://github.com/inspect-js/is-boolean-object/archive/a17a5a3b37ef995e94161dc77568359446392cfb.tar.gz
       is-core-module:
         specifier: 2.16.1
         version: 2.16.1
       is-date-object:
-        specifier: 1.1.0
-        version: 1.1.0
+        specifier: https://github.com/inspect-js/is-date-object/archive/a22f8d7d60cbddb809da08e4b47ed510b40a2dd9.tar.gz
+        version: https://github.com/inspect-js/is-date-object/archive/a22f8d7d60cbddb809da08e4b47ed510b40a2dd9.tar.gz
       is-generator-function:
         specifier: 1.1.0
         version: 1.1.0
-      is-interactive:
-        specifier: https://github.com/sindresorhus/is-interactive/archive/f6e820b30c1820ea41bca9f8cdbf392e14d62267.tar.gz
-        version: https://github.com/sindresorhus/is-interactive/archive/f6e820b30c1820ea41bca9f8cdbf392e14d62267.tar.gz
       is-map:
         specifier: 2.0.3
         version: 2.0.3
@@ -206,8 +194,8 @@ importers:
         specifier: 2.0.3
         version: 2.0.3
       is-number-object:
-        specifier: 1.1.1
-        version: 1.1.1
+        specifier: https://github.com/inspect-js/is-number-object/archive/faf886f4703b8d38c1aef8a6117b9c6977eed1e5.tar.gz
+        version: https://github.com/inspect-js/is-number-object/archive/faf886f4703b8d38c1aef8a6117b9c6977eed1e5.tar.gz
       is-regex:
         specifier: 1.2.1
         version: 1.2.1
@@ -218,8 +206,8 @@ importers:
         specifier: 1.0.4
         version: 1.0.4
       is-string:
-        specifier: 1.1.1
-        version: 1.1.1
+        specifier: https://github.com/inspect-js/is-string/archive/fbbcdaed74d18b6b6899b0a6e6310f5ce31d70c7.tar.gz
+        version: https://github.com/inspect-js/is-string/archive/fbbcdaed74d18b6b6899b0a6e6310f5ce31d70c7.tar.gz
       is-symbol:
         specifier: 1.1.1
         version: 1.1.1
@@ -254,8 +242,8 @@ importers:
         specifier: https://github.com/sindresorhus/number-is-nan/archive/53dce45c0d421b7d3db606fb98f4bc9b684e8475.tar.gz
         version: https://github.com/sindresorhus/number-is-nan/archive/53dce45c0d421b7d3db606fb98f4bc9b684e8475.tar.gz
       object-assign:
-        specifier: https://github.com/sindresorhus/object-assign/archive/a29ce5053398661d882e368e60da6553d3d82434.tar.gz
-        version: https://github.com/sindresorhus/object-assign/archive/a29ce5053398661d882e368e60da6553d3d82434.tar.gz
+        specifier: https://github.com/sindresorhus/object-assign/archive/009a13650262afb53408fc8b5e3fb2d1f2fce941.tar.gz
+        version: https://github.com/sindresorhus/object-assign/archive/009a13650262afb53408fc8b5e3fb2d1f2fce941.tar.gz
       object-is:
         specifier: 1.1.6
         version: 1.1.6
@@ -729,15 +717,6 @@ packages:
   '@vitest/utils@3.2.4':
     resolution: {integrity: sha512-fB2V0JFrQSMsCo9HiSq3Ezpdv4iYaXRG1Sx8edX3MwxfyNn83mKiGzOcH+Fkxt4MHxr3y42fQi1oeAInqgX2QA==}
 
-  abab@https://github.com/jsdom/abab/archive/063700eb38c7c4c74530bb7505ad41d097adde54.tar.gz:
-    resolution: {tarball: https://github.com/jsdom/abab/archive/063700eb38c7c4c74530bb7505ad41d097adde54.tar.gz}
-    version: 2.0.6
-
-  aggregate-error@https://github.com/sindresorhus/aggregate-error/archive/3e2a127d3791176d602782a7806f4ca3a6e7f63a.tar.gz:
-    resolution: {tarball: https://github.com/sindresorhus/aggregate-error/archive/3e2a127d3791176d602782a7806f4ca3a6e7f63a.tar.gz}
-    version: 5.0.0
-    engines: {node: '>=18'}
-
   array-buffer-byte-length@1.0.2:
     resolution: {integrity: sha512-LHE+8BuR7RYGDKvnrmcuSq3tDcKv9OFEXQt/HpbZhY7V6h0zlUXutnAD82GiFx9rdieCMjkvtcsPqBwgUl1Iiw==}
     engines: {node: '>= 0.4'}
@@ -813,8 +792,8 @@ packages:
     resolution: {integrity: sha512-BNoCY6SXXPQ7gF2opIP4GBE+Xw7U+pHMYKuzjgCN3GwiaIR09UUeKfheyIry77QtrCBlC0KK0q5/TER/tYh3PQ==}
     engines: {node: '>= 0.4'}
 
-  assert@https://github.com/browserify/commonjs-assert/archive/fc65923fdbbc3ae72de1ddb15ee54088d201b4f9.tar.gz:
-    resolution: {tarball: https://github.com/browserify/commonjs-assert/archive/fc65923fdbbc3ae72de1ddb15ee54088d201b4f9.tar.gz}
+  assert@https://github.com/browserify/commonjs-assert/archive/c628adcf35900c423ae2c14914eab133cfe9f2ad.tar.gz:
+    resolution: {tarball: https://github.com/browserify/commonjs-assert/archive/c628adcf35900c423ae2c14914eab133cfe9f2ad.tar.gz}
     version: 2.1.0
 
   assertion-error@2.0.1:
@@ -856,10 +835,6 @@ packages:
     resolution: {integrity: sha512-OAlb+T7V4Op9OwdkjmguYRqncdlx5JiofwOAUkmTF+jNdHwzTaTs4sRAGpzLF3oOz5xAyDGrPgeIDFQmDOTiJw==}
     engines: {node: '>= 16'}
 
-  clean-stack@5.3.0:
-    resolution: {integrity: sha512-9ngPTOhYGQqNVSfeJkYXHmF7AGWp4/nN5D/QqNQs3Dvxd1Kk/WpjHfNujKHYUQ/5CoGyOyFNoWSPk5afzP0QVg==}
-    engines: {node: '>=14.16'}
-
   d@1.0.2:
     resolution: {integrity: sha512-MOqHvMWF9/9MX6nza0KgvFH4HpMU0EF5uUDXqX/BtxtU8NfB0QzRtJ8Oe/6SuS4kbhyzVJwjd97EA4PKrzJ8bw==}
     engines: {node: '>=0.12'}
@@ -893,8 +868,9 @@ packages:
     resolution: {integrity: sha512-h5k/5U50IJJFpzfL6nO9jaaumfjO/f2NjK/oYB2Djzm4p9L+3T9qWpZqZ2hAbLPuuYq9wrU08WQyBTL5GbPk5Q==}
     engines: {node: '>=6'}
 
-  deep-equal@2.2.3:
-    resolution: {integrity: sha512-ZIwpnevOurS8bpT4192sqAowWM76JDKSHYzMLty3BZGSswgq6pBaH3DhCSW5xVAZICZyKdOBPjwww5wfgT/6PA==}
+  deep-equal@https://github.com/inspect-js/node-deep-equal/archive/48d3bb5b7fe3e65fd564b737c69a9411eb40bc65.tar.gz:
+    resolution: {tarball: https://github.com/inspect-js/node-deep-equal/archive/48d3bb5b7fe3e65fd564b737c69a9411eb40bc65.tar.gz}
+    version: 2.2.3
     engines: {node: '>= 0.4'}
 
   define-data-property@1.1.4:
@@ -983,10 +959,6 @@ packages:
     resolution: {integrity: sha512-9RiGKvCwaqxO2owP61uQ4BgNborAQskMR6QusfWzQqv7AZOg5oGehdY2pRJMTKuwxd1IDBP4rSbI5lHzU7SMsQ==}
     engines: {node: '>=18'}
     hasBin: true
-
-  escape-string-regexp@5.0.0:
-    resolution: {integrity: sha512-/veY75JbMK4j1yjvuUxuVsiS/hr/4iHs9FTT6cgTexxdE0Ly/glccBAkloH/DofkjRbZU3bnoj38mOmhkZ0lHw==}
-    engines: {node: '>=12'}
 
   esniff@2.0.1:
     resolution: {integrity: sha512-kTUIGKQ/mDPFoJ0oVfcmyJn4iBDRptjNVIzwIFR7tqWXdVI9xfA2RMwY/gbSpJG3lkdWNEjLap/NqVHZiJsdfg==}
@@ -1096,15 +1068,6 @@ packages:
     version: 2.0.2
     engines: {node: '>= 0.4'}
 
-  indent-string@5.0.0:
-    resolution: {integrity: sha512-m6FAo/spmsW2Ab2fU35JTYwtOKa2yAwXSwgjSv1TJzh4Mh7mC3lzAOVLBprb72XsTrgkEIsl7YrFNAiDiRhIGg==}
-    engines: {node: '>=12'}
-
-  indent-string@https://github.com/sindresorhus/indent-string/archive/67bc42735baad80c667af8c4da55ad547980dd47.tar.gz:
-    resolution: {tarball: https://github.com/sindresorhus/indent-string/archive/67bc42735baad80c667af8c4da55ad547980dd47.tar.gz}
-    version: 5.0.0
-    engines: {node: '>=12'}
-
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
 
@@ -1132,6 +1095,11 @@ packages:
     resolution: {integrity: sha512-wa56o2/ElJMYqjCjGkXri7it5FbebW5usLw/nPmCMs5DeZ7eziSYZhSmPRn0txqeW4LnAmQQU7FgqLpsEFKM4A==}
     engines: {node: '>= 0.4'}
 
+  is-boolean-object@https://github.com/inspect-js/is-boolean-object/archive/a17a5a3b37ef995e94161dc77568359446392cfb.tar.gz:
+    resolution: {tarball: https://github.com/inspect-js/is-boolean-object/archive/a17a5a3b37ef995e94161dc77568359446392cfb.tar.gz}
+    version: 1.2.2
+    engines: {node: '>= 0.4'}
+
   is-callable@1.2.7:
     resolution: {integrity: sha512-1BC0BVFhS/p0qtw6enp8e+8OD0UrK0oFLztSjNzhcKA3WDuJxxAPXzPuPtKkjEY9UUoEWlX/8fgKeu2S8i9JTA==}
     engines: {node: '>= 0.4'}
@@ -1148,6 +1116,11 @@ packages:
     resolution: {integrity: sha512-PwwhEakHVKTdRNVOw+/Gyh0+MzlCl4R6qKvkhuvLtPMggI1WAHt9sOwZxQLSGpUaDnrdyDsomoRgNnCfKNSXXg==}
     engines: {node: '>= 0.4'}
 
+  is-date-object@https://github.com/inspect-js/is-date-object/archive/a22f8d7d60cbddb809da08e4b47ed510b40a2dd9.tar.gz:
+    resolution: {tarball: https://github.com/inspect-js/is-date-object/archive/a22f8d7d60cbddb809da08e4b47ed510b40a2dd9.tar.gz}
+    version: 1.1.0
+    engines: {node: '>= 0.4'}
+
   is-finalizationregistry@1.1.1:
     resolution: {integrity: sha512-1pC6N8qWJbWoPtEjgcL2xyhQOP491EQjeUo3qTKcmV8YSDDJrOepfG8pcC7h/QgnQHYSv0mJ3Z/ZWxmatVrysg==}
     engines: {node: '>= 0.4'}
@@ -1155,11 +1128,6 @@ packages:
   is-generator-function@1.1.0:
     resolution: {integrity: sha512-nPUB5km40q9e8UfN/Zc24eLlzdSf9OfKByBw9CIdw4H1giPMeA0OIJvbchsCu4npfI2QcMVBsGEBHKZ7wLTWmQ==}
     engines: {node: '>= 0.4'}
-
-  is-interactive@https://github.com/sindresorhus/is-interactive/archive/f6e820b30c1820ea41bca9f8cdbf392e14d62267.tar.gz:
-    resolution: {tarball: https://github.com/sindresorhus/is-interactive/archive/f6e820b30c1820ea41bca9f8cdbf392e14d62267.tar.gz}
-    version: 2.0.0
-    engines: {node: '>=12'}
 
   is-map@2.0.3:
     resolution: {integrity: sha512-1Qed0/Hr2m+YqxnM09CjA2d/i6YZNfF6R2oRAOj36eUdS6qIV/huPJNSEpKbupewFs+ZsJlxsjjPbc0/afW6Lw==}
@@ -1177,6 +1145,11 @@ packages:
     resolution: {integrity: sha512-lZhclumE1G6VYD8VHe35wFaIif+CTy5SJIi5+3y4psDgWu4wPDoBhF8NxUOinEc7pHgiTsT6MaBb92rKhhD+Xw==}
     engines: {node: '>= 0.4'}
 
+  is-number-object@https://github.com/inspect-js/is-number-object/archive/faf886f4703b8d38c1aef8a6117b9c6977eed1e5.tar.gz:
+    resolution: {tarball: https://github.com/inspect-js/is-number-object/archive/faf886f4703b8d38c1aef8a6117b9c6977eed1e5.tar.gz}
+    version: 1.1.1
+    engines: {node: '>= 0.4'}
+
   is-regex@1.2.1:
     resolution: {integrity: sha512-MjYsKHO5O7mCsmRGxWcLWheFqN9DJ/2TmngvjKXihe6efViPqc274+Fx/4fYj/r03+ESvBdTXK0V6tA3rgez1g==}
     engines: {node: '>= 0.4'}
@@ -1191,6 +1164,11 @@ packages:
 
   is-string@1.1.1:
     resolution: {integrity: sha512-BtEeSsoaQjlSPBemMQIrY1MY0uM6vnS1g5fmufYOtnxLGUZM2178PKbhsk7Ffv58IX+ZtcvoGwccYsh0PglkAA==}
+    engines: {node: '>= 0.4'}
+
+  is-string@https://github.com/inspect-js/is-string/archive/fbbcdaed74d18b6b6899b0a6e6310f5ce31d70c7.tar.gz:
+    resolution: {tarball: https://github.com/inspect-js/is-string/archive/fbbcdaed74d18b6b6899b0a6e6310f5ce31d70c7.tar.gz}
+    version: 1.1.1
     engines: {node: '>= 0.4'}
 
   is-symbol@1.1.1:
@@ -1274,8 +1252,8 @@ packages:
     version: 2.0.0
     engines: {node: '>=0.10.0'}
 
-  object-assign@https://github.com/sindresorhus/object-assign/archive/a29ce5053398661d882e368e60da6553d3d82434.tar.gz:
-    resolution: {tarball: https://github.com/sindresorhus/object-assign/archive/a29ce5053398661d882e368e60da6553d3d82434.tar.gz}
+  object-assign@https://github.com/sindresorhus/object-assign/archive/009a13650262afb53408fc8b5e3fb2d1f2fce941.tar.gz:
+    resolution: {tarball: https://github.com/sindresorhus/object-assign/archive/009a13650262afb53408fc8b5e3fb2d1f2fce941.tar.gz}
     version: 4.1.1
     engines: {node: '>=0.10.0'}
 
@@ -1894,13 +1872,6 @@ snapshots:
       loupe: 3.2.1
       tinyrainbow: 2.0.0
 
-  abab@https://github.com/jsdom/abab/archive/063700eb38c7c4c74530bb7505ad41d097adde54.tar.gz: {}
-
-  aggregate-error@https://github.com/sindresorhus/aggregate-error/archive/3e2a127d3791176d602782a7806f4ca3a6e7f63a.tar.gz:
-    dependencies:
-      clean-stack: 5.3.0
-      indent-string: 5.0.0
-
   array-buffer-byte-length@1.0.2:
     dependencies:
       call-bound: 1.0.4
@@ -2053,7 +2024,7 @@ snapshots:
       get-intrinsic: 1.3.0
       is-array-buffer: 3.0.5
 
-  assert@https://github.com/browserify/commonjs-assert/archive/fc65923fdbbc3ae72de1ddb15ee54088d201b4f9.tar.gz:
+  assert@https://github.com/browserify/commonjs-assert/archive/c628adcf35900c423ae2c14914eab133cfe9f2ad.tar.gz:
     dependencies:
       call-bind: 1.0.8
       is-nan: 1.3.2
@@ -2102,10 +2073,6 @@ snapshots:
 
   check-error@2.1.1: {}
 
-  clean-stack@5.3.0:
-    dependencies:
-      escape-string-regexp: 5.0.0
-
   d@1.0.2:
     dependencies:
       es5-ext: 0.10.64
@@ -2147,7 +2114,7 @@ snapshots:
 
   deep-eql@5.0.2: {}
 
-  deep-equal@2.2.3:
+  deep-equal@https://github.com/inspect-js/node-deep-equal/archive/48d3bb5b7fe3e65fd564b737c69a9411eb40bc65.tar.gz:
     dependencies:
       array-buffer-byte-length: 1.0.2
       call-bind: 1.0.8
@@ -2374,8 +2341,6 @@ snapshots:
       '@esbuild/win32-ia32': 0.25.10
       '@esbuild/win32-x64': 0.25.10
 
-  escape-string-regexp@5.0.0: {}
-
   esniff@2.0.1:
     dependencies:
       d: 1.0.2
@@ -2489,10 +2454,6 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
-  indent-string@5.0.0: {}
-
-  indent-string@https://github.com/sindresorhus/indent-string/archive/67bc42735baad80c667af8c4da55ad547980dd47.tar.gz: {}
-
   inherits@2.0.4: {}
 
   internal-slot@1.1.0:
@@ -2529,6 +2490,11 @@ snapshots:
       call-bound: 1.0.4
       has-tostringtag: 1.0.2
 
+  is-boolean-object@https://github.com/inspect-js/is-boolean-object/archive/a17a5a3b37ef995e94161dc77568359446392cfb.tar.gz:
+    dependencies:
+      call-bound: 1.0.4
+      has-tostringtag: 1.0.2
+
   is-callable@1.2.7: {}
 
   is-core-module@2.16.1:
@@ -2546,6 +2512,11 @@ snapshots:
       call-bound: 1.0.4
       has-tostringtag: 1.0.2
 
+  is-date-object@https://github.com/inspect-js/is-date-object/archive/a22f8d7d60cbddb809da08e4b47ed510b40a2dd9.tar.gz:
+    dependencies:
+      call-bound: 1.0.4
+      has-tostringtag: 1.0.2
+
   is-finalizationregistry@1.1.1:
     dependencies:
       call-bound: 1.0.4
@@ -2557,8 +2528,6 @@ snapshots:
       has-tostringtag: 1.0.2
       safe-regex-test: 1.1.0
 
-  is-interactive@https://github.com/sindresorhus/is-interactive/archive/f6e820b30c1820ea41bca9f8cdbf392e14d62267.tar.gz: {}
-
   is-map@2.0.3: {}
 
   is-nan@1.3.2:
@@ -2569,6 +2538,11 @@ snapshots:
   is-negative-zero@2.0.3: {}
 
   is-number-object@1.1.1:
+    dependencies:
+      call-bound: 1.0.4
+      has-tostringtag: 1.0.2
+
+  is-number-object@https://github.com/inspect-js/is-number-object/archive/faf886f4703b8d38c1aef8a6117b9c6977eed1e5.tar.gz:
     dependencies:
       call-bound: 1.0.4
       has-tostringtag: 1.0.2
@@ -2587,6 +2561,11 @@ snapshots:
       call-bound: 1.0.4
 
   is-string@1.1.1:
+    dependencies:
+      call-bound: 1.0.4
+      has-tostringtag: 1.0.2
+
+  is-string@https://github.com/inspect-js/is-string/archive/fbbcdaed74d18b6b6899b0a6e6310f5ce31d70c7.tar.gz:
     dependencies:
       call-bound: 1.0.4
       has-tostringtag: 1.0.2
@@ -2668,7 +2647,7 @@ snapshots:
 
   number-is-nan@https://github.com/sindresorhus/number-is-nan/archive/53dce45c0d421b7d3db606fb98f4bc9b684e8475.tar.gz: {}
 
-  object-assign@https://github.com/sindresorhus/object-assign/archive/a29ce5053398661d882e368e60da6553d3d82434.tar.gz: {}
+  object-assign@https://github.com/sindresorhus/object-assign/archive/009a13650262afb53408fc8b5e3fb2d1f2fce941.tar.gz: {}
 
   object-inspect@1.13.4: {}
 
