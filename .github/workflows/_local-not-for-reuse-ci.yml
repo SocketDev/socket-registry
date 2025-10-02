@@ -30,3 +30,13 @@ jobs:
       test-setup-script: 'pnpm run build'
       type-check-script: 'pnpm run type-ci'
       type-check-setup-script: 'pnpm run build'
+
+  test-npm-packages:
+    name: Test NPM Packages
+    uses: SocketDev/socket-registry/.github/workflows/test.yml@main
+    with:
+      node-versions: '[22]'
+      os-versions: '["ubuntu-latest"]'
+      setup-script: 'pnpm run build'
+      test-script: 'pnpm run test:npm:packages:ci'
+      timeout-minutes: 60
