@@ -589,40 +589,23 @@ async function installPackage(packageInfo) {
 
         await existingPkgJson.save()
 
-        // Detect package manager from cached installation.
-        const cachedPackageManager = detectPackageManager(
-          existingPkgJson.content,
-        )
-
         // If Socket override has different dependencies, install them.
+        // Always use pnpm for installation to avoid npm override conflicts.
         if (overridePkgJson.dependencies) {
-          if (cachedPackageManager === 'npm') {
-            await runCommand('npm', ['install', '--legacy-peer-deps'], {
-              cwd: installedPath,
-              env: { ...process.env, ...PNPM_INSTALL_ENV },
-            })
-          } else {
-            await runCommand('pnpm', ['install'], {
-              cwd: installedPath,
-              env: { ...process.env, ...PNPM_INSTALL_ENV },
-            })
-          }
+          await runCommand('pnpm', ['install'], {
+            cwd: installedPath,
+            env: { ...process.env, ...PNPM_INSTALL_ENV },
+          })
         }
 
         // Install all dependencies including devDependencies at the parent level.
         // Unset NODE_ENV and CI to prevent package manager from skipping devDependencies.
         // The hoisted install at parent level makes test runners available to nested package.
-        if (cachedPackageManager === 'npm') {
-          await runCommand('npm', ['install', '--legacy-peer-deps'], {
-            cwd: packageTempDir,
-            env: { ...process.env, ...PNPM_INSTALL_ENV },
-          })
-        } else {
-          await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
-            cwd: packageTempDir,
-            env: { ...process.env, ...PNPM_INSTALL_ENV },
-          })
-        }
+        // Always use pnpm for installation to avoid npm override conflicts.
+        await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
+          cwd: packageTempDir,
+          env: { ...process.env, ...PNPM_INSTALL_ENV },
+        })
 
         // Apply Socket overrides to all nested dependencies recursively.
         await applyNestedSocketOverrides(installedPath)
@@ -779,6 +762,7 @@ async function installPackage(packageInfo) {
               gzip: true,
               file: repackedTarball,
               cwd: tempExtractDir,
+              prefix: 'package',
             },
             entries.filter(name => name !== 'repacked.tgz'),
           )
@@ -841,19 +825,13 @@ async function installPackage(packageInfo) {
     // registry timeouts, and rate limiting from npm registry.
     // Retry up to 3 times with exponential backoff (1s base delay, 2x multiplier).
     // Unset NODE_ENV and CI to prevent package manager from skipping devDependencies.
+    // Always use pnpm for installation to avoid npm override conflicts.
     await pRetry(
       async () => {
-        if (packageManager === 'npm') {
-          await runCommand('npm', ['install', '--legacy-peer-deps'], {
-            cwd: packageTempDir,
-            env: { ...process.env, ...PNPM_INSTALL_ENV },
-          })
-        } else {
-          await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
-            cwd: packageTempDir,
-            env: { ...process.env, ...PNPM_INSTALL_ENV },
-          })
-        }
+        await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
+          cwd: packageTempDir,
+          env: { ...process.env, ...PNPM_INSTALL_ENV },
+        })
       },
       {
         backoffFactor: 2,
@@ -878,18 +856,12 @@ async function installPackage(packageInfo) {
       })
 
       // Install devDependencies (test runners, etc.) along with dependencies.
+      // Always use pnpm for installation to avoid npm override conflicts.
       writeProgress('👷')
-      if (packageManager === 'npm') {
-        await runCommand('npm', ['install', '--legacy-peer-deps'], {
-          cwd: packageTempDir,
-          env: { ...process.env, ...PNPM_INSTALL_ENV },
-        })
-      } else {
-        await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
-          cwd: packageTempDir,
-          env: { ...process.env, ...PNPM_INSTALL_ENV },
-        })
-      }
+      await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
+        cwd: packageTempDir,
+        env: { ...process.env, ...PNPM_INSTALL_ENV },
+      })
     }
 
     // Apply Socket overrides selectively.
@@ -1046,34 +1018,22 @@ async function installPackage(packageInfo) {
     }
 
     // If Socket override has different dependencies, install them.
+    // Always use pnpm for installation to avoid npm override conflicts.
     if (overridePkgJson.dependencies) {
-      if (packageManager === 'npm') {
-        await runCommand('npm', ['install', '--legacy-peer-deps'], {
-          cwd: installedPath,
-          env: { ...process.env, ...PNPM_INSTALL_ENV },
-        })
-      } else {
-        await runCommand('pnpm', ['install'], {
-          cwd: installedPath,
-          env: { ...process.env, ...PNPM_INSTALL_ENV },
-        })
-      }
+      await runCommand('pnpm', ['install'], {
+        cwd: installedPath,
+        env: { ...process.env, ...PNPM_INSTALL_ENV },
+      })
     }
 
     // Install all dependencies including devDependencies at the parent level.
     // Unset NODE_ENV and CI to prevent package manager from skipping devDependencies.
     // The hoisted install at parent level makes test runners available to nested package.
-    if (packageManager === 'npm') {
-      await runCommand('npm', ['install', '--legacy-peer-deps'], {
-        cwd: packageTempDir,
-        env: { ...process.env, ...PNPM_INSTALL_ENV },
-      })
-    } else {
-      await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
-        cwd: packageTempDir,
-        env: { ...process.env, ...PNPM_INSTALL_ENV },
-      })
-    }
+    // Always use pnpm for installation to avoid npm override conflicts.
+    await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
+      cwd: packageTempDir,
+      env: { ...process.env, ...PNPM_INSTALL_ENV },
+    })
 
     // Apply Socket overrides to all nested dependencies recursively.
     await applyNestedSocketOverrides(installedPath)
