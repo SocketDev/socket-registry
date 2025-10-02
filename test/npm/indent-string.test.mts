@@ -31,10 +31,10 @@ describe(
     it('throw if input is not a string', () => {
       for (const indentString of implementations) {
         expect(() => indentString(5 as any)).toThrow(
-          "Expected `input` to be a `string`, got `number`",
+          'Expected `input` to be a `string`, got `number`',
         )
         expect(() => indentString(true as any)).toThrow(
-          "Expected `input` to be a `string`, got `boolean`",
+          'Expected `input` to be a `string`, got `boolean`',
         )
       }
     })
@@ -42,7 +42,7 @@ describe(
     it('throw if count is not a number', () => {
       for (const indentString of implementations) {
         expect(() => indentString('foo', 'bar' as any)).toThrow(
-          "Expected `count` to be a `number`, got `string`",
+          'Expected `count` to be a `number`, got `string`',
         )
       }
     })
