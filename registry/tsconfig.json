@@ -16,7 +16,7 @@
     "resolveJsonModule": true,
     "rootDir": "src",
     "skipLibCheck": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "strict": false,
     "strictNullChecks": false,
     "target": "es2022",
