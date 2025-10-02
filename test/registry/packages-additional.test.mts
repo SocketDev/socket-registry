@@ -6,6 +6,7 @@ const {
   createLicenseNode,
   getEditablePackageJsonClass,
   pkgJsonToEditable,
+  visitLicenses,
 } = require('../../registry/dist/lib/packages')
 
 describe('packages module additional coverage', () => {
@@ -176,6 +177,65 @@ describe('packages module additional coverage', () => {
       }
       const result = pkgJsonToEditable(pkg)
       expect(result).toBeDefined()
+    })
+  })
+
+  describe('visitLicenses', () => {
+    it('should stop visiting when License visitor returns false', () => {
+      const ast = {
+        left: { license: 'MIT' },
+        conjunction: 'OR',
+        right: { license: 'Apache-2.0' },
+      }
+      const visited: string[] = []
+      visitLicenses(ast, {
+        License: (node: any) => {
+          visited.push(node.license)
+          return node.license === 'MIT' ? false : undefined
+        },
+      })
+      expect(visited).toEqual(['MIT'])
+    })
+
+    it('should stop visiting when BinaryOperation visitor returns false', () => {
+      const ast = {
+        left: {
+          left: { license: 'MIT' },
+          conjunction: 'AND',
+          right: { license: 'BSD-3-Clause' },
+        },
+        conjunction: 'OR',
+        right: { license: 'Apache-2.0' },
+      }
+      const visited: string[] = []
+      visitLicenses(ast, {
+        BinaryOperation: (node: any) => {
+          visited.push(node.conjunction)
+          return node.conjunction === 'OR' ? false : undefined
+        },
+      })
+      expect(visited).toEqual(['OR'])
+    })
+
+    it('should visit nested binary operation nodes and stop on false', () => {
+      const ast = {
+        left: {
+          left: { license: 'MIT' },
+          conjunction: 'AND',
+          right: { license: 'BSD' },
+        },
+        conjunction: 'OR',
+        right: { license: 'Apache-2.0' },
+      }
+      const licenses: string[] = []
+      visitLicenses(ast, {
+        License: (node: any) => {
+          licenses.push(node.license)
+          return node.license === 'BSD' ? false : undefined
+        },
+      })
+      expect(licenses.length).toBeGreaterThan(1)
+      expect(licenses).toContain('BSD')
     })
   })
 })
