@@ -52,11 +52,11 @@ async function checkoutCommit(sha) {
  */
 async function ensureNpmVersion() {
   // Install npm first to ensure we have the latest version.
-  logger.log('Installing npm@latest for trusted publishing...')
+  logger.info('Installing npm@latest for trusted publishing...')
   await spawn('npm', ['install', '-g', 'npm@latest'])
   const result = await spawn('npm', ['--version'])
   const npmVersion = result.stdout.trim()
-  logger.log(`npm version: ${npmVersion}`)
+  logger.info(`npm version: ${npmVersion}`)
 
   // Verify npm version is >= 11.5.1 (required for trusted publishing).
   try {
@@ -178,11 +178,11 @@ async function publish(pkg, state, options) {
  * Publish packages at a specific commit.
  */
 async function publishAtCommit(sha) {
-  logger.log(`\nChecking out commit ${sha}...`)
+  logger.info(`\nChecking out commit ${sha}...`)
   await checkoutCommit(sha)
 
   // Rebuild at this commit to ensure we have the correct registry dist files.
-  logger.log('Building registry...')
+  logger.info('Building registry...')
   await spawn('pnpm', ['run', 'build:registry'])
 
   const fails = []
@@ -222,7 +222,7 @@ async function publishAtCommit(sha) {
     if (!manifest) {
       // Package doesn't exist on npm yet, publish it.
       packagesToPublish.push(pkg)
-      logger.log(`${pkg.printName}: New package (${localVersion})`)
+      logger.info(`${pkg.printName}: New package (${localVersion})`)
       continue
     }
 
@@ -231,18 +231,18 @@ async function publishAtCommit(sha) {
     // Compare versions - only publish if local is greater than remote.
     if (semver.gt(localVersion, remoteVersion)) {
       packagesToPublish.push(pkg)
-      logger.log(`${pkg.printName}: ${remoteVersion} → ${localVersion}`)
+      logger.info(`${pkg.printName}: ${remoteVersion} → ${localVersion}`)
     } else {
       skipped.push(pkg.printName)
     }
   }
 
   if (packagesToPublish.length === 0) {
-    logger.log('No packages to publish at this commit')
+    logger.info('No packages to publish at this commit')
     return { fails, skipped }
   }
 
-  logger.log(
+  logger.info(
     `\nPublishing ${packagesToPublish.length} ${pluralize('package', packagesToPublish.length)}...\n`,
   )
 
@@ -261,13 +261,13 @@ async function publishAtCommit(sha) {
 
   // Update manifest.json with latest published versions before publishing registry.
   if (registryPkgToPublish && !fails.includes(registryPkgToPublish.printName)) {
-    logger.log('\nUpdating manifest.json with latest npm versions...')
+    logger.info('\nUpdating manifest.json with latest npm versions...')
     await spawn('pnpm', ['run', 'update:manifest', '--force'])
 
     // Commit manifest changes if there are any.
     const changedFiles = await getChangedFiles()
     if (changedFiles.length > 0) {
-      logger.log('Committing manifest.json updates...')
+      logger.info('Committing manifest.json updates...')
       await spawn('git', ['add', 'registry/manifest.json'])
       await spawn('git', [
         'commit',
@@ -479,7 +479,7 @@ async function main() {
     const bumpCommits = await findVersionBumpCommits()
 
     if (bumpCommits.length === 0) {
-      logger.log('No version bump commits found')
+      logger.info('No version bump commits found')
       return
     }
 
@@ -494,7 +494,7 @@ async function main() {
 
     if (registryManifest) {
       const publishedVersion = registryManifest.version
-      logger.log(
+      logger.info(
         `Latest published: ${registryPkgJson.name}@${publishedVersion}`,
       )
 
@@ -510,35 +510,44 @@ async function main() {
       bumpCommits.length = 0
       bumpCommits.push(...newerCommits)
     } else {
-      logger.log(
+      logger.info(
         `Latest published: ${registryPkgJson.name}@<not yet published>`,
       )
     }
 
     if (bumpCommits.length === 0) {
-      logger.log('All versions already published')
+      logger.info('No registry version bumps to publish')
+      logger.info('\nChecking for unpublished packages at HEAD...')
+      // Even if there are no registry version bumps, we should check
+      // if any @socketregistry/* packages have unpublished versions.
+      const headSha = await getCommitSha('HEAD')
+      await publishAtCommit(headSha)
       return
     }
 
-    logger.log(
-      `\nPublishing ${bumpCommits.length} unpublished version ${pluralize('bump', bumpCommits.length)}:`,
-    )
+    logger
+      .info(
+        `\nPublishing ${bumpCommits.length} unpublished version ${pluralize('bump', bumpCommits.length)}:`,
+      )
+      .group()
 
     const displayCommits = cliArgs.debug
       ? bumpCommits
       : bumpCommits.slice(0, 10)
 
     for (const commit of displayCommits) {
-      logger.log(`  ${commit.sha.slice(0, 7)} - v${commit.version}`)
+      logger.info(`${commit.sha.slice(0, 7)} - v${commit.version}`)
     }
-    logger.log('')
+    logger.groupEnd()
+    logger.info('')
 
     for (const commit of bumpCommits) {
       // eslint-disable-next-line no-await-in-loop
       await publishAtCommit(commit.sha)
     }
 
-    logger.log('\n✓ All versions published successfully')
+    logger.log('')
+    logger.success('All versions published successfully')
   } finally {
     // Always return to the original branch/commit.
     logger.log(`\nReturning to ${originalBranch}...`)
