@@ -4,11 +4,6 @@ name: ⚙️ Linting
 #   - SocketDev/socket-registry/.github/workflows/lint.yml@main
 
 on:
-  push:
-    branches: [main]
-    tags: ['*']
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
