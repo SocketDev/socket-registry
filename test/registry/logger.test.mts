@@ -165,6 +165,20 @@ describe('logger module', () => {
         testLogger.warn('test')
         expect(testLogger.logCallCount).toBe(before + 1)
       })
+
+      it('should strip existing warn symbols from start of text', () => {
+        testLogger.warn('⚠ already has symbol')
+        const output = stderrData.join('')
+        expect(output).toContain('already has symbol')
+        expect(output).not.toContain('⚠ ⚠')
+      })
+
+      it('should strip unicode warn symbols from start of text', () => {
+        testLogger.warn('‼ already has symbol')
+        const output = stderrData.join('')
+        expect(output).toContain('already has symbol')
+        expect(output).not.toContain('‼ ‼')
+      })
     })
 
     describe('fail', () => {
@@ -179,6 +193,20 @@ describe('logger module', () => {
         testLogger.fail('test')
         expect(testLogger.logCallCount).toBe(before + 1)
       })
+
+      it('should strip existing fail symbols from start of text', () => {
+        testLogger.fail('✖ already has symbol')
+        const output = stderrData.join('')
+        expect(output).toContain('already has symbol')
+        expect(output).not.toContain('✖ ✖')
+      })
+
+      it('should strip unicode fail symbols from start of text', () => {
+        testLogger.fail('× already has symbol')
+        const output = stderrData.join('')
+        expect(output).toContain('already has symbol')
+        expect(output).not.toContain('× ×')
+      })
     })
 
     describe('success', () => {
@@ -192,6 +220,20 @@ describe('logger module', () => {
         const before = testLogger.logCallCount
         testLogger.success('test')
         expect(testLogger.logCallCount).toBe(before + 1)
+      })
+
+      it('should strip existing success symbols from start of text', () => {
+        testLogger.success('✔ already has symbol')
+        const output = stderrData.join('')
+        expect(output).toContain('already has symbol')
+        expect(output).not.toContain('✔ ✔')
+      })
+
+      it('should strip unicode success symbols from start of text', () => {
+        testLogger.success('√ already has symbol')
+        const output = stderrData.join('')
+        expect(output).toContain('already has symbol')
+        expect(output).not.toContain('√ √')
       })
     })
 
