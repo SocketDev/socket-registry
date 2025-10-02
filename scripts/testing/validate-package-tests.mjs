@@ -249,17 +249,20 @@ async function validateEslintConfig(packageName, packageDir) {
 
 /**
  * Check for module resolution issues by analyzing imports.
+ * Scans all JavaScript/TypeScript files for problematic import patterns
+ * that commonly cause CI failures.
  */
 async function validateModuleResolution(packageName, packageDir) {
   const issues = []
 
-  // Look for common problematic patterns in source files.
+  // Collect all source files recursively.
   const sourceFiles = []
   const collectFiles = async dir => {
     const entries = await fs.readdir(dir, { withFileTypes: true })
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name)
       if (entry.isDirectory() && entry.name !== 'node_modules') {
+        // Recursively scan subdirectories, excluding node_modules.
         // eslint-disable-next-line no-await-in-loop
         await collectFiles(fullPath)
       } else if (entry.isFile() && /\.(js|mjs|cjs|ts)$/.test(entry.name)) {
@@ -314,6 +317,7 @@ async function validateModuleResolution(packageName, packageDir) {
 
 /**
  * Check for required build artifacts.
+ * Verifies that all entry points declared in package.json actually exist.
  */
 async function validateBuildArtifacts(packageName, packageDir) {
   const issues = []
@@ -323,7 +327,7 @@ async function validateBuildArtifacts(packageName, packageDir) {
     const content = await fs.readFile(packageJsonPath, 'utf8')
     const packageJson = JSON.parse(content)
 
-    // Check if main/exports point to files that exist.
+    // Collect all entry points from main and exports fields.
     const entryPoints = []
     if (packageJson.main) {
       entryPoints.push(packageJson.main)
@@ -332,11 +336,12 @@ async function validateBuildArtifacts(packageName, packageDir) {
       if (typeof packageJson.exports === 'string') {
         entryPoints.push(packageJson.exports)
       } else if (typeof packageJson.exports === 'object') {
+        // Recursively extract string values from exports object structure.
         const collectExports = obj => {
           for (const value of Object.values(obj)) {
             if (typeof value === 'string') {
               entryPoints.push(value)
-            } else if (typeof value === 'object') {
+            } else if (typeof value === 'object' && value !== null) {
               collectExports(value)
             }
           }
