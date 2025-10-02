@@ -5,7 +5,7 @@ inputs:
   continue-on-error:
     description: 'Continue on error'
     required: false
-    default: 'false'
+    default: false
   main-script:
     description: 'Main script to run'
     required: true
@@ -40,7 +40,7 @@ runs:
       id: main
       shell: ${{ inputs.shell }}
       working-directory: ${{ inputs.working-directory }}
-      continue-on-error: ${{ inputs.continue-on-error == 'true' }}
+      continue-on-error: ${{ fromJSON(inputs.continue-on-error) }}
       run: |
         set +e
         ${{ inputs.main-script }}
