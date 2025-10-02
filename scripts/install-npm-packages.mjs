@@ -465,20 +465,6 @@ async function installPackage(packageInfo) {
     versionSpec,
   } = packageInfo
 
-  // Check if this package should be skipped.
-  const skipSet = constants.skipTestsByEcosystem.get('npm')
-  const skipTests = !!skipSet?.has(socketPkgName) || !!skipSet?.has(origPkgName)
-  if (skipTests) {
-    writeProgress()
-    completePackage()
-    return {
-      installed: false,
-      package: origPkgName,
-      reason: 'Skipped',
-      socketPackage: socketPkgName,
-    }
-  }
-
   // Create temp directory for this package.
   const packageTempDir = path.join(tempBaseDir, socketPkgName)
 
