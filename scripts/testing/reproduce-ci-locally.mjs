@@ -44,17 +44,20 @@ const { values: cliArgs } = parseArgs({
 })
 
 /**
- * Run command with CI-like environment.
+ * Run command with CI-like environment variables.
+ * Sets up environment to match actual CI execution context.
  */
 async function runCiCommand(command, args, options = {}) {
   const ciEnv = {
     ...process.env,
+    // Core CI indicators.
     CI: 'true',
     NODE_ENV: 'test',
+    // Suppress Node.js warnings for cleaner output.
     NODE_NO_WARNINGS: '1',
-    // Disable color output for consistent comparison.
-    NO_COLOR: '1',
+    // Disable color output for consistent comparison with CI logs.
     FORCE_COLOR: '0',
+    NO_COLOR: '1',
   }
 
   const result = await spawn(command, args, {
@@ -67,13 +70,14 @@ async function runCiCommand(command, args, options = {}) {
 }
 
 /**
- * Create isolated test environment.
+ * Create isolated test environment by copying project to temp directory.
+ * Excludes node_modules, build artifacts, and version control to ensure
+ * clean install matching CI behavior.
  */
 async function createTestEnvironment() {
   const tempDir = mkdtempSync(path.join(os.tmpdir(), 'ci-reproduce-'))
   logger.info(`Created temporary directory: ${tempDir}`)
 
-  // Copy project to temp directory.
   const projectRoot = path.join(__dirname, '..', '..')
   logger.info('Copying project files...')
 
@@ -81,7 +85,7 @@ async function createTestEnvironment() {
     recursive: true,
     filter: source => {
       const relativePath = path.relative(projectRoot, source)
-      // Skip node_modules, build artifacts, and temp files.
+      // Exclude directories that should be reinstalled or regenerated in CI.
       return !(
         relativePath.includes('node_modules') ||
         relativePath.includes('.tmp-') ||

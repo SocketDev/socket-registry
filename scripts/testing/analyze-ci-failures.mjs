@@ -24,12 +24,22 @@ const { values: cliArgs } = parseArgs({
   strict: false,
 })
 
+/**
+ * Failure pattern definitions for automated CI log analysis.
+ * Each pattern includes:
+ * - pattern: Regex to match error in logs
+ * - category: Human-readable category for grouping
+ * - severity: 'error' or 'warning'
+ * - extract: Optional function to extract specific details from match
+ * - suggestions: Actionable fixes for this failure type
+ */
 const FAILURE_PATTERNS = {
+  // Module resolution and import errors.
   MODULE_NOT_FOUND: {
-    pattern: /Cannot find module ['"]([^'"]+)['"]/,
     category: 'Module Resolution',
-    severity: 'error',
     extract: match => ({ module: match[1] }),
+    pattern: /Cannot find module ['"]([^'"]+)['"]/,
+    severity: 'error',
     suggestions: [
       'Check if the module path is correct',
       'Verify the module is listed in package.json dependencies',
