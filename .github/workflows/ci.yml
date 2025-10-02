@@ -55,10 +55,10 @@ on:
         type: string
         default: '22'
       lint-script:
-        description: 'Lint command (e.g., "pnpm run check-ci")'
+        description: 'Lint command (e.g., "pnpm run lint-ci")'
         required: false
         type: string
-        default: 'pnpm run check-ci'
+        default: 'pnpm run lint-ci'
       lint-setup-script:
         description: 'Setup script before linting'
         required: false
@@ -130,10 +130,10 @@ on:
         type: string
         default: '22'
       type-check-script:
-        description: 'Type check command (e.g., "pnpm run check:tsc")'
+        description: 'Type check command (e.g., "pnpm run type-ci")'
         required: false
         type: string
-        default: 'pnpm run check:tsc'
+        default: 'pnpm run type-ci'
       type-check-setup-script:
         description: 'Setup script before type checking'
         required: false
