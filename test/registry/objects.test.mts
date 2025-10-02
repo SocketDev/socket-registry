@@ -74,8 +74,8 @@ describe('objects module', () => {
     })
 
     it('should handle null prototype objects', () => {
-      const obj: any = Object.create(null)
-      obj.prop = true
+      const obj = Object.create(null) as Record<string, unknown>
+      obj['prop'] = true
       expect(hasOwn(obj, 'prop')).toBe(true)
     })
   })
@@ -104,9 +104,9 @@ describe('objects module', () => {
     })
 
     it('should handle objects with null prototype', () => {
-      const obj: any = Object.create(null)
+      const obj = Object.create(null) as Record<string, unknown>
       expect(hasKeys(obj)).toBe(false)
-      obj.prop = true
+      obj['prop'] = true
       expect(hasKeys(obj)).toBe(true)
     })
 
@@ -127,9 +127,9 @@ describe('objects module', () => {
     })
 
     it('should handle objects with null prototype', () => {
-      const obj: any = Object.create(null)
-      obj.a = 1
-      obj.b = 2
+      const obj = Object.create(null) as Record<string, unknown>
+      obj['a'] = 1
+      obj['b'] = 2
       expect(getKeys(obj)).toEqual(['a', 'b'])
     })
   })
@@ -167,9 +167,9 @@ describe('objects module', () => {
     })
 
     it('should handle objects with null prototype', () => {
-      const obj: any = Object.create(null)
-      obj.x = 10
-      obj.y = 20
+      const obj = Object.create(null) as Record<string, unknown>
+      obj['x'] = 10
+      obj['y'] = 20
       expect(objectEntries(obj)).toEqual([
         ['x', 10],
         ['y', 20],
@@ -244,24 +244,24 @@ describe('objects module', () => {
 
     it('should detect circular references', () => {
       const target = { a: 1 }
-      const source: any = { b: 2 }
-      source.circular = source
+      const source = { b: 2 } as Record<string, unknown>
+      source['circular'] = source
       const result = merge(target, source)
-      expect(result.b).toBe(2)
-      expect(result.circular).toBe(source)
+      expect(result['b']).toBe(2)
+      expect(result['circular']).toBe(source)
     })
   })
 
   describe('defineGetter', () => {
     it('should define a getter on an object', () => {
-      const obj: any = {}
+      const obj = {} as Record<string, unknown>
       let callCount = 0
       defineGetter(obj, 'prop', () => {
         callCount++
         return 'value'
       })
-      expect(obj.prop).toBe('value')
-      expect(obj.prop).toBe('value')
+      expect(obj['prop']).toBe('value')
+      expect(obj['prop']).toBe('value')
       expect(callCount).toBe(2)
     })
 
@@ -274,30 +274,30 @@ describe('objects module', () => {
 
   describe('defineLazyGetter', () => {
     it('should define a lazy getter that caches result', () => {
-      const obj: any = {}
+      const obj = {} as Record<string, unknown>
       let callCount = 0
       defineLazyGetter(obj, 'prop', () => {
         callCount++
         return 'value'
       })
-      expect(obj.prop).toBe('value')
-      expect(obj.prop).toBe('value')
+      expect(obj['prop']).toBe('value')
+      expect(obj['prop']).toBe('value')
       expect(callCount).toBe(1)
     })
 
     it('should track stats if provided', () => {
-      const obj: any = {}
+      const obj = {} as Record<string, unknown>
       const stats = { initialized: new Set() } as any
       defineLazyGetter(obj, 'prop', () => 'value', stats)
       expect(stats.initialized.has('prop')).toBe(false)
-      obj.prop
+      obj['prop']
       expect(stats.initialized.has('prop')).toBe(true)
     })
   })
 
   describe('defineLazyGetters', () => {
     it('should define multiple lazy getters', () => {
-      const obj: any = {}
+      const obj = {} as Record<string, unknown>
       let countA = 0
       let countB = 0
       defineLazyGetters(obj, {
@@ -310,9 +310,9 @@ describe('objects module', () => {
           return 'valueB'
         },
       })
-      expect(obj.a).toBe('valueA')
-      expect(obj.a).toBe('valueA')
-      expect(obj.b).toBe('valueB')
+      expect(obj['a']).toBe('valueA')
+      expect(obj['a']).toBe('valueA')
+      expect(obj['b']).toBe('valueB')
       expect(countA).toBe(1)
       expect(countB).toBe(1)
     })

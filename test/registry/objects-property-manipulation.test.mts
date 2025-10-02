@@ -64,10 +64,10 @@ describe('objects property manipulation and utilities', () => {
 
   describe('defineGetter', () => {
     it('should define property getter', () => {
-      const obj: any = {}
+      const obj = {} as Record<string, unknown>
       defineGetter(obj, 'computed', () => 'getter value')
 
-      expect(obj.computed).toBe('getter value')
+      expect(obj['computed']).toBe('getter value')
       expect(
         Object.getOwnPropertyDescriptor(obj, 'computed')?.get,
       ).toBeDefined()
@@ -76,7 +76,7 @@ describe('objects property manipulation and utilities', () => {
 
   describe('defineLazyGetter', () => {
     it('should define lazy property getter', () => {
-      const obj: any = {}
+      const obj = {} as Record<string, unknown>
       let callCount = 0
 
       defineLazyGetter(obj, 'lazy', () => {
@@ -84,9 +84,9 @@ describe('objects property manipulation and utilities', () => {
         return 'lazy value'
       })
 
-      expect(obj.lazy).toBe('lazy value')
+      expect(obj['lazy']).toBe('lazy value')
       // Second access
-      expect(obj.lazy).toBe('lazy value')
+      expect(obj['lazy']).toBe('lazy value')
       // Should only call once
       expect(callCount).toBe(1)
     })
@@ -94,7 +94,7 @@ describe('objects property manipulation and utilities', () => {
 
   describe('defineLazyGetters', () => {
     it('should define multiple lazy getters', () => {
-      const obj: any = {}
+      const obj = {} as Record<string, unknown>
       const getters = {
         prop1: () => 'value1',
         prop2: () => 'value2',
@@ -102,8 +102,8 @@ describe('objects property manipulation and utilities', () => {
 
       defineLazyGetters(obj, getters)
 
-      expect(obj.prop1).toBe('value1')
-      expect(obj.prop2).toBe('value2')
+      expect(obj['prop1']).toBe('value1')
+      expect(obj['prop2']).toBe('value2')
     })
   })
 
