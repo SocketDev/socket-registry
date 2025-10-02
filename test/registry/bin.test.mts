@@ -6,6 +6,10 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import {
   execBin,
+  findRealBin,
+  findRealNpm,
+  findRealPnpm,
+  findRealYarn,
   isShadowBinPath,
   resolveBinPathSync,
   whichBin,
@@ -1101,6 +1105,116 @@ exec node "$basedir/../pnpm/bin/pnpm.cjs" "$@"`
       // If we could trigger an EACCES error, resolveBinPathSync would return the original path.
       // Since we can't easily mock it, we just document the expected behavior.
       expect(() => resolveBinPathSync(testPath)).not.toThrow()
+    })
+  })
+
+  describe('findRealBin', () => {
+    it('should find real binary from common paths', () => {
+      const result = findRealBin('node', [process.execPath])
+      expect(result).toBe(process.execPath)
+    })
+
+    it('should fall back to which when common paths fail', () => {
+      const result = findRealBin('node', ['/nonexistent/path'])
+      expect(result).toBeTruthy()
+      expect(result).toContain('node')
+    })
+
+    it('should bypass shadow bins and find real binary', async () => {
+      const tmpDir = os.tmpdir()
+      const shadowBinDir = path.join(tmpDir, 'node_modules', '.bin')
+      const shadowBinPath = path.join(shadowBinDir, `test-bin-${Date.now()}`)
+      const realBinPath = path.join(tmpDir, `real-test-bin-${Date.now()}`)
+
+      await fs.mkdir(shadowBinDir, { recursive: true })
+      await fs.writeFile(shadowBinPath, '#!/bin/sh\necho "shadow"', {
+        mode: 0o755,
+      })
+      await fs.writeFile(realBinPath, '#!/bin/sh\necho "real"', { mode: 0o755 })
+
+      try {
+        const result = findRealBin(path.basename(shadowBinPath), [
+          shadowBinPath,
+          realBinPath,
+        ])
+        expect(result).toBe(shadowBinPath)
+      } finally {
+        await safeRemove([shadowBinPath, realBinPath, shadowBinDir])
+      }
+    })
+
+    it('should return undefined for non-existent binary', () => {
+      const result = findRealBin('nonexistentbinary12345xyz', [])
+      expect(result).toBeUndefined()
+    })
+
+    it('should handle empty common paths array', () => {
+      const result = findRealBin('node', [])
+      expect(result).toBeTruthy()
+    })
+  })
+
+  describe('findRealNpm', () => {
+    it('should find real npm executable', () => {
+      const result = findRealNpm()
+      expect(result).toBeTruthy()
+      expect(typeof result).toBe('string')
+    })
+
+    it('should find npm in node directory', () => {
+      const result = findRealNpm()
+      expect(result).toBeTruthy()
+    })
+
+    it('should handle various npm installation methods', () => {
+      const result = findRealNpm()
+      expect(result).toBeTruthy()
+      expect(result.length).toBeGreaterThan(0)
+    })
+  })
+
+  describe('findRealPnpm', () => {
+    it('should find real pnpm executable or return empty string', () => {
+      const result = findRealPnpm()
+      expect(typeof result).toBe('string')
+    })
+
+    it('should check common pnpm locations', () => {
+      const result = findRealPnpm()
+      expect(typeof result).toBe('string')
+    })
+
+    it.skipIf(process.platform !== 'win32')(
+      'should check Windows-specific pnpm paths',
+      () => {
+        const result = findRealPnpm()
+        expect(typeof result).toBe('string')
+      },
+    )
+
+    it.skipIf(process.platform === 'win32')(
+      'should check Unix-specific pnpm paths',
+      () => {
+        const result = findRealPnpm()
+        expect(typeof result).toBe('string')
+      },
+    )
+  })
+
+  describe('findRealYarn', () => {
+    it('should find real yarn executable or return empty string', () => {
+      const result = findRealYarn()
+      expect(typeof result).toBe('string')
+    })
+
+    it('should check common yarn locations', () => {
+      const result = findRealYarn()
+      expect(typeof result).toBe('string')
+    })
+
+    it('should handle yarn not being installed', () => {
+      const result = findRealYarn()
+      expect(typeof result).toBe('string')
     })
   })
 })
