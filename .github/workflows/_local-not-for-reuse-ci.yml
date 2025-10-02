@@ -22,10 +22,10 @@ jobs:
       coverage-script: 'pnpm run test:unit:coverage'
       coverage-report-script: 'pnpm run coverage:percent --json'
       fail-fast: false
-      lint-script: 'pnpm run check-ci'
+      lint-script: 'pnpm run lint-ci'
       node-versions: '[20, 22, 24]'
       os-versions: '["ubuntu-latest", "windows-latest"]'
       test-script: 'pnpm run test-ci'
       test-setup-script: 'pnpm run build'
-      type-check-script: 'pnpm run check:tsc'
+      type-check-script: 'pnpm run type-ci'
       type-check-setup-script: 'pnpm run build'
