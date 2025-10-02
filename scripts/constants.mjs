@@ -189,6 +189,10 @@ const lazySkipTestsByEcosystem = () => {
         // deprecated and removed in Node.js 20+.
         // https://nodejs.org/docs/latest-v18.x/api/util.html#deprecated-apis
         'abab',
+        // aggregate-error tests use xo which depends on core-assert which uses
+        // util.isDate that was deprecated and removed in Node.js 20+.
+        // https://nodejs.org/docs/latest-v18.x/api/util.html#deprecated-apis
+        'aggregate-error',
         // Our array-flatten override supports v1, v2, and v3 APIs, so we handle
         // testing ourselves.
         'array-flatten',
@@ -204,6 +208,14 @@ const lazySkipTestsByEcosystem = () => {
         // tests in browser.
         // https://github.com/tvcutsem/harmony-reflect/tree/v1.6.2/test
         'harmony-reflect',
+        // indent-string tests use xo which depends on core-assert which uses
+        // util.isDate that was deprecated and removed in Node.js 20+.
+        // https://nodejs.org/docs/latest-v18.x/api/util.html#deprecated-apis
+        'indent-string',
+        // is-interactive tests use xo which depends on core-assert which uses
+        // util.isDate that was deprecated and removed in Node.js 20+.
+        // https://nodejs.org/docs/latest-v18.x/api/util.html#deprecated-apis
+        'is-interactive',
         // is-regex tests don't account for `is-regex` backed by
         // `require('node:util/types).isRegExp` which triggers no proxy traps and
         // assumes instead that the 'getOwnPropertyDescriptor' trap will be triggered
