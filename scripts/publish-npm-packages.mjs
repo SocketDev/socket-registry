@@ -20,13 +20,7 @@ import { pluralize } from '../registry/dist/lib/words.js'
 
 import constants from './constants.mjs'
 
-const {
-  COLUMN_LIMIT,
-  LATEST,
-  SOCKET_REGISTRY_SCOPE,
-  npmPackagesPath,
-  registryPkgPath,
-} = constants
+const { COLUMN_LIMIT, LATEST, npmPackagesPath, registryPkgPath } = constants
 
 const { values: cliArgs } = parseArgs({
   options: {
@@ -44,6 +38,9 @@ const { values: cliArgs } = parseArgs({
   strict: false,
 })
 
+/**
+ * Checkout a specific commit and discard uncommitted changes.
+ */
 async function checkoutCommit(sha) {
   // Discard any uncommitted changes from previous builds.
   await spawn('git', ['reset', '--hard'])
@@ -83,6 +80,9 @@ async function ensureNpmVersion() {
   }
 }
 
+/**
+ * Find all commits with version bumps in the registry package.
+ */
 async function findVersionBumpCommits() {
   // Get git log with commit messages starting with "Bump".
   const result = await spawn('git', [
@@ -138,11 +138,17 @@ async function findVersionBumpCommits() {
   return commits.slice().toReversed()
 }
 
+/**
+ * Get the full commit SHA for a given ref.
+ */
 async function getCommitSha(ref) {
   const result = await spawn('git', ['rev-parse', ref])
   return result.stdout.trim()
 }
 
+/**
+ * Get the name of the current git branch.
+ */
 async function getCurrentBranch() {
   const result = await spawn('git', ['rev-parse', '--abbrev-ref', 'HEAD'])
   return result.stdout.trim()
@@ -168,6 +174,9 @@ async function publish(pkg, state, options) {
   }
 }
 
+/**
+ * Publish packages at a specific commit.
+ */
 async function publishAtCommit(sha) {
   logger.log(`\nChecking out commit ${sha}...`)
   await checkoutCommit(sha)
@@ -179,19 +188,20 @@ async function publishAtCommit(sha) {
   const fails = []
   const skipped = []
   // Registry package comes last - publish after all other packages.
+  const registryPkgJson = readPackageJsonSync(registryPkgPath)
   const registryPackage = packageData({
-    name: readPackageJsonSync(registryPkgPath).name,
+    name: registryPkgJson.name,
     path: registryPkgPath,
-    printName: '@socketsecurity/registry',
+    printName: registryPkgJson.name,
   })
   const allPackages = [
     ...constants.npmPackageNames.map(sockRegPkgName => {
       const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
       const pkgJson = readPackageJsonSync(pkgPath)
       return packageData({
-        name: `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`,
+        name: pkgJson.name,
         path: pkgPath,
-        printName: sockRegPkgName,
+        printName: pkgJson.name,
         tag: getReleaseTag(pkgJson.version),
       })
     }),
@@ -410,11 +420,17 @@ async function publishTrusted(pkg, state, options) {
 
       // Use npm for trusted publishing with OIDC tokens.
       // eslint-disable-next-line no-await-in-loop
-      const result = await spawn('npm', ['publish', '--access', 'public'], {
-        cwd: pkg.path,
-        env: process.env,
-        // Don't set NODE_AUTH_TOKEN for trusted publishing - uses OIDC.
-      })
+      const result = await spawn(
+        'npm',
+        ['publish', '--provenance', '--access', 'public'],
+        {
+          cwd: pkg.path,
+          env: {
+            ...process.env,
+            // Don't set NODE_AUTH_TOKEN for trusted publishing - uses OIDC.
+          },
+        },
+      )
       if (result.stdout) {
         logger.log(result.stdout)
       }
@@ -442,6 +458,9 @@ async function publishTrusted(pkg, state, options) {
   }
 }
 
+/**
+ * Find unpublished version bumps and publish them in chronological order.
+ */
 async function main() {
   // Ensure npm version is >= 11.5.1 for trusted publishing FIRST.
   // This must happen before any other operations.
