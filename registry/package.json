@@ -11,6 +11,7 @@
     "url": "git+https://github.com/SocketDev/socket-registry.git",
     "directory": "registry"
   },
+  "bin": {},
   "browser": {
     "_http_agent": false,
     "_http_client": false,
