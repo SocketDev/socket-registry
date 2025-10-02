@@ -285,16 +285,6 @@ async function runCommand(command, args, options = {}) {
 async function installPackageForTesting(socketPkgName) {
   const origPkgName = resolveOriginalPackageName(socketPkgName)
 
-  // Check if this package should be skipped.
-  const skipTestsMap = constants.skipTestsByEcosystem
-  const skipSet = skipTestsMap.get('npm')
-  if (skipSet && (skipSet.has(socketPkgName) || skipSet.has(origPkgName))) {
-    return {
-      installed: false,
-      reason: 'Skipped (known issues)',
-    }
-  }
-
   const overridePath = path.join(constants.npmPackagesPath, socketPkgName)
 
   if (!existsSync(overridePath)) {

@@ -51,19 +51,6 @@ function writeProgress() {
 async function validatePackage(socketPkgName) {
   const origPkgName = resolveOriginalPackageName(socketPkgName)
 
-  // Check if this package should be skipped.
-  const skipTestsMap = constants.skipTestsByEcosystem
-  const skipSet = skipTestsMap.get('npm')
-  if (skipSet && (skipSet.has(socketPkgName) || skipSet.has(origPkgName))) {
-    writeProgress()
-    return {
-      package: origPkgName,
-      socketPackage: socketPkgName,
-      downloaded: false,
-      reason: 'Skipped',
-    }
-  }
-
   const overridePath = path.join(constants.npmPackagesPath, socketPkgName)
 
   if (!existsSync(overridePath)) {
