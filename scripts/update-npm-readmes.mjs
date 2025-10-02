@@ -1,3 +1,5 @@
+/** @fileoverview Update README.md files for all npm packages using templates. */
+
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
@@ -22,6 +24,9 @@ const { values: cliArgs } = parseArgs({
   strict: false,
 })
 
+/**
+ * Generate and write README.md files for all npm packages.
+ */
 async function main() {
   // Exit early if no relevant files have been modified.
   if (!cliArgs.force && !(await isModified(npmTemplatesReadmePath))) {

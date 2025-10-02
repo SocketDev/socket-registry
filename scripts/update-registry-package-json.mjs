@@ -1,3 +1,5 @@
+/** @fileoverview Update registry package.json with exports, browser fields, and Node.js engine range. */
+
 import path from 'node:path'
 
 import constants from './constants.mjs'
@@ -11,6 +13,9 @@ import { readPackageJson } from '../registry/dist/lib/packages.js'
 
 const { EXT_DTS, EXT_JSON } = constants
 
+/**
+ * Generate exports and browser fields for registry package.
+ */
 async function main() {
   const { registryPkgPath } = constants
 

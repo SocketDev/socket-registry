@@ -1,13 +1,13 @@
-/**
- * Convert CommonJS require() calls to dynamic import() for constants.
- * This allows Vite to properly resolve and transform them during coverage.
- */
+/** @fileoverview Convert CommonJS require() calls to dynamic import() for constants. */
 
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 const libDir = './registry/src/lib'
 
+/**
+ * Convert require calls to dynamic imports in a file.
+ */
 function processFile(filePath) {
   const content = readFileSync(filePath, 'utf8')
   let modified = false
@@ -38,6 +38,9 @@ function processFile(filePath) {
   return 0
 }
 
+/**
+ * Recursively process all TypeScript files in a directory.
+ */
 function processDirectory(dir) {
   let count = 0
   const files = readdirSync(dir, { withFileTypes: true })

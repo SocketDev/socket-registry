@@ -1,3 +1,5 @@
+/** @fileoverview Validate that all registry package constants have corresponding TypeScript type declarations. */
+
 import { createRequire } from 'node:module'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
@@ -8,6 +10,10 @@ import constants from './constants.mjs'
 
 const require = createRequire(import.meta.url)
 
+/**
+ * Verify that all constants have matching TypeScript declarations.
+ * @throws {Error} When a constant is missing from type declarations.
+ */
 async function main() {
   const { registryPkgPath, rootPath } = constants
 

@@ -1,8 +1,13 @@
+/** @fileoverview Add .js extensions to relative import statements. */
+
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 const libDir = './registry/src/lib'
 
+/**
+ * Add .js extensions to imports missing them.
+ */
 function processFile(filePath) {
   const content = readFileSync(filePath, 'utf8')
   let modified = false
@@ -44,6 +49,9 @@ function processFile(filePath) {
   return 0
 }
 
+/**
+ * Recursively process all TypeScript files in a directory.
+ */
 function processDirectory(dir) {
   let count = 0
   const files = readdirSync(dir, { withFileTypes: true })

@@ -1,8 +1,13 @@
+/** @fileoverview Clean test cache directories for npm package tests. */
+
 import os from 'node:os'
 import path from 'node:path'
 
 import { safeRemove } from './utils/fs.mjs'
 
+/**
+ * Remove all test cache directories.
+ */
 async function cleanTestCache() {
   const dirs = [
     path.join(os.homedir(), '.socket-npm-test-cache'),

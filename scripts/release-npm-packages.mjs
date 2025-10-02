@@ -1,3 +1,5 @@
+/** @fileoverview Detect package changes and bump versions for npm release. */
+
 import crypto from 'node:crypto'
 import fs from 'node:fs/promises'
 import path from 'node:path'
@@ -40,6 +42,9 @@ const registryPkg = packageData({
 
 const EXTRACT_PACKAGE_TMP_PREFIX = 'release-npm-'
 
+/**
+ * Compute SHA256 hashes for all files in a local package directory.
+ */
 async function getLocalPackageFileHashes(packagePath) {
   const fileHashes = {}
 
@@ -125,6 +130,9 @@ async function getLocalPackageFileHashes(packagePath) {
   return toSortedObject(fileHashes)
 }
 
+/**
+ * Compute SHA256 hashes for all files in a remote published package.
+ */
 async function getRemotePackageFileHashes(spec) {
   const fileHashes = {}
 
@@ -187,6 +195,9 @@ async function getRemotePackageFileHashes(spec) {
   return toSortedObject(fileHashes)
 }
 
+/**
+ * Compare local and remote package files to detect changes.
+ */
 async function hasPackageChanged(pkg, manifest_, options) {
   const { state } = { __proto__: null, ...options }
 
@@ -231,12 +242,18 @@ async function hasPackageChanged(pkg, manifest_, options) {
   return changed
 }
 
+/**
+ * Check if a file is automatically included by npm in published packages.
+ */
 function isNpmAutoIncluded(fileName) {
   const upperName = fileName.toUpperCase()
   // NPM automatically includes LICENSE and README files with any case and extension.
   return upperName.startsWith('LICENSE') || upperName.startsWith('README')
 }
 
+/**
+ * Bump package version if changes are detected.
+ */
 async function maybeBumpPackage(pkg, options) {
   const {
     spinner,
@@ -284,6 +301,9 @@ async function maybeBumpPackage(pkg, options) {
   }
 }
 
+/**
+ * Create package metadata with defaults.
+ */
 function packageData(data) {
   const { manifest, printName = data.name, tag = LATEST, version } = data
   return Object.assign(data, {
@@ -294,6 +314,9 @@ function packageData(data) {
   })
 }
 
+/**
+ * Detect changes and bump versions for all packages.
+ */
 async function main() {
   const { spinner } = constants
 
