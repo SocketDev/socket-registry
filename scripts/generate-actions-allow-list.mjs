@@ -161,7 +161,9 @@ async function main() {
       logger.success('Allow list copied to clipboard!')
     } catch {}
   } else {
-    console.log('💡 Tip: Use --copy flag to copy the allow list to clipboard')
+    console.log(
+      '💡 Tip: Run `pnpm run generate:actions-allow-list --copy` to copy the allow list to clipboard',
+    )
   }
 }
 
