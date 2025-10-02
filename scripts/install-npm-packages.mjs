@@ -20,7 +20,7 @@
  * For each package in test/npm/package.json devDependencies:
  *
  * 1. GitHub Tarball Handling (if versionSpec is a GitHub URL):
- *    - Downloads and extracts the GitHub tarball to /tmp/socket-test-extract-{timestamp}
+ *    - Downloads and extracts the GitHub tarball using pacote to /tmp/socket-test-extract-{timestamp}
  *    - Removes the "files" field from package.json to preserve test files
  *      (GitHub tarballs often have "files": ["index.js"] which excludes test files)
  *    - Removes unnecessary lifecycle scripts (prepublishOnly, prepack, etc.)
@@ -67,7 +67,8 @@ import os from 'node:os'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-import { c as tarCreate, x as tarExtract } from 'tar'
+import pacote from 'pacote'
+import { c as tarCreate } from 'tar'
 
 import { parseArgs } from '../registry/dist/lib/parse-args.js'
 
@@ -506,9 +507,9 @@ async function installPackage(packageInfo) {
               errorOnExist: false,
               ...(WIN32 ? { retryDelay: 100, maxRetries: 3 } : {}),
               filter: src =>
-                !src.includes('node_modules') &&
+                !src.includes(NODE_MODULES) &&
                 !src.endsWith('.DS_Store') &&
-                !src.endsWith('package.json'),
+                !src.endsWith(PACKAGE_JSON),
             })
           } catch (e) {
             // Ignore errors about same paths - this happens when pnpm symlinks to our override.
@@ -526,7 +527,7 @@ async function installPackage(packageInfo) {
         }
 
         // Read the Socket override package.json to get the fields we want.
-        const overridePkgJsonPath = path.join(overridePath, 'package.json')
+        const overridePkgJsonPath = path.join(overridePath, PACKAGE_JSON)
         const overridePkgJson = await readPackageJson(overridePkgJsonPath)
 
         // Selectively update the fields from Socket override.
@@ -621,41 +622,20 @@ async function installPackage(packageInfo) {
       try {
         await fs.mkdir(tempExtractDir, { recursive: true })
 
-        // Download and extract GitHub tarball.
-        // Use -f flag to fail on HTTP errors (404, 500, etc.) instead of downloading error pages.
-        const archivePath = path.join(tempExtractDir, 'archive.tar.gz')
-        await runCommand('curl', ['-fsSL', versionSpec, '-o', archivePath], {
-          cwd: tempExtractDir,
+        // Download and extract GitHub tarball using pacote.
+        // pacote handles HTTP errors, validation, and extraction automatically.
+        await pacote.extract(versionSpec, tempExtractDir, {
+          preferOnline: true,
         })
 
-        // Verify the downloaded file is not empty and is a valid gzip file.
-        const archiveStats = await fs.stat(archivePath)
-        if (archiveStats.size === 0) {
-          throw new Error('Downloaded tarball is empty')
-        }
-
-        // Extract using tar package for cross-platform compatibility.
-        await tarExtract({
-          file: archivePath,
-          cwd: tempExtractDir,
-        })
-
-        // Wait briefly for filesystem to flush after tar extraction.
+        // Wait briefly for filesystem to flush after extraction.
         // This prevents reading truncated files on slower CI systems.
         await new Promise(resolve => setTimeout(resolve, FS_FLUSH_DELAY_MS))
 
-        // Find the extracted directory (GitHub archives extract to reponame-commitish/).
-        const entries = await fs.readdir(tempExtractDir, {
-          withFileTypes: true,
-        })
-        const extractedDir = entries.find(
-          e => e.isDirectory() && e.name !== NODE_MODULES,
-        )
+        // pacote extracts directly to tempExtractDir (no nested directory).
+        const pkgJsonPath = path.join(tempExtractDir, PACKAGE_JSON)
 
-        if (extractedDir) {
-          const extractedPath = path.join(tempExtractDir, extractedDir.name)
-          const pkgJsonPath = path.join(extractedPath, PACKAGE_JSON)
-
+        if (existsSync(pkgJsonPath)) {
           // Verify package.json exists and is not empty.
           // Retry up to JSON_PARSE_MAX_RETRIES times to handle filesystem flush delays on slow CI systems.
           let editablePkgJson
@@ -669,7 +649,7 @@ async function installPackage(packageInfo) {
               // eslint-disable-next-line no-await-in-loop
               const pkgJsonStats = await fs.stat(pkgJsonPath)
               if (pkgJsonStats.size === 0) {
-                throw new Error('Extracted package.json is empty')
+                throw new Error(`Extracted ${PACKAGE_JSON} is empty`)
               }
 
               // Remove the "files" field so pnpm includes all files (including tests).
@@ -716,7 +696,7 @@ async function installPackage(packageInfo) {
           await editablePkgJson.save()
 
           // Remove .npmignore if it exists, as it can also filter out test files.
-          const npmignorePath = path.join(extractedPath, '.npmignore')
+          const npmignorePath = path.join(tempExtractDir, '.npmignore')
           await safeRemove(npmignorePath).catch(() => {
             // File doesn't exist, ignore.
           })
@@ -737,13 +717,14 @@ async function installPackage(packageInfo) {
           // CROSS-PLATFORM: Uses the 'tar' npm package (same as pacote) which works on all platforms
           // including Windows 10+ without requiring external tar command.
           const repackedTarball = path.join(tempExtractDir, 'repacked.tgz')
+          const entries = await fs.readdir(tempExtractDir)
           await tarCreate(
             {
               gzip: true,
               file: repackedTarball,
               cwd: tempExtractDir,
             },
-            [extractedDir.name],
+            entries.filter(name => name !== 'repacked.tgz'),
           )
 
           // Use file:// URL to point pnpm to our repacked tarball that contains all files.
@@ -765,7 +746,7 @@ async function installPackage(packageInfo) {
 
     // Create package.json with the original package as a dependency.
     // This allows pnpm to install it along with all its dependencies in one go.
-    await writeJson(path.join(packageTempDir, 'package.json'), {
+    await writeJson(path.join(packageTempDir, PACKAGE_JSON), {
       name: 'test-temp',
       version: '1.0.0',
       private: true,
@@ -840,10 +821,10 @@ async function installPackage(packageInfo) {
 
       const pnpmStorePath = path.join(
         packageTempDir,
-        'node_modules',
+        NODE_MODULES,
         '.pnpm',
         pnpmStoreDir,
-        'node_modules',
+        NODE_MODULES,
         origPkgName,
       )
       try {
@@ -885,9 +866,9 @@ async function installPackage(packageInfo) {
           errorOnExist: false,
           ...(WIN32 ? { retryDelay: 100, maxRetries: 3 } : {}),
           filter: src =>
-            !src.includes('node_modules') &&
+            !src.includes(NODE_MODULES) &&
             !src.endsWith('.DS_Store') &&
-            !src.endsWith('package.json'),
+            !src.endsWith(PACKAGE_JSON),
         })
       } catch (e) {
         // Ignore errors about same paths - this happens when pnpm symlinks to our override.
@@ -1080,7 +1061,7 @@ async function main() {
         const nodeModulesPath = path.join(
           npmPackagesDir,
           entry.name,
-          'node_modules',
+          NODE_MODULES,
         )
         if (existsSync(nodeModulesPath)) {
           nodeModulesPaths.push(nodeModulesPath)
@@ -1090,7 +1071,7 @@ async function main() {
 
     if (nodeModulesPaths.length > 0) {
       logger.log(
-        `Cleaning ${nodeModulesPaths.length} node_modules from override packages`,
+        `Cleaning ${nodeModulesPaths.length} ${NODE_MODULES} from override packages`,
       )
       await safeRemove(nodeModulesPaths)
     }
