@@ -1,6 +1,10 @@
 /**
  * @fileoverview File system utilities for safe operations.
  * Provides recoverable file deletion and other safe file system operations.
+ *
+ * Note: This module avoids importing from registry dist files (like ENV, pEach)
+ * to prevent circular dependency issues during clean operations. Instead, it
+ * implements minimal local versions of required functionality.
  */
 
 import fs from 'node:fs/promises'
@@ -9,10 +13,11 @@ import path from 'node:path'
 
 import trash from 'trash'
 import constants from '../constants.mjs'
-import ENV from '../../registry/dist/lib/constants/ENV.js'
-import { pEach } from '../../registry/dist/lib/promises.js'
 
 const { DEFAULT_CONCURRENCY } = constants
+
+// CI detection without registry dist dependency.
+const IS_CI = Object.hasOwn(process.env, 'CI')
 
 // Get system temp directory patterns for detection.
 const TEMP_DIRS = [
@@ -59,21 +64,18 @@ async function safeRemove(paths, options) {
   } = { __proto__: null, ...options }
 
   // In CI, skip trash for performance - go directly to fs.rm.
-  if (ENV.CI) {
-    await pEach(
-      pathArray,
-      async p => {
-        try {
-          await fs.rm(p, { force, recursive, ...otherOptions })
-        } catch (rmError) {
-          // Silently ignore failures for temp paths - system will clean them.
-          if (!isTempPath(p) && spinner && rmError.code !== 'ENOENT') {
-            spinner.warn(`Failed to remove ${p}: ${rmError.message}`)
-          }
+  if (IS_CI) {
+    for (const p of pathArray) {
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await fs.rm(p, { force, recursive, ...otherOptions })
+      } catch (rmError) {
+        // Silently ignore failures for temp paths - system will clean them.
+        if (!isTempPath(p) && spinner && rmError.code !== 'ENOENT') {
+          spinner.warn(`Failed to remove ${p}: ${rmError.message}`)
         }
-      },
-      { concurrency },
-    )
+      }
+    }
     return
   }
 
@@ -82,20 +84,17 @@ async function safeRemove(paths, options) {
     await trash(pathArray)
   } catch {
     // Trash failed, fallback to fs.rm.
-    await pEach(
-      pathArray,
-      async p => {
-        try {
-          await fs.rm(p, { force, recursive, ...otherOptions })
-        } catch (rmError) {
-          // Silently ignore failures for temp paths - system will clean them.
-          if (!isTempPath(p) && spinner && rmError.code !== 'ENOENT') {
-            spinner.warn(`Failed to remove ${p}: ${rmError.message}`)
-          }
+    for (const p of pathArray) {
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await fs.rm(p, { force, recursive, ...otherOptions })
+      } catch (rmError) {
+        // Silently ignore failures for temp paths - system will clean them.
+        if (!isTempPath(p) && spinner && rmError.code !== 'ENOENT') {
+          spinner.warn(`Failed to remove ${p}: ${rmError.message}`)
         }
-      },
-      { concurrency },
-    )
+      }
+    }
   }
 }
 
