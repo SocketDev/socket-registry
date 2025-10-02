@@ -476,17 +476,36 @@ Follow the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format:
         coverage-script: 'pnpm run test:unit:coverage'
         coverage-report-script: 'pnpm run coverage:percent --json'
         fail-fast: false
-        lint-script: 'pnpm run check-ci'
+        lint-script: 'pnpm run lint-ci'
         node-versions: '[20, 22, 24]'
         os-versions: '["ubuntu-latest", "windows-latest"]'
         test-script: 'pnpm run test-ci'
         test-setup-script: 'pnpm run build'
-        type-check-script: 'pnpm run check:tsc'
+        type-check-script: 'pnpm run type-ci'
         type-check-setup-script: 'pnpm run build'
   ```
 - **Orchestration**: CI workflow orchestrates lint.yml, types.yml, test.yml, and coverage reporting
 - **Individual workflows**: Keep lint.yml, types.yml, test.yml for targeted runs; ci.yml runs all together
 - **Cross-project consistency**: All Socket projects should use identical CI orchestration pattern
+
+#### CI Script Naming Convention (MANDATORY)
+All Socket projects MUST use these standardized script names in package.json:
+- **lint-ci**: Linting for CI environments
+  - Format: `"lint-ci": "pnpm run check:lint"`
+  - Purpose: Run linting checks without fixing, optimized for CI
+- **test-ci**: Testing for CI environments
+  - Format: `"test-ci": "dotenvx -q run -f .env.test -- vitest run"`
+  - Purpose: Run tests without watch mode, optimized for CI
+  - MUST NOT include linting or building (handled separately)
+- **type-ci**: Type checking for CI environments
+  - Format: `"type-ci": "pnpm run check:tsc"`
+  - Purpose: Run TypeScript type checking without emitting files
+
+**Why standardized names:**
+- Consistent CI configuration across all Socket projects
+- Clear separation of concerns (lint/test/type-check run independently)
+- Easier to maintain and update CI workflows
+- Reduces duplicate work (no linting in test-ci, no building twice)
 
 ## Architecture
 
