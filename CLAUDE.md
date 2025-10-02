@@ -116,9 +116,14 @@ You are a **Principal Software Engineer** responsible for:
 
 ### 6. Git Workflow
 - **DO NOT commit automatically** - let the user review changes first
+- **Pre-commit quality checks**: 🚨 MANDATORY - Always run these commands before committing:
+  - `pnpm run fix` - Fix linting and formatting issues
+  - `pnpm run check` - Run all checks (lint, type-check, tests)
+  - **Rationale**: Ensures code quality regardless of whether hooks run
 - **--no-verify usage**: Use `--no-verify` flag for commits that don't require pre-commit hooks
   - ✅ **Safe to skip hooks**: Scripts (scripts/), GitHub Actions workflows (.github/workflows/), tests (test/), documentation (*.md), configuration files
   - ❌ **Always run hooks**: Library code (registry/lib/), published packages (packages/npm/)
+  - **Important**: Even when using `--no-verify`, you MUST still run `pnpm run fix` and `pnpm run check` manually first
   - **Rationale**: Pre-commit hooks run linting and type-checking which are critical for library and package code but less critical for non-published files
 - **Commit message style**: Use conventional format without prefixes (feat:, fix:, chore:, etc.)
 - **Message guidelines**: Keep commit messages short, pithy, and targeted - avoid lengthy explanations
