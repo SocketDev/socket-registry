@@ -146,9 +146,11 @@ describe('agent module', () => {
         const result = await execPnpm(['--version'])
         expect(result).toBeDefined()
         expect(result.stdout).toMatch(/\d+\.\d+\.\d+/)
-      } catch (error: any) {
+      } catch (error: unknown) {
         // pnpm might not be installed
-        expect(error.code).toMatch(/ENOENT|ENOTFOUND|EFTYPE|UNKNOWN|EINVAL/)
+        expect((error as NodeJS.ErrnoException).code).toMatch(
+          /ENOENT|ENOTFOUND|EFTYPE|UNKNOWN|EINVAL/,
+        )
       }
     })
   })
@@ -159,9 +161,11 @@ describe('agent module', () => {
         const result = await execYarn(['--version'])
         expect(result).toBeDefined()
         expect(result.stdout).toMatch(/\d+\.\d+\.\d+/)
-      } catch (error: any) {
+      } catch (error: unknown) {
         // yarn might not be installed
-        expect(error.code).toMatch(/ENOENT|ENOTFOUND|EFTYPE|UNKNOWN|EINVAL/)
+        expect((error as NodeJS.ErrnoException).code).toMatch(
+          /ENOENT|ENOTFOUND|EFTYPE|UNKNOWN|EINVAL/,
+        )
       }
     })
   })
