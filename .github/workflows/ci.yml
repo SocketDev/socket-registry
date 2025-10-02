@@ -1,0 +1,271 @@
+name: ⚡ CI Pipeline
+
+# Comprehensive CI orchestrator that runs lint, type checks, tests, and coverage.
+# Orchestrates multiple quality checks in parallel for efficient CI execution.
+#
+# Dependencies:
+#   - SocketDev/socket-registry/.github/workflows/lint.yml
+#   - SocketDev/socket-registry/.github/workflows/types.yml
+#   - SocketDev/socket-registry/.github/workflows/test.yml
+#   - SocketDev/socket-registry/.github/actions/setup-and-install@main
+#   - actions/checkout (SHA-pinned)
+#   - actions/upload-artifact (SHA-pinned)
+
+on:
+  workflow_call:
+    inputs:
+      coverage-artifact-name:
+        description: 'Name for coverage artifacts (e.g., "coverage-report")'
+        required: false
+        type: string
+        default: 'coverage-report'
+      coverage-path:
+        description: 'Path to coverage output (e.g., "coverage/")'
+        required: false
+        type: string
+        default: 'coverage/'
+      coverage-report-script:
+        description: 'Script to generate coverage report (e.g., "pnpm run coverage:percent --json")'
+        required: false
+        type: string
+        default: ''
+      coverage-script:
+        description: 'Script to run tests with coverage (e.g., "pnpm run test:unit:coverage")'
+        required: false
+        type: string
+        default: ''
+      coverage-timeout-minutes:
+        description: 'Timeout for coverage job in minutes'
+        required: false
+        type: number
+        default: 15
+      debug:
+        description: 'Enable debug output (e.g., "1" for verbose logging)'
+        required: false
+        type: string
+        default: '0'
+      fail-fast:
+        description: 'Cancel all matrix jobs if one fails'
+        required: false
+        type: boolean
+        default: false
+      lint-node-version:
+        description: 'Node.js version for linting'
+        required: false
+        type: string
+        default: '22'
+      lint-script:
+        description: 'Lint command (e.g., "pnpm run check-ci")'
+        required: false
+        type: string
+        default: 'pnpm run check-ci'
+      lint-setup-script:
+        description: 'Setup script before linting'
+        required: false
+        type: string
+        default: ''
+      lint-timeout-minutes:
+        description: 'Timeout for lint job in minutes'
+        required: false
+        type: number
+        default: 10
+      max-parallel:
+        description: 'Maximum parallel test jobs'
+        required: false
+        type: number
+        default: 4
+      node-versions:
+        description: 'Node.js versions for testing (e.g., ''[20, 22, 24]'')'
+        required: false
+        type: string
+        default: '[20, 22, 24]'
+      os-versions:
+        description: 'Operating systems for testing (e.g., ''["ubuntu-latest", "windows-latest"]'')'
+        required: false
+        type: string
+        default: '["ubuntu-latest", "windows-latest"]'
+      retention-days:
+        description: 'Days to retain artifacts'
+        required: false
+        type: number
+        default: 7
+      run-coverage:
+        description: 'Include coverage reporting job'
+        required: false
+        type: boolean
+        default: true
+      run-lint:
+        description: 'Include lint check job'
+        required: false
+        type: boolean
+        default: true
+      run-test:
+        description: 'Include test matrix job'
+        required: false
+        type: boolean
+        default: true
+      run-type-check:
+        description: 'Include type check job'
+        required: false
+        type: boolean
+        default: true
+      test-script:
+        description: 'Test command (e.g., "pnpm run test-ci")'
+        required: false
+        type: string
+        default: 'pnpm run test-ci'
+      test-setup-script:
+        description: 'Setup script before tests (e.g., "pnpm run build")'
+        required: false
+        type: string
+        default: ''
+      test-timeout-minutes:
+        description: 'Timeout for test jobs in minutes'
+        required: false
+        type: number
+        default: 15
+      type-check-node-version:
+        description: 'Node.js version for type checking'
+        required: false
+        type: string
+        default: '22'
+      type-check-script:
+        description: 'Type check command (e.g., "pnpm run check:tsc")'
+        required: false
+        type: string
+        default: 'pnpm run check:tsc'
+      type-check-setup-script:
+        description: 'Setup script before type checking'
+        required: false
+        type: string
+        default: ''
+      type-check-timeout-minutes:
+        description: 'Timeout for type check job in minutes'
+        required: false
+        type: number
+        default: 10
+      working-directory:
+        description: 'Working directory (e.g., "packages/core" for monorepos)'
+        required: false
+        type: string
+        default: '.'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    if: inputs.run-lint
+    name: 🧹 Lint Check
+    uses: SocketDev/socket-registry/.github/workflows/lint.yml@main
+    with:
+      debug: ${{ inputs.debug }}
+      lint-script: ${{ inputs.lint-script }}
+      node-version: ${{ inputs.lint-node-version }}
+      setup-script: ${{ inputs.lint-setup-script }}
+      timeout-minutes: ${{ inputs.lint-timeout-minutes }}
+      working-directory: ${{ inputs.working-directory }}
+
+  type-check:
+    if: inputs.run-type-check
+    name: 🔍 Type Check
+    uses: SocketDev/socket-registry/.github/workflows/types.yml@main
+    with:
+      debug: ${{ inputs.debug }}
+      node-version: ${{ inputs.type-check-node-version }}
+      setup-script: ${{ inputs.type-check-setup-script }}
+      timeout-minutes: ${{ inputs.type-check-timeout-minutes }}
+      type-script: ${{ inputs.type-check-script }}
+      working-directory: ${{ inputs.working-directory }}
+
+  test:
+    if: inputs.run-test
+    name: 🧪 Test Matrix
+    uses: SocketDev/socket-registry/.github/workflows/test.yml@main
+    with:
+      debug: ${{ inputs.debug }}
+      fail-fast: ${{ inputs.fail-fast }}
+      max-parallel: ${{ inputs.max-parallel }}
+      node-versions: ${{ inputs.node-versions }}
+      os-versions: ${{ inputs.os-versions }}
+      setup-script: ${{ inputs.test-setup-script }}
+      test-script: ${{ inputs.test-script }}
+      timeout-minutes: ${{ inputs.test-timeout-minutes }}
+      working-directory: ${{ inputs.working-directory }}
+
+  test-coverage:
+    if: inputs.run-coverage && inputs.coverage-script != ''
+    name: 📊 Coverage Report
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.coverage-timeout-minutes }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@main
+        with:
+          debug: ${{ inputs.debug }}
+          node-version: ${{ inputs.type-check-node-version }}
+          working-directory: ${{ inputs.working-directory }}
+
+      - name: Run setup script
+        if: inputs.test-setup-script != ''
+        working-directory: ${{ inputs.working-directory }}
+        run: ${{ inputs.test-setup-script }}
+
+      - name: Run tests with coverage
+        working-directory: ${{ inputs.working-directory }}
+        run: ${{ inputs.coverage-script }}
+
+      - name: Generate coverage report
+        if: inputs.coverage-report-script != ''
+        working-directory: ${{ inputs.working-directory }}
+        run: ${{ inputs.coverage-report-script }}
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        with:
+          name: ${{ inputs.coverage-artifact-name }}
+          path: ${{ inputs.working-directory }}/${{ inputs.coverage-path }}
+          retention-days: ${{ inputs.retention-days }}
+
+  ci-summary:
+    name: ✅ CI Summary
+    runs-on: ubuntu-latest
+    needs: [lint, type-check, test, test-coverage]
+    if: always()
+    steps:
+      - name: Check all jobs passed
+        run: |
+          # Check each job that was actually run.
+          failed=0
+
+          if [ "${{ inputs.run-lint }}" == "true" ] && [ "${{ needs.lint.result }}" != "success" ] && [ "${{ needs.lint.result }}" != "skipped" ]; then
+            echo "❌ Lint check failed"
+            failed=1
+          fi
+
+          if [ "${{ inputs.run-type-check }}" == "true" ] && [ "${{ needs.type-check.result }}" != "success" ] && [ "${{ needs.type-check.result }}" != "skipped" ]; then
+            echo "❌ Type check failed"
+            failed=1
+          fi
+
+          if [ "${{ inputs.run-test }}" == "true" ] && [ "${{ needs.test.result }}" != "success" ] && [ "${{ needs.test.result }}" != "skipped" ]; then
+            echo "❌ Tests failed"
+            failed=1
+          fi
+
+          if [ "${{ inputs.run-coverage }}" == "true" ] && [ "${{ needs.test-coverage.result }}" != "success" ] && [ "${{ needs.test-coverage.result }}" != "skipped" ]; then
+            echo "❌ Coverage failed"
+            failed=1
+          fi
+
+          if [ $failed -eq 1 ]; then
+            echo "❌ CI Pipeline Failed"
+            exit 1
+          else
+            echo "✅ CI Pipeline Passed"
+          fi
