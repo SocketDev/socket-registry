@@ -1,8 +1,10 @@
 /** @fileoverview Detect package changes and bump versions for npm release. */
 
 import crypto from 'node:crypto'
+import { execFile } from 'node:child_process'
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import { promisify } from 'node:util'
 
 import { minimatch } from 'minimatch'
 import semver from 'semver'
@@ -23,6 +25,8 @@ import { isObjectObject, toSortedObject } from '../registry/dist/lib/objects.js'
 
 import { logSectionHeader } from './utils/logging.mjs'
 
+const execFileAsync = promisify(execFile)
+
 const {
   LATEST,
   PACKAGE_JSON,
@@ -31,7 +35,6 @@ const {
   abortSignal,
   npmPackagesPath,
   registryPkgPath,
-  relNpmPackagesPath,
   rootPath,
 } = constants
 
@@ -41,6 +44,25 @@ const registryPkg = packageData({
 })
 
 const EXTRACT_PACKAGE_TMP_PREFIX = 'release-npm-'
+
+/**
+ * Check if there are uncommitted changes in registry directory.
+ */
+async function hasGitChanges(packagePath) {
+  try {
+    const relPath = path.relative(rootPath, packagePath)
+    // Check both staged and unstaged changes.
+    const { stdout } = await execFileAsync(
+      'git',
+      ['status', '--porcelain', '--', relPath],
+      { cwd: rootPath },
+    )
+    return stdout.trim().length > 0
+  } catch {
+    // If git fails, fall back to full comparison.
+    return false
+  }
+}
 
 /**
  * Compute SHA256 hashes for all files in a local package directory.
@@ -271,33 +293,55 @@ async function maybeBumpPackage(pkg, options) {
     spinner?.stop()
     return
   }
+
+  spinner?.setText(`Checking ${pkg.printName}...`)
+
   const manifest = await fetchPackageManifest(`${pkg.name}@${pkg.tag}`)
   if (!manifest) {
     return
   }
   pkg.manifest = manifest
   pkg.version = manifest.version
-  // Compare the shasum of the @socketregistry the latest package from
-  // registry.npmjs.org against the local version. If they are different
-  // then bump the local version.
-  const hasChanged = await hasPackageChanged(pkg, manifest, { state })
+
+  // Fast path: Check git for uncommitted changes first.
+  const hasGitChange = await hasGitChanges(pkg.path)
+
+  let hasChanged = false
+  if (hasGitChange) {
+    // Git shows changes, skip expensive hash comparison.
+    spinner?.setText(`Detected git changes in ${pkg.printName}`)
+    hasChanged = true
+  } else {
+    // No git changes, do full hash comparison.
+    spinner?.setText(`Comparing ${pkg.printName} against published version...`)
+    hasChanged = await hasPackageChanged(pkg, manifest, { state })
+  }
+
   if (hasChanged) {
-    let version = semver.inc(manifest.version, 'patch')
-    if (pkg.tag !== LATEST && pkg.tag) {
-      version = `${semver.inc(version, 'patch')}-${pkg.tag}`
-    }
-    pkg.version = version
     const editablePkgJson = await readPackageJson(pkg.path, {
       editable: true,
       normalize: true,
     })
-    if (editablePkgJson.content.version !== version) {
+    const localVersion = editablePkgJson.content.version
+    // If local version is already ahead, no need to bump.
+    if (semver.gt(localVersion, manifest.version)) {
+      pkg.version = localVersion
+      spinner?.log(
+        `=${pkg.name}@${localVersion} (already bumped from ${manifest.version})`,
+      )
+      state.bumped.push(pkg)
+    } else {
+      let version = semver.inc(manifest.version, 'patch')
+      if (pkg.tag !== LATEST && pkg.tag) {
+        version = `${semver.inc(version, 'patch')}-${pkg.tag}`
+      }
+      pkg.version = version
       editablePkgJson.update({ version })
       await editablePkgJson.save()
       state.changed.push(pkg)
       spinner?.log(`+${pkg.name}@${manifest.version} -> ${version}`)
+      state.bumped.push(pkg)
     }
-    state.bumped.push(pkg)
   }
 }
 
@@ -320,7 +364,7 @@ function packageData(data) {
 async function main() {
   const { spinner } = constants
 
-  spinner.start(`Bumping ${relNpmPackagesPath} versions (semver patch)...`)
+  spinner.start(`Checking for package changes...`)
 
   const npmPackages = Array.from(constants.npmPackageNames, sockRegPkgName => {
     const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
@@ -341,13 +385,13 @@ async function main() {
   }
 
   // Check registry package FIRST before processing npm packages.
-  await maybeBumpPackage(registryPkg, { state })
+  await maybeBumpPackage(registryPkg, { spinner, state })
 
   // Process npm packages in parallel 3 at a time.
   await pEach(
     npmPackages,
     async pkg => {
-      await maybeBumpPackage(pkg, { state })
+      await maybeBumpPackage(pkg, { spinner, state })
     },
     { concurrency: 3 },
   )
