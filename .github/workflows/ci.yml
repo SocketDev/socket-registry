@@ -264,7 +264,6 @@ jobs:
           fi
 
           if [ $failed -eq 1 ]; then
-            echo "❌ CI Pipeline Failed"
             exit 1
           else
             echo "✅ CI Pipeline Passed"
