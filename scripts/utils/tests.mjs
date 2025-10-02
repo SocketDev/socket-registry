@@ -46,7 +46,12 @@ function isPackageTestingSkipped(eco, sockRegPkgName) {
 
   // Check if package is not in devDeps but also not in skip list.
   // Suggest adding to skip list if missing from devDeps.
-  const testPkgJsonPath = path.join(constants.rootPath, 'test', eco, PACKAGE_JSON)
+  const testPkgJsonPath = path.join(
+    constants.rootPath,
+    'test',
+    eco,
+    PACKAGE_JSON,
+  )
   if (existsSync(testPkgJsonPath)) {
     try {
       const testPkgJson = JSON.parse(readFileSync(testPkgJsonPath, UTF8))
@@ -65,7 +70,7 @@ function isPackageTestingSkipped(eco, sockRegPkgName) {
           `Consider adding it to skipTestsByEcosystem in scripts/constants.mjs`,
         )
       }
-    } catch (e) {
+    } catch {
       // Ignore parse errors.
     }
   }

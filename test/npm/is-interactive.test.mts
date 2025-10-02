@@ -30,12 +30,12 @@ describe(
 
     it('tty', () => {
       for (const isInteractive of implementations) {
-        const originalCI = process.env.CI
-        delete process.env.CI
+        const originalCI = process.env['CI']
+        delete process.env['CI']
         const stream = { isTTY: true }
         expect(isInteractive({ stream: stream as any })).toBe(true)
         if (originalCI) {
-          process.env.CI = originalCI
+          process.env['CI'] = originalCI
         }
       }
     })
@@ -49,13 +49,13 @@ describe(
 
     it('dumb', () => {
       for (const isInteractive of implementations) {
-        const originalTerm = process.env.TERM
-        process.env.TERM = 'dumb'
+        const originalTerm = process.env['TERM']
+        process.env['TERM'] = 'dumb'
         expect(isInteractive()).toBe(false)
         if (originalTerm) {
-          process.env.TERM = originalTerm
+          process.env['TERM'] = originalTerm
         } else {
-          delete process.env.TERM
+          delete process.env['TERM']
         }
       }
     })

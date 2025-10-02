@@ -116,7 +116,10 @@ You are a **Principal Software Engineer** responsible for:
 
 ### 6. Git Workflow
 - **DO NOT commit automatically** - let the user review changes first
-- Use `--no-verify` flag only when explicitly requested
+- **--no-verify usage**: Use `--no-verify` flag for commits that don't require pre-commit hooks
+  - ✅ **Safe to skip hooks**: Scripts (scripts/), GitHub Actions workflows (.github/workflows/), tests (test/), documentation (*.md), configuration files
+  - ❌ **Always run hooks**: Library code (registry/lib/), published packages (packages/npm/)
+  - **Rationale**: Pre-commit hooks run linting and type-checking which are critical for library and package code but less critical for non-published files
 - **Commit message style**: Use conventional format without prefixes (feat:, fix:, chore:, etc.)
 - **Message guidelines**: Keep commit messages short, pithy, and targeted - avoid lengthy explanations
 - **Small commits**: Make small, focused commits that address a single concern

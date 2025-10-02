@@ -56,7 +56,6 @@ async function safeRemove(paths, options) {
   }
 
   const {
-    concurrency = DEFAULT_CONCURRENCY,
     force = true,
     recursive = true,
     spinner,
