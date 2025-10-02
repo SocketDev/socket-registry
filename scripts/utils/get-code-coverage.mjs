@@ -8,6 +8,13 @@ import { readJson } from '../../registry/dist/lib/fs.js'
 import { isObjectObject } from '../../registry/dist/lib/objects.js'
 import { spawn } from '../../registry/dist/lib/spawn.js'
 
+// Coverage file paths.
+const COVERAGE_DIR = 'coverage'
+const COVERAGE_FINAL_JSON = 'coverage-final.json'
+
+// Coverage percentage precision.
+const COVERAGE_DECIMAL_PLACES = 2
+
 /**
  * Count how many coverage counts are greater than zero.
  */
@@ -24,8 +31,8 @@ export async function getCodeCoverage(options) {
 
   const coverageJsonPath = path.join(
     process.cwd(),
-    'coverage',
-    'coverage-final.json',
+    COVERAGE_DIR,
+    COVERAGE_FINAL_JSON,
   )
 
   if (!existsSync(coverageJsonPath)) {
@@ -92,18 +99,26 @@ export async function getCodeCoverage(options) {
 
   const stmtPercent =
     totalStatements > 0
-      ? ((coveredStatements / totalStatements) * 100).toFixed(2)
+      ? ((coveredStatements / totalStatements) * 100).toFixed(
+          COVERAGE_DECIMAL_PLACES,
+        )
       : '0.00'
   const branchPercent =
     totalBranches > 0
-      ? ((coveredBranches / totalBranches) * 100).toFixed(2)
+      ? ((coveredBranches / totalBranches) * 100).toFixed(
+          COVERAGE_DECIMAL_PLACES,
+        )
       : '0.00'
   const funcPercent =
     totalFunctions > 0
-      ? ((coveredFunctions / totalFunctions) * 100).toFixed(2)
+      ? ((coveredFunctions / totalFunctions) * 100).toFixed(
+          COVERAGE_DECIMAL_PLACES,
+        )
       : '0.00'
   const linePercent =
-    totalLines > 0 ? ((coveredLines / totalLines) * 100).toFixed(2) : '0.00'
+    totalLines > 0
+      ? ((coveredLines / totalLines) * 100).toFixed(COVERAGE_DECIMAL_PLACES)
+      : '0.00'
 
   return {
     statements: {
