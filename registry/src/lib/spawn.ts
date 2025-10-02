@@ -138,6 +138,9 @@ export interface SpawnSyncReturns<T> {
   error?: Error | undefined
 }
 
+/**
+ * Check if a value is a spawn error with expected properties.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function isSpawnError(value: unknown): value is SpawnError {
   if (value === null || typeof value !== 'object') {
@@ -294,6 +297,10 @@ export type SpawnStdioResult = {
   stdout: string | Buffer
   stderr: string | Buffer
 }
+
+/**
+ * Spawn a child process and return a promise that resolves when it completes.
+ */
 export function spawn(
   cmd: string,
   args?: string[] | readonly string[],

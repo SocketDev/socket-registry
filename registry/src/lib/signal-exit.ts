@@ -168,6 +168,10 @@ function emit(event: string, code: number | null, signal: string | null): void {
 }
 
 let loaded = false
+
+/**
+ * Load signal handlers and hook into process exit events.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function load(): void {
   if (loaded || !globalProcess) {
@@ -246,6 +250,9 @@ export interface OnExitOptions {
   alwaysLast?: boolean
 }
 
+/**
+ * Register a callback to run on process exit or signal.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function onExit(
   cb: (code: number | null, signal: string | null) => void,
@@ -281,11 +288,17 @@ export function onExit(
   }
 }
 
+/**
+ * Get the list of signals that are currently being monitored.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function signals(): string[] | undefined {
   return _signals
 }
 
+/**
+ * Unload signal handlers and restore original process behavior.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function unload(): void {
   if (!loaded || !globalProcess) {
