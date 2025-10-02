@@ -51,32 +51,31 @@ async function checkoutCommit(sha) {
  * Ensure npm version meets requirements for trusted publishing.
  */
 async function ensureNpmVersion() {
-  // Install npm first to ensure we have the latest version.
-  logger.log('Installing npm@latest for trusted publishing...')
-  await spawn('npm', ['install', '-g', 'npm@latest'])
-  const result = await spawn('npm', ['--version'])
-  const npmVersion = result.stdout.trim()
-  logger.info(`npm version: ${npmVersion}`)
+  // Check current npm version first.
+  const currentVersionResult = await spawn('npm', ['--version'])
+  const currentVersion = currentVersionResult.stdout.trim()
 
-  // Verify npm version is >= 11.5.1 (required for trusted publishing).
-  try {
-    const semverResult = await spawn('npx', [
-      '--yes',
-      'semver',
-      npmVersion,
-      '-r',
-      '>=11.5.1',
-    ])
-    if (semverResult.stdout.trim() === '') {
+  // Check if current version meets requirements (>= 11.5.1).
+  const meetsRequirement = semver.gte(currentVersion, '11.5.1')
+
+  if (meetsRequirement) {
+    logger.info(`npm version: ${currentVersion}`)
+  } else {
+    // Install npm@latest if current version is insufficient.
+    logger.log(
+      `npm version ${currentVersion} does not meet 11.5.1+ requirement, installing npm@latest...`,
+    )
+    await spawn('npm', ['install', '-g', 'npm@latest'])
+    const result = await spawn('npm', ['--version'])
+    const npmVersion = result.stdout.trim()
+    logger.info(`npm version: ${npmVersion}`)
+
+    // Verify the new version meets requirements.
+    if (!semver.gte(npmVersion, '11.5.1')) {
       throw new Error(
         `npm version ${npmVersion} does not meet the 11.5.1+ requirement for trusted publishing`,
       )
     }
-  } catch (e) {
-    logger.error(
-      `npm version ${npmVersion} does not meet the 11.5.1+ requirement for trusted publishing`,
-    )
-    throw e
   }
 }
 
