@@ -1,11 +1,4 @@
-/**
- * Taze wrapper that errors on provenance downgrades.
- *
- * This script runs taze and parses the output for provenance downgrade warnings.
- * If any provenance downgrades are detected, the script exits with code 1.
- *
- * Usage: node scripts/taze.mjs [taze-args...]
- */
+/** @fileoverview Taze wrapper that errors on provenance downgrades. */
 
 import { logger } from '../registry/dist/lib/logger.js'
 import { spawn } from '../registry/dist/lib/spawn.js'

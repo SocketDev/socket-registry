@@ -97,6 +97,9 @@ function normalizeText(value: any) {
 
 let _cliSpinners: Record<string, SpinnerStyle> | undefined
 
+/**
+ * Get available CLI spinner styles or a specific style by name.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function getCliSpinners(
   styleName?: string | undefined,
@@ -119,6 +122,9 @@ let _Spinner: {
 }
 let _defaultSpinner: SpinnerStyle | undefined
 
+/**
+ * Create a spinner instance for displaying loading indicators.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function Spinner(options?: SpinnerOptions | undefined): Spinner {
   if (_Spinner === undefined) {

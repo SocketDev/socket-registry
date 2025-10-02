@@ -342,6 +342,9 @@ function matchPattern(ns: any, pattern: any) {
   return ns === pattern
 }
 
+/**
+ * Create a simple debug function without external dependencies.
+ */
 export function debugFnSimple(namespace: any) {
   const log = (...args: any[]) => {
     const debug = process.env['DEBUG'] || ''

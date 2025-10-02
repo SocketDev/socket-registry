@@ -1,3 +1,5 @@
+/** @fileoverview Script for displaying code and type coverage percentages. */
+
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 

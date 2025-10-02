@@ -1494,6 +1494,9 @@ export function normalizePackageJson(
   return pkgJson
 }
 
+/**
+ * Pack a package tarball using pacote.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export async function packPackage(
   spec: string,
@@ -1538,6 +1541,9 @@ export interface InternalBinaryOperationNode {
 
 export type InternalAstNode = InternalLicenseNode | InternalBinaryOperationNode
 
+/**
+ * Parse an SPDX license expression into an AST.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export function parseSpdxExp(spdxExp: string): SpdxAstNode | undefined {
   const spdxExpParse = getSpdxExpParse()
@@ -1549,6 +1555,9 @@ export function parseSpdxExp(spdxExp: string): SpdxAstNode | undefined {
   return corrected ? spdxExpParse(corrected) : undefined
 }
 
+/**
+ * Read and parse a package.json file asynchronously.
+ */
 /*@__NO_SIDE_EFFECTS__*/
 export async function readPackageJson(
   filepath: string,
