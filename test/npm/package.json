@@ -71,7 +71,7 @@
     "is-regex": "1.2.1",
     "is-set": "2.0.3",
     "is-shared-array-buffer": "1.0.4",
-    "is-string": "https://github.com/inspect-js/is-string/archive/fbbcdae33d2f8baeb8c3de8de7e1fa0571d0a7b1.tar.gz",
+    "is-string": "https://github.com/inspect-js/is-string/archive/fbbcdaed74d18b6b6899b0a6e6310f5ce31d70c7.tar.gz",
     "is-symbol": "1.1.1",
     "is-typed-array": "1.1.15",
     "is-unicode-supported": "https://github.com/sindresorhus/is-unicode-supported/archive/8b8001453e47deadb216c3b94c4b4af63477da6a.tar.gz",
