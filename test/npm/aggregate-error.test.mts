@@ -28,59 +28,79 @@ describe(
       implementations = result.modules
     })
 
-    it('creates aggregate error from array of errors', () => {
+    it('main', () => {
       for (const AggregateError of implementations) {
-        const errors = [new Error('error 1'), new Error('error 2')]
-        const aggregateError = new AggregateError(errors)
-        expect(aggregateError).toBeInstanceOf(Error)
-        expect(aggregateError.errors).toEqual(errors)
+        const error = new AggregateError([
+          new Error('foo'),
+          'bar',
+          {
+            message: 'baz',
+            code: 'EBAZ',
+          },
+          {
+            code: 'EQUX',
+          },
+        ])
+
+        expect(error.message).toMatch(/Error: foo\n {8}at /)
+        expect(error.message).toMatch(/Error: bar\n {8}at /)
+
+        expect([...error.errors]).toEqual([
+          new Error('foo'),
+          new Error('bar'),
+          Object.assign(new Error('baz'), { code: 'EBAZ' }),
+          Object.assign(new Error(), { code: 'EQUX' }),
+        ])
       }
     })
 
-    it('creates aggregate error with message', () => {
+    it('gracefully handle Error instances without a stack', () => {
       for (const AggregateError of implementations) {
-        const errors = [new Error('error 1')]
-        const aggregateError = new AggregateError(errors, 'custom message')
-        expect(aggregateError.message).toBe('custom message')
-        expect(aggregateError.errors).toEqual(errors)
-      }
-    })
-
-    it('formats stacked error messages', () => {
-      for (const AggregateError of implementations) {
-        const errors = [new Error('error 1'), new Error('error 2')]
-        const aggregateError = new AggregateError(errors)
-        expect(aggregateError.message).toContain('error 1')
-        expect(aggregateError.message).toContain('error 2')
-      }
-    })
-
-    it('handles plain objects as errors', () => {
-      for (const AggregateError of implementations) {
-        const errors = [{ message: 'plain error', code: 'ERR_CODE' }]
-        const aggregateError = new AggregateError(errors)
-        expect(aggregateError.errors[0]).toBeInstanceOf(Error)
-        expect(aggregateError.errors[0].message).toBe('plain error')
-        expect((aggregateError.errors[0] as any).code).toBe('ERR_CODE')
-      }
-    })
-
-    it('handles non-error values', () => {
-      for (const AggregateError of implementations) {
-        const errors = ['string error', 42, null]
-        const aggregateError = new AggregateError(errors)
-        expect(aggregateError.errors).toHaveLength(3)
-        for (const error of aggregateError.errors) {
-          expect(error).toBeInstanceOf(Error)
+        class StacklessError extends Error {
+          constructor(...args: any[]) {
+            super(...args)
+            this.name = this.constructor.name
+            delete (this as any).stack
+          }
         }
+
+        const error = new AggregateError([
+          new Error('foo'),
+          new StacklessError('stackless'),
+        ])
+
+        expect(error.message).toMatch(/Error: foo\n {8}at /)
+        expect(error.message).toMatch(/StacklessError: stackless/)
+
+        expect([...error.errors]).toEqual([
+          new Error('foo'),
+          new StacklessError('stackless'),
+        ])
       }
     })
 
-    it('Symbol.hasInstance', () => {
+    it('gracefully handle Error instances with empty stack', () => {
       for (const AggregateError of implementations) {
-        const error = new AggregateError([new Error('test')])
-        expect(error instanceof AggregateError).toBe(true)
-        expect(error instanceof Error).toBe(true)
+        class EmptyStackError extends Error {
+          constructor(...args: any[]) {
+            super(...args)
+            this.name = this.constructor.name
+            this.stack = ''
+          }
+        }
+
+        const error = new AggregateError([
+          new Error('foo'),
+          new EmptyStackError('emptystack'),
+        ])
+
+        expect(error.message).toMatch(/Error: foo\n {8}at /)
+        expect(error.message).toMatch(/EmptyStackError: emptystack/)
+
+        expect([...error.errors]).toEqual([
+          new Error('foo'),
+          new EmptyStackError('emptystack'),
+        ])
       }
     })
   },
