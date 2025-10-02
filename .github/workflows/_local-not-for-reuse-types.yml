@@ -4,11 +4,6 @@ name: ⚙️ Type Checks
 #   - SocketDev/socket-registry/.github/workflows/types.yml@main
 
 on:
-  push:
-    branches: [main]
-    tags: ['*']
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
