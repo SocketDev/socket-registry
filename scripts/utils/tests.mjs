@@ -11,7 +11,8 @@ import { parseArgs } from '../../registry/dist/lib/parse-args.js'
 import constants from '../constants.mjs'
 import { getModifiedPackagesSync, getStagedPackagesSync } from './git.mjs'
 
-const { LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE, UTF8 } = constants
+const { LICENSE_GLOB_RECURSIVE, PACKAGE_JSON, README_GLOB_RECURSIVE, UTF8 } =
+  constants
 
 let _cliArgs
 function getCliArgs() {
@@ -44,12 +45,7 @@ function isPackageTestingSkipped(eco, sockRegPkgName) {
 
   // Check if package is not in devDeps but also not in skip list.
   // Suggest adding to skip list if missing from devDeps.
-  const testPkgJsonPath = path.join(
-    constants.rootPath,
-    'test',
-    eco,
-    'package.json',
-  )
+  const testPkgJsonPath = path.join(constants.rootPath, 'test', eco, PACKAGE_JSON)
   if (existsSync(testPkgJsonPath)) {
     try {
       const testPkgJson = JSON.parse(readFileSync(testPkgJsonPath, UTF8))
@@ -62,7 +58,7 @@ function isPackageTestingSkipped(eco, sockRegPkgName) {
 
       if (!hasDevDep && !skipSet?.has(sockRegPkgName)) {
         console.warn(
-          `Warning: Package "${sockRegPkgName}" is not in test/${eco}/package.json devDependencies.`,
+          `Warning: Package "${sockRegPkgName}" is not in test/${eco}/${PACKAGE_JSON} devDependencies.`,
         )
         console.warn(
           `  Consider adding it to skipTestsByEcosystem in scripts/constants.mjs`,
