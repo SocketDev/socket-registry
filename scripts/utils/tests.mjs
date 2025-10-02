@@ -6,6 +6,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
+import { logger } from '../../registry/dist/lib/logger.js'
 import { parseArgs } from '../../registry/dist/lib/parse-args.js'
 
 import constants from '../constants.mjs'
@@ -57,10 +58,10 @@ function isPackageTestingSkipped(eco, sockRegPkgName) {
         devDeps[`@${normalizedName}`] !== undefined
 
       if (!hasDevDep && !skipSet?.has(sockRegPkgName)) {
-        console.warn(
+        logger.warn(
           `Package "${sockRegPkgName}" is not in test/${eco}/${PACKAGE_JSON} devDependencies.`,
         )
-        console.warn(
+        logger.warn(
           `Consider adding it to skipTestsByEcosystem in scripts/constants.mjs`,
         )
       }
