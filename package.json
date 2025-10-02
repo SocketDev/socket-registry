@@ -128,6 +128,7 @@
     "npm-run-all2": "8.0.4",
     "out-url": "1.2.2",
     "oxlint": "1.15.0",
+    "pacote": "21.0.1",
     "read-yaml-file": "2.1.0",
     "semver": "7.7.2",
     "source-map-support": "0.5.21",
