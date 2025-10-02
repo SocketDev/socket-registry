@@ -1,3 +1,5 @@
+/** @fileoverview Update and validate package.json files for all npm packages. */
+
 import path from 'node:path'
 
 import fastGlob from 'fast-glob'
@@ -18,6 +20,9 @@ import constants from './constants.mjs'
 
 const { PACKAGE_JSON, SOCKET_REGISTRY_SCOPE } = constants
 
+/**
+ * Update package.json files and validate subpath exports.
+ */
 async function main() {
   const useDebug = isDebug()
   const warnings = []

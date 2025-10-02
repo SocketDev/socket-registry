@@ -1,3 +1,5 @@
+/** @fileoverview Rebuild package.json exports field from built dist files. */
+
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -10,6 +12,9 @@ const __dirname = path.dirname(__filename)
 const registryPath = path.join(__dirname, '..', 'registry')
 const packageJsonPath = path.join(registryPath, 'package.json')
 
+/**
+ * Generate package.json exports from dist directory structure.
+ */
 async function main() {
   const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8'))
 

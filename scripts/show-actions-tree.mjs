@@ -1,3 +1,5 @@
+/** @fileoverview Display GitHub Actions dependency tree showing direct and transitive dependencies. */
+
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
@@ -7,6 +9,9 @@ const GITHUB_PATH = '.github'
 const WORKFLOWS_PATH = path.join(GITHUB_PATH, 'workflows')
 const ACTIONS_PATH = path.join(GITHUB_PATH, 'actions')
 
+/**
+ * Extract structured dependency information from a workflow or action file.
+ */
 async function extractDependenciesWithStructure(filePath) {
   const content = await fs.readFile(filePath, 'utf8')
   const flatDependencies = new Set()
@@ -58,6 +63,9 @@ async function extractDependenciesWithStructure(filePath) {
   return { flat: flatDependencies, structured: structuredDependencies }
 }
 
+/**
+ * Recursively find all YAML files in a directory.
+ */
 async function getAllYamlFiles(dir) {
   const files = []
   try {
@@ -76,6 +84,9 @@ async function getAllYamlFiles(dir) {
   return files
 }
 
+/**
+ * Generate and display dependency tree for all GitHub Actions.
+ */
 async function main() {
   const allDependencies = new Set()
   // Map of file -> structured dependencies.

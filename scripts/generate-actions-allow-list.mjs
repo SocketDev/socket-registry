@@ -1,3 +1,5 @@
+/** @fileoverview Generate GitHub Actions allow list from workflow and action dependencies. */
+
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
@@ -8,6 +10,9 @@ const GITHUB_PATH = '.github'
 const WORKFLOWS_PATH = path.join(GITHUB_PATH, 'workflows')
 const ACTIONS_PATH = path.join(GITHUB_PATH, 'actions')
 
+/**
+ * Extract action dependencies from a workflow or action file.
+ */
 async function extractDependencies(filePath) {
   const content = await fs.readFile(filePath, 'utf8')
   const dependencies = new Set()
@@ -44,6 +49,9 @@ async function extractDependencies(filePath) {
   return dependencies
 }
 
+/**
+ * Recursively find all YAML files in a directory.
+ */
 async function getAllYamlFiles(dir) {
   const files = []
   try {
@@ -62,6 +70,9 @@ async function getAllYamlFiles(dir) {
   return files
 }
 
+/**
+ * Generate and display GitHub Actions allow list.
+ */
 async function main() {
   const allDependencies = new Set()
 

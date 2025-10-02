@@ -1,3 +1,5 @@
+/** @fileoverview Update caniuse-lite database without triggering prepare scripts. */
+
 import { spawnSync } from 'node:child_process'
 
 import { logger } from '../registry/dist/lib/logger.js'
@@ -6,6 +8,9 @@ import constants from './constants.mjs'
 
 const { rootPath } = constants
 
+/**
+ * Update caniuse-lite to latest version.
+ */
 function main() {
   try {
     // Manually update caniuse-lite to avoid triggering prepare script
