@@ -322,19 +322,16 @@ async function main() {
 
   spinner.start(`Bumping ${relNpmPackagesPath} versions (semver patch)...`)
 
-  const packages = [
-    registryPkg,
-    ...Array.from(constants.npmPackageNames, sockRegPkgName => {
-      const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
-      const pkgJson = readPackageJsonSync(pkgPath)
-      return packageData({
-        name: `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`,
-        path: pkgPath,
-        printName: sockRegPkgName,
-        tag: getReleaseTag(pkgJson.version),
-      })
-    }),
-  ]
+  const npmPackages = Array.from(constants.npmPackageNames, sockRegPkgName => {
+    const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
+    const pkgJson = readPackageJsonSync(pkgPath)
+    return packageData({
+      name: `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`,
+      path: pkgPath,
+      printName: sockRegPkgName,
+      tag: getReleaseTag(pkgJson.version),
+    })
+  })
 
   const state = {
     bumped: [],
@@ -343,9 +340,12 @@ async function main() {
     warnings: [],
   }
 
-  // Chunk packages data to process them in parallel 3 at a time.
+  // Check registry package FIRST before processing npm packages.
+  await maybeBumpPackage(registryPkg, { state })
+
+  // Process npm packages in parallel 3 at a time.
   await pEach(
-    packages,
+    npmPackages,
     async pkg => {
       await maybeBumpPackage(pkg, { state })
     },
@@ -381,19 +381,6 @@ async function main() {
   const spawnOptions = {
     cwd: rootPath,
     stdio: 'inherit',
-  }
-
-  if (!state.bumped.find(pkg => pkg === registryPkg)) {
-    const version = semver.inc(registryPkg.manifest.version, 'patch')
-    const editablePkgJson = await readPackageJson(registryPkg.path, {
-      editable: true,
-      normalize: true,
-    })
-    editablePkgJson.update({ version })
-    await editablePkgJson.save()
-    spinner.log(
-      `+${registryPkg.name}@${registryPkg.manifest.version} -> ${version}`,
-    )
   }
 
   await execScript('update:package-json', [], spawnOptions)
