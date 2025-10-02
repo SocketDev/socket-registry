@@ -72,7 +72,6 @@ import { c as tarCreate, x as tarExtract } from 'tar'
 import { parseArgs } from '../registry/dist/lib/parse-args.js'
 
 import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
-import { testRunners } from '../test/utils/test-runners.mjs'
 import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
 import { safeRemove } from './utils/fs.mjs'
 import { filterPackagesByChanges } from './utils/git.mjs'
@@ -83,13 +82,34 @@ import {
 import constants from './constants.mjs'
 import ENV from '../registry/dist/lib/constants/ENV.js'
 import spinner from '../registry/dist/lib/constants/spinner.js'
+import NODE_MODULES from '../registry/dist/lib/constants/NODE_MODULES.js'
+import PACKAGE_JSON from '../registry/dist/lib/constants/PACKAGE_JSON.js'
 import WIN32 from '../registry/dist/lib/constants/WIN32.js'
 import { readPackageJson } from '../registry/dist/lib/packages.js'
 import { pEach, pRetry } from '../registry/dist/lib/promises.js'
 import { LOG_SYMBOLS, logger } from '../registry/dist/lib/logger.js'
 import { spawn } from '../registry/dist/lib/spawn.js'
 import { pluralize } from '../registry/dist/lib/words.js'
-import { writeJson } from '../registry/dist/lib/fs.js'
+import { readFileUtf8, readJson, writeJson } from '../registry/dist/lib/fs.js'
+
+// Default concurrency values based on environment and platform.
+const DEFAULT_CI_CONCURRENCY_WIN32 = '5'
+const DEFAULT_CI_CONCURRENCY_POSIX = '10'
+const DEFAULT_DEV_CONCURRENCY = '15'
+
+// Filesystem delay constants for tar extraction and JSON parsing.
+const FS_FLUSH_DELAY_MS = 100
+const JSON_PARSE_RETRY_BASE_DELAY_MS = 200
+const JSON_PARSE_MAX_RETRIES = 3
+
+// Output truncation length for error messages.
+const ERROR_OUTPUT_TRUNCATE_LENGTH = 1_000
+
+// Progress update intervals for CI vs. local environments.
+const PROGRESS_UPDATE_INTERVAL_CI = 10
+const PROGRESS_UPDATE_INTERVAL_DEV = 1
+const PROGRESS_TIMER_INTERVAL_CI_MS = 1_000
+const PROGRESS_TIMER_INTERVAL_DEV_MS = 100
 
 const { values: cliArgs } = parseArgs({
   options: {
@@ -99,7 +119,11 @@ const { values: cliArgs } = parseArgs({
     },
     concurrency: {
       type: 'string',
-      default: ENV.CI ? (WIN32 ? '5' : '10') : '15',
+      default: ENV.CI
+        ? WIN32
+          ? DEFAULT_CI_CONCURRENCY_WIN32
+          : DEFAULT_CI_CONCURRENCY_POSIX
+        : DEFAULT_DEV_CONCURRENCY,
     },
     'temp-dir': {
       type: 'string',
@@ -140,7 +164,7 @@ function completePackage() {
 
 async function computeOverrideHash(overridePath) {
   try {
-    const pkgJsonPath = path.join(overridePath, 'package.json')
+    const pkgJsonPath = path.join(overridePath, PACKAGE_JSON)
     const pkgJson = await readPackageJson(pkgJsonPath)
     // Hash the dependencies to detect changes.
     const depsString = JSON.stringify({
@@ -217,7 +241,7 @@ async function generatePnpmOverrides(options) {
     }
 
     const packagePath = path.join(npmPackagesDir, packageName)
-    const pkgJsonPath = path.join(packagePath, 'package.json')
+    const pkgJsonPath = path.join(packagePath, PACKAGE_JSON)
 
     try {
       // eslint-disable-next-line no-await-in-loop
@@ -322,7 +346,7 @@ async function applySocketOverrideIfExists(packageName, packagePath) {
   }
 
   // Read the Socket override package.json.
-  const overridePkgJsonPath = path.join(overridePath, 'package.json')
+  const overridePkgJsonPath = path.join(overridePath, PACKAGE_JSON)
   let overridePkgJson
   try {
     overridePkgJson = await readPackageJson(overridePkgJsonPath)
@@ -331,7 +355,7 @@ async function applySocketOverrideIfExists(packageName, packagePath) {
   }
 
   // Read the existing package.json.
-  const packageJsonPath = path.join(packagePath, 'package.json')
+  const packageJsonPath = path.join(packagePath, PACKAGE_JSON)
   let existingPkgJson
   try {
     existingPkgJson = await readPackageJson(packageJsonPath, {
@@ -352,9 +376,9 @@ async function applySocketOverrideIfExists(packageName, packagePath) {
       errorOnExist: false,
       ...(WIN32 ? { retryDelay: 100, maxRetries: 3 } : {}),
       filter: src =>
-        !src.includes('node_modules') &&
+        !src.includes(NODE_MODULES) &&
         !src.endsWith('.DS_Store') &&
-        !src.endsWith('package.json'),
+        !src.endsWith(PACKAGE_JSON),
     })
   } catch (e) {
     // Ignore errors about same paths - this happens when pnpm symlinks to our override.
@@ -421,8 +445,8 @@ async function installPackage(packageInfo) {
   const packageTempDir = path.join(tempBaseDir, socketPkgName)
 
   // Check if package is already installed and has a test script.
-  const installedPath = path.join(packageTempDir, 'node_modules', origPkgName)
-  const packageJsonPath = path.join(installedPath, 'package.json')
+  const installedPath = path.join(packageTempDir, NODE_MODULES, origPkgName)
+  const packageJsonPath = path.join(installedPath, PACKAGE_JSON)
   const installMarkerPath = path.join(
     packageTempDir,
     '.socket-install-complete',
@@ -438,9 +462,7 @@ async function installPackage(packageInfo) {
       const existingPkgJson = await readPackageJson(packageJsonPath, {
         editable: true,
       })
-      const markerData = JSON.parse(
-        await fs.readFile(installMarkerPath, 'utf8'),
-      )
+      const markerData = await readJson(installMarkerPath)
 
       // Verify the installation matches the requested version and override hash.
       // Also check if the cached installation references GitHub extraction directories.
@@ -620,25 +642,29 @@ async function installPackage(packageInfo) {
 
         // Wait briefly for filesystem to flush after tar extraction.
         // This prevents reading truncated files on slower CI systems.
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise(resolve => setTimeout(resolve, FS_FLUSH_DELAY_MS))
 
         // Find the extracted directory (GitHub archives extract to reponame-commitish/).
         const entries = await fs.readdir(tempExtractDir, {
           withFileTypes: true,
         })
         const extractedDir = entries.find(
-          e => e.isDirectory() && e.name !== 'node_modules',
+          e => e.isDirectory() && e.name !== NODE_MODULES,
         )
 
         if (extractedDir) {
           const extractedPath = path.join(tempExtractDir, extractedDir.name)
-          const pkgJsonPath = path.join(extractedPath, 'package.json')
+          const pkgJsonPath = path.join(extractedPath, PACKAGE_JSON)
 
           // Verify package.json exists and is not empty.
-          // Retry up to 3 times to handle filesystem flush delays on slow CI systems.
+          // Retry up to JSON_PARSE_MAX_RETRIES times to handle filesystem flush delays on slow CI systems.
           let editablePkgJson
           let lastError
-          for (let attempt = 1; attempt <= 3; attempt += 1) {
+          for (
+            let attempt = 1;
+            attempt <= JSON_PARSE_MAX_RETRIES;
+            attempt += 1
+          ) {
             try {
               // eslint-disable-next-line no-await-in-loop
               const pkgJsonStats = await fs.stat(pkgJsonPath)
@@ -655,10 +681,12 @@ async function installPackage(packageInfo) {
               break
             } catch (error) {
               lastError = error
-              if (attempt < 3) {
+              if (attempt < JSON_PARSE_MAX_RETRIES) {
                 // Wait longer on each retry (200ms, 400ms).
                 // eslint-disable-next-line no-await-in-loop
-                await new Promise(resolve => setTimeout(resolve, attempt * 200))
+                await new Promise(resolve =>
+                  setTimeout(resolve, attempt * JSON_PARSE_RETRY_BASE_DELAY_MS),
+                )
               }
             }
           }
@@ -666,7 +694,7 @@ async function installPackage(packageInfo) {
           if (!editablePkgJson) {
             // All retries failed, add diagnostic info.
             const pkgJsonStats = await fs.stat(pkgJsonPath)
-            const fileContent = await fs.readFile(pkgJsonPath, 'utf8')
+            const fileContent = await readFileUtf8(pkgJsonPath)
             throw new Error(
               `Invalid package.json after 3 retries: ${lastError.message}. File size: ${pkgJsonStats.size}, Content preview: ${fileContent.slice(0, 200)}`,
             )
@@ -901,11 +929,6 @@ async function installPackage(packageInfo) {
       ...(overridePkgJson.main ? { main: overridePkgJson.main } : {}),
       ...(overridePkgJson.module ? { module: overridePkgJson.module } : {}),
       ...(overridePkgJson.types ? { types: overridePkgJson.types } : {}),
-      ...(overridePkgJson.files ? { files: overridePkgJson.files } : {}),
-      ...(overridePkgJson.sideEffects !== undefined
-        ? { sideEffects: overridePkgJson.sideEffects }
-        : {}),
-      ...(overridePkgJson.socket ? { socket: overridePkgJson.socket } : {}),
       // Make the package private for testing.
       private: true,
     })
@@ -916,83 +939,15 @@ async function installPackage(packageInfo) {
       delete originalPkgJson.content.scripts.pretest
       delete originalPkgJson.content.scripts.posttest
 
-      // Look for actual test runner in scripts.
-      const additionalTestRunners = [...testRunners, 'test:stock', 'test:all']
-      let actualTestScript = additionalTestRunners.find(
-        runner => originalPkgJson.content.scripts[runner],
-      )
-
-      if (!actualTestScript && originalPkgJson.content.scripts.test) {
-        // Try to extract the test runner from the test script.
-        const testMatch =
-          originalPkgJson.content.scripts.test.match(/npm run ([-:\w]+)/)
-        if (testMatch && originalPkgJson.content.scripts[testMatch[1]]) {
-          actualTestScript = testMatch[1]
-        }
-      }
-
-      // Helper to check if a script contains non-test patterns.
-      const nonTestPatterns = ['lint', 'pretest', 'build', 'compile', 'tsc']
-      const containsNonTestPattern = script =>
-        nonTestPatterns.some(pattern => script?.includes(pattern))
-
-      // Helper to find a real test runner that doesn't run non-test commands.
-      const findRealTestRunner = () =>
-        testRunners.find(
-          runner =>
-            originalPkgJson.content.scripts[runner] &&
-            !containsNonTestPattern(originalPkgJson.content.scripts[runner]),
-        )
-
       // Build cleaned scripts object.
       const cleanedScripts = { __proto__: null }
       for (const { 0: key, 1: value } of Object.entries(
         originalPkgJson.content.scripts,
       )) {
-        if (key.startsWith('test') || key === actualTestScript) {
+        if (key.startsWith('test')) {
           cleanedScripts[key] = cleanTestScript(value)
         } else {
           cleanedScripts[key] = value
-        }
-      }
-
-      // Clean the test script first to extract just the test runner.
-      if (cleanedScripts.test) {
-        // If the test script just runs non-test commands after cleaning, find a real test runner.
-        if (containsNonTestPattern(cleanedScripts.test)) {
-          const realTestRunner = findRealTestRunner()
-          if (realTestRunner) {
-            cleanedScripts.test =
-              originalPkgJson.content.scripts[realTestRunner]
-          }
-        }
-
-        // If test script just delegates to another script, resolve it.
-        const delegateMatch = cleanedScripts.test?.match(/^npm run ([-:\w]+)$/)
-        if (delegateMatch) {
-          const targetScript = delegateMatch[1]
-          const targetScriptContent =
-            originalPkgJson.content.scripts[targetScript]
-
-          if (
-            targetScriptContent &&
-            !containsNonTestPattern(targetScriptContent)
-          ) {
-            // Resolve to the actual command, not the npm run wrapper.
-            cleanedScripts.test = targetScriptContent
-            // Also preserve the target script itself.
-            cleanedScripts[targetScript] = targetScriptContent
-          } else {
-            // Target script doesn't exist or is non-test, try to find a real test runner.
-            const realTestRunner = findRealTestRunner()
-            if (realTestRunner) {
-              cleanedScripts.test =
-                originalPkgJson.content.scripts[realTestRunner]
-              // Also preserve the real test runner script.
-              cleanedScripts[realTestRunner] =
-                originalPkgJson.content.scripts[realTestRunner]
-            }
-          }
         }
       }
 
@@ -1082,15 +1037,21 @@ async function installPackage(packageInfo) {
     writeProgress(LOG_SYMBOLS.fail)
     completePackage()
     const errorDetails = [error.message]
-    // Show last 1000 chars of stderr (where actual errors appear)
+    // Show last ERROR_OUTPUT_TRUNCATE_LENGTH chars of stderr (where actual errors appear).
     if (error.stderr) {
-      const stderrText = error.stderr.slice(-1_000)
-      errorDetails.push('STDERR (last 1000 chars):', stderrText)
+      const stderrText = error.stderr.slice(-ERROR_OUTPUT_TRUNCATE_LENGTH)
+      errorDetails.push(
+        `STDERR (last ${ERROR_OUTPUT_TRUNCATE_LENGTH} chars):`,
+        stderrText,
+      )
     }
-    // Show last 1000 chars of stdout
+    // Show last ERROR_OUTPUT_TRUNCATE_LENGTH chars of stdout.
     if (error.stdout) {
-      const stdoutText = error.stdout.slice(-1_000)
-      errorDetails.push('STDOUT (last 1000 chars):', stdoutText)
+      const stdoutText = error.stdout.slice(-ERROR_OUTPUT_TRUNCATE_LENGTH)
+      errorDetails.push(
+        `STDOUT (last ${ERROR_OUTPUT_TRUNCATE_LENGTH} chars):`,
+        stdoutText,
+      )
     }
     return {
       package: origPkgName,
@@ -1194,7 +1155,9 @@ async function main() {
 
   // Update spinner text when progress changes.
   // In CI environments, batch updates to avoid excessive line output.
-  const updateInterval = ENV.CI ? 10 : 1
+  const updateInterval = ENV.CI
+    ? PROGRESS_UPDATE_INTERVAL_CI
+    : PROGRESS_UPDATE_INTERVAL_DEV
   let lastCompletedCount = 0
   const progressInterval = setInterval(
     () => {
@@ -1209,7 +1172,7 @@ async function main() {
         lastCompletedCount = completedPackages
       }
     },
-    ENV.CI ? 1_000 : 100,
+    ENV.CI ? PROGRESS_TIMER_INTERVAL_CI_MS : PROGRESS_TIMER_INTERVAL_DEV_MS,
   )
 
   // Ensure base temp directory exists.
