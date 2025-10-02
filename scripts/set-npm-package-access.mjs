@@ -1,3 +1,5 @@
+/** @fileoverview Set MFA automation access level for published npm packages. */
+
 import path from 'node:path'
 
 import { parseArgs } from '../registry/dist/lib/parse-args.js'
@@ -25,11 +27,17 @@ const { values: cliArgs } = parseArgs({
   strict: false,
 })
 
+/**
+ * Create package metadata with defaults.
+ */
 function packageData(data) {
   const { printName = data.name } = data
   return Object.assign(data, { printName })
 }
 
+/**
+ * Configure MFA automation for token-based packages.
+ */
 async function main() {
   // Exit early if not running in CI or with --force.
   const { ENV } = constants
