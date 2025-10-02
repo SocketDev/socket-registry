@@ -72,7 +72,10 @@
     "update:registry-package-json": "node ./scripts/update-registry-package-json.mjs",
     "update:socket": "pnpm -r update '@socketsecurity/*' '@socketregistry/*' --latest",
     "update:npm:package-json": "node ./scripts/update-npm-package-json.mjs",
-    "update:npm:readmes": "node ./scripts/update-npm-readmes.mjs"
+    "update:npm:readmes": "node ./scripts/update-npm-readmes.mjs",
+    "validate:packages": "node ./scripts/testing/validate-package-tests.mjs",
+    "validate:ci": "node ./scripts/testing/reproduce-ci-locally.mjs",
+    "analyze:ci-failures": "node ./scripts/testing/analyze-ci-failures.mjs"
   },
   "devDependencies": {
     "@babel/core": "7.28.4",
