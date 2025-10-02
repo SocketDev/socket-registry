@@ -19,6 +19,7 @@ import { spawn } from '../registry/dist/lib/spawn.js'
 import { pluralize } from '../registry/dist/lib/words.js'
 
 import constants from './constants.mjs'
+import { extractNpmError } from './utils/errors.mjs'
 
 const { COLUMN_LIMIT, LATEST, npmPackagesPath, registryPkgPath } = constants
 
@@ -37,32 +38,6 @@ const { values: cliArgs } = parseArgs({
   },
   strict: false,
 })
-
-/**
- * Extract concise npm error from stderr.
- */
-function extractNpmError(stderr) {
-  const lines = stderr.split('\n')
-  const errorLines = []
-
-  for (const line of lines) {
-    // Skip npm warnings and notices.
-    if (line.startsWith('npm warn') || line.startsWith('npm notice')) {
-      continue
-    }
-    // Include npm errors.
-    if (line.startsWith('npm error')) {
-      errorLines.push(line)
-    }
-  }
-
-  return errorLines.length > 0
-    ? errorLines.join('\n')
-    : lines
-        .filter(l => l.trim() && !l.startsWith('npm warn'))
-        .slice(0, 5)
-        .join('\n')
-}
 
 /**
  * Checkout a specific commit and discard uncommitted changes.
