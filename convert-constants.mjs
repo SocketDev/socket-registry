@@ -1,8 +1,9 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const constantsDir =
-  '/Users/jdalton/projects/socket-registry/registry/src/lib/constants'
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const constantsDir = path.join(__dirname, 'registry/src/lib/constants')
 
 async function convertConstant(filePath) {
   const content = await fs.readFile(filePath, 'utf8')
