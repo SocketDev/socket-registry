@@ -58,10 +58,10 @@ function isPackageTestingSkipped(eco, sockRegPkgName) {
 
       if (!hasDevDep && !skipSet?.has(sockRegPkgName)) {
         console.warn(
-          `Warning: Package "${sockRegPkgName}" is not in test/${eco}/${PACKAGE_JSON} devDependencies.`,
+          `Package "${sockRegPkgName}" is not in test/${eco}/${PACKAGE_JSON} devDependencies.`,
         )
         console.warn(
-          `  Consider adding it to skipTestsByEcosystem in scripts/constants.mjs`,
+          `Consider adding it to skipTestsByEcosystem in scripts/constants.mjs`,
         )
       }
     } catch (e) {
