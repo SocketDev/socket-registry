@@ -22,7 +22,7 @@ on:
         description: 'Lint command to run (e.g., "npm run lint", "pnpm run check")'
         required: false
         type: string
-        default: 'pnpm run check-ci'
+        default: 'pnpm run lint-ci'
       node-version:
         description: 'Node.js version to use for linting (e.g., "20", "22", "24")'
         required: false
