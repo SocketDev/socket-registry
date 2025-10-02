@@ -58,6 +58,12 @@ export default defineConfig({
     globals: false,
     environment: 'node',
     include: ['test/**/*.test.{js,ts,mjs,mts,cjs,cts}'],
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      // Exclude test/npm unless INCLUDE_NPM_TESTS is set
+      ...(process.env['INCLUDE_NPM_TESTS'] ? [] : ['test/npm/**']),
+    ],
     reporters: ['default'],
     testTimeout: 60_000,
     hookTimeout: 60_000,

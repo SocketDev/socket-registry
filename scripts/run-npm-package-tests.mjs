@@ -73,6 +73,49 @@ function hasModuleError(stdout, stderr) {
 
 async function runPackageTest(socketPkgName) {
   const origPkgName = resolveOriginalPackageName(socketPkgName)
+
+  // Check if we have a custom test file in test/npm/.
+  const testFilePath = path.join(
+    constants.testNpmPath,
+    `${socketPkgName}.test.mts`,
+  )
+
+  if (existsSync(testFilePath)) {
+    // Run vitest on the custom test file.
+    // Set INCLUDE_NPM_TESTS to bypass the exclude pattern in vitest.config.mts.
+    try {
+      await runCommand(
+        'pnpm',
+        [
+          'vitest',
+          'run',
+          `test/npm/${socketPkgName}.test.mts`,
+          '--no-coverage',
+          '--reporter=dot',
+        ],
+        {
+          cwd: constants.rootPath,
+          env: {
+            ...process.env,
+            FORCE_TEST: '1',
+            INCLUDE_NPM_TESTS: '1',
+          },
+        },
+      )
+
+      logger.success(origPkgName)
+      return { package: origPkgName, passed: true }
+    } catch (error) {
+      logger.fail(origPkgName)
+      if (error.stderr) {
+        const errorInfo = extractErrorInfo(error.stderr)
+        logger.log(`   ${errorInfo}`)
+      }
+      return { package: origPkgName, passed: false, reason: error.message }
+    }
+  }
+
+  // Otherwise, run the package's original tests.
   const packageTempDir = path.join(tempBaseDir, socketPkgName)
 
   if (!existsSync(packageTempDir)) {
