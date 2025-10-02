@@ -39,6 +39,32 @@ const { values: cliArgs } = parseArgs({
 })
 
 /**
+ * Extract concise npm error from stderr.
+ */
+function extractNpmError(stderr) {
+  const lines = stderr.split('\n')
+  const errorLines = []
+
+  for (const line of lines) {
+    // Skip npm warnings and notices.
+    if (line.startsWith('npm warn') || line.startsWith('npm notice')) {
+      continue
+    }
+    // Include npm errors.
+    if (line.startsWith('npm error')) {
+      errorLines.push(line)
+    }
+  }
+
+  return errorLines.length > 0
+    ? errorLines.join('\n')
+    : lines
+        .filter(l => l.trim() && !l.startsWith('npm warn'))
+        .slice(0, 5)
+        .join('\n')
+}
+
+/**
  * Checkout a specific commit and discard uncommitted changes.
  */
 async function checkoutCommit(sha) {
@@ -385,7 +411,9 @@ async function publishToken(pkg, state, options) {
   state.fails.push(pkg.printName)
   const stderr = lastError?.stderr ?? ''
   if (stderr) {
-    logger.log(stderr)
+    logger.log('')
+    logger.log(extractNpmError(stderr))
+    logger.log('')
   }
 }
 
@@ -453,7 +481,9 @@ async function publishTrusted(pkg, state, options) {
   state.fails.push(pkg.printName)
   const stderr = lastError?.stderr ?? ''
   if (stderr) {
-    logger.log(stderr)
+    logger.log('')
+    logger.log(extractNpmError(stderr))
+    logger.log('')
   }
 }
 
