@@ -1,3 +1,5 @@
+/** @fileoverview Script for updating empty files to use standard empty content. */
+
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
