@@ -1,5 +1,10 @@
+/** @fileoverview Type coverage utilities for extracting TypeScript type coverage percentages. */
+
 import constants from '../../registry/dist/lib/constants/index.js'
 import { spawn } from '../../registry/dist/lib/spawn.js'
+
+// Regular expression for extracting percentage values from type coverage output.
+const PERCENTAGE_REGEXP = /(\d+(?:\.\d+)?)%/
 
 /**
  * Execute type-coverage command and extract percentage from output.
@@ -26,7 +31,7 @@ export async function getTypeCoverage() {
   // Extract the percentage value from the line using regex.
   if (percentageLine) {
     // Matches patterns like "95.12%" or "100%" and extracts the numeric part.
-    const match = percentageLine.match(/(\d+(?:\.\d+)?)%/)
+    const match = percentageLine.match(PERCENTAGE_REGEXP)
     if (match) {
       return parseFloat(match[1])
     }
