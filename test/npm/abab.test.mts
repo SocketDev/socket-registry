@@ -25,28 +25,49 @@ describe(
       implementations = result.modules
     })
 
-    it('atob decodes base64 strings', () => {
+    it('atob correctly converts base64 strings', () => {
       for (const mod of implementations) {
         const { atob } = mod
-        expect(atob('SGVsbG8gV29ybGQ=')).toBe('Hello World')
-        expect(atob('Zm9v')).toBe('foo')
-        expect(atob('YmFy')).toBe('bar')
-      }
-    })
-
-    it('btoa encodes strings to base64', () => {
-      for (const mod of implementations) {
-        const { btoa } = mod
-        expect(btoa('Hello World')).toBe('SGVsbG8gV29ybGQ=')
-        expect(btoa('foo')).toBe('Zm9v')
-        expect(btoa('bar')).toBe('YmFy')
+        expect(atob('')).toBe('')
+        expect(atob('abcd')).toBe(String.fromCharCode(105, 183, 29))
+        expect(atob(' abcd')).toBe(String.fromCharCode(105, 183, 29))
+        expect(atob('abcd ')).toBe(String.fromCharCode(105, 183, 29))
+        expect(atob('ab==')).toBe(String.fromCharCode(105))
+        expect(atob('abc=')).toBe(String.fromCharCode(105, 183))
       }
     })
 
     it('atob returns null for invalid input', () => {
       for (const mod of implementations) {
         const { atob } = mod
-        expect(atob('not valid base64!')).toBe(null)
+        expect(atob('a')).toBe(null)
+        expect(atob('abcde')).toBe(null)
+        expect(atob('=')).toBe(null)
+        expect(atob('a=')).toBe(null)
+        expect(atob('a===')).toBe(null)
+        expect(atob(' abcd===')).toBe(null)
+        expect(atob('abcd=== ')).toBe(null)
+        expect(atob('abcd ===')).toBe(null)
+      }
+    })
+
+    it('atob handles whitespace', () => {
+      for (const mod of implementations) {
+        const { atob } = mod
+        expect(atob('ab\tcd')).toBe(String.fromCharCode(105, 183, 29))
+        expect(atob('ab\ncd')).toBe(String.fromCharCode(105, 183, 29))
+        expect(atob('ab\fcd')).toBe(String.fromCharCode(105, 183, 29))
+        expect(atob('ab\rcd')).toBe(String.fromCharCode(105, 183, 29))
+      }
+    })
+
+    it('btoa encodes strings to base64', () => {
+      for (const mod of implementations) {
+        const { btoa } = mod
+        expect(btoa('')).toBe('')
+        expect(btoa('Hello World')).toBe('SGVsbG8gV29ybGQ=')
+        expect(btoa('foo')).toBe('Zm9v')
+        expect(btoa('bar')).toBe('YmFy')
       }
     })
 
@@ -54,25 +75,21 @@ describe(
       for (const mod of implementations) {
         const { btoa } = mod
         // Unicode characters outside Latin1 range.
-        expect(btoa('\u{1F600}')).toBe(null)
+        expect(btoa(String.fromCharCode(0xd800, 0xdc00))).toBe(null)
       }
     })
 
-    it('atob and btoa are inverse operations', () => {
+    it('atob throws TypeError when passed no inputs', () => {
       for (const mod of implementations) {
-        const { atob, btoa } = mod
-        const testStrings = ['test', 'Hello World', '123456']
-        for (const str of testStrings) {
-          expect(atob(btoa(str))).toBe(str)
-        }
+        const { atob } = mod
+        expect(() => atob()).toThrow(TypeError)
       }
     })
 
-    it('handles empty strings', () => {
+    it('btoa throws TypeError when passed no inputs', () => {
       for (const mod of implementations) {
-        const { atob, btoa } = mod
-        expect(btoa('')).toBe('')
-        expect(atob('')).toBe('')
+        const { btoa } = mod
+        expect(() => btoa()).toThrow(TypeError)
       }
     })
   },

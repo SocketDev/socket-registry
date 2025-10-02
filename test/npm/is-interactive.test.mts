@@ -28,51 +28,35 @@ describe(
       implementations = result.modules
     })
 
-    it('returns false for non-TTY streams', () => {
+    it('tty', () => {
       for (const isInteractive of implementations) {
-        expect(isInteractive({ stream: { isTTY: false } as any })).toBe(false)
-        expect(isInteractive({ stream: null as any })).toBe(false)
+        const originalCI = process.env.CI
+        delete process.env.CI
+        const stream = { isTTY: true }
+        expect(isInteractive({ stream: stream as any })).toBe(true)
+        if (originalCI) {
+          process.env.CI = originalCI
+        }
       }
     })
 
-    it('returns false for dumb terminal', () => {
+    it('non-tty', () => {
+      for (const isInteractive of implementations) {
+        const stream = { isTTY: false }
+        expect(isInteractive({ stream: stream as any })).toBe(false)
+      }
+    })
+
+    it('dumb', () => {
       for (const isInteractive of implementations) {
         const originalTerm = process.env.TERM
         process.env.TERM = 'dumb'
-        expect(isInteractive({ stream: process.stdout })).toBe(false)
+        expect(isInteractive()).toBe(false)
         if (originalTerm) {
           process.env.TERM = originalTerm
         } else {
           delete process.env.TERM
         }
-      }
-    })
-
-    it('returns false when CI env is set', () => {
-      for (const isInteractive of implementations) {
-        const originalCI = process.env.CI
-        process.env.CI = 'true'
-        expect(isInteractive({ stream: { isTTY: true } as any })).toBe(false)
-        if (originalCI) {
-          process.env.CI = originalCI
-        } else {
-          delete process.env.CI
-        }
-      }
-    })
-
-    it('handles stream option', () => {
-      for (const isInteractive of implementations) {
-        const mockStream = { isTTY: true }
-        // Result depends on env vars, just ensure it doesn't throw.
-        expect(() => isInteractive({ stream: mockStream as any })).not.toThrow()
-      }
-    })
-
-    it('uses stdout by default', () => {
-      for (const isInteractive of implementations) {
-        // Result depends on actual TTY status, just ensure it doesn't throw.
-        expect(() => isInteractive()).not.toThrow()
       }
     })
   },

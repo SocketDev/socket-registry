@@ -3,12 +3,15 @@
  * Provides utilities for running tests on specific packages and handling test workflows.
  */
 
+import { existsSync, readFileSync } from 'node:fs'
+import path from 'node:path'
+
 import { parseArgs } from '../../registry/dist/lib/parse-args.js'
 
 import constants from '../constants.mjs'
 import { getModifiedPackagesSync, getStagedPackagesSync } from './git.mjs'
 
-const { LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE } = constants
+const { LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE, UTF8 } = constants
 
 let _cliArgs
 function getCliArgs() {
@@ -37,6 +40,37 @@ function isPackageTestingSkipped(eco, sockRegPkgName) {
   const skipSet = constants.skipTestsByEcosystem.get(eco)
   if (skipSet?.has(sockRegPkgName)) {
     return true
+  }
+
+  // Check if package is not in devDeps but also not in skip list.
+  // Suggest adding to skip list if missing from devDeps.
+  const testPkgJsonPath = path.join(
+    constants.rootPath,
+    'test',
+    eco,
+    'package.json',
+  )
+  if (existsSync(testPkgJsonPath)) {
+    try {
+      const testPkgJson = JSON.parse(readFileSync(testPkgJsonPath, UTF8))
+      const devDeps = testPkgJson.devDependencies || {}
+      const normalizedName = sockRegPkgName.replace(/__/g, '/')
+      const hasDevDep =
+        devDeps[sockRegPkgName] !== undefined ||
+        devDeps[normalizedName] !== undefined ||
+        devDeps[`@${normalizedName}`] !== undefined
+
+      if (!hasDevDep && !skipSet?.has(sockRegPkgName)) {
+        console.warn(
+          `Warning: Package "${sockRegPkgName}" is not in test/${eco}/package.json devDependencies.`,
+        )
+        console.warn(
+          `  Consider adding it to skipTestsByEcosystem in scripts/constants.mjs`,
+        )
+      }
+    } catch (e) {
+      // Ignore parse errors.
+    }
   }
 
   return getCliArgs().force || ENV.CI || process.env.FORCE_TEST === '1'
