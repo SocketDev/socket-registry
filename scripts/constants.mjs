@@ -185,6 +185,10 @@ const lazySkipTestsByEcosystem = () => {
         // https://github.com/hyrious/bun.lockb/tree/v0.0.4
         '@hyrious/bun.lockb',
         'hyrious__bun.lockb',
+        // abab tests use old assert package that depends on util.isError which was
+        // deprecated and removed in Node.js 20+.
+        // https://nodejs.org/docs/latest-v18.x/api/util.html#deprecated-apis
+        'abab',
         // Our array-flatten override supports v1, v2, and v3 APIs, so we handle
         // testing ourselves.
         'array-flatten',
