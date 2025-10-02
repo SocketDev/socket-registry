@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
+import type {
+  InternalBinaryOperationNode,
+  InternalLicenseNode,
+} from '../../registry/dist/lib/packages.js'
+
 const {
   createAstNode,
   createBinaryOperationNode,
@@ -184,12 +189,12 @@ describe('packages module additional coverage', () => {
     it('should stop visiting when License visitor returns false', () => {
       const ast = {
         left: { license: 'MIT' },
-        conjunction: 'OR',
+        conjunction: 'or',
         right: { license: 'Apache-2.0' },
       }
       const visited: string[] = []
       visitLicenses(ast, {
-        License: (node: any) => {
+        License: (node: InternalLicenseNode) => {
           visited.push(node.license)
           return node.license === 'MIT' ? false : undefined
         },
@@ -201,35 +206,35 @@ describe('packages module additional coverage', () => {
       const ast = {
         left: {
           left: { license: 'MIT' },
-          conjunction: 'AND',
+          conjunction: 'and',
           right: { license: 'BSD-3-Clause' },
         },
-        conjunction: 'OR',
+        conjunction: 'or',
         right: { license: 'Apache-2.0' },
       }
       const visited: string[] = []
       visitLicenses(ast, {
-        BinaryOperation: (node: any) => {
+        BinaryOperation: (node: InternalBinaryOperationNode) => {
           visited.push(node.conjunction)
-          return node.conjunction === 'OR' ? false : undefined
+          return node.conjunction === 'or' ? false : undefined
         },
       })
-      expect(visited).toEqual(['OR'])
+      expect(visited).toEqual(['or'])
     })
 
     it('should visit nested binary operation nodes and stop on false', () => {
       const ast = {
         left: {
           left: { license: 'MIT' },
-          conjunction: 'AND',
+          conjunction: 'and',
           right: { license: 'BSD' },
         },
-        conjunction: 'OR',
+        conjunction: 'or',
         right: { license: 'Apache-2.0' },
       }
       const licenses: string[] = []
       visitLicenses(ast, {
-        License: (node: any) => {
+        License: (node: InternalLicenseNode) => {
           licenses.push(node.license)
           return node.license === 'BSD' ? false : undefined
         },
