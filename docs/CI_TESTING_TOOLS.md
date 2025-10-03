@@ -7,8 +7,10 @@ Quick reference for the CI testing and validation tools.
 **These tools are specific to socket-registry's package override structure.** Other Socket projects (socket-sdk-js, socket-cli, socket-packageurl-js) should reference socket-registry's reusable CI workflows but do not need these validation scripts.
 
 **For general CI workflow usage**, see:
-- Socket-registry's reusable CI workflow: `SocketDev/socket-registry/.github/workflows/ci.yml@main`
+- Socket-registry's reusable CI workflow: `SocketDev/socket-registry/.github/workflows/ci.yml@<SHA>` (must use full commit SHA, not @main)
 - Other projects' CI documentation: `docs/CI_TESTING.md` in each repository
+
+**🚨 CRITICAL**: GitHub Actions are configured to require full-length commit SHAs. Never use `@main` - always use `@662bbcab1b7533e24ba8e3446cffd8a7e5f7617e # main` format.
 
 ## TL;DR
 

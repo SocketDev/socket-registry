@@ -419,9 +419,11 @@ Follow the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format:
 - **Standard SHAs**: `actions/checkout@08c6903...5dd907a8` (v5.0.0), `pnpm/action-setup@a7487c7...0d66ddda` (v4.1.0), `actions/setup-node@a0853c24...8a591444` (v5.0.0), `actions/upload-artifact@50769540...35e0d6874` (v4.4.0)
 
 ### CI Workflow Strategy
-- **🚨 MANDATORY**: Use `SocketDev/socket-registry/.github/workflows/ci.yml@main`
+- **🚨 MANDATORY**: Use `SocketDev/socket-registry/.github/workflows/ci.yml@<SHA>` with full commit SHA
+- **🚨 CRITICAL**: GitHub Actions are configured to require full-length commit SHAs, NOT branch names like `@main`
 - **Benefits**: Consistent CI, parallel execution of lint/type-check/test/coverage
 - **Configuration**: Customize via inputs (lint-script, test-script, type-check-script, node-versions, os-versions, etc.)
+- **Format**: `uses: SocketDev/socket-registry/.github/workflows/ci.yml@662bbcab1b7533e24ba8e3446cffd8a7e5f7617e # main`
 
 #### CI Script Naming Convention (MANDATORY)
 - **lint-ci**: `"pnpm run check:lint"` - Linting without fixing
@@ -429,16 +431,18 @@ Follow the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format:
 - **type-ci**: `"pnpm run check:tsc"` - Type checking without emitting files
 
 ### Git SHA Management (CRITICAL)
+- **🚨 SECURITY REQUIREMENT**: GitHub Actions require full-length commit SHAs to be pinned
 - **🚨 NEVER GUESS OR MAKE UP GIT SHAs**: Always retrieve the exact full SHA using `git rev-parse`
   - ✅ CORRECT: `cd /path/to/repo && git rev-parse HEAD` or `git rev-parse main`
-  - ❌ WRONG: Guessing the rest of a SHA after seeing only the short version (e.g., `43a668e1`)
-  - **Why this matters**: GitHub Actions workflow references require exact, full 40-character SHAs
-  - **Consequences of wrong SHA**: Workflow failures with "workflow was not found" errors
+  - ❌ FORBIDDEN: Using `@main` or `@master` in workflow references
+  - ❌ FORBIDDEN: Guessing the rest of a SHA after seeing only the short version (e.g., `43a668e1`)
+  - **Why this matters**: GitHub Actions are configured with "Require actions to be pinned to a full-length commit SHA"
+  - **Consequences of wrong SHA**: CI fails with "workflow was not found" or security policy violations
 - **Updating workflow SHA references**: When updating SHA references in workflow files:
-  1. Get the exact full SHA: `cd repo && git rev-parse HEAD`
-  2. Use the FULL 40-character SHA in sed commands
+  1. Get the exact full SHA: `cd /path/to/socket-registry && git rev-parse main`
+  2. Use the FULL 40-character SHA in workflow files: `@662bbcab1b7533e24ba8e3446cffd8a7e5f7617e # main`
   3. Verify the SHA exists: `git show <sha> --stat`
-- **Rationale**: Using incorrect SHAs breaks CI/CD pipelines and wastes debugging time
+- **Rationale**: Security policy requires pinned SHAs for reproducible, auditable builds
 
 ## Architecture
 
