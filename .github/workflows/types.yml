@@ -69,20 +69,20 @@ jobs:
     timeout-minutes: ${{ inputs.timeout-minutes }}
     continue-on-error: ${{ inputs.continue-on-error }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@43a668e122085d8b5836884e47ee940642216388 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@0782233ce8463a0b0eca22262905563b9bd4a919 # main
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.node-version }}
           working-directory: ${{ inputs.working-directory }}
 
-      - uses: SocketDev/socket-registry/.github/actions/run-script@43a668e122085d8b5836884e47ee940642216388 # main
+      - uses: SocketDev/socket-registry/.github/actions/run-script@0782233ce8463a0b0eca22262905563b9bd4a919 # main
         with:
           continue-on-error: ${{ inputs.continue-on-error }}
           main-script: ${{ inputs.type-script }}
           setup-script: ${{ inputs.setup-script }}
           working-directory: ${{ inputs.working-directory }}
 
-      - uses: SocketDev/socket-registry/.github/actions/artifacts@43a668e122085d8b5836884e47ee940642216388 # main
+      - uses: SocketDev/socket-registry/.github/actions/artifacts@0782233ce8463a0b0eca22262905563b9bd4a919 # main
         if: inputs.upload-artifacts
         with:
           name: type-check-${{ inputs.os }}-node-${{ inputs.node-version }}
