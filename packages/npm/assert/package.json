@@ -22,9 +22,9 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "is-nan": "npm:@socketregistry/is-nan@^1.0.7",
-    "object-is": "npm:@socketregistry/object-is@^1.0.7",
-    "object.assign": "npm:@socketregistry/object.assign@^1.0.7",
+    "is-nan": "npm:@socketregistry/is-nan@^1.0.8",
+    "object-is": "npm:@socketregistry/object-is@^1.0.8",
+    "object.assign": "npm:@socketregistry/object.assign@^1.0.8",
     "util": "npm:util@0.12.5"
   },
   "engines": {

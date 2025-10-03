@@ -3,7 +3,7 @@
   "name": "perf-npm",
   "version": "",
   "devDependencies": {
-    "@socketregistry/json-stable-stringify": "^1.0.12",
+    "@socketregistry/json-stable-stringify": "^1.0.13",
     "@socketregistry/scripts": "file:../../scripts",
     "@socketsecurity/registry": "file:../../registry",
     "fast-json-stable-stringify": "2.1.0",
