@@ -4,8 +4,8 @@
 
 import type { Spinner } from '@socketsecurity/registry/lib/spinner'
 
-export interface SafeRemoveOptions {
-  /** Concurrency for fs.rm operations (default: from constants) */
+export interface TrashOptions {
+  /** Concurrency for removal operations (default: from constants) */
   concurrency?: number | undefined
   /** Spinner instance for warnings */
   spinner?: Spinner | undefined
@@ -16,14 +16,14 @@ export interface SafeRemoveOptions {
 }
 
 /**
- * Safely remove files/directories using trash, with fallback to fs.rm.
- * In CI environments, skips trash for performance. For temp directories,
- * silently ignores failures since system cleanup will handle them.
+ * Remove files/directories using trash bin with safe fallback.
+ * In CI environments, skips trash for performance and uses safe `remove` (del).
+ * For temp directories, silently ignores failures since system cleanup will handle them.
  *
  * @param paths - Path(s) to remove
  * @param options - Options for removal
  */
-export function safeRemove(
+export function trash(
   paths: string | string[],
-  options?: SafeRemoveOptions | undefined,
+  options?: TrashOptions | undefined,
 ): Promise<void>

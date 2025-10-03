@@ -15,7 +15,7 @@ const { logger } = loggerModule
 const { spawn } = spawnModule
 const { pEach } = promisesModule
 
-import { safeRemove } from '../utils/fs.mjs'
+import { trash } from '../utils/fs.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PACKAGES_DIR = path.join(__dirname, '..', '..', 'packages', 'npm')
@@ -200,7 +200,7 @@ async function validateDependencies(packageName, packageDir) {
       message: `Dependency validation failed: ${e.message}`,
     })
   } finally {
-    await safeRemove(tempDir)
+    await trash(tempDir)
   }
 
   return issues

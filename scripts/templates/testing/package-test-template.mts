@@ -83,7 +83,7 @@ describe(
  *
  * 5. Missing cleanup:
  *    ❌ WRONG: Creating temp dirs without cleanup
- *    ✅ CORRECT: Track temp dirs and use safeRemove in afterEach
+ *    ✅ CORRECT: Track temp dirs and use trash in afterEach
  *
  * 6. Importing fs incorrectly:
  *    ❌ WRONG: import fs from 'node:fs/promises'

@@ -13,6 +13,7 @@ import registryConstants from '../registry/dist/lib/constants/index.js'
 import { whichBinSync } from '../registry/dist/lib/bin.js'
 import { envAsBoolean } from '../registry/dist/lib/env.js'
 import { createConstantsObject } from '../registry/dist/lib/objects.js'
+import { normalizePath } from '../registry/dist/lib/path.js'
 
 const require = createRequire(import.meta.url)
 
@@ -71,7 +72,7 @@ const lazyEcosystems = () => {
 const lazyGitExecPath = () => which.sync('git', { ...getDefaultWhichOptions() })
 
 const lazyGitIgnoreFile = () =>
-  includeIgnoreFile(path.join(lazyRootPath(), GITIGNORE))
+  includeIgnoreFile(normalizePath(path.join(lazyRootPath(), GITIGNORE)))
 
 const lazyIgnoreGlobs = () =>
   Object.freeze([
@@ -96,49 +97,56 @@ const lazyNpmPackageNames = () => {
   return Object.freeze(readDirNamesSync(constants.npmPackagesPath))
 }
 
-const lazyNpmPackagesPath = () => path.join(constants.rootPackagesPath, NPM)
+const lazyNpmPackagesPath = () =>
+  normalizePath(path.join(constants.rootPackagesPath, NPM))
 
-const lazyNpmTemplatesPath = () => path.join(constants.templatesPath, NPM)
+const lazyNpmTemplatesPath = () =>
+  normalizePath(path.join(constants.templatesPath, NPM))
 
 const lazyNpmTemplatesReadmePath = () =>
-  path.join(constants.npmTemplatesPath, README_MD)
+  normalizePath(path.join(constants.npmTemplatesPath, README_MD))
 
-const lazyPerfNpmPath = () => path.join(constants.rootPath, `perf/${NPM}`)
+const lazyPerfNpmPath = () =>
+  normalizePath(path.join(constants.rootPath, `perf/${NPM}`))
 
 const lazyPerfNpmFixturesPath = () =>
-  path.join(constants.perfNpmPath, 'fixtures')
+  normalizePath(path.join(constants.perfNpmPath, 'fixtures'))
 
-const lazyRootCachePath = () => path.join(constants.rootPath, '.cache')
+const lazyRootCachePath = () =>
+  normalizePath(path.join(constants.rootPath, '.cache'))
 
-const lazyRootDotGithubPath = () => path.join(constants.rootPath, DOT_GITHUB)
+const lazyRootDotGithubPath = () =>
+  normalizePath(path.join(constants.rootPath, DOT_GITHUB))
 
 const lazyRootDotGithubActionsPath = () =>
-  path.join(constants.rootDotGithubPath, 'actions')
+  normalizePath(path.join(constants.rootDotGithubPath, 'actions'))
 
 const lazyRootDotGithubWorkflowsPath = () =>
-  path.join(constants.rootDotGithubPath, 'workflows')
+  normalizePath(path.join(constants.rootDotGithubPath, 'workflows'))
 
 const lazyRootGithubCachePath = () =>
-  path.join(constants.rootCachePath, 'github')
+  normalizePath(path.join(constants.rootCachePath, 'github'))
 
-const lazyRootLicensePath = () => path.join(constants.rootPath, LICENSE)
+const lazyRootLicensePath = () =>
+  normalizePath(path.join(constants.rootPath, LICENSE))
 
 const lazyRootEslintConfigPath = () =>
-  path.join(constants.rootPath, ESLINT_CONFIG_JS)
+  normalizePath(path.join(constants.rootPath, ESLINT_CONFIG_JS))
 
 const lazyRootNodeModulesPath = () =>
-  path.join(constants.rootPath, NODE_MODULES)
+  normalizePath(path.join(constants.rootPath, NODE_MODULES))
 
 const lazyRootNodeModulesBinPath = () =>
-  path.join(constants.rootNodeModulesPath, '.bin')
+  normalizePath(path.join(constants.rootNodeModulesPath, '.bin'))
 
 const lazyRootPackageJsonPath = () =>
-  path.join(constants.rootPath, PACKAGE_JSON)
+  normalizePath(path.join(constants.rootPath, PACKAGE_JSON))
 
 const lazyRootPackageLockPath = () =>
-  path.join(constants.rootPath, PACKAGE_LOCK_JSON)
+  normalizePath(path.join(constants.rootPath, PACKAGE_LOCK_JSON))
 
-const lazyRootPackagesPath = () => path.join(constants.rootPath, 'packages')
+const lazyRootPackagesPath = () =>
+  normalizePath(path.join(constants.rootPath, 'packages'))
 
 const lazyRootPath = () => {
   // Find project root by looking for pnpm-workspace.yaml.
@@ -147,8 +155,12 @@ const lazyRootPath = () => {
   const root = path.parse(currentPath).root
 
   while (currentPath !== root) {
-    if (fs.existsSync(path.join(currentPath, 'pnpm-workspace.yaml'))) {
-      return currentPath
+    if (
+      fs.existsSync(
+        normalizePath(path.join(currentPath, 'pnpm-workspace.yaml')),
+      )
+    ) {
+      return normalizePath(currentPath)
     }
     currentPath = path.dirname(currentPath)
   }
@@ -156,38 +168,42 @@ const lazyRootPath = () => {
   // Fallback if not found (shouldn't happen in normal operation).
   const __filename = fileURLToPath(import.meta.url)
   const __dirname = path.dirname(__filename)
-  return path.resolve(__dirname, '..')
+  return normalizePath(path.resolve(__dirname, '..'))
 }
 
 const lazyRootTsConfigPath = () =>
-  path.join(constants.rootPath, constants.TSCONFIG_JSON)
+  normalizePath(path.join(constants.rootPath, constants.TSCONFIG_JSON))
 
 const lazyRegistryPkgPath = () =>
-  path.join(constants.rootPath, constants.REGISTRY)
+  normalizePath(path.join(constants.rootPath, constants.REGISTRY))
 
 const lazyRegistryExtensionsJsonPath = () =>
-  path.join(constants.registryPkgPath, constants.EXTENSIONS_JSON)
+  normalizePath(path.join(constants.registryPkgPath, constants.EXTENSIONS_JSON))
 
 const lazyRegistryManifestJsonPath = () =>
-  path.join(constants.registryPkgPath, constants.MANIFEST_JSON)
+  normalizePath(path.join(constants.registryPkgPath, constants.MANIFEST_JSON))
 
 const lazyRelNpmPackagesPath = () =>
-  path.relative(constants.rootPath, constants.npmPackagesPath)
+  normalizePath(path.relative(constants.rootPath, constants.npmPackagesPath))
 
 const lazyRelPackagesPath = () =>
-  path.relative(constants.rootPath, constants.rootPackagesPath)
+  normalizePath(path.relative(constants.rootPath, constants.rootPackagesPath))
 
 const lazyRelRegistryPkgPath = () =>
-  path.relative(constants.rootPath, constants.registryPkgPath)
+  normalizePath(path.relative(constants.rootPath, constants.registryPkgPath))
 
 const lazyRelRegistryManifestJsonPath = () =>
-  path.relative(constants.rootPath, constants.registryManifestJsonPath)
+  normalizePath(
+    path.relative(constants.rootPath, constants.registryManifestJsonPath),
+  )
 
 const lazyRelTestNpmPath = () =>
-  path.relative(constants.rootPath, constants.testNpmPath)
+  normalizePath(path.relative(constants.rootPath, constants.testNpmPath))
 
 const lazyRelTestNpmNodeModulesPath = () =>
-  path.relative(constants.rootPath, constants.testNpmNodeModulesPath)
+  normalizePath(
+    path.relative(constants.rootPath, constants.testNpmNodeModulesPath),
+  )
 
 const lazySkipTestsByEcosystem = () => {
   const { WIN32 } = registryConstants
@@ -217,33 +233,36 @@ const lazyWin32EnsureTestsByEcosystem = () => {
 }
 
 const lazyTemplatesPath = () =>
-  path.join(path.dirname(fileURLToPath(import.meta.url)), 'templates')
+  normalizePath(
+    path.join(path.dirname(fileURLToPath(import.meta.url)), 'templates'),
+  )
 
-const lazyTestNpmPath = () => path.join(constants.rootPath, `test/${NPM}`)
+const lazyTestNpmPath = () =>
+  normalizePath(path.join(constants.rootPath, `test/${NPM}`))
 
 const lazyTestNpmFixturesPath = () =>
-  path.join(constants.testNpmPath, 'fixtures')
+  normalizePath(path.join(constants.testNpmPath, 'fixtures'))
 
 const lazyTestNpmNodeModulesPath = () =>
-  path.join(constants.testNpmPath, NODE_MODULES)
+  normalizePath(path.join(constants.testNpmPath, NODE_MODULES))
 
 const lazyTestNpmNodeWorkspacesPath = () =>
-  path.join(constants.testNpmPath, 'packages')
+  normalizePath(path.join(constants.testNpmPath, 'packages'))
 
 const lazyTestNpmPkgJsonPath = () =>
-  path.join(constants.testNpmPath, PACKAGE_JSON)
+  normalizePath(path.join(constants.testNpmPath, PACKAGE_JSON))
 
 const lazyTestNpmPkgLockPath = () =>
-  path.join(constants.testNpmPath, PACKAGE_LOCK_JSON)
+  normalizePath(path.join(constants.testNpmPath, PACKAGE_LOCK_JSON))
 
 const lazyTsxExecPath = () =>
   whichBinSync('tsx', { ...getDefaultWhichOptions() })
 
 const lazyYarnPkgExtsPath = () =>
-  path.join(constants.rootNodeModulesPath, '@yarnpkg/extensions')
+  normalizePath(path.join(constants.rootNodeModulesPath, '@yarnpkg/extensions'))
 
 const lazyYarnPkgExtsJsonPath = () =>
-  path.join(constants.yarnPkgExtsPath, PACKAGE_JSON)
+  normalizePath(path.join(constants.yarnPkgExtsPath, PACKAGE_JSON))
 
 const constants = createConstantsObject(
   {
