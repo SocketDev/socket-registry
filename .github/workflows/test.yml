@@ -1,9 +1,9 @@
 name: ⚡ Test
 
 # Dependencies:
-#   - SocketDev/socket-registry/.github/actions/setup-and-install@main
-#   - SocketDev/socket-registry/.github/actions/run-script@main
-#   - SocketDev/socket-registry/.github/actions/artifacts@main
+#   - SocketDev/socket-registry/.github/actions/setup-and-install
+#   - SocketDev/socket-registry/.github/actions/run-script
+#   - SocketDev/socket-registry/.github/actions/artifacts
 
 on:
   workflow_call:
@@ -97,19 +97,19 @@ jobs:
     timeout-minutes: ${{ inputs.timeout-minutes }}
     continue-on-error: ${{ inputs.continue-on-error }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@c61feb5e700271684d8bf553f82c674d3254385c # main
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ matrix.node-version }}
           working-directory: ${{ inputs.working-directory }}
 
-      - uses: SocketDev/socket-registry/.github/actions/run-script@main
+      - uses: SocketDev/socket-registry/.github/actions/run-script@c61feb5e700271684d8bf553f82c674d3254385c # main
         with:
           main-script: ${{ inputs.test-script }}
           setup-script: ${{ inputs.setup-script }}
           working-directory: ${{ inputs.working-directory }}
 
-      - uses: SocketDev/socket-registry/.github/actions/artifacts@main
+      - uses: SocketDev/socket-registry/.github/actions/artifacts@c61feb5e700271684d8bf553f82c674d3254385c # main
         if: inputs.upload-artifacts
         with:
           name: test-results-${{ matrix.os }}-node-${{ matrix.node-version }}

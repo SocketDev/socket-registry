@@ -7,9 +7,9 @@ name: ⚡ CI Pipeline
 #   - SocketDev/socket-registry/.github/workflows/lint.yml
 #   - SocketDev/socket-registry/.github/workflows/types.yml
 #   - SocketDev/socket-registry/.github/workflows/test.yml
-#   - SocketDev/socket-registry/.github/actions/setup-and-install@main
-#   - actions/checkout (SHA-pinned)
-#   - actions/upload-artifact (SHA-pinned)
+#   - SocketDev/socket-registry/.github/actions/setup-and-install
+#   - actions/checkout@v5.0.0
+#   - actions/upload-artifact@v4.4.0
 
 on:
   workflow_call:
@@ -161,7 +161,7 @@ jobs:
   lint:
     if: inputs.run-lint
     name: 🧹 Lint Check
-    uses: SocketDev/socket-registry/.github/workflows/lint.yml@main
+    uses: SocketDev/socket-registry/.github/workflows/lint.yml@c61feb5e700271684d8bf553f82c674d3254385c # main
     with:
       debug: ${{ inputs.debug }}
       lint-script: ${{ inputs.lint-script }}
@@ -173,7 +173,7 @@ jobs:
   type-check:
     if: inputs.run-type-check
     name: 🔍 Type Check
-    uses: SocketDev/socket-registry/.github/workflows/types.yml@main
+    uses: SocketDev/socket-registry/.github/workflows/types.yml@c61feb5e700271684d8bf553f82c674d3254385c # main
     with:
       debug: ${{ inputs.debug }}
       node-version: ${{ inputs.type-check-node-version }}
@@ -185,7 +185,7 @@ jobs:
   test:
     if: inputs.run-test
     name: 🧪 Test Matrix
-    uses: SocketDev/socket-registry/.github/workflows/test.yml@main
+    uses: SocketDev/socket-registry/.github/workflows/test.yml@c61feb5e700271684d8bf553f82c674d3254385c # main
     with:
       debug: ${{ inputs.debug }}
       fail-fast: ${{ inputs.fail-fast }}
@@ -205,7 +205,7 @@ jobs:
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@c61feb5e700271684d8bf553f82c674d3254385c # main
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.type-check-node-version }}
