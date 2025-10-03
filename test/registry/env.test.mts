@@ -143,5 +143,12 @@ describe('env module', () => {
       expect(envAsBoolean('yes')).toBe(false)
       expect(envAsBoolean('on')).toBe(false)
     })
+
+    it('should handle non-string, non-null values', () => {
+      expect(envAsBoolean(1)).toBe(true)
+      expect(envAsBoolean(0)).toBe(false)
+      expect(envAsBoolean({})).toBe(true)
+      expect(envAsBoolean([])).toBe(true)
+    })
   })
 })
