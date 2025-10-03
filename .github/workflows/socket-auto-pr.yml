@@ -1,7 +1,7 @@
 name: ⚡ Socket Fix Auto Pull Request
 
 # Dependencies:
-#   - SocketDev/socket-registry/.github/actions/setup-and-install@main
+#   - SocketDev/socket-registry/.github/actions/setup-and-install
 
 # Recommended schedule for calling workflows:
 # schedule:
@@ -66,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@c61feb5e700271684d8bf553f82c674d3254385c # main
         with:
           node-version: ${{ inputs.node-version }}
           debug: ${{ inputs.debug }}
