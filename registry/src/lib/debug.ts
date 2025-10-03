@@ -165,8 +165,7 @@ function debugDirNs(namespacesOrOpts: any, obj: any, inspectOpts?: any) {
     const debugJs = getDebugJs()
     inspectOpts = debugJs.inspectOpts
   }
-  const { spinner = /*@__PURE__*/ require('./constants/spinner.js').default } =
-    options
+  const { spinner = /*@__PURE__*/ require('./constants/spinner.js') } = options
   const wasSpinning = spinner.isSpinning
   spinner.stop()
   const { logger } = /*@__PURE__*/ require('./logger.js')
@@ -240,8 +239,7 @@ function debugFnNs(namespacesOrOpts: NamespacesOrOptions, ...args: any[]) {
           ...args.slice(1),
         ]
       : args
-  const { spinner = /*@__PURE__*/ require('./constants/spinner.js').default } =
-    options
+  const { spinner = /*@__PURE__*/ require('./constants/spinner.js') } = options
   const wasSpinning = spinner.isSpinning
   spinner.stop()
   const { logger } = /*@__PURE__*/ require('./logger.js')
@@ -263,8 +261,7 @@ function debugLogNs(namespacesOrOpts: any, ...args: any[]) {
   if (!isEnabled(namespaces)) {
     return
   }
-  const { spinner = /*@__PURE__*/ require('./constants/spinner.js').default } =
-    options
+  const { spinner = /*@__PURE__*/ require('./constants/spinner.js') } = options
   const wasSpinning = spinner.isSpinning
   spinner.stop()
   ReflectApply(customLog, undefined, args)
