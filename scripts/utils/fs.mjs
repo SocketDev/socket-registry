@@ -7,11 +7,12 @@
  * implements minimal local versions of required functionality.
  */
 
-import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 
-import trash from 'trash'
+import trashBin from 'trash'
+
+import { remove } from '../../registry/dist/lib/fs.js'
 
 // CI detection without registry dist dependency.
 const IS_CI = Object.hasOwn(process.env, 'CI')
@@ -42,11 +43,11 @@ function isTempPath(targetPath) {
 }
 
 /**
- * Safely remove files/directories using trash, with fallback to fs.rm.
- * In CI environments, skips trash for performance. For temp directories,
- * silently ignores failures since system cleanup will handle them.
+ * Remove files/directories using trash bin with safe fallback.
+ * In CI environments, skips trash for performance and uses safe `remove` (del).
+ * For temp directories, silently ignores failures since system cleanup will handle them.
  */
-async function safeRemove(paths, options) {
+async function trash(paths, options) {
   const pathArray = Array.isArray(paths) ? paths : [paths]
   if (pathArray.length === 0) {
     return
@@ -59,12 +60,12 @@ async function safeRemove(paths, options) {
     ...otherOptions
   } = { __proto__: null, ...options }
 
-  // In CI, skip trash for performance - go directly to fs.rm.
+  // In CI, skip trash for performance - use safe remove (del) directly.
   if (IS_CI) {
     for (const p of pathArray) {
       try {
         // eslint-disable-next-line no-await-in-loop
-        await fs.rm(p, { force, recursive, ...otherOptions })
+        await remove(p, { force, recursive, ...otherOptions })
       } catch (rmError) {
         // Silently ignore failures for temp paths - system will clean them.
         if (!isTempPath(p) && spinner && rmError.code !== 'ENOENT') {
@@ -75,15 +76,15 @@ async function safeRemove(paths, options) {
     return
   }
 
-  // Non-CI: try trash first for safety.
+  // Non-CI: try trash bin first for safety.
   try {
-    await trash(pathArray)
+    await trashBin(pathArray)
   } catch {
-    // Trash failed, fallback to fs.rm.
+    // Trash failed, fallback to safe remove (del).
     for (const p of pathArray) {
       try {
         // eslint-disable-next-line no-await-in-loop
-        await fs.rm(p, { force, recursive, ...otherOptions })
+        await remove(p, { force, recursive, ...otherOptions })
       } catch (rmError) {
         // Silently ignore failures for temp paths - system will clean them.
         if (!isTempPath(p) && spinner && rmError.code !== 'ENOENT') {
@@ -94,4 +95,4 @@ async function safeRemove(paths, options) {
   }
 }
 
-export { safeRemove }
+export { trash }

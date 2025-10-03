@@ -82,7 +82,7 @@ import { parseArgs } from '../registry/dist/lib/parse-args.js'
 
 import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
 import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
-import { safeRemove } from './utils/fs.mjs'
+import { trash } from './utils/fs.mjs'
 import { filterPackagesByChanges } from './utils/git.mjs'
 import {
   PNPM_HOISTED_INSTALL_FLAGS,
@@ -755,7 +755,7 @@ async function installPackage(packageInfo) {
 
           // Remove .npmignore if it exists, as it can also filter out test files.
           const npmignorePath = path.join(tempExtractDir, '.npmignore')
-          await safeRemove(npmignorePath).catch(() => {
+          await trash(npmignorePath).catch(() => {
             // File doesn't exist, ignore.
           })
 
@@ -797,7 +797,7 @@ async function installPackage(packageInfo) {
         )
         packageSpec = versionSpec
         // Clean up failed extraction directory.
-        await safeRemove(tempExtractDir).catch(() => {
+        await trash(tempExtractDir).catch(() => {
           // Ignore cleanup errors.
         })
       }
@@ -1093,7 +1093,7 @@ async function installPackage(packageInfo) {
     // Clean up temporary GitHub tarball extraction directory.
     if (modifiedPackagePath) {
       try {
-        await safeRemove(modifiedPackagePath)
+        await trash(modifiedPackagePath)
       } catch {
         // Ignore cleanup errors in error path.
       }
@@ -1157,7 +1157,7 @@ async function main() {
       logger.log(
         `Cleaning ${nodeModulesPaths.length} ${NODE_MODULES} from override packages`,
       )
-      await safeRemove(nodeModulesPaths)
+      await trash(nodeModulesPaths)
     }
   }
 

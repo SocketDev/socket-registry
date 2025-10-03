@@ -13,7 +13,7 @@ const { parseArgs } = parseArgsModule
 const { logger } = loggerModule
 const { spawn } = spawnModule
 
-import { safeRemove } from '../utils/fs.mjs'
+import { trash } from '../utils/fs.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -297,7 +297,7 @@ async function main() {
   } finally {
     if (tempDir && !cliArgs.keepTemp) {
       logger.info(`\nCleaning up temporary directory: ${tempDir}`)
-      await safeRemove(tempDir)
+      await trash(tempDir)
     } else if (tempDir && cliArgs.keepTemp) {
       logger.info(`\nTemporary directory preserved: ${tempDir}`)
     }

@@ -1,7 +1,7 @@
 /**
  * @fileoverview Clean test cache directories for npm package tests.
  *
- * Note: This script cannot use safeRemove from scripts/utils/fs.mjs because
+ * Note: This script cannot use trash from scripts/utils/fs.mjs because
  * it depends on registry dist files which may not exist during clean operations.
  * Uses direct fs.rm instead to avoid circular dependency issues.
  */
