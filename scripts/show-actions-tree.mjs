@@ -4,10 +4,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import { logger } from '../registry/dist/lib/logger.js'
-
-const GITHUB_PATH = '.github'
-const WORKFLOWS_PATH = path.join(GITHUB_PATH, 'workflows')
-const ACTIONS_PATH = path.join(GITHUB_PATH, 'actions')
+import constants from './constants.mjs'
 
 /**
  * Extract structured dependency information from a workflow or action file.
@@ -93,7 +90,9 @@ async function main() {
   const dependencyTree = new Map()
 
   // Process workflow files.
-  const workflowFiles = await getAllYamlFiles(WORKFLOWS_PATH)
+  const workflowFiles = await getAllYamlFiles(
+    constants.rootDotGithubWorkflowsPath,
+  )
   for (const file of workflowFiles) {
     // eslint-disable-next-line no-await-in-loop
     const { flat, structured } = await extractDependenciesWithStructure(file)
@@ -107,10 +106,16 @@ async function main() {
   }
 
   // Process action files.
-  const actionDirs = await fs.readdir(ACTIONS_PATH, { withFileTypes: true })
+  const actionDirs = await fs.readdir(constants.rootDotGithubActionsPath, {
+    withFileTypes: true,
+  })
   for (const dir of actionDirs) {
     if (dir.isDirectory()) {
-      const actionFile = path.join(ACTIONS_PATH, dir.name, 'action.yml')
+      const actionFile = path.join(
+        constants.rootDotGithubActionsPath,
+        dir.name,
+        'action.yml',
+      )
       try {
         const { flat, structured } =
           // eslint-disable-next-line no-await-in-loop

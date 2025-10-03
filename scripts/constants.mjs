@@ -17,6 +17,7 @@ import { createConstantsObject } from '../registry/dist/lib/objects.js'
 const require = createRequire(import.meta.url)
 
 const {
+  DOT_GITHUB,
   ESLINT_CONFIG_JS,
   GITIGNORE,
   LICENSE,
@@ -106,6 +107,19 @@ const lazyPerfNpmPath = () => path.join(constants.rootPath, `perf/${NPM}`)
 
 const lazyPerfNpmFixturesPath = () =>
   path.join(constants.perfNpmPath, 'fixtures')
+
+const lazyRootCachePath = () => path.join(constants.rootPath, '.cache')
+
+const lazyRootDotGithubPath = () => path.join(constants.rootPath, DOT_GITHUB)
+
+const lazyRootDotGithubActionsPath = () =>
+  path.join(constants.rootDotGithubPath, 'actions')
+
+const lazyRootDotGithubWorkflowsPath = () =>
+  path.join(constants.rootDotGithubPath, 'workflows')
+
+const lazyRootGithubCachePath = () =>
+  path.join(constants.rootCachePath, 'github')
 
 const lazyRootLicensePath = () => path.join(constants.rootPath, LICENSE)
 
@@ -293,6 +307,11 @@ const constants = createConstantsObject(
     relRegistryPkgPath: undefined,
     relTestNpmPath: undefined,
     relTestNpmNodeModulesPath: undefined,
+    rootCachePath: undefined,
+    rootDotGithubPath: undefined,
+    rootDotGithubActionsPath: undefined,
+    rootDotGithubWorkflowsPath: undefined,
+    rootGithubCachePath: undefined,
     rootEslintConfigPath: undefined,
     rootLicensePath: undefined,
     rootNodeModulesBinPath: undefined,
@@ -338,6 +357,11 @@ const constants = createConstantsObject(
       relRegistryPkgPath: lazyRelRegistryPkgPath,
       relTestNpmPath: lazyRelTestNpmPath,
       relTestNpmNodeModulesPath: lazyRelTestNpmNodeModulesPath,
+      rootCachePath: lazyRootCachePath,
+      rootDotGithubPath: lazyRootDotGithubPath,
+      rootDotGithubActionsPath: lazyRootDotGithubActionsPath,
+      rootDotGithubWorkflowsPath: lazyRootDotGithubWorkflowsPath,
+      rootGithubCachePath: lazyRootGithubCachePath,
       rootEslintConfigPath: lazyRootEslintConfigPath,
       rootLicensePath: lazyRootLicensePath,
       rootNodeModulesBinPath: lazyRootNodeModulesBinPath,
