@@ -97,19 +97,19 @@ jobs:
     timeout-minutes: ${{ inputs.timeout-minutes }}
     continue-on-error: ${{ inputs.continue-on-error }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@1f4ae0df40e5d4e506e9155db9c3c6a77864fdcc # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@662bbcab1b7533e24ba8e3446cffd8a7e5f7617e # main
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ matrix.node-version }}
           working-directory: ${{ inputs.working-directory }}
 
-      - uses: SocketDev/socket-registry/.github/actions/run-script@1f4ae0df40e5d4e506e9155db9c3c6a77864fdcc # main
+      - uses: SocketDev/socket-registry/.github/actions/run-script@662bbcab1b7533e24ba8e3446cffd8a7e5f7617e # main
         with:
           main-script: ${{ inputs.test-script }}
           setup-script: ${{ inputs.setup-script }}
           working-directory: ${{ inputs.working-directory }}
 
-      - uses: SocketDev/socket-registry/.github/actions/artifacts@1f4ae0df40e5d4e506e9155db9c3c6a77864fdcc # main
+      - uses: SocketDev/socket-registry/.github/actions/artifacts@662bbcab1b7533e24ba8e3446cffd8a7e5f7617e # main
         if: inputs.upload-artifacts
         with:
           name: test-results-${{ matrix.os }}-node-${{ matrix.node-version }}
