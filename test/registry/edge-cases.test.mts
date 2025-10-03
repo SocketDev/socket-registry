@@ -13,8 +13,8 @@ const pFilterPredicate = async (value: number) => {
   return value % 2 === 0
 }
 
-// Additional tests for maximum coverage
-describe('additional coverage tests', () => {
+// Edge case tests for various modules
+describe('edge case tests', () => {
   describe('fs module extended tests', () => {
     const fsUtils = require('../../registry/dist/lib/fs')
     let tmpDir: string
