@@ -9,7 +9,7 @@ import {
   getGlobMatcher,
   globStreamLicenses,
 } from '../../registry/dist/lib/globs.js'
-import { safeRemove } from '../../scripts/utils/fs.mjs'
+import { trash } from '../../scripts/utils/fs.mjs'
 
 describe('glob utilities', () => {
   let tmpDir: string
@@ -20,7 +20,7 @@ describe('glob utilities', () => {
   })
 
   afterEach(async () => {
-    await safeRemove(tmpDir)
+    await trash(tmpDir)
   })
 
   describe('defaultIgnore', () => {

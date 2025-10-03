@@ -27,7 +27,7 @@ import {
   writeJson,
   writeJsonSync,
 } from '../../registry/dist/lib/fs.js'
-import { safeRemove } from '../../scripts/utils/fs.mjs'
+import { trash } from '../../scripts/utils/fs.mjs'
 
 describe('fs module', () => {
   let tmpDir: string
@@ -41,7 +41,7 @@ describe('fs module', () => {
   })
 
   afterEach(async () => {
-    await safeRemove(tmpDir)
+    await trash(tmpDir)
   })
 
   describe('isDirSync', () => {

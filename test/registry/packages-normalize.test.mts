@@ -12,7 +12,7 @@ import {
   resolveOriginalPackageName,
   resolvePackageJsonPath,
 } from '../../registry/dist/lib/packages.js'
-import { safeRemove } from '../../scripts/utils/fs.mjs'
+import { trash } from '../../scripts/utils/fs.mjs'
 
 describe('packages normalization and reading', () => {
   describe('normalizePackageJson', () => {
@@ -66,7 +66,7 @@ describe('packages normalization and reading', () => {
         expect(result!.name).toBe('test')
         expect(result!.version).toBe('1.0.0')
       } finally {
-        await safeRemove(tmpDir)
+        await trash(tmpDir)
       }
     })
 
@@ -82,7 +82,7 @@ describe('packages normalization and reading', () => {
         } as any)
         expect(result!.name).toBe('test')
       } finally {
-        await safeRemove(tmpDir)
+        await trash(tmpDir)
       }
     })
   })
@@ -99,7 +99,7 @@ describe('packages normalization and reading', () => {
         expect(result!.name).toBe('test')
         expect(result!.version).toBe('1.0.0')
       } finally {
-        await safeRemove(tmpDir)
+        await trash(tmpDir)
       }
     })
 
@@ -116,7 +116,7 @@ describe('packages normalization and reading', () => {
         })
         expect(result!.name).toBe('test')
       } finally {
-        await safeRemove(tmpDir)
+        await trash(tmpDir)
       }
     })
   })
@@ -132,7 +132,7 @@ describe('packages normalization and reading', () => {
         const resolvedPath = resolvePackageJsonPath(tmpDir)
         expect(resolvedPath).toBe(pkgPath)
       } finally {
-        await safeRemove(tmpDir)
+        await trash(tmpDir)
       }
     })
 
@@ -146,7 +146,7 @@ describe('packages normalization and reading', () => {
         const resolvedPath = resolvePackageJsonPath(pkgPath)
         expect(resolvedPath).toBe(pkgPath)
       } finally {
-        await safeRemove(tmpDir)
+        await trash(tmpDir)
       }
     })
   })
