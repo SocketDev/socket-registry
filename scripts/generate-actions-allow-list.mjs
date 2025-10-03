@@ -152,15 +152,6 @@ async function main() {
     allowListActions.map(action => `${indent}${action}`).join(',\n') + ','
   logger.log(allowList)
 
-  if (!useExactSha) {
-    logger.log('')
-    logger.log('## Specific SHAs Used (for reference):')
-    logger.log('')
-    const specificList =
-      allActions.map(action => `${indent}${action}`).join(',\n') + ','
-    logger.log(specificList)
-  }
-
   logger.log('')
   logger.info(`Total: ${allActions.length} actions/workflows`)
   logger.log('')
@@ -180,8 +171,11 @@ async function main() {
     console.log(
       '💡 Tip: Run `pnpm run generate:actions-allow-list --copy` to copy the allow list to clipboard',
     )
+  }
+
+  if (!useExactSha) {
     console.log(
-      '💡 Tip: Add `--exact` flag to use exact SHAs instead of version wildcards',
+      '💡 Tip: Add `--exact` flag to generate list with exact commit SHAs instead of version wildcards',
     )
   }
 }
