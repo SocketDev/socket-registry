@@ -111,6 +111,18 @@ async function main() {
   socketDevActions.sort()
   externalActions.sort()
 
+  // Check if --exact flag was passed.
+  const useExactSha = process.argv.includes('--exact')
+
+  // Generate version wildcards or use exact SHAs.
+  const allActions = [...socketDevActions, ...externalActions]
+  const allowListActions = useExactSha
+    ? allActions
+    : allActions.map(action => {
+        const atIndex = action.indexOf('@')
+        return atIndex !== -1 ? `${action.slice(0, atIndex)}@*` : action
+      })
+
   // Generate the allow list.
   // Base indentation.
   const indent = '  '
@@ -131,13 +143,23 @@ async function main() {
     `${indent}5. In "Allow specified actions and reusable workflows", paste the list below:`,
   )
   logger.log('')
-  logger.log('## Allow List:')
+  logger.log(
+    `## Allow List${useExactSha ? ' (Exact SHAs)' : ' (Version Wildcards)'}:`,
+  )
   logger.log('')
 
-  const allActions = [...socketDevActions, ...externalActions]
   const allowList =
-    allActions.map(action => `${indent}${action}`).join(',\n') + ','
+    allowListActions.map(action => `${indent}${action}`).join(',\n') + ','
   logger.log(allowList)
+
+  if (!useExactSha) {
+    logger.log('')
+    logger.log('## Specific SHAs Used (for reference):')
+    logger.log('')
+    const specificList =
+      allActions.map(action => `${indent}${action}`).join(',\n') + ','
+    logger.log(specificList)
+  }
 
   logger.log('')
   logger.info(`Total: ${allActions.length} actions/workflows`)
@@ -150,13 +172,16 @@ async function main() {
   if (process.argv.includes('--copy')) {
     try {
       // Copy the non-indented version for easier pasting.
-      const clipboardList = allActions.join(',\n') + ','
+      const clipboardList = allowListActions.join(',\n') + ','
       clipboardy.writeSync(clipboardList)
       logger.success('Allow list copied to clipboard!')
     } catch {}
   } else {
     console.log(
       '💡 Tip: Run `pnpm run generate:actions-allow-list --copy` to copy the allow list to clipboard',
+    )
+    console.log(
+      '💡 Tip: Add `--exact` flag to use exact SHAs instead of version wildcards',
     )
   }
 }
