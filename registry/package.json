@@ -155,6 +155,10 @@
       "types": "./dist/lib/constants/DARWIN.d.ts",
       "default": "./dist/lib/constants/DARWIN.js"
     },
+    "./lib/constants/DLX_BINARY_CACHE_TTL": {
+      "types": "./dist/lib/constants/DLX_BINARY_CACHE_TTL.d.ts",
+      "default": "./dist/lib/constants/DLX_BINARY_CACHE_TTL.js"
+    },
     "./lib/constants/DOT_GIT_DIR": {
       "types": "./dist/lib/constants/DOT_GIT_DIR.d.ts",
       "default": "./dist/lib/constants/DOT_GIT_DIR.js"
@@ -699,6 +703,10 @@
       "types": "./dist/lib/constants/copy-left-licenses.d.ts",
       "default": "./dist/lib/constants/copy-left-licenses.js"
     },
+    "./lib/constants/dlx-binary-cache-ttl": {
+      "types": "./dist/lib/constants/DLX_BINARY_CACHE_TTL.d.ts",
+      "default": "./dist/lib/constants/DLX_BINARY_CACHE_TTL.js"
+    },
     "./lib/constants/dot-git-dir": {
       "types": "./dist/lib/constants/DOT_GIT_DIR.d.ts",
       "default": "./dist/lib/constants/DOT_GIT_DIR.js"
@@ -1139,6 +1147,10 @@
       "types": "./dist/lib/bin.d.ts",
       "default": "./dist/lib/bin.js"
     },
+    "./lib/cacache": {
+      "types": "./dist/lib/cacache.d.ts",
+      "default": "./dist/lib/cacache.js"
+    },
     "./lib/constants": {
       "types": "./dist/lib/constants/index.d.ts",
       "default": "./dist/lib/constants/index.js"
@@ -1146,6 +1158,14 @@
     "./lib/debug": {
       "types": "./dist/lib/debug.d.ts",
       "default": "./dist/lib/debug.js"
+    },
+    "./lib/dlx": {
+      "types": "./dist/lib/dlx.d.ts",
+      "default": "./dist/lib/dlx.js"
+    },
+    "./lib/dlx-binary": {
+      "types": "./dist/lib/dlx-binary.d.ts",
+      "default": "./dist/lib/dlx-binary.js"
     },
     "./lib/env": {
       "types": "./dist/lib/env.d.ts",
@@ -1211,6 +1231,18 @@
       "types": "./dist/lib/regexps.d.ts",
       "default": "./dist/lib/regexps.js"
     },
+    "./lib/sea": {
+      "types": "./dist/lib/sea.d.ts",
+      "default": "./dist/lib/sea.js"
+    },
+    "./lib/sea-build": {
+      "types": "./dist/lib/sea-build.d.ts",
+      "default": "./dist/lib/sea-build.js"
+    },
+    "./lib/shadow": {
+      "types": "./dist/lib/shadow.d.ts",
+      "default": "./dist/lib/shadow.js"
+    },
     "./lib/signal-exit": {
       "types": "./dist/lib/signal-exit.d.ts",
       "default": "./dist/lib/signal-exit.js"
@@ -1235,9 +1267,17 @@
       "types": "./dist/lib/strings.d.ts",
       "default": "./dist/lib/strings.js"
     },
+    "./lib/temporary-executor": {
+      "types": "./dist/lib/temporary-executor.d.ts",
+      "default": "./dist/lib/temporary-executor.js"
+    },
     "./lib/url": {
       "types": "./dist/lib/url.d.ts",
       "default": "./dist/lib/url.js"
+    },
+    "./lib/versions": {
+      "types": "./dist/lib/versions.d.ts",
+      "default": "./dist/lib/versions.js"
     },
     "./lib/words": {
       "types": "./dist/lib/words.d.ts",
@@ -1286,7 +1326,7 @@
     "@rollup/plugin-node-resolve": "16.0.1",
     "@rollup/plugin-replace": "6.0.2",
     "@socketregistry/is-unicode-supported": "1.0.5",
-    "@socketregistry/packageurl-js": "1.1.4",
+    "@socketregistry/packageurl-js": "1.1.6",
     "@socketregistry/yocto-spinner": "1.0.24",
     "@types/babel__traverse": "7.28.0",
     "@types/cacache": "19.0.0",
