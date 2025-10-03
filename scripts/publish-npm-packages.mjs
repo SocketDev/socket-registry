@@ -32,6 +32,9 @@ const { values: cliArgs } = parseArgs({
       type: 'boolean',
       short: 'f',
     },
+    'force-publish': {
+      type: 'boolean',
+    },
     quiet: {
       type: 'boolean',
     },
@@ -105,14 +108,11 @@ async function findVersionBumpCommits() {
     const message = match[2]
 
     // Skip non-package bump commits (like dependency bumps).
-    // Accept "registry" or "registery" (typo), "packages", or "Bump to v" format.
-    // The regex /registe?ry/ makes the 'e' after 'regist' optional to detect both
-    // "registry package" and "registery package" (typo in commit 64537906).
-    if (
-      !/registe?ry package/.test(message) &&
-      !message.includes('packages') &&
-      !/^Bump to v/.test(message)
-    ) {
+    // Only accept specific version bump patterns:
+    // - "Bump to v<version>" (general format)
+    // - "Bump <pkgname> to v<version>"
+    // Exclude generic "Update" or "Bump" messages without "to v".
+    if (!/^Bump (?:.+ )?to v/.test(message)) {
       continue
     }
 
@@ -485,6 +485,14 @@ async function main() {
   const originalSha = await getCommitSha('HEAD')
 
   try {
+    // If --force-publish is set, skip commit detection and publish at HEAD.
+    if (cliArgs['force-publish']) {
+      logger.log('Force publish mode: skipping commit detection')
+      const headSha = await getCommitSha('HEAD')
+      await publishAtCommit(headSha)
+      return
+    }
+
     // Find all version bump commits.
     const bumpCommits = await findVersionBumpCommits()
 
