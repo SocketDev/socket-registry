@@ -387,7 +387,7 @@ describe('fs module', () => {
     it('should return same path if not exists', () => {
       const uniquePath = path.join(tmpDir, 'unique.txt')
       const result = uniqueSync(uniquePath)
-      expect(result).toBe(uniquePath)
+      expect(result).toBe(normalizePath(uniquePath))
     })
 
     it('should add number suffix for existing files', () => {
