@@ -66,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@43a668e122085d8b5836884e47ee940642216388 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@0782233ce8463a0b0eca22262905563b9bd4a919 # main
         with:
           node-version: ${{ inputs.node-version }}
           debug: ${{ inputs.debug }}
