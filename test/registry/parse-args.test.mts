@@ -342,4 +342,53 @@ describe('parse-args module', () => {
       expect(typeof result.values['port']).toBe('number')
     })
   })
+
+  describe('camelCase conversion', () => {
+    it('should convert kebab-case options to camelCase', () => {
+      const result = parseArgs({
+        args: ['--temp-dir', '/tmp/test'],
+        options: {
+          'temp-dir': { type: 'string' },
+        },
+      })
+      expect(result.values['temp-dir']).toBe('/tmp/test')
+      expect(result.values['tempDir']).toBe('/tmp/test')
+    })
+
+    it('should convert multi-segment kebab-case to camelCase', () => {
+      const result = parseArgs({
+        args: ['--download-concurrency', '10'],
+        options: {
+          'download-concurrency': { type: 'string' },
+        },
+      })
+      expect(result.values['download-concurrency']).toBe('10')
+      expect(result.values['downloadConcurrency']).toBe('10')
+    })
+
+    it('should handle boolean kebab-case options', () => {
+      const result = parseArgs({
+        args: ['--clear-cache'],
+        options: {
+          'clear-cache': { type: 'boolean' },
+        },
+      })
+      expect(result.values['clear-cache']).toBe(true)
+      expect(result.values['clearCache']).toBe(true)
+    })
+
+    it('should handle multiple kebab-case options', () => {
+      const result = parseArgs({
+        args: ['--temp-dir', '/tmp', '--clear-cache', '--download-only'],
+        options: {
+          'temp-dir': { type: 'string' },
+          'clear-cache': { type: 'boolean' },
+          'download-only': { type: 'boolean' },
+        },
+      })
+      expect(result.values['tempDir']).toBe('/tmp')
+      expect(result.values['clearCache']).toBe(true)
+      expect(result.values['downloadOnly']).toBe(true)
+    })
+  })
 })
