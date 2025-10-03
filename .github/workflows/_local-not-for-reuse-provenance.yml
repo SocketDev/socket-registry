@@ -14,6 +14,11 @@ on:
         options:
           - '0'
           - '1'
+      force-publish:
+        description: 'Force publish without commit checks'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -24,6 +29,7 @@ jobs:
     uses: SocketDev/socket-registry/.github/workflows/provenance.yml@662bbcab1b7533e24ba8e3446cffd8a7e5f7617e # main
     with:
       debug: ${{ inputs.debug }}
+      force-publish: ${{ inputs.force-publish }}
       publish-script: 'package:npm:publish'
       setup-script: 'pnpm run build'
       use-trusted-publishing: true
