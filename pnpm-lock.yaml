@@ -608,8 +608,8 @@ importers:
   perf/npm:
     devDependencies:
       '@socketregistry/json-stable-stringify':
-        specifier: ^1.0.12
-        version: 1.0.12
+        specifier: ^1.0.13
+        version: 1.0.13
       '@socketregistry/scripts':
         specifier: file:../../scripts
         version: scripts@file:scripts
@@ -704,8 +704,8 @@ importers:
         specifier: 1.1.4
         version: 1.1.4
       '@socketregistry/yocto-spinner':
-        specifier: 1.0.23
-        version: 1.0.23
+        specifier: 1.0.24
+        version: 1.0.24
       '@types/babel__traverse':
         specifier: 7.28.0
         version: 7.28.0
@@ -1798,16 +1798,16 @@ packages:
     resolution: {integrity: sha512-nDx2F54qKrO5MOm97qEtRwWTjpVejNfUTZBzvwxvdp6RL3HgxSFpuxRO2idExtANItrE3FuQjBItfY3yqunTGQ==}
     engines: {node: '>=18'}
 
-  '@socketregistry/es-set-tostringtag@1.0.9':
-    resolution: {integrity: sha512-rLBDHYkhI3so1NSinOhIhmxQ53aG0SPht2KMfBLTNuanrfVgMQOusu+s0UkP5+lI4242yHaqYAbRyAEK820/Gg==}
+  '@socketregistry/es-set-tostringtag@1.0.10':
+    resolution: {integrity: sha512-btXmvw1JpA8WtSoXx9mTapo9NAyIDKRRzK84i48d8zc0X09M6ORfobVnHbgwhXf7CFhkRzhYrHG9dqbI9vpELQ==}
     engines: {node: '>=18'}
 
   '@socketregistry/hasown@1.0.7':
     resolution: {integrity: sha512-MZ5dyXOtiEc7q3801T+2EmKkxrd55BOSQnG8z/8/IkIJzDxqBxGGBKVyixqFm3W657TyUEBfIT9iWgSB6ipFsA==}
     engines: {node: '>=18'}
 
-  '@socketregistry/indent-string@1.0.13':
-    resolution: {integrity: sha512-h8MfBgjoPFiRYp60S9qzQJrmNIE/jAnqrjWZRGnHeKmpBH5M3DTwblrPG3hqxlu9IDtiu7H9NDvDGfFcM7dirw==}
+  '@socketregistry/indent-string@1.0.14':
+    resolution: {integrity: sha512-SCb2h+KkZppDEDyzZheazziUpJQVeCpEMQxSiTn4VMbVkGgvpNVAWQyx3IniSzwiSJpASmwTRTlhiYk6AR19bw==}
     engines: {node: '>=18'}
 
   '@socketregistry/is-arguments@1.0.9':
@@ -1818,16 +1818,16 @@ packages:
     resolution: {integrity: sha512-RBwuX+F49ZAaRy9lh8q1g+2VV9nU2Iup4pdQMupipk9a1oAub25cyR0qFFBuUGmqpAReYjMuEhtm7O3YumMFmg==}
     engines: {node: '>=18'}
 
-  '@socketregistry/is-core-module@1.0.10':
-    resolution: {integrity: sha512-N73WwnrbE+DA66skarYxgAq+FyR+ORhN7T6jwYNteKdUbmdPJxX6jqmG82R4eGlrBa3+WKzi9KYXCButbIeDlw==}
+  '@socketregistry/is-core-module@1.0.11':
+    resolution: {integrity: sha512-obrSzvIfJXKQthA3u1RmkjLHuA1QDtLm0SbXJxGs2CQfXZY9Eql5/pBGSV1hIUWKcpdcNphFgnJMC5BITcTXsQ==}
     engines: {node: '>=18'}
 
   '@socketregistry/is-date-object@1.0.9':
     resolution: {integrity: sha512-yRwUbx4lj1Dune2basyPjDkvYc6yLC3jzP6yCm06yG0ZYdh+MMluaEuIY5u4oa0YnlOiOHXTIMn+D4wv0jWffg==}
     engines: {node: '>=18'}
 
-  '@socketregistry/is-generator-function@1.0.9':
-    resolution: {integrity: sha512-JmbbfDzqdQB6wrram418P46ustUx2pEmdcHZSs3weRI0aNyyB9+qs3kdTJeI0Ubs3pSZT2LylVmSa18uYC5X2Q==}
+  '@socketregistry/is-generator-function@1.0.10':
+    resolution: {integrity: sha512-cvsJKS1X87HYytlHr/emRFhOQGo7CQWZEWQkDmYeMfDcA2lO7eZQisvny6ddzSHKq89aS4PBKT91kFqvlmJqQQ==}
     engines: {node: '>=18'}
 
   '@socketregistry/is-nan@1.0.7':
@@ -1842,8 +1842,8 @@ packages:
     resolution: {integrity: sha512-3W7rz56yNxZFGuhAFZzB9aEj4YcCU4QeKLgBKfsUrlCT/LfhwgNfUZcck4Bx4Di9Sme6rXuZfuY2lMXrD2A3Xw==}
     engines: {node: '>=18'}
 
-  '@socketregistry/is-typed-array@1.0.11':
-    resolution: {integrity: sha512-XGW8dqh1KN8fXzzmzSJBlNfPvSflMSHBJ4LF7dQKxFhGr9T/RRwbUpC6VdkiGGOKMxmQ8WKpNPmw4Y64KMPf/A==}
+  '@socketregistry/is-typed-array@1.0.12':
+    resolution: {integrity: sha512-IGU9k0CJAueU+Y8bcFT5HJ5inh+XmTe89scuaHAs3WLFpJgrCn2FCaYZ98S1iBltH0SRIupDiiZQyVC5C/YDjA==}
     engines: {node: '>=18'}
 
   '@socketregistry/is-unicode-supported@1.0.5':
@@ -1856,6 +1856,10 @@ packages:
 
   '@socketregistry/json-stable-stringify@1.0.12':
     resolution: {integrity: sha512-ovensfkKsWS6AdMg7IqWNVoVW/HXzAuq8b5MNRaLE9us/Iad+A8G6PVRrxoHVHbxflSDUSkbWBPXymO5oLUdGA==}
+    engines: {node: '>=18'}
+
+  '@socketregistry/json-stable-stringify@1.0.13':
+    resolution: {integrity: sha512-sUsRuanSm/lR0Ugx9DYxRgZyUXpoAF8FWoPq9+mJwZQLn/9ce8OD5HemPiGB0jl0emljyWL4F58zDSTdjZZm3g==}
     engines: {node: '>=18'}
 
   '@socketregistry/object-is@1.0.7':
@@ -1874,16 +1878,16 @@ packages:
     resolution: {integrity: sha512-x6z5IDUobW/fkPRM9JboWpUGhAOD95Y71xO+dpb2AeP43uqYewJWBQc3KQ8GilFmydq93ew1tzut9UUi6yEdfg==}
     engines: {node: '>=18'}
 
-  '@socketregistry/path-parse@1.0.7':
-    resolution: {integrity: sha512-Tql/7zg51KKCB+J0bGWQkff1J/8TxEYSM087XoHn3RHJ6X1nZQe/ugZ8bgUuoGmUOEphAdzbQvfaKIPgShBAcQ==}
+  '@socketregistry/path-parse@1.0.8':
+    resolution: {integrity: sha512-9dcT4Vj4TY6BsU7hd3sEemoaA8OEGUutK2ufNdP+qKOljcH0xy/5+WnbEZ1RLEJcSKDnpZ3T47mVdq/ZWiGNxw==}
     engines: {node: '>=18'}
 
   '@socketregistry/regexp.prototype.flags@1.0.7':
     resolution: {integrity: sha512-Z0ooUAwgizXPRID26ETeDo1PLStkebPjOko7v+OHTsR5HvAA6YlopklvI259c5+xBLb+z0elDogAO2mRzMkS8g==}
     engines: {node: '>=18'}
 
-  '@socketregistry/safer-buffer@1.0.9':
-    resolution: {integrity: sha512-njtALAmZzUbbgW2vMOz0DoMUmy/o+dKYt8t8nvp79TX8IO1ZpP1+Nr3c6kXOAJy0E873jg/SAFi3FiGxHtBpgw==}
+  '@socketregistry/safer-buffer@1.0.10':
+    resolution: {integrity: sha512-jbEY37bJn51W9pP1pXxIoGcQbmbi9EQDtnXfWBjGLNvKC1iEyNLOaGm8ee7dN7Z+KgJdQbrrDjjD3HbGeOFC4A==}
     engines: {node: '>=18'}
 
   '@socketregistry/side-channel@1.0.9':
@@ -1902,8 +1906,8 @@ packages:
     resolution: {integrity: sha512-cotlP5jrJOH6tnoTAyNouFr/iWm5OeYaaTma5OkhCuw/yrCfhBY+7AdGAbrwevyg8RP3D69v8V3vC5PSa3o0Rg==}
     engines: {node: '>=18'}
 
-  '@socketregistry/yocto-spinner@1.0.23':
-    resolution: {integrity: sha512-UvoipHT4PedbVaWdq42e5QJdb1I6FzOlc/Id2KtcPMGS259+MfLCamJhk8Prjktb2r39SYlkgdYgTJFUXC6xcw==}
+  '@socketregistry/yocto-spinner@1.0.24':
+    resolution: {integrity: sha512-tk6V86Bhrt3kk4AptVlGcvT+E3Uz83D0lT8/aYTYqaPT6+y6Vq1GCs/mqlbBBmH8caLofkajYyTbc3BbKa3yrQ==}
     engines: {node: '>=18'}
 
   '@stroncium/procfs@1.2.1':
@@ -5311,21 +5315,21 @@ snapshots:
 
   '@socketregistry/es-get-iterator@1.0.8': {}
 
-  '@socketregistry/es-set-tostringtag@1.0.9': {}
+  '@socketregistry/es-set-tostringtag@1.0.10': {}
 
   '@socketregistry/hasown@1.0.7': {}
 
-  '@socketregistry/indent-string@1.0.13': {}
+  '@socketregistry/indent-string@1.0.14': {}
 
   '@socketregistry/is-arguments@1.0.9': {}
 
   '@socketregistry/is-array-buffer@1.0.9': {}
 
-  '@socketregistry/is-core-module@1.0.10': {}
+  '@socketregistry/is-core-module@1.0.11': {}
 
   '@socketregistry/is-date-object@1.0.9': {}
 
-  '@socketregistry/is-generator-function@1.0.9': {}
+  '@socketregistry/is-generator-function@1.0.10': {}
 
   '@socketregistry/is-nan@1.0.7': {}
 
@@ -5333,13 +5337,15 @@ snapshots:
 
   '@socketregistry/is-shared-array-buffer@1.0.9': {}
 
-  '@socketregistry/is-typed-array@1.0.11': {}
+  '@socketregistry/is-typed-array@1.0.12': {}
 
   '@socketregistry/is-unicode-supported@1.0.5': {}
 
   '@socketregistry/isarray@1.0.7': {}
 
   '@socketregistry/json-stable-stringify@1.0.12': {}
+
+  '@socketregistry/json-stable-stringify@1.0.13': {}
 
   '@socketregistry/object-is@1.0.7': {}
 
@@ -5349,11 +5355,11 @@ snapshots:
 
   '@socketregistry/packageurl-js@1.1.4': {}
 
-  '@socketregistry/path-parse@1.0.7': {}
+  '@socketregistry/path-parse@1.0.8': {}
 
   '@socketregistry/regexp.prototype.flags@1.0.7': {}
 
-  '@socketregistry/safer-buffer@1.0.9':
+  '@socketregistry/safer-buffer@1.0.10':
     optional: true
 
   '@socketregistry/side-channel@1.0.9': {}
@@ -5364,7 +5370,7 @@ snapshots:
 
   '@socketregistry/which-typed-array@1.0.8': {}
 
-  '@socketregistry/yocto-spinner@1.0.23':
+  '@socketregistry/yocto-spinner@1.0.24':
     dependencies:
       yoctocolors-cjs: 2.1.3
 
@@ -6213,7 +6219,7 @@ snapshots:
       eslint: 9.35.0(jiti@2.6.0)
       esquery: 1.6.0
       globals: 15.15.0
-      indent-string: '@socketregistry/indent-string@1.0.13'
+      indent-string: '@socketregistry/indent-string@1.0.14'
       is-builtin-module: 3.2.1
       jsesc: 3.1.0
       pluralize: 8.0.0
@@ -6410,7 +6416,7 @@ snapshots:
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
-      es-set-tostringtag: '@socketregistry/es-set-tostringtag@1.0.9'
+      es-set-tostringtag: '@socketregistry/es-set-tostringtag@1.0.10'
       hasown: '@socketregistry/hasown@1.0.7'
       mime-types: 2.1.35
 
@@ -6546,7 +6552,7 @@ snapshots:
 
   iconv-lite@0.6.3(patch_hash=ace5bc78beaaed0e8584c45ef917f0204bd698f4516bc83e8996137854875f06):
     dependencies:
-      safer-buffer: '@socketregistry/safer-buffer@1.0.9'
+      safer-buffer: '@socketregistry/safer-buffer@1.0.10'
     optional: true
 
   ignore-walk@8.0.0:
@@ -7006,14 +7012,14 @@ snapshots:
   normalize-package-data@3.0.3:
     dependencies:
       hosted-git-info: 4.1.0
-      is-core-module: '@socketregistry/is-core-module@1.0.10'
+      is-core-module: '@socketregistry/is-core-module@1.0.11'
       semver: 7.7.2
       validate-npm-package-license: 3.0.4
 
   normalize-package-data@6.0.1:
     dependencies:
       hosted-git-info: 7.0.2
-      is-core-module: '@socketregistry/is-core-module@1.0.10'
+      is-core-module: '@socketregistry/is-core-module@1.0.11'
       semver: 7.7.2
       validate-npm-package-license: 3.0.4
 
@@ -7384,7 +7390,7 @@ snapshots:
 
   redent@4.0.0:
     dependencies:
-      indent-string: '@socketregistry/indent-string@1.0.13'
+      indent-string: '@socketregistry/indent-string@1.0.14'
       strip-indent: 4.1.0
 
   regexp-tree@0.1.27: {}
@@ -7401,8 +7407,8 @@ snapshots:
 
   resolve@1.22.10:
     dependencies:
-      is-core-module: '@socketregistry/is-core-module@1.0.10'
-      path-parse: '@socketregistry/path-parse@1.0.7'
+      is-core-module: '@socketregistry/is-core-module@1.0.11'
+      path-parse: '@socketregistry/path-parse@1.0.8'
       supports-preserve-symlinks-flag: 1.0.0
 
   restore-cursor@5.1.0:
@@ -7827,8 +7833,8 @@ snapshots:
     dependencies:
       inherits: 2.0.4
       is-arguments: '@socketregistry/is-arguments@1.0.9'
-      is-generator-function: '@socketregistry/is-generator-function@1.0.9'
-      is-typed-array: '@socketregistry/is-typed-array@1.0.11'
+      is-generator-function: '@socketregistry/is-generator-function@1.0.10'
+      is-typed-array: '@socketregistry/is-typed-array@1.0.12'
       which-typed-array: '@socketregistry/which-typed-array@1.0.8'
 
   v8-to-istanbul@9.3.0:

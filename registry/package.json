@@ -1,6 +1,6 @@
 {
   "name": "@socketsecurity/registry",
-  "version": "1.3.7",
+  "version": "1.3.8",
   "license": "MIT",
   "description": "Socket.dev registry helpers methods and metadata",
   "keywords": [
@@ -119,6 +119,22 @@
       "types": "./dist/lib/constants/BUN_LOCKB.d.ts",
       "default": "./dist/lib/constants/BUN_LOCKB.js"
     },
+    "./lib/constants/CACHE_DIR": {
+      "types": "./dist/lib/constants/CACHE_DIR.d.ts",
+      "default": "./dist/lib/constants/CACHE_DIR.js"
+    },
+    "./lib/constants/CACHE_GITHUB_DIR": {
+      "types": "./dist/lib/constants/CACHE_GITHUB_DIR.d.ts",
+      "default": "./dist/lib/constants/CACHE_GITHUB_DIR.js"
+    },
+    "./lib/constants/CACHE_SOCKET_API_DIR": {
+      "types": "./dist/lib/constants/CACHE_SOCKET_API_DIR.d.ts",
+      "default": "./dist/lib/constants/CACHE_SOCKET_API_DIR.js"
+    },
+    "./lib/constants/CACHE_TTL_DIR": {
+      "types": "./dist/lib/constants/CACHE_TTL_DIR.d.ts",
+      "default": "./dist/lib/constants/CACHE_TTL_DIR.js"
+    },
     "./lib/constants/CHANGELOG_MD": {
       "types": "./dist/lib/constants/CHANGELOG_MD.d.ts",
       "default": "./dist/lib/constants/CHANGELOG_MD.js"
@@ -142,6 +158,10 @@
     "./lib/constants/DOT_GIT_DIR": {
       "types": "./dist/lib/constants/DOT_GIT_DIR.d.ts",
       "default": "./dist/lib/constants/DOT_GIT_DIR.js"
+    },
+    "./lib/constants/DOT_GITHUB": {
+      "types": "./dist/lib/constants/DOT_GITHUB.d.ts",
+      "default": "./dist/lib/constants/DOT_GITHUB.js"
     },
     "./lib/constants/DOT_PACKAGE_LOCK_JSON": {
       "types": "./dist/lib/constants/DOT_PACKAGE_LOCK_JSON.d.ts",
@@ -463,6 +483,22 @@
       "types": "./dist/lib/constants/RESOLUTIONS.d.ts",
       "default": "./dist/lib/constants/RESOLUTIONS.js"
     },
+    "./lib/constants/SOCKET_APP_PREFIX": {
+      "types": "./dist/lib/constants/SOCKET_APP_PREFIX.d.ts",
+      "default": "./dist/lib/constants/SOCKET_APP_PREFIX.js"
+    },
+    "./lib/constants/SOCKET_CLI_APP_NAME": {
+      "types": "./dist/lib/constants/SOCKET_CLI_APP_NAME.d.ts",
+      "default": "./dist/lib/constants/SOCKET_CLI_APP_NAME.js"
+    },
+    "./lib/constants/SOCKET_DLX_APP_NAME": {
+      "types": "./dist/lib/constants/SOCKET_DLX_APP_NAME.d.ts",
+      "default": "./dist/lib/constants/SOCKET_DLX_APP_NAME.js"
+    },
+    "./lib/constants/SOCKET_FIREWALL_APP_NAME": {
+      "types": "./dist/lib/constants/SOCKET_FIREWALL_APP_NAME.d.ts",
+      "default": "./dist/lib/constants/SOCKET_FIREWALL_APP_NAME.js"
+    },
     "./lib/constants/SOCKET_GITHUB_ORG": {
       "types": "./dist/lib/constants/SOCKET_GITHUB_ORG.d.ts",
       "default": "./dist/lib/constants/SOCKET_GITHUB_ORG.js"
@@ -478,6 +514,10 @@
     "./lib/constants/SOCKET_PUBLIC_API_TOKEN": {
       "types": "./dist/lib/constants/SOCKET_PUBLIC_API_TOKEN.d.ts",
       "default": "./dist/lib/constants/SOCKET_PUBLIC_API_TOKEN.js"
+    },
+    "./lib/constants/SOCKET_REGISTRY_APP_NAME": {
+      "types": "./dist/lib/constants/SOCKET_REGISTRY_APP_NAME.d.ts",
+      "default": "./dist/lib/constants/SOCKET_REGISTRY_APP_NAME.js"
     },
     "./lib/constants/SOCKET_REGISTRY_NPM_ORG": {
       "types": "./dist/lib/constants/SOCKET_REGISTRY_NPM_ORG.d.ts",
@@ -631,6 +671,22 @@
       "types": "./dist/lib/constants/BUN_LOCKB.d.ts",
       "default": "./dist/lib/constants/BUN_LOCKB.js"
     },
+    "./lib/constants/cache-dir": {
+      "types": "./dist/lib/constants/CACHE_DIR.d.ts",
+      "default": "./dist/lib/constants/CACHE_DIR.js"
+    },
+    "./lib/constants/cache-github-dir": {
+      "types": "./dist/lib/constants/CACHE_GITHUB_DIR.d.ts",
+      "default": "./dist/lib/constants/CACHE_GITHUB_DIR.js"
+    },
+    "./lib/constants/cache-socket-api-dir": {
+      "types": "./dist/lib/constants/CACHE_SOCKET_API_DIR.d.ts",
+      "default": "./dist/lib/constants/CACHE_SOCKET_API_DIR.js"
+    },
+    "./lib/constants/cache-ttl-dir": {
+      "types": "./dist/lib/constants/CACHE_TTL_DIR.d.ts",
+      "default": "./dist/lib/constants/CACHE_TTL_DIR.js"
+    },
     "./lib/constants/changelog-md": {
       "types": "./dist/lib/constants/CHANGELOG_MD.d.ts",
       "default": "./dist/lib/constants/CHANGELOG_MD.js"
@@ -646,6 +702,10 @@
     "./lib/constants/dot-git-dir": {
       "types": "./dist/lib/constants/DOT_GIT_DIR.d.ts",
       "default": "./dist/lib/constants/DOT_GIT_DIR.js"
+    },
+    "./lib/constants/dot-github": {
+      "types": "./dist/lib/constants/DOT_GITHUB.d.ts",
+      "default": "./dist/lib/constants/DOT_GITHUB.js"
     },
     "./lib/constants/dot-package-lock-json": {
       "types": "./dist/lib/constants/DOT_PACKAGE_LOCK_JSON.d.ts",
@@ -923,6 +983,22 @@
       "types": "./dist/lib/constants/REGISTRY_SCOPE_DELIMITER.d.ts",
       "default": "./dist/lib/constants/REGISTRY_SCOPE_DELIMITER.js"
     },
+    "./lib/constants/socket-app-prefix": {
+      "types": "./dist/lib/constants/SOCKET_APP_PREFIX.d.ts",
+      "default": "./dist/lib/constants/SOCKET_APP_PREFIX.js"
+    },
+    "./lib/constants/socket-cli-app-name": {
+      "types": "./dist/lib/constants/SOCKET_CLI_APP_NAME.d.ts",
+      "default": "./dist/lib/constants/SOCKET_CLI_APP_NAME.js"
+    },
+    "./lib/constants/socket-dlx-app-name": {
+      "types": "./dist/lib/constants/SOCKET_DLX_APP_NAME.d.ts",
+      "default": "./dist/lib/constants/SOCKET_DLX_APP_NAME.js"
+    },
+    "./lib/constants/socket-firewall-app-name": {
+      "types": "./dist/lib/constants/SOCKET_FIREWALL_APP_NAME.d.ts",
+      "default": "./dist/lib/constants/SOCKET_FIREWALL_APP_NAME.js"
+    },
     "./lib/constants/socket-github-org": {
       "types": "./dist/lib/constants/SOCKET_GITHUB_ORG.d.ts",
       "default": "./dist/lib/constants/SOCKET_GITHUB_ORG.js"
@@ -938,6 +1014,10 @@
     "./lib/constants/socket-public-api-token": {
       "types": "./dist/lib/constants/SOCKET_PUBLIC_API_TOKEN.d.ts",
       "default": "./dist/lib/constants/SOCKET_PUBLIC_API_TOKEN.js"
+    },
+    "./lib/constants/socket-registry-app-name": {
+      "types": "./dist/lib/constants/SOCKET_REGISTRY_APP_NAME.d.ts",
+      "default": "./dist/lib/constants/SOCKET_REGISTRY_APP_NAME.js"
     },
     "./lib/constants/socket-registry-npm-org": {
       "types": "./dist/lib/constants/SOCKET_REGISTRY_NPM_ORG.d.ts",
@@ -1083,6 +1163,10 @@
       "types": "./dist/lib/git.d.ts",
       "default": "./dist/lib/git.js"
     },
+    "./lib/github": {
+      "types": "./dist/lib/github.d.ts",
+      "default": "./dist/lib/github.js"
+    },
     "./lib/globs": {
       "types": "./dist/lib/globs.d.ts",
       "default": "./dist/lib/globs.js"
@@ -1110,6 +1194,10 @@
     "./lib/path": {
       "types": "./dist/lib/path.d.ts",
       "default": "./dist/lib/path.js"
+    },
+    "./lib/paths": {
+      "types": "./dist/lib/paths.d.ts",
+      "default": "./dist/lib/paths.js"
     },
     "./lib/promises": {
       "types": "./dist/lib/promises.d.ts",
