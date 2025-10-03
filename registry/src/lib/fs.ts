@@ -557,34 +557,52 @@ export function readJsonSync(
 }
 
 /**
- * Remove a file or directory asynchronously.
+ * Remove a file or directory asynchronously with safety protections.
+ * Uses `del` for safer deletion that prevents removing cwd and above by default.
+ * @throws {Error} When attempting to delete protected paths without force option.
  */
 /*@__NO_SIDE_EFFECTS__*/
 export async function remove(
-  filepath: PathLike,
+  filepath: PathLike | PathLike[],
   options?: RemoveOptions | undefined,
 ) {
-  // Attempt to workaround occasional ENOTEMPTY errors in Windows.
-  // https://github.com/jprichardson/node-fs-extra/issues/532#issuecomment-1178360589
-  const fs = getFs()
-  await fs.promises.rm(filepath, {
-    ...defaultRemoveOptions,
-    ...options,
+  const del = /*@__PURE__*/ require('../external/del')
+  const { deleteAsync } = del
+  const opts = { __proto__: null, ...options } as RemoveOptions
+  const patterns = ArrayIsArray(filepath)
+    ? filepath.map(pathLikeToString)
+    : [pathLikeToString(filepath)]
+
+  await deleteAsync(patterns, {
+    concurrency: opts.maxRetries || defaultRemoveOptions.maxRetries,
+    dryRun: false,
+    force: opts.force !== false,
+    onlyFiles: false,
   })
 }
 
 /**
- * Remove a file or directory synchronously.
+ * Remove a file or directory synchronously with safety protections.
+ * Uses `del` for safer deletion that prevents removing cwd and above by default.
+ * @throws {Error} When attempting to delete protected paths without force option.
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function removeSync(
-  filepath: PathLike,
+  filepath: PathLike | PathLike[],
   options?: RemoveOptions | undefined,
 ) {
-  const fs = getFs()
-  fs.rmSync(filepath, {
-    ...defaultRemoveOptions,
-    ...options,
+  const del = /*@__PURE__*/ require('../external/del')
+  const { deleteSync } = del
+  const opts = { __proto__: null, ...options } as RemoveOptions
+  const patterns = ArrayIsArray(filepath)
+    ? filepath.map(pathLikeToString)
+    : [pathLikeToString(filepath)]
+
+  deleteSync(patterns, {
+    concurrency: opts.maxRetries || defaultRemoveOptions.maxRetries,
+    dryRun: false,
+    force: opts.force !== false,
+    onlyFiles: false,
   })
 }
 
