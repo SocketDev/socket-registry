@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.10] - 2025-10-03
+
+### Added
+
+- New utility modules for DLX, shadow, SEA, cacache, and versions functionality
+- getSocketHomePath alias to paths module
+- del dependency and external wrapper for safer file deletion
+- @fileoverview tags to lib modules
+- camelCase expansion for kebab-case arguments in parseArgs
+- Coerce and configuration options to parseArgs
+
+### Changed
+
+- Updated file removal to use del package for safer deletion
+- Normalized path returns in fs and Socket directory utilities
+- Removed default exports from git and parse-args modules
+- Enhanced test coverage across multiple modules (parse-args, prompts, strings, env, spawn, json)
+
+## [1.3.9] - 2025-10-03
+
+### Changed
+
+- Internal build and distribution updates
+
 ## [1.3.8] - 2025-10-03
 
 ### Added
