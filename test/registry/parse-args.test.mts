@@ -326,4 +326,20 @@ describe('parse-args module', () => {
       expect(result.values['quiet']).toBe(true)
     })
   })
+
+  describe('coerce option', () => {
+    it('should apply coerce function to option values', () => {
+      const result = parseArgs({
+        args: ['--port', '8080'],
+        options: {
+          port: {
+            type: 'string',
+            coerce: (value: string) => Number.parseInt(value, 10),
+          },
+        },
+      })
+      expect(result.values['port']).toBe(8080)
+      expect(typeof result.values['port']).toBe('number')
+    })
+  })
 })
