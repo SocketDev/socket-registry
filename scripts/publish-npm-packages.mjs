@@ -178,7 +178,9 @@ async function publish(pkg, state, options) {
  * Publish packages at a specific commit.
  */
 async function publishAtCommit(sha) {
-  logger.log(`\nChecking out commit ${sha}...`)
+  const headSha = await getCommitSha('HEAD')
+  const isHead = sha === headSha
+  logger.log(`\nChecking out ${isHead ? 'HEAD at ' : ''}commit ${sha}...`)
   await checkoutCommit(sha)
 
   // Rebuild at this commit to ensure we have the correct registry dist files.
@@ -261,13 +263,14 @@ async function publishAtCommit(sha) {
 
   // Update manifest.json with latest published versions before publishing registry.
   if (registryPkgToPublish && !fails.includes(registryPkgToPublish.printName)) {
-    logger.log('\nUpdating manifest.json with latest npm versions...')
     await spawn('pnpm', ['run', 'update:manifest', '--force'])
 
     // Commit manifest changes if there are any.
     const changedFiles = await getChangedFiles()
     if (changedFiles.length > 0) {
-      logger.log('Committing manifest.json updates...')
+      logger.log(
+        '\nUpdating and committing manifest.json with latest npm versions...',
+      )
       await spawn('git', ['config', 'user.name', 'Socket Bot'])
       await spawn('git', [
         'config',
@@ -487,6 +490,7 @@ async function main() {
   try {
     // If --force-publish is set, skip commit detection and publish at HEAD.
     if (cliArgs.forcePublish) {
+      logger.log('Running with --force-publish')
       logger.log('Force publish mode: skipping commit detection')
       const headSha = await getCommitSha('HEAD')
       await publishAtCommit(headSha)
