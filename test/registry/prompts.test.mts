@@ -166,6 +166,20 @@ describe('prompts module', () => {
 
       expect(result).toBeNull()
     })
+
+    it('should inject signal when called with only message argument', async () => {
+      const mockPrompt = vi.fn().mockResolvedValue('result')
+      const wrapped = wrapPrompt(mockPrompt)
+
+      await wrapped({ message: 'test' })
+
+      expect(mockPrompt).toHaveBeenCalledWith(
+        { message: 'test' },
+        expect.objectContaining({
+          signal: expect.any(Object),
+        }),
+      )
+    })
   })
 
   describe('module exports', () => {
