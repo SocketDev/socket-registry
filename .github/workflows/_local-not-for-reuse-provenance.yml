@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   publish:
-    uses: SocketDev/socket-registry/.github/workflows/provenance.yml@1f4ae0df40e5d4e506e9155db9c3c6a77864fdcc # main
+    uses: SocketDev/socket-registry/.github/workflows/provenance.yml@662bbcab1b7533e24ba8e3446cffd8a7e5f7617e # main
     with:
       debug: ${{ inputs.debug }}
       publish-script: 'package:npm:publish'
