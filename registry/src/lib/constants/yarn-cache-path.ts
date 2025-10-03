@@ -1,5 +1,6 @@
 import path from 'node:path'
 
+import { normalizePath } from '../path'
 import ENV from './ENV'
 import WIN32 from './WIN32'
 
@@ -31,18 +32,22 @@ function getYarnCachePaths() {
   // Check for explicit YARN_CACHE_FOLDER environment variable (Yarn Classic).
   const yarnCacheFolder = process.env['YARN_CACHE_FOLDER']
   if (yarnCacheFolder) {
-    paths.classic = yarnCacheFolder
+    paths.classic = normalizePath(yarnCacheFolder)
     return paths
   }
 
   if (WIN32) {
     // On Windows, Yarn Classic uses LOCALAPPDATA.
-    paths.classic = ENV.LOCALAPPDATA
-      ? path.join(ENV.LOCALAPPDATA, 'Yarn', 'Cache')
-      : ''
+    if (ENV.LOCALAPPDATA) {
+      paths.classic = normalizePath(
+        path.join(ENV.LOCALAPPDATA, 'Yarn', 'Cache'),
+      )
+    }
   } else {
     // On Unix-like systems, Yarn Classic uses ~/.cache/yarn.
-    paths.classic = ENV.HOME ? path.join(ENV.HOME, '.cache', 'yarn') : ''
+    if (ENV.HOME) {
+      paths.classic = normalizePath(path.join(ENV.HOME, '.cache', 'yarn'))
+    }
   }
 
   return paths

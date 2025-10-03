@@ -1,5 +1,6 @@
 import path from 'node:path'
 
+import { normalizePath } from '../path'
 import ENV from './ENV'
 import WIN32 from './WIN32'
 
@@ -19,26 +20,32 @@ function getPnpmStorePath() {
   // Check for explicit PNPM_HOME environment variable.
   const pnpmHome = process.env['PNPM_HOME']
   if (pnpmHome) {
-    return path.join(pnpmHome, 'store')
+    return normalizePath(path.join(pnpmHome, 'store'))
   }
 
   if (WIN32) {
     // On Windows, use LOCALAPPDATA.
-    return ENV.LOCALAPPDATA ? path.join(ENV.LOCALAPPDATA, 'pnpm', 'store') : ''
+    if (!ENV.LOCALAPPDATA) {
+      return ''
+    }
+    return normalizePath(path.join(ENV.LOCALAPPDATA, 'pnpm', 'store'))
   }
 
   // On Unix-like systems, follow XDG Base Directory specification.
   if (ENV.XDG_DATA_HOME) {
-    return path.join(ENV.XDG_DATA_HOME, 'pnpm', 'store')
+    return normalizePath(path.join(ENV.XDG_DATA_HOME, 'pnpm', 'store'))
   }
 
   // macOS default location.
   if (process.platform === 'darwin' && ENV.HOME) {
-    return path.join(ENV.HOME, 'Library', 'pnpm', 'store')
+    return normalizePath(path.join(ENV.HOME, 'Library', 'pnpm', 'store'))
   }
 
   // Linux/Unix default location.
-  return ENV.HOME ? path.join(ENV.HOME, '.local', 'share', 'pnpm', 'store') : ''
+  if (!ENV.HOME) {
+    return ''
+  }
+  return normalizePath(path.join(ENV.HOME, '.local', 'share', 'pnpm', 'store'))
 }
 
 export default getPnpmStorePath()
