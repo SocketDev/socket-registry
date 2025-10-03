@@ -92,7 +92,7 @@ jobs:
             fi
           fi
 
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@08fba31a9abec77127b476c7eebc745fccd9feef # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@d1bbbbad7d1b29b8b36dc5871bd7f71df6b51ac4 # main
         with:
           node-version: ${{ inputs.node-version }}
           debug: ${{ inputs.debug }}
