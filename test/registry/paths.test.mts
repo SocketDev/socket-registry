@@ -3,6 +3,7 @@ import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
+import { normalizePath } from '../../registry/dist/lib/path.js'
 import {
   getSocketAppCacheDir,
   getSocketAppCacheTtlDir,
@@ -19,7 +20,7 @@ describe('paths module', () => {
   describe('getSocketUserDir', () => {
     it('should return ~/.socket path', () => {
       const result = getSocketUserDir()
-      expect(result).toBe(path.join(os.homedir(), '.socket'))
+      expect(result).toBe(normalizePath(path.join(os.homedir(), '.socket')))
     })
 
     it('should return consistent path on multiple calls', () => {
@@ -32,45 +33,57 @@ describe('paths module', () => {
   describe('getSocketAppDir', () => {
     it('should return app directory with underscore prefix', () => {
       const result = getSocketAppDir('test')
-      expect(result).toBe(path.join(os.homedir(), '.socket', '_test'))
+      expect(result).toBe(
+        normalizePath(path.join(os.homedir(), '.socket', '_test')),
+      )
     })
 
     it('should handle different app names', () => {
       const socket = getSocketAppDir('socket')
       const registry = getSocketAppDir('registry')
-      expect(socket).toBe(path.join(os.homedir(), '.socket', '_socket'))
-      expect(registry).toBe(path.join(os.homedir(), '.socket', '_registry'))
+      expect(socket).toBe(
+        normalizePath(path.join(os.homedir(), '.socket', '_socket')),
+      )
+      expect(registry).toBe(
+        normalizePath(path.join(os.homedir(), '.socket', '_registry')),
+      )
     })
   })
 
   describe('getSocketCacacheDir', () => {
     it('should return cacache directory', () => {
       const result = getSocketCacacheDir()
-      expect(result).toBe(path.join(os.homedir(), '.socket', '_cacache'))
+      expect(result).toBe(
+        normalizePath(path.join(os.homedir(), '.socket', '_cacache')),
+      )
     })
   })
 
   describe('getSocketDlxDir', () => {
     it('should return dlx directory', () => {
       const result = getSocketDlxDir()
-      expect(result).toBe(path.join(os.homedir(), '.socket', '_dlx'))
+      expect(result).toBe(
+        normalizePath(path.join(os.homedir(), '.socket', '_dlx')),
+      )
     })
   })
 
   describe('getSocketAppCacheDir', () => {
     it('should return app cache directory', () => {
       const result = getSocketAppCacheDir('test')
-      expect(result).toBe(path.join(os.homedir(), '.socket', '_test', 'cache'))
+      expect(result).toBe(
+        normalizePath(path.join(os.homedir(), '.socket', '_test', 'cache')),
+      )
     })
 
     it('should handle different app names', () => {
       const socketCache = getSocketAppCacheDir('socket')
       const registryCache = getSocketAppCacheDir('registry')
       expect(socketCache).toBe(
-        path.join(os.homedir(), '.socket', '_socket', 'cache'),
+        normalizePath(path.join(os.homedir(), '.socket', '_socket', 'cache')),
       )
       expect(registryCache).toBe(
-        path.join(os.homedir(), '.socket', '_registry', 'cache'),
+        normalizePath(path.join(os.homedir(), '.socket', '_registry', 'cache')),
       )
     })
   })
@@ -79,7 +92,9 @@ describe('paths module', () => {
     it('should return app TTL cache directory', () => {
       const result = getSocketAppCacheTtlDir('test')
       expect(result).toBe(
-        path.join(os.homedir(), '.socket', '_test', 'cache', 'ttl'),
+        normalizePath(
+          path.join(os.homedir(), '.socket', '_test', 'cache', 'ttl'),
+        ),
       )
     })
 
@@ -87,10 +102,14 @@ describe('paths module', () => {
       const socketTtl = getSocketAppCacheTtlDir('socket')
       const registryTtl = getSocketAppCacheTtlDir('registry')
       expect(socketTtl).toBe(
-        path.join(os.homedir(), '.socket', '_socket', 'cache', 'ttl'),
+        normalizePath(
+          path.join(os.homedir(), '.socket', '_socket', 'cache', 'ttl'),
+        ),
       )
       expect(registryTtl).toBe(
-        path.join(os.homedir(), '.socket', '_registry', 'cache', 'ttl'),
+        normalizePath(
+          path.join(os.homedir(), '.socket', '_registry', 'cache', 'ttl'),
+        ),
       )
     })
   })
@@ -98,14 +117,18 @@ describe('paths module', () => {
   describe('getSocketCliDir', () => {
     it('should return CLI directory', () => {
       const result = getSocketCliDir()
-      expect(result).toBe(path.join(os.homedir(), '.socket', '_socket'))
+      expect(result).toBe(
+        normalizePath(path.join(os.homedir(), '.socket', '_socket')),
+      )
     })
   })
 
   describe('getSocketRegistryDir', () => {
     it('should return Registry directory', () => {
       const result = getSocketRegistryDir()
-      expect(result).toBe(path.join(os.homedir(), '.socket', '_registry'))
+      expect(result).toBe(
+        normalizePath(path.join(os.homedir(), '.socket', '_registry')),
+      )
     })
   })
 
@@ -113,13 +136,15 @@ describe('paths module', () => {
     it('should return Registry GitHub cache directory', () => {
       const result = getSocketRegistryGithubCacheDir()
       expect(result).toBe(
-        path.join(
-          os.homedir(),
-          '.socket',
-          '_registry',
-          'cache',
-          'ttl',
-          'github',
+        normalizePath(
+          path.join(
+            os.homedir(),
+            '.socket',
+            '_registry',
+            'cache',
+            'ttl',
+            'github',
+          ),
         ),
       )
     })
@@ -158,14 +183,14 @@ describe('paths module', () => {
   })
 
   describe('platform compatibility', () => {
-    it('should use correct path separators', () => {
+    it('should use normalized forward slashes', () => {
       const result = getSocketAppDir('test')
-      expect(result.includes(path.sep)).toBe(true)
+      expect(result.includes('/')).toBe(true)
     })
 
-    it('should not contain hardcoded slashes', () => {
+    it('should normalize paths correctly', () => {
       const result = getSocketUserDir()
-      const parts = result.split(path.sep)
+      const parts = result.split('/')
       expect(parts[parts.length - 1]).toBe('.socket')
     })
   })
