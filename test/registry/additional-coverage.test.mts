@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { normalizePath } from '../../registry/dist/lib/path.js'
 import { trash } from '../../scripts/utils/fs.mjs'
 
 // Helper predicate moved to outer scope.
@@ -88,12 +89,12 @@ describe('additional coverage tests', () => {
       // Create the directory
       require('node:fs').mkdirSync(dirPath)
       const unique2 = fsUtils.uniqueSync(dirPath)
-      expect(unique2).toBe(path.join(tmpDir, 'mydir-1'))
+      expect(unique2).toBe(normalizePath(path.join(tmpDir, 'mydir-1')))
 
       // Create another file with same name to test multiple suffixes
       require('node:fs').mkdirSync(unique2)
       const unique3 = fsUtils.uniqueSync(dirPath)
-      expect(unique3).toBe(path.join(tmpDir, 'mydir-2'))
+      expect(unique3).toBe(normalizePath(path.join(tmpDir, 'mydir-2')))
     })
 
     it('should handle safeReadFile with different encodings', async () => {
