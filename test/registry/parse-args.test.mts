@@ -391,4 +391,52 @@ describe('parse-args module', () => {
       expect(result.values['downloadOnly']).toBe(true)
     })
   })
+
+  describe('default configuration options', () => {
+    it('should allow short option groups by default', () => {
+      const result = parseArgs({
+        args: ['-vdf'],
+        options: {
+          verbose: { type: 'boolean', short: 'v' },
+          debug: { type: 'boolean', short: 'd' },
+          force: { type: 'boolean', short: 'f' },
+        },
+      })
+      expect(result.values['verbose']).toBe(true)
+      expect(result.values['debug']).toBe(true)
+      expect(result.values['force']).toBe(true)
+    })
+
+    it('should handle duplicate arguments as arrays', () => {
+      const result = parseArgs({
+        args: ['--tag', 'v1', '--tag', 'v2', '--tag', 'v3'],
+        options: {
+          tag: { type: 'string', multiple: true },
+        },
+      })
+      expect(result.values['tag']).toEqual(['v1', 'v2', 'v3'])
+    })
+
+    it('should populate arguments after -- separator', () => {
+      const result = parseArgs({
+        args: ['--verbose', '--', 'arg1', 'arg2'],
+        options: {
+          verbose: { type: 'boolean' },
+        },
+      })
+      expect(result.values['verbose']).toBe(true)
+      expect(result.raw['--']).toEqual(['arg1', 'arg2'])
+    })
+
+    it('should not parse dot notation by default', () => {
+      const result = parseArgs({
+        args: ['--config.port', '8080'],
+        options: {
+          'config.port': { type: 'string' },
+        },
+      })
+      expect(result.values['config.port']).toBe('8080')
+      expect(result.values['config']).toBeUndefined()
+    })
+  })
 })
