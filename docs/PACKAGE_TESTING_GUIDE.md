@@ -2,9 +2,17 @@
 
 This guide provides a comprehensive approach to prevent recurring CI failures in package overrides.
 
+## 🚨 Socket-Registry Specific
+
+**This guide is specific to socket-registry's package override structure.** Other Socket projects (socket-sdk-js, socket-cli, socket-packageurl-js) have different testing needs and should refer to their own CI documentation.
+
+**For general CI workflow usage across Socket projects**, see:
+- Socket-registry's reusable CI workflow: `SocketDev/socket-registry/.github/workflows/ci.yml@main`
+- Other projects' CI documentation: `docs/CI_TESTING.md` in each repository
+
 ## Quick Start
 
-Before releasing any package override:
+Before releasing any package override (socket-registry only):
 
 ```bash
 # Validate package structure and tests

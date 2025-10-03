@@ -2,10 +2,18 @@
 
 Quick reference for the CI testing and validation tools.
 
+## 🚨 Socket-Registry Specific
+
+**These tools are specific to socket-registry's package override structure.** Other Socket projects (socket-sdk-js, socket-cli, socket-packageurl-js) should reference socket-registry's reusable CI workflows but do not need these validation scripts.
+
+**For general CI workflow usage**, see:
+- Socket-registry's reusable CI workflow: `SocketDev/socket-registry/.github/workflows/ci.yml@main`
+- Other projects' CI documentation: `docs/CI_TESTING.md` in each repository
+
 ## TL;DR
 
 ```bash
-# Before releasing a package
+# Before releasing a package override (socket-registry only)
 pnpm run validate:packages --package <name>
 pnpm run validate:ci --package <name>
 
