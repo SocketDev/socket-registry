@@ -23,7 +23,7 @@ import {
   resolvePackageName,
   resolveRegistryPackageName,
 } from '../../registry/dist/lib/packages.js'
-import { safeRemove } from '../../scripts/utils/fs.mjs'
+import { trash } from '../../scripts/utils/fs.mjs'
 
 describe('packages module extended tests', () => {
   describe('collectIncompatibleLicenses', () => {
@@ -101,7 +101,7 @@ describe('packages module extended tests', () => {
         expect(pkg).toBeDefined()
         expect(typeof pkg).toBe('object')
       } finally {
-        await safeRemove(tmpDir)
+        await trash(tmpDir)
       }
     })
 
@@ -113,7 +113,7 @@ describe('packages module extended tests', () => {
         const pkg = createPackageJson('@socketregistry/test', tmpDir)
         expect(pkg).toBeDefined()
       } finally {
-        await safeRemove(tmpDir)
+        await trash(tmpDir)
       }
     })
   })
@@ -347,7 +347,7 @@ describe('packages module extended tests', () => {
         // May fail without npm, that's ok
         expect(error).toBeDefined()
       } finally {
-        await safeRemove(tmpDir)
+        await trash(tmpDir)
       }
     })
   })

@@ -25,7 +25,7 @@ import {
   whichBin,
   whichBinSync,
 } from '../../registry/dist/lib/bin.js'
-import { safeRemove } from '../../scripts/utils/fs.mjs'
+import { trash } from '../../scripts/utils/fs.mjs'
 
 describe('agent package manager utilities', () => {
   let tmpDir: string
@@ -36,7 +36,7 @@ describe('agent package manager utilities', () => {
   })
 
   afterEach(async () => {
-    await safeRemove(tmpDir)
+    await trash(tmpDir)
   })
 
   describe('npm flag detection', () => {
