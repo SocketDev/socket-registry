@@ -1,5 +1,6 @@
 import path from 'node:path'
 
+import { normalizePath } from '../path'
 import ENV from './ENV'
 import WIN32 from './WIN32'
 
@@ -22,22 +23,28 @@ function getVltCachePath() {
 
   if (WIN32) {
     // On Windows, use LOCALAPPDATA following XDG pattern.
-    return ENV.LOCALAPPDATA ? path.join(ENV.LOCALAPPDATA, 'vlt', 'Cache') : ''
+    if (!ENV.LOCALAPPDATA) {
+      return ''
+    }
+    return normalizePath(path.join(ENV.LOCALAPPDATA, 'vlt', 'Cache'))
   }
 
   // On macOS, use Library/Caches.
   if (process.platform === 'darwin' && ENV.HOME) {
-    return path.join(ENV.HOME, 'Library', 'Caches', 'vlt')
+    return normalizePath(path.join(ENV.HOME, 'Library', 'Caches', 'vlt'))
   }
 
   // On Linux/Unix, follow XDG Base Directory specification.
   const xdgCacheHome = process.env['XDG_CACHE_HOME']
   if (xdgCacheHome) {
-    return path.join(xdgCacheHome, 'vlt')
+    return normalizePath(path.join(xdgCacheHome, 'vlt'))
   }
 
   // Linux/Unix default location.
-  return ENV.HOME ? path.join(ENV.HOME, '.cache', 'vlt') : ''
+  if (!ENV.HOME) {
+    return ''
+  }
+  return normalizePath(path.join(ENV.HOME, '.cache', 'vlt'))
 }
 
 export default getVltCachePath()
