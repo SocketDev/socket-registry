@@ -486,7 +486,7 @@ async function main() {
 
   try {
     // If --force-publish is set, skip commit detection and publish at HEAD.
-    if (cliArgs['force-publish']) {
+    if (cliArgs.forcePublish) {
       logger.log('Force publish mode: skipping commit detection')
       const headSha = await getCommitSha('HEAD')
       await publishAtCommit(headSha)
