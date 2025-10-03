@@ -25,6 +25,14 @@ import SOCKET_REGISTRY_APP_NAME from './constants/SOCKET_REGISTRY_APP_NAME'
 import { normalizePath } from './path'
 
 /**
+ * Get the Socket home directory (~/.socket).
+ * Alias for getSocketUserDir() for consistency across Socket projects.
+ */
+export function getSocketHomePath(): string {
+  return getSocketUserDir()
+}
+
+/**
  * Get the Socket user directory (~/.socket).
  */
 export function getSocketUserDir(): string {
