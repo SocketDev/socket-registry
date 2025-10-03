@@ -6,7 +6,7 @@
 import abortSignal from './constants/abort-signal'
 import { defaultIgnore, getGlobMatcher } from './globs'
 import { jsonParse } from './json'
-import { pathLikeToString } from './path'
+import { normalizePath, pathLikeToString } from './path'
 import { naturalCompare } from './sorts'
 
 import type { JsonReviver } from './json'
@@ -239,10 +239,10 @@ export async function findUp(
         // eslint-disable-next-line no-await-in-loop
         const stats = await fs.promises.stat(thePath)
         if (!onlyDirectories && stats.isFile()) {
-          return thePath
+          return normalizePath(thePath)
         }
         if (!onlyFiles && stats.isDirectory()) {
-          return thePath
+          return normalizePath(thePath)
         }
       } catch {}
     }
@@ -288,10 +288,10 @@ export function findUpSync(
         try {
           const stats = fs.statSync(thePath)
           if (!onlyDirectories && stats.isFile()) {
-            return thePath
+            return normalizePath(thePath)
           }
           if (!onlyFiles && stats.isDirectory()) {
-            return thePath
+            return normalizePath(thePath)
           }
         } catch {}
       }
@@ -302,10 +302,10 @@ export function findUpSync(
       try {
         const stats = fs.statSync(thePath)
         if (!onlyDirectories && stats.isFile()) {
-          return thePath
+          return normalizePath(thePath)
         }
         if (!onlyFiles && stats.isDirectory()) {
-          return thePath
+          return normalizePath(thePath)
         }
       } catch {}
     }
@@ -657,7 +657,7 @@ export function uniqueSync(filepath: PathLike): string {
 
   // If the file doesn't exist, return as is
   if (!fs.existsSync(filepathStr)) {
-    return filepathStr
+    return normalizePath(filepathStr)
   }
 
   const dirname = path.dirname(filepathStr)
@@ -671,7 +671,7 @@ export function uniqueSync(filepath: PathLike): string {
     counter++
   } while (fs.existsSync(uniquePath))
 
-  return uniquePath
+  return normalizePath(uniquePath)
 }
 
 /**
