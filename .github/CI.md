@@ -333,7 +333,7 @@ on:
 
 jobs:
   ci:
-    uses: SocketDev/socket-registry/.github/workflows/ci.yml@main
+    uses: SocketDev/socket-registry/.github/workflows/ci.yml@cb058af30991fa29b82f0c89f7d37397e067d292 # main
     with:
       coverage-script: 'pnpm run test:coverage'
       lint-script: 'pnpm run check:lint'
@@ -357,9 +357,9 @@ jobs:
 
 **Symptom**: "Action not found" or "Invalid action reference" errors.
 
-**Cause**: Actions are referenced using `@main` but changes haven't been pushed/merged.
+**Cause**: Actions are referenced using commit SHAs that don't exist yet or changes haven't been pushed/merged.
 
-**Solution**: Push changes to main branch first, or use a specific commit SHA for testing.
+**Solution**: Push changes to main branch first, then update references to use the new commit SHA.
 
 ## References
 
