@@ -174,5 +174,3 @@ export const commonParseArgsConfig: ParseArgsConfig = {
   },
   strict: false,
 }
-
-export default parseArgs
