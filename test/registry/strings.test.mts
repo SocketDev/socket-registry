@@ -212,6 +212,16 @@ describe('strings module', () => {
       expect(trimNewlines('\n\n\n')).toBe('')
       expect(trimNewlines('\r\n')).toBe('')
     })
+
+    it('should handle single newline character', () => {
+      expect(trimNewlines('\n')).toBe('')
+      expect(trimNewlines('\r')).toBe('')
+    })
+
+    it('should handle single non-newline character', () => {
+      expect(trimNewlines('a')).toBe('a')
+      expect(trimNewlines('1')).toBe('1')
+    })
   })
 
   describe('search', () => {
