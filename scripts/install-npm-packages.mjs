@@ -74,6 +74,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
+import { load as yamlLoad } from 'js-yaml'
 import pacote from 'pacote'
 import { c as tarCreate } from 'tar'
 
@@ -170,15 +171,47 @@ function completePackage() {
   completedPackages += 1
 }
 
+let cachedWorkspaceCacheVersion
+
+async function getWorkspaceCacheVersion() {
+  if (cachedWorkspaceCacheVersion) {
+    return cachedWorkspaceCacheVersion
+  }
+
+  try {
+    const actionYamlPath = path.join(
+      constants.rootPath,
+      '.github',
+      'actions',
+      'cache-npm-packages',
+      'action.yml',
+    )
+    const actionYamlContent = await readFileUtf8(actionYamlPath)
+    const actionYaml = yamlLoad(actionYamlContent)
+    cachedWorkspaceCacheVersion =
+      actionYaml?.inputs?.['cache-version']?.default || 'v1'
+    return cachedWorkspaceCacheVersion
+  } catch (e) {
+    logger.warn(
+      `Could not read cache version from action.yml: ${e.message}. Using fallback 'v1'.`,
+    )
+    cachedWorkspaceCacheVersion = 'v1'
+    return cachedWorkspaceCacheVersion
+  }
+}
+
 async function computeOverrideHash(overridePath) {
   try {
     const pkgJsonPath = path.join(overridePath, PACKAGE_JSON)
     const pkgJson = await readPackageJson(pkgJsonPath)
     // Hash the dependencies to detect changes.
+    // Include workspace cache version from GitHub Action as single source of truth.
+    const workspaceCacheVersion = await getWorkspaceCacheVersion()
     const depsString = JSON.stringify({
       dependencies: pkgJson.dependencies || {},
       devDependencies: pkgJson.devDependencies || {},
       version: pkgJson.version,
+      workspaceCacheVersion,
     })
     return crypto.createHash('sha256').update(depsString, 'utf8').digest('hex')
   } catch {
@@ -1156,6 +1189,17 @@ async function main() {
   // Filter to packages that were successfully downloaded.
   const packagesToInstall = downloadResults.filter(r => r.downloaded)
 
+  // Get list of packages that have custom test files in test/npm/.
+  // These don't need installation since they're tested via vitest directly.
+  const testFiles = existsSync(constants.testNpmPath)
+    ? await fs.readdir(constants.testNpmPath)
+    : []
+  const packagesWithTests = new Set(
+    testFiles
+      .filter(f => f.endsWith('.test.mts'))
+      .map(f => f.replace(/\.test\.mts$/, '')),
+  )
+
   // Filter by specific packages if requested.
   let filteredPackages = cliArgs.package?.length
     ? packagesToInstall.filter(
@@ -1163,7 +1207,7 @@ async function main() {
           cliArgs.package.includes(pkg.package) ||
           cliArgs.package.includes(pkg.socketPackage),
       )
-    : packagesToInstall
+    : packagesToInstall.filter(pkg => !packagesWithTests.has(pkg.socketPackage))
 
   // If not in force mode, only install packages that have changes.
   filteredPackages = await filterPackagesByChanges(filteredPackages, 'npm', {
