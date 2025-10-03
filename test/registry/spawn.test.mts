@@ -201,5 +201,24 @@ describe('spawn module', () => {
         expect(result.pid).toBeGreaterThan(0)
       }
     })
+
+    it('should capture stderr output', () => {
+      const result = spawnSync('node', ['-e', 'console.error("error message")'])
+      expect(result.stderr.toString()).toContain('error message')
+    })
+
+    it('should handle stdioString option as false', () => {
+      const result = spawnSync('echo', ['test'], {
+        stdioString: false,
+      })
+      expect(Buffer.isBuffer(result.stdout)).toBe(true)
+    })
+
+    it('should handle stripAnsi option', () => {
+      const result = spawnSync('echo', ['test'], {
+        stripAnsi: false,
+      })
+      expect(result).toBeDefined()
+    })
   })
 })
