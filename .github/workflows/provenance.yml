@@ -16,6 +16,11 @@ on:
         required: false
         type: string
         default: '0'
+      force-publish:
+        description: 'Force publish without commit checks'
+        required: false
+        type: boolean
+        default: false
       node-version:
         description: 'Node version to use (e.g., "20", "22", "24")'
         required: false
@@ -122,13 +127,23 @@ jobs:
 
       - name: Publish with custom script (token-based)
         if: inputs.publish-script != '' && inputs.use-trusted-publishing == false
-        run: pnpm run ${{ inputs.publish-script }}
+        run: |
+          if [ "${{ inputs.force-publish }}" = "true" ]; then
+            pnpm run ${{ inputs.publish-script }} -- --force-publish
+          else
+            pnpm run ${{ inputs.publish-script }}
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
 
       - name: Publish with custom script (trusted publishing)
         if: inputs.publish-script != '' && inputs.use-trusted-publishing == true
-        run: pnpm run ${{ inputs.publish-script }}
+        run: |
+          if [ "${{ inputs.force-publish }}" = "true" ]; then
+            pnpm run ${{ inputs.publish-script }} -- --force-publish
+          else
+            pnpm run ${{ inputs.publish-script }}
+          fi
 
       - name: Publish package (token-based)
         if: inputs.publish-script == '' && inputs.package-name != '' && inputs.use-trusted-publishing == false
