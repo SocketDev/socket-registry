@@ -1298,6 +1298,7 @@
     "browserslist": "4.26.0",
     "cacache": "20.0.1",
     "debug": "4.4.1",
+    "del": "8.0.1",
     "del-cli": "6.0.0",
     "dev-null-cli": "2.0.0",
     "eslint": "9.35.0",
