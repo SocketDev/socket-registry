@@ -93,7 +93,7 @@
     "@eslint/js": "9.35.0",
     "@mdn/browser-compat-data": "7.1.5",
     "@npmcli/package-json": "7.0.0",
-    "@socketregistry/packageurl-js": "1.1.4",
+    "@socketregistry/packageurl-js": "1.1.6",
     "@socketregistry/scripts": "file:scripts",
     "@socketsecurity/registry": "workspace:*",
     "@types/fs-extra": "11.0.4",
