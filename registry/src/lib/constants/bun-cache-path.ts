@@ -1,5 +1,6 @@
 import path from 'node:path'
 
+import { normalizePath } from '../path'
 import ENV from './ENV'
 import WIN32 from './WIN32'
 
@@ -20,22 +21,28 @@ function getBunCachePath() {
   // Check for explicit BUN_INSTALL_CACHE_DIR environment variable.
   const bunCacheDir = process.env['BUN_INSTALL_CACHE_DIR']
   if (bunCacheDir) {
-    return bunCacheDir
+    return normalizePath(bunCacheDir)
   }
 
   if (WIN32) {
     // On Windows, Bun uses TEMP directory.
     const temp = process.env['TEMP'] || process.env['TMP']
-    return temp ? path.join(temp, 'bun') : ''
+    if (!temp) {
+      return ''
+    }
+    return normalizePath(path.join(temp, 'bun'))
   }
 
   // On macOS, use Library/Caches.
   if (process.platform === 'darwin' && ENV.HOME) {
-    return path.join(ENV.HOME, 'Library', 'Caches', 'bun')
+    return normalizePath(path.join(ENV.HOME, 'Library', 'Caches', 'bun'))
   }
 
   // On Linux/Unix, use ~/.bun/install/cache.
-  return ENV.HOME ? path.join(ENV.HOME, '.bun', 'install', 'cache') : ''
+  if (!ENV.HOME) {
+    return ''
+  }
+  return normalizePath(path.join(ENV.HOME, '.bun', 'install', 'cache'))
 }
 
 export default getBunCachePath()
