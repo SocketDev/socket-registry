@@ -8,18 +8,31 @@ import yargsParser from '../external/yargs-parser'
  * Yargs parser options interface.
  */
 interface YargsOptions {
+  // Array of option names that should be treated as booleans.
   boolean?: string[] | undefined
+  // Array of option names that should be treated as strings.
   string?: string[] | undefined
+  // Array of option names that should accept multiple values.
   array?: string[] | undefined
+  // Map of short aliases to full option names.
   alias?: Record<string, string | string[]> | undefined
+  // Default values for options.
   default?: Record<string, unknown> | undefined
+  // Transform functions to coerce parsed values.
   coerce?: Record<string, (value: any) => any> | undefined
+  // Whether to treat unknown options as positional arguments.
   'unknown-options-as-args'?: boolean | undefined
+  // Whether to parse numeric strings as numbers.
   'parse-numbers'?: boolean | undefined
+  // Whether to parse positional arguments as numbers.
   'parse-positional-numbers'?: boolean | undefined
+  // Whether to support --no-<option> negation for booleans.
   'boolean-negation'?: boolean | undefined
+  // Whether to stop parsing options after the first positional.
   'halt-at-non-option'?: boolean | undefined
+  // Advanced yargs-parser configuration options.
   configuration?: Record<string, boolean | string> | undefined
+  // Whether to throw on unknown options.
   strict?: boolean | undefined
 }
 
@@ -97,9 +110,11 @@ export function parseArgs<T = Record<string, unknown>>(
 
   // Convert parseArgs options to yargs-parser options.
   const yargsOptions: YargsOptions = {
+    // Arrays of option names to treat as specific types.
     boolean: [],
     string: [],
     array: [],
+    // Maps for aliases, defaults, and transformations.
     alias: {},
     default: {},
     coerce: {},
