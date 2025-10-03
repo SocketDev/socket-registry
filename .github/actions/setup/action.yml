@@ -2,9 +2,9 @@ name: 'Setup'
 description: 'Setup debug, Node.js, and pnpm with caching'
 
 # Dependencies:
-#   - actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444  # v5.0.0
-#   - pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda  # v4.1.0
-#   - SocketDev/socket-registry/.github/actions/debug@main
+#   - actions/setup-node@v5.0.0
+#   - pnpm/action-setup@v4.1.0
+#   - SocketDev/socket-registry/.github/actions/debug
 
 inputs:
   debug:
@@ -36,7 +36,7 @@ runs:
   using: 'composite'
   steps:
     - name: Setup debug
-      uses: SocketDev/socket-registry/.github/actions/debug@main
+      uses: SocketDev/socket-registry/.github/actions/debug@c61feb5e700271684d8bf553f82c674d3254385c # main
       with:
         debug: ${{ inputs.debug }}
 
