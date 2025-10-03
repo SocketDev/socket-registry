@@ -54,7 +54,6 @@
         "license": "MIT",
         "name": "@socketregistry/array-flatten",
         "package": "array-flatten",
-        "skipTests": true,
         "version": "1.0.11"
       }
     ],
@@ -297,7 +296,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/assert@1.0.22",
+      "pkg:npm/%40socketregistry/assert@1.0.23",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -307,7 +306,7 @@
         "license": "MIT",
         "name": "@socketregistry/assert",
         "package": "assert",
-        "version": "1.0.22"
+        "version": "1.0.23"
       }
     ],
     [
@@ -349,12 +348,11 @@
         "license": "MIT",
         "name": "@socketregistry/date",
         "package": "date",
-        "skipTests": true,
         "version": "1.0.8"
       }
     ],
     [
-      "pkg:npm/%40socketregistry/deep-equal@1.0.21",
+      "pkg:npm/%40socketregistry/deep-equal@1.0.22",
       {
         "categories": ["cleanup"],
         "engines": {
@@ -364,7 +362,7 @@
         "license": "MIT",
         "name": "@socketregistry/deep-equal",
         "package": "deep-equal",
-        "version": "1.0.21"
+        "version": "1.0.22"
       }
     ],
     [
@@ -462,7 +460,6 @@
         "license": "MIT",
         "name": "@socketregistry/es6-object-assign",
         "package": "es6-object-assign",
-        "skipTests": true,
         "version": "1.0.9"
       }
     ],
@@ -589,7 +586,6 @@
         "license": "(Apache-2.0 OR MPL-1.1)",
         "name": "@socketregistry/harmony-reflect",
         "package": "harmony-reflect",
-        "skipTests": true,
         "version": "1.0.7"
       }
     ],
@@ -688,7 +684,6 @@
         "license": "MIT",
         "name": "@socketregistry/hyrious__bun.lockb",
         "package": "@hyrious/bun.lockb",
-        "skipTests": true,
         "version": "1.0.19"
       }
     ],
@@ -899,7 +894,6 @@
         "license": "MIT",
         "name": "@socketregistry/is-regex",
         "package": "is-regex",
-        "skipTests": true,
         "version": "1.0.10"
       }
     ],
@@ -1068,7 +1062,6 @@
         "license": "MIT",
         "name": "@socketregistry/json-stable-stringify",
         "package": "json-stable-stringify",
-        "skipTests": true,
         "version": "1.0.13"
       }
     ],
@@ -1419,7 +1412,6 @@
         "license": "MIT",
         "name": "@socketregistry/safer-buffer",
         "package": "safer-buffer",
-        "skipTests": true,
         "version": "1.0.10"
       }
     ],
