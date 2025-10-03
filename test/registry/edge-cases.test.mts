@@ -32,7 +32,7 @@ describe('edge case tests', () => {
       await fs.writeFile(testFile, '{}')
 
       const result = await fsUtils.findUp('package.json', { cwd: tmpDir })
-      expect(result).toBe(testFile)
+      expect(result).toBe(normalizePath(testFile))
     })
 
     it('should handle findUpSync edge cases', () => {
@@ -84,7 +84,7 @@ describe('edge case tests', () => {
     it('should handle uniqueSync with directories', () => {
       const dirPath = path.join(tmpDir, 'mydir')
       const unique1 = fsUtils.uniqueSync(dirPath)
-      expect(unique1).toBe(dirPath)
+      expect(unique1).toBe(normalizePath(dirPath))
 
       // Create the directory
       require('node:fs').mkdirSync(dirPath)
