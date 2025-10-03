@@ -399,18 +399,3 @@ export function isStagedSync(
   const relativePath = normalizePath(path.relative(getCwd(), resolvedPathname))
   return files.includes(relativePath)
 }
-
-export default {
-  getChangedFiles,
-  getChangedFilesSync,
-  getStagedFiles,
-  getStagedFilesSync,
-  getUnstagedFiles,
-  getUnstagedFilesSync,
-  isChanged,
-  isChangedSync,
-  isStaged,
-  isStagedSync,
-  isUnstaged,
-  isUnstagedSync,
-}
