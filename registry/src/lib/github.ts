@@ -1,5 +1,5 @@
 /**
- * GitHub utilities for Socket projects.
+ * @fileoverview GitHub utilities for Socket projects.
  * Provides GitHub API integration for repository operations.
  *
  * Authentication:
