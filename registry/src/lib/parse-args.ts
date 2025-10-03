@@ -109,8 +109,21 @@ export function parseArgs<T = Record<string, unknown>>(
     'boolean-negation': !allowNegative,
     'halt-at-non-option': !allowPositionals,
     configuration: {
+      // Enable kebab-case to camelCase conversion (e.g., --temp-dir → tempDir).
       'camel-case-expansion': true,
+      // Disable dot notation to avoid confusing nested property parsing.
+      'dot-notation': false,
+      // Convert duplicate arguments into arrays automatically.
+      'duplicate-arguments-array': true,
+      // Flatten nested arrays from duplicate arguments for cleaner output.
+      'flatten-duplicate-arrays': true,
+      // Populate the '--' key with arguments after the -- separator.
+      'populate--': true,
+      // Allow short option grouping like -abc for -a -b -c.
+      'short-option-groups': true,
+      // Keep aliased keys in the result for flexibility.
       'strip-aliased': false,
+      // Keep both kebab-case and camelCase keys for flexibility.
       'strip-dashed': false,
       ...configuration,
     },
