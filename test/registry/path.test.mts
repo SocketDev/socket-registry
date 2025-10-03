@@ -6,6 +6,7 @@ import {
   isRelative,
   normalizePath,
   pathLikeToString,
+  relativeResolve,
   splitPath,
   trimLeadingDotSlash,
 } from '../../registry/dist/lib/path.js'
@@ -225,6 +226,54 @@ describe('path module', () => {
 
     it('should handle empty string', () => {
       expect(pathLikeToString('')).toBe('')
+    })
+  })
+
+  describe('relativeResolve', () => {
+    it('should resolve relative path between two paths', () => {
+      const from = '/path/to/from'
+      const to = '/path/to/target'
+      expect(relativeResolve(from, to)).toBe('../target')
+    })
+
+    it('should resolve when paths are in same directory', () => {
+      const from = '/path/to/dir'
+      const to = '/path/to/file'
+      expect(relativeResolve(from, to)).toBe('../file')
+    })
+
+    it('should resolve when target is ancestor', () => {
+      const from = '/path/to/deep/nested'
+      const to = '/path/to'
+      expect(relativeResolve(from, to)).toBe('../..')
+    })
+
+    it('should resolve when target is descendant', () => {
+      const from = '/path/to'
+      const to = '/path/to/deep/nested'
+      expect(relativeResolve(from, to)).toBe('deep/nested')
+    })
+
+    it('should handle relative paths as input', () => {
+      const from = 'src/lib'
+      const to = 'src/test'
+      expect(relativeResolve(from, to)).toBe('../test')
+    })
+
+    it('should handle same path', () => {
+      const path = '/path/to/file'
+      expect(relativeResolve(path, path)).toBe('')
+    })
+
+    it('should handle root paths', () => {
+      expect(relativeResolve('/', '/path')).toBe('path')
+    })
+
+    it('should handle current directory', () => {
+      const from = './src'
+      const to = './lib'
+      const result = relativeResolve(from, to)
+      expect(result).toBeDefined()
     })
   })
 })
