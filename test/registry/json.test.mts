@@ -106,5 +106,38 @@ describe('json module', () => {
       expect(jsonParse('{"empty": []}')).toEqual({ empty: [] })
       expect(jsonParse('{"empty": {}}')).toEqual({ empty: {} })
     })
+
+    it('should parse JSON from Buffer', () => {
+      const buffer = Buffer.from('{"key": "value"}')
+      expect(jsonParse(buffer)).toEqual({ key: 'value' })
+    })
+
+    it('should strip BOM from Buffer', () => {
+      const bomBuffer = Buffer.from('\uFEFF{"key": "value"}')
+      expect(jsonParse(bomBuffer)).toEqual({ key: 'value' })
+    })
+
+    it('should include filepath in error message when provided', () => {
+      expect(() =>
+        jsonParse('{invalid}', { filepath: '/path/to/file.json' }),
+      ).toThrow('/path/to/file.json')
+    })
+
+    it('should use reviver function when provided', () => {
+      const json = '{"date": "2023-01-01T00:00:00.000Z"}'
+      const reviver = (key: string, value: any) => {
+        if (key === 'date') {
+          return new Date(value)
+        }
+        return value
+      }
+      const result = jsonParse(json, { reviver }) as any
+      expect(result.date).toBeInstanceOf(Date)
+      expect(result.date.toISOString()).toBe('2023-01-01T00:00:00.000Z')
+    })
+
+    it('should handle throws option explicitly set to true', () => {
+      expect(() => jsonParse('{invalid}', { throws: true })).toThrow()
+    })
   })
 })
