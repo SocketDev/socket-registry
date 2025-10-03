@@ -8,21 +8,19 @@ import yargsParser from '../external/yargs-parser'
  * Yargs parser options interface.
  */
 interface YargsOptions {
-  boolean?: string[]
-  string?: string[]
-  array?: string[]
-  alias?: Record<string, string | string[]>
-  default?: Record<string, unknown>
-  'unknown-options-as-args'?: boolean
-  'parse-numbers'?: boolean
-  'parse-positional-numbers'?: boolean
-  'boolean-negation'?: boolean
-  'halt-at-non-option'?: boolean
-  configuration?: {
-    'strip-aliased'?: boolean
-    'strip-dashed'?: boolean
-  }
-  strict?: boolean
+  boolean?: string[] | undefined
+  string?: string[] | undefined
+  array?: string[] | undefined
+  alias?: Record<string, string | string[]> | undefined
+  default?: Record<string, unknown> | undefined
+  coerce?: Record<string, (value: any) => any> | undefined
+  'unknown-options-as-args'?: boolean | undefined
+  'parse-numbers'?: boolean | undefined
+  'parse-positional-numbers'?: boolean | undefined
+  'boolean-negation'?: boolean | undefined
+  'halt-at-non-option'?: boolean | undefined
+  configuration?: Record<string, boolean | string> | undefined
+  strict?: boolean | undefined
 }
 
 /**
@@ -38,13 +36,15 @@ interface YargsArguments extends Record<string, unknown> {
  */
 export interface ParseArgsOptionsConfig {
   // Whether the option accepts multiple values (array).
-  multiple?: boolean
+  multiple?: boolean | undefined
   // Short alias for the option (single character).
-  short?: string
+  short?: string | undefined
   // Type of the option value.
-  type?: 'boolean' | 'string'
+  type?: 'boolean' | 'string' | undefined
   // Default value for the option.
-  default?: unknown
+  default?: unknown | undefined
+  // Transform function to coerce parsed values.
+  coerce?: (value: any) => any | undefined
 }
 
 /**
@@ -63,6 +63,8 @@ export interface ParseArgsConfig {
   allowPositionals?: boolean | undefined
   // Whether to allow negative numbers as option values.
   allowNegative?: boolean | undefined
+  // Advanced yargs-parser configuration passthrough.
+  configuration?: Record<string, boolean | string> | undefined
 }
 
 /**
@@ -88,6 +90,7 @@ export function parseArgs<T = Record<string, unknown>>(
     allowNegative = false,
     allowPositionals = true,
     args = process.argv.slice(2),
+    configuration,
     options = {},
     strict = true,
   } = config
@@ -99,20 +102,29 @@ export function parseArgs<T = Record<string, unknown>>(
     array: [],
     alias: {},
     default: {},
+    coerce: {},
     'unknown-options-as-args': !strict,
     'parse-numbers': false,
     'parse-positional-numbers': false,
     'boolean-negation': !allowNegative,
     'halt-at-non-option': !allowPositionals,
     configuration: {
+      'camel-case-expansion': false,
       'strip-aliased': false,
       'strip-dashed': true,
+      ...configuration,
     },
   }
 
   // Process each option configuration.
   for (const { 0: key, 1: optionConfig } of Object.entries(options)) {
-    const { default: defaultValue, multiple, short, type } = optionConfig
+    const {
+      coerce,
+      default: defaultValue,
+      multiple,
+      short,
+      type,
+    } = optionConfig
 
     // Set the option type.
     if (type === 'boolean') {
@@ -134,6 +146,11 @@ export function parseArgs<T = Record<string, unknown>>(
     // Set default value.
     if (defaultValue !== undefined) {
       yargsOptions.default![key] = defaultValue
+    }
+
+    // Set coerce function.
+    if (coerce) {
+      yargsOptions.coerce![key] = coerce
     }
   }
 
