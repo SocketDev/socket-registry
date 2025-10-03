@@ -69,12 +69,17 @@ import README_MD from '../../registry/dist/lib/constants/README_MD.js'
 import REGISTRY from '../../registry/dist/lib/constants/REGISTRY.js'
 import RESOLUTIONS from '../../registry/dist/lib/constants/RESOLUTIONS.js'
 import SOCKET_APP_PREFIX from '../../registry/dist/lib/constants/SOCKET_APP_PREFIX.js'
+import SOCKET_CLI_APP_NAME from '../../registry/dist/lib/constants/SOCKET_CLI_APP_NAME.js'
+import SOCKET_DLX_APP_NAME from '../../registry/dist/lib/constants/SOCKET_DLX_APP_NAME.js'
+import SOCKET_FIREWALL_APP_NAME from '../../registry/dist/lib/constants/SOCKET_FIREWALL_APP_NAME.js'
 import SOCKET_GITHUB_ORG from '../../registry/dist/lib/constants/SOCKET_GITHUB_ORG.js'
 import SOCKET_IPC_HANDSHAKE from '../../registry/dist/lib/constants/SOCKET_IPC_HANDSHAKE.js'
 import SOCKET_OVERRIDE_SCOPE from '../../registry/dist/lib/constants/SOCKET_OVERRIDE_SCOPE.js'
 import SOCKET_PUBLIC_API_TOKEN from '../../registry/dist/lib/constants/SOCKET_PUBLIC_API_TOKEN.js'
+import SOCKET_REGISTRY_APP_NAME from '../../registry/dist/lib/constants/SOCKET_REGISTRY_APP_NAME.js'
 import SOCKET_REGISTRY_NPM_ORG from '../../registry/dist/lib/constants/SOCKET_REGISTRY_NPM_ORG.js'
 import SOCKET_REGISTRY_PACKAGE_NAME from '../../registry/dist/lib/constants/SOCKET_REGISTRY_PACKAGE_NAME.js'
+import SOCKET_REGISTRY_REPO_NAME from '../../registry/dist/lib/constants/SOCKET_REGISTRY_REPO_NAME.js'
 import SOCKET_REGISTRY_SCOPE from '../../registry/dist/lib/constants/SOCKET_REGISTRY_SCOPE.js'
 import SOCKET_SECURITY_SCOPE from '../../registry/dist/lib/constants/SOCKET_SECURITY_SCOPE.js'
 import SUPPORTS_NODE_COMPILE_CACHE_API from '../../registry/dist/lib/constants/SUPPORTS_NODE_COMPILE_CACHE_API.js'
@@ -82,6 +87,7 @@ import SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR from '../../registry/dist/lib/constan
 import SUPPORTS_NODE_DISABLE_WARNING_FLAG from '../../registry/dist/lib/constants/SUPPORTS_NODE_DISABLE_WARNING_FLAG.js'
 import SUPPORTS_NODE_PERMISSION_FLAG from '../../registry/dist/lib/constants/SUPPORTS_NODE_PERMISSION_FLAG.js'
 import SUPPORTS_NODE_REQUIRE_MODULE from '../../registry/dist/lib/constants/SUPPORTS_NODE_REQUIRE_MODULE.js'
+import SUPPORTS_NODE_RUN from '../../registry/dist/lib/constants/SUPPORTS_NODE_RUN.js'
 import SUPPORTS_PROCESS_SEND from '../../registry/dist/lib/constants/SUPPORTS_PROCESS_SEND.js'
 import TSCONFIG_JSON from '../../registry/dist/lib/constants/TSCONFIG_JSON.js'
 import UNDEFINED_TOKEN from '../../registry/dist/lib/constants/UNDEFINED_TOKEN.js'
@@ -93,16 +99,12 @@ import UTF8 from '../../registry/dist/lib/constants/UTF8.js'
 import VITEST from '../../registry/dist/lib/constants/VITEST.js'
 import VLT from '../../registry/dist/lib/constants/VLT.js'
 import VLT_LOCK_JSON from '../../registry/dist/lib/constants/VLT_LOCK_JSON.js'
+import WIN32 from '../../registry/dist/lib/constants/WIN32.js'
 import YARN from '../../registry/dist/lib/constants/YARN.js'
 import YARN_BERRY from '../../registry/dist/lib/constants/YARN_BERRY.js'
-import SOCKET_CLI_APP_NAME from '../../registry/dist/lib/constants/SOCKET_CLI_APP_NAME.js'
-import SOCKET_DLX_APP_NAME from '../../registry/dist/lib/constants/SOCKET_DLX_APP_NAME.js'
-import SOCKET_FIREWALL_APP_NAME from '../../registry/dist/lib/constants/SOCKET_FIREWALL_APP_NAME.js'
-import SOCKET_REGISTRY_APP_NAME from '../../registry/dist/lib/constants/SOCKET_REGISTRY_APP_NAME.js'
-import SOCKET_REGISTRY_REPO_NAME from '../../registry/dist/lib/constants/SOCKET_REGISTRY_REPO_NAME.js'
-import SUPPORTS_NODE_RUN from '../../registry/dist/lib/constants/SUPPORTS_NODE_RUN.js'
-import WIN32 from '../../registry/dist/lib/constants/WIN32.js'
 import YARN_LOCK from '../../registry/dist/lib/constants/YARN_LOCK.js'
+import logger from '../../registry/dist/lib/constants/logger.js'
+import YARN_CLASSIC from '../../registry/dist/lib/constants/yarn-classic.js'
 
 describe('additional constant modules', () => {
   describe('version constants', () => {
@@ -161,6 +163,11 @@ describe('additional constant modules', () => {
     it('should export YARN_BERRY', () => {
       expect(typeof YARN_BERRY).toBe('string')
       expect(YARN_BERRY).toBe('yarn/berry')
+    })
+
+    it('should export YARN_CLASSIC', () => {
+      expect(typeof YARN_CLASSIC).toBe('string')
+      expect(YARN_CLASSIC).toBe('yarn/classic')
     })
 
     it('should export VLT', () => {
@@ -636,6 +643,15 @@ describe('additional constant modules', () => {
 
     it('should export SUPPORTS_NODE_RUN', () => {
       expect(typeof SUPPORTS_NODE_RUN).toBe('boolean')
+    })
+  })
+
+  describe('re-exported modules', () => {
+    it('should export logger', () => {
+      expect(logger).toBeDefined()
+      expect(typeof logger.info).toBe('function')
+      expect(typeof logger.error).toBe('function')
+      expect(typeof logger.warn).toBe('function')
     })
   })
 })
