@@ -103,7 +103,14 @@ import WIN32 from '../../registry/dist/lib/constants/WIN32.js'
 import YARN from '../../registry/dist/lib/constants/YARN.js'
 import YARN_BERRY from '../../registry/dist/lib/constants/YARN_BERRY.js'
 import YARN_LOCK from '../../registry/dist/lib/constants/YARN_LOCK.js'
+import execPath from '../../registry/dist/lib/constants/exec-path.js'
+import lifecycleScriptNames from '../../registry/dist/lib/constants/lifecycle-script-names.js'
 import logger from '../../registry/dist/lib/constants/logger.js'
+import nodeDebugFlags from '../../registry/dist/lib/constants/node-debug-flags.js'
+import npmLifecycleEvent from '../../registry/dist/lib/constants/npm-lifecycle-event.js'
+import packageManagerCacheNames from '../../registry/dist/lib/constants/package-manager-cache-names.js'
+import tsLibsAvailable from '../../registry/dist/lib/constants/ts-libs-available.js'
+import tsTypesAvailable from '../../registry/dist/lib/constants/ts-types-available.js'
 import YARN_CLASSIC from '../../registry/dist/lib/constants/yarn-classic.js'
 
 describe('additional constant modules', () => {
@@ -652,6 +659,52 @@ describe('additional constant modules', () => {
       expect(typeof logger.info).toBe('function')
       expect(typeof logger.error).toBe('function')
       expect(typeof logger.warn).toBe('function')
+    })
+  })
+
+  describe('lifecycle and script constants', () => {
+    it('should export lifecycleScriptNames as a Set', () => {
+      expect(lifecycleScriptNames instanceof Set).toBe(true)
+      expect(lifecycleScriptNames.size).toBeGreaterThan(0)
+      expect(lifecycleScriptNames.has('install')).toBe(true)
+      expect(lifecycleScriptNames.has('preinstall')).toBe(true)
+      expect(lifecycleScriptNames.has('postinstall')).toBe(true)
+    })
+
+    it('should export npmLifecycleEvent', () => {
+      expect(['string', 'undefined']).toContain(typeof npmLifecycleEvent)
+    })
+
+    it('should export execPath as a string', () => {
+      expect(typeof execPath).toBe('string')
+      expect(execPath.length).toBeGreaterThan(0)
+    })
+  })
+
+  describe('package manager configuration constants', () => {
+    it('should export packageManagerCacheNames as a frozen object', () => {
+      expect(typeof packageManagerCacheNames).toBe('object')
+      expect(packageManagerCacheNames).toBeDefined()
+      expect(Object.isFrozen(packageManagerCacheNames)).toBe(true)
+      expect(packageManagerCacheNames['NPM_CACHE_DIR']).toBe('.npm')
+      expect(packageManagerCacheNames['PNPM_STORE_DIR']).toBe('pnpm')
+      expect(packageManagerCacheNames['YARN_CLASSIC_CACHE_DIR']).toBe('yarn')
+    })
+
+    it('should export nodeDebugFlags as an array', () => {
+      expect(Array.isArray(nodeDebugFlags)).toBe(true)
+    })
+  })
+
+  describe('TypeScript availability constants', () => {
+    it('should export tsLibsAvailable as an object', () => {
+      expect(typeof tsLibsAvailable).toBe('object')
+      expect(tsLibsAvailable).toBeDefined()
+    })
+
+    it('should export tsTypesAvailable as an object', () => {
+      expect(typeof tsTypesAvailable).toBe('object')
+      expect(tsTypesAvailable).toBeDefined()
     })
   })
 })
