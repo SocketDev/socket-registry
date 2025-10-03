@@ -1,6 +1,6 @@
 /**
  * @fileoverview Package validation utility for npm package testing.
- * Validates that Socket overrides exist and are properly configured for testing.
+ * Validates that Socket overrides either have manual tests (test/npm/<pkg-name>.test.mts) or are in test/npm/package.json devDependencies.
  */
 
 import { existsSync, promises as fs } from 'node:fs'
@@ -60,6 +60,25 @@ async function validatePackage(socketPkgName) {
       socketPackage: socketPkgName,
       downloaded: false,
       reason: 'No override',
+    }
+  }
+
+  // Check if there's a manual test file for this package.
+  const manualTestPath = path.join(
+    constants.testNpmPath,
+    `${socketPkgName}.test.mts`,
+  )
+  const hasManualTest = existsSync(manualTestPath)
+
+  if (hasManualTest) {
+    // Skip devDependencies check for packages with manual tests.
+    writeProgress(LOG_SYMBOLS.success)
+    return {
+      package: origPkgName,
+      socketPackage: socketPkgName,
+      downloaded: true,
+      reason: 'Skipped - has manual test',
+      overridePath,
     }
   }
 
