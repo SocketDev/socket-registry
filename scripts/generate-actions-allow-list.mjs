@@ -5,36 +5,16 @@ import path from 'node:path'
 
 import clipboardy from 'clipboardy'
 import { logger } from '../registry/dist/lib/logger.js'
-
-const GITHUB_PATH = '.github'
-const WORKFLOWS_PATH = path.join(GITHUB_PATH, 'workflows')
-const ACTIONS_PATH = path.join(GITHUB_PATH, 'actions')
+import constants from './constants.mjs'
 
 /**
  * Extract action dependencies from a workflow or action file.
  */
 async function extractDependencies(filePath) {
   const content = await fs.readFile(filePath, 'utf8')
-  const dependencies = new Set()
+  const dependencies = new Map()
 
-  // Extract dependencies from # Dependencies: comment blocks.
-  const dependencyMatch = content.match(/^# Dependencies:\n((?:#.+\n)+)/m)
-  if (dependencyMatch) {
-    const lines = dependencyMatch[1].split('\n')
-    for (const line of lines) {
-      // Match both top-level and nested dependencies.
-      const depMatch = line.match(/^#\s+- (.+)$/)
-      if (depMatch) {
-        // Clean up the dependency string - remove inline comments but keep the SHA.
-        let dep = depMatch[1].trim()
-        // Remove inline comments like "# transitive" or "# v5.0.0".
-        dep = dep.replace(/\s+#.*$/, '')
-        dependencies.add(dep)
-      }
-    }
-  }
-
-  // Also extract from uses: statements for completeness.
+  // Extract from uses: statements only (these have SHAs).
   const usesMatches = content.matchAll(/^\s*uses:\s*(.+)$/gm)
   for (const match of usesMatches) {
     let action = match[1].trim()
@@ -42,7 +22,13 @@ async function extractDependencies(filePath) {
     action = action.replace(/\s+#.*$/, '')
     // Skip local actions that reference the current repo.
     if (!action.startsWith('.')) {
-      dependencies.add(action)
+      // Extract owner/repo as key for deduplication.
+      const atIndex = action.indexOf('@')
+      if (atIndex !== -1) {
+        const key = action.slice(0, atIndex)
+        // Store with key to deduplicate - keep the SHA version.
+        dependencies.set(key, action)
+      }
     }
   }
 
@@ -74,28 +60,36 @@ async function getAllYamlFiles(dir) {
  * Generate and display GitHub Actions allow list.
  */
 async function main() {
-  const allDependencies = new Set()
+  const allDependencies = new Map()
 
   // Process workflow files.
-  const workflowFiles = await getAllYamlFiles(WORKFLOWS_PATH)
+  const workflowFiles = await getAllYamlFiles(
+    constants.rootDotGithubWorkflowsPath,
+  )
   for (const file of workflowFiles) {
     // eslint-disable-next-line no-await-in-loop
     const deps = await extractDependencies(file)
-    for (const dep of deps) {
-      allDependencies.add(dep)
+    for (const { 0: key, 1: value } of deps.entries()) {
+      allDependencies.set(key, value)
     }
   }
 
   // Process action files.
-  const actionDirs = await fs.readdir(ACTIONS_PATH, { withFileTypes: true })
+  const actionDirs = await fs.readdir(constants.rootDotGithubActionsPath, {
+    withFileTypes: true,
+  })
   for (const dir of actionDirs) {
     if (dir.isDirectory()) {
-      const actionFile = path.join(ACTIONS_PATH, dir.name, 'action.yml')
+      const actionFile = path.join(
+        constants.rootDotGithubActionsPath,
+        dir.name,
+        'action.yml',
+      )
       try {
         // eslint-disable-next-line no-await-in-loop
         const deps = await extractDependencies(actionFile)
-        for (const dep of deps) {
-          allDependencies.add(dep)
+        for (const { 0: key, 1: value } of deps.entries()) {
+          allDependencies.set(key, value)
         }
       } catch {}
     }
@@ -105,7 +99,7 @@ async function main() {
   const socketDevActions = []
   const externalActions = []
 
-  for (const dep of allDependencies) {
+  for (const dep of allDependencies.values()) {
     if (dep.startsWith('SocketDev/')) {
       socketDevActions.push(dep)
     } else if (!dep.startsWith('.')) {
