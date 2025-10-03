@@ -13,6 +13,7 @@ import { PackageURL } from '@socketregistry/packageurl-js'
 import constants from './constants.mjs'
 import { getModifiedFiles } from './utils/git.mjs'
 import { biomeFormat } from './utils/biome.mjs'
+import { getPackageVersionSpec, shouldSkipTests } from './utils/packages.mjs'
 
 import {
   objectEntries,
@@ -103,13 +104,7 @@ async function addNpmManifestData(manifest, options) {
     constants.npmPackageNames,
     async sockRegPkgName => {
       const origPkgName = resolveOriginalPackageName(sockRegPkgName)
-      const testNpmPkgJson = await readPackageJson(
-        constants.testNpmPkgJsonPath,
-        {
-          normalize: true,
-        },
-      )
-      const nmPkgSpec = testNpmPkgJson.devDependencies[origPkgName]
+      const nmPkgSpec = getPackageVersionSpec(origPkgName) || 'latest'
       const nmPkgId = `${origPkgName}@${nmPkgSpec}`
       const nmPkgManifest = await fetchPackageManifest(nmPkgId)
       if (!nmPkgManifest) {
@@ -147,9 +142,10 @@ async function addNpmManifestData(manifest, options) {
       if (isBrowserify) {
         interop.push('browserify')
       }
-      const skipTests = constants.skipTestsByEcosystem
-        .get(eco)
-        .has(sockRegPkgName)
+      const skipTests = shouldSkipTests(origPkgName, {
+        ecosystem: eco,
+        testPath: constants.testNpmPath,
+      })
       const metaEntries = [
         ['name', name],
         ['interop', interop.sort(naturalCompare)],
