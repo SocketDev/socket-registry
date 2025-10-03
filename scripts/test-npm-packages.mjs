@@ -82,7 +82,7 @@ async function runCommand(command, args, options = {}) {
 
 async function main() {
   const scriptDir = path.dirname(fileURLToPath(import.meta.url))
-  const downloadScript = path.join(scriptDir, 'download-npm-packages.mjs')
+  const validateScript = path.join(scriptDir, 'validate-npm-packages.mjs')
   const installScript = path.join(scriptDir, 'install-npm-packages.mjs')
   const testScript = path.join(scriptDir, 'run-npm-package-tests.mjs')
 
@@ -95,10 +95,10 @@ async function main() {
     })
   }
 
-  // Download args with download concurrency.
-  const downloadArgs = [...commonArgs]
+  // Validate args with validate concurrency.
+  const validateArgs = [...commonArgs]
   if (cliArgs.downloadConcurrency) {
-    downloadArgs.push('--concurrency', cliArgs.downloadConcurrency)
+    validateArgs.push('--concurrency', cliArgs.downloadConcurrency)
   }
 
   // Install args with install concurrency.
@@ -113,21 +113,21 @@ async function main() {
     testArgs.push('--concurrency', cliArgs.testConcurrency)
   }
 
-  downloadArgs.push('--temp-dir', tempBaseDir)
+  validateArgs.push('--temp-dir', tempBaseDir)
   installArgs.push('--temp-dir', tempBaseDir)
   testArgs.push('--temp-dir', tempBaseDir)
 
   try {
-    // Phase 1: Download packages (unless test-only mode).
+    // Phase 1: Validate packages (unless test-only mode).
     if (!cliArgs.testOnly) {
-      logSectionHeader('Phase 1: Download packages', { emoji: '📥' })
+      logSectionHeader('Phase 1: Validate packages', { emoji: '✅' })
 
       // Add clear-cache flag if specified.
       if (cliArgs.clearCache) {
-        downloadArgs.push('--clear-cache')
+        validateArgs.push('--clear-cache')
       }
 
-      await runCommand('node', [downloadScript, ...downloadArgs])
+      await runCommand('node', [validateScript, ...validateArgs])
       logger.log('')
     }
 
@@ -159,7 +159,7 @@ async function main() {
     }
 
     // Never clean up the cache directory - it's persistent by design.
-    // Users can explicitly clear it with --clear-cache flag in download phase.
+    // Users can explicitly clear it with --clear-cache flag in validate phase.
     process.exitCode = 0
   } catch (error) {
     logger.error('')

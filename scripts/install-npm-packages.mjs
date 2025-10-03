@@ -4,7 +4,7 @@
  * EXECUTION FLOW:
  *
  * This script is part of a 3-phase testing pipeline:
- *   1. download-npm-packages.mjs - Validates packages exist and can be downloaded
+ *   1. validate-npm-packages.mjs - Validates packages have manual tests or are in devDependencies
  *   2. install-npm-packages.mjs  - Installs packages with Socket overrides (THIS FILE)
  *   3. run-npm-package-tests.mjs - Runs tests for installed packages
  *
