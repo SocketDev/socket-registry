@@ -23,16 +23,7 @@ When working in any Socket repository, check for updates and patterns in other c
 
 ### Cross-Project Learning
 - When discovering generally applicable patterns or guidelines, update CLAUDE.md files in other socket- projects
-- Examples: c8 comment formatting, error handling patterns, code style rules, test organization patterns, workflow patterns
 - This ensures consistency across the Socket ecosystem
-
-### Recent Learnings Applied
-- **Test Organization**: Modular test files improve maintainability across all projects
-- **Error Message Consistency**: Use consistent error message patterns across all Socket projects
-- **Safe File Removal**: Use safeRemove utility consistently across projects for CI optimization
-- **Cross-Platform Support**: Enhanced cross-platform compatibility measures
-- **TypeScript Strict Mode**: All projects should use strict TypeScript configuration
-- **Import Organization**: Separate type imports from runtime imports for better tree-shaking
 
 ## 🎯 Your Role
 You are a **Principal Software Engineer** responsible for:
@@ -232,45 +223,7 @@ Use these standardized patterns for consistency across all Socket projects:
 - **fs imports**: Use pattern `import { syncMethod, promises as fs } from 'node:fs'`
 
 #### Import Statement Sorting
-- **🚨 MANDATORY**: Sort imports in this exact order with blank lines between groups (enforced by ESLint import-x/order):
-  1. Node.js built-in modules (with `node:` prefix) - sorted alphabetically
-  2. External third-party packages - sorted alphabetically
-  3. Internal Socket packages (`@socketsecurity/*`) - sorted alphabetically
-  4. Local/relative imports (parent, sibling, index) - sorted alphabetically
-  5. **Type imports LAST as separate group** - sorted alphabetically (all `import type` statements together at the end)
-- **Within each group**: Sort alphabetically by module name
-- **Named imports**: Sort named imports alphabetically within the import statement (enforced by sort-imports)
-- **Type import placement**: Type imports must come LAST, after all runtime imports, as a separate group with blank line before
-- **Examples**:
-  - ✅ CORRECT:
-    ```typescript
-    import { readFile } from 'node:fs'
-    import path from 'node:path'
-    import { promisify } from 'node:util'
-
-    import axios from 'axios'
-    import semver from 'semver'
-
-    import { readPackageJson } from '@socketsecurity/registry/lib/packages'
-    import { spawn } from '@socketsecurity/registry/lib/spawn'
-
-    import { API_BASE_URL } from './constants'
-    import { formatError, parseResponse } from './utils'
-
-    import type { ClientRequest, IncomingMessage } from 'node:http'
-    import type { PackageJson } from '@socketsecurity/registry/lib/packages'
-    import type { Config } from './types'
-    ```
-  - ❌ WRONG:
-    ```typescript
-    import { formatError, parseResponse } from './utils'
-    import axios from 'axios'
-    import type { Config } from './types'
-    import { readFile } from 'node:fs'
-    import { spawn } from '@socketsecurity/registry/lib/spawn'
-    import semver from 'semver'
-    import type { PackageJson } from '@socketsecurity/registry/lib/packages'
-    ```
+- **🚨 MANDATORY**: Sort imports: 1) Node.js built-ins (`node:` prefix), 2) External packages, 3) Internal Socket packages (`@socketsecurity/*`), 4) Local/relative imports, 5) Type imports LAST. Blank lines between groups. Alphabetical within groups. Enforced by ESLint import-x/order and sort-imports.
 
 ### 🏗️ Code Structure & Patterns
 
@@ -461,69 +414,19 @@ Follow the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format:
 ## 🔧 Git & Workflow
 
 ### GitHub Actions Guidelines
-- **🚨 MANDATORY**: All GitHub Actions MUST reference commit SHAs, not version tags
-- **Security requirement**: SocketDev repositories require pinned commit hashes for supply chain security
-- **🚨 MANDATORY**: Reusable workflows MUST be created in `socket-registry/.github/workflows/`, NOT in individual project repositories
-- **Workflow location**: Individual projects should reference workflows from `SocketDev/socket-registry/.github/workflows/`
-- **Standard action SHAs** (keep these updated across all Socket projects):
-  - `actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8` (v5.0.0)
-  - `pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda` (v4.1.0)
-  - `actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444` (v5.0.0)
-  - `actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874` (v4.4.0)
-- **Format**: Always include version comment: `uses: owner/repo@sha # vX.Y.Z`
-- **Examples**:
-  - ✅ CORRECT: `uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0`
-  - ✅ CORRECT: `uses: SocketDev/socket-registry/.github/workflows/test.yml@main`
-  - ❌ FORBIDDEN: `uses: actions/checkout@v4` or `uses: actions/checkout@v5`
-  - ❌ FORBIDDEN: `uses: ./.github/workflows/_reusable-test.yml` (reusable workflows belong in socket-registry)
-- **Allowed actions**: Either SocketDev-owned or pinned by SHA from trusted sources
-- **Cross-project consistency**: Maintain identical SHAs across all Socket projects
+- **🚨 MANDATORY**: All actions MUST reference commit SHAs, not tags. Format: `uses: owner/repo@sha # vX.Y.Z`
+- **Reusable workflows**: Create in `socket-registry/.github/workflows/`, reference from other projects
+- **Standard SHAs**: `actions/checkout@08c6903...5dd907a8` (v5.0.0), `pnpm/action-setup@a7487c7...0d66ddda` (v4.1.0), `actions/setup-node@a0853c24...8a591444` (v5.0.0), `actions/upload-artifact@50769540...35e0d6874` (v4.4.0)
 
 ### CI Workflow Strategy
-- **🚨 MANDATORY**: Use the centralized `ci.yml` reusable workflow from socket-registry
-- **Workflow location**: `SocketDev/socket-registry/.github/workflows/ci.yml@main`
-- **Benefits**: Consistent CI strategy across all Socket projects, parallel execution of lint/type-check/test/coverage
-- **Configuration**: Customize via workflow inputs (scripts, node versions, OS versions, timeouts, etc.)
-- **Standard configuration pattern**:
-  ```yaml
-  jobs:
-    ci:
-      name: Run CI Pipeline
-      uses: SocketDev/socket-registry/.github/workflows/ci.yml@main
-      with:
-        coverage-script: 'pnpm run test:unit:coverage'
-        coverage-report-script: 'pnpm run coverage:percent --json'
-        fail-fast: false
-        lint-script: 'pnpm run lint-ci'
-        node-versions: '[20, 22, 24]'
-        os-versions: '["ubuntu-latest", "windows-latest"]'
-        test-script: 'pnpm run test-ci'
-        test-setup-script: 'pnpm run build'
-        type-check-script: 'pnpm run type-ci'
-        type-check-setup-script: 'pnpm run build'
-  ```
-- **Orchestration**: CI workflow orchestrates lint.yml, types.yml, test.yml, and coverage reporting
-- **Individual workflows**: Keep lint.yml, types.yml, test.yml for targeted runs; ci.yml runs all together
-- **Cross-project consistency**: All Socket projects should use identical CI orchestration pattern
+- **🚨 MANDATORY**: Use `SocketDev/socket-registry/.github/workflows/ci.yml@main`
+- **Benefits**: Consistent CI, parallel execution of lint/type-check/test/coverage
+- **Configuration**: Customize via inputs (lint-script, test-script, type-check-script, node-versions, os-versions, etc.)
 
 #### CI Script Naming Convention (MANDATORY)
-All Socket projects MUST use these standardized script names in package.json:
-- **lint-ci**: Linting for CI environments
-  - Format: `"lint-ci": "pnpm run check:lint"`
-  - Purpose: Run linting checks without fixing, optimized for CI
-- **test-ci**: Testing for CI environments
-  - Format: `"test-ci": "dotenvx -q run -f .env.test -- vitest run"`
-  - Purpose: Run tests without watch mode, optimized for CI
-  - MUST NOT include linting or building (handled separately)
-- **type-ci**: Type checking for CI environments
-  - Format: `"type-ci": "pnpm run check:tsc"`
-  - Purpose: Run TypeScript type checking without emitting files
-
-**Why standardized names:**
-- Consistent CI configuration across all Socket projects
-- Clear separation of concerns (lint/test/type-check run independently)
-- Easier to maintain and update CI workflows
-- Reduces duplicate work (no linting in test-ci, no building twice)
+- **lint-ci**: `"pnpm run check:lint"` - Linting without fixing
+- **test-ci**: `"dotenvx -q run -f .env.test -- vitest run"` - Tests without watch mode (no linting/building)
+- **type-ci**: `"pnpm run check:tsc"` - Type checking without emitting files
 
 ## Architecture
 
@@ -662,84 +565,19 @@ When working in any Socket repository, check CLAUDE.md files in other Socket pro
 ### 🚨 MANDATORY Dependency Management
 All Socket projects MUST maintain alignment on these core dependencies. Use `taze` for version management - run `pnpm run taze` to check for and apply dependency updates.
 
-#### Core Build Tools & TypeScript
-- **@typescript/native-preview** (tsgo - NEVER use standard tsc)
-- **@types/node** (latest LTS types)
-- **typescript-eslint** (unified package - do NOT use separate @typescript-eslint/* packages)
+#### Core Dependencies (MANDATORY Alignment)
+**Build/TypeScript**: @typescript/native-preview (tsgo), @types/node, typescript-eslint (unified only)
+**DevDeps**: @biomejs/biome, @dotenvx/dotenvx, @eslint/compat, @eslint/js, @vitest/coverage-v8, eslint, eslint-plugin-import-x, eslint-plugin-n, eslint-plugin-sort-destructure-keys, eslint-plugin-unicorn, globals, husky, knip, lint-staged, npm-run-all2, oxlint, taze, trash, type-coverage, vitest, yargs-parser, yoctocolors-cjs
 
-#### Essential DevDependencies
-- **@biomejs/biome**
-- **@dotenvx/dotenvx**
-- **@eslint/compat**
-- **@eslint/js**
-- **@vitest/coverage-v8**
-- **eslint**
-- **eslint-plugin-import-x**
-- **eslint-plugin-n**
-- **eslint-plugin-sort-destructure-keys**
-- **eslint-plugin-unicorn**
-- **globals**
-- **husky**
-- **knip**
-- **lint-staged**
-- **npm-run-all2**
-- **oxlint**
-- **taze**
-- **trash**
-- **type-coverage**
-- **vitest**
-- **yargs-parser**
-- **yoctocolors-cjs**
+### 🔧 TypeScript & ESLint Standardization
+- **🚨 MANDATORY**: Use `tsgo` from `@typescript/native-preview` (not `tsc`)
+- **🚨 FORBIDDEN**: Use unified `typescript-eslint` package only (not separate @typescript-eslint/* packages)
 
-### 🔧 TypeScript Compiler Standardization
-- **🚨 MANDATORY**: ALL Socket projects MUST use `tsgo` instead of `tsc`
-- **Package**: `@typescript/native-preview`
-- **Scripts**: Replace `tsc` with `tsgo` in all package.json scripts
-- **Benefits**: Enhanced performance, better memory management, faster compilation
-
-#### Script Examples:
-```json
-{
-  "build": "tsgo",
-  "check:tsc": "tsgo --noEmit",
-  "build:types": "tsgo --project tsconfig.dts.json"
-}
-```
-
-### 🛠️ ESLint Configuration Standardization
-- **🚨 FORBIDDEN**: Do NOT use separate `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser` packages
-- **✅ REQUIRED**: Use unified `typescript-eslint` package only
-- **Migration**: Remove separate packages, add unified package
-
-#### Migration Commands:
-```bash
-pnpm remove @typescript-eslint/eslint-plugin @typescript-eslint/parser
-pnpm add -D typescript-eslint --save-exact
-```
-
-### 📋 Dependency Update Requirements
-When updating dependencies across Socket projects:
-
-1. **Use taze first**: Run `pnpm run taze` to check for and apply dependency updates
-2. **Version Consistency**: All projects MUST use identical versions for shared dependencies
-3. **Exact Versions**: Always use `--save-exact` flag to prevent version drift
-4. **Batch Updates**: Update all Socket projects simultaneously to maintain alignment
-5. **Testing**: Run full test suites after dependency updates to ensure compatibility
-6. **Documentation**: Update CLAUDE.md files when standard versions change
-
-### 🔄 Regular Maintenance
-- **Monthly Audits**: Review dependency versions across all Socket projects
-- **Security Updates**: Apply security patches immediately across all projects
-- **Major Version Updates**: Coordinate across projects, test thoroughly
-- **Legacy Cleanup**: Remove unused dependencies during regular maintenance
-
-### 🚨 Enforcement Rules
-- **Pre-commit Hooks**: Configure to prevent commits with misaligned dependencies
-- **CI/CD Integration**: Fail builds on version mismatches
-- **Code Reviews**: Always verify dependency alignment in PRs
-- **Documentation**: Keep this section updated with current standard versions
-
-This standardization ensures consistency, reduces maintenance overhead, and prevents dependency-related issues across the Socket ecosystem.
+### 📋 Dependency Update Protocol
+1. Run `pnpm run taze` to check/apply updates
+2. Use `--save-exact` for all dependencies (no `^` or `~`)
+3. Update all Socket projects simultaneously
+4. Test thoroughly after updates
 
 ## Notes
 

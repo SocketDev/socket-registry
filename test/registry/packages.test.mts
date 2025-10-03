@@ -369,7 +369,7 @@ describe('packages module', () => {
 
     it('should handle GitHub URLs', () => {
       const details = getRepoUrlDetails(
-        'https://github.com/socketdev/socket-registry',
+        'https://github.com/SocketDev/socket-registry',
       )
       expect(details).toBeDefined()
     })
