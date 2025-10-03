@@ -2,9 +2,11 @@ import assert from 'node:assert/strict'
 import path from 'node:path'
 
 import fastJsonStableStringify from 'fast-json-stable-stringify'
+// eslint-disable-next-line import-x/no-duplicates
 import origJsonStableStringify from 'json-stable-stringify'
 import { Bench } from 'tinybench'
 
+// eslint-disable-next-line import-x/no-duplicates
 import overrideJsonStableStringify from '@socketregistry/json-stable-stringify'
 import { logger } from '@socketsecurity/registry/lib/logger'
 
