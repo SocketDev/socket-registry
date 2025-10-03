@@ -25,6 +25,7 @@ import {
   writeJson,
   writeJsonSync,
 } from '../../registry/dist/lib/fs.js'
+import { normalizePath } from '../../registry/dist/lib/path.js'
 import { trash } from '../../scripts/utils/fs.mjs'
 
 describe('fs utilities', () => {
@@ -46,7 +47,7 @@ describe('fs utilities', () => {
       fs.writeFileSync(path.join(tmpDir, 'target.txt'), 'content')
 
       const result = await findUp('target.txt', { cwd: subDir })
-      expect(result).toBe(path.join(tmpDir, 'target.txt'))
+      expect(result).toBe(normalizePath(path.join(tmpDir, 'target.txt')))
     })
 
     it('should find directory when onlyDirectories is true', async () => {
@@ -59,7 +60,7 @@ describe('fs utilities', () => {
         cwd: subDir,
         onlyDirectories: true,
       })
-      expect(result).toBe(targetDir)
+      expect(result).toBe(normalizePath(targetDir))
     })
 
     it('should find multiple target names', async () => {
@@ -70,7 +71,7 @@ describe('fs utilities', () => {
       const result = await findUp(['package.json', 'config.json'], {
         cwd: subDir,
       })
-      expect(result).toBe(path.join(tmpDir, 'config.json'))
+      expect(result).toBe(normalizePath(path.join(tmpDir, 'config.json')))
     })
 
     it('should return undefined when not found', async () => {
@@ -97,7 +98,7 @@ describe('fs utilities', () => {
       fs.writeFileSync(path.join(tmpDir, 'target.txt'), 'content')
 
       const result = findUpSync('target.txt', { cwd: subDir })
-      expect(result).toBe(path.join(tmpDir, 'target.txt'))
+      expect(result).toBe(normalizePath(path.join(tmpDir, 'target.txt')))
     })
 
     it('should stop at specified directory', () => {
@@ -108,7 +109,7 @@ describe('fs utilities', () => {
       fs.writeFileSync(path.join(stopDir, 'local.txt'), 'content')
 
       const result = findUpSync('local.txt', { cwd: subDir, stopAt: stopDir })
-      expect(result).toBe(path.join(stopDir, 'local.txt'))
+      expect(result).toBe(normalizePath(path.join(stopDir, 'local.txt')))
     })
 
     it('should return undefined when stopAt prevents finding', () => {
@@ -419,7 +420,7 @@ describe('fs utilities', () => {
     it('should return original path when file does not exist', () => {
       const filePath = path.join(tmpDir, 'unique.txt')
       const result = uniqueSync(filePath)
-      expect(result).toBe(filePath)
+      expect(result).toBe(normalizePath(filePath))
     })
 
     it('should generate unique path when file exists', () => {
