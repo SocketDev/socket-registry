@@ -24,7 +24,7 @@ permissions:
 
 jobs:
   socket-auto-pr:
-    uses: SocketDev/socket-registry/.github/workflows/socket-auto-pr.yml@b94a1086bd697ed1e93c59585bba2b7e59dfd5fb # main
+    uses: SocketDev/socket-registry/.github/workflows/socket-auto-pr.yml@1f4ae0df40e5d4e506e9155db9c3c6a77864fdcc # main
     with:
       debug: ${{ inputs.debug }}
       autopilot: true
