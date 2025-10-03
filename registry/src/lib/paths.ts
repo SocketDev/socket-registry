@@ -1,5 +1,5 @@
 /**
- * Path utilities for Socket ecosystem directories.
+ * @fileoverview Path utilities for Socket ecosystem directories.
  * Provides platform-aware path resolution for Socket tools' shared directory structure.
  *
  * Directory Structure:
