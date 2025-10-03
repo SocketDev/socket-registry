@@ -11,6 +11,7 @@ import {
   getSocketCacacheDir,
   getSocketCliDir,
   getSocketDlxDir,
+  getSocketHomePath,
   getSocketRegistryDir,
   getSocketRegistryGithubCacheDir,
   getSocketUserDir,
@@ -27,6 +28,13 @@ describe('paths module', () => {
       const first = getSocketUserDir()
       const second = getSocketUserDir()
       expect(first).toBe(second)
+    })
+  })
+
+  describe('getSocketHomePath', () => {
+    it('should return ~/.socket path (alias for getSocketUserDir)', () => {
+      const result = getSocketHomePath()
+      expect(result).toBe(getSocketUserDir())
     })
   })
 
