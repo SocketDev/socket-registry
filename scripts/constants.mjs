@@ -63,7 +63,7 @@ const LAZY_LICENSE_CONTENT = () =>
   fs.readFileSync(constants.rootLicensePath, UTF8)
 
 const lazyEcosystems = () => {
-  const registryLibFs = /*@__PURE__*/ require('../registry/dist/lib/fs')
+  const registryLibFs = /*@__PURE__*/ require('../registry/dist/lib/fs.js')
   const readDirNamesSync = registryLibFs.readDirNamesSync
   return Object.freeze(readDirNamesSync(constants.rootPackagesPath))
 }
@@ -91,7 +91,7 @@ const lazyIgnoreGlobs = () =>
   ])
 
 const lazyNpmPackageNames = () => {
-  const registryLibFs = /*@__PURE__*/ require('../registry/dist/lib/fs')
+  const registryLibFs = /*@__PURE__*/ require('../registry/dist/lib/fs.js')
   const readDirNamesSync = registryLibFs.readDirNamesSync
   return Object.freeze(readDirNamesSync(constants.npmPackagesPath))
 }
