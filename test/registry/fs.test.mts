@@ -27,6 +27,7 @@ import {
   writeJson,
   writeJsonSync,
 } from '../../registry/dist/lib/fs.js'
+import { normalizePath } from '../../registry/dist/lib/path.js'
 import { trash } from '../../scripts/utils/fs.mjs'
 
 describe('fs module', () => {
@@ -393,7 +394,7 @@ describe('fs module', () => {
       const filePath = path.join(tmpDir, 'test.txt')
       fs.writeFileSync(filePath, 'content')
       const result = uniqueSync(filePath)
-      expect(result).toBe(path.join(tmpDir, 'test-1.txt'))
+      expect(result).toBe(normalizePath(path.join(tmpDir, 'test-1.txt')))
     })
 
     it('should increment number for multiple conflicts', () => {
@@ -401,14 +402,14 @@ describe('fs module', () => {
       fs.writeFileSync(base, 'content')
       fs.writeFileSync(path.join(tmpDir, 'test-1.txt'), 'content')
       const result = uniqueSync(base)
-      expect(result).toBe(path.join(tmpDir, 'test-2.txt'))
+      expect(result).toBe(normalizePath(path.join(tmpDir, 'test-2.txt')))
     })
 
     it('should handle files with extensions', () => {
       const filePath = path.join(tmpDir, 'file.json')
       fs.writeFileSync(filePath, '{}')
       const result = uniqueSync(filePath)
-      expect(result).toBe(path.join(tmpDir, 'file-1.json'))
+      expect(result).toBe(normalizePath(path.join(tmpDir, 'file-1.json')))
     })
   })
 
@@ -417,7 +418,7 @@ describe('fs module', () => {
       const searchFile = 'target.txt'
       fs.writeFileSync(path.join(tmpDir, searchFile), 'found')
       const result = findUpSync(searchFile, { cwd: tmpDir })
-      expect(result).toBe(path.join(tmpDir, searchFile))
+      expect(result).toBe(normalizePath(path.join(tmpDir, searchFile)))
     })
 
     it('should find file in parent directories', () => {
@@ -425,7 +426,7 @@ describe('fs module', () => {
       fs.mkdirSync(subDir, { recursive: true })
       fs.writeFileSync(path.join(tmpDir, 'target.txt'), 'found')
       const result = findUpSync('target.txt', { cwd: subDir })
-      expect(result).toBe(path.join(tmpDir, 'target.txt'))
+      expect(result).toBe(normalizePath(path.join(tmpDir, 'target.txt')))
     })
 
     it('should return undefined if not found', () => {
@@ -450,7 +451,7 @@ describe('fs module', () => {
       const searchFile = 'target.txt'
       fs.writeFileSync(path.join(tmpDir, searchFile), 'found')
       const result = await findUp(searchFile, { cwd: tmpDir })
-      expect(result).toBe(path.join(tmpDir, searchFile))
+      expect(result).toBe(normalizePath(path.join(tmpDir, searchFile)))
     })
 
     it('should find file in parent directories', async () => {
@@ -458,7 +459,7 @@ describe('fs module', () => {
       fs.mkdirSync(subDir, { recursive: true })
       fs.writeFileSync(path.join(tmpDir, 'target.txt'), 'found')
       const result = await findUp('target.txt', { cwd: subDir })
-      expect(result).toBe(path.join(tmpDir, 'target.txt'))
+      expect(result).toBe(normalizePath(path.join(tmpDir, 'target.txt')))
     })
 
     it('should return undefined if not found', async () => {
