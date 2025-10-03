@@ -4,10 +4,16 @@ import AT_LATEST from '../../registry/dist/lib/constants/AT_LATEST.js'
 import BUN from '../../registry/dist/lib/constants/BUN.js'
 import BUN_LOCK from '../../registry/dist/lib/constants/BUN_LOCK.js'
 import BUN_LOCKB from '../../registry/dist/lib/constants/BUN_LOCKB.js'
+import CACHE_DIR from '../../registry/dist/lib/constants/CACHE_DIR.js'
+import CACHE_GITHUB_DIR from '../../registry/dist/lib/constants/CACHE_GITHUB_DIR.js'
+import CACHE_SOCKET_API_DIR from '../../registry/dist/lib/constants/CACHE_SOCKET_API_DIR.js'
+import CACHE_TTL_DIR from '../../registry/dist/lib/constants/CACHE_TTL_DIR.js'
 import CHANGELOG_MD from '../../registry/dist/lib/constants/CHANGELOG_MD.js'
 import CI from '../../registry/dist/lib/constants/CI.js'
 import COLUMN_LIMIT from '../../registry/dist/lib/constants/COLUMN_LIMIT.js'
 import DARWIN from '../../registry/dist/lib/constants/DARWIN.js'
+import DLX_BINARY_CACHE_TTL from '../../registry/dist/lib/constants/DLX_BINARY_CACHE_TTL.js'
+import DOT_GITHUB from '../../registry/dist/lib/constants/DOT_GITHUB.js'
 import DOT_GIT_DIR from '../../registry/dist/lib/constants/DOT_GIT_DIR.js'
 import DOT_PACKAGE_LOCK_JSON from '../../registry/dist/lib/constants/DOT_PACKAGE_LOCK_JSON.js'
 import DOT_SOCKET_DIR from '../../registry/dist/lib/constants/DOT_SOCKET_DIR.js'
@@ -47,18 +53,22 @@ import NODE_MODULES from '../../registry/dist/lib/constants/NODE_MODULES.js'
 import NODE_MODULES_GLOB_RECURSIVE from '../../registry/dist/lib/constants/NODE_MODULES_GLOB_RECURSIVE.js'
 import NODE_SEA_FUSE from '../../registry/dist/lib/constants/NODE_SEA_FUSE.js'
 import NPM from '../../registry/dist/lib/constants/NPM.js'
+import NPM_REGISTRY_URL from '../../registry/dist/lib/constants/NPM_REGISTRY_URL.js'
 import NPM_SHRINKWRAP_JSON from '../../registry/dist/lib/constants/NPM_SHRINKWRAP_JSON.js'
 import NPX from '../../registry/dist/lib/constants/NPX.js'
 import OVERRIDES from '../../registry/dist/lib/constants/OVERRIDES.js'
 import PACKAGE_DEFAULT_VERSION from '../../registry/dist/lib/constants/PACKAGE_DEFAULT_VERSION.js'
 import PACKAGE_JSON from '../../registry/dist/lib/constants/PACKAGE_JSON.js'
+import PACKAGE_LOCK_JSON from '../../registry/dist/lib/constants/PACKAGE_LOCK_JSON.js'
 import PNPM from '../../registry/dist/lib/constants/PNPM.js'
+import PNPM_LOCK_YAML from '../../registry/dist/lib/constants/PNPM_LOCK_YAML.js'
 import PRE_COMMIT from '../../registry/dist/lib/constants/PRE_COMMIT.js'
 import README_GLOB from '../../registry/dist/lib/constants/README_GLOB.js'
 import README_GLOB_RECURSIVE from '../../registry/dist/lib/constants/README_GLOB_RECURSIVE.js'
 import README_MD from '../../registry/dist/lib/constants/README_MD.js'
 import REGISTRY from '../../registry/dist/lib/constants/REGISTRY.js'
 import RESOLUTIONS from '../../registry/dist/lib/constants/RESOLUTIONS.js'
+import SOCKET_APP_PREFIX from '../../registry/dist/lib/constants/SOCKET_APP_PREFIX.js'
 import SOCKET_GITHUB_ORG from '../../registry/dist/lib/constants/SOCKET_GITHUB_ORG.js'
 import SOCKET_IPC_HANDSHAKE from '../../registry/dist/lib/constants/SOCKET_IPC_HANDSHAKE.js'
 import SOCKET_OVERRIDE_SCOPE from '../../registry/dist/lib/constants/SOCKET_OVERRIDE_SCOPE.js'
@@ -85,6 +95,14 @@ import VLT from '../../registry/dist/lib/constants/VLT.js'
 import VLT_LOCK_JSON from '../../registry/dist/lib/constants/VLT_LOCK_JSON.js'
 import YARN from '../../registry/dist/lib/constants/YARN.js'
 import YARN_BERRY from '../../registry/dist/lib/constants/YARN_BERRY.js'
+import SOCKET_CLI_APP_NAME from '../../registry/dist/lib/constants/SOCKET_CLI_APP_NAME.js'
+import SOCKET_DLX_APP_NAME from '../../registry/dist/lib/constants/SOCKET_DLX_APP_NAME.js'
+import SOCKET_FIREWALL_APP_NAME from '../../registry/dist/lib/constants/SOCKET_FIREWALL_APP_NAME.js'
+import SOCKET_REGISTRY_APP_NAME from '../../registry/dist/lib/constants/SOCKET_REGISTRY_APP_NAME.js'
+import SOCKET_REGISTRY_REPO_NAME from '../../registry/dist/lib/constants/SOCKET_REGISTRY_REPO_NAME.js'
+import SUPPORTS_NODE_RUN from '../../registry/dist/lib/constants/SUPPORTS_NODE_RUN.js'
+import WIN32 from '../../registry/dist/lib/constants/WIN32.js'
+import YARN_LOCK from '../../registry/dist/lib/constants/YARN_LOCK.js'
 
 describe('additional constant modules', () => {
   describe('version constants', () => {
@@ -520,6 +538,104 @@ describe('additional constant modules', () => {
     it('should export REGISTRY', () => {
       expect(typeof REGISTRY).toBe('string')
       expect(REGISTRY).toBe('registry')
+    })
+  })
+
+  describe('cache directory constants', () => {
+    it('should export CACHE_DIR', () => {
+      expect(typeof CACHE_DIR).toBe('string')
+      expect(CACHE_DIR).toBe('cache')
+    })
+
+    it('should export CACHE_GITHUB_DIR', () => {
+      expect(typeof CACHE_GITHUB_DIR).toBe('string')
+      expect(CACHE_GITHUB_DIR).toBe('github')
+    })
+
+    it('should export CACHE_SOCKET_API_DIR', () => {
+      expect(typeof CACHE_SOCKET_API_DIR).toBe('string')
+      expect(CACHE_SOCKET_API_DIR).toBe('socket-api')
+    })
+
+    it('should export CACHE_TTL_DIR', () => {
+      expect(typeof CACHE_TTL_DIR).toBe('string')
+      expect(CACHE_TTL_DIR).toBe('ttl')
+    })
+
+    it('should export DLX_BINARY_CACHE_TTL', () => {
+      expect(typeof DLX_BINARY_CACHE_TTL).toBe('number')
+      expect(DLX_BINARY_CACHE_TTL).toBeGreaterThan(0)
+    })
+  })
+
+  describe('additional directory constants', () => {
+    it('should export DOT_GITHUB', () => {
+      expect(typeof DOT_GITHUB).toBe('string')
+      expect(DOT_GITHUB).toBe('.github')
+    })
+  })
+
+  describe('Socket app name constants', () => {
+    it('should export SOCKET_APP_PREFIX', () => {
+      expect(typeof SOCKET_APP_PREFIX).toBe('string')
+      expect(SOCKET_APP_PREFIX).toBe('_')
+    })
+
+    it('should export SOCKET_CLI_APP_NAME', () => {
+      expect(typeof SOCKET_CLI_APP_NAME).toBe('string')
+      expect(SOCKET_CLI_APP_NAME).toBe('socket')
+    })
+
+    it('should export SOCKET_DLX_APP_NAME', () => {
+      expect(typeof SOCKET_DLX_APP_NAME).toBe('string')
+      expect(SOCKET_DLX_APP_NAME).toBe('dlx')
+    })
+
+    it('should export SOCKET_FIREWALL_APP_NAME', () => {
+      expect(typeof SOCKET_FIREWALL_APP_NAME).toBe('string')
+      expect(SOCKET_FIREWALL_APP_NAME).toBe('sfw')
+    })
+
+    it('should export SOCKET_REGISTRY_APP_NAME', () => {
+      expect(typeof SOCKET_REGISTRY_APP_NAME).toBe('string')
+      expect(SOCKET_REGISTRY_APP_NAME).toBe('registry')
+    })
+
+    it('should export SOCKET_REGISTRY_REPO_NAME', () => {
+      expect(typeof SOCKET_REGISTRY_REPO_NAME).toBe('string')
+      expect(SOCKET_REGISTRY_REPO_NAME).toBe('socket-registry')
+    })
+  })
+
+  describe('additional package manager constants', () => {
+    it('should export NPM_REGISTRY_URL', () => {
+      expect(typeof NPM_REGISTRY_URL).toBe('string')
+      expect(NPM_REGISTRY_URL).toContain('registry.npmjs.org')
+    })
+
+    it('should export PACKAGE_LOCK_JSON', () => {
+      expect(typeof PACKAGE_LOCK_JSON).toBe('string')
+      expect(PACKAGE_LOCK_JSON).toBe('package-lock.json')
+    })
+
+    it('should export PNPM_LOCK_YAML', () => {
+      expect(typeof PNPM_LOCK_YAML).toBe('string')
+      expect(PNPM_LOCK_YAML).toBe('pnpm-lock.yaml')
+    })
+
+    it('should export YARN_LOCK', () => {
+      expect(typeof YARN_LOCK).toBe('string')
+      expect(YARN_LOCK).toBe('yarn.lock')
+    })
+  })
+
+  describe('platform detection constants', () => {
+    it('should export WIN32', () => {
+      expect(typeof WIN32).toBe('boolean')
+    })
+
+    it('should export SUPPORTS_NODE_RUN', () => {
+      expect(typeof SUPPORTS_NODE_RUN).toBe('boolean')
     })
   })
 })
