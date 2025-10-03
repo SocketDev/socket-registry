@@ -704,8 +704,8 @@ importers:
         specifier: 1.1.4
         version: 1.1.4
       '@socketregistry/yocto-spinner':
-        specifier: 1.0.23
-        version: 1.0.23
+        specifier: 1.0.24
+        version: 1.0.24
       '@types/babel__traverse':
         specifier: 7.28.0
         version: 7.28.0
@@ -1902,8 +1902,8 @@ packages:
     resolution: {integrity: sha512-SHikmWH1JumHKinsPLg0/kg/qKNNQH4fdYe/dd4mZ2NHP5wWGDcZyNCS7KaTnKWFi3/XZOR1iLYzo0I4QnHOQw==}
     engines: {node: '>=18'}
 
-  '@socketregistry/yocto-spinner@1.0.23':
-    resolution: {integrity: sha512-UvoipHT4PedbVaWdq42e5QJdb1I6FzOlc/Id2KtcPMGS259+MfLCamJhk8Prjktb2r39SYlkgdYgTJFUXC6xcw==}
+  '@socketregistry/yocto-spinner@1.0.24':
+    resolution: {integrity: sha512-tk6V86Bhrt3kk4AptVlGcvT+E3Uz83D0lT8/aYTYqaPT6+y6Vq1GCs/mqlbBBmH8caLofkajYyTbc3BbKa3yrQ==}
     engines: {node: '>=18'}
 
   '@stroncium/procfs@1.2.1':
@@ -5364,7 +5364,7 @@ snapshots:
 
   '@socketregistry/which-typed-array@1.0.9': {}
 
-  '@socketregistry/yocto-spinner@1.0.23':
+  '@socketregistry/yocto-spinner@1.0.24':
     dependencies:
       yoctocolors-cjs: 2.1.3
 
