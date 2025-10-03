@@ -243,13 +243,12 @@ export function createRequireTransformPlugin(
 
             const requirePath = node.arguments[0].value
 
-            // Step 8: Only handle relative .js requires from our code.
+            // Step 8: Only handle relative requires from our code.
             // We don't inline:
             // - Absolute requires (e.g., require('fs'))
             // - npm package requires (e.g., require('lodash'))
-            // - Requires without .js extension
-            // Not a relative .js require, skip.
-            if (!requirePath.startsWith('./') || !requirePath.endsWith('.js')) {
+            // Not a relative require, skip.
+            if (!requirePath.startsWith('./')) {
               return
             }
 
@@ -257,8 +256,10 @@ export function createRequireTransformPlugin(
               // Step 9: Resolve the require modulePath to the actual TypeScript file.
               // Directory of current file.
               const currentDir = dirname(id)
-              // Convert .js to .ts.
-              const tsPath = requirePath.replace(/\.js$/, '.ts')
+              // Convert .js to .ts, or add .ts if no extension.
+              const tsPath = requirePath.endsWith('.js')
+                ? requirePath.replace(/\.js$/, '.ts')
+                : `${requirePath}.ts`
               // Absolute file path.
               const resolvedPath = resolve(currentDir, tsPath)
 
@@ -289,6 +290,31 @@ export function createRequireTransformPlugin(
                 // Step 12: Use MagicString to replace the require with the inlined value
                 // This preserves the rest of the source code exactly as-is.
                 s.overwrite(replaceStart, replaceEnd, value)
+                modified = true
+              } else {
+                // Step 11b: If we can't inline, rewrite to use compiled dist/ version.
+                // During coverage, require() can't load TypeScript files, so we use
+                // the compiled JavaScript files from dist/ which Node can handle.
+                const stringNode = node.arguments[0] as t.StringLiteral
+                // Get the base project directory.
+                const projectRoot = id.substring(
+                  0,
+                  id.indexOf('/registry/src/'),
+                )
+                // Build absolute path to the compiled dist/ file.
+                const moduleName = requirePath
+                  .replace(/^\.\//, '')
+                  .replace(/\.js$/, '')
+                const absoluteDistPath = resolve(
+                  projectRoot,
+                  'registry/dist/lib',
+                  `${moduleName}.js`,
+                )
+                s.overwrite(
+                  stringNode.start!,
+                  stringNode.end!,
+                  `'${absoluteDistPath}'`,
+                )
                 modified = true
               }
             } catch {
