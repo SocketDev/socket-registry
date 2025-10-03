@@ -111,8 +111,10 @@ async function findVersionBumpCommits() {
     // Only accept specific version bump patterns:
     // - "Bump to v<version>" (general format)
     // - "Bump <pkgname> to v<version>"
+    // - "Bump registry package to v<version>"
     // Exclude generic "Update" or "Bump" messages without "to v".
-    if (!/^Bump (?:.+ )?to v/.test(message)) {
+    // Use non-greedy .+? to match shortest text before "to v" (handles multi-word package names).
+    if (!/^Bump (?:.+? )?to v/.test(message)) {
       continue
     }
 
