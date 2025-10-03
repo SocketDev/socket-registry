@@ -45,16 +45,16 @@ pnpm run test-ci            # CI test suite
 All workflows use reusable workflows and actions from `SocketDev/socket-registry`:
 
 ### Reusable Workflows
-- `SocketDev/socket-registry/.github/workflows/test.yml@main`
-- `SocketDev/socket-registry/.github/workflows/lint.yml@main`
-- `SocketDev/socket-registry/.github/workflows/types.yml@main`
+- `SocketDev/socket-registry/.github/workflows/test.yml@cb058af30991fa29b82f0c89f7d37397e067d292` # main
+- `SocketDev/socket-registry/.github/workflows/lint.yml@cb058af30991fa29b82f0c89f7d37397e067d292` # main
+- `SocketDev/socket-registry/.github/workflows/types.yml@cb058af30991fa29b82f0c89f7d37397e067d292` # main
 
 ### Reusable Actions
-- `SocketDev/socket-registry/.github/actions/setup-and-install@main` - Setup Node.js and install dependencies
-- `SocketDev/socket-registry/.github/actions/run-script@main` - Execute scripts with error handling
-- `SocketDev/socket-registry/.github/actions/artifacts@main` - Upload test results and coverage
-- `SocketDev/socket-registry/.github/actions/debug@main` - Debug workflow troubleshooting
-- `SocketDev/socket-registry/.github/actions/cache-npm-packages@main` - Cache npm package operations
+- `SocketDev/socket-registry/.github/actions/setup-and-install@cb058af30991fa29b82f0c89f7d37397e067d292` # main - Setup Node.js and install dependencies
+- `SocketDev/socket-registry/.github/actions/run-script@cb058af30991fa29b82f0c89f7d37397e067d292` # main - Execute scripts with error handling
+- `SocketDev/socket-registry/.github/actions/artifacts@cb058af30991fa29b82f0c89f7d37397e067d292` # main - Upload test results and coverage
+- `SocketDev/socket-registry/.github/actions/debug@cb058af30991fa29b82f0c89f7d37397e067d292` # main - Debug workflow troubleshooting
+- `SocketDev/socket-registry/.github/actions/cache-npm-packages@cb058af30991fa29b82f0c89f7d37397e067d292` # main - Cache npm package operations
 
 ## Configuration Files
 
