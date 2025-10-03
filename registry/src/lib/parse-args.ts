@@ -109,9 +109,9 @@ export function parseArgs<T = Record<string, unknown>>(
     'boolean-negation': !allowNegative,
     'halt-at-non-option': !allowPositionals,
     configuration: {
-      'camel-case-expansion': false,
+      'camel-case-expansion': true,
       'strip-aliased': false,
-      'strip-dashed': true,
+      'strip-dashed': false,
       ...configuration,
     },
   }
