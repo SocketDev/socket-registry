@@ -268,6 +268,12 @@ async function publishAtCommit(sha) {
     const changedFiles = await getChangedFiles()
     if (changedFiles.length > 0) {
       logger.log('Committing manifest.json updates...')
+      await spawn('git', ['config', 'user.name', 'Socket Bot'])
+      await spawn('git', [
+        'config',
+        'user.email',
+        '94589996+socket-bot@users.noreply.github.com',
+      ])
       await spawn('git', ['add', 'registry/manifest.json'])
       await spawn('git', [
         'commit',
