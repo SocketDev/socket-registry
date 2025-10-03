@@ -69,20 +69,20 @@ jobs:
     timeout-minutes: ${{ inputs.timeout-minutes }}
     continue-on-error: ${{ inputs.continue-on-error }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@08fba31a9abec77127b476c7eebc745fccd9feef # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@d1bbbbad7d1b29b8b36dc5871bd7f71df6b51ac4 # main
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.node-version }}
           working-directory: ${{ inputs.working-directory }}
 
-      - uses: SocketDev/socket-registry/.github/actions/run-script@08fba31a9abec77127b476c7eebc745fccd9feef # main
+      - uses: SocketDev/socket-registry/.github/actions/run-script@d1bbbbad7d1b29b8b36dc5871bd7f71df6b51ac4 # main
         with:
           continue-on-error: ${{ inputs.continue-on-error }}
           main-script: ${{ inputs.lint-script }}
           setup-script: ${{ inputs.setup-script }}
           working-directory: ${{ inputs.working-directory }}
 
-      - uses: SocketDev/socket-registry/.github/actions/artifacts@08fba31a9abec77127b476c7eebc745fccd9feef # main
+      - uses: SocketDev/socket-registry/.github/actions/artifacts@d1bbbbad7d1b29b8b36dc5871bd7f71df6b51ac4 # main
         if: inputs.upload-artifacts
         with:
           name: lint-results-${{ inputs.os }}-node-${{ inputs.node-version }}

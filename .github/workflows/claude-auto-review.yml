@@ -62,7 +62,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Setup debug
-        uses: SocketDev/socket-registry/.github/actions/debug@08fba31a9abec77127b476c7eebc745fccd9feef # main
+        uses: SocketDev/socket-registry/.github/actions/debug@d1bbbbad7d1b29b8b36dc5871bd7f71df6b51ac4 # main
         with:
           debug: ${{ inputs.debug }}
 
