@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.8] - 2025-10-03
+
+### Added
+
+- Added unified directory structure for Socket ecosystem tools
+- New path utilities module for cross-platform directory resolution
+- Directory structure constants for Socket CLI, Registry, Firewall, and DLX
+
 ## [1.3.7] - 2025-10-02
 
 ### Changed
