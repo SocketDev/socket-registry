@@ -287,7 +287,12 @@ export async function pRetry<T>(
   let delay = baseDelayMs!
   let error: unknown = UNDEFINED_TOKEN
 
-  while (attempts-- >= 0 && !signal?.aborted) {
+  while (attempts-- >= 0) {
+    // Check abort before attempt.
+    if (signal?.aborted) {
+      return undefined
+    }
+
     try {
       // eslint-disable-next-line no-await-in-loop
       return await callbackFn(...(args || []), { signal })
@@ -317,8 +322,20 @@ export async function pRetry<T>(
           }
         }
       }
-      // eslint-disable-next-line no-await-in-loop
-      await timers.setTimeout(waitTime, undefined, { signal })
+
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await timers.setTimeout(waitTime, undefined, { signal })
+      } catch {
+        // setTimeout was aborted.
+        return undefined
+      }
+
+      // Check abort again after delay.
+      if (signal?.aborted) {
+        return undefined
+      }
+
       // Exponentially increase the delay for the next attempt, capping at maxDelayMs.
       delay = Math.min(delay * backoffFactor!, maxDelayMs!)
     }

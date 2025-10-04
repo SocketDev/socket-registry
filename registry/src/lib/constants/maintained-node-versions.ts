@@ -22,11 +22,20 @@ const manualLast = '18.20.8'
 const query = browsersList('maintained node versions')
   // Trim value, e.g. 'node 22.15.0' to '22.15.0'.
   .map((s: string) => s.slice(5 /*'node '.length*/))
+
 // browsersList returns results in descending order.
-const queryNext = query.at(0) ?? manualNext
-const queryCurr = query.at(1) ?? manualCurr
-const queryPrev = query.at(2) ?? manualPrev
-const queryLast = query.at(-1) ?? manualLast
+// Validate query length to ensure we have enough versions.
+if (query.length < 4) {
+  console.warn(
+    `browsersList returned only ${query.length} versions, expected at least 4. Using manual fallbacks.`,
+  )
+}
+
+const queryNext = query[0] ?? manualNext
+const queryCurr = query[1] ?? manualCurr
+const queryPrev = query[2] ?? manualPrev
+// For last, use the actual last element to avoid off-by-one with negative indexing.
+const queryLast = query.length >= 4 ? query[query.length - 1] : manualLast
 
 const next = semver.gt(manualNext, queryNext) ? manualNext : queryNext
 
