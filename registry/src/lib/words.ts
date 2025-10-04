@@ -26,11 +26,19 @@ export function determineArticle(word: string): string {
   return /^[aeiou]/.test(word) ? 'an' : 'a'
 }
 
+export interface PluralizeOptions {
+  count?: number
+}
+
 /**
  * Pluralize a word based on count.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function pluralize(word: string, count: number = 1): string {
+export function pluralize(
+  word: string,
+  options?: PluralizeOptions | undefined,
+): string {
+  const { count = 1 } = { __proto__: null, ...options } as PluralizeOptions
   // Handle 0, negatives, decimals, and values > 1 as plural.
   return count === 1 ? word : `${word}s`
 }
