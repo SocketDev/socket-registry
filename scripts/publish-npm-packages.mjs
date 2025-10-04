@@ -42,6 +42,11 @@ const { values: cliArgs } = parseArgs({
   strict: false,
 })
 
+// Debug: Always log force-publish status to diagnose workflow issues.
+logger.log('DEBUG: process.argv:', process.argv.slice(2).join(' '))
+logger.log('DEBUG: cliArgs.forcePublish =', cliArgs.forcePublish)
+logger.log('DEBUG: cliArgs["force-publish"] =', cliArgs['force-publish'])
+
 /**
  * Checkout a specific commit and discard uncommitted changes.
  */
@@ -560,7 +565,9 @@ async function main() {
       : bumpCommits.slice(0, 10)
 
     for (const commit of displayCommits) {
-      logger.info(`${commit.sha.slice(0, 7)} - v${commit.version}`)
+      logger.info(
+        `@socketsecurity/registry@${commit.version} - ${commit.sha.slice(0, 7)}`,
+      )
     }
     logger.groupEnd()
     logger.log('')
