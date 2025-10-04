@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0](https://github.com/SocketDev/socket-registry/releases/tag/v1.4.0) - 2025-10-04
+
+### Added
+
+- Added `PromiseQueue` utility for controlled concurrency operations
+- Added lazy dependency loaders and test utilities
+- Added HTTP utilities with retry logic and download locking
+- Added `.claude` directory for scratch documents
+- Added `noUnusedLocals` and `noUnusedParameters` to TypeScript config
+
+### Changed
+
+- Refactored all library functions to use options objects for better API consistency
+  - `lib/strings.ts` - String manipulation functions
+  - `lib/url.ts` - URL handling functions
+  - `lib/words.ts` - Word manipulation functions
+- Refactored `lib/packages` module into specialized submodules for improved code organization
+  - `lib/packages/editable.ts` - Package editing functionality
+  - `lib/packages/exports.ts` - Export resolution utilities
+  - `lib/packages/licenses.ts` - License handling and validation
+  - `lib/packages/manifest.ts` - Manifest data operations
+  - `lib/packages/normalize.ts` - Path normalization utilities
+  - `lib/packages/operations.ts` - Package installation and modification operations
+  - `lib/packages/paths.ts` - Package path utilities
+  - `lib/packages/provenance.ts` - Package provenance verification
+  - `lib/packages/specs.ts` - Package spec parsing
+  - `lib/packages/validation.ts` - Package validation utilities
+- Moved configuration files (vitest, eslint, knip, oxlint, taze) to `.config` directory
+- Replaced `fetch()` with Node.js native `http`/`https` modules for better reliability
+- Replaced `any` types with meaningful types across library utilities
+- Improved pnpm security with build script allowlist
+- Updated vitest coverage thresholds to 80%
+- Consolidated test files to reduce duplication
+- Note: Public API remains unchanged; these are internal organizational improvements
+
+### Fixed
+
+- Fixed resource leaks and race conditions in socket-registry
+- Fixed `yarn-cache-path` constant to return string type consistently
+- Fixed Yarn Windows temp path detection in `shouldSkipShadow`
+- Fixed path normalization for Windows compatibility across all path utilities
+- Fixed cache path tests for Windows case sensitivity
+- Fixed type errors in promises, parse-args, logger, and specs tests
+- Fixed GitHub tests to mock `httpRequest` correctly
+- Fixed SEA build tests to mock `httpRequest`
+- Decoded URL percent-encoding in `pathLikeToString` fallback
+
 ## [1.3.10] - 2025-10-03
 
 ### Added
