@@ -27,6 +27,7 @@ export interface SeaBuildOptions {
 /**
  * Build SEA blob.
  */
+// c8 ignore start - Requires spawning node binary with experimental SEA config.
 export async function buildSeaBlob(
   nodeBinary: string,
   configPath: string,
@@ -55,10 +56,12 @@ export async function buildSeaBlob(
 
   return blobPath
 }
+// c8 ignore stop
 
 /**
  * Build a single SEA target.
  */
+// c8 ignore start - Requires downloading binaries, building blobs, and binary injection.
 export async function buildTarget(
   target: BuildTargetOptions,
   entryPoint: string,
@@ -246,6 +249,7 @@ export async function downloadNodeBinary(
 /**
  * Generate SEA configuration.
  */
+// c8 ignore start - Requires fs.writeFile to write config to disk.
 export async function generateSeaConfig(
   entryPoint: string,
   outputPath: string,
@@ -272,6 +276,7 @@ export async function generateSeaConfig(
   await fs.writeFile(configPath, JSON.stringify(config, null, 2))
   return configPath
 }
+// c8 ignore stop
 
 /**
  * Generate build targets for different platforms.
@@ -482,3 +487,4 @@ export async function injectSeaBlob(
     )
   }
 }
+// c8 ignore stop
