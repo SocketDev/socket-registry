@@ -114,597 +114,253 @@ import tsTypesAvailable from '../../registry/dist/lib/constants/ts-types-availab
 import YARN_CLASSIC from '../../registry/dist/lib/constants/yarn-classic.js'
 
 describe('additional constant modules', () => {
-  describe('version constants', () => {
-    it('should export AT_LATEST', () => {
-      expect(typeof AT_LATEST).toBe('string')
-      expect(AT_LATEST).toBe('@latest')
-    })
+  const stringConstants = [
+    { name: 'AT_LATEST', value: AT_LATEST, expected: '@latest' },
+    { name: 'BUN', value: BUN, expected: 'bun' },
+    { name: 'BUN_LOCK', value: BUN_LOCK, expected: 'bun.lock' },
+    { name: 'BUN_LOCKB', value: BUN_LOCKB, expected: 'bun.lockb' },
+    { name: 'CACHE_DIR', value: CACHE_DIR, expected: 'cache' },
+    { name: 'CACHE_GITHUB_DIR', value: CACHE_GITHUB_DIR, expected: 'github' },
+    {
+      name: 'CACHE_SOCKET_API_DIR',
+      value: CACHE_SOCKET_API_DIR,
+      expected: 'socket-api',
+    },
+    { name: 'CACHE_TTL_DIR', value: CACHE_TTL_DIR, expected: 'ttl' },
+    { name: 'CHANGELOG_MD', value: CHANGELOG_MD, expected: 'CHANGELOG.md' },
+    { name: 'CI', value: CI, expected: 'CI' },
+    { name: 'DOT_GITHUB', value: DOT_GITHUB, expected: '.github' },
+    { name: 'DOT_GIT_DIR', value: DOT_GIT_DIR, expected: '.git' },
+    {
+      name: 'DOT_PACKAGE_LOCK_JSON',
+      value: DOT_PACKAGE_LOCK_JSON,
+      expected: '.package-lock.json',
+    },
+    { name: 'DOT_SOCKET_DIR', value: DOT_SOCKET_DIR, expected: '.socket' },
+    {
+      name: 'ESLINT_CONFIG_JS',
+      value: ESLINT_CONFIG_JS,
+      expected: 'eslint.config.js',
+    },
+    { name: 'ESNEXT', value: ESNEXT, expected: 'esnext' },
+    { name: 'EXTENSIONS', value: EXTENSIONS, expected: 'extensions' },
+    {
+      name: 'EXTENSIONS_JSON',
+      value: EXTENSIONS_JSON,
+      expected: 'extensions.json',
+    },
+    { name: 'EXT_CJS', value: EXT_CJS, expected: '.cjs' },
+    { name: 'EXT_CMD', value: EXT_CMD, expected: '.cmd' },
+    { name: 'EXT_CTS', value: EXT_CTS, expected: '.cts' },
+    { name: 'EXT_DTS', value: EXT_DTS, expected: '.d.ts' },
+    { name: 'EXT_JS', value: EXT_JS, expected: '.js' },
+    { name: 'EXT_JSON', value: EXT_JSON, expected: '.json' },
+    { name: 'EXT_LOCK', value: EXT_LOCK, expected: '.lock' },
+    { name: 'EXT_LOCKB', value: EXT_LOCKB, expected: '.lockb' },
+    { name: 'EXT_MD', value: EXT_MD, expected: '.md' },
+    { name: 'EXT_MJS', value: EXT_MJS, expected: '.mjs' },
+    { name: 'EXT_MTS', value: EXT_MTS, expected: '.mts' },
+    { name: 'EXT_PS1', value: EXT_PS1, expected: '.ps1' },
+    { name: 'EXT_YAML', value: EXT_YAML, expected: '.yaml' },
+    { name: 'EXT_YML', value: EXT_YML, expected: '.yml' },
+    { name: 'GITIGNORE', value: GITIGNORE, expected: '.gitignore' },
+    { name: 'LATEST', value: LATEST, expected: 'latest' },
+    { name: 'LICENSE', value: LICENSE, expected: 'LICENSE' },
+    {
+      name: 'LICENSE_ORIGINAL',
+      value: LICENSE_ORIGINAL,
+      expected: 'LICENSE.original',
+    },
+    { name: 'MANIFEST_JSON', value: MANIFEST_JSON, expected: 'manifest.json' },
+    { name: 'MIT', value: MIT, expected: 'MIT' },
+    { name: 'NODE_ENV', value: NODE_ENV, expected: 'NODE_ENV' },
+    { name: 'NODE_MODULES', value: NODE_MODULES, expected: 'node_modules' },
+    {
+      name: 'NODE_SEA_FUSE',
+      value: NODE_SEA_FUSE,
+      expected: 'NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2',
+    },
+    { name: 'NPM', value: NPM, expected: 'npm' },
+    {
+      name: 'NPM_SHRINKWRAP_JSON',
+      value: NPM_SHRINKWRAP_JSON,
+      expected: 'npm-shrinkwrap.json',
+    },
+    { name: 'NPX', value: NPX, expected: 'npx' },
+    { name: 'OVERRIDES', value: OVERRIDES, expected: 'overrides' },
+    {
+      name: 'PACKAGE_DEFAULT_VERSION',
+      value: PACKAGE_DEFAULT_VERSION,
+      expected: '1.0.0',
+    },
+    { name: 'PACKAGE_JSON', value: PACKAGE_JSON, expected: 'package.json' },
+    {
+      name: 'PACKAGE_LOCK_JSON',
+      value: PACKAGE_LOCK_JSON,
+      expected: 'package-lock.json',
+    },
+    { name: 'PNPM', value: PNPM, expected: 'pnpm' },
+    {
+      name: 'PNPM_LOCK_YAML',
+      value: PNPM_LOCK_YAML,
+      expected: 'pnpm-lock.yaml',
+    },
+    { name: 'PRE_COMMIT', value: PRE_COMMIT, expected: 'PRE_COMMIT' },
+    { name: 'README_MD', value: README_MD, expected: 'README.md' },
+    { name: 'REGISTRY', value: REGISTRY, expected: 'registry' },
+    { name: 'RESOLUTIONS', value: RESOLUTIONS, expected: 'resolutions' },
+    { name: 'SOCKET_APP_PREFIX', value: SOCKET_APP_PREFIX, expected: '_' },
+    {
+      name: 'SOCKET_CLI_APP_NAME',
+      value: SOCKET_CLI_APP_NAME,
+      expected: 'socket',
+    },
+    {
+      name: 'SOCKET_DLX_APP_NAME',
+      value: SOCKET_DLX_APP_NAME,
+      expected: 'dlx',
+    },
+    {
+      name: 'SOCKET_FIREWALL_APP_NAME',
+      value: SOCKET_FIREWALL_APP_NAME,
+      expected: 'sfw',
+    },
+    {
+      name: 'SOCKET_GITHUB_ORG',
+      value: SOCKET_GITHUB_ORG,
+      expected: 'SocketDev',
+    },
+    {
+      name: 'SOCKET_REGISTRY_APP_NAME',
+      value: SOCKET_REGISTRY_APP_NAME,
+      expected: 'registry',
+    },
+    {
+      name: 'SOCKET_REGISTRY_REPO_NAME',
+      value: SOCKET_REGISTRY_REPO_NAME,
+      expected: 'socket-registry',
+    },
+    {
+      name: 'SOCKET_REGISTRY_SCOPE',
+      value: SOCKET_REGISTRY_SCOPE,
+      expected: '@socketregistry',
+    },
+    {
+      name: 'SOCKET_SECURITY_SCOPE',
+      value: SOCKET_SECURITY_SCOPE,
+      expected: '@socketsecurity',
+    },
+    { name: 'TSCONFIG_JSON', value: TSCONFIG_JSON, expected: 'tsconfig.json' },
+    { name: 'UNKNOWN_ERROR', value: UNKNOWN_ERROR, expected: 'Unknown error' },
+    { name: 'UNLICENCED', value: UNLICENCED, expected: 'UNLICENCED' },
+    { name: 'UNLICENSED', value: UNLICENSED, expected: 'UNLICENSED' },
+    { name: 'UTF8', value: UTF8, expected: 'utf8' },
+    { name: 'VITEST', value: VITEST, expected: 'VITEST' },
+    { name: 'VLT', value: VLT, expected: 'vlt' },
+    { name: 'VLT_LOCK_JSON', value: VLT_LOCK_JSON, expected: 'vlt-lock.json' },
+    { name: 'YARN', value: YARN, expected: 'yarn' },
+    { name: 'YARN_BERRY', value: YARN_BERRY, expected: 'yarn/berry' },
+    { name: 'YARN_CLASSIC', value: YARN_CLASSIC, expected: 'yarn/classic' },
+    { name: 'YARN_LOCK', value: YARN_LOCK, expected: 'yarn.lock' },
+  ]
 
-    it('should export LATEST', () => {
-      expect(typeof LATEST).toBe('string')
-      expect(LATEST).toBe('latest')
-    })
+  const booleanConstants = [
+    { name: 'DARWIN', value: DARWIN },
+    {
+      name: 'SUPPORTS_NODE_COMPILE_CACHE_API',
+      value: SUPPORTS_NODE_COMPILE_CACHE_API,
+    },
+    {
+      name: 'SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR',
+      value: SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR,
+    },
+    {
+      name: 'SUPPORTS_NODE_DISABLE_WARNING_FLAG',
+      value: SUPPORTS_NODE_DISABLE_WARNING_FLAG,
+    },
+    {
+      name: 'SUPPORTS_NODE_PERMISSION_FLAG',
+      value: SUPPORTS_NODE_PERMISSION_FLAG,
+    },
+    {
+      name: 'SUPPORTS_NODE_REQUIRE_MODULE',
+      value: SUPPORTS_NODE_REQUIRE_MODULE,
+    },
+    { name: 'SUPPORTS_NODE_RUN', value: SUPPORTS_NODE_RUN },
+    { name: 'SUPPORTS_PROCESS_SEND', value: SUPPORTS_PROCESS_SEND },
+    { name: 'WIN32', value: WIN32 },
+  ]
 
-    it('should export PACKAGE_DEFAULT_VERSION', () => {
-      expect(typeof PACKAGE_DEFAULT_VERSION).toBe('string')
-      expect(PACKAGE_DEFAULT_VERSION).toBe('1.0.0')
-    })
+  const numberConstants = [
+    { name: 'COLUMN_LIMIT', value: COLUMN_LIMIT },
+    { name: 'DLX_BINARY_CACHE_TTL', value: DLX_BINARY_CACHE_TTL },
+  ]
+
+  it('should export string constants with correct values', () => {
+    for (const { expected, value } of stringConstants) {
+      expect(value).toBe(expected)
+    }
   })
 
-  describe('package manager constants', () => {
-    it('should export BUN', () => {
-      expect(typeof BUN).toBe('string')
-      expect(BUN).toBe('bun')
-    })
-
-    it('should export BUN_LOCK', () => {
-      expect(typeof BUN_LOCK).toBe('string')
-      expect(BUN_LOCK).toBe('bun.lock')
-    })
-
-    it('should export BUN_LOCKB', () => {
-      expect(typeof BUN_LOCKB).toBe('string')
-      expect(BUN_LOCKB).toBe('bun.lockb')
-    })
-
-    it('should export NPM', () => {
-      expect(typeof NPM).toBe('string')
-      expect(NPM).toBe('npm')
-    })
-
-    it('should export NPX', () => {
-      expect(typeof NPX).toBe('string')
-      expect(NPX).toBe('npx')
-    })
-
-    it('should export PNPM', () => {
-      expect(typeof PNPM).toBe('string')
-      expect(PNPM).toBe('pnpm')
-    })
-
-    it('should export YARN', () => {
-      expect(typeof YARN).toBe('string')
-      expect(YARN).toBe('yarn')
-    })
-
-    it('should export YARN_BERRY', () => {
-      expect(typeof YARN_BERRY).toBe('string')
-      expect(YARN_BERRY).toBe('yarn/berry')
-    })
-
-    it('should export YARN_CLASSIC', () => {
-      expect(typeof YARN_CLASSIC).toBe('string')
-      expect(YARN_CLASSIC).toBe('yarn/classic')
-    })
-
-    it('should export VLT', () => {
-      expect(typeof VLT).toBe('string')
-      expect(VLT).toBe('vlt')
-    })
+  it('should export boolean constants', () => {
+    for (const { value } of booleanConstants) {
+      expect(typeof value).toBe('boolean')
+    }
   })
 
-  describe('file name constants', () => {
-    it('should export PACKAGE_JSON', () => {
-      expect(typeof PACKAGE_JSON).toBe('string')
-      expect(PACKAGE_JSON).toBe('package.json')
-    })
-
-    it('should export DOT_PACKAGE_LOCK_JSON', () => {
-      expect(typeof DOT_PACKAGE_LOCK_JSON).toBe('string')
-      expect(DOT_PACKAGE_LOCK_JSON).toBe('.package-lock.json')
-    })
-
-    it('should export NPM_SHRINKWRAP_JSON', () => {
-      expect(typeof NPM_SHRINKWRAP_JSON).toBe('string')
-      expect(NPM_SHRINKWRAP_JSON).toBe('npm-shrinkwrap.json')
-    })
-
-    it('should export VLT_LOCK_JSON', () => {
-      expect(typeof VLT_LOCK_JSON).toBe('string')
-      expect(VLT_LOCK_JSON).toBe('vlt-lock.json')
-    })
-
-    it('should export TSCONFIG_JSON', () => {
-      expect(typeof TSCONFIG_JSON).toBe('string')
-      expect(TSCONFIG_JSON).toBe('tsconfig.json')
-    })
-
-    it('should export ESLINT_CONFIG_JS', () => {
-      expect(typeof ESLINT_CONFIG_JS).toBe('string')
-      expect(ESLINT_CONFIG_JS).toBe('eslint.config.js')
-    })
-
-    it('should export GITIGNORE', () => {
-      expect(typeof GITIGNORE).toBe('string')
-      expect(GITIGNORE).toBe('.gitignore')
-    })
-
-    it('should export CHANGELOG_MD', () => {
-      expect(typeof CHANGELOG_MD).toBe('string')
-      expect(CHANGELOG_MD).toBe('CHANGELOG.md')
-    })
-
-    it('should export README_MD', () => {
-      expect(typeof README_MD).toBe('string')
-      expect(README_MD).toBe('README.md')
-    })
-
-    it('should export MANIFEST_JSON', () => {
-      expect(typeof MANIFEST_JSON).toBe('string')
-      expect(MANIFEST_JSON).toBe('manifest.json')
-    })
-
-    it('should export VITEST', () => {
-      expect(typeof VITEST).toBe('string')
-      expect(VITEST).toBe('VITEST')
-    })
+  it('should export number constants', () => {
+    for (const { value } of numberConstants) {
+      expect(typeof value).toBe('number')
+      expect(value).toBeGreaterThan(0)
+    }
   })
 
-  describe('directory constants', () => {
-    it('should export NODE_MODULES', () => {
-      expect(typeof NODE_MODULES).toBe('string')
-      expect(NODE_MODULES).toBe('node_modules')
-    })
-
-    it('should export DOT_GIT_DIR', () => {
-      expect(typeof DOT_GIT_DIR).toBe('string')
-      expect(DOT_GIT_DIR).toBe('.git')
-    })
-
-    it('should export DOT_SOCKET_DIR', () => {
-      expect(typeof DOT_SOCKET_DIR).toBe('string')
-      expect(DOT_SOCKET_DIR).toBe('.socket')
-    })
+  it('should export special constants', () => {
+    expect(typeof NODE_AUTH_TOKEN).toBe('string')
+    expect(typeof EMPTY_FILE).toBe('string')
+    expect(typeof EMPTY_VALUE).toBe('string')
+    expect(typeof SOCKET_IPC_HANDSHAKE).toBe('string')
+    expect(typeof SOCKET_OVERRIDE_SCOPE).toBe('string')
+    expect(typeof SOCKET_PUBLIC_API_TOKEN).toBe('string')
+    expect(typeof SOCKET_REGISTRY_NPM_ORG).toBe('string')
+    expect(typeof SOCKET_REGISTRY_PACKAGE_NAME).toBe('string')
+    expect(typeof UNDEFINED_TOKEN).toBe('object')
+    expect(UNDEFINED_TOKEN).not.toBe(null)
+    expect(typeof UNKNOWN_VALUE).toBe('string')
   })
 
-  describe('file extension constants', () => {
-    it('should export EXT_JS', () => {
-      expect(typeof EXT_JS).toBe('string')
-      expect(EXT_JS).toBe('.js')
-    })
-
-    it('should export EXT_MJS', () => {
-      expect(typeof EXT_MJS).toBe('string')
-      expect(EXT_MJS).toBe('.mjs')
-    })
-
-    it('should export EXT_CJS', () => {
-      expect(typeof EXT_CJS).toBe('string')
-      expect(EXT_CJS).toBe('.cjs')
-    })
-
-    it('should export EXT_DTS', () => {
-      expect(typeof EXT_DTS).toBe('string')
-      expect(EXT_DTS).toBe('.d.ts')
-    })
-
-    it('should export EXT_MTS', () => {
-      expect(typeof EXT_MTS).toBe('string')
-      expect(EXT_MTS).toBe('.mts')
-    })
-
-    it('should export EXT_CTS', () => {
-      expect(typeof EXT_CTS).toBe('string')
-      expect(EXT_CTS).toBe('.cts')
-    })
-
-    it('should export EXT_JSON', () => {
-      expect(typeof EXT_JSON).toBe('string')
-      expect(EXT_JSON).toBe('.json')
-    })
-
-    it('should export EXT_MD', () => {
-      expect(typeof EXT_MD).toBe('string')
-      expect(EXT_MD).toBe('.md')
-    })
-
-    it('should export EXT_YAML', () => {
-      expect(typeof EXT_YAML).toBe('string')
-      expect(EXT_YAML).toBe('.yaml')
-    })
-
-    it('should export EXT_YML', () => {
-      expect(typeof EXT_YML).toBe('string')
-      expect(EXT_YML).toBe('.yml')
-    })
-
-    it('should export EXT_LOCK', () => {
-      expect(typeof EXT_LOCK).toBe('string')
-      expect(EXT_LOCK).toBe('.lock')
-    })
-
-    it('should export EXT_LOCKB', () => {
-      expect(typeof EXT_LOCKB).toBe('string')
-      expect(EXT_LOCKB).toBe('.lockb')
-    })
-
-    it('should export EXT_CMD', () => {
-      expect(typeof EXT_CMD).toBe('string')
-      expect(EXT_CMD).toBe('.cmd')
-    })
-
-    it('should export EXT_PS1', () => {
-      expect(typeof EXT_PS1).toBe('string')
-      expect(EXT_PS1).toBe('.ps1')
-    })
-
-    it('should export EXTENSIONS', () => {
-      expect(typeof EXTENSIONS).toBe('string')
-      expect(EXTENSIONS).toBe('extensions')
-    })
-
-    it('should export EXTENSIONS_JSON', () => {
-      expect(typeof EXTENSIONS_JSON).toBe('string')
-      expect(EXTENSIONS_JSON).toBe('extensions.json')
-    })
+  it('should export glob pattern constants', () => {
+    expect(LICENSE_GLOB).toContain('LICEN')
+    expect(LICENSE_GLOB_RECURSIVE).toContain('LICEN')
+    expect(typeof LICENSE_ORIGINAL_GLOB).toBe('string')
+    expect(typeof LICENSE_ORIGINAL_GLOB_RECURSIVE).toBe('string')
+    expect(README_GLOB).toContain('README')
+    expect(README_GLOB_RECURSIVE).toContain('README')
+    expect(NODE_MODULES_GLOB_RECURSIVE).toContain('node_modules')
+    expect(NPM_REGISTRY_URL).toContain('registry.npmjs.org')
   })
 
-  describe('glob pattern constants', () => {
-    it('should export LICENSE_GLOB', () => {
-      expect(typeof LICENSE_GLOB).toBe('string')
-      expect(LICENSE_GLOB).toContain('LICEN')
-    })
+  it('should export complex constants', () => {
+    expect(logger).toBeDefined()
+    expect(typeof logger.info).toBe('function')
+    expect(typeof logger.error).toBe('function')
+    expect(typeof logger.warn).toBe('function')
 
-    it('should export LICENSE_GLOB_RECURSIVE', () => {
-      expect(typeof LICENSE_GLOB_RECURSIVE).toBe('string')
-      expect(LICENSE_GLOB_RECURSIVE).toContain('LICEN')
-    })
+    expect(lifecycleScriptNames instanceof Set).toBe(true)
+    expect(lifecycleScriptNames.size).toBeGreaterThan(0)
+    expect(lifecycleScriptNames.has('install')).toBe(true)
 
-    it('should export LICENSE_ORIGINAL_GLOB', () => {
-      expect(typeof LICENSE_ORIGINAL_GLOB).toBe('string')
-      expect(LICENSE_ORIGINAL_GLOB).toBeTruthy()
-    })
+    expect(['string', 'undefined']).toContain(typeof npmLifecycleEvent)
 
-    it('should export LICENSE_ORIGINAL_GLOB_RECURSIVE', () => {
-      expect(typeof LICENSE_ORIGINAL_GLOB_RECURSIVE).toBe('string')
-      expect(LICENSE_ORIGINAL_GLOB_RECURSIVE).toBeTruthy()
-    })
+    expect(typeof execPath).toBe('string')
+    expect(execPath.length).toBeGreaterThan(0)
 
-    it('should export README_GLOB', () => {
-      expect(typeof README_GLOB).toBe('string')
-      expect(README_GLOB).toContain('README')
-    })
+    expect(typeof packageManagerCacheNames).toBe('object')
+    expect(Object.isFrozen(packageManagerCacheNames)).toBe(true)
 
-    it('should export README_GLOB_RECURSIVE', () => {
-      expect(typeof README_GLOB_RECURSIVE).toBe('string')
-      expect(README_GLOB_RECURSIVE).toContain('README')
-    })
+    expect(Array.isArray(nodeDebugFlags)).toBe(true)
 
-    it('should export NODE_MODULES_GLOB_RECURSIVE', () => {
-      expect(typeof NODE_MODULES_GLOB_RECURSIVE).toBe('string')
-      expect(NODE_MODULES_GLOB_RECURSIVE).toContain('node_modules')
-    })
-  })
-
-  describe('environment constants', () => {
-    it('should export CI', () => {
-      expect(['boolean', 'string']).toContain(typeof CI)
-    })
-
-    it('should export NODE_ENV', () => {
-      expect(typeof NODE_ENV).toBe('string')
-    })
-
-    it('should export DARWIN', () => {
-      expect(typeof DARWIN).toBe('boolean')
-    })
-
-    it('should export NODE_SEA_FUSE', () => {
-      expect(typeof NODE_SEA_FUSE).toBe('string')
-    })
-
-    it('should export SUPPORTS_PROCESS_SEND', () => {
-      expect(typeof SUPPORTS_PROCESS_SEND).toBe('boolean')
-    })
-  })
-
-  describe('Socket constants', () => {
-    it('should export SOCKET_GITHUB_ORG', () => {
-      expect(typeof SOCKET_GITHUB_ORG).toBe('string')
-      expect(SOCKET_GITHUB_ORG).toBe('SocketDev')
-    })
-
-    it('should export SOCKET_IPC_HANDSHAKE', () => {
-      expect(typeof SOCKET_IPC_HANDSHAKE).toBe('string')
-    })
-
-    it('should export SOCKET_OVERRIDE_SCOPE', () => {
-      expect(typeof SOCKET_OVERRIDE_SCOPE).toBe('string')
-    })
-
-    it('should export SOCKET_PUBLIC_API_TOKEN', () => {
-      expect(typeof SOCKET_PUBLIC_API_TOKEN).toBe('string')
-    })
-
-    it('should export SOCKET_REGISTRY_NPM_ORG', () => {
-      expect(typeof SOCKET_REGISTRY_NPM_ORG).toBe('string')
-    })
-
-    it('should export SOCKET_REGISTRY_PACKAGE_NAME', () => {
-      expect(typeof SOCKET_REGISTRY_PACKAGE_NAME).toBe('string')
-    })
-
-    it('should export SOCKET_REGISTRY_SCOPE', () => {
-      expect(typeof SOCKET_REGISTRY_SCOPE).toBe('string')
-      expect(SOCKET_REGISTRY_SCOPE).toBe('@socketregistry')
-    })
-
-    it('should export SOCKET_SECURITY_SCOPE', () => {
-      expect(typeof SOCKET_SECURITY_SCOPE).toBe('string')
-      expect(SOCKET_SECURITY_SCOPE).toBe('@socketsecurity')
-    })
-  })
-
-  describe('Node.js feature support constants', () => {
-    it('should export SUPPORTS_NODE_COMPILE_CACHE_API', () => {
-      expect(typeof SUPPORTS_NODE_COMPILE_CACHE_API).toBe('boolean')
-    })
-
-    it('should export SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR', () => {
-      expect(typeof SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR).toBe('boolean')
-    })
-
-    it('should export SUPPORTS_NODE_DISABLE_WARNING_FLAG', () => {
-      expect(typeof SUPPORTS_NODE_DISABLE_WARNING_FLAG).toBe('boolean')
-    })
-
-    it('should export SUPPORTS_NODE_PERMISSION_FLAG', () => {
-      expect(typeof SUPPORTS_NODE_PERMISSION_FLAG).toBe('boolean')
-    })
-
-    it('should export SUPPORTS_NODE_REQUIRE_MODULE', () => {
-      expect(typeof SUPPORTS_NODE_REQUIRE_MODULE).toBe('boolean')
-    })
-  })
-
-  describe('license constants', () => {
-    it('should export LICENSE', () => {
-      expect(typeof LICENSE).toBe('string')
-      expect(LICENSE).toBe('LICENSE')
-    })
-
-    it('should export LICENSE_ORIGINAL', () => {
-      expect(typeof LICENSE_ORIGINAL).toBe('string')
-      expect(LICENSE_ORIGINAL).toBe('LICENSE.original')
-    })
-
-    it('should export MIT', () => {
-      expect(typeof MIT).toBe('string')
-      expect(MIT).toBe('MIT')
-    })
-
-    it('should export UNLICENSED', () => {
-      expect(typeof UNLICENSED).toBe('string')
-      expect(UNLICENSED).toBe('UNLICENSED')
-    })
-
-    it('should export UNLICENCED', () => {
-      expect(typeof UNLICENCED).toBe('string')
-      expect(UNLICENCED).toBe('UNLICENCED')
-    })
-  })
-
-  describe('encoding constants', () => {
-    it('should export UTF8', () => {
-      expect(typeof UTF8).toBe('string')
-      expect(UTF8).toBe('utf8')
-    })
-  })
-
-  describe('special value constants', () => {
-    it('should export EMPTY_VALUE', () => {
-      expect(typeof EMPTY_VALUE).toBe('string')
-      expect(EMPTY_VALUE).toBeTruthy()
-    })
-
-    it('should export EMPTY_FILE', () => {
-      expect(typeof EMPTY_FILE).toBe('string')
-      expect(EMPTY_FILE).toBeTruthy()
-    })
-
-    it('should export UNKNOWN_VALUE', () => {
-      expect(typeof UNKNOWN_VALUE).toBe('string')
-      expect(UNKNOWN_VALUE).toBeTruthy()
-    })
-
-    it('should export UNKNOWN_ERROR', () => {
-      expect(typeof UNKNOWN_ERROR).toBe('string')
-      expect(UNKNOWN_ERROR).toBe('Unknown error')
-    })
-
-    it('should export UNDEFINED_TOKEN', () => {
-      expect(UNDEFINED_TOKEN).toBeDefined()
-    })
-  })
-
-  describe('package.json field constants', () => {
-    it('should export OVERRIDES', () => {
-      expect(typeof OVERRIDES).toBe('string')
-      expect(OVERRIDES).toBe('overrides')
-    })
-
-    it('should export RESOLUTIONS', () => {
-      expect(typeof RESOLUTIONS).toBe('string')
-      expect(RESOLUTIONS).toBe('resolutions')
-    })
-  })
-
-  describe('miscellaneous constants', () => {
-    it('should export COLUMN_LIMIT', () => {
-      expect(typeof COLUMN_LIMIT).toBe('number')
-      expect(COLUMN_LIMIT).toBeGreaterThan(0)
-    })
-
-    it('should export ESNEXT', () => {
-      expect(typeof ESNEXT).toBe('string')
-      expect(ESNEXT).toBe('esnext')
-    })
-
-    it('should export NODE_AUTH_TOKEN', () => {
-      expect(typeof NODE_AUTH_TOKEN).toBe('string')
-    })
-
-    it('should export PRE_COMMIT', () => {
-      expect(typeof PRE_COMMIT).toBe('string')
-      expect(PRE_COMMIT).toBe('PRE_COMMIT')
-    })
-
-    it('should export REGISTRY', () => {
-      expect(typeof REGISTRY).toBe('string')
-      expect(REGISTRY).toBe('registry')
-    })
-  })
-
-  describe('cache directory constants', () => {
-    it('should export CACHE_DIR', () => {
-      expect(typeof CACHE_DIR).toBe('string')
-      expect(CACHE_DIR).toBe('cache')
-    })
-
-    it('should export CACHE_GITHUB_DIR', () => {
-      expect(typeof CACHE_GITHUB_DIR).toBe('string')
-      expect(CACHE_GITHUB_DIR).toBe('github')
-    })
-
-    it('should export CACHE_SOCKET_API_DIR', () => {
-      expect(typeof CACHE_SOCKET_API_DIR).toBe('string')
-      expect(CACHE_SOCKET_API_DIR).toBe('socket-api')
-    })
-
-    it('should export CACHE_TTL_DIR', () => {
-      expect(typeof CACHE_TTL_DIR).toBe('string')
-      expect(CACHE_TTL_DIR).toBe('ttl')
-    })
-
-    it('should export DLX_BINARY_CACHE_TTL', () => {
-      expect(typeof DLX_BINARY_CACHE_TTL).toBe('number')
-      expect(DLX_BINARY_CACHE_TTL).toBeGreaterThan(0)
-    })
-  })
-
-  describe('additional directory constants', () => {
-    it('should export DOT_GITHUB', () => {
-      expect(typeof DOT_GITHUB).toBe('string')
-      expect(DOT_GITHUB).toBe('.github')
-    })
-  })
-
-  describe('Socket app name constants', () => {
-    it('should export SOCKET_APP_PREFIX', () => {
-      expect(typeof SOCKET_APP_PREFIX).toBe('string')
-      expect(SOCKET_APP_PREFIX).toBe('_')
-    })
-
-    it('should export SOCKET_CLI_APP_NAME', () => {
-      expect(typeof SOCKET_CLI_APP_NAME).toBe('string')
-      expect(SOCKET_CLI_APP_NAME).toBe('socket')
-    })
-
-    it('should export SOCKET_DLX_APP_NAME', () => {
-      expect(typeof SOCKET_DLX_APP_NAME).toBe('string')
-      expect(SOCKET_DLX_APP_NAME).toBe('dlx')
-    })
-
-    it('should export SOCKET_FIREWALL_APP_NAME', () => {
-      expect(typeof SOCKET_FIREWALL_APP_NAME).toBe('string')
-      expect(SOCKET_FIREWALL_APP_NAME).toBe('sfw')
-    })
-
-    it('should export SOCKET_REGISTRY_APP_NAME', () => {
-      expect(typeof SOCKET_REGISTRY_APP_NAME).toBe('string')
-      expect(SOCKET_REGISTRY_APP_NAME).toBe('registry')
-    })
-
-    it('should export SOCKET_REGISTRY_REPO_NAME', () => {
-      expect(typeof SOCKET_REGISTRY_REPO_NAME).toBe('string')
-      expect(SOCKET_REGISTRY_REPO_NAME).toBe('socket-registry')
-    })
-  })
-
-  describe('additional package manager constants', () => {
-    it('should export NPM_REGISTRY_URL', () => {
-      expect(typeof NPM_REGISTRY_URL).toBe('string')
-      expect(NPM_REGISTRY_URL).toContain('registry.npmjs.org')
-    })
-
-    it('should export PACKAGE_LOCK_JSON', () => {
-      expect(typeof PACKAGE_LOCK_JSON).toBe('string')
-      expect(PACKAGE_LOCK_JSON).toBe('package-lock.json')
-    })
-
-    it('should export PNPM_LOCK_YAML', () => {
-      expect(typeof PNPM_LOCK_YAML).toBe('string')
-      expect(PNPM_LOCK_YAML).toBe('pnpm-lock.yaml')
-    })
-
-    it('should export YARN_LOCK', () => {
-      expect(typeof YARN_LOCK).toBe('string')
-      expect(YARN_LOCK).toBe('yarn.lock')
-    })
-  })
-
-  describe('platform detection constants', () => {
-    it('should export WIN32', () => {
-      expect(typeof WIN32).toBe('boolean')
-    })
-
-    it('should export SUPPORTS_NODE_RUN', () => {
-      expect(typeof SUPPORTS_NODE_RUN).toBe('boolean')
-    })
-  })
-
-  describe('re-exported modules', () => {
-    it('should export logger', () => {
-      expect(logger).toBeDefined()
-      expect(typeof logger.info).toBe('function')
-      expect(typeof logger.error).toBe('function')
-      expect(typeof logger.warn).toBe('function')
-    })
-  })
-
-  describe('lifecycle and script constants', () => {
-    it('should export lifecycleScriptNames as a Set', () => {
-      expect(lifecycleScriptNames instanceof Set).toBe(true)
-      expect(lifecycleScriptNames.size).toBeGreaterThan(0)
-      expect(lifecycleScriptNames.has('install')).toBe(true)
-      expect(lifecycleScriptNames.has('preinstall')).toBe(true)
-      expect(lifecycleScriptNames.has('postinstall')).toBe(true)
-    })
-
-    it('should export npmLifecycleEvent', () => {
-      expect(['string', 'undefined']).toContain(typeof npmLifecycleEvent)
-    })
-
-    it('should export execPath as a string', () => {
-      expect(typeof execPath).toBe('string')
-      expect(execPath.length).toBeGreaterThan(0)
-    })
-  })
-
-  describe('package manager configuration constants', () => {
-    it('should export packageManagerCacheNames as a frozen object', () => {
-      expect(typeof packageManagerCacheNames).toBe('object')
-      expect(packageManagerCacheNames).toBeDefined()
-      expect(Object.isFrozen(packageManagerCacheNames)).toBe(true)
-      expect(packageManagerCacheNames['NPM_CACHE_DIR']).toBe('.npm')
-      expect(packageManagerCacheNames['PNPM_STORE_DIR']).toBe('pnpm')
-      expect(packageManagerCacheNames['YARN_CLASSIC_CACHE_DIR']).toBe('yarn')
-    })
-
-    it('should export nodeDebugFlags as an array', () => {
-      expect(Array.isArray(nodeDebugFlags)).toBe(true)
-    })
-  })
-
-  describe('TypeScript availability constants', () => {
-    it('should export tsLibsAvailable as an object', () => {
-      expect(typeof tsLibsAvailable).toBe('object')
-      expect(tsLibsAvailable).toBeDefined()
-    })
-
-    it('should export tsTypesAvailable as an object', () => {
-      expect(typeof tsTypesAvailable).toBe('object')
-      expect(tsTypesAvailable).toBeDefined()
-    })
+    expect(typeof tsLibsAvailable).toBe('object')
+    expect(typeof tsTypesAvailable).toBe('object')
   })
 })

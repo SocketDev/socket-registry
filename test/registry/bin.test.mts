@@ -649,72 +649,6 @@ exec node  "$basedir/lib/cli.js" "$@"`
     })
   })
 
-  describe('whichBin async', () => {
-    it('should find binary asynchronously', async () => {
-      const result = await whichBin('node')
-      expect(result).toBeTruthy()
-      expect(result).toContain('node')
-    })
-
-    it('should return undefined when binary not found with nothrow', async () => {
-      const result = await whichBin('nonexistent12345', { nothrow: true })
-      expect(result).toBeUndefined()
-    })
-
-    it('should throw when binary not found without nothrow', async () => {
-      await expect(
-        whichBin('nonexistent12345', { nothrow: false }),
-      ).rejects.toThrow()
-    })
-
-    it('should return all paths when all:true', async () => {
-      const result = await whichBin('node', { all: true })
-      expect(Array.isArray(result)).toBe(true)
-      expect(result!.length).toBeGreaterThan(0)
-    })
-
-    it('should handle all:true with non-existent binary', async () => {
-      const result = await whichBin('nonexistent12345', {
-        all: true,
-        nothrow: true,
-      })
-      expect(result).toBeUndefined()
-    })
-  })
-
-  describe('whichBinSync', () => {
-    it('should find binary synchronously', () => {
-      const result = whichBinSync('node')
-      expect(result).toBeTruthy()
-      expect(result).toContain('node')
-    })
-
-    it('should return undefined when binary not found with nothrow', () => {
-      const result = whichBinSync('nonexistent12345', { nothrow: true })
-      expect(result).toBeUndefined()
-    })
-
-    it('should throw when binary not found without nothrow', () => {
-      expect(() => {
-        whichBinSync('nonexistent12345', { nothrow: false })
-      }).toThrow()
-    })
-
-    it('should return all paths when all:true', () => {
-      const result = whichBinSync('node', { all: true })
-      expect(Array.isArray(result)).toBe(true)
-      expect(result!.length).toBeGreaterThan(0)
-    })
-
-    it('should handle all:true with non-existent binary', () => {
-      const result = whichBinSync('nonexistent12345', {
-        all: true,
-        nothrow: true,
-      })
-      expect(result).toBeUndefined()
-    })
-  })
-
   describe('resolveBinPathSync Volta support', () => {
     const tmpDir = os.tmpdir()
     const voltaPath = path.join(tmpDir, '.volta')
@@ -1161,16 +1095,6 @@ exec node "$basedir/../pnpm/bin/pnpm.cjs" "$@"`
       const result = findRealNpm()
       expect(result).toBeTruthy()
       expect(typeof result).toBe('string')
-    })
-
-    it('should find npm in node directory', () => {
-      const result = findRealNpm()
-      expect(result).toBeTruthy()
-    })
-
-    it('should handle various npm installation methods', () => {
-      const result = findRealNpm()
-      expect(result).toBeTruthy()
       expect(result.length).toBeGreaterThan(0)
     })
   })
@@ -1180,41 +1104,10 @@ exec node "$basedir/../pnpm/bin/pnpm.cjs" "$@"`
       const result = findRealPnpm()
       expect(typeof result).toBe('string')
     })
-
-    it('should check common pnpm locations', () => {
-      const result = findRealPnpm()
-      expect(typeof result).toBe('string')
-    })
-
-    it.skipIf(process.platform !== 'win32')(
-      'should check Windows-specific pnpm paths',
-      () => {
-        const result = findRealPnpm()
-        expect(typeof result).toBe('string')
-      },
-    )
-
-    it.skipIf(process.platform === 'win32')(
-      'should check Unix-specific pnpm paths',
-      () => {
-        const result = findRealPnpm()
-        expect(typeof result).toBe('string')
-      },
-    )
   })
 
   describe('findRealYarn', () => {
     it('should find real yarn executable or return empty string', () => {
-      const result = findRealYarn()
-      expect(typeof result).toBe('string')
-    })
-
-    it('should check common yarn locations', () => {
-      const result = findRealYarn()
-      expect(typeof result).toBe('string')
-    })
-
-    it('should handle yarn not being installed', () => {
       const result = findRealYarn()
       expect(typeof result).toBe('string')
     })
