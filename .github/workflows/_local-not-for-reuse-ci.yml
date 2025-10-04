@@ -17,7 +17,7 @@ permissions:
 jobs:
   ci:
     name: Run CI Pipeline
-    uses: SocketDev/socket-registry/.github/workflows/ci.yml@d0a45314245b7427bbf60cf42424acb07d51d9fe # main
+    uses: SocketDev/socket-registry/.github/workflows/ci.yml@ac25a346bed577db20cfd234cc8c84dfe6806a8f # main
     with:
       coverage-script: 'pnpm run test:unit:coverage'
       coverage-report-script: 'pnpm run coverage:percent --json'
@@ -38,11 +38,11 @@ jobs:
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@d0a45314245b7427bbf60cf42424acb07d51d9fe # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@ac25a346bed577db20cfd234cc8c84dfe6806a8f # main
         with:
           node-version: 22
 
-      - uses: SocketDev/socket-registry/.github/actions/cache-npm-packages@d0a45314245b7427bbf60cf42424acb07d51d9fe # main
+      - uses: SocketDev/socket-registry/.github/actions/cache-npm-packages@ac25a346bed577db20cfd234cc8c84dfe6806a8f # main
 
       - name: Build registry
         run: pnpm run build
