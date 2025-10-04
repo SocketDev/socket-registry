@@ -327,11 +327,12 @@ export async function resolveGitHubTgzUrl(
       apiUrl = gitHubTagRefUrl(user, project, parsedSpec.gitCommittish || '')
     } else {
       const fetcher = getFetcher()
+      const versionStr = version as string
       // First try to resolve the sha for a tag starting with "v", e.g. v1.2.3.
-      apiUrl = gitHubTagRefUrl(user, project, `v${version}`)
+      apiUrl = gitHubTagRefUrl(user, project, `v${versionStr}`)
       if (!(await fetcher(apiUrl, { method: 'head' })).ok) {
         // If a sha isn't found, try again with the "v" removed, e.g. 1.2.3.
-        apiUrl = gitHubTagRefUrl(user, project, version)
+        apiUrl = gitHubTagRefUrl(user, project, versionStr)
         if (!(await fetcher(apiUrl, { method: 'head' })).ok) {
           apiUrl = ''
         }
