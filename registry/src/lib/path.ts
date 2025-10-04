@@ -240,7 +240,7 @@ export function normalizePath(pathLike: string | Buffer | URL): string {
       }
     }
   }
-  let nextIndex = search(filepath, slashRegExp, start)
+  let nextIndex = search(filepath, slashRegExp, { fromIndex: start })
   if (nextIndex === -1) {
     const segment = filepath.slice(start)
     if (segment === '.' || segment.length === 0) {
@@ -303,7 +303,7 @@ export function normalizePath(pathLike: string | Buffer | URL): string {
     ) {
       start += 1
     }
-    nextIndex = search(filepath, slashRegExp, start)
+    nextIndex = search(filepath, slashRegExp, { fromIndex: start })
   }
   const lastSegment = filepath.slice(start)
   if (lastSegment.length > 0 && lastSegment !== '.') {
