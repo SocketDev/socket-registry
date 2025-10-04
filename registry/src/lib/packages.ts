@@ -9,7 +9,6 @@ import NPM_REGISTRY_URL from './constants/NPM_REGISTRY_URL'
 import REGISTRY_SCOPE_DELIMITER from './constants/REGISTRY_SCOPE_DELIMITER'
 import SOCKET_GITHUB_ORG from './constants/SOCKET_GITHUB_ORG'
 import SOCKET_REGISTRY_REPO_NAME from './constants/SOCKET_REGISTRY_REPO_NAME'
-import SOCKET_REGISTRY_SCOPE from './constants/SOCKET_REGISTRY_SCOPE'
 import abortSignal from './constants/abort-signal'
 import copyLeftLicenses from './constants/copy-left-licenses'
 import packageDefaultNodeRange from './constants/package-default-node-range'
@@ -18,7 +17,25 @@ import packageExtensions from './constants/package-extensions'
 import packumentCache from './constants/packument-cache'
 import pacoteCachePath from './constants/pacote-cache-path'
 import { readJson, readJsonSync } from './fs'
-import { isObject, isObjectObject, merge, objectEntries } from './objects'
+import { isObjectObject, merge, objectEntries } from './objects'
+import {
+  findTypesForSubpath,
+  getExportFilePaths,
+  getSubpaths,
+  isConditionalExports,
+  isSubpathExports,
+  resolvePackageJsonEntryExports,
+} from './packages/exports'
+import {
+  normalizePackageJson,
+  resolveEscapedScope,
+  resolveOriginalPackageName,
+  unescapeScope,
+} from './packages/normalize'
+import {
+  resolvePackageJsonDirname,
+  resolvePackageJsonPath,
+} from './packages/paths'
 import {
   getRepoUrlDetails,
   gitHubTagRefUrl,
@@ -32,7 +49,6 @@ import {
   isValidPackageName,
 } from './packages/validation'
 import { isNodeModules, normalizePath } from './path'
-import { escapeRegExp } from './regexps'
 import { parseUrl } from './url'
 
 import type { CategoryString } from '../index'
@@ -122,9 +138,6 @@ const LICENSE_NODE_TYPE = 'License'
 const SLSA_PROVENANCE_V0_2 = 'https://slsa.dev/provenance/v0.2'
 const SLSA_PROVENANCE_V1_0 = 'https://slsa.dev/provenance/v1'
 
-const escapedScopeRegExp = new RegExp(
-  `^[^${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0]!)}]+${escapeRegExp(REGISTRY_SCOPE_DELIMITER)}(?!${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0]!)})`,
-)
 const fileReferenceRegExp = /^SEE LICEN[CS]E IN (.+)$/
 const pkgScopePrefixRegExp = /^@socketregistry\//
 
@@ -535,16 +548,6 @@ function getFs() {
     _fs = /*@__PURE__*/ require('fs')
   }
   return _fs!
-}
-
-let _normalizePackageData: typeof import('normalize-package-data') | undefined
-/*@__NO_SIDE_EFFECTS__*/
-function getNormalizePackageData() {
-  if (_normalizePackageData === undefined) {
-    _normalizePackageData =
-      /*@__PURE__*/ require('../external/normalize-package-data')
-  }
-  return _normalizePackageData!
 }
 
 let _npmPackageArg: typeof import('npm-package-arg') | undefined
@@ -1151,46 +1154,6 @@ export function findPackageExtensions(pkgName: string, pkgVer: string): any {
 }
 
 /**
- * Find types for a subpath in package exports.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function findTypesForSubpath(entryExports: any, subpath: string): any {
-  const queue = [entryExports]
-  let pos = 0
-  while (pos < queue.length) {
-    if (pos === LOOP_SENTINEL) {
-      throw new Error(
-        'Detected infinite loop in entry exports crawl of getTypesForSubpath',
-      )
-    }
-    const value = queue[pos++]
-    if (ArrayIsArray(value)) {
-      for (let i = 0, { length } = value; i < length; i += 1) {
-        const item = value[i]
-        if (item === subpath) {
-          return (value as { types?: any }).types
-        }
-        if (isObject(item)) {
-          queue.push(item)
-        }
-      }
-    } else if (isObject(value)) {
-      const keys = Object.getOwnPropertyNames(value)
-      for (let i = 0, { length } = keys; i < length; i += 1) {
-        const item = value[keys[i]!]
-        if (item === subpath) {
-          return (value as { types?: any }).types
-        }
-        if (isObject(item)) {
-          queue.push(item)
-        }
-      }
-    }
-  }
-  return undefined
-}
-
-/**
  * Get the release tag for a version.
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -1214,118 +1177,6 @@ export function getReleaseTag(spec: string): string {
 }
 
 /**
- * Get subpaths from package exports.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function getSubpaths(entryExports: any): string[] {
-  if (!isObject(entryExports)) {
-    return []
-  }
-  // Return the keys of the exports object (the subpaths).
-  return Object.getOwnPropertyNames(entryExports).filter(key =>
-    key.startsWith('.'),
-  )
-}
-
-/**
- * Get file paths from package exports.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function getExportFilePaths(entryExports: any): string[] {
-  if (!isObject(entryExports)) {
-    return []
-  }
-
-  const paths = []
-
-  // Traverse the exports object to find actual file paths.
-  for (const key of Object.getOwnPropertyNames(entryExports)) {
-    if (!key.startsWith('.')) {
-      continue
-    }
-
-    const value = entryExports[key]
-
-    if (typeof value === 'string') {
-      // Direct path export.
-      paths.push(value)
-    } else if (isObject(value)) {
-      // Conditional or nested export.
-      for (const subKey of Object.getOwnPropertyNames(value)) {
-        const subValue = value[subKey]
-        if (typeof subValue === 'string') {
-          paths.push(subValue)
-        } else if (Array.isArray(subValue)) {
-          // Array of conditions.
-          for (const item of subValue) {
-            if (typeof item === 'string') {
-              paths.push(item)
-            } else if (isObject(item)) {
-              // Nested conditional.
-              for (const nestedKey of Object.getOwnPropertyNames(item)) {
-                const nestedValue = item[nestedKey]
-                if (typeof nestedValue === 'string') {
-                  paths.push(nestedValue)
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // Remove duplicates and filter out non-file paths.
-  return [...new Set(paths)].filter(p => p.startsWith('./'))
-}
-
-/**
- * Check if package exports use conditional patterns (e.g., import/require).
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function isConditionalExports(entryExports: any): boolean {
-  if (!isObjectObject(entryExports)) {
-    return false
-  }
-  const keys = Object.getOwnPropertyNames(entryExports)
-  const { length } = keys
-  if (!length) {
-    return false
-  }
-  // Conditional entry exports do NOT contain keys starting with '.'.
-  // Entry exports cannot contain some keys starting with '.' and some not.
-  // The exports object MUST either be an object of package subpath keys OR
-  // an object of main entry condition name keys only.
-  for (let i = 0; i < length; i += 1) {
-    const key = keys[i]!
-    if (key.length > 0 && key.charCodeAt(0) === 46 /*'.'*/) {
-      return false
-    }
-  }
-  return true
-}
-
-/**
- * Check if package exports use subpath patterns (keys starting with '.').
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function isSubpathExports(entryExports: any): boolean {
-  if (isObjectObject(entryExports)) {
-    const keys = Object.getOwnPropertyNames(entryExports)
-    for (let i = 0, { length } = keys; i < length; i += 1) {
-      // Subpath entry exports contain keys starting with '.'.
-      // Entry exports cannot contain some keys starting with '.' and some not.
-      // The exports object MUST either be an object of package subpath keys OR
-      // an object of main entry condition name keys only.
-      if (keys[i]!.charCodeAt(0) === 46 /*'.'*/) {
-        return true
-      }
-    }
-  }
-  return false
-}
-
-/**
  * Convert a package.json object to an editable instance.
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -1341,45 +1192,6 @@ export function pkgJsonToEditable(
   return new EditablePackageJson().fromContent(
     normalize ? normalizePackageJson(pkgJson, normalizeOptions) : pkgJson,
   )
-}
-
-/**
- * Normalize package.json data using npm's normalization rules.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function normalizePackageJson(
-  pkgJson: PackageJson,
-  options?: NormalizeOptions,
-): PackageJson {
-  const { preserve } = { __proto__: null, ...options } as NormalizeOptions
-  // Add default version if not present.
-  if (!ObjectHasOwn(pkgJson, 'version')) {
-    pkgJson.version = '0.0.0'
-  }
-  const preserved = [
-    ['_id', undefined],
-    ['readme', undefined],
-    ...(ObjectHasOwn(pkgJson, 'bugs') ? [] : [['bugs', undefined]]),
-    ...(ObjectHasOwn(pkgJson, 'homepage') ? [] : [['homepage', undefined]]),
-    ...(ObjectHasOwn(pkgJson, 'name') ? [] : [['name', undefined]]),
-    ...(ArrayIsArray(preserve)
-      ? preserve.map(k => [
-          k,
-          ObjectHasOwn(pkgJson, k) ? pkgJson[k] : undefined,
-        ])
-      : []),
-  ]
-  const normalizePackageData = getNormalizePackageData()
-  normalizePackageData(pkgJson)
-  if (pkgJson.name && pkgJson.version) {
-    merge(pkgJson, findPackageExtensions(pkgJson.name, pkgJson.version))
-  }
-  // Revert/remove properties we don't care to have normalized.
-  // Properties with undefined values are omitted when saved as JSON.
-  for (const { 0: key, 1: value } of preserved) {
-    pkgJson[key as keyof typeof pkgJson] = value
-  }
-  return pkgJson
 }
 
 /**
@@ -1506,17 +1318,6 @@ export function readPackageJsonSync(
 }
 
 /**
- * Extract escaped scope from a Socket registry package name.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function resolveEscapedScope(
-  sockRegPkgName: string,
-): string | undefined {
-  const match = escapedScopeRegExp.exec(sockRegPkgName)?.[0]
-  return match || undefined
-}
-
-/**
  * Resolve GitHub tarball URL for a package specifier.
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -1574,60 +1375,6 @@ export async function resolveGitHubTgzUrl(
     }
   }
   return ''
-}
-
-/**
- * Convert Socket registry package name back to original npm package name.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function resolveOriginalPackageName(sockRegPkgName: string): string {
-  const name = sockRegPkgName.startsWith(`${SOCKET_REGISTRY_SCOPE}/`)
-    ? sockRegPkgName.slice(SOCKET_REGISTRY_SCOPE.length + 1)
-    : sockRegPkgName
-  const escapedScope = resolveEscapedScope(name)
-  return escapedScope
-    ? `${unescapeScope(escapedScope)}/${name.slice(escapedScope.length)}`
-    : name
-}
-
-/**
- * Resolve directory path from a package.json file path.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function resolvePackageJsonDirname(filepath: string): string {
-  if (filepath.endsWith('package.json')) {
-    const path = getPath()
-    return path.dirname(filepath)
-  }
-  return filepath
-}
-
-/**
- * Normalize package.json exports field to canonical format.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function resolvePackageJsonEntryExports(entryExports: any): any {
-  // If conditional exports main sugar
-  // https://nodejs.org/api/packages.html#exports-sugar
-  if (typeof entryExports === 'string' || ArrayIsArray(entryExports)) {
-    return { '.': entryExports }
-  }
-  if (isConditionalExports(entryExports)) {
-    return entryExports
-  }
-  return isObject(entryExports) ? entryExports : undefined
-}
-
-/**
- * Resolve full path to package.json from a directory or file path.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function resolvePackageJsonPath(filepath: string): string {
-  if (filepath.endsWith('package.json')) {
-    return filepath
-  }
-  const path = getPath()
-  return path.join(filepath, 'package.json')
 }
 
 /**
@@ -1773,14 +1520,6 @@ export function toEditablePackageJsonSync(
   )
 }
 
-/**
- * Convert escaped scope name back to npm scope format.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function unescapeScope(escapedScope: string): string {
-  return `@${escapedScope.slice(0, -REGISTRY_SCOPE_DELIMITER.length)}`
-}
-
 export interface LicenseVisitor {
   License?: (
     node: InternalLicenseNode,
@@ -1847,12 +1586,24 @@ export function visitLicenses(ast: SpdxAstNode, visitor: LicenseVisitor): void {
 }
 
 export {
+  findTypesForSubpath,
+  getExportFilePaths,
   getRepoUrlDetails,
+  getSubpaths,
   gitHubTagRefUrl,
   gitHubTgzUrl,
   isBlessedPackageName,
+  isConditionalExports,
   isGitHubTgzSpec,
   isGitHubUrlSpec,
   isRegistryFetcherType,
+  isSubpathExports,
   isValidPackageName,
+  normalizePackageJson,
+  resolveEscapedScope,
+  resolveOriginalPackageName,
+  resolvePackageJsonDirname,
+  resolvePackageJsonPath,
+  resolvePackageJsonEntryExports,
+  unescapeScope,
 }
