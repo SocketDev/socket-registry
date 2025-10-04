@@ -247,7 +247,7 @@ async function publishAtCommit(sha) {
   }
 
   logger.log(
-    `\nPublishing ${packagesToPublish.length} ${pluralize('package', packagesToPublish.length)}...\n`,
+    `\nPublishing ${packagesToPublish.length} ${pluralize('package', { count: packagesToPublish.length })}...\n`,
   )
 
   // Separate registry package from other packages.
@@ -292,7 +292,7 @@ async function publishAtCommit(sha) {
   }
 
   if (fails.length) {
-    const msg = `Unable to publish ${fails.length} ${pluralize('package', fails.length)}:`
+    const msg = `Unable to publish ${fails.length} ${pluralize('package', { count: fails.length })}:`
     const msgList = joinAnd(fails)
     const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
     logger.warn(`${msg}${separator}${msgList}`)
@@ -300,7 +300,7 @@ async function publishAtCommit(sha) {
 
   if (skipped.length) {
     logger.log(
-      `Skipped ${skipped.length} ${pluralize('package', skipped.length)}`,
+      `Skipped ${skipped.length} ${pluralize('package', { count: skipped.length })}`,
     )
   }
 
@@ -551,7 +551,7 @@ async function main() {
 
     logger
       .log(
-        `\nPublishing ${bumpCommits.length} unpublished version ${pluralize('bump', bumpCommits.length)}:`,
+        `\nPublishing ${bumpCommits.length} unpublished version ${pluralize('bump', { count: bumpCommits.length })}:`,
       )
       .group()
 

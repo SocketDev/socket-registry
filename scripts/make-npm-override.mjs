@@ -225,14 +225,16 @@ async function main() {
   }
   if (licenseWarnings.length) {
     const formattedWarnings = licenseWarnings.map(w =>
-      indentString(`• ${w}`, 2),
+      indentString(`• ${w}`, { count: 2 }),
     )
     logger.warn(
       `${origPkgName} has license warnings:\n${formattedWarnings.join('\n')}`,
     )
   }
   if (badLicenses.length) {
-    const singularOrPlural = pluralize('license', badLicenses.length)
+    const singularOrPlural = pluralize('license', {
+      count: badLicenses.length,
+    })
     const badLicenseNames = badLicenses.map(n => n.license)
     const warning = `${LOG_SYMBOLS.warn} ${origPkgName} has incompatible ${singularOrPlural} ${badLicenseNames.join(', ')}.`
     const answer = await confirm({
