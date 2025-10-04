@@ -104,6 +104,11 @@ You are a **Principal Software Engineer** responsible for:
   - `pnpm run typecheck`
 - Run tests with: `pnpm test`
 - Pre-commit hooks will run automatically
+- **🚨 MANDATORY Coverage Requirements**: Before pushing commits, ensure test coverage is maintained or improved
+  - **Never decrease coverage**: All changes MUST maintain or increase existing coverage percentages
+  - **Check before push**: Run `pnpm run test` to verify coverage thresholds are met
+  - **Fix coverage drops**: If coverage decreases, add tests to restore or improve coverage before pushing
+  - **Rationale**: Declining coverage indicates untested code paths, which increases risk of bugs and regressions
 
 ### 6. Git Workflow
 - **DO NOT commit automatically** - let the user review changes first
