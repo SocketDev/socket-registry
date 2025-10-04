@@ -12,6 +12,7 @@ import {
   resolveOriginalPackageName,
   resolvePackageJsonPath,
 } from '../../registry/dist/lib/packages.js'
+import { normalizePath } from '../../registry/dist/lib/path.js'
 import { trash } from '../../scripts/utils/fs.mjs'
 
 describe('packages normalization and reading', () => {
@@ -130,7 +131,7 @@ describe('packages normalization and reading', () => {
 
       try {
         const resolvedPath = resolvePackageJsonPath(tmpDir)
-        expect(resolvedPath).toBe(pkgPath)
+        expect(resolvedPath).toBe(normalizePath(pkgPath))
       } finally {
         await trash(tmpDir)
       }
@@ -144,7 +145,7 @@ describe('packages normalization and reading', () => {
 
       try {
         const resolvedPath = resolvePackageJsonPath(pkgPath)
-        expect(resolvedPath).toBe(pkgPath)
+        expect(resolvedPath).toBe(normalizePath(pkgPath))
       } finally {
         await trash(tmpDir)
       }
