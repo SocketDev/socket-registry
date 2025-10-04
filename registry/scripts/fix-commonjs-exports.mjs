@@ -52,6 +52,7 @@ import { isBuiltin } from 'node:module'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import fastGlob from 'fast-glob'
 import MagicString from 'magic-string'
 
 // Using dynamic imports to avoid ESLint n/no-extraneous-import errors.
@@ -420,50 +421,30 @@ async function fixImportsInFile(filePath, fixedConstants, fixedExternals) {
  * Fix imports in all relevant files.
  */
 async function fixAllImports(fixedConstants, fixedExternals) {
-  // Fix imports in all JS files in dist/lib.
+  // Fix imports in all JS files in dist/lib (recursively).
   const libDir = path.join(distDir, 'lib')
-  const files = await fs.readdir(libDir)
+  const libFiles = await fastGlob('**/*.js', {
+    cwd: libDir,
+    absolute: true,
+  })
 
   await Promise.all(
-    files
-      .filter(f => f.endsWith('.js'))
-      .map(file =>
-        fixImportsInFile(
-          path.join(libDir, file),
-          fixedConstants,
-          fixedExternals,
-        ),
-      ),
-  )
-
-  // Also fix imports within the constants directory itself.
-  const constantFiles = await fs.readdir(constantsDir)
-  await Promise.all(
-    constantFiles
-      .filter(f => f.endsWith('.js'))
-      .map(file =>
-        fixImportsInFile(
-          path.join(constantsDir, file),
-          fixedConstants,
-          fixedExternals,
-        ),
-      ),
+    libFiles.map(file =>
+      fixImportsInFile(file, fixedConstants, fixedExternals),
+    ),
   )
 
   // Also fix in dist/external if it exists.
   const externalDir = path.join(distDir, 'external')
   try {
-    const externalFiles = await fs.readdir(externalDir)
+    const externalFiles = await fastGlob('**/*.js', {
+      cwd: externalDir,
+      absolute: true,
+    })
     await Promise.all(
-      externalFiles
-        .filter(f => f.endsWith('.js'))
-        .map(file =>
-          fixImportsInFile(
-            path.join(externalDir, file),
-            fixedConstants,
-            fixedExternals,
-          ),
-        ),
+      externalFiles.map(file =>
+        fixImportsInFile(file, fixedConstants, fixedExternals),
+      ),
     )
   } catch {
     // External directory might not exist.
