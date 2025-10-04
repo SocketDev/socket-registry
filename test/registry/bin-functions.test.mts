@@ -14,9 +14,21 @@ import {
 
 describe('bin module - function utilities', () => {
   describe('isShadowBinPath', () => {
-    it('should identify shadow bin paths', () => {
-      const result = isShadowBinPath('/some/path/.bin')
-      expect(typeof result).toBe('boolean')
+    it('should identify shadow bin paths with forward slashes', () => {
+      const result = isShadowBinPath('/project/node_modules/.bin')
+      expect(result).toBe(true)
+    })
+
+    it('should identify shadow bin paths with backslashes', () => {
+      const result = isShadowBinPath('C:\\project\\node_modules\\.bin')
+      expect(result).toBe(true)
+    })
+
+    it('should identify nested shadow bin paths', () => {
+      const result = isShadowBinPath(
+        '/home/user/project/node_modules/.bin/subdir',
+      )
+      expect(result).toBe(true)
     })
 
     it('should handle undefined path', () => {
@@ -24,9 +36,24 @@ describe('bin module - function utilities', () => {
       expect(result).toBe(false)
     })
 
-    it('should handle regular paths', () => {
+    it('should return false for empty string', () => {
+      const result = isShadowBinPath('')
+      expect(result).toBe(false)
+    })
+
+    it('should return false for regular paths', () => {
       const result = isShadowBinPath('/usr/local/bin')
-      expect(typeof result).toBe('boolean')
+      expect(result).toBe(false)
+    })
+
+    it('should return false for paths with .bin but not in node_modules', () => {
+      const result = isShadowBinPath('/home/user/.bin')
+      expect(result).toBe(false)
+    })
+
+    it('should return false for paths with node_modules but not .bin', () => {
+      const result = isShadowBinPath('/home/user/node_modules/package')
+      expect(result).toBe(false)
     })
   })
 
