@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { getManifestData } from '@socketsecurity/registry'
+import { getManifestData } from '../../registry/dist/index.js'
 
 describe('manifest data utilities', () => {
   beforeEach(() => {
