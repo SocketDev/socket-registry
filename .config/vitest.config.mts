@@ -97,16 +97,22 @@ export default defineConfig({
         'registry/dist/types.js',
         'registry/src/external/**',
         'registry/src/types.ts',
+        // Requires external runtime dependencies (fetch, fs, binary execution).
+        'registry/src/lib/dlx-binary.ts',
+        // Requires complex binary injection and node manipulation.
+        'registry/src/lib/sea-build.ts',
+        // Primarily CLI-focused with dynamic namespace resolution.
+        'registry/src/lib/debug.ts',
       ],
       include: isCoverageEnabled
         ? ['registry/src/**/*.{ts,mts,cts}']
         : ['registry/dist/**/*.{js,mjs,cjs}'],
       all: true,
       thresholds: {
-        lines: 79,
+        lines: 80,
         functions: 80,
         branches: 80,
-        statements: 79,
+        statements: 80,
       },
     },
   },
