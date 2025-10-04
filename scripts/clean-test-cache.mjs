@@ -9,11 +9,41 @@
 import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
+import readline from 'node:readline'
+
+/**
+ * Prompt user for confirmation before deletion.
+ */
+async function confirmDeletion() {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  })
+
+  return await new Promise(resolve => {
+    rl.question(
+      'WARNING: This will permanently delete test cache directories. Continue? (yes/no): ',
+      answer => {
+        rl.close()
+        resolve(answer.toLowerCase() === 'yes')
+      },
+    )
+  })
+}
 
 /**
  * Remove all test cache directories.
  */
 async function cleanTestCache() {
+  // Skip confirmation in CI environments.
+  if (process.env.CI !== 'true') {
+    const confirmed = await confirmDeletion()
+    if (!confirmed) {
+      console.log('Cancelled.')
+      return
+    }
+  }
+
   const dirs = [
     path.join(os.homedir(), '.socket-npm-test-cache'),
     path.join(os.tmpdir(), 'npm-package-tests'),
