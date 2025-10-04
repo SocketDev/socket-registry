@@ -78,7 +78,7 @@ async function main() {
 
   if (!useDebug && warnings.length) {
     logger.warn(
-      `Found ${warnings.length} subpath export ${pluralize('warning', warnings.length)} (use DEBUG=* to see details)`,
+      `Found ${warnings.length} subpath export ${pluralize('warning', { count: warnings.length })} (use DEBUG=* to see details)`,
     )
   }
 }

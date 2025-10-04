@@ -104,7 +104,7 @@ async function main() {
   }
 
   if (fails.length) {
-    const msg = `Unable to set access for ${fails.length} ${pluralize('package', fails.length)}:`
+    const msg = `Unable to set access for ${fails.length} ${pluralize('package', { count: fails.length })}:`
     const msgList = joinAnd(fails)
     const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
     logger.warn(`${msg}${separator}${msgList}`)

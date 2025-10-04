@@ -168,7 +168,7 @@ async function main() {
             packages.includes(r.socketPackage) || packages.includes(r.package),
         )
         logger.log(
-          `💾 Using cached download results (${relevantResults.length} ${pluralize('package', relevantResults.length)})`,
+          `💾 Using cached download results (${relevantResults.length} ${pluralize('package', { count: relevantResults.length })})`,
         )
         await fs.writeFile(
           resultsFile,
@@ -181,7 +181,7 @@ async function main() {
         packagesToProcess = missingPackages
         usedCache = true
         logger.log(
-          `💾 Found ${packages.length - missingPackages.length} cached, processing ${missingPackages.length} new ${pluralize('package', missingPackages.length)}...`,
+          `💾 Found ${packages.length - missingPackages.length} cached, processing ${missingPackages.length} new ${pluralize('package', { count: missingPackages.length })}...`,
         )
       }
     } else {
@@ -194,7 +194,7 @@ async function main() {
         JSON.stringify(cachedPackageNames) === JSON.stringify(requestedPackages)
       ) {
         logger.log(
-          `💾 Using cached download results (${cachedResults.length} ${pluralize('package', cachedResults.length)})`,
+          `💾 Using cached download results (${cachedResults.length} ${pluralize('package', { count: cachedResults.length })})`,
         )
         process.exitCode = 0
         return
@@ -203,7 +203,7 @@ async function main() {
   }
 
   logger.log(
-    `Processing ${packagesToProcess.length} ${pluralize('package', packagesToProcess.length)}...`,
+    `Processing ${packagesToProcess.length} ${pluralize('package', { count: packagesToProcess.length })}...`,
   )
 
   // Start with cached results if doing incremental update.
