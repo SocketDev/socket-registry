@@ -64,7 +64,12 @@ async function main() {
     }
 
     // Pass remaining arguments to vitest.
-    const vitestArgs = ['run', ...expandedArgs]
+    const vitestArgs = [
+      'run',
+      '--config',
+      '.config/vitest.config.mts',
+      ...expandedArgs,
+    ]
 
     // On Windows, .cmd files need to be executed with shell: true.
     const spawnOptions = {
