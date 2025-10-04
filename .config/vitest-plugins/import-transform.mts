@@ -24,11 +24,11 @@ export function createImportTransformPlugin(
     async resolveId(source: string, importer: string | undefined, options) {
       // Handle @socketsecurity/registry imports.
       if (source.startsWith('@socketsecurity/registry')) {
+        const subpath = source.replace('@socketsecurity/registry', '')
         // Transform: @socketsecurity/registry → /abs/path/registry/src/index.ts
         // Transform: @socketsecurity/registry/lib/foo → /abs/path/registry/src/lib/foo.ts
-        const subpath = source.replace('@socketsecurity/registry', '') || ''
         const targetPath = subpath
-          ? resolve(actualProjectRoot, 'registry/src', subpath + '.ts')
+          ? resolve(actualProjectRoot, `registry/src${subpath}.ts`)
           : resolve(actualProjectRoot, 'registry/src/index.ts')
         return { id: targetPath }
       }
