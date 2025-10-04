@@ -93,81 +93,81 @@ describe('words module', () => {
     it('should pluralize regular nouns', () => {
       // default count is 1
       expect(pluralize('cat')).toBe('cat')
-      expect(pluralize('dog', 2)).toBe('dogs')
+      expect(pluralize('dog', { count: 2 })).toBe('dogs')
       // 0 is plural
-      expect(pluralize('book', 0)).toBe('books')
-      expect(pluralize('table', 5)).toBe('tables')
+      expect(pluralize('book', { count: 0 })).toBe('books')
+      expect(pluralize('table', { count: 5 })).toBe('tables')
     })
 
     it('should handle words ending in s, x, z, ch, sh', () => {
       // simple s appending
-      expect(pluralize('bus', 2)).toBe('buss')
-      expect(pluralize('box', 2)).toBe('boxs')
-      expect(pluralize('buzz', 2)).toBe('buzzs')
-      expect(pluralize('church', 2)).toBe('churchs')
-      expect(pluralize('dish', 2)).toBe('dishs')
+      expect(pluralize('bus', { count: 2 })).toBe('buss')
+      expect(pluralize('box', { count: 2 })).toBe('boxs')
+      expect(pluralize('buzz', { count: 2 })).toBe('buzzs')
+      expect(pluralize('church', { count: 2 })).toBe('churchs')
+      expect(pluralize('dish', { count: 2 })).toBe('dishs')
     })
 
     it('should handle words ending in consonant + y', () => {
       // simple s appending
-      expect(pluralize('baby', 2)).toBe('babys')
-      expect(pluralize('city', 2)).toBe('citys')
-      expect(pluralize('story', 2)).toBe('storys')
-      expect(pluralize('fly', 2)).toBe('flys')
+      expect(pluralize('baby', { count: 2 })).toBe('babys')
+      expect(pluralize('city', { count: 2 })).toBe('citys')
+      expect(pluralize('story', { count: 2 })).toBe('storys')
+      expect(pluralize('fly', { count: 2 })).toBe('flys')
     })
 
     it('should handle words ending in vowel + y', () => {
-      expect(pluralize('boy', 2)).toBe('boys')
-      expect(pluralize('key', 2)).toBe('keys')
-      expect(pluralize('day', 2)).toBe('days')
-      expect(pluralize('toy', 2)).toBe('toys')
+      expect(pluralize('boy', { count: 2 })).toBe('boys')
+      expect(pluralize('key', { count: 2 })).toBe('keys')
+      expect(pluralize('day', { count: 2 })).toBe('days')
+      expect(pluralize('toy', { count: 2 })).toBe('toys')
     })
 
     it('should handle words ending in f or fe', () => {
       // simple s appending
-      expect(pluralize('leaf', 2)).toBe('leafs')
-      expect(pluralize('knife', 2)).toBe('knifes')
-      expect(pluralize('wife', 2)).toBe('wifes')
-      expect(pluralize('shelf', 2)).toBe('shelfs')
+      expect(pluralize('leaf', { count: 2 })).toBe('leafs')
+      expect(pluralize('knife', { count: 2 })).toBe('knifes')
+      expect(pluralize('wife', { count: 2 })).toBe('wifes')
+      expect(pluralize('shelf', { count: 2 })).toBe('shelfs')
     })
 
     it('should handle words ending in o', () => {
       // simple s appending
-      expect(pluralize('hero', 2)).toBe('heros')
-      expect(pluralize('potato', 2)).toBe('potatos')
-      expect(pluralize('tomato', 2)).toBe('tomatos')
+      expect(pluralize('hero', { count: 2 })).toBe('heros')
+      expect(pluralize('potato', { count: 2 })).toBe('potatos')
+      expect(pluralize('tomato', { count: 2 })).toBe('tomatos')
     })
 
     it('should handle irregular plurals', () => {
       // simple s appending
-      expect(pluralize('child', 2)).toBe('childs')
-      expect(pluralize('person', 2)).toBe('persons')
-      expect(pluralize('man', 2)).toBe('mans')
-      expect(pluralize('woman', 2)).toBe('womans')
-      expect(pluralize('foot', 2)).toBe('foots')
-      expect(pluralize('tooth', 2)).toBe('tooths')
-      expect(pluralize('goose', 2)).toBe('gooses')
-      expect(pluralize('mouse', 2)).toBe('mouses')
+      expect(pluralize('child', { count: 2 })).toBe('childs')
+      expect(pluralize('person', { count: 2 })).toBe('persons')
+      expect(pluralize('man', { count: 2 })).toBe('mans')
+      expect(pluralize('woman', { count: 2 })).toBe('womans')
+      expect(pluralize('foot', { count: 2 })).toBe('foots')
+      expect(pluralize('tooth', { count: 2 })).toBe('tooths')
+      expect(pluralize('goose', { count: 2 })).toBe('gooses')
+      expect(pluralize('mouse', { count: 2 })).toBe('mouses')
     })
 
     it('should handle unchanged plurals', () => {
       // count=1, no s
-      expect(pluralize('sheep', 1)).toBe('sheep')
+      expect(pluralize('sheep', { count: 1 })).toBe('sheep')
       // simple s appending
-      expect(pluralize('deer', 2)).toBe('deers')
-      expect(pluralize('fish', 2)).toBe('fishs')
-      expect(pluralize('series', 2)).toBe('seriess')
+      expect(pluralize('deer', { count: 2 })).toBe('deers')
+      expect(pluralize('fish', { count: 2 })).toBe('fishs')
+      expect(pluralize('series', { count: 2 })).toBe('seriess')
     })
 
     it('should handle empty strings', () => {
       // empty + s
-      expect(pluralize('', 2)).toBe('s')
+      expect(pluralize('', { count: 2 })).toBe('s')
     })
 
     it('should handle already plural words', () => {
       // just adds s
-      expect(pluralize('cats', 2)).toBe('catss')
-      expect(pluralize('dogs', 2)).toBe('dogss')
+      expect(pluralize('cats', { count: 2 })).toBe('catss')
+      expect(pluralize('dogs', { count: 2 })).toBe('dogss')
     })
   })
 })

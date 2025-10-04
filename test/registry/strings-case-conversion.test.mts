@@ -16,16 +16,20 @@ import {
 describe('strings case conversion and manipulation', () => {
   describe('applyLinePrefix', () => {
     it('should add prefix to each line', () => {
-      expect(applyLinePrefix('hello\nworld', '> ')).toBe('> hello\n> world')
-      expect(applyLinePrefix('single line', '# ')).toBe('# single line')
+      expect(applyLinePrefix('hello\nworld', { prefix: '> ' })).toBe(
+        '> hello\n> world',
+      )
+      expect(applyLinePrefix('single line', { prefix: '# ' })).toBe(
+        '# single line',
+      )
     })
 
     it('should handle single line', () => {
-      expect(applyLinePrefix('test', '- ')).toBe('- test')
+      expect(applyLinePrefix('test', { prefix: '- ' })).toBe('- test')
     })
 
     it('should handle empty string', () => {
-      expect(applyLinePrefix('', '> ')).toBe('> ')
+      expect(applyLinePrefix('', { prefix: '> ' })).toBe('> ')
     })
   })
 
@@ -63,8 +67,8 @@ describe('strings case conversion and manipulation', () => {
   describe('string manipulation', () => {
     it('should indent strings', () => {
       const text = 'hello\nworld'
-      expect(indentString(text, 2)).toBe('  hello\n  world')
-      expect(indentString('single', 4)).toBe('    single')
+      expect(indentString(text, { count: 2 })).toBe('  hello\n  world')
+      expect(indentString('single', { count: 4 })).toBe('    single')
     })
 
     it('should search strings', () => {

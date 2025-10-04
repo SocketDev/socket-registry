@@ -177,8 +177,10 @@ describe('url utilities', () => {
     it('should handle null/undefined with default values', () => {
       expect(urlSearchParamAsBoolean(null)).toBe(false)
       expect(urlSearchParamAsBoolean(undefined)).toBe(false)
-      expect(urlSearchParamAsBoolean(null, true)).toBe(true)
-      expect(urlSearchParamAsBoolean(undefined, true)).toBe(true)
+      expect(urlSearchParamAsBoolean(null, { defaultValue: true })).toBe(true)
+      expect(urlSearchParamAsBoolean(undefined, { defaultValue: true })).toBe(
+        true,
+      )
     })
 
     it('should handle non-string values', () => {
@@ -216,13 +218,17 @@ describe('url utilities', () => {
     it('should return default for invalid numbers', () => {
       const params = new URLSearchParams('invalid=not-a-number')
       expect(urlSearchParamAsNumber(params, 'invalid')).toBe(0)
-      expect(urlSearchParamAsNumber(params, 'invalid', 100)).toBe(100)
+      expect(
+        urlSearchParamAsNumber(params, 'invalid', { defaultValue: 100 }),
+      ).toBe(100)
     })
 
     it('should return default for missing parameters', () => {
       const params = new URLSearchParams('')
       expect(urlSearchParamAsNumber(params, 'missing')).toBe(0)
-      expect(urlSearchParamAsNumber(params, 'missing', 42)).toBe(42)
+      expect(
+        urlSearchParamAsNumber(params, 'missing', { defaultValue: 42 }),
+      ).toBe(42)
     })
 
     it('should handle null/invalid URLSearchParams', () => {
@@ -253,9 +259,9 @@ describe('url utilities', () => {
     it('should return default for missing parameters', () => {
       const params = new URLSearchParams('')
       expect(urlSearchParamAsString(params, 'missing')).toBe('')
-      expect(urlSearchParamAsString(params, 'missing', 'default')).toBe(
-        'default',
-      )
+      expect(
+        urlSearchParamAsString(params, 'missing', { defaultValue: 'default' }),
+      ).toBe('default')
     })
 
     it('should handle null/invalid URLSearchParams', () => {
@@ -263,7 +269,9 @@ describe('url utilities', () => {
       expect(urlSearchParamAsString(undefined, 'key')).toBe('')
       // @ts-expect-error - Testing runtime behavior with invalid types.
       expect(urlSearchParamAsString({}, 'key')).toBe('')
-      expect(urlSearchParamAsString(null, 'key', 'default')).toBe('default')
+      expect(
+        urlSearchParamAsString(null, 'key', { defaultValue: 'default' }),
+      ).toBe('default')
     })
 
     it('should handle empty string values', () => {
@@ -344,7 +352,9 @@ describe('url utilities', () => {
     it('should return default for missing parameters', () => {
       const params = new URLSearchParams('')
       expect(urlSearchParamsGetBoolean(params, 'missing')).toBe(false)
-      expect(urlSearchParamsGetBoolean(params, 'missing', true)).toBe(true)
+      expect(
+        urlSearchParamsGetBoolean(params, 'missing', { defaultValue: true }),
+      ).toBe(true)
     })
 
     it('should handle null/invalid URLSearchParams', () => {
@@ -352,7 +362,9 @@ describe('url utilities', () => {
       expect(urlSearchParamsGetBoolean(undefined, 'key')).toBe(false)
       // @ts-expect-error - Testing runtime behavior with invalid types.
       expect(urlSearchParamsGetBoolean({}, 'key')).toBe(false)
-      expect(urlSearchParamsGetBoolean(null, 'key', true)).toBe(true)
+      expect(
+        urlSearchParamsGetBoolean(null, 'key', { defaultValue: true }),
+      ).toBe(true)
     })
 
     it('should handle case variations', () => {
@@ -375,34 +387,34 @@ describe('url utilities', () => {
     })
 
     it('should handle base URLs', () => {
-      expect(createRelativeUrl('/path', 'https://example.com')).toBe(
+      expect(createRelativeUrl('/path', { base: 'https://example.com' })).toBe(
         'https://example.com/path',
       )
-      expect(createRelativeUrl('/api', 'https://api.example.com/')).toBe(
-        'https://api.example.com/api',
-      )
+      expect(
+        createRelativeUrl('/api', { base: 'https://api.example.com/' }),
+      ).toBe('https://api.example.com/api')
     })
 
     it('should add trailing slash to base if needed', () => {
-      expect(createRelativeUrl('/path', 'https://example.com')).toBe(
+      expect(createRelativeUrl('/path', { base: 'https://example.com' })).toBe(
         'https://example.com/path',
       )
-      expect(createRelativeUrl('path', 'https://example.com')).toBe(
+      expect(createRelativeUrl('path', { base: 'https://example.com' })).toBe(
         'https://example.com/path',
       )
     })
 
     it('should handle empty paths', () => {
       expect(createRelativeUrl('')).toBe('')
-      expect(createRelativeUrl('/', '')).toBe('')
-      expect(createRelativeUrl('', 'https://example.com')).toBe(
+      expect(createRelativeUrl('/', { base: '' })).toBe('')
+      expect(createRelativeUrl('', { base: 'https://example.com' })).toBe(
         'https://example.com/',
       )
     })
 
     it('should handle root path', () => {
       expect(createRelativeUrl('/')).toBe('')
-      expect(createRelativeUrl('/', 'https://example.com')).toBe(
+      expect(createRelativeUrl('/', { base: 'https://example.com' })).toBe(
         'https://example.com/',
       )
     })
