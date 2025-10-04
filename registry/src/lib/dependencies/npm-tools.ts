@@ -130,7 +130,7 @@ const dependencies: NpmToolsDependencies = {
  */
 export function getLibnpmpack(): Libnpmpack {
   if (!dependencies.libnpmpack) {
-    dependencies.libnpmpack = require('../../../external/libnpmpack')
+    dependencies.libnpmpack = require('../../external/libnpmpack')
   }
   return dependencies.libnpmpack!
 }
@@ -140,7 +140,7 @@ export function getLibnpmpack(): Libnpmpack {
  */
 export function getMakeFetchHappen(): MakeFetchHappen {
   if (!dependencies.makeFetchHappen) {
-    dependencies.makeFetchHappen = require('../../../external/make-fetch-happen')
+    dependencies.makeFetchHappen = require('../../external/make-fetch-happen')
   }
   return dependencies.makeFetchHappen!
 }
@@ -150,7 +150,7 @@ export function getMakeFetchHappen(): MakeFetchHappen {
  */
 export function getNormalizePackageData(): NormalizePackageData {
   if (!dependencies.normalizePackageData) {
-    dependencies.normalizePackageData = require('../../../external/normalize-package-data')
+    dependencies.normalizePackageData = require('../../external/normalize-package-data')
   }
   return dependencies.normalizePackageData!
 }
@@ -160,7 +160,7 @@ export function getNormalizePackageData(): NormalizePackageData {
  */
 export function getNpmPackageArg(): NpmPackageArg {
   if (!dependencies.npmPackageArg) {
-    dependencies.npmPackageArg = require('../../../external/npm-package-arg')
+    dependencies.npmPackageArg = require('../../external/npm-package-arg')
   }
   return dependencies.npmPackageArg!
 }
@@ -170,9 +170,7 @@ export function getNpmPackageArg(): NpmPackageArg {
  */
 export function getPackageJson(): PackageJsonConstructor {
   if (!dependencies.packageJson) {
-    const pkgJsonExport = require('../../../external/@npmcli/package-json')
-    dependencies.packageJson =
-      pkgJsonExport.default || pkgJsonExport.PackageJson
+    dependencies.packageJson = require('../../external/@npmcli/package-json')
   }
   return dependencies.packageJson!
 }
@@ -193,7 +191,7 @@ export function getPackageUrl(): PackageUrl {
  */
 export function getPacote(): Pacote {
   if (!dependencies.pacote) {
-    dependencies.pacote = require('../../../external/pacote')
+    dependencies.pacote = require('../../external/pacote')
   }
   return dependencies.pacote!
 }
@@ -203,8 +201,8 @@ export function getPacote(): Pacote {
  */
 export function getReadPackageJson(): ReadPackageJson {
   if (!dependencies.readPackageJson) {
-    const readExport = require('../../../external/@npmcli/package-json/lib/read-package')
-    dependencies.readPackageJson = readExport.default || readExport.readPackage
+    const readExport = require('../../external/@npmcli/package-json/lib/read-package')
+    dependencies.readPackageJson = readExport.readPackage
   }
   return dependencies.readPackageJson!
 }
@@ -214,8 +212,8 @@ export function getReadPackageJson(): ReadPackageJson {
  */
 export function getSortPackageJson(): SortPackageJson {
   if (!dependencies.sortPackageJson) {
-    const sortExport = require('../../../external/@npmcli/package-json/lib/sort')
-    dependencies.sortPackageJson = sortExport.default || sortExport.sort
+    const sortExport = require('../../external/@npmcli/package-json/lib/sort')
+    dependencies.sortPackageJson = sortExport.packageSort
   }
   return dependencies.sortPackageJson!
 }

@@ -43,7 +43,7 @@ const dependencies: ValidationDependencies = {
  */
 export function getSpdxCorrect(): SpdxCorrect {
   if (!dependencies.spdxCorrect) {
-    dependencies.spdxCorrect = require('../../../external/spdx-correct')
+    dependencies.spdxCorrect = require('../../external/spdx-correct')
   }
   return dependencies.spdxCorrect!
 }
@@ -53,7 +53,7 @@ export function getSpdxCorrect(): SpdxCorrect {
  */
 export function getSpdxExpressionParse(): SpdxExpressionParse {
   if (!dependencies.spdxExpressionParse) {
-    dependencies.spdxExpressionParse = require('../../../external/spdx-expression-parse')
+    dependencies.spdxExpressionParse = require('../../external/spdx-expression-parse')
   }
   return dependencies.spdxExpressionParse!
 }
@@ -63,7 +63,7 @@ export function getSpdxExpressionParse(): SpdxExpressionParse {
  */
 export function getValidateNpmPackageName(): ValidateNpmPackageName {
   if (!dependencies.validateNpmPackageName) {
-    dependencies.validateNpmPackageName = require('../../../external/validate-npm-package-name')
+    dependencies.validateNpmPackageName = require('../../external/validate-npm-package-name')
   }
   return dependencies.validateNpmPackageName!
 }
