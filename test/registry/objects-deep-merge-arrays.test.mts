@@ -87,12 +87,14 @@ describe('objects module - toSortedObjectFromEntries with symbols', () => {
       const result = toSortedObjectFromEntries(entries)
 
       const keys = Reflect.ownKeys(result)
-      // Reflect.ownKeys returns string keys first, then symbol keys
+      // Reflect.ownKeys returns string keys first, then symbol keys.
       expect(keys[0]).toBe('a')
       expect(keys[1]).toBe('m')
       expect(keys[2]).toBe('z')
-      expect(keys[3]).toBe(sym1) // Symbol(first) - sorted alphabetically
-      expect(keys[4]).toBe(sym2) // Symbol(second)
+      // Symbol(first) - sorted alphabetically.
+      expect(keys[3]).toBe(sym1)
+      // Symbol(second).
+      expect(keys[4]).toBe(sym2)
     })
 
     it('should handle object with only symbol keys', () => {

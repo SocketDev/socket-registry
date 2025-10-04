@@ -41,24 +41,12 @@ describe('logger module', () => {
   })
 
   describe('LOG_SYMBOLS', () => {
-    it('should have fail symbol', () => {
-      expect(typeof LOG_SYMBOLS.fail).toBe('string')
-      expect(LOG_SYMBOLS.fail.length).toBeGreaterThan(0)
-    })
-
-    it('should have info symbol', () => {
-      expect(typeof LOG_SYMBOLS.info).toBe('string')
-      expect(LOG_SYMBOLS.info.length).toBeGreaterThan(0)
-    })
-
-    it('should have success symbol', () => {
-      expect(typeof LOG_SYMBOLS.success).toBe('string')
-      expect(LOG_SYMBOLS.success.length).toBeGreaterThan(0)
-    })
-
-    it('should have warn symbol', () => {
-      expect(typeof LOG_SYMBOLS.warn).toBe('string')
-      expect(LOG_SYMBOLS.warn.length).toBeGreaterThan(0)
+    it('should have all required symbols', () => {
+      const symbols = ['fail', 'info', 'success', 'warn'] as const
+      for (const symbol of symbols) {
+        expect(typeof LOG_SYMBOLS[symbol]).toBe('string')
+        expect(LOG_SYMBOLS[symbol].length).toBeGreaterThan(0)
+      }
     })
 
     it('should be frozen', () => {

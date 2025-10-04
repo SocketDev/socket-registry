@@ -10,6 +10,7 @@ import {
   resolvePackageJsonDirname,
   resolvePackageJsonEntryExports,
   resolvePackageJsonPath,
+  resolvePackageLicenses,
 } from '../../registry/dist/lib/packages.js'
 
 describe('packages module - edge cases and error handling', () => {
@@ -40,31 +41,24 @@ describe('packages module - edge cases and error handling', () => {
   })
 
   describe('collectIncompatibleLicenses', () => {
-    it('should collect incompatible licenses from valid AST', () => {
-      const ast = parseSpdxExp('MIT OR Apache-2.0')
-      if (ast) {
-        const result = collectIncompatibleLicenses(ast)
-        expect(Array.isArray(result)).toBe(true)
-      }
+    it('should collect incompatible licenses from license nodes', () => {
+      const licenses = resolvePackageLicenses('GPL-3.0', '/')
+      const result = collectIncompatibleLicenses(licenses)
+      expect(Array.isArray(result)).toBe(true)
     })
 
-    it('should handle simple license AST', () => {
-      const ast = parseSpdxExp('MIT')
-      if (ast) {
-        const result = collectIncompatibleLicenses(ast)
-        expect(Array.isArray(result)).toBe(true)
-      }
+    it('should handle simple license nodes', () => {
+      const licenses = resolvePackageLicenses('MIT', '/')
+      const result = collectIncompatibleLicenses(licenses)
+      expect(Array.isArray(result)).toBe(true)
     })
   })
 
   describe('collectLicenseWarnings', () => {
     it('should collect warnings from license nodes', () => {
-      const ast = parseSpdxExp('MIT')
-      if (ast) {
-        const licenses = collectIncompatibleLicenses(ast)
-        const warnings = collectLicenseWarnings(licenses)
-        expect(Array.isArray(warnings)).toBe(true)
-      }
+      const licenses = resolvePackageLicenses('UNLICENSED', '/')
+      const warnings = collectLicenseWarnings(licenses)
+      expect(Array.isArray(warnings)).toBe(true)
     })
 
     it('should handle empty array', () => {
