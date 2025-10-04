@@ -349,4 +349,244 @@ describe('path normalization and utilities', () => {
       expect(pathModule.pathLikeToString(Buffer.from('test'))).toBe('test')
     })
   })
+
+  describe('paths with spaces', () => {
+    describe('normalizePath with spaces', () => {
+      it('should preserve spaces in Unix paths', () => {
+        expect(normalizePath('/path with spaces/to/file')).toBe(
+          '/path with spaces/to/file',
+        )
+        expect(normalizePath('path with spaces/to/file')).toBe(
+          'path with spaces/to/file',
+        )
+      })
+
+      it('should preserve spaces in Windows paths', () => {
+        expect(normalizePath('C:\\Program Files\\node\\bin')).toBe(
+          'C:/Program Files/node/bin',
+        )
+        expect(normalizePath('path with spaces\\to\\file')).toBe(
+          'path with spaces/to/file',
+        )
+      })
+
+      it('should normalize complex paths with spaces', () => {
+        expect(normalizePath('/my project/src/../lib/file.js')).toBe(
+          '/my project/lib/file.js',
+        )
+        expect(normalizePath('./my project/./src/./file.js')).toBe(
+          'my project/src/file.js',
+        )
+        expect(normalizePath('C:\\Program Files\\..\\Users\\file')).toBe(
+          'C:/Users/file',
+        )
+      })
+
+      it('should collapse repeated separators with spaces', () => {
+        expect(normalizePath('/path with spaces////to/file')).toBe(
+          '/path with spaces/to/file',
+        )
+        expect(normalizePath('path with spaces\\\\\\\\to\\\\file')).toBe(
+          'path with spaces/to/file',
+        )
+      })
+
+      it('should handle relative paths with spaces', () => {
+        expect(normalizePath('./my project/file.js')).toBe('my project/file.js')
+        expect(normalizePath('../my project/file.js')).toBe(
+          '../my project/file.js',
+        )
+        expect(normalizePath('../../path with spaces/file.js')).toBe(
+          '../../path with spaces/file.js',
+        )
+      })
+
+      it('should handle Buffer with spaces', () => {
+        expect(normalizePath(Buffer.from('/path with spaces/file'))).toBe(
+          '/path with spaces/file',
+        )
+      })
+
+      it('should handle URL with spaces', () => {
+        const url = new URL('file:///path%20with%20spaces/file')
+        const result = normalizePath(url)
+        expect(result).toContain('path with spaces')
+      })
+    })
+
+    describe('isPath with spaces', () => {
+      it('should identify Unix paths with spaces', () => {
+        expect(isPath('/path with spaces/file.js')).toBe(true)
+        expect(isPath('./path with spaces/file.js')).toBe(true)
+        expect(isPath('../path with spaces/file.js')).toBe(true)
+      })
+
+      it('should identify Windows paths with spaces', () => {
+        expect(isPath('C:\\Program Files\\node')).toBe(true)
+        expect(isPath('path with spaces\\to\\file')).toBe(true)
+      })
+
+      it('should identify relative paths with spaces', () => {
+        expect(isPath('my project/src/file.js')).toBe(true)
+        expect(isPath('folder with spaces/file.js')).toBe(true)
+      })
+
+      it('should handle Buffer with spaces', () => {
+        expect(isPath(Buffer.from('/path with spaces/file'))).toBe(true)
+      })
+
+      it('should handle URL with spaces', () => {
+        expect(isPath(new URL('file:///path%20with%20spaces/file'))).toBe(true)
+      })
+    })
+
+    describe('splitPath with spaces', () => {
+      it('should split Unix paths with spaces correctly', () => {
+        expect(splitPath('/path with spaces/to/file')).toEqual([
+          '',
+          'path with spaces',
+          'to',
+          'file',
+        ])
+        expect(splitPath('my project/src/index.js')).toEqual([
+          'my project',
+          'src',
+          'index.js',
+        ])
+      })
+
+      it('should split Windows paths with spaces correctly', () => {
+        expect(splitPath('C:\\Program Files\\nodejs')).toEqual([
+          'C:',
+          'Program Files',
+          'nodejs',
+        ])
+        expect(splitPath('my folder\\sub folder\\file.txt')).toEqual([
+          'my folder',
+          'sub folder',
+          'file.txt',
+        ])
+      })
+
+      it('should handle Buffer with spaces', () => {
+        expect(splitPath(Buffer.from('/path with spaces/file'))).toEqual([
+          '',
+          'path with spaces',
+          'file',
+        ])
+      })
+
+      it('should handle URL with spaces', () => {
+        const result = splitPath(new URL('file:///path%20with%20spaces/file'))
+        expect(result).toContain('path with spaces')
+      })
+    })
+
+    describe('isNodeModules with spaces', () => {
+      it('should detect node_modules in paths with spaces', () => {
+        expect(isNodeModules('/my project/node_modules/pkg')).toBe(true)
+        expect(isNodeModules('C:\\Program Files\\node_modules\\pkg')).toBe(true)
+      })
+
+      it('should reject non-node_modules paths with spaces', () => {
+        expect(isNodeModules('/my project/src')).toBe(false)
+        expect(isNodeModules('C:\\Program Files\\src')).toBe(false)
+      })
+
+      it('should handle Buffer with spaces', () => {
+        expect(
+          isNodeModules(Buffer.from('/path with spaces/node_modules/pkg')),
+        ).toBe(true)
+      })
+
+      it('should handle URL with spaces', () => {
+        expect(
+          isNodeModules(
+            new URL('file:///path%20with%20spaces/node_modules/pkg'),
+          ),
+        ).toBe(true)
+      })
+    })
+
+    describe('trimLeadingDotSlash with spaces', () => {
+      it('should trim ./ from paths with spaces', () => {
+        expect(trimLeadingDotSlash('./my project/src/file.js')).toBe(
+          'my project/src/file.js',
+        )
+        expect(trimLeadingDotSlash('.\\path with spaces\\file')).toBe(
+          'path with spaces\\file',
+        )
+      })
+
+      it('should not trim ../ from paths with spaces', () => {
+        expect(trimLeadingDotSlash('../my project/file.js')).toBe(
+          '../my project/file.js',
+        )
+        expect(trimLeadingDotSlash('..\\path with spaces\\file')).toBe(
+          '..\\path with spaces\\file',
+        )
+      })
+
+      it('should handle Buffer with spaces', () => {
+        expect(trimLeadingDotSlash(Buffer.from('./path with spaces'))).toBe(
+          'path with spaces',
+        )
+      })
+    })
+
+    describe('relativeResolve with spaces', () => {
+      it('should resolve between paths with spaces', () => {
+        const from = '/my project/src'
+        const to = '/my project/lib'
+        const result = relativeResolve(from, to)
+        expect(result).toBe('../lib')
+      })
+
+      it('should handle Windows paths with spaces', () => {
+        const from = 'C:\\Program Files\\node'
+        const to = 'C:\\Program Files\\npm'
+        const result = relativeResolve(from, to)
+        expect(result).toBeDefined()
+        expect(typeof result).toBe('string')
+      })
+
+      it('should handle parent to child with spaces', () => {
+        const from = '/my project/parent'
+        const to = '/my project/parent/child folder'
+        const result = relativeResolve(from, to)
+        expect(result).toBe('child folder')
+      })
+
+      it('should handle child to parent with spaces', () => {
+        const from = '/my project/child folder'
+        const to = '/my project'
+        const result = relativeResolve(from, to)
+        expect(result).toBe('..')
+      })
+    })
+
+    describe('isRelative with spaces', () => {
+      it('should identify relative paths with spaces', () => {
+        expect(isRelative('my project/src')).toBe(true)
+        expect(isRelative('./path with spaces')).toBe(true)
+        expect(isRelative('../folder with spaces')).toBe(true)
+      })
+
+      it('should identify absolute paths with spaces', () => {
+        expect(isRelative('/path with spaces')).toBe(false)
+        if (process.platform === 'win32') {
+          expect(isRelative('C:\\Program Files')).toBe(false)
+        }
+      })
+
+      it('should handle Buffer with spaces', () => {
+        expect(isRelative(Buffer.from('./path with spaces'))).toBe(true)
+        expect(isRelative(Buffer.from('/path with spaces'))).toBe(false)
+      })
+
+      it('should handle URL with spaces', () => {
+        expect(isRelative(new URL('file:///path%20with%20spaces'))).toBe(false)
+      })
+    })
+  })
 })
