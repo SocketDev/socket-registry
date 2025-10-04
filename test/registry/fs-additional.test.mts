@@ -21,6 +21,7 @@ import {
   writeJson,
   writeJsonSync,
 } from '../../registry/dist/lib/fs.js'
+import { normalizePath } from '../../registry/dist/lib/path.js'
 
 describe('fs module - additional functions', () => {
   describe('isDirEmptySync', () => {
@@ -259,7 +260,7 @@ describe('fs module - additional functions', () => {
     it('should return same path for non-existent file', () => {
       const tmpFile = path.join(os.tmpdir(), `test-nonexist-${Date.now()}.txt`)
       const result = uniqueSync(tmpFile)
-      expect(result).toBe(tmpFile)
+      expect(result).toBe(normalizePath(tmpFile))
     })
   })
 

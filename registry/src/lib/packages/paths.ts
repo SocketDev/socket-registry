@@ -2,6 +2,8 @@
  * @fileoverview Package.json path resolution utilities.
  */
 
+import { normalizePath } from '../path'
+
 let _path: typeof import('path') | undefined
 /**
  * Get the path module.
@@ -23,9 +25,9 @@ function getPath() {
 export function resolvePackageJsonDirname(filepath: string): string {
   if (filepath.endsWith('package.json')) {
     const path = getPath()
-    return path.dirname(filepath)
+    return normalizePath(path.dirname(filepath))
   }
-  return filepath
+  return normalizePath(filepath)
 }
 
 /**
@@ -34,8 +36,8 @@ export function resolvePackageJsonDirname(filepath: string): string {
 /*@__NO_SIDE_EFFECTS__*/
 export function resolvePackageJsonPath(filepath: string): string {
   if (filepath.endsWith('package.json')) {
-    return filepath
+    return normalizePath(filepath)
   }
   const path = getPath()
-  return path.join(filepath, 'package.json')
+  return normalizePath(path.join(filepath, 'package.json'))
 }
