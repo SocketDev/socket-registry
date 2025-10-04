@@ -4,6 +4,7 @@
  */
 
 import ENV from './constants/ENV'
+import { getWhich as getWhichDep } from './dependencies/index'
 import { readJsonSync } from './fs'
 import { getOwn } from './objects'
 import { isPath, normalizePath } from './path'
@@ -44,7 +45,7 @@ let _which: typeof import('which') | undefined
 /*@__NO_SIDE_EFFECTS__*/
 function getWhich() {
   if (_which === undefined) {
-    _which = /*@__PURE__*/ require('../external/which')
+    _which = /*@__PURE__*/ getWhichDep()
   }
   return _which!
 }
