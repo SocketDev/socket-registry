@@ -5,10 +5,11 @@ import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock the httpRequest module before importing github module.
-const mockHttpRequest = vi.fn()
-vi.mock('../../registry/dist/lib/http-request', () => ({
-  httpRequest: mockHttpRequest,
-}))
+vi.mock('../../registry/src/lib/http-request', () => {
+  return {
+    httpRequest: vi.fn(),
+  }
+})
 
 import {
   clearRefCache,
@@ -16,9 +17,10 @@ import {
   getGitHubToken,
   getRefCacheSize,
   resolveRefToSha,
-} from '../../registry/dist/lib/github'
+} from '../../registry/src/lib/github'
+import { httpRequest as httpRequestActual } from '../../registry/src/lib/http-request'
 
-const httpRequest = mockHttpRequest
+const httpRequest = httpRequestActual as unknown as ReturnType<typeof vi.fn>
 
 describe('github module', () => {
   let originalEnv: NodeJS.ProcessEnv
