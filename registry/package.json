@@ -1286,7 +1286,15 @@
     "./extensions.json": "./extensions.json",
     "./manifest.json": "./manifest.json",
     "./package.json": "./package.json",
-    "./tsconfig.json": "./tsconfig.json"
+    "./tsconfig.json": "./tsconfig.json",
+    "./lib/download-lock": {
+      "types": "./dist/lib/download-lock.d.ts",
+      "default": "./dist/lib/download-lock.js"
+    },
+    "./lib/http-request": {
+      "types": "./dist/lib/http-request.d.ts",
+      "default": "./dist/lib/http-request.js"
+    }
   },
   "sideEffects": false,
   "scripts": {
