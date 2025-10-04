@@ -93,6 +93,11 @@ describe('constants module', () => {
       expect(typeof abortController.abort).toBe('function')
     })
 
+    it('should have non-aborted signal initially', () => {
+      const abortController = require('../../registry/dist/lib/constants/abort-controller')
+      expect(abortController.signal.aborted).toBe(false)
+    })
+
     it('should export AbortSignal instance', () => {
       const abortSignal = require('../../registry/dist/lib/constants/abort-signal')
       expect(abortSignal).toBeDefined()

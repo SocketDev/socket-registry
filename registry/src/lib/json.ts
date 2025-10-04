@@ -15,7 +15,7 @@ export interface JsonObject {
 
 export interface JsonArray extends Array<JsonValue> {}
 
-export type JsonReviver = (key: string, value: any) => any
+export type JsonReviver = (key: string, value: unknown) => unknown
 
 export interface JsonParseOptions {
   filepath?: string
@@ -34,26 +34,35 @@ const JSONParse = JSON.parse
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isBuffer(x: unknown): x is Buffer {
-  const obj = x as any
-  if (!obj || typeof obj !== 'object' || typeof obj.length !== 'number') {
+  if (!x || typeof x !== 'object') {
     return false
   }
-  if (typeof obj.copy !== 'function' || typeof obj.slice !== 'function') {
+  const obj = x as Record<string | number, unknown>
+  if (typeof obj['length'] !== 'number') {
     return false
   }
-  if (obj.length > 0 && typeof obj[0] !== 'number') {
+  if (typeof obj['copy'] !== 'function' || typeof obj['slice'] !== 'function') {
+    return false
+  }
+  if (
+    typeof obj['length'] === 'number' &&
+    obj['length'] > 0 &&
+    typeof obj[0] !== 'number'
+  ) {
     return false
   }
 
-  const Ctor = obj.constructor as any
-  return !!(typeof Ctor?.isBuffer === 'function' && Ctor.isBuffer(obj))
+  const Ctor = (x as { constructor?: unknown }).constructor as
+    | { isBuffer?: unknown }
+    | undefined
+  return !!(typeof Ctor?.isBuffer === 'function' && Ctor.isBuffer(x))
 }
 
 /**
  * Check if a value is a JSON primitive (null, boolean, number, or string).
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function isJsonPrimitive(value: any): value is JsonPrimitive {
+export function isJsonPrimitive(value: unknown): value is JsonPrimitive {
   return (
     value === null ||
     typeof value === 'boolean' ||

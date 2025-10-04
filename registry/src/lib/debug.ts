@@ -101,6 +101,11 @@ function customLog() {
           debugJs.inspectOpts.showHidden === null
             ? undefined
             : debugJs.inspectOpts.showHidden,
+        depth:
+          debugJs.inspectOpts.depth === null ||
+          typeof debugJs.inspectOpts.depth === 'boolean'
+            ? undefined
+            : debugJs.inspectOpts.depth,
       }
     : {}
   ReflectApply(logger.info, logger, [
@@ -113,7 +118,7 @@ function customLog() {
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
-function extractOptions(namespaces: any) {
+function extractOptions(namespaces: NamespacesOrOptions) {
   return namespaces !== null && typeof namespaces === 'object'
     ? { __proto__: null, ...namespaces }
     : { __proto__: null, namespaces }
@@ -124,7 +129,7 @@ function extractOptions(namespaces: any) {
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
-function isEnabled(namespaces: any) {
+function isEnabled(namespaces: string | undefined) {
   if (typeof namespaces !== 'string' || !namespaces || namespaces === '*') {
     return true
   }
@@ -154,8 +159,11 @@ function isEnabled(namespaces: any) {
  * Debug output for object inspection.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start - Debug utilities only used in development. */
-function debugDirNs(namespacesOrOpts: any, obj: any, inspectOpts?: any) {
+function debugDirNs(
+  namespacesOrOpts: NamespacesOrOptions,
+  obj: unknown,
+  inspectOpts?: InspectOptions | undefined,
+) {
   const options = extractOptions(namespacesOrOpts)
   const { namespaces } = options
   if (!isEnabled(namespaces)) {
@@ -163,7 +171,17 @@ function debugDirNs(namespacesOrOpts: any, obj: any, inspectOpts?: any) {
   }
   if (inspectOpts === undefined) {
     const debugJs = getDebugJs()
-    inspectOpts = debugJs.inspectOpts
+    const opts = debugJs.inspectOpts
+    if (opts) {
+      inspectOpts = {
+        ...opts,
+        showHidden: opts.showHidden === null ? undefined : opts.showHidden,
+        depth:
+          opts.depth === null || typeof opts.depth === 'boolean'
+            ? null
+            : opts.depth,
+      } as InspectOptions
+    }
   }
   const { spinner = /*@__PURE__*/ require('./constants/spinner.js') } = options
   const wasSpinning = spinner.isSpinning
@@ -174,15 +192,13 @@ function debugDirNs(namespacesOrOpts: any, obj: any, inspectOpts?: any) {
     spinner.start()
   }
 }
-/* c8 ignore stop */
 
 let pointingTriangle: string | undefined
 /**
  * Debug output with function name prefix.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start - Debug utilities only used in development. */
-function debugFnNs(namespacesOrOpts: NamespacesOrOptions, ...args: any[]) {
+function debugFnNs(namespacesOrOpts: NamespacesOrOptions, ...args: unknown[]) {
   const options = extractOptions(namespacesOrOpts)
   const { namespaces } = options
   if (!isEnabled(namespaces)) {
@@ -248,14 +264,12 @@ function debugFnNs(namespacesOrOpts: NamespacesOrOptions, ...args: any[]) {
     spinner.start()
   }
 }
-/* c8 ignore stop */
 
 /**
  * Debug logging function.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start - Debug utilities only used in development. */
-function debugLogNs(namespacesOrOpts: any, ...args: any[]) {
+function debugLogNs(namespacesOrOpts: NamespacesOrOptions, ...args: unknown[]) {
   const options = extractOptions(namespacesOrOpts)
   const { namespaces } = options
   if (!isEnabled(namespaces)) {
@@ -269,23 +283,19 @@ function debugLogNs(namespacesOrOpts: any, ...args: any[]) {
     spinner.start()
   }
 }
-/* c8 ignore stop */
 
 /**
  * Check if debug mode is enabled.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start - Debug utilities only used in development. */
-function isDebugNs(namespaces: any): boolean {
+function isDebugNs(namespaces: string | undefined): boolean {
   return ENV.SOCKET_CLI_DEBUG && isEnabled(namespaces)
 }
-/* c8 ignore stop */
 
 /**
  * Simple debug check based on DEBUG environment variable.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start - Debug utilities only used in development. */
 export function isDebugSimple(): boolean {
   const debug = process.env['DEBUG']
   if (!debug || debug === '' || debug === '0' || debug === 'false') {
@@ -293,38 +303,35 @@ export function isDebugSimple(): boolean {
   }
   return true
 }
-/* c8 ignore stop */
 
 /**
  * Simple debug log that logs to console when DEBUG is set.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start - Debug utilities only used in development. */
-export function debugLogSimple(...args: any[]): void {
+export function debugLogSimple(...args: unknown[]): void {
   if (isDebugSimple()) {
     console.log(...args)
   }
 }
-/* c8 ignore stop */
 
 /**
  * Simple debug dir that logs object to console when DEBUG is set.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start - Debug utilities only used in development. */
-export function debugDirSimple(obj: any, options?: any): void {
+export function debugDirSimple(
+  obj: unknown,
+  options?: InspectOptions | undefined,
+): void {
   if (isDebugSimple()) {
     console.dir(obj, options || { depth: null, colors: true })
   }
 }
-/* c8 ignore stop */
 
 /**
  * Simple debug function that creates a namespaced debug logger.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start - Debug utilities only used in development. */
-function matchPattern(ns: any, pattern: any) {
+function matchPattern(ns: string, pattern: string) {
   if (pattern === '*') {
     return true
   }
@@ -342,8 +349,8 @@ function matchPattern(ns: any, pattern: any) {
 /**
  * Create a simple debug function without external dependencies.
  */
-export function debugFnSimple(namespace: any) {
-  const log = (...args: any[]) => {
+export function debugFnSimple(namespace: string) {
+  const log = (...args: unknown[]) => {
     const debug = process.env['DEBUG'] || ''
 
     // Parse debug patterns.
@@ -379,45 +386,41 @@ export function debugFnSimple(namespace: any) {
 
   return log
 }
-/* c8 ignore stop */
 
 /**
  * Create a debug logger similar to util.debuglog.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start - Debug utilities only used in development. */
-export function debuglog(section: any) {
-  const log = (...args: any[]) => {
+export function debuglog(section: string) {
+  const log = (...args: unknown[]) => {
     if (isDebugSimple()) {
       console.log(`[${section}]`, ...args)
     }
   }
   return log
 }
-/* c8 ignore stop */
 
 /**
  * Create a debug timer.
  */
 /*@__NO_SIDE_EFFECTS__*/
-/* c8 ignore start - Debug utilities only used in development. */
-export function debugtime(section: any) {
+export function debugtime(section: string) {
   const timers = new Map()
 
-  const timer = (label: any) => {
+  const timer = (label: string) => {
     if (isDebugSimple()) {
       console.log(`[${section}] ${label}`)
     }
   }
 
-  timer.start = (label: any) => {
+  timer.start = (label: string) => {
     if (isDebugSimple()) {
       timers.set(label, Date.now())
       console.log(`[${section}] ${label}: start`)
     }
   }
 
-  timer.end = (label: any) => {
+  timer.end = (label: string) => {
     if (isDebugSimple()) {
       const start = timers.get(label)
       if (start) {
@@ -430,7 +433,6 @@ export function debugtime(section: any) {
 
   return timer
 }
-/* c8 ignore stop */
 
 // Export aliases for compatibility.
 export { debugDirSimple as debugDir }
