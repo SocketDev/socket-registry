@@ -3,16 +3,21 @@ import { fileURLToPath } from 'node:url'
 
 import { defineConfig } from 'vitest/config'
 
-import { createRequireTransformPlugin } from './vitest-plugins/require-transform.mjs'
+import { createImportTransformPlugin } from './vitest-plugins/import-transform.mts'
+import { createRequireTransformPlugin } from './vitest-plugins/require-transform.mts'
 
 // Check if coverage is enabled via CLI flags or environment.
 const isCoverageEnabled =
   process.argv.includes('--coverage') || process.env['COVERAGE'] === 'true'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const projectRoot = path.resolve(__dirname, '..')
 
 export default defineConfig({
-  plugins: [createRequireTransformPlugin(isCoverageEnabled)],
+  plugins: [
+    createImportTransformPlugin(isCoverageEnabled, __dirname),
+    createRequireTransformPlugin(isCoverageEnabled),
+  ],
   resolve: {
     preserveSymlinks: false,
     // Prioritize TypeScript extensions during coverage
@@ -24,7 +29,7 @@ export default defineConfig({
         // Used by test/npm/ package configs to import script utilities.
         // Transforms: @socketregistry/scripts/* → /abs/path/to/scripts/*
         find: '@socketregistry/scripts',
-        replacement: path.resolve(__dirname, './scripts'),
+        replacement: path.resolve(projectRoot, 'scripts'),
       },
       // Only map dist/ to src/ when coverage is enabled.
       // Without coverage: tests run against compiled dist/ JavaScript.
@@ -35,13 +40,13 @@ export default defineConfig({
               // Used by scripts/ and some perf/ files to import registry code.
               // Transforms: @socketsecurity/registry/lib/* → /abs/path/to/registry/src/lib/*
               find: '@socketsecurity/registry',
-              replacement: path.resolve(__dirname, './registry/src'),
+              replacement: path.resolve(projectRoot, 'registry/src'),
             },
             {
               // Used by test files with relative imports.
-              // Transforms: ../../registry/dist/* → /abs/path/to/registry/src/*
-              find: /^\.\.\/\.\.\/registry\/dist\/(.*)$/,
-              replacement: path.resolve(__dirname, './registry/src/$1'),
+              // Transforms: ../../registry/dist/*.js → /abs/path/to/registry/src/*.ts
+              find: /^\.\.\/\.\.\/registry\/dist\/(.*)\.js$/,
+              replacement: path.resolve(projectRoot, 'registry/src/$1.ts'),
             },
           ]
         : [
@@ -49,7 +54,7 @@ export default defineConfig({
               // Used by scripts/ and some perf/ files to import registry code.
               // Transforms: @socketsecurity/registry/lib/* → /abs/path/to/registry/dist/lib/*
               find: '@socketsecurity/registry',
-              replacement: path.resolve(__dirname, './registry/dist'),
+              replacement: path.resolve(projectRoot, 'registry/dist'),
             },
           ]),
     ],
