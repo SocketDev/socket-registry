@@ -248,7 +248,10 @@ export function createRequireTransformPlugin(
             // - Absolute requires (e.g., require('fs'))
             // - npm package requires (e.g., require('lodash'))
             // Not a relative require, skip.
-            if (!requirePath.startsWith('./')) {
+            if (
+              !requirePath.startsWith('./') &&
+              !requirePath.startsWith('../')
+            ) {
               return
             }
 
@@ -296,20 +299,45 @@ export function createRequireTransformPlugin(
                 // During coverage, require() can't load TypeScript files, so we use
                 // the compiled JavaScript files from dist/ which Node can handle.
                 const stringNode = node.arguments[0] as t.StringLiteral
-                // Get the base project directory.
-                const projectRoot = id.substring(
-                  0,
-                  id.indexOf('/registry/src/'),
+
+                // Strategy: Use the resolvedPath (absolute path to the TypeScript source)
+                // to determine the correct dist path with preserved directory structure.
+
+                // Extract the path relative to /registry/src/lib/ from the resolved source file.
+                // Example: resolvedPath = '/abs/path/registry/src/lib/packages/normalize.ts'
+                //          relativeToLib = 'packages/normalize.ts'
+                // Example: resolvedPath = '/abs/path/registry/src/lib/constants/WIN32.ts'
+                //          relativeToLib = 'constants/WIN32.ts'
+                const libMarker = '/registry/src/lib/'
+                const libIndex = resolvedPath.indexOf(libMarker)
+
+                if (libIndex === -1) {
+                  // Not in lib directory, skip transformation.
+                  return
+                }
+
+                // Get everything after '/registry/src/lib/' from the resolved path.
+                // This gives us the full relative path including subdirectories.
+                const relativeToLib = resolvedPath.substring(
+                  libIndex + libMarker.length,
                 )
-                // Build absolute path to the compiled dist/ file.
-                const moduleName = requirePath
-                  .replace(/^\.\//, '')
-                  .replace(/\.js$/, '')
+
+                // Convert TypeScript extension to JavaScript.
+                // Example: 'packages/normalize.ts' -> 'packages/normalize.js'
+                // Example: 'constants/WIN32.ts' -> 'constants/WIN32.js'
+                const relativeJsPath = relativeToLib.replace(/\.ts$/, '.js')
+
+                // Build the absolute dist path by combining project root + dist/lib + relative path.
+                // Example: '/abs/path' + 'registry/dist/lib/' + 'packages/normalize.js'
+                //       = '/abs/path/registry/dist/lib/packages/normalize.js'
+                const projectRoot = resolvedPath.substring(0, libIndex)
                 const absoluteDistPath = resolve(
                   projectRoot,
                   'registry/dist/lib',
-                  `${moduleName}.js`,
+                  relativeJsPath,
                 )
+
+                // Replace the require string with the absolute dist path.
                 s.overwrite(
                   stringNode.start!,
                   stringNode.end!,
