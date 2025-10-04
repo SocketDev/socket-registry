@@ -16,7 +16,7 @@ import globals from 'globals'
 import fastGlob from 'fast-glob'
 import tsEslint from 'typescript-eslint'
 
-import constants from './scripts/constants.mjs'
+import constants from '../scripts/constants.mjs'
 import { readPackageJsonSync } from '@socketsecurity/registry/lib/packages'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -26,7 +26,7 @@ const require = createRequire(import.meta.url)
 const { gitIgnoreFile, npmPackagesPath, relNpmPackagesPath, rootTsConfigPath } =
   constants
 
-const rootPath = __dirname
+const rootPath = path.dirname(__dirname)
 
 const nodeGlobalsConfig = Object.fromEntries(
   Object.entries(globals.node).map(([k]) => [k, 'readonly']),
@@ -343,7 +343,12 @@ export default [
   gitIgnoreFile,
   biomeIgnores,
   {
-    ignores: ['**/dist/**', 'coverage/**', 'packages/npm/**/package'],
+    ignores: [
+      '**/dist/**',
+      'coverage/**',
+      'packages/npm/**/package',
+      '.config/**',
+    ],
   },
   ...configs('script'),
   ...configs('module'),
