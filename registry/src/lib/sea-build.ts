@@ -9,6 +9,7 @@ import path from 'node:path'
 
 import NODE_SEA_FUSE from './constants/NODE_SEA_FUSE'
 import WIN32 from './constants/WIN32'
+import { httpRequest } from './http-request'
 import { normalizePath } from './path'
 import { getSocketHomePath } from './paths'
 import { spawn } from './spawn'
@@ -157,7 +158,7 @@ export async function downloadNodeBinary(
   const downloadUrl = `${baseUrl}/v${version}/${tarName}${extension}`
 
   // Download the archive.
-  const response = await fetch(downloadUrl)
+  const response = await httpRequest(downloadUrl)
   if (!response.ok) {
     throw new Error(`Failed to download Node.js: ${response.statusText}`)
   }
@@ -175,8 +176,7 @@ export async function downloadNodeBinary(
   try {
     // Save archive.
     const archivePath = normalizePath(path.join(tempDir, `node${extension}`))
-    const buffer = Buffer.from(await response.arrayBuffer())
-    await fs.writeFile(archivePath, buffer)
+    await fs.writeFile(archivePath, response.body)
 
     // Extract archive.
     if (isPlatWin) {
@@ -342,14 +342,16 @@ export async function getDefaultNodeVersion(): Promise<string> {
  */
 export async function getLatestCurrentRelease(): Promise<string> {
   try {
-    const response = await fetch('https://nodejs.org/dist/index.json')
+    const response = await httpRequest('https://nodejs.org/dist/index.json')
     if (!response.ok) {
       throw new Error(
         `Failed to fetch Node.js releases: ${response.statusText}`,
       )
     }
 
-    const releases = (await response.json()) as Array<{ version: string }>
+    const releases = JSON.parse(response.body.toString('utf8')) as Array<{
+      version: string
+    }>
 
     // Find the latest Current release (even-numbered major version).
     // Current releases are even-numbered (e.g., v24.x, v26.x, v28.x).
