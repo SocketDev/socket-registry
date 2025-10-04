@@ -37,11 +37,22 @@ function ansiRegex(options?: { onlyFirst?: boolean }): RegExp {
   return new RegExp(pattern, onlyFirst ? undefined : 'g')
 }
 
+export interface ApplyLinePrefixOptions {
+  prefix?: string
+}
+
 /**
  * Apply a prefix to each line of a string.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function applyLinePrefix(str: string, prefix: string = ''): string {
+export function applyLinePrefix(
+  str: string,
+  options?: ApplyLinePrefixOptions | undefined,
+): string {
+  const { prefix = '' } = {
+    __proto__: null,
+    ...options,
+  } as ApplyLinePrefixOptions
   return prefix.length
     ? `${prefix}${str.includes('\n') ? str.replace(/\n/g, `\n${prefix}`) : str}`
     : str
@@ -99,11 +110,19 @@ export function camelToKebab(str: string): string {
   return result
 }
 
+export interface IndentStringOptions {
+  count?: number
+}
+
 /**
  * Indent each line of a string with spaces.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function indentString(str: string, count: number = 1): string {
+export function indentString(
+  str: string,
+  options?: IndentStringOptions | undefined,
+): string {
+  const { count = 1 } = { __proto__: null, ...options } as IndentStringOptions
   return str.replace(/^(?!\s*$)/gm, ' '.repeat(count))
 }
 
@@ -125,6 +144,10 @@ export function isNonEmptyString(
   return typeof value === 'string' && value.length > 0
 }
 
+export interface SearchOptions {
+  fromIndex?: number
+}
+
 /**
  * Search for a regular expression in a string starting from an index.
  */
@@ -132,8 +155,9 @@ export function isNonEmptyString(
 export function search(
   str: string,
   regexp: RegExp,
-  fromIndex: number = 0,
+  options?: SearchOptions | undefined,
 ): number {
+  const { fromIndex = 0 } = { __proto__: null, ...options } as SearchOptions
   const { length } = str
   if (fromIndex >= length) {
     return -1
