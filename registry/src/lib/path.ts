@@ -380,31 +380,37 @@ export function pathLikeToString(
       // - Windows valid: file:///C:/path → handled by fileURLToPath()
       // - Windows invalid: file:///path → pathname '/path' → strips to 'path'
       const pathname = pathLike.pathname
+
+      // Decode percent-encoded characters (e.g., %20 → space).
+      // The pathname property keeps URL encoding, but file paths need decoded characters.
+      // This is not platform-specific; all URLs use percent-encoding regardless of OS.
+      const decodedPathname = decodeURIComponent(pathname)
+
       // URL pathnames always start with `/`.
       // On Windows, strip the leading slash only for malformed URLs that lack drive letters
       // (e.g., `/path` should be `path`, but `/C:/path` should be `C:/path`).
       // On Unix, keep the leading slash for absolute paths (e.g., `/home/user`).
       const WIN32 = /*@__PURE__*/ require('./constants/WIN32.js')
-      if (WIN32 && pathname.startsWith('/')) {
+      if (WIN32 && decodedPathname.startsWith('/')) {
         // Check for drive letter pattern following Node.js source: /[a-zA-Z]:/
         // Character at index 1 should be a letter, character at index 2 should be ':'
         // Convert to lowercase
-        const letter = pathname.charCodeAt(1) | 0x20
+        const letter = decodedPathname.charCodeAt(1) | 0x20
         const hasValidDriveLetter =
-          pathname.length >= 3 &&
+          decodedPathname.length >= 3 &&
           letter >= 97 &&
           // 'a' to 'z'
           letter <= 122 &&
-          pathname.charAt(2) === ':'
+          decodedPathname.charAt(2) === ':'
 
         if (!hasValidDriveLetter) {
           // On Windows, preserve Unix-style absolute paths that don't start with a drive letter.
           // Only strip the leading slash for truly malformed Windows paths.
           // Since fileURLToPath() failed, this is likely a valid Unix-style absolute path.
-          return pathname
+          return decodedPathname
         }
       }
-      return pathname
+      return decodedPathname
     }
   }
   return String(pathLike)
