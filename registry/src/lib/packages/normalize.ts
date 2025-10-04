@@ -85,8 +85,8 @@ export function normalizePackageJson(
   ]
   const normalizePackageData = getNormalizePackageData()
   normalizePackageData(pkgJson)
-  // Import findPackageExtensions from parent to avoid circular dependency.
-  const { findPackageExtensions } = require('../packages')
+  // Import findPackageExtensions from operations to avoid circular dependency.
+  const { findPackageExtensions } = require('./operations')
   if (pkgJson.name && pkgJson.version) {
     merge(pkgJson, findPackageExtensions(pkgJson.name, pkgJson.version))
   }
