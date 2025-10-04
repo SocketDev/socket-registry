@@ -158,8 +158,7 @@ describe('packages module - operations and utilities', () => {
 
     it('should append package.json to directory', () => {
       const result = resolvePackageJsonPath('/some/path')
-      expect(result).toContain('package.json')
-      expect(result).toContain('/some/path')
+      expect(result).toBe('/some/path/package.json')
     })
 
     it('should handle root directory', () => {
