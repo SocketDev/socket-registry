@@ -244,7 +244,7 @@ export async function readPackageJson(
   if (pkgJson) {
     if (editable) {
       // Import toEditablePackageJson to avoid circular dependency.
-      const { toEditablePackageJson } = require('../packages')
+      const { toEditablePackageJson } = require('./editable')
       return await toEditablePackageJson(pkgJson, {
         path: filepath,
         normalize,
@@ -278,7 +278,7 @@ export function readPackageJsonSync(
   if (pkgJson) {
     if (editable) {
       // Import toEditablePackageJsonSync to avoid circular dependency.
-      const { toEditablePackageJsonSync } = require('../packages')
+      const { toEditablePackageJsonSync } = require('./editable')
       return toEditablePackageJsonSync(pkgJson, {
         path: filepath,
         normalize,
