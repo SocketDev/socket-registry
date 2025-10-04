@@ -2,8 +2,9 @@
  * @fileoverview Package.json normalization utilities.
  */
 
-import type { NormalizeOptions, PackageJson } from '../packages'
 import { merge } from '../objects'
+
+import type { NormalizeOptions, PackageJson } from '../packages'
 
 const ArrayIsArray = Array.isArray
 const ObjectHasOwn = Object.hasOwn
@@ -43,9 +44,7 @@ function getEscapedScopeRegExp(): RegExp {
   )
 }
 
-let _normalizePackageData:
-  | typeof import('normalize-package-data')
-  | undefined
+let _normalizePackageData: typeof import('normalize-package-data') | undefined
 /**
  * Get the normalize-package-data module.
  */
