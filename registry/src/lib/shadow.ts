@@ -3,8 +3,6 @@
  * Provides logic to determine when shadow binary installation should be skipped.
  */
 
-import path from 'node:path'
-
 import { normalizePath } from './path'
 
 export interface ShadowInstallationOptions {
@@ -79,10 +77,8 @@ export function shouldSkipShadow(
     'dlx-',
     // Yarn Berry PnP virtual packages.
     '.yarn/$$',
-    // Yarn on Windows.
-    path.sep === '\\'
-      ? 'AppData\\Local\\Temp\\xfs-'
-      : 'AppData/Local/Temp/xfs-',
+    // Yarn on Windows uses normalized forward slash paths.
+    'AppData/Local/Temp/xfs-',
   ]
 
   return tempPatterns.some(pattern => normalizedCwd.includes(pattern))
