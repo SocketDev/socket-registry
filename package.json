@@ -218,5 +218,16 @@
         "@yarnpkg/core"
       ]
     }
+  },
+  "typeCoverage": {
+    "cache": true,
+    "atLeast": 89,
+    "ignoreAsAssertion": true,
+    "ignoreCatch": true,
+    "ignoreEmptyType": true,
+    "ignore-non-null-assertion": true,
+    "ignore-type-assertion": true,
+    "ignore-files": "test/*",
+    "strict": true
   }
 }
