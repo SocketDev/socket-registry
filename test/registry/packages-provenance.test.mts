@@ -25,6 +25,232 @@ describe('fetchPackageProvenance', () => {
     expect(result).toBe(undefined)
   })
 
+  it('should handle getProvenanceDetails with non-array attestations', () => {
+    const rawData = {
+      attestations: 'not an array',
+      attestationCount: 0,
+    }
+
+    const result = getProvenanceDetails(rawData)
+    expect(result).toBe(undefined)
+  })
+
+  it('should handle getProvenanceDetails with missing attestations property', () => {
+    const rawData = {
+      attestationCount: 0,
+    }
+
+    const result = getProvenanceDetails(rawData)
+    expect(result).toBe(undefined)
+  })
+
+  it('should handle getProvenanceDetails with SLSA v0.2 provenance', () => {
+    const rawData = {
+      attestations: [
+        {
+          predicateType: 'https://slsa.dev/provenance/v0.2',
+          predicate: {
+            buildDefinition: {
+              externalParameters: {
+                workflow: { path: '.github/workflows/release.yml' },
+              },
+            },
+          },
+        },
+      ],
+    }
+
+    const result = getProvenanceDetails(rawData)
+    expect(result).toBeDefined()
+    expect(result?.level).toBe('attested')
+  })
+
+  it('should handle getProvenanceDetails with SLSA v1.0 provenance', () => {
+    const rawData = {
+      attestations: [
+        {
+          predicateType: 'https://slsa.dev/provenance/v1',
+          predicate: {
+            buildDefinition: {
+              externalParameters: {
+                workflow: { path: '.github/workflows/release.yml' },
+              },
+            },
+          },
+        },
+      ],
+    }
+
+    const result = getProvenanceDetails(rawData)
+    expect(result).toBeDefined()
+    expect(result?.level).toBe('attested')
+  })
+
+  it('should handle getProvenanceDetails with GitHub trusted publisher', () => {
+    const rawData = {
+      attestations: [
+        {
+          predicateType: 'https://slsa.dev/provenance/v1',
+          predicate: {
+            buildDefinition: {
+              buildType: 'https://github.com/actions',
+              externalParameters: {
+                workflow: {
+                  repository: 'https://github.com/user/repo',
+                  ref: 'refs/heads/main',
+                },
+              },
+            },
+            runDetails: {
+              builder: {
+                id: 'https://github.com/actions/runner',
+              },
+            },
+          },
+        },
+      ],
+    }
+
+    const result = getProvenanceDetails(rawData)
+    expect(result).toBeDefined()
+    expect(result?.level).toBe('trusted')
+    expect(result?.workflowPlatform).toBe('https://github.com/actions')
+  })
+
+  it('should handle getProvenanceDetails with GitLab trusted publisher', () => {
+    const rawData = {
+      attestations: [
+        {
+          predicateType: 'https://slsa.dev/provenance/v1',
+          predicate: {
+            buildDefinition: {
+              buildType: 'https://gitlab.com',
+              externalParameters: {
+                workflow: {
+                  repository: 'https://gitlab.com/user/repo',
+                  ref: 'refs/heads/main',
+                },
+              },
+            },
+            runDetails: {
+              builder: {
+                id: 'https://gitlab.com/gitlab-org/gitlab-runner',
+              },
+            },
+          },
+        },
+      ],
+    }
+
+    const result = getProvenanceDetails(rawData)
+    expect(result).toBeDefined()
+    expect(result?.level).toBe('trusted')
+    expect(result?.workflowPlatform).toBe('https://gitlab.com')
+  })
+
+  it('should handle getProvenanceDetails with DSSE envelope payload', () => {
+    const statement = {
+      predicate: {
+        buildDefinition: {
+          externalParameters: {
+            workflow: { path: '.github/workflows/test.yml' },
+          },
+        },
+      },
+    }
+    const payload = Buffer.from(JSON.stringify(statement)).toString('base64')
+
+    const rawData = {
+      attestations: [
+        {
+          predicateType: 'https://slsa.dev/provenance/v1',
+          bundle: {
+            dsseEnvelope: {
+              payload,
+            },
+          },
+        },
+      ],
+    }
+
+    const result = getProvenanceDetails(rawData)
+    expect(result).toBeDefined()
+    expect(result?.level).toBe('attested')
+  })
+
+  it('should handle getProvenanceDetails with invalid DSSE envelope payload', () => {
+    const rawData = {
+      attestations: [
+        {
+          predicateType: 'https://slsa.dev/provenance/v1',
+          bundle: {
+            dsseEnvelope: {
+              payload: 'invalid-base64!!!',
+            },
+          },
+        },
+      ],
+    }
+
+    const result = getProvenanceDetails(rawData)
+    expect(result).toBeDefined()
+    expect(result?.level).toBe('attested')
+  })
+
+  it('should handle getProvenanceDetails with malformed predicate', () => {
+    const rawData = {
+      attestations: [
+        {
+          predicateType: 'https://slsa.dev/provenance/v1',
+          predicate: {
+            buildDefinition: {
+              // Missing externalParameters
+            },
+          },
+        },
+      ],
+    }
+
+    const result = getProvenanceDetails(rawData)
+    expect(result).toBeDefined()
+    expect(result?.level).toBe('attested')
+  })
+
+  it('should extract workflow details from externalParameters', () => {
+    const rawData = {
+      attestations: [
+        {
+          predicateType: 'https://slsa.dev/provenance/v1',
+          predicate: {
+            buildDefinition: {
+              externalParameters: {
+                workflow: {
+                  ref: 'refs/heads/main',
+                  repository: 'https://github.com/user/repo',
+                },
+                context: 'https://github.com/user/repo/actions/runs/12345',
+                run_id: '12345',
+                ref: 'refs/tags/v1.0.0',
+                sha: 'abc123def456',
+              },
+            },
+          },
+        },
+      ],
+    }
+
+    const result = getProvenanceDetails(rawData)
+    expect(result).toBeDefined()
+    expect(result?.workflowRef).toBe('refs/heads/main')
+    expect(result?.gitRef).toBe('refs/tags/v1.0.0')
+    expect(result?.repository).toBe('https://github.com/user/repo')
+    expect(result?.workflowUrl).toBe(
+      'https://github.com/user/repo/actions/runs/12345',
+    )
+    expect(result?.workflowRunId).toBe('12345')
+    expect(result?.commitSha).toBe('abc123def456')
+  })
+
   it('should return undefined when package does not exist', async () => {
     // Test with a package that doesn't exist
     const result = await fetchPackageProvenance(
