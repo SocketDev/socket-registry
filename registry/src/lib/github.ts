@@ -25,6 +25,7 @@ import { mkdir } from 'node:fs/promises'
 import path from 'node:path'
 
 import { readJson, safeStatsSync, writeJson } from './fs'
+import { httpRequest } from './http-request'
 import { getSocketRegistryGithubCacheDir } from './paths'
 
 import type { JsonContent } from './fs'
@@ -83,15 +84,19 @@ export async function fetchGitHub<T = any>(
     headers['Authorization'] = `Bearer ${token}`
   }
 
-  const response = await fetch(url, { headers })
+  const response = await httpRequest(url, { headers })
 
   if (!response.ok) {
     if (response.status === 403) {
-      const rateLimit = response.headers.get('X-RateLimit-Remaining')
-      if (rateLimit === '0') {
-        const resetTime = response.headers.get('X-RateLimit-Reset')
-        const resetDate = resetTime
-          ? new Date(Number(resetTime) * 1000)
+      const rateLimit = response.headers['x-ratelimit-remaining']
+      const rateLimitStr =
+        typeof rateLimit === 'string' ? rateLimit : rateLimit?.[0]
+      if (rateLimitStr === '0') {
+        const resetTime = response.headers['x-ratelimit-reset']
+        const resetTimeStr =
+          typeof resetTime === 'string' ? resetTime : resetTime?.[0]
+        const resetDate = resetTimeStr
+          ? new Date(Number(resetTimeStr) * 1000)
           : undefined
         const error = new Error(
           `GitHub API rate limit exceeded${resetDate ? `. Resets at ${resetDate.toLocaleString()}` : ''}. Use GITHUB_TOKEN environment variable to increase rate limit.`,
@@ -106,7 +111,7 @@ export async function fetchGitHub<T = any>(
     )
   }
 
-  return (await response.json()) as T
+  return JSON.parse(response.body.toString('utf8')) as T
 }
 
 export interface GitHubRef {

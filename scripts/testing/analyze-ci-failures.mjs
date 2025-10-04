@@ -1,5 +1,7 @@
 /** @fileoverview Analyzes CI failure logs and suggests fixes based on known patterns. */
 
+import { get as httpGet } from 'node:http'
+import { get as httpsGet } from 'node:https'
 import { promises as fs } from 'node:fs'
 
 import parseArgsModule from '../../registry/dist/lib/parse-args.js'
@@ -141,12 +143,32 @@ async function fetchLogContent() {
   }
 
   if (cliArgs.logUrl) {
-    // Use native fetch in Node.js 18+.
-    const response = await fetch(cliArgs.logUrl)
-    if (!response.ok) {
-      throw new Error(`Failed to fetch log: ${response.statusText}`)
-    }
-    return await response.text()
+    const parsedUrl = new URL(cliArgs.logUrl)
+    const isHttps = parsedUrl.protocol === 'https:'
+    const get = isHttps ? httpsGet : httpGet
+
+    return new Promise((resolve, reject) => {
+      const request = get(cliArgs.logUrl, res => {
+        const { statusCode } = res
+        const chunks = []
+
+        res.on('data', chunk => {
+          chunks.push(chunk)
+        })
+
+        res.on('end', () => {
+          if (statusCode >= 200 && statusCode < 300) {
+            resolve(Buffer.concat(chunks).toString('utf8'))
+          } else {
+            reject(new Error(`Failed to fetch log: ${statusCode}`))
+          }
+        })
+      })
+
+      request.on('error', e => {
+        reject(new Error(`HTTP request failed: ${e.message}`))
+      })
+    })
   }
 
   throw new Error('Must provide --log-file or --log-url')

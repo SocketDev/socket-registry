@@ -7,6 +7,7 @@ import path from 'node:path'
 
 import DLX_BINARY_CACHE_TTL from './constants/DLX_BINARY_CACHE_TTL'
 import { readJson } from './fs'
+import { httpRequest } from './http-request'
 import { normalizePath } from './path'
 import { getSocketHomePath } from './paths'
 import { spawn } from './spawn'
@@ -90,7 +91,7 @@ async function downloadBinary(
   destPath: string,
   checksum?: string | undefined,
 ): Promise<string> {
-  const response = await fetch(url)
+  const response = await httpRequest(url)
   if (!response.ok) {
     throw new Error(
       `Failed to download binary: ${response.status} ${response.statusText}`,
@@ -106,8 +107,7 @@ async function downloadBinary(
     await fs.mkdir(path.dirname(destPath), { recursive: true })
 
     // Get the response as a buffer and compute hash.
-    const arrayBuffer = await response.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
+    const buffer = response.body
 
     // Compute hash.
     hasher.update(buffer)

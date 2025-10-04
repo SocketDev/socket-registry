@@ -4,6 +4,12 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Mock the httpRequest module before importing github module.
+const mockHttpRequest = vi.fn()
+vi.mock('../../registry/dist/lib/http-request', () => ({
+  httpRequest: mockHttpRequest,
+}))
+
 import {
   clearRefCache,
   fetchGitHub,
@@ -11,6 +17,8 @@ import {
   getRefCacheSize,
   resolveRefToSha,
 } from '../../registry/dist/lib/github'
+
+const httpRequest = mockHttpRequest
 
 describe('github module', () => {
   let originalEnv: NodeJS.ProcessEnv
@@ -20,6 +28,7 @@ describe('github module', () => {
     originalEnv = { ...process.env }
     clearRefCache()
     tempDir = mkdtempSync(path.join(os.tmpdir(), 'github-test-'))
+    vi.clearAllMocks()
   })
 
   afterEach(() => {
@@ -67,14 +76,17 @@ describe('github module', () => {
   describe('fetchGitHub', () => {
     it('should fetch data from GitHub API', async () => {
       const mockData = { data: 'test' }
-      global.fetch = vi.fn().mockResolvedValue({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(JSON.stringify(mockData)),
+        headers: {},
         ok: true,
-        json: async () => mockData,
+        status: 200,
+        statusText: 'OK',
       })
 
       const result = await fetchGitHub('https://api.github.com/test')
       expect(result).toEqual(mockData)
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(httpRequest).toHaveBeenCalledWith(
         'https://api.github.com/test',
         expect.objectContaining({
           headers: expect.objectContaining({
@@ -87,13 +99,16 @@ describe('github module', () => {
 
     it('should include Authorization header when token provided', async () => {
       const mockData = { data: 'test' }
-      global.fetch = vi.fn().mockResolvedValue({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(JSON.stringify(mockData)),
+        headers: {},
         ok: true,
-        json: async () => mockData,
+        status: 200,
+        statusText: 'OK',
       })
 
       await fetchGitHub('https://api.github.com/test', { token: 'my-token' })
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(httpRequest).toHaveBeenCalledWith(
         'https://api.github.com/test',
         expect.objectContaining({
           headers: expect.objectContaining({
@@ -106,13 +121,16 @@ describe('github module', () => {
     it('should use environment token if no token provided', async () => {
       process.env['GITHUB_TOKEN'] = 'env-token'
       const mockData = { data: 'test' }
-      global.fetch = vi.fn().mockResolvedValue({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(JSON.stringify(mockData)),
+        headers: {},
         ok: true,
-        json: async () => mockData,
+        status: 200,
+        statusText: 'OK',
       })
 
       await fetchGitHub('https://api.github.com/test')
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(httpRequest).toHaveBeenCalledWith(
         'https://api.github.com/test',
         expect.objectContaining({
           headers: expect.objectContaining({
@@ -124,14 +142,15 @@ describe('github module', () => {
 
     it('should throw rate limit error with reset time', async () => {
       const resetTime = Math.floor(Date.now() / 1000) + 3600
-      global.fetch = vi.fn().mockResolvedValue({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(''),
+        headers: {
+          'x-ratelimit-remaining': '0',
+          'x-ratelimit-reset': String(resetTime),
+        },
         ok: false,
         status: 403,
         statusText: 'Forbidden',
-        headers: new Map([
-          ['X-RateLimit-Remaining', '0'],
-          ['X-RateLimit-Reset', String(resetTime)],
-        ]),
       })
 
       await expect(fetchGitHub('https://api.github.com/test')).rejects.toThrow(
@@ -140,11 +159,14 @@ describe('github module', () => {
     })
 
     it('should throw rate limit error without reset time', async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(''),
+        headers: {
+          'x-ratelimit-remaining': '0',
+        },
         ok: false,
         status: 403,
         statusText: 'Forbidden',
-        headers: new Map([['X-RateLimit-Remaining', '0']]),
       })
 
       await expect(fetchGitHub('https://api.github.com/test')).rejects.toThrow(
@@ -153,11 +175,12 @@ describe('github module', () => {
     })
 
     it('should throw generic error for non-rate-limit failures', async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(''),
+        headers: {},
         ok: false,
         status: 404,
         statusText: 'Not Found',
-        headers: new Map(),
       })
 
       await expect(fetchGitHub('https://api.github.com/test')).rejects.toThrow(
@@ -167,15 +190,18 @@ describe('github module', () => {
 
     it('should include custom headers', async () => {
       const mockData = { data: 'test' }
-      global.fetch = vi.fn().mockResolvedValue({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(JSON.stringify(mockData)),
+        headers: {},
         ok: true,
-        json: async () => mockData,
+        status: 200,
+        statusText: 'OK',
       })
 
       await fetchGitHub('https://api.github.com/test', {
         headers: { 'X-Custom': 'value' },
       })
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(httpRequest).toHaveBeenCalledWith(
         'https://api.github.com/test',
         expect.objectContaining({
           headers: expect.objectContaining({
@@ -188,9 +214,14 @@ describe('github module', () => {
 
   describe('clearRefCache', () => {
     it('should clear the ref cache', async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(
+          JSON.stringify({ object: { sha: 'abc123', type: 'commit' } }),
+        ),
+        headers: {},
         ok: true,
-        json: async () => ({ object: { sha: 'abc123', type: 'commit' } }),
+        status: 200,
+        statusText: 'OK',
       })
 
       await resolveRefToSha('owner', 'repo', 'v1.0.0', {
@@ -209,9 +240,14 @@ describe('github module', () => {
     })
 
     it('should return cache size after adding entries', async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(
+          JSON.stringify({ object: { sha: 'abc123', type: 'commit' } }),
+        ),
+        headers: {},
         ok: true,
-        json: async () => ({ object: { sha: 'abc123', type: 'commit' } }),
+        status: 200,
+        statusText: 'OK',
       })
 
       await resolveRefToSha('owner', 'repo', 'v1.0.0', {
@@ -228,13 +264,18 @@ describe('github module', () => {
 
   describe('resolveRefToSha', () => {
     it('should resolve a tag to SHA', async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(
+          JSON.stringify({
+            object: { sha: 'abc123', type: 'commit', url: 'test' },
+            ref: 'refs/tags/v1.0.0',
+            url: 'test',
+          }),
+        ),
+        headers: {},
         ok: true,
-        json: async () => ({
-          object: { sha: 'abc123', type: 'commit', url: 'test' },
-          ref: 'refs/tags/v1.0.0',
-          url: 'test',
-        }),
+        status: 200,
+        statusText: 'OK',
       })
 
       const sha = await resolveRefToSha('owner', 'repo', 'v1.0.0', {
@@ -245,30 +286,40 @@ describe('github module', () => {
 
     it('should resolve an annotated tag to SHA', async () => {
       let callCount = 0
-      global.fetch = vi.fn().mockImplementation(async () => {
+      httpRequest.mockImplementation(async () => {
         callCount += 1
         if (callCount === 1) {
           return {
+            body: Buffer.from(
+              JSON.stringify({
+                object: {
+                  sha: 'tag-sha',
+                  type: 'tag',
+                  url: 'https://api.github.com/repos/owner/repo/git/tags/tag-sha',
+                },
+                ref: 'refs/tags/v1.0.0',
+                url: 'test',
+              }),
+            ),
+            headers: {},
             ok: true,
-            json: async () => ({
-              object: {
-                sha: 'tag-sha',
-                type: 'tag',
-                url: 'https://api.github.com/repos/owner/repo/git/tags/tag-sha',
-              },
-              ref: 'refs/tags/v1.0.0',
-              url: 'test',
-            }),
+            status: 200,
+            statusText: 'OK',
           }
         }
         return {
+          body: Buffer.from(
+            JSON.stringify({
+              object: { sha: 'commit-sha', type: 'commit' },
+              sha: 'tag-sha',
+              tag: 'v1.0.0',
+              message: 'Release v1.0.0',
+            }),
+          ),
+          headers: {},
           ok: true,
-          json: async () => ({
-            object: { sha: 'commit-sha', type: 'commit' },
-            sha: 'tag-sha',
-            tag: 'v1.0.0',
-            message: 'Release v1.0.0',
-          }),
+          status: 200,
+          statusText: 'OK',
         }
       })
 
@@ -280,18 +331,29 @@ describe('github module', () => {
 
     it('should resolve a branch to SHA', async () => {
       let callCount = 0
-      global.fetch = vi.fn().mockImplementation(async () => {
+      httpRequest.mockImplementation(async () => {
         callCount += 1
         if (callCount === 1) {
-          return { ok: false, status: 404 }
+          return {
+            body: Buffer.from(''),
+            headers: {},
+            ok: false,
+            status: 404,
+            statusText: 'Not Found',
+          }
         }
         return {
+          body: Buffer.from(
+            JSON.stringify({
+              object: { sha: 'branch-sha', type: 'commit' },
+              ref: 'refs/heads/main',
+              url: 'test',
+            }),
+          ),
+          headers: {},
           ok: true,
-          json: async () => ({
-            object: { sha: 'branch-sha', type: 'commit' },
-            ref: 'refs/heads/main',
-            url: 'test',
-          }),
+          status: 200,
+          statusText: 'OK',
         }
       })
 
@@ -303,21 +365,32 @@ describe('github module', () => {
 
     it('should resolve a commit SHA directly', async () => {
       let callCount = 0
-      global.fetch = vi.fn().mockImplementation(async () => {
+      httpRequest.mockImplementation(async () => {
         callCount += 1
         if (callCount <= 2) {
-          return { ok: false, status: 404 }
+          return {
+            body: Buffer.from(''),
+            headers: {},
+            ok: false,
+            status: 404,
+            statusText: 'Not Found',
+          }
         }
         return {
+          body: Buffer.from(
+            JSON.stringify({
+              sha: 'commit-sha',
+              url: 'test',
+              commit: {
+                message: 'test',
+                author: { name: 'test', email: 'test', date: 'test' },
+              },
+            }),
+          ),
+          headers: {},
           ok: true,
-          json: async () => ({
-            sha: 'commit-sha',
-            url: 'test',
-            commit: {
-              message: 'test',
-              author: { name: 'test', email: 'test', date: 'test' },
-            },
-          }),
+          status: 200,
+          statusText: 'OK',
         }
       })
 
@@ -328,9 +401,12 @@ describe('github module', () => {
     })
 
     it('should throw error for invalid ref', async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(''),
+        headers: {},
         ok: false,
         status: 404,
+        statusText: 'Not Found',
       })
 
       await expect(
@@ -341,11 +417,16 @@ describe('github module', () => {
     })
 
     it('should use in-memory cache for repeated calls', async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(
+          JSON.stringify({
+            object: { sha: 'cached-sha', type: 'commit' },
+          }),
+        ),
+        headers: {},
         ok: true,
-        json: async () => ({
-          object: { sha: 'cached-sha', type: 'commit' },
-        }),
+        status: 200,
+        statusText: 'OK',
       })
 
       const sha1 = await resolveRefToSha('owner', 'repo', 'v1.0.0', {
@@ -357,15 +438,20 @@ describe('github module', () => {
 
       expect(sha1).toBe('cached-sha')
       expect(sha2).toBe('cached-sha')
-      expect(global.fetch).toHaveBeenCalledTimes(1)
+      expect(httpRequest).toHaveBeenCalledTimes(1)
     })
 
     it('should skip cache when cache option is false', async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(
+          JSON.stringify({
+            object: { sha: 'no-cache-sha', type: 'commit' },
+          }),
+        ),
+        headers: {},
         ok: true,
-        json: async () => ({
-          object: { sha: 'no-cache-sha', type: 'commit' },
-        }),
+        status: 200,
+        statusText: 'OK',
       })
 
       const sha1 = await resolveRefToSha('owner', 'repo', 'v1.0.0', {
@@ -379,16 +465,21 @@ describe('github module', () => {
 
       expect(sha1).toBe('no-cache-sha')
       expect(sha2).toBe('no-cache-sha')
-      expect(global.fetch).toHaveBeenCalledTimes(2)
+      expect(httpRequest).toHaveBeenCalledTimes(2)
     })
 
     it('should skip disk cache when DISABLE_GITHUB_CACHE is set', async () => {
       process.env['DISABLE_GITHUB_CACHE'] = '1'
-      global.fetch = vi.fn().mockResolvedValue({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(
+          JSON.stringify({
+            object: { sha: 'no-disk-cache-sha', type: 'commit' },
+          }),
+        ),
+        headers: {},
         ok: true,
-        json: async () => ({
-          object: { sha: 'no-disk-cache-sha', type: 'commit' },
-        }),
+        status: 200,
+        statusText: 'OK',
       })
 
       const sha = await resolveRefToSha('owner', 'repo', 'v1.0.0', {
@@ -398,11 +489,16 @@ describe('github module', () => {
     })
 
     it('should use custom TTL option', async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(
+          JSON.stringify({
+            object: { sha: 'ttl-sha', type: 'commit' },
+          }),
+        ),
+        headers: {},
         ok: true,
-        json: async () => ({
-          object: { sha: 'ttl-sha', type: 'commit' },
-        }),
+        status: 200,
+        statusText: 'OK',
       })
 
       const sha = await resolveRefToSha('owner', 'repo', 'v1.0.0', {
@@ -413,11 +509,16 @@ describe('github module', () => {
     })
 
     it('should use provided token for authentication', async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(
+          JSON.stringify({
+            object: { sha: 'auth-sha', type: 'commit' },
+          }),
+        ),
+        headers: {},
         ok: true,
-        json: async () => ({
-          object: { sha: 'auth-sha', type: 'commit' },
-        }),
+        status: 200,
+        statusText: 'OK',
       })
 
       await resolveRefToSha('owner', 'repo', 'v1.0.0', {
@@ -425,7 +526,7 @@ describe('github module', () => {
         cachePath: tempDir,
       })
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(httpRequest).toHaveBeenCalledWith(
         expect.stringContaining('api.github.com'),
         expect.objectContaining({
           headers: expect.objectContaining({
