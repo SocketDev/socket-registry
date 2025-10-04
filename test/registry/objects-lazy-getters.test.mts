@@ -9,7 +9,7 @@ describe('objects module - lazy getter edge cases', () => {
   describe('defineLazyGetters with stats tracking', () => {
     it('should track lazy getter statistics', () => {
       const obj = {}
-      const stats = { initialized: new Set() }
+      const stats = { initialized: new Set<PropertyKey>() }
 
       defineLazyGetters(
         obj,
@@ -29,7 +29,7 @@ describe('objects module - lazy getter edge cases', () => {
 
     it('should count multiple property accesses', () => {
       const obj = {}
-      const stats = { initialized: new Set() }
+      const stats = { initialized: new Set<PropertyKey>() }
 
       defineLazyGetters(
         obj,
@@ -56,7 +56,7 @@ describe('objects module - lazy getter edge cases', () => {
 
     it('should handle stats parameter with defineLazyGetter', () => {
       const obj = {}
-      const stats = { initialized: new Set() }
+      const stats = { initialized: new Set<PropertyKey>() }
 
       defineLazyGetter(obj, 'prop', () => 'value', stats)
 

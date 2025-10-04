@@ -293,24 +293,21 @@ describe('parse-args module', () => {
   })
 
   describe('commonParseArgsConfig', () => {
-    it('should have force and quiet options', () => {
+    it('should have correct option configurations', () => {
       expect(commonParseArgsConfig.options!).toBeDefined()
-      expect(commonParseArgsConfig.options!['force']).toBeDefined()
-      expect(commonParseArgsConfig.options!['quiet']).toBeDefined()
-    })
 
-    it('should have correct force option configuration', () => {
-      const forceOption = commonParseArgsConfig.options!['force']
-      expect(forceOption!.type).toBe('boolean')
-      expect(forceOption!.short).toBe('f')
-      expect(forceOption!.default).toBe(false)
-    })
+      const options = [
+        { name: 'force', short: 'f' },
+        { name: 'quiet', short: 'q' },
+      ]
 
-    it('should have correct quiet option configuration', () => {
-      const quietOption = commonParseArgsConfig.options!['quiet']
-      expect(quietOption!.type).toBe('boolean')
-      expect(quietOption!.short).toBe('q')
-      expect(quietOption!.default).toBe(false)
+      for (const { name, short } of options) {
+        const option = commonParseArgsConfig.options![name]
+        expect(option).toBeDefined()
+        expect(option!.type).toBe('boolean')
+        expect(option!.short).toBe(short)
+        expect(option!.default).toBe(false)
+      }
     })
 
     it('should have strict mode disabled', () => {

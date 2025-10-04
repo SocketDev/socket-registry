@@ -140,9 +140,7 @@ describe('packages module - utility functions', () => {
   describe('gitHubTgzUrl', () => {
     it('should create GitHub archive tarball URL', () => {
       const result = gitHubTgzUrl('user', 'repo', 'abc123')
-      expect(result).toBe(
-        'https://github.com/user/repo/archive/abc123.tar.gz',
-      )
+      expect(result).toBe('https://github.com/user/repo/archive/abc123.tar.gz')
     })
 
     it('should handle commit SHAs', () => {
@@ -163,9 +161,9 @@ describe('packages module - utility functions', () => {
     })
 
     it('should resolve scoped packages', () => {
-      expect(
-        resolveOriginalPackageName('@socketregistry/scope__pkg'),
-      ).toBe('@scope/pkg')
+      expect(resolveOriginalPackageName('@socketregistry/scope__pkg')).toBe(
+        '@scope/pkg',
+      )
     })
 
     it('should handle packages without socketregistry scope', () => {
