@@ -44,8 +44,9 @@ describe('logger module', () => {
     it('should have all required symbols', () => {
       const symbols = ['fail', 'info', 'success', 'warn'] as const
       for (const symbol of symbols) {
-        expect(typeof LOG_SYMBOLS[symbol]).toBe('string')
-        expect(LOG_SYMBOLS[symbol].length).toBeGreaterThan(0)
+        const logSymbol = LOG_SYMBOLS[symbol]
+        expect(typeof logSymbol).toBe('string')
+        expect(logSymbol?.length).toBeGreaterThan(0)
       }
     })
 
