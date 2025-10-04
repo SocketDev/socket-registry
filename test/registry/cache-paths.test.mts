@@ -24,7 +24,9 @@ describe('package manager cache paths', () => {
   it('should contain expected keywords when paths are set', () => {
     for (const { keyword, value } of cachePaths) {
       if (value) {
-        expect(value).toContain(keyword)
+        // Use case-insensitive matching for Windows compatibility
+        // (e.g., Windows uses 'Yarn' not 'yarn' in paths)
+        expect(value.toLowerCase()).toContain(keyword.toLowerCase())
       }
     }
   })
