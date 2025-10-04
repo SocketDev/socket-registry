@@ -274,7 +274,7 @@ describe('edge case tests', () => {
       const url = urlUtils.createRelativeUrl('/path/to/resource')
       expect(url).toBe('path/to/resource')
 
-      const url2 = urlUtils.createRelativeUrl('resource', '/base/')
+      const url2 = urlUtils.createRelativeUrl('resource', { base: '/base/' })
       expect(url2).toBe('/base/resource')
     })
 
@@ -283,11 +283,17 @@ describe('edge case tests', () => {
 
       expect(urlUtils.urlSearchParamAsString(params, 'a')).toBe('1')
       expect(
-        urlUtils.urlSearchParamAsString(params, 'missing', 'default'),
+        urlUtils.urlSearchParamAsString(params, 'missing', {
+          defaultValue: 'default',
+        }),
       ).toBe('default')
 
       expect(urlUtils.urlSearchParamAsNumber(params, 'b')).toBe(2)
-      expect(urlUtils.urlSearchParamAsNumber(params, 'missing', 99)).toBe(99)
+      expect(
+        urlUtils.urlSearchParamAsNumber(params, 'missing', {
+          defaultValue: 99,
+        }),
+      ).toBe(99)
 
       const boolParams = new URLSearchParams('enabled=true&disabled=false')
       expect(urlUtils.urlSearchParamsGetBoolean(boolParams, 'enabled')).toBe(
@@ -356,11 +362,11 @@ describe('edge case tests', () => {
     })
 
     it('should pluralize with different counts', () => {
-      expect(words.pluralize('item', 0)).toBe('items')
-      expect(words.pluralize('item', 1)).toBe('item')
-      expect(words.pluralize('item', 2)).toBe('items')
-      expect(words.pluralize('item', -1)).toBe('items')
-      expect(words.pluralize('item', 1.5)).toBe('items')
+      expect(words.pluralize('item', { count: 0 })).toBe('items')
+      expect(words.pluralize('item', { count: 1 })).toBe('item')
+      expect(words.pluralize('item', { count: 2 })).toBe('items')
+      expect(words.pluralize('item', { count: -1 })).toBe('items')
+      expect(words.pluralize('item', { count: 1.5 })).toBe('items')
     })
   })
 })

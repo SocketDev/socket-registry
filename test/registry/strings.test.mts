@@ -155,38 +155,46 @@ describe('strings module', () => {
 
   describe('indentString', () => {
     it('should indent lines with specified string', () => {
-      expect(indentString('line1\nline2', 2)).toBe('  line1\n  line2')
-      expect(indentString('single', 2)).toBe('  single')
+      expect(indentString('line1\nline2', { count: 2 })).toBe(
+        '  line1\n  line2',
+      )
+      expect(indentString('single', { count: 2 })).toBe('  single')
     })
 
     it('should handle custom indent strings', () => {
-      expect(indentString('line1\nline2', 3)).toBe('   line1\n   line2')
-      expect(indentString('line1\nline2', 1)).toBe(' line1\n line2')
+      expect(indentString('line1\nline2', { count: 3 })).toBe(
+        '   line1\n   line2',
+      )
+      expect(indentString('line1\nline2', { count: 1 })).toBe(' line1\n line2')
     })
 
     it('should handle empty lines', () => {
-      expect(indentString('line1\n\nline3', 2)).toBe('  line1\n\n  line3')
+      expect(indentString('line1\n\nline3', { count: 2 })).toBe(
+        '  line1\n\n  line3',
+      )
     })
 
     it('should handle empty strings', () => {
-      expect(indentString('', 2)).toBe('')
+      expect(indentString('', { count: 2 })).toBe('')
     })
   })
 
   describe('applyLinePrefix', () => {
     it('should apply prefix to each line', () => {
-      expect(applyLinePrefix('line1\nline2', '> ')).toBe('> line1\n> line2')
-      expect(applyLinePrefix('single', '# ')).toBe('# single')
+      expect(applyLinePrefix('line1\nline2', { prefix: '> ' })).toBe(
+        '> line1\n> line2',
+      )
+      expect(applyLinePrefix('single', { prefix: '# ' })).toBe('# single')
     })
 
     it('should handle empty lines', () => {
-      expect(applyLinePrefix('line1\n\nline3', '> ')).toBe(
+      expect(applyLinePrefix('line1\n\nline3', { prefix: '> ' })).toBe(
         '> line1\n> \n> line3',
       )
     })
 
     it('should handle empty strings', () => {
-      expect(applyLinePrefix('', '> ')).toBe('> ')
+      expect(applyLinePrefix('', { prefix: '> ' })).toBe('> ')
     })
   })
 
