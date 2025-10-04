@@ -9,6 +9,8 @@ import MagicString from 'magic-string'
 import type { NodePath } from '@babel/traverse'
 import type { Plugin } from 'vite'
 
+import { getDistDir, srcToDistPath } from './transform-utils.mts'
+
 // Handle both ESM and CJS exports from @babel/traverse
 const traverse = (traverseModule as any).default || traverseModule
 
@@ -250,33 +252,14 @@ export function createRequireTransformPlugin(
                 return
               }
 
-              // Get the directory of the current file
-              const currentDir = dirname(id)
-
               // Build a template literal that resolves to dist/
               // For constants/index.ts with require(`./\${k}`):
               // Transform to require(`/abs/path/dist/lib/constants/\${k}`)
+              const distDir = getDistDir(id)
 
-              // Find the path relative to /registry/src/lib/
-              const libMarker = '/registry/src/lib/'
-              const libIndex = id.indexOf(libMarker)
-
-              if (libIndex === -1) {
+              if (!distDir) {
                 return
               }
-
-              // Get the directory path relative to lib/
-              const relativeDir = dirname(
-                id.substring(libIndex + libMarker.length),
-              )
-
-              // Build absolute dist path
-              const projectRoot = id.substring(0, libIndex)
-              const distDir = resolve(
-                projectRoot,
-                'registry/dist/lib',
-                relativeDir,
-              )
 
               // Reconstruct the template literal with absolute dist path
               // Replace the leading ./ or ../ with the absolute dist path
@@ -368,43 +351,12 @@ export function createRequireTransformPlugin(
                 // During coverage, require() can't load TypeScript files, so we use
                 // the compiled JavaScript files from dist/ which Node can handle.
                 const stringNode = arg as t.StringLiteral
+                const absoluteDistPath = srcToDistPath(resolvedPath)
 
-                // Strategy: Use the resolvedPath (absolute path to the TypeScript source)
-                // to determine the correct dist path with preserved directory structure.
-
-                // Extract the path relative to /registry/src/lib/ from the resolved source file.
-                // Example: resolvedPath = '/abs/path/registry/src/lib/packages/normalize.ts'
-                //          relativeToLib = 'packages/normalize.ts'
-                // Example: resolvedPath = '/abs/path/registry/src/lib/constants/WIN32.ts'
-                //          relativeToLib = 'constants/WIN32.ts'
-                const libMarker = '/registry/src/lib/'
-                const libIndex = resolvedPath.indexOf(libMarker)
-
-                if (libIndex === -1) {
+                if (!absoluteDistPath) {
                   // Not in lib directory, skip transformation.
                   return
                 }
-
-                // Get everything after '/registry/src/lib/' from the resolved path.
-                // This gives us the full relative path including subdirectories.
-                const relativeToLib = resolvedPath.substring(
-                  libIndex + libMarker.length,
-                )
-
-                // Convert TypeScript extension to JavaScript.
-                // Example: 'packages/normalize.ts' -> 'packages/normalize.js'
-                // Example: 'constants/WIN32.ts' -> 'constants/WIN32.js'
-                const relativeJsPath = relativeToLib.replace(/\.ts$/, '.js')
-
-                // Build the absolute dist path by combining project root + dist/lib + relative path.
-                // Example: '/abs/path' + 'registry/dist/lib/' + 'packages/normalize.js'
-                //       = '/abs/path/registry/dist/lib/packages/normalize.js'
-                const projectRoot = resolvedPath.substring(0, libIndex)
-                const absoluteDistPath = resolve(
-                  projectRoot,
-                  'registry/dist/lib',
-                  relativeJsPath,
-                )
 
                 // Replace the require string with the absolute dist path.
                 s.overwrite(
