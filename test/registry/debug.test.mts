@@ -6,11 +6,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   debugDir,
+  debugDirNs,
   debugFn,
+  debugFnNs,
   debugLog,
+  debugLogNs,
   debuglog,
   debugtime,
   isDebug,
+  isDebugNs,
 } from '../../registry/dist/lib/debug.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -419,6 +423,38 @@ describe('debug module', () => {
       timer.end('task')
 
       // Should not log anything since timer was removed
+      expect(consoleSpy.log).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('isDebugNs', () => {
+    it('should return false when SOCKET_CLI_DEBUG is not set', () => {
+      delete process.env['SOCKET_CLI_DEBUG']
+      expect(isDebugNs('test')).toBe(false)
+    })
+  })
+
+  describe('debugLogNs', () => {
+    it('should not log when namespace does not match', () => {
+      process.env['DEBUG'] = 'other:*'
+      const callsBefore = consoleSpy.log.mock.calls.length
+      debugLogNs('test:namespace', 'message')
+      expect(consoleSpy.log.mock.calls.length).toBe(callsBefore)
+    })
+  })
+
+  describe('debugDirNs', () => {
+    it('should not dir when namespace does not match', () => {
+      process.env['DEBUG'] = 'other:*'
+      debugDirNs('test:namespace', { key: 'value' })
+      expect(consoleSpy.dir).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('debugFnNs', () => {
+    it('should not log when namespace does not match', () => {
+      process.env['DEBUG'] = 'other:*'
+      debugFnNs('test:namespace', 'message')
       expect(consoleSpy.log).not.toHaveBeenCalled()
     })
   })

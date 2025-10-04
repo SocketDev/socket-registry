@@ -98,12 +98,14 @@ async function acquireLock(
     try {
       // Try to read existing lock
       if (existsSync(lockPath)) {
+        // eslint-disable-next-line no-await-in-loop
         const lockContent = await readFile(lockPath, 'utf8')
         const lockInfo: DownloadLockInfo = JSON.parse(lockContent)
 
         // Check if lock is stale
         if (isLockStale(lockInfo, staleTimeout)) {
           // Remove stale lock
+          // eslint-disable-next-line no-await-in-loop
           await rm(lockPath, { force: true })
         } else {
           // Lock is valid, check timeout
@@ -114,6 +116,7 @@ async function acquireLock(
           }
 
           // Wait and retry
+          // eslint-disable-next-line no-await-in-loop
           await new Promise(resolve => setTimeout(resolve, pollInterval))
           continue
         }
@@ -126,6 +129,7 @@ async function acquireLock(
         url,
       }
 
+      // eslint-disable-next-line no-await-in-loop
       await writeFile(lockPath, JSON.stringify(lockInfo, null, 2), {
         // Use 'wx' flag to fail if file exists (atomic operation)
         flag: 'wx',
@@ -139,6 +143,7 @@ async function acquireLock(
         if (Date.now() - startTime > lockTimeout) {
           throw new Error(`Lock acquisition timed out after ${lockTimeout}ms`)
         }
+        // eslint-disable-next-line no-await-in-loop
         await new Promise(resolve => setTimeout(resolve, pollInterval))
         continue
       }

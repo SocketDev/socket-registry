@@ -184,7 +184,10 @@ async function httpRequestAttempt(
               )
             },
             body: responseBody,
-            headers: res.headers as Record<string, string | string[] | undefined>,
+            headers: res.headers as Record<
+              string,
+              string | string[] | undefined
+            >,
             json<T = unknown>(): T {
               return JSON.parse(responseBody.toString('utf8')) as T
             },
