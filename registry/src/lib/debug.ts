@@ -241,7 +241,7 @@ function debugFnNs(namespacesOrOpts: NamespacesOrOptions, ...args: unknown[]) {
       ? [
           applyLinePrefix(
             `${name ? `${name} ${pointingTriangle} ` : ''}${text}`,
-            '[DEBUG] ',
+            { prefix: '[DEBUG] ' },
           ),
           ...args.slice(1),
         ]
