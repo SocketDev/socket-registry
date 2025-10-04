@@ -44,6 +44,7 @@ const { values: cliArgs } = parseArgs({
 
 // Debug: Always log force-publish status to diagnose workflow issues.
 logger.log('DEBUG: process.argv:', process.argv.slice(2).join(' '))
+logger.log('DEBUG: Full cliArgs:', JSON.stringify(cliArgs, null, 2))
 logger.log('DEBUG: cliArgs.forcePublish =', cliArgs.forcePublish)
 logger.log('DEBUG: cliArgs["force-publish"] =', cliArgs['force-publish'])
 
@@ -496,7 +497,9 @@ async function main() {
 
   try {
     // If --force-publish is set, skip commit detection and publish at HEAD.
-    if (cliArgs.forcePublish) {
+    // Check both the parsed option and the -- array (for cases like: node script -- --force-publish).
+    const forcePublishFlag = cliArgs.forcePublish || cliArgs['--']?.includes('--force-publish')
+    if (forcePublishFlag) {
       logger.log('Running with --force-publish')
       logger.log('Force publish mode: skipping commit detection')
       const headSha = await getCommitSha('HEAD')
