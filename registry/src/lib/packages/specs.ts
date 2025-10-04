@@ -61,7 +61,7 @@ export function gitHubTgzUrl(
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function isGitHubTgzSpec(spec: any, where?: string): boolean {
-  let parsedSpec
+  let parsedSpec: any
   if (isObjectObject(spec)) {
     parsedSpec = spec
   } else {
@@ -78,7 +78,7 @@ export function isGitHubTgzSpec(spec: any, where?: string): boolean {
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function isGitHubUrlSpec(spec: any, where?: string): boolean {
-  let parsedSpec
+  let parsedSpec: any
   if (isObjectObject(spec)) {
     parsedSpec = spec
   } else {
