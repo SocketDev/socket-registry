@@ -1180,8 +1180,16 @@ async function main() {
   try {
     const resultsData = await fs.readFile(downloadResultsFile, 'utf8')
     downloadResults = JSON.parse(resultsData)
+    if (!Array.isArray(downloadResults)) {
+      throw new Error('Download results must be an array')
+    }
   } catch (error) {
     logger.fail(`Could not read download results: ${error.message}`)
+    if (error instanceof SyntaxError) {
+      logger.fail(
+        'File contains invalid JSON. Try running download phase again.',
+      )
+    }
     process.exitCode = 1
     return
   }
@@ -1256,17 +1264,19 @@ async function main() {
 
   const results = []
 
-  await pEach(
-    filteredPackages,
-    async packageInfo => {
-      const result = await installPackage(packageInfo)
-      results.push(result)
-    },
-    { concurrency },
-  )
-
-  clearInterval(progressInterval)
-  spinner.stop()
+  try {
+    await pEach(
+      filteredPackages,
+      async packageInfo => {
+        const result = await installPackage(packageInfo)
+        results.push(result)
+      },
+      { concurrency },
+    )
+  } finally {
+    clearInterval(progressInterval)
+    spinner.stop()
+  }
 
   // Show progress summary.
   if (cachedCount > 0) {

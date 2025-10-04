@@ -301,11 +301,22 @@ async function httpDownloadAttempt(
       timeout,
     }
 
+    let fileStream: ReturnType<typeof createWriteStream> | undefined
+    let streamClosed = false
+
+    const closeStream = () => {
+      if (!streamClosed && fileStream) {
+        streamClosed = true
+        fileStream.close()
+      }
+    }
+
     const request = httpModule.request(
       requestOptions,
       (res: IncomingMessage) => {
         // Check status code
         if (!res.statusCode || res.statusCode < 200 || res.statusCode >= 300) {
+          closeStream()
           reject(
             new Error(
               `Download failed: HTTP ${res.statusCode} ${res.statusMessage}`,
@@ -318,9 +329,10 @@ async function httpDownloadAttempt(
         let downloadedSize = 0
 
         // Create write stream
-        const fileStream = createWriteStream(destPath)
+        fileStream = createWriteStream(destPath)
 
         fileStream.on('error', (error: Error) => {
+          closeStream()
           const err = new Error(`Failed to write file: ${error.message}`)
           ;(err as any).cause = error
           reject(err)
@@ -334,12 +346,18 @@ async function httpDownloadAttempt(
         })
 
         res.on('end', () => {
-          fileStream.close(() => {
+          fileStream!.close(() => {
+            streamClosed = true
             resolve({
               path: destPath,
               size: downloadedSize,
             })
           })
+        })
+
+        res.on('error', (error: Error) => {
+          closeStream()
+          reject(error)
         })
 
         // Pipe response to file
@@ -348,6 +366,7 @@ async function httpDownloadAttempt(
     )
 
     request.on('error', (error: Error) => {
+      closeStream()
       const err = new Error(`HTTP download failed: ${error.message}`)
       ;(err as any).cause = error
       reject(err)
@@ -355,6 +374,7 @@ async function httpDownloadAttempt(
 
     request.on('timeout', () => {
       request.destroy()
+      closeStream()
       reject(new Error(`Download timed out after ${timeout}ms`))
     })
 
