@@ -103,10 +103,10 @@ export default defineConfig({
         : ['registry/dist/**/*.{js,mjs,cjs}'],
       all: true,
       thresholds: {
-        lines: 79,
+        lines: 80,
         functions: 80,
         branches: 80,
-        statements: 79,
+        statements: 80,
       },
     },
   },
