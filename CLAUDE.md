@@ -601,6 +601,18 @@ All Socket projects MUST maintain alignment on these core dependencies. Use `taz
 3. Update all Socket projects simultaneously
 4. Test thoroughly after updates
 
+## 📝 SCRATCH DOCUMENTS
+
+### Working Documents Directory
+- **Location**: `.claude/` directory (gitignored)
+- **Purpose**: Store scratch documents, planning notes, analysis reports, and temporary documentation
+- **🚨 CRITICAL**: NEVER commit files in `.claude/` to version control
+- **Examples of scratch documents**:
+  - Working notes and implementation plans
+  - Analysis reports from codebase investigations
+  - Temporary documentation and TODO lists
+  - Any files not intended for production use
+
 ## Notes
 
 - The project maintains a registry of NPM packages with security-focused modifications
