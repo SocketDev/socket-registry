@@ -331,7 +331,8 @@ describe('parse-args module', () => {
         options: {
           port: {
             type: 'string',
-            coerce: (value: string) => Number.parseInt(value, 10),
+            coerce: (value: unknown) =>
+              Number.parseInt(value as string, 10) as unknown,
           },
         },
       })
