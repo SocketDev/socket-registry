@@ -19,7 +19,7 @@ interface YargsOptions {
   // Default values for options.
   default?: Record<string, unknown> | undefined
   // Transform functions to coerce parsed values.
-  coerce?: Record<string, (value: any) => any> | undefined
+  coerce?: Record<string, (value: unknown) => unknown> | undefined
   // Whether to treat unknown options as positional arguments.
   'unknown-options-as-args'?: boolean | undefined
   // Whether to parse numeric strings as numbers.
@@ -57,7 +57,7 @@ export interface ParseArgsOptionsConfig {
   // Default value for the option.
   default?: unknown | undefined
   // Transform function to coerce parsed values.
-  coerce?: (value: any) => any | undefined
+  coerce?: (value: unknown) => unknown | undefined
 }
 
 /**

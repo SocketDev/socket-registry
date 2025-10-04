@@ -32,6 +32,11 @@ describe('path module', () => {
       expect(isPath('..')).toBe(true)
       expect(isPath('/')).toBe(true)
     })
+
+    it('should handle Buffer and URL inputs', () => {
+      expect(isPath(Buffer.from('./file'))).toBe(true)
+      expect(isPath(new URL('file:///path/to/file'))).toBe(true)
+    })
   })
 
   describe('isRelative', () => {

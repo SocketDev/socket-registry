@@ -9,7 +9,7 @@ import kInternalsSymbol from './constants/k-internals-symbol'
 import { localeCompare } from './sorts'
 
 // Type definitions
-type GetterDefObj = { [key: PropertyKey]: () => any }
+type GetterDefObj = { [key: PropertyKey]: () => unknown }
 type LazyGetterStats = { initialized?: Set<PropertyKey> | undefined }
 type ConstantsObjectOptions = {
   getters?: GetterDefObj | undefined
@@ -27,7 +27,7 @@ type LazyGetterRecord<T> = {
 
 // Type for generic property bag.
 type PropertyBag = {
-  [key: PropertyKey]: any
+  [key: PropertyKey]: unknown
 }
 
 // Type for generic sorted object entries.
@@ -155,7 +155,7 @@ export function createConstantsObject(
         objectEntries(ObjectGetOwnPropertyDescriptors(attributes.mixin)).filter(
           p => !ObjectHasOwn(object, p[0]),
         ),
-      ),
+      ) as PropertyDescriptorMap,
     )
   }
   return ObjectFreeze(object)
@@ -219,8 +219,8 @@ export function defineLazyGetters(
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function entryKeyComparator(
-  a: [PropertyKey, any],
-  b: [PropertyKey, any],
+  a: [PropertyKey, unknown],
+  b: [PropertyKey, unknown],
 ): number {
   const keyA = a[0]
   const keyB = b[0]
@@ -233,7 +233,7 @@ export function entryKeyComparator(
  * Get the enumerable own property keys of an object.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function getKeys(obj: any): string[] {
+export function getKeys(obj: unknown): string[] {
   return isObject(obj) ? ObjectKeys(obj) : []
 }
 
@@ -241,11 +241,13 @@ export function getKeys(obj: any): string[] {
  * Get an own property value from an object safely.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function getOwn(obj: any, propKey: PropertyKey): any {
+export function getOwn(obj: unknown, propKey: PropertyKey): unknown {
   if (obj === null || obj === undefined) {
     return undefined
   }
-  return ObjectHasOwn(obj, propKey) ? obj[propKey] : undefined
+  return ObjectHasOwn(obj, propKey)
+    ? (obj as Record<PropertyKey, unknown>)[propKey]
+    : undefined
 }
 
 /**
@@ -271,7 +273,7 @@ export function getOwnPropertyValues<T>(
  * Check if an object has any enumerable own properties.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function hasKeys(obj: any): obj is PropertyBag {
+export function hasKeys(obj: unknown): obj is PropertyBag {
   if (obj === null || obj === undefined) {
     return false
   }
@@ -288,7 +290,7 @@ export function hasKeys(obj: any): obj is PropertyBag {
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function hasOwn(
-  obj: any,
+  obj: unknown,
   propKey: PropertyKey,
 ): obj is object & PropertyBag {
   if (obj === null || obj === undefined) {
@@ -301,7 +303,9 @@ export function hasOwn(
  * Check if a value is an object (including arrays).
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function isObject(value: any): value is { [key: PropertyKey]: any } {
+export function isObject(
+  value: unknown,
+): value is { [key: PropertyKey]: unknown } {
   return value !== null && typeof value === 'object'
 }
 
@@ -310,8 +314,8 @@ export function isObject(value: any): value is { [key: PropertyKey]: any } {
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function isObjectObject(
-  value: any,
-): value is { [key: PropertyKey]: any } {
+  value: unknown,
+): value is { [key: PropertyKey]: unknown } {
   if (value === null || typeof value !== 'object' || ArrayIsArray(value)) {
     return false
   }
@@ -323,16 +327,17 @@ export function isObjectObject(
  * Get all own property entries (key-value pairs) from an object.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function objectEntries(obj: any): Array<[PropertyKey, any]> {
+export function objectEntries(obj: unknown): Array<[PropertyKey, unknown]> {
   if (obj === null || obj === undefined) {
     return []
   }
   const keys = ReflectOwnKeys(obj)
   const { length } = keys
   const entries = Array(length)
+  const record = obj as Record<PropertyKey, unknown>
   for (let i = 0; i < length; i += 1) {
     const key = keys[i]!
-    entries[i] = [key, obj[key]]
+    entries[i] = [key, record[key]]
   }
   return entries
 }

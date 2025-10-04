@@ -48,12 +48,12 @@ export type Spinner = {
   get isSpinning(): boolean
 
   clear(): Spinner
-  debug(text?: string | undefined, ...extras: any[]): Spinner
-  debugAndStop(text?: string | undefined, ...extras: any[]): Spinner
-  error(text?: string | undefined, ...extras: any[]): Spinner
-  errorAndStop(text?: string | undefined, ...extras: any[]): Spinner
-  fail(text?: string | undefined, ...extras: any[]): Spinner
-  failAndStop(text?: string | undefined, ...extras: any[]): Spinner
+  debug(text?: string | undefined, ...extras: unknown[]): Spinner
+  debugAndStop(text?: string | undefined, ...extras: unknown[]): Spinner
+  error(text?: string | undefined, ...extras: unknown[]): Spinner
+  errorAndStop(text?: string | undefined, ...extras: unknown[]): Spinner
+  fail(text?: string | undefined, ...extras: unknown[]): Spinner
+  failAndStop(text?: string | undefined, ...extras: unknown[]): Spinner
 
   getText(): string
   setText(text?: string | undefined): Spinner
@@ -61,20 +61,20 @@ export type Spinner = {
   dedent(spaces?: number | undefined): Spinner
   resetIndent(): Spinner
 
-  info(text?: string | undefined, ...extras: any[]): Spinner
-  infoAndStop(text?: string | undefined, ...extras: any[]): Spinner
-  log(text?: string | undefined, ...extras: any[]): Spinner
-  logAndStop(text?: string | undefined, ...extras: any[]): Spinner
+  info(text?: string | undefined, ...extras: unknown[]): Spinner
+  infoAndStop(text?: string | undefined, ...extras: unknown[]): Spinner
+  log(text?: string | undefined, ...extras: unknown[]): Spinner
+  logAndStop(text?: string | undefined, ...extras: unknown[]): Spinner
 
   start(text?: string | undefined): Spinner
   stop(text?: string | undefined): Spinner
   stopAndPersist(text?: string | undefined): Spinner
 
-  success(text?: string | undefined, ...extras: any[]): Spinner
-  successAndStop(text?: string | undefined, ...extras: any[]): Spinner
+  success(text?: string | undefined, ...extras: unknown[]): Spinner
+  successAndStop(text?: string | undefined, ...extras: unknown[]): Spinner
 
-  warn(text?: string | undefined, ...extras: any[]): Spinner
-  warnAndStop(text?: string | undefined, ...extras: any[]): Spinner
+  warn(text?: string | undefined, ...extras: unknown[]): Spinner
+  warnAndStop(text?: string | undefined, ...extras: unknown[]): Spinner
 }
 
 export const ciSpinner: SpinnerStyle = {
@@ -82,7 +82,7 @@ export const ciSpinner: SpinnerStyle = {
   interval: 2147483647,
 }
 
-function desc(value: any) {
+function desc(value: unknown) {
   return {
     __proto__: null,
     configurable: true,
@@ -91,7 +91,7 @@ function desc(value: any) {
   }
 }
 
-function normalizeText(value: any) {
+function normalizeText(value: unknown) {
   return typeof value === 'string' ? value.trimStart() : ''
 }
 
@@ -142,8 +142,8 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
         })
       }
 
-      #apply(methodName: string, args: any[]) {
-        let extras: any[]
+      #apply(methodName: string, args: unknown[]) {
+        let extras: unknown[]
         let text = args.at(0)
         if (typeof text === 'string') {
           extras = args.slice(1)
@@ -175,7 +175,7 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
         return this
       }
 
-      #applyAndKeepSpinning(methodName: string, args: any[]) {
+      #applyAndKeepSpinning(methodName: string, args: unknown[]) {
         const wasSpinning = this.isSpinning
         this.#apply(methodName, args)
         if (wasSpinning) {
@@ -184,7 +184,7 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
         return this
       }
 
-      debug(...args: any[]) {
+      debug(...args: unknown[]) {
         const { isDebug } = /*@__PURE__*/ require('./debug.js')
         if (isDebug()) {
           return this.#applyAndKeepSpinning('info', args)
@@ -192,7 +192,7 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
         return this
       }
 
-      debugAndStop(...args: any[]) {
+      debugAndStop(...args: unknown[]) {
         const { isDebug } = /*@__PURE__*/ require('./debug.js')
         if (isDebug()) {
           return this.#apply('info', args)
@@ -200,11 +200,11 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
         return this
       }
 
-      fail(...args: any[]) {
+      fail(...args: unknown[]) {
         return this.#applyAndKeepSpinning('error', args)
       }
 
-      failAndStop(...args: any[]) {
+      failAndStop(...args: unknown[]) {
         return this.#apply('error', args)
       }
 
@@ -212,28 +212,28 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
         return this.text
       }
 
-      info(...args: any[]) {
+      info(...args: unknown[]) {
         return this.#applyAndKeepSpinning('info', args)
       }
 
-      infoAndStop(...args: any[]) {
+      infoAndStop(...args: unknown[]) {
         return this.#apply('info', args)
       }
 
-      log(...args: any[]) {
+      log(...args: unknown[]) {
         return this.#applyAndKeepSpinning('stop', args)
       }
 
-      logAndStop(...args: any[]) {
+      logAndStop(...args: unknown[]) {
         return this.#apply('stop', args)
       }
 
-      setText(value: any) {
+      setText(value: unknown) {
         this.text = normalizeText(value)
         return this
       }
 
-      start(...args: any[]) {
+      start(...args: unknown[]) {
         if (args.length) {
           const text = args.at(0)
           const normalized = normalizeText(text)
@@ -246,25 +246,25 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
         return this.#apply('start', args)
       }
 
-      stop(...args: any[]) {
+      stop(...args: unknown[]) {
         // We clear this.text on stop because yocto-spinner will not clear it.
         this.setText('')
         return this.#apply('stop', args)
       }
 
-      success(...args: any[]) {
+      success(...args: unknown[]) {
         return this.#applyAndKeepSpinning('success', args)
       }
 
-      successAndStop(...args: any[]) {
+      successAndStop(...args: unknown[]) {
         return this.#apply('success', args)
       }
 
-      warn(...args: any[]) {
+      warn(...args: unknown[]) {
         return this.#applyAndKeepSpinning('warning', args)
       }
 
-      warnAndStop(...args: any[]) {
+      warnAndStop(...args: unknown[]) {
         return this.#apply('warning', args)
       }
     } as unknown as {

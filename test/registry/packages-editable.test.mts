@@ -263,4 +263,171 @@ describe('EditablePackageJson static methods', () => {
       fs.rmSync(tmpDir, { recursive: true, force: true })
     }
   })
+
+  it('should handle load when package.json is missing but not creating', async () => {
+    const EditablePackageJson = getEditablePackageJsonClass()
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+
+    try {
+      await expect(EditablePackageJson.load(tmpDir)).rejects.toThrow()
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  it('should handle create with data option', async () => {
+    const EditablePackageJson = getEditablePackageJsonClass()
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+
+    try {
+      const editable = await EditablePackageJson.create(tmpDir, {
+        data: { name: 'test-create-data', version: '1.0.0' },
+      })
+      expect(editable).toBeDefined()
+      expect(editable.content.name).toBe('test-create-data')
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('EditablePackageJson instance methods', () => {
+  it('should update package.json content', async () => {
+    const EditablePackageJson = getEditablePackageJsonClass()
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+
+    try {
+      const editable = await EditablePackageJson.create(tmpDir)
+      editable.update({ name: 'updated-name', version: '2.0.0' })
+      expect(editable.content.name).toBe('updated-name')
+      expect(editable.content.version).toBe('2.0.0')
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  it('should save package.json to disk', async () => {
+    const EditablePackageJson = getEditablePackageJsonClass()
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+
+    try {
+      const editable = await EditablePackageJson.create(tmpDir)
+      editable.update({ name: 'test-save', version: '1.0.0' })
+      const saved = await editable.save()
+      expect(saved).toBe(true)
+      const pkgPath = path.join(tmpDir, 'package.json')
+      expect(fs.existsSync(pkgPath)).toBe(true)
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  it('should saveSync package.json to disk', () => {
+    const EditablePackageJson = getEditablePackageJsonClass()
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+
+    try {
+      const editable = new EditablePackageJson().create(tmpDir)
+      editable.update({ name: 'test-save-sync', version: '1.0.0' })
+      const saved = editable.saveSync()
+      expect(saved).toBe(true)
+      const pkgPath = path.join(tmpDir, 'package.json')
+      expect(fs.existsSync(pkgPath)).toBe(true)
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  it('should handle willSave method', async () => {
+    const EditablePackageJson = getEditablePackageJsonClass()
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+
+    try {
+      const editable = await EditablePackageJson.create(tmpDir)
+      editable.update({ name: 'test-will-save', version: '1.0.0' })
+      const willSave = editable.willSave()
+      expect(typeof willSave).toBe('boolean')
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  it('should handle save with sort option', async () => {
+    const EditablePackageJson = getEditablePackageJsonClass()
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+
+    try {
+      const editable = await EditablePackageJson.create(tmpDir)
+      editable.update({
+        name: 'test-sort',
+        version: '1.0.0',
+        description: 'Test',
+      })
+      await editable.save({ sort: true })
+      const pkgPath = path.join(tmpDir, 'package.json')
+      const content = fs.readFileSync(pkgPath, 'utf8')
+      expect(content).toContain('test-sort')
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  it('should handle save with ignoreWhitespace option', async () => {
+    const EditablePackageJson = getEditablePackageJsonClass()
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const pkgPath = path.join(tmpDir, 'package.json')
+    fs.writeFileSync(
+      pkgPath,
+      JSON.stringify({ name: 'test-whitespace', version: '1.0.0' }),
+    )
+
+    try {
+      const editable = await EditablePackageJson.load(tmpDir)
+      const saved = await editable.save({ ignoreWhitespace: true })
+      expect(typeof saved).toBe('boolean')
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  it('should handle fromJSON method', () => {
+    const EditablePackageJson = getEditablePackageJsonClass()
+    const editable = new EditablePackageJson()
+    const json = JSON.stringify({ name: 'test-from-json', version: '1.0.0' })
+    editable.fromJSON(json)
+    expect(editable.content.name).toBe('test-from-json')
+  })
+
+  it('should handle fromContent method', () => {
+    const EditablePackageJson = getEditablePackageJsonClass()
+    const editable = new EditablePackageJson()
+    editable.fromContent({ name: 'test-from-content', version: '1.0.0' })
+    expect(editable.content.name).toBe('test-from-content')
+  })
+
+  it('should handle prepare method', async () => {
+    const EditablePackageJson = getEditablePackageJsonClass()
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const pkgPath = path.join(tmpDir, 'package.json')
+    fs.writeFileSync(
+      pkgPath,
+      JSON.stringify({ name: 'test-prepare-instance', version: '1.0.0' }),
+    )
+
+    try {
+      const editable = await EditablePackageJson.load(tmpDir)
+      await editable.prepare()
+      expect(editable.content.name).toBe('test-prepare-instance')
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  it('should throw error when saving without _canSave', async () => {
+    const EditablePackageJson = getEditablePackageJsonClass()
+    const editable = new EditablePackageJson()
+    editable.fromContent({ name: 'test-no-save', version: '1.0.0' })
+
+    await expect(editable.save()).rejects.toThrow('No package.json to save to')
+  })
 })
