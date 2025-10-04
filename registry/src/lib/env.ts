@@ -16,7 +16,7 @@ const StringCtor = String
  * Convert an environment variable value to a boolean.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function envAsBoolean(value: any, defaultValue = false): boolean {
+export function envAsBoolean(value: unknown, defaultValue = false): boolean {
   if (typeof value === 'string') {
     const trimmed = value.trim()
     return trimmed === '1' || trimmed.toLowerCase() === 'true'
@@ -31,8 +31,8 @@ export function envAsBoolean(value: any, defaultValue = false): boolean {
  * Convert an environment variable value to a number.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function envAsNumber(value: any, defaultValue = 0): number {
-  const numOrNaN = NumberParseInt(value, 10)
+export function envAsNumber(value: unknown, defaultValue = 0): number {
+  const numOrNaN = NumberParseInt(String(value), 10)
   const numMayBeNegZero = NumberIsFinite(numOrNaN)
     ? numOrNaN
     : NumberCtor(defaultValue)
@@ -44,7 +44,7 @@ export function envAsNumber(value: any, defaultValue = 0): number {
  * Convert an environment variable value to a trimmed string.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function envAsString(value: any, defaultValue = ''): string {
+export function envAsString(value: unknown, defaultValue = ''): string {
   if (typeof value === 'string') {
     return value.trim()
   }

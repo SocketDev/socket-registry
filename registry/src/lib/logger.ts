@@ -47,7 +47,7 @@ let _Console: typeof import('console').Console | undefined
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
-function constructConsole(...args: any[]) {
+function constructConsole(...args: unknown[]) {
   if (_Console === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
     // eslint-disable-next-line n/prefer-node-protocol
@@ -71,9 +71,13 @@ function getYoctocolors() {
 }
 
 export const LOG_SYMBOLS = /*@__PURE__*/ (() => {
-  const target: Record<string, string> = { __proto__: null } as any
+  const target: Record<string, string> = {
+    __proto__: null,
+  } as unknown as Record<string, string>
   // Mutable handler to simulate a frozen target.
-  const handler: ProxyHandler<any> = { __proto__: null } as any
+  const handler: ProxyHandler<Record<string, string>> = {
+    __proto__: null,
+  } as unknown as ProxyHandler<Record<string, string>>
   const init = () => {
     const supported =
       /*@__PURE__*/ require('../external/@socketregistry/is-unicode-supported')()
@@ -88,13 +92,15 @@ export const LOG_SYMBOLS = /*@__PURE__*/ (() => {
     // The handler of a Proxy is mutable after proxy instantiation.
     // We delete the traps to defer to native behavior.
     for (const trapName in handler) {
-      delete handler[trapName as keyof ProxyHandler<any>]
+      delete handler[trapName as keyof ProxyHandler<Record<string, string>>]
     }
   }
   for (const trapName of Reflect.ownKeys(Reflect)) {
-    const fn = (Reflect as any)[trapName]
+    const fn = (Reflect as Record<PropertyKey, unknown>)[trapName]
     if (typeof fn === 'function') {
-      ;(handler as any)[trapName] = (...args: any[]) => {
+      ;(handler as Record<string, (...args: unknown[]) => unknown>)[
+        trapName as string
+      ] = (...args: unknown[]) => {
         init()
         return fn(...args)
       }
@@ -164,7 +170,7 @@ export class Logger {
   #lastWasBlank = false
   #logCallCount = 0
 
-  constructor(...args: any[]) {
+  constructor(...args: unknown[]) {
     if (args.length) {
       privateConsole.set(this, constructConsole(...args))
     } else {
@@ -185,7 +191,7 @@ export class Logger {
    * Apply a console method with indentation.
    * @private
    */
-  #apply(methodName: string, args: any[]): this {
+  #apply(methodName: string, args: unknown[]): this {
     const con = privateConsole.get(this)
     const text = args.at(0)
     const hasText = typeof text === 'string'
@@ -214,7 +220,7 @@ export class Logger {
    * Apply a method with a symbol prefix.
    * @private
    */
-  #symbolApply(symbolType: string, args: any[]): this {
+  #symbolApply(symbolType: string, args: unknown[]): this {
     const con = privateConsole.get(this)
     let text = args.at(0)
     let extras
@@ -253,7 +259,7 @@ export class Logger {
   /**
    * Set whether the last logged line was blank.
    */
-  [lastWasBlankSymbol](value: any): this {
+  [lastWasBlankSymbol](value: unknown): this {
     this.#lastWasBlank = !!value
     return this
   }
@@ -261,7 +267,7 @@ export class Logger {
   /**
    * Log an assertion.
    */
-  assert(value: any, ...message: any[]): this {
+  assert(value: unknown, ...message: unknown[]): this {
     const con = privateConsole.get(this)
     con.assert(value, ...message)
     this[lastWasBlankSymbol](false)
@@ -316,7 +322,7 @@ export class Logger {
   /**
    * Display an object's properties.
    */
-  dir(obj: any, options?: any): this {
+  dir(obj: unknown, options?: unknown): this {
     const con = privateConsole.get(this)
     con.dir(obj, options)
     this[lastWasBlankSymbol](false)
@@ -326,7 +332,7 @@ export class Logger {
   /**
    * Display data as XML.
    */
-  dirxml(...data: any[]): this {
+  dirxml(...data: unknown[]): this {
     const con = privateConsole.get(this)
     con.dirxml(data)
     this[lastWasBlankSymbol](false)
@@ -336,7 +342,7 @@ export class Logger {
   /**
    * Log an error message.
    */
-  error(...args: any[]): this {
+  error(...args: unknown[]): this {
     return this.#apply('error', args)
   }
 
@@ -350,14 +356,14 @@ export class Logger {
   /**
    * Log a failure message with symbol.
    */
-  fail(...args: any[]): this {
+  fail(...args: unknown[]): this {
     return this.#symbolApply('fail', args)
   }
 
   /**
    * Start a new log group.
    */
-  group(...label: any[]): this {
+  group(...label: unknown[]): this {
     const { length } = label
     if (length) {
       ReflectApply(this.log, this, label)
@@ -375,7 +381,7 @@ export class Logger {
    */
   // groupCollapsed is an alias of group.
   // https://nodejs.org/api/console.html#consolegroupcollapsed
-  groupCollapsed(...label: any[]): this {
+  groupCollapsed(...label: unknown[]): this {
     return ReflectApply(this.group, this, label)
   }
 
@@ -398,14 +404,14 @@ export class Logger {
   /**
    * Log an info message with symbol.
    */
-  info(...args: any[]): this {
+  info(...args: unknown[]): this {
     return this.#symbolApply('info', args)
   }
 
   /**
    * Log a message.
    */
-  log(...args: any[]): this {
+  log(...args: unknown[]): this {
     return this.#apply('log', args)
   }
 
@@ -427,14 +433,14 @@ export class Logger {
   /**
    * Log a success message with symbol.
    */
-  success(...args: any[]): this {
+  success(...args: unknown[]): this {
     return this.#symbolApply('success', args)
   }
 
   /**
    * Display data in a table format.
    */
-  table(tabularData: any, properties?: readonly string[]): this {
+  table(tabularData: unknown, properties?: readonly string[]): this {
     const con = privateConsole.get(this)
     con.table(tabularData, properties)
     this[lastWasBlankSymbol](false)
@@ -454,7 +460,7 @@ export class Logger {
   /**
    * Log the current timer value.
    */
-  timeLog(label?: string, ...data: any[]): this {
+  timeLog(label?: string, ...data: unknown[]): this {
     const con = privateConsole.get(this)
     con.timeLog(label, ...data)
     this[lastWasBlankSymbol](false)
@@ -464,7 +470,7 @@ export class Logger {
   /**
    * Log a stack trace.
    */
-  trace(message?: any, ...args: any[]): this {
+  trace(message?: unknown, ...args: unknown[]): this {
     const con = privateConsole.get(this)
     con.trace(message, ...args)
     this[lastWasBlankSymbol](false)
@@ -474,7 +480,7 @@ export class Logger {
   /**
    * Log a warning message with symbol.
    */
-  warn(...args: any[]): this {
+  warn(...args: unknown[]): this {
     return this.#symbolApply('warn', args)
   }
 
@@ -514,7 +520,7 @@ Object.defineProperties(
         if (!(Logger.prototype as any)[key] && typeof value === 'function') {
           // Dynamically name the log method without using Object.defineProperty.
           const { [key]: func } = {
-            [key](...args: any[]) {
+            [key](...args: unknown[]) {
               const con = privateConsole.get(this)
               const result = (con as any)[key](...args)
               return result === undefined || result === con ? this : result
