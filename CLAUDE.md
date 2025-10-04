@@ -255,6 +255,12 @@ Use these standardized patterns for consistency across all Socket projects:
   - ❌ FORBIDDEN: `{ foo: 'bar', __proto__: null }` (wrong order)
   - ❌ FORBIDDEN: `{ ...options, __proto__: null }` (wrong order)
   - Use `Map` for dynamic collections
+- **Null-prototype objects**:
+  - ✅ CORRECT: `{ __proto__: null, key: 'value' }` (object literal with properties)
+  - ✅ CORRECT: `{ __proto__: null, ...options }` (spread pattern)
+  - ✅ CORRECT: `const obj = Object.create(null)` (empty object, populate separately)
+  - ❌ WRONG: `const obj = { __proto__: null }` (empty object literal - use `Object.create(null)` instead)
+  - **Rationale**: Use `Object.create(null)` only for empty null-prototype objects; object literals with `__proto__: null` are fine when they have properties
 - **Array destructuring**: Use object notation for tuple access
   - ✅ CORRECT: `{ 0: key, 1: data }`
   - ❌ AVOID: `[key, data]`
