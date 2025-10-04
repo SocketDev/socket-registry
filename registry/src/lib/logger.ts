@@ -196,7 +196,7 @@ export class Logger {
     const text = args.at(0)
     const hasText = typeof text === 'string'
     const logArgs = hasText
-      ? [applyLinePrefix(text, this.#indention), ...args.slice(1)]
+      ? [applyLinePrefix(text, { prefix: this.#indention }), ...args.slice(1)]
       : args
     ReflectApply(con[methodName], con, logArgs)
     this[lastWasBlankSymbol](hasText && isBlankString(logArgs[0]))
@@ -233,7 +233,9 @@ export class Logger {
     }
     // Note: Meta status messages (info/fail/etc) always go to stderr.
     con.error(
-      applyLinePrefix(`${LOG_SYMBOLS[symbolType]} ${text}`, this.#indention),
+      applyLinePrefix(`${LOG_SYMBOLS[symbolType]} ${text}`, {
+        prefix: this.#indention,
+      }),
       ...extras,
     )
     this.#lastWasBlank = false
