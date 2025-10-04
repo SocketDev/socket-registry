@@ -136,9 +136,11 @@ describe('url module', () => {
     it('should handle null/undefined with default', () => {
       expect(urlSearchParamAsBoolean(null)).toBe(false)
       expect(urlSearchParamAsBoolean(undefined)).toBe(false)
-      expect(urlSearchParamAsBoolean(null, true)).toBe(true)
-      expect(urlSearchParamAsBoolean(undefined, true)).toBe(true)
-      expect(urlSearchParamAsBoolean(null, false)).toBe(false)
+      expect(urlSearchParamAsBoolean(null, { defaultValue: true })).toBe(true)
+      expect(urlSearchParamAsBoolean(undefined, { defaultValue: true })).toBe(
+        true,
+      )
+      expect(urlSearchParamAsBoolean(null, { defaultValue: false })).toBe(false)
     })
 
     it('should handle non-string truthy values', () => {
@@ -208,11 +210,15 @@ describe('url module', () => {
     it('should handle missing param with default', () => {
       const url = new URL('https://example.com')
       expect(urlSearchParamsGetBoolean(url.searchParams, 'missing')).toBe(false)
-      expect(urlSearchParamsGetBoolean(url.searchParams, 'missing', true)).toBe(
-        true,
-      )
       expect(
-        urlSearchParamsGetBoolean(url.searchParams, 'missing', false),
+        urlSearchParamsGetBoolean(url.searchParams, 'missing', {
+          defaultValue: true,
+        }),
+      ).toBe(true)
+      expect(
+        urlSearchParamsGetBoolean(url.searchParams, 'missing', {
+          defaultValue: false,
+        }),
       ).toBe(false)
     })
 
@@ -231,7 +237,9 @@ describe('url module', () => {
     it('should handle null/undefined params', () => {
       expect(urlSearchParamsGetBoolean(null, 'key')).toBe(false)
       expect(urlSearchParamsGetBoolean(undefined, 'key')).toBe(false)
-      expect(urlSearchParamsGetBoolean(null, 'key', true)).toBe(true)
+      expect(
+        urlSearchParamsGetBoolean(null, 'key', { defaultValue: true }),
+      ).toBe(true)
     })
   })
 
@@ -242,22 +250,26 @@ describe('url module', () => {
     })
 
     it('should handle base URLs', () => {
-      expect(createRelativeUrl('resource', '/base')).toBe('/base/resource')
-      expect(createRelativeUrl('/resource', '/base/')).toBe('/base/resource')
-      expect(createRelativeUrl('path/resource', '/base')).toBe(
+      expect(createRelativeUrl('resource', { base: '/base' })).toBe(
+        '/base/resource',
+      )
+      expect(createRelativeUrl('/resource', { base: '/base/' })).toBe(
+        '/base/resource',
+      )
+      expect(createRelativeUrl('path/resource', { base: '/base' })).toBe(
         '/base/path/resource',
       )
     })
 
     it('should handle empty inputs', () => {
       expect(createRelativeUrl('')).toBe('')
-      expect(createRelativeUrl('', '/base')).toBe('/base/')
-      expect(createRelativeUrl('resource', '')).toBe('resource')
+      expect(createRelativeUrl('', { base: '/base' })).toBe('/base/')
+      expect(createRelativeUrl('resource', { base: '' })).toBe('resource')
     })
 
     it('should normalize slashes', () => {
-      expect(createRelativeUrl('/path', '/base/')).toBe('/base/path')
-      expect(createRelativeUrl('//path', '/base')).toBe('/base//path')
+      expect(createRelativeUrl('/path', { base: '/base/' })).toBe('/base/path')
+      expect(createRelativeUrl('//path', { base: '/base' })).toBe('/base//path')
     })
   })
 })

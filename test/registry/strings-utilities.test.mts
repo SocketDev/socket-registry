@@ -16,17 +16,17 @@ import {
 describe('strings module - utility functions', () => {
   describe('applyLinePrefix', () => {
     it('should apply prefix to single line', () => {
-      const result = applyLinePrefix('hello', '> ')
+      const result = applyLinePrefix('hello', { prefix: '> ' })
       expect(result).toBe('> hello')
     })
 
     it('should apply prefix to multiple lines', () => {
-      const result = applyLinePrefix('hello\nworld', '> ')
+      const result = applyLinePrefix('hello\nworld', { prefix: '> ' })
       expect(result).toBe('> hello\n> world')
     })
 
     it('should handle empty prefix', () => {
-      const result = applyLinePrefix('hello', '')
+      const result = applyLinePrefix('hello', { prefix: '' })
       expect(result).toBe('hello')
     })
 
@@ -36,7 +36,7 @@ describe('strings module - utility functions', () => {
     })
 
     it('should handle empty string', () => {
-      const result = applyLinePrefix('', '> ')
+      const result = applyLinePrefix('', { prefix: '> ' })
       expect(result).toBe('> ')
     })
   })
@@ -70,22 +70,22 @@ describe('strings module - utility functions', () => {
     })
 
     it('should indent string by custom amount', () => {
-      const result = indentString('hello', 4)
+      const result = indentString('hello', { count: 4 })
       expect(result).toBe('    hello')
     })
 
     it('should indent multiple lines', () => {
-      const result = indentString('hello\nworld', 1)
+      const result = indentString('hello\nworld', { count: 1 })
       expect(result).toBe(' hello\n world')
     })
 
     it('should handle zero indent', () => {
-      const result = indentString('hello', 0)
+      const result = indentString('hello', { count: 0 })
       expect(result).toBe('hello')
     })
 
     it('should handle empty string', () => {
-      const result = indentString('', 2)
+      const result = indentString('', { count: 2 })
       expect(result).toBe('')
     })
   })
@@ -150,12 +150,12 @@ describe('strings module - utility functions', () => {
     })
 
     it('should handle fromIndex parameter', () => {
-      const result = search('hello world world', /world/, 10)
+      const result = search('hello world world', /world/, { fromIndex: 10 })
       expect(result).toBeGreaterThan(10)
     })
 
     it('should handle negative fromIndex', () => {
-      const result = search('hello world', /world/, -5)
+      const result = search('hello world', /world/, { fromIndex: -5 })
       expect(result).toBeGreaterThan(-1)
     })
   })
