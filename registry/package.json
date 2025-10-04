@@ -1334,7 +1334,7 @@
     "@rollup/plugin-node-resolve": "16.0.1",
     "@rollup/plugin-replace": "6.0.2",
     "@socketregistry/is-unicode-supported": "1.0.5",
-    "@socketregistry/packageurl-js": "1.1.6",
+    "@socketregistry/packageurl-js": "1.2.0",
     "@socketregistry/yocto-spinner": "1.0.24",
     "@types/babel__traverse": "7.28.0",
     "@types/cacache": "19.0.0",
