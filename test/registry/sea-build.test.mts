@@ -1,21 +1,31 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Mock the httpRequest module before importing sea-build module.
+vi.mock('../../registry/src/lib/http-request', () => {
+  return {
+    httpRequest: vi.fn(),
+  }
+})
+
+import { httpRequest as httpRequestActual } from '../../registry/src/lib/http-request'
 import {
   getBuildTargets,
   getDefaultNodeVersion,
   getLatestCurrentRelease,
-} from '../../registry/dist/lib/sea-build.js'
+} from '../../registry/src/lib/sea-build'
+
+const httpRequest = httpRequestActual as unknown as ReturnType<typeof vi.fn>
 
 describe('sea-build module', () => {
   let originalEnv: NodeJS.ProcessEnv
 
   beforeEach(() => {
     originalEnv = { ...process.env }
+    vi.clearAllMocks()
   })
 
   afterEach(() => {
     process.env = originalEnv
-    vi.unstubAllGlobals()
   })
 
   describe('getDefaultNodeVersion', () => {
@@ -28,14 +38,19 @@ describe('sea-build module', () => {
     it('should fetch latest when env var not set', async () => {
       delete process.env['SOCKET_SEA_NODE_VERSION']
 
-      vi.stubGlobal('fetch', async () => ({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(
+          JSON.stringify([
+            { version: 'v24.8.0' },
+            { version: 'v23.0.0' },
+            { version: 'v22.0.0' },
+          ]),
+        ),
+        headers: {},
         ok: true,
-        json: async () => [
-          { version: 'v24.8.0' },
-          { version: 'v23.0.0' },
-          { version: 'v22.0.0' },
-        ],
-      }))
+        status: 200,
+        statusText: 'OK',
+      })
 
       const version = await getDefaultNodeVersion()
       expect(version).toBe('24.8.0')
@@ -44,72 +59,93 @@ describe('sea-build module', () => {
 
   describe('getLatestCurrentRelease', () => {
     it('should fetch and parse latest even-numbered version', async () => {
-      vi.stubGlobal('fetch', async () => ({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(
+          JSON.stringify([
+            { version: 'v26.1.0' },
+            { version: 'v25.0.0' },
+            { version: 'v24.8.0' },
+            { version: 'v23.0.0' },
+            { version: 'v22.0.0' },
+          ]),
+        ),
+        headers: {},
         ok: true,
-        json: async () => [
-          { version: 'v26.1.0' },
-          { version: 'v25.0.0' },
-          { version: 'v24.8.0' },
-          { version: 'v23.0.0' },
-          { version: 'v22.0.0' },
-        ],
-      }))
+        status: 200,
+        statusText: 'OK',
+      })
 
       const version = await getLatestCurrentRelease()
       expect(version).toBe('26.1.0')
     })
 
     it('should filter out odd-numbered versions', async () => {
-      vi.stubGlobal('fetch', async () => ({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(
+          JSON.stringify([
+            { version: 'v25.0.0' },
+            { version: 'v24.8.0' },
+            { version: 'v23.0.0' },
+          ]),
+        ),
+        headers: {},
         ok: true,
-        json: async () => [
-          { version: 'v25.0.0' },
-          { version: 'v24.8.0' },
-          { version: 'v23.0.0' },
-        ],
-      }))
+        status: 200,
+        statusText: 'OK',
+      })
 
       const version = await getLatestCurrentRelease()
       expect(version).toBe('24.8.0')
     })
 
     it('should filter out versions below v24', async () => {
-      vi.stubGlobal('fetch', async () => ({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(
+          JSON.stringify([
+            { version: 'v22.0.0' },
+            { version: 'v20.0.0' },
+            { version: 'v18.0.0' },
+          ]),
+        ),
+        headers: {},
         ok: true,
-        json: async () => [
-          { version: 'v22.0.0' },
-          { version: 'v20.0.0' },
-          { version: 'v18.0.0' },
-        ],
-      }))
+        status: 200,
+        statusText: 'OK',
+      })
 
       const version = await getLatestCurrentRelease()
       expect(version).toBe('24.8.0')
     })
 
     it('should fallback to 24.8.0 when no suitable version found', async () => {
-      vi.stubGlobal('fetch', async () => ({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(
+          JSON.stringify([{ version: 'v21.0.0' }, { version: 'v19.0.0' }]),
+        ),
+        headers: {},
         ok: true,
-        json: async () => [{ version: 'v21.0.0' }, { version: 'v19.0.0' }],
-      }))
+        status: 200,
+        statusText: 'OK',
+      })
 
       const version = await getLatestCurrentRelease()
       expect(version).toBe('24.8.0')
     })
 
     it('should throw error on fetch failure', async () => {
-      vi.stubGlobal('fetch', async () => ({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(''),
+        headers: {},
         ok: false,
+        status: 404,
         statusText: 'Not Found',
-      }))
+      })
 
       await expect(getLatestCurrentRelease()).rejects.toThrow('Failed to fetch')
     })
 
     it('should throw error on network error', async () => {
-      vi.stubGlobal('fetch', async () => {
-        throw new Error('Network error')
-      })
+      httpRequest.mockRejectedValue(new Error('Network error'))
 
       await expect(getLatestCurrentRelease()).rejects.toThrow(
         'Failed to fetch latest Node.js Current release',
@@ -117,10 +153,15 @@ describe('sea-build module', () => {
     })
 
     it('should handle invalid version format', async () => {
-      vi.stubGlobal('fetch', async () => ({
+      httpRequest.mockResolvedValue({
+        body: Buffer.from(
+          JSON.stringify([{ version: 'invalid' }, { version: 'v24.8.0' }]),
+        ),
+        headers: {},
         ok: true,
-        json: async () => [{ version: 'invalid' }, { version: 'v24.8.0' }],
-      }))
+        status: 200,
+        statusText: 'OK',
+      })
 
       const version = await getLatestCurrentRelease()
       expect(version).toBe('24.8.0')
