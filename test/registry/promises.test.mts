@@ -100,7 +100,7 @@ describe('promises module', () => {
           await new Promise(r => setTimeout(r, 20))
           concurrent--
         },
-        { chunkSize: 2, concurrency: 2 },
+        { chunkSize: 2 },
       )
       expect(maxConcurrent).toBeLessThanOrEqual(2)
     })
@@ -367,17 +367,17 @@ describe('promises module', () => {
       expect(attempts).toBe(3)
     })
 
-    it('should handle randomize option', async () => {
+    it('should handle jitter option', async () => {
       let attempts = 0
       await expect(
         pRetry(
           async () => {
             attempts++
-            throw new Error('randomize test')
+            throw new Error('jitter test')
           },
-          { retries: 1, randomize: true, minTimeout: 1 },
+          { retries: 1, jitter: true, minTimeout: 1 },
         ),
-      ).rejects.toThrow('randomize test')
+      ).rejects.toThrow('jitter test')
       expect(attempts).toBe(2)
     })
   })
