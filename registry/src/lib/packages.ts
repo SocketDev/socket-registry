@@ -4,20 +4,14 @@
  */
 
 import { createCompositeAbortSignal, createTimeoutSignal } from './abort'
-import LOOP_SENTINEL from './constants/LOOP_SENTINEL'
 import NPM_REGISTRY_URL from './constants/NPM_REGISTRY_URL'
 import REGISTRY_SCOPE_DELIMITER from './constants/REGISTRY_SCOPE_DELIMITER'
-import SOCKET_GITHUB_ORG from './constants/SOCKET_GITHUB_ORG'
-import SOCKET_REGISTRY_REPO_NAME from './constants/SOCKET_REGISTRY_REPO_NAME'
 import abortSignal from './constants/abort-signal'
-import copyLeftLicenses from './constants/copy-left-licenses'
-import packageDefaultNodeRange from './constants/package-default-node-range'
-import PACKAGE_DEFAULT_SOCKET_CATEGORIES from './constants/package-default-socket-categories'
 import packageExtensions from './constants/package-extensions'
 import packumentCache from './constants/packument-cache'
 import pacoteCachePath from './constants/pacote-cache-path'
 import { readJson, readJsonSync } from './fs'
-import { isObjectObject, merge, objectEntries } from './objects'
+import { isObjectObject, merge } from './objects'
 import {
   findTypesForSubpath,
   getExportFilePaths,
@@ -26,6 +20,21 @@ import {
   isSubpathExports,
   resolvePackageJsonEntryExports,
 } from './packages/exports'
+import {
+  collectIncompatibleLicenses,
+  collectLicenseWarnings,
+  createAstNode,
+  createBinaryOperationNode,
+  createLicenseNode,
+  parseSpdxExp,
+  resolvePackageLicenses,
+  visitLicenses,
+} from './packages/licenses'
+import {
+  createPackageJson,
+  fetchPackageManifest,
+  fetchPackagePackument,
+} from './packages/manifest'
 import {
   normalizePackageJson,
   resolveEscapedScope,
@@ -48,7 +57,7 @@ import {
   isRegistryFetcherType,
   isValidPackageName,
 } from './packages/validation'
-import { isNodeModules, normalizePath } from './path'
+import { isNodeModules } from './path'
 import { parseUrl } from './url'
 
 import type { CategoryString } from '../index'
@@ -127,19 +136,9 @@ export type PacoteOptions = {
 // `exports.SomeName = void 0;` which causes runtime errors.
 // See: https://github.com/SocketDev/socket-packageurl-js/issues/3
 const ArrayIsArray = Array.isArray
-// IMPORTANT: Do not use destructuring here - use direct assignment instead.
-// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
-// `exports.SomeName = void 0;` which causes runtime errors.
-// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
-const ObjectHasOwn = Object.hasOwn
 
-const BINARY_OPERATION_NODE_TYPE = 'BinaryOperation'
-const LICENSE_NODE_TYPE = 'License'
 const SLSA_PROVENANCE_V0_2 = 'https://slsa.dev/provenance/v0.2'
 const SLSA_PROVENANCE_V1_0 = 'https://slsa.dev/provenance/v1'
-
-const fileReferenceRegExp = /^SEE LICEN[CS]E IN (.+)$/
-const pkgScopePrefixRegExp = /^@socketregistry\//
 
 const identSymbol = Symbol.for('indent')
 const newlineSymbol = Symbol.for('newline')
@@ -616,26 +615,6 @@ function getSemver() {
   return _semver!
 }
 
-let _spdxCorrect: typeof import('spdx-correct') | undefined
-/*@__NO_SIDE_EFFECTS__*/
-function getSpdxCorrect() {
-  if (_spdxCorrect === undefined) {
-    // The 'spdx-correct' package is browser safe.
-    _spdxCorrect = /*@__PURE__*/ require('../external/spdx-correct')
-  }
-  return _spdxCorrect!
-}
-
-let _spdxExpParse: typeof import('spdx-expression-parse') | undefined
-/*@__NO_SIDE_EFFECTS__*/
-function getSpdxExpParse() {
-  if (_spdxExpParse === undefined) {
-    // The 'spdx-expression-parse' package is browser safe.
-    _spdxExpParse = /*@__PURE__*/ require('../external/spdx-expression-parse')
-  }
-  return _spdxExpParse!
-}
-
 let _util: typeof import('util') | undefined
 /*@__NO_SIDE_EFFECTS__*/
 function getUtil() {
@@ -645,188 +624,6 @@ function getUtil() {
     _util = /*@__PURE__*/ require('util')
   }
   return _util!
-}
-
-/**
- * Collect licenses that are incompatible (copyleft).
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function collectIncompatibleLicenses(
-  licenseNodes: LicenseNode[],
-): LicenseNode[] {
-  const result = []
-  for (let i = 0, { length } = licenseNodes; i < length; i += 1) {
-    const node = licenseNodes[i]
-    if (node && copyLeftLicenses.has(node.license)) {
-      result.push(node)
-    }
-  }
-  return result
-}
-
-/**
- * Collect warnings from license nodes.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function collectLicenseWarnings(licenseNodes: LicenseNode[]): string[] {
-  const warnings = new Map()
-  for (let i = 0, { length } = licenseNodes; i < length; i += 1) {
-    const node = licenseNodes[i]
-    if (!node) {
-      continue
-    }
-    const { license } = node
-    if (license === 'UNLICENSED') {
-      warnings.set('UNLICENSED', `Package is unlicensed`)
-    } else if (node.inFile !== undefined) {
-      warnings.set('IN_FILE', `License terms specified in ${node.inFile}`)
-    }
-  }
-  return [...warnings.values()]
-}
-
-/**
- * Create an AST node from a raw node.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function createAstNode(rawNode: SpdxAstNode): InternalAstNode {
-  return ObjectHasOwn(rawNode, 'license')
-    ? createLicenseNode(rawNode as SpdxLicenseNode)
-    : createBinaryOperationNode(rawNode as SpdxBinaryOperationNode)
-}
-
-/**
- * Create a binary operation AST node.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function createBinaryOperationNode(
-  rawNodeParam: SpdxBinaryOperationNode,
-): InternalBinaryOperationNode {
-  let left: InternalAstNode | undefined
-  let right: InternalAstNode | undefined
-  let rawLeft: SpdxAstNode | undefined = rawNodeParam.left
-  let rawRight: SpdxAstNode | undefined = rawNodeParam.right
-  const { conjunction } = rawNodeParam
-  // Clear the reference to help with memory management.
-  return {
-    __proto__: null,
-    type: BINARY_OPERATION_NODE_TYPE as 'BinaryOperation',
-    get left() {
-      if (left === undefined) {
-        left = createAstNode(rawLeft!)
-        rawLeft = undefined
-      }
-      return left
-    },
-    conjunction,
-    get right() {
-      if (right === undefined) {
-        right = createAstNode(rawRight!)
-        rawRight = undefined
-      }
-      return right
-    },
-  } as InternalBinaryOperationNode
-}
-
-/**
- * Create a license AST node.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function createLicenseNode(
-  rawNode: SpdxLicenseNode,
-): InternalLicenseNode {
-  return {
-    __proto__: null,
-    ...rawNode,
-    type: LICENSE_NODE_TYPE as 'License',
-  } as InternalLicenseNode
-}
-
-/**
- * Create a package.json object for a Socket registry package.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function createPackageJson(
-  sockRegPkgName: string,
-  directory: string,
-  options?: PackageJson | undefined,
-): PackageJson {
-  const {
-    dependencies,
-    description,
-    engines,
-    exports: entryExportsRaw,
-    files,
-    keywords,
-    main,
-    overrides,
-    resolutions,
-    sideEffects,
-    socket,
-    type,
-    version,
-  } = { __proto__: null, ...options } as PackageJson
-  const name = `@socketregistry/${sockRegPkgName.replace(pkgScopePrefixRegExp, '')}`
-  const entryExports = resolvePackageJsonEntryExports(entryExportsRaw)
-  const githubUrl = `https://github.com/${SOCKET_GITHUB_ORG}/${SOCKET_REGISTRY_REPO_NAME}`
-  return {
-    __proto__: null,
-    name,
-    version,
-    license: 'MIT',
-    description,
-    keywords,
-    homepage: `${githubUrl}/tree/main/${directory}`,
-    repository: {
-      type: 'git',
-      url: `git+${githubUrl}.git`,
-      directory,
-    },
-    ...(type ? { type } : {}),
-    ...(entryExports ? { exports: { ...entryExports } } : {}),
-    ...(entryExports ? {} : { main: `${main ?? './index.js'}` }),
-    sideEffects: sideEffects !== undefined && !!sideEffects,
-    ...(isObjectObject(dependencies)
-      ? { dependencies: { ...dependencies } }
-      : {}),
-    ...(isObjectObject(overrides) ? { overrides: { ...overrides } } : {}),
-    ...(isObjectObject(resolutions) ? { resolutions: { ...resolutions } } : {}),
-    ...(isObjectObject(engines)
-      ? {
-          engines: Object.fromEntries(
-            objectEntries(engines).map((pair: [PropertyKey, any]) => {
-              const strKey = String(pair[0])
-              const result: [string, any] = [strKey, pair[1]]
-              if (strKey === 'node') {
-                const semver = getSemver()
-                const { 1: range } = result
-                if (
-                  !semver.satisfies(
-                    // Roughly check Node range as semver.coerce will strip leading
-                    // v's, carets (^), comparators (<,<=,>,>=,=), and tildes (~).
-                    semver.coerce(range) || '0.0.0',
-                    packageDefaultNodeRange,
-                  )
-                ) {
-                  result[1] = packageDefaultNodeRange
-                }
-              }
-              return result
-            }),
-          ),
-        }
-      : { engines: { node: packageDefaultNodeRange } }),
-    files: ArrayIsArray(files) ? files.slice() : ['*.d.ts', '*.js'],
-    ...(isObjectObject(socket)
-      ? { socket: { ...socket } }
-      : {
-          socket: {
-            // Valid categories are: cleanup, levelup, speedup, tuneup
-            categories: PACKAGE_DEFAULT_SOCKET_CATEGORIES,
-          },
-        }),
-  } as PackageJson
 }
 
 /**
@@ -872,70 +669,6 @@ export async function extractPackage(
       },
     )
   }
-}
-
-/**
- * Fetch the manifest for a package.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export async function fetchPackageManifest(
-  pkgNameOrId: string,
-  options?: PacoteOptions,
-): Promise<any> {
-  const pacoteOptions = {
-    __proto__: null,
-    signal: abortSignal,
-    ...options,
-    packumentCache,
-    preferOffline: true,
-  } as PacoteOptions & { where?: string }
-  const { signal } = pacoteOptions
-  if (signal?.aborted) {
-    return undefined
-  }
-  const pacote = getPacote()
-  let result
-  try {
-    result = await pacote.manifest(pkgNameOrId, pacoteOptions)
-  } catch {}
-  if (signal?.aborted) {
-    return undefined
-  }
-  if (result) {
-    const npmPackageArg = getNpmPackageArg()
-    const spec = npmPackageArg(pkgNameOrId, pacoteOptions.where)
-    if (isRegistryFetcherType(spec.type)) {
-      return result
-    }
-  }
-  // Convert a manifest not fetched by RegistryFetcher to one that is.
-  return result
-    ? await fetchPackageManifest(
-        `${result.name}@${result.version}`,
-        pacoteOptions,
-      )
-    : null
-}
-
-/**
- * Fetch the packument (package document) for a package.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export async function fetchPackagePackument(
-  pkgNameOrId: string,
-  options?: PacoteOptions,
-): Promise<any> {
-  const pacote = getPacote()
-  try {
-    return await pacote.packument(pkgNameOrId, {
-      __proto__: null,
-      signal: abortSignal,
-      ...options,
-      packumentCache,
-      preferOffline: true,
-    })
-  } catch {}
-  return undefined
 }
 
 /**
@@ -1212,49 +945,6 @@ export async function packPackage(
   } as PacoteOptions)
 }
 
-// Duplicated from spdx-expression-parse - AST node types.
-export interface SpdxLicenseNode {
-  license: string
-  plus?: boolean | undefined
-  exception?: string | undefined
-}
-
-export interface SpdxBinaryOperationNode {
-  left: SpdxLicenseNode | SpdxBinaryOperationNode
-  conjunction: 'and' | 'or'
-  right: SpdxLicenseNode | SpdxBinaryOperationNode
-}
-
-export type SpdxAstNode = SpdxLicenseNode | SpdxBinaryOperationNode
-
-// Internal AST node types with type discriminator.
-export interface InternalLicenseNode extends SpdxLicenseNode {
-  type: 'License'
-}
-
-export interface InternalBinaryOperationNode {
-  type: 'BinaryOperation'
-  left: InternalLicenseNode | InternalBinaryOperationNode
-  conjunction: 'and' | 'or'
-  right: InternalLicenseNode | InternalBinaryOperationNode
-}
-
-export type InternalAstNode = InternalLicenseNode | InternalBinaryOperationNode
-
-/**
- * Parse an SPDX license expression into an AST.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function parseSpdxExp(spdxExp: string): SpdxAstNode | undefined {
-  const spdxExpParse = getSpdxExpParse()
-  try {
-    return spdxExpParse(spdxExp)
-  } catch {}
-  const spdxCorrect = getSpdxCorrect()
-  const corrected = spdxCorrect(spdxExp)
-  return corrected ? spdxExpParse(corrected) : undefined
-}
-
 /**
  * Read and parse a package.json file asynchronously.
  */
@@ -1378,60 +1068,6 @@ export async function resolveGitHubTgzUrl(
 }
 
 /**
- * Parse package license field into structured license nodes.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function resolvePackageLicenses(
-  licenseFieldValue: string,
-  where: string,
-): LicenseNode[] {
-  // Based off of validate-npm-package-license which npm, by way of normalize-package-data,
-  // uses to validate license field values:
-  // https://github.com/kemitchell/validate-npm-package-license.js/blob/v3.0.4/index.js#L40-L41
-  if (
-    licenseFieldValue === 'UNLICENSED' ||
-    licenseFieldValue === 'UNLICENCED'
-  ) {
-    return [{ license: 'UNLICENSED' }]
-  }
-  // Match "SEE LICENSE IN <relativeFilepathToLicense>"
-  // https://github.com/kemitchell/validate-npm-package-license.js/blob/v3.0.4/index.js#L48-L53
-  const match = fileReferenceRegExp.exec(licenseFieldValue)
-  if (match) {
-    const path = getPath()
-    return [
-      {
-        license: licenseFieldValue,
-        inFile: normalizePath(path.relative(where, match[1] || '')),
-      },
-    ]
-  }
-  const licenseNodes: InternalLicenseNode[] = []
-  const ast = parseSpdxExp(licenseFieldValue)
-  if (ast) {
-    // SPDX expressions are valid, too except if they contain "LicenseRef" or
-    // "DocumentRef". If the licensing terms cannot be described with standardized
-    // SPDX identifiers, then the terms should be put in a file in the package
-    // and the license field should point users there, e.g. "SEE LICENSE IN LICENSE.txt".
-    // https://github.com/kemitchell/validate-npm-package-license.js/blob/v3.0.4/index.js#L18-L24
-    visitLicenses(ast, {
-      License(node: InternalLicenseNode) {
-        const { license } = node
-        if (
-          license.startsWith('LicenseRef') ||
-          license.startsWith('DocumentRef')
-        ) {
-          licenseNodes.length = 0
-          return false
-        }
-        licenseNodes.push(node)
-      },
-    })
-  }
-  return licenseNodes
-}
-
-/**
  * Resolve full package name from a PURL object with custom delimiter.
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -1520,72 +1156,25 @@ export function toEditablePackageJsonSync(
   )
 }
 
-export interface LicenseVisitor {
-  License?: (
-    node: InternalLicenseNode,
-    parent?: InternalAstNode,
-  ) => boolean | void
-  BinaryOperation?: (
-    node: InternalBinaryOperationNode,
-    parent?: InternalAstNode,
-  ) => boolean | void
-}
-
-/**
- * Traverse SPDX license AST and invoke visitor callbacks for each node.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function visitLicenses(ast: SpdxAstNode, visitor: LicenseVisitor): void {
-  const queue: Array<[InternalAstNode, InternalAstNode | undefined]> = [
-    [createAstNode(ast), undefined],
-  ]
-  let pos = 0
-  let { length: queueLength } = queue
-  while (pos < queueLength) {
-    if (pos === LOOP_SENTINEL) {
-      throw new Error('Detected infinite loop in ast crawl of visitLicenses')
-    }
-    // AST nodes can be a license node which looks like
-    //   {
-    //     license: string
-    //     plus?: boolean
-    //     exception?: string
-    //   }
-    // or a binary operation node which looks like
-    //   {
-    //     left: License | BinaryOperation
-    //     conjunction: string
-    //     right: License | BinaryOperation
-    //   }
-    const { 0: node, 1: parent } = queue[pos++]!
-    const { type } = node
-    if (typeof visitor[type] === 'function' && ObjectHasOwn(visitor, type)) {
-      if (type === LICENSE_NODE_TYPE) {
-        const licenseVisitor = visitor.License
-        if (
-          licenseVisitor &&
-          licenseVisitor(node as InternalLicenseNode, parent) === false
-        ) {
-          break
-        }
-      } else if (type === BINARY_OPERATION_NODE_TYPE) {
-        const binaryOpVisitor = visitor.BinaryOperation
-        if (
-          binaryOpVisitor &&
-          binaryOpVisitor(node as InternalBinaryOperationNode, parent) === false
-        ) {
-          break
-        }
-      }
-    }
-    if (type === BINARY_OPERATION_NODE_TYPE) {
-      queue[queueLength++] = [node.left, node]
-      queue[queueLength++] = [node.right, node]
-    }
-  }
-}
+export type {
+  InternalAstNode,
+  InternalBinaryOperationNode,
+  InternalLicenseNode,
+  LicenseVisitor,
+  SpdxAstNode,
+  SpdxBinaryOperationNode,
+  SpdxLicenseNode,
+} from './packages/licenses'
 
 export {
+  collectIncompatibleLicenses,
+  collectLicenseWarnings,
+  createAstNode,
+  createBinaryOperationNode,
+  createLicenseNode,
+  createPackageJson,
+  fetchPackageManifest,
+  fetchPackagePackument,
   findTypesForSubpath,
   getExportFilePaths,
   getRepoUrlDetails,
@@ -1600,10 +1189,13 @@ export {
   isSubpathExports,
   isValidPackageName,
   normalizePackageJson,
+  parseSpdxExp,
   resolveEscapedScope,
   resolveOriginalPackageName,
   resolvePackageJsonDirname,
   resolvePackageJsonPath,
   resolvePackageJsonEntryExports,
+  resolvePackageLicenses,
   unescapeScope,
+  visitLicenses,
 }
