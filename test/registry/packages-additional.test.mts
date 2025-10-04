@@ -160,6 +160,66 @@ describe('packages module additional coverage', () => {
       const instance = new EditablePackageJson()
       expect(instance).toBeDefined()
     })
+
+    it('should have static methods', () => {
+      const EditablePackageJson = getEditablePackageJsonClass()
+      expect(typeof EditablePackageJson.create).toBe('function')
+      expect(typeof EditablePackageJson.load).toBe('function')
+      expect(Array.isArray(EditablePackageJson.fixSteps)).toBe(true)
+      expect(Array.isArray(EditablePackageJson.normalizeSteps)).toBe(true)
+      expect(Array.isArray(EditablePackageJson.prepareSteps)).toBe(true)
+    })
+
+    it('should have instance methods', () => {
+      const EditablePackageJson = getEditablePackageJsonClass()
+      const instance = new EditablePackageJson()
+      expect(typeof instance.fromContent).toBe('function')
+      expect(typeof instance.update).toBe('function')
+      expect(typeof instance.save).toBe('function')
+      expect(typeof instance.saveSync).toBe('function')
+    })
+
+    it('should create instance with fromContent', () => {
+      const EditablePackageJson = getEditablePackageJsonClass()
+      const instance = new EditablePackageJson()
+      const pkg = { name: 'test-pkg', version: '1.0.0' }
+      instance.fromContent(pkg)
+      expect(instance.content.name).toBe('test-pkg')
+      expect(instance.content.version).toBe('1.0.0')
+    })
+
+    it('should update content with update method', () => {
+      const EditablePackageJson = getEditablePackageJsonClass()
+      const instance = new EditablePackageJson()
+      instance.fromContent({ name: 'test', version: '1.0.0' })
+      instance.update({ version: '2.0.0', description: 'Updated' })
+      expect(instance.content.version).toBe('2.0.0')
+      expect(instance.content.description).toBe('Updated')
+    })
+
+    it('should parse JSON string with fromJSON', () => {
+      const EditablePackageJson = getEditablePackageJsonClass()
+      const instance = new EditablePackageJson()
+      const json = JSON.stringify({ name: 'json-test', version: '1.0.0' })
+      instance.fromJSON(json)
+      expect(instance.content.name).toBe('json-test')
+    })
+
+    it('should get filename property', () => {
+      const EditablePackageJson = getEditablePackageJsonClass()
+      const instance = new EditablePackageJson()
+      instance.create('/test/path')
+      const filename = instance.filename
+      expect(filename).toContain('package.json')
+    })
+
+    it('should handle willSave check', () => {
+      const EditablePackageJson = getEditablePackageJsonClass()
+      const instance = new EditablePackageJson()
+      instance.fromContent({ name: 'test', version: '1.0.0' })
+      const willSave = instance.willSave()
+      expect(typeof willSave).toBe('boolean')
+    })
   })
 
   describe('pkgJsonToEditable', () => {
