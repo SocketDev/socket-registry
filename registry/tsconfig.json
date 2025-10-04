@@ -24,7 +24,9 @@
     "useUnknownInCatchVariables": true,
     "verbatimModuleSyntax": false,
     "allowSyntheticDefaultImports": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts"],
   "exclude": ["node_modules", "dist", "lib", "test", "src/external/**/*"]
