@@ -724,7 +724,9 @@ describe('dependencies/validation', () => {
 
 describe('dependencies/index', () => {
   it('resetDependencies calls all reset functions', () => {
-    const uniqueMockSemver = { valid: () => 'unique-mock-value' } as unknown as Semver
+    const uniqueMockSemver = {
+      valid: () => 'unique-mock-value',
+    } as unknown as Semver
     const uniqueMockLogger: Logger = {
       dir: () => {},
       error: () => {},
