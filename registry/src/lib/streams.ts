@@ -5,7 +5,22 @@
 
 import { normalizeIterationOptions, pRetry } from './promises'
 
-let _streamingIterables: any
+import type { IterationOptions } from './promises'
+
+let _streamingIterables:
+  | {
+      parallelMap: <T, U>(
+        concurrency: number,
+        mapper: (item: T) => Promise<U>,
+        iterable: Iterable<T> | AsyncIterable<T>,
+      ) => AsyncIterable<U>
+      transform: <T, U>(
+        concurrency: number,
+        mapper: (item: T) => Promise<U>,
+        iterable: Iterable<T> | AsyncIterable<T>,
+      ) => AsyncIterable<U>
+    }
+  | undefined
 /**
  * Get the streaming-iterables module.
  * @private
@@ -25,8 +40,8 @@ function getStreamingIterables() {
 /*@__NO_SIDE_EFFECTS__*/
 export async function parallelEach<T>(
   iterable: Iterable<T> | AsyncIterable<T>,
-  func: (item: T) => Promise<any>,
-  options?: any,
+  func: (item: T) => Promise<unknown>,
+  options?: number | IterationOptions,
 ): Promise<void> {
   for await (const _ of parallelMap(iterable, func, options)) {
     /* empty block */
@@ -40,17 +55,19 @@ export async function parallelEach<T>(
 export function parallelMap<T, U>(
   iterable: Iterable<T> | AsyncIterable<T>,
   func: (item: T) => Promise<U>,
-  options?: any,
+  options?: number | IterationOptions,
 ): AsyncIterable<U> {
   const streamingIterables = getStreamingIterables()
   const opts = normalizeIterationOptions(options)
-  return streamingIterables.parallelMap(
+  return streamingIterables!.parallelMap(
     opts.concurrency,
-    (item: T) =>
-      pRetry(func, {
+    async (item: T) => {
+      const result = await pRetry((...args: unknown[]) => func(args[0] as T), {
         ...opts.retries,
         args: [item],
-      }),
+      })
+      return result!
+    },
     iterable,
   )
 }
@@ -62,17 +79,19 @@ export function parallelMap<T, U>(
 export function transform<T, U>(
   iterable: Iterable<T> | AsyncIterable<T>,
   func: (item: T) => Promise<U>,
-  options?: any,
+  options?: number | IterationOptions,
 ): AsyncIterable<U> {
   const streamingIterables = getStreamingIterables()
   const opts = normalizeIterationOptions(options)
-  return streamingIterables.transform(
+  return streamingIterables!.transform(
     opts.concurrency,
-    (item: T) =>
-      pRetry(func, {
+    async (item: T) => {
+      const result = await pRetry((...args: unknown[]) => func(args[0] as T), {
         ...opts.retries,
         args: [item],
-      }),
+      })
+      return result!
+    },
     iterable,
   )
 }

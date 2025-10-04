@@ -49,13 +49,15 @@ export type Separator = SeparatorType
  * Wrap an inquirer prompt with spinner handling and signal injection.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function wrapPrompt(
-  inquirerPrompt: (...args: any[]) => Promise<any>,
-): (...args: any[]) => Promise<any> {
+export function wrapPrompt<T = unknown>(
+  inquirerPrompt: (...args: unknown[]) => Promise<T>,
+): (...args: unknown[]) => Promise<T | undefined> {
   return async (...args) => {
-    const origContext = args.length > 1 ? args[1] : undefined
+    const origContext = (args.length > 1 ? args[1] : undefined) as
+      | Context
+      | undefined
     const { spinner: contextSpinner, ...contextWithoutSpinner } =
-      origContext ?? {}
+      origContext ?? ({} as Context)
     const spinnerInstance =
       contextSpinner !== undefined ? contextSpinner : spinner
     const signal = abortSignal
@@ -80,7 +82,9 @@ export function wrapPrompt(
     if (wasSpinning) {
       spinnerInstance.start()
     }
-    return typeof result === 'string' ? result.trim() : result
+    return (typeof result === 'string' ? result.trim() : result) as
+      | T
+      | undefined
   }
 }
 

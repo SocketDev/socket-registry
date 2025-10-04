@@ -7,6 +7,28 @@ import { arrayChunk } from './arrays'
 import UNDEFINED_TOKEN from './constants/UNDEFINED_TOKEN'
 import abortSignal from './constants/abort-signal'
 
+export interface RetryOptions {
+  args?: unknown[]
+  backoffFactor?: number
+  baseDelayMs?: number
+  factor?: number
+  jitter?: boolean
+  maxDelayMs?: number
+  maxTimeout?: number
+  minTimeout?: number
+  onRetry?: (attempt: number, error: unknown, delay: number) => boolean | void
+  onRetryCancelOnFalse?: boolean
+  onRetryRethrow?: boolean
+  retries?: number
+  signal?: AbortSignal
+}
+
+export interface IterationOptions {
+  concurrency?: number
+  retries?: number | RetryOptions
+  signal?: AbortSignal
+}
+
 let _timers: typeof import('node:timers/promises') | undefined
 /**
  * Get the timers/promises module.
@@ -27,10 +49,8 @@ function getTimers() {
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function normalizeIterationOptions(
-  options?:
-    | number
-    | { concurrency?: number; retries?: any; signal?: AbortSignal },
-): { concurrency: number; retries: any; signal: AbortSignal } {
+  options?: number | IterationOptions,
+): { concurrency: number; retries: RetryOptions; signal: AbortSignal } {
   // Handle number as concurrency shorthand
   const opts = typeof options === 'number' ? { concurrency: options } : options
 
@@ -41,11 +61,7 @@ export function normalizeIterationOptions(
     retries,
     // AbortSignal used to support cancellation.
     signal = abortSignal,
-  } = { __proto__: null, ...opts } as {
-    concurrency?: number
-    retries?: any
-    signal?: AbortSignal
-  }
+  } = { __proto__: null, ...opts } as IterationOptions
 
   // Ensure concurrency is at least 1
   const normalizedConcurrency = Math.max(1, concurrency)
@@ -55,14 +71,16 @@ export function normalizeIterationOptions(
     concurrency: normalizedConcurrency,
     retries: normalizeRetryOptions({ signal, ...retryOpts }),
     signal,
-  } as { concurrency: number; retries: any; signal: AbortSignal }
+  } as { concurrency: number; retries: RetryOptions; signal: AbortSignal }
 }
 
 /**
  * Normalize options for retry functionality.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function normalizeRetryOptions(options?: any): any {
+export function normalizeRetryOptions(
+  options?: number | RetryOptions,
+): RetryOptions {
   const resolved = resolveRetryOptions(options)
   const {
     // Arguments to pass to the callback function.
@@ -88,7 +106,6 @@ export function normalizeRetryOptions(options?: any): any {
     signal = abortSignal,
   } = resolved
   return {
-    __proto__: null,
     args,
     backoffFactor,
     baseDelayMs,
@@ -101,14 +118,16 @@ export function normalizeRetryOptions(options?: any): any {
     onRetryRethrow,
     retries,
     signal,
-  }
+  } as RetryOptions
 }
 
 /**
  * Resolve retry options from various input formats.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function resolveRetryOptions(options?: number | any): any {
+export function resolveRetryOptions(
+  options?: number | RetryOptions,
+): RetryOptions {
   const defaults = {
     __proto__: null,
     retries: 0,
@@ -130,10 +149,8 @@ export function resolveRetryOptions(options?: number | any): any {
 /*@__NO_SIDE_EFFECTS__*/
 export async function pEach<T>(
   array: T[],
-  callbackFn: (item: T) => Promise<any>,
-  options?:
-    | number
-    | { concurrency?: number; retries?: any; signal?: AbortSignal },
+  callbackFn: (item: T) => Promise<unknown>,
+  options?: number | IterationOptions,
 ): Promise<void> {
   const iterOpts = normalizeIterationOptions(options)
   const { concurrency, retries, signal } = iterOpts
@@ -148,7 +165,7 @@ export async function pEach<T>(
     // eslint-disable-next-line no-await-in-loop
     await Promise.all(
       chunk.map((item: T) =>
-        pRetry(callbackFn, {
+        pRetry((...args: unknown[]) => callbackFn(args[0] as T), {
           ...retries,
           args: [item],
           signal,
@@ -165,9 +182,7 @@ export async function pEach<T>(
 export async function pFilter<T>(
   array: T[],
   callbackFn: (item: T) => Promise<boolean>,
-  options?:
-    | number
-    | { concurrency?: number; retries?: any; signal?: AbortSignal },
+  options?: number | IterationOptions,
 ): Promise<T[]> {
   const iterOpts = normalizeIterationOptions(options)
   return (
@@ -185,8 +200,8 @@ export async function pFilter<T>(
 /*@__NO_SIDE_EFFECTS__*/
 export async function pEachChunk<T>(
   array: T[],
-  callbackFn: (chunk: T[]) => Promise<any>,
-  options?: { chunkSize?: number; [key: string]: any },
+  callbackFn: (chunk: T[]) => Promise<unknown>,
+  options?: RetryOptions & { chunkSize?: number },
 ): Promise<void> {
   const { chunkSize = 100, ...retryOpts } = options || {}
   const chunks = arrayChunk(array, chunkSize)
@@ -197,7 +212,7 @@ export async function pEachChunk<T>(
       return
     }
     // eslint-disable-next-line no-await-in-loop
-    await pRetry(callbackFn, {
+    await pRetry((...args: unknown[]) => callbackFn(args[0] as T[]), {
       ...normalizedRetryOpts,
       args: [chunk],
     })
@@ -211,7 +226,7 @@ export async function pEachChunk<T>(
 export async function pFilterChunk<T>(
   chunks: T[][],
   callbackFn: (value: T) => Promise<boolean>,
-  options?: any,
+  options?: number | RetryOptions,
 ): Promise<T[][]> {
   const retryOpts = normalizeRetryOptions(options)
   const { signal } = retryOpts
@@ -226,7 +241,7 @@ export async function pFilterChunk<T>(
       // eslint-disable-next-line no-await-in-loop
       const predicateResults = await Promise.all(
         chunk.map(value =>
-          pRetry(callbackFn, {
+          pRetry((...args: unknown[]) => callbackFn(args[0] as T), {
             ...retryOpts,
             args: [value],
           }),
@@ -244,8 +259,8 @@ export async function pFilterChunk<T>(
  */
 /*@__NO_SIDE_EFFECTS__*/
 export async function pRetry<T>(
-  callbackFn: (...args: any[]) => Promise<T>,
-  options?: any,
+  callbackFn: (...args: unknown[]) => Promise<T>,
+  options?: number | RetryOptions,
 ): Promise<T | undefined> {
   const {
     args,
@@ -263,19 +278,19 @@ export async function pRetry<T>(
     return undefined
   }
   if (retries === 0) {
-    return await callbackFn(...args, { signal })
+    return await callbackFn(...(args || []), { signal })
   }
 
   const timers = getTimers()
 
-  let attempts = retries
-  let delay = baseDelayMs
-  let error: any = UNDEFINED_TOKEN
+  let attempts = retries!
+  let delay = baseDelayMs!
+  let error: unknown = UNDEFINED_TOKEN
 
   while (attempts-- >= 0 && !signal?.aborted) {
     try {
       // eslint-disable-next-line no-await-in-loop
-      return await callbackFn(...args, { signal })
+      return await callbackFn(...(args || []), { signal })
     } catch (e) {
       if (error === UNDEFINED_TOKEN) {
         error = e
@@ -289,10 +304,10 @@ export async function pRetry<T>(
         waitTime += Math.floor(Math.random() * delay)
       }
       // Clamp wait time to max delay.
-      waitTime = Math.min(waitTime, maxDelayMs)
+      waitTime = Math.min(waitTime, maxDelayMs!)
       if (typeof onRetry === 'function') {
         try {
-          const result = onRetry(retries - attempts, e, waitTime)
+          const result = onRetry(retries! - attempts, e, waitTime)
           if (result === false && onRetryCancelOnFalse) {
             break
           }
@@ -305,7 +320,7 @@ export async function pRetry<T>(
       // eslint-disable-next-line no-await-in-loop
       await timers.setTimeout(waitTime, undefined, { signal })
       // Exponentially increase the delay for the next attempt, capping at maxDelayMs.
-      delay = Math.min(delay * backoffFactor, maxDelayMs)
+      delay = Math.min(delay * backoffFactor!, maxDelayMs!)
     }
   }
   if (error !== UNDEFINED_TOKEN) {
