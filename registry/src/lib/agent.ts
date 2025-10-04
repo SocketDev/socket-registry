@@ -335,23 +335,26 @@ export function execScript(
   const useNodeRun = !prepost && SUPPORTS_NODE_RUN
 
   // Detect package manager based on lockfile by traversing up from current directory.
-  const cwd = getOwn(spawnOptions, 'cwd') ?? process.cwd()
+  const cwd =
+    (getOwn(spawnOptions, 'cwd') as string | undefined) ?? process.cwd()
 
   // Check for pnpm-lock.yaml.
-  const pnpmLockPath = findUpSync(PNPM_LOCK_YAML, { cwd })
+  const pnpmLockPath = findUpSync(PNPM_LOCK_YAML, { cwd }) as string | undefined
   if (pnpmLockPath) {
     return execPnpm(['run', scriptName, ...args], spawnOptions)
   }
 
   // Check for package-lock.json.
   // When in an npm workspace, use npm run to ensure workspace binaries are available.
-  const packageLockPath = findUpSync(PACKAGE_LOCK_JSON, { cwd })
+  const packageLockPath = findUpSync(PACKAGE_LOCK_JSON, { cwd }) as
+    | string
+    | undefined
   if (packageLockPath) {
     return execNpm(['run', scriptName, ...args], spawnOptions)
   }
 
   // Check for yarn.lock.
-  const yarnLockPath = findUpSync(YARN_LOCK, { cwd })
+  const yarnLockPath = findUpSync(YARN_LOCK, { cwd }) as string | undefined
   if (yarnLockPath) {
     return execYarn(['run', scriptName, ...args], spawnOptions)
   }

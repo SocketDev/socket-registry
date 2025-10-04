@@ -5,6 +5,7 @@
 
 import abortSignal from './constants/abort-signal'
 import spinner from './constants/spinner'
+import { getPromiseSpawn } from './dependencies'
 import { getOwn } from './objects'
 import { stripAnsi } from './strings'
 
@@ -78,8 +79,7 @@ let _npmCliPromiseSpawn:
 /*@__NO_SIDE_EFFECTS__*/
 function getNpmcliPromiseSpawn() {
   if (_npmCliPromiseSpawn === undefined) {
-    _npmCliPromiseSpawn =
-      /*@__PURE__*/ require('../external/@npmcli/promise-spawn')
+    _npmCliPromiseSpawn = /*@__PURE__*/ getPromiseSpawn() as any
   }
   return _npmCliPromiseSpawn!
 }

@@ -245,7 +245,7 @@ export function getOwn(obj: unknown, propKey: PropertyKey): unknown {
   if (obj === null || obj === undefined) {
     return undefined
   }
-  return ObjectHasOwn(obj, propKey)
+  return ObjectHasOwn(obj as object, propKey)
     ? (obj as Record<PropertyKey, unknown>)[propKey]
     : undefined
 }
@@ -277,8 +277,8 @@ export function hasKeys(obj: unknown): obj is PropertyBag {
   if (obj === null || obj === undefined) {
     return false
   }
-  for (const key in obj) {
-    if (ObjectHasOwn(obj, key)) {
+  for (const key in obj as object) {
+    if (ObjectHasOwn(obj as object, key)) {
       return true
     }
   }
@@ -296,7 +296,7 @@ export function hasOwn(
   if (obj === null || obj === undefined) {
     return false
   }
-  return ObjectHasOwn(obj, propKey)
+  return ObjectHasOwn(obj as object, propKey)
 }
 
 /**
@@ -331,7 +331,7 @@ export function objectEntries(obj: unknown): Array<[PropertyKey, unknown]> {
   if (obj === null || obj === undefined) {
     return []
   }
-  const keys = ReflectOwnKeys(obj)
+  const keys = ReflectOwnKeys(obj as object)
   const { length } = keys
   const entries = Array(length)
   const record = obj as Record<PropertyKey, unknown>

@@ -4,6 +4,7 @@
  */
 
 import abortSignal from './constants/abort-signal'
+import { getDel } from './dependencies'
 import { defaultIgnore, getGlobMatcher } from './globs'
 import { jsonParse } from './json'
 import { normalizePath, pathLikeToString } from './path'
@@ -566,7 +567,7 @@ export async function remove(
   filepath: PathLike | PathLike[],
   options?: RemoveOptions | undefined,
 ) {
-  const del = /*@__PURE__*/ require('../external/del')
+  const del = /*@__PURE__*/ getDel() as any
   const { deleteAsync } = del
   const opts = { __proto__: null, ...options } as RemoveOptions
   const patterns = ArrayIsArray(filepath)
@@ -591,7 +592,7 @@ export function removeSync(
   filepath: PathLike | PathLike[],
   options?: RemoveOptions | undefined,
 ) {
-  const del = /*@__PURE__*/ require('../external/del')
+  const del = /*@__PURE__*/ getDel() as any
   const { deleteSync } = del
   const opts = { __proto__: null, ...options } as RemoveOptions
   const patterns = ArrayIsArray(filepath)

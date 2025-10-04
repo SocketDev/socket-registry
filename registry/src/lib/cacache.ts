@@ -1,5 +1,6 @@
 /** @fileoverview Cacache utilities for Socket ecosystem shared content-addressable cache. */
 
+import { getCacache as getCacacheDep } from './dependencies/index'
 import { getSocketCacacheDir } from './paths'
 
 export interface GetOptions {
@@ -25,16 +26,11 @@ export interface CacheEntry {
   time: number
 }
 
-let _cacache: typeof import('../external/cacache') | undefined
-
 /**
  * Get the cacache module for cache operations.
  */
 function getCacache() {
-  if (_cacache === undefined) {
-    _cacache = /*@__PURE__*/ require('../external/cacache')
-  }
-  return _cacache!
+  return getCacacheDep()
 }
 
 /**
@@ -53,7 +49,7 @@ export async function get(
   key: string,
   options?: GetOptions | undefined,
 ): Promise<CacheEntry> {
-  const cacache = getCacache()
+  const cacache = getCacache() as any
   return await cacache.get(getSocketCacacheDir(), key, options)
 }
 
@@ -72,8 +68,8 @@ export async function put(
 /**
  * Remove an entry from the Socket shared cache by key.
  */
-export async function remove(key: string) {
-  const cacache = getCacache()
+export async function remove(key: string): Promise<unknown> {
+  const cacache = getCacache() as any
   return await cacache.rm.entry(getSocketCacacheDir(), key)
 }
 

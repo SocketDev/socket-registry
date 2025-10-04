@@ -2,7 +2,7 @@
  * @fileoverview Stream processing utilities with streaming-iterables integration.
  * Provides async stream handling and transformation functions.
  */
-
+import { getStreamingIterables as getStreamingIterablesDep } from './dependencies/index'
 import { normalizeIterationOptions, pRetry } from './promises'
 
 import type { IterationOptions } from './promises'
@@ -28,8 +28,7 @@ let _streamingIterables:
 /*@__NO_SIDE_EFFECTS__*/
 function getStreamingIterables() {
   if (_streamingIterables === undefined) {
-    _streamingIterables =
-      /*@__PURE__*/ require('../external/streaming-iterables')
+    _streamingIterables = /*@__PURE__*/ getStreamingIterablesDep() as any
   }
   return _streamingIterables
 }

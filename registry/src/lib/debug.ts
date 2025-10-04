@@ -4,6 +4,12 @@
  */
 
 import ENV from './constants/ENV'
+import {
+  getDebug,
+  getIsUnicodeSupported,
+  getLogger,
+  getSpinner,
+} from './dependencies/index'
 import { hasOwn } from './objects'
 import { applyLinePrefix } from './strings'
 
@@ -30,21 +36,6 @@ interface InspectOptions {
 
 export type { DebugOptions, NamespacesOrOptions, InspectOptions }
 
-let _debugJs: typeof import('debug') | undefined
-/**
- * Lazily load the debug module.
- * @private
- */
-/*@__NO_SIDE_EFFECTS__*/
-function getDebugJs() {
-  if (_debugJs === undefined) {
-    // The 'debug' package is browser safe.
-    const debugExport = /*@__PURE__*/ require('../external/debug')
-    _debugJs = debugExport.default
-  }
-  return _debugJs!
-}
-
 const debugByNamespace = new Map()
 /**
  * Get or create a debug instance for a namespace.
@@ -56,7 +47,7 @@ function getDebugJsInstance(namespace: string) {
   if (inst) {
     return inst
   }
-  const debugJs = getDebugJs()
+  const debugJs = getDebug()
   if (
     !ENV.DEBUG &&
     ENV.SOCKET_CLI_DEBUG &&
@@ -91,8 +82,8 @@ function getUtil() {
  */
 /*@__NO_SIDE_EFFECTS__*/
 function customLog() {
-  const { logger } = /*@__PURE__*/ require('./logger.js')
-  const debugJs = getDebugJs()
+  const logger = getLogger()
+  const debugJs = getDebug()
   const util = getUtil()
   const inspectOpts = debugJs.inspectOpts
     ? {
@@ -118,10 +109,10 @@ function customLog() {
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
-function extractOptions(namespaces: NamespacesOrOptions) {
+function extractOptions(namespaces: NamespacesOrOptions): DebugOptions {
   return namespaces !== null && typeof namespaces === 'object'
-    ? { __proto__: null, ...namespaces }
-    : { __proto__: null, namespaces }
+    ? ({ __proto__: null, ...namespaces } as DebugOptions)
+    : ({ __proto__: null, namespaces } as DebugOptions)
 }
 
 /**
@@ -166,11 +157,11 @@ function debugDirNs(
 ) {
   const options = extractOptions(namespacesOrOpts)
   const { namespaces } = options
-  if (!isEnabled(namespaces)) {
+  if (!isEnabled(namespaces as string)) {
     return
   }
   if (inspectOpts === undefined) {
-    const debugJs = getDebugJs()
+    const debugJs = getDebug()
     const opts = debugJs.inspectOpts
     if (opts) {
       inspectOpts = {
@@ -183,10 +174,10 @@ function debugDirNs(
       } as InspectOptions
     }
   }
-  const { spinner = /*@__PURE__*/ require('./constants/spinner.js') } = options
+  const spinner = options.spinner || getSpinner()
   const wasSpinning = spinner.isSpinning
   spinner.stop()
-  const { logger } = /*@__PURE__*/ require('./logger.js')
+  const logger = getLogger()
   logger.dir(obj, inspectOpts)
   if (wasSpinning) {
     spinner.start()
@@ -201,7 +192,7 @@ let pointingTriangle: string | undefined
 function debugFnNs(namespacesOrOpts: NamespacesOrOptions, ...args: unknown[]) {
   const options = extractOptions(namespacesOrOpts)
   const { namespaces } = options
-  if (!isEnabled(namespaces)) {
+  if (!isEnabled(namespaces as string)) {
     return
   }
   const { stack } = new Error()
@@ -240,8 +231,8 @@ function debugFnNs(namespacesOrOpts: NamespacesOrOptions, ...args: unknown[]) {
     }
   }
   if (pointingTriangle === undefined) {
-    const supported =
-      /*@__PURE__*/ require('../external/@socketregistry/is-unicode-supported')()
+    const isUnicodeSupported = getIsUnicodeSupported()
+    const supported = isUnicodeSupported()
     pointingTriangle = supported ? '▸' : '>'
   }
   const text = args.at(0)
@@ -255,10 +246,10 @@ function debugFnNs(namespacesOrOpts: NamespacesOrOptions, ...args: unknown[]) {
           ...args.slice(1),
         ]
       : args
-  const { spinner = /*@__PURE__*/ require('./constants/spinner.js') } = options
+  const spinner = options.spinner || getSpinner()
   const wasSpinning = spinner.isSpinning
   spinner.stop()
-  const { logger } = /*@__PURE__*/ require('./logger.js')
+  const logger = getLogger()
   ReflectApply(logger.info, logger, logArgs)
   if (wasSpinning) {
     spinner.start()
@@ -272,10 +263,10 @@ function debugFnNs(namespacesOrOpts: NamespacesOrOptions, ...args: unknown[]) {
 function debugLogNs(namespacesOrOpts: NamespacesOrOptions, ...args: unknown[]) {
   const options = extractOptions(namespacesOrOpts)
   const { namespaces } = options
-  if (!isEnabled(namespaces)) {
+  if (!isEnabled(namespaces as string)) {
     return
   }
-  const { spinner = /*@__PURE__*/ require('./constants/spinner.js') } = options
+  const spinner = options.spinner || getSpinner()
   const wasSpinning = spinner.isSpinning
   spinner.stop()
   ReflectApply(customLog, undefined, args)

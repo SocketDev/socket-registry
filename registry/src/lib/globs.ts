@@ -4,6 +4,10 @@
  */
 
 // IMPORTANT: Do not use destructuring here - use direct assignment instead.
+import {
+  getFastGlob as getFastGlobDep,
+  getPicomatch as getPicomatchDep,
+} from './dependencies/index'
 // tsgo has a bug that incorrectly transpiles destructured exports, resulting in
 // `exports.SomeName = void 0;` which causes runtime errors.
 // See: https://github.com/SocketDev/socket-packageurl-js/issues/3
@@ -94,7 +98,7 @@ let _picomatch: typeof import('picomatch') | undefined
 function getPicomatch() {
   if (_picomatch === undefined) {
     // The 'picomatch' package is browser safe.
-    _picomatch = /*@__PURE__*/ require('../external/picomatch')
+    _picomatch = /*@__PURE__*/ getPicomatchDep()
   }
   return _picomatch!
 }
@@ -107,7 +111,7 @@ let _fastGlob: typeof import('fast-glob') | undefined
 /*@__NO_SIDE_EFFECTS__*/
 function getFastGlob() {
   if (_fastGlob === undefined) {
-    _fastGlob = /*@__PURE__*/ require('../external/fast-glob')
+    _fastGlob = /*@__PURE__*/ getFastGlobDep()
   }
   return _fastGlob!
 }

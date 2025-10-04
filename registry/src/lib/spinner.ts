@@ -5,8 +5,8 @@
 
 import ENV from './constants/ENV'
 import abortSignal from './constants/abort-signal'
+import { getYoctoSpinner } from './dependencies'
 import { isBlankString } from './strings'
-import yoctoSpinnerFactory from '../external/@socketregistry/yocto-spinner'
 
 import type { Writable } from 'node:stream'
 
@@ -105,9 +105,9 @@ export function getCliSpinners(
   styleName?: string | undefined,
 ): SpinnerStyle | Record<string, SpinnerStyle> | undefined {
   if (_cliSpinners === undefined) {
-    const yoctoFactory = /*@__PURE__*/ require('../external/@socketregistry/yocto-spinner')
+    const yoctoFactory = getYoctoSpinner() as any
     const { constructor: YoctoCtor } = yoctoFactory()
-    _cliSpinners = YoctoCtor.spinners
+    _cliSpinners = (YoctoCtor as any).spinners
   }
   if (typeof styleName === 'string' && _cliSpinners) {
     return ObjectHasOwn(_cliSpinners, styleName)
@@ -128,7 +128,8 @@ let _defaultSpinner: SpinnerStyle | undefined
 /*@__NO_SIDE_EFFECTS__*/
 export function Spinner(options?: SpinnerOptions | undefined): Spinner {
   if (_Spinner === undefined) {
-    const { constructor: YoctoCtor } = yoctoSpinnerFactory()
+    const yoctoFactory = getYoctoSpinner() as any
+    const { constructor: YoctoCtor } = yoctoFactory()
 
     /*@__PURE__*/
     _Spinner = class SpinnerClass extends (YoctoCtor as any) {
