@@ -19,9 +19,20 @@ import packumentCache from './constants/packument-cache'
 import pacoteCachePath from './constants/pacote-cache-path'
 import { readJson, readJsonSync } from './fs'
 import { isObject, isObjectObject, merge, objectEntries } from './objects'
+import {
+  getRepoUrlDetails,
+  gitHubTagRefUrl,
+  gitHubTgzUrl,
+  isGitHubTgzSpec,
+  isGitHubUrlSpec,
+} from './packages/specs'
+import {
+  isBlessedPackageName,
+  isRegistryFetcherType,
+  isValidPackageName,
+} from './packages/validation'
 import { isNodeModules, normalizePath } from './path'
 import { escapeRegExp } from './regexps'
-import { isNonEmptyString } from './strings'
 import { parseUrl } from './url'
 
 import type { CategoryString } from '../index'
@@ -633,18 +644,6 @@ function getUtil() {
   return _util!
 }
 
-let _validateNpmPackageName:
-  | typeof import('validate-npm-package-name')
-  | undefined
-/*@__NO_SIDE_EFFECTS__*/
-function getValidateNpmPackageName() {
-  if (_validateNpmPackageName === undefined) {
-    _validateNpmPackageName =
-      /*@__PURE__*/ require('../external/validate-npm-package-name')
-  }
-  return _validateNpmPackageName!
-}
-
 /**
  * Collect licenses that are incompatible (copyleft).
  */
@@ -1215,21 +1214,6 @@ export function getReleaseTag(spec: string): string {
 }
 
 /**
- * Extract details from a repository URL.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function getRepoUrlDetails(repoUrl: string = ''): {
-  user: string
-  project: string
-} {
-  const userAndRepo = repoUrl.replace(/^.+github.com\//, '').split('/')
-  const user = userAndRepo[0] || ''
-  const project =
-    userAndRepo.length > 1 ? userAndRepo[1]!.slice(0, -'.git'.length) : ''
-  return { user, project }
-}
-
-/**
  * Get subpaths from package exports.
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -1296,45 +1280,6 @@ export function getExportFilePaths(entryExports: any): string[] {
 }
 
 /**
- * Generate GitHub API URL for a tag reference.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function gitHubTagRefUrl(
-  user: string,
-  project: string,
-  tag: string,
-): string {
-  return `https://api.github.com/repos/${user}/${project}/git/ref/tags/${tag}`
-}
-
-/**
- * Generate GitHub tarball download URL for a commit SHA.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function gitHubTgzUrl(
-  user: string,
-  project: string,
-  sha: string,
-): string {
-  return `https://github.com/${user}/${project}/archive/${sha}.tar.gz`
-}
-
-/**
- * Check if a package name is blessed (allowed to bypass security checks).
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function isBlessedPackageName(name: any): boolean {
-  return (
-    typeof name === 'string' &&
-    (name === 'sfw' ||
-      name === 'socket' ||
-      name.startsWith('@socketoverride/') ||
-      name.startsWith('@socketregistry/') ||
-      name.startsWith('@socketsecurity/'))
-  )
-}
-
-/**
  * Check if package exports use conditional patterns (e.g., import/require).
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -1361,54 +1306,6 @@ export function isConditionalExports(entryExports: any): boolean {
 }
 
 /**
- * Check if a package specifier is a GitHub tarball URL.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function isGitHubTgzSpec(spec: any, where?: string): boolean {
-  let parsedSpec
-  if (isObjectObject(spec)) {
-    parsedSpec = spec
-  } else {
-    const npmPackageArg = getNpmPackageArg()
-    parsedSpec = npmPackageArg(spec, where)
-  }
-  return (
-    parsedSpec.type === 'remote' && !!parsedSpec.saveSpec?.endsWith('.tar.gz')
-  )
-}
-
-/**
- * Check if a package specifier is a GitHub URL with committish.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function isGitHubUrlSpec(spec: any, where?: string): boolean {
-  let parsedSpec
-  if (isObjectObject(spec)) {
-    parsedSpec = spec
-  } else {
-    const npmPackageArg = getNpmPackageArg()
-    parsedSpec = npmPackageArg(spec, where)
-  }
-  return (
-    parsedSpec.type === 'git' &&
-    parsedSpec.hosted?.domain === 'github.com' &&
-    isNonEmptyString(parsedSpec.gitCommittish)
-  )
-}
-
-/**
- * Check if a fetcher type is for the npm registry.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function isRegistryFetcherType(type: string): boolean {
-  // RegistryFetcher spec.type check based on:
-  // https://github.com/npm/pacote/blob/v19.0.0/lib/fetcher.js#L467-L488
-  return (
-    type === 'alias' || type === 'range' || type === 'tag' || type === 'version'
-  )
-}
-
-/**
  * Check if package exports use subpath patterns (keys starting with '.').
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -1426,15 +1323,6 @@ export function isSubpathExports(entryExports: any): boolean {
     }
   }
   return false
-}
-
-/**
- * Validate a package name against npm naming rules.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function isValidPackageName(name: string): boolean {
-  const validateNpmPackageName = getValidateNpmPackageName()
-  return validateNpmPackageName(name).validForOldPackages
 }
 
 /**
@@ -1956,4 +1844,15 @@ export function visitLicenses(ast: SpdxAstNode, visitor: LicenseVisitor): void {
       queue[queueLength++] = [node.right, node]
     }
   }
+}
+
+export {
+  getRepoUrlDetails,
+  gitHubTagRefUrl,
+  gitHubTgzUrl,
+  isBlessedPackageName,
+  isGitHubTgzSpec,
+  isGitHubUrlSpec,
+  isRegistryFetcherType,
+  isValidPackageName,
 }
