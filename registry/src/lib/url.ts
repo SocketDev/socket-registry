@@ -45,14 +45,22 @@ export function urlSearchParamAsArray(
     : []
 }
 
+export interface UrlSearchParamAsBooleanOptions {
+  defaultValue?: boolean
+}
+
 /**
  * Convert a URL search parameter to a boolean.
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function urlSearchParamAsBoolean(
   value: string | null | undefined,
-  defaultValue: boolean = false,
+  options?: UrlSearchParamAsBooleanOptions | undefined,
 ): boolean {
+  const { defaultValue = false } = {
+    __proto__: null,
+    ...options,
+  } as UrlSearchParamAsBooleanOptions
   if (typeof value === 'string') {
     const trimmed = value.trim()
     return trimmed === '1' || trimmed.toLowerCase() === 'true'
@@ -83,6 +91,10 @@ export function urlSearchParamsGetArray(
   return []
 }
 
+export interface UrlSearchParamsGetBooleanOptions {
+  defaultValue?: boolean
+}
+
 /**
  * Helper to get boolean from URLSearchParams.
  */
@@ -90,33 +102,53 @@ export function urlSearchParamsGetArray(
 export function urlSearchParamsGetBoolean(
   params: URLSearchParams | null | undefined,
   key: string,
-  defaultValue: boolean = false,
+  options?: UrlSearchParamsGetBooleanOptions | undefined,
 ): boolean {
+  const { defaultValue = false } = {
+    __proto__: null,
+    ...options,
+  } as UrlSearchParamsGetBooleanOptions
   if (params && typeof params.get === 'function') {
     const value = params.get(key)
     return value !== null
-      ? urlSearchParamAsBoolean(value, defaultValue)
+      ? urlSearchParamAsBoolean(value, { defaultValue })
       : defaultValue
   }
   return defaultValue
+}
+
+export interface CreateRelativeUrlOptions {
+  base?: string
 }
 
 /**
  * Create a relative URL for testing.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function createRelativeUrl(path: string, base: string = ''): string {
+export function createRelativeUrl(
+  path: string,
+  options?: CreateRelativeUrlOptions | undefined,
+): string {
+  const { base = '' } = {
+    __proto__: null,
+    ...options,
+  } as CreateRelativeUrlOptions
   // Remove leading slash to make it relative.
   const relativePath = path.replace(/^\//, '')
 
   if (base) {
-    if (!base.endsWith('/')) {
-      base += '/'
+    let baseUrl = base
+    if (!baseUrl.endsWith('/')) {
+      baseUrl += '/'
     }
-    return base + relativePath
+    return baseUrl + relativePath
   }
 
   return relativePath
+}
+
+export interface UrlSearchParamAsStringOptions {
+  defaultValue?: string
 }
 
 /**
@@ -126,13 +158,21 @@ export function createRelativeUrl(path: string, base: string = ''): string {
 export function urlSearchParamAsString(
   params: URLSearchParams | null | undefined,
   key: string,
-  defaultValue: string = '',
+  options?: UrlSearchParamAsStringOptions | undefined,
 ): string {
+  const { defaultValue = '' } = {
+    __proto__: null,
+    ...options,
+  } as UrlSearchParamAsStringOptions
   if (params && typeof params.get === 'function') {
     const value = params.get(key)
     return value !== null ? value : defaultValue
   }
   return defaultValue
+}
+
+export interface UrlSearchParamAsNumberOptions {
+  defaultValue?: number
 }
 
 /**
@@ -142,8 +182,12 @@ export function urlSearchParamAsString(
 export function urlSearchParamAsNumber(
   params: URLSearchParams | null | undefined,
   key: string,
-  defaultValue: number = 0,
+  options?: UrlSearchParamAsNumberOptions | undefined,
 ): number {
+  const { defaultValue = 0 } = {
+    __proto__: null,
+    ...options,
+  } as UrlSearchParamAsNumberOptions
   if (params && typeof params.get === 'function') {
     const value = params.get(key)
     if (value !== null) {
