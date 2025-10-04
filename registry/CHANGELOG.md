@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0](https://github.com/SocketDev/socket-registry/releases/tag/v1.4.0) - 2025-10-04
+
+### Changed
+
+- Refactored `lib/packages` module into specialized submodules for improved code organization
+  - `lib/packages/editable.ts` - Package editing functionality
+  - `lib/packages/exports.ts` - Export resolution utilities
+  - `lib/packages/licenses.ts` - License handling and validation
+  - `lib/packages/manifest.ts` - Manifest data operations
+  - `lib/packages/normalize.ts` - Path normalization utilities
+  - `lib/packages/operations.ts` - Package installation and modification operations
+  - `lib/packages/paths.ts` - Package path utilities
+  - `lib/packages/provenance.ts` - Package provenance verification
+  - `lib/packages/specs.ts` - Package spec parsing
+  - `lib/packages/validation.ts` - Package validation utilities
+- Note: Public API remains unchanged; these are internal organizational improvements
+
+### Fixed
+
+- Fixed `yarn-cache-path` constant to return string type consistently
+
 ## [1.3.10] - 2025-10-03
 
 ### Added
