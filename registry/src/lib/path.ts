@@ -440,5 +440,10 @@ export function trimLeadingDotSlash(pathLike: string | Buffer | URL): string {
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function relativeResolve(from: string, to: string): string {
-  return getPath().relative(from, to)
+  const relative = getPath().relative(from, to)
+  // Empty string means same path - don't normalize to '.'
+  if (relative === '') {
+    return ''
+  }
+  return normalizePath(relative)
 }
