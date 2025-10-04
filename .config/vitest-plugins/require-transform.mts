@@ -231,17 +231,86 @@ export function createRequireTransformPlugin(
               return
             }
 
-            // Step 7: Validate the require() has exactly one string argument.
-            // require() should be called as: require('modulePath').
-            // Invalid require() syntax, skip.
-            if (
-              node.arguments.length !== 1 ||
-              !t.isStringLiteral(node.arguments[0])
-            ) {
+            // Step 7: Handle both string literals and template literals
+            if (node.arguments.length !== 1) {
               return
             }
 
-            const requirePath = node.arguments[0].value
+            const arg = node.arguments[0]
+
+            // Handle template literals like `require(\`./\${variable}\`)`
+            if (t.isTemplateLiteral(arg)) {
+              // Only handle simple patterns: `./prefix${variable}suffix`
+              // Check if it starts with ./ or ../
+              const firstQuasi = arg.quasis[0]
+              if (
+                !firstQuasi?.value.raw.startsWith('./') &&
+                !firstQuasi?.value.raw.startsWith('../')
+              ) {
+                return
+              }
+
+              // Get the directory of the current file
+              const currentDir = dirname(id)
+
+              // Build a template literal that resolves to dist/
+              // For constants/index.ts with require(`./\${k}`):
+              // Transform to require(`/abs/path/dist/lib/constants/\${k}`)
+
+              // Find the path relative to /registry/src/lib/
+              const libMarker = '/registry/src/lib/'
+              const libIndex = id.indexOf(libMarker)
+
+              if (libIndex === -1) {
+                return
+              }
+
+              // Get the directory path relative to lib/
+              const relativeDir = dirname(
+                id.substring(libIndex + libMarker.length),
+              )
+
+              // Build absolute dist path
+              const projectRoot = id.substring(0, libIndex)
+              const distDir = resolve(
+                projectRoot,
+                'registry/dist/lib',
+                relativeDir,
+              )
+
+              // Reconstruct the template literal with absolute dist path
+              // Replace the leading ./ or ../ with the absolute dist path
+              const newQuasis = arg.quasis.map((quasi, i) => {
+                if (i === 0) {
+                  const raw = quasi.value.raw.replace(/^\.\.?\//, `${distDir}/`)
+                  return t.templateElement({ raw, cooked: raw }, quasi.tail)
+                }
+                return quasi
+              })
+
+              const newTemplateLiteral = t.templateLiteral(
+                newQuasis,
+                arg.expressions,
+              )
+
+              // Replace the argument
+              s.overwrite(
+                arg.start!,
+                arg.end!,
+                code
+                  .slice(arg.start!, arg.end!)
+                  .replace(firstQuasi.value.raw, newQuasis[0].value.raw),
+              )
+              modified = true
+              return
+            }
+
+            // Handle string literals (existing logic)
+            if (!t.isStringLiteral(arg)) {
+              return
+            }
+
+            const requirePath = arg.value
 
             // Step 8: Only handle relative requires from our code.
             // We don't inline:
@@ -298,7 +367,7 @@ export function createRequireTransformPlugin(
                 // Step 11b: If we can't inline, rewrite to use compiled dist/ version.
                 // During coverage, require() can't load TypeScript files, so we use
                 // the compiled JavaScript files from dist/ which Node can handle.
-                const stringNode = node.arguments[0] as t.StringLiteral
+                const stringNode = arg as t.StringLiteral
 
                 // Strategy: Use the resolvedPath (absolute path to the TypeScript source)
                 // to determine the correct dist path with preserved directory structure.
