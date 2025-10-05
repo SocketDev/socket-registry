@@ -117,6 +117,12 @@ importers:
       '@types/node':
         specifier: 24.5.2
         version: 24.5.2
+      '@types/normalize-package-data':
+        specifier: 2.4.4
+        version: 2.4.4
+      '@types/npm-package-arg':
+        specifier: 6.1.4
+        version: 6.1.4
       '@types/npmcli__package-json':
         specifier: 4.0.4
         version: 4.0.4
