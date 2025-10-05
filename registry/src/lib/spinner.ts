@@ -27,23 +27,17 @@ export type Color =
   | 'white'
   | 'yellow'
 
-export type SpinnerStyle = {
-  readonly frames: string[]
-  readonly interval?: number | undefined
-}
-
-export type SpinnerOptions = {
-  readonly color?: Color | undefined
-  readonly spinner?: SpinnerStyle | undefined
-  readonly signal?: AbortSignal | undefined
-  readonly stream?: Writable | undefined
-  readonly text?: string | undefined
+export type ProgressInfo = {
+  current: number
+  total: number
+  unit?: string | undefined
 }
 
 export type Spinner = {
   color: Color
   text: string
   spinner: SpinnerStyle
+  progress?: ProgressInfo | undefined
 
   get isSpinning(): boolean
 
@@ -73,8 +67,28 @@ export type Spinner = {
   success(text?: string | undefined, ...extras: unknown[]): Spinner
   successAndStop(text?: string | undefined, ...extras: unknown[]): Spinner
 
+  updateProgress(
+    current: number,
+    total: number,
+    unit?: string | undefined,
+  ): Spinner
+  incrementProgress(): Spinner
+
   warn(text?: string | undefined, ...extras: unknown[]): Spinner
   warnAndStop(text?: string | undefined, ...extras: unknown[]): Spinner
+}
+
+export type SpinnerOptions = {
+  readonly color?: Color | undefined
+  readonly spinner?: SpinnerStyle | undefined
+  readonly signal?: AbortSignal | undefined
+  readonly stream?: Writable | undefined
+  readonly text?: string | undefined
+}
+
+export type SpinnerStyle = {
+  readonly frames: string[]
+  readonly interval?: number | undefined
 }
 
 export const ciSpinner: SpinnerStyle = {
@@ -93,6 +107,23 @@ function desc(value: unknown) {
 
 function normalizeText(value: unknown) {
   return typeof value === 'string' ? value.trimStart() : ''
+}
+
+function formatProgress(progress: ProgressInfo): string {
+  const { current, total, unit } = progress
+  const percentage = Math.round((current / total) * 100)
+  const bar = renderProgressBar(percentage)
+  const count = unit ? `${current}/${total} ${unit}` : `${current}/${total}`
+  return `${bar} ${percentage}% (${count})`
+}
+
+function renderProgressBar(percentage: number, width: number = 20): string {
+  const filled = Math.round((percentage / 100) * width)
+  const empty = width - filled
+  const bar = '█'.repeat(filled) + '░'.repeat(empty)
+  // Use cyan color for the progress bar
+  const { colors } = /*@__PURE__*/ require('./dependencies.js')
+  return colors.cyan(bar)
 }
 
 let _cliSpinners: Record<string, SpinnerStyle> | undefined
@@ -135,6 +166,9 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
     _Spinner = class SpinnerClass extends (YoctoCtor as any) {
       declare isSpinning: boolean
       declare text: string
+      progress?: ProgressInfo | undefined
+      #baseText: string = ''
+
       constructor(options?: SpinnerOptions | undefined) {
         // eslint-disable-next-line constructor-super
         super({
@@ -230,7 +264,9 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
       }
 
       setText(value: unknown) {
-        this.text = normalizeText(value)
+        this.#baseText = normalizeText(value)
+        this.text = this.#baseText
+        this.#updateSpinnerText()
         return this
       }
 
@@ -241,14 +277,20 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
           // We clear this.text on start when `text` is falsy because yocto-spinner
           // will not clear it otherwise.
           if (!normalized) {
+            this.#baseText = ''
             this.setText('')
+          } else {
+            this.#baseText = normalized
           }
         }
+        this.#updateSpinnerText()
         return this.#apply('start', args)
       }
 
       stop(...args: unknown[]) {
         // We clear this.text on stop because yocto-spinner will not clear it.
+        this.#baseText = ''
+        this.progress = undefined
         this.setText('')
         return this.#apply('stop', args)
       }
@@ -267,6 +309,43 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
 
       warnAndStop(...args: unknown[]) {
         return this.#apply('warning', args)
+      }
+
+      #updateSpinnerText() {
+        if (this.progress) {
+          const progressText = formatProgress(this.progress)
+          this.text = this.#baseText
+            ? `${this.#baseText} ${progressText}`
+            : progressText
+        }
+      }
+
+      updateProgress(
+        current: number,
+        total: number,
+        unit?: string | undefined,
+      ) {
+        this.progress = {
+          __proto__: null,
+          current,
+          total,
+          ...(unit ? { unit } : {}),
+        } as ProgressInfo
+        this.#updateSpinnerText()
+        return this
+      }
+
+      incrementProgress() {
+        if (this.progress) {
+          this.progress = {
+            __proto__: null,
+            current: this.progress.current + 1,
+            total: this.progress.total,
+            ...(this.progress.unit ? { unit: this.progress.unit } : {}),
+          } as ProgressInfo
+          this.#updateSpinnerText()
+        }
+        return this
       }
     } as unknown as {
       new (options?: SpinnerOptions | undefined): Spinner
