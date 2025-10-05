@@ -250,8 +250,8 @@ export async function dlxBinary(
   const cacheDir = getDlxCachePath()
   const cacheKey = generateCacheKey(url)
   const cacheEntryDir = path.join(cacheDir, cacheKey)
-  // Use target platform for extension when generating binary name.
-  const ext = targetPlatform === 'win32' ? EXT_CMD : ''
+  // Use current platform for extension since we'll execute on current platform.
+  const ext = WIN32 ? EXT_CMD : ''
   const binaryName = name || `binary-${targetPlatform}-${arch}${ext}`
   const binaryPath = normalizePath(path.join(cacheEntryDir, binaryName))
 
