@@ -3,6 +3,7 @@
  * Provides ASCII table rendering with borders, alignment, and colors.
  */
 
+import { getYoctocolors } from './dependencies/logging'
 import { stripAnsi } from './strings'
 
 export type ColumnAlignment = 'left' | 'right' | 'center'
@@ -88,7 +89,7 @@ export function formatTable(
     return '(no data)'
   }
 
-  const { colors } = /*@__PURE__*/ require('./dependencies.js')
+  const colors = getYoctocolors()
 
   // Calculate column widths
   const widths = columns.map(col => {
@@ -174,7 +175,7 @@ export function formatSimpleTable(
     return '(no data)'
   }
 
-  const { colors } = /*@__PURE__*/ require('./dependencies.js')
+  const colors = getYoctocolors()
 
   // Calculate column widths
   const widths = columns.map(col => {
