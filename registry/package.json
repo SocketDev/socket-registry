@@ -1456,7 +1456,7 @@
     "@types/cacache": "19.0.0",
     "@types/debug": "4.1.12",
     "@types/make-fetch-happen": "10.0.4",
-    "@types/node": "24.3.3",
+    "@types/node": "24.6.2",
     "@types/pacote": "11.1.8",
     "@yarnpkg/extensions": "2.0.6",
     "browserslist": "4.26.0",
