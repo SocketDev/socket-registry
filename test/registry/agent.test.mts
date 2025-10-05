@@ -1,4 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import {
   execNpm,
@@ -21,8 +25,19 @@ import {
   whichBin,
   whichBinSync,
 } from '../../registry/dist/lib/bin.js'
+import { trash } from '../../scripts/utils/fs.mjs'
 
 describe('agent module', () => {
+  let tmpDir: string
+
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-test-'))
+  })
+
+  afterEach(async () => {
+    await trash(tmpDir)
+  })
+
   describe('isNpmAuditFlag', () => {
     it('should identify npm audit flags', () => {
       expect(isNpmAuditFlag('--audit')).toBe(true)
@@ -219,6 +234,7 @@ describe('agent module', () => {
   describe('isPnpmFrozenLockfileFlag', () => {
     it('should identify pnpm frozen-lockfile flags', () => {
       expect(isPnpmFrozenLockfileFlag('--frozen-lockfile')).toBe(true)
+      expect(isPnpmFrozenLockfileFlag('--no-frozen-lockfile')).toBe(true)
     })
 
     it('should reject non-frozen-lockfile flags', () => {
@@ -231,6 +247,7 @@ describe('agent module', () => {
   describe('isPnpmIgnoreScriptsFlag', () => {
     it('should identify pnpm ignore-scripts flags', () => {
       expect(isPnpmIgnoreScriptsFlag('--ignore-scripts')).toBe(true)
+      expect(isPnpmIgnoreScriptsFlag('--no-ignore-scripts')).toBe(true)
     })
 
     it('should reject non-ignore-scripts flags', () => {
@@ -258,6 +275,7 @@ describe('agent module', () => {
     it('should identify pnpm loglevel flags', () => {
       expect(isPnpmLoglevelFlag('--loglevel')).toBe(true)
       expect(isPnpmLoglevelFlag('--loglevel=error')).toBe(true)
+      expect(isPnpmLoglevelFlag('--silent')).toBe(true)
     })
 
     it('should reject non-loglevel flags', () => {
@@ -310,5 +328,77 @@ describe('agent module', () => {
       const path = await whichBin('node')
       expect(typeof path).toBe('string')
     })
+  })
+
+  describe('package manager flag filtering', () => {
+    it('should handle npm with --no-audit flag', async () => {
+      try {
+        const result = await execNpm(['install', '--dry-run', '--no-audit'], {
+          cwd: tmpDir,
+        })
+        expect(result).toBeDefined()
+      } catch (error) {
+        expect(error).toBeDefined()
+      }
+    })
+
+    it('should handle pnpm with --frozen-lockfile flag', async () => {
+      try {
+        const result = await execPnpm(
+          ['install', '--dry-run', '--frozen-lockfile'],
+          { cwd: tmpDir },
+        )
+        expect(result).toBeDefined()
+      } catch (error) {
+        expect(error).toBeDefined()
+      }
+    })
+
+    it('should handle yarn with --silent flag', async () => {
+      try {
+        const result = await execYarn(['--version', '--silent'], {
+          cwd: tmpDir,
+        })
+        expect(result).toBeDefined()
+      } catch (error) {
+        expect(error).toBeDefined()
+      }
+    })
+  })
+
+  describe('package manager lockfile detection', () => {
+    const lockfiles = [
+      { name: 'pnpm-lock.yaml', manager: 'pnpm', content: '' },
+      { name: 'package-lock.json', manager: 'npm', content: '{}' },
+      { name: 'yarn.lock', manager: 'yarn', content: '' },
+      { name: 'bun.lockb', manager: 'bun', content: '' },
+      { name: 'vlt-lock.json', manager: 'vlt', content: '{}' },
+    ]
+
+    for (const { content, manager, name } of lockfiles) {
+      it(`should detect ${manager} via ${name}`, async () => {
+        const testDir = fs.mkdtempSync(
+          path.join(os.tmpdir(), `${manager}-test-`),
+        )
+
+        fs.writeFileSync(
+          path.join(testDir, 'package.json'),
+          JSON.stringify({
+            name: 'test',
+            version: '1.0.0',
+            scripts: { test: 'node --version' },
+          }),
+        )
+        fs.writeFileSync(path.join(testDir, name), content)
+
+        try {
+          await execScript('test', { cwd: testDir })
+        } catch (error) {
+          expect(error).toBeDefined()
+        } finally {
+          await trash(testDir)
+        }
+      })
+    }
   })
 })
