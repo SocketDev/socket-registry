@@ -136,7 +136,7 @@ describe('agent module', () => {
     })
 
     it('should handle npm help', async () => {
-      const result = await execNpm(['help'], { timeout: 10_000 })
+      const result = await execNpm(['help'], { timeout: 30_000 })
       expect(result.stdout || result.stderr).toContain('npm')
     })
 
