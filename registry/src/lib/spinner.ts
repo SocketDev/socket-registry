@@ -287,3 +287,156 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
 }
 
 export const spinner = Spinner()
+
+export type WithSpinnerOptions<T> = {
+  message: string
+  operation: () => Promise<T>
+  spinner?: Spinner | undefined
+}
+
+/**
+ * Execute an async operation with spinner lifecycle management.
+ * Ensures spinner.stop() is always called via try/finally, even if the operation throws.
+ *
+ * @param options - Configuration object
+ * @param options.message - Message to display while spinner is running
+ * @param options.operation - Async function to execute
+ * @param options.spinner - Optional spinner instance (if not provided, no spinner is used)
+ * @returns Result of the operation
+ * @throws Re-throws any error from operation after stopping spinner
+ *
+ * @example
+ * import { spinner, withSpinner } from '@socketsecurity/registry/lib/spinner'
+ *
+ * // With spinner instance
+ * await withSpinner({
+ *   message: 'Processing...',
+ *   operation: async () => {
+ *     return await processData()
+ *   },
+ *   spinner
+ * })
+ *
+ * // Without spinner instance (no-op)
+ * await withSpinner({
+ *   message: 'Processing...',
+ *   operation: async () => {
+ *     return await processData()
+ *   }
+ * })
+ */
+export async function withSpinner<T>(
+  options: WithSpinnerOptions<T>,
+): Promise<T> {
+  const { message, operation, spinner } = {
+    __proto__: null,
+    ...options,
+  } as WithSpinnerOptions<T>
+
+  if (!spinner) {
+    return await operation()
+  }
+
+  spinner.start(message)
+  try {
+    return await operation()
+  } finally {
+    spinner.stop()
+  }
+}
+
+export type WithSpinnerRestoreOptions<T> = {
+  operation: () => Promise<T>
+  spinner?: Spinner | undefined
+  wasSpinning: boolean
+}
+
+/**
+ * Execute an async operation with conditional spinner restart.
+ * Useful when you need to temporarily stop a spinner for an operation,
+ * then restore it to its previous state.
+ *
+ * @param options - Configuration object
+ * @param options.operation - Async function to execute
+ * @param options.spinner - Optional spinner instance to manage
+ * @param options.wasSpinning - Whether spinner was spinning before
+ * @returns Result of the operation
+ * @throws Re-throws any error from operation after restoring spinner state
+ *
+ * @example
+ * import { spinner, withSpinnerRestore } from '@socketsecurity/registry/lib/spinner'
+ *
+ * const wasSpinning = spinner.isSpinning
+ * spinner.stop()
+ *
+ * const result = await withSpinnerRestore({
+ *   operation: async () => {
+ *     // Do work without spinner
+ *     return await someOperation()
+ *   },
+ *   spinner,
+ *   wasSpinning
+ * })
+ */
+export async function withSpinnerRestore<T>(
+  options: WithSpinnerRestoreOptions<T>,
+): Promise<T> {
+  const { operation, spinner, wasSpinning } = {
+    __proto__: null,
+    ...options,
+  } as WithSpinnerRestoreOptions<T>
+
+  try {
+    return await operation()
+  } finally {
+    if (spinner && wasSpinning) {
+      spinner.start()
+    }
+  }
+}
+
+export type WithSpinnerSyncOptions<T> = {
+  message: string
+  operation: () => T
+  spinner?: Spinner | undefined
+}
+
+/**
+ * Execute a synchronous operation with spinner lifecycle management.
+ * Ensures spinner.stop() is always called via try/finally, even if the operation throws.
+ *
+ * @param options - Configuration object
+ * @param options.message - Message to display while spinner is running
+ * @param options.operation - Function to execute
+ * @param options.spinner - Optional spinner instance (if not provided, no spinner is used)
+ * @returns Result of the operation
+ * @throws Re-throws any error from operation after stopping spinner
+ *
+ * @example
+ * import { spinner, withSpinnerSync } from '@socketsecurity/registry/lib/spinner'
+ *
+ * const result = withSpinnerSync({
+ *   message: 'Processing...',
+ *   operation: () => {
+ *     return processDataSync()
+ *   },
+ *   spinner
+ * })
+ */
+export function withSpinnerSync<T>(options: WithSpinnerSyncOptions<T>): T {
+  const { message, operation, spinner } = {
+    __proto__: null,
+    ...options,
+  } as WithSpinnerSyncOptions<T>
+
+  if (!spinner) {
+    return operation()
+  }
+
+  spinner.start(message)
+  try {
+    return operation()
+  } finally {
+    spinner.stop()
+  }
+}

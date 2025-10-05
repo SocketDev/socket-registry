@@ -5,6 +5,9 @@ import {
   ciSpinner,
   getCliSpinners,
   spinner,
+  withSpinner,
+  withSpinnerRestore,
+  withSpinnerSync,
 } from '../../registry/dist/lib/spinner.js'
 
 describe('spinner module', () => {
@@ -345,6 +348,254 @@ describe('spinner module', () => {
           process.env['CI'] = originalCI
         }
       }
+    })
+  })
+
+  describe('withSpinner', () => {
+    let testSpinner: any
+
+    beforeEach(() => {
+      testSpinner = Spinner()
+    })
+
+    afterEach(() => {
+      try {
+        if (testSpinner && testSpinner.isSpinning) {
+          testSpinner.stop()
+        }
+      } catch {}
+    })
+
+    it('should execute operation with spinner', async () => {
+      const result = await withSpinner({
+        message: 'Processing...',
+        operation: async () => {
+          return 'success'
+        },
+        spinner: testSpinner,
+      })
+      expect(result).toBe('success')
+      expect(testSpinner.isSpinning).toBe(false)
+    })
+
+    it('should stop spinner even if operation throws', async () => {
+      await expect(
+        withSpinner({
+          message: 'Processing...',
+          operation: async () => {
+            throw new Error('Operation failed')
+          },
+          spinner: testSpinner,
+        }),
+      ).rejects.toThrow('Operation failed')
+      expect(testSpinner.isSpinning).toBe(false)
+    })
+
+    it('should work without spinner instance', async () => {
+      const result = await withSpinner({
+        message: 'Processing...',
+        operation: async () => {
+          return 'success'
+        },
+      })
+      expect(result).toBe('success')
+    })
+
+    it('should handle undefined spinner', async () => {
+      const result = await withSpinner({
+        message: 'Processing...',
+        operation: async () => {
+          return 42
+        },
+        spinner: undefined,
+      })
+      expect(result).toBe(42)
+    })
+
+    it('should stop spinner after successful operation', async () => {
+      testSpinner.start = vi.fn(testSpinner.start)
+      testSpinner.stop = vi.fn(testSpinner.stop)
+
+      await withSpinner({
+        message: 'Loading...',
+        operation: async () => {
+          return 'done'
+        },
+        spinner: testSpinner,
+      })
+
+      expect(testSpinner.start).toHaveBeenCalledWith('Loading...')
+      expect(testSpinner.stop).toHaveBeenCalled()
+    })
+  })
+
+  describe('withSpinnerRestore', () => {
+    let testSpinner: any
+
+    beforeEach(() => {
+      testSpinner = Spinner()
+    })
+
+    afterEach(() => {
+      try {
+        if (testSpinner && testSpinner.isSpinning) {
+          testSpinner.stop()
+        }
+      } catch {}
+    })
+
+    it('should restore spinner when wasSpinning is true', async () => {
+      testSpinner.start = vi.fn(testSpinner.start)
+
+      await withSpinnerRestore({
+        operation: async () => {
+          return 'result'
+        },
+        spinner: testSpinner,
+        wasSpinning: true,
+      })
+
+      expect(testSpinner.start).toHaveBeenCalled()
+    })
+
+    it('should not restore spinner when wasSpinning is false', async () => {
+      testSpinner.start = vi.fn(testSpinner.start)
+
+      await withSpinnerRestore({
+        operation: async () => {
+          return 'result'
+        },
+        spinner: testSpinner,
+        wasSpinning: false,
+      })
+
+      expect(testSpinner.start).not.toHaveBeenCalled()
+    })
+
+    it('should restore spinner even if operation throws', async () => {
+      testSpinner.start = vi.fn(testSpinner.start)
+
+      await expect(
+        withSpinnerRestore({
+          operation: async () => {
+            throw new Error('Test error')
+          },
+          spinner: testSpinner,
+          wasSpinning: true,
+        }),
+      ).rejects.toThrow('Test error')
+
+      expect(testSpinner.start).toHaveBeenCalled()
+    })
+
+    it('should work without spinner instance', async () => {
+      const result = await withSpinnerRestore({
+        operation: async () => {
+          return 'success'
+        },
+        wasSpinning: true,
+      })
+      expect(result).toBe('success')
+    })
+
+    it('should handle undefined spinner with wasSpinning true', async () => {
+      const result = await withSpinnerRestore({
+        operation: async () => {
+          return 'done'
+        },
+        spinner: undefined,
+        wasSpinning: true,
+      })
+      expect(result).toBe('done')
+    })
+  })
+
+  describe('withSpinnerSync', () => {
+    let testSpinner: any
+
+    beforeEach(() => {
+      testSpinner = Spinner()
+    })
+
+    afterEach(() => {
+      try {
+        if (testSpinner && testSpinner.isSpinning) {
+          testSpinner.stop()
+        }
+      } catch {}
+    })
+
+    it('should execute synchronous operation with spinner', () => {
+      const result = withSpinnerSync({
+        message: 'Processing...',
+        operation: () => {
+          return 'success'
+        },
+        spinner: testSpinner,
+      })
+      expect(result).toBe('success')
+      expect(testSpinner.isSpinning).toBe(false)
+    })
+
+    it('should stop spinner even if operation throws', () => {
+      expect(() =>
+        withSpinnerSync({
+          message: 'Processing...',
+          operation: () => {
+            throw new Error('Operation failed')
+          },
+          spinner: testSpinner,
+        }),
+      ).toThrow('Operation failed')
+      expect(testSpinner.isSpinning).toBe(false)
+    })
+
+    it('should work without spinner instance', () => {
+      const result = withSpinnerSync({
+        message: 'Processing...',
+        operation: () => {
+          return 'success'
+        },
+      })
+      expect(result).toBe('success')
+    })
+
+    it('should handle undefined spinner', () => {
+      const result = withSpinnerSync({
+        message: 'Processing...',
+        operation: () => {
+          return 99
+        },
+        spinner: undefined,
+      })
+      expect(result).toBe(99)
+    })
+
+    it('should stop spinner after successful operation', () => {
+      testSpinner.start = vi.fn(testSpinner.start)
+      testSpinner.stop = vi.fn(testSpinner.stop)
+
+      withSpinnerSync({
+        message: 'Loading...',
+        operation: () => {
+          return 'done'
+        },
+        spinner: testSpinner,
+      })
+
+      expect(testSpinner.start).toHaveBeenCalledWith('Loading...')
+      expect(testSpinner.stop).toHaveBeenCalled()
+    })
+
+    it('should handle complex return types', () => {
+      const result = withSpinnerSync({
+        message: 'Computing...',
+        operation: () => {
+          return { data: [1, 2, 3], status: 'ok' }
+        },
+        spinner: testSpinner,
+      })
+      expect(result).toEqual({ data: [1, 2, 3], status: 'ok' })
     })
   })
 })
