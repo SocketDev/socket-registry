@@ -257,11 +257,14 @@ describe('dlx-binary', () => {
       const cachePath = getDlxCachePath()
       const fs = await import('node:fs/promises')
 
-      await dlxBinary(['--version'], {
+      const { spawnPromise } = await dlxBinary(['--version'], {
         name: 'test-binary-clean',
         spawnOptions: { cwd: tmpDir },
         url: `${baseUrl}/test-binary?test=clean`,
       })
+
+      // Wait for the spawned process to complete before cleaning cache.
+      await spawnPromise
 
       const entries = await fs.readdir(cachePath).catch(() => [])
       const hasEntries = entries.length > 0
@@ -274,11 +277,14 @@ describe('dlx-binary', () => {
     })
 
     it('should not clean recent cache entries', async () => {
-      await dlxBinary(['--version'], {
+      const { spawnPromise } = await dlxBinary(['--version'], {
         name: 'test-binary-recent',
         spawnOptions: { cwd: tmpDir },
         url: `${baseUrl}/test-binary?test=recent`,
       })
+
+      // Wait for the spawned process to complete.
+      await spawnPromise
 
       const cleaned = await cleanDlxCache(1000000)
       expect(cleaned).toBeGreaterThanOrEqual(0)
@@ -350,11 +356,14 @@ describe('dlx-binary', () => {
     })
 
     it('should handle Windows paths correctly', async () => {
-      const { binaryPath } = await dlxBinary(['--version'], {
+      const { binaryPath, spawnPromise } = await dlxBinary(['--version'], {
         name: 'test-binary-windows',
         spawnOptions: { cwd: tmpDir },
         url: `${baseUrl}/test-binary?test=windows`,
       })
+
+      // Wait for the spawned process to complete.
+      await spawnPromise
 
       expect(binaryPath).not.toContain('\\')
       expect(path.isAbsolute(binaryPath)).toBe(true)

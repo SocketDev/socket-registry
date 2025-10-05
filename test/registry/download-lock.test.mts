@@ -171,7 +171,7 @@ describe('downloadWithLock', () => {
       await fs.writeFile(
         lockPath,
         JSON.stringify({
-          pid: 999999,
+          pid: process.pid,
           startTime: Date.now(),
           url: `${baseUrl}/test-file`,
         }),
@@ -231,7 +231,7 @@ describe('downloadWithLock', () => {
       await fs.writeFile(
         lockPath,
         JSON.stringify({
-          pid: 999999,
+          pid: process.pid,
           startTime: Date.now(),
           url: `${baseUrl}/test-file`,
         }),
