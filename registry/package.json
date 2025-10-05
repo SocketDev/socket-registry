@@ -1151,6 +1151,10 @@
       "types": "./dist/lib/cacache.d.ts",
       "default": "./dist/lib/cacache.js"
     },
+    "./lib/cache-with-ttl": {
+      "types": "./dist/lib/cache-with-ttl.d.ts",
+      "default": "./dist/lib/cache-with-ttl.js"
+    },
     "./lib/constants": {
       "types": "./dist/lib/constants/index.d.ts",
       "default": "./dist/lib/constants/index.js"
