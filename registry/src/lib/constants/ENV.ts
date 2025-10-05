@@ -25,6 +25,8 @@ if (loweredDebug === '1' || loweredDebug === 'true') {
 }
 
 const HOME = envAsString(env['HOME'])
+// TMPDIR (POSIX), TEMP (Windows), or TMP (fallback).
+const TMPDIR = envAsString(env['TMPDIR'] || env['TEMP'] || env['TMP'])
 
 export default ObjectFreeze({
   __proto__: null,
@@ -67,6 +69,8 @@ export default ObjectFreeze({
   PRE_COMMIT: envAsBoolean(env['PRE_COMMIT']),
   // Enable debug logging in Socket CLI.
   SOCKET_CLI_DEBUG: !!DEBUG || envAsBoolean(env['SOCKET_CLI_DEBUG']),
+  // Temporary directory path. TMPDIR (POSIX), TEMP (Windows), or TMP (fallback).
+  TMPDIR,
   // Enable verbose build output.
   VERBOSE_BUILD: envAsBoolean(env['VERBOSE_BUILD']),
   // VITEST=true is set by the Vitest test runner.
