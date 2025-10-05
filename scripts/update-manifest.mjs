@@ -209,15 +209,21 @@ async function main() {
     }
   }
   const { spinner } = constants
-  spinner.start(`Updating ${constants.relRegistryManifestJsonPath}...`)
-  const manifest = {}
-  await addNpmManifestData(manifest, { spinner })
-  const { registryManifestJsonPath } = constants
-  const output = await biomeFormat(JSON.stringify(manifest, null, 2), {
-    filepath: registryManifestJsonPath,
+  const { withSpinner } = await import('../registry/dist/lib/spinner.js')
+
+  await withSpinner({
+    message: `Updating ${constants.relRegistryManifestJsonPath}...`,
+    operation: async () => {
+      const manifest = {}
+      await addNpmManifestData(manifest, { spinner })
+      const { registryManifestJsonPath } = constants
+      const output = await biomeFormat(JSON.stringify(manifest, null, 2), {
+        filepath: registryManifestJsonPath,
+      })
+      await fs.writeFile(registryManifestJsonPath, output, 'utf8')
+    },
+    spinner,
   })
-  await fs.writeFile(registryManifestJsonPath, output, 'utf8')
-  spinner.stop()
 }
 
 main().catch(console.error)

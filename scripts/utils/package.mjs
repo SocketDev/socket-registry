@@ -142,34 +142,39 @@ async function processWithSpinner(items, processor, options = {}) {
     successMessage,
   } = options
 
-  if (spinner && startMessage) {
-    spinner.start(startMessage)
-  }
-
   const results = []
   const errors = []
 
-  await pEach(
-    items,
-    async item => {
-      try {
-        const result = await processor(item)
-        results.push(result)
-      } catch (error) {
-        errors.push({ item, error })
-      }
-    },
-    { concurrency },
-  )
+  const processItems = async () => {
+    await pEach(
+      items,
+      async item => {
+        try {
+          const result = await processor(item)
+          results.push(result)
+        } catch (error) {
+          errors.push({ item, error })
+        }
+      },
+      { concurrency },
+    )
+  }
 
-  if (spinner) {
+  if (spinner && startMessage) {
+    const { withSpinner } = await import('../../registry/dist/lib/spinner.js')
+    await withSpinner({
+      message: startMessage,
+      operation: processItems,
+      spinner,
+    })
+
     if (errors.length > 0 && errorMessage) {
-      spinner.errorAndStop(`${errorMessage}: ${errors.length} failed`)
+      spinner.error(`${errorMessage}: ${errors.length} failed`)
     } else if (successMessage) {
-      spinner.successAndStop(successMessage)
-    } else {
-      spinner.stop()
+      spinner.success(successMessage)
     }
+  } else {
+    await processItems()
   }
 
   return { results, errors }

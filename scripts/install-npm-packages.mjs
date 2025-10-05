@@ -1235,48 +1235,52 @@ async function main() {
   installedCount = 0
   totalPackagesCount = filteredPackages.length
 
-  spinner.start()
-
-  // Update spinner text when progress changes.
-  // In CI environments, batch updates to avoid excessive line output.
-  const updateInterval = ENV.CI
-    ? PROGRESS_UPDATE_INTERVAL_CI
-    : PROGRESS_UPDATE_INTERVAL_DEV
-  let lastCompletedCount = 0
-  const progressInterval = setInterval(
-    () => {
-      if (completedPackages !== lastCompletedCount) {
-        // Only update display at intervals to reduce output in CI.
-        if (
-          completedPackages % updateInterval === 0 ||
-          completedPackages === totalPackagesCount
-        ) {
-          spinner.text = `Installing ${completedPackages}/${totalPackagesCount} ${pluralize('package', { count: filteredPackages.length })}`
-        }
-        lastCompletedCount = completedPackages
-      }
-    },
-    ENV.CI ? PROGRESS_TIMER_INTERVAL_CI_MS : PROGRESS_TIMER_INTERVAL_DEV_MS,
-  )
-
   // Ensure base temp directory exists.
   await fs.mkdir(tempBaseDir, { recursive: true })
 
   const results = []
+  const { withSpinner } = await import('../registry/dist/lib/spinner.js')
 
-  try {
-    await pEach(
-      filteredPackages,
-      async packageInfo => {
-        const result = await installPackage(packageInfo)
-        results.push(result)
-      },
-      { concurrency },
-    )
-  } finally {
-    clearInterval(progressInterval)
-    spinner.stop()
-  }
+  await withSpinner({
+    message: 'Installing packages...',
+    operation: async () => {
+      // Update spinner text when progress changes.
+      // In CI environments, batch updates to avoid excessive line output.
+      const updateInterval = ENV.CI
+        ? PROGRESS_UPDATE_INTERVAL_CI
+        : PROGRESS_UPDATE_INTERVAL_DEV
+      let lastCompletedCount = 0
+      const progressInterval = setInterval(
+        () => {
+          if (completedPackages !== lastCompletedCount) {
+            // Only update display at intervals to reduce output in CI.
+            if (
+              completedPackages % updateInterval === 0 ||
+              completedPackages === totalPackagesCount
+            ) {
+              spinner.text = `Installing ${completedPackages}/${totalPackagesCount} ${pluralize('package', { count: filteredPackages.length })}`
+            }
+            lastCompletedCount = completedPackages
+          }
+        },
+        ENV.CI ? PROGRESS_TIMER_INTERVAL_CI_MS : PROGRESS_TIMER_INTERVAL_DEV_MS,
+      )
+
+      try {
+        await pEach(
+          filteredPackages,
+          async packageInfo => {
+            const result = await installPackage(packageInfo)
+            results.push(result)
+          },
+          { concurrency },
+        )
+      } finally {
+        clearInterval(progressInterval)
+      }
+    },
+    spinner,
+  })
 
   // Show progress summary.
   if (cachedCount > 0) {
