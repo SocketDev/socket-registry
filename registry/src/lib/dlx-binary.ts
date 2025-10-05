@@ -6,8 +6,11 @@ import os from 'node:os'
 import path from 'node:path'
 
 import DLX_BINARY_CACHE_TTL from './constants/DLX_BINARY_CACHE_TTL'
-import { readJson, remove } from './fs'
+import EXT_CMD from './constants/EXT_CMD'
+import WIN32 from './constants/WIN32'
+import { isDir, readJson, remove } from './fs'
 import { httpRequest } from './http-request'
+import { isObjectObject } from './objects'
 import { normalizePath } from './path'
 import { getSocketHomePath } from './paths'
 import { spawn } from './spawn'
@@ -71,7 +74,7 @@ async function isCacheValid(
     }
 
     const metadata = await readJson(metaPath, { throws: false })
-    if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) {
+    if (!isObjectObject(metadata)) {
       return false
     }
     const now = Date.now()
@@ -124,7 +127,7 @@ async function downloadBinary(
     await fs.writeFile(tempPath, buffer)
 
     // Make executable on POSIX systems.
-    if (os.platform() !== 'win32') {
+    if (!WIN32) {
       await fs.chmod(tempPath, 0o755)
     }
 
@@ -135,7 +138,7 @@ async function downloadBinary(
   } catch (e) {
     // Clean up temp file on error.
     try {
-      await fs.unlink(tempPath)
+      await remove(tempPath)
     } catch {
       // Ignore cleanup errors.
     }
@@ -185,8 +188,7 @@ export async function cleanDlxCache(
 
     try {
       // eslint-disable-next-line no-await-in-loop
-      const stats = await fs.stat(entryPath)
-      if (!stats.isDirectory()) {
+      if (!(await isDir(entryPath))) {
         continue
       }
 
@@ -239,7 +241,7 @@ export async function dlxBinary(
     checksum,
     force = false,
     name,
-    platform = os.platform(),
+    platform = process.platform,
     spawnOptions,
     url,
   } = { __proto__: null, ...options } as DlxBinaryOptions
@@ -249,8 +251,8 @@ export async function dlxBinary(
   const cacheKey = generateCacheKey(url)
   const cacheEntryDir = path.join(cacheDir, cacheKey)
   const platformKey = `${platform}-${arch}`
-  const binaryName =
-    name || `binary-${platformKey}${platform === 'win32' ? '.exe' : ''}`
+  const ext = WIN32 ? EXT_CMD : ''
+  const binaryName = name || `binary-${platformKey}${ext}`
   const binaryPath = normalizePath(path.join(cacheEntryDir, binaryName))
 
   let downloaded = false
@@ -295,7 +297,12 @@ export async function dlxBinary(
   }
 
   // Execute the binary.
-  const spawnPromise = spawn(binaryPath, args, spawnOptions, spawnExtra)
+  // On Windows, script files (.bat, .cmd, .ps1) require shell: true.
+  const finalSpawnOptions =
+    WIN32 && /\.(?:bat|cmd|ps1)$/i.test(binaryPath)
+      ? { ...spawnOptions, shell: true }
+      : spawnOptions
+  const spawnPromise = spawn(binaryPath, args, finalSpawnOptions, spawnExtra)
 
   return {
     binaryPath,
@@ -340,8 +347,7 @@ export async function listDlxCache(): Promise<
     const entryPath = path.join(cacheDir, entry)
     try {
       // eslint-disable-next-line no-await-in-loop
-      const stats = await fs.stat(entryPath)
-      if (!stats.isDirectory()) {
+      if (!(await isDir(entryPath))) {
         continue
       }
 
