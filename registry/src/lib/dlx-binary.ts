@@ -6,7 +6,6 @@ import os from 'node:os'
 import path from 'node:path'
 
 import DLX_BINARY_CACHE_TTL from './constants/DLX_BINARY_CACHE_TTL'
-import EXT_CMD from './constants/EXT_CMD'
 import WIN32 from './constants/WIN32'
 import { isDir, readJson, remove } from './fs'
 import { httpRequest } from './http-request'
@@ -250,9 +249,8 @@ export async function dlxBinary(
   const cacheDir = getDlxCachePath()
   const cacheKey = generateCacheKey(url)
   const cacheEntryDir = path.join(cacheDir, cacheKey)
-  // Use current platform for extension since we'll execute on current platform.
-  const ext = WIN32 ? EXT_CMD : ''
-  const binaryName = name || `binary-${targetPlatform}-${arch}${ext}`
+  const platformKey = `${targetPlatform}-${arch}`
+  const binaryName = name || `binary-${platformKey}`
   const binaryPath = normalizePath(path.join(cacheEntryDir, binaryName))
 
   let downloaded = false
