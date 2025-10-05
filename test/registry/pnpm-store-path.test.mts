@@ -77,13 +77,8 @@ describe('pnpm-store-path', () => {
     })
   })
 
-  describe('macOS platform', () => {
+  describe.skipIf(process.platform !== 'darwin')('macOS platform', () => {
     it('should use Library/pnpm/store on macOS', async () => {
-      vi.stubGlobal('process', {
-        ...process,
-        env: { ...originalEnv, HOME: '/Users/testuser' },
-        platform: 'darwin',
-      })
       const { default: pnpmStorePath } = await import(
         '../../registry/dist/lib/constants/pnpm-store-path.js'
       )
@@ -97,11 +92,6 @@ describe('pnpm-store-path', () => {
     'Linux default location',
     () => {
       it('should use ~/.local/share/pnpm/store on Linux', async () => {
-        vi.stubGlobal('process', {
-          ...process,
-          env: { ...originalEnv, HOME: '/home/testuser' },
-          platform: 'linux',
-        })
         const { default: pnpmStorePath } = await import(
           '../../registry/dist/lib/constants/pnpm-store-path.js'
         )
