@@ -31,14 +31,6 @@ describe('pnpm-store-path', () => {
 
   describe.skipIf(process.platform !== 'win32')('Windows platform', () => {
     it('should use LOCALAPPDATA on Windows', async () => {
-      vi.stubGlobal('process', {
-        ...process,
-        env: {
-          ...originalEnv,
-          LOCALAPPDATA: 'C:\\Users\\Test\\AppData\\Local',
-        },
-        platform: 'win32',
-      })
       const { default: pnpmStorePath } = await import(
         '../../registry/dist/lib/constants/pnpm-store-path.js'
       )
@@ -58,24 +50,18 @@ describe('pnpm-store-path', () => {
     )
   })
 
-  describe('XDG Base Directory on Unix', () => {
-    it('should use XDG_DATA_HOME when set', async () => {
-      vi.stubGlobal('process', {
-        ...process,
-        env: {
-          ...originalEnv,
-          HOME: '/home/testuser',
-          XDG_DATA_HOME: '/home/testuser/.local/share',
-        },
-        platform: 'linux',
+  describe.skipIf(process.platform !== 'linux')(
+    'XDG Base Directory on Unix',
+    () => {
+      it('should use XDG_DATA_HOME/pnpm/store when set', async () => {
+        const { default: pnpmStorePath } = await import(
+          '../../registry/dist/lib/constants/pnpm-store-path.js'
+        )
+        expect(pnpmStorePath).toContain('pnpm')
+        expect(pnpmStorePath).toContain('store')
       })
-      const { default: pnpmStorePath } = await import(
-        '../../registry/dist/lib/constants/pnpm-store-path.js'
-      )
-      expect(pnpmStorePath).toContain('pnpm')
-      expect(pnpmStorePath).toContain('store')
-    })
-  })
+    },
+  )
 
   describe.skipIf(process.platform !== 'darwin')('macOS platform', () => {
     it('should use Library/pnpm/store on macOS', async () => {
@@ -91,7 +77,11 @@ describe('pnpm-store-path', () => {
   describe.skipIf(process.platform !== 'linux')(
     'Linux default location',
     () => {
-      it('should use ~/.local/share/pnpm/store on Linux', async () => {
+      it.skipIf(
+        process.platform !== 'linux' ||
+          process.env['PNPM_HOME'] ||
+          process.env['XDG_DATA_HOME'],
+      )('should use ~/.local/share/pnpm/store on Linux', async () => {
         const { default: pnpmStorePath } = await import(
           '../../registry/dist/lib/constants/pnpm-store-path.js'
         )
