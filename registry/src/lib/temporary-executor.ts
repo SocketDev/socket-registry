@@ -3,8 +3,6 @@
  * Identifies and handles temporary execution contexts such as npx, pnpm dlx, and yarn dlx.
  */
 
-import path from 'node:path'
-
 import { normalizePath } from './path'
 
 /**
@@ -45,11 +43,12 @@ export function isRunningInTemporaryExecutor(cwd = process.cwd()): boolean {
     'dlx-',
     // Yarn Berry PnP virtual packages.
     '.yarn/$$',
-    // Yarn on Windows.
-    path.sep === '\\'
-      ? 'AppData\\Local\\Temp\\xfs-'
-      : 'AppData/Local/Temp/xfs-',
   ]
+
+  // Yarn on Windows uses AppData/Local/Temp/xfs- pattern.
+  if (process.platform === 'win32') {
+    tempPatterns.push('AppData/Local/Temp/xfs-')
+  }
 
   return tempPatterns.some(pattern => normalizedCwd.includes(pattern))
 }
