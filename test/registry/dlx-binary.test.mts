@@ -22,15 +22,15 @@ import { trash } from '../../scripts/utils/fs.mjs'
 
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
-const TEST_BINARY_CONTENT =
-  process.platform === 'win32'
-    ? '@echo off\r\necho test binary'
-    : '#!/bin/sh\necho "test binary"'
+const WIN32 = process.platform === 'win32'
 
-const SLOW_BINARY_CONTENT =
-  process.platform === 'win32'
-    ? '@echo off\r\necho slow binary'
-    : '#!/bin/sh\necho "slow binary"'
+const TEST_BINARY_CONTENT = WIN32
+  ? '@echo off\r\necho test binary'
+  : '#!/bin/sh\necho "test binary"'
+
+const SLOW_BINARY_CONTENT = WIN32
+  ? '@echo off\r\necho slow binary'
+  : '#!/bin/sh\necho "slow binary"'
 
 describe('dlx-binary', () => {
   let server: ReturnType<typeof createServer>
@@ -104,8 +104,9 @@ describe('dlx-binary', () => {
 
   describe('dlxBinary', () => {
     it('should download and cache a binary', async () => {
+      const binaryName = WIN32 ? 'test-binary.cmd' : 'test-binary'
       const { binaryPath, downloaded } = await dlxBinary(['--version'], {
-        name: 'test-binary',
+        name: binaryName,
         spawnOptions: { cwd: tmpDir },
         url: `${baseUrl}/test-binary?test=download-cache`,
       })
@@ -123,8 +124,9 @@ describe('dlx-binary', () => {
     })
 
     it('should use cached binary on subsequent calls', async () => {
+      const binaryName = WIN32 ? 'test-binary-cached.cmd' : 'test-binary-cached'
       const options = {
-        name: 'test-binary-cached',
+        name: binaryName,
         spawnOptions: { cwd: tmpDir },
         url: `${baseUrl}/test-binary?test=cached`,
       }
@@ -138,8 +140,9 @@ describe('dlx-binary', () => {
     })
 
     it('should force re-download when force option is true', async () => {
+      const binaryName = WIN32 ? 'test-binary-force.cmd' : 'test-binary-force'
       const options = {
-        name: 'test-binary-force',
+        name: binaryName,
         spawnOptions: { cwd: tmpDir },
         url: `${baseUrl}/test-binary?test=force`,
       }
@@ -156,7 +159,7 @@ describe('dlx-binary', () => {
 
     it('should generate binary name based on platform when name is not provided', async () => {
       const { binaryPath, spawnPromise } = await dlxBinary(['--version'], {
-        name: process.platform === 'win32' ? 'test-binary.cmd' : undefined,
+        name: WIN32 ? 'test-binary.cmd' : undefined,
         spawnOptions: { cwd: tmpDir },
         url: `${baseUrl}/test-binary?test=platform`,
       })
@@ -164,7 +167,7 @@ describe('dlx-binary', () => {
       // Wait for spawn to complete.
       await spawnPromise.catch(() => {})
 
-      if (process.platform === 'win32') {
+      if (WIN32) {
         // On Windows, when name is provided with .cmd extension, it should be preserved.
         expect(binaryPath).toContain('.cmd')
       } else {
@@ -174,6 +177,9 @@ describe('dlx-binary', () => {
     })
 
     it('should verify checksum when provided', async () => {
+      const binaryName = WIN32
+        ? 'test-binary-checksum.cmd'
+        : 'test-binary-checksum'
       const crypto = await import('node:crypto')
       const expectedChecksum = crypto
         .createHash('sha256')
@@ -182,7 +188,7 @@ describe('dlx-binary', () => {
 
       const { downloaded } = await dlxBinary(['--version'], {
         checksum: expectedChecksum,
-        name: 'test-binary-checksum',
+        name: binaryName,
         spawnOptions: { cwd: tmpDir },
         url: `${baseUrl}/test-binary?test=checksum`,
       })
@@ -191,10 +197,13 @@ describe('dlx-binary', () => {
     })
 
     it('should throw error when checksum does not match', async () => {
+      const binaryName = WIN32
+        ? 'test-binary-bad-checksum.cmd'
+        : 'test-binary-bad-checksum'
       await expect(
         dlxBinary(['--version'], {
           checksum: 'invalid-checksum',
-          name: 'test-binary-bad-checksum',
+          name: binaryName,
           spawnOptions: { cwd: tmpDir },
           url: `${baseUrl}/test-binary?test=bad-checksum`,
         }),
@@ -202,9 +211,10 @@ describe('dlx-binary', () => {
     })
 
     it('should respect custom cacheTtl', async () => {
+      const binaryName = WIN32 ? 'test-binary-ttl.cmd' : 'test-binary-ttl'
       const { binaryPath } = await dlxBinary(['--version'], {
         cacheTtl: 1000,
-        name: 'test-binary-ttl',
+        name: binaryName,
         spawnOptions: { cwd: tmpDir },
         url: `${baseUrl}/test-binary?test=ttl`,
       })
@@ -239,8 +249,9 @@ describe('dlx-binary', () => {
     })
 
     it('should list cached binaries', async () => {
+      const binaryName = WIN32 ? 'test-binary-list.cmd' : 'test-binary-list'
       await dlxBinary(['--version'], {
-        name: 'test-binary-list',
+        name: binaryName,
         spawnOptions: { cwd: tmpDir },
         url: `${baseUrl}/test-binary?test=list`,
       })
@@ -249,7 +260,7 @@ describe('dlx-binary', () => {
       expect(Array.isArray(list)).toBe(true)
 
       if (list.length > 0) {
-        const entry = list.find(e => e.name === 'test-binary-list')
+        const entry = list.find(e => e.name === binaryName)
         if (entry) {
           expect(entry).toHaveProperty('url')
           expect(entry).toHaveProperty('size')
@@ -269,18 +280,17 @@ describe('dlx-binary', () => {
     })
 
     it('should clean expired cache entries', async () => {
+      const binaryName = WIN32 ? 'test-binary-clean.cmd' : 'test-binary-clean'
       const cachePath = getDlxCachePath()
       const fs = await import('node:fs/promises')
 
       const { spawnPromise } = await dlxBinary(['--version'], {
-        name: 'test-binary-clean',
+        name: binaryName,
         spawnOptions: { cwd: tmpDir },
         url: `${baseUrl}/test-binary?test=clean`,
       })
 
       // Wait for the spawned process to complete before cleaning cache.
-      // On Windows, the shell script will fail to execute, but that's okay -
-      // this test is about cache cleaning, not binary execution.
       await spawnPromise.catch(() => {})
 
       const entries = await fs.readdir(cachePath).catch(() => [])
@@ -294,15 +304,14 @@ describe('dlx-binary', () => {
     })
 
     it('should not clean recent cache entries', async () => {
+      const binaryName = WIN32 ? 'test-binary-recent.cmd' : 'test-binary-recent'
       const { spawnPromise } = await dlxBinary(['--version'], {
-        name: 'test-binary-recent',
+        name: binaryName,
         spawnOptions: { cwd: tmpDir },
         url: `${baseUrl}/test-binary?test=recent`,
       })
 
       // Wait for the spawned process to complete.
-      // On Windows, the shell script will fail to execute, but we catch the error
-      // since this test verifies cache TTL behavior, not binary execution.
       await spawnPromise.catch(() => {})
 
       const cleaned = await cleanDlxCache(1000000)
@@ -338,9 +347,10 @@ describe('dlx-binary', () => {
 
   describe('error handling', () => {
     it('should throw error when download fails', async () => {
+      const binaryName = WIN32 ? 'test-binary-error.cmd' : 'test-binary-error'
       await expect(
         dlxBinary(['--version'], {
-          name: 'test-binary-error',
+          name: binaryName,
           spawnOptions: { cwd: tmpDir },
           url: `${baseUrl}/error`,
         }),
@@ -348,9 +358,12 @@ describe('dlx-binary', () => {
     })
 
     it('should throw error when URL is invalid', async () => {
+      const binaryName = WIN32
+        ? 'test-binary-invalid.cmd'
+        : 'test-binary-invalid'
       await expect(
         dlxBinary(['--version'], {
-          name: 'test-binary-invalid',
+          name: binaryName,
           spawnOptions: { cwd: tmpDir },
           url: 'invalid-url',
         }),
@@ -359,32 +372,33 @@ describe('dlx-binary', () => {
   })
 
   describe('cross-platform behavior', () => {
-    it('should set executable permissions on POSIX systems', async () => {
-      const { binaryPath } = await dlxBinary(['--version'], {
-        name: 'test-binary-perms',
-        spawnOptions: { cwd: tmpDir },
-        url: `${baseUrl}/test-binary?test=perms`,
-      })
+    it.skipIf(WIN32)(
+      'should set executable permissions on POSIX systems',
+      async () => {
+        const { binaryPath } = await dlxBinary(['--version'], {
+          name: 'test-binary-perms',
+          spawnOptions: { cwd: tmpDir },
+          url: `${baseUrl}/test-binary?test=perms`,
+        })
 
-      if (process.platform !== 'win32') {
         const fs = await import('node:fs/promises')
         const stats = await fs.stat(binaryPath)
         const mode = stats.mode & 0o777
         expect(mode & 0o111).not.toBe(0)
-      }
-    })
+      },
+    )
 
     it('should handle Windows paths correctly', async () => {
+      const binaryName = WIN32
+        ? 'test-binary-windows.cmd'
+        : 'test-binary-windows'
       const { binaryPath, spawnPromise } = await dlxBinary(['--version'], {
-        name: 'test-binary-windows',
+        name: binaryName,
         spawnOptions: { cwd: tmpDir },
         url: `${baseUrl}/test-binary?test=windows`,
       })
 
       // Wait for the spawned process to complete.
-      // On Windows, the shell script won't execute, but this test is about
-      // verifying that dlxBinary returns normalized paths (forward slashes)
-      // regardless of platform, for cross-platform consistency.
       await spawnPromise.catch(() => {})
 
       expect(binaryPath).not.toContain('\\')
