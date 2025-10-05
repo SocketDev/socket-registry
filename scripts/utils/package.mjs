@@ -10,10 +10,7 @@ import path from 'node:path'
 
 import constants from '../constants.mjs'
 import WIN32 from '../../registry/dist/lib/constants/WIN32.js'
-import {
-  readPackageJson,
-  resolveOriginalPackageName,
-} from '../../registry/dist/lib/packages.js'
+import { readPackageJson } from '../../registry/dist/lib/packages.js'
 import { pEach } from '../../registry/dist/lib/promises.js'
 import { spawn } from '../../registry/dist/lib/spawn.js'
 import { cleanTestScript } from '../../test/utils/script-cleaning.mjs'
@@ -286,96 +283,104 @@ async function runCommand(command, args, options = {}) {
 
 /**
  * Install a package for testing in a temporary directory.
+ *
+ * @param {string} sourcePath - Absolute path to package source directory
+ * @param {string} packageName - Package name for node_modules installation
+ * @param {object} options - Installation options
+ * @param {string} [options.versionSpec] - Version or URL to install (optional, for npm packages)
+ * @returns {Promise<{installed: boolean, packagePath?: string, reason?: string}>}
  */
-async function installPackageForTesting(socketPkgName) {
-  const origPkgName = resolveOriginalPackageName(socketPkgName)
+async function installPackageForTesting(sourcePath, packageName, options = {}) {
+  const { versionSpec } = options
 
-  const overridePath = path.join(constants.npmPackagesPath, socketPkgName)
-
-  if (!existsSync(overridePath)) {
+  if (!existsSync(sourcePath)) {
     return {
       installed: false,
-      reason: 'No Socket override found',
+      reason: `Source path does not exist: ${sourcePath}`,
     }
   }
 
   try {
-    // Read the test/npm/package.json to get the version spec.
-    const testPkgJson = await readPackageJson(constants.testNpmPkgJsonPath, {
-      normalize: true,
-    })
-    const versionSpec = testPkgJson.devDependencies?.[origPkgName]
-
-    if (!versionSpec) {
-      return {
-        installed: false,
-        reason: 'Not in devDependencies',
-      }
-    }
-
     // Create temp directory for this package.
+    const sanitizedName = packageName.replace(/[@/]/g, '-')
     const tempDir = await fs.mkdtemp(
-      path.join(os.tmpdir(), `socket-test-${socketPkgName}-`),
+      path.join(os.tmpdir(), `socket-test-${sanitizedName}-`),
     )
-    const packageTempDir = path.join(tempDir, socketPkgName)
+    const packageTempDir = path.join(tempDir, sanitizedName)
     await fs.mkdir(packageTempDir, { recursive: true })
 
-    // Create minimal package.json in temp directory.
-    await fs.writeFile(
-      path.join(packageTempDir, 'package.json'),
-      JSON.stringify(
-        {
-          name: 'test-temp',
-          version: '1.0.0',
-          private: true,
-        },
-        null,
-        2,
-      ),
-    )
+    let installedPath
+    let originalScripts
+    let originalDevDependencies
 
-    // Install the package.
-    const packageSpec = versionSpec.startsWith('https://')
-      ? versionSpec
-      : `${origPkgName}@${versionSpec}`
+    if (versionSpec) {
+      // Installing from npm registry first, then copying source on top
+      // Create minimal package.json in temp directory.
+      await fs.writeFile(
+        path.join(packageTempDir, 'package.json'),
+        JSON.stringify(
+          {
+            name: 'test-temp',
+            version: '1.0.0',
+            private: true,
+          },
+          null,
+          2,
+        ),
+      )
 
-    await runCommand('pnpm', ['add', packageSpec, ...PNPM_NPM_LIKE_FLAGS], {
-      cwd: packageTempDir,
-    })
+      // Install the package.
+      const packageSpec = versionSpec.startsWith('https://')
+        ? versionSpec
+        : `${packageName}@${versionSpec}`
 
-    // Copy Socket override files on top.
-    const installedPath = path.join(packageTempDir, 'node_modules', origPkgName)
+      await runCommand('pnpm', ['add', packageSpec, ...PNPM_NPM_LIKE_FLAGS], {
+        cwd: packageTempDir,
+      })
 
-    // Check if the installed path is a symlink to the override path.
-    let realInstalledPath
-    try {
-      realInstalledPath = await fs.realpath(installedPath)
-    } catch {
-      realInstalledPath = path.resolve(installedPath)
-    }
+      installedPath = path.join(packageTempDir, 'node_modules', packageName)
 
-    let realOverridePath
-    try {
-      realOverridePath = await fs.realpath(overridePath)
-    } catch {
-      realOverridePath = path.resolve(overridePath)
-    }
-
-    // Skip if source and destination resolve to the same path.
-    if (realOverridePath === realInstalledPath) {
-      return {
-        installed: false,
-        reason: 'Package is already a Socket override (symlinked)',
+      // Check if the installed path is a symlink to the source path.
+      let realInstalledPath
+      try {
+        realInstalledPath = await fs.realpath(installedPath)
+      } catch {
+        realInstalledPath = path.resolve(installedPath)
       }
+
+      let realSourcePath
+      try {
+        realSourcePath = await fs.realpath(sourcePath)
+      } catch {
+        realSourcePath = path.resolve(sourcePath)
+      }
+
+      // Skip if source and destination resolve to the same path.
+      if (realSourcePath === realInstalledPath) {
+        return {
+          installed: false,
+          reason: 'Package is already a Socket override (symlinked)',
+        }
+      }
+
+      // Save original scripts and devDependencies before copying.
+      const originalPkgJson = await readPackageJson(installedPath, {
+        normalize: true,
+      })
+      originalScripts = originalPkgJson.scripts
+      originalDevDependencies = originalPkgJson.devDependencies
+    } else {
+      // Just copying local package, no npm install
+      const scopedPath = packageName.startsWith('@')
+        ? path.join(packageTempDir, 'node_modules', packageName.split('/')[0])
+        : path.join(packageTempDir, 'node_modules')
+
+      await fs.mkdir(scopedPath, { recursive: true })
+      installedPath = path.join(packageTempDir, 'node_modules', packageName)
     }
 
-    // Save original scripts before copying.
-    const originalPkgJson = await readPackageJson(installedPath, {
-      normalize: true,
-    })
-    const originalScripts = originalPkgJson.scripts
-
-    await fs.cp(overridePath, installedPath, {
+    // Copy source files to installedPath
+    await fs.cp(sourcePath, installedPath, {
       force: true,
       recursive: true,
       dereference: true,
@@ -389,9 +394,9 @@ async function installPackageForTesting(socketPkgName) {
     const pkgJsonPath = path.join(installedPath, 'package.json')
     const pkgJson = JSON.parse(await fs.readFile(pkgJsonPath, 'utf8'))
 
-    // Preserve devDependencies from original.
-    if (originalPkgJson.devDependencies) {
-      pkgJson.devDependencies = originalPkgJson.devDependencies
+    // Preserve devDependencies from original (only when we installed from npm).
+    if (versionSpec && originalDevDependencies) {
+      pkgJson.devDependencies = originalDevDependencies
     }
 
     // Preserve test scripts.
