@@ -145,15 +145,23 @@ describe('dlx-binary', () => {
     })
 
     it('should generate binary name based on platform when name is not provided', async () => {
-      const { binaryPath } = await dlxBinary(['--version'], {
+      const { binaryPath, spawnPromise } = await dlxBinary(['--version'], {
         spawnOptions: { cwd: tmpDir },
         url: `${baseUrl}/test-binary?test=platform`,
       })
 
       if (os.platform() === 'win32') {
+        // On Windows, dlxBinary should append .exe to binary names.
         expect(binaryPath).toContain('.exe')
+        // The test server returns shell scripts, which can't be executed on Windows.
+        // We ignore spawn errors on Windows since this test is only validating the
+        // binary naming logic, not actual execution.
+        await spawnPromise.catch(() => {})
       } else {
+        // On Unix, binary names should not have .exe extension.
         expect(binaryPath).not.toContain('.exe')
+        // Shell scripts work on Unix, so wait for the process to complete.
+        await spawnPromise
       }
     })
 
@@ -264,7 +272,9 @@ describe('dlx-binary', () => {
       })
 
       // Wait for the spawned process to complete before cleaning cache.
-      await spawnPromise
+      // On Windows, the shell script will fail to execute, but that's okay -
+      // this test is about cache cleaning, not binary execution.
+      await spawnPromise.catch(() => {})
 
       const entries = await fs.readdir(cachePath).catch(() => [])
       const hasEntries = entries.length > 0
@@ -284,7 +294,9 @@ describe('dlx-binary', () => {
       })
 
       // Wait for the spawned process to complete.
-      await spawnPromise
+      // On Windows, the shell script will fail to execute, but we catch the error
+      // since this test verifies cache TTL behavior, not binary execution.
+      await spawnPromise.catch(() => {})
 
       const cleaned = await cleanDlxCache(1000000)
       expect(cleaned).toBeGreaterThanOrEqual(0)
@@ -363,7 +375,10 @@ describe('dlx-binary', () => {
       })
 
       // Wait for the spawned process to complete.
-      await spawnPromise
+      // On Windows, the shell script won't execute, but this test is about
+      // verifying that dlxBinary returns normalized paths (forward slashes)
+      // regardless of platform, for cross-platform consistency.
+      await spawnPromise.catch(() => {})
 
       expect(binaryPath).not.toContain('\\')
       expect(path.isAbsolute(binaryPath)).toBe(true)
