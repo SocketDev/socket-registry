@@ -37,9 +37,9 @@ You are a **Principal Software Engineer** responsible for:
 ## Important Project-Specific Rules
 
 ### 1. File Deletion Safety
-- **🚨 DEPRECATED**: Direct `trash` usage is superseded by `safeRemove` utility (see section 1.6)
+- **🚨 DEPRECATED**: Direct `trash` package usage is superseded by `trash` utility (see section 1.6)
 - **Registry/lib code**: Use native fs.rm for performance-critical operations
-- **All other code**: Use `safeRemove` utility for safe deletion with CI optimizations
+- **All other code**: Use `trash` utility for safe deletion with CI optimizations
 
 ### 1.5. Performance Critical Operations
 - This registry serves Socket's security analysis infrastructure
@@ -48,14 +48,14 @@ You are a **Principal Software Engineer** responsible for:
 - Avoid unnecessary allocations in hot paths
 
 ### 1.6. Safe File Removal Pattern
-- **🚨 MANDATORY**: Use `safeRemove` from `scripts/utils/fs.mjs` for ALL file deletion operations
+- **🚨 MANDATORY**: Use `trash` from `scripts/utils/fs.mjs` for ALL file deletion operations
 - **Reference Implementation**: Socket-registry contains the canonical implementation for all Socket projects
 - **Behavior**:
   - **Non-CI**: Uses trash for safety, falls back to fs.rm if trash fails
   - **CI**: Skips trash for performance, uses fs.rm directly
   - **Temp directories**: Silently ignores failures (system cleanup will handle them)
-- **Usage**: `import { safeRemove } from './scripts/utils/fs.mjs'` then `await safeRemove(paths, options)`
-- **❌ FORBIDDEN**: Direct use of `trash()`, `fs.rm()`, `fs.rmSync()`, or `rm -rf` commands
+- **Usage**: `import { trash } from './scripts/utils/fs.mjs'` then `await trash(paths, options)`
+- **❌ FORBIDDEN**: Direct use of `trash` package, `fs.rm()`, `fs.rmSync()`, or `rm -rf` commands
 - **Cross-project**: Other Socket projects should copy and adapt this implementation
 
 ### 2. Node.js Version Compatibility
@@ -495,22 +495,22 @@ This is a monorepo for Socket.dev optimized package overrides, built with JavaSc
 - **Memory limits**: Set `NODE_OPTIONS="--max-old-space-size=4096 --max-semi-space-size=512"` in `.env.test`
 - **Timeout settings**: Use `testTimeout: 60_000, hookTimeout: 60_000` for stability
 - **Thread limits**: Use `singleThread: true, maxThreads: 1` to prevent RegExp compiler exhaustion
-- **Test cleanup**: 🚨 MANDATORY - Use `await safeRemove(paths)` for all test cleanup operations
+- **Test cleanup**: 🚨 MANDATORY - Use `await trash(paths)` for all test cleanup operations
 
 ### 🗑️ Safe File Operations (SECURITY CRITICAL)
-- **🚨 MANDATORY**: Use `safeRemove` utility from `scripts/utils/fs.mjs` for ALL file deletion operations
-- **Import and usage**: `import { safeRemove } from './scripts/utils/fs.mjs'` then `await safeRemove(paths, options)`
+- **🚨 MANDATORY**: Use `trash` utility from `scripts/utils/fs.mjs` for ALL file deletion operations
+- **Import and usage**: `import { trash } from './scripts/utils/fs.mjs'` then `await trash(paths, options)`
 - **CI Optimized**: Automatically skips trash in CI for performance, uses fs.rm directly
 - **Temp directory aware**: Silently ignores failures for temp paths (system cleanup handles them)
 - **Array support**: Accepts single paths or arrays of paths
-- **Async requirement**: Always `await safeRemove()` - it's an async operation
-- **🚨 ABSOLUTELY FORBIDDEN**: Direct use of `fs.rmSync()`, `fs.rm()`, `trash()`, or `rm -rf` commands
+- **Async requirement**: Always `await trash()` - it's an async operation
+- **🚨 ABSOLUTELY FORBIDDEN**: Direct use of `fs.rmSync()`, `fs.rm()`, `trash` package, or `rm -rf` commands
 - **Examples**:
   - ❌ CATASTROPHIC: `rm -rf directory` (permanent deletion - DATA LOSS RISK)
   - ❌ REPOSITORY DESTROYER: `rm -rf "$(pwd)"` (deletes entire repository)
   - ❌ FORBIDDEN: `fs.rmSync(tmpDir, { recursive: true, force: true })` (no safety)
-  - ❌ FORBIDDEN: `await trash([tmpDir])` (no CI optimization)
-  - ✅ SAFE: `await safeRemove(tmpDir)` or `await safeRemove([tmpDir1, tmpDir2])`
+  - ❌ FORBIDDEN: `import trashPkg from 'trash'; await trashPkg([tmpDir])` (no CI optimization)
+  - ✅ SAFE: `await trash(tmpDir)` or `await trash([tmpDir1, tmpDir2])`
 - **Why this matters**: Provides recovery via system trash while optimizing CI performance
 
 ## Environment and Configuration
