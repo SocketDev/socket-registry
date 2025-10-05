@@ -27,10 +27,6 @@ export interface DlxBinaryOptions {
   cacheTtl?: number | undefined
   /** Force re-download even if cached. */
   force?: boolean | undefined
-  /** Platform override (defaults to current platform). */
-  platform?: NodeJS.Platform | undefined
-  /** Architecture override (defaults to current arch). */
-  arch?: string | undefined
   /** Additional spawn options. */
   spawnOptions?: SpawnOptions | undefined
 }
@@ -235,12 +231,10 @@ export async function dlxBinary(
   spawnExtra?: SpawnExtra | undefined,
 ): Promise<DlxBinaryResult> {
   const {
-    arch = os.arch(),
     cacheTtl = DLX_BINARY_CACHE_TTL,
     checksum,
     force = false,
     name,
-    platform: targetPlatform = process.platform,
     spawnOptions,
     url,
   } = { __proto__: null, ...options } as DlxBinaryOptions
@@ -249,7 +243,7 @@ export async function dlxBinary(
   const cacheDir = getDlxCachePath()
   const cacheKey = generateCacheKey(url)
   const cacheEntryDir = path.join(cacheDir, cacheKey)
-  const binaryName = name || `binary-${targetPlatform}-${arch}`
+  const binaryName = name || `binary-${process.platform}-${os.arch()}`
   const binaryPath = normalizePath(path.join(cacheEntryDir, binaryName))
 
   let downloaded = false
