@@ -35,11 +35,19 @@ describe('dlx-binary', () => {
 
       if (url === '/test-binary') {
         res.writeHead(200, { 'Content-Type': 'application/octet-stream' })
-        res.end('#!/bin/sh\necho "test binary"')
+        const content =
+          process.platform === 'win32'
+            ? '@echo off\r\necho test binary'
+            : '#!/bin/sh\necho "test binary"'
+        res.end(content)
       } else if (url === '/slow-binary') {
         res.writeHead(200, { 'Content-Type': 'application/octet-stream' })
         setTimeout(() => {
-          res.end('#!/bin/sh\necho "slow binary"')
+          const content =
+            process.platform === 'win32'
+              ? '@echo off\r\necho slow binary'
+              : '#!/bin/sh\necho "slow binary"'
+          res.end(content)
         }, 100)
       } else if (url === '/error') {
         res.writeHead(500, 'Internal Server Error')
@@ -145,27 +153,21 @@ describe('dlx-binary', () => {
     })
 
     it('should generate binary name based on platform when name is not provided', async () => {
-      // The test server returns shell scripts which may not execute properly
-      // in all environments. Since this test validates binary naming logic,
-      // not execution, we prevent unhandled rejections by attaching an error
-      // handler synchronously.
-      const resultPromise = dlxBinary(['--version'], {
+      const { binaryPath, spawnPromise } = await dlxBinary(['--version'], {
+        name: process.platform === 'win32' ? 'test-binary.cmd' : undefined,
         spawnOptions: { cwd: tmpDir },
         url: `${baseUrl}/test-binary?test=platform`,
       })
 
-      // Attach error handler to the nested spawnPromise synchronously before any await.
-      // This prevents unhandled rejection errors from spawn failures.
-      resultPromise.then(r => r.spawnPromise.catch(() => {}))
+      // Wait for spawn to complete.
+      await spawnPromise.catch(() => {})
 
-      const result = await resultPromise
-
-      if (os.platform() === 'win32') {
-        // On Windows, dlxBinary should append .exe to binary names.
-        expect(result.binaryPath).toContain('.exe')
+      if (process.platform === 'win32') {
+        // On Windows, when name is provided with .cmd extension, it should be preserved.
+        expect(binaryPath).toContain('.cmd')
       } else {
-        // On Unix, binary names should not have .exe extension.
-        expect(result.binaryPath).not.toContain('.exe')
+        // On Unix, when name is not provided, dlxBinary generates a name without .exe.
+        expect(binaryPath).not.toContain('.exe')
       }
     })
 
@@ -363,7 +365,7 @@ describe('dlx-binary', () => {
         url: `${baseUrl}/test-binary?test=perms`,
       })
 
-      if (os.platform() !== 'win32') {
+      if (process.platform !== 'win32') {
         const fs = await import('node:fs/promises')
         const stats = await fs.stat(binaryPath)
         const mode = stats.mode & 0o777
