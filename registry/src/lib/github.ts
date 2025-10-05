@@ -22,11 +22,10 @@
  */
 
 import { createTtlCache } from './cache-with-ttl'
+import GITHUB_API_BASE_URL from './constants/GITHUB_API_BASE_URL'
 import { httpRequest } from './http-request'
 
 import type { TtlCache } from './cache-with-ttl'
-
-const GITHUB_API_BASE = 'https://api.github.com'
 // 5 minutes.
 const DEFAULT_CACHE_TTL_MS = 5 * 60 * 1000
 
@@ -209,7 +208,7 @@ async function fetchRefSha(
 
   try {
     // Try as a tag first.
-    const tagUrl = `${GITHUB_API_BASE}/repos/${owner}/${repo}/git/refs/tags/${ref}`
+    const tagUrl = `${GITHUB_API_BASE_URL}/repos/${owner}/${repo}/git/refs/tags/${ref}`
     const tagData = await fetchGitHub<GitHubRef>(tagUrl, fetchOptions)
 
     // Tag might point to a tag object or directly to a commit.
@@ -225,13 +224,13 @@ async function fetchRefSha(
   } catch {
     // Not a tag, try as a branch.
     try {
-      const branchUrl = `${GITHUB_API_BASE}/repos/${owner}/${repo}/git/refs/heads/${ref}`
+      const branchUrl = `${GITHUB_API_BASE_URL}/repos/${owner}/${repo}/git/refs/heads/${ref}`
       const branchData = await fetchGitHub<GitHubRef>(branchUrl, fetchOptions)
       return branchData.object.sha
     } catch {
       // Try without refs/ prefix (for commit SHAs or other refs).
       try {
-        const commitUrl = `${GITHUB_API_BASE}/repos/${owner}/${repo}/commits/${ref}`
+        const commitUrl = `${GITHUB_API_BASE_URL}/repos/${owner}/${repo}/commits/${ref}`
         const commitData = await fetchGitHub<GitHubCommit>(
           commitUrl,
           fetchOptions,
