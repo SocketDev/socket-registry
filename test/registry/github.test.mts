@@ -4,6 +4,40 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Mock the cacache module to avoid persistent cache in tests
+vi.mock('../../registry/src/lib/cacache', () => {
+  const cache = new Map()
+  return {
+    clear: vi.fn(async () => {
+      cache.clear()
+    }),
+    get: vi.fn(async (key: string) => {
+      const entry = cache.get(key)
+      if (!entry) {
+        throw new Error('ENOENT: no such file or directory')
+      }
+      return entry
+    }),
+    put: vi.fn(async (key: string, data: string) => {
+      cache.set(key, {
+        data: Buffer.from(data),
+        integrity: 'test',
+        metadata: {},
+        path: 'test',
+        size: data.length,
+        time: Date.now(),
+      })
+    }),
+    remove: vi.fn(async (key: string) => {
+      cache.delete(key)
+    }),
+    safeGet: vi.fn(async (key: string) => {
+      const entry = cache.get(key)
+      return entry || undefined
+    }),
+  }
+})
+
 // Mock the httpRequest module before importing github module.
 vi.mock('../../registry/src/lib/http-request', () => {
   return {
@@ -11,24 +45,28 @@ vi.mock('../../registry/src/lib/http-request', () => {
   }
 })
 
+import * as cacacheActual from '../../registry/src/lib/cacache'
 import {
   clearRefCache,
   fetchGitHub,
   getGitHubToken,
-  getRefCacheSize,
   resolveRefToSha,
 } from '../../registry/src/lib/github'
 import { httpRequest as httpRequestActual } from '../../registry/src/lib/http-request'
 
+const cacache = cacacheActual as unknown as {
+  clear: ReturnType<typeof vi.fn>
+}
 const httpRequest = httpRequestActual as unknown as ReturnType<typeof vi.fn>
 
 describe('github module', () => {
   let originalEnv: NodeJS.ProcessEnv
   let tempDir: string
 
-  beforeEach(() => {
+  beforeEach(async () => {
     originalEnv = { ...process.env }
     clearRefCache()
+    await cacache.clear()
     tempDir = mkdtempSync(path.join(os.tmpdir(), 'github-test-'))
     vi.clearAllMocks()
   })
@@ -215,7 +253,7 @@ describe('github module', () => {
   })
 
   describe('clearRefCache', () => {
-    it('should clear the ref cache', async () => {
+    it('should clear the in-memory cache', async () => {
       httpRequest.mockResolvedValue({
         body: Buffer.from(
           JSON.stringify({ object: { sha: 'abc123', type: 'commit' } }),
@@ -226,41 +264,25 @@ describe('github module', () => {
         statusText: 'OK',
       })
 
-      await resolveRefToSha('owner', 'repo', 'v1.0.0', {
-        cachePath: tempDir,
-      })
-      expect(getRefCacheSize()).toBeGreaterThan(0)
+      // First call - fetch from API
+      await resolveRefToSha('owner', 'repo', 'v1.0.0')
+      expect(httpRequest).toHaveBeenCalledTimes(1)
 
+      // Second call - should use cache
+      await resolveRefToSha('owner', 'repo', 'v1.0.0')
+      expect(httpRequest).toHaveBeenCalledTimes(1)
+
+      // Clear in-memory cache only - persistent cache still has data
       clearRefCache()
-      expect(getRefCacheSize()).toBe(0)
-    })
-  })
+      // Third call - should use persistent cache (not calling API again)
+      await resolveRefToSha('owner', 'repo', 'v1.0.0')
+      expect(httpRequest).toHaveBeenCalledTimes(1)
 
-  describe('getRefCacheSize', () => {
-    it('should return 0 for empty cache', () => {
-      expect(getRefCacheSize()).toBe(0)
-    })
-
-    it('should return cache size after adding entries', async () => {
-      httpRequest.mockResolvedValue({
-        body: Buffer.from(
-          JSON.stringify({ object: { sha: 'abc123', type: 'commit' } }),
-        ),
-        headers: {},
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-      })
-
-      await resolveRefToSha('owner', 'repo', 'v1.0.0', {
-        cachePath: tempDir,
-      })
-      expect(getRefCacheSize()).toBe(1)
-
-      await resolveRefToSha('owner', 'repo', 'v2.0.0', {
-        cachePath: tempDir,
-      })
-      expect(getRefCacheSize()).toBe(2)
+      // Clear both caches - now fetch should call API again
+      clearRefCache()
+      await cacache.clear()
+      await resolveRefToSha('owner', 'repo', 'v1.0.0')
+      expect(httpRequest).toHaveBeenCalledTimes(2)
     })
   })
 
@@ -280,9 +302,7 @@ describe('github module', () => {
         statusText: 'OK',
       })
 
-      const sha = await resolveRefToSha('owner', 'repo', 'v1.0.0', {
-        cachePath: tempDir,
-      })
+      const sha = await resolveRefToSha('owner', 'repo', 'v1.0.0')
       expect(sha).toBe('abc123')
     })
 
@@ -325,9 +345,7 @@ describe('github module', () => {
         }
       })
 
-      const sha = await resolveRefToSha('owner', 'repo', 'v1.0.0', {
-        cachePath: tempDir,
-      })
+      const sha = await resolveRefToSha('owner', 'repo', 'v1.0.0')
       expect(sha).toBe('commit-sha')
     })
 
@@ -359,9 +377,7 @@ describe('github module', () => {
         }
       })
 
-      const sha = await resolveRefToSha('owner', 'repo', 'main', {
-        cachePath: tempDir,
-      })
+      const sha = await resolveRefToSha('owner', 'repo', 'main')
       expect(sha).toBe('branch-sha')
     })
 
@@ -396,9 +412,7 @@ describe('github module', () => {
         }
       })
 
-      const sha = await resolveRefToSha('owner', 'repo', 'commit-sha', {
-        cachePath: tempDir,
-      })
+      const sha = await resolveRefToSha('owner', 'repo', 'commit-sha')
       expect(sha).toBe('commit-sha')
     })
 
@@ -412,9 +426,7 @@ describe('github module', () => {
       })
 
       await expect(
-        resolveRefToSha('owner', 'repo', 'invalid-ref', {
-          cachePath: tempDir,
-        }),
+        resolveRefToSha('owner', 'repo', 'invalid-ref'),
       ).rejects.toThrow(/failed to resolve ref/)
     })
 
@@ -431,19 +443,16 @@ describe('github module', () => {
         statusText: 'OK',
       })
 
-      const sha1 = await resolveRefToSha('owner', 'repo', 'v1.0.0', {
-        cachePath: tempDir,
-      })
-      const sha2 = await resolveRefToSha('owner', 'repo', 'v1.0.0', {
-        cachePath: tempDir,
-      })
+      const sha1 = await resolveRefToSha('owner', 'repo', 'v1.0.0')
+      const sha2 = await resolveRefToSha('owner', 'repo', 'v1.0.0')
 
       expect(sha1).toBe('cached-sha')
       expect(sha2).toBe('cached-sha')
       expect(httpRequest).toHaveBeenCalledTimes(1)
     })
 
-    it('should skip cache when cache option is false', async () => {
+    it('should skip cache when DISABLE_GITHUB_CACHE is set', async () => {
+      process.env['DISABLE_GITHUB_CACHE'] = '1'
       httpRequest.mockResolvedValue({
         body: Buffer.from(
           JSON.stringify({
@@ -456,58 +465,13 @@ describe('github module', () => {
         statusText: 'OK',
       })
 
-      const sha1 = await resolveRefToSha('owner', 'repo', 'v1.0.0', {
-        cache: false,
-        cachePath: tempDir,
-      })
-      const sha2 = await resolveRefToSha('owner', 'repo', 'v1.0.0', {
-        cache: false,
-        cachePath: tempDir,
-      })
+      const sha1 = await resolveRefToSha('owner', 'repo', 'v1.0.0')
+      const sha2 = await resolveRefToSha('owner', 'repo', 'v1.0.0')
 
       expect(sha1).toBe('no-cache-sha')
       expect(sha2).toBe('no-cache-sha')
+      // Should call API each time when cache is disabled
       expect(httpRequest).toHaveBeenCalledTimes(2)
-    })
-
-    it('should skip disk cache when DISABLE_GITHUB_CACHE is set', async () => {
-      process.env['DISABLE_GITHUB_CACHE'] = '1'
-      httpRequest.mockResolvedValue({
-        body: Buffer.from(
-          JSON.stringify({
-            object: { sha: 'no-disk-cache-sha', type: 'commit' },
-          }),
-        ),
-        headers: {},
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-      })
-
-      const sha = await resolveRefToSha('owner', 'repo', 'v1.0.0', {
-        cachePath: tempDir,
-      })
-      expect(sha).toBe('no-disk-cache-sha')
-    })
-
-    it('should use custom TTL option', async () => {
-      httpRequest.mockResolvedValue({
-        body: Buffer.from(
-          JSON.stringify({
-            object: { sha: 'ttl-sha', type: 'commit' },
-          }),
-        ),
-        headers: {},
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-      })
-
-      const sha = await resolveRefToSha('owner', 'repo', 'v1.0.0', {
-        cachePath: tempDir,
-        ttl: 10_000,
-      })
-      expect(sha).toBe('ttl-sha')
     })
 
     it('should use provided token for authentication', async () => {
@@ -525,7 +489,6 @@ describe('github module', () => {
 
       await resolveRefToSha('owner', 'repo', 'v1.0.0', {
         token: 'custom-token',
-        cachePath: tempDir,
       })
 
       expect(httpRequest).toHaveBeenCalledWith(
