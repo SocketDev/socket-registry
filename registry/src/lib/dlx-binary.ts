@@ -6,7 +6,7 @@ import os from 'node:os'
 import path from 'node:path'
 
 import DLX_BINARY_CACHE_TTL from './constants/DLX_BINARY_CACHE_TTL'
-import { readJson } from './fs'
+import { readJson, remove } from './fs'
 import { httpRequest } from './http-request'
 import { normalizePath } from './path'
 import { getSocketHomePath } from './paths'
@@ -204,7 +204,7 @@ export async function cleanDlxCache(
       if (age > maxAge) {
         // Remove entire cache entry directory.
         // eslint-disable-next-line no-await-in-loop
-        await fs.rm(entryPath, { force: true, recursive: true })
+        await remove(entryPath, { force: true, recursive: true })
         cleaned += 1
       }
     } catch {
@@ -215,7 +215,7 @@ export async function cleanDlxCache(
         if (!contents.length) {
           // Remove empty directory.
           // eslint-disable-next-line no-await-in-loop
-          await fs.rmdir(entryPath)
+          await remove(entryPath)
           cleaned += 1
         }
       } catch {}

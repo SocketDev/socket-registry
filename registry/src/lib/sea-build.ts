@@ -9,6 +9,7 @@ import path from 'node:path'
 
 import NODE_SEA_FUSE from './constants/NODE_SEA_FUSE'
 import WIN32 from './constants/WIN32'
+import { remove } from './fs'
 import { httpRequest } from './http-request'
 import { normalizePath } from './path'
 import { getSocketHomePath } from './paths'
@@ -103,10 +104,10 @@ export async function buildTarget(
     }
 
     // Clean up temporary files.
-    await fs.rm(blobPath, { force: true }).catch(() => {})
+    await remove(blobPath, { force: true }).catch(() => {})
   } finally {
     // Clean up config.
-    await fs.rm(configPath, { force: true }).catch(() => {})
+    await remove(configPath, { force: true }).catch(() => {})
   }
 
   return outputPath
@@ -242,7 +243,7 @@ export async function downloadNodeBinary(
     return nodePath
   } finally {
     // Clean up the temp directory.
-    await fs.rm(tempDir, { force: true, recursive: true }).catch(() => {})
+    await remove(tempDir, { force: true, recursive: true }).catch(() => {})
   }
 }
 
