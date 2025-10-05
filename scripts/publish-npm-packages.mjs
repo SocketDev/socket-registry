@@ -498,7 +498,8 @@ async function main() {
   try {
     // If --force-publish is set, skip commit detection and publish at HEAD.
     // Check both the parsed option and the -- array (for cases like: node script -- --force-publish).
-    const forcePublishFlag = cliArgs.forcePublish || cliArgs['--']?.includes('--force-publish')
+    const forcePublishFlag =
+      cliArgs.forcePublish || cliArgs['--']?.includes('--force-publish')
     if (forcePublishFlag) {
       logger.log('Running with --force-publish')
       logger.log('Force publish mode: skipping commit detection')
