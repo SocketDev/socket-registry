@@ -294,12 +294,35 @@ export async function dlxBinary(
   }
 
   // Execute the binary.
-  // On Windows, script files (.bat, .cmd, .ps1) require shell: true.
+  // On Windows, script files (.bat, .cmd, .ps1) require shell: true because
+  // they are not executable on their own and must be run through cmd.exe.
   // Note: .exe files are actual binaries and don't need shell mode.
-  const finalSpawnOptions =
-    WIN32 && /\.(?:bat|cmd|ps1)$/i.test(binaryPath)
-      ? { ...spawnOptions, shell: true }
-      : spawnOptions
+  const needsShell = WIN32 && /\.(?:bat|cmd|ps1)$/i.test(binaryPath)
+  // Windows cmd.exe PATH resolution behavior:
+  // When shell: true on Windows with .cmd/.bat/.ps1 files, spawn will automatically
+  // strip the full path down to just the basename without extension (e.g.,
+  // C:\cache\test.cmd becomes just "test"). Windows cmd.exe then searches for "test"
+  // in directories listed in PATH, trying each extension from PATHEXT environment
+  // variable (.COM, .EXE, .BAT, .CMD, etc.) until it finds a match.
+  //
+  // Since our binaries are downloaded to a custom cache directory that's not in PATH
+  // (unlike system package managers like npm/pnpm/yarn which are already in PATH),
+  // we must prepend the cache directory to PATH so cmd.exe can locate the binary.
+  //
+  // This approach is consistent with how other tools handle Windows command execution:
+  // - npm's promise-spawn: uses which.sync() to find commands in PATH
+  // - cross-spawn: spawns cmd.exe with escaped arguments
+  // - Node.js spawn with shell: true: delegates to cmd.exe which uses PATH
+  const finalSpawnOptions = needsShell
+    ? {
+        ...spawnOptions,
+        env: {
+          ...spawnOptions?.env,
+          PATH: `${cacheEntryDir}${path.delimiter}${process.env['PATH'] || ''}`,
+        },
+        shell: true,
+      }
+    : spawnOptions
   const spawnPromise = spawn(binaryPath, args, finalSpawnOptions, spawnExtra)
 
   return {
