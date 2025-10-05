@@ -11,7 +11,7 @@ function cleanTestScript(testScript) {
   const parts = cleaned.split(/\s*&&\s*/)
   const filtered = parts.filter(
     part =>
-      !/\b(?:biome|check|cleanup|eslint|format|lint|posttest|prepare|prepublish|standard|tslint|validate|xo)\b/.test(
+      !/\b(?:biome|check|cleanup|eslint|format|lint|posttest|prepare|prepublish|standard|tsc|tslint|validate|xo)\b/.test(
         part,
       ),
   )
