@@ -1207,6 +1207,10 @@
       "types": "./dist/lib/dependencies/prompts.d.ts",
       "default": "./dist/lib/dependencies/prompts.js"
     },
+    "./lib/dependencies/reset": {
+      "types": "./dist/lib/dependencies/reset.d.ts",
+      "default": "./dist/lib/dependencies/reset.js"
+    },
     "./lib/dependencies/system": {
       "types": "./dist/lib/dependencies/system.d.ts",
       "default": "./dist/lib/dependencies/system.js"
