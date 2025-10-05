@@ -266,8 +266,6 @@ function configs(sourceType) {
             ...importFlatConfigs.typescript.languageOptions?.parserOptions
               ?.projectService,
             allowDefaultProject: [
-              // Add package CTS type definitions not covered by tsconfig.
-              'packages/*/*/*.d.cts',
               // Add constants type definitions.
               'registry/src/lib/constants/*.d.ts',
             ],
