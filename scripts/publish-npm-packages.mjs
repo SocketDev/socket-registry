@@ -275,7 +275,10 @@ async function publishAtCommit(sha) {
 
     // Commit manifest changes if there are any.
     const changedFiles = await getChangedFiles()
-    if (changedFiles.length > 0) {
+    const manifestPath = 'registry/manifest.json'
+    const manifestChanged = changedFiles.includes(manifestPath)
+
+    if (manifestChanged) {
       logger.log(
         '\nUpdating and committing manifest.json with latest npm versions...',
       )
@@ -285,7 +288,7 @@ async function publishAtCommit(sha) {
         'user.email',
         '94589996+socket-bot@users.noreply.github.com',
       ])
-      await spawn('git', ['add', 'registry/manifest.json'])
+      await spawn('git', ['add', manifestPath])
       await spawn('git', [
         'commit',
         '-m',
