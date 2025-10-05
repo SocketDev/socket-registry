@@ -27,6 +27,7 @@
     "clean:registry": "pnpm --filter registry run clean",
     "clean:test": "del-cli 'test/**/.tmp-*' 'test/**/packages'",
     "clean:test-cache": "node ./scripts/clean-test-cache.mjs",
+    "clean:tsbuildinfo": "del-cli '*.tsbuildinfo'",
     "clean:node_modules": "del-cli '**/node_modules'",
     "coverage": "run-s coverage:*",
     "coverage:test": "dotenvx -q run -- env NODE_OPTIONS=\"$NODE_TEST_MEMORY\" vitest run --config .config/vitest.config.mts --coverage",
