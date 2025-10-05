@@ -316,12 +316,19 @@ export function findUpSync(
 }
 
 /**
+ * Check if a path is a directory asynchronously.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+export async function isDir(filepath: PathLike) {
+  return !!(await safeStats(filepath))?.isDirectory()
+}
+
+/**
  * Check if a path is a directory synchronously.
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function isDirSync(filepath: PathLike) {
-  const fs = getFs()
-  return fs.existsSync(filepath) && !!safeStatsSync(filepath)?.isDirectory()
+  return !!safeStatsSync(filepath)?.isDirectory()
 }
 
 /**
@@ -622,6 +629,18 @@ export async function safeReadFile(
       signal: abortSignal,
       ...opts,
     } as Abortable)
+  } catch {}
+  return undefined
+}
+
+/**
+ * Safely get file stats asynchronously, returning undefined on error.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+export async function safeStats(filepath: PathLike) {
+  const fs = getFs()
+  try {
+    return await fs.promises.stat(filepath)
   } catch {}
   return undefined
 }
