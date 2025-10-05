@@ -28,8 +28,10 @@ describe('dlx-binary', () => {
   let tmpDir: string
 
   beforeAll(async () => {
+    await cleanDlxCache(0)
     server = createServer((req: IncomingMessage, res: ServerResponse) => {
-      const url = req.url || '/'
+      const fullUrl = req.url || '/'
+      const url = fullUrl.split('?')[0]
 
       if (url === '/test-binary') {
         res.writeHead(200, { 'Content-Type': 'application/octet-stream' })
@@ -77,6 +79,7 @@ describe('dlx-binary', () => {
         resolve()
       })
     })
+    await cleanDlxCache(0)
   })
 
   describe('getDlxCachePath', () => {
@@ -94,7 +97,7 @@ describe('dlx-binary', () => {
       const { binaryPath, downloaded } = await dlxBinary(['--version'], {
         name: 'test-binary',
         spawnOptions: { cwd: tmpDir },
-        url: `${baseUrl}/test-binary`,
+        url: `${baseUrl}/test-binary?test=download-cache`,
       })
 
       expect(downloaded).toBe(true)
@@ -113,7 +116,7 @@ describe('dlx-binary', () => {
       const options = {
         name: 'test-binary-cached',
         spawnOptions: { cwd: tmpDir },
-        url: `${baseUrl}/test-binary`,
+        url: `${baseUrl}/test-binary?test=cached`,
       }
 
       const result1 = await dlxBinary(['--version'], options)
@@ -128,7 +131,7 @@ describe('dlx-binary', () => {
       const options = {
         name: 'test-binary-force',
         spawnOptions: { cwd: tmpDir },
-        url: `${baseUrl}/test-binary`,
+        url: `${baseUrl}/test-binary?test=force`,
       }
 
       const result1 = await dlxBinary(['--version'], options)
@@ -144,7 +147,7 @@ describe('dlx-binary', () => {
     it('should generate binary name based on platform when name is not provided', async () => {
       const { binaryPath } = await dlxBinary(['--version'], {
         spawnOptions: { cwd: tmpDir },
-        url: `${baseUrl}/test-binary`,
+        url: `${baseUrl}/test-binary?test=platform`,
       })
 
       if (os.platform() === 'win32') {
@@ -166,7 +169,7 @@ describe('dlx-binary', () => {
         checksum: expectedChecksum,
         name: 'test-binary-checksum',
         spawnOptions: { cwd: tmpDir },
-        url: `${baseUrl}/test-binary`,
+        url: `${baseUrl}/test-binary?test=checksum`,
       })
 
       expect(downloaded).toBe(true)
@@ -178,7 +181,7 @@ describe('dlx-binary', () => {
           checksum: 'invalid-checksum',
           name: 'test-binary-bad-checksum',
           spawnOptions: { cwd: tmpDir },
-          url: `${baseUrl}/test-binary`,
+          url: `${baseUrl}/test-binary?test=bad-checksum`,
         }),
       ).rejects.toThrow('Checksum mismatch')
     })
@@ -188,7 +191,7 @@ describe('dlx-binary', () => {
         cacheTtl: 1000,
         name: 'test-binary-ttl',
         spawnOptions: { cwd: tmpDir },
-        url: `${baseUrl}/test-binary`,
+        url: `${baseUrl}/test-binary?test=ttl`,
       })
 
       const fs = await import('node:fs/promises')
@@ -205,10 +208,9 @@ describe('dlx-binary', () => {
     it('should handle platform and arch overrides', async () => {
       const { binaryPath } = await dlxBinary(['--version'], {
         arch: 'arm64',
-        name: 'test-binary-platform',
         platform: 'linux',
         spawnOptions: { cwd: tmpDir },
-        url: `${baseUrl}/test-binary`,
+        url: `${baseUrl}/test-binary?test=platform-override`,
       })
 
       expect(binaryPath).toContain('linux-arm64')
@@ -225,7 +227,7 @@ describe('dlx-binary', () => {
       await dlxBinary(['--version'], {
         name: 'test-binary-list',
         spawnOptions: { cwd: tmpDir },
-        url: `${baseUrl}/test-binary`,
+        url: `${baseUrl}/test-binary?test=list`,
       })
 
       const list = await listDlxCache()
@@ -258,7 +260,7 @@ describe('dlx-binary', () => {
       await dlxBinary(['--version'], {
         name: 'test-binary-clean',
         spawnOptions: { cwd: tmpDir },
-        url: `${baseUrl}/test-binary`,
+        url: `${baseUrl}/test-binary?test=clean`,
       })
 
       const entries = await fs.readdir(cachePath).catch(() => [])
@@ -275,7 +277,7 @@ describe('dlx-binary', () => {
       await dlxBinary(['--version'], {
         name: 'test-binary-recent',
         spawnOptions: { cwd: tmpDir },
-        url: `${baseUrl}/test-binary`,
+        url: `${baseUrl}/test-binary?test=recent`,
       })
 
       const cleaned = await cleanDlxCache(1000000)
@@ -336,7 +338,7 @@ describe('dlx-binary', () => {
       const { binaryPath } = await dlxBinary(['--version'], {
         name: 'test-binary-perms',
         spawnOptions: { cwd: tmpDir },
-        url: `${baseUrl}/test-binary`,
+        url: `${baseUrl}/test-binary?test=perms`,
       })
 
       if (os.platform() !== 'win32') {
@@ -351,7 +353,7 @@ describe('dlx-binary', () => {
       const { binaryPath } = await dlxBinary(['--version'], {
         name: 'test-binary-windows',
         spawnOptions: { cwd: tmpDir },
-        url: `${baseUrl}/test-binary`,
+        url: `${baseUrl}/test-binary?test=windows`,
       })
 
       expect(binaryPath).not.toContain('\\')
