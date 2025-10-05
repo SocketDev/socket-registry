@@ -1263,6 +1263,10 @@
       "types": "./dist/lib/logger.d.ts",
       "default": "./dist/lib/logger.js"
     },
+    "./lib/memoization": {
+      "types": "./dist/lib/memoization.d.ts",
+      "default": "./dist/lib/memoization.js"
+    },
     "./lib/objects": {
       "types": "./dist/lib/objects.d.ts",
       "default": "./dist/lib/objects.js"
@@ -1323,6 +1327,10 @@
       "types": "./dist/lib/paths.d.ts",
       "default": "./dist/lib/paths.js"
     },
+    "./lib/performance": {
+      "types": "./dist/lib/performance.d.ts",
+      "default": "./dist/lib/performance.js"
+    },
     "./lib/promise-queue": {
       "types": "./dist/lib/promise-queue.d.ts",
       "default": "./dist/lib/promise-queue.js"
@@ -1374,6 +1382,10 @@
     "./lib/strings": {
       "types": "./dist/lib/strings.d.ts",
       "default": "./dist/lib/strings.js"
+    },
+    "./lib/tables": {
+      "types": "./dist/lib/tables.d.ts",
+      "default": "./dist/lib/tables.js"
     },
     "./lib/temporary-executor": {
       "types": "./dist/lib/temporary-executor.d.ts",
