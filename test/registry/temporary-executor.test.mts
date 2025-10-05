@@ -1,47 +1,52 @@
 import os from 'node:os'
 import path from 'node:path'
 
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { isRunningInTemporaryExecutor } from '../../registry/dist/lib/temporary-executor.js'
 
 describe('isRunningInTemporaryExecutor', () => {
   const originalEnv = process.env
 
+  beforeEach(() => {
+    // Clear environment variables that affect detection.
+    delete process.env['npm_config_user_agent']
+    delete process.env['npm_config_cache']
+  })
+
+  afterEach(() => {
+    process.env = { ...originalEnv }
+  })
+
   describe('environment variable detection', () => {
     it('should detect npx from npm_config_user_agent', () => {
       process.env['npm_config_user_agent'] = 'npm/8.0.0 npx/8.0.0 node/18.0.0'
       const result = isRunningInTemporaryExecutor()
       expect(result).toBe(true)
-      process.env = { ...originalEnv }
     })
 
     it('should detect exec from npm_config_user_agent', () => {
       process.env['npm_config_user_agent'] = 'npm/8.0.0 exec node/18.0.0'
       const result = isRunningInTemporaryExecutor()
       expect(result).toBe(true)
-      process.env = { ...originalEnv }
     })
 
     it('should detect pnpm dlx from npm_config_user_agent', () => {
       process.env['npm_config_user_agent'] = 'pnpm/8.0.0 dlx node/18.0.0'
       const result = isRunningInTemporaryExecutor()
       expect(result).toBe(true)
-      process.env = { ...originalEnv }
     })
 
     it('should detect yarn dlx from npm_config_user_agent', () => {
       process.env['npm_config_user_agent'] = 'yarn/3.0.0 dlx node/18.0.0'
       const result = isRunningInTemporaryExecutor()
       expect(result).toBe(true)
-      process.env = { ...originalEnv }
     })
 
     it('should not detect temporary executor without indicators', () => {
       process.env['npm_config_user_agent'] = 'npm/8.0.0 node/18.0.0'
       const result = isRunningInTemporaryExecutor()
       expect(result).toBe(false)
-      process.env = { ...originalEnv }
     })
   })
 
@@ -53,14 +58,12 @@ describe('isRunningInTemporaryExecutor', () => {
         path.join(cacheDir, 'some-package'),
       )
       expect(result).toBe(true)
-      process.env = { ...originalEnv }
     })
 
     it('should not detect when cwd is outside npm cache', () => {
       process.env['npm_config_cache'] = '/some/cache/dir'
       const result = isRunningInTemporaryExecutor('/different/dir')
       expect(result).toBe(false)
-      process.env = { ...originalEnv }
     })
   })
 
