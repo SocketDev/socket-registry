@@ -10,7 +10,9 @@ describe('cache-with-ttl', () => {
   })
 
   afterEach(async () => {
-    await cache.clear()
+    await cache.clear().catch(() => {
+      // Ignore cleanup errors.
+    })
   })
 
   describe('getOrFetch', () => {
