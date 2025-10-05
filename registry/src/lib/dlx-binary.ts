@@ -251,7 +251,7 @@ export async function dlxBinary(
   const platformKey = `${platform}-${arch}`
   const binaryName =
     name || `binary-${platformKey}${platform === 'win32' ? '.exe' : ''}`
-  const binaryPath = path.join(cacheEntryDir, binaryName)
+  const binaryPath = normalizePath(path.join(cacheEntryDir, binaryName))
 
   let downloaded = false
   let computedChecksum = checksum
