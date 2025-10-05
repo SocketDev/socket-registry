@@ -37,6 +37,7 @@ import EXT_MTS from '../../registry/dist/lib/constants/EXT_MTS.js'
 import EXT_PS1 from '../../registry/dist/lib/constants/EXT_PS1.js'
 import EXT_YAML from '../../registry/dist/lib/constants/EXT_YAML.js'
 import EXT_YML from '../../registry/dist/lib/constants/EXT_YML.js'
+import GITHUB_API_BASE_URL from '../../registry/dist/lib/constants/GITHUB_API_BASE_URL.js'
 import GITIGNORE from '../../registry/dist/lib/constants/GITIGNORE.js'
 import LATEST from '../../registry/dist/lib/constants/LATEST.js'
 import LICENSE from '../../registry/dist/lib/constants/LICENSE.js'
@@ -68,6 +69,7 @@ import README_GLOB_RECURSIVE from '../../registry/dist/lib/constants/README_GLOB
 import README_MD from '../../registry/dist/lib/constants/README_MD.js'
 import REGISTRY from '../../registry/dist/lib/constants/REGISTRY.js'
 import RESOLUTIONS from '../../registry/dist/lib/constants/RESOLUTIONS.js'
+import SOCKET_API_BASE_URL from '../../registry/dist/lib/constants/SOCKET_API_BASE_URL.js'
 import SOCKET_APP_PREFIX from '../../registry/dist/lib/constants/SOCKET_APP_PREFIX.js'
 import SOCKET_CLI_APP_NAME from '../../registry/dist/lib/constants/SOCKET_CLI_APP_NAME.js'
 import SOCKET_DLX_APP_NAME from '../../registry/dist/lib/constants/SOCKET_DLX_APP_NAME.js'
@@ -174,6 +176,11 @@ describe('constants module', () => {
       { name: 'EXT_YAML', value: EXT_YAML, expected: '.yaml' },
       { name: 'EXT_YML', value: EXT_YML, expected: '.yml' },
       { name: 'GITIGNORE', value: GITIGNORE, expected: '.gitignore' },
+      {
+        name: 'GITHUB_API_BASE_URL',
+        value: GITHUB_API_BASE_URL,
+        expected: 'https://api.github.com',
+      },
       { name: 'LATEST', value: LATEST, expected: 'latest' },
       { name: 'LICENSE', value: LICENSE, expected: 'LICENSE' },
       {
@@ -223,6 +230,11 @@ describe('constants module', () => {
       { name: 'README_MD', value: README_MD, expected: 'README.md' },
       { name: 'REGISTRY', value: REGISTRY, expected: 'registry' },
       { name: 'RESOLUTIONS', value: RESOLUTIONS, expected: 'resolutions' },
+      {
+        name: 'SOCKET_API_BASE_URL',
+        value: SOCKET_API_BASE_URL,
+        expected: 'https://api.socket.dev/v0',
+      },
       { name: 'SOCKET_APP_PREFIX', value: SOCKET_APP_PREFIX, expected: '_' },
       {
         name: 'SOCKET_CLI_APP_NAME',
