@@ -22,7 +22,7 @@ async function confirmDeletion() {
 
   return await new Promise(resolve => {
     rl.question(
-      'WARNING: This will permanently delete test cache directories. Continue? (yes/no): ',
+      'WARNING: This will permanently delete test cache directories. Continue? (y/N): ',
       answer => {
         rl.close()
         resolve(answer.toLowerCase() === 'yes')
