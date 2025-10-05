@@ -1,6 +1,6 @@
 {
   "name": "@socketsecurity/registry",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "license": "MIT",
   "description": "Socket.dev registry helpers methods and metadata",
   "keywords": [
@@ -1159,6 +1159,42 @@
       "types": "./dist/lib/debug.d.ts",
       "default": "./dist/lib/debug.js"
     },
+    "./lib/dependencies": {
+      "types": "./dist/lib/dependencies/index.d.ts",
+      "default": "./dist/lib/dependencies/index.js"
+    },
+    "./lib/dependencies/build-tools": {
+      "types": "./dist/lib/dependencies/build-tools.d.ts",
+      "default": "./dist/lib/dependencies/build-tools.js"
+    },
+    "./lib/dependencies/file-system": {
+      "types": "./dist/lib/dependencies/file-system.d.ts",
+      "default": "./dist/lib/dependencies/file-system.js"
+    },
+    "./lib/dependencies/index": {
+      "types": "./dist/lib/dependencies/index.d.ts",
+      "default": "./dist/lib/dependencies/index.js"
+    },
+    "./lib/dependencies/logging": {
+      "types": "./dist/lib/dependencies/logging.d.ts",
+      "default": "./dist/lib/dependencies/logging.js"
+    },
+    "./lib/dependencies/npm-tools": {
+      "types": "./dist/lib/dependencies/npm-tools.d.ts",
+      "default": "./dist/lib/dependencies/npm-tools.js"
+    },
+    "./lib/dependencies/prompts": {
+      "types": "./dist/lib/dependencies/prompts.d.ts",
+      "default": "./dist/lib/dependencies/prompts.js"
+    },
+    "./lib/dependencies/system": {
+      "types": "./dist/lib/dependencies/system.d.ts",
+      "default": "./dist/lib/dependencies/system.js"
+    },
+    "./lib/dependencies/validation": {
+      "types": "./dist/lib/dependencies/validation.d.ts",
+      "default": "./dist/lib/dependencies/validation.js"
+    },
     "./lib/dlx": {
       "types": "./dist/lib/dlx.d.ts",
       "default": "./dist/lib/dlx.js"
@@ -1166,6 +1202,10 @@
     "./lib/dlx-binary": {
       "types": "./dist/lib/dlx-binary.d.ts",
       "default": "./dist/lib/dlx-binary.js"
+    },
+    "./lib/download-lock": {
+      "types": "./dist/lib/download-lock.d.ts",
+      "default": "./dist/lib/download-lock.js"
     },
     "./lib/env": {
       "types": "./dist/lib/env.d.ts",
@@ -1191,6 +1231,10 @@
       "types": "./dist/lib/globs.d.ts",
       "default": "./dist/lib/globs.js"
     },
+    "./lib/http-request": {
+      "types": "./dist/lib/http-request.d.ts",
+      "default": "./dist/lib/http-request.js"
+    },
     "./lib/json": {
       "types": "./dist/lib/json.d.ts",
       "default": "./dist/lib/json.js"
@@ -1207,6 +1251,46 @@
       "types": "./dist/lib/packages.d.ts",
       "default": "./dist/lib/packages.js"
     },
+    "./lib/packages/editable": {
+      "types": "./dist/lib/packages/editable.d.ts",
+      "default": "./dist/lib/packages/editable.js"
+    },
+    "./lib/packages/exports": {
+      "types": "./dist/lib/packages/exports.d.ts",
+      "default": "./dist/lib/packages/exports.js"
+    },
+    "./lib/packages/licenses": {
+      "types": "./dist/lib/packages/licenses.d.ts",
+      "default": "./dist/lib/packages/licenses.js"
+    },
+    "./lib/packages/manifest": {
+      "types": "./dist/lib/packages/manifest.d.ts",
+      "default": "./dist/lib/packages/manifest.js"
+    },
+    "./lib/packages/normalize": {
+      "types": "./dist/lib/packages/normalize.d.ts",
+      "default": "./dist/lib/packages/normalize.js"
+    },
+    "./lib/packages/operations": {
+      "types": "./dist/lib/packages/operations.d.ts",
+      "default": "./dist/lib/packages/operations.js"
+    },
+    "./lib/packages/paths": {
+      "types": "./dist/lib/packages/paths.d.ts",
+      "default": "./dist/lib/packages/paths.js"
+    },
+    "./lib/packages/provenance": {
+      "types": "./dist/lib/packages/provenance.d.ts",
+      "default": "./dist/lib/packages/provenance.js"
+    },
+    "./lib/packages/specs": {
+      "types": "./dist/lib/packages/specs.d.ts",
+      "default": "./dist/lib/packages/specs.js"
+    },
+    "./lib/packages/validation": {
+      "types": "./dist/lib/packages/validation.d.ts",
+      "default": "./dist/lib/packages/validation.js"
+    },
     "./lib/parse-args": {
       "types": "./dist/lib/parse-args.d.ts",
       "default": "./dist/lib/parse-args.js"
@@ -1218,6 +1302,10 @@
     "./lib/paths": {
       "types": "./dist/lib/paths.d.ts",
       "default": "./dist/lib/paths.js"
+    },
+    "./lib/promise-queue": {
+      "types": "./dist/lib/promise-queue.d.ts",
+      "default": "./dist/lib/promise-queue.js"
     },
     "./lib/promises": {
       "types": "./dist/lib/promises.d.ts",
@@ -1286,15 +1374,7 @@
     "./extensions.json": "./extensions.json",
     "./manifest.json": "./manifest.json",
     "./package.json": "./package.json",
-    "./tsconfig.json": "./tsconfig.json",
-    "./lib/download-lock": {
-      "types": "./dist/lib/download-lock.d.ts",
-      "default": "./dist/lib/download-lock.js"
-    },
-    "./lib/http-request": {
-      "types": "./dist/lib/http-request.d.ts",
-      "default": "./dist/lib/http-request.js"
-    }
+    "./tsconfig.json": "./tsconfig.json"
   },
   "sideEffects": false,
   "scripts": {
