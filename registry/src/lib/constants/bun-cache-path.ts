@@ -26,11 +26,10 @@ function getBunCachePath() {
 
   if (WIN32) {
     // On Windows, Bun uses TEMP directory.
-    const temp = process.env['TEMP'] || process.env['TMP']
-    if (!temp) {
+    if (!ENV.TMPDIR) {
       return ''
     }
-    return normalizePath(path.join(temp, 'bun'))
+    return normalizePath(path.join(ENV.TMPDIR, 'bun'))
   }
 
   // On macOS, use Library/Caches.
