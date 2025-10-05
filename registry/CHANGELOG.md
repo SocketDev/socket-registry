@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] - 2025-10-04
+
+### Added
+
+- Added `GITHUB_API_BASE_URL` constant for GitHub API endpoint configuration
+- Added `SOCKET_API_BASE_URL` constant for Socket API endpoint configuration
+- Added generic TTL cache utility (`createTtlCache`) with in-memory memoization and persistent storage support
+
+### Changed
+
+- Refactored GitHub caching to use the new `cache-with-ttl` utility for better performance and consistency
+
 ## [1.4.1] - 2025-10-04
 
 ### Changed
