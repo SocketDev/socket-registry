@@ -93,16 +93,23 @@ describe('isRunningInTemporaryExecutor', () => {
     })
 
     it('should detect Yarn on Windows pattern', () => {
+      // Yarn on Windows uses temporary directories under AppData/Local/Temp/xfs-
+      // for package execution. This pattern should ONLY be detected on Windows.
+      // On Windows: C:\Users\Test\AppData\Local\Temp\xfs-12345 should match.
+      // On Unix: /Users/Test/AppData/Local/Temp/xfs-12345 should NOT match even though
+      // it contains the same directory names, because it's not actually a Yarn temp dir.
       if (path.sep === '\\') {
+        // Running on Windows - should detect the Windows-specific pattern.
         const result = isRunningInTemporaryExecutor(
           'C:\\Users\\Test\\AppData\\Local\\Temp\\xfs-12345',
         )
         expect(result).toBe(true)
       } else {
+        // Running on Unix - should NOT detect paths that merely contain similar names.
         const result = isRunningInTemporaryExecutor(
           '/Users/Test/AppData/Local/Temp/xfs-12345',
         )
-        expect(result).toBe(true)
+        expect(result).toBe(false)
       }
     })
 
