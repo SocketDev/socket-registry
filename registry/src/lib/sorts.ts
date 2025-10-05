@@ -3,7 +3,7 @@
  * Provides various comparison utilities for arrays and collections.
  */
 
-import { getFastSort, getSemver } from './dependencies/index'
+import { getFastSort, getSemver } from './dependencies/build-tools'
 
 let _localeCompare: ((x: string, y: string) => number) | undefined
 /**

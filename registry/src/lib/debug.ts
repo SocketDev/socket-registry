@@ -9,7 +9,7 @@ import {
   getIsUnicodeSupported,
   getLogger,
   getSpinner,
-} from './dependencies/index'
+} from './dependencies/logging'
 import { hasOwn } from './objects'
 import { applyLinePrefix } from './strings'
 
