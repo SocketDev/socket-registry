@@ -4,7 +4,7 @@
  */
 
 import ENV from './constants/ENV'
-import { getWhich as getWhichDep } from './dependencies/index'
+import { getWhich as getWhichDep } from './dependencies/system'
 import { readJsonSync } from './fs'
 import { getOwn } from './objects'
 import { isPath, normalizePath } from './path'

@@ -2,7 +2,7 @@
  * @fileoverview Stream processing utilities with streaming-iterables integration.
  * Provides async stream handling and transformation functions.
  */
-import { getStreamingIterables as getStreamingIterablesDep } from './dependencies/index'
+import { getStreamingIterables as getStreamingIterablesDep } from './dependencies/system'
 import { normalizeIterationOptions, pRetry } from './promises'
 
 import type { IterationOptions } from './promises'
