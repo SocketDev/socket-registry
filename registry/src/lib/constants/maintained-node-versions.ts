@@ -1,5 +1,6 @@
 import browsersList from '../../external/browserslist'
 import semver from '../../external/semver'
+import { debugLogNs } from '../debug'
 
 // IMPORTANT: Do not use destructuring here - use direct assignment instead.
 // tsgo has a bug that incorrectly transpiles destructured exports, resulting in
@@ -13,10 +14,10 @@ const ObjectFreeze = Object.freeze
 // So we maintain a manual version list for now.
 // https://nodejs.org/en/about/previous-releases#looking-for-the-latest-release-of-a-version-branch
 //
-// Updated May 10th, 2025.
-const manualNext = '24.0.1'
-const manualCurr = '22.15.0'
-const manualPrev = '20.19.1'
+// Updated October 4th, 2025.
+const manualNext = '24.9.0'
+const manualCurr = '22.20.0'
+const manualPrev = '20.19.5'
 const manualLast = '18.20.8'
 
 const query = browsersList('maintained node versions')
@@ -26,7 +27,8 @@ const query = browsersList('maintained node versions')
 // browsersList returns results in descending order.
 // Validate query length to ensure we have enough versions.
 if (query.length < 4) {
-  console.warn(
+  debugLogNs(
+    'silly',
     `browsersList returned only ${query.length} versions, expected at least 4. Using manual fallbacks.`,
   )
 }
