@@ -6,13 +6,14 @@ import path from 'node:path'
 import { readDirNamesSync, remove } from './fs'
 import { normalizePath } from './path'
 import { getSocketDlxDir } from './paths'
+import { pEach } from './promises'
 
 /**
  * Clear all DLX package installations.
  */
 export async function clearDlx(): Promise<void> {
   const packages = await listDlxPackagesAsync()
-  await Promise.all(packages.map(pkg => removeDlxPackage(pkg)))
+  await pEach(packages, pkg => removeDlxPackage(pkg))
 }
 
 /**
