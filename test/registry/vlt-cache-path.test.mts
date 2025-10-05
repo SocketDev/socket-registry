@@ -10,7 +10,7 @@ describe('vlt-cache-path', () => {
     process.env = { ...originalEnv }
   })
 
-  describe('Windows platform', () => {
+  describe.skipIf(process.platform !== 'win32')('Windows platform', () => {
     it('should use LOCALAPPDATA/vlt/Cache on Windows', async () => {
       vi.stubGlobal('process', {
         ...process,
@@ -28,20 +28,18 @@ describe('vlt-cache-path', () => {
       expect(vltCachePath).not.toContain('\\')
     })
 
-    it('should return empty string when LOCALAPPDATA is not set on Windows', async () => {
-      vi.stubGlobal('process', {
-        ...process,
-        env: {},
-        platform: 'win32',
-      })
-      const { default: vltCachePath } = await import(
-        '../../registry/dist/lib/constants/vlt-cache-path.js'
-      )
-      expect(vltCachePath).toBe('')
-    })
+    it.skipIf(process.platform !== 'win32' || process.env['LOCALAPPDATA'])(
+      'should return empty string when LOCALAPPDATA is not set on Windows',
+      async () => {
+        const { default: vltCachePath } = await import(
+          '../../registry/dist/lib/constants/vlt-cache-path.js'
+        )
+        expect(vltCachePath).toBe('')
+      },
+    )
   })
 
-  describe('macOS platform', () => {
+  describe.skipIf(process.platform !== 'darwin')('macOS platform', () => {
     it('should use Library/Caches/vlt on macOS', async () => {
       vi.stubGlobal('process', {
         ...process,
@@ -56,64 +54,66 @@ describe('vlt-cache-path', () => {
       expect(vltCachePath).toContain('vlt')
     })
 
-    it('should return empty string when HOME is not set on macOS', async () => {
-      vi.stubGlobal('process', {
-        ...process,
-        env: {},
-        platform: 'darwin',
-      })
-      const { default: vltCachePath } = await import(
-        '../../registry/dist/lib/constants/vlt-cache-path.js'
-      )
-      expect(vltCachePath).toBe('')
-    })
+    it.skipIf(process.platform !== 'darwin' || process.env['HOME'])(
+      'should return empty string when HOME is not set on macOS',
+      async () => {
+        const { default: vltCachePath } = await import(
+          '../../registry/dist/lib/constants/vlt-cache-path.js'
+        )
+        expect(vltCachePath).toBe('')
+      },
+    )
   })
 
-  describe('Linux with XDG_CACHE_HOME', () => {
-    it('should use XDG_CACHE_HOME/vlt when set', async () => {
-      vi.stubGlobal('process', {
-        ...process,
-        env: {
-          ...originalEnv,
-          HOME: '/home/testuser',
-          XDG_CACHE_HOME: '/home/testuser/.cache',
+  describe.skipIf(process.platform !== 'linux')(
+    'Linux with XDG_CACHE_HOME',
+    () => {
+      it('should use XDG_CACHE_HOME/vlt when set', async () => {
+        vi.stubGlobal('process', {
+          ...process,
+          env: {
+            ...originalEnv,
+            HOME: '/home/testuser',
+            XDG_CACHE_HOME: '/home/testuser/.cache',
+          },
+          platform: 'linux',
+        })
+        const { default: vltCachePath } = await import(
+          '../../registry/dist/lib/constants/vlt-cache-path.js'
+        )
+        expect(vltCachePath).toContain('vlt')
+        expect(vltCachePath).not.toContain('\\')
+      })
+    },
+  )
+
+  describe.skipIf(process.platform !== 'linux')(
+    'Linux default location',
+    () => {
+      it('should use ~/.cache/vlt on Linux', async () => {
+        vi.stubGlobal('process', {
+          ...process,
+          env: { ...originalEnv, HOME: '/home/testuser' },
+          platform: 'linux',
+        })
+        const { default: vltCachePath } = await import(
+          '../../registry/dist/lib/constants/vlt-cache-path.js'
+        )
+        expect(vltCachePath).toContain('.cache')
+        expect(vltCachePath).toContain('vlt')
+      })
+
+      it.skipIf(process.platform !== 'linux' || process.env['HOME'])(
+        'should return empty string when HOME is not set on Linux',
+        async () => {
+          const { default: vltCachePath } = await import(
+            '../../registry/dist/lib/constants/vlt-cache-path.js'
+          )
+          expect(vltCachePath).toBe('')
         },
-        platform: 'linux',
-      })
-      const { default: vltCachePath } = await import(
-        '../../registry/dist/lib/constants/vlt-cache-path.js'
       )
-      expect(vltCachePath).toContain('vlt')
-      expect(vltCachePath).not.toContain('\\')
-    })
-  })
-
-  describe('Linux default location', () => {
-    it('should use ~/.cache/vlt on Linux', async () => {
-      vi.stubGlobal('process', {
-        ...process,
-        env: { ...originalEnv, HOME: '/home/testuser' },
-        platform: 'linux',
-      })
-      const { default: vltCachePath } = await import(
-        '../../registry/dist/lib/constants/vlt-cache-path.js'
-      )
-      expect(vltCachePath).toContain('.cache')
-      expect(vltCachePath).toContain('vlt')
-    })
-
-    it('should return empty string when HOME is not set on Linux', async () => {
-      vi.stubGlobal('process', {
-        ...process,
-        env: {},
-        platform: 'linux',
-      })
-      const { default: vltCachePath } = await import(
-        '../../registry/dist/lib/constants/vlt-cache-path.js'
-      )
-      expect(vltCachePath).toBe('')
-    })
-  })
+    },
+  )
 
   describe('path normalization', () => {
     it('should not contain backslashes in normalized paths', async () => {
