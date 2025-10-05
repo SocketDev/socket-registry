@@ -267,6 +267,10 @@
       "types": "./dist/lib/constants/get-ipc.d.ts",
       "default": "./dist/lib/constants/get-ipc.js"
     },
+    "./lib/constants/GITHUB_API_BASE_URL": {
+      "types": "./dist/lib/constants/GITHUB_API_BASE_URL.d.ts",
+      "default": "./dist/lib/constants/GITHUB_API_BASE_URL.js"
+    },
     "./lib/constants/GITIGNORE": {
       "types": "./dist/lib/constants/GITIGNORE.d.ts",
       "default": "./dist/lib/constants/GITIGNORE.js"
@@ -486,6 +490,10 @@
     "./lib/constants/RESOLUTIONS": {
       "types": "./dist/lib/constants/RESOLUTIONS.d.ts",
       "default": "./dist/lib/constants/RESOLUTIONS.js"
+    },
+    "./lib/constants/SOCKET_API_BASE_URL": {
+      "types": "./dist/lib/constants/SOCKET_API_BASE_URL.d.ts",
+      "default": "./dist/lib/constants/SOCKET_API_BASE_URL.js"
     },
     "./lib/constants/SOCKET_APP_PREFIX": {
       "types": "./dist/lib/constants/SOCKET_APP_PREFIX.d.ts",
@@ -803,6 +811,10 @@
       "types": "./dist/lib/constants/get-ipc.d.ts",
       "default": "./dist/lib/constants/get-ipc.js"
     },
+    "./lib/constants/github-api-base-url": {
+      "types": "./dist/lib/constants/GITHUB_API_BASE_URL.d.ts",
+      "default": "./dist/lib/constants/GITHUB_API_BASE_URL.js"
+    },
     "./lib/constants/index": {
       "types": "./dist/lib/constants/index.d.ts",
       "default": "./dist/lib/constants/index.js"
@@ -990,6 +1002,10 @@
     "./lib/constants/registry-scope-delimiter": {
       "types": "./dist/lib/constants/REGISTRY_SCOPE_DELIMITER.d.ts",
       "default": "./dist/lib/constants/REGISTRY_SCOPE_DELIMITER.js"
+    },
+    "./lib/constants/socket-api-base-url": {
+      "types": "./dist/lib/constants/SOCKET_API_BASE_URL.d.ts",
+      "default": "./dist/lib/constants/SOCKET_API_BASE_URL.js"
     },
     "./lib/constants/socket-app-prefix": {
       "types": "./dist/lib/constants/SOCKET_APP_PREFIX.d.ts",
