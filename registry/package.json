@@ -91,13 +91,241 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./lib/constants/ABORT_CONTROLLER": {
-      "types": "./dist/lib/constants/abort-controller.d.ts",
-      "default": "./dist/lib/constants/abort-controller.js"
+    "./lib/abort": {
+      "types": "./dist/lib/abort.d.ts",
+      "default": "./dist/lib/abort.js"
     },
-    "./lib/constants/ABORT_SIGNAL": {
-      "types": "./dist/lib/constants/abort-signal.d.ts",
-      "default": "./dist/lib/constants/abort-signal.js"
+    "./lib/agent": {
+      "types": "./dist/lib/agent.d.ts",
+      "default": "./dist/lib/agent.js"
+    },
+    "./lib/arrays": {
+      "types": "./dist/lib/arrays.d.ts",
+      "default": "./dist/lib/arrays.js"
+    },
+    "./lib/bin": {
+      "types": "./dist/lib/bin.d.ts",
+      "default": "./dist/lib/bin.js"
+    },
+    "./lib/cacache": {
+      "types": "./dist/lib/cacache.d.ts",
+      "default": "./dist/lib/cacache.js"
+    },
+    "./lib/cache-with-ttl": {
+      "types": "./dist/lib/cache-with-ttl.d.ts",
+      "default": "./dist/lib/cache-with-ttl.js"
+    },
+    "./lib/debug": {
+      "types": "./dist/lib/debug.d.ts",
+      "default": "./dist/lib/debug.js"
+    },
+    "./lib/dlx-binary": {
+      "types": "./dist/lib/dlx-binary.d.ts",
+      "default": "./dist/lib/dlx-binary.js"
+    },
+    "./lib/dlx": {
+      "types": "./dist/lib/dlx.d.ts",
+      "default": "./dist/lib/dlx.js"
+    },
+    "./lib/download-lock": {
+      "types": "./dist/lib/download-lock.d.ts",
+      "default": "./dist/lib/download-lock.js"
+    },
+    "./lib/env": {
+      "types": "./dist/lib/env.d.ts",
+      "default": "./dist/lib/env.js"
+    },
+    "./lib/fs": {
+      "types": "./dist/lib/fs.d.ts",
+      "default": "./dist/lib/fs.js"
+    },
+    "./lib/functions": {
+      "types": "./dist/lib/functions.d.ts",
+      "default": "./dist/lib/functions.js"
+    },
+    "./lib/git": {
+      "types": "./dist/lib/git.d.ts",
+      "default": "./dist/lib/git.js"
+    },
+    "./lib/github": {
+      "types": "./dist/lib/github.d.ts",
+      "default": "./dist/lib/github.js"
+    },
+    "./lib/globs": {
+      "types": "./dist/lib/globs.d.ts",
+      "default": "./dist/lib/globs.js"
+    },
+    "./lib/http-request": {
+      "types": "./dist/lib/http-request.d.ts",
+      "default": "./dist/lib/http-request.js"
+    },
+    "./lib/json": {
+      "types": "./dist/lib/json.d.ts",
+      "default": "./dist/lib/json.js"
+    },
+    "./lib/logger": {
+      "types": "./dist/lib/logger.d.ts",
+      "default": "./dist/lib/logger.js"
+    },
+    "./lib/objects": {
+      "types": "./dist/lib/objects.d.ts",
+      "default": "./dist/lib/objects.js"
+    },
+    "./lib/packages": {
+      "types": "./dist/lib/packages.d.ts",
+      "default": "./dist/lib/packages.js"
+    },
+    "./lib/parse-args": {
+      "types": "./dist/lib/parse-args.d.ts",
+      "default": "./dist/lib/parse-args.js"
+    },
+    "./lib/path": {
+      "types": "./dist/lib/path.d.ts",
+      "default": "./dist/lib/path.js"
+    },
+    "./lib/paths": {
+      "types": "./dist/lib/paths.d.ts",
+      "default": "./dist/lib/paths.js"
+    },
+    "./lib/promise-queue": {
+      "types": "./dist/lib/promise-queue.d.ts",
+      "default": "./dist/lib/promise-queue.js"
+    },
+    "./lib/promises": {
+      "types": "./dist/lib/promises.d.ts",
+      "default": "./dist/lib/promises.js"
+    },
+    "./lib/prompts": {
+      "types": "./dist/lib/prompts.d.ts",
+      "default": "./dist/lib/prompts.js"
+    },
+    "./lib/regexps": {
+      "types": "./dist/lib/regexps.d.ts",
+      "default": "./dist/lib/regexps.js"
+    },
+    "./lib/sea-build": {
+      "types": "./dist/lib/sea-build.d.ts",
+      "default": "./dist/lib/sea-build.js"
+    },
+    "./lib/sea": {
+      "types": "./dist/lib/sea.d.ts",
+      "default": "./dist/lib/sea.js"
+    },
+    "./lib/shadow": {
+      "types": "./dist/lib/shadow.d.ts",
+      "default": "./dist/lib/shadow.js"
+    },
+    "./lib/signal-exit": {
+      "types": "./dist/lib/signal-exit.d.ts",
+      "default": "./dist/lib/signal-exit.js"
+    },
+    "./lib/sorts": {
+      "types": "./dist/lib/sorts.d.ts",
+      "default": "./dist/lib/sorts.js"
+    },
+    "./lib/spawn": {
+      "types": "./dist/lib/spawn.d.ts",
+      "default": "./dist/lib/spawn.js"
+    },
+    "./lib/spinner": {
+      "types": "./dist/lib/spinner.d.ts",
+      "default": "./dist/lib/spinner.js"
+    },
+    "./lib/streams": {
+      "types": "./dist/lib/streams.d.ts",
+      "default": "./dist/lib/streams.js"
+    },
+    "./lib/strings": {
+      "types": "./dist/lib/strings.d.ts",
+      "default": "./dist/lib/strings.js"
+    },
+    "./lib/temporary-executor": {
+      "types": "./dist/lib/temporary-executor.d.ts",
+      "default": "./dist/lib/temporary-executor.js"
+    },
+    "./lib/url": {
+      "types": "./dist/lib/url.d.ts",
+      "default": "./dist/lib/url.js"
+    },
+    "./lib/versions": {
+      "types": "./dist/lib/versions.d.ts",
+      "default": "./dist/lib/versions.js"
+    },
+    "./lib/words": {
+      "types": "./dist/lib/words.d.ts",
+      "default": "./dist/lib/words.js"
+    },
+    "./lib/dependencies/build-tools": {
+      "types": "./dist/lib/dependencies/build-tools.d.ts",
+      "default": "./dist/lib/dependencies/build-tools.js"
+    },
+    "./lib/dependencies/file-system": {
+      "types": "./dist/lib/dependencies/file-system.d.ts",
+      "default": "./dist/lib/dependencies/file-system.js"
+    },
+    "./lib/dependencies/index": {
+      "types": "./dist/lib/dependencies/index.d.ts",
+      "default": "./dist/lib/dependencies/index.js"
+    },
+    "./lib/dependencies/logging": {
+      "types": "./dist/lib/dependencies/logging.d.ts",
+      "default": "./dist/lib/dependencies/logging.js"
+    },
+    "./lib/dependencies/npm-tools": {
+      "types": "./dist/lib/dependencies/npm-tools.d.ts",
+      "default": "./dist/lib/dependencies/npm-tools.js"
+    },
+    "./lib/dependencies/prompts": {
+      "types": "./dist/lib/dependencies/prompts.d.ts",
+      "default": "./dist/lib/dependencies/prompts.js"
+    },
+    "./lib/dependencies/system": {
+      "types": "./dist/lib/dependencies/system.d.ts",
+      "default": "./dist/lib/dependencies/system.js"
+    },
+    "./lib/dependencies/validation": {
+      "types": "./dist/lib/dependencies/validation.d.ts",
+      "default": "./dist/lib/dependencies/validation.js"
+    },
+    "./lib/packages/editable": {
+      "types": "./dist/lib/packages/editable.d.ts",
+      "default": "./dist/lib/packages/editable.js"
+    },
+    "./lib/packages/exports": {
+      "types": "./dist/lib/packages/exports.d.ts",
+      "default": "./dist/lib/packages/exports.js"
+    },
+    "./lib/packages/licenses": {
+      "types": "./dist/lib/packages/licenses.d.ts",
+      "default": "./dist/lib/packages/licenses.js"
+    },
+    "./lib/packages/manifest": {
+      "types": "./dist/lib/packages/manifest.d.ts",
+      "default": "./dist/lib/packages/manifest.js"
+    },
+    "./lib/packages/normalize": {
+      "types": "./dist/lib/packages/normalize.d.ts",
+      "default": "./dist/lib/packages/normalize.js"
+    },
+    "./lib/packages/operations": {
+      "types": "./dist/lib/packages/operations.d.ts",
+      "default": "./dist/lib/packages/operations.js"
+    },
+    "./lib/packages/paths": {
+      "types": "./dist/lib/packages/paths.d.ts",
+      "default": "./dist/lib/packages/paths.js"
+    },
+    "./lib/packages/provenance": {
+      "types": "./dist/lib/packages/provenance.d.ts",
+      "default": "./dist/lib/packages/provenance.js"
+    },
+    "./lib/packages/specs": {
+      "types": "./dist/lib/packages/specs.d.ts",
+      "default": "./dist/lib/packages/specs.js"
+    },
+    "./lib/packages/validation": {
+      "types": "./dist/lib/packages/validation.d.ts",
+      "default": "./dist/lib/packages/validation.js"
     },
     "./lib/constants/AT_LATEST": {
       "types": "./dist/lib/constants/AT_LATEST.d.ts",
@@ -106,10 +334,6 @@
     "./lib/constants/BUN": {
       "types": "./dist/lib/constants/BUN.d.ts",
       "default": "./dist/lib/constants/BUN.js"
-    },
-    "./lib/constants/BUN_CACHE_PATH": {
-      "types": "./dist/lib/constants/bun-cache-path.d.ts",
-      "default": "./dist/lib/constants/bun-cache-path.js"
     },
     "./lib/constants/BUN_LOCK": {
       "types": "./dist/lib/constants/BUN_LOCK.d.ts",
@@ -147,10 +371,6 @@
       "types": "./dist/lib/constants/COLUMN_LIMIT.d.ts",
       "default": "./dist/lib/constants/COLUMN_LIMIT.js"
     },
-    "./lib/constants/COPY_LEFT_LICENSES": {
-      "types": "./dist/lib/constants/copy-left-licenses.d.ts",
-      "default": "./dist/lib/constants/copy-left-licenses.js"
-    },
     "./lib/constants/DARWIN": {
       "types": "./dist/lib/constants/DARWIN.d.ts",
       "default": "./dist/lib/constants/DARWIN.js"
@@ -159,13 +379,13 @@
       "types": "./dist/lib/constants/DLX_BINARY_CACHE_TTL.d.ts",
       "default": "./dist/lib/constants/DLX_BINARY_CACHE_TTL.js"
     },
-    "./lib/constants/DOT_GIT_DIR": {
-      "types": "./dist/lib/constants/DOT_GIT_DIR.d.ts",
-      "default": "./dist/lib/constants/DOT_GIT_DIR.js"
-    },
     "./lib/constants/DOT_GITHUB": {
       "types": "./dist/lib/constants/DOT_GITHUB.d.ts",
       "default": "./dist/lib/constants/DOT_GITHUB.js"
+    },
+    "./lib/constants/DOT_GIT_DIR": {
+      "types": "./dist/lib/constants/DOT_GIT_DIR.d.ts",
+      "default": "./dist/lib/constants/DOT_GIT_DIR.js"
     },
     "./lib/constants/DOT_PACKAGE_LOCK_JSON": {
       "types": "./dist/lib/constants/DOT_PACKAGE_LOCK_JSON.d.ts",
@@ -195,9 +415,13 @@
       "types": "./dist/lib/constants/ESNEXT.d.ts",
       "default": "./dist/lib/constants/ESNEXT.js"
     },
-    "./lib/constants/EXEC_PATH": {
-      "types": "./dist/lib/constants/exec-path.d.ts",
-      "default": "./dist/lib/constants/exec-path.js"
+    "./lib/constants/EXTENSIONS": {
+      "types": "./dist/lib/constants/EXTENSIONS.d.ts",
+      "default": "./dist/lib/constants/EXTENSIONS.js"
+    },
+    "./lib/constants/EXTENSIONS_JSON": {
+      "types": "./dist/lib/constants/EXTENSIONS_JSON.d.ts",
+      "default": "./dist/lib/constants/EXTENSIONS_JSON.js"
     },
     "./lib/constants/EXT_CJS": {
       "types": "./dist/lib/constants/EXT_CJS.d.ts",
@@ -255,18 +479,6 @@
       "types": "./dist/lib/constants/EXT_YML.d.ts",
       "default": "./dist/lib/constants/EXT_YML.js"
     },
-    "./lib/constants/EXTENSIONS": {
-      "types": "./dist/lib/constants/EXTENSIONS.d.ts",
-      "default": "./dist/lib/constants/EXTENSIONS.js"
-    },
-    "./lib/constants/EXTENSIONS_JSON": {
-      "types": "./dist/lib/constants/EXTENSIONS_JSON.d.ts",
-      "default": "./dist/lib/constants/EXTENSIONS_JSON.js"
-    },
-    "./lib/constants/GET_IPC": {
-      "types": "./dist/lib/constants/get-ipc.d.ts",
-      "default": "./dist/lib/constants/get-ipc.js"
-    },
     "./lib/constants/GITHUB_API_BASE_URL": {
       "types": "./dist/lib/constants/GITHUB_API_BASE_URL.d.ts",
       "default": "./dist/lib/constants/GITHUB_API_BASE_URL.js"
@@ -274,26 +486,6 @@
     "./lib/constants/GITIGNORE": {
       "types": "./dist/lib/constants/GITIGNORE.d.ts",
       "default": "./dist/lib/constants/GITIGNORE.js"
-    },
-    "./lib/constants/IPC_HANDLER": {
-      "types": "./dist/lib/constants/ipc-handler.d.ts",
-      "default": "./dist/lib/constants/ipc-handler.js"
-    },
-    "./lib/constants/IPC_OBJECT": {
-      "types": "./dist/lib/constants/ipc-object.d.ts",
-      "default": "./dist/lib/constants/ipc-object.js"
-    },
-    "./lib/constants/IPC_PROMISE": {
-      "types": "./dist/lib/constants/ipc-promise.d.ts",
-      "default": "./dist/lib/constants/ipc-promise.js"
-    },
-    "./lib/constants/IPC_TARGET": {
-      "types": "./dist/lib/constants/ipc-target.d.ts",
-      "default": "./dist/lib/constants/ipc-target.js"
-    },
-    "./lib/constants/K_INTERNALS_SYMBOL": {
-      "types": "./dist/lib/constants/k-internals-symbol.d.ts",
-      "default": "./dist/lib/constants/k-internals-symbol.js"
     },
     "./lib/constants/LATEST": {
       "types": "./dist/lib/constants/LATEST.d.ts",
@@ -323,17 +515,9 @@
       "types": "./dist/lib/constants/LICENSE_ORIGINAL_GLOB_RECURSIVE.d.ts",
       "default": "./dist/lib/constants/LICENSE_ORIGINAL_GLOB_RECURSIVE.js"
     },
-    "./lib/constants/LIFECYCLE_SCRIPT_NAMES": {
-      "types": "./dist/lib/constants/lifecycle-script-names.d.ts",
-      "default": "./dist/lib/constants/lifecycle-script-names.js"
-    },
     "./lib/constants/LOOP_SENTINEL": {
       "types": "./dist/lib/constants/LOOP_SENTINEL.d.ts",
       "default": "./dist/lib/constants/LOOP_SENTINEL.js"
-    },
-    "./lib/constants/MAINTAINED_NODE_VERSIONS": {
-      "types": "./dist/lib/constants/maintained-node-versions.d.ts",
-      "default": "./dist/lib/constants/maintained-node-versions.js"
     },
     "./lib/constants/MANIFEST_JSON": {
       "types": "./dist/lib/constants/MANIFEST_JSON.d.ts",
@@ -346,10 +530,6 @@
     "./lib/constants/NODE_AUTH_TOKEN": {
       "types": "./dist/lib/constants/NODE_AUTH_TOKEN.d.ts",
       "default": "./dist/lib/constants/NODE_AUTH_TOKEN.js"
-    },
-    "./lib/constants/NODE_DEBUG_FLAGS": {
-      "types": "./dist/lib/constants/node-debug-flags.d.ts",
-      "default": "./dist/lib/constants/node-debug-flags.js"
     },
     "./lib/constants/NODE_ENV": {
       "types": "./dist/lib/constants/NODE_ENV.d.ts",
@@ -375,21 +555,9 @@
       "types": "./dist/lib/constants/NODE_SEA_FUSE.d.ts",
       "default": "./dist/lib/constants/NODE_SEA_FUSE.js"
     },
-    "./lib/constants/NODE_VERSION": {
-      "types": "./dist/lib/constants/node-version.d.ts",
-      "default": "./dist/lib/constants/node-version.js"
-    },
     "./lib/constants/NPM": {
       "types": "./dist/lib/constants/NPM.d.ts",
       "default": "./dist/lib/constants/NPM.js"
-    },
-    "./lib/constants/NPM_EXEC_PATH": {
-      "types": "./dist/lib/constants/npm-exec-path.d.ts",
-      "default": "./dist/lib/constants/npm-exec-path.js"
-    },
-    "./lib/constants/NPM_LIFECYCLE_EVENT": {
-      "types": "./dist/lib/constants/npm-lifecycle-event.d.ts",
-      "default": "./dist/lib/constants/npm-lifecycle-event.js"
     },
     "./lib/constants/NPM_REAL_EXEC_PATH": {
       "types": "./dist/lib/constants/NPM_REAL_EXEC_PATH.d.ts",
@@ -411,21 +579,9 @@
       "types": "./dist/lib/constants/OVERRIDES.d.ts",
       "default": "./dist/lib/constants/OVERRIDES.js"
     },
-    "./lib/constants/PACKAGE_DEFAULT_NODE_RANGE": {
-      "types": "./dist/lib/constants/package-default-node-range.d.ts",
-      "default": "./dist/lib/constants/package-default-node-range.js"
-    },
-    "./lib/constants/PACKAGE_DEFAULT_SOCKET_CATEGORIES": {
-      "types": "./dist/lib/constants/package-default-socket-categories.d.ts",
-      "default": "./dist/lib/constants/package-default-socket-categories.js"
-    },
     "./lib/constants/PACKAGE_DEFAULT_VERSION": {
       "types": "./dist/lib/constants/PACKAGE_DEFAULT_VERSION.d.ts",
       "default": "./dist/lib/constants/PACKAGE_DEFAULT_VERSION.js"
-    },
-    "./lib/constants/PACKAGE_EXTENSIONS": {
-      "types": "./dist/lib/constants/package-extensions.d.ts",
-      "default": "./dist/lib/constants/package-extensions.js"
     },
     "./lib/constants/PACKAGE_JSON": {
       "types": "./dist/lib/constants/PACKAGE_JSON.d.ts",
@@ -435,33 +591,13 @@
       "types": "./dist/lib/constants/PACKAGE_LOCK_JSON.d.ts",
       "default": "./dist/lib/constants/PACKAGE_LOCK_JSON.js"
     },
-    "./lib/constants/PACKAGE_MANAGER_CACHE_NAMES": {
-      "types": "./dist/lib/constants/package-manager-cache-names.d.ts",
-      "default": "./dist/lib/constants/package-manager-cache-names.js"
-    },
-    "./lib/constants/PACKUMENT_CACHE": {
-      "types": "./dist/lib/constants/packument-cache.d.ts",
-      "default": "./dist/lib/constants/packument-cache.js"
-    },
-    "./lib/constants/PACOTE_CACHE_PATH": {
-      "types": "./dist/lib/constants/pacote-cache-path.d.ts",
-      "default": "./dist/lib/constants/pacote-cache-path.js"
-    },
     "./lib/constants/PNPM": {
       "types": "./dist/lib/constants/PNPM.d.ts",
       "default": "./dist/lib/constants/PNPM.js"
     },
-    "./lib/constants/PNPM_EXEC_PATH": {
-      "types": "./dist/lib/constants/pnpm-exec-path.d.ts",
-      "default": "./dist/lib/constants/pnpm-exec-path.js"
-    },
     "./lib/constants/PNPM_LOCK_YAML": {
       "types": "./dist/lib/constants/PNPM_LOCK_YAML.d.ts",
       "default": "./dist/lib/constants/PNPM_LOCK_YAML.js"
-    },
-    "./lib/constants/PNPM_STORE_PATH": {
-      "types": "./dist/lib/constants/pnpm-store-path.d.ts",
-      "default": "./dist/lib/constants/pnpm-store-path.js"
     },
     "./lib/constants/PRE_COMMIT": {
       "types": "./dist/lib/constants/PRE_COMMIT.d.ts",
@@ -579,14 +715,6 @@
       "types": "./dist/lib/constants/SUPPORTS_PROCESS_SEND.d.ts",
       "default": "./dist/lib/constants/SUPPORTS_PROCESS_SEND.js"
     },
-    "./lib/constants/TS_LIBS_AVAILABLE": {
-      "types": "./dist/lib/constants/ts-libs-available.d.ts",
-      "default": "./dist/lib/constants/ts-libs-available.js"
-    },
-    "./lib/constants/TS_TYPES_AVAILABLE": {
-      "types": "./dist/lib/constants/ts-types-available.d.ts",
-      "default": "./dist/lib/constants/ts-types-available.js"
-    },
     "./lib/constants/TSCONFIG_JSON": {
       "types": "./dist/lib/constants/TSCONFIG_JSON.d.ts",
       "default": "./dist/lib/constants/TSCONFIG_JSON.js"
@@ -623,10 +751,6 @@
       "types": "./dist/lib/constants/VLT.d.ts",
       "default": "./dist/lib/constants/VLT.js"
     },
-    "./lib/constants/VLT_CACHE_PATH": {
-      "types": "./dist/lib/constants/vlt-cache-path.d.ts",
-      "default": "./dist/lib/constants/vlt-cache-path.js"
-    },
     "./lib/constants/VLT_LOCK_JSON": {
       "types": "./dist/lib/constants/VLT_LOCK_JSON.d.ts",
       "default": "./dist/lib/constants/VLT_LOCK_JSON.js"
@@ -643,18 +767,6 @@
       "types": "./dist/lib/constants/YARN_BERRY.d.ts",
       "default": "./dist/lib/constants/YARN_BERRY.js"
     },
-    "./lib/constants/YARN_CACHE_PATH": {
-      "types": "./dist/lib/constants/yarn-cache-path.d.ts",
-      "default": "./dist/lib/constants/yarn-cache-path.js"
-    },
-    "./lib/constants/YARN_CLASSIC": {
-      "types": "./dist/lib/constants/yarn-classic.d.ts",
-      "default": "./dist/lib/constants/yarn-classic.js"
-    },
-    "./lib/constants/YARN_EXEC_PATH": {
-      "types": "./dist/lib/constants/yarn-exec-path.d.ts",
-      "default": "./dist/lib/constants/yarn-exec-path.js"
-    },
     "./lib/constants/YARN_LOCK": {
       "types": "./dist/lib/constants/YARN_LOCK.d.ts",
       "default": "./dist/lib/constants/YARN_LOCK.js"
@@ -663,159 +775,55 @@
       "types": "./dist/lib/constants/abort-controller.d.ts",
       "default": "./dist/lib/constants/abort-controller.js"
     },
+    "./lib/constants/ABORT_CONTROLLER": {
+      "types": "./dist/lib/constants/abort-controller.d.ts",
+      "default": "./dist/lib/constants/abort-controller.js"
+    },
     "./lib/constants/abort-signal": {
       "types": "./dist/lib/constants/abort-signal.d.ts",
       "default": "./dist/lib/constants/abort-signal.js"
     },
-    "./lib/constants/at-latest": {
-      "types": "./dist/lib/constants/AT_LATEST.d.ts",
-      "default": "./dist/lib/constants/AT_LATEST.js"
+    "./lib/constants/ABORT_SIGNAL": {
+      "types": "./dist/lib/constants/abort-signal.d.ts",
+      "default": "./dist/lib/constants/abort-signal.js"
     },
     "./lib/constants/bun-cache-path": {
       "types": "./dist/lib/constants/bun-cache-path.d.ts",
       "default": "./dist/lib/constants/bun-cache-path.js"
     },
-    "./lib/constants/bun-lock": {
-      "types": "./dist/lib/constants/BUN_LOCK.d.ts",
-      "default": "./dist/lib/constants/BUN_LOCK.js"
-    },
-    "./lib/constants/bun-lockb": {
-      "types": "./dist/lib/constants/BUN_LOCKB.d.ts",
-      "default": "./dist/lib/constants/BUN_LOCKB.js"
-    },
-    "./lib/constants/cache-dir": {
-      "types": "./dist/lib/constants/CACHE_DIR.d.ts",
-      "default": "./dist/lib/constants/CACHE_DIR.js"
-    },
-    "./lib/constants/cache-github-dir": {
-      "types": "./dist/lib/constants/CACHE_GITHUB_DIR.d.ts",
-      "default": "./dist/lib/constants/CACHE_GITHUB_DIR.js"
-    },
-    "./lib/constants/cache-socket-api-dir": {
-      "types": "./dist/lib/constants/CACHE_SOCKET_API_DIR.d.ts",
-      "default": "./dist/lib/constants/CACHE_SOCKET_API_DIR.js"
-    },
-    "./lib/constants/cache-ttl-dir": {
-      "types": "./dist/lib/constants/CACHE_TTL_DIR.d.ts",
-      "default": "./dist/lib/constants/CACHE_TTL_DIR.js"
-    },
-    "./lib/constants/changelog-md": {
-      "types": "./dist/lib/constants/CHANGELOG_MD.d.ts",
-      "default": "./dist/lib/constants/CHANGELOG_MD.js"
-    },
-    "./lib/constants/column-limit": {
-      "types": "./dist/lib/constants/COLUMN_LIMIT.d.ts",
-      "default": "./dist/lib/constants/COLUMN_LIMIT.js"
+    "./lib/constants/BUN_CACHE_PATH": {
+      "types": "./dist/lib/constants/bun-cache-path.d.ts",
+      "default": "./dist/lib/constants/bun-cache-path.js"
     },
     "./lib/constants/copy-left-licenses": {
       "types": "./dist/lib/constants/copy-left-licenses.d.ts",
       "default": "./dist/lib/constants/copy-left-licenses.js"
     },
-    "./lib/constants/dlx-binary-cache-ttl": {
-      "types": "./dist/lib/constants/DLX_BINARY_CACHE_TTL.d.ts",
-      "default": "./dist/lib/constants/DLX_BINARY_CACHE_TTL.js"
-    },
-    "./lib/constants/dot-git-dir": {
-      "types": "./dist/lib/constants/DOT_GIT_DIR.d.ts",
-      "default": "./dist/lib/constants/DOT_GIT_DIR.js"
-    },
-    "./lib/constants/dot-github": {
-      "types": "./dist/lib/constants/DOT_GITHUB.d.ts",
-      "default": "./dist/lib/constants/DOT_GITHUB.js"
-    },
-    "./lib/constants/dot-package-lock-json": {
-      "types": "./dist/lib/constants/DOT_PACKAGE_LOCK_JSON.d.ts",
-      "default": "./dist/lib/constants/DOT_PACKAGE_LOCK_JSON.js"
-    },
-    "./lib/constants/dot-socket-dir": {
-      "types": "./dist/lib/constants/DOT_SOCKET_DIR.d.ts",
-      "default": "./dist/lib/constants/DOT_SOCKET_DIR.js"
-    },
-    "./lib/constants/empty-file": {
-      "types": "./dist/lib/constants/EMPTY_FILE.d.ts",
-      "default": "./dist/lib/constants/EMPTY_FILE.js"
-    },
-    "./lib/constants/empty-value": {
-      "types": "./dist/lib/constants/EMPTY_VALUE.d.ts",
-      "default": "./dist/lib/constants/EMPTY_VALUE.js"
-    },
-    "./lib/constants/eslint-config-js": {
-      "types": "./dist/lib/constants/ESLINT_CONFIG_JS.d.ts",
-      "default": "./dist/lib/constants/ESLINT_CONFIG_JS.js"
+    "./lib/constants/COPY_LEFT_LICENSES": {
+      "types": "./dist/lib/constants/copy-left-licenses.d.ts",
+      "default": "./dist/lib/constants/copy-left-licenses.js"
     },
     "./lib/constants/exec-path": {
       "types": "./dist/lib/constants/exec-path.d.ts",
       "default": "./dist/lib/constants/exec-path.js"
     },
-    "./lib/constants/ext-cjs": {
-      "types": "./dist/lib/constants/EXT_CJS.d.ts",
-      "default": "./dist/lib/constants/EXT_CJS.js"
-    },
-    "./lib/constants/ext-cmd": {
-      "types": "./dist/lib/constants/EXT_CMD.d.ts",
-      "default": "./dist/lib/constants/EXT_CMD.js"
-    },
-    "./lib/constants/ext-cts": {
-      "types": "./dist/lib/constants/EXT_CTS.d.ts",
-      "default": "./dist/lib/constants/EXT_CTS.js"
-    },
-    "./lib/constants/ext-dts": {
-      "types": "./dist/lib/constants/EXT_DTS.d.ts",
-      "default": "./dist/lib/constants/EXT_DTS.js"
-    },
-    "./lib/constants/ext-js": {
-      "types": "./dist/lib/constants/EXT_JS.d.ts",
-      "default": "./dist/lib/constants/EXT_JS.js"
-    },
-    "./lib/constants/ext-json": {
-      "types": "./dist/lib/constants/EXT_JSON.d.ts",
-      "default": "./dist/lib/constants/EXT_JSON.js"
-    },
-    "./lib/constants/ext-lock": {
-      "types": "./dist/lib/constants/EXT_LOCK.d.ts",
-      "default": "./dist/lib/constants/EXT_LOCK.js"
-    },
-    "./lib/constants/ext-lockb": {
-      "types": "./dist/lib/constants/EXT_LOCKB.d.ts",
-      "default": "./dist/lib/constants/EXT_LOCKB.js"
-    },
-    "./lib/constants/ext-md": {
-      "types": "./dist/lib/constants/EXT_MD.d.ts",
-      "default": "./dist/lib/constants/EXT_MD.js"
-    },
-    "./lib/constants/ext-mjs": {
-      "types": "./dist/lib/constants/EXT_MJS.d.ts",
-      "default": "./dist/lib/constants/EXT_MJS.js"
-    },
-    "./lib/constants/ext-mts": {
-      "types": "./dist/lib/constants/EXT_MTS.d.ts",
-      "default": "./dist/lib/constants/EXT_MTS.js"
-    },
-    "./lib/constants/ext-ps1": {
-      "types": "./dist/lib/constants/EXT_PS1.d.ts",
-      "default": "./dist/lib/constants/EXT_PS1.js"
-    },
-    "./lib/constants/ext-yaml": {
-      "types": "./dist/lib/constants/EXT_YAML.d.ts",
-      "default": "./dist/lib/constants/EXT_YAML.js"
-    },
-    "./lib/constants/ext-yml": {
-      "types": "./dist/lib/constants/EXT_YML.d.ts",
-      "default": "./dist/lib/constants/EXT_YML.js"
-    },
-    "./lib/constants/extensions-json": {
-      "types": "./dist/lib/constants/EXTENSIONS_JSON.d.ts",
-      "default": "./dist/lib/constants/EXTENSIONS_JSON.js"
+    "./lib/constants/EXEC_PATH": {
+      "types": "./dist/lib/constants/exec-path.d.ts",
+      "default": "./dist/lib/constants/exec-path.js"
     },
     "./lib/constants/get-ipc": {
       "types": "./dist/lib/constants/get-ipc.d.ts",
       "default": "./dist/lib/constants/get-ipc.js"
     },
-    "./lib/constants/github-api-base-url": {
-      "types": "./dist/lib/constants/GITHUB_API_BASE_URL.d.ts",
-      "default": "./dist/lib/constants/GITHUB_API_BASE_URL.js"
+    "./lib/constants/GET_IPC": {
+      "types": "./dist/lib/constants/get-ipc.d.ts",
+      "default": "./dist/lib/constants/get-ipc.js"
     },
     "./lib/constants/index": {
+      "types": "./dist/lib/constants/index.d.ts",
+      "default": "./dist/lib/constants/index.js"
+    },
+    "./lib/constants/INDEX": {
       "types": "./dist/lib/constants/index.d.ts",
       "default": "./dist/lib/constants/index.js"
     },
@@ -823,7 +831,15 @@
       "types": "./dist/lib/constants/ipc-handler.d.ts",
       "default": "./dist/lib/constants/ipc-handler.js"
     },
+    "./lib/constants/IPC_HANDLER": {
+      "types": "./dist/lib/constants/ipc-handler.d.ts",
+      "default": "./dist/lib/constants/ipc-handler.js"
+    },
     "./lib/constants/ipc-object": {
+      "types": "./dist/lib/constants/ipc-object.d.ts",
+      "default": "./dist/lib/constants/ipc-object.js"
+    },
+    "./lib/constants/IPC_OBJECT": {
       "types": "./dist/lib/constants/ipc-object.d.ts",
       "default": "./dist/lib/constants/ipc-object.js"
     },
@@ -831,7 +847,15 @@
       "types": "./dist/lib/constants/ipc-promise.d.ts",
       "default": "./dist/lib/constants/ipc-promise.js"
     },
+    "./lib/constants/IPC_PROMISE": {
+      "types": "./dist/lib/constants/ipc-promise.d.ts",
+      "default": "./dist/lib/constants/ipc-promise.js"
+    },
     "./lib/constants/ipc-target": {
+      "types": "./dist/lib/constants/ipc-target.d.ts",
+      "default": "./dist/lib/constants/ipc-target.js"
+    },
+    "./lib/constants/IPC_TARGET": {
       "types": "./dist/lib/constants/ipc-target.d.ts",
       "default": "./dist/lib/constants/ipc-target.js"
     },
@@ -839,27 +863,15 @@
       "types": "./dist/lib/constants/k-internals-symbol.d.ts",
       "default": "./dist/lib/constants/k-internals-symbol.js"
     },
-    "./lib/constants/license-glob": {
-      "types": "./dist/lib/constants/LICENSE_GLOB.d.ts",
-      "default": "./dist/lib/constants/LICENSE_GLOB.js"
-    },
-    "./lib/constants/license-glob-recursive": {
-      "types": "./dist/lib/constants/LICENSE_GLOB_RECURSIVE.d.ts",
-      "default": "./dist/lib/constants/LICENSE_GLOB_RECURSIVE.js"
-    },
-    "./lib/constants/license-original": {
-      "types": "./dist/lib/constants/LICENSE_ORIGINAL.d.ts",
-      "default": "./dist/lib/constants/LICENSE_ORIGINAL.js"
-    },
-    "./lib/constants/license-original-glob": {
-      "types": "./dist/lib/constants/LICENSE_ORIGINAL_GLOB.d.ts",
-      "default": "./dist/lib/constants/LICENSE_ORIGINAL_GLOB.js"
-    },
-    "./lib/constants/license-original-glob-recursive": {
-      "types": "./dist/lib/constants/LICENSE_ORIGINAL_GLOB_RECURSIVE.d.ts",
-      "default": "./dist/lib/constants/LICENSE_ORIGINAL_GLOB_RECURSIVE.js"
+    "./lib/constants/K_INTERNALS_SYMBOL": {
+      "types": "./dist/lib/constants/k-internals-symbol.d.ts",
+      "default": "./dist/lib/constants/k-internals-symbol.js"
     },
     "./lib/constants/lifecycle-script-names": {
+      "types": "./dist/lib/constants/lifecycle-script-names.d.ts",
+      "default": "./dist/lib/constants/lifecycle-script-names.js"
+    },
+    "./lib/constants/LIFECYCLE_SCRIPT_NAMES": {
       "types": "./dist/lib/constants/lifecycle-script-names.d.ts",
       "default": "./dist/lib/constants/lifecycle-script-names.js"
     },
@@ -867,51 +879,31 @@
       "types": "./dist/lib/constants/logger.d.ts",
       "default": "./dist/lib/constants/logger.js"
     },
-    "./lib/constants/loop-sentinel": {
-      "types": "./dist/lib/constants/LOOP_SENTINEL.d.ts",
-      "default": "./dist/lib/constants/LOOP_SENTINEL.js"
+    "./lib/constants/LOGGER": {
+      "types": "./dist/lib/constants/logger.d.ts",
+      "default": "./dist/lib/constants/logger.js"
     },
     "./lib/constants/maintained-node-versions": {
       "types": "./dist/lib/constants/maintained-node-versions.d.ts",
       "default": "./dist/lib/constants/maintained-node-versions.js"
     },
-    "./lib/constants/manifest-json": {
-      "types": "./dist/lib/constants/MANIFEST_JSON.d.ts",
-      "default": "./dist/lib/constants/MANIFEST_JSON.js"
-    },
-    "./lib/constants/node-auth-token": {
-      "types": "./dist/lib/constants/NODE_AUTH_TOKEN.d.ts",
-      "default": "./dist/lib/constants/NODE_AUTH_TOKEN.js"
+    "./lib/constants/MAINTAINED_NODE_VERSIONS": {
+      "types": "./dist/lib/constants/maintained-node-versions.d.ts",
+      "default": "./dist/lib/constants/maintained-node-versions.js"
     },
     "./lib/constants/node-debug-flags": {
       "types": "./dist/lib/constants/node-debug-flags.d.ts",
       "default": "./dist/lib/constants/node-debug-flags.js"
     },
-    "./lib/constants/node-env": {
-      "types": "./dist/lib/constants/NODE_ENV.d.ts",
-      "default": "./dist/lib/constants/NODE_ENV.js"
-    },
-    "./lib/constants/node-harden-flags": {
-      "types": "./dist/lib/constants/NODE_HARDEN_FLAGS.d.ts",
-      "default": "./dist/lib/constants/NODE_HARDEN_FLAGS.js"
-    },
-    "./lib/constants/node-modules": {
-      "types": "./dist/lib/constants/NODE_MODULES.d.ts",
-      "default": "./dist/lib/constants/NODE_MODULES.js"
-    },
-    "./lib/constants/node-modules-glob-recursive": {
-      "types": "./dist/lib/constants/NODE_MODULES_GLOB_RECURSIVE.d.ts",
-      "default": "./dist/lib/constants/NODE_MODULES_GLOB_RECURSIVE.js"
-    },
-    "./lib/constants/node-no-warnings-flags": {
-      "types": "./dist/lib/constants/NODE_NO_WARNINGS_FLAGS.d.ts",
-      "default": "./dist/lib/constants/NODE_NO_WARNINGS_FLAGS.js"
-    },
-    "./lib/constants/node-sea-fuse": {
-      "types": "./dist/lib/constants/NODE_SEA_FUSE.d.ts",
-      "default": "./dist/lib/constants/NODE_SEA_FUSE.js"
+    "./lib/constants/NODE_DEBUG_FLAGS": {
+      "types": "./dist/lib/constants/node-debug-flags.d.ts",
+      "default": "./dist/lib/constants/node-debug-flags.js"
     },
     "./lib/constants/node-version": {
+      "types": "./dist/lib/constants/node-version.d.ts",
+      "default": "./dist/lib/constants/node-version.js"
+    },
+    "./lib/constants/NODE_VERSION": {
       "types": "./dist/lib/constants/node-version.d.ts",
       "default": "./dist/lib/constants/node-version.js"
     },
@@ -919,23 +911,23 @@
       "types": "./dist/lib/constants/npm-exec-path.d.ts",
       "default": "./dist/lib/constants/npm-exec-path.js"
     },
+    "./lib/constants/NPM_EXEC_PATH": {
+      "types": "./dist/lib/constants/npm-exec-path.d.ts",
+      "default": "./dist/lib/constants/npm-exec-path.js"
+    },
     "./lib/constants/npm-lifecycle-event": {
       "types": "./dist/lib/constants/npm-lifecycle-event.d.ts",
       "default": "./dist/lib/constants/npm-lifecycle-event.js"
     },
-    "./lib/constants/npm-real-exec-path": {
-      "types": "./dist/lib/constants/NPM_REAL_EXEC_PATH.d.ts",
-      "default": "./dist/lib/constants/NPM_REAL_EXEC_PATH.js"
-    },
-    "./lib/constants/npm-registry-url": {
-      "types": "./dist/lib/constants/NPM_REGISTRY_URL.d.ts",
-      "default": "./dist/lib/constants/NPM_REGISTRY_URL.js"
-    },
-    "./lib/constants/npm-shrinkwrap-json": {
-      "types": "./dist/lib/constants/NPM_SHRINKWRAP_JSON.d.ts",
-      "default": "./dist/lib/constants/NPM_SHRINKWRAP_JSON.js"
+    "./lib/constants/NPM_LIFECYCLE_EVENT": {
+      "types": "./dist/lib/constants/npm-lifecycle-event.d.ts",
+      "default": "./dist/lib/constants/npm-lifecycle-event.js"
     },
     "./lib/constants/package-default-node-range": {
+      "types": "./dist/lib/constants/package-default-node-range.d.ts",
+      "default": "./dist/lib/constants/package-default-node-range.js"
+    },
+    "./lib/constants/PACKAGE_DEFAULT_NODE_RANGE": {
       "types": "./dist/lib/constants/package-default-node-range.d.ts",
       "default": "./dist/lib/constants/package-default-node-range.js"
     },
@@ -943,23 +935,23 @@
       "types": "./dist/lib/constants/package-default-socket-categories.d.ts",
       "default": "./dist/lib/constants/package-default-socket-categories.js"
     },
-    "./lib/constants/package-default-version": {
-      "types": "./dist/lib/constants/PACKAGE_DEFAULT_VERSION.d.ts",
-      "default": "./dist/lib/constants/PACKAGE_DEFAULT_VERSION.js"
+    "./lib/constants/PACKAGE_DEFAULT_SOCKET_CATEGORIES": {
+      "types": "./dist/lib/constants/package-default-socket-categories.d.ts",
+      "default": "./dist/lib/constants/package-default-socket-categories.js"
     },
     "./lib/constants/package-extensions": {
       "types": "./dist/lib/constants/package-extensions.d.ts",
       "default": "./dist/lib/constants/package-extensions.js"
     },
-    "./lib/constants/package-json": {
-      "types": "./dist/lib/constants/PACKAGE_JSON.d.ts",
-      "default": "./dist/lib/constants/PACKAGE_JSON.js"
-    },
-    "./lib/constants/package-lock-json": {
-      "types": "./dist/lib/constants/PACKAGE_LOCK_JSON.d.ts",
-      "default": "./dist/lib/constants/PACKAGE_LOCK_JSON.js"
+    "./lib/constants/PACKAGE_EXTENSIONS": {
+      "types": "./dist/lib/constants/package-extensions.d.ts",
+      "default": "./dist/lib/constants/package-extensions.js"
     },
     "./lib/constants/package-manager-cache-names": {
+      "types": "./dist/lib/constants/package-manager-cache-names.d.ts",
+      "default": "./dist/lib/constants/package-manager-cache-names.js"
+    },
+    "./lib/constants/PACKAGE_MANAGER_CACHE_NAMES": {
       "types": "./dist/lib/constants/package-manager-cache-names.d.ts",
       "default": "./dist/lib/constants/package-manager-cache-names.js"
     },
@@ -967,7 +959,15 @@
       "types": "./dist/lib/constants/packument-cache.d.ts",
       "default": "./dist/lib/constants/packument-cache.js"
     },
+    "./lib/constants/PACKUMENT_CACHE": {
+      "types": "./dist/lib/constants/packument-cache.d.ts",
+      "default": "./dist/lib/constants/packument-cache.js"
+    },
     "./lib/constants/pacote-cache-path": {
+      "types": "./dist/lib/constants/pacote-cache-path.d.ts",
+      "default": "./dist/lib/constants/pacote-cache-path.js"
+    },
+    "./lib/constants/PACOTE_CACHE_PATH": {
       "types": "./dist/lib/constants/pacote-cache-path.d.ts",
       "default": "./dist/lib/constants/pacote-cache-path.js"
     },
@@ -975,127 +975,31 @@
       "types": "./dist/lib/constants/pnpm-exec-path.d.ts",
       "default": "./dist/lib/constants/pnpm-exec-path.js"
     },
-    "./lib/constants/pnpm-lock-yaml": {
-      "types": "./dist/lib/constants/PNPM_LOCK_YAML.d.ts",
-      "default": "./dist/lib/constants/PNPM_LOCK_YAML.js"
+    "./lib/constants/PNPM_EXEC_PATH": {
+      "types": "./dist/lib/constants/pnpm-exec-path.d.ts",
+      "default": "./dist/lib/constants/pnpm-exec-path.js"
     },
     "./lib/constants/pnpm-store-path": {
       "types": "./dist/lib/constants/pnpm-store-path.d.ts",
       "default": "./dist/lib/constants/pnpm-store-path.js"
     },
-    "./lib/constants/pre-commit": {
-      "types": "./dist/lib/constants/PRE_COMMIT.d.ts",
-      "default": "./dist/lib/constants/PRE_COMMIT.js"
-    },
-    "./lib/constants/readme-glob": {
-      "types": "./dist/lib/constants/README_GLOB.d.ts",
-      "default": "./dist/lib/constants/README_GLOB.js"
-    },
-    "./lib/constants/readme-glob-recursive": {
-      "types": "./dist/lib/constants/README_GLOB_RECURSIVE.d.ts",
-      "default": "./dist/lib/constants/README_GLOB_RECURSIVE.js"
-    },
-    "./lib/constants/readme-md": {
-      "types": "./dist/lib/constants/README_MD.d.ts",
-      "default": "./dist/lib/constants/README_MD.js"
-    },
-    "./lib/constants/registry-scope-delimiter": {
-      "types": "./dist/lib/constants/REGISTRY_SCOPE_DELIMITER.d.ts",
-      "default": "./dist/lib/constants/REGISTRY_SCOPE_DELIMITER.js"
-    },
-    "./lib/constants/socket-api-base-url": {
-      "types": "./dist/lib/constants/SOCKET_API_BASE_URL.d.ts",
-      "default": "./dist/lib/constants/SOCKET_API_BASE_URL.js"
-    },
-    "./lib/constants/socket-app-prefix": {
-      "types": "./dist/lib/constants/SOCKET_APP_PREFIX.d.ts",
-      "default": "./dist/lib/constants/SOCKET_APP_PREFIX.js"
-    },
-    "./lib/constants/socket-cli-app-name": {
-      "types": "./dist/lib/constants/SOCKET_CLI_APP_NAME.d.ts",
-      "default": "./dist/lib/constants/SOCKET_CLI_APP_NAME.js"
-    },
-    "./lib/constants/socket-dlx-app-name": {
-      "types": "./dist/lib/constants/SOCKET_DLX_APP_NAME.d.ts",
-      "default": "./dist/lib/constants/SOCKET_DLX_APP_NAME.js"
-    },
-    "./lib/constants/socket-firewall-app-name": {
-      "types": "./dist/lib/constants/SOCKET_FIREWALL_APP_NAME.d.ts",
-      "default": "./dist/lib/constants/SOCKET_FIREWALL_APP_NAME.js"
-    },
-    "./lib/constants/socket-github-org": {
-      "types": "./dist/lib/constants/SOCKET_GITHUB_ORG.d.ts",
-      "default": "./dist/lib/constants/SOCKET_GITHUB_ORG.js"
-    },
-    "./lib/constants/socket-ipc-handshake": {
-      "types": "./dist/lib/constants/SOCKET_IPC_HANDSHAKE.d.ts",
-      "default": "./dist/lib/constants/SOCKET_IPC_HANDSHAKE.js"
-    },
-    "./lib/constants/socket-override-scope": {
-      "types": "./dist/lib/constants/SOCKET_OVERRIDE_SCOPE.d.ts",
-      "default": "./dist/lib/constants/SOCKET_OVERRIDE_SCOPE.js"
-    },
-    "./lib/constants/socket-public-api-token": {
-      "types": "./dist/lib/constants/SOCKET_PUBLIC_API_TOKEN.d.ts",
-      "default": "./dist/lib/constants/SOCKET_PUBLIC_API_TOKEN.js"
-    },
-    "./lib/constants/socket-registry-app-name": {
-      "types": "./dist/lib/constants/SOCKET_REGISTRY_APP_NAME.d.ts",
-      "default": "./dist/lib/constants/SOCKET_REGISTRY_APP_NAME.js"
-    },
-    "./lib/constants/socket-registry-npm-org": {
-      "types": "./dist/lib/constants/SOCKET_REGISTRY_NPM_ORG.d.ts",
-      "default": "./dist/lib/constants/SOCKET_REGISTRY_NPM_ORG.js"
-    },
-    "./lib/constants/socket-registry-package-name": {
-      "types": "./dist/lib/constants/SOCKET_REGISTRY_PACKAGE_NAME.d.ts",
-      "default": "./dist/lib/constants/SOCKET_REGISTRY_PACKAGE_NAME.js"
-    },
-    "./lib/constants/socket-registry-repo-name": {
-      "types": "./dist/lib/constants/SOCKET_REGISTRY_REPO_NAME.d.ts",
-      "default": "./dist/lib/constants/SOCKET_REGISTRY_REPO_NAME.js"
-    },
-    "./lib/constants/socket-registry-scope": {
-      "types": "./dist/lib/constants/SOCKET_REGISTRY_SCOPE.d.ts",
-      "default": "./dist/lib/constants/SOCKET_REGISTRY_SCOPE.js"
-    },
-    "./lib/constants/socket-security-scope": {
-      "types": "./dist/lib/constants/SOCKET_SECURITY_SCOPE.d.ts",
-      "default": "./dist/lib/constants/SOCKET_SECURITY_SCOPE.js"
+    "./lib/constants/PNPM_STORE_PATH": {
+      "types": "./dist/lib/constants/pnpm-store-path.d.ts",
+      "default": "./dist/lib/constants/pnpm-store-path.js"
     },
     "./lib/constants/spinner": {
       "types": "./dist/lib/constants/spinner.d.ts",
       "default": "./dist/lib/constants/spinner.js"
     },
-    "./lib/constants/supports-node-compile-cache-api": {
-      "types": "./dist/lib/constants/SUPPORTS_NODE_COMPILE_CACHE_API.d.ts",
-      "default": "./dist/lib/constants/SUPPORTS_NODE_COMPILE_CACHE_API.js"
-    },
-    "./lib/constants/supports-node-compile-cache-env-var": {
-      "types": "./dist/lib/constants/SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR.d.ts",
-      "default": "./dist/lib/constants/SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR.js"
-    },
-    "./lib/constants/supports-node-disable-warning-flag": {
-      "types": "./dist/lib/constants/SUPPORTS_NODE_DISABLE_WARNING_FLAG.d.ts",
-      "default": "./dist/lib/constants/SUPPORTS_NODE_DISABLE_WARNING_FLAG.js"
-    },
-    "./lib/constants/supports-node-permission-flag": {
-      "types": "./dist/lib/constants/SUPPORTS_NODE_PERMISSION_FLAG.d.ts",
-      "default": "./dist/lib/constants/SUPPORTS_NODE_PERMISSION_FLAG.js"
-    },
-    "./lib/constants/supports-node-require-module": {
-      "types": "./dist/lib/constants/SUPPORTS_NODE_REQUIRE_MODULE.d.ts",
-      "default": "./dist/lib/constants/SUPPORTS_NODE_REQUIRE_MODULE.js"
-    },
-    "./lib/constants/supports-node-run": {
-      "types": "./dist/lib/constants/SUPPORTS_NODE_RUN.d.ts",
-      "default": "./dist/lib/constants/SUPPORTS_NODE_RUN.js"
-    },
-    "./lib/constants/supports-process-send": {
-      "types": "./dist/lib/constants/SUPPORTS_PROCESS_SEND.d.ts",
-      "default": "./dist/lib/constants/SUPPORTS_PROCESS_SEND.js"
+    "./lib/constants/SPINNER": {
+      "types": "./dist/lib/constants/spinner.d.ts",
+      "default": "./dist/lib/constants/spinner.js"
     },
     "./lib/constants/ts-libs-available": {
+      "types": "./dist/lib/constants/ts-libs-available.d.ts",
+      "default": "./dist/lib/constants/ts-libs-available.js"
+    },
+    "./lib/constants/TS_LIBS_AVAILABLE": {
       "types": "./dist/lib/constants/ts-libs-available.d.ts",
       "default": "./dist/lib/constants/ts-libs-available.js"
     },
@@ -1103,35 +1007,23 @@
       "types": "./dist/lib/constants/ts-types-available.d.ts",
       "default": "./dist/lib/constants/ts-types-available.js"
     },
-    "./lib/constants/tsconfig-json": {
-      "types": "./dist/lib/constants/TSCONFIG_JSON.d.ts",
-      "default": "./dist/lib/constants/TSCONFIG_JSON.js"
-    },
-    "./lib/constants/undefined-token": {
-      "types": "./dist/lib/constants/UNDEFINED_TOKEN.d.ts",
-      "default": "./dist/lib/constants/UNDEFINED_TOKEN.js"
-    },
-    "./lib/constants/unknown-error": {
-      "types": "./dist/lib/constants/UNKNOWN_ERROR.d.ts",
-      "default": "./dist/lib/constants/UNKNOWN_ERROR.js"
-    },
-    "./lib/constants/unknown-value": {
-      "types": "./dist/lib/constants/UNKNOWN_VALUE.d.ts",
-      "default": "./dist/lib/constants/UNKNOWN_VALUE.js"
+    "./lib/constants/TS_TYPES_AVAILABLE": {
+      "types": "./dist/lib/constants/ts-types-available.d.ts",
+      "default": "./dist/lib/constants/ts-types-available.js"
     },
     "./lib/constants/vlt-cache-path": {
       "types": "./dist/lib/constants/vlt-cache-path.d.ts",
       "default": "./dist/lib/constants/vlt-cache-path.js"
     },
-    "./lib/constants/vlt-lock-json": {
-      "types": "./dist/lib/constants/VLT_LOCK_JSON.d.ts",
-      "default": "./dist/lib/constants/VLT_LOCK_JSON.js"
-    },
-    "./lib/constants/yarn-berry": {
-      "types": "./dist/lib/constants/YARN_BERRY.d.ts",
-      "default": "./dist/lib/constants/YARN_BERRY.js"
+    "./lib/constants/VLT_CACHE_PATH": {
+      "types": "./dist/lib/constants/vlt-cache-path.d.ts",
+      "default": "./dist/lib/constants/vlt-cache-path.js"
     },
     "./lib/constants/yarn-cache-path": {
+      "types": "./dist/lib/constants/yarn-cache-path.d.ts",
+      "default": "./dist/lib/constants/yarn-cache-path.js"
+    },
+    "./lib/constants/YARN_CACHE_PATH": {
       "types": "./dist/lib/constants/yarn-cache-path.d.ts",
       "default": "./dist/lib/constants/yarn-cache-path.js"
     },
@@ -1139,257 +1031,17 @@
       "types": "./dist/lib/constants/yarn-classic.d.ts",
       "default": "./dist/lib/constants/yarn-classic.js"
     },
+    "./lib/constants/YARN_CLASSIC": {
+      "types": "./dist/lib/constants/yarn-classic.d.ts",
+      "default": "./dist/lib/constants/yarn-classic.js"
+    },
     "./lib/constants/yarn-exec-path": {
       "types": "./dist/lib/constants/yarn-exec-path.d.ts",
       "default": "./dist/lib/constants/yarn-exec-path.js"
     },
-    "./lib/constants/yarn-lock": {
-      "types": "./dist/lib/constants/YARN_LOCK.d.ts",
-      "default": "./dist/lib/constants/YARN_LOCK.js"
-    },
-    "./lib/abort": {
-      "types": "./dist/lib/abort.d.ts",
-      "default": "./dist/lib/abort.js"
-    },
-    "./lib/agent": {
-      "types": "./dist/lib/agent.d.ts",
-      "default": "./dist/lib/agent.js"
-    },
-    "./lib/arrays": {
-      "types": "./dist/lib/arrays.d.ts",
-      "default": "./dist/lib/arrays.js"
-    },
-    "./lib/bin": {
-      "types": "./dist/lib/bin.d.ts",
-      "default": "./dist/lib/bin.js"
-    },
-    "./lib/cacache": {
-      "types": "./dist/lib/cacache.d.ts",
-      "default": "./dist/lib/cacache.js"
-    },
-    "./lib/cache-with-ttl": {
-      "types": "./dist/lib/cache-with-ttl.d.ts",
-      "default": "./dist/lib/cache-with-ttl.js"
-    },
-    "./lib/constants": {
-      "types": "./dist/lib/constants/index.d.ts",
-      "default": "./dist/lib/constants/index.js"
-    },
-    "./lib/debug": {
-      "types": "./dist/lib/debug.d.ts",
-      "default": "./dist/lib/debug.js"
-    },
-    "./lib/dependencies": {
-      "types": "./dist/lib/dependencies/index.d.ts",
-      "default": "./dist/lib/dependencies/index.js"
-    },
-    "./lib/dependencies/build-tools": {
-      "types": "./dist/lib/dependencies/build-tools.d.ts",
-      "default": "./dist/lib/dependencies/build-tools.js"
-    },
-    "./lib/dependencies/file-system": {
-      "types": "./dist/lib/dependencies/file-system.d.ts",
-      "default": "./dist/lib/dependencies/file-system.js"
-    },
-    "./lib/dependencies/index": {
-      "types": "./dist/lib/dependencies/index.d.ts",
-      "default": "./dist/lib/dependencies/index.js"
-    },
-    "./lib/dependencies/logging": {
-      "types": "./dist/lib/dependencies/logging.d.ts",
-      "default": "./dist/lib/dependencies/logging.js"
-    },
-    "./lib/dependencies/npm-tools": {
-      "types": "./dist/lib/dependencies/npm-tools.d.ts",
-      "default": "./dist/lib/dependencies/npm-tools.js"
-    },
-    "./lib/dependencies/prompts": {
-      "types": "./dist/lib/dependencies/prompts.d.ts",
-      "default": "./dist/lib/dependencies/prompts.js"
-    },
-    "./lib/dependencies/system": {
-      "types": "./dist/lib/dependencies/system.d.ts",
-      "default": "./dist/lib/dependencies/system.js"
-    },
-    "./lib/dependencies/validation": {
-      "types": "./dist/lib/dependencies/validation.d.ts",
-      "default": "./dist/lib/dependencies/validation.js"
-    },
-    "./lib/dlx": {
-      "types": "./dist/lib/dlx.d.ts",
-      "default": "./dist/lib/dlx.js"
-    },
-    "./lib/dlx-binary": {
-      "types": "./dist/lib/dlx-binary.d.ts",
-      "default": "./dist/lib/dlx-binary.js"
-    },
-    "./lib/download-lock": {
-      "types": "./dist/lib/download-lock.d.ts",
-      "default": "./dist/lib/download-lock.js"
-    },
-    "./lib/env": {
-      "types": "./dist/lib/env.d.ts",
-      "default": "./dist/lib/env.js"
-    },
-    "./lib/fs": {
-      "types": "./dist/lib/fs.d.ts",
-      "default": "./dist/lib/fs.js"
-    },
-    "./lib/functions": {
-      "types": "./dist/lib/functions.d.ts",
-      "default": "./dist/lib/functions.js"
-    },
-    "./lib/git": {
-      "types": "./dist/lib/git.d.ts",
-      "default": "./dist/lib/git.js"
-    },
-    "./lib/github": {
-      "types": "./dist/lib/github.d.ts",
-      "default": "./dist/lib/github.js"
-    },
-    "./lib/globs": {
-      "types": "./dist/lib/globs.d.ts",
-      "default": "./dist/lib/globs.js"
-    },
-    "./lib/http-request": {
-      "types": "./dist/lib/http-request.d.ts",
-      "default": "./dist/lib/http-request.js"
-    },
-    "./lib/json": {
-      "types": "./dist/lib/json.d.ts",
-      "default": "./dist/lib/json.js"
-    },
-    "./lib/logger": {
-      "types": "./dist/lib/logger.d.ts",
-      "default": "./dist/lib/logger.js"
-    },
-    "./lib/objects": {
-      "types": "./dist/lib/objects.d.ts",
-      "default": "./dist/lib/objects.js"
-    },
-    "./lib/packages": {
-      "types": "./dist/lib/packages.d.ts",
-      "default": "./dist/lib/packages.js"
-    },
-    "./lib/packages/editable": {
-      "types": "./dist/lib/packages/editable.d.ts",
-      "default": "./dist/lib/packages/editable.js"
-    },
-    "./lib/packages/exports": {
-      "types": "./dist/lib/packages/exports.d.ts",
-      "default": "./dist/lib/packages/exports.js"
-    },
-    "./lib/packages/licenses": {
-      "types": "./dist/lib/packages/licenses.d.ts",
-      "default": "./dist/lib/packages/licenses.js"
-    },
-    "./lib/packages/manifest": {
-      "types": "./dist/lib/packages/manifest.d.ts",
-      "default": "./dist/lib/packages/manifest.js"
-    },
-    "./lib/packages/normalize": {
-      "types": "./dist/lib/packages/normalize.d.ts",
-      "default": "./dist/lib/packages/normalize.js"
-    },
-    "./lib/packages/operations": {
-      "types": "./dist/lib/packages/operations.d.ts",
-      "default": "./dist/lib/packages/operations.js"
-    },
-    "./lib/packages/paths": {
-      "types": "./dist/lib/packages/paths.d.ts",
-      "default": "./dist/lib/packages/paths.js"
-    },
-    "./lib/packages/provenance": {
-      "types": "./dist/lib/packages/provenance.d.ts",
-      "default": "./dist/lib/packages/provenance.js"
-    },
-    "./lib/packages/specs": {
-      "types": "./dist/lib/packages/specs.d.ts",
-      "default": "./dist/lib/packages/specs.js"
-    },
-    "./lib/packages/validation": {
-      "types": "./dist/lib/packages/validation.d.ts",
-      "default": "./dist/lib/packages/validation.js"
-    },
-    "./lib/parse-args": {
-      "types": "./dist/lib/parse-args.d.ts",
-      "default": "./dist/lib/parse-args.js"
-    },
-    "./lib/path": {
-      "types": "./dist/lib/path.d.ts",
-      "default": "./dist/lib/path.js"
-    },
-    "./lib/paths": {
-      "types": "./dist/lib/paths.d.ts",
-      "default": "./dist/lib/paths.js"
-    },
-    "./lib/promise-queue": {
-      "types": "./dist/lib/promise-queue.d.ts",
-      "default": "./dist/lib/promise-queue.js"
-    },
-    "./lib/promises": {
-      "types": "./dist/lib/promises.d.ts",
-      "default": "./dist/lib/promises.js"
-    },
-    "./lib/prompts": {
-      "types": "./dist/lib/prompts.d.ts",
-      "default": "./dist/lib/prompts.js"
-    },
-    "./lib/regexps": {
-      "types": "./dist/lib/regexps.d.ts",
-      "default": "./dist/lib/regexps.js"
-    },
-    "./lib/sea": {
-      "types": "./dist/lib/sea.d.ts",
-      "default": "./dist/lib/sea.js"
-    },
-    "./lib/sea-build": {
-      "types": "./dist/lib/sea-build.d.ts",
-      "default": "./dist/lib/sea-build.js"
-    },
-    "./lib/shadow": {
-      "types": "./dist/lib/shadow.d.ts",
-      "default": "./dist/lib/shadow.js"
-    },
-    "./lib/signal-exit": {
-      "types": "./dist/lib/signal-exit.d.ts",
-      "default": "./dist/lib/signal-exit.js"
-    },
-    "./lib/sorts": {
-      "types": "./dist/lib/sorts.d.ts",
-      "default": "./dist/lib/sorts.js"
-    },
-    "./lib/spawn": {
-      "types": "./dist/lib/spawn.d.ts",
-      "default": "./dist/lib/spawn.js"
-    },
-    "./lib/spinner": {
-      "types": "./dist/lib/spinner.d.ts",
-      "default": "./dist/lib/spinner.js"
-    },
-    "./lib/streams": {
-      "types": "./dist/lib/streams.d.ts",
-      "default": "./dist/lib/streams.js"
-    },
-    "./lib/strings": {
-      "types": "./dist/lib/strings.d.ts",
-      "default": "./dist/lib/strings.js"
-    },
-    "./lib/temporary-executor": {
-      "types": "./dist/lib/temporary-executor.d.ts",
-      "default": "./dist/lib/temporary-executor.js"
-    },
-    "./lib/url": {
-      "types": "./dist/lib/url.d.ts",
-      "default": "./dist/lib/url.js"
-    },
-    "./lib/versions": {
-      "types": "./dist/lib/versions.d.ts",
-      "default": "./dist/lib/versions.js"
-    },
-    "./lib/words": {
-      "types": "./dist/lib/words.d.ts",
-      "default": "./dist/lib/words.js"
+    "./lib/constants/YARN_EXEC_PATH": {
+      "types": "./dist/lib/constants/yarn-exec-path.d.ts",
+      "default": "./dist/lib/constants/yarn-exec-path.js"
     },
     "./extensions.json": "./extensions.json",
     "./manifest.json": "./manifest.json",
@@ -1398,14 +1050,14 @@
   },
   "sideEffects": false,
   "scripts": {
-    "build": "pnpm run clean:dist && tsgo --build && node ./scripts/fix-commonjs-exports.mjs && node ./scripts/inline-constants.mjs && node ./scripts/rollup/build-external.mjs",
+    "build": "pnpm run clean:dist && tsgo --build && node ./scripts/fix-commonjs-exports.mjs && node ./scripts/inline-constants.mjs && node ./scripts/rollup/build-external.mjs && node ./scripts/generate-package-exports.mjs",
     "check:tsc": "tsgo --noEmit",
     "clean": "run-s -c clean:*",
     "clean:dist": "del-cli 'dist' '**/*.tsbuildinfo'",
     "clean:node_modules": "del-cli '**/node_modules'",
     "lint:external:fix": "run-s -c lint:external:fix:*",
-    "lint:external:fix:oxlint": "dotenvx -q run -f .env.external -- oxlint -c=../.oxlintrc.json --ignore-path=../.oxlintignore --tsconfig=../tsconfig.json --silent --fix ./dist/external | dev-null",
-    "lint:external:fix:biome": "dotenvx -q run -f .env.external -- biome format --log-level=none --fix ./dist/external | dev-null",
+    "lint:external:fix:oxlint": "dotenvx -q run -f ../.env -- env LINT_EXTERNAL=1 oxlint -c=../.config/oxlintrc.json --ignore-path=../.config/.oxlintignore --tsconfig=../tsconfig.json --silent --fix ./dist/external | dev-null",
+    "lint:external:fix:biome": "dotenvx -q run -f ../.env -- env LINT_EXTERNAL=1 biome format --log-level=none --fix ./dist/external | dev-null",
     "//lint:external:fix:eslint": "dotenvx -q run -f .env.external -- eslint -c=../eslint.config.js --report-unused-disable-directives --quiet --fix ./dist/external | dev-null",
     "prepublishOnly": "pnpm run build"
   },
