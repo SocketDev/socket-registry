@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2025-10-05
+
+### Added
+
+- Added `isolatePackage` test helper for creating isolated package test environments
+- Added support for testing local development packages in addition to socket-registry packages
+
+### Changed
+
+- Renamed `setupPackageTest` to `isolatePackage` for clearer intent
+- Refactored `installPackageForTesting` to accept explicit `sourcePath` and `packageName` parameters
+- Simplified package installation logic by removing path detection from low-level function
+- Consolidated `setupPackageTest` and `setupMultiEntryTest` into single `isolatePackage` function with options
+
 ## [1.4.6] - 2025-10-05
 
 ### Added
