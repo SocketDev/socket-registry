@@ -22,6 +22,16 @@ import { trash } from '../../scripts/utils/fs.mjs'
 
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
+const TEST_BINARY_CONTENT =
+  process.platform === 'win32'
+    ? '@echo off\r\necho test binary'
+    : '#!/bin/sh\necho "test binary"'
+
+const SLOW_BINARY_CONTENT =
+  process.platform === 'win32'
+    ? '@echo off\r\necho slow binary'
+    : '#!/bin/sh\necho "slow binary"'
+
 describe('dlx-binary', () => {
   let server: ReturnType<typeof createServer>
   let baseUrl: string
@@ -35,19 +45,11 @@ describe('dlx-binary', () => {
 
       if (url === '/test-binary') {
         res.writeHead(200, { 'Content-Type': 'application/octet-stream' })
-        const content =
-          process.platform === 'win32'
-            ? '@echo off\r\necho test binary'
-            : '#!/bin/sh\necho "test binary"'
-        res.end(content)
+        res.end(TEST_BINARY_CONTENT)
       } else if (url === '/slow-binary') {
         res.writeHead(200, { 'Content-Type': 'application/octet-stream' })
         setTimeout(() => {
-          const content =
-            process.platform === 'win32'
-              ? '@echo off\r\necho slow binary'
-              : '#!/bin/sh\necho "slow binary"'
-          res.end(content)
+          res.end(SLOW_BINARY_CONTENT)
         }, 100)
       } else if (url === '/error') {
         res.writeHead(500, 'Internal Server Error')
@@ -172,11 +174,10 @@ describe('dlx-binary', () => {
     })
 
     it('should verify checksum when provided', async () => {
-      const content = '#!/bin/sh\necho "test binary"'
       const crypto = await import('node:crypto')
       const expectedChecksum = crypto
         .createHash('sha256')
-        .update(content)
+        .update(TEST_BINARY_CONTENT)
         .digest('hex')
 
       const { downloaded } = await dlxBinary(['--version'], {
