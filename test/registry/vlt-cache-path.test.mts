@@ -12,14 +12,6 @@ describe('vlt-cache-path', () => {
 
   describe.skipIf(process.platform !== 'win32')('Windows platform', () => {
     it('should use LOCALAPPDATA/vlt/Cache on Windows', async () => {
-      vi.stubGlobal('process', {
-        ...process,
-        env: {
-          ...originalEnv,
-          LOCALAPPDATA: 'C:\\Users\\Test\\AppData\\Local',
-        },
-        platform: 'win32',
-      })
       const { default: vltCachePath } = await import(
         '../../registry/dist/lib/constants/vlt-cache-path.js'
       )
@@ -41,11 +33,6 @@ describe('vlt-cache-path', () => {
 
   describe.skipIf(process.platform !== 'darwin')('macOS platform', () => {
     it('should use Library/Caches/vlt on macOS', async () => {
-      vi.stubGlobal('process', {
-        ...process,
-        env: { ...originalEnv, HOME: '/Users/testuser' },
-        platform: 'darwin',
-      })
       const { default: vltCachePath } = await import(
         '../../registry/dist/lib/constants/vlt-cache-path.js'
       )
@@ -69,15 +56,6 @@ describe('vlt-cache-path', () => {
     'Linux with XDG_CACHE_HOME',
     () => {
       it('should use XDG_CACHE_HOME/vlt when set', async () => {
-        vi.stubGlobal('process', {
-          ...process,
-          env: {
-            ...originalEnv,
-            HOME: '/home/testuser',
-            XDG_CACHE_HOME: '/home/testuser/.cache',
-          },
-          platform: 'linux',
-        })
         const { default: vltCachePath } = await import(
           '../../registry/dist/lib/constants/vlt-cache-path.js'
         )
@@ -91,11 +69,6 @@ describe('vlt-cache-path', () => {
     'Linux default location',
     () => {
       it('should use ~/.cache/vlt on Linux', async () => {
-        vi.stubGlobal('process', {
-          ...process,
-          env: { ...originalEnv, HOME: '/home/testuser' },
-          platform: 'linux',
-        })
         const { default: vltCachePath } = await import(
           '../../registry/dist/lib/constants/vlt-cache-path.js'
         )
