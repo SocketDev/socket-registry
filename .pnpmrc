@@ -1,0 +1,14 @@
+# Security: Block all install scripts (no native dependencies)
+ignore-scripts=true
+
+# Enable pre/post scripts for the main project (e.g., prepare -> husky)
+enable-pre-post-scripts=true
+
+# Monorepo workspace settings
+shamefully-hoist=true
+auto-install-peers=false
+
+# Dependency management
+minimumReleaseAge=10080
+strict-peer-dependencies=false
+save-exact=true
