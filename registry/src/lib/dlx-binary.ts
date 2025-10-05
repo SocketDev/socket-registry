@@ -241,7 +241,7 @@ export async function dlxBinary(
     checksum,
     force = false,
     name,
-    platform = process.platform,
+    platform: targetPlatform = process.platform,
     spawnOptions,
     url,
   } = { __proto__: null, ...options } as DlxBinaryOptions
@@ -250,9 +250,9 @@ export async function dlxBinary(
   const cacheDir = getDlxCachePath()
   const cacheKey = generateCacheKey(url)
   const cacheEntryDir = path.join(cacheDir, cacheKey)
-  const platformKey = `${platform}-${arch}`
-  const ext = WIN32 ? EXT_CMD : ''
-  const binaryName = name || `binary-${platformKey}${ext}`
+  // Use target platform for extension when generating binary name.
+  const ext = targetPlatform === 'win32' ? EXT_CMD : ''
+  const binaryName = name || `binary-${targetPlatform}-${arch}${ext}`
   const binaryPath = normalizePath(path.join(cacheEntryDir, binaryName))
 
   let downloaded = false
