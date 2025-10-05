@@ -20,6 +20,12 @@ describe('regexps module', () => {
       expect(escaped).toBe('hello world 123')
     })
 
+    it('should handle empty strings', () => {
+      const input = ''
+      const escaped = escapeRegExp(input)
+      expect(escaped).toBe('')
+    })
+
     it('should escape dots in file extensions', () => {
       const input = 'file.txt'
       const escaped = escapeRegExp(input)
@@ -96,12 +102,6 @@ describe('regexps module', () => {
       expect(escaped).toBe('/path/to/file')
     })
 
-    it('should handle empty strings', () => {
-      const input = ''
-      const escaped = escapeRegExp(input)
-      expect(escaped).toBe('')
-    })
-
     it('should handle complex patterns', () => {
       const input = '(foo|bar)[0-9]+.*\\.js$'
       const escaped = escapeRegExp(input)
@@ -113,17 +113,76 @@ describe('regexps module', () => {
       expect(regex.test(input)).toBe(true)
     })
 
-    it('should handle URL-like strings', () => {
-      const input = 'https://example.com/path?query=value&other=123'
-      const escaped = escapeRegExp(input)
-      expect(escaped).toContain('https://example\\.com')
-      expect(escaped).toContain('\\?query=value')
+    it('should handle repeated special characters', () => {
+      expect(escapeRegExp('...')).toBe('\\.\\.\\.')
+      expect(escapeRegExp('***')).toBe('\\*\\*\\*')
+      expect(escapeRegExp('((()))')).toBe('\\(\\(\\(\\)\\)\\)')
     })
 
-    it('should handle email-like strings', () => {
-      const input = 'user+tag@example.com'
+    it('should handle special characters mixed with normal text', () => {
+      const input = 'function test() { return /.*/ }'
+      const result = escapeRegExp(input)
+      const expected = 'function test\\(\\) \\{ return /\\.\\*/ \\}'
+      expect(result).toBe(expected)
+    })
+
+    it('should handle file paths with special characters', () => {
+      const input = 'C:\\Users\\test\\file[1].txt'
+      const result = escapeRegExp(input)
+      expect(result).toBe('C:\\\\Users\\\\test\\\\file\\[1\\]\\.txt')
+    })
+
+    it('should handle URL patterns', () => {
+      const input = 'https://example.com/path?query=value'
       const escaped = escapeRegExp(input)
-      expect(escaped).toBe('user\\+tag@example\\.com')
+      expect(escaped).toBe('https://example\\.com/path\\?query=value')
+    })
+
+    it('should handle email patterns', () => {
+      const input = 'user+tag@domain.co.uk'
+      const escaped = escapeRegExp(input)
+      expect(escaped).toBe('user\\+tag@domain\\.co\\.uk')
+    })
+
+    it('should handle version patterns', () => {
+      const version = '1.0.0-beta.1'
+      const escapedVersion = escapeRegExp(version)
+      expect(escapedVersion).toBe('1\\.0\\.0-beta\\.1')
+    })
+
+    it('should handle Unicode and non-ASCII characters', () => {
+      const unicode = 'héllo wörld 测试'
+      const result = escapeRegExp(unicode)
+      expect(result).toBe('héllo wörld 测试')
+    })
+
+    it('should preserve original string when used in RegExp', () => {
+      const testStrings = [
+        'simple',
+        'with.dots',
+        'with*asterisks',
+        'with+plus',
+        'with?question',
+        'with^caret',
+        'with$dollar',
+        'with{braces}',
+        'with(parens)',
+        'with|pipe',
+        'with[brackets]',
+        'with\\backslash',
+      ]
+
+      testStrings.forEach(str => {
+        const escaped = escapeRegExp(str)
+        const regex = new RegExp(`^${escaped}$`)
+        expect(regex.test(str)).toBe(true)
+
+        // Should not match variations
+        if (str.length > 1) {
+          expect(regex.test(str + 'x')).toBe(false)
+          expect(regex.test('x' + str)).toBe(false)
+        }
+      })
     })
 
     it('should be idempotent for non-special characters', () => {
