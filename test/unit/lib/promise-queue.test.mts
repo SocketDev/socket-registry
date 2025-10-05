@@ -29,12 +29,11 @@ describe('PromiseQueue', () => {
 
   it('handles errors in tasks', async () => {
     const queue = new PromiseQueue(1)
-
-    const failingTask = async () => {
-      throw new Error('task failed')
-    }
-
-    await expect(queue.add(failingTask)).rejects.toThrow('task failed')
+    await expect(
+      queue.add(async () => {
+        throw new Error('task failed')
+      }),
+    ).rejects.toThrow('task failed')
   })
 
   it('drops oldest task when maxQueueLength exceeded', async () => {
@@ -67,9 +66,7 @@ describe('PromiseQueue', () => {
 
   it('handles empty queue', async () => {
     const queue = new PromiseQueue(2)
-    const task = async () => 'result'
-
-    const result = await queue.add(task)
+    const result = await queue.add(async () => 'result')
     expect(result).toBe('result')
   })
 })

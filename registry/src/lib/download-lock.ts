@@ -137,9 +137,9 @@ async function acquireLock(
 
       // Successfully acquired lock
       return lockPath
-    } catch (error) {
+    } catch (e) {
       // If file already exists, another process created it first
-      if ((error as NodeJS.ErrnoException).code === 'EEXIST') {
+      if ((e as NodeJS.ErrnoException).code === 'EEXIST') {
         if (Date.now() - startTime > lockTimeout) {
           throw new Error(`Lock acquisition timed out after ${lockTimeout}ms`)
         }
@@ -149,7 +149,7 @@ async function acquireLock(
       }
 
       // Other error
-      throw error
+      throw e
     }
   }
 }

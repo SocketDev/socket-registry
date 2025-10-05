@@ -210,7 +210,7 @@ export function memoizeAsync<Args extends unknown[], Result>(
     try {
       const result = await promise
       return result
-    } catch (error) {
+    } catch (e) {
       // Remove failed promise from cache
       cache.delete(key)
       const orderIndex = accessOrder.indexOf(key)
@@ -218,7 +218,7 @@ export function memoizeAsync<Args extends unknown[], Result>(
         accessOrder.splice(orderIndex, 1)
       }
       debugLogSimple(`[memoizeAsync:${name}] clear`, { key, reason: 'error' })
-      throw error
+      throw e
     }
   }
 }

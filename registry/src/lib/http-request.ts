@@ -74,8 +74,8 @@ export async function httpRequest(
         method,
         timeout,
       })
-    } catch (error) {
-      lastError = error as Error
+    } catch (e) {
+      lastError = e as Error
 
       // Last attempt - throw error
       if (attempt === retries) {
@@ -252,8 +252,8 @@ export async function httpDownload(
         onProgress,
         timeout,
       })
-    } catch (error) {
-      lastError = error as Error
+    } catch (e) {
+      lastError = e as Error
 
       // Last attempt - throw error
       if (attempt === retries) {
@@ -398,9 +398,9 @@ export async function httpGetJson<T = unknown>(
 
   try {
     return response.json<T>()
-  } catch (error) {
+  } catch (e) {
     const err = new Error('Failed to parse JSON response')
-    ;(err as any).cause = error
+    ;(err as any).cause = e
     throw err
   }
 }

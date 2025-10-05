@@ -13,9 +13,10 @@ import path from 'node:path'
 import trashBin from 'trash'
 
 import { remove } from '../../registry/dist/lib/fs.js'
+import { hasOwn } from '../../registry/dist/lib/objects.js'
 
 // CI detection without registry dist dependency.
-const IS_CI = Object.hasOwn(process.env, 'CI')
+const IS_CI = hasOwn(process.env, 'CI')
 
 // Get system temp directory patterns for detection.
 const TEMP_DIRS = [

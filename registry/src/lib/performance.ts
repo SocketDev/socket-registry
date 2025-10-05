@@ -98,12 +98,12 @@ export async function measure<T>(
 
     const metric = performanceMetrics[performanceMetrics.length - 1]
     return { result, duration: metric?.duration || 0 }
-  } catch (error) {
+  } catch (e) {
     stop({
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown',
+      error: e instanceof Error ? e.message : 'Unknown',
     })
-    throw error
+    throw e
   }
 }
 
@@ -135,12 +135,12 @@ export function measureSync<T>(
 
     const metric = performanceMetrics[performanceMetrics.length - 1]
     return { result, duration: metric?.duration || 0 }
-  } catch (error) {
+  } catch (e) {
     stop({
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown',
+      error: e instanceof Error ? e.message : 'Unknown',
     })
-    throw error
+    throw e
   }
 }
 
@@ -228,7 +228,7 @@ export function getPerformanceSummary(): Record<
     { count: number; total: number; avg: number; min: number; max: number }
   > = Object.create(null)
 
-  for (const [operation, stats] of Object.entries(summary)) {
+  for (const { 0: operation, 1: stats } of Object.entries(summary)) {
     result[operation] = {
       count: stats.count,
       total: Math.round(stats.total * 100) / 100,
