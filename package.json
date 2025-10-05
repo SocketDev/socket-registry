@@ -98,6 +98,8 @@
     "@socketsecurity/registry": "workspace:*",
     "@types/fs-extra": "11.0.4",
     "@types/node": "24.5.2",
+    "@types/normalize-package-data": "2.4.4",
+    "@types/npm-package-arg": "6.1.4",
     "@types/npmcli__package-json": "4.0.4",
     "@types/npmcli__promise-spawn": "6.0.3",
     "@types/picomatch": "4.0.2",
