@@ -5,7 +5,7 @@
 
 import ENV from './constants/ENV'
 import abortSignal from './constants/abort-signal'
-import { getYoctoSpinner } from './dependencies'
+import { getYoctoSpinner } from './dependencies/logging'
 import { isBlankString } from './strings'
 
 import type { Writable } from 'node:stream'

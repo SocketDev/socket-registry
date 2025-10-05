@@ -18,7 +18,6 @@ import {
   setFastGlob,
   setPicomatch,
 } from '../../registry/dist/lib/dependencies/file-system.js'
-import { resetDependencies } from '../../registry/dist/lib/dependencies/index.js'
 import {
   getDebug,
   getIsUnicodeSupported,
@@ -68,6 +67,7 @@ import {
   setInquirerSearch,
   setInquirerSelect,
 } from '../../registry/dist/lib/dependencies/prompts.js'
+import { resetDependencies } from '../../registry/dist/lib/dependencies/reset.js'
 import {
   getPromiseSpawn,
   getStreamingIterables,
