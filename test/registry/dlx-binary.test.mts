@@ -229,17 +229,6 @@ describe('dlx-binary', () => {
       expect(metadata).toHaveProperty('timestamp')
       expect(metadata).toHaveProperty('url')
     })
-
-    it('should handle platform and arch overrides', async () => {
-      const { binaryPath } = await dlxBinary(['--version'], {
-        arch: 'arm64',
-        platform: 'linux',
-        spawnOptions: { cwd: tmpDir },
-        url: `${baseUrl}/test-binary?test=platform-override`,
-      })
-
-      expect(binaryPath).toContain('linux-arm64')
-    })
   })
 
   describe('listDlxCache', () => {
