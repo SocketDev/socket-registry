@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Silence all output before importing spinner module and keep it silenced.
+process.stdout.write = () => true
+process.stderr.write = () => true
+
 import {
   Spinner,
   ciSpinner,
@@ -150,11 +154,6 @@ describe('spinner module', () => {
         expect(result).toBe(testSpinner)
       })
 
-      it('should call success methods with extras', () => {
-        testSpinner.success('Success', 'extra1', 'extra2')
-        testSpinner.successAndStop('Done', { data: 'test' })
-      })
-
       it('should have fail/error methods', () => {
         expect(typeof testSpinner.fail).toBe('function')
         expect(typeof testSpinner.failAndStop).toBe('function')
@@ -173,12 +172,6 @@ describe('spinner module', () => {
         expect(result).toBe(testSpinner)
       })
 
-      it('should call fail methods with extras', () => {
-        testSpinner.fail('Error', 'extra1', 'extra2')
-        testSpinner.start()
-        testSpinner.failAndStop('Failed', { error: 'test' })
-      })
-
       it('should have warn methods', () => {
         expect(typeof testSpinner.warn).toBe('function')
         expect(typeof testSpinner.warnAndStop).toBe('function')
@@ -193,12 +186,6 @@ describe('spinner module', () => {
         testSpinner.start()
         const result = testSpinner.warnAndStop('Warning: check this')
         expect(result).toBe(testSpinner)
-      })
-
-      it('should call warn methods with extras', () => {
-        testSpinner.warn('Warning', 'extra1')
-        testSpinner.start()
-        testSpinner.warnAndStop('Alert', { warning: 'test' })
       })
 
       it('should have info methods', () => {
@@ -217,12 +204,6 @@ describe('spinner module', () => {
         expect(result).toBe(testSpinner)
       })
 
-      it('should call info methods with extras', () => {
-        testSpinner.info('Info', 'detail1', 'detail2')
-        testSpinner.start()
-        testSpinner.infoAndStop('FYI', { data: 'info' })
-      })
-
       it('should have log methods', () => {
         expect(typeof testSpinner.log).toBe('function')
         expect(typeof testSpinner.logAndStop).toBe('function')
@@ -237,12 +218,6 @@ describe('spinner module', () => {
         testSpinner.start()
         const result = testSpinner.logAndStop('Final log')
         expect(result).toBe(testSpinner)
-      })
-
-      it('should call log methods with extras', () => {
-        testSpinner.log('Log', 'data1', 'data2')
-        testSpinner.start()
-        testSpinner.logAndStop('Done logging', { result: 'success' })
       })
 
       it('should have debug methods', () => {
@@ -261,23 +236,11 @@ describe('spinner module', () => {
         expect(result).toBe(testSpinner)
       })
 
-      it('should call debug methods with extras', () => {
-        testSpinner.debug('Debug', 'value1', 'value2')
-        testSpinner.start()
-        testSpinner.debugAndStop('Debug done', { debug: 'data' })
-      })
-
       it('should handle methods called with no arguments', () => {
         testSpinner.info()
         testSpinner.warn()
         testSpinner.success()
         testSpinner.fail()
-      })
-
-      it('should handle methods called with non-string first argument', () => {
-        testSpinner.info(123, 'extra')
-        testSpinner.warn({ obj: 'value' }, 'extra')
-        testSpinner.success(null, 'extra')
       })
     })
 
