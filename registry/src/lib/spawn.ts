@@ -307,12 +307,30 @@ export function spawn(
   options?: SpawnOptions | undefined,
   extra?: SpawnExtra | undefined,
 ): SpawnResult {
-  // On Windows with shell: true, use just the command name, not the full path.
-  // When shell: true is used, Windows cmd.exe has issues executing full paths to
-  // .cmd/.bat files (e.g., 'C:\...\pnpm.cmd'), often resulting in ENOENT errors.
-  // Using just the command name (e.g., 'pnpm') allows cmd.exe to find it via PATH.
+  // Windows cmd.exe command resolution for .cmd/.bat/.ps1 files:
+  //
+  // When shell: true is used on Windows with script files (.cmd, .bat, .ps1),
+  // cmd.exe can have issues executing full paths. The solution is to use just
+  // the command basename without extension and let cmd.exe find it via PATH.
+  //
+  // How cmd.exe resolves commands:
+  // 1. Searches current directory first
+  // 2. Then searches each directory in PATH environment variable
+  // 3. For each directory, tries extensions from PATHEXT (.COM, .EXE, .BAT, .CMD, etc.)
+  // 4. Executes the first match found
+  //
+  // Example: Given 'C:\pnpm\pnpm.cmd' with shell: true
+  // 1. Extract basename without extension: 'pnpm'
+  // 2. cmd.exe searches PATH directories for 'pnpm'
+  // 3. PATHEXT causes it to try 'pnpm.com', 'pnpm.exe', 'pnpm.bat', 'pnpm.cmd', etc.
+  // 4. Finds and executes 'C:\pnpm\pnpm.cmd'
+  //
+  // This approach is consistent with how other tools handle Windows execution:
+  // - npm's promise-spawn: uses which.sync() to find commands in PATH
+  // - cross-spawn: spawns cmd.exe with escaped arguments
+  // - execa: uses cross-spawn under the hood for Windows support
+  //
   // See: https://github.com/nodejs/node/issues/3675
-  // Check for .cmd, .bat, .ps1 extensions that indicate a Windows script.
   const shell = getOwn(options, 'shell')
   const WIN32 = /*@__PURE__*/ require('./constants/WIN32.js')
   if (WIN32 && shell && windowsScriptExtRegExp.test(cmd)) {
@@ -337,30 +355,30 @@ export function spawn(
     spinnerInstance.stop()
   }
   const npmCliPromiseSpawn = getNpmcliPromiseSpawn()
-  const promiseSpawnOptions: PromiseSpawnOptions = {
-    signal: abortSignal,
+  // Use __proto__: null to prevent prototype pollution when passing to
+  // third-party code, Node.js built-ins, or JavaScript built-in methods.
+  // https://github.com/npm/promise-spawn
+  // https://github.com/nodejs/node/blob/v24.0.1/lib/child_process.js#L674-L678
+  const promiseSpawnOpts = {
+    __proto__: null,
     cwd: typeof spawnOptions.cwd === 'string' ? spawnOptions.cwd : undefined,
+    env: {
+      __proto__: null,
+      ...process.env,
+      ...env,
+    } as unknown as NodeJS.ProcessEnv,
+    signal: abortSignal,
     stdio: spawnOptions.stdio,
     stdioString,
     shell: spawnOptions.shell,
     timeout: spawnOptions.timeout,
     uid: spawnOptions.uid,
     gid: spawnOptions.gid,
-    // Node includes inherited properties of options.env when it normalizes
-    // it due to backwards compatibility. However, this is a prototype sink and
-    // undesired behavior so to prevent it we spread options.env onto a fresh
-    // object with a null [[Prototype]].
-    // https://github.com/nodejs/node/blob/v24.0.1/lib/child_process.js#L674-L678
-    env: Object.assign(
-      Object.create(null),
-      process.env,
-      env,
-    ) as NodeJS.ProcessEnv,
-  }
+  } as unknown as PromiseSpawnOptions
   const spawnPromise = npmCliPromiseSpawn(
     cmd,
     args ? [...args] : [],
-    promiseSpawnOptions,
+    promiseSpawnOpts,
     extra,
   )
   const oldSpawnPromise = spawnPromise
@@ -408,12 +426,8 @@ export function spawnSync(
   args?: string[] | readonly string[],
   options?: SpawnSyncOptions | undefined,
 ): SpawnSyncReturns<string | Buffer> {
-  // On Windows with shell: true, use just the command name, not the full path.
-  // When shell: true is used, Windows cmd.exe has issues executing full paths to
-  // .cmd/.bat files (e.g., 'C:\...\pnpm.cmd'), often resulting in ENOENT errors.
-  // Using just the command name (e.g., 'pnpm') allows cmd.exe to find it via PATH.
-  // See: https://github.com/nodejs/node/issues/3675
-  // Check for .cmd, .bat, .ps1 extensions that indicate a Windows script.
+  // Windows cmd.exe command resolution for .cmd/.bat/.ps1 files:
+  // See spawn() function above for detailed explanation of this approach.
   const shell = getOwn(options, 'shell')
   const WIN32 = /*@__PURE__*/ require('./constants/WIN32.js')
   if (WIN32 && shell && windowsScriptExtRegExp.test(cmd)) {
