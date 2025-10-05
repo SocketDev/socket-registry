@@ -32,23 +32,18 @@ async function logCoveragePercentage(argv) {
   let codeCoverage
   try {
     // Only show spinner in default output mode (not JSON or simple).
-    if (!argv.json && !argv.simple) {
-      if (!existsSync(coverageJsonPath)) {
-        spinner.start('Generating coverage data...')
-      } else {
-        spinner.start('Reading coverage data...')
-      }
-    }
+    const showSpinner = !argv.json && !argv.simple
+    const message = existsSync(coverageJsonPath)
+      ? 'Reading coverage data...'
+      : 'Generating coverage data...'
 
-    codeCoverage = await getCodeCoverage()
-
-    if (!argv.json && !argv.simple) {
-      spinner.stop()
-    }
+    const { withSpinner } = await import('../registry/dist/lib/spinner.js')
+    codeCoverage = await withSpinner({
+      message,
+      operation: async () => await getCodeCoverage(),
+      spinner: showSpinner ? spinner : undefined,
+    })
   } catch (error) {
-    if (!argv.json && !argv.simple) {
-      spinner.stop()
-    }
     logger.error('Failed to get code coverage:', error.message)
     throw error
   }

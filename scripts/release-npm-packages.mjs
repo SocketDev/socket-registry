@@ -363,8 +363,7 @@ function packageData(data) {
  */
 async function main() {
   const { spinner } = constants
-
-  spinner.start(`Checking for package changes...`)
+  const { withSpinner } = await import('../registry/dist/lib/spinner.js')
 
   const npmPackages = Array.from(constants.npmPackageNames, sockRegPkgName => {
     const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
@@ -384,26 +383,29 @@ async function main() {
     warnings: [],
   }
 
-  // Check registry package FIRST before processing npm packages.
-  await maybeBumpPackage(registryPkg, { spinner, state })
+  await withSpinner({
+    message: `Checking for package changes...`,
+    operation: async () => {
+      // Check registry package FIRST before processing npm packages.
+      await maybeBumpPackage(registryPkg, { spinner, state })
 
-  // Process npm packages in parallel 3 at a time.
-  await pEach(
-    npmPackages,
-    async pkg => {
-      await maybeBumpPackage(pkg, { spinner, state })
+      // Process npm packages in parallel 3 at a time.
+      await pEach(
+        npmPackages,
+        async pkg => {
+          await maybeBumpPackage(pkg, { spinner, state })
+        },
+        { concurrency: 3 },
+      )
     },
-    { concurrency: 3 },
-  )
+    spinner,
+  })
 
   if (abortSignal.aborted || !state.bumped.length) {
-    spinner.stop()
     return
   }
 
   // Log grouped warnings and changes.
-  spinner.stop()
-
   if (state.warnings.length) {
     console.log('')
     logSectionHeader('Warnings', { emoji: '⚠️' })
@@ -420,17 +422,19 @@ async function main() {
     }
   }
 
-  spinner.start(`Updating manifest and package.json files...`)
+  await withSpinner({
+    message: `Updating manifest and package.json files...`,
+    operation: async () => {
+      const spawnOptions = {
+        cwd: rootPath,
+        stdio: 'inherit',
+      }
 
-  const spawnOptions = {
-    cwd: rootPath,
-    stdio: 'inherit',
-  }
-
-  await execScript('update:package-json', [], spawnOptions)
-  await execScript('update:manifest', ['--', '--force'], spawnOptions)
-
-  spinner.stop()
+      await execScript('update:package-json', [], spawnOptions)
+      await execScript('update:manifest', ['--', '--force'], spawnOptions)
+    },
+    spinner,
+  })
 }
 
 main().catch(console.error)
