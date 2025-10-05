@@ -166,6 +166,7 @@
   },
   "pnpm": {
     "overrides": {
+      "@types/node": "24.5.2",
       "aggregate-error": "npm:@socketregistry/aggregate-error@^1.0.15",
       "array-buffer-byte-length": "npm:@socketregistry/array-buffer-byte-length@^1.0.7",
       "available-typed-arrays": "npm:@socketregistry/available-typed-arrays@^1.0.8",
