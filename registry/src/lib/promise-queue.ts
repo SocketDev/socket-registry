@@ -40,7 +40,10 @@ export class PromiseQueue {
 
       if (this.maxQueueLength && this.queue.length >= this.maxQueueLength) {
         // Drop oldest task to prevent memory buildup
-        this.queue.shift()
+        const droppedTask = this.queue.shift()
+        if (droppedTask) {
+          droppedTask.reject(new Error('Task dropped: queue length exceeded'))
+        }
       }
 
       this.queue.push(task as QueuedTask<unknown>)
