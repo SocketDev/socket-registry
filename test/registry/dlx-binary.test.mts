@@ -145,23 +145,26 @@ describe('dlx-binary', () => {
     })
 
     it('should generate binary name based on platform when name is not provided', async () => {
-      const { binaryPath, spawnPromise } = await dlxBinary(['--version'], {
+      const result = await dlxBinary(['--version'], {
         spawnOptions: { cwd: tmpDir },
         url: `${baseUrl}/test-binary?test=platform`,
       })
 
+      // Attach error handler immediately to prevent unhandled rejection.
+      const spawnResult = result.spawnPromise.catch(() => {})
+
       if (os.platform() === 'win32') {
         // On Windows, dlxBinary should append .exe to binary names.
-        expect(binaryPath).toContain('.exe')
+        expect(result.binaryPath).toContain('.exe')
         // The test server returns shell scripts, which can't be executed on Windows.
         // We ignore spawn errors on Windows since this test is only validating the
         // binary naming logic, not actual execution.
-        await spawnPromise.catch(() => {})
+        await spawnResult
       } else {
         // On Unix, binary names should not have .exe extension.
-        expect(binaryPath).not.toContain('.exe')
+        expect(result.binaryPath).not.toContain('.exe')
         // Shell scripts work on Unix, so wait for the process to complete.
-        await spawnPromise
+        await result.spawnPromise
       }
     })
 
