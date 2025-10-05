@@ -387,7 +387,7 @@ pnpm run validate:packages --package <package>
 ✅ Use test template for consistency
 ✅ Follow cross-platform guidelines
 ✅ Use path.join() for all paths
-✅ Clean up with safeRemove
+✅ Clean up with trash
 ✅ Test in isolated environments
 
 ### DON'T
