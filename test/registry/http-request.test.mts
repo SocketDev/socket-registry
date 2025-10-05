@@ -117,4 +117,103 @@ describe('httpRequest', () => {
   it('should handle connection errors', async () => {
     await expect(httpRequest('http://127.0.0.1:99999/test')).rejects.toThrow()
   })
+
+  it('should follow redirects', async () => {
+    const response = await httpRequest(`${baseUrl}/redirect`)
+    expect(response.ok).toBe(true)
+    expect(response.status).toBe(200)
+    expect(response.body.toString()).toContain('success')
+  })
+
+  it('should handle redirects with followRedirects: false', async () => {
+    const response = await httpRequest(`${baseUrl}/redirect`, {
+      followRedirects: false,
+    })
+    expect(response.status).toBe(301)
+  })
+
+  it('should use json() method', async () => {
+    const response = await httpRequest(`${baseUrl}/success`)
+    const json = response.json<{ message: string }>()
+    expect(json.message).toBe('success')
+  })
+
+  it('should use text() method', async () => {
+    const response = await httpRequest(`${baseUrl}/with-headers`)
+    const text = response.text()
+    expect(text).toBe('Response with headers')
+  })
+
+  it('should use arrayBuffer() method', async () => {
+    const response = await httpRequest(`${baseUrl}/success`)
+    const buffer = response.arrayBuffer()
+    expect(buffer).toBeInstanceOf(ArrayBuffer)
+    expect(buffer.byteLength).toBeGreaterThan(0)
+  })
+
+  it('should retry on failure', async () => {
+    let attempts = 0
+    const testServer = createServer((_req, res) => {
+      attempts += 1
+      if (attempts < 3) {
+        res.destroy()
+      } else {
+        res.writeHead(200)
+        res.end('success after retries')
+      }
+    })
+
+    await new Promise<void>(resolve => {
+      testServer.listen(0, () => resolve())
+    })
+
+    const address = testServer.address()
+    const port =
+      typeof address === 'object' && address !== null ? address.port : 0
+
+    const response = await httpRequest(`http://127.0.0.1:${port}/test`, {
+      retries: 3,
+      retryDelay: 10,
+    })
+
+    expect(response.ok).toBe(true)
+    expect(attempts).toBe(3)
+
+    await new Promise<void>(resolve => {
+      testServer.close(() => resolve())
+    })
+  })
+
+  it('should handle POST with body', async () => {
+    const testServer = createServer((req, res) => {
+      let body = ''
+      req.on('data', chunk => {
+        body += chunk.toString()
+      })
+      req.on('end', () => {
+        res.writeHead(200)
+        res.end(body)
+      })
+    })
+
+    await new Promise<void>(resolve => {
+      testServer.listen(0, () => resolve())
+    })
+
+    const address = testServer.address()
+    const port =
+      typeof address === 'object' && address !== null ? address.port : 0
+
+    const response = await httpRequest(`http://127.0.0.1:${port}/test`, {
+      body: 'test body',
+      method: 'POST',
+    })
+
+    expect(response.ok).toBe(true)
+    expect(response.text()).toBe('test body')
+
+    await new Promise<void>(resolve => {
+      testServer.close(() => resolve())
+    })
+  })
 })
