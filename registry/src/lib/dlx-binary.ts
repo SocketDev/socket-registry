@@ -249,8 +249,7 @@ export async function dlxBinary(
   const cacheDir = getDlxCachePath()
   const cacheKey = generateCacheKey(url)
   const cacheEntryDir = path.join(cacheDir, cacheKey)
-  const platformKey = `${targetPlatform}-${arch}`
-  const binaryName = name || `binary-${platformKey}`
+  const binaryName = name || `binary-${targetPlatform}-${arch}`
   const binaryPath = normalizePath(path.join(cacheEntryDir, binaryName))
 
   let downloaded = false
@@ -296,6 +295,7 @@ export async function dlxBinary(
 
   // Execute the binary.
   // On Windows, script files (.bat, .cmd, .ps1) require shell: true.
+  // Note: .exe files are actual binaries and don't need shell mode.
   const finalSpawnOptions =
     WIN32 && /\.(?:bat|cmd|ps1)$/i.test(binaryPath)
       ? { ...spawnOptions, shell: true }
