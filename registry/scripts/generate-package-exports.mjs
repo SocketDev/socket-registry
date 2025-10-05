@@ -188,7 +188,7 @@ async function main() {
     exports,
     engines: {
       ...registryEditablePkgJson.content.engines,
-      node: constants.PACKAGE_DEFAULT_NODE_RANGE
+      node: constants.PACKAGE_DEFAULT_NODE_RANGE,
     },
   })
   await registryEditablePkgJson.save()
