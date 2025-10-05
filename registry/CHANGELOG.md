@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.5] - 2025-10-05
+
+### Added
+
+- Added performance monitoring utilities with timer, measurement, and reporting functions
+- Added memoization utilities with LRU, TTL, weak references, and promise deduplication support
+- Added table formatting utilities (`formatTable`, `formatSimpleTable`) for CLI output
+- Added progress tracking to spinner with `updateProgress()` and `incrementProgress()` methods
+- Added `isDir` and `safeStats` async helpers to fs module
+
+### Changed
+
+- Removed `platform` and `arch` options from `dlxBinary` function as cross-platform binary execution is not supported
+
+### Fixed
+
+- Fixed Windows shell execution in `dlxBinary` by adding cache directory to PATH
+
 ## [1.4.4] - 2025-10-05
 
 ### Fixed
