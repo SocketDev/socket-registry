@@ -29,7 +29,7 @@ describe('pnpm-store-path', () => {
     })
   })
 
-  describe('Windows platform', () => {
+  describe.skipIf(process.platform !== 'win32')('Windows platform', () => {
     it('should use LOCALAPPDATA on Windows', async () => {
       vi.stubGlobal('process', {
         ...process,
@@ -47,17 +47,15 @@ describe('pnpm-store-path', () => {
       expect(pnpmStorePath).not.toContain('\\')
     })
 
-    it('should return empty string when LOCALAPPDATA is not set on Windows', async () => {
-      vi.stubGlobal('process', {
-        ...process,
-        env: {},
-        platform: 'win32',
-      })
-      const { default: pnpmStorePath } = await import(
-        '../../registry/dist/lib/constants/pnpm-store-path.js'
-      )
-      expect(pnpmStorePath).toBe('')
-    })
+    it.skipIf(process.platform !== 'win32' || process.env['LOCALAPPDATA'])(
+      'should return empty string when LOCALAPPDATA is not set on Windows',
+      async () => {
+        const { default: pnpmStorePath } = await import(
+          '../../registry/dist/lib/constants/pnpm-store-path.js'
+        )
+        expect(pnpmStorePath).toBe('')
+      },
+    )
   })
 
   describe('XDG Base Directory on Unix', () => {
@@ -95,34 +93,35 @@ describe('pnpm-store-path', () => {
     })
   })
 
-  describe('Linux default location', () => {
-    it('should use ~/.local/share/pnpm/store on Linux', async () => {
-      vi.stubGlobal('process', {
-        ...process,
-        env: { ...originalEnv, HOME: '/home/testuser' },
-        platform: 'linux',
+  describe.skipIf(process.platform !== 'linux')(
+    'Linux default location',
+    () => {
+      it('should use ~/.local/share/pnpm/store on Linux', async () => {
+        vi.stubGlobal('process', {
+          ...process,
+          env: { ...originalEnv, HOME: '/home/testuser' },
+          platform: 'linux',
+        })
+        const { default: pnpmStorePath } = await import(
+          '../../registry/dist/lib/constants/pnpm-store-path.js'
+        )
+        expect(pnpmStorePath).toContain('.local')
+        expect(pnpmStorePath).toContain('share')
+        expect(pnpmStorePath).toContain('pnpm')
+        expect(pnpmStorePath).toContain('store')
       })
-      const { default: pnpmStorePath } = await import(
-        '../../registry/dist/lib/constants/pnpm-store-path.js'
-      )
-      expect(pnpmStorePath).toContain('.local')
-      expect(pnpmStorePath).toContain('share')
-      expect(pnpmStorePath).toContain('pnpm')
-      expect(pnpmStorePath).toContain('store')
-    })
 
-    it('should return empty string when HOME is not set on Linux', async () => {
-      vi.stubGlobal('process', {
-        ...process,
-        env: {},
-        platform: 'linux',
-      })
-      const { default: pnpmStorePath } = await import(
-        '../../registry/dist/lib/constants/pnpm-store-path.js'
+      it.skipIf(process.platform !== 'linux' || process.env['HOME'])(
+        'should return empty string when HOME is not set on Linux',
+        async () => {
+          const { default: pnpmStorePath } = await import(
+            '../../registry/dist/lib/constants/pnpm-store-path.js'
+          )
+          expect(pnpmStorePath).toBe('')
+        },
       )
-      expect(pnpmStorePath).toBe('')
-    })
-  })
+    },
+  )
 
   describe('path normalization', () => {
     it('should not contain backslashes in normalized paths', async () => {
