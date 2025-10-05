@@ -29,7 +29,7 @@
     "clean:test-cache": "node ./scripts/clean-test-cache.mjs",
     "clean:node_modules": "del-cli '**/node_modules'",
     "coverage": "run-s coverage:*",
-    "coverage:test": "dotenvx -q run -f .env.test -- vitest run --config .config/vitest.config.mts --coverage",
+    "coverage:test": "dotenvx -q run -- env NODE_OPTIONS=\"$NODE_TEST_MEMORY\" vitest run --config .config/vitest.config.mts --coverage",
     "coverage:percent": "node scripts/get-coverage-percentage.mjs",
     "coverage:type": "type-coverage",
     "coverage:type:verbose": "type-coverage --detail",
@@ -41,9 +41,9 @@
     "inline:action-shas": "node ./scripts/inline-action-versions-as-shas.mjs",
     "knip:dependencies": "knip --config .config/knip.json --dependencies",
     "knip:exports": "knip --config .config/knip.json --include exports,duplicates",
-    "lint": "oxlint -c=.config/oxlintrc.json --ignore-path=.oxlintignore --tsconfig=tsconfig.json .",
+    "lint": "oxlint -c=.config/oxlintrc.json --ignore-path=.config/.oxlintignore --tsconfig=tsconfig.json .",
     "lint:fix": "run-s -c lint:fix:*",
-    "lint:fix:oxlint": "oxlint -c=.config/oxlintrc.json --ignore-path=.oxlintignore --tsconfig=tsconfig.json --quiet --fix .",
+    "lint:fix:oxlint": "oxlint -c=.config/oxlintrc.json --ignore-path=.config/.oxlintignore --tsconfig=tsconfig.json --quiet --fix .",
     "lint:fix:biome": "biome format --fix .",
     "lint:fix:eslint": "eslint --config .config/eslint.config.mjs --report-unused-disable-directives --fix .",
     "lint-ci": "pnpm run check:lint",
@@ -54,16 +54,16 @@
     "perf": "node ./scripts/perf.mjs",
     "precommit": "lint-staged",
     "prepare": "husky && pnpm run build",
-    "pretest": "dotenvx -q run -f .env.test -- pnpm run build",
+    "pretest": "dotenvx -q run -- env NODE_OPTIONS=\"$NODE_TEST_MEMORY\" pnpm run build",
     "release:npm": "node ./scripts/release-npm-packages.mjs",
     "test": "node ./scripts/test-wrapper.mjs",
     "test:npm:packages": "node ./scripts/test-npm-packages.mjs",
     "test:unit": "node ./scripts/test.mjs",
-    "test:unit:coverage": "dotenvx -q run -f .env.test -- vitest run --config .config/vitest.config.mts --coverage",
-    "test-ci": "dotenvx -q run -f .env.test -- vitest run --config .config/vitest.config.mts",
+    "test:unit:coverage": "dotenvx -q run -- env NODE_OPTIONS=\"$NODE_TEST_MEMORY\" vitest run --config .config/vitest.config.mts --coverage",
+    "test-ci": "dotenvx -q run -- env NODE_OPTIONS=\"$NODE_TEST_MEMORY\" vitest run --config .config/vitest.config.mts",
     "test:unit:ci": "node ./scripts/test.mjs --force",
     "test:npm:packages:ci": "node ./scripts/test-npm-packages.mjs --force",
-    "test-pre-commit": "dotenvx -q run -f .env.precommit -- pnpm test",
+    "test-pre-commit": "dotenvx -q run -- env PRE_COMMIT=1 pnpm test",
     "type-ci": "pnpm run check:tsc",
     "update": "run-p --aggregate-output update:**",
     "update:deps": "node scripts/taze.mjs",
@@ -160,7 +160,7 @@
   "lint-staged": {
     "*.{cjs,cts,js,json,md,mjs,mts,ts}": [
       "pnpm run lint:fix:oxlint",
-      "pnpm run lint:fix:biome -- --no-errors-on-unmatched --files-ignore-unknown=true --colors=off"
+      "biome format --no-errors-on-unmatched --files-ignore-unknown=true --colors=off --fix"
     ]
   },
   "pnpm": {
