@@ -53,6 +53,7 @@
     ]
   },
   "dependencies": {
+    "yoctocolors": "2.1.2",
     "yoctocolors-cjs": "2.1.3"
   }
 }
