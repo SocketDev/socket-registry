@@ -1,112 +1,137 @@
 /**
  * @fileoverview Shared test utilities for npm package testing.
- * Provides helpers for setting up isolated test environments for both
- * socket-registry packages and local development packages.
+ * Provides helpers for setting up isolated test environments.
  */
 
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import constants from '../../scripts/constants.mjs'
-import { installPackageForTesting } from '../../scripts/utils/package.mjs'
 import {
   readPackageJson,
+  isolatePackage as registryIsolatePackage,
   resolveOriginalPackageName,
 } from '../../registry/dist/lib/packages.js'
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+import { cleanTestScript } from './script-cleaning.mjs'
+import { testRunners } from './test-runners.mjs'
 
 /**
  * Isolates a package in a temporary test environment.
  *
- * Supports two modes:
+ * Supports multiple input types:
  * 1. Socket registry packages: Pass package name (e.g., '@socketregistry/packageurl-js')
  * 2. Local development packages: Pass relative or absolute path (e.g., '../../socket-packageurl-js' or '.')
+ * 3. npm package specs: Pass any npm-package-arg compatible spec
  *
- * The helper creates an isolated test environment by:
- * - Installing the package in a temporary directory
- * - Copying package files to node_modules
- * - Installing dependencies
- * - Preserving test scripts (for registry packages)
- *
- * @param {string} packageOrPath - Package name or local path to package directory.
+ * @param {string} packageSpec - Package name, path, or npm package spec.
  * @param {object} [options] - Optional configuration.
- * @param {string[]} [options.entryPoints] - Array of entry point filenames to load.
- * @returns {Promise<{pkgPath: string, modules?: any[]}>}
+ * @param {Record<string, string>} [options.imports] - Map of import names to module specifiers (e.g., { PackageURL: './package-url.js' }).
+ * @returns {Promise<{exports?: Record<string, any>, tmpdir: string}>}
  *
  * @example
- * // Test a socket-registry package
- * const { pkgPath } = await isolatePackage('@socketregistry/packageurl-js')
+ * const { tmpdir } = await isolatePackage('@socketregistry/packageurl-js')
  *
  * @example
- * // Test a local development package
- * const { pkgPath } = await isolatePackage('../../socket-packageurl-js')
+ * const { tmpdir } = await isolatePackage('../../socket-packageurl-js')
  *
  * @example
- * // Load multiple entry points
- * const { pkgPath, modules } = await isolatePackage('../../socket-packageurl-js', {
- *   entryPoints: ['package-url.js', 'url-converter.js']
+ * const { tmpdir, exports } = await isolatePackage('packageurl-js@1.0.0', {
+ *   imports: { PackageURL: './package-url.js', convert: './url-converter.js' }
  * })
+ * // exports.PackageURL, exports.convert
  */
-async function isolatePackage(packageOrPath, options = {}) {
-  const { entryPoints } = options
+async function isolatePackage(packageSpec, options = {}) {
+  const { imports } = options
 
-  // Determine if this is a path or package name
-  const isPath = packageOrPath.startsWith('.') || path.isAbsolute(packageOrPath)
-
+  let resolvedSpec = packageSpec
   let sourcePath
-  let packageName
-  let versionSpec
+  let hasSourcePath = false
 
-  if (isPath) {
-    // Local development package
-    sourcePath = path.resolve(__dirname, '..', '..', packageOrPath)
-
-    // Read package.json to get the name
-    const pkgJson = await readPackageJson(sourcePath, { normalize: true })
-    packageName = pkgJson.name
-  } else {
-    // Socket registry package
-    const socketPkgName = packageOrPath
+  // Check if this is a Socket registry package.
+  if (
+    packageSpec.startsWith('@socketregistry/') &&
+    !packageSpec.includes('@', 1)
+  ) {
+    const socketPkgName = packageSpec
     sourcePath = path.join(constants.npmPackagesPath, socketPkgName)
 
     if (!existsSync(sourcePath)) {
       throw new Error(`No Socket override found for ${socketPkgName}`)
     }
 
-    // Resolve to original npm package name
-    packageName = resolveOriginalPackageName(socketPkgName)
+    // Resolve to original npm package name.
+    const packageName = resolveOriginalPackageName(socketPkgName)
 
-    // Get version spec from test/npm/package.json
+    // Get version spec from test/npm/package.json.
     const testPkgJson = await readPackageJson(constants.testNpmPkgJsonPath, {
       normalize: true,
     })
-    versionSpec = testPkgJson.devDependencies?.[packageName]
+    const spec = testPkgJson.devDependencies?.[packageName]
 
-    if (!versionSpec) {
+    if (!spec) {
       throw new Error(`${packageName} not in devDependencies`)
     }
+
+    resolvedSpec = `${packageName}@${spec}`
+    hasSourcePath = true
   }
 
-  const result = await installPackageForTesting(sourcePath, packageName, {
-    versionSpec,
+  const result = await registryIsolatePackage(resolvedSpec, {
+    imports,
+    onPackageJson: async pkgJson => {
+      // Preserve test scripts for registry packages.
+      if (hasSourcePath) {
+        const originalScripts = pkgJson.scripts
+
+        if (originalScripts) {
+          pkgJson.scripts = pkgJson.scripts || {}
+
+          const additionalTestRunners = [
+            ...testRunners,
+            'test:stock',
+            'test:all',
+          ]
+          let actualTestScript = additionalTestRunners.find(
+            runner => originalScripts[runner],
+          )
+
+          if (!actualTestScript && originalScripts.test) {
+            const testMatch = originalScripts.test.match(/npm run ([-:\w]+)/)
+            if (testMatch && originalScripts[testMatch[1]]) {
+              actualTestScript = testMatch[1]
+            }
+          }
+
+          if (actualTestScript && originalScripts[actualTestScript]) {
+            pkgJson.scripts.test = cleanTestScript(
+              originalScripts[actualTestScript],
+            )
+            if (actualTestScript !== 'test') {
+              pkgJson.scripts[actualTestScript] = cleanTestScript(
+                originalScripts[actualTestScript],
+              )
+            }
+          } else if (originalScripts.test) {
+            pkgJson.scripts.test = cleanTestScript(originalScripts.test)
+          }
+
+          for (const { 0: key, 1: value } of Object.entries(originalScripts)) {
+            if (
+              (key.startsWith('test:') || key.startsWith('tests')) &&
+              !pkgJson.scripts[key]
+            ) {
+              pkgJson.scripts[key] = cleanTestScript(value)
+            }
+          }
+        }
+      }
+
+      return pkgJson
+    },
+    sourcePath,
   })
 
-  if (!result.installed) {
-    throw new Error(`Failed to install package: ${result.reason}`)
-  }
-
-  const pkgPath = result.packagePath
-
-  if (entryPoints && entryPoints.length > 0) {
-    const modules = entryPoints.map(entryPoint =>
-      require(path.join(pkgPath, entryPoint)),
-    )
-    return { pkgPath, modules }
-  }
-
-  return { pkgPath }
+  return result
 }
 
 export { isolatePackage }
