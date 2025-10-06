@@ -14,15 +14,6 @@
 import os from 'node:os'
 import path from 'node:path'
 
-import CACHE_DIR from './constants/CACHE_DIR'
-import CACHE_GITHUB_DIR from './constants/CACHE_GITHUB_DIR'
-import CACHE_TTL_DIR from './constants/CACHE_TTL_DIR'
-import DOT_SOCKET_DIR from './constants/DOT_SOCKET_DIR'
-import ENV from './constants/ENV'
-import SOCKET_APP_PREFIX from './constants/SOCKET_APP_PREFIX'
-import SOCKET_CLI_APP_NAME from './constants/SOCKET_CLI_APP_NAME'
-import SOCKET_DLX_APP_NAME from './constants/SOCKET_DLX_APP_NAME'
-import SOCKET_REGISTRY_APP_NAME from './constants/SOCKET_REGISTRY_APP_NAME'
 import { normalizePath } from './path'
 
 /**
@@ -37,7 +28,12 @@ export function getSocketHomePath(): string {
  * Get the Socket user directory (~/.socket).
  */
 export function getSocketUserDir(): string {
-  return normalizePath(path.join(os.homedir(), DOT_SOCKET_DIR))
+  return normalizePath(
+    path.join(
+      os.homedir(),
+      /*@__INLINE__*/ require('./constants/DOT_SOCKET_DIR'),
+    ),
+  )
 }
 
 /**
@@ -45,7 +41,10 @@ export function getSocketUserDir(): string {
  */
 export function getSocketAppDir(appName: string): string {
   return normalizePath(
-    path.join(getSocketUserDir(), `${SOCKET_APP_PREFIX}${appName}`),
+    path.join(
+      getSocketUserDir(),
+      `${/*@__INLINE__*/ require('./constants/SOCKET_APP_PREFIX')}${appName}`,
+    ),
   )
 }
 
@@ -54,11 +53,15 @@ export function getSocketAppDir(appName: string): string {
  * Can be overridden with SOCKET_CACACHE_DIR environment variable for testing.
  */
 export function getSocketCacacheDir(): string {
+  const ENV = /*@__PURE__*/ require('./constants/ENV')
   if (ENV.SOCKET_CACACHE_DIR) {
     return normalizePath(ENV.SOCKET_CACACHE_DIR)
   }
   return normalizePath(
-    path.join(getSocketUserDir(), `${SOCKET_APP_PREFIX}cacache`),
+    path.join(
+      getSocketUserDir(),
+      `${/*@__INLINE__*/ require('./constants/SOCKET_APP_PREFIX')}cacache`,
+    ),
   )
 }
 
@@ -67,7 +70,10 @@ export function getSocketCacacheDir(): string {
  */
 export function getSocketDlxDir(): string {
   return normalizePath(
-    path.join(getSocketUserDir(), `${SOCKET_APP_PREFIX}${SOCKET_DLX_APP_NAME}`),
+    path.join(
+      getSocketUserDir(),
+      `${/*@__INLINE__*/ require('./constants/SOCKET_APP_PREFIX')}${/*@__INLINE__*/ require('./constants/SOCKET_DLX_APP_NAME')}`,
+    ),
   )
 }
 
@@ -75,28 +81,42 @@ export function getSocketDlxDir(): string {
  * Get a Socket app cache directory (~/.socket/_<appName>/cache).
  */
 export function getSocketAppCacheDir(appName: string): string {
-  return normalizePath(path.join(getSocketAppDir(appName), CACHE_DIR))
+  return normalizePath(
+    path.join(
+      getSocketAppDir(appName),
+      /*@__INLINE__*/ require('./constants/CACHE_DIR'),
+    ),
+  )
 }
 
 /**
  * Get a Socket app TTL cache directory (~/.socket/_<appName>/cache/ttl).
  */
 export function getSocketAppCacheTtlDir(appName: string): string {
-  return normalizePath(path.join(getSocketAppCacheDir(appName), CACHE_TTL_DIR))
+  return normalizePath(
+    path.join(
+      getSocketAppCacheDir(appName),
+      /*@__INLINE__*/ require('./constants/CACHE_TTL_DIR'),
+    ),
+  )
 }
 
 /**
  * Get the Socket CLI directory (~/.socket/_socket).
  */
 export function getSocketCliDir(): string {
-  return getSocketAppDir(SOCKET_CLI_APP_NAME)
+  return getSocketAppDir(
+    /*@__INLINE__*/ require('./constants/SOCKET_CLI_APP_NAME'),
+  )
 }
 
 /**
  * Get the Socket Registry directory (~/.socket/_registry).
  */
 export function getSocketRegistryDir(): string {
-  return getSocketAppDir(SOCKET_REGISTRY_APP_NAME)
+  return getSocketAppDir(
+    /*@__INLINE__*/ require('./constants/SOCKET_REGISTRY_APP_NAME'),
+  )
 }
 
 /**
@@ -105,8 +125,10 @@ export function getSocketRegistryDir(): string {
 export function getSocketRegistryGithubCacheDir(): string {
   return normalizePath(
     path.join(
-      getSocketAppCacheTtlDir(SOCKET_REGISTRY_APP_NAME),
-      CACHE_GITHUB_DIR,
+      getSocketAppCacheTtlDir(
+        /*@__INLINE__*/ require('./constants/SOCKET_REGISTRY_APP_NAME'),
+      ),
+      /*@__INLINE__*/ require('./constants/CACHE_GITHUB_DIR'),
     ),
   )
 }
