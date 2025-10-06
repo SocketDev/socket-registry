@@ -474,21 +474,23 @@ This is a monorepo for Socket.dev optimized package overrides, built with JavaSc
 ### Build System
 - Uses Rollup for building external dependencies
 - TypeScript support with tsconfig (compiles to CommonJS)
-- Post-build script fixes CommonJS exports for backward compatibility
+- Post-build transforms via Rollup `writeBundle` hook
 - Multiple environment configs (.env.local, .env.test, .env.external)
 - Dual linting with oxlint and eslint
 - Formatting with Biome
 
 #### CommonJS Export Compatibility (CRITICAL)
 - **Issue**: TypeScript compiles `export default` to `exports.default = value`, requiring `.default` in CommonJS
-- **Solution**: Post-build script `registry/scripts/fix-commonjs-exports.mjs` transforms exports
+- **Solution**: Post-build transform in Rollup `writeBundle` hook using `transform-commonjs-exports.mjs`
 - **Result**: Direct CommonJS require works: `require('@socketsecurity/registry/lib/constants/WIN32')` returns value directly
 - **Implementation**:
   - Constants use `export default` in TypeScript for consistency
-  - Post-build transforms `exports.default = value` → `module.exports = value`
-  - Also fixes imports in other compiled files to remove `.default` references
+  - Transform runs after Rollup bundle write, using Babel AST + magic-string
+  - First pass: transforms `exports.default = value` → `module.exports = value`
+  - Second pass: fixes imports to remove `.default` references
   - Files with type exports keep default export pattern
-- **Maintenance**: Script runs automatically as part of build process (`build:fix-cjs`)
+- **Location**: Transform utility in `registry/scripts/babel/transform-commonjs-exports.mjs`
+- **Integration**: Called from Rollup config's `writeBundle` hook in `registry/.config/rollup.dist.config.mjs`
 
 ### Testing
 - Vitest for unit testing
