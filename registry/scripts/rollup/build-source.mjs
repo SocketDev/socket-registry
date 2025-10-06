@@ -2,27 +2,15 @@
  * @fileoverview Build registry source using Rollup.
  */
 
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-
 import { rollup } from 'rollup'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-
-const scriptsPath = path.join(__dirname, '..')
-const rootPath = path.join(scriptsPath, '..')
-const configPath = path.join(rootPath, '.config')
+import getConfig from '../../.config/rollup.dist.config.mjs'
 
 const ENV = {
   CI: 'CI' in process.env,
   VERBOSE_BUILD: process.env.VERBOSE_BUILD === 'true',
 }
 const isDebug = () => !!process.env.DEBUG
-
-const getConfig = await import(
-  path.join(configPath, 'rollup.dist.config.mjs')
-).then(m => m.default)
 
 void (async () => {
   const configs = await getConfig()
