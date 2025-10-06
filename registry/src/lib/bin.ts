@@ -245,7 +245,7 @@ export function findRealNpm(): string {
  * Find the real pnpm executable, bypassing any aliases and shadow bins.
  */
 export function findRealPnpm(): string {
-  const WIN32 = /*@__PURE__*/ require('./constants/WIN32.js')
+  const WIN32 = /*@__INLINE__*/ require('./constants/WIN32')
   const path = getPath()
 
   // Try common pnpm locations.
@@ -378,7 +378,7 @@ export function resolveBinPathSync(binPath: string): string {
       return voltaBinPath
     }
   }
-  const WIN32 = /*@__PURE__*/ require('./constants/WIN32.js')
+  const WIN32 = /*@__INLINE__*/ require('./constants/WIN32')
   if (WIN32) {
     const hasKnownExt =
       extLowered === '' ||
