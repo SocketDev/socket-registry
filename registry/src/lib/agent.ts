@@ -97,7 +97,7 @@ export function execNpm(args: string[], options?: SpawnOptions | undefined) {
       // by the spinner when running the command with recent versions of npm.
       '--no-progress',
       // Add '--loglevel=error' if a loglevel flag is not provided and the
-      // SOCKET_CLI_DEBUG environment variable is not truthy.
+      // SOCKET_DEBUG environment variable is not truthy.
       ...logLevelArgs,
       ...npmArgs,
       ...otherArgs,
