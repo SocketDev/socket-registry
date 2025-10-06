@@ -15,17 +15,11 @@ import { getDistDir, srcToDistPath } from './transform-utils.mts'
 const traverse = (traverseModule as any).default || traverseModule
 
 /**
- * Vite plugin to inline CommonJS require() calls during coverage.
+ * Vite plugin to inline CommonJS require() calls.
  * Uses Babel AST parsing for robust detection and MagicString for source transformations.
  * Since require() bypasses Vite's module system, we inline simple constant values at transform time.
  */
-export function createRequireTransformPlugin(
-  isCoverageEnabled: boolean,
-): Plugin {
-  if (!isCoverageEnabled) {
-    return { name: 'socket:require-transform-noop' }
-  }
-
+export function createRequireTransformPlugin(): Plugin {
   // Cache for loaded constant values
   const constantCache = new Map<string, string | null>()
 

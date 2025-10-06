@@ -16,7 +16,7 @@ const projectRoot = path.resolve(__dirname, '..')
 export default defineConfig({
   plugins: [
     createImportTransformPlugin(isCoverageEnabled, __dirname),
-    createRequireTransformPlugin(isCoverageEnabled),
+    createRequireTransformPlugin(),
   ],
   resolve: {
     preserveSymlinks: false,
