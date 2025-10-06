@@ -5,7 +5,7 @@
 
 import abortSignal from './constants/abort-signal'
 import spinner from './constants/spinner'
-import { getPromiseSpawn } from './dependencies'
+import { getPromiseSpawn } from './dependencies/system'
 import { getOwn } from './objects'
 import { stripAnsi } from './strings'
 

@@ -11,7 +11,7 @@ import {
   getInquirerPassword,
   getInquirerSearch,
   getInquirerSelect,
-} from './dependencies'
+} from './dependencies/prompts'
 
 const abortSignal = abortSignalDefault
 const spinner = spinnerDefault
