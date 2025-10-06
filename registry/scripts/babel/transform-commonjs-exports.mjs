@@ -14,6 +14,9 @@ import { promises as fs } from 'node:fs'
 import { isBuiltin } from 'node:module'
 import path from 'node:path'
 
+import { parse } from '@babel/parser'
+import traverseModule from '@babel/traverse'
+import * as t from '@babel/types'
 import MagicString from 'magic-string'
 
 // Pinned versions required:
@@ -22,10 +25,7 @@ import MagicString from 'magic-string'
 // - @babel/types@7.28.4
 // - magic-string@0.30.19
 
-const { parse } = await import('@babel/parser')
-const traverseModule = await import('@babel/traverse')
 const traverse = traverseModule.default
-const t = await import('@babel/types')
 
 /**
  * Parse JavaScript code into AST.
