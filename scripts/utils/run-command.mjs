@@ -1,7 +1,6 @@
 /** @fileoverview Utility for running shell commands with proper error handling. */
 
 import { spawn, spawnSync } from 'node:child_process'
-import { logger } from '../../registry/dist/lib/logger.js'
 
 const WIN32 = process.platform === 'win32'
 
@@ -135,6 +134,10 @@ export function runCommandQuiet(command, args = [], options = {}) {
  * @returns {Promise<number>} Exit code
  */
 export async function logAndRun(description, command, args = [], options = {}) {
-  logger.log(description)
+  // Note: We use console methods directly instead of importing the registry logger
+  // because the logger is in registry/dist/lib/logger.js which doesn't exist until
+  // after the build completes. This script must work on fresh clones before any
+  // build artifacts exist.
+  console.log(description)
   return runCommand(command, args, options)
 }
