@@ -104,7 +104,7 @@ export async function isolatePackage(
     packageName = pkgJson.name as string
   } else {
     // Parse as npm package spec.
-    const npa = /*@__PURE__*/ require('../external/npm-package-arg')
+    const npa = /*@__PURE__*/ require('../../external/npm-package-arg')
     const parsed = npa(packageSpec)
 
     packageName = parsed.name
@@ -113,6 +113,14 @@ export async function isolatePackage(
       sourcePath = parsed.fetchSpec
       if (!sourcePath || !existsSync(sourcePath)) {
         throw new Error(`Source path does not exist: ${sourcePath}`)
+      }
+      // If package name not provided by parser, read from package.json.
+      if (!packageName) {
+        const pkgJson = await readPackageJson(sourcePath, { normalize: true })
+        if (!pkgJson) {
+          throw new Error(`Could not read package.json from: ${sourcePath}`)
+        }
+        packageName = pkgJson.name as string
       }
     } else {
       // Registry package.
