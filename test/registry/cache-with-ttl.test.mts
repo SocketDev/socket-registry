@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { createTtlCache } from '../../registry/src/lib/cache-with-ttl'
+import { createTtlCache } from '../../registry/dist/lib/cache-with-ttl.js'
 
 describe('cache-with-ttl', () => {
   let cache: ReturnType<typeof createTtlCache>
