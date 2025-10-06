@@ -150,12 +150,14 @@ export async function isolatePackage(
       await install(packageTempDir)
     } else {
       const { spawn } = /*@__PURE__*/ require('../spawn')
+      const WIN32 = /*@__INLINE__*/ require('../constants/WIN32')
       const packageInstallSpec = spec.startsWith('https://')
         ? spec
         : `${packageName}@${spec}`
 
       await spawn('pnpm', ['add', packageInstallSpec], {
         cwd: packageTempDir,
+        shell: WIN32,
         stdio: 'pipe',
       })
     }
@@ -217,8 +219,10 @@ export async function isolatePackage(
     await install(installedPath)
   } else {
     const { spawn } = /*@__PURE__*/ require('../spawn')
+    const WIN32 = /*@__INLINE__*/ require('../constants/WIN32')
     await spawn('pnpm', ['install'], {
       cwd: installedPath,
+      shell: WIN32,
       stdio: 'pipe',
     })
   }

@@ -1,7 +1,7 @@
 import { mkdtempSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
@@ -10,7 +10,7 @@ import { runInSubprocess } from '../utils/subprocess.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-const cacacheImport = `import * as cacache from '${path.join(__dirname, '../../registry/dist/lib/cacache.js').replace(/\\/g, '/')}';`
+const cacacheImport = `import * as cacache from '${pathToFileURL(path.join(__dirname, '../../registry/dist/lib/cacache.js')).href}';`
 
 describe('cacache module', () => {
   const TEST_KEY = 'test-cacache-key'
