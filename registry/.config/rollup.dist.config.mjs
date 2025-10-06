@@ -13,6 +13,11 @@ import { nodeResolve } from '@rollup/plugin-node-resolve'
 import replacePlugin from '@rollup/plugin-replace'
 import fastGlob from 'fast-glob'
 
+import {
+  fixImports,
+  transformFile,
+} from '../scripts/babel/transform-commonjs-exports.mjs'
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
@@ -120,6 +125,33 @@ export default async () => {
         preventAssignment: false,
         values: builtinAliases,
       }),
+      // Post-build transform to fix CommonJS exports compatibility.
+      {
+        name: 'transform-commonjs-exports',
+        async writeBundle() {
+          const files = await fastGlob('**/*.js', {
+            absolute: true,
+            cwd: distPath,
+          })
+
+          const fixedModules = new Set()
+
+          // First pass: transform exports.default to module.exports.
+          for (const file of files) {
+            // eslint-disable-next-line no-await-in-loop
+            const result = await transformFile(file)
+            if (result.modified && result.moduleName) {
+              fixedModules.add(result.moduleName)
+            }
+          }
+
+          // Second pass: fix .default accessors in imports.
+          for (const file of files) {
+            // eslint-disable-next-line no-await-in-loop
+            await fixImports(file, fixedModules)
+          }
+        },
+      },
     ],
   }
 }
