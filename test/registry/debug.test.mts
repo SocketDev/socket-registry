@@ -428,8 +428,8 @@ describe('debug module', () => {
   })
 
   describe('isDebugNs', () => {
-    it('should return false when SOCKET_CLI_DEBUG is not set', () => {
-      delete process.env['SOCKET_CLI_DEBUG']
+    it('should return false when SOCKET_DEBUG is not set', () => {
+      delete process.env['SOCKET_DEBUG']
       expect(isDebugNs('test')).toBe(false)
     })
   })
