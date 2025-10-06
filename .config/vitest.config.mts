@@ -10,8 +10,12 @@ import { createRequireTransformPlugin } from './vitest-plugins/require-transform
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // Check if coverage is enabled via CLI flags or environment.
+// Note: process.argv doesn't include vitest CLI args at config load time,
+// so we check environment variables and use a heuristic based on npm script.
 const isCoverageEnabled =
-  process.argv.includes('--coverage') || process.env['COVERAGE'] === 'true'
+  process.env['COVERAGE'] === 'true' ||
+  process.env['npm_lifecycle_event']?.includes('coverage') ||
+  process.argv.some(arg => arg.includes('coverage'))
 
 const projectRoot = path.resolve(__dirname, '..')
 
