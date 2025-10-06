@@ -9,7 +9,7 @@
  *   node scripts/lint-fix.mjs
  */
 
-import { logger } from './utils/logger.mjs'
+import { logger } from '../registry/dist/lib/logger.js'
 import { runCommandQuiet } from './utils/run-command.mjs'
 
 async function main() {

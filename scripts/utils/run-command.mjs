@@ -1,7 +1,7 @@
 /** @fileoverview Utility for running shell commands with proper error handling. */
 
 import { spawn, spawnSync } from 'node:child_process'
-import { logger } from './logger.mjs'
+import { logger } from '../../registry/dist/lib/logger.js'
 
 const WIN32 = process.platform === 'win32'
 
