@@ -9,8 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added `isolatePackage` test helper for creating isolated package test environments
+- Added `isolatePackage` to `lib/packages/isolation` for creating isolated package test environments
 - Added support for testing local development packages in addition to socket-registry packages
+- Exposed isolation module as part of public API via `lib/packages`
 
 ### Changed
 
