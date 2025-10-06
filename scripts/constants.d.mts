@@ -1,3 +1,7 @@
+/**
+ * @fileoverview TypeScript type definitions for build script constants.
+ */
+
 import which from 'which'
 
 import registryConstants from '@socketsecurity/registry/lib/constants'
