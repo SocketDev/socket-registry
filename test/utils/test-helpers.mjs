@@ -134,4 +134,30 @@ async function isolatePackage(packageSpec, options = {}) {
   return result
 }
 
-export { isolatePackage }
+/**
+ * Sets up a test environment for packages with multiple entry points.
+ *
+ * @param {string} packageSpec - Package name or spec.
+ * @param {string[]} entryPoints - Array of entry point paths relative to package root (e.g., ['index.js', 'lib/utils.js']).
+ * @returns {Promise<{modules: any[], tmpdir: string}>}
+ */
+async function setupMultiEntryTest(packageSpec, entryPoints = ['index.js']) {
+  const imports = { __proto__: null }
+  for (const { 0: index, 1: entry } of Object.entries(entryPoints)) {
+    imports[`entry_${index}`] = entry
+  }
+
+  const result = await isolatePackage(packageSpec, { imports })
+
+  const modules = []
+  for (const { 0: index } of Object.entries(entryPoints)) {
+    modules.push(result.exports[`entry_${index}`])
+  }
+
+  return {
+    modules,
+    tmpdir: result.tmpdir,
+  }
+}
+
+export { isolatePackage, setupMultiEntryTest }
