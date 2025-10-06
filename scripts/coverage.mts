@@ -3,11 +3,13 @@
  * Collects both code coverage and type coverage.
  *
  * Usage:
- *   node scripts/coverage.mjs [--code-only|--type-only|--percent]
+ *   node scripts/coverage.mts [--code-only|--type-only|--percent]
  */
 
 import { parseArgs } from 'node:util'
+
 import { logger } from '../registry/dist/lib/logger.js'
+
 import { runSequence } from './utils/run-command.mjs'
 
 async function main() {
@@ -71,7 +73,8 @@ async function main() {
     ])
 
     process.exitCode = typeExitCode
-  } catch (error) {
+  } catch (e) {
+    const error = e instanceof Error ? e : new Error(String(e))
     logger.error('Coverage collection failed:', error.message)
     process.exitCode = 1
   }
