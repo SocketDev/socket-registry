@@ -85,7 +85,7 @@ describe('package.json exports validation', () => {
     }
   })
 
-  it('should export ./lib/dependencies', async () => {
+  it('should export dependency submodules individually', async () => {
     const pkgJson = await readPackageJson(registryPkgPath)
 
     expect(pkgJson?.exports).toBeDefined()
@@ -95,27 +95,25 @@ describe('package.json exports validation', () => {
       throw new Error('exports should be an object')
     }
 
-    const dependenciesExport = exports['./lib/dependencies']
-    expect(dependenciesExport).toBeDefined()
-    expect(dependenciesExport).toMatchObject({
-      types: './dist/lib/dependencies/index.d.ts',
-      default: './dist/lib/dependencies/index.js',
-    })
+    const dependencySubmodules = [
+      './lib/dependencies/build-tools',
+      './lib/dependencies/file-system',
+      './lib/dependencies/logging',
+      './lib/dependencies/npm-tools',
+      './lib/dependencies/prompts',
+      './lib/dependencies/system',
+      './lib/dependencies/validation',
+    ]
 
-    const typesPath = path.join(
-      registryPkgPath,
-      'dist/lib/dependencies/index.d.ts',
-    )
-    const jsPath = path.join(registryPkgPath, 'dist/lib/dependencies/index.js')
-
-    expect(
-      existsSync(typesPath),
-      `Types file should exist at ${typesPath}`,
-    ).toBe(true)
-    expect(existsSync(jsPath), `JS file should exist at ${jsPath}`).toBe(true)
+    for (const submodule of dependencySubmodules) {
+      expect(
+        exports[submodule],
+        `Export "${submodule}" should be defined`,
+      ).toBeDefined()
+    }
   })
 
-  it('should have all dependencies submodules exported', async () => {
+  it('should have all dependencies submodules exported with files', async () => {
     const pkgJson = await readPackageJson(registryPkgPath)
     const exports = pkgJson?.exports
 
@@ -124,10 +122,8 @@ describe('package.json exports validation', () => {
     }
 
     const dependenciesSubmodules = [
-      './lib/dependencies',
       './lib/dependencies/build-tools',
       './lib/dependencies/file-system',
-      './lib/dependencies/index',
       './lib/dependencies/logging',
       './lib/dependencies/npm-tools',
       './lib/dependencies/prompts',
