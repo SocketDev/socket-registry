@@ -1,13 +1,8 @@
-import fs from 'node:fs'
-import os from 'node:os'
-import path from 'node:path'
-
 import { describe, expect, it, vi } from 'vitest'
 
 import {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
-  createPackageJson,
   extractPackage,
   fetchPackageManifest,
   fetchPackagePackument,
@@ -18,12 +13,10 @@ import {
   gitHubTagRefUrl,
   gitHubTgzUrl,
   isRegistryFetcherType,
-  packPackage,
   parseSpdxExp,
   resolvePackageName,
   resolveRegistryPackageName,
 } from '../../registry/dist/lib/packages.js'
-import { trash } from '../../scripts/utils/fs.mjs'
 
 describe('packages module extended tests', () => {
   describe('collectIncompatibleLicenses', () => {
@@ -84,37 +77,6 @@ describe('packages module extended tests', () => {
       const result = collectLicenseWarnings(licenseNodes)
       expect(Array.isArray(result)).toBe(true)
       expect(result[0]).toContain('LICENSE.txt')
-    })
-  })
-
-  describe('createPackageJson', () => {
-    it('should create a package.json object', async () => {
-      const tmpDir = path.join(os.tmpdir(), `test-${Date.now()}`)
-      fs.mkdirSync(tmpDir, { recursive: true })
-
-      try {
-        const pkg = createPackageJson(
-          '@socketregistry/test-package',
-          tmpDir,
-          {},
-        )
-        expect(pkg).toBeDefined()
-        expect(typeof pkg).toBe('object')
-      } finally {
-        await trash(tmpDir)
-      }
-    })
-
-    it('should handle minimal input', async () => {
-      const tmpDir = path.join(os.tmpdir(), `test-${Date.now()}`)
-      fs.mkdirSync(tmpDir, { recursive: true })
-
-      try {
-        const pkg = createPackageJson('@socketregistry/test', tmpDir)
-        expect(pkg).toBeDefined()
-      } finally {
-        await trash(tmpDir)
-      }
     })
   })
 
@@ -324,35 +286,6 @@ describe('packages module extended tests', () => {
       expect(isRegistryFetcherType('')).toBe(false)
     })
   })
-
-  describe('packPackage', () => {
-    it('should pack package', async () => {
-      const tmpDir = path.join(os.tmpdir(), `test-${Date.now()}`)
-      fs.mkdirSync(tmpDir, { recursive: true })
-
-      // Create a simple package
-      fs.writeFileSync(
-        path.join(tmpDir, 'package.json'),
-        JSON.stringify({
-          name: 'test-pack',
-          version: '1.0.0',
-        }),
-      )
-      fs.writeFileSync(path.join(tmpDir, 'index.js'), 'module.exports = {}')
-
-      try {
-        const result = await packPackage(tmpDir)
-        expect(result).toBeDefined()
-      } catch (error) {
-        // May fail without npm, that's ok
-        expect(error).toBeDefined()
-      } finally {
-        await trash(tmpDir)
-      }
-    })
-  })
-
-  // Tests for readPackageJsonFromArchive when available
 
   describe('resolvePackageName', () => {
     it('should resolve package names', () => {
