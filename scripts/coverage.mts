@@ -8,9 +8,8 @@
 
 import { parseArgs } from 'node:util'
 
-import { logger } from '../registry/dist/lib/logger.js'
-
 import { runSequence } from './utils/run-command.mjs'
+import { logger } from '../registry/dist/lib/logger.js'
 
 async function main() {
   try {
