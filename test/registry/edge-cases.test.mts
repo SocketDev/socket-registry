@@ -327,9 +327,16 @@ describe('edge case tests', () => {
       const log = debug.debuglog('test')
       expect(typeof log).toBe('function')
 
-      // Should not throw
+      // Mock stderr to suppress debug output.
+      const stderrWriteSpy = vi
+        .spyOn(process.stderr, 'write')
+        .mockImplementation(() => true)
+
+      // Should not throw.
       log('test message')
       log('message with %s', 'format')
+
+      stderrWriteSpy.mockRestore()
     })
 
     it('should provide debugtime functions', () => {
@@ -338,8 +345,15 @@ describe('edge case tests', () => {
       expect(typeof time.start).toBe('function')
       expect(typeof time.end).toBe('function')
 
+      // Mock stderr to suppress debug output.
+      const stderrWriteSpy = vi
+        .spyOn(process.stderr, 'write')
+        .mockImplementation(() => true)
+
       time.start('operation')
       time.end('operation')
+
+      stderrWriteSpy.mockRestore()
     })
   })
 
