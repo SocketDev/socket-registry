@@ -430,6 +430,132 @@ describe('isolation module', () => {
       expect(existsSync(result.tmpdir)).toBe(true)
       expect(existsSync(path.join(result.tmpdir, 'package.json'))).toBe(true)
     })
+
+    it('should handle non-scoped package names', async () => {
+      const testPkgDir = await fs.mkdtemp(
+        path.join(os.tmpdir(), 'socket-test-unscoped-'),
+      )
+      tmpDirs.push(testPkgDir)
+
+      await fs.writeFile(
+        path.join(testPkgDir, 'package.json'),
+        JSON.stringify({
+          name: 'unscoped-package',
+          version: '1.0.0',
+        }),
+      )
+
+      await fs.writeFile(
+        path.join(testPkgDir, 'index.js'),
+        'module.exports = { test: true }',
+      )
+
+      const result = await isolatePackage(testPkgDir, {
+        install: async () => {},
+      })
+      tmpDirs.push(path.dirname(result.tmpdir))
+
+      expect(result.tmpdir).toContain('unscoped-package')
+      expect(existsSync(result.tmpdir)).toBe(true)
+      expect(existsSync(path.join(result.tmpdir, 'index.js'))).toBe(true)
+    })
+
+    it('should run default pnpm install when no custom install provided', async () => {
+      const testPkgDir = await fs.mkdtemp(
+        path.join(os.tmpdir(), 'socket-test-pnpm-'),
+      )
+      tmpDirs.push(testPkgDir)
+
+      await fs.writeFile(
+        path.join(testPkgDir, 'package.json'),
+        JSON.stringify({
+          name: 'test-package',
+          version: '1.0.0',
+        }),
+      )
+
+      const result = await isolatePackage(testPkgDir)
+      tmpDirs.push(path.dirname(result.tmpdir))
+
+      expect(existsSync(result.tmpdir)).toBe(true)
+      expect(existsSync(path.join(result.tmpdir, 'package.json'))).toBe(true)
+    })
+  })
+
+  describe('npm package specs', () => {
+    it('should handle package name with version spec', async () => {
+      const result = await isolatePackage('is-odd@3.0.1', {
+        install: async cwd => {
+          const nodeModulesPath = path.join(cwd, 'node_modules', 'is-odd')
+          await fs.mkdir(nodeModulesPath, { recursive: true })
+          await fs.writeFile(
+            path.join(nodeModulesPath, 'package.json'),
+            JSON.stringify({
+              name: 'is-odd',
+              version: '3.0.1',
+            }),
+          )
+        },
+      })
+      tmpDirs.push(path.dirname(result.tmpdir))
+
+      expect(result.tmpdir).toContain('is-odd')
+      expect(existsSync(result.tmpdir)).toBe(true)
+      expect(existsSync(path.join(result.tmpdir, 'package.json'))).toBe(true)
+    })
+
+    it('should handle scoped package with version', async () => {
+      const result = await isolatePackage('@socketregistry/scripts@1.0.0', {
+        install: async cwd => {
+          const nodeModulesPath = path.join(
+            cwd,
+            'node_modules',
+            '@socketregistry',
+            'scripts',
+          )
+          await fs.mkdir(nodeModulesPath, { recursive: true })
+          await fs.writeFile(
+            path.join(nodeModulesPath, 'package.json'),
+            JSON.stringify({
+              name: '@socketregistry/scripts',
+              version: '1.0.0',
+            }),
+          )
+        },
+      })
+      tmpDirs.push(path.dirname(result.tmpdir))
+
+      expect(result.tmpdir).toContain('@socketregistry')
+      expect(existsSync(result.tmpdir)).toBe(true)
+    })
+
+    it('should handle npm-package-arg directory type', async () => {
+      const testPkgDir = await fs.mkdtemp(
+        path.join(os.tmpdir(), 'socket-test-npa-dir-'),
+      )
+      tmpDirs.push(testPkgDir)
+
+      await fs.writeFile(
+        path.join(testPkgDir, 'package.json'),
+        JSON.stringify({
+          name: 'test-package',
+          version: '1.0.0',
+        }),
+      )
+
+      const result = await isolatePackage(`file:${testPkgDir}`, {
+        install: async () => {},
+      })
+      tmpDirs.push(path.dirname(result.tmpdir))
+
+      expect(existsSync(result.tmpdir)).toBe(true)
+    })
+
+    it('should throw for non-existent directory in npm-package-arg', async () => {
+      await expect(isolatePackage('file:/non-existent-path')).rejects.toThrow(
+        'Source path does not exist',
+      )
+    })
   })
 
   describe('error handling', () => {
@@ -437,6 +563,12 @@ describe('isolation module', () => {
       await expect(
         isolatePackage('package-without-version-spec'),
       ).rejects.toThrow()
+    })
+
+    it('should throw for non-existent path', async () => {
+      await expect(isolatePackage('/path/that/does/not/exist')).rejects.toThrow(
+        'Source path does not exist',
+      )
     })
   })
 })
