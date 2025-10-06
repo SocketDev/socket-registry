@@ -7,20 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.1] - 2025-10-05
 
+### Added
+
+- Added `isolatePackage` to `lib/packages/isolation` for creating isolated package test environments
+
 ### Changed
 
 - Removed `dependencies/index` barrel file to prevent eager loading of all dependency modules
-- Updated imports in `fs`, `spawn`, and `prompts` modules to use specific dependency modules instead of index barrel
-
-### Fixed
-
-- Fixed isolation module test for scoped packages to correctly navigate temp directory structure
 
 ## [1.5.0] - 2025-10-05
 
 ### Added
 
-- Added `isolatePackage` to `lib/packages/isolation` for creating isolated package test environments
 - Added support for testing local development packages in addition to socket-registry packages
 - Exposed isolation module as part of public API via `lib/packages`
 
@@ -36,7 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added comprehensive package.json exports validation tests
-
 
 ## [1.4.5] - 2025-10-05
 
