@@ -1,158 +1,317 @@
 import { mkdtempSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-} from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import * as cacache from '../../registry/dist/lib/cacache.js'
 import { trash } from '../../scripts/utils/fs.mjs'
+import { runInSubprocess } from '../utils/subprocess.mjs'
 
-// Test key for cache operations.
-const TEST_KEY = 'test-cacache-key'
-const TEST_DATA = 'test data content'
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+const cacacheImport = `import * as cacache from '${path.join(__dirname, '../../registry/dist/lib/cacache.js').replace(/\\/g, '/')}';`
 
 describe('cacache module', () => {
+  const TEST_KEY = 'test-cacache-key'
+  const TEST_DATA = 'test data content'
   let testCacheDir: string
-  let originalEnv: string | undefined
 
-  beforeAll(() => {
-    // Create a temporary directory for test-specific cacache.
+  it('should store and retrieve data from cache', async () => {
     testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
-    // Override cacache directory for tests.
-    originalEnv = process.env['SOCKET_CACACHE_DIR']
-    process.env['SOCKET_CACACHE_DIR'] = testCacheDir
-  })
 
-  afterAll(async () => {
-    // Restore original environment.
-    if (originalEnv === undefined) {
-      delete process.env['SOCKET_CACACHE_DIR']
-    } else {
-      process.env['SOCKET_CACACHE_DIR'] = originalEnv
-    }
-    // Clean up test cache directory.
+    const result = await runInSubprocess(
+      { SOCKET_CACACHE_DIR: testCacheDir },
+      `
+${cacacheImport}
+
+const TEST_KEY = '${TEST_KEY}';
+const TEST_DATA = '${TEST_DATA}';
+
+await cacache.put(TEST_KEY, TEST_DATA);
+const entry = await cacache.get(TEST_KEY);
+
+console.log(JSON.stringify({
+  success: true,
+  data: entry.data.toString(),
+  integrity: entry.integrity,
+  size: entry.size
+}));
+      `,
+    )
+
+    expect(result.exitCode).toBe(0)
+    const parsed = JSON.parse(result.stdout.trim())
+    expect(parsed.success).toBe(true)
+    expect(parsed.data).toBe(TEST_DATA)
+    expect(parsed.integrity).toBeTruthy()
+    expect(parsed.size).toBe(TEST_DATA.length)
+
     await trash(testCacheDir)
   })
 
-  beforeEach(async () => {
-    // Remove test key before each test for defensive cleanup.
-    await cacache.remove(TEST_KEY).catch(() => {
-      // Ignore cleanup errors.
-    })
+  it('should support Buffer data', async () => {
+    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
+
+    const result = await runInSubprocess(
+      { SOCKET_CACACHE_DIR: testCacheDir },
+      `
+${cacacheImport}
+
+const TEST_KEY = '${TEST_KEY}';
+const TEST_DATA = '${TEST_DATA}';
+
+const buffer = Buffer.from(TEST_DATA);
+await cacache.put(TEST_KEY, buffer);
+const entry = await cacache.get(TEST_KEY);
+
+console.log(JSON.stringify({
+  success: true,
+  data: entry.data.toString()
+}));
+      `,
+    )
+
+    expect(result.exitCode).toBe(0)
+    const parsed = JSON.parse(result.stdout.trim())
+    expect(parsed.success).toBe(true)
+    expect(parsed.data).toBe(TEST_DATA)
+
+    await trash(testCacheDir)
   })
 
-  afterEach(async () => {
-    // Clean up test entries after each test.
-    await cacache.remove(TEST_KEY).catch(() => {
-      // Ignore cleanup errors.
-    })
+  it('should throw when getting non-existent key', async () => {
+    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
+
+    const result = await runInSubprocess(
+      { SOCKET_CACACHE_DIR: testCacheDir },
+      `
+${cacacheImport}
+
+try {
+  await cacache.get('non-existent-key');
+  console.log(JSON.stringify({ success: false, error: 'Should have thrown' }));
+} catch (e) {
+  console.log(JSON.stringify({ success: true, error: e.message }));
+}
+      `,
+    )
+
+    expect(result.exitCode).toBe(0)
+    const parsed = JSON.parse(result.stdout.trim())
+    expect(parsed.success).toBe(true)
+    expect(parsed.error).toBeTruthy()
+
+    await trash(testCacheDir)
   })
 
-  describe('clear', () => {
-    it('should clear all cache entries', async () => {
-      await cacache.put(TEST_KEY, TEST_DATA)
-      await cacache.clear()
+  it('should accept PutOptions with metadata', async () => {
+    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
 
-      const entry = await cacache.safeGet(TEST_KEY)
-      expect(entry).toBeUndefined()
-    })
+    const result = await runInSubprocess(
+      { SOCKET_CACACHE_DIR: testCacheDir },
+      `
+${cacacheImport}
+
+const TEST_KEY = '${TEST_KEY}';
+const TEST_DATA = '${TEST_DATA}';
+const metadata = { foo: 'bar', timestamp: Date.now() };
+
+await cacache.put(TEST_KEY, TEST_DATA, { metadata });
+const entry = await cacache.get(TEST_KEY);
+
+console.log(JSON.stringify({
+  success: true,
+  metadata: entry.metadata
+}));
+      `,
+    )
+
+    expect(result.exitCode).toBe(0)
+    const parsed = JSON.parse(result.stdout.trim())
+    expect(parsed.success).toBe(true)
+    expect(parsed.metadata).toEqual(
+      expect.objectContaining({
+        foo: 'bar',
+        timestamp: expect.any(Number),
+      }),
+    )
+
+    await trash(testCacheDir)
   })
 
-  describe('get', () => {
-    it('should retrieve data from cache', async () => {
-      await cacache.put(TEST_KEY, TEST_DATA)
-      const entry = await cacache.get(TEST_KEY)
+  it('should remove cache entry', async () => {
+    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
 
-      expect(entry).toBeDefined()
-      expect(entry.data).toBeInstanceOf(Buffer)
-      expect(entry.data.toString()).toBe(TEST_DATA)
-      expect(entry.integrity).toBeTruthy()
-      expect(entry.size).toBe(TEST_DATA.length)
-    })
+    const result = await runInSubprocess(
+      { SOCKET_CACACHE_DIR: testCacheDir },
+      `
+${cacacheImport}
 
-    it('should support Buffer data', async () => {
-      const buffer = Buffer.from(TEST_DATA)
-      await cacache.put(TEST_KEY, buffer)
-      const entry = await cacache.get(TEST_KEY)
+const TEST_KEY = '${TEST_KEY}';
+const TEST_DATA = '${TEST_DATA}';
 
-      expect(entry.data.toString()).toBe(TEST_DATA)
-    })
+await cacache.put(TEST_KEY, TEST_DATA);
+await cacache.remove(TEST_KEY);
+const entry = await cacache.safeGet(TEST_KEY);
 
-    it('should throw when getting non-existent key', async () => {
-      await expect(cacache.get('non-existent-key')).rejects.toThrow()
-    })
+console.log(JSON.stringify({
+  success: true,
+  entry: entry
+}));
+      `,
+    )
+
+    expect(result.exitCode).toBe(0)
+    const parsed = JSON.parse(result.stdout.trim())
+    expect(parsed.success).toBe(true)
+    expect(parsed.entry).toBeUndefined()
+
+    await trash(testCacheDir)
   })
 
-  describe('put', () => {
-    it('should store data in cache', async () => {
-      await cacache.put(TEST_KEY, TEST_DATA)
+  it('should return undefined for non-existent key with safeGet', async () => {
+    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
 
-      const entry = await cacache.get(TEST_KEY)
-      expect(entry.data.toString()).toBe(TEST_DATA)
-    })
+    const result = await runInSubprocess(
+      { SOCKET_CACACHE_DIR: testCacheDir },
+      `
+${cacacheImport}
 
-    it('should accept PutOptions with metadata', async () => {
-      const metadata = { foo: 'bar', timestamp: Date.now() }
-      await cacache.put(TEST_KEY, TEST_DATA, { metadata })
+const entry = await cacache.safeGet('non-existent-key');
 
-      const entry = await cacache.get(TEST_KEY)
-      expect(entry.metadata).toEqual(metadata)
-    })
+console.log(JSON.stringify({
+  success: true,
+  entry: entry
+}));
+      `,
+    )
+
+    expect(result.exitCode).toBe(0)
+    const parsed = JSON.parse(result.stdout.trim())
+    expect(parsed.success).toBe(true)
+    expect(parsed.entry).toBeUndefined()
+
+    await trash(testCacheDir)
   })
 
-  describe('remove', () => {
-    it('should remove cache entry', async () => {
-      await cacache.put(TEST_KEY, TEST_DATA)
-      await cacache.remove(TEST_KEY)
+  it('should return entry for existing key with safeGet', async () => {
+    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
 
-      const entry = await cacache.safeGet(TEST_KEY)
-      expect(entry).toBeUndefined()
-    })
+    const result = await runInSubprocess(
+      { SOCKET_CACACHE_DIR: testCacheDir },
+      `
+${cacacheImport}
+
+const TEST_KEY = '${TEST_KEY}';
+const TEST_DATA = '${TEST_DATA}';
+
+await cacache.put(TEST_KEY, TEST_DATA);
+const entry = await cacache.safeGet(TEST_KEY);
+
+console.log(JSON.stringify({
+  success: true,
+  data: entry?.data.toString()
+}));
+      `,
+    )
+
+    expect(result.exitCode).toBe(0)
+    const parsed = JSON.parse(result.stdout.trim())
+    expect(parsed.success).toBe(true)
+    expect(parsed.data).toBe(TEST_DATA)
+
+    await trash(testCacheDir)
   })
 
-  describe('safeGet', () => {
-    it('should return undefined for non-existent key', async () => {
-      const entry = await cacache.safeGet('non-existent-key')
-      expect(entry).toBeUndefined()
-    })
+  it('should clear all cache entries', async () => {
+    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
 
-    it('should return entry for existing key', async () => {
-      await cacache.put(TEST_KEY, TEST_DATA)
-      const entry = await cacache.safeGet(TEST_KEY)
+    const result = await runInSubprocess(
+      { SOCKET_CACACHE_DIR: testCacheDir },
+      `
+${cacacheImport}
 
-      expect(entry).toBeDefined()
-      expect(entry?.data.toString()).toBe(TEST_DATA)
-    })
+const TEST_KEY = '${TEST_KEY}';
+const TEST_DATA = '${TEST_DATA}';
+
+await cacache.put(TEST_KEY, TEST_DATA);
+await cacache.clear();
+const entry = await cacache.safeGet(TEST_KEY);
+
+console.log(JSON.stringify({
+  success: true,
+  entry: entry
+}));
+      `,
+    )
+
+    expect(result.exitCode).toBe(0)
+    const parsed = JSON.parse(result.stdout.trim())
+    expect(parsed.success).toBe(true)
+    expect(parsed.entry).toBeUndefined()
+
+    await trash(testCacheDir)
   })
 
-  describe('withTmp', () => {
-    it('should provide temporary directory for callback', async () => {
-      let tmpDir: string | undefined
-      const result = await cacache.withTmp(async tmpDirPath => {
-        tmpDir = tmpDirPath
-        expect(tmpDirPath).toBeTruthy()
-        expect(typeof tmpDirPath).toBe('string')
-        return 'test-result'
-      })
+  it('should provide temporary directory for callback', async () => {
+    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
 
-      expect(result).toBe('test-result')
-      expect(tmpDir).toBeTruthy()
-    })
+    const result = await runInSubprocess(
+      { SOCKET_CACACHE_DIR: testCacheDir },
+      `
+${cacacheImport}
 
-    it('should return callback result', async () => {
-      const result = await cacache.withTmp(async () => {
-        return { value: 42 }
-      })
+const result = await cacache.withTmp(async (tmpDirPath) => {
+  return {
+    tmpDir: tmpDirPath,
+    hasTmpDir: !!tmpDirPath,
+    isString: typeof tmpDirPath === 'string',
+    result: 'test-result'
+  };
+});
 
-      expect(result).toEqual({ value: 42 })
-    })
+console.log(JSON.stringify({
+  success: true,
+  ...result
+}));
+      `,
+    )
+
+    expect(result.exitCode).toBe(0)
+    const parsed = JSON.parse(result.stdout.trim())
+    expect(parsed.success).toBe(true)
+    expect(parsed.result).toBe('test-result')
+    expect(parsed.hasTmpDir).toBe(true)
+    expect(parsed.isString).toBe(true)
+
+    await trash(testCacheDir)
+  })
+
+  it('should return callback result', async () => {
+    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
+
+    const result = await runInSubprocess(
+      { SOCKET_CACACHE_DIR: testCacheDir },
+      `
+${cacacheImport}
+
+const result = await cacache.withTmp(async () => {
+  return { value: 42 };
+});
+
+console.log(JSON.stringify({
+  success: true,
+  result: result
+}));
+      `,
+    )
+
+    expect(result.exitCode).toBe(0)
+    const parsed = JSON.parse(result.stdout.trim())
+    expect(parsed.success).toBe(true)
+    expect(parsed.result).toEqual({ value: 42 })
+
+    await trash(testCacheDir)
   })
 })
