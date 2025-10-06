@@ -17,6 +17,7 @@ import {
   isSubpathExports,
   resolvePackageJsonEntryExports,
 } from './packages/exports'
+import { isolatePackage } from './packages/isolation'
 import {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
@@ -142,6 +143,11 @@ export type PacoteOptions = {
 }
 
 export type {
+  IsolatePackageOptions,
+  IsolatePackageResult,
+} from './packages/isolation'
+
+export type {
   InternalAstNode,
   InternalBinaryOperationNode,
   InternalLicenseNode,
@@ -176,6 +182,7 @@ export {
   isConditionalExports,
   isGitHubTgzSpec,
   isGitHubUrlSpec,
+  isolatePackage,
   isRegistryFetcherType,
   isSubpathExports,
   isValidPackageName,
