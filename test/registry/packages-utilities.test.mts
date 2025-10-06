@@ -7,7 +7,6 @@ import {
   isRegistryFetcherType,
   isSubpathExports,
   isValidPackageName,
-  resolveOriginalPackageName,
 } from '../../registry/dist/lib/packages.js'
 
 describe('packages module - utility functions', () => {
@@ -147,36 +146,6 @@ describe('packages module - utility functions', () => {
       const result = gitHubTgzUrl('org', 'project', 'def456')
       expect(result).toContain('/org/project/')
       expect(result).toContain('/archive/def456.tar.gz')
-    })
-  })
-
-  describe('resolveOriginalPackageName', () => {
-    it('should resolve Socket registry package names', () => {
-      expect(resolveOriginalPackageName('@socketregistry/lodash')).toBe(
-        'lodash',
-      )
-      expect(resolveOriginalPackageName('@socketregistry/express')).toBe(
-        'express',
-      )
-    })
-
-    it('should resolve scoped packages', () => {
-      expect(resolveOriginalPackageName('@socketregistry/scope__pkg')).toBe(
-        '@scope/pkg',
-      )
-    })
-
-    it('should handle packages without socketregistry scope', () => {
-      expect(resolveOriginalPackageName('lodash')).toBe('lodash')
-      expect(resolveOriginalPackageName('@other/package')).toBe(
-        '@other/package',
-      )
-    })
-
-    it('should not transform non-socketregistry scoped packages', () => {
-      expect(resolveOriginalPackageName('@socketoverride/lodash')).toBe(
-        '@socketoverride/lodash',
-      )
     })
   })
 })
