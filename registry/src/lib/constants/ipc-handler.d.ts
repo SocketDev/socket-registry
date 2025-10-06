@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Type definitions for IPC message handlers.
+ */
+
 // Type definitions for ipc-handler
 export type IpcHandler = ProxyHandler<object> & {
   defineProperty(): true

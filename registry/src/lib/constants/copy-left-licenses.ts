@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Collection of copyleft software license identifiers.
+ */
+
 export default new Set([
   'AGPL-3.0-or-later',
   'AGPL-3.0',

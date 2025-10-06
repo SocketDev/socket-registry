@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Collection of NPM lifecycle script names.
+ */
+
 export default new Set(
   [
     'dependencies',

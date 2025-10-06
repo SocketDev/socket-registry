@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Current NPM lifecycle event name.
+ */
+
 import { envAsString } from '../env'
 
 // npm_lifecycle_event is set by npm, pnpm, yarn, bun, and vlt during script execution.

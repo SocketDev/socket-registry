@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Boolean flag indicating Node.js compile cache API support.
+ */
+
 import NODE_VERSION from './node-version'
 import semver from '../../external/semver'
 

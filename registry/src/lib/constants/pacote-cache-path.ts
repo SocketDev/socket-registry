@@ -1,3 +1,7 @@
+/**
+ * @fileoverview File system path to the pacote cache directory.
+ */
+
 import pacote from '../../external/pacote'
 import { normalizePath } from '../path'
 
