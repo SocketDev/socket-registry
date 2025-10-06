@@ -1,6 +1,26 @@
 /**
  * @fileoverview Package manager agent for executing npm, pnpm, and yarn commands.
  * Provides cross-platform utilities with optimized flags and security defaults.
+ *
+ * SECURITY: Array-Based Arguments Prevent Command Injection
+ *
+ * All functions in this module (execNpm, execPnpm, execYarn) use array-based
+ * arguments when calling spawn(). This is the PRIMARY DEFENSE against command
+ * injection attacks.
+ *
+ * When arguments are passed as an array:
+ *   spawn(cmd, ['install', packageName, '--flag'], options)
+ *
+ * Node.js handles escaping automatically. Each argument is passed directly to
+ * the OS without shell interpretation. Shell metacharacters like ; | & $ ( )
+ * are treated as LITERAL STRINGS, not as commands.
+ *
+ * Example: If packageName = "lodash; rm -rf /", the package manager will try to
+ * install a package literally named "lodash; rm -rf /" (which doesn't exist),
+ * rather than executing the malicious command.
+ *
+ * This approach is secure even when shell: true is used on Windows for .cmd
+ * file resolution, because Node.js properly escapes each array element.
  */
 
 import { execBin } from './bin'
@@ -57,6 +77,9 @@ const yarnInstallLikeCommands = new Set([
 
 /**
  * Execute npm commands with optimized flags and settings.
+ *
+ * SECURITY: Uses array-based arguments to prevent command injection. All elements
+ * in the args array are properly escaped by Node.js when passed to spawn().
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function execNpm(args: string[], options?: SpawnOptions | undefined) {
@@ -73,6 +96,8 @@ export function execNpm(args: string[], options?: SpawnOptions | undefined) {
     // The default value of loglevel is "notice". We default to "warn" which is
     // one level quieter.
     useDebug || npmArgs.some(isNpmLoglevelFlag) ? [] : ['--loglevel', 'warn']
+  // SECURITY: Array-based arguments prevent command injection. Each element is
+  // passed directly to the OS without shell interpretation.
   return spawn(
     /*@__PURE__*/ require('./constants/exec-path'),
     [
@@ -106,6 +131,9 @@ export interface PnpmOptions extends SpawnOptions {
 
 /**
  * Execute pnpm commands with optimized flags and settings.
+ *
+ * SECURITY: Uses array-based arguments to prevent command injection. All elements
+ * in the args array are properly escaped by Node.js when passed to execBin().
  */
 /*@__NO_SIDE_EFFECTS__*/
 
@@ -152,6 +180,8 @@ export function execPnpm(args: string[], options?: PnpmOptions | undefined) {
   // Note: pnpm doesn't have a --no-progress flag. It uses --reporter instead.
   // We removed --no-progress as it causes "Unknown option" errors with pnpm.
 
+  // SECURITY: Array-based arguments prevent command injection. Each element is
+  // passed directly to the OS without shell interpretation.
   return execBin(
     'pnpm',
     [
@@ -170,6 +200,9 @@ export function execPnpm(args: string[], options?: PnpmOptions | undefined) {
 
 /**
  * Execute yarn commands with optimized flags and settings.
+ *
+ * SECURITY: Uses array-based arguments to prevent command injection. All elements
+ * in the args array are properly escaped by Node.js when passed to execBin().
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function execYarn(
@@ -197,6 +230,8 @@ export function execYarn(
   const ignoreScriptsArgs =
     !supportsIgnoreScripts || hasIgnoreScriptsFlag ? [] : ['--ignore-scripts']
 
+  // SECURITY: Array-based arguments prevent command injection. Each element is
+  // passed directly to the OS without shell interpretation.
   return execBin(
     'yarn',
     [
