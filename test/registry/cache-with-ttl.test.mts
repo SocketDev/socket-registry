@@ -19,7 +19,7 @@ describe('cache-with-ttl', () => {
     it('should fetch and cache data on first call', async () => {
       let fetchCount = 0
       const fetcher = async () => {
-        fetchCount++
+        fetchCount += 1
         return { value: 42 }
       }
 
@@ -31,7 +31,7 @@ describe('cache-with-ttl', () => {
     it('should return cached data on subsequent calls', async () => {
       let fetchCount = 0
       const fetcher = async () => {
-        fetchCount++
+        fetchCount += 1
         return { value: 42 }
       }
 
@@ -44,10 +44,10 @@ describe('cache-with-ttl', () => {
     })
 
     it('should refetch after TTL expires', async () => {
-      const shortTtlCache = createTtlCache({ prefix: 'short-ttl', ttl: 10 })
+      const shortTtlCache = createTtlCache({ prefix: 'short-ttl', ttl: 1000 })
       let fetchCount = 0
       const fetcher = async () => {
-        fetchCount++
+        fetchCount += 1
         return { value: fetchCount }
       }
 
@@ -55,7 +55,7 @@ describe('cache-with-ttl', () => {
       expect(result1).toEqual({ value: 1 })
 
       // Wait for TTL to expire
-      await new Promise(resolve => setTimeout(resolve, 20))
+      await new Promise(resolve => setTimeout(resolve, 1500))
 
       const result2 = await shortTtlCache.getOrFetch('key1', fetcher)
       expect(result2).toEqual({ value: 2 })
@@ -78,11 +78,11 @@ describe('cache-with-ttl', () => {
     })
 
     it('should return undefined for expired keys', async () => {
-      const shortTtlCache = createTtlCache({ prefix: 'expire-test', ttl: 10 })
+      const shortTtlCache = createTtlCache({ prefix: 'expire-test', ttl: 1000 })
       await shortTtlCache.set('key1', { value: 100 })
 
       // Wait for expiration
-      await new Promise(resolve => setTimeout(resolve, 20))
+      await new Promise(resolve => setTimeout(resolve, 1500))
 
       const result = await shortTtlCache.get('key1')
       expect(result).toBeUndefined()
@@ -127,7 +127,7 @@ describe('cache-with-ttl', () => {
 
       let fetchCount = 0
       const fetcher = async () => {
-        fetchCount++
+        fetchCount += 1
         return { value: 42 }
       }
 
@@ -163,7 +163,7 @@ describe('cache-with-ttl', () => {
       const shortTtlCache = createTtlCache({
         memoize: true,
         prefix: 'memo-expire-test',
-        ttl: 10,
+        ttl: 1000,
       })
 
       await shortTtlCache.set('key1', { value: 100 })
@@ -173,7 +173,7 @@ describe('cache-with-ttl', () => {
       expect(result1).toEqual({ value: 100 })
 
       // Wait for expiration
-      await new Promise(resolve => setTimeout(resolve, 20))
+      await new Promise(resolve => setTimeout(resolve, 1500))
 
       // Second get - memo entry should be removed
       const result2 = await shortTtlCache.get('key1')
@@ -199,7 +199,7 @@ describe('cache-with-ttl', () => {
 
       let fetchCount = 0
       const fetcher = async () => {
-        fetchCount++
+        fetchCount += 1
         return { value: 42 }
       }
 
