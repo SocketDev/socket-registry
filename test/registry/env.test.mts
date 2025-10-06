@@ -151,4 +151,111 @@ describe('env module', () => {
       expect(envAsBoolean([])).toBe(true)
     })
   })
+
+  describe('envAsNumber edge cases', () => {
+    it('should handle negative zero correctly', () => {
+      // JavaScript -0 edge case
+      const result = envAsNumber('-0')
+      expect(result).toBe(0)
+      expect(Object.is(result, 0)).toBe(true)
+      expect(Object.is(result, -0)).toBe(false)
+    })
+
+    it('should handle zero with plus sign', () => {
+      expect(envAsNumber('+0')).toBe(0)
+      expect(envAsNumber('0')).toBe(0)
+    })
+
+    it('should handle leading zeros', () => {
+      expect(envAsNumber('007')).toBe(7)
+      expect(envAsNumber('00042')).toBe(42)
+    })
+
+    it('should handle hex notation', () => {
+      // parseInt handles hex
+      expect(envAsNumber('0x10')).toBe(0)
+      expect(envAsNumber('0xFF')).toBe(0)
+    })
+
+    it('should handle binary notation', () => {
+      // parseInt in base 10 stops at b
+      expect(envAsNumber('0b1010')).toBe(0)
+    })
+
+    it('should handle numbers with leading whitespace', () => {
+      expect(envAsNumber('  42  ')).toBe(42)
+      expect(envAsNumber('\t100\n')).toBe(100)
+    })
+
+    it('should return 0 for Infinity strings', () => {
+      expect(envAsNumber('Infinity', 5)).toBe(5)
+      expect(envAsNumber('-Infinity', 10)).toBe(10)
+    })
+
+    it('should handle boolean values', () => {
+      expect(envAsNumber(true)).toBe(0)
+      expect(envAsNumber(false)).toBe(0)
+    })
+
+    it('should handle object values', () => {
+      expect(envAsNumber({})).toBe(0)
+      expect(envAsNumber([], 5)).toBe(5)
+    })
+  })
+
+  describe('envAsString edge cases', () => {
+    it('should trim default value when not empty string', () => {
+      expect(envAsString(undefined, '  default  ')).toBe('default')
+      expect(envAsString(null, '\tdefault\n')).toBe('default')
+    })
+
+    it('should keep empty string default as-is', () => {
+      expect(envAsString(undefined, '')).toBe('')
+      expect(envAsString(null, '')).toBe('')
+    })
+
+    it('should handle objects as strings', () => {
+      expect(envAsString({})).toBe('[object Object]')
+      expect(envAsString([])).toBe('')
+      expect(envAsString([1, 2, 3])).toBe('1,2,3')
+    })
+
+    it('should handle special number values', () => {
+      expect(envAsString(NaN)).toBe('NaN')
+      expect(envAsString(Infinity)).toBe('Infinity')
+      expect(envAsString(-Infinity)).toBe('-Infinity')
+    })
+
+    it('should handle zero values', () => {
+      expect(envAsString(0)).toBe('0')
+      expect(envAsString(-0)).toBe('0')
+    })
+  })
+
+  describe('envAsBoolean edge cases', () => {
+    it('should handle mixed case with whitespace', () => {
+      expect(envAsBoolean('  TrUe  ')).toBe(true)
+      expect(envAsBoolean('\t1\n')).toBe(true)
+    })
+
+    it('should treat truthy default correctly', () => {
+      expect(envAsBoolean(undefined, 1 as any)).toBe(true)
+      expect(envAsBoolean(null, 'yes' as any)).toBe(true)
+    })
+
+    it('should treat falsy default correctly', () => {
+      expect(envAsBoolean(undefined, 0 as any)).toBe(false)
+      expect(envAsBoolean(null, '' as any)).toBe(false)
+    })
+
+    it('should handle symbol values', () => {
+      const sym = Symbol('test')
+      expect(envAsBoolean(sym)).toBe(true)
+    })
+
+    it('should handle function values', () => {
+      expect(envAsBoolean(() => {})).toBe(true)
+      expect(envAsBoolean(function () {})).toBe(true)
+    })
+  })
 })
