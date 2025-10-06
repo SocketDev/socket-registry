@@ -158,5 +158,150 @@ describe('cache-with-ttl', () => {
 
       await noMemoCache.clear()
     })
+
+    it('should remove expired entries from memo cache', async () => {
+      const shortTtlCache = createTtlCache({
+        memoize: true,
+        prefix: 'memo-expire-test',
+        ttl: 10,
+      })
+
+      await shortTtlCache.set('key1', { value: 100 })
+
+      // First get - should be in memo
+      const result1 = await shortTtlCache.get<{ value: number }>('key1')
+      expect(result1).toEqual({ value: 100 })
+
+      // Wait for expiration
+      await new Promise(resolve => setTimeout(resolve, 20))
+
+      // Second get - memo entry should be removed
+      const result2 = await shortTtlCache.get('key1')
+      expect(result2).toBeUndefined()
+
+      await shortTtlCache.clear()
+    })
+  })
+
+  describe('default options', () => {
+    it('should use default options when none provided', async () => {
+      const defaultCache = createTtlCache()
+
+      await defaultCache.set('key1', { value: 42 })
+      const result = await defaultCache.get<{ value: number }>('key1')
+      expect(result).toEqual({ value: 42 })
+
+      await defaultCache.clear()
+    })
+
+    it('should use default TTL of 5 minutes', async () => {
+      const defaultCache = createTtlCache()
+
+      let fetchCount = 0
+      const fetcher = async () => {
+        fetchCount++
+        return { value: 42 }
+      }
+
+      // First call - fetch
+      await defaultCache.getOrFetch('key1', fetcher)
+      expect(fetchCount).toBe(1)
+
+      // Second call within TTL - should use cache
+      await defaultCache.getOrFetch('key1', fetcher)
+      expect(fetchCount).toBe(1)
+
+      await defaultCache.clear()
+    })
+
+    it('should use default prefix', async () => {
+      const defaultCache = createTtlCache()
+
+      await defaultCache.set('key1', { value: 123 })
+      const result = await defaultCache.get<{ value: number }>('key1')
+      expect(result).toEqual({ value: 123 })
+
+      await defaultCache.clear()
+    })
+  })
+
+  describe('data types', () => {
+    it('should handle string values', async () => {
+      await cache.set('key1', 'hello world')
+      const result = await cache.get<string>('key1')
+      expect(result).toBe('hello world')
+    })
+
+    it('should handle number values', async () => {
+      await cache.set('key1', 42)
+      const result = await cache.get<number>('key1')
+      expect(result).toBe(42)
+    })
+
+    it('should handle boolean values', async () => {
+      await cache.set('key1', true)
+      const result = await cache.get<boolean>('key1')
+      expect(result).toBe(true)
+    })
+
+    it('should handle array values', async () => {
+      const arr = [1, 2, 3, 4, 5]
+      await cache.set('key1', arr)
+      const result = await cache.get<number[]>('key1')
+      expect(result).toEqual(arr)
+    })
+
+    it('should handle null values', async () => {
+      await cache.set('key1', null)
+      const result = await cache.get<null>('key1')
+      expect(result).toBeNull()
+    })
+
+    it('should handle nested objects', async () => {
+      const nested = {
+        a: { b: { c: { d: 'deep' } } },
+        arr: [1, { x: 2 }],
+      }
+      await cache.set('key1', nested)
+      const result = await cache.get<typeof nested>('key1')
+      expect(result).toEqual(nested)
+    })
+  })
+
+  describe('multiple cache instances', () => {
+    it('should isolate caches with different prefixes', async () => {
+      const cache1 = createTtlCache({ prefix: 'cache1', ttl: 1000 })
+      const cache2 = createTtlCache({ prefix: 'cache2', ttl: 1000 })
+
+      await cache1.set('key1', { value: 'cache1' })
+      await cache2.set('key1', { value: 'cache2' })
+
+      const result1 = await cache1.get<{ value: string }>('key1')
+      const result2 = await cache2.get<{ value: string }>('key1')
+
+      expect(result1).toEqual({ value: 'cache1' })
+      expect(result2).toEqual({ value: 'cache2' })
+
+      await cache1.clear()
+      await cache2.clear()
+    })
+  })
+
+  describe('clear operations', () => {
+    it('should clear all entries', async () => {
+      await cache.set('key1', { value: 1 })
+      await cache.set('key2', { value: 2 })
+      await cache.set('key3', { value: 3 })
+
+      await cache.clear()
+
+      const result1 = await cache.get('key1')
+      const result2 = await cache.get('key2')
+      const result3 = await cache.get('key3')
+
+      expect(result1).toBeUndefined()
+      expect(result2).toBeUndefined()
+      expect(result3).toBeUndefined()
+    })
   })
 })
