@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Collection of package manager cache directory names.
+ */
+
 // IMPORTANT: Do not use destructuring here - use direct assignment instead.
 // tsgo has a bug that incorrectly transpiles destructured exports, resulting in
 // `exports.SomeName = void 0;` which causes runtime errors.

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview IPC communication object implementation.
+ */
+
 import handler from './ipc-handler'
 import target from './ipc-target'
 

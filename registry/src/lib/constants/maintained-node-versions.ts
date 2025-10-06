@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Collection of currently maintained Node.js versions.
+ */
+
 import browsersList from '../../external/browserslist'
 import semver from '../../external/semver'
 import { debugLogNs } from '../debug'

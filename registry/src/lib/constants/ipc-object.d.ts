@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Type definitions for IPC communication objects.
+ */
+
 // Type definitions for ipc-object
 import type { Serializable } from 'node:child_process'
 

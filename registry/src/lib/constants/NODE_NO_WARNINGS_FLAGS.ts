@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Node.js command-line flags for suppressing warnings.
+ */
+
 import SUPPORTS_NODE_DISABLE_WARNING_FLAG from './SUPPORTS_NODE_DISABLE_WARNING_FLAG'
 
 // IMPORTANT: Do not use destructuring here - use direct assignment instead.

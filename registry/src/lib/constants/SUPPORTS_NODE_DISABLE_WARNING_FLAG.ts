@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Boolean flag indicating Node.js disable warning flag support.
+ */
+
 import NODE_VERSION from './node-version'
 import semver from '../../external/semver'
 
