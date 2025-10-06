@@ -6,12 +6,15 @@
  *   node scripts/build.mjs
  */
 
-import { logger } from '../registry/dist/lib/logger.js'
 import { runParallel } from './utils/run-command.mjs'
 
+// Note: We use console methods directly instead of importing the registry logger
+// because the logger is in registry/dist/lib/logger.js which doesn't exist until
+// after the build completes. This script must work on fresh clones before any
+// build artifacts exist.
 async function main() {
   try {
-    logger.log('Building registry...')
+    console.log('Building registry...')
 
     const builds = [
       {
@@ -24,13 +27,13 @@ async function main() {
     const failed = exitCodes.some(code => code !== 0)
 
     if (failed) {
-      logger.error('Build failed')
+      console.error('Build failed')
       process.exitCode = 1
     } else {
-      logger.log('Build complete')
+      console.log('Build complete')
     }
   } catch (error) {
-    logger.error('Build failed:', error.message)
+    console.error('Build failed:', error.message)
     process.exitCode = 1
   }
 }
