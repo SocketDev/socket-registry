@@ -1,4 +1,3 @@
-import { mkdirSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -18,12 +17,6 @@ const isCoverageEnabled =
   process.argv.some(arg => arg.includes('coverage'))
 
 const projectRoot = path.resolve(__dirname, '..')
-
-// Ensure coverage/.tmp directory exists before vitest starts.
-if (isCoverageEnabled) {
-  const coverageTmpDir = path.join(projectRoot, 'coverage', '.tmp')
-  mkdirSync(coverageTmpDir, { recursive: true })
-}
 
 export default defineConfig({
   plugins: [
@@ -84,19 +77,6 @@ export default defineConfig({
     reporters: ['default'],
     testTimeout: 60_000,
     hookTimeout: 60_000,
-    // Use single fork when coverage is enabled to prevent race conditions.
-    ...(isCoverageEnabled
-      ? {
-          pool: 'forks',
-          poolOptions: {
-            forks: {
-              singleFork: true,
-              maxForks: 1,
-              isolate: true,
-            },
-          },
-        }
-      : {}),
     server: {
       deps: {
         // Inline dependencies to enable source transformation for coverage.
