@@ -7,5 +7,5 @@ import ENV from './ENV'
 const ObjectFreeze = Object.freeze
 
 export default ObjectFreeze(
-  ENV.SOCKET_CLI_DEBUG ? ['--trace-uncaught', '--trace-warnings'] : [],
+  ENV.SOCKET_DEBUG ? ['--trace-uncaught', '--trace-warnings'] : [],
 )

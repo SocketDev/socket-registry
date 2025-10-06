@@ -67,8 +67,10 @@ export default ObjectFreeze({
   // PRE_COMMIT is set to '1' by our 'test-pre-commit' script run by the
   // .husky/pre-commit hook.
   PRE_COMMIT: envAsBoolean(env['PRE_COMMIT']),
-  // Enable debug logging in Socket CLI.
-  SOCKET_CLI_DEBUG: !!DEBUG || envAsBoolean(env['SOCKET_CLI_DEBUG']),
+  // Override the default Socket cacache directory (~/.socket/_cacache).
+  SOCKET_CACACHE_DIR: envAsString(env['SOCKET_CACACHE_DIR']),
+  // Enable debug logging in Socket tools.
+  SOCKET_DEBUG: !!DEBUG || envAsBoolean(env['SOCKET_DEBUG']),
   // Temporary directory path. TMPDIR (POSIX), TEMP (Windows), or TMP (fallback).
   TMPDIR,
   // Enable verbose build output.
