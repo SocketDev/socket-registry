@@ -49,11 +49,11 @@ describe(
       it('should have correct properties', () => {
         try {
           assert(false, 'test message')
-        } catch (e: any) {
+        } catch (e) {
           expect(e instanceof assert.AssertionError).toBe(true)
           expect(e instanceof Error).toBe(true)
-          expect(e.name).toBe('AssertionError')
-          expect(e.message).toBeTruthy()
+          expect((e as Error).name).toBe('AssertionError')
+          expect((e as Error).message).toBeTruthy()
         }
       })
     })
@@ -364,7 +364,7 @@ describe(
             () => {
               throw new Error('test')
             },
-            (err: any) => err instanceof Error,
+            (err: unknown) => err instanceof Error,
           ),
         ).not.toThrow()
       })
@@ -430,8 +430,8 @@ describe(
         if (assert.fail) {
           try {
             assert.fail('custom message')
-          } catch (e: any) {
-            expect(e.message).toContain('custom')
+          } catch (e) {
+            expect((e as Error).message).toContain('custom')
           }
         }
       })
