@@ -24,7 +24,7 @@ module.exports = function getConfig(filepath) {
     plugins: [
       nodeResolve({
         exportConditions: ['node'],
-        extensions: ['.mjs', '.js', '.json'],
+        extensions: ['.mjs', '.js', '.json', '.ts'],
         preferBuiltins: true,
       }),
       jsonPlugin(),
@@ -40,7 +40,11 @@ module.exports = function getConfig(filepath) {
         babelHelpers: 'runtime',
         babelrc: false,
         configFile: path.join(configPath, 'babel.config.js'),
-        extensions: ['.js', '.cjs', '.mjs'],
+        exclude: [
+          'node_modules/**',
+          path.join(__dirname, '..', 'plugins', '**'),
+        ],
+        extensions: ['.js', '.cjs', '.mjs', '.ts'],
       }),
       // Convert un-prefixed built-in imports into "node:"" prefixed forms.
       replacePlugin({
