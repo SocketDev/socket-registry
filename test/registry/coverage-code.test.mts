@@ -237,12 +237,34 @@ describe('code coverage module', () => {
     })
 
     it('should handle coverage path with default value when file exists', async () => {
-      const result = await getCodeCoverage()
+      const defaultPath = path.join(
+        process.cwd(),
+        'coverage/coverage-final.json',
+      )
+      const coverageData: V8CoverageData = {
+        '/path/to/file.js': {
+          b: { '0': [1, 1] },
+          f: { '0': 1 },
+          path: '/path/to/file.js',
+          s: { '0': 1 },
+        },
+      }
 
-      expect(result).toHaveProperty('branches')
-      expect(result).toHaveProperty('functions')
-      expect(result).toHaveProperty('lines')
-      expect(result).toHaveProperty('statements')
+      // Mock the default coverage file.
+      await fs.mkdir(path.dirname(defaultPath), { recursive: true })
+      await fs.writeFile(defaultPath, JSON.stringify(coverageData))
+
+      try {
+        const result = await getCodeCoverage()
+
+        expect(result).toHaveProperty('branches')
+        expect(result).toHaveProperty('functions')
+        expect(result).toHaveProperty('lines')
+        expect(result).toHaveProperty('statements')
+      } finally {
+        // Clean up the mock file.
+        await trash([path.join(process.cwd(), 'coverage')])
+      }
     })
 
     it('should throw error when coverage file does not exist', async () => {
