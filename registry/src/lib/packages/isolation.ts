@@ -8,7 +8,7 @@ import os from 'node:os'
 import path from 'node:path'
 
 import WIN32 from '../constants/WIN32'
-import { isPath } from '../path'
+import { isAbsolute, isPath, trimLeadingDotSlash } from '../path'
 import { readPackageJson } from './operations'
 
 import type { PackageJson } from '../packages'
@@ -85,7 +85,12 @@ export async function isolatePackage(
   // Determine if this is a path or package spec.
   if (isPath(packageSpec)) {
     // File system path.
-    sourcePath = path.resolve(packageSpec)
+    // Handle edge case on Windows where path.relative() returns an absolute path
+    // when paths are on different drives, and the test prepends './' to it.
+    // Example: './C:\Users\...' should be treated as 'C:\Users\...'.
+    const trimmedPath = trimLeadingDotSlash(packageSpec)
+    const pathToResolve = isAbsolute(trimmedPath) ? trimmedPath : packageSpec
+    sourcePath = path.resolve(pathToResolve)
 
     if (!existsSync(sourcePath)) {
       throw new Error(`Source path does not exist: ${sourcePath}`)
