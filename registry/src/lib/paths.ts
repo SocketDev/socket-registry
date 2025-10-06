@@ -18,6 +18,7 @@ import CACHE_DIR from './constants/CACHE_DIR'
 import CACHE_GITHUB_DIR from './constants/CACHE_GITHUB_DIR'
 import CACHE_TTL_DIR from './constants/CACHE_TTL_DIR'
 import DOT_SOCKET_DIR from './constants/DOT_SOCKET_DIR'
+import ENV from './constants/ENV'
 import SOCKET_APP_PREFIX from './constants/SOCKET_APP_PREFIX'
 import SOCKET_CLI_APP_NAME from './constants/SOCKET_CLI_APP_NAME'
 import SOCKET_DLX_APP_NAME from './constants/SOCKET_DLX_APP_NAME'
@@ -50,8 +51,12 @@ export function getSocketAppDir(appName: string): string {
 
 /**
  * Get the Socket cacache directory (~/.socket/_cacache).
+ * Can be overridden with SOCKET_CACACHE_DIR environment variable for testing.
  */
 export function getSocketCacacheDir(): string {
+  if (ENV.SOCKET_CACACHE_DIR) {
+    return normalizePath(ENV.SOCKET_CACACHE_DIR)
+  }
   return normalizePath(
     path.join(getSocketUserDir(), `${SOCKET_APP_PREFIX}cacache`),
   )

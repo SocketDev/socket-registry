@@ -50,7 +50,7 @@ function getDebugJsInstance(namespace: string) {
   const debugJs = getDebug()
   if (
     !ENV.DEBUG &&
-    ENV.SOCKET_CLI_DEBUG &&
+    ENV.SOCKET_DEBUG &&
     (namespace === 'error' || namespace === 'notice')
   ) {
     debugJs.enable(namespace)
@@ -280,7 +280,7 @@ function debugLogNs(namespacesOrOpts: NamespacesOrOptions, ...args: unknown[]) {
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isDebugNs(namespaces: string | undefined): boolean {
-  return ENV.SOCKET_CLI_DEBUG && isEnabled(namespaces)
+  return ENV.SOCKET_DEBUG && isEnabled(namespaces)
 }
 
 /**
