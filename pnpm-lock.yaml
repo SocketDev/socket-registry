@@ -101,8 +101,8 @@ importers:
         specifier: 7.1.5
         version: 7.1.5
       '@npmcli/package-json':
-        specifier: 7.0.0
-        version: 7.0.0
+        specifier: 7.0.1
+        version: 7.0.1
       '@socketregistry/packageurl-js':
         specifier: 1.2.0
         version: 1.2.0
@@ -693,8 +693,8 @@ importers:
         specifier: 3.0.8
         version: 3.0.8(@types/node@24.5.2)
       '@npmcli/package-json':
-        specifier: 7.0.0
-        version: 7.0.0
+        specifier: 7.0.1
+        version: 7.0.1
       '@npmcli/promise-spawn':
         specifier: 8.0.3
         version: 8.0.3
@@ -1497,8 +1497,8 @@ packages:
     resolution: {integrity: sha512-rCNLSB/JzNvot0SEyXqWZ7tX2B5dD2a1br2Dp0vSYVo5jh8Z0EZ7lS9TsZ1UtziddB1UfNUaMCc538/HztnJGA==}
     engines: {node: ^18.17.0 || >=20.5.0}
 
-  '@npmcli/package-json@7.0.0':
-    resolution: {integrity: sha512-wy5os0g17akBCVScLyDsDFFf4qC/MmUgIGAFw2pmBGJ/yAQfFbTR9gEaofy4HGm9Jf2MQBnKZICfNds2h3WpEg==}
+  '@npmcli/package-json@7.0.1':
+    resolution: {integrity: sha512-956YUeI0YITbk2+KnirCkD19HLzES0habV+Els+dyZaVsaM6VGSiNwnRu6t3CZaqDLz4KXy2zx+0N/Zy6YjlAA==}
     engines: {node: ^20.17.0 || >=22.9.0}
 
   '@npmcli/promise-spawn@8.0.3':
@@ -5411,7 +5411,7 @@ snapshots:
       '@npmcli/metavuln-calculator': 9.0.2
       '@npmcli/name-from-folder': 3.0.0
       '@npmcli/node-gyp': 4.0.0
-      '@npmcli/package-json': 7.0.0
+      '@npmcli/package-json': 7.0.1
       '@npmcli/query': 4.0.1
       '@npmcli/redact': 3.2.2
       '@npmcli/run-script': 10.0.0
@@ -5474,7 +5474,7 @@ snapshots:
   '@npmcli/map-workspaces@5.0.0':
     dependencies:
       '@npmcli/name-from-folder': 3.0.0
-      '@npmcli/package-json': 7.0.0
+      '@npmcli/package-json': 7.0.1
       glob: 11.0.3
       minimatch: 9.0.5(patch_hash=5ba6ef947d5f7b176eb7fcfe274a11e6d0a1a8bde7ae1cb7e939295aad0e8ec1)
 
@@ -5502,9 +5502,9 @@ snapshots:
       semver: 7.7.2
       validate-npm-package-license: 3.0.4
 
-  '@npmcli/package-json@7.0.0':
+  '@npmcli/package-json@7.0.1':
     dependencies:
-      '@npmcli/git': 6.0.3
+      '@npmcli/git': 7.0.0
       glob: 11.0.3
       hosted-git-info: 9.0.0
       json-parse-even-better-errors: 4.0.0
@@ -5525,7 +5525,7 @@ snapshots:
   '@npmcli/run-script@10.0.0':
     dependencies:
       '@npmcli/node-gyp': 4.0.0
-      '@npmcli/package-json': 7.0.0
+      '@npmcli/package-json': 7.0.1
       '@npmcli/promise-spawn': 8.0.3
       node-gyp: 11.4.2
       proc-log: 5.0.0
@@ -7950,7 +7950,7 @@ snapshots:
     dependencies:
       '@npmcli/git': 6.0.3
       '@npmcli/installed-package-contents': 3.0.0
-      '@npmcli/package-json': 7.0.0
+      '@npmcli/package-json': 7.0.1
       '@npmcli/promise-spawn': 8.0.3
       '@npmcli/run-script': 10.0.0
       cacache: 20.0.1
@@ -7972,7 +7972,7 @@ snapshots:
     dependencies:
       '@npmcli/git': 7.0.0
       '@npmcli/installed-package-contents': 3.0.0
-      '@npmcli/package-json': 7.0.0
+      '@npmcli/package-json': 7.0.1
       '@npmcli/promise-spawn': 8.0.3
       '@npmcli/run-script': 10.0.0
       cacache: 20.0.1
