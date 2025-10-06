@@ -1179,10 +1179,6 @@
       "types": "./dist/lib/debug.d.ts",
       "default": "./dist/lib/debug.js"
     },
-    "./lib/dependencies": {
-      "types": "./dist/lib/dependencies/index.d.ts",
-      "default": "./dist/lib/dependencies/index.js"
-    },
     "./lib/dependencies/build-tools": {
       "types": "./dist/lib/dependencies/build-tools.d.ts",
       "default": "./dist/lib/dependencies/build-tools.js"
@@ -1190,10 +1186,6 @@
     "./lib/dependencies/file-system": {
       "types": "./dist/lib/dependencies/file-system.d.ts",
       "default": "./dist/lib/dependencies/file-system.js"
-    },
-    "./lib/dependencies/index": {
-      "types": "./dist/lib/dependencies/index.d.ts",
-      "default": "./dist/lib/dependencies/index.js"
     },
     "./lib/dependencies/logging": {
       "types": "./dist/lib/dependencies/logging.d.ts",
