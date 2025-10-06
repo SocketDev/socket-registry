@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Collection of available TypeScript library definitions.
+ */
+
 export default new Set([
   // Defined in priority order.
   'esnext',

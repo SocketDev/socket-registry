@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Promise-based IPC communication utilities.
+ */
+
 import abortSignal from './abort-signal'
 import handler from './ipc-handler'
 import ipcObject from './ipc-object'

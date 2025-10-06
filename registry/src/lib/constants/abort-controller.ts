@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Global AbortController instance for handling process interruption signals.
+ */
+
 // The 'signal-exit' package is browser safe.
 // Do NOT defer loading, otherwise mystery errors may occur at the end of the
 // event loop.

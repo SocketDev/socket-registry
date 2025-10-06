@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Global AbortSignal instance for coordinating cancellation across the application.
+ */
+
 import abortController from './abort-controller'
 const abortSignal: AbortSignal = abortController.signal
 

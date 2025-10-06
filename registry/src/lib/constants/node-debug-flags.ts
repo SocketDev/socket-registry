@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Collection of Node.js debugging command-line flags.
+ */
+
 import ENV from './ENV'
 
 // IMPORTANT: Do not use destructuring here - use direct assignment instead.

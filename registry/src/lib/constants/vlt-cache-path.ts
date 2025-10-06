@@ -1,3 +1,7 @@
+/**
+ * @fileoverview File system path to the VLT package manager cache directory.
+ */
+
 import path from 'node:path'
 
 import { normalizePath } from '../path'

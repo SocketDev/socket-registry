@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Node.js environment variable name.
+ */
+
 import { envAsBoolean, envAsString } from '../env'
 import WIN32 from './WIN32'
 

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview IPC message handler implementation.
+ */
+
 import target from './ipc-target'
 
 // Mutable handler to simulate a frozen target.

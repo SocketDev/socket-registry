@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Factory function for creating IPC communication instances.
+ */
+
 import ipcPromise from './ipc-promise'
 
 /*@__NO_SIDE_EFFECTS__*/

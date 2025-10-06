@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Type definitions for package document caching.
+ */
+
 // Type definitions for packument-cache
 
 // Type for a person (author, maintainer, contributor).

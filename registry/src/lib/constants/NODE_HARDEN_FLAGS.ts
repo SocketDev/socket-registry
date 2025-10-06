@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Node.js command-line flags for security hardening.
+ */
+
 import WIN32 from './WIN32'
 
 // IMPORTANT: Do not use destructuring here - use direct assignment instead.
