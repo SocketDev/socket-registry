@@ -193,14 +193,53 @@ export async function transformFile(filePath, options = {}) {
 
 ## Integration with Build
 
+### Rollup `writeBundle` Hook (Recommended)
+
+Integrate transforms directly into Rollup's build pipeline using the `writeBundle` hook:
+
 ```javascript
-// package.json
-{
-  "scripts": {
-    "build": "tsgo && node scripts/fix-commonjs-exports.mjs"
-  }
+// .config/rollup.dist.config.mjs
+import fastGlob from 'fast-glob'
+import {
+  fixImports,
+  transformFile,
+} from '../scripts/babel/transform-commonjs-exports.mjs'
+
+export default {
+  // ... other config
+  plugins: [
+    // ... other plugins
+    {
+      name: 'transform-commonjs-exports',
+      async writeBundle() {
+        const files = await fastGlob('**/*.js', {
+          absolute: true,
+          cwd: distPath,
+        })
+
+        const fixedModules = new Set()
+
+        // First pass: transform exports.default to module.exports
+        for (const file of files) {
+          const result = await transformFile(file)
+          if (result.modified && result.moduleName) {
+            fixedModules.add(result.moduleName)
+          }
+        }
+
+        // Second pass: fix .default accessors in imports
+        for (const file of files) {
+          await fixImports(file, fixedModules)
+        }
+      },
+    },
+  ],
 }
 ```
+
+### Standalone Script (Alternative)
+
+For projects not using Rollup, run as a standalone script:
 
 ```javascript
 // scripts/fix-commonjs-exports.mjs
@@ -221,6 +260,15 @@ for (const file of files) {
 // Second pass: fix imports
 for (const file of files) {
   await fixImports(file, fixedModules)
+}
+```
+
+```json
+// package.json
+{
+  "scripts": {
+    "build": "tsgo && node scripts/fix-commonjs-exports.mjs"
+  }
 }
 ```
 
