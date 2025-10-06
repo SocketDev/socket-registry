@@ -58,7 +58,7 @@
     "test:npm:packages": "node ./scripts/test-npm-packages.mjs",
     "test:unit": "node ./scripts/test.mjs",
     "test:unit:coverage": "node scripts/coverage.mjs",
-    "test-ci": "dotenvx -q run -- env NODE_OPTIONS=\"$NODE_TEST_MEMORY\" vitest run --config .config/vitest.config.mts",
+    "test-ci": "node scripts/test-ci.mjs",
     "test:unit:ci": "node ./scripts/test.mjs --force",
     "test:npm:packages:ci": "node ./scripts/test-npm-packages.mjs --force",
     "test-pre-commit": "dotenvx -q run -f .env.precommit -- pnpm test",
