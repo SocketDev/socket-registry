@@ -7,7 +7,7 @@
  */
 
 import { parseArgs } from 'node:util'
-import { logger } from './utils/logger.mjs'
+import { logger } from '../registry/dist/lib/logger.js'
 import { runSequence } from './utils/run-command.mjs'
 
 async function main() {

@@ -6,7 +6,7 @@
  *   node scripts/build.mjs
  */
 
-import { logger } from './utils/logger.mjs'
+import { logger } from '../registry/dist/lib/logger.js'
 import { runParallel } from './utils/run-command.mjs'
 
 async function main() {
