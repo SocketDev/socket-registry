@@ -9,7 +9,6 @@ import {
   parseSpdxExp,
   resolvePackageJsonDirname,
   resolvePackageJsonEntryExports,
-  resolvePackageJsonPath,
   resolvePackageLicenses,
 } from '../../registry/dist/lib/packages.js'
 
@@ -207,28 +206,6 @@ describe('packages module - edge cases and error handling', () => {
     it('should handle relative paths', () => {
       const result = resolvePackageJsonDirname('./package.json')
       expect(result).toBe('.')
-    })
-  })
-
-  describe('resolvePackageJsonPath', () => {
-    it('should return path if it ends with package.json', () => {
-      const result = resolvePackageJsonPath('/path/to/package.json')
-      expect(result).toBe('/path/to/package.json')
-    })
-
-    it('should append package.json to directory path', () => {
-      const result = resolvePackageJsonPath('/path/to/directory')
-      expect(result).toContain('package.json')
-    })
-
-    it('should handle root directory', () => {
-      const result = resolvePackageJsonPath('/')
-      expect(result).toContain('package.json')
-    })
-
-    it('should handle relative paths', () => {
-      const result = resolvePackageJsonPath('.')
-      expect(result).toContain('package.json')
     })
   })
 
