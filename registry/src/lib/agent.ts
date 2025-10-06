@@ -4,15 +4,6 @@
  */
 
 import { execBin } from './bin'
-import ENV from './constants/ENV'
-import NODE_HARDEN_FLAGS from './constants/NODE_HARDEN_FLAGS'
-import NODE_NO_WARNINGS_FLAGS from './constants/NODE_NO_WARNINGS_FLAGS'
-import NPM_REAL_EXEC_PATH from './constants/NPM_REAL_EXEC_PATH'
-import PACKAGE_LOCK_JSON from './constants/PACKAGE_LOCK_JSON'
-import PNPM_LOCK_YAML from './constants/PNPM_LOCK_YAML'
-import SUPPORTS_NODE_RUN from './constants/SUPPORTS_NODE_RUN'
-import YARN_LOCK from './constants/YARN_LOCK'
-import EXEC_PATH from './constants/exec-path'
 import { isDebug } from './debug'
 import { findUpSync } from './fs'
 import { getOwn } from './objects'
@@ -83,11 +74,11 @@ export function execNpm(args: string[], options?: SpawnOptions | undefined) {
     // one level quieter.
     useDebug || npmArgs.some(isNpmLoglevelFlag) ? [] : ['--loglevel', 'warn']
   return spawn(
-    EXEC_PATH,
+    /*@__PURE__*/ require('./constants/exec-path'),
     [
-      ...NODE_HARDEN_FLAGS,
-      ...NODE_NO_WARNINGS_FLAGS,
-      NPM_REAL_EXEC_PATH,
+      .../*@__PURE__*/ require('./constants/NODE_HARDEN_FLAGS'),
+      .../*@__PURE__*/ require('./constants/NODE_NO_WARNINGS_FLAGS'),
+      /*@__PURE__*/ require('./constants/NPM_REAL_EXEC_PATH'),
       // Even though '--loglevel=error' is passed npm will still run through
       // code paths for 'audit' and 'fund' unless '--no-audit' and '--no-fund'
       // flags are passed.
@@ -149,7 +140,7 @@ export function execPnpm(args: string[], options?: PnpmOptions | undefined) {
   // we need to explicitly add --no-frozen-lockfile in CI mode if not already present.
   const frozenLockfileArgs = []
   if (
-    ENV.CI &&
+    /*@__PURE__*/ require('./constants/ENV').CI &&
     allowLockfileUpdate &&
     firstArg &&
     isPnpmInstallCommand(firstArg) &&
@@ -332,38 +323,48 @@ export function execScript(
     return spawn(scriptName, args, spawnOptions)
   }
 
-  const useNodeRun = !prepost && SUPPORTS_NODE_RUN
+  const useNodeRun =
+    !prepost && /*@__PURE__*/ require('./constants/SUPPORTS_NODE_RUN')
 
   // Detect package manager based on lockfile by traversing up from current directory.
   const cwd =
     (getOwn(spawnOptions, 'cwd') as string | undefined) ?? process.cwd()
 
   // Check for pnpm-lock.yaml.
-  const pnpmLockPath = findUpSync(PNPM_LOCK_YAML, { cwd }) as string | undefined
+  const pnpmLockPath = findUpSync(
+    /*@__INLINE__*/ require('./constants/PNPM_LOCK_YAML'),
+    { cwd },
+  ) as string | undefined
   if (pnpmLockPath) {
     return execPnpm(['run', scriptName, ...args], spawnOptions)
   }
 
   // Check for package-lock.json.
   // When in an npm workspace, use npm run to ensure workspace binaries are available.
-  const packageLockPath = findUpSync(PACKAGE_LOCK_JSON, { cwd }) as
-    | string
-    | undefined
+  const packageLockPath = findUpSync(
+    /*@__INLINE__*/ require('./constants/PACKAGE_LOCK_JSON'),
+    { cwd },
+  ) as string | undefined
   if (packageLockPath) {
     return execNpm(['run', scriptName, ...args], spawnOptions)
   }
 
   // Check for yarn.lock.
-  const yarnLockPath = findUpSync(YARN_LOCK, { cwd }) as string | undefined
+  const yarnLockPath = findUpSync(
+    /*@__INLINE__*/ require('./constants/YARN_LOCK'),
+    { cwd },
+  ) as string | undefined
   if (yarnLockPath) {
     return execYarn(['run', scriptName, ...args], spawnOptions)
   }
 
   return spawn(
-    EXEC_PATH,
+    /*@__PURE__*/ require('./constants/exec-path'),
     [
-      ...NODE_NO_WARNINGS_FLAGS,
-      ...(useNodeRun ? ['--run'] : [NPM_REAL_EXEC_PATH, 'run']),
+      .../*@__PURE__*/ require('./constants/NODE_NO_WARNINGS_FLAGS'),
+      ...(useNodeRun
+        ? ['--run']
+        : [/*@__PURE__*/ require('./constants/NPM_REAL_EXEC_PATH'), 'run']),
       scriptName,
       ...args,
     ],
