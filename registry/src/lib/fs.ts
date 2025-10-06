@@ -4,7 +4,7 @@
  */
 
 import abortSignal from './constants/abort-signal'
-import { getDel } from './dependencies'
+import { getDel } from './dependencies/file-system'
 import { defaultIgnore, getGlobMatcher } from './globs'
 import { jsonParse } from './json'
 import { normalizePath, pathLikeToString } from './path'
