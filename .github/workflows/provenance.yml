@@ -147,13 +147,15 @@ jobs:
 
       - name: Publish package (token-based)
         if: inputs.publish-script == '' && inputs.package-name != '' && inputs.use-trusted-publishing == false
-        run: pnpm publish --provenance --access public --no-git-checks
+        run: pnpm publish --provenance --access public --no-git-checks --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
 
       - name: Publish package (trusted publishing)
         if: inputs.publish-script == '' && inputs.package-name != '' && inputs.use-trusted-publishing == true
         run: npm publish --access public
+        env:
+          NPM_CONFIG_IGNORE_SCRIPTS: true
 
       - name: Set package access (token-based)
         if: inputs.access-script != '' && inputs.use-trusted-publishing == false
