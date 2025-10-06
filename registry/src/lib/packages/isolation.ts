@@ -93,6 +93,9 @@ export async function isolatePackage(
 
     // Read package.json to get the name.
     const pkgJson = await readPackageJson(sourcePath, { normalize: true })
+    if (!pkgJson) {
+      throw new Error(`Could not read package.json from: ${sourcePath}`)
+    }
     packageName = pkgJson.name as string
   } else {
     // Parse as npm package spec.
@@ -103,7 +106,7 @@ export async function isolatePackage(
 
     if (parsed.type === 'directory' || parsed.type === 'file') {
       sourcePath = parsed.fetchSpec
-      if (!existsSync(sourcePath)) {
+      if (!sourcePath || !existsSync(sourcePath)) {
         throw new Error(`Source path does not exist: ${sourcePath}`)
       }
     } else {
@@ -181,7 +184,11 @@ export async function isolatePackage(
     }
 
     const scopedPath = packageName.startsWith('@')
-      ? path.join(packageTempDir, 'node_modules', packageName.split('/')[0])
+      ? path.join(
+          packageTempDir,
+          'node_modules',
+          packageName.split('/')[0] ?? '',
+        )
       : path.join(packageTempDir, 'node_modules')
 
     await fs.mkdir(scopedPath, { recursive: true })
