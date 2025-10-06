@@ -38,7 +38,15 @@ function getCacache() {
  */
 export async function clear() {
   const cacache = getCacache()
-  return await cacache.rm.all(getSocketCacacheDir())
+  try {
+    return await cacache.rm.all(getSocketCacacheDir())
+  } catch (e) {
+    // Ignore ENOTEMPTY errors - can occur when multiple processes
+    // are cleaning up concurrently (e.g., in CI test environments).
+    if ((e as NodeJS.ErrnoException)?.code !== 'ENOTEMPTY') {
+      throw e
+    }
+  }
 }
 
 /**
