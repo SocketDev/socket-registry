@@ -1,3 +1,4 @@
+import { mkdirSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -6,12 +7,19 @@ import { defineConfig } from 'vitest/config'
 import { createImportTransformPlugin } from './vitest-plugins/import-transform.mts'
 import { createRequireTransformPlugin } from './vitest-plugins/require-transform.mts'
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
 // Check if coverage is enabled via CLI flags or environment.
 const isCoverageEnabled =
   process.argv.includes('--coverage') || process.env['COVERAGE'] === 'true'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(__dirname, '..')
+
+// Ensure coverage/.tmp directory exists before vitest starts.
+if (isCoverageEnabled) {
+  const coverageTmpDir = path.join(projectRoot, 'coverage', '.tmp')
+  mkdirSync(coverageTmpDir, { recursive: true })
+}
 
 export default defineConfig({
   plugins: [
