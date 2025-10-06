@@ -1,21 +1,15 @@
 /**
- * @fileoverview Test execution coordination and package filtering logic.
- * Provides utilities for running tests on specific packages and handling test workflows.
+ * @fileoverview Test execution coordination and test filtering logic.
+ * Provides utilities for determining which tests to run based on changes.
  */
 
-import { existsSync, readFileSync } from 'node:fs'
-import path from 'node:path'
-
-import { logger } from '../../registry/dist/lib/logger.js'
-import { parseArgs } from '../../registry/dist/lib/parse-args.js'
-
-import constants from '../constants.mjs'
-import { getModifiedPackagesSync, getStagedPackagesSync } from './git.mjs'
-
-const { LICENSE_GLOB_RECURSIVE, PACKAGE_JSON, README_GLOB_RECURSIVE, UTF8 } =
-  constants
+import { parseArgs } from '@socketsecurity/registry/lib/parse-args'
 
 let _cliArgs
+
+/**
+ * Parse and cache command line arguments.
+ */
 function getCliArgs() {
   if (_cliArgs === undefined) {
     const { values } = parseArgs({
@@ -35,51 +29,30 @@ function getCliArgs() {
   return _cliArgs
 }
 
-function isPackageTestingSkipped(eco, sockRegPkgName) {
-  const { ENV } = constants
+/**
+ * Check if tests should be skipped for a given test file or module.
+ * Tests are always run in CI or when --force flag is present.
+ */
+function shouldRunTests() {
+  const args = getCliArgs()
 
-  // Check if package is in the skip list for known issues.
-  const skipSet = constants.skipTestsByEcosystem.get(eco)
-  if (skipSet?.has(sockRegPkgName)) {
+  // Always run in CI.
+  if (process.env.CI === 'true') {
     return true
   }
 
-  // Check if package is not in devDeps but also not in skip list.
-  // Suggest adding to skip list if missing from devDeps.
-  const testPkgJsonPath = path.join(
-    constants.rootPath,
-    'test',
-    eco,
-    PACKAGE_JSON,
-  )
-  if (existsSync(testPkgJsonPath)) {
-    try {
-      const testPkgJson = JSON.parse(readFileSync(testPkgJsonPath, UTF8))
-      const devDeps = testPkgJson.devDependencies || {}
-      const normalizedName = sockRegPkgName.replace(/__/g, '/')
-      const hasDevDep =
-        devDeps[sockRegPkgName] !== undefined ||
-        devDeps[normalizedName] !== undefined ||
-        devDeps[`@${normalizedName}`] !== undefined
-
-      if (!hasDevDep && !skipSet?.has(sockRegPkgName)) {
-        logger.warn(
-          `Package "${sockRegPkgName}" is not in test/${eco}/${PACKAGE_JSON} devDependencies.`,
-        )
-        logger.warn(
-          `Consider adding it to skipTestsByEcosystem in scripts/constants.mjs`,
-        )
-      }
-    } catch {
-      // Ignore parse errors.
-    }
+  // Run if force flag is set.
+  if (args.force || process.env.FORCE_TEST === '1') {
+    return true
   }
 
-  return getCliArgs().force || ENV.CI || process.env.FORCE_TEST === '1'
-    ? false
-    : !(ENV.PRE_COMMIT ? getStagedPackagesSync : getModifiedPackagesSync)(eco, {
-        ignore: [LICENSE_GLOB_RECURSIVE, README_GLOB_RECURSIVE],
-      }).includes(sockRegPkgName)
+  // Run if not in pre-commit hook.
+  if (!process.env.PRE_COMMIT) {
+    return true
+  }
+
+  // In pre-commit, run tests by default (can be customized later).
+  return true
 }
 
-export { isPackageTestingSkipped }
+export { getCliArgs, shouldRunTests }
