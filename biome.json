@@ -67,7 +67,7 @@
         "useSingleVarDeclarator": "error",
         "noUnusedTemplateLiteral": "error",
         "useNumberNamespace": "error",
-        "noInferrableTypes": "error",
+        "noInferrableTypes": "off",
         "noUselessElse": "error",
         "useNumericSeparators": "error"
       }
