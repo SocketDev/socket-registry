@@ -19,7 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Simplified package installation logic by removing path detection from low-level function
 - Consolidated `setupPackageTest` and `setupMultiEntryTest` into single `isolatePackage` function with options
 - Removed `dependencies/index` barrel file to prevent eager loading of all dependency modules
-- Updated imports to use specific dependency modules instead of index barrel
+- Updated imports in `fs`, `spawn`, and `prompts` modules to use specific dependency modules instead of index barrel
+
+### Fixed
+
+- Fixed isolation module test for scoped packages to correctly navigate temp directory structure
 
 ## [1.4.6] - 2025-10-05
 
