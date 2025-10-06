@@ -1,38 +1,30 @@
-/** @fileoverview Code coverage utilities for retrieving and generating test coverage data. */
-
+/** @fileoverview Utility to generate and calculate code coverage metrics. */
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 
-import constants from '../../registry/dist/lib/constants/index.js'
-import { readJson } from '../../registry/dist/lib/fs.js'
-import { isObjectObject } from '../../registry/dist/lib/objects.js'
-import { spawn } from '../../registry/dist/lib/spawn.js'
-
-// Coverage file paths.
-const COVERAGE_DIR = 'coverage'
-const COVERAGE_FINAL_JSON = 'coverage-final.json'
-
-// Coverage percentage precision.
-const COVERAGE_DECIMAL_PLACES = 2
+import constants from '@socketsecurity/registry/lib/constants'
+import { readJson } from '@socketsecurity/registry/lib/fs'
+import { isObjectObject } from '@socketsecurity/registry/lib/objects'
+import { spawn } from '@socketsecurity/registry/lib/spawn'
 
 /**
- * Count how many coverage counts are greater than zero.
+ * Count how many items in array are covered (greater than 0).
  */
 function countCovered(counts) {
   return counts.filter(count => count > 0).length
 }
 
 /**
- * Retrieve or generate code coverage data from test runs.
- * @throws {Error} When coverage generation fails.
+ * Get code coverage metrics from c8 coverage data.
+ * @throws {Error} When coverage generation fails or data is invalid.
  */
 export async function getCodeCoverage(options) {
   const { generateIfMissing = true } = { __proto__: null, ...options }
 
   const coverageJsonPath = path.join(
     process.cwd(),
-    COVERAGE_DIR,
-    COVERAGE_FINAL_JSON,
+    'coverage',
+    'coverage-final.json',
   )
 
   if (!existsSync(coverageJsonPath)) {
@@ -99,26 +91,18 @@ export async function getCodeCoverage(options) {
 
   const stmtPercent =
     totalStatements > 0
-      ? ((coveredStatements / totalStatements) * 100).toFixed(
-          COVERAGE_DECIMAL_PLACES,
-        )
+      ? ((coveredStatements / totalStatements) * 100).toFixed(2)
       : '0.00'
   const branchPercent =
     totalBranches > 0
-      ? ((coveredBranches / totalBranches) * 100).toFixed(
-          COVERAGE_DECIMAL_PLACES,
-        )
+      ? ((coveredBranches / totalBranches) * 100).toFixed(2)
       : '0.00'
   const funcPercent =
     totalFunctions > 0
-      ? ((coveredFunctions / totalFunctions) * 100).toFixed(
-          COVERAGE_DECIMAL_PLACES,
-        )
+      ? ((coveredFunctions / totalFunctions) * 100).toFixed(2)
       : '0.00'
   const linePercent =
-    totalLines > 0
-      ? ((coveredLines / totalLines) * 100).toFixed(COVERAGE_DECIMAL_PLACES)
-      : '0.00'
+    totalLines > 0 ? ((coveredLines / totalLines) * 100).toFixed(2) : '0.00'
 
   return {
     statements: {
