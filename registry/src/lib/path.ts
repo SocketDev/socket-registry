@@ -173,6 +173,13 @@ export function isPath(pathLike: string | Buffer | URL): boolean {
     return false
   }
 
+  // Exclude URLs with protocols (file:, http:, https:, git:, etc.).
+  // These should be handled by package spec parsers, not treated as file paths.
+  // Require at least 2 characters before colon to exclude Windows drive letters (C:, D:).
+  if (/^[a-z][a-z0-9+.-]+:/i.test(filepath)) {
+    return false
+  }
+
   // Special relative paths.
   if (filepath === '.' || filepath === '..') {
     return true
