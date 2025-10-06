@@ -72,6 +72,19 @@ export default defineConfig({
     reporters: ['default'],
     testTimeout: 60_000,
     hookTimeout: 60_000,
+    // Use single fork when coverage is enabled to prevent race conditions.
+    ...(isCoverageEnabled
+      ? {
+          pool: 'forks',
+          poolOptions: {
+            forks: {
+              singleFork: true,
+              maxForks: 1,
+              isolate: true,
+            },
+          },
+        }
+      : {}),
     server: {
       deps: {
         // Inline dependencies to enable source transformation for coverage.
@@ -80,6 +93,7 @@ export default defineConfig({
     },
     coverage: {
       provider: 'v8',
+      reportsDirectory: 'coverage',
       reporter: ['text', 'json', 'html', 'lcov'],
       exclude: [
         '**/*.config.*',
