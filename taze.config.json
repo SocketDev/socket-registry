@@ -1,0 +1,5 @@
+{
+  "$schema": "https://unpkg.com/taze@latest/schema.json",
+  "ignorePaths": [],
+  "exclude": ["vitest", "@vitest/coverage-v8", "@vitest/ui"]
+}
