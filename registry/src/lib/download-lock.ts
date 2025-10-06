@@ -1,7 +1,7 @@
 /** @fileoverview Download locking utilities to prevent concurrent downloads of the same resource. Uses file-based locking for cross-process synchronization. */
 
 import { existsSync } from 'node:fs'
-import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 
 import { httpDownload } from './http-request'
@@ -199,13 +199,11 @@ export async function downloadWithLock(
 
   // If file already exists and has content, return immediately
   if (existsSync(destPath)) {
-    const stat = await import('node:fs/promises').then(m =>
-      m.stat(destPath).catch(() => null),
-    )
-    if (stat && stat.size > 0) {
+    const statResult = await stat(destPath).catch(() => null)
+    if (statResult && statResult.size > 0) {
       return {
         path: destPath,
-        size: stat.size,
+        size: statResult.size,
       }
     }
   }
@@ -221,13 +219,11 @@ export async function downloadWithLock(
   try {
     // Check again if file was created while we were waiting for lock
     if (existsSync(destPath)) {
-      const stat = await import('node:fs/promises').then(m =>
-        m.stat(destPath).catch(() => null),
-      )
-      if (stat && stat.size > 0) {
+      const statResult = await stat(destPath).catch(() => null)
+      if (statResult && statResult.size > 0) {
         return {
           path: destPath,
-          size: stat.size,
+          size: statResult.size,
         }
       }
     }
