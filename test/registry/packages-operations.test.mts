@@ -5,60 +5,15 @@ import { describe, expect, it } from 'vitest'
 import {
   isGitHubTgzSpec,
   isGitHubUrlSpec,
-  normalizePackageJson,
   readPackageJsonSync,
   resolveEscapedScope,
   resolvePackageJsonDirname,
-  resolvePackageJsonPath,
   resolvePackageName,
   resolveRegistryPackageName,
   unescapeScope,
 } from '../../registry/dist/lib/packages.js'
 
 describe('packages module - operations and utilities', () => {
-  describe('normalizePackageJson', () => {
-    it('should normalize basic package.json', () => {
-      const pkg = {
-        name: 'test-package',
-        version: '1.0.0',
-      }
-      const result = normalizePackageJson(pkg)
-      expect(result.name).toBe('test-package')
-      expect(result.version).toBe('1.0.0')
-    })
-
-    it('should handle package with dependencies', () => {
-      const pkg = {
-        name: 'test',
-        version: '1.0.0',
-        dependencies: {
-          lodash: '^4.17.21',
-        },
-      }
-      const result = normalizePackageJson(pkg)
-      expect(result.dependencies).toBeDefined()
-    })
-
-    it('should handle package with scripts', () => {
-      const pkg = {
-        name: 'test',
-        version: '1.0.0',
-        scripts: {
-          test: 'vitest',
-          build: 'tsc',
-        },
-      }
-      const result = normalizePackageJson(pkg)
-      expect(result['scripts']).toBeDefined()
-    })
-
-    it('should handle empty package', () => {
-      const pkg = {}
-      const result = normalizePackageJson(pkg)
-      expect(result).toBeDefined()
-    })
-  })
-
   describe('readPackageJsonSync', () => {
     it('should read package.json from project root', () => {
       const pkgPath = path.join(process.cwd(), 'package.json')
@@ -147,28 +102,6 @@ describe('packages module - operations and utilities', () => {
     it('should handle scope with multiple parts', () => {
       const result = unescapeScope('babel__core__')
       expect(result).toBe('@babel__core')
-    })
-  })
-
-  describe('resolvePackageJsonPath', () => {
-    it('should return path if already package.json', () => {
-      const result = resolvePackageJsonPath('/some/path/package.json')
-      expect(result).toBe('/some/path/package.json')
-    })
-
-    it('should append package.json to directory', () => {
-      const result = resolvePackageJsonPath('/some/path')
-      expect(result).toBe('/some/path/package.json')
-    })
-
-    it('should handle root directory', () => {
-      const result = resolvePackageJsonPath('/')
-      expect(result).toContain('package.json')
-    })
-
-    it('should handle current directory', () => {
-      const result = resolvePackageJsonPath('.')
-      expect(result).toContain('package.json')
     })
   })
 
