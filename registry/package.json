@@ -1175,6 +1175,30 @@
       "types": "./dist/lib/constants/index.d.ts",
       "default": "./dist/lib/constants/index.js"
     },
+    "./lib/coverage": {
+      "types": "./dist/lib/coverage/index.d.ts",
+      "default": "./dist/lib/coverage/index.js"
+    },
+    "./lib/coverage/code-coverage": {
+      "types": "./dist/lib/coverage/code-coverage.d.ts",
+      "default": "./dist/lib/coverage/code-coverage.js"
+    },
+    "./lib/coverage/formatters": {
+      "types": "./dist/lib/coverage/formatters.d.ts",
+      "default": "./dist/lib/coverage/formatters.js"
+    },
+    "./lib/coverage/index": {
+      "types": "./dist/lib/coverage/index.d.ts",
+      "default": "./dist/lib/coverage/index.js"
+    },
+    "./lib/coverage/type-coverage": {
+      "types": "./dist/lib/coverage/type-coverage.d.ts",
+      "default": "./dist/lib/coverage/type-coverage.js"
+    },
+    "./lib/coverage/types": {
+      "types": "./dist/lib/coverage/types.d.ts",
+      "default": "./dist/lib/coverage/types.js"
+    },
     "./lib/debug": {
       "types": "./dist/lib/debug.d.ts",
       "default": "./dist/lib/debug.js"
