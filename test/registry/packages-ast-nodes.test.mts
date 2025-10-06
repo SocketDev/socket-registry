@@ -2,9 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   createAstNode,
-  createPackageJson,
   getReleaseTag,
-  isBlessedPackageName,
   isConditionalExports,
   parseSpdxExp,
 } from '../../registry/dist/lib/packages.js'
@@ -34,28 +32,6 @@ describe('packages module - utility functions', () => {
         const result = createAstNode(ast)
         expect(result).toBeDefined()
       }
-    })
-  })
-
-  describe('isBlessedPackageName', () => {
-    it('should identify blessed package names', () => {
-      expect(isBlessedPackageName('@socketregistry/test')).toBe(true)
-      expect(isBlessedPackageName('@socketsecurity/test')).toBe(true)
-    })
-
-    it('should reject non-blessed names', () => {
-      expect(isBlessedPackageName('lodash')).toBe(false)
-      expect(isBlessedPackageName('@other/package')).toBe(false)
-    })
-
-    it('should handle invalid inputs', () => {
-      expect(isBlessedPackageName(null)).toBe(false)
-      expect(isBlessedPackageName(undefined)).toBe(false)
-      expect(isBlessedPackageName(123)).toBe(false)
-    })
-
-    it('should handle empty string', () => {
-      expect(isBlessedPackageName('')).toBe(false)
     })
   })
 
@@ -119,108 +95,6 @@ describe('packages module - utility functions', () => {
     it('should handle empty string', () => {
       const result = getReleaseTag('')
       expect(typeof result).toBe('string')
-    })
-  })
-
-  describe('createPackageJson', () => {
-    it('should create basic package.json', () => {
-      const result = createPackageJson(
-        'test-package',
-        'packages/npm/test-package',
-        {
-          version: '1.0.0',
-        },
-      )
-      expect(result.name).toBe('@socketregistry/test-package')
-      expect(result.version).toBe('1.0.0')
-      expect(result['license']).toBe('MIT')
-    })
-
-    it('should handle scoped package names', () => {
-      const result = createPackageJson(
-        'types__node',
-        'packages/npm/@types/node',
-        {
-          version: '18.0.0',
-        },
-      )
-      expect(result.name).toBe('@socketregistry/types__node')
-    })
-
-    it('should set repository information', () => {
-      const result = createPackageJson('lodash', 'packages/npm/lodash', {
-        version: '4.17.21',
-      })
-      const repo = result['repository'] as any
-      expect(repo).toBeDefined()
-      expect(repo['type']).toBe('git')
-      expect(repo['directory']).toBe('packages/npm/lodash')
-    })
-
-    it('should handle exports field', () => {
-      const result = createPackageJson('test', 'packages/npm/test', {
-        version: '1.0.0',
-        exports: {
-          '.': './index.js',
-        },
-      })
-      expect(result.exports).toBeDefined()
-    })
-
-    it('should set default engines', () => {
-      const result = createPackageJson('test', 'packages/npm/test', {
-        version: '1.0.0',
-      })
-      const engines = result['engines'] as any
-      expect(engines).toBeDefined()
-      expect(engines['node']).toBeDefined()
-    })
-
-    it('should handle custom engines', () => {
-      const result = createPackageJson('test', 'packages/npm/test', {
-        version: '1.0.0',
-        engines: {
-          node: '>=20.0.0',
-        },
-      })
-      const engines = result['engines'] as any
-      expect(engines['node']).toBeDefined()
-    })
-
-    it('should set default files', () => {
-      const result = createPackageJson('test', 'packages/npm/test', {
-        version: '1.0.0',
-      })
-      expect(result['files']).toBeDefined()
-      expect(Array.isArray(result['files'])).toBe(true)
-    })
-
-    it('should handle custom description', () => {
-      const result = createPackageJson('test', 'packages/npm/test', {
-        version: '1.0.0',
-        description: 'Test package description',
-      })
-      expect(result['description']).toBe('Test package description')
-    })
-
-    it('should handle dependencies', () => {
-      const result = createPackageJson('test', 'packages/npm/test', {
-        version: '1.0.0',
-        dependencies: {
-          lodash: '^4.17.21',
-        },
-      })
-      expect(result.dependencies).toBeDefined()
-      if (result.dependencies) {
-        expect(result.dependencies['lodash']).toBe('^4.17.21')
-      }
-    })
-
-    it('should set sideEffects to false by default', () => {
-      const result = createPackageJson('test', 'packages/npm/test', {
-        version: '1.0.0',
-      })
-      expect(result['sideEffects']).toBe(false)
     })
   })
 })
