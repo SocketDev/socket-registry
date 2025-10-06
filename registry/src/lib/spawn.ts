@@ -1,6 +1,29 @@
 /**
  * @fileoverview Child process spawning utilities with cross-platform support.
  * Provides enhanced spawn functionality with stdio handling and error management.
+ *
+ * SECURITY: Array-Based Arguments Prevent Command Injection
+ *
+ * This module uses array-based arguments for all command execution, which is the
+ * PRIMARY DEFENSE against command injection attacks. When you pass arguments as
+ * an array to spawn():
+ *
+ *   spawn('npx', ['sfw', tool, ...args], { shell: true })
+ *
+ * Node.js handles escaping automatically. Each argument is passed directly to the
+ * OS without shell interpretation. Shell metacharacters like ; | & $ ( ) ` are
+ * treated as LITERAL STRINGS, not as commands. This approach is secure even when
+ * shell: true is used on Windows for .cmd/.bat file resolution.
+ *
+ * UNSAFE ALTERNATIVE (not used in this codebase):
+ *   spawn(`npx sfw ${tool} ${args.join(' ')}`, { shell: true })  // ✖ VULNERABLE
+ *
+ * String concatenation allows injection. For example, if tool = "foo; rm -rf /",
+ * the shell would execute both commands. Array-based arguments prevent this.
+ *
+ * References:
+ * - https://nodejs.org/api/child_process.html#child_processspawncommand-args-options
+ * - https://cheatsheetseries.owasp.org/cheatsheets/Nodejs_Security_Cheat_Sheet.html
  */
 
 import abortSignal from './constants/abort-signal'
@@ -300,6 +323,30 @@ export type SpawnStdioResult = {
 
 /**
  * Spawn a child process and return a promise that resolves when it completes.
+ *
+ * SECURITY: This function uses array-based arguments which prevent command injection.
+ * Arguments in the `args` array are passed directly to the OS without shell
+ * interpretation. Shell metacharacters (;|&$()`) are treated as literal strings,
+ * not as commands or operators. This is the PRIMARY SECURITY DEFENSE.
+ *
+ * Even when shell: true is used (on Windows for .cmd/.bat execution), the array-based
+ * approach remains secure because Node.js properly escapes each argument before passing
+ * to the shell.
+ *
+ * @param cmd - Command to execute (not user-controlled)
+ * @param args - Array of arguments (safe even with user input due to array-based passing)
+ * @param options - Spawn options
+ * @param extra - Extra options for promise-spawn
+ *
+ * @example
+ * // ✔ DO THIS - Array-based arguments
+ * spawn('git', ['commit', '-m', userMessage])
+ * // Each argument is properly escaped, even if userMessage = "foo; rm -rf /"
+ *
+ * @example
+ * // ✖ NEVER DO THIS - String concatenation
+ * spawn(`git commit -m "${userMessage}"`, { shell: true })
+ * // Vulnerable to injection if userMessage = '"; rm -rf / #'
  */
 export function spawn(
   cmd: string,
