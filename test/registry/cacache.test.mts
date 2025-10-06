@@ -1,12 +1,54 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { mkdtempSync } from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from 'vitest'
 
 import * as cacache from '../../registry/dist/lib/cacache.js'
+import { trash } from '../../scripts/utils/fs.mjs'
 
 // Test key for cache operations.
 const TEST_KEY = 'test-cacache-key'
 const TEST_DATA = 'test data content'
 
 describe('cacache module', () => {
+  let testCacheDir: string
+  let originalEnv: string | undefined
+
+  beforeAll(() => {
+    // Create a temporary directory for test-specific cacache.
+    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
+    // Override cacache directory for tests.
+    originalEnv = process.env['SOCKET_CACACHE_DIR']
+    process.env['SOCKET_CACACHE_DIR'] = testCacheDir
+  })
+
+  afterAll(async () => {
+    // Restore original environment.
+    if (originalEnv === undefined) {
+      delete process.env['SOCKET_CACACHE_DIR']
+    } else {
+      process.env['SOCKET_CACACHE_DIR'] = originalEnv
+    }
+    // Clean up test cache directory.
+    await trash(testCacheDir)
+  })
+
+  beforeEach(async () => {
+    // Remove test key before each test for defensive cleanup.
+    await cacache.remove(TEST_KEY).catch(() => {
+      // Ignore cleanup errors.
+    })
+  })
+
   afterEach(async () => {
     // Clean up test entries after each test.
     await cacache.remove(TEST_KEY).catch(() => {
