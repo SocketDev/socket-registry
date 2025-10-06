@@ -239,8 +239,8 @@ importers:
         specifier: 1.15.0
         version: 1.15.0
       pacote:
-        specifier: 21.0.1
-        version: 21.0.1
+        specifier: 21.0.3
+        version: 21.0.3
       read-yaml-file:
         specifier: 2.1.0
         version: 2.1.0
@@ -792,8 +792,8 @@ importers:
         specifier: 1.15.0
         version: 1.15.0
       pacote:
-        specifier: 21.0.1
-        version: 21.0.1
+        specifier: 21.0.3
+        version: 21.0.3
       picomatch:
         specifier: 4.0.3
         version: 4.0.3
@@ -3977,11 +3977,6 @@ packages:
   package-manager-detector@1.3.0:
     resolution: {integrity: sha512-ZsEbbZORsyHuO00lY1kV3/t72yp6Ysay6Pd17ZAlNGuGwmWDLCJxFpRs0IzfXfj1o4icJOkUEioexFHzyPurSQ==}
 
-  pacote@21.0.1:
-    resolution: {integrity: sha512-LHGIUQUrcDIJUej53KJz1BPvUuHrItrR2yrnN0Kl9657cJ0ZT6QJHk9wWPBnQZhYT5KLyZWrk9jaYc2aKDu4yw==}
-    engines: {node: ^20.17.0 || >=22.9.0}
-    hasBin: true
-
   pacote@21.0.3:
     resolution: {integrity: sha512-itdFlanxO0nmQv4ORsvA9K1wv40IPfB9OmWqfaJWvoJ30VKyHsqNgDVeG+TVhI7Gk7XW8slUy7cA9r6dF5qohw==}
     engines: {node: ^20.17.0 || >=22.9.0}
@@ -5482,7 +5477,7 @@ snapshots:
     dependencies:
       cacache: 20.0.1
       json-parse-even-better-errors: 4.0.0
-      pacote: 21.0.1
+      pacote: 21.0.3
       proc-log: 5.0.0
       semver: 7.7.2
     transitivePeerDependencies:
@@ -7464,7 +7459,7 @@ snapshots:
       '@npmcli/arborist': 9.1.5
       '@npmcli/run-script': 9.1.0
       npm-package-arg: 12.0.2
-      pacote: 21.0.1
+      pacote: 21.0.3
     transitivePeerDependencies:
       - supports-color
 
@@ -7945,28 +7940,6 @@ snapshots:
   package-json-from-dist@1.0.1: {}
 
   package-manager-detector@1.3.0: {}
-
-  pacote@21.0.1:
-    dependencies:
-      '@npmcli/git': 6.0.3
-      '@npmcli/installed-package-contents': 3.0.0
-      '@npmcli/package-json': 7.0.0
-      '@npmcli/promise-spawn': 8.0.3
-      '@npmcli/run-script': 10.0.0
-      cacache: 20.0.1
-      fs-minipass: 3.0.3
-      minipass: 7.1.2
-      npm-package-arg: 13.0.0
-      npm-packlist: 10.0.2
-      npm-pick-manifest: 10.0.0
-      npm-registry-fetch: 19.0.0
-      proc-log: 5.0.0
-      promise-retry: 2.0.1
-      sigstore: 4.0.0
-      ssri: 12.0.0
-      tar: 7.5.1
-    transitivePeerDependencies:
-      - supports-color
 
   pacote@21.0.3:
     dependencies:
@@ -8508,7 +8481,7 @@ snapshots:
   tuf-js@4.0.0:
     dependencies:
       '@tufjs/models': 4.0.0
-      debug: 4.4.3
+      debug: 4.4.1
       make-fetch-happen: 15.0.2
     transitivePeerDependencies:
       - supports-color
