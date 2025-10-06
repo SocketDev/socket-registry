@@ -7,7 +7,6 @@ import { createHash } from 'node:crypto'
 import { existsSync, promises as fs } from 'node:fs'
 import path from 'node:path'
 
-import NODE_SEA_FUSE from './constants/NODE_SEA_FUSE'
 import WIN32 from './constants/WIN32'
 import { remove } from './fs'
 import { httpRequest } from './http-request'
@@ -443,7 +442,7 @@ export async function injectSeaBlob(
         'NODE_SEA_BLOB',
         blobPath,
         '--sentinel-fuse',
-        NODE_SEA_FUSE,
+        /*@__INLINE__*/ require('./constants/NODE_SEA_FUSE'),
         '--macho-segment-name',
         'NODE_SEA',
       ],
@@ -468,7 +467,7 @@ export async function injectSeaBlob(
         'NODE_SEA_BLOB',
         blobPath,
         '--sentinel-fuse',
-        NODE_SEA_FUSE,
+        /*@__INLINE__*/ require('./constants/NODE_SEA_FUSE'),
       ],
       { stdio: 'inherit' },
     )
@@ -484,7 +483,7 @@ export async function injectSeaBlob(
         'NODE_SEA_BLOB',
         blobPath,
         '--sentinel-fuse',
-        NODE_SEA_FUSE,
+        /*@__INLINE__*/ require('./constants/NODE_SEA_FUSE'),
       ],
       { stdio: 'inherit' },
     )
