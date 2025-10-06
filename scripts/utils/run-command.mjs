@@ -1,7 +1,9 @@
 /** @fileoverview Utility for running shell commands with proper error handling. */
 
 import { spawn, spawnSync } from 'node:child_process'
-import { logger } from '@socketsecurity/registry/lib/logger'
+import { logger } from './logger.mjs'
+
+const WIN32 = process.platform === 'win32'
 
 /**
  * Run a command and return a promise that resolves with the exit code.
@@ -15,6 +17,7 @@ export function runCommand(command, args = [], options = {}) {
     const child = spawn(command, args, {
       stdio: 'inherit',
       ...options,
+      ...(WIN32 && { shell: true }),
     })
 
     child.on('exit', code => {
@@ -38,6 +41,7 @@ export function runCommandSync(command, args = [], options = {}) {
   const result = spawnSync(command, args, {
     stdio: 'inherit',
     ...options,
+    ...(WIN32 && { shell: true }),
   })
 
   return result.status || 0
@@ -97,6 +101,7 @@ export function runCommandQuiet(command, args = [], options = {}) {
     const child = spawn(command, args, {
       ...options,
       stdio: ['inherit', 'pipe', 'pipe'],
+      ...(WIN32 && { shell: true }),
     })
 
     child.stdout?.on('data', data => {

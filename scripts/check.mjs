@@ -8,7 +8,7 @@
  *   node scripts/check.mjs
  */
 
-import { logger } from '@socketsecurity/registry/lib/logger'
+import { logger } from './utils/logger.mjs'
 import { runParallel } from './utils/run-command.mjs'
 
 async function main() {
