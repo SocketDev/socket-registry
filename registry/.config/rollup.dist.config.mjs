@@ -45,6 +45,11 @@ export default async () => {
   }, {})
 
   return {
+    // Disable tree-shaking to prevent incorrect removal of code.
+    // Without this, Rollup incorrectly removes the AST parsing logic in
+    // lib/packages/licenses.ts (lines 237-257) which calls parseSpdxExp()
+    // and visitLicenses(), causing test failures in packages-licenses.test.mts.
+    treeshake: false,
     external(id) {
       // Externalize Node.js built-ins.
       if (Module.isBuiltin(id) || Module.isBuiltin(id.replace(/^node:/, ''))) {
