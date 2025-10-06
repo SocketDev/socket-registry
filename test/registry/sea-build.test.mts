@@ -1,18 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock the httpRequest module before importing sea-build module.
-vi.mock('../../registry/dist/lib/http-request.js', () => {
+vi.mock('../../registry/src/lib/http-request', () => {
   return {
     httpRequest: vi.fn(),
   }
 })
 
-import { httpRequest as httpRequestActual } from '../../registry/dist/lib/http-request.js'
+import { httpRequest as httpRequestActual } from '../../registry/src/lib/http-request'
 import {
   getBuildTargets,
   getDefaultNodeVersion,
   getLatestCurrentRelease,
-} from '../../registry/dist/lib/sea-build.js'
+} from '../../registry/src/lib/sea-build'
 
 const httpRequest = httpRequestActual as unknown as ReturnType<typeof vi.fn>
 
