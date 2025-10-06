@@ -284,9 +284,9 @@ describe('isolation module', () => {
       })
       tmpDirs.push(path.dirname(result.tmpdir))
 
-      // Result.tmpdir structure: /tmp/socket-test-{name}-XXXXXX/{name}/node_modules/{package}
-      // Navigate up 3 levels to reach the temp directory with the sanitized name prefix.
-      const tempParent = path.resolve(result.tmpdir, '../../..')
+      // Result.tmpdir structure: /tmp/socket-test-{name}-XXXXXX/{name}/node_modules/@scope/test-package
+      // Navigate up 4 levels to reach the temp directory with the sanitized name prefix.
+      const tempParent = path.resolve(result.tmpdir, '../../../..')
       expect(path.basename(tempParent)).toMatch(
         /socket-test--scope-test-package-/,
       )
