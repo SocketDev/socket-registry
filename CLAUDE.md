@@ -348,6 +348,12 @@ Use these standardized patterns for consistency across all Socket projects:
 - **Semicolons**: Omit semicolons
 - **Line length**: Target 80 characters where practical
 - **List formatting**: Use `-` for bullets, not `•`
+- **String interpolation**: 🚨 MANDATORY - Use template literals instead of string concatenation for dynamic strings
+  - ✅ CORRECT: `` `Error: ${message}` ``
+  - ✅ CORRECT: `` `Cannot load '${path}': ${error.message}` ``
+  - ❌ FORBIDDEN: `'Error: ' + message`
+  - ❌ FORBIDDEN: `'Cannot load \'' + path + '\': ' + error.message`
+  - **Rationale**: Template literals are more readable, less error-prone, and handle escaping automatically
 
 ## Commands
 
