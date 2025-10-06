@@ -1287,6 +1287,10 @@
       "types": "./dist/lib/packages/exports.d.ts",
       "default": "./dist/lib/packages/exports.js"
     },
+    "./lib/packages/isolation": {
+      "types": "./dist/lib/packages/isolation.d.ts",
+      "default": "./dist/lib/packages/isolation.js"
+    },
     "./lib/packages/licenses": {
       "types": "./dist/lib/packages/licenses.d.ts",
       "default": "./dist/lib/packages/licenses.js"
@@ -1407,14 +1411,19 @@
       "types": "./dist/lib/words.d.ts",
       "default": "./dist/lib/words.js"
     },
+    "./plugins/babel-plugin-inline-require-calls": {
+      "types": "./plugins/babel-plugin-inline-require-calls.d.ts",
+      "default": "./plugins/babel-plugin-inline-require-calls.js"
+    },
     "./extensions.json": "./extensions.json",
     "./manifest.json": "./manifest.json",
     "./package.json": "./package.json",
+    "./tsconfig.dts.json": "./tsconfig.dts.json",
     "./tsconfig.json": "./tsconfig.json"
   },
   "sideEffects": false,
   "scripts": {
-    "build": "pnpm run clean:dist && tsgo --build && node ./scripts/fix-commonjs-exports.mjs && node ./scripts/inline-constants.mjs && node ./scripts/rollup/build-external.mjs && node ./scripts/generate-package-exports.mjs",
+    "build": "pnpm run clean:dist && tsgo --project tsconfig.dts.json && node ./scripts/rollup/build-source.mjs && node ./scripts/rollup/build-external.mjs && node ./scripts/generate-package-exports.mjs",
     "check:tsc": "tsgo --noEmit",
     "clean": "run-s -c clean:*",
     "clean:dist": "del-cli 'dist' '**/*.tsbuildinfo'",
@@ -1431,6 +1440,7 @@
     "@babel/plugin-proposal-export-default-from": "7.27.1",
     "@babel/plugin-transform-export-namespace-from": "7.27.1",
     "@babel/plugin-transform-runtime": "7.28.3",
+    "@babel/preset-typescript": "7.27.1",
     "@babel/runtime": "7.28.4",
     "@babel/traverse": "7.28.4",
     "@babel/types": "7.28.4",
