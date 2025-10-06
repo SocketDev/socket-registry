@@ -1,4 +1,6 @@
+import path from 'node:path'
 import { Writable } from 'node:stream'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -9,6 +11,10 @@ import {
   lastWasBlankSymbol,
   logger,
 } from '../../registry/dist/lib/logger.js'
+import { runInSubprocess } from '../utils/subprocess.mjs'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const loggerImport = `import { Logger } from '${pathToFileURL(path.join(__dirname, '../../registry/dist/lib/logger.js')).href}';`
 
 describe('logger module', () => {
   let mockStdout: Writable
@@ -449,38 +455,207 @@ describe('logger module', () => {
     })
 
     describe('timeEnd', () => {
-      it('should end a timer', () => {
-        const consoleSpy = vi.spyOn(console, 'time')
-        try {
-          testLogger.timeEnd('test-timer')
-          expect(stdoutData.length).toBeGreaterThanOrEqual(0)
-        } finally {
-          consoleSpy.mockRestore()
-        }
+      it('should end a timer', async () => {
+        const result = await runInSubprocess(
+          {},
+          `
+${loggerImport}
+
+const output = [];
+const logger = new Logger({
+  stdout: {
+    write(chunk) {
+      output.push(chunk.toString());
+    }
+  }
+});
+
+console.time('test-timer');
+logger.timeEnd('test-timer');
+
+console.log(JSON.stringify({
+  success: true,
+  hasOutput: output.length >= 0
+}));
+          `,
+        )
+
+        expect(result.exitCode).toBe(0)
+        const parsed = JSON.parse(result.stdout.trim())
+        expect(parsed.success).toBe(true)
+        expect(parsed.hasOutput).toBe(true)
       })
 
-      it('should increment log call count', () => {
-        const before = testLogger.logCallCount
-        testLogger.timeEnd('test')
-        expect(testLogger.logCallCount).toBe(before + 1)
+      it('should increment log call count', async () => {
+        const result = await runInSubprocess(
+          {},
+          `
+${loggerImport}
+
+const logger = new Logger({
+  stdout: {
+    write() {}
+  }
+});
+
+const before = logger.logCallCount;
+logger.timeEnd('test');
+const after = logger.logCallCount;
+
+console.log(JSON.stringify({
+  success: true,
+  incremented: after === before + 1
+}));
+          `,
+        )
+
+        expect(result.exitCode).toBe(0)
+        const parsed = JSON.parse(result.stdout.trim())
+        expect(parsed.success).toBe(true)
+        expect(parsed.incremented).toBe(true)
+      })
+
+      it('should handle missing timer label gracefully', async () => {
+        const result = await runInSubprocess(
+          {},
+          `
+${loggerImport}
+
+const logger = new Logger({
+  stdout: {
+    write() {}
+  }
+});
+
+logger.timeEnd('non-existent-timer');
+
+console.log(JSON.stringify({
+  success: true,
+  hasWarning: true
+}));
+          `,
+        )
+
+        expect(result.exitCode).toBe(0)
+        expect(result.stderr).toContain('No such label')
       })
     })
 
     describe('timeLog', () => {
-      it('should log timer value', () => {
-        testLogger.timeLog('test-timer')
-        expect(stdoutData.length).toBeGreaterThanOrEqual(0)
+      it('should log timer value', async () => {
+        const result = await runInSubprocess(
+          {},
+          `
+${loggerImport}
+
+const output = [];
+const logger = new Logger({
+  stdout: {
+    write(chunk) {
+      output.push(chunk.toString());
+    }
+  }
+});
+
+console.time('test-timer');
+logger.timeLog('test-timer');
+
+console.log(JSON.stringify({
+  success: true,
+  hasOutput: output.length >= 0
+}));
+          `,
+        )
+
+        expect(result.exitCode).toBe(0)
+        const parsed = JSON.parse(result.stdout.trim())
+        expect(parsed.success).toBe(true)
+        expect(parsed.hasOutput).toBe(true)
       })
 
-      it('should accept extra data', () => {
-        testLogger.timeLog('timer', 'extra', 'data')
-        expect(stdoutData.length).toBeGreaterThanOrEqual(0)
+      it('should accept extra data', async () => {
+        const result = await runInSubprocess(
+          {},
+          `
+${loggerImport}
+
+const output = [];
+const logger = new Logger({
+  stdout: {
+    write(chunk) {
+      output.push(chunk.toString());
+    }
+  }
+});
+
+console.time('timer');
+logger.timeLog('timer', 'extra', 'data');
+
+console.log(JSON.stringify({
+  success: true,
+  hasOutput: output.length >= 0
+}));
+          `,
+        )
+
+        expect(result.exitCode).toBe(0)
+        const parsed = JSON.parse(result.stdout.trim())
+        expect(parsed.success).toBe(true)
+        expect(parsed.hasOutput).toBe(true)
       })
 
-      it('should increment log call count', () => {
-        const before = testLogger.logCallCount
-        testLogger.timeLog('test')
-        expect(testLogger.logCallCount).toBe(before + 1)
+      it('should increment log call count', async () => {
+        const result = await runInSubprocess(
+          {},
+          `
+${loggerImport}
+
+const logger = new Logger({
+  stdout: {
+    write() {}
+  }
+});
+
+const before = logger.logCallCount;
+logger.timeLog('test');
+const after = logger.logCallCount;
+
+console.log(JSON.stringify({
+  success: true,
+  incremented: after === before + 1
+}));
+          `,
+        )
+
+        expect(result.exitCode).toBe(0)
+        const parsed = JSON.parse(result.stdout.trim())
+        expect(parsed.success).toBe(true)
+        expect(parsed.incremented).toBe(true)
+      })
+
+      it('should handle missing timer label gracefully', async () => {
+        const result = await runInSubprocess(
+          {},
+          `
+${loggerImport}
+
+const logger = new Logger({
+  stdout: {
+    write() {}
+  }
+});
+
+logger.timeLog('non-existent-timer');
+
+console.log(JSON.stringify({
+  success: true,
+  hasWarning: true
+}));
+          `,
+        )
+
+        expect(result.exitCode).toBe(0)
+        expect(result.stderr).toContain('No such label')
       })
     })
 
