@@ -87,6 +87,15 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 - **Scripts**: `pnpm run <script>`
 - **READMEs**: Use `pnpm install` in examples
 
+### Script Wrappers
+- **Pattern**: Wrap complex commands in `scripts/*.mts` files, not package.json directly
+- **Benefits**: Type safety, reusability, testability, better error handling
+- **Usage**: `"script-name": "node scripts/script-name.mts"`
+- **Examples**: `scripts/coverage.mts`, `scripts/test-ci.mjs`
+- **Structure**: Use `spawn` from node:child_process with proper signal handling
+- **Exit codes**: Set `process.exitCode`, never call `process.exit()` (n/no-process-exit rule)
+- **Type definitions**: Create `.d.mts` files for `.mjs` utilities used by `.mts` scripts
+
 ### Code Style - File Organization
 - **Extensions**: `.js` (JSDoc), `.mjs` (ES modules), `.mts` (TypeScript modules)
 - **Naming**: kebab-case filenames
