@@ -18,7 +18,7 @@
 
 import { parseArgs } from 'node:util'
 import { logger } from '@socketsecurity/registry/lib/logger'
-import { runCommand, runSequence } from './utils/run-command.mjs'
+import { runCommand } from './utils/run-command.mjs'
 
 async function main() {
   try {
