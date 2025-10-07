@@ -5,13 +5,13 @@
  */
 
 import { readFile } from 'node:fs/promises'
-import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
-import { parseArgs } from '../registry/dist/lib/parse-args.js'
 
 import COLUMN_LIMIT from '../registry/dist/lib/constants/COLUMN_LIMIT.js'
 import { logger } from '../registry/dist/lib/logger.js'
+import { parseArgs } from '../registry/dist/lib/parse-args.js'
+import { spawn } from '../registry/dist/lib/spawn.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -77,33 +77,20 @@ With --all flag, adds:
 }
 
 async function runCommand(command, args = []) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(command, args, {
-      stdio: 'pipe',
+  try {
+    const result = await spawn(command, args, {
       shell: process.platform === 'win32',
+      stdio: 'pipe',
     })
-
-    let stdout = ''
-    let stderr = ''
-
-    child.stdout.on('data', data => {
-      stdout += data.toString()
-    })
-
-    child.stderr.on('data', data => {
-      stderr += data.toString()
-    })
-
-    child.on('error', reject)
-
-    child.on('close', code => {
-      if (code !== 0) {
-        reject(new Error(`Command failed with exit code ${code}: ${stderr}`))
-      } else {
-        resolve(stdout)
-      }
-    })
-  })
+    if (result.code !== 0) {
+      throw new Error(
+        `Command failed with exit code ${result.code}: ${result.stderr}`,
+      )
+    }
+    return result.stdout
+  } catch (e) {
+    throw new Error(`Command failed: ${e.message}`)
+  }
 }
 
 async function getPackageInfo(packageName) {
