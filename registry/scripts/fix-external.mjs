@@ -40,16 +40,22 @@ async function main() {
 
     let hadError = false
 
-    for (const { args, name } of linters) {
-      logger.log(`  - Running ${name}...`)
-      // eslint-disable-next-line no-await-in-loop
-      const result = await runCommandQuiet(args[0], args.slice(1), {
-        env: {
-          ...process.env,
-          LINT_EXTERNAL: '1',
-        },
-      })
+    // Run linters in parallel for faster execution.
+    const results = await Promise.all(
+      linters.map(async ({ args, name }) => {
+        logger.log(`  - Running ${name}...`)
+        const result = await runCommandQuiet(args[0], args.slice(1), {
+          env: {
+            ...process.env,
+            LINT_EXTERNAL: '1',
+          },
+        })
+        return { name, result }
+      }),
+    )
 
+    // Check results.
+    for (const { name, result } of results) {
       // These linters can exit with non-zero when they make fixes.
       // So we don't treat that as an error.
       if (result.exitCode !== 0) {
