@@ -65,7 +65,7 @@ export default defineConfig({
     ],
   },
   test: {
-    globalSetup: ['./vitest-global-setup.mts'],
+    globalSetup: [path.resolve(__dirname, 'vitest-global-setup.mts')],
     globals: false,
     environment: 'node',
     include: ['test/**/*.test.{js,ts,mjs,mts,cjs,cts}'],
