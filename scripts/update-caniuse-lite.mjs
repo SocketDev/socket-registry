@@ -11,7 +11,7 @@ const { rootPath } = constants
 /**
  * Update caniuse-lite to latest version.
  */
-function main() {
+async function main() {
   try {
     // Manually update caniuse-lite to avoid triggering prepare script
     logger.log('Updating caniuse-lite version')
@@ -40,4 +40,4 @@ function main() {
   }
 }
 
-main()
+main().catch(console.error)
