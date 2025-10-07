@@ -15,8 +15,8 @@ export function runCommand(command, args = [], options = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
       stdio: 'inherit',
-      ...options,
       ...(WIN32 && { shell: true }),
+      ...options,
     })
 
     child.on('exit', code => {
@@ -39,8 +39,8 @@ export function runCommand(command, args = [], options = {}) {
 export function runCommandSync(command, args = [], options = {}) {
   const result = spawnSync(command, args, {
     stdio: 'inherit',
-    ...options,
     ...(WIN32 && { shell: true }),
+    ...options,
   })
 
   return result.status || 0
@@ -98,9 +98,9 @@ export function runCommandQuiet(command, args = [], options = {}) {
     let stderr = ''
 
     const child = spawn(command, args, {
-      ...options,
       stdio: ['inherit', 'pipe', 'pipe'],
       ...(WIN32 && { shell: true }),
+      ...options,
     })
 
     child.stdout?.on('data', data => {
