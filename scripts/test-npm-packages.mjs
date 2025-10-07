@@ -65,9 +65,9 @@ const tempBaseDir = cliArgs.tempDir || cliArgs.cacheDir
 async function runCommand(command, args, options = {}) {
   try {
     const result = await spawn(command, args, {
-      stdio: 'inherit',
-      shell: process.platform.startsWith('win'),
       env: { ...process.env, NODE_NO_WARNINGS: '1' },
+      shell: WIN32,
+      stdio: 'inherit',
       ...options,
     })
     return { code: result.code }

@@ -254,9 +254,9 @@ async function runCommand(command, args, options = {}) {
   const { env: spawnEnv } = opts
   try {
     const result = await spawn(command, args, {
-      stdio: 'pipe',
-      shell: WIN32,
       env: { ...process.env, NODE_NO_WARNINGS: '1', ...spawnEnv },
+      shell: WIN32,
+      stdio: 'pipe',
       ...options,
     })
     return { stdout: result.stdout, stderr: result.stderr }
