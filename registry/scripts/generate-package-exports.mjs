@@ -44,8 +44,11 @@ async function main() {
     })),
   ]
 
-  console.log('Found', registryPkgFiles.length, 'files')
-  console.log('First 10:', registryPkgFiles.slice(0, 10))
+  const isDebug = !!process.env.DEBUG
+  if (isDebug) {
+    console.log('Found', registryPkgFiles.length, 'files')
+    console.log('First 10:', registryPkgFiles.slice(0, 10))
+  }
 
   const jsonExports = {}
   const subpathExports = registryPkgFiles.reduce((o, p) => {
