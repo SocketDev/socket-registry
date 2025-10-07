@@ -262,8 +262,8 @@ describe('code coverage module', () => {
         expect(result).toHaveProperty('lines')
         expect(result).toHaveProperty('statements')
       } finally {
-        // Clean up the mock file.
-        await trash([path.join(process.cwd(), 'coverage')])
+        // Clean up the mock file (not the entire coverage directory).
+        await trash([defaultPath])
       }
     })
 
