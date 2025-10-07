@@ -379,7 +379,7 @@ export function spawn(
   //
   // See: https://github.com/nodejs/node/issues/3675
   const shell = getOwn(options, 'shell')
-  const WIN32 = /*@__INLINE__*/ require('./constants/WIN32')
+  const WIN32 = require('./constants/WIN32')
   if (WIN32 && shell && windowsScriptExtRegExp.test(cmd)) {
     const path = getPath()
     // Extract just the command name without path and extension.
@@ -476,7 +476,7 @@ export function spawnSync(
   // Windows cmd.exe command resolution for .cmd/.bat/.ps1 files:
   // See spawn() function above for detailed explanation of this approach.
   const shell = getOwn(options, 'shell')
-  const WIN32 = /*@__INLINE__*/ require('./constants/WIN32')
+  const WIN32 = require('./constants/WIN32')
   if (WIN32 && shell && windowsScriptExtRegExp.test(cmd)) {
     const path = getPath()
     // Extract just the command name without path and extension.
