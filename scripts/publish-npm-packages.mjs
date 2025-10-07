@@ -21,7 +21,8 @@ import { pluralize } from '../registry/dist/lib/words.js'
 import constants from './constants.mjs'
 import { extractNpmError } from './utils/errors.mjs'
 
-const { COLUMN_LIMIT, LATEST, npmPackagesPath, registryPkgPath } = constants
+const { COLUMN_LIMIT, LATEST, WIN32, npmPackagesPath, registryPkgPath } =
+  constants
 
 const { values: cliArgs } = parseArgs({
   options: {
@@ -62,7 +63,9 @@ async function checkoutCommit(sha) {
  */
 async function ensureNpmVersion() {
   // Check current npm version first.
-  const currentVersionResult = await spawn('npm', ['--version'])
+  const currentVersionResult = await spawn('npm', ['--version'], {
+    shell: WIN32,
+  })
   const currentVersion = currentVersionResult.stdout.trim()
 
   // Check if current version meets requirements (>= 11.5.1).
@@ -75,8 +78,8 @@ async function ensureNpmVersion() {
     logger.log(
       `npm version ${currentVersion} does not meet 11.5.1+ requirement, installing npm@latest...`,
     )
-    await spawn('npm', ['install', '-g', 'npm@latest'])
-    const result = await spawn('npm', ['--version'])
+    await spawn('npm', ['install', '-g', 'npm@latest'], { shell: WIN32 })
+    const result = await spawn('npm', ['--version'], { shell: WIN32 })
     const npmVersion = result.stdout.trim()
     logger.info(`npm version: ${npmVersion}`)
 
@@ -193,7 +196,7 @@ async function publishAtCommit(sha) {
 
   // Rebuild at this commit to ensure we have the correct registry dist files.
   logger.log('Building registry...')
-  await spawn('pnpm', ['run', 'build:registry'])
+  await spawn('pnpm', ['run', 'build:registry'], { shell: WIN32 })
 
   const fails = []
   const skipped = []
@@ -271,7 +274,7 @@ async function publishAtCommit(sha) {
 
   // Update manifest.json with latest published versions before publishing registry.
   if (registryPkgToPublish && !fails.includes(registryPkgToPublish.printName)) {
-    await spawn('pnpm', ['run', 'update:manifest', '--force'])
+    await spawn('pnpm', ['run', 'update:manifest', '--force'], { shell: WIN32 })
 
     // Commit manifest changes if there are any.
     const changedFiles = await getChangedFiles()
@@ -381,6 +384,7 @@ async function publishToken(pkg, state, options) {
             ...process.env,
             NODE_AUTH_TOKEN: constants.ENV.NODE_AUTH_TOKEN,
           },
+          shell: WIN32,
         },
       )
       if (result.stdout) {
@@ -451,6 +455,7 @@ async function publishTrusted(pkg, state, options) {
             ...process.env,
             // Don't set NODE_AUTH_TOKEN for trusted publishing - uses OIDC.
           },
+          shell: WIN32,
         },
       )
       if (result.stdout) {
