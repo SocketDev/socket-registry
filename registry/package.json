@@ -1444,11 +1444,10 @@
     "clean": "run-s -c clean:*",
     "clean:dist": "del-cli 'dist' '**/*.tsbuildinfo'",
     "clean:node_modules": "del-cli '**/node_modules'",
-    "lint:external:fix": "run-s -c lint:external:fix:*",
-    "lint:external:fix:oxlint": "dotenvx -q run -f ../.env -- env LINT_EXTERNAL=1 oxlint -c=../.config/oxlintrc.json --ignore-path=../.config/.oxlintignore --tsconfig=../tsconfig.json --silent --fix ./dist/external | dev-null",
-    "lint:external:fix:biome": "dotenvx -q run -f ../.env -- env LINT_EXTERNAL=1 biome format --log-level=none --fix ./dist/external | dev-null",
-    "//lint:external:fix:eslint": "dotenvx -q run -f .env.external -- eslint -c=../eslint.config.js --report-unused-disable-directives --quiet --fix ./dist/external | dev-null",
-    "prepublishOnly": "pnpm run build"
+    "fix:external": "node ./scripts/fix-external.mjs",
+    "lint:external": "node ./scripts/lint-external.mjs",
+    "prepublishOnly": "pnpm run build",
+    "type-ci": "pnpm run check:tsc"
   },
   "devDependencies": {
     "@babel/core": "7.28.4",
