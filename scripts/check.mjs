@@ -18,16 +18,18 @@ async function main() {
     const checks = [
       {
         args: [
+          'exec',
+          'eslint',
           '--config',
           '.config/eslint.config.mjs',
           '--report-unused-disable-directives',
           '.',
         ],
-        command: 'eslint',
+        command: 'pnpm',
       },
       {
-        args: ['--noEmit'],
-        command: 'tsgo',
+        args: ['exec', 'tsgo', '--noEmit'],
+        command: 'pnpm',
       },
     ]
 
