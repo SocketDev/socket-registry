@@ -56,16 +56,17 @@ export default async () => {
     // and visitLicenses(), causing test failures in packages-licenses.test.mts.
     treeshake: false,
     external(id) {
-      // Externalize Node.js built-ins.
-      if (Module.isBuiltin(id) || Module.isBuiltin(id.replace(/^node:/, ''))) {
-        return true
-      }
-      // Externalize external dependencies that are built separately.
-      if (id.includes('/external/') || id.startsWith('../external/')) {
-        return true
-      }
-      // Externalize node_modules.
+      // Externalize all node_modules (includes @socketregistry/* packages).
+      // Check this first as it's the most common case.
       if (id.includes('node_modules')) {
+        return true
+      }
+      // Externalize Node.js built-ins.
+      if (Module.isBuiltin(id)) {
+        return true
+      }
+      // Externalize external wrapper dependencies that are copied separately.
+      if (id.includes('/external/')) {
         return true
       }
       return false
