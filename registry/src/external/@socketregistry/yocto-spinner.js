@@ -1,1 +1,3 @@
-module.exports = require('@socketregistry/yocto-spinner/index.cjs')
+'use strict'
+
+module.exports = require('@socketregistry/yocto-spinner')
