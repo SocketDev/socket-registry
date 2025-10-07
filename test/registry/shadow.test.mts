@@ -19,6 +19,8 @@ describe('shadow module', () => {
     })
 
     it('should return false on non-Windows with binPath', () => {
+      delete process.env['npm_config_user_agent']
+      delete process.env['npm_config_cache']
       expect(shouldSkipShadow('/usr/bin/npm', { win32: false })).toBe(false)
     })
 
@@ -93,6 +95,8 @@ describe('shadow module', () => {
     })
 
     it('should return false for normal project directory', () => {
+      delete process.env['npm_config_user_agent']
+      delete process.env['npm_config_cache']
       expect(
         shouldSkipShadow('', {
           cwd: '/home/user/projects/my-app',
@@ -113,10 +117,14 @@ describe('shadow module', () => {
     })
 
     it('should handle empty binPath on Windows', () => {
+      delete process.env['npm_config_user_agent']
+      delete process.env['npm_config_cache']
       expect(shouldSkipShadow('', { win32: true })).toBe(false)
     })
 
     it('should handle undefined options', () => {
+      delete process.env['npm_config_user_agent']
+      delete process.env['npm_config_cache']
       expect(shouldSkipShadow('')).toBe(false)
     })
   })
