@@ -46,6 +46,7 @@ overrides:
   shell-quote: npm:shell-quote@^1.8.3
   side-channel: npm:@socketregistry/side-channel@^1.0.10
   which-boxed-primitive: npm:@socketregistry/which-boxed-primitive@^1.0.9
+  vite: 7.1.7
   which-collection: npm:@socketregistry/which-collection@^1.0.8
   which-typed-array: npm:@socketregistry/which-typed-array@^1.0.9
 
@@ -104,8 +105,8 @@ importers:
         specifier: 7.0.0
         version: 7.0.0
       '@socketregistry/packageurl-js':
-        specifier: 1.2.0
-        version: 1.2.0
+        specifier: 1.3.0
+        version: 1.3.0
       '@socketregistry/scripts':
         specifier: file:scripts
         version: scripts@file:scripts
@@ -274,9 +275,6 @@ importers:
       update-browserslist-db:
         specifier: 1.1.3
         version: 1.1.3(browserslist@4.26.3)
-      vite:
-        specifier: 7.1.7
-        version: 7.1.7(@types/node@24.5.2)(jiti@2.6.1)(tsx@4.20.5)(yaml@2.8.1)
       vitest:
         specifier: 3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.5.2)(@vitest/ui@3.2.4)(jiti@2.6.1)(tsx@4.20.5)(yaml@2.8.1)
@@ -717,8 +715,8 @@ importers:
         specifier: 1.0.5
         version: 1.0.5
       '@socketregistry/packageurl-js':
-        specifier: 1.2.0
-        version: 1.2.0
+        specifier: 1.3.0
+        version: 1.3.0
       '@socketregistry/yocto-spinner':
         specifier: 1.0.24
         version: 1.0.24
@@ -2064,9 +2062,9 @@ packages:
     resolution: {integrity: sha512-98+ho3VAnklscf9WVXseef1/Ann9eX2H6vzgQ3wYzqfuonAcu3Wm/GimmNPHQ/fRRgDaSYJns//tf/kFa8U7IQ==}
     engines: {node: '>=18'}
 
-  '@socketregistry/packageurl-js@1.2.0':
-    resolution: {integrity: sha512-ochAedLV83IKf8doGLvj/Aj81F7HkFHJKriWQd8hM49YB38RFt7Fb1qVYeJmg/+//hmRwqdsAkG27frogoLImQ==}
-    engines: {node: '>=18'}
+  '@socketregistry/packageurl-js@1.3.0':
+    resolution: {integrity: sha512-/zbcSImYVj8tTQOq82uFtBkEaDJ1GBigxnk/1N4Sueg/aeSARWjRYrT8qPfJW6h+PjiYHlkxdDR+btdkSxUUOA==}
+    engines: {node: '>=18', pnpm: '>=10.16.0'}
 
   '@socketregistry/path-parse@1.0.8':
     resolution: {integrity: sha512-9dcT4Vj4TY6BsU7hd3sEemoaA8OEGUutK2ufNdP+qKOljcH0xy/5+WnbEZ1RLEJcSKDnpZ3T47mVdq/ZWiGNxw==}
@@ -2443,7 +2441,7 @@ packages:
     resolution: {integrity: sha512-46ryTE9RZO/rfDd7pEqFl7etuyzekzEhUbTW3BvmeO/BcCMEgq59BKhek3dXDWgAj4oMK6OZi+vRr1wPW6qjEQ==}
     peerDependencies:
       msw: ^2.4.9
-      vite: ^5.0.0 || ^6.0.0 || ^7.0.0-0
+      vite: 7.1.7
     peerDependenciesMeta:
       msw:
         optional: true
@@ -5902,7 +5900,7 @@ snapshots:
 
   '@socketregistry/object.assign@1.0.8': {}
 
-  '@socketregistry/packageurl-js@1.2.0': {}
+  '@socketregistry/packageurl-js@1.3.0': {}
 
   '@socketregistry/path-parse@1.0.8': {}
 
