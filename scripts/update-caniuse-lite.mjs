@@ -1,8 +1,7 @@
 /** @fileoverview Update caniuse-lite database without triggering prepare scripts. */
 
-import { spawnSync } from 'node:child_process'
-
 import { logger } from '../registry/dist/lib/logger.js'
+import { spawnSync } from '../registry/dist/lib/spawn.js'
 
 import constants from './constants.mjs'
 
@@ -18,9 +17,9 @@ async function main() {
 
     // Use spawnSync for simpler error handling
     const result = spawnSync('pnpm', ['up', 'caniuse-lite'], {
-      stdio: 'inherit',
       cwd: rootPath,
       shell: constants.WIN32,
+      stdio: 'inherit',
     })
 
     if (result.error) {

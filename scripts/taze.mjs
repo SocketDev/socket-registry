@@ -3,6 +3,8 @@
 import { logger } from '../registry/dist/lib/logger.js'
 import { spawn } from '../registry/dist/lib/spawn.js'
 
+import constants from './constants.mjs'
+
 function includesProvenanceDowngradeWarning(output) {
   const lowered = output.toString().toLowerCase()
   return (
@@ -16,8 +18,9 @@ async function main() {
   const args = process.argv.slice(2)
 
   const tazePromise = spawn('pnpm', ['taze', ...args], {
-    stdio: 'pipe',
     cwd: process.cwd(),
+    shell: constants.WIN32,
+    stdio: 'pipe',
   })
 
   let hasProvenanceDowngrade = false
