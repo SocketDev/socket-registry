@@ -1,9 +1,9 @@
 /** @fileoverview Wrapper script for running all tests with --force flag support. */
 
-import { spawn } from 'node:child_process'
 import path from 'node:path'
 
 import { logger } from '../registry/dist/lib/logger.js'
+import { spawn } from '../registry/dist/lib/spawn.js'
 
 import constants from './constants.mjs'
 
@@ -12,29 +12,22 @@ import constants from './constants.mjs'
  * @throws {Error} When command exits with non-zero code.
  */
 async function runCommand(command, args = [], options) {
-  const opts = { __proto__: null, ...options }
-  return new Promise((resolve, reject) => {
-    const child = spawn(command, args, {
+  const opts = { __proto__: null, shell: constants.WIN32, ...options }
+  try {
+    const result = await spawn(command, args, {
       cwd: constants.rootPath,
-      stdio: 'inherit',
       env: process.env,
+      stdio: 'inherit',
       ...opts,
     })
-
-    child.on('exit', code => {
-      if (code === 0) {
-        resolve()
-      } else {
-        reject(
-          new Error(`${command} ${args.join(' ')} exited with code ${code}`),
-        )
-      }
-    })
-
-    child.on('error', error => {
-      reject(error)
-    })
-  })
+    if (result.code !== 0) {
+      throw new Error(
+        `${command} ${args.join(' ')} exited with code ${result.code}`,
+      )
+    }
+  } catch (e) {
+    throw new Error(`${command} ${args.join(' ')} failed: ${e.message}`)
+  }
 }
 
 async function main() {

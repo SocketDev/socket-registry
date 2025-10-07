@@ -1,14 +1,17 @@
 /**
  * @fileoverview Run CI tests with vitest.
  */
-import { spawn } from 'node:child_process'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+import { spawn } from '../registry/dist/lib/spawn.js'
+
+import constants from './constants.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(__dirname, '..')
 
-const child = spawn(
+const spawnPromise = spawn(
   'pnpm',
   [
     'exec',
@@ -23,23 +26,24 @@ const child = spawn(
   ],
   {
     cwd: projectRoot,
+    shell: constants.WIN32,
     stdio: 'inherit',
   },
 )
 
-child.on('close', code => {
-  process.exitCode = code || 0
-})
-
-child.on('error', e => {
-  console.error(`Failed to run tests: ${e.message}`)
-  process.exitCode = 1
-})
+spawnPromise
+  .then(result => {
+    process.exitCode = result.code || 0
+  })
+  .catch(e => {
+    console.error(`Failed to run tests: ${e.message}`)
+    process.exitCode = 1
+  })
 
 process.on('SIGINT', () => {
-  child.kill('SIGINT')
+  spawnPromise.process.kill('SIGINT')
 })
 
 process.on('SIGTERM', () => {
-  child.kill('SIGTERM')
+  spawnPromise.process.kill('SIGTERM')
 })
