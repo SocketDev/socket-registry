@@ -7,12 +7,12 @@
  * - Cross-platform compatibility (Windows/Unix)
  */
 
-import { spawn } from 'node:child_process'
 import path from 'node:path'
 
 import fastGlob from 'fast-glob'
 
 import { logger } from '../registry/dist/lib/logger.js'
+import { spawn } from '../registry/dist/lib/spawn.js'
 
 import constants from './constants.mjs'
 
@@ -69,16 +69,19 @@ async function main() {
     // On Windows, .cmd files need to be executed with shell: true.
     const spawnOptions = {
       cwd: constants.rootPath,
-      stdio: 'inherit',
       env: spawnEnv,
-      ...(WIN32 ? { shell: true } : {}),
+      shell: WIN32,
+      stdio: 'inherit',
     }
 
-    const child = spawn(vitestPath, vitestArgs, spawnOptions)
-
-    child.on('exit', code => {
-      process.exitCode = code || 0
-    })
+    await spawn(vitestPath, vitestArgs, spawnOptions)
+      .then(result => {
+        process.exitCode = result.code || 0
+      })
+      .catch(e => {
+        logger.error('Error running tests:', e)
+        process.exitCode = 1
+      })
   } catch (e) {
     logger.error('Error running tests:', e)
     process.exitCode = 1
