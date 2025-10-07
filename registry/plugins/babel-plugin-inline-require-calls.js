@@ -88,6 +88,14 @@ module.exports = function inlineRequireCalls(babel) {
             }
           }
 
+          // Check if the source exports a primitive value that is safe to inline.
+          const source = fs.readFileSync(resolvedPath, 'utf8')
+          if (!isInlinablePrimitive(source, babel)) {
+            throw new Error(
+              'Cannot inline require: module must export a literal primitive value (string, number, boolean, null)',
+            )
+          }
+
           // Create a require function relative to the current file.
           const requireFunc = createRequire(currentFilePath)
 
@@ -126,6 +134,95 @@ module.exports = function inlineRequireCalls(babel) {
       },
     },
   }
+}
+
+/**
+ * Check if source code exports a primitive literal value that is safe to inline.
+ *
+ * @param {string} source - Source code to check
+ * @param {object} babel - Babel API object
+ * @returns {boolean} True if the module exports only a primitive literal
+ */
+function isInlinablePrimitive(source, babel) {
+  const { parseSync } = require('@babel/core')
+  const { types: t } = babel
+
+  try {
+    // Parse the source code.
+    const ast = parseSync(source, {
+      filename: 'inline-check.ts',
+      presets: ['@babel/preset-typescript'],
+      sourceType: 'module',
+    })
+
+    if (!ast || !ast.program || !ast.program.body) {
+      return false
+    }
+
+    // Find export default declaration.
+    const exportDefault = ast.program.body.find(node =>
+      t.isExportDefaultDeclaration(node),
+    )
+
+    if (!exportDefault) {
+      return false
+    }
+
+    const declaration = exportDefault.declaration
+
+    // Check if it's a literal primitive value or constant expression.
+    // Allow: string, number, boolean, null, undefined, and constant math expressions
+    // Disallow: runtime-dependent expressions, identifiers, function calls, etc.
+    return isPrimitiveOrConstantExpression(declaration, t)
+  } catch {
+    // If parsing fails, don't inline.
+    return false
+  }
+}
+
+/**
+ * Check if a node is a primitive literal or a constant expression.
+ *
+ * @param {object} node - Babel AST node
+ * @param {object} t - Babel types
+ * @returns {boolean} True if safe to inline
+ */
+function isPrimitiveOrConstantExpression(node, t) {
+  // Literal primitives.
+  if (
+    t.isStringLiteral(node) ||
+    t.isNumericLiteral(node) ||
+    t.isBooleanLiteral(node) ||
+    t.isNullLiteral(node) ||
+    t.isIdentifier(node, { name: 'undefined' })
+  ) {
+    return true
+  }
+
+  // Unary expressions: -5, +5, !true, ~0x1
+  if (t.isUnaryExpression(node)) {
+    return isPrimitiveOrConstantExpression(node.argument, t)
+  }
+
+  // Binary expressions: 7 * 24 * 60 * 60 * 1000
+  if (t.isBinaryExpression(node) || t.isLogicalExpression(node)) {
+    return (
+      isPrimitiveOrConstantExpression(node.left, t) &&
+      isPrimitiveOrConstantExpression(node.right, t)
+    )
+  }
+
+  // Template literals with no expressions: `hello`
+  if (t.isTemplateLiteral(node)) {
+    return (
+      !node.expressions ||
+      node.expressions.length === 0 ||
+      node.expressions.every(expr => isPrimitiveOrConstantExpression(expr, t))
+    )
+  }
+
+  // Disallow: member expressions (process.platform), call expressions, etc.
+  return false
 }
 
 /**
