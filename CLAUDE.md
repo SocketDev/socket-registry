@@ -75,7 +75,6 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 
 ### Vitest Memory Optimization
 - **Pool**: `pool: 'forks'`, `singleFork: true`, `maxForks: 1`, `isolate: true`
-- **Memory**: `NODE_OPTIONS="--max-old-space-size=4096 --max-semi-space-size=512"` in `.env.test`
 - **Timeouts**: `testTimeout: 60_000, hookTimeout: 60_000`
 - **Threads**: `singleThread: true, maxThreads: 1`
 - **Cleanup**: `await trash(paths)` for all test cleanup

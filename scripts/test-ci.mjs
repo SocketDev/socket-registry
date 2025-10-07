@@ -16,8 +16,6 @@ const child = spawn(
     '-q',
     'run',
     '--',
-    'env',
-    `NODE_OPTIONS=${process.env['NODE_TEST_MEMORY'] || ''}`,
     'vitest',
     'run',
     '--config',
