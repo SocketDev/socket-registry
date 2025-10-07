@@ -1442,7 +1442,7 @@
     "build": "pnpm run clean:dist && tsgo --project tsconfig.dts.json && node ./scripts/rollup/build-source.mjs && node ./scripts/rollup/build-external.mjs && node ./scripts/generate-package-exports.mjs",
     "check:tsc": "tsgo --noEmit",
     "clean": "run-s -c clean:*",
-    "clean:dist": "del-cli 'dist' '**/*.tsbuildinfo'",
+    "clean:dist": "node ./scripts/clean-dist.mjs && del-cli '**/*.tsbuildinfo'",
     "clean:node_modules": "del-cli '**/node_modules'",
     "fix:external": "node ./scripts/fix-external.mjs",
     "lint:external": "node ./scripts/lint-external.mjs",
