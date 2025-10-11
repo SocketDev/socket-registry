@@ -50,11 +50,11 @@ All workflows use reusable workflows and actions from `SocketDev/socket-registry
 - `SocketDev/socket-registry/.github/workflows/types.yml@cb058af30991fa29b82f0c89f7d37397e067d292` # main
 
 ### Reusable Actions
-- `SocketDev/socket-registry/.github/actions/setup-and-install@cb058af30991fa29b82f0c89f7d37397e067d292` # main - Setup Node.js and install dependencies
-- `SocketDev/socket-registry/.github/actions/run-script@cb058af30991fa29b82f0c89f7d37397e067d292` # main - Execute scripts with error handling
-- `SocketDev/socket-registry/.github/actions/artifacts@cb058af30991fa29b82f0c89f7d37397e067d292` # main - Upload test results and coverage
-- `SocketDev/socket-registry/.github/actions/debug@cb058af30991fa29b82f0c89f7d37397e067d292` # main - Debug workflow troubleshooting
-- `SocketDev/socket-registry/.github/actions/cache-npm-packages@cb058af30991fa29b82f0c89f7d37397e067d292` # main - Cache npm package operations
+- `SocketDev/socket-registry/.github/actions/setup-and-install@51be85d39d3b4a42dd9d4712948b9d30a2e04794` # main - Setup Node.js and install dependencies
+- `SocketDev/socket-registry/.github/actions/run-script@51be85d39d3b4a42dd9d4712948b9d30a2e04794` # main - Execute scripts with error handling
+- `SocketDev/socket-registry/.github/actions/artifacts@51be85d39d3b4a42dd9d4712948b9d30a2e04794` # main - Upload test results and coverage
+- `SocketDev/socket-registry/.github/actions/debug@51be85d39d3b4a42dd9d4712948b9d30a2e04794` # main - Debug workflow troubleshooting
+- `SocketDev/socket-registry/.github/actions/cache-npm-packages@51be85d39d3b4a42dd9d4712948b9d30a2e04794` # main - Cache npm package operations
 
 ## Configuration Files
 
