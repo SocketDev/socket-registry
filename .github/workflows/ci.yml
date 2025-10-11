@@ -161,7 +161,7 @@ jobs:
   lint:
     if: inputs.run-lint
     name: 🧹 Lint Check
-    uses: SocketDev/socket-registry/.github/workflows/lint.yml@51be85d39d3b4a42dd9d4712948b9d30a2e04794 # main
+    uses: SocketDev/socket-registry/.github/workflows/lint.yml@a912e5bd8ec469d2ee13abf592a6b2e5898c006c # main
     with:
       debug: ${{ inputs.debug }}
       lint-script: ${{ inputs.lint-script }}
@@ -173,7 +173,7 @@ jobs:
   type-check:
     if: inputs.run-type-check
     name: 🔍 Type Check
-    uses: SocketDev/socket-registry/.github/workflows/types.yml@51be85d39d3b4a42dd9d4712948b9d30a2e04794 # main
+    uses: SocketDev/socket-registry/.github/workflows/types.yml@a912e5bd8ec469d2ee13abf592a6b2e5898c006c # main
     with:
       debug: ${{ inputs.debug }}
       node-version: ${{ inputs.type-check-node-version }}
@@ -185,7 +185,7 @@ jobs:
   test:
     if: inputs.run-test
     name: 🧪 Test Matrix
-    uses: SocketDev/socket-registry/.github/workflows/test.yml@51be85d39d3b4a42dd9d4712948b9d30a2e04794 # main
+    uses: SocketDev/socket-registry/.github/workflows/test.yml@a912e5bd8ec469d2ee13abf592a6b2e5898c006c # main
     with:
       debug: ${{ inputs.debug }}
       fail-fast: ${{ inputs.fail-fast }}
