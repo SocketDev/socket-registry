@@ -55,7 +55,7 @@ runs:
         fetch-depth: 100
 
     - name: Setup environment
-      uses: SocketDev/socket-registry/.github/actions/setup@662bbcab1b7533e24ba8e3446cffd8a7e5f7617e # main
+      uses: SocketDev/socket-registry/.github/actions/setup@51be85d39d3b4a42dd9d4712948b9d30a2e04794 # main
       with:
         debug: ${{ inputs.debug }}
         node-version: ${{ inputs.node-version }}
@@ -65,6 +65,6 @@ runs:
         working-directory: ${{ inputs.working-directory }}
 
     - name: Install dependencies
-      uses: SocketDev/socket-registry/.github/actions/install@662bbcab1b7533e24ba8e3446cffd8a7e5f7617e # main
+      uses: SocketDev/socket-registry/.github/actions/install@51be85d39d3b4a42dd9d4712948b9d30a2e04794 # main
       with:
         working-directory: ${{ inputs.working-directory }}
