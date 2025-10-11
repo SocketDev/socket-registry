@@ -2,7 +2,7 @@
   "compilerOptions": {
     "allowImportingTsExtensions": false,
     "allowJs": true,
-    "declaration": true,
+    "declaration": false,
     "declarationMap": false,
     "esModuleInterop": false,
     "forceConsistentCasingInFileNames": true,
@@ -26,8 +26,13 @@
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": false,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "paths": {
+      "cacache": ["./src/external/cacache"],
+      "make-fetch-happen": ["./src/external/make-fetch-happen"],
+      "fast-sort": ["./src/external/fast-sort"]
+    }
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist", "lib", "test", "src/external/**/*"]
+  "include": ["src/**/*.ts", "src/external/*.d.ts"],
+  "exclude": ["node_modules", "dist", "lib", "test"]
 }

@@ -71,7 +71,7 @@ import {
   isValidPackageName,
 } from './packages/validation'
 
-import type { CategoryString } from '../index'
+import type { CategoryString } from '../types'
 
 // Type for package.json exports field.
 type PackageExports = {
