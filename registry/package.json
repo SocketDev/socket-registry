@@ -1,7 +1,6 @@
 {
   "name": "@socketsecurity/registry",
   "version": "1.6.0",
-  "type": "module",
   "license": "MIT",
   "description": "Socket Registry - Core utilities and infrastructure for Socket.dev security tools",
   "keywords": [
@@ -28,8 +27,24 @@
       "import": "./dist/index.js"
     },
     "./constants": {
-      "types": "./dist/constants.d.ts",
-      "import": "./dist/constants.js"
+      "types": "./dist/constants/index.d.ts",
+      "import": "./dist/constants/index.js"
+    },
+    "./constants/static": {
+      "types": "./dist/constants/static.d.ts",
+      "import": "./dist/constants/static.js"
+    },
+    "./constants/lazy": {
+      "types": "./dist/constants/lazy.d.ts",
+      "import": "./dist/constants/lazy.js"
+    },
+    "./constants/env": {
+      "types": "./dist/constants/env.d.ts",
+      "import": "./dist/constants/env.js"
+    },
+    "./lib/constants": {
+      "types": "./dist/lib/constants/index.d.ts",
+      "import": "./dist/lib/constants/index.js"
     },
     "./utils": {
       "types": "./dist/utils.d.ts",
@@ -46,6 +61,22 @@
     "./types": {
       "types": "./dist/types.d.ts",
       "import": "./dist/types.js"
+    },
+    "./lib/packages": {
+      "types": "./dist/lib/packages/operations.d.ts",
+      "import": "./dist/lib/packages/operations.js"
+    },
+    "./lib/logger": {
+      "types": "./dist/lib/logger.d.ts",
+      "import": "./dist/lib/logger.js"
+    },
+    "./lib/objects": {
+      "types": "./dist/lib/objects.d.ts",
+      "import": "./dist/lib/objects.js"
+    },
+    "./lib/strings": {
+      "types": "./dist/lib/strings.d.ts",
+      "import": "./dist/lib/strings.js"
     },
     "./package.json": "./package.json"
   },
@@ -67,9 +98,12 @@
   },
   "sideEffects": false,
   "scripts": {
-    "build": "pnpm run clean && pnpm run build:ts && pnpm run build:types",
+    "build": "pnpm run clean && pnpm run build:ts && pnpm run build:types && pnpm run build:externals && pnpm run fix:exports && pnpm run fix:imports",
     "build:ts": "tsgo --project tsconfig.json",
     "build:types": "tsgo --project tsconfig.dts.json --declaration --emitDeclarationOnly",
+    "build:externals": "node scripts/build-externals.mjs",
+    "fix:exports": "node scripts/fix-commonjs-exports.mjs",
+    "fix:imports": "node scripts/fix-default-imports.mjs",
     "clean": "del-cli dist '**/*.tsbuildinfo'",
     "check": "tsgo --noEmit",
     "dev": "tsgo --watch",
