@@ -24,14 +24,14 @@ export function envAsString(value: string | undefined): string {
 
 // Create a proxy for environment variable access.
 const envProxy = new Proxy({}, {
-  get(_target, prop) {
+  get(_, prop) {
     if (typeof prop === 'string') {
       return env[prop]
     }
     return undefined
   },
 
-  has(_target, prop) {
+  has(_, prop) {
     if (typeof prop === 'string') {
       return prop in env
     }

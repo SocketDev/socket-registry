@@ -19,7 +19,7 @@ const sockRegPkgName = path.basename(__filename, '.test.mts')
 // https://github.com/inspect-js/is-regex/blob/v1.1.4/test/index.js
 describe(
   `${eco} > ${sockRegPkgName}`,
-  { skip: isPackageTestingSkipped(eco, sockRegPkgName) },
+  { skip: isPackageTestingSkipped(sockRegPkgName) },
   () => {
     let implementations: any[]
 

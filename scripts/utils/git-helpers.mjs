@@ -3,14 +3,15 @@
  */
 
 import { execSync } from 'node:child_process'
-import { exec } from '../../registry/dist/utils/spawn.js'
+import spawnModule from '../../registry/dist/lib/spawn.js'
+const { spawn } = spawnModule
 
 /**
  * Get staged files.
  */
 export async function getStagedFiles(cwd = process.cwd()) {
   try {
-    const { stdout } = await exec('git', ['diff', '--cached', '--name-only'], { cwd })
+    const { stdout } = await spawn('git', ['diff', '--cached', '--name-only'], { cwd })
     return stdout
       .trim()
       .split('\n')
@@ -40,7 +41,7 @@ export function getStagedFilesSync(cwd = process.cwd()) {
  */
 export async function getUnstagedFiles(cwd = process.cwd()) {
   try {
-    const { stdout } = await exec('git', ['diff', '--name-only'], { cwd })
+    const { stdout } = await spawn('git', ['diff', '--name-only'], { cwd })
     return stdout
       .trim()
       .split('\n')

@@ -86,8 +86,29 @@ const lazyGitExecPath = () => which.sync('git', { ...getDefaultWhichOptions() })
 /**
  * Get gitignore file configuration for ESLint.
  */
-const lazyGitIgnoreFile = () =>
-  includeIgnoreFile(normalizePath(path.join(lazyRootPath(), GITIGNORE)))
+const lazyGitIgnoreFile = () => {
+  // Find project root by looking for pnpm-workspace.yaml.
+  let currentPath = process.cwd()
+  const root = path.parse(currentPath).root
+
+  while (currentPath !== root) {
+    if (
+      fs.existsSync(
+        normalizePath(path.join(currentPath, 'pnpm-workspace.yaml')),
+      )
+    ) {
+      const rootPath = normalizePath(currentPath)
+      return includeIgnoreFile(normalizePath(path.join(rootPath, '.gitignore')))
+    }
+    currentPath = path.dirname(currentPath)
+  }
+
+  // Fallback if not found.
+  const __filename = fileURLToPath(import.meta.url)
+  const __dirname = path.dirname(__filename)
+  const rootPath = normalizePath(path.resolve(__dirname, '..'))
+  return includeIgnoreFile(normalizePath(path.join(rootPath, '.gitignore')))
+}
 
 /**
  * Get merged ignore globs from gitignore and standard exclusions.
@@ -121,8 +142,21 @@ const lazyNpmPackageNames = () => {
 /**
  * Get npm packages directory path.
  */
-const lazyNpmPackagesPath = () =>
-  normalizePath(path.join(constants.rootPackagesPath, NPM))
+const lazyNpmPackagesPath = () => {
+  // Find root first
+  let currentPath = process.cwd()
+  const root = path.parse(currentPath).root
+  while (currentPath !== root) {
+    if (fs.existsSync(path.join(currentPath, 'pnpm-workspace.yaml'))) {
+      return normalizePath(path.join(currentPath, 'packages', 'npm'))
+    }
+    currentPath = path.dirname(currentPath)
+  }
+  // Fallback
+  const __filename = fileURLToPath(import.meta.url)
+  const __dirname = path.dirname(__filename)
+  return normalizePath(path.join(__dirname, '..', 'packages', 'npm'))
+}
 
 /**
  * Get npm templates directory path.
@@ -193,14 +227,29 @@ const lazyRootEslintConfigPath = () =>
 /**
  * Get root node_modules directory path.
  */
-const lazyRootNodeModulesPath = () =>
-  normalizePath(path.join(constants.rootPath, NODE_MODULES))
+const lazyRootNodeModulesPath = () => {
+  // Find root first
+  let currentPath = process.cwd()
+  const root = path.parse(currentPath).root
+  while (currentPath !== root) {
+    if (fs.existsSync(path.join(currentPath, 'pnpm-workspace.yaml'))) {
+      return normalizePath(path.join(currentPath, 'node_modules'))
+    }
+    currentPath = path.dirname(currentPath)
+  }
+  // Fallback
+  const __filename = fileURLToPath(import.meta.url)
+  const __dirname = path.dirname(__filename)
+  return normalizePath(path.join(__dirname, '..', 'node_modules'))
+}
 
 /**
  * Get root node_modules/.bin directory path.
  */
-const lazyRootNodeModulesBinPath = () =>
-  normalizePath(path.join(constants.rootNodeModulesPath, '.bin'))
+const lazyRootNodeModulesBinPath = () => {
+  const nodeModulesPath = lazyRootNodeModulesPath()
+  return normalizePath(path.join(nodeModulesPath, '.bin'))
+}
 
 /**
  * Get root package.json file path.
@@ -249,8 +298,21 @@ const lazyRootPath = () => {
 /**
  * Get root tsconfig.json file path.
  */
-const lazyRootTsConfigPath = () =>
-  normalizePath(path.join(constants.rootPath, constants.TSCONFIG_JSON))
+const lazyRootTsConfigPath = () => {
+  // Find root first
+  let currentPath = process.cwd()
+  const root = path.parse(currentPath).root
+  while (currentPath !== root) {
+    if (fs.existsSync(path.join(currentPath, 'pnpm-workspace.yaml'))) {
+      return normalizePath(path.join(currentPath, 'tsconfig.json'))
+    }
+    currentPath = path.dirname(currentPath)
+  }
+  // Fallback
+  const __filename = fileURLToPath(import.meta.url)
+  const __dirname = path.dirname(__filename)
+  return normalizePath(path.join(__dirname, '..', 'tsconfig.json'))
+}
 
 /**
  * Get registry package directory path.
@@ -273,8 +335,9 @@ const lazyRegistryManifestJsonPath = () =>
 /**
  * Get relative npm packages directory path.
  */
-const lazyRelNpmPackagesPath = () =>
-  normalizePath(path.relative(constants.rootPath, constants.npmPackagesPath))
+const lazyRelNpmPackagesPath = () => {
+  return normalizePath('packages/npm')
+}
 
 /**
  * Get relative packages directory path.
@@ -317,7 +380,7 @@ const lazySkipTestsByEcosystem = () => {
   const { WIN32 } = registryConstants
 
   // Get all test files from test/npm directory.
-  const testNpmPath = lazyTestNpmPath()
+  const testNpmPath = constants.testNpmPath
   const testFiles = fs
     .readdirSync(testNpmPath)
     .filter(name => name.endsWith('.test.mts'))

@@ -7,16 +7,14 @@ import { isObjectObject } from '../registry/dist/lib/objects.js'
 import constants from '../scripts/constants.mjs'
 import { isPackageTestingSkipped } from '../scripts/utils/tests.mjs'
 
-const { NPM, SOCKET_REGISTRY_PACKAGE_NAME } = constants
+const { SOCKET_REGISTRY_PACKAGE_NAME } = constants
 
 const rootPath = path.resolve(__dirname, '..')
 const rootRegistryPath = path.join(rootPath, 'registry', 'dist')
 
-const eco = NPM
-
 describe(
   SOCKET_REGISTRY_PACKAGE_NAME,
-  { skip: isPackageTestingSkipped(eco, SOCKET_REGISTRY_PACKAGE_NAME) },
+  { skip: isPackageTestingSkipped(SOCKET_REGISTRY_PACKAGE_NAME) },
   () => {
     it('should not trigger lazy getter on module initialization', async () => {
       const jsFilepaths = (
