@@ -136,7 +136,7 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 
 ### Error Handling
 - **Catch**: `catch (e)` not `catch (error)`
-- **Messages**: Double quotes, descriptive, actionable
+- **Messages**: Double quotes, descriptive, actionable, NO periods at end
 - **Patterns**:
   - `"{field}" is required` or `"{field}" is a required {type}`
   - `"{field}" must be a {type}`

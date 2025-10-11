@@ -36,7 +36,7 @@ export async function getCodeCoverage(
   const { coveragePath, generateIfMissing } = opts
 
   if (!coveragePath) {
-    throw new Error('Coverage path is required.')
+    throw new Error('Coverage path is required')
   }
 
   // Check if coverage file exists.
