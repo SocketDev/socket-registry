@@ -1,67 +1,50 @@
 /**
- * @fileoverview Abort utilities for signals and controllers.
- * Provides helpers for creating composite signals from multiple abort sources.
+ * @fileoverview Abort signal utilities.
  */
 
 /**
- * Create a composite AbortSignal that aborts when any of the input signals abort.
+ * Create a composite AbortSignal from multiple signals.
  */
-/*@__NO_SIDE_EFFECTS__*/
 export function createCompositeAbortSignal(
   ...signals: Array<AbortSignal | null | undefined>
 ): AbortSignal {
-  // Filter out null/undefined signals
-  const validSignals = signals.filter(signal => signal != null)
+  const validSignals = signals.filter(s => s != null) as AbortSignal[]
 
   if (validSignals.length === 0) {
-    // No valid signals, return a signal that never aborts
     return new AbortController().signal
   }
 
   if (validSignals.length === 1) {
-    // Only one signal, return it directly
     return validSignals[0]!
   }
 
-  // Check if any signal is already aborted
-  const abortedSignal = validSignals.find(signal => signal.aborted)
-  if (abortedSignal) {
-    // If any signal is already aborted, return an already aborted signal
-    const controller = new AbortController()
-    controller.abort()
-    return controller.signal
-  }
+  const controller = new AbortController()
 
-  // Create composite signal that listens to all input signals
-  const compositeController = new AbortController()
-  const abortHandler = () => {
-    if (!compositeController.signal.aborted) {
-      compositeController.abort()
-    }
-  }
-
-  // Add abort listeners to all valid signals
   for (const signal of validSignals) {
-    signal.addEventListener('abort', abortHandler, { once: true })
+    if (signal.aborted) {
+      controller.abort()
+      return controller.signal
+    }
+    signal.addEventListener('abort', () => controller.abort(), { once: true })
   }
 
-  return compositeController.signal
+  return controller.signal
 }
 
 /**
- * Create an AbortSignal that aborts after a specified timeout.
+ * Create an AbortSignal that triggers after a timeout.
  */
-/*@__NO_SIDE_EFFECTS__*/
-export function createTimeoutSignal(timeout: number): AbortSignal {
-  if (
-    typeof timeout !== 'number' ||
-    !Number.isFinite(timeout) ||
-    timeout <= 0
-  ) {
+export function createTimeoutSignal(ms: number): AbortSignal {
+  if (typeof ms !== 'number' || Number.isNaN(ms)) {
+    throw new TypeError('timeout must be a number')
+  }
+  if (!Number.isFinite(ms)) {
+    throw new TypeError('timeout must be a finite number')
+  }
+  if (ms <= 0) {
     throw new TypeError('timeout must be a positive number')
   }
-
   const controller = new AbortController()
-  setTimeout(() => controller.abort(), timeout)
+  setTimeout(() => controller.abort(), ms)
   return controller.signal
 }
