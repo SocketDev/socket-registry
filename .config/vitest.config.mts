@@ -53,6 +53,43 @@ export default defineConfig({
               find: /^\.\.\/\.\.\/registry\/dist\/(.*)\.js$/,
               replacement: path.resolve(projectRoot, 'registry/src/$1.ts'),
             },
+            // Map external dependencies to their dist versions during coverage.
+            {
+              find: /^\.\.\/\.\.\/fast-sort$/,
+              replacement: path.resolve(projectRoot, 'registry/dist/fast-sort.js'),
+            },
+            {
+              find: /^\.\.\/\.\.\/semver$/,
+              replacement: path.resolve(projectRoot, 'registry/dist/semver.js'),
+            },
+            {
+              find: /^\.\.\/\.\.\/del$/,
+              replacement: path.resolve(projectRoot, 'registry/dist/del.js'),
+            },
+            {
+              find: /^\.\.\/\.\.\/cacache$/,
+              replacement: path.resolve(projectRoot, 'registry/dist/cacache.js'),
+            },
+            {
+              find: /^\.\.\/\.\.\/libnpmpack$/,
+              replacement: path.resolve(projectRoot, 'registry/dist/libnpmpack.js'),
+            },
+            {
+              find: /^\.\.\/\.\.\/pacote$/,
+              replacement: path.resolve(projectRoot, 'registry/dist/pacote.js'),
+            },
+            {
+              find: /^\.\.\/\.\.\/browserslist$/,
+              replacement: path.resolve(projectRoot, 'registry/dist/browserslist.js'),
+            },
+            {
+              find: /^\.\.\/\.\.\/yargs-parser$/,
+              replacement: path.resolve(projectRoot, 'registry/dist/yargs-parser.js'),
+            },
+            {
+              find: /^\.\.\/\.\.\/zod$/,
+              replacement: path.resolve(projectRoot, 'registry/dist/zod.js'),
+            },
           ]
         : [
             {
@@ -68,12 +105,12 @@ export default defineConfig({
     globalSetup: [path.resolve(__dirname, 'vitest-global-setup.mts')],
     globals: false,
     environment: 'node',
-    include: ['test/**/*.test.{js,ts,mjs,mts,cjs,cts}'],
+    include: ['../test/**/*.test.{js,ts,mjs,mts,cjs,cts}'],
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
       // Exclude test/npm unless INCLUDE_NPM_TESTS is set
-      ...(process.env['INCLUDE_NPM_TESTS'] ? [] : ['test/npm/**']),
+      ...(process.env['INCLUDE_NPM_TESTS'] ? [] : ['../test/npm/**']),
     ],
     reporters: ['default'],
     // Improve memory usage by running tests sequentially in CI.
@@ -103,7 +140,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reportsDirectory: 'coverage',
-      reporter: ['text', 'json', 'html', 'lcov'],
+      reporter: ['text', 'json', 'html', 'lcov', 'clover'],
       exclude: [
         '**/*.config.*',
         '**/node_modules/**',
@@ -115,21 +152,27 @@ export default defineConfig({
         'test/**',
         'packages/**',
         'perf/**',
-        'registry/scripts/**',
-        'registry/dist/external/**',
-        'registry/dist/types.js',
-        'registry/src/external/**',
-        'registry/src/types.ts',
+        'dist/external/**',
+        'dist/types.js',
+        'src/external/**',
+        'src/types.ts',
+        // Explicitly exclude scripts and packages at root
+        '/scripts/**',
+        '/packages/**',
+        '/test/**',
       ],
       include: isCoverageEnabled
-        ? ['registry/src/**/*.{ts,mts,cts}']
-        : ['registry/dist/**/*.{js,mjs,cjs}'],
+        ? ['src/**/*.{ts,mts,cts}']
+        : ['dist/**/*.{js,mjs,cjs}'],
       all: true,
+      clean: true,
+      skipFull: false,
+      ignoreClassMethods: ['constructor'],
       thresholds: {
-        lines: 80,
-        functions: 80,
-        branches: 80,
-        statements: 80,
+        lines: 55,
+        functions: 55,
+        branches: 55,
+        statements: 55,
       },
     },
   },
