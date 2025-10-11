@@ -305,6 +305,32 @@ export function createRequireTransformPlugin(): Plugin {
               // Step 9: Resolve the require modulePath to the actual TypeScript file.
               // Directory of current file.
               const currentDir = dirname(id)
+
+              // Special handling for external dependencies that only exist in dist.
+              // These are bundled modules that don't have TypeScript sources.
+              const externalModules = [
+                'fast-sort', 'semver', 'del', 'cacache', 'libnpmpack',
+                'pacote', 'browserslist', 'yargs-parser', 'zod'
+              ]
+
+              // Check if this is an external module require.
+              const requireName = requirePath.replace(/^\.\.\/\.\.\//, '').replace(/\.js$/, '')
+              if (externalModules.includes(requireName)) {
+                // For external modules, directly use the dist version.
+                const projectRoot = id.split('/registry/')[0]
+                const distPath = resolve(projectRoot, 'registry/dist', `${requireName}.js`)
+
+                // Replace the require with absolute path to dist.
+                const stringNode = arg as t.StringLiteral
+                s.overwrite(
+                  stringNode.start!,
+                  stringNode.end!,
+                  `'${distPath}'`,
+                )
+                modified = true
+                return
+              }
+
               // Convert .js to .ts, or add .ts if no extension.
               const tsPath = requirePath.endsWith('.js')
                 ? requirePath.replace(/\.js$/, '.ts')

@@ -19,6 +19,7 @@ import tsEslint from 'typescript-eslint'
 import constants from '../scripts/constants.mjs'
 import { readPackageJsonSync } from '@socketsecurity/registry/lib/packages'
 
+// Resolve current module paths for proper configuration loading.
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const require = createRequire(import.meta.url)
@@ -28,11 +29,15 @@ const { gitIgnoreFile, npmPackagesPath, relNpmPackagesPath, rootTsConfigPath } =
 
 const rootPath = path.dirname(__dirname)
 
+// Convert Node.js globals to readonly format for ESLint configuration.
+// This ensures Node.js built-ins are recognized but not modifiable.
 const nodeGlobalsConfig = Object.fromEntries(
   Object.entries(globals.node).map(([k]) => [k, 'readonly']),
 )
 
-const biomeConfigPath = path.join(rootPath, 'biome.json')
+// Import Biome config to synchronize ignore patterns between formatters.
+// This reduces configuration duplication and ensures consistent file filtering.
+const biomeConfigPath = path.join(rootPath, '.config', 'biome.json')
 const biomeConfig = require(biomeConfigPath)
 const biomeIgnores = {
   name: 'Imported biome.json ignore patterns',
@@ -47,12 +52,18 @@ const gitIgnores = {
   name: `Imported .gitignore ignore patterns`,
 }
 
+// OPTIMIZATION: When LINT_EXTERNAL is set, include external dependencies in linting.
+// This is disabled by default for performance since external deps are pre-validated.
+// Enable only for comprehensive checks before releases.
 if (process.env.LINT_EXTERNAL) {
   const isNotExternalGlobPattern = p => !/(?:^|[\\/])external/.test(p)
   biomeIgnores.ignores = biomeIgnores.ignores?.filter(isNotExternalGlobPattern)
   gitIgnores.ignores = gitIgnores.ignores?.filter(isNotExternalGlobPattern)
 }
 
+// OPTIMIZATION: Dynamically generate ignore patterns based on package types.
+// This prevents ESLint from checking incompatible module types, reducing
+// false positives and improving linting performance by skipping unnecessary files.
 function getIgnores(isEsm) {
   return constants.npmPackageNames.flatMap(sockRegPkgName => {
     const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
@@ -270,9 +281,11 @@ function configs(sourceType) {
               'registry/src/lib/constants/*.d.ts',
             ],
             defaultProject: 'tsconfig.json',
-            // Need this to glob packages/npm/* files.
+            // PERFORMANCE TRADEOFF: Increase file match limit from default 8 to 1000.
+            // This slows initial parsing but allows TypeScript-aware linting of all
+            // npm package overrides without requiring individual tsconfig files.
             maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 1_000,
-            tsconfigRootDir: __dirname,
+            tsconfigRootDir: rootPath,
           },
         },
       },
@@ -346,6 +359,12 @@ export default [
       'coverage/**',
       'packages/npm/**/package',
       '.config/**',
+      // Exclude external type definitions from linting.
+      'registry/src/external/**/*.d.ts',
+      'registry/src/lib/constants/*.d.ts',
+      // Also exclude when running from registry directory.
+      'src/external/**/*.d.ts',
+      'src/lib/constants/*.d.ts',
     ],
   },
   ...configs('script'),
