@@ -2,10 +2,10 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 
-import constants from '@socketsecurity/registry/lib/constants'
-import { readJson } from '@socketsecurity/registry/lib/fs'
-import { isObjectObject } from '@socketsecurity/registry/lib/objects'
-import { spawn } from '@socketsecurity/registry/lib/spawn'
+import constants from '../constants.mjs'
+import { readJson } from '../../registry/dist/lib/fs.js'
+import { isObjectObject } from '../../registry/dist/lib/lang/objects.js'
+import { spawn } from './spawn.mjs'
 
 /**
  * Count how many items in array are covered (greater than 0).
@@ -32,7 +32,7 @@ export async function getCodeCoverage(options) {
       return null
     }
 
-    const result = await spawn('pnpm', ['run', 'test:unit:coverage'], {
+    const result = await spawn('node', ['scripts/cover.mjs'], {
       stdio: 'ignore',
       shell: constants.WIN32,
     })

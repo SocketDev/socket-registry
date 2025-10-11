@@ -3,7 +3,7 @@
  * Provides utilities for determining which tests to run based on changes.
  */
 
-import { parseArgs } from '@socketsecurity/registry/lib/parse-args'
+import { parseArgs } from '../../registry/dist/lib/cli/argv.js'
 
 let _cliArgs
 

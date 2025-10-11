@@ -1,63 +1,42 @@
-/** @fileoverview TypeScript declaration for package.mjs module. */
+/**
+ * @fileoverview Type definitions for package.mjs
+ */
 
-interface ProcessOptions {
-  concurrency?: number
-  failFast?: boolean
-  spinner?: any
+export interface TestRunResult {
+  passed: boolean
+  output: string
+  exitCode: number
+  error?: Error
 }
 
-interface RunCommandOptions {
+export interface TestOptions {
   cwd?: string
   env?: Record<string, string>
-  stdio?: string
+  timeout?: number
 }
 
-interface ReadPackageOptions {
-  cache?: boolean
-}
-
-interface UpdatePackagesOptions {
-  concurrency?: number
-  dryRun?: boolean
-}
-
-export declare const editablePackageJsonCache: Map<string, any>
-
-export declare function clearPackageJsonCache(): void
-
-export declare function collectPackageData(
-  paths: string[],
-  options?: ProcessOptions | undefined,
-): Promise<any[]>
-
-export declare function installPackageForTesting(
-  socketPkgName: string,
-): Promise<{ installed: boolean; packagePath?: string; reason?: string }>
-
-export declare function processWithSpinner<T, R>(
+export function getInstalledPackages(tempDir: string): Promise<string[]>
+export function installPackage(
+  packagePath: string,
+  tempDir: string,
+  options?: Record<string, any>
+): Promise<void>
+export function installPackageForTesting(
+  sourcePath: string,
+  packageName: string,
+  options?: Record<string, any>
+): Promise<{
+  installed: boolean
+  packagePath?: string
+  reason?: string
+}>
+export function runPackageTests(
+  packageName: string,
+  tempDir: string,
+  options?: TestOptions
+): Promise<TestRunResult>
+export function processWithConcurrency<T>(
   items: T[],
-  processor: (item: T) => Promise<R>,
-  options?: ProcessOptions | undefined,
-): Promise<R[]>
-
-export declare function readCachedEditablePackageJson(
-  pkgPath: string,
-  options?: ReadPackageOptions | undefined,
-): Promise<any>
-
-export interface CommandResult {
-  stdout: string
-  stderr: string
-  code: number
-}
-
-export declare function runCommand(
-  command: string,
-  args: string[],
-  options?: RunCommandOptions | undefined,
-): Promise<CommandResult>
-
-export declare function updatePackagesJson(
-  packages: string[],
-  options?: UpdatePackagesOptions | undefined,
+  operation: (item: T) => Promise<void>,
+  options?: { concurrency?: number; startMessage?: string; errorMessage?: string; spinner?: any }
 ): Promise<void>
