@@ -1,6 +1,6 @@
 /** @fileoverview Utility to calculate TypeScript type coverage percentage. */
-import constants from '@socketsecurity/registry/lib/constants'
-import { spawn } from '@socketsecurity/registry/lib/spawn'
+import constants from '../constants.mjs'
+import { spawn } from './spawn.mjs'
 
 /**
  * Execute type-coverage command and extract percentage from output.

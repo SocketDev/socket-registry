@@ -4,31 +4,23 @@
 
 import path from 'node:path'
 
-import { getGlobMatcher } from '../../registry/dist/lib/globs.js'
-import { normalizePath } from '../../registry/dist/lib/path.js'
+import { getGlobMatcher } from './globs.mjs'
+import { normalizePath } from '../../registry/dist/utils/paths.js'
 import constants from '../constants.mjs'
 
-export {
-  getChangedFiles,
+// Import from registry v2.0 (async only)
+import { getChangedFiles } from '../../registry/dist/utils/git.js'
+
+// Import sync and additional functions from helpers
+import {
   getChangedFilesSync,
   getStagedFiles,
   getStagedFilesSync,
   getUnstagedFiles,
   getUnstagedFilesSync,
-  isChanged,
-  isChangedSync,
-  isStaged,
-  isStagedSync,
-  isUnstaged,
-  isUnstagedSync,
-} from '../../registry/dist/lib/git.js'
-
-import {
-  getChangedFiles,
-  getChangedFilesSync,
-  getUnstagedFiles,
-  getUnstagedFilesSync,
-} from '../../registry/dist/lib/git.js'
+  isUnstaged as isUnstagedImport,
+  isUnstagedSync as isUnstagedSyncImport,
+} from './git-helpers.mjs'
 
 const { NPM } = constants
 
@@ -101,20 +93,14 @@ function getModifiedPackagesSync(eco, options) {
  * Get staged package names for the specified ecosystem.
  */
 async function getStagedPackages(eco, options) {
-  const { getStagedFiles: getStagedFilesImport } = await import(
-    '../../registry/dist/lib/git.js'
-  )
-  return innerGetPackages(eco, await getStagedFilesImport(), options)
+  return innerGetPackages(eco, await getStagedFiles(), options)
 }
 
 /**
  * Get staged package names for the specified ecosystem.
  */
 function getStagedPackagesSync(eco, options) {
-  const {
-    getStagedFilesSync: getStagedFilesSyncImport,
-  } = require('../../registry/dist/lib/git.js')
-  return innerGetPackages(eco, getStagedFilesSyncImport(), options)
+  return innerGetPackages(eco, getStagedFilesSync(), options)
 }
 
 /**
@@ -135,9 +121,6 @@ export function getModifiedFilesSync(options) {
  * Alias for isUnstaged.
  */
 export async function isModified(pathname, options) {
-  const { isUnstaged: isUnstagedImport } = await import(
-    '../../registry/dist/lib/git.js'
-  )
   return await isUnstagedImport(pathname, options)
 }
 
@@ -145,9 +128,6 @@ export async function isModified(pathname, options) {
  * Alias for isUnstagedSync.
  */
 export function isModifiedSync(pathname, options) {
-  const {
-    isUnstagedSync: isUnstagedSyncImport,
-  } = require('../../registry/dist/lib/git.js')
   return isUnstagedSyncImport(pathname, options)
 }
 
@@ -176,8 +156,12 @@ export async function filterPackagesByChanges(packages, eco, options) {
 export {
   getAllChangedPackages,
   getAllChangedPackagesSync,
+  getChangedFiles,
+  getChangedFilesSync,
   getModifiedPackages,
   getModifiedPackagesSync,
+  getStagedFiles,
+  getStagedFilesSync,
   getStagedPackages,
   getStagedPackagesSync,
 }
