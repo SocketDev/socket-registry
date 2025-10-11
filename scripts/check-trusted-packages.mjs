@@ -72,8 +72,7 @@ By default, checks:
 With --all flag, adds:
   - Additional Socket packages (@socketsecurity/config, @socketsecurity/mcp, etc.)
 `)
-  // eslint-disable-next-line n/no-process-exit
-  process.exit(0)
+  process.exitCode = 0
 }
 
 async function runCommand(command, args = []) {
@@ -324,8 +323,8 @@ async function main() {
 
   if (results.failed.length > 0) {
     logger.fail(`${results.failed.length} packages need attention`)
-    // eslint-disable-next-line n/no-process-exit
-    process.exit(1)
+    process.exitCode = 1
+    return
   }
 
   logger.log('\n✨ All packages have correct trusted setup!')
@@ -333,6 +332,5 @@ async function main() {
 
 main().catch(error => {
   logger.error('Fatal error:', error)
-  // eslint-disable-next-line n/no-process-exit
-  process.exit(1)
+  process.exitCode = 1
 })
