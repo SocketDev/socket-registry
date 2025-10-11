@@ -24,7 +24,7 @@ export async function getTypeCoverage(
   const { cwd, generateIfMissing } = opts
 
   if (!cwd) {
-    throw new Error('Working directory is required.')
+    throw new Error('Working directory is required')
   }
 
   try {

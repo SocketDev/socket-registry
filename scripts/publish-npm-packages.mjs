@@ -344,7 +344,7 @@ async function publishPackages(packages, state, options) {
 async function publishToken(pkg, state, options) {
   const { maxRetries = 3, retryDelay = 1000 } = { __proto__: null, ...options }
   if (!isObjectObject(state)) {
-    throw new TypeError('A state object is required.')
+    throw new TypeError('A state object is required')
   }
 
   // Retry flow:
@@ -423,7 +423,7 @@ async function publishToken(pkg, state, options) {
 async function publishTrusted(pkg, state, options) {
   const { maxRetries = 3, retryDelay = 1000 } = { __proto__: null, ...options }
   if (!isObjectObject(state)) {
-    throw new TypeError('A state object is required.')
+    throw new TypeError('A state object is required')
   }
 
   // Retry flow:
