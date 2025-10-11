@@ -1,50 +1,50 @@
 # CLAUDE.md
 
-🚨 **MANDATORY**: Act as principal-level engineer. Follow these guidelines EXACTLY.
+**MANDATORY**: Act as principal-level engineer. Follow these guidelines exactly.
 
-## 📍 CANONICAL REFERENCE
+## CANONICAL REFERENCE
 
-This is the **canonical source** for shared Socket standards. Other projects reference this file.
+This is the canonical source for shared Socket standards. Other projects reference this file.
 
-## 🔍 PRE-ACTION PROTOCOL
+## PRE-ACTION PROTOCOL
 
-**🚨 MANDATORY**: Review CLAUDE.md before ANY action. No exceptions.
+**MANDATORY**: Review CLAUDE.md before any action. No exceptions.
 
-## 🛡️ ABSOLUTE RULES
+## ABSOLUTE RULES
 
-- **NEVER** create files unless necessary
-- **ALWAYS** prefer editing existing files
-- **FORBIDDEN** to create docs unless requested
-- **REQUIRED** to do exactly what was asked
+- Never create files unless necessary
+- Always prefer editing existing files
+- Forbidden to create docs unless requested
+- Required to do exactly what was asked
 
-## 🎯 YOUR ROLE
+## ROLE
 
 Principal Software Engineer: production code, architecture, reliability, ownership.
 
-## 📝 EVOLUTION
+## EVOLUTION
 
 If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 
-## 🚀 SHARED STANDARDS
+## SHARED STANDARDS
 
 ### Cross-Platform (CRITICAL)
-- **🚨 MANDATORY**: Work on Windows + POSIX
+- **MANDATORY**: Work on Windows + POSIX
 - **Paths**: Always `path.join()`, `path.resolve()`, `path.sep`
 - **Temp**: `os.tmpdir()` + `fs.mkdtemp()` for unique dirs
 - **File URLs**: `fileURLToPath()` from `node:url`
-- **Never hard-code** `/` or `\`
+- Never hard-code `/` or `\`
 
 ### Node.js Compatibility
 - **Minimum**: Node.js 18.0.0
-- **❌ FORBIDDEN ES2023+**: `toReversed()`, `toSorted()`, `toSpliced()`, `with()`
-- **✅ Use**: `slice().reverse()`, `slice().sort()`
+- **FORBIDDEN ES2023+**: `toReversed()`, `toSorted()`, `toSpliced()`, `with()`
+- **Use instead**: `slice().reverse()`, `slice().sort()`
 
 ### Safe File Operations (SECURITY CRITICAL)
-- **🚨 MANDATORY**: Use `trash` from `scripts/utils/fs.mjs` for ALL deletions
-- **Canonical implementation**: Socket-registry (copy to other projects)
+- **MANDATORY**: Use `trash` from `scripts/utils/fs.mjs` for all deletions
+- **Canonical implementation**: socket-registry (copy to other projects)
 - **Behavior**: Non-CI uses trash; CI uses fs.rm; temp dirs ignore failures
 - **Usage**: `import { trash } from './scripts/utils/fs.mjs'` then `await trash(paths)`
-- **❌ FORBIDDEN**: Direct `trash` package, `fs.rm()`, `fs.rmSync()`, `rm -rf`
+- **FORBIDDEN**: Direct `trash` package, `fs.rm()`, `fs.rmSync()`, `rm -rf`
 
 ### Git Workflow
 - **Pre-commit**: `pnpm run fix && pnpm run check`
@@ -54,21 +54,21 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 - **Version bumps**: `Bump to v1.2.3`
 
 ### Git SHA Management (CRITICAL)
-- **🚨 NEVER GUESS SHAs**: Use `git rev-parse HEAD` or `git rev-parse main`
+- **NEVER GUESS SHAs**: Use `git rev-parse HEAD` or `git rev-parse main`
 - **Format**: `@662bbcab1b7533e24ba8e3446cffd8a7e5f7617e # main` (full 40-char SHA)
 - **Why**: GitHub Actions require pinned full SHAs
 - **Update workflow refs**: 1) `cd repo && git rev-parse main`, 2) Use full SHA, 3) Verify with `git show <sha>`
 
 ### CI Testing Infrastructure
-- **🚨 MANDATORY**: Use `SocketDev/socket-registry/.github/workflows/ci.yml@<SHA>` with full commit SHA
+- **MANDATORY**: Use `SocketDev/socket-registry/.github/workflows/ci.yml@<SHA>` with full commit SHA
 - **Reusable workflows**: Centralized lint/type-check/test/coverage
 - **Matrix testing**: Node.js 20/22/24, cross-platform
 - **CI script naming**: `lint-ci`, `test-ci`, `type-ci` (no watch/fix modes)
 
 ### Testing & Coverage
-- **🚨 NEVER USE `--` before test paths** - runs ALL tests
+- **NEVER USE `--` before test paths** - runs all tests
 - **Test single file**: `pnpm test path/to/file.test.ts`
-- **Coverage**: 🚨 MANDATORY - never decrease, always maintain/increase
+- **Coverage**: MANDATORY - never decrease, always maintain/increase
 - **c8 ignore**: Must include reason ending with period
 - **Naming**: Descriptive file/describe/test names for coverage clarity
 - **Structure**: `test/unit/`, `test/integration/`, `test/fixtures/`, `test/utils/`
@@ -98,23 +98,23 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 ### Code Style - File Organization
 - **Extensions**: `.js` (JSDoc), `.mjs` (ES modules), `.mts` (TypeScript modules)
 - **Naming**: kebab-case filenames
-- **Module headers**: 🚨 MANDATORY `@fileoverview` as first content
-- **Node.js imports**: 🚨 MANDATORY `node:` prefix (`import path from 'node:path'`)
+- **Module headers**: MANDATORY `@fileoverview` as first content
+- **Node.js imports**: MANDATORY `node:` prefix (`import path from 'node:path'`)
 - **Import sorting**: 1) Node built-ins, 2) External, 3) `@socketsecurity/*`, 4) Local, 5) Types. Blank lines between. Alphabetical within.
 - **fs imports**: `import { syncMethod, promises as fs } from 'node:fs'`
 
 ### Code Style - Patterns
 - **Constants**: `UPPER_SNAKE_CASE`
 - **Return values**: `undefined` not `null` (except external APIs)
-- **__proto__**: 🚨 MANDATORY - Always first in literals: `{ __proto__: null, ...opts }`
+- **__proto__**: MANDATORY - Always first in literals: `{ __proto__: null, ...opts }`
 - **Null-prototype objects**: Use `Object.create(null)` for empty objects only; `{ __proto__: null, key: val }` when properties exist
-- **Options pattern**: 🚨 MANDATORY `const opts = { __proto__: null, ...options } as SomeOptions`
+- **Options pattern**: MANDATORY `const opts = { __proto__: null, ...options } as SomeOptions`
 - **Array destructuring**: Use `{ 0: key, 1: val }` for `Object.entries()` loops (V8 performance)
 - **Array checks**: `!array.length` not `array.length === 0`
 - **Increments**: `var += 1` not `var++` (standalone statements)
-- **Type safety**: ❌ FORBIDDEN `any`; use `unknown` or specific types
-- **Loop annotations**: ❌ FORBIDDEN - Never annotate for...of variables
-- **String interpolation**: 🚨 MANDATORY - Template literals, not concatenation
+- **Type safety**: FORBIDDEN `any`; use `unknown` or specific types
+- **Loop annotations**: FORBIDDEN - Never annotate for...of variables
+- **String interpolation**: MANDATORY - Template literals, not concatenation
 - **Semicolons**: Omit (except SDK which uses them)
 
 ### Code Style - Functions
@@ -124,13 +124,13 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 
 ### Code Style - Comments
 - **Style**: Single-line (`//`) over multiline
-- **Periods**: 🚨 MANDATORY - All comments end with periods (except directives/URLs)
+- **Periods**: MANDATORY - All comments end with periods (except directives/URLs)
 - **Placement**: Own line above code
 - **JSDoc**: Description + optional `@throws` only - NO `@param`, `@returns`, `@author`, `@example`
-- **Examples**: `// This validates input.` ✅ | `// this validates` ❌
+- **Examples**: `// This validates input.` (correct) | `// this validates` (incorrect)
 
 ### Code Style - Sorting
-- **🚨 MANDATORY**: Sort lists, exports, object properties, destructuring alphabetically
+- **MANDATORY**: Sort lists, exports, object properties, destructuring alphabetically
 - **Type properties**: Required first, then optional; alphabetical within groups
 - **Class members**: 1) Private properties, 2) Private methods, 3) Public methods (all alphabetical)
 
@@ -152,15 +152,15 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 - **Focus**: User-facing changes only (no internal refactoring/deps/CI)
 
 ### GitHub Actions
-- **🚨 MANDATORY**: All actions reference commit SHAs not tags: `uses: owner/repo@sha # vX.Y.Z`
+- **MANDATORY**: All actions reference commit SHAs not tags: `uses: owner/repo@sha # vX.Y.Z`
 - **Reusable workflows**: Create in socket-registry, reference from other projects
 - **Standard SHAs**: actions/checkout@v5, pnpm/action-setup@v4, actions/setup-node@v5, actions/upload-artifact@v4
 
 ### Dependency Alignment (MANDATORY)
 - **Core deps**: @typescript/native-preview (tsgo), @types/node, typescript-eslint (unified only)
 - **DevDeps**: @biomejs/biome, @dotenvx/dotenvx, @vitest/coverage-v8, eslint, eslint-plugin-*, globals, husky, knip, lint-staged, npm-run-all2, oxlint, taze, trash, type-coverage, vitest, yargs-parser, yoctocolors-cjs
-- **🚨 FORBIDDEN**: Separate @typescript-eslint/* packages; use unified `typescript-eslint`
-- **🚨 TSGO PRESERVATION**: NEVER replace tsgo with tsc
+- **FORBIDDEN**: Separate @typescript-eslint/* packages; use unified `typescript-eslint`
+- **TSGO PRESERVATION**: Never replace tsgo with tsc
 - **Update**: Use `pnpm run taze` to check/apply updates across all Socket projects
 
 ### Recurring Patterns
@@ -173,11 +173,11 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 ### Scratch Documents
 - **Location**: `.claude/` (gitignored)
 - **Purpose**: Working notes, analysis, planning
-- **🚨 CRITICAL**: NEVER commit
+- **CRITICAL**: Never commit
 
 ---
 
-## 🏗️ REGISTRY-SPECIFIC
+## REGISTRY-SPECIFIC
 
 ### Architecture
 - **Registry lib**: `/registry/lib/` - Core production code
