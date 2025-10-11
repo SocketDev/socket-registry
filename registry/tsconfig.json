@@ -30,9 +30,10 @@
     "paths": {
       "cacache": ["./src/external/cacache"],
       "make-fetch-happen": ["./src/external/make-fetch-happen"],
-      "fast-sort": ["./src/external/fast-sort"]
+      "fast-sort": ["./src/external/fast-sort"],
+      "pacote": ["./src/external/pacote"]
     }
   },
-  "include": ["src/**/*.ts", "src/external/*.d.ts"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/external/*.d.ts"],
   "exclude": ["node_modules", "dist", "lib", "test"]
 }

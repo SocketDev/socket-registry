@@ -5,11 +5,11 @@
 import path from 'node:path'
 
 import { getGlobMatcher } from './globs.mjs'
-import { normalizePath } from '../../registry/dist/utils/paths.js'
+import { normalizePath } from '../../registry/dist/lib/path.js'
 import constants from '../constants.mjs'
 
 // Import from registry v2.0 (async only)
-import { getChangedFiles } from '../../registry/dist/utils/git.js'
+import { getChangedFiles } from '../../registry/dist/lib/git.js'
 
 // Import sync and additional functions from helpers
 import {

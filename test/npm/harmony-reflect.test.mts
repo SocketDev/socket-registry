@@ -6,7 +6,7 @@ import constants from '../../scripts/constants.mjs'
 import { installPackageForTesting } from '../../scripts/utils/package.mjs'
 import { isPackageTestingSkipped } from '../../scripts/utils/tests.mjs'
 
-const { NPM } = constants
+const { NPM, npmPackagesPath } = constants
 
 const eco = NPM
 const sockRegPkgName = path.basename(__filename, '.test.mts')
@@ -15,13 +15,13 @@ const sockRegPkgName = path.basename(__filename, '.test.mts')
 // https://github.com/tvcutsem/harmony-reflect/tree/v1.6.2/test
 describe(
   `${eco} > ${sockRegPkgName}`,
-  { skip: isPackageTestingSkipped(eco, sockRegPkgName) },
+  { skip: isPackageTestingSkipped(sockRegPkgName) },
   () => {
     let pkgPath: string
     let harmonyReflect: any
 
     beforeAll(async () => {
-      const result = await installPackageForTesting(sockRegPkgName)
+      const result = await installPackageForTesting(npmPackagesPath, sockRegPkgName)
       if (!result.installed) {
         throw new Error(`Failed to install package: ${result.reason}`)
       }

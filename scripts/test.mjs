@@ -37,6 +37,16 @@ async function main() {
       args.splice(forceIndex, 1)
     }
 
+    // Check if --all is present anywhere in the arguments.
+    const allIndex = args.indexOf('--all')
+    const hasAll = allIndex !== -1
+
+    if (hasAll) {
+      // Remove --all from arguments since vitest doesn't understand it.
+      // When --all is present, we run all tests (default vitest behavior).
+      args.splice(allIndex, 1)
+    }
+
     const spawnEnv = {
       ...process.env,
       ...(hasForce ? { FORCE_TEST: '1' } : {}),

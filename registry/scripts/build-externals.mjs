@@ -375,11 +375,19 @@ async function copyScopedFiles() {
       await ensureDir(scopeDistDir)
 
       for (const file of files) {
-        await fs.copyFile(
-          path.join(scopeSrcDir, file),
-          path.join(scopeDistDir, file)
-        )
-        console.log(`  Copied ${scope}/${file}`)
+        const destFile = path.join(scopeDistDir, file)
+        // Only copy if the file doesn't already exist (i.e., wasn't bundled).
+        try {
+          await fs.access(destFile)
+          // File exists (was bundled), skip copying.
+        } catch {
+          // File doesn't exist, copy it.
+          await fs.copyFile(
+            path.join(scopeSrcDir, file),
+            destFile
+          )
+          console.log(`  Copied ${scope}/${file}`)
+        }
       }
     } catch {
       // Scope directory doesn't exist.

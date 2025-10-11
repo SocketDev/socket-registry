@@ -105,12 +105,12 @@ export default defineConfig({
     globalSetup: [path.resolve(__dirname, 'vitest-global-setup.mts')],
     globals: false,
     environment: 'node',
-    include: ['../test/**/*.test.{js,ts,mjs,mts,cjs,cts}'],
+    include: [path.resolve(projectRoot, 'test/**/*.test.{js,ts,mjs,mts,cjs,cts}')],
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
       // Exclude test/npm unless INCLUDE_NPM_TESTS is set
-      ...(process.env['INCLUDE_NPM_TESTS'] ? [] : ['../test/npm/**']),
+      ...(process.env['INCLUDE_NPM_TESTS'] ? [] : [path.resolve(projectRoot, 'test/npm/**')]),
     ],
     reporters: ['default'],
     // Improve memory usage by running tests sequentially in CI.

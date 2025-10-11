@@ -5,7 +5,9 @@
 
 export const nonBarrelImports = {
   // Semver package has individual function exports we can use.
-  'semver': {
+  // DISABLED: The non-barrel approach doesn't work well because we need many
+  // range functions that aren't in the functions/ directory.
+  'semver-disabled': {
     // Instead of: const semver = require('semver')
     // We can import individual functions from semver/functions/*
     customEntry: `

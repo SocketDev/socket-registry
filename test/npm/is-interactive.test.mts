@@ -16,7 +16,7 @@ const sockRegPkgName = path.basename(__filename, '.test.mts')
 // https://nodejs.org/docs/latest-v18.x/api/util.html#deprecated-apis
 describe(
   `${eco} > ${sockRegPkgName}`,
-  { skip: isPackageTestingSkipped(eco, sockRegPkgName) },
+  { skip: isPackageTestingSkipped(sockRegPkgName) },
   () => {
     let implementations: any[]
 

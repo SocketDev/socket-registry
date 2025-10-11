@@ -21,6 +21,31 @@ export {
   validatePackageJson,
 } from './packages'
 
+// Manifest data helper function
+export function getManifestData(ecosystem?: string, packageName?: string) {
+  try {
+    const manifestData = require('../manifest.json')
+
+    if (!ecosystem) {
+      return manifestData
+    }
+
+    const ecoData = manifestData[ecosystem]
+    if (!ecoData) {
+      return undefined
+    }
+
+    if (!packageName) {
+      return Object.entries(ecoData)
+    }
+
+    const pkgData = ecoData[packageName]
+    return pkgData ? [packageName, pkgData] : undefined
+  } catch {
+    return undefined
+  }
+}
+
 export {
   logger,
   createSpinner,

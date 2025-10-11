@@ -180,9 +180,7 @@ describe('sorts module', () => {
     it('should sort mixed case naturally', () => {
       const arr = ['Beta', 'alpha', 'Delta', 'charlie']
       const sorted = naturalSorter(arr).asc()
-      // @ts-expect-error - Known string type from test data.
       expect(sorted[0].toLowerCase()).toBe('alpha')
-      // @ts-expect-error - Known string type from test data.
       expect(sorted[sorted.length - 1].toLowerCase()).toBe('delta')
     })
 
@@ -229,7 +227,6 @@ describe('sorts module', () => {
     it('should sort by object properties', () => {
       const arr = [{ name: 'file10' }, { name: 'file2' }, { name: 'file1' }]
       const sorter = naturalSorter(arr)
-      // @ts-expect-error - Testing runtime behavior with property name string.
       const result = sorter.asc('name')
       expect(result.map((item: any) => item.name)).toEqual([
         'file1',
@@ -246,7 +243,6 @@ describe('sorts module', () => {
         { category: 'B', name: 'file1' },
       ]
       const sorter = naturalSorter(arr)
-      // @ts-expect-error - Testing runtime behavior with property name array.
       const result = sorter.asc(['category', 'name'])
       expect(result).toEqual([
         { category: 'A', name: 'file1' },

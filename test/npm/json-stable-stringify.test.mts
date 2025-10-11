@@ -6,7 +6,7 @@ import constants from '../../scripts/constants.mjs'
 import { installPackageForTesting } from '../../scripts/utils/package.mjs'
 import { isPackageTestingSkipped } from '../../scripts/utils/tests.mjs'
 
-const { NPM } = constants
+const { NPM, npmPackagesPath } = constants
 
 const eco = NPM
 const sockRegPkgName = path.basename(__filename, '.test.mts')
@@ -14,7 +14,7 @@ const sockRegPkgName = path.basename(__filename, '.test.mts')
 describe(
   `${eco} > ${sockRegPkgName}`,
   {
-    skip: isPackageTestingSkipped(eco, sockRegPkgName) || constants.ENV.CI,
+    skip: isPackageTestingSkipped(sockRegPkgName) || constants.ENV.CI,
   },
   () => {
     let pkgPath: string
@@ -22,7 +22,7 @@ describe(
     let jsonStableStringify: any
 
     beforeAll(async () => {
-      const result = await installPackageForTesting(sockRegPkgName)
+      const result = await installPackageForTesting(npmPackagesPath, sockRegPkgName)
       if (!result.installed) {
         // Skip tests if package installation is skipped for known issues
         if (result.reason === 'Skipped (known issues)') {

@@ -36,7 +36,6 @@ describe('manifest data utilities', () => {
     })
 
     it('should return undefined for non-existent ecosystem', () => {
-      // @ts-expect-error - Testing runtime behavior with invalid ecosystem.
       const result = getManifestData('nonexistent')
       expect(result).toBeUndefined()
     })
@@ -77,7 +76,6 @@ describe('manifest data utilities', () => {
     })
 
     it('should return ecosystem entries when package name is undefined', () => {
-      // @ts-expect-error - Testing runtime behavior with undefined.
       const result = getManifestData('npm', undefined)
       // When no specific package name is given, returns the ecosystem entries
       expect(Array.isArray(result)).toBe(true)
