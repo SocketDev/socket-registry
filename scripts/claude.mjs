@@ -25,7 +25,7 @@ const SOCKET_PROJECTS = [
   'socket-cli',
   'socket-sdk-js',
   'socket-packageurl-js',
-  'socket-registry'
+  'socket-registry',
 ]
 
 // Simple inline logger.
@@ -44,7 +44,7 @@ const log = {
     process.stdout.write('\r\x1b[K')
     console.log(`  ${colors.red('✗')} ${msg}`)
   },
-  warn: msg => console.log(`${colors.yellow('⚠')} ${msg}`)
+  warn: msg => console.log(`${colors.yellow('⚠')} ${msg}`),
 }
 
 function printHeader(title) {
@@ -174,13 +174,15 @@ async function runClaude(claudeCmd, prompt, options = {}) {
         const child = spawn(claudeCmd, args, {
           stdio: ['pipe', 'inherit', 'inherit'],
           cwd: opts.cwd || rootPath,
-          ...(WIN32 && { shell: true })
+          ...(WIN32 && { shell: true }),
         })
 
         // Set up timeout for interactive mode
         const timeoutId = setTimeout(() => {
           timedOut = true
-          log.warn(`Claude interactive session timed out after ${Math.round(timeout/1000)}s`)
+          log.warn(
+            `Claude interactive session timed out after ${Math.round(timeout / 1000)}s`,
+          )
           child.kill()
           resolve(1)
         }, timeout)
@@ -191,7 +193,7 @@ async function runClaude(claudeCmd, prompt, options = {}) {
           child.stdin.end()
         }
 
-        child.on('exit', (code) => {
+        child.on('exit', code => {
           clearTimeout(timeoutId)
           resolve(code || 0)
         })
@@ -213,13 +215,15 @@ async function runClaude(claudeCmd, prompt, options = {}) {
           const elapsed = Date.now() - startTime
           if (elapsed > timeout) {
             timedOut = true
-            log.warn(`Claude timed out after ${Math.round(elapsed/1000)}s`)
+            log.warn(`Claude timed out after ${Math.round(elapsed / 1000)}s`)
             if (progressInterval) {
               clearInterval(progressInterval)
               progressInterval = null
             }
           } else {
-            log.progress(`Claude processing... (${Math.round(elapsed/1000)}s)`)
+            log.progress(
+              `Claude processing... (${Math.round(elapsed / 1000)}s)`,
+            )
           }
         }, 10000) // Update every 10 seconds
       }
@@ -229,16 +233,20 @@ async function runClaude(claudeCmd, prompt, options = {}) {
         runCommandWithOutput(claudeCmd, args, {
           ...opts,
           input: prompt,
-          stdio: ['pipe', 'pipe', 'pipe']
+          stdio: ['pipe', 'pipe', 'pipe'],
         }),
-        new Promise((resolve) => {
+        new Promise(resolve => {
           setTimeout(() => {
             if (!timedOut) {
               timedOut = true
-              resolve({ exitCode: 1, stdout: '', stderr: 'Operation timed out' })
+              resolve({
+                exitCode: 1,
+                stdout: '',
+                stderr: 'Operation timed out',
+              })
             }
           }, timeout)
-        })
+        }),
       ])
 
       // Clear progress interval
@@ -247,7 +255,7 @@ async function runClaude(claudeCmd, prompt, options = {}) {
         progressInterval = null
         if (!opts.silent && !timedOut) {
           const elapsed = Date.now() - startTime
-          log.done(`Claude completed in ${Math.round(elapsed/1000)}s`)
+          log.done(`Claude completed in ${Math.round(elapsed / 1000)}s`)
         }
       }
 
@@ -256,7 +264,7 @@ async function runClaude(claudeCmd, prompt, options = {}) {
         const cacheKey = `${prompt.slice(0, 100)}_${opts._selectedModel || 'default'}`
         claudeCache.set(cacheKey, {
           result,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         })
       }
     }
@@ -324,22 +332,27 @@ async function ensureClaudeAuthenticated(claudeCmd) {
     if (versionCheck.exitCode === 0) {
       // Claude Code is installed and working
       // Check if we need to login by testing actual Claude functionality
-      log.progress('Testing Claude authentication (this may take up to 15 seconds)')
+      log.progress(
+        'Testing Claude authentication (this may take up to 15 seconds)',
+      )
 
-      const testPrompt = 'Respond with only the word "AUTHENTICATED" if you receive this message.'
+      const testPrompt =
+        'Respond with only the word "AUTHENTICATED" if you receive this message.'
       const startTime = Date.now()
 
       // Set up progress interval for the 15-second test
       const progressInterval = setInterval(() => {
         const elapsed = Date.now() - startTime
-        log.progress(`Testing authentication... (${Math.round(elapsed/1000)}s/15s)`)
+        log.progress(
+          `Testing authentication... (${Math.round(elapsed / 1000)}s/15s)`,
+        )
       }, 3000) // Update every 3 seconds
 
       const testResult = await runCommandWithOutput(claudeCmd, ['--print'], {
         input: testPrompt,
         stdio: ['pipe', 'pipe', 'pipe'],
         env: { ...process.env, CLAUDE_OUTPUT_MODE: 'text' },
-        timeout: 15000
+        timeout: 15000,
       })
 
       clearInterval(progressInterval)
@@ -352,7 +365,7 @@ async function ensureClaudeAuthenticated(claudeCmd) {
         'unauthorized',
         'login required',
         'please login',
-        'api key'
+        'api key',
       ]
 
       const needsAuth = authErrors.some(error => output.includes(error))
@@ -384,7 +397,9 @@ async function ensureClaudeAuthenticated(claudeCmd) {
     console.log(`  1. Open a new terminal`)
     console.log(`  2. Run: ${colors.green('claude')}`)
     console.log(`  3. Follow the browser authentication prompts`)
-    console.log(`  4. Once authenticated, return here and press Enter to continue`)
+    console.log(
+      `  4. Once authenticated, return here and press Enter to continue`,
+    )
 
     // Wait for user to press Enter
     await new Promise(resolve => {
@@ -420,7 +435,9 @@ async function ensureGitHubAuthenticated() {
     attempts++
 
     if (attempts >= maxAttempts) {
-      log.error(`Failed to authenticate with GitHub after ${maxAttempts} attempts`)
+      log.error(
+        `Failed to authenticate with GitHub after ${maxAttempts} attempts`,
+      )
       return false
     }
 
@@ -432,7 +449,7 @@ async function ensureGitHubAuthenticated() {
     // Run gh auth login interactively
     log.progress('Starting GitHub login process')
     const loginResult = await runCommand('gh', ['auth', 'login'], {
-      stdio: 'inherit'
+      stdio: 'inherit',
     })
 
     if (loginResult === 0) {
@@ -444,7 +461,9 @@ async function ensureGitHubAuthenticated() {
       console.log(colors.red('\nLogin failed. Please try again.'))
 
       if (attempts < maxAttempts) {
-        console.log(colors.yellow(`\nAttempt ${attempts + 1} of ${maxAttempts}`))
+        console.log(
+          colors.yellow(`\nAttempt ${attempts + 1} of ${maxAttempts}`),
+        )
         await new Promise(resolve => setTimeout(resolve, 1000))
       }
     }
@@ -533,13 +552,13 @@ class ModelStrategy {
   assessComplexity(task) {
     const taskLower = task.toLowerCase()
     const complexPatterns = {
-      'architecture': 0.9,
+      architecture: 0.9,
       'memory leak': 0.85,
       'race condition': 0.85,
-      'security': 0.8,
+      security: 0.8,
       'complex refactor': 0.85,
-      'performance': 0.75,
-      'production issue': 0.9
+      performance: 0.75,
+      'production issue': 0.9,
     }
 
     let maxScore = 0.3
@@ -567,7 +586,7 @@ async function getSmartContext(options = {}) {
     commits = 5,
     fileTypes = null,
     includeUncommitted = true,
-    maxFiles = 30
+    maxFiles = 30,
   } = options
 
   const context = {
@@ -575,30 +594,40 @@ async function getSmartContext(options = {}) {
     uncommitted: [],
     hotspots: [],
     priority: [],
-    commitMessages: []
+    commitMessages: [],
   }
 
   // Get uncommitted changes (highest priority)
   if (includeUncommitted) {
-    const stagedResult = await runCommandWithOutput('git', ['diff', '--cached', '--name-only'], {
-      cwd: rootPath
-    })
-    const unstagedResult = await runCommandWithOutput('git', ['diff', '--name-only'], {
-      cwd: rootPath
-    })
+    const stagedResult = await runCommandWithOutput(
+      'git',
+      ['diff', '--cached', '--name-only'],
+      {
+        cwd: rootPath,
+      },
+    )
+    const unstagedResult = await runCommandWithOutput(
+      'git',
+      ['diff', '--name-only'],
+      {
+        cwd: rootPath,
+      },
+    )
 
     context.uncommitted = [
       ...new Set([
         ...stagedResult.stdout.trim().split('\n').filter(Boolean),
-        ...unstagedResult.stdout.trim().split('\n').filter(Boolean)
-      ])
+        ...unstagedResult.stdout.trim().split('\n').filter(Boolean),
+      ]),
     ]
   }
 
   // Get files changed in recent commits
-  const recentResult = await runCommandWithOutput('git', [
-    'diff', '--name-only', `HEAD~${commits}..HEAD`
-  ], { cwd: rootPath })
+  const recentResult = await runCommandWithOutput(
+    'git',
+    ['diff', '--name-only', `HEAD~${commits}..HEAD`],
+    { cwd: rootPath },
+  )
 
   context.recent = recentResult.stdout.trim().split('\n').filter(Boolean)
 
@@ -614,9 +643,11 @@ async function getSmartContext(options = {}) {
     .map(([file]) => file)
 
   // Get recent commit messages for intent inference
-  const logResult = await runCommandWithOutput('git', [
-    'log', '--oneline', '-n', commits.toString()
-  ], { cwd: rootPath })
+  const logResult = await runCommandWithOutput(
+    'git',
+    ['log', '--oneline', '-n', commits.toString()],
+    { cwd: rootPath },
+  )
 
   context.commitMessages = logResult.stdout.trim().split('\n')
 
@@ -624,7 +655,7 @@ async function getSmartContext(options = {}) {
   context.priority = [
     ...context.uncommitted,
     ...context.hotspots,
-    ...context.recent.filter(f => !context.hotspots.includes(f))
+    ...context.recent.filter(f => !context.hotspots.includes(f)),
   ]
 
   // Remove duplicates and apply filters
@@ -632,7 +663,7 @@ async function getSmartContext(options = {}) {
 
   if (fileTypes) {
     context.priority = context.priority.filter(file =>
-      fileTypes.some(ext => file.endsWith(ext))
+      fileTypes.some(ext => file.endsWith(ext)),
     )
   }
 
@@ -655,13 +686,15 @@ function inferIntent(messages) {
     refactor: /refactor|clean|improve|optimize/i,
     security: /security|vulnerability|cve/i,
     performance: /perf|speed|optimize|faster/i,
-    test: /test|spec|coverage/i
+    test: /test|spec|coverage/i,
   }
 
   const intents = new Set()
   messages.forEach(msg => {
     Object.entries(patterns).forEach(([intent, pattern]) => {
-      if (pattern.test(msg)) {intents.add(intent)}
+      if (pattern.test(msg)) {
+        intents.add(intent)
+      }
     })
   })
 
@@ -672,7 +705,7 @@ function inferIntent(messages) {
  * Enhanced prompt templates with rich context.
  */
 const PROMPT_TEMPLATES = {
-  review: (context) => `Role: Senior Principal Engineer at Socket.dev
+  review: context => `Role: Senior Principal Engineer at Socket.dev
 Expertise: Security, Performance, Node.js, TypeScript
 
 Project Context:
@@ -697,7 +730,7 @@ Provide:
 - Concrete fix examples
 - Performance impact estimates`,
 
-  fix: (context) => `Role: Security Engineer
+  fix: context => `Role: Security Engineer
 Focus: Socket.dev supply chain security
 
 Scan Context:
@@ -716,7 +749,7 @@ Auto-fix Capabilities:
 - Implement retry logic
 - Add input validation`,
 
-  green: (context) => `Role: DevOps Engineer
+  green: context => `Role: DevOps Engineer
 Mission: Achieve green CI build
 
 Current Issues:
@@ -734,7 +767,7 @@ Constraints:
 - Do NOT delete tests
 - DO fix root causes`,
 
-  test: (context) => `Role: Test Engineer
+  test: context => `Role: Test Engineer
 Framework: ${context.testFramework || 'Vitest'}
 
 Generate comprehensive tests for:
@@ -747,7 +780,7 @@ Requirements:
 - Test async operations
 - Mock external dependencies`,
 
-  refactor: (context) => `Role: Software Architect
+  refactor: context => `Role: Software Architect
 Focus: Code quality and maintainability
 
 Files to refactor:
@@ -758,7 +791,7 @@ Improvements:
 - Reduce cyclomatic complexity
 - Improve type safety
 - Enhance testability
-- Optimize performance`
+- Optimize performance`,
 }
 
 /**
@@ -774,8 +807,9 @@ async function buildEnhancedPrompt(template, basePrompt, options = {}) {
       const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8'))
       context.projectName = packageJson.name
       context.projectType = packageJson.type || 'commonjs'
-      context.testFramework = Object.keys(packageJson.devDependencies || {})
-        .find(dep => ['vitest', 'jest', 'mocha'].includes(dep))
+      context.testFramework = Object.keys(
+        packageJson.devDependencies || {},
+      ).find(dep => ['vitest', 'jest', 'mocha'].includes(dep))
     }
   } catch {
     // Ignore if can't read package.json
@@ -790,7 +824,10 @@ async function buildEnhancedPrompt(template, basePrompt, options = {}) {
 
   // Add file context if priority files exist
   if (context.priority?.length > 0) {
-    enhancedPrompt += `\n\nPRIORITY FILES TO FOCUS ON:\n${context.priority.slice(0, 20).map((f, i) => `${i + 1}. ${f}`).join('\n')}`
+    enhancedPrompt += `\n\nPRIORITY FILES TO FOCUS ON:\n${context.priority
+      .slice(0, 20)
+      .map((f, i) => `${i + 1}. ${f}`)
+      .join('\n')}`
   }
 
   return enhancedPrompt
@@ -807,11 +844,15 @@ function prepareClaudeArgs(args = [], options = {}) {
 
   // Smart model selection
   const task = _opts.prompt || _opts.command || 'general task'
-  const forceModel = _opts['the-brain'] ? 'the-brain' : (_opts.pinky ? 'pinky' : null)
+  const forceModel = _opts['the-brain']
+    ? 'the-brain'
+    : _opts.pinky
+      ? 'pinky'
+      : null
 
   const model = modelStrategy.selectModel(task, {
     forceModel,
-    lastError: _opts.lastError
+    lastError: _opts.lastError,
   })
 
   // Add model flag if Claude Code supports it
@@ -897,15 +938,19 @@ async function runParallel(tasks, description = 'tasks', taskNames = []) {
       result => {
         completed++
         const elapsed = Math.round((Date.now() - taskStartTime) / 1000)
-        log.done(`[${name}] Completed (${elapsed}s) - ${completed}/${tasks.length}`)
+        log.done(
+          `[${name}] Completed (${elapsed}s) - ${completed}/${tasks.length}`,
+        )
         return result
       },
       error => {
         completed++
         const elapsed = Math.round((Date.now() - taskStartTime) / 1000)
-        log.failed(`[${name}] Failed (${elapsed}s) - ${completed}/${tasks.length}`)
+        log.failed(
+          `[${name}] Failed (${elapsed}s) - ${completed}/${tasks.length}`,
+        )
         throw error
-      }
+      },
     )
   })
 
@@ -914,7 +959,9 @@ async function runParallel(tasks, description = 'tasks', taskNames = []) {
     const elapsed = Math.round((Date.now() - startTime) / 1000)
     const pending = tasks.length - completed
     if (pending > 0) {
-      log.substep(`Progress: ${completed}/${tasks.length} complete, ${pending} running (${elapsed}s elapsed)`)
+      log.substep(
+        `Progress: ${completed}/${tasks.length} complete, ${pending} running (${elapsed}s elapsed)`,
+      )
     }
   }, 15000)
   // Update every 15 seconds
@@ -927,7 +974,9 @@ async function runParallel(tasks, description = 'tasks', taskNames = []) {
   const failed = results.filter(r => r.status === 'rejected').length
 
   if (failed > 0) {
-    log.warn(`Completed in ${totalElapsed}s: ${succeeded} succeeded, ${failed} failed`)
+    log.warn(
+      `Completed in ${totalElapsed}s: ${succeeded} succeeded, ${failed} failed`,
+    )
     // Log errors with task names
     results.forEach((result, index) => {
       if (result.status === 'rejected') {
@@ -936,7 +985,9 @@ async function runParallel(tasks, description = 'tasks', taskNames = []) {
       }
     })
   } else {
-    log.success(`All ${succeeded} ${description} completed successfully in ${totalElapsed}s`)
+    log.success(
+      `All ${succeeded} ${description} completed successfully in ${totalElapsed}s`,
+    )
   }
 
   return results
@@ -956,8 +1007,12 @@ async function ensureClaudeInGitignore() {
     // Check if .claude is already ignored.
     const hasClaudeEntry = lines.some(line => {
       const trimmed = line.trim()
-      return trimmed === '.claude' || trimmed === '/.claude' ||
-             trimmed === '.claude/' || trimmed === '/.claude/'
+      return (
+        trimmed === '.claude' ||
+        trimmed === '/.claude' ||
+        trimmed === '.claude/' ||
+        trimmed === '/.claude/'
+      )
     })
 
     if (!hasClaudeEntry) {
@@ -993,7 +1048,7 @@ async function findSocketProjects() {
       projects.push({
         name: projectName,
         path: projectPath,
-        claudeMdPath
+        claudeMdPath,
       })
     }
   }
@@ -1098,10 +1153,14 @@ ${currentContent}
 ===== OUTPUT UPDATED ${name}/CLAUDE.md BELOW =====`
 
   // Call Claude to update the file.
-  const result = await runCommandWithOutput(claudeCmd, prepareClaudeArgs([], options), {
-    input: fullPrompt,
-    stdio: ['pipe', 'pipe', 'pipe']
-  })
+  const result = await runCommandWithOutput(
+    claudeCmd,
+    prepareClaudeArgs([], options),
+    {
+      input: fullPrompt,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    },
+  )
 
   if (result.exitCode !== 0) {
     log.failed(`Failed to update ${name}/CLAUDE.md`)
@@ -1127,9 +1186,13 @@ async function commitChanges(project) {
   log.progress(`Committing changes in ${name}`)
 
   // Check if there are changes to commit.
-  const statusResult = await runCommandWithOutput('git', ['status', '--porcelain', 'CLAUDE.md'], {
-    cwd: projectPath
-  })
+  const statusResult = await runCommandWithOutput(
+    'git',
+    ['status', '--porcelain', 'CLAUDE.md'],
+    {
+      cwd: projectPath,
+    },
+  )
 
   if (!statusResult.stdout.trim()) {
     log.done(`No changes in ${name}`)
@@ -1139,17 +1202,22 @@ async function commitChanges(project) {
   // Stage the file.
   await runCommand('git', ['add', 'CLAUDE.md'], {
     cwd: projectPath,
-    stdio: 'pipe'
+    stdio: 'pipe',
   })
 
   // Commit with appropriate message.
-  const message = name === 'socket-registry'
-    ? 'Update CLAUDE.md as canonical source for cross-project standards'
-    : 'Sync CLAUDE.md with canonical socket-registry standards'
+  const message =
+    name === 'socket-registry'
+      ? 'Update CLAUDE.md as canonical source for cross-project standards'
+      : 'Sync CLAUDE.md with canonical socket-registry standards'
 
-  const commitResult = await runCommandWithOutput('git', ['commit', '-m', message, '--no-verify'], {
-    cwd: projectPath
-  })
+  const commitResult = await runCommandWithOutput(
+    'git',
+    ['commit', '-m', message, '--no-verify'],
+    {
+      cwd: projectPath,
+    },
+  )
 
   if (commitResult.exitCode !== 0) {
     log.failed(`Failed to commit in ${name}`)
@@ -1182,7 +1250,11 @@ async function syncClaudeMd(claudeCmd, options = {}) {
   log.step('Updating canonical source')
   const registryProject = projects.find(p => p.name === 'socket-registry')
   if (registryProject) {
-    const success = await updateProjectClaudeMd(claudeCmd, registryProject, options)
+    const success = await updateProjectClaudeMd(
+      claudeCmd,
+      registryProject,
+      options,
+    )
     if (!success && !opts['dry-run']) {
       log.error('Failed to update canonical socket-registry/CLAUDE.md')
       return false
@@ -1198,7 +1270,7 @@ async function syncClaudeMd(claudeCmd, options = {}) {
     const tasks = otherProjects.map(project =>
       updateProjectClaudeMd(claudeCmd, project, options)
         .then(success => ({ project: project.name, success }))
-        .catch(error => ({ project: project.name, success: false, error }))
+        .catch(error => ({ project: project.name, success: false, error })),
     )
 
     const taskNames = projects.map(p => path.basename(p))
@@ -1206,7 +1278,11 @@ async function syncClaudeMd(claudeCmd, options = {}) {
 
     // Check for failures
     results.forEach(result => {
-      if (result.status === 'fulfilled' && !result.value.success && !opts['dry-run']) {
+      if (
+        result.status === 'fulfilled' &&
+        !result.value.success &&
+        !opts['dry-run']
+      ) {
         log.error(`Failed to update ${result.value.project}/CLAUDE.md`)
       }
     })
@@ -1246,15 +1322,17 @@ async function syncClaudeMd(claudeCmd, options = {}) {
       // Run pushes in parallel
       const tasks = projects.map(project => {
         return runCommandWithOutput('git', ['push'], {
-          cwd: project.path
-        }).then(pushResult => ({
-          project: project.name,
-          success: pushResult.exitCode === 0
-        })).catch(error => ({
-          project: project.name,
-          success: false,
-          error
-        }))
+          cwd: project.path,
+        })
+          .then(pushResult => ({
+            project: project.name,
+            success: pushResult.exitCode === 0,
+          }))
+          .catch(error => ({
+            project: project.name,
+            success: false,
+            error,
+          }))
       })
 
       const results = await runParallel(tasks, 'pushes')
@@ -1272,7 +1350,7 @@ async function syncClaudeMd(claudeCmd, options = {}) {
       for (const project of projects) {
         log.progress(`Pushing ${project.name}`)
         const pushResult = await runCommandWithOutput('git', ['push'], {
-          cwd: project.path
+          cwd: project.path,
         })
 
         if (pushResult.exitCode === 0) {
@@ -1314,7 +1392,9 @@ async function scanProjectForIssues(claudeCmd, project, options = {}) {
 
   async function findFiles(dir, depth = 0) {
     // Limit depth to avoid excessive scanning
-    if (depth > 5) {return}
+    if (depth > 5) {
+      return
+    }
 
     try {
       const entries = await fs.readdir(dir, { withFileTypes: true })
@@ -1324,7 +1404,16 @@ async function scanProjectForIssues(claudeCmd, project, options = {}) {
 
         // Skip common directories to ignore.
         if (entry.isDirectory()) {
-          if (['node_modules', '.git', 'dist', 'build', 'coverage', '.cache'].includes(entry.name)) {
+          if (
+            [
+              'node_modules',
+              '.git',
+              'dist',
+              'build',
+              'coverage',
+              '.cache',
+            ].includes(entry.name)
+          ) {
             continue
           }
           await findFiles(fullPath, depth + 1)
@@ -1352,12 +1441,13 @@ async function scanProjectForIssues(claudeCmd, project, options = {}) {
   if (_opts.smartContext !== false) {
     const context = await getSmartContext({
       fileTypes: extensions,
-      maxFiles: 100
+      maxFiles: 100,
     })
 
     if (context.priority.length > 0) {
       // Prioritize recently changed files
-      const priorityFiles = context.priority.map(f => path.join(projectPath, f))
+      const priorityFiles = context.priority
+        .map(f => path.join(projectPath, f))
         .filter(f => allFiles.includes(f))
 
       // Add other files after priority ones
@@ -1371,7 +1461,9 @@ async function scanProjectForIssues(claudeCmd, project, options = {}) {
   // Limit total files to scan
   const MAX_FILES = 500
   if (filesToScan.length > MAX_FILES) {
-    log.substep(`Limiting scan to first ${MAX_FILES} files (${filesToScan.length} total found)`)
+    log.substep(
+      `Limiting scan to first ${MAX_FILES} files (${filesToScan.length} total found)`,
+    )
     filesToScan = filesToScan.slice(0, MAX_FILES)
   }
 
@@ -1433,16 +1525,20 @@ Provide ONLY the JSON array, nothing else.`
   // Use enhanced prompt for better context
   const enhancedPrompt = await buildEnhancedPrompt('fix', basePrompt, {
     maxFiles: 50,
-    smartContext: true
+    smartContext: true,
   })
 
   // Call Claude to scan.
-  const result = await runCommandWithOutput(claudeCmd, prepareClaudeArgs([], options), {
-    input: enhancedPrompt,
-    stdio: ['pipe', 'pipe', 'pipe'],
-    // 10MB buffer for large responses
-    maxBuffer: 1024 * 1024 * 10
-  })
+  const result = await runCommandWithOutput(
+    claudeCmd,
+    prepareClaudeArgs([], options),
+    {
+      input: enhancedPrompt,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      // 10MB buffer for large responses
+      maxBuffer: 1024 * 1024 * 10,
+    },
+  )
 
   if (result.exitCode !== 0) {
     log.failed(`Failed to scan ${name}`)
@@ -1462,7 +1558,12 @@ Provide ONLY the JSON array, nothing else.`
 /**
  * Autonomous fix session - auto-fixes high-confidence issues.
  */
-async function autonomousFixSession(claudeCmd, scanResults, projects, options = {}) {
+async function autonomousFixSession(
+  claudeCmd,
+  scanResults,
+  projects,
+  options = {},
+) {
   const opts = { __proto__: null, ...options }
   printHeader('Auto-Fix Mode')
 
@@ -1477,10 +1578,17 @@ async function autonomousFixSession(claudeCmd, scanResults, projects, options = 
     for (const issue of issues) {
       issue.project = project
       switch (issue.severity) {
-        case 'critical': critical.push(issue); break
-        case 'high': high.push(issue); break
-        case 'medium': medium.push(issue); break
-        default: low.push(issue)
+        case 'critical':
+          critical.push(issue)
+          break
+        case 'high':
+          high.push(issue)
+          break
+        case 'medium':
+          medium.push(issue)
+          break
+        default:
+          low.push(issue)
       }
     }
   }
@@ -1508,13 +1616,15 @@ async function autonomousFixSession(claudeCmd, scanResults, projects, options = 
     'wrong-import-path',
     'deprecated-api',
     'type-error',
-    'lint-error'
+    'lint-error',
   ]
 
   // Determine which issues to auto-fix
   const toAutoFix = [...critical, ...high].filter(issue => {
     // Auto-fix if type is in whitelist OR severity is critical
-    return issue.severity === 'critical' || autoFixableTypes.includes(issue.type)
+    return (
+      issue.severity === 'critical' || autoFixableTypes.includes(issue.type)
+    )
   })
 
   const toReview = [...critical, ...high, ...medium].filter(issue => {
@@ -1546,7 +1656,7 @@ Apply the fix and return ONLY the fixed code snippet.`
       const result = await runClaude(claudeCmd, fixPrompt, {
         ...opts,
         interactive: false,
-        cache: false
+        cache: false,
       })
 
       if (result) {
@@ -1563,7 +1673,9 @@ Apply the fix and return ONLY the fixed code snippet.`
   if (toReview.length > 0) {
     console.log('\n' + colors.yellow('Issues requiring manual review:'))
     toReview.forEach((issue, i) => {
-      console.log(`${i + 1}. [${issue.severity}] ${issue.file}:${issue.line} - ${issue.description}`)
+      console.log(
+        `${i + 1}. [${issue.severity}] ${issue.file}:${issue.line} - ${issue.description}`,
+      )
     })
     console.log('\nRun with --prompt to fix these interactively')
   }
@@ -1574,7 +1686,12 @@ Apply the fix and return ONLY the fixed code snippet.`
 /**
  * Interactive fix session with Claude.
  */
-async function interactiveFixSession(claudeCmd, scanResults, projects, options = {}) {
+async function interactiveFixSession(
+  claudeCmd,
+  scanResults,
+  projects,
+  options = {},
+) {
   const _opts = { __proto__: null, ...options }
   printHeader('Interactive Fix Session')
 
@@ -1589,10 +1706,17 @@ async function interactiveFixSession(claudeCmd, scanResults, projects, options =
     for (const issue of issues) {
       issue.project = project
       switch (issue.severity) {
-        case 'critical': critical.push(issue); break
-        case 'high': high.push(issue); break
-        case 'medium': medium.push(issue); break
-        default: low.push(issue)
+        case 'critical':
+          critical.push(issue)
+          break
+        case 'high':
+          high.push(issue)
+          break
+        case 'medium':
+          medium.push(issue)
+          break
+        default:
+          low.push(issue)
       }
     }
   }
@@ -1612,7 +1736,9 @@ async function interactiveFixSession(claudeCmd, scanResults, projects, options =
   }
 
   // Start interactive session.
-  console.log('\n' + colors.blue('Starting interactive fix session with Claude...'))
+  console.log(
+    '\n' + colors.blue('Starting interactive fix session with Claude...'),
+  )
   console.log('Claude will help you fix these issues.')
   console.log('Commands: fix <issue-number>, commit, push, exit\n')
 
@@ -1644,7 +1770,7 @@ Start by recommending which issues to fix first.`
   // Launch Claude console in interactive mode.
   await runCommand(claudeCmd, prepareClaudeArgs([], options), {
     input: sessionPrompt,
-    stdio: 'inherit'
+    stdio: 'inherit',
   })
 }
 
@@ -1664,7 +1790,7 @@ async function runSecurityScan(claudeCmd, options = {}) {
     const currentProjectName = path.basename(rootPath)
     projects.push({
       name: currentProjectName,
-      path: rootPath
+      path: rootPath,
     })
     log.info('Scanning current project only')
   } else {
@@ -1674,7 +1800,7 @@ async function runSecurityScan(claudeCmd, options = {}) {
       if (existsSync(projectPath)) {
         projects.push({
           name: projectName,
-          path: projectPath
+          path: projectPath,
         })
       }
     }
@@ -1696,7 +1822,7 @@ async function runSecurityScan(claudeCmd, options = {}) {
     const tasks = projects.map(project =>
       scanProjectForIssues(claudeCmd, project, options)
         .then(issues => ({ project: project.name, issues }))
-        .catch(error => ({ project: project.name, issues: null, error }))
+        .catch(error => ({ project: project.name, issues: null, error })),
     )
 
     const taskNames = projects.map(p => p.name)
@@ -1762,7 +1888,7 @@ async function runClaudeCommit(claudeCmd, options = {}) {
     const currentProjectName = path.basename(rootPath)
     projects.push({
       name: currentProjectName,
-      path: rootPath
+      path: rootPath,
     })
     log.info('Committing in current project only')
   } else {
@@ -1771,15 +1897,19 @@ async function runClaudeCommit(claudeCmd, options = {}) {
       const projectPath = path.join(parentPath, projectName)
       if (existsSync(projectPath)) {
         // Check if project has changes.
-        const statusResult = await runCommandWithOutput('git', ['status', '--porcelain'], {
-          cwd: projectPath
-        })
+        const statusResult = await runCommandWithOutput(
+          'git',
+          ['status', '--porcelain'],
+          {
+            cwd: projectPath,
+          },
+        )
 
         if (statusResult.stdout.trim()) {
           projects.push({
             name: projectName,
             path: projectPath,
-            changes: statusResult.stdout.trim()
+            changes: statusResult.stdout.trim(),
           })
         }
       }
@@ -1833,11 +1963,15 @@ Remember: small commits, follow project standards, no AI attribution.`
         log.progress(`Committing changes in ${project.name}`)
 
         // Launch Claude console for this project.
-        const commitResult = await runCommandWithOutput(claudeCmd, prepareClaudeArgs([], options), {
-          input: prompt,
-          cwd: project.path,
-          stdio: 'inherit'
-        })
+        const commitResult = await runCommandWithOutput(
+          claudeCmd,
+          prepareClaudeArgs([], options),
+          {
+            input: prompt,
+            cwd: project.path,
+            stdio: 'inherit',
+          },
+        )
 
         if (commitResult.exitCode === 0) {
           log.done(`Committed changes in ${project.name}`)
@@ -1890,11 +2024,15 @@ Remember: small commits, follow project standards, no AI attribution.`
       log.progress(`Committing changes in ${project.name}`)
 
       // Launch Claude console for this project.
-      const commitResult = await runCommandWithOutput(claudeCmd, prepareClaudeArgs([], options), {
-        input: prompt,
-        cwd: project.path,
-        stdio: 'inherit'
-      })
+      const commitResult = await runCommandWithOutput(
+        claudeCmd,
+        prepareClaudeArgs([], options),
+        {
+          input: prompt,
+          cwd: project.path,
+          stdio: 'inherit',
+        },
+      )
 
       if (commitResult.exitCode === 0) {
         log.done(`Committed changes in ${project.name}`)
@@ -1912,15 +2050,17 @@ Remember: small commits, follow project standards, no AI attribution.`
       // Run pushes in parallel
       const tasks = projects.map(project => {
         return runCommandWithOutput('git', ['push'], {
-          cwd: project.path
-        }).then(pushResult => ({
-          project: project.name,
-          success: pushResult.exitCode === 0
-        })).catch(error => ({
-          project: project.name,
-          success: false,
-          error
-        }))
+          cwd: project.path,
+        })
+          .then(pushResult => ({
+            project: project.name,
+            success: pushResult.exitCode === 0,
+          }))
+          .catch(error => ({
+            project: project.name,
+            success: false,
+            error,
+          }))
       })
 
       const results = await runParallel(tasks, 'pushes')
@@ -1938,7 +2078,7 @@ Remember: small commits, follow project standards, no AI attribution.`
       for (const project of projects) {
         log.progress(`Pushing ${project.name}`)
         const pushResult = await runCommandWithOutput('git', ['push'], {
-          cwd: project.path
+          cwd: project.path,
         })
 
         if (pushResult.exitCode === 0) {
@@ -1989,7 +2129,7 @@ Also check for CLAUDE.md compliance and cross-platform compatibility.`
   const enhancedPrompt = await buildEnhancedPrompt('review', basePrompt, {
     // Only staged changes
     includeUncommitted: false,
-    commits: 10
+    commits: 10,
   })
 
   log.step('Starting code review with Claude')
@@ -2006,11 +2146,16 @@ async function runDependencyAnalysis(claudeCmd, options = {}) {
   printHeader('Dependency Analysis')
 
   // Read package.json.
-  const packageJson = JSON.parse(await fs.readFile(path.join(rootPath, 'package.json'), 'utf8'))
+  const packageJson = JSON.parse(
+    await fs.readFile(path.join(rootPath, 'package.json'), 'utf8'),
+  )
 
   // Check for outdated packages.
   log.progress('Checking for outdated packages')
-  const outdatedResult = await runCommandWithOutput('pnpm', ['outdated', '--json'])
+  const outdatedResult = await runCommandWithOutput('pnpm', [
+    'outdated',
+    '--json',
+  ])
 
   let outdatedPackages = {}
   try {
@@ -2068,7 +2213,9 @@ async function runTestGeneration(claudeCmd, options = {}) {
     return false
   }
 
-  const filePath = path.isAbsolute(targetFile) ? targetFile : path.join(rootPath, targetFile)
+  const filePath = path.isAbsolute(targetFile)
+    ? targetFile
+    : path.join(rootPath, targetFile)
 
   if (!existsSync(filePath)) {
     log.error(`File not found: ${targetFile}`)
@@ -2094,10 +2241,14 @@ Create unit tests that:
 Output the complete test file content.`
 
   log.step(`Generating tests for ${fileName}`)
-  const result = await runCommandWithOutput(claudeCmd, prepareClaudeArgs([], opts), {
-    input: prompt,
-    stdio: ['pipe', 'pipe', 'pipe']
-  })
+  const result = await runCommandWithOutput(
+    claudeCmd,
+    prepareClaudeArgs([], opts),
+    {
+      input: prompt,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    },
+  )
 
   if (result.exitCode === 0 && result.stdout) {
     const testDir = path.join(rootPath, 'test')
@@ -2141,7 +2292,7 @@ Output the documentation updates or new content.`
   await runCommand(claudeCmd, [], {
     input: prompt,
     stdio: 'inherit',
-    cwd: targetPath
+    cwd: targetPath,
   })
 
   return true
@@ -2163,7 +2314,9 @@ async function runRefactor(claudeCmd, options = {}) {
     return false
   }
 
-  const filePath = path.isAbsolute(targetFile) ? targetFile : path.join(rootPath, targetFile)
+  const filePath = path.isAbsolute(targetFile)
+    ? targetFile
+    : path.join(rootPath, targetFile)
 
   if (!existsSync(filePath)) {
     log.error(`File not found: ${targetFile}`)
@@ -2208,7 +2361,9 @@ async function runOptimization(claudeCmd, options = {}) {
     return false
   }
 
-  const filePath = path.isAbsolute(targetFile) ? targetFile : path.join(rootPath, targetFile)
+  const filePath = path.isAbsolute(targetFile)
+    ? targetFile
+    : path.join(rootPath, targetFile)
 
   if (!existsSync(filePath)) {
     log.error(`File not found: ${targetFile}`)
@@ -2251,7 +2406,7 @@ async function runAudit(claudeCmd, options = {}) {
   const [npmAudit, depCheck, licenseCheck] = await Promise.all([
     runCommandWithOutput('npm', ['audit', '--json']),
     runCommandWithOutput('pnpm', ['licenses', 'list', '--json']),
-    fs.readFile(path.join(rootPath, 'package.json'), 'utf8')
+    fs.readFile(path.join(rootPath, 'package.json'), 'utf8'),
   ])
 
   const packageJson = JSON.parse(licenseCheck)
@@ -2299,7 +2454,9 @@ async function runExplain(claudeCmd, options = {}) {
   }
 
   // Check if it's a file or a concept.
-  const filePath = path.isAbsolute(targetFile) ? targetFile : path.join(rootPath, targetFile)
+  const filePath = path.isAbsolute(targetFile)
+    ? targetFile
+    : path.join(rootPath, targetFile)
 
   let prompt
   if (existsSync(filePath)) {
@@ -2359,7 +2516,9 @@ async function runMigration(claudeCmd, options = {}) {
     return false
   }
 
-  const packageJson = JSON.parse(await fs.readFile(path.join(rootPath, 'package.json'), 'utf8'))
+  const packageJson = JSON.parse(
+    await fs.readFile(path.join(rootPath, 'package.json'), 'utf8'),
+  )
 
   const prompt = `Help migrate ${packageJson.name} for: ${migrationType}
 
@@ -2412,7 +2571,7 @@ Format as actionable tasks.`
   await runCommand(claudeCmd, [], {
     input: prompt,
     stdio: 'inherit',
-    cwd: rootPath
+    cwd: rootPath,
   })
 
   return true
@@ -2438,7 +2597,9 @@ async function runDebug(claudeCmd, options = {}) {
   let debugContent = errorOrFile
 
   // Check if it's a file.
-  const possibleFile = path.isAbsolute(errorOrFile) ? errorOrFile : path.join(rootPath, errorOrFile)
+  const possibleFile = path.isAbsolute(errorOrFile)
+    ? errorOrFile
+    : path.join(rootPath, errorOrFile)
   if (existsSync(possibleFile)) {
     debugContent = await fs.readFile(possibleFile, 'utf8')
   }
@@ -2483,7 +2644,7 @@ async function runGreen(claudeCmd, options = {}) {
     { name: 'Fix code style', cmd: 'pnpm', args: ['run', 'fix'] },
     { name: 'Run checks', cmd: 'pnpm', args: ['run', 'check'] },
     { name: 'Run coverage', cmd: 'pnpm', args: ['run', 'cover'] },
-    { name: 'Run tests', cmd: 'pnpm', args: ['run', 'test', '--', '--update'] }
+    { name: 'Run tests', cmd: 'pnpm', args: ['run', 'test', '--', '--update'] },
   ]
 
   let autoFixAttempts = 0
@@ -2498,7 +2659,7 @@ async function runGreen(claudeCmd, options = {}) {
 
     const result = await runCommandWithOutput(check.cmd, check.args, {
       cwd: rootPath,
-      stdio: 'inherit'
+      stdio: 'inherit',
     })
 
     if (result.exitCode !== 0) {
@@ -2507,11 +2668,14 @@ async function runGreen(claudeCmd, options = {}) {
 
       // Decide whether to auto-fix or go interactive
       const isAutoMode = autoFixAttempts <= MAX_AUTO_FIX_ATTEMPTS
-      const errorOutput = result.stderr || result.stdout || 'No error output available'
+      const errorOutput =
+        result.stderr || result.stdout || 'No error output available'
 
       if (isAutoMode) {
         // Attempt automatic fix
-        log.progress(`[${repoName}] Auto-fix attempt ${autoFixAttempts}/${MAX_AUTO_FIX_ATTEMPTS}`)
+        log.progress(
+          `[${repoName}] Auto-fix attempt ${autoFixAttempts}/${MAX_AUTO_FIX_ATTEMPTS}`,
+        )
 
         const fixPrompt = `You are fixing a CI/build issue automatically. The command "${check.cmd} ${check.args.join(' ')}" failed in the ${path.basename(rootPath)} project.
 
@@ -2542,7 +2706,7 @@ Fix this issue now by making the necessary changes.`
 
         const claudeProcess = spawn(claudeCmd, prepareClaudeArgs([], opts), {
           cwd: rootPath,
-          stdio: ['pipe', 'pipe', 'pipe']
+          stdio: ['pipe', 'pipe', 'pipe'],
         })
 
         claudeProcess.stdin.write(fixPrompt)
@@ -2561,20 +2725,26 @@ Fix this issue now by making the necessary changes.`
         progressInterval = setInterval(() => {
           const elapsed = Date.now() - startTime
           if (elapsed > timeout) {
-            log.warn(`[${repoName}] Claude fix timed out after ${Math.round(elapsed/1000)}s`)
+            log.warn(
+              `[${repoName}] Claude fix timed out after ${Math.round(elapsed / 1000)}s`,
+            )
             clearProgressInterval()
             claudeProcess.kill()
           } else {
-            log.substep(`[${repoName}] Claude working... (${Math.round(elapsed/1000)}s)`)
+            log.substep(
+              `[${repoName}] Claude working... (${Math.round(elapsed / 1000)}s)`,
+            )
           }
         }, 10000)
         // Update every 10 seconds
 
-        await new Promise((resolve) => {
+        await new Promise(resolve => {
           claudeProcess.on('close', () => {
             clearProgressInterval()
             const elapsed = Date.now() - startTime
-            log.done(`[${repoName}] Claude fix completed in ${Math.round(elapsed/1000)}s`)
+            log.done(
+              `[${repoName}] Claude fix completed in ${Math.round(elapsed / 1000)}s`,
+            )
             resolve()
           })
         })
@@ -2585,7 +2755,7 @@ Fix this issue now by making the necessary changes.`
         // Retry the check
         log.progress(`Retrying ${check.name}`)
         const retryResult = await runCommandWithOutput(check.cmd, check.args, {
-          cwd: rootPath
+          cwd: rootPath,
         })
 
         if (retryResult.exitCode !== 0) {
@@ -2615,18 +2785,24 @@ Let's work through this together to get CI passing.`
               input: interactivePrompt,
               cwd: rootPath,
               // Interactive mode
-              stdio: 'inherit'
+              stdio: 'inherit',
             })
 
             // Try once more after interactive session
             log.progress(`Final retry of ${check.name}`)
-            const finalResult = await runCommandWithOutput(check.cmd, check.args, {
-              cwd: rootPath
-            })
+            const finalResult = await runCommandWithOutput(
+              check.cmd,
+              check.args,
+              {
+                cwd: rootPath,
+              },
+            )
 
             if (finalResult.exitCode !== 0) {
               log.error(`${check.name} still failing after manual intervention`)
-              log.substep('Consider running the command manually to debug further')
+              log.substep(
+                'Consider running the command manually to debug further',
+              )
               return false
             }
           } else {
@@ -2650,9 +2826,13 @@ Let's work through this together to get CI passing.`
   log.step('Committing and pushing changes')
 
   // Check for changes
-  const statusResult = await runCommandWithOutput('git', ['status', '--porcelain'], {
-    cwd: rootPath
-  })
+  const statusResult = await runCommandWithOutput(
+    'git',
+    ['status', '--porcelain'],
+    {
+      cwd: rootPath,
+    },
+  )
 
   if (statusResult.stdout.trim()) {
     log.progress('Changes detected, committing')
@@ -2665,7 +2845,9 @@ Let's work through this together to get CI passing.`
 
       // Commit
       const commitMessage = 'Fix CI issues and update tests'
-      await runCommand('git', ['commit', '-m', commitMessage, '--no-verify'], { cwd: rootPath })
+      await runCommand('git', ['commit', '-m', commitMessage, '--no-verify'], {
+        cwd: rootPath,
+      })
 
       // Push
       await runCommand('git', ['push'], { cwd: rootPath })
@@ -2694,7 +2876,9 @@ Let's work through this together to get CI passing.`
     console.log(`  Ubuntu:  ${colors.green('sudo apt install gh')}`)
     console.log(`  Fedora:  ${colors.green('sudo dnf install gh')}`)
     console.log(`  Windows: ${colors.green('winget install --id GitHub.cli')}`)
-    console.log(`  Other:   ${colors.gray('https://github.com/cli/cli/blob/trunk/docs/install_linux.md')}`)
+    console.log(
+      `  Other:   ${colors.gray('https://github.com/cli/cli/blob/trunk/docs/install_linux.md')}`,
+    )
     console.log('\n' + colors.yellow('After installation:'))
     console.log('  1. Run: ' + colors.green('gh auth login'))
     console.log('  2. Follow the prompts to authenticate')
@@ -2706,21 +2890,27 @@ Let's work through this together to get CI passing.`
   const isGitHubAuthenticated = await ensureGitHubAuthenticated()
   if (!isGitHubAuthenticated) {
     log.error('Unable to authenticate with GitHub')
-    console.log(colors.red('\nGitHub authentication is required for CI monitoring.'))
+    console.log(
+      colors.red('\nGitHub authentication is required for CI monitoring.'),
+    )
     console.log('Please ensure you can login to GitHub CLI and try again.')
     return false
   }
 
   // Get current commit SHA
   const shaResult = await runCommandWithOutput('git', ['rev-parse', 'HEAD'], {
-    cwd: rootPath
+    cwd: rootPath,
   })
   let currentSha = shaResult.stdout.trim()
 
   // Get repo info
-  const remoteResult = await runCommandWithOutput('git', ['remote', 'get-url', 'origin'], {
-    cwd: rootPath
-  })
+  const remoteResult = await runCommandWithOutput(
+    'git',
+    ['remote', 'get-url', 'origin'],
+    {
+      cwd: rootPath,
+    },
+  )
   const remoteUrl = remoteResult.stdout.trim()
   const repoMatch = remoteUrl.match(/github\.com[:/](.+?)\/(.+?)(\.git)?$/)
 
@@ -2747,14 +2937,22 @@ Let's work through this together to get CI passing.`
     }
 
     // Check workflow runs using gh CLI with better detection
-    const runsResult = await runCommandWithOutput('gh', [
-      'run', 'list',
-      '--repo', `${owner}/${repo}`,
-      '--limit', '20',
-      '--json', 'databaseId,status,conclusion,name,headSha,createdAt,headBranch'
-    ], {
-      cwd: rootPath
-    })
+    const runsResult = await runCommandWithOutput(
+      'gh',
+      [
+        'run',
+        'list',
+        '--repo',
+        `${owner}/${repo}`,
+        '--limit',
+        '20',
+        '--json',
+        'databaseId,status,conclusion,name,headSha,createdAt,headBranch',
+      ],
+      {
+        cwd: rootPath,
+      },
+    )
 
     if (runsResult.exitCode !== 0) {
       log.failed('Failed to fetch workflow runs')
@@ -2774,9 +2972,13 @@ Let's work through this together to get CI passing.`
       console.log('\n3. Test repository access:')
       console.log(`   ${colors.green(`gh api repos/${owner}/${repo}`)}`)
       console.log('\n4. Check if workflows exist:')
-      console.log(`   ${colors.green(`gh workflow list --repo ${owner}/${repo}`)}`)
+      console.log(
+        `   ${colors.green(`gh workflow list --repo ${owner}/${repo}`)}`,
+      )
       console.log('\n5. View recent runs manually:')
-      console.log(`   ${colors.green(`gh run list --repo ${owner}/${repo} --limit 5`)}`)
+      console.log(
+        `   ${colors.green(`gh run list --repo ${owner}/${repo} --limit 5`)}`,
+      )
 
       return false
     }
@@ -2796,7 +2998,9 @@ Let's work through this together to get CI passing.`
     for (const run of runs) {
       if (run.headSha && run.headSha.startsWith(currentSha.substring(0, 7))) {
         matchingRun = run
-        log.substep(`Found exact match for commit ${currentSha.substring(0, 7)}`)
+        log.substep(
+          `Found exact match for commit ${currentSha.substring(0, 7)}`,
+        )
         break
       }
     }
@@ -2852,13 +3056,20 @@ Let's work through this together to get CI passing.`
           // Fetch failure logs
           log.progress('Fetching failure logs')
 
-          const logsResult = await runCommandWithOutput('gh', [
-            'run', 'view', lastRunId.toString(),
-            '--repo', `${owner}/${repo}`,
-            '--log-failed'
-          ], {
-            cwd: rootPath
-          })
+          const logsResult = await runCommandWithOutput(
+            'gh',
+            [
+              'run',
+              'view',
+              lastRunId.toString(),
+              '--repo',
+              `${owner}/${repo}`,
+              '--log-failed',
+            ],
+            {
+              cwd: rootPath,
+            },
+          )
 
           // Analyze and fix with Claude
           log.progress('Analyzing CI failure with Claude')
@@ -2900,7 +3111,9 @@ Fix all CI failures now by making the necessary changes.`
               log.warn('Claude fix timeout, proceeding...')
               clearInterval(progressInterval)
             } else {
-              log.progress(`Claude analyzing and fixing... (${Math.round(elapsed/1000)}s)`)
+              log.progress(
+                `Claude analyzing and fixing... (${Math.round(elapsed / 1000)}s)`,
+              )
             }
           }, 10000) // Update every 10 seconds
 
@@ -2910,7 +3123,7 @@ Fix all CI failures now by making the necessary changes.`
               ...opts,
               interactive: false,
               cwd: rootPath,
-              timeout: fixTimeout
+              timeout: fixTimeout,
             })
           } catch (error) {
             log.warn(`Claude fix error: ${error.message}`)
@@ -2927,32 +3140,51 @@ Fix all CI failures now by making the necessary changes.`
           for (const check of localChecks) {
             await runCommandWithOutput(check.cmd, check.args, {
               cwd: rootPath,
-              stdio: 'inherit'
+              stdio: 'inherit',
             })
           }
 
           // Commit and push fixes
-          const fixStatusResult = await runCommandWithOutput('git', ['status', '--porcelain'], {
-            cwd: rootPath
-          })
+          const fixStatusResult = await runCommandWithOutput(
+            'git',
+            ['status', '--porcelain'],
+            {
+              cwd: rootPath,
+            },
+          )
 
           if (fixStatusResult.stdout.trim()) {
             log.progress('Committing CI fixes')
             await runCommand('git', ['add', '.'], { cwd: rootPath })
-            await runCommand('git', ['commit', '-m', `Fix CI failures (attempt ${retryCount + 1})`, '--no-verify'], { cwd: rootPath })
+            await runCommand(
+              'git',
+              [
+                'commit',
+                '-m',
+                `Fix CI failures (attempt ${retryCount + 1})`,
+                '--no-verify',
+              ],
+              { cwd: rootPath },
+            )
             await runCommand('git', ['push'], { cwd: rootPath })
 
             // Update SHA for next check
-            const newShaResult = await runCommandWithOutput('git', ['rev-parse', 'HEAD'], {
-              cwd: rootPath
-            })
+            const newShaResult = await runCommandWithOutput(
+              'git',
+              ['rev-parse', 'HEAD'],
+              {
+                cwd: rootPath,
+              },
+            )
             currentSha = newShaResult.stdout.trim()
           }
 
           retryCount++
         } else {
           log.error(`CI still failing after ${maxRetries} attempts`)
-          log.substep(`View run at: https://github.com/${owner}/${repo}/actions/runs/${lastRunId}`)
+          log.substep(
+            `View run at: https://github.com/${owner}/${repo}/actions/runs/${lastRunId}`,
+          )
           return false
         }
       }
@@ -2982,7 +3214,7 @@ async function runWatchMode(claudeCmd, options = {}) {
     ? [{ name: path.basename(rootPath), path: rootPath }]
     : SOCKET_PROJECTS.map(name => ({
         name,
-        path: path.join(parentPath, name)
+        path: path.join(parentPath, name),
       })).filter(p => existsSync(p.path))
 
   log.substep(`Monitoring ${projects.length} project(s)`)
@@ -2998,78 +3230,101 @@ async function runWatchMode(claudeCmd, options = {}) {
   for (const project of projects) {
     log.substep(`Watching: ${project.name}`)
 
-    const watcher = fs.watch(project.path, { recursive: true }, async (eventType, filename) => {
-      // Skip common ignore patterns
-      if (!filename ||
+    const watcher = fs.watch(
+      project.path,
+      { recursive: true },
+      async (eventType, filename) => {
+        // Skip common ignore patterns
+        if (
+          !filename ||
           filename.includes('node_modules') ||
           filename.includes('.git') ||
           filename.includes('dist') ||
           filename.includes('build') ||
-          !filename.match(/\.(m?[jt]sx?)$/)) {
-        return
-      }
-
-      const now = Date.now()
-      const lastScan = lastScanTime.get(project.name) || 0
-
-      // Cooldown to avoid rapid re-scans
-      if (now - lastScan < SCAN_COOLDOWN) {
-        return
-      }
-
-      lastScanTime.set(project.name, now)
-
-      log.progress(`Change detected in ${project.name}/${filename}`)
-      log.substep('Scanning for issues...')
-
-      try {
-        // Run focused scan on changed file
-        const scanResults = await scanProjectForIssues(claudeCmd, project, {
-          ...opts,
-          focusFiles: [filename],
-          smartContext: true
-        })
-
-        if (scanResults && Object.keys(scanResults).length > 0) {
-          log.substep('Issues detected, auto-fixing...')
-
-          // Auto-fix in careful mode
-          await autonomousFixSession(claudeCmd, { [project.name]: scanResults }, [project], {
-            ...opts,
-            // Force auto-fix in watch mode
-            prompt: false
-          })
-        } else {
-          log.done('No issues found')
+          !filename.match(/\.(m?[jt]sx?)$/)
+        ) {
+          return
         }
-      } catch (error) {
-        log.failed(`Error scanning ${project.name}: ${error.message}`)
-      }
-    })
+
+        const now = Date.now()
+        const lastScan = lastScanTime.get(project.name) || 0
+
+        // Cooldown to avoid rapid re-scans
+        if (now - lastScan < SCAN_COOLDOWN) {
+          return
+        }
+
+        lastScanTime.set(project.name, now)
+
+        log.progress(`Change detected in ${project.name}/${filename}`)
+        log.substep('Scanning for issues...')
+
+        try {
+          // Run focused scan on changed file
+          const scanResults = await scanProjectForIssues(claudeCmd, project, {
+            ...opts,
+            focusFiles: [filename],
+            smartContext: true,
+          })
+
+          if (scanResults && Object.keys(scanResults).length > 0) {
+            log.substep('Issues detected, auto-fixing...')
+
+            // Auto-fix in careful mode
+            await autonomousFixSession(
+              claudeCmd,
+              { [project.name]: scanResults },
+              [project],
+              {
+                ...opts,
+                // Force auto-fix in watch mode
+                prompt: false,
+              },
+            )
+          } else {
+            log.done('No issues found')
+          }
+        } catch (error) {
+          log.failed(`Error scanning ${project.name}: ${error.message}`)
+        }
+      },
+    )
 
     watchers.push(watcher)
   }
 
   // Periodic full scans (every 30 minutes)
-  const fullScanInterval = setInterval(async () => {
-    log.step('Running periodic full scan')
+  const fullScanInterval = setInterval(
+    async () => {
+      log.step('Running periodic full scan')
 
-    for (const project of projects) {
-      try {
-        const scanResults = await scanProjectForIssues(claudeCmd, project, opts)
+      for (const project of projects) {
+        try {
+          const scanResults = await scanProjectForIssues(
+            claudeCmd,
+            project,
+            opts,
+          )
 
-        if (scanResults && Object.keys(scanResults).length > 0) {
-          await autonomousFixSession(claudeCmd, { [project.name]: scanResults }, [project], {
-            ...opts,
-            prompt: false
-          })
+          if (scanResults && Object.keys(scanResults).length > 0) {
+            await autonomousFixSession(
+              claudeCmd,
+              { [project.name]: scanResults },
+              [project],
+              {
+                ...opts,
+                prompt: false,
+              },
+            )
+          }
+        } catch (error) {
+          log.failed(`Full scan error in ${project.name}: ${error.message}`)
         }
-      } catch (error) {
-        log.failed(`Full scan error in ${project.name}: ${error.message}`)
       }
-    }
-    // 30 minutes
-  }, 30 * 60 * 1000)
+      // 30 minutes
+    },
+    30 * 60 * 1000,
+  )
 
   // Handle graceful shutdown
   process.on('SIGINT', () => {
@@ -3101,7 +3356,9 @@ async function runWatchMode(claudeCmd, options = {}) {
 function showOperations() {
   console.log('\nCore operations:')
   console.log('  --commit       Create commits with Claude assistance')
-  console.log('  --green        Ensure all tests pass, push, monitor CI until green')
+  console.log(
+    '  --green        Ensure all tests pass, push, monitor CI until green',
+  )
   console.log('  --push         Create commits and push to remote')
   console.log('  --sync         Synchronize CLAUDE.md files across projects')
 
@@ -3268,10 +3525,23 @@ async function main() {
     })
 
     // Check if any operation is specified.
-    const hasOperation = values.sync || values.fix || values.commit || values.push ||
-                        values.review || values.refactor || values.optimize || values.clean ||
-                        values.audit || values.test || values.docs || values.explain ||
-                        values.debug || values.deps || values.migrate || values.green
+    const hasOperation =
+      values.sync ||
+      values.fix ||
+      values.commit ||
+      values.push ||
+      values.review ||
+      values.refactor ||
+      values.optimize ||
+      values.clean ||
+      values.audit ||
+      values.test ||
+      values.docs ||
+      values.explain ||
+      values.debug ||
+      values.deps ||
+      values.migrate ||
+      values.green
 
     // Show help if requested or no operation specified.
     if (values.help || !hasOperation) {
@@ -3279,31 +3549,53 @@ async function main() {
       console.log('\nClaude-powered utilities for Socket projects.')
       showOperations()
       console.log('\nOptions:')
-      console.log('  --cross-repo     Operate on all Socket projects (default: current only)')
+      console.log(
+        '  --cross-repo     Operate on all Socket projects (default: current only)',
+      )
       console.log('  --dry-run        Preview changes without writing files')
-      console.log('  --max-auto-fixes N  Max auto-fix attempts (--green, default: 10)')
-      console.log('  --max-retries N  Max CI fix attempts (--green, default: 3)')
+      console.log(
+        '  --max-auto-fixes N  Max auto-fix attempts (--green, default: 10)',
+      )
+      console.log(
+        '  --max-retries N  Max CI fix attempts (--green, default: 3)',
+      )
       console.log('  --no-darkwing    Disable "Let\'s get dangerous!" mode')
       console.log('  --no-report      Skip generating scan report (--fix)')
       console.log('  --no-verify      Use --no-verify when committing')
       console.log('  --pinky          Use default model (Claude 3.5 Sonnet)')
       console.log('  --prompt         Prompt for approval before fixes (--fix)')
       console.log('  --seq            Run sequentially (default: parallel)')
-      console.log('  --skip-commit    Update files but don\'t commit')
-      console.log('  --the-brain      Use expensive model (Claude 3 Opus) - "Try to take over the world!"')
+      console.log("  --skip-commit    Update files but don't commit")
+      console.log(
+        '  --the-brain      Use expensive model (Claude 3 Opus) - "Try to take over the world!"',
+      )
       console.log('  --watch          Continuous monitoring mode')
       console.log('  --workers N      Number of parallel workers (default: 3)')
       console.log('\nExamples:')
-      console.log('  pnpm claude --fix            # Auto-fix issues (careful mode)')
-      console.log('  pnpm claude --fix --prompt   # Prompt for approval on each fix')
-      console.log('  pnpm claude --fix --watch    # Continuous monitoring & fixing')
+      console.log(
+        '  pnpm claude --fix            # Auto-fix issues (careful mode)',
+      )
+      console.log(
+        '  pnpm claude --fix --prompt   # Prompt for approval on each fix',
+      )
+      console.log(
+        '  pnpm claude --fix --watch    # Continuous monitoring & fixing',
+      )
       console.log('  pnpm claude --review         # Review staged changes')
       console.log('  pnpm claude --green          # Ensure CI passes')
-      console.log('  pnpm claude --green --dry-run  # Test green without real CI')
-      console.log('  pnpm claude --fix --the-brain  # Deep analysis with powerful model')
+      console.log(
+        '  pnpm claude --green --dry-run  # Test green without real CI',
+      )
+      console.log(
+        '  pnpm claude --fix --the-brain  # Deep analysis with powerful model',
+      )
       console.log('  pnpm claude --fix --workers 5  # Use 5 parallel workers')
-      console.log('  pnpm claude --test lib/utils.js  # Generate tests for a file')
-      console.log('  pnpm claude --refactor src/index.js  # Suggest refactoring')
+      console.log(
+        '  pnpm claude --test lib/utils.js  # Generate tests for a file',
+      )
+      console.log(
+        '  pnpm claude --refactor src/index.js  # Suggest refactoring',
+      )
       console.log('  pnpm claude --push           # Commit and push changes')
       console.log('  pnpm claude --help           # Show this help')
       console.log('\nRequires:')
@@ -3323,11 +3615,17 @@ async function main() {
       console.log('\n' + colors.cyan('Installation Instructions:'))
       console.log('  1. Visit: https://docs.claude.com/en/docs/claude-code')
       console.log('  2. Or install via npm:')
-      console.log(`     ${colors.green('npm install -g @anthropic/claude-desktop')}`)
+      console.log(
+        `     ${colors.green('npm install -g @anthropic/claude-desktop')}`,
+      )
       console.log('  3. Or download directly:')
       console.log(`     macOS: ${colors.gray('brew install claude')}`)
-      console.log(`     Linux: ${colors.gray('curl -fsSL https://docs.claude.com/install.sh | sh')}`)
-      console.log(`     Windows: ${colors.gray('Download from https://claude.ai/download')}`)
+      console.log(
+        `     Linux: ${colors.gray('curl -fsSL https://docs.claude.com/install.sh | sh')}`,
+      )
+      console.log(
+        `     Windows: ${colors.gray('Download from https://claude.ai/download')}`,
+      )
       console.log('\n' + colors.yellow('After installation:'))
       console.log('  1. Run: ' + colors.green('claude'))
       console.log('  2. Sign in with your Anthropic account when prompted')
@@ -3341,8 +3639,12 @@ async function main() {
     const isClaudeAuthenticated = await ensureClaudeAuthenticated(claudeCmd)
     if (!isClaudeAuthenticated) {
       log.error('Unable to authenticate with Claude Code')
-      console.log(colors.red('\nAuthentication is required to use Claude utilities.'))
-      console.log('Please ensure Claude Code is properly authenticated and try again.')
+      console.log(
+        colors.red('\nAuthentication is required to use Claude utilities.'),
+      )
+      console.log(
+        'Please ensure Claude Code is properly authenticated and try again.',
+      )
       process.exitCode = 1
       return
     }
@@ -3353,7 +3655,11 @@ async function main() {
       watch: values.watch || false,
       // Auto-fix by default unless --prompt
       autoFix: !values.prompt,
-      model: values['the-brain'] ? 'the-brain' : (values.pinky ? 'pinky' : 'auto')
+      model: values['the-brain']
+        ? 'the-brain'
+        : values.pinky
+          ? 'pinky'
+          : 'auto',
     }
 
     // Display execution mode

@@ -50,7 +50,7 @@ export const nonBarrelImports = {
     `,
   },
 
-  'chalk': {
+  chalk: {
     // If we were using chalk, we could import specific modules.
     customEntry: `
       // Import only the chalk modules we need.
@@ -62,7 +62,7 @@ export const nonBarrelImports = {
     `,
   },
 
-  'lodash': {
+  lodash: {
     // Lodash has individual function modules.
     customEntry: `
       // Import specific lodash functions instead of the entire library.
@@ -82,7 +82,7 @@ export const nonBarrelImports = {
     `,
   },
 
-  'rxjs': {
+  rxjs: {
     // RxJS has deep imports for operators.
     customEntry: `
       // Import only the RxJS components we use.
@@ -137,7 +137,7 @@ export const nonBarrelImports = {
     `,
   },
 
-  'globby': {
+  globby: {
     // Globby wraps fast-glob with additional features.
     customEntry: `
       // Import only the globby functions we use.
@@ -150,96 +150,113 @@ export const nonBarrelImports = {
       // Skip gitignore, generateGlobTasks, isDynamicPattern, etc.
     `,
   },
-};
+}
 
 /**
  * Analyze which functions from a package are actually used.
  * This helps identify opportunities for non-barrel imports.
  */
 export async function analyzePackageUsage(packageName, sourceDir) {
-  const fs = await import('fs').then(m => m.promises);
-  const path = await import('path');
-  const { globby } = await import('globby');
+  const fs = await import('node:fs').then(m => m.promises)
+  const path = await import('node:path')
+  const { globby } = await import('globby')
 
   // Find all JS/TS files in the source directory.
   const files = await globby(['**/*.{js,mjs,cjs,ts,mts,cts}'], {
     cwd: sourceDir,
     ignore: ['**/node_modules/**', '**/dist/**', '**/test/**'],
-  });
+  })
 
-  const usage = new Set();
+  const usage = new Set()
   const importPatterns = [
     // CommonJS: const {fn} = require('package')
-    new RegExp(`const\\s*{([^}]+)}\\s*=\\s*require\\(['"\`]${packageName}['"\`]\\)`, 'g'),
+    new RegExp(
+      `const\\s*{([^}]+)}\\s*=\\s*require\\(['"\`]${packageName}['"\`]\\)`,
+      'g',
+    ),
     // CommonJS: const pkg = require('package'); pkg.fn()
-    new RegExp(`const\\s+(\\w+)\\s*=\\s*require\\(['"\`]${packageName}['"\`]\\)[;\\s]+(\\1\\.(\\w+))`, 'g'),
+    new RegExp(
+      `const\\s+(\\w+)\\s*=\\s*require\\(['"\`]${packageName}['"\`]\\)[;\\s]+(\\1\\.(\\w+))`,
+      'g',
+    ),
     // ES modules: import {fn} from 'package'
-    new RegExp(`import\\s*{([^}]+)}\\s*from\\s*['"\`]${packageName}['"\`]`, 'g'),
+    new RegExp(
+      `import\\s*{([^}]+)}\\s*from\\s*['"\`]${packageName}['"\`]`,
+      'g',
+    ),
     // ES modules: import * as pkg from 'package'; pkg.fn()
-    new RegExp(`import\\s*\\*\\s*as\\s+(\\w+)\\s*from\\s*['"\`]${packageName}['"\`][;\\s]+(\\1\\.(\\w+))`, 'g'),
-  ];
+    new RegExp(
+      `import\\s*\\*\\s*as\\s+(\\w+)\\s*from\\s*['"\`]${packageName}['"\`][;\\s]+(\\1\\.(\\w+))`,
+      'g',
+    ),
+  ]
 
   for (const file of files) {
-    const content = await fs.readFile(path.join(sourceDir, file), 'utf8');
+    const content = await fs.readFile(path.join(sourceDir, file), 'utf8')
 
     for (const pattern of importPatterns) {
-      let match;
+      let match
       while ((match = pattern.exec(content)) !== null) {
         // Extract function names from destructuring or property access.
-        const functions = match[1] || match[3];
+        const functions = match[1] || match[3]
         if (functions) {
           functions.split(',').forEach(fn => {
-            usage.add(fn.trim().replace(/\s+as\s+\w+/, ''));
-          });
+            usage.add(fn.trim().replace(/\s+as\s+\w+/, ''))
+          })
         }
       }
     }
   }
 
-  return Array.from(usage);
+  return Array.from(usage)
 }
 
 /**
  * Generate a custom entry file using non-barrel imports.
  */
 export async function createNonBarrelEntry(packageName, tempDir) {
-  const fs = await import('fs').then(m => m.promises);
-  const path = await import('path');
-  const { createRequire } = await import('node:module');
+  const fs = await import('node:fs').then(m => m.promises)
+  const path = await import('node:path')
+  const { createRequire } = await import('node:module')
 
-  const config = nonBarrelImports[packageName];
+  const config = nonBarrelImports[packageName]
   if (!config?.customEntry) {
-    return null; // Use default entry.
+    return null // Use default entry.
   }
 
   // Create temp entry file in project root where node_modules is accessible.
   // Use a .tmp directory that's gitignored.
-  const tmpDir = path.join(process.cwd(), '.tmp-build');
-  await fs.mkdir(tmpDir, { recursive: true });
+  const tmpDir = path.join(process.cwd(), '.tmp-build')
+  await fs.mkdir(tmpDir, { recursive: true })
 
-  const tempFile = path.join(tmpDir, `${packageName.replace(/[/@]/g, '-')}-entry.js`);
+  const tempFile = path.join(
+    tmpDir,
+    `${packageName.replace(/[/@]/g, '-')}-entry.js`,
+  )
 
   // Write the custom entry with adjusted require paths if needed.
-  let entryContent = config.customEntry.trim();
+  const entryContent = config.customEntry.trim()
 
   // For semver, we need to ensure the paths resolve correctly.
   if (packageName === 'semver') {
     // Create a require function from the temp file location.
-    const req = createRequire(tempFile);
+    const req = createRequire(tempFile)
 
     // Verify that the paths exist before writing.
     try {
-      req.resolve('semver/functions/parse');
+      req.resolve('semver/functions/parse')
       // Paths are valid, use the original entry.
     } catch (e) {
       // Paths don't resolve, fall back to regular import.
-      console.log(`  Note: Non-barrel imports not available for ${packageName}, using default entry`);
-      await fs.rm(tmpDir, { recursive: true, force: true });
-      return null;
+      console.log(
+        `  Note: Non-barrel imports not available for ${packageName}, using default entry`,
+      )
+      await fs.rm(tmpDir, { recursive: true, force: true })
+      return null
     }
   }
 
-  await fs.writeFile(tempFile, entryContent);
+  await fs.writeFile(tempFile, entryContent)
 
-  return tempFile;
+  return tempFile
 }

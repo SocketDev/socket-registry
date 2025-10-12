@@ -23,7 +23,10 @@ describe(
     let hyriousBunLockb: any
 
     beforeAll(async () => {
-      const result = await installPackageForTesting(npmPackagesPath, sockRegPkgName)
+      const result = await installPackageForTesting(
+        npmPackagesPath,
+        sockRegPkgName,
+      )
       if (!result.installed) {
         throw new Error(`Failed to install package: ${result.reason}`)
       }

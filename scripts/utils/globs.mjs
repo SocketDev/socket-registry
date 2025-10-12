@@ -36,9 +36,10 @@ export function getGlobMatcher(patterns, options = {}) {
     includes.push('**')
   }
 
-  return (filepath) => {
+  return filepath => {
     // Check if path matches any include pattern
-    const matchesInclude = includes.length === 0 ||
+    const matchesInclude =
+      includes.length === 0 ||
       includes.some(pattern => minimatch(filepath, pattern, opts))
 
     if (!matchesInclude) {
@@ -46,7 +47,9 @@ export function getGlobMatcher(patterns, options = {}) {
     }
 
     // Check if path matches any exclude pattern
-    const matchesExclude = excludes.some(pattern => minimatch(filepath, pattern, opts))
+    const matchesExclude = excludes.some(pattern =>
+      minimatch(filepath, pattern, opts),
+    )
 
     return !matchesExclude
   }

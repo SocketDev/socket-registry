@@ -16,8 +16,12 @@ export interface IpcObject {
 let _ipcObject: IpcObject | undefined
 
 export async function getIpc(): Promise<IpcObject>
-export async function getIpc<K extends keyof IpcObject>(key: K): Promise<IpcObject[K]>
-export async function getIpc(key?: keyof IpcObject): Promise<IpcObject | IpcObject[keyof IpcObject]> {
+export async function getIpc<K extends keyof IpcObject>(
+  key: K,
+): Promise<IpcObject[K]>
+export async function getIpc(
+  key?: keyof IpcObject,
+): Promise<IpcObject | IpcObject[keyof IpcObject]> {
   if (_ipcObject === undefined) {
     _ipcObject = {}
 
@@ -29,15 +33,20 @@ export async function getIpc(key?: keyof IpcObject): Promise<IpcObject | IpcObje
     }
 
     if (env['SOCKET_CLI_OPTIMIZE']) {
-      _ipcObject.SOCKET_CLI_OPTIMIZE = env['SOCKET_CLI_OPTIMIZE'] === 'true' || env['SOCKET_CLI_OPTIMIZE'] === '1'
+      _ipcObject.SOCKET_CLI_OPTIMIZE =
+        env['SOCKET_CLI_OPTIMIZE'] === 'true' ||
+        env['SOCKET_CLI_OPTIMIZE'] === '1'
     }
 
     if (env['SOCKET_CLI_SHADOW_ACCEPT_RISKS']) {
-      _ipcObject.SOCKET_CLI_SHADOW_ACCEPT_RISKS = env['SOCKET_CLI_SHADOW_ACCEPT_RISKS'] === 'true' || env['SOCKET_CLI_SHADOW_ACCEPT_RISKS'] === '1'
+      _ipcObject.SOCKET_CLI_SHADOW_ACCEPT_RISKS =
+        env['SOCKET_CLI_SHADOW_ACCEPT_RISKS'] === 'true' ||
+        env['SOCKET_CLI_SHADOW_ACCEPT_RISKS'] === '1'
     }
 
     if (env['SOCKET_CLI_SHADOW_API_TOKEN']) {
-      _ipcObject.SOCKET_CLI_SHADOW_API_TOKEN = env['SOCKET_CLI_SHADOW_API_TOKEN']
+      _ipcObject.SOCKET_CLI_SHADOW_API_TOKEN =
+        env['SOCKET_CLI_SHADOW_API_TOKEN']
     }
 
     if (env['SOCKET_CLI_SHADOW_BIN']) {
@@ -45,11 +54,15 @@ export async function getIpc(key?: keyof IpcObject): Promise<IpcObject | IpcObje
     }
 
     if (env['SOCKET_CLI_SHADOW_PROGRESS']) {
-      _ipcObject.SOCKET_CLI_SHADOW_PROGRESS = env['SOCKET_CLI_SHADOW_PROGRESS'] === 'true' || env['SOCKET_CLI_SHADOW_PROGRESS'] === '1'
+      _ipcObject.SOCKET_CLI_SHADOW_PROGRESS =
+        env['SOCKET_CLI_SHADOW_PROGRESS'] === 'true' ||
+        env['SOCKET_CLI_SHADOW_PROGRESS'] === '1'
     }
 
     if (env['SOCKET_CLI_SHADOW_SILENT']) {
-      _ipcObject.SOCKET_CLI_SHADOW_SILENT = env['SOCKET_CLI_SHADOW_SILENT'] === 'true' || env['SOCKET_CLI_SHADOW_SILENT'] === '1'
+      _ipcObject.SOCKET_CLI_SHADOW_SILENT =
+        env['SOCKET_CLI_SHADOW_SILENT'] === 'true' ||
+        env['SOCKET_CLI_SHADOW_SILENT'] === '1'
     }
 
     Object.freeze(_ipcObject)

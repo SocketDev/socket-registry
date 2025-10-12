@@ -332,12 +332,12 @@ export const cherryPickEntries = {
       };
     `,
   },
-};
+}
 
 // Generate a temporary entry file for cherry-picked imports.
 export async function createCherryPickEntry(packageName, tempDir) {
-  const fs = await import('fs').then(m => m.promises)
-  const path = await import('path')
+  const fs = await import('node:fs').then(m => m.promises)
+  const path = await import('node:path')
 
   const config = cherryPickEntries[packageName]
   if (!config?.customEntry) {
@@ -345,7 +345,10 @@ export async function createCherryPickEntry(packageName, tempDir) {
   }
 
   // Create temp entry file.
-  const tempFile = path.join(tempDir, `${packageName.replace(/[/@]/g, '-')}-entry.js`)
+  const tempFile = path.join(
+    tempDir,
+    `${packageName.replace(/[/@]/g, '-')}-entry.js`,
+  )
   await fs.writeFile(tempFile, config.customEntry.trim())
 
   return tempFile

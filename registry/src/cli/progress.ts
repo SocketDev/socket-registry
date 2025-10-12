@@ -52,7 +52,7 @@ export class ProgressBar {
     const status = `${this.current}/${this.total}`
 
     process.stdout.write(
-      `\r${this.description} ${bar} ${percentage}% ${status}  `
+      `\r${this.description} ${bar} ${percentage}% ${status}  `,
     )
   }
 }
@@ -62,7 +62,7 @@ export class ProgressBar {
  */
 export function createProgressBar(
   total: number,
-  description?: string
+  description?: string,
 ): ProgressBar {
   return new ProgressBar(total, description)
 }
@@ -72,7 +72,7 @@ export function createProgressBar(
  */
 export async function withProgress<T>(
   tasks: Array<() => Promise<T>>,
-  description = 'Processing'
+  description = 'Processing',
 ): Promise<T[]> {
   const progress = createProgressBar(tasks.length, description)
   const results: T[] = []

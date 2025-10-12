@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 import colors from 'yoctocolors-cjs'
 
 // Get root path.
-export const getRootPath = (importMetaUrl) => {
+export const getRootPath = importMetaUrl => {
   const __dirname = path.dirname(fileURLToPath(importMetaUrl))
   return path.join(__dirname, '..')
 }
@@ -26,14 +26,17 @@ export const printDottedLine = () => console.log('·'.repeat(55))
 export const printDiamondLine = () => console.log('◆'.repeat(55))
 export const printFooter = msg => {
   printFooterLine()
-  if (msg) {console.log(colors.green(msg))}
+  if (msg) {
+    console.log(colors.green(msg))
+  }
 }
 export const printHelpHeader = name => console.log(`Socket Registry ${name}`)
 export const printSuccess = msg => console.log(colors.green(`✓ ${msg}`))
 export const printError = msg => console.error(colors.red(`✗ ${msg}`))
 export const printWarning = msg => console.warn(colors.yellow(`⚠ ${msg}`))
 export const printInfo = msg => console.log(colors.blue(`ℹ ${msg}`))
-export const printIndented = (msg, indent = 2) => console.log(' '.repeat(indent) + msg)
+export const printIndented = (msg, indent = 2) =>
+  console.log(' '.repeat(indent) + msg)
 
 // Console logging utilities with special formatting.
 // These have different behavior than the print utilities above.
@@ -54,7 +57,7 @@ export const log = {
   failed: msg => {
     process.stdout.write('\r\x1b[K')
     console.log(`  ${colors.red('✗')} ${msg}`)
-  }
+  },
 }
 
 // Local argv utilities for scripts - avoid dependency on dist.
@@ -63,8 +66,14 @@ export const isQuiet = () => argv.includes('--quiet') || argv.includes('-q')
 export const isVerbose = () => argv.includes('--verbose') || argv.includes('-v')
 export const isForced = () => argv.includes('--force') || argv.includes('-f')
 export const isDryRun = () => argv.includes('--dry-run')
-export const COMMON_SCRIPT_FLAGS = ['--quiet', '--verbose', '--force', '--dry-run']
-export const getCommonScriptFlags = () => argv.filter(arg => COMMON_SCRIPT_FLAGS.includes(arg))
+export const COMMON_SCRIPT_FLAGS = [
+  '--quiet',
+  '--verbose',
+  '--force',
+  '--dry-run',
+]
+export const getCommonScriptFlags = () =>
+  argv.filter(arg => COMMON_SCRIPT_FLAGS.includes(arg))
 
 // Exit with code.
 export function exit(code = 0) {

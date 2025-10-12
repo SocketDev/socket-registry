@@ -86,7 +86,8 @@ export const SOCKET_FIREWALL_APP_NAME = 'sfw'
 export const SOCKET_GITHUB_ORG = 'SocketDev'
 export const SOCKET_IPC_HANDSHAKE = 'SOCKET_IPC_HANDSHAKE'
 export const SOCKET_OVERRIDE_SCOPE = '@socketoverride'
-export const SOCKET_PUBLIC_API_KEY = 'sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api'
+export const SOCKET_PUBLIC_API_KEY =
+  'sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api'
 export const SOCKET_PUBLIC_API_TOKEN = SOCKET_PUBLIC_API_KEY // Alias for backward compatibility.
 export const SOCKET_REGISTRY_APP_NAME = 'registry'
 export const SOCKET_REGISTRY_NPM_ORG = 'socketregistry'

@@ -6,12 +6,12 @@
  *   node scripts/fix-external.mjs
  */
 
-import { logger } from '../dist/lib/logger.js'
+import { logger } from './utils/helpers.mjs'
 import { runCommandQuiet } from '../../scripts/utils/run-command.mjs'
 
 async function main() {
   try {
-    logger.log('Running linters on external dependencies with auto-fix...')
+    logger.info('Running linters on external dependencies with auto-fix...')
 
     const linters = [
       {

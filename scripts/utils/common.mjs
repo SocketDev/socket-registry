@@ -45,10 +45,7 @@ export function isCI() {
  * Check if running in debug mode
  */
 export function isDebug() {
-  return !!(
-    process.env.DEBUG ||
-    process.env.NODE_ENV === 'development'
-  )
+  return !!(process.env.DEBUG || process.env.NODE_ENV === 'development')
 }
 
 /**
@@ -80,7 +77,7 @@ export function parseScriptArgs(options = {}) {
       short: 'v',
       default: false,
     },
-    ...options
+    ...options,
   }
 
   return parseArgs({

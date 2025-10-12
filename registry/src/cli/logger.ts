@@ -2,7 +2,6 @@
  * @fileoverview Logger utilities for Socket Registry v2.0.
  */
 
-
 export enum LogLevel {
   ERROR = 0,
   WARN = 1,
