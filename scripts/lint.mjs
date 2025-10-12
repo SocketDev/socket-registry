@@ -20,19 +20,19 @@ const { values } = parseArgs({
     all: { type: 'boolean' },
     fix: { type: 'boolean' },
     staged: { type: 'boolean' },
-    quiet: { type: 'boolean' }
-  }
+    quiet: { type: 'boolean' },
+  },
 })
 
-const { all = false, fix = false, staged = false, quiet = false } = values
+const { all = false, fix = false, quiet = false, staged = false } = values
 
 // Run command helper
 async function run(command, args = []) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const child = spawn(command, args, {
       stdio: quiet ? 'pipe' : 'inherit',
       shell: process.platform === 'win32',
-      cwd: rootPath
+      cwd: rootPath,
     })
 
     child.on('close', code => resolve(code || 0))
@@ -43,7 +43,9 @@ async function run(command, args = []) {
 // Main lint function
 async function lint() {
   if (!quiet) {
-    console.log(`${colors.cyan('Linting')} ${all ? 'all files' : staged ? 'staged files' : 'changed files'}...`)
+    console.log(
+      `${colors.cyan('Linting')} ${all ? 'all files' : staged ? 'staged files' : 'changed files'}...`,
+    )
   }
 
   let hasError = false
@@ -55,11 +57,17 @@ async function lint() {
   // Run lint-affected for targeted linting
   if (!all && existsSync(affectedScript)) {
     const args = ['node', affectedScript]
-    if (staged) args.push('--staged')
-    if (fix) args.push('--fix')
+    if (staged) {
+      args.push('--staged')
+    }
+    if (fix) {
+      args.push('--fix')
+    }
 
     const code = await run(args[0], args.slice(1))
-    if (code !== 0) hasError = true
+    if (code !== 0) {
+      hasError = true
+    }
   } else {
     // Run all linters
     const linters = [
@@ -67,34 +75,42 @@ async function lint() {
         name: 'ESLint',
         command: 'pnpm',
         args: [
-          'exec', 'eslint',
-          '--config', '.config/eslint.config.mjs',
+          'exec',
+          'eslint',
+          '--config',
+          '.config/eslint.config.mjs',
           '--report-unused-disable-directives',
           ...(fix ? ['--fix'] : []),
-          '.'
-        ]
+          '.',
+        ],
       },
       {
         name: 'Biome',
         command: 'pnpm',
         args: [
-          'exec', 'biome',
+          'exec',
+          'biome',
           fix ? 'format' : 'check',
-          '--config', '.config/biome.json',
-          '.'
-        ]
+          '--config',
+          '.config/biome.json',
+          '.',
+        ],
       },
       {
         name: 'Oxlint',
         command: 'pnpm',
-        args: ['exec', 'oxlint', ...(fix ? ['--fix'] : []), '.']
-      }
+        args: ['exec', 'oxlint', ...(fix ? ['--fix'] : []), '.'],
+      },
     ]
 
-    for (const { name, command, args } of linters) {
-      if (!quiet) console.log(`  Running ${name}...`)
+    for (const { args, command, name } of linters) {
+      if (!quiet) {
+        console.log(`  Running ${name}...`)
+      }
       const code = await run(command, args)
-      if (code !== 0) hasError = true
+      if (code !== 0) {
+        hasError = true
+      }
     }
   }
 

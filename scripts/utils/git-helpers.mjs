@@ -11,11 +11,10 @@ const { spawn } = spawnModule
  */
 export async function getStagedFiles(cwd = process.cwd()) {
   try {
-    const { stdout } = await spawn('git', ['diff', '--cached', '--name-only'], { cwd })
-    return stdout
-      .trim()
-      .split('\n')
-      .filter(Boolean)
+    const { stdout } = await spawn('git', ['diff', '--cached', '--name-only'], {
+      cwd,
+    })
+    return stdout.trim().split('\n').filter(Boolean)
   } catch {
     return []
   }
@@ -26,11 +25,11 @@ export async function getStagedFiles(cwd = process.cwd()) {
  */
 export function getStagedFilesSync(cwd = process.cwd()) {
   try {
-    const stdout = execSync('git diff --cached --name-only', { cwd, encoding: 'utf8' })
-    return stdout
-      .trim()
-      .split('\n')
-      .filter(Boolean)
+    const stdout = execSync('git diff --cached --name-only', {
+      cwd,
+      encoding: 'utf8',
+    })
+    return stdout.trim().split('\n').filter(Boolean)
   } catch {
     return []
   }
@@ -42,10 +41,7 @@ export function getStagedFilesSync(cwd = process.cwd()) {
 export async function getUnstagedFiles(cwd = process.cwd()) {
   try {
     const { stdout } = await spawn('git', ['diff', '--name-only'], { cwd })
-    return stdout
-      .trim()
-      .split('\n')
-      .filter(Boolean)
+    return stdout.trim().split('\n').filter(Boolean)
   } catch {
     return []
   }
@@ -57,10 +53,7 @@ export async function getUnstagedFiles(cwd = process.cwd()) {
 export function getUnstagedFilesSync(cwd = process.cwd()) {
   try {
     const stdout = execSync('git diff --name-only', { cwd, encoding: 'utf8' })
-    return stdout
-      .trim()
-      .split('\n')
-      .filter(Boolean)
+    return stdout.trim().split('\n').filter(Boolean)
   } catch {
     return []
   }

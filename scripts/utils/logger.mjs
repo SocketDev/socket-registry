@@ -23,7 +23,7 @@ export const log = {
   failed: msg => {
     process.stdout.write('\r\x1b[K')
     console.log(`  ${colors.red('✗')} ${msg}`)
-  }
+  },
 }
 
 /**
@@ -75,6 +75,6 @@ export function createProgressIndicator(message) {
       } else {
         log.failed(`${message}`)
       }
-    }
+    },
   }
 }

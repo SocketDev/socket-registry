@@ -7,13 +7,17 @@ import { env } from 'node:process'
 
 // Helper functions for type conversion.
 export function envAsBoolean(value: string | undefined): boolean {
-  if (!value) return false
+  if (!value) {
+    return false
+  }
   const lower = value.toLowerCase()
   return lower === 'true' || lower === '1' || lower === 'yes'
 }
 
 export function envAsNumber(value: string | undefined): number {
-  if (!value) return 0
+  if (!value) {
+    return 0
+  }
   const num = Number(value)
   return isNaN(num) ? 0 : num
 }
@@ -23,21 +27,24 @@ export function envAsString(value: string | undefined): string {
 }
 
 // Create a proxy for environment variable access.
-const envProxy = new Proxy({}, {
-  get(_, prop) {
-    if (typeof prop === 'string') {
-      return env[prop]
-    }
-    return undefined
-  },
+const envProxy = new Proxy(
+  {},
+  {
+    get(_, prop) {
+      if (typeof prop === 'string') {
+        return env[prop]
+      }
+      return undefined
+    },
 
-  has(_, prop) {
-    if (typeof prop === 'string') {
-      return prop in env
-    }
-    return false
-  }
-})
+    has(_, prop) {
+      if (typeof prop === 'string') {
+        return prop in env
+      }
+      return false
+    },
+  },
+)
 
 // Environment getters for common variables.
 export function getNodeEnv(): string {
@@ -163,15 +170,21 @@ export function getSocketConfig(): string | undefined {
 }
 
 export function getSocketAcceptRisks(): boolean {
-  return envAsBoolean(env['SOCKET_ACCEPT_RISKS'] || env['SOCKET_CLI_ACCEPT_RISKS'])
+  return envAsBoolean(
+    env['SOCKET_ACCEPT_RISKS'] || env['SOCKET_CLI_ACCEPT_RISKS'],
+  )
 }
 
 export function getSocketViewAllRisks(): boolean {
-  return envAsBoolean(env['SOCKET_VIEW_ALL_RISKS'] || env['SOCKET_CLI_VIEW_ALL_RISKS'])
+  return envAsBoolean(
+    env['SOCKET_VIEW_ALL_RISKS'] || env['SOCKET_CLI_VIEW_ALL_RISKS'],
+  )
 }
 
 export function getSocketNoApiToken(): boolean {
-  return envAsBoolean(env['SOCKET_NO_API_TOKEN'] || env['SOCKET_CLI_NO_API_TOKEN'])
+  return envAsBoolean(
+    env['SOCKET_NO_API_TOKEN'] || env['SOCKET_CLI_NO_API_TOKEN'],
+  )
 }
 
 // Pre-commit environment.
@@ -198,13 +211,27 @@ const ENV = Object.freeze({
   __proto__: null,
   ...envProxy,
   // Add commonly accessed properties as getters.
-  get NODE_ENV() { return getNodeEnv() },
-  get CI() { return isCI() },
-  get NODE_AUTH_TOKEN() { return getNodeAuthToken() },
-  get NPM_TOKEN() { return getNpmToken() },
-  get GITHUB_TOKEN() { return getGithubToken() },
-  get SOCKET_API_TOKEN() { return getSocketApiToken() },
-  get SOCKET_API_BASE_URL() { return getSocketApiBaseUrl() },
+  get NODE_ENV() {
+    return getNodeEnv()
+  },
+  get CI() {
+    return isCI()
+  },
+  get NODE_AUTH_TOKEN() {
+    return getNodeAuthToken()
+  },
+  get NPM_TOKEN() {
+    return getNpmToken()
+  },
+  get GITHUB_TOKEN() {
+    return getGithubToken()
+  },
+  get SOCKET_API_TOKEN() {
+    return getSocketApiToken()
+  },
+  get SOCKET_API_BASE_URL() {
+    return getSocketApiBaseUrl()
+  },
   // Add other properties on-demand...
 })
 

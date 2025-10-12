@@ -11,7 +11,12 @@ import { fileURLToPath } from 'node:url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.join(__dirname, '..', '..')
 const distPath = path.join(rootPath, 'registry', 'dist')
-const externalPath = path.join(distPath, 'external', '@socketregistry', 'yocto-spinner.js')
+const externalPath = path.join(
+  distPath,
+  'external',
+  '@socketregistry',
+  'yocto-spinner.js',
+)
 
 /**
  * Check if the dist directory and external dependencies exist.
@@ -39,7 +44,7 @@ export async function ensureDistBuilt(options = {}) {
     // Use build --fast --needed for quick builds
     const child = spawn('pnpm', ['build', '--fast', '--needed'], {
       stdio: silent ? 'pipe' : 'inherit',
-      cwd: rootPath
+      cwd: rootPath,
     })
 
     child.on('exit', code => {

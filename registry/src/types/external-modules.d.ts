@@ -1,8 +1,17 @@
 /** @fileoverview Type declarations for external modules. */
 
 declare module 'cacache' {
-  export function get(cachePath: string, key: string, options?: any): Promise<{ data: Buffer }>
-  export function put(cachePath: string, key: string, data: any, options?: any): Promise<void>
+  export function get(
+    cachePath: string,
+    key: string,
+    options?: any,
+  ): Promise<{ data: Buffer }>
+  export function put(
+    cachePath: string,
+    key: string,
+    data: any,
+    options?: any,
+  ): Promise<void>
   export const rm: {
     (cachePath: string, key: string): Promise<void>
     all(cachePath: string): Promise<void>
@@ -11,7 +20,11 @@ declare module 'cacache' {
   export function ls(cachePath: string): Promise<Record<string, any>>
   export function verify(cachePath: string): Promise<void>
   export const tmp: {
-    withTmp<T>(cachePath: string, opts: any, callback: (tmpDirPath: string) => Promise<T>): Promise<T>
+    withTmp<T>(
+      cachePath: string,
+      opts: any,
+      callback: (tmpDirPath: string) => Promise<T>,
+    ): Promise<T>
   }
 }
 

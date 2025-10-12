@@ -8,8 +8,7 @@ import fastGlob from 'fast-glob'
 import builtinNames from '@socketregistry/packageurl-js/data/npm/builtin-names.json' with {
   type: 'json',
 }
-import { toSortedObject } from '../dist/lib/objects.js'
-import { readPackageJson } from '../dist/lib/packages.js'
+import { readPackageJson, toSortedObject } from './utils/helpers.mjs'
 
 const { EXT_DTS, EXT_JSON } = constants
 
@@ -18,11 +17,21 @@ const { EXT_DTS, EXT_JSON } = constants
  */
 async function main() {
   const { registryPkgPath } = constants
+  const registryPkgJsonPath = path.join(registryPkgPath, 'package.json')
 
-  const registryEditablePkgJson = await readPackageJson(registryPkgPath, {
-    editable: true,
-    normalize: true,
-  })
+  const registryPkgJsonData = await readPackageJson(registryPkgJsonPath)
+
+  // Create editable wrapper.
+  const registryEditablePkgJson = {
+    content: registryPkgJsonData,
+    save: async function () {
+      const { writePackageJson } = await import('./utils/helpers.mjs')
+      await writePackageJson(registryPkgJsonPath, this.content)
+    },
+    update: function (updates) {
+      Object.assign(this.content, updates)
+    },
+  }
 
   const registryPkgJson = registryEditablePkgJson.content
 

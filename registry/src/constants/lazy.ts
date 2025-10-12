@@ -42,12 +42,18 @@ export function supportsNodePermissionFlag(): boolean {
 
 export function supportsNodeRequireModule(): boolean {
   const major = getNodeMajorVersion()
-  return major >= 23 || (major === 22 && parseInt(process.version.split('.')[1] || '0', 10) >= 12)
+  return (
+    major >= 23 ||
+    (major === 22 && parseInt(process.version.split('.')[1] || '0', 10) >= 12)
+  )
 }
 
 export function supportsNodeRun(): boolean {
   const major = getNodeMajorVersion()
-  return major >= 23 || (major === 22 && parseInt(process.version.split('.')[1] || '0', 10) >= 11)
+  return (
+    major >= 23 ||
+    (major === 22 && parseInt(process.version.split('.')[1] || '0', 10) >= 11)
+  )
 }
 
 export function supportsProcessSend(): boolean {
@@ -204,13 +210,7 @@ export function getNodeNoWarningsFlags(): string[] {
 let _packageManagerCacheNames: string[]
 export function getPackageManagerCacheNames(): string[] {
   if (_packageManagerCacheNames === undefined) {
-    _packageManagerCacheNames = [
-      '.npm',
-      '.pnpm-store',
-      '.yarn',
-      '.bun',
-      '.vlt',
-    ]
+    _packageManagerCacheNames = ['.npm', '.pnpm-store', '.yarn', '.bun', '.vlt']
   }
   return _packageManagerCacheNames
 }

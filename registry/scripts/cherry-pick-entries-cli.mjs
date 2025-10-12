@@ -7,7 +7,7 @@ export const cherryPickEntries = {
   // For CLI applications, we focus on removing unused functionality,
   // NOT user-facing features like colors, formatting, or debug output.
 
-  'semver': {
+  semver: {
     // Semver has many functions we don't use in the registry.
     // We can create a facade that only includes what we need.
     customEntry: `
@@ -150,7 +150,7 @@ export const cherryPickEntries = {
     `,
   },
 
-  'picomatch': {
+  picomatch: {
     // Picomatch includes features we don't use.
     customEntry: `
       const picomatch = require('picomatch');
@@ -213,7 +213,7 @@ export const cherryPickEntries = {
     `,
   },
 
-  'browserslist': {
+  browserslist: {
     // Browserslist includes update checking we don't need.
     customEntry: `
       const browserslist = require('browserslist');
@@ -250,17 +250,25 @@ export const cherryPickEntries = {
   // - 'validate-npm-package-name' - We NEED good error messages
   // - '@inquirer/*' - We NEED the full interactive prompts
   // - 'ora'/'yocto-spinner' - We NEED progress indicators
-};
+}
 
 // Helper to determine if a package benefits from cherry-picking.
 export function shouldCherryPick(packageName) {
   // Only cherry-pick if we have a real optimization, not a stub.
-  const entry = cherryPickEntries[packageName];
-  if (!entry) return false;
+  const entry = cherryPickEntries[packageName]
+  if (!entry) {
+    return false
+  }
 
   // Don't cherry-pick packages that are already small.
-  const smallPackages = ['yoctocolors-cjs', 'validate-npm-package-name', 'which'];
-  if (smallPackages.includes(packageName)) return false;
+  const smallPackages = [
+    'yoctocolors-cjs',
+    'validate-npm-package-name',
+    'which',
+  ]
+  if (smallPackages.includes(packageName)) {
+    return false
+  }
 
-  return true;
+  return true
 }

@@ -18,7 +18,10 @@ import {
   readPackageJson,
   resolveOriginalPackageName,
 } from '../../registry/dist/lib/packages/index.js'
-import { capitalize, determineArticle } from '../../registry/dist/lib/lang/words.js'
+import {
+  capitalize,
+  determineArticle,
+} from '../../registry/dist/lib/lang/words.js'
 
 import constants from '../constants.mjs'
 import { biomeFormat } from './biome.mjs'

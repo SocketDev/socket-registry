@@ -12,10 +12,10 @@ function createSchema<T = any>(name: string): Schema<T> {
     safeParse: (data: any) => ({
       success: true,
       data,
-      error: undefined
+      error: undefined,
     }),
     parse: (data: any) => data,
-    _name: name
+    _name: name,
   }
 }
 

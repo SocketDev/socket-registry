@@ -158,7 +158,9 @@ async function processWithSpinner(items, processor, options = {}) {
   }
 
   if (spinner && startMessage) {
-    const { withSpinner } = await import('../../registry/dist/lib/cli/spinner.js')
+    const { withSpinner } = await import(
+      '../../registry/dist/lib/cli/spinner.js'
+    )
     await withSpinner({
       message: startMessage,
       operation: processItems,

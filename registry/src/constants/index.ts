@@ -3,16 +3,16 @@
  * Re-exports from modular constant files and provides the legacy interface.
  */
 
+import ENV from './env'
+import * as lazyGetters from './lazy'
+import * as staticConstants from './static'
 import { createConstantsObject } from '../lib/objects'
 
 // Import all static constants.
-import * as staticConstants from './static'
 
 // Import lazy getters.
-import * as lazyGetters from './lazy'
 
 // Import ENV.
-import ENV from './env'
 
 // IPC getter.
 let _ipcObject: any
@@ -95,7 +95,8 @@ const getters: Record<string, () => any> = {
   npmLifecycleEvent: lazyGetters.getNpmLifecycleEvent,
   npmRealExecPath: lazyGetters.getNpmRealExecPath,
   PACKAGE_DEFAULT_NODE_RANGE: lazyGetters.getPackageDefaultNodeRange,
-  PACKAGE_DEFAULT_SOCKET_CATEGORIES: lazyGetters.getPackageDefaultSocketCategories,
+  PACKAGE_DEFAULT_SOCKET_CATEGORIES:
+    lazyGetters.getPackageDefaultSocketCategories,
   packageExtensions: lazyGetters.getPackageExtensions,
   packageManagerCacheNames: lazyGetters.getPackageManagerCacheNames,
   packumentCache: lazyGetters.getPackumentCache,
@@ -104,8 +105,10 @@ const getters: Record<string, () => any> = {
   pnpmStorePath: lazyGetters.getPnpmStorePath,
   spinner: lazyGetters.getSpinner,
   SUPPORTS_NODE_COMPILE_CACHE_API: lazyGetters.supportsNodeCompileCacheApi,
-  SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR: lazyGetters.supportsNodeCompileCacheEnvVar,
-  SUPPORTS_NODE_DISABLE_WARNING_FLAG: lazyGetters.supportsNodeDisableWarningFlag,
+  SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR:
+    lazyGetters.supportsNodeCompileCacheEnvVar,
+  SUPPORTS_NODE_DISABLE_WARNING_FLAG:
+    lazyGetters.supportsNodeDisableWarningFlag,
   SUPPORTS_NODE_PERMISSION_FLAG: lazyGetters.supportsNodePermissionFlag,
   SUPPORTS_NODE_REQUIRE_MODULE: lazyGetters.supportsNodeRequireModule,
   SUPPORTS_NODE_RUN: lazyGetters.supportsNodeRun,
@@ -123,7 +126,7 @@ const constants = createConstantsObject(props, {
   getters: Object.fromEntries(
     Object.keys(props)
       .filter(k => props[k] === undefined)
-      .map(k => [k, getters[k] || (() => undefined)])
+      .map(k => [k, getters[k] || (() => undefined)]),
   ),
   internals: {
     createConstantsObject,

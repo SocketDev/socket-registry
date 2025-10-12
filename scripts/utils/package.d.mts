@@ -19,12 +19,12 @@ export function getInstalledPackages(tempDir: string): Promise<string[]>
 export function installPackage(
   packagePath: string,
   tempDir: string,
-  options?: Record<string, any>
+  options?: Record<string, any>,
 ): Promise<void>
 export function installPackageForTesting(
   sourcePath: string,
   packageName: string,
-  options?: Record<string, any>
+  options?: Record<string, any>,
 ): Promise<{
   installed: boolean
   packagePath?: string
@@ -33,10 +33,15 @@ export function installPackageForTesting(
 export function runPackageTests(
   packageName: string,
   tempDir: string,
-  options?: TestOptions
+  options?: TestOptions,
 ): Promise<TestRunResult>
 export function processWithConcurrency<T>(
   items: T[],
   operation: (item: T) => Promise<void>,
-  options?: { concurrency?: number; startMessage?: string; errorMessage?: string; spinner?: any }
+  options?: {
+    concurrency?: number
+    startMessage?: string
+    errorMessage?: string
+    spinner?: any
+  },
 ): Promise<void>

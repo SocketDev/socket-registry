@@ -6,18 +6,18 @@ export const optimizationStrategies = {
   // 1. MODULE REPLACEMENT - Use lighter alternatives.
   moduleReplacements: {
     // Replace heavy modules with lighter/native alternatives.
-    'mkdirp': 'fs.promises.mkdir',  // Node has native recursive mkdir
-    'rimraf': 'fs.promises.rm',     // Node has native recursive rm
-    'glob': 'fast-glob',             // We already use fast-glob
-    'lodash': 'lodash-es',           // Tree-shakeable version
-    'uuid/v4': 'crypto.randomUUID',  // Native in Node 14.17+
-    'node-fetch': 'undici',          // Built into Node 18+
+    mkdirp: 'fs.promises.mkdir', // Node has native recursive mkdir
+    rimraf: 'fs.promises.rm', // Node has native recursive rm
+    glob: 'fast-glob', // We already use fast-glob
+    lodash: 'lodash-es', // Tree-shakeable version
+    'uuid/v4': 'crypto.randomUUID', // Native in Node 14.17+
+    'node-fetch': 'undici', // Built into Node 18+
   },
 
   // 2. SELECTIVE IMPORTS - Cherry-pick only what we need.
   selectiveImports: {
-    'lodash': ['get', 'set', 'merge', 'cloneDeep'],
-    'rxjs': ['Observable', 'Subject', 'from', 'of'],
+    lodash: ['get', 'set', 'merge', 'cloneDeep'],
+    rxjs: ['Observable', 'Subject', 'from', 'of'],
     'date-fns': ['format', 'parseISO', 'isValid'],
   },
 
@@ -42,9 +42,9 @@ export const optimizationStrategies = {
     // Development/debugging flags.
     'process.env.NODE_ENV': '"production"',
     'process.env.DEBUG': 'undefined',
-    '__DEV__': 'false',
-    '__TEST__': 'false',
-    '__DEBUG__': 'false',
+    __DEV__: 'false',
+    __TEST__: 'false',
+    __DEBUG__: 'false',
 
     // Browser/Node detection.
     'process.browser': 'false',
@@ -75,7 +75,7 @@ export const optimizationStrategies = {
 
   // 6. HEAVY DEPENDENCY ALTERNATIVES.
   alternativePackages: {
-    'pacote': {
+    pacote: {
       // Instead of full pacote, we could use targeted npm APIs.
       alternative: '@npmcli/arborist',
       reason: 'Lighter weight for specific operations',
@@ -85,7 +85,7 @@ export const optimizationStrategies = {
       alternative: 'p-retry + native fetch',
       reason: 'Node 18+ has native fetch',
     },
-    'cacache': {
+    cacache: {
       // Simple file-based cache.
       alternative: 'flat-cache',
       reason: 'Simpler caching for our use case',

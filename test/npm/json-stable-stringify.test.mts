@@ -22,7 +22,10 @@ describe(
     let jsonStableStringify: any
 
     beforeAll(async () => {
-      const result = await installPackageForTesting(npmPackagesPath, sockRegPkgName)
+      const result = await installPackageForTesting(
+        npmPackagesPath,
+        sockRegPkgName,
+      )
       if (!result.installed) {
         // Skip tests if package installation is skipped for known issues
         if (result.reason === 'Skipped (known issues)') {

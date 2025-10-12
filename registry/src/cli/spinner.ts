@@ -6,7 +6,9 @@
  * Create a CLI spinner.
  */
 export async function createSpinner(text: string) {
-  const { default: yoctoSpinner } = await import('@socketregistry/yocto-spinner')
+  const { default: yoctoSpinner } = await import(
+    '@socketregistry/yocto-spinner'
+  )
 
   const spinner = yoctoSpinner({
     text,
@@ -60,7 +62,7 @@ export async function createSpinner(text: string) {
  */
 export async function withSpinner<T>(
   text: string,
-  fn: () => Promise<T>
+  fn: () => Promise<T>,
 ): Promise<T> {
   const spinner = await createSpinner(text)
   spinner.start()

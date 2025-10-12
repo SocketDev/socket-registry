@@ -50,8 +50,16 @@ const externalPackages = [
 // Scoped packages need special handling.
 const scopedPackages = [
   { scope: '@npmcli', name: 'promise-spawn', bundle: true },
-  { scope: '@inquirer', packages: ['checkbox', 'confirm', 'core', 'prompts', 'select'], optional: true },
-  { scope: '@socketregistry', packages: ['packageurl-js', 'is-unicode-supported'], optional: true },
+  {
+    scope: '@inquirer',
+    packages: ['checkbox', 'confirm', 'core', 'prompts', 'select'],
+    optional: true,
+  },
+  {
+    scope: '@socketregistry',
+    packages: ['packageurl-js', 'is-unicode-supported'],
+    optional: true,
+  },
   { scope: '@yarnpkg', name: 'extensions', bundle: true },
 ]
 
@@ -93,7 +101,9 @@ async function bundlePackage(packageName, outputPath) {
       packagePath = require.resolve(packageName)
     } catch (err) {
       // Package must be installed for bundling - no fallbacks
-      throw new Error(`Package "${packageName}" is not installed. Please install it with: pnpm add -D ${packageName}`)
+      throw new Error(
+        `Package "${packageName}" is not installed. Please install it with: pnpm add -D ${packageName}`,
+      )
     }
 
     // Check if we have a non-barrel import optimization for this package.
@@ -186,7 +196,7 @@ async function bundlePackage(packageName, outputPath) {
         //   }
         // Setting to false removes ALL development-only code paths.
         // React alone can shrink by ~30KB when __DEV__ is false.
-        '__DEV__': 'false',
+        __DEV__: 'false',
 
         // global.GENTLY: Test mocking library flag from early Node.js era (2010-2015).
         // Used by packages like formidable, multiparty, and other form parsers:
@@ -259,14 +269,14 @@ async function bundlePackage(packageName, outputPath) {
         // This is the MOST effective optimization for Node.js bundles!
         // Note: esbuild doesn't support 'typeof X' as a define key directly,
         // but we can define the globals themselves as undefined.
-        'window': 'undefined',
-        'document': 'undefined',
-        'navigator': 'undefined',
-        'HTMLElement': 'undefined',
-        'localStorage': 'undefined',
-        'sessionStorage': 'undefined',
-        'XMLHttpRequest': 'undefined',
-        'WebSocket': 'undefined',
+        window: 'undefined',
+        document: 'undefined',
+        navigator: 'undefined',
+        HTMLElement: 'undefined',
+        localStorage: 'undefined',
+        sessionStorage: 'undefined',
+        XMLHttpRequest: 'undefined',
+        WebSocket: 'undefined',
 
         // __TEST__: Used by testing frameworks and test utilities.
         // Common in packages with built-in test helpers:
@@ -281,7 +291,7 @@ async function bundlePackage(packageName, outputPath) {
         // - Test fixtures and helpers
         // - Assertion libraries
         // - Snapshot serializers
-        '__TEST__': 'false',
+        __TEST__: 'false',
 
         // process.env.CI: Continuous Integration environment flag.
         // Many packages alter behavior in CI:
@@ -295,10 +305,10 @@ async function bundlePackage(packageName, outputPath) {
         'process.env.CI': 'false',
 
         // Additional test-related flags:
-        '__JEST__': 'false',           // Jest test runner detection
-        '__MOCHA__': 'false',          // Mocha test runner detection
-        'process.env.JEST_WORKER_ID': 'undefined',  // Jest worker threads
-        'process.env.NODE_TEST': 'undefined',       // Node.js test runner
+        __JEST__: 'false', // Jest test runner detection
+        __MOCHA__: 'false', // Mocha test runner detection
+        'process.env.JEST_WORKER_ID': 'undefined', // Jest worker threads
+        'process.env.NODE_TEST': 'undefined', // Node.js test runner
 
         ...(packageOpts.define || {}),
       },
@@ -312,7 +322,8 @@ async function bundlePackage(packageName, outputPath) {
     // Add default export for TypeScript interop
     // Find the last module.exports and add a default property
     if (bundleContent.includes('module.exports')) {
-      bundleContent += '\n// Added for CommonJS/TypeScript interop\nif (!module.exports.default) module.exports.default = module.exports;\n'
+      bundleContent +=
+        '\n// Added for CommonJS/TypeScript interop\nif (!module.exports.default) module.exports.default = module.exports;\n'
     }
 
     const finalContent = `/**
@@ -357,7 +368,7 @@ async function copyLocalFiles() {
     if (file.endsWith('.d.ts')) {
       await fs.copyFile(
         path.join(srcExternalDir, file),
-        path.join(distExternalDir, file)
+        path.join(distExternalDir, file),
       )
       console.log(`  Copied ${file}`)
     }
@@ -382,10 +393,7 @@ async function copyScopedFiles() {
           // File exists (was bundled), skip copying.
         } catch {
           // File doesn't exist, copy it.
-          await fs.copyFile(
-            path.join(scopeSrcDir, file),
-            destFile
-          )
+          await fs.copyFile(path.join(scopeSrcDir, file), destFile)
           console.log(`  Copied ${scope}/${file}`)
         }
       }
@@ -402,7 +410,7 @@ async function main() {
   await ensureDir(distExternalDir)
 
   // Bundle each external package.
-  for (const { name, bundle } of externalPackages) {
+  for (const { bundle, name } of externalPackages) {
     if (bundle) {
       const outputPath = path.join(distExternalDir, `${name}.js`)
       await bundlePackage(name, outputPath)
@@ -410,7 +418,7 @@ async function main() {
   }
 
   // Bundle scoped packages.
-  for (const { scope, name, packages, optional } of scopedPackages) {
+  for (const { name, optional, packages, scope } of scopedPackages) {
     const scopeDir = path.join(distExternalDir, scope)
     await ensureDir(scopeDir)
 
