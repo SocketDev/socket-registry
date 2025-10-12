@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * @fileoverview Analyze bundle contents to identify optimization opportunities.
  */
@@ -21,29 +20,38 @@ async function analyzeBundle(filePath) {
     // Identify wasteful patterns.
     patterns: {
       // Long error messages that could be shortened.
-      longErrorMessages: (content.match(/Error\(['"`][^'"`]{200,}['"`]\)/g) || []).map(m => m.length),
+      longErrorMessages: (
+        content.match(/Error\(['"`][^'"`]{200,}['"`]\)/g) || []
+      ).map(m => m.length),
 
       // Embedded JSON data.
-      embeddedJson: (content.match(/JSON\.parse\(['"`][\s\S]{500,}?['"`]\)/g) || []).map(m => m.length),
+      embeddedJson: (
+        content.match(/JSON\.parse\(['"`][\s\S]{500,}?['"`]\)/g) || []
+      ).map(m => m.length),
 
       // Base64 encoded data.
-      base64Data: (content.match(/['"`][A-Za-z0-9+/]{100,}={0,2}['"`]/g) || []).map(m => m.length),
+      base64Data: (
+        content.match(/['"`][A-Za-z0-9+/]{100,}={0,2}['"`]/g) || []
+      ).map(m => m.length),
 
       // License headers and comments.
-      licenseBlocks: (content.match(/\/\*[\s\S]*?(MIT|Apache|BSD|GPL|License)[\s\S]*?\*\//gi) || []).map(m => m.length),
+      licenseBlocks: (
+        content.match(
+          /\/\*[\s\S]*?(MIT|Apache|BSD|GPL|License)[\s\S]*?\*\//gi,
+        ) || []
+      ).map(m => m.length),
 
       // URLs in strings (docs, repos, etc).
-      embeddedUrls: (content.match(/['"`]https?:\/\/[^'"`]+['"`]/g) || []).length,
+      embeddedUrls: (content.match(/['"`]https?:\/\/[^'"`]+['"`]/g) || [])
+        .length,
 
       // Debug/development code that might remain.
-      debugCode: (content.match(/console\.(log|debug|trace|time)/g) || []).length,
+      debugCode: (content.match(/console\.(log|debug|trace|time)/g) || [])
+        .length,
       assertCalls: (content.match(/assert[.(]/g) || []).length,
 
       // Template literals that might have large content.
-      largeTe
-
-
-s: (content.match(/`[^`]{500,}`/g) || []).map(m => m.length),
+      largeTemplates: (content.match(/`[^`]{500,}`/g) || []).map(m => m.length),
 
       // Repeated code patterns (potential for deduplication).
       duplicateRequires: {},
@@ -65,24 +73,34 @@ s: (content.match(/`[^`]{500,}`/g) || []).map(m => m.length),
   const requires = content.matchAll(/require\(['"`]([^'"`]+)['"`]\)/g)
   for (const match of requires) {
     const pkg = match[1]
-    analysis.patterns.duplicateRequires[pkg] = (analysis.patterns.duplicateRequires[pkg] || 0) + 1
+    analysis.patterns.duplicateRequires[pkg] =
+      (analysis.patterns.duplicateRequires[pkg] || 0) + 1
     if (!pkg.startsWith('.')) {
       analysis.patterns.packages.add(pkg)
     }
   }
 
   // Calculate wasted bytes.
-  analysis.waste.errorMessages = analysis.patterns.longErrorMessages.reduce((a, b) => a + b, 0)
+  analysis.waste.errorMessages = analysis.patterns.longErrorMessages.reduce(
+    (a, b) => a + b,
+    0,
+  )
   analysis.waste.embeddedData =
     analysis.patterns.embeddedJson.reduce((a, b) => a + b, 0) +
     analysis.patterns.base64Data.reduce((a, b) => a + b, 0) +
     analysis.patterns.largeTemplates.reduce((a, b) => a + b, 0)
-  analysis.waste.licensing = analysis.patterns.licenseBlocks.reduce((a, b) => a + b, 0)
-  analysis.waste.debugging = (analysis.patterns.debugCode + analysis.patterns.assertCalls) * 50 // Estimate 50 bytes per debug statement
+  analysis.waste.licensing = analysis.patterns.licenseBlocks.reduce(
+    (a, b) => a + b,
+    0,
+  )
+  // Estimate 50 bytes per debug statement.
+  analysis.waste.debugging =
+    (analysis.patterns.debugCode + analysis.patterns.assertCalls) * 50
 
   analysis.totalWaste = Object.values(analysis.waste).reduce((a, b) => a + b, 0)
   analysis.potentialSavings = Math.round(analysis.totalWaste / 1024) + 'KB'
-  analysis.savingsPercent = ((analysis.totalWaste / analysis.totalSize) * 100).toFixed(1) + '%'
+  analysis.savingsPercent =
+    ((analysis.totalWaste / analysis.totalSize) * 100).toFixed(1) + '%'
 
   return analysis
 }
@@ -90,14 +108,23 @@ s: (content.match(/`[^`]{500,}`/g) || []).map(m => m.length),
 async function main() {
   const distDir = path.join(__dirname, '..', 'dist', 'external')
   const files = await fs.readdir(distDir)
-  const jsFiles = files.filter(f => f.endsWith('.js')).sort((a, b) => {
-    const aSize = (await fs.stat(path.join(distDir, a))).size
-    const bSize = (await fs.stat(path.join(distDir, b))).size
-    return bSize - aSize
-  })
+
+  // Get file sizes first, then sort
+  const filesWithSizes = await Promise.all(
+    files
+      .filter(f => f.endsWith('.js'))
+      .map(async f => ({
+        name: f,
+        size: (await fs.stat(path.join(distDir, f))).size,
+      })),
+  )
+
+  const jsFiles = filesWithSizes
+    .sort((a, b) => b.size - a.size)
+    .map(f => f.name)
 
   console.log('🔍 Bundle Analysis Report\n')
-  console.log('=' .repeat(80))
+  console.log('='.repeat(80))
 
   let totalOriginal = 0
   let totalWaste = 0
@@ -105,28 +132,45 @@ async function main() {
   // Analyze top 10 largest bundles.
   for (const file of jsFiles.slice(0, 10)) {
     const filePath = path.join(distDir, file)
+    // eslint-disable-next-line no-await-in-loop
     const analysis = await analyzeBundle(filePath)
 
     totalOriginal += analysis.totalSize
     totalWaste += analysis.totalWaste
 
-    console.log(`\n📦 ${analysis.fileName} (${Math.round(analysis.totalSize/1024)}KB)`)
-    console.log('  Potential savings: ' + analysis.potentialSavings + ' (' + analysis.savingsPercent + ')')
+    console.log(
+      `\n📦 ${analysis.fileName} (${Math.round(analysis.totalSize / 1024)}KB)`,
+    )
+    console.log(
+      '  Potential savings: ' +
+        analysis.potentialSavings +
+        ' (' +
+        analysis.savingsPercent +
+        ')',
+    )
 
     if (analysis.patterns.longErrorMessages.length) {
-      console.log(`  • Long error messages: ${analysis.patterns.longErrorMessages.length} occurrences`)
+      console.log(
+        `  • Long error messages: ${analysis.patterns.longErrorMessages.length} occurrences`,
+      )
     }
     if (analysis.patterns.embeddedJson.length) {
-      console.log(`  • Embedded JSON: ${analysis.patterns.embeddedJson.length} blocks`)
+      console.log(
+        `  • Embedded JSON: ${analysis.patterns.embeddedJson.length} blocks`,
+      )
     }
     if (analysis.patterns.base64Data.length) {
-      console.log(`  • Base64 data: ${analysis.patterns.base64Data.length} strings`)
+      console.log(
+        `  • Base64 data: ${analysis.patterns.base64Data.length} strings`,
+      )
     }
     if (analysis.patterns.debugCode) {
       console.log(`  • Debug code: ${analysis.patterns.debugCode} statements`)
     }
     if (analysis.patterns.embeddedUrls) {
-      console.log(`  • Embedded URLs: ${analysis.patterns.embeddedUrls} references`)
+      console.log(
+        `  • Embedded URLs: ${analysis.patterns.embeddedUrls} references`,
+      )
     }
 
     // Show top duplicate requires.
@@ -145,9 +189,11 @@ async function main() {
 
   console.log('\n' + '='.repeat(80))
   console.log('📊 Summary:')
-  console.log(`  Total size: ${Math.round(totalOriginal/1024)}KB`)
-  console.log(`  Total waste identified: ${Math.round(totalWaste/1024)}KB`)
-  console.log(`  Potential reduction: ${((totalWaste/totalOriginal) * 100).toFixed(1)}%`)
+  console.log(`  Total size: ${Math.round(totalOriginal / 1024)}KB`)
+  console.log(`  Total waste identified: ${Math.round(totalWaste / 1024)}KB`)
+  console.log(
+    `  Potential reduction: ${((totalWaste / totalOriginal) * 100).toFixed(1)}%`,
+  )
 
   console.log('\n💡 Recommendations:')
   console.log('  1. Strip verbose error messages (keep error codes only)')

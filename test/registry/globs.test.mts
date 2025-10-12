@@ -10,7 +10,7 @@ import {
   getGlobMatcher,
   globStreamLicenses,
 } from '../../registry/dist/lib/globs.js'
-import { trash } from '../../scripts/utils/fs.mjs'
+import { deleteAsync as del } from 'del'
 
 describe('globs module', () => {
   let tmpDir: string
@@ -20,7 +20,7 @@ describe('globs module', () => {
   })
 
   afterEach(async () => {
-    await trash(tmpDir)
+    await del(tmpDir, { force: true })
   })
 
   describe('defaultIgnore', () => {

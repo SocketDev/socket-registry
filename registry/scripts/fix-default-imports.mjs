@@ -6,11 +6,18 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import {
+  printError,
+  printFooter,
+  printHeader,
+  printSuccess,
+} from '../../scripts/utils/cli-helpers.mjs'
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const distDir = path.resolve(__dirname, '..', 'dist')
 
 async function fixDefaultReferences() {
-  console.log('Fixing .default references for constants...')
+  printHeader('Fixing Default References')
 
   const constantNames = [
     'AT_LATEST',
@@ -177,8 +184,10 @@ async function fixDefaultReferences() {
       const fullPath = path.join(dir, entry.name)
 
       if (entry.isDirectory()) {
+        // eslint-disable-next-line no-await-in-loop
         await processDirectory(fullPath)
       } else if (entry.isFile() && entry.name.endsWith('.js')) {
+        // eslint-disable-next-line no-await-in-loop
         let content = await fs.readFile(fullPath, 'utf8')
         let modified = false
 
@@ -192,8 +201,9 @@ async function fixDefaultReferences() {
         }
 
         if (modified) {
+          // eslint-disable-next-line no-await-in-loop
           await fs.writeFile(fullPath, content)
-          console.log(`  Fixed ${path.relative(distDir, fullPath)}`)
+          console.log(`    Fixed ${path.relative(distDir, fullPath)}`)
         }
       }
     }
@@ -201,14 +211,15 @@ async function fixDefaultReferences() {
 
   try {
     await processDirectory(distDir)
-    console.log('✓ Default references fixed')
+    printSuccess('Default references fixed')
+    printFooter()
   } catch (error) {
-    console.error('Failed to fix default references:', error)
+    printError(`Failed to fix default references: ${error.message}`)
     process.exitCode = 1
   }
 }
 
 fixDefaultReferences().catch(error => {
-  console.error('Script failed:', error)
+  printError(`Script failed: ${error.message || error}`)
   process.exitCode = 1
 })

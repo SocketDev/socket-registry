@@ -66,6 +66,17 @@ export function arrayUnique<T>(arr: T[] | readonly T[]): T[] {
   return [...new Set(arr)]
 }
 
+// IMPORTANT: Do not use destructuring here - use direct assignment instead.
+// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
+// `exports.SomeName = void 0;` which causes runtime errors.
+// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
+
+/**
+ * Alias for native Array.isArray.
+ * Determines whether the passed value is an array.
+ */
+export const isArray = Array.isArray
+
 /**
  * Join array elements with proper "and" conjunction formatting.
  */

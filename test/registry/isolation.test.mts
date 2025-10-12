@@ -5,7 +5,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { isolatePackage } from '../../registry/dist/lib/packages/isolation.js'
-import { trash } from '../../scripts/utils/fs.mjs'
+import { deleteAsync as del } from 'del'
 
 describe('isolation module', () => {
   const tmpDirs: string[] = []
@@ -14,7 +14,7 @@ describe('isolation module', () => {
     for (const tmpDir of tmpDirs) {
       if (existsSync(tmpDir)) {
         // eslint-disable-next-line no-await-in-loop
-        await trash(tmpDir)
+        await del(tmpDir, { force: true })
       }
     }
     tmpDirs.length = 0

@@ -21,7 +21,7 @@ enum Interop {
 export type InteropString = `${Interop}`
 
 // Based on SocketPURL_Type from socket-sdk-js
-enum PURL_Type {
+export enum PURL_Type {
   APK = 'apk',
   BITBUCKET = 'bitbucket',
   COCOAPODS = 'cocoapods',
@@ -55,3 +55,20 @@ enum PURL_Type {
 }
 
 export type PURLString = `${PURL_Type}`
+
+// Alias for backward compatibility and semantic clarity
+export type EcosystemString = PURLString
+
+// Manifest types for Socket Registry
+export type ManifestEntryData = {
+  categories?: CategoryString[] | undefined
+  interop?: InteropString | undefined
+  license?: string | undefined
+  name: string
+  version: string
+  [key: string]: unknown
+}
+
+export type ManifestEntry = [packageName: string, data: ManifestEntryData]
+
+export type Manifest = Record<EcosystemString, ManifestEntry[]>

@@ -1,3 +1,6 @@
 'use strict'
 
-module.exports = require('@socketregistry/yocto-spinner')
+// Re-export the yocto-spinner constructor
+const YoctoSpinner = require('@socketregistry/yocto-spinner')
+module.exports = YoctoSpinner
+module.exports.default = YoctoSpinner

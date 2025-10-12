@@ -3,7 +3,7 @@
 import { existsSync, promises as fs } from 'node:fs'
 import path from 'node:path'
 
-import { readDirNamesSync, remove } from './fs'
+import { readDirNamesSync, safeDelete } from './fs'
 import { normalizePath } from './path'
 import { getSocketDlxDir } from './paths'
 import { pEach } from './promises'
@@ -147,7 +147,7 @@ export async function listDlxPackagesAsync(): Promise<string[]> {
 export async function removeDlxPackage(packageName: string): Promise<void> {
   const packageDir = getDlxPackageDir(packageName)
   try {
-    await remove(packageDir, { recursive: true, force: true })
+    await safeDelete(packageDir, { recursive: true, force: true })
   } catch (e) {
     throw new Error(`Failed to remove DLX package "${packageName}"`, {
       cause: e,

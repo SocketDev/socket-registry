@@ -4,5 +4,7 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "noEmit": false
-  }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist/**/*", "lib", "test", "src/**/*.js"]
 }

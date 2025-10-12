@@ -3,23 +3,14 @@
  * Clean, organized exports for better developer experience.
  */
 
-// Core module exports
-export * as constants from './constants'
-export * as utils from './utils'
-export * as packages from './packages'
-export * as cli from './cli'
+// Export types
 export * from './types'
 
 // Direct exports for commonly used items
 export { SocketRegistry } from './packages/registry'
 
-// Re-export specific utilities for convenience
-export {
-  readPackageJson,
-  writePackageJson,
-  installPackage,
-  validatePackageJson,
-} from './packages'
+// Alias for backward compatibility with GitHub version
+export { SocketRegistry as SocketSecurityRegistry } from './packages/registry'
 
 // Manifest data helper function
 export function getManifestData(ecosystem?: string, packageName?: string) {
@@ -46,21 +37,5 @@ export function getManifestData(ecosystem?: string, packageName?: string) {
   }
 }
 
-export {
-  logger,
-  createSpinner,
-  confirm,
-  input,
-} from './cli'
-
 // Version export
 export const version = '2.0.0'
-
-// Default export with all modules
-export default {
-  version,
-  constants: await import('./constants').then(m => m.default),
-  utils: await import('./utils'),
-  packages: await import('./packages'),
-  cli: await import('./cli'),
-}

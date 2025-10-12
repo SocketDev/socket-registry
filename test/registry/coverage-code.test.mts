@@ -8,10 +8,10 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { getCodeCoverage } from '../../registry/dist/lib/coverage/index.js'
-import { trash } from '../../scripts/utils/fs.mjs'
+import { getCodeCoverage } from '../../registry/dist/lib/cover/code.js'
+import { deleteAsync as del } from 'del'
 
-import type { V8CoverageData } from '../../registry/dist/lib/coverage/index.js'
+import type { V8CoverageData } from '../../registry/dist/lib/cover/types.js'
 
 describe('code coverage module', () => {
   let tempDir: string
@@ -21,7 +21,7 @@ describe('code coverage module', () => {
   })
 
   afterEach(async () => {
-    await trash([tempDir])
+    await del([tempDir])
     vi.restoreAllMocks()
   })
 
@@ -263,7 +263,7 @@ describe('code coverage module', () => {
         expect(result).toHaveProperty('statements')
       } finally {
         // Clean up the mock file (not the entire coverage directory).
-        await trash([defaultPath])
+        await del([defaultPath])
       }
     })
 

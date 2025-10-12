@@ -40,7 +40,7 @@ import {
   unescapeScope,
 } from '../../registry/dist/lib/packages.js'
 import { normalizePath } from '../../registry/dist/lib/path.js'
-import { trash } from '../../scripts/utils/fs.mjs'
+import { deleteAsync as del } from 'del'
 
 describe('packages module', () => {
   describe('isValidPackageName', () => {
@@ -679,7 +679,7 @@ describe('packages module', () => {
         const resolvedPath2 = resolvePackageJsonPath(pkgPath)
         expect(resolvedPath2).toBe(normalizePath(pkgPath))
       } finally {
-        await trash(tmpDir)
+        await del(tmpDir, { force: true })
       }
     })
   })
@@ -699,7 +699,7 @@ describe('packages module', () => {
         const pkg2 = createPackageJson('@socketregistry/test', tmpDir)
         expect(pkg2).toBeDefined()
       } finally {
-        await trash(tmpDir)
+        await del(tmpDir, { force: true })
       }
     })
 
@@ -1052,7 +1052,7 @@ describe('packages module', () => {
       } catch (error) {
         expect(error).toBeDefined()
       } finally {
-        await trash(tmpDir)
+        await del(tmpDir, { force: true })
       }
     })
   })
@@ -1138,7 +1138,7 @@ describe('packages module', () => {
         expect(result!.name).toBe('test')
         expect(result!.version).toBe('1.0.0')
       } finally {
-        await trash(tmpDir)
+        await del(tmpDir, { force: true })
       }
     })
 
@@ -1153,7 +1153,7 @@ describe('packages module', () => {
         } as any)
         expect(result!.name).toBe('test')
       } finally {
-        await trash(tmpDir)
+        await del(tmpDir, { force: true })
       }
     })
   })
@@ -1185,7 +1185,7 @@ describe('packages module', () => {
         expect(result!.name).toBe('test')
         expect(result!.version).toBe('1.0.0')
       } finally {
-        await trash(tmpDir)
+        await del(tmpDir, { force: true })
       }
     })
 
@@ -1201,7 +1201,7 @@ describe('packages module', () => {
         })
         expect(result!.name).toBe('test')
       } finally {
-        await trash(tmpDir)
+        await del(tmpDir, { force: true })
       }
     })
   })

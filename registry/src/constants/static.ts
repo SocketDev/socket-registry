@@ -88,7 +88,8 @@ export const SOCKET_IPC_HANDSHAKE = 'SOCKET_IPC_HANDSHAKE'
 export const SOCKET_OVERRIDE_SCOPE = '@socketoverride'
 export const SOCKET_PUBLIC_API_KEY =
   'sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api'
-export const SOCKET_PUBLIC_API_TOKEN = SOCKET_PUBLIC_API_KEY // Alias for backward compatibility.
+// Alias for backward compatibility.
+export const SOCKET_PUBLIC_API_TOKEN = SOCKET_PUBLIC_API_KEY
 export const SOCKET_REGISTRY_APP_NAME = 'registry'
 export const SOCKET_REGISTRY_NPM_ORG = 'socketregistry'
 export const SOCKET_REGISTRY_PACKAGE_NAME = '@socketsecurity/registry'

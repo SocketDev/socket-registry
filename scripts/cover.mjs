@@ -6,8 +6,12 @@ import { spawn } from 'node:child_process'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { printError, printHeader } from './utils/cli-helpers.mjs'
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.join(__dirname, '..')
+
+printHeader('Running Coverage')
 
 // Pass through to test.mjs with --coverage flag, defaulting to --all for full coverage.
 const args = ['run', 'test', '--coverage']
@@ -31,6 +35,6 @@ child.on('exit', code => {
 })
 
 child.on('error', error => {
-  console.error(`Coverage script failed: ${error.message}`)
+  printError(`Coverage script failed: ${error.message}`)
   process.exitCode = 1
 })

@@ -4,7 +4,7 @@ import path from 'node:path'
 
 import constants from '../constants.mjs'
 import { readJson } from '../../registry/dist/lib/fs.js'
-import { isObjectObject } from '../../registry/dist/lib/lang/objects.js'
+import { isObjectObject } from '../../registry/dist/lib/objects.js'
 import { spawn } from './spawn.mjs'
 
 /**

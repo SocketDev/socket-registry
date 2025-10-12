@@ -58,9 +58,13 @@ export function formatCoverage(options: FormatCoverageOptions): string {
 
   // Code coverage section.
   output += 'Code Coverage:\n'
-  output += indentString(`Statements: ${code.statements.percent}%\n`, { count: 2 })
+  output += indentString(`Statements: ${code.statements.percent}%\n`, {
+    count: 2,
+  })
   output += indentString(`Branches: ${code.branches.percent}%\n`, { count: 2 })
-  output += indentString(`Functions: ${code.functions.percent}%\n`, { count: 2 })
+  output += indentString(`Functions: ${code.functions.percent}%\n`, {
+    count: 2,
+  })
   output += indentString(`Lines: ${code.lines.percent}%\n`, { count: 2 })
 
   // Type coverage section.

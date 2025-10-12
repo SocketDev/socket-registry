@@ -3,6 +3,7 @@
  * Provides type-safe object operations, property access, and structural helpers.
  */
 
+import { isArray } from './arrays'
 import LOOP_SENTINEL from './constants/LOOP_SENTINEL'
 import UNDEFINED_TOKEN from './constants/UNDEFINED_TOKEN'
 import kInternalsSymbol from './constants/k-internals-symbol'
@@ -37,11 +38,6 @@ type SortedObject<T> = {
 
 export type { GetterDefObj, LazyGetterStats, ConstantsObjectOptions, Remap }
 
-// IMPORTANT: Do not use destructuring here - use direct assignment instead.
-// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
-// `exports.SomeName = void 0;` which causes runtime errors.
-// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
-const ArrayIsArray = Array.isArray
 // IMPORTANT: Do not use destructuring here - use direct assignment instead.
 // tsgo has a bug that incorrectly transpiles destructured exports, resulting in
 // `exports.SomeName = void 0;` which causes runtime errors.
@@ -316,12 +312,23 @@ export function isObject(
 export function isObjectObject(
   value: unknown,
 ): value is { [key: PropertyKey]: unknown } {
-  if (value === null || typeof value !== 'object' || ArrayIsArray(value)) {
+  if (value === null || typeof value !== 'object' || isArray(value)) {
     return false
   }
   const proto = ObjectGetPrototypeOf(value)
   return proto === null || proto === ObjectPrototype
 }
+
+// IMPORTANT: Do not use destructuring here - use direct assignment instead.
+// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
+// `exports.SomeName = void 0;` which causes runtime errors.
+// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
+
+/**
+ * Alias for native Object.assign.
+ * Copies all enumerable own properties from one or more source objects to a target object.
+ */
+export const objectAssign = Object.assign
 
 /**
  * Get all own property entries (key-value pairs) from an object.
@@ -341,6 +348,17 @@ export function objectEntries(obj: unknown): Array<[PropertyKey, unknown]> {
   }
   return entries
 }
+
+// IMPORTANT: Do not use destructuring here - use direct assignment instead.
+// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
+// `exports.SomeName = void 0;` which causes runtime errors.
+// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
+
+/**
+ * Alias for native Object.freeze.
+ * Freezes an object, preventing new properties from being added and existing properties from being removed or modified.
+ */
+export const objectFreeze = Object.freeze
 
 /**
  * Deep merge source object into target object.
@@ -366,8 +384,8 @@ export function merge<T extends object, U extends object>(
       continue
     }
 
-    const isSourceArray = ArrayIsArray(currentSource)
-    const isTargetArray = ArrayIsArray(currentTarget)
+    const isSourceArray = isArray(currentSource)
+    const isTargetArray = isArray(currentTarget)
 
     // Skip array merging - arrays in source replace arrays in target
     if (isSourceArray || isTargetArray) {
@@ -379,11 +397,11 @@ export function merge<T extends object, U extends object>(
       const key = keys[i]!
       const srcVal = (currentSource as any)[key]
       const targetVal = (currentTarget as any)[key]
-      if (ArrayIsArray(srcVal)) {
+      if (isArray(srcVal)) {
         // Replace arrays entirely
         ;(currentTarget as any)[key] = srcVal
       } else if (isObject(srcVal)) {
-        if (isObject(targetVal) && !ArrayIsArray(targetVal)) {
+        if (isObject(targetVal) && !isArray(targetVal)) {
           queue[queueLength++] = [targetVal, srcVal]
         } else {
           ;(currentTarget as any)[key] = srcVal

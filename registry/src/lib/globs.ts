@@ -8,10 +8,7 @@ import {
   getFastGlob as getFastGlobDep,
   getPicomatch as getPicomatchDep,
 } from './dependencies/file-system'
-// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
-// `exports.SomeName = void 0;` which causes runtime errors.
-// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
-const ObjectFreeze = Object.freeze
+import { objectFreeze as ObjectFreeze } from './objects'
 
 // Type definitions
 type Pattern = string

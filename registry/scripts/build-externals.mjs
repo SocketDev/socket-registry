@@ -4,9 +4,15 @@
  */
 
 import { promises as fs } from 'node:fs'
-import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+import {
+  printError,
+  printFooter,
+  printHeader,
+  printSuccess,
+} from '../../scripts/utils/cli-helpers.mjs'
 import { createNonBarrelEntry } from './non-barrel-imports.mjs'
 
 // Use esbuild from root node_modules since registry package is zero-dependency.
@@ -89,9 +95,8 @@ function getPackageSpecificOptions(packageName) {
 }
 
 async function bundlePackage(packageName, outputPath) {
-  console.log(`Bundling ${packageName}...`)
+  console.log(`  Bundling ${packageName}...`)
 
-  let tempDir
   let cherryPickedEntry
 
   try {
@@ -99,7 +104,7 @@ async function bundlePackage(packageName, outputPath) {
     let packagePath
     try {
       packagePath = require.resolve(packageName)
-    } catch (err) {
+    } catch {
       // Package must be installed for bundling - no fallbacks
       throw new Error(
         `Package "${packageName}" is not installed. Please install it with: pnpm add -D ${packageName}`,
@@ -111,14 +116,15 @@ async function bundlePackage(packageName, outputPath) {
     if (nonBarrelEntry) {
       console.log(`  Using non-barrel imports for ${packageName}`)
       packagePath = nonBarrelEntry
-      cherryPickedEntry = nonBarrelEntry // For cleanup tracking.
+      // For cleanup tracking.
+      cherryPickedEntry = nonBarrelEntry
     }
 
     // Get package-specific optimizations.
     const packageOpts = getPackageSpecificOptions(packageName)
 
     // Bundle the package with esbuild.
-    const result = await esbuild.build({
+    await esbuild.build({
       entryPoints: [packagePath],
       bundle: true,
       platform: 'node',
@@ -305,10 +311,14 @@ async function bundlePackage(packageName, outputPath) {
         'process.env.CI': 'false',
 
         // Additional test-related flags:
-        __JEST__: 'false', // Jest test runner detection
-        __MOCHA__: 'false', // Mocha test runner detection
-        'process.env.JEST_WORKER_ID': 'undefined', // Jest worker threads
-        'process.env.NODE_TEST': 'undefined', // Node.js test runner
+        // Jest test runner detection.
+        __JEST__: 'false',
+        // Mocha test runner detection.
+        __MOCHA__: 'false',
+        // Jest worker threads.
+        'process.env.JEST_WORKER_ID': 'undefined',
+        // Node.js test runner.
+        'process.env.NODE_TEST': 'undefined',
 
         ...(packageOpts.define || {}),
       },
@@ -336,7 +346,7 @@ ${bundleContent}`
     // Get file size for logging.
     const stats = await fs.stat(outputPath)
     const sizeKB = Math.round(stats.size / 1024)
-    console.log(`  ✓ Bundled ${packageName} (${sizeKB}KB)`)
+    console.log(`    ✓ Bundled ${packageName} (${sizeKB}KB)`)
 
     // Clean up temp directory if we created one.
     if (cherryPickedEntry) {
@@ -344,7 +354,7 @@ ${bundleContent}`
       await fs.rm(tmpDir, { recursive: true, force: true })
     }
   } catch (error) {
-    console.error(`  ✗ Failed to bundle ${packageName}:`, error.message)
+    console.error(`    ✗ Failed to bundle ${packageName}:`, error.message)
     // Create error stub.
     const stubContent = `'use strict'
 
@@ -366,6 +376,7 @@ async function copyLocalFiles() {
   const dtsFiles = await fs.readdir(srcExternalDir)
   for (const file of dtsFiles) {
     if (file.endsWith('.d.ts')) {
+      // eslint-disable-next-line no-await-in-loop
       await fs.copyFile(
         path.join(srcExternalDir, file),
         path.join(distExternalDir, file),
@@ -382,17 +393,21 @@ async function copyScopedFiles() {
     const scopeDistDir = path.join(distExternalDir, scope)
 
     try {
+      // eslint-disable-next-line no-await-in-loop
       const files = await fs.readdir(scopeSrcDir)
+      // eslint-disable-next-line no-await-in-loop
       await ensureDir(scopeDistDir)
 
       for (const file of files) {
         const destFile = path.join(scopeDistDir, file)
         // Only copy if the file doesn't already exist (i.e., wasn't bundled).
         try {
+          // eslint-disable-next-line no-await-in-loop
           await fs.access(destFile)
           // File exists (was bundled), skip copying.
         } catch {
           // File doesn't exist, copy it.
+          // eslint-disable-next-line no-await-in-loop
           await fs.copyFile(path.join(scopeSrcDir, file), destFile)
           console.log(`  Copied ${scope}/${file}`)
         }
@@ -404,7 +419,7 @@ async function copyScopedFiles() {
 }
 
 async function main() {
-  console.log('Building external bundles...\n')
+  printHeader('Building External Bundles')
 
   // Ensure dist/external directory exists.
   await ensureDir(distExternalDir)
@@ -413,6 +428,7 @@ async function main() {
   for (const { bundle, name } of externalPackages) {
     if (bundle) {
       const outputPath = path.join(distExternalDir, `${name}.js`)
+      // eslint-disable-next-line no-await-in-loop
       await bundlePackage(name, outputPath)
     }
   }
@@ -420,6 +436,7 @@ async function main() {
   // Bundle scoped packages.
   for (const { name, optional, packages, scope } of scopedPackages) {
     const scopeDir = path.join(distExternalDir, scope)
+    // eslint-disable-next-line no-await-in-loop
     await ensureDir(scopeDir)
 
     if (name) {
@@ -427,11 +444,13 @@ async function main() {
       const outputPath = path.join(scopeDir, `${name}.js`)
       if (optional) {
         try {
+          // eslint-disable-next-line no-await-in-loop
           await bundlePackage(`${scope}/${name}`, outputPath)
-        } catch (err) {
+        } catch {
           console.log(`  Skipping optional package ${scope}/${name}`)
         }
       } else {
+        // eslint-disable-next-line no-await-in-loop
         await bundlePackage(`${scope}/${name}`, outputPath)
       }
     } else if (packages) {
@@ -440,11 +459,13 @@ async function main() {
         const outputPath = path.join(scopeDir, `${pkg}.js`)
         if (optional) {
           try {
+            // eslint-disable-next-line no-await-in-loop
             await bundlePackage(`${scope}/${pkg}`, outputPath)
-          } catch (err) {
+          } catch {
             console.log(`  Skipping optional package ${scope}/${pkg}`)
           }
         } else {
+          // eslint-disable-next-line no-await-in-loop
           await bundlePackage(`${scope}/${pkg}`, outputPath)
         }
       }
@@ -455,10 +476,11 @@ async function main() {
   await copyLocalFiles()
   await copyScopedFiles()
 
-  console.log('\n✓ External bundles built successfully')
+  printSuccess('External bundles built successfully')
+  printFooter()
 }
 
 main().catch(error => {
-  console.error('Build failed:', error)
-  process.exit(1)
+  printError(`Build failed: ${error.message || error}`)
+  process.exitCode = 1
 })

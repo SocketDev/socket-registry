@@ -5,9 +5,12 @@
 /**
  * Prompt for confirmation.
  */
-export async function confirm(message: string, defaultValue = false): Promise<boolean> {
+export async function confirm(
+  message: string,
+  defaultValue = false,
+): Promise<boolean> {
   const { default: inquirerConfirm } = await import('@inquirer/confirm')
-  return inquirerConfirm({
+  return await inquirerConfirm({
     message,
     default: defaultValue,
   })
@@ -16,9 +19,12 @@ export async function confirm(message: string, defaultValue = false): Promise<bo
 /**
  * Prompt for text input.
  */
-export async function input(message: string, defaultValue?: string): Promise<string> {
+export async function input(
+  message: string,
+  defaultValue?: string,
+): Promise<string> {
   const { default: inquirerInput } = await import('@inquirer/input')
-  return inquirerInput({
+  return await inquirerInput({
     message,
     ...(defaultValue !== undefined && { default: defaultValue }),
   })
@@ -29,7 +35,7 @@ export async function input(message: string, defaultValue?: string): Promise<str
  */
 export async function password(message: string): Promise<string> {
   const { default: inquirerPassword } = await import('@inquirer/password')
-  return inquirerPassword({
+  return await inquirerPassword({
     message,
     mask: '*',
   })
@@ -40,10 +46,10 @@ export async function password(message: string): Promise<string> {
  */
 export async function select<T extends string>(
   message: string,
-  choices: Array<{ name: string; value: T }>
+  choices: Array<{ name: string; value: T }>,
 ): Promise<T> {
   const { default: inquirerSelect } = await import('@inquirer/select')
-  return inquirerSelect({
+  return await inquirerSelect({
     message,
     choices,
   })
@@ -54,12 +60,14 @@ export async function select<T extends string>(
  */
 export async function search<T extends string>(
   message: string,
-  source: (input: string | undefined) => Promise<Array<{ name: string; value: T }>>
+  source: (
+    input: string | undefined,
+  ) => Promise<Array<{ name: string; value: T }>>,
 ): Promise<T> {
   const { default: inquirerSearch } = await import('@inquirer/search')
-  return inquirerSearch({
+  return await inquirerSearch({
     message,
-    source: async (term) => {
+    source: async term => {
       const results = await source(term)
       return results
     },

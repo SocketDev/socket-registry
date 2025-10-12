@@ -6,8 +6,12 @@ import { spawn } from 'node:child_process'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { printError, printHeader } from './utils/cli-helpers.mjs'
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.join(__dirname, '..')
+
+printHeader('Running Auto-fix')
 
 // Pass through to lint.mjs with --fix flag.
 const args = ['run', 'lint', '--fix', ...process.argv.slice(2)]
@@ -23,6 +27,6 @@ child.on('exit', code => {
 })
 
 child.on('error', error => {
-  console.error(`Fix script failed: ${error.message}`)
+  printError(`Fix script failed: ${error.message}`)
   process.exitCode = 1
 })

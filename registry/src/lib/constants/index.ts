@@ -163,20 +163,25 @@ export default createConstantsObject(props, {
         k,
         () => {
           // Try key as-is first (for already-uppercase keys like SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR).
+          let mod
           try {
-            return require(`./${k}`)
+            mod = require(`./${k}`)
           } catch {
             // Try UPPER_SNAKE_CASE (for camelCase keys like execPath → EXEC_PATH).
             const upperSnakeCase = k
               .replace(/[A-Z]/g, (m, i) => (i > 0 ? '_' : '') + m)
               .toUpperCase()
             try {
-              return require(`./${upperSnakeCase}`)
+              mod = require(`./${upperSnakeCase}`)
             } catch {
               // Fall back to kebab-case.
-              return require(`./${toKebabCase(k)}`)
+              mod = require(`./${toKebabCase(k)}`)
             }
           }
+          // Handle ES module default exports.
+          return mod && typeof mod === 'object' && 'default' in mod
+            ? mod.default
+            : mod
         },
       ]),
   ),

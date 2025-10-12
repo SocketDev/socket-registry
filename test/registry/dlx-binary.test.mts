@@ -18,7 +18,7 @@ import {
   getDlxCachePath,
   listDlxCache,
 } from '../../registry/dist/lib/dlx-binary.js'
-import { trash } from '../../scripts/utils/fs.mjs'
+import { deleteAsync as del } from 'del'
 
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
@@ -80,7 +80,7 @@ describe('dlx-binary', () => {
   })
 
   afterEach(async () => {
-    await trash(tmpDir)
+    await del(tmpDir, { force: true })
   })
 
   afterAll(async () => {

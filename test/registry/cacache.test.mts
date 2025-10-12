@@ -5,7 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
-import { trash } from '../../scripts/utils/fs.mjs'
+import { deleteAsync as del } from 'del'
 import { runInSubprocess } from '../utils/subprocess.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -47,7 +47,7 @@ console.log(JSON.stringify({
     expect(parsed.integrity).toBeTruthy()
     expect(parsed.size).toBe(TEST_DATA.length)
 
-    await trash(testCacheDir)
+    await del(testCacheDir)
   })
 
   it('should support Buffer data', async () => {
@@ -77,7 +77,7 @@ console.log(JSON.stringify({
     expect(parsed.success).toBe(true)
     expect(parsed.data).toBe(TEST_DATA)
 
-    await trash(testCacheDir)
+    await del(testCacheDir)
   })
 
   it('should throw when getting non-existent key', async () => {
@@ -102,7 +102,7 @@ try {
     expect(parsed.success).toBe(true)
     expect(parsed.error).toBeTruthy()
 
-    await trash(testCacheDir)
+    await del(testCacheDir)
   })
 
   it('should accept PutOptions with metadata', async () => {
@@ -137,7 +137,7 @@ console.log(JSON.stringify({
       }),
     )
 
-    await trash(testCacheDir)
+    await del(testCacheDir)
   })
 
   it('should remove cache entry', async () => {
@@ -167,7 +167,7 @@ console.log(JSON.stringify({
     expect(parsed.success).toBe(true)
     expect(parsed.entry).toBeUndefined()
 
-    await trash(testCacheDir)
+    await del(testCacheDir)
   })
 
   it('should return undefined for non-existent key with safeGet', async () => {
@@ -192,7 +192,7 @@ console.log(JSON.stringify({
     expect(parsed.success).toBe(true)
     expect(parsed.entry).toBeUndefined()
 
-    await trash(testCacheDir)
+    await del(testCacheDir)
   })
 
   it('should return entry for existing key with safeGet', async () => {
@@ -221,7 +221,7 @@ console.log(JSON.stringify({
     expect(parsed.success).toBe(true)
     expect(parsed.data).toBe(TEST_DATA)
 
-    await trash(testCacheDir)
+    await del(testCacheDir)
   })
 
   it('should clear all cache entries', async () => {
@@ -251,7 +251,7 @@ console.log(JSON.stringify({
     expect(parsed.success).toBe(true)
     expect(parsed.entry).toBeUndefined()
 
-    await trash(testCacheDir)
+    await del(testCacheDir)
   })
 
   it('should provide temporary directory for callback', async () => {
@@ -285,7 +285,7 @@ console.log(JSON.stringify({
     expect(parsed.hasTmpDir).toBe(true)
     expect(parsed.isString).toBe(true)
 
-    await trash(testCacheDir)
+    await del(testCacheDir)
   })
 
   it('should return callback result', async () => {
@@ -312,6 +312,6 @@ console.log(JSON.stringify({
     expect(parsed.success).toBe(true)
     expect(parsed.result).toEqual({ value: 42 })
 
-    await trash(testCacheDir)
+    await del(testCacheDir)
   })
 })

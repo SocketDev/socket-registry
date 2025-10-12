@@ -6,12 +6,18 @@ export const optimizationStrategies = {
   // 1. MODULE REPLACEMENT - Use lighter alternatives.
   moduleReplacements: {
     // Replace heavy modules with lighter/native alternatives.
-    mkdirp: 'fs.promises.mkdir', // Node has native recursive mkdir
-    rimraf: 'fs.promises.rm', // Node has native recursive rm
-    glob: 'fast-glob', // We already use fast-glob
-    lodash: 'lodash-es', // Tree-shakeable version
-    'uuid/v4': 'crypto.randomUUID', // Native in Node 14.17+
-    'node-fetch': 'undici', // Built into Node 18+
+    // Node has native recursive mkdir.
+    mkdirp: 'fs.promises.mkdir',
+    // Node has native recursive rm.
+    rimraf: 'fs.promises.rm',
+    // We already use fast-glob.
+    glob: 'fast-glob',
+    // Tree-shakeable version.
+    lodash: 'lodash-es',
+    // Native in Node 14.17+.
+    'uuid/v4': 'crypto.randomUUID',
+    // Built into Node 18+.
+    'node-fetch': 'undici',
   },
 
   // 2. SELECTIVE IMPORTS - Cherry-pick only what we need.
@@ -24,9 +30,9 @@ export const optimizationStrategies = {
   // 3. LOCALE/DATA STRIPPING - Remove unnecessary data files.
   stripPatterns: [
     // Moment.js locales (if any package uses it).
-    /moment\/locale\/[^\/]+$/,
+    /moment\/locale\/[^/]+$/,
     // Timezone data we don't need.
-    /timezone\/[^\/]+\.json$/,
+    /timezone\/[^/]+\.json$/,
     // Test fixtures and examples.
     /\/(test|tests|spec|specs|__tests__|examples?|demo|docs?)\//,
     // Source maps.
@@ -34,7 +40,7 @@ export const optimizationStrategies = {
     // TypeScript source files.
     /\.ts$/,
     // README/LICENSE/CHANGELOG in dependencies.
-    /node_modules\/[^\/]+\/(README|LICENSE|CHANGELOG|HISTORY)/i,
+    /node_modules\/[^/]+\/(README|LICENSE|CHANGELOG|HISTORY)/i,
   ],
 
   // 4. COMPILE-TIME CONSTANTS - More aggressive dead code elimination.

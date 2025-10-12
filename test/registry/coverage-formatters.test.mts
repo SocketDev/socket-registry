@@ -7,9 +7,9 @@ import { describe, expect, it } from 'vitest'
 import {
   formatCoverage,
   getCoverageEmoji,
-} from '../../registry/dist/lib/coverage/index.js'
+} from '../../registry/dist/lib/cover/formatters.js'
 
-import type { CodeCoverageResult } from '../../registry/dist/lib/coverage/index.js'
+import type { CodeCoverageResult } from '../../registry/dist/lib/cover/types.js'
 
 describe('coverage formatters module', () => {
   describe('getCoverageEmoji', () => {

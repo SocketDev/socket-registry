@@ -56,7 +56,10 @@ export default defineConfig({
             // Map external dependencies to their dist versions during coverage.
             {
               find: /^\.\.\/\.\.\/fast-sort$/,
-              replacement: path.resolve(projectRoot, 'registry/dist/fast-sort.js'),
+              replacement: path.resolve(
+                projectRoot,
+                'registry/dist/fast-sort.js',
+              ),
             },
             {
               find: /^\.\.\/\.\.\/semver$/,
@@ -68,11 +71,17 @@ export default defineConfig({
             },
             {
               find: /^\.\.\/\.\.\/cacache$/,
-              replacement: path.resolve(projectRoot, 'registry/dist/cacache.js'),
+              replacement: path.resolve(
+                projectRoot,
+                'registry/dist/cacache.js',
+              ),
             },
             {
               find: /^\.\.\/\.\.\/libnpmpack$/,
-              replacement: path.resolve(projectRoot, 'registry/dist/libnpmpack.js'),
+              replacement: path.resolve(
+                projectRoot,
+                'registry/dist/libnpmpack.js',
+              ),
             },
             {
               find: /^\.\.\/\.\.\/pacote$/,
@@ -80,11 +89,17 @@ export default defineConfig({
             },
             {
               find: /^\.\.\/\.\.\/browserslist$/,
-              replacement: path.resolve(projectRoot, 'registry/dist/browserslist.js'),
+              replacement: path.resolve(
+                projectRoot,
+                'registry/dist/browserslist.js',
+              ),
             },
             {
               find: /^\.\.\/\.\.\/yargs-parser$/,
-              replacement: path.resolve(projectRoot, 'registry/dist/yargs-parser.js'),
+              replacement: path.resolve(
+                projectRoot,
+                'registry/dist/yargs-parser.js',
+              ),
             },
             {
               find: /^\.\.\/\.\.\/zod$/,
@@ -105,12 +120,16 @@ export default defineConfig({
     globalSetup: [path.resolve(__dirname, 'vitest-global-setup.mts')],
     globals: false,
     environment: 'node',
-    include: [path.resolve(projectRoot, 'test/**/*.test.{js,ts,mjs,mts,cjs,cts}')],
+    include: [
+      path.resolve(projectRoot, 'test/**/*.test.{js,ts,mjs,mts,cjs,cts}'),
+    ],
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
       // Exclude test/npm unless INCLUDE_NPM_TESTS is set
-      ...(process.env['INCLUDE_NPM_TESTS'] ? [] : [path.resolve(projectRoot, 'test/npm/**')]),
+      ...(process.env['INCLUDE_NPM_TESTS']
+        ? []
+        : [path.resolve(projectRoot, 'test/npm/**')]),
     ],
     reporters: ['default'],
     // Improve memory usage by running tests sequentially in CI.

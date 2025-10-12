@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import { deleteAsync as del } from 'del'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import {
@@ -18,8 +19,6 @@ import {
   readFileUtf8Sync,
   readJson,
   readJsonSync,
-  remove,
-  removeSync,
   safeReadFile,
   safeReadFileSync,
   safeStatsSync,
@@ -28,7 +27,6 @@ import {
   writeJsonSync,
 } from '../../registry/dist/lib/fs.js'
 import { normalizePath } from '../../registry/dist/lib/path.js'
-import { trash } from '../../scripts/utils/fs.mjs'
 
 describe('fs module', () => {
   let tmpDir: string
@@ -42,7 +40,8 @@ describe('fs module', () => {
   })
 
   afterEach(async () => {
-    await trash(tmpDir)
+    // Safe to use force: true here since tmpDir is always within OS temp directory.
+    await del(tmpDir, { force: true })
   })
 
   describe('findUp', () => {
@@ -446,44 +445,6 @@ describe('fs module', () => {
     it('should throw for invalid JSON', () => {
       fs.writeFileSync(testJson, 'not valid json')
       expect(() => readJsonSync(testJson)).toThrow()
-    })
-  })
-
-  describe('remove', () => {
-    it('should remove files', async () => {
-      fs.writeFileSync(testFile, 'content')
-      await remove(testFile)
-      expect(fs.existsSync(testFile)).toBe(false)
-    })
-
-    it('should remove directories recursively', async () => {
-      const dir = path.join(tmpDir, 'nested')
-      fs.mkdirSync(dir, { recursive: true })
-      fs.writeFileSync(path.join(dir, 'file.txt'), 'content')
-      await remove(dir)
-      expect(fs.existsSync(dir)).toBe(false)
-    })
-
-    it('should not throw for non-existent paths', async () => {
-      await expect(remove(path.join(tmpDir, 'nonexistent'))).resolves.toBe(
-        undefined,
-      )
-    })
-  })
-
-  describe('removeSync', () => {
-    it('should remove files synchronously', () => {
-      fs.writeFileSync(testFile, 'content')
-      removeSync(testFile)
-      expect(fs.existsSync(testFile)).toBe(false)
-    })
-
-    it('should remove directories recursively', () => {
-      const dir = path.join(tmpDir, 'nested')
-      fs.mkdirSync(dir, { recursive: true })
-      fs.writeFileSync(path.join(dir, 'file.txt'), 'content')
-      removeSync(dir)
-      expect(fs.existsSync(dir)).toBe(false)
     })
   })
 

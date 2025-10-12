@@ -40,7 +40,8 @@ export class ProgressBar {
    */
   complete(): void {
     this.update(this.total)
-    console.log() // New line after completion
+    // New line after completion.
+    console.log()
   }
 
   private render(): void {
@@ -80,6 +81,7 @@ export async function withProgress<T>(
   for (let i = 0; i < tasks.length; i++) {
     const task = tasks[i]
     if (task) {
+      // eslint-disable-next-line no-await-in-loop
       const result = await task()
       results.push(result)
       progress.increment()

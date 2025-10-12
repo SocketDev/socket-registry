@@ -15,7 +15,7 @@ import {
   whichBin,
   whichBinSync,
 } from '../../registry/dist/lib/bin.js'
-import { trash } from '../../scripts/utils/fs.mjs'
+import { deleteAsync as del } from 'del'
 
 describe('bin module', () => {
   describe('isShadowBinPath', () => {
@@ -89,7 +89,7 @@ describe('bin module', () => {
         expect(normalizedResult).toBe(normalizedExpected)
       } finally {
         // Clean up.
-        await trash(tmpFile)
+        await del(tmpFile, { force: true })
       }
     })
 
@@ -141,9 +141,9 @@ describe('bin module', () => {
       } finally {
         // Clean up.
         if (existsSync(symlinkPath)) {
-          await trash(symlinkPath)
+          await del(symlinkPath, { force: true })
         }
-        await trash(targetFile)
+        await del(targetFile, { force: true })
       }
     })
 
@@ -341,7 +341,7 @@ fi`
         expect(normalizedResolved).toBe(normalizedExpected)
       } finally {
         // Clean up.
-        await trash([wrapperPath, targetPath])
+        await del([wrapperPath, targetPath])
       }
     })
 
@@ -389,7 +389,7 @@ endLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & "%_prog%"  "%dp0%\\..\\
         expect(resolved).toBeTruthy()
       } finally {
         // Clean up.
-        await trash([cmdPath, path.join(tmpDir, 'node_modules')])
+        await del([cmdPath, path.join(tmpDir, 'node_modules')])
       }
     })
 
@@ -429,7 +429,7 @@ exit $ret`
           expect(resolved).toBeTruthy()
         } finally {
           // Clean up.
-          await trash([ps1Path, targetPath])
+          await del([ps1Path, targetPath])
         }
       },
     )
@@ -462,7 +462,7 @@ exec node  "$basedir/lib/cli.js" "$@"`
         expect(normalizedResolved).toBe(normalizedExpected)
       } finally {
         // Clean up.
-        await trash([wrapperPath, path.dirname(targetPath)])
+        await del([wrapperPath, path.dirname(targetPath)])
       }
     })
   })
@@ -665,7 +665,7 @@ exec node  "$basedir/lib/cli.js" "$@"`
 
     afterEach(async () => {
       // Clean up.
-      await trash([voltaPath])
+      await del([voltaPath])
     })
 
     it('should resolve Volta npm/npx paths', async () => {
@@ -832,7 +832,7 @@ exec node  "$basedir/lib/cli.js" "$@"`
       expect(result).toContain('pnpm')
 
       // Clean up.
-      await trash(path.join(tmpDir, 'node_modules'))
+      await del(path.join(tmpDir, 'node_modules'))
     })
 
     it('should handle yarn with malformed CI path', async () => {
@@ -858,7 +858,7 @@ exec node  "$basedir/lib/cli.js" "$@"`
       expect(result).toContain('yarn')
 
       // Clean up.
-      await trash(path.join(tmpDir, 'node_modules'))
+      await del(path.join(tmpDir, 'node_modules'))
     })
 
     it('should handle pnpm setup-action format', async () => {
@@ -879,7 +879,7 @@ exec node "$basedir/pnpm/bin/pnpm.cjs" "$@"`
         const result = resolveBinPathSync(pnpmPath)
         expect(result).toContain('pnpm')
       } finally {
-        await trash([pnpmPath, path.join(tmpDir, 'pnpm')])
+        await del([pnpmPath, path.join(tmpDir, 'pnpm')])
       }
     })
 
@@ -910,7 +910,7 @@ exec node "$NPM_CLI_JS" "$@"`
         const result = resolveBinPathSync(npmPath)
         expect(result).toContain('npm')
       } finally {
-        await trash([npmPath, path.join(tmpDir, 'lib')])
+        await del([npmPath, path.join(tmpDir, 'lib')])
       }
     })
 
@@ -941,7 +941,7 @@ exec node "$NPX_CLI_JS" "$@"`
         const result = resolveBinPathSync(npxPath)
         expect(result).toContain('npx')
       } finally {
-        await trash([npxPath, path.join(tmpDir, 'lib')])
+        await del([npxPath, path.join(tmpDir, 'lib')])
       }
     })
 
@@ -972,7 +972,7 @@ exec node "$basedir/.tools/yarn/1.22.0/lib/cli.js" "$@"`
         // For yarn extensionless script, it may just return the yarn path.
         expect(result).toContain('yarn')
       } finally {
-        await trash([yarnPath, path.join(tmpDir, '.tools')])
+        await del([yarnPath, path.join(tmpDir, '.tools')])
       }
     })
 
@@ -1008,7 +1008,7 @@ exec node "$basedir/../pnpm/bin/pnpm.cjs" "$@"`
         // For pnpm with custom name, it may just return the pnpm path.
         expect(result).toContain('pnpm')
       } finally {
-        await trash([path.join(tmpDir, 'node_modules')])
+        await del([path.join(tmpDir, 'node_modules')])
       }
     })
   })
@@ -1028,7 +1028,7 @@ exec node "$basedir/../pnpm/bin/pnpm.cjs" "$@"`
         // Normalize expected result for cross-platform comparison.
         expect(result).toBe(invalidPath.replaceAll('\\', '/'))
       } finally {
-        await trash(tmpFile)
+        await del(tmpFile, { force: true })
       }
     })
 
@@ -1075,7 +1075,7 @@ exec node "$basedir/../pnpm/bin/pnpm.cjs" "$@"`
         ])
         expect(result).toBe(shadowBinPath)
       } finally {
-        await trash([shadowBinPath, realBinPath, shadowBinDir])
+        await del([shadowBinPath, realBinPath, shadowBinDir])
       }
     })
 

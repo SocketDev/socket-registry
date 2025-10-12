@@ -51,7 +51,6 @@ async function lint() {
   let hasError = false
 
   // Determine what to lint
-  const target = all ? '.' : staged ? '--staged' : '--changed'
   const affectedScript = path.join(__dirname, 'lint-affected.mjs')
 
   // Run lint-affected for targeted linting
@@ -107,6 +106,7 @@ async function lint() {
       if (!quiet) {
         console.log(`  Running ${name}...`)
       }
+      // eslint-disable-next-line no-await-in-loop
       const code = await run(command, args)
       if (code !== 0) {
         hasError = true

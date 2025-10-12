@@ -6,15 +6,21 @@
  *   node scripts/build.mjs
  */
 
+import {
+  printError,
+  printFooter,
+  printHeader,
+  printSuccess,
+} from './utils/cli-helpers.mjs'
 import { runParallel } from './utils/run-command.mjs'
 
-// Note: We use console methods directly instead of importing the registry logger
+// Note: We use the shared print utilities instead of the registry logger
 // because the logger is in registry/dist/lib/logger.js which doesn't exist until
 // after the build completes. This script must work on fresh clones before any
 // build artifacts exist.
 async function main() {
   try {
-    console.log('Building registry...')
+    printHeader('Building Registry')
 
     const builds = [
       {
@@ -27,13 +33,14 @@ async function main() {
     const failed = exitCodes.some(code => code !== 0)
 
     if (failed) {
-      console.error('Build failed')
+      printError('Build failed')
       process.exitCode = 1
     } else {
-      console.log('Build complete')
+      printSuccess('Build complete')
+      printFooter()
     }
   } catch (error) {
-    console.error('Build failed:', error.message)
+    printError(`Build failed: ${error.message}`)
     process.exitCode = 1
   }
 }
