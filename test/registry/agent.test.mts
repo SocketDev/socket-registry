@@ -25,7 +25,7 @@ import {
   whichBin,
   whichBinSync,
 } from '../../registry/dist/lib/bin.js'
-import { trash } from '../../scripts/utils/fs.mjs'
+import { deleteAsync as del } from 'del'
 
 describe('agent module', () => {
   let tmpDir: string
@@ -35,7 +35,7 @@ describe('agent module', () => {
   })
 
   afterEach(async () => {
-    await trash(tmpDir)
+    await del(tmpDir, { force: true })
   })
 
   describe('isNpmAuditFlag', () => {
@@ -396,7 +396,7 @@ describe('agent module', () => {
         } catch (error) {
           expect(error).toBeDefined()
         } finally {
-          await trash(testDir)
+          await del(testDir, { force: true })
         }
       })
     }

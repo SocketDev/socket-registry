@@ -6,7 +6,7 @@ import os from 'node:os'
 import path from 'node:path'
 
 import WIN32 from './constants/WIN32'
-import { isDir, readJson, remove } from './fs'
+import { isDir, readJson, safeDelete } from './fs'
 import { httpRequest } from './http-request'
 import { isObjectObject } from './objects'
 import { normalizePath } from './path'
@@ -132,7 +132,7 @@ async function downloadBinary(
   } catch (e) {
     // Clean up temp file on error.
     try {
-      await remove(tempPath)
+      await safeDelete(tempPath)
     } catch {
       // Ignore cleanup errors.
     }
@@ -200,7 +200,7 @@ export async function cleanDlxCache(
       if (age > maxAge) {
         // Remove entire cache entry directory.
         // eslint-disable-next-line no-await-in-loop
-        await remove(entryPath, { force: true, recursive: true })
+        await safeDelete(entryPath, { force: true, recursive: true })
         cleaned += 1
       }
     } catch {
@@ -211,7 +211,7 @@ export async function cleanDlxCache(
         if (!contents.length) {
           // Remove empty directory.
           // eslint-disable-next-line no-await-in-loop
-          await remove(entryPath)
+          await safeDelete(entryPath)
           cleaned += 1
         }
       } catch {}

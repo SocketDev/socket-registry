@@ -243,3 +243,31 @@ export function trimNewlines(str: string): string {
   }
   return start === 0 && end === length ? str : str.slice(start, end)
 }
+
+/**
+ * Repeat a string n times.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+export function repeatString(str: string, count: number): string {
+  if (count <= 0) {
+    return ''
+  }
+  return str.repeat(count)
+}
+
+/**
+ * Center text within a given width.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+export function centerText(text: string, width: number): string {
+  const textLength = stripAnsi(text).length
+  if (textLength >= width) {
+    return text
+  }
+
+  const padding = width - textLength
+  const leftPad = Math.floor(padding / 2)
+  const rightPad = padding - leftPad
+
+  return ' '.repeat(leftPad) + text + ' '.repeat(rightPad)
+}

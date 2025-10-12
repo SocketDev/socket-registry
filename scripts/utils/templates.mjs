@@ -11,17 +11,14 @@ import semver from 'semver'
 
 import { PackageURL } from '@socketregistry/packageurl-js'
 import { getManifestData } from '../../registry/dist/index.js'
-import { joinAnd } from '../../registry/dist/lib/lang/arrays.js'
+import { joinAnd } from '../../registry/dist/lib/arrays.js'
 import { globStreamLicenses } from '../../registry/dist/lib/globs.js'
-import { isObjectObject } from '../../registry/dist/lib/lang/objects.js'
+import { isObjectObject } from '../../registry/dist/lib/objects.js'
 import {
   readPackageJson,
   resolveOriginalPackageName,
-} from '../../registry/dist/lib/packages/index.js'
-import {
-  capitalize,
-  determineArticle,
-} from '../../registry/dist/lib/lang/words.js'
+} from '../../registry/dist/lib/packages/operations.js'
+import { capitalize, determineArticle } from '../../registry/dist/lib/words.js'
 
 import constants from '../constants.mjs'
 import { biomeFormat } from './biome.mjs'

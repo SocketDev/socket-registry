@@ -20,7 +20,6 @@ const require = createRequire(import.meta.url)
 const {
   DOT_GITHUB,
   ESLINT_CONFIG_JS,
-  GITIGNORE,
   LICENSE,
   NODE_MODULES,
   NPM,

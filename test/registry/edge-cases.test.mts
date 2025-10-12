@@ -5,7 +5,7 @@ import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { normalizePath } from '../../registry/dist/lib/path.js'
-import { trash } from '../../scripts/utils/fs.mjs'
+import { deleteAsync as del } from 'del'
 
 // Helper predicate moved to outer scope.
 const pFilterPredicate = async (value: number) => {
@@ -24,7 +24,7 @@ describe('edge case tests', () => {
     })
 
     afterEach(async () => {
-      await trash(tmpDir)
+      await del(tmpDir, { force: true })
     })
 
     it('should handle findUp with multiple patterns', async () => {

@@ -5,8 +5,8 @@
 
 import ENV from './constants/ENV'
 import abortSignal from './constants/abort-signal'
-import { getYoctoSpinner } from './dependencies/logging'
 import { isBlankString } from './strings'
+import yoctoSpinner from '../external/@socketregistry/yocto-spinner'
 
 import type { Writable } from 'node:stream'
 
@@ -64,8 +64,14 @@ export type Spinner = {
   stop(text?: string | undefined): Spinner
   stopAndPersist(text?: string | undefined): Spinner
 
+  step(text?: string | undefined, ...extras: unknown[]): Spinner
+  substep(text?: string | undefined, ...extras: unknown[]): Spinner
+
   success(text?: string | undefined, ...extras: unknown[]): Spinner
   successAndStop(text?: string | undefined, ...extras: unknown[]): Spinner
+
+  done(text?: string | undefined, ...extras: unknown[]): Spinner
+  doneAndStop(text?: string | undefined, ...extras: unknown[]): Spinner
 
   updateProgress(
     current: number,
@@ -136,9 +142,8 @@ export function getCliSpinners(
   styleName?: string | undefined,
 ): SpinnerStyle | Record<string, SpinnerStyle> | undefined {
   if (_cliSpinners === undefined) {
-    const yoctoFactory = getYoctoSpinner() as any
-    const { constructor: YoctoCtor } = yoctoFactory()
-    _cliSpinners = (YoctoCtor as any).spinners
+    const YoctoCtor = yoctoSpinner as any
+    _cliSpinners = YoctoCtor.spinners
   }
   if (typeof styleName === 'string' && _cliSpinners) {
     return ObjectHasOwn(_cliSpinners, styleName)
@@ -159,8 +164,7 @@ let _defaultSpinner: SpinnerStyle | undefined
 /*@__NO_SIDE_EFFECTS__*/
 export function Spinner(options?: SpinnerOptions | undefined): Spinner {
   if (_Spinner === undefined) {
-    const yoctoFactory = getYoctoSpinner() as any
-    const { constructor: YoctoCtor } = yoctoFactory()
+    const YoctoCtor = yoctoSpinner as any
 
     /*@__PURE__*/
     _Spinner = class SpinnerClass extends (YoctoCtor as any) {
@@ -287,6 +291,33 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
         return this.#apply('start', args)
       }
 
+      step(...args: unknown[]) {
+        const text = args[0]
+        if (typeof text === 'string') {
+          // Add blank line before step for visual separation.
+          if (this.isSpinning) {
+            this.stop()
+            const { logger } = /*@__PURE__*/ require('./logger.js')
+            logger.error('')
+            this.start()
+          } else {
+            const { logger } = /*@__PURE__*/ require('./logger.js')
+            logger.error('')
+          }
+          args[0] = text
+        }
+        return this.#applyAndKeepSpinning('log', args)
+      }
+
+      substep(...args: unknown[]) {
+        const text = args[0]
+        if (typeof text === 'string') {
+          // Add 2-space indent for substep.
+          args[0] = `  ${text}`
+        }
+        return this.#applyAndKeepSpinning('log', args)
+      }
+
       stop(...args: unknown[]) {
         // We clear this.text on stop because yocto-spinner will not clear it.
         this.#baseText = ''
@@ -300,6 +331,15 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
       }
 
       successAndStop(...args: unknown[]) {
+        return this.#apply('success', args)
+      }
+
+      // Alias done for success (shorter name).
+      done(...args: unknown[]) {
+        return this.#applyAndKeepSpinning('success', args)
+      }
+
+      doneAndStop(...args: unknown[]) {
         return this.#apply('success', args)
       }
 

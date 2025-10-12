@@ -4,14 +4,12 @@
  */
 
 import ENV from './constants/ENV'
-import {
-  getDebug,
-  getIsUnicodeSupported,
-  getLogger,
-  getSpinner,
-} from './dependencies/logging'
+import spinner from './constants/spinner'
+import { logger } from './logger'
 import { hasOwn } from './objects'
 import { applyLinePrefix } from './strings'
+import isUnicodeSupported from '../external/@socketregistry/is-unicode-supported'
+import debugJs from '../external/debug'
 
 // IMPORTANT: Do not use destructuring here - use direct assignment instead.
 // tsgo has a bug that incorrectly transpiles destructured exports, resulting in
@@ -47,7 +45,6 @@ function getDebugJsInstance(namespace: string) {
   if (inst) {
     return inst
   }
-  const debugJs = getDebug()
   if (
     !ENV.DEBUG &&
     ENV.SOCKET_DEBUG &&
@@ -77,13 +74,58 @@ function getUtil() {
 }
 
 /**
+ * Extract caller information from the stack trace.
+ * @private
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function getCallerInfo(stackOffset: number = 3): string {
+  let name = ''
+  const captureStackTrace = Error.captureStackTrace
+  if (typeof captureStackTrace === 'function') {
+    const obj: { stack?: unknown } = {}
+    captureStackTrace(obj, getCallerInfo)
+    const stack = obj.stack
+    if (typeof stack === 'string') {
+      let lineCount = 0
+      let lineStart = 0
+      for (let i = 0, { length } = stack; i < length; i += 1) {
+        if (stack[i] === '\n') {
+          lineCount += 1
+          if (lineCount < stackOffset) {
+            // Store the start index of the next line.
+            lineStart = i + 1
+          } else {
+            // Extract the full line and trim it.
+            const line = stack.slice(lineStart, i).trimStart()
+            // Match the function name portion (e.g., "async runFix").
+            const match = /(?<=^at\s+).*?(?=\s+\(|$)/.exec(line)?.[0]
+            if (match) {
+              name = match
+                // Strip known V8 invocation prefixes to get the name.
+                .replace(/^(?:async|bound|get|new|set)\s+/, '')
+              if (name.startsWith('Object.')) {
+                // Strip leading 'Object.' if not an own property of Object.
+                const afterDot = name.slice(7 /*'Object.'.length*/)
+                if (!hasOwn(Object, afterDot)) {
+                  name = afterDot
+                }
+              }
+            }
+            break
+          }
+        }
+      }
+    }
+  }
+  return name
+}
+
+/**
  * Custom log function for debug output.
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
 function customLog() {
-  const logger = getLogger()
-  const debugJs = getDebug()
   const util = getUtil()
   const inspectOpts = debugJs.inspectOpts
     ? {
@@ -147,7 +189,7 @@ function isEnabled(namespaces: string | undefined) {
 }
 
 /**
- * Debug output for object inspection.
+ * Debug output for object inspection with caller info.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function debugDirNs(
@@ -160,8 +202,15 @@ function debugDirNs(
   if (!isEnabled(namespaces as string)) {
     return
   }
+  // Get caller info with stack offset of 4 (caller -> debugDirNs -> getCallerInfo).
+  const callerName = getCallerInfo(4) || 'anonymous'
+
+  if (pointingTriangle === undefined) {
+    const supported = isUnicodeSupported()
+    pointingTriangle = supported ? '▸' : '>'
+  }
+
   if (inspectOpts === undefined) {
-    const debugJs = getDebug()
     const opts = debugJs.inspectOpts
     if (opts) {
       inspectOpts = {
@@ -174,64 +223,30 @@ function debugDirNs(
       } as InspectOptions
     }
   }
-  const spinner = options.spinner || getSpinner()
-  const wasSpinning = spinner.isSpinning
-  spinner.stop()
-  const logger = getLogger()
+  const spinnerInstance = options.spinner || spinner
+  const wasSpinning = spinnerInstance.isSpinning
+  spinnerInstance.stop()
+  logger.info(`[DEBUG] ${callerName} ${pointingTriangle} object inspection:`)
   logger.dir(obj, inspectOpts)
   if (wasSpinning) {
-    spinner.start()
+    spinnerInstance.start()
   }
 }
 
 let pointingTriangle: string | undefined
 /**
- * Debug output with function name prefix.
+ * Debug output with caller info.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function debugFnNs(namespacesOrOpts: NamespacesOrOptions, ...args: unknown[]) {
+function debugNs(namespacesOrOpts: NamespacesOrOptions, ...args: unknown[]) {
   const options = extractOptions(namespacesOrOpts)
   const { namespaces } = options
   if (!isEnabled(namespaces as string)) {
     return
   }
-  const { stack } = new Error()
-  let lineCount = 0
-  let lineStart = 0
-  let name = 'anonymous'
-  // Scan the stack trace character-by-character to find the 4th line
-  // (index 3), which is typically the caller of debugFn.
-  if (stack) {
-    for (let i = 0, { length } = stack; i < length; i += 1) {
-      if (stack.charCodeAt(i) === 10 /*'\n'*/) {
-        lineCount += 1
-        if (lineCount < 4) {
-          // Store the start index of the next line.
-          lineStart = i + 1
-        } else {
-          // Extract the full line and trim it.
-          const line = stack.slice(lineStart, i).trimStart()
-          // Match the function name portion (e.g., "async runFix").
-          const match = /(?<=^at\s+).*?(?=\s+\(|$)/.exec(line)?.[0]
-          if (match) {
-            name = match
-              // Strip known V8 invocation prefixes to get the name.
-              .replace(/^(?:async|bound|get|new|set)\s+/, '')
-            if (name.startsWith('Object.')) {
-              // Strip leading 'Object.' if not an own property of Object.
-              const afterDot = name.slice(7 /*'Object.'.length*/)
-              if (!hasOwn(Object, afterDot)) {
-                name = afterDot
-              }
-            }
-          }
-          break
-        }
-      }
-    }
-  }
+  // Get caller info with stack offset of 4 (caller -> debugNs -> getCallerInfo).
+  const name = getCallerInfo(4) || 'anonymous'
   if (pointingTriangle === undefined) {
-    const isUnicodeSupported = getIsUnicodeSupported()
     const supported = isUnicodeSupported()
     pointingTriangle = supported ? '▸' : '>'
   }
@@ -246,18 +261,17 @@ function debugFnNs(namespacesOrOpts: NamespacesOrOptions, ...args: unknown[]) {
           ...args.slice(1),
         ]
       : args
-  const spinner = options.spinner || getSpinner()
-  const wasSpinning = spinner.isSpinning
-  spinner.stop()
-  const logger = getLogger()
+  const spinnerInstance = options.spinner || spinner
+  const wasSpinning = spinnerInstance.isSpinning
+  spinnerInstance.stop()
   ReflectApply(logger.info, logger, logArgs)
   if (wasSpinning) {
-    spinner.start()
+    spinnerInstance.start()
   }
 }
 
 /**
- * Debug logging function.
+ * Debug logging function with caller info.
  */
 /*@__NO_SIDE_EFFECTS__*/
 function debugLogNs(namespacesOrOpts: NamespacesOrOptions, ...args: unknown[]) {
@@ -266,13 +280,96 @@ function debugLogNs(namespacesOrOpts: NamespacesOrOptions, ...args: unknown[]) {
   if (!isEnabled(namespaces as string)) {
     return
   }
-  const spinner = options.spinner || getSpinner()
-  const wasSpinning = spinner.isSpinning
-  spinner.stop()
-  ReflectApply(customLog, undefined, args)
-  if (wasSpinning) {
-    spinner.start()
+  // Get caller info with stack offset of 4 (caller -> debugLogNs -> getCallerInfo).
+  const callerName = getCallerInfo(4) || 'anonymous'
+
+  if (pointingTriangle === undefined) {
+    const supported = isUnicodeSupported()
+    pointingTriangle = supported ? '▸' : '>'
   }
+
+  const text = args.at(0)
+  const logArgs =
+    typeof text === 'string'
+      ? [
+          applyLinePrefix(
+            `${callerName ? `${callerName} ${pointingTriangle} ` : ''}${text}`,
+            { prefix: '[DEBUG] ' },
+          ),
+          ...args.slice(1),
+        ]
+      : [`[DEBUG] ${callerName} ${pointingTriangle}`, ...args]
+
+  const spinnerInstance = options.spinner || spinner
+  const wasSpinning = spinnerInstance.isSpinning
+  spinnerInstance.stop()
+  ReflectApply(logger.info, logger, logArgs)
+  if (wasSpinning) {
+    spinnerInstance.start()
+  }
+}
+
+/**
+ * Debug output for cache operations with caller info.
+ * First argument is the operation type (hit/miss/set/clear).
+ * Second argument is the cache key or message.
+ * Optional third argument is metadata object.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function debugCacheNs(
+  namespacesOrOpts: NamespacesOrOptions,
+  operation: string,
+  key: string,
+  meta?: unknown | undefined,
+) {
+  const options = extractOptions(namespacesOrOpts)
+  const { namespaces } = options
+  if (!isEnabled(namespaces as string)) {
+    return
+  }
+  // Get caller info with stack offset of 4 (caller -> debugCacheNs -> getCallerInfo).
+  const callerName = getCallerInfo(4) || 'cache'
+
+  if (pointingTriangle === undefined) {
+    const supported = isUnicodeSupported()
+    pointingTriangle = supported ? '▸' : '>'
+  }
+
+  const prefix = `[CACHE] ${callerName} ${pointingTriangle} ${operation}: ${key}`
+  const logArgs = meta !== undefined ? [prefix, meta] : [prefix]
+
+  const spinnerInstance = options.spinner || spinner
+  const wasSpinning = spinnerInstance.isSpinning
+  spinnerInstance.stop()
+  ReflectApply(logger.info, logger, logArgs)
+  if (wasSpinning) {
+    spinnerInstance.start()
+  }
+}
+
+/**
+ * Cache debug function with caller info.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+export function debugCache(
+  operation: string,
+  key: string,
+  meta?: unknown | undefined,
+): void {
+  if (!ENV.SOCKET_DEBUG) {
+    return
+  }
+  // Get caller info with stack offset of 3 (caller -> debugCache -> getCallerInfo).
+  const callerName = getCallerInfo(3) || 'cache'
+
+  if (pointingTriangle === undefined) {
+    const supported = isUnicodeSupported()
+    pointingTriangle = supported ? '▸' : '>'
+  }
+
+  const prefix = `[CACHE] ${callerName} ${pointingTriangle} ${operation}: ${key}`
+  const args = meta !== undefined ? [prefix, meta] : [prefix]
+  console.log(...args)
 }
 
 /**
@@ -284,153 +381,48 @@ function isDebugNs(namespaces: string | undefined): boolean {
 }
 
 /**
- * Simple debug check based on DEBUG environment variable.
+ * Debug output with caller info (wrapper for debugNs with default namespace).
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function isDebugSimple(): boolean {
-  const debug = process.env['DEBUG']
-  if (!debug || debug === '' || debug === '0' || debug === 'false') {
-    return false
-  }
-  return true
+function debug(...args: unknown[]): void {
+  debugNs('*', ...args)
 }
 
 /**
- * Simple debug log that logs to console when DEBUG is set.
+ * Debug output for object inspection (wrapper for debugDirNs with default namespace).
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function debugLogSimple(...args: unknown[]): void {
-  if (isDebugSimple()) {
-    console.log(...args)
-  }
-}
-
-/**
- * Simple debug dir that logs object to console when DEBUG is set.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function debugDirSimple(
+function debugDir(
   obj: unknown,
-  options?: InspectOptions | undefined,
+  inspectOpts?: InspectOptions | undefined,
 ): void {
-  if (isDebugSimple()) {
-    console.dir(obj, options || { depth: null, colors: true })
-  }
+  debugDirNs('*', obj, inspectOpts)
 }
 
 /**
- * Simple debug function that creates a namespaced debug logger.
+ * Debug logging function (wrapper for debugLogNs with default namespace).
  */
 /*@__NO_SIDE_EFFECTS__*/
-function matchPattern(ns: string, pattern: string) {
-  if (pattern === '*') {
-    return true
-  }
-  if (pattern.endsWith(':*')) {
-    const prefix = pattern.slice(0, -1)
-    return ns.startsWith(prefix)
-  }
-  if (pattern.endsWith('*')) {
-    const prefix = pattern.slice(0, -1)
-    return ns.startsWith(prefix)
-  }
-  return ns === pattern
+function debugLog(...args: unknown[]): void {
+  debugLogNs('*', ...args)
 }
 
 /**
- * Create a simple debug function without external dependencies.
- */
-export function debugFnSimple(namespace: string) {
-  const log = (...args: unknown[]) => {
-    const debug = process.env['DEBUG'] || ''
-
-    // Parse debug patterns.
-    const patterns = debug.split(',').map(p => p.trim())
-    const negations = patterns
-      .filter(p => p.startsWith('-'))
-      .map(p => p.slice(1))
-    const includes = patterns.filter(p => !p.startsWith('-'))
-
-    // Check if namespace should be skipped.
-    for (const neg of negations) {
-      if (neg === namespace || matchPattern(namespace, neg)) {
-        return
-      }
-    }
-
-    // Check if namespace should be included.
-    let shouldLog = false
-    for (const inc of includes) {
-      if (inc === '*' || inc === namespace || matchPattern(namespace, inc)) {
-        shouldLog = true
-        break
-      }
-    }
-
-    if (shouldLog) {
-      const timestamp = new Date().toISOString()
-      console.log(`[${timestamp}] ${namespace}:`, ...args)
-    }
-  }
-
-  log.enabled = false
-
-  return log
-}
-
-/**
- * Create a debug logger similar to util.debuglog.
+ * Check if debug mode is enabled.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function debuglog(section: string) {
-  const log = (...args: unknown[]) => {
-    if (isDebugSimple()) {
-      console.log(`[${section}]`, ...args)
-    }
-  }
-  return log
+function isDebug(): boolean {
+  return ENV.SOCKET_DEBUG
 }
 
-/**
- * Create a debug timer.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function debugtime(section: string) {
-  const timers = new Map()
-
-  const timer = (label: string) => {
-    if (isDebugSimple()) {
-      console.log(`[${section}] ${label}`)
-    }
-  }
-
-  timer.start = (label: string) => {
-    if (isDebugSimple()) {
-      timers.set(label, Date.now())
-      console.log(`[${section}] ${label}: start`)
-    }
-  }
-
-  timer.end = (label: string) => {
-    if (isDebugSimple()) {
-      const start = timers.get(label)
-      if (start) {
-        const duration = Date.now() - start
-        console.log(`[${section}] ${label}: ${duration}ms`)
-        timers.delete(label)
-      }
-    }
-  }
-
-  return timer
-}
-
-// Export aliases for compatibility.
-export { debugDirSimple as debugDir }
+// Export main debug functions with caller info.
+export { debug }
+// debugCache is already exported directly above
+export { debugCacheNs }
+export { debugDir }
 export { debugDirNs }
-export { debugFnSimple as debugFn }
-export { debugFnNs }
-export { debugLogSimple as debugLog }
+export { debugLog }
 export { debugLogNs }
-export { isDebugSimple as isDebug }
+export { debugNs }
+export { isDebug }
 export { isDebugNs }

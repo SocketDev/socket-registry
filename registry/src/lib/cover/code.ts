@@ -24,7 +24,7 @@ import type {
  * @throws {Error} When coverage data format is invalid.
  */
 export async function getCodeCoverage(
-  options?: GetCodeCoverageOptions | undefined
+  options?: GetCodeCoverageOptions | undefined,
 ): Promise<CodeCoverageResult> {
   const opts = {
     __proto__: null,

@@ -4,7 +4,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { getTypeCoverage } from '../../registry/dist/lib/coverage/index.js'
+import { getTypeCoverage } from '../../registry/dist/lib/cover/type.js'
 
 describe('type coverage module', () => {
   describe('getTypeCoverage', () => {

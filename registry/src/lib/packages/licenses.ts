@@ -4,15 +4,10 @@
 
 import LOOP_SENTINEL from '../constants/LOOP_SENTINEL'
 import copyLeftLicenses from '../constants/copy-left-licenses'
+import { hasOwn } from '../objects'
 import { normalizePath } from '../path'
 
 import type { LicenseNode } from '../packages'
-
-// IMPORTANT: Do not use destructuring here - use direct assignment instead.
-// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
-// `exports.SomeName = void 0;` which causes runtime errors.
-// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
-const ObjectHasOwn = Object.hasOwn
 
 const BINARY_OPERATION_NODE_TYPE = 'BinaryOperation'
 const LICENSE_NODE_TYPE = 'License'
@@ -137,7 +132,7 @@ export function collectLicenseWarnings(licenseNodes: LicenseNode[]): string[] {
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function createAstNode(rawNode: SpdxAstNode): InternalAstNode {
-  return ObjectHasOwn(rawNode, 'license')
+  return hasOwn(rawNode, 'license')
     ? createLicenseNode(rawNode as SpdxLicenseNode)
     : createBinaryOperationNode(rawNode as SpdxBinaryOperationNode)
 }
@@ -286,11 +281,11 @@ export function visitLicenses(ast: SpdxAstNode, visitor: LicenseVisitor): void {
     //   }
     const { 0: node, 1: parent } = queue[pos++]!
     const { type } = node
-    if (typeof visitor[type] === 'function' && ObjectHasOwn(visitor, type)) {
+    if (typeof visitor[type] === 'function' && hasOwn(visitor, type)) {
       if (type === LICENSE_NODE_TYPE) {
         const licenseVisitor = visitor.License
         if (
-          licenseVisitor &&
+          typeof licenseVisitor === 'function' &&
           licenseVisitor(node as InternalLicenseNode, parent) === false
         ) {
           break
@@ -298,7 +293,7 @@ export function visitLicenses(ast: SpdxAstNode, visitor: LicenseVisitor): void {
       } else if (type === BINARY_OPERATION_NODE_TYPE) {
         const binaryOpVisitor = visitor.BinaryOperation
         if (
-          binaryOpVisitor &&
+          typeof binaryOpVisitor === 'function' &&
           binaryOpVisitor(node as InternalBinaryOperationNode, parent) === false
         ) {
           break

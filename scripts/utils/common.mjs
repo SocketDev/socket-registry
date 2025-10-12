@@ -3,11 +3,8 @@
  * Provides consistent helpers for running commands and logging.
  */
 
-import { spawn } from 'node:child_process'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-
-import colors from 'yoctocolors-cjs'
 
 // Platform detection
 export const WIN32 = process.platform === 'win32'

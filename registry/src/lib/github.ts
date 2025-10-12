@@ -23,8 +23,10 @@
 
 import { createTtlCache } from './cache-with-ttl'
 import { httpRequest } from './http-request'
+import { spawn } from './spawn'
 
 import type { TtlCache } from './cache-with-ttl'
+import type { SpawnOptions } from './spawn'
 // 5 minutes.
 const DEFAULT_CACHE_TTL_MS = 5 * 60 * 1000
 
@@ -251,4 +253,122 @@ export function clearRefCache(): void {
   if (_githubCache) {
     _githubCache.clearMemo()
   }
+}
+
+/**
+ * Get GitHub token from git config if not in environment.
+ * Falls back to checking git config for github.token.
+ */
+export async function getGitHubTokenFromGitConfig(
+  options?: SpawnOptions,
+): Promise<string | undefined> {
+  try {
+    const result = await spawn('git', ['config', 'github.token'], {
+      ...options,
+      stdio: 'pipe',
+    })
+    if (result.code === 0 && result.stdout) {
+      return result.stdout.toString().trim()
+    }
+  } catch {
+    // Ignore errors - git config may not have token.
+  }
+  return undefined
+}
+
+/**
+ * Get GitHub token from all available sources.
+ * Checks environment variables first, then git config.
+ */
+export async function getGitHubTokenWithFallback(): Promise<
+  string | undefined
+> {
+  return getGitHubToken() || (await getGitHubTokenFromGitConfig())
+}
+
+// GHSA (GitHub Security Advisory) types and utilities.
+export interface GhsaDetails {
+  ghsaId: string
+  summary: string
+  details: string
+  severity: string
+  aliases: string[]
+  publishedAt: string
+  updatedAt: string
+  withdrawnAt: string | null
+  references: Array<{ url: string }>
+  vulnerabilities: Array<{
+    package: {
+      ecosystem: string
+      name: string
+    }
+    vulnerableVersionRange: string
+    firstPatchedVersion: { identifier: string } | null
+  }>
+  cvss: {
+    score: number
+    vectorString: string
+  } | null
+  cwes: Array<{
+    cweId: string
+    name: string
+    description: string
+  }>
+}
+
+/**
+ * Generate GitHub Security Advisory URL from GHSA ID.
+ */
+export function getGhsaUrl(ghsaId: string): string {
+  return `https://github.com/advisories/${ghsaId}`
+}
+
+/**
+ * Fetch GitHub Security Advisory details.
+ */
+export async function fetchGhsaDetails(
+  ghsaId: string,
+  options?: GitHubFetchOptions,
+): Promise<GhsaDetails> {
+  const url = `https://api.github.com/advisories/${ghsaId}`
+  const data = await fetchGitHub<any>(url, options)
+
+  return {
+    ghsaId: data.ghsa_id,
+    summary: data.summary,
+    details: data.details,
+    severity: data.severity,
+    aliases: data.aliases || [],
+    publishedAt: data.published_at,
+    updatedAt: data.updated_at,
+    withdrawnAt: data.withdrawn_at,
+    references: data.references || [],
+    vulnerabilities: data.vulnerabilities || [],
+    cvss: data.cvss,
+    cwes: data.cwes || [],
+  }
+}
+
+/**
+ * Cached fetch for GHSA details.
+ */
+export async function cacheFetchGhsa(
+  ghsaId: string,
+  options?: GitHubFetchOptions,
+): Promise<GhsaDetails> {
+  const cache = getGithubCache()
+  const key = `ghsa:${ghsaId}`
+
+  // Check cache first.
+  if (!process.env['DISABLE_GITHUB_CACHE']) {
+    const cached = await cache.get(key)
+    if (cached) {
+      return JSON.parse(cached as string) as GhsaDetails
+    }
+  }
+
+  // Fetch and cache.
+  const data = await fetchGhsaDetails(ghsaId, options)
+  await cache.set(key, JSON.stringify(data))
+  return data
 }

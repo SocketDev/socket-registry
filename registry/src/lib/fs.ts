@@ -3,15 +3,16 @@
  * Provides enhanced fs operations, glob matching, and directory traversal functions.
  */
 
+import { isArray } from './arrays'
 import abortSignal from './constants/abort-signal'
 import { getDel } from './dependencies/file-system'
 import { defaultIgnore, getGlobMatcher } from './globs'
 import { jsonParse } from './json'
+import { type Remap, objectFreeze } from './objects'
 import { normalizePath, pathLikeToString } from './path'
 import { naturalCompare } from './sorts'
 
 import type { JsonReviver } from './json'
-import type { Remap } from './objects'
 import type { Abortable } from 'node:events'
 import type {
   Dirent,
@@ -109,18 +110,7 @@ export interface WriteJsonOptions extends WriteOptions {
   spaces?: number | string | undefined
 }
 
-// IMPORTANT: Do not use destructuring here - use direct assignment instead.
-// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
-// `exports.SomeName = void 0;` which causes runtime errors.
-// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
-const ArrayIsArray = Array.isArray
-// IMPORTANT: Do not use destructuring here - use direct assignment instead.
-// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
-// `exports.SomeName = void 0;` which causes runtime errors.
-// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
-const ObjectFreeze = Object.freeze
-
-const defaultRemoveOptions = ObjectFreeze({
+const defaultRemoveOptions = objectFreeze({
   __proto__: null,
   force: true,
   maxRetries: 3,
@@ -155,6 +145,21 @@ function getPath() {
     _path = /*@__PURE__*/ require('path')
   }
   return _path!
+}
+
+let _os: typeof import('os') | undefined
+/**
+ * Lazily load the os module to avoid Webpack errors.
+ * @private
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function getOs() {
+  if (_os === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _os = /*@__PURE__*/ require('os')
+  }
+  return _os!
 }
 
 /**
@@ -229,7 +234,7 @@ export async function findUp(
   const path = getPath()
   let dir = path.resolve(cwd)
   const { root } = path.parse(dir)
-  const names = ArrayIsArray(name) ? name : [name as string]
+  const names = isArray(name) ? name : [name as string]
   while (dir && dir !== root) {
     for (const n of names) {
       if (signal?.aborted) {
@@ -279,7 +284,7 @@ export function findUpSync(
   let dir = path.resolve(cwd)
   const { root } = path.parse(dir)
   const stopDir = stopAt ? path.resolve(stopAt) : undefined
-  const names = ArrayIsArray(name) ? name : [name as string]
+  const names = isArray(name) ? name : [name as string]
   while (dir && dir !== root) {
     // Check if we should stop at this directory.
     if (stopDir && dir === stopDir) {
@@ -565,51 +570,99 @@ export function readJsonSync(
 }
 
 /**
- * Remove a file or directory asynchronously with safety protections.
+ * Safely delete a file or directory asynchronously with built-in protections.
  * Uses `del` for safer deletion that prevents removing cwd and above by default.
+ * Automatically uses force: true for temp directory subdirectories.
  * @throws {Error} When attempting to delete protected paths without force option.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export async function remove(
+export async function safeDelete(
   filepath: PathLike | PathLike[],
   options?: RemoveOptions | undefined,
 ) {
   const del = /*@__PURE__*/ getDel() as any
   const { deleteAsync } = del
   const opts = { __proto__: null, ...options } as RemoveOptions
-  const patterns = ArrayIsArray(filepath)
+  const patterns = isArray(filepath)
     ? filepath.map(pathLikeToString)
     : [pathLikeToString(filepath)]
+
+  // Check if we're deleting within a temp directory.
+  let shouldForce = opts.force !== false
+  if (!shouldForce && patterns.length > 0) {
+    const os = getOs()
+    const path = getPath()
+    const tmpDir = os.tmpdir()
+    const resolvedTmpDir = path.resolve(tmpDir)
+
+    // Check if all patterns are within the temp directory.
+    const allInTempDir = patterns.every(pattern => {
+      const resolvedPath = path.resolve(pattern)
+      const isInTempDir = resolvedPath.startsWith(resolvedTmpDir + path.sep) ||
+                          resolvedPath === resolvedTmpDir
+      const relativePath = path.relative(resolvedTmpDir, resolvedPath)
+      const isGoingBackward = relativePath.startsWith('..')
+      return isInTempDir && !isGoingBackward
+    })
+
+    if (allInTempDir) {
+      shouldForce = true
+    }
+  }
 
   await deleteAsync(patterns, {
     concurrency: opts.maxRetries || defaultRemoveOptions.maxRetries,
     dryRun: false,
-    force: opts.force !== false,
+    force: shouldForce,
     onlyFiles: false,
   })
 }
 
 /**
- * Remove a file or directory synchronously with safety protections.
+ * Safely delete a file or directory synchronously with built-in protections.
  * Uses `del` for safer deletion that prevents removing cwd and above by default.
+ * Automatically uses force: true for temp directory subdirectories.
  * @throws {Error} When attempting to delete protected paths without force option.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function removeSync(
+export function safeDeleteSync(
   filepath: PathLike | PathLike[],
   options?: RemoveOptions | undefined,
 ) {
   const del = /*@__PURE__*/ getDel() as any
   const { deleteSync } = del
   const opts = { __proto__: null, ...options } as RemoveOptions
-  const patterns = ArrayIsArray(filepath)
+  const patterns = isArray(filepath)
     ? filepath.map(pathLikeToString)
     : [pathLikeToString(filepath)]
+
+  // Check if we're deleting within a temp directory.
+  let shouldForce = opts.force !== false
+  if (!shouldForce && patterns.length > 0) {
+    const os = getOs()
+    const path = getPath()
+    const tmpDir = os.tmpdir()
+    const resolvedTmpDir = path.resolve(tmpDir)
+
+    // Check if all patterns are within the temp directory.
+    const allInTempDir = patterns.every(pattern => {
+      const resolvedPath = path.resolve(pattern)
+      const isInTempDir = resolvedPath.startsWith(resolvedTmpDir + path.sep) ||
+                          resolvedPath === resolvedTmpDir
+      const relativePath = path.relative(resolvedTmpDir, resolvedPath)
+      const isGoingBackward = relativePath.startsWith('..')
+      return isInTempDir && !isGoingBackward
+    })
+
+    if (allInTempDir) {
+      shouldForce = true
+    }
+  }
 
   deleteSync(patterns, {
     concurrency: opts.maxRetries || defaultRemoveOptions.maxRetries,
     dryRun: false,
-    force: opts.force !== false,
+    force: shouldForce,
     onlyFiles: false,
   })
 }

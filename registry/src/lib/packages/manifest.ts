@@ -4,6 +4,7 @@
 
 import { resolvePackageJsonEntryExports } from './exports'
 import { isRegistryFetcherType } from './validation'
+import { isArray } from '../arrays'
 import SOCKET_GITHUB_ORG from '../constants/SOCKET_GITHUB_ORG'
 import SOCKET_REGISTRY_REPO_NAME from '../constants/SOCKET_REGISTRY_REPO_NAME'
 import abortSignal from '../constants/abort-signal'
@@ -13,12 +14,6 @@ import packumentCache from '../constants/packument-cache'
 import { isObjectObject, objectEntries } from '../objects'
 
 import type { PackageJson, PacoteOptions } from '../packages'
-
-// IMPORTANT: Do not use destructuring here - use direct assignment instead.
-// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
-// `exports.SomeName = void 0;` which causes runtime errors.
-// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
-const ArrayIsArray = Array.isArray
 
 const pkgScopePrefixRegExp = /^@socketregistry\//
 
@@ -124,7 +119,7 @@ export function createPackageJson(
           ),
         }
       : { engines: { node: packageDefaultNodeRange } }),
-    files: ArrayIsArray(files) ? files.slice() : ['*.d.ts', '*.js'],
+    files: isArray(files) ? files.slice() : ['*.d.ts', '*.js'],
     ...(isObjectObject(socket)
       ? { socket: { ...socket } }
       : {

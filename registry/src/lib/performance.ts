@@ -3,7 +3,7 @@
  * Provides timing, profiling, and performance metric collection for identifying bottlenecks.
  */
 
-import { debugLogSimple } from './debug'
+import { debugLog } from './debug'
 
 /**
  * Performance metrics collected during execution.
@@ -52,7 +52,7 @@ export function perfTimer(
   }
 
   const start = performance.now()
-  debugLogSimple(`[perf] [START] ${operation}`)
+  debugLog(`[perf] [START] ${operation}`)
 
   return (additionalMetadata?: Record<string, unknown>) => {
     const duration = performance.now() - start
@@ -65,7 +65,7 @@ export function perfTimer(
     }
 
     performanceMetrics.push(metric)
-    debugLogSimple(`[perf] [END] ${operation} - ${metric.duration}ms`)
+    debugLog(`[perf] [END] ${operation} - ${metric.duration}ms`)
   }
 }
 
@@ -170,7 +170,7 @@ export function getPerformanceMetrics(): PerformanceMetrics[] {
  */
 export function clearPerformanceMetrics(): void {
   performanceMetrics.length = 0
-  debugLogSimple('[perf] Cleared performance metrics')
+  debugLog('[perf] Cleared performance metrics')
 }
 
 /**
@@ -261,16 +261,16 @@ export function printPerformanceSummary(): void {
   const summary = getPerformanceSummary()
   const operations = Object.keys(summary).sort()
 
-  debugLogSimple('[perf]\n=== Performance Summary ===')
+  debugLog('[perf]\n=== Performance Summary ===')
 
   for (const operation of operations) {
     const stats = summary[operation]!
-    debugLogSimple(
+    debugLog(
       `[perf] ${operation}: ${stats.count} calls, avg ${stats.avg}ms (min ${stats.min}ms, max ${stats.max}ms, total ${stats.total}ms)`,
     )
   }
 
-  debugLogSimple('[perf] =========================\n')
+  debugLog('[perf] =========================\n')
 }
 
 /**
@@ -306,7 +306,7 @@ export function perfCheckpoint(
   }
 
   performanceMetrics.push(metric)
-  debugLogSimple(`[perf] [CHECKPOINT] ${checkpoint}`)
+  debugLog(`[perf] [CHECKPOINT] ${checkpoint}`)
 }
 
 /**
@@ -332,7 +332,7 @@ export function trackMemory(label: string): number {
   const usage = process.memoryUsage()
   const heapUsedMB = Math.round((usage.heapUsed / 1024 / 1024) * 100) / 100
 
-  debugLogSimple(`[perf] [MEMORY] ${label}: ${heapUsedMB}MB heap used`)
+  debugLog(`[perf] [MEMORY] ${label}: ${heapUsedMB}MB heap used`)
 
   const metric: PerformanceMetrics = {
     operation: `checkpoint:memory:${label}`,

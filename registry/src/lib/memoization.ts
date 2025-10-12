@@ -3,7 +3,7 @@
  * Provides function result caching to optimize repeated computations and expensive operations.
  */
 
-import { debugLogSimple } from './debug'
+import { debugLog } from './debug'
 
 /**
  * Options for memoization behavior.
@@ -70,7 +70,7 @@ export function memoize<Args extends unknown[], Result>(
       const oldest = accessOrder.shift()
       if (oldest) {
         cache.delete(oldest)
-        debugLogSimple(`[memoize:${name}] clear`, {
+        debugLog(`[memoize:${name}] clear`, {
           key: oldest,
           reason: 'LRU',
         })
@@ -99,12 +99,12 @@ export function memoize<Args extends unknown[], Result>(
       }
       accessOrder.push(key)
 
-      debugLogSimple(`[memoize:${name}] hit`, { key, hits: cached.hits })
+      debugLog(`[memoize:${name}] hit`, { key, hits: cached.hits })
       return cached.value
     }
 
     // Cache miss - compute value
-    debugLogSimple(`[memoize:${name}] miss`, { key })
+    debugLog(`[memoize:${name}] miss`, { key })
     const value = fn(...args)
 
     // Store in cache
@@ -116,7 +116,7 @@ export function memoize<Args extends unknown[], Result>(
     })
     accessOrder.push(key)
 
-    debugLogSimple(`[memoize:${name}] set`, { key, cacheSize: cache.size })
+    debugLog(`[memoize:${name}] set`, { key, cacheSize: cache.size })
     return value
   }
 }
@@ -159,7 +159,7 @@ export function memoizeAsync<Args extends unknown[], Result>(
       const oldest = accessOrder.shift()
       if (oldest) {
         cache.delete(oldest)
-        debugLogSimple(`[memoizeAsync:${name}] clear`, {
+        debugLog(`[memoizeAsync:${name}] clear`, {
           key: oldest,
           reason: 'LRU',
         })
@@ -188,12 +188,12 @@ export function memoizeAsync<Args extends unknown[], Result>(
       }
       accessOrder.push(key)
 
-      debugLogSimple(`[memoizeAsync:${name}] hit`, { key, hits: cached.hits })
+      debugLog(`[memoizeAsync:${name}] hit`, { key, hits: cached.hits })
       return await cached.value
     }
 
     // Cache miss - compute value
-    debugLogSimple(`[memoizeAsync:${name}] miss`, { key })
+    debugLog(`[memoizeAsync:${name}] miss`, { key })
     const promise = fn(...args)
 
     // Store promise in cache (handles concurrent calls)
@@ -205,7 +205,7 @@ export function memoizeAsync<Args extends unknown[], Result>(
     })
     accessOrder.push(key)
 
-    debugLogSimple(`[memoizeAsync:${name}] set`, { key, cacheSize: cache.size })
+    debugLog(`[memoizeAsync:${name}] set`, { key, cacheSize: cache.size })
 
     try {
       const result = await promise
@@ -217,7 +217,7 @@ export function memoizeAsync<Args extends unknown[], Result>(
       if (orderIndex !== -1) {
         accessOrder.splice(orderIndex, 1)
       }
-      debugLogSimple(`[memoizeAsync:${name}] clear`, { key, reason: 'error' })
+      debugLog(`[memoizeAsync:${name}] clear`, { key, reason: 'error' })
       throw e
     }
   }
@@ -267,7 +267,7 @@ export function Memoize(options: MemoizeOptions<unknown[], unknown> = {}) {
 export function clearAllMemoizationCaches(): void {
   // Note: This requires the memoized functions to be tracked globally.
   // For now, this is a placeholder that logs the intent.
-  debugLogSimple('[memoize:all] clear', { action: 'clear-all-caches' })
+  debugLog('[memoize:all] clear', { action: 'clear-all-caches' })
 }
 
 /**
@@ -297,11 +297,11 @@ export function memoizeWeak<K extends object, Result>(
   return function memoized(key: K): Result {
     const cached = cache.get(key)
     if (cached !== undefined) {
-      debugLogSimple(`[memoizeWeak:${fn.name}] hit`)
+      debugLog(`[memoizeWeak:${fn.name}] hit`)
       return cached
     }
 
-    debugLogSimple(`[memoizeWeak:${fn.name}] miss`)
+    debugLog(`[memoizeWeak:${fn.name}] miss`)
     const result = fn(key)
     cache.set(key, result)
     return result
@@ -334,9 +334,9 @@ export function once<Result>(fn: () => Result): () => Result {
     if (!called) {
       result = fn()
       called = true
-      debugLogSimple(`[once:${fn.name}] set`)
+      debugLog(`[once:${fn.name}] set`)
     } else {
-      debugLogSimple(`[once:${fn.name}] hit`)
+      debugLog(`[once:${fn.name}] hit`)
     }
     return result
   }

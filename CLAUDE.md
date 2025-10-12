@@ -46,6 +46,17 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 - **Usage**: `import { trash } from './scripts/utils/fs.mjs'` then `await trash(paths)`
 - **FORBIDDEN**: Direct `trash` package, `fs.rm()`, `fs.rmSync()`, `rm -rf`
 
+### Work Safeguards (CRITICAL - PREVENTS DATA LOSS)
+- **MANDATORY BEFORE ANY BULK CHANGES**:
+  1. Commit work in progress first (`git add . && git commit -m "WIP before changes"`)
+  2. Create backup branch (`git checkout -b backup-before-<change>`)
+  3. Switch back to working branch (`git checkout <original-branch>`)
+  4. Then attempt changes
+- **FORBIDDEN**: Automated fix scripts (sed, awk, regex bulk replacements)
+- **FORBIDDEN**: Running any script that modifies multiple files without backup
+- **WHY**: Prevents irreversible corruption, enables easy recovery
+- **RECOVERY**: If something goes wrong: `git checkout backup-before-<change> .`
+
 ### Git Workflow
 - **Pre-commit**: `pnpm run fix && pnpm run check`
 - **--no-verify**: Safe for scripts/workflows/tests/docs; always run hooks for lib/packages

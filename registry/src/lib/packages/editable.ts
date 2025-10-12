@@ -38,18 +38,85 @@ interface EditablePackageJsonConstructor {
   prepare(path: string, opts?: unknown): Promise<EditablePackageJsonInstance>
 }
 
-interface EditablePackageJsonInstance {
+/**
+ * EditablePackageJson instance interface extending NPMCliPackageJson functionality.
+ * Provides enhanced package.json manipulation with Socket-specific features.
+ * @extends NPMCliPackageJson (from @npmcli/package-json)
+ */
+export interface EditablePackageJsonInstance {
+  /**
+   * The parsed package.json content as a readonly object.
+   * @readonly
+   */
   content: Readonly<PackageJson>
+
+  /**
+   * Create a new package.json file at the specified path.
+   * @param path - The directory path where package.json will be created
+   */
   create(path: string): this
+
+  /**
+   * Apply automatic fixes to the package.json based on npm standards.
+   * @param opts - Optional fix configuration
+   */
   fix(opts?: unknown | undefined): Promise<this>
+
+  /**
+   * Initialize the instance from a content object.
+   * @param content - The package.json content object
+   */
   fromContent(content: any): this
+
+  /**
+   * Initialize the instance from a JSON string.
+   * @param json - The package.json content as a JSON string
+   */
   fromJSON(json: string): this
+
+  /**
+   * Load a package.json file from the specified path.
+   * @param path - The directory containing the package.json
+   * @param create - Whether to create the file if it doesn't exist
+   */
   load(path: string, create?: boolean): Promise<this>
+
+  /**
+   * Normalize the package.json content according to npm standards.
+   * @param opts - Normalization options
+   */
   normalize(opts?: NormalizeOptions): Promise<this>
+
+  /**
+   * Prepare the package.json for publishing.
+   * @param opts - Preparation options
+   */
   prepare(opts?: unknown): Promise<this>
+
+  /**
+   * Update the package.json content with new values.
+   * @param content - Partial package.json object with fields to update
+   * @override from NPMCliPackageJson
+   */
   update(content: Partial<PackageJson>): this
+
+  /**
+   * Save the package.json file to disk.
+   * @param options - Save options for formatting and sorting
+   * @override from NPMCliPackageJson
+   */
   save(options?: SaveOptions | undefined): Promise<boolean>
+
+  /**
+   * Synchronously save the package.json file to disk.
+   * @param options - Save options for formatting and sorting
+   */
   saveSync(options?: SaveOptions | undefined): boolean
+
+  /**
+   * Check if the package.json will be saved based on current changes.
+   * @param options - Save options to evaluate
+   */
   willSave(options?: SaveOptions | undefined): boolean
 }
 

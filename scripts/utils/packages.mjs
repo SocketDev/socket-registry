@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { hasOwn } from '../../registry/dist/lib/lang/objects.js'
+import { hasOwn } from '../../registry/dist/lib/objects.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 

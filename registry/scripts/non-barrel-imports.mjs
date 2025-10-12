@@ -159,10 +159,10 @@ export const nonBarrelImports = {
 export async function analyzePackageUsage(packageName, sourceDir) {
   const fs = await import('node:fs').then(m => m.promises)
   const path = await import('node:path')
-  const { globby } = await import('globby')
+  const fastGlob = await import('fast-glob')
 
   // Find all JS/TS files in the source directory.
-  const files = await globby(['**/*.{js,mjs,cjs,ts,mts,cts}'], {
+  const files = await fastGlob.glob(['**/*.{js,mjs,cjs,ts,mts,cts}'], {
     cwd: sourceDir,
     ignore: ['**/node_modules/**', '**/dist/**', '**/test/**'],
   })
@@ -192,6 +192,7 @@ export async function analyzePackageUsage(packageName, sourceDir) {
   ]
 
   for (const file of files) {
+    // eslint-disable-next-line no-await-in-loop
     const content = await fs.readFile(path.join(sourceDir, file), 'utf8')
 
     for (const pattern of importPatterns) {
@@ -214,14 +215,15 @@ export async function analyzePackageUsage(packageName, sourceDir) {
 /**
  * Generate a custom entry file using non-barrel imports.
  */
-export async function createNonBarrelEntry(packageName, tempDir) {
+export async function createNonBarrelEntry(packageName, _tempDir) {
   const fs = await import('node:fs').then(m => m.promises)
   const path = await import('node:path')
   const { createRequire } = await import('node:module')
 
   const config = nonBarrelImports[packageName]
   if (!config?.customEntry) {
-    return null // Use default entry.
+    // Use default entry.
+    return null
   }
 
   // Create temp entry file in project root where node_modules is accessible.
@@ -246,7 +248,7 @@ export async function createNonBarrelEntry(packageName, tempDir) {
     try {
       req.resolve('semver/functions/parse')
       // Paths are valid, use the original entry.
-    } catch (e) {
+    } catch {
       // Paths don't resolve, fall back to regular import.
       console.log(
         `  Note: Non-barrel imports not available for ${packageName}, using default entry`,

@@ -341,7 +341,8 @@ export async function createCherryPickEntry(packageName, tempDir) {
 
   const config = cherryPickEntries[packageName]
   if (!config?.customEntry) {
-    return null // Use default entry.
+    // Use default entry.
+    return null
   }
 
   // Create temp entry file.

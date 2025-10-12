@@ -3,6 +3,10 @@
  * Provides enhanced console methods with formatted output capabilities.
  */
 
+import {
+  objectAssign as ObjectAssign,
+  objectFreeze as ObjectFreeze,
+} from './objects'
 import { applyLinePrefix, isBlankString } from './strings'
 
 // Type definitions
@@ -32,12 +36,6 @@ const globalConsole = console
 // tsgo has a bug that incorrectly transpiles destructured exports, resulting in
 // `exports.SomeName = void 0;` which causes runtime errors.
 // See: https://github.com/SocketDev/socket-packageurl-js/issues/3
-const ObjectAssign = Object.assign
-const ObjectFreeze = Object.freeze
-// IMPORTANT: Do not use destructuring here - use direct assignment instead.
-// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
-// `exports.SomeName = void 0;` which causes runtime errors.
-// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
 const ReflectApply = Reflect.apply
 const ReflectConstruct = Reflect.construct
 
@@ -57,17 +55,17 @@ function constructConsole(...args: unknown[]) {
   return ReflectConstruct(_Console!, args)
 }
 
-let _yoctocolors: typeof import('yoctocolors-cjs') | undefined
+// Import modules statically to avoid ESM issues.
+import yoctocolorsCjs from '../external/yoctocolors-cjs'
+import isUnicodeSupported from '../external/@socketregistry/is-unicode-supported'
+
 /**
  * Get the yoctocolors module for terminal colors.
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
 function getYoctocolors() {
-  if (_yoctocolors === undefined) {
-    _yoctocolors = require('../external/yoctocolors-cjs')
-  }
-  return _yoctocolors!
+  return yoctocolorsCjs
 }
 
 export const LOG_SYMBOLS = /*@__PURE__*/ (() => {
@@ -79,8 +77,7 @@ export const LOG_SYMBOLS = /*@__PURE__*/ (() => {
     __proto__: null,
   } as unknown as ProxyHandler<Record<string, string>>
   const init = () => {
-    const supported =
-      /*@__PURE__*/ require('../external/@socketregistry/is-unicode-supported')()
+    const supported = isUnicodeSupported()
     const colors = getYoctocolors()
     ObjectAssign(target, {
       fail: colors.red(supported ? '✖' : '×'),
@@ -433,9 +430,39 @@ export class Logger {
   }
 
   /**
+   * Log a main step with blank line before (stateless).
+   */
+  step(msg: string, ...extras: unknown[]): this {
+    // Add blank line before the step message.
+    if (!this.#lastWasBlank) {
+      // Use this.log() to properly track the blank line.
+      this.log('')
+    }
+    // Let log() handle all tracking.
+    return this.log(msg, ...extras)
+  }
+
+  /**
+   * Log an indented substep (stateless).
+   */
+  substep(msg: string, ...extras: unknown[]): this {
+    // Add 2-space indent to the message.
+    const indentedMsg = `  ${msg}`
+    // Let log() handle all tracking.
+    return this.log(indentedMsg, ...extras)
+  }
+
+  /**
    * Log a success message with symbol.
    */
   success(...args: unknown[]): this {
+    return this.#symbolApply('success', args)
+  }
+
+  /**
+   * Log a done message (alias for success).
+   */
+  done(...args: unknown[]): this {
     return this.#symbolApply('success', args)
   }
 

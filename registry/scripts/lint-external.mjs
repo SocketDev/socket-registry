@@ -6,12 +6,12 @@
  *   node scripts/lint-external.mjs
  */
 
-import { logger } from '../dist/lib/logger.js'
+import { logger } from './utils/helpers.mjs'
 import { runCommand } from '../../scripts/utils/run-command.mjs'
 
 async function main() {
   try {
-    logger.log('Linting external dependencies...')
+    logger.info('Linting external dependencies...')
 
     const exitCode = await runCommand(
       'oxlint',

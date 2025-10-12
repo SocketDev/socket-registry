@@ -3,7 +3,7 @@
  * Provides utilities for determining which tests to run based on changes.
  */
 
-import { parseArgs } from '../../registry/dist/lib/cli/argv.js'
+import { parseArgs } from '../../registry/dist/lib/argv/parse.js'
 
 let _cliArgs
 

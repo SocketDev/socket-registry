@@ -37,7 +37,7 @@ const nodeGlobalsConfig = Object.fromEntries(
 
 // Import Biome config to synchronize ignore patterns between formatters.
 // This reduces configuration duplication and ensures consistent file filtering.
-const biomeConfigPath = path.join(rootPath, '.config', 'biome.json')
+const biomeConfigPath = path.join(rootPath, 'biome.json')
 const biomeConfig = require(biomeConfigPath)
 const biomeIgnores = {
   name: 'Imported biome.json ignore patterns',

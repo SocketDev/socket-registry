@@ -26,25 +26,15 @@
  * - https://cheatsheetseries.owasp.org/cheatsheets/Nodejs_Security_Cheat_Sheet.html
  */
 
+import { isArray } from './arrays'
 import abortSignal from './constants/abort-signal'
 import spinner from './constants/spinner'
 import { getPromiseSpawn } from './dependencies/system'
-import { getOwn } from './objects'
+import { getOwn, hasOwn } from './objects'
 import { stripAnsi } from './strings'
 
 // Define BufferEncoding type for TypeScript compatibility.
 type BufferEncoding = globalThis.BufferEncoding
-
-// IMPORTANT: Do not use destructuring here - use direct assignment instead.
-// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
-// `exports.SomeName = void 0;` which causes runtime errors.
-// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
-const ArrayIsArray = Array.isArray
-// IMPORTANT: Do not use destructuring here - use direct assignment instead.
-// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
-// `exports.SomeName = void 0;` which causes runtime errors.
-// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
-const ObjectHasOwn = Object.hasOwn
 
 const windowsScriptExtRegExp = /\.(?:cmd|bat|ps1)$/i
 
@@ -172,9 +162,9 @@ export function isSpawnError(value: unknown): value is SpawnError {
   // Check for spawn-specific error properties.
   const err = value as any
   return (
-    (ObjectHasOwn(err, 'code') && typeof err.code !== 'undefined') ||
-    (ObjectHasOwn(err, 'errno') && typeof err.errno !== 'undefined') ||
-    (ObjectHasOwn(err, 'syscall') && typeof err.syscall === 'string')
+    (hasOwn(err, 'code') && typeof err.code !== 'undefined') ||
+    (hasOwn(err, 'errno') && typeof err.errno !== 'undefined') ||
+    (hasOwn(err, 'syscall') && typeof err.syscall === 'string')
   )
 }
 
@@ -195,7 +185,7 @@ export function isStdioType(
   return (
     stdio === type ||
     ((stdio === null || stdio === undefined) && type === 'pipe') ||
-    (ArrayIsArray(stdio) &&
+    (isArray(stdio) &&
       stdio.length > 2 &&
       stdio[0] === type &&
       stdio[1] === type &&

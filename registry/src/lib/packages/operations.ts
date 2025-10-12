@@ -373,3 +373,6 @@ export function resolveRegistryPackageName(pkgName: string): string {
     ? `${purlObj.namespace.slice(1)}${REGISTRY_SCOPE_DELIMITER}${purlObj.name}`
     : pkgName
 }
+
+// Re-export types from lib/packages.
+export type { PackageJson } from '../packages'

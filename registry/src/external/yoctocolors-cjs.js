@@ -1,3 +1,5 @@
 'use strict'
 
-module.exports = require('yoctocolors-cjs')
+const colors = require('yoctocolors-cjs')
+module.exports = colors
+module.exports.default = colors

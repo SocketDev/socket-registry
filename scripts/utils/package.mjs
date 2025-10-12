@@ -10,8 +10,8 @@ import path from 'node:path'
 
 import constants from '../constants.mjs'
 import WIN32 from '../../registry/dist/lib/constants/WIN32.js'
-import { readPackageJson } from '../../registry/dist/lib/packages/index.js'
-import { pEach } from '../../registry/dist/lib/promises/collection.js'
+import { readPackageJson } from '../../registry/dist/lib/packages/operations.js'
+import { pEach } from '../../registry/dist/lib/promises.js'
 import { spawn } from './spawn.mjs'
 import { cleanTestScript } from '../../test/utils/script-cleaning.mjs'
 import { testRunners } from '../../test/utils/test-runners.mjs'
@@ -158,9 +158,7 @@ async function processWithSpinner(items, processor, options = {}) {
   }
 
   if (spinner && startMessage) {
-    const { withSpinner } = await import(
-      '../../registry/dist/lib/cli/spinner.js'
-    )
+    const { withSpinner } = await import('../../registry/dist/lib/spinner.js')
     await withSpinner({
       message: startMessage,
       operation: processItems,

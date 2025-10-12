@@ -7,6 +7,13 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import {
+  printError,
+  printFooter,
+  printHeader,
+  printSuccess,
+} from '../../scripts/utils/cli-helpers.mjs'
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const distConstantsDir = path.resolve(
   __dirname,
@@ -17,7 +24,7 @@ const distConstantsDir = path.resolve(
 )
 
 async function fixConstantExports() {
-  console.log('Fixing CommonJS exports for constants...')
+  printHeader('Fixing CommonJS Exports')
 
   try {
     const files = await fs.readdir(distConstantsDir)
@@ -28,6 +35,7 @@ async function fixConstantExports() {
       }
 
       const filePath = path.join(distConstantsDir, file)
+      // eslint-disable-next-line no-await-in-loop
       let content = await fs.readFile(filePath, 'utf8')
 
       // Check if this is a single default export.
@@ -41,19 +49,21 @@ async function fixConstantExports() {
           '',
         )
 
+        // eslint-disable-next-line no-await-in-loop
         await fs.writeFile(filePath, content)
-        console.log(`  Fixed ${file}`)
+        console.log(`    Fixed ${file}`)
       }
     }
 
-    console.log('✓ CommonJS exports fixed')
+    printSuccess('CommonJS exports fixed')
+    printFooter()
   } catch (error) {
-    console.error('Failed to fix CommonJS exports:', error)
+    printError(`Failed to fix CommonJS exports: ${error.message}`)
     process.exitCode = 1
   }
 }
 
 fixConstantExports().catch(error => {
-  console.error('Build failed:', error)
+  printError(`Build failed: ${error.message || error}`)
   process.exitCode = 1
 })

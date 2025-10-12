@@ -65,11 +65,14 @@ export function getUnstagedFilesSync(cwd = process.cwd()) {
 export function getChangedFilesSync(cwd = process.cwd()) {
   try {
     const stdout = execSync('git status --porcelain', { cwd, encoding: 'utf8' })
-    return stdout
-      .trim()
-      .split('\n')
-      .filter(Boolean)
-      .map(line => line.slice(3)) // Remove status prefix
+    return (
+      stdout
+        .trim()
+        .split('\n')
+        .filter(Boolean)
+        // Remove status prefix.
+        .map(line => line.slice(3))
+    )
   } catch {
     return []
   }

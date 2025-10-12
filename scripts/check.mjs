@@ -8,12 +8,17 @@
  *   node scripts/check.mjs
  */
 
-import { logger } from '../registry/dist/lib/logger.js'
+import {
+  printError,
+  printFooter,
+  printHeader,
+  printSuccess,
+} from './utils/cli-helpers.mjs'
 import { runParallel } from './utils/run-command.mjs'
 
 async function main() {
   try {
-    logger.log('Running checks...')
+    printHeader('Running Checks')
 
     const checks = [
       {
@@ -37,13 +42,14 @@ async function main() {
     const failed = exitCodes.some(code => code !== 0)
 
     if (failed) {
-      logger.error('Some checks failed')
+      printError('Some checks failed')
       process.exitCode = 1
     } else {
-      logger.log('All checks passed')
+      printSuccess('All checks passed')
+      printFooter()
     }
   } catch (error) {
-    logger.error('Check failed:', error.message)
+    printError(`Check failed: ${error.message}`)
     process.exitCode = 1
   }
 }

@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "allowImportingTsExtensions": false,
-    "allowJs": true,
+    "allowJs": false,
     "declaration": false,
     "declarationMap": false,
     "esModuleInterop": false,
@@ -34,6 +34,6 @@
       "pacote": ["./src/external/pacote"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/external/*.d.ts"],
-  "exclude": ["node_modules", "dist", "lib", "test"]
+  "include": ["src/**/*.ts", "src/**/*.d.ts"],
+  "exclude": ["node_modules", "dist/**/*", "lib", "test", "src/**/*.js"]
 }

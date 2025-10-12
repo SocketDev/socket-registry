@@ -12,7 +12,7 @@ import type { GetTypeCoverageOptions, TypeCoverageResult } from './types'
  * @throws {Error} When type-coverage command fails (if generateIfMissing is false).
  */
 export async function getTypeCoverage(
-  options?: GetTypeCoverageOptions | undefined
+  options?: GetTypeCoverageOptions | undefined,
 ): Promise<TypeCoverageResult | null> {
   const opts = {
     __proto__: null,

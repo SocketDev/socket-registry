@@ -2,10 +2,9 @@
  * @fileoverview Package exports field utilities.
  */
 
+import { isArray } from '../arrays'
 import LOOP_SENTINEL from '../constants/LOOP_SENTINEL'
 import { isObject, isObjectObject } from '../objects'
-
-const ArrayIsArray = Array.isArray
 
 /**
  * Find types definition for a specific subpath in package exports.
@@ -21,7 +20,7 @@ export function findTypesForSubpath(entryExports: any, subpath: string): any {
       )
     }
     const value = queue[pos++]
-    if (ArrayIsArray(value)) {
+    if (isArray(value)) {
       for (let i = 0, { length } = value; i < length; i += 1) {
         const item = value[i]
         if (item === subpath) {
@@ -89,7 +88,7 @@ export function getExportFilePaths(entryExports: any): string[] {
         const subValue = value[subKey]
         if (typeof subValue === 'string') {
           paths.push(subValue)
-        } else if (Array.isArray(subValue)) {
+        } else if (isArray(subValue)) {
           // Array of conditions.
           for (const item of subValue) {
             if (typeof item === 'string') {
@@ -166,7 +165,7 @@ export function isSubpathExports(entryExports: any): boolean {
 export function resolvePackageJsonEntryExports(entryExports: any): any {
   // If conditional exports main sugar
   // https://nodejs.org/api/packages.html#exports-sugar
-  if (typeof entryExports === 'string' || ArrayIsArray(entryExports)) {
+  if (typeof entryExports === 'string' || isArray(entryExports)) {
     return { '.': entryExports }
   }
   if (isConditionalExports(entryExports)) {

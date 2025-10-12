@@ -170,7 +170,7 @@ async function runClaude(claudeCmd, prompt, options = {}) {
   try {
     if (opts.interactive !== false) {
       // Interactive mode - spawn with inherited stdio and pipe prompt
-      result = await new Promise((resolve, reject) => {
+      result = await new Promise((resolve, _reject) => {
         const child = spawn(claudeCmd, args, {
           stdio: ['pipe', 'inherit', 'inherit'],
           cwd: opts.cwd || rootPath,
@@ -225,7 +225,8 @@ async function runClaude(claudeCmd, prompt, options = {}) {
               `Claude processing... (${Math.round(elapsed / 1000)}s)`,
             )
           }
-        }, 10000) // Update every 10 seconds
+          // Update every 10 seconds.
+        }, 10000)
       }
 
       // Run command with timeout
@@ -346,7 +347,8 @@ async function ensureClaudeAuthenticated(claudeCmd) {
         log.progress(
           `Testing authentication... (${Math.round(elapsed / 1000)}s/15s)`,
         )
-      }, 3000) // Update every 3 seconds
+        // Update every 3 seconds.
+      }, 3000)
 
       const testResult = await runCommandWithOutput(claudeCmd, ['--print'], {
         input: testPrompt,
@@ -730,7 +732,7 @@ Provide:
 - Concrete fix examples
 - Performance impact estimates`,
 
-  fix: context => `Role: Security Engineer
+  fix: context => `Role: Principal Security Engineer
 Focus: Socket.dev supply chain security
 
 Scan Context:
@@ -749,7 +751,7 @@ Auto-fix Capabilities:
 - Implement retry logic
 - Add input validation`,
 
-  green: context => `Role: DevOps Engineer
+  green: context => `Role: Principal DevOps Engineer
 Mission: Achieve green CI build
 
 Current Issues:
@@ -759,7 +761,7 @@ Available Actions:
 1. Update test snapshots
 2. Fix lint issues
 3. Resolve type errors
-4. Install missing dependencies
+4. Install missing pinned dependencies
 5. Update configurations
 
 Constraints:
@@ -767,7 +769,7 @@ Constraints:
 - Do NOT delete tests
 - DO fix root causes`,
 
-  test: context => `Role: Test Engineer
+  test: context => `Role: Principal Test Engineer
 Framework: ${context.testFramework || 'Vitest'}
 
 Generate comprehensive tests for:
@@ -780,7 +782,7 @@ Requirements:
 - Test async operations
 - Mock external dependencies`,
 
-  refactor: context => `Role: Software Architect
+  refactor: context => `Role: Principal Software Architect
 Focus: Code quality and maintainability
 
 Files to refactor:
@@ -2690,7 +2692,7 @@ Your task:
 IMPORTANT:
 - Be direct and specific - don't ask questions
 - Provide complete solutions that will fix the error
-- If the error is about missing dependencies, install them
+- If the error is about missing dependencies, install pinned versions
 - If it's a type error, fix the code
 - If it's a lint error, fix the formatting
 - If tests are failing, update snapshots or fix the test
@@ -3087,7 +3089,7 @@ Focus on:
 - Test failures: Update snapshots, fix test logic, or correct test data
 - Lint errors: Fix code style and formatting issues
 - Type checking: Fix type errors and missing type annotations
-- Build problems: Fix import errors, missing dependencies, or syntax issues
+- Build problems: Fix import errors, missing pinned dependencies, or syntax issues
 
 IMPORTANT:
 - Be direct and apply fixes immediately
@@ -3100,9 +3102,10 @@ Fix all CI failures now by making the necessary changes.`
           // Run Claude non-interactively to apply fixes
           log.substep('Applying CI fixes...')
 
-          // Track progress with timeout
+          // Track progress with timeout.
           const fixStartTime = Date.now()
-          const fixTimeout = 180000 // 3 minutes timeout
+          // 3 minutes timeout.
+          const fixTimeout = 180000
 
           // Create progress indicator
           const progressInterval = setInterval(() => {
@@ -3115,7 +3118,8 @@ Fix all CI failures now by making the necessary changes.`
                 `Claude analyzing and fixing... (${Math.round(elapsed / 1000)}s)`,
               )
             }
-          }, 10000) // Update every 10 seconds
+            // Update every 10 seconds.
+          }, 10000)
 
           try {
             // Use runClaude with non-interactive mode for proper handling
