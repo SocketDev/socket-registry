@@ -3,10 +3,10 @@
  * Provides enhanced console methods with formatted output capabilities.
  */
 
-import {
-  objectAssign as ObjectAssign,
-  objectFreeze as ObjectFreeze,
-} from './objects'
+import isUnicodeSupported from '../external/@socketregistry/is-unicode-supported'
+import yoctocolorsCjs from '../external/yoctocolors-cjs'
+
+import { objectAssign, objectFreeze } from './objects'
 import { applyLinePrefix, isBlankString } from './strings'
 
 // Type definitions
@@ -55,10 +55,6 @@ function constructConsole(...args: unknown[]) {
   return ReflectConstruct(_Console!, args)
 }
 
-// Import modules statically to avoid ESM issues.
-import isUnicodeSupported from '../external/@socketregistry/is-unicode-supported'
-import yoctocolorsCjs from '../external/yoctocolors-cjs'
-
 /**
  * Get the yoctocolors module for terminal colors.
  * @private
@@ -79,13 +75,13 @@ export const LOG_SYMBOLS = /*@__PURE__*/ (() => {
   const init = () => {
     const supported = isUnicodeSupported()
     const colors = getYoctocolors()
-    ObjectAssign(target, {
+    objectAssign(target, {
       fail: colors.red(supported ? '✖' : '×'),
       info: colors['blue'](supported ? 'ℹ' : 'i'),
       success: colors['green'](supported ? '✔' : '√'),
       warn: colors['yellow'](supported ? '⚠' : '‼'),
     })
-    ObjectFreeze(target)
+    objectFreeze(target)
     // The handler of a Proxy is mutable after proxy instantiation.
     // We delete the traps to defer to native behavior.
     for (const trapName in handler) {
