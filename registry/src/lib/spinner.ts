@@ -5,16 +5,11 @@
 
 import ENV from './constants/ENV'
 import abortSignal from './constants/abort-signal'
+import { hasOwn } from './objects'
 import { isBlankString } from './strings'
 import yoctoSpinner from '../external/@socketregistry/yocto-spinner'
 
 import type { Writable } from 'node:stream'
-
-// IMPORTANT: Do not use destructuring here - use direct assignment instead.
-// tsgo has a bug that incorrectly transpiles destructured exports, resulting in
-// `exports.SomeName = void 0;` which causes runtime errors.
-// See: https://github.com/SocketDev/socket-packageurl-js/issues/3
-const ObjectHasOwn = Object.hasOwn
 
 export type Color =
   | 'black'
@@ -35,9 +30,7 @@ export type ProgressInfo = {
 
 export type Spinner = {
   color: Color
-  text: string
   spinner: SpinnerStyle
-  progress?: ProgressInfo | undefined
 
   get isSpinning(): boolean
 
@@ -49,11 +42,11 @@ export type Spinner = {
   fail(text?: string | undefined, ...extras: unknown[]): Spinner
   failAndStop(text?: string | undefined, ...extras: unknown[]): Spinner
 
-  getText(): string
-  setText(text?: string | undefined): Spinner
+  text(): string
+  text(value: string): Spinner
+
   indent(spaces?: number | undefined): Spinner
   dedent(spaces?: number | undefined): Spinner
-  resetIndent(): Spinner
 
   info(text?: string | undefined, ...extras: unknown[]): Spinner
   infoAndStop(text?: string | undefined, ...extras: unknown[]): Spinner
@@ -73,12 +66,8 @@ export type Spinner = {
   done(text?: string | undefined, ...extras: unknown[]): Spinner
   doneAndStop(text?: string | undefined, ...extras: unknown[]): Spinner
 
-  updateProgress(
-    current: number,
-    total: number,
-    unit?: string | undefined,
-  ): Spinner
-  incrementProgress(): Spinner
+  progress(current: number, total: number, unit?: string | undefined): Spinner
+  progressStep(amount?: number): Spinner
 
   warn(text?: string | undefined, ...extras: unknown[]): Spinner
   warnAndStop(text?: string | undefined, ...extras: unknown[]): Spinner
@@ -146,9 +135,7 @@ export function getCliSpinners(
     _cliSpinners = YoctoCtor.spinners
   }
   if (typeof styleName === 'string' && _cliSpinners) {
-    return ObjectHasOwn(_cliSpinners, styleName)
-      ? _cliSpinners[styleName]
-      : undefined
+    return hasOwn(_cliSpinners, styleName) ? _cliSpinners[styleName] : undefined
   }
   return _cliSpinners
 }
@@ -169,9 +156,9 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
     /*@__PURE__*/
     _Spinner = class SpinnerClass extends (YoctoCtor as any) {
       declare isSpinning: boolean
-      declare text: string
-      progress?: ProgressInfo | undefined
+      #progress?: ProgressInfo | undefined
       #baseText: string = ''
+      #indentation: string = ''
 
       constructor(options?: SpinnerOptions | undefined) {
         // eslint-disable-next-line constructor-super
@@ -247,8 +234,39 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
         return this.#apply('error', args)
       }
 
-      getText() {
-        return this.text
+      text(value?: string) {
+        if (arguments.length === 0) {
+          // Return base text without indentation.
+          return this.#baseText
+        }
+        this.#baseText = normalizeText(value)
+        this.#updateSpinnerText()
+        return this
+      }
+
+      indent(spaces?: number) {
+        // Pass 0 to reset indentation
+        if (spaces === 0) {
+          this.#indentation = ''
+        } else {
+          const amount = spaces ?? 2
+          this.#indentation += ' '.repeat(amount)
+        }
+        this.#updateSpinnerText()
+        return this
+      }
+
+      dedent(spaces?: number) {
+        // Pass 0 to reset indentation
+        if (spaces === 0) {
+          this.#indentation = ''
+        } else {
+          const amount = spaces ?? 2
+          const newLength = Math.max(0, this.#indentation.length - amount)
+          this.#indentation = this.#indentation.slice(0, newLength)
+        }
+        this.#updateSpinnerText()
+        return this
       }
 
       info(...args: unknown[]) {
@@ -267,13 +285,6 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
         return this.#apply('stop', args)
       }
 
-      setText(value: unknown) {
-        this.#baseText = normalizeText(value)
-        this.text = this.#baseText
-        this.#updateSpinnerText()
-        return this
-      }
-
       start(...args: unknown[]) {
         if (args.length) {
           const text = args.at(0)
@@ -282,7 +293,7 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
           // will not clear it otherwise.
           if (!normalized) {
             this.#baseText = ''
-            this.setText('')
+            super.text = ''
           } else {
             this.#baseText = normalized
           }
@@ -321,8 +332,8 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
       stop(...args: unknown[]) {
         // We clear this.text on stop because yocto-spinner will not clear it.
         this.#baseText = ''
-        this.progress = undefined
-        this.setText('')
+        this.#progress = undefined
+        super.text = ''
         return this.#apply('stop', args)
       }
 
@@ -352,20 +363,30 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
       }
 
       #updateSpinnerText() {
-        if (this.progress) {
-          const progressText = formatProgress(this.progress)
-          this.text = this.#baseText
-            ? `${this.#baseText} ${progressText}`
+        let displayText = this.#baseText
+
+        if (this.#progress) {
+          const progressText = formatProgress(this.#progress)
+          displayText = displayText
+            ? `${displayText} ${progressText}`
             : progressText
         }
+
+        // Apply indentation
+        if (this.#indentation && displayText) {
+          displayText = this.#indentation + displayText
+        }
+
+        // Call the parent class's text setter
+        super.text = displayText
       }
 
-      updateProgress(
+      progress = (
         current: number,
         total: number,
         unit?: string | undefined,
-      ) {
-        this.progress = {
+      ) => {
+        this.#progress = {
           __proto__: null,
           current,
           total,
@@ -375,13 +396,14 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
         return this
       }
 
-      incrementProgress() {
-        if (this.progress) {
-          this.progress = {
+      progressStep(amount: number = 1) {
+        if (this.#progress) {
+          const newCurrent = this.#progress.current + amount
+          this.#progress = {
             __proto__: null,
-            current: this.progress.current + 1,
-            total: this.progress.total,
-            ...(this.progress.unit ? { unit: this.progress.unit } : {}),
+            current: Math.max(0, Math.min(newCurrent, this.#progress.total)),
+            total: this.#progress.total,
+            ...(this.#progress.unit ? { unit: this.#progress.unit } : {}),
           } as ProgressInfo
           this.#updateSpinnerText()
         }
