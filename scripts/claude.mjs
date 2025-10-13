@@ -495,7 +495,7 @@ class ModelStrategy {
     // Honor explicit flags
     if (forceModel === 'the-brain') {
       log.substep('🧠 The Brain activated (user requested)')
-      return 'claude-3-opus-20240229'
+      return 'claude-3-5-sonnet-20241022'
     }
     if (forceModel === 'pinky') {
       return 'claude-3-5-sonnet-20241022'
@@ -507,7 +507,7 @@ class ModelStrategy {
       if (elapsed < this.brainTimeout) {
         const remaining = Math.round((this.brainTimeout - elapsed) / 1000)
         log.substep(`🧠 Brain mode active (${remaining}s remaining)`)
-        return 'claude-3-opus-20240229'
+        return 'claude-3-5-sonnet-20241022'
       }
       this.brainActivatedAt = null
       log.substep('🐭 Reverting to Pinky mode')
@@ -520,13 +520,13 @@ class ModelStrategy {
     if (attempts >= this.escalationThreshold) {
       log.warn(`🧠 Escalating to The Brain after ${attempts} Pinky attempts`)
       this.activateBrain()
-      return 'claude-3-opus-20240229'
+      return 'claude-3-5-sonnet-20241022'
     }
 
     // Check task complexity
     if (this.assessComplexity(task) > 0.8) {
       log.substep('🧠 Complex task detected, using The Brain')
-      return 'claude-3-opus-20240229'
+      return 'claude-3-5-sonnet-20241022'
     }
 
     // Default to efficient Pinky
@@ -3571,7 +3571,7 @@ async function main() {
       console.log('  --seq            Run sequentially (default: parallel)')
       console.log("  --skip-commit    Update files but don't commit")
       console.log(
-        '  --the-brain      Use expensive model (Claude 3 Opus) - "Try to take over the world!"',
+        '  --the-brain      Use Sonnet model - "Try to take over the world!"',
       )
       console.log('  --watch          Continuous monitoring mode')
       console.log('  --workers N      Number of parallel workers (default: 3)')
