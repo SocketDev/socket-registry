@@ -21,7 +21,7 @@ describe('code coverage module', () => {
   })
 
   afterEach(async () => {
-    await del([tempDir])
+    await del([tempDir], { force: true })
     vi.restoreAllMocks()
   })
 
@@ -279,7 +279,7 @@ describe('code coverage module', () => {
 
     it('should throw error when coverage path is empty string', async () => {
       await expect(getCodeCoverage({ coveragePath: '' })).rejects.toThrow(
-        'Coverage path is required.',
+        'Coverage path is required',
       )
     })
 

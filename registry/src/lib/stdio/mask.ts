@@ -76,7 +76,7 @@ export function createKeyboardHandler(): KeyboardHandler {
 
     off(key: string) {
       handlers.delete(key)
-    }
+    },
   }
 }
 
@@ -84,10 +84,12 @@ export function createKeyboardHandler(): KeyboardHandler {
  * Create an output mask controller.
  * Buffers output when masked, passes through when unmasked.
  */
-export function createOutputMask(options: {
-  maxBufferSize?: number
-  onToggle?: (masked: boolean) => void
-} = {}): OutputMask & {
+export function createOutputMask(
+  options: {
+    maxBufferSize?: number
+    onToggle?: (masked: boolean) => void
+  } = {},
+): OutputMask & {
   toggle(): void
   handleData(data: Buffer | string): string | null
   flush(): string[]
@@ -95,7 +97,7 @@ export function createOutputMask(options: {
   const mask: OutputMask = {
     masked: true,
     buffer: [],
-    maxBufferSize: options.maxBufferSize || 1000
+    maxBufferSize: options.maxBufferSize || 1000,
   }
 
   return {
@@ -130,7 +132,7 @@ export function createOutputMask(options: {
       const output = [...mask.buffer]
       mask.buffer = []
       return output
-    }
+    },
   }
 }
 
@@ -144,15 +146,17 @@ export function attachOutputMask(
     masked?: boolean
     maxBufferSize?: number
     onToggle?: (masked: boolean) => void
-  } = {}
+  } = {},
 ): {
   mask: ReturnType<typeof createOutputMask>
   keyboard: KeyboardHandler
   cleanup: () => void
 } {
   const mask = createOutputMask({
-    ...(options.maxBufferSize !== undefined && { maxBufferSize: options.maxBufferSize }),
-    ...(options.onToggle !== undefined && { onToggle: options.onToggle })
+    ...(options.maxBufferSize !== undefined && {
+      maxBufferSize: options.maxBufferSize,
+    }),
+    ...(options.onToggle !== undefined && { onToggle: options.onToggle }),
   })
 
   const keyboard = createKeyboardHandler()

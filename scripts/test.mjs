@@ -72,7 +72,7 @@ async function runCheck() {
   // Run fix (auto-format) quietly since it has its own output
   spinner.start('Formatting code...')
   let exitCode = await runCommand('pnpm', ['run', 'fix'], {
-    stdio: 'pipe'
+    stdio: 'pipe',
   })
   if (exitCode !== 0) {
     spinner.stop()
@@ -87,10 +87,8 @@ async function runCheck() {
 
   // Run lint to check for remaining issues
   spinner.start('Running linter...')
-  exitCode = await runCommand('node', [
-    'scripts/lint.mjs'
-  ], {
-    stdio: 'pipe'
+  exitCode = await runCommand('node', ['scripts/lint.mjs'], {
+    stdio: 'pipe',
   })
   if (exitCode !== 0) {
     spinner.stop()
@@ -105,23 +103,15 @@ async function runCheck() {
 
   // Run TypeScript check
   spinner.start('Checking TypeScript...')
-  exitCode = await runCommand('tsgo', [
-    '--noEmit',
-    '-p',
-    'tsconfig.json'
-  ], {
-    stdio: 'pipe'
+  exitCode = await runCommand('tsgo', ['--noEmit', '-p', 'tsconfig.json'], {
+    stdio: 'pipe',
   })
   if (exitCode !== 0) {
     spinner.stop()
     logger.error('')
     logger.error('TypeScript check failed')
     // Re-run with output to show errors
-    await runCommand('tsgo', [
-      '--noEmit',
-      '-p',
-      'tsconfig.json'
-    ])
+    await runCommand('tsgo', ['--noEmit', '-p', 'tsconfig.json'])
     return exitCode
   }
   spinner.stop()
@@ -179,7 +169,7 @@ async function runTests(options, positionals = []) {
     cwd: constants.rootPath,
     env: spawnEnv,
     shell: WIN32,
-    verbose: false
+    verbose: false,
   }
 
   // Use unified runner for interactive Ctrl+O experience
@@ -192,7 +182,7 @@ async function runTests(options, positionals = []) {
     cwd: constants.rootPath,
     env: spawnEnv,
     shell: WIN32,
-    stdio: 'inherit'
+    stdio: 'inherit',
   })
 }
 
@@ -252,16 +242,22 @@ async function main() {
       console.log('\nUsage: pnpm test [options] [-- vitest-args...]')
       console.log('\nOptions:')
       console.log('  --help              Show this help message')
-      console.log('  --fast, --quick     Skip lint/type checks for faster execution')
+      console.log(
+        '  --fast, --quick     Skip lint/type checks for faster execution',
+      )
       console.log('  --cover, --coverage Run tests with code coverage')
       console.log('  --update            Update test snapshots')
       console.log('  --all, --force      Run all tests regardless of changes')
       console.log('  --staged            Run tests affected by staged changes')
       console.log('  --skip-build        Skip the build step')
       console.log('\nExamples:')
-      console.log('  pnpm test                  # Run checks, build, and tests for changed files')
+      console.log(
+        '  pnpm test                  # Run checks, build, and tests for changed files',
+      )
       console.log('  pnpm test --all            # Run all tests')
-      console.log('  pnpm test --fast           # Skip checks for quick testing')
+      console.log(
+        '  pnpm test --fast           # Skip checks for quick testing',
+      )
       console.log('  pnpm test --cover          # Run with coverage report')
       console.log('  pnpm test --fast --cover   # Quick test with coverage')
       console.log('  pnpm test --update         # Update test snapshots')
@@ -302,7 +298,10 @@ async function main() {
     }
 
     // Run tests
-    exitCode = await runTests({ ...values, coverage: withCoverage }, positionals)
+    exitCode = await runTests(
+      { ...values, coverage: withCoverage },
+      positionals,
+    )
 
     if (exitCode !== 0) {
       logger.error('')

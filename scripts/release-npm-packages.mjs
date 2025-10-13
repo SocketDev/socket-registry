@@ -112,7 +112,6 @@ async function getLocalPackageFileHashes(packagePath) {
           })
 
         if (shouldRecurse) {
-          // eslint-disable-next-line no-await-in-loop
           await walkDir(fullPath, baseDir)
         }
       } else if (entry.isFile() && entry.name !== PACKAGE_JSON) {
@@ -135,7 +134,6 @@ async function getLocalPackageFileHashes(packagePath) {
         })
 
         if (isRootAutoIncluded || matchesPattern) {
-          // eslint-disable-next-line no-await-in-loop
           const content = await readFileUtf8(fullPath)
           const hash = crypto
             .createHash('sha256')
@@ -174,10 +172,9 @@ async function getRemotePackageFileHashes(spec) {
 
           if (entry.isDirectory()) {
             // Recurse into subdirectories.
-            // eslint-disable-next-line no-await-in-loop
+
             await walkDir(fullPath, baseDir)
           } else if (entry.isFile()) {
-            // eslint-disable-next-line no-await-in-loop
             const content = await readFileUtf8(fullPath)
 
             if (entry.name === PACKAGE_JSON) {

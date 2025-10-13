@@ -51,7 +51,6 @@ async function cleanTestCache() {
 
   for (const dir of dirs) {
     try {
-      // eslint-disable-next-line no-await-in-loop
       await fs.rm(dir, { force: true, recursive: true })
       console.log('Removed:', dir)
     } catch (e) {

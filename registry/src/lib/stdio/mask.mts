@@ -65,7 +65,7 @@ export function createOutputMask(options: OutputMaskOptions = {}): OutputMask {
 export function createKeyboardHandler(
   mask: OutputMask,
   child: ChildProcess,
-  options: OutputMaskOptions = {}
+  options: OutputMaskOptions = {},
 ): (_str: string, key: readline.Key) => void {
   const { message = 'Running...', toggleText = 'to see full output' } = options
 
@@ -116,7 +116,7 @@ export function createKeyboardHandler(
  */
 export function attachOutputMask(
   child: ChildProcess,
-  options: OutputMaskOptions = {}
+  options: OutputMaskOptions = {},
 ): Promise<number> {
   return new Promise((resolve, reject) => {
     const { message = 'Running...' } = options
@@ -124,7 +124,9 @@ export function attachOutputMask(
 
     // Start spinner if not verbose
     if (mask.isSpinning && process.stdout.isTTY) {
-      spinner.start(`${message} (Ctrl+O ${options.toggleText || 'to see full output'})`)
+      spinner.start(
+        `${message} (Ctrl+O ${options.toggleText || 'to see full output'})`,
+      )
     }
 
     // Setup keyboard input handling
@@ -217,9 +219,14 @@ export function attachOutputMask(
 export async function runWithMask(
   command: string,
   args: string[] = [],
-  options: OutputMaskOptions & SpawnOptions = {}
+  options: OutputMaskOptions & SpawnOptions = {},
 ): Promise<number> {
-  const { message = 'Running...', showOutput = false, toggleText = 'to see output', ...spawnOptions } = options
+  const {
+    message = 'Running...',
+    showOutput = false,
+    toggleText = 'to see output',
+    ...spawnOptions
+  } = options
 
   const child = spawn(command, args, {
     stdio: ['inherit', 'pipe', 'pipe'],

@@ -290,7 +290,7 @@ async function main() {
       if (args.debug) {
         logger.group(packageName)
       }
-      // eslint-disable-next-line no-await-in-loop
+
       const success = await checkTrustedPackage(packageName, state)
       if (args.debug) {
         logger.groupEnd()

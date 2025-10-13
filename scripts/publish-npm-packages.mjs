@@ -129,7 +129,6 @@ async function findVersionBumpCommits() {
 
     // Get the registry package.json version at this commit.
     try {
-      // eslint-disable-next-line no-await-in-loop
       const pkgJsonResult = await spawn('git', [
         'show',
         `${sha}:registry/package.json`,
@@ -229,7 +228,7 @@ async function publishAtCommit(sha) {
     const localVersion = pkgJson.version
 
     // Fetch the latest version from npm registry.
-    // eslint-disable-next-line no-await-in-loop
+
     const manifest = await fetchPackageManifest(`${pkgJson.name}@${pkg.tag}`)
 
     if (!manifest) {
@@ -361,12 +360,12 @@ async function publishToken(pkg, state, options) {
         logger.log(
           `${pkg.printName}: Retry attempt ${attempt + 1}/${maxRetries} after ${delay}ms`,
         )
-        // eslint-disable-next-line no-await-in-loop
+
         await new Promise(resolve => setTimeout(resolve, delay))
       }
 
       // Use pnpm with token-based authentication and provenance.
-      // eslint-disable-next-line no-await-in-loop
+
       const result = await spawn(
         'pnpm',
         [
@@ -440,12 +439,12 @@ async function publishTrusted(pkg, state, options) {
         logger.log(
           `${pkg.printName}: Retry attempt ${attempt + 1}/${maxRetries} after ${delay}ms`,
         )
-        // eslint-disable-next-line no-await-in-loop
+
         await new Promise(resolve => setTimeout(resolve, delay))
       }
 
       // Use npm for trusted publishing with OIDC tokens.
-      // eslint-disable-next-line no-await-in-loop
+
       const result = await spawn(
         'npm',
         ['publish', '--provenance', '--access', 'public'],
@@ -585,7 +584,6 @@ async function main() {
     logger.log('')
 
     for (const commit of bumpCommits) {
-      // eslint-disable-next-line no-await-in-loop
       await publishAtCommit(commit.sha)
     }
 

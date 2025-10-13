@@ -104,7 +104,6 @@ async function main() {
     for (const task of tasks) {
       logger.log(`  - ${task.name}`)
       if (task.runCommand) {
-        // eslint-disable-next-line no-await-in-loop
         const exitCode = await runCommand(task.command, task.args, {
           stdio: 'inherit',
         })
@@ -112,7 +111,6 @@ async function main() {
           hadError = true
         }
       } else {
-        // eslint-disable-next-line no-await-in-loop
         const exitCode = await runCommand('del-cli', [task.pattern], {
           stdio: 'pipe',
         })

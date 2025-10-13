@@ -118,7 +118,7 @@ function renderProgressBar(percentage: number, width: number = 20): string {
   const empty = width - filled
   const bar = '█'.repeat(filled) + '░'.repeat(empty)
   // Use cyan color for the progress bar
-  const { colors } = /*@__PURE__*/ require('./dependencies.js')
+  const colors = /*@__PURE__*/ require('../external/yoctocolors-cjs')
   return colors.cyan(bar)
 }
 

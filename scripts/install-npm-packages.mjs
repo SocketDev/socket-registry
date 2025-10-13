@@ -315,7 +315,6 @@ async function generatePnpmOverrides(options) {
     const pkgJsonPath = path.join(packagePath, PACKAGE_JSON)
 
     try {
-      // eslint-disable-next-line no-await-in-loop
       const pkgJson = await readPackageJson(pkgJsonPath)
 
       if (pkgJson.name) {
@@ -355,7 +354,7 @@ async function applyNestedSocketOverrides(packagePath) {
     // Handle scoped packages (starting with @).
     if (entry.name.startsWith('@')) {
       const scopePath = path.join(nodeModulesPath, entry.name)
-      // eslint-disable-next-line no-await-in-loop
+
       const scopedEntries = await fs.readdir(scopePath, { withFileTypes: true })
 
       for (const scopedEntry of scopedEntries) {
@@ -365,21 +364,21 @@ async function applyNestedSocketOverrides(packagePath) {
 
         const packageName = `${entry.name}/${scopedEntry.name}`
         const nestedPackagePath = path.join(scopePath, scopedEntry.name)
-        // eslint-disable-next-line no-await-in-loop
+
         await applySocketOverrideIfExists(packageName, nestedPackagePath)
 
         // Recursively apply to nested dependencies.
-        // eslint-disable-next-line no-await-in-loop
+
         await applyNestedSocketOverrides(nestedPackagePath)
       }
     } else {
       // Regular (non-scoped) package.
       const nestedPackagePath = path.join(nodeModulesPath, entry.name)
-      // eslint-disable-next-line no-await-in-loop
+
       await applySocketOverrideIfExists(entry.name, nestedPackagePath)
 
       // Recursively apply to nested dependencies.
-      // eslint-disable-next-line no-await-in-loop
+
       await applyNestedSocketOverrides(nestedPackagePath)
     }
   }
@@ -704,7 +703,6 @@ async function installPackage(packageInfo) {
             attempt += 1
           ) {
             try {
-              // eslint-disable-next-line no-await-in-loop
               const pkgJsonStats = await fs.stat(pkgJsonPath)
               if (pkgJsonStats.size === 0) {
                 throw new Error(`Extracted ${PACKAGE_JSON} is empty`)
@@ -712,7 +710,7 @@ async function installPackage(packageInfo) {
 
               // Remove the "files" field so pnpm includes all files (including tests).
               // Also remove unnecessary lifecycle scripts that could interfere with testing.
-              // eslint-disable-next-line no-await-in-loop
+
               editablePkgJson = await readPackageJson(pkgJsonPath, {
                 editable: true,
               })
@@ -721,7 +719,7 @@ async function installPackage(packageInfo) {
               lastError = error
               if (attempt < JSON_PARSE_MAX_RETRIES) {
                 // Wait longer on each retry (200ms, 400ms).
-                // eslint-disable-next-line no-await-in-loop
+
                 await new Promise(resolve =>
                   setTimeout(resolve, attempt * JSON_PARSE_RETRY_BASE_DELAY_MS),
                 )
@@ -1258,7 +1256,9 @@ async function main() {
               completedPackages % updateInterval === 0 ||
               completedPackages === totalPackagesCount
             ) {
-              spinner.text(`Installing ${completedPackages}/${totalPackagesCount} ${pluralize('package', { count: filteredPackages.length })}`)
+              spinner.text(
+                `Installing ${completedPackages}/${totalPackagesCount} ${pluralize('package', { count: filteredPackages.length })}`,
+              )
             }
             lastCompletedCount = completedPackages
           }

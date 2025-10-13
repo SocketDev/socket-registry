@@ -4,10 +4,6 @@
  */
 
 // IMPORTANT: Do not use destructuring here - use direct assignment instead.
-import {
-  getFastGlob as getFastGlobDep,
-  getPicomatch as getPicomatchDep,
-} from './dependencies/file-system'
 import { objectFreeze as ObjectFreeze } from './objects'
 
 // Type definitions
@@ -95,7 +91,7 @@ let _picomatch: typeof import('picomatch') | undefined
 function getPicomatch() {
   if (_picomatch === undefined) {
     // The 'picomatch' package is browser safe.
-    _picomatch = /*@__PURE__*/ getPicomatchDep()
+    _picomatch = /*@__PURE__*/ require('../external/picomatch')
   }
   return _picomatch!
 }
@@ -108,7 +104,8 @@ let _fastGlob: typeof import('fast-glob') | undefined
 /*@__NO_SIDE_EFFECTS__*/
 function getFastGlob() {
   if (_fastGlob === undefined) {
-    _fastGlob = /*@__PURE__*/ getFastGlobDep()
+    const globExport = /*@__PURE__*/ require('../external/fast-glob')
+    _fastGlob = globExport.default || globExport
   }
   return _fastGlob!
 }

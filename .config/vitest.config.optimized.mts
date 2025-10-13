@@ -14,6 +14,7 @@ const isCoverageEnabled =
   process.argv.some(arg => arg.includes('coverage'))
 
 export default defineConfig({
+  cacheDir: 'node_modules/.vitest',
   plugins: [
     createImportTransformPlugin(isCoverageEnabled, __dirname),
     createRequireTransformPlugin(),
@@ -71,10 +72,7 @@ export default defineConfig({
     testTimeout: 30_000, // Reduced from 60s
     hookTimeout: 30_000, // Reduced from 60s
 
-    // Cache transformation results
-    cache: {
-      dir: 'node_modules/.vitest',
-    },
+    // Cache transformation results (moved to vite's cacheDir)
 
     // Optimize file watching
     fileParallelism: true,

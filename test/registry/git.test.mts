@@ -22,26 +22,23 @@ import { spawn } from '../../registry/dist/lib/spawn.js'
 
 describe('git utilities', () => {
   let tmpDir: string
-  let originalCwd: string
-
   beforeEach(async () => {
-    originalCwd = process.cwd()
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'socket-git-test-'))
-    process.chdir(tmpDir)
 
     // Initialize git repo.
-    await spawn('git', ['init'])
-    await spawn('git', ['config', 'user.email', 'test@example.com'])
-    await spawn('git', ['config', 'user.name', 'Test User'])
+    await spawn('git', ['init'], { cwd: tmpDir })
+    await spawn('git', ['config', 'user.email', 'test@example.com'], {
+      cwd: tmpDir,
+    })
+    await spawn('git', ['config', 'user.name', 'Test User'], { cwd: tmpDir })
 
     // Create initial commit.
     await fs.writeFile(path.join(tmpDir, 'initial.txt'), 'initial content')
-    await spawn('git', ['add', '.'])
-    await spawn('git', ['commit', '-m', 'Initial commit'])
+    await spawn('git', ['add', '.'], { cwd: tmpDir })
+    await spawn('git', ['commit', '-m', 'Initial commit'], { cwd: tmpDir })
   })
 
   afterEach(async () => {
-    process.chdir(originalCwd)
     if (existsSync(tmpDir)) {
       await fs.rm(tmpDir, { recursive: true, force: true })
     }
@@ -49,36 +46,36 @@ describe('git utilities', () => {
 
   describe('getChangedFiles', () => {
     it('should return empty array when no changes', async () => {
-      const files = await getChangedFiles()
+      const files = await getChangedFiles({ cwd: tmpDir })
       expect(files).toEqual([])
     })
 
     it('should detect unstaged changes', async () => {
       await fs.writeFile(path.join(tmpDir, 'modified.txt'), 'modified')
-      const files = await getChangedFiles()
+      const files = await getChangedFiles({ cwd: tmpDir })
       expect(files).toContain('modified.txt')
     })
 
     it('should detect staged changes', async () => {
       await fs.writeFile(path.join(tmpDir, 'staged.txt'), 'staged content')
-      await spawn('git', ['add', 'staged.txt'])
-      const files = await getChangedFiles()
+      await spawn('git', ['add', 'staged.txt'], { cwd: tmpDir })
+      const files = await getChangedFiles({ cwd: tmpDir })
       expect(files).toContain('staged.txt')
     })
 
     it('should detect untracked files', async () => {
       await fs.writeFile(path.join(tmpDir, 'untracked.txt'), 'untracked')
-      const files = await getChangedFiles()
+      const files = await getChangedFiles({ cwd: tmpDir })
       expect(files).toContain('untracked.txt')
     })
 
     it('should detect all types of changes together', async () => {
       await fs.writeFile(path.join(tmpDir, 'initial.txt'), 'modified')
       await fs.writeFile(path.join(tmpDir, 'staged.txt'), 'staged content')
-      await spawn('git', ['add', 'staged.txt'])
+      await spawn('git', ['add', 'staged.txt'], { cwd: tmpDir })
       await fs.writeFile(path.join(tmpDir, 'untracked.txt'), 'untracked')
 
-      const files = await getChangedFiles()
+      const files = await getChangedFiles({ cwd: tmpDir })
       expect(files).toContain('initial.txt')
       expect(files).toContain('staged.txt')
       expect(files).toContain('untracked.txt')
@@ -87,292 +84,304 @@ describe('git utilities', () => {
 
   describe('getChangedFilesSync', () => {
     it('should return empty array when no changes', () => {
-      const files = getChangedFilesSync()
+      const files = getChangedFilesSync({ cwd: tmpDir })
       expect(files).toEqual([])
     })
 
     it('should detect unstaged changes', async () => {
       await fs.writeFile(path.join(tmpDir, 'modified.txt'), 'modified')
-      const files = getChangedFilesSync()
+      const files = getChangedFilesSync({ cwd: tmpDir })
       expect(files).toContain('modified.txt')
     })
 
     it('should detect staged changes', async () => {
       await fs.writeFile(path.join(tmpDir, 'staged.txt'), 'staged content')
-      await spawn('git', ['add', 'staged.txt'])
-      const files = getChangedFilesSync()
+      await spawn('git', ['add', 'staged.txt'], { cwd: tmpDir })
+      const files = getChangedFilesSync({ cwd: tmpDir })
       expect(files).toContain('staged.txt')
     })
 
     it('should detect untracked files', async () => {
       await fs.writeFile(path.join(tmpDir, 'untracked.txt'), 'untracked')
-      const files = getChangedFilesSync()
+      const files = getChangedFilesSync({ cwd: tmpDir })
       expect(files).toContain('untracked.txt')
     })
   })
 
   describe('getUnstagedFiles', () => {
     it('should return empty array when no unstaged changes', async () => {
-      const files = await getUnstagedFiles()
+      const files = await getUnstagedFiles({ cwd: tmpDir })
       expect(files).toEqual([])
     })
 
     it('should detect modified unstaged files', async () => {
       await fs.writeFile(path.join(tmpDir, 'initial.txt'), 'modified content')
-      const files = await getUnstagedFiles()
+      const files = await getUnstagedFiles({ cwd: tmpDir })
       expect(files).toContain('initial.txt')
     })
 
     it('should not include staged changes', async () => {
       await fs.writeFile(path.join(tmpDir, 'staged.txt'), 'staged content')
-      await spawn('git', ['add', 'staged.txt'])
-      const files = await getUnstagedFiles()
+      await spawn('git', ['add', 'staged.txt'], { cwd: tmpDir })
+      const files = await getUnstagedFiles({ cwd: tmpDir })
       expect(files).not.toContain('staged.txt')
     })
 
     it('should not include untracked files', async () => {
       await fs.writeFile(path.join(tmpDir, 'untracked.txt'), 'untracked')
-      const files = await getUnstagedFiles()
+      const files = await getUnstagedFiles({ cwd: tmpDir })
       expect(files).not.toContain('untracked.txt')
     })
   })
 
   describe('getUnstagedFilesSync', () => {
     it('should return empty array when no unstaged changes', () => {
-      const files = getUnstagedFilesSync()
+      const files = getUnstagedFilesSync({ cwd: tmpDir })
       expect(files).toEqual([])
     })
 
     it('should detect modified unstaged files', async () => {
       await fs.writeFile(path.join(tmpDir, 'initial.txt'), 'modified content')
-      const files = getUnstagedFilesSync()
+      const files = getUnstagedFilesSync({ cwd: tmpDir })
       expect(files).toContain('initial.txt')
     })
 
     it('should not include staged changes', async () => {
       await fs.writeFile(path.join(tmpDir, 'staged.txt'), 'staged content')
-      await spawn('git', ['add', 'staged.txt'])
-      const files = getUnstagedFilesSync()
+      await spawn('git', ['add', 'staged.txt'], { cwd: tmpDir })
+      const files = getUnstagedFilesSync({ cwd: tmpDir })
       expect(files).not.toContain('staged.txt')
     })
   })
 
   describe('getStagedFiles', () => {
     it('should return empty array when no staged changes', async () => {
-      const files = await getStagedFiles()
+      const files = await getStagedFiles({ cwd: tmpDir })
       expect(files).toEqual([])
     })
 
     it('should detect staged files', async () => {
       await fs.writeFile(path.join(tmpDir, 'staged.txt'), 'staged content')
-      await spawn('git', ['add', 'staged.txt'])
-      const files = await getStagedFiles()
+      await spawn('git', ['add', 'staged.txt'], { cwd: tmpDir })
+      const files = await getStagedFiles({ cwd: tmpDir })
       expect(files).toContain('staged.txt')
     })
 
     it('should not include unstaged changes', async () => {
       await fs.writeFile(path.join(tmpDir, 'initial.txt'), 'modified content')
-      const files = await getStagedFiles()
+      const files = await getStagedFiles({ cwd: tmpDir })
       expect(files).not.toContain('initial.txt')
     })
 
     it('should not include untracked files', async () => {
       await fs.writeFile(path.join(tmpDir, 'untracked.txt'), 'untracked')
-      const files = await getStagedFiles()
+      const files = await getStagedFiles({ cwd: tmpDir })
       expect(files).not.toContain('untracked.txt')
     })
   })
 
   describe('getStagedFilesSync', () => {
     it('should return empty array when no staged changes', () => {
-      const files = getStagedFilesSync()
+      const files = getStagedFilesSync({ cwd: tmpDir })
       expect(files).toEqual([])
     })
 
     it('should detect staged files', async () => {
       await fs.writeFile(path.join(tmpDir, 'staged.txt'), 'staged content')
-      await spawn('git', ['add', 'staged.txt'])
-      const files = getStagedFilesSync()
+      await spawn('git', ['add', 'staged.txt'], { cwd: tmpDir })
+      const files = getStagedFilesSync({ cwd: tmpDir })
       expect(files).toContain('staged.txt')
     })
 
     it('should not include unstaged changes', async () => {
       await fs.writeFile(path.join(tmpDir, 'initial.txt'), 'modified content')
-      const files = getStagedFilesSync()
+      const files = getStagedFilesSync({ cwd: tmpDir })
       expect(files).not.toContain('initial.txt')
     })
   })
 
   describe('isChanged', () => {
     it('should return false for unchanged file', async () => {
-      const result = await isChanged(path.join(tmpDir, 'initial.txt'))
+      const result = await isChanged(path.join(tmpDir, 'initial.txt'), {
+        cwd: tmpDir,
+      })
       expect(result).toBe(false)
     })
 
     it('should return true for unstaged modified file', async () => {
       const filepath = path.join(tmpDir, 'initial.txt')
       await fs.writeFile(filepath, 'modified content')
-      const result = await isChanged(filepath)
+      const result = await isChanged(filepath, { cwd: tmpDir })
       expect(result).toBe(true)
     })
 
     it('should return true for staged file', async () => {
       const filepath = path.join(tmpDir, 'staged.txt')
       await fs.writeFile(filepath, 'staged content')
-      await spawn('git', ['add', 'staged.txt'])
-      const result = await isChanged(filepath)
+      await spawn('git', ['add', 'staged.txt'], { cwd: tmpDir })
+      const result = await isChanged(filepath, { cwd: tmpDir })
       expect(result).toBe(true)
     })
 
     it('should return true for untracked file', async () => {
       const filepath = path.join(tmpDir, 'untracked.txt')
       await fs.writeFile(filepath, 'untracked')
-      const result = await isChanged(filepath)
+      const result = await isChanged(filepath, { cwd: tmpDir })
       expect(result).toBe(true)
     })
   })
 
   describe('isChangedSync', () => {
     it('should return false for unchanged file', () => {
-      const result = isChangedSync(path.join(tmpDir, 'initial.txt'))
+      const result = isChangedSync(path.join(tmpDir, 'initial.txt'), {
+        cwd: tmpDir,
+      })
       expect(result).toBe(false)
     })
 
     it('should return true for unstaged modified file', async () => {
       const filepath = path.join(tmpDir, 'initial.txt')
       await fs.writeFile(filepath, 'modified content')
-      const result = isChangedSync(filepath)
+      const result = isChangedSync(filepath, { cwd: tmpDir })
       expect(result).toBe(true)
     })
 
     it('should return true for staged file', async () => {
       const filepath = path.join(tmpDir, 'staged.txt')
       await fs.writeFile(filepath, 'staged content')
-      await spawn('git', ['add', 'staged.txt'])
-      const result = isChangedSync(filepath)
+      await spawn('git', ['add', 'staged.txt'], { cwd: tmpDir })
+      const result = isChangedSync(filepath, { cwd: tmpDir })
       expect(result).toBe(true)
     })
 
     it('should return true for untracked file', async () => {
       const filepath = path.join(tmpDir, 'untracked.txt')
       await fs.writeFile(filepath, 'untracked')
-      const result = isChangedSync(filepath)
+      const result = isChangedSync(filepath, { cwd: tmpDir })
       expect(result).toBe(true)
     })
   })
 
   describe('isUnstaged', () => {
     it('should return false for unchanged file', async () => {
-      const result = await isUnstaged(path.join(tmpDir, 'initial.txt'))
+      const result = await isUnstaged(path.join(tmpDir, 'initial.txt'), {
+        cwd: tmpDir,
+      })
       expect(result).toBe(false)
     })
 
     it('should return true for unstaged modified file', async () => {
       const filepath = path.join(tmpDir, 'initial.txt')
       await fs.writeFile(filepath, 'modified content')
-      const result = await isUnstaged(filepath)
+      const result = await isUnstaged(filepath, { cwd: tmpDir })
       expect(result).toBe(true)
     })
 
     it('should return false for staged file', async () => {
       const filepath = path.join(tmpDir, 'staged.txt')
       await fs.writeFile(filepath, 'staged content')
-      await spawn('git', ['add', 'staged.txt'])
-      const result = await isUnstaged(filepath)
+      await spawn('git', ['add', 'staged.txt'], { cwd: tmpDir })
+      const result = await isUnstaged(filepath, { cwd: tmpDir })
       expect(result).toBe(false)
     })
 
     it('should return false for untracked file', async () => {
       const filepath = path.join(tmpDir, 'untracked.txt')
       await fs.writeFile(filepath, 'untracked')
-      const result = await isUnstaged(filepath)
+      const result = await isUnstaged(filepath, { cwd: tmpDir })
       expect(result).toBe(false)
     })
   })
 
   describe('isUnstagedSync', () => {
     it('should return false for unchanged file', () => {
-      const result = isUnstagedSync(path.join(tmpDir, 'initial.txt'))
+      const result = isUnstagedSync(path.join(tmpDir, 'initial.txt'), {
+        cwd: tmpDir,
+      })
       expect(result).toBe(false)
     })
 
     it('should return true for unstaged modified file', async () => {
       const filepath = path.join(tmpDir, 'initial.txt')
       await fs.writeFile(filepath, 'modified content')
-      const result = isUnstagedSync(filepath)
+      const result = isUnstagedSync(filepath, { cwd: tmpDir })
       expect(result).toBe(true)
     })
 
     it('should return false for staged file', async () => {
       const filepath = path.join(tmpDir, 'staged.txt')
       await fs.writeFile(filepath, 'staged content')
-      await spawn('git', ['add', 'staged.txt'])
-      const result = isUnstagedSync(filepath)
+      await spawn('git', ['add', 'staged.txt'], { cwd: tmpDir })
+      const result = isUnstagedSync(filepath, { cwd: tmpDir })
       expect(result).toBe(false)
     })
 
     it('should return false for untracked file', async () => {
       const filepath = path.join(tmpDir, 'untracked.txt')
       await fs.writeFile(filepath, 'untracked')
-      const result = isUnstagedSync(filepath)
+      const result = isUnstagedSync(filepath, { cwd: tmpDir })
       expect(result).toBe(false)
     })
   })
 
   describe('isStaged', () => {
     it('should return false for unchanged file', async () => {
-      const result = await isStaged(path.join(tmpDir, 'initial.txt'))
+      const result = await isStaged(path.join(tmpDir, 'initial.txt'), {
+        cwd: tmpDir,
+      })
       expect(result).toBe(false)
     })
 
     it('should return false for unstaged modified file', async () => {
       const filepath = path.join(tmpDir, 'initial.txt')
       await fs.writeFile(filepath, 'modified content')
-      const result = await isStaged(filepath)
+      const result = await isStaged(filepath, { cwd: tmpDir })
       expect(result).toBe(false)
     })
 
     it('should return true for staged file', async () => {
       const filepath = path.join(tmpDir, 'staged.txt')
       await fs.writeFile(filepath, 'staged content')
-      await spawn('git', ['add', 'staged.txt'])
-      const result = await isStaged(filepath)
+      await spawn('git', ['add', 'staged.txt'], { cwd: tmpDir })
+      const result = await isStaged(filepath, { cwd: tmpDir })
       expect(result).toBe(true)
     })
 
     it('should return false for untracked file', async () => {
       const filepath = path.join(tmpDir, 'untracked.txt')
       await fs.writeFile(filepath, 'untracked')
-      const result = await isStaged(filepath)
+      const result = await isStaged(filepath, { cwd: tmpDir })
       expect(result).toBe(false)
     })
   })
 
   describe('isStagedSync', () => {
     it('should return false for unchanged file', () => {
-      const result = isStagedSync(path.join(tmpDir, 'initial.txt'))
+      const result = isStagedSync(path.join(tmpDir, 'initial.txt'), {
+        cwd: tmpDir,
+      })
       expect(result).toBe(false)
     })
 
     it('should return false for unstaged modified file', async () => {
       const filepath = path.join(tmpDir, 'initial.txt')
       await fs.writeFile(filepath, 'modified content')
-      const result = isStagedSync(filepath)
+      const result = isStagedSync(filepath, { cwd: tmpDir })
       expect(result).toBe(false)
     })
 
     it('should return true for staged file', async () => {
       const filepath = path.join(tmpDir, 'staged.txt')
       await fs.writeFile(filepath, 'staged content')
-      await spawn('git', ['add', 'staged.txt'])
-      const result = isStagedSync(filepath)
+      await spawn('git', ['add', 'staged.txt'], { cwd: tmpDir })
+      const result = isStagedSync(filepath, { cwd: tmpDir })
       expect(result).toBe(true)
     })
 
     it('should return false for untracked file', async () => {
       const filepath = path.join(tmpDir, 'untracked.txt')
       await fs.writeFile(filepath, 'untracked')
-      const result = isStagedSync(filepath)
+      const result = isStagedSync(filepath, { cwd: tmpDir })
       expect(result).toBe(false)
     })
   })
@@ -380,10 +389,10 @@ describe('git utilities', () => {
   describe('caching', () => {
     it('should cache results by default', async () => {
       await fs.writeFile(path.join(tmpDir, 'cached.txt'), 'content')
-      await spawn('git', ['add', 'cached.txt'])
+      await spawn('git', ['add', 'cached.txt'], { cwd: tmpDir })
 
-      const files1 = await getStagedFiles()
-      const files2 = await getStagedFiles()
+      const files1 = await getStagedFiles({ cwd: tmpDir })
+      const files2 = await getStagedFiles({ cwd: tmpDir })
 
       expect(files1).toEqual(files2)
       expect(files1).toContain('cached.txt')
@@ -391,10 +400,10 @@ describe('git utilities', () => {
 
     it('should respect cache option', async () => {
       await fs.writeFile(path.join(tmpDir, 'nocache.txt'), 'content')
-      await spawn('git', ['add', 'nocache.txt'])
+      await spawn('git', ['add', 'nocache.txt'], { cwd: tmpDir })
 
-      const files1 = await getStagedFiles({ cache: false })
-      const files2 = await getStagedFiles({ cache: false })
+      const files1 = await getStagedFiles({ cache: false, cwd: tmpDir })
+      const files2 = await getStagedFiles({ cache: false, cwd: tmpDir })
 
       expect(files1).toEqual(files2)
       expect(files1).toContain('nocache.txt')
@@ -407,7 +416,7 @@ describe('git utilities', () => {
       await fs.mkdir(subdir)
       await fs.writeFile(path.join(subdir, 'file.txt'), 'content')
       await fs.writeFile(path.join(tmpDir, 'root.txt'), 'content')
-      await spawn('git', ['add', '.'])
+      await spawn('git', ['add', '.'], { cwd: tmpDir })
 
       const files = await getStagedFiles({ cwd: subdir })
       expect(files).toContain('subdir/file.txt')

@@ -10,6 +10,14 @@ This is the canonical source for shared Socket standards. Other projects referen
 
 **MANDATORY**: Review CLAUDE.md before any action. No exceptions.
 
+## VERIFICATION PROTOCOL
+
+**MANDATORY**: Before claiming any task is complete:
+1. Test the solution end-to-end
+2. Verify all changes work as expected
+3. Run the actual commands to confirm functionality
+4. Never claim "Done" without verification
+
 ## ABSOLUTE RULES
 
 - Never create files unless necessary

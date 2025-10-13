@@ -1,10 +1,34 @@
 /** @fileoverview HTTP/HTTPS request utilities using Node.js built-in modules with retry logic, redirects, and download support. */
 
 import { createWriteStream } from 'node:fs'
-import http from 'node:http'
-import https from 'node:https'
 
 import type { IncomingMessage } from 'node:http'
+
+let _http: typeof import('http') | undefined
+let _https: typeof import('https') | undefined
+/**
+ * Lazily load http and https modules to avoid Webpack errors.
+ * @private
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function getHttp() {
+  if (_http === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _http = /*@__PURE__*/ require('http')
+  }
+  return _http!
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function getHttps() {
+  if (_https === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _https = /*@__PURE__*/ require('https')
+  }
+  return _https!
+}
 
 export interface HttpRequestOptions {
   body?: Buffer | string | undefined
@@ -111,7 +135,7 @@ async function httpRequestAttempt(
   return await new Promise((resolve, reject) => {
     const parsedUrl = new URL(url)
     const isHttps = parsedUrl.protocol === 'https:'
-    const httpModule = isHttps ? https : http
+    const httpModule = isHttps ? getHttps() : getHttp()
 
     const requestOptions = {
       headers: {
@@ -287,7 +311,7 @@ async function httpDownloadAttempt(
   return await new Promise((resolve, reject) => {
     const parsedUrl = new URL(url)
     const isHttps = parsedUrl.protocol === 'https:'
-    const httpModule = isHttps ? https : http
+    const httpModule = isHttps ? getHttps() : getHttp()
 
     const requestOptions = {
       headers: {

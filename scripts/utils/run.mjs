@@ -38,7 +38,6 @@ export async function runPnpmScript(scriptName, extraArgs = [], options = {}) {
 
 export async function runSequence(commands) {
   for (const { args = [], command, options = {} } of commands) {
-    // eslint-disable-next-line no-await-in-loop
     const exitCode = await runCommand(command, args, options)
     if (exitCode !== 0) {
       return exitCode

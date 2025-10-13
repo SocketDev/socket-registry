@@ -2,11 +2,24 @@
  * @fileoverview File system path to the PNPM package store directory.
  */
 
-import path from 'node:path'
-
 import { normalizePath } from '../path'
 import ENV from './ENV'
 import WIN32 from './WIN32'
+
+let _path: typeof import('path') | undefined
+/**
+ * Lazily load the path module to avoid Webpack errors.
+ * @private
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function getPath() {
+  if (_path === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _path = /*@__PURE__*/ require('path')
+  }
+  return _path!
+}
 
 // PNPM store path - the global package store location.
 // By default:
@@ -21,6 +34,7 @@ import WIN32 from './WIN32'
 //
 // Documentation: https://pnpm.io/npmrc#store-dir
 function getPnpmStorePath() {
+  const path = getPath()
   // Check for explicit PNPM_HOME environment variable.
   const pnpmHome = process.env['PNPM_HOME']
   if (pnpmHome) {

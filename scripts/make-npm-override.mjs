@@ -437,7 +437,7 @@ async function main() {
     ) {
       filesFieldAdditions.push(originalLicenseName)
     }
-    // eslint-disable-next-line no-await-in-loop
+
     await fs.writeFile(path.join(pkgPath, originalLicenseName), content, UTF8)
   }
   if (filesFieldAdditions.length) {

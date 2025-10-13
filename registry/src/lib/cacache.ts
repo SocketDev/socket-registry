@@ -1,6 +1,5 @@
 /** @fileoverview Cacache utilities for Socket ecosystem shared content-addressable cache. */
 
-import { getCacache as getCacacheDep } from './dependencies/file-system'
 import { getSocketCacacheDir } from './paths'
 
 export interface GetOptions {
@@ -30,7 +29,7 @@ export interface CacheEntry {
  * Get the cacache module for cache operations.
  */
 function getCacache() {
-  return getCacacheDep()
+  return /*@__PURE__*/ require('../external/cacache')
 }
 
 /**

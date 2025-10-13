@@ -106,7 +106,7 @@ async function lint() {
       if (!quiet) {
         console.log(`  Running ${name}...`)
       }
-      // eslint-disable-next-line no-await-in-loop
+
       const code = await run(command, args)
       if (code !== 0) {
         hasError = true

@@ -1,12 +1,26 @@
 /** @fileoverview DLX (execute package) utilities for Socket ecosystem shared installations. */
 
 import { existsSync, promises as fs } from 'node:fs'
-import path from 'node:path'
 
 import { readDirNamesSync, safeDelete } from './fs'
 import { normalizePath } from './path'
 import { getSocketDlxDir } from './paths'
 import { pEach } from './promises'
+
+let _path: typeof import('path') | undefined
+/**
+ * Lazily load the path module to avoid Webpack errors.
+ * @private
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function getPath() {
+  if (_path === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _path = /*@__PURE__*/ require('path')
+  }
+  return _path!
+}
 
 /**
  * Clear all DLX package installations.
@@ -64,6 +78,7 @@ export function ensureDlxDirSync(): void {
  * Get the installed package directory within DLX node_modules.
  */
 export function getDlxInstalledPackageDir(packageName: string): string {
+  const path = getPath()
   return normalizePath(
     path.join(getDlxPackageNodeModulesDir(packageName), packageName),
   )
@@ -73,6 +88,7 @@ export function getDlxInstalledPackageDir(packageName: string): string {
  * Get the DLX installation directory for a specific package.
  */
 export function getDlxPackageDir(packageName: string): string {
+  const path = getPath()
   return normalizePath(path.join(getSocketDlxDir(), packageName))
 }
 
@@ -80,6 +96,7 @@ export function getDlxPackageDir(packageName: string): string {
  * Get the package.json path for a DLX installed package.
  */
 export function getDlxPackageJsonPath(packageName: string): string {
+  const path = getPath()
   return normalizePath(
     path.join(getDlxInstalledPackageDir(packageName), 'package.json'),
   )
@@ -89,6 +106,7 @@ export function getDlxPackageJsonPath(packageName: string): string {
  * Get the node_modules directory for a DLX package installation.
  */
 export function getDlxPackageNodeModulesDir(packageName: string): string {
+  const path = getPath()
   return normalizePath(path.join(getDlxPackageDir(packageName), 'node_modules'))
 }
 

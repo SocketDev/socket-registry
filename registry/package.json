@@ -1094,10 +1094,6 @@
       "types": "./dist/lib/constants/YARN_LOCK.d.ts",
       "default": "./dist/lib/constants/YARN_LOCK.js"
     },
-    "./cli": {
-      "types": "./dist/cli.d.ts",
-      "default": "./dist/cli.js"
-    },
     "./cli/logger": {
       "types": "./dist/cli/logger.d.ts",
       "default": "./dist/cli/logger.js"
@@ -1189,38 +1185,6 @@
     "./lib/debug": {
       "types": "./dist/lib/debug.d.ts",
       "default": "./dist/lib/debug.js"
-    },
-    "./lib/dependencies/build-tools": {
-      "types": "./dist/lib/dependencies/build-tools.d.ts",
-      "default": "./dist/lib/dependencies/build-tools.js"
-    },
-    "./lib/dependencies/file-system": {
-      "types": "./dist/lib/dependencies/file-system.d.ts",
-      "default": "./dist/lib/dependencies/file-system.js"
-    },
-    "./lib/dependencies/logging": {
-      "types": "./dist/lib/dependencies/logging.d.ts",
-      "default": "./dist/lib/dependencies/logging.js"
-    },
-    "./lib/dependencies/npm-tools": {
-      "types": "./dist/lib/dependencies/npm-tools.d.ts",
-      "default": "./dist/lib/dependencies/npm-tools.js"
-    },
-    "./lib/dependencies/prompts": {
-      "types": "./dist/lib/dependencies/prompts.d.ts",
-      "default": "./dist/lib/dependencies/prompts.js"
-    },
-    "./lib/dependencies/reset": {
-      "types": "./dist/lib/dependencies/reset.d.ts",
-      "default": "./dist/lib/dependencies/reset.js"
-    },
-    "./lib/dependencies/system": {
-      "types": "./dist/lib/dependencies/system.d.ts",
-      "default": "./dist/lib/dependencies/system.js"
-    },
-    "./lib/dependencies/validation": {
-      "types": "./dist/lib/dependencies/validation.d.ts",
-      "default": "./dist/lib/dependencies/validation.js"
     },
     "./lib/dlx": {
       "types": "./dist/lib/dlx.d.ts",
@@ -1434,22 +1398,6 @@
       "types": "./dist/lib/validation/json-parser.d.ts",
       "default": "./dist/lib/validation/json-parser.js"
     },
-    "./lib/validation/schema": {
-      "types": "./dist/lib/validation/schema.d.ts",
-      "default": "./dist/lib/validation/schema.js"
-    },
-    "./lib/validation/schema/github": {
-      "types": "./dist/lib/validation/schema/github.d.ts",
-      "default": "./dist/lib/validation/schema/github.js"
-    },
-    "./lib/validation/schema/package": {
-      "types": "./dist/lib/validation/schema/package.d.ts",
-      "default": "./dist/lib/validation/schema/package.js"
-    },
-    "./lib/validation/schema/security": {
-      "types": "./dist/lib/validation/schema/security.d.ts",
-      "default": "./dist/lib/validation/schema/security.js"
-    },
     "./lib/validation/types": {
       "types": "./dist/lib/validation/types.d.ts",
       "default": "./dist/lib/validation/types.js"
@@ -1462,10 +1410,6 @@
       "types": "./dist/lib/words.d.ts",
       "default": "./dist/lib/words.js"
     },
-    "./packages": {
-      "types": "./dist/packages.d.ts",
-      "default": "./dist/packages.js"
-    },
     "./packages/registry": {
       "types": "./dist/packages/registry.d.ts",
       "default": "./dist/packages/registry.js"
@@ -1477,10 +1421,6 @@
     "./types": {
       "types": "./dist/types.d.ts",
       "default": "./dist/types.js"
-    },
-    "./utils": {
-      "types": "./dist/utils.d.ts",
-      "default": "./dist/utils.js"
     },
     "./extensions.json": "./extensions.json",
     "./manifest.json": "./manifest.json",

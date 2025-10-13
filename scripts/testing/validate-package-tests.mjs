@@ -263,7 +263,7 @@ async function validateModuleResolution(packageName, packageDir) {
       const fullPath = path.join(dir, entry.name)
       if (entry.isDirectory() && entry.name !== 'node_modules') {
         // Recursively scan subdirectories, excluding node_modules.
-        // eslint-disable-next-line no-await-in-loop
+
         await collectFiles(fullPath)
       } else if (entry.isFile() && /\.(js|mjs|cjs|ts)$/.test(entry.name)) {
         sourceFiles.push(fullPath)
@@ -275,7 +275,6 @@ async function validateModuleResolution(packageName, packageDir) {
     await collectFiles(packageDir)
 
     for (const file of sourceFiles) {
-      // eslint-disable-next-line no-await-in-loop
       const content = await fs.readFile(file, 'utf8')
 
       // Check for problematic import patterns.

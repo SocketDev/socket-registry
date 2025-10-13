@@ -48,7 +48,7 @@ async function getAllYamlFiles(dir) {
         files.push(fullPath)
       } else if (entry.isDirectory()) {
         // Recursively search subdirectories.
-        // eslint-disable-next-line no-await-in-loop
+
         files.push(...(await getAllYamlFiles(fullPath)))
       }
     }
@@ -67,7 +67,6 @@ async function main() {
     constants.rootDotGithubWorkflowsPath,
   )
   for (const file of workflowFiles) {
-    // eslint-disable-next-line no-await-in-loop
     const deps = await extractDependencies(file)
     for (const { 0: key, 1: value } of deps.entries()) {
       allDependencies.set(key, value)
@@ -86,7 +85,6 @@ async function main() {
         'action.yml',
       )
       try {
-        // eslint-disable-next-line no-await-in-loop
         const deps = await extractDependencies(actionFile)
         for (const { 0: key, 1: value } of deps.entries()) {
           allDependencies.set(key, value)

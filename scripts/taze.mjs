@@ -48,7 +48,7 @@ async function main() {
       logger.error(
         '   Configure your dependencies to maintain provenance or exclude problematic packages.',
       )
-      // eslint-disable-next-line n/no-process-exit
+
       process.exit(1)
     }
   })
