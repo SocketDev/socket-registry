@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import { deleteAsync as del } from 'del'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import {
@@ -25,7 +26,6 @@ import {
   whichBin,
   whichBinSync,
 } from '../../registry/dist/lib/bin.js'
-import { deleteAsync as del } from 'del'
 
 describe('agent module', () => {
   let tmpDir: string

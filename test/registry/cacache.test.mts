@@ -3,9 +3,9 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
+import { deleteAsync as del } from 'del'
 import { describe, expect, it } from 'vitest'
 
-import { deleteAsync as del } from 'del'
 import { runInSubprocess } from '../utils/subprocess.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))

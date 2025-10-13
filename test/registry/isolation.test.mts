@@ -2,10 +2,10 @@ import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import { deleteAsync as del } from 'del'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { isolatePackage } from '../../registry/dist/lib/packages/isolation.js'
-import { deleteAsync as del } from 'del'
 
 describe('isolation module', () => {
   const tmpDirs: string[] = []

@@ -3,6 +3,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { Readable } from 'node:stream'
 
+import { deleteAsync as del } from 'del'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import {
@@ -10,7 +11,6 @@ import {
   getGlobMatcher,
   globStreamLicenses,
 } from '../../registry/dist/lib/globs.js'
-import { deleteAsync as del } from 'del'
 
 describe('globs module', () => {
   let tmpDir: string

@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import { deleteAsync as del } from 'del'
 import { describe, expect, it, vi } from 'vitest'
 
 import {
@@ -40,7 +41,6 @@ import {
   unescapeScope,
 } from '../../registry/dist/lib/packages.js'
 import { normalizePath } from '../../registry/dist/lib/path.js'
-import { deleteAsync as del } from 'del'
 
 describe('packages module', () => {
   describe('isValidPackageName', () => {

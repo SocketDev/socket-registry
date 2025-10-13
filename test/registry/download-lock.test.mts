@@ -2,6 +2,7 @@ import { createServer } from 'node:http'
 import os from 'node:os'
 import path from 'node:path'
 
+import { deleteAsync as del } from 'del'
 import {
   afterAll,
   afterEach,
@@ -13,7 +14,6 @@ import {
 } from 'vitest'
 
 import { downloadWithLock } from '../../registry/dist/lib/download-lock.js'
-import { deleteAsync as del } from 'del'
 
 import type { IncomingMessage, ServerResponse } from 'node:http'
 

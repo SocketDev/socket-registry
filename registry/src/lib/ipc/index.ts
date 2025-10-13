@@ -120,16 +120,17 @@ export interface IpcMessage<T = any> {
  * IPC handshake message interface.
  * Used for initial connection establishment.
  */
-export interface IpcHandshake extends IpcMessage<{
-  /** Protocol version for compatibility checking. */
-  version: string
-  /** Process ID for identification. */
-  pid: number
-  /** Optional API token for authentication. */
-  apiToken?: string
-  /** Application name for multi-app support. */
-  appName: string
-}> {
+export interface IpcHandshake
+  extends IpcMessage<{
+    /** Protocol version for compatibility checking. */
+    version: string
+    /** Process ID for identification. */
+    pid: number
+    /** Optional API token for authentication. */
+    apiToken?: string
+    /** Application name for multi-app support. */
+    appName: string
+  }> {
   type: 'handshake'
 }
 
