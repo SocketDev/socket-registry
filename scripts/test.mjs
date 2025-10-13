@@ -18,6 +18,21 @@ import { printHeader } from '../registry/dist/lib/stdio/header.js'
 import constants from './constants.mjs'
 import { runTests as runTestsWithOutput } from './utils/unified-runner.mjs'
 
+// Suppress non-fatal worker termination unhandled rejections
+process.on('unhandledRejection', (reason, _promise) => {
+  const errorMessage = String(reason?.message || reason || '')
+  // Filter out known non-fatal worker termination errors
+  if (
+    errorMessage.includes('Terminating worker thread') ||
+    errorMessage.includes('ThreadTermination')
+  ) {
+    // Ignore these - they're cleanup messages from vitest worker threads
+    return
+  }
+  // Re-throw other unhandled rejections
+  throw reason
+})
+
 const { WIN32 } = constants
 
 // Track running processes for cleanup
@@ -137,7 +152,8 @@ async function runTests(options, positionals = []) {
     ...process.env,
     ...(force ? { FORCE_TEST: '1' } : {}),
     // Suppress unhandled rejections from worker thread cleanup
-    NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --unhandled-rejections=warn`.trim(),
+    NODE_OPTIONS:
+      `${process.env.NODE_OPTIONS || ''} --unhandled-rejections=warn`.trim(),
   }
 
   // Handle Windows vs Unix for vitest executable
