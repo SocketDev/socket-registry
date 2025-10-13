@@ -118,6 +118,7 @@ export default defineConfig({
   },
   test: {
     globalSetup: [path.resolve(__dirname, 'vitest-global-setup.mts')],
+    setupFiles: ['./test/setup.mts'],
     globals: false,
     environment: 'node',
     include: [
@@ -132,24 +133,37 @@ export default defineConfig({
         : [path.resolve(projectRoot, 'test/npm/**')]),
     ],
     reporters: ['default'],
-    // Improve memory usage by running tests sequentially in CI.
-    pool: 'forks',
+    // Use threads for better performance
+    pool: 'threads',
     poolOptions: {
-      forks: {
-        // Use single fork for coverage to reduce memory, parallel otherwise.
-        singleFork: isCoverageEnabled,
-        maxForks: isCoverageEnabled ? 1 : undefined,
-        // Isolate tests to prevent memory leaks between test files.
-        isolate: true,
-      },
       threads: {
         // Use single thread for coverage to reduce memory, parallel otherwise.
         singleThread: isCoverageEnabled,
-        maxThreads: isCoverageEnabled ? 1 : undefined,
+        maxThreads: isCoverageEnabled ? 1 : 16,
+        minThreads: isCoverageEnabled ? 1 : 4,
+        // IMPORTANT: isolate: false for performance and test compatibility
+        //
+        // Tradeoff Analysis:
+        // - isolate: true  = Full isolation, slower, breaks nock/module mocking
+        // - isolate: false = Shared worker context, faster, mocking works
+        //
+        // We choose isolate: false because:
+        // 1. Significant performance improvement (faster test runs)
+        // 2. Nock HTTP mocking works correctly across all test files
+        // 3. Vi.mock() module mocking functions properly
+        // 4. Test state pollution is prevented through proper beforeEach/afterEach
+        // 5. Our tests are designed to clean up after themselves
+        //
+        // Tests requiring true isolation should use pool: 'forks' or be marked
+        // with { pool: 'forks' } in the test file itself.
+        isolate: false,
+        // Use worker threads for better performance
+        useAtomics: true,
       },
     },
-    testTimeout: 60_000,
-    hookTimeout: 60_000,
+    // Reduce timeouts for faster failures
+    testTimeout: 10_000,
+    hookTimeout: 10_000,
     server: {
       deps: {
         // Inline dependencies to enable source transformation for coverage.

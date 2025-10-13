@@ -5,13 +5,6 @@
 
 import abortSignalDefault from '../constants/abort-signal'
 import spinnerDefault from '../constants/spinner'
-import {
-  getInquirerConfirm,
-  getInquirerInput,
-  getInquirerPassword,
-  getInquirerSearch,
-  getInquirerSelect,
-} from '../dependencies/prompts'
 
 const abortSignal = abortSignalDefault
 const spinner = spinnerDefault
@@ -96,11 +89,11 @@ export function wrapPrompt<T = unknown>(
 }
 
 // c8 ignore start - Third-party inquirer library requires and exports not testable in isolation.
-const confirmExport = /*@__PURE__*/ getInquirerConfirm() as any
-const inputExport = /*@__PURE__*/ getInquirerInput() as any
-const passwordExport = /*@__PURE__*/ getInquirerPassword() as any
-const searchExport = /*@__PURE__*/ getInquirerSearch() as any
-const selectExport = /*@__PURE__*/ getInquirerSelect() as any
+const confirmExport = /*@__PURE__*/ require('../../external/@inquirer/confirm')
+const inputExport = /*@__PURE__*/ require('../../external/@inquirer/input')
+const passwordExport = /*@__PURE__*/ require('../../external/@inquirer/password')
+const searchExport = /*@__PURE__*/ require('../../external/@inquirer/search')
+const selectExport = /*@__PURE__*/ require('../../external/@inquirer/select')
 const confirmRaw = confirmExport.default ?? confirmExport
 const inputRaw = inputExport.default ?? inputExport
 const passwordRaw = passwordExport.default ?? passwordExport

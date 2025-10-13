@@ -79,3 +79,25 @@ export function createSectionHeader(
   })
 }
 
+/**
+ * Print a header directly to stdout.
+ * Standard formatting: 55 chars wide with ═ borders.
+ */
+export function printHeader(title: string): void {
+  const border = repeatString('═', 55)
+  console.log(border)
+  console.log(`  ${title}`)
+  console.log(border)
+}
+
+/**
+ * Print a footer with optional message.
+ * Uses ─ as the border character.
+ */
+export function printFooter(message?: string): void {
+  const border = repeatString('─', 55)
+  console.log(border)
+  if (message) {
+    console.log(colors.green(message))
+  }
+}

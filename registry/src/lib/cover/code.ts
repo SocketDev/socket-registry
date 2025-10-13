@@ -3,7 +3,6 @@
  */
 
 import { promises as fs } from 'node:fs'
-import path from 'node:path'
 
 import { readJson } from '../fs'
 import { isObjectObject } from '../objects'
@@ -17,6 +16,21 @@ import type {
   V8FileCoverage,
 } from './types'
 
+let _path: typeof import('path') | undefined
+/**
+ * Lazily load the path module to avoid Webpack errors.
+ * @private
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function getPath() {
+  if (_path === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _path = /*@__PURE__*/ require('path')
+  }
+  return _path!
+}
+
 /**
  * Get code coverage metrics from v8 coverage-final.json.
  *
@@ -26,6 +40,7 @@ import type {
 export async function getCodeCoverage(
   options?: GetCodeCoverageOptions | undefined,
 ): Promise<CodeCoverageResult> {
+  const path = getPath()
   const opts = {
     __proto__: null,
     coveragePath: path.join(process.cwd(), 'coverage/coverage-final.json'),

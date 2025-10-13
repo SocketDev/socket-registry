@@ -83,7 +83,6 @@ async function processFile(filePath, token, dryRun) {
     const repo = repoPath.split('/')[0]
 
     try {
-      // eslint-disable-next-line no-await-in-loop
       const sha = await resolveRefToSha(owner, repo, ref, { token })
       depMap.set(`${owner}/${repoPath}@${ref}`, { owner, ref, repoPath, sha })
     } catch (e) {
@@ -154,7 +153,6 @@ async function getAllYamlFiles(dir) {
       if (entry.isFile() && entry.name.endsWith('.yml')) {
         files.push(fullPath)
       } else if (entry.isDirectory()) {
-        // eslint-disable-next-line no-await-in-loop
         files.push(...(await getAllYamlFiles(fullPath)))
       }
     }
@@ -229,7 +227,6 @@ async function main() {
       if (dir.isDirectory()) {
         const actionFile = path.join(actionsPath, dir.name, 'action.yml')
         try {
-          // eslint-disable-next-line no-await-in-loop
           await fs.access(actionFile)
           allFiles.push(actionFile)
         } catch {}
@@ -248,7 +245,6 @@ async function main() {
   const processedFiles = []
 
   for (const file of allFiles) {
-    // eslint-disable-next-line no-await-in-loop
     const result = await processFile(file, token, dryRun)
     if (result.hasChanges) {
       processedFiles.push({ changes: result.changes, file })

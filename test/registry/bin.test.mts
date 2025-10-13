@@ -341,7 +341,7 @@ fi`
         expect(normalizedResolved).toBe(normalizedExpected)
       } finally {
         // Clean up.
-        await del([wrapperPath, targetPath])
+        await del([wrapperPath, targetPath], { force: true })
       }
     })
 
@@ -389,7 +389,7 @@ endLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & "%_prog%"  "%dp0%\\..\\
         expect(resolved).toBeTruthy()
       } finally {
         // Clean up.
-        await del([cmdPath, path.join(tmpDir, 'node_modules')])
+        await del([cmdPath, path.join(tmpDir, 'node_modules')], { force: true })
       }
     })
 
@@ -429,7 +429,7 @@ exit $ret`
           expect(resolved).toBeTruthy()
         } finally {
           // Clean up.
-          await del([ps1Path, targetPath])
+          await del([ps1Path, targetPath], { force: true })
         }
       },
     )
@@ -462,7 +462,7 @@ exec node  "$basedir/lib/cli.js" "$@"`
         expect(normalizedResolved).toBe(normalizedExpected)
       } finally {
         // Clean up.
-        await del([wrapperPath, path.dirname(targetPath)])
+        await del([wrapperPath, path.dirname(targetPath)], { force: true })
       }
     })
   })
@@ -665,7 +665,7 @@ exec node  "$basedir/lib/cli.js" "$@"`
 
     afterEach(async () => {
       // Clean up.
-      await del([voltaPath])
+      await del([voltaPath], { force: true })
     })
 
     it('should resolve Volta npm/npx paths', async () => {
@@ -832,7 +832,7 @@ exec node  "$basedir/lib/cli.js" "$@"`
       expect(result).toContain('pnpm')
 
       // Clean up.
-      await del(path.join(tmpDir, 'node_modules'))
+      await del(path.join(tmpDir, 'node_modules'), { force: true })
     })
 
     it('should handle yarn with malformed CI path', async () => {
@@ -858,7 +858,7 @@ exec node  "$basedir/lib/cli.js" "$@"`
       expect(result).toContain('yarn')
 
       // Clean up.
-      await del(path.join(tmpDir, 'node_modules'))
+      await del(path.join(tmpDir, 'node_modules'), { force: true })
     })
 
     it('should handle pnpm setup-action format', async () => {
@@ -879,7 +879,7 @@ exec node "$basedir/pnpm/bin/pnpm.cjs" "$@"`
         const result = resolveBinPathSync(pnpmPath)
         expect(result).toContain('pnpm')
       } finally {
-        await del([pnpmPath, path.join(tmpDir, 'pnpm')])
+        await del([pnpmPath, path.join(tmpDir, 'pnpm')], { force: true })
       }
     })
 
@@ -910,7 +910,7 @@ exec node "$NPM_CLI_JS" "$@"`
         const result = resolveBinPathSync(npmPath)
         expect(result).toContain('npm')
       } finally {
-        await del([npmPath, path.join(tmpDir, 'lib')])
+        await del([npmPath, path.join(tmpDir, 'lib')], { force: true })
       }
     })
 
@@ -941,7 +941,7 @@ exec node "$NPX_CLI_JS" "$@"`
         const result = resolveBinPathSync(npxPath)
         expect(result).toContain('npx')
       } finally {
-        await del([npxPath, path.join(tmpDir, 'lib')])
+        await del([npxPath, path.join(tmpDir, 'lib')], { force: true })
       }
     })
 
@@ -972,7 +972,7 @@ exec node "$basedir/.tools/yarn/1.22.0/lib/cli.js" "$@"`
         // For yarn extensionless script, it may just return the yarn path.
         expect(result).toContain('yarn')
       } finally {
-        await del([yarnPath, path.join(tmpDir, '.tools')])
+        await del([yarnPath, path.join(tmpDir, '.tools')], { force: true })
       }
     })
 
@@ -1008,7 +1008,7 @@ exec node "$basedir/../pnpm/bin/pnpm.cjs" "$@"`
         // For pnpm with custom name, it may just return the pnpm path.
         expect(result).toContain('pnpm')
       } finally {
-        await del([path.join(tmpDir, 'node_modules')])
+        await del([path.join(tmpDir, 'node_modules')], { force: true })
       }
     })
   })
@@ -1075,7 +1075,7 @@ exec node "$basedir/../pnpm/bin/pnpm.cjs" "$@"`
         ])
         expect(result).toBe(shadowBinPath)
       } finally {
-        await del([shadowBinPath, realBinPath, shadowBinDir])
+        await del([shadowBinPath, realBinPath, shadowBinDir], { force: true })
       }
     })
 

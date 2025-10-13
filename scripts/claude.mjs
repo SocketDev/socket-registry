@@ -1,5 +1,3 @@
-/* eslint-disable no-await-in-loop */
-
 /**
  * @fileoverview Claude Code-powered utilities for Socket projects.
  * Provides various AI-assisted development tools and automations using Claude Code CLI.
@@ -3346,7 +3344,7 @@ async function runWatchMode(claudeCmd, options = {}) {
 
     log.success('Watch mode stopped')
     process.exitCode = 0
-    // eslint-disable-next-line n/no-process-exit
+
     process.exit(0)
   })
 

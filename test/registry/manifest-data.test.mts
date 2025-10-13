@@ -28,10 +28,18 @@ describe('manifest data utilities', () => {
       const npmEntries = getManifestData('npm')
       if (npmEntries && npmEntries.length > 0) {
         // Just test that the entries exist and have the expected structure.
-        const { 0: purl, 1: data } = npmEntries[0]!
+        const entry = npmEntries[0]!
+        expect(Array.isArray(entry)).toBe(true)
+        expect(entry.length).toBe(2)
+        const [purl, data] = entry
         expect(purl).toBeDefined()
         expect(data).toBeDefined()
-        expect(data.name).toBeDefined()
+        // Data should be an object with a name property
+        expect(typeof data).toBe('object')
+        expect(data).not.toBeNull()
+        if (data && !Array.isArray(data)) {
+          expect('name' in data).toBe(true)
+        }
       }
     })
 

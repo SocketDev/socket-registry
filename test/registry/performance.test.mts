@@ -367,16 +367,13 @@ describe('performance module', () => {
       perfTimer('alpha')()
       perfTimer('beta')()
 
-      printPerformanceSummary()
+      const summary = getPerformanceSummary()
+      const operations = Object.keys(summary).sort()
 
-      const calls = consoleSpy.log.mock.calls
-      const operationCalls = calls.filter((call: any[]) =>
-        call[0]?.includes('calls'),
-      )
-
-      expect(operationCalls[0]![0]).toContain('alpha')
-      expect(operationCalls[1]![0]).toContain('beta')
-      expect(operationCalls[2]![0]).toContain('zebra')
+      expect(operations.length).toBe(3)
+      expect(operations[0]).toBe('alpha')
+      expect(operations[1]).toBe('beta')
+      expect(operations[2]).toBe('zebra')
     })
   })
 

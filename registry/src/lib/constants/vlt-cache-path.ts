@@ -2,11 +2,24 @@
  * @fileoverview File system path to the VLT package manager cache directory.
  */
 
-import path from 'node:path'
-
 import { normalizePath } from '../path'
 import ENV from './ENV'
 import WIN32 from './WIN32'
+
+let _path: typeof import('path') | undefined
+/**
+ * Lazily load the path module to avoid Webpack errors.
+ * @private
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function getPath() {
+  if (_path === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _path = /*@__PURE__*/ require('path')
+  }
+  return _path!
+}
 
 // Vlt cache directory path.
 // Vlt is a next-generation JavaScript package manager created by npm veterans.
@@ -22,6 +35,7 @@ import WIN32 from './WIN32'
 //
 // Documentation: https://docs.vlt.sh/cli/configuring
 function getVltCachePath() {
+  const path = getPath()
   // Note: vlt doesn't document a specific environment variable for cache override.
   // The cache location is configured via --cache flag or vlt.json config file.
 

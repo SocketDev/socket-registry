@@ -5,7 +5,6 @@
 
 import { isArray } from './arrays'
 import abortSignal from './constants/abort-signal'
-import { getDel } from './dependencies/file-system'
 import { defaultIgnore, getGlobMatcher } from './globs'
 import { jsonParse } from './json'
 import { type Remap, objectFreeze } from './objects'
@@ -580,7 +579,7 @@ export async function safeDelete(
   filepath: PathLike | PathLike[],
   options?: RemoveOptions | undefined,
 ) {
-  const del = /*@__PURE__*/ getDel() as any
+  const del = /*@__PURE__*/ require('../external/del')
   const { deleteAsync } = del
   const opts = { __proto__: null, ...options } as RemoveOptions
   const patterns = isArray(filepath)
@@ -630,7 +629,7 @@ export function safeDeleteSync(
   filepath: PathLike | PathLike[],
   options?: RemoveOptions | undefined,
 ) {
-  const del = /*@__PURE__*/ getDel() as any
+  const del = /*@__PURE__*/ require('../external/del')
   const { deleteSync } = del
   const opts = { __proto__: null, ...options } as RemoveOptions
   const patterns = isArray(filepath)
