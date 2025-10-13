@@ -136,6 +136,8 @@ async function runTests(options, positionals = []) {
   const spawnEnv = {
     ...process.env,
     ...(force ? { FORCE_TEST: '1' } : {}),
+    // Suppress unhandled rejections from worker thread cleanup
+    NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --unhandled-rejections=warn`.trim(),
   }
 
   // Handle Windows vs Unix for vitest executable
