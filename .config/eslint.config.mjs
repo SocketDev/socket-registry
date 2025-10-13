@@ -388,4 +388,12 @@ export default [
       'import-x/no-unresolved': 'off',
     },
   },
+  {
+    // Relax rules for script files
+    files: ['scripts/**/*.mjs'],
+    rules: {
+      'n/no-process-exit': 'off',
+      'no-await-in-loop': 'off',
+    },
+  },
 ]
