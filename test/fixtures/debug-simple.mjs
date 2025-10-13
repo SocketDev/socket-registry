@@ -1,11 +1,15 @@
-import {
-  debugDirSimple,
-  debugFnSimple,
-  debugLogSimple,
-  debuglog,
-  debugtime,
-  isDebugSimple,
-} from '../../registry/dist/lib/debug.js'
+// Import CommonJS module using createRequire.
+import { createRequire } from 'module'
+const require = createRequire(import.meta.url)
+const debug = require('../../registry/dist/lib/debug.js')
+const {
+  debugDir: debugDirSimple,
+  debugNs: debugFnSimple,
+  debugLog: debugLogSimple,
+  debug: debuglog,
+  debugCache: debugtime,
+  isDebug: isDebugSimple,
+} = debug
 
 const testName = process.argv[2]
 
