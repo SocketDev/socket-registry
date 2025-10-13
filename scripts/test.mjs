@@ -83,53 +83,46 @@ async function runCommand(command, args = [], options = {}) {
 
 async function runCheck() {
   logger.step('Running checks')
+  console.log('  (Press Ctrl+O to show/hide output)')
+  console.log()
 
-  // Run fix (auto-format) quietly since it has its own output
-  spinner.start('Formatting code...')
-  let exitCode = await runCommand('pnpm', ['run', 'fix'], {
-    stdio: 'pipe',
+  // Import unified runner for interactive experience
+  const { runWithOutput } = await import('./utils/unified-runner.mjs')
+
+  // Run fix (auto-format)
+  let exitCode = await runWithOutput('pnpm', ['run', 'fix'], {
+    message: 'Formatting code',
+    toggleText: 'to see formatter output',
   })
   if (exitCode !== 0) {
-    spinner.stop()
     logger.error('')
     logger.error('Formatting failed')
-    // Re-run with output to show errors
-    await runCommand('pnpm', ['run', 'fix'])
     return exitCode
   }
-  spinner.stop()
   logger.success('Code formatted')
 
   // Run lint to check for remaining issues
-  spinner.start('Running linter...')
-  exitCode = await runCommand('node', ['scripts/lint.mjs'], {
-    stdio: 'pipe',
+  exitCode = await runWithOutput('node', ['scripts/lint.mjs'], {
+    message: 'Running linter',
+    toggleText: 'to see linter output',
   })
   if (exitCode !== 0) {
-    spinner.stop()
     logger.error('')
     logger.error('Linting failed')
-    // Re-run with output to show errors
-    await runCommand('node', ['scripts/lint.mjs'])
     return exitCode
   }
-  spinner.stop()
   logger.success('Linting passed')
 
   // Run TypeScript check
-  spinner.start('Checking TypeScript...')
-  exitCode = await runCommand('tsgo', ['--noEmit', '-p', 'tsconfig.json'], {
-    stdio: 'pipe',
+  exitCode = await runWithOutput('tsgo', ['--noEmit', '-p', 'tsconfig.json'], {
+    message: 'Checking TypeScript',
+    toggleText: 'to see type errors',
   })
   if (exitCode !== 0) {
-    spinner.stop()
     logger.error('')
     logger.error('TypeScript check failed')
-    // Re-run with output to show errors
-    await runCommand('tsgo', ['--noEmit', '-p', 'tsconfig.json'])
     return exitCode
   }
-  spinner.stop()
   logger.success('TypeScript check passed')
 
   return exitCode
@@ -139,7 +132,19 @@ async function runBuild() {
   const distPath = path.join(constants.rootPath, 'registry', 'dist')
   if (!existsSync(distPath)) {
     logger.step('Building project')
-    return runCommand('pnpm', ['run', 'build'])
+
+    // Import unified runner for interactive experience
+    const { runWithOutput } = await import('./utils/unified-runner.mjs')
+
+    const exitCode = await runWithOutput('pnpm', ['run', 'build'], {
+      message: 'Building project',
+      toggleText: 'to see build output',
+    })
+    if (exitCode !== 0) {
+      logger.error('')
+      logger.error('Build failed')
+    }
+    return exitCode
   }
   return 0
 }
