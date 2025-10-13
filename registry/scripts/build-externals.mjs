@@ -320,7 +320,7 @@ async function bundlePackage(packageName, outputPath) {
         // Node.js test runner.
         'process.env.NODE_TEST': 'undefined',
 
-        ...(packageOpts.define || {}),
+        ...packageOpts.define,
       },
       // Use more efficient charset.
       charset: 'utf8',

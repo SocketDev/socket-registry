@@ -1608,7 +1608,7 @@ async function autonomousFixSession(
   }
 
   // Auto-fixable issue types (high confidence)
-  const autoFixableTypes = [
+  const autoFixableTypes = new Set([
     'console-log',
     'missing-await',
     'unused-variable',
@@ -1617,14 +1617,12 @@ async function autonomousFixSession(
     'deprecated-api',
     'type-error',
     'lint-error',
-  ]
+  ])
 
   // Determine which issues to auto-fix
   const toAutoFix = [...critical, ...high].filter(issue => {
     // Auto-fix if type is in whitelist OR severity is critical
-    return (
-      issue.severity === 'critical' || autoFixableTypes.includes(issue.type)
-    )
+    return issue.severity === 'critical' || autoFixableTypes.has(issue.type)
   })
 
   const toReview = [...critical, ...high, ...medium].filter(issue => {
