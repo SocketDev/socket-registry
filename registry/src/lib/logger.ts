@@ -56,8 +56,8 @@ function constructConsole(...args: unknown[]) {
 }
 
 // Import modules statically to avoid ESM issues.
-import yoctocolorsCjs from '../external/yoctocolors-cjs'
 import isUnicodeSupported from '../external/@socketregistry/is-unicode-supported'
+import yoctocolorsCjs from '../external/yoctocolors-cjs'
 
 /**
  * Get the yoctocolors module for terminal colors.
@@ -274,9 +274,9 @@ export class Logger {
   }
 
   /**
-   * Clear the console.
+   * Clear the visible terminal screen.
    */
-  clear() {
+  clearVisible() {
     const con = privateConsole.get(this)
     con.clear()
     if (con._stdout.isTTY) {
@@ -520,6 +520,31 @@ export class Logger {
     const con = privateConsole.get(this)
     con._stdout.write(text)
     this[lastWasBlankSymbol](false)
+    return this
+  }
+
+  /**
+   * Show a progress indicator (can be cleared with clearLine).
+   * Simple status message without spinner animation.
+   */
+  progress(text: string): this {
+    const con = privateConsole.get(this)
+    con._stdout.write(`∴ ${text}`)
+    this[lastWasBlankSymbol](false)
+    return this
+  }
+
+  /**
+   * Clear the current line.
+   */
+  clearLine(): this {
+    const con = privateConsole.get(this)
+    if (con._stdout.isTTY) {
+      con._stdout.cursorTo(0)
+      con._stdout.clearLine(0)
+    } else {
+      con._stdout.write('\r\x1b[K')
+    }
     return this
   }
 }
