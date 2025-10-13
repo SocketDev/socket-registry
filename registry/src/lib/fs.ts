@@ -571,7 +571,7 @@ export function readJsonSync(
 /**
  * Safely delete a file or directory asynchronously with built-in protections.
  * Uses `del` for safer deletion that prevents removing cwd and above by default.
- * Automatically uses force: true for temp directory subdirectories.
+ * Automatically uses force: true for temp directory, cacache, and ~/.socket subdirectories.
  * @throws {Error} When attempting to delete protected paths without force option.
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -586,26 +586,49 @@ export async function safeDelete(
     ? filepath.map(pathLikeToString)
     : [pathLikeToString(filepath)]
 
-  // Check if we're deleting within a temp directory.
+  // Check if we're deleting within allowed directories.
   let shouldForce = opts.force !== false
   if (!shouldForce && patterns.length > 0) {
     const os = getOs()
     const path = getPath()
+    const {
+      getSocketCacacheDir,
+      getSocketUserDir,
+    } = /*@__PURE__*/ require('./paths')
+
+    // Get allowed directories
     const tmpDir = os.tmpdir()
     const resolvedTmpDir = path.resolve(tmpDir)
+    const cacacheDir = getSocketCacacheDir()
+    const resolvedCacacheDir = path.resolve(cacacheDir)
+    const socketUserDir = getSocketUserDir()
+    const resolvedSocketUserDir = path.resolve(socketUserDir)
 
-    // Check if all patterns are within the temp directory.
-    const allInTempDir = patterns.every(pattern => {
+    // Check if all patterns are within allowed directories.
+    const allInAllowedDirs = patterns.every(pattern => {
       const resolvedPath = path.resolve(pattern)
-      const isInTempDir =
-        resolvedPath.startsWith(resolvedTmpDir + path.sep) ||
-        resolvedPath === resolvedTmpDir
-      const relativePath = path.relative(resolvedTmpDir, resolvedPath)
-      const isGoingBackward = relativePath.startsWith('..')
-      return isInTempDir && !isGoingBackward
+
+      // Check each allowed directory
+      for (const allowedDir of [
+        resolvedTmpDir,
+        resolvedCacacheDir,
+        resolvedSocketUserDir,
+      ]) {
+        const isInAllowedDir =
+          resolvedPath.startsWith(allowedDir + path.sep) ||
+          resolvedPath === allowedDir
+        const relativePath = path.relative(allowedDir, resolvedPath)
+        const isGoingBackward = relativePath.startsWith('..')
+
+        if (isInAllowedDir && !isGoingBackward) {
+          return true
+        }
+      }
+
+      return false
     })
 
-    if (allInTempDir) {
+    if (allInAllowedDirs) {
       shouldForce = true
     }
   }
@@ -621,7 +644,7 @@ export async function safeDelete(
 /**
  * Safely delete a file or directory synchronously with built-in protections.
  * Uses `del` for safer deletion that prevents removing cwd and above by default.
- * Automatically uses force: true for temp directory subdirectories.
+ * Automatically uses force: true for temp directory, cacache, and ~/.socket subdirectories.
  * @throws {Error} When attempting to delete protected paths without force option.
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -636,26 +659,49 @@ export function safeDeleteSync(
     ? filepath.map(pathLikeToString)
     : [pathLikeToString(filepath)]
 
-  // Check if we're deleting within a temp directory.
+  // Check if we're deleting within allowed directories.
   let shouldForce = opts.force !== false
   if (!shouldForce && patterns.length > 0) {
     const os = getOs()
     const path = getPath()
+    const {
+      getSocketCacacheDir,
+      getSocketUserDir,
+    } = /*@__PURE__*/ require('./paths')
+
+    // Get allowed directories
     const tmpDir = os.tmpdir()
     const resolvedTmpDir = path.resolve(tmpDir)
+    const cacacheDir = getSocketCacacheDir()
+    const resolvedCacacheDir = path.resolve(cacacheDir)
+    const socketUserDir = getSocketUserDir()
+    const resolvedSocketUserDir = path.resolve(socketUserDir)
 
-    // Check if all patterns are within the temp directory.
-    const allInTempDir = patterns.every(pattern => {
+    // Check if all patterns are within allowed directories.
+    const allInAllowedDirs = patterns.every(pattern => {
       const resolvedPath = path.resolve(pattern)
-      const isInTempDir =
-        resolvedPath.startsWith(resolvedTmpDir + path.sep) ||
-        resolvedPath === resolvedTmpDir
-      const relativePath = path.relative(resolvedTmpDir, resolvedPath)
-      const isGoingBackward = relativePath.startsWith('..')
-      return isInTempDir && !isGoingBackward
+
+      // Check each allowed directory
+      for (const allowedDir of [
+        resolvedTmpDir,
+        resolvedCacacheDir,
+        resolvedSocketUserDir,
+      ]) {
+        const isInAllowedDir =
+          resolvedPath.startsWith(allowedDir + path.sep) ||
+          resolvedPath === allowedDir
+        const relativePath = path.relative(allowedDir, resolvedPath)
+        const isGoingBackward = relativePath.startsWith('..')
+
+        if (isInAllowedDir && !isGoingBackward) {
+          return true
+        }
+      }
+
+      return false
     })
 
-    if (allInTempDir) {
+    if (allInAllowedDirs) {
       shouldForce = true
     }
   }
