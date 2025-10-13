@@ -39,6 +39,13 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 - **FORBIDDEN ES2023+**: `toReversed()`, `toSorted()`, `toSpliced()`, `with()`
 - **Use instead**: `slice().reverse()`, `slice().sort()`
 
+### Backward Compatibility (IMPORTANT)
+- **NO BACKWARD COMPATIBILITY**: Don't maintain it - we're our only consumers
+- **Breaking changes**: Inform about them, but don't add compat layers
+- **Dead code**: Backward compat code becomes dead code in our ecosystem
+- **Clean breaks**: Make clean API changes without deprecation paths
+- **Migration**: Quick internal updates preferred over gradual deprecation
+
 ### Safe File Operations (SECURITY CRITICAL)
 - **MANDATORY**: Use `trash` from `scripts/utils/fs.mjs` for all deletions
 - **Canonical implementation**: socket-registry (copy to other projects)
