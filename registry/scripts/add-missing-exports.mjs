@@ -60,12 +60,12 @@ for (const [key, value] of Object.entries(additionalExports)) {
 }
 
 // Sort exports alphabetically (but keep special ones at the end)
-const specialExports = ['./package.json']
+const specialExports = new Set(['./package.json'])
 const regularExports = {}
 const special = {}
 
 for (const [key, value] of Object.entries(pkg.exports)) {
-  if (specialExports.includes(key)) {
+  if (specialExports.has(key)) {
     special[key] = value
   } else {
     regularExports[key] = value

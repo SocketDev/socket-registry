@@ -15,7 +15,7 @@ export interface DividerOptions {
  * Create a divider line with custom character and width.
  */
 export function divider(options?: DividerOptions): string {
-  const opts = { __proto__: null, ...(options ?? {}) } as DividerOptions
+  const opts = { __proto__: null, ...options } as DividerOptions
   const { char = '═', width = 55 } = opts
   return repeatString(char, width)
 }

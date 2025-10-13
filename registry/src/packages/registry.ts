@@ -5,8 +5,4 @@
 /**
  * Main Socket Registry class for managing packages.
  */
-export class SocketRegistry {
-  constructor() {
-    // Implementation placeholder
-  }
-}
+export class SocketRegistry {}
