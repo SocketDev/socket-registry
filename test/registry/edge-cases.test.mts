@@ -2,10 +2,10 @@ import { promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import { deleteAsync as del } from 'del'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { normalizePath } from '../../registry/dist/lib/path.js'
-import { deleteAsync as del } from 'del'
 
 // Helper predicate moved to outer scope.
 const pFilterPredicate = async (value: number) => {

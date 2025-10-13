@@ -598,8 +598,9 @@ export async function safeDelete(
     // Check if all patterns are within the temp directory.
     const allInTempDir = patterns.every(pattern => {
       const resolvedPath = path.resolve(pattern)
-      const isInTempDir = resolvedPath.startsWith(resolvedTmpDir + path.sep) ||
-                          resolvedPath === resolvedTmpDir
+      const isInTempDir =
+        resolvedPath.startsWith(resolvedTmpDir + path.sep) ||
+        resolvedPath === resolvedTmpDir
       const relativePath = path.relative(resolvedTmpDir, resolvedPath)
       const isGoingBackward = relativePath.startsWith('..')
       return isInTempDir && !isGoingBackward
@@ -647,8 +648,9 @@ export function safeDeleteSync(
     // Check if all patterns are within the temp directory.
     const allInTempDir = patterns.every(pattern => {
       const resolvedPath = path.resolve(pattern)
-      const isInTempDir = resolvedPath.startsWith(resolvedTmpDir + path.sep) ||
-                          resolvedPath === resolvedTmpDir
+      const isInTempDir =
+        resolvedPath.startsWith(resolvedTmpDir + path.sep) ||
+        resolvedPath === resolvedTmpDir
       const relativePath = path.relative(resolvedTmpDir, resolvedPath)
       const isGoingBackward = relativePath.startsWith('..')
       return isInTempDir && !isGoingBackward

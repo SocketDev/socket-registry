@@ -2,6 +2,7 @@ import { createServer } from 'node:http'
 import os from 'node:os'
 import path from 'node:path'
 
+import { deleteAsync as del } from 'del'
 import {
   afterAll,
   afterEach,
@@ -18,7 +19,6 @@ import {
   getDlxCachePath,
   listDlxCache,
 } from '../../registry/dist/lib/dlx-binary.js'
-import { deleteAsync as del } from 'del'
 
 import type { IncomingMessage, ServerResponse } from 'node:http'
 

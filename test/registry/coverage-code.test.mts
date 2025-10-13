@@ -6,10 +6,10 @@ import { promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import { deleteAsync as del } from 'del'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getCodeCoverage } from '../../registry/dist/lib/cover/code.js'
-import { deleteAsync as del } from 'del'
 
 import type { V8CoverageData } from '../../registry/dist/lib/cover/types.js'
 
