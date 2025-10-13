@@ -365,19 +365,6 @@ describe('logger module', () => {
       })
     })
 
-    describe('clear', () => {
-      it('should clear console in TTY mode', () => {
-        testLogger.log('before clear')
-        testLogger.clear()
-        expect(testLogger.logCallCount).toBe(0)
-      })
-
-      it('should return this for chaining', () => {
-        const result = testLogger.clear()
-        expect(result).toBe(testLogger)
-      })
-    })
-
     describe('count', () => {
       it('should count calls with label', () => {
         testLogger.count('test-label')

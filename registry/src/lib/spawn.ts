@@ -162,9 +162,9 @@ export function isSpawnError(value: unknown): value is SpawnError {
   // Check for spawn-specific error properties.
   const err = value as any
   return (
-    (hasOwn(err, 'code') && typeof err.code !== 'undefined') ||
-    (hasOwn(err, 'errno') && typeof err.errno !== 'undefined') ||
-    (hasOwn(err, 'syscall') && typeof err.syscall === 'string')
+    (hasOwn(err, 'code') && typeof err['code'] !== 'undefined') ||
+    (hasOwn(err, 'errno') && typeof err['errno'] !== 'undefined') ||
+    (hasOwn(err, 'syscall') && typeof err['syscall'] === 'string')
   )
 }
 

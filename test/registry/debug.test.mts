@@ -7,12 +7,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   debugDir,
   debugDirNs,
-  debugFn,
-  debugFnNs,
   debugLog,
   debugLogNs,
-  debuglog,
-  debugtime,
+  debugNs,
   isDebug,
   isDebugNs,
 } from '../../registry/dist/lib/debug.js'
@@ -202,231 +199,6 @@ describe('debug module', () => {
     })
   })
 
-  describe('debugFn', () => {
-    it('should create a debug function', () => {
-      const fn = debugFn('test:namespace')
-      expect(typeof fn).toBe('function')
-    })
-
-    it('should log with namespace when debug matches', () => {
-      process.env['DEBUG'] = 'test:*'
-      const fn = debugFn('test:namespace')
-      fn('message')
-      expect(consoleSpy.log).toHaveBeenCalledWith(
-        expect.stringContaining('test:namespace'),
-        'message',
-      )
-    })
-
-    it('should not log when namespace does not match', () => {
-      process.env['DEBUG'] = 'other:*'
-      const fn = debugFn('test:namespace')
-      fn('message')
-      expect(consoleSpy.log).not.toHaveBeenCalled()
-    })
-
-    it('should handle wildcard patterns', () => {
-      process.env['DEBUG'] = '*'
-      const fn = debugFn('any:namespace')
-      fn('message')
-      expect(consoleSpy.log).toHaveBeenCalled()
-    })
-
-    it('should handle multiple debug patterns', () => {
-      process.env['DEBUG'] = 'test:*,other:*'
-      const fn1 = debugFn('test:one')
-      const fn2 = debugFn('other:two')
-      const fn3 = debugFn('skip:this')
-
-      fn1('msg1')
-      fn2('msg2')
-      fn3('msg3')
-
-      expect(consoleSpy.log).toHaveBeenCalledTimes(2)
-    })
-
-    it('should handle negation patterns', () => {
-      process.env['DEBUG'] = '*,-test:skip'
-      const fn1 = debugFn('test:include')
-      const fn2 = debugFn('test:skip')
-
-      fn1('included')
-      fn2('skipped')
-
-      expect(consoleSpy.log).toHaveBeenCalledWith(expect.anything(), 'included')
-      expect(consoleSpy.log).not.toHaveBeenCalledWith(
-        expect.anything(),
-        'skipped',
-      )
-    })
-
-    it('should include timestamp or time diff', async () => {
-      process.env['DEBUG'] = 'test:*'
-      const fn = debugFn('test:time')
-      fn('first')
-      await new Promise(resolve => {
-        setTimeout(() => {
-          fn('second')
-          const calls = consoleSpy.log.mock.calls
-          expect(calls.length).toBeGreaterThanOrEqual(1)
-          resolve(undefined)
-        }, 10)
-      })
-    })
-  })
-
-  describe('debuglog', () => {
-    it('should create a debug logger function', () => {
-      const logger = debuglog('test')
-      expect(typeof logger).toBe('function')
-    })
-
-    it('should log with section prefix when debug is enabled', () => {
-      process.env['DEBUG'] = '1'
-      const logger = debuglog('testsection')
-      logger('test message', 'arg1')
-      expect(consoleSpy.log).toHaveBeenCalledWith(
-        '[testsection]',
-        'test message',
-        'arg1',
-      )
-    })
-
-    it('should not log when debug is disabled', () => {
-      delete process.env['DEBUG']
-      const logger = debuglog('testsection')
-      logger('test message')
-      expect(consoleSpy.log).not.toHaveBeenCalled()
-    })
-
-    it('should handle multiple arguments', () => {
-      process.env['DEBUG'] = '1'
-      const logger = debuglog('multi')
-      logger('msg', 1, true, { obj: 'value' })
-      expect(consoleSpy.log).toHaveBeenCalledWith('[multi]', 'msg', 1, true, {
-        obj: 'value',
-      })
-    })
-  })
-
-  describe('debugtime', () => {
-    it('should create a debug timer function', () => {
-      const timer = debugtime('test')
-      expect(typeof timer).toBe('function')
-      expect(typeof timer.start).toBe('function')
-      expect(typeof timer.end).toBe('function')
-    })
-
-    it('should log basic messages when debug is enabled', () => {
-      process.env['DEBUG'] = '1'
-      const timer = debugtime('testsection')
-      timer('operation')
-      expect(consoleSpy.log).toHaveBeenCalledWith('[testsection] operation')
-    })
-
-    it('should not log when debug is disabled', () => {
-      delete process.env['DEBUG']
-      const timer = debugtime('testsection')
-      timer('operation')
-      timer.start('task')
-      timer.end('task')
-      expect(consoleSpy.log).not.toHaveBeenCalled()
-    })
-
-    it('should log start timing when debug is enabled', () => {
-      process.env['DEBUG'] = '1'
-      const timer = debugtime('timing')
-      timer.start('operation')
-      expect(consoleSpy.log).toHaveBeenCalledWith('[timing] operation: start')
-    })
-
-    it('should log end timing with duration when debug is enabled', async () => {
-      process.env['DEBUG'] = '1'
-      const timer = debugtime('timing')
-
-      timer.start('operation')
-
-      // Wait a small amount of time to ensure duration > 0
-      await new Promise(resolve => setTimeout(resolve, 10))
-
-      timer.end('operation')
-
-      const calls = consoleSpy.log.mock.calls
-      expect(calls).toContainEqual(['[timing] operation: start'])
-      expect(
-        calls.some(
-          (call: any) =>
-            call[0] &&
-            call[0].startsWith('[timing] operation: ') &&
-            call[0].endsWith('ms'),
-        ),
-      ).toBe(true)
-    })
-
-    it('should handle ending timer that was not started', () => {
-      process.env['DEBUG'] = '1'
-      const timer = debugtime('timing')
-      timer.end('nonexistent')
-
-      // Should not crash and should not log duration
-      const calls = consoleSpy.log.mock.calls
-      expect(
-        calls.some((call: any) => call[0] && call[0].includes('nonexistent')),
-      ).toBe(false)
-    })
-
-    it('should handle multiple timers independently', async () => {
-      process.env['DEBUG'] = '1'
-      const timer = debugtime('multi')
-
-      timer.start('task1')
-      timer.start('task2')
-
-      await new Promise(resolve => setTimeout(resolve, 5))
-      timer.end('task1')
-
-      await new Promise(resolve => setTimeout(resolve, 5))
-      timer.end('task2')
-
-      const calls = consoleSpy.log.mock.calls
-      expect(calls).toContainEqual(['[multi] task1: start'])
-      expect(calls).toContainEqual(['[multi] task2: start'])
-      expect(
-        calls.some(
-          (call: any) =>
-            call[0] &&
-            call[0].startsWith('[multi] task1: ') &&
-            call[0].endsWith('ms'),
-        ),
-      ).toBe(true)
-      expect(
-        calls.some(
-          (call: any) =>
-            call[0] &&
-            call[0].startsWith('[multi] task2: ') &&
-            call[0].endsWith('ms'),
-        ),
-      ).toBe(true)
-    })
-
-    it('should remove timer after ending', () => {
-      process.env['DEBUG'] = '1'
-      const timer = debugtime('cleanup')
-
-      timer.start('task')
-      timer.end('task')
-
-      // Clear previous calls
-      consoleSpy.log.mockClear()
-
-      // Try to end the same timer again
-      timer.end('task')
-
-      // Should not log anything since timer was removed
-      expect(consoleSpy.log).not.toHaveBeenCalled()
-    })
-  })
-
   describe('isDebugNs', () => {
     it('should return false when SOCKET_DEBUG is not set', () => {
       delete process.env['SOCKET_DEBUG']
@@ -451,10 +223,10 @@ describe('debug module', () => {
     })
   })
 
-  describe('debugFnNs', () => {
+  describe('debugNs', () => {
     it('should not log when namespace does not match', () => {
       process.env['DEBUG'] = 'other:*'
-      debugFnNs('test:namespace', 'message')
+      debugNs('test:namespace', 'message')
       expect(consoleSpy.log).not.toHaveBeenCalled()
     })
   })

@@ -163,6 +163,10 @@ function extractOptions(namespaces: NamespacesOrOptions): DebugOptions {
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isEnabled(namespaces: string | undefined) {
+  // Check if debugging is enabled at all
+  if (!ENV.SOCKET_DEBUG) {
+    return false
+  }
   if (typeof namespaces !== 'string' || !namespaces || namespaces === '*') {
     return true
   }
