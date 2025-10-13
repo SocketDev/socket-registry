@@ -184,10 +184,8 @@ async function fixDefaultReferences() {
       const fullPath = path.join(dir, entry.name)
 
       if (entry.isDirectory()) {
-        // eslint-disable-next-line no-await-in-loop
         await processDirectory(fullPath)
       } else if (entry.isFile() && entry.name.endsWith('.js')) {
-        // eslint-disable-next-line no-await-in-loop
         let content = await fs.readFile(fullPath, 'utf8')
         let modified = false
 
@@ -201,7 +199,6 @@ async function fixDefaultReferences() {
         }
 
         if (modified) {
-          // eslint-disable-next-line no-await-in-loop
           await fs.writeFile(fullPath, content)
           console.log(`    Fixed ${path.relative(distDir, fullPath)}`)
         }

@@ -35,7 +35,6 @@ async function fixConstantExports() {
       }
 
       const filePath = path.join(distConstantsDir, file)
-      // eslint-disable-next-line no-await-in-loop
       let content = await fs.readFile(filePath, 'utf8')
 
       // Check if this is a single default export.
@@ -49,7 +48,6 @@ async function fixConstantExports() {
           '',
         )
 
-        // eslint-disable-next-line no-await-in-loop
         await fs.writeFile(filePath, content)
         console.log(`    Fixed ${file}`)
       }

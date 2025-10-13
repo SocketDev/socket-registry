@@ -376,12 +376,38 @@ async function copyLocalFiles() {
   const dtsFiles = await fs.readdir(srcExternalDir)
   for (const file of dtsFiles) {
     if (file.endsWith('.d.ts')) {
-      // eslint-disable-next-line no-await-in-loop
       await fs.copyFile(
         path.join(srcExternalDir, file),
         path.join(distExternalDir, file),
       )
       console.log(`  Copied ${file}`)
+    }
+  }
+}
+
+// Helper to recursively copy a directory
+async function copyRecursive(srcPath, destPath, relativePath = '') {
+  await ensureDir(destPath)
+  const entries = await fs.readdir(srcPath, { withFileTypes: true })
+
+  for (const entry of entries) {
+    const srcEntry = path.join(srcPath, entry.name)
+    const destEntry = path.join(destPath, entry.name)
+    const relPath = path.join(relativePath, entry.name)
+
+    if (entry.isDirectory()) {
+      // Recursively copy directory
+      await copyRecursive(srcEntry, destEntry, relPath)
+    } else {
+      // Only copy if the file doesn't already exist (i.e., wasn't bundled).
+      try {
+        await fs.access(destEntry)
+        // File exists (was bundled), skip copying.
+      } catch {
+        // File doesn't exist, copy it.
+        await fs.copyFile(srcEntry, destEntry)
+        console.log(`  Copied ${relPath}`)
+      }
     }
   }
 }
@@ -393,25 +419,7 @@ async function copyScopedFiles() {
     const scopeDistDir = path.join(distExternalDir, scope)
 
     try {
-      // eslint-disable-next-line no-await-in-loop
-      const files = await fs.readdir(scopeSrcDir)
-      // eslint-disable-next-line no-await-in-loop
-      await ensureDir(scopeDistDir)
-
-      for (const file of files) {
-        const destFile = path.join(scopeDistDir, file)
-        // Only copy if the file doesn't already exist (i.e., wasn't bundled).
-        try {
-          // eslint-disable-next-line no-await-in-loop
-          await fs.access(destFile)
-          // File exists (was bundled), skip copying.
-        } catch {
-          // File doesn't exist, copy it.
-          // eslint-disable-next-line no-await-in-loop
-          await fs.copyFile(path.join(scopeSrcDir, file), destFile)
-          console.log(`  Copied ${scope}/${file}`)
-        }
-      }
+      await copyRecursive(scopeSrcDir, scopeDistDir, scope)
     } catch {
       // Scope directory doesn't exist.
     }
@@ -428,7 +436,6 @@ async function main() {
   for (const { bundle, name } of externalPackages) {
     if (bundle) {
       const outputPath = path.join(distExternalDir, `${name}.js`)
-      // eslint-disable-next-line no-await-in-loop
       await bundlePackage(name, outputPath)
     }
   }
@@ -436,7 +443,6 @@ async function main() {
   // Bundle scoped packages.
   for (const { name, optional, packages, scope } of scopedPackages) {
     const scopeDir = path.join(distExternalDir, scope)
-    // eslint-disable-next-line no-await-in-loop
     await ensureDir(scopeDir)
 
     if (name) {
@@ -444,13 +450,11 @@ async function main() {
       const outputPath = path.join(scopeDir, `${name}.js`)
       if (optional) {
         try {
-          // eslint-disable-next-line no-await-in-loop
           await bundlePackage(`${scope}/${name}`, outputPath)
         } catch {
           console.log(`  Skipping optional package ${scope}/${name}`)
         }
       } else {
-        // eslint-disable-next-line no-await-in-loop
         await bundlePackage(`${scope}/${name}`, outputPath)
       }
     } else if (packages) {
@@ -459,13 +463,11 @@ async function main() {
         const outputPath = path.join(scopeDir, `${pkg}.js`)
         if (optional) {
           try {
-            // eslint-disable-next-line no-await-in-loop
             await bundlePackage(`${scope}/${pkg}`, outputPath)
           } catch {
             console.log(`  Skipping optional package ${scope}/${pkg}`)
           }
         } else {
-          // eslint-disable-next-line no-await-in-loop
           await bundlePackage(`${scope}/${pkg}`, outputPath)
         }
       }
