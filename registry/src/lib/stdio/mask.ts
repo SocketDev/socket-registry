@@ -1,10 +1,11 @@
 /**
- * @fileoverview Low-level interactive output control with keyboard shortcuts.
- * Provides building blocks for masking output and handling keyboard input.
+ * @fileoverview Output masking utilities with keyboard controls.
+ * Provides building blocks for hiding/showing stdio with interactive toggles.
  */
 
-import type { ChildProcess } from 'node:child_process'
 import readline from 'node:readline'
+
+import type { ChildProcess } from 'node:child_process'
 
 export interface KeyboardHandler {
   /** Setup keyboard handling */
@@ -37,7 +38,9 @@ export function createKeyboardHandler(): KeyboardHandler {
 
   return {
     enable() {
-      if (enabled || !process.stdin.isTTY) return
+      if (enabled || !process.stdin.isTTY) {
+        return
+      }
 
       readline.emitKeypressEvents(process.stdin)
       process.stdin.setRawMode(true)
@@ -56,7 +59,9 @@ export function createKeyboardHandler(): KeyboardHandler {
     },
 
     disable() {
-      if (!enabled || !keypressHandler) return
+      if (!enabled || !keypressHandler) {
+        return
+      }
 
       if (process.stdin.isTTY) {
         process.stdin.setRawMode(false)
@@ -146,8 +151,8 @@ export function attachOutputMask(
   cleanup: () => void
 } {
   const mask = createOutputMask({
-    maxBufferSize: options.maxBufferSize,
-    onToggle: options.onToggle
+    ...(options.maxBufferSize !== undefined && { maxBufferSize: options.maxBufferSize }),
+    ...(options.onToggle !== undefined && { onToggle: options.onToggle })
   })
 
   const keyboard = createKeyboardHandler()
