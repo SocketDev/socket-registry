@@ -18,7 +18,7 @@ import { spinner } from '@socketsecurity/registry/lib/spinner'
  * @param {string[]} args - Command arguments
  * @param {object} options - Options
  * @param {string} options.message - Progress message
- * @param {string} options.toggleText - Text after "Ctrl+O" (default: "to see output")
+ * @param {string} options.toggleText - Text after "ctrl+o" (default: "to expand")
  * @param {boolean} options.showOnError - Show output on error (default: true)
  * @param {boolean} options.verbose - Start in verbose mode (default: false)
  * @returns {Promise<number>} Exit code
@@ -29,7 +29,7 @@ export async function runWithOutput(command, args = [], options = {}) {
     env = process.env,
     message = 'Running',
     showOnError = true,
-    toggleText = 'to see output',
+    toggleText = 'to expand',
     verbose = false,
   } = options
 
@@ -42,7 +42,7 @@ export async function runWithOutput(command, args = [], options = {}) {
 
     // Start spinner if not verbose and TTY
     if (!showOutput && process.stdout.isTTY) {
-      spinner.start(`${message} (Ctrl+O ${toggleText})`)
+      spinner.start(`${message} (ctrl+o ${toggleText})`)
       isSpinning = true
     }
 
@@ -81,7 +81,7 @@ export async function runWithOutput(command, args = [], options = {}) {
             // Hide output and restart spinner
             process.stdout.write('\r\x1b[K')
             if (!isSpinning) {
-              spinner.start(`${message} (Ctrl+O ${toggleText})`)
+              spinner.start(`${message} (ctrl+o ${toggleText})`)
               isSpinning = true
             }
             // Output will now buffer again
@@ -219,7 +219,7 @@ export async function runWithOutput(command, args = [], options = {}) {
 export async function runTests(command, args, options = {}) {
   return runWithOutput(command, args, {
     message: 'Running tests',
-    toggleText: 'to see test output',
+    toggleText: 'to expand',
     ...options,
   })
 }
@@ -230,7 +230,7 @@ export async function runTests(command, args, options = {}) {
 export async function runLint(command, args, options = {}) {
   return runWithOutput(command, args, {
     message: 'Running linter',
-    toggleText: 'to see lint results',
+    toggleText: 'to expand',
     ...options,
   })
 }
@@ -241,7 +241,7 @@ export async function runLint(command, args, options = {}) {
 export async function runBuild(command, args, options = {}) {
   return runWithOutput(command, args, {
     message: 'Building',
-    toggleText: 'to see build output',
+    toggleText: 'to expand',
     ...options,
   })
 }
