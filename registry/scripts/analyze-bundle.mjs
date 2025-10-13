@@ -132,7 +132,6 @@ async function main() {
   // Analyze top 10 largest bundles.
   for (const file of jsFiles.slice(0, 10)) {
     const filePath = path.join(distDir, file)
-    // eslint-disable-next-line no-await-in-loop
     const analysis = await analyzeBundle(filePath)
 
     totalOriginal += analysis.totalSize

@@ -4,10 +4,31 @@
  */
 
 import { existsSync, promises as fs } from 'node:fs'
-import os from 'node:os'
-import path from 'node:path'
 
 import WIN32 from '../constants/WIN32'
+
+let _os: typeof import('node:os') | undefined
+let _path: typeof import('node:path') | undefined
+
+/*@__NO_SIDE_EFFECTS__*/
+function getOs() {
+  if (_os === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _os = /*@__PURE__*/ require('os')
+  }
+  return _os!
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+function getPath() {
+  if (_path === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+    // eslint-disable-next-line n/prefer-node-protocol
+    _path = /*@__PURE__*/ require('path')
+  }
+  return _path!
+}
 import { isAbsolute, isPath, trimLeadingDotSlash } from '../path'
 import { readPackageJson } from './operations'
 
@@ -30,6 +51,7 @@ const FS_CP_OPTIONS = {
  * Resolve a path to its real location, handling symlinks.
  */
 async function resolveRealPath(pathStr: string): Promise<string> {
+  const path = getPath()
   return await fs.realpath(pathStr).catch(() => path.resolve(pathStr))
 }
 
@@ -75,6 +97,8 @@ export async function isolatePackage(
   packageSpec: string,
   options?: IsolatePackageOptions | undefined,
 ): Promise<IsolatePackageResult> {
+  const os = getOs()
+  const path = getPath()
   const opts = { __proto__: null, ...options } as IsolatePackageOptions
   const { imports, install, onPackageJson, sourcePath: optSourcePath } = opts
 

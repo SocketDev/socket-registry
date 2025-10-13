@@ -419,6 +419,47 @@ function isDebug(): boolean {
   return ENV.SOCKET_DEBUG
 }
 
+/**
+ * Create a Node.js util.debuglog compatible function.
+ * Returns a function that conditionally writes debug messages to stderr.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function debuglog(section: string) {
+  const util = getUtil()
+  return util.debuglog(section)
+}
+
+/**
+ * Create timing functions for measuring code execution time.
+ * Returns an object with start() and end() methods, plus a callable function.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function debugtime(label: string) {
+  const util = getUtil()
+  // Node.js util doesn't have debugtime - create a custom implementation
+  let startTime: number | undefined
+  const impl = () => {
+    if (startTime === undefined) {
+      startTime = Date.now()
+    } else {
+      const duration = Date.now() - startTime
+      util.debuglog('time')(`${label}: ${duration}ms`)
+      startTime = undefined
+    }
+  }
+  impl.start = () => {
+    startTime = Date.now()
+  }
+  impl.end = () => {
+    if (startTime !== undefined) {
+      const duration = Date.now() - startTime
+      util.debuglog('time')(`${label}: ${duration}ms`)
+      startTime = undefined
+    }
+  }
+  return impl
+}
+
 // Export main debug functions with caller info.
 export { debug }
 // debugCache is already exported directly above
@@ -426,7 +467,9 @@ export { debugCacheNs }
 export { debugDir }
 export { debugDirNs }
 export { debugLog }
+export { debuglog }
 export { debugLogNs }
 export { debugNs }
+export { debugtime }
 export { isDebug }
 export { isDebugNs }

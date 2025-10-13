@@ -192,7 +192,6 @@ export async function analyzePackageUsage(packageName, sourceDir) {
   ]
 
   for (const file of files) {
-    // eslint-disable-next-line no-await-in-loop
     const content = await fs.readFile(path.join(sourceDir, file), 'utf8')
 
     for (const pattern of importPatterns) {
