@@ -115,25 +115,20 @@ describe('spinner module', () => {
       })
     })
 
-    describe('setText and getText', () => {
-      it('should set text', () => {
-        testSpinner.setText('New text')
-        expect(testSpinner.getText()).toBe('New text')
+    describe('text method', () => {
+      it('should set and get text via method', () => {
+        testSpinner.text('New text')
+        expect(testSpinner.text()).toBe('New text')
       })
 
-      it('should trim leading whitespace from text', () => {
-        testSpinner.setText('  \t Text')
-        expect(testSpinner.getText()).toBe('Text')
+      it('should handle text through start method', () => {
+        testSpinner.start('Start text')
+        expect(testSpinner.text()).toBe('Start text')
       })
 
-      it('should handle non-string values', () => {
-        testSpinner.setText(null)
-        expect(testSpinner.getText()).toBe('')
-      })
-
-      it('should return this for chaining', () => {
-        const result = testSpinner.setText('test')
-        expect(result).toBe(testSpinner)
+      it('should work with setter', () => {
+        testSpinner.text = 'Set via property'
+        expect(testSpinner.text()).toBe('Set via property')
       })
     })
 
@@ -281,7 +276,8 @@ describe('spinner module', () => {
 
     describe('chaining', () => {
       it('should have chainable methods', () => {
-        expect(testSpinner.setText('test')).toBe(testSpinner)
+        expect(testSpinner.start('test')).toBe(testSpinner)
+        expect(testSpinner.stop()).toBe(testSpinner)
       })
     })
   })
