@@ -6,6 +6,10 @@
  * scalable alternatives.
  */
 
+/// <reference types="node" />
+
+type BufferEncoding = NodeJS.BufferEncoding
+
 /**
  * IPC message structure for secure data transfer.
  * All IPC messages conform to this structure with runtime validation.

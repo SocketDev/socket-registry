@@ -462,15 +462,4 @@ describe('fetchPackageProvenance', () => {
       }
     }
   })
-
-  // Real integration test with a package that has provenance (if any exists)
-  it.skip('should detect provenance for packages that have it (integration test)', async () => {
-    // This test is skipped by default as it requires network access
-    // and a real package with provenance. Uncomment and update with a real
-    // package if you want to test against the actual npm registry.
-    // Example: const result = await fetchPackageProvenance('@actions/core', '1.10.0')
-    // expect(result?.level).toBe('trusted') // or 'attested'
-    // expect(result?.repository).toBeDefined()
-    // expect(result?.workflowUrl).toBeDefined()
-  })
 })

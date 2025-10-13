@@ -294,7 +294,7 @@ async function maybeBumpPackage(pkg, options) {
     return
   }
 
-  spinner?.setText(`Checking ${pkg.printName}...`)
+  spinner?.text(`Checking ${pkg.printName}...`)
 
   const manifest = await fetchPackageManifest(`${pkg.name}@${pkg.tag}`)
   if (!manifest) {
@@ -309,11 +309,11 @@ async function maybeBumpPackage(pkg, options) {
   let hasChanged = false
   if (hasGitChange) {
     // Git shows changes, skip expensive hash comparison.
-    spinner?.setText(`Detected git changes in ${pkg.printName}`)
+    spinner?.text(`Detected git changes in ${pkg.printName}`)
     hasChanged = true
   } else {
     // No git changes, do full hash comparison.
-    spinner?.setText(`Comparing ${pkg.printName} against published version...`)
+    spinner?.text(`Comparing ${pkg.printName} against published version...`)
     hasChanged = await hasPackageChanged(pkg, manifest, { state })
   }
 

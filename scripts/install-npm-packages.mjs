@@ -1258,7 +1258,7 @@ async function main() {
               completedPackages % updateInterval === 0 ||
               completedPackages === totalPackagesCount
             ) {
-              spinner.text = `Installing ${completedPackages}/${totalPackagesCount} ${pluralize('package', { count: filteredPackages.length })}`
+              spinner.text(`Installing ${completedPackages}/${totalPackagesCount} ${pluralize('package', { count: filteredPackages.length })}`)
             }
             lastCompletedCount = completedPackages
           }
