@@ -282,10 +282,27 @@ class YoctoSpinner {
   }
 
   get text() {
+    // Check if subclass wants to override with a method
+    if (this._textMethod) {
+      // Return the method itself so it can be called
+      return this._textMethod
+    }
     return this.#text
   }
 
   set text(value) {
+    // Check if subclass wants to override with a method but avoid recursion
+    if (this._textMethod && !this._inTextSetter) {
+      // Set flag to prevent recursion
+      this._inTextSetter = true
+      try {
+        // When setting, call the method with the value
+        this._textMethod(value)
+      } finally {
+        this._inTextSetter = false
+      }
+      return
+    }
     this.#text = normalizeText(value)
     this.#render()
   }

@@ -42,8 +42,9 @@ export type Spinner = {
   fail(text?: string | undefined, ...extras: unknown[]): Spinner
   failAndStop(text?: string | undefined, ...extras: unknown[]): Spinner
 
-  text(): string
+  // text property returns a method via _textMethod override
   text(value: string): Spinner
+  text(): string
 
   indent(spaces?: number | undefined): Spinner
   dedent(spaces?: number | undefined): Spinner
@@ -132,7 +133,10 @@ export function getCliSpinners(
 ): SpinnerStyle | Record<string, SpinnerStyle> | undefined {
   if (_cliSpinners === undefined) {
     const YoctoCtor = yoctoSpinner as any
-    _cliSpinners = YoctoCtor.spinners
+    // Get the YoctoSpinner class to access static properties
+    const tempInstance = YoctoCtor({})
+    const YoctoSpinnerClass = tempInstance.constructor as any
+    _cliSpinners = YoctoSpinnerClass.spinners
   }
   if (typeof styleName === 'string' && _cliSpinners) {
     return hasOwn(_cliSpinners, styleName) ? _cliSpinners[styleName] : undefined
@@ -152,9 +156,12 @@ let _defaultSpinner: SpinnerStyle | undefined
 export function Spinner(options?: SpinnerOptions | undefined): Spinner {
   if (_Spinner === undefined) {
     const YoctoCtor = yoctoSpinner as any
+    // Get the actual YoctoSpinner class from an instance
+    const tempInstance = YoctoCtor({})
+    const YoctoSpinnerClass = tempInstance.constructor
 
     /*@__PURE__*/
-    _Spinner = class SpinnerClass extends (YoctoCtor as any) {
+    _Spinner = class SpinnerClass extends (YoctoSpinnerClass as any) {
       declare isSpinning: boolean
       #progress?: ProgressInfo | undefined
       #baseText: string = ''
@@ -166,6 +173,20 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
           signal: abortSignal,
           ...options,
         })
+
+        // Set up the text method for yocto-spinner override.
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const self = this
+        ;(this as any)._textMethod = function (value?: string) {
+          if (arguments.length === 0) {
+            // Getter mode - return base text without indentation.
+            return self.#baseText
+          }
+          // Setter mode.
+          self.#baseText = normalizeText(value)
+          self.#updateSpinnerText()
+          return self
+        }
       }
 
       #apply(methodName: string, args: unknown[]) {
@@ -234,15 +255,8 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
         return this.#apply('error', args)
       }
 
-      text(value?: string) {
-        if (arguments.length === 0) {
-          // Return base text without indentation.
-          return this.#baseText
-        }
-        this.#baseText = normalizeText(value)
-        this.#updateSpinnerText()
-        return this
-      }
+      // The text getter/setter from parent class now behaves like a method
+      // thanks to _textMethodOverride set in constructor.
 
       indent(spaces?: number) {
         // Pass 0 to reset indentation
