@@ -1170,10 +1170,6 @@
       "types": "./dist/lib/cache-with-ttl.d.ts",
       "default": "./dist/lib/cache-with-ttl.js"
     },
-    "./lib/cli/output": {
-      "types": "./dist/lib/cli/output.d.ts",
-      "default": "./dist/lib/cli/output.js"
-    },
     "./lib/constants": {
       "types": "./dist/lib/constants/index.d.ts",
       "default": "./dist/lib/constants/index.js"
