@@ -124,13 +124,13 @@ class YoctoSpinner {
   #color
   #currentFrame = -1
   #exitHandlerBound
-  #getFrameWidth
   #indention = ''
   #isInteractive
   #isSpinning = false
   #lastSpinnerFrameTime = 0
   #lines = 0
   #onFrameUpdate
+  #onRenderFrame
   #skipRender = false
   #spinner
   #stream
@@ -171,7 +171,7 @@ class YoctoSpinner {
     this.#isInteractive = !!stream.isTTY && isProcessInteractive()
     this.#exitHandlerBound = this.#exitHandler.bind(this)
     this.#onFrameUpdate = options.onFrameUpdate
-    this.#getFrameWidth = options.getFrameWidth
+    this.#onRenderFrame = options.onRenderFrame
   }
 
   #exitHandler(signal) {
@@ -242,15 +242,17 @@ class YoctoSpinner {
       : (colors[this.#color] ?? colors.cyan)
     const frame = getFrame(this.#spinner, this.#currentFrame)
 
-    // Calculate spacing based on frame width if callback provided
-    let spacing = ' '
-    if (frame && typeof this.#getFrameWidth === 'function') {
-      const frameWidth = this.#getFrameWidth(frame)
-      // Pad narrow frames (width 1) with extra space to match wide frames (width 2)
-      spacing = frameWidth === 1 ? '  ' : ' '
+    let string
+    if (typeof this.#onRenderFrame === 'function') {
+      // Use custom render callback for full control over frame + text layout.
+      // Callback receives: frame, text, applyColor function.
+      string = this.#onRenderFrame(frame, this.#text, applyColor)
+    } else {
+      // Default rendering: frame with single space + text.
+      // Legacy behavior preserved for ecosystem compatibility.
+      // Consumers can use onRenderFrame callback for custom spacing logic.
+      string = `${frame ? `${applyColor(frame)} ` : ''}${this.#text}`
     }
-
-    let string = `${frame ? `${applyColor(frame)}${spacing}` : ''}${this.#text}`
 
     if (string) {
       if (this.#indention.length) {
