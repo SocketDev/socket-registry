@@ -261,7 +261,8 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
             | ColorValue
             | ShimmerColorGradient
             | undefined
-          let shimmerSpeed: number = 1 / 3 // Default: 0.33 steps per frame (~150ms per step)
+          // Default: 0.33 steps per frame (~150ms per step).
+          let shimmerSpeed: number = 1 / 3
 
           if (typeof opts.shimmer === 'string') {
             shimmerDir = opts.shimmer

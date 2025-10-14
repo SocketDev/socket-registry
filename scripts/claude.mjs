@@ -177,7 +177,6 @@ async function runClaude(claudeCmd, prompt, options = {}) {
     }
   }
 
-  const task = enhancedPrompt.slice(0, 100)
   let result
 
   // Default timeout: 3 minutes for non-interactive, 10 minutes for interactive
