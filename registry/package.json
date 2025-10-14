@@ -1138,6 +1138,10 @@
       "types": "./dist/lib/agent.d.ts",
       "default": "./dist/lib/agent.js"
     },
+    "./lib/ansi": {
+      "types": "./dist/lib/ansi.d.ts",
+      "default": "./dist/lib/ansi.js"
+    },
     "./lib/argv/flags": {
       "types": "./dist/lib/argv/flags.d.ts",
       "default": "./dist/lib/argv/flags.js"
@@ -1345,6 +1349,22 @@
     "./lib/spawn": {
       "types": "./dist/lib/spawn.d.ts",
       "default": "./dist/lib/spawn.js"
+    },
+    "./lib/effects/pulse-frames": {
+      "types": "./dist/lib/effects/pulse-frames.d.ts",
+      "default": "./dist/lib/effects/pulse-frames.js"
+    },
+    "./lib/effects/text-shimmer": {
+      "types": "./dist/lib/effects/text-shimmer.d.ts",
+      "default": "./dist/lib/effects/text-shimmer.js"
+    },
+    "./lib/effects/types": {
+      "types": "./dist/lib/effects/types.d.ts",
+      "default": "./dist/lib/effects/types.js"
+    },
+    "./lib/effects/ultra": {
+      "types": "./dist/lib/effects/ultra.d.ts",
+      "default": "./dist/lib/effects/ultra.js"
     },
     "./lib/spinner": {
       "types": "./dist/lib/spinner.d.ts",
