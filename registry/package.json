@@ -1231,8 +1231,8 @@
       "default": "./dist/lib/http-request.js"
     },
     "./lib/ipc": {
-      "types": "./lib/ipc.d.ts",
-      "default": "./lib/ipc.js"
+      "types": "./dist/lib/ipc/index.d.ts",
+      "default": "./dist/lib/ipc/index.js"
     },
     "./lib/json": {
       "types": "./dist/lib/json.d.ts",

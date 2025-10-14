@@ -6,8 +6,6 @@ import {
 } from '../../registry/dist/lib/tables.js'
 
 describe('tables module', () => {
-  let getYoctocolorsMock: any
-
   beforeEach(() => {
     const mockColors = {
       bold: (str: string) => `**${str}**`,
@@ -16,11 +14,8 @@ describe('tables module', () => {
       red: (str: string) => `[red]${str}[/red]`,
     }
 
-    // @ts-ignore
-    getYoctocolorsMock = vi.fn(() => mockColors)
-
-    vi.doMock('../../registry/dist/lib/dependencies/logging.js', () => ({
-      getYoctocolors: getYoctocolorsMock,
+    vi.doMock('../../registry/dist/external/yoctocolors-cjs.js', () => ({
+      default: mockColors,
     }))
   })
 
