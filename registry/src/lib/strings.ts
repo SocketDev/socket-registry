@@ -3,6 +3,11 @@
  * Provides string processing, prefix application, and terminal output utilities.
  */
 
+import { ansiRegex, stripAnsi } from './ansi'
+
+// Re-export ANSI utilities for backward compatibility.
+export { ansiRegex, stripAnsi }
+
 // Type definitions
 declare const BlankStringBrand: unique symbol
 export type BlankString = string & { [BlankStringBrand]: true }
@@ -13,29 +18,7 @@ export type EmptyString = string & { [EmptyStringBrand]: true }
 // tsgo has a bug that incorrectly transpiles destructured exports, resulting in
 // `exports.SomeName = void 0;` which causes runtime errors.
 // See: https://github.com/SocketDev/socket-packageurl-js/issues/3
-const fromCharCode = String.fromCharCode
-
-// Inlined ansi-regex:
-// https://socket.dev/npm/package/ansi-regexp/overview/6.2.2
-// MIT License
-// Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
-
-/**
- * Create a regular expression for matching ANSI escape codes.
- */
-/*@__NO_SIDE_EFFECTS__*/
-function ansiRegex(options?: { onlyFirst?: boolean }): RegExp {
-  const { onlyFirst } = options ?? {}
-  // Valid string terminator sequences are BEL, ESC\, and 0x9c.
-  const ST = '(?:\\u0007|\\u001B\\u005C|\\u009C)'
-  // OSC sequences only: ESC ] ... ST (non-greedy until the first ST).
-  const osc = `(?:\\u001B\\][\\s\\S]*?${ST})`
-  // CSI and related: ESC/C1, optional intermediates, optional params (supports ; and :) then final byte.
-  const csi =
-    '[\\u001B\\u009B][[\\]()#;?]*(?:\\d{1,4}(?:[;:]\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]'
-  const pattern = `${osc}|${csi}`
-  return new RegExp(pattern, onlyFirst ? undefined : 'g')
-}
+export const fromCharCode = String.fromCharCode
 
 export interface ApplyLinePrefixOptions {
   prefix?: string
@@ -171,14 +154,6 @@ export function search(
 }
 
 /**
- * Strip ANSI escape codes from a string.
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function stripAnsi(str: string): string {
-  return str.replace(ansiRegex(), '')
-}
-
-/**
  * Strip the Byte Order Mark (BOM) from the beginning of a string.
  */
 /*@__NO_SIDE_EFFECTS__*/
@@ -186,6 +161,107 @@ export function stripBom(str: string): string {
   // In JavaScript, string data is stored as UTF-16, so BOM is 0xFEFF.
   // https://tc39.es/ecma262/#sec-unicode-format-control-characters
   return str.length > 0 && str.charCodeAt(0) === 0xfeff ? str.slice(1) : str
+}
+
+/**
+ * Get the visual width of a string in terminal columns.
+ * Strips ANSI escape codes and accounts for wide characters.
+ *
+ * Inlined string-width:
+ * https://socket.dev/npm/package/string-width/overview/7.2.0
+ * MIT License
+ * Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
+ *
+ * Terminal emulators display characters in a grid of cells (columns).
+ * Most ASCII characters take 1 column, but some characters (especially
+ * emoji and CJK characters) take 2 columns.
+ *
+ * This function calculates how many columns a string will occupy when
+ * displayed in a terminal, which is crucial for:
+ * - Aligning text properly
+ * - Preventing text from jumping when characters change
+ * - Calculating padding/spacing
+ *
+ * East Asian Width categories (Unicode Standard Annex #11):
+ * - F (Fullwidth): 2 columns - e.g., fullwidth Latin letters (Ａ, Ｂ)
+ * - W (Wide): 2 columns - e.g., CJK ideographs (漢字), emoji (⚡, 😀)
+ * - H (Halfwidth): 1 column - e.g., halfwidth Katakana (ｱ, ｲ)
+ * - Na (Narrow): 1 column - e.g., ASCII (a-z, 0-9)
+ * - A (Ambiguous): Context-dependent, we treat as 1 column
+ * - N (Neutral): 1 column - e.g., most symbols (✦, ✧, ⋆)
+ *
+ * Why this matters for Socket spinners:
+ * - Lightning bolt (⚡) takes 2 columns
+ * - Stars (✦, ✧, ⋆) take 1 column
+ * - Without compensation, text jumps when frames change
+ * - We use this to calculate padding for consistent alignment
+ *
+ * @example
+ * stringWidth('hello') // => 5 (5 ASCII chars = 5 columns)
+ * stringWidth('⚡') // => 2 (lightning bolt is wide)
+ * stringWidth('✦') // => 1 (star is narrow)
+ * stringWidth('\x1b[31mred\x1b[0m') // => 3 (ANSI codes stripped, 'red' = 3)
+ *
+ * @throws {TypeError} When input is not a string.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+export function stringWidth(text: string): number {
+  if (typeof text !== 'string' || !text.length) {
+    return 0
+  }
+
+  // Strip ANSI escape codes first (colors, bold, italic, etc.).
+  // These are invisible and don't contribute to visual width.
+  const plainText = stripAnsi(text)
+
+  if (!plainText.length) {
+    return 0
+  }
+
+  // Import get-east-asian-width lazily to avoid bundling it in all cases.
+  const { eastAsianWidth } = require('get-east-asian-width')
+
+  let width = 0
+
+  // Iterate through each Unicode code point (not just UTF-16 code units).
+  // This properly handles surrogate pairs and emoji.
+  for (const char of plainText) {
+    const code = char.codePointAt(0)
+    if (code === undefined) {
+      continue
+    }
+
+    // Ignore control characters (0-31, 127-159).
+    // These are non-printable and don't take up visual space.
+    // Examples: tab, newline, escape, delete.
+    if (code < 32 || (code >= 127 && code < 160)) {
+      continue
+    }
+
+    // Ignore combining characters (768-879, U+0300-U+036F).
+    // These combine with the previous character and don't add width.
+    // Examples: accents, diacritics (é is e + combining acute accent).
+    if (code >= 768 && code <= 879) {
+      continue
+    }
+
+    // Ignore variation selectors (U+FE00-U+FE0F).
+    // These modify the appearance of the preceding character but don't add width.
+    // Examples: U+FE0E forces text-style rendering, U+FE0F forces emoji-style.
+    if (code >= 0xfe00 && code <= 0xfe0f) {
+      continue
+    }
+
+    // Get the East Asian Width property for this character.
+    // This is defined by Unicode Standard Annex #11.
+    // eastAsianWidth expects a single code point (number), not a string.
+    // Pass ambiguousAsWide: false to treat ambiguous characters as narrow (1 column).
+    const charWidth = eastAsianWidth(code, { ambiguousAsWide: false })
+
+    width += charWidth
+  }
+
+  return width
 }
 
 /**
