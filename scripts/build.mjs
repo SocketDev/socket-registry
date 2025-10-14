@@ -6,13 +6,8 @@
  *   node scripts/build.mjs
  */
 
-import {
-  printError,
-  printFooter,
-  printHeader,
-  printSuccess,
-} from './utils/cli-helpers.mjs'
-import { runParallel } from './utils/run-command.mjs'
+import { printFooter, printHeader } from './utils/cli-helpers.mjs'
+import { runWithOutput } from './utils/unified-runner.mjs'
 
 // Note: We use the shared print utilities instead of the registry logger
 // because the logger is in registry/dist/lib/logger.js which doesn't exist until
@@ -22,25 +17,22 @@ async function main() {
   try {
     printHeader('Building Registry')
 
-    const builds = [
+    const exitCode = await runWithOutput(
+      'pnpm',
+      ['--filter', 'registry', 'run', 'build'],
       {
-        args: ['--filter', 'registry', 'run', 'build'],
-        command: 'pnpm',
+        message: 'Building',
+        toggleText: 'to see build output',
       },
-    ]
+    )
 
-    const exitCodes = await runParallel(builds)
-    const failed = exitCodes.some(code => code !== 0)
-
-    if (failed) {
-      printError('Build failed')
+    if (exitCode !== 0) {
       process.exitCode = 1
     } else {
-      printSuccess('Build complete')
       printFooter()
     }
   } catch (error) {
-    printError(`Build failed: ${error.message}`)
+    console.error(`Build failed: ${error.message}`)
     process.exitCode = 1
   }
 }

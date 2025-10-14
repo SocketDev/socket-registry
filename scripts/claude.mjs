@@ -144,9 +144,31 @@ async function runClaude(claudeCmd, prompt, options = {}) {
   const opts = { __proto__: null, ...options }
   const args = prepareClaudeArgs([], opts)
 
+  // Determine mode for ultrathink decision.
+  const task = prompt.slice(0, 100)
+  const forceModel = opts['the-brain']
+    ? 'the-brain'
+    : opts.pinky
+      ? 'pinky'
+      : null
+  const mode = modelStrategy.selectMode(task, {
+    forceModel,
+    lastError: opts.lastError,
+  })
+
+  // Prepend ultrathink directive when using The Brain mode.
+  // Ultrathink is Claude's most intensive thinking mode, providing maximum
+  // thinking budget for deep analysis and complex problem-solving.
+  // Learn more: https://www.anthropic.com/engineering/claude-code-best-practices
+  let enhancedPrompt = prompt
+  if (mode === 'the-brain') {
+    enhancedPrompt = `ultrathink\n\n${prompt}`
+    log.substep('🧠 The Brain activated with ultrathink mode')
+  }
+
   // Check cache for non-interactive requests
   if (opts.interactive === false && opts.cache !== false) {
-    const cacheKey = `${prompt.slice(0, 100)}_${opts._selectedModel || 'default'}`
+    const cacheKey = `${enhancedPrompt.slice(0, 100)}_${mode}`
     const cached = claudeCache.get(cacheKey)
 
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
@@ -155,7 +177,7 @@ async function runClaude(claudeCmd, prompt, options = {}) {
     }
   }
 
-  const task = prompt.slice(0, 100)
+  const task = enhancedPrompt.slice(0, 100)
   let result
 
   // Default timeout: 3 minutes for non-interactive, 10 minutes for interactive
@@ -186,8 +208,8 @@ async function runClaude(claudeCmd, prompt, options = {}) {
         }, timeout)
 
         // Write the prompt to stdin
-        if (prompt) {
-          child.stdin.write(prompt)
+        if (enhancedPrompt) {
+          child.stdin.write(enhancedPrompt)
           child.stdin.end()
         }
 
@@ -231,7 +253,7 @@ async function runClaude(claudeCmd, prompt, options = {}) {
       result = await Promise.race([
         runCommandWithOutput(claudeCmd, args, {
           ...opts,
-          input: prompt,
+          input: enhancedPrompt,
           stdio: ['pipe', 'pipe', 'pipe'],
         }),
         new Promise(resolve => {
@@ -487,47 +509,59 @@ class ModelStrategy {
     this.lastTaskComplexity = new Map()
   }
 
-  selectModel(task, options = {}) {
+  selectMode(task, options = {}) {
     const { forceModel = null } = options
 
-    // Honor explicit flags
+    // Honor explicit flags.
     if (forceModel === 'the-brain') {
       log.substep('🧠 The Brain activated (user requested)')
-      return 'claude-3-5-sonnet-20241022'
+      return 'the-brain'
     }
     if (forceModel === 'pinky') {
-      return 'claude-3-5-sonnet-20241022'
+      return 'pinky'
     }
 
-    // Check if in temporary Brain mode
+    // Check if in temporary Brain mode.
     if (this.brainActivatedAt) {
       const elapsed = Date.now() - this.brainActivatedAt
       if (elapsed < this.brainTimeout) {
         const remaining = Math.round((this.brainTimeout - elapsed) / 1000)
         log.substep(`🧠 Brain mode active (${remaining}s remaining)`)
-        return 'claude-3-5-sonnet-20241022'
+        return 'the-brain'
       }
       this.brainActivatedAt = null
       log.substep('🐭 Reverting to Pinky mode')
     }
 
-    // Auto-escalate based on failures
+    // Auto-escalate based on failures.
     const taskKey = this.getTaskKey(task)
     const attempts = this.attempts.get(taskKey) || 0
 
     if (attempts >= this.escalationThreshold) {
       log.warn(`🧠 Escalating to The Brain after ${attempts} Pinky attempts`)
       this.activateBrain()
-      return 'claude-3-5-sonnet-20241022'
+      return 'the-brain'
     }
 
-    // Check task complexity
+    // Check task complexity.
     if (this.assessComplexity(task) > 0.8) {
       log.substep('🧠 Complex task detected, using The Brain')
+      return 'the-brain'
+    }
+
+    // Default to efficient Pinky.
+    return 'pinky'
+  }
+
+  selectModel(task, options = {}) {
+    const mode = this.selectMode(task, options)
+
+    // Map mode to model.
+    // Currently both use the same model, but this allows for future differentiation.
+    if (mode === 'the-brain') {
       return 'claude-3-5-sonnet-20241022'
     }
 
-    // Default to efficient Pinky
     return 'claude-3-5-sonnet-20241022'
   }
 
@@ -842,7 +876,7 @@ function prepareClaudeArgs(args = [], options = {}) {
   const _opts = { __proto__: null, ...options }
   const claudeArgs = [...args]
 
-  // Smart model selection
+  // Smart model selection.
   const task = _opts.prompt || _opts.command || 'general task'
   const forceModel = _opts['the-brain']
     ? 'the-brain'
@@ -850,19 +884,19 @@ function prepareClaudeArgs(args = [], options = {}) {
       ? 'pinky'
       : null
 
+  const mode = modelStrategy.selectMode(task, {
+    forceModel,
+    lastError: _opts.lastError,
+  })
+
   const model = modelStrategy.selectModel(task, {
     forceModel,
     lastError: _opts.lastError,
   })
 
-  // Add model flag if Claude Code supports it
-  if (model === 'claude-3-opus-20240229') {
-    // Claude Code might not support direct model selection
-    // but we track it for our logic
-    _opts._selectedModel = 'the-brain'
-  } else {
-    _opts._selectedModel = 'pinky'
-  }
+  // Track mode for caching and logging.
+  _opts._selectedMode = mode
+  _opts._selectedModel = model
 
   return claudeArgs
 }
@@ -3567,7 +3601,7 @@ async function main() {
       console.log('  --seq            Run sequentially (default: parallel)')
       console.log("  --skip-commit    Update files but don't commit")
       console.log(
-        '  --the-brain      Use Sonnet model - "Try to take over the world!"',
+        '  --the-brain      Use ultrathink mode - "Try to take over the world!"',
       )
       console.log('  --watch          Continuous monitoring mode')
       console.log('  --workers N      Number of parallel workers (default: 3)')
@@ -3587,7 +3621,7 @@ async function main() {
         '  pnpm claude --green --dry-run  # Test green without real CI',
       )
       console.log(
-        '  pnpm claude --fix --the-brain  # Deep analysis with powerful model',
+        '  pnpm claude --fix --the-brain  # Deep analysis with ultrathink mode',
       )
       console.log('  pnpm claude --fix --workers 5  # Use 5 parallel workers')
       console.log(

@@ -319,11 +319,11 @@ export function memoizeWeak<K extends object, Result>(
  * import { once } from '@socketsecurity/registry/lib/memoization'
  *
  * const initialize = once(() => {
- *   console.log('Initializing...')
+ *   console.log('Initializing…')
  *   return loadConfig()
  * })
  *
- * initialize() // Logs "Initializing..." and returns config
+ * initialize() // Logs "Initializing…" and returns config
  * initialize() // Returns cached config (no log)
  */
 export function once<Result>(fn: () => Result): () => Result {

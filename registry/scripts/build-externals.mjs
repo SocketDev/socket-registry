@@ -25,6 +25,48 @@ const rootDir = path.resolve(__dirname, '..')
 const srcExternalDir = path.join(rootDir, 'src', 'external')
 const distExternalDir = path.join(rootDir, 'dist', 'external')
 
+// Check if local workspace or sibling project versions exist.
+// Used for development to use local changes instead of published packages.
+async function getLocalPackagePath(packageName) {
+  const checks = []
+
+  // Check workspace packages (e.g. @socketregistry/yocto-spinner).
+  if (packageName.startsWith('@socketregistry/')) {
+    const pkgName = packageName.replace('@socketregistry/', '')
+    const workspacePath = path.resolve(
+      rootDir,
+      '..',
+      'packages',
+      'npm',
+      pkgName,
+    )
+    checks.push(workspacePath)
+  }
+
+  // Check sibling projects (e.g. socket-packageurl-js).
+  if (packageName === '@socketregistry/packageurl-js') {
+    const siblingPath = path.resolve(
+      rootDir,
+      '..',
+      '..',
+      'socket-packageurl-js',
+    )
+    checks.push(siblingPath)
+  }
+
+  // Return first existing path.
+  for (const checkPath of checks) {
+    try {
+      await fs.access(path.join(checkPath, 'package.json'))
+      return checkPath
+    } catch {
+      // Path doesn't exist, continue.
+    }
+  }
+
+  return null
+}
+
 // Define which packages need bundling (ones that are actual npm packages).
 // Skip ones that are just local re-exports.
 const externalPackages = [
@@ -102,13 +144,44 @@ async function bundlePackage(packageName, outputPath) {
   try {
     // Check if package is installed.
     let packagePath
-    try {
-      packagePath = require.resolve(packageName)
-    } catch {
-      // Package must be installed for bundling - no fallbacks
-      throw new Error(
-        `Package "${packageName}" is not installed. Please install it with: pnpm add -D ${packageName}`,
+
+    // First, check for local workspace/sibling versions (dev mode).
+    const localPath = await getLocalPackagePath(packageName)
+    if (localPath) {
+      console.log(
+        `  Using local version from ${path.relative(rootDir, localPath)}`,
       )
+      // Use the package's entry point.
+      const localPkgJson = JSON.parse(
+        await fs.readFile(path.join(localPath, 'package.json'), 'utf8'),
+      )
+      // Resolve the main export - handle nested exports structure.
+      let mainExport = localPkgJson.main || 'index.js'
+      const exportsField = localPkgJson.exports?.['.']
+      if (exportsField) {
+        if (typeof exportsField === 'string') {
+          mainExport = exportsField
+        } else if (typeof exportsField === 'object') {
+          // Try to find default export in nested structure.
+          mainExport =
+            exportsField.node?.default?.default ||
+            exportsField.node?.default ||
+            exportsField.default?.default ||
+            exportsField.default ||
+            mainExport
+        }
+      }
+      packagePath = path.join(localPath, mainExport)
+    } else {
+      // Fall back to installed version.
+      try {
+        packagePath = require.resolve(packageName)
+      } catch {
+        // Package must be installed for bundling - no fallbacks.
+        throw new Error(
+          `Package "${packageName}" is not installed. Please install it with: pnpm add -D ${packageName}`,
+        )
+      }
     }
 
     // Check if we have a non-barrel import optimization for this package.
