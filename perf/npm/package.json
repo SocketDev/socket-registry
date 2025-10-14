@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "bin": {},
   "devDependencies": {
-    "@socketregistry/json-stable-stringify": "^1.0.13",
+    "@socketregistry/json-stable-stringify": "workspace:^",
     "@socketregistry/scripts": "file:../../scripts",
     "@socketsecurity/registry": "file:../../registry",
     "fast-json-stable-stringify": "2.1.0",
