@@ -5,22 +5,83 @@
 
 import ENV from './constants/ENV'
 import abortSignal from './constants/abort-signal'
+import { generateSocketSpinnerFrames } from './effects/pulse-frames'
+import { COLOR_INHERIT, DIR_LTR, applyShimmer } from './effects/text-shimmer'
 import { hasOwn } from './objects'
-import { isBlankString } from './strings'
+import { isBlankString, stringWidth } from './strings'
 import yoctoSpinner from '../external/@socketregistry/yocto-spinner'
 
+import type {
+  ShimmerColorGradient,
+  ShimmerConfig,
+  ShimmerDirection,
+  ShimmerState,
+} from './effects/text-shimmer'
 import type { Writable } from 'node:stream'
 
-export type Color =
+export type ColorName =
   | 'black'
   | 'blue'
+  | 'blueBright'
   | 'cyan'
+  | 'cyanBright'
   | 'gray'
   | 'green'
+  | 'greenBright'
   | 'magenta'
+  | 'magentaBright'
   | 'red'
+  | 'redBright'
   | 'white'
+  | 'whiteBright'
   | 'yellow'
+  | 'yellowBright'
+
+export type ColorInherit = 'inherit'
+
+export type ColorRgb = readonly [number, number, number]
+
+export type ColorValue = ColorName | ColorRgb
+
+export type SymbolType = 'fail' | 'info' | 'success' | 'warn'
+
+// Map color names to RGB values.
+const colorToRgb: Record<ColorName, ColorRgb> = {
+  __proto__: null,
+  black: [0, 0, 0],
+  blue: [0, 0, 255],
+  blueBright: [100, 149, 237],
+  cyan: [0, 255, 255],
+  cyanBright: [0, 255, 255],
+  gray: [128, 128, 128],
+  green: [0, 128, 0],
+  greenBright: [0, 255, 0],
+  magenta: [255, 0, 255],
+  magentaBright: [255, 105, 180],
+  red: [255, 0, 0],
+  redBright: [255, 69, 0],
+  white: [255, 255, 255],
+  whiteBright: [255, 255, 255],
+  yellow: [255, 255, 0],
+  yellowBright: [255, 255, 153],
+} as Record<ColorName, ColorRgb>
+
+/**
+ * Check if value is RGB tuple.
+ */
+function isRgbTuple(value: ColorValue): value is ColorRgb {
+  return Array.isArray(value)
+}
+
+/**
+ * Convert ColorValue to RGB tuple.
+ */
+function toRgb(color: ColorValue): ColorRgb {
+  if (isRgbTuple(color)) {
+    return color
+  }
+  return colorToRgb[color]
+}
 
 export type ProgressInfo = {
   current: number
@@ -28,8 +89,12 @@ export type ProgressInfo = {
   unit?: string | undefined
 }
 
+export type ShimmerInfo = ShimmerState & {
+  color: ColorInherit | ColorValue | ShimmerColorGradient
+}
+
 export type Spinner = {
-  color: Color
+  color: ColorRgb
   spinner: SpinnerStyle
 
   get isSpinning(): boolean
@@ -75,7 +140,8 @@ export type Spinner = {
 }
 
 export type SpinnerOptions = {
-  readonly color?: Color | undefined
+  readonly color?: ColorValue | undefined
+  readonly shimmer?: ShimmerConfig | ShimmerDirection | undefined
   readonly spinner?: SpinnerStyle | undefined
   readonly signal?: AbortSignal | undefined
   readonly stream?: Writable | undefined
@@ -126,6 +192,12 @@ let _cliSpinners: Record<string, SpinnerStyle> | undefined
 
 /**
  * Get available CLI spinner styles or a specific style by name.
+ * Extends the standard cli-spinners collection with Socket custom spinners.
+ *
+ * @see https://github.com/sindresorhus/cli-spinners/blob/main/spinners.json
+ *
+ * Custom spinners:
+ * - `socket` (default): Socket pulse animation with sparkles and lightning
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function getCliSpinners(
@@ -133,10 +205,15 @@ export function getCliSpinners(
 ): SpinnerStyle | Record<string, SpinnerStyle> | undefined {
   if (_cliSpinners === undefined) {
     const YoctoCtor = yoctoSpinner as any
-    // Get the YoctoSpinner class to access static properties
+    // Get the YoctoSpinner class to access static properties.
     const tempInstance = YoctoCtor({})
     const YoctoSpinnerClass = tempInstance.constructor as any
-    _cliSpinners = YoctoSpinnerClass.spinners
+    // Extend the standard cli-spinners collection with Socket custom spinners.
+    _cliSpinners = {
+      __proto__: null,
+      ...YoctoSpinnerClass.spinners,
+      socket: generateSocketSpinnerFrames(),
+    }
   }
   if (typeof styleName === 'string' && _cliSpinners) {
     return hasOwn(_cliSpinners, styleName) ? _cliSpinners[styleName] : undefined
@@ -163,30 +240,92 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
     /*@__PURE__*/
     _Spinner = class SpinnerClass extends (YoctoSpinnerClass as any) {
       declare isSpinning: boolean
-      #progress?: ProgressInfo | undefined
       #baseText: string = ''
       #indentation: string = ''
+      #progress?: ProgressInfo | undefined
+      #shimmer?: ShimmerInfo | undefined
 
       constructor(options?: SpinnerOptions | undefined) {
+        const opts = { __proto__: null, ...options } as SpinnerOptions
+
+        // Convert color option to RGB (default to Socket purple).
+        const spinnerColor = opts.color ?? ([140, 82, 255] as const)
+        const spinnerColorRgb = toRgb(spinnerColor)
+
+        // Parse shimmer config - can be object or direction string.
+        let shimmerInfo: ShimmerInfo | undefined
+        if (opts.shimmer) {
+          let shimmerDir: ShimmerDirection
+          let shimmerColor:
+            | ColorInherit
+            | ColorValue
+            | ShimmerColorGradient
+            | undefined
+          let shimmerSpeed: number = 1 / 3 // Default: 0.33 steps per frame (~150ms per step)
+
+          if (typeof opts.shimmer === 'string') {
+            shimmerDir = opts.shimmer
+          } else {
+            const shimmerConfig = {
+              __proto__: null,
+              ...opts.shimmer,
+            } as ShimmerConfig
+            shimmerDir = shimmerConfig.dir ?? DIR_LTR
+            shimmerColor = shimmerConfig.color ?? COLOR_INHERIT
+            shimmerSpeed = shimmerConfig.speed ?? 1 / 3
+          }
+
+          // Create shimmer info with initial animation state:
+          // - COLOR_INHERIT means use spinner color dynamically
+          // - ColorValue (name or RGB tuple) is an explicit override color
+          // - undefined color defaults to COLOR_INHERIT
+          // - speed controls steps per frame (lower = slower, e.g., 0.33 = ~150ms per step)
+          shimmerInfo = {
+            __proto__: null,
+            color: shimmerColor === undefined ? COLOR_INHERIT : shimmerColor,
+            currentDir: DIR_LTR,
+            mode: shimmerDir,
+            speed: shimmerSpeed,
+            step: 0,
+          } as ShimmerInfo
+        }
+
         // eslint-disable-next-line constructor-super
         super({
           signal: abortSignal,
-          ...options,
+          ...opts,
+          // Pass RGB color directly to yocto-spinner (it now supports RGB).
+          color: spinnerColorRgb,
+          // Get frame width callback for proper spacing alignment.
+          // Returns visual width in terminal columns (1 for stars, 2 for lightning).
+          // This prevents text from jumping when narrow/wide characters alternate.
+          getFrameWidth: (frame: string) => stringWidth(frame),
+          // onFrameUpdate callback is called by yocto-spinner whenever a frame advances.
+          // This ensures shimmer updates are perfectly synchronized with animation beats.
+          onFrameUpdate: shimmerInfo
+            ? () => {
+                // Update parent's text without triggering render.
+                // Parent's #skipRender flag prevents nested render calls.
+                // Only update if we have base text to avoid blank frames.
+                if (this.#baseText) {
+                  super.text = this.#buildDisplayText()
+                }
+              }
+            : undefined,
         })
 
-        // Set up the text method for yocto-spinner override.
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        const self = this
-        ;(this as any)._textMethod = function (value?: string) {
-          if (arguments.length === 0) {
-            // Getter mode - return base text without indentation.
-            return self.#baseText
-          }
-          // Setter mode.
-          self.#baseText = normalizeText(value)
-          self.#updateSpinnerText()
-          return self
-        }
+        this.#shimmer = shimmerInfo
+      }
+
+      // Override color getter to ensure it's always RGB.
+      get color(): ColorRgb {
+        const value = super.color
+        return isRgbTuple(value) ? value : toRgb(value)
+      }
+
+      // Override color setter to always convert to RGB before passing to yocto-spinner.
+      set color(value: ColorValue | ColorRgb) {
+        super.color = isRgbTuple(value) ? value : toRgb(value)
       }
 
       #apply(methodName: string, args: unknown[]) {
@@ -222,19 +361,30 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
         return this
       }
 
-      #applyAndKeepSpinning(methodName: string, args: unknown[]) {
-        const wasSpinning = this.isSpinning
-        this.#apply(methodName, args)
-        if (wasSpinning) {
-          this.start()
+      /**
+       * Show a status message without stopping the spinner.
+       * Outputs the symbol and message to stderr, then continues spinning.
+       */
+      #showStatusAndKeepSpinning(symbolType: SymbolType, args: unknown[]) {
+        let text = args.at(0)
+        let extras: unknown[]
+        if (typeof text === 'string') {
+          extras = args.slice(1)
+        } else {
+          extras = args
+          text = ''
         }
+
+        const { LOG_SYMBOLS, logger } = /*@__PURE__*/ require('./logger.js')
+        // Note: Status messages always go to stderr.
+        logger.error(`${LOG_SYMBOLS[symbolType]} ${text}`, ...extras)
         return this
       }
 
       debug(...args: unknown[]) {
         const { isDebug } = /*@__PURE__*/ require('./debug.js')
         if (isDebug()) {
-          return this.#applyAndKeepSpinning('info', args)
+          return this.#showStatusAndKeepSpinning('info', args)
         }
         return this
       }
@@ -247,8 +397,14 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
         return this
       }
 
+      /**
+       * Show a failure message without stopping the spinner.
+       * DESIGN DECISION: Unlike yocto-spinner, our fail() does NOT stop the spinner.
+       * This allows displaying errors while continuing to spin.
+       * Use failAndStop() if you want to stop the spinner.
+       */
       fail(...args: unknown[]) {
-        return this.#applyAndKeepSpinning('error', args)
+        return this.#showStatusAndKeepSpinning('fail', args)
       }
 
       failAndStop(...args: unknown[]) {
@@ -284,7 +440,7 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
       }
 
       info(...args: unknown[]) {
-        return this.#applyAndKeepSpinning('info', args)
+        return this.#showStatusAndKeepSpinning('info', args)
       }
 
       infoAndStop(...args: unknown[]) {
@@ -292,7 +448,9 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
       }
 
       log(...args: unknown[]) {
-        return this.#applyAndKeepSpinning('stop', args)
+        const { logger } = /*@__PURE__*/ require('./logger.js')
+        logger.log(...args)
+        return this
       }
 
       logAndStop(...args: unknown[]) {
@@ -312,6 +470,7 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
             this.#baseText = normalized
           }
         }
+
         this.#updateSpinnerText()
         return this.#apply('start', args)
       }
@@ -320,18 +479,11 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
         const text = args[0]
         if (typeof text === 'string') {
           // Add blank line before step for visual separation.
-          if (this.isSpinning) {
-            this.stop()
-            const { logger } = /*@__PURE__*/ require('./logger.js')
-            logger.error('')
-            this.start()
-          } else {
-            const { logger } = /*@__PURE__*/ require('./logger.js')
-            logger.error('')
-          }
+          const { logger } = /*@__PURE__*/ require('./logger.js')
+          logger.error('')
           args[0] = text
         }
-        return this.#applyAndKeepSpinning('log', args)
+        return this.log(...args)
       }
 
       substep(...args: unknown[]) {
@@ -340,28 +492,47 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
           // Add 2-space indent for substep.
           args[0] = `  ${text}`
         }
-        return this.#applyAndKeepSpinning('log', args)
+        return this.log(...args)
       }
 
       stop(...args: unknown[]) {
-        // We clear this.text on stop because yocto-spinner will not clear it.
+        // Clear internal state.
         this.#baseText = ''
         this.#progress = undefined
+        // Reset shimmer animation state if shimmer is enabled.
+        if (this.#shimmer) {
+          this.#shimmer.currentDir = DIR_LTR
+          this.#shimmer.step = 0
+        }
+        // Call parent stop first (clears screen, sets isSpinning = false).
+        const result = this.#apply('stop', args)
+        // Then clear text to avoid blank frame render.
+        // This is safe now because isSpinning is false.
         super.text = ''
-        return this.#apply('stop', args)
+        return result
       }
 
+      /**
+       * Show a success message without stopping the spinner.
+       * DESIGN DECISION: Unlike yocto-spinner, our success() does NOT stop the spinner.
+       * This allows displaying success messages while continuing to spin for multi-step operations.
+       * Use successAndStop() if you want to stop the spinner.
+       */
       success(...args: unknown[]) {
-        return this.#applyAndKeepSpinning('success', args)
+        return this.#showStatusAndKeepSpinning('success', args)
       }
 
       successAndStop(...args: unknown[]) {
         return this.#apply('success', args)
       }
 
-      // Alias done for success (shorter name).
+      /**
+       * Alias for success() (shorter name).
+       * DESIGN DECISION: Unlike yocto-spinner, our done() does NOT stop the spinner.
+       * Use doneAndStop() if you want to stop the spinner.
+       */
       done(...args: unknown[]) {
-        return this.#applyAndKeepSpinning('success', args)
+        return this.#showStatusAndKeepSpinning('success', args)
       }
 
       doneAndStop(...args: unknown[]) {
@@ -369,14 +540,14 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
       }
 
       warn(...args: unknown[]) {
-        return this.#applyAndKeepSpinning('warning', args)
+        return this.#showStatusAndKeepSpinning('warn', args)
       }
 
       warnAndStop(...args: unknown[]) {
         return this.#apply('warning', args)
       }
 
-      #updateSpinnerText() {
+      #buildDisplayText() {
         let displayText = this.#baseText
 
         if (this.#progress) {
@@ -386,13 +557,38 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
             : progressText
         }
 
+        // Apply shimmer effect if enabled.
+        if (displayText && this.#shimmer) {
+          // If shimmer color is 'inherit', use current spinner color (getter ensures RGB).
+          // Otherwise, check if it's a gradient (array of arrays) or single color.
+          let shimmerColor: ColorRgb | ShimmerColorGradient
+          if (this.#shimmer.color === COLOR_INHERIT) {
+            shimmerColor = this.color
+          } else if (Array.isArray(this.#shimmer.color[0])) {
+            // It's a gradient - use as is.
+            shimmerColor = this.#shimmer.color as ShimmerColorGradient
+          } else {
+            // It's a single color - convert to RGB.
+            shimmerColor = toRgb(this.#shimmer.color as ColorValue)
+          }
+
+          displayText = applyShimmer(displayText, this.#shimmer, {
+            color: shimmerColor,
+            direction: this.#shimmer.mode,
+          })
+        }
+
         // Apply indentation
         if (this.#indentation && displayText) {
           displayText = this.#indentation + displayText
         }
 
-        // Call the parent class's text setter
-        super.text = displayText
+        return displayText
+      }
+
+      #updateSpinnerText() {
+        // Call the parent class's text setter, which triggers render.
+        super.text = this.#buildDisplayText()
       }
 
       progress = (
@@ -433,7 +629,9 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
       warning: desc(_Spinner.prototype.warn),
       warningAndStop: desc(_Spinner.prototype.warnAndStop),
     })
-    _defaultSpinner = ENV.CI ? ciSpinner : undefined
+    _defaultSpinner = ENV.CI
+      ? ciSpinner
+      : (getCliSpinners('socket') as SpinnerStyle)
   }
   return new _Spinner({
     spinner: _defaultSpinner,
@@ -465,7 +663,7 @@ export type WithSpinnerOptions<T> = {
  *
  * // With spinner instance
  * await withSpinner({
- *   message: 'Processing...',
+ *   message: 'Processing…',
  *   operation: async () => {
  *     return await processData()
  *   },
@@ -474,7 +672,7 @@ export type WithSpinnerOptions<T> = {
  *
  * // Without spinner instance (no-op)
  * await withSpinner({
- *   message: 'Processing...',
+ *   message: 'Processing…',
  *   operation: async () => {
  *     return await processData()
  *   }
@@ -568,10 +766,10 @@ export type WithSpinnerSyncOptions<T> = {
  * @throws Re-throws any error from operation after stopping spinner
  *
  * @example
- * import { spinner, withSpinnerSync } from '@socketsecurity/registry/lib/spinner'
+ * import { spinner, withSpinnerSync} from '@socketsecurity/registry/lib/spinner'
  *
  * const result = withSpinnerSync({
- *   message: 'Processing...',
+ *   message: 'Processing…',
  *   operation: () => {
  *     return processDataSync()
  *   },

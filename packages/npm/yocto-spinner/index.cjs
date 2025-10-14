@@ -107,7 +107,7 @@ function stripVTControlCharacters(string) {
 function getFrame(spinner, index) {
   const { frames } = spinner
   const length = frames?.length ?? 0
-  return index > -1 && index < length ? frames[index].trim() : ''
+  return index > -1 && index < length ? frames[index] : ''
 }
 
 function getFrameCount(spinner) {
@@ -124,11 +124,14 @@ class YoctoSpinner {
   #color
   #currentFrame = -1
   #exitHandlerBound
+  #getFrameWidth
   #indention = ''
   #isInteractive
   #isSpinning = false
   #lastSpinnerFrameTime = 0
   #lines = 0
+  #onFrameUpdate
+  #skipRender = false
   #spinner
   #stream
   #text
@@ -167,6 +170,8 @@ class YoctoSpinner {
     this.#color = options.color ?? 'cyan'
     this.#isInteractive = !!stream.isTTY && isProcessInteractive()
     this.#exitHandlerBound = this.#exitHandler.bind(this)
+    this.#onFrameUpdate = options.onFrameUpdate
+    this.#getFrameWidth = options.getFrameWidth
   }
 
   #exitHandler(signal) {
@@ -199,21 +204,53 @@ class YoctoSpinner {
   }
 
   #render() {
+    // Don't render if spinner was stopped (prevents race with clearInterval).
+    if (!this.#isSpinning) {
+      return
+    }
+
     // Ensure we only update the spinner frame at the wanted interval,
     // even if the frame method is called more often.
     const now = Date.now()
+    let frameAdvanced = false
     if (
       this.#currentFrame === -1 ||
       now - this.#lastSpinnerFrameTime >= this.#spinner.interval
     ) {
+      frameAdvanced = true
       this.#currentFrame = ++this.#currentFrame % getFrameCount(this.#spinner)
       this.#lastSpinnerFrameTime = now
     }
 
+    // Call frame update callback if provided.
+    // This allows external shimmer logic to advance in sync with renders.
+    // Set flag to prevent nested renders from text updates.
+    if (frameAdvanced && typeof this.#onFrameUpdate === 'function') {
+      this.#skipRender = true
+      try {
+        this.#onFrameUpdate()
+      } finally {
+        this.#skipRender = false
+      }
+    }
+
     const colors = getYoctocolors()
-    const applyColor = colors[this.#color] ?? colors.cyan
+    // Support both color names and RGB tuples
+    const applyColor = Array.isArray(this.#color)
+      ? text =>
+          `\x1b[38;2;${this.#color[0]};${this.#color[1]};${this.#color[2]}m${text}\x1b[39m`
+      : (colors[this.#color] ?? colors.cyan)
     const frame = getFrame(this.#spinner, this.#currentFrame)
-    let string = `${frame ? `${applyColor(frame)} ` : ''}${this.#text}`
+
+    // Calculate spacing based on frame width if callback provided
+    let spacing = ' '
+    if (frame && typeof this.#getFrameWidth === 'function') {
+      const frameWidth = this.#getFrameWidth(frame)
+      // Pad narrow frames (width 1) with extra space to match wide frames (width 2)
+      spacing = frameWidth === 1 ? '  ' : ' '
+    }
+
+    let string = `${frame ? `${applyColor(frame)}${spacing}` : ''}${this.#text}`
 
     if (string) {
       if (this.#indention.length) {
@@ -248,7 +285,8 @@ class YoctoSpinner {
 
   #symbolStop(symbolType, text) {
     const symbols = getLogSymbols()
-    return this.stop(`${symbols[symbolType]} ${text ?? this.#text}`)
+    // Use 2 spaces to match padded narrow frames (stars get extra space to align with wide lightning)
+    return this.stop(`${symbols[symbolType]}  ${text ?? this.#text}`)
   }
 
   #write(text) {
@@ -304,7 +342,11 @@ class YoctoSpinner {
       return
     }
     this.#text = normalizeText(value)
-    this.#render()
+    // Skip render if we're inside onFrameUpdate callback.
+    // The current render cycle will use the updated text.
+    if (!this.#skipRender) {
+      this.#render()
+    }
   }
 
   clear() {
@@ -380,11 +422,14 @@ class YoctoSpinner {
       return this
     }
 
-    this.#isSpinning = false
+    // Clear timer FIRST to minimize race window.
     if (this.#timer) {
       clearInterval(this.#timer)
       this.#timer = undefined
     }
+
+    // Then set flag to prevent any queued renders from executing.
+    this.#isSpinning = false
 
     this.#showCursor()
     this.clear()
