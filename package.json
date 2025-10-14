@@ -61,7 +61,7 @@
     "@mdn/browser-compat-data": "7.1.5",
     "@npmcli/package-json": "7.0.0",
     "@npmcli/promise-spawn": "8.0.3",
-    "@socketregistry/is-unicode-supported": "^1.0.5",
+    "@socketregistry/is-unicode-supported": "workspace:^",
     "@socketregistry/packageurl-js": "1.3.0",
     "@socketregistry/scripts": "file:scripts",
     "@socketsecurity/registry": "workspace:*",
