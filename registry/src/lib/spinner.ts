@@ -297,10 +297,19 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
           ...opts,
           // Pass RGB color directly to yocto-spinner (it now supports RGB).
           color: spinnerColorRgb,
-          // Get frame width callback for proper spacing alignment.
-          // Returns visual width in terminal columns (1 for stars, 2 for lightning).
-          // This prevents text from jumping when narrow/wide characters alternate.
-          getFrameWidth: (frame: string) => stringWidth(frame),
+          // onRenderFrame callback provides full control over frame + text layout.
+          // Calculates spacing based on frame width to prevent text jumping.
+          onRenderFrame: (
+            frame: string,
+            text: string,
+            applyColor: (text: string) => string,
+          ) => {
+            const width = stringWidth(frame)
+            // Narrow frames (width 1) get 2 spaces, wide frames (width 2) get 1 space.
+            // Total width is consistent: 3 characters (frame + spacing) before text.
+            const spacing = width === 1 ? '  ' : ' '
+            return frame ? `${applyColor(frame)}${spacing}${text}` : text
+          },
           // onFrameUpdate callback is called by yocto-spinner whenever a frame advances.
           // This ensures shimmer updates are perfectly synchronized with animation beats.
           onFrameUpdate: shimmerInfo

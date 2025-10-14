@@ -78,19 +78,35 @@ declare namespace yoctoSpinner {
     readonly text?: string | undefined
 
     /**
-    Callback function to calculate the visual width of a spinner frame.
-    Used to ensure consistent spacing when frames have different widths.
-
-    @param frame - The spinner frame string (may include ANSI codes).
-    @returns The visual width in terminal columns.
-    */
-    readonly getFrameWidth?: ((frame: string) => number) | undefined
-
-    /**
     Callback function called whenever the spinner advances to a new frame.
     Useful for synchronizing animations or updating related state.
     */
     readonly onFrameUpdate?: (() => void) | undefined
+
+    /**
+    Callback function to customize how the frame and text are combined.
+    Provides full control over spacing and layout.
+
+    @param frame - The current spinner frame string (with ANSI codes).
+    @param text - The text to display next to the spinner.
+    @param applyColor - Function to apply the spinner color to a string.
+    @returns The formatted string to display (frame + text + spacing).
+
+    @example
+    ```
+    onRenderFrame: (frame, text, applyColor) => {
+      // Calculate frame width and adjust spacing accordingly
+      const width = calculateWidth(frame)
+      const spacing = width === 1 ? '  ' : ' '
+      return `${applyColor(frame)}${spacing}${text}`
+    }
+    ```
+    */
+    readonly onRenderFrame?: ((
+      frame: string,
+      text: string,
+      applyColor: (text: string) => string,
+    ) => string) | undefined
   }
 
   export type Spinner = {
