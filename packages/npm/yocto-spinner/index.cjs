@@ -1,5 +1,6 @@
 'use strict'
 
+const { isArray: ArrayIsArray } = Array
 const { defineProperty: ObjectDefineProperty } = Object
 
 const defaultTtyColumns = 80
@@ -170,20 +171,17 @@ class YoctoSpinner {
 
     // Validate and set color (named color or RGB tuple).
     const color = options.color ?? 'cyan'
-    if (Array.isArray(color)) {
-      if (
-        color.length !== 3 ||
-        !color.every(n => typeof n === 'number' && n >= 0 && n <= 255)
-      ) {
-        throw new TypeError(
-          'RGB color must be an array of 3 numbers between 0 and 255',
-        )
-      }
-      this.#color = color
-    } else {
-      this.#color = color
+    if (
+      ArrayIsArray(color) &&
+      (color.length !== 3 ||
+        !color.every(n => typeof n === 'number' && n >= 0 && n <= 255))
+    ) {
+      throw new TypeError(
+        'RGB color must be an array of 3 numbers between 0 and 255',
+      )
     }
 
+    this.#color = color
     this.#isInteractive = !!stream.isTTY && isProcessInteractive()
     this.#exitHandlerBound = this.#exitHandler.bind(this)
     this.#onFrameUpdate = options.onFrameUpdate
@@ -252,7 +250,7 @@ class YoctoSpinner {
 
     const colors = getYoctocolors()
     // Support both color names and RGB tuples
-    const applyColor = Array.isArray(this.#color)
+    const applyColor = ArrayIsArray(this.#color)
       ? text =>
           `\x1b[38;2;${this.#color[0]};${this.#color[1]};${this.#color[2]}m${text}\x1b[39m`
       : (colors[this.#color] ?? colors.cyan)
