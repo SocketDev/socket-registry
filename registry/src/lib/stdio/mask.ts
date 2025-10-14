@@ -1,216 +1,272 @@
 /**
- * @fileoverview Output masking utilities with keyboard controls.
- * Provides building blocks for hiding/showing stdio with interactive toggles.
+ * @fileoverview Interactive output masking utilities for CLI tools.
+ * Provides output control with keyboard toggling (ctrl+o).
+ *
+ * ANSI Escape Sequences Used:
+ * - '\r': Carriage return - moves cursor to beginning of current line.
+ * - '\x1b[K' or '\x1b[0K': CSI K (erase line) - clear from cursor to end of line.
+ * - '\x1b[2K': CSI 2K - erase entire line.
+ * - '\x1b[1A': CSI A - move cursor up 1 line.
+ *
+ * Terminal Control:
+ * - Raw mode (setRawMode(true)): Captures keypresses immediately without buffering.
+ * - TTY detection: Ensures terminal manipulation only occurs in interactive terminals.
+ *
+ * Key Features:
+ * - Output buffering: Stores up to 1000 lines when masked to prevent memory issues.
+ * - Graceful cleanup: Always restores terminal to normal mode on exit/error.
+ * - Visual feedback: Uses spinner to indicate process is running when output is masked.
  */
 
+import { spawn } from 'node:child_process'
 import readline from 'node:readline'
 
-import type { ChildProcess } from 'node:child_process'
+import { spinner } from '../spinner.js'
+import { clearLine } from './clear.js'
+import { write } from './stdout.js'
 
-export interface KeyboardHandler {
-  /** Setup keyboard handling */
-  enable(): void
-  /** Cleanup keyboard handling */
-  disable(): void
-  /** Add key handler */
-  on(key: string, handler: () => void): void
-  /** Remove key handler */
-  off(key: string): void
+import type { ChildProcess, SpawnOptions } from 'node:child_process'
+
+export interface OutputMaskOptions {
+  /** Current working directory */
+  cwd?: string
+  /** Environment variables */
+  env?: NodeJS.ProcessEnv
+  /** Progress message to display */
+  message?: string
+  /** Show output by default instead of masking it */
+  showOutput?: boolean
+  /** Text to show after "ctrl+o" in spinner */
+  toggleText?: string
 }
 
 export interface OutputMask {
-  /** Whether output is currently masked */
-  masked: boolean
-  /** Buffer for masked output */
-  buffer: string[]
-  /** Maximum buffer size */
-  maxBufferSize: number
+  /** Whether output is currently visible */
+  verbose: boolean
+  /** Buffered output lines */
+  outputBuffer: string[]
+  /** Whether spinner is currently active */
+  isSpinning: boolean
 }
 
 /**
- * Create a keyboard handler for interactive controls.
- * Handles Ctrl+key combinations.
+ * Create an output mask for controlling command output visibility.
+ * The mask tracks whether output should be shown or hidden (buffered).
+ * When hidden, output is buffered and a spinner is shown instead.
  */
-export function createKeyboardHandler(): KeyboardHandler {
-  const handlers = new Map<string, () => void>()
-  let enabled = false
-  let keypressHandler: ((str: string, key: readline.Key) => void) | undefined
+export function createOutputMask(options: OutputMaskOptions = {}): OutputMask {
+  const { showOutput = false } = options
 
   return {
-    enable() {
-      if (enabled || !process.stdin.isTTY) {
-        return
-      }
+    verbose: showOutput,
+    outputBuffer: [],
+    isSpinning: !showOutput,
+  }
+}
 
-      readline.emitKeypressEvents(process.stdin)
-      process.stdin.setRawMode(true)
+/**
+ * Create a keyboard handler for toggling output visibility.
+ * Handles two key combinations:
+ * - ctrl+o: Toggle between showing and hiding output.
+ * - ctrl+c: Cancel the running process.
+ * The handler manipulates terminal state using ANSI escape sequences.
+ */
+export function createKeyboardHandler(
+  mask: OutputMask,
+  child: ChildProcess,
+  options: OutputMaskOptions = {},
+): (_str: string, key: readline.Key) => void {
+  const { message = 'Running…', toggleText = 'to see full output' } = options
 
-      keypressHandler = (_str: string, key: readline.Key) => {
-        if (key && key.ctrl) {
-          const handler = handlers.get(key.name || '')
-          if (handler) {
-            handler()
+  return (_str, key) => {
+    // ctrl+o toggles verbose mode.
+    if (key && key.ctrl && key.name === 'o') {
+      mask.verbose = !mask.verbose
+
+      if (mask.verbose) {
+        // Stop spinner and show buffered output.
+        if (mask.isSpinning) {
+          spinner.stop()
+          mask.isSpinning = false
+        }
+
+        // Clear the current line (removes spinner remnants).
+        clearLine()
+
+        // Show buffered output.
+        if (mask.outputBuffer.length > 0) {
+          console.log('--- Output (ctrl+o to hide) ---')
+          mask.outputBuffer.forEach(line => write(line))
+        }
+      } else {
+        // Hide output and show spinner.
+        // Clear all the output lines that were shown.
+        if (mask.outputBuffer.length > 0) {
+          // Calculate number of lines to clear (output + header line).
+          const lineCount = mask.outputBuffer.join('').split('\n').length + 1
+          // Move up and clear each line using ANSI escape sequences:
+          // - '\x1b[1A' (CSI A): Move cursor up 1 line.
+          // - '\x1b[2K' (CSI K with param 2): Erase entire line.
+          // This combination effectively "rewinds" the terminal output.
+          for (let i = 0; i < lineCount; i += 1) {
+            process.stdout.write('\x1b[1A\x1b[2K')
           }
         }
+        clearLine()
+
+        // Clear the buffer and restart spinner.
+        mask.outputBuffer = []
+        if (!mask.isSpinning) {
+          spinner.start(`${message} (ctrl+o ${toggleText})`)
+          mask.isSpinning = true
+        }
       }
-
-      process.stdin.on('keypress', keypressHandler)
-      enabled = true
-    },
-
-    disable() {
-      if (!enabled || !keypressHandler) {
-        return
-      }
-
+    }
+    // ctrl+c to cancel.
+    else if (key && key.ctrl && key.name === 'c') {
+      // Gracefully terminate child process.
+      child.kill('SIGTERM')
+      // Restore terminal to normal mode before exiting.
       if (process.stdin.isTTY) {
         process.stdin.setRawMode(false)
-        process.stdin.removeListener('keypress', keypressHandler)
       }
-      enabled = false
-    },
-
-    on(key: string, handler: () => void) {
-      handlers.set(key, handler)
-    },
-
-    off(key: string) {
-      handlers.delete(key)
-    },
-  }
-}
-
-/**
- * Create an output mask controller.
- * Buffers output when masked, passes through when unmasked.
- */
-export function createOutputMask(
-  options: {
-    maxBufferSize?: number
-    onToggle?: (masked: boolean) => void
-  } = {},
-): OutputMask & {
-  toggle(): void
-  handleData(data: Buffer | string): string | null
-  flush(): string[]
-} {
-  const mask: OutputMask = {
-    masked: true,
-    buffer: [],
-    maxBufferSize: options.maxBufferSize || 1000,
-  }
-
-  return {
-    ...mask,
-
-    toggle() {
-      mask.masked = !mask.masked
-      if (options.onToggle) {
-        options.onToggle(mask.masked)
-      }
-    },
-
-    handleData(data: Buffer | string): string | null {
-      const text = typeof data === 'string' ? data : data.toString()
-
-      if (mask.masked) {
-        // Buffer the output
-        mask.buffer.push(text)
-
-        // Keep buffer size reasonable
-        const lines = mask.buffer.join('').split('\n')
-        if (lines.length > mask.maxBufferSize) {
-          mask.buffer = [lines.slice(-mask.maxBufferSize).join('\n')]
-        }
-        return null
-      }
-
-      return text
-    },
-
-    flush(): string[] {
-      const output = [...mask.buffer]
-      mask.buffer = []
-      return output
-    },
+      throw new Error('Process cancelled by user')
+    }
   }
 }
 
 /**
  * Attach output masking to a child process.
- * Returns a controller for managing the masking.
+ * Returns a promise that resolves with the exit code.
+ * This function:
+ * - Sets up keyboard input handling in raw mode for immediate key capture.
+ * - Buffers stdout/stderr when not in verbose mode.
+ * - Shows a spinner when output is masked.
+ * - Allows toggling between masked and unmasked output with ctrl+o.
  */
 export function attachOutputMask(
   child: ChildProcess,
-  options: {
-    masked?: boolean
-    maxBufferSize?: number
-    onToggle?: (masked: boolean) => void
-  } = {},
-): {
-  mask: ReturnType<typeof createOutputMask>
-  keyboard: KeyboardHandler
-  cleanup: () => void
-} {
-  const mask = createOutputMask({
-    ...(options.maxBufferSize !== undefined && {
-      maxBufferSize: options.maxBufferSize,
-    }),
-    ...(options.onToggle !== undefined && { onToggle: options.onToggle }),
+  options: OutputMaskOptions = {},
+): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const { message = 'Running…' } = options
+    const mask = createOutputMask(options)
+
+    // Start spinner if not verbose.
+    if (mask.isSpinning && process.stdout.isTTY) {
+      spinner.start(
+        `${message} (ctrl+o ${options.toggleText || 'to see full output'})`,
+      )
+    }
+
+    // Setup keyboard input handling.
+    // Raw mode is required to capture ctrl+o without waiting for Enter.
+    if (process.stdin.isTTY) {
+      readline.emitKeypressEvents(process.stdin)
+      process.stdin.setRawMode(true)
+
+      const keypressHandler = createKeyboardHandler(mask, child, options)
+      process.stdin.on('keypress', keypressHandler)
+
+      // Cleanup on exit: restore terminal to normal mode.
+      child.on('exit', () => {
+        if (process.stdin.isTTY) {
+          process.stdin.setRawMode(false)
+          process.stdin.removeListener('keypress', keypressHandler)
+        }
+      })
+    }
+
+    // Handle stdout: either show immediately or buffer for later.
+    if (child.stdout) {
+      child.stdout.on('data', data => {
+        const text = data.toString()
+        if (mask.verbose) {
+          write(text)
+        } else {
+          // Buffer the output for later.
+          mask.outputBuffer.push(text)
+
+          // Keep buffer size reasonable (last 1000 lines).
+          // This prevents unbounded memory growth for long-running processes.
+          const lines = mask.outputBuffer.join('').split('\n')
+          if (lines.length > 1000) {
+            mask.outputBuffer = [lines.slice(-1000).join('\n')]
+          }
+        }
+      })
+    }
+
+    // Handle stderr: same as stdout, but write to stderr stream when verbose.
+    if (child.stderr) {
+      child.stderr.on('data', data => {
+        const text = data.toString()
+        if (mask.verbose) {
+          process.stderr.write(text)
+        } else {
+          mask.outputBuffer.push(text)
+        }
+      })
+    }
+
+    child.on('exit', code => {
+      // Cleanup keyboard if needed.
+      if (process.stdin.isTTY) {
+        process.stdin.setRawMode(false)
+      }
+
+      if (mask.isSpinning) {
+        if (code === 0) {
+          spinner.successAndStop(`${message} completed`)
+        } else {
+          spinner.failAndStop(`${message} failed`)
+          // Show buffered output on failure so user can see what went wrong.
+          if (mask.outputBuffer.length > 0 && !mask.verbose) {
+            console.log('\n--- Output ---')
+            mask.outputBuffer.forEach(line => write(line))
+          }
+        }
+      }
+
+      resolve(code || 0)
+    })
+
+    child.on('error', error => {
+      // Ensure terminal is restored to normal mode on error.
+      if (process.stdin.isTTY) {
+        process.stdin.setRawMode(false)
+      }
+
+      if (mask.isSpinning) {
+        spinner.failAndStop(`${message} error`)
+      }
+      reject(error)
+    })
+  })
+}
+
+/**
+ * Run a command with interactive output masking.
+ * Convenience wrapper around spawn + attachOutputMask.
+ * Spawns a child process and attaches the output masking system to it.
+ * stdin is inherited, stdout and stderr are piped for masking control.
+ */
+export async function runWithMask(
+  command: string,
+  args: string[] = [],
+  options: OutputMaskOptions & SpawnOptions = {},
+): Promise<number> {
+  const {
+    message = 'Running…',
+    showOutput = false,
+    toggleText = 'to see output',
+    ...spawnOptions
+  } = options
+
+  const child = spawn(command, args, {
+    stdio: ['inherit', 'pipe', 'pipe'],
+    ...spawnOptions,
   })
 
-  const keyboard = createKeyboardHandler()
-
-  // Set initial state
-  if (options.masked !== undefined) {
-    mask.masked = options.masked
-  }
-
-  // Handle stdout
-  if (child.stdout) {
-    child.stdout.on('data', (data: Buffer) => {
-      const output = mask.handleData(data)
-      if (output !== null) {
-        process.stdout.write(output)
-      }
-    })
-  }
-
-  // Handle stderr
-  if (child.stderr) {
-    child.stderr.on('data', (data: Buffer) => {
-      const output = mask.handleData(data)
-      if (output !== null) {
-        process.stderr.write(output)
-      }
-    })
-  }
-
-  // Cleanup function
-  const cleanup = () => {
-    keyboard.disable()
-  }
-
-  // Auto-cleanup on exit
-  child.on('exit', cleanup)
-  child.on('error', cleanup)
-
-  return { mask, keyboard, cleanup }
-}
-
-/**
- * Clear the current terminal line.
- */
-export function clearLine(): void {
-  if (process.stdout.isTTY) {
-    process.stdout.write('\r\x1b[K')
-  }
-}
-
-/**
- * Write output with proper line clearing.
- */
-export function writeOutput(text: string): void {
-  clearLine()
-  process.stdout.write(text)
+  return await attachOutputMask(child, { message, showOutput, toggleText })
 }
