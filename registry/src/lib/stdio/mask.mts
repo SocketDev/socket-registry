@@ -67,7 +67,7 @@ export function createKeyboardHandler(
   child: ChildProcess,
   options: OutputMaskOptions = {},
 ): (_str: string, key: readline.Key) => void {
-  const { message = 'Running...', toggleText = 'to see full output' } = options
+  const { message = 'Running…', toggleText = 'to see full output' } = options
 
   return (_str, key) => {
     // Ctrl+O toggles verbose mode
@@ -119,7 +119,7 @@ export function attachOutputMask(
   options: OutputMaskOptions = {},
 ): Promise<number> {
   return new Promise((resolve, reject) => {
-    const { message = 'Running...' } = options
+    const { message = 'Running…' } = options
     const mask = createOutputMask(options)
 
     // Start spinner if not verbose
@@ -185,9 +185,9 @@ export function attachOutputMask(
 
       if (mask.isSpinning) {
         if (code === 0) {
-          spinner.success(`${message} completed`)
+          spinner.successAndStop(`${message} completed`)
         } else {
-          spinner.fail(`${message} failed`)
+          spinner.failAndStop(`${message} failed`)
           // Show buffered output on failure
           if (mask.outputBuffer.length > 0 && !mask.verbose) {
             console.log('\n--- Output ---')
@@ -205,7 +205,7 @@ export function attachOutputMask(
       }
 
       if (mask.isSpinning) {
-        spinner.fail(`${message} error`)
+        spinner.failAndStop(`${message} error`)
       }
       reject(error)
     })
@@ -222,7 +222,7 @@ export async function runWithMask(
   options: OutputMaskOptions & SpawnOptions = {},
 ): Promise<number> {
   const {
-    message = 'Running...',
+    message = 'Running…',
     showOutput = false,
     toggleText = 'to see output',
     ...spawnOptions

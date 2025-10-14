@@ -170,9 +170,10 @@ export async function runWithOutput(command, args = [], options = {}) {
     }
 
     child.on('exit', code => {
-      // Cleanup keyboard if needed
+      // Cleanup keyboard if needed - MUST happen before spinner stop
       if (process.stdin.isTTY && !verbose) {
         process.stdin.setRawMode(false)
+        process.stdin.pause()
       }
 
       // Override exit code if we only have worker termination errors
@@ -186,9 +187,9 @@ export async function runWithOutput(command, args = [], options = {}) {
 
       if (isSpinning) {
         if (finalCode === 0) {
-          spinner.success(`${message} completed`)
+          spinner.successAndStop(`${message} completed`)
         } else {
-          spinner.fail(`${message} failed`)
+          spinner.failAndStop(`${message} failed`)
           // Show output on error if configured
           if (showOnError && outputBuffer.length > 0) {
             console.log('\n--- Output ---')
@@ -203,10 +204,11 @@ export async function runWithOutput(command, args = [], options = {}) {
     child.on('error', error => {
       if (process.stdin.isTTY && !verbose) {
         process.stdin.setRawMode(false)
+        process.stdin.pause()
       }
 
       if (isSpinning) {
-        spinner.fail(`${message} error: ${error.message}`)
+        spinner.failAndStop(`${message} error: ${error.message}`)
       }
       reject(error)
     })
