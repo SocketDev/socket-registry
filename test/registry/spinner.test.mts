@@ -102,6 +102,49 @@ describe('spinner module', () => {
           s.stop()
         }
       })
+
+      it('should accept valid RGB color tuple', () => {
+        const s = Spinner({
+          color: [255, 128, 0],
+        })
+        expect(s).toBeDefined()
+        expect(s.color).toEqual([255, 128, 0])
+        if (s.isSpinning) {
+          s.stop()
+        }
+      })
+
+      it('should reject RGB tuple with wrong length', () => {
+        expect(() => {
+          Spinner({
+            color: [255, 128] as any,
+          })
+        }).toThrow('RGB color must be an array of 3 numbers between 0 and 255')
+      })
+
+      it('should reject RGB tuple with invalid numbers', () => {
+        expect(() => {
+          Spinner({
+            color: [255, 300, 0] as any,
+          })
+        }).toThrow('RGB color must be an array of 3 numbers between 0 and 255')
+      })
+
+      it('should reject RGB tuple with non-numbers', () => {
+        expect(() => {
+          Spinner({
+            color: [255, 'blue', 0] as any,
+          })
+        }).toThrow('RGB color must be an array of 3 numbers between 0 and 255')
+      })
+
+      it('should reject RGB tuple with negative numbers', () => {
+        expect(() => {
+          Spinner({
+            color: [255, -10, 0] as any,
+          })
+        }).toThrow('RGB color must be an array of 3 numbers between 0 and 255')
+      })
     })
 
     describe('start and stop', () => {

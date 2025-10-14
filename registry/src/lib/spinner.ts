@@ -250,6 +250,21 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
 
         // Convert color option to RGB (default to Socket purple).
         const spinnerColor = opts.color ?? ([140, 82, 255] as const)
+
+        // Validate RGB tuple if provided.
+        if (isRgbTuple(spinnerColor)) {
+          if (
+            spinnerColor.length !== 3 ||
+            !spinnerColor.every(
+              n => typeof n === 'number' && n >= 0 && n <= 255,
+            )
+          ) {
+            throw new TypeError(
+              'RGB color must be an array of 3 numbers between 0 and 255',
+            )
+          }
+        }
+
         const spinnerColorRgb = toRgb(spinnerColor)
 
         // Parse shimmer config - can be object or direction string.
