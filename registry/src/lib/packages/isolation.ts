@@ -6,6 +6,10 @@
 import { existsSync, promises as fs } from 'node:fs'
 
 import WIN32 from '../constants/WIN32'
+import { isAbsolute, isPath, trimLeadingDotSlash } from '../path'
+import { readPackageJson } from './operations'
+
+import type { PackageJson } from '../packages'
 
 let _os: typeof import('node:os') | undefined
 let _path: typeof import('node:path') | undefined
@@ -29,10 +33,6 @@ function getPath() {
   }
   return _path!
 }
-import { isAbsolute, isPath, trimLeadingDotSlash } from '../path'
-import { readPackageJson } from './operations'
-
-import type { PackageJson } from '../packages'
 
 /**
  * Copy options for fs.cp with cross-platform retry support.
