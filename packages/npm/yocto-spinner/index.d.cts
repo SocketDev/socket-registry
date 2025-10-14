@@ -32,13 +32,17 @@ declare namespace yoctoSpinner {
     | 'white'
     | 'yellow'
 
+  export type ColorRgb = readonly [number, number, number]
+
   export type Options = {
     /**
     The color of the spinner.
 
+    Can be a color name or an RGB tuple.
+
     @default 'cyan'
     */
-    readonly color?: Color | undefined
+    readonly color?: Color | ColorRgb | undefined
 
     /**
     Customize the spinner animation with a custom set of frames and interval.
@@ -72,13 +76,30 @@ declare namespace yoctoSpinner {
     @default ''
     */
     readonly text?: string | undefined
+
+    /**
+    Callback function to calculate the visual width of a spinner frame.
+    Used to ensure consistent spacing when frames have different widths.
+
+    @param frame - The spinner frame string (may include ANSI codes).
+    @returns The visual width in terminal columns.
+    */
+    readonly getFrameWidth?: ((frame: string) => number) | undefined
+
+    /**
+    Callback function called whenever the spinner advances to a new frame.
+    Useful for synchronizing animations or updating related state.
+    */
+    readonly onFrameUpdate?: (() => void) | undefined
   }
 
   export type Spinner = {
     /**
     Change the spinner color.
+
+    Can be a color name or an RGB tuple.
     */
-    color: Color
+    color: Color | ColorRgb
 
     /**
     Change the text displayed next to the spinner.

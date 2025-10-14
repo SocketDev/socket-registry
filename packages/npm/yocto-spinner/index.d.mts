@@ -1,1 +1,8 @@
-export { default, Color, Options, Spinner, SpinnerStyle } from './index.cjs'
+export {
+  default,
+  Color,
+  ColorRgb,
+  Options,
+  Spinner,
+  SpinnerStyle,
+} from './index.cjs'
