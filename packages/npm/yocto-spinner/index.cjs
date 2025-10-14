@@ -167,7 +167,23 @@ class YoctoSpinner {
       opts.spinner ?? YoctoSpinner.spinners.default ?? getDefaultSpinner()
     this.#text = normalizeText(options.text)
     this.#stream = stream ?? process.stderr
-    this.#color = options.color ?? 'cyan'
+
+    // Validate and set color (named color or RGB tuple).
+    const color = options.color ?? 'cyan'
+    if (Array.isArray(color)) {
+      if (
+        color.length !== 3 ||
+        !color.every(n => typeof n === 'number' && n >= 0 && n <= 255)
+      ) {
+        throw new TypeError(
+          'RGB color must be an array of 3 numbers between 0 and 255',
+        )
+      }
+      this.#color = color
+    } else {
+      this.#color = color
+    }
+
     this.#isInteractive = !!stream.isTTY && isProcessInteractive()
     this.#exitHandlerBound = this.#exitHandler.bind(this)
     this.#onFrameUpdate = options.onFrameUpdate
