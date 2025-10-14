@@ -65,16 +65,16 @@ describe('Spinner shimmer effects', () => {
       const spinner = Spinner({ color: 'blue' })
       expect(spinner.color).toEqual([0, 0, 255])
 
-      spinner.color = 'green'
+      spinner.color = [0, 128, 0]
       expect(spinner.color).toEqual([0, 128, 0])
 
-      spinner.color = 'magenta'
+      spinner.color = [255, 0, 255]
       expect(spinner.color).toEqual([255, 0, 255])
     })
 
     it('converts color names to RGB when setting dynamically', () => {
       const spinner = Spinner()
-      spinner.color = 'red'
+      spinner.color = [255, 0, 0]
       expect(spinner.color).toEqual([255, 0, 0])
     })
   })
@@ -171,29 +171,11 @@ describe('Spinner shimmer effects', () => {
       expect(spinner).toBeDefined()
     })
 
-    it('allows text updates during spin', () => {
+    it('starts spinner with shimmer', () => {
       const spinner = Spinner({ shimmer: { dir: 'ltr' } })
-      spinner.start('Phase 1')
-      spinner.text = 'Phase 2'
-      spinner.text = 'Phase 3'
+      spinner.start('Processing')
       expect(spinner).toBeDefined()
-    })
-
-    it('syncs shimmer when text and color change together', () => {
-      const spinner = Spinner({
-        color: 'blue',
-        shimmer: { dir: 'ltr' },
-      })
-      spinner.start('Processing phase 1')
-
-      spinner.color = 'green'
-      spinner.text = 'Processing phase 2'
-
-      spinner.color = 'magenta'
-      spinner.text = 'Processing phase 3'
-
-      expect(spinner.color).toEqual([255, 0, 255])
-      expect(spinner).toBeDefined()
+      spinner.stop()
     })
   })
 

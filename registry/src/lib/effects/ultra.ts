@@ -11,16 +11,26 @@ import type { ShimmerColorGradient, ShimmerColorRgb } from './types'
  * This gradient cycles through the full color spectrum with smooth transitions.
  */
 export const RAINBOW_GRADIENT: ShimmerColorGradient = [
-  [255, 100, 120], // red/pink
-  [255, 140, 80], // orange
-  [255, 180, 60], // yellow/gold
-  [220, 200, 80], // yellow/green
-  [120, 200, 100], // green
-  [80, 200, 180], // cyan/turquoise
-  [80, 160, 220], // blue
-  [140, 120, 220], // purple/violet
-  [200, 100, 200], // pink/magenta
-  [255, 100, 140], // red/pink
+  // Red/pink.
+  [255, 100, 120],
+  // Orange.
+  [255, 140, 80],
+  // Yellow/gold.
+  [255, 180, 60],
+  // Yellow/green.
+  [220, 200, 80],
+  // Green.
+  [120, 200, 100],
+  // Cyan/turquoise.
+  [80, 200, 180],
+  // Blue.
+  [80, 160, 220],
+  // Purple/violet.
+  [140, 120, 220],
+  // Pink/magenta.
+  [200, 100, 200],
+  // Red/pink.
+  [255, 100, 140],
 ]
 
 /**
