@@ -105,7 +105,7 @@ const scopedPackages = [
   },
   {
     scope: '@socketregistry',
-    packages: ['packageurl-js', 'is-unicode-supported'],
+    packages: ['packageurl-js', 'is-unicode-supported', 'yocto-spinner'],
     optional: true,
   },
   { scope: '@yarnpkg', name: 'extensions', bundle: true },
