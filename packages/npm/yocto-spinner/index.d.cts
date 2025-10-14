@@ -102,11 +102,13 @@ declare namespace yoctoSpinner {
     }
     ```
     */
-    readonly onRenderFrame?: ((
-      frame: string,
-      text: string,
-      applyColor: (text: string) => string,
-    ) => string) | undefined
+    readonly onRenderFrame?:
+      | ((
+          frame: string,
+          text: string,
+          applyColor: (text: string) => string,
+        ) => string)
+      | undefined
   }
 
   export type Spinner = {
