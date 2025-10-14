@@ -4,8 +4,8 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { RAINBOW_GRADIENT } from '../../../../registry/src/lib/effects/ultra'
-import { Spinner } from '../../../../registry/src/lib/spinner'
+import { RAINBOW_GRADIENT } from '../../../../registry/dist/lib/effects/ultra.js'
+import { Spinner } from '../../../../registry/dist/lib/spinner.js'
 
 describe('Spinner shimmer effects', () => {
   describe('shimmer configuration', () => {
