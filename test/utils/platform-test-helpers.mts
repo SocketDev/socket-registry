@@ -5,6 +5,8 @@
 
 import path from 'node:path'
 
+import { describe, it } from 'vitest'
+
 /**
  * Platform detection utilities.
  */
@@ -220,6 +222,6 @@ export function isPlatformAbsolute(testPath: string): boolean {
  */
 export function getPlatformTempDir(): string {
   return process.platform === 'win32'
-    ? (process.env.TEMP ?? process.env.TMP ?? 'C:\\Windows\\Temp')
-    : (process.env.TMPDIR ?? '/tmp')
+    ? (process.env['TEMP'] ?? process.env['TMP'] ?? 'C:\\Windows\\Temp')
+    : (process.env['TMPDIR'] ?? '/tmp')
 }

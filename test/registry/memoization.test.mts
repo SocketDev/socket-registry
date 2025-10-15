@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
-  clearAllMemoizationCaches,
   Memoize,
+  clearAllMemoizationCaches,
   memoize,
   memoizeAsync,
   memoizeDebounced,
@@ -542,7 +542,7 @@ describe('memoization module', () => {
 
   describe('function behavior with DEBUG', () => {
     it('should work with DEBUG enabled', () => {
-      process.env.DEBUG = '1'
+      process.env['DEBUG'] = '1'
 
       const fn = memoize((n: number) => n * 2, { name: 'testFn' })
 
@@ -551,7 +551,7 @@ describe('memoization module', () => {
     })
 
     it('should work with maxSize and DEBUG enabled', () => {
-      process.env.DEBUG = '1'
+      process.env['DEBUG'] = '1'
 
       let callCount = 0
       const fn = memoize(

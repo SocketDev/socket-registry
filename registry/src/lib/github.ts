@@ -67,7 +67,7 @@ export interface GitHubRateLimitError extends Error {
 export function getGitHubToken(): string | undefined {
   const { env } = process
   return (
-    env.GITHUB_TOKEN || env.GH_TOKEN || env.SOCKET_CLI_GITHUB_TOKEN || undefined
+    env['GITHUB_TOKEN'] || env['GH_TOKEN'] || env['SOCKET_CLI_GITHUB_TOKEN'] || undefined
   )
 }
 
@@ -88,7 +88,7 @@ export async function fetchGitHub<T = unknown>(
   }
 
   if (token) {
-    headers.Authorization = `Bearer ${token}`
+    headers['Authorization'] = `Bearer ${token}`
   }
 
   const response = await httpRequest(url, { headers })
@@ -183,7 +183,7 @@ export async function resolveRefToSha(
   const cacheKey = `${owner}/${repo}@${ref}`
 
   // Optionally disable cache.
-  if (process.env.DISABLE_GITHUB_CACHE) {
+  if (process.env['DISABLE_GITHUB_CACHE']) {
     return await fetchRefSha(owner, repo, ref, opts)
   }
 
@@ -377,7 +377,7 @@ export async function cacheFetchGhsa(
   const key = `ghsa:${ghsaId}`
 
   // Check cache first.
-  if (!process.env.DISABLE_GITHUB_CACHE) {
+  if (!process.env['DISABLE_GITHUB_CACHE']) {
     const cached = await cache.get(key)
     if (cached) {
       return JSON.parse(cached as string) as GhsaDetails

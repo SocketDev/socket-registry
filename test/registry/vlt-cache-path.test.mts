@@ -20,7 +20,7 @@ describe('vlt-cache-path', () => {
       expect(vltCachePath).not.toContain('\\')
     })
 
-    it.skipIf(process.platform !== 'win32' || process.env.LOCALAPPDATA)(
+    it.skipIf(process.platform !== 'win32' || process.env['LOCALAPPDATA'])(
       'should return empty string when LOCALAPPDATA is not set on Windows',
       async () => {
         const { default: vltCachePath } = await import(
@@ -41,7 +41,7 @@ describe('vlt-cache-path', () => {
       expect(vltCachePath).toContain('vlt')
     })
 
-    it.skipIf(process.platform !== 'darwin' || process.env.HOME)(
+    it.skipIf(process.platform !== 'darwin' || process.env['HOME'])(
       'should return empty string when HOME is not set on macOS',
       async () => {
         const { default: vltCachePath } = await import(
@@ -76,7 +76,7 @@ describe('vlt-cache-path', () => {
         expect(vltCachePath).toContain('vlt')
       })
 
-      it.skipIf(process.platform !== 'linux' || process.env.HOME)(
+      it.skipIf(process.platform !== 'linux' || process.env['HOME'])(
         'should return empty string when HOME is not set on Linux',
         async () => {
           const { default: vltCachePath } = await import(

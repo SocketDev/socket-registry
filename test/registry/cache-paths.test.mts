@@ -41,7 +41,7 @@ describe('package manager cache paths', () => {
 
   describe('platform-specific behavior', () => {
     it('should handle missing HOME on Unix systems', () => {
-      if (process.platform !== 'win32' && !process.env.HOME) {
+      if (process.platform !== 'win32' && !process.env['HOME']) {
         expect(bunCachePath).toBe('')
         expect(pnpmStorePath).toBe('')
         expect(vltCachePath).toBe('')
@@ -50,7 +50,7 @@ describe('package manager cache paths', () => {
     })
 
     it('should handle missing LOCALAPPDATA on Windows', () => {
-      if (process.platform === 'win32' && !process.env.LOCALAPPDATA) {
+      if (process.platform === 'win32' && !process.env['LOCALAPPDATA']) {
         expect(pnpmStorePath).toBe('')
         expect(vltCachePath).toBe('')
         expect(yarnCachePath).toBe('')
@@ -59,10 +59,10 @@ describe('package manager cache paths', () => {
 
     it('should respect XDG environment variables on Linux', () => {
       if (process.platform === 'linux') {
-        if (process.env.XDG_CACHE_HOME && vltCachePath) {
+        if (process.env['XDG_CACHE_HOME'] && vltCachePath) {
           expect(vltCachePath).toContain('vlt')
         }
-        if (process.env.XDG_DATA_HOME && pnpmStorePath) {
+        if (process.env['XDG_DATA_HOME'] && pnpmStorePath) {
           expect(pnpmStorePath).toContain('pnpm')
           expect(pnpmStorePath).toContain('store')
         }

@@ -12,7 +12,7 @@ describe('pnpm-store-path', () => {
 
   describe('PNPM_HOME environment variable', () => {
     it('should use PNPM_HOME when set', async () => {
-      process.env.PNPM_HOME = '/custom/pnpm'
+      process.env['PNPM_HOME'] = '/custom/pnpm'
       const { default: pnpmStorePath } = await import(
         '../../registry/dist/lib/constants/pnpm-store-path.js'
       )
@@ -20,7 +20,7 @@ describe('pnpm-store-path', () => {
     })
 
     it('should normalize PNPM_HOME path', async () => {
-      process.env.PNPM_HOME = '/custom//pnpm//'
+      process.env['PNPM_HOME'] = '/custom//pnpm//'
       const { default: pnpmStorePath } = await import(
         '../../registry/dist/lib/constants/pnpm-store-path.js'
       )
@@ -39,7 +39,7 @@ describe('pnpm-store-path', () => {
       expect(pnpmStorePath).not.toContain('\\')
     })
 
-    it.skipIf(process.platform !== 'win32' || process.env.LOCALAPPDATA)(
+    it.skipIf(process.platform !== 'win32' || process.env['LOCALAPPDATA'])(
       'should return empty string when LOCALAPPDATA is not set on Windows',
       async () => {
         const { default: pnpmStorePath } = await import(
@@ -79,8 +79,8 @@ describe('pnpm-store-path', () => {
     () => {
       it.skipIf(
         process.platform !== 'linux' ||
-          process.env.PNPM_HOME ||
-          process.env.XDG_DATA_HOME,
+          process.env['PNPM_HOME'] ||
+          process.env['XDG_DATA_HOME'],
       )('should use ~/.local/share/pnpm/store on Linux', async () => {
         const { default: pnpmStorePath } = await import(
           '../../registry/dist/lib/constants/pnpm-store-path.js'
@@ -91,7 +91,7 @@ describe('pnpm-store-path', () => {
         expect(pnpmStorePath).toContain('store')
       })
 
-      it.skipIf(process.platform !== 'linux' || process.env.HOME)(
+      it.skipIf(process.platform !== 'linux' || process.env['HOME'])(
         'should return empty string when HOME is not set on Linux',
         async () => {
           const { default: pnpmStorePath } = await import(
