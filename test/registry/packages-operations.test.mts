@@ -34,22 +34,22 @@ describe('packages module - operations and utilities', () => {
 
   describe('resolvePackageName', () => {
     it('should resolve unscoped package name', () => {
-      const result = resolvePackageName('lodash')
+      const result = resolvePackageName({ name: 'lodash' })
       expect(typeof result).toBe('string')
     })
 
     it('should resolve scoped package name', () => {
-      const result = resolvePackageName('@types/node')
+      const result = resolvePackageName({ name: '@types/node' })
       expect(typeof result).toBe('string')
     })
 
     it('should handle package with version', () => {
-      const result = resolvePackageName('lodash@4.17.21')
+      const result = resolvePackageName({ name: 'lodash@4.17.21' })
       expect(typeof result).toBe('string')
     })
 
     it('should handle empty string', () => {
-      const result = resolvePackageName('')
+      const result = resolvePackageName({ name: '' })
       expect(typeof result).toBe('string')
     })
   })

@@ -123,6 +123,7 @@ describe('packages license handling', () => {
         visitLicenses(ast, {
           License(node) {
             visited.push(node.license)
+            return undefined
           },
         })
       }
@@ -138,6 +139,7 @@ describe('packages license handling', () => {
         visitLicenses(ast, {
           License(node) {
             licenses.push(node.license)
+            return undefined
           },
         })
       }
@@ -154,6 +156,7 @@ describe('packages license handling', () => {
         visitLicenses(ast, {
           License(node) {
             licenses.push(node.license)
+            return undefined
           },
         })
       }
@@ -170,6 +173,7 @@ describe('packages license handling', () => {
         visitLicenses(ast, {
           License(node) {
             licenses.push(node.license)
+            return undefined
           },
         })
       }
@@ -203,6 +207,7 @@ describe('packages license handling', () => {
         visitLicenses(ast, {
           BinaryOperation() {
             binaryOpCount += 1
+            return undefined
           },
         })
       }
@@ -219,9 +224,11 @@ describe('packages license handling', () => {
         visitLicenses(ast, {
           License(node) {
             licenses.push(node.license)
+            return undefined
           },
           BinaryOperation() {
             binaryOpCount += 1
+            return undefined
           },
         })
       }

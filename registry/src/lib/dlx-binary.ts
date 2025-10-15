@@ -72,7 +72,8 @@ async function isCacheValid(
     }
     const now = Date.now()
     const age =
-      now - (((metadata as Record<string, unknown>).timestamp as number) || 0)
+      now -
+      (((metadata as Record<string, unknown>)['timestamp'] as number) || 0)
 
     return age < cacheTtl
   } catch {
@@ -196,7 +197,8 @@ export async function cleanDlxCache(
         continue
       }
       const age =
-        now - (((metadata as Record<string, unknown>).timestamp as number) || 0)
+        now -
+        (((metadata as Record<string, unknown>)['timestamp'] as number) || 0)
 
       if (age > maxAge) {
         // Remove entire cache entry directory.
@@ -263,10 +265,11 @@ export async function dlxBinary(
         metadata &&
         typeof metadata === 'object' &&
         !Array.isArray(metadata) &&
-        typeof (metadata as Record<string, unknown>).checksum === 'string'
+        typeof (metadata as Record<string, unknown>)['checksum'] === 'string'
       ) {
-        computedChecksum = (metadata as Record<string, unknown>)
-          .checksum as string
+        computedChecksum = (metadata as Record<string, unknown>)[
+          'checksum'
+        ] as string
       } else {
         // If metadata is invalid, re-download.
         downloaded = true
@@ -390,13 +393,13 @@ export async function listDlxCache(): Promise<
 
         const metaObj = metadata as Record<string, unknown>
         results.push({
-          age: now - ((metaObj.timestamp as number) || 0),
-          arch: (metaObj.arch as string) || 'unknown',
-          checksum: (metaObj.checksum as string) || '',
+          age: now - ((metaObj['timestamp'] as number) || 0),
+          arch: (metaObj['arch'] as string) || 'unknown',
+          checksum: (metaObj['checksum'] as string) || '',
           name: binaryFile,
-          platform: (metaObj.platform as string) || 'unknown',
+          platform: (metaObj['platform'] as string) || 'unknown',
           size: binaryStats.size,
-          url: (metaObj.url as string) || '',
+          url: (metaObj['url'] as string) || '',
         })
       }
     } catch {}

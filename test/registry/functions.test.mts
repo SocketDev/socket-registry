@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  type AnyFunction,
   noop,
   once,
   silentWrapAsync,
@@ -88,7 +89,10 @@ describe('functions module', () => {
         callCount += 1
         return a + b
       }
-      const wrapped = once(fn)
+      const wrapped = once(fn as AnyFunction) as (
+        a: number,
+        b: number,
+      ) => number
       expect(wrapped(2, 3)).toBe(5)
       expect(wrapped(10, 20)).toBe(5)
       expect(callCount).toBe(1)
@@ -121,28 +125,30 @@ describe('functions module', () => {
 
   describe('trampoline', () => {
     it('should execute non-recursive function normally', () => {
-      const wrapped = trampoline((x: number) => x * 2)
+      const wrapped = trampoline(((x: number) => x * 2) as AnyFunction) as (
+        x: number,
+      ) => number
       expect(wrapped(5)).toBe(10)
     })
 
     it('should handle tail-recursive functions', () => {
-      const factorial = trampoline((n: number, acc = 1): any => {
+      const factorial = trampoline(((n: number, acc: number = 1): any => {
         if (n <= 1) {
           return acc
         }
         return () => factorial(n - 1, n * acc)
-      })
+      }) as AnyFunction) as (n: number, acc?: number) => number
       expect(factorial(5)).toBe(120)
       expect(factorial(10)).toBe(3_628_800)
     })
 
     it('should handle deep recursion without stack overflow', () => {
-      const sum = trampoline((n: number, acc = 0): any => {
+      const sum = trampoline(((n: number, acc: number = 0): any => {
         if (n <= 0) {
           return acc
         }
         return () => sum(n - 1, acc + n)
-      })
+      }) as AnyFunction) as (n: number, acc?: number) => number
       expect(sum(100)).toBe(5050)
       expect(sum(1000)).toBe(500_500)
     })
@@ -159,7 +165,9 @@ describe('functions module', () => {
           return () => this.accumulate(n - 1)
         },
       }
-      obj.accumulate = trampoline(obj.accumulate)
+      obj.accumulate = trampoline(obj.accumulate as AnyFunction) as (
+        n: number,
+      ) => number
       expect(obj.accumulate(5)).toBe(15)
     })
 
@@ -179,12 +187,16 @@ describe('functions module', () => {
         }
         return level1
       }
-      const wrapped = trampoline(makeNestedThunk)
+      const wrapped = trampoline(makeNestedThunk as AnyFunction) as (
+        n: number,
+      ) => string
       expect(wrapped(3)).toBe('done')
     })
 
     it('should work with different return types', () => {
-      const wrapped = trampoline(uppercaseFn)
+      const wrapped = trampoline(uppercaseFn as AnyFunction) as (
+        x: string,
+      ) => string
       expect(wrapped('hello')).toBe('HELLO')
     })
   })

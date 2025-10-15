@@ -76,7 +76,7 @@ function getPack() {
   if (_pack === undefined) {
     _pack = /*@__PURE__*/ require('../../external/libnpmpack')
   }
-  return _pack as typeof import('libnpmpack')
+  return _pack as typeof import('../../external/libnpmpack')
 }
 
 let _PackageURL:

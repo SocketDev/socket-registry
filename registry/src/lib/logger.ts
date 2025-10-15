@@ -199,7 +199,7 @@ export class Logger {
       const con = constructConsole({
         stdout: process.stdout,
         stderr: process.stderr,
-      })
+      }) as typeof console & Record<string, unknown>
       for (const { 0: key, 1: method } of boundConsoleEntries) {
         con[key] = method
       }
@@ -286,7 +286,8 @@ export class Logger {
     args: unknown[],
     stream?: 'stderr' | 'stdout',
   ): this {
-    const con = privateConsole.get(this)
+    const con = privateConsole.get(this) as typeof console &
+      Record<string, unknown>
     const text = args.at(0)
     const hasText = typeof text === 'string'
     // Determine which stream this method writes to
@@ -295,7 +296,11 @@ export class Logger {
     const logArgs = hasText
       ? [applyLinePrefix(text, { prefix: indent }), ...args.slice(1)]
       : args
-    ReflectApply(con[methodName], con, logArgs)
+    ReflectApply(
+      con[methodName] as (...args: unknown[]) => unknown,
+      con,
+      logArgs,
+    )
     this[lastWasBlankSymbol](hasText && isBlankString(logArgs[0]))
     // biome-ignore lint/suspicious/noExplicitAny: Symbol method access.
     ;(this as any)[incLogCallCountSymbol]()

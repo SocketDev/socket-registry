@@ -234,7 +234,7 @@ for (const eco of constants.ecosystems) {
         }
 
         it('should have a "sideEffects" field of `false` in package.json', () => {
-          expect(pkgJson.sideEffects).toBe(false)
+          expect(pkgJson['sideEffects']).toBe(false)
         })
 
         it('should not need package.json fixing', () => {
@@ -271,7 +271,7 @@ for (const eco of constants.ecosystems) {
         ) {
           describe('es-shim', () => {
             const { NODE_VERSION } = constants
-            const nodeRange = engines?.node
+            const nodeRange = engines?.['node']
             const skipping =
               isNonEmptyString(nodeRange) &&
               !semver.satisfies(NODE_VERSION, nodeRange)
@@ -299,7 +299,7 @@ for (const eco of constants.ecosystems) {
                 return t.skip(skipMessage)
               }
               const getPolyfill = req('./polyfill.js')
-              const beforeKeys = Reflect.ownKeys(getPolyfill())
+              const beforeKeys = Reflect.ownKeys(getPolyfill()) as string[]
               const maybeLeakBefore = findLeakedApiKey(beforeKeys)
               expect(maybeLeakBefore).toBeFalsy()
               req('./index.js')
