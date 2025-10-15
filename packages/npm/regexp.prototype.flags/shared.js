@@ -3,12 +3,12 @@
 function isRegExpProtoFlagsOrderBuggy(flagsGetter) {
   let calls = ''
   flagsGetter.call({
-    // biome-ignore lint/suspicious/useGetterReturn: Testing getter call order without return.
+    // eslint-disable-next-line getter-return
     get hasIndices() {
       calls += 'd'
     },
 
-    // biome-ignore lint/suspicious/useGetterReturn: Testing getter call order without return.
+    // eslint-disable-next-line getter-return
     get sticky() {
       calls += 'y'
     },

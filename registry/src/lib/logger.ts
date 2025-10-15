@@ -52,7 +52,13 @@ function constructConsole(...args: unknown[]) {
     const nodeConsole = /*@__PURE__*/ require('node:console')
     _Console = nodeConsole.Console
   }
-  return ReflectConstruct(_Console as new (...args: unknown[]) => Console, args)
+  return ReflectConstruct(
+    // biome-ignore lint/style/noNonNullAssertion: Initialized above.
+    _Console! as new (
+      ...args: unknown[]
+    ) => Console, // eslint-disable-line no-undef
+    args,
+  )
 }
 
 /**
