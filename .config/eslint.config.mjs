@@ -121,29 +121,9 @@ function getImportXFlatConfigs(isEsm) {
             mjs: 'ignorePackages',
           },
         ],
-        'import-x/order': [
-          'warn',
-          {
-            groups: [
-              'builtin',
-              'external',
-              'internal',
-              ['parent', 'sibling', 'index'],
-              'type',
-            ],
-            pathGroups: [
-              {
-                pattern: '@socket{registry,security}/**',
-                group: 'internal',
-              },
-            ],
-            pathGroupsExcludedImportTypes: ['type'],
-            'newlines-between': 'always',
-            alphabetize: {
-              order: 'asc',
-            },
-          },
-        ],
+        // Disable import ordering auto-fix to prevent conflicts with Biome.
+        // Biome handles import formatting and organization.
+        'import-x/order': 'off',
         // TypeScript compilation already ensures that named imports exist in
         // the referenced module.
         'import-x/named': 'off',
@@ -227,7 +207,9 @@ function configs(sourceType) {
     'no-warning-comments': 'error',
     'prefer-const': 'error',
     'sort-destructure-keys/sort-destructure-keys': 'error',
-    'sort-imports': ['error', { ignoreDeclarationSort: true }],
+    // Disable sort-imports to prevent conflicts with Biome.
+    // Biome handles import formatting and organization.
+    'sort-imports': 'off',
   }
 
   return [
@@ -328,7 +310,8 @@ function configs(sourceType) {
             varsIgnorePattern: '^_',
           },
         ],
-        // Disable base rules that are replaced by TypeScript-specific versions.
+        // Disable the following rules because they don't play well with TypeScript.
+        'dot-notation': 'off',
         'no-redeclare': 'off',
         'no-unused-vars': 'off',
         // Disable node plugin rules that can't resolve TypeScript imports.
