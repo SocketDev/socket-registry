@@ -76,7 +76,7 @@ describe('objects module', () => {
 
     it('should handle null prototype objects', () => {
       const obj = Object.create(null) as Record<string, unknown>
-      obj.prop = true
+      obj['prop'] = true
       expect(hasOwn(obj, 'prop')).toBe(true)
     })
   })
@@ -107,7 +107,7 @@ describe('objects module', () => {
     it('should handle objects with null prototype', () => {
       const obj = Object.create(null) as Record<string, unknown>
       expect(hasKeys(obj)).toBe(false)
-      obj.prop = true
+      obj['prop'] = true
       expect(hasKeys(obj)).toBe(true)
     })
 
@@ -129,8 +129,8 @@ describe('objects module', () => {
 
     it('should handle objects with null prototype', () => {
       const obj = Object.create(null) as Record<string, unknown>
-      obj.a = 1
-      obj.b = 2
+      obj['a'] = 1
+      obj['b'] = 2
       expect(getKeys(obj)).toEqual(['a', 'b'])
     })
   })
@@ -169,8 +169,8 @@ describe('objects module', () => {
 
     it('should handle objects with null prototype', () => {
       const obj = Object.create(null) as Record<string, unknown>
-      obj.x = 10
-      obj.y = 20
+      obj['x'] = 10
+      obj['y'] = 20
       expect(objectEntries(obj)).toEqual([
         ['x', 10],
         ['y', 20],
@@ -216,8 +216,8 @@ describe('objects module', () => {
       ] as Iterable<[PropertyKey, string | number]>
       const sorted = toSortedObjectFromEntries(entries)
       // Last value wins
-      expect(sorted.a).toBe(3)
-      expect(sorted.b).toBe(2)
+      expect(sorted['a']).toBe(3)
+      expect(sorted['b']).toBe(2)
     })
 
     it('should sort symbol keys separately from string keys', () => {
@@ -274,7 +274,7 @@ describe('objects module', () => {
 
       expect(result[sym]).toBe(3)
       expect(result[42]).toBe(2)
-      expect(result.string).toBe(1)
+      expect(result['string']).toBe(1)
     })
   })
 
@@ -376,10 +376,10 @@ describe('objects module', () => {
     it('should detect circular references', () => {
       const target = { a: 1 }
       const source = { b: 2 } as Record<string, unknown>
-      source.circular = source
+      source['circular'] = source
       const result = merge(target, source)
-      expect(result.b).toBe(2)
-      expect(result.circular).toBe(source)
+      expect(result['b']).toBe(2)
+      expect(result['circular']).toBe(source)
     })
   })
 
@@ -391,8 +391,8 @@ describe('objects module', () => {
         callCount++
         return 'value'
       })
-      expect(obj.prop).toBe('value')
-      expect(obj.prop).toBe('value')
+      expect(obj['prop']).toBe('value')
+      expect(obj['prop']).toBe('value')
       expect(callCount).toBe(2)
     })
 
@@ -411,8 +411,8 @@ describe('objects module', () => {
         callCount++
         return 'value'
       })
-      expect(obj.prop).toBe('value')
-      expect(obj.prop).toBe('value')
+      expect(obj['prop']).toBe('value')
+      expect(obj['prop']).toBe('value')
       expect(callCount).toBe(1)
     })
 
@@ -446,9 +446,9 @@ describe('objects module', () => {
           return 'valueB'
         },
       })
-      expect(obj.a).toBe('valueA')
-      expect(obj.a).toBe('valueA')
-      expect(obj.b).toBe('valueB')
+      expect(obj['a']).toBe('valueA')
+      expect(obj['a']).toBe('valueA')
+      expect(obj['b']).toBe('valueB')
       expect(countA).toBe(1)
       expect(countB).toBe(1)
     })

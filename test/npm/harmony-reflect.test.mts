@@ -33,16 +33,16 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       [key: string]: any
     } = { x: 1 }
     expect(harmonyReflect.defineProperty(target, 'x', { value: 2 })).toBe(true)
-    expect(target.x).toBe(2)
+    expect(target['x']).toBe(2)
     expect(harmonyReflect.defineProperty(target, 'y', { value: 3 })).toBe(true)
-    expect(target.y).toBe(3)
+    expect(target['y']).toBe(3)
     Object.defineProperty(target, 'z', {
       value: 0,
       writable: false,
       configurable: false,
     })
     expect(harmonyReflect.defineProperty(target, 'z', { value: 1 })).toBe(false)
-    expect(target.z).toBe(0)
+    expect(target['z']).toBe(0)
   })
 
   it('should correctly implement ownKeys', () => {

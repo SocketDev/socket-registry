@@ -1374,6 +1374,10 @@
       "types": "./dist/lib/spawn.d.ts",
       "default": "./dist/lib/spawn.js"
     },
+    "./lib/ssri": {
+      "types": "./dist/lib/ssri.d.ts",
+      "default": "./dist/lib/ssri.js"
+    },
     "./lib/effects/pulse-frames": {
       "types": "./dist/lib/effects/pulse-frames.d.ts",
       "default": "./dist/lib/effects/pulse-frames.js"

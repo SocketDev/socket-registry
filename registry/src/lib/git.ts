@@ -129,7 +129,8 @@ async function innerDiff(
       ? spawnResult.stdout.toString('utf8')
       : String(spawnResult.stdout)
     // Extract spawn cwd from args to pass to parser
-    const spawnCwd = typeof args[2].cwd === 'string' ? args[2].cwd : undefined
+    const spawnCwd =
+      typeof args[2]['cwd'] === 'string' ? args[2]['cwd'] : undefined
     result = parseGitDiffStdout(stdout, parseOptions, spawnCwd)
   } catch {
     return []
@@ -160,7 +161,8 @@ function innerDiffSync(args: SpawnArgs, options?: GitDiffOptions): string[] {
       ? spawnResult.stdout.toString('utf8')
       : String(spawnResult.stdout)
     // Extract spawn cwd from args to pass to parser
-    const spawnCwd = typeof args[2].cwd === 'string' ? args[2].cwd : undefined
+    const spawnCwd =
+      typeof args[2]['cwd'] === 'string' ? args[2]['cwd'] : undefined
     result = parseGitDiffStdout(stdout, parseOptions, spawnCwd)
   } catch {
     return []

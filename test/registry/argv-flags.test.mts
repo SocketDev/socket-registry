@@ -279,14 +279,15 @@ describe('argv/flags module', () => {
 
       for (const flag of expectedFlags) {
         expect(COMMON_FLAGS).toHaveProperty(flag)
-        expect(COMMON_FLAGS[flag]).toBeDefined()
+        expect(COMMON_FLAGS[flag as keyof typeof COMMON_FLAGS]).toBeDefined()
       }
     })
 
     it('should have correct types for all flags', () => {
       for (const flag of Object.keys(COMMON_FLAGS)) {
-        expect(COMMON_FLAGS[flag].type).toBe('boolean')
-        expect(COMMON_FLAGS[flag].default).toBe(false)
+        const flagKey = flag as keyof typeof COMMON_FLAGS
+        expect(COMMON_FLAGS[flagKey]['type']).toBe('boolean')
+        expect(COMMON_FLAGS[flagKey]['default']).toBe(false)
       }
     })
 
@@ -300,9 +301,10 @@ describe('argv/flags module', () => {
 
     it('should have descriptions for all flags', () => {
       for (const flag of Object.keys(COMMON_FLAGS)) {
-        expect(COMMON_FLAGS[flag].description).toBeDefined()
-        expect(typeof COMMON_FLAGS[flag].description).toBe('string')
-        expect(COMMON_FLAGS[flag].description.length).toBeGreaterThan(0)
+        const flagKey = flag as keyof typeof COMMON_FLAGS
+        expect(COMMON_FLAGS[flagKey].description).toBeDefined()
+        expect(typeof COMMON_FLAGS[flagKey].description).toBe('string')
+        expect(COMMON_FLAGS[flagKey].description.length).toBeGreaterThan(0)
       }
     })
 
@@ -324,7 +326,7 @@ describe('argv/flags module', () => {
           flag: { type: 'string' },
         },
       })
-      expect(result.values.flag).toBe('value')
+      expect(result.values['flag']).toBe('value')
     })
 
     it('should have strict mode disabled by default', () => {
@@ -334,7 +336,7 @@ describe('argv/flags module', () => {
           known: { type: 'boolean' },
         },
       })
-      expect(result.values.known).toBe(true)
+      expect(result.values['known']).toBe(true)
       // Should not throw for unknown flag due to strict: false
     })
 
@@ -357,7 +359,7 @@ describe('argv/flags module', () => {
         strict: true,
       })
       expect(result).toBeDefined()
-      expect(result.values.test).toBe(true)
+      expect(result.values['test']).toBe(true)
     })
   })
 
@@ -430,10 +432,10 @@ describe('argv/flags module', () => {
         allowPositionals: true,
       })
 
-      expect(isVerbose(result.values)).toBe(true)
-      expect(isCoverage(result.values)).toBe(true)
+      expect(isVerbose(result.values as FlagValues)).toBe(true)
+      expect(isCoverage(result.values as FlagValues)).toBe(true)
       expect(result.positionals).toEqual(['file.txt'])
-      expect(getLogLevel(result.values)).toBe('verbose')
+      expect(getLogLevel(result.values as FlagValues)).toBe('verbose')
     })
 
     it('should handle multiple flag input types consistently', () => {
@@ -455,10 +457,10 @@ describe('argv/flags module', () => {
         allowPositionals: true,
       })
 
-      expect(isVerbose(result.values)).toBe(true)
-      expect(isQuiet(result.values)).toBe(true)
-      expect(isCoverage(result.values)).toBe(true)
-      expect(isDryRun(result.values)).toBe(true)
+      expect(isVerbose(result.values as FlagValues)).toBe(true)
+      expect(isQuiet(result.values as FlagValues)).toBe(true)
+      expect(isCoverage(result.values as FlagValues)).toBe(true)
+      expect(isDryRun(result.values as FlagValues)).toBe(true)
       expect(result.positionals).toEqual(['input.txt'])
     })
   })

@@ -328,8 +328,9 @@ export function unload(): void {
     } catch {}
   }
   globalProcess.emit = originalProcessEmit as typeof globalProcess.emit
-  globalProcess.reallyExit =
-    originalProcessReallyExit as typeof globalProcess.reallyExit
+  if (originalProcessReallyExit !== undefined) {
+    globalProcess.reallyExit = originalProcessReallyExit
+  }
   const emitter = getEmitter()
   if (emitter.count !== undefined) {
     emitter.count -= 1

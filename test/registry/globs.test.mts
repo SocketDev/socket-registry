@@ -144,10 +144,10 @@ describe('globs module', () => {
       expect(matcher('file.JS')).toBe(true)
     })
 
-    it('should handle glob with cwd option', () => {
-      const matcher = getGlobMatcher('**/test/**', { cwd: tmpDir })
+    it('should handle glob with ignore option', () => {
+      const matcher = getGlobMatcher('**/test/**', { ignore: ['**/spec/**'] })
       expect(matcher('test/file.js')).toBe(true)
-      expect(matcher('src/test/spec.js')).toBe(true)
+      expect(matcher('src/test/spec.js')).toBe(false)
       expect(matcher('src/main.js')).toBe(false)
     })
 
@@ -171,8 +171,8 @@ describe('globs module', () => {
     })
 
     it('should create different matchers for different options', () => {
-      const matcher1 = getGlobMatcher('*.js', { cwd: '/path1' })
-      const matcher2 = getGlobMatcher('*.js', { cwd: '/path2' })
+      const matcher1 = getGlobMatcher('*.js', { dot: true })
+      const matcher2 = getGlobMatcher('*.js', { dot: false })
       expect(matcher1).not.toBe(matcher2)
     })
   })
@@ -192,7 +192,7 @@ describe('globs module', () => {
     })
 
     it('should return a readable stream', () => {
-      const stream = globStreamLicenses('.')
+      const stream = globStreamLicenses('.') as Readable
       expect(stream).toBeInstanceOf(Readable)
       expect(typeof stream.on).toBe('function')
       expect(typeof stream.pipe).toBe('function')
@@ -247,7 +247,7 @@ describe('globs module', () => {
       const stream = globStreamLicenses('.', {
         ignore: ['node_modules/**'],
         cwd: process.cwd(),
-      })
+      }) as Readable
       expect(stream).toBeInstanceOf(Readable)
       stream.destroy()
     })
@@ -375,7 +375,7 @@ describe('globs module', () => {
     })
 
     it('should handle non-existent directories', async () => {
-      const stream = globStreamLicenses('/non/existent/path')
+      const stream = globStreamLicenses('/non/existent/path') as Readable
       let errorOccurred = false
 
       return await new Promise<void>(resolve => {

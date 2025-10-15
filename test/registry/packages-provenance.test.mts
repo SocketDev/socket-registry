@@ -60,9 +60,11 @@ describe('fetchPackageProvenance', () => {
       ],
     }
 
-    const result = getProvenanceDetails(rawData)
+    const result = getProvenanceDetails(rawData) as
+      | Record<string, unknown>
+      | undefined
     expect(result).toBeDefined()
-    expect(result?.level).toBe('attested')
+    expect(result?.['level']).toBe('attested')
   })
 
   it('should handle getProvenanceDetails with SLSA v1.0 provenance', () => {
@@ -81,9 +83,11 @@ describe('fetchPackageProvenance', () => {
       ],
     }
 
-    const result = getProvenanceDetails(rawData)
+    const result = getProvenanceDetails(rawData) as
+      | Record<string, unknown>
+      | undefined
     expect(result).toBeDefined()
-    expect(result?.level).toBe('attested')
+    expect(result?.['level']).toBe('attested')
   })
 
   it('should handle getProvenanceDetails with GitHub trusted publisher', () => {
@@ -111,10 +115,12 @@ describe('fetchPackageProvenance', () => {
       ],
     }
 
-    const result = getProvenanceDetails(rawData)
+    const result = getProvenanceDetails(rawData) as
+      | Record<string, unknown>
+      | undefined
     expect(result).toBeDefined()
-    expect(result?.level).toBe('trusted')
-    expect(result?.workflowPlatform).toBe('https://github.com/actions')
+    expect(result?.['level']).toBe('trusted')
+    expect(result?.['workflowPlatform']).toBe('https://github.com/actions')
   })
 
   it('should handle getProvenanceDetails with GitLab trusted publisher', () => {
@@ -142,10 +148,12 @@ describe('fetchPackageProvenance', () => {
       ],
     }
 
-    const result = getProvenanceDetails(rawData)
+    const result = getProvenanceDetails(rawData) as
+      | Record<string, unknown>
+      | undefined
     expect(result).toBeDefined()
-    expect(result?.level).toBe('trusted')
-    expect(result?.workflowPlatform).toBe('https://gitlab.com')
+    expect(result?.['level']).toBe('trusted')
+    expect(result?.['workflowPlatform']).toBe('https://gitlab.com')
   })
 
   it('should handle getProvenanceDetails with DSSE envelope payload', () => {
@@ -173,9 +181,11 @@ describe('fetchPackageProvenance', () => {
       ],
     }
 
-    const result = getProvenanceDetails(rawData)
+    const result = getProvenanceDetails(rawData) as
+      | Record<string, unknown>
+      | undefined
     expect(result).toBeDefined()
-    expect(result?.level).toBe('attested')
+    expect(result?.['level']).toBe('attested')
   })
 
   it('should handle getProvenanceDetails with invalid DSSE envelope payload', () => {
@@ -192,9 +202,11 @@ describe('fetchPackageProvenance', () => {
       ],
     }
 
-    const result = getProvenanceDetails(rawData)
+    const result = getProvenanceDetails(rawData) as
+      | Record<string, unknown>
+      | undefined
     expect(result).toBeDefined()
-    expect(result?.level).toBe('attested')
+    expect(result?.['level']).toBe('attested')
   })
 
   it('should handle getProvenanceDetails with malformed predicate', () => {
@@ -211,9 +223,11 @@ describe('fetchPackageProvenance', () => {
       ],
     }
 
-    const result = getProvenanceDetails(rawData)
+    const result = getProvenanceDetails(rawData) as
+      | Record<string, unknown>
+      | undefined
     expect(result).toBeDefined()
-    expect(result?.level).toBe('attested')
+    expect(result?.['level']).toBe('attested')
   })
 
   it('should extract workflow details from externalParameters', () => {
@@ -239,16 +253,18 @@ describe('fetchPackageProvenance', () => {
       ],
     }
 
-    const result = getProvenanceDetails(rawData)
+    const result = getProvenanceDetails(rawData) as
+      | Record<string, unknown>
+      | undefined
     expect(result).toBeDefined()
-    expect(result?.workflowRef).toBe('refs/heads/main')
-    expect(result?.gitRef).toBe('refs/tags/v1.0.0')
-    expect(result?.repository).toBe('https://github.com/user/repo')
-    expect(result?.workflowUrl).toBe(
+    expect(result?.['workflowRef']).toBe('refs/heads/main')
+    expect(result?.['gitRef']).toBe('refs/tags/v1.0.0')
+    expect(result?.['repository']).toBe('https://github.com/user/repo')
+    expect(result?.['workflowUrl']).toBe(
       'https://github.com/user/repo/actions/runs/12345',
     )
-    expect(result?.workflowRunId).toBe('12345')
-    expect(result?.commitSha).toBe('abc123def456')
+    expect(result?.['workflowRunId']).toBe('12345')
+    expect(result?.['commitSha']).toBe('abc123def456')
   })
 
   it('should return undefined when package does not exist', async () => {
@@ -367,8 +383,9 @@ describe('fetchPackageProvenance', () => {
 
     results.forEach(result => {
       if (result !== undefined) {
-        expect(result).toHaveProperty('level')
-        expect(['trusted', 'attested']).toContain(result.level)
+        const r = result as Record<string, unknown>
+        expect(r).toHaveProperty('level')
+        expect(['trusted', 'attested']).toContain(r['level'])
       }
     })
   })
@@ -403,8 +420,9 @@ describe('fetchPackageProvenance', () => {
       )
 
       if (result !== undefined) {
-        expect(result).toHaveProperty('level')
-        expect(['trusted', 'attested']).toContain(result.level)
+        const r = result as Record<string, unknown>
+        expect(r).toHaveProperty('level')
+        expect(['trusted', 'attested']).toContain(r['level'])
       }
     }
   })
@@ -435,30 +453,31 @@ describe('fetchPackageProvenance', () => {
     )
 
     if (result !== undefined) {
-      expect(result).toHaveProperty('level')
-      expect(['trusted', 'attested']).toContain(result.level)
+      const r = result as Record<string, unknown>
+      expect(r).toHaveProperty('level')
+      expect(['trusted', 'attested']).toContain(r['level'])
 
       // Optional properties should be string or undefined
-      if (result.repository !== undefined) {
-        expect(typeof result.repository).toBe('string')
+      if (r['repository'] !== undefined) {
+        expect(typeof r['repository']).toBe('string')
       }
-      if (result.workflowRef !== undefined) {
-        expect(typeof result.workflowRef).toBe('string')
+      if (r['workflowRef'] !== undefined) {
+        expect(typeof r['workflowRef']).toBe('string')
       }
-      if (result.workflowUrl !== undefined) {
-        expect(typeof result.workflowUrl).toBe('string')
+      if (r['workflowUrl'] !== undefined) {
+        expect(typeof r['workflowUrl']).toBe('string')
       }
-      if (result.workflowPlatform !== undefined) {
-        expect(typeof result.workflowPlatform).toBe('string')
+      if (r['workflowPlatform'] !== undefined) {
+        expect(typeof r['workflowPlatform']).toBe('string')
       }
-      if (result.workflowRunId !== undefined) {
-        expect(typeof result.workflowRunId).toBe('string')
+      if (r['workflowRunId'] !== undefined) {
+        expect(typeof r['workflowRunId']).toBe('string')
       }
-      if (result.gitRef !== undefined) {
-        expect(typeof result.gitRef).toBe('string')
+      if (r['gitRef'] !== undefined) {
+        expect(typeof r['gitRef']).toBe('string')
       }
-      if (result.commitSha !== undefined) {
-        expect(typeof result.commitSha).toBe('string')
+      if (r['commitSha'] !== undefined) {
+        expect(typeof r['commitSha']).toBe('string')
       }
     }
   })

@@ -141,13 +141,13 @@ export function globStreamLicenses(
         : /*@__INLINE__*/ require('./constants/LICENSE_GLOB'),
     ],
     {
+      __proto__: null,
       absolute: true,
       caseSensitiveMatch: false,
       cwd: dirname,
       ...globOptions,
       ...(ignore ? { ignore } : {}),
-      __proto__: null,
-    } as FastGlobOptions,
+    } as import('fast-glob').Options,
   )
 }
 
