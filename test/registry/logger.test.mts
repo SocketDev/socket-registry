@@ -5,9 +5,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
-  incLogCallCountSymbol,
   LOG_SYMBOLS,
   Logger,
+  incLogCallCountSymbol,
   lastWasBlankSymbol,
   logger,
 } from '../../registry/dist/lib/logger.js'

@@ -37,8 +37,8 @@ describe('dlx module', () => {
     testDlxDir = path.join(tmpDir, '_dlx')
 
     // Override the Socket directory for testing.
-    originalSocketDir = process.env.SOCKET_USER_DIR
-    process.env.SOCKET_USER_DIR = tmpDir
+    originalSocketDir = process.env['SOCKET_USER_DIR']
+    process.env['SOCKET_USER_DIR'] = tmpDir
 
     await ensureDlxDir()
   })
@@ -54,9 +54,9 @@ describe('dlx module', () => {
 
     // Restore original environment.
     if (originalSocketDir === undefined) {
-      delete process.env.SOCKET_USER_DIR
+      delete process.env['SOCKET_USER_DIR']
     } else {
-      process.env.SOCKET_USER_DIR = originalSocketDir
+      process.env['SOCKET_USER_DIR'] = originalSocketDir
     }
 
     // Clean up test directory.

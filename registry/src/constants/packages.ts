@@ -51,7 +51,7 @@ export function getPackageExtensions() {
 
 // NPM lifecycle event.
 export function getNpmLifecycleEvent(): string | undefined {
-  return env.npm_lifecycle_event
+  return env['npm_lifecycle_event']
 }
 
 // Lifecycle script names.

@@ -23,7 +23,7 @@ import WIN32 from './WIN32'
 // Documentation: https://bun.sh/docs/runtime/bunfig#cache-dir
 function getBunCachePath() {
   // Check for explicit BUN_INSTALL_CACHE_DIR environment variable.
-  const bunCacheDir = process.env.BUN_INSTALL_CACHE_DIR
+  const bunCacheDir = process.env['BUN_INSTALL_CACHE_DIR']
   if (bunCacheDir) {
     return normalizePath(bunCacheDir)
   }

@@ -36,7 +36,7 @@ function getPath() {
 function getPnpmStorePath() {
   const path = getPath()
   // Check for explicit PNPM_HOME environment variable.
-  const pnpmHome = process.env.PNPM_HOME
+  const pnpmHome = process.env['PNPM_HOME']
   if (pnpmHome) {
     return normalizePath(path.join(pnpmHome, 'store'))
   }

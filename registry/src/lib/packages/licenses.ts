@@ -286,7 +286,7 @@ export function visitLicenses(ast: SpdxAstNode, visitor: LicenseVisitor): void {
     const visitorRecord = visitor as Record<string, unknown>
     if (typeof visitorRecord[type] === 'function' && hasOwn(visitor, type)) {
       if (type === LICENSE_NODE_TYPE) {
-        const licenseVisitor = visitorRecord.License
+        const licenseVisitor = visitorRecord['License']
         if (
           typeof licenseVisitor === 'function' &&
           licenseVisitor(node as InternalLicenseNode, parent) === false
@@ -294,7 +294,7 @@ export function visitLicenses(ast: SpdxAstNode, visitor: LicenseVisitor): void {
           break
         }
       } else if (type === BINARY_OPERATION_NODE_TYPE) {
-        const binaryOpVisitor = visitorRecord.BinaryOperation
+        const binaryOpVisitor = visitorRecord['BinaryOperation']
         if (
           typeof binaryOpVisitor === 'function' &&
           binaryOpVisitor(node as InternalBinaryOperationNode, parent) === false

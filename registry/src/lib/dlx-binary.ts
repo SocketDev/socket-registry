@@ -313,7 +313,7 @@ export async function dlxBinary(
         ...spawnOptions,
         env: {
           ...spawnOptions?.env,
-          PATH: `${cacheEntryDir}${path.delimiter}${process.env.PATH || ''}`,
+          PATH: `${cacheEntryDir}${path.delimiter}${process.env['PATH'] || ''}`,
         },
         shell: true,
       }

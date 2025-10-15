@@ -81,34 +81,34 @@ describe('github module', () => {
 
   describe('getGitHubToken', () => {
     it('should return GITHUB_TOKEN if set', () => {
-      process.env.GITHUB_TOKEN = 'test-token-1'
+      process.env['GITHUB_TOKEN'] = 'test-token-1'
       expect(getGitHubToken()).toBe('test-token-1')
     })
 
     it('should return GH_TOKEN if GITHUB_TOKEN not set', () => {
-      delete process.env.GITHUB_TOKEN
-      process.env.GH_TOKEN = 'test-token-2'
+      delete process.env['GITHUB_TOKEN']
+      process.env['GH_TOKEN'] = 'test-token-2'
       expect(getGitHubToken()).toBe('test-token-2')
     })
 
     it('should return SOCKET_CLI_GITHUB_TOKEN if neither GITHUB_TOKEN nor GH_TOKEN set', () => {
-      delete process.env.GITHUB_TOKEN
-      delete process.env.GH_TOKEN
-      process.env.SOCKET_CLI_GITHUB_TOKEN = 'test-token-3'
+      delete process.env['GITHUB_TOKEN']
+      delete process.env['GH_TOKEN']
+      process.env['SOCKET_CLI_GITHUB_TOKEN'] = 'test-token-3'
       expect(getGitHubToken()).toBe('test-token-3')
     })
 
     it('should return undefined if no tokens set', () => {
-      delete process.env.GITHUB_TOKEN
-      delete process.env.GH_TOKEN
-      delete process.env.SOCKET_CLI_GITHUB_TOKEN
+      delete process.env['GITHUB_TOKEN']
+      delete process.env['GH_TOKEN']
+      delete process.env['SOCKET_CLI_GITHUB_TOKEN']
       expect(getGitHubToken()).toBeUndefined()
     })
 
     it('should prioritize GITHUB_TOKEN over others', () => {
-      process.env.GITHUB_TOKEN = 'token-1'
-      process.env.GH_TOKEN = 'token-2'
-      process.env.SOCKET_CLI_GITHUB_TOKEN = 'token-3'
+      process.env['GITHUB_TOKEN'] = 'token-1'
+      process.env['GH_TOKEN'] = 'token-2'
+      process.env['SOCKET_CLI_GITHUB_TOKEN'] = 'token-3'
       expect(getGitHubToken()).toBe('token-1')
     })
   })
@@ -159,7 +159,7 @@ describe('github module', () => {
     })
 
     it('should use environment token if no token provided', async () => {
-      process.env.GITHUB_TOKEN = 'env-token'
+      process.env['GITHUB_TOKEN'] = 'env-token'
       const mockData = { data: 'test' }
       httpRequest.mockResolvedValue({
         body: Buffer.from(JSON.stringify(mockData)),
@@ -452,7 +452,7 @@ describe('github module', () => {
     })
 
     it('should skip cache when DISABLE_GITHUB_CACHE is set', async () => {
-      process.env.DISABLE_GITHUB_CACHE = '1'
+      process.env['DISABLE_GITHUB_CACHE'] = '1'
       httpRequest.mockResolvedValue({
         body: Buffer.from(
           JSON.stringify({

@@ -53,7 +53,7 @@ function getVltCachePath() {
   }
 
   // On Linux/Unix, follow XDG Base Directory specification.
-  const xdgCacheHome = process.env.XDG_CACHE_HOME
+  const xdgCacheHome = process.env['XDG_CACHE_HOME']
   if (xdgCacheHome) {
     return normalizePath(path.join(xdgCacheHome, 'vlt'))
   }
