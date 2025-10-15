@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import constants from '../../scripts/constants.mjs'
 import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
-const { eco, skip, sockRegPkgName } = await setupNpmPackageTest(__filename)
-const { pkgPath } = await setupNpmPackageTest(__filename)
+const { eco, pkgPath, skip, sockRegPkgName } =
+  await setupNpmPackageTest(__filename)
 
 describe(
   `${eco} > ${sockRegPkgName}`,
@@ -12,6 +12,7 @@ describe(
     skip: skip || constants.ENV.CI,
   },
   () => {
+    const pkgRequireIndexJsPath = `${pkgPath}/index.js`
     const _jsonStableStringifyModule = require(pkgRequireIndexJsPath)
 
     // biome-ignore lint/suspicious/noExplicitAny: Test accesses internal JSON.rawJSON if available.

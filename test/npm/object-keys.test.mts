@@ -156,6 +156,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
     it('should work in iOS 5 mobile Safari scenario', () => {
       // biome-ignore lint/suspicious/noExplicitAny: Test adds dynamic property to function.
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       const Foo: any = () => {}
       Foo.a = () => {}
       expect(objectKeys(Foo)).toEqual(['a'])
