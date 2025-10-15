@@ -4,9 +4,8 @@
 
 import { createCompositeAbortSignal, createTimeoutSignal } from '../abort'
 import NPM_REGISTRY_URL from '../constants/NPM_REGISTRY_URL'
-import { parseUrl } from '../url'
-
 import type { ProvenanceOptions } from '../packages'
+import { parseUrl } from '../url'
 
 // IMPORTANT: Do not use destructuring here - use direct assignment instead.
 // tsgo has a bug that incorrectly transpiles destructured exports, resulting in

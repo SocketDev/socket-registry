@@ -5,9 +5,9 @@ process.stdout.write = () => true
 process.stderr.write = () => true
 
 import {
-  Spinner,
   ciSpinner,
   getCliSpinners,
+  Spinner,
   spinner,
   withSpinner,
   withSpinnerRestore,

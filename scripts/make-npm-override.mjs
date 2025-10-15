@@ -12,7 +12,7 @@
 import { existsSync, promises as fs } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
-import { ReturnTypeEnums, default as didYouMean } from 'didyoumean2'
+import { default as didYouMean, ReturnTypeEnums } from 'didyoumean2'
 import fastGlob from 'fast-glob'
 import { open } from 'out-url'
 import semver from 'semver'

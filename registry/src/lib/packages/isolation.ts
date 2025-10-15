@@ -6,10 +6,9 @@
 import { existsSync, promises as fs } from 'node:fs'
 
 import WIN32 from '../constants/WIN32'
+import type { PackageJson } from '../packages'
 import { isAbsolute, isPath, trimLeadingDotSlash } from '../path'
 import { readPackageJson } from './operations'
-
-import type { PackageJson } from '../packages'
 
 let _os: typeof import('node:os') | undefined
 let _path: typeof import('node:path') | undefined

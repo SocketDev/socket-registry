@@ -21,12 +21,11 @@
  * - Cache to minimize API calls
  */
 
+import type { TtlCache } from './cache-with-ttl'
 import { createTtlCache } from './cache-with-ttl'
 import { httpRequest } from './http-request'
-import { spawn } from './spawn'
-
-import type { TtlCache } from './cache-with-ttl'
 import type { SpawnOptions } from './spawn'
+import { spawn } from './spawn'
 
 // GitHub API base URL constant (inlined for coverage mode compatibility).
 const GITHUB_API_BASE_URL = 'https://api.github.com'

@@ -3,9 +3,8 @@
  * Provides async stream handling and transformation functions.
  */
 
-import { normalizeIterationOptions, pRetry } from './promises'
-
 import type { IterationOptions } from './promises'
+import { normalizeIterationOptions, pRetry } from './promises'
 
 let _streamingIterables:
   | {

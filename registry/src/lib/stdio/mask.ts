@@ -18,14 +18,12 @@
  * - Visual feedback: Uses spinner to indicate process is running when output is masked.
  */
 
+import type { ChildProcess, SpawnOptions } from 'node:child_process'
 import { spawn } from 'node:child_process'
 import readline from 'node:readline'
-
 import { spinner } from '../spinner.js'
 import { clearLine } from './clear.js'
 import { write } from './stdout.js'
-
-import type { ChildProcess, SpawnOptions } from 'node:child_process'
 
 export interface OutputMaskOptions {
   /** Current working directory */

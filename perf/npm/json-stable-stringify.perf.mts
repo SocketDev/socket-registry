@@ -1,11 +1,9 @@
 import assert from 'node:assert/strict'
 import path from 'node:path'
-
-import fastJsonStableStringify from 'fast-json-stable-stringify'
-import { Bench } from 'tinybench'
-
 import jsonStableStringify from '@socketregistry/json-stable-stringify'
 import { logger } from '@socketsecurity/registry/lib/logger'
+import fastJsonStableStringify from 'fast-json-stable-stringify'
+import { Bench } from 'tinybench'
 
 import constants from '../../scripts/constants.mjs'
 
