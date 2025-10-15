@@ -3,6 +3,9 @@
  */
 
 import { execSync } from 'node:child_process'
+import { existsSync } from 'node:fs'
+import path from 'node:path'
+
 import spawnModule from '../../registry/dist/lib/spawn.js'
 
 const { spawn } = spawnModule
@@ -15,7 +18,14 @@ export async function getStagedFiles(cwd = process.cwd()) {
     const { stdout } = await spawn('git', ['diff', '--cached', '--name-only'], {
       cwd,
     })
-    return stdout.trim().split('\n').filter(Boolean)
+    return stdout
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .filter(file => {
+        // Skip deleted files.
+        return existsSync(path.join(cwd, file))
+      })
   } catch {
     return []
   }
@@ -30,7 +40,14 @@ export function getStagedFilesSync(cwd = process.cwd()) {
       cwd,
       encoding: 'utf8',
     })
-    return stdout.trim().split('\n').filter(Boolean)
+    return stdout
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .filter(file => {
+        // Skip deleted files.
+        return existsSync(path.join(cwd, file))
+      })
   } catch {
     return []
   }
@@ -42,7 +59,14 @@ export function getStagedFilesSync(cwd = process.cwd()) {
 export async function getUnstagedFiles(cwd = process.cwd()) {
   try {
     const { stdout } = await spawn('git', ['diff', '--name-only'], { cwd })
-    return stdout.trim().split('\n').filter(Boolean)
+    return stdout
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .filter(file => {
+        // Skip deleted files.
+        return existsSync(path.join(cwd, file))
+      })
   } catch {
     return []
   }
@@ -54,7 +78,14 @@ export async function getUnstagedFiles(cwd = process.cwd()) {
 export function getUnstagedFilesSync(cwd = process.cwd()) {
   try {
     const stdout = execSync('git diff --name-only', { cwd, encoding: 'utf8' })
-    return stdout.trim().split('\n').filter(Boolean)
+    return stdout
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .filter(file => {
+        // Skip deleted files.
+        return existsSync(path.join(cwd, file))
+      })
   } catch {
     return []
   }
@@ -66,14 +97,15 @@ export function getUnstagedFilesSync(cwd = process.cwd()) {
 export function getChangedFilesSync(cwd = process.cwd()) {
   try {
     const stdout = execSync('git status --porcelain', { cwd, encoding: 'utf8' })
-    return (
-      stdout
-        .trim()
-        .split('\n')
-        .filter(Boolean)
-        // Remove status prefix.
-        .map(line => line.slice(3))
-    )
+    return stdout
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .map(line => line.slice(3))
+      .filter(file => {
+        // Skip deleted files.
+        return existsSync(path.join(cwd, file))
+      })
   } catch {
     return []
   }
