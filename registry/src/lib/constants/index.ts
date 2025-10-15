@@ -3,11 +3,11 @@
  * Re-exports all individual constant values from their respective files.
  */
 
-import getIpc from './get-ipc'
 import { createConstantsObject } from '../objects'
 import { toKebabCase } from '../strings'
+import getIpc from './get-ipc'
 
-const props: Record<string, any> = {
+const props: Record<string, unknown> = {
   // Lazily defined values are initialized as `undefined` to keep their key order.
   AT_LATEST: '@latest',
   BUN: 'bun',
@@ -155,7 +155,7 @@ const props: Record<string, any> = {
   yarnExecPath: undefined,
 }
 
-export default createConstantsObject(props, {
+const constants = createConstantsObject(props, {
   getters: Object.fromEntries(
     Object.keys(props)
       .filter(k => props[k] === undefined)
@@ -163,7 +163,7 @@ export default createConstantsObject(props, {
         k,
         () => {
           // Try key as-is first (for already-uppercase keys like SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR).
-          let mod
+          let mod: unknown
           try {
             mod = require(`./${k}`)
           } catch {
@@ -190,3 +190,10 @@ export default createConstantsObject(props, {
     getIpc,
   },
 })
+
+// Export both as named and default for CJS/ESM interop
+export { constants }
+export default constants
+
+// Note: In CommonJS output, module.exports will be set to constants
+// and exports.constants will also be available as a named export

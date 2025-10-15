@@ -4,6 +4,7 @@ import AT_LATEST from '../../registry/dist/lib/constants/AT_LATEST.js'
 import BUN from '../../registry/dist/lib/constants/BUN.js'
 import BUN_LOCK from '../../registry/dist/lib/constants/BUN_LOCK.js'
 import BUN_LOCKB from '../../registry/dist/lib/constants/BUN_LOCKB.js'
+import bunCachePath from '../../registry/dist/lib/constants/bun-cache-path.js'
 import CACHE_DIR from '../../registry/dist/lib/constants/CACHE_DIR.js'
 import CACHE_GITHUB_DIR from '../../registry/dist/lib/constants/CACHE_GITHUB_DIR.js'
 import CACHE_SOCKET_API_DIR from '../../registry/dist/lib/constants/CACHE_SOCKET_API_DIR.js'
@@ -11,18 +12,17 @@ import CACHE_TTL_DIR from '../../registry/dist/lib/constants/CACHE_TTL_DIR.js'
 import CHANGELOG_MD from '../../registry/dist/lib/constants/CHANGELOG_MD.js'
 import CI from '../../registry/dist/lib/constants/CI.js'
 import COLUMN_LIMIT from '../../registry/dist/lib/constants/COLUMN_LIMIT.js'
+import copyLeftLicenses from '../../registry/dist/lib/constants/copy-left-licenses.js'
 import DARWIN from '../../registry/dist/lib/constants/DARWIN.js'
 import DLX_BINARY_CACHE_TTL from '../../registry/dist/lib/constants/DLX_BINARY_CACHE_TTL.js'
-import DOT_GITHUB from '../../registry/dist/lib/constants/DOT_GITHUB.js'
 import DOT_GIT_DIR from '../../registry/dist/lib/constants/DOT_GIT_DIR.js'
+import DOT_GITHUB from '../../registry/dist/lib/constants/DOT_GITHUB.js'
 import DOT_PACKAGE_LOCK_JSON from '../../registry/dist/lib/constants/DOT_PACKAGE_LOCK_JSON.js'
 import DOT_SOCKET_DIR from '../../registry/dist/lib/constants/DOT_SOCKET_DIR.js'
 import EMPTY_FILE from '../../registry/dist/lib/constants/EMPTY_FILE.js'
 import EMPTY_VALUE from '../../registry/dist/lib/constants/EMPTY_VALUE.js'
 import ESLINT_CONFIG_JS from '../../registry/dist/lib/constants/ESLINT_CONFIG_JS.js'
 import ESNEXT from '../../registry/dist/lib/constants/ESNEXT.js'
-import EXTENSIONS from '../../registry/dist/lib/constants/EXTENSIONS.js'
-import EXTENSIONS_JSON from '../../registry/dist/lib/constants/EXTENSIONS_JSON.js'
 import EXT_CJS from '../../registry/dist/lib/constants/EXT_CJS.js'
 import EXT_CMD from '../../registry/dist/lib/constants/EXT_CMD.js'
 import EXT_CTS from '../../registry/dist/lib/constants/EXT_CTS.js'
@@ -37,6 +37,9 @@ import EXT_MTS from '../../registry/dist/lib/constants/EXT_MTS.js'
 import EXT_PS1 from '../../registry/dist/lib/constants/EXT_PS1.js'
 import EXT_YAML from '../../registry/dist/lib/constants/EXT_YAML.js'
 import EXT_YML from '../../registry/dist/lib/constants/EXT_YML.js'
+import EXTENSIONS from '../../registry/dist/lib/constants/EXTENSIONS.js'
+import EXTENSIONS_JSON from '../../registry/dist/lib/constants/EXTENSIONS_JSON.js'
+import execPath from '../../registry/dist/lib/constants/exec-path.js'
 import GITHUB_API_BASE_URL from '../../registry/dist/lib/constants/GITHUB_API_BASE_URL.js'
 import GITIGNORE from '../../registry/dist/lib/constants/GITIGNORE.js'
 import LATEST from '../../registry/dist/lib/constants/LATEST.js'
@@ -46,6 +49,8 @@ import LICENSE_GLOB_RECURSIVE from '../../registry/dist/lib/constants/LICENSE_GL
 import LICENSE_ORIGINAL from '../../registry/dist/lib/constants/LICENSE_ORIGINAL.js'
 import LICENSE_ORIGINAL_GLOB from '../../registry/dist/lib/constants/LICENSE_ORIGINAL_GLOB.js'
 import LICENSE_ORIGINAL_GLOB_RECURSIVE from '../../registry/dist/lib/constants/LICENSE_ORIGINAL_GLOB_RECURSIVE.js'
+import lifecycleScriptNames from '../../registry/dist/lib/constants/lifecycle-script-names.js'
+import logger from '../../registry/dist/lib/constants/logger.js'
 import MANIFEST_JSON from '../../registry/dist/lib/constants/MANIFEST_JSON.js'
 import MIT from '../../registry/dist/lib/constants/MIT.js'
 import NODE_AUTH_TOKEN from '../../registry/dist/lib/constants/NODE_AUTH_TOKEN.js'
@@ -57,6 +62,9 @@ import NPM from '../../registry/dist/lib/constants/NPM.js'
 import NPM_REGISTRY_URL from '../../registry/dist/lib/constants/NPM_REGISTRY_URL.js'
 import NPM_SHRINKWRAP_JSON from '../../registry/dist/lib/constants/NPM_SHRINKWRAP_JSON.js'
 import NPX from '../../registry/dist/lib/constants/NPX.js'
+import nodeDebugFlags from '../../registry/dist/lib/constants/node-debug-flags.js'
+import npmExecPath from '../../registry/dist/lib/constants/npm-exec-path.js'
+import npmLifecycleEvent from '../../registry/dist/lib/constants/npm-lifecycle-event.js'
 import OVERRIDES from '../../registry/dist/lib/constants/OVERRIDES.js'
 import PACKAGE_DEFAULT_VERSION from '../../registry/dist/lib/constants/PACKAGE_DEFAULT_VERSION.js'
 import PACKAGE_JSON from '../../registry/dist/lib/constants/PACKAGE_JSON.js'
@@ -64,6 +72,10 @@ import PACKAGE_LOCK_JSON from '../../registry/dist/lib/constants/PACKAGE_LOCK_JS
 import PNPM from '../../registry/dist/lib/constants/PNPM.js'
 import PNPM_LOCK_YAML from '../../registry/dist/lib/constants/PNPM_LOCK_YAML.js'
 import PRE_COMMIT from '../../registry/dist/lib/constants/PRE_COMMIT.js'
+import packageManagerCacheNames from '../../registry/dist/lib/constants/package-manager-cache-names.js'
+import pacoteCachePath from '../../registry/dist/lib/constants/pacote-cache-path.js'
+import pnpmExecPath from '../../registry/dist/lib/constants/pnpm-exec-path.js'
+import pnpmStorePath from '../../registry/dist/lib/constants/pnpm-store-path.js'
 import README_GLOB from '../../registry/dist/lib/constants/README_GLOB.js'
 import README_GLOB_RECURSIVE from '../../registry/dist/lib/constants/README_GLOB_RECURSIVE.js'
 import README_MD from '../../registry/dist/lib/constants/README_MD.js'
@@ -92,6 +104,8 @@ import SUPPORTS_NODE_REQUIRE_MODULE from '../../registry/dist/lib/constants/SUPP
 import SUPPORTS_NODE_RUN from '../../registry/dist/lib/constants/SUPPORTS_NODE_RUN.js'
 import SUPPORTS_PROCESS_SEND from '../../registry/dist/lib/constants/SUPPORTS_PROCESS_SEND.js'
 import TSCONFIG_JSON from '../../registry/dist/lib/constants/TSCONFIG_JSON.js'
+import tsLibsAvailable from '../../registry/dist/lib/constants/ts-libs-available.js'
+import tsTypesAvailable from '../../registry/dist/lib/constants/ts-types-available.js'
 import UNDEFINED_TOKEN from '../../registry/dist/lib/constants/UNDEFINED_TOKEN.js'
 import UNKNOWN_ERROR from '../../registry/dist/lib/constants/UNKNOWN_ERROR.js'
 import UNKNOWN_VALUE from '../../registry/dist/lib/constants/UNKNOWN_VALUE.js'
@@ -101,25 +115,11 @@ import UTF8 from '../../registry/dist/lib/constants/UTF8.js'
 import VITEST from '../../registry/dist/lib/constants/VITEST.js'
 import VLT from '../../registry/dist/lib/constants/VLT.js'
 import VLT_LOCK_JSON from '../../registry/dist/lib/constants/VLT_LOCK_JSON.js'
+import vltCachePath from '../../registry/dist/lib/constants/vlt-cache-path.js'
 import WIN32 from '../../registry/dist/lib/constants/WIN32.js'
 import YARN from '../../registry/dist/lib/constants/YARN.js'
 import YARN_BERRY from '../../registry/dist/lib/constants/YARN_BERRY.js'
 import YARN_LOCK from '../../registry/dist/lib/constants/YARN_LOCK.js'
-import bunCachePath from '../../registry/dist/lib/constants/bun-cache-path.js'
-import copyLeftLicenses from '../../registry/dist/lib/constants/copy-left-licenses.js'
-import execPath from '../../registry/dist/lib/constants/exec-path.js'
-import lifecycleScriptNames from '../../registry/dist/lib/constants/lifecycle-script-names.js'
-import logger from '../../registry/dist/lib/constants/logger.js'
-import nodeDebugFlags from '../../registry/dist/lib/constants/node-debug-flags.js'
-import npmExecPath from '../../registry/dist/lib/constants/npm-exec-path.js'
-import npmLifecycleEvent from '../../registry/dist/lib/constants/npm-lifecycle-event.js'
-import packageManagerCacheNames from '../../registry/dist/lib/constants/package-manager-cache-names.js'
-import pacoteCachePath from '../../registry/dist/lib/constants/pacote-cache-path.js'
-import pnpmExecPath from '../../registry/dist/lib/constants/pnpm-exec-path.js'
-import pnpmStorePath from '../../registry/dist/lib/constants/pnpm-store-path.js'
-import tsLibsAvailable from '../../registry/dist/lib/constants/ts-libs-available.js'
-import tsTypesAvailable from '../../registry/dist/lib/constants/ts-types-available.js'
-import vltCachePath from '../../registry/dist/lib/constants/vlt-cache-path.js'
 import yarnCachePath from '../../registry/dist/lib/constants/yarn-cache-path.js'
 import yarnClassic from '../../registry/dist/lib/constants/yarn-classic.js'
 import yarnExecPath from '../../registry/dist/lib/constants/yarn-exec-path.js'
@@ -413,58 +413,58 @@ describe('constants module', () => {
     })
 
     it('should normalize DEBUG=1 to DEBUG=*', () => {
-      const originalDebug = process.env['DEBUG']
-      process.env['DEBUG'] = '1'
+      const originalDebug = process.env.DEBUG
+      process.env.DEBUG = '1'
       delete require.cache[
         require.resolve('../../registry/dist/lib/constants/ENV')
       ]
       const env = require('../../registry/dist/lib/constants/ENV')
-      expect(env['DEBUG']).toBe('*')
-      process.env['DEBUG'] = originalDebug
+      expect(env.DEBUG).toBe('*')
+      process.env.DEBUG = originalDebug
     })
 
     it('should normalize DEBUG=true to DEBUG=*', () => {
-      const originalDebug = process.env['DEBUG']
-      process.env['DEBUG'] = 'true'
+      const originalDebug = process.env.DEBUG
+      process.env.DEBUG = 'true'
       delete require.cache[
         require.resolve('../../registry/dist/lib/constants/ENV')
       ]
       const env = require('../../registry/dist/lib/constants/ENV')
-      expect(env['DEBUG']).toBe('*')
-      process.env['DEBUG'] = originalDebug
+      expect(env.DEBUG).toBe('*')
+      process.env.DEBUG = originalDebug
     })
 
     it('should normalize DEBUG=0 to DEBUG=""', () => {
-      const originalDebug = process.env['DEBUG']
-      process.env['DEBUG'] = '0'
+      const originalDebug = process.env.DEBUG
+      process.env.DEBUG = '0'
       delete require.cache[
         require.resolve('../../registry/dist/lib/constants/ENV')
       ]
       const env = require('../../registry/dist/lib/constants/ENV')
-      expect(env['DEBUG']).toBe('')
-      process.env['DEBUG'] = originalDebug
+      expect(env.DEBUG).toBe('')
+      process.env.DEBUG = originalDebug
     })
 
     it('should normalize DEBUG=false to DEBUG=""', () => {
-      const originalDebug = process.env['DEBUG']
-      process.env['DEBUG'] = 'false'
+      const originalDebug = process.env.DEBUG
+      process.env.DEBUG = 'false'
       delete require.cache[
         require.resolve('../../registry/dist/lib/constants/ENV')
       ]
       const env = require('../../registry/dist/lib/constants/ENV')
-      expect(env['DEBUG']).toBe('')
-      process.env['DEBUG'] = originalDebug
+      expect(env.DEBUG).toBe('')
+      process.env.DEBUG = originalDebug
     })
 
     it('should preserve custom DEBUG namespace patterns', () => {
-      const originalDebug = process.env['DEBUG']
-      process.env['DEBUG'] = 'app:*'
+      const originalDebug = process.env.DEBUG
+      process.env.DEBUG = 'app:*'
       delete require.cache[
         require.resolve('../../registry/dist/lib/constants/ENV')
       ]
       const env = require('../../registry/dist/lib/constants/ENV')
-      expect(env['DEBUG']).toBe('app:*')
-      process.env['DEBUG'] = originalDebug
+      expect(env.DEBUG).toBe('app:*')
+      process.env.DEBUG = originalDebug
     })
   })
 

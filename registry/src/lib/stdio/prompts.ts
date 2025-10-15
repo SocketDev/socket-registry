@@ -71,7 +71,7 @@ export function wrapPrompt<T = unknown>(
     }
     const wasSpinning = !!spinnerInstance?.isSpinning
     spinnerInstance?.stop()
-    let result
+    let result: unknown
     try {
       result = await inquirerPrompt(...args)
     } catch (e) {

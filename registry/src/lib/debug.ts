@@ -3,13 +3,13 @@
  * Provides Socket CLI specific debug functionality and logging formatters.
  */
 
+import isUnicodeSupported from '../external/@socketregistry/is-unicode-supported'
+import debugJs from '../external/debug'
 import ENV from './constants/ENV'
 import spinner from './constants/spinner'
 import { logger } from './logger'
 import { hasOwn } from './objects'
 import { applyLinePrefix } from './strings'
-import isUnicodeSupported from '../external/@socketregistry/is-unicode-supported'
-import debugJs from '../external/debug'
 
 // IMPORTANT: Do not use destructuring here - use direct assignment instead.
 // tsgo has a bug that incorrectly transpiles destructured exports, resulting in
@@ -67,10 +67,10 @@ let _util: typeof import('util') | undefined
 function getUtil() {
   if (_util === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _util = /*@__PURE__*/ require('util')
+
+    _util = /*@__PURE__*/ require('node:util')
   }
-  return _util!
+  return _util as typeof import('util')
 }
 
 /**
@@ -125,7 +125,7 @@ function getCallerInfo(stackOffset: number = 3): string {
  * @private
  */
 /*@__NO_SIDE_EFFECTS__*/
-function customLog() {
+function customLog(...args: unknown[]) {
   const util = getUtil()
   const inspectOpts = debugJs.inspectOpts
     ? {
@@ -142,7 +142,7 @@ function customLog() {
       }
     : {}
   ReflectApply(logger.info, logger, [
-    util.formatWithOptions(inspectOpts, ...arguments),
+    util.formatWithOptions(inspectOpts, ...args),
   ])
 }
 
@@ -214,16 +214,18 @@ function debugDirNs(
     pointingTriangle = supported ? '▸' : '>'
   }
 
-  if (inspectOpts === undefined) {
-    const opts = debugJs.inspectOpts
-    if (opts) {
-      inspectOpts = {
-        ...opts,
-        showHidden: opts.showHidden === null ? undefined : opts.showHidden,
+  let opts: InspectOptions | undefined = inspectOpts
+  if (opts === undefined) {
+    const debugOpts = debugJs.inspectOpts
+    if (debugOpts) {
+      opts = {
+        ...debugOpts,
+        showHidden:
+          debugOpts.showHidden === null ? undefined : debugOpts.showHidden,
         depth:
-          opts.depth === null || typeof opts.depth === 'boolean'
+          debugOpts.depth === null || typeof debugOpts.depth === 'boolean'
             ? null
-            : opts.depth,
+            : debugOpts.depth,
       } as InspectOptions
     }
   }

@@ -18,14 +18,12 @@
  * - Visual feedback: Uses spinner to indicate process is running when output is masked.
  */
 
+import type { ChildProcess, SpawnOptions } from 'node:child_process'
 import { spawn } from 'node:child_process'
 import readline from 'node:readline'
-
 import { spinner } from '../spinner.js'
 import { clearLine } from './clear.js'
 import { write } from './stdout.js'
-
-import type { ChildProcess, SpawnOptions } from 'node:child_process'
 
 export interface OutputMaskOptions {
   /** Current working directory */
@@ -80,7 +78,7 @@ export function createKeyboardHandler(
 
   return (_str, key) => {
     // ctrl+o toggles verbose mode.
-    if (key && key.ctrl && key.name === 'o') {
+    if (key?.ctrl && key.name === 'o') {
       mask.verbose = !mask.verbose
 
       if (mask.verbose) {
@@ -96,7 +94,9 @@ export function createKeyboardHandler(
         // Show buffered output.
         if (mask.outputBuffer.length > 0) {
           console.log('--- Output (ctrl+o to hide) ---')
-          mask.outputBuffer.forEach(line => write(line))
+          mask.outputBuffer.forEach(line => {
+            write(line)
+          })
         }
       } else {
         // Hide output and show spinner.
@@ -123,7 +123,7 @@ export function createKeyboardHandler(
       }
     }
     // ctrl+c to cancel.
-    else if (key && key.ctrl && key.name === 'c') {
+    else if (key?.ctrl && key.name === 'c') {
       // Gracefully terminate child process.
       child.kill('SIGTERM')
       // Restore terminal to normal mode before exiting.
@@ -194,6 +194,7 @@ export function attachOutputMask(
             mask.outputBuffer = [lines.slice(-1000).join('\n')]
           }
         }
+        return undefined
       })
     }
 
@@ -206,6 +207,7 @@ export function attachOutputMask(
         } else {
           mask.outputBuffer.push(text)
         }
+        return undefined
       })
     }
 
@@ -223,7 +225,9 @@ export function attachOutputMask(
           // Show buffered output on failure so user can see what went wrong.
           if (mask.outputBuffer.length > 0 && !mask.verbose) {
             console.log('\n--- Output ---')
-            mask.outputBuffer.forEach(line => write(line))
+            mask.outputBuffer.forEach(line => {
+              write(line)
+            })
           }
         }
       }

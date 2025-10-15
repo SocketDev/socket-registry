@@ -3,21 +3,20 @@
  * Provides animated progress indicators with CI environment detection.
  */
 
-import ENV from './constants/ENV'
-import abortSignal from './constants/abort-signal'
-import { generateSocketSpinnerFrames } from './effects/pulse-frames'
-import { COLOR_INHERIT, DIR_LTR, applyShimmer } from './effects/text-shimmer'
-import { hasOwn } from './objects'
-import { isBlankString, stringWidth } from './strings'
+import type { Writable } from 'node:stream'
 import yoctoSpinner from '../external/@socketregistry/yocto-spinner'
-
+import abortSignal from './constants/abort-signal'
+import ENV from './constants/ENV'
+import { generateSocketSpinnerFrames } from './effects/pulse-frames'
 import type {
   ShimmerColorGradient,
   ShimmerConfig,
   ShimmerDirection,
   ShimmerState,
 } from './effects/text-shimmer'
-import type { Writable } from 'node:stream'
+import { applyShimmer, COLOR_INHERIT, DIR_LTR } from './effects/text-shimmer'
+import { hasOwn } from './objects'
+import { isBlankString, stringWidth } from './strings'
 
 export type ColorName =
   | 'black'
@@ -155,7 +154,7 @@ export type SpinnerStyle = {
 
 export const ciSpinner: SpinnerStyle = {
   frames: [''],
-  interval: 2147483647,
+  interval: 2_147_483_647,
 }
 
 function desc(value: unknown) {
@@ -204,9 +203,11 @@ export function getCliSpinners(
   styleName?: string | undefined,
 ): SpinnerStyle | Record<string, SpinnerStyle> | undefined {
   if (_cliSpinners === undefined) {
+    // biome-ignore lint/suspicious/noExplicitAny: Accessing internal yocto-spinner constructor.
     const YoctoCtor = yoctoSpinner as any
     // Get the YoctoSpinner class to access static properties.
     const tempInstance = YoctoCtor({})
+    // biome-ignore lint/suspicious/noExplicitAny: Accessing internal yocto-spinner class.
     const YoctoSpinnerClass = tempInstance.constructor as any
     // Extend the standard cli-spinners collection with Socket custom spinners.
     _cliSpinners = {
@@ -228,16 +229,35 @@ let _defaultSpinner: SpinnerStyle | undefined
 
 /**
  * Create a spinner instance for displaying loading indicators.
+ *
+ * AUTO-CLEAR BEHAVIOR:
+ * - All *AndStop() methods AUTO-CLEAR the spinner line via yocto-spinner.stop()
+ *   Examples: doneAndStop(), successAndStop(), failAndStop(), etc.
+ *
+ * - Methods WITHOUT "AndStop" do NOT clear (spinner keeps spinning)
+ *   Examples: done(), success(), fail(), etc.
+ *
+ * STREAM USAGE:
+ * - Spinner animation: stderr (yocto-spinner default)
+ * - Status methods (done, success, fail, info, warn, step, substep): stderr
+ * - Data methods (log): stdout
+ *
+ * COMPARISON WITH LOGGER:
+ * - logger.done() does NOT auto-clear (requires manual logger.clearLine())
+ * - spinner.doneAndStop() DOES auto-clear (built into yocto-spinner.stop())
+ * - Pattern: logger.clearLine().done() vs spinner.doneAndStop()
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function Spinner(options?: SpinnerOptions | undefined): Spinner {
   if (_Spinner === undefined) {
+    // biome-ignore lint/suspicious/noExplicitAny: Accessing internal yocto-spinner constructor.
     const YoctoCtor = yoctoSpinner as any
     // Get the actual YoctoSpinner class from an instance
     const tempInstance = YoctoCtor({})
     const YoctoSpinnerClass = tempInstance.constructor
 
     /*@__PURE__*/
+    // biome-ignore lint/suspicious/noExplicitAny: Extending yocto-spinner class.
     _Spinner = class SpinnerClass extends (YoctoSpinnerClass as any) {
       declare isSpinning: boolean
       #baseText: string = ''
@@ -352,6 +372,11 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
         super.color = isRgbTuple(value) ? value : toRgb(value)
       }
 
+      /**
+       * Apply a yocto-spinner method and update logger state.
+       * Handles text normalization, extra arguments, and logger tracking.
+       * @private
+       */
       #apply(methodName: string, args: unknown[]) {
         let extras: unknown[]
         let text = args.at(0)
@@ -386,191 +411,10 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
       }
 
       /**
-       * Show a status message without stopping the spinner.
-       * Outputs the symbol and message to stderr, then continues spinning.
+       * Build the complete display text with progress, shimmer, and indentation.
+       * Combines base text, progress bar, shimmer effects, and indentation.
+       * @private
        */
-      #showStatusAndKeepSpinning(symbolType: SymbolType, args: unknown[]) {
-        let text = args.at(0)
-        let extras: unknown[]
-        if (typeof text === 'string') {
-          extras = args.slice(1)
-        } else {
-          extras = args
-          text = ''
-        }
-
-        const { LOG_SYMBOLS, logger } = /*@__PURE__*/ require('./logger.js')
-        // Note: Status messages always go to stderr.
-        logger.error(`${LOG_SYMBOLS[symbolType]} ${text}`, ...extras)
-        return this
-      }
-
-      debug(...args: unknown[]) {
-        const { isDebug } = /*@__PURE__*/ require('./debug.js')
-        if (isDebug()) {
-          return this.#showStatusAndKeepSpinning('info', args)
-        }
-        return this
-      }
-
-      debugAndStop(...args: unknown[]) {
-        const { isDebug } = /*@__PURE__*/ require('./debug.js')
-        if (isDebug()) {
-          return this.#apply('info', args)
-        }
-        return this
-      }
-
-      /**
-       * Show a failure message without stopping the spinner.
-       * DESIGN DECISION: Unlike yocto-spinner, our fail() does NOT stop the spinner.
-       * This allows displaying errors while continuing to spin.
-       * Use failAndStop() if you want to stop the spinner.
-       */
-      fail(...args: unknown[]) {
-        return this.#showStatusAndKeepSpinning('fail', args)
-      }
-
-      failAndStop(...args: unknown[]) {
-        return this.#apply('error', args)
-      }
-
-      // The text getter/setter from parent class now behaves like a method
-      // thanks to _textMethodOverride set in constructor.
-
-      indent(spaces?: number) {
-        // Pass 0 to reset indentation
-        if (spaces === 0) {
-          this.#indentation = ''
-        } else {
-          const amount = spaces ?? 2
-          this.#indentation += ' '.repeat(amount)
-        }
-        this.#updateSpinnerText()
-        return this
-      }
-
-      dedent(spaces?: number) {
-        // Pass 0 to reset indentation
-        if (spaces === 0) {
-          this.#indentation = ''
-        } else {
-          const amount = spaces ?? 2
-          const newLength = Math.max(0, this.#indentation.length - amount)
-          this.#indentation = this.#indentation.slice(0, newLength)
-        }
-        this.#updateSpinnerText()
-        return this
-      }
-
-      info(...args: unknown[]) {
-        return this.#showStatusAndKeepSpinning('info', args)
-      }
-
-      infoAndStop(...args: unknown[]) {
-        return this.#apply('info', args)
-      }
-
-      log(...args: unknown[]) {
-        const { logger } = /*@__PURE__*/ require('./logger.js')
-        logger.log(...args)
-        return this
-      }
-
-      logAndStop(...args: unknown[]) {
-        return this.#apply('stop', args)
-      }
-
-      start(...args: unknown[]) {
-        if (args.length) {
-          const text = args.at(0)
-          const normalized = normalizeText(text)
-          // We clear this.text on start when `text` is falsy because yocto-spinner
-          // will not clear it otherwise.
-          if (!normalized) {
-            this.#baseText = ''
-            super.text = ''
-          } else {
-            this.#baseText = normalized
-          }
-        }
-
-        this.#updateSpinnerText()
-        return this.#apply('start', args)
-      }
-
-      step(...args: unknown[]) {
-        const text = args[0]
-        if (typeof text === 'string') {
-          // Add blank line before step for visual separation.
-          const { logger } = /*@__PURE__*/ require('./logger.js')
-          logger.error('')
-          args[0] = text
-        }
-        return this.log(...args)
-      }
-
-      substep(...args: unknown[]) {
-        const text = args[0]
-        if (typeof text === 'string') {
-          // Add 2-space indent for substep.
-          args[0] = `  ${text}`
-        }
-        return this.log(...args)
-      }
-
-      stop(...args: unknown[]) {
-        // Clear internal state.
-        this.#baseText = ''
-        this.#progress = undefined
-        // Reset shimmer animation state if shimmer is enabled.
-        if (this.#shimmer) {
-          this.#shimmer.currentDir = DIR_LTR
-          this.#shimmer.step = 0
-        }
-        // Call parent stop first (clears screen, sets isSpinning = false).
-        const result = this.#apply('stop', args)
-        // Then clear text to avoid blank frame render.
-        // This is safe now because isSpinning is false.
-        super.text = ''
-        return result
-      }
-
-      /**
-       * Show a success message without stopping the spinner.
-       * DESIGN DECISION: Unlike yocto-spinner, our success() does NOT stop the spinner.
-       * This allows displaying success messages while continuing to spin for multi-step operations.
-       * Use successAndStop() if you want to stop the spinner.
-       */
-      success(...args: unknown[]) {
-        return this.#showStatusAndKeepSpinning('success', args)
-      }
-
-      successAndStop(...args: unknown[]) {
-        return this.#apply('success', args)
-      }
-
-      /**
-       * Alias for success() (shorter name).
-       * DESIGN DECISION: Unlike yocto-spinner, our done() does NOT stop the spinner.
-       * Use doneAndStop() if you want to stop the spinner.
-       */
-      done(...args: unknown[]) {
-        return this.#showStatusAndKeepSpinning('success', args)
-      }
-
-      doneAndStop(...args: unknown[]) {
-        return this.#apply('success', args)
-      }
-
-      warn(...args: unknown[]) {
-        return this.#showStatusAndKeepSpinning('warn', args)
-      }
-
-      warnAndStop(...args: unknown[]) {
-        return this.#apply('warning', args)
-      }
-
       #buildDisplayText() {
         let displayText = this.#baseText
 
@@ -610,11 +454,171 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
         return displayText
       }
 
+      /**
+       * Show a status message without stopping the spinner.
+       * Outputs the symbol and message to stderr, then continues spinning.
+       */
+      #showStatusAndKeepSpinning(symbolType: SymbolType, args: unknown[]) {
+        let text = args.at(0)
+        let extras: unknown[]
+        if (typeof text === 'string') {
+          extras = args.slice(1)
+        } else {
+          extras = args
+          text = ''
+        }
+
+        const { LOG_SYMBOLS, logger } = /*@__PURE__*/ require('./logger.js')
+        // Note: Status messages always go to stderr.
+        logger.error(`${LOG_SYMBOLS[symbolType]} ${text}`, ...extras)
+        return this
+      }
+
+      /**
+       * Update the spinner's displayed text.
+       * Rebuilds display text and triggers render.
+       * @private
+       */
       #updateSpinnerText() {
         // Call the parent class's text setter, which triggers render.
         super.text = this.#buildDisplayText()
       }
 
+      /**
+       * Show a debug message without stopping the spinner (only if debug mode enabled).
+       * Outputs to stderr and continues spinning.
+       */
+      debug(...args: unknown[]) {
+        const { isDebug } = /*@__PURE__*/ require('./debug.js')
+        if (isDebug()) {
+          return this.#showStatusAndKeepSpinning('info', args)
+        }
+        return this
+      }
+
+      /**
+       * Show a debug message and stop the spinner (only if debug mode enabled).
+       * Auto-clears the spinner line before displaying the message.
+       */
+      debugAndStop(...args: unknown[]) {
+        const { isDebug } = /*@__PURE__*/ require('./debug.js')
+        if (isDebug()) {
+          return this.#apply('info', args)
+        }
+        return this
+      }
+
+      /**
+       * Decrease indentation level.
+       * Pass 0 to reset indentation to zero.
+       * @param spaces - Number of spaces to remove (default: 2)
+       */
+      dedent(spaces?: number) {
+        // Pass 0 to reset indentation
+        if (spaces === 0) {
+          this.#indentation = ''
+        } else {
+          const amount = spaces ?? 2
+          const newLength = Math.max(0, this.#indentation.length - amount)
+          this.#indentation = this.#indentation.slice(0, newLength)
+        }
+        this.#updateSpinnerText()
+        return this
+      }
+
+      /**
+       * Alias for success() (shorter name).
+       * DESIGN DECISION: Unlike yocto-spinner, our done() does NOT stop the spinner.
+       * Use doneAndStop() if you want to stop the spinner.
+       */
+      done(...args: unknown[]) {
+        return this.#showStatusAndKeepSpinning('success', args)
+      }
+
+      /**
+       * Show a done message and stop the spinner.
+       * Auto-clears the spinner line before displaying the success message.
+       */
+      doneAndStop(...args: unknown[]) {
+        return this.#apply('success', args)
+      }
+
+      /**
+       * Show a failure message without stopping the spinner.
+       * DESIGN DECISION: Unlike yocto-spinner, our fail() does NOT stop the spinner.
+       * This allows displaying errors while continuing to spin.
+       * Use failAndStop() if you want to stop the spinner.
+       */
+      fail(...args: unknown[]) {
+        return this.#showStatusAndKeepSpinning('fail', args)
+      }
+
+      /**
+       * Show a failure message and stop the spinner.
+       * Auto-clears the spinner line before displaying the error message.
+       */
+      failAndStop(...args: unknown[]) {
+        return this.#apply('error', args)
+      }
+
+      /**
+       * Increase indentation level.
+       * Pass 0 to reset indentation to zero.
+       * @param spaces - Number of spaces to add (default: 2)
+       */
+      indent(spaces?: number) {
+        // Pass 0 to reset indentation
+        if (spaces === 0) {
+          this.#indentation = ''
+        } else {
+          const amount = spaces ?? 2
+          this.#indentation += ' '.repeat(amount)
+        }
+        this.#updateSpinnerText()
+        return this
+      }
+
+      /**
+       * Show an info message without stopping the spinner.
+       * Outputs to stderr and continues spinning.
+       */
+      info(...args: unknown[]) {
+        return this.#showStatusAndKeepSpinning('info', args)
+      }
+
+      /**
+       * Show an info message and stop the spinner.
+       * Auto-clears the spinner line before displaying the message.
+       */
+      infoAndStop(...args: unknown[]) {
+        return this.#apply('info', args)
+      }
+
+      /**
+       * Log a message to stdout without stopping the spinner.
+       * Unlike other methods, this outputs to stdout for data logging.
+       */
+      log(...args: unknown[]) {
+        const { logger } = /*@__PURE__*/ require('./logger.js')
+        logger.log(...args)
+        return this
+      }
+
+      /**
+       * Log a message and stop the spinner.
+       * Auto-clears the spinner line before displaying the message.
+       */
+      logAndStop(...args: unknown[]) {
+        return this.#apply('stop', args)
+      }
+
+      /**
+       * Update progress information displayed with the spinner.
+       * Shows a progress bar with percentage and optional unit label.
+       * @param current - Current progress value
+       * @param total - Total progress value
+       * @param unit - Optional unit label (e.g., 'files', 'items')
+       */
       progress = (
         current: number,
         total: number,
@@ -630,6 +634,11 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
         return this
       }
 
+      /**
+       * Increment progress by a specified amount.
+       * Updates the progress bar displayed with the spinner.
+       * @param amount - Amount to increment (default: 1)
+       */
       progressStep(amount: number = 1) {
         if (this.#progress) {
           const newCurrent = this.#progress.current + amount
@@ -642,6 +651,140 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
           this.#updateSpinnerText()
         }
         return this
+      }
+
+      /**
+       * Start the spinner animation with optional text.
+       * Begins displaying the animated spinner.
+       * @param text - Optional text to display with the spinner
+       */
+      start(...args: unknown[]) {
+        if (args.length) {
+          const text = args.at(0)
+          const normalized = normalizeText(text)
+          // We clear this.text on start when `text` is falsy because yocto-spinner
+          // will not clear it otherwise.
+          if (!normalized) {
+            this.#baseText = ''
+            super.text = ''
+          } else {
+            this.#baseText = normalized
+          }
+        }
+
+        this.#updateSpinnerText()
+        return this.#apply('start', args)
+      }
+
+      /**
+       * Log a main step message to stderr without stopping the spinner.
+       * Adds a blank line before the message for visual separation.
+       * Aligns with logger.step() to use stderr for status messages.
+       */
+      step(...args: unknown[]) {
+        const text = args[0]
+        const { logger } = /*@__PURE__*/ require('./logger.js')
+        if (typeof text === 'string') {
+          // Add blank line before step for visual separation.
+          logger.error('')
+          // Use error (stderr) to align with logger.step() default stream.
+          logger.error(text, ...args.slice(1))
+        }
+        return this
+      }
+
+      /**
+       * Log an indented substep message to stderr without stopping the spinner.
+       * Adds 2-space indentation to the message.
+       * Aligns with logger.substep() to use stderr for status messages.
+       */
+      substep(...args: unknown[]) {
+        const text = args[0]
+        if (typeof text === 'string') {
+          // Add 2-space indent for substep.
+          const { logger } = /*@__PURE__*/ require('./logger.js')
+          // Use error (stderr) to align with logger.substep() default stream.
+          logger.error(`  ${text}`, ...args.slice(1))
+        }
+        return this
+      }
+
+      /**
+       * Stop the spinner animation and clear internal state.
+       * Auto-clears the spinner line via yocto-spinner.stop().
+       * Resets progress, shimmer, and text state.
+       * @param text - Optional final text to display after stopping
+       */
+      stop(...args: unknown[]) {
+        // Clear internal state.
+        this.#baseText = ''
+        this.#progress = undefined
+        // Reset shimmer animation state if shimmer is enabled.
+        if (this.#shimmer) {
+          this.#shimmer.currentDir = DIR_LTR
+          this.#shimmer.step = 0
+        }
+        // Call parent stop first (clears screen, sets isSpinning = false).
+        const result = this.#apply('stop', args)
+        // Then clear text to avoid blank frame render.
+        // This is safe now because isSpinning is false.
+        super.text = ''
+        return result
+      }
+
+      /**
+       * Show a success message without stopping the spinner.
+       * DESIGN DECISION: Unlike yocto-spinner, our success() does NOT stop the spinner.
+       * This allows displaying success messages while continuing to spin for multi-step operations.
+       * Use successAndStop() if you want to stop the spinner.
+       */
+      success(...args: unknown[]) {
+        return this.#showStatusAndKeepSpinning('success', args)
+      }
+
+      /**
+       * Show a success message and stop the spinner.
+       * Auto-clears the spinner line before displaying the success message.
+       */
+      successAndStop(...args: unknown[]) {
+        return this.#apply('success', args)
+      }
+
+      /**
+       * Get or set the spinner text.
+       * When called with no arguments, returns the current text.
+       * When called with text, updates the display and returns the spinner.
+       * @param value - Text to display (omit to get current text)
+       * @returns Current text (getter) or this spinner (setter)
+       */
+      text(): string
+      text(value: string): Spinner
+      text(value?: string): string | Spinner {
+        // biome-ignore lint/complexity/noArguments: Function overload for getter/setter pattern.
+        if (arguments.length === 0) {
+          // Getter: return current base text
+          return this.#baseText
+        }
+        // Setter: update base text and refresh display
+        this.#baseText = value ?? ''
+        this.#updateSpinnerText()
+        return this as unknown as Spinner
+      }
+
+      /**
+       * Show a warning message without stopping the spinner.
+       * Outputs to stderr and continues spinning.
+       */
+      warn(...args: unknown[]) {
+        return this.#showStatusAndKeepSpinning('warn', args)
+      }
+
+      /**
+       * Show a warning message and stop the spinner.
+       * Auto-clears the spinner line before displaying the warning message.
+       */
+      warnAndStop(...args: unknown[]) {
+        return this.#apply('warning', args)
       }
     } as unknown as {
       new (options?: SpinnerOptions | undefined): Spinner

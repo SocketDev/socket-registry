@@ -7,6 +7,7 @@ import {
   isBlankString,
   isNonEmptyString,
   search,
+  stringWidth,
   stripAnsi,
   stripBom,
   toKebabCase,
@@ -384,6 +385,64 @@ describe('strings module', () => {
       expect(search('hello world', 'world')).toBe(6)
       // @ts-expect-error - Testing runtime behavior with string patterns.
       expect(search('test string', 'missing')).toBe(-1)
+    })
+  })
+
+  describe('stringWidth', () => {
+    it('should calculate width of ASCII strings', () => {
+      expect(stringWidth('hello')).toBe(5)
+      expect(stringWidth('abc')).toBe(3)
+      expect(stringWidth('test')).toBe(4)
+    })
+
+    it('should return 0 for empty strings', () => {
+      expect(stringWidth('')).toBe(0)
+    })
+
+    it('should handle wide characters', () => {
+      expect(stringWidth('⚡')).toBe(2)
+      expect(stringWidth('漢字')).toBe(4)
+      expect(stringWidth('Ａ')).toBe(2)
+    })
+
+    it('should handle narrow characters', () => {
+      expect(stringWidth('✦')).toBe(1)
+      expect(stringWidth('ｱ')).toBe(1)
+    })
+
+    it('should strip ANSI codes', () => {
+      expect(stringWidth('\x1b[31mred\x1b[0m')).toBe(3)
+      expect(stringWidth('\x1b[1m\x1b[32mbold green\x1b[0m')).toBe(10)
+    })
+
+    it('should handle emoji', () => {
+      expect(stringWidth('👍')).toBe(2)
+      expect(stringWidth('😀')).toBe(2)
+    })
+
+    it('should handle emoji with skin tones', () => {
+      expect(stringWidth('👍🏽')).toBe(2)
+      expect(stringWidth('👋🏿')).toBe(2)
+    })
+
+    it('should handle emoji with ZWJ sequences', () => {
+      expect(stringWidth('👨‍👩‍👧‍👦')).toBe(2)
+    })
+
+    it('should handle combining characters', () => {
+      expect(stringWidth('é')).toBe(1)
+      expect(stringWidth('café')).toBe(4)
+    })
+
+    it('should ignore control characters', () => {
+      expect(stringWidth('\t')).toBe(0)
+      expect(stringWidth('\n')).toBe(0)
+      expect(stringWidth('hello\tworld')).toBe(10)
+    })
+
+    it('should handle mixed content', () => {
+      expect(stringWidth('hello 世界')).toBe(10)
+      expect(stringWidth('test ⚡ abc')).toBe(11)
     })
   })
 })

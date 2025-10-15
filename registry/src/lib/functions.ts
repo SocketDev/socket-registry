@@ -7,7 +7,7 @@
 export type AsyncFunction<TArgs extends unknown[], TResult> = (
   ...args: TArgs
 ) => Promise<TResult>
-export type AnyFunction = (...args: any[]) => any
+export type AnyFunction = (...args: unknown[]) => unknown
 
 /**
  * A no-op function that does nothing.
@@ -28,9 +28,9 @@ export function once<T extends AnyFunction>(fn: T): T {
   ): ReturnType<T> {
     if (!called) {
       called = true
-      result = fn.apply(this, args)
+      result = fn.apply(this, args) as ReturnType<T>
     }
-    return result
+    return result as ReturnType<T>
   } as T
 }
 
@@ -59,9 +59,13 @@ export function trampoline<T extends AnyFunction>(fn: T): T {
     this: ThisParameterType<T>,
     ...args: Parameters<T>
   ): ReturnType<T> {
-    let result: ReturnType<T> | (() => ReturnType<T>) = fn.apply(this, args)
+    let result: ReturnType<T> | (() => ReturnType<T>) = fn.apply(this, args) as
+      | ReturnType<T>
+      | (() => ReturnType<T>)
     while (typeof result === 'function') {
-      result = (result as () => ReturnType<T>)()
+      result = (result as () => ReturnType<T> | (() => ReturnType<T>))() as
+        | ReturnType<T>
+        | (() => ReturnType<T>)
     }
     return result as ReturnType<T>
   } as T

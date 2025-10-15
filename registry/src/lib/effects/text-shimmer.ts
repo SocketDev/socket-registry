@@ -51,15 +51,20 @@ type TextStyles = {
 function detectStyles(text: string): TextStyles {
   return {
     __proto__: null,
-    // eslint-disable-next-line no-control-regex
+
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI escape sequence detection
     bold: /\x1b\[1m/.test(text),
-    // eslint-disable-next-line no-control-regex
+
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI escape sequence detection
     dim: /\x1b\[2m/.test(text),
-    // eslint-disable-next-line no-control-regex
+
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI escape sequence detection
     italic: /\x1b\[3m/.test(text),
-    // eslint-disable-next-line no-control-regex
+
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI escape sequence detection
     strikethrough: /\x1b\[9m/.test(text),
-    // eslint-disable-next-line no-control-regex
+
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI escape sequence detection
     underline: /\x1b\[4m/.test(text),
   } as TextStyles
 }
@@ -123,7 +128,7 @@ function shimmerIntensity(
   }
   // Smooth falloff using power curve.
   const normalized = distance / shimmerWidth
-  return Math.pow(1 - normalized, 2.5)
+  return (1 - normalized) ** 2.5
 }
 
 /**

@@ -2,16 +2,15 @@
  * @fileoverview Editable package.json manipulation utilities.
  */
 
-import { normalizePackageJson } from './normalize'
-import { resolvePackageJsonDirname } from './paths'
-import { isNodeModules } from '../path'
-
 import type {
   EditablePackageJsonOptions,
   NormalizeOptions,
   PackageJson,
   SaveOptions,
 } from '../packages'
+import { isNodeModules } from '../path'
+import { normalizePackageJson } from './normalize'
+import { resolvePackageJsonDirname } from './paths'
 
 const identSymbol = Symbol.for('indent')
 const newlineSymbol = Symbol.for('newline')
@@ -66,7 +65,7 @@ export interface EditablePackageJsonInstance {
    * Initialize the instance from a content object.
    * @param content - The package.json content object
    */
-  fromContent(content: any): this
+  fromContent(content: unknown): this
 
   /**
    * Initialize the instance from a JSON string.
@@ -127,10 +126,10 @@ let _fs: typeof import('fs') | undefined
 function getFs() {
   if (_fs === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _fs = /*@__PURE__*/ require('fs')
+
+    _fs = /*@__PURE__*/ require('node:fs')
   }
-  return _fs!
+  return _fs as typeof import('fs')
 }
 
 let _path: typeof import('path') | undefined
@@ -142,10 +141,10 @@ let _path: typeof import('path') | undefined
 function getPath() {
   if (_path === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _path = /*@__PURE__*/ require('path')
+
+    _path = /*@__PURE__*/ require('node:path')
   }
-  return _path!
+  return _path as typeof import('path')
 }
 
 let _util: typeof import('util') | undefined
@@ -153,10 +152,10 @@ let _util: typeof import('util') | undefined
 function getUtil() {
   if (_util === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _util = /*@__PURE__*/ require('util')
+
+    _util = /*@__PURE__*/ require('node:util')
   }
-  return _util!
+  return _util as typeof import('util')
 }
 
 /**
@@ -202,13 +201,17 @@ export function getEditablePackageJsonClass(): EditablePackageJsonConstructor {
           path: string,
           opts: EditablePackageJsonOptions = {},
         ) {
-          const p = new _EditablePackageJsonClass!()
+          const p = new (
+            _EditablePackageJsonClass as EditablePackageJsonConstructor
+          )()
           await p.create(path)
           return opts.data ? p.update(opts.data) : p
         }
 
         static override async fix(path: string, opts: unknown) {
-          const p = new _EditablePackageJsonClass!()
+          const p = new (
+            _EditablePackageJsonClass as EditablePackageJsonConstructor
+          )()
           await p.load(path, true)
           return await p.fix(opts)
         }
@@ -217,7 +220,9 @@ export function getEditablePackageJsonClass(): EditablePackageJsonConstructor {
           path: string,
           opts: EditablePackageJsonOptions = {},
         ) {
-          const p = new _EditablePackageJsonClass!()
+          const p = new (
+            _EditablePackageJsonClass as EditablePackageJsonConstructor
+          )()
           // Avoid try/catch if we aren't going to create
           if (!opts.create) {
             return await p.load(path)
@@ -235,13 +240,17 @@ export function getEditablePackageJsonClass(): EditablePackageJsonConstructor {
         }
 
         static override async normalize(path: string, opts: NormalizeOptions) {
-          const p = new _EditablePackageJsonClass!()
+          const p = new (
+            _EditablePackageJsonClass as EditablePackageJsonConstructor
+          )()
           await p.load(path)
           return await p.normalize(opts)
         }
 
         static override async prepare(path: string, opts: unknown) {
-          const p = new _EditablePackageJsonClass!()
+          const p = new (
+            _EditablePackageJsonClass as EditablePackageJsonConstructor
+          )()
           await p.load(path, true)
           return await p.prepare(opts)
         }
@@ -271,7 +280,7 @@ export function getEditablePackageJsonClass(): EditablePackageJsonConstructor {
         override async load(path: string, create?: boolean): Promise<this> {
           this._path = path
           const { promises: fsPromises } = getFs()
-          let parseErr
+          let parseErr: unknown
           try {
             this._readFileContent = await read(this.filename)
           } catch (err) {
@@ -283,7 +292,7 @@ export function getEditablePackageJsonClass(): EditablePackageJsonConstructor {
           if (parseErr) {
             const nodePath = getPath()
             const indexFile = nodePath.resolve(this.path || '', 'index.js')
-            let indexFileContent
+            let indexFileContent: string
             try {
               indexFileContent = await fsPromises.readFile(indexFile, 'utf8')
             } catch {
@@ -474,7 +483,7 @@ export function getEditablePackageJsonClass(): EditablePackageJsonConstructor {
         }
       } as EditablePackageJsonConstructor
   }
-  return _EditablePackageJsonClass!
+  return _EditablePackageJsonClass as EditablePackageJsonConstructor
 }
 
 /**
@@ -484,7 +493,7 @@ export function getEditablePackageJsonClass(): EditablePackageJsonConstructor {
 export function pkgJsonToEditable(
   pkgJson: PackageJson,
   options?: EditablePackageJsonOptions,
-): any {
+): unknown {
   const { normalize, ...normalizeOptions } = {
     __proto__: null,
     ...options,
@@ -502,7 +511,7 @@ export function pkgJsonToEditable(
 export async function toEditablePackageJson(
   pkgJson: PackageJson,
   options?: EditablePackageJsonOptions,
-): Promise<any> {
+): Promise<unknown> {
   const { path: filepath, ...pkgJsonToEditableOptions } = {
     __proto__: null,
     ...options,
@@ -536,7 +545,7 @@ export async function toEditablePackageJson(
 export function toEditablePackageJsonSync(
   pkgJson: PackageJson,
   options?: EditablePackageJsonOptions,
-): any {
+): unknown {
   const { path: filepath, ...pkgJsonToEditableOptions } = {
     __proto__: null,
     ...options,

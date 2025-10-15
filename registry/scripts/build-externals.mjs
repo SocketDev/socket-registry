@@ -4,9 +4,10 @@
  */
 
 import { promises as fs } from 'node:fs'
+// Use esbuild from root node_modules since registry package is zero-dependency.
+import { createRequire } from 'node:module'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-
 import {
   printError,
   printFooter,
@@ -15,8 +16,6 @@ import {
 } from '../../scripts/utils/cli-helpers.mjs'
 import { createNonBarrelEntry } from './non-barrel-imports.mjs'
 
-// Use esbuild from root node_modules since registry package is zero-dependency.
-import { createRequire } from 'node:module'
 const require = createRequire(import.meta.url)
 const esbuild = require('../../node_modules/esbuild')
 
@@ -83,6 +82,7 @@ const externalPackages = [
   { name: 'del', bundle: true },
   { name: 'fast-glob', bundle: true },
   { name: 'fast-sort', bundle: true },
+  { name: 'get-east-asian-width', bundle: true },
   { name: 'picomatch', bundle: true },
   { name: 'semver', bundle: true },
   { name: 'spdx-correct', bundle: true },
@@ -230,6 +230,23 @@ async function bundlePackage(packageName, outputPath) {
         'vm',
         '@socketsecurity/registry',
         ...(packageOpts.external || []),
+      ],
+      plugins: [
+        {
+          name: 'stub-encoding',
+          setup(build) {
+            // Stub out encoding and iconv-lite packages.
+            build.onResolve({ filter: /^(encoding|iconv-lite)$/ }, args => ({
+              path: args.path,
+              namespace: 'stub-encoding',
+            }))
+
+            build.onLoad({ filter: /.*/, namespace: 'stub-encoding' }, () => ({
+              contents: 'module.exports = {};',
+              loader: 'js',
+            }))
+          },
+        },
       ],
       minify: true,
       sourcemap: false,

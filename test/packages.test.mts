@@ -53,7 +53,7 @@ parseArgs({
 
 const shimApiKeys = ['getPolyfill', 'implementation', 'shim']
 
-function findLeakedApiKey(keys: any[]): string | undefined {
+function findLeakedApiKey(keys: string[]): string | undefined {
   return shimApiKeys.find(k => keys.includes(k))
 }
 
@@ -123,7 +123,7 @@ for (const eco of constants.ecosystems) {
           resolutions: pkgResolutions,
         } = pkgJson
 
-        const engines = pkgJson['engines'] as Record<string, string> | undefined
+        const engines = pkgJson.engines as Record<string, string> | undefined
 
         const entryExports = pkgJson.exports as
           | {
@@ -151,7 +151,7 @@ for (const eco of constants.ecosystems) {
 
         it('package name should be included in "repository.directory" field of package.json', () => {
           expect(
-            (pkgJson['repository'] as { directory?: string })?.directory,
+            (pkgJson.repository as { directory?: string })?.directory,
           ).toBe(`packages/npm/${sockRegPkgName}`)
         })
 
@@ -234,7 +234,7 @@ for (const eco of constants.ecosystems) {
         }
 
         it('should have a "sideEffects" field of `false` in package.json', () => {
-          expect(pkgJson['sideEffects']).toBe(false)
+          expect(pkgJson.sideEffects).toBe(false)
         })
 
         it('should not need package.json fixing', () => {
@@ -252,7 +252,7 @@ for (const eco of constants.ecosystems) {
 
         const manifestData = getManifestData(eco, sockRegPkgName)
         if (manifestData?.license !== 'Public Domain') {
-          it(`should have an original license file`, () => {
+          it('should have an original license file', () => {
             expect(files.some(p => p.includes('.original'))).toBe(true)
           })
         }
@@ -271,7 +271,7 @@ for (const eco of constants.ecosystems) {
         ) {
           describe('es-shim', () => {
             const { NODE_VERSION } = constants
-            const nodeRange = engines?.['node']
+            const nodeRange = engines?.node
             const skipping =
               isNonEmptyString(nodeRange) &&
               !semver.satisfies(NODE_VERSION, nodeRange)

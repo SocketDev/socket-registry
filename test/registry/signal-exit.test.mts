@@ -8,7 +8,7 @@ import {
 } from '../../registry/dist/lib/signal-exit.js'
 
 describe('signal-exit module', () => {
-  let callbacks: Array<(...args: any[]) => void>
+  let callbacks: Array<(...args: unknown[]) => void>
 
   beforeEach(() => {
     callbacks = []
@@ -112,8 +112,11 @@ describe('signal-exit module', () => {
     })
 
     it('should throw on non-function callback', () => {
+      // biome-ignore lint/suspicious/noExplicitAny: Testing invalid input types
       expect(() => onExit(null as any)).toThrow(TypeError)
+      // biome-ignore lint/suspicious/noExplicitAny: Testing invalid input types
       expect(() => onExit(undefined as any)).toThrow(TypeError)
+      // biome-ignore lint/suspicious/noExplicitAny: Testing invalid input types
       expect(() => onExit(123 as any)).toThrow(TypeError)
     })
 

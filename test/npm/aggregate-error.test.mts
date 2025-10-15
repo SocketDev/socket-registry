@@ -18,6 +18,7 @@ describe(
   `${eco} > ${sockRegPkgName}`,
   { skip: isPackageTestingSkipped(sockRegPkgName) },
   () => {
+    // biome-ignore lint/suspicious/noExplicitAny: Test implementations can be any module.
     let implementations: any[]
 
     beforeAll(async () => {
@@ -29,6 +30,7 @@ describe(
     })
 
     it('main', () => {
+      // biome-ignore lint/suspicious/noShadowRestrictedNames: Test variable name matches global AggregateError.
       for (const AggregateError of implementations) {
         const error = new AggregateError([
           new Error('foo'),
@@ -55,11 +57,14 @@ describe(
     })
 
     it('gracefully handle Error instances without a stack', () => {
+      // biome-ignore lint/suspicious/noShadowRestrictedNames: Test variable name matches global AggregateError.
       for (const AggregateError of implementations) {
         class StacklessError extends Error {
+          // biome-ignore lint/suspicious/noExplicitAny: Test Error constructor accepts any arguments.
           constructor(...args: any[]) {
             super(...args)
             this.name = this.constructor.name
+            // biome-ignore lint/suspicious/noExplicitAny: Test needs to delete stack property.
             delete (this as any).stack
           }
         }
@@ -80,8 +85,10 @@ describe(
     })
 
     it('gracefully handle Error instances with empty stack', () => {
+      // biome-ignore lint/suspicious/noShadowRestrictedNames: Test variable name matches global AggregateError.
       for (const AggregateError of implementations) {
         class EmptyStackError extends Error {
+          // biome-ignore lint/suspicious/noExplicitAny: Test Error constructor accepts any arguments.
           constructor(...args: any[]) {
             super(...args)
             this.name = this.constructor.name

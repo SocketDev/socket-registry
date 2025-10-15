@@ -2,13 +2,20 @@
  * @fileoverview Package operations including extraction, packing, and I/O.
  */
 
-import REGISTRY_SCOPE_DELIMITER from '../constants/REGISTRY_SCOPE_DELIMITER'
 import abortSignal from '../constants/abort-signal'
 import packageExtensions from '../constants/package-extensions'
 import packumentCache from '../constants/packument-cache'
 import pacoteCachePath from '../constants/pacote-cache-path'
+import REGISTRY_SCOPE_DELIMITER from '../constants/REGISTRY_SCOPE_DELIMITER'
 import { readJson, readJsonSync } from '../fs'
 import { isObjectObject, merge } from '../objects'
+import type {
+  ExtractOptions,
+  NormalizeOptions,
+  PackageJson,
+  PacoteOptions,
+  ReadPackageJsonOptions,
+} from '../packages'
 import { normalizePackageJson } from './normalize'
 import { resolvePackageJsonPath } from './paths'
 import {
@@ -19,30 +26,22 @@ import {
   isGitHubUrlSpec,
 } from './specs'
 
-import type {
-  ExtractOptions,
-  NormalizeOptions,
-  PackageJson,
-  PacoteOptions,
-  ReadPackageJsonOptions,
-} from '../packages'
-
-let _cacache: typeof import('../../external/cacache') | undefined
+let _cacache: typeof import('cacache') | undefined
 /*@__NO_SIDE_EFFECTS__*/
 function getCacache() {
   if (_cacache === undefined) {
     _cacache = /*@__PURE__*/ require('../../external/cacache')
   }
-  return _cacache!
+  return _cacache as typeof import('cacache')
 }
 
 // Type for make-fetch-happen fetcher function.
 type MakeFetchHappenFetcher = ((
   url: string,
-  opts?: any,
+  opts?: unknown,
 ) => Promise<Response>) & {
-  defaults: (opts: any) => MakeFetchHappenFetcher
-  delete: (url: string, opts?: any) => Promise<boolean>
+  defaults: (opts: unknown) => MakeFetchHappenFetcher
+  delete: (url: string, opts?: unknown) => Promise<boolean>
 }
 
 let _fetcher: MakeFetchHappenFetcher | undefined
@@ -59,7 +58,7 @@ function getFetcher() {
       cache: 'force-cache',
     })
   }
-  return _fetcher!
+  return _fetcher as MakeFetchHappenFetcher
 }
 
 let _npmPackageArg: typeof import('npm-package-arg') | undefined
@@ -68,7 +67,7 @@ function getNpmPackageArg() {
   if (_npmPackageArg === undefined) {
     _npmPackageArg = /*@__PURE__*/ require('../../external/npm-package-arg')
   }
-  return _npmPackageArg!
+  return _npmPackageArg as typeof import('npm-package-arg')
 }
 
 let _pack: typeof import('../../external/libnpmpack') | undefined
@@ -77,7 +76,7 @@ function getPack() {
   if (_pack === undefined) {
     _pack = /*@__PURE__*/ require('../../external/libnpmpack')
   }
-  return _pack!
+  return _pack as typeof import('libnpmpack')
 }
 
 let _PackageURL:
@@ -91,7 +90,7 @@ function getPackageURL() {
       /*@__PURE__*/ require('../../external/@socketregistry/packageurl-js')
     _PackageURL = packageUrlJs.PackageURL
   }
-  return _PackageURL!
+  return _PackageURL as typeof import('@socketregistry/packageurl-js').PackageURL
 }
 
 let _pacote: typeof import('pacote') | undefined
@@ -100,7 +99,7 @@ function getPacote() {
   if (_pacote === undefined) {
     _pacote = /*@__PURE__*/ require('../../external/pacote')
   }
-  return _pacote!
+  return _pacote as typeof import('pacote')
 }
 
 let _semver: typeof import('semver') | undefined
@@ -110,7 +109,7 @@ function getSemver() {
     // The 'semver' package is browser safe.
     _semver = /*@__PURE__*/ require('../../external/semver')
   }
-  return _semver!
+  return _semver as typeof import('semver')
 }
 
 /**
@@ -120,15 +119,18 @@ function getSemver() {
 export async function extractPackage(
   pkgNameOrId: string,
   options?: ExtractOptions,
-  callback?: (destPath: string) => Promise<any>,
+  callback?: (destPath: string) => Promise<unknown>,
 ): Promise<void> {
+  let actualCallback = callback
+  let actualOptions = options
+  // biome-ignore lint/complexity/noArguments: Function overload support.
   if (arguments.length === 2 && typeof options === 'function') {
-    callback = options
-    options = undefined
+    actualCallback = options
+    actualOptions = undefined
   }
   const { dest, tmpPrefix, ...extractOptions_ } = {
     __proto__: null,
-    ...options,
+    ...actualOptions,
   } as ExtractOptions
   const extractOptions = {
     packumentCache,
@@ -138,8 +140,8 @@ export async function extractPackage(
   const pacote = getPacote()
   if (typeof dest === 'string') {
     await pacote.extract(pkgNameOrId, dest, extractOptions)
-    if (typeof callback === 'function') {
-      await callback(dest)
+    if (typeof actualCallback === 'function') {
+      await actualCallback(dest)
     }
   } else {
     // The DefinitelyTyped types for cacache.tmp.withTmp are incorrect.
@@ -150,8 +152,8 @@ export async function extractPackage(
       { tmpPrefix },
       async (tmpDirPath: string) => {
         await pacote.extract(pkgNameOrId, tmpDirPath, extractOptions)
-        if (typeof callback === 'function') {
-          await callback(tmpDirPath)
+        if (typeof actualCallback === 'function') {
+          await actualCallback(tmpDirPath)
         }
       },
     )
@@ -162,8 +164,11 @@ export async function extractPackage(
  * Find package extensions for a given package.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function findPackageExtensions(pkgName: string, pkgVer: string): any {
-  let result
+export function findPackageExtensions(
+  pkgName: string,
+  pkgVer: string,
+): unknown {
+  let result: unknown
   for (const entry of packageExtensions) {
     const selector = String(entry[0])
     const ext = entry[1]
@@ -177,7 +182,7 @@ export function findPackageExtensions(pkgName: string, pkgVer: string): any {
           result = {}
         }
         if (typeof ext === 'object' && ext !== null) {
-          merge(result, ext)
+          merge(result as object, ext)
         }
       }
     }
@@ -215,7 +220,7 @@ export function getReleaseTag(spec: string): string {
 export async function packPackage(
   spec: string,
   options?: PacoteOptions,
-): Promise<any> {
+): Promise<unknown> {
   const pack = getPack()
   return await pack(spec, {
     __proto__: null,
@@ -296,12 +301,12 @@ export function readPackageJsonSync(
 /*@__NO_SIDE_EFFECTS__*/
 export async function resolveGitHubTgzUrl(
   pkgNameOrId: string,
-  where?: any,
+  where?: unknown,
 ): Promise<string> {
   const whereIsPkgJson = isObjectObject(where)
   const pkgJson = whereIsPkgJson
     ? where
-    : await readPackageJson(where, { normalize: true })
+    : await readPackageJson(where as string, { normalize: true })
   if (!pkgJson) {
     return ''
   }
@@ -309,14 +314,14 @@ export async function resolveGitHubTgzUrl(
   const npmPackageArg = getNpmPackageArg()
   const parsedSpec = npmPackageArg(
     pkgNameOrId,
-    whereIsPkgJson ? undefined : where,
+    whereIsPkgJson ? undefined : (where as string),
   )
   const isTarballUrl = isGitHubTgzSpec(parsedSpec)
   if (isTarballUrl) {
     return parsedSpec.saveSpec || ''
   }
   const isGitHubUrl = isGitHubUrlSpec(parsedSpec)
-  const repository = pkgJson['repository'] as any
+  const repository = pkgJson.repository as { url?: string }
   const { project, user } = (isGitHubUrl
     ? parsedSpec.hosted
     : getRepoUrlDetails(repository?.url)) || { project: '', user: '' }
@@ -356,7 +361,7 @@ export async function resolveGitHubTgzUrl(
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function resolvePackageName(
-  purlObj: any,
+  purlObj: { name: string; namespace?: string },
   delimiter: string = '/',
 ): string {
   const { name, namespace } = purlObj

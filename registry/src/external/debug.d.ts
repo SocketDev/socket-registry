@@ -7,13 +7,16 @@ interface Debug {
     showHidden?: boolean | null
     depth?: number | boolean | null
     colors?: boolean
+    // biome-ignore lint/suspicious/noExplicitAny: External third-party type definition
     [key: string]: any
   }
 }
 
 interface DebugInstance {
+  // biome-ignore lint/suspicious/noExplicitAny: External third-party type definition
   (...args: any[]): void
   enabled: boolean
+  // biome-ignore lint/suspicious/noExplicitAny: External third-party type definition
   log: (...args: any[]) => void
   namespace: string
 }

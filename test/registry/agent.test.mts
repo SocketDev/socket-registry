@@ -303,7 +303,7 @@ describe('agent module', () => {
     it('should find binaries synchronously', () => {
       const path = whichBinSync('node')
       expect(typeof path).toBe('string')
-      expect(path!.length).toBeGreaterThan(0)
+      expect(path?.length).toBeGreaterThan(0)
     })
 
     it('should return undefined for non-existent binaries', () => {
@@ -316,7 +316,7 @@ describe('agent module', () => {
     it('should find binaries asynchronously', async () => {
       const path = await whichBin('node')
       expect(typeof path).toBe('string')
-      expect(path!.length).toBeGreaterThan(0)
+      expect(path?.length).toBeGreaterThan(0)
     })
 
     it('should return undefined for non-existent binaries', async () => {

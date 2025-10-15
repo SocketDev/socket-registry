@@ -48,6 +48,7 @@ export type Packument = {
   time?: PackageTime | undefined
   users?: Record<string, boolean> | undefined
   // Manifest objects.
+  // biome-ignore lint/suspicious/noExplicitAny: Package manifest structure varies.
   versions: Record<string, any>
 }
 

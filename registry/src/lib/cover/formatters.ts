@@ -77,7 +77,7 @@ export function formatCoverage(options: FormatCoverageOptions): string {
   }
 
   // Overall.
-  const emoji = getCoverageEmoji(parseFloat(overall))
+  const emoji = getCoverageEmoji(Number.parseFloat(overall))
   output += `\nOverall: ${overall}%${emoji}\n`
 
   return output
@@ -91,14 +91,14 @@ function calculateOverall(
   type: FormatCoverageOptions['type'],
 ): string {
   const metrics = [
-    parseFloat(code.statements.percent),
-    parseFloat(code.branches.percent),
-    parseFloat(code.functions.percent),
-    parseFloat(code.lines.percent),
+    Number.parseFloat(code.statements.percent),
+    Number.parseFloat(code.branches.percent),
+    Number.parseFloat(code.functions.percent),
+    Number.parseFloat(code.lines.percent),
   ]
 
   if (type) {
-    metrics.push(parseFloat(type.percent))
+    metrics.push(Number.parseFloat(type.percent))
   }
 
   const average = metrics.reduce((sum, val) => sum + val, 0) / metrics.length

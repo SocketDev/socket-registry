@@ -172,9 +172,9 @@ async function fixDefaultReferences() {
   for (const name of constantNames) {
     // Convert kebab-case to underscore format (e.g., 'abort-controller' -> 'abort_controller')
     const varName = name.replace(/-/g, '_')
-    importNameMap[varName + '_1'] = true
-    importNameMap[name.toUpperCase() + '_1'] = true
-    importNameMap[name.replace(/-/g, '_').toUpperCase() + '_1'] = true
+    importNameMap[`${varName}_1`] = true
+    importNameMap[`${name.toUpperCase()}_1`] = true
+    importNameMap[`${name.replace(/-/g, '_').toUpperCase()}_1`] = true
   }
 
   async function processDirectory(dir) {

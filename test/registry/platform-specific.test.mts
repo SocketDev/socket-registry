@@ -113,7 +113,7 @@ describe('platform-specific tests', () => {
       const pkgPath = path.join(process.cwd(), 'package.json')
       const result = readPackageJsonSync(pkgPath)
       expect(result).toBeDefined()
-      expect(result!.name).toBeDefined()
+      expect(result?.name).toBeDefined()
     })
 
     it('should handle package.json normalization on current platform', () => {
@@ -194,7 +194,7 @@ describe('platform-specific tests', () => {
   describe('environment variables - platform specific', () => {
     it('should have platform-specific PATH variable', () => {
       const pathVar = isWindows ? 'Path' : 'PATH'
-      const pathValue = process.env[pathVar] || process.env['PATH']
+      const pathValue = process.env[pathVar] || process.env.PATH
       expect(pathValue).toBeDefined()
       if (isWindows) {
         expect(pathValue).toContain(';')
@@ -205,23 +205,23 @@ describe('platform-specific tests', () => {
 
     it('should handle HOME/USERPROFILE correctly', () => {
       if (isWindows) {
-        expect(process.env['USERPROFILE'] || process.env['HOME']).toBeDefined()
+        expect(process.env.USERPROFILE || process.env.HOME).toBeDefined()
       } else {
-        expect(process.env['HOME']).toBeDefined()
+        expect(process.env.HOME).toBeDefined()
       }
     })
   })
 
   describe('CI environment detection', () => {
     it('should detect CI environment if present', () => {
-      const isCI = process.env['CI'] === 'true' || process.env['CI'] === '1'
+      const isCI = process.env.CI === 'true' || process.env.CI === '1'
       if (isCI) {
         expect(isCI).toBe(true)
       }
     })
 
     it('should work in both CI and local environments', () => {
-      const ciType = typeof process.env['CI']
+      const ciType = typeof process.env.CI
       expect(['string', 'undefined']).toContain(ciType)
     })
   })

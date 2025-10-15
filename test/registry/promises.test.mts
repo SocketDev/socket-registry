@@ -290,7 +290,7 @@ describe('promises module', () => {
     })
 
     it('should handle empty arrays', async () => {
-      const result = await pFilter([], async (_x: any) => true)
+      const result = await pFilter([], async (_x: unknown) => true)
       expect(result).toEqual([])
     })
 
@@ -385,7 +385,7 @@ describe('promises module', () => {
     })
 
     it('should handle empty chunks', async () => {
-      const result = await pFilterChunk([], async (_value: any) => true)
+      const result = await pFilterChunk([], async (_value: unknown) => true)
       expect(result).toEqual([])
     })
 
@@ -742,7 +742,7 @@ describe('promises module', () => {
       const result = normalizeRetryOptions()
       expect(result.retries).toBe(0)
       expect(result.baseDelayMs).toBe(200)
-      expect(result.maxDelayMs).toBe(10000)
+      expect(result.maxDelayMs).toBe(10_000)
       expect(result.backoffFactor).toBe(2)
       expect(result.jitter).toBe(true)
       expect(result.args).toEqual([])
@@ -817,7 +817,7 @@ describe('promises module', () => {
       const result = resolveRetryOptions(3)
       expect(result.retries).toBe(3)
       expect(result.minTimeout).toBe(200)
-      expect(result.maxTimeout).toBe(10000)
+      expect(result.maxTimeout).toBe(10_000)
       expect(result.factor).toBe(2)
     })
 
@@ -835,7 +835,7 @@ describe('promises module', () => {
       const result = resolveRetryOptions()
       expect(result.retries).toBe(0)
       expect(result.minTimeout).toBe(200)
-      expect(result.maxTimeout).toBe(10000)
+      expect(result.maxTimeout).toBe(10_000)
       expect(result.factor).toBe(2)
     })
 
@@ -845,7 +845,7 @@ describe('promises module', () => {
       // Default.
       expect(result.minTimeout).toBe(200)
       // Default.
-      expect(result.maxTimeout).toBe(10000)
+      expect(result.maxTimeout).toBe(10_000)
       // Default.
       expect(result.factor).toBe(2)
     })

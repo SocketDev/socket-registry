@@ -5,9 +5,9 @@ import { escapeRegExp } from '../../registry/dist/lib/regexps.js'
 describe('regexps module', () => {
   describe('escapeRegExp', () => {
     it('should escape all regex special characters', () => {
-      const input = '.*+?^${}()|[]\\/'
+      const input = `.*+?^$${'{}'} ()|[]\\/`
       const escaped = escapeRegExp(input)
-      expect(escaped).toBe('\\.\\*\\+\\?\\^\\$\\{\\}\\(\\)\\|\\[\\]\\\\/')
+      expect(escaped).toBe('\\.\\*\\+\\?\\^\\$\\{\\} \\(\\)\\|\\[\\]\\\\/')
 
       // Test that the escaped string works in a regex
       const regex = new RegExp(escaped)
@@ -31,7 +31,7 @@ describe('regexps module', () => {
       const escaped = escapeRegExp(input)
       expect(escaped).toBe('file\\.txt')
 
-      const regex = new RegExp('^' + escaped + '$')
+      const regex = new RegExp(`^${escaped}$`)
       expect(regex.test('file.txt')).toBe(true)
       expect(regex.test('filextxt')).toBe(false)
     })
@@ -179,8 +179,8 @@ describe('regexps module', () => {
 
         // Should not match variations
         if (str.length > 1) {
-          expect(regex.test(str + 'x')).toBe(false)
-          expect(regex.test('x' + str)).toBe(false)
+          expect(regex.test(`${str}x`)).toBe(false)
+          expect(regex.test(`x${str}`)).toBe(false)
         }
       })
     })

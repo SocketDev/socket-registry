@@ -14,14 +14,14 @@ function getValidateNpmPackageName() {
     _validateNpmPackageName =
       /*@__PURE__*/ require('../../external/validate-npm-package-name')
   }
-  return _validateNpmPackageName!
+  return _validateNpmPackageName as typeof import('validate-npm-package-name')
 }
 
 /**
  * Check if package name is a blessed Socket.dev package.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function isBlessedPackageName(name: any): boolean {
+export function isBlessedPackageName(name: unknown): boolean {
   return (
     typeof name === 'string' &&
     (name === 'sfw' ||

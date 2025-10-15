@@ -38,15 +38,15 @@ function isBuffer(x: unknown): x is Buffer {
     return false
   }
   const obj = x as Record<string | number, unknown>
-  if (typeof obj['length'] !== 'number') {
+  if (typeof obj.length !== 'number') {
     return false
   }
-  if (typeof obj['copy'] !== 'function' || typeof obj['slice'] !== 'function') {
+  if (typeof obj.copy !== 'function' || typeof obj.slice !== 'function') {
     return false
   }
   if (
-    typeof obj['length'] === 'number' &&
-    obj['length'] > 0 &&
+    typeof obj.length === 'number' &&
+    obj.length > 0 &&
     typeof obj[0] !== 'number'
   ) {
     return false

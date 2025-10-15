@@ -15,10 +15,10 @@ let _path: typeof import('path') | undefined
 function getPath() {
   if (_path === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _path = /*@__PURE__*/ require('path')
+
+    _path = /*@__PURE__*/ require('node:path')
   }
-  return _path!
+  return _path as typeof import('path')
 }
 
 // Vlt cache directory path.
@@ -53,7 +53,7 @@ function getVltCachePath() {
   }
 
   // On Linux/Unix, follow XDG Base Directory specification.
-  const xdgCacheHome = process.env['XDG_CACHE_HOME']
+  const xdgCacheHome = process.env.XDG_CACHE_HOME
   if (xdgCacheHome) {
     return normalizePath(path.join(xdgCacheHome, 'vlt'))
   }

@@ -1094,22 +1094,6 @@
       "types": "./dist/lib/constants/YARN_LOCK.d.ts",
       "default": "./dist/lib/constants/YARN_LOCK.js"
     },
-    "./cli/logger": {
-      "types": "./dist/cli/logger.d.ts",
-      "default": "./dist/cli/logger.js"
-    },
-    "./cli/progress": {
-      "types": "./dist/cli/progress.d.ts",
-      "default": "./dist/cli/progress.js"
-    },
-    "./cli/prompts": {
-      "types": "./dist/cli/prompts.d.ts",
-      "default": "./dist/cli/prompts.js"
-    },
-    "./constants": {
-      "types": "./dist/constants/index.d.ts",
-      "default": "./dist/constants/index.js"
-    },
     "./constants/env": {
       "types": "./dist/constants/env.d.ts",
       "default": "./dist/constants/env.js"
@@ -1118,17 +1102,57 @@
       "types": "./dist/constants/get-ipc.d.ts",
       "default": "./dist/constants/get-ipc.js"
     },
-    "./constants/index": {
-      "types": "./dist/constants/index.d.ts",
-      "default": "./dist/constants/index.js"
+    "./constants/agents": {
+      "types": "./dist/constants/agents.d.ts",
+      "default": "./dist/constants/agents.js"
     },
-    "./constants/lazy": {
-      "types": "./dist/constants/lazy.d.ts",
-      "default": "./dist/constants/lazy.js"
+    "./constants/core": {
+      "types": "./dist/constants/core.d.ts",
+      "default": "./dist/constants/core.js"
     },
-    "./constants/static": {
-      "types": "./dist/constants/static.d.ts",
-      "default": "./dist/constants/static.js"
+    "./constants/encoding": {
+      "types": "./dist/constants/encoding.d.ts",
+      "default": "./dist/constants/encoding.js"
+    },
+    "./constants/github": {
+      "types": "./dist/constants/github.d.ts",
+      "default": "./dist/constants/github.js"
+    },
+    "./constants/licenses": {
+      "types": "./dist/constants/licenses.d.ts",
+      "default": "./dist/constants/licenses.js"
+    },
+    "./constants/node": {
+      "types": "./dist/constants/node.d.ts",
+      "default": "./dist/constants/node.js"
+    },
+    "./constants/packages": {
+      "types": "./dist/constants/packages.d.ts",
+      "default": "./dist/constants/packages.js"
+    },
+    "./constants/paths": {
+      "types": "./dist/constants/paths.d.ts",
+      "default": "./dist/constants/paths.js"
+    },
+    "./constants/platform": {
+      "types": "./dist/constants/platform.d.ts",
+      "default": "./dist/constants/platform.js"
+    },
+    "./constants/process": {
+      "types": "./dist/constants/process.d.ts",
+      "default": "./dist/constants/process.js"
+    },
+    "./constants/socket": {
+      "types": "./dist/constants/socket.d.ts",
+      "default": "./dist/constants/socket.js"
+    },
+    "./constants/testing": {
+      "types": "./dist/constants/testing.d.ts",
+      "default": "./dist/constants/testing.js"
+    },
+    "./constants/typescript": {
+      "types": "./dist/constants/typescript.d.ts",
+      "default": "./dist/constants/typescript.js"
     },
     "./lib/abort": {
       "types": "./dist/lib/abort.d.ts",
@@ -1231,8 +1255,8 @@
       "default": "./dist/lib/http-request.js"
     },
     "./lib/ipc": {
-      "types": "./dist/lib/ipc/index.d.ts",
-      "default": "./dist/lib/ipc/index.js"
+      "types": "./dist/lib/ipc.d.ts",
+      "default": "./dist/lib/ipc.js"
     },
     "./lib/json": {
       "types": "./dist/lib/json.d.ts",
@@ -1370,6 +1394,14 @@
       "types": "./dist/lib/spinner.d.ts",
       "default": "./dist/lib/spinner.js"
     },
+    "./lib/stdio/clear": {
+      "types": "./dist/lib/stdio/clear.d.ts",
+      "default": "./dist/lib/stdio/clear.js"
+    },
+    "./lib/stdio/divider": {
+      "types": "./dist/lib/stdio/divider.d.ts",
+      "default": "./dist/lib/stdio/divider.js"
+    },
     "./lib/stdio/footer": {
       "types": "./dist/lib/stdio/footer.d.ts",
       "default": "./dist/lib/stdio/footer.js"
@@ -1377,6 +1409,10 @@
     "./lib/stdio/header": {
       "types": "./dist/lib/stdio/header.d.ts",
       "default": "./dist/lib/stdio/header.js"
+    },
+    "./lib/stdio/mask": {
+      "types": "./dist/lib/stdio/mask.d.ts",
+      "default": "./dist/lib/stdio/mask.js"
     },
     "./lib/stdio/progress": {
       "types": "./dist/lib/stdio/progress.d.ts",
@@ -1401,6 +1437,10 @@
     "./lib/strings": {
       "types": "./dist/lib/strings.d.ts",
       "default": "./dist/lib/strings.js"
+    },
+    "./lib/suppress-warnings": {
+      "types": "./dist/lib/suppress-warnings.d.ts",
+      "default": "./dist/lib/suppress-warnings.js"
     },
     "./lib/tables": {
       "types": "./dist/lib/tables.d.ts",

@@ -3,7 +3,10 @@
  * Provides consistent flag checking across all Socket projects.
  */
 
-interface FlagValues {
+/**
+ * Flag values object from parsed arguments.
+ */
+export interface FlagValues {
   [key: string]: unknown
   quiet?: boolean
   silent?: boolean
@@ -23,120 +26,227 @@ interface FlagValues {
   changed?: boolean
 }
 
-/**
- * Check if quiet/silent mode is enabled.
- */
-export function isQuiet(values: FlagValues): boolean {
-  return !!(values.quiet || values.silent)
-}
+const processArg = [...process.argv]
 
 /**
- * Check if verbose mode is enabled.
+ * Accepted input types for flag checking functions.
+ * Can be parsed flag values, process.argv array, or undefined (uses process.argv).
  */
-export function isVerbose(values: FlagValues): boolean {
-  return !!values.verbose
-}
+export type FlagInput = FlagValues | string[] | readonly string[] | undefined
 
 /**
- * Check if help flag is set.
+ * Get the appropriate log level based on flags.
+ * Returns 'silent', 'error', 'warn', 'info', 'verbose', or 'debug'.
+ * Accepts FlagValues object, process.argv array, or undefined (uses process.argv).
  */
-export function isHelp(values: FlagValues): boolean {
-  return !!values.help
+export function getLogLevel(input?: FlagInput): string {
+  if (isQuiet(input)) {
+    return 'silent'
+  }
+  if (isDebug(input)) {
+    return 'debug'
+  }
+  if (isVerbose(input)) {
+    return 'verbose'
+  }
+  return 'info'
 }
 
 /**
  * Check if all flag is set.
+ * Accepts FlagValues object, process.argv array, or undefined (uses process.argv).
  */
-export function isAll(values: FlagValues): boolean {
-  return !!values.all
+export function isAll(input?: FlagInput): boolean {
+  if (!input) {
+    return processArg.includes('--all')
+  }
+  if (Array.isArray(input)) {
+    return input.includes('--all')
+  }
+  return !!(input as FlagValues).all
 }
 
 /**
- * Check if fix/autofix mode is enabled.
+ * Check if changed files mode is enabled.
+ * Accepts FlagValues object, process.argv array, or undefined (uses process.argv).
  */
-export function isFix(values: FlagValues): boolean {
-  return !!values.fix
-}
-
-/**
- * Check if force mode is enabled.
- */
-export function isForce(values: FlagValues): boolean {
-  return !!values.force
-}
-
-/**
- * Check if dry-run mode is enabled.
- */
-export function isDryRun(values: FlagValues): boolean {
-  return !!values['dry-run']
-}
-
-/**
- * Check if JSON output is requested.
- */
-export function isJson(values: FlagValues): boolean {
-  return !!values.json
-}
-
-/**
- * Check if debug mode is enabled.
- */
-export function isDebug(values: FlagValues): boolean {
-  return !!values.debug
-}
-
-/**
- * Check if watch mode is enabled.
- */
-export function isWatch(values: FlagValues): boolean {
-  return !!values.watch
+export function isChanged(input?: FlagInput): boolean {
+  if (!input) {
+    return processArg.includes('--changed')
+  }
+  if (Array.isArray(input)) {
+    return input.includes('--changed')
+  }
+  return !!(input as FlagValues).changed
 }
 
 /**
  * Check if coverage mode is enabled.
  * Checks both 'coverage' and 'cover' flags.
+ * Accepts FlagValues object, process.argv array, or undefined (uses process.argv).
  */
-export function isCoverage(values: FlagValues): boolean {
-  return !!(values.coverage || values.cover)
+export function isCoverage(input?: FlagInput): boolean {
+  if (!input) {
+    return processArg.includes('--coverage') || processArg.includes('--cover')
+  }
+  if (Array.isArray(input)) {
+    return input.includes('--coverage') || input.includes('--cover')
+  }
+  return !!((input as FlagValues).coverage || (input as FlagValues).cover)
 }
 
 /**
- * Check if update mode is enabled (for snapshots, dependencies, etc).
+ * Check if debug mode is enabled.
+ * Accepts FlagValues object, process.argv array, or undefined (uses process.argv).
  */
-export function isUpdate(values: FlagValues): boolean {
-  return !!values.update
+export function isDebug(input?: FlagInput): boolean {
+  if (!input) {
+    return processArg.includes('--debug')
+  }
+  if (Array.isArray(input)) {
+    return input.includes('--debug')
+  }
+  return !!(input as FlagValues).debug
+}
+
+/**
+ * Check if dry-run mode is enabled.
+ * Accepts FlagValues object, process.argv array, or undefined (uses process.argv).
+ */
+export function isDryRun(input?: FlagInput): boolean {
+  if (!input) {
+    return processArg.includes('--dry-run')
+  }
+  if (Array.isArray(input)) {
+    return input.includes('--dry-run')
+  }
+  return !!(input as FlagValues)['dry-run']
+}
+
+/**
+ * Check if fix/autofix mode is enabled.
+ * Accepts FlagValues object, process.argv array, or undefined (uses process.argv).
+ */
+export function isFix(input?: FlagInput): boolean {
+  if (!input) {
+    return processArg.includes('--fix')
+  }
+  if (Array.isArray(input)) {
+    return input.includes('--fix')
+  }
+  return !!(input as FlagValues).fix
+}
+
+/**
+ * Check if force mode is enabled.
+ * Accepts FlagValues object, process.argv array, or undefined (uses process.argv).
+ */
+export function isForce(input?: FlagInput): boolean {
+  if (!input) {
+    return processArg.includes('--force')
+  }
+  if (Array.isArray(input)) {
+    return input.includes('--force')
+  }
+  return !!(input as FlagValues).force
+}
+
+/**
+ * Check if help flag is set.
+ * Accepts FlagValues object, process.argv array, or undefined (uses process.argv).
+ */
+export function isHelp(input?: FlagInput): boolean {
+  if (!input) {
+    return processArg.includes('--help') || processArg.includes('-h')
+  }
+  if (Array.isArray(input)) {
+    return input.includes('--help') || input.includes('-h')
+  }
+  return !!(input as FlagValues).help
+}
+
+/**
+ * Check if JSON output is requested.
+ * Accepts FlagValues object, process.argv array, or undefined (uses process.argv).
+ */
+export function isJson(input?: FlagInput): boolean {
+  if (!input) {
+    return processArg.includes('--json')
+  }
+  if (Array.isArray(input)) {
+    return input.includes('--json')
+  }
+  return !!(input as FlagValues).json
+}
+
+/**
+ * Check if quiet/silent mode is enabled.
+ * Accepts FlagValues object, process.argv array, or undefined (uses process.argv).
+ */
+export function isQuiet(input?: FlagInput): boolean {
+  if (!input) {
+    return processArg.includes('--quiet') || processArg.includes('--silent')
+  }
+  if (Array.isArray(input)) {
+    return input.includes('--quiet') || input.includes('--silent')
+  }
+  return !!((input as FlagValues).quiet || (input as FlagValues).silent)
 }
 
 /**
  * Check if staged files mode is enabled.
+ * Accepts FlagValues object, process.argv array, or undefined (uses process.argv).
  */
-export function isStaged(values: FlagValues): boolean {
-  return !!values.staged
+export function isStaged(input?: FlagInput): boolean {
+  if (!input) {
+    return processArg.includes('--staged')
+  }
+  if (Array.isArray(input)) {
+    return input.includes('--staged')
+  }
+  return !!(input as FlagValues).staged
 }
 
 /**
- * Check if changed files mode is enabled.
+ * Check if update mode is enabled (for snapshots, dependencies, etc).
+ * Accepts FlagValues object, process.argv array, or undefined (uses process.argv).
  */
-export function isChanged(values: FlagValues): boolean {
-  return !!values.changed
+export function isUpdate(input?: FlagInput): boolean {
+  if (!input) {
+    return processArg.includes('--update') || processArg.includes('-u')
+  }
+  if (Array.isArray(input)) {
+    return input.includes('--update') || input.includes('-u')
+  }
+  return !!(input as FlagValues).update
 }
 
 /**
- * Get the appropriate log level based on flags.
- * Returns 'silent', 'error', 'warn', 'info', 'verbose', or 'debug'.
+ * Check if verbose mode is enabled.
+ * Accepts FlagValues object, process.argv array, or undefined (uses process.argv).
  */
-export function getLogLevel(values: FlagValues): string {
-  if (isQuiet(values)) {
-    return 'silent'
+export function isVerbose(input?: FlagInput): boolean {
+  if (!input) {
+    return processArg.includes('--verbose')
   }
-  if (isDebug(values)) {
-    return 'debug'
+  if (Array.isArray(input)) {
+    return input.includes('--verbose')
   }
-  if (isVerbose(values)) {
-    return 'verbose'
+  return !!(input as FlagValues).verbose
+}
+
+/**
+ * Check if watch mode is enabled.
+ * Accepts FlagValues object, process.argv array, or undefined (uses process.argv).
+ */
+export function isWatch(input?: FlagInput): boolean {
+  if (!input) {
+    return processArg.includes('--watch') || processArg.includes('-w')
   }
-  return 'info'
+  if (Array.isArray(input)) {
+    return input.includes('--watch') || input.includes('-w')
+  }
+  return !!(input as FlagValues).watch
 }
 
 /**

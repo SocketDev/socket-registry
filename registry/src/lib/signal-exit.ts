@@ -36,6 +36,7 @@
 const ReflectApply = Reflect.apply
 const globalProcess = globalThis.process as
   | (NodeJS.Process & {
+      // biome-ignore lint/suspicious/noExplicitAny: Signal exit emitter can be any event emitter.
       __signal_exit_emitter__?: any
       reallyExit?: (code?: number | undefined) => never
     })
@@ -52,10 +53,10 @@ let _events: typeof import('node:events') | undefined
 function getEvents() {
   if (_events === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _events = /*@__PURE__*/ require('events')
+
+    _events = /*@__PURE__*/ require('node:events')
   }
-  return _events!
+  return _events as typeof import('node:events')
 }
 
 // Type for tracking emitted signals.
@@ -73,7 +74,7 @@ let _emitter: SignalExitEmitter | undefined
 /*@__NO_SIDE_EFFECTS__*/
 function getEmitter() {
   if (_emitter === undefined) {
-    if (globalProcess && globalProcess.__signal_exit_emitter__) {
+    if (globalProcess?.__signal_exit_emitter__) {
       _emitter = globalProcess.__signal_exit_emitter__
     } else if (globalProcess) {
       const EventEmitter = getEvents().EventEmitter
@@ -87,11 +88,11 @@ function getEmitter() {
     // I know what you're about to say.  But literally everything about
     // signal-exit is a compromise with evil.  Get used to it.
     if (_emitter && !_emitter.infinite) {
-      _emitter.setMaxListeners(Infinity)
+      _emitter.setMaxListeners(Number.POSITIVE_INFINITY)
       _emitter.infinite = true
     }
   }
-  return _emitter!
+  return _emitter as SignalExitEmitter
 }
 
 type SignalListener = () => void
@@ -125,7 +126,7 @@ function getSignalListeners() {
       }
     }
   }
-  return _sigListeners!
+  return _sigListeners as SignalListenerMap
 }
 
 let _signals: string[] | undefined
@@ -152,13 +153,13 @@ function getSignals() {
       _signals.push('SIGIO', 'SIGPOLL', 'SIGPWR', 'SIGSTKFLT', 'SIGUNUSED')
     }
   }
-  return _signals!
+  return _signals as string[]
 }
 
 /*@__NO_SIDE_EFFECTS__*/
 function emit(event: string, code: number | null, signal: string | null): void {
   const emitter = getEmitter()
-  if (emitter.emitted && emitter.emitted[event]) {
+  if (emitter.emitted?.[event]) {
     return
   }
   if (emitter.emitted) {
@@ -192,7 +193,10 @@ export function load(): void {
   const sigListeners = getSignalListeners()
   _signals = sigs.filter(sig => {
     try {
-      globalProcess.on(sig as NodeJS.Signals, sigListeners[sig]!)
+      globalProcess.on(
+        sig as NodeJS.Signals,
+        sigListeners[sig] as SignalListener,
+      )
       return true
     } catch {}
     return false
@@ -207,31 +211,34 @@ function processEmit(
   this: NodeJS.Process,
   eventName: string,
   exitCode?: number | undefined,
+  // biome-ignore lint/suspicious/noExplicitAny: Process emit args can be any type.
   ...args: any[]
 ): boolean {
   if (eventName === 'exit') {
-    if (exitCode == undefined) {
+    let actualExitCode = exitCode
+    if (actualExitCode === undefined) {
       const processExitCode = globalProcess?.exitCode
-      exitCode =
+      actualExitCode =
         typeof processExitCode === 'number' ? processExitCode : undefined
     } else if (globalProcess) {
-      globalProcess.exitCode = exitCode
+      globalProcess.exitCode = actualExitCode
     }
-    const result = ReflectApply(originalProcessEmit!, this, [
-      eventName,
-      exitCode,
-      ...args,
-    ]) as boolean
-    const numExitCode = typeof exitCode === 'number' ? exitCode : null
+    const result = ReflectApply(
+      originalProcessEmit as (...args: unknown[]) => boolean,
+      this,
+      [eventName, actualExitCode, ...args],
+    ) as boolean
+    const numExitCode =
+      typeof actualExitCode === 'number' ? actualExitCode : null
     emit('exit', numExitCode, null)
     emit('afterexit', numExitCode, null)
     return result
   }
-  return ReflectApply(originalProcessEmit!, this, [
-    eventName,
-    exitCode,
-    ...args,
-  ]) as boolean
+  return ReflectApply(
+    originalProcessEmit as (...args: unknown[]) => boolean,
+    this,
+    [eventName, exitCode, ...args],
+  ) as boolean
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -242,7 +249,11 @@ function processReallyExit(code?: number | undefined): never {
   }
   emit('exit', exitCode, null)
   emit('afterexit', exitCode, null)
-  ReflectApply(originalProcessReallyExit!, globalProcess, [exitCode])
+  ReflectApply(
+    originalProcessReallyExit as (code?: number) => never,
+    globalProcess,
+    [exitCode],
+  )
   throw new Error('processReallyExit should never return')
 }
 
@@ -310,11 +321,15 @@ export function unload(): void {
   const sigListeners = getSignalListeners()
   for (const sig of sigs) {
     try {
-      globalProcess.removeListener(sig as NodeJS.Signals, sigListeners[sig]!)
+      globalProcess.removeListener(
+        sig as NodeJS.Signals,
+        sigListeners[sig] as SignalListener,
+      )
     } catch {}
   }
-  globalProcess.emit = originalProcessEmit!
-  globalProcess.reallyExit = originalProcessReallyExit!
+  globalProcess.emit = originalProcessEmit as typeof globalProcess.emit
+  globalProcess.reallyExit =
+    originalProcessReallyExit as typeof globalProcess.reallyExit
   const emitter = getEmitter()
   if (emitter.count !== undefined) {
     emitter.count -= 1

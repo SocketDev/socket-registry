@@ -3,6 +3,7 @@
  * Provides npm package analysis, dependency resolution, and registry operations.
  */
 
+import type { CategoryString } from '../types'
 import {
   getEditablePackageJsonClass,
   pkgJsonToEditable,
@@ -70,8 +71,6 @@ import {
   isRegistryFetcherType,
   isValidPackageName,
 } from './packages/validation'
-
-import type { CategoryString } from '../types'
 
 // Type for package.json exports field.
 type PackageExports = {
@@ -212,7 +211,7 @@ export type LicenseNode = {
 
 export type PacoteOptions = {
   signal?: AbortSignal | undefined
-  packumentCache?: Map<string, any> | undefined
+  packumentCache?: Map<string, unknown> | undefined
   preferOffline?: boolean | undefined
   fullMetadata?: boolean | undefined
 }

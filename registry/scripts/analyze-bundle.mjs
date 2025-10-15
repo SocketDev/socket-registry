@@ -98,9 +98,8 @@ async function analyzeBundle(filePath) {
     (analysis.patterns.debugCode + analysis.patterns.assertCalls) * 50
 
   analysis.totalWaste = Object.values(analysis.waste).reduce((a, b) => a + b, 0)
-  analysis.potentialSavings = Math.round(analysis.totalWaste / 1024) + 'KB'
-  analysis.savingsPercent =
-    ((analysis.totalWaste / analysis.totalSize) * 100).toFixed(1) + '%'
+  analysis.potentialSavings = `${Math.round(analysis.totalWaste / 1024)}KB`
+  analysis.savingsPercent = `${((analysis.totalWaste / analysis.totalSize) * 100).toFixed(1)}%`
 
   return analysis
 }
@@ -186,7 +185,7 @@ async function main() {
     }
   }
 
-  console.log('\n' + '='.repeat(80))
+  console.log(`\n${'='.repeat(80)}`)
   console.log('📊 Summary:')
   console.log(`  Total size: ${Math.round(totalOriginal / 1024)}KB`)
   console.log(`  Total waste identified: ${Math.round(totalWaste / 1024)}KB`)

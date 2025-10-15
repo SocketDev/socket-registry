@@ -1,10 +1,7 @@
-import { createServer } from 'node:http'
-
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-
-import { httpRequest } from '../../registry/dist/lib/http-request.js'
-
 import type { IncomingMessage, ServerResponse } from 'node:http'
+import { createServer } from 'node:http'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { httpRequest } from '../../registry/dist/lib/http-request.js'
 
 describe('httpRequest', () => {
   let server: ReturnType<typeof createServer>

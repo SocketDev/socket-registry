@@ -3,15 +3,6 @@
  * Provides enhanced fs operations, glob matching, and directory traversal functions.
  */
 
-import { isArray } from './arrays'
-import abortSignal from './constants/abort-signal'
-import { defaultIgnore, getGlobMatcher } from './globs'
-import { jsonParse } from './json'
-import { type Remap, objectFreeze } from './objects'
-import { normalizePath, pathLikeToString } from './path'
-import { naturalCompare } from './sorts'
-
-import type { JsonReviver } from './json'
 import type { Abortable } from 'node:events'
 import type {
   Dirent,
@@ -21,6 +12,14 @@ import type {
   StatSyncOptions,
   WriteFileOptions,
 } from 'node:fs'
+import { isArray } from './arrays'
+import abortSignal from './constants/abort-signal'
+import { defaultIgnore, getGlobMatcher } from './globs'
+import type { JsonReviver } from './json'
+import { jsonParse } from './json'
+import { objectFreeze, type Remap } from './objects'
+import { normalizePath, pathLikeToString } from './path'
+import { naturalCompare } from './sorts'
 
 // Type definitions
 export type BufferEncoding =
@@ -36,7 +35,7 @@ export type BufferEncoding =
   | 'binary'
   | 'hex'
 
-export type JsonContent = any
+export type JsonContent = unknown
 
 export interface FindUpOptions {
   cwd?: string
@@ -93,7 +92,7 @@ export interface RemoveOptions {
 }
 
 export interface SafeReadOptions extends ReadOptions {
-  defaultValue?: any
+  defaultValue?: unknown
 }
 
 export interface WriteOptions extends Abortable {
@@ -125,10 +124,10 @@ let _fs: typeof import('fs') | undefined
 function getFs() {
   if (_fs === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _fs = /*@__PURE__*/ require('fs')
+
+    _fs = /*@__PURE__*/ require('node:fs')
   }
-  return _fs!
+  return _fs as typeof import('fs')
 }
 
 let _path: typeof import('path') | undefined
@@ -140,10 +139,10 @@ let _path: typeof import('path') | undefined
 function getPath() {
   if (_path === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _path = /*@__PURE__*/ require('path')
+
+    _path = /*@__PURE__*/ require('node:path')
   }
-  return _path!
+  return _path as typeof import('path')
 }
 
 let _os: typeof import('os') | undefined
@@ -155,10 +154,10 @@ let _os: typeof import('os') | undefined
 function getOs() {
   if (_os === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _os = /*@__PURE__*/ require('os')
+
+    _os = /*@__PURE__*/ require('node:os')
   }
-  return _os!
+  return _os as typeof import('os')
 }
 
 /**
@@ -196,9 +195,9 @@ function innerReadDirNames(
  */
 /*@__NO_SIDE_EFFECTS__*/
 function stringify(
-  json: any,
-  EOL: string = '\n',
-  finalEOL: boolean = true,
+  json: unknown,
+  EOL: string,
+  finalEOL: boolean,
   replacer: JsonReviver | undefined,
   spaces: number | string = 2,
 ): string {
@@ -354,9 +353,12 @@ export function isDirEmptySync(
     if (length === 0) {
       return true
     }
-    const matcher = getGlobMatcher(ignore as string[], {
-      cwd: pathLikeToString(dirname),
-    })
+    const matcher = getGlobMatcher(
+      ignore as string[],
+      {
+        cwd: pathLikeToString(dirname),
+      } as { cwd?: string; dot?: boolean; ignore?: string[]; nocase?: boolean },
+    )
     let ignoredCount = 0
     for (let i = 0; i < length; i += 1) {
       const file = files[i]
@@ -803,7 +805,7 @@ export function uniqueSync(filepath: PathLike): string {
   const basename = path.basename(filepathStr, ext)
 
   let counter = 1
-  let uniquePath
+  let uniquePath: string
   do {
     uniquePath = path.join(dirname, `${basename}-${counter}${ext}`)
     counter++
@@ -818,18 +820,22 @@ export function uniqueSync(filepath: PathLike): string {
 /*@__NO_SIDE_EFFECTS__*/
 export async function writeJson(
   filepath: PathLike,
-  jsonContent: any,
+  jsonContent: unknown,
   options?: WriteJsonOptions | string,
 ): Promise<void> {
-  if (typeof options === 'string') {
-    options = { encoding: options }
-  }
+  const opts = typeof options === 'string' ? { encoding: options } : options
   const { EOL, finalEOL, replacer, spaces, ...fsOptions } = {
     __proto__: null,
-    ...options,
+    ...opts,
   } as WriteJsonOptions
   const fs = getFs()
-  const jsonString = stringify(jsonContent, EOL, finalEOL, replacer, spaces)
+  const jsonString = stringify(
+    jsonContent,
+    EOL || '\n',
+    finalEOL !== undefined ? finalEOL : true,
+    replacer,
+    spaces,
+  )
   await fs.promises.writeFile(filepath, jsonString, {
     encoding: 'utf8',
     ...fsOptions,
@@ -843,18 +849,22 @@ export async function writeJson(
 /*@__NO_SIDE_EFFECTS__*/
 export function writeJsonSync(
   filepath: PathLike,
-  jsonContent: any,
+  jsonContent: unknown,
   options?: WriteJsonOptions | string | undefined,
 ): void {
-  if (typeof options === 'string') {
-    options = { encoding: options }
-  }
+  const opts = typeof options === 'string' ? { encoding: options } : options
   const { EOL, finalEOL, replacer, spaces, ...fsOptions } = {
     __proto__: null,
-    ...options,
+    ...opts,
   }
   const fs = getFs()
-  const jsonString = stringify(jsonContent, EOL, finalEOL, replacer, spaces)
+  const jsonString = stringify(
+    jsonContent,
+    EOL || '\n',
+    finalEOL !== undefined ? finalEOL : true,
+    replacer,
+    spaces,
+  )
   fs.writeFileSync(filepath, jsonString, {
     encoding: 'utf8',
     ...fsOptions,

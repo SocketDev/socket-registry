@@ -3,10 +3,10 @@
  * Provides enhanced console methods with formatted output capabilities.
  */
 
-import { objectAssign, objectFreeze } from './objects'
-import { applyLinePrefix, isBlankString } from './strings'
 import isUnicodeSupported from '../external/@socketregistry/is-unicode-supported'
 import yoctocolorsCjs from '../external/yoctocolors-cjs'
+import { objectAssign, objectFreeze } from './objects'
+import { applyLinePrefix, isBlankString } from './strings'
 
 // Type definitions
 type LogSymbols = {
@@ -19,6 +19,7 @@ type LogSymbols = {
 type LoggerMethods = {
   [K in keyof typeof console]: (typeof console)[K] extends (
     ...args: infer A
+    // biome-ignore lint/suspicious/noExplicitAny: Console method return types are dynamic.
   ) => any
     ? (...args: A) => Logger
     : (typeof console)[K]
@@ -47,11 +48,11 @@ let _Console: typeof import('console').Console | undefined
 function constructConsole(...args: unknown[]) {
   if (_Console === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    const nodeConsole = /*@__PURE__*/ require('console')
+
+    const nodeConsole = /*@__PURE__*/ require('node:console')
     _Console = nodeConsole.Console
   }
-  return ReflectConstruct(_Console!, args)
+  return ReflectConstruct(_Console as new (...args: unknown[]) => Console, args)
 }
 
 /**
@@ -76,9 +77,9 @@ export const LOG_SYMBOLS = /*@__PURE__*/ (() => {
     const colors = getYoctocolors()
     objectAssign(target, {
       fail: colors.red(supported ? '✖' : '×'),
-      info: colors['blue'](supported ? 'ℹ' : 'i'),
-      success: colors['green'](supported ? '✔' : '√'),
-      warn: colors['yellow'](supported ? '⚠' : '‼'),
+      info: colors.blue(supported ? 'ℹ' : 'i'),
+      success: colors.green(supported ? '✔' : '√'),
+      warn: colors.yellow(supported ? '⚠' : '‼'),
     })
     objectFreeze(target)
     // The handler of a Proxy is mutable after proxy instantiation.
@@ -131,7 +132,9 @@ const boundConsoleEntries = [
   'trace',
   'warn',
 ]
+  // biome-ignore lint/suspicious/noExplicitAny: Dynamic console method access.
   .filter(n => typeof (globalConsole as any)[n] === 'function')
+  // biome-ignore lint/suspicious/noExplicitAny: Dynamic console method access.
   .map(n => [n, (globalConsole as any)[n].bind(globalConsole)])
 
 const consolePropAttributes = {
@@ -146,6 +149,7 @@ const privateConsole = new WeakMap()
 const consoleSymbols = Object.getOwnPropertySymbols(globalConsole)
 export const incLogCallCountSymbol = Symbol.for('logger.logCallCount++')
 const kGroupIndentationWidthSymbol =
+  // biome-ignore lint/suspicious/noExplicitAny: Symbol property access.
   consoleSymbols.find(s => (s as any).label === 'kGroupIndentWidth') ??
   Symbol('kGroupIndentWidth')
 export const lastWasBlankSymbol = Symbol.for('logger.lastWasBlank')
@@ -158,11 +162,29 @@ export const lastWasBlankSymbol = Symbol.for('logger.lastWasBlank')
 export class Logger {
   static LOG_SYMBOLS = LOG_SYMBOLS
 
-  #indention = ''
+  #parent?: Logger
+  #boundStream?: 'stderr' | 'stdout'
+  #stderrLogger?: Logger
+  #stdoutLogger?: Logger
+  #stderrIndention = ''
+  #stdoutIndention = ''
   #lastWasBlank = false
   #logCallCount = 0
+  #constructorArgs: unknown[]
+  #options: Record<string, unknown>
 
   constructor(...args: unknown[]) {
+    // Store constructor args for child loggers
+    this.#constructorArgs = args
+
+    // Store options if provided (for future extensibility)
+    const options = args['0']
+    if (typeof options === 'object' && options !== null) {
+      this.#options = { __proto__: null, ...options }
+    } else {
+      this.#options = { __proto__: null }
+    }
+
     if (args.length) {
       privateConsole.set(this, constructConsole(...args))
     } else {
@@ -180,18 +202,96 @@ export class Logger {
   }
 
   /**
+   * Get a logger instance bound to stderr.
+   * All operations on this instance will use stderr.
+   */
+  get stderr(): Logger {
+    if (!this.#stderrLogger) {
+      // Pass parent's constructor args to maintain config
+      const instance = new Logger(...this.#constructorArgs)
+      instance.#parent = this
+      instance.#boundStream = 'stderr'
+      instance.#options = { __proto__: null, ...this.#options }
+      this.#stderrLogger = instance
+    }
+    return this.#stderrLogger
+  }
+
+  /**
+   * Get a logger instance bound to stdout.
+   * All operations on this instance will use stdout.
+   */
+  get stdout(): Logger {
+    if (!this.#stdoutLogger) {
+      // Pass parent's constructor args to maintain config
+      const instance = new Logger(...this.#constructorArgs)
+      instance.#parent = this
+      instance.#boundStream = 'stdout'
+      instance.#options = { __proto__: null, ...this.#options }
+      this.#stdoutLogger = instance
+    }
+    return this.#stdoutLogger
+  }
+
+  /**
+   * Get the root logger (for accessing shared indentation state).
+   * @private
+   */
+  #getRoot(): Logger {
+    return this.#parent || this
+  }
+
+  /**
+   * Get indentation for a specific stream.
+   * @private
+   */
+  #getIndent(stream: 'stderr' | 'stdout'): string {
+    const root = this.#getRoot()
+    return stream === 'stderr' ? root.#stderrIndention : root.#stdoutIndention
+  }
+
+  /**
+   * Set indentation for a specific stream.
+   * @private
+   */
+  #setIndent(stream: 'stderr' | 'stdout', value: string): void {
+    const root = this.#getRoot()
+    if (stream === 'stderr') {
+      root.#stderrIndention = value
+    } else {
+      root.#stdoutIndention = value
+    }
+  }
+
+  /**
+   * Get the target stream for this logger instance.
+   * @private
+   */
+  #getTargetStream(): 'stderr' | 'stdout' {
+    return this.#boundStream || 'stderr'
+  }
+
+  /**
    * Apply a console method with indentation.
    * @private
    */
-  #apply(methodName: string, args: unknown[]): this {
+  #apply(
+    methodName: string,
+    args: unknown[],
+    stream?: 'stderr' | 'stdout',
+  ): this {
     const con = privateConsole.get(this)
     const text = args.at(0)
     const hasText = typeof text === 'string'
+    // Determine which stream this method writes to
+    const targetStream = stream || (methodName === 'log' ? 'stdout' : 'stderr')
+    const indent = this.#getIndent(targetStream)
     const logArgs = hasText
-      ? [applyLinePrefix(text, { prefix: this.#indention }), ...args.slice(1)]
+      ? [applyLinePrefix(text, { prefix: indent }), ...args.slice(1)]
       : args
     ReflectApply(con[methodName], con, logArgs)
     this[lastWasBlankSymbol](hasText && isBlankString(logArgs[0]))
+    // biome-ignore lint/suspicious/noExplicitAny: Symbol method access.
     ;(this as any)[incLogCallCountSymbol]()
     return this
   }
@@ -215,6 +315,7 @@ export class Logger {
   #symbolApply(symbolType: string, args: unknown[]): this {
     const con = privateConsole.get(this)
     let text = args.at(0)
+    // biome-ignore lint/suspicious/noImplicitAnyLet: Flexible argument handling.
     let extras
     if (typeof text === 'string') {
       text = this.#stripSymbols(text)
@@ -224,13 +325,15 @@ export class Logger {
       text = ''
     }
     // Note: Meta status messages (info/fail/etc) always go to stderr.
+    const indent = this.#getIndent('stderr')
     con.error(
       applyLinePrefix(`${LOG_SYMBOLS[symbolType]} ${text}`, {
-        prefix: this.#indention,
+        prefix: indent,
       }),
       ...extras,
     )
     this.#lastWasBlank = false
+    // biome-ignore lint/suspicious/noExplicitAny: Symbol method access.
     ;(this as any)[incLogCallCountSymbol]()
     return this
   }
@@ -270,11 +373,19 @@ export class Logger {
 
   /**
    * Clear the visible terminal screen.
+   * Only available on the main logger instance.
    */
   clearVisible() {
+    if (this.#boundStream) {
+      throw new Error(
+        'clearVisible() is only available on the main logger instance, not on stream-bound instances',
+      )
+    }
     const con = privateConsole.get(this)
     con.clear()
-    if (con._stdout.isTTY) {
+    // biome-ignore lint/suspicious/noExplicitAny: Internal console property access.
+    if ((con as any)._stdout.isTTY) {
+      // biome-ignore lint/suspicious/noExplicitAny: Symbol method access.
       ;(this as any)[lastWasBlankSymbol](true)
       this.#logCallCount = 0
     }
@@ -307,9 +418,21 @@ export class Logger {
 
   /**
    * Decrease indentation level.
+   * If called on main logger, affects both streams.
+   * If called on stream-bound logger, affects only that stream.
    */
   dedent(spaces = 2) {
-    this.#indention = this.#indention.slice(0, -spaces)
+    if (this.#boundStream) {
+      // Only affect bound stream
+      const current = this.#getIndent(this.#boundStream)
+      this.#setIndent(this.#boundStream, current.slice(0, -spaces))
+    } else {
+      // Affect both streams
+      const stderrCurrent = this.#getIndent('stderr')
+      const stdoutCurrent = this.#getIndent('stdout')
+      this.#setIndent('stderr', stderrCurrent.slice(0, -spaces))
+      this.#setIndent('stdout', stdoutCurrent.slice(0, -spaces))
+    }
     return this
   }
 
@@ -362,9 +485,12 @@ export class Logger {
     if (length) {
       ReflectApply(this.log, this, label)
     }
+    // biome-ignore lint/suspicious/noExplicitAny: Symbol property access.
     this.indent((this as any)[kGroupIndentationWidthSymbol])
     if (length) {
+      // biome-ignore lint/suspicious/noExplicitAny: Symbol method access.
       ;(this as any)[lastWasBlankSymbol](false)
+      // biome-ignore lint/suspicious/noExplicitAny: Symbol method access.
       ;(this as any)[incLogCallCountSymbol]()
     }
     return this
@@ -383,15 +509,29 @@ export class Logger {
    * End the current log group.
    */
   groupEnd() {
+    // biome-ignore lint/suspicious/noExplicitAny: Symbol property access.
     this.dedent((this as any)[kGroupIndentationWidthSymbol])
     return this
   }
 
   /**
    * Increase indentation level.
+   * If called on main logger, affects both streams.
+   * If called on stream-bound logger, affects only that stream.
    */
   indent(spaces = 2) {
-    this.#indention += ' '.repeat(Math.min(spaces, maxIndentation))
+    const spacesToAdd = ' '.repeat(Math.min(spaces, maxIndentation))
+    if (this.#boundStream) {
+      // Only affect bound stream
+      const current = this.#getIndent(this.#boundStream)
+      this.#setIndent(this.#boundStream, current + spacesToAdd)
+    } else {
+      // Affect both streams
+      const stderrCurrent = this.#getIndent('stderr')
+      const stdoutCurrent = this.#getIndent('stdout')
+      this.#setIndent('stderr', stderrCurrent + spacesToAdd)
+      this.#setIndent('stdout', stdoutCurrent + spacesToAdd)
+    }
     return this
   }
 
@@ -418,9 +558,18 @@ export class Logger {
 
   /**
    * Reset indentation to zero.
+   * If called on main logger, resets both streams.
+   * If called on stream-bound logger, resets only that stream.
    */
   resetIndent() {
-    this.#indention = ''
+    if (this.#boundStream) {
+      // Only reset bound stream
+      this.#setIndent(this.#boundStream, '')
+    } else {
+      // Reset both streams
+      this.#setIndent('stderr', '')
+      this.#setIndent('stdout', '')
+    }
     return this
   }
 
@@ -456,6 +605,7 @@ export class Logger {
 
   /**
    * Log a done message (alias for success).
+   * Does NOT auto-clear. Call clearLine() first if needed after progress().
    */
   done(...args: unknown[]): this {
     return this.#symbolApply('success', args)
@@ -524,7 +674,9 @@ export class Logger {
    */
   progress(text: string): this {
     const con = privateConsole.get(this)
-    con._stdout.write(`∴ ${text}`)
+    const stream = this.#getTargetStream()
+    const streamObj = stream === 'stderr' ? con._stderr : con._stdout
+    streamObj.write(`∴ ${text}`)
     this[lastWasBlankSymbol](false)
     return this
   }
@@ -534,11 +686,13 @@ export class Logger {
    */
   clearLine(): this {
     const con = privateConsole.get(this)
-    if (con._stdout.isTTY) {
-      con._stdout.cursorTo(0)
-      con._stdout.clearLine(0)
+    const stream = this.#getTargetStream()
+    const streamObj = stream === 'stderr' ? con._stderr : con._stdout
+    if (streamObj.isTTY) {
+      streamObj.cursorTo(0)
+      streamObj.clearLine(0)
     } else {
-      con._stdout.write('\r\x1b[K')
+      streamObj.write('\r\x1b[K')
     }
     return this
   }
@@ -566,11 +720,13 @@ Object.defineProperties(
         ],
       ]
       for (const { 0: key, 1: value } of Object.entries(globalConsole)) {
+        // biome-ignore lint/suspicious/noExplicitAny: Dynamic prototype check.
         if (!(Logger.prototype as any)[key] && typeof value === 'function') {
           // Dynamically name the log method without using Object.defineProperty.
           const { [key]: func } = {
             [key](...args: unknown[]) {
               const con = privateConsole.get(this)
+              // biome-ignore lint/suspicious/noExplicitAny: Dynamic console method access.
               const result = (con as any)[key](...args)
               return result === undefined || result === con ? this : result
             },

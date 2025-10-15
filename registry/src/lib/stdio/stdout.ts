@@ -12,7 +12,7 @@ const stdout: NodeJS.WriteStream = process.stdout
  * Write a line to stdout.
  */
 export function writeLine(text: string = ''): void {
-  stdout.write(text + '\n')
+  stdout.write(`${text}\n`)
 }
 
 /**

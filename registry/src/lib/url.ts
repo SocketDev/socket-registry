@@ -192,7 +192,7 @@ export function urlSearchParamAsNumber(
     const value = params.get(key)
     if (value !== null) {
       const num = Number(value)
-      return !isNaN(num) ? num : defaultValue
+      return !Number.isNaN(num) ? num : defaultValue
     }
   }
   return defaultValue

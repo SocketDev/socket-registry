@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 // Helper functions moved to outer scope.
-const jsonReviver = (_key: string, value: any) =>
+const jsonReviver = (_key: string, value: unknown) =>
   typeof value === 'number' ? value * 2 : value
 
 // Test multiple utility modules that are simple to test
@@ -80,7 +80,7 @@ describe('utility modules tests', () => {
     })
 
     it('should provide trampoline function', () => {
-      const factorial = (n: number, acc = 1): any => {
+      const factorial = (n: number, acc = 1): number | (() => unknown) => {
         if (n <= 1) {
           return acc
         }

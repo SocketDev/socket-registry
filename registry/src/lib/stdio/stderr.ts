@@ -10,7 +10,7 @@ const stderr: NodeJS.WriteStream = process.stderr
  * Write an error line to stderr.
  */
 export function writeErrorLine(text: string = ''): void {
-  stderr.write(text + '\n')
+  stderr.write(`${text}\n`)
 }
 
 /**

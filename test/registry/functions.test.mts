@@ -143,8 +143,8 @@ describe('functions module', () => {
         }
         return () => sum(n - 1, acc + n)
       })
-      expect(sum(100)).toBe(5_050)
-      expect(sum(1_000)).toBe(500_500)
+      expect(sum(100)).toBe(5050)
+      expect(sum(1000)).toBe(500_500)
     })
 
     it('should preserve this context', () => {

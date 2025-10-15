@@ -45,10 +45,10 @@ let _child_process: typeof import('node:child_process') | undefined
 function getChildProcess() {
   if (_child_process === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _child_process = /*@__PURE__*/ require('child_process')
+
+    _child_process = /*@__PURE__*/ require('node:child_process')
   }
-  return _child_process!
+  return _child_process as typeof import('node:child_process')
 }
 
 // Type for promise-spawn options.
@@ -93,7 +93,7 @@ function getNpmcliPromiseSpawn() {
   if (_npmCliPromiseSpawn === undefined) {
     _npmCliPromiseSpawn = /*@__PURE__*/ require('../external/@npmcli/promise-spawn')
   }
-  return _npmCliPromiseSpawn!
+  return _npmCliPromiseSpawn as unknown as typeof import('@npmcli/promise-spawn')
 }
 
 let _path: typeof import('node:path') | undefined
@@ -104,10 +104,10 @@ let _path: typeof import('node:path') | undefined
 function getPath() {
   if (_path === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _path = /*@__PURE__*/ require('path')
+
+    _path = /*@__PURE__*/ require('node:path')
   }
-  return _path!
+  return _path as typeof import('node:path')
 }
 
 /**
@@ -135,7 +135,7 @@ export type SpawnErrorWithOutputBuffer = SpawnError & {
   stderr: Buffer
 }
 
-export type SpawnExtra = Record<any, any>
+export type SpawnExtra = Record<string, unknown>
 
 export type IOType = 'pipe' | 'ignore' | 'inherit' | 'overlapped'
 export type StdioType = IOType | 'ipc' | Array<IOType | 'ipc'>
@@ -159,11 +159,11 @@ export function isSpawnError(value: unknown): value is SpawnError {
     return false
   }
   // Check for spawn-specific error properties.
-  const err = value as any
+  const err = value as Record<string, unknown>
   return (
-    (hasOwn(err, 'code') && typeof err['code'] !== 'undefined') ||
-    (hasOwn(err, 'errno') && typeof err['errno'] !== 'undefined') ||
-    (hasOwn(err, 'syscall') && typeof err['syscall'] === 'string')
+    (hasOwn(err, 'code') && typeof err.code !== 'undefined') ||
+    (hasOwn(err, 'errno') && typeof err.errno !== 'undefined') ||
+    (hasOwn(err, 'syscall') && typeof err.syscall === 'string')
   )
 }
 
@@ -176,6 +176,7 @@ export function isStdioType(
   type?: StdioType | undefined,
 ): boolean {
   // If called with one argument, check if it's a valid stdio type.
+  // biome-ignore lint/complexity/noArguments: Function overload detection for single vs two-arg calls.
   if (arguments.length === 1) {
     const validTypes = ['pipe', 'ignore', 'inherit', 'overlapped']
     return typeof stdio === 'string' && validTypes.includes(stdio)
@@ -196,15 +197,19 @@ export function isStdioType(
  * Strip ANSI escape codes from spawn result stdout and stderr.
  */
 /*@__NO_SIDE_EFFECTS__*/
-function stripAnsiFromSpawnResult(result: any): any {
-  const { stderr, stdout } = result
+function stripAnsiFromSpawnResult(result: unknown): unknown {
+  const res = result as {
+    stdout?: string | Buffer
+    stderr?: string | Buffer
+  }
+  const { stderr, stdout } = res
   if (typeof stdout === 'string') {
-    result.stdout = stripAnsi(stdout)
+    res.stdout = stripAnsi(stdout)
   }
   if (typeof stderr === 'string') {
-    result.stderr = stripAnsi(stderr)
+    res.stderr = stripAnsi(stderr)
   }
-  return result
+  return res
 }
 
 /*@__NO_SIDE_EFFECTS__*/
@@ -214,6 +219,7 @@ interface NodeSpawnOptions {
   cwd?: string | URL | undefined
   env?: NodeJS.ProcessEnv | undefined
   argv0?: string | undefined
+  // biome-ignore lint/suspicious/noExplicitAny: Stdio can be complex union of types from Node.js.
   stdio?: any
   detached?: boolean | undefined
   uid?: number | undefined
@@ -233,6 +239,7 @@ interface ChildProcessType {
   stdin: NodeJS.WritableStream | null
   stdout: NodeJS.ReadableStream | null
   stderr: NodeJS.ReadableStream | null
+  // biome-ignore lint/suspicious/noExplicitAny: IPC channel type from Node.js.
   readonly channel?: any
   readonly stdio: [
     NodeJS.WritableStream | null,
@@ -249,15 +256,21 @@ interface ChildProcessType {
   readonly spawnargs: string[]
   readonly spawnfile: string
   kill(signal?: NodeJS.Signals | number): boolean
+  // biome-ignore lint/suspicious/noExplicitAny: IPC message type from Node.js.
   send(message: any, callback?: (error: Error | null) => void): boolean
   send(
+    // biome-ignore lint/suspicious/noExplicitAny: IPC message and handle types from Node.js.
     message: any,
+    // biome-ignore lint/suspicious/noExplicitAny: IPC message and handle types from Node.js.
     sendHandle?: any | undefined,
     callback?: (error: Error | null) => void,
   ): boolean
   send(
+    // biome-ignore lint/suspicious/noExplicitAny: IPC message, handle, and options types from Node.js.
     message: any,
+    // biome-ignore lint/suspicious/noExplicitAny: IPC message, handle, and options types from Node.js.
     sendHandle?: any | undefined,
+    // biome-ignore lint/suspicious/noExplicitAny: IPC message, handle, and options types from Node.js.
     options?: any | undefined,
     callback?: (error: Error | null) => void,
   ): boolean
@@ -277,13 +290,17 @@ interface WritableStreamType {
   writableCorked: number
   destroyed: boolean
   write(
+    // biome-ignore lint/suspicious/noExplicitAny: Stream chunk can be any type.
     chunk: any,
     encoding?: BufferEncoding | undefined,
     callback?: (error?: Error | null) => void,
   ): boolean
+  // biome-ignore lint/suspicious/noExplicitAny: Stream chunk can be any type.
   write(chunk: any, callback?: (error?: Error | null) => void): boolean
   end(cb?: () => void): this
+  // biome-ignore lint/suspicious/noExplicitAny: Stream chunk can be any type.
   end(chunk: any, cb?: () => void): this
+  // biome-ignore lint/suspicious/noExplicitAny: Stream chunk can be any type.
   end(chunk: any, encoding?: BufferEncoding | undefined, cb?: () => void): this
   cork(): void
   uncork(): void
@@ -368,11 +385,13 @@ export function spawn(
   //
   // See: https://github.com/nodejs/node/issues/3675
   const shell = getOwn(options, 'shell')
-  const WIN32 = require('./constants/WIN32')
-  if (WIN32 && shell && windowsScriptExtRegExp.test(cmd)) {
+  // Inline WIN32 constant for coverage mode compatibility
+  const WIN32 = process.platform === 'win32'
+  let actualCmd = cmd
+  if (WIN32 && shell && windowsScriptExtRegExp.test(actualCmd)) {
     const path = getPath()
     // Extract just the command name without path and extension.
-    cmd = path.basename(cmd, path.extname(cmd))
+    actualCmd = path.basename(actualCmd, path.extname(actualCmd))
   }
   const {
     spinner: optionsSpinner = spinner,
@@ -412,43 +431,50 @@ export function spawn(
     gid: spawnOptions.gid,
   } as unknown as PromiseSpawnOptions
   const spawnPromise = npmCliPromiseSpawn(
-    cmd,
+    actualCmd,
     args ? [...args] : [],
-    promiseSpawnOpts,
+    promiseSpawnOpts as Parameters<typeof npmCliPromiseSpawn>[2],
     extra,
   )
   const oldSpawnPromise = spawnPromise
-  let newSpawnPromise: any
+  let newSpawnPromise: PromiseSpawnResult
   if (shouldStripAnsi && stdioString) {
     newSpawnPromise = spawnPromise
       .then(result => {
-        result = stripAnsiFromSpawnResult(result)
+        const strippedResult = stripAnsiFromSpawnResult(result)
         // Add exitCode as an alias for code.
-        if ('code' in result) {
-          ;(result as any)['exitCode'] = result.code
+        if ('code' in (strippedResult as { code?: number })) {
+          ;(strippedResult as { code: number; exitCode: number }).exitCode = (
+            strippedResult as { code: number }
+          ).code
         }
-        return result
+        return strippedResult
       })
       .catch(error => {
         throw stripAnsiFromSpawnResult(error)
-      })
+      }) as PromiseSpawnResult
   } else {
     newSpawnPromise = spawnPromise.then(result => {
       // Add exitCode as an alias for code.
       if ('code' in result) {
-        ;(result as any)['exitCode'] = result.code
+        const res = result as typeof result & { exitCode: number }
+        res.exitCode = result.code
+        return res
       }
       return result
-    })
+    }) as PromiseSpawnResult
   }
   if (shouldRestartSpinner) {
     newSpawnPromise = newSpawnPromise.finally(() => {
       spinnerInstance.start()
-    })
+    }) as PromiseSpawnResult
   }
   // Copy process and stdin properties from original promise
-  newSpawnPromise.process = oldSpawnPromise.process
-  newSpawnPromise.stdin = oldSpawnPromise.stdin
+  ;(newSpawnPromise as unknown as PromiseSpawnResult).process =
+    oldSpawnPromise.process
+  ;(newSpawnPromise as unknown as PromiseSpawnResult).stdin = (
+    oldSpawnPromise as unknown as PromiseSpawnResult
+  ).stdin
   return newSpawnPromise as SpawnResult
 }
 
@@ -465,11 +491,13 @@ export function spawnSync(
   // Windows cmd.exe command resolution for .cmd/.bat/.ps1 files:
   // See spawn() function above for detailed explanation of this approach.
   const shell = getOwn(options, 'shell')
-  const WIN32 = require('./constants/WIN32')
-  if (WIN32 && shell && windowsScriptExtRegExp.test(cmd)) {
+  // Inline WIN32 constant for coverage mode compatibility
+  const WIN32 = process.platform === 'win32'
+  let actualCmd = cmd
+  if (WIN32 && shell && windowsScriptExtRegExp.test(actualCmd)) {
     const path = getPath()
     // Extract just the command name without path and extension.
-    cmd = path.basename(cmd, path.extname(cmd))
+    actualCmd = path.basename(actualCmd, path.extname(actualCmd))
   }
   const { stripAnsi: shouldStripAnsi = true, ...rawSpawnOptions } = {
     __proto__: null,
@@ -477,12 +505,12 @@ export function spawnSync(
   } as SpawnSyncOptions
   const { stdioString: rawStdioString = true } = rawSpawnOptions
   const rawEncoding = rawStdioString ? 'utf8' : 'buffer'
-  const spawnOptions: any = {
+  const spawnOptions = {
     encoding: rawEncoding,
     ...rawSpawnOptions,
-  }
+  } as NodeSpawnOptions & { encoding: BufferEncoding | 'buffer' }
   const stdioString = spawnOptions.encoding !== 'buffer'
-  const result = getChildProcess().spawnSync(cmd, args, spawnOptions)
+  const result = getChildProcess().spawnSync(actualCmd, args, spawnOptions)
   if (stdioString) {
     const { stderr, stdout } = result
     if (stdout) {
@@ -492,7 +520,7 @@ export function spawnSync(
       result.stderr = stderr.toString().trim()
     }
   }
-  return shouldStripAnsi && stdioString
-    ? stripAnsiFromSpawnResult(result)
-    : result
+  return (
+    shouldStripAnsi && stdioString ? stripAnsiFromSpawnResult(result) : result
+  ) as SpawnSyncReturns<string | Buffer>
 }

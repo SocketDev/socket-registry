@@ -47,7 +47,8 @@ console.log(JSON.stringify({
     expect(parsed.integrity).toBeTruthy()
     expect(parsed.size).toBe(TEST_DATA.length)
 
-    await del(testCacheDir)
+    // Force delete temp directory outside CWD.
+    await del(testCacheDir, { force: true })
   })
 
   it('should support Buffer data', async () => {
@@ -77,7 +78,8 @@ console.log(JSON.stringify({
     expect(parsed.success).toBe(true)
     expect(parsed.data).toBe(TEST_DATA)
 
-    await del(testCacheDir)
+    // Force delete temp directory outside CWD.
+    await del(testCacheDir, { force: true })
   })
 
   it('should throw when getting non-existent key', async () => {
@@ -102,7 +104,8 @@ try {
     expect(parsed.success).toBe(true)
     expect(parsed.error).toBeTruthy()
 
-    await del(testCacheDir)
+    // Force delete temp directory outside CWD.
+    await del(testCacheDir, { force: true })
   })
 
   it('should accept PutOptions with metadata', async () => {
@@ -137,7 +140,8 @@ console.log(JSON.stringify({
       }),
     )
 
-    await del(testCacheDir)
+    // Force delete temp directory outside CWD.
+    await del(testCacheDir, { force: true })
   })
 
   it('should remove cache entry', async () => {
@@ -167,7 +171,8 @@ console.log(JSON.stringify({
     expect(parsed.success).toBe(true)
     expect(parsed.entry).toBeUndefined()
 
-    await del(testCacheDir)
+    // Force delete temp directory outside CWD.
+    await del(testCacheDir, { force: true })
   })
 
   it('should return undefined for non-existent key with safeGet', async () => {
@@ -192,7 +197,8 @@ console.log(JSON.stringify({
     expect(parsed.success).toBe(true)
     expect(parsed.entry).toBeUndefined()
 
-    await del(testCacheDir)
+    // Force delete temp directory outside CWD.
+    await del(testCacheDir, { force: true })
   })
 
   it('should return entry for existing key with safeGet', async () => {
@@ -221,7 +227,8 @@ console.log(JSON.stringify({
     expect(parsed.success).toBe(true)
     expect(parsed.data).toBe(TEST_DATA)
 
-    await del(testCacheDir)
+    // Force delete temp directory outside CWD.
+    await del(testCacheDir, { force: true })
   })
 
   it('should clear all cache entries', async () => {
@@ -251,7 +258,8 @@ console.log(JSON.stringify({
     expect(parsed.success).toBe(true)
     expect(parsed.entry).toBeUndefined()
 
-    await del(testCacheDir)
+    // Force delete temp directory outside CWD.
+    await del(testCacheDir, { force: true })
   })
 
   it('should provide temporary directory for callback', async () => {
@@ -285,7 +293,8 @@ console.log(JSON.stringify({
     expect(parsed.hasTmpDir).toBe(true)
     expect(parsed.isString).toBe(true)
 
-    await del(testCacheDir)
+    // Force delete temp directory outside CWD.
+    await del(testCacheDir, { force: true })
   })
 
   it('should return callback result', async () => {
@@ -312,6 +321,7 @@ console.log(JSON.stringify({
     expect(parsed.success).toBe(true)
     expect(parsed.result).toEqual({ value: 42 })
 
-    await del(testCacheDir)
+    // Force delete temp directory outside CWD.
+    await del(testCacheDir, { force: true })
   })
 })

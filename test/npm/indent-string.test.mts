@@ -18,6 +18,7 @@ describe(
   `${eco} > ${sockRegPkgName}`,
   { skip: isPackageTestingSkipped(sockRegPkgName) },
   () => {
+    // biome-ignore lint/suspicious/noExplicitAny: Test implementations can be any module.
     let implementations: any[]
 
     beforeAll(async () => {
@@ -30,9 +31,11 @@ describe(
 
     it('throw if input is not a string', () => {
       for (const indentString of implementations) {
+        // biome-ignore lint/suspicious/noExplicitAny: Test passes invalid type intentionally.
         expect(() => indentString(5 as any)).toThrow(
           'Expected `input` to be a `string`, got `number`',
         )
+        // biome-ignore lint/suspicious/noExplicitAny: Test passes invalid type intentionally.
         expect(() => indentString(true as any)).toThrow(
           'Expected `input` to be a `string`, got `boolean`',
         )
@@ -41,6 +44,7 @@ describe(
 
     it('throw if count is not a number', () => {
       for (const indentString of implementations) {
+        // biome-ignore lint/suspicious/noExplicitAny: Test passes invalid type intentionally.
         expect(() => indentString('foo', 'bar' as any)).toThrow(
           'Expected `count` to be a `number`, got `string`',
         )
@@ -57,6 +61,7 @@ describe(
 
     it('throw if indent is not a string', () => {
       for (const indentString of implementations) {
+        // biome-ignore lint/suspicious/noExplicitAny: Test passes invalid type intentionally.
         expect(() => indentString('foo', 1, { indent: 1 as any })).toThrow(
           'Expected `options.indent` to be a `string`, got `number`',
         )
@@ -79,6 +84,7 @@ describe(
           indentString('foo\nbar\n', 1, { includeEmptyLines: false }),
         ).toBe(' foo\n bar\n')
         expect(
+          // biome-ignore lint/suspicious/noExplicitAny: Test passes invalid type intentionally.
           indentString('foo\nbar\n', 1, { includeEmptyLines: null as any }),
         ).toBe(' foo\n bar\n')
       }

@@ -3,10 +3,8 @@
 import { existsSync } from 'node:fs'
 import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
-
-import { httpDownload } from './http-request'
-
 import type { HttpDownloadOptions, HttpDownloadResult } from './http-request'
+import { httpDownload } from './http-request'
 
 export interface DownloadLockInfo {
   pid: number
@@ -190,10 +188,10 @@ export async function downloadWithLock(
   options?: DownloadWithLockOptions | undefined,
 ): Promise<HttpDownloadResult> {
   const {
-    lockTimeout = 60000,
+    lockTimeout = 60_000,
     locksDir,
     pollInterval = 1000,
-    staleTimeout = 300000,
+    staleTimeout = 300_000,
     ...downloadOptions
   } = { __proto__: null, ...options } as DownloadWithLockOptions
 

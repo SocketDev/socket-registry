@@ -195,8 +195,8 @@ export async function analyzePackageUsage(packageName, sourceDir) {
     const content = await fs.readFile(path.join(sourceDir, file), 'utf8')
 
     for (const pattern of importPatterns) {
-      let match
-      while ((match = pattern.exec(content)) !== null) {
+      let match = pattern.exec(content)
+      while (match !== null) {
         // Extract function names from destructuring or property access.
         const functions = match[1] || match[3]
         if (functions) {
@@ -204,6 +204,7 @@ export async function analyzePackageUsage(packageName, sourceDir) {
             usage.add(fn.trim().replace(/\s+as\s+\w+/, ''))
           })
         }
+        match = pattern.exec(content)
       }
     }
   }

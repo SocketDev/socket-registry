@@ -1,6 +1,7 @@
 interface FetchOptions {
   cache?: string
   headers?: Record<string, string>
+  // biome-ignore lint/suspicious/noExplicitAny: External third-party type definition
   [key: string]: any
 }
 

@@ -18,6 +18,7 @@ describe(
   `${eco} > ${sockRegPkgName}`,
   { skip: isPackageTestingSkipped(sockRegPkgName) },
   () => {
+    // biome-ignore lint/suspicious/noExplicitAny: Test implementations can be any module.
     let implementations: any[]
 
     beforeAll(async () => {
@@ -75,7 +76,7 @@ describe(
       for (const mod of implementations) {
         const { btoa } = mod
         // Unicode characters outside Latin1 range.
-        expect(btoa(String.fromCharCode(0xd800, 0xdc00))).toBe(null)
+        expect(btoa(String.fromCharCode(0xd8_00, 0xdc_00))).toBe(null)
       }
     })
 

@@ -51,7 +51,7 @@ export class ProgressBar {
   /**
    * Update progress and redraw bar.
    */
-  update(current: number, tokens?: Record<string, any>): void {
+  update(current: number, tokens?: Record<string, unknown>): void {
     if (this.terminated) {
       return
     }
@@ -78,14 +78,14 @@ export class ProgressBar {
   /**
    * Increment progress by amount.
    */
-  tick(amount: number = 1, tokens?: Record<string, any>): void {
+  tick(amount: number = 1, tokens?: Record<string, unknown>): void {
     this.update(this.current + amount, tokens)
   }
 
   /**
    * Render the progress bar.
    */
-  private render(tokens?: Record<string, any>): void {
+  private render(tokens?: Record<string, unknown>): void {
     const colorFn = colors[this.options.color] || ((s: string) => s)
 
     // Calculate values
@@ -135,7 +135,7 @@ export class ProgressBar {
       this.stream.cursorTo(0)
       this.stream.clearLine(0)
     } else if (this.lastDrawnWidth > 0) {
-      this.stream.write('\r' + repeatString(' ', this.lastDrawnWidth) + '\r')
+      this.stream.write(`\r${repeatString(' ', this.lastDrawnWidth)}\r`)
     }
   }
 
@@ -182,10 +182,10 @@ export function createProgressIndicator(
 
   let output = ''
   if (label) {
-    output += label + ': '
+    output += `${label}: `
   }
 
-  output += colors.cyan(`[${percent}%]`) + ' ' + progress
+  output += `${colors.cyan(`[${percent}%]`)} ${progress}`
 
   return output
 }

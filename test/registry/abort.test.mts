@@ -142,7 +142,7 @@ describe('abort module', () => {
     })
 
     it('should throw TypeError for non-number timeout', () => {
-      expect(() => createTimeoutSignal(NaN)).toThrow(TypeError)
+      expect(() => createTimeoutSignal(Number.NaN)).toThrow(TypeError)
     })
 
     it('should throw TypeError for zero timeout', () => {

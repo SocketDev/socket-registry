@@ -5,12 +5,12 @@ interface IsolatePackageOptions {
 }
 
 interface IsolatePackageResult {
-  exports?: Record<string, any>
+  exports?: Record<string, unknown>
   tmpdir: string
 }
 
 interface SetupMultiEntryTestResult {
-  modules: any[]
+  modules: unknown[]
   tmpdir: string
 }
 

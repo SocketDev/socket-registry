@@ -1,27 +1,20 @@
 // Import CommonJS module using createRequire.
 import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
-const debug = require('../../registry/dist/lib/debug.js')
-const {
-  debugDir: debugDirSimple,
-  debugNs: debugFnSimple,
-  debugLog: debugLogSimple,
-  debug: debuglog,
-  debugCache: debugtime,
-  isDebug: isDebugSimple,
-} = debug
+const debugModule = require('../../registry/dist/lib/debug.js')
+const { debug, debugDir, debugLog, debugNs, debuglog, debugtime, isDebug } =
+  debugModule
 
 const testName = process.argv[2]
 
-if (testName === 'isDebugSimple') {
-  console.log('isDebugSimple:', isDebugSimple())
-} else if (testName === 'debugLogSimple') {
-  debugLogSimple('test message', 'arg2')
-} else if (testName === 'debugDirSimple') {
-  debugDirSimple({ foo: 'bar', nested: { value: 123 } })
-} else if (testName === 'debugFnSimple') {
-  const log = debugFnSimple('test:namespace')
-  log('message from debugFnSimple')
+if (testName === 'isDebug') {
+  console.log('isDebug:', isDebug())
+} else if (testName === 'debugLog') {
+  debugLog('test message', 'arg2')
+} else if (testName === 'debugDir') {
+  debugDir({ foo: 'bar', nested: { value: 123 } })
+} else if (testName === 'debugNs') {
+  debugNs('test:namespace', 'message from debugNs')
 } else if (testName === 'debuglog') {
   const log = debuglog('testsection')
   log('message from debuglog')
@@ -32,10 +25,8 @@ if (testName === 'isDebugSimple') {
   setTimeout(() => {
     timer.end('test-operation')
   }, 10)
-} else if (testName === 'debugFnSimple-negation') {
-  const log = debugFnSimple('test:skip')
-  log('this should not appear')
-} else if (testName === 'debugFnSimple-wildcard') {
-  const log = debugFnSimple('app:feature')
-  log('wildcard match')
+} else if (testName === 'debugNs-negation') {
+  debugNs('test:skip', 'this should not appear')
+} else if (testName === 'debugNs-wildcard') {
+  debugNs('app:feature', 'wildcard match')
 }

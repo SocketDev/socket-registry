@@ -24,7 +24,7 @@ const performanceMetrics: PerformanceMetrics[] = []
  * Check if performance tracking is enabled.
  */
 function isPerfEnabled(): boolean {
-  return process.env['DEBUG']?.includes('perf') || false
+  return process.env.DEBUG?.includes('perf') || false
 }
 
 /**
@@ -215,7 +215,12 @@ export function getPerformanceSummary(): Record<
       }
     }
 
-    const stats = summary[operation]!
+    const stats = summary[operation] as {
+      count: number
+      total: number
+      min: number
+      max: number
+    }
     stats.count++
     stats.total += duration
     stats.min = Math.min(stats.min, duration)
@@ -264,7 +269,13 @@ export function printPerformanceSummary(): void {
   debugLog('[perf]\n=== Performance Summary ===')
 
   for (const operation of operations) {
-    const stats = summary[operation]!
+    const stats = summary[operation] as {
+      count: number
+      total: number
+      avg: number
+      min: number
+      max: number
+    }
     debugLog(
       `[perf] ${operation}: ${stats.count} calls, avg ${stats.avg}ms (min ${stats.min}ms, max ${stats.max}ms, total ${stats.total}ms)`,
     )
@@ -384,7 +395,13 @@ export function generatePerformanceReport(): string {
   report += '╚═══════════════════════════════════════════════╝\n\n'
 
   for (const operation of operations) {
-    const stats = summary[operation]!
+    const stats = summary[operation] as {
+      count: number
+      total: number
+      avg: number
+      min: number
+      max: number
+    }
     report += `${operation}:\n`
     report += `  Calls: ${stats.count}\n`
     report += `  Avg:   ${stats.avg}ms\n`

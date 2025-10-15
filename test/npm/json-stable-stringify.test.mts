@@ -1,43 +1,28 @@
 import path from 'node:path'
 
-import { beforeAll, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import constants from '../../scripts/constants.mjs'
-import { installPackageForTesting } from '../../scripts/utils/package.mjs'
-import { isPackageTestingSkipped } from '../../scripts/utils/tests.mjs'
+import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
-const { NPM, npmPackagesPath } = constants
-
-const eco = NPM
-const sockRegPkgName = path.basename(__filename, '.test.mts')
+const {
+  eco,
+  module: jsonStableStringify,
+  pkgPath,
+  skip,
+  sockRegPkgName,
+} = await setupNpmPackageTest(__filename)
 
 describe(
   `${eco} > ${sockRegPkgName}`,
   {
-    skip: isPackageTestingSkipped(sockRegPkgName) || constants.ENV.CI,
+    skip: skip || constants.ENV.CI,
   },
   () => {
-    let pkgPath: string
-    let pkgRequireIndexJsPath: string
-    let jsonStableStringify: any
+    const pkgRequireIndexJsPath = path.join(pkgPath, 'index.js')
+    const jsonStableStringifyModule = require(pkgRequireIndexJsPath)
 
-    beforeAll(async () => {
-      const result = await installPackageForTesting(
-        npmPackagesPath,
-        sockRegPkgName,
-      )
-      if (!result.installed) {
-        // Skip tests if package installation is skipped for known issues
-        if (result.reason === 'Skipped (known issues)') {
-          return
-        }
-        throw new Error(`Failed to install package: ${result.reason}`)
-      }
-      pkgPath = result.packagePath!
-      pkgRequireIndexJsPath = path.join(pkgPath, 'index.js')
-      jsonStableStringify = require(pkgRequireIndexJsPath)
-    })
-
+    // biome-ignore lint/suspicious/noExplicitAny: Test accesses internal JSON.rawJSON if available.
     const rawJSON: ((_str: string) => { rawJSON: string }) | undefined = (
       JSON as any
     ).rawJSON
@@ -50,7 +35,7 @@ describe(
     ]) {
       it(`${methodName}: space parameter (nested objects)`, () => {
         const obj = { one: 1, two: { b: 4, a: [2, 3] } }
-        expect(jsonStableStringify(obj, { space: '  ' })).toBe(
+        expect(jsonStableStringifyModule(obj, { space: '  ' })).toBe(
           '' +
             '{\n' +
             '  "one": 1,\n' +
@@ -68,41 +53,41 @@ describe(
       it(`${methodName}: space parameter (same as native)`, () => {
         // For this test, properties need to be in alphabetical order.
         const obj = { one: 1, two: { a: [2, 3], b: 4 } }
-        expect(jsonStableStringify(obj, { space: '  ' })).toBe(
+        expect(jsonStableStringifyModule(obj, { space: '  ' })).toBe(
           JSON.stringify(obj, null, '  '),
         )
       })
 
       it(`${methodName}: space parameter base empty behavior: empty arrays and objects have added newline and space`, () => {
         const obj = { emptyArr: [], emptyObj: {} }
-        expect(jsonStableStringify(obj, { space: '  ' })).toBe(
+        expect(jsonStableStringifyModule(obj, { space: '  ' })).toBe(
           '{\n  "emptyArr": [\n  ],\n  "emptyObj": {\n  }\n}',
         )
       })
 
       it(`${methodName}: space parameter, with collapseEmpty: true`, () => {
         const obj = { emptyArr: [], emptyObj: {} }
-        expect(function () {
-          jsonStableStringify(obj, { collapseEmpty: 'not a boolean' })
+        expect(() => {
+          jsonStableStringifyModule(obj, { collapseEmpty: 'not a boolean' })
         }).toThrow(TypeError)
         expect(
-          jsonStableStringify(obj, { collapseEmpty: true, space: '  ' }),
+          jsonStableStringifyModule(obj, { collapseEmpty: true, space: '  ' }),
         ).toBe('{\n  "emptyArr": [],\n  "emptyObj": {}\n}')
       })
 
       it(
         `${methodName}: supports JSON.rawJSON`,
-        { skip: !SUPPORTS_JSON_RAW_JSON || !jsonStableStringify },
+        { skip: !SUPPORTS_JSON_RAW_JSON || !jsonStableStringifyModule },
         () => {
           // Test case from MDN example:
           // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/isRawJSON#examples
           expect(
-            jsonStableStringify({
+            jsonStableStringifyModule({
               name: 'Josh',
-              userId: rawJSON!('12345678901234567890'),
+              userId: rawJSON?.('12345678901234567890'),
               friends: [
-                { name: 'Alice', userId: rawJSON!('9876543210987654321') },
-                { name: 'Bob', userId: rawJSON!('56789012345678901234') },
+                { name: 'Alice', userId: rawJSON?.('9876543210987654321') },
+                { name: 'Bob', userId: rawJSON?.('56789012345678901234') },
               ],
             }),
           ).toBe(
@@ -123,6 +108,7 @@ describe(
             ;(function r() {
               limit += 1
               const newObj = {}
+              // biome-ignore lint/suspicious/noExplicitAny: Test builds deeply nested object dynamically.
               ;(obj as any)[`prop${limit}`] = newObj
               obj = newObj
               r()
@@ -131,7 +117,7 @@ describe(
           return result
         }
         expect(() =>
-          jsonStableStringify(createCallStackBusterObject()),
+          jsonStableStringifyModule(createCallStackBusterObject()),
         ).not.toThrow()
       })
     }

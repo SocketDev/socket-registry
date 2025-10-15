@@ -4,9 +4,8 @@
 
 import { createCompositeAbortSignal, createTimeoutSignal } from '../abort'
 import NPM_REGISTRY_URL from '../constants/NPM_REGISTRY_URL'
-import { parseUrl } from '../url'
-
 import type { ProvenanceOptions } from '../packages'
+import { parseUrl } from '../url'
 
 // IMPORTANT: Do not use destructuring here - use direct assignment instead.
 // tsgo has a bug that incorrectly transpiles destructured exports, resulting in
@@ -34,40 +33,44 @@ function getFetcher() {
       cache: 'force-cache',
     })
   }
-  return _fetcher!
+  return _fetcher as typeof import('make-fetch-happen')
 }
 
 /**
  * Extract and filter SLSA provenance attestations from attestation data.
  */
-function getAttestations(attestationData: any): any[] {
-  if (
-    !attestationData.attestations ||
-    !ArrayIsArray(attestationData.attestations)
-  ) {
+function getAttestations(attestationData: unknown): unknown[] {
+  const data = attestationData as { attestations?: unknown[] }
+  if (!data.attestations || !ArrayIsArray(data.attestations)) {
     return []
   }
 
-  return attestationData.attestations.filter(
-    (attestation: any) =>
-      attestation.predicateType === SLSA_PROVENANCE_V0_2 ||
-      attestation.predicateType === SLSA_PROVENANCE_V1_0,
-  )
+  return data.attestations.filter((attestation: unknown) => {
+    const att = attestation as { predicateType?: string }
+    return (
+      att.predicateType === SLSA_PROVENANCE_V0_2 ||
+      att.predicateType === SLSA_PROVENANCE_V1_0
+    )
+  })
 }
 
 /**
  * Find the first attestation with valid provenance data.
  */
-function findProvenance(attestations: any[]): any {
+function findProvenance(attestations: unknown[]): unknown {
   for (const attestation of attestations) {
+    const att = attestation as {
+      bundle?: { dsseEnvelope?: { payload?: string } }
+      predicate?: unknown
+    }
     try {
-      let predicate = attestation.predicate
+      let predicate = att.predicate
 
       // If predicate is not directly available, try to decode from DSSE envelope
-      if (!predicate && attestation.bundle?.dsseEnvelope?.payload) {
+      if (!predicate && att.bundle?.dsseEnvelope?.payload) {
         try {
           const decodedPayload = Buffer.from(
-            attestation.bundle.dsseEnvelope.payload,
+            att.bundle.dsseEnvelope.payload,
             'base64',
           ).toString('utf8')
           const statement = JSON.parse(decodedPayload)
@@ -78,10 +81,13 @@ function findProvenance(attestations: any[]): any {
         }
       }
 
-      if (predicate?.buildDefinition?.externalParameters) {
+      const predicateData = predicate as {
+        buildDefinition?: { externalParameters?: unknown }
+      }
+      if (predicateData?.buildDefinition?.externalParameters) {
         return {
           predicate,
-          externalParameters: predicate.buildDefinition.externalParameters,
+          externalParameters: predicateData.buildDefinition.externalParameters,
         }
       }
       // c8 ignore start - Error handling for malformed attestation data should continue processing other attestations.
@@ -96,7 +102,7 @@ function findProvenance(attestations: any[]): any {
 /**
  * Check if a value indicates a trusted publisher (GitHub or GitLab).
  */
-function isTrustedPublisher(value: any): boolean {
+function isTrustedPublisher(value: unknown): boolean {
   if (typeof value !== 'string' || !value) {
     return false
   }
@@ -140,7 +146,7 @@ function isTrustedPublisher(value: any): boolean {
 /**
  * Convert raw attestation data to user-friendly provenance details.
  */
-export function getProvenanceDetails(attestationData: any): any {
+export function getProvenanceDetails(attestationData: unknown): unknown {
   const attestations = getAttestations(attestationData)
   if (!attestations.length) {
     return undefined
@@ -151,18 +157,35 @@ export function getProvenanceDetails(attestationData: any): any {
     return { level: 'attested' }
   }
 
-  const { externalParameters, predicate } = provenance
-  const def = predicate.buildDefinition
+  const provenanceData = provenance as {
+    externalParameters?: {
+      context?: string
+      ref?: string
+      repository?: string
+      run_id?: string
+      sha?: string
+      workflow?: {
+        ref?: string
+        repository?: string
+      }
+      workflow_ref?: string
+    }
+    predicate?: {
+      buildDefinition?: { buildType?: string }
+    }
+  }
+  const { externalParameters, predicate } = provenanceData
+  const def = predicate?.buildDefinition
 
   // Handle both SLSA v0.2 (direct properties) and v1 (nested workflow object)
-  const workflow = externalParameters.workflow
-  const workflowRef = workflow?.ref || externalParameters.workflow_ref
-  const workflowUrl = externalParameters.context
+  const workflow = externalParameters?.workflow
+  const workflowRef = workflow?.ref || externalParameters?.workflow_ref
+  const workflowUrl = externalParameters?.context
   const workflowPlatform = def?.buildType
-  const repository = workflow?.repository || externalParameters.repository
-  const gitRef = externalParameters.ref || workflow?.ref
-  const commitSha = externalParameters.sha
-  const workflowRunId = externalParameters.run_id
+  const repository = workflow?.repository || externalParameters?.repository
+  const gitRef = externalParameters?.ref || workflow?.ref
+  const commitSha = externalParameters?.sha
+  const workflowRunId = externalParameters?.run_id
 
   // Check for trusted publishers (GitHub Actions, GitLab CI/CD).
   const trusted =
@@ -191,7 +214,7 @@ export async function fetchPackageProvenance(
   pkgName: string,
   pkgVersion: string,
   options?: ProvenanceOptions,
-): Promise<any> {
+): Promise<unknown> {
   const { signal, timeout = 10_000 } = {
     __proto__: null,
     ...options,

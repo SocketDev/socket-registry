@@ -22,7 +22,7 @@ import WIN32 from './WIN32'
 // - Classic: https://classic.yarnpkg.com/en/docs/cli/cache
 function getYarnCachePath() {
   // Check for explicit YARN_CACHE_FOLDER environment variable (Yarn Classic).
-  const yarnCacheFolder = process.env['YARN_CACHE_FOLDER']
+  const yarnCacheFolder = process.env.YARN_CACHE_FOLDER
   if (yarnCacheFolder) {
     return normalizePath(yarnCacheFolder)
   }

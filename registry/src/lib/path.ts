@@ -54,10 +54,10 @@ let _buffer: typeof import('node:buffer') | undefined
 function getBuffer() {
   if (_buffer === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _buffer = /*@__PURE__*/ require('buffer')
+
+    _buffer = /*@__PURE__*/ require('node:buffer')
   }
-  return _buffer!
+  return _buffer as typeof import('node:buffer')
 }
 
 let _url: typeof import('node:url') | undefined
@@ -69,10 +69,10 @@ let _url: typeof import('node:url') | undefined
 function getUrl() {
   if (_url === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _url = /*@__PURE__*/ require('url')
+
+    _url = /*@__PURE__*/ require('node:url')
   }
-  return _url!
+  return _url as typeof import('node:url')
 }
 
 /**
@@ -324,11 +324,10 @@ export function normalizePath(pathLike: string | Buffer | URL): string {
         prefix = '//'
       } else {
         // Just repeated slashes, treat as regular path
-        while (
-          ((code = filepath.charCodeAt(start)),
-          code === 47 /*'/'*/ || code === 92) /*'\\'*/
-        ) {
+        code = filepath.charCodeAt(start)
+        while (code === 47 /*'/'*/ || code === 92 /*'\\'*/) {
           start += 1
+          code = filepath.charCodeAt(start)
         }
         if (start) {
           prefix = '/'
@@ -336,11 +335,10 @@ export function normalizePath(pathLike: string | Buffer | URL): string {
       }
     } else {
       // Trim leading slashes for regular paths
-      while (
-        ((code = filepath.charCodeAt(start)),
-        code === 47 /*'/'*/ || code === 92) /*'\\'*/
-      ) {
+      code = filepath.charCodeAt(start)
+      while (code === 47 /*'/'*/ || code === 92 /*'\\'*/) {
         start += 1
+        code = filepath.charCodeAt(start)
       }
       if (start) {
         prefix = '/'
@@ -385,7 +383,7 @@ export function normalizePath(pathLike: string | Buffer | URL): string {
             // Don't collapse leading '..' segments.
             if (lastSegmentValue === '..') {
               // Preserve the '..' and add another one.
-              collapsed = collapsed + '/' + segment
+              collapsed = `${collapsed}/${segment}`
               leadingDotDots += 1
             } else {
               // Normal collapse: remove the last segment.
@@ -404,11 +402,10 @@ export function normalizePath(pathLike: string | Buffer | URL): string {
       }
     }
     start = nextIndex + 1
-    while (
-      ((code = filepath.charCodeAt(start)),
-      code === 47 /*'/'*/ || code === 92) /*'\\'*/
-    ) {
+    code = filepath.charCodeAt(start)
+    while (code === 47 /*'/'*/ || code === 92 /*'\\'*/) {
       start += 1
+      code = filepath.charCodeAt(start)
     }
     nextIndex = search(filepath, slashRegExp, { fromIndex: start })
   }
@@ -431,7 +428,7 @@ export function normalizePath(pathLike: string | Buffer | URL): string {
           // Don't collapse leading '..' segments.
           if (lastSegmentValue === '..') {
             // Preserve the '..' and add another one.
-            collapsed = collapsed + '/' + lastSegment
+            collapsed = `${collapsed}/${lastSegment}`
             leadingDotDots += 1
           } else {
             // Normal collapse: remove the last segment.
@@ -582,7 +579,7 @@ function resolve(...segments: string[]): string {
     // Prepend the segment to the resolved path.
     // Use forward slashes as separators (normalized later).
     resolvedPath =
-      segment + (resolvedPath.length === 0 ? '' : '/' + resolvedPath)
+      segment + (resolvedPath.length === 0 ? '' : `/${resolvedPath}`)
 
     // Check if this segment is absolute.
     // Absolute paths stop the resolution process.
@@ -593,7 +590,7 @@ function resolve(...segments: string[]): string {
   // This ensures the final path is always absolute.
   if (!resolvedAbsolute) {
     const cwd = /*@__PURE__*/ require('node:process').cwd()
-    resolvedPath = cwd + (resolvedPath.length === 0 ? '' : '/' + resolvedPath)
+    resolvedPath = cwd + (resolvedPath.length === 0 ? '' : `/${resolvedPath}`)
   }
 
   // Normalize the resolved path (collapse '..' and '.', convert separators).
@@ -635,11 +632,11 @@ function relative(from: string, to: string): string {
 
   // Resolve both paths to absolute.
   // This handles relative paths, '.', '..', and ensures consistent format.
-  from = resolve(from)
-  to = resolve(to)
+  const actualFrom = resolve(from)
+  const actualTo = resolve(to)
 
   // Check again after resolution (paths might have been equivalent).
-  if (from === to) {
+  if (actualFrom === actualTo) {
     return ''
   }
 
@@ -650,8 +647,8 @@ function relative(from: string, to: string): string {
   // This means 'C:\Foo\bar.txt' and 'c:\foo\BAR.TXT' refer to the same file.
   // Reference: https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#case-sensitivity
   if (WIN32) {
-    const fromLower = from.toLowerCase()
-    const toLower = to.toLowerCase()
+    const fromLower = actualFrom.toLowerCase()
+    const toLower = actualTo.toLowerCase()
     if (fromLower === toLower) {
       return ''
     }
@@ -661,10 +658,10 @@ function relative(from: string, to: string): string {
   // We compare paths starting after the root separator to find common directories.
   // Example: '/foo/bar' becomes 'foo/bar' for comparison (index 1).
   const fromStart = 1
-  const fromEnd = from.length
+  const fromEnd = actualFrom.length
   const fromLen = fromEnd - fromStart
   const toStart = 1
-  const toEnd = to.length
+  const toEnd = actualTo.length
   const toLen = toEnd - toStart
 
   // Compare paths character by character to find the longest common prefix.
@@ -675,8 +672,8 @@ function relative(from: string, to: string): string {
   let i = 0
 
   for (; i < length; i += 1) {
-    const fromCode = from.charCodeAt(fromStart + i)
-    const toCode = to.charCodeAt(toStart + i)
+    const fromCode = actualFrom.charCodeAt(fromStart + i)
+    const toCode = actualTo.charCodeAt(toStart + i)
 
     // Paths diverge at this character.
     if (fromCode !== toCode) {
@@ -694,21 +691,21 @@ function relative(from: string, to: string): string {
   if (i === length) {
     if (toLen > length) {
       // Destination path is longer.
-      const toCode = to.charCodeAt(toStart + i)
+      const toCode = actualTo.charCodeAt(toStart + i)
       if (isPathSeparator(toCode)) {
         // `from` is the exact base path for `to`.
         // Example: from='/foo/bar'; to='/foo/bar/baz' → 'baz'
         // Skip the separator character (+1) to get just the relative portion.
-        return to.slice(toStart + i + 1)
+        return actualTo.slice(toStart + i + 1)
       }
       if (i === 0) {
         // `from` is the root directory.
         // Example: from='/'; to='/foo' → 'foo'
-        return to.slice(toStart + i)
+        return actualTo.slice(toStart + i)
       }
     } else if (fromLen > length) {
       // Source path is longer.
-      const fromCode = from.charCodeAt(fromStart + i)
+      const fromCode = actualFrom.charCodeAt(fromStart + i)
       if (isPathSeparator(fromCode)) {
         // `to` is the exact base path for `from`.
         // Example: from='/foo/bar/baz'; to='/foo/bar' → '..'
@@ -729,7 +726,7 @@ function relative(from: string, to: string): string {
   // For each directory, we need to go up one level ('../').
   // Example: from='/a/b/c', to='/a/x' → common='a', need '../..' (up from c, up from b)
   for (i = fromStart + lastCommonSep + 1; i <= fromEnd; i += 1) {
-    const code = from.charCodeAt(i)
+    const code = actualFrom.charCodeAt(i)
 
     // At the end of the path or at a separator, add '../'.
     if (i === fromEnd || isPathSeparator(code)) {
@@ -739,7 +736,7 @@ function relative(from: string, to: string): string {
 
   // Append the rest of the destination path after the common base.
   // This gives us the path from the common ancestor to the destination.
-  return out + to.slice(toStart + lastCommonSep)
+  return out + actualTo.slice(toStart + lastCommonSep)
 }
 
 /**

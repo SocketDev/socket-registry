@@ -39,6 +39,6 @@ export async function readPackageJson(filePath) {
 
 // Write package.json with proper formatting.
 export async function writePackageJson(filePath, data) {
-  const content = JSON.stringify(data, null, 2) + '\n'
+  const content = `${JSON.stringify(data, null, 2)}\n`
   await fs.writeFile(filePath, content, 'utf8')
 }

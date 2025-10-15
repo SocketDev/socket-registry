@@ -85,9 +85,9 @@ describe('url module', () => {
 
     it('should return empty array for non-string', () => {
       expect(urlSearchParamAsArray(null)).toEqual([])
-      expect(urlSearchParamAsArray(undefined as any)).toEqual([])
-      expect(urlSearchParamAsArray(123 as any)).toEqual([])
-      expect(urlSearchParamAsArray({} as any)).toEqual([])
+      expect(urlSearchParamAsArray(undefined as unknown as string)).toEqual([])
+      expect(urlSearchParamAsArray(123 as unknown as string)).toEqual([])
+      expect(urlSearchParamAsArray({} as unknown as string)).toEqual([])
     })
 
     it('should filter empty values after split', () => {
@@ -144,16 +144,18 @@ describe('url module', () => {
     })
 
     it('should handle non-string truthy values', () => {
-      expect(urlSearchParamAsBoolean(123 as any)).toBe(true)
-      expect(urlSearchParamAsBoolean({} as any)).toBe(true)
-      expect(urlSearchParamAsBoolean([] as any)).toBe(true)
-      expect(urlSearchParamAsBoolean(true as any)).toBe(true)
+      expect(urlSearchParamAsBoolean(123 as unknown as string)).toBe(true)
+      expect(urlSearchParamAsBoolean({} as unknown as string)).toBe(true)
+      expect(urlSearchParamAsBoolean([] as unknown as string)).toBe(true)
+      expect(urlSearchParamAsBoolean(true as unknown as string)).toBe(true)
     })
 
     it('should handle non-string falsy values', () => {
-      expect(urlSearchParamAsBoolean(0 as any)).toBe(false)
-      expect(urlSearchParamAsBoolean(false as any)).toBe(false)
-      expect(urlSearchParamAsBoolean(NaN as any)).toBe(false)
+      expect(urlSearchParamAsBoolean(0 as unknown as string)).toBe(false)
+      expect(urlSearchParamAsBoolean(false as unknown as string)).toBe(false)
+      expect(urlSearchParamAsBoolean(Number.NaN as unknown as string)).toBe(
+        false,
+      )
     })
   })
 

@@ -19,28 +19,28 @@ describe('shadow module', () => {
     })
 
     it('should return false on non-Windows with binPath', () => {
-      delete process.env['npm_config_user_agent']
-      delete process.env['npm_config_cache']
+      delete process.env.npm_config_user_agent
+      delete process.env.npm_config_cache
       expect(shouldSkipShadow('/usr/bin/npm', { win32: false })).toBe(false)
     })
 
     it('should return true when user agent contains exec', () => {
-      process.env['npm_config_user_agent'] = 'npm/8.0.0 node/v18.0.0 exec'
+      process.env.npm_config_user_agent = 'npm/8.0.0 node/v18.0.0 exec'
       expect(shouldSkipShadow('', { win32: false })).toBe(true)
     })
 
     it('should return true when user agent contains npx', () => {
-      process.env['npm_config_user_agent'] = 'npm/8.0.0 node/v18.0.0 npx'
+      process.env.npm_config_user_agent = 'npm/8.0.0 node/v18.0.0 npx'
       expect(shouldSkipShadow('', { win32: false })).toBe(true)
     })
 
     it('should return true when user agent contains dlx', () => {
-      process.env['npm_config_user_agent'] = 'pnpm/8.0.0 node/v18.0.0 dlx'
+      process.env.npm_config_user_agent = 'pnpm/8.0.0 node/v18.0.0 dlx'
       expect(shouldSkipShadow('', { win32: false })).toBe(true)
     })
 
     it('should return true when cwd is in npm cache', () => {
-      process.env['npm_config_cache'] = '/home/user/.npm'
+      process.env.npm_config_cache = '/home/user/.npm'
       expect(
         shouldSkipShadow('', {
           cwd: '/home/user/.npm/_npx/12345',
@@ -95,8 +95,8 @@ describe('shadow module', () => {
     })
 
     it('should return false for normal project directory', () => {
-      delete process.env['npm_config_user_agent']
-      delete process.env['npm_config_cache']
+      delete process.env.npm_config_user_agent
+      delete process.env.npm_config_cache
       expect(
         shouldSkipShadow('', {
           cwd: '/home/user/projects/my-app',
@@ -106,8 +106,8 @@ describe('shadow module', () => {
     })
 
     it('should return false when no special conditions are met', () => {
-      delete process.env['npm_config_user_agent']
-      delete process.env['npm_config_cache']
+      delete process.env.npm_config_user_agent
+      delete process.env.npm_config_cache
       expect(
         shouldSkipShadow('', {
           cwd: '/home/user/project',
@@ -117,14 +117,14 @@ describe('shadow module', () => {
     })
 
     it('should handle empty binPath on Windows', () => {
-      delete process.env['npm_config_user_agent']
-      delete process.env['npm_config_cache']
+      delete process.env.npm_config_user_agent
+      delete process.env.npm_config_cache
       expect(shouldSkipShadow('', { win32: true })).toBe(false)
     })
 
     it('should handle undefined options', () => {
-      delete process.env['npm_config_user_agent']
-      delete process.env['npm_config_cache']
+      delete process.env.npm_config_user_agent
+      delete process.env.npm_config_cache
       expect(shouldSkipShadow('')).toBe(false)
     })
   })

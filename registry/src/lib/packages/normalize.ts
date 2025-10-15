@@ -16,7 +16,7 @@ function getRegistryScopeDelimiter(): string {
     _REGISTRY_SCOPE_DELIMITER =
       /*@__INLINE__*/ require('../constants/REGISTRY_SCOPE_DELIMITER')
   }
-  return _REGISTRY_SCOPE_DELIMITER!
+  return _REGISTRY_SCOPE_DELIMITER as string
 }
 
 let _SOCKET_REGISTRY_SCOPE: string | undefined
@@ -25,7 +25,7 @@ function getSocketRegistryScope(): string {
     _SOCKET_REGISTRY_SCOPE =
       /*@__INLINE__*/ require('../constants/SOCKET_REGISTRY_SCOPE')
   }
-  return _SOCKET_REGISTRY_SCOPE!
+  return _SOCKET_REGISTRY_SCOPE as string
 }
 
 let _escapeRegExp: ((s: string) => string) | undefined
@@ -33,14 +33,15 @@ function getEscapeRegExp(): (s: string) => string {
   if (_escapeRegExp === undefined) {
     _escapeRegExp = /*@__PURE__*/ require('../regexps').escapeRegExp
   }
-  return _escapeRegExp!
+  return _escapeRegExp as (s: string) => string
 }
 
 function getEscapedScopeRegExp(): RegExp {
   const REGISTRY_SCOPE_DELIMITER = getRegistryScopeDelimiter()
   const escapeRegExp = getEscapeRegExp()
+  const firstChar = REGISTRY_SCOPE_DELIMITER[0] as string
   return new RegExp(
-    `^[^${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0]!)}]+${escapeRegExp(REGISTRY_SCOPE_DELIMITER)}(?!${escapeRegExp(REGISTRY_SCOPE_DELIMITER[0]!)})`,
+    `^[^${escapeRegExp(firstChar)}]+${escapeRegExp(REGISTRY_SCOPE_DELIMITER)}(?!${escapeRegExp(firstChar)})`,
   )
 }
 
@@ -54,7 +55,7 @@ function getNormalizePackageData() {
     _normalizePackageData =
       /*@__PURE__*/ require('../../external/normalize-package-data')
   }
-  return _normalizePackageData!
+  return _normalizePackageData as typeof import('normalize-package-data')
 }
 
 /**

@@ -10,7 +10,10 @@ import { isObject, isObjectObject } from '../objects'
  * Find types definition for a specific subpath in package exports.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function findTypesForSubpath(entryExports: any, subpath: string): any {
+export function findTypesForSubpath(
+  entryExports: unknown,
+  subpath: string,
+): string | undefined {
   const queue = [entryExports]
   let pos = 0
   while (pos < queue.length) {
@@ -24,7 +27,7 @@ export function findTypesForSubpath(entryExports: any, subpath: string): any {
       for (let i = 0, { length } = value; i < length; i += 1) {
         const item = value[i]
         if (item === subpath) {
-          return (value as { types?: any }).types
+          return (value as { types?: string }).types
         }
         if (isObject(item)) {
           queue.push(item)
@@ -33,9 +36,10 @@ export function findTypesForSubpath(entryExports: any, subpath: string): any {
     } else if (isObject(value)) {
       const keys = Object.getOwnPropertyNames(value)
       for (let i = 0, { length } = keys; i < length; i += 1) {
-        const item = value[keys[i]!]
+        const key = keys[i] as string
+        const item = value[key]
         if (item === subpath) {
-          return (value as { types?: any }).types
+          return (value as { types?: string }).types
         }
         if (isObject(item)) {
           queue.push(item)
@@ -50,7 +54,7 @@ export function findTypesForSubpath(entryExports: any, subpath: string): any {
  * Get subpaths from package exports.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function getSubpaths(entryExports: any): string[] {
+export function getSubpaths(entryExports: unknown): string[] {
   if (!isObject(entryExports)) {
     return []
   }
@@ -64,7 +68,7 @@ export function getSubpaths(entryExports: any): string[] {
  * Get file paths from package exports.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function getExportFilePaths(entryExports: any): string[] {
+export function getExportFilePaths(entryExports: unknown): string[] {
   if (!isObject(entryExports)) {
     return []
   }
@@ -116,7 +120,7 @@ export function getExportFilePaths(entryExports: any): string[] {
  * Check if package exports use conditional patterns (e.g., import/require).
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function isConditionalExports(entryExports: any): boolean {
+export function isConditionalExports(entryExports: unknown): boolean {
   if (!isObjectObject(entryExports)) {
     return false
   }
@@ -130,7 +134,7 @@ export function isConditionalExports(entryExports: any): boolean {
   // The exports object MUST either be an object of package subpath keys OR
   // an object of main entry condition name keys only.
   for (let i = 0; i < length; i += 1) {
-    const key = keys[i]!
+    const key = keys[i] as string
     if (key.length > 0 && key.charCodeAt(0) === 46 /*'.'*/) {
       return false
     }
@@ -142,7 +146,7 @@ export function isConditionalExports(entryExports: any): boolean {
  * Check if package exports use subpath patterns (keys starting with '.').
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function isSubpathExports(entryExports: any): boolean {
+export function isSubpathExports(entryExports: unknown): boolean {
   if (isObjectObject(entryExports)) {
     const keys = Object.getOwnPropertyNames(entryExports)
     for (let i = 0, { length } = keys; i < length; i += 1) {
@@ -150,7 +154,7 @@ export function isSubpathExports(entryExports: any): boolean {
       // Entry exports cannot contain some keys starting with '.' and some not.
       // The exports object MUST either be an object of package subpath keys OR
       // an object of main entry condition name keys only.
-      if (keys[i]!.charCodeAt(0) === 46 /*'.'*/) {
+      if (keys[i]?.charCodeAt(0) === 46 /*'.'*/) {
         return true
       }
     }
@@ -162,7 +166,7 @@ export function isSubpathExports(entryExports: any): boolean {
  * Normalize package.json exports field to canonical format.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function resolvePackageJsonEntryExports(entryExports: any): any {
+export function resolvePackageJsonEntryExports(entryExports: unknown): unknown {
   // If conditional exports main sugar
   // https://nodejs.org/api/packages.html#exports-sugar
   if (typeof entryExports === 'string' || isArray(entryExports)) {

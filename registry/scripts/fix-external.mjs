@@ -1,13 +1,13 @@
 /**
  * @fileoverview Fix script for external dependencies in the registry.
- * Runs biome and oxlint with auto-fix enabled on dist/external.
+ * Runs biome and eslint with auto-fix enabled on dist/external.
  *
  * Usage:
  *   node scripts/fix-external.mjs
  */
 
-import { logger } from './utils/helpers.mjs'
 import { runCommandQuiet } from '../../scripts/utils/run-command.mjs'
+import { logger } from './utils/helpers.mjs'
 
 async function main() {
   try {
@@ -26,15 +26,14 @@ async function main() {
       },
       {
         args: [
-          'oxlint',
-          '-c=../.config/oxlintrc.json',
-          '--ignore-path=../.config/.oxlintignore',
-          '--tsconfig=../tsconfig.json',
-          '--silent',
+          'eslint',
+          '--config',
+          '../.config/eslint.config.mjs',
+          '--report-unused-disable-directives',
           '--fix',
           './dist/external',
         ],
-        name: 'oxlint',
+        name: 'eslint',
       },
     ]
 

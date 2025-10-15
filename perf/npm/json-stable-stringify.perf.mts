@@ -1,12 +1,9 @@
 import assert from 'node:assert/strict'
 import path from 'node:path'
-
-import fastJsonStableStringify from 'fast-json-stable-stringify'
-import origJsonStableStringify from 'json-stable-stringify'
-import { Bench } from 'tinybench'
-
-import overrideJsonStableStringify from '@socketregistry/json-stable-stringify'
+import jsonStableStringify from '@socketregistry/json-stable-stringify'
 import { logger } from '@socketsecurity/registry/lib/logger'
+import fastJsonStableStringify from 'fast-json-stable-stringify'
+import { Bench } from 'tinybench'
 
 import constants from '../../scripts/constants.mjs'
 
@@ -24,21 +21,16 @@ void (async () => {
     { name: '6MB json file', data: sampleData6MbJson },
   ]
   for (const { data, name } of tests) {
-    ;[
-      overrideJsonStableStringify(data),
-      origJsonStableStringify(data),
-      fastJsonStableStringify(data),
-    ].reduce((a, v) => {
-      assert.strictEqual(a, v)
-      return v
-    })
+    ;[jsonStableStringify(data), fastJsonStableStringify(data)].reduce(
+      (a, v) => {
+        assert.strictEqual(a, v)
+        return v
+      },
+    )
     const bench = new Bench({ time: 100, warmup: true })
     bench
       .add('@socketregistry/json-stable-stringify', () => {
-        overrideJsonStableStringify(data)
-      })
-      .add('json-stable-stringify', () => {
-        origJsonStableStringify(data)
+        jsonStableStringify(data)
       })
       .add('fast-json-stable-stringify', () => {
         fastJsonStableStringify(data)

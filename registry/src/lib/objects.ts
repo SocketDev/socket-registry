@@ -4,9 +4,9 @@
  */
 
 import { isArray } from './arrays'
+import kInternalsSymbol from './constants/k-internals-symbol'
 import LOOP_SENTINEL from './constants/LOOP_SENTINEL'
 import UNDEFINED_TOKEN from './constants/UNDEFINED_TOKEN'
-import kInternalsSymbol from './constants/k-internals-symbol'
 import { localeCompare } from './sorts'
 
 // Type definitions
@@ -85,7 +85,7 @@ export function createLazyGetter<T>(
       return lazyValue as T
     },
   } as LazyGetterRecord<T>
-  return lazyGetter!
+  return lazyGetter as unknown as () => T
 }
 
 /**
@@ -199,11 +199,11 @@ export function defineLazyGetters(
   if (getterDefObj !== null && typeof getterDefObj === 'object') {
     const keys = ReflectOwnKeys(getterDefObj)
     for (let i = 0, { length } = keys; i < length; i += 1) {
-      const key = keys[i]!
+      const key = keys[i] as PropertyKey
       defineLazyGetter(
         object,
         key,
-        createLazyGetter(key, getterDefObj[key]!, stats),
+        createLazyGetter(key, getterDefObj[key] as () => unknown, stats),
       )
     }
   }
@@ -260,7 +260,7 @@ export function getOwnPropertyValues<T>(
   const { length } = keys
   const values = Array(length)
   for (let i = 0; i < length; i += 1) {
-    values[i] = obj[keys[i]!]
+    values[i] = obj[keys[i] as string]
   }
   return values
 }
@@ -343,7 +343,7 @@ export function objectEntries(obj: unknown): Array<[PropertyKey, unknown]> {
   const entries = Array(length)
   const record = obj as Record<PropertyKey, unknown>
   for (let i = 0; i < length; i += 1) {
-    const key = keys[i]!
+    const key = keys[i] as PropertyKey
     entries[i] = [key, record[key]]
   }
   return entries
@@ -378,7 +378,10 @@ export function merge<T extends object, U extends object>(
     if (pos === LOOP_SENTINEL) {
       throw new Error('Detected infinite loop in object crawl of merge')
     }
-    const { 0: currentTarget, 1: currentSource } = queue[pos++]!
+    const { 0: currentTarget, 1: currentSource } = queue[pos++] as [
+      Record<PropertyKey, unknown>,
+      Record<PropertyKey, unknown>,
+    ]
 
     if (!currentSource || !currentTarget) {
       continue
@@ -394,20 +397,20 @@ export function merge<T extends object, U extends object>(
 
     const keys = ReflectOwnKeys(currentSource as object)
     for (let i = 0, { length } = keys; i < length; i += 1) {
-      const key = keys[i]!
-      const srcVal = (currentSource as any)[key]
-      const targetVal = (currentTarget as any)[key]
+      const key = keys[i] as PropertyKey
+      const srcVal = currentSource[key]
+      const targetVal = currentTarget[key]
       if (isArray(srcVal)) {
         // Replace arrays entirely
-        ;(currentTarget as any)[key] = srcVal
+        currentTarget[key] = srcVal
       } else if (isObject(srcVal)) {
         if (isObject(targetVal) && !isArray(targetVal)) {
           queue[queueLength++] = [targetVal, srcVal]
         } else {
-          ;(currentTarget as any)[key] = srcVal
+          currentTarget[key] = srcVal
         }
       } else {
-        ;(currentTarget as any)[key] = srcVal
+        currentTarget[key] = srcVal
       }
     }
   }
@@ -426,7 +429,7 @@ export function toSortedObject<T extends object>(obj: T): T {
  * Create an object from entries with sorted keys.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function toSortedObjectFromEntries<T = any>(
+export function toSortedObjectFromEntries<T = unknown>(
   entries: Iterable<[PropertyKey, T]>,
 ): SortedObject<T> {
   const otherEntries = []

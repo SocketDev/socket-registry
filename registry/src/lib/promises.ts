@@ -4,8 +4,8 @@
  */
 
 import { arrayChunk } from './arrays'
-import UNDEFINED_TOKEN from './constants/UNDEFINED_TOKEN'
 import abortSignal from './constants/abort-signal'
+import UNDEFINED_TOKEN from './constants/UNDEFINED_TOKEN'
 
 export interface RetryOptions {
   args?: unknown[]
@@ -16,7 +16,11 @@ export interface RetryOptions {
   maxDelayMs?: number
   maxTimeout?: number
   minTimeout?: number
-  onRetry?: (attempt: number, error: unknown, delay: number) => boolean | void
+  onRetry?: (
+    attempt: number,
+    error: unknown,
+    delay: number,
+  ) => boolean | undefined
   onRetryCancelOnFalse?: boolean
   onRetryRethrow?: boolean
   retries?: number
@@ -38,10 +42,10 @@ let _timers: typeof import('node:timers/promises') | undefined
 function getTimers() {
   if (_timers === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _timers = /*@__PURE__*/ require('timers/promises')
+
+    _timers = /*@__PURE__*/ require('node:timers/promises')
   }
-  return _timers!
+  return _timers as typeof import('node:timers/promises')
 }
 
 /**
@@ -92,7 +96,7 @@ export function normalizeRetryOptions(
     // Whether to apply randomness to spread out retries.
     jitter = true,
     // Upper limit for any backoff delay (in milliseconds).
-    maxDelayMs = resolved.maxTimeout || 10000,
+    maxDelayMs = resolved.maxTimeout || 10_000,
     // Optional callback invoked on each retry attempt:
     // (attempt: number, error: unknown, delay: number) => void
     onRetry,
@@ -132,7 +136,7 @@ export function resolveRetryOptions(
     __proto__: null,
     retries: 0,
     minTimeout: 200,
-    maxTimeout: 10000,
+    maxTimeout: 10_000,
     factor: 2,
   }
 
@@ -237,7 +241,7 @@ export async function pFilterChunk<T>(
     if (signal?.aborted) {
       filteredChunks[i] = []
     } else {
-      const chunk = chunks[i]!
+      const chunk = chunks[i] as T[]
       // eslint-disable-next-line no-await-in-loop
       const predicateResults = await Promise.all(
         chunk.map(value =>
@@ -283,8 +287,8 @@ export async function pRetry<T>(
 
   const timers = getTimers()
 
-  let attempts = retries!
-  let delay = baseDelayMs!
+  let attempts = retries as number
+  let delay = baseDelayMs as number
   let error: unknown = UNDEFINED_TOKEN
 
   while (attempts-- >= 0) {
@@ -309,10 +313,10 @@ export async function pRetry<T>(
         waitTime += Math.floor(Math.random() * delay)
       }
       // Clamp wait time to max delay.
-      waitTime = Math.min(waitTime, maxDelayMs!)
+      waitTime = Math.min(waitTime, maxDelayMs as number)
       if (typeof onRetry === 'function') {
         try {
-          const result = onRetry(retries! - attempts, e, waitTime)
+          const result = onRetry((retries as number) - attempts, e, waitTime)
           if (result === false && onRetryCancelOnFalse) {
             break
           }
@@ -337,7 +341,7 @@ export async function pRetry<T>(
       }
 
       // Exponentially increase the delay for the next attempt, capping at maxDelayMs.
-      delay = Math.min(delay * backoffFactor!, maxDelayMs!)
+      delay = Math.min(delay * (backoffFactor as number), maxDelayMs as number)
     }
   }
   if (error !== UNDEFINED_TOKEN) {

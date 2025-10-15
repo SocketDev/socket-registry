@@ -5,9 +5,9 @@ process.stdout.write = () => true
 process.stderr.write = () => true
 
 import {
-  Spinner,
   ciSpinner,
   getCliSpinners,
+  Spinner,
   spinner,
   withSpinner,
   withSpinnerRestore,
@@ -30,7 +30,7 @@ describe('spinner module', () => {
     })
 
     it('should have large interval for CI', () => {
-      expect(ciSpinner.interval).toBe(2147483647)
+      expect(ciSpinner.interval).toBe(2_147_483_647)
     })
   })
 
@@ -63,7 +63,7 @@ describe('spinner module', () => {
   })
 
   describe('Spinner', () => {
-    let testSpinner: any
+    let testSpinner: ReturnType<typeof Spinner> | undefined
 
     beforeEach(() => {
       testSpinner = Spinner()
@@ -71,7 +71,7 @@ describe('spinner module', () => {
 
     afterEach(() => {
       try {
-        if (testSpinner && testSpinner.isSpinning) {
+        if (testSpinner?.isSpinning) {
           testSpinner.stop()
         }
       } catch {}
@@ -117,6 +117,7 @@ describe('spinner module', () => {
       it('should reject RGB tuple with wrong length', () => {
         expect(() => {
           Spinner({
+            // biome-ignore lint/suspicious/noExplicitAny: Testing invalid input.
             color: [255, 128] as any,
           })
         }).toThrow('RGB color must be an array of 3 numbers between 0 and 255')
@@ -125,6 +126,7 @@ describe('spinner module', () => {
       it('should reject RGB tuple with invalid numbers', () => {
         expect(() => {
           Spinner({
+            // biome-ignore lint/suspicious/noExplicitAny: Testing invalid input.
             color: [255, 300, 0] as any,
           })
         }).toThrow('RGB color must be an array of 3 numbers between 0 and 255')
@@ -133,6 +135,7 @@ describe('spinner module', () => {
       it('should reject RGB tuple with non-numbers', () => {
         expect(() => {
           Spinner({
+            // biome-ignore lint/suspicious/noExplicitAny: Testing invalid input.
             color: [255, 'blue', 0] as any,
           })
         }).toThrow('RGB color must be an array of 3 numbers between 0 and 255')
@@ -141,6 +144,7 @@ describe('spinner module', () => {
       it('should reject RGB tuple with negative numbers', () => {
         expect(() => {
           Spinner({
+            // biome-ignore lint/suspicious/noExplicitAny: Testing invalid input.
             color: [255, -10, 0] as any,
           })
         }).toThrow('RGB color must be an array of 3 numbers between 0 and 255')
@@ -170,7 +174,7 @@ describe('spinner module', () => {
       })
 
       it('should work with setter', () => {
-        testSpinner.text = 'Set via property'
+        testSpinner.text('Set via property')
         expect(testSpinner.text()).toBe('Set via property')
       })
     })
@@ -303,7 +307,8 @@ describe('spinner module', () => {
 
       it('should allow setting color', () => {
         const s = Spinner({ color: 'green' })
-        expect(s.color).toBe('green')
+        // Color is returned as RGB array [r, g, b]
+        expect(s.color).toEqual([0, 128, 0])
         if (s.isSpinning) {
           s.stop()
         }
@@ -338,23 +343,23 @@ describe('spinner module', () => {
 
   describe('CI environment', () => {
     it('should use ciSpinner in CI environment', () => {
-      const originalCI = process.env['CI']
+      const originalCI = process.env.CI
       try {
-        process.env['CI'] = 'true'
+        process.env.CI = 'true'
         const s = Spinner()
         expect(s).toBeDefined()
       } finally {
         if (originalCI === undefined) {
-          delete process.env['CI']
+          delete process.env.CI
         } else {
-          process.env['CI'] = originalCI
+          process.env.CI = originalCI
         }
       }
     })
   })
 
   describe('withSpinner', () => {
-    let testSpinner: any
+    let testSpinner: ReturnType<typeof Spinner> | undefined
 
     beforeEach(() => {
       testSpinner = Spinner()
@@ -362,7 +367,7 @@ describe('spinner module', () => {
 
     afterEach(() => {
       try {
-        if (testSpinner && testSpinner.isSpinning) {
+        if (testSpinner?.isSpinning) {
           testSpinner.stop()
         }
       } catch {}
@@ -432,7 +437,7 @@ describe('spinner module', () => {
   })
 
   describe('withSpinnerRestore', () => {
-    let testSpinner: any
+    let testSpinner: ReturnType<typeof Spinner> | undefined
 
     beforeEach(() => {
       testSpinner = Spinner()
@@ -440,7 +445,7 @@ describe('spinner module', () => {
 
     afterEach(() => {
       try {
-        if (testSpinner && testSpinner.isSpinning) {
+        if (testSpinner?.isSpinning) {
           testSpinner.stop()
         }
       } catch {}
@@ -513,7 +518,7 @@ describe('spinner module', () => {
   })
 
   describe('withSpinnerSync', () => {
-    let testSpinner: any
+    let testSpinner: ReturnType<typeof Spinner> | undefined
 
     beforeEach(() => {
       testSpinner = Spinner()
@@ -521,7 +526,7 @@ describe('spinner module', () => {
 
     afterEach(() => {
       try {
-        if (testSpinner && testSpinner.isSpinning) {
+        if (testSpinner?.isSpinning) {
           testSpinner.stop()
         }
       } catch {}

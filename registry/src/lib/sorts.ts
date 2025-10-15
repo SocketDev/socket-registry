@@ -57,11 +57,12 @@ export function naturalSorter<T>(
 ): ReturnType<FastSortFunction> {
   if (_naturalSorter === undefined) {
     const fastSort = /*@__PURE__*/ require('../external/fast-sort')
+    // biome-ignore lint/suspicious/noExplicitAny: Fast-sort API requires dynamic method access.
     _naturalSorter = (fastSort as any).createNewSortInstance({
       comparer: naturalCompare,
     })
   }
-  return _naturalSorter!(arrayToSort)
+  return _naturalSorter?.(arrayToSort)
 }
 
 /**
@@ -90,6 +91,6 @@ export function compareSemver(a: string, b: string): number {
   if (!validB) {
     return 1
   }
-
+  // biome-ignore lint/suspicious/noExplicitAny: Semver API requires dynamic method access.
   return (semver as any).compare(a, b)
 }
