@@ -7,14 +7,13 @@
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-
-import constants from '../constants.mjs'
 import WIN32 from '../../registry/dist/lib/constants/WIN32.js'
 import { readPackageJson } from '../../registry/dist/lib/packages/operations.js'
 import { pEach } from '../../registry/dist/lib/promises.js'
-import { spawn } from './spawn.mjs'
 import { cleanTestScript } from '../../test/utils/script-cleaning.mjs'
 import { testRunners } from '../../test/utils/test-runners.mjs'
+import constants from '../constants.mjs'
+import { spawn } from './spawn.mjs'
 
 const { DEFAULT_CONCURRENCY } = constants
 
@@ -167,8 +166,12 @@ async function processWithSpinner(items, processor, options = {}) {
 
     if (errors.length > 0 && errorMessage) {
       spinner.error(`${errorMessage}: ${errors.length} failed`)
+      // Ensure spinner is fully cleared and we're on a fresh line
+      process.stdout.write('\r\x1b[K')
     } else if (successMessage) {
       spinner.success(successMessage)
+      // Ensure spinner is fully cleared and we're on a fresh line
+      process.stdout.write('\r\x1b[K')
     }
   } else {
     await processItems()

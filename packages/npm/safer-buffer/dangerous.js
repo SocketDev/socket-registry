@@ -3,8 +3,7 @@
 const {
   Buffer: { allocUnsafe, allocUnsafeSlow },
   // Use non-'node:' prefixed require to avoid Webpack errors.
-  // eslint-disable-next-line n/prefer-node-protocol
-} = require('buffer')
+} = require('node:buffer')
 
 const safer = require('./safer')
 const { builtinBufferExportsDescMap } = require('./shared')

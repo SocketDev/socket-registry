@@ -5,13 +5,12 @@
  * shallowest to catch newly emptied parent directories.
  */
 
+import { deleteAsync as del } from 'del'
 import fastGlob from 'fast-glob'
-
 import { isDirEmptySync } from '../registry/dist/lib/fs.js'
 import { logger } from '../registry/dist/lib/logger.js'
 
 import constants from './constants.mjs'
-import { trash } from './utils/fs.mjs'
 
 const { NODE_MODULES_GLOB_RECURSIVE } = constants
 
@@ -32,7 +31,7 @@ async function main() {
 
   // Remove them all at once if there are any.
   if (emptyDirs.length) {
-    await trash(emptyDirs)
+    await del(emptyDirs)
     logger.log(`Removed ${emptyDirs.length} empty directories`)
   }
 }

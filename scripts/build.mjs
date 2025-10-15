@@ -7,7 +7,7 @@
  */
 
 import { printFooter, printHeader } from './utils/cli-helpers.mjs'
-import { runWithOutput } from './utils/unified-runner.mjs'
+import { runWithOutput } from './utils/interactive-runner.mjs'
 
 // Note: We use the shared print utilities instead of the registry logger
 // because the logger is in registry/dist/lib/logger.js which doesn't exist until

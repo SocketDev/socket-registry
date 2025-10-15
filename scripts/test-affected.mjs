@@ -3,9 +3,8 @@
  * Handles test selection based on file changes to speed up local and precommit runs.
  */
 
-import path from 'node:path'
-
 import { promises as fs } from 'node:fs'
+import path from 'node:path'
 
 import fastGlob from 'fast-glob'
 
@@ -205,7 +204,7 @@ async function main() {
     }
 
     // Get staged files (for precommit) or all changed files.
-    const isPrecommit = process.env['PRE_COMMIT'] === '1'
+    const isPrecommit = process.env.PRE_COMMIT === '1'
     let changedFiles = []
 
     if (isPrecommit) {

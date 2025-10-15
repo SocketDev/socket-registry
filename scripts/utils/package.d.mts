@@ -19,11 +19,13 @@ export function getInstalledPackages(tempDir: string): Promise<string[]>
 export function installPackage(
   packagePath: string,
   tempDir: string,
+  // biome-ignore lint/suspicious/noExplicitAny: Options object accepts any additional properties.
   options?: Record<string, any>,
 ): Promise<void>
 export function installPackageForTesting(
   sourcePath: string,
   packageName: string,
+  // biome-ignore lint/suspicious/noExplicitAny: Options object accepts any additional properties.
   options?: Record<string, any>,
 ): Promise<{
   installed: boolean
@@ -42,6 +44,7 @@ export function processWithConcurrency<T>(
     concurrency?: number
     startMessage?: string
     errorMessage?: string
+    // biome-ignore lint/suspicious/noExplicitAny: Spinner type from external library.
     spinner?: any
   },
 ): Promise<void>

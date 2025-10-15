@@ -5,8 +5,8 @@
  */
 
 import { readFile } from 'node:fs/promises'
-import { fileURLToPath } from 'node:url'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import COLUMN_LIMIT from '../registry/dist/lib/constants/COLUMN_LIMIT.js'
 import { logger } from '../registry/dist/lib/logger.js'
@@ -153,7 +153,7 @@ async function checkTrustedPackage(packageName, state) {
 
   // Check for npm provenance (trusted publishing)
   const dist = info.dist
-  if (dist && dist.attestations) {
+  if (dist?.attestations) {
     successes.push('Trusted-published with npm provenance')
   } else {
     issues.push('Not trusted-published (missing provenance)')
@@ -211,7 +211,7 @@ async function getPackagesFromManifest() {
     if (manifest.npm && Array.isArray(manifest.npm)) {
       for (const entry of manifest.npm) {
         const [, data] = entry
-        if (data && data.name) {
+        if (data?.name) {
           // Only include @socketregistry/* and @socketoverride/* packages
           if (
             data.name.startsWith('@socketregistry/') ||
@@ -251,25 +251,37 @@ async function main() {
 
   // Always include packages from manifest (@socketregistry/*, @socketoverride/*).
   const manifestPackages = await getPackagesFromManifest()
-  manifestPackages.forEach(pkg => packagesToCheck.add(pkg))
+  manifestPackages.forEach(pkg => {
+    packagesToCheck.add(pkg)
+  })
 
   // Supplement with @socketregistry/* and @socketoverride/* packages from npm.
   const socketRegistryPackages = await getPackagesFromScope('socketregistry')
-  socketRegistryPackages.forEach(pkg => packagesToCheck.add(pkg))
+  socketRegistryPackages.forEach(pkg => {
+    packagesToCheck.add(pkg)
+  })
 
   const socketOverridePackages = await getPackagesFromScope('socketoverride')
-  socketOverridePackages.forEach(pkg => packagesToCheck.add(pkg))
+  socketOverridePackages.forEach(pkg => {
+    packagesToCheck.add(pkg)
+  })
 
   // Always check core Socket packages.
-  coreSocketPackages.forEach(pkg => packagesToCheck.add(pkg))
+  coreSocketPackages.forEach(pkg => {
+    packagesToCheck.add(pkg)
+  })
 
   if (args.all) {
     // Add hardcoded other Socket packages.
-    otherSocketPackages.forEach(pkg => packagesToCheck.add(pkg))
+    otherSocketPackages.forEach(pkg => {
+      packagesToCheck.add(pkg)
+    })
 
     // Supplement with any additional @socketsecurity/* packages from npm.
     const socketSecurityPackages = await getPackagesFromScope('socketsecurity')
-    socketSecurityPackages.forEach(pkg => packagesToCheck.add(pkg))
+    socketSecurityPackages.forEach(pkg => {
+      packagesToCheck.add(pkg)
+    })
   }
 
   logger.write(`🔍 Checking ${packagesToCheck.size} Socket packages`)

@@ -11,7 +11,7 @@ import constants from './constants.mjs'
  * Run a command with the specified arguments.
  * @throws {Error} When command exits with non-zero code.
  */
-async function runCommand(command, args = [], options) {
+async function runCommand(command, args, options) {
   const opts = { __proto__: null, shell: constants.WIN32, ...options }
   try {
     const result = await spawn(command, args, {

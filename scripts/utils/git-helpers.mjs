@@ -4,6 +4,7 @@
 
 import { execSync } from 'node:child_process'
 import spawnModule from '../../registry/dist/lib/spawn.js'
+
 const { spawn } = spawnModule
 
 /**

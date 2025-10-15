@@ -1,17 +1,85 @@
 /**
- * @fileoverview Unified runner for interactive commands with Ctrl+O toggle.
+ * @fileoverview Interactive runner for commands with Ctrl+O toggle.
  * Standardized across all socket-* repositories.
  */
 
 import { spawn } from 'node:child_process'
 import readline from 'node:readline'
-import { spinner } from '@socketsecurity/registry/lib/spinner'
 
-// Will import from registry once built:
-// import { attachOutputMask, clearLine, writeOutput } from '@socketsecurity/registry/lib/stdio/mask'
+// Simple inline spinner for build-time use (avoids circular dependency).
+// This is intentionally minimal to avoid depending on registry code during build.
+function createSpinner() {
+  let state = {
+    __proto__: null,
+    frameIndex: 0,
+    frames: ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'],
+    interval: null,
+    isSpinning: false,
+    message: '',
+  }
+
+  // Detect CI environment.
+  const isCI = Boolean(
+    process.env.CI ||
+      process.env.CONTINUOUS_INTEGRATION ||
+      process.env.BUILD_NUMBER ||
+      process.env.TRAVIS ||
+      process.env.CIRCLECI ||
+      process.env.JENKINS_URL ||
+      process.env.GITHUB_ACTIONS,
+  )
+
+  return {
+    __proto__: null,
+    start(message) {
+      state.message = message
+      state.isSpinning = true
+
+      // Skip animation in CI or non-TTY.
+      if (isCI || !process.stdout.isTTY) {
+        console.log(message)
+        return
+      }
+
+      state.interval = setInterval(() => {
+        const frame = state.frames[state.frameIndex]
+        state.frameIndex = (state.frameIndex + 1) % state.frames.length
+        process.stdout.write(`\r${frame} ${state.message}`)
+      }, 80)
+    },
+
+    stop() {
+      if (state.interval) {
+        clearInterval(state.interval)
+        state.interval = null
+      }
+      if (process.stdout.isTTY) {
+        process.stdout.write('\r\x1b[K')
+      }
+      state.isSpinning = false
+    },
+
+    successAndStop(message) {
+      this.stop()
+      console.log(`✓ ${message}`)
+    },
+
+    failAndStop(message) {
+      this.stop()
+      console.error(`✗ ${message}`)
+    },
+  }
+}
+
+const spinner = createSpinner()
+
+// Cleanup on process exit.
+process.on('exit', () => {
+  spinner.stop()
+})
 
 /**
- * Run a command with unified interactive output control.
+ * Run a command with interactive output control.
  * Standard experience across all socket-* repos.
  *
  * @param {string} command - Command to run
@@ -59,7 +127,7 @@ export async function runWithOutput(command, args = [], options = {}) {
 
       const keypressHandler = (_str, key) => {
         // Ctrl+O toggles output
-        if (key && key.ctrl && key.name === 'o') {
+        if (key?.ctrl && key.name === 'o') {
           showOutput = !showOutput
 
           if (showOutput) {
@@ -73,7 +141,9 @@ export async function runWithOutput(command, args = [], options = {}) {
             process.stdout.write('\r\x1b[K')
             // Dump all buffered output
             if (outputBuffer.length > 0) {
-              outputBuffer.forEach(line => process.stdout.write(line))
+              outputBuffer.forEach(line => {
+                process.stdout.write(line)
+              })
               // DON'T clear the buffer - keep it for potential toggle back
             }
             // Now output continues to stream live to stdout
@@ -88,7 +158,7 @@ export async function runWithOutput(command, args = [], options = {}) {
           }
         }
         // Ctrl+C to cancel
-        else if (key && key.ctrl && key.name === 'c') {
+        else if (key?.ctrl && key.name === 'c') {
           child.kill('SIGTERM')
           if (process.stdin.isTTY) {
             process.stdin.setRawMode(false)
@@ -211,7 +281,9 @@ export async function runWithOutput(command, args = [], options = {}) {
           // Show output on error if configured
           if (showOnError && outputBuffer.length > 0) {
             console.log('\n--- Output ---')
-            outputBuffer.forEach(line => process.stdout.write(line))
+            outputBuffer.forEach(line => {
+              process.stdout.write(line)
+            })
           }
         }
       }

@@ -12,7 +12,7 @@ import constants from './constants.mjs'
 const { perfNpmPath } = constants
 
 async function main() {
-  for (const perfFile of await fastGlob.glob([`*.perf.ts`], {
+  for (const perfFile of await fastGlob.glob(['*.perf.ts'], {
     cwd: perfNpmPath,
   })) {
     await execBin(constants.tsxExecPath, [perfFile], {

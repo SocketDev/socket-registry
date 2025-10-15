@@ -4,16 +4,14 @@ import { promises as fs, mkdtempSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-
-import parseArgsModule from '../../registry/dist/lib/parse-args.js'
+import { deleteAsync as del } from 'del'
 import loggerModule from '../../registry/dist/lib/logger.js'
+import parseArgsModule from '../../registry/dist/lib/parse-args.js'
 import spawnModule from '../../registry/dist/lib/spawn.js'
 
 const { parseArgs } = parseArgsModule
 const { logger } = loggerModule
 const { spawn } = spawnModule
-
-import { trash } from '../utils/fs.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -297,7 +295,8 @@ async function main() {
   } finally {
     if (tempDir && !cliArgs.keepTemp) {
       logger.info(`\nCleaning up temporary directory: ${tempDir}`)
-      await trash(tempDir)
+      // Force delete temp directory outside CWD.
+      await del(tempDir, { force: true })
     } else if (tempDir && cliArgs.keepTemp) {
       logger.info(`\nTemporary directory preserved: ${tempDir}`)
     }

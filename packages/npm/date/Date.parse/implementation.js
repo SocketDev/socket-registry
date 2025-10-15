@@ -75,7 +75,7 @@ module.exports = !isDateParseDaysOfMonthBuggy(DateParse)
           const daysInTheMonth =
             dayFromMonth(year, month + 1) - dayFromMonth(year, month)
           if (day >= daysInTheMonth) {
-            return NaN
+            return Number.NaN
           }
         }
         return DateParse(dateString)

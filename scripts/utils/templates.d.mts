@@ -45,6 +45,7 @@ declare type TypeScriptOptions = {
     | ((
         filepath: string,
         data: { references: string[] | readonly string[] },
+        // biome-ignore lint/suspicious/noExplicitAny: Transform function can return any type.
       ) => Promise<any>)
     | undefined
 }

@@ -15,12 +15,10 @@ module.exports = function toArray() {
   if (new.target) {
     throw new TypeErrorCtor('`toArray` is not a constructor')
   }
-  // Step 1: Let O be the this value.
-  const O = this
   // Step 2: If O is not an Object, throw a TypeError exception.
-  ensureObject(O)
+  ensureObject(this)
   // Step 3: Let iterated be GetIteratorDirect(O).
-  const { iterator, next: nextMethod } = getIteratorDirect(O)
+  const { iterator, next: nextMethod } = getIteratorDirect(this)
   // Step 4: Let items be a new empty List.
   const items = []
   // Step 5: Repeat.

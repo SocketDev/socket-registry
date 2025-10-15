@@ -5,15 +5,17 @@ const TypeErrorCtor = TypeError
 
 function flatten(arr) {
   return ArrayIsArray(arr)
-    ? arr.flat(Infinity)
-    : flattenFromDepth(arr, Infinity)
+    ? arr.flat(Number.POSITIVE_INFINITY)
+    : flattenFromDepth(arr, Number.POSITIVE_INFINITY)
 }
 
 function flattenLegacy(arr) {
   // Support array-flatten v1 call signature.
   // https://github.com/blakeembrey/array-flatten/blob/v1.1.1/array-flatten.js#L58
   const isV1Api = arguments.length === 2
-  const depth = isV1Api ? (arguments[1] ?? Infinity) : Infinity
+  const depth = isV1Api
+    ? (arguments[1] ?? Number.POSITIVE_INFINITY)
+    : Number.POSITIVE_INFINITY
   if (!isV1Api && !ArrayIsArray(arr)) {
     throw new TypeErrorCtor('Expected value to be an array')
   }
@@ -31,7 +33,7 @@ function flattenDepth(arr, depth) {
 }
 
 function flattenFrom(arr) {
-  return flattenDownDepth(arr, [], Infinity)
+  return flattenDownDepth(arr, [], Number.POSITIVE_INFINITY)
 }
 
 function flattenFromDepth(arr, depth) {

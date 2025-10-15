@@ -14,8 +14,8 @@ function specifierIncluded(nodeVersion, specifier) {
   const op = specParts.length > 1 ? specParts[0] : '='
 
   for (let i = 0; i < 3; i += 1) {
-    const cur = parseInt(nodeVerParts[i] || 0, 10)
-    const ver = parseInt(specVerParts[i] || 0, 10)
+    const cur = Number.parseInt(nodeVerParts[i] || 0, 10)
+    const ver = Number.parseInt(specVerParts[i] || 0, 10)
     if (cur === ver) {
       continue
     }

@@ -6,18 +6,17 @@
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { parseArgs } from '../registry/dist/lib/parse-args.js'
-
-import constants from './constants.mjs'
 import ENV from '../registry/dist/lib/constants/ENV.js'
 import WIN32 from '../registry/dist/lib/constants/WIN32.js'
+import { LOG_SYMBOLS, logger } from '../registry/dist/lib/logger.js'
 import {
   readPackageJson,
   resolveOriginalPackageName,
 } from '../registry/dist/lib/packages.js'
+import { parseArgs } from '../registry/dist/lib/parse-args.js'
 import { pEach } from '../registry/dist/lib/promises.js'
-import { LOG_SYMBOLS, logger } from '../registry/dist/lib/logger.js'
 import { pluralize } from '../registry/dist/lib/words.js'
+import constants from './constants.mjs'
 
 const { values: cliArgs } = parseArgs({
   options: {
@@ -41,7 +40,7 @@ const { values: cliArgs } = parseArgs({
   strict: false,
 })
 
-const concurrency = Math.max(1, parseInt(cliArgs.concurrency, 10))
+const concurrency = Math.max(1, Number.parseInt(cliArgs.concurrency, 10))
 const tempBaseDir = cliArgs.tempDir
 
 function writeProgress() {
@@ -176,7 +175,8 @@ async function main() {
         )
         process.exitCode = 0
         return
-      } else if (missingPackages.length < packages.length) {
+      }
+      if (missingPackages.length < packages.length) {
         // Some packages are cached, only process missing ones.
         packagesToProcess = missingPackages
         usedCache = true

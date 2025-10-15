@@ -180,7 +180,8 @@ async function runClaude(claudeCmd, prompt, options = {}) {
   let result
 
   // Default timeout: 3 minutes for non-interactive, 10 minutes for interactive
-  const timeout = opts.timeout || (opts.interactive === false ? 180000 : 600000)
+  const timeout =
+    opts.timeout || (opts.interactive === false ? 180_000 : 600_000)
   const showProgress = opts.showProgress !== false && opts.interactive === false
   const startTime = Date.now()
   let progressInterval = null
@@ -245,7 +246,7 @@ async function runClaude(claudeCmd, prompt, options = {}) {
             )
           }
           // Update every 10 seconds.
-        }, 10000)
+        }, 10_000)
       }
 
       // Run command with timeout
@@ -373,7 +374,7 @@ async function ensureClaudeAuthenticated(claudeCmd) {
         input: testPrompt,
         stdio: ['pipe', 'pipe', 'pipe'],
         env: { ...process.env, CLAUDE_OUTPUT_MODE: 'text' },
-        timeout: 15000,
+        timeout: 15_000,
       })
 
       clearInterval(progressInterval)
@@ -415,11 +416,11 @@ async function ensureClaudeAuthenticated(claudeCmd) {
     log.warn('Claude Code login required')
     console.log(colors.yellow('\nClaude Code needs to be authenticated.'))
     console.log('\nTo authenticate:')
-    console.log(`  1. Open a new terminal`)
+    console.log('  1. Open a new terminal')
     console.log(`  2. Run: ${colors.green('claude')}`)
-    console.log(`  3. Follow the browser authentication prompts`)
+    console.log('  3. Follow the browser authentication prompts')
     console.log(
-      `  4. Once authenticated, return here and press Enter to continue`,
+      '  4. Once authenticated, return here and press Enter to continue',
     )
 
     // Wait for user to press Enter
@@ -996,7 +997,7 @@ async function runParallel(tasks, description = 'tasks', taskNames = []) {
         `Progress: ${completed}/${tasks.length} complete, ${pending} running (${elapsed}s elapsed)`,
       )
     }
-  }, 15000)
+  }, 15_000)
   // Update every 15 seconds
 
   const results = await Promise.allSettled(trackedTasks)
@@ -1051,7 +1052,7 @@ async function ensureClaudeInGitignore() {
     if (!hasClaudeEntry) {
       // Add .claude to .gitignore.
       log.warn('.claude directory not in .gitignore, adding it')
-      const updatedContent = gitignoreContent.trimEnd() + '\n/.claude\n'
+      const updatedContent = `${gitignoreContent.trimEnd()}\n/.claude\n`
       await fs.writeFile(gitignorePath, updatedContent)
       log.done('Added /.claude to .gitignore')
     }
@@ -1171,7 +1172,7 @@ async function updateProjectClaudeMd(claudeCmd, project, options = {}) {
   const prompt = createSyncPrompt(name, isRegistry)
 
   // Build full context for Claude.
-  let fullPrompt = prompt + '\n\n'
+  let fullPrompt = `${prompt}\n\n`
 
   if (!isRegistry && canonicalContent) {
     fullPrompt += `===== CANONICAL socket-registry/CLAUDE.md =====
@@ -1274,7 +1275,9 @@ async function syncClaudeMd(claudeCmd, options = {}) {
   if (projects.length === 0) {
     log.failed('No Socket projects found')
     log.error('Expected projects in parent directory:')
-    SOCKET_PROJECTS.forEach(p => log.substep(path.join(parentPath, p)))
+    SOCKET_PROJECTS.forEach(p => {
+      log.substep(path.join(parentPath, p))
+    })
     return false
   }
   log.done(`Found ${projects.length} Socket projects`)
@@ -1666,7 +1669,7 @@ async function autonomousFixSession(
   log.substep(`${toReview.length} issues will require manual review`)
 
   // Apply auto-fixes in parallel based on workers setting
-  const workers = parseInt(opts.workers) || 3
+  const workers = Number.parseInt(opts.workers, 10) || 3
   if (toAutoFix.length > 0) {
     const fixTasks = toAutoFix.map(issue => async () => {
       const projectData = projects.find(p => p.name === issue.project)
@@ -1702,7 +1705,7 @@ Apply the fix and return ONLY the fixed code snippet.`
 
   // Report issues that need review
   if (toReview.length > 0) {
-    console.log('\n' + colors.yellow('Issues requiring manual review:'))
+    console.log(`\n${colors.yellow('Issues requiring manual review:')}`)
     toReview.forEach((issue, i) => {
       console.log(
         `${i + 1}. [${issue.severity}] ${issue.file}:${issue.line} - ${issue.description}`,
@@ -1720,7 +1723,7 @@ Apply the fix and return ONLY the fixed code snippet.`
 async function interactiveFixSession(
   claudeCmd,
   scanResults,
-  projects,
+  _projects,
   options = {},
 ) {
   const _opts = { __proto__: null, ...options }
@@ -1768,7 +1771,7 @@ async function interactiveFixSession(
 
   // Start interactive session.
   console.log(
-    '\n' + colors.blue('Starting interactive fix session with Claude...'),
+    `\n${colors.blue('Starting interactive fix session with Claude...')}`,
   )
   console.log('Claude will help you fix these issues.')
   console.log('Commands: fix <issue-number>, commit, push, exit\n')
@@ -1965,7 +1968,9 @@ async function runClaudeCommit(claudeCmd, options = {}) {
         if (project.changes) {
           log.substep('Changes detected:')
           const changeLines = project.changes.split('\n')
-          changeLines.slice(0, 10).forEach(line => log.substep(`  ${line}`))
+          changeLines.slice(0, 10).forEach(line => {
+            log.substep(`  ${line}`)
+          })
           if (changeLines.length > 10) {
             log.substep(`  ... and ${changeLines.length - 10} more`)
           }
@@ -2007,10 +2012,9 @@ Remember: small commits, follow project standards, no AI attribution.`
         if (commitResult.exitCode === 0) {
           log.done(`Committed changes in ${project.name}`)
           return { project: project.name, success: true }
-        } else {
-          log.failed(`Failed to commit in ${project.name}`)
-          return { project: project.name, success: false }
         }
+        log.failed(`Failed to commit in ${project.name}`)
+        return { project: project.name, success: false }
       }
 
       return commitTask()
@@ -2026,7 +2030,9 @@ Remember: small commits, follow project standards, no AI attribution.`
       if (project.changes) {
         log.substep('Changes detected:')
         const changeLines = project.changes.split('\n')
-        changeLines.slice(0, 10).forEach(line => log.substep(`  ${line}`))
+        changeLines.slice(0, 10).forEach(line => {
+          log.substep(`  ${line}`)
+        })
         if (changeLines.length > 10) {
           log.substep(`  ... and ${changeLines.length - 10} more`)
         }
@@ -2661,9 +2667,12 @@ Be specific and actionable.`
  */
 async function runGreen(claudeCmd, options = {}) {
   const opts = { __proto__: null, ...options }
-  const maxRetries = parseInt(opts['max-retries'] || '3', 10)
+  const maxRetries = Number.parseInt(opts['max-retries'] || '3', 10)
   const isDryRun = opts['dry-run']
-  const MAX_AUTO_FIX_ATTEMPTS = parseInt(opts['max-auto-fixes'] || '10', 10)
+  const MAX_AUTO_FIX_ATTEMPTS = Number.parseInt(
+    opts['max-auto-fixes'] || '10',
+    10,
+  )
 
   printHeader('Green CI Pipeline')
 
@@ -2732,7 +2741,7 @@ Fix this issue now by making the necessary changes.`
         // Run Claude non-interactively with timeout and progress
         const startTime = Date.now()
         // 2 minute timeout
-        const timeout = 120000
+        const timeout = 120_000
         log.substep(`[${repoName}] Analyzing error...`)
 
         const claudeProcess = spawn(claudeCmd, prepareClaudeArgs([], opts), {
@@ -2766,7 +2775,7 @@ Fix this issue now by making the necessary changes.`
               `[${repoName}] Claude working... (${Math.round(elapsed / 1000)}s)`,
             )
           }
-        }, 10000)
+        }, 10_000)
         // Update every 10 seconds
 
         await new Promise(resolve => {
@@ -2902,7 +2911,7 @@ Let's work through this together to get CI passing.`
   const ghCheck = await runCommandWithOutput(ghCheckCommand, ['gh'])
   if (ghCheck.exitCode !== 0) {
     log.error('GitHub CLI (gh) is required for CI monitoring')
-    console.log('\n' + colors.cyan('Installation Instructions:'))
+    console.log(`\n${colors.cyan('Installation Instructions:')}`)
     console.log(`  macOS:   ${colors.green('brew install gh')}`)
     console.log(`  Ubuntu:  ${colors.green('sudo apt install gh')}`)
     console.log(`  Fedora:  ${colors.green('sudo dnf install gh')}`)
@@ -2910,10 +2919,10 @@ Let's work through this together to get CI passing.`
     console.log(
       `  Other:   ${colors.gray('https://github.com/cli/cli/blob/trunk/docs/install_linux.md')}`,
     )
-    console.log('\n' + colors.yellow('After installation:'))
-    console.log('  1. Run: ' + colors.green('gh auth login'))
+    console.log(`\n${colors.yellow('After installation:')}`)
+    console.log(`  1. Run: ${colors.green('gh auth login')}`)
     console.log('  2. Follow the prompts to authenticate')
-    console.log('  3. Try again: ' + colors.green('pnpm claude --green'))
+    console.log(`  3. Try again: ${colors.green('pnpm claude --green')}`)
     return false
   }
 
@@ -2964,7 +2973,7 @@ Let's work through this together to get CI passing.`
     // Wait a bit for CI to start
     if (retryCount === 0) {
       log.substep('Waiting 10 seconds for CI to start...')
-      await new Promise(resolve => setTimeout(resolve, 10000))
+      await new Promise(resolve => setTimeout(resolve, 10_000))
     }
 
     // Check workflow runs using gh CLI with better detection
@@ -3027,7 +3036,7 @@ Let's work through this together to get CI passing.`
 
     // First, try exact SHA match
     for (const run of runs) {
-      if (run.headSha && run.headSha.startsWith(currentSha.substring(0, 7))) {
+      if (run.headSha?.startsWith(currentSha.substring(0, 7))) {
         matchingRun = run
         log.substep(
           `Found exact match for commit ${currentSha.substring(0, 7)}`,
@@ -3042,7 +3051,7 @@ Let's work through this together to get CI passing.`
         if (run.createdAt) {
           const runTime = new Date(run.createdAt).getTime()
           // Check if run was created within 2 minutes after push
-          if (runTime >= pushTime - 120000) {
+          if (runTime >= pushTime - 120_000) {
             matchingRun = run
             log.substep(`Found workflow started after push: ${run.name}`)
             break
@@ -3066,7 +3075,7 @@ Let's work through this together to get CI passing.`
 
     if (!matchingRun) {
       log.substep('No matching workflow runs found yet, waiting...')
-      await new Promise(resolve => setTimeout(resolve, 30000))
+      await new Promise(resolve => setTimeout(resolve, 30_000))
       continue
     }
 
@@ -3080,31 +3089,31 @@ Let's work through this together to get CI passing.`
         log.done('CI workflow passed! 🎉')
         printFooter('Green CI Pipeline complete!')
         return true
-      } else {
-        log.failed(`CI workflow failed with conclusion: ${run.conclusion}`)
+      }
+      log.failed(`CI workflow failed with conclusion: ${run.conclusion}`)
 
-        if (retryCount < maxRetries - 1) {
-          // Fetch failure logs
-          log.progress('Fetching failure logs')
+      if (retryCount < maxRetries - 1) {
+        // Fetch failure logs
+        log.progress('Fetching failure logs')
 
-          const logsResult = await runCommandWithOutput(
-            'gh',
-            [
-              'run',
-              'view',
-              lastRunId.toString(),
-              '--repo',
-              `${owner}/${repo}`,
-              '--log-failed',
-            ],
-            {
-              cwd: rootPath,
-            },
-          )
+        const logsResult = await runCommandWithOutput(
+          'gh',
+          [
+            'run',
+            'view',
+            lastRunId.toString(),
+            '--repo',
+            `${owner}/${repo}`,
+            '--log-failed',
+          ],
+          {
+            cwd: rootPath,
+          },
+        )
 
-          // Analyze and fix with Claude
-          log.progress('Analyzing CI failure with Claude')
-          const fixPrompt = `You are automatically fixing CI failures. The CI workflow failed for commit ${currentSha} in ${owner}/${repo}.
+        // Analyze and fix with Claude
+        log.progress('Analyzing CI failure with Claude')
+        const fixPrompt = `You are automatically fixing CI failures. The CI workflow failed for commit ${currentSha} in ${owner}/${repo}.
 
 Failure logs:
 ${logsResult.stdout || 'No logs available'}
@@ -3128,103 +3137,102 @@ IMPORTANT:
 
 Fix all CI failures now by making the necessary changes.`
 
-          // Run Claude non-interactively to apply fixes
-          log.substep('Applying CI fixes...')
+        // Run Claude non-interactively to apply fixes
+        log.substep('Applying CI fixes...')
 
-          // Track progress with timeout.
-          const fixStartTime = Date.now()
-          // 3 minutes timeout.
-          const fixTimeout = 180000
+        // Track progress with timeout.
+        const fixStartTime = Date.now()
+        // 3 minutes timeout.
+        const fixTimeout = 180_000
 
-          // Create progress indicator
-          const progressInterval = setInterval(() => {
-            const elapsed = Date.now() - fixStartTime
-            if (elapsed > fixTimeout) {
-              log.warn('Claude fix timeout, proceeding...')
-              clearInterval(progressInterval)
-            } else {
-              log.progress(
-                `Claude analyzing and fixing... (${Math.round(elapsed / 1000)}s)`,
-              )
-            }
-            // Update every 10 seconds.
-          }, 10000)
-
-          try {
-            // Use runClaude with non-interactive mode for proper handling
-            await runClaude(claudeCmd, fixPrompt, {
-              ...opts,
-              interactive: false,
-              cwd: rootPath,
-              timeout: fixTimeout,
-            })
-          } catch (error) {
-            log.warn(`Claude fix error: ${error.message}`)
-          } finally {
+        // Create progress indicator
+        const progressInterval = setInterval(() => {
+          const elapsed = Date.now() - fixStartTime
+          if (elapsed > fixTimeout) {
+            log.warn('Claude fix timeout, proceeding...')
             clearInterval(progressInterval)
-            log.done('Claude fix attempt completed')
+          } else {
+            log.progress(
+              `Claude analyzing and fixing... (${Math.round(elapsed / 1000)}s)`,
+            )
           }
+          // Update every 10 seconds.
+        }, 10_000)
 
-          // Give Claude's changes a moment to complete
-          await new Promise(resolve => setTimeout(resolve, 3000))
+        try {
+          // Use runClaude with non-interactive mode for proper handling
+          await runClaude(claudeCmd, fixPrompt, {
+            ...opts,
+            interactive: false,
+            cwd: rootPath,
+            timeout: fixTimeout,
+          })
+        } catch (error) {
+          log.warn(`Claude fix error: ${error.message}`)
+        } finally {
+          clearInterval(progressInterval)
+          log.done('Claude fix attempt completed')
+        }
 
-          // Run local checks again
-          log.progress('Running local checks after fixes')
-          for (const check of localChecks) {
-            await runCommandWithOutput(check.cmd, check.args, {
-              cwd: rootPath,
-              stdio: 'inherit',
-            })
-          }
+        // Give Claude's changes a moment to complete
+        await new Promise(resolve => setTimeout(resolve, 3000))
 
-          // Commit and push fixes
-          const fixStatusResult = await runCommandWithOutput(
+        // Run local checks again
+        log.progress('Running local checks after fixes')
+        for (const check of localChecks) {
+          await runCommandWithOutput(check.cmd, check.args, {
+            cwd: rootPath,
+            stdio: 'inherit',
+          })
+        }
+
+        // Commit and push fixes
+        const fixStatusResult = await runCommandWithOutput(
+          'git',
+          ['status', '--porcelain'],
+          {
+            cwd: rootPath,
+          },
+        )
+
+        if (fixStatusResult.stdout.trim()) {
+          log.progress('Committing CI fixes')
+          await runCommand('git', ['add', '.'], { cwd: rootPath })
+          await runCommand(
             'git',
-            ['status', '--porcelain'],
+            [
+              'commit',
+              '-m',
+              `Fix CI failures (attempt ${retryCount + 1})`,
+              '--no-verify',
+            ],
+            { cwd: rootPath },
+          )
+          await runCommand('git', ['push'], { cwd: rootPath })
+
+          // Update SHA for next check
+          const newShaResult = await runCommandWithOutput(
+            'git',
+            ['rev-parse', 'HEAD'],
             {
               cwd: rootPath,
             },
           )
-
-          if (fixStatusResult.stdout.trim()) {
-            log.progress('Committing CI fixes')
-            await runCommand('git', ['add', '.'], { cwd: rootPath })
-            await runCommand(
-              'git',
-              [
-                'commit',
-                '-m',
-                `Fix CI failures (attempt ${retryCount + 1})`,
-                '--no-verify',
-              ],
-              { cwd: rootPath },
-            )
-            await runCommand('git', ['push'], { cwd: rootPath })
-
-            // Update SHA for next check
-            const newShaResult = await runCommandWithOutput(
-              'git',
-              ['rev-parse', 'HEAD'],
-              {
-                cwd: rootPath,
-              },
-            )
-            currentSha = newShaResult.stdout.trim()
-          }
-
-          retryCount++
-        } else {
-          log.error(`CI still failing after ${maxRetries} attempts`)
-          log.substep(
-            `View run at: https://github.com/${owner}/${repo}/actions/runs/${lastRunId}`,
-          )
-          return false
+          currentSha = newShaResult.stdout.trim()
         }
+
+        retryCount++
+      } else {
+        log.error(`CI still failing after ${maxRetries} attempts`)
+        log.substep(
+          `View run at: https://github.com/${owner}/${repo}/actions/runs/${lastRunId}`,
+        )
+        return false
       }
     } else {
       // Workflow still running, wait and check again
       log.substep('Workflow still running, waiting 30 seconds...')
-      await new Promise(resolve => setTimeout(resolve, 30000))
+      await new Promise(resolve => setTimeout(resolve, 30_000))
     }
   }
 
@@ -3266,7 +3274,7 @@ async function runWatchMode(claudeCmd, options = {}) {
     const watcher = fs.watch(
       project.path,
       { recursive: true },
-      async (eventType, filename) => {
+      async (_eventType, filename) => {
         // Skip common ignore patterns
         if (
           !filename ||
@@ -3361,7 +3369,7 @@ async function runWatchMode(claudeCmd, options = {}) {
 
   // Handle graceful shutdown
   process.on('SIGINT', () => {
-    console.log('\n' + colors.yellow('Stopping watch mode...'))
+    console.log(`\n${colors.yellow('Stopping watch mode...')}`)
 
     // Clean up watchers
     for (const watcher of watchers) {
@@ -3645,7 +3653,7 @@ async function main() {
     if (!claudeCmd) {
       log.failed('Claude Code CLI not found')
       log.error('Please install Claude Code to use these utilities')
-      console.log('\n' + colors.cyan('Installation Instructions:'))
+      console.log(`\n${colors.cyan('Installation Instructions:')}`)
       console.log('  1. Visit: https://docs.claude.com/en/docs/claude-code')
       console.log('  2. Or install via npm:')
       console.log(
@@ -3659,10 +3667,10 @@ async function main() {
       console.log(
         `     Windows: ${colors.gray('Download from https://claude.ai/download')}`,
       )
-      console.log('\n' + colors.yellow('After installation:'))
-      console.log('  1. Run: ' + colors.green('claude'))
+      console.log(`\n${colors.yellow('After installation:')}`)
+      console.log(`  1. Run: ${colors.green('claude')}`)
       console.log('  2. Sign in with your Anthropic account when prompted')
-      console.log('  3. Try again: ' + colors.green('pnpm claude --help'))
+      console.log(`  3. Try again: ${colors.green('pnpm claude --help')}`)
       process.exitCode = 1
       return
     }
@@ -3684,7 +3692,7 @@ async function main() {
 
     // Configure execution mode based on flags
     const executionMode = {
-      workers: parseInt(values.workers) || 3,
+      workers: Number.parseInt(values.workers, 10) || 3,
       watch: values.watch || false,
       // Auto-fix by default unless --prompt
       autoFix: !values.prompt,

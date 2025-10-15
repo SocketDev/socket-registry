@@ -18,7 +18,7 @@ function assert(truthy, message = 'assert failed') {
 
 function base64(a) {
   let ret
-  if (a.length < 65535) {
+  if (a.length < 65_535) {
     ret = btoa(String.fromCodePoint.apply(String, a))
   } else {
     ret = ''
@@ -100,10 +100,10 @@ function fmt_resolution(a, buffers) {
     const build = str(version_tag.subarray(16, 24), buffers)
     let v = `${major}.${minor}.${patch}`
     if (pre) {
-      v += '-' + pre
+      v += `-${pre}`
     }
     if (build) {
-      v += '+' + build
+      v += `+${build}`
     }
     return v
   }
@@ -150,7 +150,7 @@ function fmt_resolution(a, buffers) {
       buffers,
     )
     if (owner) {
-      out += owner + '/'
+      out += `${owner}/`
     } else if (is_scp(repo)) {
       out += 'ssh://'
     }
@@ -256,7 +256,7 @@ function str(a, buffers) {
   }
   const [off, len] = to_u32(a)
   return new TextDecoder().decode(
-    buffers.string_bytes.subarray(off, off + (len & ~2147483648)),
+    buffers.string_bytes.subarray(off, off + (len & ~2_147_483_648)),
   )
 }
 

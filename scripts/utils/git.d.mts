@@ -4,14 +4,17 @@ declare type DiffOptions = {
   cache?: boolean | undefined
   absolute?: boolean | undefined
   cwd?: string | undefined
+  // biome-ignore lint/suspicious/noExplicitAny: Options object accepts any additional properties.
   [key: string]: any
 }
 declare type OptionsAsSetFalse = {
   asSet?: false | undefined
+  // biome-ignore lint/suspicious/noExplicitAny: Options object accepts any additional properties.
   [key: string]: any
 }
 declare type OptionsAsSetTrue = {
   asSet: true
+  // biome-ignore lint/suspicious/noExplicitAny: Options object accepts any additional properties.
   [key: string]: any
 }
 declare const Git: {

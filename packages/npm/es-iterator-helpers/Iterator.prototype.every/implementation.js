@@ -25,16 +25,14 @@ module.exports =
         if (new.target) {
           throw new TypeErrorCtor('`every` is not a constructor')
         }
-        // Step 1: Let O be the this value.
-        const O = this
         // Step 2: If O is not an Object, throw a TypeError exception.
-        ensureObject(O)
+        ensureObject(this)
         // Step 3: If IsCallable(predicate) is false, throw a TypeError exception.
         if (typeof predicate !== 'function') {
           throw new TypeErrorCtor('`predicate` must be a function')
         }
         // Step 4: Let iterated be GetIteratorDirect(O).
-        const { iterator, next: nextMethod } = getIteratorDirect(O)
+        const { iterator, next: nextMethod } = getIteratorDirect(this)
         // Step 5: Let counter be 0.
         let index = 0
         // Step 6: Repeat,

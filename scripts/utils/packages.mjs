@@ -2,9 +2,9 @@
  * @fileoverview Package utilities for checking test status and package metadata.
  */
 
-import { fileURLToPath } from 'node:url'
 import fs from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import { hasOwn } from '../../registry/dist/lib/objects.js'
 

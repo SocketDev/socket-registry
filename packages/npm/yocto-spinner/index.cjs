@@ -37,8 +37,8 @@ let _process
 function getProcess() {
   if (_process === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _process = require('process')
+
+    _process = require('node:process')
   }
   return _process
 }
@@ -98,8 +98,8 @@ let _stripVTControlCharacters
 function stripVTControlCharacters(string) {
   if (_stripVTControlCharacters === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    const nodeUtil = /*@__PURE__*/ require('util')
+
+    const nodeUtil = /*@__PURE__*/ require('node:util')
     _stripVTControlCharacters = nodeUtil.stripVTControlCharacters
   }
   return _stripVTControlCharacters(string)
@@ -157,7 +157,7 @@ class YoctoSpinner {
       // limits delay to 2147483647 ms, roughly 24.8 days, since it's specified as a
       // signed integer in the IDL.
       // https://developer.mozilla.org/en-US/docs/Web/API/Window/setInterval?utm_source=chatgpt.com#return_value
-      interval: 2147483647,
+      interval: 2_147_483_647,
     },
   }
 

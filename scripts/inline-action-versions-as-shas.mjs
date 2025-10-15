@@ -47,6 +47,7 @@ function extractUsesStatements(content) {
   const usesRegex = /^(\s*)uses:\s*([^/\s]+)\/([^@\s]+)@([^\s#]+)(\s*#.*)?$/gm
 
   let match
+  // biome-ignore lint/suspicious/noAssignInExpressions: Standard regex loop pattern.
   while ((match = usesRegex.exec(content)) !== null) {
     const [fullMatch, indent, owner, repoPath, ref, comment] = match
     statements.push({
