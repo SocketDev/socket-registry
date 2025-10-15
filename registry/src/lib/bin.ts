@@ -75,9 +75,9 @@ export async function execBin(
   }
 
   // Execute the binary directly.
+  // biome-ignore lint/style/noNonNullAssertion: which always returns non-empty array.
   const binCommand = Array.isArray(resolvedPath)
-    ? // biome-ignore lint/style/noNonNullAssertion: which always returns non-empty array.
-      resolvedPath[0]!
+    ? resolvedPath[0]!
     : resolvedPath
   return await spawn(binCommand, args ?? [], options)
 }
