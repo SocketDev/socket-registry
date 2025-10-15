@@ -58,7 +58,7 @@ async function main() {
           }
         }
         for (const relPath of availableFiles) {
-          if (!relPath.startsWith(`package/`) && !subpaths.includes(relPath)) {
+          if (!relPath.startsWith('package/') && !subpaths.includes(relPath)) {
             const warning = `${fullName}: ${relPath} missing from subpath exports`
             warnings.push(warning)
             if (useDebug) {

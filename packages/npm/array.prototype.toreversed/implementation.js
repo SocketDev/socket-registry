@@ -34,7 +34,8 @@ module.exports =
             numLen = 0
           }
           const integerNum =
-            numLen === Infinity || numLen === -Infinity
+            numLen === Number.POSITIVE_INFINITY ||
+            numLen === Number.NEGATIVE_INFINITY
               ? numLen
               : MathTrunc(numLen)
           const len =

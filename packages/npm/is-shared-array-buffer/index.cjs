@@ -1,5 +1,4 @@
 'use strict'
 
-// eslint-disable-next-line n/prefer-node-protocol
-const nodeUtilTypes = /*@__PURE__*/ require('util/types')
+const nodeUtilTypes = /*@__PURE__*/ require('node:util/types')
 module.exports = nodeUtilTypes.isSharedArrayBuffer

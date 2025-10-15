@@ -7,6 +7,7 @@ declare function unboxPrimitive(
   value:
     | bigint
     | boolean
+    // biome-ignore lint/complexity/noBannedTypes: Used to exclude functions from primitive types.
     | Function
     | null
     | number

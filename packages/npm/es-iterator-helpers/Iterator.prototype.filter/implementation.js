@@ -18,16 +18,14 @@ module.exports = function filter(predicate) {
   if (new.target) {
     throw new TypeErrorCtor('`filter` is not a constructor')
   }
-  // Step 1: Let O be the this value.
-  const O = this
   // Step 2: If O is not an Object, throw a TypeError exception.
-  ensureObject(O)
+  ensureObject(this)
   // Step 3: If IsCallable(predicate) is false, throw a TypeError exception.
   if (typeof predicate !== 'function') {
     throw new TypeErrorCtor('`predicate` must be a function')
   }
   // Step 4: Let iterated be GetIteratorDirect(O).
-  const { iterator, next: nextMethod } = getIteratorDirect(O)
+  const { iterator, next: nextMethod } = getIteratorDirect(this)
   let index = 0
   // Step 5: Let closure be a new Abstract Closure with no parameters that captures iterated and predicate.
   const wrapper = createIteratorFromClosure({

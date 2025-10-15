@@ -4,9 +4,8 @@
  * Supports cross-repository linting for Socket projects.
  */
 
-import path from 'node:path'
-
 import { promises as fs } from 'node:fs'
+import path from 'node:path'
 
 import { logger } from '../registry/dist/lib/logger.js'
 import { spawn } from '../registry/dist/lib/spawn.js'
@@ -32,8 +31,6 @@ const RUN_ALL_PATTERNS = [
   'package.json',
   'pnpm-lock.yaml',
   'tsconfig*.json',
-  '.oxlintignore',
-  'oxlintrc.json',
   'eslint.config.*',
   'biome.json',
 ]
@@ -120,19 +117,6 @@ async function runLintersOnFiles(files, options = {}) {
     {
       args: [
         'exec',
-        'oxlint',
-        '-c=.config/oxlintrc.json',
-        '--ignore-path=.config/.oxlintignore',
-        '--tsconfig=tsconfig.json',
-        ...(fix ? ['--fix'] : []),
-        ...files,
-      ],
-      name: 'oxlint',
-      enabled: true,
-    },
-    {
-      args: [
-        'exec',
         'biome',
         'format',
         '--log-level=none',
@@ -195,19 +179,6 @@ async function runLintersOnAll(options = {}) {
   logger.log('Running linters on all files...\n')
 
   const linters = [
-    {
-      args: [
-        'exec',
-        'oxlint',
-        '-c=.config/oxlintrc.json',
-        '--ignore-path=.config/.oxlintignore',
-        '--tsconfig=tsconfig.json',
-        ...(fix ? ['--fix'] : []),
-        '.',
-      ],
-      name: 'oxlint',
-      enabled: true,
-    },
     {
       args: [
         'exec',
@@ -435,7 +406,7 @@ async function runLintersBasedOnChanges(options = {}) {
   const { fix = false, runAll = false, staged = false } = options
 
   // Get changed files.
-  const isPrecommit = staged || process.env['PRE_COMMIT'] === '1'
+  const isPrecommit = staged || process.env.PRE_COMMIT === '1'
   let changedFiles = []
 
   if (isPrecommit) {

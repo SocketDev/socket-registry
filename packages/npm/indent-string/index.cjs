@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = function indentString(input, count = 1, options) {
+module.exports = function indentString(input, count, options) {
   let includeEmptyLines = false
   let indent = ' '
   if (

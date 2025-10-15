@@ -9,17 +9,13 @@
  * - Handles browser compatibility and shim requirements
  */
 
-import { createRequire } from 'node:module'
 import { existsSync, promises as fs } from 'node:fs'
+import { createRequire } from 'node:module'
 import path from 'node:path'
-
-import { parseArgs } from '../registry/dist/lib/parse-args.js'
-
-import { ReturnTypeEnums, default as didYouMean } from 'didyoumean2'
+import { default as didYouMean, ReturnTypeEnums } from 'didyoumean2'
 import fastGlob from 'fast-glob'
 import { open } from 'out-url'
 import semver from 'semver'
-
 import { execScript } from '../registry/dist/lib/agent.js'
 import { isDirEmptySync } from '../registry/dist/lib/fs.js'
 import { globStreamLicenses } from '../registry/dist/lib/globs.js'
@@ -38,6 +34,7 @@ import {
   resolvePackageLicenses,
   resolveRegistryPackageName,
 } from '../registry/dist/lib/packages.js'
+import { parseArgs } from '../registry/dist/lib/parse-args.js'
 import { confirm, input, search, select } from '../registry/dist/lib/prompts.js'
 import { naturalCompare, naturalSorter } from '../registry/dist/lib/sorts.js'
 import { transform } from '../registry/dist/lib/streams.js'

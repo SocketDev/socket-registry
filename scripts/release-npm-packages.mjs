@@ -1,17 +1,16 @@
 /** @fileoverview Detect package changes and bump versions for npm release. */
 
-import crypto from 'node:crypto'
 import { execFile } from 'node:child_process'
+import crypto from 'node:crypto'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { promisify } from 'node:util'
 
 import { minimatch } from 'minimatch'
 import semver from 'semver'
-
-import constants from './constants.mjs'
-
 import { execScript } from '../registry/dist/lib/agent.js'
+import { readFileUtf8 } from '../registry/dist/lib/fs.js'
+import { isObjectObject, toSortedObject } from '../registry/dist/lib/objects.js'
 import {
   extractPackage,
   fetchPackageManifest,
@@ -19,9 +18,8 @@ import {
   readPackageJson,
   readPackageJsonSync,
 } from '../registry/dist/lib/packages.js'
-import { readFileUtf8 } from '../registry/dist/lib/fs.js'
 import { pEach } from '../registry/dist/lib/promises.js'
-import { isObjectObject, toSortedObject } from '../registry/dist/lib/objects.js'
+import constants from './constants.mjs'
 
 import { logSectionHeader } from './utils/logging.mjs'
 
@@ -107,7 +105,7 @@ async function getLocalPackageFileHashes(packagePath) {
           relativePath === '' ||
           filesPatterns.some(pattern => {
             return (
-              pattern.includes('**') || pattern.startsWith(relativePath + '/')
+              pattern.includes('**') || pattern.startsWith(`${relativePath}/`)
             )
           })
 
@@ -381,7 +379,7 @@ async function main() {
   }
 
   await withSpinner({
-    message: `Checking for package changes...`,
+    message: 'Checking for package changes...',
     operation: async () => {
       // Check registry package FIRST before processing npm packages.
       await maybeBumpPackage(registryPkg, { spinner, state })
@@ -420,7 +418,7 @@ async function main() {
   }
 
   await withSpinner({
-    message: `Updating manifest and package.json files...`,
+    message: 'Updating manifest and package.json files...',
     operation: async () => {
       const spawnOptions = {
         cwd: rootPath,

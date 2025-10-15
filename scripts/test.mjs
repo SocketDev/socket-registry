@@ -16,7 +16,7 @@ import { spinner } from '../registry/dist/lib/spinner.js'
 import { printHeader } from '../registry/dist/lib/stdio/header.js'
 
 import constants from './constants.mjs'
-import { runTests as runTestsWithOutput } from './utils/unified-runner.mjs'
+import { runTests as runTestsWithOutput } from './utils/interactive-runner.mjs'
 
 // Suppress non-fatal worker termination unhandled rejections
 process.on('unhandledRejection', (reason, _promise) => {
@@ -86,8 +86,8 @@ async function runCheck() {
   console.log('  (Press Ctrl+O to show/hide output)')
   console.log()
 
-  // Import unified runner for interactive experience
-  const { runWithOutput } = await import('./utils/unified-runner.mjs')
+  // Import interactive runner for interactive experience
+  const { runWithOutput } = await import('./utils/interactive-runner.mjs')
 
   // Run fix (auto-format)
   let exitCode = await runWithOutput('pnpm', ['run', 'fix'], {
@@ -133,8 +133,8 @@ async function runBuild() {
   if (!existsSync(distPath)) {
     logger.step('Building project')
 
-    // Import unified runner for interactive experience
-    const { runWithOutput } = await import('./utils/unified-runner.mjs')
+    // Import interactive runner for interactive experience
+    const { runWithOutput } = await import('./utils/interactive-runner.mjs')
 
     const exitCode = await runWithOutput('pnpm', ['run', 'build'], {
       message: 'Building project',
@@ -195,7 +195,7 @@ async function runTests(options, positionals = []) {
     verbose: false,
   }
 
-  // Use unified runner for interactive Ctrl+O experience
+  // Use interactive runner for interactive Ctrl+O experience
   if (process.stdout.isTTY) {
     return runTestsWithOutput(vitestPath, vitestArgs, spawnOptions)
   }

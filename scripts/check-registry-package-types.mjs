@@ -1,7 +1,7 @@
 /** @fileoverview Validate that all registry package constants have corresponding TypeScript type declarations. */
 
-import { createRequire } from 'node:module'
 import { promises as fs } from 'node:fs'
+import { createRequire } from 'node:module'
 import path from 'node:path'
 
 import { escapeRegExp } from '../registry/src/lib/regexps.ts'

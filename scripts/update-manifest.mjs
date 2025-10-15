@@ -3,18 +3,10 @@
  * Creates and maintains the Socket registry manifest file with package metadata.
  */
 
-import { createRequire } from 'node:module'
 import fs from 'node:fs/promises'
+import { createRequire } from 'node:module'
 import path from 'node:path'
-
-import { parseArgs } from '../registry/dist/lib/parse-args.js'
-
 import { PackageURL } from '@socketregistry/packageurl-js'
-import constants from './constants.mjs'
-import { getModifiedFiles } from './utils/git.mjs'
-import { biomeFormat } from './utils/biome.mjs'
-import { getPackageVersionSpec, shouldSkipTests } from './utils/packages.mjs'
-
 import {
   objectEntries,
   toSortedObject,
@@ -28,8 +20,13 @@ import {
   resolveOriginalPackageName,
   resolvePackageJsonEntryExports,
 } from '../registry/dist/lib/packages.js'
+import { parseArgs } from '../registry/dist/lib/parse-args.js'
 import { pEach } from '../registry/dist/lib/promises.js'
 import { naturalCompare } from '../registry/dist/lib/sorts.js'
+import constants from './constants.mjs'
+import { biomeFormat } from './utils/biome.mjs'
+import { getModifiedFiles } from './utils/git.mjs'
+import { getPackageVersionSpec, shouldSkipTests } from './utils/packages.mjs'
 
 const require = createRequire(import.meta.url)
 
@@ -53,6 +50,7 @@ function filterEngines(engines) {
   if (!engines) {
     return engines
   }
+  // biome-ignore lint/correctness/noUnusedVariables: Destructuring to exclude keys.
   const { npm, pnpm, yarn, ...filteredEngines } = engines
   return filteredEngines
 }

@@ -69,6 +69,6 @@ for (const pkg of packages) {
   }
 
   pkgJson.exports = reordered
-  writeFileSync(pkgPath, JSON.stringify(pkgJson, null, 2) + '\n')
+  writeFileSync(pkgPath, `${JSON.stringify(pkgJson, null, 2)}\n`)
   console.log(`Reordered ${pkg}`)
 }

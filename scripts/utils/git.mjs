@@ -3,14 +3,10 @@
  */
 
 import path from 'node:path'
-
-import { getGlobMatcher } from './globs.mjs'
-import { normalizePath } from '../../registry/dist/lib/path.js'
-import constants from '../constants.mjs'
-
 // Import from registry v2.0 (async only)
 import { getChangedFiles } from '../../registry/dist/lib/git.js'
-
+import { normalizePath } from '../../registry/dist/lib/path.js'
+import constants from '../constants.mjs'
 // Import sync and additional functions from helpers
 import {
   getChangedFilesSync,
@@ -21,6 +17,7 @@ import {
   isUnstaged as isUnstagedImport,
   isUnstagedSync as isUnstagedSyncImport,
 } from './git-helpers.mjs'
+import { getGlobMatcher } from './globs.mjs'
 
 const { NPM } = constants
 

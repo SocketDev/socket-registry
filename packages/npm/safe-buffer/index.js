@@ -1,8 +1,8 @@
 'use strict'
 
 // Use non-'node:' prefixed require to avoid Webpack errors.
-// eslint-disable-next-line n/prefer-node-protocol
-const { Buffer: UnsafeBuffer } = require('buffer')
+
+const { Buffer: UnsafeBuffer } = require('node:buffer')
 
 const SafeBuffer = Object.defineProperties(function SafeBuffer(
   arg,

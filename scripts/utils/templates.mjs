@@ -5,11 +5,9 @@
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-
+import { PackageURL } from '@socketregistry/packageurl-js'
 import fastGlob from 'fast-glob'
 import semver from 'semver'
-
-import { PackageURL } from '@socketregistry/packageurl-js'
 import { getManifestData } from '../../registry/dist/index.js'
 import { joinAnd } from '../../registry/dist/lib/arrays.js'
 import { globStreamLicenses } from '../../registry/dist/lib/globs.js'

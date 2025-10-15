@@ -3,14 +3,14 @@
  * Provides shared configuration, paths, and environment settings for registry operations.
  */
 
-import { createRequire } from 'node:module'
 import fs from 'node:fs'
+import { createRequire } from 'node:module'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { includeIgnoreFile } from '@eslint/compat'
 import which from 'which'
-import registryConstants from '../registry/dist/lib/constants/index.js'
 import { whichBinSync } from '../registry/dist/lib/bin.js'
+import registryConstants from '../registry/dist/lib/constants/index.js'
 import { envAsBoolean } from '../registry/dist/lib/env.js'
 import { createConstantsObject } from '../registry/dist/lib/objects.js'
 import { normalizePath } from '../registry/dist/lib/path.js'
@@ -135,7 +135,11 @@ const lazyIgnoreGlobs = () =>
 const lazyNpmPackageNames = () => {
   const registryLibFs = /*@__PURE__*/ require('../registry/dist/lib/fs.js')
   const readDirNamesSync = registryLibFs.readDirNamesSync
-  return Object.freeze(readDirNamesSync(constants.npmPackagesPath))
+  return Object.freeze(
+    readDirNamesSync(constants.npmPackagesPath)
+      // Filter out hidden directories like .cache.
+      .filter(name => !name.startsWith('.')),
+  )
 }
 
 /**

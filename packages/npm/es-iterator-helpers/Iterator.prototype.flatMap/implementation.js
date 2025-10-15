@@ -20,16 +20,14 @@ module.exports = function flatMap(mapper) {
   if (new.target) {
     throw new TypeErrorCtor('`flatMap` is not a constructor')
   }
-  // Step 1: Let O be the this value.
-  const O = this
   // Step 2: If O is not an Object, throw TypeError.
-  ensureObject(O)
+  ensureObject(this)
   // Step 3: If IsCallable(mapper) is false, throw TypeError.
   if (typeof mapper !== 'function') {
     throw new TypeErrorCtor('`mapper` must be a function')
   }
   // Step 4: GetIteratorDirect(O).
-  const { iterator, next: nextMethod } = getIteratorDirect(O)
+  const { iterator, next: nextMethod } = getIteratorDirect(this)
   let innerNext = null
   let innerIterator = null
   let innerIteratorReturnCalled = false
@@ -69,7 +67,7 @@ module.exports = function flatMap(mapper) {
     }
   })()
   // Step 5.b.viii.4.b: Handle abrupt completion of yield.
-  closure.return = function () {
+  closure.return = () => {
     if (!outerIteratorDone) {
       outerIteratorDone = true
       let innerReturnResult

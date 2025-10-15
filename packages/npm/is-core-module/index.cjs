@@ -1,7 +1,6 @@
 'use strict'
 
-// eslint-disable-next-line n/prefer-node-protocol
-const nodeModule = /*@__PURE__*/ require('module')
+const nodeModule = /*@__PURE__*/ require('node:module')
 const isBuiltin = nodeModule.isBuiltin
 
 module.exports = function isCore(moduleName, nodeVersion) {

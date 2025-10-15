@@ -18,16 +18,14 @@ module.exports = function map(mapper) {
   if (new.target) {
     throw new TypeErrorCtor('`Iterator.map` is not a constructor')
   }
-  // Step 1: Let O be the this value.
-  const O = this
   // Step 2: If O is not an Object, throw a TypeError exception.
-  ensureObject(O)
+  ensureObject(this)
   // Step 3: If IsCallable(mapper) is false, throw a TypeError exception.
   if (typeof mapper !== 'function') {
     throw new TypeErrorCtor('`mapper` must be a function')
   }
   // Step 4: Let iterated be GetIteratorDirect(O).
-  const { iterator, next: nextMethod } = getIteratorDirect(O)
+  const { iterator, next: nextMethod } = getIteratorDirect(this)
   // Step 5: Let closure be a new Abstract Closure with no parameters that
   // captures iterated and mapper.
   let index = 0

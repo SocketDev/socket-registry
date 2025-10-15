@@ -32,7 +32,7 @@ function stringify(obj, prefix = '') {
               const { 1: value } = pair
               return value === null ||
                 value === undefined ||
-                (!value && isNaN(value))
+                (!value && Number.isNaN(value))
                 ? [pair[0], '']
                 : pair
             }),

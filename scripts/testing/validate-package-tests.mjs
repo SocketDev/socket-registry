@@ -4,18 +4,17 @@ import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-
-import parseArgsModule from '../../registry/dist/lib/parse-args.js'
 import loggerModule from '../../registry/dist/lib/logger.js'
-import spawnModule from '../../registry/dist/lib/spawn.js'
+import parseArgsModule from '../../registry/dist/lib/parse-args.js'
 import promisesModule from '../../registry/dist/lib/promises.js'
+import spawnModule from '../../registry/dist/lib/spawn.js'
 
 const { parseArgs } = parseArgsModule
 const { logger } = loggerModule
 const { spawn } = spawnModule
 const { pEach } = promisesModule
 
-import { trash } from '../utils/fs.mjs'
+import { deleteAsync as del } from 'del'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PACKAGES_DIR = path.join(__dirname, '..', '..', 'packages', 'npm')
@@ -68,7 +67,7 @@ async function getPackagesToValidate() {
 /**
  * Check if package.json exists and is valid.
  */
-async function validatePackageJson(packageName, packageDir) {
+async function validatePackageJson(_packageName, packageDir) {
   const issues = []
   const packageJsonPath = path.join(packageDir, 'package.json')
 
@@ -124,7 +123,7 @@ async function validatePackageJson(packageName, packageDir) {
 /**
  * Check if test files exist and are in expected locations.
  */
-async function validateTestFiles(packageName, packageDir) {
+async function validateTestFiles(_packageName, packageDir) {
   const issues = []
   const commonTestPaths = [
     'test',
@@ -200,7 +199,8 @@ async function validateDependencies(packageName, packageDir) {
       message: `Dependency validation failed: ${e.message}`,
     })
   } finally {
-    await trash(tempDir)
+    // Force delete temp directory outside CWD.
+    await del(tempDir, { force: true })
   }
 
   return issues
@@ -209,7 +209,7 @@ async function validateDependencies(packageName, packageDir) {
 /**
  * Check for ESLint configuration issues.
  */
-async function validateEslintConfig(packageName, packageDir) {
+async function validateEslintConfig(_packageName, packageDir) {
   const issues = []
   const eslintConfigPath = path.join(packageDir, '.eslintrc')
   const eslintConfigJsPath = path.join(packageDir, '.eslintrc.js')
@@ -252,7 +252,7 @@ async function validateEslintConfig(packageName, packageDir) {
  * Scans all JavaScript/TypeScript files for problematic import patterns
  * that commonly cause CI failures.
  */
-async function validateModuleResolution(packageName, packageDir) {
+async function validateModuleResolution(_packageName, packageDir) {
   const issues = []
 
   // Collect all source files recursively.
@@ -318,7 +318,7 @@ async function validateModuleResolution(packageName, packageDir) {
  * Check for required build artifacts.
  * Verifies that all entry points declared in package.json actually exist.
  */
-async function validateBuildArtifacts(packageName, packageDir) {
+async function validateBuildArtifacts(_packageName, packageDir) {
   const issues = []
   const packageJsonPath = path.join(packageDir, 'package.json')
 
@@ -451,7 +451,7 @@ async function main() {
   logger.info('\n--- Validation Results ---\n')
   const { errors, warnings } = formatResults(results)
 
-  logger.info(`\n--- Summary ---`)
+  logger.info('\n--- Summary ---')
   logger.info(`Total packages: ${packages.length}`)
   logger.info(`Passed: ${results.filter(r => r.issues.length === 0).length}`)
   logger.info(

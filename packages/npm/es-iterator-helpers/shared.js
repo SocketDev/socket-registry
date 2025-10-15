@@ -45,22 +45,19 @@ const IteratorHelperPrototype = ObjectCreate(IteratorPrototype, {
     // Based on https://tc39.es/ecma262/#sec-%iteratorhelperprototype%.next
     // Step 1: Return ? GeneratorResume(this value, undefined, "Iterator Helper").
     value: function next() {
-      // Based on https://tc39.es/ecma262/#sec-generatorresume
-      // Step 1: Let state be ? GeneratorValidate(generator, generatorBrand).
-      const O = this
-      const generator = getSlot(O, SLOT_GENERATOR_CONTEXT)
+      const generator = getSlot(this, SLOT_GENERATOR_CONTEXT)
       const generatorNext = generator?.next
       if (typeof generatorNext !== 'function') {
         throw new TypeErrorCtor('Generator context not set or invalid')
       }
       // Retrieve the underlying iterator for later use.
-      const underlyingIterator = getSlot(O, SLOT_UNDERLYING_ITERATOR)
+      const underlyingIterator = getSlot(this, SLOT_UNDERLYING_ITERATOR)
       const underlyingNext = underlyingIterator?.next
       if (typeof underlyingNext !== 'function') {
         throw new TypeErrorCtor('Underlying iterator not set or invalid')
       }
       // Step 2: If state is completed, return CreateIteratorResultObject(undefined, true).
-      if (getSlot(O, SLOT_GENERATOR_STATE) === GENERATOR_STATE_COMPLETED) {
+      if (getSlot(this, SLOT_GENERATOR_STATE) === GENERATOR_STATE_COMPLETED) {
         return { value: undefined, done: true }
       }
       // Step 3: Assert: state is either suspended-start or suspended-yield.
@@ -100,15 +97,13 @@ const IteratorHelperPrototype = ObjectCreate(IteratorPrototype, {
     enumerable: false,
     // Based on https://tc39.es/ecma262/#sec-%iteratorhelperprototype%.return.
     value: function () {
-      // Step 1: Bind `this` to O.
-      const O = this
       // Step 2: Ensure O has the [[UnderlyingIterator]] internal slot.
-      const underlyingIterator = getSlot(O, SLOT_UNDERLYING_ITERATOR)
+      const underlyingIterator = getSlot(this, SLOT_UNDERLYING_ITERATOR)
       if (!isObjectType(underlyingIterator)) {
         throw new TypeErrorCtor('Iterator must be an Object')
       }
       // Step 3: Ensure O has a [[GeneratorState]] internal slot.
-      const generatorState = getSlot(O, SLOT_GENERATOR_STATE)
+      const generatorState = getSlot(this, SLOT_GENERATOR_STATE)
 
       // Step 4: If the generator is suspended-start, mark it as completed and
       // return a completed result.
@@ -118,12 +113,12 @@ const IteratorHelperPrototype = ObjectCreate(IteratorPrototype, {
       try {
         // Step 4.c: Close the underlying iterator and complete the generator.
         iteratorClose(underlyingIterator, undefined)
-        setSlot(O, SLOT_GENERATOR_STATE, GENERATOR_STATE_COMPLETED)
+        setSlot(this, SLOT_GENERATOR_STATE, GENERATOR_STATE_COMPLETED)
         return { value: undefined, done: true }
       } catch (error) {
         // Step 6: If an abrupt completion occurs, set the generator to completed
         // and propagate the error.
-        setSlot(O, SLOT_GENERATOR_STATE, GENERATOR_STATE_COMPLETED)
+        setSlot(this, SLOT_GENERATOR_STATE, GENERATOR_STATE_COMPLETED)
         throw error
       }
     },
@@ -146,11 +141,9 @@ const WrapForValidIteratorPrototype = ObjectCreate(IteratorPrototype, {
     configurable: true,
     enumerable: false,
     value: function next() {
-      // Step 1: Let O be this value.
-      const O = this
       // Step 2: Perform RequireInternalSlot(O, [[Iterated]]).
-      ensureObject(O)
-      const slots = SLOT.get(O)
+      ensureObject(this)
+      const slots = SLOT.get(this)
       if (!(slots && ObjectHasOwn(slots, SLOT_ITERATED))) {
         throw new TypeError(`"${SLOT_ITERATED}" is not present on "O"`)
       }
@@ -167,11 +160,9 @@ const WrapForValidIteratorPrototype = ObjectCreate(IteratorPrototype, {
     configurable: true,
     enumerable: false,
     value: function () {
-      // Step 1: Let O be this value.
-      const O = this
       // Step 2: Perform RequireInternalSlot(O, [[Iterated]]).
-      ensureObject(O)
-      const slots = SLOT.get(O)
+      ensureObject(this)
+      const slots = SLOT.get(this)
       if (!(slots && ObjectHasOwn(slots, SLOT_ITERATED))) {
         throw new TypeError(`"${SLOT_ITERATED}" is not present on "O"`)
       }
@@ -491,7 +482,7 @@ function toIntegerOrInfinity(value) {
   }
   // Step 3: If number is +Infinity, return +Infinity.
   // Step 4: If number is -Infinity, return -Infinity.
-  if (num === Infinity || num === -Infinity) {
+  if (num === Number.POSITIVE_INFINITY || num === Number.NEGATIVE_INFINITY) {
     return num
   }
   // Step 5: Return truncate(number).

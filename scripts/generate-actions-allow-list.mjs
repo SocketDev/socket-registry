@@ -146,8 +146,7 @@ async function main() {
   )
   logger.log('')
 
-  const allowList =
-    allowListActions.map(action => `${indent}${action}`).join(',\n') + ','
+  const allowList = `${allowListActions.map(action => `${indent}${action}`).join(',\n')},`
   logger.log(allowList)
 
   logger.log('')
@@ -161,7 +160,7 @@ async function main() {
   if (process.argv.includes('--copy')) {
     try {
       // Copy the non-indented version for easier pasting.
-      const clipboardList = allowListActions.join(',\n') + ','
+      const clipboardList = `${allowListActions.join(',\n')},`
       clipboardy.writeSync(clipboardList)
       logger.success('Allow list copied to clipboard!')
     } catch {}

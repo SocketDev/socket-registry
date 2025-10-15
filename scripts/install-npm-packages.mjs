@@ -73,33 +73,30 @@ import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-
+import { deleteAsync as del } from 'del'
 import { load as yamlLoad } from 'js-yaml'
 import pacote from 'pacote'
 import { c as tarCreate } from 'tar'
-
+import ENV from '../registry/dist/lib/constants/ENV.js'
+import NODE_MODULES from '../registry/dist/lib/constants/NODE_MODULES.js'
+import PACKAGE_JSON from '../registry/dist/lib/constants/PACKAGE_JSON.js'
+import spinner from '../registry/dist/lib/constants/spinner.js'
+import WIN32 from '../registry/dist/lib/constants/WIN32.js'
+import { readFileUtf8, readJson, writeJson } from '../registry/dist/lib/fs.js'
+import { LOG_SYMBOLS, logger } from '../registry/dist/lib/logger.js'
+import { readPackageJson } from '../registry/dist/lib/packages.js'
 import { parseArgs } from '../registry/dist/lib/parse-args.js'
-
+import { pEach, pRetry } from '../registry/dist/lib/promises.js'
+import { spawn } from '../registry/dist/lib/spawn.js'
+import { pluralize } from '../registry/dist/lib/words.js'
 import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
-import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
-import { trash } from './utils/fs.mjs'
+import constants from './constants.mjs'
 import { filterPackagesByChanges } from './utils/git.mjs'
 import {
   PNPM_HOISTED_INSTALL_FLAGS,
   PNPM_INSTALL_ENV,
 } from './utils/package.mjs'
-import constants from './constants.mjs'
-import ENV from '../registry/dist/lib/constants/ENV.js'
-import spinner from '../registry/dist/lib/constants/spinner.js'
-import NODE_MODULES from '../registry/dist/lib/constants/NODE_MODULES.js'
-import PACKAGE_JSON from '../registry/dist/lib/constants/PACKAGE_JSON.js'
-import WIN32 from '../registry/dist/lib/constants/WIN32.js'
-import { readPackageJson } from '../registry/dist/lib/packages.js'
-import { pEach, pRetry } from '../registry/dist/lib/promises.js'
-import { LOG_SYMBOLS, logger } from '../registry/dist/lib/logger.js'
-import { spawn } from '../registry/dist/lib/spawn.js'
-import { pluralize } from '../registry/dist/lib/words.js'
-import { readFileUtf8, readJson, writeJson } from '../registry/dist/lib/fs.js'
+import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
 
 // Default concurrency values based on environment and platform.
 const DEFAULT_CI_CONCURRENCY_WIN32 = '5'
@@ -112,12 +109,12 @@ const JSON_PARSE_RETRY_BASE_DELAY_MS = 200
 const JSON_PARSE_MAX_RETRIES = 3
 
 // Output truncation length for error messages.
-const ERROR_OUTPUT_TRUNCATE_LENGTH = 1_000
+const ERROR_OUTPUT_TRUNCATE_LENGTH = 1000
 
 // Progress update intervals for CI vs. local environments.
 const PROGRESS_UPDATE_INTERVAL_CI = 10
 const PROGRESS_UPDATE_INTERVAL_DEV = 1
-const PROGRESS_TIMER_INTERVAL_CI_MS = 1_000
+const PROGRESS_TIMER_INTERVAL_CI_MS = 1000
 const PROGRESS_TIMER_INTERVAL_DEV_MS = 100
 
 const { values: cliArgs } = parseArgs({
@@ -146,7 +143,7 @@ const { values: cliArgs } = parseArgs({
   strict: false,
 })
 
-const concurrency = Math.max(1, parseInt(cliArgs.concurrency, 10))
+const concurrency = Math.max(1, Number.parseInt(cliArgs.concurrency, 10))
 const tempBaseDir = cliArgs.tempDir
 
 // Progress tracking.
@@ -753,7 +750,7 @@ async function installPackage(packageInfo) {
 
           // Remove .npmignore if it exists, as it can also filter out test files.
           const npmignorePath = path.join(tempExtractDir, '.npmignore')
-          await trash(npmignorePath).catch(() => {
+          await del(npmignorePath).catch(() => {
             // File doesn't exist, ignore.
           })
 
@@ -795,7 +792,8 @@ async function installPackage(packageInfo) {
         )
         packageSpec = versionSpec
         // Clean up failed extraction directory.
-        await trash(tempExtractDir).catch(() => {
+        // Force delete temp directory outside CWD.
+        await del(tempExtractDir, { force: true }).catch(() => {
           // Ignore cleanup errors.
         })
       }
@@ -852,7 +850,7 @@ async function installPackage(packageInfo) {
       },
       {
         backoffFactor: 2,
-        baseDelayMs: 1_000,
+        baseDelayMs: 1000,
         retries: 3,
       },
     )
@@ -1091,7 +1089,8 @@ async function installPackage(packageInfo) {
     // Clean up temporary GitHub tarball extraction directory.
     if (modifiedPackagePath) {
       try {
-        await trash(modifiedPackagePath)
+        // Force delete temp directory outside CWD.
+        await del(modifiedPackagePath, { force: true })
       } catch {
         // Ignore cleanup errors in error path.
       }
@@ -1155,7 +1154,7 @@ async function main() {
       logger.log(
         `Cleaning ${nodeModulesPaths.length} ${NODE_MODULES} from override packages`,
       )
-      await trash(nodeModulesPaths)
+      await del(nodeModulesPaths)
     }
   }
 

@@ -1,11 +1,10 @@
 /** @fileoverview Analyzes CI failure logs and suggests fixes based on known patterns. */
 
+import { promises as fs } from 'node:fs'
 import { get as httpGet } from 'node:http'
 import { get as httpsGet } from 'node:https'
-import { promises as fs } from 'node:fs'
-
-import parseArgsModule from '../../registry/dist/lib/parse-args.js'
 import loggerModule from '../../registry/dist/lib/logger.js'
+import parseArgsModule from '../../registry/dist/lib/parse-args.js'
 
 const { parseArgs } = parseArgsModule
 const { logger } = loggerModule
@@ -267,7 +266,7 @@ function groupFailures(failures) {
 /**
  * Generate fix recommendations.
  */
-function generateRecommendations(failures, grouped) {
+function generateRecommendations(_failures, grouped) {
   const recommendations = []
 
   // Category-level recommendations.

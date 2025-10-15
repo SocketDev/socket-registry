@@ -1,8 +1,7 @@
 /** @fileoverview Update root package.json with default Node.js engine range. */
 
-import constants from './constants.mjs'
-
 import { readPackageJson } from '../registry/dist/lib/packages.js'
+import constants from './constants.mjs'
 
 /**
  * Update engines field in root package.json.

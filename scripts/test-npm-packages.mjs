@@ -3,12 +3,10 @@
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-
-import { parseArgs } from '../registry/dist/lib/parse-args.js'
-
 import ENV from '../registry/dist/lib/constants/ENV.js'
 import WIN32 from '../registry/dist/lib/constants/WIN32.js'
 import { logger } from '../registry/dist/lib/logger.js'
+import { parseArgs } from '../registry/dist/lib/parse-args.js'
 import { spawn } from '../registry/dist/lib/spawn.js'
 
 import { logSectionHeader } from './utils/logging.mjs'

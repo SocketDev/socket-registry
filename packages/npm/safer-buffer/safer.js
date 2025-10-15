@@ -15,8 +15,7 @@ const {
   resolveObjectURL,
   transcode,
   // Use non-'node:' prefixed require to avoid Webpack errors.
-  // eslint-disable-next-line n/prefer-node-protocol
-} = require('buffer')
+} = require('node:buffer')
 
 const { builtinBufferExportsDescMap } = require('./shared')
 

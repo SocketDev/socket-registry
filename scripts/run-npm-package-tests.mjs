@@ -3,30 +3,26 @@
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-
-import { parseArgs } from '../registry/dist/lib/parse-args.js'
-
 import WIN32 from '../registry/dist/lib/constants/WIN32.js'
-
+import { logger } from '../registry/dist/lib/logger.js'
+import {
+  readPackageJson,
+  resolveOriginalPackageName,
+} from '../registry/dist/lib/packages.js'
+import { parseArgs } from '../registry/dist/lib/parse-args.js'
+import { pEach } from '../registry/dist/lib/promises.js'
 import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
 import constants from './constants.mjs'
 import { extractErrorInfo } from './utils/errors.mjs'
 import { filterPackagesByChanges } from './utils/git.mjs'
 import {
+  buildTestEnv,
   PNPM_HOISTED_INSTALL_FLAGS,
   PNPM_INSTALL_BASE_FLAGS,
   PNPM_INSTALL_ENV,
-  buildTestEnv,
   runCommand,
 } from './utils/package.mjs'
-
 import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
-import {
-  readPackageJson,
-  resolveOriginalPackageName,
-} from '../registry/dist/lib/packages.js'
-import { pEach } from '../registry/dist/lib/promises.js'
-import { logger } from '../registry/dist/lib/logger.js'
 
 const { values: cliArgs } = parseArgs({
   options: {
@@ -51,7 +47,7 @@ const { values: cliArgs } = parseArgs({
   strict: false,
 })
 
-const concurrency = Math.max(1, parseInt(cliArgs.concurrency, 10) || 3)
+const concurrency = Math.max(1, Number.parseInt(cliArgs.concurrency, 10) || 3)
 const tempBaseDir = cliArgs.tempDir
 
 /**
@@ -334,7 +330,7 @@ async function main() {
   )
 
   // Summary.
-  logger.log('\n' + '='.repeat(60))
+  logger.log(`\n${'='.repeat(60)}`)
   logger.log('TEST SUMMARY')
   logger.log('='.repeat(60))
 

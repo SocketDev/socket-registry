@@ -120,7 +120,7 @@ function stableStringifyNonRecursive(
     } else {
       const rawKeys = ObjectKeys(node)
       const { length } = rawKeys
-      keys = length > 1 ? rawKeys[SORT_METHOD](cmp && cmp(node)) : rawKeys
+      keys = length > 1 ? rawKeys[SORT_METHOD](cmp?.(node)) : rawKeys
       if (
         SUPPORTS_JSON_IS_RAW_JSON &&
         length === 1 &&
@@ -201,7 +201,7 @@ function stableStringifyRecursive(
     } else {
       const rawKeys = ObjectKeys(node)
       const { length } = rawKeys
-      keys = length > 1 ? rawKeys[SORT_METHOD](cmp && cmp(node)) : rawKeys
+      keys = length > 1 ? rawKeys[SORT_METHOD](cmp?.(node)) : rawKeys
       if (
         SUPPORTS_JSON_IS_RAW_JSON &&
         length === 1 &&

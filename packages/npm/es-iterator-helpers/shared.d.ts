@@ -1,4 +1,5 @@
 declare type FinishResults<T, U> = (results: T[]) => U
+// biome-ignore lint/correctness/noUnusedVariables: Internal type for iterator helpers.
 interface IteratorRecord<T> {
   iterator: Iterator<T>
   next: () => IteratorResult<T>
@@ -56,6 +57,7 @@ declare interface InternalShared {
     obj: any,
     key: string | symbol,
   ): ((...args: any[]) => any) | undefined
+  // biome-ignore lint/complexity/noBannedTypes: Matches ES spec signature.
   getOptionsObject<T = any>(options: T): T extends object ? T : {}
   getSlot(O: any, slot: string): any
   ifAbruptCloseIterator(iterator: Iterator<any>, error: any): void

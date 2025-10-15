@@ -21,10 +21,8 @@ module.exports = function drop(limit) {
   if (new.target) {
     throw new TypeErrorCtor('`drop` is not a constructor')
   }
-  // Step 1: Let O be the this value.
-  const O = this
   // Step 2: If O is not an Object, throw a TypeError exception.
-  ensureObject(O)
+  ensureObject(this)
   // Step 3: Let numLimit be ToNumber(limit).
   // Step 4: If numLimit is NaN, throw a RangeError exception.
   const numLimit = NumberCtor(limit)
@@ -38,7 +36,7 @@ module.exports = function drop(limit) {
     throw new RangeErrorCtor('`limit` must be a non-negative number')
   }
   // Step 7: Let iterated be GetIteratorDirect(O).
-  const { iterator, next: nextMethod } = getIteratorDirect(O)
+  const { iterator, next: nextMethod } = getIteratorDirect(this)
   // Step 8.a: Let remaining be integerLimit.
   let remaining = integerLimit
   // Step 8: Let closure be a new Abstract Closure with no parameters that captures iterated and integerLimit.
@@ -47,7 +45,7 @@ module.exports = function drop(limit) {
       // Step 8.b: Repeat, while remaining > 0
       while (remaining > 0) {
         // Step 8.b.i: If remaining !== +Infinity, decrement remaining.
-        if (remaining !== Infinity) {
+        if (remaining !== Number.POSITIVE_INFINITY) {
           // Step 8.b.i.1: Set remaining to remaining - 1
           remaining -= 1
         }
