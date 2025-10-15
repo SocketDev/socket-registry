@@ -2,15 +2,16 @@
  * @fileoverview Editable package.json manipulation utilities.
  */
 
+import { isNodeModules } from '../path'
+import { normalizePackageJson } from './normalize'
+import { resolvePackageJsonDirname } from './paths'
+
 import type {
   EditablePackageJsonOptions,
   NormalizeOptions,
   PackageJson,
   SaveOptions,
 } from '../packages'
-import { isNodeModules } from '../path'
-import { normalizePackageJson } from './normalize'
-import { resolvePackageJsonDirname } from './paths'
 
 const identSymbol = Symbol.for('indent')
 const newlineSymbol = Symbol.for('newline')

@@ -21,11 +21,12 @@
  * - Cache to minimize API calls
  */
 
-import type { TtlCache } from './cache-with-ttl'
 import { createTtlCache } from './cache-with-ttl'
 import { httpRequest } from './http-request'
-import type { SpawnOptions } from './spawn'
 import { spawn } from './spawn'
+
+import type { TtlCache } from './cache-with-ttl'
+import type { SpawnOptions } from './spawn'
 
 // GitHub API base URL constant (inlined for coverage mode compatibility).
 const GITHUB_API_BASE_URL = 'https://api.github.com'
@@ -67,7 +68,10 @@ export interface GitHubRateLimitError extends Error {
 export function getGitHubToken(): string | undefined {
   const { env } = process
   return (
-    env['GITHUB_TOKEN'] || env['GH_TOKEN'] || env['SOCKET_CLI_GITHUB_TOKEN'] || undefined
+    env['GITHUB_TOKEN'] ||
+    env['GH_TOKEN'] ||
+    env['SOCKET_CLI_GITHUB_TOKEN'] ||
+    undefined
   )
 }
 

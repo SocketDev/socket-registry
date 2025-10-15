@@ -2,20 +2,13 @@
  * @fileoverview Package operations including extraction, packing, and I/O.
  */
 
+import REGISTRY_SCOPE_DELIMITER from '../constants/REGISTRY_SCOPE_DELIMITER'
 import abortSignal from '../constants/abort-signal'
 import packageExtensions from '../constants/package-extensions'
 import packumentCache from '../constants/packument-cache'
 import pacoteCachePath from '../constants/pacote-cache-path'
-import REGISTRY_SCOPE_DELIMITER from '../constants/REGISTRY_SCOPE_DELIMITER'
 import { readJson, readJsonSync } from '../fs'
 import { isObjectObject, merge } from '../objects'
-import type {
-  ExtractOptions,
-  NormalizeOptions,
-  PackageJson,
-  PacoteOptions,
-  ReadPackageJsonOptions,
-} from '../packages'
 import { normalizePackageJson } from './normalize'
 import { resolvePackageJsonPath } from './paths'
 import {
@@ -25,6 +18,14 @@ import {
   isGitHubTgzSpec,
   isGitHubUrlSpec,
 } from './specs'
+
+import type {
+  ExtractOptions,
+  NormalizeOptions,
+  PackageJson,
+  PacoteOptions,
+  ReadPackageJsonOptions,
+} from '../packages'
 
 let _cacache: typeof import('cacache') | undefined
 /*@__NO_SIDE_EFFECTS__*/

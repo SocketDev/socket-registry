@@ -16,10 +16,10 @@ import constants from './constants.mjs'
 import { extractErrorInfo } from './utils/errors.mjs'
 import { filterPackagesByChanges } from './utils/git.mjs'
 import {
-  buildTestEnv,
   PNPM_HOISTED_INSTALL_FLAGS,
   PNPM_INSTALL_BASE_FLAGS,
   PNPM_INSTALL_ENV,
+  buildTestEnv,
   runCommand,
 } from './utils/package.mjs'
 import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'

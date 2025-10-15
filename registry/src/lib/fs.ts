@@ -3,6 +3,15 @@
  * Provides enhanced fs operations, glob matching, and directory traversal functions.
  */
 
+import { isArray } from './arrays'
+import abortSignal from './constants/abort-signal'
+import { defaultIgnore, getGlobMatcher } from './globs'
+import { jsonParse } from './json'
+import { type Remap, objectFreeze } from './objects'
+import { normalizePath, pathLikeToString } from './path'
+import { naturalCompare } from './sorts'
+
+import type { JsonReviver } from './json'
 import type { Abortable } from 'node:events'
 import type {
   Dirent,
@@ -12,14 +21,6 @@ import type {
   StatSyncOptions,
   WriteFileOptions,
 } from 'node:fs'
-import { isArray } from './arrays'
-import abortSignal from './constants/abort-signal'
-import { defaultIgnore, getGlobMatcher } from './globs'
-import type { JsonReviver } from './json'
-import { jsonParse } from './json'
-import { objectFreeze, type Remap } from './objects'
-import { normalizePath, pathLikeToString } from './path'
-import { naturalCompare } from './sorts'
 
 // Type definitions
 export type BufferEncoding =

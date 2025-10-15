@@ -170,7 +170,9 @@ export function getSocketConfig(): string | undefined {
 }
 
 export function getSocketAcceptRisks(): boolean {
-  return envAsBoolean(env['SOCKET_ACCEPT_RISKS'] || env['SOCKET_CLI_ACCEPT_RISKS'])
+  return envAsBoolean(
+    env['SOCKET_ACCEPT_RISKS'] || env['SOCKET_CLI_ACCEPT_RISKS'],
+  )
 }
 
 export function getSocketViewAllRisks(): boolean {
@@ -180,7 +182,9 @@ export function getSocketViewAllRisks(): boolean {
 }
 
 export function getSocketNoApiToken(): boolean {
-  return envAsBoolean(env['SOCKET_NO_API_TOKEN'] || env['SOCKET_CLI_NO_API_TOKEN'])
+  return envAsBoolean(
+    env['SOCKET_NO_API_TOKEN'] || env['SOCKET_CLI_NO_API_TOKEN'],
+  )
 }
 
 // Pre-commit environment.

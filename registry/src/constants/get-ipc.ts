@@ -34,7 +34,8 @@ export async function getIpc(
 
     if (env['SOCKET_CLI_OPTIMIZE']) {
       _ipcObject.SOCKET_CLI_OPTIMIZE =
-        env['SOCKET_CLI_OPTIMIZE'] === 'true' || env['SOCKET_CLI_OPTIMIZE'] === '1'
+        env['SOCKET_CLI_OPTIMIZE'] === 'true' ||
+        env['SOCKET_CLI_OPTIMIZE'] === '1'
     }
 
     if (env['SOCKET_CLI_SHADOW_ACCEPT_RISKS']) {
@@ -44,7 +45,8 @@ export async function getIpc(
     }
 
     if (env['SOCKET_CLI_SHADOW_API_TOKEN']) {
-      _ipcObject.SOCKET_CLI_SHADOW_API_TOKEN = env['SOCKET_CLI_SHADOW_API_TOKEN']
+      _ipcObject.SOCKET_CLI_SHADOW_API_TOKEN =
+        env['SOCKET_CLI_SHADOW_API_TOKEN']
     }
 
     if (env['SOCKET_CLI_SHADOW_BIN']) {

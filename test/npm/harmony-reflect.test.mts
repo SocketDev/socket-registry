@@ -18,7 +18,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       [key: string]: any
     } = {}
     harmonyReflect.defineProperty(obj, 'x', { value: 1 })
-    expect(obj.x).toBe(1)
+    expect(obj['x']).toBe(1)
   })
 
   it('should correctly implement getOwnPropertyDescriptor', () => {
