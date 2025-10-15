@@ -9,7 +9,7 @@ import readline from 'node:readline'
 // Simple inline spinner for build-time use (avoids circular dependency).
 // This is intentionally minimal to avoid depending on registry code during build.
 function createSpinner() {
-  let state = {
+  const state = {
     __proto__: null,
     frameIndex: 0,
     frames: ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'],

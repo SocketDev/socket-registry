@@ -11,8 +11,9 @@ import { httpRequest } from './http-request'
 import { isObjectObject } from './objects'
 import { normalizePath } from './path'
 import { getSocketHomePath } from './paths'
-import type { SpawnExtra, SpawnOptions } from './spawn'
 import { spawn } from './spawn'
+
+import type { SpawnExtra, SpawnOptions } from './spawn'
 
 export interface DlxBinaryOptions {
   /** URL to download the binary from. */

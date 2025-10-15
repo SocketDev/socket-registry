@@ -27,8 +27,9 @@ import { execBin } from './bin'
 import { isDebug } from './debug'
 import { findUpSync } from './fs'
 import { getOwn } from './objects'
-import type { SpawnOptions } from './spawn'
 import { spawn } from './spawn'
+
+import type { SpawnOptions } from './spawn'
 
 // Note: npm flag checking is done with regex patterns in the is*Flag functions below.
 

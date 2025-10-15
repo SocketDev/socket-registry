@@ -5,13 +5,8 @@ import { describe, expect, it } from 'vitest'
 import constants from '../../scripts/constants.mjs'
 import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
-const {
-  eco,
-  module: jsonStableStringify,
-  pkgPath,
-  skip,
-  sockRegPkgName,
-} = await setupNpmPackageTest(__filename)
+const { eco, skip, sockRegPkgName } = await setupNpmPackageTest(__filename)
+const { pkgPath } = await setupNpmPackageTest(__filename)
 
 describe(
   `${eco} > ${sockRegPkgName}`,
@@ -19,8 +14,7 @@ describe(
     skip: skip || constants.ENV.CI,
   },
   () => {
-    const pkgRequireIndexJsPath = path.join(pkgPath, 'index.js')
-    const jsonStableStringifyModule = require(pkgRequireIndexJsPath)
+    const _jsonStableStringifyModule = require(pkgRequireIndexJsPath)
 
     // biome-ignore lint/suspicious/noExplicitAny: Test accesses internal JSON.rawJSON if available.
     const rawJSON: ((_str: string) => { rawJSON: string }) | undefined = (
@@ -35,7 +29,7 @@ describe(
     ]) {
       it(`${methodName}: space parameter (nested objects)`, () => {
         const obj = { one: 1, two: { b: 4, a: [2, 3] } }
-        expect(jsonStableStringifyModule(obj, { space: '  ' })).toBe(
+        expect(_jsonStableStringifyModule(obj, { space: '  ' })).toBe(
           '' +
             '{\n' +
             '  "one": 1,\n' +
@@ -53,14 +47,14 @@ describe(
       it(`${methodName}: space parameter (same as native)`, () => {
         // For this test, properties need to be in alphabetical order.
         const obj = { one: 1, two: { a: [2, 3], b: 4 } }
-        expect(jsonStableStringifyModule(obj, { space: '  ' })).toBe(
+        expect(_jsonStableStringifyModule(obj, { space: '  ' })).toBe(
           JSON.stringify(obj, null, '  '),
         )
       })
 
       it(`${methodName}: space parameter base empty behavior: empty arrays and objects have added newline and space`, () => {
         const obj = { emptyArr: [], emptyObj: {} }
-        expect(jsonStableStringifyModule(obj, { space: '  ' })).toBe(
+        expect(_jsonStableStringifyModule(obj, { space: '  ' })).toBe(
           '{\n  "emptyArr": [\n  ],\n  "emptyObj": {\n  }\n}',
         )
       })
@@ -68,21 +62,21 @@ describe(
       it(`${methodName}: space parameter, with collapseEmpty: true`, () => {
         const obj = { emptyArr: [], emptyObj: {} }
         expect(() => {
-          jsonStableStringifyModule(obj, { collapseEmpty: 'not a boolean' })
+          _jsonStableStringifyModule(obj, { collapseEmpty: 'not a boolean' })
         }).toThrow(TypeError)
         expect(
-          jsonStableStringifyModule(obj, { collapseEmpty: true, space: '  ' }),
+          _jsonStableStringifyModule(obj, { collapseEmpty: true, space: '  ' }),
         ).toBe('{\n  "emptyArr": [],\n  "emptyObj": {}\n}')
       })
 
       it(
         `${methodName}: supports JSON.rawJSON`,
-        { skip: !SUPPORTS_JSON_RAW_JSON || !jsonStableStringifyModule },
+        { skip: !SUPPORTS_JSON_RAW_JSON || !_jsonStableStringifyModule },
         () => {
           // Test case from MDN example:
           // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/isRawJSON#examples
           expect(
-            jsonStableStringifyModule({
+            _jsonStableStringifyModule({
               name: 'Josh',
               userId: rawJSON?.('12345678901234567890'),
               friends: [
@@ -117,7 +111,7 @@ describe(
           return result
         }
         expect(() =>
-          jsonStableStringifyModule(createCallStackBusterObject()),
+          _jsonStableStringifyModule(createCallStackBusterObject()),
         ).not.toThrow()
       })
     }

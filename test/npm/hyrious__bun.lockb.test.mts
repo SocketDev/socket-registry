@@ -7,14 +7,8 @@ import constants from '../../scripts/constants.mjs'
 import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
 const { UTF8 } = constants
-
-const {
-  eco,
-  module: hyriousBunLockb,
-  pkgPath,
-  skip,
-  sockRegPkgName,
-} = await setupNpmPackageTest(__filename)
+const { eco, pkgPath, skip, sockRegPkgName } =
+  await setupNpmPackageTest(__filename)
 
 // @hyrious/bun.lockb has no unit tests.
 // https://github.com/hyrious/bun.lockb/tree/v0.0.4

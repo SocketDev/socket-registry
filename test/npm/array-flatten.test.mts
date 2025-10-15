@@ -5,7 +5,6 @@ import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 const {
   eco,
   module: flattenLegacy,
-  pkgPath,
   skip,
   sockRegPkgName,
 } = await setupNpmPackageTest(__filename)
@@ -36,6 +35,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
     it('should work with arguments', () => {
       // biome-ignore lint/complexity/noArguments: Test case specifically testing arguments object.
+      // eslint-disable-next-line no-undef
       const input = (() => arguments)()
       const result = flatten(input)
 

@@ -6,7 +6,7 @@ const arePropertyDescriptorsSupported = (): boolean => {
   const obj: Record<string, unknown> = { a: 1 }
   try {
     Object.defineProperty(obj, 'x', { value: obj })
-    return obj.x === obj
+    return obj['x'] === obj
   } catch {
     return false
   }
@@ -219,7 +219,7 @@ describe('define-properties', () => {
       expect(Object.keys(obj)).toEqual([])
       expect(Object.getOwnPropertyNames(obj)).toEqual(['a'])
       expect(Object.getOwnPropertySymbols(obj)).toEqual([sym])
-      expect(obj.a).toBe(aValue)
+      expect(obj['a']).toBe(aValue)
       expect(obj[sym]).toBe(bValue)
     })
   })
