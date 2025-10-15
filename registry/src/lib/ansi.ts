@@ -12,8 +12,7 @@ export const ANSI_UNDERLINE = '\x1b[4m'
 export const ANSI_STRIKETHROUGH = '\x1b[9m'
 
 // ANSI escape code regex to strip colors/formatting.
-
-// biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI escape sequences use control characters
+// biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI escape sequences use control characters.
 const ANSI_REGEX = /\x1b\[[0-9;]*m/g
 
 /**

@@ -51,20 +51,15 @@ type TextStyles = {
 function detectStyles(text: string): TextStyles {
   return {
     __proto__: null,
-
-    // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI escape sequence detection
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI escape sequence detection.
     bold: /\x1b\[1m/.test(text),
-
-    // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI escape sequence detection
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI escape sequence detection.
     dim: /\x1b\[2m/.test(text),
-
-    // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI escape sequence detection
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI escape sequence detection.
     italic: /\x1b\[3m/.test(text),
-
-    // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI escape sequence detection
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI escape sequence detection.
     strikethrough: /\x1b\[9m/.test(text),
-
-    // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI escape sequence detection
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI escape sequence detection.
     underline: /\x1b\[4m/.test(text),
   } as TextStyles
 }
