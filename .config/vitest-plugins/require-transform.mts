@@ -2,17 +2,19 @@ import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 
 import { parse } from '@babel/parser'
+import type { NodePath } from '@babel/traverse'
 import traverseModule from '@babel/traverse'
 import * as t from '@babel/types'
 import MagicString from 'magic-string'
 
-import type { NodePath } from '@babel/traverse'
 import type { Plugin } from 'vite'
 
 import { getDistDir, srcToDistPath } from './transform-utils.mts'
 
 // Handle both ESM and CJS exports from @babel/traverse
-const traverse = (traverseModule as any).default || traverseModule
+const traverse =
+  (traverseModule as { default?: typeof traverseModule }).default ||
+  traverseModule
 
 /**
  * Vite plugin to inline CommonJS require() calls.
@@ -41,7 +43,8 @@ export function createRequireTransformPlugin(): Plugin {
   function loadConstant(resolvedPath: string): string | null {
     // Step 1: Check cache to avoid re-parsing the same file
     if (constantCache.has(resolvedPath)) {
-      return constantCache.get(resolvedPath)!
+      const cached = constantCache.get(resolvedPath)
+      return cached === undefined ? null : cached
     }
 
     try {
@@ -102,18 +105,28 @@ export function createRequireTransformPlugin(): Plugin {
           ) {
             // Step 7: Extract the exact source code for this expression
             // Using start/end positions from the AST preserves formatting
-            defaultExportValue = content.slice(
-              declaration.start!,
-              declaration.end!,
-            )
+            if (
+              typeof declaration.start === 'number' &&
+              typeof declaration.end === 'number'
+            ) {
+              defaultExportValue = content.slice(
+                declaration.start,
+                declaration.end,
+              )
+            }
           }
           // Inline binary expressions like: process.platform === 'win32'
           else if (t.isBinaryExpression(declaration)) {
             // Safe because it's evaluated at load time
-            defaultExportValue = content.slice(
-              declaration.start!,
-              declaration.end!,
-            )
+            if (
+              typeof declaration.start === 'number' &&
+              typeof declaration.end === 'number'
+            ) {
+              defaultExportValue = content.slice(
+                declaration.start,
+                declaration.end,
+              )
+            }
           }
           // Inline Object.freeze() calls for frozen constants
           else if (t.isCallExpression(declaration)) {
@@ -124,19 +137,29 @@ export function createRequireTransformPlugin(): Plugin {
                 t.isIdentifier(declaration.callee.object, { name: 'Object' }) &&
                 t.isIdentifier(declaration.callee.property, { name: 'freeze' }))
             ) {
-              defaultExportValue = content.slice(
-                declaration.start!,
-                declaration.end!,
-              )
+              if (
+                typeof declaration.start === 'number' &&
+                typeof declaration.end === 'number'
+              ) {
+                defaultExportValue = content.slice(
+                  declaration.start,
+                  declaration.end,
+                )
+              }
             }
           }
           // Inline template literals like: `hello ${world}`
           else if (t.isTemplateLiteral(declaration)) {
             // Safe if they only contain simple expressions
-            defaultExportValue = content.slice(
-              declaration.start!,
-              declaration.end!,
-            )
+            if (
+              typeof declaration.start === 'number' &&
+              typeof declaration.end === 'number'
+            ) {
+              defaultExportValue = content.slice(
+                declaration.start,
+                declaration.end,
+              )
+            }
           }
         },
       })
@@ -265,20 +288,20 @@ export function createRequireTransformPlugin(): Plugin {
                 return quasi
               })
 
-              const newTemplateLiteral = t.templateLiteral(
-                newQuasis,
-                arg.expressions,
-              )
-
               // Replace the argument
-              s.overwrite(
-                arg.start!,
-                arg.end!,
-                code
-                  .slice(arg.start!, arg.end!)
-                  .replace(firstQuasi.value.raw, newQuasis[0].value.raw),
-              )
-              modified = true
+              if (
+                typeof arg.start === 'number' &&
+                typeof arg.end === 'number'
+              ) {
+                s.overwrite(
+                  arg.start,
+                  arg.end,
+                  code
+                    .slice(arg.start, arg.end)
+                    .replace(firstQuasi.value.raw, newQuasis[0].value.raw),
+                )
+                modified = true
+              }
               return
             }
 
@@ -335,8 +358,13 @@ export function createRequireTransformPlugin(): Plugin {
 
                 // Replace the require with absolute path to dist.
                 const stringNode = arg as t.StringLiteral
-                s.overwrite(stringNode.start!, stringNode.end!, `'${distPath}'`)
-                modified = true
+                if (
+                  typeof stringNode.start === 'number' &&
+                  typeof stringNode.end === 'number'
+                ) {
+                  s.overwrite(stringNode.start, stringNode.end, `'${distPath}'`)
+                  modified = true
+                }
                 return
               }
 
@@ -354,9 +382,16 @@ export function createRequireTransformPlugin(): Plugin {
                 // Handle both require('./X.js') and require('./X.js').default.
                 const parent = nodePath.parent
                 // Start of require() call.
-                const replaceStart = node.start!
+                const replaceStart = node.start
                 // End of require() call.
-                let replaceEnd = node.end!
+                let replaceEnd = node.end
+
+                if (
+                  typeof replaceStart !== 'number' ||
+                  typeof replaceEnd !== 'number'
+                ) {
+                  return
+                }
 
                 // Check if there's a .default property access after require().
                 // Is a property access.
@@ -368,7 +403,9 @@ export function createRequireTransformPlugin(): Plugin {
                   t.isIdentifier(parent.property, { name: 'default' })
                 ) {
                   // Replace the entire require('./X.js').default expression
-                  replaceEnd = parent.end!
+                  if (typeof parent.end === 'number') {
+                    replaceEnd = parent.end
+                  }
                 }
 
                 // Step 12: Use MagicString to replace the require with the inlined value
@@ -388,12 +425,17 @@ export function createRequireTransformPlugin(): Plugin {
                 }
 
                 // Replace the require string with the absolute dist path.
-                s.overwrite(
-                  stringNode.start!,
-                  stringNode.end!,
-                  `'${absoluteDistPath}'`,
-                )
-                modified = true
+                if (
+                  typeof stringNode.start === 'number' &&
+                  typeof stringNode.end === 'number'
+                ) {
+                  s.overwrite(
+                    stringNode.start,
+                    stringNode.end,
+                    `'${absoluteDistPath}'`,
+                  )
+                  modified = true
+                }
               }
             } catch {
               // Resolution error (file doesn't exist, etc.).

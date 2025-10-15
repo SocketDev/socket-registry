@@ -21,7 +21,7 @@ export function createImportTransformPlugin(
     name: 'socket:import-transform',
     enforce: 'pre',
 
-    async resolveId(source: string, importer: string | undefined, options) {
+    async resolveId(source: string, importer: string | undefined) {
       // Handle @socketsecurity/registry imports.
       if (source.startsWith('@socketsecurity/registry')) {
         const subpath = source.replace('@socketsecurity/registry', '')

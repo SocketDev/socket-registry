@@ -9,8 +9,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(__dirname, '..')
 
 const isCoverageEnabled =
-  process.env['COVERAGE'] === 'true' ||
-  process.env['npm_lifecycle_event']?.includes('coverage') ||
+  process.env.COVERAGE === 'true' ||
+  process.env.npm_lifecycle_event?.includes('coverage') ||
   process.argv.some(arg => arg.includes('coverage'))
 
 export default defineConfig({
@@ -51,7 +51,7 @@ export default defineConfig({
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
-      ...(process.env['INCLUDE_NPM_TESTS'] ? [] : ['test/npm/**']),
+      ...(process.env.INCLUDE_NPM_TESTS ? [] : ['test/npm/**']),
     ],
     reporters: ['default'],
 
