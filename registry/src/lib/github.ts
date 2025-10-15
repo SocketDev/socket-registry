@@ -21,12 +21,15 @@
  * - Cache to minimize API calls
  */
 
+import type { TtlCache } from './cache-with-ttl'
 import { createTtlCache } from './cache-with-ttl'
 import { httpRequest } from './http-request'
+import type { SpawnOptions } from './spawn'
 import { spawn } from './spawn'
 
-import type { TtlCache } from './cache-with-ttl'
-import type { SpawnOptions } from './spawn'
+// GitHub API base URL constant (inlined for coverage mode compatibility).
+const GITHUB_API_BASE_URL = 'https://api.github.com'
+
 // 5 minutes.
 const DEFAULT_CACHE_TTL_MS = 5 * 60 * 1000
 
@@ -64,17 +67,14 @@ export interface GitHubRateLimitError extends Error {
 export function getGitHubToken(): string | undefined {
   const { env } = process
   return (
-    env['GITHUB_TOKEN'] ||
-    env['GH_TOKEN'] ||
-    env['SOCKET_CLI_GITHUB_TOKEN'] ||
-    undefined
+    env.GITHUB_TOKEN || env.GH_TOKEN || env.SOCKET_CLI_GITHUB_TOKEN || undefined
   )
 }
 
 /**
  * Fetch data from GitHub API with rate limit handling.
  */
-export async function fetchGitHub<T = any>(
+export async function fetchGitHub<T = unknown>(
   url: string,
   options?: GitHubFetchOptions | undefined,
 ): Promise<T> {
@@ -88,7 +88,7 @@ export async function fetchGitHub<T = any>(
   }
 
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`
+    headers.Authorization = `Bearer ${token}`
   }
 
   const response = await httpRequest(url, { headers })
@@ -183,7 +183,7 @@ export async function resolveRefToSha(
   const cacheKey = `${owner}/${repo}@${ref}`
 
   // Optionally disable cache.
-  if (process.env['DISABLE_GITHUB_CACHE']) {
+  if (process.env.DISABLE_GITHUB_CACHE) {
     return await fetchRefSha(owner, repo, ref, opts)
   }
 
@@ -209,7 +209,7 @@ async function fetchRefSha(
 
   try {
     // Try as a tag first.
-    const tagUrl = `${/*@__INLINE__*/ require('./constants/GITHUB_API_BASE_URL')}/repos/${owner}/${repo}/git/refs/tags/${ref}`
+    const tagUrl = `${GITHUB_API_BASE_URL}/repos/${owner}/${repo}/git/refs/tags/${ref}`
     const tagData = await fetchGitHub<GitHubRef>(tagUrl, fetchOptions)
 
     // Tag might point to a tag object or directly to a commit.
@@ -225,13 +225,13 @@ async function fetchRefSha(
   } catch {
     // Not a tag, try as a branch.
     try {
-      const branchUrl = `${/*@__INLINE__*/ require('./constants/GITHUB_API_BASE_URL')}/repos/${owner}/${repo}/git/refs/heads/${ref}`
+      const branchUrl = `${GITHUB_API_BASE_URL}/repos/${owner}/${repo}/git/refs/heads/${ref}`
       const branchData = await fetchGitHub<GitHubRef>(branchUrl, fetchOptions)
       return branchData.object.sha
     } catch {
       // Try without refs/ prefix (for commit SHAs or other refs).
       try {
-        const commitUrl = `${/*@__INLINE__*/ require('./constants/GITHUB_API_BASE_URL')}/repos/${owner}/${repo}/commits/${ref}`
+        const commitUrl = `${GITHUB_API_BASE_URL}/repos/${owner}/${repo}/commits/${ref}`
         const commitData = await fetchGitHub<GitHubCommit>(
           commitUrl,
           fetchOptions,
@@ -249,9 +249,9 @@ async function fetchRefSha(
 /**
  * Clear the ref resolution cache (in-memory only).
  */
-export function clearRefCache(): void {
+export async function clearRefCache(): Promise<void> {
   if (_githubCache) {
-    _githubCache.clearMemo()
+    await _githubCache.clear({ memoOnly: true })
   }
 }
 
@@ -331,7 +331,24 @@ export async function fetchGhsaDetails(
   options?: GitHubFetchOptions,
 ): Promise<GhsaDetails> {
   const url = `https://api.github.com/advisories/${ghsaId}`
-  const data = await fetchGitHub<any>(url, options)
+  const data = await fetchGitHub<{
+    aliases?: string[]
+    cvss: unknown
+    cwes?: Array<{ cweId: string; name: string; description: string }>
+    details: string
+    ghsa_id: string
+    published_at: string
+    references?: Array<{ url: string }>
+    severity: string
+    summary: string
+    updated_at: string
+    vulnerabilities?: Array<{
+      package: { ecosystem: string; name: string }
+      vulnerableVersionRange: string
+      firstPatchedVersion: { identifier: string } | null
+    }>
+    withdrawn_at: string
+  }>(url, options)
 
   return {
     ghsaId: data.ghsa_id,
@@ -344,7 +361,7 @@ export async function fetchGhsaDetails(
     withdrawnAt: data.withdrawn_at,
     references: data.references || [],
     vulnerabilities: data.vulnerabilities || [],
-    cvss: data.cvss,
+    cvss: data.cvss as { score: number; vectorString: string } | null,
     cwes: data.cwes || [],
   }
 }
@@ -360,7 +377,7 @@ export async function cacheFetchGhsa(
   const key = `ghsa:${ghsaId}`
 
   // Check cache first.
-  if (!process.env['DISABLE_GITHUB_CACHE']) {
+  if (!process.env.DISABLE_GITHUB_CACHE) {
     const cached = await cache.get(key)
     if (cached) {
       return JSON.parse(cached as string) as GhsaDetails

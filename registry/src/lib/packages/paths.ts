@@ -12,10 +12,10 @@ let _path: typeof import('path') | undefined
 function getPath() {
   if (_path === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _path = /*@__PURE__*/ require('path')
+
+    _path = /*@__PURE__*/ require('node:path')
   }
-  return _path!
+  return _path as typeof import('path')
 }
 
 /**

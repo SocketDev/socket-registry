@@ -13,7 +13,7 @@ export const optimizePlugin = {
       // 1. Strip verbose error messages (keep error codes only).
       contents = contents.replace(
         /throw\s+new\s+Error\(['"`]([^'"`]{100,})['"`]\)/g,
-        (match, msg) => {
+        (_match, msg) => {
           const code = msg.match(/\b[A-Z][A-Z0-9_]+\b/) || ['ERR_UNKNOWN']
           return `throw new Error('${code[0]}')`
         },
@@ -95,7 +95,7 @@ export const dataExtractionPlugin = {
       const data = JSON.parse(contents)
 
       // For large JSON data files, only keep essential fields.
-      if (contents.length > 10000) {
+      if (contents.length > 10_000) {
         // Example: package.json files often have huge 'readme' fields.
         delete data.readme
         delete data.readmeFilename

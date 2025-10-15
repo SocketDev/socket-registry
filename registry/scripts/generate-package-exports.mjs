@@ -1,13 +1,12 @@
 /** @fileoverview Update registry package.json with exports, browser fields, and Node.js engine range. */
 
 import path from 'node:path'
-
-import constants from '../../scripts/constants.mjs'
-
-import fastGlob from 'fast-glob'
 import builtinNames from '@socketregistry/packageurl-js/data/npm/builtin-names.json' with {
   type: 'json',
 }
+
+import fastGlob from 'fast-glob'
+import constants from '../../scripts/constants.mjs'
 import { readPackageJson, toSortedObject } from './utils/helpers.mjs'
 
 const { EXT_DTS, EXT_JSON } = constants

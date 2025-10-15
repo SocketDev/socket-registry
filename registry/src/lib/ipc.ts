@@ -31,6 +31,7 @@
 // import { promises as fs } from 'node:fs' // Unused - will be needed when writeIpcStub/readIpcStub are enabled
 import os from 'node:os'
 import path from 'node:path'
+
 // import crypto from 'node:crypto' // Unused - will be needed when createIpcMessage is enabled
 
 // import { z } from '../../external/zod' // Unused - schemas are commented out until validation functions are enabled
@@ -105,7 +106,7 @@ type BufferEncoding = globalThis.BufferEncoding
  * Base IPC message interface.
  * All IPC messages must conform to this structure.
  */
-export interface IpcMessage<T = any> {
+export interface IpcMessage<T = unknown> {
   /** Unique identifier for message tracking and response correlation. */
   id: string
   /** Unix timestamp for freshness validation and replay prevention. */

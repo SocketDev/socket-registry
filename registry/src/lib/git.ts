@@ -1,7 +1,3 @@
-/** @fileoverview Git operations including diff detection and file tracking. */
-
-'use strict'
-
 import path from 'node:path'
 
 import { getGlobMatcher } from './globs'
@@ -48,10 +44,22 @@ let _fs: typeof import('fs') | undefined
 function getFs() {
   if (_fs === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _fs = /*@__PURE__*/ require('fs')
+
+    _fs = /*@__PURE__*/ require('node:fs')
   }
-  return _fs!
+  return _fs as typeof import('fs')
+}
+
+let _path: typeof import('path') | undefined
+/**
+ * Lazily load the path module to avoid Webpack errors.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+function getPath() {
+  if (_path === undefined) {
+    _path = /*@__PURE__*/ require('node:path')
+  }
+  return _path as typeof import('path')
 }
 
 /**
@@ -69,14 +77,14 @@ function getCwd(): string {
   return getFs().realpathSync(process.cwd())
 }
 
-function getGitDiffSpawnArgs(): GitDiffSpawnArgs {
-  const cwd = getCwd()
+function getGitDiffSpawnArgs(cwd?: string): GitDiffSpawnArgs {
+  const resolvedCwd = cwd ? getFs().realpathSync(cwd) : getCwd()
   return {
     all: [
       getGitPath(),
       ['status', '--porcelain'],
       {
-        cwd,
+        cwd: resolvedCwd,
         shell: process.platform === 'win32',
       },
     ],
@@ -84,14 +92,14 @@ function getGitDiffSpawnArgs(): GitDiffSpawnArgs {
       getGitPath(),
       ['diff', '--name-only'],
       {
-        cwd,
+        cwd: resolvedCwd,
       },
     ],
     staged: [
       getGitPath(),
       ['diff', '--cached', '--name-only'],
       {
-        cwd,
+        cwd: resolvedCwd,
         shell: process.platform === 'win32',
       },
     ],
@@ -120,7 +128,9 @@ async function innerDiff(
     const stdout = Buffer.isBuffer(spawnResult.stdout)
       ? spawnResult.stdout.toString('utf8')
       : String(spawnResult.stdout)
-    result = parseGitDiffStdout(stdout, parseOptions)
+    // Extract spawn cwd from args to pass to parser
+    const spawnCwd = typeof args[2].cwd === 'string' ? args[2].cwd : undefined
+    result = parseGitDiffStdout(stdout, parseOptions, spawnCwd)
   } catch {
     return []
   }
@@ -149,7 +159,9 @@ function innerDiffSync(args: SpawnArgs, options?: GitDiffOptions): string[] {
     const stdout = Buffer.isBuffer(spawnResult.stdout)
       ? spawnResult.stdout.toString('utf8')
       : String(spawnResult.stdout)
-    result = parseGitDiffStdout(stdout, parseOptions)
+    // Extract spawn cwd from args to pass to parser
+    const spawnCwd = typeof args[2].cwd === 'string' ? args[2].cwd : undefined
+    result = parseGitDiffStdout(stdout, parseOptions, spawnCwd)
   } catch {
     return []
   }
@@ -159,20 +171,53 @@ function innerDiffSync(args: SpawnArgs, options?: GitDiffOptions): string[] {
   return result
 }
 
+/**
+ * Find git repository root by walking up from the given directory.
+ * Returns the directory itself if it contains .git, or the original path if no .git found.
+ * Exported for testing.
+ */
+export function findGitRoot(startPath: string): string {
+  const fs = getFs()
+  const path = getPath()
+  let currentPath = startPath
+  // Walk up the directory tree looking for .git
+  while (true) {
+    try {
+      const gitPath = path.join(currentPath, '.git')
+      if (fs.existsSync(gitPath)) {
+        return currentPath
+      }
+    } catch {
+      // Ignore errors and continue walking up
+    }
+    const parentPath = path.dirname(currentPath)
+    // Stop if we've reached the root or can't go up anymore
+    if (parentPath === currentPath) {
+      // Return original path if no .git found
+      return startPath
+    }
+    currentPath = parentPath
+  }
+}
+
 function parseGitDiffStdout(
   stdout: string,
   options?: GitDiffOptions,
+  spawnCwd?: string,
 ): string[] {
-  const rootPath = getCwd()
+  // Find git repo root from spawnCwd. Git always returns paths relative to the repo root,
+  // not the cwd where it was run. So we need to find the repo root to correctly parse paths.
+  const defaultRoot = spawnCwd ? findGitRoot(spawnCwd) : getCwd()
   const {
     absolute = false,
-    cwd: cwdOption = rootPath,
+    cwd: cwdOption = defaultRoot,
     porcelain = false,
     ...matcherOptions
   } = { __proto__: null, ...options }
   // Resolve cwd to handle symlinks.
   const cwd =
-    cwdOption === rootPath ? rootPath : getFs().realpathSync(cwdOption)
+    cwdOption === defaultRoot ? defaultRoot : getFs().realpathSync(cwdOption)
+  const rootPath = defaultRoot
   // Split into lines without trimming to preserve leading spaces in porcelain format.
   let rawFiles = stdout
     ? stripAnsi(stdout)
@@ -197,9 +242,19 @@ function parseGitDiffStdout(
   }
   const relPath = normalizePath(path.relative(rootPath, cwd))
   const matcher = getGlobMatcher([`${relPath}/**`], {
-    ...matcherOptions,
+    ...(matcherOptions as {
+      dot?: boolean
+      ignore?: string[]
+      nocase?: boolean
+    }),
     absolute,
     cwd: rootPath,
+  } as {
+    absolute?: boolean
+    cwd?: string
+    dot?: boolean
+    ignore?: string[]
+    nocase?: boolean
   })
   const filtered: string[] = []
   for (const filepath of files) {
@@ -220,7 +275,7 @@ function parseGitDiffStdout(
 export async function getChangedFiles(
   options?: GitDiffOptions,
 ): Promise<string[]> {
-  const args = getGitDiffSpawnArgs().all
+  const args = getGitDiffSpawnArgs(options?.cwd).all
   return await innerDiff(args, {
     __proto__: null,
     ...options,
@@ -236,7 +291,7 @@ export async function getChangedFiles(
  * from the last commit.
  */
 export function getChangedFilesSync(options?: GitDiffOptions): string[] {
-  const args = getGitDiffSpawnArgs().all
+  const args = getGitDiffSpawnArgs(options?.cwd).all
   return innerDiffSync(args, {
     __proto__: null,
     ...options,
@@ -253,7 +308,7 @@ export function getChangedFilesSync(options?: GitDiffOptions): string[] {
 export async function getUnstagedFiles(
   options?: GitDiffOptions,
 ): Promise<string[]> {
-  const args = getGitDiffSpawnArgs().unstaged
+  const args = getGitDiffSpawnArgs(options?.cwd).unstaged
   return await innerDiff(args, options)
 }
 
@@ -264,7 +319,7 @@ export async function getUnstagedFiles(
  * This is a focused check for uncommitted changes to existing files.
  */
 export function getUnstagedFilesSync(options?: GitDiffOptions): string[] {
-  const args = getGitDiffSpawnArgs().unstaged
+  const args = getGitDiffSpawnArgs(options?.cwd).unstaged
   return innerDiffSync(args, options)
 }
 
@@ -277,7 +332,7 @@ export function getUnstagedFilesSync(options?: GitDiffOptions): string[] {
 export async function getStagedFiles(
   options?: GitDiffOptions,
 ): Promise<string[]> {
-  const args = getGitDiffSpawnArgs().staged
+  const args = getGitDiffSpawnArgs(options?.cwd).staged
   return await innerDiff(args, options)
 }
 
@@ -288,7 +343,7 @@ export async function getStagedFiles(
  * This is a focused check for what will be included in the next commit.
  */
 export function getStagedFilesSync(options?: GitDiffOptions): string[] {
-  const args = getGitDiffSpawnArgs().staged
+  const args = getGitDiffSpawnArgs(options?.cwd).staged
   return innerDiffSync(args, options)
 }
 
@@ -306,7 +361,8 @@ export async function isChanged(
   })
   // Resolve pathname to handle symlinks before computing relative path.
   const resolvedPathname = getFs().realpathSync(pathname)
-  const relativePath = normalizePath(path.relative(getCwd(), resolvedPathname))
+  const baseCwd = options?.cwd ? getFs().realpathSync(options.cwd) : getCwd()
+  const relativePath = normalizePath(path.relative(baseCwd, resolvedPathname))
   return files.includes(relativePath)
 }
 
@@ -324,7 +380,8 @@ export function isChangedSync(
   })
   // Resolve pathname to handle symlinks before computing relative path.
   const resolvedPathname = getFs().realpathSync(pathname)
-  const relativePath = normalizePath(path.relative(getCwd(), resolvedPathname))
+  const baseCwd = options?.cwd ? getFs().realpathSync(options.cwd) : getCwd()
+  const relativePath = normalizePath(path.relative(baseCwd, resolvedPathname))
   return files.includes(relativePath)
 }
 
@@ -342,7 +399,8 @@ export async function isUnstaged(
   })
   // Resolve pathname to handle symlinks before computing relative path.
   const resolvedPathname = getFs().realpathSync(pathname)
-  const relativePath = normalizePath(path.relative(getCwd(), resolvedPathname))
+  const baseCwd = options?.cwd ? getFs().realpathSync(options.cwd) : getCwd()
+  const relativePath = normalizePath(path.relative(baseCwd, resolvedPathname))
   return files.includes(relativePath)
 }
 
@@ -360,7 +418,8 @@ export function isUnstagedSync(
   })
   // Resolve pathname to handle symlinks before computing relative path.
   const resolvedPathname = getFs().realpathSync(pathname)
-  const relativePath = normalizePath(path.relative(getCwd(), resolvedPathname))
+  const baseCwd = options?.cwd ? getFs().realpathSync(options.cwd) : getCwd()
+  const relativePath = normalizePath(path.relative(baseCwd, resolvedPathname))
   return files.includes(relativePath)
 }
 
@@ -378,7 +437,8 @@ export async function isStaged(
   })
   // Resolve pathname to handle symlinks before computing relative path.
   const resolvedPathname = getFs().realpathSync(pathname)
-  const relativePath = normalizePath(path.relative(getCwd(), resolvedPathname))
+  const baseCwd = options?.cwd ? getFs().realpathSync(options.cwd) : getCwd()
+  const relativePath = normalizePath(path.relative(baseCwd, resolvedPathname))
   return files.includes(relativePath)
 }
 
@@ -396,6 +456,7 @@ export function isStagedSync(
   })
   // Resolve pathname to handle symlinks before computing relative path.
   const resolvedPathname = getFs().realpathSync(pathname)
-  const relativePath = normalizePath(path.relative(getCwd(), resolvedPathname))
+  const baseCwd = options?.cwd ? getFs().realpathSync(options.cwd) : getCwd()
+  const relativePath = normalizePath(path.relative(baseCwd, resolvedPathname))
   return files.includes(relativePath)
 }

@@ -1,7 +1,3 @@
-/** @fileoverview A typed parseArgs utility that wraps yargs-parser with Node.js parseArgs-like API. */
-
-'use strict'
-
 import yargsParser from '../external/yargs-parser'
 
 /**
@@ -156,29 +152,29 @@ export function parseArgs<T = Record<string, unknown>>(
 
     // Set the option type.
     if (type === 'boolean') {
-      yargsOptions.boolean!.push(key)
+      yargsOptions.boolean?.push(key)
     } else if (type === 'string') {
-      yargsOptions.string!.push(key)
+      yargsOptions.string?.push(key)
     }
 
     // Handle multiple values (arrays).
     if (multiple) {
-      yargsOptions.array!.push(key)
+      yargsOptions.array?.push(key)
     }
 
     // Set short alias.
     if (short) {
-      yargsOptions.alias![short] = key
+      ;(yargsOptions.alias as Record<string, string>)[short] = key
     }
 
     // Set default value.
     if (defaultValue !== undefined) {
-      yargsOptions.default![key] = defaultValue
+      ;(yargsOptions.default as Record<string, unknown>)[key] = defaultValue
     }
 
     // Set coerce function.
     if (coerce) {
-      yargsOptions.coerce![key] = coerce
+      ;(yargsOptions.coerce as Record<string, unknown>)[key] = coerce
     }
   }
 

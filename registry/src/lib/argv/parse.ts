@@ -5,8 +5,8 @@
 
 import { parseArgs as nodeParseArgs } from 'node:util'
 
-export { parseArgs as parseArgs } from 'node:util'
 export type { ParseArgsConfig } from 'node:util'
+export { parseArgs } from 'node:util'
 
 /**
  * Parse command-line arguments with Socket defaults.
@@ -32,6 +32,7 @@ export function getPositionalArgs(startIndex = 2): string[] {
   let i = 0
 
   while (i < args.length) {
+    // biome-ignore lint/style/noNonNullAssertion: Loop condition ensures index is within bounds.
     const arg = args[i]!
     // Stop at first flag
     if (arg.startsWith('-')) {

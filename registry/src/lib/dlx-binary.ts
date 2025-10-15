@@ -11,9 +11,8 @@ import { httpRequest } from './http-request'
 import { isObjectObject } from './objects'
 import { normalizePath } from './path'
 import { getSocketHomePath } from './paths'
-import { spawn } from './spawn'
-
 import type { SpawnExtra, SpawnOptions } from './spawn'
+import { spawn } from './spawn'
 
 export interface DlxBinaryOptions {
   /** URL to download the binary from. */
@@ -72,7 +71,8 @@ async function isCacheValid(
       return false
     }
     const now = Date.now()
-    const age = now - ((metadata['timestamp'] as number) || 0)
+    const age =
+      now - (((metadata as Record<string, unknown>).timestamp as number) || 0)
 
     return age < cacheTtl
   } catch {
@@ -195,7 +195,8 @@ export async function cleanDlxCache(
       ) {
         continue
       }
-      const age = now - ((metadata['timestamp'] as number) || 0)
+      const age =
+        now - (((metadata as Record<string, unknown>).timestamp as number) || 0)
 
       if (age > maxAge) {
         // Remove entire cache entry directory.
@@ -262,9 +263,10 @@ export async function dlxBinary(
         metadata &&
         typeof metadata === 'object' &&
         !Array.isArray(metadata) &&
-        typeof metadata['checksum'] === 'string'
+        typeof (metadata as Record<string, unknown>).checksum === 'string'
       ) {
-        computedChecksum = metadata['checksum']
+        computedChecksum = (metadata as Record<string, unknown>)
+          .checksum as string
       } else {
         // If metadata is invalid, re-download.
         downloaded = true
@@ -311,7 +313,7 @@ export async function dlxBinary(
         ...spawnOptions,
         env: {
           ...spawnOptions?.env,
-          PATH: `${cacheEntryDir}${path.delimiter}${process.env['PATH'] || ''}`,
+          PATH: `${cacheEntryDir}${path.delimiter}${process.env.PATH || ''}`,
         },
         shell: true,
       }
@@ -386,14 +388,15 @@ export async function listDlxCache(): Promise<
         // eslint-disable-next-line no-await-in-loop
         const binaryStats = await fs.stat(binaryPath)
 
+        const metaObj = metadata as Record<string, unknown>
         results.push({
-          age: now - ((metadata['timestamp'] as number) || 0),
-          arch: (metadata['arch'] as string) || 'unknown',
-          checksum: (metadata['checksum'] as string) || '',
+          age: now - ((metaObj.timestamp as number) || 0),
+          arch: (metaObj.arch as string) || 'unknown',
+          checksum: (metaObj.checksum as string) || '',
           name: binaryFile,
-          platform: (metadata['platform'] as string) || 'unknown',
+          platform: (metaObj.platform as string) || 'unknown',
           size: binaryStats.size,
-          url: (metadata['url'] as string) || '',
+          url: (metaObj.url as string) || '',
         })
       }
     } catch {}

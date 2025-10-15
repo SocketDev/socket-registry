@@ -14,20 +14,20 @@ let _https: typeof import('https') | undefined
 function getHttp() {
   if (_http === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _http = /*@__PURE__*/ require('http')
+
+    _http = /*@__PURE__*/ require('node:http')
   }
-  return _http!
+  return _http as typeof import('http')
 }
 
 /*@__NO_SIDE_EFFECTS__*/
 function getHttps() {
   if (_https === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _https = /*@__PURE__*/ require('https')
+
+    _https = /*@__PURE__*/ require('node:https')
   }
-  return _https!
+  return _https as typeof import('https')
 }
 
 export interface HttpRequestOptions {
@@ -82,7 +82,7 @@ export async function httpRequest(
     method = 'GET',
     retries = 0,
     retryDelay = 1000,
-    timeout = 30000,
+    timeout = 30_000,
   } = { __proto__: null, ...options } as HttpRequestOptions
 
   // Retry logic with exponential backoff
@@ -107,7 +107,7 @@ export async function httpRequest(
       }
 
       // Retry with exponential backoff
-      const delayMs = retryDelay * Math.pow(2, attempt)
+      const delayMs = retryDelay * 2 ** attempt
       // eslint-disable-next-line no-await-in-loop
       await new Promise(resolve => setTimeout(resolve, delayMs))
     }
@@ -129,7 +129,7 @@ async function httpRequestAttempt(
     headers = {},
     maxRedirects = 5,
     method = 'GET',
-    timeout = 30000,
+    timeout = 30_000,
   } = { __proto__: null, ...options } as HttpRequestOptions
 
   return await new Promise((resolve, reject) => {
@@ -229,8 +229,9 @@ async function httpRequestAttempt(
     )
 
     request.on('error', (error: Error) => {
-      const err = new Error(`HTTP request failed: ${error.message}`)
-      ;(err as any).cause = error
+      const err = new Error(`HTTP request failed: ${error.message}`, {
+        cause: error,
+      })
       reject(err)
     })
 
@@ -263,7 +264,7 @@ export async function httpDownload(
     onProgress,
     retries = 0,
     retryDelay = 1000,
-    timeout = 120000,
+    timeout = 120_000,
   } = { __proto__: null, ...options } as HttpDownloadOptions
 
   // Retry logic with exponential backoff
@@ -285,7 +286,7 @@ export async function httpDownload(
       }
 
       // Retry with exponential backoff
-      const delayMs = retryDelay * Math.pow(2, attempt)
+      const delayMs = retryDelay * 2 ** attempt
       // eslint-disable-next-line no-await-in-loop
       await new Promise(resolve => setTimeout(resolve, delayMs))
     }
@@ -305,7 +306,7 @@ async function httpDownloadAttempt(
   const {
     headers = {},
     onProgress,
-    timeout = 120000,
+    timeout = 120_000,
   } = { __proto__: null, ...options } as HttpDownloadOptions
 
   return await new Promise((resolve, reject) => {
@@ -349,7 +350,10 @@ async function httpDownloadAttempt(
           return
         }
 
-        const totalSize = parseInt(res.headers['content-length'] || '0', 10)
+        const totalSize = Number.parseInt(
+          res.headers['content-length'] || '0',
+          10,
+        )
         let downloadedSize = 0
 
         // Create write stream
@@ -357,8 +361,9 @@ async function httpDownloadAttempt(
 
         fileStream.on('error', (error: Error) => {
           closeStream()
-          const err = new Error(`Failed to write file: ${error.message}`)
-          ;(err as any).cause = error
+          const err = new Error(`Failed to write file: ${error.message}`, {
+            cause: error,
+          })
           reject(err)
         })
 
@@ -370,7 +375,7 @@ async function httpDownloadAttempt(
         })
 
         res.on('end', () => {
-          fileStream!.close(() => {
+          fileStream?.close(() => {
             streamClosed = true
             resolve({
               path: destPath,
@@ -391,8 +396,9 @@ async function httpDownloadAttempt(
 
     request.on('error', (error: Error) => {
       closeStream()
-      const err = new Error(`HTTP download failed: ${error.message}`)
-      ;(err as any).cause = error
+      const err = new Error(`HTTP download failed: ${error.message}`, {
+        cause: error,
+      })
       reject(err)
     })
 
@@ -423,9 +429,7 @@ export async function httpGetJson<T = unknown>(
   try {
     return response.json<T>()
   } catch (e) {
-    const err = new Error('Failed to parse JSON response')
-    ;(err as any).cause = e
-    throw err
+    throw new Error('Failed to parse JSON response', { cause: e })
   }
 }
 

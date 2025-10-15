@@ -428,7 +428,7 @@ describe('packages module', () => {
       }
       const normalized = normalizePackageJson(pkg)
       expect(normalized.dependencies).toBeDefined()
-      expect(normalized.dependencies!['lodash']).toBe('^4.17.0')
+      expect(normalized.dependencies?.lodash).toBe('^4.17.0')
 
       const pkg2 = {
         name: 'test',
@@ -452,7 +452,7 @@ describe('packages module', () => {
         customField: 'value',
       }
       const normalized = normalizePackageJson(pkg)
-      expect((normalized as any)['customField']).toBe('value')
+      expect((normalized as any).customField).toBe('value')
     })
 
     it('should handle scripts', () => {
@@ -465,7 +465,7 @@ describe('packages module', () => {
         },
       }
       const result = normalizePackageJson(pkg)
-      expect(result['scripts']).toBeDefined()
+      expect(result.scripts).toBeDefined()
 
       const pkg2 = {
         name: 'test',
@@ -475,7 +475,7 @@ describe('packages module', () => {
         },
       }
       const normalized = normalizePackageJson(pkg2)
-      expect(normalized['scripts']).toBeDefined()
+      expect(normalized.scripts).toBeDefined()
     })
   })
 
@@ -713,7 +713,7 @@ describe('packages module', () => {
       )
       expect(result.name).toBe('@socketregistry/test-package')
       expect(result.version).toBe('1.0.0')
-      expect(result['license']).toBe('MIT')
+      expect(result.license).toBe('MIT')
     })
 
     it('should handle scoped package names', () => {
@@ -731,10 +731,10 @@ describe('packages module', () => {
       const result = createPackageJson('lodash', 'packages/npm/lodash', {
         version: '4.17.21',
       })
-      const repo = result['repository'] as any
+      const repo = result.repository as any
       expect(repo).toBeDefined()
-      expect(repo['type']).toBe('git')
-      expect(repo['directory']).toBe('packages/npm/lodash')
+      expect(repo.type).toBe('git')
+      expect(repo.directory).toBe('packages/npm/lodash')
     })
 
     it('should handle exports field', () => {
@@ -751,9 +751,9 @@ describe('packages module', () => {
       const result = createPackageJson('test', 'packages/npm/test', {
         version: '1.0.0',
       })
-      const engines = result['engines'] as any
+      const engines = result.engines as any
       expect(engines).toBeDefined()
-      expect(engines['node']).toBeDefined()
+      expect(engines.node).toBeDefined()
     })
 
     it('should handle custom engines', () => {
@@ -763,16 +763,16 @@ describe('packages module', () => {
           node: '>=20.0.0',
         },
       })
-      const engines = result['engines'] as any
-      expect(engines['node']).toBeDefined()
+      const engines = result.engines as any
+      expect(engines.node).toBeDefined()
     })
 
     it('should set default files', () => {
       const result = createPackageJson('test', 'packages/npm/test', {
         version: '1.0.0',
       })
-      expect(result['files']).toBeDefined()
-      expect(Array.isArray(result['files'])).toBe(true)
+      expect(result.files).toBeDefined()
+      expect(Array.isArray(result.files)).toBe(true)
     })
 
     it('should handle custom description', () => {
@@ -780,7 +780,7 @@ describe('packages module', () => {
         version: '1.0.0',
         description: 'Test package description',
       })
-      expect(result['description']).toBe('Test package description')
+      expect(result.description).toBe('Test package description')
     })
 
     it('should handle dependencies', () => {
@@ -792,7 +792,7 @@ describe('packages module', () => {
       })
       expect(result.dependencies).toBeDefined()
       if (result.dependencies) {
-        expect(result.dependencies['lodash']).toBe('^4.17.21')
+        expect(result.dependencies.lodash).toBe('^4.17.21')
       }
     })
 
@@ -800,7 +800,7 @@ describe('packages module', () => {
       const result = createPackageJson('test', 'packages/npm/test', {
         version: '1.0.0',
       })
-      expect(result['sideEffects']).toBe(false)
+      expect(result.sideEffects).toBe(false)
     })
   })
 
@@ -1135,8 +1135,8 @@ describe('packages module', () => {
 
       try {
         const result = await readPackageJson(tmpDir)
-        expect(result!.name).toBe('test')
-        expect(result!.version).toBe('1.0.0')
+        expect(result?.name).toBe('test')
+        expect(result?.version).toBe('1.0.0')
       } finally {
         await del(tmpDir, { force: true })
       }
@@ -1151,7 +1151,7 @@ describe('packages module', () => {
         const result = await readPackageJson(tmpDir, {
           normalize: true,
         } as any)
-        expect(result!.name).toBe('test')
+        expect(result?.name).toBe('test')
       } finally {
         await del(tmpDir, { force: true })
       }
@@ -1163,7 +1163,7 @@ describe('packages module', () => {
       const pkgPath = path.join(process.cwd(), 'package.json')
       const result = readPackageJsonSync(pkgPath)
       expect(result).toBeDefined()
-      expect(result!.name).toBeDefined()
+      expect(result?.name).toBeDefined()
     })
 
     it('should handle non-existent file', () => {
@@ -1182,8 +1182,8 @@ describe('packages module', () => {
 
       try {
         const result = readPackageJsonSync(tmpDir)
-        expect(result!.name).toBe('test')
-        expect(result!.version).toBe('1.0.0')
+        expect(result?.name).toBe('test')
+        expect(result?.version).toBe('1.0.0')
       } finally {
         await del(tmpDir, { force: true })
       }
@@ -1199,7 +1199,7 @@ describe('packages module', () => {
           // @ts-expect-error - Testing runtime behavior.
           normalize: true,
         })
-        expect(result!.name).toBe('test')
+        expect(result?.name).toBe('test')
       } finally {
         await del(tmpDir, { force: true })
       }
@@ -1292,7 +1292,7 @@ describe('packages module', () => {
       instance.fromContent({ name: 'test', version: '1.0.0' })
       instance.update({ version: '2.0.0', description: 'Updated' })
       expect(instance.content.version).toBe('2.0.0')
-      expect(instance.content['description']).toBe('Updated')
+      expect(instance.content.description).toBe('Updated')
     })
 
     it('should parse JSON string with fromJSON', () => {

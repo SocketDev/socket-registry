@@ -18,7 +18,7 @@ describe('IPC functionality', () => {
       const fullData = await ipcPromise
       const specificData = await getIpc('execPath')
       if ('execPath' in (fullData as any)) {
-        expect(specificData).toBe((fullData as any)['execPath'])
+        expect(specificData).toBe((fullData as any).execPath)
       } else {
         expect(specificData).toBeUndefined()
       }

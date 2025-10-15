@@ -3,34 +3,19 @@
  * Tests ported from https://github.com/ljharb/object-keys/blob/ba2c1989270c7de969aa8498fc3b7c8e677806f3/test/shim.js
  */
 
-import path from 'node:path'
+import { describe, expect, it } from 'vitest'
 
-import { beforeAll, describe, expect, it } from 'vitest'
+import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
-import constants from '../../scripts/constants.mjs'
-import { installPackageForTesting } from '../../scripts/utils/package.mjs'
+const {
+  eco,
+  module: objectKeys,
+  pkgPath,
+  skip,
+  sockRegPkgName,
+} = await setupNpmPackageTest(__filename)
 
-const { NPM, npmPackagesPath } = constants
-
-const eco = NPM
-const sockRegPkgName = path.basename(__filename, '.test.mts')
-
-describe(`${eco} > ${sockRegPkgName}`, () => {
-  let pkgPath: string
-  let objectKeys: any
-
-  beforeAll(async () => {
-    const result = await installPackageForTesting(
-      npmPackagesPath,
-      sockRegPkgName,
-    )
-    if (!result.installed) {
-      throw new Error(`Failed to install package: ${result.reason}`)
-    }
-    pkgPath = result.packagePath!
-    objectKeys = require(pkgPath)
-  })
-
+describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('should have valid package structure', () => {
     expect(pkgPath).toBeTruthy()
     expect(objectKeys).toBeDefined()
@@ -71,6 +56,7 @@ describe(`${eco} > ${sockRegPkgName}`, () => {
     it('should work with an arguments object', () => {
       // eslint-disable-next-line unicorn/consistent-function-scoping
       function testArgs(_a: any, _b: any, _c: any) {
+        // biome-ignore lint/complexity/noArguments: Test validates arguments object handling.
         const keys = objectKeys(arguments)
         expect(keys).toEqual(['0', '1', '2'])
       }
@@ -89,7 +75,8 @@ describe(`${eco} > ${sockRegPkgName}`, () => {
 
     it('should work with a function', () => {
       // eslint-disable-next-line unicorn/consistent-function-scoping
-      const foo = function () {}
+      const foo = () => {}
+      // biome-ignore lint/suspicious/noExplicitAny: Test adds dynamic property to function.
       ;(foo as any).a = true
 
       expect(() => objectKeys(foo)).not.toThrow()
@@ -106,7 +93,7 @@ describe(`${eco} > ${sockRegPkgName}`, () => {
       }
       const keys = objectKeys(obj)
       for (const key of keys) {
-        expect(Object.prototype.hasOwnProperty.call(obj, key)).toBe(true)
+        expect(Object.hasOwn(obj, key)).toBe(true)
       }
     })
 
@@ -128,6 +115,7 @@ describe(`${eco} > ${sockRegPkgName}`, () => {
       class Prototype {
         foo: boolean = true
       }
+      // biome-ignore lint/suspicious/noExplicitAny: Test adds dynamic property to instance.
       const instance: any = new Prototype()
       instance.bar = true
       const keys = objectKeys(instance)
@@ -149,9 +137,10 @@ describe(`${eco} > ${sockRegPkgName}`, () => {
         'valueOf',
       ]
       shadowedProps.sort()
+      // biome-ignore lint/suspicious/noExplicitAny: Test builds object with shadowed properties.
       const shadowedObject: any = { __proto__: null }
       for (let i = 0; i < shadowedProps.length; i += 1) {
-        shadowedObject[shadowedProps[i]!] = i
+        shadowedObject[shadowedProps[i] as string] = i
       }
       const keys = objectKeys(shadowedObject)
       keys.sort()
@@ -166,16 +155,16 @@ describe(`${eco} > ${sockRegPkgName}`, () => {
     })
 
     it('should work in iOS 5 mobile Safari scenario', () => {
-      // eslint-disable-next-line unicorn/consistent-function-scoping
-      const Foo: any = function () {}
-      Foo.a = function () {}
+      // biome-ignore lint/suspicious/noExplicitAny: Test adds dynamic property to function.
+      const Foo: any = () => {}
+      Foo.a = () => {}
       expect(objectKeys(Foo)).toEqual(['a'])
     })
 
     it('should work in environments with the dontEnum bug', () => {
       // eslint-disable-next-line unicorn/consistent-function-scoping
-      const Foo = function () {}
-      Foo.prototype.a = function () {}
+      const Foo = () => {}
+      Foo.prototype.a = () => {}
       expect(objectKeys(Foo.prototype)).toContain('a')
     })
   })

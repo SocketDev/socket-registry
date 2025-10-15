@@ -504,7 +504,7 @@ exec node  "$basedir/lib/cli.js" "$@"`
 
     it('should handle very long filenames', () => {
       // Test with a very long filename (but within system limits).
-      const longName = 'a'.repeat(200) + '.exe'
+      const longName = `${'a'.repeat(200)}.exe`
       const longPath = path.join(os.tmpdir(), longName)
 
       const result = resolveBinPathSync(longPath)

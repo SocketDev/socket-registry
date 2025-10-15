@@ -416,7 +416,7 @@ describe('fs module', () => {
 
       const result = await readJson(filePath, {
         reviver: (key: string, value: any) =>
-          key === 'num' ? parseInt(value, 10) : value,
+          key === 'num' ? Number.parseInt(value, 10) : value,
       })
       expect((result as any).num).toBe(42)
     })

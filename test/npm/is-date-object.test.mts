@@ -48,7 +48,7 @@ describe('is-date-object', () => {
     })
 
     it('should return false for regex object', () => {
-      expect(isDate(new RegExp('a', 'g'))).toBe(false)
+      expect(isDate(/a/g)).toBe(false)
     })
   })
 

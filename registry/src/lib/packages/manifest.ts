@@ -2,18 +2,17 @@
  * @fileoverview Package manifest and packument fetching utilities.
  */
 
-import { resolvePackageJsonEntryExports } from './exports'
-import { isRegistryFetcherType } from './validation'
 import { isArray } from '../arrays'
-import SOCKET_GITHUB_ORG from '../constants/SOCKET_GITHUB_ORG'
-import SOCKET_REGISTRY_REPO_NAME from '../constants/SOCKET_REGISTRY_REPO_NAME'
 import abortSignal from '../constants/abort-signal'
 import packageDefaultNodeRange from '../constants/package-default-node-range'
 import PACKAGE_DEFAULT_SOCKET_CATEGORIES from '../constants/package-default-socket-categories'
 import packumentCache from '../constants/packument-cache'
+import SOCKET_GITHUB_ORG from '../constants/SOCKET_GITHUB_ORG'
+import SOCKET_REGISTRY_REPO_NAME from '../constants/SOCKET_REGISTRY_REPO_NAME'
 import { isObjectObject, objectEntries } from '../objects'
-
 import type { PackageJson, PacoteOptions } from '../packages'
+import { resolvePackageJsonEntryExports } from './exports'
+import { isRegistryFetcherType } from './validation'
 
 const pkgScopePrefixRegExp = /^@socketregistry\//
 
@@ -23,7 +22,7 @@ function getNpmPackageArg() {
   if (_npmPackageArg === undefined) {
     _npmPackageArg = /*@__PURE__*/ require('../../external/npm-package-arg')
   }
-  return _npmPackageArg!
+  return _npmPackageArg as typeof import('npm-package-arg')
 }
 
 let _pacote: typeof import('pacote') | undefined
@@ -32,7 +31,7 @@ function getPacote() {
   if (_pacote === undefined) {
     _pacote = /*@__PURE__*/ require('../../external/pacote')
   }
-  return _pacote!
+  return _pacote as typeof import('pacote')
 }
 
 let _semver: typeof import('semver') | undefined
@@ -42,7 +41,7 @@ function getSemver() {
     // The 'semver' package is browser safe.
     _semver = /*@__PURE__*/ require('../../external/semver')
   }
-  return _semver!
+  return _semver as typeof import('semver')
 }
 
 /**
@@ -86,7 +85,7 @@ export function createPackageJson(
       directory,
     },
     ...(type ? { type } : {}),
-    ...(entryExports ? { exports: { ...entryExports } } : {}),
+    ...(isObjectObject(entryExports) ? { exports: { ...entryExports } } : {}),
     ...(entryExports ? {} : { main: `${main ?? './index.js'}` }),
     sideEffects: sideEffects !== undefined && !!sideEffects,
     ...(isObjectObject(dependencies)
@@ -97,9 +96,9 @@ export function createPackageJson(
     ...(isObjectObject(engines)
       ? {
           engines: Object.fromEntries(
-            objectEntries(engines).map((pair: [PropertyKey, any]) => {
+            objectEntries(engines).map((pair: [PropertyKey, unknown]) => {
               const strKey = String(pair[0])
-              const result: [string, any] = [strKey, pair[1]]
+              const result: [string, unknown] = [strKey, pair[1]]
               if (strKey === 'node') {
                 const semver = getSemver()
                 const { 1: range } = result
@@ -107,7 +106,7 @@ export function createPackageJson(
                   !semver.satisfies(
                     // Roughly check Node range as semver.coerce will strip leading
                     // v's, carets (^), comparators (<,<=,>,>=,=), and tildes (~).
-                    semver.coerce(range) || '0.0.0',
+                    semver.coerce(range as string) || '0.0.0',
                     packageDefaultNodeRange,
                   )
                 ) {
@@ -138,7 +137,7 @@ export function createPackageJson(
 export async function fetchPackageManifest(
   pkgNameOrId: string,
   options?: PacoteOptions,
-): Promise<any> {
+): Promise<unknown> {
   const pacoteOptions = {
     __proto__: null,
     signal: abortSignal,
@@ -151,7 +150,7 @@ export async function fetchPackageManifest(
     return undefined
   }
   const pacote = getPacote()
-  let result
+  let result: unknown
   try {
     result = await pacote.manifest(pkgNameOrId, pacoteOptions)
   } catch {}
@@ -166,12 +165,14 @@ export async function fetchPackageManifest(
     }
   }
   // Convert a manifest not fetched by RegistryFetcher to one that is.
-  return result
-    ? await fetchPackageManifest(
-        `${result.name}@${result.version}`,
-        pacoteOptions,
-      )
-    : null
+  if (result) {
+    const typedResult = result as { name: string; version: string }
+    return await fetchPackageManifest(
+      `${typedResult.name}@${typedResult.version}`,
+      pacoteOptions,
+    )
+  }
+  return null
 }
 
 /**
@@ -181,7 +182,7 @@ export async function fetchPackageManifest(
 export async function fetchPackagePackument(
   pkgNameOrId: string,
   options?: PacoteOptions,
-): Promise<any> {
+): Promise<unknown> {
   const pacote = getPacote()
   try {
     return await pacote.packument(pkgNameOrId, {

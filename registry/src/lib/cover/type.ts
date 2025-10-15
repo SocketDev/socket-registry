@@ -24,7 +24,7 @@ export async function getTypeCoverage(
   const { cwd, generateIfMissing } = opts
 
   if (!cwd) {
-    throw new Error('Working directory is required')
+    throw new Error('Working directory is required.')
   }
 
   try {
@@ -43,9 +43,9 @@ export async function getTypeCoverage(
     }
 
     return {
-      covered: parseInt(match[1], 10),
+      covered: Number.parseInt(match[1], 10),
       percent: match[3],
-      total: parseInt(match[2], 10),
+      total: Number.parseInt(match[2], 10),
     }
   } catch (e) {
     if (generateIfMissing) {

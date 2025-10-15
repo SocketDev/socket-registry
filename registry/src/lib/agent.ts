@@ -27,9 +27,8 @@ import { execBin } from './bin'
 import { isDebug } from './debug'
 import { findUpSync } from './fs'
 import { getOwn } from './objects'
-import { spawn } from './spawn'
-
 import type { SpawnOptions } from './spawn'
+import { spawn } from './spawn'
 
 // Note: npm flag checking is done with regex patterns in the is*Flag functions below.
 
@@ -343,19 +342,23 @@ export function execScript(
   options?: ExecScriptOptions | undefined,
 ) {
   // Handle overloaded signatures: execScript(name, options) or execScript(name, args, options).
+  let resolvedOptions: ExecScriptOptions | undefined
+  let resolvedArgs: string[]
   if (!Array.isArray(args) && args !== null && typeof args === 'object') {
-    options = args as ExecScriptOptions
-    args = [] as string[]
+    resolvedOptions = args as ExecScriptOptions
+    resolvedArgs = []
+  } else {
+    resolvedOptions = options
+    resolvedArgs = (args || []) as string[]
   }
-  args = (args || []) as string[]
   const { prepost, ...spawnOptions } = {
     __proto__: null,
-    ...options,
+    ...resolvedOptions,
   } as ExecScriptOptions
 
   // If shell: true is passed, run the command directly as a shell command.
   if (spawnOptions.shell === true) {
-    return spawn(scriptName, args, spawnOptions)
+    return spawn(scriptName, resolvedArgs, spawnOptions)
   }
 
   const useNodeRun =
@@ -371,7 +374,7 @@ export function execScript(
     { cwd },
   ) as string | undefined
   if (pnpmLockPath) {
-    return execPnpm(['run', scriptName, ...args], spawnOptions)
+    return execPnpm(['run', scriptName, ...resolvedArgs], spawnOptions)
   }
 
   // Check for package-lock.json.
@@ -381,7 +384,7 @@ export function execScript(
     { cwd },
   ) as string | undefined
   if (packageLockPath) {
-    return execNpm(['run', scriptName, ...args], spawnOptions)
+    return execNpm(['run', scriptName, ...resolvedArgs], spawnOptions)
   }
 
   // Check for yarn.lock.
@@ -390,7 +393,7 @@ export function execScript(
     { cwd },
   ) as string | undefined
   if (yarnLockPath) {
-    return execYarn(['run', scriptName, ...args], spawnOptions)
+    return execYarn(['run', scriptName, ...resolvedArgs], spawnOptions)
   }
 
   return spawn(
@@ -401,7 +404,7 @@ export function execScript(
         ? ['--run']
         : [/*@__PURE__*/ require('./constants/NPM_REAL_EXEC_PATH'), 'run']),
       scriptName,
-      ...args,
+      ...resolvedArgs,
     ],
     {
       ...spawnOptions,

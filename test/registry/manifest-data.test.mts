@@ -20,7 +20,7 @@ describe('manifest data utilities', () => {
       if (npmEntries && npmEntries.length > 0) {
         // Each entry should be a tuple [purlStr, data].
         expect(Array.isArray(npmEntries[0])).toBe(true)
-        expect(npmEntries[0]!.length).toBe(2)
+        expect(npmEntries[0]?.length).toBe(2)
       }
     })
 

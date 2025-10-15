@@ -9,7 +9,7 @@
     "forceConsistentCasingInFileNames": true,
     "incremental": false,
     "isolatedModules": true,
-    "lib": ["esnext"],
+    "lib": ["ES2024"],
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": true,
@@ -19,7 +19,7 @@
     "sourceMap": true,
     "strict": true,
     "strictNullChecks": true,
-    "target": "esnext",
+    "target": "ES2024",
     "types": ["node"],
     "useUnknownInCatchVariables": true,
 

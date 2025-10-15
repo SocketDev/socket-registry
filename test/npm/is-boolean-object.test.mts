@@ -21,11 +21,11 @@ describe('is-boolean-object', () => {
       })
 
       it('should return false for NaN', () => {
-        expect(isBoolean(NaN)).toBe(false)
+        expect(isBoolean(Number.NaN)).toBe(false)
       })
 
       it('should return false for Infinity', () => {
-        expect(isBoolean(Infinity)).toBe(false)
+        expect(isBoolean(Number.POSITIVE_INFINITY)).toBe(false)
       })
 
       it('should return false for string', () => {
@@ -55,7 +55,7 @@ describe('is-boolean-object', () => {
       })
 
       it('should return false for regex object', () => {
-        expect(isBoolean(new RegExp('a', 'g'))).toBe(false)
+        expect(isBoolean(/a/g)).toBe(false)
       })
 
       it('should return false for new Date()', () => {

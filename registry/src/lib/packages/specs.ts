@@ -14,7 +14,7 @@ function getNpmPackageArg() {
   if (_npmPackageArg === undefined) {
     _npmPackageArg = /*@__PURE__*/ require('../../external/npm-package-arg')
   }
-  return _npmPackageArg!
+  return _npmPackageArg as typeof import('npm-package-arg')
 }
 
 /**
@@ -28,7 +28,7 @@ export function getRepoUrlDetails(repoUrl: string = ''): {
   const userAndRepo = repoUrl.replace(/^.+github.com\//, '').split('/')
   const user = userAndRepo[0] || ''
   const project =
-    userAndRepo.length > 1 ? userAndRepo[1]!.slice(0, -'.git'.length) : ''
+    userAndRepo.length > 1 ? userAndRepo[1]?.slice(0, -'.git'.length) || '' : ''
   return { user, project }
 }
 
@@ -60,16 +60,17 @@ export function gitHubTgzUrl(
  * Check if a package specifier is a GitHub tarball URL.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function isGitHubTgzSpec(spec: any, where?: string): boolean {
-  let parsedSpec: any
+export function isGitHubTgzSpec(spec: unknown, where?: string): boolean {
+  let parsedSpec: unknown
   if (isObjectObject(spec)) {
     parsedSpec = spec
   } else {
     const npmPackageArg = getNpmPackageArg()
-    parsedSpec = npmPackageArg(spec, where)
+    parsedSpec = npmPackageArg(spec as string, where)
   }
+  const typedSpec = parsedSpec as { type?: string; saveSpec?: string }
   return (
-    parsedSpec.type === 'remote' && !!parsedSpec.saveSpec?.endsWith('.tar.gz')
+    typedSpec.type === 'remote' && !!typedSpec.saveSpec?.endsWith('.tar.gz')
   )
 }
 
@@ -77,17 +78,22 @@ export function isGitHubTgzSpec(spec: any, where?: string): boolean {
  * Check if a package specifier is a GitHub URL with committish.
  */
 /*@__NO_SIDE_EFFECTS__*/
-export function isGitHubUrlSpec(spec: any, where?: string): boolean {
-  let parsedSpec: any
+export function isGitHubUrlSpec(spec: unknown, where?: string): boolean {
+  let parsedSpec: unknown
   if (isObjectObject(spec)) {
     parsedSpec = spec
   } else {
     const npmPackageArg = getNpmPackageArg()
-    parsedSpec = npmPackageArg(spec, where)
+    parsedSpec = npmPackageArg(spec as string, where)
+  }
+  const typedSpec = parsedSpec as {
+    gitCommittish?: string
+    hosted?: { domain?: string }
+    type?: string
   }
   return (
-    parsedSpec.type === 'git' &&
-    parsedSpec.hosted?.domain === 'github.com' &&
-    isNonEmptyString(parsedSpec.gitCommittish)
+    typedSpec.type === 'git' &&
+    typedSpec.hosted?.domain === 'github.com' &&
+    isNonEmptyString(typedSpec.gitCommittish)
   )
 }

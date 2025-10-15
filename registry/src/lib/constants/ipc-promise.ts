@@ -31,9 +31,13 @@ export default new Promise(
       process.removeListener('message', onmessage)
       resolve(ipcObject)
     }
-    const onmessage = (rawData: any) => {
+    const onmessage = (
+      // biome-ignore lint/suspicious/noExplicitAny: IPC message data is dynamic.
+      rawData: any,
+    ) => {
       if (rawData !== null && typeof rawData === 'object') {
         const data = { __proto__: null, ...rawData } as {
+          // biome-ignore lint/suspicious/noExplicitAny: IPC handshake data is dynamic.
           SOCKET_IPC_HANDSHAKE?: any
         }
         const { SOCKET_IPC_HANDSHAKE: source } = data
@@ -42,6 +46,7 @@ export default new Promise(
         // The handler of a Proxy is mutable after proxy instantiation.
         // We delete the traps to defer to native behavior.
         for (const trapName in handler) {
+          // biome-ignore lint/suspicious/noExplicitAny: Proxy handler mutation requires any.
           delete (handler as any)[trapName]
         }
       }

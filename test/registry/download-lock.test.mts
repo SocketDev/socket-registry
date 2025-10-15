@@ -1,7 +1,7 @@
+import type { IncomingMessage, ServerResponse } from 'node:http'
 import { createServer } from 'node:http'
 import os from 'node:os'
 import path from 'node:path'
-
 import { deleteAsync as del } from 'del'
 import {
   afterAll,
@@ -12,10 +12,7 @@ import {
   expect,
   it,
 } from 'vitest'
-
 import { downloadWithLock } from '../../registry/dist/lib/download-lock.js'
-
-import type { IncomingMessage, ServerResponse } from 'node:http'
 
 describe('downloadWithLock', () => {
   let server: ReturnType<typeof createServer>
@@ -182,7 +179,7 @@ describe('downloadWithLock', () => {
           lockTimeout: 100,
           locksDir,
           pollInterval: 10,
-          staleTimeout: 300000,
+          staleTimeout: 300_000,
         }),
       ).rejects.toThrow('Lock acquisition timed out')
     })
@@ -200,8 +197,8 @@ describe('downloadWithLock', () => {
       await fs.writeFile(
         lockPath,
         JSON.stringify({
-          pid: 999999,
-          startTime: Date.now() - 400000,
+          pid: 999_999,
+          startTime: Date.now() - 400_000,
           url: `${baseUrl}/test-file`,
         }),
       )
@@ -209,7 +206,7 @@ describe('downloadWithLock', () => {
       const result = await downloadWithLock(`${baseUrl}/test-file`, destPath, {
         locksDir,
         pollInterval: 50,
-        staleTimeout: 300000,
+        staleTimeout: 300_000,
       })
 
       expect(result.path).toBe(destPath)
@@ -243,7 +240,7 @@ describe('downloadWithLock', () => {
           lockTimeout: 200,
           locksDir,
           pollInterval: 50,
-          staleTimeout: 300000,
+          staleTimeout: 300_000,
         }),
       ).rejects.toThrow()
       const duration = Date.now() - startTime

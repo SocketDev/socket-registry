@@ -91,7 +91,7 @@ describe('isolation module', () => {
       tmpDirs.push(path.dirname(result.tmpdir))
 
       expect(result.exports).toBeDefined()
-      expect(result.exports!['testModule']).toEqual({ test: true })
+      expect(result.exports?.testModule).toEqual({ test: true })
     })
 
     it('should support onPackageJson callback', async () => {

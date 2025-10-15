@@ -2,9 +2,9 @@
  * @fileoverview Stream processing utilities with streaming-iterables integration.
  * Provides async stream handling and transformation functions.
  */
-import { normalizeIterationOptions, pRetry } from './promises'
 
 import type { IterationOptions } from './promises'
+import { normalizeIterationOptions, pRetry } from './promises'
 
 let _streamingIterables:
   | {
@@ -57,17 +57,18 @@ export function parallelMap<T, U>(
 ): AsyncIterable<U> {
   const streamingIterables = getStreamingIterables()
   const opts = normalizeIterationOptions(options)
-  return streamingIterables!.parallelMap(
+  const result = streamingIterables?.parallelMap(
     opts.concurrency,
     async (item: T) => {
       const result = await pRetry((...args: unknown[]) => func(args[0] as T), {
         ...opts.retries,
         args: [item],
       })
-      return result!
+      return result as U
     },
     iterable,
   )
+  return result as AsyncIterable<U>
 }
 
 /**
@@ -81,15 +82,16 @@ export function transform<T, U>(
 ): AsyncIterable<U> {
   const streamingIterables = getStreamingIterables()
   const opts = normalizeIterationOptions(options)
-  return streamingIterables!.transform(
+  const result = streamingIterables?.transform(
     opts.concurrency,
     async (item: T) => {
       const result = await pRetry((...args: unknown[]) => func(args[0] as T), {
         ...opts.retries,
         args: [item],
       })
-      return result!
+      return result as U
     },
     iterable,
   )
+  return result as AsyncIterable<U>
 }

@@ -84,6 +84,6 @@ const sortedExports = Object.keys(regularExports)
 pkg.exports = { ...sortedExports, ...special }
 
 // Write back
-writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n')
+writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`)
 
 console.log('✓ Package.json exports updated')

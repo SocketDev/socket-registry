@@ -21,6 +21,7 @@ describe(
   `${eco} > ${sockRegPkgName}`,
   { skip: isPackageTestingSkipped(sockRegPkgName) },
   () => {
+    // biome-ignore lint/suspicious/noExplicitAny: Test implementations can be any module.
     let implementations: any[]
 
     beforeAll(async () => {
@@ -41,7 +42,7 @@ describe(
         expect(isRegex('foo')).toBe(false)
         expect(isRegex([])).toBe(false)
         expect(isRegex({})).toBe(false)
-        expect(isRegex(function () {})).toBe(false)
+        expect(isRegex(() => {})).toBe(false)
       }
     })
 
@@ -65,7 +66,7 @@ describe(
     it('regexes', () => {
       for (const isRegex of implementations) {
         expect(isRegex(/a/g)).toBe(true)
-        expect(isRegex(new RegExp('a', 'g'))).toBe(true)
+        expect(isRegex(/a/g)).toBe(true)
       }
     })
 
@@ -75,6 +76,7 @@ describe(
         {
           const regex = /a/
           const marker = {}
+          // biome-ignore lint/suspicious/noExplicitAny: Test sets non-numeric lastIndex.
           ;(regex as any).lastIndex = marker
           expect(regex.lastIndex).toBe(marker)
           expect(isRegex(regex)).toBe(true)
@@ -114,8 +116,11 @@ describe(
           'set',
           'setPrototypeOf',
         ]) {
+          // biome-ignore lint/suspicious/noExplicitAny: Test adds dynamic proxy trap to prototype.
           ;(Handler.prototype as any)[trapName] = function () {
             this.trapCalls.push(trapName)
+            // biome-ignore lint/suspicious/noExplicitAny: Test calls Reflect method dynamically.
+            // biome-ignore lint/complexity/noArguments: Test uses arguments to forward all parameters.
             return (Reflect as any)[trapName].apply(Reflect, arguments)
           }
         }

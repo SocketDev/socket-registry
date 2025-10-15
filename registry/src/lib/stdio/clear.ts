@@ -46,7 +46,7 @@ export function clearScreen(stream: NodeJS.WriteStream = process.stdout): void {
 export function clearVisible(
   stream: NodeJS.WriteStream = process.stdout,
 ): void {
-  return clearScreen(stream)
+  clearScreen(stream)
 }
 
 /**

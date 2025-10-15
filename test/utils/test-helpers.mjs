@@ -6,12 +6,12 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 
-import constants from '../../scripts/constants.mjs'
 import {
   readPackageJson,
   isolatePackage as registryIsolatePackage,
   resolveOriginalPackageName,
 } from '../../registry/dist/lib/packages.js'
+import constants from '../../scripts/constants.mjs'
 import { cleanTestScript } from './script-cleaning.mjs'
 import { testRunners } from './test-runners.mjs'
 

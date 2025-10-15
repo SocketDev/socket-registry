@@ -6,7 +6,7 @@ import type { JsonParseOptions, JsonParseResult, Schema } from './types'
 
 const { hasOwn: ObjectHasOwn } = Object
 
-export function safeJsonParse<T = any>(
+export function safeJsonParse<T = unknown>(
   jsonString: string,
   schema?: Schema<T>,
   options: JsonParseOptions = {},
@@ -22,7 +22,7 @@ export function safeJsonParse<T = any>(
   }
 
   // Parse JSON
-  let parsed: any
+  let parsed: unknown
   try {
     parsed = JSON.parse(jsonString)
   } catch (error) {
@@ -51,7 +51,10 @@ export function safeJsonParse<T = any>(
     const result = schema.safeParse(parsed)
     if (!result.success) {
       const errors = result.error.issues
-        .map((issue: any) => `${issue.path.join('.')}: ${issue.message}`)
+        .map(
+          (issue: { path: Array<string | number>; message: string }) =>
+            `${issue.path.join('.')}: ${issue.message}`,
+        )
         .join(', ')
       throw new Error(`Validation failed: ${errors}`)
     }
@@ -61,7 +64,7 @@ export function safeJsonParse<T = any>(
   return parsed as T
 }
 
-export function tryJsonParse<T = any>(
+export function tryJsonParse<T = unknown>(
   jsonString: string,
   schema?: Schema<T>,
   options?: JsonParseOptions,
@@ -73,7 +76,7 @@ export function tryJsonParse<T = any>(
   }
 }
 
-export function parseJsonWithResult<T = any>(
+export function parseJsonWithResult<T = unknown>(
   jsonString: string,
   schema?: Schema<T>,
   options?: JsonParseOptions,
@@ -81,12 +84,13 @@ export function parseJsonWithResult<T = any>(
   try {
     const data = safeJsonParse(jsonString, schema, options)
     return { success: true, data }
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Unknown error' }
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return { success: false, error: message }
   }
 }
 
-export function createJsonParser<T = any>(
+export function createJsonParser<T = unknown>(
   schema?: Schema<T>,
   defaultOptions?: JsonParseOptions,
 ) {
@@ -95,7 +99,7 @@ export function createJsonParser<T = any>(
   }
 }
 
-export function parseNdjson<T = any>(
+export function parseNdjson<T = unknown>(
   ndjson: string,
   schema?: Schema<T>,
   options?: JsonParseOptions,
@@ -104,25 +108,24 @@ export function parseNdjson<T = any>(
   const lines = ndjson.split(/\r?\n/)
 
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]!.trim()
-    if (line === '') {
+    const line = lines[i]?.trim()
+    if (!line || line === '') {
       continue
     }
 
     try {
-      const parsed = safeJsonParse(line, schema, options)
+      const parsed = safeJsonParse<T>(line, schema, options)
       results.push(parsed)
-    } catch (error: any) {
-      throw new Error(
-        `Failed to parse NDJSON at line ${i + 1}: ${error.message}`,
-      )
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error)
+      throw new Error(`Failed to parse NDJSON at line ${i + 1}: ${message}`)
     }
   }
 
   return results
 }
 
-export function* streamNdjson<T = any>(
+export function* streamNdjson<T = unknown>(
   ndjson: string,
   schema?: Schema<T>,
   options?: JsonParseOptions,
@@ -130,17 +133,16 @@ export function* streamNdjson<T = any>(
   const lines = ndjson.split(/\r?\n/)
 
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]!.trim()
-    if (line === '') {
+    const line = lines[i]?.trim()
+    if (!line || line === '') {
       continue
     }
 
     try {
-      yield safeJsonParse(line, schema, options)
-    } catch (error: any) {
-      throw new Error(
-        `Failed to parse NDJSON at line ${i + 1}: ${error.message}`,
-      )
+      yield safeJsonParse<T>(line, schema, options)
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error)
+      throw new Error(`Failed to parse NDJSON at line ${i + 1}: ${message}`)
     }
   }
 }

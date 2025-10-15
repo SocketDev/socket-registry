@@ -6,10 +6,9 @@
 import { existsSync, promises as fs } from 'node:fs'
 
 import WIN32 from '../constants/WIN32'
+import type { PackageJson } from '../packages'
 import { isAbsolute, isPath, trimLeadingDotSlash } from '../path'
 import { readPackageJson } from './operations'
-
-import type { PackageJson } from '../packages'
 
 let _os: typeof import('node:os') | undefined
 let _path: typeof import('node:path') | undefined
@@ -18,20 +17,20 @@ let _path: typeof import('node:path') | undefined
 function getOs() {
   if (_os === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _os = /*@__PURE__*/ require('os')
+
+    _os = /*@__PURE__*/ require('node:os')
   }
-  return _os!
+  return _os as typeof import('node:os')
 }
 
 /*@__NO_SIDE_EFFECTS__*/
 function getPath() {
   if (_path === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _path = /*@__PURE__*/ require('path')
+
+    _path = /*@__PURE__*/ require('node:path')
   }
-  return _path!
+  return _path as typeof import('path')
 }
 
 /**
@@ -79,7 +78,7 @@ export type IsolatePackageOptions = {
 }
 
 export type IsolatePackageResult = {
-  exports?: Record<string, any> | undefined
+  exports?: Record<string, unknown> | undefined
   tmpdir: string
 }
 
@@ -265,9 +264,9 @@ export async function isolatePackage(
   }
 
   // Load module exports if imports provided.
-  const exports: Record<string, any> = imports
+  const exports: Record<string, unknown> = imports
     ? { __proto__: null }
-    : undefined!
+    : (undefined as unknown as Record<string, unknown>)
 
   if (imports) {
     for (const { 0: key, 1: specifier } of Object.entries(imports)) {

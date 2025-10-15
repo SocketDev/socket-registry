@@ -25,9 +25,9 @@ describe('json module', () => {
     })
 
     it('should handle special number values', () => {
-      expect(isJsonPrimitive(Infinity)).toBe(true)
-      expect(isJsonPrimitive(-Infinity)).toBe(true)
-      expect(isJsonPrimitive(NaN)).toBe(true)
+      expect(isJsonPrimitive(Number.POSITIVE_INFINITY)).toBe(true)
+      expect(isJsonPrimitive(Number.NEGATIVE_INFINITY)).toBe(true)
+      expect(isJsonPrimitive(Number.NaN)).toBe(true)
     })
   })
 
@@ -92,12 +92,12 @@ describe('json module', () => {
     })
 
     it('should handle large numbers', () => {
-      expect(jsonParse('9007199254740991')).toBe(9007199254740991)
-      expect(jsonParse('-9007199254740991')).toBe(-9007199254740991)
+      expect(jsonParse('9007199254740991')).toBe(9_007_199_254_740_991)
+      expect(jsonParse('-9007199254740991')).toBe(-9_007_199_254_740_991)
     })
 
     it('should handle decimal numbers', () => {
-      expect(jsonParse('3.14159')).toBe(3.14159)
+      expect(jsonParse('3.14159')).toBe(Math.PI)
       expect(jsonParse('-0.5')).toBe(-0.5)
       expect(jsonParse('1.0e-10')).toBe(1.0e-10)
     })

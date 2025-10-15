@@ -44,7 +44,7 @@ describe('is-number-object', () => {
     })
 
     it('should return false for regex object', () => {
-      expect(isNumber(new RegExp('a', 'g'))).toBe(false)
+      expect(isNumber(/a/g)).toBe(false)
     })
 
     it('should return false for new Date()', () => {
@@ -77,11 +77,11 @@ describe('is-number-object', () => {
     })
 
     it('should return true for NaN', () => {
-      expect(isNumber(NaN)).toBe(true)
+      expect(isNumber(Number.NaN)).toBe(true)
     })
 
     it('should return true for Infinity', () => {
-      expect(isNumber(Infinity)).toBe(true)
+      expect(isNumber(Number.POSITIVE_INFINITY)).toBe(true)
     })
   })
 })

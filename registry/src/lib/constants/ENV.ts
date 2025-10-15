@@ -13,7 +13,7 @@ const ObjectFreeze = Object.freeze
 const ObjectHasOwn = Object.hasOwn
 
 const { env } = process
-const loweredDebug = envAsString(env['DEBUG']).toLowerCase()
+const loweredDebug = envAsString(env.DEBUG).toLowerCase()
 
 // Normalize DEBUG environment variable for debug package compatibility.
 // - '1' or 'true' enables all debug namespaces (DEBUG='*').
@@ -28,21 +28,21 @@ if (loweredDebug === '1' || loweredDebug === 'true') {
   DEBUG = loweredDebug
 }
 
-const HOME = envAsString(env['HOME'])
+const HOME = envAsString(env.HOME)
 // TMPDIR (POSIX), TEMP (Windows), or TMP (fallback).
-const TMPDIR = envAsString(env['TMPDIR'] || env['TEMP'] || env['TMP'])
+const TMPDIR = envAsString(env.TMPDIR || env.TEMP || env.TMP)
 
 export default ObjectFreeze({
   __proto__: null,
   // Windows-specific AppData folder for application data.
-  APPDATA: envAsString(env['APPDATA']),
+  APPDATA: envAsString(env.APPDATA),
   // CI is always set to 'true' in a GitHub action.
   // https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables
   // Libraries like yocto-colors check for CI not by value but my existence,
   // e.g. `'CI' in process.env`.
   CI: ObjectHasOwn(env, 'CI'),
   // Terminal columns width.
-  COLUMNS: envAsString(env['COLUMNS']),
+  COLUMNS: envAsString(env.COLUMNS),
   // Enable debug logging based on the 'debug' package.
   // https://socket.dev/npm/package/debug/overview/4.4.1
   DEBUG,
@@ -51,15 +51,15 @@ export default ObjectFreeze({
   // The absolute location of the %localappdata% folder on Windows used to store
   // user-specific, non-roaming application data, like temporary files, cached
   // data, and program settings, that are specific to the current machine and user.
-  LOCALAPPDATA: envAsString(env['LOCALAPPDATA']),
+  LOCALAPPDATA: envAsString(env.LOCALAPPDATA),
   // Set the debug log level (notice, error, warn, info, verbose, http, silly).
-  LOG_LEVEL: envAsString(env['LOG_LEVEL']),
+  LOG_LEVEL: envAsString(env.LOG_LEVEL),
   // .github/workflows/provenance.yml defines this.
   // https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-nodejs-packages
-  NODE_AUTH_TOKEN: envAsString(env['NODE_AUTH_TOKEN']),
+  NODE_AUTH_TOKEN: envAsString(env.NODE_AUTH_TOKEN),
   // NODE_ENV is a recognized convention, but not a built-in Node.js feature.
   NODE_ENV:
-    envAsString(env['NODE_ENV']).toLowerCase() === 'production'
+    envAsString(env.NODE_ENV).toLowerCase() === 'production'
       ? 'production'
       : 'development',
   // A space-separated list of command-line options. `options...` are interpreted
@@ -67,24 +67,24 @@ export default ObjectFreeze({
   // after anything in `options...`. Node.js will exit with an error if an option
   // that is not allowed in the environment is used, such as `-p` or a script file.
   // https://nodejs.org/api/cli.html#node_optionsoptions
-  NODE_OPTIONS: envAsString(env['NODE_OPTIONS']),
+  NODE_OPTIONS: envAsString(env.NODE_OPTIONS),
   // PRE_COMMIT is set to '1' by our 'test-pre-commit' script run by the
   // .husky/pre-commit hook.
-  PRE_COMMIT: envAsBoolean(env['PRE_COMMIT']),
+  PRE_COMMIT: envAsBoolean(env.PRE_COMMIT),
   // Override the default Socket cacache directory (~/.socket/_cacache).
-  SOCKET_CACACHE_DIR: envAsString(env['SOCKET_CACACHE_DIR']),
+  SOCKET_CACACHE_DIR: envAsString(env.SOCKET_CACACHE_DIR),
   // Enable debug logging in Socket tools.
-  SOCKET_DEBUG: !!DEBUG || envAsBoolean(env['SOCKET_DEBUG']),
+  SOCKET_DEBUG: !!DEBUG || envAsBoolean(env.SOCKET_DEBUG),
   // Temporary directory path. TMPDIR (POSIX), TEMP (Windows), or TMP (fallback).
   TMPDIR,
   // Enable verbose build output.
-  VERBOSE_BUILD: envAsBoolean(env['VERBOSE_BUILD']),
+  VERBOSE_BUILD: envAsBoolean(env.VERBOSE_BUILD),
   // VITEST=true is set by the Vitest test runner.
   // https://vitest.dev/config/#configuring-vitest
-  VITEST: envAsBoolean(env['VITEST']),
+  VITEST: envAsBoolean(env.VITEST),
   // The location of the base directory on Linux and MacOS used to store
   // user-specific data files, defaulting to $HOME/.local/share if not set or empty.
   XDG_DATA_HOME: WIN32
     ? ''
-    : envAsString(env['XDG_DATA_HOME']) || (HOME ? `${HOME}/.local/share` : ''),
+    : envAsString(env.XDG_DATA_HOME) || (HOME ? `${HOME}/.local/share` : ''),
 })

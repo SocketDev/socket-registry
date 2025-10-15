@@ -15,6 +15,7 @@ import {
 
 describe('performance module', () => {
   let originalEnv: NodeJS.ProcessEnv
+  // biome-ignore lint/suspicious/noExplicitAny: Test spy can be any console method.
   let consoleSpy: any
 
   beforeEach(() => {
@@ -34,7 +35,7 @@ describe('performance module', () => {
 
   describe('perfTimer', () => {
     it('should return no-op function when DEBUG=perf is not set', () => {
-      delete process.env['DEBUG']
+      delete process.env.DEBUG
       const stop = perfTimer('test-operation')
 
       expect(typeof stop).toBe('function')
@@ -45,7 +46,7 @@ describe('performance module', () => {
     })
 
     it('should track timing when DEBUG=perf is set', async () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       const stop = perfTimer('test-operation')
       await new Promise(resolve => setTimeout(resolve, 10))
@@ -57,11 +58,11 @@ describe('performance module', () => {
         operation: 'test-operation',
         timestamp: expect.any(Number),
       })
-      expect(metrics[0]!.duration).toBeGreaterThan(0)
+      expect(metrics[0]?.duration).toBeGreaterThan(0)
     })
 
     it('should include metadata', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       const stop = perfTimer('api-call', { endpoint: '/test' })
       stop({ status: 200 })
@@ -74,7 +75,7 @@ describe('performance module', () => {
     })
 
     it('should work with DEBUG enabled', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       const stop = perfTimer('test-op')
       stop()
@@ -84,20 +85,20 @@ describe('performance module', () => {
     })
 
     it('should round duration to 2 decimals', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       const stop = perfTimer('test-op')
       stop()
 
       const metrics = getPerformanceMetrics()
-      const duration = metrics[0]!.duration
+      const duration = metrics[0]?.duration
       expect(duration.toString()).toMatch(/^\d+(\.\d{1,2})?$/)
     })
   })
 
   describe('measure', () => {
     it('should measure async function execution', async () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       const { duration, result } = await measure('async-op', async () => {
         await new Promise(resolve => setTimeout(resolve, 10))
@@ -113,7 +114,7 @@ describe('performance module', () => {
     })
 
     it('should handle errors and rethrow', async () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       const error = new Error('test error')
 
@@ -131,7 +132,7 @@ describe('performance module', () => {
     })
 
     it('should handle non-Error throws', async () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       await expect(
         measure('failing-op', async () => {
@@ -147,7 +148,7 @@ describe('performance module', () => {
     })
 
     it('should return 0 duration when perf disabled', async () => {
-      delete process.env['DEBUG']
+      delete process.env.DEBUG
 
       const { duration, result } = await measure('op', async () => 'value')
 
@@ -156,7 +157,7 @@ describe('performance module', () => {
     })
 
     it('should include custom metadata', async () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       await measure('op', async () => 'value', { userId: '123' })
 
@@ -170,7 +171,7 @@ describe('performance module', () => {
 
   describe('measureSync', () => {
     it('should measure sync function execution', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       const { duration, result } = measureSync('sync-op', () => {
         let sum = 0
@@ -180,7 +181,7 @@ describe('performance module', () => {
         return sum
       })
 
-      expect(result).toBe(499500)
+      expect(result).toBe(499_500)
       expect(duration).toBeGreaterThanOrEqual(0)
 
       const metrics = getPerformanceMetrics()
@@ -188,7 +189,7 @@ describe('performance module', () => {
     })
 
     it('should handle errors and rethrow', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       const error = new Error('sync error')
 
@@ -206,7 +207,7 @@ describe('performance module', () => {
     })
 
     it('should handle non-Error throws', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       expect(() => {
         measureSync('failing-op', () => {
@@ -222,7 +223,7 @@ describe('performance module', () => {
     })
 
     it('should return 0 duration when perf disabled', () => {
-      delete process.env['DEBUG']
+      delete process.env.DEBUG
 
       const { duration, result } = measureSync('op', () => 'value')
 
@@ -233,7 +234,7 @@ describe('performance module', () => {
 
   describe('getPerformanceMetrics', () => {
     it('should return copy of metrics array', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       const stop = perfTimer('op1')
       stop()
@@ -253,7 +254,7 @@ describe('performance module', () => {
 
   describe('clearPerformanceMetrics', () => {
     it('should clear all metrics', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       perfTimer('op1')()
       perfTimer('op2')()
@@ -266,7 +267,7 @@ describe('performance module', () => {
     })
 
     it('should work with DEBUG enabled', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       perfTimer('op1')()
       clearPerformanceMetrics()
@@ -277,7 +278,7 @@ describe('performance module', () => {
 
   describe('getPerformanceSummary', () => {
     it('should aggregate metrics by operation', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       perfTimer('op1')()
       perfTimer('op1')()
@@ -285,14 +286,14 @@ describe('performance module', () => {
 
       const summary = getPerformanceSummary()
 
-      expect(summary['op1']).toBeDefined()
-      expect(summary['op1']!.count).toBe(2)
-      expect(summary['op2']).toBeDefined()
-      expect(summary['op2']!.count).toBe(1)
+      expect(summary.op1).toBeDefined()
+      expect(summary.op1?.count).toBe(2)
+      expect(summary.op2).toBeDefined()
+      expect(summary.op2?.count).toBe(1)
     })
 
     it('should calculate min, max, avg, total', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       const stop1 = perfTimer('op')
       stop1()
@@ -301,21 +302,27 @@ describe('performance module', () => {
 
       const summary = getPerformanceSummary()
 
-      expect(summary['op']!.count).toBe(2)
-      expect(summary['op']!.total).toBeGreaterThanOrEqual(0)
-      expect(summary['op']!.avg).toBeGreaterThanOrEqual(0)
-      expect(summary['op']!.min).toBeGreaterThanOrEqual(0)
-      expect(summary['op']!.max).toBeGreaterThanOrEqual(0)
-      expect(summary['op']!.min).toBeLessThanOrEqual(summary['op']!.max)
+      expect(summary.op?.count).toBe(2)
+      expect(summary.op?.total).toBeGreaterThanOrEqual(0)
+      expect(summary.op?.avg).toBeGreaterThanOrEqual(0)
+      expect(summary.op?.min).toBeGreaterThanOrEqual(0)
+      expect(summary.op?.max).toBeGreaterThanOrEqual(0)
+      expect(summary.op?.min).toBeLessThanOrEqual(summary.op?.max)
     })
 
     it('should round values to 2 decimals', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       perfTimer('op')()
 
       const summary = getPerformanceSummary()
-      const stats = summary['op']!
+      const stats = summary.op as {
+        avg: number
+        count: number
+        max: number
+        min: number
+        total: number
+      }
 
       expect(stats.total.toString()).toMatch(/^\d+(\.\d{1,2})?$/)
       expect(stats.avg.toString()).toMatch(/^\d+(\.\d{1,2})?$/)
@@ -331,7 +338,7 @@ describe('performance module', () => {
 
   describe('printPerformanceSummary', () => {
     it('should print summary when perf enabled', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       const stop1 = perfTimer('op1')
       stop1()
@@ -345,7 +352,7 @@ describe('performance module', () => {
     })
 
     it('should not print when perf disabled', () => {
-      delete process.env['DEBUG']
+      delete process.env.DEBUG
 
       printPerformanceSummary()
 
@@ -353,7 +360,7 @@ describe('performance module', () => {
     })
 
     it('should not print when no metrics', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       printPerformanceSummary()
 
@@ -361,7 +368,7 @@ describe('performance module', () => {
     })
 
     it('should sort operations alphabetically', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       perfTimer('zebra')()
       perfTimer('alpha')()
@@ -379,7 +386,7 @@ describe('performance module', () => {
 
   describe('perfCheckpoint', () => {
     it('should do nothing when perf disabled', () => {
-      delete process.env['DEBUG']
+      delete process.env.DEBUG
 
       perfCheckpoint('start')
 
@@ -387,7 +394,7 @@ describe('performance module', () => {
     })
 
     it('should record checkpoint', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       perfCheckpoint('milestone', { step: 1 })
 
@@ -402,7 +409,7 @@ describe('performance module', () => {
     })
 
     it('should work with DEBUG enabled', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       perfCheckpoint('test-checkpoint')
 
@@ -412,7 +419,7 @@ describe('performance module', () => {
     })
 
     it('should work without metadata', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       perfCheckpoint('simple')
 
@@ -427,7 +434,7 @@ describe('performance module', () => {
 
   describe('trackMemory', () => {
     it('should return 0 when perf disabled', () => {
-      delete process.env['DEBUG']
+      delete process.env.DEBUG
 
       const mem = trackMemory('test')
 
@@ -436,7 +443,7 @@ describe('performance module', () => {
     })
 
     it('should track memory usage', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       const mem = trackMemory('snapshot')
 
@@ -449,13 +456,13 @@ describe('performance module', () => {
         duration: 0,
         timestamp: expect.any(Number),
       })
-      expect(metrics[0]?.metadata?.['heapUsed']).toBeGreaterThan(0)
-      expect(metrics[0]?.metadata?.['heapTotal']).toBeGreaterThan(0)
-      expect(metrics[0]?.metadata?.['external']).toBeGreaterThanOrEqual(0)
+      expect(metrics[0]?.metadata?.heapUsed).toBeGreaterThan(0)
+      expect(metrics[0]?.metadata?.heapTotal).toBeGreaterThan(0)
+      expect(metrics[0]?.metadata?.external).toBeGreaterThanOrEqual(0)
     })
 
     it('should work with DEBUG enabled', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       const mem = trackMemory('test')
 
@@ -465,7 +472,7 @@ describe('performance module', () => {
     })
 
     it('should round memory to 2 decimals', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       const mem = trackMemory('test')
 
@@ -475,7 +482,7 @@ describe('performance module', () => {
 
   describe('generatePerformanceReport', () => {
     it('should return no-data message when perf disabled', () => {
-      delete process.env['DEBUG']
+      delete process.env.DEBUG
 
       const report = generatePerformanceReport()
 
@@ -485,7 +492,7 @@ describe('performance module', () => {
     })
 
     it('should return no-data message when no metrics', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       const report = generatePerformanceReport()
 
@@ -495,7 +502,7 @@ describe('performance module', () => {
     })
 
     it('should generate formatted report', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       perfTimer('op1')()
       perfTimer('op2')()
@@ -514,7 +521,7 @@ describe('performance module', () => {
     })
 
     it('should sort operations alphabetically', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       perfTimer('zebra')()
       perfTimer('alpha')()
@@ -527,7 +534,7 @@ describe('performance module', () => {
     })
 
     it('should include box drawing characters', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       perfTimer('op')()
 
@@ -541,7 +548,7 @@ describe('performance module', () => {
 
   describe('DEBUG=perf detection', () => {
     it('should detect DEBUG=perf', () => {
-      process.env['DEBUG'] = 'perf'
+      process.env.DEBUG = 'perf'
 
       const stop = perfTimer('op')
       stop()
@@ -550,7 +557,7 @@ describe('performance module', () => {
     })
 
     it('should not detect when perf not in DEBUG', () => {
-      delete process.env['DEBUG']
+      delete process.env.DEBUG
 
       const stop = perfTimer('op')
       stop()

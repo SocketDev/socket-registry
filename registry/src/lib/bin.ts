@@ -17,9 +17,10 @@ let _fs: typeof import('node:fs') | undefined
 function getFs() {
   if (_fs === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _fs = /*@__PURE__*/ require('fs')
+
+    _fs = /*@__PURE__*/ require('node:fs')
   }
+  // biome-ignore lint/style/noNonNullAssertion: Initialized above.
   return _fs!
 }
 
@@ -31,9 +32,10 @@ let _path: typeof import('node:path') | undefined
 function getPath() {
   if (_path === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _path = /*@__PURE__*/ require('path')
+
+    _path = /*@__PURE__*/ require('node:path')
   }
+  // biome-ignore lint/style/noNonNullAssertion: Initialized above.
   return _path!
 }
 
@@ -46,6 +48,7 @@ function getWhich() {
   if (_which === undefined) {
     _which = /*@__PURE__*/ require('../external/which')
   }
+  // biome-ignore lint/style/noNonNullAssertion: Initialized above.
   return _which!
 }
 
@@ -73,7 +76,8 @@ export async function execBin(
 
   // Execute the binary directly.
   const binCommand = Array.isArray(resolvedPath)
-    ? resolvedPath[0]!
+    ? // biome-ignore lint/style/noNonNullAssertion: which always returns non-empty array.
+      resolvedPath[0]!
     : resolvedPath
   return await spawn(binCommand, args ?? [], options)
 }
@@ -92,7 +96,7 @@ export async function whichBin(
   const opts = { nothrow: true, ...options }
   // Depending on options `which` may throw if `binName` is not found.
   // With nothrow: true, it returns null when `binName` is not found.
-  const result = await which!(binName, opts)
+  const result = await which?.(binName, opts)
 
   // When 'all: true' is specified, ensure we always return an array.
   if (options?.all) {
@@ -126,7 +130,7 @@ export function whichBinSync(
   const opts = { nothrow: true, ...options }
   // Depending on options `which` may throw if `binName` is not found.
   // With nothrow: true, it returns null when `binName` is not found.
-  const result = getWhich()!.sync(binName, opts)
+  const result = getWhich()?.sync(binName, opts)
 
   // When 'all: true' is specified, ensure we always return an array.
   if (getOwn(options, 'all')) {
@@ -172,19 +176,19 @@ export function findRealBin(
 
   // Try common locations first.
   for (const binPath of commonPaths) {
-    if (fs!.existsSync(binPath)) {
+    if (fs?.existsSync(binPath)) {
       return binPath
     }
   }
 
   // Fall back to which.sync if no direct path found.
-  const binPath = which!.sync(binName, { nothrow: true })
+  const binPath = which?.sync(binName, { nothrow: true })
   if (binPath) {
-    const binDir = path!.dirname(binPath)
+    const binDir = path?.dirname(binPath)
 
     if (isShadowBinPath(binDir)) {
       // This is likely a shadowed binary, try to find the real one.
-      const allPaths = which!.sync(binName, { all: true, nothrow: true }) || []
+      const allPaths = which?.sync(binName, { all: true, nothrow: true }) || []
       // Ensure allPaths is an array.
       const pathsArray = Array.isArray(allPaths)
         ? allPaths
@@ -193,7 +197,7 @@ export function findRealBin(
           : []
 
       for (const altPath of pathsArray) {
-        const altDir = path!.dirname(altPath)
+        const altDir = path?.dirname(altPath)
         if (!isShadowBinPath(altDir)) {
           return altPath
         }
@@ -213,10 +217,10 @@ export function findRealNpm(): string {
   const path = getPath()
 
   // Try to find npm in the same directory as the node executable.
-  const nodeDir = path!.dirname(process.execPath)
-  const npmInNodeDir = path!.join(nodeDir, 'npm')
+  const nodeDir = path?.dirname(process.execPath)
+  const npmInNodeDir = path?.join(nodeDir, 'npm')
 
-  if (fs!.existsSync(npmInNodeDir)) {
+  if (fs?.existsSync(npmInNodeDir)) {
     return npmInNodeDir
   }
 
@@ -225,14 +229,14 @@ export function findRealNpm(): string {
   const result = findRealBin('npm', commonPaths)
 
   // If we found a valid path, return it.
-  if (result && fs!.existsSync(result)) {
+  if (result && fs?.existsSync(result)) {
     return result
   }
 
   // As a last resort, try to use whichBinSync to find npm.
   // This handles cases where npm is installed in non-standard locations.
   const npmPath = whichBinSync('npm', { nothrow: true })
-  if (npmPath && typeof npmPath === 'string' && fs!.existsSync(npmPath)) {
+  if (npmPath && typeof npmPath === 'string' && fs?.existsSync(npmPath)) {
     return npmPath
   }
 
@@ -251,10 +255,14 @@ export function findRealPnpm(): string {
   const commonPaths = WIN32
     ? [
         // Windows common paths.
-        path!.join(ENV.APPDATA!, 'npm', 'pnpm.cmd'),
-        path!.join(ENV.APPDATA!, 'npm', 'pnpm'),
-        path!.join(ENV.LOCALAPPDATA!, 'pnpm', 'pnpm.cmd'),
-        path!.join(ENV.LOCALAPPDATA!, 'pnpm', 'pnpm'),
+        // biome-ignore lint/style/noNonNullAssertion: APPDATA and LOCALAPPDATA are always defined on Windows.
+        path?.join(ENV.APPDATA!, 'npm', 'pnpm.cmd'),
+        // biome-ignore lint/style/noNonNullAssertion: APPDATA and LOCALAPPDATA are always defined on Windows.
+        path?.join(ENV.APPDATA!, 'npm', 'pnpm'),
+        // biome-ignore lint/style/noNonNullAssertion: APPDATA and LOCALAPPDATA are always defined on Windows.
+        path?.join(ENV.LOCALAPPDATA!, 'pnpm', 'pnpm.cmd'),
+        // biome-ignore lint/style/noNonNullAssertion: APPDATA and LOCALAPPDATA are always defined on Windows.
+        path?.join(ENV.LOCALAPPDATA!, 'pnpm', 'pnpm'),
         'C:\\Program Files\\nodejs\\pnpm.cmd',
         'C:\\Program Files\\nodejs\\pnpm',
       ].filter(Boolean)
@@ -262,11 +270,12 @@ export function findRealPnpm(): string {
         // Unix common paths.
         '/usr/local/bin/pnpm',
         '/usr/bin/pnpm',
-        path!.join(
-          ENV.XDG_DATA_HOME || ENV.HOME + '/.local/share',
+        path?.join(
+          ENV.XDG_DATA_HOME || `${ENV.HOME}/.local/share`,
           'pnpm/pnpm',
         ),
-        path!.join(ENV.HOME!, '.pnpm/pnpm'),
+        // biome-ignore lint/style/noNonNullAssertion: HOME is always defined on Unix systems.
+        path?.join(ENV.HOME!, '.pnpm/pnpm'),
       ].filter(Boolean)
 
   return findRealBin('pnpm', commonPaths) ?? ''
@@ -282,8 +291,10 @@ export function findRealYarn(): string {
   const commonPaths = [
     '/usr/local/bin/yarn',
     '/usr/bin/yarn',
-    path!.join(ENV.HOME!, '.yarn/bin/yarn'),
-    path!.join(ENV.HOME!, '.config/yarn/global/node_modules/.bin/yarn'),
+    // biome-ignore lint/style/noNonNullAssertion: HOME is always defined on Unix systems.
+    path?.join(ENV.HOME!, '.yarn/bin/yarn'),
+    // biome-ignore lint/style/noNonNullAssertion: HOME is always defined on Unix systems.
+    path?.join(ENV.HOME!, '.config/yarn/global/node_modules/.bin/yarn'),
   ].filter(Boolean)
 
   return findRealBin('yarn', commonPaths) ?? ''
@@ -299,16 +310,18 @@ export function resolveBinPathSync(binPath: string): string {
   const path = getPath()
 
   // If it's not an absolute path, try to find it in PATH first
-  if (!path!.isAbsolute(binPath)) {
+  if (!path?.isAbsolute(binPath)) {
     try {
       const resolved = whichBinSync(binPath)
       if (resolved) {
+        // biome-ignore lint/style/noParameterAssign: Reassigning for normalization.
         binPath = resolved as string
       }
     } catch {}
   }
 
   // Normalize the path once for consistent pattern matching.
+  // biome-ignore lint/style/noParameterAssign: Normalizing path for consistent handling.
   binPath = normalizePath(binPath)
 
   // Handle empty string that normalized to '.' (current directory)
@@ -316,55 +329,59 @@ export function resolveBinPathSync(binPath: string): string {
     return binPath
   }
 
-  const ext = path!.extname(binPath)
+  const ext = path?.extname(binPath)
   const extLowered = ext.toLowerCase()
-  const basename = path!.basename(binPath, ext)
+  const basename = path?.basename(binPath, ext)
   const voltaIndex =
     basename === 'node' ? -1 : (/(?<=\/)\.volta\//i.exec(binPath)?.index ?? -1)
   if (voltaIndex !== -1) {
     const voltaPath = binPath.slice(0, voltaIndex)
-    const voltaToolsPath = path!.join(voltaPath, 'tools')
-    const voltaImagePath = path!.join(voltaToolsPath, 'image')
-    const voltaUserPath = path!.join(voltaToolsPath, 'user')
+    const voltaToolsPath = path?.join(voltaPath, 'tools')
+    const voltaImagePath = path?.join(voltaToolsPath, 'image')
+    const voltaUserPath = path?.join(voltaToolsPath, 'user')
     const voltaPlatform = readJsonSync(
-      path!.join(voltaUserPath, 'platform.json'),
+      path?.join(voltaUserPath, 'platform.json'),
       { throws: false },
-    ) as any
+    ) as
+      // biome-ignore lint/suspicious/noExplicitAny: Volta platform config structure is dynamic.
+      any
     const voltaNodeVersion = voltaPlatform?.node?.runtime
     const voltaNpmVersion = voltaPlatform?.node?.npm
     let voltaBinPath = ''
     if (basename === 'npm' || basename === 'npx') {
       if (voltaNpmVersion) {
         const relCliPath = `bin/${basename}-cli.js`
-        voltaBinPath = path!.join(
+        voltaBinPath = path?.join(
           voltaImagePath,
           `npm/${voltaNpmVersion}/${relCliPath}`,
         )
-        if (voltaNodeVersion && !fs!.existsSync(voltaBinPath)) {
-          voltaBinPath = path!.join(
+        if (voltaNodeVersion && !fs?.existsSync(voltaBinPath)) {
+          voltaBinPath = path?.join(
             voltaImagePath,
             `node/${voltaNodeVersion}/lib/node_modules/npm/${relCliPath}`,
           )
-          if (!fs!.existsSync(voltaBinPath)) {
+          if (!fs?.existsSync(voltaBinPath)) {
             voltaBinPath = ''
           }
         }
       }
     } else {
-      const voltaUserBinPath = path!.join(voltaUserPath, 'bin')
+      const voltaUserBinPath = path?.join(voltaUserPath, 'bin')
       const binInfo = readJsonSync(
-        path!.join(voltaUserBinPath, `${basename}.json`),
+        path?.join(voltaUserBinPath, `${basename}.json`),
         { throws: false },
-      ) as any
+      ) as
+        // biome-ignore lint/suspicious/noExplicitAny: Volta bin info structure is dynamic.
+        any
       const binPackage = binInfo?.package
       if (binPackage) {
-        voltaBinPath = path!.join(
+        voltaBinPath = path?.join(
           voltaImagePath,
           `packages/${binPackage}/bin/${basename}`,
         )
-        if (!fs!.existsSync(voltaBinPath)) {
+        if (!fs?.existsSync(voltaBinPath)) {
           voltaBinPath = `${voltaBinPath}.cmd`
-          if (!fs!.existsSync(voltaBinPath)) {
+          if (!fs?.existsSync(voltaBinPath)) {
             voltaBinPath = ''
           }
         }
@@ -372,7 +389,7 @@ export function resolveBinPathSync(binPath: string): string {
     }
     if (voltaBinPath) {
       try {
-        return normalizePath(fs!.realpathSync.native(voltaBinPath))
+        return normalizePath(fs?.realpathSync.native(voltaBinPath))
       } catch {}
       return voltaBinPath
     }
@@ -388,13 +405,13 @@ export function resolveBinPathSync(binPath: string): string {
     const isPnpmOrYarn = basename === 'pnpm' || basename === 'yarn'
     if (hasKnownExt && isNpmOrNpx) {
       // The quick route assumes a bin path like: C:\Program Files\nodejs\npm.cmd
-      const quickPath = path!.join(
-        path!.dirname(binPath),
+      const quickPath = path?.join(
+        path?.dirname(binPath),
         `node_modules/npm/bin/${basename}-cli.js`,
       )
-      if (fs!.existsSync(quickPath)) {
+      if (fs?.existsSync(quickPath)) {
         try {
-          return fs!.realpathSync.native(quickPath)
+          return fs?.realpathSync.native(quickPath)
         } catch {}
         return quickPath
       }
@@ -406,9 +423,9 @@ export function resolveBinPathSync(binPath: string): string {
       // .exe files are already executables and don't need path resolution from wrapper scripts.
       extLowered !== '.exe' &&
       // Check if file exists before attempting to read it to avoid ENOENT errors.
-      fs!.existsSync(binPath)
+      fs?.existsSync(binPath)
     ) {
-      const source = fs!.readFileSync(binPath, 'utf8')
+      const source = fs?.readFileSync(binPath, 'utf8')
       if (isNpmOrNpx) {
         if (extLowered === '.cmd') {
           // "npm.cmd" and "npx.cmd" defined by
@@ -567,7 +584,8 @@ export function resolveBinPathSync(binPath: string): string {
         relPath = /(?<="\$basedir\/).*(?=" $args\n)/.exec(source)?.[0] || ''
       }
       if (relPath) {
-        binPath = normalizePath(path!.resolve(path!.dirname(binPath), relPath))
+        // biome-ignore lint/style/noParameterAssign: Resolving wrapper script target.
+        binPath = normalizePath(path?.resolve(path?.dirname(binPath), relPath))
       }
     }
   } else {
@@ -589,12 +607,13 @@ export function resolveBinPathSync(binPath: string): string {
         const baseBinPath = binPath.slice(0, binIndex + '/.bin/pnpm'.length)
         // Check if the original shell script exists.
         try {
-          const stats = fs!.statSync(baseBinPath)
+          const stats = fs?.statSync(baseBinPath)
           // Only use this path if it's a file (the shell script).
           if (stats.isFile()) {
+            // biome-ignore lint/style/noParameterAssign: Fixing pnpm nested bin structure.
             binPath = normalizePath(baseBinPath)
             // Recompute hasNoExt since we changed the path.
-            hasNoExt = !path!.extname(binPath)
+            hasNoExt = !path?.extname(binPath)
           }
         } catch {
           // If stat fails, continue with the original path.
@@ -607,9 +626,9 @@ export function resolveBinPathSync(binPath: string): string {
       (isPnpmOrYarn || isNpmOrNpx) &&
       // For extensionless files (Unix shell scripts), verify existence before reading.
       // This prevents ENOENT errors when the bin path doesn't exist.
-      fs!.existsSync(binPath)
+      fs?.existsSync(binPath)
     ) {
-      const source = fs!.readFileSync(binPath, 'utf8')
+      const source = fs?.readFileSync(binPath, 'utf8')
       let relPath = ''
 
       if (isPnpmOrYarn) {
@@ -642,7 +661,7 @@ export function resolveBinPathSync(binPath: string): string {
         if (relPath && basename === 'pnpm' && relPath.startsWith('pnpm/')) {
           // The path should be ../pnpm/... not pnpm/...
           // Prepend ../ to fix the relative path.
-          relPath = '../' + relPath
+          relPath = `../${relPath}`
         }
       } else if (isNpmOrNpx) {
         // Handle npm/npx Unix shell scripts
@@ -654,12 +673,13 @@ export function resolveBinPathSync(binPath: string): string {
 
       if (relPath) {
         // Resolve the relative path to handle .. segments properly.
-        binPath = normalizePath(path!.resolve(path!.dirname(binPath), relPath))
+        // biome-ignore lint/style/noParameterAssign: Resolving shell script target.
+        binPath = normalizePath(path?.resolve(path?.dirname(binPath), relPath))
       }
     }
   }
   try {
-    const realPath = fs!.realpathSync.native(binPath)
+    const realPath = fs?.realpathSync.native(binPath)
     return normalizePath(realPath)
   } catch {}
   // Return normalized path even if realpath fails.

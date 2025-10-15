@@ -1,25 +1,24 @@
 /**
  * @fileoverview Lint script for external dependencies in the registry.
- * Runs oxlint on dist/external without auto-fix.
+ * Runs eslint on dist/external without auto-fix.
  *
  * Usage:
  *   node scripts/lint-external.mjs
  */
 
-import { logger } from './utils/helpers.mjs'
 import { runCommand } from '../../scripts/utils/run-command.mjs'
+import { logger } from './utils/helpers.mjs'
 
 async function main() {
   try {
     logger.info('Linting external dependencies...')
 
     const exitCode = await runCommand(
-      'oxlint',
+      'eslint',
       [
-        '-c=../.config/oxlintrc.json',
-        '--ignore-path=../.config/.oxlintignore',
-        '--tsconfig=../tsconfig.json',
-        '--silent',
+        '--config',
+        '../.config/eslint.config.mjs',
+        '--report-unused-disable-directives',
         './dist/external',
       ],
       {

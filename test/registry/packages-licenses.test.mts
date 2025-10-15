@@ -263,7 +263,7 @@ describe('packages license handling', () => {
     it('should handle SEE LICENSE IN pattern', () => {
       const result = resolvePackageLicenses('SEE LICENSE IN LICENSE.txt', '/')
       expect(result[0]).toBeDefined()
-      expect(result[0]!.inFile).toBeDefined()
+      expect(result[0]?.inFile).toBeDefined()
     })
 
     it('should parse standard SPDX expression', () => {

@@ -38,7 +38,7 @@ describe('bun-cache-path', () => {
     } else if (process.platform === 'win32') {
       it('should contain expected temp path on Windows', () => {
         if (bunCachePath) {
-          const temp = process.env['TEMP'] || process.env['TMP']
+          const temp = process.env.TEMP || process.env.TMP
           if (temp) {
             expect(bunCachePath.toLowerCase()).toContain('temp')
           }

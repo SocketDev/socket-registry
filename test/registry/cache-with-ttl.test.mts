@@ -91,16 +91,16 @@ describe('cache-with-ttl', () => {
     })
   })
 
-  describe('remove', () => {
+  describe('delete', () => {
     it('should remove cached data', async () => {
       await cache.set('key1', { value: 100 })
-      await cache.remove('key1')
+      await cache.delete('key1')
       const result = await cache.get('key1')
       expect(result).toBeUndefined()
     })
   })
 
-  describe('clearMemo', () => {
+  describe('clear with memoOnly', () => {
     it('should clear in-memory cache but keep persistent cache', async () => {
       await cache.set('key1', { value: 100 })
 
@@ -108,8 +108,8 @@ describe('cache-with-ttl', () => {
       const result1 = await cache.get<{ value: number }>('key1')
       expect(result1).toEqual({ value: 100 })
 
-      // Clear memo
-      cache.clearMemo()
+      // Clear memo only
+      await cache.clear({ memoOnly: true })
 
       // Should still be in persistent cache
       const result2 = await cache.get<{ value: number }>('key1')

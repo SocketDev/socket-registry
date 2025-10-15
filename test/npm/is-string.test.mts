@@ -40,7 +40,7 @@ describe('is-string', () => {
     })
 
     it('should return false for regex object', () => {
-      expect(isString(new RegExp('a', 'g'))).toBe(false)
+      expect(isString(/a/g)).toBe(false)
     })
 
     it('should return false for new Date()', () => {
@@ -56,11 +56,11 @@ describe('is-string', () => {
     })
 
     it('should return false for NaN', () => {
-      expect(isString(NaN)).toBe(false)
+      expect(isString(Number.NaN)).toBe(false)
     })
 
     it('should return false for Infinity', () => {
-      expect(isString(Infinity)).toBe(false)
+      expect(isString(Number.POSITIVE_INFINITY)).toBe(false)
     })
   })
 

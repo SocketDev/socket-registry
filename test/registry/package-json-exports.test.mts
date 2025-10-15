@@ -16,10 +16,10 @@ describe('package.json exports validation', () => {
 
     expect(pkgJson).toBeDefined()
     expect(pkgJson?.exports).toBeDefined()
-    expect(pkgJson?.['files']).toBeDefined()
+    expect(pkgJson?.files).toBeDefined()
 
     const exports = pkgJson?.exports
-    const files = pkgJson?.['files']
+    const files = pkgJson?.files
 
     if (!exports || typeof exports !== 'object' || Array.isArray(exports)) {
       throw new Error('exports should be an object')
@@ -47,12 +47,21 @@ describe('package.json exports validation', () => {
       extractFilePaths(value)
     }
 
-    const distPatterns = files.filter(pattern => pattern.startsWith('dist/'))
+    // Handle both "dist" and "dist/**" patterns
+    const distPatterns = files
+      .filter(pattern => pattern === 'dist' || pattern.startsWith('dist/'))
+      .map(pattern => (pattern === 'dist' ? 'dist/**' : pattern))
     expect(distPatterns.length).toBeGreaterThan(0)
 
     const actualDistFiles = await fastGlob.glob(distPatterns, {
       cwd: registryPkgPath,
-      ignore: ['**/*.map', '**/node_modules/**', '**/dist/external/**'],
+      ignore: [
+        '**/*.map',
+        '**/node_modules/**',
+        '**/dist/external/**',
+        'dist/constants.js',
+        'dist/constants.d.ts',
+      ],
     })
 
     expect(actualDistFiles.length).toBeGreaterThan(0)

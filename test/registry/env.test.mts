@@ -221,9 +221,9 @@ describe('env module', () => {
     })
 
     it('should handle special number values', () => {
-      expect(envAsString(NaN)).toBe('NaN')
-      expect(envAsString(Infinity)).toBe('Infinity')
-      expect(envAsString(-Infinity)).toBe('-Infinity')
+      expect(envAsString(Number.NaN)).toBe('NaN')
+      expect(envAsString(Number.POSITIVE_INFINITY)).toBe('Infinity')
+      expect(envAsString(Number.NEGATIVE_INFINITY)).toBe('-Infinity')
     })
 
     it('should handle zero values', () => {
@@ -255,7 +255,7 @@ describe('env module', () => {
 
     it('should handle function values', () => {
       expect(envAsBoolean(() => {})).toBe(true)
-      expect(envAsBoolean(function () {})).toBe(true)
+      expect(envAsBoolean(() => {})).toBe(true)
     })
   })
 })

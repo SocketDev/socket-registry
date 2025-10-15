@@ -3,14 +3,14 @@
  * Clean, organized exports for better developer experience.
  */
 
+// Direct exports for commonly used items
+// Alias for backward compatibility with GitHub version
+export {
+  SocketRegistry,
+  SocketRegistry as SocketSecurityRegistry,
+} from './packages/registry'
 // Export types
 export * from './types'
-
-// Direct exports for commonly used items
-export { SocketRegistry } from './packages/registry'
-
-// Alias for backward compatibility with GitHub version
-export { SocketRegistry as SocketSecurityRegistry } from './packages/registry'
 
 // Manifest data helper function
 export function getManifestData(ecosystem?: string, packageName?: string) {

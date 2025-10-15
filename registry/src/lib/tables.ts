@@ -3,8 +3,8 @@
  * Provides ASCII table rendering with borders, alignment, and colors.
  */
 
-import { stripAnsi } from './strings'
 import colors from '../external/yoctocolors-cjs'
+import { stripAnsi } from './strings'
 
 export type ColumnAlignment = 'left' | 'right' | 'center'
 
@@ -46,7 +46,6 @@ function padText(
       const rightPad = padding - leftPad
       return ' '.repeat(leftPad) + text + ' '.repeat(rightPad)
     }
-    case 'left':
     default:
       return text + ' '.repeat(padding)
   }
@@ -82,7 +81,7 @@ function padText(
  * // └─────────┴─────────┴────────┘
  */
 export function formatTable(
-  data: Array<Record<string, any>>,
+  data: Array<Record<string, unknown>>,
   columns: TableColumn[],
 ): string {
   if (data.length === 0) {
@@ -101,20 +100,20 @@ export function formatTable(
   const lines: string[] = []
 
   // Top border
-  const topBorder = '┌─' + widths.map(w => '─'.repeat(w)).join('─┬─') + '─┐'
+  const topBorder = `┌─${widths.map(w => '─'.repeat(w)).join('─┬─')}─┐`
   lines.push(colors.dim(topBorder))
 
   // Header row
   const headerCells = columns.map((col, i) => {
     const text = colors.bold(col.header)
-    return padText(text, widths[i]!, col.align)
+    return padText(text, widths[i] as number, col.align)
   })
   lines.push(
     colors.dim('│ ') + headerCells.join(colors.dim(' │ ')) + colors.dim(' │'),
   )
 
   // Header separator
-  const headerSep = '├─' + widths.map(w => '─'.repeat(w)).join('─┼─') + '─┤'
+  const headerSep = `├─${widths.map(w => '─'.repeat(w)).join('─┼─')}─┤`
   lines.push(colors.dim(headerSep))
 
   // Data rows
@@ -124,7 +123,7 @@ export function formatTable(
       if (col.color) {
         value = col.color(value)
       }
-      return padText(value, widths[i]!, col.align)
+      return padText(value, widths[i] as number, col.align)
     })
     lines.push(
       colors.dim('│ ') + cells.join(colors.dim(' │ ')) + colors.dim(' │'),
@@ -132,7 +131,7 @@ export function formatTable(
   }
 
   // Bottom border
-  const bottomBorder = '└─' + widths.map(w => '─'.repeat(w)).join('─┴─') + '─┘'
+  const bottomBorder = `└─${widths.map(w => '─'.repeat(w)).join('─┴─')}─┘`
   lines.push(colors.dim(bottomBorder))
 
   return lines.join('\n')
@@ -166,7 +165,7 @@ export function formatTable(
  * // react    18.2.0
  */
 export function formatSimpleTable(
-  data: Array<Record<string, any>>,
+  data: Array<Record<string, unknown>>,
   columns: TableColumn[],
 ): string {
   if (data.length === 0) {
@@ -186,7 +185,7 @@ export function formatSimpleTable(
 
   // Header row
   const headerCells = columns.map((col, i) =>
-    padText(colors.bold(col.header), widths[i]!, col.align),
+    padText(colors.bold(col.header), widths[i] as number, col.align),
   )
   lines.push(headerCells.join('  '))
 
@@ -201,7 +200,7 @@ export function formatSimpleTable(
       if (col.color) {
         value = col.color(value)
       }
-      return padText(value, widths[i]!, col.align)
+      return padText(value, widths[i] as number, col.align)
     })
     lines.push(cells.join('  '))
   }

@@ -8,51 +8,51 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const fixturePath = path.join(__dirname, '../fixtures/debug-simple.mjs')
 
 describe('debug module - subprocess tests', () => {
-  describe('isDebugSimple', () => {
+  describe('isDebug', () => {
     it('should return false when DEBUG is not set', () => {
-      const result = execSync(`node "${fixturePath}" isDebugSimple`, {
+      const result = execSync(`node "${fixturePath}" isDebug`, {
         encoding: 'utf8',
         env: { ...process.env, DEBUG: '' },
       })
-      expect(result).toContain('isDebugSimple: false')
+      expect(result).toContain('isDebug: false')
     })
 
     it('should return false when DEBUG is 0', () => {
-      const result = execSync(`node "${fixturePath}" isDebugSimple`, {
+      const result = execSync(`node "${fixturePath}" isDebug`, {
         encoding: 'utf8',
         env: { ...process.env, DEBUG: '0' },
       })
-      expect(result).toContain('isDebugSimple: false')
+      expect(result).toContain('isDebug: false')
     })
 
     it('should return false when DEBUG is false', () => {
-      const result = execSync(`node "${fixturePath}" isDebugSimple`, {
+      const result = execSync(`node "${fixturePath}" isDebug`, {
         encoding: 'utf8',
         env: { ...process.env, DEBUG: 'false' },
       })
-      expect(result).toContain('isDebugSimple: false')
+      expect(result).toContain('isDebug: false')
     })
 
     it('should return true when DEBUG is set to any value', () => {
-      const result = execSync(`node "${fixturePath}" isDebugSimple`, {
+      const result = execSync(`node "${fixturePath}" isDebug`, {
         encoding: 'utf8',
         env: { ...process.env, DEBUG: '*' },
       })
-      expect(result).toContain('isDebugSimple: true')
+      expect(result).toContain('isDebug: true')
     })
 
     it('should return true when DEBUG is set to 1', () => {
-      const result = execSync(`node "${fixturePath}" isDebugSimple`, {
+      const result = execSync(`node "${fixturePath}" isDebug`, {
         encoding: 'utf8',
         env: { ...process.env, DEBUG: '1' },
       })
-      expect(result).toContain('isDebugSimple: true')
+      expect(result).toContain('isDebug: true')
     })
   })
 
-  describe('debugLogSimple', () => {
+  describe('debugLog', () => {
     it('should not log when DEBUG is not set', () => {
-      const result = execSync(`node "${fixturePath}" debugLogSimple`, {
+      const result = execSync(`node "${fixturePath}" debugLog`, {
         encoding: 'utf8',
         env: { ...process.env, DEBUG: '' },
       })
@@ -60,7 +60,7 @@ describe('debug module - subprocess tests', () => {
     })
 
     it('should log when DEBUG is set', () => {
-      const result = execSync(`node "${fixturePath}" debugLogSimple`, {
+      const result = execSync(`node "${fixturePath}" debugLog`, {
         encoding: 'utf8',
         env: { ...process.env, DEBUG: '*' },
       })
@@ -69,9 +69,9 @@ describe('debug module - subprocess tests', () => {
     })
   })
 
-  describe('debugDirSimple', () => {
+  describe('debugDir', () => {
     it('should not output when DEBUG is not set', () => {
-      const result = execSync(`node "${fixturePath}" debugDirSimple`, {
+      const result = execSync(`node "${fixturePath}" debugDir`, {
         encoding: 'utf8',
         env: { ...process.env, DEBUG: '' },
       })
@@ -79,7 +79,7 @@ describe('debug module - subprocess tests', () => {
     })
 
     it('should output object when DEBUG is set', () => {
-      const result = execSync(`node "${fixturePath}" debugDirSimple`, {
+      const result = execSync(`node "${fixturePath}" debugDir`, {
         encoding: 'utf8',
         env: { ...process.env, DEBUG: '*' },
       })
@@ -88,42 +88,42 @@ describe('debug module - subprocess tests', () => {
     })
   })
 
-  describe('debugFnSimple', () => {
+  describe('debugNs', () => {
     it('should not log when DEBUG is not set', () => {
-      const result = execSync(`node "${fixturePath}" debugFnSimple`, {
+      const result = execSync(`node "${fixturePath}" debugNs`, {
         encoding: 'utf8',
         env: { ...process.env, DEBUG: '' },
       })
-      expect(result).not.toContain('message from debugFnSimple')
+      expect(result).not.toContain('message from debugNs')
     })
 
     it('should log when namespace matches wildcard', () => {
-      const result = execSync(`node "${fixturePath}" debugFnSimple`, {
+      const result = execSync(`node "${fixturePath}" debugNs`, {
         encoding: 'utf8',
         env: { ...process.env, DEBUG: '*' },
       })
       expect(result).toContain('test:namespace')
-      expect(result).toContain('message from debugFnSimple')
+      expect(result).toContain('message from debugNs')
     })
 
     it('should log when namespace matches exact pattern', () => {
-      const result = execSync(`node "${fixturePath}" debugFnSimple`, {
+      const result = execSync(`node "${fixturePath}" debugNs`, {
         encoding: 'utf8',
         env: { ...process.env, DEBUG: 'test:namespace' },
       })
-      expect(result).toContain('message from debugFnSimple')
+      expect(result).toContain('message from debugNs')
     })
 
     it('should log when namespace matches prefix pattern', () => {
-      const result = execSync(`node "${fixturePath}" debugFnSimple`, {
+      const result = execSync(`node "${fixturePath}" debugNs`, {
         encoding: 'utf8',
         env: { ...process.env, DEBUG: 'test:*' },
       })
-      expect(result).toContain('message from debugFnSimple')
+      expect(result).toContain('message from debugNs')
     })
 
     it('should not log when namespace is negated', () => {
-      const result = execSync(`node "${fixturePath}" debugFnSimple-negation`, {
+      const result = execSync(`node "${fixturePath}" debugNs-negation`, {
         encoding: 'utf8',
         env: { ...process.env, DEBUG: '*,-test:skip' },
       })
@@ -131,7 +131,7 @@ describe('debug module - subprocess tests', () => {
     })
 
     it('should handle wildcard patterns without colon', () => {
-      const result = execSync(`node "${fixturePath}" debugFnSimple-wildcard`, {
+      const result = execSync(`node "${fixturePath}" debugNs-wildcard`, {
         encoding: 'utf8',
         env: { ...process.env, DEBUG: 'app*' },
       })

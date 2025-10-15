@@ -22,4 +22,4 @@ import { envAsString } from '../env'
 //
 // This is useful for scripts that need to know which lifecycle event triggered them,
 // allowing conditional behavior based on the current script context.
-export default envAsString(process.env['npm_lifecycle_event'])
+export default envAsString(process.env.npm_lifecycle_event)

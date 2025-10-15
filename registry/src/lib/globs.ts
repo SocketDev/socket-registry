@@ -20,7 +20,7 @@ interface FastGlobOptions {
   dot?: boolean
   extglob?: boolean
   followSymbolicLinks?: boolean
-  fs?: any
+  fs?: unknown
   globstar?: boolean
   ignore?: string[]
   ignoreFiles?: string[]
@@ -93,7 +93,7 @@ function getPicomatch() {
     // The 'picomatch' package is browser safe.
     _picomatch = /*@__PURE__*/ require('../external/picomatch')
   }
-  return _picomatch!
+  return _picomatch as typeof import('picomatch')
 }
 
 let _fastGlob: typeof import('fast-glob') | undefined
@@ -107,7 +107,7 @@ function getFastGlob() {
     const globExport = /*@__PURE__*/ require('../external/fast-glob')
     _fastGlob = globExport.default || globExport
   }
-  return _fastGlob!
+  return _fastGlob as typeof import('fast-glob')
 }
 
 /**
@@ -117,7 +117,7 @@ function getFastGlob() {
 export function globStreamLicenses(
   dirname: string,
   options?: GlobOptions,
-): any {
+): NodeJS.ReadableStream {
   const {
     ignore: ignoreOpt,
     ignoreOriginals,
@@ -147,7 +147,7 @@ export function globStreamLicenses(
       ...globOptions,
       ...(ignore ? { ignore } : {}),
       __proto__: null,
-    } as any,
+    } as FastGlobOptions,
   )
 }
 
@@ -158,7 +158,7 @@ const matcherCache = new Map()
 /*@__NO_SIDE_EFFECTS__*/
 export function getGlobMatcher(
   glob: Pattern | Pattern[],
-  options?: any,
+  options?: { dot?: boolean; nocase?: boolean; ignore?: string[] },
 ): (path: string) => boolean {
   const patterns = Array.isArray(glob) ? glob : [glob]
   const key = JSON.stringify({ patterns, options })

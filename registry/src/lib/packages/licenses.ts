@@ -2,12 +2,11 @@
  * @fileoverview SPDX license parsing and analysis utilities.
  */
 
-import LOOP_SENTINEL from '../constants/LOOP_SENTINEL'
 import copyLeftLicenses from '../constants/copy-left-licenses'
+import LOOP_SENTINEL from '../constants/LOOP_SENTINEL'
 import { hasOwn } from '../objects'
-import { normalizePath } from '../path'
-
 import type { LicenseNode } from '../packages'
+import { normalizePath } from '../path'
 
 const BINARY_OPERATION_NODE_TYPE = 'BinaryOperation'
 const LICENSE_NODE_TYPE = 'License'
@@ -23,10 +22,10 @@ let _path: typeof import('path') | undefined
 function getPath() {
   if (_path === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
-    // eslint-disable-next-line n/prefer-node-protocol
-    _path = /*@__PURE__*/ require('path')
+
+    _path = /*@__PURE__*/ require('node:path')
   }
-  return _path!
+  return _path as typeof import('path')
 }
 
 let _spdxCorrect: typeof import('spdx-correct') | undefined
@@ -36,7 +35,7 @@ function getSpdxCorrect() {
     // The 'spdx-correct' package is browser safe.
     _spdxCorrect = /*@__PURE__*/ require('../../external/spdx-correct')
   }
-  return _spdxCorrect!
+  return _spdxCorrect as typeof import('spdx-correct')
 }
 
 let _spdxExpParse: typeof import('spdx-expression-parse') | undefined
@@ -46,7 +45,7 @@ function getSpdxExpParse() {
     // The 'spdx-expression-parse' package is browser safe.
     _spdxExpParse = /*@__PURE__*/ require('../../external/spdx-expression-parse')
   }
-  return _spdxExpParse!
+  return _spdxExpParse as typeof import('spdx-expression-parse')
 }
 
 // Duplicated from spdx-expression-parse - AST node types.
@@ -82,11 +81,11 @@ export interface LicenseVisitor {
   License?: (
     node: InternalLicenseNode,
     parent?: InternalAstNode,
-  ) => boolean | void
+  ) => boolean | undefined
   BinaryOperation?: (
     node: InternalBinaryOperationNode,
     parent?: InternalAstNode,
-  ) => boolean | void
+  ) => boolean | undefined
 }
 
 /**
@@ -119,7 +118,7 @@ export function collectLicenseWarnings(licenseNodes: LicenseNode[]): string[] {
     }
     const { license } = node
     if (license === 'UNLICENSED') {
-      warnings.set('UNLICENSED', `Package is unlicensed`)
+      warnings.set('UNLICENSED', 'Package is unlicensed')
     } else if (node.inFile !== undefined) {
       warnings.set('IN_FILE', `License terms specified in ${node.inFile}`)
     }
@@ -155,7 +154,7 @@ export function createBinaryOperationNode(
     type: BINARY_OPERATION_NODE_TYPE as 'BinaryOperation',
     get left() {
       if (left === undefined) {
-        left = createAstNode(rawLeft!)
+        left = createAstNode(rawLeft as SpdxAstNode)
         rawLeft = undefined
       }
       return left
@@ -163,7 +162,7 @@ export function createBinaryOperationNode(
     conjunction,
     get right() {
       if (right === undefined) {
-        right = createAstNode(rawRight!)
+        right = createAstNode(rawRight as SpdxAstNode)
         rawRight = undefined
       }
       return right
@@ -279,11 +278,15 @@ export function visitLicenses(ast: SpdxAstNode, visitor: LicenseVisitor): void {
     //     conjunction: string
     //     right: License | BinaryOperation
     //   }
-    const { 0: node, 1: parent } = queue[pos++]!
+    const { 0: node, 1: parent } = queue[pos++] as [
+      InternalBinaryOperationNode | InternalLicenseNode,
+      InternalBinaryOperationNode | null,
+    ]
     const { type } = node
-    if (typeof visitor[type] === 'function' && hasOwn(visitor, type)) {
+    const visitorRecord = visitor as Record<string, unknown>
+    if (typeof visitorRecord[type] === 'function' && hasOwn(visitor, type)) {
       if (type === LICENSE_NODE_TYPE) {
-        const licenseVisitor = visitor['License']
+        const licenseVisitor = visitorRecord.License
         if (
           typeof licenseVisitor === 'function' &&
           licenseVisitor(node as InternalLicenseNode, parent) === false
@@ -291,7 +294,7 @@ export function visitLicenses(ast: SpdxAstNode, visitor: LicenseVisitor): void {
           break
         }
       } else if (type === BINARY_OPERATION_NODE_TYPE) {
-        const binaryOpVisitor = visitor['BinaryOperation']
+        const binaryOpVisitor = visitorRecord.BinaryOperation
         if (
           typeof binaryOpVisitor === 'function' &&
           binaryOpVisitor(node as InternalBinaryOperationNode, parent) === false

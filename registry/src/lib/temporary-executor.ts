@@ -15,7 +15,7 @@ import { normalizePath } from './path'
  */
 export function isRunningInTemporaryExecutor(cwd = process.cwd()): boolean {
   // Check environment variable for exec/npx/dlx indicators.
-  const userAgent = process.env['npm_config_user_agent']
+  const userAgent = process.env.npm_config_user_agent
   if (
     userAgent?.includes('exec') ||
     userAgent?.includes('npx') ||
@@ -28,7 +28,7 @@ export function isRunningInTemporaryExecutor(cwd = process.cwd()): boolean {
   const normalizedCwd = normalizePath(cwd)
 
   // Check if running from npm's npx cache.
-  const npmCache = process.env['npm_config_cache']
+  const npmCache = process.env.npm_config_cache
   if (npmCache && normalizedCwd.includes(normalizePath(npmCache))) {
     return true
   }

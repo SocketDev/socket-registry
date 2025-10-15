@@ -19,7 +19,7 @@ describe('packages module - operations and utilities', () => {
       const pkgPath = path.join(process.cwd(), 'package.json')
       const result = readPackageJsonSync(pkgPath)
       expect(result).toBeDefined()
-      expect(result!.name).toBeDefined()
+      expect(result?.name).toBeDefined()
     })
 
     it('should handle non-existent file', () => {

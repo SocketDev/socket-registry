@@ -53,7 +53,7 @@ const debugModulePath = path.resolve(
 async function evalIsDebug(debugValue: string | undefined): Promise<boolean> {
   const env: Record<string, string> = {}
   if (debugValue !== undefined) {
-    env['DEBUG'] = debugValue
+    env.DEBUG = debugValue
   }
   const code = `import { isDebug } from '${pathToFileURL(debugModulePath).href}'; console.log(isDebug())`
   const proc = spawn(
@@ -198,14 +198,14 @@ describe('debug module', () => {
 
   describe('isDebugNs', () => {
     it('should return false when SOCKET_DEBUG is not set', () => {
-      delete process.env['SOCKET_DEBUG']
+      delete process.env.SOCKET_DEBUG
       expect(isDebugNs('test')).toBe(false)
     })
   })
 
   describe('debugLogNs', () => {
     it('should not log when namespace does not match', () => {
-      process.env['DEBUG'] = 'other:*'
+      process.env.DEBUG = 'other:*'
       const callsBefore = consoleSpy.log.mock.calls.length
       debugLogNs('test:namespace', 'message')
       expect(consoleSpy.log.mock.calls.length).toBe(callsBefore)
@@ -214,7 +214,7 @@ describe('debug module', () => {
 
   describe('debugDirNs', () => {
     it('should not dir when namespace does not match', () => {
-      process.env['DEBUG'] = 'other:*'
+      process.env.DEBUG = 'other:*'
       debugDirNs('test:namespace', { key: 'value' })
       expect(consoleSpy.dir).not.toHaveBeenCalled()
     })
@@ -222,7 +222,7 @@ describe('debug module', () => {
 
   describe('debugNs', () => {
     it('should not log when namespace does not match', () => {
-      process.env['DEBUG'] = 'other:*'
+      process.env.DEBUG = 'other:*'
       debugNs('test:namespace', 'message')
       expect(consoleSpy.log).not.toHaveBeenCalled()
     })
