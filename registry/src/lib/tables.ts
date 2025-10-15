@@ -3,8 +3,8 @@
  * Provides ASCII table rendering with borders, alignment, and colors.
  */
 
-import { stripAnsi } from './strings'
 import colors from '../external/yoctocolors-cjs'
+import { stripAnsi } from './strings'
 
 export type ColumnAlignment = 'left' | 'right' | 'center'
 

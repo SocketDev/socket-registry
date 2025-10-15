@@ -3,21 +3,20 @@
  * Provides animated progress indicators with CI environment detection.
  */
 
-import ENV from './constants/ENV'
-import abortSignal from './constants/abort-signal'
-import { generateSocketSpinnerFrames } from './effects/pulse-frames'
-import { COLOR_INHERIT, DIR_LTR, applyShimmer } from './effects/text-shimmer'
-import { hasOwn } from './objects'
-import { isBlankString, stringWidth } from './strings'
+import type { Writable } from 'node:stream'
 import yoctoSpinner from '../external/@socketregistry/yocto-spinner'
-
+import abortSignal from './constants/abort-signal'
+import ENV from './constants/ENV'
+import { generateSocketSpinnerFrames } from './effects/pulse-frames'
 import type {
   ShimmerColorGradient,
   ShimmerConfig,
   ShimmerDirection,
   ShimmerState,
 } from './effects/text-shimmer'
-import type { Writable } from 'node:stream'
+import { applyShimmer, COLOR_INHERIT, DIR_LTR } from './effects/text-shimmer'
+import { hasOwn } from './objects'
+import { isBlankString, stringWidth } from './strings'
 
 export type ColorName =
   | 'black'

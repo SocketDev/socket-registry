@@ -3,18 +3,16 @@
  */
 
 import { isArray } from '../arrays'
-import { resolvePackageJsonEntryExports } from './exports'
-import { isRegistryFetcherType } from './validation'
-import SOCKET_GITHUB_ORG from '../constants/SOCKET_GITHUB_ORG'
-import SOCKET_REGISTRY_REPO_NAME from '../constants/SOCKET_REGISTRY_REPO_NAME'
 import abortSignal from '../constants/abort-signal'
 import packageDefaultNodeRange from '../constants/package-default-node-range'
 import PACKAGE_DEFAULT_SOCKET_CATEGORIES from '../constants/package-default-socket-categories'
 import packumentCache from '../constants/packument-cache'
+import SOCKET_GITHUB_ORG from '../constants/SOCKET_GITHUB_ORG'
+import SOCKET_REGISTRY_REPO_NAME from '../constants/SOCKET_REGISTRY_REPO_NAME'
 import { isObjectObject, objectEntries } from '../objects'
-
 import type { PackageJson, PacoteOptions } from '../packages'
-
+import { resolvePackageJsonEntryExports } from './exports'
+import { isRegistryFetcherType } from './validation'
 
 const pkgScopePrefixRegExp = /^@socketregistry\//
 

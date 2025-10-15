@@ -2,12 +2,11 @@
  * @fileoverview SPDX license parsing and analysis utilities.
  */
 
-import LOOP_SENTINEL from '../constants/LOOP_SENTINEL'
 import copyLeftLicenses from '../constants/copy-left-licenses'
+import LOOP_SENTINEL from '../constants/LOOP_SENTINEL'
 import { hasOwn } from '../objects'
-import { normalizePath } from '../path'
-
 import type { LicenseNode } from '../packages'
+import { normalizePath } from '../path'
 
 const BINARY_OPERATION_NODE_TYPE = 'BinaryOperation'
 const LICENSE_NODE_TYPE = 'License'

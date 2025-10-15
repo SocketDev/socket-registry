@@ -4,8 +4,8 @@
  */
 
 import { arrayChunk } from './arrays'
-import UNDEFINED_TOKEN from './constants/UNDEFINED_TOKEN'
 import abortSignal from './constants/abort-signal'
+import UNDEFINED_TOKEN from './constants/UNDEFINED_TOKEN'
 
 export interface RetryOptions {
   args?: unknown[]

@@ -1,5 +1,3 @@
-import path from 'node:path'
-
 import { describe, expect, it } from 'vitest'
 
 import constants from '../../scripts/constants.mjs'

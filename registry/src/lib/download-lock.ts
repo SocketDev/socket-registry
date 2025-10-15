@@ -3,10 +3,8 @@
 import { existsSync } from 'node:fs'
 import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
-
-import { httpDownload } from './http-request'
-
 import type { HttpDownloadOptions, HttpDownloadResult } from './http-request'
+import { httpDownload } from './http-request'
 
 export interface DownloadLockInfo {
   pid: number
