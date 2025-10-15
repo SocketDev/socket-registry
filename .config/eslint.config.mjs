@@ -7,17 +7,16 @@ import {
   includeIgnoreFile,
 } from '@eslint/compat'
 import js from '@eslint/js'
+import { readPackageJsonSync } from '@socketsecurity/registry/lib/packages'
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript'
 import { flatConfigs as origImportXFlatConfigs } from 'eslint-plugin-import-x'
 import nodePlugin from 'eslint-plugin-n'
 import sortDestructureKeysPlugin from 'eslint-plugin-sort-destructure-keys'
 import unicornPlugin from 'eslint-plugin-unicorn'
-import globals from 'globals'
 import fastGlob from 'fast-glob'
+import globals from 'globals'
 import tsEslint from 'typescript-eslint'
-
 import constants from '../scripts/constants.mjs'
-import { readPackageJsonSync } from '@socketsecurity/registry/lib/packages'
 
 // Resolve current module paths for proper configuration loading.
 const __filename = fileURLToPath(import.meta.url)
@@ -49,7 +48,7 @@ const biomeIgnores = {
 const gitignorePath = path.join(rootPath, '.gitignore')
 const gitIgnores = {
   ...includeIgnoreFile(gitignorePath),
-  name: `Imported .gitignore ignore patterns`,
+  name: 'Imported .gitignore ignore patterns',
 }
 
 // OPTIMIZATION: When LINT_EXTERNAL is set, include external dependencies in linting.
@@ -195,10 +194,12 @@ function configs(sourceType) {
           'buffer.isAscii',
           'buffer.isUtf8',
           'buffer.resolveObjectURL',
+          'events.getMaxListeners',
           'fetch',
           'fs.promises.cp',
           'module.isBuiltin',
           'process.features.require_module',
+          'ReadableStream',
           'Response',
         ],
         version: constants.maintainedNodeVersions.current,
@@ -284,7 +285,7 @@ function configs(sourceType) {
             // PERFORMANCE TRADEOFF: Increase file match limit from default 8 to 1000.
             // This slows initial parsing but allows TypeScript-aware linting of all
             // npm package overrides without requiring individual tsconfig files.
-            maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 1_000,
+            maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 1000,
             tsconfigRootDir: rootPath,
           },
         },

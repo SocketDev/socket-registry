@@ -8,10 +8,10 @@ Thumbs.db
 /.nvm
 /.vscode
 /.type-coverage
-/coverage
 /npm-debug.log
 /yarn.lock
 **/.cache
+**/coverage
 **/dist
 **/node_modules
 **/*.tgz

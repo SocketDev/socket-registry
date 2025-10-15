@@ -15,6 +15,8 @@
       "!**/dist",
       "!**/package.json",
       "!**/pnpm-lock.yaml",
+      "!packages/npm/**/build",
+      "!packages/npm/**/package",
       "!perf/**/fixtures",
       "!scripts/templates",
       "!test/**/fixtures",
@@ -72,5 +74,46 @@
         "useNumericSeparators": "error"
       }
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["packages/npm/**/*.d.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/npm/**/*.js", "packages/npm/**/*.cjs"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noArguments": "off",
+            "noBannedTypes": "off",
+            "useLiteralKeys": "off"
+          },
+          "correctness": {
+            "noSelfAssign": "off",
+            "noUnusedVariables": "off"
+          },
+          "style": {
+            "noParameterAssign": "off",
+            "useConst": "off"
+          },
+          "suspicious": {
+            "noAssignInExpressions": "off",
+            "noDoubleEquals": "off",
+            "noExplicitAny": "off",
+            "noFunctionAssign": "off",
+            "noRedundantUseStrict": "off",
+            "noSelfCompare": "off",
+            "noShadowRestrictedNames": "off"
+          }
+        }
+      }
+    }
+  ]
 }

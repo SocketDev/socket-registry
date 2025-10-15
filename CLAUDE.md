@@ -55,11 +55,11 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 - **Migration**: Quick internal updates preferred over gradual deprecation
 
 ### Safe File Operations (SECURITY CRITICAL)
-- **MANDATORY**: Use `trash` from `scripts/utils/fs.mjs` for all deletions
-- **Canonical implementation**: socket-registry (copy to other projects)
-- **Behavior**: Non-CI uses trash; CI uses fs.rm; temp dirs ignore failures
-- **Usage**: `import { trash } from './scripts/utils/fs.mjs'` then `await trash(paths)`
-- **FORBIDDEN**: Direct `trash` package, `fs.rm()`, `fs.rmSync()`, `rm -rf`
+- **MANDATORY**: Use `del` package for deletions
+- **Usage**: `import { deleteAsync as del } from 'del'` then `await del(paths)`
+- **Temp directories**: Use `{ force: true }` option when deleting temp dirs outside CWD
+- **Comment usage**: Always comment `{ force: true }` explaining why (e.g., "Force delete temp directory outside CWD.")
+- **FORBIDDEN**: `fs.rm()`, `fs.rmSync()`, `rm -rf` commands
 
 ### Work Safeguards (CRITICAL - PREVENTS DATA LOSS)
 - **MANDATORY BEFORE ANY BULK CHANGES**:
@@ -92,12 +92,106 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 - **CI script naming**: `lint-ci`, `test-ci`, `type-ci` (no watch/fix modes)
 
 ### Testing & Coverage
-- **NEVER USE `--` before test paths** - runs all tests
-- **Test single file**: `pnpm test path/to/file.test.ts`
+
+#### Test Structure
+- **Directories**: `test/npm/` - NPM package tests, `test/registry/` - Registry tests
+- **Fixtures**: `test/fixtures/` - Test fixtures
+- **Utils**: `test/utils/` - Shared test utilities (see below)
+- **Naming**: Descriptive file/describe/test names for coverage clarity
 - **Coverage**: MANDATORY - never decrease, always maintain/increase
 - **c8 ignore**: Must include reason ending with period
-- **Naming**: Descriptive file/describe/test names for coverage clarity
-- **Structure**: `test/unit/`, `test/integration/`, `test/fixtures/`, `test/utils/`
+
+#### Test Helpers (`test/utils/`)
+
+**NPM Package Helper** (`npm-package-helper.mts`)
+```typescript
+import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
+
+// Replaces ~15-20 lines of boilerplate per test
+const { module: assert, pkgPath, skip, eco, sockRegPkgName } =
+  await setupNpmPackageTest(__filename)
+
+describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
+  it('should work', () => {
+    expect(assert).toBeDefined()
+  })
+})
+```
+
+**Temp File Helper** (`temp-file-helper.mts`)
+```typescript
+import { withTempDir, withTempFile, runWithTempDir } from '../utils/temp-file-helper.mts'
+
+// Temp directory with cleanup
+const { path: tmpDir, cleanup } = await withTempDir('test-prefix-')
+try {
+  // Use tmpDir...
+} finally {
+  await cleanup()
+}
+
+// Or with callback (auto cleanup):
+await runWithTempDir(async (tmpDir) => {
+  // Use tmpDir... cleanup happens automatically
+}, 'test-prefix-')
+
+// Temp file
+const { path: tmpFile, cleanup } = await withTempFile('content', {
+  extension: '.json',
+  prefix: 'config-'
+})
+```
+
+**Platform Test Helpers** (`platform-test-helpers.mts`)
+```typescript
+import { platform, itOnWindows, itOnUnix, normalizePath } from '../utils/platform-test-helpers.mts'
+
+describe('cross-platform tests', () => {
+  itOnWindows('should handle Windows paths', () => {
+    expect(path.sep).toBe('\\')
+  })
+
+  itOnUnix('should handle Unix paths', () => {
+    expect(path.sep).toBe('/')
+  })
+
+  it('should compare paths cross-platform', () => {
+    expectNormalizedPath('C:\\Users\\test', '/c/Users/test')
+  })
+})
+```
+
+**Assertion Helpers** (`assertion-helpers.mts`)
+```typescript
+import { expectString, expectFrozen, expectHasProperties } from '../utils/assertion-helpers.mts'
+
+it('should validate config', () => {
+  expectString(config.apiKey)
+  expectFrozen(config)
+  expectHasProperties(config, ['apiKey', 'baseUrl', 'timeout'])
+})
+```
+
+#### Running Tests
+- **All tests**: `pnpm test`
+- **Specific file**: `pnpm test path/to/file.test.ts`
+- **🚨 NEVER USE `--` before test paths** - runs all tests
+- **Coverage**: `pnpm run cover`
+- **NPM packages**: `pnpm run test:npm:packages` (long-running)
+
+#### Migration Guide
+See `test/utils/TEST_HELPERS_README.md` for:
+- Detailed usage examples (before/after patterns)
+- Migration strategy and phases
+- Potential line savings per helper
+- Best practices and patterns
+
+#### Best Practices
+- **Use helpers**: setupNpmPackageTest(), withTempDir(), itOnWindows(), etc.
+- **Auto cleanup**: Always use cleanup functions for temp resources
+- **Platform-aware**: Use platform helpers for cross-platform tests
+- **Descriptive names**: Clear test names for coverage reports
+- **Combine helpers**: Mix helpers for maximum impact
 
 ### Vitest Memory Optimization
 - **Pool**: `pool: 'forks'`, `singleFork: true`, `maxForks: 1`, `isolate: true`
@@ -184,7 +278,7 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 
 ### Dependency Alignment (MANDATORY)
 - **Core deps**: @typescript/native-preview (tsgo), @types/node, typescript-eslint (unified only)
-- **DevDeps**: @biomejs/biome, @dotenvx/dotenvx, @vitest/coverage-v8, eslint, eslint-plugin-*, globals, husky, knip, lint-staged, npm-run-all2, oxlint, taze, trash, type-coverage, vitest, yargs-parser, yoctocolors-cjs
+- **DevDeps**: @biomejs/biome, @dotenvx/dotenvx, @vitest/coverage-v8, eslint, eslint-plugin-*, globals, husky, knip, lint-staged, npm-run-all2, taze, trash, type-coverage, vitest, yargs-parser, yoctocolors-cjs
 - **FORBIDDEN**: Separate @typescript-eslint/* packages; use unified `typescript-eslint`
 - **TSGO PRESERVATION**: Never replace tsgo with tsc
 - **Update**: Use `pnpm run taze` to check/apply updates across all Socket projects
@@ -230,5 +324,5 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 - TypeScript → CommonJS
 - Post-build transform: `exports.default = val` → `module.exports = val`
 - Multiple env configs: `.env.local`, `.env.test`, `.env.external`
-- Dual linting: oxlint + eslint
+- Linting: eslint
 - Formatting: Biome
