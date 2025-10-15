@@ -113,7 +113,8 @@
             "noFunctionAssign": "off",
             "noRedundantUseStrict": "off",
             "noSelfCompare": "off",
-            "noShadowRestrictedNames": "off"
+            "noShadowRestrictedNames": "off",
+            "useGetterReturn": "off"
           }
         }
       }

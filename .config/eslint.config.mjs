@@ -189,7 +189,9 @@ function configs(sourceType) {
     'unicorn/consistent-function-scoping': 'error',
     curly: 'error',
     'no-await-in-loop': 'error',
-    'no-control-regex': 'error',
+    // Disable no-control-regex - ANSI escape sequences intentionally use control chars.
+    // Biome handles this check via lint/suspicious/noControlCharactersInRegex.
+    'no-control-regex': 'off',
     'no-empty': ['error', { allowEmptyCatch: true }],
     'no-new': 'error',
     'no-proto': 'error',
