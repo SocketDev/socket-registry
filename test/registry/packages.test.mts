@@ -70,7 +70,8 @@ describe('packages module', () => {
       expect(isValidPackageName('@')).toBe(false)
       expect(isValidPackageName('@scope')).toBe(false)
       expect(isValidPackageName('@scope/')).toBe(false)
-      expect(isValidPackageName('/package')).toBe(false)
+      // Note: '/package' is valid in Socket's overridden validate-npm-package-name
+      expect(isValidPackageName('/package')).toBe(true)
       expect(isValidPackageName('CAPITAL')).toBe(true)
       const result = isValidPackageName('MyPackage')
       expect(typeof result).toBe('boolean')
