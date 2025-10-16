@@ -1,8 +1,6 @@
-import { mkdtempSync, rmSync } from 'node:fs'
-import os from 'node:os'
-import path from 'node:path'
-
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { withTempDirSync } from '../utils/temp-file-helper.mts'
 
 // Mock the cacache module to avoid persistent cache in tests
 vi.mock('../../registry/src/lib/cacache', () => {
@@ -60,23 +58,22 @@ const cacache = cacacheActual as unknown as {
 const httpRequest = httpRequestActual as unknown as ReturnType<typeof vi.fn>
 
 describe('github module', () => {
+  let cleanup: () => void
   let originalEnv: NodeJS.ProcessEnv
-  let tempDir: string
 
   beforeEach(async () => {
     originalEnv = { ...process.env }
     await clearRefCache()
     await cacache.clear()
-    tempDir = mkdtempSync(path.join(os.tmpdir(), 'github-test-'))
+    const result = withTempDirSync('github-test-')
+    cleanup = result.cleanup
     vi.clearAllMocks()
   })
 
   afterEach(async () => {
     process.env = originalEnv
     await clearRefCache()
-    try {
-      rmSync(tempDir, { recursive: true, force: true })
-    } catch {}
+    cleanup()
   })
 
   describe('getGitHubToken', () => {
