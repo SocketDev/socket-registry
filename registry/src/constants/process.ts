@@ -2,7 +2,7 @@
  * Process control: abort signals and UI utilities.
  */
 
-import type { Spinner } from '../lib/spinner'
+import type { Spinner } from '#lib/spinner'
 
 // Abort controller and signal.
 let _abortController: AbortController
