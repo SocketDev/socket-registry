@@ -16,7 +16,10 @@ import { spinner } from '../registry/dist/lib/spinner.js'
 import { printHeader } from '../registry/dist/lib/stdio/header.js'
 
 import constants from './constants.mjs'
-import { runTests as runTestsWithOutput } from './utils/interactive-runner.mjs'
+import {
+  runTests as runTestsWithOutput,
+  runWithOutput,
+} from './utils/interactive-runner.mjs'
 
 // Suppress non-fatal worker termination unhandled rejections
 process.on('unhandledRejection', (reason, _promise) => {
@@ -33,7 +36,7 @@ process.on('unhandledRejection', (reason, _promise) => {
   throw reason
 })
 
-const { WIN32 } = constants
+const { IS_WIN32 } = constants
 
 // Track running processes for cleanup
 const runningProcesses = new Set()
@@ -63,7 +66,7 @@ async function runCommand(command, args = [], options = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
       stdio: 'inherit',
-      ...(WIN32 && { shell: true }),
+      ...(IS_WIN32 && { shell: true }),
       ...options,
     })
 
@@ -85,9 +88,6 @@ async function runCheck() {
   logger.step('Running checks')
   console.log('  (Press Ctrl+O to show/hide output)')
   console.log()
-
-  // Import interactive runner for interactive experience
-  const { runWithOutput } = await import('./utils/interactive-runner.mjs')
 
   // Run fix (auto-format)
   let exitCode = await runWithOutput('pnpm', ['run', 'fix'], {
@@ -133,9 +133,6 @@ async function runBuild() {
   if (!existsSync(distPath)) {
     logger.step('Building project')
 
-    // Import interactive runner for interactive experience
-    const { runWithOutput } = await import('./utils/interactive-runner.mjs')
-
     const exitCode = await runWithOutput('pnpm', ['run', 'build'], {
       message: 'Building project',
       toggleText: 'to see build output',
@@ -162,7 +159,7 @@ async function runTests(options, positionals = []) {
   }
 
   // Handle Windows vs Unix for vitest executable
-  const vitestCmd = WIN32 ? 'vitest.cmd' : 'vitest'
+  const vitestCmd = IS_WIN32 ? 'vitest.cmd' : 'vitest'
   const vitestPath = path.join(constants.rootNodeModulesBinPath, vitestCmd)
 
   // Expand glob patterns in positionals
@@ -191,7 +188,7 @@ async function runTests(options, positionals = []) {
   const spawnOptions = {
     cwd: constants.rootPath,
     env: spawnEnv,
-    shell: WIN32,
+    shell: IS_WIN32,
     verbose: false,
   }
 
@@ -204,7 +201,7 @@ async function runTests(options, positionals = []) {
   return runCommand(vitestPath, vitestArgs, {
     cwd: constants.rootPath,
     env: spawnEnv,
-    shell: WIN32,
+    shell: IS_WIN32,
     stdio: 'inherit',
   })
 }

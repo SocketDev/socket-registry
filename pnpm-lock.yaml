@@ -54,9 +54,6 @@ patchedDependencies:
   brace-expansion@2.0.2:
     hash: eac47f4a81cd7be766bd391c6bf91ac462816eb2f3c5f99270419ac752d6f02d
     path: patches/brace-expansion@2.0.2.patch
-  iconv-lite@0.6.3:
-    hash: ace5bc78beaaed0e8584c45ef917f0204bd698f4516bc83e8996137854875f06
-    path: patches/iconv-lite@0.6.3.patch
   minimatch@9.0.5:
     hash: 5ba6ef947d5f7b176eb7fcfe274a11e6d0a1a8bde7ae1cb7e939295aad0e8ec1
     path: patches/minimatch@9.0.5.patch
@@ -4601,7 +4598,7 @@ snapshots:
   '@inquirer/external-editor@1.0.2(@types/node@24.5.2)':
     dependencies:
       chardet: 2.1.0
-      iconv-lite: 0.6.3(patch_hash=ace5bc78beaaed0e8584c45ef917f0204bd698f4516bc83e8996137854875f06)
+      iconv-lite: 0.6.3
     optionalDependencies:
       '@types/node': 24.5.2
 
@@ -5792,7 +5789,7 @@ snapshots:
 
   encoding@0.1.13:
     dependencies:
-      iconv-lite: 0.6.3(patch_hash=ace5bc78beaaed0e8584c45ef917f0204bd698f4516bc83e8996137854875f06)
+      iconv-lite: 0.6.3
     optional: true
 
   end-of-stream@1.4.5:
@@ -6268,7 +6265,7 @@ snapshots:
 
   husky@9.1.7: {}
 
-  iconv-lite@0.6.3(patch_hash=ace5bc78beaaed0e8584c45ef917f0204bd698f4516bc83e8996137854875f06):
+  iconv-lite@0.6.3:
     dependencies:
       safer-buffer: '@socketregistry/safer-buffer@1.0.10'
 

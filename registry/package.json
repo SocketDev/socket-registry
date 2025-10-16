@@ -1510,7 +1510,7 @@
   },
   "sideEffects": false,
   "scripts": {
-    "build": "pnpm run clean && pnpm run build:ts && pnpm run build:types && pnpm run build:externals && pnpm run fix:exports && pnpm run fix:imports",
+    "build": "pnpm run clean && pnpm run build:ts && pnpm run build:types && pnpm run build:externals && pnpm run fix:exports",
     "build:ts": "tsgo --project tsconfig.json",
     "build:types": "tsgo --project tsconfig.dts.json --declaration --emitDeclarationOnly",
     "build:externals": "node scripts/build-externals.mjs",

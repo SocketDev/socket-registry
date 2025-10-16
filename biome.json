@@ -123,6 +123,10 @@
       "includes": ["test/**/*.mts"],
       "linter": {
         "rules": {
+          "complexity": {
+            "noArguments": "off",
+            "useArrowFunction": "off"
+          },
           "suspicious": {
             "noExplicitAny": "off",
             "noShadowRestrictedNames": "off"

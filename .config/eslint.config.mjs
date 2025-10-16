@@ -341,16 +341,22 @@ export default [
   biomeIgnores,
   {
     ignores: [
+      // Dot folders.
+      '.*/**',
+      // Nested directories.
+      '**/coverage/**',
       '**/dist/**',
-      'coverage/**',
-      'packages/npm/**/package',
-      '.config/**',
-      // Exclude external type definitions from linting.
+      '**/external/**',
+      '**/node_modules/**',
+      // Bundled packages.
+      'packages/npm/**/package/**',
+      // Registry paths.
       'registry/src/external/**/*.d.ts',
-      'registry/src/lib/constants/*.d.ts',
-      // Also exclude when running from registry directory.
-      'src/external/**/*.d.ts',
-      'src/lib/constants/*.d.ts',
+      'registry/dist/**',
+      // Generated TypeScript files.
+      '**/*.d.ts',
+      '**/*.d.ts.map',
+      '**/*.tsbuildinfo',
     ],
   },
   ...configs('script'),

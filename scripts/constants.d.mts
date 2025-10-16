@@ -1,89 +1,116 @@
 /**
- * @fileoverview TypeScript type definitions for build script constants.
+ * @fileoverview Type definitions for constants module.
  */
 
-import which from 'which'
+export interface Constants {
+  // Core constants
+  BIOME_JSON: string
+  DEFAULT_CONCURRENCY: number
+  PACKAGES: string
+  TEMPLATE_CJS: string
+  TEMPLATE_CJS_BROWSER: string
+  TEMPLATE_CJS_ESM: string
+  TEMPLATE_ES_SHIM_CONSTRUCTOR: string
+  TEMPLATE_ES_SHIM_PROTOTYPE_METHOD: string
+  TEMPLATE_ES_SHIM_STATIC_METHOD: string
 
-import registryConstants from '@socketsecurity/registry/lib/constants'
-import { Remap } from '@socketsecurity/registry/lib/objects'
+  // Environment
+  ENV: Record<string, string | undefined>
 
-declare const kInternalsSymbol: (typeof registryConstants)['kInternalsSymbol']
-type Internals = Remap<
-  (typeof registryConstants)[typeof kInternalsSymbol] & {
-    readonly which: (cmd: string, options?: which.Options) => Promise<string>
-    readonly whichSync: (cmd: string, options?: which.Options) => string
+  // Node.js constants
+  IS_WIN32: boolean
+  NODE_VERSION: string
+  PLATFORM: string
+  WIN32: string
+
+  // File and directory names
+  CHANGELOG_MD: string
+  DOT_GITHUB: string
+  ESLINT_CONFIG_JS: string
+  EXTENSIONS_JSON: string
+  LICENSE: string
+  MANIFEST_JSON: string
+  NODE_MODULES: string
+  NPM: string
+  PACKAGE_JSON: string
+  PACKAGE_LOCK_JSON: string
+  PNPM: string
+  PNPM_LOCK_YAML: string
+  README_MD: string
+  REGISTRY: string
+  SOCKET_REGISTRY_SCOPE: string
+  TSCONFIG_JSON: string
+  YARN: string
+  YARN_LOCK: string
+
+  // Computed paths
+  NPM_PACKAGES_PATH: string
+  NPM_TEMPLATES_PATH: string
+  NPM_TEMPLATES_README_PATH: string
+  PERF_NPM_FIXTURES_PATH: string
+  PERF_NPM_PATH: string
+  REGISTRY_EXTENSIONS_JSON_PATH: string
+  REGISTRY_MANIFEST_JSON_PATH: string
+  REGISTRY_PKG_PATH: string
+  REL_NPM_PACKAGES_PATH: string
+  REL_PACKAGES_PATH: string
+  REL_REGISTRY_MANIFEST_JSON_PATH: string
+  REL_REGISTRY_PKG_PATH: string
+  REL_TEST_NPM_NODE_MODULES_PATH: string
+  REL_TEST_NPM_PATH: string
+  ROOT_CACHE_PATH: string
+  ROOT_DOT_GITHUB_ACTIONS_PATH: string
+  ROOT_DOT_GITHUB_PATH: string
+  ROOT_DOT_GITHUB_WORKFLOWS_PATH: string
+  ROOT_NODE_MODULES_BIN_PATH: string
+  ROOT_NODE_MODULES_PATH: string
+  ROOT_PACKAGE_JSON_PATH: string
+  ROOT_PATH: string
+  TEST_NPM_NODE_MODULES_PATH: string
+  TEST_NPM_PATH: string
+
+  // Lazy getters
+  ecosystems: readonly string[]
+  gitExecPath: string
+  gitIgnoreFile: string
+  ignoreGlobs: readonly string[]
+  LICENSE_CONTENT: string
+  npmPackageNames: readonly string[]
+  npmPackagesPath: string
+  npmTemplatesPath: string
+  npmTemplatesReadmePath: string
+  perfNpmFixturesPath: string
+  perfNpmPath: string
+  registryExtensionsJsonPath: string
+  registryManifestJsonPath: string
+  registryPkgPath: string
+  relNpmPackagesPath: string
+  relPackagesPath: string
+  relRegistryManifestJsonPath: string
+  relRegistryPkgPath: string
+  relTestNpmNodeModulesPath: string
+  relTestNpmPath: string
+  rootCachePath: string
+  rootDotGithubActionsPath: string
+  rootDotGithubPath: string
+  rootDotGithubWorkflowsPath: string
+  rootNodeModulesBinPath: string
+  rootNodeModulesPath: string
+  rootPackageJsonPath: string
+  rootPath: string
+  testNpmNodeModulesPath: string
+  testNpmPath: string
+
+  // Testing
+  ALLOW_TEST_FAILURES_BY_ECOSYSTEM: Record<string, readonly string[]>
+
+  // Utilities
+  parseArgsConfig: {
+    options: Record<string, { type: string; short?: string; default?: unknown }>
+    strict: boolean
+    allowPositionals: boolean
   }
->
-declare const Constants: Remap<
-  Exclude<typeof registryConstants, typeof kInternalsSymbol> & {
-    readonly [kInternalsSymbol]: Internals
-    readonly ENV: Remap<
-      (typeof registryConstants)['ENV'] & {
-        readonly VERBOSE_BUILD: boolean
-      }
-    >
-    readonly BIOME_JSON: 'biome.json'
-    readonly DEFAULT_CONCURRENCY: 3
-    readonly LICENSE_CONTENT: string
-    readonly PACKAGES: 'packages'
-    readonly TEMPLATE_CJS: 'cjs'
-    readonly TEMPLATE_CJS_BROWSER: 'cjs-browser'
-    readonly TEMPLATE_CJS_ESM: 'cjs-esm'
-    readonly TEMPLATE_ES_SHIM_CONSTRUCTOR: 'es-shim-constructor'
-    readonly TEMPLATE_ES_SHIM_PROTOTYPE_METHOD: 'es-shim-prototype-method'
-    readonly TEMPLATE_ES_SHIM_STATIC_METHOD: 'es-shim-static-method'
-    readonly ecosystems: readonly string[]
-    readonly gitExecPath: string
-    readonly ignoreGlobs: readonly string[]
-    readonly npmPackageNames: readonly string[]
-    readonly npmPackagesPath: string
-    readonly npmTemplatesPath: string
-    readonly npmTemplatesReadmePath: string
-    readonly parseArgsConfig: {
-      readonly options: {
-        readonly force: {
-          readonly type: 'boolean'
-          readonly short: 'f'
-        }
-        readonly quiet: {
-          readonly type: 'boolean'
-        }
-      }
-      readonly strict: false
-    }
-    readonly perfNpmPath: string
-    readonly perfNpmFixturesPath: string
-    readonly registryExtensionsJsonPath: string
-    readonly registryManifestJsonPath: string
-    readonly registryPkgPath: string
-    readonly relNpmPackagesPath: string
-    readonly relPackagesPath: string
-    readonly relRegistryManifestJsonPath: string
-    readonly relRegistryPkgPath: string
-    readonly relTestNpmPath: string
-    readonly relTestNpmNodeModulesPath: string
-    readonly rootEslintConfigPath: string
-    readonly rootLicensePath: string
-    readonly rootNodeModulesBinPath: string
-    readonly rootNodeModulesPath: string
-    readonly rootPackageJsonPath: string
-    readonly rootPackageLockPath: string
-    readonly rootPackagesPath: string
-    readonly rootPath: string
-    readonly rootTsConfigPath: string
-    readonly allowTestFailuresByEcosystem: Map<string, Set<string>>
-    readonly skipTestsByEcosystem: Map<string, Set<string>>
-    readonly templatesPath: string
-    readonly testNpmPath: string
-    readonly testNpmFixturesPath: string
-    readonly testNpmNodeModulesPath: string
-    readonly testNpmNodeWorkspacesPath: string
-    readonly testNpmPkgJsonPath: string
-    readonly testNpmPkgLockPath: string
-    readonly tsxExecPath: string
-    readonly win32EnsureTestsByEcosystem: Map<string, ReadonlySet<string>>
-    readonly yarnPkgExtsPath: string
-    readonly yarnPkgExtsJsonPath: string
-  }
->
-export default Constants
+}
+
+declare const constants: Constants
+export default constants
