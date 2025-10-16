@@ -38,6 +38,278 @@
       "types": "./dist/constants/get-ipc.d.ts",
       "default": "./dist/constants/get-ipc.js"
     },
+    "./env/appdata": {
+      "types": "./dist/env/appdata.d.ts",
+      "default": "./dist/env/appdata.js"
+    },
+    "./env/ci": {
+      "types": "./dist/env/ci.d.ts",
+      "default": "./dist/env/ci.js"
+    },
+    "./env/comspec": {
+      "types": "./dist/env/comspec.d.ts",
+      "default": "./dist/env/comspec.js"
+    },
+    "./env/debug": {
+      "types": "./dist/env/debug.d.ts",
+      "default": "./dist/env/debug.js"
+    },
+    "./env/getters": {
+      "types": "./dist/env/getters.d.ts",
+      "default": "./dist/env/getters.js"
+    },
+    "./env/github-api-url": {
+      "types": "./dist/env/github-api-url.d.ts",
+      "default": "./dist/env/github-api-url.js"
+    },
+    "./env/github-base-ref": {
+      "types": "./dist/env/github-base-ref.d.ts",
+      "default": "./dist/env/github-base-ref.js"
+    },
+    "./env/github-ref-name": {
+      "types": "./dist/env/github-ref-name.d.ts",
+      "default": "./dist/env/github-ref-name.js"
+    },
+    "./env/github-ref-type": {
+      "types": "./dist/env/github-ref-type.d.ts",
+      "default": "./dist/env/github-ref-type.js"
+    },
+    "./env/github-repository": {
+      "types": "./dist/env/github-repository.d.ts",
+      "default": "./dist/env/github-repository.js"
+    },
+    "./env/github-server-url": {
+      "types": "./dist/env/github-server-url.d.ts",
+      "default": "./dist/env/github-server-url.js"
+    },
+    "./env/github-token": {
+      "types": "./dist/env/github-token.d.ts",
+      "default": "./dist/env/github-token.js"
+    },
+    "./env/helpers": {
+      "types": "./dist/env/helpers.d.ts",
+      "default": "./dist/env/helpers.js"
+    },
+    "./env/home": {
+      "types": "./dist/env/home.d.ts",
+      "default": "./dist/env/home.js"
+    },
+    "./env/jest-worker-id": {
+      "types": "./dist/env/jest-worker-id.d.ts",
+      "default": "./dist/env/jest-worker-id.js"
+    },
+    "./env/lang": {
+      "types": "./dist/env/lang.d.ts",
+      "default": "./dist/env/lang.js"
+    },
+    "./env/lc-all": {
+      "types": "./dist/env/lc-all.d.ts",
+      "default": "./dist/env/lc-all.js"
+    },
+    "./env/lc-messages": {
+      "types": "./dist/env/lc-messages.d.ts",
+      "default": "./dist/env/lc-messages.js"
+    },
+    "./env/localappdata": {
+      "types": "./dist/env/localappdata.d.ts",
+      "default": "./dist/env/localappdata.js"
+    },
+    "./env/node-auth-token": {
+      "types": "./dist/env/node-auth-token.d.ts",
+      "default": "./dist/env/node-auth-token.js"
+    },
+    "./env/node-env": {
+      "types": "./dist/env/node-env.d.ts",
+      "default": "./dist/env/node-env.js"
+    },
+    "./env/npm-config-registry": {
+      "types": "./dist/env/npm-config-registry.d.ts",
+      "default": "./dist/env/npm-config-registry.js"
+    },
+    "./env/npm-config-user-agent": {
+      "types": "./dist/env/npm-config-user-agent.d.ts",
+      "default": "./dist/env/npm-config-user-agent.js"
+    },
+    "./env/npm-lifecycle-event": {
+      "types": "./dist/env/npm-lifecycle-event.d.ts",
+      "default": "./dist/env/npm-lifecycle-event.js"
+    },
+    "./env/npm-registry": {
+      "types": "./dist/env/npm-registry.d.ts",
+      "default": "./dist/env/npm-registry.js"
+    },
+    "./env/npm-token": {
+      "types": "./dist/env/npm-token.d.ts",
+      "default": "./dist/env/npm-token.js"
+    },
+    "./env/path": {
+      "types": "./dist/env/path.d.ts",
+      "default": "./dist/env/path.js"
+    },
+    "./env/pre-commit": {
+      "types": "./dist/env/pre-commit.d.ts",
+      "default": "./dist/env/pre-commit.js"
+    },
+    "./env/shell": {
+      "types": "./dist/env/shell.d.ts",
+      "default": "./dist/env/shell.js"
+    },
+    "./env/socket-accept-risks": {
+      "types": "./dist/env/socket-accept-risks.d.ts",
+      "default": "./dist/env/socket-accept-risks.js"
+    },
+    "./env/socket-api-base-url": {
+      "types": "./dist/env/socket-api-base-url.d.ts",
+      "default": "./dist/env/socket-api-base-url.js"
+    },
+    "./env/socket-api-proxy": {
+      "types": "./dist/env/socket-api-proxy.d.ts",
+      "default": "./dist/env/socket-api-proxy.js"
+    },
+    "./env/socket-api-timeout": {
+      "types": "./dist/env/socket-api-timeout.d.ts",
+      "default": "./dist/env/socket-api-timeout.js"
+    },
+    "./env/socket-api-token": {
+      "types": "./dist/env/socket-api-token.d.ts",
+      "default": "./dist/env/socket-api-token.js"
+    },
+    "./env/socket-cacache-dir": {
+      "types": "./dist/env/socket-cacache-dir.d.ts",
+      "default": "./dist/env/socket-cacache-dir.js"
+    },
+    "./env/socket-cli-accept-risks": {
+      "types": "./dist/env/socket-cli-accept-risks.d.ts",
+      "default": "./dist/env/socket-cli-accept-risks.js"
+    },
+    "./env/socket-cli-api-base-url": {
+      "types": "./dist/env/socket-cli-api-base-url.d.ts",
+      "default": "./dist/env/socket-cli-api-base-url.js"
+    },
+    "./env/socket-cli-api-proxy": {
+      "types": "./dist/env/socket-cli-api-proxy.d.ts",
+      "default": "./dist/env/socket-cli-api-proxy.js"
+    },
+    "./env/socket-cli-api-timeout": {
+      "types": "./dist/env/socket-cli-api-timeout.d.ts",
+      "default": "./dist/env/socket-cli-api-timeout.js"
+    },
+    "./env/socket-cli-api-token": {
+      "types": "./dist/env/socket-cli-api-token.d.ts",
+      "default": "./dist/env/socket-cli-api-token.js"
+    },
+    "./env/socket-cli-config": {
+      "types": "./dist/env/socket-cli-config.d.ts",
+      "default": "./dist/env/socket-cli-config.js"
+    },
+    "./env/socket-cli-fix": {
+      "types": "./dist/env/socket-cli-fix.d.ts",
+      "default": "./dist/env/socket-cli-fix.js"
+    },
+    "./env/socket-cli-no-api-token": {
+      "types": "./dist/env/socket-cli-no-api-token.d.ts",
+      "default": "./dist/env/socket-cli-no-api-token.js"
+    },
+    "./env/socket-cli-optimize": {
+      "types": "./dist/env/socket-cli-optimize.d.ts",
+      "default": "./dist/env/socket-cli-optimize.js"
+    },
+    "./env/socket-cli-org-slug": {
+      "types": "./dist/env/socket-cli-org-slug.d.ts",
+      "default": "./dist/env/socket-cli-org-slug.js"
+    },
+    "./env/socket-cli-shadow-accept-risks": {
+      "types": "./dist/env/socket-cli-shadow-accept-risks.d.ts",
+      "default": "./dist/env/socket-cli-shadow-accept-risks.js"
+    },
+    "./env/socket-cli-shadow-api-token": {
+      "types": "./dist/env/socket-cli-shadow-api-token.d.ts",
+      "default": "./dist/env/socket-cli-shadow-api-token.js"
+    },
+    "./env/socket-cli-shadow-bin": {
+      "types": "./dist/env/socket-cli-shadow-bin.d.ts",
+      "default": "./dist/env/socket-cli-shadow-bin.js"
+    },
+    "./env/socket-cli-shadow-progress": {
+      "types": "./dist/env/socket-cli-shadow-progress.d.ts",
+      "default": "./dist/env/socket-cli-shadow-progress.js"
+    },
+    "./env/socket-cli-shadow-silent": {
+      "types": "./dist/env/socket-cli-shadow-silent.d.ts",
+      "default": "./dist/env/socket-cli-shadow-silent.js"
+    },
+    "./env/socket-cli-view-all-risks": {
+      "types": "./dist/env/socket-cli-view-all-risks.d.ts",
+      "default": "./dist/env/socket-cli-view-all-risks.js"
+    },
+    "./env/socket-config": {
+      "types": "./dist/env/socket-config.d.ts",
+      "default": "./dist/env/socket-config.js"
+    },
+    "./env/socket-debug": {
+      "types": "./dist/env/socket-debug.d.ts",
+      "default": "./dist/env/socket-debug.js"
+    },
+    "./env/socket-home": {
+      "types": "./dist/env/socket-home.d.ts",
+      "default": "./dist/env/socket-home.js"
+    },
+    "./env/socket-no-api-token": {
+      "types": "./dist/env/socket-no-api-token.d.ts",
+      "default": "./dist/env/socket-no-api-token.js"
+    },
+    "./env/socket-npm-registry": {
+      "types": "./dist/env/socket-npm-registry.d.ts",
+      "default": "./dist/env/socket-npm-registry.js"
+    },
+    "./env/socket-org-slug": {
+      "types": "./dist/env/socket-org-slug.d.ts",
+      "default": "./dist/env/socket-org-slug.js"
+    },
+    "./env/socket-registry-url": {
+      "types": "./dist/env/socket-registry-url.d.ts",
+      "default": "./dist/env/socket-registry-url.js"
+    },
+    "./env/socket-view-all-risks": {
+      "types": "./dist/env/socket-view-all-risks.d.ts",
+      "default": "./dist/env/socket-view-all-risks.js"
+    },
+    "./env/temp": {
+      "types": "./dist/env/temp.d.ts",
+      "default": "./dist/env/temp.js"
+    },
+    "./env/term": {
+      "types": "./dist/env/term.d.ts",
+      "default": "./dist/env/term.js"
+    },
+    "./env/tmp": {
+      "types": "./dist/env/tmp.d.ts",
+      "default": "./dist/env/tmp.js"
+    },
+    "./env/tmpdir": {
+      "types": "./dist/env/tmpdir.d.ts",
+      "default": "./dist/env/tmpdir.js"
+    },
+    "./env/userprofile": {
+      "types": "./dist/env/userprofile.d.ts",
+      "default": "./dist/env/userprofile.js"
+    },
+    "./env/vitest": {
+      "types": "./dist/env/vitest.d.ts",
+      "default": "./dist/env/vitest.js"
+    },
+    "./env/xdg-cache-home": {
+      "types": "./dist/env/xdg-cache-home.d.ts",
+      "default": "./dist/env/xdg-cache-home.js"
+    },
+    "./env/xdg-config-home": {
+      "types": "./dist/env/xdg-config-home.d.ts",
+      "default": "./dist/env/xdg-config-home.js"
+    },
+    "./env/xdg-data-home": {
+      "types": "./dist/env/xdg-data-home.d.ts",
+      "default": "./dist/env/xdg-data-home.js"
+    },
     "./constants/agents": {
       "types": "./dist/constants/agents.d.ts",
       "default": "./dist/constants/agents.js"
@@ -427,13 +699,6 @@
     "./package.json": "./package.json",
     "./tsconfig.dts.json": "./tsconfig.dts.json",
     "./tsconfig.json": "./tsconfig.json"
-  },
-  "imports": {
-    "#constants": "./dist/constants.js",
-    "#utils": "./dist/utils.js",
-    "#packages": "./dist/packages.js",
-    "#cli": "./dist/cli.js",
-    "#types": "./dist/types.js"
   },
   "files": [
     "dist",
