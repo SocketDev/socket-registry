@@ -9,7 +9,7 @@ import { createRequire } from 'node:module'
 const require = createRequire(import.meta.url)
 
 // Import the CommonJS spawn module.
-const spawnModule = require('../../registry/dist/lib/process/spawn.js')
+const spawnModule = require('../../registry/dist/lib/spawn.js')
 
 // Re-export spawn functions.
 export const spawn = spawnModule.spawn
