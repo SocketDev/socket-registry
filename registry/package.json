@@ -700,6 +700,14 @@
     "./tsconfig.dts.json": "./tsconfig.dts.json",
     "./tsconfig.json": "./tsconfig.json"
   },
+  "imports": {
+    "#constants/*": "./dist/constants/*.js",
+    "#env/*": "./dist/env/*.js",
+    "#lib/*": "./dist/lib/*.js",
+    "#packages/*": "./dist/lib/packages/*.js",
+    "#types": "./dist/types.js",
+    "#utils/*": "./dist/utils/*.js"
+  },
   "files": [
     "dist",
     "manifest.json",
