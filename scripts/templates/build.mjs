@@ -11,6 +11,7 @@
  *   --watch    Watch for changes
  */
 
+import packageJson from '../package.json' with { type: 'json' }
 import {
   isQuiet,
   isVerbose,
@@ -51,10 +52,6 @@ async function main() {
     }
 
     // Check for custom build scripts
-    const packageJson = await import('../package.json', {
-      with: { type: 'json' }
-    }).then(m => m.default).catch(() => ({}))
-
     if (packageJson.scripts?.['build:custom']) {
       steps.push({
         name: 'Custom Build',

@@ -3,8 +3,8 @@
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import ENV from '../registry/dist/lib/constants/ENV.js'
-import WIN32 from '../registry/dist/lib/constants/WIN32.js'
+import { WIN32 } from '../registry/dist/constants/platform.js'
+import { CI } from '../registry/dist/env/ci.js'
 import { logger } from '../registry/dist/lib/logger.js'
 import { parseArgs } from '../registry/dist/lib/parse-args.js'
 import { spawn } from '../registry/dist/lib/spawn.js'
@@ -19,19 +19,19 @@ const { values: cliArgs } = parseArgs({
     },
     'download-concurrency': {
       type: 'string',
-      default: ENV.CI ? (WIN32 ? '10' : '20') : '50',
+      default: CI ? (WIN32 ? '10' : '20') : '50',
     },
     'install-concurrency': {
       type: 'string',
-      default: ENV.CI ? (WIN32 ? '5' : '10') : '15',
+      default: CI ? (WIN32 ? '5' : '10') : '15',
     },
     'test-concurrency': {
       type: 'string',
-      default: ENV.CI ? (WIN32 ? '3' : '8') : '20',
+      default: CI ? (WIN32 ? '3' : '8') : '20',
     },
     force: {
       type: 'boolean',
-      default: ENV.CI,
+      default: CI,
     },
     'temp-dir': {
       type: 'string',

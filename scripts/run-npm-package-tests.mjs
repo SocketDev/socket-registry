@@ -3,7 +3,7 @@
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import WIN32 from '../registry/dist/lib/constants/WIN32.js'
+import { WIN32 } from '../registry/dist/constants/platform.js'
 import { logger } from '../registry/dist/lib/logger.js'
 import {
   readPackageJson,

@@ -23,6 +23,7 @@ import {
 import { parseArgs } from '../registry/dist/lib/parse-args.js'
 import { pEach } from '../registry/dist/lib/promises.js'
 import { naturalCompare } from '../registry/dist/lib/sorts.js'
+import { withSpinner } from '../registry/dist/lib/spinner.js'
 import constants from './constants.mjs'
 import { biomeFormat } from './utils/biome.mjs'
 import { getModifiedFiles } from './utils/git.mjs'
@@ -207,7 +208,6 @@ async function main() {
     }
   }
   const { spinner } = constants
-  const { withSpinner } = await import('../registry/dist/lib/spinner.js')
 
   await withSpinner({
     message: `Updating ${constants.relRegistryManifestJsonPath}...`,

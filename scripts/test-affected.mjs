@@ -8,6 +8,7 @@ import path from 'node:path'
 
 import fastGlob from 'fast-glob'
 
+import { getChangedFiles } from '../registry/dist/lib/git.js'
 import { logger } from '../registry/dist/lib/logger.js'
 import { spawn } from '../registry/dist/lib/spawn.js'
 
@@ -211,7 +212,6 @@ async function main() {
       changedFiles = await getStagedFiles({ absolute: false })
       logger.log(`Found ${changedFiles.length} staged file(s)\n`)
     } else {
-      const { getChangedFiles } = await import('../registry/dist/lib/git.js')
       changedFiles = await getChangedFiles({ absolute: false })
       logger.log(`Found ${changedFiles.length} changed file(s)\n`)
     }
