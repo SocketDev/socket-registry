@@ -26,7 +26,7 @@
  * - https://cheatsheetseries.owasp.org/cheatsheets/Nodejs_Security_Cheat_Sheet.html
  */
 
-import { getAbortSignal, getSpinner } from '../constants/process'
+import { getAbortSignal, getSpinner } from '#constants/process'
 
 import { isArray } from './arrays'
 

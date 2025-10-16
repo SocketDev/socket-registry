@@ -13,7 +13,7 @@ import type {
   WriteFileOptions,
 } from 'node:fs'
 
-import { getAbortSignal } from '../constants/process'
+import { getAbortSignal } from '#constants/process'
 
 import { isArray } from './arrays'
 

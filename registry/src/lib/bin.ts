@@ -3,10 +3,11 @@
  * Provides cross-platform bin path lookup, command execution, and path normalization.
  */
 
-import { APPDATA } from '../env/appdata'
-import { HOME } from '../env/home'
-import { LOCALAPPDATA } from '../env/localappdata'
-import { XDG_DATA_HOME } from '../env/xdg-data-home'
+import { APPDATA } from '#env/appdata'
+import { HOME } from '#env/home'
+import { LOCALAPPDATA } from '#env/localappdata'
+import { XDG_DATA_HOME } from '#env/xdg-data-home'
+
 import { readJsonSync } from './fs'
 import { getOwn } from './objects'
 import { isPath, normalizePath } from './path'

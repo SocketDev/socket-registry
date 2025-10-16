@@ -5,7 +5,7 @@
 
 import { existsSync, promises as fs } from 'node:fs'
 
-import { WIN32 } from '../../constants/platform'
+import { WIN32 } from '#constants/platform'
 
 import type { PackageJson } from '../packages'
 import { isAbsolute, isPath, trimLeadingDotSlash } from '../path'

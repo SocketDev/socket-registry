@@ -5,7 +5,7 @@ import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-import { WIN32 } from '../constants/platform'
+import { WIN32 } from '#constants/platform'
 
 import { isDir, readJson, safeDelete } from './fs'
 import { httpRequest } from './http-request'

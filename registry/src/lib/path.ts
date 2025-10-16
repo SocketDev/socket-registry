@@ -3,7 +3,7 @@
  * Provides path normalization, validation, and file extension handling.
  */
 
-import { WIN32 } from '../constants/platform'
+import { WIN32 } from '#constants/platform'
 
 import { search } from './strings'
 

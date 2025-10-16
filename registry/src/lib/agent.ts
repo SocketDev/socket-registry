@@ -23,7 +23,8 @@
  * file resolution, because Node.js properly escapes each array element.
  */
 
-import { CI } from '../env/ci'
+import { CI } from '#env/ci'
+
 import { execBin } from './bin'
 import { isDebug } from './debug'
 import { findUpSync } from './fs'
