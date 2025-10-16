@@ -7,6 +7,12 @@ import fs from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { PackageURL } from '@socketregistry/packageurl-js'
+import { UNLICENSED } from '../registry/dist/constants/licenses.js'
+import {
+  AT_LATEST,
+  getPackageDefaultNodeRange,
+} from '../registry/dist/constants/packages.js'
+import { getSpinner } from '../registry/dist/constants/process.js'
 import {
   objectEntries,
   toSortedObject,
@@ -24,10 +30,6 @@ import { parseArgs } from '../registry/dist/lib/parse-args.js'
 import { pEach } from '../registry/dist/lib/promises.js'
 import { naturalCompare } from '../registry/dist/lib/sorts.js'
 import { withSpinner } from '../registry/dist/lib/spinner.js'
-import { UNLICENSED } from '../registry/dist/constants/licenses.js'
-import { AT_LATEST } from '../registry/dist/constants/packages.js'
-import { getPackageDefaultNodeRange } from '../registry/dist/constants/packages.js'
-import { getSpinner } from '../registry/dist/constants/process.js'
 
 import { DEFAULT_CONCURRENCY } from './constants/core.mjs'
 import {
