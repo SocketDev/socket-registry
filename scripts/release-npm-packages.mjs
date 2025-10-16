@@ -19,6 +19,7 @@ import {
   readPackageJsonSync,
 } from '../registry/dist/lib/packages.js'
 import { pEach } from '../registry/dist/lib/promises.js'
+import { withSpinner } from '../registry/dist/lib/spinner.js'
 import constants from './constants.mjs'
 
 import { logSectionHeader } from './utils/logging.mjs'
@@ -358,7 +359,6 @@ function packageData(data) {
  */
 async function main() {
   const { spinner } = constants
-  const { withSpinner } = await import('../registry/dist/lib/spinner.js')
 
   const npmPackages = Array.from(constants.npmPackageNames, sockRegPkgName => {
     const pkgPath = path.join(npmPackagesPath, sockRegPkgName)

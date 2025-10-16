@@ -6,6 +6,7 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { PackageURL } from '@socketregistry/packageurl-js'
+import { Eta } from 'eta'
 import fastGlob from 'fast-glob'
 import semver from 'semver'
 import { getManifestData } from '../../registry/dist/index.js'
@@ -41,9 +42,7 @@ const {
 let eta
 async function getEta() {
   if (!eta) {
-    const etaExport = await import('eta')
-    const EtaCtor = etaExport.Eta
-    eta = new EtaCtor()
+    eta = new Eta()
   }
   return eta
 }

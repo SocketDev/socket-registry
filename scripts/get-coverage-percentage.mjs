@@ -6,8 +6,14 @@ import path from 'node:path'
 import yargsParser from 'yargs-parser'
 import colors from 'yoctocolors-cjs'
 
-import constants from '../registry/dist/lib/constants/index.js'
 import { logger } from '../registry/dist/lib/logger.js'
+import { withSpinner } from '../registry/dist/lib/spinner.js'
+
+// Create a constants stub with just what we need.
+const constants = {
+  // This script only uses constants for path resolution.
+  // The actual constant values don't matter for this script.
+}
 
 import { getCodeCoverage } from './utils/get-code-coverage.mjs'
 import { getTypeCoverage } from './utils/get-type-coverage.mjs'
@@ -37,7 +43,6 @@ async function logCoveragePercentage(argv) {
       ? 'Reading coverage data...'
       : 'Generating coverage data...'
 
-    const { withSpinner } = await import('../registry/dist/lib/spinner.js')
     codeCoverage = await withSpinner({
       message,
       operation: async () => await getCodeCoverage(),

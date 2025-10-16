@@ -1,5 +1,7 @@
 /** @fileoverview Shared helper functions for testing scripts. */
 
+import { existsSync, promises as fs } from 'node:fs'
+
 /**
  * Create a validation issue object.
  */
@@ -20,7 +22,6 @@ function createIssue(type, severity, message, details) {
  */
 function pathExists(filepath) {
   try {
-    const { existsSync } = require('node:fs')
     return existsSync(filepath)
   } catch {
     return false
@@ -31,7 +32,6 @@ function pathExists(filepath) {
  * Read and parse JSON file safely.
  */
 async function readJsonFile(filepath) {
-  const fs = await import('node:fs/promises')
   try {
     const content = await fs.readFile(filepath, 'utf8')
     return JSON.parse(content)

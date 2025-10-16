@@ -6,8 +6,9 @@
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import ENV from '../registry/dist/lib/constants/ENV.js'
-import WIN32 from '../registry/dist/lib/constants/WIN32.js'
+import { fileURLToPath } from 'node:url'
+import { WIN32 } from '../registry/dist/constants/platform.js'
+import { CI } from '../registry/dist/env/ci.js'
 import { LOG_SYMBOLS, logger } from '../registry/dist/lib/logger.js'
 import {
   readPackageJson,
@@ -16,13 +17,27 @@ import {
 import { parseArgs } from '../registry/dist/lib/parse-args.js'
 import { pEach } from '../registry/dist/lib/promises.js'
 import { pluralize } from '../registry/dist/lib/words.js'
-import constants from './constants.mjs'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const rootPath = path.dirname(__dirname)
+
+const npmPackagesPath = path.join(rootPath, 'packages', 'npm')
+const testNpmPath = path.join(rootPath, 'test', 'npm')
+const testNpmPkgJsonPath = path.join(testNpmPath, 'package.json')
+
+function getNpmPackageNames() {
+  return fs
+    .readdirSync(npmPackagesPath, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory() && !dirent.name.startsWith('.'))
+    .map(dirent => dirent.name)
+}
 
 const { values: cliArgs } = parseArgs({
   options: {
     concurrency: {
       type: 'string',
-      default: ENV.CI ? (WIN32 ? '10' : '20') : '50',
+      default: CI ? (WIN32 ? '10' : '20') : '50',
     },
     'temp-dir': {
       type: 'string',
@@ -50,7 +65,7 @@ function writeProgress() {
 async function validatePackage(socketPkgName) {
   const origPkgName = resolveOriginalPackageName(socketPkgName)
 
-  const overridePath = path.join(constants.npmPackagesPath, socketPkgName)
+  const overridePath = path.join(npmPackagesPath, socketPkgName)
 
   if (!existsSync(overridePath)) {
     writeProgress(LOG_SYMBOLS.fail)
@@ -63,10 +78,7 @@ async function validatePackage(socketPkgName) {
   }
 
   // Check if there's a manual test file for this package.
-  const manualTestPath = path.join(
-    constants.testNpmPath,
-    `${socketPkgName}.test.mts`,
-  )
+  const manualTestPath = path.join(testNpmPath, `${socketPkgName}.test.mts`)
   const hasManualTest = existsSync(manualTestPath)
 
   if (hasManualTest) {
@@ -83,7 +95,7 @@ async function validatePackage(socketPkgName) {
 
   try {
     // Read the test/npm/package.json to get the version spec.
-    const testPkgJson = await readPackageJson(constants.testNpmPkgJsonPath, {
+    const testPkgJson = await readPackageJson(testNpmPkgJsonPath, {
       normalize: true,
     })
     const versionSpec = testPkgJson.devDependencies?.[origPkgName]
@@ -121,7 +133,7 @@ async function validatePackage(socketPkgName) {
 async function main() {
   const packages = cliArgs.package?.length
     ? cliArgs.package
-    : constants.npmPackageNames
+    : getNpmPackageNames()
 
   // Ensure base temp directory exists.
   await fs.mkdir(tempBaseDir, { recursive: true })

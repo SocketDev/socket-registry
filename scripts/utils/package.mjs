@@ -4,12 +4,14 @@
  * files across the project.
  */
 
+import crypto from 'node:crypto'
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import WIN32 from '../../registry/dist/lib/constants/WIN32.js'
+import { WIN32 } from '../../registry/dist/constants/platform.js'
 import { readPackageJson } from '../../registry/dist/lib/packages/operations.js'
 import { pEach } from '../../registry/dist/lib/promises.js'
+import { withSpinner } from '../../registry/dist/lib/spinner.js'
 import { cleanTestScript } from '../../test/utils/script-cleaning.mjs'
 import { testRunners } from '../../test/utils/test-runners.mjs'
 import constants from '../constants.mjs'
@@ -157,7 +159,6 @@ async function processWithSpinner(items, processor, options = {}) {
   }
 
   if (spinner && startMessage) {
-    const { withSpinner } = await import('../../registry/dist/lib/spinner.js')
     await withSpinner({
       message: startMessage,
       operation: processItems,
@@ -203,7 +204,6 @@ async function computeOverrideHash(overridePath) {
       devDependencies: pkgJson.devDependencies || {},
       version: pkgJson.version,
     })
-    const crypto = await import('node:crypto')
     return crypto.createHash('sha256').update(depsString, 'utf8').digest('hex')
   } catch {
     return ''

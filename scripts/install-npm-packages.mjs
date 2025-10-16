@@ -77,17 +77,21 @@ import { deleteAsync as del } from 'del'
 import { load as yamlLoad } from 'js-yaml'
 import pacote from 'pacote'
 import { c as tarCreate } from 'tar'
-import ENV from '../registry/dist/lib/constants/ENV.js'
-import NODE_MODULES from '../registry/dist/lib/constants/NODE_MODULES.js'
-import PACKAGE_JSON from '../registry/dist/lib/constants/PACKAGE_JSON.js'
-import spinner from '../registry/dist/lib/constants/spinner.js'
-import WIN32 from '../registry/dist/lib/constants/WIN32.js'
+import { NODE_MODULES, PACKAGE_JSON } from '../registry/dist/constants/paths.js'
+import { WIN32 } from '../registry/dist/constants/platform.js'
+import { getSpinner } from '../registry/dist/constants/process.js'
+import { CI } from '../registry/dist/env/ci.js'
+
+const ENV = { CI }
+const spinner = getSpinner()
+
 import { readFileUtf8, readJson, writeJson } from '../registry/dist/lib/fs.js'
 import { LOG_SYMBOLS, logger } from '../registry/dist/lib/logger.js'
 import { readPackageJson } from '../registry/dist/lib/packages.js'
 import { parseArgs } from '../registry/dist/lib/parse-args.js'
 import { pEach, pRetry } from '../registry/dist/lib/promises.js'
 import { spawn } from '../registry/dist/lib/spawn.js'
+import { withSpinner } from '../registry/dist/lib/spinner.js'
 import { pluralize } from '../registry/dist/lib/words.js'
 import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
 import constants from './constants.mjs'
@@ -1236,7 +1240,6 @@ async function main() {
   await fs.mkdir(tempBaseDir, { recursive: true })
 
   const results = []
-  const { withSpinner } = await import('../registry/dist/lib/spinner.js')
 
   await withSpinner({
     message: 'Installing packages...',

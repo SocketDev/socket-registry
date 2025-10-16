@@ -8,7 +8,7 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import COLUMN_LIMIT from '../registry/dist/lib/constants/COLUMN_LIMIT.js'
+import { COLUMN_LIMIT } from '../registry/dist/constants/core.js'
 import { logger } from '../registry/dist/lib/logger.js'
 import { parseArgs } from '../registry/dist/lib/parse-args.js'
 import { spawn } from '../registry/dist/lib/spawn.js'
