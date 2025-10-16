@@ -132,6 +132,13 @@ function getPackageSpecificOptions(packageName) {
   } else if (packageName.startsWith('@inquirer/')) {
     // Inquirer packages have heavy dependencies we might not need.
     opts.external = [...(opts.external || []), 'rxjs/operators']
+  } else if (packageName === 'yargs-parser') {
+    // yargs-parser uses import.meta.url which isn't available in CommonJS.
+    // Replace import.meta.url with __filename wrapped in pathToFileURL.
+    opts.define = {
+      ...opts.define,
+      'import.meta.url': '__filename',
+    }
   }
 
   return opts
