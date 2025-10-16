@@ -1,189 +1,181 @@
+/**
+ * @fileoverview Tests for constants that are not already tested elsewhere.
+ */
+
 import { describe, expect, it } from 'vitest'
 
-// Test constants that are not already tested
+import * as agents from '../../registry/dist/constants/agents.js'
+import * as core from '../../registry/dist/constants/core.js'
+import * as encoding from '../../registry/dist/constants/encoding.js'
+import * as licenses from '../../registry/dist/constants/licenses.js'
+import * as node from '../../registry/dist/constants/node.js'
+import * as packages from '../../registry/dist/constants/packages.js'
+import * as paths from '../../registry/dist/constants/paths.js'
+import * as platform from '../../registry/dist/constants/platform.js'
+import * as testing from '../../registry/dist/constants/testing.js'
+
 describe('additional constants', () => {
-  describe('string constants', () => {
-    it('should export changelog-md constant', () => {
-      const changelogMd = require('../../registry/dist/lib/constants/CHANGELOG_MD')
-      expect(typeof changelogMd).toBe('string')
-      expect(changelogMd).toBe('CHANGELOG.md')
+  describe('paths constants', () => {
+    it('should export CHANGELOG_MD constant', () => {
+      expect(typeof paths.CHANGELOG_MD).toBe('string')
+      expect(paths.CHANGELOG_MD).toBe('CHANGELOG.md')
     })
 
-    it('should export dot-git-dir constant', () => {
-      const dotGitDir = require('../../registry/dist/lib/constants/DOT_GIT_DIR')
-      expect(typeof dotGitDir).toBe('string')
-      expect(dotGitDir).toBe('.git')
+    it('should export DOT_GIT_DIR constant', () => {
+      expect(typeof paths.DOT_GIT_DIR).toBe('string')
+      expect(paths.DOT_GIT_DIR).toBe('.git')
     })
 
-    it('should export dot-package-lock-json constant', () => {
-      const dotPackageLockJson = require('../../registry/dist/lib/constants/DOT_PACKAGE_LOCK_JSON')
-      expect(typeof dotPackageLockJson).toBe('string')
-      expect(dotPackageLockJson).toBe('.package-lock.json')
+    it('should export DOT_PACKAGE_LOCK_JSON constant', () => {
+      expect(typeof paths.DOT_PACKAGE_LOCK_JSON).toBe('string')
+      expect(paths.DOT_PACKAGE_LOCK_JSON).toBe('.package-lock.json')
     })
 
-    it('should export dot-socket-dir constant', () => {
-      const dotSocketDir = require('../../registry/dist/lib/constants/DOT_SOCKET_DIR')
-      expect(typeof dotSocketDir).toBe('string')
-      expect(dotSocketDir).toBe('.socket')
+    it('should export DOT_SOCKET_DIR constant', () => {
+      expect(typeof paths.DOT_SOCKET_DIR).toBe('string')
+      expect(paths.DOT_SOCKET_DIR).toBe('.socket')
     })
 
-    it('should export empty-file constant', () => {
-      const emptyFile = require('../../registry/dist/lib/constants/EMPTY_FILE')
-      expect(typeof emptyFile).toBe('string')
-      expect(emptyFile).toBe('/* empty */\n')
+    it('should export ESLINT_CONFIG_JS constant', () => {
+      expect(typeof paths.ESLINT_CONFIG_JS).toBe('string')
+      expect(paths.ESLINT_CONFIG_JS).toBe('eslint.config.js')
     })
 
-    it('should export empty-value constant', () => {
-      const emptyValue = require('../../registry/dist/lib/constants/EMPTY_VALUE')
-      expect(emptyValue).toBe('<value>')
+    it('should export GITIGNORE constant', () => {
+      expect(typeof paths.GITIGNORE).toBe('string')
+      expect(paths.GITIGNORE).toBe('.gitignore')
     })
 
-    it('should export eslint-config-js constant', () => {
-      const eslintConfigJs = require('../../registry/dist/lib/constants/ESLINT_CONFIG_JS')
-      expect(typeof eslintConfigJs).toBe('string')
-      expect(eslintConfigJs).toBe('eslint.config.js')
+    it('should export TSCONFIG_JSON constant', () => {
+      expect(typeof paths.TSCONFIG_JSON).toBe('string')
+      expect(paths.TSCONFIG_JSON).toBe('tsconfig.json')
     })
 
-    it('should export esnext constant', () => {
-      const esnext = require('../../registry/dist/lib/constants/ESNEXT')
-      expect(typeof esnext).toBe('string')
-      expect(esnext).toBe('esnext')
+    it('should export EXT_JS constant', () => {
+      expect(typeof paths.EXT_JS).toBe('string')
+      expect(paths.EXT_JS).toBe('.js')
+    })
+
+    it('should export EXT_MJS constant', () => {
+      expect(typeof paths.EXT_MJS).toBe('string')
+      expect(paths.EXT_MJS).toBe('.mjs')
+    })
+
+    it('should export EXT_JSON constant', () => {
+      expect(typeof paths.EXT_JSON).toBe('string')
+      expect(paths.EXT_JSON).toBe('.json')
+    })
+
+    it('should export EXT_MD constant', () => {
+      expect(typeof paths.EXT_MD).toBe('string')
+      expect(paths.EXT_MD).toBe('.md')
+    })
+
+    it('should export EXT_YAML constant', () => {
+      expect(typeof paths.EXT_YAML).toBe('string')
+      expect(paths.EXT_YAML).toBe('.yaml')
+    })
+
+    it('should export EXT_YML constant', () => {
+      expect(typeof paths.EXT_YML).toBe('string')
+      expect(paths.EXT_YML).toBe('.yml')
+    })
+  })
+
+  describe('core constants', () => {
+    it('should export EMPTY_FILE constant', () => {
+      expect(typeof core.EMPTY_FILE).toBe('string')
+      expect(core.EMPTY_FILE).toBe('/* empty */\n')
+    })
+
+    it('should export EMPTY_VALUE constant', () => {
+      expect(core.EMPTY_VALUE).toBe('<value>')
+    })
+
+    it('should export UNKNOWN_ERROR constant', () => {
+      expect(typeof core.UNKNOWN_ERROR).toBe('string')
+      expect(core.UNKNOWN_ERROR).toBe('Unknown error')
+    })
+
+    it('should export UNKNOWN_VALUE constant', () => {
+      expect(typeof core.UNKNOWN_VALUE).toBe('string')
+      expect(core.UNKNOWN_VALUE).toBe('<unknown>')
+    })
+  })
+
+  describe('packages constants', () => {
+    it('should export LATEST constant', () => {
+      expect(typeof packages.LATEST).toBe('string')
+      expect(packages.LATEST).toBe('latest')
+    })
+  })
+
+  describe('testing constants', () => {
+    it('should export VITEST constant', () => {
+      expect(typeof testing.VITEST).toBe('string')
+      expect(testing.VITEST).toBe('VITEST')
+    })
+  })
+
+  describe('node constants', () => {
+    it('should export ESNEXT constant', () => {
+      expect(typeof node.ESNEXT).toBe('string')
+      expect(node.ESNEXT).toBe('esnext')
     })
   })
 
   describe('platform constants', () => {
-    it('should export darwin constant', () => {
-      const darwin = require('../../registry/dist/lib/constants/DARWIN')
-      expect(typeof darwin).toBe('boolean')
-      expect(darwin).toBe(process.platform === 'darwin')
-    })
-
-    it('should export bun constant', () => {
-      const bun = require('../../registry/dist/lib/constants/BUN')
-      expect(typeof bun).toBe('string')
-      expect(bun).toBe('bun')
+    it('should export DARWIN constant', () => {
+      expect(typeof platform.DARWIN).toBe('boolean')
+      expect(platform.DARWIN).toBe(process.platform === 'darwin')
     })
   })
 
-  describe('package manager constants', () => {
-    it('should export yarn-berry constant', () => {
-      const yarnBerry = require('../../registry/dist/lib/constants/YARN_BERRY')
-      expect(typeof yarnBerry).toBe('string')
-      expect(yarnBerry).toBe('yarn/berry')
+  describe('agents constants', () => {
+    it('should export BUN constant', () => {
+      expect(typeof agents.BUN).toBe('string')
+      expect(agents.BUN).toBe('bun')
     })
 
-    it('should export yarn-classic constant', () => {
-      const yarnClassic = require('../../registry/dist/lib/constants/yarn-classic')
-      expect(typeof yarnClassic).toBe('string')
-      expect(yarnClassic).toBe('yarn/classic')
+    it('should export YARN_BERRY constant', () => {
+      expect(typeof agents.YARN_BERRY).toBe('string')
+      expect(agents.YARN_BERRY).toBe('yarn/berry')
     })
 
-    it('should export vlt constant', () => {
-      const vlt = require('../../registry/dist/lib/constants/VLT')
-      expect(typeof vlt).toBe('string')
-      expect(vlt).toBe('vlt')
-    })
-  })
-
-  describe('file extension constants', () => {
-    it('should export ext-js constant', () => {
-      const extJs = require('../../registry/dist/lib/constants/EXT_JS')
-      expect(typeof extJs).toBe('string')
-      expect(extJs).toBe('.js')
+    it('should export YARN_CLASSIC constant', () => {
+      expect(typeof agents.YARN_CLASSIC).toBe('string')
+      expect(agents.YARN_CLASSIC).toBe('yarn/classic')
     })
 
-    it('should export ext-mjs constant', () => {
-      const extMjs = require('../../registry/dist/lib/constants/EXT_MJS')
-      expect(typeof extMjs).toBe('string')
-      expect(extMjs).toBe('.mjs')
-    })
-
-    it('should export ext-json constant', () => {
-      const extJson = require('../../registry/dist/lib/constants/EXT_JSON')
-      expect(typeof extJson).toBe('string')
-      expect(extJson).toBe('.json')
-    })
-
-    it('should export ext-md constant', () => {
-      const extMd = require('../../registry/dist/lib/constants/EXT_MD')
-      expect(typeof extMd).toBe('string')
-      expect(extMd).toBe('.md')
-    })
-
-    it('should export ext-yaml constant', () => {
-      const extYaml = require('../../registry/dist/lib/constants/EXT_YAML')
-      expect(typeof extYaml).toBe('string')
-      expect(extYaml).toBe('.yaml')
-    })
-
-    it('should export ext-yml constant', () => {
-      const extYml = require('../../registry/dist/lib/constants/EXT_YML')
-      expect(typeof extYml).toBe('string')
-      expect(extYml).toBe('.yml')
+    it('should export VLT constant', () => {
+      expect(typeof agents.VLT).toBe('string')
+      expect(agents.VLT).toBe('vlt')
     })
   })
 
-  describe('license constants', () => {
-    it('should export license constant', () => {
-      const license = require('../../registry/dist/lib/constants/LICENSE')
-      expect(typeof license).toBe('string')
-      expect(license).toBe('LICENSE')
-    })
-
-    it('should export unlicenced constant', () => {
-      const unlicenced = require('../../registry/dist/lib/constants/UNLICENCED')
-      expect(typeof unlicenced).toBe('string')
-      expect(unlicenced).toBe('UNLICENCED')
-    })
-
-    it('should export unlicensed constant', () => {
-      const unlicensed = require('../../registry/dist/lib/constants/UNLICENSED')
-      expect(typeof unlicensed).toBe('string')
-      expect(unlicensed).toBe('UNLICENSED')
+  describe('paths license constants', () => {
+    it('should export LICENSE constant', () => {
+      expect(typeof paths.LICENSE).toBe('string')
+      expect(paths.LICENSE).toBe('LICENSE')
     })
   })
 
-  describe('utility constants', () => {
-    it('should export latest constant', () => {
-      const latest = require('../../registry/dist/lib/constants/LATEST')
-      expect(typeof latest).toBe('string')
-      expect(latest).toBe('latest')
+  describe('licenses constants', () => {
+    it('should export UNLICENCED constant', () => {
+      expect(typeof licenses.UNLICENCED).toBe('string')
+      expect(licenses.UNLICENCED).toBe('UNLICENCED')
     })
 
-    it('should export gitignore constant', () => {
-      const gitignore = require('../../registry/dist/lib/constants/GITIGNORE')
-      expect(typeof gitignore).toBe('string')
-      expect(gitignore).toBe('.gitignore')
+    it('should export UNLICENSED constant', () => {
+      expect(typeof licenses.UNLICENSED).toBe('string')
+      expect(licenses.UNLICENSED).toBe('UNLICENSED')
     })
+  })
 
-    it('should export tsconfig-json constant', () => {
-      const tsconfigJson = require('../../registry/dist/lib/constants/TSCONFIG_JSON')
-      expect(typeof tsconfigJson).toBe('string')
-      expect(tsconfigJson).toBe('tsconfig.json')
-    })
-
-    it('should export vitest constant', () => {
-      const vitest = require('../../registry/dist/lib/constants/VITEST')
-      expect(typeof vitest).toBe('string')
-      expect(vitest).toBe('VITEST')
-    })
-
-    it('should export utf8 constant', () => {
-      const utf8 = require('../../registry/dist/lib/constants/UTF8')
-      expect(typeof utf8).toBe('string')
-      expect(utf8).toBe('utf8')
-    })
-
-    it('should export unknown-error constant', () => {
-      const unknownError = require('../../registry/dist/lib/constants/UNKNOWN_ERROR')
-      expect(typeof unknownError).toBe('string')
-      expect(unknownError).toBe('Unknown error')
-    })
-
-    it('should export unknown-value constant', () => {
-      const unknownValue = require('../../registry/dist/lib/constants/UNKNOWN_VALUE')
-      expect(typeof unknownValue).toBe('string')
-      expect(unknownValue).toBe('<unknown>')
+  describe('encoding constants', () => {
+    it('should export UTF8 constant', () => {
+      expect(typeof encoding.UTF8).toBe('string')
+      expect(encoding.UTF8).toBe('utf8')
     })
   })
 })

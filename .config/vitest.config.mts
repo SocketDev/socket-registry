@@ -164,20 +164,20 @@ export default defineConfig({
         '**/*.d.ts',
         '**/virtual:*',
         'coverage/**',
-        'scripts/**',
         'test/**',
         'packages/**',
         'perf/**',
-        'dist/external/**',
-        'dist/types.js',
-        'src/external/**',
-        'src/types.ts',
-        // Explicitly exclude scripts and packages at root
-        '/scripts/**',
-        '/packages/**',
-        '/test/**',
+        'dist/**',
+        // Exclude everything in registry except src/
+        'registry/scripts/**',
+        'registry/plugins/**',
+        'registry/dist/**',
+        'registry/src/external/**',
+        'registry/src/types.ts',
+        // Explicitly exclude at root level
+        'scripts/**',
       ],
-      // Always include src/ files for coverage instrumentation
+      // Only include registry/src/ files for coverage instrumentation
       include: ['registry/src/**/*.{ts,mts,cts}'],
       all: true,
       clean: true,
