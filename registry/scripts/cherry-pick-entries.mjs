@@ -11,6 +11,37 @@ export const cherryPickEntries = {
   // NOTE: These require more complex handling and are disabled for now.
   // They could save significant space but need proper module resolution.
 
+  zod: {
+    // Zod is 311KB. We only use basic validators in ipc.ts (object, string, number, literal, extend).
+    // Cherry-pick just what we need to significantly reduce bundle size.
+    customEntry: `
+      const z = require('zod');
+
+      // Export only the validators we actually use in ipc.ts.
+      module.exports = {
+        // Core types used in IpcMessageSchema and IpcHandshakeSchema.
+        object: z.object,
+        string: z.string,
+        number: z.number,
+        literal: z.literal,
+        unknown: z.unknown,
+
+        // Utility for default export compatibility.
+        default: z,
+      };
+
+      // This removes unused features:
+      // - Array/tuple validators
+      // - Union/intersection types
+      // - Transformers and effects
+      // - Branded types
+      // - Lazy evaluation
+      // - Error maps and i18n
+      // - Coercion helpers
+      // Estimated savings: ~150-200KB
+    `,
+  },
+
   /*
   'semver': {
     // Instead of bundling ALL of semver, just get what we use.
@@ -198,57 +229,6 @@ export const cherryPickEntries = {
     `,
   },
 
-  'zod': {
-    // Zod - cherry-pick only the validators we actually use.
-    customEntry: `
-      const z = require('zod');
-
-      // Only export the parts of Zod we actually use.
-      module.exports = {
-        // Core types we use.
-        string: z.string,
-        number: z.number,
-        boolean: z.boolean,
-        object: z.object,
-        array: z.array,
-        enum: z.enum,
-        union: z.union,
-        optional: z.optional,
-        nullable: z.nullable,
-        literal: z.literal,
-        record: z.record,
-        unknown: z.unknown,
-        any: z.any,
-        void: z.void,
-        never: z.never,
-
-        // Methods we use.
-        parse: (schema, data) => schema.parse(data),
-        safeParse: (schema, data) => schema.safeParse(data),
-
-        // Type utilities.
-        infer: z.infer,
-        input: z.input,
-        output: z.output,
-
-        // Default export.
-        default: z.default || z,
-
-        // We DON'T include:
-        // - Error maps and i18n
-        // - Transformers
-        // - Branded types
-        // - Lazy types
-        // - Effects
-        // - Discriminated unions
-        // - Native enums
-        // - Catch
-        // - Pipeline
-        // - Coerce
-      };
-    `,
-  },
-
   */
 
   // For validation packages, we can use simpler validators in production.
@@ -306,6 +286,15 @@ export const cherryPickEntries = {
     `,
   },
 
+  libnpmpack: {
+    // libnpmpack is a large package (1.1MB) that wraps pacote + tar + validation.
+    // We only use it to create tarballs from package specs.
+    // Cherry-picking won't help much here since the core functionality requires
+    // most of the package. The bundle size is acceptable for its critical role.
+    // NOTE: Disabled for now - full bundle provides better compatibility.
+    customEntry: null,
+  },
+
   // For logging, we can use stubs in production.
   'yoctocolors-cjs': {
     // No colors in production bundles.
@@ -335,7 +324,7 @@ export const cherryPickEntries = {
 }
 
 // Generate a temporary entry file for cherry-picked imports.
-export async function createCherryPickEntry(packageName, tempDir) {
+export async function createCherryPickEntry(packageName, _tempDir) {
   const fs = await import('node:fs').then(m => m.promises)
   const path = await import('node:path')
 
@@ -345,9 +334,13 @@ export async function createCherryPickEntry(packageName, tempDir) {
     return null
   }
 
-  // Create temp entry file.
+  // Create temp entry file in project root where node_modules is accessible.
+  // Use a .tmp directory that's gitignored.
+  const tmpDir = path.join(process.cwd(), '.tmp-build')
+  await fs.mkdir(tmpDir, { recursive: true })
+
   const tempFile = path.join(
-    tempDir,
+    tmpDir,
     `${packageName.replace(/[/@]/g, '-')}-entry.js`,
   )
   await fs.writeFile(tempFile, config.customEntry.trim())
