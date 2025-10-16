@@ -94,7 +94,8 @@ const externalPackages = [
   { name: 'which', bundle: true },
   { name: 'yargs-parser', bundle: true },
   { name: 'yoctocolors-cjs', bundle: true },
-  { name: 'zod', bundle: true }, // Used by socket-cli (dist/cli.js has minified zod)
+  // Used by socket-cli (dist/cli.js has minified zod).
+  { name: 'zod', bundle: true },
 ]
 
 // Scoped packages need special handling.

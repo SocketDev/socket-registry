@@ -14,7 +14,7 @@ let _REGISTRY_SCOPE_DELIMITER: string | undefined
 function getRegistryScopeDelimiter(): string {
   if (_REGISTRY_SCOPE_DELIMITER === undefined) {
     _REGISTRY_SCOPE_DELIMITER =
-      /*@__INLINE__*/ require('../../constants/packages').REGISTRY_SCOPE_DELIMITER
+      /*@__INLINE__*/ require('../../constants/socket').REGISTRY_SCOPE_DELIMITER
   }
   return _REGISTRY_SCOPE_DELIMITER as string
 }

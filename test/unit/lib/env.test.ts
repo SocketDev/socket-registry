@@ -125,7 +125,8 @@ describe('env utilities', () => {
     })
 
     it('should handle hexadecimal-like strings in base 10', () => {
-      expect(envAsNumber('0x10')).toBe(0) // Treated as base 10, only '0' is parsed
+      // Treated as base 10, only '0' is parsed.
+      expect(envAsNumber('0x10')).toBe(0)
     })
 
     it('should handle leading zeros', () => {

@@ -35,12 +35,14 @@ describe('strings utilities', () => {
     })
 
     it('should handle special characters', () => {
-      const result = fromCharCode(10) // newline
+      // newline.
+      const result = fromCharCode(10)
       expect(result).toBe('\n')
     })
 
     it('should handle Unicode', () => {
-      const result = fromCharCode(0x1_f6_00) // 😀
+      // 😀
+      const result = fromCharCode(0x1_f6_00)
       expect(typeof result).toBe('string')
     })
   })

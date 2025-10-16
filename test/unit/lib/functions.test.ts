@@ -116,6 +116,7 @@ describe('functions utilities', () => {
 
   describe('silentWrapAsync', () => {
     it('should return result when function succeeds', async () => {
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       const fn = async (x: number) => x * 2
       const wrapped = silentWrapAsync(fn)
 
@@ -124,6 +125,7 @@ describe('functions utilities', () => {
     })
 
     it('should return undefined when function throws', async () => {
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       const fn = async () => {
         throw new Error('test error')
       }
@@ -134,6 +136,7 @@ describe('functions utilities', () => {
     })
 
     it('should convert null results to undefined', async () => {
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       const fn = async () => null
       const wrapped = silentWrapAsync(fn)
 
@@ -142,6 +145,7 @@ describe('functions utilities', () => {
     })
 
     it('should preserve non-null results', async () => {
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       const fn = async () => 0
       const wrapped = silentWrapAsync(fn)
 
@@ -150,6 +154,7 @@ describe('functions utilities', () => {
     })
 
     it('should work with multiple arguments', async () => {
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       const fn = async (a: number, b: number, c: number) => a + b + c
       const wrapped = silentWrapAsync(fn)
 
@@ -158,6 +163,7 @@ describe('functions utilities', () => {
     })
 
     it('should silently catch promise rejections', async () => {
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       const fn = async () => {
         throw new Error('rejection')
       }
@@ -167,6 +173,7 @@ describe('functions utilities', () => {
     })
 
     it('should work with async functions that return objects', async () => {
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       const fn = async () => ({ success: true })
       const wrapped = silentWrapAsync(fn)
 
@@ -175,6 +182,7 @@ describe('functions utilities', () => {
     })
 
     it('should work with async functions that return arrays', async () => {
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       const fn = async () => [1, 2, 3]
       const wrapped = silentWrapAsync(fn)
 
@@ -185,6 +193,7 @@ describe('functions utilities', () => {
 
   describe('trampoline', () => {
     it('should execute function normally when no recursion', () => {
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       const fn = (...args: unknown[]) => (args[0] as number) * 2
       const trampolined = trampoline(fn)
 
@@ -220,6 +229,7 @@ describe('functions utilities', () => {
     })
 
     it('should work with functions that return non-function values', () => {
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       const fn = (...args: unknown[]) => {
         const x = args[0] as number
         if (x === 0) {
@@ -250,6 +260,7 @@ describe('functions utilities', () => {
         if (n === 0) {
           return 'blast off!'
         }
+        // eslint-disable-next-line unicorn/consistent-function-scoping
         return () => () => countdown(n - 1)
       })
 
@@ -273,6 +284,7 @@ describe('functions utilities', () => {
     })
 
     it('should handle silentWrapAsync with immediate errors', async () => {
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       const fn = async () => {
         throw new Error('immediate')
       }
@@ -283,6 +295,7 @@ describe('functions utilities', () => {
     })
 
     it('should handle trampoline with no recursion', () => {
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       const fn = () => 42
       const trampolined = trampoline(fn)
 

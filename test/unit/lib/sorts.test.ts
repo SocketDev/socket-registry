@@ -161,7 +161,8 @@ describe('sorts utilities', () => {
     })
 
     it('should handle numbers as strings', () => {
-      expect(compareStr('10', '2')).toBe(-1) // Lexical ordering
+      // Lexical ordering.
+      expect(compareStr('10', '2')).toBe(-1)
     })
 
     it('should handle Unicode', () => {
@@ -241,7 +242,8 @@ describe('sorts utilities', () => {
     })
 
     it('should handle build metadata in semver', () => {
-      expect(compareSemver('1.0.0+build1', '1.0.0+build2')).toBe(0) // Build metadata ignored
+      // Build metadata ignored.
+      expect(compareSemver('1.0.0+build1', '1.0.0+build2')).toBe(0)
     })
   })
 })
