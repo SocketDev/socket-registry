@@ -17,11 +17,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const envModulePath = path.resolve(
   __dirname,
-  '../../registry/dist/lib/constants/ENV.js',
+  '../../registry/dist/env/debug.js',
 )
 
 async function evalEnvDebug(debugValue: string): Promise<string> {
-  const code = `import ENV from '${pathToFileURL(envModulePath).href}'; console.log(ENV.DEBUG)`
+  const code = `import { DEBUG } from '${pathToFileURL(envModulePath).href}'; console.log(DEBUG)`
   const proc = spawn(
     process.execPath,
     ['--input-type=module', '--eval', code],
@@ -53,7 +53,7 @@ const debugModulePath = path.resolve(
 async function evalIsDebug(debugValue: string | undefined): Promise<boolean> {
   const env: Record<string, string> = {}
   if (debugValue !== undefined) {
-    env['DEBUG'] = debugValue
+    env['SOCKET_DEBUG'] = debugValue
   }
   const code = `import { isDebug } from '${pathToFileURL(debugModulePath).href}'; console.log(isDebug())`
   const proc = spawn(
@@ -96,46 +96,56 @@ describe('debug module', () => {
   })
 
   describe('isDebug', () => {
-    it('should return true when DEBUG env is set', async () => {
-      expect(await evalIsDebug('1')).toBe(true)
-      expect(await evalIsDebug('true')).toBe(true)
+    it('should return true when SOCKET_DEBUG env is set to wildcard', async () => {
       expect(await evalIsDebug('*')).toBe(true)
     })
 
-    it('should return false when DEBUG env is not set', async () => {
+    it('should return false when SOCKET_DEBUG env is not set', async () => {
       expect(await evalIsDebug(undefined)).toBe(false)
     })
 
-    it('should return false when DEBUG is set to falsy value', async () => {
-      expect(await evalIsDebug('0')).toBe(false)
-      expect(await evalIsDebug('false')).toBe(false)
+    it('should return false only when SOCKET_DEBUG is empty string', async () => {
+      // Note: isDebug() uses !!SOCKET_DEBUG, so only empty string is falsy
       expect(await evalIsDebug('')).toBe(false)
+    })
+
+    it('should return true even for string falsy values', async () => {
+      // String "0" and "false" are truthy in JavaScript
+      expect(await evalIsDebug('0')).toBe(true)
+      expect(await evalIsDebug('false')).toBe(true)
+    })
+
+    it('should return true for any truthy SOCKET_DEBUG value', async () => {
+      // Note: isDebug() returns true for any truthy SOCKET_DEBUG value
+      expect(await evalIsDebug('1')).toBe(true)
+      expect(await evalIsDebug('true')).toBe(true)
+      expect(await evalIsDebug('app:*')).toBe(true)
     })
   })
 
-  describe('ENV.DEBUG normalization', () => {
-    it('should normalize DEBUG="1" to "*"', async () => {
-      expect(await evalEnvDebug('1')).toBe('*')
+  describe('ENV.DEBUG values', () => {
+    it('should preserve DEBUG="1" as-is', async () => {
+      expect(await evalEnvDebug('1')).toBe('1')
     })
 
-    it('should normalize DEBUG="true" to "*"', async () => {
-      expect(await evalEnvDebug('true')).toBe('*')
+    it('should preserve DEBUG="true" as-is', async () => {
+      expect(await evalEnvDebug('true')).toBe('true')
     })
 
-    it('should normalize DEBUG="TRUE" to "*"', async () => {
-      expect(await evalEnvDebug('TRUE')).toBe('*')
+    it('should preserve DEBUG="TRUE" as-is', async () => {
+      expect(await evalEnvDebug('TRUE')).toBe('TRUE')
     })
 
-    it('should normalize DEBUG="0" to empty string', async () => {
-      expect(await evalEnvDebug('0')).toBe('')
+    it('should preserve DEBUG="0" as-is', async () => {
+      expect(await evalEnvDebug('0')).toBe('0')
     })
 
-    it('should normalize DEBUG="false" to empty string', async () => {
-      expect(await evalEnvDebug('false')).toBe('')
+    it('should preserve DEBUG="false" as-is', async () => {
+      expect(await evalEnvDebug('false')).toBe('false')
     })
 
-    it('should normalize DEBUG="FALSE" to empty string', async () => {
-      expect(await evalEnvDebug('FALSE')).toBe('')
+    it('should preserve DEBUG="FALSE" as-is', async () => {
+      expect(await evalEnvDebug('FALSE')).toBe('FALSE')
     })
 
     it('should preserve namespace patterns unchanged', async () => {
