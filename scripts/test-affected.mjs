@@ -12,7 +12,8 @@ import { getChangedFiles } from '../registry/dist/lib/git.js'
 import { logger } from '../registry/dist/lib/logger.js'
 import { spawn } from '../registry/dist/lib/spawn.js'
 
-import constants from './constants.mjs'
+import { WIN32 } from './constants/node.mjs'
+import { ROOT_NODE_MODULES_BIN_PATH, ROOT_PATH } from './constants/paths.mjs'
 import { getStagedFiles } from './utils/git.mjs'
 
 const CORE_LIB_FILES = new Set([
@@ -116,7 +117,7 @@ async function resolveTestFiles(patterns) {
     uniquePatterns.map(pattern =>
       fastGlob(pattern, {
         absolute: false,
-        cwd: constants.rootPath,
+        cwd: ROOT_PATH,
       }),
     ),
   )
@@ -128,7 +129,7 @@ async function resolveTestFiles(patterns) {
   // Check file existence in parallel.
   const existenceChecks = await Promise.all(
     uniqueFiles.map(async file => {
-      const filepath = path.join(constants.rootPath, file)
+      const filepath = path.join(ROOT_PATH, file)
       try {
         await fs.access(filepath)
         return file
@@ -145,8 +146,6 @@ async function resolveTestFiles(patterns) {
  * Main function to determine and run affected tests.
  */
 async function main() {
-  const { WIN32 } = constants
-
   try {
     // Get arguments.
     let args = process.argv.slice(2)
@@ -176,10 +175,10 @@ async function main() {
     if (args.length > 0 && !args[0].startsWith('-')) {
       logger.log('Running specified tests...\n')
       const vitestCmd = WIN32 ? 'vitest.cmd' : 'vitest'
-      const vitestPath = path.join(constants.rootNodeModulesBinPath, vitestCmd)
+      const vitestPath = path.join(ROOT_NODE_MODULES_BIN_PATH, vitestCmd)
 
       const spawnOptions = {
-        cwd: constants.rootPath,
+        cwd: ROOT_PATH,
         env: {
           ...process.env,
           ...(hasForce ? { FORCE_TEST: '1' } : {}),
@@ -220,10 +219,10 @@ async function main() {
     if (runAll || shouldRunAllTests(changedFiles)) {
       logger.log('Running all tests...\n')
       const vitestCmd = WIN32 ? 'vitest.cmd' : 'vitest'
-      const vitestPath = path.join(constants.rootNodeModulesBinPath, vitestCmd)
+      const vitestPath = path.join(ROOT_NODE_MODULES_BIN_PATH, vitestCmd)
 
       const spawnOptions = {
-        cwd: constants.rootPath,
+        cwd: ROOT_PATH,
         env: {
           ...process.env,
           ...(hasForce ? { FORCE_TEST: '1' } : {}),
@@ -259,10 +258,10 @@ async function main() {
     if (!testPatterns.length) {
       logger.log('No specific tests found for changes, running all tests...\n')
       const vitestCmd = WIN32 ? 'vitest.cmd' : 'vitest'
-      const vitestPath = path.join(constants.rootNodeModulesBinPath, vitestCmd)
+      const vitestPath = path.join(ROOT_NODE_MODULES_BIN_PATH, vitestCmd)
 
       const spawnOptions = {
-        cwd: constants.rootPath,
+        cwd: ROOT_PATH,
         env: {
           ...process.env,
           ...(hasForce ? { FORCE_TEST: '1' } : {}),
@@ -293,10 +292,10 @@ async function main() {
     if (!testFiles.length) {
       logger.log('No test files found for changes, running all tests...\n')
       const vitestCmd = WIN32 ? 'vitest.cmd' : 'vitest'
-      const vitestPath = path.join(constants.rootNodeModulesBinPath, vitestCmd)
+      const vitestPath = path.join(ROOT_NODE_MODULES_BIN_PATH, vitestCmd)
 
       const spawnOptions = {
-        cwd: constants.rootPath,
+        cwd: ROOT_PATH,
         env: {
           ...process.env,
           ...(hasForce ? { FORCE_TEST: '1' } : {}),
@@ -329,10 +328,10 @@ async function main() {
 
     // Run the affected tests.
     const vitestCmd = WIN32 ? 'vitest.cmd' : 'vitest'
-    const vitestPath = path.join(constants.rootNodeModulesBinPath, vitestCmd)
+    const vitestPath = path.join(ROOT_NODE_MODULES_BIN_PATH, vitestCmd)
 
     const spawnOptions = {
-      cwd: constants.rootPath,
+      cwd: ROOT_PATH,
       env: {
         ...process.env,
         ...(hasForce ? { FORCE_TEST: '1' } : {}),

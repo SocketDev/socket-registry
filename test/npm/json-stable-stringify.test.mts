@@ -1,15 +1,16 @@
 import { describe, expect, it } from 'vitest'
 
-import constants from '../../scripts/constants.mjs'
+import { getEnv } from '../../scripts/constants/env.mjs'
 import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
+const ENV = getEnv()
 const { eco, pkgPath, skip, sockRegPkgName } =
   await setupNpmPackageTest(__filename)
 
 describe(
   `${eco} > ${sockRegPkgName}`,
   {
-    skip: skip || constants.ENV.CI,
+    skip: skip || ENV.CI,
   },
   () => {
     const pkgRequireIndexJsPath = `${pkgPath}/index.js`

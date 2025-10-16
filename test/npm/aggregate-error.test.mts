@@ -2,11 +2,9 @@ import path from 'node:path'
 
 import { beforeAll, describe, expect, it } from 'vitest'
 
-import constants from '../../scripts/constants.mjs'
+import { NPM } from '../../scripts/constants/paths.mjs'
 import { isPackageTestingSkipped } from '../../scripts/utils/tests.mjs'
 import { setupMultiEntryTest } from '../utils/test-helpers.mjs'
-
-const { NPM } = constants
 
 const eco = NPM
 const sockRegPkgName = path.basename(__filename, '.test.mts')

@@ -3,6 +3,8 @@
  * Provides shared configuration, paths, and environment settings for registry operations.
  */
 
+import { EMPTY_FILE } from '../registry/dist/constants/core.js'
+import { UTF8 } from '../registry/dist/constants/encoding.js'
 import * as core from './constants/core.mjs'
 import * as env from './constants/env.mjs'
 import * as node from './constants/node.mjs'
@@ -16,8 +18,10 @@ export default {
   __proto__: null,
   // Core constants.
   ...core,
+  EMPTY_FILE,
   // Environment.
   ENV: env.getEnv(),
+  UTF8,
   // Node.js constants.
   ...node,
   // Paths.

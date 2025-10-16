@@ -21,18 +21,24 @@ import { parseArgs } from '../registry/dist/lib/parse-args.js'
 import { trimLeadingDotSlash } from '../registry/dist/lib/path.js'
 import { naturalCompare } from '../registry/dist/lib/sorts.js'
 import { isNonEmptyString } from '../registry/dist/lib/strings.js'
-import constants from '../scripts/constants.mjs'
-
-const {
+import {
   LICENSE,
-  LICENSE_GLOB,
   NPM,
+  NPM_PACKAGES_PATH,
   PACKAGE_JSON,
-  README_GLOB,
   SOCKET_REGISTRY_SCOPE,
-  UTF8,
-  ignoreGlobs,
-} = constants
+} from '../scripts/constants/paths.mjs'
+import { getEcosystems, getNpmPackageNames } from '../scripts/constants/testing.mjs'
+import { getIgnoreGlobs } from '../scripts/constants/utils.mjs'
+
+const LICENSE_GLOB = `**/+(LICENSE|LICENCE|LICENSE.original|LICENSE.*.original)*`
+const README_GLOB = `**/README*`
+const UTF8 = 'utf8'
+const NODE_VERSION = process.versions.node
+const ecosystems = getEcosystems()
+const ignoreGlobs = getIgnoreGlobs()
+const npmPackageNames = getNpmPackageNames()
+const npmPackagesPath = NPM_PACKAGES_PATH
 
 // Pass args:
 // pnpm run test:unit ./test/packages.test.ts -- --force
@@ -78,11 +84,11 @@ function prepareReqId(id: string) {
   return path.isAbsolute(id) ? id : `./${trimLeadingDotSlash(id)}`
 }
 
-for (const eco of constants.ecosystems) {
+for (const eco of ecosystems) {
   if (eco !== NPM) {
     continue
   }
-  const packageNames: readonly string[] = constants.npmPackageNames
+  const packageNames: readonly string[] = npmPackageNames
 
   describe(eco, { skip: !packageNames.length }, () => {
     if (!packageNames.length) {
@@ -93,7 +99,7 @@ for (const eco of constants.ecosystems) {
     }
 
     for (const sockRegPkgName of packageNames) {
-      const pkgPath = path.join(constants.npmPackagesPath, sockRegPkgName)
+      const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
       const pkgJsonExists = existsSync(pkgJsonPath)
       const pkgLicensePath = path.join(pkgPath, LICENSE)
@@ -270,7 +276,6 @@ for (const eco of constants.ecosystems) {
           files.includes('polyfill.js')
         ) {
           describe('es-shim', () => {
-            const { NODE_VERSION } = constants
             const nodeRange = engines?.['node']
             const skipping =
               isNonEmptyString(nodeRange) &&

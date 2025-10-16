@@ -5,11 +5,11 @@
 
 import path from 'node:path'
 
-import constants from '../../scripts/constants.mjs'
+import { NPM, NPM_PACKAGES_PATH } from '../../scripts/constants/paths.mjs'
 import { installPackageForTesting } from '../../scripts/utils/package.mjs'
 import { isPackageTestingSkipped } from '../../scripts/utils/tests.mjs'
 
-const { NPM, npmPackagesPath } = constants
+const npmPackagesPath = NPM_PACKAGES_PATH
 
 interface SetupNpmPackageTestResult {
   eco: string

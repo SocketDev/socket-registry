@@ -15,7 +15,11 @@ import { onExit } from '../registry/dist/lib/signal-exit.js'
 import { spinner } from '../registry/dist/lib/spinner.js'
 import { printHeader } from '../registry/dist/lib/stdio/header.js'
 
-import constants from './constants.mjs'
+import { WIN32 } from './constants/node.mjs'
+import {
+  ROOT_NODE_MODULES_BIN_PATH,
+  ROOT_PATH,
+} from './constants/paths.mjs'
 import {
   runTests as runTestsWithOutput,
   runWithOutput,
@@ -35,8 +39,6 @@ process.on('unhandledRejection', (reason, _promise) => {
   // Re-throw other unhandled rejections
   throw reason
 })
-
-const { IS_WIN32 } = constants
 
 // Track running processes for cleanup
 const runningProcesses = new Set()
@@ -66,7 +68,7 @@ async function runCommand(command, args = [], options = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
       stdio: 'inherit',
-      ...(IS_WIN32 && { shell: true }),
+      ...(WIN32 && { shell: true }),
       ...options,
     })
 
@@ -129,7 +131,7 @@ async function runCheck() {
 }
 
 async function runBuild() {
-  const distPath = path.join(constants.rootPath, 'registry', 'dist')
+  const distPath = path.join(ROOT_PATH, 'registry', 'dist')
   if (!existsSync(distPath)) {
     logger.step('Building project')
 
@@ -159,15 +161,15 @@ async function runTests(options, positionals = []) {
   }
 
   // Handle Windows vs Unix for vitest executable
-  const vitestCmd = IS_WIN32 ? 'vitest.cmd' : 'vitest'
-  const vitestPath = path.join(constants.rootNodeModulesBinPath, vitestCmd)
+  const vitestCmd = WIN32 ? 'vitest.cmd' : 'vitest'
+  const vitestPath = path.join(ROOT_NODE_MODULES_BIN_PATH, vitestCmd)
 
   // Expand glob patterns in positionals
   const expandedArgs = []
   for (const arg of positionals) {
     // Check if the argument looks like a glob pattern
     if (arg.includes('*') && !arg.startsWith('-')) {
-      const files = fastGlob.sync(arg, { cwd: constants.rootPath })
+      const files = fastGlob.sync(arg, { cwd: ROOT_PATH })
       expandedArgs.push(...files)
     } else {
       expandedArgs.push(arg)
@@ -186,9 +188,9 @@ async function runTests(options, positionals = []) {
 
   // On Windows, .cmd files need to be executed with shell: true
   const spawnOptions = {
-    cwd: constants.rootPath,
+    cwd: ROOT_PATH,
     env: spawnEnv,
-    shell: IS_WIN32,
+    shell: WIN32,
     verbose: false,
   }
 
@@ -199,9 +201,9 @@ async function runTests(options, positionals = []) {
 
   // Fallback to regular spawn for non-TTY
   return runCommand(vitestPath, vitestArgs, {
-    cwd: constants.rootPath,
+    cwd: ROOT_PATH,
     env: spawnEnv,
-    shell: IS_WIN32,
+    shell: WIN32,
     stdio: 'inherit',
   })
 }

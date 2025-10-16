@@ -8,6 +8,7 @@ import { promisify } from 'node:util'
 
 import { minimatch } from 'minimatch'
 import semver from 'semver'
+
 import { execScript } from '../registry/dist/lib/agent.js'
 import { readFileUtf8 } from '../registry/dist/lib/fs.js'
 import { isObjectObject, toSortedObject } from '../registry/dist/lib/objects.js'
@@ -20,26 +21,29 @@ import {
 } from '../registry/dist/lib/packages.js'
 import { pEach } from '../registry/dist/lib/promises.js'
 import { withSpinner } from '../registry/dist/lib/spinner.js'
-import constants from './constants.mjs'
+import { getAbortSignal, getSpinner } from '../registry/dist/constants/process.js'
 
+import {
+  LATEST,
+  NPM_PACKAGES_PATH,
+  PACKAGE_JSON,
+  REGISTRY_PKG_PATH,
+  ROOT_PATH,
+  SOCKET_REGISTRY_PACKAGE_NAME,
+  SOCKET_REGISTRY_SCOPE,
+} from './constants/paths.mjs'
+import { getNpmPackageNames } from './constants/testing.mjs'
 import { logSectionHeader } from './utils/logging.mjs'
 
 const execFileAsync = promisify(execFile)
 
-const {
-  LATEST,
-  PACKAGE_JSON,
-  SOCKET_REGISTRY_PACKAGE_NAME,
-  SOCKET_REGISTRY_SCOPE,
-  abortSignal,
-  npmPackagesPath,
-  registryPkgPath,
-  rootPath,
-} = constants
+const abortSignal = getAbortSignal()
+const spinner = getSpinner()
+const npmPackageNames = getNpmPackageNames()
 
 const registryPkg = packageData({
   name: SOCKET_REGISTRY_PACKAGE_NAME,
-  path: registryPkgPath,
+  path: REGISTRY_PKG_PATH,
 })
 
 const EXTRACT_PACKAGE_TMP_PREFIX = 'release-npm-'
@@ -49,12 +53,12 @@ const EXTRACT_PACKAGE_TMP_PREFIX = 'release-npm-'
  */
 async function hasGitChanges(packagePath) {
   try {
-    const relPath = path.relative(rootPath, packagePath)
+    const relPath = path.relative(ROOT_PATH, packagePath)
     // Check both staged and unstaged changes.
     const { stdout } = await execFileAsync(
       'git',
       ['status', '--porcelain', '--', relPath],
-      { cwd: rootPath },
+      { cwd: ROOT_PATH },
     )
     return stdout.trim().length > 0
   } catch {
@@ -358,10 +362,8 @@ function packageData(data) {
  * Detect changes and bump versions for all packages.
  */
 async function main() {
-  const { spinner } = constants
-
-  const npmPackages = Array.from(constants.npmPackageNames, sockRegPkgName => {
-    const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
+  const npmPackages = Array.from(npmPackageNames, sockRegPkgName => {
+    const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
     const pkgJson = readPackageJsonSync(pkgPath)
     return packageData({
       name: `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`,
@@ -421,7 +423,7 @@ async function main() {
     message: 'Updating manifest and package.json files...',
     operation: async () => {
       const spawnOptions = {
-        cwd: rootPath,
+        cwd: ROOT_PATH,
         stdio: 'inherit',
       }
 

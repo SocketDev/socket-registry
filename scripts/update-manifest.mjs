@@ -24,14 +24,30 @@ import { parseArgs } from '../registry/dist/lib/parse-args.js'
 import { pEach } from '../registry/dist/lib/promises.js'
 import { naturalCompare } from '../registry/dist/lib/sorts.js'
 import { withSpinner } from '../registry/dist/lib/spinner.js'
-import constants from './constants.mjs'
+import { UNLICENSED } from '../registry/dist/constants/licenses.js'
+import { AT_LATEST } from '../registry/dist/constants/packages.js'
+import { getPackageDefaultNodeRange } from '../registry/dist/constants/packages.js'
+import { getSpinner } from '../registry/dist/constants/process.js'
+
+import { DEFAULT_CONCURRENCY } from './constants/core.mjs'
+import {
+  NPM,
+  NPM_PACKAGES_PATH,
+  REGISTRY_EXTENSIONS_JSON_PATH,
+  REGISTRY_MANIFEST_JSON_PATH,
+  REL_REGISTRY_MANIFEST_JSON_PATH,
+  ROOT_PACKAGES_PATH,
+  TEST_NPM_PATH,
+} from './constants/paths.mjs'
+import { getNpmPackageNames } from './constants/testing.mjs'
 import { biomeFormat } from './utils/biome.mjs'
 import { getModifiedFiles } from './utils/git.mjs'
 import { getPackageVersionSpec, shouldSkipTests } from './utils/packages.mjs'
 
 const require = createRequire(import.meta.url)
 
-const { AT_LATEST, DEFAULT_CONCURRENCY, NPM, UNLICENSED } = constants
+const spinner = getSpinner()
+const npmPackageNames = getNpmPackageNames()
 
 const { values: cliArgs } = parseArgs({
   options: {
@@ -60,7 +76,7 @@ async function addNpmManifestData(manifest, options) {
   const { spinner } = { __proto__: null, ...options }
   const eco = NPM
   const manifestData = []
-  const registryExtJson = require(constants.registryExtensionsJsonPath)
+  const registryExtJson = require(REGISTRY_EXTENSIONS_JSON_PATH)
   const registryExt = registryExtJson[eco] ?? []
 
   // Chunk registry ext names to process them in parallel 3 at a time.
@@ -100,7 +116,7 @@ async function addNpmManifestData(manifest, options) {
 
   // Chunk package names to process them in parallel 3 at a time.
   await pEach(
-    constants.npmPackageNames,
+    npmPackageNames,
     async sockRegPkgName => {
       const origPkgName = resolveOriginalPackageName(sockRegPkgName)
       const nmPkgSpec = getPackageVersionSpec(origPkgName) || 'latest'
@@ -114,7 +130,7 @@ async function addNpmManifestData(manifest, options) {
       await extractPackage(nmPkgId, async nmPkgPath => {
         nmPkgJson = await readPackageJson(nmPkgPath, { normalize: true })
       })
-      const pkgPath = path.join(constants.npmPackagesPath, sockRegPkgName)
+      const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
       const pkgJson = await readPackageJson(pkgPath, { normalize: true })
       const { engines, name, socket } = pkgJson
       const entryExports = resolvePackageJsonEntryExports(pkgJson.exports)
@@ -143,7 +159,7 @@ async function addNpmManifestData(manifest, options) {
       }
       const skipTests = shouldSkipTests(origPkgName, {
         ecosystem: eco,
-        testPath: constants.testNpmPath,
+        testPath: TEST_NPM_PATH,
       })
       const metaEntries = [
         ['name', name],
@@ -154,7 +170,7 @@ async function addNpmManifestData(manifest, options) {
         ...(nmPkgManifest.deprecated ? [['deprecated', true]] : []),
         ...(engines
           ? [['engines', toSortedObject(filterEngines(engines))]]
-          : [['engines', { node: constants.PACKAGE_DEFAULT_NODE_RANGE }]]),
+          : [['engines', { node: getPackageDefaultNodeRange() }]]),
         ...(skipTests ? [['skipTests', true]] : []),
         ...(socket ? objectEntries(socket) : []),
       ]
@@ -201,24 +217,22 @@ async function main() {
   // Exit early if no relevant files have been modified and not forced.
   if (!cliArgs.force) {
     const modifiedFiles = await getModifiedFiles({
-      cwd: constants.rootPackagesPath,
+      cwd: ROOT_PACKAGES_PATH,
     })
     if (modifiedFiles.length === 0) {
       return
     }
   }
-  const { spinner } = constants
 
   await withSpinner({
-    message: `Updating ${constants.relRegistryManifestJsonPath}...`,
+    message: `Updating ${REL_REGISTRY_MANIFEST_JSON_PATH}...`,
     operation: async () => {
       const manifest = {}
       await addNpmManifestData(manifest, { spinner })
-      const { registryManifestJsonPath } = constants
       const output = await biomeFormat(JSON.stringify(manifest, null, 2), {
-        filepath: registryManifestJsonPath,
+        filepath: REGISTRY_MANIFEST_JSON_PATH,
       })
-      await fs.writeFile(registryManifestJsonPath, output, 'utf8')
+      await fs.writeFile(REGISTRY_MANIFEST_JSON_PATH, output, 'utf8')
     },
     spinner,
   })
