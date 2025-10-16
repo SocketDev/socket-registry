@@ -8,7 +8,10 @@ import { promisify } from 'node:util'
 
 import { minimatch } from 'minimatch'
 import semver from 'semver'
-
+import {
+  getAbortSignal,
+  getSpinner,
+} from '../registry/dist/constants/process.js'
 import { execScript } from '../registry/dist/lib/agent.js'
 import { readFileUtf8 } from '../registry/dist/lib/fs.js'
 import { isObjectObject, toSortedObject } from '../registry/dist/lib/objects.js'
@@ -21,15 +24,12 @@ import {
 } from '../registry/dist/lib/packages.js'
 import { pEach } from '../registry/dist/lib/promises.js'
 import { withSpinner } from '../registry/dist/lib/spinner.js'
-import { getAbortSignal, getSpinner } from '../registry/dist/constants/process.js'
-
+import { LATEST, SOCKET_REGISTRY_PACKAGE_NAME } from './constants/packages.mjs'
 import {
-  LATEST,
   NPM_PACKAGES_PATH,
   PACKAGE_JSON,
   REGISTRY_PKG_PATH,
   ROOT_PATH,
-  SOCKET_REGISTRY_PACKAGE_NAME,
   SOCKET_REGISTRY_SCOPE,
 } from './constants/paths.mjs'
 import { getNpmPackageNames } from './constants/testing.mjs'
