@@ -1,128 +1,153 @@
 import { describe, expect, it } from 'vitest'
 
-import AT_LATEST from '../../registry/dist/lib/constants/AT_LATEST.js'
-import BUN from '../../registry/dist/lib/constants/BUN.js'
-import BUN_LOCK from '../../registry/dist/lib/constants/BUN_LOCK.js'
-import BUN_LOCKB from '../../registry/dist/lib/constants/BUN_LOCKB.js'
-import bunCachePath from '../../registry/dist/lib/constants/bun-cache-path.js'
-import CACHE_DIR from '../../registry/dist/lib/constants/CACHE_DIR.js'
-import CACHE_GITHUB_DIR from '../../registry/dist/lib/constants/CACHE_GITHUB_DIR.js'
-import CACHE_SOCKET_API_DIR from '../../registry/dist/lib/constants/CACHE_SOCKET_API_DIR.js'
-import CACHE_TTL_DIR from '../../registry/dist/lib/constants/CACHE_TTL_DIR.js'
-import CHANGELOG_MD from '../../registry/dist/lib/constants/CHANGELOG_MD.js'
-import CI from '../../registry/dist/lib/constants/CI.js'
-import COLUMN_LIMIT from '../../registry/dist/lib/constants/COLUMN_LIMIT.js'
-import copyLeftLicenses from '../../registry/dist/lib/constants/copy-left-licenses.js'
-import DARWIN from '../../registry/dist/lib/constants/DARWIN.js'
-import DLX_BINARY_CACHE_TTL from '../../registry/dist/lib/constants/DLX_BINARY_CACHE_TTL.js'
-import DOT_GIT_DIR from '../../registry/dist/lib/constants/DOT_GIT_DIR.js'
-import DOT_GITHUB from '../../registry/dist/lib/constants/DOT_GITHUB.js'
-import DOT_PACKAGE_LOCK_JSON from '../../registry/dist/lib/constants/DOT_PACKAGE_LOCK_JSON.js'
-import DOT_SOCKET_DIR from '../../registry/dist/lib/constants/DOT_SOCKET_DIR.js'
-import EMPTY_FILE from '../../registry/dist/lib/constants/EMPTY_FILE.js'
-import EMPTY_VALUE from '../../registry/dist/lib/constants/EMPTY_VALUE.js'
-import ESLINT_CONFIG_JS from '../../registry/dist/lib/constants/ESLINT_CONFIG_JS.js'
-import ESNEXT from '../../registry/dist/lib/constants/ESNEXT.js'
-import EXT_CJS from '../../registry/dist/lib/constants/EXT_CJS.js'
-import EXT_CMD from '../../registry/dist/lib/constants/EXT_CMD.js'
-import EXT_CTS from '../../registry/dist/lib/constants/EXT_CTS.js'
-import EXT_DTS from '../../registry/dist/lib/constants/EXT_DTS.js'
-import EXT_JS from '../../registry/dist/lib/constants/EXT_JS.js'
-import EXT_JSON from '../../registry/dist/lib/constants/EXT_JSON.js'
-import EXT_LOCK from '../../registry/dist/lib/constants/EXT_LOCK.js'
-import EXT_LOCKB from '../../registry/dist/lib/constants/EXT_LOCKB.js'
-import EXT_MD from '../../registry/dist/lib/constants/EXT_MD.js'
-import EXT_MJS from '../../registry/dist/lib/constants/EXT_MJS.js'
-import EXT_MTS from '../../registry/dist/lib/constants/EXT_MTS.js'
-import EXT_PS1 from '../../registry/dist/lib/constants/EXT_PS1.js'
-import EXT_YAML from '../../registry/dist/lib/constants/EXT_YAML.js'
-import EXT_YML from '../../registry/dist/lib/constants/EXT_YML.js'
-import EXTENSIONS from '../../registry/dist/lib/constants/EXTENSIONS.js'
-import EXTENSIONS_JSON from '../../registry/dist/lib/constants/EXTENSIONS_JSON.js'
-import execPath from '../../registry/dist/lib/constants/exec-path.js'
-import GITHUB_API_BASE_URL from '../../registry/dist/lib/constants/GITHUB_API_BASE_URL.js'
-import GITIGNORE from '../../registry/dist/lib/constants/GITIGNORE.js'
-import LATEST from '../../registry/dist/lib/constants/LATEST.js'
-import LICENSE from '../../registry/dist/lib/constants/LICENSE.js'
-import LICENSE_GLOB from '../../registry/dist/lib/constants/LICENSE_GLOB.js'
-import LICENSE_GLOB_RECURSIVE from '../../registry/dist/lib/constants/LICENSE_GLOB_RECURSIVE.js'
-import LICENSE_ORIGINAL from '../../registry/dist/lib/constants/LICENSE_ORIGINAL.js'
-import LICENSE_ORIGINAL_GLOB from '../../registry/dist/lib/constants/LICENSE_ORIGINAL_GLOB.js'
-import LICENSE_ORIGINAL_GLOB_RECURSIVE from '../../registry/dist/lib/constants/LICENSE_ORIGINAL_GLOB_RECURSIVE.js'
-import lifecycleScriptNames from '../../registry/dist/lib/constants/lifecycle-script-names.js'
-import logger from '../../registry/dist/lib/constants/logger.js'
-import MANIFEST_JSON from '../../registry/dist/lib/constants/MANIFEST_JSON.js'
-import MIT from '../../registry/dist/lib/constants/MIT.js'
-import NODE_AUTH_TOKEN from '../../registry/dist/lib/constants/NODE_AUTH_TOKEN.js'
-import NODE_ENV from '../../registry/dist/lib/constants/NODE_ENV.js'
-import NODE_MODULES from '../../registry/dist/lib/constants/NODE_MODULES.js'
-import NODE_MODULES_GLOB_RECURSIVE from '../../registry/dist/lib/constants/NODE_MODULES_GLOB_RECURSIVE.js'
-import NODE_SEA_FUSE from '../../registry/dist/lib/constants/NODE_SEA_FUSE.js'
-import NPM from '../../registry/dist/lib/constants/NPM.js'
-import NPM_REGISTRY_URL from '../../registry/dist/lib/constants/NPM_REGISTRY_URL.js'
-import NPM_SHRINKWRAP_JSON from '../../registry/dist/lib/constants/NPM_SHRINKWRAP_JSON.js'
-import NPX from '../../registry/dist/lib/constants/NPX.js'
-import nodeDebugFlags from '../../registry/dist/lib/constants/node-debug-flags.js'
-import npmExecPath from '../../registry/dist/lib/constants/npm-exec-path.js'
-import npmLifecycleEvent from '../../registry/dist/lib/constants/npm-lifecycle-event.js'
-import OVERRIDES from '../../registry/dist/lib/constants/OVERRIDES.js'
-import PACKAGE_DEFAULT_VERSION from '../../registry/dist/lib/constants/PACKAGE_DEFAULT_VERSION.js'
-import PACKAGE_JSON from '../../registry/dist/lib/constants/PACKAGE_JSON.js'
-import PACKAGE_LOCK_JSON from '../../registry/dist/lib/constants/PACKAGE_LOCK_JSON.js'
-import PNPM from '../../registry/dist/lib/constants/PNPM.js'
-import PNPM_LOCK_YAML from '../../registry/dist/lib/constants/PNPM_LOCK_YAML.js'
-import PRE_COMMIT from '../../registry/dist/lib/constants/PRE_COMMIT.js'
-import packageManagerCacheNames from '../../registry/dist/lib/constants/package-manager-cache-names.js'
-import pacoteCachePath from '../../registry/dist/lib/constants/pacote-cache-path.js'
-import pnpmExecPath from '../../registry/dist/lib/constants/pnpm-exec-path.js'
-import pnpmStorePath from '../../registry/dist/lib/constants/pnpm-store-path.js'
-import README_GLOB from '../../registry/dist/lib/constants/README_GLOB.js'
-import README_GLOB_RECURSIVE from '../../registry/dist/lib/constants/README_GLOB_RECURSIVE.js'
-import README_MD from '../../registry/dist/lib/constants/README_MD.js'
-import REGISTRY from '../../registry/dist/lib/constants/REGISTRY.js'
-import RESOLUTIONS from '../../registry/dist/lib/constants/RESOLUTIONS.js'
-import SOCKET_API_BASE_URL from '../../registry/dist/lib/constants/SOCKET_API_BASE_URL.js'
-import SOCKET_APP_PREFIX from '../../registry/dist/lib/constants/SOCKET_APP_PREFIX.js'
-import SOCKET_CLI_APP_NAME from '../../registry/dist/lib/constants/SOCKET_CLI_APP_NAME.js'
-import SOCKET_DLX_APP_NAME from '../../registry/dist/lib/constants/SOCKET_DLX_APP_NAME.js'
-import SOCKET_FIREWALL_APP_NAME from '../../registry/dist/lib/constants/SOCKET_FIREWALL_APP_NAME.js'
-import SOCKET_GITHUB_ORG from '../../registry/dist/lib/constants/SOCKET_GITHUB_ORG.js'
-import SOCKET_IPC_HANDSHAKE from '../../registry/dist/lib/constants/SOCKET_IPC_HANDSHAKE.js'
-import SOCKET_OVERRIDE_SCOPE from '../../registry/dist/lib/constants/SOCKET_OVERRIDE_SCOPE.js'
-import SOCKET_PUBLIC_API_TOKEN from '../../registry/dist/lib/constants/SOCKET_PUBLIC_API_TOKEN.js'
-import SOCKET_REGISTRY_APP_NAME from '../../registry/dist/lib/constants/SOCKET_REGISTRY_APP_NAME.js'
-import SOCKET_REGISTRY_NPM_ORG from '../../registry/dist/lib/constants/SOCKET_REGISTRY_NPM_ORG.js'
-import SOCKET_REGISTRY_PACKAGE_NAME from '../../registry/dist/lib/constants/SOCKET_REGISTRY_PACKAGE_NAME.js'
-import SOCKET_REGISTRY_REPO_NAME from '../../registry/dist/lib/constants/SOCKET_REGISTRY_REPO_NAME.js'
-import SOCKET_REGISTRY_SCOPE from '../../registry/dist/lib/constants/SOCKET_REGISTRY_SCOPE.js'
-import SOCKET_SECURITY_SCOPE from '../../registry/dist/lib/constants/SOCKET_SECURITY_SCOPE.js'
-import SUPPORTS_NODE_COMPILE_CACHE_API from '../../registry/dist/lib/constants/SUPPORTS_NODE_COMPILE_CACHE_API.js'
-import SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR from '../../registry/dist/lib/constants/SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR.js'
-import SUPPORTS_NODE_DISABLE_WARNING_FLAG from '../../registry/dist/lib/constants/SUPPORTS_NODE_DISABLE_WARNING_FLAG.js'
-import SUPPORTS_NODE_PERMISSION_FLAG from '../../registry/dist/lib/constants/SUPPORTS_NODE_PERMISSION_FLAG.js'
-import SUPPORTS_NODE_REQUIRE_MODULE from '../../registry/dist/lib/constants/SUPPORTS_NODE_REQUIRE_MODULE.js'
-import SUPPORTS_NODE_RUN from '../../registry/dist/lib/constants/SUPPORTS_NODE_RUN.js'
-import SUPPORTS_PROCESS_SEND from '../../registry/dist/lib/constants/SUPPORTS_PROCESS_SEND.js'
-import TSCONFIG_JSON from '../../registry/dist/lib/constants/TSCONFIG_JSON.js'
-import tsLibsAvailable from '../../registry/dist/lib/constants/ts-libs-available.js'
-import tsTypesAvailable from '../../registry/dist/lib/constants/ts-types-available.js'
-import UNDEFINED_TOKEN from '../../registry/dist/lib/constants/UNDEFINED_TOKEN.js'
-import UNKNOWN_ERROR from '../../registry/dist/lib/constants/UNKNOWN_ERROR.js'
-import UNKNOWN_VALUE from '../../registry/dist/lib/constants/UNKNOWN_VALUE.js'
-import UNLICENCED from '../../registry/dist/lib/constants/UNLICENCED.js'
-import UNLICENSED from '../../registry/dist/lib/constants/UNLICENSED.js'
-import UTF8 from '../../registry/dist/lib/constants/UTF8.js'
-import VITEST from '../../registry/dist/lib/constants/VITEST.js'
-import VLT from '../../registry/dist/lib/constants/VLT.js'
-import VLT_LOCK_JSON from '../../registry/dist/lib/constants/VLT_LOCK_JSON.js'
-import vltCachePath from '../../registry/dist/lib/constants/vlt-cache-path.js'
-import WIN32 from '../../registry/dist/lib/constants/WIN32.js'
-import YARN from '../../registry/dist/lib/constants/YARN.js'
-import YARN_BERRY from '../../registry/dist/lib/constants/YARN_BERRY.js'
-import YARN_LOCK from '../../registry/dist/lib/constants/YARN_LOCK.js'
-import yarnCachePath from '../../registry/dist/lib/constants/yarn-cache-path.js'
-import yarnClassic from '../../registry/dist/lib/constants/yarn-classic.js'
-import yarnExecPath from '../../registry/dist/lib/constants/yarn-exec-path.js'
+import {
+  BUN,
+  BUN_LOCK,
+  BUN_LOCKB,
+  NPM,
+  NPM_REGISTRY_URL,
+  NPM_SHRINKWRAP_JSON,
+  NPX,
+  OVERRIDES,
+  PACKAGE_LOCK_JSON,
+  PNPM,
+  PNPM_LOCK_YAML,
+  RESOLUTIONS,
+  VLT,
+  VLT_LOCK_JSON,
+  YARN,
+  YARN_BERRY,
+  YARN_LOCK,
+} from '../../registry/dist/constants/agents.js'
+import {
+  COLUMN_LIMIT,
+  EMPTY_FILE,
+  EMPTY_VALUE,
+  NODE_AUTH_TOKEN,
+  NODE_ENV,
+  UNDEFINED_TOKEN,
+  UNKNOWN_ERROR,
+  UNKNOWN_VALUE,
+} from '../../registry/dist/constants/core.js'
+import { UTF8 } from '../../registry/dist/constants/encoding.js'
+import {
+  CACHE_GITHUB_DIR,
+  GITHUB_API_BASE_URL,
+} from '../../registry/dist/constants/github.js'
+import {
+  getCopyLeftLicenses,
+  MIT,
+  UNLICENCED,
+  UNLICENSED,
+} from '../../registry/dist/constants/licenses.js'
+import {
+  ESNEXT,
+  getExecPath,
+  getNodeDebugFlags,
+  NODE_SEA_FUSE,
+  supportsNodeCompileCacheApi,
+  supportsNodeCompileCacheEnvVar,
+  supportsNodeDisableWarningFlag,
+  supportsNodePermissionFlag,
+  supportsNodeRequireModule,
+  supportsNodeRun,
+  supportsProcessSend,
+} from '../../registry/dist/constants/node.js'
+import {
+  AT_LATEST,
+  getLifecycleScriptNames,
+  getPacoteCachePath,
+  LATEST,
+  PACKAGE_DEFAULT_VERSION,
+} from '../../registry/dist/constants/packages.js'
+import {
+  CACHE_DIR,
+  CACHE_TTL_DIR,
+  CHANGELOG_MD,
+  DOT_GIT_DIR,
+  DOT_GITHUB,
+  DOT_PACKAGE_LOCK_JSON,
+  DOT_SOCKET_DIR,
+  ESLINT_CONFIG_JS,
+  EXT_CJS,
+  EXT_CMD,
+  EXT_CTS,
+  EXT_DTS,
+  EXT_JS,
+  EXT_JSON,
+  EXT_LOCK,
+  EXT_LOCKB,
+  EXT_MD,
+  EXT_MJS,
+  EXT_MTS,
+  EXT_PS1,
+  EXT_YAML,
+  EXT_YML,
+  EXTENSIONS,
+  EXTENSIONS_JSON,
+  GITIGNORE,
+  LICENSE,
+  LICENSE_GLOB,
+  LICENSE_GLOB_RECURSIVE,
+  LICENSE_ORIGINAL,
+  LICENSE_ORIGINAL_GLOB,
+  LICENSE_ORIGINAL_GLOB_RECURSIVE,
+  MANIFEST_JSON,
+  NODE_MODULES,
+  NODE_MODULES_GLOB_RECURSIVE,
+  PACKAGE_JSON,
+  README_GLOB,
+  README_GLOB_RECURSIVE,
+  README_MD,
+  TSCONFIG_JSON,
+} from '../../registry/dist/constants/paths.js'
+import { DARWIN, WIN32 } from '../../registry/dist/constants/platform.js'
+import {
+  CACHE_SOCKET_API_DIR,
+  REGISTRY,
+  SOCKET_API_BASE_URL,
+  SOCKET_APP_PREFIX,
+  SOCKET_CLI_APP_NAME,
+  SOCKET_DLX_APP_NAME,
+  SOCKET_FIREWALL_APP_NAME,
+  SOCKET_GITHUB_ORG,
+  SOCKET_IPC_HANDSHAKE,
+  SOCKET_OVERRIDE_SCOPE,
+  SOCKET_PUBLIC_API_TOKEN,
+  SOCKET_REGISTRY_APP_NAME,
+  SOCKET_REGISTRY_NPM_ORG,
+  SOCKET_REGISTRY_PACKAGE_NAME,
+  SOCKET_REGISTRY_REPO_NAME,
+  SOCKET_REGISTRY_SCOPE,
+  SOCKET_SECURITY_SCOPE,
+} from '../../registry/dist/constants/socket.js'
+import {
+  CI,
+  PRE_COMMIT,
+  VITEST,
+} from '../../registry/dist/constants/testing.js'
+import { DLX_BINARY_CACHE_TTL } from '../../registry/dist/constants/time.js'
+import {
+  getTsLibsAvailable,
+  getTsTypesAvailable,
+} from '../../registry/dist/constants/typescript.js'
+
+import { npm_lifecycle_event as npmLifecycleEvent } from '../../registry/dist/env/npm-lifecycle-event.js'
+
+const copyLeftLicenses = getCopyLeftLicenses()
+const execPath = getExecPath()
+const lifecycleScriptNames = getLifecycleScriptNames()
+const nodeDebugFlags = getNodeDebugFlags()
+const pacoteCachePath = getPacoteCachePath()
+const SUPPORTS_NODE_COMPILE_CACHE_API = supportsNodeCompileCacheApi()
+const SUPPORTS_NODE_COMPILE_CACHE_ENV_VAR = supportsNodeCompileCacheEnvVar()
+const SUPPORTS_NODE_DISABLE_WARNING_FLAG = supportsNodeDisableWarningFlag()
+const SUPPORTS_NODE_PERMISSION_FLAG = supportsNodePermissionFlag()
+const SUPPORTS_NODE_REQUIRE_MODULE = supportsNodeRequireModule()
+const SUPPORTS_NODE_RUN = supportsNodeRun()
+const SUPPORTS_PROCESS_SEND = supportsProcessSend()
+const tsLibsAvailable = getTsLibsAvailable()
+const tsTypesAvailable = getTsTypesAvailable()
 
 describe('constants module', () => {
   describe('basic string constants', () => {
@@ -298,7 +323,6 @@ describe('constants module', () => {
       },
       { name: 'YARN', value: YARN, expected: 'yarn' },
       { name: 'YARN_BERRY', value: YARN_BERRY, expected: 'yarn/berry' },
-      { name: 'yarnClassic', value: yarnClassic, expected: 'yarn/classic' },
       { name: 'YARN_LOCK', value: YARN_LOCK, expected: 'yarn.lock' },
     ]
 
@@ -404,84 +428,11 @@ describe('constants module', () => {
     })
   })
 
-  describe('env constants', () => {
-    it('should export env variables', () => {
-      const env = require('../../registry/dist/lib/constants/ENV')
-      expect(env).toBeDefined()
-      expect(env['HOME'] === undefined || typeof env['HOME'] === 'string').toBe(
-        true,
-      )
-      expect(env).toHaveProperty('COLUMNS')
-    })
-
-    it('should normalize DEBUG=1 to DEBUG=*', () => {
-      const originalDebug = process.env['DEBUG']
-      process.env['DEBUG'] = '1'
-      delete require.cache[
-        require.resolve('../../registry/dist/lib/constants/ENV')
-      ]
-      const env = require('../../registry/dist/lib/constants/ENV')
-      expect(env['DEBUG']).toBe('*')
-      process.env['DEBUG'] = originalDebug
-    })
-
-    it('should normalize DEBUG=true to DEBUG=*', () => {
-      const originalDebug = process.env['DEBUG']
-      process.env['DEBUG'] = 'true'
-      delete require.cache[
-        require.resolve('../../registry/dist/lib/constants/ENV')
-      ]
-      const env = require('../../registry/dist/lib/constants/ENV')
-      expect(env['DEBUG']).toBe('*')
-      process.env['DEBUG'] = originalDebug
-    })
-
-    it('should normalize DEBUG=0 to DEBUG=""', () => {
-      const originalDebug = process.env['DEBUG']
-      process.env['DEBUG'] = '0'
-      delete require.cache[
-        require.resolve('../../registry/dist/lib/constants/ENV')
-      ]
-      const env = require('../../registry/dist/lib/constants/ENV')
-      expect(env['DEBUG']).toBe('')
-      process.env['DEBUG'] = originalDebug
-    })
-
-    it('should normalize DEBUG=false to DEBUG=""', () => {
-      const originalDebug = process.env['DEBUG']
-      process.env['DEBUG'] = 'false'
-      delete require.cache[
-        require.resolve('../../registry/dist/lib/constants/ENV')
-      ]
-      const env = require('../../registry/dist/lib/constants/ENV')
-      expect(env['DEBUG']).toBe('')
-      process.env['DEBUG'] = originalDebug
-    })
-
-    it('should preserve custom DEBUG namespace patterns', () => {
-      const originalDebug = process.env['DEBUG']
-      process.env['DEBUG'] = 'app:*'
-      delete require.cache[
-        require.resolve('../../registry/dist/lib/constants/ENV')
-      ]
-      const env = require('../../registry/dist/lib/constants/ENV')
-      expect(env['DEBUG']).toBe('app:*')
-      process.env['DEBUG'] = originalDebug
-    })
-  })
-
   describe('complex constants', () => {
-    it('should export logger with required methods', () => {
-      expect(logger).toBeDefined()
-      expect(typeof logger.info).toBe('function')
-      expect(typeof logger.error).toBe('function')
-      expect(typeof logger.warn).toBe('function')
-    })
-
-    it('should export lifecycle script names Set', () => {
-      expect(lifecycleScriptNames instanceof Set).toBe(true)
-      expect(lifecycleScriptNames.size).toBeGreaterThan(0)
-      expect(lifecycleScriptNames.has('install')).toBe(true)
+    it('should export lifecycle script names array', () => {
+      expect(Array.isArray(lifecycleScriptNames)).toBe(true)
+      expect(lifecycleScriptNames.length).toBeGreaterThan(0)
+      expect(lifecycleScriptNames.includes('install')).toBe(true)
     })
 
     it('should export npm lifecycle event', () => {
@@ -493,18 +444,13 @@ describe('constants module', () => {
       expect(execPath.length).toBeGreaterThan(0)
     })
 
-    it('should export package manager cache names', () => {
-      expect(typeof packageManagerCacheNames).toBe('object')
-      expect(Object.isFrozen(packageManagerCacheNames)).toBe(true)
-    })
-
     it('should export node debug flags array', () => {
       expect(Array.isArray(nodeDebugFlags)).toBe(true)
     })
 
-    it('should export TypeScript library availability objects', () => {
-      expect(typeof tsLibsAvailable).toBe('object')
-      expect(typeof tsTypesAvailable).toBe('object')
+    it('should export TypeScript library availability booleans', () => {
+      expect(typeof tsLibsAvailable).toBe('boolean')
+      expect(typeof tsTypesAvailable).toBe('boolean')
     })
   })
 
@@ -527,62 +473,9 @@ describe('constants module', () => {
     })
   })
 
-  describe('abort controller and signal', () => {
-    it('should export AbortController instance', () => {
-      const abortController = require('../../registry/dist/lib/constants/abort-controller')
-      expect(abortController).toBeDefined()
-      expect(abortController.signal).toBeDefined()
-      expect(typeof abortController.abort).toBe('function')
-    })
-
-    it('should have non-aborted signal initially', () => {
-      const abortController = require('../../registry/dist/lib/constants/abort-controller')
-      expect(abortController.signal.aborted).toBe(false)
-    })
-
-    it('should export AbortSignal instance', () => {
-      const abortSignal = require('../../registry/dist/lib/constants/abort-signal')
-      expect(abortSignal).toBeDefined()
-      expect(abortSignal.aborted).toBe(false)
-    })
-  })
-
   describe('package manager paths', () => {
-    describe('cache paths', () => {
-      it('should export bunCachePath', () => {
-        expect(typeof bunCachePath).toBe('string')
-      })
-
-      it('should export pacoteCachePath', () => {
-        expect(typeof pacoteCachePath).toBe('string')
-      })
-
-      it('should export pnpmStorePath', () => {
-        expect(typeof pnpmStorePath).toBe('string')
-      })
-
-      it('should export vltCachePath', () => {
-        expect(typeof vltCachePath).toBe('string')
-      })
-
-      it('should export yarnCachePath', () => {
-        expect(typeof yarnCachePath).toBe('string')
-      })
-    })
-
-    describe('executable paths', () => {
-      it('should export npmExecPath', () => {
-        expect(typeof npmExecPath).toBe('string')
-        expect(npmExecPath.length).toBeGreaterThan(0)
-      })
-
-      it('should export pnpmExecPath', () => {
-        expect(typeof pnpmExecPath).toBe('string')
-      })
-
-      it('should export yarnExecPath', () => {
-        expect(typeof yarnExecPath).toBe('string')
-      })
+    it('should export pacoteCachePath', () => {
+      expect(typeof pacoteCachePath).toBe('string')
     })
   })
 })

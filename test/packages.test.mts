@@ -7,8 +7,8 @@ import fastGlob from 'fast-glob'
 import semver from 'semver'
 import { describe, expect, it } from 'vitest'
 
+import { EXT_JSON } from '../registry/dist/constants/paths.js'
 import { getManifestData } from '../registry/dist/index.js'
-import EXT_JSON from '../registry/dist/lib/constants/EXT_JSON.js'
 import { readJson } from '../registry/dist/lib/fs.js'
 import { isObjectObject, objectEntries } from '../registry/dist/lib/objects.js'
 import {

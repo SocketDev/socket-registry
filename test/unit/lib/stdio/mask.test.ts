@@ -63,12 +63,12 @@ describe('stdio/mask utilities', () => {
     if (process.stdout && typeof process.stdout.write === 'function') {
       processStdoutWriteSpy = vi
         .spyOn(process.stdout, 'write')
-        .mockImplementation(() => true)
+        .mockImplementation(() => true) as ReturnType<typeof vi.spyOn>
     }
     if (process.stderr && typeof process.stderr.write === 'function') {
       processStderrWriteSpy = vi
         .spyOn(process.stderr, 'write')
-        .mockImplementation(() => true)
+        .mockImplementation(() => true) as ReturnType<typeof vi.spyOn>
     }
   })
 
@@ -138,7 +138,7 @@ describe('stdio/mask utilities', () => {
     afterEach(() => {
       // Restore original process.stdin.
       // c8 ignore next 3 - Cleanup code.
-      delete (process as { stdin?: typeof mockStdin }).stdin
+      delete (process as unknown as { stdin?: typeof mockStdin }).stdin
     })
 
     it('should toggle verbose mode on ctrl+o', () => {
@@ -307,10 +307,12 @@ describe('stdio/mask utilities', () => {
       mockStdin = new EventEmitter() as typeof mockStdin
       mockStdin.isTTY = true
       mockStdin.setRawMode = vi.fn()
-      mockStdin.on = vi.fn(EventEmitter.prototype.on.bind(mockStdin))
+      mockStdin.on = vi.fn(
+        EventEmitter.prototype.on.bind(mockStdin),
+      ) as typeof mockStdin.on
       mockStdin.removeListener = vi.fn(
         EventEmitter.prototype.removeListener.bind(mockStdin),
-      )
+      ) as typeof mockStdin.removeListener
 
       mockStdout = new Writable() as typeof mockStdout
       mockStdout.isTTY = true
@@ -331,8 +333,8 @@ describe('stdio/mask utilities', () => {
     afterEach(() => {
       // Restore original process.stdin and process.stdout.
       // c8 ignore next 4 - Cleanup code.
-      delete (process as { stdin?: typeof mockStdin }).stdin
-      delete (process as { stdout?: typeof mockStdout }).stdout
+      delete (process as unknown as { stdin?: typeof mockStdin }).stdin
+      delete (process as unknown as { stdout?: typeof mockStdout }).stdout
     })
 
     it('should start spinner when not verbose', async () => {
@@ -614,7 +616,7 @@ describe('stdio/mask utilities', () => {
       mockStdin.setRawMode = vi.fn()
       mockStdin.removeListener = vi.fn(
         EventEmitter.prototype.removeListener.bind(mockStdin),
-      )
+      ) as typeof mockStdin.removeListener
 
       const mockStdout = new Writable() as Writable & { isTTY: boolean }
       mockStdout.isTTY = true
@@ -635,8 +637,8 @@ describe('stdio/mask utilities', () => {
       // Restore mocks.
       // c8 ignore next 4 - Cleanup code.
       vi.restoreAllMocks()
-      delete (process as { stdin?: unknown }).stdin
-      delete (process as { stdout?: unknown }).stdout
+      delete (process as unknown as { stdin?: unknown }).stdin
+      delete (process as unknown as { stdout?: unknown }).stdout
     })
 
     it('should spawn command with correct arguments', async () => {
@@ -724,8 +726,9 @@ describe('stdio/mask utilities', () => {
       // runWithMask always uses ['inherit', 'pipe', 'pipe'] for stdio.
       const spawnCall =
         vi.mocked(spawn).mock.calls[vi.mocked(spawn).mock.calls.length - 1]
-      expect(spawnCall[2]).toHaveProperty('stdio')
-      expect(spawnCall[2]?.stdio).toEqual(['inherit', 'pipe', 'pipe'])
+      expect(spawnCall).toBeDefined()
+      expect(spawnCall?.[2]).toHaveProperty('stdio')
+      expect(spawnCall?.[2]?.stdio).toEqual(['inherit', 'pipe', 'pipe'])
     })
   })
 
@@ -747,7 +750,7 @@ describe('stdio/mask utilities', () => {
 
     afterEach(() => {
       // c8 ignore next 2 - Cleanup code.
-      delete (process as { stdout?: NodeJS.WriteStream }).stdout
+      delete (process as unknown as { stdout?: NodeJS.WriteStream }).stdout
     })
 
     it('should use correct escape sequences for line clearing', () => {
@@ -810,7 +813,7 @@ describe('stdio/mask utilities', () => {
       }
 
       expect(mask.outputBuffer.length).toBe(1)
-      expect(mask.outputBuffer[0].split('\n').length).toBeLessThanOrEqual(1000)
+      expect(mask.outputBuffer[0]?.split('\n').length).toBeLessThanOrEqual(1000)
     })
 
     it('should preserve buffer content when under limit', () => {
@@ -843,7 +846,7 @@ describe('stdio/mask utilities', () => {
       mockStdin.setRawMode = vi.fn()
       mockStdin.removeListener = vi.fn(
         EventEmitter.prototype.removeListener.bind(mockStdin),
-      )
+      ) as typeof mockStdin.removeListener
 
       const mockStdout = { isTTY: true } as NodeJS.WriteStream
 
@@ -911,7 +914,7 @@ describe('stdio/mask utilities', () => {
       mockStdin.setRawMode = vi.fn()
       mockStdin.removeListener = vi.fn(
         EventEmitter.prototype.removeListener.bind(mockStdin),
-      )
+      ) as typeof mockStdin.removeListener
 
       const mockStdout = { isTTY: true } as NodeJS.WriteStream
 

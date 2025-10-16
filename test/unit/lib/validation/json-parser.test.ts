@@ -119,7 +119,7 @@ describe('json-parser', () => {
         )
         // When allowPrototype is true, the function should not throw.
         expect(result).toBeDefined()
-        expect(Object.hasOwn(result, '__proto__')).toBe(true)
+        expect(Object.hasOwn(result as object, '__proto__')).toBe(true)
       })
 
       it('should not check prototype pollution for arrays', () => {
@@ -148,7 +148,7 @@ describe('json-parser', () => {
         const result = safeJsonParse(json)
         // Only top-level is checked, so nested __proto__ is allowed but won't be set.
         expect(result).toHaveProperty('safe')
-        expect(typeof result.safe).toBe('object')
+        expect(typeof (result as { safe: unknown }).safe).toBe('object')
       })
     })
 

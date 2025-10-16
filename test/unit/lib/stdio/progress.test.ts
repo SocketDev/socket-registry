@@ -29,9 +29,13 @@ describe('ProgressBar', () => {
     })
   })
 
+  // Helper to cast stream for ProgressBar compatibility.
+  const asWriteStream = (s: typeof stream): NodeJS.WriteStream =>
+    s as unknown as NodeJS.WriteStream
+
   describe('constructor', () => {
     it('should create progress bar with default options', () => {
-      const bar = new ProgressBar(100, { stream })
+      const bar = new ProgressBar(100, { stream: asWriteStream(stream) })
       expect(bar).toBeDefined()
     })
 
@@ -42,7 +46,10 @@ describe('ProgressBar', () => {
     })
 
     it('should accept custom width', () => {
-      const bar = new ProgressBar(100, { stream, width: 20 })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        width: 20,
+      })
       bar.update(50)
       const output = outputs.join('')
       // Should render with custom width.
@@ -51,7 +58,7 @@ describe('ProgressBar', () => {
 
     it('should accept custom format', () => {
       const bar = new ProgressBar(100, {
-        stream,
+        stream: asWriteStream(stream),
         format: ':current/:total :percent',
       })
       bar.update(25)
@@ -62,7 +69,7 @@ describe('ProgressBar', () => {
 
     it('should accept custom complete and incomplete chars', () => {
       const bar = new ProgressBar(100, {
-        stream,
+        stream: asWriteStream(stream),
         complete: '=',
         incomplete: '-',
         width: 10,
@@ -74,7 +81,10 @@ describe('ProgressBar', () => {
     })
 
     it('should accept custom color', () => {
-      const bar = new ProgressBar(100, { stream, color: 'green' })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        color: 'green',
+      })
       bar.update(50)
       const output = outputs.join('')
       // Should contain ANSI color codes.
@@ -83,7 +93,7 @@ describe('ProgressBar', () => {
 
     it('should accept custom render throttle', () => {
       const bar = new ProgressBar(100, {
-        stream,
+        stream: asWriteStream(stream),
         renderThrottle: 100,
       })
       bar.update(25)
@@ -93,7 +103,7 @@ describe('ProgressBar', () => {
 
   describe('update', () => {
     it('should update progress to specific value', () => {
-      const bar = new ProgressBar(100, { stream })
+      const bar = new ProgressBar(100, { stream: asWriteStream(stream) })
       bar.update(25)
       const output = outputs.join('')
       expect(output).toContain('25%')
@@ -101,7 +111,7 @@ describe('ProgressBar', () => {
     })
 
     it('should cap progress at total', () => {
-      const bar = new ProgressBar(100, { stream })
+      const bar = new ProgressBar(100, { stream: asWriteStream(stream) })
       bar.update(150)
       const output = outputs.join('')
       expect(output).toContain('100%')
@@ -110,7 +120,7 @@ describe('ProgressBar', () => {
 
     it('should accept custom tokens', () => {
       const bar = new ProgressBar(100, {
-        stream,
+        stream: asWriteStream(stream),
         format: ':bar :current/:total :filename',
       })
       bar.update(50, { filename: 'test.txt' })
@@ -120,7 +130,7 @@ describe('ProgressBar', () => {
 
     it('should throttle rendering based on renderThrottle', () => {
       const bar = new ProgressBar(100, {
-        stream,
+        stream: asWriteStream(stream),
         renderThrottle: 100,
       })
 
@@ -135,7 +145,7 @@ describe('ProgressBar', () => {
 
     it('should always render when reaching total', () => {
       const bar = new ProgressBar(100, {
-        stream,
+        stream: asWriteStream(stream),
         renderThrottle: 10_000,
       })
 
@@ -150,7 +160,7 @@ describe('ProgressBar', () => {
     })
 
     it('should not update after termination', () => {
-      const bar = new ProgressBar(100, { stream })
+      const bar = new ProgressBar(100, { stream: asWriteStream(stream) })
       bar.terminate()
       outputs = []
       bar.update(50)
@@ -158,7 +168,10 @@ describe('ProgressBar', () => {
     })
 
     it('should automatically terminate when reaching 100%', () => {
-      const bar = new ProgressBar(100, { stream, clear: false })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        clear: false,
+      })
       outputs = []
       bar.update(100)
       const output = outputs.join('')
@@ -169,14 +182,14 @@ describe('ProgressBar', () => {
 
   describe('tick', () => {
     it('should increment progress by 1 by default', () => {
-      const bar = new ProgressBar(100, { stream })
+      const bar = new ProgressBar(100, { stream: asWriteStream(stream) })
       bar.tick()
       const output = outputs.join('')
       expect(output).toContain('1/100')
     })
 
     it('should increment progress by custom amount', () => {
-      const bar = new ProgressBar(100, { stream })
+      const bar = new ProgressBar(100, { stream: asWriteStream(stream) })
       bar.tick(25)
       const output = outputs.join('')
       expect(output).toContain('25/100')
@@ -184,7 +197,7 @@ describe('ProgressBar', () => {
 
     it('should accept custom tokens', () => {
       const bar = new ProgressBar(100, {
-        stream,
+        stream: asWriteStream(stream),
         format: ':current/:total :status',
       })
       bar.tick(10, { status: 'downloading' })
@@ -193,7 +206,10 @@ describe('ProgressBar', () => {
     })
 
     it('should handle multiple ticks', () => {
-      const bar = new ProgressBar(100, { stream, renderThrottle: 0 })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        renderThrottle: 0,
+      })
       bar.tick(10)
       bar.tick(20)
       bar.tick(30)
@@ -205,7 +221,7 @@ describe('ProgressBar', () => {
   describe('rendering', () => {
     it('should render bar with correct format', () => {
       const bar = new ProgressBar(100, {
-        stream,
+        stream: asWriteStream(stream),
         format: ':bar :percent',
         complete: '█',
         incomplete: '░',
@@ -218,7 +234,10 @@ describe('ProgressBar', () => {
     })
 
     it('should replace :bar token', () => {
-      const bar = new ProgressBar(100, { stream, format: ':bar' })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        format: ':bar',
+      })
       bar.update(50)
       const output = outputs.join('')
       // Should contain progress bar characters.
@@ -226,28 +245,40 @@ describe('ProgressBar', () => {
     })
 
     it('should replace :percent token', () => {
-      const bar = new ProgressBar(100, { stream, format: ':percent' })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        format: ':percent',
+      })
       bar.update(75)
       const output = outputs.join('')
       expect(output).toContain('75%')
     })
 
     it('should replace :current token', () => {
-      const bar = new ProgressBar(100, { stream, format: ':current' })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        format: ':current',
+      })
       bar.update(42)
       const output = outputs.join('')
       expect(output).toContain('42')
     })
 
     it('should replace :total token', () => {
-      const bar = new ProgressBar(100, { stream, format: ':total' })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        format: ':total',
+      })
       bar.update(0)
       const output = outputs.join('')
       expect(output).toContain('100')
     })
 
     it('should replace :elapsed token', () => {
-      const bar = new ProgressBar(100, { stream, format: ':elapsed' })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        format: ':elapsed',
+      })
       bar.update(50)
       const output = outputs.join('')
       // Should contain time format (e.g., "0s").
@@ -255,7 +286,10 @@ describe('ProgressBar', () => {
     })
 
     it('should replace :eta token', () => {
-      const bar = new ProgressBar(100, { stream, format: ':eta' })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        format: ':eta',
+      })
       bar.update(50)
       const output = outputs.join('')
       // Should contain time format.
@@ -264,7 +298,7 @@ describe('ProgressBar', () => {
 
     it('should handle multiple token replacements', () => {
       const bar = new ProgressBar(100, {
-        stream,
+        stream: asWriteStream(stream),
         format: ':current/:total :percent :elapsed :eta',
       })
       bar.update(33)
@@ -275,7 +309,7 @@ describe('ProgressBar', () => {
 
     it('should handle custom tokens with various types', () => {
       const bar = new ProgressBar(100, {
-        stream,
+        stream: asWriteStream(stream),
         format: ':str :num :bool',
       })
       bar.update(50, { str: 'text', num: 123, bool: true })
@@ -295,7 +329,7 @@ describe('ProgressBar', () => {
         })
 
         const bar = new ProgressBar(100, {
-          stream: colorStream,
+          stream: colorStream as unknown as NodeJS.WriteStream,
           color,
           width: 10,
         })
@@ -314,7 +348,7 @@ describe('ProgressBar', () => {
       })
 
       const bar = new ProgressBar(100, {
-        stream: colorStream,
+        stream: colorStream as unknown as NodeJS.WriteStream,
         // @ts-expect-error Testing invalid color.
         color: 'invalid',
         width: 10,
@@ -337,7 +371,9 @@ describe('ProgressBar', () => {
       ttyStream.cursorTo = vi.fn()
       ttyStream.clearLine = vi.fn()
 
-      const bar = new ProgressBar(100, { stream: ttyStream })
+      const bar = new ProgressBar(100, {
+        stream: ttyStream as unknown as NodeJS.WriteStream,
+      })
       bar.update(50)
 
       expect(ttyStream.cursorTo).toHaveBeenCalledWith(0)
@@ -354,7 +390,9 @@ describe('ProgressBar', () => {
         testOutputs.push(chunk.toString())
       })
 
-      const bar = new ProgressBar(100, { stream: nonTtyStream })
+      const bar = new ProgressBar(100, {
+        stream: nonTtyStream as unknown as NodeJS.WriteStream,
+      })
       bar.update(50)
       bar.update(75)
 
@@ -370,7 +408,7 @@ describe('ProgressBar', () => {
       nonTtyStream.isTTY = false
 
       const bar = new ProgressBar(100, {
-        stream: nonTtyStream,
+        stream: nonTtyStream as unknown as NodeJS.WriteStream,
         format: ':bar :percent',
         width: 20,
       })
@@ -386,7 +424,7 @@ describe('ProgressBar', () => {
       vi.useFakeTimers()
       vi.setSystemTime(0)
       const startBar = new ProgressBar(100, {
-        stream,
+        stream: asWriteStream(stream),
         format: ':elapsed',
         renderThrottle: 0,
       })
@@ -401,7 +439,7 @@ describe('ProgressBar', () => {
       vi.useFakeTimers()
       vi.setSystemTime(0)
       const startBar = new ProgressBar(100, {
-        stream,
+        stream: asWriteStream(stream),
         format: ':elapsed',
         renderThrottle: 0,
       })
@@ -414,7 +452,7 @@ describe('ProgressBar', () => {
 
     it('should calculate ETA based on current progress', () => {
       const bar = new ProgressBar(100, {
-        stream,
+        stream: asWriteStream(stream),
         format: ':eta',
         renderThrottle: 0,
       })
@@ -430,7 +468,7 @@ describe('ProgressBar', () => {
 
     it('should show 0s ETA when no progress made', () => {
       const bar = new ProgressBar(100, {
-        stream,
+        stream: asWriteStream(stream),
         format: ':eta',
         renderThrottle: 0,
       })
@@ -442,7 +480,10 @@ describe('ProgressBar', () => {
 
   describe('terminate', () => {
     it('should write newline when not clearing', () => {
-      const bar = new ProgressBar(100, { stream, clear: false })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        clear: false,
+      })
       outputs = []
       bar.terminate()
       const output = outputs.join('')
@@ -459,7 +500,10 @@ describe('ProgressBar', () => {
       ttyStream.cursorTo = vi.fn()
       ttyStream.clearLine = vi.fn()
 
-      const bar = new ProgressBar(100, { stream: ttyStream, clear: true })
+      const bar = new ProgressBar(100, {
+        stream: ttyStream as unknown as NodeJS.WriteStream,
+        clear: true,
+      })
       bar.terminate()
 
       expect(ttyStream.cursorTo).toHaveBeenCalledWith(0)
@@ -467,7 +511,7 @@ describe('ProgressBar', () => {
     })
 
     it('should not allow updates after termination', () => {
-      const bar = new ProgressBar(100, { stream })
+      const bar = new ProgressBar(100, { stream: asWriteStream(stream) })
       bar.terminate()
       outputs = []
       bar.update(50)
@@ -475,7 +519,10 @@ describe('ProgressBar', () => {
     })
 
     it('should be idempotent', () => {
-      const bar = new ProgressBar(100, { stream, clear: false })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        clear: false,
+      })
       bar.terminate()
       outputs = []
       bar.terminate()
@@ -494,7 +541,7 @@ describe('ProgressBar', () => {
       })
 
       const bar = new ProgressBar(100, {
-        stream: nonTtyStream,
+        stream: nonTtyStream as unknown as NodeJS.WriteStream,
         clear: true,
         width: 20,
       })
@@ -508,7 +555,7 @@ describe('ProgressBar', () => {
 
   describe('edge cases', () => {
     it('should handle zero total', () => {
-      const bar = new ProgressBar(0, { stream })
+      const bar = new ProgressBar(0, { stream: asWriteStream(stream) })
       bar.update(0)
       const output = outputs.join('')
       // Should not crash, may show 0/0 or similar.
@@ -516,7 +563,7 @@ describe('ProgressBar', () => {
     })
 
     it('should handle negative updates gracefully', () => {
-      const bar = new ProgressBar(100, { stream })
+      const bar = new ProgressBar(100, { stream: asWriteStream(stream) })
       bar.update(-10)
       const output = outputs.join('')
       // Should clamp to 0 or handle gracefully.
@@ -524,14 +571,17 @@ describe('ProgressBar', () => {
     })
 
     it('should handle very large totals', () => {
-      const bar = new ProgressBar(1_000_000, { stream })
+      const bar = new ProgressBar(1_000_000, { stream: asWriteStream(stream) })
       bar.update(500_000)
       const output = outputs.join('')
       expect(output).toContain('500000/1000000')
     })
 
     it('should handle width of 0', () => {
-      const bar = new ProgressBar(100, { stream, width: 0 })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        width: 0,
+      })
       bar.update(50)
       const output = outputs.join('')
       // Should not crash.
@@ -539,14 +589,20 @@ describe('ProgressBar', () => {
     })
 
     it('should handle width of 1', () => {
-      const bar = new ProgressBar(100, { stream, width: 1 })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        width: 1,
+      })
       bar.update(50)
       const output = outputs.join('')
       expect(output).toBeTruthy()
     })
 
     it('should handle very wide bars', () => {
-      const bar = new ProgressBar(100, { stream, width: 200 })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        width: 200,
+      })
       bar.update(50)
       const output = outputs.join('')
       // Should render wide bar.
@@ -554,7 +610,10 @@ describe('ProgressBar', () => {
     })
 
     it('should handle empty format string', () => {
-      const bar = new ProgressBar(100, { stream, format: '' })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        format: '',
+      })
       bar.update(50)
       const output = outputs.join('')
       // Should render empty or minimal output.
@@ -562,7 +621,10 @@ describe('ProgressBar', () => {
     })
 
     it('should handle format with no tokens', () => {
-      const bar = new ProgressBar(100, { stream, format: 'Loading...' })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        format: 'Loading...',
+      })
       bar.update(50)
       const output = outputs.join('')
       expect(output).toContain('Loading...')
@@ -570,7 +632,7 @@ describe('ProgressBar', () => {
 
     it('should handle unicode in complete/incomplete chars', () => {
       const bar = new ProgressBar(100, {
-        stream,
+        stream: asWriteStream(stream),
         complete: '🟦',
         incomplete: '⬜',
         width: 5,
@@ -582,7 +644,7 @@ describe('ProgressBar', () => {
 
     it('should handle multi-character complete/incomplete', () => {
       const bar = new ProgressBar(100, {
-        stream,
+        stream: asWriteStream(stream),
         complete: '==',
         incomplete: '--',
         width: 10,
@@ -594,7 +656,10 @@ describe('ProgressBar', () => {
     })
 
     it('should handle rapid consecutive updates', () => {
-      const bar = new ProgressBar(100, { stream, renderThrottle: 16 })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        renderThrottle: 16,
+      })
       for (let i = 0; i <= 100; i += 1) {
         bar.update(i)
       }
@@ -603,7 +668,10 @@ describe('ProgressBar', () => {
     })
 
     it('should handle update with undefined tokens', () => {
-      const bar = new ProgressBar(100, { stream, format: ':bar :custom' })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        format: ':bar :custom',
+      })
       bar.update(50, {})
       const output = outputs.join('')
       // Should leave :custom unreplaced or empty.
@@ -611,7 +679,10 @@ describe('ProgressBar', () => {
     })
 
     it('should handle update with null values in tokens', () => {
-      const bar = new ProgressBar(100, { stream, format: ':bar :custom' })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        format: ':bar :custom',
+      })
       bar.update(50, { custom: null })
       const output = outputs.join('')
       expect(output).toContain('null')
@@ -620,21 +691,30 @@ describe('ProgressBar', () => {
 
   describe('progress scenarios', () => {
     it('should show 0% progress at start', () => {
-      const bar = new ProgressBar(100, { stream, format: ':percent' })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        format: ':percent',
+      })
       bar.update(0)
       const output = outputs.join('')
       expect(output).toContain('0%')
     })
 
     it('should show 50% progress at midpoint', () => {
-      const bar = new ProgressBar(200, { stream, format: ':percent' })
+      const bar = new ProgressBar(200, {
+        stream: asWriteStream(stream),
+        format: ':percent',
+      })
       bar.update(100)
       const output = outputs.join('')
       expect(output).toContain('50%')
     })
 
     it('should show 100% progress at completion', () => {
-      const bar = new ProgressBar(100, { stream, format: ':percent' })
+      const bar = new ProgressBar(100, {
+        stream: asWriteStream(stream),
+        format: ':percent',
+      })
       bar.update(100)
       const output = outputs.join('')
       expect(output).toContain('100%')
@@ -642,7 +722,7 @@ describe('ProgressBar', () => {
 
     it('should show progress for file download simulation', () => {
       const bar = new ProgressBar(1000, {
-        stream,
+        stream: asWriteStream(stream),
         format: ':bar :percent :current/:total bytes :eta',
         renderThrottle: 0,
       })
@@ -661,7 +741,7 @@ describe('ProgressBar', () => {
     it('should handle installation progress simulation', () => {
       const packages = ['lodash', 'react', 'vue', 'angular', 'express']
       const bar = new ProgressBar(packages.length, {
-        stream,
+        stream: asWriteStream(stream),
         format: ':bar :current/:total :package',
         renderThrottle: 0,
       })
@@ -676,7 +756,7 @@ describe('ProgressBar', () => {
 
     it('should handle build progress simulation', () => {
       const bar = new ProgressBar(10, {
-        stream,
+        stream: asWriteStream(stream),
         format: ':bar :percent :task',
         renderThrottle: 0,
       })
@@ -705,7 +785,10 @@ describe('ProgressBar', () => {
 
   describe('performance', () => {
     it('should handle many updates efficiently with throttling', () => {
-      const bar = new ProgressBar(10_000, { stream, renderThrottle: 16 })
+      const bar = new ProgressBar(10_000, {
+        stream: asWriteStream(stream),
+        renderThrottle: 16,
+      })
       const start = Date.now()
 
       for (let i = 0; i <= 10_000; i += 100) {
@@ -718,7 +801,10 @@ describe('ProgressBar', () => {
     })
 
     it('should render all updates when throttle is 0', () => {
-      const bar = new ProgressBar(10, { stream, renderThrottle: 0 })
+      const bar = new ProgressBar(10, {
+        stream: asWriteStream(stream),
+        renderThrottle: 0,
+      })
       outputs = []
 
       for (let i = 1; i <= 10; i += 1) {

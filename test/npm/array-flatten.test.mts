@@ -34,10 +34,11 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('should work with arguments', () => {
-      // biome-ignore lint/complexity/noArguments: Test case specifically testing arguments object.
-      // eslint-disable-next-line no-undef
-      const input = (() => arguments)()
-      const result = flatten(input)
+      const result = flatten(
+        (function () {
+          return arguments
+        })(),
+      )
 
       expect(result).toEqual([])
     })
