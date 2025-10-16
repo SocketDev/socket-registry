@@ -16,10 +16,7 @@ import { spinner } from '../registry/dist/lib/spinner.js'
 import { printHeader } from '../registry/dist/lib/stdio/header.js'
 
 import { WIN32 } from './constants/node.mjs'
-import {
-  ROOT_NODE_MODULES_BIN_PATH,
-  ROOT_PATH,
-} from './constants/paths.mjs'
+import { ROOT_NODE_MODULES_BIN_PATH, ROOT_PATH } from './constants/paths.mjs'
 import {
   runTests as runTestsWithOutput,
   runWithOutput,

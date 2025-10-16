@@ -28,11 +28,15 @@ import {
   PACKAGE_JSON,
   SOCKET_REGISTRY_SCOPE,
 } from '../scripts/constants/paths.mjs'
-import { getEcosystems, getNpmPackageNames } from '../scripts/constants/testing.mjs'
+import {
+  getEcosystems,
+  getNpmPackageNames,
+} from '../scripts/constants/testing.mjs'
 import { getIgnoreGlobs } from '../scripts/constants/utils.mjs'
 
-const LICENSE_GLOB = `**/+(LICENSE|LICENCE|LICENSE.original|LICENSE.*.original)*`
-const README_GLOB = `**/README*`
+const LICENSE_GLOB =
+  '**/+(LICENSE|LICENCE|LICENSE.original|LICENSE.*.original)*'
+const README_GLOB = '**/README*'
 const UTF8 = 'utf8'
 const NODE_VERSION = process.versions.node
 const ecosystems = getEcosystems()
