@@ -1,8 +1,6 @@
 import fs from 'node:fs'
-import os from 'node:os'
 import path from 'node:path'
 
-import { deleteAsync as del } from 'del'
 import { describe, expect, it, vi } from 'vitest'
 
 import {
@@ -41,6 +39,7 @@ import {
   unescapeScope,
 } from '../../registry/dist/lib/packages.js'
 import { normalizePath } from '../../registry/dist/lib/path.js'
+import { withTempDirSync } from '../utils/temp-file-helper.mts'
 
 describe('packages module', () => {
   describe('isValidPackageName', () => {
@@ -671,7 +670,7 @@ describe('packages module', () => {
     })
 
     it('should resolve with normalize', async () => {
-      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+      const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
       const pkgPath = path.join(tmpDir, 'package.json')
       fs.writeFileSync(pkgPath, '{}')
 
@@ -681,14 +680,14 @@ describe('packages module', () => {
         const resolvedPath2 = resolvePackageJsonPath(pkgPath)
         expect(resolvedPath2).toBe(normalizePath(pkgPath))
       } finally {
-        await del(tmpDir, { force: true })
+        cleanup()
       }
     })
   })
 
   describe('createPackageJson', () => {
     it('should create a package.json object', async () => {
-      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+      const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
 
       try {
         const pkg = createPackageJson(
@@ -701,7 +700,7 @@ describe('packages module', () => {
         const pkg2 = createPackageJson('@socketregistry/test', tmpDir)
         expect(pkg2).toBeDefined()
       } finally {
-        await del(tmpDir, { force: true })
+        cleanup()
       }
     })
 
@@ -1037,7 +1036,7 @@ describe('packages module', () => {
 
   describe('packPackage', () => {
     it('should pack package', async () => {
-      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+      const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
 
       fs.writeFileSync(
         path.join(tmpDir, 'package.json'),
@@ -1054,7 +1053,7 @@ describe('packages module', () => {
       } catch (error) {
         expect(error).toBeDefined()
       } finally {
-        await del(tmpDir, { force: true })
+        cleanup()
       }
     })
   })
@@ -1131,7 +1130,7 @@ describe('packages module', () => {
 
   describe('readPackageJson', () => {
     it('should read package.json file', async () => {
-      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+      const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
       const pkg = { name: 'test', version: '1.0.0' }
       fs.writeFileSync(path.join(tmpDir, 'package.json'), JSON.stringify(pkg))
 
@@ -1140,12 +1139,12 @@ describe('packages module', () => {
         expect(result?.name).toBe('test')
         expect(result?.version).toBe('1.0.0')
       } finally {
-        await del(tmpDir, { force: true })
+        cleanup()
       }
     })
 
     it('should handle options', async () => {
-      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+      const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
       const pkg = { name: 'test', scripts: { test: 'jest' } }
       fs.writeFileSync(path.join(tmpDir, 'package.json'), JSON.stringify(pkg))
 
@@ -1155,7 +1154,7 @@ describe('packages module', () => {
         } as any)
         expect(result?.name).toBe('test')
       } finally {
-        await del(tmpDir, { force: true })
+        cleanup()
       }
     })
   })
@@ -1178,7 +1177,7 @@ describe('packages module', () => {
     })
 
     it('should read package.json file synchronously', async () => {
-      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+      const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
       const pkg = { name: 'test', version: '1.0.0' }
       fs.writeFileSync(path.join(tmpDir, 'package.json'), JSON.stringify(pkg))
 
@@ -1187,12 +1186,12 @@ describe('packages module', () => {
         expect(result?.name).toBe('test')
         expect(result?.version).toBe('1.0.0')
       } finally {
-        await del(tmpDir, { force: true })
+        cleanup()
       }
     })
 
     it('should handle options', async () => {
-      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+      const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
       const pkg = { name: 'test', scripts: { test: 'jest' } }
       fs.writeFileSync(path.join(tmpDir, 'package.json'), JSON.stringify(pkg))
 
@@ -1203,7 +1202,7 @@ describe('packages module', () => {
         })
         expect(result?.name).toBe('test')
       } finally {
-        await del(tmpDir, { force: true })
+        cleanup()
       }
     })
   })
