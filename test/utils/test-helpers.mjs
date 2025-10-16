@@ -11,9 +11,15 @@ import {
   isolatePackage as registryIsolatePackage,
   resolveOriginalPackageName,
 } from '../../registry/dist/lib/packages.js'
-import constants from '../../scripts/constants.mjs'
+import {
+  NPM_PACKAGES_PATH,
+  TEST_NPM_PKG_JSON_PATH,
+} from '../../scripts/constants/paths.mjs'
 import { cleanTestScript } from './script-cleaning.mjs'
 import { testRunners } from './test-runners.mjs'
+
+const npmPackagesPath = NPM_PACKAGES_PATH
+const testNpmPkgJsonPath = TEST_NPM_PKG_JSON_PATH
 
 /**
  * Isolates a package in a temporary test environment.
@@ -53,7 +59,7 @@ async function isolatePackage(packageSpec, options = {}) {
     !packageSpec.includes('@', 1)
   ) {
     const socketPkgName = packageSpec
-    sourcePath = path.join(constants.npmPackagesPath, socketPkgName)
+    sourcePath = path.join(npmPackagesPath, socketPkgName)
 
     if (!existsSync(sourcePath)) {
       throw new Error(`No Socket override found for ${socketPkgName}`)
@@ -63,7 +69,7 @@ async function isolatePackage(packageSpec, options = {}) {
     const packageName = resolveOriginalPackageName(socketPkgName)
 
     // Get version spec from test/npm/package.json.
-    const testPkgJson = await readPackageJson(constants.testNpmPkgJsonPath, {
+    const testPkgJson = await readPackageJson(testNpmPkgJsonPath, {
       normalize: true,
     })
     const spec = testPkgJson.devDependencies?.[packageName]

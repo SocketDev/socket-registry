@@ -4,11 +4,9 @@
 
 import { EOL, platform } from 'node:os'
 
-export const DARWIN = 'darwin'
-export const WIN32 = 'win32'
-
-export const IS_DARWIN = platform() === DARWIN
-export const IS_WIN32 = platform() === WIN32
+const _platform = platform()
+export const DARWIN = _platform === 'darwin'
+export const WIN32 = _platform === 'win32'
 
 export const NEWLINE = EOL
 

@@ -4,10 +4,9 @@ import fastGlob from 'fast-glob'
 import { describe, expect, it } from 'vitest'
 
 import { isObjectObject } from '../registry/dist/lib/objects.js'
-import constants from '../scripts/constants.mjs'
 import { isPackageTestingSkipped } from '../scripts/utils/tests.mjs'
 
-const { SOCKET_REGISTRY_PACKAGE_NAME } = constants
+const SOCKET_REGISTRY_PACKAGE_NAME = '@socketsecurity/registry'
 
 const rootPath = path.resolve(__dirname, '..')
 const rootRegistryPath = path.join(rootPath, 'registry', 'dist')

@@ -7,19 +7,18 @@
 
 import { deleteAsync as del } from 'del'
 import fastGlob from 'fast-glob'
+
+import { NODE_MODULES_GLOB_RECURSIVE } from '../registry/dist/constants/paths.js'
 import { isDirEmptySync } from '../registry/dist/lib/fs.js'
 import { logger } from '../registry/dist/lib/logger.js'
-
-import constants from './constants.mjs'
-
-const { NODE_MODULES_GLOB_RECURSIVE } = constants
+import { ROOT_PATH } from './constants/paths.mjs'
 
 async function main() {
   const dirPaths = (
     await fastGlob.glob(['**/'], {
       ignore: [NODE_MODULES_GLOB_RECURSIVE],
       absolute: true,
-      cwd: constants.rootPath,
+      cwd: ROOT_PATH,
       onlyDirectories: true,
     })
   )

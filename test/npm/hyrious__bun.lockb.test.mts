@@ -3,10 +3,11 @@ import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import constants from '../../scripts/constants.mjs'
+import { TEST_NPM_FIXTURES_PATH } from '../../scripts/constants/paths.mjs'
 import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
-const { UTF8 } = constants
+const UTF8 = 'utf8'
+const testNpmFixturesPath = TEST_NPM_FIXTURES_PATH
 const { eco, pkgPath, skip, sockRegPkgName } =
   await setupNpmPackageTest(__filename)
 
@@ -15,8 +16,6 @@ const { eco, pkgPath, skip, sockRegPkgName } =
 // Test case from https://github.com/daggerok/bun-examples/tree/master/hello-bun.
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   const hyriousBunLockbIndex = require(path.join(pkgPath, 'index.cjs'))
-
-  const { testNpmFixturesPath } = constants
 
   it('parses bun.lockb into yarn.lock contents', () => {
     const lockbPath = path.join(testNpmFixturesPath, 'fixture-bun.lockb')
