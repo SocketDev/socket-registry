@@ -169,6 +169,7 @@ describe('json utilities', () => {
 
     describe('reviver function', () => {
       it('should apply reviver to parsed values', () => {
+        // eslint-disable-next-line unicorn/consistent-function-scoping
         const reviver = (_key: string, value: unknown) => {
           if (typeof value === 'number') {
             return value * 2
@@ -209,6 +210,7 @@ describe('json utilities', () => {
 
     describe('combined options', () => {
       it('should handle reviver with throws false', () => {
+        // eslint-disable-next-line unicorn/consistent-function-scoping
         const reviver = (_key: string, value: unknown) => value
         const result = jsonParse('invalid', { reviver, throws: false })
         expect(result).toBeUndefined()
@@ -223,6 +225,7 @@ describe('json utilities', () => {
       })
 
       it('should handle all options together', () => {
+        // eslint-disable-next-line unicorn/consistent-function-scoping
         const reviver = (_key: string, value: unknown) => value
         try {
           jsonParse('invalid', {

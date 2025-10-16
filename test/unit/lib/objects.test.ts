@@ -351,7 +351,8 @@ describe('objects utilities', () => {
       const obj2 = { b: 2 }
       const result = merge(obj1, obj2)
       expect(result).toEqual({ a: 1, b: 2 })
-      expect(result).toBe(obj1) // merge mutates first object
+      // merge mutates first object.
+      expect(result).toBe(obj1)
     })
 
     it('should handle empty objects', () => {

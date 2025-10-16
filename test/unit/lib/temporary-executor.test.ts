@@ -386,9 +386,10 @@ describe('temporary-executor utilities', () => {
           expect(isRunningInTemporaryExecutor('/home/npx-user/project')).toBe(
             false,
           )
+          // Contains "dlx-".
           expect(isRunningInTemporaryExecutor('/home/user/dlx-not-temp')).toBe(
             true,
-          ) // Contains "dlx-".
+          )
         } finally {
           process.env['npm_config_user_agent'] = originalUserAgent
           process.env['npm_config_cache'] = originalCache

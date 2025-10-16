@@ -51,6 +51,7 @@ describe('streams utilities', () => {
     })
 
     it('should work with async iterables', async () => {
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       async function* generate() {
         yield 1
         yield 2
@@ -115,6 +116,7 @@ describe('streams utilities', () => {
     })
 
     it('should work with async iterables', async () => {
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       async function* generate() {
         yield 1
         yield 2
@@ -211,6 +213,7 @@ describe('streams utilities', () => {
     })
 
     it('should work with async iterables', async () => {
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       async function* generate() {
         yield 1
         yield 2
