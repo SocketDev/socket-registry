@@ -5,6 +5,6 @@
 
 import { env } from 'node:process'
 
-import { envAsBoolean } from './helpers'
+import { envAsBoolean } from '#env/helpers'
 
 export const SOCKET_VIEW_ALL_RISKS = envAsBoolean(env['SOCKET_VIEW_ALL_RISKS'])

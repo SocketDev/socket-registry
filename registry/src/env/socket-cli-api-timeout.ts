@@ -5,6 +5,6 @@
 
 import { env } from 'node:process'
 
-import { envAsNumber } from './helpers'
+import { envAsNumber } from '#env/helpers'
 
 export const SOCKET_CLI_API_TIMEOUT = envAsNumber(env['SOCKET_CLI_API_TIMEOUT'])
