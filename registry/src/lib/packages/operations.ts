@@ -6,9 +6,9 @@ import {
   getPackageExtensions,
   getPackumentCache,
   getPacoteCachePath,
-} from '../../constants/packages'
-import { getAbortSignal } from '../../constants/process'
-import { REGISTRY_SCOPE_DELIMITER } from '../../constants/socket'
+} from '#constants/packages'
+import { getAbortSignal } from '#constants/process'
+import { REGISTRY_SCOPE_DELIMITER } from '#constants/socket'
 
 const abortSignal = getAbortSignal()
 const packageExtensions = getPackageExtensions()

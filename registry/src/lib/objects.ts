@@ -7,7 +7,7 @@ import {
   kInternalsSymbol,
   LOOP_SENTINEL,
   UNDEFINED_TOKEN,
-} from '../constants/core'
+} from '#constants/core'
 
 import { isArray } from './arrays'
 import { localeCompare } from './sorts'

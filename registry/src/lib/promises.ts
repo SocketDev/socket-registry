@@ -3,8 +3,8 @@
  * Provides async control flow helpers and promise-based timing functions.
  */
 
-import { UNDEFINED_TOKEN } from '../constants/core'
-import { getAbortSignal } from '../constants/process'
+import { UNDEFINED_TOKEN } from '#constants/core'
+import { getAbortSignal } from '#constants/process'
 
 import { arrayChunk } from './arrays'
 

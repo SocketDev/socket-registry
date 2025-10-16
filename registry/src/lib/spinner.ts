@@ -4,8 +4,9 @@
  */
 
 import type { Writable } from 'node:stream'
-import { getAbortSignal } from '../constants/process'
-import { CI } from '../env/ci'
+
+import { getAbortSignal } from '#constants/process'
+import { CI } from '#env/ci'
 import yoctoSpinner from '../external/@socketregistry/yocto-spinner'
 
 const abortSignal = getAbortSignal()

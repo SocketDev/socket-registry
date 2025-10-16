@@ -14,7 +14,8 @@
 import * as os from 'node:os'
 import * as path from 'node:path'
 
-import { SOCKET_CACACHE_DIR } from '../env/socket-cacache-dir'
+import { SOCKET_CACACHE_DIR } from '#env/socket-cacache-dir'
+
 import { normalizePath } from './path'
 
 /**

@@ -3,7 +3,8 @@
  * Provides npm package analysis, dependency resolution, and registry operations.
  */
 
-import type { CategoryString } from '../types'
+import type { CategoryString } from '#types'
+
 import {
   getEditablePackageJsonClass,
   pkgJsonToEditable,

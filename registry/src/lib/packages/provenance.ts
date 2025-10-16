@@ -2,7 +2,7 @@
  * @fileoverview Package provenance and attestation verification utilities.
  */
 
-import { NPM_REGISTRY_URL } from '../../constants/agents'
+import { NPM_REGISTRY_URL } from '#constants/agents'
 
 import { createCompositeAbortSignal, createTimeoutSignal } from '../abort'
 import type { ProvenanceOptions } from '../packages'
