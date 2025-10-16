@@ -3,7 +3,8 @@
  * Provides path normalization, validation, and file extension handling.
  */
 
-import WIN32 from './constants/WIN32'
+import { WIN32 } from '../constants/platform'
+
 import { search } from './strings'
 
 // Character code constants.
@@ -494,7 +495,7 @@ export function pathLikeToString(
       // On Windows, strip the leading slash only for malformed URLs that lack drive letters
       // (e.g., `/path` should be `path`, but `/C:/path` should be `C:/path`).
       // On Unix, keep the leading slash for absolute paths (e.g., `/home/user`).
-      const WIN32 = require('./constants/WIN32')
+      const WIN32 = require('../constants/platform').WIN32
       if (WIN32 && decodedPathname.startsWith('/')) {
         // Check for drive letter pattern following Node.js source: /[a-zA-Z]:/
         // Character at index 1 should be a letter, character at index 2 should be ':'
@@ -640,7 +641,7 @@ function relative(from: string, to: string): string {
     return ''
   }
 
-  const WIN32 = require('./constants/WIN32')
+  const WIN32 = require('../constants/platform').WIN32
 
   // Windows: perform case-insensitive comparison.
   // NTFS and FAT32 preserve case but are case-insensitive for lookups.

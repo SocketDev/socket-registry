@@ -2,13 +2,23 @@
  * @fileoverview Package manifest and packument fetching utilities.
  */
 
+import {
+  getPackageDefaultNodeRange,
+  getPackageDefaultSocketCategories,
+  getPackumentCache,
+} from '../../constants/packages'
+import { getAbortSignal } from '../../constants/process'
+import {
+  SOCKET_GITHUB_ORG,
+  SOCKET_REGISTRY_REPO_NAME,
+} from '../../constants/socket'
+
+const abortSignal = getAbortSignal()
+const packageDefaultNodeRange = getPackageDefaultNodeRange()
+const PACKAGE_DEFAULT_SOCKET_CATEGORIES = getPackageDefaultSocketCategories()
+const packumentCache = getPackumentCache()
+
 import { isArray } from '../arrays'
-import abortSignal from '../constants/abort-signal'
-import packageDefaultNodeRange from '../constants/package-default-node-range'
-import PACKAGE_DEFAULT_SOCKET_CATEGORIES from '../constants/package-default-socket-categories'
-import packumentCache from '../constants/packument-cache'
-import SOCKET_GITHUB_ORG from '../constants/SOCKET_GITHUB_ORG'
-import SOCKET_REGISTRY_REPO_NAME from '../constants/SOCKET_REGISTRY_REPO_NAME'
 import { isObjectObject, objectEntries } from '../objects'
 import type { PackageJson, PacoteOptions } from '../packages'
 import { resolvePackageJsonEntryExports } from './exports'
@@ -103,14 +113,21 @@ export function createPackageJson(
                 const semver = getSemver()
                 const { 1: range } = result
                 if (
-                  !semver.satisfies(
-                    // Roughly check Node range as semver.coerce will strip leading
-                    // v's, carets (^), comparators (<,<=,>,>=,=), and tildes (~).
-                    semver.coerce(range as string) || '0.0.0',
-                    packageDefaultNodeRange,
-                  )
+                  typeof range === 'string' &&
+                  range &&
+                  packageDefaultNodeRange
                 ) {
-                  result[1] = packageDefaultNodeRange
+                  // Roughly check Node range as semver.coerce will strip leading
+                  // v's, carets (^), comparators (<,<=,>,>=,=), and tildes (~).
+                  const coercedRange = semver.coerce(range)
+                  if (
+                    !semver.satisfies(
+                      coercedRange?.version ?? '0.0.0',
+                      packageDefaultNodeRange,
+                    )
+                  ) {
+                    result[1] = packageDefaultNodeRange
+                  }
                 }
               }
               return result

@@ -3,10 +3,13 @@
  * Provides type-safe object operations, property access, and structural helpers.
  */
 
+import {
+  kInternalsSymbol,
+  LOOP_SENTINEL,
+  UNDEFINED_TOKEN,
+} from '../constants/core'
+
 import { isArray } from './arrays'
-import kInternalsSymbol from './constants/k-internals-symbol'
-import LOOP_SENTINEL from './constants/LOOP_SENTINEL'
-import UNDEFINED_TOKEN from './constants/UNDEFINED_TOKEN'
 import { localeCompare } from './sorts'
 
 // Type definitions

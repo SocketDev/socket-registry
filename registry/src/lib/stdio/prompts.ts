@@ -3,11 +3,10 @@
  * Provides inquirer.js integration with spinner support and context handling.
  */
 
-import abortSignalDefault from '../constants/abort-signal'
-import spinnerDefault from '../constants/spinner'
+import { getAbortSignal, getSpinner } from '../../constants/process'
 
-const abortSignal = abortSignalDefault
-const spinner = spinnerDefault
+const abortSignal = getAbortSignal()
+const spinner = getSpinner()
 
 // Type definitions
 

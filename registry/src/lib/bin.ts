@@ -3,7 +3,10 @@
  * Provides cross-platform bin path lookup, command execution, and path normalization.
  */
 
-import ENV from './constants/ENV'
+import { APPDATA } from '../env/appdata'
+import { HOME } from '../env/home'
+import { LOCALAPPDATA } from '../env/localappdata'
+import { XDG_DATA_HOME } from '../env/xdg-data-home'
 import { readJsonSync } from './fs'
 import { getOwn } from './objects'
 import { isPath, normalizePath } from './path'
@@ -248,7 +251,7 @@ export function findRealNpm(): string {
  * Find the real pnpm executable, bypassing any aliases and shadow bins.
  */
 export function findRealPnpm(): string {
-  const WIN32 = require('./constants/WIN32')
+  const WIN32 = require('../constants/platform').WIN32
   const path = getPath()
 
   // Try common pnpm locations.
@@ -256,13 +259,13 @@ export function findRealPnpm(): string {
     ? [
         // Windows common paths.
         // biome-ignore lint/style/noNonNullAssertion: APPDATA and LOCALAPPDATA are always defined on Windows.
-        path?.join(ENV.APPDATA!, 'npm', 'pnpm.cmd'),
+        path?.join(APPDATA as string, 'npm', 'pnpm.cmd'),
         // biome-ignore lint/style/noNonNullAssertion: APPDATA and LOCALAPPDATA are always defined on Windows.
-        path?.join(ENV.APPDATA!, 'npm', 'pnpm'),
+        path?.join(APPDATA as string, 'npm', 'pnpm'),
         // biome-ignore lint/style/noNonNullAssertion: APPDATA and LOCALAPPDATA are always defined on Windows.
-        path?.join(ENV.LOCALAPPDATA!, 'pnpm', 'pnpm.cmd'),
+        path?.join(LOCALAPPDATA as string, 'pnpm', 'pnpm.cmd'),
         // biome-ignore lint/style/noNonNullAssertion: APPDATA and LOCALAPPDATA are always defined on Windows.
-        path?.join(ENV.LOCALAPPDATA!, 'pnpm', 'pnpm'),
+        path?.join(LOCALAPPDATA as string, 'pnpm', 'pnpm'),
         'C:\\Program Files\\nodejs\\pnpm.cmd',
         'C:\\Program Files\\nodejs\\pnpm',
       ].filter(Boolean)
@@ -271,11 +274,11 @@ export function findRealPnpm(): string {
         '/usr/local/bin/pnpm',
         '/usr/bin/pnpm',
         path?.join(
-          ENV.XDG_DATA_HOME || `${ENV.HOME}/.local/share`,
+          (XDG_DATA_HOME as string) || `${HOME as string}/.local/share`,
           'pnpm/pnpm',
         ),
         // biome-ignore lint/style/noNonNullAssertion: HOME is always defined on Unix systems.
-        path?.join(ENV.HOME!, '.pnpm/pnpm'),
+        path?.join(HOME as string, '.pnpm/pnpm'),
       ].filter(Boolean)
 
   return findRealBin('pnpm', commonPaths) ?? ''
@@ -292,9 +295,9 @@ export function findRealYarn(): string {
     '/usr/local/bin/yarn',
     '/usr/bin/yarn',
     // biome-ignore lint/style/noNonNullAssertion: HOME is always defined on Unix systems.
-    path?.join(ENV.HOME!, '.yarn/bin/yarn'),
+    path?.join(HOME as string, '.yarn/bin/yarn'),
     // biome-ignore lint/style/noNonNullAssertion: HOME is always defined on Unix systems.
-    path?.join(ENV.HOME!, '.config/yarn/global/node_modules/.bin/yarn'),
+    path?.join(HOME as string, '.config/yarn/global/node_modules/.bin/yarn'),
   ].filter(Boolean)
 
   return findRealBin('yarn', commonPaths) ?? ''
@@ -394,7 +397,7 @@ export function resolveBinPathSync(binPath: string): string {
       return voltaBinPath
     }
   }
-  const WIN32 = require('./constants/WIN32')
+  const WIN32 = require('../constants/platform').WIN32
   if (WIN32) {
     const hasKnownExt =
       extLowered === '' ||

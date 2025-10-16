@@ -4,10 +4,14 @@
  */
 
 import { promises as fs } from 'node:fs'
-// Use esbuild from root node_modules since registry package is zero-dependency.
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+const require = createRequire(import.meta.url)
+
+// Use esbuild from root node_modules since registry package is zero-dependency.
+import esbuild from '../../node_modules/esbuild/lib/main.js'
 import {
   printError,
   printFooter,
@@ -15,9 +19,6 @@ import {
   printSuccess,
 } from '../../scripts/utils/cli-helpers.mjs'
 import { createNonBarrelEntry } from './non-barrel-imports.mjs'
-
-const require = createRequire(import.meta.url)
-const esbuild = require('../../node_modules/esbuild')
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootDir = path.resolve(__dirname, '..')
@@ -416,15 +417,8 @@ async function bundlePackage(packageName, outputPath) {
       charset: 'utf8',
     })
 
-    // Add a header comment to the bundled file and fix CommonJS/TypeScript interop.
-    let bundleContent = await fs.readFile(outputPath, 'utf8')
-
-    // Add default export for TypeScript interop
-    // Find the last module.exports and add a default property
-    if (bundleContent.includes('module.exports')) {
-      bundleContent +=
-        '\n// Added for CommonJS/TypeScript interop\nif (!module.exports.default) module.exports.default = module.exports;\n'
-    }
+    // Add a header comment to the bundled file.
+    const bundleContent = await fs.readFile(outputPath, 'utf8')
 
     const finalContent = `/**
  * Bundled from ${packageName}
