@@ -2,7 +2,7 @@
  * Package metadata, defaults, extensions, and lifecycle scripts.
  */
 
-import { npm_lifecycle_event } from '../env/npm-lifecycle-event'
+import { npm_lifecycle_event } from '#env/npm-lifecycle-event'
 
 let _lifecycleScriptNames: string[]
 let _packageDefaultNodeRange: string | undefined
