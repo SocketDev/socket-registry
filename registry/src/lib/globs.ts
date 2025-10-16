@@ -130,15 +130,16 @@ export function globStreamLicenses(
   ]
   if (ignoreOriginals) {
     ignore.push(
-      /*@__INLINE__*/ require('./constants/LICENSE_ORIGINAL_GLOB_RECURSIVE'),
+      /*@__INLINE__*/ require('../constants/paths')
+        .LICENSE_ORIGINAL_GLOB_RECURSIVE,
     )
   }
   const fastGlob = getFastGlob()
   return fastGlob.globStream(
     [
       recursive
-        ? /*@__INLINE__*/ require('./constants/LICENSE_GLOB_RECURSIVE')
-        : /*@__INLINE__*/ require('./constants/LICENSE_GLOB'),
+        ? /*@__INLINE__*/ require('../constants/paths').LICENSE_GLOB_RECURSIVE
+        : /*@__INLINE__*/ require('../constants/paths').LICENSE_GLOB,
     ],
     {
       __proto__: null,

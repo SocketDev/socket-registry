@@ -12,8 +12,13 @@ import type {
   StatSyncOptions,
   WriteFileOptions,
 } from 'node:fs'
+
+import { getAbortSignal } from '../constants/process'
+
 import { isArray } from './arrays'
-import abortSignal from './constants/abort-signal'
+
+const abortSignal = getAbortSignal()
+
 import { defaultIgnore, getGlobMatcher } from './globs'
 import type { JsonReviver } from './json'
 import { jsonParse } from './json'

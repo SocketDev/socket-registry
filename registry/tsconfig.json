@@ -4,7 +4,7 @@
     "allowJs": false,
     "declaration": false,
     "declarationMap": false,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "lib": ["es2022"],

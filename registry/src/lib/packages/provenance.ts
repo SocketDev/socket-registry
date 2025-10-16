@@ -2,8 +2,9 @@
  * @fileoverview Package provenance and attestation verification utilities.
  */
 
+import { NPM_REGISTRY_URL } from '../../constants/agents'
+
 import { createCompositeAbortSignal, createTimeoutSignal } from '../abort'
-import NPM_REGISTRY_URL from '../constants/NPM_REGISTRY_URL'
 import type { ProvenanceOptions } from '../packages'
 import { parseUrl } from '../url'
 
@@ -23,10 +24,10 @@ function getFetcher() {
     const makeFetchHappen =
       /*@__PURE__*/ require('../../external/make-fetch-happen')
     // Lazy load constants to avoid circular dependencies.
-    const pacoteCachePath =
-      /*@__PURE__*/ require('../constants/pacote-cache-path')
+    const { getPacoteCachePath } =
+      /*@__PURE__*/ require('../../constants/packages')
     _fetcher = makeFetchHappen.defaults({
-      cachePath: pacoteCachePath,
+      cachePath: getPacoteCachePath(),
       // Prefer-offline: Staleness checks for cached data will be bypassed, but
       // missing data will be requested from the server.
       // https://github.com/npm/make-fetch-happen?tab=readme-ov-file#--optscache

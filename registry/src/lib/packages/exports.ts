@@ -2,8 +2,9 @@
  * @fileoverview Package exports field utilities.
  */
 
+import { LOOP_SENTINEL } from '../../constants/core'
+
 import { isArray } from '../arrays'
-import LOOP_SENTINEL from '../constants/LOOP_SENTINEL'
 import { isObject, isObjectObject } from '../objects'
 
 /**

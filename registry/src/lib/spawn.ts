@@ -26,9 +26,13 @@
  * - https://cheatsheetseries.owasp.org/cheatsheets/Nodejs_Security_Cheat_Sheet.html
  */
 
+import { getAbortSignal, getSpinner } from '../constants/process'
+
 import { isArray } from './arrays'
-import abortSignal from './constants/abort-signal'
-import spinner from './constants/spinner'
+
+const abortSignal = getAbortSignal()
+const spinner = getSpinner()
+
 import { getOwn, hasOwn } from './objects'
 import { stripAnsi } from './strings'
 

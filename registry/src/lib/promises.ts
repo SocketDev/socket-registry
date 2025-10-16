@@ -3,9 +3,12 @@
  * Provides async control flow helpers and promise-based timing functions.
  */
 
+import { UNDEFINED_TOKEN } from '../constants/core'
+import { getAbortSignal } from '../constants/process'
+
 import { arrayChunk } from './arrays'
-import abortSignal from './constants/abort-signal'
-import UNDEFINED_TOKEN from './constants/UNDEFINED_TOKEN'
+
+const abortSignal = getAbortSignal()
 
 export interface RetryOptions {
   args?: unknown[]

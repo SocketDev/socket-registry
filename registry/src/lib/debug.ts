@@ -3,10 +3,14 @@
  * Provides Socket CLI specific debug functionality and logging formatters.
  */
 
+import { getSpinner } from '../constants/process'
+import { DEBUG } from '../env/debug'
+import { SOCKET_DEBUG } from '../env/socket-debug'
 import isUnicodeSupported from '../external/@socketregistry/is-unicode-supported'
 import debugJs from '../external/debug'
-import ENV from './constants/ENV'
-import spinner from './constants/spinner'
+
+const spinner = getSpinner()
+
 import { logger } from './logger'
 import { hasOwn } from './objects'
 import { applyLinePrefix } from './strings'
@@ -46,8 +50,8 @@ function getDebugJsInstance(namespace: string) {
     return inst
   }
   if (
-    !ENV.DEBUG &&
-    ENV.SOCKET_DEBUG &&
+    !DEBUG &&
+    SOCKET_DEBUG &&
     (namespace === 'error' || namespace === 'notice')
   ) {
     debugJs.enable(namespace)
@@ -164,7 +168,7 @@ function extractOptions(namespaces: NamespacesOrOptions): DebugOptions {
 /*@__NO_SIDE_EFFECTS__*/
 function isEnabled(namespaces: string | undefined) {
   // Check if debugging is enabled at all
-  if (!ENV.SOCKET_DEBUG) {
+  if (!SOCKET_DEBUG) {
     return false
   }
   if (typeof namespaces !== 'string' || !namespaces || namespaces === '*') {
@@ -230,12 +234,12 @@ function debugDirNs(
     }
   }
   const spinnerInstance = options.spinner || spinner
-  const wasSpinning = spinnerInstance.isSpinning
-  spinnerInstance.stop()
+  const wasSpinning = spinnerInstance?.isSpinning
+  spinnerInstance?.stop()
   logger.info(`[DEBUG] ${callerName} ${pointingTriangle} object inspection:`)
   logger.dir(obj, inspectOpts)
   if (wasSpinning) {
-    spinnerInstance.start()
+    spinnerInstance?.start()
   }
 }
 
@@ -268,11 +272,11 @@ function debugNs(namespacesOrOpts: NamespacesOrOptions, ...args: unknown[]) {
         ]
       : args
   const spinnerInstance = options.spinner || spinner
-  const wasSpinning = spinnerInstance.isSpinning
-  spinnerInstance.stop()
+  const wasSpinning = spinnerInstance?.isSpinning
+  spinnerInstance?.stop()
   ReflectApply(logger.info, logger, logArgs)
   if (wasSpinning) {
-    spinnerInstance.start()
+    spinnerInstance?.start()
   }
 }
 
@@ -307,11 +311,11 @@ function debugLogNs(namespacesOrOpts: NamespacesOrOptions, ...args: unknown[]) {
       : [`[DEBUG] ${callerName} ${pointingTriangle}`, ...args]
 
   const spinnerInstance = options.spinner || spinner
-  const wasSpinning = spinnerInstance.isSpinning
-  spinnerInstance.stop()
+  const wasSpinning = spinnerInstance?.isSpinning
+  spinnerInstance?.stop()
   ReflectApply(logger.info, logger, logArgs)
   if (wasSpinning) {
-    spinnerInstance.start()
+    spinnerInstance?.start()
   }
 }
 
@@ -345,11 +349,11 @@ function debugCacheNs(
   const logArgs = meta !== undefined ? [prefix, meta] : [prefix]
 
   const spinnerInstance = options.spinner || spinner
-  const wasSpinning = spinnerInstance.isSpinning
-  spinnerInstance.stop()
+  const wasSpinning = spinnerInstance?.isSpinning
+  spinnerInstance?.stop()
   ReflectApply(logger.info, logger, logArgs)
   if (wasSpinning) {
-    spinnerInstance.start()
+    spinnerInstance?.start()
   }
 }
 
@@ -362,7 +366,7 @@ export function debugCache(
   key: string,
   meta?: unknown | undefined,
 ): void {
-  if (!ENV.SOCKET_DEBUG) {
+  if (!SOCKET_DEBUG) {
     return
   }
   // Get caller info with stack offset of 3 (caller -> debugCache -> getCallerInfo).
@@ -383,7 +387,7 @@ export function debugCache(
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isDebugNs(namespaces: string | undefined): boolean {
-  return ENV.SOCKET_DEBUG && isEnabled(namespaces)
+  return !!SOCKET_DEBUG && isEnabled(namespaces)
 }
 
 /**
@@ -418,7 +422,7 @@ function debugLog(...args: unknown[]): void {
  */
 /*@__NO_SIDE_EFFECTS__*/
 function isDebug(): boolean {
-  return ENV.SOCKET_DEBUG
+  return !!SOCKET_DEBUG
 }
 
 /**

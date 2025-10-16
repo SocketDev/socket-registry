@@ -5,7 +5,8 @@ import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-import WIN32 from './constants/WIN32'
+import { WIN32 } from '../constants/platform'
+
 import { isDir, readJson, safeDelete } from './fs'
 import { httpRequest } from './http-request'
 import { isObjectObject } from './objects'
@@ -165,7 +166,7 @@ async function writeMetadata(
  * Clean expired entries from the DLX cache.
  */
 export async function cleanDlxCache(
-  maxAge: number = /*@__INLINE__*/ require('./constants/DLX_BINARY_CACHE_TTL'),
+  maxAge: number = /*@__INLINE__*/ require('../constants/time').DLX_BINARY_CACHE_TTL,
 ): Promise<number> {
   const cacheDir = getDlxCachePath()
 
@@ -233,7 +234,7 @@ export async function dlxBinary(
   spawnExtra?: SpawnExtra | undefined,
 ): Promise<DlxBinaryResult> {
   const {
-    cacheTtl = /*@__INLINE__*/ require('./constants/DLX_BINARY_CACHE_TTL'),
+    cacheTtl = /*@__INLINE__*/ require('../constants/time').DLX_BINARY_CACHE_TTL,
     checksum,
     force = false,
     name,

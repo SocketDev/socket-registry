@@ -4,9 +4,12 @@
  */
 
 import type { Writable } from 'node:stream'
+import { getAbortSignal } from '../constants/process'
+import { CI } from '../env/ci'
 import yoctoSpinner from '../external/@socketregistry/yocto-spinner'
-import abortSignal from './constants/abort-signal'
-import ENV from './constants/ENV'
+
+const abortSignal = getAbortSignal()
+
 import { generateSocketSpinnerFrames } from './effects/pulse-frames'
 import type {
   ShimmerColorGradient,
@@ -796,7 +799,7 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
       warning: desc(_Spinner.prototype.warn),
       warningAndStop: desc(_Spinner.prototype.warnAndStop),
     })
-    _defaultSpinner = ENV.CI
+    _defaultSpinner = CI
       ? ciSpinner
       : (getCliSpinners('socket') as SpinnerStyle)
   }

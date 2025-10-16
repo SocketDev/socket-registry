@@ -2,8 +2,11 @@
  * @fileoverview SPDX license parsing and analysis utilities.
  */
 
-import copyLeftLicenses from '../constants/copy-left-licenses'
-import LOOP_SENTINEL from '../constants/LOOP_SENTINEL'
+import { LOOP_SENTINEL } from '../../constants/core'
+import { getCopyLeftLicenses } from '../../constants/licenses'
+
+const copyLeftLicenses = getCopyLeftLicenses()
+
 import { hasOwn } from '../objects'
 import type { LicenseNode } from '../packages'
 import { normalizePath } from '../path'
