@@ -324,14 +324,15 @@ export async function readIpcStub(stubPath: string): Promise<any> {
     const validated = IpcStubSchema.parse(parsed)
     // Check age for freshness validation.
     const ageMs = Date.now() - validated.timestamp
-    const maxAgeMs = 5 * 60 * 1000 // 5 minutes.
+    // 5 minutes.
+    const maxAgeMs = 5 * 60 * 1000
     if (ageMs > maxAgeMs) {
       // Clean up stale file.
       await fs.unlink(stubPath).catch(() => {})
       return null
     }
     return validated.data
-  } catch (_error) {
+  } catch {
     // Return null for any errors (file not found, invalid JSON, validation failure).
     return null
   }
@@ -366,7 +367,8 @@ export async function cleanupIpcStubs(appName: string): Promise<void> {
   try {
     const files = await fs.readdir(stubDir)
     const now = Date.now()
-    const maxAgeMs = 5 * 60 * 1000 // 5 minutes.
+    // 5 minutes.
+    const maxAgeMs = 5 * 60 * 1000
     // Process each file in parallel for efficiency.
     await Promise.all(
       files.map(async file => {
@@ -384,7 +386,7 @@ export async function cleanupIpcStubs(appName: string): Promise<void> {
         }
       }),
     )
-  } catch (_error) {
+  } catch {
     // Directory might not exist, that's ok.
   }
 }
@@ -421,7 +423,7 @@ export function sendIpc(
       // Validate message structure before sending.
       const validated = IpcMessageSchema.parse(message)
       return process.send(validated)
-    } catch (_error) {
+    } catch {
       return false
     }
   }
@@ -507,13 +509,19 @@ export function waitForIpc<T = any>(
     let cleanup: (() => void) | null = null
     let timeoutId: NodeJS.Timeout | null = null
     const handleTimeout = () => {
-      if (cleanup) {cleanup()}
+      if (cleanup) {
+        cleanup()
+      }
       reject(new Error(`IPC timeout waiting for message type: ${messageType}`))
     }
     const handleMessage = (message: IpcMessage) => {
       if (message.type === messageType) {
-        if (timeoutId) {clearTimeout(timeoutId)}
-        if (cleanup) {cleanup()}
+        if (timeoutId) {
+          clearTimeout(timeoutId)
+        }
+        if (cleanup) {
+          cleanup()
+        }
         resolve(message.data as T)
       }
     }
