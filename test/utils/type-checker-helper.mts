@@ -165,24 +165,43 @@ export function createInvalidValuesExcluding(
   const exclusionSet = new Set(exclude)
   const values: unknown[] = []
 
-  if (!exclusionSet.has('undefined')) {values.push(undefined)}
-  if (!exclusionSet.has('null')) {values.push(null)}
-  if (!exclusionSet.has('boolean')) {values.push(false, true)}
-  if (!exclusionSet.has('number'))
-    {values.push(0, 42, -1, 3.14, Number.NaN, Number.POSITIVE_INFINITY)}
-  if (!exclusionSet.has('string')) {values.push('', 'string', 'test')}
-  if (!exclusionSet.has('array')) {values.push([], [1, 2, 3])}
-  if (!exclusionSet.has('object')) {values.push({}, { key: 'value' })}
-  if (!exclusionSet.has('function'))
-    {values.push(
+  if (!exclusionSet.has('undefined')) {
+    values.push(undefined)
+  }
+  if (!exclusionSet.has('null')) {
+    values.push(null)
+  }
+  if (!exclusionSet.has('boolean')) {
+    values.push(false, true)
+  }
+  if (!exclusionSet.has('number')) {
+    values.push(0, 42, -1, 3.14, Number.NaN, Number.POSITIVE_INFINITY)
+  }
+  if (!exclusionSet.has('string')) {
+    values.push('', 'string', 'test')
+  }
+  if (!exclusionSet.has('array')) {
+    values.push([], [1, 2, 3])
+  }
+  if (!exclusionSet.has('object')) {
+    values.push({}, { key: 'value' })
+  }
+  if (!exclusionSet.has('function')) {
+    values.push(
       () => {},
       function () {},
       async () => {},
-    )}
-  if (!exclusionSet.has('regexp')) {values.push(/regex/, /test/)}
-  if (!exclusionSet.has('date')) {values.push(new Date())}
-  if (!exclusionSet.has('symbol') && typeof Symbol !== 'undefined')
-    {values.push(Symbol('test'))}
+    )
+  }
+  if (!exclusionSet.has('regexp')) {
+    values.push(/regex/, /test/)
+  }
+  if (!exclusionSet.has('date')) {
+    values.push(new Date())
+  }
+  if (!exclusionSet.has('symbol') && typeof Symbol !== 'undefined') {
+    values.push(Symbol('test'))
+  }
 
   return values
 }
