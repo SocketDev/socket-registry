@@ -745,9 +745,6 @@ importers:
       '@yarnpkg/extensions':
         specifier: 2.0.6
         version: 2.0.6(@yarnpkg/core@4.4.4(typanion@3.14.0))
-      browserslist:
-        specifier: 4.26.3
-        version: 4.26.3
       cacache:
         specifier: 20.0.1
         version: 20.0.1
