@@ -98,14 +98,47 @@ export function getNodeDebugFlags(): string[] {
 let _nodeHardenFlags: string[]
 export function getNodeHardenFlags(): string[] {
   if (_nodeHardenFlags === undefined) {
-    _nodeHardenFlags = [
+    const major = getNodeMajorVersion()
+    const flags = [
       '--disable-proto=delete',
-      '--experimental-permission',
-      '--experimental-policy',
+      // Node.js 24+ uses --permission instead of --experimental-permission.
+      // The permission model graduated from experimental to production-ready.
+      major >= 24 ? '--permission' : '--experimental-permission',
+      // Force uncaught exceptions policy for N-API addons (Node.js 22+).
       '--force-node-api-uncaught-exceptions-policy',
     ]
+    // Only add policy flag if we're using experimental permission (Node < 24).
+    // Node 24+ --policy requires a policy file which we don't have.
+    if (major < 24) {
+      flags.push('--experimental-policy')
+    }
+    _nodeHardenFlags = flags
   }
   return _nodeHardenFlags
+}
+
+let _nodePermissionFlags: string[]
+export function getNodePermissionFlags(): string[] {
+  if (_nodePermissionFlags === undefined) {
+    const major = getNodeMajorVersion()
+    // Node.js 24+ requires explicit permission grants when using --permission flag.
+    // npm needs filesystem access to read package.json files and node_modules.
+    if (major >= 24) {
+      _nodePermissionFlags = [
+        // Allow reading from the entire filesystem (npm needs to read package.json, node_modules, etc.).
+        '--allow-fs-read=*',
+        // Allow writing to the entire filesystem (npm needs to write to node_modules, cache, etc.).
+        '--allow-fs-write=*',
+        // Allow spawning child processes (npm needs to run lifecycle scripts, git, etc.).
+        '--allow-child-process',
+      ]
+    } else {
+      // Node.js 20-23 with --experimental-permission doesn't require explicit grants
+      // or uses different permission API.
+      _nodePermissionFlags = []
+    }
+  }
+  return _nodePermissionFlags
 }
 
 let _nodeNoWarningsFlags: string[]
