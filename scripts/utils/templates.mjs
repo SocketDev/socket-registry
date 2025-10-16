@@ -4,6 +4,7 @@
  */
 
 import { promises as fs } from 'node:fs'
+import { createRequire } from 'node:module'
 import path from 'node:path'
 import { PackageURL } from '@socketregistry/packageurl-js'
 import { Eta } from 'eta'
@@ -13,14 +14,15 @@ import { getManifestData } from '../../registry/dist/index.js'
 import { joinAnd } from '../../registry/dist/lib/arrays.js'
 import { globStreamLicenses } from '../../registry/dist/lib/globs.js'
 import { isObjectObject } from '../../registry/dist/lib/objects.js'
-import {
-  readPackageJson,
-  resolveOriginalPackageName,
-} from '../../registry/dist/lib/packages/operations.js'
 import { capitalize, determineArticle } from '../../registry/dist/lib/words.js'
 
 import constants from '../constants.mjs'
 import { biomeFormat } from './biome.mjs'
+
+// Use require for CommonJS modules that don't properly export named exports.
+const require = createRequire(import.meta.url)
+const packagesOperations = require('../../registry/dist/lib/packages/operations.js')
+const { readPackageJson, resolveOriginalPackageName } = packagesOperations
 
 const {
   EXT_JSON,
