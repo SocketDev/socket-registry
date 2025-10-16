@@ -18,6 +18,7 @@ import {
   printHeader,
   printSuccess,
 } from '../../scripts/utils/cli-helpers.mjs'
+import { createCherryPickEntry } from './cherry-pick-entries.mjs'
 import { createNonBarrelEntry } from './non-barrel-imports.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -78,7 +79,7 @@ const externalPackages = [
   { name: 'npm-package-arg', bundle: true },
   { name: 'normalize-package-data', bundle: true },
   // Utilities
-  { name: 'browserslist', bundle: true },
+  // { name: 'browserslist', bundle: true }, // UNUSED - no imports found
   { name: 'debug', bundle: true },
   { name: 'del', bundle: true },
   { name: 'fast-glob', bundle: true },
@@ -93,7 +94,7 @@ const externalPackages = [
   { name: 'which', bundle: true },
   { name: 'yargs-parser', bundle: true },
   { name: 'yoctocolors-cjs', bundle: true },
-  { name: 'zod', bundle: true },
+  { name: 'zod', bundle: true }, // Used by socket-cli (dist/cli.js has minified zod)
 ]
 
 // Scoped packages need special handling.
@@ -192,13 +193,22 @@ async function bundlePackage(packageName, outputPath) {
       }
     }
 
-    // Check if we have a non-barrel import optimization for this package.
-    const nonBarrelEntry = await createNonBarrelEntry(packageName, null)
-    if (nonBarrelEntry) {
-      console.log(`  Using non-barrel imports for ${packageName}`)
-      packagePath = nonBarrelEntry
+    // Check if we have a cherry-pick optimization for this package first.
+    const cherryPickEntry = await createCherryPickEntry(packageName, null)
+    if (cherryPickEntry) {
+      console.log(`  Using cherry-picked imports for ${packageName}`)
+      packagePath = cherryPickEntry
       // For cleanup tracking.
-      cherryPickedEntry = nonBarrelEntry
+      cherryPickedEntry = cherryPickEntry
+    } else {
+      // Fall back to non-barrel import optimization.
+      const nonBarrelEntry = await createNonBarrelEntry(packageName, null)
+      if (nonBarrelEntry) {
+        console.log(`  Using non-barrel imports for ${packageName}`)
+        packagePath = nonBarrelEntry
+        // For cleanup tracking.
+        cherryPickedEntry = nonBarrelEntry
+      }
     }
 
     // Get package-specific optimizations.

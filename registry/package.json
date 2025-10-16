@@ -754,7 +754,6 @@
     "@socketregistry/yocto-spinner": "workspace:*",
     "@types/node": "24.6.2",
     "@yarnpkg/extensions": "2.0.6",
-    "browserslist": "4.26.3",
     "cacache": "20.0.1",
     "debug": "4.4.3",
     "del": "8.0.1",
