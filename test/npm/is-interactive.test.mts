@@ -6,8 +6,12 @@ import { describe, expect, it } from 'vitest'
 
 import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
-const { eco, module: isInteractive, skip, sockRegPkgName } =
-  await setupNpmPackageTest(import.meta.url)
+const {
+  eco,
+  module: isInteractive,
+  skip,
+  sockRegPkgName,
+} = await setupNpmPackageTest(import.meta.url)
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('should return a boolean', () => {
