@@ -6,6 +6,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
+  restoreWarnings,
   setMaxEventTargetListeners,
   suppressMaxListenersWarning,
   suppressWarningType,
@@ -21,7 +22,8 @@ describe('suppress-warnings module', () => {
   })
 
   afterEach(() => {
-    // Restore original emitWarning
+    // Restore original emitWarning and clear suppressed warnings.
+    restoreWarnings()
     process.emitWarning = originalEmitWarning
   })
 

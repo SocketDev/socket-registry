@@ -100,10 +100,10 @@ export function execNpm(args: string[], options?: SpawnOptions | undefined) {
   // SECURITY: Array-based arguments prevent command injection. Each element is
   // passed directly to the OS without shell interpretation.
   return spawn(
-    /*@__PURE__*/ require('../constants/process').execPath,
+    /*@__PURE__*/ require('../constants/node').getExecPath(),
     [
-      .../*@__PURE__*/ require('../constants/node').NODE_HARDEN_FLAGS,
-      .../*@__PURE__*/ require('../constants/node').NODE_NO_WARNINGS_FLAGS,
+      .../*@__PURE__*/ require('../constants/node').getNodeHardenFlags(),
+      .../*@__PURE__*/ require('../constants/node').getNodeNoWarningsFlags(),
       /*@__PURE__*/ require('../constants/agents').NPM_REAL_EXEC_PATH,
       // Even though '--loglevel=error' is passed npm will still run through
       // code paths for 'audit' and 'fund' unless '--no-audit' and '--no-fund'
@@ -399,9 +399,9 @@ export function execScript(
   }
 
   return spawn(
-    /*@__PURE__*/ require('../constants/process').execPath,
+    /*@__PURE__*/ require('../constants/node').getExecPath(),
     [
-      .../*@__PURE__*/ require('../constants/node').NODE_NO_WARNINGS_FLAGS,
+      .../*@__PURE__*/ require('../constants/node').getNodeNoWarningsFlags(),
       ...(useNodeRun
         ? ['--run']
         : [
