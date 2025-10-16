@@ -5,7 +5,7 @@
 
 import { env } from 'node:process'
 
-import { envAsBoolean } from './helpers'
+import { envAsBoolean } from '#env/helpers'
 
 export const SOCKET_CLI_NO_API_TOKEN = envAsBoolean(
   env['SOCKET_CLI_NO_API_TOKEN'],
