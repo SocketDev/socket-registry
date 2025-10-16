@@ -6,8 +6,12 @@ import { describe, expect, it } from 'vitest'
 
 import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
-const { eco, module: AggregateError, skip, sockRegPkgName } =
-  await setupNpmPackageTest(import.meta.url)
+const {
+  eco,
+  module: AggregateError,
+  skip,
+  sockRegPkgName,
+} = await setupNpmPackageTest(import.meta.url)
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('should create AggregateError with array of errors', () => {
@@ -22,7 +26,10 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('should accept custom message', () => {
     const errors = [new Error('error 1')]
-    const aggregateError = new AggregateError(errors, 'Multiple errors occurred')
+    const aggregateError = new AggregateError(
+      errors,
+      'Multiple errors occurred',
+    )
 
     expect(aggregateError.message).toBe('Multiple errors occurred')
     expect(aggregateError.errors.length).toBe(1)

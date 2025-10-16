@@ -6,8 +6,12 @@ import { describe, expect, it } from 'vitest'
 
 import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
-const { eco, module: isRegex, skip, sockRegPkgName } =
-  await setupNpmPackageTest(import.meta.url)
+const {
+  eco,
+  module: isRegex,
+  skip,
+  sockRegPkgName,
+} = await setupNpmPackageTest(import.meta.url)
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('should return false for non-regexes', () => {
@@ -39,7 +43,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('should return true for actual regexes', () => {
     expect(isRegex(/a/g)).toBe(true)
-    expect(isRegex(new RegExp('test'))).toBe(true)
+    expect(isRegex(/test/)).toBe(true)
     expect(isRegex(/^[a-z]+$/i)).toBe(true)
   })
 
