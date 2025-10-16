@@ -2,6 +2,8 @@
  * Process control: abort signals and UI utilities.
  */
 
+import type { Spinner } from '../lib/spinner'
+
 // Abort controller and signal.
 let _abortController: AbortController
 export function getAbortController(): AbortController {
@@ -16,15 +18,15 @@ export function getAbortSignal(): AbortSignal {
 }
 
 // Spinner instance.
-let _spinner: unknown
-export function getSpinner() {
+let _spinner: Spinner | null | undefined
+export function getSpinner(): Spinner | null {
   if (_spinner === undefined) {
     try {
-      const { createSpinner } = require('../lib/spinner')
-      _spinner = createSpinner()
+      const { Spinner: SpinnerFn } = require('../lib/spinner')
+      _spinner = SpinnerFn() ?? null
     } catch {
       _spinner = null
     }
   }
-  return _spinner
+  return _spinner ?? null
 }
