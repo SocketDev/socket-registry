@@ -3,7 +3,7 @@
  */
 
 import fs from 'node:fs'
-import { IS_WIN32 } from './node.mjs'
+import { WIN32 } from './node.mjs'
 import {
   NPM_PACKAGES_PATH,
   ROOT_PACKAGES_PATH,
@@ -42,7 +42,7 @@ export function getSkipTestsByEcosystem() {
     // Win32 environments for the time being.
     // https://github.com/es-shims/Date/issues/3
     // https://github.com/es-shims/Date/tree/v2.0.5
-    ...(IS_WIN32 ? [] : ['date']),
+    ...(WIN32 ? [] : ['date']),
     // Dynamically include all packages with test files in test/npm.
     ...testFiles,
   ])
