@@ -1,12 +1,10 @@
-import { mkdtempSync } from 'node:fs'
-import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
-import { deleteAsync as del } from 'del'
 import { describe, expect, it } from 'vitest'
 
 import { runInSubprocess } from '../utils/subprocess.mjs'
+import { withTempDirSync } from '../utils/temp-file-helper.mts'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -15,10 +13,9 @@ const cacacheImport = `import * as cacache from '${pathToFileURL(path.join(__dir
 describe('cacache module', () => {
   const TEST_KEY = 'test-cacache-key'
   const TEST_DATA = 'test data content'
-  let testCacheDir: string
 
   it('should store and retrieve data from cache', async () => {
-    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
+    const { cleanup, path: testCacheDir } = withTempDirSync('cacache-test-')
 
     const result = await runInSubprocess(
       { SOCKET_CACACHE_DIR: testCacheDir },
@@ -47,12 +44,11 @@ console.log(JSON.stringify({
     expect(parsed.integrity).toBeTruthy()
     expect(parsed.size).toBe(TEST_DATA.length)
 
-    // Force delete temp directory outside CWD.
-    await del(testCacheDir, { force: true })
+    cleanup()
   })
 
   it('should support Buffer data', async () => {
-    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
+    const { cleanup, path: testCacheDir } = withTempDirSync('cacache-test-')
 
     const result = await runInSubprocess(
       { SOCKET_CACACHE_DIR: testCacheDir },
@@ -78,12 +74,11 @@ console.log(JSON.stringify({
     expect(parsed.success).toBe(true)
     expect(parsed.data).toBe(TEST_DATA)
 
-    // Force delete temp directory outside CWD.
-    await del(testCacheDir, { force: true })
+    cleanup()
   })
 
   it('should throw when getting non-existent key', async () => {
-    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
+    const { cleanup, path: testCacheDir } = withTempDirSync('cacache-test-')
 
     const result = await runInSubprocess(
       { SOCKET_CACACHE_DIR: testCacheDir },
@@ -104,12 +99,11 @@ try {
     expect(parsed.success).toBe(true)
     expect(parsed.error).toBeTruthy()
 
-    // Force delete temp directory outside CWD.
-    await del(testCacheDir, { force: true })
+    cleanup()
   })
 
   it('should accept PutOptions with metadata', async () => {
-    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
+    const { cleanup, path: testCacheDir } = withTempDirSync('cacache-test-')
 
     const result = await runInSubprocess(
       { SOCKET_CACACHE_DIR: testCacheDir },
@@ -140,12 +134,11 @@ console.log(JSON.stringify({
       }),
     )
 
-    // Force delete temp directory outside CWD.
-    await del(testCacheDir, { force: true })
+    cleanup()
   })
 
   it('should remove cache entry', async () => {
-    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
+    const { cleanup, path: testCacheDir } = withTempDirSync('cacache-test-')
 
     const result = await runInSubprocess(
       { SOCKET_CACACHE_DIR: testCacheDir },
@@ -171,12 +164,11 @@ console.log(JSON.stringify({
     expect(parsed.success).toBe(true)
     expect(parsed.entry).toBeUndefined()
 
-    // Force delete temp directory outside CWD.
-    await del(testCacheDir, { force: true })
+    cleanup()
   })
 
   it('should return undefined for non-existent key with safeGet', async () => {
-    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
+    const { cleanup, path: testCacheDir } = withTempDirSync('cacache-test-')
 
     const result = await runInSubprocess(
       { SOCKET_CACACHE_DIR: testCacheDir },
@@ -197,12 +189,11 @@ console.log(JSON.stringify({
     expect(parsed.success).toBe(true)
     expect(parsed.entry).toBeUndefined()
 
-    // Force delete temp directory outside CWD.
-    await del(testCacheDir, { force: true })
+    cleanup()
   })
 
   it('should return entry for existing key with safeGet', async () => {
-    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
+    const { cleanup, path: testCacheDir } = withTempDirSync('cacache-test-')
 
     const result = await runInSubprocess(
       { SOCKET_CACACHE_DIR: testCacheDir },
@@ -227,12 +218,11 @@ console.log(JSON.stringify({
     expect(parsed.success).toBe(true)
     expect(parsed.data).toBe(TEST_DATA)
 
-    // Force delete temp directory outside CWD.
-    await del(testCacheDir, { force: true })
+    cleanup()
   })
 
   it('should clear all cache entries', async () => {
-    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
+    const { cleanup, path: testCacheDir } = withTempDirSync('cacache-test-')
 
     const result = await runInSubprocess(
       { SOCKET_CACACHE_DIR: testCacheDir },
@@ -258,12 +248,11 @@ console.log(JSON.stringify({
     expect(parsed.success).toBe(true)
     expect(parsed.entry).toBeUndefined()
 
-    // Force delete temp directory outside CWD.
-    await del(testCacheDir, { force: true })
+    cleanup()
   })
 
   it('should provide temporary directory for callback', async () => {
-    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
+    const { cleanup, path: testCacheDir } = withTempDirSync('cacache-test-')
 
     const result = await runInSubprocess(
       { SOCKET_CACACHE_DIR: testCacheDir },
@@ -293,12 +282,11 @@ console.log(JSON.stringify({
     expect(parsed.hasTmpDir).toBe(true)
     expect(parsed.isString).toBe(true)
 
-    // Force delete temp directory outside CWD.
-    await del(testCacheDir, { force: true })
+    cleanup()
   })
 
   it('should return callback result', async () => {
-    testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
+    const { cleanup, path: testCacheDir } = withTempDirSync('cacache-test-')
 
     const result = await runInSubprocess(
       { SOCKET_CACACHE_DIR: testCacheDir },
@@ -321,7 +309,6 @@ console.log(JSON.stringify({
     expect(parsed.success).toBe(true)
     expect(parsed.result).toEqual({ value: 42 })
 
-    // Force delete temp directory outside CWD.
-    await del(testCacheDir, { force: true })
+    cleanup()
   })
 })
