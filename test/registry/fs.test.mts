@@ -1,10 +1,7 @@
 import fs from 'node:fs'
-import os from 'node:os'
 import path from 'node:path'
 
-import { deleteAsync as del } from 'del'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-
 import {
   findUp,
   findUpSync,
@@ -27,21 +24,24 @@ import {
   writeJsonSync,
 } from '../../registry/dist/lib/fs.js'
 import { normalizePath } from '../../registry/dist/lib/path.js'
+import { withTempDirSync } from '../utils/temp-file-helper.mts'
 
 describe('fs module', () => {
-  let tmpDir: string
+  let cleanup: () => void
   let testFile: string
   let testJson: string
+  let tmpDir: string
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'fs-test-'))
+    const result = withTempDirSync('fs-test-')
+    tmpDir = result.path
+    cleanup = result.cleanup
     testFile = path.join(tmpDir, 'test.txt')
     testJson = path.join(tmpDir, 'test.json')
   })
 
-  afterEach(async () => {
-    // Safe to use force: true here since tmpDir is always within OS temp directory.
-    await del(tmpDir, { force: true })
+  afterEach(() => {
+    cleanup()
   })
 
   describe('findUp', () => {

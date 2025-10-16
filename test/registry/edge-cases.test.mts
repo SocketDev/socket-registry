@@ -1,11 +1,10 @@
 import { promises as fs } from 'node:fs'
-import os from 'node:os'
 import path from 'node:path'
 
-import { deleteAsync as del } from 'del'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { normalizePath } from '../../registry/dist/lib/path.js'
+import { withTempDir } from '../utils/temp-file-helper.mts'
 
 // Helper predicate moved to outer scope.
 const pFilterPredicate = async (value: number) => {
@@ -17,14 +16,17 @@ const pFilterPredicate = async (value: number) => {
 describe('edge case tests', () => {
   describe('fs module extended tests', () => {
     const fsUtils = require('../../registry/dist/lib/fs')
+    let cleanup: () => Promise<void>
     let tmpDir: string
 
     beforeEach(async () => {
-      tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'fs-test-'))
+      const result = await withTempDir('fs-test-')
+      tmpDir = result.path
+      cleanup = result.cleanup
     })
 
     afterEach(async () => {
-      await del(tmpDir, { force: true })
+      await cleanup()
     })
 
     it('should handle findUp with multiple patterns', async () => {

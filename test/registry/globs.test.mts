@@ -1,9 +1,7 @@
 import fs from 'node:fs'
-import os from 'node:os'
 import path from 'node:path'
 import { Readable } from 'node:stream'
 
-import { deleteAsync as del } from 'del'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import {
@@ -11,16 +9,20 @@ import {
   getGlobMatcher,
   globStreamLicenses,
 } from '../../registry/dist/lib/globs.js'
+import { withTempDirSync } from '../utils/temp-file-helper.mts'
 
 describe('globs module', () => {
+  let cleanup: () => void
   let tmpDir: string
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'glob-test-'))
+    const result = withTempDirSync('glob-test-')
+    tmpDir = result.path
+    cleanup = result.cleanup
   })
 
-  afterEach(async () => {
-    await del(tmpDir, { force: true })
+  afterEach(() => {
+    cleanup()
   })
 
   describe('defaultIgnore', () => {
