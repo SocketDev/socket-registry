@@ -1,6 +1,5 @@
 /** @fileoverview Tests for editable package.json functionality. */
 import fs from 'node:fs'
-import os from 'node:os'
 import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -10,11 +9,12 @@ import {
   toEditablePackageJson,
   toEditablePackageJsonSync,
 } from '../../registry/dist/lib/packages.js'
+import { withTempDirSync } from '../utils/temp-file-helper.mts'
 
 describe('toEditablePackageJson', () => {
   it('should convert package.json to editable instance', async () => {
     const pkg = { name: 'test-editable', version: '1.0.0' }
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
 
     try {
       const _EditablePackageJson = getEditablePackageJsonClass()
@@ -25,7 +25,7 @@ describe('toEditablePackageJson', () => {
       expect(editable.content.name).toBe('test-editable')
       expect(editable.content.version).toBe('1.0.0')
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
@@ -41,7 +41,7 @@ describe('toEditablePackageJson', () => {
 
   it('should normalize when normalize option is true', async () => {
     const pkg = { name: 'test-normalize', version: '1.0.0' }
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
 
     try {
       const _EditablePackageJson = getEditablePackageJsonClass()
@@ -52,7 +52,7 @@ describe('toEditablePackageJson', () => {
       expect(editable).toBeDefined()
       expect(editable.content.name).toBe('test-normalize')
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
@@ -64,7 +64,7 @@ describe('toEditablePackageJson', () => {
         lodash: '^4.17.21',
       },
     }
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
 
     try {
       const _EditablePackageJson = getEditablePackageJsonClass()
@@ -74,7 +74,7 @@ describe('toEditablePackageJson', () => {
       expect(editable.content.dependencies).toBeDefined()
       expect(editable.content.dependencies?.['lodash']).toBe('^4.17.21')
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
@@ -87,7 +87,7 @@ describe('toEditablePackageJson', () => {
         build: 'tsc',
       },
     }
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
 
     try {
       const _EditablePackageJson = getEditablePackageJsonClass()
@@ -97,7 +97,7 @@ describe('toEditablePackageJson', () => {
       expect(editable.content.scripts).toBeDefined()
       expect(editable.content.scripts?.['test']).toBe('vitest')
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 })
@@ -105,7 +105,7 @@ describe('toEditablePackageJson', () => {
 describe('toEditablePackageJsonSync', () => {
   it('should convert package.json to editable instance synchronously', () => {
     const pkg = { name: 'test-editable-sync', version: '1.0.0' }
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
 
     try {
       const _EditablePackageJson = getEditablePackageJsonClass()
@@ -116,7 +116,7 @@ describe('toEditablePackageJsonSync', () => {
       expect(editable.content.name).toBe('test-editable-sync')
       expect(editable.content.version).toBe('1.0.0')
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
@@ -132,7 +132,7 @@ describe('toEditablePackageJsonSync', () => {
 
   it('should normalize when normalize option is true', () => {
     const pkg = { name: 'test-normalize-sync', version: '1.0.0' }
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
 
     try {
       const _EditablePackageJson = getEditablePackageJsonClass()
@@ -143,13 +143,13 @@ describe('toEditablePackageJsonSync', () => {
       expect(editable).toBeDefined()
       expect(editable.content.name).toBe('test-normalize-sync')
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
   it('should handle node_modules paths', () => {
     const pkg = { name: 'test-node-modules', version: '1.0.0' }
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
     const nodeModulesPath = path.join(tmpDir, 'node_modules', 'test-package')
     fs.mkdirSync(nodeModulesPath, { recursive: true })
 
@@ -162,7 +162,7 @@ describe('toEditablePackageJsonSync', () => {
       expect(editable).toBeDefined()
       expect(editable.content.name).toBe('test-node-modules')
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
@@ -172,7 +172,7 @@ describe('toEditablePackageJsonSync', () => {
       version: '1.0.0',
       repository: 'github:user/repo',
     }
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
 
     try {
       const _EditablePackageJson = getEditablePackageJsonClass()
@@ -183,7 +183,7 @@ describe('toEditablePackageJsonSync', () => {
       expect(editable).toBeDefined()
       expect(editable.content.repository).toBeDefined()
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 })
@@ -191,20 +191,20 @@ describe('toEditablePackageJsonSync', () => {
 describe('EditablePackageJson static methods', () => {
   it('should create package.json with static create method', async () => {
     const _EditablePackageJson = getEditablePackageJsonClass()
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
 
     try {
       const editable = await _EditablePackageJson.create(tmpDir)
       expect(editable).toBeDefined()
       expect(editable.content).toBeDefined()
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
   it('should load existing package.json with static load method', async () => {
     const _EditablePackageJson = getEditablePackageJsonClass()
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
     const pkgPath = path.join(tmpDir, 'package.json')
     fs.writeFileSync(
       pkgPath,
@@ -216,13 +216,13 @@ describe('EditablePackageJson static methods', () => {
       expect(editable).toBeDefined()
       expect(editable.content.name).toBe('test-load')
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
   it('should normalize package.json with static normalize method', async () => {
     const _EditablePackageJson = getEditablePackageJsonClass()
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
     const pkgPath = path.join(tmpDir, 'package.json')
     fs.writeFileSync(
       pkgPath,
@@ -234,13 +234,13 @@ describe('EditablePackageJson static methods', () => {
       expect(editable).toBeDefined()
       expect(editable.content.name).toBe('test-normalize')
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
   it('should prepare package.json with static prepare method', async () => {
     const _EditablePackageJson = getEditablePackageJsonClass()
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
     const pkgPath = path.join(tmpDir, 'package.json')
     fs.writeFileSync(
       pkgPath,
@@ -252,13 +252,13 @@ describe('EditablePackageJson static methods', () => {
       expect(editable).toBeDefined()
       expect(editable.content.name).toBe('test-prepare')
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
   it('should handle fix method', async () => {
     const _EditablePackageJson = getEditablePackageJsonClass()
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
     const pkgPath = path.join(tmpDir, 'package.json')
     fs.writeFileSync(
       pkgPath,
@@ -270,36 +270,36 @@ describe('EditablePackageJson static methods', () => {
       await editable.fix()
       expect(editable.content.name).toBe('test-fix')
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
   it('should handle load with create option', async () => {
     const _EditablePackageJson = getEditablePackageJsonClass()
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
 
     try {
       const editable = await _EditablePackageJson.load(tmpDir, { create: true })
       expect(editable).toBeDefined()
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
   it('should handle load when package.json is missing but not creating', async () => {
     const _EditablePackageJson = getEditablePackageJsonClass()
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
 
     try {
       await expect(_EditablePackageJson.load(tmpDir)).rejects.toThrow()
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
   it('should handle create with data option', async () => {
     const _EditablePackageJson = getEditablePackageJsonClass()
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
 
     try {
       const editable = await _EditablePackageJson.create(tmpDir, {
@@ -308,7 +308,7 @@ describe('EditablePackageJson static methods', () => {
       expect(editable).toBeDefined()
       expect(editable.content.name).toBe('test-create-data')
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 })
@@ -316,7 +316,7 @@ describe('EditablePackageJson static methods', () => {
 describe('EditablePackageJson instance methods', () => {
   it('should update package.json content', async () => {
     const _EditablePackageJson = getEditablePackageJsonClass()
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
 
     try {
       const editable = await _EditablePackageJson.create(tmpDir)
@@ -324,13 +324,13 @@ describe('EditablePackageJson instance methods', () => {
       expect(editable.content.name).toBe('updated-name')
       expect(editable.content.version).toBe('2.0.0')
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
   it('should save package.json to disk', async () => {
     const _EditablePackageJson = getEditablePackageJsonClass()
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
 
     try {
       const editable = await _EditablePackageJson.create(tmpDir)
@@ -340,13 +340,13 @@ describe('EditablePackageJson instance methods', () => {
       const pkgPath = path.join(tmpDir, 'package.json')
       expect(fs.existsSync(pkgPath)).toBe(true)
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
   it('should saveSync package.json to disk', () => {
     const _EditablePackageJson = getEditablePackageJsonClass()
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
 
     try {
       const editable = new _EditablePackageJson().create(tmpDir)
@@ -356,13 +356,13 @@ describe('EditablePackageJson instance methods', () => {
       const pkgPath = path.join(tmpDir, 'package.json')
       expect(fs.existsSync(pkgPath)).toBe(true)
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
   it('should handle willSave method', async () => {
     const _EditablePackageJson = getEditablePackageJsonClass()
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
 
     try {
       const editable = await _EditablePackageJson.create(tmpDir)
@@ -370,13 +370,13 @@ describe('EditablePackageJson instance methods', () => {
       const willSave = editable.willSave()
       expect(typeof willSave).toBe('boolean')
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
   it('should handle save with sort option', async () => {
     const _EditablePackageJson = getEditablePackageJsonClass()
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
 
     try {
       const editable = await _EditablePackageJson.create(tmpDir)
@@ -390,13 +390,13 @@ describe('EditablePackageJson instance methods', () => {
       const content = fs.readFileSync(pkgPath, 'utf8')
       expect(content).toContain('test-sort')
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
   it('should handle save with ignoreWhitespace option', async () => {
     const _EditablePackageJson = getEditablePackageJsonClass()
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
     const pkgPath = path.join(tmpDir, 'package.json')
     fs.writeFileSync(
       pkgPath,
@@ -408,7 +408,7 @@ describe('EditablePackageJson instance methods', () => {
       const saved = await editable.save({ ignoreWhitespace: true })
       expect(typeof saved).toBe('boolean')
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
@@ -429,7 +429,7 @@ describe('EditablePackageJson instance methods', () => {
 
   it('should handle prepare method', async () => {
     const _EditablePackageJson = getEditablePackageJsonClass()
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-'))
+    const { cleanup, path: tmpDir } = withTempDirSync('socket-test-')
     const pkgPath = path.join(tmpDir, 'package.json')
     fs.writeFileSync(
       pkgPath,
@@ -441,7 +441,7 @@ describe('EditablePackageJson instance methods', () => {
       await editable.prepare()
       expect(editable.content.name).toBe('test-prepare-instance')
     } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
+      cleanup()
     }
   })
 
