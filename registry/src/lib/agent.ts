@@ -99,12 +99,19 @@ export function execNpm(args: string[], options?: SpawnOptions | undefined) {
     useDebug || npmArgs.some(isNpmLoglevelFlag) ? [] : ['--loglevel', 'warn']
   // SECURITY: Array-based arguments prevent command injection. Each element is
   // passed directly to the OS without shell interpretation.
+  //
+  // NOTE: We don't apply hardening flags to npm because:
+  // 1. npm is a trusted system tool installed with Node.js
+  // 2. npm requires full system access (filesystem, network, child processes)
+  // 3. Hardening flags would prevent npm from functioning (even with --allow-* grants)
+  // 4. The permission model is intended for untrusted user code, not package managers
+  //
+  // We also use the npm binary wrapper instead of calling cli.js directly because
+  // cli.js exports a function that needs to be invoked with process as an argument.
+  const npmBin = /*@__PURE__*/ require('../constants/agents').NPM_BIN_PATH
   return spawn(
-    /*@__PURE__*/ require('../constants/node').getExecPath(),
+    npmBin,
     [
-      .../*@__PURE__*/ require('../constants/node').getNodeHardenFlags(),
-      .../*@__PURE__*/ require('../constants/node').getNodeNoWarningsFlags(),
-      /*@__PURE__*/ require('../constants/agents').NPM_REAL_EXEC_PATH,
       // Even though '--loglevel=error' is passed npm will still run through
       // code paths for 'audit' and 'fund' unless '--no-audit' and '--no-fund'
       // flags are passed.

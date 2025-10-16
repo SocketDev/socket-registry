@@ -30,14 +30,6 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./constants/env": {
-      "types": "./dist/constants/env.d.ts",
-      "default": "./dist/constants/env.js"
-    },
-    "./constants/get-ipc": {
-      "types": "./dist/constants/get-ipc.d.ts",
-      "default": "./dist/constants/get-ipc.js"
-    },
     "./env/appdata": {
       "types": "./dist/env/appdata.d.ts",
       "default": "./dist/env/appdata.js"
@@ -358,6 +350,10 @@
       "types": "./dist/constants/testing.d.ts",
       "default": "./dist/constants/testing.js"
     },
+    "./constants/time": {
+      "types": "./dist/constants/time.d.ts",
+      "default": "./dist/constants/time.js"
+    },
     "./constants/typescript": {
       "types": "./dist/constants/typescript.d.ts",
       "default": "./dist/constants/typescript.js"
@@ -397,10 +393,6 @@
     "./lib/cache-with-ttl": {
       "types": "./dist/lib/cache-with-ttl.d.ts",
       "default": "./dist/lib/cache-with-ttl.js"
-    },
-    "./lib/constants": {
-      "types": "./dist/lib/constants/index.d.ts",
-      "default": "./dist/lib/constants/index.js"
     },
     "./lib/cover/code": {
       "types": "./dist/lib/cover/code.d.ts",
@@ -473,6 +465,10 @@
     "./lib/logger": {
       "types": "./dist/lib/logger.d.ts",
       "default": "./dist/lib/logger.js"
+    },
+    "./lib/maintained-node-versions": {
+      "types": "./dist/lib/maintained-node-versions.d.ts",
+      "default": "./dist/lib/maintained-node-versions.js"
     },
     "./lib/memoization": {
       "types": "./dist/lib/memoization.d.ts",
@@ -693,6 +689,10 @@
     "./types": {
       "types": "./dist/types.d.ts",
       "default": "./dist/types.js"
+    },
+    "./utils/get-ipc": {
+      "types": "./dist/utils/get-ipc.d.ts",
+      "default": "./dist/utils/get-ipc.js"
     },
     "./extensions.json": "./extensions.json",
     "./manifest.json": "./manifest.json",
