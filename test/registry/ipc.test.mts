@@ -3,22 +3,18 @@ import { describe, expect, it } from 'vitest'
 describe('IPC functionality', () => {
   describe('getIpc', () => {
     it('should return full IPC data when key is undefined', async () => {
-      const getIpc = (await import('../../registry/src/lib/constants/get-ipc'))
-        .default
-      const data = await getIpc(undefined)
+      const getIpc = (await import('../../registry/src/utils/get-ipc')).default
+      const data = await getIpc()
       expect(data).toBeDefined()
+      expect(typeof data).toBe('object')
     })
 
     it('should return specific key from IPC data', async () => {
-      const getIpc = (await import('../../registry/src/lib/constants/get-ipc'))
-        .default
-      const ipcPromise = import(
-        '../../registry/src/lib/constants/ipc-promise'
-      ).then(m => m.default)
-      const fullData = await ipcPromise
-      const specificData = await getIpc('execPath')
-      if ('execPath' in (fullData as any)) {
-        expect(specificData).toBe((fullData as any).execPath)
+      const getIpc = (await import('../../registry/src/utils/get-ipc')).default
+      const fullData = await getIpc()
+      const specificData = await getIpc('SOCKET_CLI_FIX')
+      if ('SOCKET_CLI_FIX' in fullData) {
+        expect(specificData).toBe(fullData.SOCKET_CLI_FIX)
       } else {
         expect(specificData).toBeUndefined()
       }

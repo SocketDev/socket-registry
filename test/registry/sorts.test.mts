@@ -228,7 +228,7 @@ describe('sorts module', () => {
       const arr = [{ name: 'file10' }, { name: 'file2' }, { name: 'file1' }]
       const sorter = naturalSorter(arr)
       const result = sorter.asc('name')
-      expect(result.map(item => item.name)).toEqual([
+      expect(result.map((item: { name: string }) => item.name)).toEqual([
         'file1',
         'file2',
         'file10',

@@ -92,7 +92,8 @@ describe('performance module', () => {
 
       const metrics = getPerformanceMetrics()
       const duration = metrics[0]?.duration
-      expect(duration.toString()).toMatch(/^\d+(\.\d{1,2})?$/)
+      expect(duration).toBeDefined()
+      expect(duration?.toString()).toMatch(/^\d+(\.\d{1,2})?$/)
     })
   })
 
@@ -286,10 +287,10 @@ describe('performance module', () => {
 
       const summary = getPerformanceSummary()
 
-      expect(summary.op1).toBeDefined()
-      expect(summary.op1?.count).toBe(2)
-      expect(summary.op2).toBeDefined()
-      expect(summary.op2?.count).toBe(1)
+      expect(summary['op1']).toBeDefined()
+      expect(summary['op1']?.count).toBe(2)
+      expect(summary['op2']).toBeDefined()
+      expect(summary['op2']?.count).toBe(1)
     })
 
     it('should calculate min, max, avg, total', () => {
@@ -302,12 +303,16 @@ describe('performance module', () => {
 
       const summary = getPerformanceSummary()
 
-      expect(summary.op?.count).toBe(2)
-      expect(summary.op?.total).toBeGreaterThanOrEqual(0)
-      expect(summary.op?.avg).toBeGreaterThanOrEqual(0)
-      expect(summary.op?.min).toBeGreaterThanOrEqual(0)
-      expect(summary.op?.max).toBeGreaterThanOrEqual(0)
-      expect(summary.op?.min).toBeLessThanOrEqual(summary.op?.max)
+      expect(summary['op']?.count).toBe(2)
+      expect(summary['op']?.total).toBeGreaterThanOrEqual(0)
+      expect(summary['op']?.avg).toBeGreaterThanOrEqual(0)
+      expect(summary['op']?.min).toBeGreaterThanOrEqual(0)
+      expect(summary['op']?.max).toBeGreaterThanOrEqual(0)
+      const opMin = summary['op']?.min
+      const opMax = summary['op']?.max
+      expect(opMin).toBeDefined()
+      expect(opMax).toBeDefined()
+      expect(opMin!).toBeLessThanOrEqual(opMax!)
     })
 
     it('should round values to 2 decimals', () => {
@@ -316,7 +321,7 @@ describe('performance module', () => {
       perfTimer('op')()
 
       const summary = getPerformanceSummary()
-      const stats = summary.op as {
+      const stats = summary['op'] as {
         avg: number
         count: number
         max: number
@@ -456,9 +461,9 @@ describe('performance module', () => {
         duration: 0,
         timestamp: expect.any(Number),
       })
-      expect(metrics[0]?.metadata?.heapUsed).toBeGreaterThan(0)
-      expect(metrics[0]?.metadata?.heapTotal).toBeGreaterThan(0)
-      expect(metrics[0]?.metadata?.external).toBeGreaterThanOrEqual(0)
+      expect(metrics[0]?.metadata?.['heapUsed']).toBeGreaterThan(0)
+      expect(metrics[0]?.metadata?.['heapTotal']).toBeGreaterThan(0)
+      expect(metrics[0]?.metadata?.['external']).toBeGreaterThanOrEqual(0)
     })
 
     it('should work with DEBUG enabled', () => {

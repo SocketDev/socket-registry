@@ -153,156 +153,156 @@ describe('spinner module', () => {
 
     describe('start and stop', () => {
       it('should have start and stop methods', () => {
-        expect(typeof testSpinner.start).toBe('function')
-        expect(typeof testSpinner.stop).toBe('function')
+        expect(typeof testSpinner?.start).toBe('function')
+        expect(typeof testSpinner?.stop).toBe('function')
       })
 
       it('should have isSpinning property', () => {
-        expect(typeof testSpinner.isSpinning).toBe('boolean')
+        expect(typeof testSpinner?.isSpinning).toBe('boolean')
       })
     })
 
     describe('text method', () => {
       it('should set and get text via method', () => {
-        testSpinner.text('New text')
-        expect(testSpinner.text()).toBe('New text')
+        testSpinner?.text('New text')
+        expect(testSpinner?.text()).toBe('New text')
       })
 
       it('should handle text through start method', () => {
-        testSpinner.start('Start text')
-        expect(testSpinner.text()).toBe('Start text')
+        testSpinner?.start('Start text')
+        expect(testSpinner?.text()).toBe('Start text')
       })
 
       it('should work with setter', () => {
-        testSpinner.text('Set via property')
-        expect(testSpinner.text()).toBe('Set via property')
+        testSpinner?.text('Set via property')
+        expect(testSpinner?.text()).toBe('Set via property')
       })
     })
 
     describe('methods', () => {
       it('should have success methods', () => {
-        expect(typeof testSpinner.success).toBe('function')
-        expect(typeof testSpinner.successAndStop).toBe('function')
+        expect(typeof testSpinner?.success).toBe('function')
+        expect(typeof testSpinner?.successAndStop).toBe('function')
       })
 
       it('should call success method with text', () => {
-        const result = testSpinner.success('Success message')
+        const result = testSpinner?.success('Success message')
         expect(result).toBe(testSpinner)
       })
 
       it('should call successAndStop method with text', () => {
-        testSpinner.start()
-        const result = testSpinner.successAndStop('Done successfully')
+        testSpinner?.start()
+        const result = testSpinner?.successAndStop('Done successfully')
         expect(result).toBe(testSpinner)
       })
 
       it('should have fail/error methods', () => {
-        expect(typeof testSpinner.fail).toBe('function')
-        expect(typeof testSpinner.failAndStop).toBe('function')
-        expect(typeof testSpinner.error).toBe('function')
-        expect(typeof testSpinner.errorAndStop).toBe('function')
+        expect(typeof testSpinner?.fail).toBe('function')
+        expect(typeof testSpinner?.failAndStop).toBe('function')
+        expect(typeof testSpinner?.error).toBe('function')
+        expect(typeof testSpinner?.errorAndStop).toBe('function')
       })
 
       it('should call fail method with text', () => {
-        const result = testSpinner.fail('Failure message')
+        const result = testSpinner?.fail('Failure message')
         expect(result).toBe(testSpinner)
       })
 
       it('should call failAndStop method with text', () => {
-        testSpinner.start()
-        const result = testSpinner.failAndStop('Failed to complete')
+        testSpinner?.start()
+        const result = testSpinner?.failAndStop('Failed to complete')
         expect(result).toBe(testSpinner)
       })
 
       it('should have warn methods', () => {
-        expect(typeof testSpinner.warn).toBe('function')
-        expect(typeof testSpinner.warnAndStop).toBe('function')
+        expect(typeof testSpinner?.warn).toBe('function')
+        expect(typeof testSpinner?.warnAndStop).toBe('function')
       })
 
       it('should call warn method with text', () => {
-        const result = testSpinner.warn('Warning message')
+        const result = testSpinner?.warn('Warning message')
         expect(result).toBe(testSpinner)
       })
 
       it('should call warnAndStop method with text', () => {
-        testSpinner.start()
-        const result = testSpinner.warnAndStop('Warning: check this')
+        testSpinner?.start()
+        const result = testSpinner?.warnAndStop('Warning: check this')
         expect(result).toBe(testSpinner)
       })
 
       it('should have info methods', () => {
-        expect(typeof testSpinner.info).toBe('function')
-        expect(typeof testSpinner.infoAndStop).toBe('function')
+        expect(typeof testSpinner?.info).toBe('function')
+        expect(typeof testSpinner?.infoAndStop).toBe('function')
       })
 
       it('should call info method with text', () => {
-        const result = testSpinner.info('Info message')
+        const result = testSpinner?.info('Info message')
         expect(result).toBe(testSpinner)
       })
 
       it('should call infoAndStop method with text', () => {
-        testSpinner.start()
-        const result = testSpinner.infoAndStop('Information here')
+        testSpinner?.start()
+        const result = testSpinner?.infoAndStop('Information here')
         expect(result).toBe(testSpinner)
       })
 
       it('should have log methods', () => {
-        expect(typeof testSpinner.log).toBe('function')
-        expect(typeof testSpinner.logAndStop).toBe('function')
+        expect(typeof testSpinner?.log).toBe('function')
+        expect(typeof testSpinner?.logAndStop).toBe('function')
       })
 
       it('should call log method with text', () => {
-        const result = testSpinner.log('Log message')
+        const result = testSpinner?.log('Log message')
         expect(result).toBe(testSpinner)
       })
 
       it('should call logAndStop method with text', () => {
-        testSpinner.start()
-        const result = testSpinner.logAndStop('Final log')
+        testSpinner?.start()
+        const result = testSpinner?.logAndStop('Final log')
         expect(result).toBe(testSpinner)
       })
 
       it('should have debug methods', () => {
-        expect(typeof testSpinner.debug).toBe('function')
-        expect(typeof testSpinner.debugAndStop).toBe('function')
+        expect(typeof testSpinner?.debug).toBe('function')
+        expect(typeof testSpinner?.debugAndStop).toBe('function')
       })
 
       it('should call debug method with text', () => {
-        const result = testSpinner.debug('Debug message')
+        const result = testSpinner?.debug('Debug message')
         expect(result).toBe(testSpinner)
       })
 
       it('should call debugAndStop method with text', () => {
-        testSpinner.start()
-        const result = testSpinner.debugAndStop('Debug info')
+        testSpinner?.start()
+        const result = testSpinner?.debugAndStop('Debug info')
         expect(result).toBe(testSpinner)
       })
 
       it('should handle methods called with no arguments', () => {
-        testSpinner.info()
-        testSpinner.warn()
-        testSpinner.success()
-        testSpinner.fail()
+        testSpinner?.info()
+        testSpinner?.warn()
+        testSpinner?.success()
+        testSpinner?.fail()
       })
     })
 
     describe('indent operations', () => {
       it('should have indent method', () => {
-        expect(typeof testSpinner.indent).toBe('function')
+        expect(typeof testSpinner?.indent).toBe('function')
       })
 
       it('should have dedent method', () => {
-        expect(typeof testSpinner.dedent).toBe('function')
+        expect(typeof testSpinner?.dedent).toBe('function')
       })
 
       it('should have resetIndent method', () => {
-        expect(typeof testSpinner.resetIndent).toBe('function')
+        expect(typeof (testSpinner as any).resetIndent).toBe('function')
       })
     })
 
     describe('color property', () => {
       it('should have color property', () => {
-        expect(testSpinner.color).toBeDefined()
+        expect(testSpinner?.color).toBeDefined()
       })
 
       it('should allow setting color', () => {
@@ -317,15 +317,15 @@ describe('spinner module', () => {
 
     describe('spinner property', () => {
       it('should have spinner style property', () => {
-        expect(testSpinner.spinner).toBeDefined()
-        expect(testSpinner.spinner.frames).toBeDefined()
+        expect(testSpinner?.spinner).toBeDefined()
+        expect(testSpinner?.spinner.frames).toBeDefined()
       })
     })
 
     describe('chaining', () => {
       it('should have chainable methods', () => {
-        expect(testSpinner.start('test')).toBe(testSpinner)
-        expect(testSpinner.stop()).toBe(testSpinner)
+        expect(testSpinner?.start('test')).toBe(testSpinner)
+        expect(testSpinner?.stop()).toBe(testSpinner)
       })
     })
   })
@@ -382,7 +382,7 @@ describe('spinner module', () => {
         spinner: testSpinner,
       })
       expect(result).toBe('success')
-      expect(testSpinner.isSpinning).toBe(false)
+      expect(testSpinner?.isSpinning).toBe(false)
     })
 
     it('should stop spinner even if operation throws', async () => {
@@ -395,7 +395,7 @@ describe('spinner module', () => {
           spinner: testSpinner,
         }),
       ).rejects.toThrow('Operation failed')
-      expect(testSpinner.isSpinning).toBe(false)
+      expect(testSpinner?.isSpinning).toBe(false)
     })
 
     it('should work without spinner instance', async () => {
@@ -420,8 +420,8 @@ describe('spinner module', () => {
     })
 
     it('should stop spinner after successful operation', async () => {
-      testSpinner.start = vi.fn(testSpinner.start)
-      testSpinner.stop = vi.fn(testSpinner.stop)
+      testSpinner!.start = vi.fn(testSpinner?.start)
+      testSpinner!.stop = vi.fn(testSpinner?.stop)
 
       await withSpinner({
         message: 'Loading...',
@@ -431,8 +431,8 @@ describe('spinner module', () => {
         spinner: testSpinner,
       })
 
-      expect(testSpinner.start).toHaveBeenCalledWith('Loading...')
-      expect(testSpinner.stop).toHaveBeenCalled()
+      expect(testSpinner?.start).toHaveBeenCalledWith('Loading...')
+      expect(testSpinner?.stop).toHaveBeenCalled()
     })
   })
 
@@ -452,7 +452,7 @@ describe('spinner module', () => {
     })
 
     it('should restore spinner when wasSpinning is true', async () => {
-      testSpinner.start = vi.fn(testSpinner.start)
+      testSpinner!.start = vi.fn(testSpinner?.start)
 
       await withSpinnerRestore({
         operation: async () => {
@@ -462,11 +462,11 @@ describe('spinner module', () => {
         wasSpinning: true,
       })
 
-      expect(testSpinner.start).toHaveBeenCalled()
+      expect(testSpinner?.start).toHaveBeenCalled()
     })
 
     it('should not restore spinner when wasSpinning is false', async () => {
-      testSpinner.start = vi.fn(testSpinner.start)
+      testSpinner!.start = vi.fn(testSpinner?.start)
 
       await withSpinnerRestore({
         operation: async () => {
@@ -476,11 +476,11 @@ describe('spinner module', () => {
         wasSpinning: false,
       })
 
-      expect(testSpinner.start).not.toHaveBeenCalled()
+      expect(testSpinner?.start).not.toHaveBeenCalled()
     })
 
     it('should restore spinner even if operation throws', async () => {
-      testSpinner.start = vi.fn(testSpinner.start)
+      testSpinner!.start = vi.fn(testSpinner?.start)
 
       await expect(
         withSpinnerRestore({
@@ -492,7 +492,7 @@ describe('spinner module', () => {
         }),
       ).rejects.toThrow('Test error')
 
-      expect(testSpinner.start).toHaveBeenCalled()
+      expect(testSpinner?.start).toHaveBeenCalled()
     })
 
     it('should work without spinner instance', async () => {
@@ -541,7 +541,7 @@ describe('spinner module', () => {
         spinner: testSpinner,
       })
       expect(result).toBe('success')
-      expect(testSpinner.isSpinning).toBe(false)
+      expect(testSpinner?.isSpinning).toBe(false)
     })
 
     it('should stop spinner even if operation throws', () => {
@@ -554,7 +554,7 @@ describe('spinner module', () => {
           spinner: testSpinner,
         }),
       ).toThrow('Operation failed')
-      expect(testSpinner.isSpinning).toBe(false)
+      expect(testSpinner?.isSpinning).toBe(false)
     })
 
     it('should work without spinner instance', () => {
@@ -579,8 +579,8 @@ describe('spinner module', () => {
     })
 
     it('should stop spinner after successful operation', () => {
-      testSpinner.start = vi.fn(testSpinner.start)
-      testSpinner.stop = vi.fn(testSpinner.stop)
+      testSpinner!.start = vi.fn(testSpinner?.start)
+      testSpinner!.stop = vi.fn(testSpinner?.stop)
 
       withSpinnerSync({
         message: 'Loading...',
@@ -590,8 +590,8 @@ describe('spinner module', () => {
         spinner: testSpinner,
       })
 
-      expect(testSpinner.start).toHaveBeenCalledWith('Loading...')
-      expect(testSpinner.stop).toHaveBeenCalled()
+      expect(testSpinner?.start).toHaveBeenCalledWith('Loading...')
+      expect(testSpinner?.stop).toHaveBeenCalled()
     })
 
     it('should handle complex return types', () => {

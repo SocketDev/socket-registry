@@ -428,7 +428,7 @@ describe('packages module', () => {
       }
       const normalized = normalizePackageJson(pkg)
       expect(normalized.dependencies).toBeDefined()
-      expect(normalized.dependencies?.lodash).toBe('^4.17.0')
+      expect(normalized.dependencies?.['lodash']).toBe('^4.17.0')
 
       const pkg2 = {
         name: 'test',
@@ -792,7 +792,7 @@ describe('packages module', () => {
       })
       expect(result.dependencies).toBeDefined()
       if (result.dependencies) {
-        expect(result.dependencies.lodash).toBe('^4.17.21')
+        expect(result.dependencies['lodash']).toBe('^4.17.21')
       }
     })
 
@@ -800,7 +800,7 @@ describe('packages module', () => {
       const result = createPackageJson('test', 'packages/npm/test', {
         version: '1.0.0',
       })
-      expect(result.sideEffects).toBe(false)
+      expect(result['sideEffects']).toBe(false)
     })
   })
 
@@ -1062,7 +1062,7 @@ describe('packages module', () => {
       const purlObj = { namespace: '@socketregistry', name: 'lodash' }
       const result = resolvePackageName(purlObj)
       expect(result).toBe('@socketregistry/lodash')
-      const result2 = resolvePackageName('lodash')
+      const result2 = resolvePackageName({ name: 'lodash' })
       expect(typeof result2).toBe('string')
     })
 
@@ -1079,17 +1079,17 @@ describe('packages module', () => {
     })
 
     it('should handle scoped package name', () => {
-      const result = resolvePackageName('@types/node')
+      const result = resolvePackageName({ namespace: '@types', name: 'node' })
       expect(typeof result).toBe('string')
     })
 
     it('should handle package with version', () => {
-      const result = resolvePackageName('lodash@4.17.21')
+      const result = resolvePackageName({ name: 'lodash@4.17.21' })
       expect(typeof result).toBe('string')
     })
 
     it('should handle empty string', () => {
-      const result = resolvePackageName('')
+      const result = resolvePackageName({ name: '' })
       expect(typeof result).toBe('string')
     })
   })
