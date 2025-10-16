@@ -138,6 +138,9 @@ export type Spinner = {
   progress(current: number, total: number, unit?: string | undefined): Spinner
   progressStep(amount?: number): Spinner
 
+  shimmer(enabled: boolean): Spinner
+  shimmer(config: Partial<ShimmerConfig> | ShimmerDirection): Spinner
+
   warn(text?: string | undefined, ...extras: unknown[]): Spinner
   warnAndStop(text?: string | undefined, ...extras: unknown[]): Spinner
 }
@@ -268,6 +271,7 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
       #indentation: string = ''
       #progress?: ProgressInfo | undefined
       #shimmer?: ShimmerInfo | undefined
+      #shimmerSavedConfig?: ShimmerInfo | undefined
 
       constructor(options?: SpinnerOptions | undefined) {
         const opts = { __proto__: null, ...options } as SpinnerOptions
@@ -363,6 +367,7 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
         })
 
         this.#shimmer = shimmerInfo
+        this.#shimmerSavedConfig = shimmerInfo
       }
 
       // Override color getter to ensure it's always RGB.
@@ -789,6 +794,135 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
        */
       warnAndStop(...args: unknown[]) {
         return this.#apply('warning', args)
+      }
+
+      /**
+       * Toggle shimmer effect or update shimmer configuration.
+       * Preserves shimmer config when toggling off, allowing easy re-enable.
+       * Supports partial config updates to tweak specific properties.
+       *
+       * @param enabledOrConfig - Boolean to toggle, partial config to update, or direction string
+       * @returns This spinner for chaining
+       *
+       * @example
+       * // Toggle off (preserves config for later re-enable)
+       * spinner.shimmer(false)
+       *
+       * // Toggle on (restores saved config or uses defaults)
+       * spinner.shimmer(true)
+       *
+       * // Update specific properties
+       * spinner.shimmer({ speed: 0.5 })
+       * spinner.shimmer({ color: [255, 0, 0] })
+       *
+       * // Set direction
+       * spinner.shimmer('rtl')
+       */
+      shimmer(
+        enabledOrConfig:
+          | boolean
+          | Partial<ShimmerConfig>
+          | ShimmerDirection
+          | undefined,
+      ): Spinner {
+        if (enabledOrConfig === false) {
+          // Disable shimmer but preserve config.
+          this.#shimmer = undefined
+        } else if (enabledOrConfig === true) {
+          // Re-enable with saved config or defaults.
+          if (this.#shimmerSavedConfig) {
+            // Restore saved config.
+            this.#shimmer = { ...this.#shimmerSavedConfig }
+          } else {
+            // Create default config.
+            this.#shimmer = {
+              color: COLOR_INHERIT,
+              currentDir: DIR_LTR,
+              mode: DIR_LTR,
+              speed: 1 / 3,
+              step: 0,
+            } as ShimmerInfo
+            this.#shimmerSavedConfig = this.#shimmer
+          }
+        } else if (typeof enabledOrConfig === 'string') {
+          // Direction string - update existing or create new.
+          if (this.#shimmer) {
+            // Update existing shimmer direction.
+            this.#shimmer = {
+              ...this.#shimmer,
+              mode: enabledOrConfig,
+            }
+            this.#shimmerSavedConfig = this.#shimmer
+          } else if (this.#shimmerSavedConfig) {
+            // Restore and update.
+            this.#shimmer = {
+              ...this.#shimmerSavedConfig,
+              mode: enabledOrConfig,
+            }
+            this.#shimmerSavedConfig = this.#shimmer
+          } else {
+            // Create new with direction.
+            this.#shimmer = {
+              color: COLOR_INHERIT,
+              currentDir: DIR_LTR,
+              mode: enabledOrConfig,
+              speed: 1 / 3,
+              step: 0,
+            } as ShimmerInfo
+            this.#shimmerSavedConfig = this.#shimmer
+          }
+        } else if (enabledOrConfig && typeof enabledOrConfig === 'object') {
+          // Partial config update - merge with existing or saved config.
+          const partialConfig = {
+            __proto__: null,
+            ...enabledOrConfig,
+          } as Partial<ShimmerConfig>
+
+          if (this.#shimmer) {
+            // Update existing shimmer.
+            this.#shimmer = {
+              ...this.#shimmer,
+              ...(partialConfig.color !== undefined
+                ? { color: partialConfig.color }
+                : {}),
+              ...(partialConfig.dir !== undefined
+                ? { mode: partialConfig.dir }
+                : {}),
+              ...(partialConfig.speed !== undefined
+                ? { speed: partialConfig.speed }
+                : {}),
+            } as ShimmerInfo
+            this.#shimmerSavedConfig = this.#shimmer
+          } else if (this.#shimmerSavedConfig) {
+            // Restore and update.
+            this.#shimmer = {
+              ...this.#shimmerSavedConfig,
+              ...(partialConfig.color !== undefined
+                ? { color: partialConfig.color }
+                : {}),
+              ...(partialConfig.dir !== undefined
+                ? { mode: partialConfig.dir }
+                : {}),
+              ...(partialConfig.speed !== undefined
+                ? { speed: partialConfig.speed }
+                : {}),
+            } as ShimmerInfo
+            this.#shimmerSavedConfig = this.#shimmer
+          } else {
+            // Create new with partial config.
+            this.#shimmer = {
+              color: partialConfig.color ?? COLOR_INHERIT,
+              currentDir: DIR_LTR,
+              mode: partialConfig.dir ?? DIR_LTR,
+              speed: partialConfig.speed ?? 1 / 3,
+              step: 0,
+            } as ShimmerInfo
+            this.#shimmerSavedConfig = this.#shimmer
+          }
+        }
+
+        this.#updateSpinnerText()
+        return this as unknown as Spinner
       }
     } as unknown as {
       new (options?: SpinnerOptions | undefined): Spinner
