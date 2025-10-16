@@ -28,6 +28,12 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "paths": {
+      "#constants/*": ["./src/constants/*"],
+      "#env/*": ["./src/env/*"],
+      "#lib/*": ["./src/lib/*"],
+      "#packages/*": ["./src/lib/packages/*"],
+      "#types": ["./src/types"],
+      "#utils/*": ["./src/utils/*"],
       "cacache": ["./src/external/cacache"],
       "make-fetch-happen": ["./src/external/make-fetch-happen"],
       "fast-sort": ["./src/external/fast-sort"],
