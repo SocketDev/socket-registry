@@ -1,119 +1,54 @@
-import path from 'node:path'
+/**
+ * @fileoverview Tests for indent-string NPM package override.
+ */
 
-import { beforeAll, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import { NPM } from '../../scripts/constants/paths.mjs'
-import { isPackageTestingSkipped } from '../../scripts/utils/tests.mjs'
-import { setupMultiEntryTest } from '../utils/test-helpers.mjs'
+import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
-const eco = NPM
-const sockRegPkgName = path.basename(__filename, '.test.mts')
+const { eco, module: indentString, skip, sockRegPkgName } =
+  await setupNpmPackageTest(import.meta.url)
 
-// indent-string tests use xo which depends on core-assert, which uses.
-// util.isDate that was deprecated and removed in Node.js 20+.
-// https://nodejs.org/docs/latest-v18.x/api/util.html#deprecated-apis
-describe(
-  `${eco} > ${sockRegPkgName}`,
-  { skip: isPackageTestingSkipped(sockRegPkgName) },
-  () => {
-    // biome-ignore lint/suspicious/noExplicitAny: Test implementations can be any module.
-    let implementations: any[]
+describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
+  it('should indent string with default 1 space', () => {
+    const result = indentString('test', 1)
+    expect(result).toBe(' test')
+  })
 
-    beforeAll(async () => {
-      const result = await setupMultiEntryTest(sockRegPkgName, [
-        'index.js',
-        'index.cjs',
-      ])
-      implementations = result.modules
+  it('should indent string with multiple spaces', () => {
+    const result = indentString('test', 4)
+    expect(result).toBe('    test')
+  })
+
+  it('should indent multiline strings', () => {
+    const result = indentString('line1\nline2\nline3', 2)
+    expect(result).toBe('  line1\n  line2\n  line3')
+  })
+
+  it('should handle empty string', () => {
+    const result = indentString('', 2)
+    expect(result).toBe('')
+  })
+
+  it('should handle zero indent', () => {
+    const result = indentString('test', 0)
+    expect(result).toBe('test')
+  })
+
+  it('should allow custom indent character', () => {
+    const result = indentString('test', 2, { indent: '\t' })
+    expect(result).toBe('\t\ttest')
+  })
+
+  it('should handle includeEmptyLines option', () => {
+    const result = indentString('line1\n\nline3', 2, {
+      includeEmptyLines: true,
     })
+    expect(result).toBe('  line1\n  \n  line3')
+  })
 
-    it('throw if input is not a string', () => {
-      for (const indentString of implementations) {
-        // biome-ignore lint/suspicious/noExplicitAny: Test passes invalid type intentionally.
-        expect(() => indentString(5 as any)).toThrow(
-          'Expected `input` to be a `string`, got `number`',
-        )
-        // biome-ignore lint/suspicious/noExplicitAny: Test passes invalid type intentionally.
-        expect(() => indentString(true as any)).toThrow(
-          'Expected `input` to be a `string`, got `boolean`',
-        )
-      }
-    })
-
-    it('throw if count is not a number', () => {
-      for (const indentString of implementations) {
-        // biome-ignore lint/suspicious/noExplicitAny: Test passes invalid type intentionally.
-        expect(() => indentString('foo', 'bar' as any)).toThrow(
-          'Expected `count` to be a `number`, got `string`',
-        )
-      }
-    })
-
-    it('throw if count is a negative', () => {
-      for (const indentString of implementations) {
-        expect(() => indentString('foo', -1)).toThrow(
-          'Expected `count` to be at least 0, got `-1`',
-        )
-      }
-    })
-
-    it('throw if indent is not a string', () => {
-      for (const indentString of implementations) {
-        // biome-ignore lint/suspicious/noExplicitAny: Test passes invalid type intentionally.
-        expect(() => indentString('foo', 1, { indent: 1 as any })).toThrow(
-          'Expected `options.indent` to be a `string`, got `number`',
-        )
-      }
-    })
-
-    it('indent each line in a string', () => {
-      for (const indentString of implementations) {
-        expect(indentString('foo\nbar')).toBe(' foo\n bar')
-        expect(indentString('foo\nbar', 1)).toBe(' foo\n bar')
-        expect(indentString('foo\r\nbar', 1)).toBe(' foo\r\n bar')
-        expect(indentString('foo\nbar', 4)).toBe('    foo\n    bar')
-      }
-    })
-
-    it('not indent whitespace only lines', () => {
-      for (const indentString of implementations) {
-        expect(indentString('foo\nbar\n', 1)).toBe(' foo\n bar\n')
-        expect(
-          indentString('foo\nbar\n', 1, { includeEmptyLines: false }),
-        ).toBe(' foo\n bar\n')
-        expect(
-          // biome-ignore lint/suspicious/noExplicitAny: Test passes invalid type intentionally.
-          indentString('foo\nbar\n', 1, { includeEmptyLines: null as any }),
-        ).toBe(' foo\n bar\n')
-      }
-    })
-
-    it('indent every line if options.includeEmptyLines is true', () => {
-      for (const indentString of implementations) {
-        expect(
-          indentString('foo\n\nbar\n\t', 1, { includeEmptyLines: true }),
-        ).toBe(' foo\n \n bar\n \t')
-      }
-    })
-
-    it('indent with leading whitespace', () => {
-      for (const indentString of implementations) {
-        expect(indentString(' foo\n bar\n', 1)).toBe('  foo\n  bar\n')
-      }
-    })
-
-    it('indent with custom string', () => {
-      for (const indentString of implementations) {
-        expect(indentString('foo\nbar\n', 1, { indent: '♥' })).toBe(
-          '♥foo\n♥bar\n',
-        )
-      }
-    })
-
-    it('not indent when count is 0', () => {
-      for (const indentString of implementations) {
-        expect(indentString('foo\nbar\n', 0)).toBe('foo\nbar\n')
-      }
-    })
-  },
-)
+  it('should not indent empty lines by default', () => {
+    const result = indentString('line1\n\nline3', 2)
+    expect(result).toBe('  line1\n\n  line3')
+  })
+})

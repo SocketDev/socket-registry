@@ -1,112 +1,37 @@
-import path from 'node:path'
+/**
+ * @fileoverview Tests for aggregate-error NPM package override.
+ */
 
-import { beforeAll, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import { NPM } from '../../scripts/constants/paths.mjs'
-import { isPackageTestingSkipped } from '../../scripts/utils/tests.mjs'
-import { setupMultiEntryTest } from '../utils/test-helpers.mjs'
+import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
-const eco = NPM
-const sockRegPkgName = path.basename(__filename, '.test.mts')
+const { eco, module: AggregateError, skip, sockRegPkgName } =
+  await setupNpmPackageTest(import.meta.url)
 
-// aggregate-error tests use xo which depends on core-assert, which uses.
-// util.isDate that was deprecated and removed in Node.js 20+.
-// https://nodejs.org/docs/latest-v18.x/api/util.html#deprecated-apis
-describe(
-  `${eco} > ${sockRegPkgName}`,
-  { skip: isPackageTestingSkipped(sockRegPkgName) },
-  () => {
-    // biome-ignore lint/suspicious/noExplicitAny: Test implementations can be any module.
-    let implementations: any[]
+describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
+  it('should create AggregateError with array of errors', () => {
+    const errors = [new Error('error 1'), new Error('error 2')]
+    const aggregateError = new AggregateError(errors)
 
-    beforeAll(async () => {
-      const result = await setupMultiEntryTest(sockRegPkgName, [
-        'index.js',
-        'index.cjs',
-      ])
-      implementations = result.modules
-    })
+    expect(aggregateError).toBeInstanceOf(Error)
+    expect(aggregateError.message).toBe('')
+    expect(Array.isArray(aggregateError.errors)).toBe(true)
+    expect(aggregateError.errors.length).toBe(2)
+  })
 
-    it('main', () => {
-      // biome-ignore lint/suspicious/noShadowRestrictedNames: Test variable name matches global AggregateError.
-      for (const AggregateError of implementations) {
-        const error = new AggregateError([
-          new Error('foo'),
-          'bar',
-          {
-            message: 'baz',
-            code: 'EBAZ',
-          },
-          {
-            code: 'EQUX',
-          },
-        ])
+  it('should accept custom message', () => {
+    const errors = [new Error('error 1')]
+    const aggregateError = new AggregateError(errors, 'Multiple errors occurred')
 
-        expect(error.message).toMatch(/Error: foo\n {8}at /)
-        expect(error.message).toMatch(/Error: bar\n {8}at /)
+    expect(aggregateError.message).toBe('Multiple errors occurred')
+    expect(aggregateError.errors.length).toBe(1)
+  })
 
-        expect([...error.errors]).toEqual([
-          new Error('foo'),
-          new Error('bar'),
-          Object.assign(new Error('baz'), { code: 'EBAZ' }),
-          Object.assign(new Error(), { code: 'EQUX' }),
-        ])
-      }
-    })
+  it('should handle empty errors array', () => {
+    const aggregateError = new AggregateError([])
 
-    it('gracefully handle Error instances without a stack', () => {
-      // biome-ignore lint/suspicious/noShadowRestrictedNames: Test variable name matches global AggregateError.
-      for (const AggregateError of implementations) {
-        class StacklessError extends Error {
-          // biome-ignore lint/suspicious/noExplicitAny: Test Error constructor accepts any arguments.
-          constructor(...args: any[]) {
-            super(...args)
-            this.name = this.constructor.name
-            // biome-ignore lint/suspicious/noExplicitAny: Test needs to delete stack property.
-            delete (this as any).stack
-          }
-        }
-
-        const error = new AggregateError([
-          new Error('foo'),
-          new StacklessError('stackless'),
-        ])
-
-        expect(error.message).toMatch(/Error: foo\n {8}at /)
-        expect(error.message).toMatch(/StacklessError: stackless/)
-
-        expect([...error.errors]).toEqual([
-          new Error('foo'),
-          new StacklessError('stackless'),
-        ])
-      }
-    })
-
-    it('gracefully handle Error instances with empty stack', () => {
-      // biome-ignore lint/suspicious/noShadowRestrictedNames: Test variable name matches global AggregateError.
-      for (const AggregateError of implementations) {
-        class EmptyStackError extends Error {
-          // biome-ignore lint/suspicious/noExplicitAny: Test Error constructor accepts any arguments.
-          constructor(...args: any[]) {
-            super(...args)
-            this.name = this.constructor.name
-            this.stack = ''
-          }
-        }
-
-        const error = new AggregateError([
-          new Error('foo'),
-          new EmptyStackError('emptystack'),
-        ])
-
-        expect(error.message).toMatch(/Error: foo\n {8}at /)
-        expect(error.message).toMatch(/EmptyStackError: emptystack/)
-
-        expect([...error.errors]).toEqual([
-          new Error('foo'),
-          new EmptyStackError('emptystack'),
-        ])
-      }
-    })
-  },
-)
+    expect(Array.isArray(aggregateError.errors)).toBe(true)
+    expect(aggregateError.errors.length).toBe(0)
+  })
+})

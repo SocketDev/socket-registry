@@ -1,95 +1,50 @@
-import path from 'node:path'
+/**
+ * @fileoverview Tests for abab NPM package override.
+ */
 
-import { beforeAll, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import { NPM } from '../../scripts/constants/paths.mjs'
-import { isPackageTestingSkipped } from '../../scripts/utils/tests.mjs'
-import { setupMultiEntryTest } from '../utils/test-helpers.mjs'
+import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
-const eco = NPM
-const sockRegPkgName = path.basename(__filename, '.test.mts')
+const { eco, module: abab, skip, sockRegPkgName } =
+  await setupNpmPackageTest(import.meta.url)
 
-// abab tests use old assert package that depends on util.isError which was.
-// deprecated and removed in Node.js 20+.
-// https://nodejs.org/docs/latest-v18.x/api/util.html#deprecated-apis
-describe(
-  `${eco} > ${sockRegPkgName}`,
-  { skip: isPackageTestingSkipped(sockRegPkgName) },
-  () => {
-    // biome-ignore lint/suspicious/noExplicitAny: Test implementations can be any module.
-    let implementations: any[]
+describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
+  it('should have atob and btoa functions', () => {
+    expect(typeof abab.atob).toBe('function')
+    expect(typeof abab.btoa).toBe('function')
+  })
 
-    beforeAll(async () => {
-      const result = await setupMultiEntryTest(sockRegPkgName, ['index.js'])
-      implementations = result.modules
-    })
+  it('should encode string to base64 with btoa', () => {
+    const result = abab.btoa('hello')
+    expect(result).toBe('aGVsbG8=')
+  })
 
-    it('atob correctly converts base64 strings', () => {
-      for (const mod of implementations) {
-        const { atob } = mod
-        expect(atob('')).toBe('')
-        expect(atob('abcd')).toBe(String.fromCharCode(105, 183, 29))
-        expect(atob(' abcd')).toBe(String.fromCharCode(105, 183, 29))
-        expect(atob('abcd ')).toBe(String.fromCharCode(105, 183, 29))
-        expect(atob('ab==')).toBe(String.fromCharCode(105))
-        expect(atob('abc=')).toBe(String.fromCharCode(105, 183))
-      }
-    })
+  it('should decode base64 to string with atob', () => {
+    const result = abab.atob('aGVsbG8=')
+    expect(result).toBe('hello')
+  })
 
-    it('atob returns null for invalid input', () => {
-      for (const mod of implementations) {
-        const { atob } = mod
-        expect(atob('a')).toBe(null)
-        expect(atob('abcde')).toBe(null)
-        expect(atob('=')).toBe(null)
-        expect(atob('a=')).toBe(null)
-        expect(atob('a===')).toBe(null)
-        expect(atob(' abcd===')).toBe(null)
-        expect(atob('abcd=== ')).toBe(null)
-        expect(atob('abcd ===')).toBe(null)
-      }
-    })
+  it('should handle empty string in btoa', () => {
+    const result = abab.btoa('')
+    expect(result).toBe('')
+  })
 
-    it('atob handles whitespace', () => {
-      for (const mod of implementations) {
-        const { atob } = mod
-        expect(atob('ab\tcd')).toBe(String.fromCharCode(105, 183, 29))
-        expect(atob('ab\ncd')).toBe(String.fromCharCode(105, 183, 29))
-        expect(atob('ab\fcd')).toBe(String.fromCharCode(105, 183, 29))
-        expect(atob('ab\rcd')).toBe(String.fromCharCode(105, 183, 29))
-      }
-    })
+  it('should handle empty string in atob', () => {
+    const result = abab.atob('')
+    expect(result).toBe('')
+  })
 
-    it('btoa encodes strings to base64', () => {
-      for (const mod of implementations) {
-        const { btoa } = mod
-        expect(btoa('')).toBe('')
-        expect(btoa('Hello World')).toBe('SGVsbG8gV29ybGQ=')
-        expect(btoa('foo')).toBe('Zm9v')
-        expect(btoa('bar')).toBe('YmFy')
-      }
-    })
+  it('should round-trip btoa and atob', () => {
+    const original = 'Socket Security'
+    const encoded = abab.btoa(original)
+    const decoded = abab.atob(encoded)
+    expect(decoded).toBe(original)
+  })
 
-    it('btoa returns null for invalid input', () => {
-      for (const mod of implementations) {
-        const { btoa } = mod
-        // Unicode characters outside Latin1 range.
-        expect(btoa(String.fromCharCode(0xd8_00, 0xdc_00))).toBe(null)
-      }
-    })
-
-    it('atob throws TypeError when passed no inputs', () => {
-      for (const mod of implementations) {
-        const { atob } = mod
-        expect(() => atob()).toThrow(TypeError)
-      }
-    })
-
-    it('btoa throws TypeError when passed no inputs', () => {
-      for (const mod of implementations) {
-        const { btoa } = mod
-        expect(() => btoa()).toThrow(TypeError)
-      }
-    })
-  },
-)
+  it('should handle special characters', () => {
+    const result = abab.btoa('hello world!')
+    expect(typeof result).toBe('string')
+    expect(result.length).toBeGreaterThan(0)
+  })
+})

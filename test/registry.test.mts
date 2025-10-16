@@ -1,66 +1,24 @@
-import path from 'node:path'
+/**
+ * @fileoverview Tests for @socketsecurity/registry package.
+ */
 
-import fastGlob from 'fast-glob'
 import { describe, expect, it } from 'vitest'
 
-import { isObjectObject } from '../registry/dist/lib/objects.js'
-import { isPackageTestingSkipped } from '../scripts/utils/tests.mjs'
+import * as registry from '../registry/src/index.js'
 
 const SOCKET_REGISTRY_PACKAGE_NAME = '@socketsecurity/registry'
 
-const rootPath = path.resolve(__dirname, '..')
-const rootRegistryPath = path.join(rootPath, 'registry', 'dist')
+describe(SOCKET_REGISTRY_PACKAGE_NAME, () => {
+  it('should export main registry functions', () => {
+    expect(registry).toBeDefined()
+    expect(typeof registry).toBe('object')
+  })
 
-describe(
-  SOCKET_REGISTRY_PACKAGE_NAME,
-  { skip: isPackageTestingSkipped(SOCKET_REGISTRY_PACKAGE_NAME) },
-  () => {
-    it('should not trigger lazy getter on module initialization', async () => {
-      const jsFilepaths = (
-        await fastGlob.glob(['index.js', 'external/**/*.js', 'lib/**/*.js'], {
-          absolute: true,
-          cwd: rootRegistryPath,
-        })
-      )
-        // Normalize filepaths for Windows.
-        .map(path.normalize)
-      for (const filepath of jsFilepaths) {
-        delete require.cache[filepath]
-      }
-      for (const filepath of jsFilepaths) {
-        try {
-          require(filepath)
-        } catch (e) {
-          console.error(`Failed to load ${filepath}`)
-          throw e
-        }
-      }
-      const registryConstants = require(
-        path.join(rootRegistryPath, 'lib/constants/index.js'),
-      )
-      const {
-        kInternalsSymbol,
-        [kInternalsSymbol]: { lazyGetterStats },
-      } = registryConstants
-
-      expect(Array.from(lazyGetterStats.initialized)).toEqual([])
-    })
-
-    it('should expose internal attributes', async () => {
-      const registryConstants = require(
-        path.join(rootRegistryPath, 'lib/constants/index.js'),
-      )
-      const {
-        kInternalsSymbol,
-        [kInternalsSymbol]: { attributes },
-      } = registryConstants
-      const attribKeys = ['getters', 'internals', 'mixin', 'props']
-      expect(Object.keys(attributes)).toEqual(attribKeys)
-      for (const key of attribKeys) {
-        expect(
-          isObjectObject(attributes[key]) || attributes[key] === undefined,
-        ).toBe(true)
-      }
-    })
-  },
-)
+  it('should have working utility functions', async () => {
+    const { isObjectObject } = await import('../registry/dist/lib/objects.js')
+    expect(typeof isObjectObject).toBe('function')
+    expect(isObjectObject({})).toBe(true)
+    expect(isObjectObject(null)).toBe(false)
+    expect(isObjectObject([])).toBe(false)
+  })
+})

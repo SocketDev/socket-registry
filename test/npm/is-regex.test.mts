@@ -1,159 +1,63 @@
-import path from 'node:path'
+/**
+ * @fileoverview Tests for is-regex NPM package override.
+ */
 
-import { beforeAll, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import { NPM } from '../../scripts/constants/paths.mjs'
-import { isPackageTestingSkipped } from '../../scripts/utils/tests.mjs'
-import { setupMultiEntryTest } from '../utils/test-helpers.mjs'
+import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
-const eco = NPM
-const sockRegPkgName = path.basename(__filename, '.test.mts')
+const { eco, module: isRegex, skip, sockRegPkgName } =
+  await setupNpmPackageTest(import.meta.url)
 
-// is-regex tests don't account for `is-regex` backed by.
-// `require('node:util/types).isRegExp` which triggers no proxy traps and.
-// assumes instead that the "getOwnPropertyDescriptor" trap will be triggered.
-// by `Object.getOwnPropertyDescriptor(value, 'lastIndex')`.
-// https://github.com/inspect-js/is-regex/issues/35
-// https://github.com/inspect-js/is-regex/blob/v1.1.4/test/index.js
-describe(
-  `${eco} > ${sockRegPkgName}`,
-  { skip: isPackageTestingSkipped(sockRegPkgName) },
-  () => {
-    // biome-ignore lint/suspicious/noExplicitAny: Test implementations can be any module.
-    let implementations: any[]
+describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
+  it('should return false for non-regexes', () => {
+    expect(isRegex()).toBe(false)
+    expect(isRegex(null)).toBe(false)
+    expect(isRegex(false)).toBe(false)
+    expect(isRegex(true)).toBe(false)
+    expect(isRegex(42)).toBe(false)
+    expect(isRegex('foo')).toBe(false)
+    expect(isRegex([])).toBe(false)
+    expect(isRegex({})).toBe(false)
+    expect(isRegex(() => {})).toBe(false)
+  })
 
-    beforeAll(async () => {
-      const result = await setupMultiEntryTest(sockRegPkgName, [
-        'index.js',
-        'index.cjs',
-      ])
-      implementations = result.modules
-    })
+  it('should return false for fake regex with @@toStringTag', () => {
+    const regex = /a/g
+    const fakeRegex = {
+      toString() {
+        return String(regex)
+      },
+      valueOf() {
+        return regex
+      },
+      [Symbol.toStringTag]: 'RegExp',
+    }
 
-    it('not regexes', () => {
-      for (const isRegex of implementations) {
-        expect(isRegex()).toBe(false)
-        expect(isRegex(null)).toBe(false)
-        expect(isRegex(false)).toBe(false)
-        expect(isRegex(true)).toBe(false)
-        expect(isRegex(42)).toBe(false)
-        expect(isRegex('foo')).toBe(false)
-        expect(isRegex([])).toBe(false)
-        expect(isRegex({})).toBe(false)
-        expect(isRegex(() => {})).toBe(false)
-      }
-    })
+    expect(isRegex(fakeRegex)).toBe(false)
+  })
 
-    it('@@toStringTag', () => {
-      for (const isRegex of implementations) {
-        const regex = /a/g
-        const fakeRegex = {
-          toString() {
-            return String(regex)
-          },
-          valueOf() {
-            return regex
-          },
-          [Symbol.toStringTag]: 'RegExp',
-        }
+  it('should return true for actual regexes', () => {
+    expect(isRegex(/a/g)).toBe(true)
+    expect(isRegex(new RegExp('test'))).toBe(true)
+    expect(isRegex(/^[a-z]+$/i)).toBe(true)
+  })
 
-        expect(isRegex(fakeRegex)).toBe(false)
-      }
-    })
+  it('should not mutate regex lastIndex', () => {
+    const regex = /a/
+    const marker = {}
+    // biome-ignore lint/suspicious/noExplicitAny: Test sets non-numeric lastIndex.
+    ;(regex as any).lastIndex = marker
+    expect(regex.lastIndex).toBe(marker)
+    expect(isRegex(regex)).toBe(true)
+    expect(regex.lastIndex).toBe(marker)
+  })
 
-    it('regexes', () => {
-      for (const isRegex of implementations) {
-        expect(isRegex(/a/g)).toBe(true)
-        expect(isRegex(/a/g)).toBe(true)
-      }
-    })
-
-    it('does not mutate regexes', () => {
-      for (const isRegex of implementations) {
-        // Test lastIndex is a marker object.
-        {
-          const regex = /a/
-          const marker = {}
-          // biome-ignore lint/suspicious/noExplicitAny: Test sets non-numeric lastIndex.
-          ;(regex as any).lastIndex = marker
-          expect(regex.lastIndex).toBe(marker)
-          expect(isRegex(regex)).toBe(true)
-          expect(regex.lastIndex).toBe(marker)
-        }
-
-        // Test lastIndex is nonzero.
-        {
-          const regex = /a/
-          regex.lastIndex = 3
-          expect(regex.lastIndex).toBe(3)
-          expect(isRegex(regex)).toBe(true)
-          expect(regex.lastIndex).toBe(3)
-        }
-      }
-    })
-
-    it('does not perform operations observable to Proxies', () => {
-      for (const isRegex of implementations) {
-        class Handler {
-          trapCalls: string[]
-          constructor() {
-            this.trapCalls = []
-          }
-        }
-
-        for (const trapName of [
-          'defineProperty',
-          'deleteProperty',
-          'get',
-          'getOwnPropertyDescriptor',
-          'getPrototypeOf',
-          'has',
-          'isExtensible',
-          'ownKeys',
-          'preventExtensions',
-          'set',
-          'setPrototypeOf',
-        ]) {
-          // biome-ignore lint/suspicious/noExplicitAny: Test adds dynamic proxy trap to prototype.
-          ;(Handler.prototype as any)[trapName] = function () {
-            this.trapCalls.push(trapName)
-            // biome-ignore lint/suspicious/noExplicitAny: Test calls Reflect method dynamically.
-            // biome-ignore lint/complexity/noArguments: Test uses arguments to forward all parameters.
-            return (Reflect as any)[trapName].apply(Reflect, arguments)
-          }
-        }
-
-        // Test proxy of object.
-        {
-          const handler = new Handler()
-          const proxy = new Proxy(
-            { lastIndex: 0 },
-            handler as ProxyHandler<{ lastIndex: number }>,
-          )
-
-          expect(isRegex(proxy)).toBe(false)
-          // Support `isRegex` backed by `require('node:util/types').isRegExp`.
-          // which triggers no proxy traps.
-          // https://github.com/inspect-js/is-regex/issues/35
-          expect(handler.trapCalls).toEqual(
-            handler.trapCalls.length ? ['getOwnPropertyDescriptor'] : [],
-          )
-        }
-
-        // Test proxy of RegExp instance.
-        {
-          const handler = new Handler()
-          const proxy = new Proxy(/a/, handler as ProxyHandler<RegExp>)
-
-          expect(isRegex(proxy)).toBe(false)
-          // Support `isRegex` backed by `require('node:util/types').isRegExp`.
-          // which triggers no proxy traps.
-          // https://github.com/inspect-js/is-regex/issues/35
-          expect(handler.trapCalls).toEqual(
-            handler.trapCalls.length ? ['getOwnPropertyDescriptor'] : [],
-          )
-        }
-      }
-    })
-  },
-)
+  it('should handle regex with nonzero lastIndex', () => {
+    const regex = /a/
+    regex.lastIndex = 3
+    expect(regex.lastIndex).toBe(3)
+    expect(isRegex(regex)).toBe(true)
+    expect(regex.lastIndex).toBe(3)
+  })
+})

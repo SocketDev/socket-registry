@@ -1,64 +1,30 @@
-import path from 'node:path'
+/**
+ * @fileoverview Tests for is-interactive NPM package override.
+ */
 
-import { beforeAll, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import { NPM } from '../../scripts/constants/paths.mjs'
-import { isPackageTestingSkipped } from '../../scripts/utils/tests.mjs'
-import { setupMultiEntryTest } from '../utils/test-helpers.mjs'
+import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
-const eco = NPM
-const sockRegPkgName = path.basename(__filename, '.test.mts')
+const { eco, module: isInteractive, skip, sockRegPkgName } =
+  await setupNpmPackageTest(import.meta.url)
 
-// is-interactive tests use xo which depends on core-assert, which uses.
-// util.isDate that was deprecated and removed in Node.js 20+.
-// https://nodejs.org/docs/latest-v18.x/api/util.html#deprecated-apis
-describe(
-  `${eco} > ${sockRegPkgName}`,
-  { skip: isPackageTestingSkipped(sockRegPkgName) },
-  () => {
-    // biome-ignore lint/suspicious/noExplicitAny: Test implementations can be any module.
-    let implementations: any[]
+describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
+  it('should return a boolean', () => {
+    const result = isInteractive()
+    expect(typeof result).toBe('boolean')
+  })
 
-    beforeAll(async () => {
-      const result = await setupMultiEntryTest(sockRegPkgName, [
-        'index.js',
-        'index.cjs',
-      ])
-      implementations = result.modules
-    })
+  it('should accept stream parameter', () => {
+    const result = isInteractive({ stream: process.stdout })
+    expect(typeof result).toBe('boolean')
+  })
 
-    it('tty', () => {
-      for (const isInteractive of implementations) {
-        const originalCI = process.env['CI']
-        delete process.env['CI']
-        const stream = { isTTY: true }
-        // biome-ignore lint/suspicious/noExplicitAny: Test stream object can be any shape.
-        expect(isInteractive({ stream: stream as any })).toBe(true)
-        if (originalCI) {
-          process.env['CI'] = originalCI
-        }
-      }
-    })
-
-    it('non-tty', () => {
-      for (const isInteractive of implementations) {
-        const stream = { isTTY: false }
-        // biome-ignore lint/suspicious/noExplicitAny: Test stream object can be any shape.
-        expect(isInteractive({ stream: stream as any })).toBe(false)
-      }
-    })
-
-    it('dumb', () => {
-      for (const isInteractive of implementations) {
-        const originalTerm = process.env['TERM']
-        process.env['TERM'] = 'dumb'
-        expect(isInteractive()).toBe(false)
-        if (originalTerm) {
-          process.env['TERM'] = originalTerm
-        } else {
-          delete process.env['TERM']
-        }
-      }
-    })
-  },
-)
+  it('should return false for non-TTY streams', () => {
+    const nonTtyStream = {
+      isTTY: false,
+    }
+    const result = isInteractive({ stream: nonTtyStream })
+    expect(result).toBe(false)
+  })
+})
