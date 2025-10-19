@@ -9,8 +9,6 @@ import { SOCKET_DEBUG } from '#env/socket-debug'
 import isUnicodeSupported from '../external/@socketregistry/is-unicode-supported'
 import debugJs from '../external/debug'
 
-const spinner = getSpinner()
-
 import { logger } from './logger'
 import { hasOwn } from './objects'
 import { applyLinePrefix } from './strings'
@@ -233,7 +231,7 @@ function debugDirNs(
       } as InspectOptions
     }
   }
-  const spinnerInstance = options.spinner || spinner
+  const spinnerInstance = options.spinner || getSpinner()
   const wasSpinning = spinnerInstance?.isSpinning
   spinnerInstance?.stop()
   logger.info(`[DEBUG] ${callerName} ${pointingTriangle} object inspection:`)
@@ -271,7 +269,7 @@ function debugNs(namespacesOrOpts: NamespacesOrOptions, ...args: unknown[]) {
           ...args.slice(1),
         ]
       : args
-  const spinnerInstance = options.spinner || spinner
+  const spinnerInstance = options.spinner || getSpinner()
   const wasSpinning = spinnerInstance?.isSpinning
   spinnerInstance?.stop()
   ReflectApply(logger.info, logger, logArgs)
@@ -310,7 +308,7 @@ function debugLogNs(namespacesOrOpts: NamespacesOrOptions, ...args: unknown[]) {
         ]
       : [`[DEBUG] ${callerName} ${pointingTriangle}`, ...args]
 
-  const spinnerInstance = options.spinner || spinner
+  const spinnerInstance = options.spinner || getSpinner()
   const wasSpinning = spinnerInstance?.isSpinning
   spinnerInstance?.stop()
   ReflectApply(logger.info, logger, logArgs)
@@ -348,7 +346,7 @@ function debugCacheNs(
   const prefix = `[CACHE] ${callerName} ${pointingTriangle} ${operation}: ${key}`
   const logArgs = meta !== undefined ? [prefix, meta] : [prefix]
 
-  const spinnerInstance = options.spinner || spinner
+  const spinnerInstance = options.spinner || getSpinner()
   const wasSpinning = spinnerInstance?.isSpinning
   spinnerInstance?.stop()
   ReflectApply(logger.info, logger, logArgs)

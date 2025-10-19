@@ -5,11 +5,9 @@
 
 import type { Writable } from 'node:stream'
 
-import { getAbortSignal } from '#constants/process'
+// Note: getAbortSignal is imported lazily to avoid circular dependencies.
 import { CI } from '#env/ci'
 import yoctoSpinner from '../external/@socketregistry/yocto-spinner'
-
-const abortSignal = getAbortSignal()
 
 import { generateSocketSpinnerFrames } from './effects/pulse-frames'
 import type {
@@ -335,7 +333,7 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
 
         // eslint-disable-next-line constructor-super
         super({
-          signal: abortSignal,
+          signal: require('#constants/process').getAbortSignal(),
           ...opts,
           // Pass RGB color directly to yocto-spinner (it now supports RGB).
           color: spinnerColorRgb,
@@ -944,7 +942,34 @@ export function Spinner(options?: SpinnerOptions | undefined): Spinner {
   })
 }
 
-export const spinner = Spinner()
+let _spinner: ReturnType<typeof Spinner> | undefined
+/**
+ * Get the default spinner instance.
+ * Lazily creates the spinner to avoid circular dependencies during module initialization.
+ */
+export function getDefaultSpinner(): ReturnType<typeof Spinner> {
+  if (_spinner === undefined) {
+    _spinner = Spinner()
+  }
+  return _spinner
+}
+
+/**
+ * @deprecated Use `getDefaultSpinner()` function instead for better tree-shaking and to avoid circular dependencies.
+ */
+export const spinner = /* @__PURE__ */ (() => {
+  // Lazy initialization to prevent circular dependency issues during module loading.
+  let _lazySpinner: ReturnType<typeof Spinner> | undefined
+  return new Proxy({} as ReturnType<typeof Spinner>, {
+    get(_target, prop) {
+      if (_lazySpinner === undefined) {
+        _lazySpinner = Spinner()
+      }
+      const value = _lazySpinner[prop as keyof ReturnType<typeof Spinner>]
+      return typeof value === 'function' ? value.bind(_lazySpinner) : value
+    },
+  })
+})()
 
 export type WithSpinnerOptions<T> = {
   message: string
