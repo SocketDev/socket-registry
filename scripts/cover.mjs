@@ -19,7 +19,7 @@ const vitestArgs = ['exec', 'vitest', 'run', '--coverage', ...process.argv.slice
 const typeCoverageArgs = ['exec', 'type-coverage']
 
 try {
-  const { exitCode, stdout, stderr } = await runCommandQuiet('pnpm', vitestArgs, {
+  const { exitCode, stderr, stdout } = await runCommandQuiet('pnpm', vitestArgs, {
     cwd: rootPath,
   })
 
@@ -28,11 +28,13 @@ try {
     cwd: rootPath,
   })
 
-  // Combine and clean output - remove ANSI color codes and spinner artifacts
+  // Combine and clean output - remove ANSI color codes and spinner artifacts.
   const ansiRegex = new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, 'g')
+  // Remove ANSI color codes.
+  // Remove spinner artifacts.
   const output = (stdout + stderr)
-    .replace(ansiRegex, '') // Remove ANSI color codes
-    .replace(/(?:✧|︎|⚡)\s*/g, '') // Remove spinner artifacts
+    .replace(ansiRegex, '')
+    .replace(/(?:✧|︎|⚡)\s*/g, '')
     .trim()
 
   // Extract test summary (Test Files ... Duration)
@@ -62,11 +64,16 @@ try {
 
   if (coverageHeaderMatch && allFilesMatch) {
     console.log(' % Coverage report from v8')
-    console.log(coverageHeaderMatch[1]) // Top border
-    console.log(coverageHeaderMatch[2]) // Header row
-    console.log(coverageHeaderMatch[1]) // Middle border
-    console.log(allFilesMatch[0]) // All files row
-    console.log(coverageHeaderMatch[1]) // Bottom border
+    // Top border.
+    console.log(coverageHeaderMatch[1])
+    // Header row.
+    console.log(coverageHeaderMatch[2])
+    // Middle border.
+    console.log(coverageHeaderMatch[1])
+    // All files row.
+    console.log(allFilesMatch[0])
+    // Bottom border.
+    console.log(coverageHeaderMatch[1])
     console.log()
 
     // Display type coverage and cumulative summary
