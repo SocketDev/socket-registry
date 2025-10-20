@@ -677,7 +677,12 @@ packages:
 
   '@socketsecurity/registry@file:../../registry':
     resolution: {directory: ../../registry, type: directory}
-    engines: {node: '>=18'}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      typescript: '>=5.0.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   '@types/chai@5.2.2':
     resolution: {integrity: sha512-8kB30R7Hwqf40JPiKhVzodJs2Qc1ZJ5zuT3uzw5Hq/dhNCl3G3l83jfpdI1e20BP348+fV7VIL/+FxaXkqBmWg==}
@@ -1203,6 +1208,10 @@ packages:
     resolution: {tarball: https://github.com/juliangruber/isarray/archive/a63f292737acdc9e0df55284317a98c1bf0be90d.tar.gz}
     version: 2.0.5
 
+  isexe@3.1.1:
+    resolution: {integrity: sha512-LpB/54B+/2J5hqQ7imZHfdU31OlgQqx7ZicVlkm9kzg9/w8GKLEcFfJl/t7DCEDueOyBAD6zCCwTO6Fzs0NoEQ==}
+    engines: {node: '>=16'}
+
   iterate-iterator@1.0.2:
     resolution: {integrity: sha512-t91HubM4ZDQ70M9wqp+pcNpu8OyJ9UAtXntT/Bcsvp5tZMnz9vRa+IunKXeI8AnfZMTv0jNuVEmGeLSMjVvfPw==}
 
@@ -1387,6 +1396,11 @@ packages:
 
   scripts@file:../../scripts:
     resolution: {directory: ../../scripts, type: directory}
+
+  semver@7.7.2:
+    resolution: {integrity: sha512-RF0Fw+rO5AMf9MAyaRXI4AV0Ulj5lMHqVxxdSgiVbixSCXoEmmX/jk0CuJw4+3SqroYO9VoUh+HcuJivvtJemA==}
+    engines: {node: '>=10'}
+    hasBin: true
 
   set-function-length@1.2.2:
     resolution: {integrity: sha512-pgRc4hJ4/sNjWCSS9AmnS40x3bNMDTknHgL5UaMBTMyJnU90EgWh1Rz+MC9eFu4BuN/UwZjKQuY/1v3rM7HMfg==}
@@ -1659,6 +1673,11 @@ packages:
     resolution: {integrity: sha512-rEvr90Bck4WZt9HHFC4DJMsjvu7x+r6bImz0/BrbWb7A2djJ8hnZMrWnHo9F8ssv0OMErasDhftrfROTyqSDrw==}
     engines: {node: '>= 0.4'}
 
+  which@5.0.0:
+    resolution: {integrity: sha512-JEdGzHwwkrbWoGOlIHqQ5gtprKGOenpDHpxE9zVR1bWbOtYRyPPHMe9FaP6x61CmNaTThSkb0DAJte5jD+DmzQ==}
+    engines: {node: ^18.17.0 || >=20.5.0}
+    hasBin: true
+
   why-is-node-running@2.3.0:
     resolution: {integrity: sha512-hUrmaWBdVDcxvYqnyh09zunKzROWjbZTiNy8dBEjkS7ehEDQibXJ7XvlmtbwuTclUiIyN+CyXQD4Vmko8fNm8w==}
     engines: {node: '>=8'}
@@ -1668,6 +1687,10 @@ packages:
     resolution: {tarball: https://github.com/sindresorhus/yocto-spinner/archive/91e5974f2a21a8f3ca886463c8ca8e502a41639c.tar.gz}
     version: 1.0.0
     engines: {node: '>=18.19'}
+
+  yoctocolors-cjs@2.1.3:
+    resolution: {integrity: sha512-U/PBtDf35ff0D8X8D0jfdzHYEPFxAI7jJlxZXwCSez5M3190m+QobIfh+sWDWSHMCWWJN2AWamkegn6vr6YBTw==}
+    engines: {node: '>=18'}
 
   yoctocolors@2.1.2:
     resolution: {integrity: sha512-CzhO+pFNo8ajLM2d2IW/R93ipy99LWjtwblvC1RsoSUMZgyLbYFr221TnSNT7GjGdYui6P459mw9JH/g/zW2ug==}
@@ -1820,7 +1843,11 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.50.2':
     optional: true
 
-  '@socketsecurity/registry@file:../../registry': {}
+  '@socketsecurity/registry@file:../../registry':
+    dependencies:
+      semver: 7.7.2
+      which: 5.0.0
+      yoctocolors-cjs: 2.1.3
 
   '@types/chai@5.2.2':
     dependencies:
@@ -2597,6 +2624,8 @@ snapshots:
 
   isarray@https://github.com/juliangruber/isarray/archive/a63f292737acdc9e0df55284317a98c1bf0be90d.tar.gz: {}
 
+  isexe@3.1.1: {}
+
   iterate-iterator@1.0.2: {}
 
   iterate-value@1.0.2:
@@ -2845,6 +2874,8 @@ snapshots:
   safer-buffer@https://github.com/ChALkeR/safer-buffer/archive/e8ac214944eda30e1e6c6b7d7e7f6a21cf7dce7c.tar.gz: {}
 
   scripts@file:../../scripts: {}
+
+  semver@7.7.2: {}
 
   set-function-length@1.2.2:
     dependencies:
@@ -3260,6 +3291,10 @@ snapshots:
       gopd: 1.2.0
       has-tostringtag: 1.0.2
 
+  which@5.0.0:
+    dependencies:
+      isexe: 3.1.1
+
   why-is-node-running@2.3.0:
     dependencies:
       siginfo: 2.0.0
@@ -3268,5 +3303,7 @@ snapshots:
   yocto-spinner@https://github.com/sindresorhus/yocto-spinner/archive/91e5974f2a21a8f3ca886463c8ca8e502a41639c.tar.gz:
     dependencies:
       yoctocolors: 2.1.2
+
+  yoctocolors-cjs@2.1.3: {}
 
   yoctocolors@2.1.2: {}
