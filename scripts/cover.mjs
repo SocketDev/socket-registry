@@ -15,13 +15,23 @@ const rootPath = path.join(__dirname, '..')
 printHeader('Running Coverage')
 
 // Run vitest with coverage enabled, capturing output
-const vitestArgs = ['exec', 'vitest', 'run', '--coverage', ...process.argv.slice(2)]
+const vitestArgs = [
+  'exec',
+  'vitest',
+  'run',
+  '--coverage',
+  ...process.argv.slice(2),
+]
 const typeCoverageArgs = ['exec', 'type-coverage']
 
 try {
-  const { exitCode, stderr, stdout } = await runCommandQuiet('pnpm', vitestArgs, {
-    cwd: rootPath,
-  })
+  const { exitCode, stderr, stdout } = await runCommandQuiet(
+    'pnpm',
+    vitestArgs,
+    {
+      cwd: rootPath,
+    },
+  )
 
   // Run type coverage
   const typeCoverageResult = await runCommandQuiet('pnpm', typeCoverageArgs, {
@@ -78,8 +88,8 @@ try {
 
     // Display type coverage and cumulative summary
     if (typeCoverageMatch) {
-      const codeCoveragePercent = parseFloat(allFilesMatch[1])
-      const typeCoveragePercent = parseFloat(typeCoverageMatch[1])
+      const codeCoveragePercent = Number.parseFloat(allFilesMatch[1])
+      const typeCoveragePercent = Number.parseFloat(typeCoverageMatch[1])
       const cumulativePercent = (
         (codeCoveragePercent + typeCoveragePercent) /
         2
