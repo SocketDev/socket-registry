@@ -6,8 +6,8 @@ Thumbs.db
 /.env.local
 /.pnpmfile.cjs
 /.nvm
-/.vscode
 /.type-coverage
+/.vscode
 /npm-debug.log
 /yarn.lock
 **/.cache
@@ -17,6 +17,9 @@ Thumbs.db
 **/*.tgz
 **/*.tsbuildinfo
 
+# Test artifacts
 test/**/packages
 test/**/.tmp-*
+
+# Generated files
 CHANGELOG.md
