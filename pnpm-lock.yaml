@@ -117,8 +117,8 @@ importers:
         specifier: workspace:*
         version: link:packages/npm/is-unicode-supported
       '@socketregistry/packageurl-js':
-        specifier: 1.3.0
-        version: 1.3.0
+        specifier: 1.3.1
+        version: 1.3.1
       '@socketregistry/scripts':
         specifier: file:scripts
         version: scripts@file:scripts
@@ -1560,8 +1560,8 @@ packages:
     resolution: {integrity: sha512-IGU9k0CJAueU+Y8bcFT5HJ5inh+XmTe89scuaHAs3WLFpJgrCn2FCaYZ98S1iBltH0SRIupDiiZQyVC5C/YDjA==}
     engines: {node: '>=18'}
 
-  '@socketregistry/packageurl-js@1.3.0':
-    resolution: {integrity: sha512-/zbcSImYVj8tTQOq82uFtBkEaDJ1GBigxnk/1N4Sueg/aeSARWjRYrT8qPfJW6h+PjiYHlkxdDR+btdkSxUUOA==}
+  '@socketregistry/packageurl-js@1.3.1':
+    resolution: {integrity: sha512-VhFqhhXJoiWfDjBqpCHA8FdyTMXi75pWNxC4iga6FI248UJtm/xxjfXgDVt5PoqDL7M7SSC6qZXsVLNY+fC+mg==}
     engines: {node: '>=18', pnpm: '>=10.16.0'}
 
   '@socketregistry/path-parse@1.0.8':
@@ -4837,7 +4837,7 @@ snapshots:
 
   '@socketregistry/is-typed-array@1.0.12': {}
 
-  '@socketregistry/packageurl-js@1.3.0': {}
+  '@socketregistry/packageurl-js@1.3.1': {}
 
   '@socketregistry/path-parse@1.0.8': {}
 
