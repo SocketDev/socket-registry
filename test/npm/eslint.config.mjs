@@ -1,7 +1,7 @@
-import constants from '@socketregistry/scripts/constants'
+import { ROOT_ESLINT_CONFIG_PATH } from '@socketregistry/scripts/constants/paths'
 
 export default [
   {
-    extends: constants.rootEslintConfigPath,
+    extends: ROOT_ESLINT_CONFIG_PATH,
   },
 ]
