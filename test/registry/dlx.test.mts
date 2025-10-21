@@ -1,9 +1,6 @@
 import { promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-
 import {
   clearDlx,
   clearDlxSync,
@@ -21,7 +18,8 @@ import {
   listDlxPackagesAsync,
   removeDlxPackage,
   removeDlxPackageSync,
-} from '../../registry/dist/lib/dlx.js'
+} from '@socketsecurity/lib/dlx'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 // Test package names.
 const TEST_PKG = 'test-package'

@@ -5,13 +5,10 @@
 import { promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-
+import { getCodeCoverage } from '@socketsecurity/lib/cover/code'
+import type { V8CoverageData } from '@socketsecurity/lib/cover/types'
 import { deleteAsync as del } from 'del'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-
-import { getCodeCoverage } from '../../registry/dist/lib/cover/code.js'
-
-import type { V8CoverageData } from '../../registry/dist/lib/cover/types.js'
 
 describe('code coverage module', () => {
   let tempDir: string

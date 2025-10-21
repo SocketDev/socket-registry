@@ -3,9 +3,8 @@
  * Executes performance tests and benchmarks for registry operations.
  */
 
+import { execBin } from '@socketsecurity/lib/bin'
 import fastGlob from 'fast-glob'
-
-import { execBin } from '../registry/dist/lib/bin.js'
 
 import constants from './constants.mjs'
 

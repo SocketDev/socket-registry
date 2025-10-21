@@ -3,12 +3,10 @@
  *
  * Validates ASCII table rendering with borders, alignment, and colors.
  */
+
+import type { TableColumn } from '@socketsecurity/lib/tables'
+import { formatSimpleTable, formatTable } from '@socketsecurity/lib/tables'
 import { describe, expect, it } from 'vitest'
-import type { TableColumn } from '../../../registry/dist/lib/tables.js'
-import {
-  formatSimpleTable,
-  formatTable,
-} from '../../../registry/dist/lib/tables.js'
 
 describe('tables utilities', () => {
   describe('formatTable', () => {

@@ -3,7 +3,6 @@
  *
  * Validates comparison functions including locale-aware, natural, and semver sorting.
  */
-import { describe, expect, it } from 'vitest'
 
 import {
   compareSemver,
@@ -11,7 +10,8 @@ import {
   localeCompare,
   naturalCompare,
   naturalSorter,
-} from '../../../registry/dist/lib/sorts.js'
+} from '@socketsecurity/lib/sorts'
+import { describe, expect, it } from 'vitest'
 
 describe('sorts utilities', () => {
   describe('localeCompare', () => {
@@ -117,10 +117,17 @@ describe('sorts utilities', () => {
     })
 
     it('should work with objects using by()', () => {
-      const arr = [{ name: 'file10' }, { name: 'file2' }, { name: 'file1' }]
-      const result = naturalSorter(arr).asc((item: any) => item.name)
-      expect(result[0].name).toBe('file1')
-      expect(result[2].name).toBe('file10')
+      type Item = { name: string }
+      const arr: Item[] = [
+        { name: 'file10' },
+        { name: 'file2' },
+        { name: 'file1' },
+      ]
+      const result = naturalSorter(arr).asc(
+        ((item: Item) => item.name) as any,
+      ) as Item[]
+      expect(result[0]?.name).toBe('file1')
+      expect(result[2]?.name).toBe('file10')
     })
 
     it('should handle case-insensitive sorting', () => {

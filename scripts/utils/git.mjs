@@ -4,8 +4,8 @@
 
 import path from 'node:path'
 // Import from registry v2.0 (async only)
-import { getChangedFiles } from '../../registry/dist/lib/git.js'
-import { normalizePath } from '../../registry/dist/lib/path.js'
+import { getChangedFiles } from '@socketsecurity/lib/git'
+import { normalizePath } from '@socketsecurity/lib/path'
 import constants from '../constants.mjs'
 // Import sync and additional functions from helpers
 import {

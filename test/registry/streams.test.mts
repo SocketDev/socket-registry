@@ -1,10 +1,9 @@
-import { describe, expect, it } from 'vitest'
-
 import {
   parallelEach,
   parallelMap,
   transform,
-} from '../../registry/dist/lib/streams.js'
+} from '@socketsecurity/lib/streams'
+import { describe, expect, it } from 'vitest'
 
 // Helper generators moved to outer scope.
 async function* makeStringIterable(items: string[]) {

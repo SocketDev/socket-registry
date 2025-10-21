@@ -9,10 +9,8 @@ import crypto from 'node:crypto'
 import { existsSync, promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-
-import colors from 'yoctocolors-cjs'
-
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import colors from 'yoctocolors-cjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.join(__dirname, '..')
@@ -570,7 +568,11 @@ function hashError(errorOutput) {
     .slice(0, 500)
 
   // Use proper cryptographic hashing for consistent results
-  return crypto.createHash('sha256').update(normalized).digest('hex').slice(0, 16)
+  return crypto
+    .createHash('sha256')
+    .update(normalized)
+    .digest('hex')
+    .slice(0, 16)
 }
 
 /**
@@ -2920,16 +2922,16 @@ function calculatePollDelay(status, attempt, hasActiveJobs = false) {
   // If jobs are actively running, poll more frequently
   if (hasActiveJobs || status === 'in_progress') {
     // Start at 5s, gradually increase to 15s max
-    return Math.min(5000 + attempt * 2000, 15000)
+    return Math.min(5000 + attempt * 2000, 15_000)
   }
 
   // If queued or waiting, use longer intervals (30s)
   if (status === 'queued' || status === 'waiting') {
-    return 30000
+    return 30_000
   }
 
   // Default: moderate polling for unknown states (10s)
-  return 10000
+  return 10_000
 }
 
 /**
@@ -3501,8 +3503,10 @@ Let's work through this together to get CI passing.`
 
     if (!matchingRun) {
       // Use moderate delay when no run found yet (10s)
-      const delay = 10000
-      log.substep(`No matching workflow runs found yet, waiting ${delay / 1000}s...`)
+      const delay = 10_000
+      log.substep(
+        `No matching workflow runs found yet, waiting ${delay / 1000}s...`,
+      )
       await new Promise(resolve => setTimeout(resolve, delay))
       pollAttempt++
       continue

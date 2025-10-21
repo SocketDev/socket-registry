@@ -3,7 +3,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import { logger } from '../registry/dist/lib/logger.js'
+import { logger } from '@socketsecurity/lib/logger'
 import constants from './constants.mjs'
 
 /**

@@ -1,6 +1,5 @@
+import { isJsonPrimitive, jsonParse } from '@socketsecurity/lib/json'
 import { describe, expect, it } from 'vitest'
-
-import { isJsonPrimitive, jsonParse } from '../../registry/dist/lib/json.js'
 
 describe('json module', () => {
   describe('isJsonPrimitive', () => {
@@ -97,7 +96,7 @@ describe('json module', () => {
     })
 
     it('should handle decimal numbers', () => {
-      expect(jsonParse('3.14159')).toBe(3.14159)
+      expect(jsonParse('3.14159')).toBe(Math.PI)
       expect(jsonParse('-0.5')).toBe(-0.5)
       expect(jsonParse('1.0e-10')).toBe(1.0e-10)
     })

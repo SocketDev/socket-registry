@@ -1,12 +1,12 @@
 /** @fileoverview Set MFA automation access level for published npm packages. */
 
 import path from 'node:path'
-import { execNpm } from '../registry/dist/lib/agent.js'
-import { joinAnd } from '../registry/dist/lib/arrays.js'
-import { logger } from '../registry/dist/lib/logger.js'
-import { parseArgs } from '../registry/dist/lib/parse-args.js'
-import { pEach } from '../registry/dist/lib/promises.js'
-import { pluralize } from '../registry/dist/lib/words.js'
+import { execNpm } from '@socketsecurity/lib/agent'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { joinAnd } from '@socketsecurity/lib/arrays'
+import { logger } from '@socketsecurity/lib/logger'
+import { pEach } from '@socketsecurity/lib/promises'
+import { pluralize } from '@socketsecurity/lib/words'
 
 import constants from './constants.mjs'
 import { extractNpmError } from './utils/errors.mjs'

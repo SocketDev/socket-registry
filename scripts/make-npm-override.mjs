@@ -12,15 +12,12 @@
 import { existsSync, promises as fs } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
-import { default as didYouMean, ReturnTypeEnums } from 'didyoumean2'
-import fastGlob from 'fast-glob'
-import { open } from 'out-url'
-import semver from 'semver'
-import { execScript } from '../registry/dist/lib/agent.js'
-import { isDirEmptySync } from '../registry/dist/lib/fs.js'
-import { globStreamLicenses } from '../registry/dist/lib/globs.js'
-import { LOG_SYMBOLS, logger } from '../registry/dist/lib/logger.js'
-import { isObject } from '../registry/dist/lib/objects.js'
+import { execScript } from '@socketsecurity/lib/agent'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { isDirEmptySync } from '@socketsecurity/lib/fs'
+import { globStreamLicenses } from '@socketsecurity/lib/globs'
+import { LOG_SYMBOLS, logger } from '@socketsecurity/lib/logger'
+import { isObject } from '@socketsecurity/lib/objects'
 import {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
@@ -33,13 +30,16 @@ import {
   resolvePackageJsonEntryExports,
   resolvePackageLicenses,
   resolveRegistryPackageName,
-} from '../registry/dist/lib/packages.js'
-import { parseArgs } from '../registry/dist/lib/parse-args.js'
-import { confirm, input, search, select } from '../registry/dist/lib/prompts.js'
-import { naturalCompare, naturalSorter } from '../registry/dist/lib/sorts.js'
-import { transform } from '../registry/dist/lib/streams.js'
-import { indentString } from '../registry/dist/lib/strings.js'
-import { pluralize } from '../registry/dist/lib/words.js'
+} from '@socketsecurity/lib/packages'
+import { confirm, input, search, select } from '@socketsecurity/lib/prompts'
+import { naturalCompare, naturalSorter } from '@socketsecurity/lib/sorts'
+import { transform } from '@socketsecurity/lib/streams'
+import { indentString } from '@socketsecurity/lib/strings'
+import { pluralize } from '@socketsecurity/lib/words'
+import { default as didYouMean, ReturnTypeEnums } from 'didyoumean2'
+import fastGlob from 'fast-glob'
+import { open } from 'out-url'
+import semver from 'semver'
 
 import constants from './constants.mjs'
 import {

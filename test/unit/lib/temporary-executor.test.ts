@@ -4,9 +4,8 @@
  * Validates detection of temporary execution contexts like npx, pnpm dlx, and yarn dlx.
  */
 
+import { isRunningInTemporaryExecutor } from '@socketsecurity/lib/temporary-executor'
 import { describe, expect, it } from 'vitest'
-
-import { isRunningInTemporaryExecutor } from '../../../registry/dist/lib/temporary-executor.js'
 
 describe('temporary-executor utilities', () => {
   describe('isRunningInTemporaryExecutor', () => {

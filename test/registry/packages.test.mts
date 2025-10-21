@@ -1,8 +1,5 @@
 import fs from 'node:fs'
 import path from 'node:path'
-
-import { describe, expect, it, vi } from 'vitest'
-
 import {
   createPackageJson,
   extractPackage,
@@ -37,8 +34,9 @@ import {
   resolvePackageName,
   resolveRegistryPackageName,
   unescapeScope,
-} from '../../registry/dist/lib/packages.js'
-import { normalizePath } from '../../registry/dist/lib/path.js'
+} from '@socketsecurity/lib/packages'
+import { normalizePath } from '@socketsecurity/lib/path'
+import { describe, expect, it, vi } from 'vitest'
 import { withTempDirSync } from '../utils/temp-file-helper.mts'
 
 describe('packages module', () => {

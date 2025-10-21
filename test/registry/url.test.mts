@@ -1,5 +1,3 @@
-import { describe, expect, it } from 'vitest'
-
 import {
   createRelativeUrl,
   isUrl,
@@ -8,7 +6,8 @@ import {
   urlSearchParamAsBoolean,
   urlSearchParamsGetArray,
   urlSearchParamsGetBoolean,
-} from '../../registry/dist/lib/url.js'
+} from '@socketsecurity/lib/url'
+import { describe, expect, it } from 'vitest'
 
 describe('url module', () => {
   describe('isUrl', () => {

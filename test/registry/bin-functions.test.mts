@@ -1,7 +1,4 @@
 import path from 'node:path'
-
-import { describe, expect, it } from 'vitest'
-
 import {
   findRealBin,
   findRealNpm,
@@ -10,7 +7,8 @@ import {
   isShadowBinPath,
   resolveBinPathSync,
   whichBinSync,
-} from '../../registry/dist/lib/bin.js'
+} from '@socketsecurity/lib/bin'
+import { describe, expect, it } from 'vitest'
 
 describe('bin module - function utilities', () => {
   describe('isShadowBinPath', () => {

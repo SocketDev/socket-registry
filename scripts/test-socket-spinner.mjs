@@ -5,8 +5,8 @@
 
 import { setTimeout as sleep } from 'node:timers/promises'
 
-import { RAINBOW_GRADIENT } from '../registry/dist/lib/effects/ultra.js'
-import { Spinner } from '../registry/dist/lib/spinner.js'
+import { RAINBOW_GRADIENT } from '@socketsecurity/lib/effects/ultra'
+import { Spinner } from '@socketsecurity/lib/spinner'
 
 async function testSpinner() {
   console.log('Testing Socket Spinner with shimmer\n')

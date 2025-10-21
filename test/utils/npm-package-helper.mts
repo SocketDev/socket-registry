@@ -45,7 +45,6 @@ export async function setupNpmPackageTest(
   const skip = isPackageTestingSkipped(sockRegPkgName)
 
   let pkgPath = ''
-  // biome-ignore lint/suspicious/noExplicitAny: Test module can be any type.
   let module: any
 
   if (!skip) {

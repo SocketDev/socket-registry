@@ -1,9 +1,6 @@
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-
 import {
   findGitRoot,
   getChangedFiles,
@@ -18,8 +15,9 @@ import {
   isStagedSync,
   isUnstaged,
   isUnstagedSync,
-} from '../../registry/src/lib/git.js'
-import { spawn } from '../../registry/src/lib/spawn.js'
+} from '@socketsecurity/lib/git'
+import { spawn } from '@socketsecurity/lib/spawn'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 describe('git utilities', () => {
   let tmpDir: string

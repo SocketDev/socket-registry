@@ -1,9 +1,6 @@
 import os from 'node:os'
 import path from 'node:path'
-
-import { describe, expect, it } from 'vitest'
-
-import { normalizePath } from '../../registry/dist/lib/path.js'
+import { normalizePath } from '@socketsecurity/lib/path'
 import {
   getSocketAppCacheDir,
   getSocketAppCacheTtlDir,
@@ -15,7 +12,8 @@ import {
   getSocketRegistryDir,
   getSocketRegistryGithubCacheDir,
   getSocketUserDir,
-} from '../../registry/dist/lib/paths.js'
+} from '@socketsecurity/lib/paths'
+import { describe, expect, it } from 'vitest'
 
 describe('paths module', () => {
   describe('getSocketUserDir', () => {

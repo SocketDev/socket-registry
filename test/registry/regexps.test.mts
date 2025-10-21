@@ -1,6 +1,5 @@
+import { escapeRegExp } from '@socketsecurity/lib/regexps'
 import { describe, expect, it } from 'vitest'
-
-import { escapeRegExp } from '../../registry/dist/lib/regexps.js'
 
 describe('regexps module', () => {
   describe('escapeRegExp', () => {

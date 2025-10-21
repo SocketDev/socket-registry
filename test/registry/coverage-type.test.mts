@@ -2,9 +2,8 @@
  * @fileoverview Tests for TypeScript type coverage utilities.
  */
 
+import { getTypeCoverage } from '@socketsecurity/lib/cover/type'
 import { describe, expect, it } from 'vitest'
-
-import { getTypeCoverage } from '../../registry/dist/lib/cover/type.js'
 
 describe('type coverage module', () => {
   describe('getTypeCoverage', () => {

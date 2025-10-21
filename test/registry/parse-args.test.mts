@@ -2,12 +2,12 @@
 // However, ESLint prefers dot notation. We use @ts-expect-error to suppress TS4111 errors while
 // keeping dot notation for better readability in tests.
 // @ts-nocheck
-import { describe, expect, it } from 'vitest'
 
 import {
   commonParseArgsConfig,
   parseArgs,
-} from '../../registry/src/lib/parse-args.js'
+} from '@socketsecurity/lib/parse-args.js'
+import { describe, expect, it } from 'vitest'
 
 describe('parse-args module', () => {
   describe('parseArgs', () => {

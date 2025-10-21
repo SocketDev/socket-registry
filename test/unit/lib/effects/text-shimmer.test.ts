@@ -2,12 +2,11 @@
  * @fileoverview Unit tests for text shimmer animation utilities.
  */
 
-import { describe, expect, it } from 'vitest'
 import type {
   ShimmerColorGradient,
   ShimmerColorRgb,
   ShimmerState,
-} from '../../../../registry/dist/lib/effects/text-shimmer.js'
+} from '@socketsecurity/lib/effects/text-shimmer'
 import {
   applyShimmer,
   COLOR_INHERIT,
@@ -16,7 +15,8 @@ import {
   DIR_RANDOM,
   DIR_RTL,
   MODE_BI,
-} from '../../../../registry/dist/lib/effects/text-shimmer.js'
+} from '@socketsecurity/lib/effects/text-shimmer'
+import { describe, expect, it } from 'vitest'
 
 import {
   expectNumber,

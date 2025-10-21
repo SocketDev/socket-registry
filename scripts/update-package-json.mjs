@@ -1,6 +1,6 @@
 /** @fileoverview Update root package.json with default Node.js engine range. */
 
-import { readPackageJson } from '../registry/dist/lib/packages.js'
+import { readPackageJson } from '@socketsecurity/lib/packages'
 import constants from './constants.mjs'
 
 /**

@@ -3,9 +3,9 @@
  *
  * Validates escapeRegExp function for proper escaping of special regex characters.
  */
-import { describe, expect, it } from 'vitest'
 
-import { escapeRegExp } from '../../../registry/dist/lib/regexps.js'
+import { escapeRegExp } from '@socketsecurity/lib/regexps'
+import { describe, expect, it } from 'vitest'
 
 describe('regexps utilities', () => {
   describe('escapeRegExp', () => {

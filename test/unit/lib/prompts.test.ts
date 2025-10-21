@@ -3,8 +3,8 @@
  *
  * Validates prompt re-exports and separator creation functionality.
  */
-import { describe, expect, it } from 'vitest'
-import type { Choice, Separator } from '../../../registry/dist/lib/prompts.js'
+
+import type { Choice, Separator } from '@socketsecurity/lib/prompts'
 import {
   confirm,
   createSeparator,
@@ -12,7 +12,8 @@ import {
   password,
   search,
   select,
-} from '../../../registry/dist/lib/prompts.js'
+} from '@socketsecurity/lib/prompts'
+import { describe, expect, it } from 'vitest'
 
 describe('prompts utilities', () => {
   describe('re-exported functions', () => {

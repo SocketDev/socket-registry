@@ -3,7 +3,6 @@
  *
  * Validates semantic versioning functions including parsing, comparing, filtering, and incrementing.
  */
-import { describe, expect, it } from 'vitest'
 
 import {
   coerceVersion,
@@ -26,7 +25,8 @@ import {
   sortVersions,
   sortVersionsDesc,
   versionDiff,
-} from '../../../registry/dist/lib/versions.js'
+} from '@socketsecurity/lib/versions'
+import { describe, expect, it } from 'vitest'
 
 describe('versions utilities', () => {
   describe('coerceVersion', () => {

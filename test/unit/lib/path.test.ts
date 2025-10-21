@@ -4,8 +4,6 @@
  * Validates path manipulation, normalization, and validation functions.
  */
 
-import { describe, expect, it } from 'vitest'
-
 import {
   isAbsolute,
   isNodeModules,
@@ -16,7 +14,8 @@ import {
   relativeResolve,
   splitPath,
   trimLeadingDotSlash,
-} from '../../../registry/dist/lib/path.js'
+} from '@socketsecurity/lib/path'
+import { describe, expect, it } from 'vitest'
 
 describe('path utilities', () => {
   describe('isAbsolute', () => {

@@ -1,12 +1,11 @@
-import { describe, expect, it } from 'vitest'
-
 import {
   type AnyFunction,
   noop,
   once,
   silentWrapAsync,
   trampoline,
-} from '../../registry/dist/lib/functions.js'
+} from '@socketsecurity/lib/functions'
+import { describe, expect, it } from 'vitest'
 
 // Helper functions moved to outer scope.
 const asyncFn = async () => 'success'

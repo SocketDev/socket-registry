@@ -2,17 +2,16 @@
  * @fileoverview Tests for constants that are not already tested elsewhere.
  */
 
+import * as agents from '@socketsecurity/lib/constants/agents'
+import * as core from '@socketsecurity/lib/constants/core'
+import * as encoding from '@socketsecurity/lib/constants/encoding'
+import * as licenses from '@socketsecurity/lib/constants/licenses'
+import * as node from '@socketsecurity/lib/constants/node'
+import * as packages from '@socketsecurity/lib/constants/packages'
+import * as paths from '@socketsecurity/lib/constants/paths'
+import * as platform from '@socketsecurity/lib/constants/platform'
+import * as testing from '@socketsecurity/lib/constants/testing'
 import { describe, expect, it } from 'vitest'
-
-import * as agents from '../../registry/dist/constants/agents.js'
-import * as core from '../../registry/dist/constants/core.js'
-import * as encoding from '../../registry/dist/constants/encoding.js'
-import * as licenses from '../../registry/dist/constants/licenses.js'
-import * as node from '../../registry/dist/constants/node.js'
-import * as packages from '../../registry/dist/constants/packages.js'
-import * as paths from '../../registry/dist/constants/paths.js'
-import * as platform from '../../registry/dist/constants/platform.js'
-import * as testing from '../../registry/dist/constants/testing.js'
 
 describe('additional constants', () => {
   describe('paths constants', () => {

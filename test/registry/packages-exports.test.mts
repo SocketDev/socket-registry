@@ -1,12 +1,11 @@
-import { describe, expect, it } from 'vitest'
-
 import {
   findTypesForSubpath,
   getExportFilePaths,
   getSubpaths,
   isConditionalExports,
   isSubpathExports,
-} from '../../registry/dist/lib/packages.js'
+} from '@socketsecurity/lib/packages'
+import { describe, expect, it } from 'vitest'
 
 describe('packages exports tests', () => {
   describe('getSubpaths', () => {

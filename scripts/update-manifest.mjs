@@ -7,17 +7,18 @@ import fs from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { PackageURL } from '@socketregistry/packageurl-js'
-import { UNLICENSED } from '../registry/dist/constants/licenses.js'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { UNLICENSED } from '@socketsecurity/lib/constants/licenses'
 import {
   AT_LATEST,
   getPackageDefaultNodeRange,
-} from '../registry/dist/constants/packages.js'
-import { getSpinner } from '../registry/dist/constants/process.js'
+} from '@socketsecurity/lib/constants/packages'
+import { getSpinner } from '@socketsecurity/lib/constants/process'
 import {
   objectEntries,
   toSortedObject,
   toSortedObjectFromEntries,
-} from '../registry/dist/lib/objects.js'
+} from '@socketsecurity/lib/objects'
 import {
   extractPackage,
   fetchPackageManifest,
@@ -25,11 +26,10 @@ import {
   readPackageJson,
   resolveOriginalPackageName,
   resolvePackageJsonEntryExports,
-} from '../registry/dist/lib/packages.js'
-import { parseArgs } from '../registry/dist/lib/parse-args.js'
-import { pEach } from '../registry/dist/lib/promises.js'
-import { naturalCompare } from '../registry/dist/lib/sorts.js'
-import { withSpinner } from '../registry/dist/lib/spinner.js'
+} from '@socketsecurity/lib/packages'
+import { pEach } from '@socketsecurity/lib/promises'
+import { naturalCompare } from '@socketsecurity/lib/sorts'
+import { withSpinner } from '@socketsecurity/lib/spinner'
 
 import { DEFAULT_CONCURRENCY } from './constants/core.mjs'
 import {

@@ -2,8 +2,8 @@
 
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import fastGlob from 'fast-glob'
-import { parseArgs } from '../registry/dist/lib/parse-args.js'
 
 import constants from './constants.mjs'
 import { getModifiedFiles } from './utils/git.mjs'

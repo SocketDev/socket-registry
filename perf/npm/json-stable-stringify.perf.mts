@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict'
 import path from 'node:path'
+
 import jsonStableStringify from '@socketregistry/json-stable-stringify'
-import { logger } from '@socketsecurity/registry/lib/logger'
+// eslint-disable-next-line n/no-extraneous-import
+import { logger } from '@socketsecurity/lib/logger'
 import fastJsonStableStringify from 'fast-json-stable-stringify'
 import { Bench } from 'tinybench'
 

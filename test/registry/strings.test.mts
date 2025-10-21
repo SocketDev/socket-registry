@@ -1,5 +1,3 @@
-import { describe, expect, it } from 'vitest'
-
 import {
   applyLinePrefix,
   camelToKebab,
@@ -12,7 +10,8 @@ import {
   stripBom,
   toKebabCase,
   trimNewlines,
-} from '../../registry/dist/lib/strings.js'
+} from '@socketsecurity/lib/strings'
+import { describe, expect, it } from 'vitest'
 
 describe('strings module', () => {
   describe('isNonEmptyString', () => {

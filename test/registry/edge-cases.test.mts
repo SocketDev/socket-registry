@@ -1,9 +1,7 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-
+import { normalizePath } from '@socketsecurity/lib/path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-
-import { normalizePath } from '../../registry/dist/lib/path.js'
 import { withTempDir } from '../utils/temp-file-helper.mts'
 
 // Helper predicate moved to outer scope.

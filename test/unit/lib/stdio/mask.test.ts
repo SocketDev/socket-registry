@@ -42,15 +42,15 @@ vi.mock('node:child_process', async () => {
 })
 
 import { spawn } from 'node:child_process'
-import { spinner } from '../../../../registry/src/lib/spinner'
-import { clearLine } from '../../../../registry/src/lib/stdio/clear'
+import { spinner } from '@socketsecurity/lib/spinner'
+import { clearLine } from '@socketsecurity/lib/stdio/clear'
 import {
   attachOutputMask,
   createKeyboardHandler,
   createOutputMask,
   runWithMask,
-} from '../../../../registry/src/lib/stdio/mask'
-import { write } from '../../../../registry/src/lib/stdio/stdout'
+} from '@socketsecurity/lib/stdio/mask'
+import { write } from '@socketsecurity/lib/stdio/stdout'
 
 describe('stdio/mask utilities', () => {
   let consoleLogSpy: ReturnType<typeof vi.spyOn>

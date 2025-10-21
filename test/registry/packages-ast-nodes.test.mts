@@ -1,11 +1,10 @@
-import { describe, expect, it } from 'vitest'
-
 import {
   createAstNode,
   getReleaseTag,
   isConditionalExports,
   parseSpdxExp,
-} from '../../registry/dist/lib/packages.js'
+} from '@socketsecurity/lib/packages'
+import { describe, expect, it } from 'vitest'
 
 describe('packages module - utility functions', () => {
   describe('createAstNode', () => {

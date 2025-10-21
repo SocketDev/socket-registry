@@ -5,25 +5,24 @@ import crypto from 'node:crypto'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { promisify } from 'node:util'
-
-import { minimatch } from 'minimatch'
-import semver from 'semver'
+import { execScript } from '@socketsecurity/lib/agent'
 import {
   getAbortSignal,
   getSpinner,
-} from '../registry/dist/constants/process.js'
-import { execScript } from '../registry/dist/lib/agent.js'
-import { readFileUtf8 } from '../registry/dist/lib/fs.js'
-import { isObjectObject, toSortedObject } from '../registry/dist/lib/objects.js'
+} from '@socketsecurity/lib/constants/process'
+import { readFileUtf8 } from '@socketsecurity/lib/fs'
+import { isObjectObject, toSortedObject } from '@socketsecurity/lib/objects'
 import {
   extractPackage,
   fetchPackageManifest,
   getReleaseTag,
   readPackageJson,
   readPackageJsonSync,
-} from '../registry/dist/lib/packages.js'
-import { pEach } from '../registry/dist/lib/promises.js'
-import { withSpinner } from '../registry/dist/lib/spinner.js'
+} from '@socketsecurity/lib/packages'
+import { pEach } from '@socketsecurity/lib/promises'
+import { withSpinner } from '@socketsecurity/lib/spinner'
+import { minimatch } from 'minimatch'
+import semver from 'semver'
 import { LATEST, SOCKET_REGISTRY_PACKAGE_NAME } from './constants/packages.mjs'
 import {
   NPM_PACKAGES_PATH,

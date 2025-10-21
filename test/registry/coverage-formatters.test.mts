@@ -2,14 +2,12 @@
  * @fileoverview Tests for coverage output formatters.
  */
 
-import { describe, expect, it } from 'vitest'
-
 import {
   formatCoverage,
   getCoverageEmoji,
-} from '../../registry/dist/lib/cover/formatters.js'
-
-import type { CodeCoverageResult } from '../../registry/dist/lib/cover/types.js'
+} from '@socketsecurity/lib/cover/formatters'
+import type { CodeCoverageResult } from '@socketsecurity/lib/cover/types'
+import { describe, expect, it } from 'vitest'
 
 describe('coverage formatters module', () => {
   describe('getCoverageEmoji', () => {

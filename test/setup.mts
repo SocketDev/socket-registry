@@ -9,6 +9,6 @@ delete process.env['NODE_DEBUG']
 import { vi } from 'vitest'
 
 // Mock signal-exit to prevent issues during coverage
-vi.mock('@socketsecurity/registry/lib/signal-exit', () => ({
+vi.mock('@socketsecurity/lib/signal-exit', () => ({
   onExit: vi.fn(),
 }))

@@ -3,14 +3,14 @@
  *
  * Validates spawn utility functions, type guards, and basic spawn operations.
  */
-import { describe, expect, it } from 'vitest'
 
 import {
   isSpawnError,
   isStdioType,
   spawn,
   spawnSync,
-} from '../../../registry/dist/lib/spawn.js'
+} from '@socketsecurity/lib/spawn'
+import { describe, expect, it } from 'vitest'
 
 describe('spawn utilities', () => {
   describe('isSpawnError', () => {

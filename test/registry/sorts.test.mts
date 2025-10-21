@@ -1,12 +1,11 @@
-import { describe, expect, it } from 'vitest'
-
 import {
   compareSemver,
   compareStr,
   localeCompare,
   naturalCompare,
   naturalSorter,
-} from '../../registry/dist/lib/sorts.js'
+} from '@socketsecurity/lib/sorts'
+import { describe, expect, it } from 'vitest'
 
 describe('sorts module', () => {
   describe('compareStr', () => {
@@ -179,9 +178,9 @@ describe('sorts module', () => {
 
     it('should sort mixed case naturally', () => {
       const arr = ['Beta', 'alpha', 'Delta', 'charlie']
-      const sorted = naturalSorter(arr).asc()
-      expect(sorted[0].toLowerCase()).toBe('alpha')
-      expect(sorted[sorted.length - 1].toLowerCase()).toBe('delta')
+      const sorted = naturalSorter(arr).asc() as string[]
+      expect(sorted[0]?.toLowerCase()).toBe('alpha')
+      expect(sorted[sorted.length - 1]?.toLowerCase()).toBe('delta')
     })
 
     it('should handle empty arrays', () => {
@@ -225,10 +224,15 @@ describe('sorts module', () => {
     })
 
     it('should sort by object properties', () => {
-      const arr = [{ name: 'file10' }, { name: 'file2' }, { name: 'file1' }]
+      type Item = { name: string }
+      const arr: Item[] = [
+        { name: 'file10' },
+        { name: 'file2' },
+        { name: 'file1' },
+      ]
       const sorter = naturalSorter(arr)
-      const result = sorter.asc('name')
-      expect(result.map((item: { name: string }) => item.name)).toEqual([
+      const result = sorter.asc(((item: Item) => item.name) as any) as Item[]
+      expect(result.map((item: Item) => item.name)).toEqual([
         'file1',
         'file2',
         'file10',
@@ -236,14 +240,18 @@ describe('sorts module', () => {
     })
 
     it('should handle multiple sort keys', () => {
-      const arr = [
+      type Item = { category: string; name: string }
+      const arr: Item[] = [
         { category: 'B', name: 'file10' },
         { category: 'A', name: 'file2' },
         { category: 'A', name: 'file1' },
         { category: 'B', name: 'file1' },
       ]
       const sorter = naturalSorter(arr)
-      const result = sorter.asc(['category', 'name'])
+      const result = sorter.asc([
+        (item: Item) => item.category,
+        (item: Item) => item.name,
+      ] as any) as Item[]
       expect(result).toEqual([
         { category: 'A', name: 'file1' },
         { category: 'A', name: 'file2' },

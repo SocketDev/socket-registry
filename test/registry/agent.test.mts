@@ -1,10 +1,6 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-
-import { deleteAsync as del } from 'del'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-
 import {
   execNpm,
   execPnpm,
@@ -19,13 +15,15 @@ import {
   isPnpmIgnoreScriptsFlag,
   isPnpmInstallCommand,
   isPnpmLoglevelFlag,
-} from '../../registry/dist/lib/agent.js'
+} from '@socketsecurity/lib/agent'
 import {
   execBin,
   resolveBinPathSync,
   whichBin,
   whichBinSync,
-} from '../../registry/dist/lib/bin.js'
+} from '@socketsecurity/lib/bin'
+import { deleteAsync as del } from 'del'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 describe('agent module', () => {
   let tmpDir: string

@@ -3,7 +3,6 @@
  *
  * Validates promise control flow, iteration, filtering, chunking, and retry logic.
  */
-import { describe, expect, it } from 'vitest'
 
 import {
   normalizeIterationOptions,
@@ -14,7 +13,8 @@ import {
   pFilterChunk,
   pRetry,
   resolveRetryOptions,
-} from '../../../registry/dist/lib/promises.js'
+} from '@socketsecurity/lib/promises'
+import { describe, expect, it } from 'vitest'
 
 describe('promises utilities', () => {
   describe('normalizeRetryOptions', () => {

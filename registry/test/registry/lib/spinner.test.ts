@@ -1,6 +1,6 @@
+import type { Spinner as SpinnerType } from '@socketsecurity/lib/spinner'
+import { Spinner } from '@socketsecurity/lib/spinner'
 import { beforeEach, describe, expect, it } from 'vitest'
-import type { Spinner as SpinnerType } from '../../../src/lib/spinner'
-import { Spinner } from '../../../src/lib/spinner'
 
 describe('Spinner', () => {
   let spinner: SpinnerType

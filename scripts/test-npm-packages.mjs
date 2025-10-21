@@ -3,11 +3,11 @@
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { WIN32 } from '../registry/dist/constants/platform.js'
-import { CI } from '../registry/dist/env/ci.js'
-import { logger } from '../registry/dist/lib/logger.js'
-import { parseArgs } from '../registry/dist/lib/parse-args.js'
-import { spawn } from '../registry/dist/lib/spawn.js'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
+import { CI } from '@socketsecurity/lib/env/ci'
+import { logger } from '@socketsecurity/lib/logger'
+import { spawn } from '@socketsecurity/lib/spawn'
 
 import { logSectionHeader } from './utils/logging.mjs'
 

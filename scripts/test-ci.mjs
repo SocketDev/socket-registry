@@ -4,7 +4,7 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { spawn } from '../registry/dist/lib/spawn.js'
+import { spawn } from '@socketsecurity/lib/spawn'
 
 import constants from './constants.mjs'
 

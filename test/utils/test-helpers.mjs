@@ -10,7 +10,7 @@ import {
   readPackageJson,
   isolatePackage as registryIsolatePackage,
   resolveOriginalPackageName,
-} from '../../registry/dist/lib/packages.js'
+} from '@socketsecurity/lib/packages'
 import {
   NPM_PACKAGES_PATH,
   TEST_NPM_PKG_JSON_PATH,

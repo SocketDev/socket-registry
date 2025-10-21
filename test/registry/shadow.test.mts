@@ -1,6 +1,5 @@
+import { shouldSkipShadow } from '@socketsecurity/lib/shadow'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-
-import { shouldSkipShadow } from '../../registry/dist/lib/shadow.js'
 
 describe('shadow module', () => {
   let originalEnv: NodeJS.ProcessEnv

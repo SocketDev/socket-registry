@@ -1,10 +1,9 @@
-import { describe, expect, it } from 'vitest'
-
 import {
   capitalize,
   determineArticle,
   pluralize,
-} from '../../registry/dist/lib/words.js'
+} from '@socketsecurity/lib/words'
+import { describe, expect, it } from 'vitest'
 
 describe('words module', () => {
   describe('capitalize', () => {

@@ -2,12 +2,10 @@
 
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-
+import { logger } from '@socketsecurity/lib/logger'
+import { withSpinner } from '@socketsecurity/lib/spinner'
 import yargsParser from 'yargs-parser'
 import colors from 'yoctocolors-cjs'
-
-import { logger } from '../registry/dist/lib/logger.js'
-import { withSpinner } from '../registry/dist/lib/spinner.js'
 
 // Create a constants stub with just what we need.
 const constants = {

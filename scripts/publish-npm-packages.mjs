@@ -1,22 +1,21 @@
 /** @fileoverview Publish npm packages with version bump detection and retry logic. */
 
 import path from 'node:path'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
 
-import semver from 'semver'
-
-import { joinAnd } from '../registry/dist/lib/arrays.js'
-import { getChangedFiles } from '../registry/dist/lib/git.js'
-import { logger } from '../registry/dist/lib/logger.js'
-import { isObjectObject } from '../registry/dist/lib/objects.js'
+import { joinAnd } from '@socketsecurity/lib/arrays'
+import { getChangedFiles } from '@socketsecurity/lib/git'
+import { logger } from '@socketsecurity/lib/logger'
+import { isObjectObject } from '@socketsecurity/lib/objects'
 import {
   fetchPackageManifest,
   getReleaseTag,
   readPackageJsonSync,
-} from '../registry/dist/lib/packages.js'
-import { parseArgs } from '../registry/dist/lib/parse-args.js'
-import { pEach } from '../registry/dist/lib/promises.js'
-import { spawn } from '../registry/dist/lib/spawn.js'
-import { pluralize } from '../registry/dist/lib/words.js'
+} from '@socketsecurity/lib/packages'
+import { pEach } from '@socketsecurity/lib/promises'
+import { spawn } from '@socketsecurity/lib/spawn'
+import { pluralize } from '@socketsecurity/lib/words'
+import semver from 'semver'
 
 import constants from './constants.mjs'
 import { extractNpmError } from './utils/errors.mjs'

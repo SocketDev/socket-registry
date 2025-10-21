@@ -5,13 +5,11 @@
  * time formatting, custom tokens, TTY handling, and progress indicators.
  */
 import { PassThrough } from 'node:stream'
-
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-
 import {
   createProgressIndicator,
   ProgressBar,
-} from '../../../../registry/src/lib/stdio/progress'
+} from '@socketsecurity/lib/stdio/progress'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('ProgressBar', () => {
   let stream: PassThrough & {

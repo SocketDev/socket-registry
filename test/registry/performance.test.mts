@@ -1,5 +1,3 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-
 import {
   clearPerformanceMetrics,
   generatePerformanceReport,
@@ -11,7 +9,8 @@ import {
   perfTimer,
   printPerformanceSummary,
   trackMemory,
-} from '../../registry/dist/lib/performance.js'
+} from '@socketsecurity/lib/performance'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('performance module', () => {
   let originalEnv: NodeJS.ProcessEnv

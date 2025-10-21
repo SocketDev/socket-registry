@@ -3,8 +3,8 @@
 import { promises as fs } from 'node:fs'
 import { get as httpGet } from 'node:http'
 import { get as httpsGet } from 'node:https'
-import loggerModule from '../../registry/dist/lib/logger.js'
-import parseArgsModule from '../../registry/dist/lib/parse-args.js'
+import parseArgsModule from '@socketsecurity/lib/argv/parse'
+import loggerModule from '@socketsecurity/lib/logger'
 
 const { parseArgs } = parseArgsModule
 const { logger } = loggerModule

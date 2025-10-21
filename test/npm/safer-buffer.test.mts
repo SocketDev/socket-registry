@@ -1,10 +1,9 @@
 /* eslint-disable n/no-deprecated-api */
 import buffer from 'node:buffer'
 import path from 'node:path'
-
+// eslint-disable-next-line n/no-extraneous-import
+import { logger } from '@socketsecurity/lib/logger'
 import { describe, expect, it } from 'vitest'
-
-import { logger } from '../../registry/dist/lib/logger.js'
 import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
 const { eco, pkgPath, skip, sockRegPkgName } =

@@ -1,6 +1,5 @@
+import { getManifestData } from '@socketsecurity/lib/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-
-import { getManifestData } from '../../registry/dist/index.js'
 
 describe('manifest data utilities', () => {
   beforeEach(() => {

@@ -4,9 +4,9 @@
  * Validates logic for determining when shadow binary installation should be skipped.
  */
 
+import type { ShadowInstallationOptions } from '@socketsecurity/lib/shadow'
+import { shouldSkipShadow } from '@socketsecurity/lib/shadow'
 import { describe, expect, it } from 'vitest'
-import type { ShadowInstallationOptions } from '../../../registry/dist/lib/shadow.js'
-import { shouldSkipShadow } from '../../../registry/dist/lib/shadow.js'
 
 describe('shadow utilities', () => {
   describe('shouldSkipShadow', () => {

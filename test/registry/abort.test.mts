@@ -1,9 +1,8 @@
-import { describe, expect, it } from 'vitest'
-
 import {
   createCompositeAbortSignal,
   createTimeoutSignal,
-} from '../../registry/dist/lib/abort.js'
+} from '@socketsecurity/lib/abort'
+import { describe, expect, it } from 'vitest'
 
 describe('abort module', () => {
   describe('createCompositeAbortSignal', () => {

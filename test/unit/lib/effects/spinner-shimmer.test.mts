@@ -2,10 +2,9 @@
  * @fileoverview Unit tests for spinner shimmer effects.
  */
 
+import { RAINBOW_GRADIENT } from '@socketsecurity/lib/effects/ultra'
+import { Spinner } from '@socketsecurity/lib/spinner'
 import { describe, expect, it } from 'vitest'
-
-import { RAINBOW_GRADIENT } from '../../../../registry/dist/lib/effects/ultra.js'
-import { Spinner } from '../../../../registry/dist/lib/spinner.js'
 
 describe('Spinner shimmer effects', () => {
   describe('shimmer configuration', () => {

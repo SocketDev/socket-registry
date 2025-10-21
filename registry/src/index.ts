@@ -10,9 +10,7 @@ export * from './types'
 
 // Function overloads for proper typing
 export function getManifestData(): Manifest
-export function getManifestData(
-  ecosystem: string,
-): ManifestEntry[] | undefined
+export function getManifestData(ecosystem: string): ManifestEntry[] | undefined
 export function getManifestData(
   ecosystem: string,
   packageName: string,

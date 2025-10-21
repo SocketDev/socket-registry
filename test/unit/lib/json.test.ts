@@ -3,9 +3,9 @@
  *
  * Validates jsonParse and isJsonPrimitive functions with Buffer handling and BOM stripping.
  */
-import { describe, expect, it } from 'vitest'
 
-import { isJsonPrimitive, jsonParse } from '../../../registry/dist/lib/json.js'
+import { isJsonPrimitive, jsonParse } from '@socketsecurity/lib/json'
+import { describe, expect, it } from 'vitest'
 
 describe('json utilities', () => {
   describe('isJsonPrimitive', () => {

@@ -3,7 +3,6 @@
  *
  * Validates ANSI constants and utility functions for terminal formatting.
  */
-import { describe, expect, it } from 'vitest'
 
 import {
   ANSI_BOLD,
@@ -14,7 +13,8 @@ import {
   ANSI_UNDERLINE,
   ansiRegex,
   stripAnsi,
-} from '../../../registry/dist/lib/ansi.js'
+} from '@socketsecurity/lib/ansi'
+import { describe, expect, it } from 'vitest'
 
 describe('ansi utilities', () => {
   describe('ANSI constants', () => {
