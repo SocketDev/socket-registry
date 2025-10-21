@@ -38,7 +38,6 @@
     "release-npm": "node ./scripts/release-npm-packages.mjs",
     "test": "node scripts/test.mjs",
     "test-ci": "pnpm run test --all",
-    "test-unit-coverage": "node scripts/cover.mjs --code-only",
     "type-ci": "pnpm run check --type --all",
     "update": "node scripts/update.mjs",
     "validate-ci": "node ./scripts/testing/reproduce-ci-locally.mjs",
