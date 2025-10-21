@@ -193,8 +193,8 @@ export default defineConfig({
       ignoreClassMethods: ['constructor'],
       thresholds: {
         lines: 1,
-        functions: 70,
-        branches: 70,
+        functions: 80,
+        branches: 80,
         statements: 1,
       },
     },
