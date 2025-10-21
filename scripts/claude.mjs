@@ -9,8 +9,10 @@ import crypto from 'node:crypto'
 import { existsSync, promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseArgs } from '@socketsecurity/lib/argv/parse'
+
 import colors from 'yoctocolors-cjs'
+
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.join(__dirname, '..')
@@ -1063,7 +1065,7 @@ async function executeParallel(tasks, workers = 3) {
   }
 
   // Parallel execution with worker limit
-  log.substep(`⚡ Executing ${tasks.length} tasks with ${workers} workers`)
+  log.substep(`🚀 Executing ${tasks.length} tasks with ${workers} workers`)
   const results = []
   const executing = []
 
@@ -2993,24 +2995,26 @@ async function validateBeforePush(cwd) {
 
   // Check 1: No console.log statements
   if (diff.match(/^\+.*console\.log\(/m)) {
-    warnings.push('⚠️  Added console.log() statements detected')
+    warnings.push(
+      `${colors.yellow('⚠')} Added console.log() statements detected`,
+    )
   }
 
   // Check 2: No .only in tests
   if (diff.match(/^\+.*\.(only|skip)\(/m)) {
-    warnings.push('⚠️  Test .only() or .skip() detected')
+    warnings.push(`${colors.yellow('⚠')} Test .only() or .skip() detected`)
   }
 
   // Check 3: No debugger statements
   if (diff.match(/^\+.*debugger[;\s]/m)) {
-    warnings.push('⚠️  Debugger statement detected')
+    warnings.push(`${colors.yellow('⚠')} Debugger statement detected`)
   }
 
   // Check 4: No TODO/FIXME without issue link
   const todoMatches = diff.match(/^\+.*\/\/\s*(TODO|FIXME)(?!\s*\(#\d+\))/gim)
   if (todoMatches && todoMatches.length > 0) {
     warnings.push(
-      `⚠️  ${todoMatches.length} TODO/FIXME comment(s) without issue links`,
+      `${colors.yellow('⚠')} ${todoMatches.length} TODO/FIXME comment(s) without issue links`,
     )
   }
 
@@ -3021,7 +3025,7 @@ async function validateBeforePush(cwd) {
       const pkgContent = await fs.readFile(pkgPath, 'utf8')
       JSON.parse(pkgContent)
     } catch (e) {
-      warnings.push(`⚠️  Invalid package.json: ${e.message}`)
+      warnings.push(`${colors.yellow('⚠')} Invalid package.json: ${e.message}`)
     }
   }
 
@@ -3292,7 +3296,9 @@ Let's work through this together to get CI passing.`
       const validation = await validateBeforePush(rootPath)
       if (!validation.valid) {
         log.warn('Pre-push validation warnings:')
-        validation.warnings.forEach(warning => log.substep(warning))
+        validation.warnings.forEach(warning => {
+          log.substep(warning)
+        })
         log.substep('Continuing with push (warnings are non-blocking)...')
       }
 
@@ -3782,7 +3788,9 @@ Fix all issues by making necessary file changes. Be direct, don't ask questions.
           const validation = await validateBeforePush(rootPath)
           if (!validation.valid) {
             log.warn('Pre-commit validation warnings:')
-            validation.warnings.forEach(warning => log.substep(warning))
+            validation.warnings.forEach(warning => {
+              log.substep(warning)
+            })
           }
 
           // Commit with generated message
@@ -3894,7 +3902,7 @@ Fix all issues by making necessary file changes. Be direct, don't ask questions.
 
             // Fix each failed job immediately
             for (const job of sortedFailures) {
-              log.substep(`❌ ${job.name}: ${job.conclusion}`)
+              log.substep(`${colors.red('✗')} ${job.name}: ${job.conclusion}`)
 
               // Fetch logs for this specific failed job using job ID
               log.progress(`Fetching logs for ${job.name}`)
@@ -4097,7 +4105,9 @@ Fix the issue by making necessary file changes. Be direct, don't ask questions.`
                 const validation = await validateBeforePush(rootPath)
                 if (!validation.valid) {
                   log.warn('Pre-commit validation warnings:')
-                  validation.warnings.forEach(warning => log.substep(warning))
+                  validation.warnings.forEach(warning => {
+                    log.substep(warning)
+                  })
                 }
 
                 // Commit with generated message
@@ -4161,7 +4171,7 @@ async function runWatchMode(claudeCmd, options = {}) {
   const opts = { __proto__: null, ...options }
   printHeader('Watch Mode - Continuous Monitoring')
 
-  log.info('👁️ Starting continuous monitoring...')
+  log.info('Starting continuous monitoring...')
   log.substep('Press Ctrl+C to stop')
 
   const _watchPath = !opts['cross-repo'] ? rootPath : parentPath
@@ -4618,13 +4628,13 @@ async function main() {
 
     // Display execution mode
     if (executionMode.workers > 1) {
-      log.substep(`⚡ Parallel mode: ${executionMode.workers} workers`)
+      log.substep(`🚀 Parallel mode: ${executionMode.workers} workers`)
     }
     if (executionMode.watch) {
-      log.substep('👁️ Watch mode: Continuous monitoring enabled')
+      log.substep('Watch mode: Continuous monitoring enabled')
     }
     if (!executionMode.autoFix) {
-      log.substep('💬 Prompt mode: Fixes require approval')
+      log.substep('Prompt mode: Fixes require approval')
     }
 
     // Execute requested operation.
