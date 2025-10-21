@@ -1,7 +1,7 @@
 /** @fileoverview Publish npm packages with version bump detection and retry logic. */
 
 import path from 'node:path'
-import { execScript } from '@socketsecurity/lib/agent'
+
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 
 import { joinAnd } from '@socketsecurity/lib/arrays'
@@ -278,7 +278,9 @@ async function publishAtCommit(sha) {
 
   // Update manifest.json with latest published versions before publishing registry.
   if (registryPkgToPublish && !fails.includes(registryPkgToPublish.printName)) {
-    await execScript('update:manifest', ['--', '--force'], { shell: WIN32 })
+    await spawn('node', ['scripts/update-manifest.mjs', '--force'], {
+      shell: WIN32,
+    })
 
     // Commit manifest changes if there are any.
     const changedFiles = await getChangedFiles()
