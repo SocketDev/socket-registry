@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0](https://github.com/SocketDev/socket-registry/releases/tag/v2.0.0) - 2025-10-21
+
+### Changed
+
+- Simplified package to focus on manifest data access
+- Reduced exports to main entry point and types only
+- Removed all utility libraries (moved to separate packages or deprecated)
+
+### Removed
+
+- Removed all subpath exports except `./types`
+- Removed browser field configuration
+- Removed complex build scripts and tooling
+- Removed unused dependencies and build artifacts
+
 ## [1.5.3] - 2025-10-07
 
 ### Added
