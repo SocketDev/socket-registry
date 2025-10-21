@@ -1,9 +1,8 @@
 /** @fileoverview Taze wrapper that errors on provenance downgrades. */
 
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
 import { logger } from '@socketsecurity/lib/logger'
 import { spawn } from '@socketsecurity/lib/spawn'
-
-import constants from './constants.mjs'
 
 function includesProvenanceDowngradeWarning(output) {
   const lowered = output.toString().toLowerCase()
@@ -19,7 +18,7 @@ async function main() {
 
   const tazePromise = spawn('pnpm', ['taze', ...args], {
     cwd: process.cwd(),
-    shell: constants.WIN32,
+    shell: WIN32,
     stdio: 'pipe',
   })
 

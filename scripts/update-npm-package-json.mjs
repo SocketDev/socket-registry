@@ -14,9 +14,12 @@ import { trimLeadingDotSlash } from '@socketsecurity/lib/path'
 import { pluralize } from '@socketsecurity/lib/words'
 import fastGlob from 'fast-glob'
 
-import constants from './constants.mjs'
-
-const { PACKAGE_JSON, SOCKET_REGISTRY_SCOPE } = constants
+import { getNpmPackageNames } from './constants/testing.mjs'
+import {
+  NPM_PACKAGES_PATH,
+  PACKAGE_JSON,
+  SOCKET_REGISTRY_SCOPE,
+} from './constants/paths.mjs'
 
 /**
  * Update package.json files and validate subpath exports.
@@ -25,8 +28,8 @@ async function main() {
   const useDebug = isDebug()
   const warnings = []
   await Promise.all(
-    constants.npmPackageNames.map(async sockRegPkgName => {
-      const pkgPath = path.join(constants.npmPackagesPath, sockRegPkgName)
+    getNpmPackageNames().map(async sockRegPkgName => {
+      const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
       const editablePkgJson = await readPackageJson(pkgJsonPath, {
         editable: true,

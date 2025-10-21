@@ -2,20 +2,21 @@
 
 import path from 'node:path'
 
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
 import { logger } from '@socketsecurity/lib/logger'
 import { spawn } from '@socketsecurity/lib/spawn'
 
-import constants from './constants.mjs'
+import { ROOT_PATH } from './constants/paths.mjs'
 
 /**
  * Run a command with the specified arguments.
  * @throws {Error} When command exits with non-zero code.
  */
 async function runCommand(command, args, options) {
-  const opts = { __proto__: null, shell: constants.WIN32, ...options }
+  const opts = { __proto__: null, shell: WIN32, ...options }
   try {
     const result = await spawn(command, args, {
-      cwd: constants.rootPath,
+      cwd: ROOT_PATH,
       env: process.env,
       stdio: 'inherit',
       ...opts,
@@ -45,12 +46,12 @@ async function main() {
     await runCommand('pnpm', ['run', 'check'])
 
     logger.log('\nRunning unit tests...\n')
-    const testScriptPath = path.join(constants.rootPath, 'scripts', 'test.mjs')
+    const testScriptPath = path.join(ROOT_PATH, 'scripts', 'test.mjs')
     await runCommand('node', [testScriptPath, ...args])
 
     logger.log('\nRunning npm package tests...\n')
     const npmTestScriptPath = path.join(
-      constants.rootPath,
+      ROOT_PATH,
       'scripts',
       'test-npm-packages.mjs',
     )

@@ -3,10 +3,17 @@
  */
 
 import path from 'node:path'
+
 // Import from registry v2.0 (async only)
 import { getChangedFiles } from '@socketsecurity/lib/git'
 import { normalizePath } from '@socketsecurity/lib/path'
-import constants from '../constants.mjs'
+
+import {
+  NPM,
+  REL_REGISTRY_PKG_PATH,
+  ROOT_PACKAGES_PATH,
+  ROOT_PATH,
+} from '../constants/paths.mjs'
 // Import sync and additional functions from helpers
 import {
   getChangedFilesSync,
@@ -19,24 +26,21 @@ import {
 } from './git-helpers.mjs'
 import { getGlobMatcher } from './globs.mjs'
 
-const { NPM } = constants
-
 function innerGetPackages(eco, files, options) {
   const { asSet = false, ...matcherOptions } = { __proto__: null, ...options }
-  const ecoPackagesPath = path.join(constants.rootPackagesPath, eco)
-  const { rootPath } = constants
+  const ecoPackagesPath = path.join(ROOT_PACKAGES_PATH, eco)
   const relEcoPackagesPath = normalizePath(
-    path.relative(rootPath, ecoPackagesPath),
+    path.relative(ROOT_PATH, ecoPackagesPath),
   )
   const matcher = getGlobMatcher(
     [
       `${relEcoPackagesPath}/**`,
-      ...(eco === NPM ? [`${constants.relRegistryPkgPath}/**`] : []),
+      ...(eco === NPM ? [`${REL_REGISTRY_PKG_PATH}/**`] : []),
     ],
     {
       ...matcherOptions,
       absolute: false,
-      cwd: rootPath,
+      cwd: ROOT_PATH,
     },
   )
   const sliceStart = relEcoPackagesPath.length + 1
@@ -44,7 +48,7 @@ function innerGetPackages(eco, files, options) {
   for (const filepath of files) {
     if (matcher(filepath)) {
       let sockRegPkgName
-      if (eco === NPM && filepath.startsWith(constants.relRegistryPkgPath)) {
+      if (eco === NPM && filepath.startsWith(REL_REGISTRY_PKG_PATH)) {
         sockRegPkgName = '../../registry/dist/index.js'
       } else {
         sockRegPkgName = filepath.slice(

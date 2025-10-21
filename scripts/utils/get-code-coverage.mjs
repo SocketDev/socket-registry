@@ -1,9 +1,11 @@
 /** @fileoverview Utility to generate and calculate code coverage metrics. */
 import { existsSync } from 'node:fs'
 import path from 'node:path'
+
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
 import { readJson } from '@socketsecurity/lib/fs'
 import { isObjectObject } from '@socketsecurity/lib/objects'
-import constants from '../constants.mjs'
+
 import { spawn } from './spawn.mjs'
 
 /**
@@ -33,7 +35,7 @@ export async function getCodeCoverage(options) {
 
     const result = await spawn('node', ['scripts/cover.mjs'], {
       stdio: 'ignore',
-      shell: constants.WIN32,
+      shell: WIN32,
     })
 
     if (result.code !== 0) {

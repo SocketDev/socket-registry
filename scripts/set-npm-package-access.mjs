@@ -8,10 +8,15 @@ import { logger } from '@socketsecurity/lib/logger'
 import { pEach } from '@socketsecurity/lib/promises'
 import { pluralize } from '@socketsecurity/lib/words'
 
-import constants from './constants.mjs'
+import { COLUMN_LIMIT } from './constants/core.mjs'
+import { getEnv } from './constants/env.mjs'
+import {
+  NPM_PACKAGES_PATH,
+  REGISTRY_PKG_PATH,
+  SOCKET_REGISTRY_SCOPE,
+} from './constants/paths.mjs'
+import { getNpmPackageNames } from './constants/testing.mjs'
 import { extractNpmError } from './utils/errors.mjs'
-
-const { COLUMN_LIMIT, SOCKET_REGISTRY_SCOPE } = constants
 
 const { values: cliArgs } = parseArgs({
   options: {
@@ -39,7 +44,7 @@ function packageData(data) {
  */
 async function main() {
   // Exit early if not running in CI or with --force.
-  const { ENV } = constants
+  const ENV = getEnv()
   if (!(cliArgs.force || ENV.CI)) {
     return
   }
@@ -48,15 +53,16 @@ async function main() {
   const trustedPublishingPackages = [
     packageData({
       name: '../registry/dist/index.js',
-      path: constants.registryPkgPath,
+      path: REGISTRY_PKG_PATH,
       isTrustedPublisher: true,
     }),
   ]
 
-  const tokenBasedPackages = constants.npmPackageNames.map(sockRegPkgName =>
+  const npmPackageNames = getNpmPackageNames()
+  const tokenBasedPackages = npmPackageNames.map(sockRegPkgName =>
     packageData({
       name: `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`,
-      path: path.join(constants.npmPackagesPath, sockRegPkgName),
+      path: path.join(NPM_PACKAGES_PATH, sockRegPkgName),
       printName: sockRegPkgName,
       isTrustedPublisher: false,
     }),

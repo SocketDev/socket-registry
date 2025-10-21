@@ -6,16 +6,14 @@
 import { execBin } from '@socketsecurity/lib/bin'
 import fastGlob from 'fast-glob'
 
-import constants from './constants.mjs'
-
-const { perfNpmPath } = constants
+import { PERF_NPM_PATH, TSX_EXEC_PATH } from './constants/paths.mjs'
 
 async function main() {
   for (const perfFile of await fastGlob.glob(['*.perf.ts'], {
-    cwd: perfNpmPath,
+    cwd: PERF_NPM_PATH,
   })) {
-    await execBin(constants.tsxExecPath, [perfFile], {
-      cwd: perfNpmPath,
+    await execBin(TSX_EXEC_PATH, [perfFile], {
+      cwd: PERF_NPM_PATH,
       stdio: 'inherit',
     })
   }

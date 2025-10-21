@@ -8,16 +8,17 @@ import crypto from 'node:crypto'
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+
 import { WIN32 } from '@socketsecurity/lib/constants/platform'
 import { readPackageJson } from '@socketsecurity/lib/packages/operations'
 import { pEach } from '@socketsecurity/lib/promises'
 import { withSpinner } from '@socketsecurity/lib/spinner'
+
 import { cleanTestScript } from '../../test/utils/script-cleaning.mjs'
 import { testRunners } from '../../test/utils/test-runners.mjs'
-import constants from '../constants.mjs'
+import { DEFAULT_CONCURRENCY } from '../constants/core.mjs'
+import { ROOT_PATH } from '../constants/paths.mjs'
 import { spawn } from './spawn.mjs'
-
-const { DEFAULT_CONCURRENCY } = constants
 
 // Shared pnpm flags to make it behave like npm with hoisting.
 const PNPM_NPM_LIKE_FLAGS = [
@@ -255,7 +256,7 @@ async function copySocketOverride(fromPath, toPath, options) {
 function buildTestEnv(packageTempDir, installedPath) {
   const packageBinPath = path.join(packageTempDir, 'node_modules', '.bin')
   const nestedBinPath = path.join(installedPath, 'node_modules', '.bin')
-  const rootBinPath = path.join(constants.rootPath, 'node_modules', '.bin')
+  const rootBinPath = path.join(ROOT_PATH, 'node_modules', '.bin')
   return {
     ...process.env,
     PATH: `${nestedBinPath}${path.delimiter}${packageBinPath}${path.delimiter}${rootBinPath}${path.delimiter}${process.env.PATH}`,

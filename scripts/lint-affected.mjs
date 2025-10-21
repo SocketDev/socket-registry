@@ -7,10 +7,10 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
 import { logger } from '@socketsecurity/lib/logger'
 import { spawn } from '@socketsecurity/lib/spawn'
 
-import constants from './constants.mjs'
 import { getChangedFiles, getStagedFiles } from './utils/git.mjs'
 import { runCommandQuiet } from './utils/run-command.mjs'
 
@@ -337,7 +337,7 @@ async function main() {
           ],
           {
             cwd: absolutePath,
-            shell: constants.WIN32,
+            shell: WIN32,
             stdio: 'inherit',
           },
         )

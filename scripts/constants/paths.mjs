@@ -6,6 +6,8 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { getTsxExecPath } from './utils.mjs'
+
 /**
  * Normalize path separators for cross-platform compatibility.
  */
@@ -39,6 +41,7 @@ export const DOT_GITHUB = '.github'
 export const ESLINT_CONFIG_JS = 'eslint.config.js'
 export const EXTENSIONS_JSON = 'extensions.json'
 export const LICENSE = 'LICENSE'
+export const LICENSE_ORIGINAL = 'LICENSE.original'
 export const MANIFEST_JSON = 'manifest.json'
 export const NODE_MODULES = 'node_modules'
 export const PACKAGE_JSON = 'package.json'
@@ -161,3 +164,6 @@ export const ROOT_DOT_GITHUB_ACTIONS_PATH = normalizePath(
 export const ROOT_DOT_GITHUB_WORKFLOWS_PATH = normalizePath(
   path.join(ROOT_DOT_GITHUB_PATH, 'workflows'),
 )
+
+// Binary paths.
+export const TSX_EXEC_PATH = getTsxExecPath()

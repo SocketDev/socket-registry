@@ -3,12 +3,13 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { EMPTY_FILE } from '@socketsecurity/lib/constants/core'
+import { UTF8 } from '@socketsecurity/lib/constants/encoding'
 import fastGlob from 'fast-glob'
 
-import constants from './constants.mjs'
+import { NPM_TEMPLATES_PATH, ROOT_PATH } from './constants/paths.mjs'
+import { getIgnoreGlobs } from './constants/utils.mjs'
 import { getModifiedFiles } from './utils/git.mjs'
-
-const { EMPTY_FILE, UTF8 } = constants
 
 const { values: cliArgs } = parseArgs({
   options: {
@@ -26,9 +27,9 @@ const { values: cliArgs } = parseArgs({
 const AUTO_FILE_GLOB_RECURSIVE = '**/auto.{d.ts,js}'
 
 async function main() {
-  const { ignoreGlobs, npmTemplatesPath } = constants
+  const ignoreGlobs = getIgnoreGlobs()
   const modifiedAutoFile = (
-    await getModifiedFiles({ absolute: true, cwd: npmTemplatesPath })
+    await getModifiedFiles({ absolute: true, cwd: NPM_TEMPLATES_PATH })
   ).find(p => path.basename(p).startsWith('auto.'))
   // Exit early if no relevant files have been modified.
   if (!cliArgs.force && !modifiedAutoFile) {
@@ -37,7 +38,7 @@ async function main() {
   const autoFiles = await fastGlob.glob([AUTO_FILE_GLOB_RECURSIVE], {
     ignore: ignoreGlobs,
     absolute: true,
-    cwd: npmTemplatesPath,
+    cwd: NPM_TEMPLATES_PATH,
   })
   const autoFile = modifiedAutoFile || autoFiles.at(0)
   if (autoFile === undefined) {
@@ -58,7 +59,7 @@ async function main() {
       await fastGlob.glob(['**/*.{d.ts,js}'], {
         ignore: [AUTO_FILE_GLOB_RECURSIVE, ...ignoreGlobs],
         absolute: true,
-        cwd: constants.rootPath,
+        cwd: ROOT_PATH,
       })
     ).map(async filepath => {
       if (

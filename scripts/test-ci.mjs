@@ -4,9 +4,8 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
 import { spawn } from '@socketsecurity/lib/spawn'
-
-import constants from './constants.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(__dirname, '..')
@@ -26,7 +25,7 @@ const spawnPromise = spawn(
   ],
   {
     cwd: projectRoot,
-    shell: constants.WIN32,
+    shell: WIN32,
     stdio: 'inherit',
   },
 )

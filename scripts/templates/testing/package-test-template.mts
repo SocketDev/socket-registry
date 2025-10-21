@@ -18,11 +18,9 @@ import path from 'node:path'
 
 import { beforeAll, describe, expect, it } from 'vitest'
 
-import constants from '../../../scripts/constants.mjs'
+import { NPM, NPM_PACKAGES_PATH } from '../../../scripts/constants/paths.mjs'
 import { installPackageForTesting } from '../../../scripts/utils/package.mjs'
 import { isPackageTestingSkipped } from '../../../scripts/utils/tests.mjs'
-
-const { NPM, npmPackagesPath } = constants
 
 const eco = NPM
 const sockRegPkgName = path.basename(__filename, '.test.mts')
@@ -35,7 +33,7 @@ describe(
     let pkgExport: any
 
     beforeAll(async () => {
-      const result = await installPackageForTesting(npmPackagesPath, sockRegPkgName)
+      const result = await installPackageForTesting(NPM_PACKAGES_PATH, sockRegPkgName)
       if (!result.installed) {
         throw new Error(`Failed to install package: ${result.reason}`)
       }

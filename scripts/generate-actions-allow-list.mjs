@@ -4,7 +4,10 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { logger } from '@socketsecurity/lib/logger'
 import clipboardy from 'clipboardy'
-import constants from './constants.mjs'
+import {
+  ROOT_DOT_GITHUB_ACTIONS_PATH,
+  ROOT_DOT_GITHUB_WORKFLOWS_PATH,
+} from './constants/paths.mjs'
 
 /**
  * Extract action dependencies from a workflow or action file.
@@ -62,9 +65,7 @@ async function main() {
   const allDependencies = new Map()
 
   // Process workflow files.
-  const workflowFiles = await getAllYamlFiles(
-    constants.rootDotGithubWorkflowsPath,
-  )
+  const workflowFiles = await getAllYamlFiles(ROOT_DOT_GITHUB_WORKFLOWS_PATH)
   for (const file of workflowFiles) {
     const deps = await extractDependencies(file)
     for (const { 0: key, 1: value } of deps.entries()) {
@@ -73,13 +74,13 @@ async function main() {
   }
 
   // Process action files.
-  const actionDirs = await fs.readdir(constants.rootDotGithubActionsPath, {
+  const actionDirs = await fs.readdir(ROOT_DOT_GITHUB_ACTIONS_PATH, {
     withFileTypes: true,
   })
   for (const dir of actionDirs) {
     if (dir.isDirectory()) {
       const actionFile = path.join(
-        constants.rootDotGithubActionsPath,
+        ROOT_DOT_GITHUB_ACTIONS_PATH,
         dir.name,
         'action.yml',
       )

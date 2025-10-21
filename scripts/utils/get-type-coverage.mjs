@@ -1,5 +1,6 @@
 /** @fileoverview Utility to calculate TypeScript type coverage percentage. */
-import constants from '../constants.mjs'
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
+
 import { spawn } from './spawn.mjs'
 
 /**
@@ -9,7 +10,7 @@ import { spawn } from './spawn.mjs'
 export async function getTypeCoverage() {
   const result = await spawn('pnpm', ['run', 'coverage:type'], {
     stdio: 'pipe',
-    shell: constants.WIN32,
+    shell: WIN32,
   })
 
   if (result.code !== 0) {

@@ -6,7 +6,8 @@ import path from 'node:path'
 
 import { resolveRefToSha } from '@socketsecurity/lib/github'
 import { logger } from '@socketsecurity/lib/logger'
-import constants from './constants.mjs'
+
+import { ROOT_PATH } from './constants/paths.mjs'
 
 /**
  * Extract dependencies from the Dependencies comment block.
@@ -174,7 +175,7 @@ async function main() {
   const cwd =
     cwdIndex >= 0 && args[cwdIndex + 1]
       ? path.resolve(args[cwdIndex + 1])
-      : constants.rootPath
+      : ROOT_PATH
 
   if (!token) {
     logger.warn(
@@ -189,7 +190,7 @@ async function main() {
     logger.info('Running in dry-run mode - no files will be modified')
   }
 
-  if (cwd !== constants.rootPath) {
+  if (cwd !== ROOT_PATH) {
     logger.info(`Working directory: ${cwd}`)
   }
 

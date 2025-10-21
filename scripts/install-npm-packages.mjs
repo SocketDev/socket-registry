@@ -94,7 +94,12 @@ import { spawn } from '@socketsecurity/lib/spawn'
 import { withSpinner } from '@socketsecurity/lib/spinner'
 import { pluralize } from '@socketsecurity/lib/words'
 import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
-import constants from './constants.mjs'
+import { ALLOW_TEST_FAILURES_BY_ECOSYSTEM } from './constants/testing.mjs'
+import {
+  NPM_PACKAGES_PATH,
+  ROOT_PATH,
+  TEST_NPM_PATH,
+} from './constants/paths.mjs'
 import { filterPackagesByChanges } from './utils/git.mjs'
 import {
   PNPM_HOISTED_INSTALL_FLAGS,
@@ -181,7 +186,7 @@ async function getWorkspaceCacheVersion() {
 
   try {
     const actionYamlPath = path.join(
-      constants.rootPath,
+      ROOT_PATH,
       '.github',
       'actions',
       'cache-npm-packages',
@@ -286,7 +291,7 @@ async function generatePnpmOverrides(options) {
   }
 
   const overrides = { __proto__: null }
-  const npmPackagesDir = constants.npmPackagesPath
+  const npmPackagesDir = NPM_PACKAGES_PATH
 
   // Check if npm packages directory exists.
   if (!existsSync(npmPackagesDir)) {
@@ -388,7 +393,7 @@ async function applyNestedSocketOverrides(packagePath) {
 async function applySocketOverrideIfExists(packageName, packagePath) {
   // Check if Socket override exists.
   const overridePath = path.join(
-    constants.npmPackagesPath,
+    NPM_PACKAGES_PATH,
     packageName.replace(/^@.*?\//, ''),
   )
 
@@ -1136,7 +1141,7 @@ async function main() {
   // and if they get into the cache, they cause installation failures in CI
   // because the symlink targets don't exist in the CI environment.
   // This cleanup ensures we start with a clean state before installation.
-  const npmPackagesDir = constants.npmPackagesPath
+  const npmPackagesDir = NPM_PACKAGES_PATH
   if (existsSync(npmPackagesDir)) {
     const entries = await fs.readdir(npmPackagesDir, { withFileTypes: true })
     const nodeModulesPaths = []
@@ -1200,8 +1205,8 @@ async function main() {
 
   // Get list of packages that have custom test files in test/npm/.
   // These don't need installation since they're tested via vitest directly.
-  const testFiles = existsSync(constants.testNpmPath)
-    ? await fs.readdir(constants.testNpmPath)
+  const testFiles = existsSync(TEST_NPM_PATH)
+    ? await fs.readdir(TEST_NPM_PATH)
     : []
   const packagesWithTests = new Set(
     testFiles
@@ -1296,7 +1301,7 @@ async function main() {
   }
 
   // Get the set of packages that are allowed to fail.
-  const allowFailuresSet = constants.ALLOW_TEST_FAILURES_BY_ECOSYSTEM.get('npm')
+  const allowFailuresSet = ALLOW_TEST_FAILURES_BY_ECOSYSTEM.get('npm')
 
   // Categorize failures.
   const noTestScript = results.filter(

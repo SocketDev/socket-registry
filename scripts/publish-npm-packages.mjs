@@ -17,11 +17,16 @@ import { spawn } from '@socketsecurity/lib/spawn'
 import { pluralize } from '@socketsecurity/lib/words'
 import semver from 'semver'
 
-import constants from './constants.mjs'
+import { getEnv } from './constants/env.mjs'
+import { WIN32 } from './constants/node.mjs'
+import { LATEST } from './constants/packages.mjs'
+import { NPM_PACKAGES_PATH, REGISTRY_PKG_PATH } from './constants/paths.mjs'
+import { getNpmPackageNames } from './constants/testing.mjs'
 import { extractNpmError } from './utils/errors.mjs'
 
-const { COLUMN_LIMIT, LATEST, WIN32, npmPackagesPath, registryPkgPath } =
-  constants
+const COLUMN_LIMIT = 80
+
+const ENV = getEnv()
 
 const { values: cliArgs } = parseArgs({
   options: {
@@ -199,15 +204,15 @@ async function publishAtCommit(sha) {
   const fails = []
   const skipped = []
   // Registry package comes last - publish after all other packages.
-  const registryPkgJson = readPackageJsonSync(registryPkgPath)
+  const registryPkgJson = readPackageJsonSync(REGISTRY_PKG_PATH)
   const registryPackage = packageData({
     name: registryPkgJson.name,
-    path: registryPkgPath,
+    path: REGISTRY_PKG_PATH,
     printName: registryPkgJson.name,
   })
   const allPackages = [
-    ...constants.npmPackageNames.map(sockRegPkgName => {
-      const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
+    ...getNpmPackageNames().map(sockRegPkgName => {
+      const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
       const pkgJson = readPackageJsonSync(pkgPath)
       return packageData({
         name: pkgJson.name,
@@ -380,7 +385,7 @@ async function publishToken(pkg, state, options) {
           cwd: pkg.path,
           env: {
             ...process.env,
-            NODE_AUTH_TOKEN: constants.ENV.NODE_AUTH_TOKEN,
+            NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN,
           },
           shell: WIN32,
         },
@@ -494,7 +499,7 @@ async function main() {
   await ensureNpmVersion()
 
   // Exit early if not running in CI or with --force.
-  if (!(cliArgs.force || constants.ENV.CI)) {
+  if (!(cliArgs.force || ENV.CI)) {
     return
   }
 
@@ -526,7 +531,7 @@ async function main() {
     bumpCommits.sort((a, b) => semver.compare(b.version, a.version))
 
     // Check the registry package for the latest published version.
-    const registryPkgJson = readPackageJsonSync(registryPkgPath)
+    const registryPkgJson = readPackageJsonSync(REGISTRY_PKG_PATH)
     const registryManifest = await fetchPackageManifest(
       `${registryPkgJson.name}@latest`,
     )

@@ -16,15 +16,28 @@ import unicornPlugin from 'eslint-plugin-unicorn'
 import fastGlob from 'fast-glob'
 import globals from 'globals'
 import tsEslint from 'typescript-eslint'
-import constants from '../scripts/constants.mjs'
+
+import { maintainedNodeVersions } from '../scripts/constants/node.mjs'
+import {
+  NPM_PACKAGES_PATH,
+  REL_NPM_PACKAGES_PATH,
+  ROOT_TSCONFIG_PATH,
+} from '../scripts/constants/paths.mjs'
+import { getNpmPackageNames } from '../scripts/constants/testing.mjs'
+import {
+  getGitIgnoreFile,
+  getIgnoreGlobs,
+} from '../scripts/constants/utils.mjs'
 
 // Resolve current module paths for proper configuration loading.
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const require = createRequire(import.meta.url)
 
-const { gitIgnoreFile, npmPackagesPath, relNpmPackagesPath, rootTsConfigPath } =
-  constants
+const gitIgnoreFile = getGitIgnoreFile()
+const npmPackagesPath = NPM_PACKAGES_PATH
+const relNpmPackagesPath = REL_NPM_PACKAGES_PATH
+const rootTsConfigPath = ROOT_TSCONFIG_PATH
 
 const rootPath = path.dirname(__dirname)
 
@@ -64,7 +77,7 @@ if (process.env.LINT_EXTERNAL) {
 // This prevents ESLint from checking incompatible module types, reducing
 // false positives and improving linting performance by skipping unnecessary files.
 function getIgnores(isEsm) {
-  return constants.npmPackageNames.flatMap(sockRegPkgName => {
+  return getNpmPackageNames().flatMap(sockRegPkgName => {
     const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
     const { type } = readPackageJsonSync(pkgPath)
     const ignored = []
@@ -75,7 +88,7 @@ function getIgnores(isEsm) {
       if (
         fastGlob.globSync(['**/*.cjs'], {
           cwd: pkgPath,
-          ignores: constants.ignoreGlobs,
+          ignores: getIgnoreGlobs(),
         }).length
       ) {
         ignored.push(`${relNpmPackagesPath}/${sockRegPkgName}/*.js`)
@@ -156,14 +169,14 @@ function configs(sourceType) {
       'error',
       {
         ignores: ['Object.groupBy'],
-        version: constants.maintainedNodeVersions.current,
+        version: maintainedNodeVersions.current,
       },
     ],
     'n/no-unsupported-features/es-syntax': [
       'error',
       {
         ignores: ['object-map-groupby'],
-        version: constants.maintainedNodeVersions.current,
+        version: maintainedNodeVersions.current,
       },
     ],
     'n/no-unsupported-features/node-builtins': [
@@ -182,7 +195,7 @@ function configs(sourceType) {
           'ReadableStream',
           'Response',
         ],
-        version: constants.maintainedNodeVersions.current,
+        version: maintainedNodeVersions.current,
       },
     ],
     'n/prefer-node-protocol': 'error',

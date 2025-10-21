@@ -21,3 +21,6 @@ export const maintainedNodeVersions = Object.freeze(
     next: '24.9.0',
   }),
 )
+
+// Package default Node.js version range.
+export const PACKAGE_DEFAULT_NODE_RANGE = '>=18'

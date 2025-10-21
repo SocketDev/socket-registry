@@ -3,7 +3,9 @@
  */
 
 export const BIOME_JSON = 'biome.json'
+export const COLUMN_LIMIT = 80
 export const DEFAULT_CONCURRENCY = 3
+export const ESNEXT = 'esnext'
 export const PACKAGES = 'packages'
 export const TEMPLATE_CJS = 'cjs'
 export const TEMPLATE_CJS_BROWSER = 'cjs-browser'

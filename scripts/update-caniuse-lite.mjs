@@ -1,11 +1,10 @@
 /** @fileoverview Update caniuse-lite database without triggering prepare scripts. */
 
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
 import { logger } from '@socketsecurity/lib/logger'
 import { spawnSync } from '@socketsecurity/lib/spawn'
 
-import constants from './constants.mjs'
-
-const { rootPath } = constants
+import { ROOT_PATH } from './constants/paths.mjs'
 
 /**
  * Update caniuse-lite to latest version.
@@ -17,8 +16,8 @@ async function main() {
 
     // Use spawnSync for simpler error handling
     const result = spawnSync('pnpm', ['up', 'caniuse-lite'], {
-      cwd: rootPath,
-      shell: constants.WIN32,
+      cwd: ROOT_PATH,
+      shell: WIN32,
       stdio: 'inherit',
     })
 

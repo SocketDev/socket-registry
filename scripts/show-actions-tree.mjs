@@ -4,7 +4,11 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import { logger } from '@socketsecurity/lib/logger'
-import constants from './constants.mjs'
+
+import {
+  ROOT_DOT_GITHUB_ACTIONS_PATH,
+  ROOT_DOT_GITHUB_WORKFLOWS_PATH,
+} from './constants/paths.mjs'
 
 /**
  * Extract structured dependency information from a workflow or action file.
@@ -90,9 +94,7 @@ async function main() {
   const dependencyTree = new Map()
 
   // Process workflow files.
-  const workflowFiles = await getAllYamlFiles(
-    constants.rootDotGithubWorkflowsPath,
-  )
+  const workflowFiles = await getAllYamlFiles(ROOT_DOT_GITHUB_WORKFLOWS_PATH)
   for (const file of workflowFiles) {
     const { flat, structured } = await extractDependenciesWithStructure(file)
     for (const dep of flat) {
@@ -105,13 +107,13 @@ async function main() {
   }
 
   // Process action files.
-  const actionDirs = await fs.readdir(constants.rootDotGithubActionsPath, {
+  const actionDirs = await fs.readdir(ROOT_DOT_GITHUB_ACTIONS_PATH, {
     withFileTypes: true,
   })
   for (const dir of actionDirs) {
     if (dir.isDirectory()) {
       const actionFile = path.join(
-        constants.rootDotGithubActionsPath,
+        ROOT_DOT_GITHUB_ACTIONS_PATH,
         dir.name,
         'action.yml',
       )

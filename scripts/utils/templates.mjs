@@ -16,7 +16,22 @@ import { Eta } from 'eta'
 import fastGlob from 'fast-glob'
 import semver from 'semver'
 
-import constants from '../constants.mjs'
+import { UTF8 } from '@socketsecurity/lib/constants/encoding'
+import {
+  NPM,
+  NPM_TEMPLATES_PATH,
+  PACKAGE_JSON,
+  README_MD,
+} from '../constants/paths.mjs'
+import {
+  TEMPLATE_CJS,
+  TEMPLATE_CJS_BROWSER,
+  TEMPLATE_CJS_ESM,
+  TEMPLATE_ES_SHIM_CONSTRUCTOR,
+  TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
+  TEMPLATE_ES_SHIM_STATIC_METHOD,
+} from '../constants/templates.mjs'
+import { getLicenseContent } from '../constants/utils.mjs'
 import { biomeFormat } from './biome.mjs'
 
 // Use require for CommonJS modules that don't properly export named exports.
@@ -24,22 +39,14 @@ const require = createRequire(import.meta.url)
 const packagesOperations = require('../../registry/dist/lib/packages/operations.js')
 const { readPackageJson, resolveOriginalPackageName } = packagesOperations
 
-const {
-  EXT_JSON,
-  EXT_MD,
-  LICENSE_CONTENT,
-  NPM,
-  PACKAGE_DEFAULT_SOCKET_CATEGORIES,
-  PACKAGE_JSON,
-  README_MD,
-  TEMPLATE_CJS,
-  TEMPLATE_CJS_BROWSER,
-  TEMPLATE_CJS_ESM,
-  TEMPLATE_ES_SHIM_CONSTRUCTOR,
-  TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
-  TEMPLATE_ES_SHIM_STATIC_METHOD,
-  UTF8,
-} = constants
+// File extension constants.
+const EXT_JSON = '.json'
+const EXT_MD = '.md'
+
+// Package default constants from registry manifest.
+const PACKAGE_DEFAULT_NODE_RANGE = '>=18'
+const PACKAGE_DEFAULT_SOCKET_CATEGORIES = Object.freeze(['levelup', 'tuneup'])
+const PACKAGE_DEFAULT_VERSION = '1.0.0'
 
 let eta
 async function getEta() {
@@ -62,7 +69,7 @@ function getTemplates() {
           TEMPLATE_ES_SHIM_CONSTRUCTOR,
           TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
           TEMPLATE_ES_SHIM_STATIC_METHOD,
-        ].map(k => [k, path.join(constants.npmTemplatesPath, k)]),
+        ].map(k => [k, path.join(NPM_TEMPLATES_PATH, k)]),
       ),
     })
   }
@@ -80,6 +87,7 @@ function getTemplate(name) {
  * Generate actions for copying license files to package.
  */
 async function getLicenseActions(pkgPath) {
+  const LICENSE_CONTENT = getLicenseContent()
   const licenseData = {
     __proto__: null,
     license: LICENSE_CONTENT,
@@ -120,7 +128,7 @@ async function getNpmReadmeAction(pkgPath, options) {
     {
       __proto__: null,
       readme: await renderAction([
-        path.join(constants.npmTemplatesPath, README_MD),
+        path.join(NPM_TEMPLATES_PATH, README_MD),
         {
           __proto__: null,
           ...manifestData,
@@ -157,10 +165,8 @@ async function getPackageJsonAction(pkgPath, options) {
       categories: Array.isArray(categories)
         ? categories
         : Array.from(PACKAGE_DEFAULT_SOCKET_CATEGORIES),
-      engines: engines ?? { node: constants.PACKAGE_DEFAULT_NODE_RANGE },
-      version: semver.parse(
-        manifestData?.version ?? constants.PACKAGE_DEFAULT_VERSION,
-      ),
+      engines: engines ?? { node: PACKAGE_DEFAULT_NODE_RANGE },
+      version: semver.parse(manifestData?.version ?? PACKAGE_DEFAULT_VERSION),
     },
   ]
 }

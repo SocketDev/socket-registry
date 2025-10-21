@@ -41,7 +41,25 @@ import fastGlob from 'fast-glob'
 import { open } from 'out-url'
 import semver from 'semver'
 
-import constants from './constants.mjs'
+import { UTF8 } from '@socketsecurity/lib/constants/encoding'
+
+import { ESNEXT } from './constants/core.mjs'
+import {
+  LICENSE,
+  LICENSE_ORIGINAL,
+  NPM_PACKAGES_PATH,
+  ROOT_PATH,
+} from './constants/paths.mjs'
+import {
+  TEMPLATE_CJS,
+  TEMPLATE_CJS_BROWSER,
+  TEMPLATE_CJS_ESM,
+  TEMPLATE_ES_SHIM_CONSTRUCTOR,
+  TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
+  TEMPLATE_ES_SHIM_STATIC_METHOD,
+  TS_LIBS_AVAILABLE,
+  TS_TYPES_AVAILABLE,
+} from './constants/templates.mjs'
 import {
   getLicenseActions,
   getNpmReadmeAction,
@@ -53,22 +71,10 @@ import {
 
 const require = createRequire(import.meta.url)
 
-const {
-  ESNEXT,
-  LICENSE,
-  LICENSE_ORIGINAL,
-  TEMPLATE_CJS,
-  TEMPLATE_CJS_BROWSER,
-  TEMPLATE_CJS_ESM,
-  TEMPLATE_ES_SHIM_CONSTRUCTOR,
-  TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
-  TEMPLATE_ES_SHIM_STATIC_METHOD,
-  UTF8,
-  npmPackagesPath,
-  rootPath,
-  tsLibsAvailable,
-  tsTypesAvailable,
-} = constants
+const npmPackagesPath = NPM_PACKAGES_PATH
+const rootPath = ROOT_PATH
+const tsLibsAvailable = TS_LIBS_AVAILABLE
+const tsTypesAvailable = TS_TYPES_AVAILABLE
 
 const { positionals: cliPositionals, values: cliArgs } = parseArgs({
   options: {
@@ -257,8 +263,10 @@ async function main() {
   let templateChoice
   const tsRefs = []
   if (isEsShim) {
-    const { maintainedNodeVersions } = constants
-    const { PACKAGE_DEFAULT_NODE_RANGE } = constants
+    const { default: maintainedNodeVersions } = await import(
+      './constants/node.mjs'
+    )
+    const { PACKAGE_DEFAULT_NODE_RANGE } = await import('./constants/node.mjs')
     const parts = origPkgName
       .split(/[-.]/)
       .filter(p => p !== 'es' && p !== 'helpers')
@@ -391,10 +399,11 @@ async function main() {
   // First copy the template directory contents to the package path.
   await fs.cp(templatePkgPath, pkgPath, { recursive: true })
   // Then modify the new package's package.json source and write to disk.
+  const { PACKAGE_DEFAULT_NODE_RANGE } = await import('./constants/node.mjs')
   await writeAction(
     await getPackageJsonAction(pkgPath, {
       engines: {
-        node: nodeRange ?? constants.PACKAGE_DEFAULT_NODE_RANGE,
+        node: nodeRange ?? PACKAGE_DEFAULT_NODE_RANGE,
       },
     }),
   )

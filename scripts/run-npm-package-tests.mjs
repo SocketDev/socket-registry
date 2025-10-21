@@ -11,8 +11,10 @@ import {
   resolveOriginalPackageName,
 } from '@socketsecurity/lib/packages'
 import { pEach } from '@socketsecurity/lib/promises'
+
 import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
-import constants from './constants.mjs'
+import { ROOT_PATH, TEST_NPM_PATH } from './constants/paths.mjs'
+import { getNpmPackageNames } from './constants/testing.mjs'
 import { extractErrorInfo } from './utils/errors.mjs'
 import { filterPackagesByChanges } from './utils/git.mjs'
 import {
@@ -71,10 +73,7 @@ async function runPackageTest(socketPkgName) {
   const origPkgName = resolveOriginalPackageName(socketPkgName)
 
   // Check if we have a custom test file in test/npm/.
-  const testFilePath = path.join(
-    constants.testNpmPath,
-    `${socketPkgName}.test.mts`,
-  )
+  const testFilePath = path.join(TEST_NPM_PATH, `${socketPkgName}.test.mts`)
 
   if (existsSync(testFilePath)) {
     // Run vitest on the custom test file.
@@ -90,7 +89,7 @@ async function runPackageTest(socketPkgName) {
           '--reporter=dot',
         ],
         {
-          cwd: constants.rootPath,
+          cwd: ROOT_PATH,
           env: {
             ...process.env,
             FORCE_TEST: '1',
@@ -285,7 +284,7 @@ async function main() {
             socketPackage:
               r.socketPackage || resolveOriginalPackageName(r.package),
           }))
-      : constants.npmPackageNames.map(socketPackage => ({ socketPackage }))
+      : getNpmPackageNames().map(socketPackage => ({ socketPackage }))
 
     // Filter to only changed packages unless in force mode.
     const filteredPackages = await filterPackagesByChanges(

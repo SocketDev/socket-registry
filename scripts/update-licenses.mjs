@@ -7,25 +7,25 @@
 
 import fs from 'node:fs/promises'
 
+import { UTF8 } from '@socketsecurity/lib/constants/encoding'
 import { globStreamLicenses } from '@socketsecurity/lib/globs'
 import { parallelEach } from '@socketsecurity/lib/streams'
 
-import constants from './constants.mjs'
-
-const { LICENSE, LICENSE_CONTENT, UTF8 } = constants
+import { LICENSE, ROOT_PATH } from './constants/paths.mjs'
+import { getIgnoreGlobs, getLicenseContent } from './constants/utils.mjs'
 
 async function main() {
   // Stream all LICENSE files in the project, excluding originals and templates.
-  const stream = globStreamLicenses(constants.rootPath, {
+  const stream = globStreamLicenses(ROOT_PATH, {
     recursive: true,
     ignoreOriginals: true,
-    ignore: [LICENSE, 'scripts/templates', ...constants.ignoreGlobs],
+    ignore: [LICENSE, 'scripts/templates', ...getIgnoreGlobs()],
   })
 
   // Update each LICENSE file with the root LICENSE content.
   await parallelEach(
     stream,
-    licensePath => fs.writeFile(licensePath, LICENSE_CONTENT, UTF8),
+    licensePath => fs.writeFile(licensePath, getLicenseContent(), UTF8),
     { concurrency: 8 },
   )
 }

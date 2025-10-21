@@ -4,12 +4,16 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { UTF8 } from '@socketsecurity/lib/constants/encoding'
 
-import constants from './constants.mjs'
+import {
+  NPM_PACKAGES_PATH,
+  NPM_TEMPLATES_README_PATH,
+  README_MD,
+} from './constants/paths.mjs'
+import { getNpmPackageNames } from './constants/testing.mjs'
 import { isModified } from './utils/git.mjs'
 import { getNpmReadmeAction } from './utils/templates.mjs'
-
-const { README_MD, UTF8, npmPackagesPath, npmTemplatesReadmePath } = constants
 
 const { values: cliArgs } = parseArgs({
   options: {
@@ -29,12 +33,13 @@ const { values: cliArgs } = parseArgs({
  */
 async function main() {
   // Exit early if no relevant files have been modified.
-  if (!cliArgs.force && !(await isModified(npmTemplatesReadmePath))) {
+  if (!cliArgs.force && !(await isModified(NPM_TEMPLATES_README_PATH))) {
     return
   }
+  const npmPackageNames = getNpmPackageNames()
   await Promise.all(
-    constants.npmPackageNames.map(async sockRegPkgName => {
-      const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
+    npmPackageNames.map(async sockRegPkgName => {
+      const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
       const readmePath = path.join(pkgPath, README_MD)
       const { 1: data } = await getNpmReadmeAction(pkgPath)
       return fs.writeFile(readmePath, data.readme, UTF8)
