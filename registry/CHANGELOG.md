@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Simplified package to focus on manifest data access
 - Reduced exports to main entry point and types only
 - Removed all utility libraries (moved to separate packages or deprecated)
+- Fixed manifest types to accurately match data structure
 
 ### Removed
 
@@ -19,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed browser field configuration
 - Removed complex build scripts and tooling
 - Removed unused dependencies and build artifacts
+- Removed all runtime dependencies (package is now dependency-free)
+- Removed 38 unused devDependencies
 
 ## [1.5.3] - 2025-10-07
 
