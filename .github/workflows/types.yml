@@ -44,10 +44,10 @@ on:
         type: number
         default: 10
       type-script:
-        description: 'Type check command (e.g., "tsc --noEmit", "pnpm run check:tsc")'
+        description: 'Type check command (e.g., "tsc --noEmit", "pnpm run type-ci")'
         required: false
         type: string
-        default: 'pnpm run check:tsc'
+        default: 'pnpm run type-ci'
       upload-artifacts:
         description: 'Upload type check results as artifacts'
         required: false

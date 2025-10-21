@@ -19,8 +19,7 @@ jobs:
     name: Run CI Pipeline
     uses: SocketDev/socket-registry/.github/workflows/ci.yml@a912e5bd8ec469d2ee13abf592a6b2e5898c006c # main
     with:
-      coverage-script: 'pnpm run test:unit:coverage'
-      coverage-report-script: 'pnpm run coverage:percent --json'
+      coverage-script: 'pnpm run cover'
       fail-fast: false
       lint-script: 'pnpm run lint-ci'
       lint-setup-script: 'pnpm run build'
@@ -48,4 +47,4 @@ jobs:
         run: pnpm run build
 
       - name: Run npm package tests
-        run: pnpm run test:npm:packages:ci
+        run: node scripts/test-npm-packages.mjs
