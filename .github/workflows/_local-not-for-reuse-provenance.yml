@@ -30,6 +30,6 @@ jobs:
     with:
       debug: ${{ inputs.debug }}
       force-publish: ${{ inputs.force-publish }}
-      publish-script: 'package:npm:publish'
+      publish-script: 'package-npm-publish'
       setup-script: 'pnpm run build'
       use-trusted-publishing: true

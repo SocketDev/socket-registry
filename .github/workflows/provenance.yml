@@ -7,7 +7,7 @@ on:
   workflow_call:
     inputs:
       access-script:
-        description: 'pnpm script to run for access control (e.g., "package:npm:access")'
+        description: 'pnpm script to run for access control (e.g., "package-npm-access")'
         required: false
         type: string
         default: ''
@@ -32,7 +32,7 @@ on:
         type: string
         default: ''
       publish-script:
-        description: 'pnpm script to run for publishing (e.g., "package:npm:publish")'
+        description: 'pnpm script to run for publishing (e.g., "package-npm-publish")'
         required: false
         type: string
         default: ''
