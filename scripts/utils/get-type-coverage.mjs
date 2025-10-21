@@ -8,7 +8,7 @@ import { spawn } from './spawn.mjs'
  * @throws {Error} When type coverage command fails.
  */
 export async function getTypeCoverage() {
-  const result = await spawn('pnpm', ['run', 'coverage:type'], {
+  const result = await spawn('pnpm', ['exec', 'type-coverage'], {
     stdio: 'pipe',
     shell: WIN32,
   })
