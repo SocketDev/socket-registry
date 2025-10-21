@@ -16,19 +16,6 @@ import { runCommandQuiet } from './utils/run-command.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-// Core library files that trigger a full lint when changed.
-const CORE_LIB_FILES = new Set([
-  'registry/src/lib/fs.ts',
-  'registry/src/lib/git.ts',
-  'registry/src/lib/path.ts',
-  'registry/src/lib/spawn.ts',
-  'registry/src/lib/promises.ts',
-  'registry/src/lib/objects.ts',
-  'registry/src/lib/arrays.ts',
-  'registry/src/lib/strings.ts',
-  'registry/src/types.ts',
-])
-
 // Config patterns that trigger a full lint.
 const CONFIG_PATTERNS = [
   '.config/**',
@@ -45,16 +32,6 @@ const CONFIG_PATTERNS = [
  */
 function shouldRunAllLinters(changedFiles) {
   for (const file of changedFiles) {
-    // Core library files.
-    if (CORE_LIB_FILES.has(file)) {
-      return { runAll: true, reason: 'core files changed' }
-    }
-
-    // Registry external deps.
-    if (file.includes('registry/src/external/')) {
-      return { runAll: true, reason: 'external dependencies changed' }
-    }
-
     // Config or infrastructure files.
     for (const pattern of CONFIG_PATTERNS) {
       if (file.includes(pattern.replace('**', ''))) {
