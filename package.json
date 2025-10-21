@@ -187,7 +187,7 @@
       "shell-quote": "npm:shell-quote@1.8.3",
       "side-channel": "npm:@socketregistry/side-channel@1.0.10",
       "which-boxed-primitive": "npm:@socketregistry/which-boxed-primitive@1.0.9",
-      "vite": "7.1.7",
+      "vite": "7.1.11",
       "which-collection": "npm:@socketregistry/which-collection@1.0.8",
       "which-typed-array": "npm:@socketregistry/which-typed-array@1.0.9"
     },
