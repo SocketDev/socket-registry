@@ -45,11 +45,18 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 
 **Color Requirements** (apply color to icon ONLY, not entire message):
 ```javascript
+import colors from 'yoctocolors-cjs'
+
 `${colors.green('✓')} ${msg}`   // Success
 `${colors.red('✗')} ${msg}`     // Error
 `${colors.yellow('⚠')} ${msg}`  // Warning
 `${colors.blue('ℹ')} ${msg}`    // Info
 ```
+
+**Color Package**:
+- Use `yoctocolors-cjs` (NOT `yoctocolors` ESM package)
+- Pinned dev dependency in all Socket projects
+- CommonJS compatibility for scripts and tooling
 
 **Allowed Emojis** (use sparingly):
 - 📦 Packages
