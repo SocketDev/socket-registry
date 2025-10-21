@@ -152,7 +152,7 @@ async function main() {
   logger.info(`Total: ${allActions.length} actions/workflows`)
   logger.log('')
   logger.info(
-    'For a detailed dependency tree, run: `pnpm run generate:actions-tree`',
+    'For a detailed dependency tree, run: `pnpm run generate-actions-tree`',
   )
 
   // Check if --copy flag was passed.
@@ -165,7 +165,7 @@ async function main() {
     } catch {}
   } else {
     console.log(
-      '💡 Tip: Run `pnpm run generate:actions-allow-list --copy` to copy the allow list to clipboard',
+      '💡 Tip: Run `pnpm run generate-actions-allow-list --copy` to copy the allow list to clipboard',
     )
   }
 
