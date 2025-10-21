@@ -135,7 +135,7 @@ async function runInstall(workDir) {
  */
 async function runLint(workDir) {
   logger.info('\n--- Running Linting (CI Mode) ---')
-  const result = await runCiCommand('pnpm', ['run', 'check:lint'], {
+  const result = await runCiCommand('pnpm', ['run', 'lint-ci'], {
     cwd: workDir,
   })
 
@@ -156,7 +156,7 @@ async function runLint(workDir) {
  */
 async function runTypecheck(workDir) {
   logger.info('\n--- Running Type Check (CI Mode) ---')
-  const result = await runCiCommand('pnpm', ['run', 'check:tsc'], {
+  const result = await runCiCommand('pnpm', ['run', 'type-ci'], {
     cwd: workDir,
   })
 
@@ -177,7 +177,7 @@ async function runTypecheck(workDir) {
  */
 async function runUnitTests(workDir) {
   logger.info('\n--- Running Unit Tests (CI Mode) ---')
-  const result = await runCiCommand('pnpm', ['run', 'test:unit:ci'], {
+  const result = await runCiCommand('pnpm', ['run', 'test-ci'], {
     cwd: workDir,
   })
 
@@ -199,15 +199,15 @@ async function runUnitTests(workDir) {
 async function runNpmPackageTests(workDir) {
   logger.info('\n--- Running NPM Package Tests (CI Mode) ---')
 
-  const args = ['run', 'test:npm:packages:ci']
+  const args = ['scripts/test-npm-packages.mjs']
 
   if (cliArgs.package?.length) {
     cliArgs.package.forEach(pkg => {
-      args.push('--', '--package', pkg)
+      args.push('--package', pkg)
     })
   }
 
-  const result = await runCiCommand('pnpm', args, { cwd: workDir })
+  const result = await runCiCommand('node', args, { cwd: workDir })
 
   if (result.code !== 0) {
     logger.error('NPM package tests failed')
