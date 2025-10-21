@@ -62,9 +62,12 @@ export type EcosystemString = PURLString
 // Manifest types for Socket Registry
 export type ManifestEntryData = {
   categories?: CategoryString[] | undefined
-  interop?: InteropString | undefined
+  deprecated?: boolean | undefined
+  engines?: Record<string, string> | undefined
+  interop?: InteropString[] | undefined
   license?: string | undefined
   name: string
+  package: string
   version: string
   [key: string]: unknown
 }

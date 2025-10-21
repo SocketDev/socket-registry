@@ -3,11 +3,24 @@
  * Provides access to manifest data.
  */
 
+import type { Manifest, ManifestEntry, ManifestEntryData } from './types'
+
 // Export types from types.ts
 export * from './types'
 
-// Manifest data helper function
-export function getManifestData(ecosystem?: string, packageName?: string) {
+// Function overloads for proper typing
+export function getManifestData(): Manifest
+export function getManifestData(
+  ecosystem: string,
+): ManifestEntry[] | undefined
+export function getManifestData(
+  ecosystem: string,
+  packageName: string,
+): ManifestEntryData | ManifestEntry | undefined
+export function getManifestData(
+  ecosystem?: string,
+  packageName?: string,
+): Manifest | ManifestEntry[] | ManifestEntryData | ManifestEntry | undefined {
   try {
     const manifestData = require('../manifest.json')
 
