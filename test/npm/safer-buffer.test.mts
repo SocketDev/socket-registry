@@ -15,8 +15,8 @@ const { eco, pkgPath, skip, sockRegPkgName } =
 // https://github.com/ChALkeR/safer-buffer/issues/16
 // https://github.com/ChALkeR/safer-buffer/blob/v2.1.2/tests.js
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
-  const safer = require(path.join(pkgPath, 'safer.js'))
-  const dangerous = require(path.join(pkgPath, 'dangerous.js'))
+  const safer = skip ? null : require(path.join(pkgPath, 'safer.js'))
+  const dangerous = skip ? null : require(path.join(pkgPath, 'dangerous.js'))
   const implementations = [safer, dangerous]
 
   it('Default is Safer', () => {

@@ -74,7 +74,9 @@ export async function runWithOutput(command, args = [], options = {}) {
             process.stdout.write('\r\x1b[K')
             if (outputBuffer.length > 0) {
               console.log('--- Showing output ---')
-              outputBuffer.forEach(line => process.stdout.write(line))
+              for (const line of outputBuffer) {
+                process.stdout.write(line)
+              }
               outputBuffer = []
             }
           } else {
@@ -215,7 +217,9 @@ export async function runWithOutput(command, args = [], options = {}) {
           // Show output on error if configured
           if (showOnError && outputBuffer.length > 0) {
             console.log('\n--- Output ---')
-            outputBuffer.forEach(line => process.stdout.write(line))
+            for (const line of outputBuffer) {
+              process.stdout.write(line)
+            }
           }
         }
       }

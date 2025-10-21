@@ -15,7 +15,9 @@ const { eco, pkgPath, skip, sockRegPkgName } =
 // https://github.com/hyrious/bun.lockb/tree/v0.0.4
 // Test case from https://github.com/daggerok/bun-examples/tree/master/hello-bun.
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
-  const hyriousBunLockbIndex = require(path.join(pkgPath, 'index.cjs'))
+  const hyriousBunLockbIndex = skip
+    ? null
+    : require(path.join(pkgPath, 'index.cjs'))
 
   it('parses bun.lockb into yarn.lock contents', () => {
     const lockbPath = path.join(testNpmFixturesPath, 'fixture-bun.lockb')

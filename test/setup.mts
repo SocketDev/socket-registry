@@ -10,5 +10,8 @@ import { vi } from 'vitest'
 
 // Mock signal-exit to prevent issues during coverage
 vi.mock('@socketsecurity/lib/signal-exit', () => ({
-  onExit: vi.fn(),
+  load: vi.fn(),
+  onExit: vi.fn(() => vi.fn()),
+  signals: vi.fn(() => []),
+  unload: vi.fn(),
 }))

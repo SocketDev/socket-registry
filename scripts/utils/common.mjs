@@ -3,9 +3,9 @@
  * Provides consistent helpers for running commands and logging.
  */
 
-import { parseArgs as nodeParseArgs } from 'node:util'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { parseArgs as nodeParseArgs } from 'node:util'
 
 // Platform detection
 export const WIN32 = process.platform === 'win32'

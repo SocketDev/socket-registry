@@ -76,7 +76,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('should work with a function', () => {
       // eslint-disable-next-line unicorn/consistent-function-scoping
       const foo = () => {}
-      // biome-ignore lint/suspicious/noExplicitAny: Test adds dynamic property to function.
       ;(foo as any).a = true
 
       expect(() => objectKeys(foo)).not.toThrow()
@@ -115,7 +114,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       class Prototype {
         foo: boolean = true
       }
-      // biome-ignore lint/suspicious/noExplicitAny: Test adds dynamic property to instance.
       const instance: any = new Prototype()
       instance.bar = true
       const keys = objectKeys(instance)
@@ -137,7 +135,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         'valueOf',
       ]
       shadowedProps.sort()
-      // biome-ignore lint/suspicious/noExplicitAny: Test builds object with shadowed properties.
       const shadowedObject: any = { __proto__: null }
       for (let i = 0; i < shadowedProps.length; i += 1) {
         shadowedObject[shadowedProps[i] as string] = i
@@ -155,7 +152,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('should work in iOS 5 mobile Safari scenario', () => {
-      // biome-ignore lint/suspicious/noExplicitAny: Test adds dynamic property to function.
       // eslint-disable-next-line unicorn/consistent-function-scoping
       const Foo: any = () => {}
       Foo.a = () => {}

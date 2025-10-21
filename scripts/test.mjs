@@ -233,7 +233,9 @@ async function runTests(options, positionals = []) {
   } else {
     const modeText = mode === 'staged' ? 'staged' : 'changed'
     logger.step(`Running tests for ${modeText} files:`)
-    testsToRun.forEach(test => logger.substep(test))
+    for (const test of testsToRun) {
+      logger.substep(test)
+    }
     vitestArgs.push(...testsToRun)
   }
 

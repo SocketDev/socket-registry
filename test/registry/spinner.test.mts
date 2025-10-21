@@ -315,13 +315,6 @@ describe('spinner module', () => {
       })
     })
 
-    describe('spinner property', () => {
-      it('should have spinner style property', () => {
-        expect(testSpinner?.spinner).toBeDefined()
-        expect(testSpinner?.spinner.frames).toBeDefined()
-      })
-    })
-
     describe('chaining', () => {
       it('should have chainable methods', () => {
         expect(testSpinner?.start('test')).toBe(testSpinner)

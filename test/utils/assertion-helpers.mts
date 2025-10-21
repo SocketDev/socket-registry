@@ -217,7 +217,6 @@ export function expectArrayLength(
  */
 export function expectInstanceOf<T>(
   value: unknown,
-  // biome-ignore lint/suspicious/noExplicitAny: Constructor can be any class.
   constructor: new (...args: any[]) => T,
   message?: string,
 ): asserts value is T {

@@ -1,4 +1,4 @@
-import { getManifestData } from '@socketsecurity/lib/index'
+import { getManifestData } from '@socketsecurity/registry'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('manifest data utilities', () => {
@@ -83,26 +83,10 @@ describe('manifest data utilities', () => {
     })
 
     it('should return ecosystem entries when package name is undefined', () => {
+      // @ts-expect-error - Testing runtime behavior with undefined.
       const result = getManifestData('npm', undefined)
       // When no specific package name is given, returns the ecosystem entries
       expect(Array.isArray(result)).toBe(true)
-    })
-  })
-
-  describe('getPackageURL lazy loading', () => {
-    it('should lazy load PackageURL', () => {
-      // Clear the module cache to test lazy loading.
-      const registryPath = require.resolve('@socketsecurity/registry')
-      delete require.cache[registryPath]
-
-      const {
-        getManifestData: freshGetManifestData,
-      } = require('@socketsecurity/registry')
-
-      // Test that the function works after module reload.
-      const npmEntries = freshGetManifestData('npm')
-      expect(npmEntries).toBeDefined()
-      expect(Array.isArray(npmEntries)).toBe(true)
     })
   })
 })

@@ -14,7 +14,6 @@ const npmPackagesPath = NPM_PACKAGES_PATH
 interface SetupNpmPackageTestResult {
   eco: string
   pkgPath: string
-  // biome-ignore lint/suspicious/noExplicitAny: Package modules can be any type.
   module: any
   skip: boolean
   sockRegPkgName: string

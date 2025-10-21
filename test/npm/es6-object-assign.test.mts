@@ -11,7 +11,7 @@ const { eco, pkgPath, skip, sockRegPkgName } =
 // https://github.com/rubennorte/es6-object-assign/tree/v1.1.0
 // Tests from https://github.com/ljharb/object.assign/tree/v4.1.5/test.
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
-  const es6oa = require(path.join(pkgPath, 'index.js'))
+  const es6oa = skip ? null : require(path.join(pkgPath, 'index.js'))
 
   it('does not have "pending exception" logic in implementation', () => {
     /*

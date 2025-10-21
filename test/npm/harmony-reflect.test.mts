@@ -10,7 +10,7 @@ const { eco, pkgPath, skip, sockRegPkgName } =
 // harmony-reflect has known failures in its package and requires running tests in browser.
 // https://github.com/tvcutsem/harmony-reflect/tree/v1.6.2/test
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
-  const harmonyReflect = require(path.join(pkgPath, 'index.js'))
+  const harmonyReflect = skip ? null : require(path.join(pkgPath, 'index.js'))
 
   it('should be able to define a property', () => {
     const obj: {

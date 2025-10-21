@@ -14,7 +14,8 @@ describe(
   },
   () => {
     const pkgRequireIndexJsPath = `${pkgPath}/index.js`
-    const _jsonStableStringifyModule = require(pkgRequireIndexJsPath)
+    const _jsonStableStringifyModule =
+      skip || ENV.CI ? null : require(pkgRequireIndexJsPath)
 
     // biome-ignore lint/suspicious/noExplicitAny: Test accesses internal JSON.rawJSON if available.
     const rawJSON: ((_str: string) => { rawJSON: string }) | undefined = (
