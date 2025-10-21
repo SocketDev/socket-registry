@@ -18,10 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Removed all subpath exports except `./types`
 - Removed browser field configuration
-- Removed complex build scripts and tooling
-- Removed unused dependencies and build artifacts
-- Removed all runtime dependencies (package is now dependency-free)
-- Removed 38 unused devDependencies
 
 ## [1.5.3] - 2025-10-07
 
