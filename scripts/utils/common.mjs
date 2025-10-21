@@ -3,6 +3,7 @@
  * Provides consistent helpers for running commands and logging.
  */
 
+import { parseArgs as nodeParseArgs } from 'node:util'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -56,8 +57,6 @@ export function getWhichCommand() {
  * Parse script arguments with common defaults
  */
 export function parseScriptArgs(options = {}) {
-  const { parseArgs } = require('node:util')
-
   const defaultOptions = {
     help: {
       type: 'boolean',
@@ -77,7 +76,7 @@ export function parseScriptArgs(options = {}) {
     ...options,
   }
 
-  return parseArgs({
+  return nodeParseArgs({
     options: defaultOptions,
     allowPositionals: true,
   })

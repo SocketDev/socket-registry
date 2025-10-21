@@ -22,7 +22,7 @@
     "check:registry-package-types": "node --experimental-strip-types ./scripts/check-registry-package-types.mjs",
     "clean": "node scripts/clean.mjs",
     "cover": "node scripts/cover.mjs",
-    "fix": "node scripts/fix.mjs",
+    "fix": "node scripts/lint.mjs --fix",
     "generate:actions-allow-list": "node ./scripts/generate-actions-allow-list.mjs",
     "generate:actions-tree": "node ./scripts/show-actions-tree.mjs",
     "inline:action-shas": "node ./scripts/inline-action-versions-as-shas.mjs",

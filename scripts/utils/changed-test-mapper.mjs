@@ -82,27 +82,28 @@ function mapSourceToTests(filepath) {
  * @param {Object} options
  * @param {boolean} options.staged - Use staged files instead of all changes
  * @param {boolean} options.all - Run all tests
- * @returns {{tests: string[] | 'all' | null, reason?: string}} Object with test patterns and reason
+ * @returns {{tests: string[] | 'all' | null, reason?: string, mode?: string}} Object with test patterns, reason, and mode
  */
 export function getTestsToRun(options = {}) {
   const { all = false, staged = false } = options
 
   // All mode runs all tests
   if (all || process.env.FORCE_TEST === '1') {
-    return { tests: 'all', reason: 'explicit --all flag' }
+    return { tests: 'all', reason: 'explicit --all flag', mode: 'all' }
   }
 
   // CI always runs all tests
   if (process.env.CI === 'true') {
-    return { tests: 'all', reason: 'CI environment' }
+    return { tests: 'all', reason: 'CI environment', mode: 'all' }
   }
 
   // Get changed files
   const changedFiles = staged ? getStagedFilesSync() : getChangedFilesSync()
+  const mode = staged ? 'staged' : 'changed'
 
   if (changedFiles.length === 0) {
     // No changes, skip tests
-    return { tests: null }
+    return { tests: null, mode }
   }
 
   const testFiles = new Set()
@@ -114,7 +115,10 @@ export function getTestsToRun(options = {}) {
 
     // Test files always run themselves
     if (normalized.startsWith('test/') && normalized.includes('.test.')) {
-      testFiles.add(file)
+      // Skip deleted files.
+      if (existsSync(path.join(rootPath, file))) {
+        testFiles.add(file)
+      }
       continue
     }
 
@@ -127,7 +131,10 @@ export function getTestsToRun(options = {}) {
         break
       }
       for (const test of tests) {
-        testFiles.add(test)
+        // Skip deleted files.
+        if (existsSync(path.join(rootPath, test))) {
+          testFiles.add(test)
+        }
       }
       continue
     }
@@ -147,18 +154,23 @@ export function getTestsToRun(options = {}) {
 
     // Data changes run integration tests
     if (normalized.startsWith('data/')) {
-      testFiles.add('test/integration.test.mts')
-      testFiles.add('test/purl-types.test.mts')
+      // Skip deleted files.
+      if (existsSync(path.join(rootPath, 'test/integration.test.mts'))) {
+        testFiles.add('test/integration.test.mts')
+      }
+      if (existsSync(path.join(rootPath, 'test/purl-types.test.mts'))) {
+        testFiles.add('test/purl-types.test.mts')
+      }
     }
   }
 
   if (runAllTests) {
-    return { tests: 'all', reason: runAllReason }
+    return { tests: 'all', reason: runAllReason, mode: 'all' }
   }
 
   if (testFiles.size === 0) {
-    return { tests: null }
+    return { tests: null, mode }
   }
 
-  return { tests: Array.from(testFiles) }
+  return { tests: Array.from(testFiles), mode }
 }

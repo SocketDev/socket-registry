@@ -6,19 +6,17 @@
 import { spawn } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
+import { fileURLToPath } from 'node:url'
+
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { logger } from '@socketsecurity/lib/logger'
 import { onExit } from '@socketsecurity/lib/signal-exit'
 import { spinner } from '@socketsecurity/lib/spinner'
 import { printHeader } from '@socketsecurity/lib/stdio/header'
-import fastGlob from 'fast-glob'
 
-import { WIN32 } from './constants/node.mjs'
-import { ROOT_NODE_MODULES_BIN_PATH, ROOT_PATH } from './constants/paths.mjs'
-import {
-  runTests as runTestsWithOutput,
-  runWithOutput,
-} from './utils/interactive-runner.mjs'
+import { getTestsToRun } from './utils/changed-test-mapper.mjs'
+
+const WIN32 = process.platform === 'win32'
 
 // Suppress non-fatal worker termination unhandled rejections
 process.on('unhandledRejection', (reason, _promise) => {
@@ -34,6 +32,10 @@ process.on('unhandledRejection', (reason, _promise) => {
   // Re-throw other unhandled rejections
   throw reason
 })
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const rootPath = path.resolve(__dirname, '..')
+const nodeModulesBinPath = path.join(rootPath, 'node_modules', '.bin')
 
 // Track running processes for cleanup
 const runningProcesses = new Set()
@@ -63,7 +65,7 @@ async function runCommand(command, args = [], options = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
       stdio: 'inherit',
-      ...(WIN32 && { shell: true }),
+      ...(process.platform === 'win32' && { shell: true }),
       ...options,
     })
 
@@ -81,126 +83,228 @@ async function runCommand(command, args = [], options = {}) {
   })
 }
 
+async function runCommandWithOutput(command, args = [], options = {}) {
+  return new Promise((resolve, reject) => {
+    let stdout = ''
+    let stderr = ''
+
+    const child = spawn(command, args, {
+      ...(process.platform === 'win32' && { shell: true }),
+      ...options,
+    })
+
+    runningProcesses.add(child)
+
+    if (child.stdout) {
+      child.stdout.on('data', data => {
+        stdout += data.toString()
+      })
+    }
+
+    if (child.stderr) {
+      child.stderr.on('data', data => {
+        stderr += data.toString()
+      })
+    }
+
+    child.on('exit', code => {
+      runningProcesses.delete(child)
+      resolve({ code: code || 0, stdout, stderr })
+    })
+
+    child.on('error', error => {
+      runningProcesses.delete(child)
+      reject(error)
+    })
+  })
+}
+
 async function runCheck() {
   logger.step('Running checks')
-  console.log('  (Press Ctrl+O to show/hide output)')
-  console.log()
 
-  // Run fix (auto-format)
-  let exitCode = await runWithOutput('pnpm', ['run', 'fix'], {
-    message: 'Formatting code',
-    toggleText: 'to see formatter output',
+  // Run fix (auto-format) quietly since it has its own output
+  spinner.start('Formatting code...')
+  let exitCode = await runCommand('pnpm', ['run', 'fix'], {
+    stdio: 'pipe',
   })
   if (exitCode !== 0) {
-    logger.error('')
+    spinner.stop()
     logger.error('Formatting failed')
+    // Re-run with output to show errors
+    await runCommand('pnpm', ['run', 'fix'])
     return exitCode
   }
+  spinner.stop()
   logger.success('Code formatted')
 
-  // Run lint to check for remaining issues
-  exitCode = await runWithOutput('node', ['scripts/lint.mjs'], {
-    message: 'Running linter',
-    toggleText: 'to see linter output',
-  })
+  // Run ESLint to check for remaining issues
+  spinner.start('Running ESLint...')
+  exitCode = await runCommand(
+    'eslint',
+    [
+      '--config',
+      '.config/eslint.config.mjs',
+      '--report-unused-disable-directives',
+      '.',
+    ],
+    {
+      stdio: 'pipe',
+    },
+  )
   if (exitCode !== 0) {
-    logger.error('')
-    logger.error('Linting failed')
+    spinner.stop()
+    logger.error('ESLint failed')
+    // Re-run with output to show errors
+    await runCommand('eslint', [
+      '--config',
+      '.config/eslint.config.mjs',
+      '--report-unused-disable-directives',
+      '.',
+    ])
     return exitCode
   }
-  logger.success('Linting passed')
+  spinner.stop()
+  logger.success('ESLint passed')
 
   // Run TypeScript check
-  exitCode = await runWithOutput('tsgo', ['--noEmit', '-p', 'tsconfig.json'], {
-    message: 'Checking TypeScript',
-    toggleText: 'to see type errors',
-  })
+  spinner.start('Checking TypeScript...')
+  exitCode = await runCommand(
+    'tsgo',
+    ['--noEmit', '-p', '.config/tsconfig.check.json'],
+    {
+      stdio: 'pipe',
+    },
+  )
   if (exitCode !== 0) {
-    logger.error('')
+    spinner.stop()
     logger.error('TypeScript check failed')
+    // Re-run with output to show errors
+    await runCommand('tsgo', ['--noEmit', '-p', '.config/tsconfig.check.json'])
     return exitCode
   }
+  spinner.stop()
   logger.success('TypeScript check passed')
 
   return exitCode
 }
 
 async function runBuild() {
-  const distPath = path.join(ROOT_PATH, 'registry', 'dist')
-  if (!existsSync(distPath)) {
+  const distIndexPath = path.join(rootPath, 'dist', 'index.js')
+  if (!existsSync(distIndexPath)) {
     logger.step('Building project')
-
-    const exitCode = await runWithOutput('pnpm', ['run', 'build'], {
-      message: 'Building project',
-      toggleText: 'to see build output',
-    })
-    if (exitCode !== 0) {
-      logger.error('')
-      logger.error('Build failed')
-    }
-    return exitCode
+    return runCommand('pnpm', ['run', 'build'])
   }
   return 0
 }
 
 async function runTests(options, positionals = []) {
-  const { coverage, force, update } = options
+  const { all, coverage, force, staged, update } = options
+  const runAll = all || force
 
-  // Build spawn environment
-  const spawnEnv = {
-    ...process.env,
-    ...(force ? { FORCE_TEST: '1' } : {}),
-    // Suppress unhandled rejections from worker thread cleanup
-    NODE_OPTIONS:
-      `${process.env.NODE_OPTIONS || ''} --unhandled-rejections=warn`.trim(),
+  // Get tests to run
+  const testInfo = getTestsToRun({ staged, all: runAll })
+  const { mode, reason, tests: testsToRun } = testInfo
+
+  // No tests needed
+  if (testsToRun === null) {
+    logger.substep('No relevant changes detected, skipping tests')
+    return 0
   }
 
-  // Handle Windows vs Unix for vitest executable
+  // Prepare vitest command
   const vitestCmd = WIN32 ? 'vitest.cmd' : 'vitest'
-  const vitestPath = path.join(ROOT_NODE_MODULES_BIN_PATH, vitestCmd)
+  const vitestPath = path.join(nodeModulesBinPath, vitestCmd)
 
-  // Expand glob patterns in positionals
-  const expandedArgs = []
-  for (const arg of positionals) {
-    // Check if the argument looks like a glob pattern
-    if (arg.includes('*') && !arg.startsWith('-')) {
-      const files = fastGlob.sync(arg, { cwd: ROOT_PATH })
-      expandedArgs.push(...files)
-    } else {
-      expandedArgs.push(arg)
-    }
+  const vitestArgs = ['--config', '.config/vitest.config.mts', 'run']
+
+  // Add coverage if requested
+  if (coverage) {
+    vitestArgs.push('--coverage')
   }
 
-  // Build vitest arguments
-  const vitestArgs = [
-    'run',
-    '--config',
-    '.config/vitest.config.mts',
-    ...(coverage ? ['--coverage'] : []),
-    ...(update ? ['--update'] : []),
-    ...expandedArgs,
-  ]
+  // Add update if requested
+  if (update) {
+    vitestArgs.push('--update')
+  }
 
-  // On Windows, .cmd files need to be executed with shell: true
+  // Add test patterns if not running all
+  if (testsToRun === 'all') {
+    logger.step(`Running all tests (${reason})`)
+  } else {
+    const modeText = mode === 'staged' ? 'staged' : 'changed'
+    logger.step(`Running tests for ${modeText} files:`)
+    testsToRun.forEach(test => logger.substep(test))
+    vitestArgs.push(...testsToRun)
+  }
+
+  // Add any additional positional arguments
+  if (positionals.length > 0) {
+    vitestArgs.push(...positionals)
+  }
+
   const spawnOptions = {
-    cwd: ROOT_PATH,
-    env: spawnEnv,
-    shell: WIN32,
-    verbose: false,
-  }
-
-  // Use interactive runner for interactive Ctrl+O experience
-  if (process.stdout.isTTY) {
-    return runTestsWithOutput(vitestPath, vitestArgs, spawnOptions)
-  }
-
-  // Fallback to regular spawn for non-TTY
-  return runCommand(vitestPath, vitestArgs, {
-    cwd: ROOT_PATH,
-    env: spawnEnv,
-    shell: WIN32,
+    cwd: rootPath,
+    env: {
+      ...process.env,
+      NODE_OPTIONS:
+        `${process.env.NODE_OPTIONS || ''} --max-old-space-size=${process.env.CI ? 8192 : 4096} --unhandled-rejections=warn`.trim(),
+    },
     stdio: 'inherit',
-  })
+  }
+
+  // Use dotenvx to load test environment
+  const dotenvxCmd = WIN32 ? 'dotenvx.cmd' : 'dotenvx'
+  const dotenvxPath = path.join(nodeModulesBinPath, dotenvxCmd)
+
+  // Use interactive runner for interactive Ctrl+O experience when appropriate
+  if (process.stdout.isTTY) {
+    const { runTests } = await import('./utils/interactive-runner.mjs')
+    return runTests(
+      dotenvxPath,
+      ['-q', 'run', '-f', '.env.test', '--', vitestPath, ...vitestArgs],
+      {
+        env: spawnOptions.env,
+        cwd: spawnOptions.cwd,
+        verbose: false,
+      },
+    )
+  }
+
+  // Fallback to execution with output capture to handle worker termination errors
+  const result = await runCommandWithOutput(
+    dotenvxPath,
+    ['-q', 'run', '-f', '.env.test', '--', vitestPath, ...vitestArgs],
+    {
+      ...spawnOptions,
+      stdio: ['inherit', 'pipe', 'pipe'],
+    },
+  )
+
+  // Print output
+  if (result.stdout) {
+    process.stdout.write(result.stdout)
+  }
+  if (result.stderr) {
+    process.stderr.write(result.stderr)
+  }
+
+  // Check if we have worker termination error but no test failures
+  const hasWorkerTerminationError =
+    (result.stdout + result.stderr).includes('Terminating worker thread') ||
+    (result.stdout + result.stderr).includes('ThreadTermination')
+
+  const output = result.stdout + result.stderr
+  const hasTestFailures =
+    output.includes('FAIL') ||
+    (output.includes('Test Files') && output.match(/(\d+) failed/) !== null) ||
+    (output.includes('Tests') && output.match(/Tests\s+\d+ failed/) !== null)
+
+  // Override exit code if we only have worker termination errors
+  if (result.code !== 0 && hasWorkerTerminationError && !hasTestFailures) {
+    return 0
+  }
+
+  return result.code
 }
 
 async function main() {
@@ -295,7 +399,6 @@ async function main() {
     if (!skipChecks) {
       exitCode = await runCheck()
       if (exitCode !== 0) {
-        logger.error('')
         logger.error('Checks failed')
         process.exitCode = exitCode
         return
@@ -307,7 +410,6 @@ async function main() {
     if (!values['skip-build']) {
       exitCode = await runBuild()
       if (exitCode !== 0) {
-        logger.error('')
         logger.error('Build failed')
         process.exitCode = exitCode
         return
@@ -321,7 +423,6 @@ async function main() {
     )
 
     if (exitCode !== 0) {
-      logger.error('')
       logger.error('Tests failed')
       process.exitCode = exitCode
     } else {
@@ -332,26 +433,15 @@ async function main() {
     try {
       spinner.stop()
     } catch {}
-    logger.error('')
     logger.error(`Test runner failed: ${error.message}`)
     process.exitCode = 1
   } finally {
-    // Ensure spinner is stopped and cleared
+    // Ensure spinner is stopped
     try {
       spinner.stop()
     } catch {}
-    try {
-      // Clear any remaining spinner output
-      process.stdout.write('\r\x1b[K')
-      process.stdout.write('\r')
-    } catch {}
-
-    // Clean up exit handler
-    try {
-      removeExitHandler()
-    } catch {}
-
-    // Exit with the appropriate code
+    removeExitHandler()
+    // Explicitly exit to prevent hanging
     process.exit(process.exitCode || 0)
   }
 }

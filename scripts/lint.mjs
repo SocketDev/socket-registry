@@ -5,26 +5,34 @@
 
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { isQuiet } from '@socketsecurity/lib/argv/flags'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { getChangedFiles, getStagedFiles } from '@socketsecurity/lib/git'
 import { logger } from '@socketsecurity/lib/logger'
 import { printHeader } from '@socketsecurity/lib/stdio/header'
-import { getChangedFiles, getStagedFiles } from './utils/git.mjs'
+
 import { runCommandQuiet } from './utils/run-command.mjs'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+// Files that trigger a full lint when changed
+const CORE_FILES = new Set([
+  'src/constants.ts',
+  'src/error.ts',
+  'src/helpers.ts',
+  'src/lang.ts',
+  'src/objects.ts',
+  'src/strings.ts',
+  'src/validate.ts',
+  'src/purl-type.ts',
+])
 
-// Config patterns that trigger a full lint.
+// Config patterns that trigger a full lint
 const CONFIG_PATTERNS = [
   '.config/**',
   'scripts/utils/**',
-  'package.json',
   'pnpm-lock.yaml',
   'tsconfig*.json',
   'eslint.config.*',
-  'biome.json',
 ]
 
 /**
@@ -32,7 +40,12 @@ const CONFIG_PATTERNS = [
  */
 function shouldRunAllLinters(changedFiles) {
   for (const file of changedFiles) {
-    // Config or infrastructure files.
+    // Core library files
+    if (CORE_FILES.has(file)) {
+      return { runAll: true, reason: 'core files changed' }
+    }
+
+    // Config or infrastructure files
     for (const pattern of CONFIG_PATTERNS) {
       if (file.includes(pattern.replace('**', ''))) {
         return { runAll: true, reason: 'config files changed' }
@@ -75,9 +88,7 @@ async function runLintOnFiles(files, options = {}) {
   const { fix = false, quiet = false } = options
 
   if (!files.length) {
-    if (!quiet) {
-      logger.substep('No files to lint')
-    }
+    logger.substep('No files to lint')
     return 0
   }
 
@@ -140,7 +151,7 @@ async function runLintOnFiles(files, options = {}) {
 
   if (!quiet) {
     logger.clearLine().done('Linting passed')
-    // Add newline after message (use error to write to same stream).
+    // Add newline after message (use error to write to same stream)
     logger.error('')
   }
 
@@ -204,7 +215,7 @@ async function runLintOnAll(options = {}) {
 
   if (!quiet) {
     logger.clearLine().done('Linting passed')
-    // Add newline after message (use error to write to same stream).
+    // Add newline after message (use error to write to same stream)
     logger.error('')
   }
 
@@ -217,14 +228,14 @@ async function runLintOnAll(options = {}) {
 async function getFilesToLint(options) {
   const { all, changed, staged } = options
 
-  // If --all, return early.
+  // If --all, return early
   if (all) {
     return { files: 'all', reason: 'all flag specified', mode: 'all' }
   }
 
-  // Get changed files.
+  // Get changed files
   let changedFiles = []
-  // Track what mode we're in.
+  // Track what mode we're in
   let mode = 'changed'
 
   if (staged) {
@@ -240,7 +251,7 @@ async function getFilesToLint(options) {
       return { files: null, reason: 'no changed files', mode }
     }
   } else {
-    // Default to changed files if no specific flag.
+    // Default to changed files if no specific flag
     mode = 'changed'
     changedFiles = await getChangedFiles({ absolute: false })
     if (!changedFiles.length) {
@@ -248,13 +259,13 @@ async function getFilesToLint(options) {
     }
   }
 
-  // Check if we should run all based on changed files.
+  // Check if we should run all based on changed files
   const { reason, runAll } = shouldRunAllLinters(changedFiles)
   if (runAll) {
     return { files: 'all', reason, mode: 'all' }
   }
 
-  // Filter to lintable files.
+  // Filter to lintable files
   const lintableFiles = filterLintableFiles(changedFiles)
   if (!lintableFiles.length) {
     return { files: null, reason: 'no lintable files changed', mode }
@@ -265,7 +276,7 @@ async function getFilesToLint(options) {
 
 async function main() {
   try {
-    // Parse arguments.
+    // Parse arguments
     const { positionals, values } = parseArgs({
       options: {
         help: {
@@ -301,7 +312,7 @@ async function main() {
       strict: false,
     })
 
-    // Show help if requested.
+    // Show help if requested
     if (values.help) {
       console.log('Lint Runner')
       console.log('\nUsage: pnpm lint [options] [files...]')
@@ -328,12 +339,12 @@ async function main() {
 
     if (!quiet) {
       printHeader('Lint Runner')
-      console.log()
+      console.log('')
     }
 
     let exitCode = 0
 
-    // Handle positional arguments (specific files).
+    // Handle positional arguments (specific files)
     if (positionals.length > 0) {
       const files = filterLintableFiles(positionals)
       if (!quiet) {
@@ -344,7 +355,7 @@ async function main() {
         quiet,
       })
     } else {
-      // Get files to lint based on flags.
+      // Get files to lint based on flags
       const { files, mode, reason } = await getFilesToLint(values)
 
       if (files === null) {
@@ -381,7 +392,7 @@ async function main() {
       process.exitCode = exitCode
     } else {
       if (!quiet) {
-        console.log()
+        console.log('')
         logger.success('All lint checks passed!')
       }
     }

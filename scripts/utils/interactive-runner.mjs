@@ -1,82 +1,15 @@
 /**
- * @fileoverview Interactive runner for commands with Ctrl+O toggle.
+ * @fileoverview Interactive runner for commands with ctrl+o toggle.
  * Standardized across all socket-* repositories.
  */
 
 import { spawn } from 'node:child_process'
 import readline from 'node:readline'
 
-// Simple inline spinner for build-time use (avoids circular dependency).
-// This is intentionally minimal to avoid depending on registry code during build.
-function createSpinner() {
-  const state = {
-    __proto__: null,
-    frameIndex: 0,
-    frames: ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'],
-    interval: null,
-    isSpinning: false,
-    message: '',
-  }
+import { spinner } from '@socketsecurity/lib/spinner'
 
-  // Detect CI environment.
-  const isCI = Boolean(
-    process.env.CI ||
-      process.env.CONTINUOUS_INTEGRATION ||
-      process.env.BUILD_NUMBER ||
-      process.env.TRAVIS ||
-      process.env.CIRCLECI ||
-      process.env.JENKINS_URL ||
-      process.env.GITHUB_ACTIONS,
-  )
-
-  return {
-    __proto__: null,
-    start(message) {
-      state.message = message
-      state.isSpinning = true
-
-      // Skip animation in CI or non-TTY.
-      if (isCI || !process.stdout.isTTY) {
-        console.log(message)
-        return
-      }
-
-      state.interval = setInterval(() => {
-        const frame = state.frames[state.frameIndex]
-        state.frameIndex = (state.frameIndex + 1) % state.frames.length
-        process.stdout.write(`\r${frame} ${state.message}`)
-      }, 80)
-    },
-
-    stop() {
-      if (state.interval) {
-        clearInterval(state.interval)
-        state.interval = null
-      }
-      if (process.stdout.isTTY) {
-        process.stdout.write('\r\x1b[K')
-      }
-      state.isSpinning = false
-    },
-
-    successAndStop(message) {
-      this.stop()
-      console.log(`✓ ${message}`)
-    },
-
-    failAndStop(message) {
-      this.stop()
-      console.error(`✗ ${message}`)
-    },
-  }
-}
-
-const spinner = createSpinner()
-
-// Cleanup on process exit.
-process.on('exit', () => {
-  spinner.stop()
-})
+// Will import from registry once built:
+// import { attachOutputMask, clearLine, writeOutput } from '@socketsecurity/lib/stdio/mask'
 
 /**
  * Run a command with interactive output control.
@@ -86,7 +19,7 @@ process.on('exit', () => {
  * @param {string[]} args - Command arguments
  * @param {object} options - Options
  * @param {string} options.message - Progress message
- * @param {string} options.toggleText - Text after "ctrl+o" (default: "to expand")
+ * @param {string} options.toggleText - Text after "ctrl+o" (default: "to see output")
  * @param {boolean} options.showOnError - Show output on error (default: true)
  * @param {boolean} options.verbose - Start in verbose mode (default: false)
  * @returns {Promise<number>} Exit code
@@ -97,7 +30,7 @@ export async function runWithOutput(command, args = [], options = {}) {
     env = process.env,
     message = 'Running',
     showOnError = true,
-    toggleText = 'to expand',
+    toggleText = 'to see output',
     verbose = false,
   } = options
 
@@ -126,7 +59,7 @@ export async function runWithOutput(command, args = [], options = {}) {
       process.stdin.setRawMode(true)
 
       const keypressHandler = (_str, key) => {
-        // Ctrl+O toggles output
+        // ctrl+o toggles output
         if (key?.ctrl && key.name === 'o') {
           showOutput = !showOutput
 
@@ -137,16 +70,13 @@ export async function runWithOutput(command, args = [], options = {}) {
               isSpinning = false
             }
 
-            // Clear spinner line and show buffer
+            // Clear line and show buffer
             process.stdout.write('\r\x1b[K')
-            // Dump all buffered output
             if (outputBuffer.length > 0) {
-              outputBuffer.forEach(line => {
-                process.stdout.write(line)
-              })
-              // DON'T clear the buffer - keep it for potential toggle back
+              console.log('--- Showing output ---')
+              outputBuffer.forEach(line => process.stdout.write(line))
+              outputBuffer = []
             }
-            // Now output continues to stream live to stdout
           } else {
             // Hide output and restart spinner
             process.stdout.write('\r\x1b[K')
@@ -154,10 +84,9 @@ export async function runWithOutput(command, args = [], options = {}) {
               spinner.start(`${message} (ctrl+o ${toggleText})`)
               isSpinning = true
             }
-            // Output will now buffer again
           }
         }
-        // Ctrl+C to cancel
+        // ctrl+c to cancel
         else if (key?.ctrl && key.name === 'c') {
           child.kill('SIGTERM')
           if (process.stdin.isTTY) {
@@ -258,10 +187,9 @@ export async function runWithOutput(command, args = [], options = {}) {
     }
 
     child.on('exit', code => {
-      // Cleanup keyboard if needed - MUST happen before spinner stop
+      // Cleanup keyboard if needed
       if (process.stdin.isTTY && !verbose) {
         process.stdin.setRawMode(false)
-        process.stdin.pause()
       }
 
       // Override exit code if we only have worker termination errors
@@ -275,15 +203,19 @@ export async function runWithOutput(command, args = [], options = {}) {
 
       if (isSpinning) {
         if (finalCode === 0) {
-          spinner.successAndStop(`${message} completed`)
+          spinner.stop()
+          spinner.success(`${message} completed`)
+          // Ensure spinner is fully cleared and we're on a fresh line
+          process.stdout.write('\r\x1b[K')
         } else {
-          spinner.failAndStop(`${message} failed`)
+          spinner.stop()
+          spinner.fail(`${message} failed`)
+          // Ensure spinner is fully cleared and we're on a fresh line
+          process.stdout.write('\r\x1b[K')
           // Show output on error if configured
           if (showOnError && outputBuffer.length > 0) {
             console.log('\n--- Output ---')
-            outputBuffer.forEach(line => {
-              process.stdout.write(line)
-            })
+            outputBuffer.forEach(line => process.stdout.write(line))
           }
         }
       }
@@ -294,11 +226,13 @@ export async function runWithOutput(command, args = [], options = {}) {
     child.on('error', error => {
       if (process.stdin.isTTY && !verbose) {
         process.stdin.setRawMode(false)
-        process.stdin.pause()
       }
 
       if (isSpinning) {
-        spinner.failAndStop(`${message} error: ${error.message}`)
+        spinner.stop()
+        spinner.fail(`${message} error: ${error.message}`)
+        // Ensure spinner is fully cleared and we're on a fresh line
+        process.stdout.write('\r\x1b[K')
       }
       reject(error)
     })
@@ -311,7 +245,7 @@ export async function runWithOutput(command, args = [], options = {}) {
 export async function runTests(command, args, options = {}) {
   return runWithOutput(command, args, {
     message: 'Running tests',
-    toggleText: 'to expand',
+    toggleText: 'to see test output',
     ...options,
   })
 }
@@ -322,7 +256,7 @@ export async function runTests(command, args, options = {}) {
 export async function runLint(command, args, options = {}) {
   return runWithOutput(command, args, {
     message: 'Running linter',
-    toggleText: 'to expand',
+    toggleText: 'to see lint results',
     ...options,
   })
 }
@@ -333,7 +267,7 @@ export async function runLint(command, args, options = {}) {
 export async function runBuild(command, args, options = {}) {
   return runWithOutput(command, args, {
     message: 'Building',
-    toggleText: 'to expand',
+    toggleText: 'to see build output',
     ...options,
   })
 }

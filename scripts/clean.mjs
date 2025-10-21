@@ -1,54 +1,158 @@
 /**
- * @fileoverview Clean script for the registry.
+ * @fileoverview Unified clean runner with flag-based configuration.
  * Removes build artifacts, caches, and other generated files.
- *
- * Usage:
- *   node scripts/clean.mjs [options]
- *
- * Options:
- *   --cache           Clean cache directories only
- *   --coverage        Clean coverage reports only
- *   --registry        Clean registry build only
- *   --test            Clean test artifacts only
- *   --test-cache      Clean test cache only
- *   --tsbuildinfo     Clean tsbuildinfo files only
- *   --node-modules    Clean node_modules
- *   --all             Clean everything (default)
  */
 
-import { parseArgs } from 'node:util'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+import { deleteAsync } from 'del'
+import fastGlob from 'fast-glob'
+
+import { isQuiet } from '@socketsecurity/lib/argv/flags'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { logger } from '@socketsecurity/lib/logger'
-import { runCommand } from './utils/run-command.mjs'
+import { createSectionHeader } from '@socketsecurity/lib/stdio/header'
+
+const rootPath = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+)
+
+/**
+ * Clean specific directories.
+ */
+async function cleanDirectories(tasks, options = {}) {
+  const { quiet = false } = options
+
+  for (const task of tasks) {
+    const { name, pattern, patterns } = task
+    const patternsToDelete = patterns || [pattern]
+
+    if (!quiet) {
+      logger.progress(`Cleaning ${name}`)
+    }
+
+    try {
+      // Find all files/dirs matching the patterns
+      const files = await fastGlob(patternsToDelete, {
+        cwd: rootPath,
+        absolute: true,
+        dot: true,
+        onlyFiles: false,
+        markDirectories: true,
+      })
+
+      // Delete each file/directory
+      await deleteAsync(files)
+
+      if (!quiet) {
+        if (files.length > 0) {
+          logger.done(`Cleaned ${name} (${files.length} items)`)
+        } else {
+          logger.done(`Cleaned ${name} (already clean)`)
+        }
+      }
+    } catch (error) {
+      if (!quiet) {
+        logger.error(`Failed to clean ${name}`)
+        console.error(error.message)
+      }
+      return 1
+    }
+  }
+
+  return 0
+}
 
 async function main() {
   try {
+    // Parse arguments
     const { values } = parseArgs({
       options: {
-        all: { type: 'boolean', default: false },
-        cache: { type: 'boolean', default: false },
-        coverage: { type: 'boolean', default: false },
-        'node-modules': { type: 'boolean', default: false },
-        registry: { type: 'boolean', default: false },
-        test: { type: 'boolean', default: false },
-        'test-cache': { type: 'boolean', default: false },
-        tsbuildinfo: { type: 'boolean', default: false },
+        help: {
+          type: 'boolean',
+          default: false,
+        },
+        all: {
+          type: 'boolean',
+          default: false,
+        },
+        cache: {
+          type: 'boolean',
+          default: false,
+        },
+        coverage: {
+          type: 'boolean',
+          default: false,
+        },
+        dist: {
+          type: 'boolean',
+          default: false,
+        },
+        types: {
+          type: 'boolean',
+          default: false,
+        },
+        modules: {
+          type: 'boolean',
+          default: false,
+        },
+        quiet: {
+          type: 'boolean',
+          default: false,
+        },
+        silent: {
+          type: 'boolean',
+          default: false,
+        },
       },
+      allowPositionals: false,
       strict: false,
     })
 
-    // If no specific option is provided, clean everything
+    // Show help if requested
+    if (values.help) {
+      console.log('Clean Runner')
+      console.log('\nUsage: pnpm clean [options]')
+      console.log('\nOptions:')
+      console.log('  --help              Show this help message')
+      console.log(
+        '  --all               Clean everything (default if no flags)',
+      )
+      console.log('  --cache             Clean cache directories')
+      console.log('  --coverage          Clean coverage reports')
+      console.log('  --dist              Clean build output')
+      console.log('  --types             Clean TypeScript declarations only')
+      console.log('  --modules           Clean node_modules')
+      console.log('  --quiet, --silent   Suppress progress messages')
+      console.log('\nExamples:')
+      console.log(
+        '  pnpm clean                  # Clean everything except node_modules',
+      )
+      console.log('  pnpm clean --dist           # Clean build output only')
+      console.log('  pnpm clean --cache --coverage  # Clean cache and coverage')
+      console.log(
+        '  pnpm clean --all --modules  # Clean everything including node_modules',
+      )
+      process.exitCode = 0
+      return
+    }
+
+    const quiet = isQuiet(values)
+
+    // Determine what to clean
     const cleanAll =
       values.all ||
       (!values.cache &&
         !values.coverage &&
-        !values.registry &&
-        !values.test &&
-        !values['test-cache'] &&
-        !values.tsbuildinfo &&
-        !values['node-modules'])
+        !values.dist &&
+        !values.types &&
+        !values.modules)
 
     const tasks = []
 
+    // Build task list
     if (cleanAll || values.cache) {
       tasks.push({ name: 'cache', pattern: '**/.cache' })
     }
@@ -57,76 +161,50 @@ async function main() {
       tasks.push({ name: 'coverage', pattern: 'coverage' })
     }
 
-    if (cleanAll || values.registry) {
+    if (cleanAll || values.dist) {
       tasks.push({
-        command: 'pnpm',
-        name: 'registry',
-        runCommand: true,
-        args: ['--filter', 'registry', 'run', 'clean'],
+        name: 'dist',
+        patterns: ['dist', '*.tsbuildinfo', '.tsbuildinfo'],
       })
+    } else if (values.types) {
+      tasks.push({ name: 'dist/types', patterns: ['dist/types'] })
     }
 
-    if (cleanAll || values.test) {
-      tasks.push({
-        name: 'test',
-        pattern: 'test/**/.tmp-* test/**/packages',
-      })
-    }
-
-    if (cleanAll || values['test-cache']) {
-      tasks.push({
-        command: 'node',
-        name: 'test-cache',
-        runCommand: true,
-        args: ['./scripts/clean-test-cache.mjs'],
-      })
-    }
-
-    if (cleanAll || values.tsbuildinfo) {
-      tasks.push({
-        name: 'tsbuildinfo',
-        pattern: '*.tsbuildinfo',
-      })
-    }
-
-    if (values['node-modules']) {
+    if (values.modules) {
       tasks.push({ name: 'node_modules', pattern: '**/node_modules' })
     }
 
+    // Check if there's anything to clean
     if (tasks.length === 0) {
-      logger.log('Nothing to clean')
+      if (!quiet) {
+        logger.info('Nothing to clean')
+      }
+      process.exitCode = 0
       return
     }
 
-    logger.log('Cleaning...')
-    let hadError = false
+    if (!quiet) {
+      console.log(
+        createSectionHeader('Clean Runner', { width: 56, borderChar: '=' }),
+      )
+      logger.step('Cleaning project directories')
+    }
 
-    for (const task of tasks) {
-      logger.log(`  - ${task.name}`)
-      if (task.runCommand) {
-        const exitCode = await runCommand(task.command, task.args, {
-          stdio: 'inherit',
-        })
-        if (exitCode !== 0) {
-          hadError = true
-        }
-      } else {
-        const exitCode = await runCommand('del-cli', [task.pattern], {
-          stdio: 'pipe',
-        })
-        if (exitCode !== 0) {
-          hadError = true
-        }
+    // Clean directories
+    const exitCode = await cleanDirectories(tasks, { quiet })
+
+    if (exitCode !== 0) {
+      if (!quiet) {
+        logger.error('Clean failed')
+      }
+      process.exitCode = exitCode
+    } else {
+      if (!quiet) {
+        logger.success('Clean completed successfully!')
       }
     }
-
-    if (hadError) {
-      process.exitCode = 1
-    } else {
-      logger.log('Clean complete')
-    }
   } catch (error) {
-    logger.error('Clean failed:', error.message)
+    logger.error(`Clean runner failed: ${error.message}`)
     process.exitCode = 1
   }
 }
