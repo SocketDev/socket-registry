@@ -37,11 +37,11 @@
     "./tsconfig.json": "./tsconfig.json"
   },
   "files": [
-    "dist/**/*.js",
+    "CHANGELOG.md",
     "dist/**/*.d.ts",
+    "dist/**/*.js",
     "extensions.json",
-    "manifest.json",
-    "CHANGELOG.md"
+    "manifest.json"
   ],
   "engines": {
     "node": ">=18"
