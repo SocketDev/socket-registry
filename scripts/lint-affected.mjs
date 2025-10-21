@@ -14,17 +14,6 @@ import constants from './constants.mjs'
 import { getChangedFiles, getStagedFiles } from './utils/git.mjs'
 import { runCommandQuiet } from './utils/run-command.mjs'
 
-const CORE_LIB_FILES = new Set([
-  'registry/src/lib/fs.ts',
-  'registry/src/lib/git.ts',
-  'registry/src/lib/path.ts',
-  'registry/src/lib/spawn.ts',
-  'registry/src/lib/promises.ts',
-  'registry/src/lib/objects.ts',
-  'registry/src/lib/arrays.ts',
-  'registry/src/lib/strings.ts',
-])
-
 const RUN_ALL_PATTERNS = [
   '.config/**',
   'scripts/utils/**',
@@ -47,26 +36,13 @@ const SOCKET_PROJECTS = [
  * Check if we should run all linters based on changed files.
  */
 function shouldRunAllLinters(changedFiles) {
-  // Check if any core files changed.
+  // Check if any config files changed.
   for (const file of changedFiles) {
-    // Core library files that are widely used.
-    if (CORE_LIB_FILES.has(file)) {
-      return true
-    }
-
     // Config or infrastructure files.
     for (const pattern of RUN_ALL_PATTERNS) {
       if (file.includes(pattern.replace('**', ''))) {
         return true
       }
-    }
-
-    // Registry types or external deps.
-    if (
-      file.includes('registry/src/types.ts') ||
-      file.includes('registry/src/external/')
-    ) {
-      return true
     }
   }
 

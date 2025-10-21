@@ -1,15 +1,9 @@
 /**
  * @fileoverview Main entry point for Socket Registry v2.0.
- * Clean, organized exports for better developer experience.
+ * Provides access to manifest data.
  */
 
-// Direct exports for commonly used items
-// Alias for backward compatibility with GitHub version
-export {
-  SocketRegistry,
-  SocketRegistry as SocketSecurityRegistry,
-} from './packages/registry'
-// Export types
+// Export types from types.ts
 export * from './types'
 
 // Manifest data helper function

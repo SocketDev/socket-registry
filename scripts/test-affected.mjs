@@ -16,17 +16,6 @@ import { WIN32 } from './constants/node.mjs'
 import { ROOT_NODE_MODULES_BIN_PATH, ROOT_PATH } from './constants/paths.mjs'
 import { getStagedFiles } from './utils/git.mjs'
 
-const CORE_LIB_FILES = new Set([
-  'registry/src/lib/fs.ts',
-  'registry/src/lib/git.ts',
-  'registry/src/lib/path.ts',
-  'registry/src/lib/spawn.ts',
-  'registry/src/lib/promises.ts',
-  'registry/src/lib/objects.ts',
-  'registry/src/lib/arrays.ts',
-  'registry/src/lib/strings.ts',
-])
-
 const RUN_ALL_PATTERNS = [
   '.config/**',
   'scripts/utils/**',
@@ -40,19 +29,6 @@ const RUN_ALL_PATTERNS = [
  */
 function mapSourceToTests(filepath) {
   const tests = []
-
-  // Handle registry source files.
-  if (filepath.startsWith('registry/src/lib/')) {
-    const basename = path.basename(filepath, path.extname(filepath))
-    // Direct test file mapping.
-    const directTest = `test/registry/${basename}.test.mts`
-    tests.push(directTest)
-
-    // Some files have multiple related tests.
-    if (basename === 'packages') {
-      tests.push('test/registry/packages-*.test.mts', 'test/packages.test.mts')
-    }
-  }
 
   // Handle npm package overrides.
   if (filepath.startsWith('packages/npm/')) {
@@ -80,26 +56,13 @@ function shouldRunAllTests(changedFiles) {
     return true
   }
 
-  // Check if any core files changed.
+  // Check if any config files changed.
   for (const file of changedFiles) {
-    // Core library files that are widely used.
-    if (CORE_LIB_FILES.has(file)) {
-      return true
-    }
-
     // Config or infrastructure files.
     for (const pattern of RUN_ALL_PATTERNS) {
       if (file.includes(pattern.replace('**', ''))) {
         return true
       }
-    }
-
-    // Registry types or external deps.
-    if (
-      file.includes('registry/src/types.ts') ||
-      file.includes('registry/src/external/')
-    ) {
-      return true
     }
   }
 
