@@ -15,6 +15,12 @@ const isCoverageEnabled =
 
 const projectRoot = path.resolve(__dirname, '..')
 
+// Convert Windows paths to POSIX format for glob patterns.
+// Glob patterns require forward slashes even on Windows.
+function toPosixPath(filepath) {
+  return filepath.split(path.sep).join('/')
+}
+
 export default defineConfig({
   // Disabled complex transform plugins - we now test src/ directly
   // plugins: [
@@ -105,7 +111,9 @@ export default defineConfig({
     globals: false,
     environment: 'node',
     include: [
-      path.resolve(projectRoot, 'test/**/*.test.{js,ts,mjs,mts,cjs,cts}'),
+      toPosixPath(
+        path.resolve(projectRoot, 'test/**/*.test.{js,ts,mjs,mts,cjs,cts}'),
+      ),
     ],
     exclude: [
       '**/node_modules/**',
@@ -113,7 +121,7 @@ export default defineConfig({
       // Exclude test/npm unless INCLUDE_NPM_TESTS is set
       ...(process.env.INCLUDE_NPM_TESTS
         ? []
-        : [path.resolve(projectRoot, 'test/npm/**')]),
+        : [toPosixPath(path.resolve(projectRoot, 'test/npm/**'))]),
     ],
     reporters: ['default'],
     // Use threads for better performance
