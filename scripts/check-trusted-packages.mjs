@@ -7,11 +7,10 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-
-import { COLUMN_LIMIT } from '../registry/dist/constants/core.js'
-import { logger } from '../registry/dist/lib/logger.js'
-import { parseArgs } from '../registry/dist/lib/parse-args.js'
-import { spawn } from '../registry/dist/lib/spawn.js'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { COLUMN_LIMIT } from '@socketsecurity/lib/constants/core'
+import { logger } from '@socketsecurity/lib/logger'
+import { spawn } from '@socketsecurity/lib/spawn'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 

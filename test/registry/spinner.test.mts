@@ -12,7 +12,7 @@ import {
   withSpinner,
   withSpinnerRestore,
   withSpinnerSync,
-} from '../../registry/dist/lib/spinner.js'
+} from '@socketsecurity/lib/spinner'
 
 describe('spinner module', () => {
   afterEach(() => {

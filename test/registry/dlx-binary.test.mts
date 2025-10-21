@@ -2,6 +2,12 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { createServer } from 'node:http'
 import os from 'node:os'
 import path from 'node:path'
+import {
+  cleanDlxCache,
+  dlxBinary,
+  getDlxCachePath,
+  listDlxCache,
+} from '@socketsecurity/lib/dlx-binary'
 import { deleteAsync as del } from 'del'
 import {
   afterAll,
@@ -12,12 +18,6 @@ import {
   expect,
   it,
 } from 'vitest'
-import {
-  cleanDlxCache,
-  dlxBinary,
-  getDlxCachePath,
-  listDlxCache,
-} from '../../registry/dist/lib/dlx-binary.js'
 
 const WIN32 = process.platform === 'win32'
 

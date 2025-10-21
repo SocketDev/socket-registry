@@ -6,7 +6,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { hasOwn } from '../../registry/dist/lib/objects.js'
+import { hasOwn } from '@socketsecurity/lib/objects'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 

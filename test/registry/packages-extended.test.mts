@@ -1,5 +1,3 @@
-import { describe, expect, it, vi } from 'vitest'
-
 import {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
@@ -16,7 +14,8 @@ import {
   parseSpdxExp,
   resolvePackageName,
   resolveRegistryPackageName,
-} from '../../registry/dist/lib/packages.js'
+} from '@socketsecurity/lib/packages'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('packages module extended tests', () => {
   describe('collectIncompatibleLicenses', () => {

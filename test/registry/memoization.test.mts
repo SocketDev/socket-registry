@@ -1,5 +1,3 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-
 import {
   clearAllMemoizationCaches,
   Memoize,
@@ -8,7 +6,8 @@ import {
   memoizeDebounced,
   memoizeWeak,
   once,
-} from '../../registry/dist/lib/memoization.js'
+} from '@socketsecurity/lib/memoization'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('memoization module', () => {
   beforeEach(() => {

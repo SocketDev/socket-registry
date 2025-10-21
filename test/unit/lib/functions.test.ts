@@ -3,14 +3,14 @@
  *
  * Validates noop, once, silentWrapAsync, and trampoline functions.
  */
-import { describe, expect, it, vi } from 'vitest'
 
 import {
   noop,
   once,
   silentWrapAsync,
   trampoline,
-} from '../../../registry/dist/lib/functions.js'
+} from '@socketsecurity/lib/functions'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('functions utilities', () => {
   describe('noop', () => {

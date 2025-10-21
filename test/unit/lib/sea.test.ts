@@ -4,12 +4,8 @@
  * Validates SEA binary detection and path resolution functions.
  */
 
+import { getSeaBinaryPath, isSeaBinary } from '@socketsecurity/lib/sea'
 import { beforeEach, describe, expect, it } from 'vitest'
-
-import {
-  getSeaBinaryPath,
-  isSeaBinary,
-} from '../../../registry/dist/lib/sea.js'
 
 describe('sea utilities', () => {
   beforeEach(() => {

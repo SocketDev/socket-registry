@@ -1,9 +1,6 @@
 import { spawn } from 'node:child_process'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-
 import {
   debugDir,
   debugDirNs,
@@ -11,7 +8,8 @@ import {
   debugLogNs,
   debugNs,
   isDebugNs,
-} from '../../registry/dist/lib/debug.js'
+} from '@socketsecurity/lib/debug'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 

@@ -1,5 +1,3 @@
-import { describe, expect, it } from 'vitest'
-
 import {
   createConstantsObject,
   createLazyGetter,
@@ -18,7 +16,8 @@ import {
   objectEntries,
   toSortedObject,
   toSortedObjectFromEntries,
-} from '../../registry/dist/lib/objects.js'
+} from '@socketsecurity/lib/objects'
+import { describe, expect, it } from 'vitest'
 
 describe('objects module', () => {
   describe('isObject', () => {

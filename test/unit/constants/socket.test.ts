@@ -3,7 +3,6 @@
  *
  * Validates Socket APIs, scopes, organizations, and application names.
  */
-import { describe, expect, it } from 'vitest'
 
 import {
   CACHE_SOCKET_API_DIR,
@@ -25,7 +24,8 @@ import {
   SOCKET_REGISTRY_REPO_NAME,
   SOCKET_REGISTRY_SCOPE,
   SOCKET_SECURITY_SCOPE,
-} from '../../../registry/dist/constants/socket.js'
+} from '@socketsecurity/lib/constants/socket'
+import { describe, expect, it } from 'vitest'
 
 describe('socket constants', () => {
   describe('Socket.dev API', () => {

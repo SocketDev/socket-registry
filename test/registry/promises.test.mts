@@ -1,5 +1,3 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-
 import {
   normalizeIterationOptions,
   normalizeRetryOptions,
@@ -9,7 +7,8 @@ import {
   pFilterChunk,
   pRetry,
   resolveRetryOptions,
-} from '../../registry/dist/lib/promises.js'
+} from '@socketsecurity/lib/promises'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('promises module', () => {
   beforeEach(() => {

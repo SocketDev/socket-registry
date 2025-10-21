@@ -1,5 +1,5 @@
 /** @fileoverview Safe file removal utility with trash fallback. */
-import { remove } from '@socketsecurity/registry/lib/fs'
+import { remove } from '@socketsecurity/lib/fs'
 import trashPkg from 'trash'
 
 /**

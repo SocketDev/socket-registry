@@ -5,13 +5,13 @@
  */
 
 import { Readable } from 'node:stream'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { GlobOptions, Pattern } from '../../../registry/dist/lib/globs.js'
+import type { GlobOptions, Pattern } from '@socketsecurity/lib/globs'
 import {
   defaultIgnore,
   getGlobMatcher,
   globStreamLicenses,
-} from '../../../registry/dist/lib/globs.js'
+} from '@socketsecurity/lib/globs'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('globs utilities', () => {
   describe('defaultIgnore', () => {

@@ -3,7 +3,6 @@
  *
  * Validates object operations, getters, sorting, and utility functions.
  */
-import { describe, expect, it } from 'vitest'
 
 import {
   createConstantsObject,
@@ -25,7 +24,8 @@ import {
   objectFreeze,
   toSortedObject,
   toSortedObjectFromEntries,
-} from '../../../registry/dist/lib/objects.js'
+} from '@socketsecurity/lib/objects'
+import { describe, expect, it } from 'vitest'
 
 describe('objects utilities', () => {
   describe('isObject', () => {

@@ -1,5 +1,3 @@
-import { describe, expect, it } from 'vitest'
-
 import {
   BUN,
   BUN_LOCK,
@@ -18,7 +16,7 @@ import {
   YARN,
   YARN_BERRY,
   YARN_LOCK,
-} from '../../registry/dist/constants/agents.js'
+} from '@socketsecurity/lib/constants/agents'
 import {
   COLUMN_LIMIT,
   EMPTY_FILE,
@@ -28,18 +26,18 @@ import {
   UNDEFINED_TOKEN,
   UNKNOWN_ERROR,
   UNKNOWN_VALUE,
-} from '../../registry/dist/constants/core.js'
-import { UTF8 } from '../../registry/dist/constants/encoding.js'
+} from '@socketsecurity/lib/constants/core'
+import { UTF8 } from '@socketsecurity/lib/constants/encoding'
 import {
   CACHE_GITHUB_DIR,
   GITHUB_API_BASE_URL,
-} from '../../registry/dist/constants/github.js'
+} from '@socketsecurity/lib/constants/github'
 import {
   getCopyLeftLicenses,
   MIT,
   UNLICENCED,
   UNLICENSED,
-} from '../../registry/dist/constants/licenses.js'
+} from '@socketsecurity/lib/constants/licenses'
 import {
   ESNEXT,
   getExecPath,
@@ -52,7 +50,7 @@ import {
   supportsNodeRequireModule,
   supportsNodeRun,
   supportsProcessSend,
-} from '../../registry/dist/constants/node.js'
+} from '@socketsecurity/lib/constants/node'
 import {
   AT_LATEST,
   getLifecycleScriptNames,
@@ -61,7 +59,7 @@ import {
   getPacoteCachePath,
   LATEST,
   PACKAGE_DEFAULT_VERSION,
-} from '../../registry/dist/constants/packages.js'
+} from '@socketsecurity/lib/constants/packages'
 import {
   CACHE_DIR,
   CACHE_TTL_DIR,
@@ -102,8 +100,8 @@ import {
   README_GLOB_RECURSIVE,
   README_MD,
   TSCONFIG_JSON,
-} from '../../registry/dist/constants/paths.js'
-import { DARWIN, WIN32 } from '../../registry/dist/constants/platform.js'
+} from '@socketsecurity/lib/constants/paths'
+import { DARWIN, WIN32 } from '@socketsecurity/lib/constants/platform'
 import {
   CACHE_SOCKET_API_DIR,
   REGISTRY,
@@ -123,19 +121,15 @@ import {
   SOCKET_REGISTRY_REPO_NAME,
   SOCKET_REGISTRY_SCOPE,
   SOCKET_SECURITY_SCOPE,
-} from '../../registry/dist/constants/socket.js'
-import {
-  CI,
-  PRE_COMMIT,
-  VITEST,
-} from '../../registry/dist/constants/testing.js'
-import { DLX_BINARY_CACHE_TTL } from '../../registry/dist/constants/time.js'
+} from '@socketsecurity/lib/constants/socket'
+import { CI, PRE_COMMIT, VITEST } from '@socketsecurity/lib/constants/testing'
+import { DLX_BINARY_CACHE_TTL } from '@socketsecurity/lib/constants/time'
 import {
   getTsLibsAvailable,
   getTsTypesAvailable,
-} from '../../registry/dist/constants/typescript.js'
-
-import { npm_lifecycle_event as npmLifecycleEvent } from '../../registry/dist/env/npm-lifecycle-event.js'
+} from '@socketsecurity/lib/constants/typescript'
+import { npm_lifecycle_event as npmLifecycleEvent } from '@socketsecurity/lib/env/npm-lifecycle-event'
+import { describe, expect, it } from 'vitest'
 
 const copyLeftLicenses = getCopyLeftLicenses()
 const execPath = getExecPath()

@@ -3,13 +3,9 @@
  *
  * Validates envAsBoolean, envAsNumber, and envAsString conversion functions.
  */
-import { describe, expect, it } from 'vitest'
 
-import {
-  envAsBoolean,
-  envAsNumber,
-  envAsString,
-} from '../../../registry/dist/lib/env.js'
+import { envAsBoolean, envAsNumber, envAsString } from '@socketsecurity/lib/env'
+import { describe, expect, it } from 'vitest'
 
 describe('env utilities', () => {
   describe('envAsBoolean', () => {

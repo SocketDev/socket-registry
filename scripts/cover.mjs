@@ -39,7 +39,7 @@ const vitestArgs = [
   'vitest',
   'run',
   '--coverage',
-  ...process.argv.slice(2).filter((arg) => !customFlags.includes(arg)),
+  ...process.argv.slice(2).filter(arg => !customFlags.includes(arg)),
 ]
 const typeCoverageArgs = ['exec', 'type-coverage']
 

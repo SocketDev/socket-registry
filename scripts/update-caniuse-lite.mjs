@@ -1,7 +1,7 @@
 /** @fileoverview Update caniuse-lite database without triggering prepare scripts. */
 
-import { logger } from '../registry/dist/lib/logger.js'
-import { spawnSync } from '../registry/dist/lib/spawn.js'
+import { logger } from '@socketsecurity/lib/logger'
+import { spawnSync } from '@socketsecurity/lib/spawn'
 
 import constants from './constants.mjs'
 

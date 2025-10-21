@@ -1,9 +1,5 @@
+import { formatSimpleTable, formatTable } from '@socketsecurity/lib/tables'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-
-import {
-  formatSimpleTable,
-  formatTable,
-} from '../../registry/dist/lib/tables.js'
 
 describe('tables module', () => {
   beforeEach(() => {

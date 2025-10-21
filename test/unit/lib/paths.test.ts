@@ -6,9 +6,6 @@
 
 import * as os from 'node:os'
 import * as path from 'node:path'
-
-import { describe, expect, it } from 'vitest'
-
 import {
   getSocketAppCacheDir,
   getSocketAppCacheTtlDir,
@@ -20,7 +17,8 @@ import {
   getSocketRegistryDir,
   getSocketRegistryGithubCacheDir,
   getSocketUserDir,
-} from '../../../registry/dist/lib/paths.js'
+} from '@socketsecurity/lib/paths'
+import { describe, expect, it } from 'vitest'
 
 describe('paths utilities', () => {
   describe('getSocketHomePath', () => {

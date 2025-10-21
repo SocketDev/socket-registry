@@ -1,7 +1,4 @@
 import path from 'node:path'
-
-import { describe, expect, it } from 'vitest'
-
 import {
   isGitHubTgzSpec,
   isGitHubUrlSpec,
@@ -11,7 +8,8 @@ import {
   resolvePackageName,
   resolveRegistryPackageName,
   unescapeScope,
-} from '../../registry/dist/lib/packages.js'
+} from '@socketsecurity/lib/packages'
+import { describe, expect, it } from 'vitest'
 
 describe('packages module - operations and utilities', () => {
   describe('readPackageJsonSync', () => {

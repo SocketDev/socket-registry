@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { createServer } from 'node:http'
 import os from 'node:os'
 import path from 'node:path'
+import { downloadWithLock } from '@socketsecurity/lib/download-lock'
 import { deleteAsync as del } from 'del'
 import {
   afterAll,
@@ -12,7 +13,6 @@ import {
   expect,
   it,
 } from 'vitest'
-import { downloadWithLock } from '../../registry/dist/lib/download-lock.js'
 
 describe('downloadWithLock', () => {
   let server: ReturnType<typeof createServer>

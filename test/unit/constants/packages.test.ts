@@ -3,7 +3,6 @@
  *
  * Validates package metadata and default values.
  */
-import { describe, expect, it } from 'vitest'
 
 import {
   AT_LATEST,
@@ -17,7 +16,8 @@ import {
   LATEST,
   PACKAGE,
   PACKAGE_DEFAULT_VERSION,
-} from '../../../registry/dist/constants/packages.js'
+} from '@socketsecurity/lib/constants/packages'
+import { describe, expect, it } from 'vitest'
 
 describe('packages constants', () => {
   describe('package constants', () => {

@@ -1,20 +1,18 @@
 import os from 'node:os'
 import path from 'node:path'
-
-import { describe, expect, it } from 'vitest'
-
 import {
   findRealBin,
   findRealNpm,
   findRealPnpm,
   findRealYarn,
   isShadowBinPath,
-} from '../../registry/dist/lib/bin.js'
+} from '@socketsecurity/lib/bin'
 import {
   normalizePackageJson,
   readPackageJsonSync,
-} from '../../registry/dist/lib/packages.js'
-import { normalizePath } from '../../registry/dist/lib/path.js'
+} from '@socketsecurity/lib/packages'
+import { normalizePath } from '@socketsecurity/lib/path'
+import { describe, expect, it } from 'vitest'
 
 const isWindows = process.platform === 'win32'
 

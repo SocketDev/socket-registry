@@ -1,11 +1,5 @@
+import { load, onExit, signals, unload } from '@socketsecurity/lib/signal-exit'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-
-import {
-  load,
-  onExit,
-  signals,
-  unload,
-} from '../../registry/dist/lib/signal-exit.js'
 
 describe('signal-exit module', () => {
   let callbacks: Array<(...args: unknown[]) => void>

@@ -7,16 +7,16 @@ import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { WIN32 } from '../registry/dist/constants/platform.js'
-import { CI } from '../registry/dist/env/ci.js'
-import { LOG_SYMBOLS, logger } from '../registry/dist/lib/logger.js'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
+import { CI } from '@socketsecurity/lib/env/ci'
+import { LOG_SYMBOLS, logger } from '@socketsecurity/lib/logger'
 import {
   readPackageJson,
   resolveOriginalPackageName,
-} from '../registry/dist/lib/packages.js'
-import { parseArgs } from '../registry/dist/lib/parse-args.js'
-import { pEach } from '../registry/dist/lib/promises.js'
-import { pluralize } from '../registry/dist/lib/words.js'
+} from '@socketsecurity/lib/packages'
+import { pEach } from '@socketsecurity/lib/promises'
+import { pluralize } from '@socketsecurity/lib/words'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)

@@ -1,6 +1,5 @@
+import { getPacoteCachePath } from '@socketsecurity/lib/constants/packages'
 import { describe, expect, it } from 'vitest'
-
-import { getPacoteCachePath } from '../../registry/dist/constants/packages.js'
 
 const pacoteCachePath = getPacoteCachePath()
 

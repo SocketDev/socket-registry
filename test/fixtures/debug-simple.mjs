@@ -1,7 +1,7 @@
 // Import CommonJS module using createRequire.
 import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
-const debugModule = require('../../registry/dist/lib/debug.js')
+const debugModule = require('@socketsecurity/lib/debug')
 const { debug, debugDir, debugLog, debugNs, debuglog, debugtime, isDebug } =
   debugModule
 

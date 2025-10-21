@@ -1,10 +1,5 @@
+import { envAsBoolean, envAsNumber, envAsString } from '@socketsecurity/lib/env'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-
-import {
-  envAsBoolean,
-  envAsNumber,
-  envAsString,
-} from '../../registry/dist/lib/env.js'
 
 describe('env module', () => {
   let originalEnv: NodeJS.ProcessEnv

@@ -1,9 +1,8 @@
-import { describe, expect, it } from 'vitest'
-
 import type {
   InternalBinaryOperationNode,
   InternalLicenseNode,
-} from '../../registry/dist/lib/packages.js'
+} from '@socketsecurity/lib/packages'
+import { describe, expect, it } from 'vitest'
 
 const {
   createAstNode,

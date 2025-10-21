@@ -1,16 +1,14 @@
 import path from 'node:path'
 import { Writable } from 'node:stream'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-
 import {
   incLogCallCountSymbol,
   LOG_SYMBOLS,
   Logger,
   lastWasBlankSymbol,
   logger,
-} from '../../registry/dist/lib/logger.js'
+} from '@socketsecurity/lib/logger'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { runInSubprocess } from '../utils/subprocess.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))

@@ -3,8 +3,6 @@
  * Covers all flag checking functions and common flag utilities.
  */
 
-import { describe, expect, it } from 'vitest'
-
 import {
   COMMON_FLAGS,
   type FlagValues,
@@ -23,12 +21,13 @@ import {
   isUpdate,
   isVerbose,
   isWatch,
-} from '../../registry/src/lib/argv/flags'
+} from '@socketsecurity/lib/argv/flags'
 import {
   getPositionalArgs,
   parseArgs,
   parseArgsWithDefaults,
-} from '../../registry/src/lib/argv/parse'
+} from '@socketsecurity/lib/argv/parse'
+import { describe, expect, it } from 'vitest'
 
 describe('argv/flags module', () => {
   describe('flag checking functions', () => {
@@ -313,8 +312,8 @@ describe('argv/flags module', () => {
         args: ['--verbose', '--force'],
         options: COMMON_FLAGS,
       })
-      expect(result.values.verbose).toBe(true)
-      expect(result.values.force).toBe(true)
+      expect(result.values['verbose']).toBe(true)
+      expect(result.values['force']).toBe(true)
     })
   })
 

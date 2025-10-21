@@ -8,7 +8,7 @@ import {
   resolveBinPathSync,
   whichBin,
   whichBinSync,
-} from '../../registry/dist/lib/bin.js'
+} from '@socketsecurity/lib/bin'
 
 const testName = process.argv[2]
 

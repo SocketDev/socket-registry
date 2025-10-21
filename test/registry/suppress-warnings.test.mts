@@ -3,14 +3,13 @@
  * Covers process warning suppression and EventTarget listener management.
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-
 import {
   restoreWarnings,
   setMaxEventTargetListeners,
   suppressMaxListenersWarning,
   suppressWarningType,
-} from '../../registry/src/lib/suppress-warnings'
+} from '@socketsecurity/lib/suppress-warnings'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('suppress-warnings module', () => {
   // Store original process.emitWarning

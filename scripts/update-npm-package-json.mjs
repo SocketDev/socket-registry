@@ -1,20 +1,18 @@
 /** @fileoverview Update and validate package.json files for all npm packages. */
 
 import path from 'node:path'
-
-import fastGlob from 'fast-glob'
-
-import { isDebug } from '../registry/dist/lib/debug.js'
-import { logger } from '../registry/dist/lib/logger.js'
+import { isDebug } from '@socketsecurity/lib/debug'
+import { logger } from '@socketsecurity/lib/logger'
 import {
   createPackageJson,
   getSubpaths,
   isSubpathExports,
   readPackageJson,
   resolvePackageJsonEntryExports,
-} from '../registry/dist/lib/packages.js'
-import { trimLeadingDotSlash } from '../registry/dist/lib/path.js'
-import { pluralize } from '../registry/dist/lib/words.js'
+} from '@socketsecurity/lib/packages'
+import { trimLeadingDotSlash } from '@socketsecurity/lib/path'
+import { pluralize } from '@socketsecurity/lib/words'
+import fastGlob from 'fast-glob'
 
 import constants from './constants.mjs'
 

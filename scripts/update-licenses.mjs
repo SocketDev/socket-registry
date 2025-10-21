@@ -7,8 +7,8 @@
 
 import fs from 'node:fs/promises'
 
-import { globStreamLicenses } from '../registry/dist/lib/globs.js'
-import { parallelEach } from '../registry/dist/lib/streams.js'
+import { globStreamLicenses } from '@socketsecurity/lib/globs'
+import { parallelEach } from '@socketsecurity/lib/streams'
 
 import constants from './constants.mjs'
 

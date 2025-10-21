@@ -3,8 +3,6 @@
  * Covers ANSI constants, regex generation, and string stripping.
  */
 
-import { describe, expect, it } from 'vitest'
-
 import {
   ANSI_BOLD,
   ANSI_DIM,
@@ -14,7 +12,8 @@ import {
   ANSI_UNDERLINE,
   ansiRegex,
   stripAnsi,
-} from '../../registry/src/lib/ansi'
+} from '@socketsecurity/lib/ansi'
+import { describe, expect, it } from 'vitest'
 
 describe('ansi module', () => {
   describe('ANSI constants', () => {

@@ -1,10 +1,10 @@
 /** @fileoverview Tests for package provenance checking functionality. */
-import { describe, expect, it } from 'vitest'
 
 import {
   fetchPackageProvenance,
   getProvenanceDetails,
-} from '../../registry/dist/lib/packages.js'
+} from '@socketsecurity/lib/packages'
+import { describe, expect, it } from 'vitest'
 
 describe('fetchPackageProvenance', () => {
   it('should be defined and exported', () => {

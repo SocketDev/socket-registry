@@ -4,8 +4,8 @@ import { existsSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import { resolveRefToSha } from '../registry/dist/lib/github.js'
-import { logger } from '../registry/dist/lib/logger.js'
+import { resolveRefToSha } from '@socketsecurity/lib/github'
+import { logger } from '@socketsecurity/lib/logger'
 import constants from './constants.mjs'
 
 /**

@@ -3,14 +3,14 @@
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { WIN32 } from '../registry/dist/constants/platform.js'
-import { logger } from '../registry/dist/lib/logger.js'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
+import { logger } from '@socketsecurity/lib/logger'
 import {
   readPackageJson,
   resolveOriginalPackageName,
-} from '../registry/dist/lib/packages.js'
-import { parseArgs } from '../registry/dist/lib/parse-args.js'
-import { pEach } from '../registry/dist/lib/promises.js'
+} from '@socketsecurity/lib/packages'
+import { pEach } from '@socketsecurity/lib/promises'
 import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
 import constants from './constants.mjs'
 import { extractErrorInfo } from './utils/errors.mjs'

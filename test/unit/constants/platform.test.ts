@@ -3,7 +3,6 @@
  *
  * Validates platform detection and permission mode constants.
  */
-import { describe, expect, it } from 'vitest'
 
 import {
   DARWIN,
@@ -11,7 +10,8 @@ import {
   S_IXOTH,
   S_IXUSR,
   WIN32,
-} from '../../../registry/dist/constants/platform.js'
+} from '@socketsecurity/lib/constants/platform'
+import { describe, expect, it } from 'vitest'
 
 describe('platform constants', () => {
   describe('platform detection', () => {

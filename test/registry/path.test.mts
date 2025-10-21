@@ -1,8 +1,5 @@
 import { Buffer } from 'node:buffer'
 import { URL } from 'node:url'
-
-import { describe, expect, it, vi } from 'vitest'
-
 import {
   isNodeModules,
   isPath,
@@ -12,7 +9,8 @@ import {
   relativeResolve,
   splitPath,
   trimLeadingDotSlash,
-} from '../../registry/dist/lib/path.js'
+} from '@socketsecurity/lib/path'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('path module', () => {
   describe('isPath', () => {
@@ -760,7 +758,7 @@ describe('path module', () => {
 
     it('should handle malformed file URLs on Unix', () => {
       // Mock WIN32 constant as false.
-      vi.doMock('@socketsecurity/registry/lib/constants/win32', () => false)
+      vi.doMock('@socketsecurity/lib/constants/win32', () => false)
 
       const url = new URL('file:///path/to/file')
       // Mock fileURLToPath to throw.
@@ -775,7 +773,7 @@ describe('path module', () => {
         expect(result).toBe('/path/to/file')
       } finally {
         require('node:url').fileURLToPath = originalFileURLToPath
-        vi.doUnmock('@socketsecurity/registry/lib/constants/win32')
+        vi.doUnmock('@socketsecurity/lib/constants/win32')
       }
     })
 

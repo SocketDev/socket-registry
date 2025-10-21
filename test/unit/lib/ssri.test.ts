@@ -3,7 +3,6 @@
  *
  * Validates conversion, validation, and parsing of SSRI and hex hash formats.
  */
-import { describe, expect, it } from 'vitest'
 
 import {
   hexToSsri,
@@ -11,7 +10,8 @@ import {
   isValidSsri,
   parseSsri,
   ssriToHex,
-} from '../../../registry/src/lib/ssri'
+} from '@socketsecurity/lib/ssri'
+import { describe, expect, it } from 'vitest'
 
 describe('ssri utilities', () => {
   const validSsri = 'sha256-dmgqn8O75il1F24lQfOagWiHfYKNXK2LVkYfw2rCuFY='

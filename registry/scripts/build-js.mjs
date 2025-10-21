@@ -2,7 +2,6 @@
  * @fileoverview JavaScript compilation using esbuild (10x faster than tsgo)
  * This replaces tsgo for JS compilation while keeping tsgo for declarations
  */
-// eslint-disable-next-line n/no-extraneous-import
 import { build, context } from 'esbuild'
 
 import { printError, printSuccess } from '../../scripts/utils/cli-helpers.mjs'

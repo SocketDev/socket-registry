@@ -1,6 +1,5 @@
+import { PromiseQueue } from '@socketsecurity/lib/promise-queue'
 import { describe, expect, it } from 'vitest'
-
-import { PromiseQueue } from '../../../registry/src/lib/promise-queue'
 
 describe('PromiseQueue', () => {
   it('executes tasks with concurrency limit', async () => {

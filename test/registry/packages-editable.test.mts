@@ -1,14 +1,12 @@
 /** @fileoverview Tests for editable package.json functionality. */
 import fs from 'node:fs'
 import path from 'node:path'
-
-import { describe, expect, it } from 'vitest'
-
 import {
   getEditablePackageJsonClass,
   toEditablePackageJson,
   toEditablePackageJsonSync,
-} from '../../registry/dist/lib/packages.js'
+} from '@socketsecurity/lib/packages'
+import { describe, expect, it } from 'vitest'
 import { withTempDirSync } from '../utils/temp-file-helper.mts'
 
 describe('toEditablePackageJson', () => {

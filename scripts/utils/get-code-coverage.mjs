@@ -1,8 +1,8 @@
 /** @fileoverview Utility to generate and calculate code coverage metrics. */
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-import { readJson } from '../../registry/dist/lib/fs.js'
-import { isObjectObject } from '../../registry/dist/lib/objects.js'
+import { readJson } from '@socketsecurity/lib/fs'
+import { isObjectObject } from '@socketsecurity/lib/objects'
 import constants from '../constants.mjs'
 import { spawn } from './spawn.mjs'
 

@@ -7,13 +7,11 @@ import { spawn } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
-
+import { logger } from '@socketsecurity/lib/logger'
+import { onExit } from '@socketsecurity/lib/signal-exit'
+import { spinner } from '@socketsecurity/lib/spinner'
+import { printHeader } from '@socketsecurity/lib/stdio/header'
 import fastGlob from 'fast-glob'
-
-import { logger } from '../registry/dist/lib/logger.js'
-import { onExit } from '../registry/dist/lib/signal-exit.js'
-import { spinner } from '../registry/dist/lib/spinner.js'
-import { printHeader } from '../registry/dist/lib/stdio/header.js'
 
 import { WIN32 } from './constants/node.mjs'
 import { ROOT_NODE_MODULES_BIN_PATH, ROOT_PATH } from './constants/paths.mjs'

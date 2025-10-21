@@ -1,14 +1,12 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { Readable } from 'node:stream'
-
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-
 import {
   defaultIgnore,
   getGlobMatcher,
   globStreamLicenses,
-} from '../../registry/dist/lib/globs.js'
+} from '@socketsecurity/lib/globs'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { withTempDirSync } from '../utils/temp-file-helper.mts'
 
 describe('globs module', () => {

@@ -15,7 +15,7 @@ describe(SOCKET_REGISTRY_PACKAGE_NAME, () => {
   })
 
   it('should have working utility functions', async () => {
-    const { isObjectObject } = await import('../registry/dist/lib/objects.js')
+    const { isObjectObject } = await import('@socketsecurity/lib/objects')
     expect(typeof isObjectObject).toBe('function')
     expect(isObjectObject({})).toBe(true)
     expect(isObjectObject(null)).toBe(false)

@@ -3,9 +3,9 @@
  *
  * Validates PromiseQueue class for managing concurrent async task execution.
  */
-import { describe, expect, it } from 'vitest'
 
-import { PromiseQueue } from '../../../registry/dist/lib/promise-queue.js'
+import { PromiseQueue } from '@socketsecurity/lib/promise-queue'
+import { describe, expect, it } from 'vitest'
 
 describe('PromiseQueue', () => {
   describe('constructor', () => {

@@ -3,7 +3,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import { parseArgs } from '../registry/dist/lib/parse-args.js'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
 
 import constants from './constants.mjs'
 import { isModified } from './utils/git.mjs'

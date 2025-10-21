@@ -6,7 +6,7 @@ import {
   TextRange,
 } from '@biomejs/wasm-nodejs'
 
-import { Remap } from '@socketsecurity/registry/lib/objects'
+import { Remap } from '@socketsecurity/lib/objects'
 
 /**
  * What kind of client Biome should use to communicate with the binary

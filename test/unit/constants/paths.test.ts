@@ -3,7 +3,6 @@
  *
  * Validates file names, directory names, extensions, and glob patterns.
  */
-import { describe, expect, it } from 'vitest'
 
 import {
   CACHE_DIR,
@@ -48,7 +47,8 @@ import {
   ROLLUP_EXTERNAL_SUFFIX,
   SLASH_NODE_MODULES_SLASH,
   TSCONFIG_JSON,
-} from '../../../registry/dist/constants/paths.js'
+} from '@socketsecurity/lib/constants/paths'
+import { describe, expect, it } from 'vitest'
 
 describe('paths constants', () => {
   describe('file names', () => {

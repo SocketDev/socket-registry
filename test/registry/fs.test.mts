@@ -1,7 +1,5 @@
 import fs from 'node:fs'
 import path from 'node:path'
-
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
   findUp,
   findUpSync,
@@ -22,8 +20,9 @@ import {
   uniqueSync,
   writeJson,
   writeJsonSync,
-} from '../../registry/dist/lib/fs.js'
-import { normalizePath } from '../../registry/dist/lib/path.js'
+} from '@socketsecurity/lib/fs'
+import { normalizePath } from '@socketsecurity/lib/path'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { withTempDirSync } from '../utils/temp-file-helper.mts'
 
 describe('fs module', () => {

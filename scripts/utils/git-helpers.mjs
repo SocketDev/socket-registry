@@ -6,7 +6,7 @@ import { execSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 
-import spawnModule from '../../registry/dist/lib/spawn.js'
+import spawnModule from '@socketsecurity/lib/spawn'
 
 const { spawn } = spawnModule
 

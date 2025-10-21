@@ -2,8 +2,8 @@
 
 import path from 'node:path'
 
-import { logger } from '../registry/dist/lib/logger.js'
-import { spawn } from '../registry/dist/lib/spawn.js'
+import { logger } from '@socketsecurity/lib/logger'
+import { spawn } from '@socketsecurity/lib/spawn'
 
 import constants from './constants.mjs'
 

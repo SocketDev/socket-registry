@@ -1,6 +1,5 @@
+import { getSeaBinaryPath, isSeaBinary } from '@socketsecurity/lib/sea'
 import { describe, expect, it } from 'vitest'
-
-import { getSeaBinaryPath, isSeaBinary } from '../../registry/dist/lib/sea.js'
 
 describe('sea module', () => {
   describe('isSeaBinary', () => {

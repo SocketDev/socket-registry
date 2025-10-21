@@ -3,24 +3,23 @@ import { createRequire } from 'node:module'
 import path from 'node:path'
 
 import { fix } from '@npmcli/package-json'
-import fastGlob from 'fast-glob'
-import semver from 'semver'
-import { describe, expect, it } from 'vitest'
-
-import { EXT_JSON } from '../registry/dist/constants/paths.js'
-import { getManifestData } from '../registry/dist/index.js'
-import { readJson } from '../registry/dist/lib/fs.js'
-import { isObjectObject, objectEntries } from '../registry/dist/lib/objects.js'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { EXT_JSON } from '@socketsecurity/lib/constants/paths'
+import { readJson } from '@socketsecurity/lib/fs'
+import { getManifestData } from '@socketsecurity/lib/index'
+import { isObjectObject, objectEntries } from '@socketsecurity/lib/objects'
 import {
   getExportFilePaths,
   isValidPackageName,
   readPackageJson,
   resolveOriginalPackageName,
-} from '../registry/dist/lib/packages.js'
-import { parseArgs } from '../registry/dist/lib/parse-args.js'
-import { trimLeadingDotSlash } from '../registry/dist/lib/path.js'
-import { naturalCompare } from '../registry/dist/lib/sorts.js'
-import { isNonEmptyString } from '../registry/dist/lib/strings.js'
+} from '@socketsecurity/lib/packages'
+import { trimLeadingDotSlash } from '@socketsecurity/lib/path'
+import { naturalCompare } from '@socketsecurity/lib/sorts'
+import { isNonEmptyString } from '@socketsecurity/lib/strings'
+import fastGlob from 'fast-glob'
+import semver from 'semver'
+import { describe, expect, it } from 'vitest'
 import {
   LICENSE,
   NPM,

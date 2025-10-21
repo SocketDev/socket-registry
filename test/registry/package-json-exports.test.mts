@@ -2,11 +2,9 @@
 
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-
+import { readPackageJson } from '@socketsecurity/lib/packages'
 import fastGlob from 'fast-glob'
 import { describe, expect, it } from 'vitest'
-
-import { readPackageJson } from '../../registry/dist/lib/packages.js'
 
 const registryPkgPath = path.resolve(import.meta.dirname, '../../registry')
 

@@ -6,7 +6,7 @@ import { SemVer } from 'semver'
 
 import { PackageURL } from '@socketregistry/packageurl-js'
 import { CategoryString, ManifestEntryData } from '@socketsecurity/registry'
-import { Remap } from '@socketsecurity/registry/lib/objects'
+import { Remap } from '@socketsecurity/lib/objects'
 
 declare type Action =
   | LicenseAction

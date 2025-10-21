@@ -43,14 +43,14 @@ vi.mock('../../registry/src/lib/http-request', () => {
   }
 })
 
-import * as cacacheActual from '../../registry/src/lib/cacache'
+import * as cacacheActual from '@socketsecurity/lib/cacache'
 import {
   clearRefCache,
   fetchGitHub,
   getGitHubToken,
   resolveRefToSha,
-} from '../../registry/src/lib/github'
-import { httpRequest as httpRequestActual } from '../../registry/src/lib/http-request'
+} from '@socketsecurity/lib/github'
+import { httpRequest as httpRequestActual } from '@socketsecurity/lib/http-request'
 
 const cacache = cacacheActual as unknown as {
   clear: ReturnType<typeof vi.fn>

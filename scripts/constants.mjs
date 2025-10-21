@@ -3,8 +3,8 @@
  * Provides shared configuration, paths, and environment settings for registry operations.
  */
 
-import { EMPTY_FILE } from '../registry/dist/constants/core.js'
-import { UTF8 } from '../registry/dist/constants/encoding.js'
+import { EMPTY_FILE } from '@socketsecurity/lib/constants/core'
+import { UTF8 } from '@socketsecurity/lib/constants/encoding'
 import * as core from './constants/core.mjs'
 import * as env from './constants/env.mjs'
 import * as node from './constants/node.mjs'

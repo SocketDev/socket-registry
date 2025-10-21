@@ -3,13 +3,13 @@
  *
  * Validates parallel iteration and transformation of async iterables.
  */
-import { describe, expect, it } from 'vitest'
 
 import {
   parallelEach,
   parallelMap,
   transform,
-} from '../../../registry/dist/lib/streams.js'
+} from '@socketsecurity/lib/streams'
+import { describe, expect, it } from 'vitest'
 
 describe('streams utilities', () => {
   describe('parallelEach', () => {

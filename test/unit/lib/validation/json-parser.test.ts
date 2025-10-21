@@ -5,7 +5,6 @@
  * size limits, schema validation, NDJSON parsing, and streaming.
  */
 
-import { describe, expect, it } from 'vitest'
 import {
   createJsonParser,
   parseJsonWithResult,
@@ -13,11 +12,12 @@ import {
   safeJsonParse,
   streamNdjson,
   tryJsonParse,
-} from '../../../../registry/src/lib/validation/json-parser'
+} from '@socketsecurity/lib/validation/json-parser'
 import type {
   JsonParseOptions,
   Schema,
-} from '../../../../registry/src/lib/validation/types'
+} from '@socketsecurity/lib/validation/types'
+import { describe, expect, it } from 'vitest'
 
 // Mock schema for testing validation.
 const createMockSchema = <T>(

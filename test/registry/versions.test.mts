@@ -1,5 +1,3 @@
-import { describe, expect, it } from 'vitest'
-
 import {
   coerceVersion,
   compareVersions,
@@ -21,7 +19,8 @@ import {
   sortVersions,
   sortVersionsDesc,
   versionDiff,
-} from '../../registry/dist/lib/versions.js'
+} from '@socketsecurity/lib/versions'
+import { describe, expect, it } from 'vitest'
 
 describe('versions module', () => {
   describe('compareVersions', () => {

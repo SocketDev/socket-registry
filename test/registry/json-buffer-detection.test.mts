@@ -1,6 +1,5 @@
+import { jsonParse } from '@socketsecurity/lib/json'
 import { describe, expect, it } from 'vitest'
-
-import { jsonParse } from '../../registry/dist/lib/json.js'
 
 describe('json module - Buffer detection edge cases', () => {
   describe('jsonParse with Buffer-like objects', () => {

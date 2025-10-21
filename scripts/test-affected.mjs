@@ -5,12 +5,10 @@
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-
+import { getChangedFiles } from '@socketsecurity/lib/git'
+import { logger } from '@socketsecurity/lib/logger'
+import { spawn } from '@socketsecurity/lib/spawn'
 import fastGlob from 'fast-glob'
-
-import { getChangedFiles } from '../registry/dist/lib/git.js'
-import { logger } from '../registry/dist/lib/logger.js'
-import { spawn } from '../registry/dist/lib/spawn.js'
 
 import { WIN32 } from './constants/node.mjs'
 import { ROOT_NODE_MODULES_BIN_PATH, ROOT_PATH } from './constants/paths.mjs'

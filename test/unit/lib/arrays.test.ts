@@ -3,7 +3,6 @@
  *
  * Validates array manipulation functions including chunking, uniqueness, and formatting.
  */
-import { describe, expect, it } from 'vitest'
 
 import {
   arrayChunk,
@@ -11,7 +10,8 @@ import {
   isArray,
   joinAnd,
   joinOr,
-} from '../../../registry/dist/lib/arrays.js'
+} from '@socketsecurity/lib/arrays'
+import { describe, expect, it } from 'vitest'
 
 describe('arrays utilities', () => {
   describe('arrayChunk', () => {

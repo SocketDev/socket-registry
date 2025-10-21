@@ -7,7 +7,7 @@ import {
   includeIgnoreFile,
 } from '@eslint/compat'
 import js from '@eslint/js'
-import { readPackageJsonSync } from '@socketsecurity/registry/lib/packages'
+import { readPackageJsonSync } from '@socketsecurity/lib/packages'
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript'
 import { flatConfigs as origImportXFlatConfigs } from 'eslint-plugin-import-x'
 import nodePlugin from 'eslint-plugin-n'

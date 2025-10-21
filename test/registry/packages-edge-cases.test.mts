@@ -1,5 +1,3 @@
-import { describe, expect, it } from 'vitest'
-
 import {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
@@ -10,7 +8,8 @@ import {
   resolvePackageJsonDirname,
   resolvePackageJsonEntryExports,
   resolvePackageLicenses,
-} from '../../registry/dist/lib/packages.js'
+} from '@socketsecurity/lib/packages'
+import { describe, expect, it } from 'vitest'
 
 describe('packages module - edge cases and error handling', () => {
   describe('parseSpdxExp', () => {

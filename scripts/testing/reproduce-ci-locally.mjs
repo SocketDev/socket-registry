@@ -4,10 +4,10 @@ import { promises as fs, mkdtempSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import parseArgsModule from '@socketsecurity/lib/argv/parse'
+import loggerModule from '@socketsecurity/lib/logger'
+import spawnModule from '@socketsecurity/lib/spawn'
 import { deleteAsync as del } from 'del'
-import loggerModule from '../../registry/dist/lib/logger.js'
-import parseArgsModule from '../../registry/dist/lib/parse-args.js'
-import spawnModule from '../../registry/dist/lib/spawn.js'
 
 const { parseArgs } = parseArgsModule
 const { logger } = loggerModule
