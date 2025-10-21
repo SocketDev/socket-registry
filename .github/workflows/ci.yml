@@ -94,6 +94,11 @@ on:
         required: false
         type: boolean
         default: true
+      allow-coverage-failure:
+        description: 'Allow coverage job to fail without blocking CI'
+        required: false
+        type: boolean
+        default: false
       run-lint:
         description: 'Include lint check job'
         required: false
@@ -202,6 +207,8 @@ jobs:
     name: 📊 Coverage Report
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.coverage-timeout-minutes }}
+    continue-on-error: ${{ inputs.allow-coverage-failure }}
+    needs: [lint, type-check, test]
     steps:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
 
@@ -219,24 +226,55 @@ jobs:
       - name: Run tests with coverage
         working-directory: ${{ inputs.working-directory }}
         run: ${{ inputs.coverage-script }}
+        continue-on-error: ${{ inputs.allow-coverage-failure }}
 
       - name: Generate coverage report
         if: inputs.coverage-report-script != ''
         working-directory: ${{ inputs.working-directory }}
         run: ${{ inputs.coverage-report-script }}
+        continue-on-error: ${{ inputs.allow-coverage-failure }}
 
       - name: Upload coverage artifacts
+        if: always()
         uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: ${{ inputs.coverage-artifact-name }}
           path: ${{ inputs.working-directory }}/${{ inputs.coverage-path }}
           retention-days: ${{ inputs.retention-days }}
 
+      - name: Check CI status
+        if: always()
+        run: |
+          # Check each job that was actually run.
+          failed=0
+
+          if [ "${{ inputs.run-lint }}" == "true" ] && [ "${{ needs.lint.result }}" != "success" ] && [ "${{ needs.lint.result }}" != "skipped" ]; then
+            echo "❌ Lint check failed"
+            failed=1
+          fi
+
+          if [ "${{ inputs.run-type-check }}" == "true" ] && [ "${{ needs.type-check.result }}" != "success" ] && [ "${{ needs.type-check.result }}" != "skipped" ]; then
+            echo "❌ Type check failed"
+            failed=1
+          fi
+
+          if [ "${{ inputs.run-test }}" == "true" ] && [ "${{ needs.test.result }}" != "success" ] && [ "${{ needs.test.result }}" != "skipped" ]; then
+            echo "❌ Tests failed"
+            failed=1
+          fi
+
+          if [ $failed -eq 1 ]; then
+            echo "❌ CI Pipeline Failed"
+            exit 1
+          else
+            echo "✅ All Required Checks Passed"
+          fi
+
   ci-summary:
     name: ✅ CI Summary
     runs-on: ubuntu-latest
     needs: [lint, type-check, test, test-coverage]
-    if: always()
+    if: always() && !inputs.run-coverage
     steps:
       - name: Check all jobs passed
         run: |
@@ -258,13 +296,10 @@ jobs:
             failed=1
           fi
 
-          if [ "${{ inputs.run-coverage }}" == "true" ] && [ "${{ needs.test-coverage.result }}" != "success" ] && [ "${{ needs.test-coverage.result }}" != "skipped" ]; then
-            echo "❌ Coverage failed"
-            failed=1
-          fi
-
           if [ $failed -eq 1 ]; then
+            echo "❌ CI Pipeline Failed"
             exit 1
           else
             echo "✅ CI Pipeline Passed"
           fi
+
