@@ -3,7 +3,7 @@
  * Validates that Socket overrides either have manual tests (test/npm/<pkg-name>.test.mts) or are in test/npm/package.json devDependencies.
  */
 
-import { existsSync, promises as fs } from 'node:fs'
+import { existsSync, readdirSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -27,8 +27,7 @@ const testNpmPath = path.join(rootPath, 'test', 'npm')
 const testNpmPkgJsonPath = path.join(testNpmPath, 'package.json')
 
 function getNpmPackageNames() {
-  return fs
-    .readdirSync(npmPackagesPath, { withFileTypes: true })
+  return readdirSync(npmPackagesPath, { withFileTypes: true })
     .filter(dirent => dirent.isDirectory() && !dirent.name.startsWith('.'))
     .map(dirent => dirent.name)
 }
