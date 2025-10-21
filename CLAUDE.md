@@ -213,7 +213,7 @@ it('should validate config', () => {
 - **Specific file**: `pnpm test path/to/file.test.ts`
 - **🚨 NEVER USE `--` before test paths** - runs all tests
 - **Coverage**: `pnpm run cover`
-- **NPM packages**: `pnpm run test:npm:packages` (long-running)
+- **NPM packages**: `node scripts/test-npm-packages.mjs` (long-running)
 
 #### Migration Guide
 See `test/utils/TEST_HELPERS_README.md` for:
@@ -352,8 +352,8 @@ See `test/utils/TEST_HELPERS_README.md` for:
 
 ### Commands
 - **Dev**: `pnpm run build`, `pnpm run test`, `pnpm run check`, `pnpm run fix`
-- **Registry**: `pnpm run update`, `pnpm run make:npm-override`, `pnpm run release:npm`
-- **Test npm packages**: `pnpm run test:npm:packages` (long-running, tests all overrides)
+- **Registry**: `pnpm run update`, `pnpm run make-npm-override`, `pnpm run release-npm`
+- **Test npm packages**: `node scripts/test-npm-packages.mjs` (long-running, tests all overrides)
 
 ### Build System
 - Rollup for external dependencies
