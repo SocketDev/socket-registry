@@ -1,6 +1,7 @@
 /** @fileoverview Publish npm packages with version bump detection and retry logic. */
 
 import path from 'node:path'
+import { execScript } from '@socketsecurity/lib/agent'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 
 import { joinAnd } from '@socketsecurity/lib/arrays'
@@ -199,7 +200,7 @@ async function publishAtCommit(sha) {
 
   // Rebuild at this commit to ensure we have the correct registry dist files.
   logger.log('Building registry...')
-  await spawn('pnpm', ['run', 'build:registry'], { shell: WIN32 })
+  await spawn('pnpm', ['run', 'build'], { shell: WIN32 })
 
   const fails = []
   const skipped = []
@@ -277,7 +278,7 @@ async function publishAtCommit(sha) {
 
   // Update manifest.json with latest published versions before publishing registry.
   if (registryPkgToPublish && !fails.includes(registryPkgToPublish.printName)) {
-    await spawn('pnpm', ['run', 'update:manifest', '--force'], { shell: WIN32 })
+    await execScript('update:manifest', ['--', '--force'], { shell: WIN32 })
 
     // Commit manifest changes if there are any.
     const changedFiles = await getChangedFiles()
