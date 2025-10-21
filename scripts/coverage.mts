@@ -6,8 +6,9 @@
  *   node scripts/coverage.mts [--code-only|--type-only|--percent]
  */
 
-import { parseArgs } from 'node:util'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { logger } from '@socketsecurity/lib/logger'
+
 import { runSequence } from './utils/run-command.mjs'
 
 async function main() {
@@ -21,7 +22,7 @@ async function main() {
       strict: false,
     })
 
-    if (values.percent) {
+    if (values['percent']) {
       // Just get coverage percentage
       const exitCode = await runSequence([
         { args: ['scripts/get-coverage-percentage.mjs'], command: 'node' },

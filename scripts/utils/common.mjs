@@ -5,7 +5,8 @@
 
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseArgs as nodeParseArgs } from 'node:util'
+
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
 
 // Platform detection
 export const WIN32 = process.platform === 'win32'
@@ -76,7 +77,7 @@ export function parseScriptArgs(options = {}) {
     ...options,
   }
 
-  return nodeParseArgs({
+  return parseArgs({
     options: defaultOptions,
     allowPositionals: true,
   })

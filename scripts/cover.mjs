@@ -10,7 +10,8 @@
 
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseArgs } from 'node:util'
+
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
 
 import { printError, printHeader, printSuccess } from './utils/cli-helpers.mjs'
 import { runCommandQuiet } from './utils/run-command.mjs'
