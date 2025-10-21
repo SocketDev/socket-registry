@@ -81,16 +81,43 @@ try {
     exitCode = codeCoverageResult.exitCode
 
     // Process code coverage output only
+    // Remove ANSI codes, spinner artifacts, and other control characters.
     const ansiRegex = new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, 'g')
     const output = (codeCoverageResult.stdout + codeCoverageResult.stderr)
       .replace(ansiRegex, '')
-      .replace(/(?:✧|︎|⚡)\s*/g, '')
+      // Remove common spinner/progress characters using alternation for Unicode safety.
+      .replace(/✧|︎|⚡|✓|✗|⋆|✦|⎯/g, '')
+      // Remove excessive whitespace left by removed characters.
+      .replace(/\s*\n\s*\n/g, '\n')
       .trim()
 
-    // Extract and display test summary
-    const testSummaryMatch = output.match(
-      /Test Files\s+\d+[^\n]*\n[\s\S]*?Duration\s+[\d.]+m?s[^\n]*/,
-    )
+    // Extract and display test summary - match test file and test counts separately for robustness.
+    // Match the LAST occurrence of "Test Files" to get the final summary, not intermediate progress.
+    const allTestFilesMatches = output.match(/Test Files\s+[^\n]+/g)
+    const testFilesMatch = allTestFilesMatches?.[allTestFilesMatches.length - 1]
+
+    // For other fields, match near the end of output by searching from after the last Test Files.
+    const lastTestFilesIdx = output.lastIndexOf('Test Files')
+    const endSection =
+      lastTestFilesIdx >= 0 ? output.slice(lastTestFilesIdx) : output
+
+    const testsMatch = endSection.match(/^\s*Tests\s+[^\n]+/m)
+    const startAtMatch = endSection.match(/^\s*Start at\s+[^\n]+/m)
+    const durationMatch = endSection.match(/^\s*Duration\s+[\d.]+[^\n]*/m)
+    const testSummaryMatch =
+      testFilesMatch && durationMatch
+        ? {
+            0: [
+              testFilesMatch,
+              testsMatch?.[0],
+              startAtMatch?.[0],
+              durationMatch?.[0],
+            ]
+              .filter(Boolean)
+              .map(line => line.trim())
+              .join('\n'),
+          }
+        : null
     if (!values.summary && testSummaryMatch) {
       console.log()
       console.log(testSummaryMatch[0])
@@ -138,17 +165,41 @@ try {
 
     // Combine and clean output - remove ANSI color codes and spinner artifacts.
     const ansiRegex = new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, 'g')
-    // Remove ANSI color codes.
-    // Remove spinner artifacts.
     const output = (codeCoverageResult.stdout + codeCoverageResult.stderr)
       .replace(ansiRegex, '')
-      .replace(/(?:✧|︎|⚡)\s*/g, '')
+      // Remove common spinner/progress characters using alternation for Unicode safety.
+      .replace(/✧|︎|⚡|✓|✗|⋆|✦|⎯/g, '')
+      // Remove excessive whitespace left by removed characters.
+      .replace(/\s*\n\s*\n/g, '\n')
       .trim()
 
-    // Extract test summary (Test Files ... Duration)
-    const testSummaryMatch = output.match(
-      /Test Files\s+\d+[^\n]*\n[\s\S]*?Duration\s+[\d.]+m?s[^\n]*/,
-    )
+    // Extract test summary - match test file and test counts separately for robustness.
+    // Match the LAST occurrence of "Test Files" to get the final summary, not intermediate progress.
+    const allTestFilesMatches = output.match(/Test Files\s+[^\n]+/g)
+    const testFilesMatch = allTestFilesMatches?.[allTestFilesMatches.length - 1]
+
+    // For other fields, match near the end of output by searching from after the last Test Files.
+    const lastTestFilesIdx = output.lastIndexOf('Test Files')
+    const endSection =
+      lastTestFilesIdx >= 0 ? output.slice(lastTestFilesIdx) : output
+
+    const testsMatch = endSection.match(/^\s*Tests\s+[^\n]+/m)
+    const startAtMatch = endSection.match(/^\s*Start at\s+[^\n]+/m)
+    const durationMatch = endSection.match(/^\s*Duration\s+[\d.]+[^\n]*/m)
+    const testSummaryMatch =
+      testFilesMatch && durationMatch
+        ? {
+            0: [
+              testFilesMatch,
+              testsMatch?.[0],
+              startAtMatch?.[0],
+              durationMatch?.[0],
+            ]
+              .filter(Boolean)
+              .map(line => line.trim())
+              .join('\n'),
+          }
+        : null
 
     // Extract coverage summary: header + All files row
     // Match from "% Coverage" header through the All files line and closing border
