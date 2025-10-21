@@ -228,8 +228,8 @@ importers:
         specifier: 56.0.1
         version: 56.0.1(eslint@9.35.0(jiti@2.6.1))
       eta:
-        specifier: 3.5.0
-        version: 3.5.0
+        specifier: 4.0.1
+        version: 4.0.1
       fast-glob:
         specifier: 3.3.3
         version: 3.3.3
@@ -2438,9 +2438,9 @@ packages:
     resolution: {integrity: sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==}
     engines: {node: '>=0.10.0'}
 
-  eta@3.5.0:
-    resolution: {integrity: sha512-e3x3FBvGzeCIHhF+zhK8FZA2vC5uFn6b4HJjegUbIWrDb4mJ7JjTGMJY9VGIbRVpmSwHopNiaJibhjIr+HfLug==}
-    engines: {node: '>=6.0.0'}
+  eta@4.0.1:
+    resolution: {integrity: sha512-0h0oBEsF6qAJU7eu9ztvJoTo8D2PAq/4FvXVIQA1fek3WOTe6KPsVJycekG1+g1N6mfpblkheoGwaUhMtnlH4A==}
+    engines: {node: '>=20'}
 
   execa@2.1.0:
     resolution: {integrity: sha512-Y/URAVapfbYy2Xp/gb6A0E7iR8xeqOCXsuuaoMn7A5PzrXUK84E1gyiEfq0wQd/GHA6GsoHWwhNq8anb0mleIw==}
@@ -5804,7 +5804,7 @@ snapshots:
 
   esutils@2.0.3: {}
 
-  eta@3.5.0: {}
+  eta@4.0.1: {}
 
   execa@2.1.0:
     dependencies:
