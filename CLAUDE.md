@@ -35,6 +35,35 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 
 ## SHARED STANDARDS
 
+### Emoji & Output Style
+
+**Terminal Symbols** (based on `@socketsecurity/lib/logger` LOG_SYMBOLS):
+- ✓ Success/checkmark - MUST be green (NOT ✅)
+- ✗ Error/failure - MUST be red (NOT ❌)
+- ⚠ Warning/caution - MUST be yellow (NOT ⚠️)
+- ℹ Info - MUST be blue (NOT ℹ️)
+
+**Color Requirements**:
+```javascript
+colors.green(`✓ ${msg}`)   // Success
+colors.red(`✗ ${msg}`)     // Error
+colors.yellow(`⚠ ${msg}`)  // Warning
+colors.blue(`ℹ ${msg}`)    // Info
+```
+
+**Allowed Emojis** (use sparingly):
+- 📦 Packages
+- 💡 Ideas/tips
+- 🚀 Launch/deploy/excitement
+- 🎉 Major success/celebration
+
+**General Philosophy**:
+- Prefer colored text-based symbols (✓✗⚠ℹ) for maximum terminal compatibility
+- Always color-code symbols: green=success, red=error, yellow=warning, blue=info
+- Use emojis sparingly for emphasis and delight
+- Avoid emoji overload - less is more
+- When in doubt, use plain text
+
 ### Cross-Platform (CRITICAL)
 - **MANDATORY**: Work on Windows + POSIX
 - **Paths**: Always `path.join()`, `path.resolve()`, `path.sep`
