@@ -1296,7 +1296,7 @@ async function main() {
   }
 
   // Get the set of packages that are allowed to fail.
-  const allowFailuresSet = constants.allowTestFailuresByEcosystem.get('npm')
+  const allowFailuresSet = constants.ALLOW_TEST_FAILURES_BY_ECOSYSTEM.get('npm')
 
   // Categorize failures.
   const noTestScript = results.filter(
