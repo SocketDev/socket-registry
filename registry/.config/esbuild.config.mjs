@@ -30,7 +30,7 @@ export const buildConfig = {
   format: 'cjs',
   platform: 'node',
   target: 'node18',
-  sourcemap: true,
+  sourcemap: false,
   // Library code should be readable.
   minify: false,
   // Can't tree-shake without bundling.
@@ -51,7 +51,7 @@ export const buildConfig = {
 export const watchConfig = {
   ...buildConfig,
   minify: false,
-  sourcemap: 'inline',
+  sourcemap: false,
   logLevel: 'debug',
 }
 
