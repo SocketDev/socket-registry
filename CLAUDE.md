@@ -43,12 +43,12 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 - ⚠ Warning/caution - MUST be yellow (NOT ⚠️)
 - ℹ Info - MUST be blue (NOT ℹ️)
 
-**Color Requirements**:
+**Color Requirements** (apply color to icon ONLY, not entire message):
 ```javascript
-colors.green(`✓ ${msg}`)   // Success
-colors.red(`✗ ${msg}`)     // Error
-colors.yellow(`⚠ ${msg}`)  // Warning
-colors.blue(`ℹ ${msg}`)    // Info
+`${colors.green('✓')} ${msg}`   // Success
+`${colors.red('✗')} ${msg}`     // Error
+`${colors.yellow('⚠')} ${msg}`  // Warning
+`${colors.blue('ℹ')} ${msg}`    // Info
 ```
 
 **Allowed Emojis** (use sparingly):
