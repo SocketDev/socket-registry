@@ -96,8 +96,6 @@ describe('json module', () => {
     })
 
     it('should handle decimal numbers', () => {
-      const pi = Math.PI
-      expect(jsonParse('3.14159')).toBe(pi)
       expect(jsonParse('-0.5')).toBe(-0.5)
       expect(jsonParse('1.0e-10')).toBe(1.0e-10)
     })
