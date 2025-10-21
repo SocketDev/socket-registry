@@ -1,8 +1,9 @@
 # @socketregistry/is-date-object
 
 [![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/is-date-object)](https://socket.dev/npm/package/@socketregistry/is-date-object)
-[![CI - @socketregistry/is-date-object](https://github.com/SocketDev/socket-registry/actions/workflows/test.yml/badge.svg)](https://github.com/SocketDev/socket-registry/actions/workflows/test.yml)
+[![CI - @socketregistry/is-date-object](https://github.com/SocketDev/socket-registry/actions/workflows/ci.yml/badge.svg)](https://github.com/SocketDev/socket-registry/actions/workflows/ci.yml)
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+[![Follow @socket.dev on Bluesky](https://img.shields.io/badge/Follow-@socket.dev-1DA1F2?style=social&logo=bluesky)](https://bsky.app/profile/socket.dev)
 
 > A tested zero dependency drop-in replacement of
 > [`is-date-object`](https://socket.dev/npm/package/is-date-object) complete
