@@ -1,6 +1,6 @@
 name: ⚡ CI Pipeline
 
-# Comprehensive CI orchestrator that runs lint, type checks, tests, and coverage.
+# Comprehensive CI orchestrator that runs lint, type checks, and tests.
 # Orchestrates multiple quality checks in parallel for efficient CI execution.
 #
 # Dependencies:
@@ -9,36 +9,10 @@ name: ⚡ CI Pipeline
 #   - SocketDev/socket-registry/.github/workflows/test.yml
 #   - SocketDev/socket-registry/.github/actions/setup-and-install
 #   - actions/checkout@v5.0.0
-#   - actions/upload-artifact@v4.4.0
 
 on:
   workflow_call:
     inputs:
-      coverage-artifact-name:
-        description: 'Name for coverage artifacts (e.g., "coverage-report")'
-        required: false
-        type: string
-        default: 'coverage-report'
-      coverage-path:
-        description: 'Path to coverage output (e.g., "coverage/")'
-        required: false
-        type: string
-        default: 'coverage/'
-      coverage-report-script:
-        description: 'Script to generate coverage report (e.g., "pnpm run coverage:percent --json")'
-        required: false
-        type: string
-        default: ''
-      coverage-script:
-        description: 'Script to run tests with coverage (e.g., "pnpm run test:unit:coverage")'
-        required: false
-        type: string
-        default: ''
-      coverage-timeout-minutes:
-        description: 'Timeout for coverage job in minutes'
-        required: false
-        type: number
-        default: 15
       debug:
         description: 'Enable debug output (e.g., "1" for verbose logging)'
         required: false
@@ -89,16 +63,6 @@ on:
         required: false
         type: number
         default: 7
-      run-coverage:
-        description: 'Include coverage reporting job'
-        required: false
-        type: boolean
-        default: true
-      allow-coverage-failure:
-        description: 'Allow coverage job to fail without blocking CI'
-        required: false
-        type: boolean
-        default: false
       run-lint:
         description: 'Include lint check job'
         required: false
@@ -202,79 +166,11 @@ jobs:
       timeout-minutes: ${{ inputs.test-timeout-minutes }}
       working-directory: ${{ inputs.working-directory }}
 
-  test-coverage:
-    if: inputs.run-coverage && inputs.coverage-script != ''
-    name: 📊 Coverage Report
-    runs-on: ubuntu-latest
-    timeout-minutes: ${{ inputs.coverage-timeout-minutes }}
-    continue-on-error: ${{ inputs.allow-coverage-failure }}
-    needs: [lint, type-check, test]
-    steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
-
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@51be85d39d3b4a42dd9d4712948b9d30a2e04794 # main
-        with:
-          debug: ${{ inputs.debug }}
-          node-version: ${{ inputs.type-check-node-version }}
-          working-directory: ${{ inputs.working-directory }}
-
-      - name: Run setup script
-        if: inputs.test-setup-script != ''
-        working-directory: ${{ inputs.working-directory }}
-        run: ${{ inputs.test-setup-script }}
-
-      - name: Run tests with coverage
-        working-directory: ${{ inputs.working-directory }}
-        run: ${{ inputs.coverage-script }}
-        continue-on-error: ${{ inputs.allow-coverage-failure }}
-
-      - name: Generate coverage report
-        if: inputs.coverage-report-script != ''
-        working-directory: ${{ inputs.working-directory }}
-        run: ${{ inputs.coverage-report-script }}
-        continue-on-error: ${{ inputs.allow-coverage-failure }}
-
-      - name: Upload coverage artifacts
-        if: always()
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
-        with:
-          name: ${{ inputs.coverage-artifact-name }}
-          path: ${{ inputs.working-directory }}/${{ inputs.coverage-path }}
-          retention-days: ${{ inputs.retention-days }}
-
-      - name: Check CI status
-        if: always()
-        run: |
-          # Check each job that was actually run.
-          failed=0
-
-          if [ "${{ inputs.run-lint }}" == "true" ] && [ "${{ needs.lint.result }}" != "success" ] && [ "${{ needs.lint.result }}" != "skipped" ]; then
-            echo "❌ Lint check failed"
-            failed=1
-          fi
-
-          if [ "${{ inputs.run-type-check }}" == "true" ] && [ "${{ needs.type-check.result }}" != "success" ] && [ "${{ needs.type-check.result }}" != "skipped" ]; then
-            echo "❌ Type check failed"
-            failed=1
-          fi
-
-          if [ "${{ inputs.run-test }}" == "true" ] && [ "${{ needs.test.result }}" != "success" ] && [ "${{ needs.test.result }}" != "skipped" ]; then
-            echo "❌ Tests failed"
-            failed=1
-          fi
-
-          if [ $failed -eq 1 ]; then
-            echo "❌ CI Pipeline Failed"
-            exit 1
-          else
-            echo "✅ All Required Checks Passed"
-          fi
-
   ci-summary:
     name: ✅ CI Summary
     runs-on: ubuntu-latest
-    needs: [lint, type-check, test, test-coverage]
-    if: always() && !inputs.run-coverage
+    needs: [lint, type-check, test]
+    if: always()
     steps:
       - name: Check all jobs passed
         run: |
