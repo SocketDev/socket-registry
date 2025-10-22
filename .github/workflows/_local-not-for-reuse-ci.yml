@@ -19,8 +19,6 @@ jobs:
     name: Run CI Pipeline
     uses: SocketDev/socket-registry/.github/workflows/ci.yml@25e1450d8b48df6b2d7b84c91c8ef7866a8994b6 # main
     with:
-      allow-coverage-failure: true
-      coverage-script: 'pnpm run cover'
       fail-fast: false
       lint-script: 'pnpm run lint-ci'
       lint-setup-script: 'pnpm run build'

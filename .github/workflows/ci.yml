@@ -165,37 +165,3 @@ jobs:
       test-script: ${{ inputs.test-script }}
       timeout-minutes: ${{ inputs.test-timeout-minutes }}
       working-directory: ${{ inputs.working-directory }}
-
-  ci-summary:
-    name: ✅ CI Summary
-    runs-on: ubuntu-latest
-    needs: [lint, type-check, test]
-    if: always()
-    steps:
-      - name: Check all jobs passed
-        run: |
-          # Check each job that was actually run.
-          failed=0
-
-          if [ "${{ inputs.run-lint }}" == "true" ] && [ "${{ needs.lint.result }}" != "success" ] && [ "${{ needs.lint.result }}" != "skipped" ]; then
-            echo "❌ Lint check failed"
-            failed=1
-          fi
-
-          if [ "${{ inputs.run-type-check }}" == "true" ] && [ "${{ needs.type-check.result }}" != "success" ] && [ "${{ needs.type-check.result }}" != "skipped" ]; then
-            echo "❌ Type check failed"
-            failed=1
-          fi
-
-          if [ "${{ inputs.run-test }}" == "true" ] && [ "${{ needs.test.result }}" != "success" ] && [ "${{ needs.test.result }}" != "skipped" ]; then
-            echo "❌ Tests failed"
-            failed=1
-          fi
-
-          if [ $failed -eq 1 ]; then
-            echo "❌ CI Pipeline Failed"
-            exit 1
-          else
-            echo "✅ CI Pipeline Passed"
-          fi
-
