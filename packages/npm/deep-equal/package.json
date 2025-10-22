@@ -53,10 +53,13 @@
     "node": ">=18"
   },
   "files": [
-    "*.d.{c,}ts",
-    "*.{c,}js",
+    "*.d.cts",
+    "*.d.ts",
+    "*.cjs",
+    "*.js",
     "**/*.js",
-    "**/LICENSE{.original,}"
+    "**/LICENSE",
+    "**/LICENSE.original"
   ],
   "socket": {
     "categories": [

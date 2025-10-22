@@ -34,8 +34,12 @@
     "node": ">=18"
   },
   "files": [
-    "*.d.{c,m,}ts",
-    "*.{c,m,}js"
+    "*.d.cts",
+    "*.d.mts",
+    "*.d.ts",
+    "*.cjs",
+    "*.mjs",
+    "*.js"
   ],
   "socket": {
     "categories": [

@@ -35,8 +35,10 @@
     "node": ">=18"
   },
   "files": [
-    "*.d.{c,}ts",
-    "*.{c,}js"
+    "*.d.cts",
+    "*.d.ts",
+    "*.cjs",
+    "*.js"
   ],
   "socket": {
     "categories": [

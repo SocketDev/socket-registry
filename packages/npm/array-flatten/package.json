@@ -26,7 +26,8 @@
   },
   "files": [
     "*.d.ts",
-    "*.{c,}js"
+    "*.cjs",
+    "*.js"
   ],
   "socket": {
     "categories": [

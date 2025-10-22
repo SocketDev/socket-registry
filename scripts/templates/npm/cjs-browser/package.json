@@ -31,8 +31,10 @@
     "node": "<%~ it.engines.node %>"
   },
   "files": [
-    "*.d.{c,}ts",
-    "*.{c,}js"
+    "*.d.cts",
+    "*.d.ts",
+    "*.cjs",
+    "*.js"
   ],
   "socket": {
     "categories": "//_ <%~ JSON.stringify(it.categories) %>"
