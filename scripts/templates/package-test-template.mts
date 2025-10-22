@@ -27,7 +27,7 @@ const sockRegPkgName = path.basename(__filename, '.test.mts')
 
 describe(
   `${eco} > ${sockRegPkgName}`,
-  { skip: isPackageTestingSkipped(sockRegPkgName) },
+  { skip: isPackageTestingSkipped(eco, sockRegPkgName) },
   () => {
     let pkgPath: string
     let pkgExport: any

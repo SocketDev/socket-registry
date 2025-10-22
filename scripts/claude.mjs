@@ -3928,78 +3928,82 @@ async function runGreen(claudeCmd, options = {}) {
   let autoFixAttempts = 0
   let lastAnalysis = null
   let lastErrorHash = null
+  let checksPassedWithoutFixes = false
 
-  for (const check of localChecks) {
-    log.progress(`[${repoName}] ${check.name}`)
+  while (!checksPassedWithoutFixes) {
+    let hadFixesThisRound = false
 
-    if (isDryRun) {
-      log.done(`[DRY RUN] Would run: ${check.cmd} ${check.args.join(' ')}`)
-      continue
-    }
+    for (const check of localChecks) {
+      log.progress(`[${repoName}] ${check.name}`)
 
-    // Add newline after progress indicator before command output
-    console.log('')
-    const result = await runCommandWithOutput(check.cmd, check.args, {
-      cwd: rootPath,
-      stdio: 'inherit',
-    })
-
-    if (result.exitCode !== 0) {
-      log.failed(`${check.name} failed`)
-
-      // Track error to avoid repeated attempts on same error
-      const errorOutput =
-        result.stderr || result.stdout || 'No error output available'
-      const errorHash = hashError(errorOutput)
-
-      if (seenErrors.has(errorHash)) {
-        log.error(`Detected same error again for "${check.name}"`)
-        log.substep('Skipping auto-fix to avoid infinite loop')
-        log.substep('Error appears unchanged from previous attempt')
-        return false
+      if (isDryRun) {
+        log.done(`[DRY RUN] Would run: ${check.cmd} ${check.args.join(' ')}`)
+        continue
       }
 
-      seenErrors.add(errorHash)
-      autoFixAttempts++
-
-      // Analyze root cause before attempting fix.
-      const analysis = await analyzeRootCause(claudeCmd, errorOutput, {
-        checkName: check.name,
-        repoName,
-        attempts: autoFixAttempts,
+      // Add newline after progress indicator before command output
+      console.log('')
+      const result = await runCommandWithOutput(check.cmd, check.args, {
+        cwd: rootPath,
+        stdio: 'inherit',
       })
 
-      // Save for history tracking.
-      lastAnalysis = analysis
-      lastErrorHash = errorHash
+      if (result.exitCode !== 0) {
+        log.failed(`${check.name} failed`)
 
-      // Display analysis to user.
-      if (analysis) {
-        displayAnalysis(analysis)
+        // Track error to avoid repeated attempts on same error
+        const errorOutput =
+          result.stderr || result.stdout || 'No error output available'
+        const errorHash = hashError(errorOutput)
 
-        // Warn if environmental issue.
-        if (analysis.isEnvironmental && analysis.confidence > 70) {
-          log.warn(
-            'This looks like an environmental issue - fix may not help. Consider checking runner status.',
-          )
+        if (seenErrors.has(errorHash)) {
+          log.error(`Detected same error again for "${check.name}"`)
+          log.substep('Skipping auto-fix to avoid infinite loop')
+          log.substep('Error appears unchanged from previous attempt')
+          return false
         }
-      }
 
-      // Decide whether to auto-fix or go interactive
-      const isAutoMode = autoFixAttempts <= MAX_AUTO_FIX_ATTEMPTS
+        seenErrors.add(errorHash)
+        autoFixAttempts++
 
-      if (isAutoMode) {
-        // Create snapshot before fix attempt for potential rollback.
-        await snapshots.createSnapshot(`before-fix-${autoFixAttempts}`)
-        log.substep(`Snapshot created: before-fix-${autoFixAttempts}`)
+        // Analyze root cause before attempting fix.
+        const analysis = await analyzeRootCause(claudeCmd, errorOutput, {
+          checkName: check.name,
+          repoName,
+          attempts: autoFixAttempts,
+        })
 
-        // Attempt automatic fix
-        log.progress(
-          `[${repoName}] Auto-fix attempt ${autoFixAttempts}/${MAX_AUTO_FIX_ATTEMPTS}`,
-        )
+        // Save for history tracking.
+        lastAnalysis = analysis
+        lastErrorHash = errorHash
 
-        // Build fix prompt with analysis if available.
-        const fixPrompt = `You are fixing a CI/build issue automatically. The command "${check.cmd} ${check.args.join(' ')}" failed in the ${path.basename(rootPath)} project.
+        // Display analysis to user.
+        if (analysis) {
+          displayAnalysis(analysis)
+
+          // Warn if environmental issue.
+          if (analysis.isEnvironmental && analysis.confidence > 70) {
+            log.warn(
+              'This looks like an environmental issue - fix may not help. Consider checking runner status.',
+            )
+          }
+        }
+
+        // Decide whether to auto-fix or go interactive
+        const isAutoMode = autoFixAttempts <= MAX_AUTO_FIX_ATTEMPTS
+
+        if (isAutoMode) {
+          // Create snapshot before fix attempt for potential rollback.
+          await snapshots.createSnapshot(`before-fix-${autoFixAttempts}`)
+          log.substep(`Snapshot created: before-fix-${autoFixAttempts}`)
+
+          // Attempt automatic fix
+          log.progress(
+            `[${repoName}] Auto-fix attempt ${autoFixAttempts}/${MAX_AUTO_FIX_ATTEMPTS}`,
+          )
+
+          // Build fix prompt with analysis if available.
+          const fixPrompt = `You are fixing a CI/build issue automatically. The command "${check.cmd} ${check.args.join(' ')}" failed in the ${path.basename(rootPath)} project.
 
 Error output:
 ${errorOutput}
@@ -4040,84 +4044,90 @@ IMPORTANT:
 
 Fix this issue now by making the necessary changes.`
 
-        // Run Claude non-interactively with timeout and progress
-        const startTime = Date.now()
-        // 2 minute timeout
-        const timeout = 120_000
-        log.substep(`[${repoName}] Analyzing error...`)
+          // Run Claude non-interactively with timeout and progress
+          const startTime = Date.now()
+          // 2 minute timeout
+          const timeout = 120_000
+          log.substep(`[${repoName}] Analyzing error...`)
 
-        const claudeProcess = spawn(claudeCmd, prepareClaudeArgs([], opts), {
-          cwd: rootPath,
-          stdio: ['pipe', 'inherit', 'inherit'],
-        })
-
-        claudeProcess.stdin.write(fixPrompt)
-        claudeProcess.stdin.end()
-
-        // Monitor progress with timeout
-        let isCleared = false
-        let progressInterval = null
-        const clearProgressInterval = () => {
-          if (!isCleared && progressInterval) {
-            clearInterval(progressInterval)
-            isCleared = true
-          }
-        }
-
-        progressInterval = setInterval(() => {
-          const elapsed = Date.now() - startTime
-          if (elapsed > timeout) {
-            log.warn(
-              `[${repoName}] Claude fix timed out after ${Math.round(elapsed / 1000)}s`,
-            )
-            clearProgressInterval()
-            claudeProcess.kill()
-          } else {
-            log.substep(
-              `[${repoName}] Claude working... (${Math.round(elapsed / 1000)}s)`,
-            )
-          }
-        }, 10_000)
-        // Update every 10 seconds
-
-        await new Promise(resolve => {
-          claudeProcess.on('close', () => {
-            clearProgressInterval()
-            const elapsed = Date.now() - startTime
-            log.done(
-              `[${repoName}] Claude fix completed in ${Math.round(elapsed / 1000)}s`,
-            )
-            resolve()
+          const claudeProcess = spawn(claudeCmd, prepareClaudeArgs([], opts), {
+            cwd: rootPath,
+            stdio: ['pipe', 'inherit', 'inherit'],
           })
-        })
 
-        // Give file system a moment to sync
-        await new Promise(resolve => setTimeout(resolve, 1000))
+          claudeProcess.stdin.write(fixPrompt)
+          claudeProcess.stdin.end()
 
-        // Retry the check
-        log.progress(`Retrying ${check.name}`)
-        const retryResult = await runCommandWithOutput(check.cmd, check.args, {
-          cwd: rootPath,
-        })
-
-        if (retryResult.exitCode !== 0) {
-          // Auto-fix didn't work - save failure to history.
-          if (lastAnalysis) {
-            await saveErrorHistory(
-              lastErrorHash,
-              'failed',
-              lastAnalysis.strategies[0]?.name || 'auto-fix',
-              lastAnalysis.rootCause,
-            )
+          // Monitor progress with timeout
+          let isCleared = false
+          let progressInterval = null
+          const clearProgressInterval = () => {
+            if (!isCleared && progressInterval) {
+              clearInterval(progressInterval)
+              isCleared = true
+            }
           }
 
-          // Auto-fix didn't work
-          if (autoFixAttempts >= MAX_AUTO_FIX_ATTEMPTS) {
-            // Switch to interactive mode
-            log.warn(`Auto-fix failed after ${MAX_AUTO_FIX_ATTEMPTS} attempts`)
-            log.info('Switching to interactive mode for manual assistance')
+          progressInterval = setInterval(() => {
+            const elapsed = Date.now() - startTime
+            if (elapsed > timeout) {
+              log.warn(
+                `[${repoName}] Claude fix timed out after ${Math.round(elapsed / 1000)}s`,
+              )
+              clearProgressInterval()
+              claudeProcess.kill()
+            } else {
+              log.substep(
+                `[${repoName}] Claude working... (${Math.round(elapsed / 1000)}s)`,
+              )
+            }
+          }, 10_000)
+          // Update every 10 seconds
 
-            const interactivePrompt = `The command "${check.cmd} ${check.args.join(' ')}" is still failing after ${MAX_AUTO_FIX_ATTEMPTS} automatic fix attempts.
+          await new Promise(resolve => {
+            claudeProcess.on('close', () => {
+              clearProgressInterval()
+              const elapsed = Date.now() - startTime
+              log.done(
+                `[${repoName}] Claude fix completed in ${Math.round(elapsed / 1000)}s`,
+              )
+              resolve()
+            })
+          })
+
+          // Give file system a moment to sync
+          await new Promise(resolve => setTimeout(resolve, 1000))
+
+          // Retry the check
+          log.progress(`Retrying ${check.name}`)
+          const retryResult = await runCommandWithOutput(
+            check.cmd,
+            check.args,
+            {
+              cwd: rootPath,
+            },
+          )
+
+          if (retryResult.exitCode !== 0) {
+            // Auto-fix didn't work - save failure to history.
+            if (lastAnalysis) {
+              await saveErrorHistory(
+                lastErrorHash,
+                'failed',
+                lastAnalysis.strategies[0]?.name || 'auto-fix',
+                lastAnalysis.rootCause,
+              )
+            }
+
+            // Auto-fix didn't work
+            if (autoFixAttempts >= MAX_AUTO_FIX_ATTEMPTS) {
+              // Switch to interactive mode
+              log.warn(
+                `Auto-fix failed after ${MAX_AUTO_FIX_ATTEMPTS} attempts`,
+              )
+              log.info('Switching to interactive mode for manual assistance')
+
+              const interactivePrompt = `The command "${check.cmd} ${check.args.join(' ')}" is still failing after ${MAX_AUTO_FIX_ATTEMPTS} automatic fix attempts.
 
 Latest error output:
 ${retryResult.stderr || retryResult.stdout || 'No error output'}
@@ -4132,74 +4142,113 @@ Please help me fix this issue. You can:
 
 Let's work through this together to get CI passing.`
 
-            log.progress('Launching interactive Claude session')
-            await runCommand(claudeCmd, prepareClaudeArgs([], opts), {
-              input: interactivePrompt,
-              cwd: rootPath,
-              // Interactive mode
-              stdio: 'inherit',
-            })
-
-            // Try once more after interactive session
-            log.progress(`Final retry of ${check.name}`)
-            const finalResult = await runCommandWithOutput(
-              check.cmd,
-              check.args,
-              {
+              log.progress('Launching interactive Claude session')
+              await runCommand(claudeCmd, prepareClaudeArgs([], opts), {
+                input: interactivePrompt,
                 cwd: rootPath,
-              },
+                // Interactive mode
+                stdio: 'inherit',
+              })
+
+              // Try once more after interactive session
+              log.progress(`Final retry of ${check.name}`)
+              const finalResult = await runCommandWithOutput(
+                check.cmd,
+                check.args,
+                {
+                  cwd: rootPath,
+                },
+              )
+
+              if (finalResult.exitCode !== 0) {
+                log.error(
+                  `${check.name} still failing after manual intervention`,
+                )
+                log.substep(
+                  'Consider running the command manually to debug further',
+                )
+                return false
+              }
+            } else {
+              log.warn(`Auto-fix attempt ${autoFixAttempts} failed, will retry`)
+              // Will try again on next iteration
+              continue
+            }
+          }
+
+          // Fix succeeded - save success to history.
+          if (lastAnalysis) {
+            await saveErrorHistory(
+              lastErrorHash,
+              'success',
+              lastAnalysis.strategies[0]?.name || 'auto-fix',
+              lastAnalysis.rootCause,
+            )
+          }
+
+          log.done(`${check.name} passed after fix`)
+          hadFixesThisRound = true
+          fixCount++
+
+          // Commit the fix immediately (without AI attribution per CLAUDE.md)
+          if (!isDryRun) {
+            log.progress('Committing fix')
+            const statusCheck = await runCommandWithOutput(
+              'git',
+              ['status', '--porcelain'],
+              { cwd: rootPath },
             )
 
-            if (finalResult.exitCode !== 0) {
-              log.error(`${check.name} still failing after manual intervention`)
-              log.substep(
-                'Consider running the command manually to debug further',
+            if (statusCheck.stdout.trim()) {
+              await runCommand('git', ['add', '.'], { cwd: rootPath })
+
+              // Generate commit message
+              log.progress('Generating commit message')
+              const commitMessage = await generateCommitMessage(
+                claudeCmd,
+                rootPath,
+                opts,
               )
-              return false
+              log.substep(`Commit message: ${commitMessage}`)
+
+              const commitArgs = ['commit', '-m', commitMessage]
+              if (useNoVerify) {
+                commitArgs.push('--no-verify')
+              }
+              await runCommand('git', commitArgs, { cwd: rootPath })
+              log.done('Fix committed')
             }
-          } else {
-            log.warn(`Auto-fix attempt ${autoFixAttempts} failed, will retry`)
-            // Will try again on next iteration
-            continue
           }
+
+          // Break out of check loop to restart all checks from beginning
+          break
         }
-      } else {
         // Already exceeded auto attempts, go straight to interactive
         log.warn('Maximum auto-fix attempts exceeded')
         log.info('Please fix this issue interactively')
         return false
       }
+      log.done(`${check.name} passed`)
     }
 
-    // Fix succeeded - save success to history.
-    if (lastAnalysis) {
-      await saveErrorHistory(
-        lastErrorHash,
-        'success',
-        lastAnalysis.strategies[0]?.name || 'auto-fix',
-        lastAnalysis.rootCause,
-      )
+    // If we completed all checks without any fixes this round, we're done
+    if (!hadFixesThisRound) {
+      checksPassedWithoutFixes = true
+      log.success('All local checks passed!')
+    } else {
+      log.info('Fixes applied - rerunning all checks from the beginning')
+      // Reset error tracking for the new round
+      seenErrors.clear()
+      autoFixAttempts = 0
     }
-
-    log.done(`${check.name} passed`)
   }
 
   // End local checks phase.
   progress.endPhase()
   progress.showProgress()
 
-  // Step 2: Commit and push changes
-  progress.startPhase('commit-and-push')
-  log.step('Committing and pushing changes')
-
-  // Check for uncommitted changes
-  const statusResult = await runCommandWithOutput(
-    'git',
-    ['status', '--porcelain'],
-    {
-      cwd: rootPath,
-    },
-  )
+  // Step 2: Push changes
+  progress.startPhase('push')
 
   // Check if local branch is ahead of remote (unpushed commits)
   const revListResult = await runCommandWithOutput(
@@ -4211,33 +4260,12 @@ Let's work through this together to get CI passing.`
   )
   const unpushedCount = Number.parseInt(revListResult.stdout.trim() || '0', 10)
 
-  if (statusResult.stdout.trim()) {
-    log.progress('Changes detected, committing')
+  if (unpushedCount > 0) {
+    log.step(`Pushing ${unpushedCount} commit(s) to remote`)
 
     if (isDryRun) {
-      log.done('[DRY RUN] Would commit and push changes')
+      log.done(`[DRY RUN] Would push ${unpushedCount} commit(s)`)
     } else {
-      // Stage all changes
-      await runCommand('git', ['add', '.'], { cwd: rootPath })
-
-      // Generate commit message using Claude (non-interactive)
-      log.progress('Generating commit message with Claude')
-      const commitMessage = await generateCommitMessage(
-        claudeCmd,
-        rootPath,
-        opts,
-      )
-      log.substep(`Commit message: ${commitMessage}`)
-
-      const commitArgs = ['commit', '-m', commitMessage]
-      if (useNoVerify) {
-        commitArgs.push('--no-verify')
-      }
-      await runCommand('git', commitArgs, {
-        cwd: rootPath,
-      })
-      fixCount++
-
       // Validate before pushing
       const validation = await validateBeforePush(rootPath)
       if (!validation.valid) {
@@ -4249,35 +4277,12 @@ Let's work through this together to get CI passing.`
       }
 
       // Push
+      log.progress('Pushing to remote')
       await runCommand('git', ['push'], { cwd: rootPath })
       log.done('Changes pushed to remote')
     }
-  } else if (unpushedCount > 0) {
-    log.info(
-      `No uncommitted changes, but ${unpushedCount} unpushed commit(s) detected`,
-    )
-
-    if (isDryRun) {
-      log.done('[DRY RUN] Would push unpushed commits')
-    } else {
-      log.progress('Pushing unpushed commits')
-
-      // Validate before pushing
-      const validation = await validateBeforePush(rootPath)
-      if (!validation.valid) {
-        log.warn('Pre-push validation warnings:')
-        validation.warnings.forEach(warning => {
-          log.substep(warning)
-        })
-        log.substep('Continuing with push (warnings are non-blocking)...')
-      }
-
-      // Push
-      await runCommand('git', ['push'], { cwd: rootPath })
-      log.done('Unpushed commits pushed to remote')
-    }
   } else {
-    log.info('No changes to commit and no unpushed commits')
+    log.info('No unpushed commits - already up to date')
   }
 
   // End commit phase.

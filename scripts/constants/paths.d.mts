@@ -51,3 +51,5 @@ export declare const ROOT_GITHUB_CACHE_PATH: string
 export declare const ROOT_DOT_GITHUB_PATH: string
 export declare const ROOT_DOT_GITHUB_ACTIONS_PATH: string
 export declare const ROOT_DOT_GITHUB_WORKFLOWS_PATH: string
+export declare const TSX_EXEC_PATH: string
+export declare const LICENSE_ORIGINAL: string

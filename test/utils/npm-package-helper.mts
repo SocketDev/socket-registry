@@ -41,7 +41,7 @@ export async function setupNpmPackageTest(
 ): Promise<SetupNpmPackageTestResult> {
   const sockRegPkgName = path.basename(filename, '.test.mts')
   const eco = NPM
-  const skip = isPackageTestingSkipped(sockRegPkgName)
+  const skip = isPackageTestingSkipped(eco, sockRegPkgName)
 
   let pkgPath = ''
   let module: any

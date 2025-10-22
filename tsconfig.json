@@ -38,6 +38,7 @@
   "include": ["**/*.ts", "**/*.mts", "**/*.cts"],
   "exclude": [
     "**/node_modules/**/*",
+    "scripts/templates/**/*",
     "test/**/packages/**/*",
     "test/npm/node_modules/**",
     "test/npm/**/*.d.ts"
