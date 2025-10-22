@@ -264,7 +264,7 @@ Package override tests are located in `test/npm/` directory. See existing exampl
 
 ### Creating New Package Tests
 
-Use the template at `scripts/templates/testing/package-test-template.mts`:
+Use the template at `scripts/templates/package-test-template.mts`:
 
 **Template includes:**
 - Standard test setup with `installPackageForTesting`
@@ -275,7 +275,7 @@ Use the template at `scripts/templates/testing/package-test-template.mts`:
 **Usage:**
 ```bash
 # Copy template
-cp scripts/templates/testing/package-test-template.mts test/npm/<package-name>.test.mts
+cp scripts/templates/package-test-template.mts test/npm/<package-name>.test.mts
 
 # Edit the template:
 # 1. Package name is auto-detected from filename
@@ -345,7 +345,7 @@ Push changes and monitor CI to confirm fixes.
 
 ```bash
 # When creating new package override
-cp scripts/templates/testing/package-test-template.mts packages/npm/<package>/test/index.test.mjs
+cp scripts/templates/package-test-template.mts packages/npm/<package>/test/index.test.mjs
 
 # Before committing
 pnpm run validate:packages --package <package>

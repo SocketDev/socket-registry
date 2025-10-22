@@ -135,7 +135,7 @@ pnpm run analyze:ci-failures --log-url <url> --verbose
 
 **Purpose:** Standard test template for new package override tests
 
-**Location:** `scripts/templates/testing/package-test-template.mts`
+**Location:** `scripts/templates/package-test-template.mts`
 
 **Existing Tests:** `test/npm/` directory contains package override tests
 - Examples: `test/npm/safer-buffer.test.mts`, `test/npm/json-stable-stringify.test.mts`
@@ -143,7 +143,7 @@ pnpm run analyze:ci-failures --log-url <url> --verbose
 **Usage:**
 ```bash
 # Copy template for new package test
-cp scripts/templates/testing/package-test-template.mts test/npm/<package-name>.test.mts
+cp scripts/templates/package-test-template.mts test/npm/<package-name>.test.mts
 
 # Edit the template:
 # 1. Package name is auto-detected from filename
@@ -164,7 +164,7 @@ cp scripts/templates/testing/package-test-template.mts test/npm/<package-name>.t
 
 ```bash
 # Creating new package
-cp scripts/templates/testing/package-test-template.mts packages/npm/<package>/test/index.test.mjs
+cp scripts/templates/package-test-template.mts packages/npm/<package>/test/index.test.mjs
 # Edit template for your package
 
 # Before committing
@@ -228,7 +228,7 @@ pnpm run validate:ci --package <package>
   - `scripts/testing/validate-package-tests.mjs`
   - `scripts/testing/reproduce-ci-locally.mjs`
   - `scripts/testing/analyze-ci-failures.mjs`
-  - `scripts/templates/testing/package-test-template.mts`
+  - `scripts/templates/package-test-template.mts`
 
 ## Tips
 
