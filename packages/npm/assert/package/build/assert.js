@@ -513,10 +513,6 @@ function checkIsPromise(obj) {
   // way. Do not accept thenables that use a function as `obj` and that have no
   // `catch` handler.
 
-  // TODO: thenables are checked up until they have the correct methods,
-  // but according to documentation, the `then` method should receive
-  // the `fulfill` and `reject` arguments as well or it may be never resolved.
-
   return (
     isPromise(obj) ||
     (obj !== null &&

@@ -274,7 +274,6 @@ createErrorType(
         .concat(oneOf(expected, 'type'))
     }
 
-    // TODO(BridgeAR): Improve the output by showing `null` and similar.
     msg += '. Received type '.concat(_typeof(actual))
     return msg
   },

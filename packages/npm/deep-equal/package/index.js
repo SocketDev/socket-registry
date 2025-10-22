@@ -332,7 +332,6 @@ function objEquiv(a, b, opts, channel) {
     return false
   }
 
-  // TODO: replace when a cross-realm brand check is available
   const aIsError = a instanceof Error
   const bIsError = b instanceof Error
   if (aIsError !== bIsError) {

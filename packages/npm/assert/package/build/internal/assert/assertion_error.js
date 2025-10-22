@@ -311,9 +311,6 @@ function inspectValue(val) {
     showHidden: false,
     // Having a long line as error is better than wrapping the line for
     // comparison for now.
-    // TODO(BridgeAR): `breakLength` should be limited as soon as soon as we
-    // have meta information about the inspected properties (i.e., know where
-    // in what line the property starts and ends).
     breakLength: Infinity,
     // Assert does not detect proxies currently.
     showProxy: false,
@@ -416,7 +413,6 @@ function createErrDiff(actual, expected, operator) {
     const _actualLines = actualInspected.split('\n')
 
     // Only remove lines in case it makes sense to collapse those.
-    // TODO: Accept env to always show the full error.
     if (_actualLines.length > 30) {
       _actualLines[26] = ''.concat(blue, '...').concat(white)
       while (_actualLines.length > 27) {
@@ -657,7 +653,6 @@ const AssertionError = /*@__PURE__*/ (function (_Error, _inspect$custom) {
         }
 
         // Only remove lines in case it makes sense to collapse those.
-        // TODO: Accept env to always show the full error.
         if (res.length > 30) {
           res[26] = ''.concat(blue, '...').concat(white)
           while (res.length > 27) {
