@@ -8,7 +8,7 @@ Quick reference for the CI testing and validation tools.
 
 **For general CI workflow usage**, see:
 - Socket-registry's reusable CI workflow: `SocketDev/socket-registry/.github/workflows/ci.yml@<SHA>` (must use full commit SHA, not @main)
-- Other projects' CI documentation: `docs/CI_TESTING.md` in each repository
+- Other projects' CI documentation: `docs/ci-testing.md` or `docs/dev/ci-testing.md` in each repository
 
 **🚨 CRITICAL**: GitHub Actions are configured to require full-length commit SHAs. Never use `@main` - always use `@662bbcab1b7533e24ba8e3446cffd8a7e5f7617e # main` format.
 
@@ -222,7 +222,7 @@ pnpm run validate:ci --package <package>
 
 ## Documentation
 
-- **Comprehensive Guide:** `docs/PACKAGE_TESTING_GUIDE.md`
+- **Comprehensive Guide:** `docs/package-testing-guide.md`
 - **CLAUDE.md Section 5.2:** Package Override Testing requirements
 - **Tool Locations:**
   - `scripts/testing/validate-package-tests.mjs`
@@ -312,4 +312,4 @@ pnpm run validate:packages \
 
 ---
 
-See `docs/PACKAGE_TESTING_GUIDE.md` for comprehensive troubleshooting.
+See `docs/package-testing-guide.md` for comprehensive troubleshooting.
