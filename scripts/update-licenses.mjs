@@ -9,6 +9,7 @@ import fs from 'node:fs/promises'
 
 import { UTF8 } from '@socketsecurity/lib/constants/encoding'
 import { globStreamLicenses } from '@socketsecurity/lib/globs'
+import { logger } from '@socketsecurity/lib/logger'
 import { parallelEach } from '@socketsecurity/lib/streams'
 
 import { LICENSE, ROOT_PATH } from './constants/paths.mjs'
@@ -30,4 +31,4 @@ async function main() {
   )
 }
 
-main().catch(console.error)
+main().catch(e => logger.error(e))

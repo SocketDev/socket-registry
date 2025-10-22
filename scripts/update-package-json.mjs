@@ -1,5 +1,6 @@
 /** @fileoverview Update root package.json with default Node.js engine range. */
 
+import { logger } from '@socketsecurity/lib/logger'
 import { readPackageJson } from '@socketsecurity/lib/packages'
 
 import { PACKAGE_DEFAULT_NODE_RANGE } from './constants/node.mjs'
@@ -23,4 +24,4 @@ async function main() {
   await rootEditablePkgJson.save()
 }
 
-main().catch(console.error)
+main().catch(e => logger.error(e))

@@ -12,6 +12,8 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { logger } from '@socketsecurity/lib/logger'
+
 import {
   printError,
   printFooter,
@@ -73,4 +75,4 @@ async function main() {
   }
 }
 
-main().catch(console.error)
+main().catch(e => logger.error(e))

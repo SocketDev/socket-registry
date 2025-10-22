@@ -5,6 +5,7 @@ import path from 'node:path'
 
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { UTF8 } from '@socketsecurity/lib/constants/encoding'
+import { logger } from '@socketsecurity/lib/logger'
 
 import {
   NPM_PACKAGES_PATH,
@@ -47,4 +48,4 @@ async function main() {
   )
 }
 
-main().catch(console.error)
+main().catch(e => logger.error(e))

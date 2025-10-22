@@ -165,16 +165,16 @@ async function main() {
       logger.success('Allow list copied to clipboard!')
     } catch {}
   } else {
-    console.log(
+    logger.log(
       '💡 Tip: Run `pnpm run generate-actions-allow-list --copy` to copy the allow list to clipboard',
     )
   }
 
   if (!useExactSha) {
-    console.log(
+    logger.log(
       '💡 Tip: Add `--exact` flag to generate list with exact commit SHAs instead of version wildcards',
     )
   }
 }
 
-main().catch(console.error)
+main().catch(e => logger.error(e))

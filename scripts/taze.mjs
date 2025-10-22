@@ -55,4 +55,4 @@ async function main() {
   await tazePromise
 }
 
-main().catch(console.error)
+main().catch(e => logger.error(e))

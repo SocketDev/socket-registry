@@ -9,6 +9,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { logger } from '@socketsecurity/lib/logger'
 
 import { log, printFooter, printHeader } from './utils/cli-helpers.mjs'
 
@@ -241,22 +242,22 @@ async function main() {
 
     // Show help if requested.
     if (values.help) {
-      console.log('\nUsage: pnpm update [options]')
-      console.log('\nOptions:')
-      console.log('  --help     Show this help message')
-      console.log('  --check    Check for updates without modifying files')
-      console.log('  --write    Write updates to package.json')
-      console.log('  --deps     Update dependencies only')
-      console.log('  --socket   Update Socket packages only')
-      console.log('  --project  Run project-specific updates only')
-      console.log('\nExamples:')
-      console.log('  pnpm update                # Run all updates')
-      console.log('  pnpm update --check        # Check for dependency updates')
-      console.log(
+      logger.log('\nUsage: pnpm update [options]')
+      logger.log('\nOptions:')
+      logger.log('  --help     Show this help message')
+      logger.log('  --check    Check for updates without modifying files')
+      logger.log('  --write    Write updates to package.json')
+      logger.log('  --deps     Update dependencies only')
+      logger.log('  --socket   Update Socket packages only')
+      logger.log('  --project  Run project-specific updates only')
+      logger.log('\nExamples:')
+      logger.log('  pnpm update                # Run all updates')
+      logger.log('  pnpm update --check        # Check for dependency updates')
+      logger.log(
         '  pnpm update --write        # Update dependencies in package.json',
       )
-      console.log('  pnpm update --deps         # Update dependencies only')
-      console.log('  pnpm update --socket       # Update Socket packages only')
+      logger.log('  pnpm update --deps         # Update dependencies only')
+      logger.log('  pnpm update --socket       # Update Socket packages only')
       process.exitCode = 0
       return
     }
@@ -310,4 +311,4 @@ async function main() {
   }
 }
 
-main().catch(console.error)
+main().catch(e => logger.error(e))

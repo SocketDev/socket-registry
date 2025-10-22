@@ -4,6 +4,8 @@
  */
 
 import { execBin } from '@socketsecurity/lib/bin'
+import { logger } from '@socketsecurity/lib/logger'
+
 import fastGlob from 'fast-glob'
 
 import { PERF_NPM_PATH, TSX_EXEC_PATH } from './constants/paths.mjs'
@@ -19,4 +21,4 @@ async function main() {
   }
 }
 
-main().catch(console.error)
+main().catch(e => logger.error(e))

@@ -354,4 +354,4 @@ async function main() {
   process.exitCode = failed.length ? 1 : 0
 }
 
-main().catch(console.error)
+main().catch(e => logger.error(e))

@@ -5,6 +5,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { WIN32 } from '@socketsecurity/lib/constants/platform'
+import { logger } from '@socketsecurity/lib/logger'
 import { spawn } from '@socketsecurity/lib/spawn'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -35,7 +36,7 @@ spawnPromise
     process.exitCode = result.code || 0
   })
   .catch(e => {
-    console.error(`Failed to run tests: ${e.message}`)
+    logger.error(`Failed to run tests: ${e.message}`)
     process.exitCode = 1
   })
 

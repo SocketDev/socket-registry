@@ -6,9 +6,11 @@
 import fs from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import path from 'node:path'
+
 import { PackageURL } from '@socketregistry/packageurl-js'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { UNLICENSED } from '@socketsecurity/lib/constants/licenses'
+import { logger } from '@socketsecurity/lib/logger'
 import {
   AT_LATEST,
   getPackageDefaultNodeRange,
@@ -240,4 +242,4 @@ async function main() {
   })
 }
 
-main().catch(console.error)
+main().catch(e => logger.error(e))

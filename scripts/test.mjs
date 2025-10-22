@@ -55,7 +55,7 @@ const removeExitHandler = onExit((_code, signal) => {
   }
 
   if (signal) {
-    console.log(`\nReceived ${signal}, cleaning up...`)
+    logger.log(`\nReceived ${signal}, cleaning up...`)
     // Let onExit handle the exit with proper code
     process.exitCode = 128 + (signal === 'SIGINT' ? 2 : 15)
   }

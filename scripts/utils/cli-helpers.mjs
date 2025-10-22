@@ -5,6 +5,8 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { logger } from '@socketsecurity/lib/logger'
+
 import colors from 'yoctocolors-cjs'
 
 // Get root path.
@@ -15,48 +17,48 @@ export const getRootPath = importMetaUrl => {
 
 // Simple print utilities for scripts - avoid re-exporting from lib.
 
-export const printDivider = (char = '═') => console.log(char.repeat(55))
+export const printDivider = (char = '═') => logger.log(char.repeat(55))
 export const printHeader = title => {
   printDivider()
-  console.log(`  ${title}`)
+  logger.log(`  ${title}`)
   printDivider()
 }
-export const printFooterLine = () => console.log('─'.repeat(55))
-export const printDottedLine = () => console.log('·'.repeat(55))
-export const printDiamondLine = () => console.log('◆'.repeat(55))
+export const printFooterLine = () => logger.log('─'.repeat(55))
+export const printDottedLine = () => logger.log('·'.repeat(55))
+export const printDiamondLine = () => logger.log('◆'.repeat(55))
 export const printFooter = msg => {
   printFooterLine()
   if (msg) {
-    console.log(colors.green(msg))
+    logger.log(colors.green(msg))
   }
 }
-export const printHelpHeader = name => console.log(`Socket Registry ${name}`)
-export const printSuccess = msg => console.log(colors.green(`✓ ${msg}`))
-export const printError = msg => console.error(colors.red(`✗ ${msg}`))
-export const printWarning = msg => console.warn(colors.yellow(`⚠ ${msg}`))
-export const printInfo = msg => console.log(colors.blue(`ℹ ${msg}`))
+export const printHelpHeader = name => logger.log(`Socket Registry ${name}`)
+export const printSuccess = msg => logger.log(`${colors.green('✓')} ${msg}`)
+export const printError = msg => logger.error(`${colors.red('✗')} ${msg}`)
+export const printWarning = msg => logger.warn(`${colors.yellow('⚠')} ${msg}`)
+export const printInfo = msg => logger.log(`${colors.blue('ℹ')} ${msg}`)
 export const printIndented = (msg, indent = 2) =>
-  console.log(' '.repeat(indent) + msg)
+  logger.log(' '.repeat(indent) + msg)
 
 // Console logging utilities with special formatting.
 // These have different behavior than the print utilities above.
 export const log = {
-  info: msg => console.log(msg),
+  info: msg => logger.log(msg),
   error: msg => printError(msg),
   success: msg => printSuccess(msg),
   warn: msg => printWarning(msg),
-  step: msg => console.log(`\n${msg}`),
-  substep: msg => console.log(`  ${msg}`),
+  step: msg => logger.log(`\n${msg}`),
+  substep: msg => logger.log(`  ${msg}`),
   progress: msg => {
     process.stdout.write(`  ∴ ${msg}`)
   },
   done: msg => {
     process.stdout.write('\r\x1b[K')
-    console.log(`  ${colors.green('✓')} ${msg}`)
+    logger.log(`  ${colors.green('✓')} ${msg}`)
   },
   failed: msg => {
     process.stdout.write('\r\x1b[K')
-    console.log(`  ${colors.red('✗')} ${msg}`)
+    logger.log(`  ${colors.red('✗')} ${msg}`)
   },
 }
 

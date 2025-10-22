@@ -416,4 +416,4 @@ async function runLintersBasedOnChanges(options = {}) {
   return await runLintersOnFiles(lintableFiles, { fix })
 }
 
-main().catch(console.error)
+main().catch(e => logger.error(e))

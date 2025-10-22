@@ -5,12 +5,14 @@ import crypto from 'node:crypto'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { promisify } from 'node:util'
+
 import { execScript } from '@socketsecurity/lib/agent'
 import {
   getAbortSignal,
   getSpinner,
 } from '@socketsecurity/lib/constants/process'
 import { readFileUtf8 } from '@socketsecurity/lib/fs'
+import { logger } from '@socketsecurity/lib/logger'
 import { isObjectObject, toSortedObject } from '@socketsecurity/lib/objects'
 import {
   extractPackage,
@@ -403,18 +405,18 @@ async function main() {
 
   // Log grouped warnings and changes.
   if (state.warnings.length) {
-    console.log('')
+    logger.log('')
     logSectionHeader('Warnings', { emoji: '⚠️' })
     for (const warning of state.warnings) {
-      console.log(warning)
+      logger.log(warning)
     }
   }
 
   if (state.changes.length) {
-    console.log('')
+    logger.log('')
     logSectionHeader('Changes', { emoji: 'ℹ' })
     for (const change of state.changes) {
-      console.log(change)
+      logger.log(change)
     }
   }
 
@@ -433,4 +435,4 @@ async function main() {
   })
 }
 
-main().catch(console.error)
+main().catch(e => logger.error(e))

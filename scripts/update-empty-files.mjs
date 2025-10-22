@@ -2,9 +2,12 @@
 
 import fs from 'node:fs/promises'
 import path from 'node:path'
+
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { EMPTY_FILE } from '@socketsecurity/lib/constants/core'
 import { UTF8 } from '@socketsecurity/lib/constants/encoding'
+import { logger } from '@socketsecurity/lib/logger'
+
 import fastGlob from 'fast-glob'
 
 import { NPM_TEMPLATES_PATH, ROOT_PATH } from './constants/paths.mjs'
@@ -72,4 +75,4 @@ async function main() {
   )
 }
 
-main().catch(console.error)
+main().catch(e => logger.error(e))

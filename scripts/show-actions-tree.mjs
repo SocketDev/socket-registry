@@ -181,4 +181,4 @@ async function main() {
   logger.info(`Total: ${allDependencies.size} unique actions/workflows`)
 }
 
-main().catch(console.error)
+main().catch(e => logger.error(e))

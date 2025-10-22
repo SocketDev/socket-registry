@@ -11,6 +11,8 @@ import os from 'node:os'
 import path from 'node:path'
 import readline from 'node:readline'
 
+import { logger } from '@socketsecurity/lib/logger'
+
 /**
  * Prompt user for confirmation before deletion.
  */
@@ -39,7 +41,7 @@ async function cleanTestCache() {
   if (process.env.CI !== 'true') {
     const confirmed = await confirmDeletion()
     if (!confirmed) {
-      console.log('Cancelled.')
+      logger.log('Cancelled.')
       return
     }
   }
@@ -52,14 +54,14 @@ async function cleanTestCache() {
   for (const dir of dirs) {
     try {
       await fs.rm(dir, { force: true, recursive: true })
-      console.log('Removed:', dir)
+      logger.log('Removed:', dir)
     } catch (e) {
       // Silently ignore errors - directory may not exist.
       if (e.code !== 'ENOENT') {
-        console.warn(`Failed to remove ${dir}:`, e.message)
+        logger.warn(`Failed to remove ${dir}:`, e.message)
       }
     }
   }
 }
 
-cleanTestCache().catch(console.error)
+cleanTestCache().catch(e => logger.error(e))

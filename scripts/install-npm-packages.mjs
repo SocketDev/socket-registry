@@ -1369,4 +1369,4 @@ async function main() {
   process.exitCode = criticalFailures.length ? 1 : 0
 }
 
-main().catch(console.error)
+main().catch(e => logger.error(e))
