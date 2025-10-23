@@ -1,4 +1,4 @@
-name: ⚙️ Socket Fix Auto Pull Request
+name: 🔧 Socket Fix Auto Pull Request
 
 # Dependencies:
 #   - SocketDev/socket-registry/.github/workflows/socket-auto-pr.yml
