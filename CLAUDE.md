@@ -417,6 +417,9 @@ Decision tree:
 - **Order**: Alphabetical; private first, then exported
 - **Await in loops**: Add `// eslint-disable-next-line no-await-in-loop` when intentional
 - **Process spawning**: Use `@socketsecurity/registry/lib/spawn` not `child_process.spawn`
+- **Working directory**: 🚨 NEVER use `process.chdir()` - use `{ cwd }` options and absolute paths instead
+  - Breaks tests, worker threads, and causes race conditions
+  - Always pass `{ cwd: absolutePath }` to spawn/exec/fs operations
 
 ### Code Style - Comments
 - **Style**: Single-line (`//`) over multiline
