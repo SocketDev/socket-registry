@@ -107,26 +107,41 @@ import colors from 'yoctocolors-cjs'
 - **FORBIDDEN**: `fs.rm()`, `fs.rmSync()`, `rm -rf` commands
 
 ### Work Safeguards (CRITICAL - PREVENTS DATA LOSS)
-- **MANDATORY BEFORE ANY BULK CHANGES**:
-  1. Commit work in progress first (`git add . && git commit -m "WIP before changes"`)
-  2. Create backup branch (`git checkout -b backup-before-<change>`)
-  3. Switch back to working branch (`git checkout <original-branch>`)
-  4. Then attempt changes
-- **FORBIDDEN**: Automated fix scripts (sed, awk, regex bulk replacements)
-- **FORBIDDEN**: Running any script that modifies multiple files without backup
-- **WHY**: Prevents irreversible corruption, enables easy recovery
-- **RECOVERY**: If something goes wrong: `git checkout backup-before-<change> .`
+
+**MANDATORY workflow before bulk changes**:
+```
+1. Commit WIP     → git add . && git commit -m "WIP before changes"
+2. Create backup  → git checkout -b backup-before-<change>
+3. Return to work → git checkout <original-branch>
+4. Make changes   → (now you have a safety net)
+
+If anything breaks:
+  git checkout backup-before-<change> .
+```
+
+**FORBIDDEN**:
+- Automated fix scripts (sed, awk, regex bulk replacements)
+- Scripts that modify multiple files without backup
+- Any bulk operation without backup branch
+
+**WHY**: Prevents irreversible corruption, enables instant recovery
 
 ### Git Workflow
 - **Pre-commit**: `pnpm run fix && pnpm run check`
 - **--no-verify**: Safe for scripts/workflows/tests/docs; always run hooks for lib/packages
 - **Batch commits**: First with hooks, rest with `--no-verify` (after fix + check)
 - **Messages**: [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) style
-  - Format: `<type>(<scope>): <description>`
-  - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
-  - Examples: `feat: add user authentication`, `fix: resolve memory leak in parser`
-  - **NO AI attribution** in commit messages
-- **Version bumps**: `chore(release): bump to v1.2.3`
+  ```
+  <type>(<scope>): <description>
+
+  Types: feat, fix, docs, style, refactor, test, chore, perf
+
+  Examples:
+    feat(auth): add JWT token validation
+    fix(parser): resolve memory leak in tokenizer
+    chore(release): 1.2.3
+  ```
+- **NO AI attribution** in commit messages
 
 ### Git SHA Management (CRITICAL)
 - **NEVER GUESS SHAs**: Use `git rev-parse HEAD` or `git rev-parse main`
@@ -265,11 +280,30 @@ See `test/utils/TEST_HELPERS_README.md` for:
 - **Type definitions**: Create `.d.mts` files for `.mjs` utilities used by `.mts` scripts
 
 ### Package.json Scripts Convention
-- **Prefer flags over separate scripts**: Use `pnpm run foo --<flag>` instead of multiple `foo:bar` scripts
-- **Good**: `"build": "node scripts/build.mjs"` + `pnpm run build --watch`
-- **Avoid**: `"build": "..."` + `"build:watch": "..."` + `"build:prod": "..."`
-- **Benefits**: Fewer scripts, clearer interface, easier maintenance
-- **Exception**: Composite scripts like `fix:build` that orchestrate multiple steps are acceptable
+
+**Prefer flags over separate scripts**:
+```json
+// Good - Single script with flags
+"scripts": {
+  "build": "node scripts/build.mjs"
+}
+// Usage: pnpm run build --watch --verbose
+
+// Avoid - Multiple similar scripts
+"scripts": {
+  "build": "node scripts/build.mjs",
+  "build:watch": "node scripts/build.mjs --watch",
+  "build:prod": "node scripts/build.mjs --prod",
+  "build:dev": "node scripts/build.mjs --dev"
+}
+```
+
+**Benefits**: Fewer scripts, clearer interface, easier maintenance
+
+**Exception**: Composite scripts that orchestrate multiple steps
+```json
+"fix:build": "node scripts/fix-build.mjs"  // Runs multiple fix scripts in sequence
+```
 
 ### Code Style - File Organization
 - **Extensions**: `.js` (JSDoc), `.mjs` (ES modules), `.mts` (TypeScript modules)
