@@ -279,6 +279,64 @@ See `test/utils/TEST_HELPERS_README.md` for:
 - **Exit codes**: Set `process.exitCode`, never call `process.exit()` (n/no-process-exit rule)
 - **Type definitions**: Create `.d.mts` files for `.mjs` utilities used by `.mts` scripts
 
+### Documentation Standards
+
+**Location**:
+```
+Standard repo:
+  docs/                    # All documentation here
+  ├── api-reference.md
+  ├── build-system.md
+  └── troubleshooting.md
+
+Monorepo:
+  docs/                    # Root-level documentation
+  packages/
+  ├── pkg-a/
+  │   └── docs/            # Package-specific docs
+  └── pkg-b/
+      └── docs/            # Package-specific docs
+```
+
+**Filename conventions**:
+```
+✓ lowercase-with-hyphens.md        # Descriptive names
+✓ api-reference.md
+✓ build-system.md
+✓ troubleshooting-guide.md
+
+Exception - Standard repo files (uppercase):
+✓ README.md
+✓ LICENSE
+✓ SECURITY.md
+✓ CHANGELOG.md
+✓ CONTRIBUTING.md
+```
+
+**Writing style**:
+- **Pithy**: Critical information first, concise and meaningful
+- **Direct**: No marketing language, get to the point
+- **Visual**: Use ASCII diagrams, flowcharts, directory trees for complex concepts
+- **Scannable**: Code blocks, bullets, clear hierarchy
+
+**Examples of good visualizations**:
+```
+Directory structure:
+  src/
+  ├── index.ts
+  └── lib/
+
+Flow diagram:
+  Input → Parse → Validate → Output
+          ↓
+        Error
+
+Decision tree:
+  Build needed?
+    ├─ Yes → Run build
+    └─ No  → Skip
+```
+
 ### Package.json Scripts Convention
 
 **Prefer flags over separate scripts**:
