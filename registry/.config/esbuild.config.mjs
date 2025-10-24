@@ -38,6 +38,13 @@ export const buildConfig = {
   metafile: true,
   logLevel: 'info',
 
+  // Optimization flags
+  charset: 'utf8',
+  legalComments: 'none',
+  logOverride: {
+    'empty-import-meta': 'silent',
+  },
+
   // Note: Cannot use "external" with bundle: false
   // esbuild automatically treats all imports as external when not bundling
 

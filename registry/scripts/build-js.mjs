@@ -2,7 +2,12 @@
  * @fileoverview JavaScript compilation using esbuild (10x faster than tsgo)
  * This replaces tsgo for JS compilation while keeping tsgo for declarations
  */
+import { existsSync, statSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
 import { build, context } from 'esbuild'
+import fg from 'fast-glob'
 
 import { printError, printSuccess } from '../../scripts/utils/cli-helpers.mjs'
 import {
@@ -11,15 +16,78 @@ import {
   watchConfig,
 } from '../.config/esbuild.config.mjs'
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const rootPath = path.join(__dirname, '..')
+const srcPath = path.join(rootPath, 'src')
+const distPath = path.join(rootPath, 'dist')
+
 const isQuiet = process.argv.includes('--quiet')
 const isVerbose = process.argv.includes('--verbose')
 const isWatch = process.argv.includes('--watch')
+const isNeeded = process.argv.includes('--needed')
+
+/**
+ * Check if build is needed by comparing source and output timestamps.
+ */
+function isBuildNeeded() {
+  if (!existsSync(distPath)) {
+    return true
+  }
+
+  const sourceFiles = fg.sync('**/*.{ts,mts,cts}', {
+    cwd: srcPath,
+    absolute: true,
+    ignore: ['**/*.d.ts'],
+  })
+
+  if (sourceFiles.length === 0) {
+    return false
+  }
+
+  // Find newest source file timestamp.
+  let newestSource = 0
+  for (const file of sourceFiles) {
+    const stat = statSync(file)
+    if (stat.mtimeMs > newestSource) {
+      newestSource = stat.mtimeMs
+    }
+  }
+
+  // Find oldest output file timestamp.
+  const outputFiles = fg.sync('**/*.js', {
+    cwd: distPath,
+    absolute: true,
+  })
+
+  if (outputFiles.length === 0) {
+    return true
+  }
+
+  let oldestOutput = Number.POSITIVE_INFINITY
+  for (const file of outputFiles) {
+    const stat = statSync(file)
+    if (stat.mtimeMs < oldestOutput) {
+      oldestOutput = stat.mtimeMs
+    }
+  }
+
+  // Build needed if any source is newer than oldest output.
+  return newestSource > oldestOutput
+}
 
 /**
  * Standard build for production
  */
 async function buildJS() {
   try {
+    // Check if build is needed when --needed flag is passed.
+    if (isNeeded && !isBuildNeeded()) {
+      if (!isQuiet) {
+        console.log('→ Build not needed, skipping')
+      }
+      return 0
+    }
+
     if (!isQuiet) {
       console.log('→ Building JavaScript with esbuild')
     }

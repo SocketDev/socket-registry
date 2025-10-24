@@ -155,6 +155,8 @@ export default defineConfig({
     // Reduce timeouts for faster failures
     testTimeout: 10_000,
     hookTimeout: 10_000,
+    // Bail out early in CI to fail fast
+    bail: process.env.CI ? 1 : undefined,
     server: {
       deps: {
         // Inline dependencies to enable source transformation for coverage.
