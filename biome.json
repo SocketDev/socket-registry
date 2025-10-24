@@ -11,6 +11,7 @@
       "!**/.git",
       "!**/.github",
       "!**/.husky",
+      "!**/.type-coverage",
       "!**/.vscode",
       "!**/coverage",
       "!**/dist",
