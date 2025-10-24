@@ -49,10 +49,18 @@ async function main() {
   const buildArgs = ['run', 'build']
 
   // Pass flags to build scripts.
-  if (isWatch) {buildArgs.push('--', '--watch')}
-  if (isNeeded) {buildArgs.push('--', '--needed')}
-  if (isQuiet) {buildArgs.push('--', '--quiet')}
-  if (isVerbose) {buildArgs.push('--', '--verbose')}
+  if (isWatch) {
+    buildArgs.push('--', '--watch')
+  }
+  if (isNeeded) {
+    buildArgs.push('--', '--needed')
+  }
+  if (isQuiet) {
+    buildArgs.push('--', '--quiet')
+  }
+  if (isVerbose) {
+    buildArgs.push('--', '--verbose')
+  }
 
   const exitCode = await runCommand('pnpm', buildArgs, {
     cwd: registryPath,
