@@ -270,6 +270,34 @@ See `test/utils/TEST_HELPERS_README.md` for:
 - **Scripts**: `pnpm run <script>`
 - **READMEs**: Use `pnpm install` in examples
 
+### Dependency Management
+
+**Lockfile Updates** (🚨 MANDATORY):
+- **After updating `package.json` dependencies**: Run `pnpm install` to update `pnpm-lock.yaml`
+- **After version bumps**: Verify `pnpm-lock.yaml` is current
+- **Commit lockfile changes** with dependency updates
+- **Never manually edit** `pnpm-lock.yaml`
+
+**Common scenarios**:
+```bash
+pnpm add <pkg>      # Auto-updates lockfile ✓
+pnpm remove <pkg>   # Auto-updates lockfile ✓
+
+# Manual package.json edits
+vi package.json     # Edit dependencies
+pnpm install        # 🚨 MUST update lockfile
+
+# Release bumps
+pnpm version patch  # Verify lockfile updated
+git status          # Check pnpm-lock.yaml changed
+```
+
+**Why this matters**:
+- Ensures reproducible builds across environments
+- Prevents "works on my machine" issues
+- Required for security audits and dependency tracking
+- CI/CD relies on lockfile consistency
+
 ### Script Wrappers
 - **Pattern**: Wrap complex commands in `scripts/*.mts` files, not package.json directly
 - **Benefits**: Type safety, reusability, testability, better error handling
