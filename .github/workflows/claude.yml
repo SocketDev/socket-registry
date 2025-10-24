@@ -41,6 +41,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          autocrlf: false
 
       - name: Setup debug
         uses: SocketDev/socket-registry/.github/actions/debug@51be85d39d3b4a42dd9d4712948b9d30a2e04794 # main
