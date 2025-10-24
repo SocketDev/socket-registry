@@ -124,8 +124,8 @@ importers:
         specifier: file:scripts
         version: scripts@file:scripts
       '@socketsecurity/lib':
-        specifier: 1.3.2
-        version: 1.3.2(typescript@5.9.2)
+        specifier: 1.3.3
+        version: 1.3.3(typescript@5.9.2)
       '@socketsecurity/registry':
         specifier: workspace:*
         version: link:registry
@@ -1577,8 +1577,8 @@ packages:
     resolution: {integrity: sha512-SHikmWH1JumHKinsPLg0/kg/qKNNQH4fdYe/dd4mZ2NHP5wWGDcZyNCS7KaTnKWFi3/XZOR1iLYzo0I4QnHOQw==}
     engines: {node: '>=18'}
 
-  '@socketsecurity/lib@1.3.2':
-    resolution: {integrity: sha512-E2Vb/9+VFQH3ck5jCQ8ozJou8pNu9xTpbUpiYBPZBxplHqkd6Lm9blPR/0WcamG1viUcxCRxmxpTViWmfC0IfA==}
+  '@socketsecurity/lib@1.3.3':
+    resolution: {integrity: sha512-KxtVlsJCuaTLGZaQmdRpFUDe+X5/yj9fpGzA8ymMyytu1LF++01okg/Swgwco6kGT+XMtQSkiblfDuKJAdIdTQ==}
     engines: {node: '>=22'}
     peerDependencies:
       typescript: 5.9.2
@@ -2295,8 +2295,8 @@ packages:
   es-module-lexer@1.7.0:
     resolution: {integrity: sha512-jEQoCwk8hyb2AZziIOLhDqpm5+2ww5uIE6lkO/6jcOCusfk6LhMHpXXfBLXTZ7Ydyt0j4VoUQv6uGNYbdW+kBA==}
 
-  es-toolkit@1.40.0:
-    resolution: {integrity: sha512-8o6w0KFmU0CiIl0/Q/BCEOabF2IJaELM1T2PWj6e8KqzHv1gdx+7JtFnDwOx1kJH/isJ5NwlDG1nCr1HrRF94Q==}
+  es-toolkit@1.41.0:
+    resolution: {integrity: sha512-bDd3oRmbVgqZCJS6WmeQieOrzpl3URcWBUVDXxOELlUW2FuW+0glPOz1n0KnRie+PdyvUZcXz2sOn00c6pPRIA==}
 
   esbuild@0.25.10:
     resolution: {integrity: sha512-9RiGKvCwaqxO2owP61uQ4BgNborAQskMR6QusfWzQqv7AZOg5oGehdY2pRJMTKuwxd1IDBP4rSbI5lHzU7SMsQ==}
@@ -4832,7 +4832,7 @@ snapshots:
 
   '@socketregistry/which-typed-array@1.0.9': {}
 
-  '@socketsecurity/lib@1.3.2(typescript@5.9.2)':
+  '@socketsecurity/lib@1.3.3(typescript@5.9.2)':
     optionalDependencies:
       typescript: 5.9.2
 
@@ -5205,7 +5205,7 @@ snapshots:
       cross-spawn: 7.0.6
       diff: 5.2.0
       dotenv: 16.6.1
-      es-toolkit: 1.40.0
+      es-toolkit: 1.41.0
       fast-glob: 3.3.3
       got: 11.8.6
       hpagent: 1.2.0
@@ -5580,7 +5580,7 @@ snapshots:
 
   es-module-lexer@1.7.0: {}
 
-  es-toolkit@1.40.0: {}
+  es-toolkit@1.41.0: {}
 
   esbuild@0.25.10:
     optionalDependencies:
