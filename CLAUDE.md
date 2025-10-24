@@ -6,6 +6,15 @@
 
 This is the canonical source for shared Socket standards. Other projects reference this file.
 
+## 👤 USER CONTEXT
+
+- **Identify users by git credentials**: Extract name from git commit author, GitHub account, or context
+- 🚨 **When identity is verified**: ALWAYS use their actual name - NEVER use "the user" or "user"
+- **Direct communication**: Use "you/your" when speaking directly to the verified user
+- **Discussing their work**: Use their actual name when referencing their commits/contributions
+- **Example**: If git shows "John-David Dalton <jdalton@example.com>", refer to them as "John-David"
+- **Other contributors**: Use their actual names from commit history/context
+
 ## PRE-ACTION PROTOCOL
 
 **MANDATORY**: Review CLAUDE.md before any action. No exceptions.
@@ -112,8 +121,12 @@ import colors from 'yoctocolors-cjs'
 - **Pre-commit**: `pnpm run fix && pnpm run check`
 - **--no-verify**: Safe for scripts/workflows/tests/docs; always run hooks for lib/packages
 - **Batch commits**: First with hooks, rest with `--no-verify` (after fix + check)
-- **Messages**: Short, no prefixes, **NO AI attribution**
-- **Version bumps**: `Bump to v1.2.3`
+- **Messages**: [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) style
+  - Format: `<type>(<scope>): <description>`
+  - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+  - Examples: `feat: add user authentication`, `fix: resolve memory leak in parser`
+  - **NO AI attribution** in commit messages
+- **Version bumps**: `chore(release): bump to v1.2.3`
 
 ### Git SHA Management (CRITICAL)
 - **NEVER GUESS SHAs**: Use `git rev-parse HEAD` or `git rev-parse main`
@@ -250,6 +263,13 @@ See `test/utils/TEST_HELPERS_README.md` for:
 - **Structure**: Use `spawn` from node:child_process with proper signal handling
 - **Exit codes**: Set `process.exitCode`, never call `process.exit()` (n/no-process-exit rule)
 - **Type definitions**: Create `.d.mts` files for `.mjs` utilities used by `.mts` scripts
+
+### Package.json Scripts Convention
+- **Prefer flags over separate scripts**: Use `pnpm run foo --<flag>` instead of multiple `foo:bar` scripts
+- **Good**: `"build": "node scripts/build.mjs"` + `pnpm run build --watch`
+- **Avoid**: `"build": "..."` + `"build:watch": "..."` + `"build:prod": "..."`
+- **Benefits**: Fewer scripts, clearer interface, easier maintenance
+- **Exception**: Composite scripts like `fix:build` that orchestrate multiple steps are acceptable
 
 ### Code Style - File Organization
 - **Extensions**: `.js` (JSDoc), `.mjs` (ES modules), `.mts` (TypeScript modules)
