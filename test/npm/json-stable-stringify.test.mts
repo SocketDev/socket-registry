@@ -17,7 +17,6 @@ describe(
     const _jsonStableStringifyModule =
       skip || ENV.CI ? null : require(pkgRequireIndexJsPath)
 
-    // biome-ignore lint/suspicious/noExplicitAny: Test accesses internal JSON.rawJSON if available.
     const rawJSON: ((_str: string) => { rawJSON: string }) | undefined = (
       JSON as any
     ).rawJSON
@@ -103,7 +102,6 @@ describe(
             ;(function r() {
               limit += 1
               const newObj = {}
-              // biome-ignore lint/suspicious/noExplicitAny: Test builds deeply nested object dynamically.
               ;(obj as any)[`prop${limit}`] = newObj
               obj = newObj
               r()

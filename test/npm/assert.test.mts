@@ -470,10 +470,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('should handle circular references', () => {
-      // biome-ignore lint/suspicious/noExplicitAny: Test needs circular reference.
       const obj1: any = { a: 1 }
       obj1.self = obj1
-      // biome-ignore lint/suspicious/noExplicitAny: Test needs circular reference.
       const obj2: any = { a: 1 }
       obj2.self = obj2
       expect(() => assert.deepEqual(obj1, obj2)).not.toThrow()
@@ -496,10 +494,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('should handle errors with custom properties', () => {
-      // biome-ignore lint/suspicious/noExplicitAny: Test needs custom properties on Error.
       const err1: any = new Error('test')
       err1.code = 'ERR_TEST'
-      // biome-ignore lint/suspicious/noExplicitAny: Test needs custom properties on Error.
       const err2: any = new Error('test')
       err2.code = 'ERR_TEST'
       expect(() => assert.deepEqual(err1, err2)).not.toThrow()

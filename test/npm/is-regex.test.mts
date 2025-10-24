@@ -50,7 +50,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('should not mutate regex lastIndex', () => {
     const regex = /a/
     const marker = {}
-    // biome-ignore lint/suspicious/noExplicitAny: Test sets non-numeric lastIndex.
     ;(regex as any).lastIndex = marker
     expect(regex.lastIndex).toBe(marker)
     expect(isRegex(regex)).toBe(true)

@@ -107,7 +107,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('works with functions', () => {
     // eslint-disable-next-line unicorn/consistent-function-scoping
     const target = () => {}
-    // biome-ignore lint/suspicious/noExplicitAny: Test adds dynamic property to function.
     ;(target as any).a = 1
     const returned = es6oa.assign(target, { b: 2 })
     expect(target).toBe(returned)
@@ -134,10 +133,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('only iterates over own keys', () => {
     class Foo {}
-    // biome-ignore lint/suspicious/noExplicitAny: Test adds dynamic property to prototype.
     ;(Foo.prototype as any).bar = true
     const foo = new Foo()
-    // biome-ignore lint/suspicious/noExplicitAny: Test adds dynamic property to instance.
     ;(foo as any).baz = true
     const target = { a: 1 }
     const returned = es6oa.assign(target, foo)
@@ -212,7 +209,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const str = 'abcdefghijklmnopqrst'
     const letters = {}
     for (const letter of str.split('')) {
-      // biome-ignore lint/suspicious/noExplicitAny: Test builds dynamic object with string keys.
       ;(letters as any)[letter] = letter
     }
     const n = 5
@@ -242,9 +238,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
     const sourceBValue = {}
     const sourceCValue = {}
-    // biome-ignore lint/suspicious/noExplicitAny: Test adds dynamic properties to source object.
     ;(source as any).b = sourceBValue
-    // biome-ignore lint/suspicious/noExplicitAny: Test adds dynamic properties to source object.
     ;(source as any).c = sourceCValue
     const result = es6oa.assign(target, source)
     expect(result).toBe(target)

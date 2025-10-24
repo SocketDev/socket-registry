@@ -14,7 +14,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('performance module', () => {
   let originalEnv: NodeJS.ProcessEnv
-  // biome-ignore lint/suspicious/noExplicitAny: Test spy can be any console method.
   let consoleSpy: any
 
   beforeEach(() => {
@@ -311,7 +310,9 @@ describe('performance module', () => {
       const opMax = summary['op']?.max
       expect(opMin).toBeDefined()
       expect(opMax).toBeDefined()
-      expect(opMin!).toBeLessThanOrEqual(opMax!)
+      if (opMin !== undefined && opMax !== undefined) {
+        expect(opMin).toBeLessThanOrEqual(opMax)
+      }
     })
 
     it('should round values to 2 decimals', () => {

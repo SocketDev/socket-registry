@@ -56,7 +56,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('should work with an arguments object', () => {
       // eslint-disable-next-line unicorn/consistent-function-scoping
       function testArgs(_a: any, _b: any, _c: any) {
-        // biome-ignore lint/complexity/noArguments: Test validates arguments object handling.
         const keys = objectKeys(arguments)
         expect(keys).toEqual(['0', '1', '2'])
       }

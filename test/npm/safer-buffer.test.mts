@@ -82,7 +82,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('Generic methods/properties are defined and equal', () => {
     for (const method of ['poolSize', 'isBuffer', 'concat', 'byteLength']) {
       for (const impl of implementations) {
-        // biome-ignore lint/suspicious/noExplicitAny: Test accesses Buffer methods dynamically.
         expect(impl.Buffer[method]).toBe((buffer as any).Buffer[method])
         expect(typeof impl.Buffer[method]).not.toBe('undefined')
       }
@@ -95,7 +94,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         continue
       }
       for (const impl of implementations) {
-        // biome-ignore lint/suspicious/noExplicitAny: Test accesses buffer methods dynamically.
         expect(impl[method]).toBe((buffer as any)[method])
         expect(typeof impl[method]).not.toBe('undefined')
       }
@@ -108,7 +106,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         continue
       }
       for (const impl of implementations) {
-        // biome-ignore lint/suspicious/noExplicitAny: Test accesses Buffer methods dynamically.
         expect(impl.Buffer[method]).toBe((buffer as any).Buffer[method])
         expect(typeof impl.Buffer[method]).not.toBe('undefined')
       }

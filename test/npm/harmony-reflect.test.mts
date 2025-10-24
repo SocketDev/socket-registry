@@ -14,7 +14,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('should be able to define a property', () => {
     const obj: {
-      // biome-ignore lint/suspicious/noExplicitAny: Test object with dynamic properties.
       [key: string]: any
     } = {}
     harmonyReflect.defineProperty(obj, 'x', { value: 1 })
@@ -117,7 +116,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const target = Object.create(
       {
         z: 3,
-        // biome-ignore lint/suspicious/noExplicitAny: Test setter accepts any value.
         set w(_v: any) {
           // eslint-disable-next-line @typescript-eslint/no-this-alias
           out = this

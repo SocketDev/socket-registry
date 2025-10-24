@@ -117,7 +117,6 @@ describe('spinner module', () => {
       it('should reject RGB tuple with wrong length', () => {
         expect(() => {
           Spinner({
-            // biome-ignore lint/suspicious/noExplicitAny: Testing invalid input.
             color: [255, 128] as any,
           })
         }).toThrow('RGB color must be an array of 3 numbers between 0 and 255')
@@ -126,7 +125,6 @@ describe('spinner module', () => {
       it('should reject RGB tuple with invalid numbers', () => {
         expect(() => {
           Spinner({
-            // biome-ignore lint/suspicious/noExplicitAny: Testing invalid input.
             color: [255, 300, 0] as any,
           })
         }).toThrow('RGB color must be an array of 3 numbers between 0 and 255')
@@ -135,7 +133,6 @@ describe('spinner module', () => {
       it('should reject RGB tuple with non-numbers', () => {
         expect(() => {
           Spinner({
-            // biome-ignore lint/suspicious/noExplicitAny: Testing invalid input.
             color: [255, 'blue', 0] as any,
           })
         }).toThrow('RGB color must be an array of 3 numbers between 0 and 255')
@@ -144,7 +141,6 @@ describe('spinner module', () => {
       it('should reject RGB tuple with negative numbers', () => {
         expect(() => {
           Spinner({
-            // biome-ignore lint/suspicious/noExplicitAny: Testing invalid input.
             color: [255, -10, 0] as any,
           })
         }).toThrow('RGB color must be an array of 3 numbers between 0 and 255')
@@ -413,8 +409,10 @@ describe('spinner module', () => {
     })
 
     it('should stop spinner after successful operation', async () => {
-      testSpinner!.start = vi.fn(testSpinner?.start)
-      testSpinner!.stop = vi.fn(testSpinner?.stop)
+      if (testSpinner) {
+        testSpinner.start = vi.fn(testSpinner.start)
+        testSpinner.stop = vi.fn(testSpinner.stop)
+      }
 
       await withSpinner({
         message: 'Loading...',
@@ -445,7 +443,9 @@ describe('spinner module', () => {
     })
 
     it('should restore spinner when wasSpinning is true', async () => {
-      testSpinner!.start = vi.fn(testSpinner?.start)
+      if (testSpinner) {
+        testSpinner.start = vi.fn(testSpinner.start)
+      }
 
       await withSpinnerRestore({
         operation: async () => {
@@ -459,7 +459,9 @@ describe('spinner module', () => {
     })
 
     it('should not restore spinner when wasSpinning is false', async () => {
-      testSpinner!.start = vi.fn(testSpinner?.start)
+      if (testSpinner) {
+        testSpinner.start = vi.fn(testSpinner.start)
+      }
 
       await withSpinnerRestore({
         operation: async () => {
@@ -473,7 +475,9 @@ describe('spinner module', () => {
     })
 
     it('should restore spinner even if operation throws', async () => {
-      testSpinner!.start = vi.fn(testSpinner?.start)
+      if (testSpinner) {
+        testSpinner.start = vi.fn(testSpinner.start)
+      }
 
       await expect(
         withSpinnerRestore({
@@ -572,8 +576,10 @@ describe('spinner module', () => {
     })
 
     it('should stop spinner after successful operation', () => {
-      testSpinner!.start = vi.fn(testSpinner?.start)
-      testSpinner!.stop = vi.fn(testSpinner?.stop)
+      if (testSpinner) {
+        testSpinner.start = vi.fn(testSpinner.start)
+        testSpinner.stop = vi.fn(testSpinner.stop)
+      }
 
       withSpinnerSync({
         message: 'Loading...',
