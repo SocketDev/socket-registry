@@ -29,6 +29,10 @@ describe('manifest data utilities', () => {
         // Just test that the entries exist and have the expected structure.
         const entry = npmEntries[0]
         expect(entry).toBeDefined()
+        // Type guard to ensure entry is defined before destructuring.
+        if (!entry) {
+          return
+        }
         expect(Array.isArray(entry)).toBe(true)
         expect(entry.length).toBe(2)
         const [purl, data] = entry
@@ -37,9 +41,7 @@ describe('manifest data utilities', () => {
         // Data should be an object with a name property
         expect(typeof data).toBe('object')
         expect(data).not.toBeNull()
-        if (data && !Array.isArray(data)) {
-          expect('name' in data).toBe(true)
-        }
+        expect('name' in data).toBe(true)
       }
     })
 
