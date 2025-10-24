@@ -6,22 +6,20 @@ export declare const PNPM_NPM_LIKE_FLAGS: readonly string[]
 export declare const PNPM_INSTALL_BASE_FLAGS: readonly string[]
 export declare const PNPM_HOISTED_INSTALL_FLAGS: readonly string[]
 export declare const PNPM_INSTALL_ENV: Record<string, undefined>
-export declare const editablePackageJsonCache: Map<string, any>
+export declare const editablePackageJsonCache: Map<string, unknown>
 
 export declare function readCachedEditablePackageJson(
   pkgPath: string,
-  // biome-ignore lint/suspicious/noExplicitAny: Options object accepts any additional properties.
-  options?: Record<string, any>,
-): Promise<any>
+  options?: Record<string, unknown>,
+): Promise<unknown>
 
 export declare function clearPackageJsonCache(): void
 
 export declare function updatePackagesJson(
-  packages: Array<{ path: string; updates: Record<string, any> }>,
+  packages: Array<{ path: string; updates: Record<string, unknown> }>,
   options?: {
     concurrency?: number
-    // biome-ignore lint/suspicious/noExplicitAny: Spinner type from external library.
-    spinner?: any
+    spinner?: unknown
   },
 ): Promise<void>
 
@@ -31,7 +29,7 @@ export declare function collectPackageData(
     concurrency?: number
     fields?: string[]
   },
-): Promise<Array<Record<string, any>>>
+): Promise<Array<Record<string, unknown>>>
 
 export declare function processWithSpinner<T, R>(
   items: T[],
@@ -39,12 +37,11 @@ export declare function processWithSpinner<T, R>(
   options?: {
     concurrency?: number
     errorMessage?: string
-    // biome-ignore lint/suspicious/noExplicitAny: Spinner type from external library.
-    spinner?: any
+    spinner?: unknown
     startMessage?: string
     successMessage?: string
   },
-): Promise<{ results: R[]; errors: Array<{ item: any; error: Error }> }>
+): Promise<{ results: R[]; errors: Array<{ item: T; error: Error }> }>
 
 export declare function resolveRealPath(pathStr: string): Promise<string>
 
