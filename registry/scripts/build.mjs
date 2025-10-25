@@ -40,14 +40,7 @@ async function buildSource(options = {}) {
   if (!skipClean) {
     const exitCode = await runSequence([
       {
-        args: [
-          'exec',
-          'del-cli',
-          'dist',
-          '**/*.tsbuildinfo',
-          '--',
-          '--quiet',
-        ],
+        args: ['exec', 'del-cli', 'dist', '**/*.tsbuildinfo', '--', '--quiet'],
         command: 'pnpm',
         options: {
           cwd: rootPath,
