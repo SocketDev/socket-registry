@@ -23,6 +23,8 @@ export const printHeader = title => {
   logger.log(`  ${title}`)
   printDivider()
 }
+export const printCompletedHeader = title =>
+  logger.log(colors.green(`✓ ${title}`))
 export const printFooterLine = () => logger.log('─'.repeat(55))
 export const printDottedLine = () => logger.log('·'.repeat(55))
 export const printDiamondLine = () => logger.log('◆'.repeat(55))
