@@ -64,26 +64,26 @@ export const buildConfig = {
   format: 'cjs',
   platform: 'node',
   target: 'node18',
-  sourcemap: false,
-  // Library code should be readable.
-  minify: false,
-  // Can't tree-shake without bundling.
-  treeShaking: false,
+  sourcemap: true,
+  // Minify for production builds (can be overridden in watch mode)
+  minify: true,
+  // Tree-shaking optimization
+  treeShaking: true,
   metafile: true,
   logLevel: 'info',
-
-  // Optimization flags
-  charset: 'utf8',
-  legalComments: 'none',
-  logOverride: {
-    'empty-import-meta': 'silent',
-  },
 
   // Use plugin for local package aliases (built-in alias requires bundle: true)
   plugins: [createAliasPlugin()].filter(Boolean),
 
   // Note: Cannot use "external" with bundle: false
   // esbuild automatically treats all imports as external when not bundling
+
+  // Define constants for optimization
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(
+      process.env.NODE_ENV || 'production',
+    ),
+  },
 
   // Banner for generated code
   banner: {
@@ -95,7 +95,7 @@ export const buildConfig = {
 export const watchConfig = {
   ...buildConfig,
   minify: false,
-  sourcemap: false,
+  sourcemap: 'inline',
   logLevel: 'debug',
 }
 

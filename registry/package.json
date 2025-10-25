@@ -47,10 +47,8 @@
   },
   "sideEffects": false,
   "scripts": {
-    "build": "pnpm run clean && pnpm run build:js && pnpm run build:types",
-    "build:js": "node scripts/build-js.mjs",
-    "build:types": "tsgo --project tsconfig.dts.json --declaration --emitDeclarationOnly",
-    "build:watch": "node scripts/build-js.mjs --watch",
+    "build": "node scripts/build.mjs",
+    "build:watch": "node scripts/build.mjs --watch",
     "check": "tsgo --noEmit",
     "clean": "del-cli dist '**/*.tsbuildinfo'",
     "dev": "pnpm run build:watch",
