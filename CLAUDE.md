@@ -302,7 +302,7 @@ git status          # Check pnpm-lock.yaml changed
 - **Pattern**: Wrap complex commands in `scripts/*.mts` files, not package.json directly
 - **Benefits**: Type safety, reusability, testability, better error handling
 - **Usage**: `"script-name": "node scripts/script-name.mts"`
-- **Examples**: `scripts/coverage.mts`, `scripts/test-ci.mjs`
+- **Examples**: `scripts/cover.mjs`, `scripts/test.mjs`
 - **Structure**: Use `spawn` from node:child_process with proper signal handling
 - **Exit codes**: Set `process.exitCode`, never call `process.exit()` (n/no-process-exit rule)
 - **Type definitions**: Create `.d.mts` files for `.mjs` utilities used by `.mts` scripts
