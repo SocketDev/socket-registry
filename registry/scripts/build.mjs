@@ -16,11 +16,11 @@ import {
 } from '../.config/esbuild.config.mjs'
 import { isQuiet } from '../../scripts/utils/flags.mjs'
 import {
+  logger,
   printCompletedHeader,
   printFooter,
   printHeader,
 } from '../../scripts/utils/helpers.mjs'
-import { logger } from '../../scripts/utils/helpers.mjs'
 import { parseArgs } from '../../scripts/utils/parse-args.mjs'
 import { runSequence } from '../../scripts/utils/run-command.mjs'
 
