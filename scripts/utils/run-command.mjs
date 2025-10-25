@@ -13,6 +13,7 @@ import { logger } from '@socketsecurity/lib/logger'
  */
 export async function runCommand(command, args = [], options = {}) {
   const result = await spawn(command, args, {
+    shell: process.platform === 'win32',
     stdio: 'inherit',
     ...options,
   })
@@ -28,6 +29,7 @@ export async function runCommand(command, args = [], options = {}) {
  */
 export function runCommandSync(command, args = [], options = {}) {
   const result = spawnSync(command, args, {
+    shell: process.platform === 'win32',
     stdio: 'inherit',
     ...options,
   })
@@ -81,6 +83,7 @@ export async function runParallel(commands) {
  */
 export async function runCommandQuiet(command, args = [], options = {}) {
   const result = await spawn(command, args, {
+    shell: process.platform === 'win32',
     ...options,
     stdio: ['inherit', 'pipe', 'pipe'],
     stdioString: true,
