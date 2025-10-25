@@ -12,6 +12,7 @@ const {
 
 // Based on https://tc39.es/ecma262/#sec-iterator.prototype.map
 module.exports = function map(mapper) {
+  // Step 1: Let O be the this value.
   // Built-in functions that are not identified as constructors do
   // not implement [[Construct]] unless otherwise specified.
   // https://tc39.es/ecma262/#sec-ecmascript-standard-built-in-objects
@@ -24,35 +25,36 @@ module.exports = function map(mapper) {
   if (typeof mapper !== 'function') {
     throw new TypeErrorCtor('`mapper` must be a function')
   }
-  // Step 4: Let iterated be GetIteratorDirect(O).
+  // Step 4: Let iterated be ? GetIteratorDirect(O).
   const { iterator, next: nextMethod } = getIteratorDirect(this)
-  // Step 5: Let closure be a new Abstract Closure with no parameters that
-  // captures iterated and mapper.
+  // Step 5: Let closure be a new Abstract Closure with no parameters that captures iterated and mapper and performs the following steps when called:
+  // Step 5.a: Let counter be 0.
   let index = 0
   const wrapper = createIteratorFromClosure({
-    // Step 5.b: Repeat
     next() {
-      // Step 5.b.i: Let value be IteratorStepValue(iterated).
+      // Step 5.b: Repeat,
+      // Step 5.b.i: Let value be ? IteratorStepValue(iterated).
       const result = ReflectApply(nextMethod, iterator, [])
-      // Step 5.b.ii: If value is done, return ReturnCompletion(undefined).
+      // Step 5.b.ii: If value is done, return undefined.
       if (result.done) {
         return result
       }
       let mappedValue
       try {
-        // Step 5.b.iii: Let mapped be Completion(Call(mapper, undefined, << value, F(counter) >>)).
+        // Step 5.b.iii: Let mapped be Completion(Call(mapper, undefined, « value, 𝔽(counter) »)).
         mappedValue = mapper(result.value, index)
       } catch (e) {
         // Step 5.b.iv: IfAbruptCloseIterator(mapped, iterated).
         ifAbruptCloseIterator(iterator, e)
       }
-      // Step 5.b.vii. Set counter to counter + 1.
-      index += 1
       // Step 5.b.v: Let completion be Completion(Yield(mapped)).
-      // The `Yield(mapped)` part is simply the return value from the closure.
+      // Step 5.b.vi: IfAbruptCloseIterator(completion, iterated).
+      // Step 5.b.vii: Set counter to counter + 1.
+      index += 1
       return { value: mappedValue, done: false }
     },
   })
+  // Step 6: Let result be ? CreateIteratorFromClosure(closure, "Iterator Helper", %IteratorHelperPrototype%, « [[UnderlyingIterator]] »).
   // Step 7: Set result.[[UnderlyingIterator]] to iterated.
   setUnderlyingIterator(wrapper, iterator)
   // Step 8: Return result.

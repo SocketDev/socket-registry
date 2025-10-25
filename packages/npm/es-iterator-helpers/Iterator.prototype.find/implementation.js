@@ -17,6 +17,7 @@ module.exports =
   typeof IteratorProtoFind === 'function'
     ? IteratorProtoFind
     : function find(predicate) {
+        // Step 1: Let O be the this value.
         // ECMAScript Standard Built-in Objects
         // https://tc39.es/ecma262/#sec-ecmascript-standard-built-in-objects
         // Built-in function objects that are not identified as constructors do
@@ -31,28 +32,28 @@ module.exports =
         if (typeof predicate !== 'function') {
           throw new TypeErrorCtor('`predicate` must be a function')
         }
-        // Step 4: Let iterated be GetIteratorDirect(O).
+        // Step 4: Let iterated be ? GetIteratorDirect(O).
         const { iterator, next: nextMethod } = getIteratorDirect(this)
         // Step 5: Let counter be 0.
         let index = 0
         // Step 6: Repeat,
         while (true) {
-          // Step 6.a: Let value be IteratorStepValue(iterated).
+          // Step 6.a: Let value be ? IteratorStepValue(iterated).
           const result = ReflectApply(nextMethod, iterator, [])
           // Step 6.b: If value is done, return undefined.
           if (result.done) {
             return undefined
           }
           const { value } = result
-          // Step 6.c: Let result be Completion(Call(predicate, undefined, << value, F(counter) >>)).
           let predicateResult
           try {
+            // Step 6.c: Let result be Completion(Call(predicate, undefined, « value, 𝔽(counter) »)).
             predicateResult = ReflectApply(predicate, undefined, [value, index])
           } catch (e) {
             // Step 6.d: IfAbruptCloseIterator(result, iterated).
             ifAbruptCloseIterator(iterator, e)
           }
-          // Step 6.e: If ToBoolean(result) is true, return IteratorClose(iterated, NormalCompletion(value)).
+          // Step 6.e: If ToBoolean(result) is true, return ? IteratorClose(iterated, NormalCompletion(value)).
           if (predicateResult) {
             return iteratorClose(iterator, value)
           }
