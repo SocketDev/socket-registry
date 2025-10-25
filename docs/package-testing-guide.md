@@ -2,7 +2,7 @@
 
 This guide provides a comprehensive approach to prevent recurring CI failures in package overrides.
 
-## 🚨 Socket-Registry Specific
+## Socket-Registry Specific
 
 **This guide is specific to socket-registry's package override structure.** Other Socket projects (socket-sdk-js, socket-cli, socket-packageurl-js) have different testing needs and should refer to their own CI documentation.
 
@@ -10,7 +10,7 @@ This guide provides a comprehensive approach to prevent recurring CI failures in
 - Socket-registry's reusable CI workflow: `SocketDev/socket-registry/.github/workflows/ci.yml@<SHA>` (must use full commit SHA, not @main)
 - Other projects' CI documentation: `docs/ci-testing.md` or `docs/dev/ci-testing.md` in each repository
 
-**🚨 CRITICAL**: GitHub Actions are configured to require full-length commit SHAs. Never use `@main` - always use `@662bbcab1b7533e24ba8e3446cffd8a7e5f7617e # main` format.
+**CRITICAL**: GitHub Actions are configured to require full-length commit SHAs. Never use `@main` - always use `@662bbcab1b7533e24ba8e3446cffd8a7e5f7617e # main` format.
 
 ## Quick Start
 
@@ -50,11 +50,11 @@ Package override tests have been a recurring source of CI failures. This guide a
 
 **Prevention:**
 ```javascript
-// ❌ WRONG
+// ✗ WRONG
 import foo from '../../node_modules/foo'
 import bar from 'node_modules/.pnpm/bar@1.0.0/node_modules/bar'
 
-// ✅ CORRECT
+// ✓ CORRECT
 import foo from 'foo'
 import bar from 'bar'
 ```
@@ -150,12 +150,12 @@ pnpm run validate:packages --concurrency 10
 ```
 
 **Checks:**
-- ✅ package.json validity and required fields
-- ✅ Test file existence and locations
-- ✅ Module resolution correctness
-- ✅ Build artifacts presence
-- ✅ ESLint configuration validity
-- ✅ Dependency installation in isolated environment
+- ✓ package.json validity and required fields
+- ✓ Test file existence and locations
+- ✓ Module resolution correctness
+- ✓ Build artifacts presence
+- ✓ ESLint configuration validity
+- ✓ Dependency installation in isolated environment
 
 ### 2. Local CI Reproduction Script
 
@@ -381,24 +381,24 @@ pnpm run validate:packages --package <package>
 
 ### DO
 
-✅ Use validation scripts before every release
-✅ Reproduce CI locally to catch issues early
-✅ Fix root causes, not symptoms
-✅ Use test template for consistency
-✅ Follow cross-platform guidelines
-✅ Use path.join() for all paths
-✅ Clean up with trash
-✅ Test in isolated environments
+✓ Use validation scripts before every release
+✓ Reproduce CI locally to catch issues early
+✓ Fix root causes, not symptoms
+✓ Use test template for consistency
+✓ Follow cross-platform guidelines
+✓ Use path.join() for all paths
+✓ Clean up with trash
+✓ Test in isolated environments
 
 ### DON'T
 
-❌ Skip validation for "small" changes
-❌ Hard-code file paths or separators
-❌ Reference .pnpm directories directly
-❌ Commit without running validation
-❌ Add workarounds instead of fixing root cause
-❌ Assume tests work if they pass locally
-❌ Leave temporary files without cleanup
+✗ Skip validation for "small" changes
+✗ Hard-code file paths or separators
+✗ Reference .pnpm directories directly
+✗ Commit without running validation
+✗ Add workarounds instead of fixing root cause
+✗ Assume tests work if they pass locally
+✗ Leave temporary files without cleanup
 
 ## Continuous Improvement
 
