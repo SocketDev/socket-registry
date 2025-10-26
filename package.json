@@ -28,7 +28,6 @@
     "generate-actions-tree": "node ./scripts/show-actions-tree.mjs",
     "inline-action-shas": "node ./scripts/inline-action-versions-as-shas.mjs",
     "lint": "node scripts/lint.mjs",
-    "lint-ci": "pnpm run lint --all",
     "make-npm-override": "node ./scripts/make-npm-override.mjs",
     "package-npm-access": "node ./scripts/set-npm-package-access.mjs",
     "package-npm-publish": "node ./scripts/publish-npm-packages.mjs",
@@ -37,8 +36,6 @@
     "prepare": "husky && pnpm run build",
     "release-npm": "node ./scripts/release-npm-packages.mjs",
     "test": "node scripts/test.mjs",
-    "test-ci": "pnpm run test --all",
-    "type-ci": "pnpm run check --type --all",
     "update": "node scripts/update.mjs",
     "validate-ci": "node ./scripts/testing/reproduce-ci-locally.mjs",
     "validate-packages": "node ./scripts/testing/validate-package-tests.mjs"
