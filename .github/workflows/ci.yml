@@ -29,10 +29,10 @@ on:
         type: string
         default: '22'
       lint-script:
-        description: 'Lint command (e.g., "pnpm run lint")'
+        description: 'Lint command (e.g., "pnpm run lint --all")'
         required: false
         type: string
-        default: 'pnpm run lint'
+        default: 'pnpm run lint --all'
       lint-setup-script:
         description: 'Setup script before linting'
         required: false
@@ -79,10 +79,10 @@ on:
         type: boolean
         default: true
       test-script:
-        description: 'Test command (e.g., "pnpm run test")'
+        description: 'Test command (e.g., "pnpm run test --all")'
         required: false
         type: string
-        default: 'pnpm run test'
+        default: 'pnpm run test --all'
       test-setup-script:
         description: 'Setup script before tests (e.g., "pnpm run build")'
         required: false
