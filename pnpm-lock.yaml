@@ -50,7 +50,6 @@ overrides:
   vite: 7.1.12
   which-collection: npm:@socketregistry/which-collection@1.0.8
   which-typed-array: npm:@socketregistry/which-typed-array@1.0.9
-  '@socketsecurity/lib': link:../socket-lib
 
 patchedDependencies:
   brace-expansion@2.0.2:
@@ -125,8 +124,8 @@ importers:
         specifier: file:scripts
         version: scripts@file:scripts
       '@socketsecurity/lib':
-        specifier: link:../socket-lib
-        version: link:../socket-lib
+        specifier: 2.0.0
+        version: 2.0.0(typescript@5.9.2)
       '@socketsecurity/registry':
         specifier: workspace:*
         version: link:registry
@@ -1576,6 +1575,15 @@ packages:
   '@socketregistry/which-typed-array@1.0.9':
     resolution: {integrity: sha512-SHikmWH1JumHKinsPLg0/kg/qKNNQH4fdYe/dd4mZ2NHP5wWGDcZyNCS7KaTnKWFi3/XZOR1iLYzo0I4QnHOQw==}
     engines: {node: '>=18'}
+
+  '@socketsecurity/lib@2.0.0':
+    resolution: {integrity: sha512-/PM92K2Xp9SIeOM8C/rxPzZzbZXkMCInEtsceVKQd5oRgTrNGS0VIHIgIIxCShC5IeGwMJKsgYezunv1NshdMw==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      typescript: 5.9.2
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   '@standard-schema/spec@1.0.0':
     resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
@@ -4899,6 +4907,10 @@ snapshots:
   '@socketregistry/safer-buffer@1.0.10': {}
 
   '@socketregistry/which-typed-array@1.0.9': {}
+
+  '@socketsecurity/lib@2.0.0(typescript@5.9.2)':
+    optionalDependencies:
+      typescript: 5.9.2
 
   '@standard-schema/spec@1.0.0': {}
 

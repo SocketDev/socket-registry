@@ -187,8 +187,7 @@
       "which-boxed-primitive": "npm:@socketregistry/which-boxed-primitive@1.0.9",
       "vite": "7.1.12",
       "which-collection": "npm:@socketregistry/which-collection@1.0.8",
-      "which-typed-array": "npm:@socketregistry/which-typed-array@1.0.9",
-      "@socketsecurity/lib": "link:../socket-lib"
+      "which-typed-array": "npm:@socketregistry/which-typed-array@1.0.9"
     },
     "patchedDependencies": {
       "brace-expansion@2.0.2": "patches/brace-expansion@2.0.2.patch",
