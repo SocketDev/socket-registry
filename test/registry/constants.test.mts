@@ -128,7 +128,7 @@ import {
   getTsLibsAvailable,
   getTsTypesAvailable,
 } from '@socketsecurity/lib/constants/typescript'
-import { npm_lifecycle_event as npmLifecycleEvent } from '@socketsecurity/lib/env/npm-lifecycle-event'
+import { getNpmLifecycleEvent } from '@socketsecurity/lib/env/npm'
 import { describe, expect, it } from 'vitest'
 
 const copyLeftLicenses = getCopyLeftLicenses()
@@ -433,7 +433,7 @@ describe('constants module', () => {
     })
 
     it('should export npm lifecycle event', () => {
-      expect(['string', 'undefined']).toContain(typeof npmLifecycleEvent)
+      expect(['string', 'undefined']).toContain(typeof getNpmLifecycleEvent())
     })
 
     it('should export exec path', () => {

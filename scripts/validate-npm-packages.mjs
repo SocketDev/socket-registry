@@ -9,7 +9,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { WIN32 } from '@socketsecurity/lib/constants/platform'
-import { CI } from '@socketsecurity/lib/env/ci'
+import { getCI } from '@socketsecurity/lib/env/ci'
 import { LOG_SYMBOLS, logger } from '@socketsecurity/lib/logger'
 import {
   readPackageJson,
@@ -36,7 +36,7 @@ const { values: cliArgs } = parseArgs({
   options: {
     concurrency: {
       type: 'string',
-      default: CI ? (WIN32 ? '10' : '20') : '50',
+      default: getCI() ? (WIN32 ? '10' : '20') : '50',
     },
     'temp-dir': {
       type: 'string',

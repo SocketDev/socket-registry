@@ -76,13 +76,13 @@ import { pathToFileURL } from 'node:url'
 import { NODE_MODULES, PACKAGE_JSON } from '@socketsecurity/lib/constants/paths'
 import { WIN32 } from '@socketsecurity/lib/constants/platform'
 import { getSpinner } from '@socketsecurity/lib/constants/process'
-import { CI } from '@socketsecurity/lib/env/ci'
+import { getCI } from '@socketsecurity/lib/env/ci'
 import { deleteAsync as del } from 'del'
 import { load as yamlLoad } from 'js-yaml'
 import pacote from 'pacote'
 import { c as tarCreate } from 'tar'
 
-const ENV = { CI }
+const ENV = { CI: getCI() }
 const spinner = getSpinner()
 
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
