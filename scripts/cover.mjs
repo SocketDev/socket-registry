@@ -20,6 +20,14 @@ import { runCommandQuiet } from './utils/run-command.mjs'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.join(__dirname, '..')
 
+// Prepare environment with memory limits.
+const envWithMemoryLimits = {
+  ...process.env,
+  // Memory limits: CI gets 8GB, local development gets 2GB to prevent system strain.
+  NODE_OPTIONS:
+    `${process.env.NODE_OPTIONS || ''} --max-old-space-size=${process.env.CI ? 8192 : 2048} --unhandled-rejections=warn`.trim(),
+}
+
 // Parse custom flags
 const { values } = parseArgs({
   options: {
@@ -54,6 +62,7 @@ try {
   if (values['type-only']) {
     typeCoverageResult = await runCommandQuiet('pnpm', typeCoverageArgs, {
       cwd: rootPath,
+      env: envWithMemoryLimits,
     })
     exitCode = typeCoverageResult.exitCode
 
@@ -78,6 +87,7 @@ try {
   else if (values['code-only']) {
     codeCoverageResult = await runCommandQuiet('pnpm', vitestArgs, {
       cwd: rootPath,
+      env: envWithMemoryLimits,
     })
     exitCode = codeCoverageResult.exitCode
 
@@ -156,12 +166,14 @@ try {
   else {
     codeCoverageResult = await runCommandQuiet('pnpm', vitestArgs, {
       cwd: rootPath,
+      env: envWithMemoryLimits,
     })
     exitCode = codeCoverageResult.exitCode
 
     // Run type coverage
     typeCoverageResult = await runCommandQuiet('pnpm', typeCoverageArgs, {
       cwd: rootPath,
+      env: envWithMemoryLimits,
     })
 
     // Combine and clean output - remove ANSI color codes and spinner artifacts.

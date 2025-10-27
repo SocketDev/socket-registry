@@ -248,8 +248,9 @@ async function runTests(options, positionals = []) {
     cwd: rootPath,
     env: {
       ...process.env,
+      // Memory limits: CI gets 8GB, local development gets 2GB to prevent system strain.
       NODE_OPTIONS:
-        `${process.env.NODE_OPTIONS || ''} --max-old-space-size=${process.env.CI ? 8192 : 4096} --unhandled-rejections=warn`.trim(),
+        `${process.env.NODE_OPTIONS || ''} --max-old-space-size=${process.env.CI ? 8192 : 2048} --unhandled-rejections=warn`.trim(),
     },
     stdio: 'inherit',
   }

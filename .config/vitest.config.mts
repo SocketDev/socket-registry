@@ -130,8 +130,9 @@ export default defineConfig({
       threads: {
         // Use single thread for coverage to reduce memory, parallel otherwise.
         singleThread: isCoverageEnabled,
-        maxThreads: isCoverageEnabled ? 1 : 16,
-        minThreads: isCoverageEnabled ? 1 : 4,
+        // Limit threads based on environment: CI can handle more parallelism.
+        maxThreads: isCoverageEnabled ? 1 : process.env.CI ? 16 : 4,
+        minThreads: isCoverageEnabled ? 1 : process.env.CI ? 4 : 2,
         // IMPORTANT: isolate: false for performance and test compatibility
         //
         // Tradeoff Analysis:
