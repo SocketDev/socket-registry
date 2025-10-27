@@ -5,9 +5,21 @@ import { Content as NPMCliPackageJson } from '@npmcli/package-json'
 import { SemVer } from 'semver'
 
 import { PackageURL } from '@socketregistry/packageurl-js'
-import { CategoryString, ManifestEntryData } from '@socketsecurity/registry'
 import { Remap } from '@socketsecurity/lib/objects'
 
+declare type CategoryString = 'cleanup' | 'levelup' | 'speedup' | 'tuneup'
+declare type InteropString = 'browserify' | 'cjs' | 'esm'
+declare type ManifestEntryData = {
+  categories?: CategoryString[] | undefined
+  deprecated?: boolean | undefined
+  engines?: Record<string, string> | undefined
+  interop?: InteropString[] | undefined
+  license?: string | undefined
+  name: string
+  package: string
+  version: string
+  [key: string]: unknown
+}
 declare type Action =
   | LicenseAction
   | NpmReadmeAction

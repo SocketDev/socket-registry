@@ -126,9 +126,6 @@ importers:
       '@socketsecurity/lib':
         specifier: 2.0.0
         version: 2.0.0(typescript@5.9.2)
-      '@socketsecurity/registry':
-        specifier: 2.0.0
-        version: link:registry
       '@types/fs-extra':
         specifier: 11.0.4
         version: 11.0.4
