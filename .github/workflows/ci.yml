@@ -8,7 +8,7 @@ name: 🔗 🚀 CI Pipeline
 #   - SocketDev/socket-registry/.github/workflows/types.yml
 #   - SocketDev/socket-registry/.github/workflows/test.yml
 #   - SocketDev/socket-registry/.github/actions/setup-and-install
-#   - actions/checkout@v5.0.0
+#   - actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
 on:
   workflow_call:
