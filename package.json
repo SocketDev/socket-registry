@@ -63,7 +63,7 @@
     "@socketregistry/scripts": "file:scripts",
     "@socketsecurity/lib": "2.1.0",
     "@types/fs-extra": "11.0.4",
-    "@types/node": "24.5.2",
+    "@types/node": "24.9.1",
     "@types/normalize-package-data": "2.4.4",
     "@types/npm-package-arg": "6.1.4",
     "@types/npmcli__package-json": "4.0.4",
@@ -142,7 +142,7 @@
       "unrs-resolver"
     ],
     "overrides": {
-      "@types/node": "24.6.2",
+      "@types/node": "24.9.1",
       "typescript": "5.9.2",
       "aggregate-error": "npm:@socketregistry/aggregate-error@1.0.15",
       "array-buffer-byte-length": "npm:@socketregistry/array-buffer-byte-length@1.0.7",

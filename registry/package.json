@@ -57,7 +57,7 @@
     "type-ci": "pnpm run check"
   },
   "devDependencies": {
-    "@types/node": "24.6.2",
+    "@types/node": "24.9.1",
     "del-cli": "6.0.0",
     "esbuild": "0.25.10",
     "fast-glob": "3.3.3",
