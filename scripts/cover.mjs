@@ -76,11 +76,11 @@ try {
 
     if (typeCoverageMatch) {
       const typeCoveragePercent = Number.parseFloat(typeCoverageMatch[1])
-      logger.log()
+      logger.log('')
       logger.log(' Coverage Summary')
       logger.log(' ───────────────────────────────')
       logger.log(` Type Coverage: ${typeCoveragePercent.toFixed(2)}%`)
-      logger.log()
+      logger.log('')
     }
   }
   // Handle --code-only flag
@@ -130,9 +130,9 @@ try {
           }
         : null
     if (!values.summary && testSummaryMatch) {
-      logger.log()
+      logger.log('')
       logger.log(testSummaryMatch[0])
-      logger.log()
+      logger.log('')
     }
 
     // Extract and display coverage summary
@@ -149,14 +149,14 @@ try {
         logger.log(coverageHeaderMatch[1])
         logger.log(allFilesMatch[0])
         logger.log(coverageHeaderMatch[1])
-        logger.log()
+        logger.log('')
       }
 
       const codeCoveragePercent = Number.parseFloat(allFilesMatch[1])
       logger.log(' Coverage Summary')
       logger.log(' ───────────────────────────────')
       logger.log(` Code Coverage: ${codeCoveragePercent.toFixed(2)}%`)
-      logger.log()
+      logger.log('')
     } else if (exitCode !== 0) {
       logger.log('\n--- Output ---')
       logger.log(output)
@@ -231,9 +231,9 @@ try {
 
     // Display clean output
     if (!values.summary && testSummaryMatch) {
-      logger.log()
+      logger.log('')
       logger.log(testSummaryMatch[0])
-      logger.log()
+      logger.log('')
     }
 
     if (coverageHeaderMatch && allFilesMatch) {
@@ -249,7 +249,7 @@ try {
         logger.log(allFilesMatch[0])
         // Bottom border.
         logger.log(coverageHeaderMatch[1])
-        logger.log()
+        logger.log('')
       }
 
       // Display type coverage and cumulative summary
@@ -267,7 +267,7 @@ try {
         logger.log(` Code Coverage: ${codeCoveragePercent.toFixed(2)}%`)
         logger.log(' ───────────────────────────────')
         logger.log(` Cumulative:    ${cumulativePercent}%`)
-        logger.log()
+        logger.log('')
       }
     }
   }
