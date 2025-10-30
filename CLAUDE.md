@@ -102,11 +102,16 @@ import colors from 'yoctocolors-cjs'
 - **Migration**: Quick internal updates preferred over gradual deprecation
 
 ### Safe File Operations (SECURITY CRITICAL)
-- **MANDATORY**: Use `del` package for deletions
-- **Usage**: `import { deleteAsync as del } from 'del'` then `await del(paths)`
-- **Temp directories**: Use `{ force: true }` option when deleting temp dirs outside CWD
-- **Comment usage**: Always comment `{ force: true }` explaining why (e.g., "Force delete temp directory outside CWD.")
-- **FORBIDDEN**: `fs.rm()`, `fs.rmSync()`, `rm -rf` commands
+- **Use safeDelete**: Import from `@socketsecurity/lib/fs`
+- **Source code**: Use `safeDelete()` or `safeDeleteSync()` with error handling
+- **Scripts**: Use `safeDelete()` or `safeDeleteSync()` from `@socketsecurity/lib/fs`
+- **package.json scripts**: Use `del-cli` for inline script situations
+- **NO fs.rm/rmSync**: 🚨 ABSOLUTELY FORBIDDEN - NEVER `fs.rm()`, `fs.rmSync()`, or `rm -rf`
+- **Examples**:
+  - ✅ Source/Scripts: `import { safeDelete } from '@socketsecurity/lib/fs'` then `await safeDelete(tmpDir)`
+  - ✅ Sync version: `import { safeDeleteSync } from '@socketsecurity/lib/fs'` then `safeDeleteSync(tmpDir)`
+  - ✅ package.json: `"clean": "del-cli dist/**"`
+  - ❌ FORBIDDEN: `fs.rm()`, `fs.rmSync()`, `rm -rf`, `del` package, `trash` package
 
 ### Work Safeguards (CRITICAL - PREVENTS DATA LOSS)
 
@@ -263,7 +268,7 @@ See `test/utils/TEST_HELPERS_README.md` for:
 - **Pool**: `pool: 'forks'`, `singleFork: true`, `maxForks: 1`, `isolate: true`
 - **Timeouts**: `testTimeout: 60_000, hookTimeout: 60_000`
 - **Threads**: `singleThread: true, maxThreads: 1`
-- **Cleanup**: `await trash(paths)` for all test cleanup
+- **Cleanup**: `await safeDelete(paths)` from `@socketsecurity/lib/fs` for all test cleanup
 
 ### Package Management
 - **pnpm only** (not npm)
@@ -459,7 +464,7 @@ Decision tree:
 
 ### Dependency Alignment (MANDATORY)
 - **Core deps**: @typescript/native-preview (tsgo), @types/node, typescript-eslint (unified only)
-- **DevDeps**: @biomejs/biome, @dotenvx/dotenvx, @vitest/coverage-v8, eslint, eslint-plugin-*, globals, husky, knip, lint-staged, npm-run-all2, taze, trash, type-coverage, vitest, yargs-parser, yoctocolors-cjs
+- **DevDeps**: @biomejs/biome, @dotenvx/dotenvx, @vitest/coverage-v8, del-cli, eslint, eslint-plugin-*, globals, husky, knip, lint-staged, npm-run-all2, taze, type-coverage, vitest, yargs-parser, yoctocolors-cjs
 - **FORBIDDEN**: Separate @typescript-eslint/* packages; use unified `typescript-eslint`
 - **TSGO PRESERVATION**: Never replace tsgo with tsc
 - **Update**: Use `pnpm run taze` to check/apply updates across all Socket projects
