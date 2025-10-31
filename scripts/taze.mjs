@@ -16,11 +16,15 @@ async function main() {
   // Run with command line arguments.
   const args = process.argv.slice(2)
 
-  const tazePromise = spawn('pnpm', ['taze', ...args], {
-    cwd: process.cwd(),
-    shell: WIN32,
-    stdio: 'pipe',
-  })
+  const tazePromise = spawn(
+    'pnpm',
+    ['taze', '--config', '.config/taze.config.mts', ...args],
+    {
+      cwd: process.cwd(),
+      shell: WIN32,
+      stdio: 'pipe',
+    },
+  )
 
   let hasProvenanceDowngrade = false
 
