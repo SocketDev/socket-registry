@@ -24,7 +24,7 @@ jobs:
       lint-setup-script: 'pnpm run build'
       node-versions: '[20, 22, 24]'
       os-versions: '["ubuntu-latest", "windows-latest"]'
-      test-script: 'pnpm run test --all'
+      test-script: 'pnpm run test --all --fast'
       test-setup-script: 'pnpm run build'
       type-check-script: 'pnpm run check'
       type-check-setup-script: 'pnpm run build'
