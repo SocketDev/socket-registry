@@ -1,0 +1,23 @@
+name: 'Cache Build Artifacts'
+description: 'Cache dist/ directory to speed up CI builds'
+author: 'Socket Inc'
+
+inputs:
+  node-version:
+    description: 'Node.js version for cache key'
+    required: false
+    default: '22'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Cache build artifacts
+      uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+      with:
+        path: |
+          registry/dist
+          **/*.tsbuildinfo
+        key: build-${{ runner.os }}-node-${{ inputs.node-version }}-${{ hashFiles('registry/src/**/*.ts', 'registry/tsconfig*.json', 'tsconfig.json') }}
+        restore-keys: |
+          build-${{ runner.os }}-node-${{ inputs.node-version }}-
+          build-${{ runner.os }}-
