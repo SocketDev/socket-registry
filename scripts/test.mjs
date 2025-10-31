@@ -124,7 +124,7 @@ async function runCheck() {
 
   // Run fix (auto-format) quietly since it has its own output
   spinner.start('Formatting code...')
-  let exitCode = await runCommand('pnpm', ['run', 'fix'], {
+  const exitCode = await runCommand('pnpm', ['run', 'fix'], {
     stdio: 'pipe',
   })
   if (exitCode !== 0) {
@@ -137,22 +137,31 @@ async function runCheck() {
   spinner.stop()
   logger.success('Code formatted')
 
-  // Run ESLint to check for remaining issues
-  spinner.start('Running ESLint...')
-  exitCode = await runCommand(
-    'eslint',
-    [
-      '--config',
-      '.config/eslint.config.mjs',
-      '--report-unused-disable-directives',
-      '.',
-    ],
-    {
+  // Run ESLint and TypeScript in parallel for faster execution
+  spinner.start('Running ESLint and TypeScript checks...')
+
+  const [eslintExitCode, tsExitCode] = await Promise.all([
+    runCommand(
+      'eslint',
+      [
+        '--config',
+        '.config/eslint.config.mjs',
+        '--report-unused-disable-directives',
+        '.',
+      ],
+      {
+        stdio: 'pipe',
+      },
+    ),
+    runCommand('tsgo', ['--noEmit', '-p', 'tsconfig.json'], {
       stdio: 'pipe',
-    },
-  )
-  if (exitCode !== 0) {
-    spinner.stop()
+    }),
+  ])
+
+  spinner.stop()
+
+  // Check results and re-run with output if either failed
+  if (eslintExitCode !== 0) {
     logger.error('ESLint failed')
     // Re-run with output to show errors
     await runCommand('eslint', [
@@ -161,27 +170,19 @@ async function runCheck() {
       '--report-unused-disable-directives',
       '.',
     ])
-    return exitCode
+    return eslintExitCode
   }
-  spinner.stop()
   logger.success('ESLint passed')
 
-  // Run TypeScript check
-  spinner.start('Checking TypeScript...')
-  exitCode = await runCommand('tsgo', ['--noEmit', '-p', 'tsconfig.json'], {
-    stdio: 'pipe',
-  })
-  if (exitCode !== 0) {
-    spinner.stop()
+  if (tsExitCode !== 0) {
     logger.error('TypeScript check failed')
     // Re-run with output to show errors.
     await runCommand('tsgo', ['--noEmit', '-p', 'tsconfig.json'])
-    return exitCode
+    return tsExitCode
   }
-  spinner.stop()
   logger.success('TypeScript check passed')
 
-  return exitCode
+  return 0
 }
 
 async function runBuild() {
