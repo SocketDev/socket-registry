@@ -23,6 +23,8 @@ const rootPath = path.join(__dirname, '..')
 // Prepare environment with memory limits.
 const envWithMemoryLimits = {
   ...process.env,
+  // Enable coverage detection in vitest configs.
+  COVERAGE: 'true',
   // Memory limits: CI gets 8GB, local development gets 2GB to prevent system strain.
   NODE_OPTIONS:
     `${process.env.NODE_OPTIONS || ''} --max-old-space-size=${process.env.CI ? 8192 : 2048} --unhandled-rejections=warn`.trim(),

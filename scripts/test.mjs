@@ -168,18 +168,14 @@ async function runCheck() {
 
   // Run TypeScript check
   spinner.start('Checking TypeScript...')
-  exitCode = await runCommand(
-    'tsgo',
-    ['--noEmit', '-p', '.config/tsconfig.check.json'],
-    {
-      stdio: 'pipe',
-    },
-  )
+  exitCode = await runCommand('tsgo', ['--noEmit', '-p', 'tsconfig.json'], {
+    stdio: 'pipe',
+  })
   if (exitCode !== 0) {
     spinner.stop()
     logger.error('TypeScript check failed')
-    // Re-run with output to show errors
-    await runCommand('tsgo', ['--noEmit', '-p', '.config/tsconfig.check.json'])
+    // Re-run with output to show errors.
+    await runCommand('tsgo', ['--noEmit', '-p', 'tsconfig.json'])
     return exitCode
   }
   spinner.stop()

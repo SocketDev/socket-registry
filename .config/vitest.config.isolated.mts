@@ -2,12 +2,18 @@
  * @fileoverview Vitest configuration for tests requiring full isolation.
  * Used for tests that need vi.doMock() or other module-level mocking.
  */
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
 import { defineConfig } from 'vitest/config'
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
 // Check if coverage is enabled via CLI flags or environment.
+// Primary check: COVERAGE env var (set by scripts/cover.mjs).
+// Fallback: Check process.argv for --coverage flag.
 const isCoverageEnabled =
   process.env.COVERAGE === 'true' ||
-  process.env.npm_lifecycle_event?.includes('coverage') ||
   process.argv.some(arg => arg.includes('coverage'))
 
 export default defineConfig({
@@ -16,7 +22,8 @@ export default defineConfig({
     environment: 'node',
     include: ['test/**/*.test.{js,ts,mjs,mts,cjs}'],
     reporters: ['default'],
-    setupFiles: ['./test/utils/setup.mts'],
+    globalSetup: [path.resolve(__dirname, 'vitest-global-setup.mts')],
+    setupFiles: ['./test/setup.mts'],
     // Use forks for full isolation
     pool: 'forks',
     poolOptions: {

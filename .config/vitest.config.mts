@@ -6,11 +6,10 @@ import { defineConfig } from 'vitest/config'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // Check if coverage is enabled via CLI flags or environment.
-// Note: process.argv doesn't include vitest CLI args at config load time,
-// so we check environment variables and use a heuristic based on npm script.
+// Primary check: COVERAGE env var (set by scripts/cover.mjs).
+// Fallback: Check process.argv for --coverage flag.
 const isCoverageEnabled =
   process.env.COVERAGE === 'true' ||
-  process.env.npm_lifecycle_event?.includes('coverage') ||
   process.argv.some(arg => arg.includes('coverage'))
 
 const projectRoot = path.resolve(__dirname, '..')

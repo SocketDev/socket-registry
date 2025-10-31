@@ -8,9 +8,11 @@ import { createRequireTransformPlugin } from './vitest-plugins/require-transform
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(__dirname, '..')
 
+// Check if coverage is enabled via CLI flags or environment.
+// Primary check: COVERAGE env var (set by scripts/cover.mjs).
+// Fallback: Check process.argv for --coverage flag.
 const isCoverageEnabled =
   process.env.COVERAGE === 'true' ||
-  process.env.npm_lifecycle_event?.includes('coverage') ||
   process.argv.some(arg => arg.includes('coverage'))
 
 export default defineConfig({
