@@ -270,6 +270,33 @@ See `test/utils/TEST_HELPERS_README.md` for:
 - **Threads**: `singleThread: true, maxThreads: 1`
 - **Cleanup**: `await safeDelete(paths)` from `@socketsecurity/lib/fs` for all test cleanup
 
+### Vitest Configuration Variants
+
+Three configurations available for different use cases:
+
+**Main Config: `.config/vitest.config.mts`** (default)
+- Used by `pnpm test` and test scripts
+- Pool: threads (4 max) for speed
+- Timeout: 10s
+- Coverage: 1-80% thresholds (pragmatic)
+- Use: Normal development and CI test runs
+
+**Isolated Config: `.config/vitest.config.isolated.mts`**
+- Full process isolation for module-level mocking
+- Pool: forks (8 max) for true isolation
+- Timeout: 10s
+- Coverage: 99% thresholds (strict)
+- Use: Tests requiring `vi.doMock()` or complex module mocking
+- Run: `vitest --config .config/vitest.config.isolated.mts`
+
+**Optimized Config: `.config/vitest.config.optimized.mts`**
+- Speed-optimized with lower thresholds
+- Pool: threads (unlimited parallel)
+- Timeout: 30s (longer for slower operations)
+- Coverage: 55% thresholds, `skipFull: true`
+- Use: Quick validation, pre-commit checks
+- Run: `vitest --config .config/vitest.config.optimized.mts`
+
 ### Package Management
 - **pnpm only** (not npm)
 - **Add deps**: `pnpm add <pkg> --save-exact` (exact versions, no `^`/`~`)
