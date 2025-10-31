@@ -4,12 +4,19 @@ Thumbs.db
 /.claude
 /.env
 /.env.local
+/.env.*.local
 /.pnpmfile.cjs
 /.nvm
 /.type-coverage
 /.vscode
 /npm-debug.log
 /yarn.lock
+
+# Editor files
+*.swp
+*.swo
+#*#
+.#*
 **/.cache
 **/coverage
 **/dist
