@@ -89,4 +89,4 @@ jobs:
             GLOB_FLAG="--glob '${{ inputs.glob-pattern }}'"
           fi
 
-          pnpm dlx @socketsecurity/cli fix $AUTOPILOT_FLAG $GLOB_FLAG
+          pnpm --package=@socketsecurity/cli dlx socket fix $AUTOPILOT_FLAG $GLOB_FLAG
