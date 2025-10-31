@@ -2,10 +2,6 @@
 
 This directory contains reusable test helper utilities that reduce boilerplate and improve test maintainability across the socket-registry project.
 
-**For detailed usage examples, migration guide, and comprehensive documentation, see [test/utils/TEST_HELPERS_README.md](../test/utils/TEST_HELPERS_README.md).**
-
----
-
 ## Available Helpers
 
 ### 1. NPM Package Helper (`npm-package-helper.mts`)
