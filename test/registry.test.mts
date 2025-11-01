@@ -52,7 +52,10 @@ describe(SOCKET_REGISTRY_PACKAGE_NAME, () => {
     })
 
     it('should return undefined when ecosystem exists but package does not', () => {
-      const result = registry.getManifestData('npm', 'definitely-does-not-exist-123')
+      const result = registry.getManifestData(
+        'npm',
+        'definitely-does-not-exist-123',
+      )
       expect(result).toBeUndefined()
     })
   })

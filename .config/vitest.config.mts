@@ -123,9 +123,7 @@ export default defineConfig({
         : [toPosixPath(path.resolve(projectRoot, 'test/npm/**'))]),
       // Exclude packages test from coverage runs - it requires() all 200+ npm packages
       // which pollutes coverage with unrelated code
-      ...(process.env.COVERAGE === 'true'
-        ? ['**/test/packages.test.mts']
-        : []),
+      ...(process.env.COVERAGE === 'true' ? ['**/test/packages.test.mts'] : []),
     ],
     reporters: ['default'],
     // Use threads for better performance
