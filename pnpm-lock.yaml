@@ -124,8 +124,8 @@ importers:
         specifier: file:scripts
         version: scripts@file:scripts
       '@socketsecurity/lib':
-        specifier: 3.0.3
-        version: 3.0.3(typescript@5.9.2)
+        specifier: 3.0.4
+        version: 3.0.4(typescript@5.9.2)
       '@types/fs-extra':
         specifier: 11.0.4
         version: 11.0.4
@@ -1729,8 +1729,8 @@ packages:
     resolution: {integrity: sha512-SHikmWH1JumHKinsPLg0/kg/qKNNQH4fdYe/dd4mZ2NHP5wWGDcZyNCS7KaTnKWFi3/XZOR1iLYzo0I4QnHOQw==}
     engines: {node: '>=18'}
 
-  '@socketsecurity/lib@3.0.3':
-    resolution: {integrity: sha512-TPwQQO9slv2qWEfoY8E+/o2SHEfVNwz5VDMHOC9XSA/jJq3lwfay8dXhllkA+QhzL/13DBOg+Wnw31IeZZ+1eA==}
+  '@socketsecurity/lib@3.0.4':
+    resolution: {integrity: sha512-SI1pbgmNgkWcorSH5J6nKQM23vNIUH+ytApm7dR/Ai5WcY63v1aU73EZOXx8mOFxXIKdEWLSHym+1PaKdn3Bow==}
     engines: {node: '>=22'}
     peerDependencies:
       typescript: 5.9.2
@@ -5144,7 +5144,7 @@ snapshots:
 
   '@socketregistry/which-typed-array@1.0.9': {}
 
-  '@socketsecurity/lib@3.0.3(typescript@5.9.2)':
+  '@socketsecurity/lib@3.0.4(typescript@5.9.2)':
     optionalDependencies:
       typescript: 5.9.2
 
