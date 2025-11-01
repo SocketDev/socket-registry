@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * @fileoverview Main entry point for Claude Code utilities.
  * Routes commands to appropriate modules and handles CLI argument parsing.

@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * @fileoverview Claude Code-powered utilities for Socket projects.
  * Provides various AI-assisted development tools and automations using Claude Code CLI.
