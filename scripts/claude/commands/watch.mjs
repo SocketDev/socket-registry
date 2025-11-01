@@ -12,12 +12,7 @@ import {
   autonomousFixSession,
   scanProjectForIssues,
 } from '../automated-fixing.mjs'
-import {
-  log,
-  parentPath,
-  rootPath,
-  SOCKET_PROJECTS,
-} from '../config.mjs'
+import { log, parentPath, rootPath, SOCKET_PROJECTS } from '../config.mjs'
 import { printHeader } from '../utils/formatting.mjs'
 
 /**

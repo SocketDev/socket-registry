@@ -7,11 +7,7 @@ import { spawn } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 
-import {
-  SOCKET_PROJECTS,
-  parentPath,
-  rootPath,
-} from '../config.mjs'
+import { SOCKET_PROJECTS, parentPath, rootPath } from '../config.mjs'
 import {
   log,
   prepareClaudeArgs,

@@ -28,7 +28,11 @@ import { CostTracker } from '../cost-tracker.mjs'
 import { ProgressTracker } from '../progress-tracker.mjs'
 import { SnapshotManager } from '../snapshot-manager.mjs'
 import { cleanupOldData, initStorage } from '../storage.mjs'
-import { formatDuration, printFooter, printHeader } from '../utils/formatting.mjs'
+import {
+  formatDuration,
+  printFooter,
+  printHeader,
+} from '../utils/formatting.mjs'
 
 const WIN32 = process.platform === 'win32'
 

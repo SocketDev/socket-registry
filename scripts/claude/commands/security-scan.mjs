@@ -8,12 +8,7 @@ import path from 'node:path'
 
 import colors from 'yoctocolors-cjs'
 
-import {
-  SOCKET_PROJECTS,
-  claudeDir,
-  parentPath,
-  rootPath,
-} from '../config.mjs'
+import { SOCKET_PROJECTS, claudeDir, parentPath, rootPath } from '../config.mjs'
 import { buildEnhancedPrompt } from '../prompt-builder.mjs'
 import {
   ensureClaudeInGitignore,

@@ -3,10 +3,19 @@
  * Re-exports commonly used functions from specialized modules.
  */
 
-import { prepareClaudeArgs, runClaude, runCommand, runCommandWithOutput } from './command-execution.mjs'
+import {
+  prepareClaudeArgs,
+  runClaude,
+  runCommand,
+  runCommandWithOutput,
+} from './command-execution.mjs'
 import { log } from './config.mjs'
 import { getSmartContext as baseGetSmartContext } from './model-strategy.mjs'
-import { executeParallel, runParallel, shouldRunParallel } from './parallel-execution.mjs'
+import {
+  executeParallel,
+  runParallel,
+  shouldRunParallel,
+} from './parallel-execution.mjs'
 import { ensureClaudeInGitignore } from './project-sync.mjs'
 import { printFooter, printHeader } from './utils/formatting.mjs'
 
