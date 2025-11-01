@@ -250,7 +250,7 @@ itOnWindows('should handle Windows paths', () => {
 })
 ```
 
-See [test-helpers.md](./test-helpers.md) for complete guide.
+See [test/utils/TEST_HELPERS_README.md](../test/utils/TEST_HELPERS_README.md) for complete guide.
 
 ## Project Standards
 
@@ -334,7 +334,7 @@ git commit
 
 1. **Read the docs:**
    - [CLAUDE.md](../CLAUDE.md) - Project standards (essential reading!)
-   - [test-helpers.md](./test-helpers.md) - Testing utilities
+   - [test/utils/TEST_HELPERS_README.md](../test/utils/TEST_HELPERS_README.md) - Testing utilities
    - [package-testing-guide.md](./package-testing-guide.md) - Package testing
    - [http-utilities.md](./http-utilities.md) - HTTP utilities
 
@@ -386,7 +386,7 @@ git commit
 
 - **Main README**: [../README.md](../README.md)
 - **Project standards**: [../CLAUDE.md](../CLAUDE.md)
-- **Test helpers**: [test-helpers.md](./test-helpers.md)
+- **Test helpers**: [../test/utils/TEST_HELPERS_README.md](../test/utils/TEST_HELPERS_README.md)
 - **Package testing**: [package-testing-guide.md](./package-testing-guide.md)
 - **HTTP utilities**: [http-utilities.md](./http-utilities.md)
 

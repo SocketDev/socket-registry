@@ -14,8 +14,21 @@ This guide provides a comprehensive approach to prevent recurring CI failures in
 
 ## Quick Start
 
-Before releasing any package override (socket-registry only):
+**Pre-release checklist for package overrides:**
 
+```
+          Validate
+             ↓
+    ┌────────┴────────┐
+    │                 │
+Structure Tests    CI Environment
+    │                 │
+    └────────┬────────┘
+             ↓
+          Release
+```
+
+**Commands:**
 ```bash
 # Validate package structure and tests
 pnpm run validate:packages --package <package-name>
@@ -26,14 +39,30 @@ pnpm run validate:ci --package <package-name>
 
 ## Overview
 
-Package override tests have been a recurring source of CI failures. This guide and tooling provide a systematic approach to:
+**Testing workflow:**
 
-1. **Prevent** issues before they reach CI
-2. **Detect** problems early in development
-3. **Diagnose** failures quickly when they occur
-4. **Fix** root causes, not symptoms
+```
+Development → Local Tests → CI Validation → Release
+     ↓             ↓              ↓
+  Prevent      Detect        Diagnose & Fix
+```
+
+This guide provides a systematic approach to:
+
+1. **Prevent** — Stop issues before they reach CI
+2. **Detect** — Find problems early in development
+3. **Diagnose** — Quickly identify failure causes
+4. **Fix** — Address root causes, not symptoms
 
 ## Common Failure Categories
+
+```
+Failures fall into 4 categories:
+  1. Module Resolution    → Path/import issues
+  2. Test Infrastructure  → Missing test setup
+  3. ESLint Config       → Linter plugin errors
+  4. Parsing Errors      → Syntax/module type issues
+```
 
 ### 1. Module Resolution Failures
 
@@ -50,11 +79,11 @@ Package override tests have been a recurring source of CI failures. This guide a
 
 **Prevention:**
 ```javascript
-// ✗ WRONG
+// ✗ WRONG - Hard-coded paths
 import foo from '../../node_modules/foo'
 import bar from 'node_modules/.pnpm/bar@1.0.0/node_modules/bar'
 
-// ✓ CORRECT
+// ✓ CORRECT - Use package names
 import foo from 'foo'
 import bar from 'bar'
 ```

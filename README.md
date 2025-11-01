@@ -21,10 +21,20 @@ the Socket Registry.
 
 ## What Are Package Overrides?
 
-Package overrides are improved versions of existing npm packages that:
+Package overrides are improved versions of existing npm packages:
 
-- **Cleanup** ✨ — Reduce dependencies and replace polyfills with built-in
-  equivalents
+```
+Original Package          Socket Override
+     ↓                         ↓
+  Cleanup  ✨  →  Reduce dependencies, use built-ins
+  Levelup  🧩  →  Add features, modern APIs
+  Speedup  ⚡  →  Optimize performance
+  Tuneup   🔧  →  Fix CVEs, maintain compatibility
+```
+
+**Four types of improvements:**
+
+- **Cleanup** ✨ — Reduce dependencies and replace polyfills with built-in equivalents
 - **Levelup** 🧩 — Add new features and leverage modern platform APIs
 - **Speedup** ⚡ — Boost performance with optimized implementations
 - **Tuneup** 🔧 — Address CVEs in outdated or unmaintained packages
@@ -55,24 +65,33 @@ See the [registry README](./registry/README.md) for API documentation.
 
 ## Contributing
 
-Create a new override in three simple steps:
+Create a new override in three steps:
+
+```
+Step 1              Step 2              Step 3
+Install       →     Generate      →     Complete
+  ↓                   ↓                   ↓
+pnpm install    make:npm-override    Fill TODOs + Test
+```
+
+**Detailed workflow:**
 
 1. **Install dependencies:**
-
-```bash
-pnpm install
-```
+   ```bash
+   pnpm install
+   ```
 
 2. **Run the wizard:**
-
-```bash
-pnpm run make:npm-override [<package-name>]
-```
+   ```bash
+   pnpm run make:npm-override [<package-name>]
+   ```
 
 3. **Complete the override:**
    - Follow the prompts to scaffold your override
    - Fill in all `TODO:` commented sections
    - Run tests with `pnpm test`
    - Commit and send a pull request
+
+**Need help?** See [docs/getting-started.md](./docs/getting-started.md) for comprehensive guide.
 
 Inspired by [e18e](https://e18e.dev/).
