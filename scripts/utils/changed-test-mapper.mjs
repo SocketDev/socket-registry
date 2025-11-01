@@ -13,6 +13,13 @@ import {
 import { normalizePath } from '@socketsecurity/lib/path'
 
 const rootPath = path.resolve(process.cwd())
+const DEBUG = process.env.DEBUG_TEST_MAPPER === '1'
+
+function debug(message) {
+  if (DEBUG) {
+    console.log(`[test-mapper] ${message}`)
+  }
+}
 
 /**
  * Core files that require running all tests when changed.
@@ -32,8 +39,7 @@ const CORE_FILES = [
 
 /**
  * Map source files to their corresponding test files.
- * @param {string} filepath - Path to source file
- * @returns {string[]} Array of test file paths
+ * Returns array of test paths or ['all'] for core files.
  */
 function mapSourceToTests(filepath) {
   const normalized = normalizePath(filepath)
@@ -56,7 +62,13 @@ function mapSourceToTests(filepath) {
 
   // Check if corresponding test exists
   if (existsSync(path.join(rootPath, testFile))) {
+    debug(`Mapped ${normalized} to ${testFile}`)
     return [testFile]
+  }
+
+  // Warn if mapped test file is missing
+  if (process.env.NODE_ENV !== 'test') {
+    console.warn(`Warning: Expected test file not found: ${testFile}`)
   }
 
   // Special mappings
@@ -79,13 +91,20 @@ function mapSourceToTests(filepath) {
 
 /**
  * Get affected test files to run based on changed files.
- * @param {Object} options
- * @param {boolean} options.staged - Use staged files instead of all changes
- * @param {boolean} options.all - Run all tests
- * @returns {{tests: string[] | 'all' | null, reason?: string, mode?: string}} Object with test patterns, reason, and mode
+ * Returns all tests in CI environment or when explicitly requested.
+ * Returns null if no changes detected. Returns specific test files
+ * based on source file mappings otherwise.
+ *
+ * @throws {Error} When root path does not exist.
+ * @throws {Error} When git detection fails.
  */
 export function getTestsToRun(options = {}) {
   const { all = false, staged = false } = options
+
+  // Validate root path exists
+  if (!existsSync(rootPath)) {
+    throw new Error(`Root path does not exist: "${rootPath}"`)
+  }
 
   // All mode runs all tests
   if (all || process.env.FORCE_TEST === '1') {
@@ -97,9 +116,22 @@ export function getTestsToRun(options = {}) {
     return { tests: 'all', reason: 'CI environment', mode: 'all' }
   }
 
-  // Get changed files
-  const changedFiles = staged ? getStagedFilesSync() : getChangedFilesSync()
+  // Get changed files with error handling
+  let changedFiles
+  try {
+    changedFiles = staged ? getStagedFilesSync() : getChangedFilesSync()
+  } catch (e) {
+    // Fallback to all tests if git detection fails
+    debug(`Git detection failed: ${e.message}`)
+    return {
+      tests: 'all',
+      reason: 'git detection failed',
+      mode: 'all',
+    }
+  }
+
   const mode = staged ? 'staged' : 'changed'
+  debug(`Found ${changedFiles.length} changed files (${mode})`)
 
   if (changedFiles.length === 0) {
     // No changes, skip tests
@@ -165,12 +197,24 @@ export function getTestsToRun(options = {}) {
   }
 
   if (runAllTests) {
+    debug(`Running all tests: ${runAllReason}`)
     return { tests: 'all', reason: runAllReason, mode: 'all' }
   }
 
   if (testFiles.size === 0) {
+    // If we had source changes but no valid tests, run all tests for safety
+    if (changedFiles.length > 0) {
+      debug('No valid test mappings found, running all tests for safety')
+      return {
+        tests: 'all',
+        reason: 'no valid test mappings found',
+        mode: 'all',
+      }
+    }
     return { tests: null, mode }
   }
 
-  return { tests: Array.from(testFiles), mode }
+  const tests = Array.from(testFiles)
+  debug(`Running ${tests.length} specific test(s): ${tests.join(', ')}`)
+  return { tests, mode }
 }
