@@ -21,6 +21,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   createTypeCheckerTests({
     checkerFn: isRegex,
     invalidValues: createInvalidValuesExcluding(['regexp']),
+    skip,
     toStringTagTests: true,
     typeName: 'RegExp',
     validValues: [/a/g, /test/, /^[a-z]+$/i],
