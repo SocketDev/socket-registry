@@ -533,9 +533,9 @@ Decision tree:
 - **Test npm packages**: `node scripts/test-npm-packages.mjs` (long-running, tests all overrides)
 
 ### Build System
-- Rollup for external dependencies
-- TypeScript → CommonJS
-- Post-build transform: `exports.default = val` → `module.exports = val`
+- esbuild for fast compilation (registry)
+- TypeScript → CommonJS (unminified for better Node ESM interop)
+- Post-build transform: Converts esbuild wrappers to clear `module.exports = { ... }` for Node ESM named imports
 - Multiple env configs: `.env.local`, `.env.test`, `.env.external`
 - Linting: eslint
 - Formatting: Biome

@@ -65,8 +65,9 @@ export const buildConfig = {
   platform: 'node',
   target: 'node18',
   sourcemap: true,
-  // Minify for production builds (can be overridden in watch mode)
-  minify: true,
+  // Disable minification for better Node ESM interop
+  // Node ESM requires clear exports: module.exports = { foo, bar }
+  minify: false,
   // Tree-shaking optimization
   treeShaking: true,
   metafile: true,

@@ -121,6 +121,11 @@ export default defineConfig({
       ...(process.env.INCLUDE_NPM_TESTS
         ? []
         : [toPosixPath(path.resolve(projectRoot, 'test/npm/**'))]),
+      // Exclude packages test from coverage runs - it requires() all 200+ npm packages
+      // which pollutes coverage with unrelated code
+      ...(process.env.COVERAGE === 'true'
+        ? ['**/test/packages.test.mts']
+        : []),
     ],
     reporters: ['default'],
     // Use threads for better performance
@@ -167,29 +172,31 @@ export default defineConfig({
       provider: 'v8',
       reportsDirectory: 'coverage',
       reporter: ['text', 'json', 'html', 'lcov', 'clover'],
+      // ONLY include registry/src production code (not types.ts)
+      include: ['registry/src/index.{ts,mts,cts}'],
+      // Exclude everything else (must include vitest defaults)
       exclude: [
-        '**/*.config.*',
-        '**/node_modules/**',
-        '**/[.]**',
-        '**/*.d.ts',
-        '**/virtual:*',
+        // Vitest defaults
         'coverage/**',
-        'test/**',
-        'packages/**',
-        'perf/**',
         'dist/**',
-        // Exclude everything in registry except src/
+        'packages/**',
+        '**/[.]**',
+        '**/*.config.*',
+        '**/*.d.ts',
+        '**/node_modules/**',
+        '**/virtual:*',
+        // Our exclusions
+        'test/**',
+        'scripts/**',
+        'perf/**',
+        'registry/src/types.ts',
+        'registry/src/external/**',
         'registry/scripts/**',
         'registry/plugins/**',
         'registry/dist/**',
-        'registry/src/external/**',
-        'registry/src/types.ts',
-        // Explicitly exclude at root level
-        'scripts/**',
       ],
-      // Only include registry/src/ files for coverage instrumentation
-      include: ['registry/src/**/*.{ts,mts,cts}'],
-      all: true,
+      // Set to false to ONLY report files in include list that are executed
+      all: false,
       clean: true,
       skipFull: false,
       ignoreClassMethods: ['constructor'],

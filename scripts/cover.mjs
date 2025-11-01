@@ -53,6 +53,8 @@ const vitestArgs = [
   'vitest',
   'run',
   '--coverage',
+  // Exclude packages test - it imports all 200+ npm packages which pollutes coverage
+  '--exclude=test/packages.test.mts',
   ...process.argv.slice(2).filter(arg => !customFlags.includes(arg)),
 ]
 const typeCoverageArgs = ['exec', 'type-coverage']

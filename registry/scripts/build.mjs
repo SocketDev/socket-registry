@@ -66,6 +66,25 @@ async function buildSource(options = {}) {
     })
     const buildTime = Date.now() - startTime
 
+    // Run post-build transform for Node ESM interop
+    const transformExitCode = await runSequence([
+      {
+        args: ['scripts/post-build-transform.mjs'],
+        command: 'node',
+        options: {
+          cwd: rootPath,
+          ...(process.platform === 'win32' && { shell: true }),
+        },
+      },
+    ])
+
+    if (transformExitCode !== 0) {
+      if (!quiet) {
+        logger.error('Post-build transform failed')
+      }
+      return { exitCode: transformExitCode, buildTime, result: null }
+    }
+
     return { exitCode: 0, buildTime, result }
   } catch (error) {
     if (!quiet) {
