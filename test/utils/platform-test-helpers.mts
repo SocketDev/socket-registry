@@ -225,3 +225,150 @@ export function getPlatformTempDir(): string {
     ? (process.env['TEMP'] ?? process.env['TMP'] ?? 'C:\\Windows\\Temp')
     : (process.env['TMPDIR'] ?? '/tmp')
 }
+
+/**
+ * JavaScript feature detection.
+ * Checks for availability of built-in types and features.
+ */
+export const features = {
+  hasMap: typeof Map === 'function',
+  hasSet: typeof Set === 'function',
+  hasSymbol: typeof Symbol === 'function',
+  hasWeakMap: typeof WeakMap === 'function',
+  hasWeakSet: typeof WeakSet === 'function',
+} as const
+
+/**
+ * Conditionally run tests only when Map is available.
+ *
+ * @param name - Test name.
+ * @param fn - Test function.
+ *
+ * @example
+ * itIfMap('should work with Maps', () => {
+ *   const map = new Map()
+ *   map.set('key', 'value')
+ *   expect(map.get('key')).toBe('value')
+ * })
+ */
+export function itIfMap(name: string, fn: () => void | Promise<void>): void {
+  if (features.hasMap) {
+    it(name, fn)
+  } else {
+    it.skip(name, fn)
+  }
+}
+
+/**
+ * Conditionally run tests only when Set is available.
+ *
+ * @param name - Test name.
+ * @param fn - Test function.
+ *
+ * @example
+ * itIfSet('should work with Sets', () => {
+ *   const set = new Set([1, 2, 3])
+ *   expect(set.has(2)).toBe(true)
+ * })
+ */
+export function itIfSet(name: string, fn: () => void | Promise<void>): void {
+  if (features.hasSet) {
+    it(name, fn)
+  } else {
+    it.skip(name, fn)
+  }
+}
+
+/**
+ * Conditionally run tests only when WeakMap is available.
+ *
+ * @param name - Test name.
+ * @param fn - Test function.
+ *
+ * @example
+ * itIfWeakMap('should work with WeakMaps', () => {
+ *   const wm = new WeakMap()
+ *   const key = {}
+ *   wm.set(key, 'value')
+ *   expect(wm.get(key)).toBe('value')
+ * })
+ */
+export function itIfWeakMap(
+  name: string,
+  fn: () => void | Promise<void>,
+): void {
+  if (features.hasWeakMap) {
+    it(name, fn)
+  } else {
+    it.skip(name, fn)
+  }
+}
+
+/**
+ * Conditionally run tests only when WeakSet is available.
+ *
+ * @param name - Test name.
+ * @param fn - Test function.
+ *
+ * @example
+ * itIfWeakSet('should work with WeakSets', () => {
+ *   const ws = new WeakSet()
+ *   const obj = {}
+ *   ws.add(obj)
+ *   expect(ws.has(obj)).toBe(true)
+ * })
+ */
+export function itIfWeakSet(
+  name: string,
+  fn: () => void | Promise<void>,
+): void {
+  if (features.hasWeakSet) {
+    it(name, fn)
+  } else {
+    it.skip(name, fn)
+  }
+}
+
+/**
+ * Conditionally run describe block only when Map is available.
+ *
+ * @param name - Test suite name.
+ * @param fn - Test suite function.
+ *
+ * @example
+ * describeIfMap('Map operations', () => {
+ *   it('should create a map', () => {
+ *     const map = new Map()
+ *     expect(map).toBeDefined()
+ *   })
+ * })
+ */
+export function describeIfMap(name: string, fn: () => void): void {
+  if (features.hasMap) {
+    describe(name, fn)
+  } else {
+    describe.skip(name, fn)
+  }
+}
+
+/**
+ * Conditionally run describe block only when Set is available.
+ *
+ * @param name - Test suite name.
+ * @param fn - Test suite function.
+ *
+ * @example
+ * describeIfSet('Set operations', () => {
+ *   it('should create a set', () => {
+ *     const set = new Set()
+ *     expect(set).toBeDefined()
+ *   })
+ * })
+ */
+export function describeIfSet(name: string, fn: () => void): void {
+  if (features.hasSet) {
+    describe(name, fn)
+  } else {
+    describe.skip(name, fn)
+  }
+}

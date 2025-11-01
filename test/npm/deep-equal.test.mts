@@ -5,7 +5,12 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { expectValidPackageStructure } from '../utils/assertion-helpers.mts'
 import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
+import {
+  describeIfMap,
+  describeIfSet,
+} from '../utils/platform-test-helpers.mts'
 
 const {
   eco,
@@ -18,9 +23,7 @@ const {
 // deep-equal package tests may have issues with test dependencies.
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('should have valid package structure', () => {
-    expect(pkgPath).toBeTruthy()
-    expect(deepEqual).toBeDefined()
-    expect(typeof deepEqual).toBe('function')
+    expectValidPackageStructure(pkgPath, deepEqual, 'function')
   })
 
   describe('equal', () => {
@@ -58,12 +61,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
   })
 
-  describe('Maps', () => {
+  describeIfMap('Maps', () => {
     it('two equal Maps', () => {
-      if (typeof Map !== 'function') {
-        return
-      }
-
       const map1 = new Map([
         ['a', 1],
         ['b', 2],
@@ -77,10 +76,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('two Maps with inequal values on the same key', () => {
-      if (typeof Map !== 'function') {
-        return
-      }
-
       const map1 = new Map([['a', [1, 2]]])
       const map2 = new Map([['a', [2, 1]]])
       expect(deepEqual(map1, map2)).toBe(false)
@@ -88,10 +83,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('two inequal Maps', () => {
-      if (typeof Map !== 'function') {
-        return
-      }
-
       const map1 = new Map([['a', 1]])
       const map2 = new Map([['b', 1]])
       expect(deepEqual(map1, map2)).toBe(false)
@@ -99,10 +90,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('two equal Maps in different orders with object keys', () => {
-      if (typeof Map !== 'function') {
-        return
-      }
-
       const map1 = new Map([
         [{}, 3],
         [{}, 2],
@@ -118,10 +105,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('undefined keys, nullish values', () => {
-      if (typeof Map !== 'function') {
-        return
-      }
-
       const map1 = new Map([[undefined, undefined]])
       const map2 = new Map([[undefined, null]])
       expect(deepEqual(map1, map2)).toBe(true)
@@ -129,10 +112,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('nullish keys', () => {
-      if (typeof Map !== 'function') {
-        return
-      }
-
       const map1 = new Map([[undefined, 3]])
       const map2 = new Map([[null, 3]])
       expect(deepEqual(map1, map2)).toBe(true)
@@ -140,12 +119,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
   })
 
-  describe('Sets', () => {
+  describeIfSet('Sets', () => {
     it('two equal Sets', () => {
-      if (typeof Set !== 'function') {
-        return
-      }
-
       const set1 = new Set([1, 2, 3])
       const set2 = new Set([3, 2, 1])
       expect(deepEqual(set1, set2)).toBe(true)
@@ -153,10 +128,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('two inequal Sets', () => {
-      if (typeof Set !== 'function') {
-        return
-      }
-
       const set1 = new Set([1, 2, 3])
       const set2 = new Set([1, 2, 4])
       expect(deepEqual(set1, set2)).toBe(false)
@@ -164,10 +135,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('two equal Sets with object values', () => {
-      if (typeof Set !== 'function') {
-        return
-      }
-
       const set1 = new Set([{}, {}, {}])
       const set2 = new Set([{}, {}, {}])
       expect(deepEqual(set1, set2)).toBe(true)

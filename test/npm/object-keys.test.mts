@@ -5,6 +5,7 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { expectValidPackageStructure } from '../utils/assertion-helpers.mts'
 import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
 const {
@@ -17,9 +18,7 @@ const {
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('should have valid package structure', () => {
-    expect(pkgPath).toBeTruthy()
-    expect(objectKeys).toBeDefined()
-    expect(typeof objectKeys).toBe('function')
+    expectValidPackageStructure(pkgPath, objectKeys, 'function')
   })
 
   describe('basic functionality', () => {

@@ -5,6 +5,7 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { expectValidPackageStructure } from '../utils/assertion-helpers.mts'
 import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
 const {
@@ -20,9 +21,7 @@ const {
 // https://nodejs.org/docs/latest-v18.x/api/util.html#deprecated-apis
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('should have valid package structure', () => {
-    expect(pkgPath).toBeTruthy()
-    expect(assert).toBeDefined()
-    expect(typeof assert).toBe('function')
+    expectValidPackageStructure(pkgPath, assert, 'function')
   })
 
   describe('AssertionError', () => {

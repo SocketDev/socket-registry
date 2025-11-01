@@ -349,3 +349,36 @@ export function expectInRange(
     )
   }
 }
+
+/**
+ * Asserts that a package has valid structure with path and module definition.
+ * Common pattern for testing NPM package overrides.
+ *
+ * @param pkgPath - Package path that should be truthy.
+ * @param module - Module that should be defined.
+ * @param expectedType - Expected type of the module ('function' or 'object').
+ * @param message - Optional custom error message.
+ *
+ * @example
+ * expectValidPackageStructure(pkgPath, deepEqual, 'function')
+ * expectValidPackageStructure(pkgPath, assert, 'object')
+ */
+export function expectValidPackageStructure(
+  pkgPath: string,
+  module: unknown,
+  expectedType: 'function' | 'object' = 'function',
+  message?: string,
+): void {
+  if (!pkgPath) {
+    throw new Error(message ?? 'Expected package path to be truthy')
+  }
+  if (module === undefined) {
+    throw new Error(message ?? 'Expected module to be defined')
+  }
+  if (typeof module !== expectedType) {
+    throw new Error(
+      message ??
+        `Expected module to be ${expectedType} but got ${typeof module}`,
+    )
+  }
+}

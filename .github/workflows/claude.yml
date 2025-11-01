@@ -45,7 +45,7 @@ jobs:
           autocrlf: false
 
       - name: Setup debug
-        uses: SocketDev/socket-registry/.github/actions/debug@51be85d39d3b4a42dd9d4712948b9d30a2e04794 # main
+        uses: SocketDev/socket-registry/.github/actions/debug@42af85173896eefdd299364a2200d308b1c63caa # main
         with:
           debug: ${{ inputs.debug }}
 
