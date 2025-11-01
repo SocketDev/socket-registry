@@ -5,7 +5,9 @@ import path from 'node:path'
 
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { UTF8 } from '@socketsecurity/lib/constants/encoding'
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+
+const logger = getDefaultLogger()
 
 import {
   NPM_PACKAGES_PATH,

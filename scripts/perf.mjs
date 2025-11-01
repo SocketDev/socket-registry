@@ -4,9 +4,11 @@
  */
 
 import { execBin } from '@socketsecurity/lib/bin'
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 
 import fastGlob from 'fast-glob'
+
+const logger = getDefaultLogger()
 
 import { PERF_NPM_PATH, TSX_EXEC_PATH } from './constants/paths.mjs'
 

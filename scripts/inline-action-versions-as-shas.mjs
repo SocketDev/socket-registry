@@ -5,9 +5,11 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import { resolveRefToSha } from '@socketsecurity/lib/github'
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 
 import { ROOT_PATH } from './constants/paths.mjs'
+
+const logger = getDefaultLogger()
 
 /**
  * Extract dependencies from the Dependencies comment block.

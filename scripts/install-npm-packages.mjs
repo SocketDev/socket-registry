@@ -87,12 +87,14 @@ const spinner = getSpinner()
 
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { readFileUtf8, readJson, writeJson } from '@socketsecurity/lib/fs'
-import { LOG_SYMBOLS, logger } from '@socketsecurity/lib/logger'
+import { LOG_SYMBOLS, getDefaultLogger } from '@socketsecurity/lib/logger'
 import { readPackageJson } from '@socketsecurity/lib/packages'
 import { pEach, pRetry } from '@socketsecurity/lib/promises'
 import { spawn } from '@socketsecurity/lib/spawn'
 import { withSpinner } from '@socketsecurity/lib/spinner'
 import { pluralize } from '@socketsecurity/lib/words'
+
+const logger = getDefaultLogger()
 import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
 import { ALLOW_TEST_FAILURES_BY_ECOSYSTEM } from './constants/testing.mjs'
 import {

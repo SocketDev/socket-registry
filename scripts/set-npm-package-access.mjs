@@ -4,9 +4,11 @@ import path from 'node:path'
 import { execNpm } from '@socketsecurity/lib/agent'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { joinAnd } from '@socketsecurity/lib/arrays'
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { pEach } from '@socketsecurity/lib/promises'
 import { pluralize } from '@socketsecurity/lib/words'
+
+const logger = getDefaultLogger()
 
 import { COLUMN_LIMIT } from './constants/core.mjs'
 import { getEnv } from './constants/env.mjs'

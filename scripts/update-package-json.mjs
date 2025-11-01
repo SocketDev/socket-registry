@@ -1,10 +1,12 @@
 /** @fileoverview Update root package.json with default Node.js engine range. */
 
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { readPackageJson } from '@socketsecurity/lib/packages'
 
 import { PACKAGE_DEFAULT_NODE_RANGE } from './constants/node.mjs'
 import { ROOT_PACKAGE_JSON_PATH } from './constants/paths.mjs'
+
+const logger = getDefaultLogger()
 
 /**
  * Update engines field in root package.json.

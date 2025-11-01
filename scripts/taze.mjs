@@ -1,8 +1,10 @@
 /** @fileoverview Taze wrapper that errors on provenance downgrades. */
 
 import { WIN32 } from '@socketsecurity/lib/constants/platform'
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { spawn } from '@socketsecurity/lib/spawn'
+
+const logger = getDefaultLogger()
 
 function includesProvenanceDowngradeWarning(output) {
   const lowered = output.toString().toLowerCase()

@@ -1,8 +1,10 @@
 /** @fileoverview Update caniuse-lite database without triggering prepare scripts. */
 
 import { WIN32 } from '@socketsecurity/lib/constants/platform'
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { spawnSync } from '@socketsecurity/lib/spawn'
+
+const logger = getDefaultLogger()
 
 import { ROOT_PATH } from './constants/paths.mjs'
 

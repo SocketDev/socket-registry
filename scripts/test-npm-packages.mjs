@@ -6,8 +6,10 @@ import { fileURLToPath } from 'node:url'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { WIN32 } from '@socketsecurity/lib/constants/platform'
 import { getCI } from '@socketsecurity/lib/env/ci'
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { spawn } from '@socketsecurity/lib/spawn'
+
+const logger = getDefaultLogger()
 
 import { logSectionHeader } from './utils/logging.mjs'
 

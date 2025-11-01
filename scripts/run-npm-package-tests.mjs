@@ -5,12 +5,14 @@ import os from 'node:os'
 import path from 'node:path'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { WIN32 } from '@socketsecurity/lib/constants/platform'
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import {
   readPackageJson,
   resolveOriginalPackageName,
 } from '@socketsecurity/lib/packages'
 import { pEach } from '@socketsecurity/lib/promises'
+
+const logger = getDefaultLogger()
 
 import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
 import { ROOT_PATH, TEST_NPM_PATH } from './constants/paths.mjs'

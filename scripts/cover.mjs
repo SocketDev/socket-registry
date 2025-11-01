@@ -12,7 +12,9 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+
+const logger = getDefaultLogger()
 
 import { printError, printHeader, printSuccess } from './utils/cli-helpers.mjs'
 import { runCommandQuiet } from './utils/run-command.mjs'

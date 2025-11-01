@@ -10,12 +10,14 @@ import path from 'node:path'
 import { PackageURL } from '@socketregistry/packageurl-js'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { UNLICENSED } from '@socketsecurity/lib/constants/licenses'
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import {
   AT_LATEST,
   getPackageDefaultNodeRange,
 } from '@socketsecurity/lib/constants/packages'
 import { getSpinner } from '@socketsecurity/lib/constants/process'
+
+const logger = getDefaultLogger()
 import {
   objectEntries,
   toSortedObject,

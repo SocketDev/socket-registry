@@ -10,13 +10,15 @@ import { fileURLToPath } from 'node:url'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { WIN32 } from '@socketsecurity/lib/constants/platform'
 import { getCI } from '@socketsecurity/lib/env/ci'
-import { LOG_SYMBOLS, logger } from '@socketsecurity/lib/logger'
+import { LOG_SYMBOLS, getDefaultLogger } from '@socketsecurity/lib/logger'
 import {
   readPackageJson,
   resolveOriginalPackageName,
 } from '@socketsecurity/lib/packages'
 import { pEach } from '@socketsecurity/lib/promises'
 import { pluralize } from '@socketsecurity/lib/words'
+
+const logger = getDefaultLogger()
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)

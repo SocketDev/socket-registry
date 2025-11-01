@@ -9,8 +9,10 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { COLUMN_LIMIT } from '@socketsecurity/lib/constants/core'
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { spawn } from '@socketsecurity/lib/spawn'
+
+const logger = getDefaultLogger()
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 

@@ -3,7 +3,9 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+
+const logger = getDefaultLogger()
 
 import {
   ROOT_DOT_GITHUB_ACTIONS_PATH,

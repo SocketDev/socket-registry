@@ -6,7 +6,7 @@ import { parseArgs } from '@socketsecurity/lib/argv/parse'
 
 import { joinAnd } from '@socketsecurity/lib/arrays'
 import { getChangedFiles } from '@socketsecurity/lib/git'
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { isObjectObject } from '@socketsecurity/lib/objects'
 import {
   fetchPackageManifest,
@@ -24,6 +24,8 @@ import { LATEST } from './constants/packages.mjs'
 import { NPM_PACKAGES_PATH, REGISTRY_PKG_PATH } from './constants/paths.mjs'
 import { getNpmPackageNames } from './constants/testing.mjs'
 import { extractNpmError } from './utils/errors.mjs'
+
+const logger = getDefaultLogger()
 
 const COLUMN_LIMIT = 80
 

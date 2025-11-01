@@ -12,7 +12,7 @@ import {
   getSpinner,
 } from '@socketsecurity/lib/constants/process'
 import { readFileUtf8 } from '@socketsecurity/lib/fs'
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { isObjectObject, toSortedObject } from '@socketsecurity/lib/objects'
 import {
   extractPackage,
@@ -35,6 +35,8 @@ import {
 } from './constants/paths.mjs'
 import { getNpmPackageNames } from './constants/testing.mjs'
 import { logSectionHeader } from './utils/logging.mjs'
+
+const logger = getDefaultLogger()
 
 const execFileAsync = promisify(execFile)
 

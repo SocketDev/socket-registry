@@ -6,9 +6,11 @@ import path from 'node:path'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { EMPTY_FILE } from '@socketsecurity/lib/constants/core'
 import { UTF8 } from '@socketsecurity/lib/constants/encoding'
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 
 import fastGlob from 'fast-glob'
+
+const logger = getDefaultLogger()
 
 import { NPM_TEMPLATES_PATH, ROOT_PATH } from './constants/paths.mjs'
 import { getIgnoreGlobs } from './constants/utils.mjs'

@@ -16,8 +16,10 @@ import { execScript } from '@socketsecurity/lib/agent'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { isDirEmptySync } from '@socketsecurity/lib/fs'
 import { globStreamLicenses } from '@socketsecurity/lib/globs'
-import { LOG_SYMBOLS, logger } from '@socketsecurity/lib/logger'
+import { LOG_SYMBOLS, getDefaultLogger } from '@socketsecurity/lib/logger'
 import { isObject } from '@socketsecurity/lib/objects'
+
+const logger = getDefaultLogger()
 import {
   collectIncompatibleLicenses,
   collectLicenseWarnings,

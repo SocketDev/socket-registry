@@ -1,8 +1,10 @@
 import path from 'node:path'
 // eslint-disable-next-line n/no-extraneous-import
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { describe, expect, it } from 'vitest'
 import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
+
+const logger = getDefaultLogger()
 
 const { eco, pkgPath, skip, sockRegPkgName } =
   await setupNpmPackageTest(__filename)

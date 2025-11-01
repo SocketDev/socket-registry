@@ -2,7 +2,7 @@
 
 import path from 'node:path'
 import { isDebug } from '@socketsecurity/lib/debug'
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import {
   createPackageJson,
   getSubpaths,
@@ -10,6 +10,8 @@ import {
   readPackageJson,
   resolvePackageJsonEntryExports,
 } from '@socketsecurity/lib/packages'
+
+const logger = getDefaultLogger()
 import { trimLeadingDotSlash } from '@socketsecurity/lib/path'
 import { pluralize } from '@socketsecurity/lib/words'
 import fastGlob from 'fast-glob'

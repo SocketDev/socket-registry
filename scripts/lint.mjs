@@ -9,8 +9,10 @@ import path from 'node:path'
 import { isQuiet } from '@socketsecurity/lib/argv/flags'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { getChangedFiles, getStagedFiles } from '@socketsecurity/lib/git'
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { printHeader } from '@socketsecurity/lib/stdio/header'
+
+const logger = getDefaultLogger()
 
 import { runCommandQuiet } from './utils/run-command.mjs'
 

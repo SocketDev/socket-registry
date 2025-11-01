@@ -5,9 +5,11 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { logger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 
 import colors from 'yoctocolors-cjs'
+
+const logger = getDefaultLogger()
 
 // Get root path.
 export const getRootPath = importMetaUrl => {
