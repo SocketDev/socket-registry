@@ -1,22 +1,47 @@
+# OS files
 .DS_Store
 ._.DS_Store
+._*
 Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Scratch and temp files
 /.claude
+Do
+DOING
+TODO
+NOTES
+SCRATCH
+WIP
+*.local
+.local.*
+
+# Environment files
 /.env
 /.env.local
 /.env.*.local
+.envrc
+
+# Package manager files
 /.pnpmfile.cjs
-/.nvm
-/.type-coverage
-/.vscode
 /npm-debug.log
 /yarn.lock
+package-lock.json
 
-# Editor files
+# IDE and editor files
+/.vscode
+.idea/
+*.sublime-*
+*.iml
 *.swp
 *.swo
+*~
 #*#
 .#*
+.eslintcache
+
+# Build artifacts
 **/.cache
 **/coverage
 **/dist
@@ -25,6 +50,25 @@ Thumbs.db
 **/*.tgz
 **/*.tmp
 **/*.tsbuildinfo
+.nyc_output/
+
+# Logs and debug files
+*.log
+*.pid
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Backup and patch files
+*.bak
+*.backup
+*.orig
+*.rej
+
+# System directories
+/.nvm
+/.type-coverage
 
 # Test artifacts
 test/**/packages
