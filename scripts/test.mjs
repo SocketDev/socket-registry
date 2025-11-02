@@ -143,7 +143,7 @@ async function runCheck() {
   // Run ESLint and TypeScript in parallel for faster execution
   spinner.start('Running ESLint and TypeScript checks...')
 
-  const [eslintExitCode, tsExitCode] = await Promise.all([
+  const results = await Promise.allSettled([
     runCommand(
       'eslint',
       [
@@ -160,6 +160,10 @@ async function runCheck() {
       stdio: 'pipe',
     }),
   ])
+
+  const eslintExitCode =
+    results[0].status === 'fulfilled' ? results[0].value : 1
+  const tsExitCode = results[1].status === 'fulfilled' ? results[1].value : 1
 
   spinner.stop()
 
