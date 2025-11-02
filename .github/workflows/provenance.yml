@@ -21,6 +21,16 @@ on:
         required: false
         type: boolean
         default: false
+      force-registry:
+        description: 'Force publish @socketsecurity/registry regardless of version changes'
+        required: false
+        type: boolean
+        default: false
+      skip-npm-packages:
+        description: 'Skip publishing npm override packages (packages/*)'
+        required: false
+        type: boolean
+        default: false
       node-version:
         description: 'Node version to use (e.g., "20", "22", "24")'
         required: false
@@ -128,8 +138,18 @@ jobs:
       - name: Publish with custom script (token-based)
         if: inputs.publish-script != '' && inputs.use-trusted-publishing == false
         run: |
+          FLAGS=""
           if [ "${{ inputs.force-publish }}" = "true" ]; then
-            pnpm run ${{ inputs.publish-script }} -- --force-publish
+            FLAGS="$FLAGS --force-publish"
+          fi
+          if [ "${{ inputs.force-registry }}" = "true" ]; then
+            FLAGS="$FLAGS --force-registry"
+          fi
+          if [ "${{ inputs.skip-npm-packages }}" = "true" ]; then
+            FLAGS="$FLAGS --skip-npm-packages"
+          fi
+          if [ -n "$FLAGS" ]; then
+            pnpm run ${{ inputs.publish-script }} -- $FLAGS
           else
             pnpm run ${{ inputs.publish-script }}
           fi
@@ -139,8 +159,18 @@ jobs:
       - name: Publish with custom script (trusted publishing)
         if: inputs.publish-script != '' && inputs.use-trusted-publishing == true
         run: |
+          FLAGS=""
           if [ "${{ inputs.force-publish }}" = "true" ]; then
-            pnpm run ${{ inputs.publish-script }} -- --force-publish
+            FLAGS="$FLAGS --force-publish"
+          fi
+          if [ "${{ inputs.force-registry }}" = "true" ]; then
+            FLAGS="$FLAGS --force-registry"
+          fi
+          if [ "${{ inputs.skip-npm-packages }}" = "true" ]; then
+            FLAGS="$FLAGS --skip-npm-packages"
+          fi
+          if [ -n "$FLAGS" ]; then
+            pnpm run ${{ inputs.publish-script }} -- $FLAGS
           else
             pnpm run ${{ inputs.publish-script }}
           fi

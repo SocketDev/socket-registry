@@ -19,6 +19,16 @@ on:
         required: false
         default: false
         type: boolean
+      force-registry:
+        description: 'Force publish @socketsecurity/registry regardless of version changes'
+        required: false
+        default: false
+        type: boolean
+      skip-npm-packages:
+        description: 'Skip publishing npm override packages (packages/*)'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -30,6 +40,8 @@ jobs:
     with:
       debug: ${{ inputs.debug }}
       force-publish: ${{ inputs.force-publish }}
-      publish-script: 'package-npm-publish'
+      force-registry: ${{ inputs.force-registry }}
+      skip-npm-packages: ${{ inputs.skip-npm-packages }}
+      publish-script: 'package-npm-publish' # runs scripts/publish-npm-packages.mjs
       setup-script: 'pnpm run build'
       use-trusted-publishing: true
