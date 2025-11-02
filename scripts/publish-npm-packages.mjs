@@ -585,6 +585,14 @@ async function main() {
 
     if (bumpCommits.length === 0) {
       logger.info('No version bump commits found')
+      // If --force-registry is set, still try to publish at HEAD.
+      if (forceRegistryFlag) {
+        logger.log(
+          '\nForce-registry flag is set, checking HEAD for unpublished packages...',
+        )
+        const headSha = await getCommitSha('HEAD')
+        await publishAtCommit(headSha)
+      }
       return
     }
 
