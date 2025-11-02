@@ -116,10 +116,12 @@ async function ensureNpmVersion() {
  * Find all commits with version bumps in the registry package.
  */
 async function findVersionBumpCommits() {
-  // Get git log with commit messages starting with "Bump".
+  // Get git log with commit messages for version bumps.
+  // Matches both old style "Bump..." and new conventional commit style "chore(registry): bump...".
   const result = await spawn('git', [
     'log',
-    '--grep=^Bump',
+    '-E',
+    '--grep=^Bump|^chore\\(registry\\): bump',
     '--format=%H %s',
     'main',
   ])
@@ -137,13 +139,18 @@ async function findVersionBumpCommits() {
     const message = match[2]
 
     // Skip non-package bump commits (like dependency bumps).
-    // Only accept specific version bump patterns:
+    // Accept specific version bump patterns:
+    // Old style:
     // - "Bump to v<version>" (general format)
     // - "Bump <pkgname> to v<version>"
     // - "Bump registry package to v<version>"
-    // Exclude generic "Update" or "Bump" messages without "to v".
-    // Use non-greedy .+? to match shortest text before "to v" (handles multi-word package names).
-    if (!/^Bump (?:.+? )?to v/.test(message)) {
+    // New conventional commit style:
+    // - "chore(registry): bump version to <version>"
+    // Exclude generic "Update" or "Bump" messages without version info.
+    if (
+      !/^Bump (?:.+? )?to v/.test(message) &&
+      !/^chore\(registry\): bump version to \d+\.\d+\.\d+/.test(message)
+    ) {
       continue
     }
 
