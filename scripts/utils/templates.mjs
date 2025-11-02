@@ -8,11 +8,15 @@ import { createRequire } from 'node:module'
 import path from 'node:path'
 
 import { PackageURL } from '@socketregistry/packageurl-js'
- 
+
 import manifestData from '../../registry/manifest.json' with { type: 'json' }
 import { joinAnd } from '@socketsecurity/lib/arrays'
 import { globStreamLicenses } from '@socketsecurity/lib/globs'
 import { isObjectObject } from '@socketsecurity/lib/objects'
+import {
+  readPackageJson,
+  resolveOriginalPackageName,
+} from '@socketsecurity/lib/packages'
 import { capitalize, determineArticle } from '@socketsecurity/lib/words'
 import { Eta } from 'eta'
 import fastGlob from 'fast-glob'
@@ -36,10 +40,7 @@ import {
 import { getLicenseContent } from '../constants/utils.mjs'
 import { biomeFormat } from './biome.mjs'
 
-// Use require for CommonJS modules that don't properly export named exports.
-const require = createRequire(import.meta.url)
-const packagesOperations = require('../../registry/dist/lib/packages/operations.js')
-const { readPackageJson, resolveOriginalPackageName } = packagesOperations
+const _require = createRequire(import.meta.url)
 
 // File extension constants.
 const EXT_JSON = '.json'

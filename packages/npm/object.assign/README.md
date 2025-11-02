@@ -1,31 +1,29 @@
 # @socketregistry/object.assign
-
 [![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/object.assign)](https://socket.dev/npm/package/@socketregistry/object.assign)
 [![CI - @socketregistry/object.assign](https://github.com/SocketDev/socket-registry/actions/workflows/ci.yml/badge.svg)](https://github.com/SocketDev/socket-registry/actions/workflows/ci.yml)
 
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 [![Follow @socket.dev on Bluesky](https://img.shields.io/badge/Follow-@socket.dev-1DA1F2?style=social&logo=bluesky)](https://bsky.app/profile/socket.dev)
 
-> A tested zero dependency drop-in replacement of
-> [`object.assign`](https://socket.dev/npm/package/object.assign) complete with
-> TypeScript types.
+>A tested zero dependency drop-in replacement of [`object.assign`](https://socket.dev/npm/package/object.assign) complete with TypeScript types.
+
 
 ## Installation
 
 ### Install as a package override
 
-[`socket`](https://socket.dev/npm/package/socket) CLI will automagically ✨
-populate
+[`socket`](https://socket.dev/npm/package/socket)
+CLI will automagically ✨ populate
 [overrides](https://docs.npmjs.com/cli/v9/configuring-npm/package-json#overrides)
-and [resolutions](https://yarnpkg.com/configuration/manifest#resolutions) of
-your `package.json`.
+and [resolutions](https://yarnpkg.com/configuration/manifest#resolutions)
+of your `package.json`.
 
 ```sh
 npx socket optimize
 ```
 
-Prefer to do it yourself? Add `@socketregistry/object.assign` to your
-`package.json`.
+Prefer to do it yourself? Add `@socketregistry/object.assign`
+to your `package.json`.
 
 ```json
 {
@@ -43,9 +41,9 @@ Prefer to do it yourself? Add `@socketregistry/object.assign` to your
 Install with your favorite package manager.
 
 ```sh
-npm install @socketregistry/object.assign
+pnpm install @socketregistry/object.assign
 ```
 
 ## Requirements
 
-Node >= `18.20.4`
+Node >= `18`
