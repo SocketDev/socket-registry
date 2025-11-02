@@ -93,6 +93,27 @@ async function main() {
           ...(process.platform === 'win32' && { shell: true }),
         },
       },
+      {
+        args: ['scripts/validate-markdown-filenames.mjs'],
+        command: 'node',
+        options: {
+          ...(process.platform === 'win32' && { shell: true }),
+        },
+      },
+      {
+        args: ['scripts/validate-file-size.mjs'],
+        command: 'node',
+        options: {
+          ...(process.platform === 'win32' && { shell: true }),
+        },
+      },
+      {
+        args: ['scripts/validate-file-count.mjs'],
+        command: 'node',
+        options: {
+          ...(process.platform === 'win32' && { shell: true }),
+        },
+      },
     ]
 
     const exitCodes = await runParallel(checks)
