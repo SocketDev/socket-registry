@@ -151,8 +151,8 @@ async function checkFile(filePath) {
       // Reset regex state
       pattern.lastIndex = 0
 
-      let match
-      while ((match = pattern.exec(content)) !== null) {
+      let match = pattern.exec(content)
+      while (match !== null) {
         // Get line number
         const beforeMatch = content.substring(0, match.index)
         const lineNumber = beforeMatch.split('\n').length
@@ -168,6 +168,8 @@ async function checkFile(filePath) {
           line: line.trim(),
           url: match[0],
         })
+
+        match = pattern.exec(content)
       }
     }
 
