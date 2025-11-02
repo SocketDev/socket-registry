@@ -1,5 +1,5 @@
 # Run security checks first.
-.husky/security-checks.sh
+.git-hooks/pre-commit
 
 if [ -z "${DISABLE_PRECOMMIT_LINT}" ]; then
   pnpm lint --staged
