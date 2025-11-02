@@ -14,11 +14,6 @@ on:
         options:
           - '0'
           - '1'
-      force-publish:
-        description: 'Force publish without commit checks'
-        required: false
-        default: false
-        type: boolean
       force-registry:
         description: 'Force publish @socketsecurity/registry regardless of version changes'
         required: false
@@ -36,10 +31,9 @@ permissions:
 
 jobs:
   publish:
-    uses: SocketDev/socket-registry/.github/workflows/provenance.yml@42af85173896eefdd299364a2200d308b1c63caa # main
+    uses: SocketDev/socket-registry/.github/workflows/provenance.yml@bdc7093e232f6f311339aca89e13bf3bbdd5d7ac # main
     with:
       debug: ${{ inputs.debug }}
-      force-publish: ${{ inputs.force-publish }}
       force-registry: ${{ inputs.force-registry }}
       skip-npm-packages: ${{ inputs.skip-npm-packages }}
       publish-script: 'package-npm-publish' # runs scripts/publish-npm-packages.mjs
