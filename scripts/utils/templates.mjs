@@ -6,10 +6,12 @@
 import { promises as fs } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
+
 import { PackageURL } from '@socketregistry/packageurl-js'
+ 
+import manifestData from '../../registry/manifest.json' with { type: 'json' }
 import { joinAnd } from '@socketsecurity/lib/arrays'
 import { globStreamLicenses } from '@socketsecurity/lib/globs'
-import { getManifestData } from '@socketsecurity/lib/index'
 import { isObjectObject } from '@socketsecurity/lib/objects'
 import { capitalize, determineArticle } from '@socketsecurity/lib/words'
 import { Eta } from 'eta'
@@ -47,6 +49,24 @@ const EXT_MD = '.md'
 const PACKAGE_DEFAULT_NODE_RANGE = '>=18'
 const PACKAGE_DEFAULT_SOCKET_CATEGORIES = Object.freeze(['levelup', 'tuneup'])
 const PACKAGE_DEFAULT_VERSION = '1.0.0'
+
+/**
+ * Get manifest data from the registry manifest.json.
+ */
+function getManifestData(ecosystem, packageName) {
+  if (!ecosystem) {
+    return manifestData
+  }
+  const ecoData = manifestData[ecosystem]
+  if (!ecoData) {
+    return undefined
+  }
+  if (!packageName) {
+    return ecoData
+  }
+  const entry = ecoData.find(([_purl, data]) => data.package === packageName)
+  return entry ? entry[1] : undefined
+}
 
 let eta
 async function getEta() {

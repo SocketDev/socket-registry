@@ -13,11 +13,6 @@ describe(SOCKET_REGISTRY_PACKAGE_NAME, () => {
     expect(registry).toBeDefined()
     expect(typeof registry).toBe('object')
     expect(typeof registry.getManifestData).toBe('function')
-    expect(typeof registry.version).toBe('string')
-  })
-
-  it('should export version', () => {
-    expect(registry.version).toBe('2.0.0')
   })
 
   describe('getManifestData', () => {

@@ -134,7 +134,8 @@
     "zod": "4.1.12"
   },
   "engines": {
-    "pnpm": ">=10.16.0"
+    "pnpm": ">=10.16.0",
+    "node": ">=18"
   },
   "pnpm": {
     "ignoredBuiltDependencies": [

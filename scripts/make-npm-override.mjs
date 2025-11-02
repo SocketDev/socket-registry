@@ -33,7 +33,12 @@ import {
   resolvePackageLicenses,
   resolveRegistryPackageName,
 } from '@socketsecurity/lib/packages'
-import { confirm, input, search, select } from '@socketsecurity/lib/prompts'
+import {
+  confirm,
+  input,
+  search,
+  select,
+} from '@socketsecurity/lib/stdio/prompts'
 import { naturalCompare, naturalSorter } from '@socketsecurity/lib/sorts'
 import { transform } from '@socketsecurity/lib/streams'
 import { indentString } from '@socketsecurity/lib/strings'

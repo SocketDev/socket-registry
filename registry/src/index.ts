@@ -44,6 +44,3 @@ export function getManifestData(
     return undefined
   }
 }
-
-// Version export
-export const version = '2.0.0'
