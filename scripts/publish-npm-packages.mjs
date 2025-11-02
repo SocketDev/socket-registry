@@ -43,6 +43,12 @@ const { values: cliArgs } = parseArgs({
     'force-publish': {
       type: 'boolean',
     },
+    'force-registry': {
+      type: 'boolean',
+    },
+    'skip-npm-packages': {
+      type: 'boolean',
+    },
     quiet: {
       type: 'boolean',
     },
@@ -50,11 +56,18 @@ const { values: cliArgs } = parseArgs({
   strict: false,
 })
 
-// Debug: Always log force-publish status to diagnose workflow issues.
+// Debug: Always log force flags status to diagnose workflow issues.
 logger.log('DEBUG: process.argv:', process.argv.slice(2).join(' '))
 logger.log('DEBUG: Full cliArgs:', JSON.stringify(cliArgs, null, 2))
 logger.log('DEBUG: cliArgs.forcePublish =', cliArgs.forcePublish)
 logger.log('DEBUG: cliArgs["force-publish"] =', cliArgs['force-publish'])
+logger.log('DEBUG: cliArgs.forceRegistry =', cliArgs.forceRegistry)
+logger.log('DEBUG: cliArgs["force-registry"] =', cliArgs['force-registry'])
+logger.log('DEBUG: cliArgs.skipNpmPackages =', cliArgs.skipNpmPackages)
+logger.log(
+  'DEBUG: cliArgs["skip-npm-packages"] =',
+  cliArgs['skip-npm-packages'],
+)
 
 /**
  * Checkout a specific commit and discard uncommitted changes.
@@ -213,19 +226,27 @@ async function publishAtCommit(sha) {
     path: REGISTRY_PKG_PATH,
     printName: registryPkgJson.name,
   })
-  const allPackages = [
-    ...getNpmPackageNames().map(sockRegPkgName => {
-      const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
-      const pkgJson = readPackageJsonSync(pkgPath)
-      return packageData({
-        name: pkgJson.name,
-        path: pkgPath,
-        printName: pkgJson.name,
-        tag: getReleaseTag(pkgJson.version),
+
+  // Check if we should skip npm override packages.
+  const skipNpmPackagesFlag =
+    cliArgs.skipNpmPackages ||
+    cliArgs['skip-npm-packages'] ||
+    cliArgs['--']?.includes('--skip-npm-packages')
+
+  const npmPackages = skipNpmPackagesFlag
+    ? []
+    : getNpmPackageNames().map(sockRegPkgName => {
+        const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
+        const pkgJson = readPackageJsonSync(pkgPath)
+        return packageData({
+          name: pkgJson.name,
+          path: pkgPath,
+          printName: pkgJson.name,
+          tag: getReleaseTag(pkgJson.version),
+        })
       })
-    }),
-    registryPackage,
-  ]
+
+  const allPackages = [...npmPackages, registryPackage]
 
   // Filter packages to only publish those with bumped versions.
   const packagesToPublish = []
@@ -233,6 +254,19 @@ async function publishAtCommit(sha) {
   for (const pkg of allPackages) {
     const pkgJson = readPackageJsonSync(pkg.path)
     const localVersion = pkgJson.version
+
+    // Force-include registry package if --force-registry flag is set.
+    const isRegistryPkg = pkg.printName === '@socketsecurity/registry'
+    const forceRegistryFlag =
+      cliArgs.forceRegistry ||
+      cliArgs['force-registry'] ||
+      cliArgs['--']?.includes('--force-registry')
+
+    if (isRegistryPkg && forceRegistryFlag) {
+      packagesToPublish.push(pkg)
+      logger.log(`${pkg.printName}: Force publishing (${localVersion})`)
+      continue
+    }
 
     // Fetch the latest version from npm registry.
 
@@ -522,6 +556,28 @@ async function main() {
       const headSha = await getCommitSha('HEAD')
       await publishAtCommit(headSha)
       return
+    }
+
+    // Log if --force-registry is set.
+    const forceRegistryFlag =
+      cliArgs.forceRegistry ||
+      cliArgs['force-registry'] ||
+      cliArgs['--']?.includes('--force-registry')
+    if (forceRegistryFlag) {
+      logger.log('Running with --force-registry')
+      logger.log(
+        'Registry package will be force-published regardless of version changes',
+      )
+    }
+
+    // Log if --skip-npm-packages is set.
+    const skipNpmPackagesFlag =
+      cliArgs.skipNpmPackages ||
+      cliArgs['skip-npm-packages'] ||
+      cliArgs['--']?.includes('--skip-npm-packages')
+    if (skipNpmPackagesFlag) {
+      logger.log('Running with --skip-npm-packages')
+      logger.log('NPM override packages (packages/*) will be skipped')
     }
 
     // Find all version bump commits.
