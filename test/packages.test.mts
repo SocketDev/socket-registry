@@ -6,7 +6,6 @@ import { fix } from '@npmcli/package-json'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { EXT_JSON } from '@socketsecurity/lib/constants/paths'
 import { readJson } from '@socketsecurity/lib/fs'
-import { getManifestData } from '@socketsecurity/lib/index'
 import { isObjectObject, objectEntries } from '@socketsecurity/lib/objects'
 import {
   getExportFilePaths,
@@ -20,6 +19,8 @@ import { isNonEmptyString } from '@socketsecurity/lib/strings'
 import fastGlob from 'fast-glob'
 import semver from 'semver'
 import { describe, expect, it } from 'vitest'
+
+import { getManifestData } from '../registry/src/index.js'
 import {
   LICENSE,
   NPM,
@@ -260,7 +261,11 @@ for (const eco of ecosystems) {
         })
 
         const manifestData = getManifestData(eco, sockRegPkgName)
-        if (manifestData?.license !== 'Public Domain') {
+        if (
+          manifestData &&
+          !Array.isArray(manifestData) &&
+          manifestData.license !== 'Public Domain'
+        ) {
           it('should have an original license file', () => {
             expect(files.some(p => p.includes('.original'))).toBe(true)
           })

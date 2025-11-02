@@ -4,7 +4,6 @@
  */
 
 import { promises as fs } from 'node:fs'
-import { createRequire } from 'node:module'
 import path from 'node:path'
 
 import { PackageURL } from '@socketregistry/packageurl-js'
