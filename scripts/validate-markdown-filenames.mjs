@@ -2,9 +2,9 @@
  * @fileoverview Validates that markdown files follow naming conventions.
  *
  * Special files (allowed anywhere):
- * - README.md, LICENSE
+ * - README.md, LICENSE, LICENSE.*
  *
- * Allowed SCREAMING_CASE (all caps) files (root, docs/, or .claude/ only):
+ * Allowed SCREAMING_CASE (all caps) files (root, docs/, .claude/, or package directories):
  * - AUTHORS.md, CHANGELOG.md, CITATION.md, CLAUDE.md
  * - CODE_OF_CONDUCT.md, CONTRIBUTORS.md, CONTRIBUTING.md
  * - COPYING, CREDITS.md, GOVERNANCE.md, MAINTAINERS.md
@@ -158,6 +158,21 @@ function isInAllowedLocationForRegularMd(filePath) {
 }
 
 /**
+ * Check if file is in a monorepo package directory.
+ */
+function isInPackageDirectory(filePath) {
+  const relativePath = path.relative(rootPath, filePath)
+  const dir = path.dirname(relativePath)
+
+  // Check if parent directory is packages/* or registry
+  if (dir.startsWith('packages/') || dir === 'registry' || dir.startsWith('registry/')) {
+    return true
+  }
+
+  return false
+}
+
+/**
  * Validate a markdown filename.
  */
 function validateFilename(filePath) {
@@ -165,21 +180,21 @@ function validateFilename(filePath) {
   const nameWithoutExt = filename.replace(/\.(md|MD)$/, '')
   const relativePath = path.relative(rootPath, filePath)
 
-  // README.md and LICENSE are special - allowed anywhere
-  if (nameWithoutExt === 'README' || nameWithoutExt === 'LICENSE') {
+  // README.md and LICENSE (including LICENSE.*) are special - allowed anywhere
+  if (nameWithoutExt === 'README' || nameWithoutExt === 'LICENSE' || nameWithoutExt.startsWith('LICENSE.')) {
     // Valid - allowed in any location
     return null;
   }
 
   // Check if it's an allowed SCREAMING_CASE file
   if (ALLOWED_SCREAMING_CASE.has(nameWithoutExt)) {
-    // Must be in an allowed location (root, docs/, or .claude/)
-    if (!isInAllowedLocationForScreamingCase(filePath)) {
+    // Must be in an allowed location (root, docs/, .claude/, or package directory)
+    if (!isInAllowedLocationForScreamingCase(filePath) && !isInPackageDirectory(filePath)) {
       return {
         file: relativePath,
         filename,
-        issue: 'SCREAMING_CASE files only allowed at root, docs/, or .claude/',
-        suggestion: `Move to root, docs/, or .claude/, or rename to ${filename.toLowerCase().replace(/_/g, '-')}`,
+        issue: 'SCREAMING_CASE files only allowed at root, docs/, .claude/, or package directories',
+        suggestion: `Move to root, docs/, .claude/, or a package directory, or rename to ${filename.toLowerCase().replace(/_/g, '-')}`,
       }
     }
     // Valid
@@ -267,9 +282,9 @@ async function main() {
     logger.fail('Markdown filename violations found');
     logger.log('');
     logger.log('Special files (allowed anywhere):');
-    logger.log('  README.md, LICENSE');
+    logger.log('  README.md, LICENSE, LICENSE.*');
     logger.log('');
-    logger.log('Allowed SCREAMING_CASE files (root, docs/, or .claude/ only):');
+    logger.log('Allowed SCREAMING_CASE files (root, docs/, .claude/, or package directories):');
     logger.log('  AUTHORS.md, CHANGELOG.md, CITATION.md, CLAUDE.md,');
     logger.log('  CODE_OF_CONDUCT.md, CONTRIBUTORS.md, CONTRIBUTING.md,');
     logger.log('  COPYING, CREDITS.md, GOVERNANCE.md, MAINTAINERS.md,');
