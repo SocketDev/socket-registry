@@ -415,7 +415,7 @@ async function main() {
     }),
   )
   // Finally, modify other package file sources and write to disk.
-  await Promise.all(
+  await Promise.allSettled(
     [
       await getNpmReadmeAction(pkgPath, { interop }),
       ...(await getLicenseActions(pkgPath)),
