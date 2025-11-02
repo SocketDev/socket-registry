@@ -1,3 +1,4 @@
+/** @fileoverview Tests for @socketregistry/json-stable-stringify npm package override. */
 import { describe, expect, it } from 'vitest'
 
 import { getEnv } from '../../scripts/constants/env.mjs'

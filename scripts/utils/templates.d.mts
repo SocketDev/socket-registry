@@ -1,3 +1,4 @@
+/** @fileoverview Type declarations for templates utility functions. */
 /// <reference types="node" />
 import { PathLike } from 'node:fs'
 

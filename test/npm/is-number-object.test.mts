@@ -1,3 +1,4 @@
+/** @fileoverview Tests for @socketregistry/is-number-object npm package override. */
 import {
   createInvalidValuesExcluding,
   createTypeCheckerTests,

@@ -1,3 +1,4 @@
+/** @fileoverview Tests for @socketregistry/array-flatten npm package override. */
 import { describe, expect, it } from 'vitest'
 
 import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'

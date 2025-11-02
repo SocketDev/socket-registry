@@ -1,3 +1,4 @@
+/** @fileoverview Type declarations for biome utility functions. */
 import {
   Diagnostic,
   FilesConfiguration,

@@ -1,3 +1,4 @@
+/** @fileoverview Tests for @socketregistry/hyrious//bun.lockb npm package override. */
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 

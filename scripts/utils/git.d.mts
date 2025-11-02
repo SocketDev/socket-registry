@@ -1,3 +1,4 @@
+/** @fileoverview Type declarations for git utility functions. */
 import { PathLike } from 'node:fs'
 
 declare type DiffOptions = {

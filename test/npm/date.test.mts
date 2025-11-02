@@ -1,3 +1,4 @@
+/** @fileoverview Tests for @socketregistry/date npm package override. */
 import { describe, expect, it } from 'vitest'
 
 const DateImpl = require('../../packages/npm/date/Date')

@@ -1,3 +1,4 @@
+/** @fileoverview Tests for @socketregistry/es6-object-assign npm package override. */
 import path from 'node:path'
 // eslint-disable-next-line n/no-extraneous-import
 import { getDefaultLogger } from '@socketsecurity/lib/logger'

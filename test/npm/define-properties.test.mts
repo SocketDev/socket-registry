@@ -1,3 +1,4 @@
+/** @fileoverview Tests for @socketregistry/define-properties npm package override. */
 import { describe, expect, it } from 'vitest'
 
 const define = require('../../packages/npm/define-properties')

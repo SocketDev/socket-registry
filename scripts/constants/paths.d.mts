@@ -1,3 +1,4 @@
+/** @fileoverview Type declarations for paths constants. */
 export declare const CHANGELOG_MD: string
 export declare const DOT_GITHUB: string
 export declare const ESLINT_CONFIG_JS: string

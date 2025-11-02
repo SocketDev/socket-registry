@@ -1,3 +1,4 @@
+/** @fileoverview Tests for @socketregistry/safer-buffer npm package override. */
 /* eslint-disable n/no-deprecated-api */
 import buffer from 'node:buffer'
 import path from 'node:path'

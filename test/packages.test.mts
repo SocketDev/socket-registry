@@ -1,3 +1,4 @@
+/** @fileoverview Tests for package validation and manifest generation. */
 import { existsSync, promises as fs } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
