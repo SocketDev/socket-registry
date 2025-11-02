@@ -29,7 +29,7 @@ import {
 async function main() {
   const useDebug = isDebug()
   const warnings = []
-  await Promise.all(
+  await Promise.allSettled(
     getNpmPackageNames().map(async sockRegPkgName => {
       const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
