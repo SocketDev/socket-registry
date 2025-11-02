@@ -40,8 +40,6 @@ import {
 import { getLicenseContent } from '../constants/utils.mjs'
 import { biomeFormat } from './biome.mjs'
 
-const _require = createRequire(import.meta.url)
-
 // File extension constants.
 const EXT_JSON = '.json'
 const EXT_MD = '.md'
