@@ -238,10 +238,15 @@ async function hasPackageChanged(pkg, manifest_, options) {
   let changed = false
   // Compare actual file contents by extracting packages and comparing SHA hashes.
   try {
-    const { 0: remoteHashes, 1: localHashes } = await Promise.all([
+    const results = await Promise.allSettled([
       getRemotePackageFileHashes(`${pkg.name}@${manifest.version}`),
       getLocalPackageFileHashes(pkg.path),
     ])
+
+    const remoteHashes =
+      results[0].status === 'fulfilled' ? results[0].value : {}
+    const localHashes =
+      results[1].status === 'fulfilled' ? results[1].value : {}
 
     // Use remote files as source of truth and check if local matches.
     for (const { 0: file, 1: remoteHash } of Object.entries(remoteHashes)) {

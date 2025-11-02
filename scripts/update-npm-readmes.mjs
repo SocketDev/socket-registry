@@ -40,7 +40,7 @@ async function main() {
     return
   }
   const npmPackageNames = getNpmPackageNames()
-  await Promise.all(
+  await Promise.allSettled(
     npmPackageNames.map(async sockRegPkgName => {
       const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
       const readmePath = path.join(pkgPath, README_MD)
