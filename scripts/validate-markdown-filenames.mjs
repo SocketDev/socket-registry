@@ -16,15 +16,15 @@
  * - NOT be at root level
  */
 
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import loggerPkg from '@socketsecurity/lib/logger';
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import loggerPkg from '@socketsecurity/lib/logger'
 
-const logger = loggerPkg.getDefaultLogger();
+const logger = loggerPkg.getDefaultLogger()
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const rootPath = path.join(__dirname, '..');
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const rootPath = path.join(__dirname, '..')
 
 // Allowed SCREAMING_CASE markdown files (without .md extension for comparison)
 const ALLOWED_SCREAMING_CASE = new Set([
@@ -165,7 +165,11 @@ function isInPackageDirectory(filePath) {
   const dir = path.dirname(relativePath)
 
   // Check if parent directory is packages/* or registry
-  if (dir.startsWith('packages/') || dir === 'registry' || dir.startsWith('registry/')) {
+  if (
+    dir.startsWith('packages/') ||
+    dir === 'registry' ||
+    dir.startsWith('registry/')
+  ) {
     return true
   }
 
@@ -181,24 +185,32 @@ function validateFilename(filePath) {
   const relativePath = path.relative(rootPath, filePath)
 
   // README.md and LICENSE (including LICENSE.*) are special - allowed anywhere
-  if (nameWithoutExt === 'README' || nameWithoutExt === 'LICENSE' || nameWithoutExt.startsWith('LICENSE.')) {
+  if (
+    nameWithoutExt === 'README' ||
+    nameWithoutExt === 'LICENSE' ||
+    nameWithoutExt.startsWith('LICENSE.')
+  ) {
     // Valid - allowed in any location
-    return null;
+    return null
   }
 
   // Check if it's an allowed SCREAMING_CASE file
   if (ALLOWED_SCREAMING_CASE.has(nameWithoutExt)) {
     // Must be in an allowed location (root, docs/, .claude/, or package directory)
-    if (!isInAllowedLocationForScreamingCase(filePath) && !isInPackageDirectory(filePath)) {
+    if (
+      !isInAllowedLocationForScreamingCase(filePath) &&
+      !isInPackageDirectory(filePath)
+    ) {
       return {
         file: relativePath,
         filename,
-        issue: 'SCREAMING_CASE files only allowed at root, docs/, .claude/, or package directories',
+        issue:
+          'SCREAMING_CASE files only allowed at root, docs/, .claude/, or package directories',
         suggestion: `Move to root, docs/, .claude/, or a package directory, or rename to ${filename.toLowerCase().replace(/_/g, '-')}`,
       }
     }
     // Valid
-    return null;
+    return null
   }
 
   // Check if it's in SCREAMING_CASE but not allowed
@@ -249,7 +261,7 @@ function validateFilename(filePath) {
   }
 
   // Valid
-  return null;
+  return null
 }
 
 /**
@@ -271,49 +283,51 @@ async function validateMarkdownFilenames() {
 
 async function main() {
   try {
-    const violations = await validateMarkdownFilenames();
+    const violations = await validateMarkdownFilenames()
 
     if (violations.length === 0) {
-      logger.success('All markdown filenames follow conventions');
-      process.exitCode = 0;
-      return;
+      logger.success('All markdown filenames follow conventions')
+      process.exitCode = 0
+      return
     }
 
-    logger.fail('Markdown filename violations found');
-    logger.log('');
-    logger.log('Special files (allowed anywhere):');
-    logger.log('  README.md, LICENSE, LICENSE.*');
-    logger.log('');
-    logger.log('Allowed SCREAMING_CASE files (root, docs/, .claude/, or package directories):');
-    logger.log('  AUTHORS.md, CHANGELOG.md, CITATION.md, CLAUDE.md,');
-    logger.log('  CODE_OF_CONDUCT.md, CONTRIBUTORS.md, CONTRIBUTING.md,');
-    logger.log('  COPYING, CREDITS.md, GOVERNANCE.md, MAINTAINERS.md,');
-    logger.log('  NOTICE.md, SECURITY.md, SUPPORT.md, TRADEMARK.md');
-    logger.log('');
-    logger.log('All other .md files must:');
-    logger.log('  - Be lowercase-with-hyphens');
-    logger.log('  - Be in docs/ or .claude/ directories (any depth)');
-    logger.log('');
+    logger.fail('Markdown filename violations found')
+    logger.log('')
+    logger.log('Special files (allowed anywhere):')
+    logger.log('  README.md, LICENSE, LICENSE.*')
+    logger.log('')
+    logger.log(
+      'Allowed SCREAMING_CASE files (root, docs/, .claude/, or package directories):',
+    )
+    logger.log('  AUTHORS.md, CHANGELOG.md, CITATION.md, CLAUDE.md,')
+    logger.log('  CODE_OF_CONDUCT.md, CONTRIBUTORS.md, CONTRIBUTING.md,')
+    logger.log('  COPYING, CREDITS.md, GOVERNANCE.md, MAINTAINERS.md,')
+    logger.log('  NOTICE.md, SECURITY.md, SUPPORT.md, TRADEMARK.md')
+    logger.log('')
+    logger.log('All other .md files must:')
+    logger.log('  - Be lowercase-with-hyphens')
+    logger.log('  - Be in docs/ or .claude/ directories (any depth)')
+    logger.log('')
 
     for (const violation of violations) {
-      logger.log(`  ${violation.file}`);
-      logger.log(`    Issue: ${violation.issue}`);
-      logger.log(`    Current: ${violation.filename}`);
-      logger.log(`    Suggested: ${violation.suggestion}`);
-      logger.log('');
+      logger.log(`  ${violation.file}`)
+      logger.log(`    Issue: ${violation.issue}`)
+      logger.log(`    Current: ${violation.filename}`)
+      logger.log(`    Suggested: ${violation.suggestion}`)
+      logger.log('')
     }
 
-    logger.log('Rename files to follow conventions.');
-    logger.log('');
+    logger.log('Rename files to follow conventions.')
+    logger.log('')
 
-    process.exitCode = 1;
+    process.exitCode = 1
   } catch (error) {
-    logger.fail(`Validation failed: ${error.message}`);
-    process.exitCode = 1;
+    logger.fail(`Validation failed: ${error.message}`)
+    process.exitCode = 1
   }
 }
 
 main().catch(error => {
-  logger.fail(`Validation failed: ${error}`);
-  process.exitCode = 1;
-});
+  logger.fail(`Validation failed: ${error}`)
+  process.exitCode = 1
+})
