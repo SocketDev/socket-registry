@@ -86,6 +86,13 @@ async function main() {
           ...(process.platform === 'win32' && { shell: true }),
         },
       },
+      {
+        args: ['scripts/validate-no-cdn-refs.mjs'],
+        command: 'node',
+        options: {
+          ...(process.platform === 'win32' && { shell: true }),
+        },
+      },
     ]
 
     const exitCodes = await runParallel(checks)
