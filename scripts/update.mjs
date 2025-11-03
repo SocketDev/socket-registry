@@ -10,10 +10,9 @@ import { fileURLToPath } from 'node:url'
 
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { printFooter, printHeader } from '@socketsecurity/lib/stdio/header'
 
 const logger = getDefaultLogger()
-
-import { log, printFooter, printHeader } from './utils/cli-helpers.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.join(__dirname, '..')
@@ -94,7 +93,7 @@ async function runCommandWithOutput(command, args = [], options = {}) {
 async function updateDependencies(options = {}) {
   const { check = false, write = false } = options
 
-  log.progress('Checking for dependency updates')
+  logger.info('Checking for dependency updates...')
 
   const args = ['exec', 'taze']
 
@@ -114,22 +113,22 @@ async function updateDependencies(options = {}) {
   const result = await runCommandWithOutput('pnpm', args)
 
   if (result.hasProvenanceDowngrade) {
-    log.failed('Provenance downgrade detected!')
-    log.error(
+    logger.error('Provenance downgrade detected!')
+    logger.error(
       'ERROR: Provenance downgrade detected! Failing to maintain security.',
     )
-    log.error(
+    logger.error(
       'Configure your dependencies to maintain provenance or exclude problematic packages.',
     )
     return 1
   }
 
   if (result.exitCode !== 0) {
-    log.failed('Dependency update failed')
+    logger.error('Dependency update failed')
     return result.exitCode
   }
 
-  log.done(write ? 'Dependencies updated' : 'Dependency check complete')
+  logger.success(write ? 'Dependencies updated' : 'Dependency check complete')
   return 0
 }
 
@@ -137,7 +136,7 @@ async function updateDependencies(options = {}) {
  * Update Socket packages to latest versions.
  */
 async function updateSocketPackages() {
-  log.progress('Updating Socket packages')
+  logger.info('Updating Socket packages')
 
   const exitCode = await runCommand('pnpm', [
     '-r',
@@ -148,11 +147,11 @@ async function updateSocketPackages() {
   ])
 
   if (exitCode !== 0) {
-    log.failed('Socket package update failed')
+    logger.error('Socket package update failed')
     return exitCode
   }
 
-  log.done('Socket packages updated')
+  logger.success('Socket packages updated')
   return 0
 }
 
@@ -188,21 +187,21 @@ async function runProjectUpdates() {
     return 0
   }
 
-  log.step('Running project-specific updates')
+  logger.step('Running project-specific updates')
 
   for (const { name, script } of updates) {
-    log.progress(`Updating ${name}`)
+    logger.info(`Updating ${name}`)
 
     const exitCode = await runCommand('node', [script], {
       stdio: 'pipe',
     })
 
     if (exitCode !== 0) {
-      log.failed(`Failed to update ${name}`)
+      logger.error(`Failed to update ${name}`)
       return exitCode
     }
 
-    log.done(`Updated ${name}`)
+    logger.success(`Updated ${name}`)
   }
 
   return 0
@@ -271,14 +270,14 @@ async function main() {
 
     // Update dependencies.
     if (runAll || values.deps) {
-      log.step('Updating dependencies')
+      logger.step('Updating dependencies')
       exitCode = await updateDependencies({
         check: values.check,
         write: values.write,
         args: positionals,
       })
       if (exitCode !== 0) {
-        log.error('Dependency update failed')
+        logger.error('Dependency update failed')
         process.exitCode = exitCode
         return
       }
@@ -286,10 +285,10 @@ async function main() {
 
     // Update Socket packages.
     if ((runAll || values.socket) && !values.check) {
-      log.step('Updating Socket packages')
+      logger.step('Updating Socket packages')
       exitCode = await updateSocketPackages()
       if (exitCode !== 0) {
-        log.error('Socket package update failed')
+        logger.error('Socket package update failed')
         process.exitCode = exitCode
         return
       }
@@ -299,7 +298,7 @@ async function main() {
     if ((runAll || values.project) && !values.check) {
       exitCode = await runProjectUpdates()
       if (exitCode !== 0) {
-        log.error('Project updates failed')
+        logger.error('Project updates failed')
         process.exitCode = exitCode
         return
       }
@@ -308,7 +307,7 @@ async function main() {
     printFooter('All updates completed successfully!')
     process.exitCode = 0
   } catch (error) {
-    log.error(`Update runner failed: ${error.message}`)
+    logger.error(`Update runner failed: ${error.message}`)
     process.exitCode = 1
   }
 }

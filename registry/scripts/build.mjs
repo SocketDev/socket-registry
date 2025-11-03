@@ -9,20 +9,20 @@ import { fileURLToPath } from 'node:url'
 import { build, context } from 'esbuild'
 import colors from 'yoctocolors-cjs'
 import fg from 'fast-glob'
+
+import { isQuiet } from '@socketsecurity/lib/argv/flags'
+import { LOG_SYMBOLS, getDefaultLogger } from '@socketsecurity/lib/logger'
+import { printFooter, printHeader } from '@socketsecurity/lib/stdio/header'
+
 import {
   analyzeMetafile,
   buildConfig,
   watchConfig,
 } from '../.config/esbuild.config.mjs'
-import { isQuiet } from '../../scripts/utils/flags.mjs'
-import {
-  logger,
-  printCompletedHeader,
-  printFooter,
-  printHeader,
-} from '../../scripts/utils/helpers.mjs'
 import { parseArgs } from '../../scripts/utils/parse-args.mjs'
 import { runSequence } from '../../scripts/utils/run-command.mjs'
+
+const logger = getDefaultLogger()
 
 const rootPath = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -432,7 +432,7 @@ async function main() {
       }
 
       if (!quiet) {
-        printCompletedHeader('Build Cleaned')
+        logger.log(`${LOG_SYMBOLS.success} Build Cleaned`)
       }
 
       // Run source and types builds in parallel.

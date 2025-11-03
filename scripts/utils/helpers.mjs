@@ -1,31 +1,9 @@
 /**
- * @fileoverview Simplified helpers for socket-registry scripts.
- * These are local utilities that don't depend on dist/lib.
+ * @fileoverview Registry-specific utilities for scripts.
+ * For common utilities, import directly from @socketsecurity/lib.
  */
 
 import { promises as fs } from 'node:fs'
-
-// Re-export unified print functions from cli-helpers.
-export {
-  printCompletedHeader,
-  printDivider,
-  printError,
-  printFooter,
-  printHeader,
-  printInfo,
-  printSuccess,
-  printWarning,
-} from './cli-helpers.mjs'
-
-// Simple logger without any dependencies on dist.
-export const logger = {
-  info: msg => console.log(msg),
-  error: msg => console.error(`✗ ${msg}`),
-  warn: msg => console.warn(`⚠ ${msg}`),
-  success: msg => console.log(`✓ ${msg}`),
-  // Customizable indent.
-  indent: (msg, spaces = 2) => console.log(`${' '.repeat(spaces)}${msg}`),
-}
 
 // Sort object keys alphabetically.
 export function toSortedObject(obj) {

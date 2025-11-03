@@ -13,16 +13,11 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { printFooter, printHeader } from '@socketsecurity/lib/stdio/header'
+
+import { runCommand, runParallel } from './utils/run-command.mjs'
 
 const logger = getDefaultLogger()
-
-import {
-  printError,
-  printFooter,
-  printHeader,
-  printSuccess,
-} from './utils/cli-helpers.mjs'
-import { runCommand, runParallel } from './utils/run-command.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.resolve(__dirname, '..')
@@ -37,7 +32,7 @@ async function main() {
     if (!existsSync(registryDistPath)) {
       const buildExitCode = await runCommand('pnpm', ['run', 'build'])
       if (buildExitCode !== 0) {
-        printError('Build failed')
+        logger.error('Build failed')
         process.exitCode = buildExitCode
         return
       }
@@ -120,14 +115,14 @@ async function main() {
     const failed = exitCodes.some(code => code !== 0)
 
     if (failed) {
-      printError('Some checks failed')
+      logger.error('Some checks failed')
       process.exitCode = 1
     } else {
-      printSuccess('All checks passed')
+      logger.success('All checks passed')
       printFooter()
     }
   } catch (error) {
-    printError(`Check failed: ${error.message}`)
+    logger.error(`Check failed: ${error.message}`)
     process.exitCode = 1
   }
 }

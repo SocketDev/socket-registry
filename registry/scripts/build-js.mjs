@@ -9,12 +9,15 @@ import { fileURLToPath } from 'node:url'
 import { build, context } from 'esbuild'
 import fg from 'fast-glob'
 
-import { printError, printSuccess } from '../../scripts/utils/cli-helpers.mjs'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+
 import {
   analyzeMetafile,
   buildConfig,
   watchConfig,
 } from '../.config/esbuild.config.mjs'
+
+const logger = getDefaultLogger()
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.join(__dirname, '..')
@@ -112,7 +115,7 @@ async function buildJS() {
     return 0
   } catch (error) {
     if (!isQuiet) {
-      printError('JavaScript build failed')
+      logger.error('JavaScript build failed')
       console.error(error)
     }
     return 1
@@ -140,11 +143,11 @@ async function watchJS() {
             build.onEnd(result => {
               if (result.errors.length > 0) {
                 if (!isQuiet) {
-                  printError('Rebuild failed')
+                  logger.error('Rebuild failed')
                 }
               } else {
                 if (!isQuiet) {
-                  printSuccess('Rebuild succeeded')
+                  logger.success('Rebuild succeeded')
 
                   if (result?.metafile && isVerbose) {
                     const analysis = analyzeMetafile(result.metafile)
@@ -173,7 +176,7 @@ async function watchJS() {
     await new Promise(() => {})
   } catch (error) {
     if (!isQuiet) {
-      printError('Watch mode failed')
+      logger.error('Watch mode failed')
       console.error(error)
     }
     return 1
