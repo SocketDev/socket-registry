@@ -70,8 +70,8 @@ catalogs:
       specifier: 9.1.7
       version: 9.1.7
     magic-string:
-      specifier: 0.30.17
-      version: 0.30.17
+      specifier: 0.30.21
+      version: 0.30.21
     normalize-package-data:
       specifier: 8.0.0
       version: 8.0.0
@@ -347,7 +347,7 @@ importers:
         version: 9.0.9
       magic-string:
         specifier: 'catalog:'
-        version: 0.30.17
+        version: 0.30.21
       make-fetch-happen:
         specifier: 15.0.2
         version: 15.0.2
