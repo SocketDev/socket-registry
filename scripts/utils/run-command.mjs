@@ -14,12 +14,21 @@ const logger = getDefaultLogger()
  * @returns {Promise<number>} Exit code
  */
 export async function runCommand(command, args = [], options = {}) {
-  const result = await spawn(command, args, {
-    shell: process.platform === 'win32',
-    stdio: 'inherit',
-    ...options,
-  })
-  return result.code
+  try {
+    const result = await spawn(command, args, {
+      stdio: 'inherit',
+      ...(process.platform === 'win32' && { shell: true }),
+      ...options,
+    })
+    return result.code
+  } catch (error) {
+    // spawn() from @socketsecurity/lib throws on non-zero exit
+    // Return the exit code from the error
+    if (error && typeof error === 'object' && 'code' in error) {
+      return error.code
+    }
+    throw error
+  }
 }
 
 /**
@@ -31,10 +40,11 @@ export async function runCommand(command, args = [], options = {}) {
  */
 export function runCommandSync(command, args = [], options = {}) {
   const result = spawnSync(command, args, {
-    shell: process.platform === 'win32',
     stdio: 'inherit',
+    ...(process.platform === 'win32' && { shell: true }),
     ...options,
   })
+
   return result.status || 0
 }
 
@@ -85,17 +95,36 @@ export async function runParallel(commands) {
  * @returns {Promise<{exitCode: number, stdout: string, stderr: string}>}
  */
 export async function runCommandQuiet(command, args = [], options = {}) {
-  const result = await spawn(command, args, {
-    shell: process.platform === 'win32',
-    ...options,
-    stdio: ['inherit', 'pipe', 'pipe'],
-    stdioString: true,
-  })
+  try {
+    const result = await spawn(command, args, {
+      ...options,
+      ...(process.platform === 'win32' && { shell: true }),
+      stdio: 'pipe',
+      stdioString: true,
+    })
 
-  return {
-    exitCode: result.code,
-    stderr: result.stderr,
-    stdout: result.stdout,
+    return {
+      exitCode: result.code,
+      stderr: result.stderr,
+      stdout: result.stdout,
+    }
+  } catch (error) {
+    // spawn() from @socketsecurity/lib throws on non-zero exit
+    // Return the exit code and output from the error
+    if (
+      error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      'stdout' in error &&
+      'stderr' in error
+    ) {
+      return {
+        exitCode: error.code,
+        stderr: error.stderr,
+        stdout: error.stdout,
+      }
+    }
+    throw error
   }
 }
 
