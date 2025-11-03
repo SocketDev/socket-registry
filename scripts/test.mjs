@@ -255,37 +255,28 @@ async function runTests(options, positionals = []) {
       // Memory limits: CI gets 8GB, local development gets 2GB to prevent system strain.
       NODE_OPTIONS:
         `${process.env.NODE_OPTIONS || ''} --max-old-space-size=${process.env.CI ? 8192 : 2048} --unhandled-rejections=warn`.trim(),
+      NODE_COMPILE_CACHE: './.cache',
+      NODE_ENV: 'test',
+      VITEST: '1',
     },
     stdio: 'inherit',
   }
 
-  // Use dotenvx to load test environment
-  const dotenvxCmd = WIN32 ? 'dotenvx.cmd' : 'dotenvx'
-  const dotenvxPath = path.join(nodeModulesBinPath, dotenvxCmd)
-
   // Use interactive runner for interactive Ctrl+O experience when appropriate
   if (process.stdout.isTTY) {
     const { runTests } = await import('./utils/interactive-runner.mjs')
-    return runTests(
-      dotenvxPath,
-      ['-q', 'run', '-f', '.env.test', '--', vitestPath, ...vitestArgs],
-      {
-        env: spawnOptions.env,
-        cwd: spawnOptions.cwd,
-        verbose: false,
-      },
-    )
+    return runTests(vitestPath, vitestArgs, {
+      env: spawnOptions.env,
+      cwd: spawnOptions.cwd,
+      verbose: false,
+    })
   }
 
   // Fallback to execution with output capture to handle worker termination errors
-  const result = await runCommandWithOutput(
-    dotenvxPath,
-    ['-q', 'run', '-f', '.env.test', '--', vitestPath, ...vitestArgs],
-    {
-      ...spawnOptions,
-      stdio: ['inherit', 'pipe', 'pipe'],
-    },
-  )
+  const result = await runCommandWithOutput(vitestPath, vitestArgs, {
+    ...spawnOptions,
+    stdio: ['inherit', 'pipe', 'pipe'],
+  })
 
   // Print output
   if (result.stdout) {
