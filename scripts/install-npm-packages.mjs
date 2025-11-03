@@ -112,11 +112,12 @@ import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
 // Default concurrency values based on environment and platform.
 const DEFAULT_CI_CONCURRENCY_WIN32 = '5'
 const DEFAULT_CI_CONCURRENCY_POSIX = '10'
-const DEFAULT_DEV_CONCURRENCY = '15'
+const DEFAULT_DEV_CONCURRENCY = '30'
 
 // Filesystem delay constants for tar extraction and JSON parsing.
-const FS_FLUSH_DELAY_MS = 100
-const JSON_PARSE_RETRY_BASE_DELAY_MS = 200
+// Reduced for faster local development, CI has slower filesystems so may need retries.
+const FS_FLUSH_DELAY_MS = ENV.CI ? 100 : 10
+const JSON_PARSE_RETRY_BASE_DELAY_MS = ENV.CI ? 200 : 50
 const JSON_PARSE_MAX_RETRIES = 3
 
 // Output truncation length for error messages.
@@ -354,6 +355,9 @@ async function applyNestedSocketOverrides(packagePath) {
   // Get list of all installed packages in node_modules.
   const entries = await fs.readdir(nodeModulesPath, { withFileTypes: true })
 
+  // Process packages in parallel for better performance
+  const tasks = []
+
   for (const entry of entries) {
     if (!entry.isDirectory()) {
       continue
@@ -363,33 +367,44 @@ async function applyNestedSocketOverrides(packagePath) {
     if (entry.name.startsWith('@')) {
       const scopePath = path.join(nodeModulesPath, entry.name)
 
-      const scopedEntries = await fs.readdir(scopePath, { withFileTypes: true })
+      tasks.push(
+        (async () => {
+          const scopedEntries = await fs.readdir(scopePath, {
+            withFileTypes: true,
+          })
 
-      for (const scopedEntry of scopedEntries) {
-        if (!scopedEntry.isDirectory()) {
-          continue
-        }
+          for (const scopedEntry of scopedEntries) {
+            if (!scopedEntry.isDirectory()) {
+              continue
+            }
 
-        const packageName = `${entry.name}/${scopedEntry.name}`
-        const nestedPackagePath = path.join(scopePath, scopedEntry.name)
+            const packageName = `${entry.name}/${scopedEntry.name}`
+            const nestedPackagePath = path.join(scopePath, scopedEntry.name)
 
-        await applySocketOverrideIfExists(packageName, nestedPackagePath)
+            await applySocketOverrideIfExists(packageName, nestedPackagePath)
 
-        // Recursively apply to nested dependencies.
-
-        await applyNestedSocketOverrides(nestedPackagePath)
-      }
+            // Recursively apply to nested dependencies.
+            await applyNestedSocketOverrides(nestedPackagePath)
+          }
+        })(),
+      )
     } else {
       // Regular (non-scoped) package.
       const nestedPackagePath = path.join(nodeModulesPath, entry.name)
 
-      await applySocketOverrideIfExists(entry.name, nestedPackagePath)
+      tasks.push(
+        (async () => {
+          await applySocketOverrideIfExists(entry.name, nestedPackagePath)
 
-      // Recursively apply to nested dependencies.
-
-      await applyNestedSocketOverrides(nestedPackagePath)
+          // Recursively apply to nested dependencies.
+          await applyNestedSocketOverrides(nestedPackagePath)
+        })(),
+      )
     }
   }
+
+  // Wait for all parallel tasks to complete
+  await Promise.all(tasks)
 }
 
 async function applySocketOverrideIfExists(packageName, packagePath) {

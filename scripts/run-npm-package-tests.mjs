@@ -47,12 +47,19 @@ const { values: cliArgs } = parseArgs({
       type: 'boolean',
       default: false,
     },
+    'skip-reinstall-retry': {
+      type: 'boolean',
+      default: true,
+    },
   },
   strict: false,
 })
 
 const concurrency = Math.max(1, Number.parseInt(cliArgs.concurrency, 10) || 3)
 const tempBaseDir = cliArgs.tempDir
+
+// Cache for package.json reads to avoid repeated filesystem access
+const packageJsonCache = new Map()
 
 /**
  * Check if cleaned script only runs non-test commands.
@@ -137,7 +144,12 @@ async function runPackageTest(socketPkgName) {
 
   // Check if package.json exists and has test script.
   const pkgJsonPath = path.join(installedPath, 'package.json')
-  const pkgJson = await readPackageJson(pkgJsonPath)
+  // Use cache to avoid repeated fs reads
+  let pkgJson = packageJsonCache.get(pkgJsonPath)
+  if (!pkgJson) {
+    pkgJson = await readPackageJson(pkgJsonPath)
+    packageJsonCache.set(pkgJsonPath, pkgJson)
+  }
   const testScript = pkgJson.scripts?.test
 
   if (!testScript) {
@@ -180,7 +192,11 @@ async function runPackageTest(socketPkgName) {
     const errorStderr = error.stderr || ''
 
     // Check if this is a module resolution error.
-    if (hasModuleError(errorStdout, errorStderr)) {
+    // Only attempt reinstall if --skip-reinstall-retry is false (opt-in behavior).
+    if (
+      !cliArgs.skipReinstallRetry &&
+      hasModuleError(errorStdout, errorStderr)
+    ) {
       logger.warn(`${origPkgName}: Module error detected, attempting reinstall`)
 
       try {
