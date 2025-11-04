@@ -31,8 +31,8 @@ catalogs:
       specifier: 1.3.5
       version: 1.3.5
     '@socketsecurity/lib':
-      specifier: 3.2.1
-      version: 3.2.1
+      specifier: 3.2.4
+      version: 3.2.4
     '@vitest/coverage-v8':
       specifier: 4.0.3
       version: 4.0.3
@@ -218,7 +218,7 @@ importers:
         version: scripts@file:scripts
       '@socketsecurity/lib':
         specifier: 'catalog:'
-        version: 3.2.1(typescript@5.9.2)
+        version: 3.2.4(typescript@5.9.2)
       '@types/fs-extra':
         specifier: 11.0.4
         version: 11.0.4
@@ -473,13 +473,13 @@ importers:
     dependencies:
       is-nan:
         specifier: npm:@socketregistry/is-nan@1.0.8
-        version: link:../is-nan
+        version: '@socketregistry/is-nan@1.0.8'
       object-is:
         specifier: npm:@socketregistry/object-is@1.0.8
-        version: link:../object-is
+        version: '@socketregistry/object-is@1.0.8'
       object.assign:
         specifier: npm:@socketregistry/object.assign@1.0.8
-        version: link:../object.assign
+        version: '@socketregistry/object.assign@1.0.8'
       util:
         specifier: npm:util@0.12.5
         version: 0.12.5
@@ -494,52 +494,52 @@ importers:
     dependencies:
       array-buffer-byte-length:
         specifier: npm:@socketregistry/array-buffer-byte-length@1.0.7
-        version: link:../array-buffer-byte-length
+        version: '@socketregistry/array-buffer-byte-length@1.0.7'
       es-get-iterator:
         specifier: npm:@socketregistry/es-get-iterator@1.0.8
-        version: link:../es-get-iterator
+        version: '@socketregistry/es-get-iterator@1.0.8'
       is-arguments:
         specifier: npm:@socketregistry/is-arguments@1.0.10
-        version: link:../is-arguments
+        version: '@socketregistry/is-arguments@1.0.10'
       is-array-buffer:
         specifier: npm:@socketregistry/is-array-buffer@1.0.10
-        version: link:../is-array-buffer
+        version: '@socketregistry/is-array-buffer@1.0.10'
       is-date-object:
         specifier: npm:@socketregistry/is-date-object@1.0.10
-        version: link:../is-date-object
+        version: '@socketregistry/is-date-object@1.0.10'
       is-regex:
         specifier: npm:@socketregistry/is-regex@1.0.10
-        version: link:../is-regex
+        version: '@socketregistry/is-regex@1.0.10'
       is-shared-array-buffer:
         specifier: npm:@socketregistry/is-shared-array-buffer@1.0.10
-        version: link:../is-shared-array-buffer
+        version: '@socketregistry/is-shared-array-buffer@1.0.10'
       isarray:
         specifier: npm:@socketregistry/isarray@1.0.8
-        version: link:../isarray
+        version: '@socketregistry/isarray@1.0.8'
       object-is:
         specifier: npm:@socketregistry/object-is@1.0.8
-        version: link:../object-is
+        version: '@socketregistry/object-is@1.0.8'
       object-keys:
         specifier: npm:@socketregistry/object-keys@1.0.8
-        version: link:../object-keys
+        version: '@socketregistry/object-keys@1.0.8'
       object.assign:
         specifier: npm:@socketregistry/object.assign@1.0.8
-        version: link:../object.assign
+        version: '@socketregistry/object.assign@1.0.8'
       regexp.prototype.flags:
         specifier: npm:@socketregistry/regexp.prototype.flags@1.0.8
-        version: link:../regexp.prototype.flags
+        version: '@socketregistry/regexp.prototype.flags@1.0.8'
       side-channel:
         specifier: npm:@socketregistry/side-channel@1.0.10
-        version: link:../side-channel
+        version: '@socketregistry/side-channel@1.0.10'
       which-boxed-primitive:
         specifier: npm:@socketregistry/which-boxed-primitive@1.0.9
-        version: link:../which-boxed-primitive
+        version: '@socketregistry/which-boxed-primitive@1.0.9'
       which-collection:
         specifier: npm:@socketregistry/which-collection@1.0.8
-        version: link:../which-collection
+        version: '@socketregistry/which-collection@1.0.8'
       which-typed-array:
         specifier: npm:@socketregistry/which-typed-array@1.0.9
-        version: link:../which-typed-array
+        version: '@socketregistry/which-typed-array@1.0.9'
 
   packages/npm/define-properties: {}
 
@@ -771,7 +771,7 @@ importers:
         version: 2.1.0
       json-stable-stringify:
         specifier: npm:@socketregistry/json-stable-stringify@1.0.13
-        version: link:../../packages/npm/json-stable-stringify
+        version: '@socketregistry/json-stable-stringify@1.0.13'
       tinybench:
         specifier: 5.0.1
         version: 5.0.1
@@ -780,7 +780,7 @@ importers:
     devDependencies:
       '@socketsecurity/lib':
         specifier: 'catalog:'
-        version: 3.2.1(typescript@5.9.2)
+        version: 3.2.4(typescript@5.9.2)
       '@types/node':
         specifier: 24.9.2
         version: 24.9.2
@@ -1764,6 +1764,14 @@ packages:
     resolution: {integrity: sha512-LtoMMhxAlorcGhmFYI+LhPgbPZCkgP6ra1YL604EeF6U98pLlQ3iWIGMdWSC+vWmPBWBNgmDBAhnAobLROJmwg==}
     engines: {node: '>=18'}
 
+  '@socketregistry/array-buffer-byte-length@1.0.7':
+    resolution: {integrity: sha512-kyHtxU8hrzPt9ruS4Pg/BLoSQrtUYK+5izlWmsrS8SHz1FOA11nwsKrTR4io573MJ4d7MTXwWTSrdqqZYDvw3g==}
+    engines: {node: '>=18'}
+
+  '@socketregistry/es-get-iterator@1.0.8':
+    resolution: {integrity: sha512-nDx2F54qKrO5MOm97qEtRwWTjpVejNfUTZBzvwxvdp6RL3HgxSFpuxRO2idExtANItrE3FuQjBItfY3yqunTGQ==}
+    engines: {node: '>=18'}
+
   '@socketregistry/indent-string@1.0.14':
     resolution: {integrity: sha512-SCb2h+KkZppDEDyzZheazziUpJQVeCpEMQxSiTn4VMbVkGgvpNVAWQyx3IniSzwiSJpASmwTRTlhiYk6AR19bw==}
     engines: {node: '>=18'}
@@ -1772,16 +1780,56 @@ packages:
     resolution: {integrity: sha512-vpwwSbV0LL25GaNBCAprUzUW6dg7mNU2d8CsozEpoabcRo2jAsHLGKXQuJxf+4zldt0UZSag7GzfaLQmxTctcw==}
     engines: {node: '>=18'}
 
+  '@socketregistry/is-array-buffer@1.0.10':
+    resolution: {integrity: sha512-/c88F7+Fih6IQ5lvTJR2vL6n3sJPUl8mXEZZQx3VIuqu3Xj6xSSTM7UYb235OcP8eghKwTmc5xGp7AL3IuFMzw==}
+    engines: {node: '>=18'}
+
   '@socketregistry/is-core-module@1.0.11':
     resolution: {integrity: sha512-obrSzvIfJXKQthA3u1RmkjLHuA1QDtLm0SbXJxGs2CQfXZY9Eql5/pBGSV1hIUWKcpdcNphFgnJMC5BITcTXsQ==}
+    engines: {node: '>=18'}
+
+  '@socketregistry/is-date-object@1.0.10':
+    resolution: {integrity: sha512-j/3vQ6qQnROfeM/p2Oto0xlYIQSQqtpNgVtHM+rvJldKe1TD7HSj134PUtiPMWSWyj095BS/o1vqbE6+SI9How==}
     engines: {node: '>=18'}
 
   '@socketregistry/is-generator-function@1.0.10':
     resolution: {integrity: sha512-cvsJKS1X87HYytlHr/emRFhOQGo7CQWZEWQkDmYeMfDcA2lO7eZQisvny6ddzSHKq89aS4PBKT91kFqvlmJqQQ==}
     engines: {node: '>=18'}
 
+  '@socketregistry/is-nan@1.0.8':
+    resolution: {integrity: sha512-PKimUt1i/4yKbVzHOGz/LOgcmCJFXKIXR0OZt5tkNJVFZ6LB0poAq2jyzAnud176tVelY/aDoOebnGLfDK0L1g==}
+    engines: {node: '>=18'}
+
+  '@socketregistry/is-regex@1.0.10':
+    resolution: {integrity: sha512-psLN5Yt6/VXUBwEzSuRtuD5/YGV7o9NPYd2X0wI+SuQdsiNrUhpvwUvtcRrWp8ilhmD+Mu4mqDHLIvWo4VDOMQ==}
+    engines: {node: '>=18'}
+
+  '@socketregistry/is-shared-array-buffer@1.0.10':
+    resolution: {integrity: sha512-4kKrlr+AZS/EBc0IENCl97X2lQmII9keSNFmi1E7N35Nzgcqc2s9cDotYgB8EW2QcXtzUVOtSEwlVoDToR8h/Q==}
+    engines: {node: '>=18'}
+
   '@socketregistry/is-typed-array@1.0.12':
     resolution: {integrity: sha512-IGU9k0CJAueU+Y8bcFT5HJ5inh+XmTe89scuaHAs3WLFpJgrCn2FCaYZ98S1iBltH0SRIupDiiZQyVC5C/YDjA==}
+    engines: {node: '>=18'}
+
+  '@socketregistry/isarray@1.0.8':
+    resolution: {integrity: sha512-DM81ydAjO2GJKkNf2Vn17InJ37sEYLK1YyhxpDX16OdbOpYlsDIw8QyeFEUZtc7GqsQXbcPKJmz3j/2qS+BhKQ==}
+    engines: {node: '>=18'}
+
+  '@socketregistry/json-stable-stringify@1.0.13':
+    resolution: {integrity: sha512-sUsRuanSm/lR0Ugx9DYxRgZyUXpoAF8FWoPq9+mJwZQLn/9ce8OD5HemPiGB0jl0emljyWL4F58zDSTdjZZm3g==}
+    engines: {node: '>=18'}
+
+  '@socketregistry/object-is@1.0.8':
+    resolution: {integrity: sha512-vg/N7+c54YiQ1jI9Qcrnrt2XoHhg6Rzkw9bVpQlek6kqdQqMc6omNLkbSNZmTzQ/9Usyslf5lJtfxdFS7ZLvOA==}
+    engines: {node: '>=18'}
+
+  '@socketregistry/object-keys@1.0.8':
+    resolution: {integrity: sha512-ywi9QpIRLFCS9P11TWKibA5tq8f0B3AOXPVkL1cSchaUQoXrs0Ha99lEPthjYH9k3BDOwCHuMMyejiyqhSdWvw==}
+    engines: {node: '>=18'}
+
+  '@socketregistry/object.assign@1.0.8':
+    resolution: {integrity: sha512-98+ho3VAnklscf9WVXseef1/Ann9eX2H6vzgQ3wYzqfuonAcu3Wm/GimmNPHQ/fRRgDaSYJns//tf/kFa8U7IQ==}
     engines: {node: '>=18'}
 
   '@socketregistry/packageurl-js@1.3.5':
@@ -1792,16 +1840,32 @@ packages:
     resolution: {integrity: sha512-9dcT4Vj4TY6BsU7hd3sEemoaA8OEGUutK2ufNdP+qKOljcH0xy/5+WnbEZ1RLEJcSKDnpZ3T47mVdq/ZWiGNxw==}
     engines: {node: '>=18'}
 
+  '@socketregistry/regexp.prototype.flags@1.0.8':
+    resolution: {integrity: sha512-h1BhmNFsu3SLULRvjUA7aQVUB2dycJMNAxuYSO2RtTcDY6oAvJHA5J/XFW58uFmfD5xOg8mJ9p1qVSErKyb7zQ==}
+    engines: {node: '>=18'}
+
   '@socketregistry/safer-buffer@1.0.10':
     resolution: {integrity: sha512-jbEY37bJn51W9pP1pXxIoGcQbmbi9EQDtnXfWBjGLNvKC1iEyNLOaGm8ee7dN7Z+KgJdQbrrDjjD3HbGeOFC4A==}
+    engines: {node: '>=18'}
+
+  '@socketregistry/side-channel@1.0.10':
+    resolution: {integrity: sha512-nqm2QgbXHldY6DgIBap3i1MlQms+eP7zIC0vPuyy9FmxF62ITa80hjj/3w6zH7DCxV4nQBcJsz3CaGNulQAP7g==}
+    engines: {node: '>=18'}
+
+  '@socketregistry/which-boxed-primitive@1.0.9':
+    resolution: {integrity: sha512-X86rc3D2Iphp7Eh79Ua7E/Thm7hK+IN3kJaxZ/tDY+OwFPCdE9vGaOGx2xvKhTewAQ5nl0U8YAM+APcbeCVb5Q==}
+    engines: {node: '>=18'}
+
+  '@socketregistry/which-collection@1.0.8':
+    resolution: {integrity: sha512-dT7ENtQ3NTMbTA2GjmyQJ3dttHSlv/56NyEoNFlenzMIO/2ELHQp96g0oMsm2LAbh00GpyEAlwIXxXW61U3kmQ==}
     engines: {node: '>=18'}
 
   '@socketregistry/which-typed-array@1.0.9':
     resolution: {integrity: sha512-SHikmWH1JumHKinsPLg0/kg/qKNNQH4fdYe/dd4mZ2NHP5wWGDcZyNCS7KaTnKWFi3/XZOR1iLYzo0I4QnHOQw==}
     engines: {node: '>=18'}
 
-  '@socketsecurity/lib@3.2.1':
-    resolution: {integrity: sha512-xM2cWW+UQi8MsGTQvjoZnNJ2fYPhqmV+y3ZBm18gqNJ1KWy8OWA2H3QiSG2lEyksHftGlvDmmtU14rPFSYI6Tg==}
+  '@socketsecurity/lib@3.2.4':
+    resolution: {integrity: sha512-zB/yzF+X9TlJDAANTRppioNf6ZfnD7Iysr2FnynWMGcSfO3v9SarxtOduC4XmnpegEZpo24A+w1lk7+F2A6B6g==}
     engines: {node: '>=22'}
     peerDependencies:
       typescript: 5.9.2
@@ -5119,25 +5183,57 @@ snapshots:
 
   '@sindresorhus/merge-streams@2.3.0': {}
 
+  '@socketregistry/array-buffer-byte-length@1.0.7': {}
+
+  '@socketregistry/es-get-iterator@1.0.8': {}
+
   '@socketregistry/indent-string@1.0.14': {}
 
   '@socketregistry/is-arguments@1.0.10': {}
 
+  '@socketregistry/is-array-buffer@1.0.10': {}
+
   '@socketregistry/is-core-module@1.0.11': {}
+
+  '@socketregistry/is-date-object@1.0.10': {}
 
   '@socketregistry/is-generator-function@1.0.10': {}
 
+  '@socketregistry/is-nan@1.0.8': {}
+
+  '@socketregistry/is-regex@1.0.10': {}
+
+  '@socketregistry/is-shared-array-buffer@1.0.10': {}
+
   '@socketregistry/is-typed-array@1.0.12': {}
+
+  '@socketregistry/isarray@1.0.8': {}
+
+  '@socketregistry/json-stable-stringify@1.0.13': {}
+
+  '@socketregistry/object-is@1.0.8': {}
+
+  '@socketregistry/object-keys@1.0.8': {}
+
+  '@socketregistry/object.assign@1.0.8': {}
 
   '@socketregistry/packageurl-js@1.3.5': {}
 
   '@socketregistry/path-parse@1.0.8': {}
 
+  '@socketregistry/regexp.prototype.flags@1.0.8': {}
+
   '@socketregistry/safer-buffer@1.0.10': {}
+
+  '@socketregistry/side-channel@1.0.10': {}
+
+  '@socketregistry/which-boxed-primitive@1.0.9': {}
+
+  '@socketregistry/which-collection@1.0.8': {}
 
   '@socketregistry/which-typed-array@1.0.9': {}
 
-  '@socketsecurity/lib@3.2.1(typescript@5.9.2)':
+  '@socketsecurity/lib@3.2.4(typescript@5.9.2)':
     optionalDependencies:
       typescript: 5.9.2
 

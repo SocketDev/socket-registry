@@ -17,11 +17,11 @@ Visual guide to the CI/CD pipeline architecture and workflow relationships.
                     │   Lint Check       │          │   Type Check       │
                     │   (lint.yml)       │          │   (types.yml)      │
                     │                    │          │                    │
-                    │  • ESLint          │          │  • tsgo --noEmit   │
-                    │  • Oxlint          │          │  • Build first     │
-                    │  • Biome           │          │  • Node 22         │
-                    │  • Node 22         │          │  • ~5 min          │
-                    │  • ~5 min          │          │                    │
+                    │  ·ESLint          │          │  ·tsgo --noEmit   │
+                    │  ·Oxlint          │          │  ·Build first     │
+                    │  ·Biome           │          │  ·Node 22         │
+                    │  ·Node 22         │          │  ·~5 min          │
+                    │  ·~5 min          │          │                    │
                     └────────────────────┘          └────────────────────┘
                               │
                     ┌─────────▼──────────────────────────────────────────┐
@@ -43,11 +43,11 @@ Visual guide to the CI/CD pipeline architecture and workflow relationships.
                     ┌─────────▼──────────┐
                     │  Coverage Report   │
                     │                    │
-                    │  • Full coverage   │
-                    │  • 100% required   │
-                    │  • Upload artifacts│
-                    │  • Node 22         │
-                    │  • ~15 min         │
+                    │  ·Full coverage   │
+                    │  ·100% required   │
+                    │  ·Upload artifacts│
+                    │  ·Node 22         │
+                    │  ·~15 min         │
                     └────────────────────┘
                               │
                     ┌─────────▼──────────┐
@@ -76,28 +76,28 @@ Visual guide to the CI/CD pipeline architecture and workflow relationships.
         ┌────────────────▼────────────────┐
         │   setup-and-install action      │
         │                                 │
-        │  • Checkout code                │
-        │  • Setup Node.js                │
-        │  • Install pnpm                 │
-        │  • Cache dependencies           │
-        │  • pnpm install                 │
+        │  ·Checkout code                │
+        │  ·Setup Node.js                │
+        │  ·Install pnpm                 │
+        │  ·Cache dependencies           │
+        │  ·pnpm install                 │
         └────────────────┬────────────────┘
                          │
         ┌────────────────▼────────────────┐
         │    run-script action            │
         │                                 │
-        │  • Run setup-script             │
+        │  ·Run setup-script             │
         │    (pnpm run build)             │
-        │  • Run main-script              │
+        │  ·Run main-script              │
         │    (pnpm run test-ci)           │
         └────────────────┬────────────────┘
                          │
         ┌────────────────▼────────────────┐
         │    artifacts action             │
         │                                 │
-        │  • Upload test results          │
-        │  • Upload coverage              │
-        │  • 7-day retention              │
+        │  ·Upload test results          │
+        │  ·Upload coverage              │
+        │  ·7-day retention              │
         └─────────────────────────────────┘
 ```
 
@@ -117,14 +117,14 @@ Visual guide to the CI/CD pipeline architecture and workflow relationships.
         ┌────────────────▼────────────────┐
         │   setup-and-install action      │
         │                                 │
-        │  • Node.js 22                   │
-        │  • pnpm install                 │
+        │  ·Node.js 22                   │
+        │  ·pnpm install                 │
         └────────────────┬────────────────┘
                          │
         ┌────────────────▼────────────────┐
         │    run-script action            │
         │                                 │
-        │  • pnpm run check-ci            │
+        │  ·pnpm run check-ci            │
         │    - ESLint                     │
         │    - Oxlint                     │
         │    - Biome                      │
@@ -147,15 +147,15 @@ Visual guide to the CI/CD pipeline architecture and workflow relationships.
         ┌────────────────▼────────────────┐
         │   setup-and-install action      │
         │                                 │
-        │  • Node.js 22                   │
-        │  • pnpm install                 │
+        │  ·Node.js 22                   │
+        │  ·pnpm install                 │
         └────────────────┬────────────────┘
                          │
         ┌────────────────▼────────────────┐
         │    run-script action            │
         │                                 │
-        │  • Setup: pnpm run build        │
-        │  • Main: pnpm run check:tsc     │
+        │  ·Setup: pnpm run build        │
+        │  ·Main: pnpm run check:tsc     │
         │    - tsgo --noEmit              │
         └─────────────────────────────────┘
 ```
@@ -291,9 +291,9 @@ Visual guide to the CI/CD pipeline architecture and workflow relationships.
                   ┌───────────▼──────────┐
                   │  GitHub Artifacts    │
                   │                      │
-                  │  • Downloadable      │
-                  │  • 7-day retention   │
-                  │  • Per-run           │
+                  │  ·Downloadable      │
+                  │  ·7-day retention   │
+                  │  ·Per-run           │
                   └──────────────────────┘
 ```
 

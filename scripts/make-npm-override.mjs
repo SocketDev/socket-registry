@@ -235,7 +235,7 @@ async function main() {
   }
   if (licenseWarnings.length) {
     const formattedWarnings = licenseWarnings.map(w =>
-      indentString(`• ${w}`, { count: 2 }),
+      indentString(`· ${w}`, { count: 2 }),
     )
     logger.warn(
       `${origPkgName} has license warnings:\n${formattedWarnings.join('\n')}`,
