@@ -1,4 +1,4 @@
-name: 🔗 🔧 Socket Fix Auto Pull Request
+name: 🔗 Fix PR
 
 # Dependencies:
 #   - SocketDev/socket-registry/.github/actions/setup-and-install

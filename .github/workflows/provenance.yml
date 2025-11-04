@@ -1,4 +1,4 @@
-name: 🔗 📦 Publish to npm registry
+name: 🔗 Publish
 
 # Dependencies:
 #   - SocketDev/socket-registry/.github/actions/setup-and-install
