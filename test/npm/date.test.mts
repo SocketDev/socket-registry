@@ -93,6 +93,8 @@ describe('date', () => {
     })
   })
 
+  // Date string formatting is platform-dependent and may produce different
+  // output on Windows due to timezone and locale differences.
   describe(
     'Date string formatting',
     { skip: process.platform === 'win32' },
