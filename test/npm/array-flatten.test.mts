@@ -8,7 +8,7 @@ const {
   module: flattenLegacy,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(__filename)
+} = await setupNpmPackageTest(import.meta.url)
 const flatten = flattenLegacy?.flatten
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {

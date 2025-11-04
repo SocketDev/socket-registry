@@ -5,8 +5,9 @@ import { describe, expect, it } from 'vitest'
 
 import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
-const { eco, pkgPath, skip, sockRegPkgName } =
-  await setupNpmPackageTest(__filename)
+const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
+  import.meta.url,
+)
 
 // harmony-reflect has known failures in its package and requires running tests in browser.
 // https://github.com/tvcutsem/harmony-reflect/tree/v1.6.2/test

@@ -7,8 +7,9 @@ import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
 const logger = getDefaultLogger()
 
-const { eco, pkgPath, skip, sockRegPkgName } =
-  await setupNpmPackageTest(__filename)
+const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
+  import.meta.url,
+)
 
 // es6-object-assign has no unit tests.
 // https://github.com/rubennorte/es6-object-assign/tree/v1.1.0

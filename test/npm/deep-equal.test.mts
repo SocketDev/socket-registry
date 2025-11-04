@@ -18,7 +18,7 @@ const {
   pkgPath,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(__filename)
+} = await setupNpmPackageTest(import.meta.url)
 
 // deep-equal package tests may have issues with test dependencies.
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {

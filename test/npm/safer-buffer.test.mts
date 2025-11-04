@@ -9,8 +9,9 @@ import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
 const logger = getDefaultLogger()
 
-const { eco, pkgPath, skip, sockRegPkgName } =
-  await setupNpmPackageTest(__filename)
+const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
+  import.meta.url,
+)
 
 // safer-buffer tests assume Buffer.alloc, Buffer.allocUnsafe, and
 // Buffer.allocUnsafeSlow throw for a size of 2 * (1 << 30), i.e. 2147483648,
