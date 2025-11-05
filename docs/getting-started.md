@@ -1,8 +1,26 @@
-# Getting Started with Socket Registry
+# Getting Started
 
-Welcome to Socket Registry! This guide will help you set up your development environment and start contributing.
+**Quick start guide** — Create your first package override in 10 minutes.
 
-## Quick Start
+---
+
+## 📋 Prerequisites
+
+```
+Required:
+ ✓ Node.js 20+ (LTS recommended)
+ ✓ pnpm 9+
+ ✓ Git
+
+Optional:
+ ✓ VS Code (recommended)
+```
+
+---
+
+## 🚀 Quick Start
+
+### 1. Clone & Setup
 
 ```bash
 # Clone the repository
@@ -12,384 +30,271 @@ cd socket-registry
 # Install dependencies
 pnpm install
 
-# Build the project
-pnpm run build
-
-# Run checks (lint + type check)
-pnpm run check
-
-# Run tests
+# Verify installation
 pnpm test
-```
-
-You're ready to develop!
-
-## Prerequisites
-
-**Required:**
-- **Node.js** 18.0.0 or higher (20, 22, 24 recommended)
-- **pnpm** 10.16.0 or higher
-
-**Recommended:**
-- **Git** 2.0 or higher
-- **VSCode** with recommended extensions (see `.vscode/extensions.json`)
-
-**Install pnpm:**
-```bash
-npm install -g pnpm
-# or
-brew install pnpm
-```
-
-## Repository Structure
-
-```
-socket-registry/
-├── docs/                   # Documentation (you are here!)
-├── packages/npm/           # NPM package overrides (130+ packages)
-├── registry/               # Core registry library (@socketsecurity/registry)
-│   ├── src/                # TypeScript source code
-│   └── dist/               # Compiled output
-├── scripts/                # Development and build scripts (80+)
-├── test/                   # Test suites
-│   ├── npm/                # NPM package tests
-│   ├── registry/           # Registry library tests
-│   └── utils/              # Test helpers
-├── CLAUDE.md               # Project standards (READ THIS!)
-├── README.md               # Project overview
-└── package.json            # Monorepo root
-```
-
-## Development Workflow
-
-### 1. Initial Setup
-
-After cloning, run:
-
-```bash
-pnpm install  # Install all dependencies (monorepo + packages)
-pnpm run build  # Build registry library
 ```
 
 **Expected output:**
 ```
-✓ Build completed successfully!
+✓ 140 tests passing
+✓ 69% cumulative coverage
+✓ Type coverage 82%
 ```
 
-### 2. Make Changes
+---
 
-Edit files in:
-- `registry/src/` - Core library code
-- `packages/npm/<package>/` - Package overrides
-- `scripts/` - Development scripts
-- `test/` - Tests
+### 2. Project Structure
 
-### 3. Verify Your Changes
+```
+socket-registry/
+├── overrides/              # Package overrides (the main content!)
+│   ├── <category>/         # cleanup, levelup, speedup, tuneup
+│   │   └── <package-name>/ # Individual override packages
+│   │       ├── package.json
+│   │       ├── index.js
+│   │       └── test/
+│   └── ...
+│
+├── registry/               # Registry support library
+│   └── src/                # Helper functions and metadata
+│
+├── scripts/                # Build and generation scripts
+│   ├── make-npm-override.mjs  # Scaffold new overrides
+│   └── ...
+│
+└── docs/                   # Documentation
+    ├── getting-started.md  # Contribution workflow
+    ├── package-testing-guide.md
+    └── test-helpers.md
+```
+
+---
+
+### 3. Essential Commands
 
 ```bash
-# Run all checks (lint + type check)
-pnpm run check
+# Creating Overrides
+pnpm run make:npm-override <package>  # Scaffold new override
+pnpm run make:npm-override            # Interactive mode
 
-# Run tests
-pnpm test
+# Development
+pnpm build                # Build all overrides
+pnpm test                 # Run all tests
+pnpm run cover            # Run with coverage
 
-# Auto-fix linting issues
-pnpm run fix
+# Quality
+pnpm run check            # Type check
+pnpm run lint             # Lint code
+pnpm run fix              # Auto-fix issues
+
+# Testing Specific Override
+cd overrides/cleanup/package-name
+pnpm test                 # Test this override only
 ```
 
-### 4. Before Committing
+---
+
+## 🎯 Override Categories
+
+```
+Cleanup ✨  → Reduce dependencies, use built-ins
+Levelup 🧩  → Add features, modern APIs
+Speedup ⚡  → Optimize performance
+Tuneup  🔧  → Fix CVEs, maintain compatibility
+```
+
+**Choose the right category for your override!**
+
+---
+
+## 🏗️ Creating Your First Override
+
+### Step 1: Generate Scaffold
 
 ```bash
-# This runs automatically via Husky pre-commit hook:
-pnpm run fix    # Auto-fix what's possible
-pnpm run check  # Verify everything passes
+pnpm run make:npm-override package-name
 ```
 
-**Pre-commit hooks will:**
-- Run linting on staged files
-- Run type checking
-- Run affected tests
+**Interactive prompts:**
+1. Choose override category (cleanup/levelup/speedup/tuneup)
+2. Provide package description
+3. Scaffold is created in `overrides/<category>/<package-name>/`
 
-## Common Tasks
+### Step 2: Implement Override
 
-### Creating a New NPM Package Override
+Edit the generated files:
 
-```bash
-pnpm run make:npm-override <package-name>
+```javascript
+// overrides/<category>/<package-name>/index.js
+'use strict'
+
+// TODO: Implement improved version
+// - Use built-in APIs where possible
+// - Reduce dependencies
+// - Optimize performance
+// - Maintain API compatibility!
+
+module.exports = {
+  // Your implementation here
+}
 ```
 
-**Interactive wizard will:**
-1. Fetch package metadata
-2. Download and analyze source
-3. Generate override scaffold
-4. Create test template
+### Step 3: Add Tests
 
-**Then you:**
-1. Fill in `TODO:` comments in generated files
-2. Implement override logic
-3. Run tests: `pnpm test test/npm/<package>.test.mts`
-4. Commit changes
+```javascript
+// overrides/<category>/<package-name>/test/index.test.js
+const { describe, it } = require('node:test')
+const assert = require('node:assert/strict')
+const pkg = require('..')
 
-See [package-testing-guide.md](./package-testing-guide.md) for details.
+describe('<package-name>', () => {
+  it('maintains API compatibility', () => {
+    // Test original package behavior
+    assert.equal(pkg.someFunction(), expectedValue)
+  })
 
-### Running Tests
-
-```bash
-# Run all tests
-pnpm test
-
-# Run specific test file
-pnpm test test/npm/is-array-buffer.test.mts
-
-# Run with coverage
-pnpm run cover
-
-# Test all NPM packages (LONG-running, ~30+ min)
-node scripts/test-npm-packages.mjs
-```
-
-**Important:** Never use `--` before test paths (it runs all tests).
-
-### Linting and Formatting
-
-```bash
-# Check linting
-pnpm run lint
-
-# Auto-fix issues
-pnpm run fix
-
-# Type check
-pnpm run type
-```
-
-**Tools used:**
-- **Biome** - Primary formatter/linter
-- **ESLint** - Additional linting rules
-- **TypeScript** - Type checking
-
-### Building
-
-```bash
-# Build registry library
-pnpm run build
-
-# Clean build artifacts
-pnpm run clean
-```
-
-### Updating Dependencies
-
-```bash
-# Check for updates
-pnpm run taze
-
-# Update dependencies (interactive)
-pnpm run update
-```
-
-## Development Environment
-
-### VSCode Setup
-
-Recommended extensions (auto-suggested):
-- Biome (formatter/linter)
-- ESLint
-- Vitest (test runner)
-
-Settings are pre-configured in `.vscode/settings.json`.
-
-### Environment Variables
-
-Create `.env.local` for local development:
-```bash
-# Add your environment-specific variables
-NODE_ENV=development
-```
-
-**Available env files:**
-- `.env.test` - Test environment
-- `.env.precommit` - Pre-commit hooks
-- `.env.local` - Your local overrides (gitignored)
-
-## Testing Guide
-
-### Test Helpers
-
-Located in `test/utils/`, these reduce boilerplate:
-
-**NPM Package Helper:**
-```typescript
-import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
-
-const { module: assert, pkgPath, skip, eco, sockRegPkgName } =
-  await setupNpmPackageTest(__filename)
-
-describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
-  it('should work', () => {
-    expect(assert).toBeDefined()
+  it('works with edge cases', () => {
+    // Add comprehensive tests
   })
 })
 ```
 
-**Temp File Helper:**
-```typescript
-import { withTempDir, runWithTempDir } from '../utils/temp-file-helper.mts'
+### Step 4: Verify Compatibility
 
-await runWithTempDir(async (tmpDir) => {
-  // Use tmpDir... cleanup happens automatically
-}, 'test-prefix-')
-```
-
-**Platform Test Helpers:**
-```typescript
-import { itOnWindows, itOnUnix } from '../utils/platform-test-helpers.mts'
-
-itOnWindows('should handle Windows paths', () => {
-  expect(path.sep).toBe('\\')
-})
-```
-
-See [test/utils/TEST_HELPERS_README.md](../test/utils/TEST_HELPERS_README.md) for complete guide.
-
-## Project Standards
-
-**Read CLAUDE.md** - Contains all project standards:
-- Code style (file organization, naming, patterns)
-- Git workflow (commit messages, pre-commit hooks)
-- Cross-platform compatibility (CRITICAL)
-- Testing practices
-- Documentation standards
-- And much more
-
-**Key highlights:**
-
-**File naming:**
-- `kebab-case.mts` for TypeScript modules
-- `lowercase-with-hyphens.md` for docs
-
-**Code style:**
-- Omit semicolons (except SDK)
-- MANDATORY `node:` prefix for Node.js imports
-- MANDATORY `__proto__: null` first in object literals
-- Alphabetical sorting (imports, exports, properties)
-
-**Git commits:**
-- Conventional Commits format
-- No AI attribution in messages
-
-## Troubleshooting
-
-### Installation Issues
-
-**Problem:** `pnpm install` fails
-
-**Solution:**
 ```bash
-# Clear cache and retry
-pnpm store prune
-rm -rf node_modules pnpm-lock.yaml
-pnpm install
-```
-
-### Build Issues
-
-**Problem:** Build fails with type errors
-
-**Solution:**
-```bash
-# Clean and rebuild
-pnpm run clean
-pnpm run build
-```
-
-### Test Issues
-
-**Problem:** Tests fail with "module not found"
-
-**Solution:**
-```bash
-# Ensure build is current
-pnpm run build
+# Run tests against BOTH original and override
+cd overrides/<category>/<package-name>
 pnpm test
+
+# Tests must pass to prove compatibility!
 ```
-
-**Problem:** Memory issues during tests
-
-**Solution:** Tests use memory-optimized config (`singleFork`, `maxForks: 1`)
-
-### Pre-commit Hook Issues
-
-**Problem:** Hooks blocked my commit
-
-**Solution:** Fix issues reported:
-```bash
-pnpm run fix     # Auto-fix what's possible
-pnpm run check   # Verify all passes
-git add .
-git commit
-```
-
-## Next Steps
-
-1. **Read the docs:**
-   - [CLAUDE.md](../CLAUDE.md) - Project standards (essential reading!)
-   - [test/utils/TEST_HELPERS_README.md](../test/utils/TEST_HELPERS_README.md) - Testing utilities
-   - [package-testing-guide.md](./package-testing-guide.md) - Package testing
-   - [http-utilities.md](./http-utilities.md) - HTTP utilities
-
-2. **Explore the codebase:**
-   - `registry/src/` - Core library
-   - `packages/npm/` - Package overrides
-   - `scripts/` - Automation scripts
-   - `test/` - Test suites
-
-3. **Pick a task:**
-   - Browse open issues on GitHub
-   - Create a new package override
-   - Improve existing documentation
-   - Add test coverage
-
-4. **Join the community:**
-   - Follow [@SocketSecurity](https://twitter.com/SocketSecurity) on Twitter
-   - Follow [@socket.dev](https://bsky.app/profile/socket.dev) on Bluesky
-
-## Quick Reference
-
-### Essential Commands
-
-| Command | Purpose |
-|---------|---------|
-| `pnpm install` | Install dependencies |
-| `pnpm run build` | Build registry library |
-| `pnpm run check` | Lint + type check |
-| `pnpm test` | Run tests |
-| `pnpm run fix` | Auto-fix linting |
-| `pnpm run cover` | Test coverage |
-| `pnpm run clean` | Clean artifacts |
-| `pnpm run make:npm-override` | Create new override |
-| `pnpm run update` | Update dependencies |
-
-### File Locations
-
-| What | Where |
-|------|-------|
-| Documentation | `docs/` |
-| Package overrides | `packages/npm/<package>/` |
-| Core library | `registry/src/` |
-| Tests | `test/` (npm, registry, unit, utils) |
-| Scripts | `scripts/` |
-| Standards | `CLAUDE.md` |
-| GitHub workflows | `.github/workflows/` |
-
-### Help Resources
-
-- **Main README**: [../README.md](../README.md)
-- **Project standards**: [../CLAUDE.md](../CLAUDE.md)
-- **Test helpers**: [../test/utils/TEST_HELPERS_README.md](../test/utils/TEST_HELPERS_README.md)
-- **Package testing**: [package-testing-guide.md](./package-testing-guide.md)
-- **HTTP utilities**: [http-utilities.md](./http-utilities.md)
 
 ---
 
-**Welcome to Socket Registry!** We're excited to have you contributing to a more secure npm ecosystem.
+## 🧪 Testing Philosophy
+
+**Golden Rule:** Your override must pass the **original package's tests**.
+
+This proves API compatibility and prevents breaking changes.
+
+**Test checklist:**
+- [ ] All original package tests pass
+- [ ] Edge cases covered
+- [ ] Error handling tested
+- [ ] TypeScript types included
+
+---
+
+## 💡 Development Workflow
+
+### Complete Override Process
+
+```
+1. Scaffold          → pnpm run make:npm-override <package>
+2. Research          → Read original package code
+3. Implement         → Write improved version
+4. Test              → Verify compatibility (100%)
+5. Document          → Add usage examples
+6. Verify            → pnpm run check && pnpm test
+7. Commit            → Conventional commit format
+8. PR                → Submit for review
+```
+
+### Commit Message Format
+
+```
+type(scope): description
+
+Examples:
+  feat(cleanup/lodash.get): add built-in alternative
+  fix(speedup/uuid): handle edge case in v4()
+  docs(levelup/fs-extra): add usage examples
+  test(tuneup/axios): add security tests
+```
+
+---
+
+## 📚 Key Concepts
+
+### 1. Compatibility is Critical
+
+Your override **must** maintain the original package's API:
+- Same function signatures
+- Same return values
+- Same error behavior
+
+### 2. License Compatibility
+
+All overrides must:
+- Retain original license
+- Be MIT compatible
+- Credit original authors
+
+### 3. TypeScript Support
+
+All overrides must include TypeScript definitions:
+
+```typescript
+// index.d.ts
+export function someFunction(arg: string): number
+```
+
+### 4. Node.js Version Support
+
+Support current and LTS Node.js versions (20+).
+
+---
+
+## 🔧 Common Patterns
+
+### Using Built-in Alternatives
+
+```javascript
+// ✓ Replace polyfills with built-ins
+const { promisify } = require('node:util')
+const fs = require('node:fs/promises')
+
+// ✗ Don't add unnecessary dependencies
+// const bluebird = require('bluebird')  // Avoid!
+```
+
+### Reducing Dependencies
+
+```javascript
+// ✓ Use native APIs
+const path = require('node:path')
+
+// ✗ Don't pull in heavy deps
+// const _ = require('lodash')  // Only if necessary!
+```
+
+---
+
+## 📖 Additional Resources
+
+- [Getting Started](./getting-started.md) - Detailed contribution guide
+- [Package Testing Guide](./package-testing-guide.md) - Testing strategies
+- [Test Helpers](./test-helpers.md) - Testing utilities
+- [CLAUDE.md](../CLAUDE.md) - Development standards
+
+---
+
+## 🆘 Getting Help
+
+- **Issues:** [GitHub Issues](https://github.com/SocketDev/socket-registry/issues)
+- **Questions:** Ask in PR comments
+- **Standards:** Check [CLAUDE.md](../CLAUDE.md)
+
+---
+
+## ✅ Checklist for First Override
+
+- [ ] Ran `pnpm install` successfully
+- [ ] Read [docs/getting-started.md](./getting-started.md)
+- [ ] Understand override categories (cleanup/levelup/speedup/tuneup)
+- [ ] Know how to scaffold: `pnpm run make:npm-override`
+- [ ] Understand compatibility requirement (original tests must pass)
+- [ ] Know commit format (conventional commits)
+- [ ] Ready to create your first override!
+
+**Welcome to socket-registry!** 🎉
