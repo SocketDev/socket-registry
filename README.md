@@ -15,7 +15,7 @@
 ## Quick Start
 
 ```bash
-npx socket optimize
+pnpm dlx socket optimize
 ```
 
 This command analyzes your dependencies and suggests optimized replacements from
@@ -94,6 +94,8 @@ pnpm install    make:npm-override    Fill TODOs + Test
    - Run tests with `pnpm test`
    - Commit and send a pull request
 
-**Need help?** See [docs/getting-started.md](./docs/getting-started.md) for comprehensive guide.
-
 Inspired by [e18e](https://e18e.dev/).
+
+## License
+
+MIT
