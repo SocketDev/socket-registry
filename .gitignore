@@ -16,6 +16,7 @@ SCRATCH
 WIP
 *.local
 .local.*
+.node-version
 
 # Environment files
 /.env
