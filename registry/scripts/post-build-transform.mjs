@@ -8,6 +8,10 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+
+const logger = getDefaultLogger()
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.join(__dirname, '..')
 const indexPath = path.join(rootPath, 'dist', 'index.js')
@@ -41,8 +45,8 @@ try {
   // Write back the transformed content
   writeFileSync(indexPath, transformedContent, 'utf8')
 
-  console.log('✓ Transformed exports for Node ESM interop')
+  logger.success('Transformed exports for Node ESM interop')
 } catch (error) {
-  console.error('Post-build transform failed:', error.message)
+  logger.error(`Post-build transform failed: ${error.message}`)
   process.exit(1)
 }
