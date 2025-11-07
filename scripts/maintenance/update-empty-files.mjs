@@ -12,9 +12,9 @@ import fastGlob from 'fast-glob'
 
 const logger = getDefaultLogger()
 
-import { NPM_TEMPLATES_PATH, ROOT_PATH } from './constants/paths.mjs'
-import { getIgnoreGlobs } from './constants/utils.mjs'
-import { getModifiedFiles } from './utils/git.mjs'
+import { NPM_TEMPLATES_PATH, ROOT_PATH } from '../constants/paths.mjs'
+import { getIgnoreGlobs } from '../constants/utils.mjs'
+import { getModifiedFiles } from '../utils/git.mjs'
 
 const { values: cliArgs } = parseArgs({
   options: {

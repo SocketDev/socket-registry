@@ -13,10 +13,10 @@ import {
   NPM_PACKAGES_PATH,
   NPM_TEMPLATES_README_PATH,
   README_MD,
-} from './constants/paths.mjs'
-import { getNpmPackageNames } from './constants/testing.mjs'
-import { isModified } from './utils/git.mjs'
-import { getNpmReadmeAction } from './utils/templates.mjs'
+} from '../constants/paths.mjs'
+import { getNpmPackageNames } from '../constants/testing.mjs'
+import { isModified } from '../utils/git.mjs'
+import { getNpmReadmeAction } from '../utils/templates.mjs'
 
 const { values: cliArgs } = parseArgs({
   options: {

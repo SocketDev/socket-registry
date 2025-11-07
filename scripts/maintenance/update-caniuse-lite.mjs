@@ -6,7 +6,7 @@ import { spawnSync } from '@socketsecurity/lib/spawn'
 
 const logger = getDefaultLogger()
 
-import { ROOT_PATH } from './constants/paths.mjs'
+import { ROOT_PATH } from '../constants/paths.mjs'
 
 /**
  * Update caniuse-lite to latest version.

@@ -25,16 +25,16 @@ import { pEach } from '@socketsecurity/lib/promises'
 import { withSpinner } from '@socketsecurity/lib/spinner'
 import { minimatch } from 'minimatch'
 import semver from 'semver'
-import { LATEST, SOCKET_REGISTRY_PACKAGE_NAME } from './constants/packages.mjs'
+import { LATEST, SOCKET_REGISTRY_PACKAGE_NAME } from '../constants/packages.mjs'
 import {
   NPM_PACKAGES_PATH,
   PACKAGE_JSON,
   REGISTRY_PKG_PATH,
   ROOT_PATH,
   SOCKET_REGISTRY_SCOPE,
-} from './constants/paths.mjs'
-import { getNpmPackageNames } from './constants/testing.mjs'
-import { logSectionHeader } from './utils/logging.mjs'
+} from '../constants/paths.mjs'
+import { getNpmPackageNames } from '../constants/testing.mjs'
+import { logSectionHeader } from '../utils/logging.mjs'
 
 const logger = getDefaultLogger()
 

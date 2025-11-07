@@ -7,4 +7,4 @@
  */
 
 // Simply import and run the modular version.
-import './claude/index.mjs'
+import './claude/cli.mjs'

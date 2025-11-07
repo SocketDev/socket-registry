@@ -10,15 +10,15 @@ import { pluralize } from '@socketsecurity/lib/words'
 
 const logger = getDefaultLogger()
 
-import { COLUMN_LIMIT } from './constants/core.mjs'
-import { getEnv } from './constants/env.mjs'
+import { COLUMN_LIMIT } from '../constants/core.mjs'
+import { getEnv } from '../constants/env.mjs'
 import {
   NPM_PACKAGES_PATH,
   REGISTRY_PKG_PATH,
   SOCKET_REGISTRY_SCOPE,
-} from './constants/paths.mjs'
-import { getNpmPackageNames } from './constants/testing.mjs'
-import { extractNpmError } from './utils/errors.mjs'
+} from '../constants/paths.mjs'
+import { getNpmPackageNames } from '../constants/testing.mjs'
+import { extractNpmError } from '../utils/errors.mjs'
 
 const { values: cliArgs } = parseArgs({
   options: {

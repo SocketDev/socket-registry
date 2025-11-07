@@ -11,7 +11,7 @@ import { spawn } from '@socketsecurity/lib/spawn'
 
 const logger = getDefaultLogger()
 
-import { logSectionHeader } from './utils/logging.mjs'
+import { logSectionHeader } from '../utils/logging.mjs'
 
 const { values: cliArgs } = parseArgs({
   options: {

@@ -16,12 +16,12 @@ import { trimLeadingDotSlash } from '@socketsecurity/lib/path'
 import { pluralize } from '@socketsecurity/lib/words'
 import fastGlob from 'fast-glob'
 
-import { getNpmPackageNames } from './constants/testing.mjs'
+import { getNpmPackageNames } from '../constants/testing.mjs'
 import {
   NPM_PACKAGES_PATH,
   PACKAGE_JSON,
   SOCKET_REGISTRY_SCOPE,
-} from './constants/paths.mjs'
+} from '../constants/paths.mjs'
 
 /**
  * Update package.json files and validate subpath exports.

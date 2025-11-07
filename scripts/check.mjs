@@ -61,49 +61,49 @@ async function main() {
         },
       },
       {
-        args: ['scripts/validate-no-link-deps.mjs'],
+        args: ['scripts/validation/validate-no-link-deps.mjs'],
         command: 'node',
         options: {
           ...(process.platform === 'win32' && { shell: true }),
         },
       },
       {
-        args: ['scripts/validate-bundle-deps.mjs'],
+        args: ['scripts/validation/validate-bundle-deps.mjs'],
         command: 'node',
         options: {
           ...(process.platform === 'win32' && { shell: true }),
         },
       },
       {
-        args: ['scripts/validate-esbuild-minify.mjs'],
+        args: ['scripts/validation/validate-esbuild-minify.mjs'],
         command: 'node',
         options: {
           ...(process.platform === 'win32' && { shell: true }),
         },
       },
       {
-        args: ['scripts/validate-no-cdn-refs.mjs'],
+        args: ['scripts/validation/validate-no-cdn-refs.mjs'],
         command: 'node',
         options: {
           ...(process.platform === 'win32' && { shell: true }),
         },
       },
       {
-        args: ['scripts/validate-markdown-filenames.mjs'],
+        args: ['scripts/validation/validate-markdown-filenames.mjs'],
         command: 'node',
         options: {
           ...(process.platform === 'win32' && { shell: true }),
         },
       },
       {
-        args: ['scripts/validate-file-size.mjs'],
+        args: ['scripts/validation/validate-file-size.mjs'],
         command: 'node',
         options: {
           ...(process.platform === 'win32' && { shell: true }),
         },
       },
       {
-        args: ['scripts/validate-file-count.mjs'],
+        args: ['scripts/validation/validate-file-count.mjs'],
         command: 'node',
         options: {
           ...(process.platform === 'win32' && { shell: true }),

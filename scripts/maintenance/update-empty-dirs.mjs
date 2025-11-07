@@ -13,7 +13,7 @@ import fastGlob from 'fast-glob'
 
 const logger = getDefaultLogger()
 
-import { ROOT_PATH } from './constants/paths.mjs'
+import { ROOT_PATH } from '../constants/paths.mjs'
 
 async function main() {
   const dirPaths = (

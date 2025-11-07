@@ -95,19 +95,19 @@ import { withSpinner } from '@socketsecurity/lib/spinner'
 import { pluralize } from '@socketsecurity/lib/words'
 
 const logger = getDefaultLogger()
-import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
-import { ALLOW_TEST_FAILURES_BY_ECOSYSTEM } from './constants/testing.mjs'
+import { cleanTestScript } from '../../test/utils/script-cleaning.mjs'
+import { ALLOW_TEST_FAILURES_BY_ECOSYSTEM } from '../constants/testing.mjs'
 import {
   NPM_PACKAGES_PATH,
   ROOT_PATH,
   TEST_NPM_PATH,
-} from './constants/paths.mjs'
-import { filterPackagesByChanges } from './utils/git.mjs'
+} from '../constants/paths.mjs'
+import { filterPackagesByChanges } from '../utils/git.mjs'
 import {
   PNPM_HOISTED_INSTALL_FLAGS,
   PNPM_INSTALL_ENV,
-} from './utils/package.mjs'
-import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
+} from '../utils/package.mjs'
+import { suppressMaxListenersWarning } from '../utils/suppress-warnings.mjs'
 
 // Default concurrency values based on environment and platform.
 const DEFAULT_CI_CONCURRENCY_WIN32 = '5'
@@ -483,7 +483,7 @@ async function applySocketOverrideIfExists(packageName, packagePath) {
     }
     // Log other errors for debugging if it's not a simple file missing error.
     if (e.code !== 'ENOENT') {
-      console.error(
+      logger.error(
         `Copy error for ${packageName}: ${e.message}\n  From: ${realOverridePath}\n  To: ${realPackagePath}`,
       )
     }
@@ -597,7 +597,7 @@ async function installPackage(packageInfo) {
             ) {
               // Skip silently.
             } else if (e.code !== 'ENOENT') {
-              console.error(
+              logger.error(
                 `Copy error (cached path) for ${origPkgName}: ${e.message}\n  From: ${realOverridePath}\n  To: ${realInstalledPath}`,
               )
             }
@@ -813,7 +813,7 @@ async function installPackage(packageInfo) {
         }
       } catch (e) {
         // If extraction fails, fall back to the original GitHub URL.
-        console.warn(
+        logger.warn(
           `Warning: Could not extract GitHub tarball for ${origPkgName}, using URL directly: ${e.message}`,
         )
         packageSpec = versionSpec
@@ -982,7 +982,7 @@ async function installPackage(packageInfo) {
         ) {
           // Skip silently, don't rethrow.
         } else if (e.code !== 'ENOENT') {
-          console.error(
+          logger.error(
             `Copy error (install path) for ${origPkgName}: ${e.message}\n  From: ${realOverridePath}\n  To: ${realInstalledPath}`,
           )
           throw e

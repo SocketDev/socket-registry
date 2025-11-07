@@ -12,8 +12,8 @@ import { globStreamLicenses } from '@socketsecurity/lib/globs'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { parallelEach } from '@socketsecurity/lib/streams'
 
-import { LICENSE, ROOT_PATH } from './constants/paths.mjs'
-import { getIgnoreGlobs, getLicenseContent } from './constants/utils.mjs'
+import { LICENSE, ROOT_PATH } from '../constants/paths.mjs'
+import { getIgnoreGlobs, getLicenseContent } from '../constants/utils.mjs'
 
 const logger = getDefaultLogger()
 

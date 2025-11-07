@@ -10,7 +10,7 @@ const logger = getDefaultLogger()
 import {
   ROOT_DOT_GITHUB_ACTIONS_PATH,
   ROOT_DOT_GITHUB_WORKFLOWS_PATH,
-} from './constants/paths.mjs'
+} from '../constants/paths.mjs'
 
 /**
  * Extract structured dependency information from a workflow or action file.
