@@ -48,4 +48,4 @@ jobs:
         run: pnpm run build
 
       - name: Run npm package tests
-        run: node scripts/test-npm-packages.mjs
+        run: node scripts/npm/test-npm-packages.mjs
