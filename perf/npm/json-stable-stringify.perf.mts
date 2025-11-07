@@ -7,13 +7,13 @@ import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import fastJsonStableStringify from 'fast-json-stable-stringify'
 import { Bench } from 'tinybench'
 
-import constants from '../../scripts/constants.mjs'
+import { PERF_NPM_FIXTURES_PATH } from '../../scripts/constants/paths.mjs'
 
 const logger = getDefaultLogger()
 
 void (async () => {
   const sampleData2MbJson = require(
-    path.join(constants.perfNpmFixturesPath, 'sample_data_2mb.json'),
+    path.join(PERF_NPM_FIXTURES_PATH, 'sample_data_2mb.json'),
   )
   const sampleData6MbJson = {
     a: sampleData2MbJson,
