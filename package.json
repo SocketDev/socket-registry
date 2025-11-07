@@ -199,13 +199,18 @@
   },
   "typeCoverage": {
     "cache": true,
-    "atLeast": 81,
+    "atLeast": 99,
     "ignoreAsAssertion": true,
     "ignoreCatch": true,
     "ignoreEmptyType": true,
     "ignore-non-null-assertion": true,
     "ignore-type-assertion": true,
-    "ignore-files": "test/*",
+    "ignoreFiles": [
+      "test/**/*.{ts,mts}",
+      "perf/**/*.{ts,mts}",
+      "scripts/**/*.{ts,mts,d.mts}",
+      "packages/**/*.{ts,d.ts}"
+    ],
     "strict": true
   }
 }
