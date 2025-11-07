@@ -7,6 +7,8 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import fg from 'fast-glob'
 
+import { envAsBoolean } from '@socketsecurity/lib/env/helpers'
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.join(__dirname, '..')
 const srcPath = path.join(rootPath, 'src')
@@ -30,7 +32,8 @@ export const buildConfig = {
   format: 'cjs',
   platform: 'node',
   target: 'node18',
-  sourcemap: true,
+  // Enable source maps for coverage (set COVERAGE=true env var)
+  sourcemap: envAsBoolean(process.env.COVERAGE),
   // Disable minification for better Node ESM interop
   // Node ESM requires clear exports: module.exports = { foo, bar }
   minify: false,
