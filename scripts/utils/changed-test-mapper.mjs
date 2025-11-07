@@ -11,13 +11,15 @@ import {
   getStagedFilesSync,
 } from '@socketsecurity/lib/git'
 import { normalizePath } from '@socketsecurity/lib/path'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 
+const logger = getDefaultLogger()
 const rootPath = path.resolve(process.cwd())
 const DEBUG = process.env.DEBUG_TEST_MAPPER === '1'
 
 function debug(message) {
   if (DEBUG) {
-    console.log(`[test-mapper] ${message}`)
+    logger.log(`[test-mapper] ${message}`)
   }
 }
 
@@ -68,7 +70,7 @@ function mapSourceToTests(filepath) {
 
   // Warn if mapped test file is missing
   if (process.env.NODE_ENV !== 'test') {
-    console.warn(`Warning: Expected test file not found: ${testFile}`)
+    logger.warn(`Warning: Expected test file not found: ${testFile}`)
   }
 
   // Special mappings

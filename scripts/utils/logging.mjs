@@ -1,9 +1,12 @@
 /** @fileoverview Reusable logging utilities for consistent output formatting. */
 
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+
+const logger = getDefaultLogger()
+
 // Default formatting constants.
 const DEFAULT_RULE_WIDTH = 50
 const DEFAULT_RULE_CHAR = '─'
-
 /**
  * Create a horizontal rule of specified width.
  */
@@ -35,8 +38,8 @@ export function logSectionHeader(title, options) {
   }
 
   const header = formatHeaderTitle(title, emoji)
-  console.log(`\n${header}`)
-  console.log(createHorizontalRule(ruleWidth, ruleChar))
+  logger.log(`\n${header}`)
+  logger.log(createHorizontalRule(ruleWidth, ruleChar))
 }
 
 /**
@@ -45,5 +48,5 @@ export function logSectionHeader(title, options) {
 export function logSubsectionHeader(title, options) {
   const { emoji } = { __proto__: null, ...options }
   const header = formatHeaderTitle(title, emoji)
-  console.log(`\n${header}`)
+  logger.log(`\n${header}`)
 }
