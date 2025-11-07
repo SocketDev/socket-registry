@@ -88,10 +88,10 @@ declare interface PrintDiagnosticsOptions {
   verbose?: boolean
 }
 declare class Biome {
-  private readonly module
-  private readonly workspace
-  private tryCatchWrapper
-  private withFile
+  private readonly module: unknown
+  private readonly workspace: unknown
+  private tryCatchWrapper: unknown
+  private withFile: unknown
   private constructor()
   /**
    * It creates a new instance of the class {Biome}.
