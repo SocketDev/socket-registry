@@ -22,7 +22,7 @@ const logger = getDefaultLogger()
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-const rootPath = path.dirname(__dirname)
+const rootPath = path.resolve(__dirname, '..', '..')
 
 const npmPackagesPath = path.join(rootPath, 'packages', 'npm')
 const testNpmPath = path.join(rootPath, 'test', 'npm')
