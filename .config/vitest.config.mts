@@ -171,7 +171,7 @@ export default defineConfig({
       reportsDirectory: 'coverage',
       reporter: ['text', 'json', 'html', 'lcov', 'clover'],
       // ONLY include registry/src production code (not types.ts)
-      include: ['registry/src/index.{ts,mts,cts}'],
+      include: ['registry/src/**/*.{ts,mts,cts}'],
       // Exclude everything else (must include vitest defaults)
       exclude: [
         // Vitest defaults
@@ -193,8 +193,8 @@ export default defineConfig({
         'registry/plugins/**',
         'registry/dist/**',
       ],
-      // Set to false to ONLY report files in include list that are executed
-      all: false,
+      // Set to true to report ALL files in include list, even if not executed
+      all: true,
       clean: true,
       skipFull: false,
       ignoreClassMethods: ['constructor'],

@@ -160,20 +160,23 @@ try {
     const coverageHeaderMatch = output.match(
       / % Coverage report from v8\n([-|]+)\n([^\n]+)\n\1/,
     )
-    const allFilesMatch = output.match(/All files\s+\|\s+([\d.]+)\s+\|[^\n]*/)
+    // Match registry/src coverage specifically, not "All files"
+    const registrySrcMatch = output.match(
+      /registry\/src\s+\|\s+([\d.]+)\s+\|[^\n]*/,
+    )
 
-    if (coverageHeaderMatch && allFilesMatch) {
+    if (coverageHeaderMatch && registrySrcMatch) {
       if (!values.summary) {
         logger.log(' % Coverage report from v8')
         logger.log(coverageHeaderMatch[1])
         logger.log(coverageHeaderMatch[2])
         logger.log(coverageHeaderMatch[1])
-        logger.log(allFilesMatch[0])
+        logger.log(registrySrcMatch[0])
         logger.log(coverageHeaderMatch[1])
         logger.log('')
       }
 
-      const codeCoveragePercent = Number.parseFloat(allFilesMatch[1])
+      const codeCoveragePercent = Number.parseFloat(registrySrcMatch[1])
       logger.log(' Coverage Summary')
       logger.log(' ───────────────────────────────')
       logger.log(` Code Coverage: ${codeCoveragePercent.toFixed(2)}%`)
@@ -235,12 +238,15 @@ try {
           }
         : null
 
-    // Extract coverage summary: header + All files row
-    // Match from "% Coverage" header through the All files line and closing border
+    // Extract coverage summary: header + registry/src row
+    // Match from "% Coverage" header through the registry/src line and closing border
     const coverageHeaderMatch = output.match(
       / % Coverage report from v8\n([-|]+)\n([^\n]+)\n\1/,
     )
-    const allFilesMatch = output.match(/All files\s+\|\s+([\d.]+)\s+\|[^\n]*/)
+    // Match registry/src coverage specifically, not "All files"
+    const registrySrcMatch = output.match(
+      /registry\/src\s+\|\s+([\d.]+)\s+\|[^\n]*/,
+    )
 
     // Extract type coverage percentage
     const typeCoverageOutput = (
@@ -257,7 +263,7 @@ try {
       logger.log('')
     }
 
-    if (coverageHeaderMatch && allFilesMatch) {
+    if (coverageHeaderMatch && registrySrcMatch) {
       if (!values.summary) {
         logger.log(' % Coverage report from v8')
         // Top border.
@@ -266,8 +272,8 @@ try {
         logger.log(coverageHeaderMatch[2])
         // Middle border.
         logger.log(coverageHeaderMatch[1])
-        // All files row.
-        logger.log(allFilesMatch[0])
+        // registry/src row.
+        logger.log(registrySrcMatch[0])
         // Bottom border.
         logger.log(coverageHeaderMatch[1])
         logger.log('')
@@ -275,7 +281,7 @@ try {
 
       // Display type coverage and cumulative summary
       if (typeCoverageMatch) {
-        const codeCoveragePercent = Number.parseFloat(allFilesMatch[1])
+        const codeCoveragePercent = Number.parseFloat(registrySrcMatch[1])
         const typeCoveragePercent = Number.parseFloat(typeCoverageMatch[1])
         const cumulativePercent = (
           (codeCoveragePercent + typeCoveragePercent) /
