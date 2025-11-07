@@ -82,7 +82,12 @@ async function runCommand(command, args, options = {}) {
 
 async function main() {
   const scriptDir = path.dirname(fileURLToPath(import.meta.url))
-  const validateScript = path.join(scriptDir, 'validate-npm-packages.mjs')
+  const validateScript = path.join(
+    scriptDir,
+    '..',
+    'validation',
+    'npm-packages.mjs',
+  )
   const installScript = path.join(scriptDir, 'install-npm-packages.mjs')
   const testScript = path.join(scriptDir, 'run-npm-package-tests.mjs')
 
