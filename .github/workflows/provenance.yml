@@ -16,6 +16,11 @@ on:
         required: false
         type: string
         default: '0'
+      dist-tag:
+        description: 'npm dist-tag for publishing (e.g., "latest", "next", "beta")'
+        required: false
+        type: string
+        default: 'latest'
       force-publish:
         description: 'Force publish without commit checks'
         required: false
@@ -43,6 +48,11 @@ on:
         default: ''
       publish-script:
         description: 'pnpm script to run for publishing (e.g., "package-npm-publish")'
+        required: false
+        type: string
+        default: ''
+      ref:
+        description: 'Git ref (branch, tag, or commit SHA) to checkout'
         required: false
         type: string
         default: ''
@@ -95,6 +105,7 @@ jobs:
 
       - uses: SocketDev/socket-registry/.github/actions/setup-and-install@1a96ced97aaa85d61543351b90d6f463b983c46c # main
         with:
+          checkout-ref: ${{ inputs.ref }}
           node-version: ${{ inputs.node-version }}
           debug: ${{ inputs.debug }}
           scope: ${{ inputs.scope }}
@@ -135,10 +146,12 @@ jobs:
           else
             pnpm run ${{ inputs.publish-script }}
           fi
+        env:
+          DIST_TAG: ${{ inputs.dist-tag }}
 
       - name: Publish package
         if: inputs.publish-script == '' && inputs.package-name != ''
-        run: npm publish --access public
+        run: npm publish --access public --tag ${{ inputs.dist-tag }}
         env:
           NPM_CONFIG_IGNORE_SCRIPTS: true
 
