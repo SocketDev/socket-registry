@@ -60,7 +60,7 @@
     "@socketregistry/is-unicode-supported": "workspace:*",
     "@socketregistry/packageurl-js": "catalog:",
     "@socketregistry/scripts": "file:scripts",
-    "@socketsecurity/lib": "catalog:",
+    "@socketsecurity/lib": "3.3.0",
     "@types/fs-extra": "catalog:",
     "@types/node": "catalog:",
     "@types/normalize-package-data": "catalog:",
