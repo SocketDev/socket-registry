@@ -17,7 +17,7 @@ on:
         type: string
         default: '0'
       dist-tag:
-        description: 'npm dist-tag for publishing (e.g., "latest", "next", "beta")'
+        description: 'npm dist-tag for publishing (e.g., "latest", "next", "beta", "canary", "backport")'
         required: false
         type: string
         default: 'latest'
