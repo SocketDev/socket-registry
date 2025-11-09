@@ -172,76 +172,13 @@ If anything breaks:
 - **Coverage**: MANDATORY - never decrease, always maintain/increase
 - **c8 ignore**: Must include reason ending with period
 
-#### Test Helpers (`test/utils/`)
+#### Test Helpers
 
-**NPM Package Helper** (`npm-package-helper.mts`)
-```typescript
-import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
-
-// Replaces ~15-20 lines of boilerplate per test
-const { module: assert, pkgPath, skip, eco, sockRegPkgName } =
-  await setupNpmPackageTest(__filename)
-
-describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
-  it('should work', () => {
-    expect(assert).toBeDefined()
-  })
-})
-```
-
-**Temp File Helper** (`temp-file-helper.mts`)
-```typescript
-import { withTempDir, withTempFile, runWithTempDir } from '../utils/temp-file-helper.mts'
-
-// Temp directory with cleanup
-const { path: tmpDir, cleanup } = await withTempDir('test-prefix-')
-try {
-  // Use tmpDir...
-} finally {
-  await cleanup()
-}
-
-// Or with callback (auto cleanup):
-await runWithTempDir(async (tmpDir) => {
-  // Use tmpDir... cleanup happens automatically
-}, 'test-prefix-')
-
-// Temp file
-const { path: tmpFile, cleanup } = await withTempFile('content', {
-  extension: '.json',
-  prefix: 'config-'
-})
-```
-
-**Platform Test Helpers** (`platform-test-helpers.mts`)
-```typescript
-import { platform, itOnWindows, itOnUnix, normalizePath } from '../utils/platform-test-helpers.mts'
-
-describe('cross-platform tests', () => {
-  itOnWindows('should handle Windows paths', () => {
-    expect(path.sep).toBe('\\')
-  })
-
-  itOnUnix('should handle Unix paths', () => {
-    expect(path.sep).toBe('/')
-  })
-
-  it('should compare paths cross-platform', () => {
-    expectNormalizedPath('C:\\Users\\test', '/c/Users/test')
-  })
-})
-```
-
-**Assertion Helpers** (`assertion-helpers.mts`)
-```typescript
-import { expectString, expectFrozen, expectHasProperties } from '../utils/assertion-helpers.mts'
-
-it('should validate config', () => {
-  expectString(config.apiKey)
-  expectFrozen(config)
-  expectHasProperties(config, ['apiKey', 'baseUrl', 'timeout'])
-})
-```
+Test helpers available in `test/utils/`:
+- `setupNpmPackageTest()` - NPM package test boilerplate (npm-package-helper.mts)
+- `withTempDir/withTempFile/runWithTempDir()` - Temp file management (temp-file-helper.mts)
+- `itOnWindows/itOnUnix/normalizePath()` - Platform-specific tests (platform-test-helpers.mts)
+- `expectString/expectFrozen/expectHasProperties()` - Assertions (assertion-helpers.mts)
 
 #### Running Tests
 - **All tests**: `pnpm test`
@@ -249,20 +186,6 @@ it('should validate config', () => {
 - **🚨 NEVER USE `--` before test paths** - runs all tests
 - **Coverage**: `pnpm run cover`
 - **NPM packages**: `node scripts/test-npm-packages.mjs` (long-running)
-
-#### Migration Guide
-See `test/utils/TEST_HELPERS_README.md` for:
-- Detailed usage examples (before/after patterns)
-- Migration strategy and phases
-- Potential line savings per helper
-- Best practices and patterns
-
-#### Best Practices
-- **Use helpers**: setupNpmPackageTest(), withTempDir(), itOnWindows(), etc.
-- **Auto cleanup**: Always use cleanup functions for temp resources
-- **Platform-aware**: Use platform helpers for cross-platform tests
-- **Descriptive names**: Clear test names for coverage reports
-- **Combine helpers**: Mix helpers for maximum impact
 
 ### Vitest Memory Optimization
 - **Pool**: `pool: 'forks'`, `singleFork: true`, `maxForks: 1`, `isolate: true`
