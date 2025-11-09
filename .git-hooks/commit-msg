@@ -24,7 +24,7 @@ if [ -n "$COMMITTED_FILES" ]; then
       # Check for Socket API keys (except allowed).
       if grep -E 'sktsec_[a-zA-Z0-9_-]+' "$file" 2>/dev/null | grep -v "$ALLOWED_PUBLIC_KEY" | grep -v 'your_api_key_here' | grep -v 'fake-token' | grep -v 'test-token' | grep -v '\.example' | grep -q .; then
         printf "${RED}✗ SECURITY: Potential API key detected in commit!${NC}\n"
-        echo "File: $file"
+        printf "File: %s\n" "$file"
         ERRORS=$((ERRORS + 1))
       fi
 
