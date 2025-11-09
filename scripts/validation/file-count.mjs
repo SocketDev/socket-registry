@@ -11,13 +11,16 @@ import { exec } from 'node:child_process'
 import path from 'node:path'
 import { promisify } from 'node:util'
 import { fileURLToPath } from 'node:url'
-import loggerPkg from '@socketsecurity/lib/logger'
 
-const logger = loggerPkg.getDefaultLogger()
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+
+import { runValidationScript } from '../utils/validation-runner.mjs'
+
+const logger = getDefaultLogger()
 const execAsync = promisify(exec)
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const rootPath = path.join(__dirname, '..')
+const rootPath = path.join(__dirname, '..', '..')
 
 // Maximum number of files in a single commit
 const MAX_FILES_PER_COMMIT = 50
@@ -66,47 +69,42 @@ async function validateStagedFileCount() {
 }
 
 async function main() {
-  try {
-    const violation = await validateStagedFileCount()
+  await runValidationScript(
+    async () => {
+      const violation = await validateStagedFileCount()
 
-    if (!violation) {
-      logger.success('Commit size is acceptable')
-      process.exitCode = 0
-      return
-    }
+      if (violation) {
+        logger.log('')
+        logger.log(`Staged files: ${violation.count}`)
+        logger.log(`Maximum allowed: ${violation.limit}`)
+        logger.log('')
+        logger.log('Staged files:')
+        logger.log('')
 
-    logger.fail('Too many files staged for commit')
-    logger.log('')
-    logger.log(`Staged files: ${violation.count}`)
-    logger.log(`Maximum allowed: ${violation.limit}`)
-    logger.log('')
-    logger.log('Staged files:')
-    logger.log('')
+        // Show first 20 files, then summary if more.
+        const filesToShow = violation.files.slice(0, 20)
+        for (const file of filesToShow) {
+          logger.log(`  ${file}`)
+        }
 
-    // Show first 20 files, then summary if more
-    const filesToShow = violation.files.slice(0, 20)
-    for (const file of filesToShow) {
-      logger.log(`  ${file}`)
-    }
+        if (violation.files.length > 20) {
+          logger.log(`  ... and ${violation.files.length - 20} more files`)
+        }
 
-    if (violation.files.length > 20) {
-      logger.log(`  ... and ${violation.files.length - 20} more files`)
-    }
+        logger.log('')
+        logger.log(
+          'Split into smaller commits, check for accidentally staged files, or exclude generated files.',
+        )
+        logger.log('')
+      }
 
-    logger.log('')
-    logger.log(
-      'Split into smaller commits, check for accidentally staged files, or exclude generated files.',
-    )
-    logger.log('')
-
-    process.exitCode = 1
-  } catch (error) {
-    logger.fail(`Validation failed: ${error.message}`)
-    process.exitCode = 1
-  }
+      return violation
+    },
+    {
+      failureMessage: 'Too many files staged for commit',
+      successMessage: 'Commit size is acceptable',
+    },
+  )
 }
 
-main().catch(error => {
-  logger.fail(`Validation failed: ${error}`)
-  process.exitCode = 1
-})
+main()

@@ -16,6 +16,8 @@ import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 
+import { runValidationScript } from '../utils/validation-runner.mjs'
+
 const logger = getDefaultLogger()
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -370,40 +372,37 @@ async function validateBundleDeps() {
 }
 
 async function main() {
-  try {
-    const { violations, warnings } = await validateBundleDeps()
+  await runValidationScript(
+    async () => {
+      const { violations, warnings } = await validateBundleDeps()
 
-    if (violations.length === 0 && warnings.length === 0) {
-      logger.log('✓ Bundle dependencies validation passed')
-      process.exitCode = 0
-      return
-    }
-
-    if (violations.length > 0) {
-      logger.error('❌ Bundle dependencies validation failed\n')
-
-      for (const violation of violations) {
-        logger.error(`  ${violation.message}`)
-        logger.error(`  ${violation.fix}`)
+      if (violations.length > 0) {
         logger.error('')
+
+        for (const violation of violations) {
+          logger.error(`  ${violation.message}`)
+          logger.error(`  ${violation.fix}`)
+          logger.error('')
+        }
       }
-    }
 
-    if (warnings.length > 0) {
-      logger.log('⚠ Warnings:\n')
+      if (warnings.length > 0) {
+        logger.log('⚠ Warnings:\n')
 
-      for (const warning of warnings) {
-        logger.log(`  ${warning.message}`)
-        logger.log(`  ${warning.fix}\n`)
+        for (const warning of warnings) {
+          logger.log(`  ${warning.message}`)
+          logger.log(`  ${warning.fix}\n`)
+        }
       }
-    }
 
-    // Only fail on violations, not warnings
-    process.exitCode = violations.length > 0 ? 1 : 0
-  } catch (error) {
-    logger.error('Validation failed:', error.message)
-    process.exitCode = 1
-  }
+      // Only fail on violations, not warnings.
+      return violations.length > 0 ? violations : null
+    },
+    {
+      failureMessage: 'Bundle dependencies validation failed',
+      successMessage: 'Bundle dependencies validation passed',
+    },
+  )
 }
 
 main()

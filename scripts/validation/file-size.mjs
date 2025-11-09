@@ -10,12 +10,15 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import loggerPkg from '@socketsecurity/lib/logger'
 
-const logger = loggerPkg.getDefaultLogger()
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+
+import { runValidationScript } from '../utils/validation-runner.mjs'
+
+const logger = getDefaultLogger()
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const rootPath = path.join(__dirname, '..')
+const rootPath = path.join(__dirname, '..', '..')
 
 // Maximum file size: 2MB (2,097,152 bytes)
 const MAX_FILE_SIZE = 2 * 1024 * 1024
@@ -108,44 +111,39 @@ async function validateFileSizes() {
 }
 
 async function main() {
-  try {
-    const violations = await validateFileSizes()
+  await runValidationScript(
+    async () => {
+      const violations = await validateFileSizes()
 
-    if (violations.length === 0) {
-      logger.success('All files are within size limits')
-      process.exitCode = 0
-      return
-    }
+      if (violations.length > 0) {
+        logger.log('')
+        logger.log(`Maximum allowed file size: ${formatBytes(MAX_FILE_SIZE)}`)
+        logger.log('')
+        logger.log('Files exceeding limit:')
+        logger.log('')
 
-    logger.fail('File size violations found')
-    logger.log('')
-    logger.log(`Maximum allowed file size: ${formatBytes(MAX_FILE_SIZE)}`)
-    logger.log('')
-    logger.log('Files exceeding limit:')
-    logger.log('')
+        for (const violation of violations) {
+          logger.log(`  ${violation.file}`)
+          logger.log(`    Size: ${violation.formattedSize}`)
+          logger.log(
+            `    Exceeds limit by: ${formatBytes(violation.size - MAX_FILE_SIZE)}`,
+          )
+          logger.log('')
+        }
 
-    for (const violation of violations) {
-      logger.log(`  ${violation.file}`)
-      logger.log(`    Size: ${violation.formattedSize}`)
-      logger.log(
-        `    Exceeds limit by: ${formatBytes(violation.size - MAX_FILE_SIZE)}`,
-      )
-      logger.log('')
-    }
+        logger.log(
+          'Reduce file sizes, move large files to external storage, or exclude from repository.',
+        )
+        logger.log('')
+      }
 
-    logger.log(
-      'Reduce file sizes, move large files to external storage, or exclude from repository.',
-    )
-    logger.log('')
-
-    process.exitCode = 1
-  } catch (error) {
-    logger.fail(`Validation failed: ${error.message}`)
-    process.exitCode = 1
-  }
+      return violations
+    },
+    {
+      failureMessage: 'File size violations found',
+      successMessage: 'All files are within size limits',
+    },
+  )
 }
 
-main().catch(error => {
-  logger.fail(`Validation failed: ${error}`)
-  process.exitCode = 1
-})
+main()

@@ -15,12 +15,15 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import loggerPkg from '@socketsecurity/lib/logger'
 
-const logger = loggerPkg.getDefaultLogger()
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+
+import { runValidationScript } from '../utils/validation-runner.mjs'
+
+const logger = getDefaultLogger()
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const rootPath = path.join(__dirname, '..')
+const rootPath = path.join(__dirname, '..', '..')
 
 // CDN domains to block
 const CDN_PATTERNS = [
@@ -166,48 +169,44 @@ async function validateNoCdnRefs() {
 }
 
 async function main() {
-  try {
-    const violations = await validateNoCdnRefs()
+  await runValidationScript(
+    async () => {
+      const violations = await validateNoCdnRefs()
 
-    if (violations.length === 0) {
-      logger.success('No CDN references found')
-      process.exitCode = 0
-      return
-    }
+      if (violations.length > 0) {
+        logger.log(`Found ${violations.length} CDN reference(s)`)
+        logger.log('')
+        logger.log('CDN URLs are not allowed in this codebase for security and')
+        logger.log('reliability reasons. Please use npm packages instead.')
+        logger.log('')
+        logger.log('Blocked CDN domains:')
+        logger.log('  - unpkg.com')
+        logger.log('  - cdn.jsdelivr.net')
+        logger.log('  - esm.sh')
+        logger.log('  - cdn.skypack.dev')
+        logger.log('  - ga.jspm.io')
+        logger.log('')
+        logger.log('Violations:')
+        logger.log('')
 
-    logger.fail(`Found ${violations.length} CDN reference(s)`)
-    logger.log('')
-    logger.log('CDN URLs are not allowed in this codebase for security and')
-    logger.log('reliability reasons. Please use npm packages instead.')
-    logger.log('')
-    logger.log('Blocked CDN domains:')
-    logger.log('  - unpkg.com')
-    logger.log('  - cdn.jsdelivr.net')
-    logger.log('  - esm.sh')
-    logger.log('  - cdn.skypack.dev')
-    logger.log('  - ga.jspm.io')
-    logger.log('')
-    logger.log('Violations:')
-    logger.log('')
+        for (const violation of violations) {
+          logger.log(`  ${violation.file}:${violation.line}`)
+          logger.log(`    Domain: ${violation.cdnDomain}`)
+          logger.log(`    Content: ${violation.content}`)
+          logger.log('')
+        }
 
-    for (const violation of violations) {
-      logger.log(`  ${violation.file}:${violation.line}`)
-      logger.log(`    Domain: ${violation.cdnDomain}`)
-      logger.log(`    Content: ${violation.content}`)
-      logger.log('')
-    }
+        logger.log('Remove CDN references and use npm dependencies instead.')
+        logger.log('')
+      }
 
-    logger.log('Remove CDN references and use npm dependencies instead.')
-    logger.log('')
-
-    process.exitCode = 1
-  } catch (error) {
-    logger.fail(`Validation failed: ${error.message}`)
-    process.exitCode = 1
-  }
+      return violations
+    },
+    {
+      failureMessage: 'CDN reference validation failed',
+      successMessage: 'No CDN references found',
+    },
+  )
 }
 
-main().catch(error => {
-  logger.fail(`Unexpected error: ${error.message}`)
-  process.exitCode = 1
-})
+main()

@@ -19,12 +19,15 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import loggerPkg from '@socketsecurity/lib/logger'
 
-const logger = loggerPkg.getDefaultLogger()
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+
+import { runValidationScript } from '../utils/validation-runner.mjs'
+
+const logger = getDefaultLogger()
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const rootPath = path.join(__dirname, '..')
+const rootPath = path.join(__dirname, '..', '..')
 
 // Allowed SCREAMING_CASE markdown files (without .md extension for comparison)
 const ALLOWED_SCREAMING_CASE = new Set([
@@ -282,52 +285,47 @@ async function validateMarkdownFilenames() {
 }
 
 async function main() {
-  try {
-    const violations = await validateMarkdownFilenames()
+  await runValidationScript(
+    async () => {
+      const violations = await validateMarkdownFilenames()
 
-    if (violations.length === 0) {
-      logger.success('All markdown filenames follow conventions')
-      process.exitCode = 0
-      return
-    }
+      if (violations.length > 0) {
+        logger.log('')
+        logger.log('Special files (allowed anywhere):')
+        logger.log('  README.md, LICENSE, LICENSE.*')
+        logger.log('')
+        logger.log(
+          'Allowed SCREAMING_CASE files (root, docs/, .claude/, or package directories):',
+        )
+        logger.log('  AUTHORS.md, CHANGELOG.md, CITATION.md, CLAUDE.md,')
+        logger.log('  CODE_OF_CONDUCT.md, CONTRIBUTORS.md, CONTRIBUTING.md,')
+        logger.log('  COPYING, CREDITS.md, GOVERNANCE.md, MAINTAINERS.md,')
+        logger.log('  NOTICE.md, SECURITY.md, SUPPORT.md, TRADEMARK.md')
+        logger.log('')
+        logger.log('All other .md files must:')
+        logger.log('  - Be lowercase-with-hyphens')
+        logger.log('  - Be in docs/ or .claude/ directories (any depth)')
+        logger.log('')
 
-    logger.fail('Markdown filename violations found')
-    logger.log('')
-    logger.log('Special files (allowed anywhere):')
-    logger.log('  README.md, LICENSE, LICENSE.*')
-    logger.log('')
-    logger.log(
-      'Allowed SCREAMING_CASE files (root, docs/, .claude/, or package directories):',
-    )
-    logger.log('  AUTHORS.md, CHANGELOG.md, CITATION.md, CLAUDE.md,')
-    logger.log('  CODE_OF_CONDUCT.md, CONTRIBUTORS.md, CONTRIBUTING.md,')
-    logger.log('  COPYING, CREDITS.md, GOVERNANCE.md, MAINTAINERS.md,')
-    logger.log('  NOTICE.md, SECURITY.md, SUPPORT.md, TRADEMARK.md')
-    logger.log('')
-    logger.log('All other .md files must:')
-    logger.log('  - Be lowercase-with-hyphens')
-    logger.log('  - Be in docs/ or .claude/ directories (any depth)')
-    logger.log('')
+        for (const violation of violations) {
+          logger.log(`  ${violation.file}`)
+          logger.log(`    Issue: ${violation.issue}`)
+          logger.log(`    Current: ${violation.filename}`)
+          logger.log(`    Suggested: ${violation.suggestion}`)
+          logger.log('')
+        }
 
-    for (const violation of violations) {
-      logger.log(`  ${violation.file}`)
-      logger.log(`    Issue: ${violation.issue}`)
-      logger.log(`    Current: ${violation.filename}`)
-      logger.log(`    Suggested: ${violation.suggestion}`)
-      logger.log('')
-    }
+        logger.log('Rename files to follow conventions.')
+        logger.log('')
+      }
 
-    logger.log('Rename files to follow conventions.')
-    logger.log('')
-
-    process.exitCode = 1
-  } catch (error) {
-    logger.fail(`Validation failed: ${error.message}`)
-    process.exitCode = 1
-  }
+      return violations
+    },
+    {
+      failureMessage: 'Markdown filename violations found',
+      successMessage: 'All markdown filenames follow conventions',
+    },
+  )
 }
 
-main().catch(error => {
-  logger.fail(`Validation failed: ${error}`)
-  process.exitCode = 1
-})
+main()

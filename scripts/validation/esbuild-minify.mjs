@@ -8,6 +8,8 @@ import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 
+import { runValidationScript } from '../utils/validation-runner.mjs'
+
 const logger = getDefaultLogger()
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -57,33 +59,34 @@ async function validateEsbuildMinify() {
 }
 
 async function main() {
-  const violations = await validateEsbuildMinify()
+  await runValidationScript(
+    async () => {
+      const violations = await validateEsbuildMinify()
 
-  if (violations.length === 0) {
-    logger.log('✓ esbuild minify validation passed')
-    process.exitCode = 0
-    return
-  }
+      if (violations.length > 0) {
+        logger.error('')
 
-  logger.error('❌ esbuild minify validation failed\n')
+        for (const violation of violations) {
+          logger.error(`  ${violation.message}`)
+          logger.error(`  Found: minify: ${violation.value}`)
+          logger.error('  Expected: minify: false')
+          logger.error(`  Location: ${violation.location}`)
+          logger.error('')
+        }
 
-  for (const violation of violations) {
-    logger.error(`  ${violation.message}`)
-    logger.error(`  Found: minify: ${violation.value}`)
-    logger.error('  Expected: minify: false')
-    logger.error(`  Location: ${violation.location}`)
-    logger.error('')
-  }
+        logger.error(
+          'Minification breaks ESM/CJS interop and makes debugging harder.',
+        )
+        logger.error('')
+      }
 
-  logger.error(
-    'Minification breaks ESM/CJS interop and makes debugging harder.',
+      return violations
+    },
+    {
+      failureMessage: 'esbuild minify validation failed',
+      successMessage: 'esbuild minify validation passed',
+    },
   )
-  logger.error('')
-
-  process.exitCode = 1
 }
 
-main().catch(error => {
-  logger.error('Validation failed:', error)
-  process.exitCode = 1
-})
+main()
