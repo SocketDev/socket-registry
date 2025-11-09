@@ -77,3 +77,6 @@ test/**/.tmp-*
 
 # Generated files
 CHANGELOG.md
+
+# Archive directories
+**/docs/archive/
