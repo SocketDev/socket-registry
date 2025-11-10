@@ -37,8 +37,8 @@ catalogs:
       specifier: 9.35.0
       version: 9.35.0
     '@inquirer/checkbox':
-      specifier: 4.2.4
-      version: 4.2.4
+      specifier: 4.3.0
+      version: 4.3.0
     '@inquirer/core':
       specifier: 10.2.2
       version: 10.2.2
@@ -350,7 +350,7 @@ importers:
         version: 9.35.0
       '@inquirer/checkbox':
         specifier: 'catalog:'
-        version: 4.2.4(@types/node@24.9.2)
+        version: 4.3.0(@types/node@24.9.2)
       '@inquirer/core':
         specifier: 'catalog:'
         version: 10.2.2(@types/node@24.9.2)
@@ -1348,8 +1348,8 @@ packages:
     resolution: {integrity: sha512-yqq0aJW/5XPhi5xOAL1xRCpe1eh8UFVgYFpFsjEqmIR8rKLyP+HINvFXwUaxYICflJrVlxnp7lLN6As735kVpw==}
     engines: {node: '>=18'}
 
-  '@inquirer/checkbox@4.2.4':
-    resolution: {integrity: sha512-2n9Vgf4HSciFq8ttKXk+qy+GsyTXPV1An6QAwe/8bkbbqvG4VW1I/ZY1pNu2rf+h9bdzMLPbRSfcNxkHBy/Ydw==}
+  '@inquirer/checkbox@4.3.0':
+    resolution: {integrity: sha512-5+Q3PKH35YsnoPTh75LucALdAxom6xh5D1oeY561x4cqBuH24ZFVyFREPe14xgnrtmGu3EEt1dIi60wRVSnGCw==}
     engines: {node: '>=18'}
     peerDependencies:
       '@types/node': 24.9.2
@@ -4554,7 +4554,7 @@ snapshots:
 
   '@inquirer/ansi@1.0.1': {}
 
-  '@inquirer/checkbox@4.2.4(@types/node@24.9.2)':
+  '@inquirer/checkbox@4.3.0(@types/node@24.9.2)':
     dependencies:
       '@inquirer/ansi': 1.0.1
       '@inquirer/core': 10.3.0(@types/node@24.9.2)
@@ -4646,7 +4646,7 @@ snapshots:
 
   '@inquirer/prompts@7.8.6(@types/node@24.9.2)':
     dependencies:
-      '@inquirer/checkbox': 4.2.4(@types/node@24.9.2)
+      '@inquirer/checkbox': 4.3.0(@types/node@24.9.2)
       '@inquirer/confirm': 5.1.19(@types/node@24.9.2)
       '@inquirer/editor': 4.2.21(@types/node@24.9.2)
       '@inquirer/expand': 4.0.21(@types/node@24.9.2)
