@@ -31,7 +31,7 @@ catalog:
   npm-package-arg: 13.0.0
   pacote: 21.0.1
   semver: 7.7.2
-  typescript: 5.9.2
+  typescript: 5.9.3
   typescript-eslint: 8.44.1
   validate-npm-package-name: 6.0.2
   vitest: 4.0.3
