@@ -69,7 +69,7 @@ jobs:
           debug: ${{ inputs.debug }}
 
       - name: Automatic PR Review
-        uses: anthropics/claude-code-action@06e550b8ff71349db253443c6ca8a4b120e7f89d # v1.0.16
+        uses: anthropics/claude-code-action@8a1c4371755898f67cd97006ba7c97702d5fc4bf # v1.0.16
         with:
           allowed_tools: ${{ inputs.allowed_tools }}
           anthropic_api_key: ${{ secrets.anthropic_api_key }}
