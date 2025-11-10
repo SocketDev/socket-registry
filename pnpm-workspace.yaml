@@ -57,7 +57,7 @@ catalog:
   '@types/spdx-expression-parse': 3.0.5
   '@types/validate-npm-package-name': 4.0.2
   '@types/which': 3.0.4
-  '@typescript/native-preview': 7.0.0-dev.20250920.1
+  '@typescript/native-preview': 7.0.0-dev.20251103.1
   '@yarnpkg/extensions': 2.0.6
   '@zkochan/js-yaml': 0.0.10
   brace-expansion: 2.0.2
