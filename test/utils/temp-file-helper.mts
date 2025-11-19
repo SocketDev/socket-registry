@@ -3,6 +3,7 @@
  * Provides automatic cleanup and error handling for temp resources.
  */
 
+import { randomUUID } from 'node:crypto'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -114,7 +115,7 @@ export async function withTempFile(
   options: { extension?: string; prefix?: string } = {},
 ): Promise<TempFileResult> {
   const { extension = '.txt', prefix = 'test-file-' } = options
-  const tmpFile = path.join(os.tmpdir(), `${prefix}${Date.now()}${extension}`)
+  const tmpFile = path.join(os.tmpdir(), `${prefix}${randomUUID()}${extension}`)
 
   writeFileSync(tmpFile, content)
 

@@ -1,3 +1,4 @@
+/** @fileoverview Tests for @socketregistry/hyrious//bun.lockb npm package override. */
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
@@ -8,8 +9,9 @@ import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
 const UTF8 = 'utf8'
 const testNpmFixturesPath = TEST_NPM_FIXTURES_PATH
-const { eco, pkgPath, skip, sockRegPkgName } =
-  await setupNpmPackageTest(__filename)
+const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
+  import.meta.url,
+)
 
 // @hyrious/bun.lockb has no unit tests.
 // https://github.com/hyrious/bun.lockb/tree/v0.0.4

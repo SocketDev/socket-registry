@@ -1,11 +1,13 @@
+/** @fileoverview Tests for @socketregistry/json-stable-stringify npm package override. */
 import { describe, expect, it } from 'vitest'
 
 import { getEnv } from '../../scripts/constants/env.mjs'
 import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
 const ENV = getEnv()
-const { eco, pkgPath, skip, sockRegPkgName } =
-  await setupNpmPackageTest(__filename)
+const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
+  import.meta.url,
+)
 
 describe(
   `${eco} > ${sockRegPkgName}`,

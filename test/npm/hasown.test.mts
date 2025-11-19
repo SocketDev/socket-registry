@@ -1,3 +1,4 @@
+/** @fileoverview Tests for @socketregistry/hasown npm package override. */
 import { describe, expect, it } from 'vitest'
 
 const hasOwn = require('../../packages/npm/hasown')

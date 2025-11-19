@@ -14,7 +14,7 @@ const {
   pkgPath,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(__filename)
+} = await setupNpmPackageTest(import.meta.url)
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('should have valid package structure', () => {

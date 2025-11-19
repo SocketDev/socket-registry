@@ -1,3 +1,4 @@
+/** @fileoverview Tests for @socketregistry/safer-buffer npm package override. */
 /* eslint-disable n/no-deprecated-api */
 import buffer from 'node:buffer'
 import path from 'node:path'
@@ -8,8 +9,9 @@ import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
 const logger = getDefaultLogger()
 
-const { eco, pkgPath, skip, sockRegPkgName } =
-  await setupNpmPackageTest(__filename)
+const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
+  import.meta.url,
+)
 
 // safer-buffer tests assume Buffer.alloc, Buffer.allocUnsafe, and
 // Buffer.allocUnsafeSlow throw for a size of 2 * (1 << 30), i.e. 2147483648,
@@ -222,61 +224,61 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     for (const impl of implementations) {
       expect(() => {
         impl.Buffer.from(0)
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.from(10)
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.from(10, 'utf-8')
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.from('string', 'invalid encoding')
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.from(-10)
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.from(1e90)
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.from(Number.POSITIVE_INFINITY)
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.from(Number.NEGATIVE_INFINITY)
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.from(Number.NaN)
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.from(null)
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.from(undefined)
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.from()
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.from({})
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.alloc('')
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.alloc('string')
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.alloc('string', 'utf-8')
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.alloc('b25ldHdvdGhyZWU=', 'base64')
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.alloc(-10)
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.alloc(1e90)
-      })
+      }).toThrow()
       // Modern builtin Buffer.alloc does NOT throw.
       // https://github.com/ChALkeR/safer-buffer/issues/16
       expect(() => {
@@ -284,39 +286,39 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       }).not.toThrow()
       expect(() => {
         impl.Buffer.alloc(Number.POSITIVE_INFINITY)
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.alloc(Number.NEGATIVE_INFINITY)
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.alloc(null)
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.alloc(undefined)
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.alloc()
       }).toThrow()
       expect(() => {
         impl.Buffer.alloc([])
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.alloc([0, 42, 3])
-      })
+      }).toThrow()
       expect(() => {
         impl.Buffer.alloc({})
-      })
+      }).toThrow()
     }
     for (const method of ['allocUnsafe', 'allocUnsafeSlow']) {
       expect(() => {
         dangerous.Buffer[method]('')
-      })
+      }).toThrow()
       expect(() => {
         dangerous.Buffer[method]('string')
-      })
+      }).toThrow()
       expect(() => {
         dangerous.Buffer[method]('string', 'utf-8')
-      })
+      }).toThrow()
       // Modern builtin Buffer.allocUnsafe and Buffer.allocUnsafeSlow do NOT throw.
       // https://github.com/ChALkeR/safer-buffer/issues/16
       expect(() => {
@@ -324,7 +326,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       }).not.toThrow()
       expect(() => {
         dangerous.Buffer[method](Number.POSITIVE_INFINITY)
-      })
+      }).toThrow()
       if (dangerous.Buffer[method] === buffer.Buffer.allocUnsafe) {
         logger.info(
           'Skipping, older impl of allocUnsafe coerced negative sizes to 0',
@@ -332,32 +334,32 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       } else {
         expect(() => {
           dangerous.Buffer[method](-10)
-        })
+        }).toThrow()
         expect(() => {
           dangerous.Buffer[method](-1e90)
-        })
+        }).toThrow()
         expect(() => {
           dangerous.Buffer[method](Number.NEGATIVE_INFINITY)
-        })
+        }).toThrow()
       }
       expect(() => {
         dangerous.Buffer[method](null)
-      })
+      }).toThrow()
       expect(() => {
         dangerous.Buffer[method](undefined)
-      })
+      }).toThrow()
       expect(() => {
         dangerous.Buffer[method]()
-      })
+      }).toThrow()
       expect(() => {
         dangerous.Buffer[method]([])
-      })
+      }).toThrow()
       expect(() => {
         dangerous.Buffer[method]([0, 42, 3])
-      })
+      }).toThrow()
       expect(() => {
         dangerous.Buffer[method]({})
-      })
+      }).toThrow()
     }
   })
 
@@ -380,8 +382,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('Buffers have appropriate lengths (2)', () => {
-    expect(safer.Buffer.alloc, safer.Buffer.alloc)
-    expect(safer.Buffer.alloc, dangerous.Buffer.alloc)
     let ok = true
     for (const method of [
       safer.Buffer.alloc,
@@ -399,12 +399,10 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         }
       }
     }
-    expect(ok)
+    expect(ok).toBe(true)
   })
 
   it('.alloc(size) is zero-filled and has correct length', () => {
-    expect(safer.Buffer.alloc, safer.Buffer.alloc)
-    expect(safer.Buffer.alloc, dangerous.Buffer.alloc)
     let ok = true
     for (let i = 0; i < 1e2; i += 1) {
       const length = Math.round(Math.random() * 2e6)
@@ -429,7 +427,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         }
       }
     }
-    expect(ok)
+    expect(ok).toBe(true)
   })
 
   it('.allocUnsafe / .allocUnsafeSlow are fillable and have correct lengths', () => {
@@ -459,13 +457,11 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
           }
         }
       }
-      expect(ok, method)
+      expect(ok).toBe(true)
     }
   })
 
   it('.alloc(size, fill) is `fill`-filled', () => {
-    expect(safer.Buffer.alloc, safer.Buffer.alloc)
-    expect(safer.Buffer.alloc, dangerous.Buffer.alloc)
     let ok = true
     for (let i = 0; i < 1e2; i += 1) {
       const length = Math.round(Math.random() * 2e6)
@@ -483,30 +479,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         }
       }
     }
-    expect(ok)
-  })
-
-  it('.alloc(size, fill) is `fill`-filled', () => {
-    expect(safer.Buffer.alloc, safer.Buffer.alloc)
-    expect(safer.Buffer.alloc, dangerous.Buffer.alloc)
-    let ok = true
-    for (let i = 0; i < 1e2; i += 1) {
-      const length = Math.round(Math.random() * 2e6)
-      const fill = Math.round(Math.random() * 255)
-      const buf = safer.Buffer.alloc(length, fill)
-      if (!buffer.Buffer.isBuffer(buf)) {
-        ok = false
-      }
-      if (buf.length !== length) {
-        ok = false
-      }
-      for (let j = 0; j < length; j += 1) {
-        if (buf[j] !== fill) {
-          ok = false
-        }
-      }
-    }
-    expect(ok)
+    expect(ok).toBe(true)
     expect(safer.Buffer.alloc(9, 'a')).toEqual(safer.Buffer.alloc(9, 97))
     expect(safer.Buffer.alloc(9, 'a')).not.toEqual(safer.Buffer.alloc(9, 98))
 

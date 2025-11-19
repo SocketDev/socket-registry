@@ -1,10 +1,11 @@
+/** @fileoverview Tests for package validation and manifest generation. */
 import { existsSync, promises as fs } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 
 import { fix } from '@npmcli/package-json'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
-import { EXT_JSON } from '@socketsecurity/lib/constants/paths'
+import { EXT_JSON } from '@socketsecurity/lib/paths/exts'
 import { readJson } from '@socketsecurity/lib/fs'
 import { isObjectObject, objectEntries } from '@socketsecurity/lib/objects'
 import {
@@ -13,7 +14,7 @@ import {
   readPackageJson,
   resolveOriginalPackageName,
 } from '@socketsecurity/lib/packages'
-import { trimLeadingDotSlash } from '@socketsecurity/lib/path'
+import { trimLeadingDotSlash } from '@socketsecurity/lib/paths/normalize'
 import { naturalCompare } from '@socketsecurity/lib/sorts'
 import { isNonEmptyString } from '@socketsecurity/lib/strings'
 import fastGlob from 'fast-glob'

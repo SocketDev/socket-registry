@@ -1,3 +1,4 @@
+/** @fileoverview Tests for @socketregistry/es6-object-assign npm package override. */
 import path from 'node:path'
 // eslint-disable-next-line n/no-extraneous-import
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
@@ -6,8 +7,9 @@ import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 
 const logger = getDefaultLogger()
 
-const { eco, pkgPath, skip, sockRegPkgName } =
-  await setupNpmPackageTest(__filename)
+const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
+  import.meta.url,
+)
 
 // es6-object-assign has no unit tests.
 // https://github.com/rubennorte/es6-object-assign/tree/v1.1.0
