@@ -7,7 +7,7 @@ Desktop.ini
 $RECYCLE.BIN/
 
 # Scratch and temp files
-/.claude
+**/.claude/
 Do
 DOING
 TODO
@@ -16,6 +16,7 @@ SCRATCH
 WIP
 *.local
 .local.*
+.node-version
 
 # Environment files
 /.env
@@ -76,3 +77,6 @@ test/**/.tmp-*
 
 # Generated files
 CHANGELOG.md
+
+# Archive directories
+**/docs/archive/

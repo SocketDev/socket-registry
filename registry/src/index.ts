@@ -20,13 +20,14 @@ export function getManifestData(
   packageName?: string,
 ): Manifest | ManifestEntry[] | ManifestEntryData | ManifestEntry | undefined {
   try {
-    const manifestData = require('../manifest.json')
+    const manifestData = require('../manifest.json') as Manifest
 
     if (!ecosystem) {
       return manifestData
     }
 
-    const ecoData = manifestData[ecosystem]
+    const ecoData: ManifestEntry[] | undefined =
+      manifestData[ecosystem as keyof Manifest]
     if (!ecoData) {
       return undefined
     }
@@ -36,7 +37,7 @@ export function getManifestData(
     }
 
     // ecoData is an array of [purl, data] entries
-    const entry = ecoData.find(
+    const entry: ManifestEntry | undefined = ecoData.find(
       ([_purl, data]: ManifestEntry) => data.package === packageName,
     )
     return entry ? entry[1] : undefined
