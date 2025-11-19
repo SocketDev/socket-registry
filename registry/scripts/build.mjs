@@ -7,22 +7,21 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { build, context } from 'esbuild'
-import colors from 'yoctocolors-cjs'
 import fg from 'fast-glob'
+
+import { isQuiet } from '@socketsecurity/lib/argv/flags'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { printFooter, printHeader } from '@socketsecurity/lib/stdio/header'
+
 import {
   analyzeMetafile,
   buildConfig,
   watchConfig,
 } from '../.config/esbuild.config.mjs'
-import { isQuiet } from '../../scripts/utils/flags.mjs'
-import {
-  logger,
-  printCompletedHeader,
-  printFooter,
-  printHeader,
-} from '../../scripts/utils/helpers.mjs'
 import { parseArgs } from '../../scripts/utils/parse-args.mjs'
 import { runSequence } from '../../scripts/utils/run-command.mjs'
+
+const logger = getDefaultLogger()
 
 const rootPath = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -432,7 +431,7 @@ async function main() {
       }
 
       if (!quiet) {
-        printCompletedHeader('Build Cleaned')
+        logger.success('Build Cleaned')
       }
 
       // Run source and types builds in parallel.
@@ -463,9 +462,9 @@ async function main() {
     // Print final status and footer.
     if (!quiet) {
       if (exitCode === 0) {
-        console.log(colors.green('✓ Build completed successfully!'))
+        logger.success('Build completed successfully!')
       } else {
-        console.error(colors.red('✗ Build failed'))
+        logger.fail('Build failed')
       }
       printFooter()
     }

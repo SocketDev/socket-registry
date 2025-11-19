@@ -7,7 +7,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import fg from 'fast-glob'
 
-import { getLocalPackageAliases } from '../scripts/utils/get-local-package-aliases.mjs'
+import { envAsBoolean } from '@socketsecurity/lib/env/helpers'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.join(__dirname, '..')
@@ -22,38 +22,6 @@ const entryPoints = fg.sync('**/*.{ts,mts,cts}', {
   ignore: ['**/*.d.ts', '**/types/**'],
 })
 
-/**
- * Plugin to handle local package aliases when bundle: false
- * esbuild's built-in alias only works with bundle: true, so we need a custom plugin
- */
-function createAliasPlugin() {
-  const aliases = getLocalPackageAliases(rootPath)
-
-  // Only create plugin if we have local aliases
-  if (Object.keys(aliases).length === 0) {
-    return null
-  }
-
-  return {
-    name: 'local-package-aliases',
-    setup(build) {
-      // Intercept imports for aliased packages
-      for (const [packageName, aliasPath] of Object.entries(aliases)) {
-        build.onResolve({ filter: new RegExp(`^${packageName}$`) }, () => {
-          // Return the path to the local package dist
-          return { path: aliasPath, external: true }
-        })
-
-        // Handle subpath imports like '@socketsecurity/lib/spinner'
-        build.onResolve({ filter: new RegExp(`^${packageName}/`) }, args => {
-          const subpath = args.path.slice(packageName.length + 1)
-          return { path: path.join(aliasPath, subpath), external: true }
-        })
-      }
-    },
-  }
-}
-
 // Build configuration for CommonJS output
 export const buildConfig = {
   entryPoints,
@@ -64,7 +32,8 @@ export const buildConfig = {
   format: 'cjs',
   platform: 'node',
   target: 'node18',
-  sourcemap: true,
+  // Enable source maps for coverage (set COVERAGE=true env var)
+  sourcemap: envAsBoolean(process.env.COVERAGE),
   // Disable minification for better Node ESM interop
   // Node ESM requires clear exports: module.exports = { foo, bar }
   minify: false,
@@ -72,9 +41,6 @@ export const buildConfig = {
   treeShaking: true,
   metafile: true,
   logLevel: 'info',
-
-  // Use plugin for local package aliases (built-in alias requires bundle: true)
-  plugins: [createAliasPlugin()].filter(Boolean),
 
   // Note: Cannot use "external" with bundle: false
   // esbuild automatically treats all imports as external when not bundling
