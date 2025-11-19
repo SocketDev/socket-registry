@@ -15,45 +15,45 @@ NC='\033[0m'
 # NOTE: This value is intentionally identical across all Socket repos.
 ALLOWED_PUBLIC_KEY="sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api"
 
-echo "${GREEN}Running Socket Security checks...${NC}"
+printf "${GREEN}Running Socket Security checks...${NC}\n"
 
 # Get list of staged files.
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
 
 if [ -z "$STAGED_FILES" ]; then
-  echo "${GREEN}✓ No files to check${NC}"
+  printf "${GREEN}✓ No files to check${NC}\n"
   exit 0
 fi
 
 ERRORS=0
 
 # Check for .DS_Store files.
-echo "Checking for .DS_Store files..."
+printf "Checking for .DS_Store files...\n"
 if echo "$STAGED_FILES" | grep -q '\.DS_Store'; then
-  echo "${RED}✗ ERROR: .DS_Store file detected!${NC}"
+  printf "${RED}✗ ERROR: .DS_Store file detected!${NC}\n"
   echo "$STAGED_FILES" | grep '\.DS_Store'
   ERRORS=$((ERRORS + 1))
 fi
 
 # Check for log files.
-echo "Checking for log files..."
+printf "Checking for log files...\n"
 if echo "$STAGED_FILES" | grep -E '\.log$' | grep -v 'test.*\.log'; then
-  echo "${RED}✗ ERROR: Log file detected!${NC}"
+  printf "${RED}✗ ERROR: Log file detected!${NC}\n"
   echo "$STAGED_FILES" | grep -E '\.log$' | grep -v 'test.*\.log'
   ERRORS=$((ERRORS + 1))
 fi
 
 # Check for .env files.
-echo "Checking for .env files..."
+printf "Checking for .env files...\n"
 if echo "$STAGED_FILES" | grep -E '^\.env(\.local)?$'; then
-  echo "${RED}✗ ERROR: .env or .env.local file detected!${NC}"
+  printf "${RED}✗ ERROR: .env or .env.local file detected!${NC}\n"
   echo "$STAGED_FILES" | grep -E '^\.env(\.local)?$'
-  echo "These files should never be committed. Use .env.example instead."
+  printf "These files should never be committed. Use .env.example instead.\n"
   ERRORS=$((ERRORS + 1))
 fi
 
 # Check for hardcoded user paths (generic detection).
-echo "Checking for hardcoded personal paths..."
+printf "Checking for hardcoded personal paths...\n"
 for file in $STAGED_FILES; do
   if [ -f "$file" ]; then
     # Skip test files and hook scripts.
@@ -63,28 +63,28 @@ for file in $STAGED_FILES; do
 
     # Check for common user path patterns.
     if grep -E '(/Users/[^/\s]+/|/home/[^/\s]+/|C:\\Users\\[^\\]+\\)' "$file" 2>/dev/null | grep -q .; then
-      echo "${RED}✗ ERROR: Hardcoded personal path found in: $file${NC}"
+      printf "${RED}✗ ERROR: Hardcoded personal path found in: $file${NC}\n"
       grep -n -E '(/Users/[^/\s]+/|/home/[^/\s]+/|C:\\Users\\[^\\]+\\)' "$file" | head -3
-      echo "Replace with relative paths or environment variables."
+      printf "Replace with relative paths or environment variables.\n"
       ERRORS=$((ERRORS + 1))
     fi
   fi
 done
 
 # Check for Socket API keys.
-echo "Checking for API keys..."
+printf "Checking for API keys...\n"
 for file in $STAGED_FILES; do
   if [ -f "$file" ]; then
     if grep -E 'sktsec_[a-zA-Z0-9_-]+' "$file" 2>/dev/null | grep -v "$ALLOWED_PUBLIC_KEY" | grep -v 'your_api_key_here' | grep -v 'SOCKET_SECURITY_API_KEY=' | grep -v 'fake-token' | grep -v 'test-token' | grep -q .; then
-      echo "${YELLOW}⚠ WARNING: Potential API key found in: $file${NC}"
+      printf "${YELLOW}⚠ WARNING: Potential API key found in: $file${NC}\n"
       grep -n 'sktsec_' "$file" | grep -v "$ALLOWED_PUBLIC_KEY" | grep -v 'your_api_key_here' | grep -v 'fake-token' | grep -v 'test-token' | head -3
-      echo "If this is a real API key, DO NOT COMMIT IT."
+      printf "If this is a real API key, DO NOT COMMIT IT.\n"
     fi
   fi
 done
 
 # Check for common secret patterns.
-echo "Checking for potential secrets..."
+printf "Checking for potential secrets...\n"
 for file in $STAGED_FILES; do
   if [ -f "$file" ]; then
     # Skip test files, example files, and hook scripts.
@@ -94,32 +94,32 @@ for file in $STAGED_FILES; do
 
     # Check for AWS keys.
     if grep -iE '(aws_access_key|aws_secret|AKIA[0-9A-Z]{16})' "$file" 2>/dev/null | grep -q .; then
-      echo "${RED}✗ ERROR: Potential AWS credentials found in: $file${NC}"
+      printf "${RED}✗ ERROR: Potential AWS credentials found in: $file${NC}\n"
       grep -n -iE '(aws_access_key|aws_secret|AKIA[0-9A-Z]{16})' "$file" | head -3
       ERRORS=$((ERRORS + 1))
     fi
 
     # Check for GitHub tokens.
     if grep -E 'gh[ps]_[a-zA-Z0-9]{36}' "$file" 2>/dev/null | grep -q .; then
-      echo "${RED}✗ ERROR: Potential GitHub token found in: $file${NC}"
+      printf "${RED}✗ ERROR: Potential GitHub token found in: $file${NC}\n"
       grep -n -E 'gh[ps]_[a-zA-Z0-9]{36}' "$file" | head -3
       ERRORS=$((ERRORS + 1))
     fi
 
     # Check for private keys.
     if grep -E '-----BEGIN (RSA |EC |DSA )?PRIVATE KEY-----' "$file" 2>/dev/null | grep -q .; then
-      echo "${RED}✗ ERROR: Private key found in: $file${NC}"
+      printf "${RED}✗ ERROR: Private key found in: $file${NC}\n"
       ERRORS=$((ERRORS + 1))
     fi
   fi
 done
 
 if [ $ERRORS -gt 0 ]; then
-  echo ""
-  echo "${RED}✗ Security check failed with $ERRORS error(s).${NC}"
-  echo "Fix the issues above and try again."
+  printf "\n"
+  printf "${RED}✗ Security check failed with $ERRORS error(s).${NC}\n"
+  printf "Fix the issues above and try again.\n"
   exit 1
 fi
 
-echo "${GREEN}✓ All security checks passed!${NC}"
+printf "${GREEN}✓ All security checks passed!${NC}\n"
 exit 0
