@@ -1,9 +1,4 @@
 /**
- * @fileoverview Template for package override test infrastructure.
- * Copy this template when creating new package override tests.
- */
-
-/**
  * USAGE INSTRUCTIONS:
  * 1. Copy this file to test/npm/<package-name>.test.mts
  * 2. Replace PACKAGE_NAME with your actual package name
