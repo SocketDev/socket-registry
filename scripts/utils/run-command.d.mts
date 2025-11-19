@@ -42,6 +42,18 @@ export function runCommandQuiet(
   options?: SpawnOptions,
 ): Promise<QuietResult>
 
+export function runCommandStrict(
+  command: string,
+  args?: string[],
+  options?: SpawnOptions,
+): Promise<void>
+
+export function runCommandQuietStrict(
+  command: string,
+  args?: string[],
+  options?: SpawnOptions,
+): Promise<Omit<QuietResult, 'exitCode'>>
+
 export function logAndRun(
   description: string,
   command: string,

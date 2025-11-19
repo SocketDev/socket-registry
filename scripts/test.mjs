@@ -143,7 +143,7 @@ async function runCheck() {
   // Run ESLint and TypeScript in parallel for faster execution
   spinner.start('Running ESLint and TypeScript checks...')
 
-  const [eslintExitCode, tsExitCode] = await Promise.all([
+  const results = await Promise.allSettled([
     runCommand(
       'eslint',
       [
@@ -160,6 +160,10 @@ async function runCheck() {
       stdio: 'pipe',
     }),
   ])
+
+  const eslintExitCode =
+    results[0].status === 'fulfilled' ? results[0].value : 1
+  const tsExitCode = results[1].status === 'fulfilled' ? results[1].value : 1
 
   spinner.stop()
 
@@ -251,37 +255,28 @@ async function runTests(options, positionals = []) {
       // Memory limits: CI gets 8GB, local development gets 2GB to prevent system strain.
       NODE_OPTIONS:
         `${process.env.NODE_OPTIONS || ''} --max-old-space-size=${process.env.CI ? 8192 : 2048} --unhandled-rejections=warn`.trim(),
+      NODE_COMPILE_CACHE: './.cache',
+      NODE_ENV: 'test',
+      VITEST: '1',
     },
     stdio: 'inherit',
   }
 
-  // Use dotenvx to load test environment
-  const dotenvxCmd = WIN32 ? 'dotenvx.cmd' : 'dotenvx'
-  const dotenvxPath = path.join(nodeModulesBinPath, dotenvxCmd)
-
   // Use interactive runner for interactive Ctrl+O experience when appropriate
   if (process.stdout.isTTY) {
     const { runTests } = await import('./utils/interactive-runner.mjs')
-    return runTests(
-      dotenvxPath,
-      ['-q', 'run', '-f', '.env.test', '--', vitestPath, ...vitestArgs],
-      {
-        env: spawnOptions.env,
-        cwd: spawnOptions.cwd,
-        verbose: false,
-      },
-    )
+    return runTests(vitestPath, vitestArgs, {
+      env: spawnOptions.env,
+      cwd: spawnOptions.cwd,
+      verbose: false,
+    })
   }
 
   // Fallback to execution with output capture to handle worker termination errors
-  const result = await runCommandWithOutput(
-    dotenvxPath,
-    ['-q', 'run', '-f', '.env.test', '--', vitestPath, ...vitestArgs],
-    {
-      ...spawnOptions,
-      stdio: ['inherit', 'pipe', 'pipe'],
-    },
-  )
+  const result = await runCommandWithOutput(vitestPath, vitestArgs, {
+    ...spawnOptions,
+    stdio: ['inherit', 'pipe', 'pipe'],
+  })
 
   // Print output
   if (result.stdout) {
@@ -362,30 +357,28 @@ async function main() {
 
     // Show help if requested
     if (values.help) {
-      console.log('Test Runner')
-      console.log('\nUsage: pnpm test [options] [-- vitest-args...]')
-      console.log('\nOptions:')
-      console.log('  --help              Show this help message')
-      console.log(
+      logger.log('Test Runner')
+      logger.log('\nUsage: pnpm test [options] [-- vitest-args...]')
+      logger.log('\nOptions:')
+      logger.log('  --help              Show this help message')
+      logger.log(
         '  --fast, --quick     Skip lint/type checks for faster execution',
       )
-      console.log('  --cover, --coverage Run tests with code coverage')
-      console.log('  --update            Update test snapshots')
-      console.log('  --all, --force      Run all tests regardless of changes')
-      console.log('  --staged            Run tests affected by staged changes')
-      console.log('  --skip-build        Skip the build step')
-      console.log('\nExamples:')
-      console.log(
+      logger.log('  --cover, --coverage Run tests with code coverage')
+      logger.log('  --update            Update test snapshots')
+      logger.log('  --all, --force      Run all tests regardless of changes')
+      logger.log('  --staged            Run tests affected by staged changes')
+      logger.log('  --skip-build        Skip the build step')
+      logger.log('\nExamples:')
+      logger.log(
         '  pnpm test                  # Run checks, build, and tests for changed files',
       )
-      console.log('  pnpm test --all            # Run all tests')
-      console.log(
-        '  pnpm test --fast           # Skip checks for quick testing',
-      )
-      console.log('  pnpm test --cover          # Run with coverage report')
-      console.log('  pnpm test --fast --cover   # Quick test with coverage')
-      console.log('  pnpm test --update         # Update test snapshots')
-      console.log('  pnpm test -- --reporter=dot # Pass args to vitest')
+      logger.log('  pnpm test --all            # Run all tests')
+      logger.log('  pnpm test --fast           # Skip checks for quick testing')
+      logger.log('  pnpm test --cover          # Run with coverage report')
+      logger.log('  pnpm test --fast --cover   # Quick test with coverage')
+      logger.log('  pnpm test --update         # Update test snapshots')
+      logger.log('  pnpm test -- --reporter=dot # Pass args to vitest')
       process.exitCode = 0
       return
     }
@@ -450,6 +443,6 @@ async function main() {
 }
 
 main().catch(error => {
-  console.error(error)
+  logger.error(error)
   process.exit(1)
 })

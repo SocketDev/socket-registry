@@ -18,12 +18,12 @@ import { spawn } from '@socketsecurity/lib/spawn'
 import { pluralize } from '@socketsecurity/lib/words'
 import semver from 'semver'
 
-import { getEnv } from './constants/env.mjs'
-import { WIN32 } from './constants/node.mjs'
-import { LATEST } from './constants/packages.mjs'
-import { NPM_PACKAGES_PATH, REGISTRY_PKG_PATH } from './constants/paths.mjs'
-import { getNpmPackageNames } from './constants/testing.mjs'
-import { extractNpmError } from './utils/errors.mjs'
+import { getEnv } from '../constants/env.mjs'
+import { WIN32 } from '../constants/node.mjs'
+import { LATEST } from '../constants/packages.mjs'
+import { NPM_PACKAGES_PATH, REGISTRY_PKG_PATH } from '../constants/paths.mjs'
+import { getNpmPackageNames } from '../constants/testing.mjs'
+import { extractNpmError } from '../utils/errors.mjs'
 
 const logger = getDefaultLogger()
 

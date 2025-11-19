@@ -7,7 +7,7 @@ import path from 'node:path'
 import { resolveRefToSha } from '@socketsecurity/lib/github'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 
-import { ROOT_PATH } from './constants/paths.mjs'
+import { ROOT_PATH } from '../constants/paths.mjs'
 
 const logger = getDefaultLogger()
 

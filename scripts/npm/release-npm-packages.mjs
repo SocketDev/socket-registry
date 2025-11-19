@@ -7,10 +7,7 @@ import path from 'node:path'
 import { promisify } from 'node:util'
 
 import { execScript } from '@socketsecurity/lib/agent'
-import {
-  getAbortSignal,
-  getSpinner,
-} from '@socketsecurity/lib/constants/process'
+import { getAbortSignal } from '@socketsecurity/lib/constants/process'
 import { readFileUtf8 } from '@socketsecurity/lib/fs'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { isObjectObject, toSortedObject } from '@socketsecurity/lib/objects'
@@ -22,26 +19,26 @@ import {
   readPackageJsonSync,
 } from '@socketsecurity/lib/packages'
 import { pEach } from '@socketsecurity/lib/promises'
-import { withSpinner } from '@socketsecurity/lib/spinner'
+import { getDefaultSpinner, withSpinner } from '@socketsecurity/lib/spinner'
 import { minimatch } from 'minimatch'
 import semver from 'semver'
-import { LATEST, SOCKET_REGISTRY_PACKAGE_NAME } from './constants/packages.mjs'
+import { LATEST, SOCKET_REGISTRY_PACKAGE_NAME } from '../constants/packages.mjs'
 import {
   NPM_PACKAGES_PATH,
   PACKAGE_JSON,
   REGISTRY_PKG_PATH,
   ROOT_PATH,
   SOCKET_REGISTRY_SCOPE,
-} from './constants/paths.mjs'
-import { getNpmPackageNames } from './constants/testing.mjs'
-import { logSectionHeader } from './utils/logging.mjs'
+} from '../constants/paths.mjs'
+import { getNpmPackageNames } from '../constants/testing.mjs'
+import { logSectionHeader } from '../utils/logging.mjs'
 
 const logger = getDefaultLogger()
 
 const execFileAsync = promisify(execFile)
 
 const abortSignal = getAbortSignal()
-const spinner = getSpinner()
+const spinner = getDefaultSpinner()
 const npmPackageNames = getNpmPackageNames()
 
 const registryPkg = packageData({
@@ -238,10 +235,15 @@ async function hasPackageChanged(pkg, manifest_, options) {
   let changed = false
   // Compare actual file contents by extracting packages and comparing SHA hashes.
   try {
-    const { 0: remoteHashes, 1: localHashes } = await Promise.all([
+    const results = await Promise.allSettled([
       getRemotePackageFileHashes(`${pkg.name}@${manifest.version}`),
       getLocalPackageFileHashes(pkg.path),
     ])
+
+    const remoteHashes =
+      results[0].status === 'fulfilled' ? results[0].value : {}
+    const localHashes =
+      results[1].status === 'fulfilled' ? results[1].value : {}
 
     // Use remote files as source of truth and check if local matches.
     for (const { 0: file, 1: remoteHash } of Object.entries(remoteHashes)) {

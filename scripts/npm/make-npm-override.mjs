@@ -50,13 +50,13 @@ import semver from 'semver'
 
 import { UTF8 } from '@socketsecurity/lib/constants/encoding'
 
-import { ESNEXT } from './constants/core.mjs'
+import { ESNEXT } from '../constants/core.mjs'
 import {
   LICENSE,
   LICENSE_ORIGINAL,
   NPM_PACKAGES_PATH,
   ROOT_PATH,
-} from './constants/paths.mjs'
+} from '../constants/paths.mjs'
 import {
   TEMPLATE_CJS,
   TEMPLATE_CJS_BROWSER,
@@ -66,7 +66,7 @@ import {
   TEMPLATE_ES_SHIM_STATIC_METHOD,
   TS_LIBS_AVAILABLE,
   TS_TYPES_AVAILABLE,
-} from './constants/templates.mjs'
+} from '../constants/templates.mjs'
 import {
   getLicenseActions,
   getNpmReadmeAction,
@@ -74,7 +74,7 @@ import {
   getTemplate,
   getTypeScriptActions,
   writeAction,
-} from './utils/templates.mjs'
+} from '../utils/templates.mjs'
 
 const require = createRequire(import.meta.url)
 
@@ -235,7 +235,7 @@ async function main() {
   }
   if (licenseWarnings.length) {
     const formattedWarnings = licenseWarnings.map(w =>
-      indentString(`• ${w}`, { count: 2 }),
+      indentString(`· ${w}`, { count: 2 }),
     )
     logger.warn(
       `${origPkgName} has license warnings:\n${formattedWarnings.join('\n')}`,
@@ -271,9 +271,9 @@ async function main() {
   const tsRefs = []
   if (isEsShim) {
     const { default: maintainedNodeVersions } = await import(
-      './constants/node.mjs'
+      '../constants/node.mjs'
     )
-    const { PACKAGE_DEFAULT_NODE_RANGE } = await import('./constants/node.mjs')
+    const { PACKAGE_DEFAULT_NODE_RANGE } = await import('../constants/node.mjs')
     const parts = origPkgName
       .split(/[-.]/)
       .filter(p => p !== 'es' && p !== 'helpers')
@@ -406,7 +406,7 @@ async function main() {
   // First copy the template directory contents to the package path.
   await fs.cp(templatePkgPath, pkgPath, { recursive: true })
   // Then modify the new package's package.json source and write to disk.
-  const { PACKAGE_DEFAULT_NODE_RANGE } = await import('./constants/node.mjs')
+  const { PACKAGE_DEFAULT_NODE_RANGE } = await import('../constants/node.mjs')
   await writeAction(
     await getPackageJsonAction(pkgPath, {
       engines: {
@@ -415,7 +415,7 @@ async function main() {
     }),
   )
   // Finally, modify other package file sources and write to disk.
-  await Promise.all(
+  await Promise.allSettled(
     [
       await getNpmReadmeAction(pkgPath, { interop }),
       ...(await getLicenseActions(pkgPath)),

@@ -7,11 +7,11 @@ import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { WIN32 } from '@socketsecurity/lib/constants/platform'
 import { getCI } from '@socketsecurity/lib/env/ci'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
-import { spawn } from '@socketsecurity/lib/spawn'
 
 const logger = getDefaultLogger()
 
-import { logSectionHeader } from './utils/logging.mjs'
+import { logSectionHeader } from '../utils/logging.mjs'
+import { runCommandStrict } from '../utils/run-command.mjs'
 
 const { values: cliArgs } = parseArgs({
   options: {
@@ -25,11 +25,11 @@ const { values: cliArgs } = parseArgs({
     },
     'install-concurrency': {
       type: 'string',
-      default: getCI() ? (WIN32 ? '5' : '10') : '15',
+      default: getCI() ? (WIN32 ? '5' : '10') : '30',
     },
     'test-concurrency': {
       type: 'string',
-      default: getCI() ? (WIN32 ? '3' : '8') : '20',
+      default: getCI() ? (WIN32 ? '3' : '8') : '40',
     },
     force: {
       type: 'boolean',
@@ -62,27 +62,14 @@ const { values: cliArgs } = parseArgs({
 // Use cache directory by default for persistent caching across runs.
 const tempBaseDir = cliArgs.tempDir || cliArgs.cacheDir
 
-async function runCommand(command, args, options = {}) {
-  try {
-    const result = await spawn(command, args, {
-      env: { ...process.env, NODE_NO_WARNINGS: '1' },
-      shell: WIN32,
-      stdio: 'inherit',
-      ...options,
-    })
-    return { code: result.code }
-  } catch (error) {
-    const commandError = new Error(
-      `Command failed: ${command} ${args.join(' ')}`,
-    )
-    commandError.code = error.code || error.exitCode
-    throw commandError
-  }
-}
-
 async function main() {
   const scriptDir = path.dirname(fileURLToPath(import.meta.url))
-  const validateScript = path.join(scriptDir, 'validate-npm-packages.mjs')
+  const validateScript = path.join(
+    scriptDir,
+    '..',
+    'validation',
+    'npm-packages.mjs',
+  )
   const installScript = path.join(scriptDir, 'install-npm-packages.mjs')
   const testScript = path.join(scriptDir, 'run-npm-package-tests.mjs')
 
@@ -127,7 +114,9 @@ async function main() {
         validateArgs.push('--clear-cache')
       }
 
-      await runCommand('node', [validateScript, ...validateArgs])
+      await runCommandStrict('node', [validateScript, ...validateArgs], {
+        env: { ...process.env, NODE_NO_WARNINGS: '1' },
+      })
       logger.log('')
     }
 
@@ -141,7 +130,9 @@ async function main() {
         finalInstallArgs.push('--force')
       }
 
-      await runCommand('node', [installScript, ...finalInstallArgs])
+      await runCommandStrict('node', [installScript, ...finalInstallArgs], {
+        env: { ...process.env, NODE_NO_WARNINGS: '1' },
+      })
       logger.log('')
     }
 
@@ -155,7 +146,9 @@ async function main() {
         finalTestArgs.push('--force')
       }
 
-      await runCommand('node', [testScript, ...finalTestArgs])
+      await runCommandStrict('node', [testScript, ...finalTestArgs], {
+        env: { ...process.env, NODE_NO_WARNINGS: '1' },
+      })
     }
 
     // Never clean up the cache directory - it's persistent by design.

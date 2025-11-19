@@ -12,9 +12,9 @@ import fastGlob from 'fast-glob'
 
 const logger = getDefaultLogger()
 
-import { NPM_TEMPLATES_PATH, ROOT_PATH } from './constants/paths.mjs'
-import { getIgnoreGlobs } from './constants/utils.mjs'
-import { getModifiedFiles } from './utils/git.mjs'
+import { NPM_TEMPLATES_PATH, ROOT_PATH } from '../constants/paths.mjs'
+import { getIgnoreGlobs } from '../constants/utils.mjs'
+import { getModifiedFiles } from '../utils/git.mjs'
 
 const { values: cliArgs } = parseArgs({
   options: {
@@ -52,14 +52,14 @@ async function main() {
   const OLD_EMPTY_CONTENT = await fs.readFile(autoFile, UTF8)
   const OLD_EMPTY_CONTENT_BYTES = Buffer.byteLength(OLD_EMPTY_CONTENT, UTF8)
 
-  await Promise.all(
+  await Promise.allSettled(
     autoFiles.map(async filepath => {
       if ((await fs.stat(filepath)).size === OLD_EMPTY_CONTENT_BYTES) {
         await fs.writeFile(filepath, EMPTY_FILE, UTF8)
       }
     }),
   )
-  await Promise.all(
+  await Promise.allSettled(
     (
       await fastGlob.glob(['**/*.{d.ts,js}'], {
         ignore: [AUTO_FILE_GLOB_RECURSIVE, ...ignoreGlobs],

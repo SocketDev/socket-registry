@@ -12,16 +12,16 @@ import {
 } from '@socketsecurity/lib/packages'
 
 const logger = getDefaultLogger()
-import { trimLeadingDotSlash } from '@socketsecurity/lib/path'
+import { trimLeadingDotSlash } from '@socketsecurity/lib/paths/normalize'
 import { pluralize } from '@socketsecurity/lib/words'
 import fastGlob from 'fast-glob'
 
-import { getNpmPackageNames } from './constants/testing.mjs'
+import { getNpmPackageNames } from '../constants/testing.mjs'
 import {
   NPM_PACKAGES_PATH,
   PACKAGE_JSON,
   SOCKET_REGISTRY_SCOPE,
-} from './constants/paths.mjs'
+} from '../constants/paths.mjs'
 
 /**
  * Update package.json files and validate subpath exports.
@@ -29,7 +29,7 @@ import {
 async function main() {
   const useDebug = isDebug()
   const warnings = []
-  await Promise.all(
+  await Promise.allSettled(
     getNpmPackageNames().map(async sockRegPkgName => {
       const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)

@@ -13,11 +13,12 @@ import { fileURLToPath } from 'node:url'
 
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { spawn } from '@socketsecurity/lib/spawn'
+import { printHeader } from '@socketsecurity/lib/stdio/header'
+
+import { runCommandQuiet } from './utils/run-command.mjs'
 
 const logger = getDefaultLogger()
-
-import { printError, printHeader, printSuccess } from './utils/cli-helpers.mjs'
-import { runCommandQuiet } from './utils/run-command.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.join(__dirname, '..')
@@ -43,6 +44,20 @@ const { values } = parseArgs({
 })
 
 printHeader('Test Coverage')
+logger.log('')
+
+// Rebuild with source maps enabled for coverage
+logger.info('Building with source maps for coverage...')
+const buildResult = await spawn('node', ['scripts/build.mjs'], {
+  cwd: rootPath,
+  stdio: 'inherit',
+  env: envWithMemoryLimits,
+})
+if (buildResult.code !== 0) {
+  logger.error('Build with source maps failed')
+  process.exitCode = 1
+  process.exit(1)
+}
 logger.log('')
 
 // Run vitest with coverage enabled, capturing output
@@ -145,20 +160,23 @@ try {
     const coverageHeaderMatch = output.match(
       / % Coverage report from v8\n([-|]+)\n([^\n]+)\n\1/,
     )
-    const allFilesMatch = output.match(/All files\s+\|\s+([\d.]+)\s+\|[^\n]*/)
+    // Match registry/src coverage specifically, not "All files"
+    const registrySrcMatch = output.match(
+      /registry\/src\s+\|\s+([\d.]+)\s+\|[^\n]*/,
+    )
 
-    if (coverageHeaderMatch && allFilesMatch) {
+    if (coverageHeaderMatch && registrySrcMatch) {
       if (!values.summary) {
         logger.log(' % Coverage report from v8')
         logger.log(coverageHeaderMatch[1])
         logger.log(coverageHeaderMatch[2])
         logger.log(coverageHeaderMatch[1])
-        logger.log(allFilesMatch[0])
+        logger.log(registrySrcMatch[0])
         logger.log(coverageHeaderMatch[1])
         logger.log('')
       }
 
-      const codeCoveragePercent = Number.parseFloat(allFilesMatch[1])
+      const codeCoveragePercent = Number.parseFloat(registrySrcMatch[1])
       logger.log(' Coverage Summary')
       logger.log(' ───────────────────────────────')
       logger.log(` Code Coverage: ${codeCoveragePercent.toFixed(2)}%`)
@@ -220,12 +238,15 @@ try {
           }
         : null
 
-    // Extract coverage summary: header + All files row
-    // Match from "% Coverage" header through the All files line and closing border
+    // Extract coverage summary: header + registry/src row
+    // Match from "% Coverage" header through the registry/src line and closing border
     const coverageHeaderMatch = output.match(
       / % Coverage report from v8\n([-|]+)\n([^\n]+)\n\1/,
     )
-    const allFilesMatch = output.match(/All files\s+\|\s+([\d.]+)\s+\|[^\n]*/)
+    // Match registry/src coverage specifically, not "All files"
+    const registrySrcMatch = output.match(
+      /registry\/src\s+\|\s+([\d.]+)\s+\|[^\n]*/,
+    )
 
     // Extract type coverage percentage
     const typeCoverageOutput = (
@@ -242,7 +263,7 @@ try {
       logger.log('')
     }
 
-    if (coverageHeaderMatch && allFilesMatch) {
+    if (coverageHeaderMatch && registrySrcMatch) {
       if (!values.summary) {
         logger.log(' % Coverage report from v8')
         // Top border.
@@ -251,8 +272,8 @@ try {
         logger.log(coverageHeaderMatch[2])
         // Middle border.
         logger.log(coverageHeaderMatch[1])
-        // All files row.
-        logger.log(allFilesMatch[0])
+        // registry/src row.
+        logger.log(registrySrcMatch[0])
         // Bottom border.
         logger.log(coverageHeaderMatch[1])
         logger.log('')
@@ -260,7 +281,7 @@ try {
 
       // Display type coverage and cumulative summary
       if (typeCoverageMatch) {
-        const codeCoveragePercent = Number.parseFloat(allFilesMatch[1])
+        const codeCoveragePercent = Number.parseFloat(registrySrcMatch[1])
         const typeCoveragePercent = Number.parseFloat(typeCoverageMatch[1])
         const cumulativePercent = (
           (codeCoveragePercent + typeCoveragePercent) /
@@ -279,13 +300,13 @@ try {
   }
 
   if (exitCode === 0) {
-    printSuccess('Coverage completed successfully')
+    logger.success('Coverage completed successfully')
   } else {
-    printError('Coverage failed')
+    logger.error('Coverage failed')
   }
 
   process.exitCode = exitCode
 } catch (error) {
-  printError(`Coverage script failed: ${error.message}`)
+  logger.error(`Coverage script failed: ${error.message}`)
   process.exitCode = 1
 }

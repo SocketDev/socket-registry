@@ -9,6 +9,8 @@ import { fileURLToPath } from 'node:url'
 
 import colors from 'yoctocolors-cjs'
 
+import { LOG_SYMBOLS } from '@socketsecurity/lib/logger'
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.join(__dirname, '..', '..')
 const parentPath = path.join(rootPath, '..')
@@ -91,7 +93,7 @@ const log = {
   info: msg => console.log(msg),
   progress: msg => {
     process.stdout.write('\r\x1b[K')
-    process.stdout.write(`  ∴ ${msg}`)
+    process.stdout.write(`  ${LOG_SYMBOLS.reason} ${msg}`)
   },
   step: msg => console.log(`\n${msg}`),
   substep: msg => console.log(`  ${msg}`),

@@ -1,3 +1,4 @@
+/** @fileoverview Type declarations for env constants. */
 export declare function getEnv(): {
   CI: boolean
   NODE_AUTH_TOKEN: string | undefined

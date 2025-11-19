@@ -15,7 +15,6 @@ import {
   AT_LATEST,
   getPackageDefaultNodeRange,
 } from '@socketsecurity/lib/constants/packages'
-import { getSpinner } from '@socketsecurity/lib/constants/process'
 
 const logger = getDefaultLogger()
 import {
@@ -33,9 +32,9 @@ import {
 } from '@socketsecurity/lib/packages'
 import { pEach } from '@socketsecurity/lib/promises'
 import { naturalCompare } from '@socketsecurity/lib/sorts'
-import { withSpinner } from '@socketsecurity/lib/spinner'
+import { getDefaultSpinner, withSpinner } from '@socketsecurity/lib/spinner'
 
-import { DEFAULT_CONCURRENCY } from './constants/core.mjs'
+import { DEFAULT_CONCURRENCY } from '../constants/core.mjs'
 import {
   NPM,
   NPM_PACKAGES_PATH,
@@ -44,15 +43,15 @@ import {
   REL_REGISTRY_MANIFEST_JSON_PATH,
   ROOT_PACKAGES_PATH,
   TEST_NPM_PATH,
-} from './constants/paths.mjs'
-import { getNpmPackageNames } from './constants/testing.mjs'
-import { biomeFormat } from './utils/biome.mjs'
-import { getModifiedFiles } from './utils/git.mjs'
-import { getPackageVersionSpec, shouldSkipTests } from './utils/packages.mjs'
+} from '../constants/paths.mjs'
+import { getNpmPackageNames } from '../constants/testing.mjs'
+import { biomeFormat } from '../utils/biome.mjs'
+import { getModifiedFiles } from '../utils/git.mjs'
+import { getPackageVersionSpec, shouldSkipTests } from '../utils/packages.mjs'
 
 const require = createRequire(import.meta.url)
 
-const spinner = getSpinner()
+const spinner = getDefaultSpinner()
 const npmPackageNames = getNpmPackageNames()
 
 const { values: cliArgs } = parseArgs({

@@ -1,3 +1,4 @@
+/** @fileoverview Type declarations for utils constants. */
 export declare function getDefaultWhichOptions(): { path: string }
 export declare function getLicenseContent(): string
 export declare function getGitExecPath(): string

@@ -200,7 +200,7 @@ async function getTypeScriptActions(pkgPath, options) {
     cwd: pkgPath,
   })
   const actions = []
-  await Promise.all(
+  await Promise.allSettled(
     filepaths.map(async filepath => {
       const data = {
         __proto__: null,

@@ -14,8 +14,14 @@ import { builtinModules } from 'node:module'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+
+import { runValidationScript } from '../utils/validation-runner.mjs'
+
+const logger = getDefaultLogger()
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const rootPath = path.join(__dirname, '..')
+const rootPath = path.join(__dirname, '..', '..')
 
 // Node.js builtins to ignore (including node: prefix variants)
 const BUILTIN_MODULES = new Set([
@@ -300,7 +306,7 @@ async function validateBundleDeps() {
   const distFiles = await findDistFiles(distPath)
 
   if (distFiles.length === 0) {
-    console.log('ℹ No dist files found - run build first')
+    logger.log('ℹ No dist files found - run build first')
     return { violations: [], warnings: [] }
   }
 
@@ -366,40 +372,37 @@ async function validateBundleDeps() {
 }
 
 async function main() {
-  try {
-    const { violations, warnings } = await validateBundleDeps()
+  await runValidationScript(
+    async () => {
+      const { violations, warnings } = await validateBundleDeps()
 
-    if (violations.length === 0 && warnings.length === 0) {
-      console.log('✓ Bundle dependencies validation passed')
-      process.exitCode = 0
-      return
-    }
+      if (violations.length > 0) {
+        logger.log('')
 
-    if (violations.length > 0) {
-      console.error('❌ Bundle dependencies validation failed\n')
-
-      for (const violation of violations) {
-        console.error(`  ${violation.message}`)
-        console.error(`  ${violation.fix}`)
-        console.error('')
+        for (const violation of violations) {
+          logger.log(`  ${violation.message}`)
+          logger.log(`  ${violation.fix}`)
+          logger.log('')
+        }
       }
-    }
 
-    if (warnings.length > 0) {
-      console.log('⚠ Warnings:\n')
+      if (warnings.length > 0) {
+        logger.log('⚠ Warnings:\n')
 
-      for (const warning of warnings) {
-        console.log(`  ${warning.message}`)
-        console.log(`  ${warning.fix}\n`)
+        for (const warning of warnings) {
+          logger.log(`  ${warning.message}`)
+          logger.log(`  ${warning.fix}\n`)
+        }
       }
-    }
 
-    // Only fail on violations, not warnings
-    process.exitCode = violations.length > 0 ? 1 : 0
-  } catch (error) {
-    console.error('Validation failed:', error.message)
-    process.exitCode = 1
-  }
+      // Only fail on violations, not warnings.
+      return violations.length > 0 ? violations : null
+    },
+    {
+      failureMessage: 'Bundle dependencies validation failed',
+      successMessage: 'Bundle dependencies validation passed',
+    },
+  )
 }
 
 main()

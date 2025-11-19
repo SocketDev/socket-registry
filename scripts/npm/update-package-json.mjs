@@ -3,8 +3,8 @@
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { readPackageJson } from '@socketsecurity/lib/packages'
 
-import { PACKAGE_DEFAULT_NODE_RANGE } from './constants/node.mjs'
-import { ROOT_PACKAGE_JSON_PATH } from './constants/paths.mjs'
+import { PACKAGE_DEFAULT_NODE_RANGE } from '../constants/node.mjs'
+import { ROOT_PACKAGE_JSON_PATH } from '../constants/paths.mjs'
 
 const logger = getDefaultLogger()
 

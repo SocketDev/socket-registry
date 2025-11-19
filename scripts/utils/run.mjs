@@ -1,7 +1,9 @@
 /** @fileoverview Temporary run-command for bootstrapping build. */
 
 import { spawn, spawnSync } from 'node:child_process'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 
+const logger = getDefaultLogger()
 const WIN32 = process.platform === 'win32'
 
 export function runCommand(command, args = [], options = {}) {
@@ -50,7 +52,8 @@ export async function runParallel(commands) {
   const promises = commands.map(({ args = [], command, options = {} }) =>
     runCommand(command, args, options),
   )
-  return Promise.all(promises)
+  const results = await Promise.allSettled(promises)
+  return results.map(r => (r.status === 'fulfilled' ? r.value : 1))
 }
 
 export function runCommandQuiet(command, args = [], options = {}) {
@@ -87,6 +90,6 @@ export function runCommandQuiet(command, args = [], options = {}) {
 }
 
 export async function logAndRun(description, command, args = [], options = {}) {
-  console.log(description)
+  logger.log(description)
   return runCommand(command, args, options)
 }

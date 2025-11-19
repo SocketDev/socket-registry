@@ -4,7 +4,7 @@
  * EXECUTION FLOW:
  *
  * This script is part of a 3-phase testing pipeline:
- *   1. validate-npm-packages.mjs - Validates packages have manual tests or are in devDependencies
+ *   1. validation/npm-packages.mjs - Validates packages have manual tests or are in devDependencies
  *   2. install-npm-packages.mjs  - Installs packages with Socket overrides (THIS FILE)
  *   3. run-npm-package-tests.mjs - Runs tests for installed packages
  *
@@ -73,50 +73,52 @@ import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { NODE_MODULES, PACKAGE_JSON } from '@socketsecurity/lib/constants/paths'
+import { NODE_MODULES } from '@socketsecurity/lib/paths/dirnames'
+import { PACKAGE_JSON } from '@socketsecurity/lib/paths/filenames'
 import { WIN32 } from '@socketsecurity/lib/constants/platform'
-import { getSpinner } from '@socketsecurity/lib/constants/process'
 import { getCI } from '@socketsecurity/lib/env/ci'
+import { getDefaultSpinner, withSpinner } from '@socketsecurity/lib/spinner'
 import { deleteAsync as del } from 'del'
 import { load as yamlLoad } from 'js-yaml'
 import pacote from 'pacote'
 import { c as tarCreate } from 'tar'
 
 const ENV = { CI: getCI() }
-const spinner = getSpinner()
+const spinner = getDefaultSpinner()
 
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { readFileUtf8, readJson, writeJson } from '@socketsecurity/lib/fs'
 import { LOG_SYMBOLS, getDefaultLogger } from '@socketsecurity/lib/logger'
 import { readPackageJson } from '@socketsecurity/lib/packages'
 import { pEach, pRetry } from '@socketsecurity/lib/promises'
-import { spawn } from '@socketsecurity/lib/spawn'
-import { withSpinner } from '@socketsecurity/lib/spinner'
 import { pluralize } from '@socketsecurity/lib/words'
 
 const logger = getDefaultLogger()
-import { cleanTestScript } from '../test/utils/script-cleaning.mjs'
-import { ALLOW_TEST_FAILURES_BY_ECOSYSTEM } from './constants/testing.mjs'
+import { cleanTestScript } from '../../test/utils/script-cleaning.mjs'
+import { ALLOW_TEST_FAILURES_BY_ECOSYSTEM } from '../constants/testing.mjs'
 import {
   NPM_PACKAGES_PATH,
   ROOT_PATH,
   TEST_NPM_PATH,
-} from './constants/paths.mjs'
-import { filterPackagesByChanges } from './utils/git.mjs'
+} from '../constants/paths.mjs'
+import { filterPackagesByChanges } from '../utils/git.mjs'
 import {
+  copySocketOverride,
   PNPM_HOISTED_INSTALL_FLAGS,
   PNPM_INSTALL_ENV,
-} from './utils/package.mjs'
-import { suppressMaxListenersWarning } from './utils/suppress-warnings.mjs'
+} from '../utils/package.mjs'
+import { runCommandQuietStrict } from '../utils/run-command.mjs'
+import { suppressMaxListenersWarning } from '../utils/suppress-warnings.mjs'
 
 // Default concurrency values based on environment and platform.
 const DEFAULT_CI_CONCURRENCY_WIN32 = '5'
 const DEFAULT_CI_CONCURRENCY_POSIX = '10'
-const DEFAULT_DEV_CONCURRENCY = '15'
+const DEFAULT_DEV_CONCURRENCY = '30'
 
 // Filesystem delay constants for tar extraction and JSON parsing.
-const FS_FLUSH_DELAY_MS = 100
-const JSON_PARSE_RETRY_BASE_DELAY_MS = 200
+// Reduced for faster local development, CI has slower filesystems so may need retries.
+const FS_FLUSH_DELAY_MS = ENV.CI ? 100 : 10
+const JSON_PARSE_RETRY_BASE_DELAY_MS = ENV.CI ? 200 : 50
 const JSON_PARSE_MAX_RETRIES = 3
 
 // Output truncation length for error messages.
@@ -257,28 +259,6 @@ function detectPackageManager(pkgJson) {
   return 'pnpm'
 }
 
-async function runCommand(command, args, options = {}) {
-  const opts = { __proto__: null, ...options }
-  const { env: spawnEnv } = opts
-  try {
-    const result = await spawn(command, args, {
-      env: { ...process.env, NODE_NO_WARNINGS: '1', ...spawnEnv },
-      shell: WIN32,
-      stdio: 'pipe',
-      ...options,
-    })
-    return { stdout: result.stdout, stderr: result.stderr }
-  } catch (error) {
-    const commandError = new Error(
-      `Command failed: ${command} ${args.join(' ')}`,
-    )
-    commandError.code = error.code || error.exitCode
-    commandError.stdout = error.stdout || ''
-    commandError.stderr = error.stderr || ''
-    throw commandError
-  }
-}
-
 let cachedPnpmOverrides
 
 async function generatePnpmOverrides(options) {
@@ -354,6 +334,9 @@ async function applyNestedSocketOverrides(packagePath) {
   // Get list of all installed packages in node_modules.
   const entries = await fs.readdir(nodeModulesPath, { withFileTypes: true })
 
+  // Process packages in parallel for better performance
+  const tasks = []
+
   for (const entry of entries) {
     if (!entry.isDirectory()) {
       continue
@@ -363,33 +346,44 @@ async function applyNestedSocketOverrides(packagePath) {
     if (entry.name.startsWith('@')) {
       const scopePath = path.join(nodeModulesPath, entry.name)
 
-      const scopedEntries = await fs.readdir(scopePath, { withFileTypes: true })
+      tasks.push(
+        (async () => {
+          const scopedEntries = await fs.readdir(scopePath, {
+            withFileTypes: true,
+          })
 
-      for (const scopedEntry of scopedEntries) {
-        if (!scopedEntry.isDirectory()) {
-          continue
-        }
+          for (const scopedEntry of scopedEntries) {
+            if (!scopedEntry.isDirectory()) {
+              continue
+            }
 
-        const packageName = `${entry.name}/${scopedEntry.name}`
-        const nestedPackagePath = path.join(scopePath, scopedEntry.name)
+            const packageName = `${entry.name}/${scopedEntry.name}`
+            const nestedPackagePath = path.join(scopePath, scopedEntry.name)
 
-        await applySocketOverrideIfExists(packageName, nestedPackagePath)
+            await applySocketOverrideIfExists(packageName, nestedPackagePath)
 
-        // Recursively apply to nested dependencies.
-
-        await applyNestedSocketOverrides(nestedPackagePath)
-      }
+            // Recursively apply to nested dependencies.
+            await applyNestedSocketOverrides(nestedPackagePath)
+          }
+        })(),
+      )
     } else {
       // Regular (non-scoped) package.
       const nestedPackagePath = path.join(nodeModulesPath, entry.name)
 
-      await applySocketOverrideIfExists(entry.name, nestedPackagePath)
+      tasks.push(
+        (async () => {
+          await applySocketOverrideIfExists(entry.name, nestedPackagePath)
 
-      // Recursively apply to nested dependencies.
-
-      await applyNestedSocketOverrides(nestedPackagePath)
+          // Recursively apply to nested dependencies.
+          await applyNestedSocketOverrides(nestedPackagePath)
+        })(),
+      )
     }
   }
+
+  // Wait for all parallel tasks to complete
+  await Promise.all(tasks)
 }
 
 async function applySocketOverrideIfExists(packageName, packagePath) {
@@ -400,26 +394,6 @@ async function applySocketOverrideIfExists(packageName, packagePath) {
   )
 
   if (!existsSync(overridePath)) {
-    return
-  }
-
-  // Resolve symlinks to check if paths are actually the same.
-  let realPackagePath
-  try {
-    realPackagePath = await fs.realpath(packagePath)
-  } catch {
-    realPackagePath = path.resolve(packagePath)
-  }
-
-  let realOverridePath
-  try {
-    realOverridePath = await fs.realpath(overridePath)
-  } catch {
-    realOverridePath = path.resolve(overridePath)
-  }
-
-  // Skip if source and destination resolve to the same path.
-  if (realOverridePath === realPackagePath) {
     return
   }
 
@@ -443,37 +417,10 @@ async function applySocketOverrideIfExists(packageName, packagePath) {
     return
   }
 
-  // Copy Socket override files (excluding package.json).
+  // Copy Socket override files (excluding package.json) using shared utility.
   // Note: We don't filter out test files here because some packages may have
   // test files in their Socket overrides that should be preserved.
-  try {
-    await fs.cp(overridePath, packagePath, {
-      force: true,
-      recursive: true,
-      dereference: true,
-      errorOnExist: false,
-      ...(WIN32 ? { retryDelay: 100, maxRetries: 3 } : {}),
-      filter: src =>
-        !src.includes(NODE_MODULES) &&
-        !src.endsWith('.DS_Store') &&
-        !src.endsWith(PACKAGE_JSON),
-    })
-  } catch (e) {
-    // Ignore errors about same paths - this happens when pnpm symlinks to our override.
-    if (
-      e.code === 'ERR_FS_CP_EINVAL' ||
-      e.message?.includes('Source and destination must not be the same')
-    ) {
-      return
-    }
-    // Log other errors for debugging if it's not a simple file missing error.
-    if (e.code !== 'ENOENT') {
-      console.error(
-        `Copy error for ${packageName}: ${e.message}\n  From: ${realOverridePath}\n  To: ${realPackagePath}`,
-      )
-    }
-    return
-  }
+  await copySocketOverride(overridePath, packagePath)
 
   // Update package.json with Socket override fields.
   // Note: We intentionally do NOT overwrite scripts here to preserve test scripts.
@@ -544,50 +491,8 @@ async function installPackage(packageInfo) {
         (!hasGitHubUrl || extractPathValid)
       ) {
         // Always reapply Socket override files to ensure they're up-to-date.
-        // Resolve symlinks to check if paths are actually the same.
-        let realInstalledPath
-        try {
-          realInstalledPath = await fs.realpath(installedPath)
-        } catch {
-          realInstalledPath = path.resolve(installedPath)
-        }
-
-        let realOverridePath
-        try {
-          realOverridePath = await fs.realpath(overridePath)
-        } catch {
-          realOverridePath = path.resolve(overridePath)
-        }
-
-        // Skip if source and destination resolve to the same path.
-        if (realOverridePath !== realInstalledPath) {
-          // Copy Socket override files (excluding package.json).
-          try {
-            await fs.cp(overridePath, installedPath, {
-              force: true,
-              recursive: true,
-              dereference: true,
-              errorOnExist: false,
-              ...(WIN32 ? { retryDelay: 100, maxRetries: 3 } : {}),
-              filter: src =>
-                !src.includes(NODE_MODULES) &&
-                !src.endsWith('.DS_Store') &&
-                !src.endsWith(PACKAGE_JSON),
-            })
-          } catch (e) {
-            // Ignore errors about same paths - this happens when pnpm symlinks to our override.
-            if (
-              e.code === 'ERR_FS_CP_EINVAL' ||
-              e.message?.includes('Source and destination must not be the same')
-            ) {
-              // Skip silently.
-            } else if (e.code !== 'ENOENT') {
-              console.error(
-                `Copy error (cached path) for ${origPkgName}: ${e.message}\n  From: ${realOverridePath}\n  To: ${realInstalledPath}`,
-              )
-            }
-          }
-        }
+        // Copy Socket override files (excluding package.json) using shared utility.
+        await copySocketOverride(overridePath, installedPath)
 
         // Read the Socket override package.json to get the fields we want.
         const overridePkgJsonPath = path.join(overridePath, PACKAGE_JSON)
@@ -618,9 +523,13 @@ async function installPackage(packageInfo) {
         // If Socket override has different dependencies, install them.
         // Always use pnpm for installation to avoid npm override conflicts.
         if (overridePkgJson.dependencies) {
-          await runCommand('pnpm', ['install'], {
+          await runCommandQuietStrict('pnpm', ['install'], {
             cwd: installedPath,
-            env: { ...process.env, ...PNPM_INSTALL_ENV },
+            env: {
+              ...process.env,
+              NODE_NO_WARNINGS: '1',
+              ...PNPM_INSTALL_ENV,
+            },
           })
         }
 
@@ -628,10 +537,18 @@ async function installPackage(packageInfo) {
         // Unset NODE_ENV and CI to prevent package manager from skipping devDependencies.
         // The hoisted install at parent level makes test runners available to nested package.
         // Always use pnpm for installation to avoid npm override conflicts.
-        await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
-          cwd: packageTempDir,
-          env: { ...process.env, ...PNPM_INSTALL_ENV },
-        })
+        await runCommandQuietStrict(
+          'pnpm',
+          ['install', ...PNPM_HOISTED_INSTALL_FLAGS],
+          {
+            cwd: packageTempDir,
+            env: {
+              ...process.env,
+              NODE_NO_WARNINGS: '1',
+              ...PNPM_INSTALL_ENV,
+            },
+          },
+        )
 
         // Apply Socket overrides to all nested dependencies recursively.
         await applyNestedSocketOverrides(installedPath)
@@ -798,7 +715,7 @@ async function installPackage(packageInfo) {
         }
       } catch (e) {
         // If extraction fails, fall back to the original GitHub URL.
-        console.warn(
+        logger.warn(
           `Warning: Could not extract GitHub tarball for ${origPkgName}, using URL directly: ${e.message}`,
         )
         packageSpec = versionSpec
@@ -854,10 +771,18 @@ async function installPackage(packageInfo) {
     // Always use pnpm for installation to avoid npm override conflicts.
     await pRetry(
       async () => {
-        await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
-          cwd: packageTempDir,
-          env: { ...process.env, ...PNPM_INSTALL_ENV },
-        })
+        await runCommandQuietStrict(
+          'pnpm',
+          ['install', ...PNPM_HOISTED_INSTALL_FLAGS],
+          {
+            cwd: packageTempDir,
+            env: {
+              ...process.env,
+              NODE_NO_WARNINGS: '1',
+              ...PNPM_INSTALL_ENV,
+            },
+          },
+        )
       },
       {
         backoffFactor: 2,
@@ -884,10 +809,18 @@ async function installPackage(packageInfo) {
       // Install devDependencies (test runners, etc.) along with dependencies.
       // Always use pnpm for installation to avoid npm override conflicts.
       writeProgress('👷')
-      await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
-        cwd: packageTempDir,
-        env: { ...process.env, ...PNPM_INSTALL_ENV },
-      })
+      await runCommandQuietStrict(
+        'pnpm',
+        ['install', ...PNPM_HOISTED_INSTALL_FLAGS],
+        {
+          cwd: packageTempDir,
+          env: {
+            ...process.env,
+            NODE_NO_WARNINGS: '1',
+            ...PNPM_INSTALL_ENV,
+          },
+        },
+      )
     }
 
     // Apply Socket overrides selectively.
@@ -929,53 +862,8 @@ async function installPackage(packageInfo) {
       }
     }
 
-    // Resolve symlinks to check if paths are actually the same.
-    let realInstalledPath
-    try {
-      realInstalledPath = await fs.realpath(installedPath)
-    } catch {
-      realInstalledPath = path.resolve(installedPath)
-    }
-
-    let realOverridePath
-    try {
-      realOverridePath = await fs.realpath(overridePath)
-    } catch {
-      realOverridePath = path.resolve(overridePath)
-    }
-
-    // Skip if source and destination resolve to the same path.
-    if (realOverridePath !== realInstalledPath) {
-      // Copy Socket override files (excluding package.json).
-      try {
-        await fs.cp(overridePath, installedPath, {
-          force: true,
-          recursive: true,
-          dereference: true,
-          errorOnExist: false,
-          ...(WIN32 ? { retryDelay: 100, maxRetries: 3 } : {}),
-          filter: src =>
-            !src.includes(NODE_MODULES) &&
-            !src.endsWith('.DS_Store') &&
-            !src.endsWith(PACKAGE_JSON),
-        })
-      } catch (e) {
-        // Ignore errors about same paths - this happens when pnpm symlinks to our override.
-        if (
-          e.code === 'ERR_FS_CP_EINVAL' ||
-          e.message?.includes('Source and destination must not be the same')
-        ) {
-          // Skip silently, don't rethrow.
-        } else if (e.code !== 'ENOENT') {
-          console.error(
-            `Copy error (install path) for ${origPkgName}: ${e.message}\n  From: ${realOverridePath}\n  To: ${realInstalledPath}`,
-          )
-          throw e
-        } else {
-          throw e
-        }
-      }
-    }
+    // Copy Socket override files (excluding package.json) using shared utility.
+    await copySocketOverride(overridePath, installedPath)
 
     // Read the Socket override package.json to get the fields we want.
     const overridePkgJsonPath = path.join(overridePath, 'package.json')
@@ -1046,9 +934,13 @@ async function installPackage(packageInfo) {
     // If Socket override has different dependencies, install them.
     // Always use pnpm for installation to avoid npm override conflicts.
     if (overridePkgJson.dependencies) {
-      await runCommand('pnpm', ['install'], {
+      await runCommandQuietStrict('pnpm', ['install'], {
         cwd: installedPath,
-        env: { ...process.env, ...PNPM_INSTALL_ENV },
+        env: {
+          ...process.env,
+          NODE_NO_WARNINGS: '1',
+          ...PNPM_INSTALL_ENV,
+        },
       })
     }
 
@@ -1056,10 +948,18 @@ async function installPackage(packageInfo) {
     // Unset NODE_ENV and CI to prevent package manager from skipping devDependencies.
     // The hoisted install at parent level makes test runners available to nested package.
     // Always use pnpm for installation to avoid npm override conflicts.
-    await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
-      cwd: packageTempDir,
-      env: { ...process.env, ...PNPM_INSTALL_ENV },
-    })
+    await runCommandQuietStrict(
+      'pnpm',
+      ['install', ...PNPM_HOISTED_INSTALL_FLAGS],
+      {
+        cwd: packageTempDir,
+        env: {
+          ...process.env,
+          NODE_NO_WARNINGS: '1',
+          ...PNPM_INSTALL_ENV,
+        },
+      },
+    )
 
     // Apply Socket overrides to all nested dependencies recursively.
     await applyNestedSocketOverrides(installedPath)

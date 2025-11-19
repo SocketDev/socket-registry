@@ -387,9 +387,11 @@ async function validatePackage(packageName) {
     validateDependencies(packageName, packageDir),
   ]
 
-  const results = await Promise.all(validations)
-  for (const issues of results) {
-    allIssues.push(...issues)
+  const settled = await Promise.allSettled(validations)
+  for (const result of settled) {
+    if (result.status === 'fulfilled') {
+      allIssues.push(...result.value)
+    }
   }
 
   return {

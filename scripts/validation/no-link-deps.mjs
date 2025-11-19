@@ -7,8 +7,13 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+
+import { runValidationScript } from '../utils/validation-runner.mjs'
+
+const logger = getDefaultLogger()
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const rootPath = path.join(__dirname, '..')
+const rootPath = path.join(__dirname, '..', '..')
 
 /**
  * Find all package.json files in the repository.
@@ -109,43 +114,45 @@ async function checkPackageJson(filePath) {
 }
 
 async function main() {
-  const packageJsonFiles = await findPackageJsonFiles(rootPath)
-  const allViolations = []
+  await runValidationScript(
+    async () => {
+      const packageJsonFiles = await findPackageJsonFiles(rootPath)
+      const allViolations = []
 
-  for (const file of packageJsonFiles) {
-    const violations = await checkPackageJson(file)
-    allViolations.push(...violations)
-  }
+      for (const file of packageJsonFiles) {
+        const violations = await checkPackageJson(file)
+        allViolations.push(...violations)
+      }
 
-  if (allViolations.length > 0) {
-    console.error('❌ Found link: dependencies (prohibited)')
-    console.error('')
-    console.error(
-      'Use workspace: protocol for monorepo packages or catalog: for centralized versions.',
-    )
-    console.error('')
+      if (allViolations.length > 0) {
+        logger.log('')
+        logger.log(
+          'Use workspace: protocol for monorepo packages or catalog: for centralized versions.',
+        )
+        logger.log('')
 
-    for (const violation of allViolations) {
-      const relativePath = path.relative(rootPath, violation.file)
-      console.error(`  ${relativePath}`)
-      console.error(
-        `    ${violation.field}.${violation.package}: "${violation.value}"`,
-      )
-    }
+        for (const violation of allViolations) {
+          const relativePath = path.relative(rootPath, violation.file)
+          logger.log(`  ${relativePath}`)
+          logger.log(
+            `    ${violation.field}.${violation.package}: "${violation.value}"`,
+          )
+        }
 
-    console.error('')
-    console.error('Replace link: with:')
-    console.error('  - workspace: for monorepo packages')
-    console.error('  - catalog: for centralized version management')
-    console.error('')
+        logger.log('')
+        logger.log('Replace link: with:')
+        logger.log('  - workspace: for monorepo packages')
+        logger.log('  - catalog: for centralized version management')
+        logger.log('')
+      }
 
-    process.exitCode = 1
-  } else {
-    console.log('✓ No link: dependencies found')
-  }
+      return allViolations
+    },
+    {
+      failureMessage: 'Found link: dependencies (prohibited)',
+      successMessage: 'No link: dependencies found',
+    },
+  )
 }
 
-main().catch(error => {
-  console.error('Validation failed:', error)
-  process.exitCode = 1
-})
+main()

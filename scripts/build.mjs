@@ -7,7 +7,11 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import colors from 'yoctocolors-cjs'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+
 import { runCommand } from './utils/run-command.mjs'
+
+const logger = getDefaultLogger()
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.resolve(__dirname, '..')
@@ -20,7 +24,6 @@ const isQuiet = args.includes('--quiet') || args.includes('--silent')
 async function main() {
   // Build the @socketsecurity/registry package.
   // This is required before running tests that import from it.
-
   // Pass all arguments through to the registry build script.
   const buildArgs = ['run', 'build']
   if (args.length > 0) {
@@ -33,7 +36,7 @@ async function main() {
 
   if (exitCode !== 0) {
     if (!isQuiet) {
-      console.error(colors.red('✗ Failed to build @socketsecurity/registry'))
+      logger.error(colors.red('✗ Failed to build @socketsecurity/registry'))
     }
     process.exitCode = exitCode
     return
@@ -43,6 +46,6 @@ async function main() {
 }
 
 main().catch(error => {
-  console.error(colors.red('✗ Build failed:'), error)
+  logger.error(colors.red('✗ Build failed:'), error)
   process.exitCode = 1
 })

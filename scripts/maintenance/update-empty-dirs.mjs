@@ -5,7 +5,7 @@
  * shallowest to catch newly emptied parent directories.
  */
 
-import { NODE_MODULES_GLOB_RECURSIVE } from '@socketsecurity/lib/constants/paths'
+import { NODE_MODULES_GLOB_RECURSIVE } from '@socketsecurity/lib/paths/globs'
 import { isDirEmptySync } from '@socketsecurity/lib/fs'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { deleteAsync as del } from 'del'
@@ -13,7 +13,7 @@ import fastGlob from 'fast-glob'
 
 const logger = getDefaultLogger()
 
-import { ROOT_PATH } from './constants/paths.mjs'
+import { ROOT_PATH } from '../constants/paths.mjs'
 
 async function main() {
   const dirPaths = (
