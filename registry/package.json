@@ -57,13 +57,14 @@
     "type-ci": "pnpm run check"
   },
   "devDependencies": {
-    "@types/node": "24.6.2",
-    "del-cli": "6.0.0",
-    "esbuild": "0.25.10",
-    "fast-glob": "3.3.3",
-    "typescript": "5.7.3",
-    "vitest": "3.2.4",
-    "yoctocolors-cjs": "2.1.3"
+    "@socketsecurity/lib": "catalog:",
+    "@types/node": "catalog:",
+    "del-cli": "catalog:",
+    "esbuild": "catalog:",
+    "fast-glob": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "yoctocolors-cjs": "catalog:"
   },
   "peerDependencies": {
     "typescript": ">=5.0.0"
