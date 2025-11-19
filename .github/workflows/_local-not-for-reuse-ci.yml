@@ -1,4 +1,4 @@
-name: 🚀 CI Pipeline
+name: 🚀 CI
 
 # Dependencies:
 #   - SocketDev/socket-registry/.github/workflows/ci.yml
@@ -17,7 +17,7 @@ permissions:
 jobs:
   ci:
     name: Run CI Pipeline
-    uses: SocketDev/socket-registry/.github/workflows/ci.yml@42af85173896eefdd299364a2200d308b1c63caa # main
+    uses: SocketDev/socket-registry/.github/workflows/ci.yml@63ad52562c1f2d007a1833b2b22cffc3001e1cc2 # main
     with:
       fail-fast: false
       lint-script: 'pnpm run lint --all'
@@ -37,15 +37,16 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           autocrlf: false
+          persist-credentials: false
 
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@42af85173896eefdd299364a2200d308b1c63caa # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@63ad52562c1f2d007a1833b2b22cffc3001e1cc2 # main
         with:
           node-version: 22
 
-      - uses: SocketDev/socket-registry/.github/actions/cache-npm-packages@42af85173896eefdd299364a2200d308b1c63caa # main
+      - uses: SocketDev/socket-registry/.github/actions/cache-npm-packages@63ad52562c1f2d007a1833b2b22cffc3001e1cc2 # main
 
       - name: Build registry
         run: pnpm run build
 
       - name: Run npm package tests
-        run: node scripts/test-npm-packages.mjs
+        run: node scripts/npm/test-npm-packages.mjs

@@ -76,7 +76,8 @@ runs:
     - name: Create cache directory if missing
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
+      env:
+        CACHE_DIR: ${{ steps.cache-path.outputs.cache-path }}
       run: |
-        CACHE_DIR="${{ steps.cache-path.outputs.cache-path }}"
         mkdir -p "$CACHE_DIR"
         echo "Cache directory created at $CACHE_DIR"

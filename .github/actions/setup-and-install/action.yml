@@ -29,7 +29,7 @@ inputs:
   pnpm-version:
     description: 'pnpm version'
     required: false
-    default: '10.16.0'
+    default: '10.21.0'
   scope:
     description: 'npm registry scope for package authentication'
     required: false
@@ -53,9 +53,10 @@ runs:
         ref: ${{ inputs.checkout-ref }}
         path: ${{ inputs.working-directory != '.' && inputs.working-directory || '' }}
         fetch-depth: 100
+        persist-credentials: false
 
     - name: Setup environment
-      uses: SocketDev/socket-registry/.github/actions/setup@51be85d39d3b4a42dd9d4712948b9d30a2e04794 # main
+      uses: SocketDev/socket-registry/.github/actions/setup@acf9835c862dc81ade28bcd60375a551e7fdd5ff # main
       with:
         debug: ${{ inputs.debug }}
         node-version: ${{ inputs.node-version }}
@@ -65,6 +66,6 @@ runs:
         working-directory: ${{ inputs.working-directory }}
 
     - name: Install dependencies
-      uses: SocketDev/socket-registry/.github/actions/install@51be85d39d3b4a42dd9d4712948b9d30a2e04794 # main
+      uses: SocketDev/socket-registry/.github/actions/install@acf9835c862dc81ade28bcd60375a551e7fdd5ff # main
       with:
         working-directory: ${{ inputs.working-directory }}

@@ -1,14 +1,11 @@
-name: 🔗 🚀 CI Pipeline
+name: 🔗 CI
 
 # Comprehensive CI orchestrator that runs lint, type checks, and tests.
 # Orchestrates multiple quality checks in parallel for efficient CI execution.
 #
 # Dependencies:
-#   - SocketDev/socket-registry/.github/workflows/lint.yml
-#   - SocketDev/socket-registry/.github/workflows/types.yml
-#   - SocketDev/socket-registry/.github/workflows/test.yml
 #   - SocketDev/socket-registry/.github/actions/setup-and-install
-#   - actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+#   - SocketDev/socket-registry/.github/actions/run-script
 
 on:
   workflow_call:
@@ -130,38 +127,59 @@ jobs:
   lint:
     if: inputs.run-lint
     name: 🧹 Lint Check
-    uses: SocketDev/socket-registry/.github/workflows/lint.yml@8e3e9ad074d78b324f32b436976ba3fb519f5f73 # 2025-10-22
-    with:
-      debug: ${{ inputs.debug }}
-      lint-script: ${{ inputs.lint-script }}
-      node-version: ${{ inputs.lint-node-version }}
-      setup-script: ${{ inputs.lint-setup-script }}
-      timeout-minutes: ${{ inputs.lint-timeout-minutes }}
-      working-directory: ${{ inputs.working-directory }}
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.lint-timeout-minutes }}
+    steps:
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@63ad52562c1f2d007a1833b2b22cffc3001e1cc2 # main
+        with:
+          debug: ${{ inputs.debug }}
+          node-version: ${{ inputs.lint-node-version }}
+          working-directory: ${{ inputs.working-directory }}
+
+      - uses: SocketDev/socket-registry/.github/actions/run-script@63ad52562c1f2d007a1833b2b22cffc3001e1cc2 # main
+        with:
+          main-script: ${{ inputs.lint-script }}
+          setup-script: ${{ inputs.lint-setup-script }}
+          working-directory: ${{ inputs.working-directory }}
 
   type-check:
     if: inputs.run-type-check
     name: 🔍 Type Check
-    uses: SocketDev/socket-registry/.github/workflows/types.yml@8e3e9ad074d78b324f32b436976ba3fb519f5f73 # 2025-10-22
-    with:
-      debug: ${{ inputs.debug }}
-      node-version: ${{ inputs.type-check-node-version }}
-      setup-script: ${{ inputs.type-check-setup-script }}
-      timeout-minutes: ${{ inputs.type-check-timeout-minutes }}
-      type-script: ${{ inputs.type-check-script }}
-      working-directory: ${{ inputs.working-directory }}
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.type-check-timeout-minutes }}
+    steps:
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@63ad52562c1f2d007a1833b2b22cffc3001e1cc2 # main
+        with:
+          debug: ${{ inputs.debug }}
+          node-version: ${{ inputs.type-check-node-version }}
+          working-directory: ${{ inputs.working-directory }}
+
+      - uses: SocketDev/socket-registry/.github/actions/run-script@63ad52562c1f2d007a1833b2b22cffc3001e1cc2 # main
+        with:
+          main-script: ${{ inputs.type-check-script }}
+          setup-script: ${{ inputs.type-check-setup-script }}
+          working-directory: ${{ inputs.working-directory }}
 
   test:
     if: inputs.run-test
     name: 🧪 Test Matrix
-    uses: SocketDev/socket-registry/.github/workflows/test.yml@8e3e9ad074d78b324f32b436976ba3fb519f5f73 # 2025-10-22
-    with:
-      debug: ${{ inputs.debug }}
+    strategy:
       fail-fast: ${{ inputs.fail-fast }}
       max-parallel: ${{ inputs.max-parallel }}
-      node-versions: ${{ inputs.node-versions }}
-      os-versions: ${{ inputs.os-versions }}
-      setup-script: ${{ inputs.test-setup-script }}
-      test-script: ${{ inputs.test-script }}
-      timeout-minutes: ${{ inputs.test-timeout-minutes }}
-      working-directory: ${{ inputs.working-directory }}
+      matrix:
+        node-version: ${{ fromJson(inputs.node-versions) }}
+        os: ${{ fromJson(inputs.os-versions) }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: ${{ inputs.test-timeout-minutes }}
+    steps:
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@63ad52562c1f2d007a1833b2b22cffc3001e1cc2 # main
+        with:
+          debug: ${{ inputs.debug }}
+          node-version: ${{ matrix.node-version }}
+          working-directory: ${{ inputs.working-directory }}
+
+      - uses: SocketDev/socket-registry/.github/actions/run-script@63ad52562c1f2d007a1833b2b22cffc3001e1cc2 # main
+        with:
+          main-script: ${{ inputs.test-script }}
+          setup-script: ${{ inputs.test-setup-script }}
+          working-directory: ${{ inputs.working-directory }}

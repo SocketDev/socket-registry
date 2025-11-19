@@ -1,4 +1,4 @@
-name: 🔗 🔧 Socket Fix Auto Pull Request
+name: 🔗 Fix PR
 
 # Dependencies:
 #   - SocketDev/socket-registry/.github/actions/setup-and-install
@@ -66,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@42af85173896eefdd299364a2200d308b1c63caa # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@63ad52562c1f2d007a1833b2b22cffc3001e1cc2 # main
         with:
           node-version: ${{ inputs.node-version }}
           debug: ${{ inputs.debug }}
@@ -77,16 +77,18 @@ jobs:
           SOCKET_CLI_GIT_USER_EMAIL: ${{ inputs.git-user-email }}
           SOCKET_CLI_GIT_USER_NAME: ${{ inputs.git-user-name }}
           SOCKET_CLI_API_TOKEN: ${{ secrets.socket_cli_api_token }}
+          AUTOPILOT_INPUT: ${{ inputs.autopilot }}
+          GLOB_PATTERN_INPUT: ${{ inputs.glob-pattern }}
         run: |
           AUTOPILOT_FLAG=""
           GLOB_FLAG=""
 
-          if [[ "${{ inputs.autopilot }}" == "true" ]]; then
+          if [[ "$AUTOPILOT_INPUT" == "true" ]]; then
             AUTOPILOT_FLAG="--autopilot"
           fi
 
-          if [[ -n "${{ inputs.glob-pattern }}" ]]; then
-            GLOB_FLAG="--glob '${{ inputs.glob-pattern }}'"
+          if [[ -n "$GLOB_PATTERN_INPUT" ]]; then
+            GLOB_FLAG="--glob '$GLOB_PATTERN_INPUT'"
           fi
 
           pnpm --package=@socketsecurity/cli dlx socket fix $AUTOPILOT_FLAG $GLOB_FLAG

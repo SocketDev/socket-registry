@@ -18,7 +18,7 @@ inputs:
   pnpm-version:
     description: 'pnpm version'
     required: false
-    default: '^10.16.0'
+    default: '10.21.0'
   scope:
     description: 'npm registry scope for package authentication'
     required: false
@@ -36,14 +36,17 @@ runs:
   using: 'composite'
   steps:
     - name: Setup debug
-      uses: SocketDev/socket-registry/.github/actions/debug@42af85173896eefdd299364a2200d308b1c63caa # main
+      uses: SocketDev/socket-registry/.github/actions/debug@7d7589373d737975328bc447ea0d6ef22a47c17b # main
       with:
         debug: ${{ inputs.debug }}
 
     - name: Setup pnpm
       uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
-      with:
-        version: ${{ inputs.pnpm-version }}
+      # NOTE: Do not specify 'version' here - pnpm-action-setup automatically reads
+      # the version from the 'packageManager' field in package.json. Specifying both
+      # causes ERR_PNPM_BAD_PM_VERSION errors.
+      # with:
+      #   version: ${{ inputs.pnpm-version }}
 
     - name: Setup Node.js with pnpm cache
       uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0

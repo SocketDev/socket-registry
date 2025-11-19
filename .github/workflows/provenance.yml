@@ -1,4 +1,4 @@
-name: 🔗 📦 Publish to npm registry
+name: 🔗 Publish
 
 # Dependencies:
 #   - SocketDev/socket-registry/.github/actions/setup-and-install
@@ -16,6 +16,11 @@ on:
         required: false
         type: string
         default: '0'
+      dist-tag:
+        description: 'npm dist-tag for publishing (e.g., "latest", "next", "beta", "canary", "backport")'
+        required: false
+        type: string
+        default: 'latest'
       force-publish:
         description: 'Force publish without commit checks'
         required: false
@@ -43,6 +48,11 @@ on:
         default: ''
       publish-script:
         description: 'pnpm script to run for publishing (e.g., "package-npm-publish")'
+        required: false
+        type: string
+        default: ''
+      ref:
+        description: 'Git ref (branch, tag, or commit SHA) to checkout'
         required: false
         type: string
         default: ''
@@ -87,14 +97,18 @@ jobs:
     timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
       - name: Validate inputs
+        env:
+          PUBLISH_SCRIPT: ${{ inputs.publish-script }}
+          PACKAGE_NAME: ${{ inputs.package-name }}
         run: |
-          if [ -z "${{ inputs.publish-script }}" ] && [ -z "${{ inputs.package-name }}" ]; then
+          if [ -z "$PUBLISH_SCRIPT" ] && [ -z "$PACKAGE_NAME" ]; then
             echo "Error: package-name is required when publish-script is not provided"
             exit 1
           fi
 
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@42af85173896eefdd299364a2200d308b1c63caa # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@63ad52562c1f2d007a1833b2b22cffc3001e1cc2 # main
         with:
+          checkout-ref: ${{ inputs.ref }}
           node-version: ${{ inputs.node-version }}
           debug: ${{ inputs.debug }}
           scope: ${{ inputs.scope }}
@@ -114,37 +128,49 @@ jobs:
             echo "npm version $NPM_VERSION meets the 11.5.1+ requirement for trusted publishing"
           fi
 
-      - run: ${{ inputs.setup-script }}
+      - name: Run setup script
         if: inputs.setup-script != ''
+        env:
+          SETUP_SCRIPT: ${{ inputs.setup-script }}
+        run: $SETUP_SCRIPT
 
       - name: Publish with custom script
         if: inputs.publish-script != ''
+        env:
+          DIST_TAG: ${{ inputs.dist-tag }}
+          PUBLISH_SCRIPT: ${{ inputs.publish-script }}
+          FORCE_PUBLISH: ${{ inputs.force-publish }}
+          FORCE_REGISTRY: ${{ inputs.force-registry }}
+          SKIP_NPM_PACKAGES: ${{ inputs.skip-npm-packages }}
         run: |
           FLAGS=""
-          if [ "${{ inputs.force-publish }}" = "true" ]; then
+          if [ "$FORCE_PUBLISH" = "true" ]; then
             FLAGS="$FLAGS --force-publish"
           fi
-          if [ "${{ inputs.force-registry }}" = "true" ]; then
+          if [ "$FORCE_REGISTRY" = "true" ]; then
             FLAGS="$FLAGS --force-registry"
           fi
-          if [ "${{ inputs.skip-npm-packages }}" = "true" ]; then
+          if [ "$SKIP_NPM_PACKAGES" = "true" ]; then
             FLAGS="$FLAGS --skip-npm-packages"
           fi
           if [ -n "$FLAGS" ]; then
-            pnpm run ${{ inputs.publish-script }} -- $FLAGS
+            pnpm run $PUBLISH_SCRIPT -- $FLAGS
           else
-            pnpm run ${{ inputs.publish-script }}
+            pnpm run $PUBLISH_SCRIPT
           fi
 
       - name: Publish package
         if: inputs.publish-script == '' && inputs.package-name != ''
-        run: npm publish --access public
         env:
           NPM_CONFIG_IGNORE_SCRIPTS: true
+          DIST_TAG: ${{ inputs.dist-tag }}
+        run: npm publish --access public --tag $DIST_TAG
 
       - name: Set package access
         if: inputs.access-script != ''
-        run: pnpm run ${{ inputs.access-script }}
+        env:
+          ACCESS_SCRIPT: ${{ inputs.access-script }}
+        run: pnpm run $ACCESS_SCRIPT
 
       - name: Set MFA automation
         if: inputs.access-script == '' && inputs.package-name != ''

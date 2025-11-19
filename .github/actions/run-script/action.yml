@@ -1,6 +1,10 @@
 name: 'Run Script'
 description: 'Run setup and main scripts with proper working directory handling'
 
+# This action intentionally executes user-provided scripts via template expansion.
+# The inputs (setup-script, main-script) must come from trusted workflow definitions only,
+# never from untrusted sources like issue comments, PR titles, or external inputs.
+
 inputs:
   continue-on-error:
     description: 'Continue on error'
@@ -34,6 +38,7 @@ runs:
       if: inputs.setup-script != ''
       shell: ${{ inputs.shell }}
       working-directory: ${{ inputs.working-directory }}
+      # zizmor: ignore[template-injection]
       run: ${{ inputs.setup-script }}
 
     - name: Run main script
@@ -41,6 +46,7 @@ runs:
       shell: ${{ inputs.shell }}
       working-directory: ${{ inputs.working-directory }}
       continue-on-error: ${{ fromJSON(inputs.continue-on-error) }}
+      # zizmor: ignore[template-injection]
       run: |
         set +e
         ${{ inputs.main-script }}
