@@ -1,7 +1,7 @@
 {
   "name": "@socketregistry/monorepo",
   "version": "1.0.0",
-  "packageManager": "pnpm@10.22.0",
+  "packageManager": "pnpm@10.25.0",
   "private": true,
   "license": "MIT",
   "description": "Monorepo for Socket.dev optimized package overrides",
@@ -17,7 +17,7 @@
   },
   "engines": {
     "node": ">=18",
-    "pnpm": ">=10.22.0"
+    "pnpm": ">=10.25.0"
   },
   "scripts": {
     "analyze-ci-failures": "node scripts/testing/analyze-ci-failures.mjs",
@@ -120,7 +120,7 @@
     "spdx-expression-parse": "catalog:",
     "streaming-iterables": "catalog:",
     "tar": "catalog:",
-    "taze": "catalog:",
+    "taze": "19.9.2",
     "trash": "catalog:",
     "tsx": "catalog:",
     "type-coverage": "catalog:",
