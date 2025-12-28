@@ -1,7 +1,7 @@
 {
   "name": "@socketregistry/monorepo",
   "version": "1.0.0",
-  "packageManager": "pnpm@10.25.0",
+  "packageManager": "pnpm@10.26.2",
   "private": true,
   "license": "MIT",
   "description": "Monorepo for Socket.dev optimized package overrides",
@@ -144,7 +144,6 @@
     ],
     "overrides": {
       "@types/node": "catalog:",
-      "typescript": "catalog:",
       "aggregate-error": "npm:@socketregistry/aggregate-error@1.0.15",
       "array-buffer-byte-length": "npm:@socketregistry/array-buffer-byte-length@1.0.7",
       "available-typed-arrays": "npm:@socketregistry/available-typed-arrays@1.0.8",
@@ -184,8 +183,9 @@
       "set-function-length": "npm:@socketregistry/set-function-length@1.0.10",
       "shell-quote": "npm:shell-quote@1.8.3",
       "side-channel": "npm:@socketregistry/side-channel@1.0.10",
-      "which-boxed-primitive": "npm:@socketregistry/which-boxed-primitive@1.0.9",
+      "typescript": "catalog:",
       "vite": "catalog:",
+      "which-boxed-primitive": "npm:@socketregistry/which-boxed-primitive@1.0.9",
       "which-collection": "npm:@socketregistry/which-collection@1.0.8",
       "which-typed-array": "npm:@socketregistry/which-typed-array@1.0.9"
     },
