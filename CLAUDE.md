@@ -94,12 +94,20 @@ import colors from 'yoctocolors-cjs'
 - **FORBIDDEN ES2023+**: `toReversed()`, `toSorted()`, `toSpliced()`, `with()`
 - **Use instead**: `slice().reverse()`, `slice().sort()`
 
-### Backward Compatibility (IMPORTANT)
-- **NO BACKWARD COMPATIBILITY**: Don't maintain it - we're our only consumers
-- **Breaking changes**: Inform about them, but don't add compat layers
+### Backward Compatibility (CRITICAL)
+- **🚨 NO BACKWARD COMPATIBILITY**: FORBIDDEN to maintain it - we're our only consumers
+- **Active removal**: MUST remove existing backward compatibility code when encountered
+- **Breaking changes**: Inform about them, but NEVER add compat layers
 - **Dead code**: Backward compat code becomes dead code in our ecosystem
 - **Clean breaks**: Make clean API changes without deprecation paths
 - **Migration**: Quick internal updates preferred over gradual deprecation
+- **Examples of forbidden patterns**:
+  - ❌ Renaming unused `_vars` instead of deleting
+  - ❌ Re-exporting types for "compatibility"
+  - ❌ Adding `// removed` comments for removed code
+  - ❌ Environment variables for legacy behavior
+  - ❌ Feature flags for old implementations
+  - ✅ Just delete unused code completely
 
 ### Safe File Operations (SECURITY CRITICAL)
 - **Use safeDelete**: Import from `@socketsecurity/lib/fs`
