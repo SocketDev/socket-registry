@@ -366,7 +366,13 @@ Decision tree:
 
 ### Code Style - Patterns
 - **Constants**: `UPPER_SNAKE_CASE`
-- **Return values**: `undefined` not `null` (except external APIs)
+- **Avoid `null`**: Use `undefined` instead of `null` throughout codebase
+  - Default parameters: `function foo(bar = undefined)` or just `function foo(bar)`
+  - Variable initialization: `let x` or `let x = undefined`, not `let x = null`
+  - Return values: Return `undefined` not `null`
+  - Optional properties: Use `?:` syntax, not `| null`
+  - Exception: `__proto__: null` for prototype-less objects (required pattern)
+  - Exception: External APIs that explicitly require `null`
 - **__proto__**: MANDATORY - Always first in literals: `{ __proto__: null, ...opts }`
 - **Null-prototype objects**: Use `Object.create(null)` for empty objects only; `{ __proto__: null, key: val }` when properties exist
 - **Options pattern**: MANDATORY `const opts = { __proto__: null, ...options } as SomeOptions`
