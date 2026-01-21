@@ -12,13 +12,9 @@
  */
 
 import { isQuiet, isVerbose } from '@socketsecurity/lib/argv/flags'
-import loggerPkg from '@socketsecurity/lib/logger'
-import platformPkg from '@socketsecurity/lib/constants/platform'
-import spawnPkg from '@socketsecurity/lib/spawn'
-
-const { getDefaultLogger } = loggerPkg
-const { WIN32 } = platformPkg
-const { spawn } = spawnPkg
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { spawn } from '@socketsecurity/lib/spawn'
 
 async function main() {
   const quiet = isQuiet()
@@ -28,7 +24,7 @@ async function main() {
 
   try {
     if (!quiet) {
-      logger.log('\n🔨 Monorepo Dependency Update\n')
+      logger.log('\n🔨 Dependency Update\n')
     }
 
     // Build taze command with appropriate flags for monorepo
@@ -36,9 +32,9 @@ async function main() {
 
     if (!quiet) {
       if (apply) {
-        logger.progress('Updating dependencies across monorepo...')
+        logger.progress('Updating dependencies...')
       } else {
-        logger.progress('Checking for updates across monorepo...')
+        logger.progress('Checking for updates...')
       }
     }
 
@@ -61,7 +57,14 @@ async function main() {
 
       const socketResult = await spawn(
         'pnpm',
-        ['update', '@socketsecurity/*', '@socketregistry/*', '--latest', '-r'],
+        [
+          'update',
+          '@socketsecurity/*',
+          '@socketregistry/*',
+          '@socketbin/*',
+          '--latest',
+          '-r',
+        ],
         {
           shell: WIN32,
           stdio: quiet ? 'pipe' : 'inherit',
@@ -94,7 +97,7 @@ async function main() {
     } else {
       if (!quiet) {
         if (apply) {
-          logger.success('Dependencies updated across all packages')
+          logger.success('Dependencies updated')
         } else {
           logger.success('All packages up to date')
         }
