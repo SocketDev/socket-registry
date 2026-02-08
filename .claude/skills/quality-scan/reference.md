@@ -802,3 +802,273 @@ Group findings by severity (Error → High → Medium → Low → Info)
 - **Auto-fix**: Not available
 - **Confidence**: Low
 ```
+
+---
+
+## Documentation Scan Agent
+
+**Mission**: Verify documentation accuracy by checking README files, code comments, and examples against actual codebase implementation.
+
+**Scan Targets**: All README.md files, documentation files, and inline code examples
+
+**Prompt Template:**
+```
+Your task is to verify documentation accuracy across all README files and documentation by comparing documented behavior, examples, commands, and API descriptions against the actual codebase implementation.
+
+<context>
+Documentation accuracy is critical for:
+- Developer onboarding and productivity
+- Preventing confusion from outdated examples
+- Maintaining trust in the project documentation
+- Reducing support burden from incorrect instructions
+
+Common documentation issues:
+- Package names that don't match package.json
+- Command examples with incorrect flags or options
+- API documentation showing methods that don't exist
+- File paths that are incorrect or outdated
+- Build outputs documented in wrong locations
+- Configuration examples using deprecated formats
+- Missing documentation for new features
+- Examples that would fail if run as-is
+</context>
+
+<instructions>
+Systematically verify all README files and documentation against the actual code:
+
+1. **Find all documentation files**:
+   ```bash
+   find . -name "README.md" -o -name "*.md" -path "*/docs/*"
+   ```
+
+2. **For each README, verify**:
+   - Package names match package.json "name" field
+   - Command examples use correct flags (check --help output or source)
+   - File paths exist and match actual structure
+   - Build output paths match actual build script outputs
+   - API examples match actual exported functions/types
+   - Configuration examples match actual schema/validation
+   - Version numbers are current (not outdated)
+   - Prerequisites are accurate (correct tool versions)
+
+3. **Check against actual code**:
+   - Read package.json to verify names, scripts, dependencies
+   - Read source files to verify APIs, exports, types
+   - Check build scripts to verify output paths
+   - Verify CLI --help matches documented flags
+   - Check tests to see what's actually supported
+
+4. **Pattern categories to check**:
+
+<pattern name="package_names">
+Look for:
+- README showing @scope/package when package.json has no scope
+- README showing package-name when package.json shows different name
+- Installation instructions with wrong package names
+- Import examples using wrong package names
+</pattern>
+
+<pattern name="command_examples">
+Look for:
+- Commands with flags that don't exist (check --help)
+- Missing required flags in examples
+- Deprecated flags still documented
+- Examples that would error if run as-is
+- Wrong command names (typos or renamed commands)
+</pattern>
+
+<pattern name="file_paths">
+Look for:
+- Documented paths that don't exist in codebase
+- Output paths that don't match build script outputs
+- Config file locations that are incorrect
+- Source file references that are outdated
+</pattern>
+
+<pattern name="api_documentation">
+Look for:
+- Functions/methods documented that don't exist in exports
+- Parameter types that don't match actual implementation
+- Return types incorrectly documented
+- Missing required parameters in examples
+- Examples using deprecated APIs
+</pattern>
+
+<pattern name="configuration">
+Look for:
+- Config examples using wrong keys or structure
+- Documented options that aren't validated in code
+- Missing required config fields
+- Wrong default values documented
+- Obsolete configuration formats
+</pattern>
+
+<pattern name="build_outputs">
+Look for:
+- Build output paths that don't match actual outputs
+- File sizes that are significantly outdated
+- Checkpoint names that don't match actual implementation
+- Binary names that are incorrect
+- Missing intermediate build stages
+</pattern>
+
+<pattern name="version_information">
+Look for:
+- Outdated version numbers in examples
+- Dependency versions that don't match package.json
+- Tool version requirements that are incorrect
+- Patch counts that don't match actual patches
+</pattern>
+
+<pattern name="missing_documentation">
+Look for:
+- Public APIs/exports not documented in README
+- Important environment variables not documented
+- New features added but not documented
+- Critical sections (75%+ of package) not mentioned
+</pattern>
+
+For each issue found:
+1. Read the documented information
+2. Read the actual code/config to verify
+3. Determine the discrepancy
+4. Provide the correct information
+</instructions>
+
+<output_format>
+For each finding, report:
+
+File: path/to/README.md:lineNumber
+Issue: [One-line description of the documentation error]
+Severity: High/Medium/Low
+Pattern: [The incorrect documentation text]
+Actual: [What the correct information should be]
+Fix: [Exact documentation correction needed]
+Impact: [Why this matters - confusion, errors, etc.]
+
+Severity Guidelines:
+- High: Critical inaccuracies that would cause errors if followed (wrong commands, non-existent APIs)
+- Medium: Outdated information that misleads but doesn't immediately break (wrong paths, old examples)
+- Low: Minor inaccuracies or missing non-critical information
+
+Example:
+File: packages/binject/README.md:46
+Issue: Incorrect description of NODE_SEA section compression format
+Severity: High
+Pattern: "NODE_SEA - Compressed application code (Brotli, ~70-80% reduction)"
+Actual: NODE_SEA contains uncompressed blobs generated by Node.js itself, not Brotli-compressed data
+Fix: Change to: "NODE_SEA - Single Executable Application code (generated by Node.js)"
+Impact: Misleads developers about the actual format, causing confusion when inspecting binaries
+
+Example:
+File: README.md:25
+Issue: Incorrect package name in build command
+Severity: High
+Pattern: "pnpm --filter @socketbin/node-smol-builder run build"
+Actual: package.json shows "name": "node-smol-builder" without @socketbin scope
+Fix: Change to: "pnpm --filter node-smol-builder run build"
+Impact: Command will fail with "No projects matched" error
+
+Example:
+File: packages/build-infra/README.md:14
+Issue: References non-existent module name
+Severity: Medium
+Pattern: "paths - Standard directory structure"
+Actual: Module is exported as "path-builder" in package.json exports
+Fix: Change to: "path-builder - Standard directory structure"
+Impact: Developers looking for "paths" module will not find it
+
+Example:
+File: packages/binject/README.md:227
+Issue: Incorrect config size documented
+Severity: Low
+Pattern: "Config stored in binary format (1112 bytes)"
+Actual: Config is 1176 bytes (verified in source code)
+Fix: Change to: "Config stored in binary format (1176 bytes)"
+Impact: Minor inaccuracy in technical specification
+</output_format>
+
+<quality_guidelines>
+- Verify every claim against actual code - don't assume documentation is correct
+- Read package.json files to check names, scripts, versions
+- Run --help commands to verify CLI flags when possible
+- Check exports in source files to verify APIs
+- Look at build script outputs to verify paths
+- Focus on high-impact errors first (wrong commands, non-existent APIs)
+- Report missing documentation for major features (not every minor detail)
+- Group related issues (e.g., "5 packages using @scope incorrectly")
+- Provide exact fixes, not vague suggestions
+- If a README is mostly missing (75%+ of package undocumented), report as single high-severity issue
+</quality_guidelines>
+
+Scan all README.md files in the repository and report all documentation inaccuracies found. If documentation is accurate, state that explicitly.
+```
+
+### Example Documentation Scan Output
+
+```markdown
+## Documentation Issues - 8 found
+
+### High Severity - 3 issues
+
+#### README.md:25
+- **Issue**: Incorrect package name in build command
+- **Pattern**: `pnpm --filter @socketbin/node-smol-builder run build`
+- **Actual**: package.json shows `"name": "node-smol-builder"` without scope
+- **Fix**: Change to: `pnpm --filter node-smol-builder run build`
+- **Impact**: Command fails with "No projects matched" error
+
+#### packages/binject/README.md:100
+- **Issue**: Documents obsolete --update-config flag
+- **Pattern**: `binject inject -e ./node-smol -o ./my-app --sea app.blob --update-config update-config.json`
+- **Actual**: Flag was removed, config now embedded via sea-config.json smol.update section
+- **Fix**: Remove --update-config example, document sea-config.json approach instead
+- **Impact**: Users will get "unknown flag" error, approach no longer works
+
+#### packages/build-infra/README.md:12
+- **Issue**: Documents non-existent "c-package" builder
+- **Pattern**: "*-builder - Build strategies (cmake, rust, emscripten, c-package)"
+- **Actual**: No c-package-builder.mjs exists; actual builders are: cmake, rust, emscripten, docker, clean
+- **Fix**: List actual builders: "cmake, rust, emscripten, docker, clean"
+- **Impact**: Users looking for c-package builder will be confused
+
+### Medium Severity - 3 issues
+
+#### packages/binject/README.md:62
+- **Issue**: Output path missing build mode variants
+- **Pattern**: "Outputs to `build/prod/out/Final/binject`"
+- **Actual**: Build system supports both dev and prod modes: `build/{dev|prod}/out/Final/binject`
+- **Fix**: Change to: "Outputs to `build/{dev|prod}/out/Final/binject`"
+- **Impact**: Confusing for developers doing dev builds
+
+#### packages/node-smol-builder/README.md:182
+- **Issue**: Incorrect patch count
+- **Pattern**: "Applies 13 patches to Node.js source"
+- **Actual**: Only 12 patches in patches/source-patched/ directory
+- **Fix**: Change to: "Applies 12 patches to Node.js source"
+- **Impact**: Minor discrepancy in technical details
+
+#### packages/bin-infra/README.md:1-21
+- **Issue**: Missing 75% of package contents in documentation
+- **Pattern**: Only documents src/ and make/, omits lib/, test/, scripts/, upstream/, patches/
+- **Actual**: Package has extensive JavaScript API (lib/), test utilities, build scripts, and upstream dependencies
+- **Fix**: Add comprehensive documentation of all 17 C files, 3 JS modules with API examples, test helpers, scripts, and upstream submodules
+- **Impact**: Developers unaware of most package functionality
+
+### Low Severity - 2 issues
+
+#### packages/binject/README.md:227
+- **Issue**: Incorrect config size
+- **Pattern**: "1112 bytes"
+- **Actual**: Config is 1176 bytes (verified in source)
+- **Fix**: Change all occurrences to: "1176 bytes"
+- **Impact**: Minor technical inaccuracy
+
+#### packages/binflate/README.md:18
+- **Issue**: Claims caching functionality
+- **Pattern**: "Uses cache at ~/.socket/_dlx/"
+- **Actual**: binflate only extracts; self-extracting stubs (not binflate) implement caching
+- **Fix**: Clarify that binflate extracts only, stubs handle caching
+- **Impact**: Confusion about which component caches
+```
+
