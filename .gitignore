@@ -17,6 +17,11 @@ WIP
 .local.*
 .node-version
 
+# Claude Code scratch files
+/.claude/*
+!/.claude/skills/
+!/.claude/commands/
+
 # Environment files
 /.env
 /.env.local
