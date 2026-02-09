@@ -76,7 +76,14 @@ async function getLocalPackageFileHashes(packagePath) {
   // Read package.json to get files field.
   const pkgJsonPath = path.join(packagePath, PACKAGE_JSON)
   const pkgJsonContent = await readFileUtf8(pkgJsonPath)
-  const pkgJson = JSON.parse(pkgJsonContent)
+  let pkgJson
+  try {
+    pkgJson = JSON.parse(pkgJsonContent)
+  } catch (e) {
+    throw new Error(`Failed to parse package.json at ${pkgJsonPath}`, {
+      cause: e,
+    })
+  }
   const filesPatterns = pkgJson.files || []
 
   // Always include package.json.
@@ -182,7 +189,14 @@ async function getRemotePackageFileHashes(spec) {
 
             if (entry.name === PACKAGE_JSON) {
               // For package.json, hash only relevant fields (not version).
-              const pkgJson = JSON.parse(content)
+              let pkgJson
+              try {
+                pkgJson = JSON.parse(content)
+              } catch (e) {
+                throw new Error(`Failed to parse package.json at ${fullPath}`, {
+                  cause: e,
+                })
+              }
               const exportsValue = pkgJson.exports
               const relevantData = {
                 dependencies: toSortedObject(pkgJson.dependencies ?? {}),

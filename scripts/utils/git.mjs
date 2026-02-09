@@ -51,9 +51,10 @@ function innerGetPackages(eco, files, options) {
       if (eco === NPM && filepath.startsWith(REL_REGISTRY_PKG_PATH)) {
         sockRegPkgName = '../../registry/dist/index.js'
       } else {
+        const slashIndex = filepath.indexOf('/', sliceStart)
         sockRegPkgName = filepath.slice(
           sliceStart,
-          filepath.indexOf('/', sliceStart),
+          slashIndex === -1 ? undefined : slashIndex,
         )
       }
       packageNames.add(sockRegPkgName)

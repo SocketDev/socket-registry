@@ -190,7 +190,8 @@ async function addNpmManifestData(manifest, options) {
 
   const latestIndexes = []
   for (let i = 0, { length } = manifestData; i < length; i += 1) {
-    if (manifestData[i][0].endsWith(AT_LATEST)) {
+    const entry = manifestData[i]
+    if (Array.isArray(entry) && entry[0]?.endsWith?.(AT_LATEST)) {
       latestIndexes.push(i)
     }
   }

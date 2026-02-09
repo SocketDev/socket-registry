@@ -396,7 +396,14 @@ async function installPackageForTesting(sourcePath, packageName, options = {}) {
 
     // Merge back the test scripts and devDependencies if they existed.
     const pkgJsonPath = path.join(installedPath, 'package.json')
-    const pkgJson = JSON.parse(await fs.readFile(pkgJsonPath, 'utf8'))
+    let pkgJson
+    try {
+      pkgJson = JSON.parse(await fs.readFile(pkgJsonPath, 'utf8'))
+    } catch (e) {
+      throw new Error(`Failed to parse package.json at ${pkgJsonPath}`, {
+        cause: e,
+      })
+    }
 
     // Preserve devDependencies from original (only when we installed from npm).
     if (versionSpec && originalDevDependencies) {
