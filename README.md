@@ -51,10 +51,10 @@ All overrides in this registry:
 Create a new override in three steps:
 
 ```
-Step 1              Step 2              Step 3
-Install       →     Generate      →     Complete
-  ↓                   ↓                   ↓
-pnpm install    make:npm-override    Fill TODOs + Test
+Step 1              Step 2                  Step 3
+Install       →     Generate          →     Complete
+  ↓                   ↓                       ↓
+pnpm install    make-npm-override    Fill TODOs + Test
 ```
 
 ## License

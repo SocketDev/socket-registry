@@ -37,7 +37,7 @@
     "package-npm-access": "node scripts/npm/set-npm-package-access.mjs",
     "package-npm-publish": "node scripts/npm/publish-npm-packages.mjs",
     "perf": "node scripts/perf.mjs",
-    "precommit": "pnpm run check --lint --staged",
+    "precommit": "pnpm run check --staged",
     "prepare": "husky && pnpm run build",
     "prepublishOnly": "echo 'ERROR: Use GitHub Actions workflow for publishing' && exit 1",
     "publish": "node scripts/publish.mjs",

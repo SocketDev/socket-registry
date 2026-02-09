@@ -21,8 +21,8 @@ import { getManifestData } from '@socketsecurity/registry'
 
 const pkg = getManifestData('npm', 'deep-equal')
 console.log(pkg.name) // '@socketregistry/deep-equal'
-console.log(pkg.version) // '2.2.3'
-console.log(pkg.categories) // ['speedup', 'cleanup']
+console.log(pkg.version) // '1.0.22'
+console.log(pkg.categories) // ['cleanup']
 ```
 
 ## License
