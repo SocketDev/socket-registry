@@ -54,7 +54,7 @@ async function main() {
         '   Configure your dependencies to maintain provenance or exclude problematic packages.',
       )
 
-      process.exit(1)
+      process.exitCode = 1
     }
   })
 
