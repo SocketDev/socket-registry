@@ -75,6 +75,38 @@ export async function runSequence(commands) {
 }
 
 /**
+ * Wait for stdio handles to finish flushing.
+ * When spawning multiple processes with stdio: 'inherit', there's a race condition
+ * where child processes may exit but leave stdio handles with pending writes.
+ * This function waits for those handles to clear before returning.
+ */
+async function waitForStdioFlush(timeoutMs = 1000) {
+  const startTime = Date.now()
+
+  while (Date.now() - startTime < timeoutMs) {
+    const handles = process._getActiveHandles()
+
+    // Check if we still have stdio handles with pending writes.
+    const hasStdioWithPendingWrites = handles.some(handle => {
+      if (handle?.constructor?.name === 'Socket' && handle._isStdio) {
+        const writableState = handle._writableState
+        return writableState && writableState.pendingcb > 0
+      }
+      return false
+    })
+
+    if (!hasStdioWithPendingWrites) {
+      return
+    }
+
+    // Wait a bit before checking again.
+    await new Promise(resolve => {
+      setTimeout(resolve, 10)
+    })
+  }
+}
+
+/**
  * Run multiple commands in parallel.
  * @param {Array<{command: string, args?: string[], options?: object}>} commands
  * @returns {Promise<number[]>} Array of exit codes
@@ -84,6 +116,12 @@ export async function runParallel(commands) {
     runCommand(command, args, options),
   )
   const results = await Promise.allSettled(promises)
+
+  // Wait for stdio handles to finish flushing to prevent intermittent hangs.
+  // This is necessary because when spawning multiple processes with stdio: 'inherit',
+  // child processes can exit while leaving stdio handles with pending write callbacks.
+  await waitForStdioFlush()
+
   return results.map(r => (r.status === 'fulfilled' ? r.value : 1))
 }
 
