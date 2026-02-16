@@ -44,7 +44,8 @@ function sortKeysFast(value) {
   // Sort object keys
   const sorted = {}
   const keys = ObjectKeys(value).sort()
-  for (const key of keys) {
+  for (let i = 0, { length } = keys; i < length; i += 1) {
+    const key = keys[i]
     sorted[key] = sortKeysFast(value[key])
   }
   return sorted
@@ -204,7 +205,8 @@ function sortKeysWithOptions(value, opts, seen) {
 
     const sorted = {}
 
-    for (const key of keys) {
+    for (let i = 0, { length } = keys; i < length; i += 1) {
+      const key = keys[i]
       let val = obj[key]
 
       // Apply replacer
