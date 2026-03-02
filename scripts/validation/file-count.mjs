@@ -40,7 +40,7 @@ async function validateStagedFileCount() {
 
     if (!gitRoot.trim()) {
       // Not a git repository
-      return null
+      return undefined
     }
 
     // Get list of staged files
@@ -61,10 +61,10 @@ async function validateStagedFileCount() {
       }
     }
 
-    return null
+    return undefined
   } catch {
     // Not a git repo or git not available
-    return null
+    return undefined
   }
 }
 

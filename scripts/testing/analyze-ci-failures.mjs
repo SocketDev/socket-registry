@@ -192,7 +192,7 @@ function extractPackageName(line) {
     }
   }
 
-  return null
+  return undefined
 }
 
 /**
@@ -201,7 +201,7 @@ function extractPackageName(line) {
 function analyzeLog(logContent) {
   const lines = logContent.split('\n')
   const failures = []
-  let currentPackage = null
+  let currentPackage
 
   for (const line of lines) {
     // Track current package being tested.

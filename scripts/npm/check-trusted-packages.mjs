@@ -108,7 +108,7 @@ async function getPackageInfo(packageName) {
     ])
     return JSON.parse(output)
   } catch {
-    return null
+    return undefined
   }
 }
 

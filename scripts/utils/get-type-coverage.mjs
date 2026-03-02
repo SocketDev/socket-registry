@@ -28,5 +28,5 @@ export async function getTypeCoverage() {
     }
   }
 
-  return null
+  return undefined
 }

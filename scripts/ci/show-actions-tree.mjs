@@ -24,7 +24,7 @@ async function extractDependenciesWithStructure(filePath) {
   const dependencyMatch = content.match(/^# Dependencies:\n((?:#.+\n)+)/m)
   if (dependencyMatch) {
     const lines = dependencyMatch[1].split('\n')
-    let currentParent = null
+    let currentParent
 
     for (const line of lines) {
       // Match top-level dependencies (starting with #   -).

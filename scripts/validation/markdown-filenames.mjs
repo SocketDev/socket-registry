@@ -194,7 +194,7 @@ function validateFilename(filePath) {
     nameWithoutExt.startsWith('LICENSE.')
   ) {
     // Valid - allowed in any location
-    return null
+    return undefined
   }
 
   // Check if it's an allowed SCREAMING_CASE file
@@ -213,7 +213,7 @@ function validateFilename(filePath) {
       }
     }
     // Valid
-    return null
+    return undefined
   }
 
   // Check if it's in SCREAMING_CASE but not allowed
@@ -264,7 +264,7 @@ function validateFilename(filePath) {
   }
 
   // Valid
-  return null
+  return undefined
 }
 
 /**

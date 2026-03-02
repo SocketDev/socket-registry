@@ -30,7 +30,7 @@ export async function getCodeCoverage(options) {
 
   if (!existsSync(coverageJsonPath)) {
     if (!generateIfMissing) {
-      return null
+      return undefined
     }
 
     const result = await spawn('node', ['scripts/cover.mjs'], {
