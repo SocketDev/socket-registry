@@ -2,8 +2,8 @@ name: 'Setup'
 description: 'Setup debug, Node.js, and pnpm with caching'
 
 # Dependencies:
-#   - actions/setup-node@v5.0.0
-#   - pnpm/action-setup@v4.1.0
+#   - actions/setup-node@v6.2.0
+#   - pnpm/action-setup@v4.2.0
 #   - SocketDev/socket-registry/.github/actions/debug
 
 inputs:
@@ -41,7 +41,7 @@ runs:
         debug: ${{ inputs.debug }}
 
     - name: Setup pnpm
-      uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+      uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
       # NOTE: Do not specify 'version' here - pnpm-action-setup automatically reads
       # the version from the 'packageManager' field in package.json. Specifying both
       # causes ERR_PNPM_BAD_PM_VERSION errors.
@@ -49,7 +49,7 @@ runs:
       #   version: ${{ inputs.pnpm-version }}
 
     - name: Setup Node.js with pnpm cache
-      uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+      uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'pnpm'
