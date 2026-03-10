@@ -55,7 +55,7 @@ Common characteristics to look for:
 
 <instructions>
 Scan all code files for these critical bug patterns:
-- [IF monorepo] TypeScript/JavaScript: packages/*/scripts/**/*.{mjs,mts}, packages/*/src/**/*.{mjs,mts}
+- [IF monorepo] TypeScript/JavaScript: packages/npm/*/scripts/**/*.{mjs,mts}, registry/lib/**/*.js, scripts/**/*.{mjs,mts}
 - [IF single package] TypeScript/JavaScript: src/**/*.{ts,mts,mjs,js}, lib/**/*.{ts,mts,mjs,js}
 - [IF C/C++ code exists] C/C++: src/**/*.{c,cc,cpp,h}
 - Focus on:
@@ -178,13 +178,13 @@ beforeAll(async () => {
 })
 ```
 
-**[SOCKET-BTM SPECIFIC] Where to check:**
-- packages/binpress/test/*.test.mts
-- packages/binflate/test/*.test.mts
-- packages/binject/test/*.test.mts
-- Any test that uses `BINPRESS`, `BINFLATE`, or `BINJECT` as compression input
+**Where to check:**
+- packages/npm/*/test/*.test.mts
+- test/**/*.test.js
+- test/**/*.test.mts
+- Any test that uses external package managers or performs heavy I/O operations
 
-**Impact:** Tests using binsuite tools as input cause Linux CI timeouts (180-360 seconds)
+**Impact:** Tests performing intensive npm operations can cause CI timeouts
 </pattern>
 
 For each bug found, think through:
@@ -427,17 +427,15 @@ Your task is to analyze caching implementation for correctness, staleness bugs, 
 <context>
 **[SOCKET-BTM SPECIFIC - Adapt for your repository's caching strategy]**
 
-socket-btm uses a multi-stage checkpoint system to speed up builds:
-- **Checkpoint stages**: source-copied, source-patched, configured, compiled, stripped, compressed, final
-- **Storage**: tar.gz archives stored in build/checkpoints/{platform}-{arch}/
-- **Invalidation**: Based on cache keys (hashes of patches, config, source version)
-- **Progressive builds**: Can restore from any checkpoint and continue
-- **Cross-platform**: Must work on Windows, macOS, Linux (ARM64, x64)
-- **Critical**: Stale checkpoints cause incorrect builds that are hard to debug
+This project uses caching for npm package overrides and registry data:
+- **Storage**: Package override caching in packages/npm/*
+- **Invalidation**: Based on package versions and registry URLs
+- **Cross-platform**: Must work on Windows, macOS, Linux
+- **Critical**: Stale cache can cause incorrect package resolution
 
-Caching locations:
-- packages/node-smol-builder/scripts/common/shared/checkpoints.mjs
-- packages/node-smol-builder/build/checkpoints/
+Caching locations (if applicable):
+- registry/lib/ - Registry interaction caching
+- Build cache for overrides
 - Cache key generation and validation logic
 </context>
 
@@ -463,10 +461,8 @@ Checkpoint key generation correctness:
 - Additions: Are build-infra/binject changes invalidating checkpoints?
 - Environment: Are env vars (NODE_OPTIONS, etc.) affecting builds included?
 
-**[SOCKET-BTM SPECIFIC]** NOTE: SOURCE_PATCHED and SOURCE_COPIED checkpoints intentionally omit platform/arch/libc
-because source patching is platform-agnostic - the same patches apply regardless of
-target platform. Only binary compilation stages (COMPILED, STRIPPED, COMPRESSED, FINALIZED)
-need platform-specific cache keys. Do NOT flag this as an issue.
+**NOTE**: Platform-agnostic operations (npm package parsing) may share cache keys across platforms,
+while platform-specific operations (binary builds) should include platform/arch in cache keys.
 </pattern>
 
 <pattern name="checkpoint_corruption">
@@ -515,7 +511,7 @@ Think through each issue:
 <output_format>
 For each finding, report:
 
-File: packages/node-smol-builder/scripts/common/shared/checkpoints.mjs:lineNumber
+File: registry/lib/cache-module.js:lineNumber
 Issue: [One-line description]
 Severity: High | Medium
 Scenario: [Step-by-step sequence showing how bug manifests]
@@ -524,8 +520,8 @@ Fix: [Specific code change]
 Impact: [Observable effect - wrong output, performance, crash]
 
 Example:
-File: packages/node-smol-builder/scripts/common/shared/checkpoints.mjs:145
-Issue: Cache key missing patch content hashes
+File: registry/lib/cache-module.js:145
+Issue: Cache key missing package version hashes
 Severity: High
 Scenario: 1) Build with patch v1, creates checkpoint. 2) Patch file modified to v2 (same filename). 3) Build restores v1 checkpoint. 4) Produces binary with v1 patches but v2 expected
 Pattern: `const cacheKey = \`\${nodeVersion}-\${platform}-\${arch}\``
@@ -558,7 +554,7 @@ Your task is to identify issues in socket-btm's development workflows, build scr
 
 <context>
 socket-btm is a pnpm monorepo with:
-- **Build scripts**: packages/*/scripts/**/*.{mjs,mts} (ESM, cross-platform Node.js)
+- **Build scripts**: scripts/**/*.{mjs,mts} (ESM, cross-platform Node.js)
 - **Package manager**: pnpm workspaces with scripts in each package.json
 - **Git hooks**: .git-hooks/* for pre-commit, pre-push validation
 - **CI**: GitHub Actions (.github/workflows/)
@@ -716,8 +712,8 @@ buildBinSuitePackage({
    - Fix: Use bin-infra/lib/builder for consistent behavior
 
 **Check these files:**
-- packages/*/scripts/build.mjs - Must use buildBinSuitePackage
-- packages/*/Makefile.* - Should not be invoked directly (only via build.mjs)
+- scripts/build.mjs - Build orchestration for overrides
+- packages/npm/*/package.json - Override package definitions
 - README.md files - Should document `pnpm run build`, not direct make
 </pattern>
 
@@ -1453,40 +1449,40 @@ Severity Guidelines:
 - Low: Minor inaccuracies or missing non-critical information
 
 Example:
-File: packages/binject/README.md:46
-Issue: Incorrect description of NODE_SEA section compression format
+File: packages/npm/lodash/README.md:46
+Issue: Incorrect override version documented
 Severity: High
-Pattern: "NODE_SEA - Compressed application code (Brotli, ~70-80% reduction)"
-Actual: NODE_SEA contains uncompressed blobs generated by Node.js itself, not Brotli-compressed data
-Fix: Change to: "NODE_SEA - Single Executable Application code (generated by Node.js)"
-Impact: Misleads developers about the actual format, causing confusion when inspecting binaries
+Pattern: "Overrides lodash 4.17.20"
+Actual: Override targets 4.17.21 (verified in package.json)
+Fix: Change to: "Overrides lodash 4.17.21"
+Impact: Misleads developers about which version is overridden
 
 Example:
 File: README.md:25
-Issue: Incorrect package name in build command
+Issue: Incorrect command for creating override
 Severity: High
-Pattern: "pnpm --filter @socketbin/node-smol-builder run build"
-Actual: package.json shows "name": "node-smol-builder" without @socketbin scope
-Fix: Change to: "pnpm --filter node-smol-builder run build"
-Impact: Command will fail with "No projects matched" error
+Pattern: "pnpm run make-override lodash"
+Actual: Script is "make-npm-override" not "make-override"
+Fix: Change to: "pnpm run make-npm-override lodash"
+Impact: Command will fail with script not found error
 
 Example:
-File: packages/build-infra/README.md:14
-Issue: References non-existent module name
+File: README.md:14
+Issue: References non-existent registry/lib export
 Severity: Medium
-Pattern: "paths - Standard directory structure"
-Actual: Module is exported as "path-builder" in package.json exports
-Fix: Change to: "path-builder - Standard directory structure"
-Impact: Developers looking for "paths" module will not find it
+Pattern: "import { getPackage } from '@socketsecurity/registry/lib/packages'"
+Actual: Export is named "readPackageJson" not "getPackage"
+Fix: Change to: "import { readPackageJson } from '@socketsecurity/registry/lib/packages'"
+Impact: Import will fail with module not found error
 
 Example:
-File: packages/binject/README.md:227
-Issue: Incorrect config size documented
+File: README.md:87
+Issue: Incorrect npm override count
 Severity: Low
-Pattern: "Config stored in binary format (1112 bytes)"
-Actual: Config is 1176 bytes (verified in source code)
-Fix: Change to: "Config stored in binary format (1176 bytes)"
-Impact: Minor inaccuracy in technical specification
+Pattern: "Provides 50+ npm overrides"
+Actual: Only 30 override packages in packages/npm/ (verified by ls)
+Fix: Change to: "Provides 30+ npm overrides"
+Impact: Minor inaccuracy in package count
 
 **Junior Developer Friendliness Examples:**
 
@@ -1494,46 +1490,46 @@ Example:
 File: README.md:1-50
 Issue: Missing beginner-friendly introduction explaining project purpose
 Severity: High
-Pattern: Jumps directly to technical architecture without explaining what socket-btm is or why it exists
-Actual: Junior devs need context: "What is BTM?", "Why custom Node.js?", "When would I use this?"
-Fix: Add "What is Socket BTM?" section explaining: (1) Custom Node.js with Socket Security patches, (2) Minimal builds for production, (3) Use cases (CLI tools, serverless, containers)
-Impact: Junior devs confused about project purpose, may not understand if they need it
+Pattern: Jumps directly to technical details without explaining what socket-registry is
+Actual: Junior devs need context: "What is socket-registry?", "What are overrides?", "When would I use this?"
+Fix: Add "What is Socket Registry?" section explaining: (1) Enhanced npm packages with security fixes, (2) Drop-in replacements for vulnerable packages, (3) Use cases (projects needing secure dependencies)
+Impact: Junior devs confused about project purpose
 
 Example:
-File: packages/binject/README.md:15
-Issue: Assumes knowledge of Node.js SEA without explanation
+File: README.md:15
+Issue: Assumes knowledge of npm overrides without explanation
 Severity: Medium
-Pattern: "Injects SEA blobs into Node.js binaries"
-Actual: Junior devs don't know what SEA is or why injection is needed
-Fix: Add: "Single Executable Application (SEA) - bundles your app into a standalone binary. binject handles the low-level binary manipulation to embed your code into Node.js executables."
-Impact: Technical jargon barrier prevents junior devs from understanding tool purpose
+Pattern: "Uses pnpm overrides to replace packages"
+Actual: Junior devs don't know what overrides are or how they work
+Fix: Add: "npm overrides - replaces dependencies with enhanced versions automatically. Socket Registry provides secure, enhanced packages that work as drop-in replacements."
+Impact: Technical jargon barrier prevents junior devs from understanding
 
 Example:
-File: packages/node-smol-builder/README.md:80
-Issue: No troubleshooting section for common build errors
+File: README.md:80
+Issue: No troubleshooting section for override conflicts
 Severity: Medium
-Pattern: Documentation shows happy path but no error handling guidance
-Actual: Junior devs hit errors like "Patch failed to apply" or "Checkpoint extraction failed" with no guidance
-Fix: Add "Troubleshooting" section covering: (1) Patch application failures → check upstream version, (2) Checkpoint errors → run clean, (3) Build timeouts → increase TIMEOUT_MS
-Impact: Junior devs stuck when errors occur, need hand-holding for common issues
+Pattern: Documentation shows happy path but no conflict resolution guidance
+Actual: Junior devs hit errors like "Version conflict" or "Peer dependency mismatch" with no guidance
+Fix: Add "Troubleshooting" section covering: (1) Version conflicts → check semver ranges, (2) Peer dependencies → verify compatibility, (3) Install failures → clear cache
+Impact: Junior devs stuck when override errors occur
 
 Example:
 File: CLAUDE.md:125
-Issue: Complex "Source of Truth Architecture" without visual diagram or simple explanation
+Issue: Complex registry architecture without visual diagram
 Severity: Medium
-Pattern: Dense text explaining package relationships and sync direction
-Actual: Junior devs need visual representation and concrete examples to understand data flow
-Fix: Add ASCII diagram showing: packages/build-infra → additions/source-patched (one-way sync), plus example: "When you fix a bug in build-infra/debug_common.h, you must sync it to node-smol-builder/additions/"
-Impact: Junior contributors may edit wrong files, creating wasted work
+Pattern: Dense text explaining registry/lib and packages/npm structure
+Actual: Junior devs need visual representation of registry workflow
+Fix: Add ASCII diagram showing: npm install → registry check → override lookup → enhanced package, plus example: "When you install lodash, registry redirects to packages/npm/lodash"
+Impact: Junior contributors may not understand override flow
 
 Example:
-File: packages/binpress/README.md:1-100
+File: README.md:1-100
 Issue: Missing "Getting Started" section with minimal working example
 Severity: High
-Pattern: Extensive API documentation but no simple end-to-end example
-Actual: Junior devs need: "How do I compress my first binary? Step 1, Step 2, Step 3"
-Fix: Add "Quick Start" section: "(1) Build binpress: pnpm run build, (2) Compress a binary: ./build/dev/out/Final/binpress input.exe output.exe, (3) Verify: ls -lh output.exe"
-Impact: Without concrete starting point, juniors struggle to use tool effectively
+Pattern: Extensive documentation but no simple setup example
+Actual: Junior devs need: "How do I use an override? Step 1, Step 2, Step 3"
+Fix: Add "Quick Start" section: "(1) Install: npm install @socketsecurity/registry, (2) Add to package.json: pnpm.overrides section, (3) Install dependencies: pnpm install"
+Impact: Without concrete starting point, juniors struggle to use overrides
 </output_format>
 
 <quality_guidelines>
@@ -1560,63 +1556,63 @@ Scan all README.md files in the repository and report all documentation inaccura
 ### High Severity - 3 issues
 
 #### README.md:25
-- **Issue**: Incorrect package name in build command
-- **Pattern**: `pnpm --filter @socketbin/node-smol-builder run build`
-- **Actual**: package.json shows `"name": "node-smol-builder"` without scope
-- **Fix**: Change to: `pnpm --filter node-smol-builder run build`
-- **Impact**: Command fails with "No projects matched" error
+- **Issue**: Incorrect script name for creating overrides
+- **Pattern**: `pnpm run make-override lodash`
+- **Actual**: Script is "make-npm-override" not "make-override"
+- **Fix**: Change to: `pnpm run make-npm-override lodash`
+- **Impact**: Command fails with script not found error
 
-#### packages/binject/README.md:100
-- **Issue**: Documents obsolete --update-config flag
-- **Pattern**: `binject inject -e ./node-smol -o ./my-app --sea app.blob --update-config update-config.json`
-- **Actual**: Flag was removed, config now embedded via sea-config.json smol.update section
-- **Fix**: Remove --update-config example, document sea-config.json approach instead
-- **Impact**: Users will get "unknown flag" error, approach no longer works
+#### packages/npm/lodash/README.md:100
+- **Issue**: Documents incorrect override version
+- **Pattern**: `Overrides lodash 4.17.20`
+- **Actual**: Package targets 4.17.21 (verified in package.json)
+- **Fix**: Update to: `Overrides lodash 4.17.21`
+- **Impact**: Users confused about which version is overridden
 
-#### packages/build-infra/README.md:12
-- **Issue**: Documents non-existent "c-package" builder
-- **Pattern**: "*-builder - Build strategies (cmake, rust, emscripten, c-package)"
-- **Actual**: No c-package-builder.mjs exists; actual builders are: cmake, rust, emscripten, docker, clean
-- **Fix**: List actual builders: "cmake, rust, emscripten, docker, clean"
-- **Impact**: Users looking for c-package builder will be confused
+#### README.md:12
+- **Issue**: Documents non-existent registry/lib export
+- **Pattern**: `import { getPackage } from '@socketsecurity/registry/lib/packages'`
+- **Actual**: Export is named "readPackageJson" not "getPackage"
+- **Fix**: Change to: `import { readPackageJson } from '@socketsecurity/registry/lib/packages'`
+- **Impact**: Import fails with module not found error
 
 ### Medium Severity - 3 issues
 
-#### packages/binject/README.md:62
-- **Issue**: Output path missing build mode variants
-- **Pattern**: "Outputs to `build/prod/out/Final/binject`"
-- **Actual**: Build system supports both dev and prod modes: `build/{dev|prod}/out/Final/binject`
-- **Fix**: Change to: "Outputs to `build/{dev|prod}/out/Final/binject`"
-- **Impact**: Confusing for developers doing dev builds
+#### README.md:62
+- **Issue**: Incorrect override installation command
+- **Pattern**: "Add to dependencies section"
+- **Actual**: Overrides go in pnpm.overrides section, not dependencies
+- **Fix**: Change to: "Add to pnpm.overrides section in package.json"
+- **Impact**: Confusing installation process for developers
 
-#### packages/node-smol-builder/README.md:182
-- **Issue**: Incorrect patch count
-- **Pattern**: "Applies 15 patches to Node.js source"
-- **Actual**: Only 12 patches in patches/source-patched/ directory
-- **Fix**: Change to: "Applies 12 patches to Node.js source"
-- **Impact**: Minor discrepancy in technical details
+#### README.md:182
+- **Issue**: Incorrect override count
+- **Pattern**: "Provides 50+ npm overrides"
+- **Actual**: Only 30 packages in packages/npm/ directory
+- **Fix**: Change to: "Provides 30+ npm overrides"
+- **Impact**: Minor discrepancy in package count
 
-#### packages/bin-infra/README.md:1-21
-- **Issue**: Missing 75% of package contents in documentation
-- **Pattern**: Only documents src/ and make/, omits lib/, test/, scripts/, upstream/, patches/
-- **Actual**: Package has extensive JavaScript API (lib/), test utilities, build scripts, and upstream dependencies
-- **Fix**: Add comprehensive documentation of all 17 C files, 3 JS modules with API examples, test helpers, scripts, and upstream submodules
-- **Impact**: Developers unaware of most package functionality
+#### README.md:1-21
+- **Issue**: Missing 75% of override packages in documentation
+- **Pattern**: Only documents lodash and react, omits 28 other overrides
+- **Actual**: Registry has overrides for webpack, typescript, babel, and many others
+- **Fix**: Add comprehensive list of all override packages with descriptions
+- **Impact**: Developers unaware of most available overrides
 
 ### Low Severity - 2 issues
 
-#### packages/binject/README.md:227
-- **Issue**: Incorrect config size
-- **Pattern**: "1112 bytes"
-- **Actual**: Config is 1176 bytes (verified in source)
-- **Fix**: Change all occurrences to: "1176 bytes"
-- **Impact**: Minor technical inaccuracy
+#### README.md:227
+- **Issue**: Incorrect registry URL
+- **Pattern**: "https://registry.socket.dev/"
+- **Actual**: Registry is at https://socket.dev/npm (verified in source)
+- **Fix**: Change to: "https://socket.dev/npm"
+- **Impact**: Minor URL inaccuracy
 
-#### packages/binflate/README.md:18
-- **Issue**: Claims caching functionality
-- **Pattern**: "Uses cache at ~/.socket/_dlx/"
-- **Actual**: binflate only extracts; self-extracting stubs (not binflate) implement caching
-- **Fix**: Clarify that binflate extracts only, stubs handle caching
-- **Impact**: Confusion about which component caches
+#### README.md:18
+- **Issue**: Claims automatic override activation
+- **Pattern**: "Overrides automatically apply after install"
+- **Actual**: Requires pnpm.overrides configuration; not automatic
+- **Fix**: Clarify that overrides require pnpm.overrides configuration
+- **Impact**: Confusion about override activation process
 ```
 
