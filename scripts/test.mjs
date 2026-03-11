@@ -140,46 +140,32 @@ async function runCheck() {
   spinner.stop()
   logger.success('Code formatted')
 
-  // Run ESLint and TypeScript in parallel for faster execution
-  spinner.start('Running ESLint and TypeScript checks...')
+  // Run oxlint and TypeScript in parallel for faster execution.
+  spinner.start('Running oxlint and TypeScript checks...')
 
   const results = await Promise.allSettled([
-    runCommand(
-      'eslint',
-      [
-        '--config',
-        '.config/eslint.config.mjs',
-        '--report-unused-disable-directives',
-        '.',
-      ],
-      {
-        stdio: 'pipe',
-      },
-    ),
+    runCommand('oxlint', ['.'], {
+      stdio: 'pipe',
+    }),
     runCommand('tsgo', ['--noEmit', '-p', 'tsconfig.json'], {
       stdio: 'pipe',
     }),
   ])
 
-  const eslintExitCode =
+  const oxlintExitCode =
     results[0].status === 'fulfilled' ? results[0].value : 1
   const tsExitCode = results[1].status === 'fulfilled' ? results[1].value : 1
 
   spinner.stop()
 
-  // Check results and re-run with output if either failed
-  if (eslintExitCode !== 0) {
-    logger.error('ESLint failed')
-    // Re-run with output to show errors
-    await runCommand('eslint', [
-      '--config',
-      '.config/eslint.config.mjs',
-      '--report-unused-disable-directives',
-      '.',
-    ])
-    return eslintExitCode
+  // Check results and re-run with output if either failed.
+  if (oxlintExitCode !== 0) {
+    logger.error('oxlint failed')
+    // Re-run with output to show errors.
+    await runCommand('oxlint', ['.'])
+    return oxlintExitCode
   }
-  logger.success('ESLint passed')
+  logger.success('oxlint passed')
 
   if (tsExitCode !== 0) {
     logger.error('TypeScript check failed')

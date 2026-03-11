@@ -4,7 +4,7 @@
 
 import fs from 'node:fs'
 import path from 'node:path'
-import { includeIgnoreFile } from '@eslint/compat'
+
 import which from 'which'
 import {
   NODE_MODULES,
@@ -69,15 +69,19 @@ export function getTsxExecPath() {
 }
 
 /**
- * Get gitignore file configuration for ESLint.
+ * Parse gitignore file and return ignore patterns.
  */
-let _gitIgnoreFile
-export function getGitIgnoreFile() {
-  if (_gitIgnoreFile === undefined) {
+let _gitIgnorePatterns
+export function getGitIgnorePatterns() {
+  if (_gitIgnorePatterns === undefined) {
     const gitignorePath = path.join(ROOT_PATH, '.gitignore')
-    _gitIgnoreFile = includeIgnoreFile(gitignorePath)
+    const content = fs.readFileSync(gitignorePath, 'utf8')
+    _gitIgnorePatterns = content
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line && !line.startsWith('#'))
   }
-  return _gitIgnoreFile
+  return _gitIgnorePatterns
 }
 
 /**
@@ -98,7 +102,7 @@ export function getIgnoreGlobs() {
         `**/${PACKAGE_LOCK_JSON}`,
         `**/${PNPM}-lock.ya?ml`,
         `**/${YARN_LOCK}`,
-        ...getGitIgnoreFile().ignores,
+        ...getGitIgnorePatterns(),
       ]),
     ])
   }

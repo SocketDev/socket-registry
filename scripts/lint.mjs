@@ -38,29 +38,19 @@ const CONFIG_PATTERNS = [
 ]
 
 /**
- * Get Biome exclude patterns from biome.json.
+ * Get oxfmt exclude patterns from .oxfmtrc.json.
  */
-function getBiomeExcludePatterns() {
+function getOxfmtExcludePatterns() {
   try {
-    const biomeConfigPath = path.join(process.cwd(), 'biome.json')
-    if (!existsSync(biomeConfigPath)) {
+    const oxfmtConfigPath = path.join(process.cwd(), '.oxfmtrc.json')
+    if (!existsSync(oxfmtConfigPath)) {
       return []
     }
 
-    const biomeConfig = JSON.parse(readFileSync(biomeConfigPath, 'utf8'))
-    const includes = biomeConfig['files']?.['includes'] ?? []
-
-    // Extract patterns that start with '!' (exclude patterns)
-    return (
-      includes
-        .filter(
-          pattern => typeof pattern === 'string' && pattern.startsWith('!'),
-        )
-        // Remove the '!' prefix
-        .map(pattern => pattern.slice(1))
-    )
+    const oxfmtConfig = JSON.parse(readFileSync(oxfmtConfigPath, 'utf8'))
+    return oxfmtConfig['ignorePatterns'] ?? []
   } catch {
-    // If we can't read biome.json, return empty array
+    // If we can't read .oxfmtrc.json, return empty array.
     return []
   }
 }
@@ -68,16 +58,16 @@ function getBiomeExcludePatterns() {
 /**
  * Check if a file matches any of the exclude patterns.
  */
-function isExcludedByBiome(file, excludePatterns) {
+function isExcludedByOxfmt(file, excludePatterns) {
   for (const pattern of excludePatterns) {
-    // Convert glob pattern to regex-like matching
-    // Support **/ for directory wildcards and * for filename wildcards
+    // Convert glob pattern to regex-like matching.
+    // Support **/ for directory wildcards and * for filename wildcards.
     const regexPattern = pattern
-      // **/ matches any directory
+      // **/ matches any directory.
       .replace(/\*\*\//g, '.*')
-      // * matches any characters except /
+      // * matches any characters except /.
       .replace(/\*/g, '[^/]*')
-      // Escape dots
+      // Escape dots.
       .replace(/\./g, '\\.')
 
     const regex = new RegExp(`^${regexPattern}$`)
@@ -127,7 +117,7 @@ function filterLintableFiles(files) {
     '.yaml',
   ])
 
-  const biomeExcludePatterns = getBiomeExcludePatterns()
+  const oxfmtExcludePatterns = getOxfmtExcludePatterns()
 
   return files.filter(file => {
     const ext = path.extname(file)
@@ -136,8 +126,8 @@ function filterLintableFiles(files) {
       return false
     }
 
-    // Filter out files excluded by biome.json
-    if (isExcludedByBiome(file, biomeExcludePatterns)) {
+    // Filter out files excluded by .oxfmtrc.json.
+    if (isExcludedByOxfmt(file, oxfmtExcludePatterns)) {
       return false
     }
 
@@ -163,28 +153,13 @@ async function runLintOnFiles(files, options = {}) {
   // Build the linter configurations.
   const linters = [
     {
-      args: [
-        'exec',
-        'biome',
-        'check',
-        '--log-level=none',
-        ...(fix ? ['--write', '--unsafe'] : []),
-        ...files,
-      ],
-      name: 'biome',
+      args: ['exec', 'oxfmt', ...(fix ? ['--write'] : ['--check']), ...files],
+      name: 'oxfmt',
       enabled: true,
     },
     {
-      args: [
-        'exec',
-        'eslint',
-        '-c',
-        '.config/eslint.config.mjs',
-        '--report-unused-disable-directives',
-        ...(fix ? ['--fix'] : []),
-        ...files,
-      ],
-      name: 'eslint',
+      args: ['exec', 'oxlint', ...(fix ? ['--fix'] : []), ...files],
+      name: 'oxlint',
       enabled: true,
     },
   ]
@@ -197,13 +172,13 @@ async function runLintOnFiles(files, options = {}) {
     const result = await runCommandQuiet('pnpm', args)
 
     if (result.exitCode !== 0) {
-      // Check if Biome simply had no files to process (not an error)
-      const isBiomeNoFilesError = result.stderr?.includes(
+      // Check if oxfmt simply had no files to process (not an error).
+      const isOxfmtNoFilesError = result.stderr?.includes(
         'No files were processed in the specified paths',
       )
 
-      if (isBiomeNoFilesError) {
-        // Biome had nothing to do - this is fine, continue to next linter
+      if (isOxfmtNoFilesError) {
+        // oxfmt had nothing to do - this is fine, continue to next linter.
         continue
       }
 
@@ -244,26 +219,12 @@ async function runLintOnAll(options = {}) {
 
   const linters = [
     {
-      args: [
-        'exec',
-        'biome',
-        'check',
-        ...(fix ? ['--write', '--unsafe'] : []),
-        '.',
-      ],
-      name: 'biome',
+      args: ['exec', 'oxfmt', ...(fix ? ['--write'] : ['--check']), '.'],
+      name: 'oxfmt',
     },
     {
-      args: [
-        'exec',
-        'eslint',
-        '-c',
-        '.config/eslint.config.mjs',
-        '--report-unused-disable-directives',
-        ...(fix ? ['--fix'] : []),
-        '.',
-      ],
-      name: 'eslint',
+      args: ['exec', 'oxlint', ...(fix ? ['--fix'] : []), '.'],
+      name: 'oxlint',
     },
   ]
 
@@ -271,13 +232,13 @@ async function runLintOnAll(options = {}) {
     const result = await runCommandQuiet('pnpm', args)
 
     if (result.exitCode !== 0) {
-      // Check if Biome simply had no files to process (not an error)
-      const isBiomeNoFilesError = result.stderr?.includes(
+      // Check if oxfmt simply had no files to process (not an error).
+      const isOxfmtNoFilesError = result.stderr?.includes(
         'No files were processed in the specified paths',
       )
 
-      if (isBiomeNoFilesError) {
-        // Biome had nothing to do - this is fine, continue to next linter
+      if (isOxfmtNoFilesError) {
+        // oxfmt had nothing to do - this is fine, continue to next linter.
         continue
       }
 

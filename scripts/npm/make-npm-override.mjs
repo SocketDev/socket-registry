@@ -270,9 +270,8 @@ async function main() {
   let templateChoice
   const tsRefs = []
   if (isEsShim) {
-    const { default: maintainedNodeVersions } = await import(
-      '../constants/node.mjs'
-    )
+    const { default: maintainedNodeVersions } =
+      await import('../constants/node.mjs')
     const { PACKAGE_DEFAULT_NODE_RANGE } = await import('../constants/node.mjs')
     const parts = origPkgName
       .split(/[-.]/)

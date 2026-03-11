@@ -22,6 +22,7 @@ This is the canonical source for shared Socket standards. Other projects referen
 ## VERIFICATION PROTOCOL
 
 **MANDATORY**: Before claiming any task is complete:
+
 1. Test the solution end-to-end
 2. Verify all changes work as expected
 3. Run the actual commands to confirm functionality
@@ -47,6 +48,7 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 ### Emoji & Output Style
 
 **Terminal Symbols** (based on `@socketsecurity/lib/logger` LOG_SYMBOLS):
+
 - ✓ Success/checkmark - MUST be green (NOT ✅)
 - ✗ Error/failure - MUST be red (NOT ❌)
 - ⚠ Warning/caution - MUST be yellow (NOT ⚠️)
@@ -54,28 +56,31 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 - → Step/progress - MUST be cyan (NOT ➜ or ▶)
 
 **Color Requirements** (apply color to icon ONLY, not entire message):
+
 ```javascript
 import colors from 'yoctocolors-cjs'
-
-`${colors.green('✓')} ${msg}`   // Success
-`${colors.red('✗')} ${msg}`     // Error
-`${colors.yellow('⚠')} ${msg}`  // Warning
-`${colors.blue('ℹ')} ${msg}`    // Info
-`${colors.cyan('→')} ${msg}`    // Step/Progress
+;`${colors.green('✓')} ${msg}` // Success
+`${colors.red('✗')} ${msg}` // Error
+`${colors.yellow('⚠')} ${msg}` // Warning
+`${colors.blue('ℹ')} ${msg}` // Info
+`${colors.cyan('→')} ${msg}` // Step/Progress
 ```
 
 **Color Package**:
+
 - Use `yoctocolors-cjs` (NOT `yoctocolors` ESM package)
 - Pinned dev dependency in all Socket projects
 - CommonJS compatibility for scripts and tooling
 
 **Allowed Emojis** (use sparingly):
+
 - 📦 Packages
 - 💡 Ideas/tips
 - 🚀 Launch/deploy/excitement
 - 🎉 Major success/celebration
 
 **General Philosophy**:
+
 - Prefer colored text-based symbols (✓✗⚠ℹ→) for maximum terminal compatibility
 - Always color-code symbols: green=success, red=error, yellow=warning, blue=info, cyan=step
 - Use emojis sparingly for emphasis and delight
@@ -83,6 +88,7 @@ import colors from 'yoctocolors-cjs'
 - When in doubt, use plain text
 
 ### Cross-Platform (CRITICAL)
+
 - **MANDATORY**: Work on Windows + POSIX
 - **Paths**: Always `path.join()`, `path.resolve()`, `path.sep`
 - **Temp**: `os.tmpdir()` + `fs.mkdtemp()` for unique dirs
@@ -90,11 +96,13 @@ import colors from 'yoctocolors-cjs'
 - Never hard-code `/` or `\`
 
 ### Node.js Compatibility
+
 - **Minimum**: Node.js 18.0.0
 - **FORBIDDEN ES2023+**: `toReversed()`, `toSorted()`, `toSpliced()`, `with()`
 - **Use instead**: `slice().reverse()`, `slice().sort()`
 
 ### Backward Compatibility (CRITICAL)
+
 - **🚨 NO BACKWARD COMPATIBILITY**: FORBIDDEN to maintain it - we're our only consumers
 - **Active removal**: MUST remove existing backward compatibility code when encountered
 - **Breaking changes**: Inform about them, but NEVER add compat layers
@@ -110,6 +118,7 @@ import colors from 'yoctocolors-cjs'
   - ✅ Just delete unused code completely
 
 ### Safe File Operations (SECURITY CRITICAL)
+
 - **Use safeDelete**: Import from `@socketsecurity/lib/fs`
 - **Source code**: Use `safeDelete()` or `safeDeleteSync()` with error handling
 - **Scripts**: Use `safeDelete()` or `safeDeleteSync()` from `@socketsecurity/lib/fs`
@@ -124,6 +133,7 @@ import colors from 'yoctocolors-cjs'
 ### Work Safeguards (CRITICAL - PREVENTS DATA LOSS)
 
 **MANDATORY workflow before bulk changes**:
+
 ```
 1. Commit WIP     → git add . && git commit -m "WIP before changes"
 2. Create backup  → git checkout -b backup-before-<change>
@@ -135,6 +145,7 @@ If anything breaks:
 ```
 
 **FORBIDDEN**:
+
 - Automated fix scripts (sed, awk, regex bulk replacements)
 - Scripts that modify multiple files without backup
 - Any bulk operation without backup branch
@@ -142,10 +153,12 @@ If anything breaks:
 **WHY**: Prevents irreversible corruption, enables instant recovery
 
 ### Git Workflow
+
 - **Pre-commit**: `pnpm run fix && pnpm run check`
 - **--no-verify**: Safe for scripts/workflows/tests/docs; always run hooks for lib/packages
 - **Batch commits**: First with hooks, rest with `--no-verify` (after fix + check)
 - **Messages**: [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) style
+
   ```
   <type>(<scope>): <description>
 
@@ -156,15 +169,18 @@ If anything breaks:
     fix(parser): resolve memory leak in tokenizer
     chore(release): 1.2.3
   ```
+
 - **NO AI attribution** in commit messages
 
 ### Git SHA Management (CRITICAL)
+
 - **NEVER GUESS SHAs**: Use `git rev-parse HEAD` or `git rev-parse main`
 - **Format**: `@662bbcab1b7533e24ba8e3446cffd8a7e5f7617e # main` (full 40-char SHA)
 - **Why**: GitHub Actions require pinned full SHAs
 - **Update workflow refs**: 1) `cd repo && git rev-parse main`, 2) Use full SHA, 3) Verify with `git show <sha>`
 
 ### CI Testing Infrastructure
+
 - **MANDATORY**: Use `SocketDev/socket-registry/.github/workflows/ci.yml@<SHA>` with full commit SHA
 - **Reusable workflows**: Centralized lint/type-check/test/coverage
 - **Matrix testing**: Node.js 20/22/24, cross-platform
@@ -173,6 +189,7 @@ If anything breaks:
 ### Testing & Coverage
 
 #### Test Structure
+
 - **Directories**: `test/npm/` - NPM package tests, `test/registry/` - Registry tests
 - **Fixtures**: `test/fixtures/` - Test fixtures
 - **Utils**: `test/utils/` - Shared test utilities (see below)
@@ -183,12 +200,14 @@ If anything breaks:
 #### Test Helpers
 
 Test helpers available in `test/utils/`:
+
 - `setupNpmPackageTest()` - NPM package test boilerplate (npm-package-helper.mts)
 - `withTempDir/withTempFile/runWithTempDir()` - Temp file management (temp-file-helper.mts)
 - `itOnWindows/itOnUnix/normalizePath()` - Platform-specific tests (platform-test-helpers.mts)
 - `expectString/expectFrozen/expectHasProperties()` - Assertions (assertion-helpers.mts)
 
 #### Running Tests
+
 - **All tests**: `pnpm test`
 - **Specific file**: `pnpm test path/to/file.test.ts`
 - **🚨 NEVER USE `--` before test paths** - runs all tests
@@ -196,6 +215,7 @@ Test helpers available in `test/utils/`:
 - **NPM packages**: `node scripts/test-npm-packages.mjs` (long-running)
 
 ### Vitest Memory Optimization
+
 - **Pool**: `pool: 'forks'`, `singleFork: true`, `maxForks: 1`, `isolate: true`
 - **Timeouts**: `testTimeout: 60_000, hookTimeout: 60_000`
 - **Threads**: `singleThread: true, maxThreads: 1`
@@ -206,6 +226,7 @@ Test helpers available in `test/utils/`:
 Three configurations available for different use cases:
 
 **Main Config: `.config/vitest.config.mts`** (default)
+
 - Used by `pnpm test` and test scripts
 - Pool: threads (4 max) for speed
 - Timeout: 10s
@@ -213,6 +234,7 @@ Three configurations available for different use cases:
 - Use: Normal development and CI test runs
 
 **Isolated Config: `.config/vitest.config.isolated.mts`**
+
 - Full process isolation for module-level mocking
 - Pool: forks (8 max) for true isolation
 - Timeout: 10s
@@ -221,6 +243,7 @@ Three configurations available for different use cases:
 - Run: `vitest --config .config/vitest.config.isolated.mts`
 
 **Optimized Config: `.config/vitest.config.optimized.mts`**
+
 - Speed-optimized with lower thresholds
 - Pool: threads (unlimited parallel)
 - Timeout: 30s (longer for slower operations)
@@ -229,6 +252,7 @@ Three configurations available for different use cases:
 - Run: `vitest --config .config/vitest.config.optimized.mts`
 
 ### Package Management
+
 - **pnpm only** (not npm)
 - **Add deps**: `pnpm add <pkg> --save-exact` (exact versions, no `^`/`~`)
 - **Workspace**: Use `-w` flag for root
@@ -238,12 +262,14 @@ Three configurations available for different use cases:
 ### Dependency Management
 
 **Lockfile Updates** (🚨 MANDATORY):
+
 - **After updating `package.json` dependencies**: Run `pnpm install` to update `pnpm-lock.yaml`
 - **After version bumps**: Verify `pnpm-lock.yaml` is current
 - **Commit lockfile changes** with dependency updates
 - **Never manually edit** `pnpm-lock.yaml`
 
 **Common scenarios**:
+
 ```bash
 pnpm add <pkg>      # Auto-updates lockfile ✓
 pnpm remove <pkg>   # Auto-updates lockfile ✓
@@ -258,12 +284,14 @@ git status          # Check pnpm-lock.yaml changed
 ```
 
 **Why this matters**:
+
 - Ensures reproducible builds across environments
 - Prevents "works on my machine" issues
 - Required for security audits and dependency tracking
 - CI/CD relies on lockfile consistency
 
 ### Script Wrappers
+
 - **Pattern**: Wrap complex commands in `scripts/*.mts` files, not package.json directly
 - **Benefits**: Type safety, reusability, testability, better error handling
 - **Usage**: `"script-name": "node scripts/script-name.mts"`
@@ -275,6 +303,7 @@ git status          # Check pnpm-lock.yaml changed
 ### Documentation Standards
 
 **Location**:
+
 ```
 Standard repo:
   docs/                    # All documentation here
@@ -292,6 +321,7 @@ Monorepo:
 ```
 
 **Filename conventions**:
+
 ```
 ✓ lowercase-with-hyphens.md        # Descriptive names
 ✓ api-reference.md
@@ -307,12 +337,14 @@ Exception - Standard repo files (uppercase):
 ```
 
 **Writing style**:
+
 - **Pithy**: Critical information first, concise and meaningful
 - **Direct**: No marketing language, get to the point
 - **Visual**: Use ASCII diagrams, flowcharts, directory trees for complex concepts
 - **Scannable**: Code blocks, bullets, clear hierarchy
 
 **Examples of good visualizations**:
+
 ```
 Directory structure:
   src/
@@ -333,6 +365,7 @@ Decision tree:
 ### Package.json Scripts Convention
 
 **Prefer flags over separate scripts**:
+
 ```json
 // Good - Single script with flags
 "scripts": {
@@ -352,11 +385,13 @@ Decision tree:
 **Benefits**: Fewer scripts, clearer interface, easier maintenance
 
 **Exception**: Composite scripts that orchestrate multiple steps
+
 ```json
 "fix:build": "node scripts/fix-build.mjs"  // Runs multiple fix scripts in sequence
 ```
 
 ### Code Style - File Organization
+
 - **Extensions**: `.js` (JSDoc), `.mjs` (ES modules), `.mts` (TypeScript modules)
 - **Naming**: kebab-case filenames
 - **Module headers**: MANDATORY `@fileoverview` as first content
@@ -365,6 +400,7 @@ Decision tree:
 - **fs imports**: `import { syncMethod, promises as fs } from 'node:fs'`
 
 ### Code Style - Patterns
+
 - **Constants**: `UPPER_SNAKE_CASE`
 - **Avoid `null`**: Use `undefined` instead of `null` throughout codebase
   - Default parameters: `function foo(bar = undefined)` or just `function foo(bar)`
@@ -373,7 +409,7 @@ Decision tree:
   - Optional properties: Use `?:` syntax, not `| null`
   - Exception: `__proto__: null` for prototype-less objects (required pattern)
   - Exception: External APIs that explicitly require `null`
-- **__proto__**: MANDATORY - Always first in literals: `{ __proto__: null, ...opts }`
+- \***\*proto\*\***: MANDATORY - Always first in literals: `{ __proto__: null, ...opts }`
 - **Null-prototype objects**: Use `Object.create(null)` for empty objects only; `{ __proto__: null, key: val }` when properties exist
 - **Options pattern**: MANDATORY `const opts = { __proto__: null, ...options } as SomeOptions`
 - **Array destructuring**: Use `{ 0: key, 1: val }` for `Object.entries()` loops (V8 performance)
@@ -385,6 +421,7 @@ Decision tree:
 - **Semicolons**: Omit (except SDK which uses them)
 
 ### Code Style - Functions
+
 - **Order**: Alphabetical; private first, then exported
 - **Await in loops**: Add `// eslint-disable-next-line no-await-in-loop` when intentional
 - **Process spawning**: Use `@socketsecurity/registry/lib/spawn` not `child_process.spawn`
@@ -392,6 +429,7 @@ Decision tree:
   - `shell: WIN32` is the correct cross-platform pattern (enables shell on Windows, disables on Unix)
   - If spawn fails with ENOENT, the issue is NOT the shell parameter
   - Fix by properly separating command and arguments instead:
+
     ```javascript
     // WRONG - passing full command as string
     spawn('python3 -m module arg1 arg2', [], { shell: WIN32 })
@@ -399,12 +437,15 @@ Decision tree:
     // CORRECT - separate command and args
     spawn('python3', ['-m', 'module', 'arg1', 'arg2'], { shell: WIN32 })
     ```
+
   - This pattern is canonical across all Socket Security codebases
+
 - **Working directory**: 🚨 NEVER use `process.chdir()` - use `{ cwd }` options and absolute paths instead
   - Breaks tests, worker threads, and causes race conditions
   - Always pass `{ cwd: absolutePath }` to spawn/exec/fs operations
 
 ### Code Style - Comments
+
 - **Style**: Single-line (`//`) over multiline
 - **Periods**: MANDATORY - All comments end with periods (except directives/URLs)
 - **Placement**: Own line above code
@@ -412,11 +453,13 @@ Decision tree:
 - **Examples**: `// This validates input.` (correct) | `// this validates` (incorrect)
 
 ### Code Style - Sorting
+
 - **MANDATORY**: Sort lists, exports, object properties, destructuring alphabetically
 - **Type properties**: Required first, then optional; alphabetical within groups
 - **Class members**: 1) Private properties, 2) Private methods, 3) Public methods (all alphabetical)
 
 ### Error Handling
+
 - **Catch**: `catch (e)` not `catch (error)`
 - **Messages**: Double quotes, descriptive, actionable, NO periods at end
 - **Patterns**:
@@ -428,31 +471,36 @@ Decision tree:
 - **JSDoc**: `@throws {ErrorType} When condition.`
 
 ### Changelog Management
+
 - **Format**: `## [version](https://github.com/SocketDev/socket-registry/releases/tag/vversion) - YYYY-MM-DD`
 - **Follow**: [Keep a Changelog](https://keepachangelog.com/) format
 - **Sections**: Added, Changed, Fixed, Removed
 - **Focus**: User-facing changes only (no internal refactoring/deps/CI)
 
 ### GitHub Actions
+
 - **MANDATORY**: All actions reference commit SHAs not tags: `uses: owner/repo@sha # vX.Y.Z`
 - **Reusable workflows**: Create in socket-registry, reference from other projects
 - **Standard SHAs**: actions/checkout@v5, pnpm/action-setup@v4, actions/setup-node@v5, actions/upload-artifact@v4
 
 ### Dependency Alignment (MANDATORY)
+
 - **Core deps**: @typescript/native-preview (tsgo), @types/node, typescript-eslint (unified only)
-- **DevDeps**: @biomejs/biome, @dotenvx/dotenvx, @vitest/coverage-v8, del-cli, eslint, eslint-plugin-*, globals, husky, knip, lint-staged, npm-run-all2, taze, type-coverage, vitest, yargs-parser, yoctocolors-cjs
-- **FORBIDDEN**: Separate @typescript-eslint/* packages; use unified `typescript-eslint`
+- **DevDeps**: @biomejs/biome, @dotenvx/dotenvx, @vitest/coverage-v8, del-cli, eslint, eslint-plugin-\*, globals, husky, knip, lint-staged, npm-run-all2, taze, type-coverage, vitest, yargs-parser, yoctocolors-cjs
+- **FORBIDDEN**: Separate @typescript-eslint/\* packages; use unified `typescript-eslint`
 - **TSGO PRESERVATION**: Never replace tsgo with tsc
 - **Update**: Use `pnpm run taze` to check/apply updates across all Socket projects
 
 ### Recurring Patterns
-1. **__proto__ ordering**: Always first in object literals
+
+1. \***\*proto** ordering\*\*: Always first in object literals
 2. **Options parameter**: `{ __proto__: null, ...options } as SomeOptions`
 3. **Reflect.apply**: `const { apply } = Reflect` + `apply(fn, thisArg, [])`
 4. **Import separation**: Type imports separate from runtime
 5. **Node.js imports**: Always `node:` prefix
 
 ### Scratch Documents
+
 - **Location**: `.claude/` (gitignored)
 - **Purpose**: Working notes, analysis, planning
 - **CRITICAL**: Never commit
@@ -462,26 +510,31 @@ Decision tree:
 ## REGISTRY-SPECIFIC
 
 ### Architecture
+
 - **Registry lib**: `/registry/lib/` - Core production code
 - **Scripts**: `/scripts/` - Dev/build scripts
 - **Tests**: `/test/` - Test files/fixtures
 - **Overrides**: `/packages/npm/` - NPM package overrides
 
 ### Performance
+
 - Optimize for speed without sacrificing correctness (serves Socket security infrastructure)
 - Benchmark performance-sensitive changes
 - Avoid unnecessary allocations in hot paths
 
 ### Package Manager Agent
+
 - `registry/lib/agent.js`: npm/pnpm/yarn (Windows + Unix)
 - Functions: `execNpm`, `execPnpm`, `execYarn`
 
 ### Commands
+
 - **Dev**: `pnpm run build`, `pnpm run test`, `pnpm run check`, `pnpm run fix`
 - **Registry**: `pnpm run update`, `pnpm run make-npm-override`, `pnpm run release-npm`
 - **Test npm packages**: `node scripts/test-npm-packages.mjs` (long-running, tests all overrides)
 
 ### Build System
+
 - esbuild for fast compilation (registry)
 - TypeScript → CommonJS (unminified for better Node ESM interop)
 - Post-build transform: Converts esbuild wrappers to clear `module.exports = { ... }` for Node ESM named imports
