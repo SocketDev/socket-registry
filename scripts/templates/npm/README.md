@@ -6,16 +6,17 @@
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 [![Follow @socket.dev on Bluesky](https://img.shields.io/badge/Follow-@socket.dev-1DA1F2?style=social&logo=bluesky)](https://bsky.app/profile/socket.dev)
 
-><%~ it.adjectivesText %>
-<% if (Object.keys(it.dependencies).length) { %> low <% } else { %> zero <% } %>
-dependency <% if (it.interop?.includes('esm')) { %> CJS/ESM compatible <% } %>
-drop-in replacement of <% if (it.deprecated) { %> the deprecated <% } %>[`<%= it.originalName %>`](https://socket.dev/npm/package/<%= it.originalName %>)<% if (it.deprecated) { %> package <% } %> complete with TypeScript types.
+> <%~ it.adjectivesText %>
+> <% if (Object.keys(it.dependencies).length) { %> low <% } else { %> zero <% } %>
+> dependency <% if (it.interop?.includes('esm')) { %> CJS/ESM compatible <% } %>
+> drop-in replacement of <% if (it.deprecated) { %> the deprecated <% } %>[`<%= it.originalName %>`](https://socket.dev/npm/package/<%= it.originalName %>)<% if (it.deprecated) { %> package <% } %> complete with TypeScript types.
 
 <% if (it.categories.includes('levelup')) { %>
+
 ### Enhancements
 
-  - TODO: List enhancements
-<% } %>
+- TODO: List enhancements
+  <% } %>
 
 ## Installation
 

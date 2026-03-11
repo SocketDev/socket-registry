@@ -1,7 +1,7 @@
 import Impl from './implementation'
 // TODO: Rename type.
 declare const {
-  x: RenameProtoMethod
+  x: RenameProtoMethod,
 }: {
   x: typeof Impl & {
     getPolyfill(): typeof Impl

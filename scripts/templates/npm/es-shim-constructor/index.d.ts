@@ -1,7 +1,7 @@
 import Impl from './implementation'
 // TODO: Rename type.
 declare const {
-  x: RenameCtor
+  x: RenameCtor,
 }: {
   x: typeof Impl & {
     getPolyfill(): typeof Impl

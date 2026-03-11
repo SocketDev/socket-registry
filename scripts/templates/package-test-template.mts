@@ -28,7 +28,10 @@ describe(
     let pkgExport: any
 
     beforeAll(async () => {
-      const result = await installPackageForTesting(NPM_PACKAGES_PATH, sockRegPkgName)
+      const result = await installPackageForTesting(
+        NPM_PACKAGES_PATH,
+        sockRegPkgName,
+      )
       if (!result.installed) {
         throw new Error(`Failed to install package: ${result.reason}`)
       }

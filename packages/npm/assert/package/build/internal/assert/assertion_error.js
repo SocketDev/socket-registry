@@ -7,11 +7,11 @@ function ownKeys(e, r) {
   const t = Object.keys(e)
   if (Object.getOwnPropertySymbols) {
     let o = Object.getOwnPropertySymbols(e)
-    r &&
+    ;(r &&
       (o = o.filter(function (r) {
         return Object.getOwnPropertyDescriptor(e, r).enumerable
       })),
-      t.push.apply(t, o)
+      t.push.apply(t, o))
   }
   return t
 }
