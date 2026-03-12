@@ -29,6 +29,11 @@ permissions:
   contents: write
   id-token: write
 
+env:
+  # Opt-in to Node.js 24 for GitHub Actions to avoid deprecation warnings.
+  # See: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   publish:
     uses: SocketDev/socket-registry/.github/workflows/provenance.yml@d83e76d998a5b13e7e844273898ccee35bb991c4 # main
