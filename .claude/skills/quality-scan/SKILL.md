@@ -112,6 +112,61 @@ pnpm run update
 
 ---
 
+### Phase 2b: Install External Tools (zizmor)
+
+<action>
+Install zizmor for GitHub Actions security scanning using version that meets repository's minimumReleaseAge policy.
+</action>
+
+<version_selection>
+Determine the appropriate zizmor version dynamically:
+
+1. **Read minimumReleaseAge from `.pnpmrc`**:
+   ```bash
+   grep 'minimumReleaseAge' .pnpmrc | cut -d'=' -f2
+   ```
+   This returns minutes (e.g., `10080` = 7 days). Default to 10080 if not found.
+
+2. **Query zizmor releases** (using curl or gh):
+   ```bash
+   # Option A: curl (universally available)
+   curl -s "https://api.github.com/repos/zizmorcore/zizmor/releases" | \
+     jq '[.[] | select(.prerelease == false) | {tag: .tag_name, date: .published_at}] | .[0:10]'
+
+   # Option B: gh (if available)
+   gh api repos/zizmorcore/zizmor/releases --jq \
+     '[.[] | select(.prerelease == false) | {tag: .tag_name, date: .published_at}] | .[0:10]'
+   ```
+
+3. **Calculate age and select version**:
+   - Convert minimumReleaseAge from minutes to days: `minutes / 1440`
+   - Find latest stable release older than that threshold
+   - Example: If minimumReleaseAge=10080 (7 days) and today is March 24, select releases from March 17 or earlier
+
+4. **Install selected version** (choose based on available tools):
+   ```bash
+   # macOS with Homebrew (latest only, version pinning limited)
+   brew install zizmor
+
+   # Python environments (version pinning supported)
+   pipx install zizmor==VERSION
+   uv tool install zizmor==VERSION
+   uvx zizmor@VERSION --help
+   ```
+
+   **Recommended priority**: pipx/uvx > brew
+</version_selection>
+
+<rationale>
+Using minimumReleaseAge prevents supply chain attacks from compromised new releases. The 7-day window allows community detection of malicious packages before adoption.
+</rationale>
+
+<fallback>
+If no release meets the age requirement, warn the user and skip zizmor scan. Never install a release younger than minimumReleaseAge.
+</fallback>
+
+---
+
 ### Phase 3: Repository Cleanup
 
 <action>
