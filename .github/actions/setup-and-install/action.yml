@@ -5,7 +5,7 @@ description: 'Checkout code, setup environment, and install dependencies'
 #   - actions/checkout@v6.0.2
 #   - SocketDev/socket-registry/.github/actions/setup
 #     - SocketDev/socket-registry/.github/actions/debug
-#     - pnpm/action-setup@v4.4.0
+#     - pnpm/action-setup@v5.0.0
 #     - actions/setup-node@v5.0.0
 #   - SocketDev/socket-registry/.github/actions/install
 
