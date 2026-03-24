@@ -10,6 +10,7 @@ import MagicString from 'magic-string'
 import type { Plugin } from 'vite'
 
 import { getDistDir, srcToDistPath } from './transform-utils.mts'
+import process from 'node:process'
 
 // Handle both ESM and CJS exports from @babel/traverse
 const traverse =

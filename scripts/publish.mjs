@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { spawn } from '@socketsecurity/lib/spawn'
+import process from 'node:process'
 
 const logger = getDefaultLogger()
 

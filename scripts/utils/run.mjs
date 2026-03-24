@@ -2,6 +2,7 @@
 
 import { spawn, spawnSync } from 'node:child_process'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import process from 'node:process'
 
 const logger = getDefaultLogger()
 const WIN32 = process.platform === 'win32'

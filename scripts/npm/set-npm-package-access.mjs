@@ -19,6 +19,7 @@ import {
 } from '../constants/paths.mjs'
 import { getNpmPackageNames } from '../constants/testing.mjs'
 import { extractNpmError } from '../utils/errors.mjs'
+import process from 'node:process'
 
 const { values: cliArgs } = parseArgs({
   options: {

@@ -1,5 +1,6 @@
 // Import CommonJS module using createRequire.
 import { createRequire } from 'module'
+import process from 'node:process'
 const require = createRequire(import.meta.url)
 const debugModule = require('@socketsecurity/lib/debug')
 const { debug, debugDir, debugLog, debugNs, debuglog, debugtime, isDebug } =

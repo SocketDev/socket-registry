@@ -109,6 +109,7 @@ import {
 } from '../utils/package.mjs'
 import { runCommandQuietStrict } from '../utils/run-command.mjs'
 import { suppressMaxListenersWarning } from '../utils/suppress-warnings.mjs'
+import process from 'node:process'
 
 // Default concurrency values based on environment and platform.
 const DEFAULT_CI_CONCURRENCY_WIN32 = '5'

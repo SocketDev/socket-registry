@@ -8,6 +8,7 @@ import { resolveRefToSha } from '@socketsecurity/lib/github'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 
 import { ROOT_PATH } from '../constants/paths.mjs'
+import process from 'node:process'
 
 const logger = getDefaultLogger()
 

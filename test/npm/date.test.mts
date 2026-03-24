@@ -1,5 +1,6 @@
 /** @fileoverview Tests for @socketregistry/date npm package override. */
 import { describe, expect, it } from 'vitest'
+import process from 'node:process'
 
 const DateImpl = require('../../packages/npm/date/Date')
 const dateAuto = require('../../packages/npm/date/auto')

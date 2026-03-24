@@ -17,6 +17,7 @@ import { spawn } from '@socketsecurity/lib/spawn'
 import { printHeader } from '@socketsecurity/lib/stdio/header'
 
 import { runCommandQuiet } from './utils/run-command.mjs'
+import process from 'node:process'
 
 const logger = getDefaultLogger()
 

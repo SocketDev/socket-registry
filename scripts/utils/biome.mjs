@@ -4,6 +4,7 @@
  */
 
 import { spawnSync } from '@socketsecurity/lib/spawn'
+import process from 'node:process'
 
 /**
  * Format content using Biome.

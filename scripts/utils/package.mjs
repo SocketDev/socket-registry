@@ -19,6 +19,7 @@ import { testRunners } from '../../test/utils/test-runners.mjs'
 import { DEFAULT_CONCURRENCY } from '../constants/core.mjs'
 import { ROOT_PATH } from '../constants/paths.mjs'
 import { spawn } from './spawn.mjs'
+import process from 'node:process'
 
 // Shared pnpm flags to make it behave like npm with hoisting.
 const PNPM_NPM_LIKE_FLAGS = [

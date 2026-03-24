@@ -10,6 +10,7 @@ import colors from 'yoctocolors-cjs'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 
 import { runCommand } from './utils/run-command.mjs'
+import process from 'node:process'
 
 const logger = getDefaultLogger()
 

@@ -7,6 +7,7 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 
 import spawnModule from '@socketsecurity/lib/spawn'
+import process from 'node:process'
 
 const { spawn } = spawnModule
 

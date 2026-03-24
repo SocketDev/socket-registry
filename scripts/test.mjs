@@ -15,6 +15,7 @@ import { getDefaultSpinner } from '@socketsecurity/lib/spinner'
 import { printHeader } from '@socketsecurity/lib/stdio/header'
 
 import { getTestsToRun } from './utils/changed-test-mapper.mjs'
+import process from 'node:process'
 
 const logger = getDefaultLogger()
 const spinner = getDefaultSpinner()

@@ -12,6 +12,7 @@ import {
 } from '@socketsecurity/lib/git'
 import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import process from 'node:process'
 
 const logger = getDefaultLogger()
 const rootPath = path.resolve(process.cwd())

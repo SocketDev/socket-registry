@@ -17,6 +17,7 @@ import {
 } from '@socketsecurity/lib/packages'
 import { pEach } from '@socketsecurity/lib/promises'
 import { pluralize } from '@socketsecurity/lib/words'
+import process from 'node:process'
 
 const logger = getDefaultLogger()
 

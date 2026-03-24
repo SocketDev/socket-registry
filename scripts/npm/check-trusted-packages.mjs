@@ -11,6 +11,7 @@ import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { COLUMN_LIMIT } from '@socketsecurity/lib/constants/core'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { spawn } from '@socketsecurity/lib/spawn'
+import process from 'node:process'
 
 const logger = getDefaultLogger()
 

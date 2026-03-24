@@ -7,6 +7,7 @@
  */
 
 import { parseArgs as nodeParseArgs } from 'node:util'
+import process from 'node:process'
 
 /**
  * Parse command-line arguments using Node.js built-in parseArgs.

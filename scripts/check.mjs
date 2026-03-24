@@ -20,6 +20,7 @@ import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { printFooter, printHeader } from '@socketsecurity/lib/stdio/header'
 
 import { runCommand, runParallel } from './utils/run-command.mjs'
+import process from 'node:process'
 
 const logger = getDefaultLogger()
 

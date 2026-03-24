@@ -11,6 +11,7 @@ import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { createSectionHeader } from '@socketsecurity/lib/stdio/header'
 import { deleteAsync } from 'del'
 import fastGlob from 'fast-glob'
+import process from 'node:process'
 
 const logger = getDefaultLogger()
 

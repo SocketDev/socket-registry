@@ -7,6 +7,7 @@ import { readJson } from '@socketsecurity/lib/fs'
 import { isObjectObject } from '@socketsecurity/lib/objects'
 
 import { spawn } from './spawn.mjs'
+import process from 'node:process'
 
 /**
  * Count how many items in array are covered (greater than 0).

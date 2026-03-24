@@ -4,6 +4,7 @@ import { defineConfig } from 'vitest/config'
 
 import { createImportTransformPlugin } from './vitest-plugins/import-transform.mts'
 import { createRequireTransformPlugin } from './vitest-plugins/require-transform.mts'
+import process from 'node:process'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(__dirname, '..')

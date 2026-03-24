@@ -4,6 +4,7 @@
  */
 
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import process from 'node:process'
 
 let _cliArgs
 

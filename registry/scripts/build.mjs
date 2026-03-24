@@ -20,6 +20,7 @@ import {
 } from '../.config/esbuild.config.mjs'
 import { parseArgs } from '../../scripts/utils/parse-args.mjs'
 import { runSequence } from '../../scripts/utils/run-command.mjs'
+import process from 'node:process'
 
 const logger = getDefaultLogger()
 

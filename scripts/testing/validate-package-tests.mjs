@@ -15,6 +15,7 @@ const { spawn } = spawnModule
 const { pEach } = promisesModule
 
 import { deleteAsync as del } from 'del'
+import process from 'node:process'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PACKAGES_DIR = path.join(__dirname, '..', '..', 'packages', 'npm')

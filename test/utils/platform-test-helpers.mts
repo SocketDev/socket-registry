@@ -6,6 +6,7 @@
 import path from 'node:path'
 
 import { describe, it } from 'vitest'
+import process from 'node:process'
 
 /**
  * Platform detection utilities.

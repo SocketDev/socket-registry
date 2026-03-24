@@ -1,3 +1,4 @@
+import process from 'node:process'
 /**
  * @fileoverview Simplified flag utilities for build scripts.
  *

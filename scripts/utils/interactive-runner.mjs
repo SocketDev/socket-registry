@@ -4,6 +4,7 @@
  */
 
 import { runWithMask } from '@socketsecurity/lib/stdio/mask'
+import process from 'node:process'
 
 /**
  * Run a command with interactive output control.

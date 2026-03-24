@@ -14,6 +14,7 @@ import { isQuiet, isVerbose } from '@socketsecurity/lib/argv/flags'
 import { WIN32 } from '@socketsecurity/lib/constants/platform'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { spawn } from '@socketsecurity/lib/spawn'
+import process from 'node:process'
 
 async function main() {
   const quiet = isQuiet()

@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 
 import { runValidationScript } from '../utils/validation-runner.mjs'
+import process from 'node:process'
 
 const logger = getDefaultLogger()
 

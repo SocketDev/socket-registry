@@ -4,6 +4,7 @@
  */
 
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import process from 'node:process'
 
 /**
  * Run a validation function and handle success/failure reporting.

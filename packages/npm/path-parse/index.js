@@ -1,5 +1,6 @@
 'use strict'
 
+const process = require('node:process')
 const {
   posix: { parse: PathPosixParse },
   win32: { parse: PathWin32Parse },

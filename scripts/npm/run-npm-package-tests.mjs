@@ -27,6 +27,7 @@ import {
   runCommand,
 } from '../utils/package.mjs'
 import { suppressMaxListenersWarning } from '../utils/suppress-warnings.mjs'
+import process from 'node:process'
 
 const { values: cliArgs } = parseArgs({
   options: {

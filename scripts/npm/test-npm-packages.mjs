@@ -12,6 +12,7 @@ const logger = getDefaultLogger()
 
 import { logSectionHeader } from '../utils/logging.mjs'
 import { runCommandStrict } from '../utils/run-command.mjs'
+import process from 'node:process'
 
 const { values: cliArgs } = parseArgs({
   options: {

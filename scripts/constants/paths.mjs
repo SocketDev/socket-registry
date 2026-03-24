@@ -7,6 +7,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { getTsxExecPath } from './utils.mjs'
+import process from 'node:process'
 
 /**
  * Normalize path separators for cross-platform compatibility.

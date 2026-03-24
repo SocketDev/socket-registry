@@ -3,6 +3,7 @@
 import { spawn, spawnSync } from '@socketsecurity/lib/spawn'
 
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import process from 'node:process'
 
 const logger = getDefaultLogger()
 

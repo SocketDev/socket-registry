@@ -8,6 +8,7 @@ import parseArgsModule from '@socketsecurity/lib/argv/parse'
 import loggerModule from '@socketsecurity/lib/logger'
 import spawnModule from '@socketsecurity/lib/spawn'
 import { deleteAsync as del } from 'del'
+import process from 'node:process'
 
 const { parseArgs } = parseArgsModule
 const { logger } = loggerModule

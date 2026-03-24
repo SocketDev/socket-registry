@@ -34,6 +34,7 @@ import {
   getNpmPackageNames,
 } from '../scripts/constants/testing.mjs'
 import { getIgnoreGlobs } from '../scripts/constants/utils.mjs'
+import process from 'node:process'
 
 const LICENSE_GLOB =
   '**/+(LICENSE|LICENCE|LICENSE.original|LICENSE.*.original)*'

@@ -5,6 +5,7 @@ import { get as httpGet } from 'node:http'
 import { get as httpsGet } from 'node:https'
 import parseArgsModule from '@socketsecurity/lib/argv/parse'
 import loggerModule from '@socketsecurity/lib/logger'
+import process from 'node:process'
 
 const { parseArgs } = parseArgsModule
 const { logger } = loggerModule
