@@ -214,6 +214,16 @@ Test helpers available in `test/utils/`:
 - **Coverage**: `pnpm run cover`
 - **NPM packages**: `node scripts/test-npm-packages.mjs` (long-running)
 
+### Test Style — Functional Over Source Scanning
+
+**NEVER write source-code-scanning tests**
+
+Do not read source files and assert on their contents (`.toContain('pattern')`). These tests are brittle and break on any refactor.
+
+- Write functional tests that verify **behavior**, not string patterns
+- For modules requiring a built binary: use integration tests
+- For pure logic: use unit tests with real function calls
+
 ### Vitest Memory Optimization
 
 - **Pool**: `pool: 'forks'`, `singleFork: true`, `maxForks: 1`, `isolate: true`
