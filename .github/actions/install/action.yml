@@ -2,6 +2,10 @@ name: 'Install'
 description: 'Install dependencies with Socket CLI'
 
 inputs:
+  frozen-lockfile:
+    description: 'Pass --frozen-lockfile to pnpm install'
+    required: false
+    default: 'false'
   working-directory:
     description: 'Working directory'
     required: false
@@ -17,4 +21,4 @@ runs:
     - name: Install dependencies
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: pnpm install
+      run: pnpm install ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
