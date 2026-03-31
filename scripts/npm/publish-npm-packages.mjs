@@ -196,20 +196,16 @@ async function getCurrentBranch() {
  * Create package metadata with defaults.
  */
 function packageData(data) {
-  const { isTokenPublisher = false, printName = data.name, tag = LATEST } = data
-  return Object.assign(data, { isTokenPublisher, printName, tag })
+  const { printName = data.name, tag = LATEST } = data
+  return Object.assign(data, { printName, tag })
 }
 
 /**
- * Publish package using npm with token authentication.
+ * Publish package using npm with OIDC trusted publishing.
  * @throws {TypeError} When state parameter is not an object.
  */
 async function publish(pkg, state, options) {
-  if (pkg.isTokenPublisher) {
-    await publishToken(pkg, state, options)
-  } else {
-    await publishTrusted(pkg, state, options)
-  }
+  await publishTrusted(pkg, state, options)
 }
 
 /**
@@ -385,85 +381,6 @@ async function publishPackages(packages, state, options) {
     },
     { concurrency: 3 },
   )
-}
-
-/**
- * Publish package using pnpm with token authentication.
- * @throws {TypeError} When state parameter is not an object.
- */
-async function publishToken(pkg, state, options) {
-  const { maxRetries = 3, retryDelay = 1000 } = { __proto__: null, ...options }
-  if (!isObjectObject(state)) {
-    throw new TypeError('A state object is required')
-  }
-
-  // Retry flow:
-  // 1. Attempt publish with pnpm using NODE_AUTH_TOKEN.
-  // 2. On success, exit immediately.
-  // 3. On error, check if package already exists (cannot publish over) - if so, exit.
-  // 4. On other errors, retry with exponential backoff: 1s, 2s, 4s delays.
-  // 5. After maxRetries exhausted, add to fails list and log final error.
-  let lastError
-  for (let attempt = 0; attempt < maxRetries; attempt += 1) {
-    try {
-      if (attempt > 0) {
-        const delay = retryDelay * 2 ** (attempt - 1)
-        logger.log(
-          `${pkg.printName}: Retry attempt ${attempt + 1}/${maxRetries} after ${delay}ms`,
-        )
-
-        await new Promise(resolve => setTimeout(resolve, delay))
-      }
-
-      // Use pnpm with token-based authentication and provenance.
-
-      const result = await spawn(
-        'pnpm',
-        [
-          'publish',
-          '--provenance',
-          '--access',
-          'public',
-          '--no-git-checks',
-          '--tag',
-          pkg.tag,
-        ],
-        {
-          cwd: pkg.path,
-          env: {
-            ...process.env,
-            NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN,
-          },
-          shell: WIN32,
-        },
-      )
-      if (result.stdout) {
-        logger.log(result.stdout)
-      }
-      // Success - exit retry loop.
-      return
-    } catch (e) {
-      lastError = e
-      const stderr = e?.stderr ?? ''
-      // Don't retry if package already exists.
-      if (stderr.includes('cannot publish over')) {
-        return
-      }
-      // Log the error but continue retrying.
-      if (stderr && attempt < maxRetries - 1) {
-        logger.warn(`${pkg.printName}: Publish attempt ${attempt + 1} failed`)
-      }
-    }
-  }
-
-  // All retries exhausted.
-  state.fails.push(pkg.printName)
-  const stderr = lastError?.stderr ?? ''
-  if (stderr) {
-    logger.log('')
-    logger.log(extractNpmError(stderr))
-    logger.log('')
-  }
 }
 
 /**

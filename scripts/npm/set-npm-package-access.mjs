@@ -19,7 +19,6 @@ import {
 } from '../constants/paths.mjs'
 import { getNpmPackageNames } from '../constants/testing.mjs'
 import { extractNpmError } from '../utils/errors.mjs'
-import process from 'node:process'
 
 const { values: cliArgs } = parseArgs({
   options: {
@@ -90,10 +89,6 @@ async function main() {
           const stdout = (
             await execNpm(['access', 'set', 'mfa=automation', pkg.name], {
               cwd: pkg.path,
-              env: {
-                ...process.env,
-                NODE_AUTH_TOKEN: ENV.NODE_AUTH_TOKEN,
-              },
             })
           ).stdout
           logger.log(stdout)

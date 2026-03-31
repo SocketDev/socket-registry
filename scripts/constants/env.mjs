@@ -21,7 +21,6 @@ export function getEnv() {
   return Object.freeze({
     __proto__: null,
     CI: envAsBoolean(env.CI),
-    NODE_AUTH_TOKEN: env.NODE_AUTH_TOKEN,
     NODE_ENV: env.NODE_ENV,
     VERBOSE_BUILD: envAsBoolean(env.VERBOSE_BUILD),
   })
