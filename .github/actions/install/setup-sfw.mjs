@@ -34,7 +34,7 @@ const platformKey = `${process.platform}-${process.arch}`
 const assetName = PLATFORM_MAP[platformKey]
 
 if (!assetName) {
-  process.stderr.write(`Unsupported platform/arch: ${platformKey}\n`)
+  process.stderr.write(`Unsupported platform/arch: ${platformKey}`)
   process.exitCode = 1
   throw new Error(`unsupported platform "${platformKey}"`)
 }
@@ -136,7 +136,7 @@ function verifySha256(filePath, expectedDigest) {
 
 async function main() {
   // Fetch release metadata to get the download URL and digest for this platform.
-  process.stdout.write(`Fetching sfw-free release metadata\n`)
+  console.log(`Fetching sfw-free release metadata`)
   const release = await fetchJson(
     'https://api.github.com/repos/SocketDev/sfw-free/releases/latest',
     { 'User-Agent': 'setup-sfw', Accept: 'application/vnd.github+json' },
@@ -164,12 +164,12 @@ async function main() {
     ? path.join(shimDir, 'sfw.exe')
     : path.join(shimDir, 'sfw')
 
-  process.stdout.write(`Downloading ${assetName} from ${downloadUrl}\n`)
+  console.log(`Downloading ${assetName} from ${downloadUrl}`)
   await download(downloadUrl, sfwBin)
 
-  process.stdout.write(`Verifying SHA256 digest\n`)
+  console.log(`Verifying SHA256 digest`)
   verifySha256(sfwBin, digest)
-  process.stdout.write(`SHA256 verified\n`)
+  console.log(`SHA256 verified`)
 
   if (!WIN32) {
     fs.chmodSync(sfwBin, 0o755)
@@ -210,7 +210,7 @@ async function main() {
   const githubPath = process.env['GITHUB_PATH']
   if (githubPath) {
     fs.appendFileSync(githubPath, `${shimDir}\n`, 'utf8')
-    process.stdout.write(`Added ${shimDir} to GITHUB_PATH\n`)
+    console.log(`Added ${shimDir} to GITHUB_PATH`)
   } else {
     // Outside of GitHub Actions — warn but don't fail.
     process.stderr.write(
@@ -226,10 +226,10 @@ async function main() {
     throw new Error(`pnpm shim not found at ${shimFile}`)
   }
 
-  process.stdout.write(`sfw pnpm shim ready at ${shimDir}\n`)
+  console.log(`sfw pnpm shim ready at ${shimDir}`)
 }
 
 main().catch(e => {
-  process.stderr.write(`setup-sfw failed: ${e.message}\n`)
+  process.stderr.write(`setup-sfw failed: ${e.message}`)
   process.exitCode = 1
 })
