@@ -140,9 +140,10 @@ function filterLintableFiles(files) {
  * @returns {boolean}
  */
 function isOxfmtNoFilesResult(result) {
+  const { stderr } = result
   return (
-    result.stderr?.includes('Expected at least one target file') ||
-    result.stderr?.includes('No files were processed in the specified paths')
+    stderr?.includes('Expected at least one target file') ||
+    stderr?.includes('No files were processed in the specified paths')
   )
 }
 
