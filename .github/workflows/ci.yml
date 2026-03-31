@@ -130,13 +130,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.lint-timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@dd7ea0c4fe523792f75c4002b20e2e5c2e14c066 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@e2289f7caae8f9cbfa1778984066449347bcd5f1 # main
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.lint-node-version }}
           working-directory: ${{ inputs.working-directory }}
 
-      - uses: SocketDev/socket-registry/.github/actions/run-script@dd7ea0c4fe523792f75c4002b20e2e5c2e14c066 # main
+      - uses: SocketDev/socket-registry/.github/actions/run-script@e2289f7caae8f9cbfa1778984066449347bcd5f1 # main
         with:
           main-script: ${{ inputs.lint-script }}
           setup-script: ${{ inputs.lint-setup-script }}
@@ -148,13 +148,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.type-check-timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@dd7ea0c4fe523792f75c4002b20e2e5c2e14c066 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@e2289f7caae8f9cbfa1778984066449347bcd5f1 # main
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.type-check-node-version }}
           working-directory: ${{ inputs.working-directory }}
 
-      - uses: SocketDev/socket-registry/.github/actions/run-script@dd7ea0c4fe523792f75c4002b20e2e5c2e14c066 # main
+      - uses: SocketDev/socket-registry/.github/actions/run-script@e2289f7caae8f9cbfa1778984066449347bcd5f1 # main
         with:
           main-script: ${{ inputs.type-check-script }}
           setup-script: ${{ inputs.type-check-setup-script }}
@@ -172,13 +172,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: ${{ inputs.test-timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@dd7ea0c4fe523792f75c4002b20e2e5c2e14c066 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@e2289f7caae8f9cbfa1778984066449347bcd5f1 # main
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ matrix.node-version }}
           working-directory: ${{ inputs.working-directory }}
 
-      - uses: SocketDev/socket-registry/.github/actions/run-script@dd7ea0c4fe523792f75c4002b20e2e5c2e14c066 # main
+      - uses: SocketDev/socket-registry/.github/actions/run-script@e2289f7caae8f9cbfa1778984066449347bcd5f1 # main
         with:
           main-script: ${{ inputs.test-script }}
           setup-script: ${{ inputs.test-setup-script }}

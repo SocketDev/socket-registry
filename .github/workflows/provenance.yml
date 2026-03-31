@@ -106,7 +106,7 @@ jobs:
             exit 1
           fi
 
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@dd7ea0c4fe523792f75c4002b20e2e5c2e14c066 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@e2289f7caae8f9cbfa1778984066449347bcd5f1 # main
         with:
           checkout-ref: ${{ inputs.ref }}
           node-version: ${{ inputs.node-version }}
