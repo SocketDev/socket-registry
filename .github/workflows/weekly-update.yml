@@ -39,8 +39,6 @@ jobs:
           cache: 'pnpm'
 
       - uses: SocketDev/socket-registry/.github/actions/install@ffc0c8deae3d37ad3241a54fb03cd1cab7e17738 # main
-        with:
-          frozen-lockfile: 'true'
 
       - name: Check for npm updates
         id: check
@@ -79,8 +77,6 @@ jobs:
           cache: 'pnpm'
 
       - uses: SocketDev/socket-registry/.github/actions/install@ffc0c8deae3d37ad3241a54fb03cd1cab7e17738 # main
-        with:
-          frozen-lockfile: 'true'
 
       - name: Install Claude Code
         run: npm install -g @anthropic-ai/claude-code
@@ -102,7 +98,6 @@ jobs:
         timeout-minutes: 30
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          CI: 'true'
           GITHUB_ACTIONS: 'true'
         run: |
           if [ -z "$ANTHROPIC_API_KEY" ]; then
