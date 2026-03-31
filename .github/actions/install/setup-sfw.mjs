@@ -34,7 +34,7 @@ const platformKey = `${process.platform}-${process.arch}`
 const assetName = PLATFORM_MAP[platformKey]
 
 if (!assetName) {
-  process.stderr.write(`Unsupported platform/arch: ${platformKey}`)
+  console.error(`Unsupported platform/arch: ${platformKey}`)
   process.exitCode = 1
   throw new Error(`unsupported platform "${platformKey}"`)
 }
@@ -213,7 +213,7 @@ async function main() {
     console.log(`Added ${shimDir} to GITHUB_PATH`)
   } else {
     // Outside of GitHub Actions — warn but don't fail.
-    process.stderr.write(
+    console.error(
       `GITHUB_PATH not set — shim installed at ${shimDir} but not added to PATH\n`,
     )
   }
@@ -230,6 +230,6 @@ async function main() {
 }
 
 main().catch(e => {
-  process.stderr.write(`setup-sfw failed: ${e.message}`)
+  console.error(`setup-sfw failed: ${e.message}`)
   process.exitCode = 1
 })
