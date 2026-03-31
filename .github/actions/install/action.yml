@@ -10,11 +10,11 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Setup sfw pnpm shim
+      shell: bash
+      run: node "${{ github.action_path }}/setup-sfw.mjs"
+
     - name: Install dependencies
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: |
-        pnpm add -g @socketsecurity/cli
-        alias pnpm='socket-pnpm'
-        export SOCKET_CLI_CONFIG='{"issueRules":{"gptMalware":true,"malware":true}}'
-        pnpm install
+      run: pnpm install

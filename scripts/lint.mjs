@@ -133,6 +133,21 @@ function filterLintableFiles(files) {
 }
 
 /**
+ * Check if an oxfmt result indicates no files were processed (not a real error).
+ * Covers exit 2 ("Expected at least one target file" — all files ignored by config)
+ * and exit 1 ("No files were processed in the specified paths" — no path matches).
+ * @param {{ stderr?: string }} result
+ * @returns {boolean}
+ */
+function isOxfmtNoFilesResult(result) {
+  const { stderr } = result
+  return (
+    stderr?.includes('Expected at least one target file') ||
+    stderr?.includes('No files were processed in the specified paths')
+  )
+}
+
+/**
  * Run linters on specific files.
  */
 async function runLintOnFiles(files, options = {}) {
@@ -169,12 +184,7 @@ async function runLintOnFiles(files, options = {}) {
     const result = await runCommandQuiet('pnpm', args)
 
     if (result.exitCode !== 0) {
-      // Check if oxfmt simply had no files to process (not an error).
-      const isOxfmtNoFilesError = result.stderr?.includes(
-        'No files were processed in the specified paths',
-      )
-
-      if (isOxfmtNoFilesError) {
+      if (isOxfmtNoFilesResult(result)) {
         // oxfmt had nothing to do - this is fine, continue to next linter.
         continue
       }
@@ -229,12 +239,7 @@ async function runLintOnAll(options = {}) {
     const result = await runCommandQuiet('pnpm', args)
 
     if (result.exitCode !== 0) {
-      // Check if oxfmt simply had no files to process (not an error).
-      const isOxfmtNoFilesError = result.stderr?.includes(
-        'No files were processed in the specified paths',
-      )
-
-      if (isOxfmtNoFilesError) {
+      if (isOxfmtNoFilesResult(result)) {
         // oxfmt had nothing to do - this is fine, continue to next linter.
         continue
       }
