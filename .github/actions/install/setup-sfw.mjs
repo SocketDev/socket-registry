@@ -3,11 +3,15 @@
  * GITHUB_PATH so every subsequent `pnpm` invocation in the job is transparently
  * wrapped by `sfw`. Must run before any `pnpm install` step.
  *
+ * Fetches release metadata from the GitHub API to get the correct download URL
+ * and SHA256 digest, then verifies the binary after download.
+ *
  * Usage (GitHub Actions composite step):
  *   shell: bash
  *   run: node "${{ github.action_path }}/setup-sfw.mjs"
  */
 
+import { createHash } from 'node:crypto'
 import { spawnSync } from 'node:child_process'
 import fs from 'node:fs'
 import https from 'node:https'
@@ -15,28 +19,68 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
-// Platform → sfw release artifact name.
+// Platform → sfw release asset name.
 const PLATFORM_MAP = {
   __proto__: null,
-  'darwin-arm64': 'sfw-darwin-arm64',
-  'darwin-x64': 'sfw-darwin-x86_64',
-  'linux-arm64': 'sfw-linux-arm64',
-  'linux-x64': 'sfw-linux-x86_64',
-  'win32-x64': 'sfw-windows-amd64.exe',
+  'darwin-arm64': 'sfw-free-macos-arm64',
+  'darwin-x64': 'sfw-free-macos-x86_64',
+  'linux-arm64': 'sfw-free-linux-arm64',
+  'linux-x64': 'sfw-free-linux-x86_64',
+  'win32-x64': 'sfw-free-windows-x86_64.exe',
 }
 
 const WIN32 = process.platform === 'win32'
 const platformKey = `${process.platform}-${process.arch}`
-const artifactName = PLATFORM_MAP[platformKey]
+const assetName = PLATFORM_MAP[platformKey]
 
-if (!artifactName) {
+if (!assetName) {
   process.stderr.write(`Unsupported platform/arch: ${platformKey}\n`)
   process.exitCode = 1
   throw new Error(`unsupported platform "${platformKey}"`)
 }
 
 /**
- * Follow redirects and download a URL to a destination file path.
+ * Fetch a URL as a parsed JSON object, following redirects.
+ * @param {string} url
+ * @param {object} headers
+ * @returns {Promise<unknown>}
+ */
+function fetchJson(url, headers = {}) {
+  return new Promise((resolve, reject) => {
+    const request = currentUrl => {
+      https
+        .get(currentUrl, { headers }, res => {
+          if (
+            res.statusCode >= 300 &&
+            res.statusCode < 400 &&
+            res.headers.location
+          ) {
+            request(res.headers.location)
+            return
+          }
+          if (res.statusCode !== 200) {
+            reject(new Error(`fetch failed with status ${res.statusCode}`))
+            return
+          }
+          const chunks = []
+          res.on('data', chunk => chunks.push(chunk))
+          res.on('end', () => {
+            try {
+              resolve(JSON.parse(Buffer.concat(chunks).toString('utf8')))
+            } catch (e) {
+              reject(new Error(`failed to parse JSON: ${e.message}`))
+            }
+          })
+          res.on('error', reject)
+        })
+        .on('error', reject)
+    }
+    request(url)
+  })
+}
+
+/**
+ * Download a URL to a destination file, following redirects.
  * @param {string} url
  * @param {string} dest
  * @returns {Promise<void>}
@@ -69,8 +113,46 @@ function download(url, dest) {
   })
 }
 
+/**
+ * Verify a file's SHA256 matches the expected digest string.
+ * Accepts digest in "sha256:<hex>" or bare "<hex>" format.
+ * @param {string} filePath
+ * @param {string} expectedDigest
+ * @throws {Error} When digest does not match.
+ */
+function verifySha256(filePath, expectedDigest) {
+  const expected = expectedDigest.startsWith('sha256:')
+    ? expectedDigest.slice(7)
+    : expectedDigest
+  const actual = createHash('sha256')
+    .update(fs.readFileSync(filePath))
+    .digest('hex')
+  if (actual !== expected) {
+    throw new Error(
+      `SHA256 mismatch for ${path.basename(filePath)}: expected ${expected}, got ${actual}`,
+    )
+  }
+}
+
 async function main() {
-  const sfwUrl = `https://github.com/SocketDev/sfw-free/releases/latest/download/${artifactName}`
+  // Fetch release metadata to get the download URL and digest for this platform.
+  process.stdout.write(`Fetching sfw-free release metadata\n`)
+  const release = await fetchJson(
+    'https://api.github.com/repos/SocketDev/sfw-free/releases/latest',
+    { 'User-Agent': 'setup-sfw', Accept: 'application/vnd.github+json' },
+  )
+
+  const asset = release.assets?.find(a => a.name === assetName)
+  if (!asset) {
+    throw new Error(
+      `asset "${assetName}" not found in release ${release.tag_name}`,
+    )
+  }
+  if (!asset.digest) {
+    throw new Error(`no digest for asset "${assetName}" in release ${release.tag_name}`)
+  }
+
+  const { browser_download_url: downloadUrl, digest } = asset
 
   // Use a stable per-job dir under the runner's temp path so the shim dir
   // survives across steps. Fall back to os.tmpdir() outside GitHub Actions.
@@ -82,8 +164,12 @@ async function main() {
     ? path.join(shimDir, 'sfw.exe')
     : path.join(shimDir, 'sfw')
 
-  process.stdout.write(`Downloading sfw from ${sfwUrl}\n`)
-  await download(sfwUrl, sfwBin)
+  process.stdout.write(`Downloading ${assetName} from ${downloadUrl}\n`)
+  await download(downloadUrl, sfwBin)
+
+  process.stdout.write(`Verifying SHA256 digest\n`)
+  verifySha256(sfwBin, digest)
+  process.stdout.write(`SHA256 verified\n`)
 
   if (!WIN32) {
     fs.chmodSync(sfwBin, 0o755)
@@ -133,12 +219,11 @@ async function main() {
   }
 
   // Verify the shim files were written correctly.
-  const shimFile = WIN32 ? path.join(shimDir, 'pnpm.cmd') : path.join(shimDir, 'pnpm')
+  const shimFile = WIN32
+    ? path.join(shimDir, 'pnpm.cmd')
+    : path.join(shimDir, 'pnpm')
   if (!fs.existsSync(shimFile)) {
     throw new Error(`pnpm shim not found at ${shimFile}`)
-  }
-  if (!fs.existsSync(sfwBin)) {
-    throw new Error(`sfw binary not found at ${sfwBin}`)
   }
 
   process.stdout.write(`sfw pnpm shim ready at ${shimDir}\n`)
