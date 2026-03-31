@@ -21,6 +21,7 @@ import path from 'node:path'
 import process from 'node:process'
 
 // All package managers sfw supports.
+// https://docs.socket.dev/docs/socket-firewall-free#usage
 const SHIM_NAMES = ['cargo', 'npm', 'pip', 'pnpm', 'uv', 'yarn']
 
 // Platform → sfw release asset name.
