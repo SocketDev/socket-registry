@@ -175,7 +175,7 @@ function writeShim(name, shimDir, sfwBin) {
     // On POSIX, write a wrapper script that calls node on the shim.
     // Avoids shebang dependency — the shell invokes node explicitly.
     const posixShim = path.join(shimDir, name)
-    fs.writeFileSync(posixShim, `node "${shimScript}" "$@"\n`, 'utf8')
+    fs.writeFileSync(posixShim, `#!/bin/sh\nnode "${shimScript}" "$@"\n`, 'utf8')
     fs.chmodSync(posixShim, 0o755)
   }
 }
