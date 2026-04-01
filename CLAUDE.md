@@ -257,6 +257,7 @@ Layer 4 — _local workflows (reference Layer 3, not reused externally):
 ```
 
 **Rules:**
+
 - Each layer gets its own PR — never combine layers.
 - Always `git fetch origin main && git rev-parse origin/main` to get the SHA after merge.
 - Use `--no-verify` for pin-only commits (no code changes).
