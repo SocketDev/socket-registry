@@ -1,0 +1,170 @@
+name: 🔬 Diagnose sfw perf
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    name: sfw perf timing (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      # Phase 1: Baseline — plain pnpm install (no sfw)
+      - name: "Phase 1: pnpm install (no sfw, warm store)"
+        shell: bash
+        run: |
+          echo "::group::pnpm install (warm store, no sfw)"
+          START=$(date +%s%3N)
+          pnpm install --loglevel error --prefer-offline 2>&1 || true
+          END=$(date +%s%3N)
+          echo "::endgroup::"
+          echo "### Phase 1: pnpm install (warm store, no sfw)" >> $GITHUB_STEP_SUMMARY
+          echo "Duration: $((END - START))ms" >> $GITHUB_STEP_SUMMARY
+
+      - name: Clean node_modules
+        shell: bash
+        run: rm -rf node_modules
+
+      - name: "Phase 1b: pnpm install (no sfw, cold modules)"
+        shell: bash
+        run: |
+          echo "::group::pnpm install (cold modules, no sfw)"
+          START=$(date +%s%3N)
+          pnpm install --loglevel error 2>&1 || true
+          END=$(date +%s%3N)
+          echo "::endgroup::"
+          echo "### Phase 1b: pnpm install (cold modules, no sfw)" >> $GITHUB_STEP_SUMMARY
+          echo "Duration: $((END - START))ms" >> $GITHUB_STEP_SUMMARY
+
+      # Phase 2: Download sfw-free binary and time it
+      - name: "Phase 2: Download sfw-free"
+        shell: bash
+        run: |
+          START=$(date +%s%3N)
+          SFW_DIR="${RUNNER_TEMP}/sfw-bin"
+          mkdir -p "$SFW_DIR"
+          KERNEL="$(uname -s | cut -d- -f1)"
+          ARCH="$(uname -m)"
+          case "${KERNEL}-${ARCH}" in
+            Linux-x86_64)    ASSET="sfw-free-linux-x86_64"        ; SFW_BIN="$SFW_DIR/sfw"     ;;
+            Linux-aarch64)   ASSET="sfw-free-linux-arm64"          ; SFW_BIN="$SFW_DIR/sfw"     ;;
+            Darwin-x86_64)   ASSET="sfw-free-macos-x86_64"        ; SFW_BIN="$SFW_DIR/sfw"     ;;
+            Darwin-arm64)    ASSET="sfw-free-macos-arm64"          ; SFW_BIN="$SFW_DIR/sfw"     ;;
+            MINGW64_NT-x86_64|MSYS_NT-x86_64)
+                             ASSET="sfw-free-windows-x86_64.exe"  ; SFW_BIN="$SFW_DIR/sfw.exe" ;;
+            *) echo "Unsupported: ${KERNEL}-${ARCH}" >&2; exit 1  ;;
+          esac
+          DOWNLOAD_URL="$(curl -fsSL \
+            -H 'Accept: application/vnd.github+json' \
+            https://api.github.com/repos/SocketDev/sfw-free/releases/latest \
+            | jq -r --arg name "$ASSET" '.assets[] | select(.name == $name) | .browser_download_url')"
+          curl -fsSL -o "$SFW_BIN" "$DOWNLOAD_URL"
+          chmod +x "$SFW_BIN"
+          END=$(date +%s%3N)
+          echo "SFW_BIN=$SFW_BIN" >> $GITHUB_ENV
+          echo "### Phase 2: Download sfw-free" >> $GITHUB_STEP_SUMMARY
+          echo "Duration: $((END - START))ms" >> $GITHUB_STEP_SUMMARY
+
+      # Phase 3: Network latency diagnostics
+      - name: "Phase 3: Network latency"
+        shell: bash
+        run: |
+          echo "### Phase 3: Network latency" >> $GITHUB_STEP_SUMMARY
+
+          # RTT to npm registry
+          START=$(date +%s%3N)
+          curl -fsSL -o /dev/null -w "%{time_connect}s connect, %{time_starttransfer}s TTFB" https://registry.npmjs.org/ 2>&1 || true
+          END=$(date +%s%3N)
+          echo "- registry.npmjs.org: $((END - START))ms" >> $GITHUB_STEP_SUMMARY
+
+          # RTT to Socket API
+          START=$(date +%s%3N)
+          curl -fsSL -o /dev/null -w "%{time_connect}s connect, %{time_starttransfer}s TTFB" https://api.socket.dev/ 2>&1 || true
+          END=$(date +%s%3N)
+          echo "- api.socket.dev: $((END - START))ms" >> $GITHUB_STEP_SUMMARY
+
+          # RTT to firewall API
+          START=$(date +%s%3N)
+          curl -fsSL -o /dev/null -w "%{time_connect}s connect, %{time_starttransfer}s TTFB" https://firewall-api.socket.dev/ 2>&1 || true
+          END=$(date +%s%3N)
+          echo "- firewall-api.socket.dev: $((END - START))ms" >> $GITHUB_STEP_SUMMARY
+
+      # Phase 4: sfw pnpm install (warm store + warm modules)
+      - name: "Phase 4: sfw pnpm install (warm)"
+        shell: bash
+        env:
+          SFW_SILENT: 'true'
+        run: |
+          echo "::group::sfw pnpm install (warm)"
+          START=$(date +%s%3N)
+          "$SFW_BIN" pnpm install --loglevel error --prefer-offline 2>&1 || true
+          END=$(date +%s%3N)
+          echo "::endgroup::"
+          echo "### Phase 4: sfw pnpm install (warm store + modules)" >> $GITHUB_STEP_SUMMARY
+          echo "Duration: $((END - START))ms" >> $GITHUB_STEP_SUMMARY
+
+      - name: Clean node_modules again
+        shell: bash
+        run: rm -rf node_modules
+
+      # Phase 5: sfw pnpm install (cold modules, warm store)
+      - name: "Phase 5: sfw pnpm install (cold modules)"
+        shell: bash
+        env:
+          SFW_SILENT: 'true'
+        run: |
+          echo "::group::sfw pnpm install (cold modules)"
+          START=$(date +%s%3N)
+          "$SFW_BIN" pnpm install --loglevel error 2>&1 || true
+          END=$(date +%s%3N)
+          echo "::endgroup::"
+          echo "### Phase 5: sfw pnpm install (cold modules, warm store)" >> $GITHUB_STEP_SUMMARY
+          echo "Duration: $((END - START))ms" >> $GITHUB_STEP_SUMMARY
+
+      - name: Clean node_modules again 2
+        shell: bash
+        run: rm -rf node_modules
+
+      # Phase 6: sfw pnpm install with SFW_DEBUG for verbose output
+      - name: "Phase 6: sfw pnpm install (debug, cold modules)"
+        shell: bash
+        env:
+          SFW_SILENT: 'false'
+          SFW_DEBUG: '1'
+        run: |
+          echo "::group::sfw pnpm install (debug output)"
+          START=$(date +%s%3N)
+          timeout 120 "$SFW_BIN" pnpm install --loglevel error 2>&1 | head -200 || true
+          END=$(date +%s%3N)
+          echo "::endgroup::"
+          echo "### Phase 6: sfw pnpm install (debug, 120s timeout)" >> $GITHUB_STEP_SUMMARY
+          echo "Duration: $((END - START))ms" >> $GITHUB_STEP_SUMMARY
+
+      # Summary
+      - name: Print summary
+        shell: bash
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "Runner: ${{ matrix.os }}" >> $GITHUB_STEP_SUMMARY
+          echo "Node: $(node --version)" >> $GITHUB_STEP_SUMMARY
+          echo "pnpm: $(pnpm --version)" >> $GITHUB_STEP_SUMMARY
+          echo "sfw: $($SFW_BIN --version 2>&1 || echo unknown)" >> $GITHUB_STEP_SUMMARY
