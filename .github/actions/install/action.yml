@@ -35,10 +35,8 @@ runs:
         esac
         if [ ! -x "$SFW_BIN" ]; then
           mkdir -p "$SFW_DIR"
-          DOWNLOAD_URL="$(curl -fsSL \
-            -H 'Accept: application/vnd.github+json' \
-            https://api.github.com/repos/SocketDev/sfw-free/releases/latest \
-            | jq -r --arg name "$ASSET" '.assets[] | select(.name == $name) | .browser_download_url')"
+          DOWNLOAD_URL="$(gh api repos/SocketDev/sfw-free/releases/latest \
+            --jq ".assets[] | select(.name == \"$ASSET\") | .browser_download_url")"
           curl -fsSL -o "$SFW_BIN" "$DOWNLOAD_URL"
           chmod +x "$SFW_BIN"
         fi
