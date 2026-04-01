@@ -14,15 +14,13 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Install sfw-free and run pnpm install
+    - name: Setup sfw-free wrappers
       shell: bash
-      working-directory: ${{ inputs.working-directory }}
-      env:
-        SFW_SILENT: 'true'
-      run: |
+      run: | # zizmor: ignore[github-env]
         # Download sfw-free binary if not already present.
         SFW_DIR="${RUNNER_TEMP:-/tmp}/sfw-bin"
         SFW_BIN="$SFW_DIR/sfw"
+        WRAPPER_DIR="${RUNNER_TEMP:-/tmp}/sfw-wrapper"
         if [ ! -x "$SFW_BIN" ]; then
           mkdir -p "$SFW_DIR"
           PLATFORM="$(uname -s)-$(uname -m)"
@@ -40,5 +38,20 @@ runs:
           curl -fsSL -o "$SFW_BIN" "$DOWNLOAD_URL"
           chmod +x "$SFW_BIN"
         fi
-        # Run pnpm install through sfw — equivalent to: alias pnpm='sfw pnpm'
-        "$SFW_BIN" pnpm install --loglevel error --prefer-offline ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
+        # Write shell wrappers so all subsequent steps route through sfw.
+        # Equivalent to: alias pnpm='sfw pnpm', alias cargo='sfw cargo', etc.
+        if [ ! -d "$WRAPPER_DIR" ]; then
+          mkdir -p "$WRAPPER_DIR"
+          for name in cargo npm pip pnpm uv yarn; do
+            printf '#!/bin/sh\nexec "%s" %s "$@"\n' "$SFW_BIN" "$name" > "$WRAPPER_DIR/$name"
+            chmod +x "$WRAPPER_DIR/$name"
+          done
+        fi
+        echo "$WRAPPER_DIR" >> "${GITHUB_PATH:-/dev/null}"
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        SFW_SILENT: 'true'
+      run: pnpm install --loglevel error --prefer-offline ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
