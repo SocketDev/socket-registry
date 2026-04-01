@@ -1,0 +1,33 @@
+name: 'Checkout'
+description: 'Checkout repository with sensible defaults (fetch-depth 100, persist-credentials false)'
+
+inputs:
+  fetch-depth:
+    description: 'Number of commits to fetch (0 = full history)'
+    required: false
+    default: '100'
+  ref:
+    description: 'Git ref to checkout'
+    required: false
+    default: ''
+  working-directory:
+    description: 'Subdirectory to check out into'
+    required: false
+    default: '.'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Clear git extraheader config
+      shell: bash
+      run: |
+        # Clear any extraheader config that may cause duplicate Authorization headers
+        git config --global --unset-all "http.https://github.com/.extraheader" 2>/dev/null || true
+
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        ref: ${{ inputs.ref }}
+        path: ${{ inputs.working-directory != '.' && inputs.working-directory || '' }}
+        fetch-depth: ${{ inputs.fetch-depth }}
+        persist-credentials: false
