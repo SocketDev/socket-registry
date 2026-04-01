@@ -46,7 +46,8 @@ runs:
       env:
         SFW_DEBUG: 'true'
         SFW_SILENT: 'true'
-      run: "$SFW_BIN" pnpm install --loglevel error ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
+      run: |
+        "$SFW_BIN" pnpm install --loglevel error ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
 
     - name: Setup sfw wrappers
       shell: bash
