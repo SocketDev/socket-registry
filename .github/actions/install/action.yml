@@ -42,13 +42,16 @@ runs:
           curl -fsSL -o "$SFW_BIN" "$DOWNLOAD_URL"
           chmod +x "$SFW_BIN"
         fi
-        # Write shell wrappers so subsequent steps route through sfw.
+        # Write wrappers so subsequent steps route through sfw.
         # Equivalent to: alias pnpm='sfw pnpm', alias cargo='sfw cargo', etc.
         if [ ! -d "$WRAPPER_DIR" ]; then
           mkdir -p "$WRAPPER_DIR"
           for name in cargo npm pip pnpm uv yarn; do
+            # POSIX wrapper (bash/sh steps on all platforms including Windows Git Bash).
             printf '#!/bin/sh\nexec "%s" %s "$@"\n' "$SFW_BIN" "$name" > "$WRAPPER_DIR/$name"
             chmod +x "$WRAPPER_DIR/$name"
+            # Windows .cmd wrapper — CMD/PowerShell finds these via PATHEXT.
+            printf '@"%s" %s %%*\r\n' "$SFW_BIN" "$name" > "$WRAPPER_DIR/$name.cmd"
           done
         fi
         echo "$WRAPPER_DIR" >> "${GITHUB_PATH:-/dev/null}"
