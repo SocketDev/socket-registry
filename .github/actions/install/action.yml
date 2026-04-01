@@ -6,10 +6,6 @@ inputs:
     description: 'Pass --frozen-lockfile to pnpm install'
     required: false
     default: 'false'
-  silent:
-    description: 'Pass --silent to sfw to suppress per-package firewall output'
-    required: false
-    default: 'false'
   working-directory:
     description: 'Working directory'
     required: false
@@ -21,10 +17,12 @@ runs:
     - name: Setup sfw pnpm shim
       shell: bash
       env:
-        SFW_SHIM_SILENT: ${{ inputs.silent }}
+        SFW_SILENT: 'true'
       run: node "${{ github.action_path }}/setup-sfw.mjs"
 
     - name: Install dependencies
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: pnpm install ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
+      env:
+        SFW_SILENT: 'true'
+      run: pnpm install --loglevel error ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
