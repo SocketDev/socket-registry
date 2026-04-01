@@ -49,6 +49,7 @@
     "validate-packages": "node scripts/testing/validate-package-tests.mjs"
   },
   "devDependencies": {
+    "@anthropic-ai/claude-code": "catalog:",
     "@babel/core": "catalog:",
     "@babel/generator": "catalog:",
     "@babel/parser": "catalog:",
