@@ -1,12 +1,12 @@
 name: 'Setup and Install'
-description: 'Checkout code, setup environment, and install dependencies'
+description: 'Aggregate: checkout + setup environment + install dependencies'
 
 # Dependencies:
-#   - actions/checkout@v6.0.2
+#   - SocketDev/socket-registry/.github/actions/checkout
 #   - SocketDev/socket-registry/.github/actions/setup
 #     - SocketDev/socket-registry/.github/actions/debug
 #     - pnpm/action-setup@v5.0.0
-#     - actions/setup-node@v5.0.0
+#     - actions/setup-node@v6.2.0
 #   - SocketDev/socket-registry/.github/actions/install
 
 inputs:
@@ -14,6 +14,10 @@ inputs:
     description: 'Whether to checkout code'
     required: false
     default: 'true'
+  checkout-fetch-depth:
+    description: 'Number of commits to fetch (0 = full history)'
+    required: false
+    default: '100'
   checkout-ref:
     description: 'Git ref to checkout'
     required: false
@@ -46,24 +50,16 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Clear git extraheader config
+    - name: Checkout
       if: inputs.checkout == 'true'
-      shell: bash
-      run: |
-        # Clear any extraheader config that may cause duplicate Authorization headers
-        git config --global --unset-all "http.https://github.com/.extraheader" 2>/dev/null || true
-
-    - name: Checkout code
-      if: inputs.checkout == 'true'
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      uses: SocketDev/socket-registry/.github/actions/checkout@8dae6a626b6e722227524417737e0823f0811bf3 # main
       with:
+        fetch-depth: ${{ inputs.checkout-fetch-depth }}
         ref: ${{ inputs.checkout-ref }}
-        path: ${{ inputs.working-directory != '.' && inputs.working-directory || '' }}
-        fetch-depth: 100
-        persist-credentials: false
+        working-directory: ${{ inputs.working-directory }}
 
     - name: Setup environment
-      uses: SocketDev/socket-registry/.github/actions/setup@e2289f7caae8f9cbfa1778984066449347bcd5f1 # main
+      uses: SocketDev/socket-registry/.github/actions/setup@8dae6a626b6e722227524417737e0823f0811bf3 # main
       with:
         debug: ${{ inputs.debug }}
         node-version: ${{ inputs.node-version }}
@@ -73,6 +69,6 @@ runs:
         working-directory: ${{ inputs.working-directory }}
 
     - name: Install dependencies
-      uses: SocketDev/socket-registry/.github/actions/install@24323cbd9e61a7e3a600b8c7e99eb27a29642a54 # main
+      uses: SocketDev/socket-registry/.github/actions/install@8dae6a626b6e722227524417737e0823f0811bf3 # main
       with:
         working-directory: ${{ inputs.working-directory }}
