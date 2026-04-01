@@ -48,17 +48,3 @@ runs:
         SFW_SILENT: 'true'
       run: |
         "$SFW_BIN" pnpm install --loglevel error ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
-
-    - name: Setup sfw wrappers
-      shell: bash
-      run: | # zizmor: ignore[github-env]
-        WRAPPER_DIR="${RUNNER_TEMP:-/tmp}/sfw-wrapper"
-        if [ ! -d "$WRAPPER_DIR" ]; then
-          mkdir -p "$WRAPPER_DIR"
-          for name in cargo npm pip pnpm uv yarn; do
-            printf '#!/bin/sh\nexec "%s" %s "$@"\n' "$SFW_BIN" "$name" > "$WRAPPER_DIR/$name"
-            chmod +x "$WRAPPER_DIR/$name"
-            printf '@"%s" %s %%*\r\n' "$SFW_BIN" "$name" > "$WRAPPER_DIR/$name.cmd"
-          done
-        fi
-        echo "$WRAPPER_DIR" >> "${GITHUB_PATH:-/dev/null}"
