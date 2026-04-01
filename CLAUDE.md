@@ -221,6 +221,48 @@ If anything breaks:
 - **Matrix testing**: Node.js 20/22/24, cross-platform
 - **CI script naming**: `lint-ci`, `test-ci`, `type-ci` (no watch/fix modes)
 
+### GitHub Actions SHA Pin Cascade (CRITICAL)
+
+Actions and workflows reference each other by full 40-char SHA. When any action changes, **all consumers must be updated in dependency order** via separate PRs. Each PR must merge before the next can be created (the new merge SHA becomes the pin).
+
+**Architecture layers (update in this order):**
+
+```
+Layer 1 — Leaf actions (no internal SocketDev refs):
+  checkout, install, debug, setup-git-signing, cleanup-git-signing,
+  run-script, artifacts
+
+Layer 2 — Composite actions (reference Layer 1):
+  setup/action.yml         → refs: debug
+  cache-npm-packages       → refs: (internal only)
+  setup-and-install        → refs: checkout, setup, install
+
+Layer 3 — Shared reusable workflows (reference Layer 2):
+  ci.yml                   → refs: setup-and-install, run-script
+  provenance.yml           → refs: setup-and-install
+
+Layer 4 — _local workflows (reference Layer 3, not reused externally):
+  _local-not-for-reuse-ci.yml         → refs: ci.yml, setup-and-install, cache-npm-packages
+  _local-not-for-reuse-provenance.yml → refs: provenance.yml
+  _local-not-for-reuse-weekly-update  → refs: setup-and-install, setup-git-signing, cleanup-git-signing
+```
+
+**Cascade procedure when a leaf action changes:**
+
+```
+1. PR: Update Layer 2 pins (setup, setup-and-install, cache-npm-packages)  → merge → get SHA
+2. PR: Update Layer 3 pins (ci.yml, provenance.yml)                        → merge → get SHA
+3. PR: Update Layer 4 pins (_local workflows)                              → merge → get SHA
+4. Update any open feature PRs with new SHA
+```
+
+**Rules:**
+- Each layer gets its own PR — never combine layers.
+- Always `git fetch origin main && git rev-parse origin/main` to get the SHA after merge.
+- Use `--no-verify` for pin-only commits (no code changes).
+- Verify with: `grep -rn "SocketDev/socket-registry" .github/ | grep "@" | grep -v "<current-sha>"`.
+- The `_local-not-for-reuse-weekly-update.yml` also references `actions/upload-artifact` — don't clobber third-party SHAs when doing blanket replacements.
+
 ### Testing & Coverage
 
 #### Test Structure
