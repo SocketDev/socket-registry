@@ -38,7 +38,7 @@ jobs:
           node-version-file: .node-version
           cache: 'pnpm'
 
-      - uses: SocketDev/socket-registry/.github/actions/install@24323cbd9e61a7e3a600b8c7e99eb27a29642a54 # main
+      - uses: SocketDev/socket-registry/.github/actions/install@eafd8dee5dbdba1b8db1790a19b9679e8f159f99 # main
 
       - name: Check for npm updates
         id: check
@@ -76,7 +76,7 @@ jobs:
           node-version-file: .node-version
           cache: 'pnpm'
 
-      - uses: SocketDev/socket-registry/.github/actions/install@24323cbd9e61a7e3a600b8c7e99eb27a29642a54 # main
+      - uses: SocketDev/socket-registry/.github/actions/install@eafd8dee5dbdba1b8db1790a19b9679e8f159f99 # main
 
       - name: Install Claude Code
         run: npm install -g @anthropic-ai/claude-code
