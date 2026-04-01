@@ -120,7 +120,7 @@ jobs:
           NPM_VERSION=$(npm --version)
           echo "Current npm version: $NPM_VERSION"
           # Check if npm version is >= 11.5.1
-          if ! npx --yes semver@7.7.4 "$NPM_VERSION" -r ">=11.5.1"; then
+          if ! pnpm exec semver "$NPM_VERSION" -r ">=11.5.1"; then
             echo "Installing npm 11.5.1+ for trusted publishing..."
             npm install -g npm@11.12.1
             echo "Updated npm version: $(npm --version)"

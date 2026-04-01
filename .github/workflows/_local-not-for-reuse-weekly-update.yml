@@ -53,12 +53,6 @@ jobs:
         with:
           checkout-fetch-depth: '0'
 
-      - name: Install Claude Code
-        shell: bash
-        run: |
-          alias pnpm="$SFW_BIN pnpm"
-          pnpm add -g @anthropic-ai/claude-code@2.1.89
-
       - name: Create update branch
         id: branch
         env:
@@ -87,7 +81,7 @@ jobs:
           fi
 
           set +e
-          claude --print --dangerously-skip-permissions \
+          pnpm exec claude --print --dangerously-skip-permissions \
             --model sonnet \
             "/updating - Run the updating skill to update all dependencies. Create atomic commits for each update. You are running in CI mode - skip builds and tests. Do not push or create a PR." \
             2>&1 | tee claude-output.log
