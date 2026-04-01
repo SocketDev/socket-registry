@@ -66,4 +66,4 @@ runs:
       run: |
         # Call sfw directly — avoids recursive wrapper overhead since pnpm
         # calls itself during workspace installs and lifecycle scripts.
-        "$SFW_BIN" pnpm install --loglevel error --prefer-offline ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
+        "$SFW_BIN" pnpm install --loglevel error ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
