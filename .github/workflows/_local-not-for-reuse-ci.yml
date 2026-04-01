@@ -39,7 +39,7 @@ jobs:
           autocrlf: false
           persist-credentials: false
 
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@e2289f7caae8f9cbfa1778984066449347bcd5f1 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@24323cbd9e61a7e3a600b8c7e99eb27a29642a54 # main
         with:
           node-version: 22
 
