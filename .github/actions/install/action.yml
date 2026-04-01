@@ -19,18 +19,22 @@ runs:
       run: | # zizmor: ignore[github-env]
         # Download sfw-free binary if not already present.
         SFW_DIR="${RUNNER_TEMP:-/tmp}/sfw-bin"
-        SFW_BIN="$SFW_DIR/sfw"
         WRAPPER_DIR="${RUNNER_TEMP:-/tmp}/sfw-wrapper"
+        # uname -s returns MINGW64_NT-10.0-26100 on Windows Git Bash;
+        # cut to just the first field so the case match works.
+        KERNEL="$(uname -s | cut -d- -f1)"
+        ARCH="$(uname -m)"
+        case "${KERNEL}-${ARCH}" in
+          Linux-x86_64)    ASSET="sfw-free-linux-x86_64"        ; SFW_BIN="$SFW_DIR/sfw"     ;;
+          Linux-aarch64)   ASSET="sfw-free-linux-arm64"          ; SFW_BIN="$SFW_DIR/sfw"     ;;
+          Darwin-x86_64)   ASSET="sfw-free-macos-x86_64"        ; SFW_BIN="$SFW_DIR/sfw"     ;;
+          Darwin-arm64)    ASSET="sfw-free-macos-arm64"          ; SFW_BIN="$SFW_DIR/sfw"     ;;
+          MINGW64_NT-x86_64|MSYS_NT-x86_64)
+                           ASSET="sfw-free-windows-x86_64.exe"  ; SFW_BIN="$SFW_DIR/sfw.exe" ;;
+          *) echo "Unsupported platform: ${KERNEL}-${ARCH}" >&2; exit 1 ;;
+        esac
         if [ ! -x "$SFW_BIN" ]; then
           mkdir -p "$SFW_DIR"
-          PLATFORM="$(uname -s)-$(uname -m)"
-          case "$PLATFORM" in
-            Linux-x86_64)  ASSET="sfw-free-linux-x86_64" ;;
-            Linux-aarch64) ASSET="sfw-free-linux-arm64" ;;
-            Darwin-x86_64) ASSET="sfw-free-macos-x86_64" ;;
-            Darwin-arm64)  ASSET="sfw-free-macos-arm64" ;;
-            *) echo "Unsupported platform: $PLATFORM" >&2; exit 1 ;;
-          esac
           DOWNLOAD_URL="$(curl -fsSL \
             -H 'Accept: application/vnd.github+json' \
             https://api.github.com/repos/SocketDev/sfw-free/releases/latest \
@@ -38,7 +42,7 @@ runs:
           curl -fsSL -o "$SFW_BIN" "$DOWNLOAD_URL"
           chmod +x "$SFW_BIN"
         fi
-        # Write shell wrappers so all subsequent steps route through sfw.
+        # Write shell wrappers so subsequent steps route through sfw.
         # Equivalent to: alias pnpm='sfw pnpm', alias cargo='sfw cargo', etc.
         if [ ! -d "$WRAPPER_DIR" ]; then
           mkdir -p "$WRAPPER_DIR"
@@ -48,10 +52,15 @@ runs:
           done
         fi
         echo "$WRAPPER_DIR" >> "${GITHUB_PATH:-/dev/null}"
+        # Export SFW_BIN so the install step can call sfw directly.
+        echo "SFW_BIN=$SFW_BIN" >> "${GITHUB_ENV:-/dev/null}"
 
     - name: Install dependencies
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       env:
         SFW_SILENT: 'true'
-      run: pnpm install --loglevel error --prefer-offline ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
+      run: |
+        # Call sfw directly — avoids recursive wrapper overhead since pnpm
+        # calls itself during workspace installs and lifecycle scripts.
+        "$SFW_BIN" pnpm install --loglevel error --prefer-offline ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
