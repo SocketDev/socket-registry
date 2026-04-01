@@ -63,7 +63,7 @@ runs:
         persist-credentials: false
 
     - name: Setup environment
-      uses: SocketDev/socket-registry/.github/actions/setup@e2289f7caae8f9cbfa1778984066449347bcd5f1 # main
+      uses: SocketDev/socket-registry/.github/actions/setup@ac9ffb491903a54fe18411336c8abefb675f8547 # main
       with:
         debug: ${{ inputs.debug }}
         node-version: ${{ inputs.node-version }}
@@ -73,6 +73,6 @@ runs:
         working-directory: ${{ inputs.working-directory }}
 
     - name: Install dependencies
-      uses: SocketDev/socket-registry/.github/actions/install@24323cbd9e61a7e3a600b8c7e99eb27a29642a54 # main
+      uses: SocketDev/socket-registry/.github/actions/install@ac9ffb491903a54fe18411336c8abefb675f8547 # main
       with:
         working-directory: ${{ inputs.working-directory }}
