@@ -42,7 +42,9 @@ jobs:
 
       - name: Check for npm updates
         id: check
+        shell: bash
         run: |
+          alias pnpm="$SFW_BIN pnpm"
           echo "Checking for npm package updates..."
           HAS_UPDATES=false
           NPM_UPDATES=$(pnpm outdated 2>/dev/null || true)
@@ -79,7 +81,10 @@ jobs:
       - uses: SocketDev/socket-registry/.github/actions/install@eafd8dee5dbdba1b8db1790a19b9679e8f159f99 # main
 
       - name: Install Claude Code
-        run: npm install -g @anthropic-ai/claude-code
+        shell: bash
+        run: |
+          alias pnpm="$SFW_BIN pnpm"
+          pnpm add -g @anthropic-ai/claude-code@2.1.89
 
       - name: Create update branch
         id: branch

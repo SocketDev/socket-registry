@@ -46,7 +46,13 @@ jobs:
       - uses: SocketDev/socket-registry/.github/actions/cache-npm-packages@9f2cfe21e39282962d9f151af0bd699d5833aa85 # main
 
       - name: Build registry
-        run: pnpm run build
+        shell: bash
+        run: |
+          alias pnpm="$SFW_BIN pnpm"
+          pnpm run build
 
       - name: Run npm package tests
-        run: node scripts/npm/test-npm-packages.mjs
+        shell: bash
+        run: |
+          alias pnpm="$SFW_BIN pnpm"
+          node scripts/npm/test-npm-packages.mjs
