@@ -16,6 +16,8 @@ runs:
   steps:
     - name: Setup sfw-free wrappers
       shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: | # zizmor: ignore[github-env]
         # Download sfw-free binary if not already present.
         SFW_DIR="${RUNNER_TEMP:-/tmp}/sfw-bin"
