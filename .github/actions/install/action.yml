@@ -1,5 +1,5 @@
 name: 'Install'
-description: 'Install dependencies with Socket CLI'
+description: 'Install dependencies with sfw-free'
 
 inputs:
   frozen-lockfile:
@@ -14,15 +14,31 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Setup sfw pnpm shim
-      shell: bash
-      env:
-        SFW_SILENT: 'true'
-      run: node "${{ github.action_path }}/setup-sfw.mjs"
-
-    - name: Install dependencies
+    - name: Install sfw-free and run pnpm install
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       env:
         SFW_SILENT: 'true'
-      run: pnpm install --loglevel error ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
+      run: |
+        # Download sfw-free binary if not already present.
+        SFW_DIR="${RUNNER_TEMP:-/tmp}/sfw-bin"
+        SFW_BIN="$SFW_DIR/sfw"
+        if [ ! -x "$SFW_BIN" ]; then
+          mkdir -p "$SFW_DIR"
+          PLATFORM="$(uname -s)-$(uname -m)"
+          case "$PLATFORM" in
+            Linux-x86_64)  ASSET="sfw-free-linux-x86_64" ;;
+            Linux-aarch64) ASSET="sfw-free-linux-arm64" ;;
+            Darwin-x86_64) ASSET="sfw-free-macos-x86_64" ;;
+            Darwin-arm64)  ASSET="sfw-free-macos-arm64" ;;
+            *) echo "Unsupported platform: $PLATFORM" >&2; exit 1 ;;
+          esac
+          DOWNLOAD_URL="$(curl -fsSL \
+            -H 'Accept: application/vnd.github+json' \
+            https://api.github.com/repos/SocketDev/sfw-free/releases/latest \
+            | jq -r --arg name "$ASSET" '.assets[] | select(.name == $name) | .browser_download_url')"
+          curl -fsSL -o "$SFW_BIN" "$DOWNLOAD_URL"
+          chmod +x "$SFW_BIN"
+        fi
+        # Run pnpm install through sfw — equivalent to: alias pnpm='sfw pnpm'
+        "$SFW_BIN" pnpm install --loglevel error --prefer-offline ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
