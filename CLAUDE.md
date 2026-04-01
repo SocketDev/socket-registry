@@ -230,11 +230,12 @@ Actions and workflows reference each other by full 40-char SHA. When any action 
 ```
 Layer 1 — Leaf actions (no internal SocketDev refs):
   checkout, install, debug, setup-git-signing, cleanup-git-signing,
-  run-script, artifacts
+  run-script, artifacts, cache-npm-packages
 
-Layer 2 — Composite actions (reference Layer 1):
+Layer 2a — setup (references Layer 1):
   setup/action.yml         → refs: debug
-  cache-npm-packages       → refs: (internal only)
+
+Layer 2b — setup-and-install (references Layer 1 + 2a):
   setup-and-install        → refs: checkout, setup, install
 
 Layer 3 — Shared reusable workflows (reference Layer 2):
@@ -250,15 +251,16 @@ Layer 4 — _local workflows (reference Layer 3, not reused externally):
 **Cascade procedure when a leaf action changes:**
 
 ```
-1. PR: Update Layer 2 pins (setup, setup-and-install, cache-npm-packages)  → merge → get SHA
-2. PR: Update Layer 3 pins (ci.yml, provenance.yml)                        → merge → get SHA
-3. PR: Update Layer 4 pins (_local workflows)                              → merge → get SHA
-4. Update any open feature PRs with new SHA
+1. PR: Update Layer 2a pins (setup)               → merge → get SHA
+2. PR: Update Layer 2b pins (setup-and-install)    → merge → get SHA
+3. PR: Update Layer 3 pins (ci.yml, provenance.yml) → merge → get SHA
+4. PR: Update Layer 4 pins (_local workflows)      → merge → get SHA
+5. Update any open feature PRs with new SHA
 ```
 
 **Rules:**
 
-- Each layer gets its own PR — never combine layers.
+- Each layer gets its own PR — never combine layers or sub-layers.
 - Always `git fetch origin main && git rev-parse origin/main` to get the SHA after merge.
 - Use `--no-verify` for pin-only commits (no code changes).
 - Verify with: `grep -rn "SocketDev/socket-registry" .github/ | grep "@" | grep -v "<current-sha>"`.
