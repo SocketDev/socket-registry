@@ -36,7 +36,7 @@ runs:
   using: 'composite'
   steps:
     - name: Setup debug
-      uses: SocketDev/socket-registry/.github/actions/debug@e2289f7caae8f9cbfa1778984066449347bcd5f1 # main
+      uses: SocketDev/socket-registry/.github/actions/debug@ad7cec842e6e24b1bd4cd7c068aa6b69f18cb88f # main
       with:
         debug: ${{ inputs.debug }}
 
