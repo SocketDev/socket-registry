@@ -16,9 +16,13 @@ runs:
   steps:
     - name: Setup sfw pnpm shim
       shell: bash
+      env:
+        SFW_SILENT: 'true'
       run: node "${{ github.action_path }}/setup-sfw.mjs"
 
     - name: Install dependencies
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: pnpm install ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
+      env:
+        SFW_SILENT: 'true'
+      run: pnpm install --loglevel error ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
