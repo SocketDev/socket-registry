@@ -14,16 +14,12 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Setup sfw-free wrappers
+    - name: Download sfw-free
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: | # zizmor: ignore[github-env]
-        # Download sfw-free binary if not already present.
         SFW_DIR="${RUNNER_TEMP:-/tmp}/sfw-bin"
-        WRAPPER_DIR="${RUNNER_TEMP:-/tmp}/sfw-wrapper"
-        # uname -s returns MINGW64_NT-10.0-26100 on Windows Git Bash;
-        # cut to just the first field so the case match works.
         KERNEL="$(uname -s | cut -d- -f1)"
         ARCH="$(uname -m)"
         case "${KERNEL}-${ARCH}" in
@@ -42,28 +38,26 @@ runs:
           curl -fsSL -o "$SFW_BIN" "$DOWNLOAD_URL"
           chmod +x "$SFW_BIN"
         fi
-        # Write wrappers so subsequent steps route through sfw.
-        # Equivalent to: alias pnpm='sfw pnpm', alias cargo='sfw cargo', etc.
-        if [ ! -d "$WRAPPER_DIR" ]; then
-          mkdir -p "$WRAPPER_DIR"
-          for name in cargo npm pip pnpm uv yarn; do
-            # POSIX wrapper (bash/sh steps on all platforms including Windows Git Bash).
-            printf '#!/bin/sh\nexec "%s" %s "$@"\n' "$SFW_BIN" "$name" > "$WRAPPER_DIR/$name"
-            chmod +x "$WRAPPER_DIR/$name"
-            # Windows .cmd wrapper — CMD/PowerShell finds these via PATHEXT.
-            printf '@"%s" %s %%*\r\n' "$SFW_BIN" "$name" > "$WRAPPER_DIR/$name.cmd"
-          done
-        fi
-        echo "$WRAPPER_DIR" >> "${GITHUB_PATH:-/dev/null}"
-        # Export SFW_BIN so the install step can call sfw directly.
         echo "SFW_BIN=$SFW_BIN" >> "${GITHUB_ENV:-/dev/null}"
 
     - name: Install dependencies
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       env:
+        SFW_DEBUG: 'true'
         SFW_SILENT: 'true'
-      run: |
-        # Call sfw directly — avoids recursive wrapper overhead since pnpm
-        # calls itself during workspace installs and lifecycle scripts.
-        "$SFW_BIN" pnpm install --loglevel error ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
+      run: "$SFW_BIN" pnpm install --loglevel error ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
+
+    - name: Setup sfw wrappers
+      shell: bash
+      run: | # zizmor: ignore[github-env]
+        WRAPPER_DIR="${RUNNER_TEMP:-/tmp}/sfw-wrapper"
+        if [ ! -d "$WRAPPER_DIR" ]; then
+          mkdir -p "$WRAPPER_DIR"
+          for name in cargo npm pip pnpm uv yarn; do
+            printf '#!/bin/sh\nexec "%s" %s "$@"\n' "$SFW_BIN" "$name" > "$WRAPPER_DIR/$name"
+            chmod +x "$WRAPPER_DIR/$name"
+            printf '@"%s" %s %%*\r\n' "$SFW_BIN" "$name" > "$WRAPPER_DIR/$name.cmd"
+          done
+        fi
+        echo "$WRAPPER_DIR" >> "${GITHUB_PATH:-/dev/null}"
