@@ -165,6 +165,14 @@ import colors from 'yoctocolors-cjs'
   - ✅ package.json: `"clean": "del-cli dist/**"`
   - ❌ FORBIDDEN: `fs.rm()`, `fs.rmSync()`, `rm -rf`, `del` package, `trash` package
 
+### HTTP Requests
+
+- **NEVER use `fetch()`** — use `@socketsecurity/lib/http-request` helpers instead
+- `httpJson(url, opts)` — fetch + parse JSON
+- `httpText(url, opts)` — fetch + return text
+- `httpRequest(url, opts)` — full control (`.json()`, `.text()`, `.body`)
+- Provides retries, timeouts, redirect handling — `fetch()` has none of these
+
 ### Work Safeguards (CRITICAL - PREVENTS DATA LOSS)
 
 **MANDATORY workflow before bulk changes**:
