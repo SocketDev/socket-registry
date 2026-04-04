@@ -262,7 +262,7 @@ Layer 4 — _local workflows (reference Layer 3, not reused externally):
 **The propagation SHA is the Layer 3 merge SHA** — the one where ci.yml and
 provenance.yml were updated. Layer 4 (`_local-not-for-reuse-*`) and external
 repos all pin to this SAME SHA. The Layer 4 merge SHA is NOT used for pinning
-because it only changed _local wrappers, not the reusable workflows that
+because it only changed \_local wrappers, not the reusable workflows that
 consumers reference.
 
 **External consuming repos** (all pin the same SHA as Layer 4 does):
