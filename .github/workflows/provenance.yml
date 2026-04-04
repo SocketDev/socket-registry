@@ -122,7 +122,9 @@ jobs:
           # Check if npm version is >= 11.5.1
           if ! pnpm exec semver "$NPM_VERSION" -r ">=11.5.1"; then
             echo "Installing npm 11.5.1+ for trusted publishing..."
-            npm install -g npm@11.12.1
+            # Use npx to download and run the new npm installer — avoids the
+            # self-corruption bug where npm deletes its own deps mid-upgrade.
+            npx --yes npm@11.12.1 install -g npm@11.12.1
             echo "Updated npm version: $(npm --version)"
           else
             echo "npm version $NPM_VERSION meets the 11.5.1+ requirement for trusted publishing"
