@@ -29,7 +29,7 @@ inputs:
   node-version:
     description: 'Node.js version to use'
     required: false
-    default: '22'
+    default: '25.9.0'
   pnpm-version:
     description: 'pnpm version'
     required: false
@@ -52,14 +52,14 @@ runs:
   steps:
     - name: Checkout
       if: inputs.checkout == 'true'
-      uses: SocketDev/socket-registry/.github/actions/checkout@a6d1015b4a5a1423c86280915fe458f45755e670 # main
+      uses: SocketDev/socket-registry/.github/actions/checkout@e589b1db6104ce41e4ba4ead9b30d4b617a6d054 # main
       with:
         fetch-depth: ${{ inputs.checkout-fetch-depth }}
         ref: ${{ inputs.checkout-ref }}
         working-directory: ${{ inputs.working-directory }}
 
     - name: Setup environment
-      uses: SocketDev/socket-registry/.github/actions/setup@a6d1015b4a5a1423c86280915fe458f45755e670 # main
+      uses: SocketDev/socket-registry/.github/actions/setup@e589b1db6104ce41e4ba4ead9b30d4b617a6d054 # main
       with:
         debug: ${{ inputs.debug }}
         node-version: ${{ inputs.node-version }}
@@ -69,6 +69,6 @@ runs:
         working-directory: ${{ inputs.working-directory }}
 
     - name: Install dependencies
-      uses: SocketDev/socket-registry/.github/actions/install@a6d1015b4a5a1423c86280915fe458f45755e670 # main
+      uses: SocketDev/socket-registry/.github/actions/install@e589b1db6104ce41e4ba4ead9b30d4b617a6d054 # main
       with:
         working-directory: ${{ inputs.working-directory }}
