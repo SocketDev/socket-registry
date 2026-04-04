@@ -29,6 +29,8 @@
     "claude": "node scripts/claude.mjs",
     "cover": "node scripts/cover.mjs",
     "fix": "node scripts/lint.mjs --fix",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
     "generate-actions-allow-list": "node scripts/ci/generate-actions-allow-list.mjs",
     "generate-actions-tree": "node scripts/ci/show-actions-tree.mjs",
     "inline-action-shas": "node scripts/ci/inline-action-versions-as-shas.mjs",
