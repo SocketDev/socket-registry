@@ -123,9 +123,8 @@ jobs:
           if ! pnpm exec semver "$NPM_VERSION" -r ">=11.5.1"; then
             echo "Installing npm 11.5.1+ for trusted publishing..."
             # Avoid npm/npx self-upgrade (corrupts deps mid-install on Node 22).
-            # Download tarball and extract directly into the global prefix.
-            NPM_PREFIX="$(node -p 'process.config.variables.node_prefix')"
-            curl -sL https://registry.npmjs.org/npm/-/npm-11.12.1.tgz | tar xz -C "$NPM_PREFIX/lib/node_modules/npm" --strip-components=1
+            NPM_DIR="$(npm config get prefix)/lib/node_modules/npm"
+            curl -sL https://registry.npmjs.org/npm/-/npm-11.12.1.tgz | tar xz -C "$NPM_DIR" --strip-components=1
             echo "Updated npm version: $(npm --version)"
           else
             echo "npm version $NPM_VERSION meets the 11.5.1+ requirement for trusted publishing"
