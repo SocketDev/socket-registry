@@ -585,6 +585,7 @@ Decision tree:
 - **MANDATORY**: All actions reference commit SHAs not tags: `uses: owner/repo@sha # vX.Y.Z`
 - **Reusable workflows**: Create in socket-registry, reference from other projects
 - **Standard SHAs**: actions/checkout@v5, pnpm/action-setup@v4, actions/setup-node@v5, actions/upload-artifact@v4
+- **NEVER use `sed` to edit YAML workflow files** — use the Edit tool with exact string matching. `sed` silently clobbers YAML content (SHAs, quoting, indentation)
 
 ### Dependency Alignment (MANDATORY)
 
