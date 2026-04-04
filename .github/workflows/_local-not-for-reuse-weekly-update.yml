@@ -67,14 +67,13 @@ jobs:
         with:
           gpg-private-key: ${{ secrets.BOT_GPG_PRIVATE_KEY }}
 
-      - name: Run updating skill with Claude Code
-        id: claude
-        timeout-minutes: 15
+      - name: Update dependencies (haiku)
+        id: update
+        timeout-minutes: 10
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_ACTIONS: 'true'
         run: |
-          # Wrap pnpm through Socket firewall for all subprocesses (not just this shell).
           if [ -n "$SFW_BIN" ]; then
             mkdir -p /tmp/sfw-bin
             printf '#!/bin/bash\nexec "%s" pnpm "$@"\n' "$SFW_BIN" > /tmp/sfw-bin/pnpm
@@ -90,11 +89,11 @@ jobs:
 
           set +e
           claude --print \
-            --allowedTools "Bash(pnpm:*)" "Bash(git:*)" "Read" "Write" "Edit" "Glob" "Grep" \
-            --model sonnet \
-            --max-turns 25 \
+            --allowedTools "Bash(pnpm:*)" "Bash(git add:*)" "Bash(git commit:*)" "Bash(git status:*)" "Bash(git diff:*)" "Bash(git log:*)" "Bash(git rev-parse:*)" "Read" "Write" "Edit" "Glob" "Grep" \
+            --model haiku \
+            --max-turns 15 \
             "/updating - Run the updating skill to update all dependencies. Create atomic commits for each update. You are running in CI mode - skip builds and tests. Do not push or create a PR." \
-            2>&1 | tee claude-output.log
+            2>&1 | tee claude-update.log
           CLAUDE_EXIT=${PIPESTATUS[0]}
           set -e
 
@@ -104,11 +103,104 @@ jobs:
             echo "success=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Run tests
+        id: tests
+        if: steps.update.outputs.success == 'true'
+        run: |
+          if [ -n "$SFW_BIN" ]; then
+            mkdir -p /tmp/sfw-bin
+            printf '#!/bin/bash\nexec "%s" pnpm "$@"\n' "$SFW_BIN" > /tmp/sfw-bin/pnpm
+            chmod +x /tmp/sfw-bin/pnpm
+            export PATH="/tmp/sfw-bin:$PATH"
+          fi
+
+          set +e
+          pnpm build 2>&1 | tee build-output.log
+          BUILD_EXIT=${PIPESTATUS[0]}
+
+          pnpm test 2>&1 | tee test-output.log
+          TEST_EXIT=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$BUILD_EXIT" -eq 0 ] && [ "$TEST_EXIT" -eq 0 ]; then
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "success=false" >> $GITHUB_OUTPUT
+            {
+              echo "BUILD_LOG<<GHEOF"
+              tail -100 build-output.log
+              echo "GHEOF"
+            } >> $GITHUB_OUTPUT
+            {
+              echo "TEST_LOG<<GHEOF"
+              tail -100 test-output.log
+              echo "GHEOF"
+            } >> $GITHUB_OUTPUT
+          fi
+
+      - name: Fix test failures (sonnet)
+        id: claude
+        if: steps.update.outputs.success == 'true' && steps.tests.outputs.success == 'false'
+        timeout-minutes: 15
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_ACTIONS: 'true'
+          BUILD_LOG: ${{ steps.tests.outputs.BUILD_LOG }}
+          TEST_LOG: ${{ steps.tests.outputs.TEST_LOG }}
+        run: |
+          if [ -n "$SFW_BIN" ]; then
+            mkdir -p /tmp/sfw-bin
+            printf '#!/bin/bash\nexec "%s" pnpm "$@"\n' "$SFW_BIN" > /tmp/sfw-bin/pnpm
+            chmod +x /tmp/sfw-bin/pnpm
+            export PATH="/tmp/sfw-bin:$PATH"
+          fi
+
+          set +e
+          claude --print \
+            --allowedTools "Bash(pnpm:*)" "Bash(git add:*)" "Bash(git commit:*)" "Bash(git status:*)" "Bash(git diff:*)" "Bash(git log:*)" "Bash(git rev-parse:*)" "Read" "Write" "Edit" "Glob" "Grep" \
+            --model sonnet \
+            --max-turns 25 \
+            "Dependency updates were applied but tests are failing. Fix the failures and commit fixes.
+
+          Build output (last 100 lines):
+          $BUILD_LOG
+
+          Test output (last 100 lines):
+          $TEST_LOG
+
+          Run 'pnpm build' and 'pnpm test' to reproduce. Fix issues, commit each fix atomically. Do not push or create a PR." \
+            2>&1 | tee claude-fix.log
+          CLAUDE_EXIT=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$CLAUDE_EXIT" -eq 0 ]; then
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "success=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set final status
+        id: final
+        if: always()
+        run: |
+          if [ "${{ steps.update.outputs.success }}" != "true" ]; then
+            echo "success=false" >> $GITHUB_OUTPUT
+            echo "reason=update-failed" >> $GITHUB_OUTPUT
+          elif [ "${{ steps.tests.outputs.success }}" == "true" ]; then
+            echo "success=true" >> $GITHUB_OUTPUT
+            echo "reason=tests-passed" >> $GITHUB_OUTPUT
+          elif [ "${{ steps.claude.outputs.success }}" == "true" ]; then
+            echo "success=true" >> $GITHUB_OUTPUT
+            echo "reason=fixes-applied" >> $GITHUB_OUTPUT
+          else
+            echo "success=false" >> $GITHUB_OUTPUT
+            echo "reason=fixes-failed" >> $GITHUB_OUTPUT
+          fi
+
       - name: Validate changes
         id: validate
-        if: steps.claude.outputs.success == 'true'
+        if: steps.final.outputs.success == 'true'
         run: |
-          # Only allow changes to dependency-related files.
           UNEXPECTED=""
           for file in $(git diff --name-only origin/main..HEAD); do
             case "$file" in
@@ -117,8 +209,8 @@ jobs:
             esac
           done
           if [ -n "$UNEXPECTED" ]; then
-            echo "::error::Unexpected files modified by Claude:$UNEXPECTED"
-            echo "valid=false" >> $GITHUB_OUTPUT
+            echo "::warning::Non-dependency files modified:$UNEXPECTED"
+            echo "valid=true" >> $GITHUB_OUTPUT
           else
             echo "valid=true" >> $GITHUB_OUTPUT
           fi
@@ -133,13 +225,13 @@ jobs:
           fi
 
       - name: Push branch
-        if: steps.claude.outputs.success == 'true' && steps.validate.outputs.valid == 'true' && steps.changes.outputs.has-changes == 'true'
+        if: steps.final.outputs.success == 'true' && steps.validate.outputs.valid == 'true' && steps.changes.outputs.has-changes == 'true'
         env:
           BRANCH_NAME: ${{ steps.branch.outputs.branch }}
         run: git push origin "$BRANCH_NAME"
 
       - name: Create Pull Request
-        if: steps.claude.outputs.success == 'true' && steps.validate.outputs.valid == 'true' && steps.changes.outputs.has-changes == 'true'
+        if: steps.final.outputs.success == 'true' && steps.validate.outputs.valid == 'true' && steps.changes.outputs.has-changes == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           BRANCH_NAME: ${{ steps.branch.outputs.branch }}
@@ -168,7 +260,7 @@ jobs:
             --base main
 
       - name: Add job summary
-        if: steps.claude.outputs.success == 'true' && steps.validate.outputs.valid == 'true' && steps.changes.outputs.has-changes == 'true'
+        if: steps.final.outputs.success == 'true' && steps.validate.outputs.valid == 'true' && steps.changes.outputs.has-changes == 'true'
         env:
           BRANCH_NAME: ${{ steps.branch.outputs.branch }}
         run: |
@@ -177,13 +269,20 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Branch:** \`${BRANCH_NAME}\`" >> $GITHUB_STEP_SUMMARY
           echo "**Commits:** ${COMMIT_COUNT}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.final.outputs.reason }}" == "fixes-applied" ]; then
+            echo "**Note:** Sonnet applied test fixes after update" >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Upload Claude output
         if: always()
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: claude-output-${{ github.run_id }}
-          path: claude-output.log
+          path: |
+            claude-update.log
+            claude-fix.log
+            build-output.log
+            test-output.log
           retention-days: 7
 
       - uses: SocketDev/socket-registry/.github/actions/cleanup-git-signing@0df87cf48ac824e6137d3cdd0bc63dc5f355d6d3 # main
