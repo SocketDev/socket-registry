@@ -159,6 +159,7 @@ import colors from 'yoctocolors-cjs'
 - **Scripts**: Use `safeDelete()` or `safeDeleteSync()` from `@socketsecurity/lib/fs`
 - **package.json scripts**: Use `del-cli` for inline script situations
 - **NO fs.rm/rmSync**: 🚨 ABSOLUTELY FORBIDDEN - NEVER `fs.rm()`, `fs.rmSync()`, or `rm -rf`
+- HTTP Requests: NEVER use `fetch()` — use `httpJson`/`httpText`/`httpRequest` from `@socketsecurity/lib/http-request`
 - **Examples**:
   - ✅ Source/Scripts: `import { safeDelete } from '@socketsecurity/lib/fs'` then `await safeDelete(tmpDir)`
   - ✅ Sync version: `import { safeDeleteSync } from '@socketsecurity/lib/fs'` then `safeDeleteSync(tmpDir)`
