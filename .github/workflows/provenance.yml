@@ -122,8 +122,12 @@ jobs:
           # Check if npm version is >= 11.5.1
           if ! pnpm exec semver "$NPM_VERSION" -r ">=11.5.1"; then
             echo "Installing npm 11.5.1+ for trusted publishing..."
-            # Avoid npm/npx self-upgrade (corrupts deps mid-install on Node 22).
+            # Clean install: delete old npm, extract new tarball with bundled deps.
+            # Overlaying on top of old npm mixes node_modules and causes
+            # "Class extends value undefined" errors.
             NPM_DIR="$(npm config get prefix)/lib/node_modules/npm"
+            rm -rf "$NPM_DIR"
+            mkdir -p "$NPM_DIR"
             curl -sL https://registry.npmjs.org/npm/-/npm-11.12.1.tgz | tar xz -C "$NPM_DIR" --strip-components=1
             echo "Updated npm version: $(npm --version)"
           else
