@@ -159,19 +159,12 @@ import colors from 'yoctocolors-cjs'
 - **Scripts**: Use `safeDelete()` or `safeDeleteSync()` from `@socketsecurity/lib/fs`
 - **package.json scripts**: Use `del-cli` for inline script situations
 - **NO fs.rm/rmSync**: 🚨 ABSOLUTELY FORBIDDEN - NEVER `fs.rm()`, `fs.rmSync()`, or `rm -rf`
+- HTTP Requests: NEVER use `fetch()` — use `httpJson`/`httpText`/`httpRequest` from `@socketsecurity/lib/http-request`
 - **Examples**:
   - ✅ Source/Scripts: `import { safeDelete } from '@socketsecurity/lib/fs'` then `await safeDelete(tmpDir)`
   - ✅ Sync version: `import { safeDeleteSync } from '@socketsecurity/lib/fs'` then `safeDeleteSync(tmpDir)`
   - ✅ package.json: `"clean": "del-cli dist/**"`
   - ❌ FORBIDDEN: `fs.rm()`, `fs.rmSync()`, `rm -rf`, `del` package, `trash` package
-
-### HTTP Requests
-
-- **NEVER use `fetch()`** — use `@socketsecurity/lib/http-request` helpers instead
-- `httpJson(url, opts)` — fetch + parse JSON
-- `httpText(url, opts)` — fetch + return text
-- `httpRequest(url, opts)` — full control (`.json()`, `.text()`, `.body`)
-- Provides retries, timeouts, redirect handling — `fetch()` has none of these
 
 ### Work Safeguards (CRITICAL - PREVENTS DATA LOSS)
 
