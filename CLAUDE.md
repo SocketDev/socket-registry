@@ -254,18 +254,29 @@ Layer 4 — _local workflows (reference Layer 3, not reused externally):
 ```
 1. PR: Update Layer 2a pins (setup)               → merge → get SHA
 2. PR: Update Layer 2b pins (setup-and-install)    → merge → get SHA
-3. PR: Update Layer 3 pins (ci.yml, provenance.yml) → merge → get SHA
-4. PR: Update Layer 4 pins (_local workflows)      → merge → get SHA
-5. Update any open feature PRs with new SHA
+3. PR: Update Layer 3 pins (ci.yml, provenance.yml) → merge → get SHA ← THIS IS THE PROPAGATION SHA
+4. PR: Update Layer 4 pins (_local workflows)      → merge
+5. Propagate the Layer 3 SHA to all consuming repos
 ```
+
+**The propagation SHA is the Layer 3 merge SHA** — the one where ci.yml and
+provenance.yml were updated. Layer 4 (`_local-not-for-reuse-*`) and external
+repos all pin to this SAME SHA. The Layer 4 merge SHA is NOT used for pinning
+because it only changed \_local wrappers, not the reusable workflows that
+consumers reference.
+
+**External consuming repos** (all pin the same SHA as Layer 4 does):
+socket-btm, socket-cli, socket-sdk-js, socket-packageurl-js,
+socket-sbom-generator, socket-lib, ultrathink
 
 **Rules:**
 
-- Each layer gets its own PR — never combine layers or sub-layers.
+- Each layer gets its own PR — never combine layers.
 - Always `git fetch origin main && git rev-parse origin/main` to get the SHA after merge.
 - Use `--no-verify` for pin-only commits (no code changes).
 - Verify with: `grep -rn "SocketDev/socket-registry" .github/ | grep "@" | grep -v "<current-sha>"`.
-- The `_local-not-for-reuse-weekly-update.yml` also references `actions/upload-artifact` — don't clobber third-party SHAs when doing blanket replacements.
+- Don't clobber third-party SHAs (e.g., `actions/upload-artifact`) when doing blanket replacements.
+- For external repos: push directly to main where allowed, create PRs where branch protection requires it.
 
 ### Testing & Coverage
 
