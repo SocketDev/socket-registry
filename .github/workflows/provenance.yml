@@ -122,7 +122,9 @@ jobs:
           # Check if npm version is >= 11.5.1
           if ! pnpm exec semver "$NPM_VERSION" -r ">=11.5.1"; then
             echo "Installing npm 11.5.1+ for trusted publishing..."
-            npm install -g npm@11.12.1
+            # Avoid npm/npx self-upgrade (corrupts deps mid-install on Node 22).
+            NPM_DIR="$(npm config get prefix)/lib/node_modules/npm"
+            curl -sL https://registry.npmjs.org/npm/-/npm-11.12.1.tgz | tar xz -C "$NPM_DIR" --strip-components=1
             echo "Updated npm version: $(npm --version)"
           else
             echo "npm version $NPM_VERSION meets the 11.5.1+ requirement for trusted publishing"
