@@ -24,7 +24,7 @@ on:
         description: 'Node.js version for linting'
         required: false
         type: string
-        default: '22'
+        default: '25.9.0'
       lint-script:
         description: 'Lint command (e.g., "pnpm run lint --all")'
         required: false
@@ -94,7 +94,7 @@ on:
         description: 'Node.js version for type checking'
         required: false
         type: string
-        default: '22'
+        default: '25.9.0'
       type-check-script:
         description: 'Type check command (e.g., "pnpm run check")'
         required: false
