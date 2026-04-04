@@ -182,14 +182,18 @@ jobs:
       - name: Set final status
         id: final
         if: always()
+        env:
+          UPDATE_SUCCESS: ${{ steps.update.outputs.success }}
+          TESTS_SUCCESS: ${{ steps.tests.outputs.success }}
+          FIX_SUCCESS: ${{ steps.claude.outputs.success }}
         run: |
-          if [ "${{ steps.update.outputs.success }}" != "true" ]; then
+          if [ "$UPDATE_SUCCESS" != "true" ]; then
             echo "success=false" >> $GITHUB_OUTPUT
             echo "reason=update-failed" >> $GITHUB_OUTPUT
-          elif [ "${{ steps.tests.outputs.success }}" == "true" ]; then
+          elif [ "$TESTS_SUCCESS" = "true" ]; then
             echo "success=true" >> $GITHUB_OUTPUT
             echo "reason=tests-passed" >> $GITHUB_OUTPUT
-          elif [ "${{ steps.claude.outputs.success }}" == "true" ]; then
+          elif [ "$FIX_SUCCESS" = "true" ]; then
             echo "success=true" >> $GITHUB_OUTPUT
             echo "reason=fixes-applied" >> $GITHUB_OUTPUT
           else
@@ -263,13 +267,14 @@ jobs:
         if: steps.final.outputs.success == 'true' && steps.validate.outputs.valid == 'true' && steps.changes.outputs.has-changes == 'true'
         env:
           BRANCH_NAME: ${{ steps.branch.outputs.branch }}
+          FINAL_REASON: ${{ steps.final.outputs.reason }}
         run: |
           COMMIT_COUNT=$(git rev-list --count origin/main..HEAD)
           echo "## Weekly Update Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Branch:** \`${BRANCH_NAME}\`" >> $GITHUB_STEP_SUMMARY
           echo "**Commits:** ${COMMIT_COUNT}" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.final.outputs.reason }}" == "fixes-applied" ]; then
+          if [ "$FINAL_REASON" = "fixes-applied" ]; then
             echo "**Note:** Sonnet applied test fixes after update" >> $GITHUB_STEP_SUMMARY
           fi
 
