@@ -91,7 +91,7 @@ jobs:
           set +e
           claude --print \
             --allowedTools "Bash(pnpm:*)" "Bash(git:*)" "Read" "Write" "Edit" "Glob" "Grep" \
-            --model haiku \
+            --model sonnet \
             --max-turns 25 \
             "/updating - Run the updating skill to update all dependencies. Create atomic commits for each update. You are running in CI mode - skip builds and tests. Do not push or create a PR." \
             2>&1 | tee claude-output.log
