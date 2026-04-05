@@ -39,20 +39,22 @@ Starting from the layer above the change, create a PR for each layer:
 7. **Push and create PR**
 8. **Wait for merge** before proceeding to next layer
 
-### Phase 3: Propagate to external repos
+### Phase 3: Update Layer 4 (local wrappers)
 
-The **propagation SHA** is the Layer 3 merge SHA (where ci.yml and provenance.yml were updated). All external repos pin to this same SHA.
+After Layer 3 merges, get the **propagation SHA** (Layer 3 merge SHA). Update the `_local-not-for-reuse-*` workflows to pin to this SHA. Create a PR, merge it.
 
-External repos (update all):
-- socket-btm, socket-cli, socket-sdk-js, socket-packageurl-js
-- socket-sbom-generator, socket-lib, ultrathink
+The Layer 4 merge SHA is NOT used for external pinning — external repos pin to the Layer 3 SHA because that's where the reusable workflows (ci.yml, provenance.yml) were updated.
+
+### Phase 4: Propagate to external repos
+
+All external repos pin to the **propagation SHA** (Layer 3 merge SHA).
 
 For each repo:
 1. Update all `SocketDev/socket-registry/.github/` refs to the propagation SHA
-2. Push directly to main where allowed
-3. Create PRs where branch protection requires it
+2. Push directly to main where allowed (socket-btm, socket-sbom-generator, ultrathink)
+3. Create PRs where branch protection requires it (socket-cli, socket-lib, socket-sdk-js, socket-packageurl-js)
 
-### Phase 4: Verify
+### Phase 5: Verify
 
 For each updated repo, confirm no old SHAs remain:
 ```bash

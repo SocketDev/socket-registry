@@ -312,7 +312,7 @@ Use AskUserQuestion tool:
 - Header: "Scan Types"
 - multiSelect: true
 - Options:
-  - "All scans (recommended)" → Run all 4 scan types
+  - "All scans (recommended)" → Run all scan types
   - "Critical only" → Run critical scan only
   - "Critical + Logic" → Run critical and logic scans
   - "Custom selection" → Ask user to specify which scans
@@ -336,7 +336,7 @@ If user requests non-existent scan type, report error and suggest valid types.
 ### Phase 6: Execute Scans
 
 <action>
-For each enabled scan type, spawn a specialized agent using Task tool:
+For each enabled scan type, spawn a specialized agent using Agent tool:
 </action>
 
 ```typescript
@@ -365,7 +365,7 @@ Scan systematically and report all findings. If no issues found, state that expl
 **For each scan:**
 1. Load agent prompt template from `reference.md`
 2. Customize for repository context (determine monorepo vs single package structure)
-3. Spawn agent with Task tool using "general-purpose" subagent_type
+3. Spawn agent with Agent tool using "general-purpose" subagent_type
 4. Capture findings from agent response
 5. Parse and categorize results
 
@@ -617,7 +617,7 @@ This skill is self-contained. No external commands needed.
 
 This skill provides systematic code quality analysis by:
 - Spawning specialized agents for targeted analysis
-- Using Task tool to run agents autonomously
+- Using Agent tool to run agents autonomously
 - Embedding agent prompts in reference.md following best practices
 - Generating prioritized, actionable reports
 - Supporting partial scans (user can select specific scan types)
