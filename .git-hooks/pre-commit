@@ -112,6 +112,24 @@ for file in $STAGED_FILES; do
   fi
 done
 
+# Check for npx/dlx usage (use pnpm exec or pnpm run instead).
+printf "Checking for npx/dlx usage...\n"
+for file in $STAGED_FILES; do
+  if [ -f "$file" ]; then
+    # Skip node_modules, lockfiles, and this hook itself.
+    if echo "$file" | grep -qE 'node_modules/|pnpm-lock\.yaml|\.git-hooks/'; then
+      continue
+    fi
+
+    if grep -nE '\bnpx\b|\bpnpm dlx\b|\byarn dlx\b' "$file" 2>/dev/null | grep -v '# zizmor:' | grep -q .; then
+      printf "${RED}✗ ERROR: npx/dlx usage found in: $file${NC}\n"
+      grep -nE '\bnpx\b|\bpnpm dlx\b|\byarn dlx\b' "$file" | grep -v '# zizmor:' | head -3
+      printf "Use 'pnpm exec <package>' or 'pnpm run <script>' instead.\n"
+      ERRORS=$((ERRORS + 1))
+    fi
+  fi
+done
+
 if [ $ERRORS -gt 0 ]; then
   printf "\n"
   printf "${RED}✗ Security check failed with $ERRORS error(s).${NC}\n"

@@ -56,6 +56,7 @@ catalog:
   clipboardy: 4.0.0
   debug: ^4.4.3
   del: 8.0.1
+  ecc-agentshield: 1.4.0
   del-cli: 6.0.0
   dev-null-cli: 2.0.0
   didyoumean2: 7.0.4
