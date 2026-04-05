@@ -1,5 +1,10 @@
 # Wait 7 days (10080 minutes) before installing newly published packages.
 minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  - '@socketaddon/*'
+  - '@socketbin/*'
+  - '@socketregistry/*'
+  - '@socketsecurity/*'
 
 packages:
   - packages/npm/*
@@ -26,7 +31,7 @@ catalog:
   '@npmcli/package-json': 7.0.0
   '@npmcli/promise-spawn': 8.0.3
   '@socketregistry/packageurl-js': 1.4.1
-  '@socketsecurity/lib': 5.11.4
+  '@socketsecurity/lib': 5.12.0
   '@types/fs-extra': 11.0.4
   '@types/node': 24.9.2
   '@types/normalize-package-data': 2.4.4
