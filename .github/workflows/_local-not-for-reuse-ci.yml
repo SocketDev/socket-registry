@@ -48,11 +48,9 @@ jobs:
       - name: Build registry
         shell: bash
         run: |
-          alias pnpm="$SFW_BIN pnpm"
           pnpm run build
 
       - name: Run npm package tests
         shell: bash
         run: |
-          alias pnpm="$SFW_BIN pnpm"
           node scripts/npm/test-npm-packages.mjs

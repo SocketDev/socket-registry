@@ -40,6 +40,50 @@ runs:
         fi
         echo "SFW_BIN=$SFW_BIN" >> "${GITHUB_ENV:-/dev/null}"
 
+    - name: Create sfw shims
+      shell: bash
+      run: | # zizmor: ignore[github-env]
+        # Create shims for all sfw-free supported package managers
+        # (npm, yarn, pnpm, pip, uv, cargo) so bare commands in later
+        # steps are transparently routed through the Socket firewall.
+        # Each shim strips its own dir from PATH at runtime to prevent
+        # recursive invocation, then exec's sfw with the real binary's
+        # absolute path. Added to GITHUB_PATH so it persists across steps.
+        SHIM_DIR="${RUNNER_TEMP:-/tmp}/sfw-shim"
+        # Clean slate — removes stale shims from prior invocations.
+        rm -rf "$SHIM_DIR"
+        mkdir -p "$SHIM_DIR"
+        IS_WINDOWS=false
+        [[ "$OSTYPE" == msys* || "$OSTYPE" == cygwin* ]] && IS_WINDOWS=true
+        # Build a PATH without the shim dir so "command -v" resolves
+        # real binaries, not our own shims. Uses -vxF for exact
+        # whole-line matching (won't drop e.g. /tmp/sfw-shim-extra).
+        strip_shim_dir() { echo "$PATH" | tr ':' '\n' | grep -vxF "$SHIM_DIR" | paste -sd: -; }
+        CLEAN_PATH="$(strip_shim_dir)"
+        for CMD in npm yarn pnpm pip uv cargo; do
+          # Resolve the real binary path; skip if not installed.
+          REAL="$(PATH="$CLEAN_PATH" command -v "$CMD" 2>/dev/null || true)"
+          [ -z "$REAL" ] && continue
+          # Bash shim: strip shim dir from current $PATH at runtime
+          # (not a baked snapshot) so later PATH additions are preserved,
+          # then exec sfw with the resolved absolute binary path.
+          printf '%s\n' \
+            '#!/bin/bash' \
+            "export PATH=\"\$(echo \"\$PATH\" | tr ':' '\n' | grep -vxF '${SHIM_DIR}' | paste -sd: -)\"" \
+            "exec \"${SFW_BIN}\" \"${REAL}\" \"\$@\"" \
+            > "$SHIM_DIR/$CMD"
+          chmod +x "$SHIM_DIR/$CMD"
+          if $IS_WINDOWS; then
+            # .cmd shim: bracket PATH with ";" so every entry has the
+            # form ";entry;", replace ";shimdir;" with ";", then strip
+            # the outer ";". This gives exact component removal.
+            printf '@echo off\r\nset "PATH=;%%PATH%%;"\r\nset "PATH=%%PATH:;%s;=;%%"\r\nset "PATH=%%PATH:~1,-1%%"\r\n"%s" "%s" %%*\r\n' "$SHIM_DIR" "$SFW_BIN" "$REAL" > "$SHIM_DIR/$CMD.cmd"
+          fi
+        done
+        # Prepend shim dir to PATH for all subsequent job steps.
+        echo "$SHIM_DIR" >> "${GITHUB_PATH:-/dev/null}"
+        echo "SFW_SHIM_DIR=$SHIM_DIR" >> "${GITHUB_ENV:-/dev/null}"
+
     - name: Install dependencies
       shell: bash
       working-directory: ${{ inputs.working-directory }}

@@ -30,7 +30,6 @@ jobs:
         id: check
         shell: bash
         run: |
-          alias pnpm="$SFW_BIN pnpm"
           echo "Checking for npm package updates..."
           HAS_UPDATES=false
           NPM_UPDATES=$(pnpm outdated 2>/dev/null || true)
@@ -74,13 +73,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_ACTIONS: 'true'
         run: |
-          if [ -n "$SFW_BIN" ]; then
-            mkdir -p /tmp/sfw-bin
-            printf '#!/bin/bash\nexec "%s" pnpm "$@"\n' "$SFW_BIN" > /tmp/sfw-bin/pnpm
-            chmod +x /tmp/sfw-bin/pnpm
-            export PATH="/tmp/sfw-bin:$PATH"
-          fi
-
           if [ -z "$ANTHROPIC_API_KEY" ]; then
             echo "ANTHROPIC_API_KEY not set - skipping automated update"
             echo "success=false" >> $GITHUB_OUTPUT
@@ -107,13 +99,6 @@ jobs:
         id: tests
         if: steps.update.outputs.success == 'true'
         run: |
-          if [ -n "$SFW_BIN" ]; then
-            mkdir -p /tmp/sfw-bin
-            printf '#!/bin/bash\nexec "%s" pnpm "$@"\n' "$SFW_BIN" > /tmp/sfw-bin/pnpm
-            chmod +x /tmp/sfw-bin/pnpm
-            export PATH="/tmp/sfw-bin:$PATH"
-          fi
-
           set +e
           pnpm build 2>&1 | tee build-output.log
           BUILD_EXIT=${PIPESTATUS[0]}
@@ -148,13 +133,6 @@ jobs:
           BUILD_LOG: ${{ steps.tests.outputs.BUILD_LOG }}
           TEST_LOG: ${{ steps.tests.outputs.TEST_LOG }}
         run: |
-          if [ -n "$SFW_BIN" ]; then
-            mkdir -p /tmp/sfw-bin
-            printf '#!/bin/bash\nexec "%s" pnpm "$@"\n' "$SFW_BIN" > /tmp/sfw-bin/pnpm
-            chmod +x /tmp/sfw-bin/pnpm
-            export PATH="/tmp/sfw-bin:$PATH"
-          fi
-
           set +e
           claude --print \
             --allowedTools "Bash(pnpm:*)" "Bash(git add:*)" "Bash(git commit:*)" "Bash(git status:*)" "Bash(git diff:*)" "Bash(git log:*)" "Bash(git rev-parse:*)" "Read" "Write" "Edit" "Glob" "Grep" \
