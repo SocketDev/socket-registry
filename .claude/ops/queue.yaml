@@ -7,4 +7,6 @@ phase_order:
   ci-cascade: [identify, layer-prs, layer-4-update, propagate, verify]
   release: [quality-gate, security-gate, changelog, version-bump]
 
+# Completed runs are appended here by skills. Prune periodically —
+# keep the last 10 entries and delete older ones to avoid unbounded growth.
 runs: []

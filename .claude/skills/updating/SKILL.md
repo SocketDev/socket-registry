@@ -62,8 +62,8 @@ Run pnpm run update to update npm dependencies:
 pnpm run update
 
 # Check if there are changes
-if [ -n "$(git status --porcelain pnpm-lock.yaml package.json)" ]; then
-  git add pnpm-lock.yaml package.json
+if [ -n "$(git status --porcelain)" ]; then
+  git add pnpm-lock.yaml pnpm-workspace.yaml package.json packages/npm/*/package.json
   git commit -m "chore: update npm dependencies
 
 Updated npm packages via pnpm run update."
