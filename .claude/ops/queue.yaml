@@ -1,0 +1,10 @@
+schema_version: 1
+
+phase_order:
+  quality-scan: [env-check, dep-update, cleanup, structural, scans, report]
+  security-scan: [env-check, agentshield, zizmor, grade-report]
+  updating: [env-check, npm-update, validate]
+  ci-cascade: [identify, layer-prs, propagate, verify]
+  release: [quality-gate, security-gate, changelog, version-bump]
+
+runs: []

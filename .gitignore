@@ -21,6 +21,7 @@ WIP
 /.claude/*
 !/.claude/agents/
 !/.claude/commands/
+!/.claude/ops/
 !/.claude/skills/
 
 # Environment files
