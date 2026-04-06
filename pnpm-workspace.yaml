@@ -1,6 +1,7 @@
 # Wait 7 days (10080 minutes) before installing newly published packages.
 minimumReleaseAge: 10080
 minimumReleaseAgeExclude:
+  - '@anthropic-ai/*'
   - '@socketaddon/*'
   - '@socketbin/*'
   - '@socketregistry/*'
@@ -13,7 +14,7 @@ packages:
   - scripts
 
 catalog:
-  '@anthropic-ai/claude-code': 2.1.89
+  '@anthropic-ai/claude-code': 2.1.92
   '@babel/core': 7.28.4
   '@babel/generator': 7.28.3
   '@babel/parser': 7.28.4
@@ -56,6 +57,7 @@ catalog:
   clipboardy: 4.0.0
   debug: ^4.4.3
   del: 8.0.1
+  ecc-agentshield: 1.4.0
   del-cli: 6.0.0
   dev-null-cli: 2.0.0
   didyoumean2: 7.0.4

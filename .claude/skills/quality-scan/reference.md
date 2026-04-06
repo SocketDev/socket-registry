@@ -17,13 +17,13 @@ Examples:
 
 **BAD - Ignoring return values and reconstructing paths:**
 ```javascript
-await downloadSocketBtmRelease({ asset, downloadDir, tool: 'lief' })
-const downloadedPath = path.join(downloadDir, 'lief', 'assets', asset)  // ❌ Assumes path structure
+await downloadAsset({ asset, downloadDir, tool: 'package' })
+const downloadedPath = path.join(downloadDir, 'package', 'assets', asset)  // ❌ Assumes path structure
 ```
 
 **GOOD - Use the return value:**
 ```javascript
-const downloadedPath = await downloadSocketBtmRelease({ asset, downloadDir })  // ✅ Simple, trust the function
+const downloadedPath = await downloadAsset({ asset, downloadDir })  // ✅ Simple, trust the function
 ```
 
 **Principle**: If a function returns what you need, use it. Don't reconstruct or assume.
@@ -57,7 +57,6 @@ Common characteristics to look for:
 Scan all code files for these critical bug patterns:
 - [IF monorepo] TypeScript/JavaScript: packages/npm/*/scripts/**/*.{mjs,mts}, registry/lib/**/*.js, scripts/**/*.{mjs,mts}
 - [IF single package] TypeScript/JavaScript: src/**/*.{ts,mts,mjs,js}, lib/**/*.{ts,mts,mjs,js}
-- [IF C/C++ code exists] C/C++: src/**/*.{c,cc,cpp,h}
 - Focus on:
 
 <pattern name="null_undefined_access">
@@ -101,92 +100,6 @@ Scan all code files for these critical bug patterns:
 - Buffer operations without size checks
 </pattern>
 
-<pattern name="primordials_protection">
-**CRITICAL for Node.js internal code (IF repository has Node.js internals):**
-- Direct Promise method calls (Promise.all, Promise.allSettled, Promise.race, Promise.any) instead of primordials
-- Missing primordials import in internal/ modules
-- Using Promise.all where Promise.allSettled would be safer for error collection
-- [SOCKET-BTM SPECIFIC] Check additions/source-patched/lib/internal/socketsecurity/smol/*.js for SafePromiseAllSettled usage
-- [SOCKET-BTM SPECIFIC] Check additions/source-patched/deps/fast-webstreams/*.js for SafePromiseAllReturnVoid usage
-- [SOCKET-BTM SPECIFIC] Verify sync scripts (vendor-fast-webstreams/sync.mjs) inject primordials when syncing from upstream
-</pattern>
-
-<pattern name="cross_platform_binary_bugs">
-**[SOCKET-BTM SPECIFIC] CRITICAL for binary tooling (binject, binpress, stubs-builder):**
-Cross-platform binary processing that uses compile-time platform detection:
-- `#ifdef __APPLE__` / `#ifdef _WIN32` selecting sizes, offsets, or behaviors for binary operations
-- Host platform detection instead of target binary format detection
-- Example buggy pattern (causes "Cannot inject into uncompressed stub" errors):
-  ```c
-  #ifdef __APPLE__
-  size_t search_size = SEARCH_SIZE_MACHO;  // Uses macOS size even for Linux ELF binaries!
-  #else
-  size_t search_size = SEARCH_SIZE_ELF;
-  #endif
-  ```
-- Fix: Use runtime binary format detection based on the executable being processed:
-  ```c
-  binject_format_t format = binject_detect_format(executable);
-  size_t search_size = get_search_size_for_format(format);
-  ```
-- Impact: Cross-platform CI (e.g., macOS building Linux binaries) silently produces broken binaries
-</pattern>
-
-<pattern name="pe_resource_requirements">
-**[SOCKET-BTM SPECIFIC] CRITICAL for Windows binary tooling:**
-Windows PE binaries missing required .rsrc sections for LIEF injection:
-- LIEF cannot create resource sections from scratch - must exist in the binary
-- Symptoms: "Binary has no resources section" error during SEA injection
-- Check Windows Makefiles (Makefile.windows) for:
-  1. Missing .rc resource file compilation with windres
-  2. Missing RESOURCE_OBJ in the final link step
-- Required for any PE binary that will receive NODE_SEA_BLOB or other injected resources
-</pattern>
-
-<pattern name="binsuite_self_compression_in_tests">
-**[SOCKET-BTM SPECIFIC] CRITICAL for test reliability and CI stability:**
-Tests compressing binsuite binaries (binpress, binflate, binject) as test input cause:
-- Flaky/slow tests: These binaries vary between builds, causing inconsistent test behavior
-- CI timeouts: Large binary compression takes excessive time
-- Parallel test interference: Tests using static paths collide in parallel runs
-
-**Bad patterns to flag:**
-```typescript
-// BAD - compressing binsuite tools themselves
-const originalBinary = BINPRESS  // or BINFLATE, BINJECT
-await execCommand(BINPRESS, [BINFLATE, '-o', output])
-
-// BAD - static testDir paths (parallel collision risk)
-const testDir = path.join(PACKAGE_DIR, 'test-tmp')
-```
-
-**Correct patterns:**
-```typescript
-// GOOD - use Node.js binary (consistent across builds)
-const NODE_BINARY = process.execPath
-let testDir: string
-let testBinary: string
-
-beforeAll(async () => {
-  // Unique testDir isolates parallel test runs
-  const uniqueId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
-  testDir = path.join(os.tmpdir(), `package-test-${uniqueId}`)
-  await safeMkdir(testDir)
-  // Copy Node.js as consistent test input
-  testBinary = path.join(testDir, 'test-node')
-  await fs.copyFile(NODE_BINARY, testBinary)
-})
-```
-
-**Where to check:**
-- packages/npm/*/test/*.test.mts
-- test/**/*.test.js
-- test/**/*.test.mts
-- Any test that uses external package managers or performs heavy I/O operations
-
-**Impact:** Tests performing intensive npm operations can cause CI timeouts
-</pattern>
-
 For each bug found, think through:
 1. Can this actually crash in production?
 2. What input would trigger it?
@@ -213,21 +126,12 @@ Trigger: When operation fails without error handling
 Fix: `await asyncOperation().catch(err => { logger.error(err); throw new Error(\`Operation failed: \${err.message}\`) })`
 Impact: Uncaught exception crashes process
 
-Example (C/C++):
-File: src/path/to/file.c:234
-Issue: Potential null pointer dereference after malloc
-Severity: Critical
-Pattern: `uint8_t* buffer = malloc(size); memcpy(buffer, data, size);`
-Trigger: When malloc fails due to insufficient memory
-Fix: `uint8_t* buffer = malloc(size); if (!buffer) return ERROR_MEMORY; memcpy(buffer, data, size);`
-Impact: Segmentation fault crashes process
 </output_format>
 
 <quality_guidelines>
 - Only report actual bugs, not style issues or minor improvements
 - Verify bugs are not already handled by surrounding code
 - Prioritize bugs affecting reliability and correctness
-- For C/C++: Focus on memory safety, null checks, buffer overflows
 - For TypeScript: Focus on promise handling, type guards, external input validation
 - Skip false positives (TypeScript type guards are sufficient in many cases)
 - [IF monorepo] Scan across all packages systematically
@@ -298,73 +202,6 @@ Algorithm implementation issues:
 - Deduplication: Missing deduplication of duplicate items
 </pattern>
 
-<pattern name="patch_handling">
-**[SOCKET-BTM SPECIFIC] Patch application logic errors:**
-- Unified diff parsing: Line offset calculation errors, context matching failures
-- Hunk application: Off-by-one in line number calculations
-- Patch validation: Missing validation of patch format (malformed hunks)
-- Backup/restore: Not properly handling patch failures mid-application
-- Independent patches: Assumptions about patch ordering or dependencies
-</pattern>
-
-<pattern name="binary_format">
-**[SOCKET-BTM SPECIFIC] Binary format handling errors:**
-- Format detection: Misidentifying ELF/Mach-O/PE headers
-- Section/segment: Off-by-one in offset calculations, size validation missing
-- Endianness: Not handling big-endian vs little-endian correctly
-- Alignment: Missing alignment requirements for injected data
-- Cross-platform: Windows vs Unix path separators, line endings
-</pattern>
-
-<pattern name="compile_time_vs_runtime_platform">
-**[SOCKET-BTM SPECIFIC] Cross-platform binary processing bugs (CRITICAL - causes silent failures):**
-- Using `#ifdef __APPLE__` / `#ifdef _WIN32` to select binary format-specific behavior
-- Code uses host platform instead of target binary format for size/offset calculations
-- Magic marker search using compile-time constants instead of runtime binary format detection
-- Example bug pattern:
-  ```c
-  // BAD - uses compile-time platform, breaks cross-platform builds
-  #ifdef __APPLE__
-  size_t search_size = 64 * 1024;   // Mach-O size
-  #elif defined(_WIN32)
-  size_t search_size = 128 * 1024;  // PE size
-  #else
-  size_t search_size = 1408 * 1024; // ELF size
-  #endif
-
-  // GOOD - runtime detection based on binary being processed
-  binject_format_t format = binject_detect_format(executable);
-  size_t search_size = get_search_size_for_format(format);
-  ```
-- Symptoms: "Cannot inject into uncompressed stub binary" when building Linux binaries on macOS
-- Critical for: binject, binpress, stubs-builder, any code manipulating binaries cross-platform
-- Real-world impact: macOS CI processing Linux ELF binaries uses wrong search size, fails to find markers
-</pattern>
-
-<pattern name="missing_pe_resources">
-**[SOCKET-BTM SPECIFIC] Windows PE binaries missing required resource sections:**
-- PE stub binaries without .rsrc section cannot receive LIEF-injected resources
-- LIEF cannot create resource sections from scratch - binary must have existing resources
-- Symptoms: "Binary has no resources section" error during Windows SEA injection
-- Check Windows Makefiles for:
-  1. Missing .rc resource file (stub.rc or similar)
-  2. Missing windres compilation step: `$(WINDRES) -i $(RESOURCE_RC) -o $@`
-  3. Missing resource object in link step: `$(CC) ... $(RESOURCE_OBJ) ...`
-- Required for binaries that need NODE_SEA_BLOB or other injected resources
-- Example fix for Makefile.windows:
-  ```makefile
-  RESOURCE_RC = src/socketsecurity/stubs-builder/stub.rc
-  RESOURCE_OBJ = $(OUT_DIR)/stub.res.o
-  WINDRES ?= windres
-
-  $(RESOURCE_OBJ): $(RESOURCE_RC) | $(OUT_DIR)
-      $(WINDRES) -i $(RESOURCE_RC) -o $@
-
-  $(OUT_DIR)/$(TARGET): $(SOURCE) $(RESOURCE_OBJ) ...
-      $(CC) ... $(SOURCE) $(RESOURCE_OBJ) ...
-  ```
-</pattern>
-
 Before reporting, think through:
 1. Does this logic error produce incorrect output?
 2. What specific input would trigger it?
@@ -391,14 +228,6 @@ Pattern: `for (let i = 0; i < items.length - 1; i++)`
 Fix: `for (let i = 0; i < items.length; i++)`
 Impact: Last item is silently omitted, causing incorrect processing
 
-Example (C code):
-File: src/path/to/file.c:234
-Issue: Incorrect size calculation with alignment
-Severity: High
-Edge Case: When data requires alignment
-Pattern: `new_size = existing_size + data_size;`
-Fix: `new_size = ALIGN_UP(existing_size + data_size, alignment);`
-Impact: Misaligned data causes segfault
 </output_format>
 
 <quality_guidelines>
@@ -406,7 +235,6 @@ Impact: Misaligned data causes segfault
 - Focus on errors affecting correctness and data integrity
 - Verify logic errors aren't false alarms due to type narrowing
 - Consider real-world edge cases: malformed input, unusual formats, cross-platform paths
-- [IF C/C++ exists] Pay special attention to pointer arithmetic and buffer calculations
 </quality_guidelines>
 
 Analyze systematically and report all logic errors found. If no errors are found, state that explicitly.
@@ -425,7 +253,7 @@ Analyze systematically and report all logic errors found. If no errors are found
 Your task is to analyze caching implementation for correctness, staleness bugs, and performance issues. Focus on cache corruption, invalidation failures, and race conditions.
 
 <context>
-**[SOCKET-BTM SPECIFIC - Adapt for your repository's caching strategy]**
+[CONDITIONAL: Adapt for your repository's caching strategy]
 
 This project uses caching for npm package overrides and registry data:
 - **Storage**: Package override caching in packages/npm/*
@@ -458,7 +286,7 @@ Checkpoint key generation correctness:
 - Patch ordering: Does key depend on patch application order?
 - Platform isolation: Are Windows/macOS/Linux checkpoints properly separated?
 - Arch isolation: Are ARM64/x64 checkpoints kept separate?
-- Additions: Are build-infra/binject changes invalidating checkpoints?
+- Dependencies: Are dependency changes invalidating caches?
 - Environment: Are env vars (NODE_OPTIONS, etc.) affecting builds included?
 
 **NOTE**: Platform-agnostic operations (npm package parsing) may share cache keys across platforms,
@@ -489,7 +317,7 @@ Scenarios producing stale/incorrect checkpoints:
 - Platform mismatch: Restoring darwin checkpoint on linux
 - Arch mismatch: Restoring arm64 checkpoint for x64 build
 - Version mismatch: Node.js version changed but checkpoint reused
-- Additions changed: build-infra/binject updated but checkpoint not invalidated
+- Dependencies changed: Updated dependencies but checkpoint not invalidated
 - Environment drift: Build flags changed but cache key unchanged
 </pattern>
 
@@ -544,28 +372,29 @@ Analyze the checkpoint implementation thoroughly across all checkpoint stages an
 
 ### Workflow Scan Agent
 
-**Mission**: Detect problems in build scripts, CI configuration, git hooks, and developer workflows across the socket-btm monorepo.
+**Mission**: Detect problems in build scripts, CI configuration, git hooks, and developer workflows across the socket-registry monorepo.
 
-**Scan Targets**: All `scripts/`, `package.json`, `.git-hooks/*`, `.github/workflows/*` across packages
+**Scan Targets**: All `scripts/`, `package.json`, `.git-hooks/*`, `.husky/*`, `.github/workflows/*` across packages
 
 **Prompt Template:**
 ```
-Your task is to identify issues in socket-btm's development workflows, build scripts, and CI configuration that could cause build failures, test flakiness, or poor developer experience.
+Your task is to identify issues in socket-registry's development workflows, build scripts, and CI configuration that could cause build failures, test flakiness, or poor developer experience.
 
 <context>
-socket-btm is a pnpm monorepo with:
+socket-registry is a pnpm monorepo with:
+- **npm packages**: packages/npm/* (override packages published to npm)
 - **Build scripts**: scripts/**/*.{mjs,mts} (ESM, cross-platform Node.js)
 - **Package manager**: pnpm workspaces with scripts in each package.json
-- **Git hooks**: .git-hooks/* for pre-commit, pre-push validation
-- **CI**: GitHub Actions (.github/workflows/)
-- **Platforms**: Must work on Windows, macOS, Linux (ARM64, x64)
+- **Git hooks**: .git-hooks/* and .husky/* for pre-commit, pre-push validation
+- **CI**: GitHub Actions (.github/workflows/) - reusable workflows consumed by other repos
+- **Platforms**: Must work on Windows, macOS, Linux
 - **CLAUDE.md**: Defines conventions (no process.exit(), no backward compat, etc.)
-- **Critical**: Build scripts compile C/C++ code and apply patches - must handle errors gracefully
+- **Critical**: Build scripts generate npm override packages - must handle errors gracefully
 
-Packages:
-- node-smol-builder: Main build orchestration
-- binject: C/C++ binary injection library
-- bin-infra, build-infra: Utilities used by node-smol-builder
+Key directories:
+- packages/npm/ - Override npm packages
+- registry/lib/ - Registry library code
+- scripts/ - Build and maintenance scripts
 </context>
 
 <instructions>
@@ -594,7 +423,7 @@ Error handling in scripts:
 <pattern name="import_conventions">
 Import style conventions (Socket Security standards):
 - Use `@socketsecurity/lib/logger` instead of custom log functions or cherry-picked console methods
-- Use `@socketsecurity/lib/spawn` instead of `node:child_process` (except in `additions/` directory)
+- Use `@socketsecurity/lib/spawn` instead of `node:child_process`
 - For Node.js built-in modules: **Cherry-pick fs, default import path/os/url/crypto**
   - For `fs`: cherry-pick sync methods, use promises namespace for async
   - For `child_process`: **avoid direct usage** - prefer `@socketsecurity/lib/spawn`
@@ -609,7 +438,7 @@ Import style conventions (Socket Security standards):
 
 Examples of what to flag:
 - Custom log functions: `function log(msg) { console.log(msg) }` → use `@socketsecurity/lib/logger`
-- Direct child_process usage (except in additions/):
+- Direct child_process usage:
   - `import { execSync } from 'node:child_process'` → use `import { spawn } from '@socketsecurity/lib/spawn'`
   - `execSync('cmd arg1')` → use `await spawn('cmd', ['arg1'])`
 - Default imports for fs:
@@ -650,12 +479,11 @@ Git hooks configuration:
 CI pipeline issues:
 - Build order: Are steps in correct sequence (install → build → test)?
 - Cross-platform: Are Windows/macOS/Linux builds all tested?
-- C/C++ compilation: Are compiler toolchains (clang, gcc, MSVC) properly configured?
-- Build artifacts: Are Node.js binaries uploaded for each platform?
-- Checkpoint caching: Are build checkpoints cached across CI runs?
+- Build artifacts: Are npm packages built and published correctly?
+- Caching: Are node_modules and build outputs cached across CI runs?
 - Failure notifications: Are build failures clearly visible?
-- Node.js versions: Are upstream Node.js version updates tested?
-- Patch validation: Are patch files validated before application?
+- Node.js versions: Are multiple Node.js versions tested?
+- Reusable workflows: Are workflow inputs and outputs documented?
 </pattern>
 
 <pattern name="developer_experience">
@@ -665,56 +493,24 @@ Documentation and setup:
 </pattern>
 
 <pattern name="build_infrastructure">
-Build script architecture and helper methods (CRITICAL for consistent builds):
+Build script architecture (CRITICAL for consistent package builds):
 
 **Package Build Entry Points:**
-- Packages MUST use `scripts/build.mjs` as the build entry point, never direct Makefile invocation
-- build.mjs handles: dependency downloads, environment setup, then Make invocation
-- Direct `make -f Makefile.<platform>` bypasses critical setup (curl/LIEF downloads)
-
-**Required build.mjs patterns:**
-```javascript
-// CORRECT - uses buildBinSuitePackage from bin-infra
-import { buildBinSuitePackage } from 'bin-infra/lib/builder'
-
-buildBinSuitePackage({
-  packageName: 'tool-name',
-  packageDir: packageRoot,
-  beforeBuild: async () => {
-    // Download dependencies BEFORE Make runs
-    await ensureCurl()  // stubs-builder
-    await ensureLief()          // binject, binpress
-  },
-  smokeTest: async (binaryPath) => { ... }
-})
-```
-
-**Dependency download helpers:**
-- `ensureCurl()` - Downloads curl+mbedTLS from releases (stubs-builder)
-- `ensureLief()` - Downloads LIEF library from releases (binject, binpress)
-- `downloadSocketBtmRelease()` - Generic helper from `@socketsecurity/lib/releases/socket-btm`
+- Use `pnpm run build` as the build entry point
+- Build scripts in `scripts/` handle package generation and validation
 
 **Common mistakes to flag:**
-1. Makefile invoked directly without pnpm wrapper:
-   - Bug: `make -f Makefile.macos` in documentation or scripts
+1. Missing pnpm wrapper:
+   - Bug: Running scripts directly instead of through pnpm
    - Fix: Use `pnpm run build` or `pnpm --filter <package> build`
 
-2. Missing beforeBuild hook:
-   - Bug: build.mjs doesn't download dependencies before Make
-   - Fix: Add beforeBuild with appropriate ensure* calls
-
-3. Wrong dependency helper:
-   - Bug: Manually downloading curl/LIEF with curl/wget
-   - Fix: Use downloadSocketBtmRelease() or package-specific helpers
-
-4. Not using buildBinSuitePackage:
-   - Bug: Custom build script without standard patterns
-   - Fix: Use bin-infra/lib/builder for consistent behavior
+2. Missing error handling in build scripts:
+   - Bug: Build script doesn't validate outputs
+   - Fix: Add validation after each build step
 
 **Check these files:**
-- scripts/build.mjs - Build orchestration for overrides
+- scripts/ - Build and maintenance scripts
 - packages/npm/*/package.json - Override package definitions
-- README.md files - Should document `pnpm run build`, not direct make
 </pattern>
 
 For each issue, consider:
@@ -924,28 +720,7 @@ Zizmor is a GitHub Actions workflow security scanner that detects:
 This repository uses GitHub Actions for CI/CD with workflows in `.github/workflows/`.
 
 **Installation:**
-Zizmor is not available via npm. Install zizmor v1.22.0 using one of these methods:
-
-**GitHub Releases (Recommended):**
-```bash
-# Download from https://github.com/zizmorcore/zizmor/releases/tag/v1.22.0
-# macOS ARM64:
-curl -L https://github.com/zizmorcore/zizmor/releases/download/v1.22.0/zizmor-aarch64-apple-darwin -o /usr/local/bin/zizmor
-chmod +x /usr/local/bin/zizmor
-
-# macOS x64:
-curl -L https://github.com/zizmorcore/zizmor/releases/download/v1.22.0/zizmor-x86_64-apple-darwin -o /usr/local/bin/zizmor
-chmod +x /usr/local/bin/zizmor
-
-# Linux x64:
-curl -L https://github.com/zizmorcore/zizmor/releases/download/v1.22.0/zizmor-x86_64-unknown-linux-musl -o /usr/local/bin/zizmor
-chmod +x /usr/local/bin/zizmor
-```
-
-**Alternative Methods:**
-- Homebrew: `brew install zizmor@1.22.0`
-- Cargo: `cargo install zizmor --version 1.22.0`
-- See https://docs.zizmor.sh/installation/ for all options
+Zizmor is not an npm package. See `_shared/security-tools.md` for detection and `external-tools.json` for the pinned version. Install via `pnpm run setup`.
 </context>
 
 <instructions>
@@ -1055,163 +830,79 @@ Group findings by severity (Error → High → Medium → Low → Info)
 
 ## Workflow Optimization Scan Agent
 
-**Mission**: Verify GitHub Actions workflows optimize CI time by checking `build-required` conditions on expensive installation/setup steps when checkpoint caching is used.
+**Mission**: Verify GitHub Actions workflows optimize CI time by using proper caching, conditional steps, and avoiding redundant work.
 
-**Scan Targets**: All `.github/workflows/*.yml` files that use checkpoint caching
+**Scan Targets**: All `.github/workflows/*.yml` files
 
 **Prompt Template:**
 ```
-Your task is to verify GitHub Actions workflows properly skip expensive tool installation steps when builds are restored from cache by checking for `build-required` conditions.
+Your task is to verify GitHub Actions workflows properly optimize CI time by using caching, conditional steps, and avoiding redundant installations.
 
 <context>
 **Why Workflow Optimization Matters:**
-CI workflows waste significant time installing build tools (compilers, CMake, toolchains) even when builds are restored from cache. For socket-btm with 9 workflows building Node.js binaries across multiple platforms, these optimizations save:
-- **Windows**: 1-3 minutes per run (MinGW/LLVM/CMake installation)
-- **macOS**: 30-60 seconds per run (brew installs, Xcode setup)
-- **Linux**: 30-60 seconds per run (apt-get installs, toolchain setup)
+CI workflows waste significant time when they don't leverage caching or skip unnecessary steps.
 
-**socket-btm Checkpoint Caching System:**
-socket-btm uses a sophisticated checkpoint caching system to speed up builds:
-- `restore-checkpoint` action: Restores build artifacts from cache (yoga-layout, models, lief, onnxruntime, node-smol)
-- `setup-checkpoints` action: Manages checkpoints for binsuite tools (binpress, binflate, binject)
-- `build-required` output: Indicates if actual build is needed (false when cache restored)
+**socket-registry CI Structure:**
+socket-registry provides reusable GitHub Actions workflows consumed by other Socket repos:
+- Reusable workflows in `.github/workflows/` with `workflow_call` triggers
+- Package build and test workflows
+- Publishing workflows for npm packages
 
-**Workflows Using Checkpoints:**
-1. binsuite.yml - Uses `setup-checkpoints` (binpress, binflate, binject jobs)
-2. node-smol.yml - Uses `restore-checkpoint`
-3. lief.yml - Uses `restore-checkpoint`
-4. onnxruntime.yml - Uses `restore-checkpoint`
-5. yoga-layout.yml - Uses `restore-checkpoint` (Docker-only, no native steps)
-6. models.yml - Uses `restore-checkpoint` (Docker-only, no native steps)
-7. curl.yml - No checkpoint caching
-8. stubs.yml - No checkpoint caching for native builds
-
-**Expected Pattern:**
-Installation steps should check `build-required` before running:
-```yaml
-- name: Install CMake (Windows)
-  if: steps.setup-checkpoints.outputs.build-required == 'true' && matrix.os == 'windows'
-  run: choco install cmake -y
-```
-
-Or the full cache validation pattern:
-```yaml
-- name: Setup build toolchain (macOS)
-  if: |
-    matrix.os == 'macos' &&
-    ((steps.lief-checkpoint-cache.outputs.cache-hit != 'true' || steps.validate-cache.outputs.valid == 'false') ||
-    steps.restore-checkpoint.outputs.build-required == 'true')
-  run: brew install cmake ccache
-```
+**Expected Patterns:**
+- Cache node_modules and pnpm store across runs
+- Skip build steps when outputs are cached
+- Use `if` conditions to skip unnecessary platform-specific steps
 </context>
 
 <instructions>
-Systematically verify all workflows that use checkpoint caching properly optimize installation steps:
+Systematically verify all workflows optimize CI time:
 
-**Step 1: Identify workflows with checkpoint caching**
+**Step 1: Identify workflows with caching**
 ```bash
-grep -l "restore-checkpoint\|setup-checkpoints" .github/workflows/*.yml
+ls .github/workflows/*.yml
 ```
 
 **Step 2: For each workflow, check:**
-1. Which checkpoint action is used (`restore-checkpoint` or `setup-checkpoints`)
-2. Identify ALL installation/setup steps:
-   - Steps with names: "Install", "Setup", "Select Xcode"
-   - Steps running: `choco install`, `apt-get install`, `brew install`, `xcode-select`
-   - Steps downloading tools: llvm-mingw downloads, toolchain downloads
+1. Is pnpm store cached? (`actions/cache` or `pnpm/action-setup` with cache)
+2. Are build outputs cached when possible?
+3. Are installation steps conditional on cache misses?
 
-**Step 3: Verify each installation step has correct condition:**
-- For `setup-checkpoints`: `steps.setup-checkpoints.outputs.build-required == 'true'`
-- For `restore-checkpoint`: `steps.restore-checkpoint.outputs.build-required == 'true'`
-- OR full cache check: `(cache-hit != 'true' || valid == 'false') || build-required == 'true'`
+**Step 3: Verify optimization patterns:**
 
-**Step 4: Exceptions (steps that should NOT check build-required):**
-- pnpm/Node.js setup (needed to run build scripts)
-- QEMU/Docker setup for testing (not build dependencies)
-- Depot CLI setup (needed for Docker builds)
-- Steps in workflows without checkpoint caching
-
-<pattern name="missing_build_required_check">
-Installation step runs unconditionally even when cache is restored:
+<pattern name="missing_cache">
+Workflows that install dependencies without caching:
 ```yaml
-# BAD - no build-required check
-- name: Install CMake (Windows)
-  if: matrix.os == 'windows'
-  run: choco install cmake -y
+# BAD - no caching
+- run: pnpm install
 
-# GOOD - checks build-required
-- name: Install CMake (Windows)
-  if: steps.setup-checkpoints.outputs.build-required == 'true' && matrix.os == 'windows'
-  run: choco install cmake -y
-```
-
-Look for steps that:
-- Install compilers (gcc, clang, MinGW, llvm-mingw)
-- Install build tools (cmake, ninja, make, ccache)
-- Setup toolchains (musl-tools, cross-compilers)
-- Select Xcode versions
-- Download toolchain archives
-</pattern>
-
-<pattern name="wrong_checkpoint_reference">
-Step references wrong checkpoint action output:
-```yaml
-# BAD - binsuite.yml uses setup-checkpoints, not restore-checkpoint
-- name: Install tools
-  if: steps.restore-checkpoint.outputs.build-required == 'true'
-
-# GOOD - correct reference
-- name: Install tools
-  if: steps.setup-checkpoints.outputs.build-required == 'true'
-```
-
-socket-btm conventions:
-- binsuite.yml (binpress/binflate/binject): Use `steps.setup-checkpoints.outputs.build-required`
-- node-smol.yml, lief.yml, onnxruntime.yml: Use `steps.restore-checkpoint.outputs.build-required`
-</pattern>
-
-<pattern name="incomplete_condition">
-Step checks some conditions but misses build-required:
-```yaml
-# BAD - checks platform but not build-required
-- name: Setup toolchain (Windows ARM64)
-  if: matrix.os == 'windows' && matrix.cross_compile
-  run: |
-    curl -o llvm-mingw.zip https://...
-    7z x llvm-mingw.zip
-
-# GOOD - includes build-required check
-- name: Setup toolchain (Windows ARM64)
-  if: |
-    matrix.os == 'windows' && matrix.cross_compile &&
-    ((steps.cache.outputs.cache-hit != 'true' || steps.validate.outputs.valid == 'false') ||
-    steps.restore-checkpoint.outputs.build-required == 'true')
+# GOOD - with pnpm store cache
+- uses: pnpm/action-setup@v4
+- uses: actions/setup-node@v4
+  with:
+    cache: 'pnpm'
+- run: pnpm install
 ```
 </pattern>
 
-**socket-btm-Specific Workflow Patterns:**
+<pattern name="redundant_steps">
+Steps that run unconditionally but could be skipped:
+- Installation steps that re-run even when cached
+- Build steps that re-run even when outputs exist
+- Test setup that duplicates other workflow steps
+</pattern>
 
-1. **binsuite.yml** (binpress, binflate, binject jobs):
-   - Uses: `setup-checkpoints` action
-   - Steps to check: Compiler setup, dependency installation, toolchain setup, Xcode selection, CMake installation
-
-2. **node-smol.yml**:
-   - Uses: `restore-checkpoint` action
-   - Steps to check: musl toolchain, Xcode selection, Windows tools, compression dependencies
-
-3. **lief.yml**:
-   - Uses: `restore-checkpoint` action with full cache validation
-   - Steps to check: macOS toolchain (brew install cmake ccache), Windows toolchains
-
-4. **onnxruntime.yml**:
-   - Uses: `restore-checkpoint` action
-   - Steps to check: Build tools installation (ninja-build)
+<pattern name="reusable_workflow_issues">
+Reusable workflow problems:
+- Missing required inputs documentation
+- Outputs not properly propagated to callers
+- Secrets not passed through correctly
+</pattern>
 
 For each issue found:
 1. Identify the workflow file and line number
-2. Show the current condition
-3. Explain why build-required check is missing or incorrect
-4. Provide the corrected condition
+2. Show the current configuration
+3. Explain the optimization opportunity
+4. Provide the corrected configuration
 5. Estimate time savings from the fix
 </instructions>
 
@@ -1219,33 +910,31 @@ For each issue found:
 For each finding, report:
 
 File: .github/workflows/workflow-name.yml:line
-Issue: Installation step missing build-required check
+Issue: [One-line description]
 Severity: Medium
-Impact: Wastes N seconds/minutes installing tools when cache is restored
-Pattern: [current condition]
-Fix: [corrected condition with build-required check]
-Savings: Estimated ~N seconds per cached CI run
+Impact: Wastes N seconds/minutes per CI run
+Pattern: [current configuration]
+Fix: [corrected configuration]
+Savings: Estimated ~N seconds per CI run
 
 Example:
-File: .github/workflows/lief.yml:310
-Issue: macOS toolchain setup missing build-required check
+File: .github/workflows/ci.yml:45
+Issue: pnpm store not cached across runs
 Severity: Medium
-Impact: Wastes 30-60 seconds installing cmake/ccache when LIEF is restored from cache
-Pattern: `if: matrix.os == 'macos'`
-Fix: `if: matrix.os == 'macos' && ((steps.lief-checkpoint-cache.outputs.cache-hit != 'true' || steps.validate-cache.outputs.valid == 'false') || steps.restore-checkpoint.outputs.build-required == 'true')`
-Savings: ~45 seconds per cached macOS CI run
+Impact: Wastes 30-60 seconds reinstalling dependencies on each run
+Pattern: Missing `cache: 'pnpm'` in setup-node step
+Fix: Add `cache: 'pnpm'` to actions/setup-node configuration
+Savings: ~45 seconds per CI run
 </output_format>
 
 <quality_guidelines>
-- Only report installation/setup steps that install tools needed for building
-- Don't report steps needed for running build scripts (pnpm, Node.js)
-- Verify the checkpoint action type before suggesting fix
-- Calculate realistic time savings based on actual tool installation times
+- Only report steps where caching or conditions would provide real savings
+- Don't report steps that genuinely need to run every time
 - If all workflows are optimized, state that explicitly
 - Group findings by workflow file
 </quality_guidelines>
 
-Systematically analyze all workflows with checkpoints and report all missing optimizations. If workflows are fully optimized, state: "✓ All workflows properly optimize installation steps with build-required checks."
+Systematically analyze all workflows and report all missing optimizations. If workflows are fully optimized, state: "All workflows properly optimize CI time."
 ```
 
 ---
@@ -1350,10 +1039,8 @@ Look for:
 <pattern name="build_outputs">
 Look for:
 - Build output paths that don't match actual outputs
-- File sizes that are significantly outdated
-- Checkpoint names that don't match actual implementation
-- Binary names that are incorrect
-- Missing intermediate build stages
+- Package names that are incorrect
+- Missing build steps in documentation
 </pattern>
 
 <pattern name="version_information">
@@ -1363,14 +1050,10 @@ Look for:
 - Tool version requirements that are incorrect
 - Patch counts that don't match actual patches
 
-**CRITICAL: For third-party library versions (LIEF, Node.js, ONNX Runtime, etc.):**
+**CRITICAL: For dependency versions:**
 - DO NOT blindly "correct" documented versions without verification
-- For socket-btm specifically, versions must align with what Node.js upstream uses
-- LIEF version: Documented version (v0.17.0) is correct - aligned with Node.js needs
-- Node.js version: Check .node-version file (source of truth)
-- ONNX Runtime, Yoga: Verify against package configurations
+- Check package.json files as the source of truth for dependency versions
 - If unsure about a version, SKIP reporting it as incorrect - ask user to verify
-- NEVER change version numbers based on git describe output from dependencies
 - When in doubt, assume documentation is correct unless you can definitively verify otherwise
 </pattern>
 
@@ -1386,8 +1069,8 @@ Look for:
 **CRITICAL: Evaluate documentation from a junior developer perspective**
 
 Check for junior-developer unfriendly patterns:
-- Missing "Why" explanations (e.g., "Use binject to inject SEA" without explaining what SEA is)
-- Assumed knowledge not documented (Node.js SEA, LIEF, VFS concepts)
+- Missing "Why" explanations (e.g., "Use overrides to replace packages" without explaining what overrides are)
+- Assumed knowledge not documented (npm overrides, pnpm workspaces)
 - No examples for common workflows (first-time setup, typical usage)
 - Missing troubleshooting sections
 - No explanation of error messages
@@ -1405,11 +1088,10 @@ Check for junior-developer unfriendly patterns:
 5. **Error message handling** - Should help debug, not confuse
 
 **Areas requiring extra scrutiny:**
-- Binary manipulation concepts (SEA, VFS, section injection)
-- Build system complexity (checkpoints, caching, cross-compilation)
-- Patch management (upstream sync, patch regeneration)
-- C/C++ integration points (LIEF, native code)
-- Cross-platform differences (Linux musl/glibc, macOS universal binaries, Windows)
+- npm override concepts (how overrides work, why they exist)
+- Package registry architecture (packages/npm/ structure, registry/lib/)
+- Build scripts and automation (scripts/ directory)
+- CI/CD workflows (reusable workflows, publishing)
 
 For each junior-dev issue:
 - Identify the knowledge gap or assumption
@@ -1418,9 +1100,9 @@ For each junior-dev issue:
 - Provide example of clear explanation
 
 Example findings:
-- "README assumes knowledge of Node.js SEA without explaining it"
-- "No explanation of what 'upstream sync' means or why it matters"
-- "Technical term 'checkpoint caching' used without definition"
+- "README assumes knowledge of npm overrides without explaining them"
+- "No explanation of what 'override packages' means or why they exist"
+- "Technical term 'pnpm workspaces' used without definition"
 - "Build errors not documented in troubleshooting section"
 </pattern>
 

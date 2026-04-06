@@ -43,32 +43,15 @@ This skill updates npm packages for security patches, bug fixes, and new feature
 
 ### Phase 1: Validate Environment
 
-<action>
-Check working directory is clean and detect CI mode:
-</action>
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
 
-```bash
-# Detect CI mode
-if [ "$CI" = "true" ] || [ -n "$GITHUB_ACTIONS" ]; then
-  CI_MODE=true
-  echo "Running in CI mode - will skip build validation"
-else
-  CI_MODE=false
-  echo "Running in interactive mode - will validate builds"
-fi
-
-# Check working directory is clean
-git status --porcelain
-```
-
-<validation>
-- Working directory must be clean
-- CI_MODE detected for subsequent phases
-</validation>
+Follow `_shared/env-check.md` to validate the environment and initialize a queue run entry for `updating`.
 
 ---
 
 ### Phase 2: Update npm Packages
+
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
 
 <action>
 Run pnpm run update to update npm dependencies:
@@ -79,8 +62,8 @@ Run pnpm run update to update npm dependencies:
 pnpm run update
 
 # Check if there are changes
-if [ -n "$(git status --porcelain pnpm-lock.yaml package.json)" ]; then
-  git add pnpm-lock.yaml package.json
+if [ -n "$(git status --porcelain)" ]; then
+  git add pnpm-lock.yaml pnpm-workspace.yaml package.json packages/npm/*/package.json
   git commit -m "chore: update npm dependencies
 
 Updated npm packages via pnpm run update."
@@ -94,25 +77,15 @@ fi
 
 ### Phase 3: Final Validation
 
-<action>
-Run build and test suite (skip in CI mode):
-</action>
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
 
-```bash
-if [ "$CI_MODE" = "true" ]; then
-  echo "CI mode: Skipping final validation (CI will run builds/tests separately)"
-  echo "Commits created - ready for push by CI workflow"
-else
-  echo "Interactive mode: Running full validation..."
-  pnpm run fix --all
-  pnpm run check --all
-  pnpm test
-fi
-```
+Follow `_shared/verify-build.md` for build validation.
 
 ---
 
 ### Phase 4: Report Summary
+
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
 
 <action>
 Generate update report:
@@ -144,6 +117,20 @@ Generate update report:
 2. CI will run full build/test validation
 3. Review PR when CI passes
 ```
+
+### Completion
+
+Output a HANDOFF block per `_shared/report-format.md`:
+
+```
+=== HANDOFF: updating ===
+Status: {pass|fail}
+Findings: {packages_updated: N}
+Summary: {one-line description of what was updated}
+=== END HANDOFF ===
+```
+
+Update queue: `status: done`, write completion timestamp.
 
 </instructions>
 

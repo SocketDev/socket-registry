@@ -36,7 +36,7 @@ All agent prompts are embedded in `reference.md` with structured <context>, <ins
 
 <constraints>
 **CRITICAL Requirements:**
-- Read-only analysis (no code changes during scan)
+- Analysis phase (dependency updates and cleanup happen in early phases, code scanning is read-only)
 - Must complete all enabled scans before reporting
 - Findings must be prioritized by severity (Critical → High → Medium → Low)
 - Must generate actionable tasks with file:line references
@@ -64,29 +64,15 @@ Execute the following phases sequentially to perform comprehensive quality analy
 
 ### Phase 1: Validate Environment
 
-<prerequisites>
-Verify the environment before starting scans:
-</prerequisites>
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
 
-```bash
-git status
-```
-
-<validation>
-**Expected State:**
-- Working directory should be clean (warn if dirty but continue)
-- On a valid branch
-- Node modules installed
-
-**If working directory dirty:**
-- Warn user: "Working directory has uncommitted changes - continuing with scan"
-- Continue with scans (quality scanning is read-only)
-
-</validation>
+Follow `_shared/env-check.md` to validate the environment and initialize a queue run entry for `quality-scan`.
 
 ---
 
 ### Phase 2: Update Dependencies
+
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
 
 <action>
 Update dependencies in the current repository only:
@@ -114,60 +100,15 @@ pnpm run update
 
 ### Phase 2b: Install External Tools (zizmor)
 
-<action>
-Install zizmor for GitHub Actions security scanning using version that meets repository's minimumReleaseAge policy.
-</action>
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
 
-<version_selection>
-Determine the appropriate zizmor version dynamically:
-
-1. **Read minimumReleaseAge from `.pnpmrc`**:
-   ```bash
-   grep 'minimumReleaseAge' .pnpmrc | cut -d'=' -f2
-   ```
-   This returns minutes (e.g., `10080` = 7 days). Default to 10080 if not found.
-
-2. **Query zizmor releases** (using curl or gh):
-   ```bash
-   # Option A: curl (universally available)
-   curl -s "https://api.github.com/repos/zizmorcore/zizmor/releases" | \
-     jq '[.[] | select(.prerelease == false) | {tag: .tag_name, date: .published_at}] | .[0:10]'
-
-   # Option B: gh (if available)
-   gh api repos/zizmorcore/zizmor/releases --jq \
-     '[.[] | select(.prerelease == false) | {tag: .tag_name, date: .published_at}] | .[0:10]'
-   ```
-
-3. **Calculate age and select version**:
-   - Convert minimumReleaseAge from minutes to days: `minutes / 1440`
-   - Find latest stable release older than that threshold
-   - Example: If minimumReleaseAge=10080 (7 days) and today is March 24, select releases from March 17 or earlier
-
-4. **Install selected version** (choose based on available tools):
-   ```bash
-   # macOS with Homebrew (latest only, version pinning limited)
-   brew install zizmor
-
-   # Python environments (version pinning supported)
-   pipx install zizmor==VERSION
-   uv tool install zizmor==VERSION
-   uvx zizmor@VERSION --help
-   ```
-
-   **Recommended priority**: pipx/uvx > brew
-</version_selection>
-
-<rationale>
-Using minimumReleaseAge prevents supply chain attacks from compromised new releases. The 7-day window allows community detection of malicious packages before adoption.
-</rationale>
-
-<fallback>
-If no release meets the age requirement, warn the user and skip zizmor scan. Never install a release younger than minimumReleaseAge.
-</fallback>
+See `_shared/security-tools.md` for zizmor detection. Use `pnpm run setup` to install pinned tools.
 
 ---
 
 ### Phase 3: Repository Cleanup
+
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
 
 <action>
 Clean up junk files and organize the repository before scanning:
@@ -226,16 +167,13 @@ find . -type f -name '*.log' \
 **For each file found:**
 1. Show the file path to user
 2. Explain why it's considered junk
-3. Ask user for confirmation before deleting (use AskUserQuestion)
-4. Delete confirmed files: `git rm` if tracked, `rm` if untracked
-5. Report files removed
+3. In interactive mode: ask user for confirmation before deleting
+4. In CI mode or when called as a pipeline gate: auto-delete without prompting
+5. Delete confirmed files: `git rm` if tracked, `rm` if untracked
+6. Report files removed
 
 **If no junk files found:**
 - Report: "✓ Repository is clean - no junk files found"
-
-**Important:**
-- Always get user confirmation before deleting
-- Show file contents if user is unsure
 - Track deleted files for reporting
 
 </validation>
@@ -244,16 +182,18 @@ find . -type f -name '*.log' \
 
 ### Phase 4: Structural Validation
 
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
+
 <action>
 Run automated consistency checker to validate architectural patterns:
 </action>
 
 **Validation Tasks:**
 
-Run the consistency checker to validate monorepo structure:
+Run the check script to validate monorepo structure:
 
 ```bash
-node scripts/check-consistency.mjs
+pnpm run check --all
 ```
 
 **The consistency checker validates:**
@@ -293,6 +233,8 @@ node scripts/check-consistency.mjs
 
 ### Phase 5: Determine Scan Scope
 
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
+
 <action>
 Ask user which scans to run:
 </action>
@@ -306,27 +248,25 @@ Ask user which scans to run:
 6. **security** - GitHub Actions security (template injection, cache poisoning, etc.)
 7. **documentation** - Documentation accuracy (README errors, outdated docs)
 
-**User Interaction:**
-Use AskUserQuestion tool:
-- Question: "Which quality scans would you like to run?"
-- Header: "Scan Types"
-- multiSelect: true
-- Options:
-  - "All scans (recommended)" → Run all 4 scan types
-  - "Critical only" → Run critical scan only
-  - "Critical + Logic" → Run critical and logic scans
-  - "Custom selection" → Ask user to specify which scans
+**Scan Selection:**
+- In CI mode or when called as a pipeline gate (e.g. by `/release`): run all scans automatically, no prompting
+- In interactive mode: ask the user which scans to run:
+  - "All scans (recommended)" — run all scan types
+  - "Critical only" — run critical scan only
+  - "Critical + Logic" — run critical and logic scans
+  - "Custom selection" — ask user to specify
 
-**Default:** If user doesn't specify, run all scans.
+**Default:** If not specified, run all scans.
 
 <validation>
 Validate selected scan types exist in reference.md:
-- critical-scan → reference.md line ~5
-- logic-scan → reference.md line ~100
-- cache-scan → reference.md line ~200
-- workflow-scan → reference.md line ~300
-- security-scan → reference.md line ~400
-- documentation-scan → reference.md line ~810
+- critical-scan → reference.md § "Critical Scan Agent"
+- logic-scan → reference.md § "Logic Scan Agent"
+- cache-scan → reference.md § "Cache Scan Agent"
+- workflow-scan → reference.md § "Workflow Scan Agent"
+- security-scan → reference.md § "Security Scan Agent"
+- workflow-optimization-scan → reference.md § "Workflow Optimization Scan Agent"
+- documentation-scan → reference.md § "Documentation Scan Agent"
 
 If user requests non-existent scan type, report error and suggest valid types.
 </validation>
@@ -335,16 +275,16 @@ If user requests non-existent scan type, report error and suggest valid types.
 
 ### Phase 6: Execute Scans
 
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
+
 <action>
-For each enabled scan type, spawn a specialized agent using Task tool:
+For each enabled scan type, spawn a specialized agent using Agent tool:
 </action>
 
-```typescript
-// Example: Critical scan
-Task({
-  subagent_type: "general-purpose",
-  description: "Critical bugs scan",
-  prompt: `${CRITICAL_SCAN_PROMPT_FROM_REFERENCE_MD}
+```
+Example: Critical scan via Agent tool
+
+Prompt the agent with the CRITICAL_SCAN_PROMPT from reference.md, adding:
 
 [IF monorepo] Focus on packages/ directories and root-level scripts/.
 [IF single package] Focus on src/, lib/, and scripts/ directories.
@@ -358,14 +298,13 @@ Report findings in this format:
 - Fix: Suggested fix
 - Impact: What happens if triggered
 
-Scan systematically and report all findings. If no issues found, state that explicitly.`
-})
+Scan systematically and report all findings. If no issues found, state that explicitly.
 ```
 
 **For each scan:**
 1. Load agent prompt template from `reference.md`
 2. Customize for repository context (determine monorepo vs single package structure)
-3. Spawn agent with Task tool using "general-purpose" subagent_type
+3. Spawn agent with Agent tool using "general-purpose" subagent_type
 4. Capture findings from agent response
 5. Parse and categorize results
 
@@ -375,14 +314,18 @@ Scan systematically and report all findings. If no issues found, state that expl
 - cache
 - workflow (lowest priority)
 
+**Agent Rules:**
+- For critical, logic, and cache scans: the agent should apply the rules from `agents/code-reviewer.md` (code style, patterns, error handling) in addition to the scan-type-specific prompt from reference.md.
+- For the security scan type: the agent should apply the rules from `agents/security-reviewer.md` (safe file ops, secret detection, dependency rules).
+
 **Agent Prompt Sources:**
-- Critical scan: reference.md starting at line ~12
-- Logic scan: reference.md starting at line ~100
-- Cache scan: reference.md starting at line ~200
-- Workflow scan: reference.md starting at line ~300
-- Security scan: reference.md starting at line ~400
-- Workflow-optimization scan: reference.md starting at line ~860
-- Documentation scan: reference.md starting at line ~1040
+- Critical scan: reference.md § "Critical Scan Agent"
+- Logic scan: reference.md § "Logic Scan Agent"
+- Cache scan: reference.md § "Cache Scan Agent"
+- Workflow scan: reference.md § "Workflow Scan Agent"
+- Security scan: reference.md § "Security Scan Agent"
+- Workflow-optimization scan: reference.md § "Workflow Optimization Scan Agent"
+- Documentation scan: reference.md § "Documentation Scan Agent"
 
 <validation>
 For each scan completion:
@@ -395,6 +338,8 @@ For each scan completion:
 ---
 
 ### Phase 7: Aggregate Findings
+
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
 
 <action>
 Collect all findings from agents and aggregate:
@@ -434,6 +379,8 @@ interface Finding {
 ---
 
 ### Phase 8: Generate Report
+
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
 
 <action>
 Create structured quality report with all findings:
@@ -517,8 +464,9 @@ Create structured quality report with all findings:
 ```
 
 **Output Report:**
-1. Display report to console (user sees it)
-2. Offer to save to file (optional): `reports/quality-scan-YYYY-MM-DD.md`
+1. Display report to console
+2. In interactive mode: offer to save to file (`reports/quality-scan-YYYY-MM-DD.md`)
+3. In CI mode or pipeline gate mode: skip save prompt
 
 <validation>
 **Report Quality Checks:**
@@ -533,9 +481,18 @@ Create structured quality report with all findings:
 
 ### Phase 9: Complete
 
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
+
 <completion_signal>
-```xml
-<promise>QUALITY_SCAN_COMPLETE</promise>
+Output a HANDOFF block per `_shared/report-format.md`:
+
+```
+=== HANDOFF: quality-scan ===
+Status: {pass|fail}
+Grade: {A-F}
+Findings: {critical: N, high: N, medium: N, low: N}
+Summary: {one-line description}
+=== END HANDOFF ===
 ```
 </completion_signal>
 
@@ -587,7 +544,7 @@ All findings include file:line references and suggested fixes.
 
 ## Success Criteria
 
-- ✅ `<promise>QUALITY_SCAN_COMPLETE</promise>` output
+- ✅ HANDOFF block output per `_shared/report-format.md`
 - ✅ All enabled scans completed without errors
 - ✅ Findings prioritized by severity (Critical → Low)
 - ✅ All findings include file:line references
@@ -611,13 +568,13 @@ All agent prompts follow Claude best practices with <context>, <instructions>, <
 
 ## Commands
 
-This skill is self-contained. No external commands needed.
+Requires: `git`, `pnpm`, `node`, and optionally `zizmor` (see `_shared/security-tools.md`).
 
 ## Context
 
 This skill provides systematic code quality analysis by:
 - Spawning specialized agents for targeted analysis
-- Using Task tool to run agents autonomously
+- Using Agent tool to run agents autonomously
 - Embedding agent prompts in reference.md following best practices
 - Generating prioritized, actionable reports
 - Supporting partial scans (user can select specific scan types)

@@ -19,8 +19,10 @@ WIP
 
 # Claude Code scratch files
 /.claude/*
-!/.claude/skills/
+!/.claude/agents/
 !/.claude/commands/
+!/.claude/ops/
+!/.claude/skills/
 
 # Environment files
 /.env
