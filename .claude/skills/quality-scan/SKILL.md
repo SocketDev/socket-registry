@@ -190,10 +190,10 @@ Run automated consistency checker to validate architectural patterns:
 
 **Validation Tasks:**
 
-Run the consistency checker to validate monorepo structure:
+Run the check script to validate monorepo structure:
 
 ```bash
-node scripts/check-consistency.mjs
+pnpm run check --all
 ```
 
 **The consistency checker validates:**
@@ -260,12 +260,13 @@ Ask user which scans to run:
 
 <validation>
 Validate selected scan types exist in reference.md:
-- critical-scan → reference.md line ~5
-- logic-scan → reference.md line ~100
-- cache-scan → reference.md line ~200
-- workflow-scan → reference.md line ~300
-- security-scan → reference.md line ~400
-- documentation-scan → reference.md line ~810
+- critical-scan → reference.md § "Critical Scan Agent"
+- logic-scan → reference.md § "Logic Scan Agent"
+- cache-scan → reference.md § "Cache Scan Agent"
+- workflow-scan → reference.md § "Workflow Scan Agent"
+- security-scan → reference.md § "Security Scan Agent"
+- workflow-optimization-scan → reference.md § "Workflow Optimization Scan Agent"
+- documentation-scan → reference.md § "Documentation Scan Agent"
 
 If user requests non-existent scan type, report error and suggest valid types.
 </validation>
@@ -318,13 +319,13 @@ Scan systematically and report all findings. If no issues found, state that expl
 - For the security scan type: the agent should apply the rules from `agents/security-reviewer.md` (safe file ops, secret detection, dependency rules).
 
 **Agent Prompt Sources:**
-- Critical scan: reference.md starting at line ~12
-- Logic scan: reference.md starting at line ~100
-- Cache scan: reference.md starting at line ~200
-- Workflow scan: reference.md starting at line ~300
-- Security scan: reference.md starting at line ~400
-- Workflow-optimization scan: reference.md starting at line ~860
-- Documentation scan: reference.md starting at line ~1040
+- Critical scan: reference.md § "Critical Scan Agent"
+- Logic scan: reference.md § "Logic Scan Agent"
+- Cache scan: reference.md § "Cache Scan Agent"
+- Workflow scan: reference.md § "Workflow Scan Agent"
+- Security scan: reference.md § "Security Scan Agent"
+- Workflow-optimization scan: reference.md § "Workflow Optimization Scan Agent"
+- Documentation scan: reference.md § "Documentation Scan Agent"
 
 <validation>
 For each scan completion:

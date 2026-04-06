@@ -52,8 +52,8 @@ Update queue: `current_phase: security-gate`
 
 Generate changelog entry following CLAUDE.md § "Changelog Management":
 
-1. Read current `CHANGELOG.md` to get the last released version
-2. Run `git log --oneline <last-tag>..HEAD` to see commits since last release
+1. Read current `CHANGELOG.md` to get the last released version (if it doesn't exist, create it with the Keep a Changelog header)
+2. If no tags exist, use all commits on main; otherwise run `git log --oneline <last-tag>..HEAD`
 3. Categorize: Added / Changed / Fixed / Removed
 4. Skip chore/ci/deps commits unless they affect user-facing behavior
 5. Write new entry at top of CHANGELOG.md

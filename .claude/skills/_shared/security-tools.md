@@ -13,7 +13,18 @@ No install step needed — available after `pnpm install`.
 Not an npm package. Installed via `pnpm run setup` which downloads the pinned version
 from GitHub releases with SHA256 checksum verification (see `external-tools.json`).
 
-Detection: `command -v zizmor` or check `.cache/external-tools/zizmor/*/zizmor`
+The binary is cached at `.cache/external-tools/zizmor/{version}-{platform}/zizmor`.
+
+Detection order:
+1. `command -v zizmor` (if already on PATH, e.g. via brew)
+2. `.cache/external-tools/zizmor/*/zizmor` (from `pnpm run setup`)
+
+Run via the full path if not on PATH:
+```bash
+ZIZMOR="$(find .cache/external-tools/zizmor -name zizmor -type f 2>/dev/null | head -1)"
+if [ -z "$ZIZMOR" ]; then ZIZMOR="$(command -v zizmor 2>/dev/null)"; fi
+if [ -n "$ZIZMOR" ]; then "$ZIZMOR" .github/; else echo "zizmor not installed — run pnpm run setup"; fi
+```
 
 If not available:
 - Warn: "zizmor not installed — run `pnpm run setup` to install"

@@ -924,28 +924,7 @@ Zizmor is a GitHub Actions workflow security scanner that detects:
 This repository uses GitHub Actions for CI/CD with workflows in `.github/workflows/`.
 
 **Installation:**
-Zizmor is not available via npm. Install zizmor v1.22.0 using one of these methods:
-
-**GitHub Releases (Recommended):**
-```bash
-# Download from https://github.com/zizmorcore/zizmor/releases/tag/v1.22.0
-# macOS ARM64:
-curl -L https://github.com/zizmorcore/zizmor/releases/download/v1.22.0/zizmor-aarch64-apple-darwin -o /usr/local/bin/zizmor
-chmod +x /usr/local/bin/zizmor
-
-# macOS x64:
-curl -L https://github.com/zizmorcore/zizmor/releases/download/v1.22.0/zizmor-x86_64-apple-darwin -o /usr/local/bin/zizmor
-chmod +x /usr/local/bin/zizmor
-
-# Linux x64:
-curl -L https://github.com/zizmorcore/zizmor/releases/download/v1.22.0/zizmor-x86_64-unknown-linux-musl -o /usr/local/bin/zizmor
-chmod +x /usr/local/bin/zizmor
-```
-
-**Alternative Methods:**
-- Homebrew: `brew install zizmor@1.22.0`
-- Cargo: `cargo install zizmor --version 1.22.0`
-- See https://docs.zizmor.sh/installation/ for all options
+Zizmor is not an npm package. See `_shared/security-tools.md` for detection and `external-tools.json` for the pinned version. Install via `pnpm run setup`.
 </context>
 
 <instructions>
