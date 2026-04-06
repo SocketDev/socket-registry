@@ -167,16 +167,13 @@ find . -type f -name '*.log' \
 **For each file found:**
 1. Show the file path to user
 2. Explain why it's considered junk
-3. Ask user for confirmation before deleting (use AskUserQuestion)
-4. Delete confirmed files: `git rm` if tracked, `rm` if untracked
-5. Report files removed
+3. In interactive mode: ask user for confirmation before deleting
+4. In CI mode or when called as a pipeline gate: auto-delete without prompting
+5. Delete confirmed files: `git rm` if tracked, `rm` if untracked
+6. Report files removed
 
 **If no junk files found:**
 - Report: "✓ Repository is clean - no junk files found"
-
-**Important:**
-- Always get user confirmation before deleting
-- Show file contents if user is unsure
 - Track deleted files for reporting
 
 </validation>
@@ -251,14 +248,15 @@ Ask user which scans to run:
 6. **security** - GitHub Actions security (template injection, cache poisoning, etc.)
 7. **documentation** - Documentation accuracy (README errors, outdated docs)
 
-**User Interaction:**
-Ask the user which scans to run:
-- "All scans (recommended)" - Run all scan types
-- "Critical only" - Run critical scan only
-- "Critical + Logic" - Run critical and logic scans
-- "Custom selection" - Ask user to specify which scans
+**Scan Selection:**
+- In CI mode or when called as a pipeline gate (e.g. by `/release`): run all scans automatically, no prompting
+- In interactive mode: ask the user which scans to run:
+  - "All scans (recommended)" — run all scan types
+  - "Critical only" — run critical scan only
+  - "Critical + Logic" — run critical and logic scans
+  - "Custom selection" — ask user to specify
 
-**Default:** If user doesn't specify, run all scans.
+**Default:** If not specified, run all scans.
 
 <validation>
 Validate selected scan types exist in reference.md:
@@ -465,8 +463,9 @@ Create structured quality report with all findings:
 ```
 
 **Output Report:**
-1. Display report to console (user sees it)
-2. Offer to save to file (optional): `reports/quality-scan-YYYY-MM-DD.md`
+1. Display report to console
+2. In interactive mode: offer to save to file (`reports/quality-scan-YYYY-MM-DD.md`)
+3. In CI mode or pipeline gate mode: skip save prompt
 
 <validation>
 **Report Quality Checks:**

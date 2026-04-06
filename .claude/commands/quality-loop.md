@@ -1,5 +1,7 @@
 Run the `/quality-scan` skill and fix all issues found. Repeat until zero issues remain or 5 iterations complete.
 
+**Interactive only** — this command makes code changes and commits. Do not use as an automated pipeline gate.
+
 ## Process
 
 1. Run `/quality-scan` skill (all scan types)
