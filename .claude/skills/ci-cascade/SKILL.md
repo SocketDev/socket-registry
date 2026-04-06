@@ -15,9 +15,13 @@ Implements the cascade procedure defined in CLAUDE.md § "GitHub Actions SHA Pin
 
 ## Procedure
 
+Follow `_shared/env-check.md` to initialize a queue run entry for `ci-cascade`.
+
 Follow the layer order exactly. Each layer gets its own PR. Never combine layers.
 
 ### Phase 1: Identify what changed
+
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
 
 Determine which layer was modified:
 - Layer 1 (leaf actions): checkout, install, debug, setup-git-signing, cleanup-git-signing, run-script, artifacts, cache-npm-packages
@@ -27,6 +31,8 @@ Determine which layer was modified:
 - Layer 4 (local wrappers): _local-not-for-reuse-*
 
 ### Phase 2: Create PRs in order
+
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
 
 Starting from the layer above the change, create a PR for each layer:
 
@@ -41,11 +47,15 @@ Starting from the layer above the change, create a PR for each layer:
 
 ### Phase 3: Update Layer 4 (local wrappers)
 
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
+
 After Layer 3 merges, get the **propagation SHA** (Layer 3 merge SHA). Update the `_local-not-for-reuse-*` workflows to pin to this SHA. Create a PR, merge it.
 
 The Layer 4 merge SHA is NOT used for external pinning — external repos pin to the Layer 3 SHA because that's where the reusable workflows (ci.yml, provenance.yml) were updated.
 
 ### Phase 4: Propagate to external repos
+
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
 
 All external repos pin to the **propagation SHA** (Layer 3 merge SHA).
 
@@ -56,7 +66,22 @@ For each repo:
 
 ### Phase 5: Verify
 
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
+
 For each updated repo, confirm no old SHAs remain:
 ```bash
 grep -rn "SocketDev/socket-registry" .github/ | grep "@" | grep -v "<propagation-sha>"
 ```
+
+### Completion
+
+Output a HANDOFF block per `_shared/report-format.md`:
+
+```
+=== HANDOFF: ci-cascade ===
+Status: {pass|fail}
+Summary: {one-line: "Propagated SHA XXXXX to N repos"}
+=== END HANDOFF ===
+```
+
+Update queue: `status: done`, write completion timestamp.
