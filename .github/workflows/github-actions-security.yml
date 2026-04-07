@@ -1,0 +1,43 @@
+name: 🔒 GitHub Actions Security
+
+# Reusable workflow that audits GitHub Actions workflows for security issues
+# using zizmor. Consuming repos opt in by calling this workflow.
+#
+# Usage in consuming repo:
+#   jobs:
+#     security:
+#       name: Audit GitHub Actions
+#       uses: SocketDev/socket-registry/.github/workflows/github-actions-security.yml@<SHA> # main
+
+on:
+  workflow_call:
+    inputs:
+      min-severity:
+        description: 'Minimum severity level to report (e.g., "medium", "high")'
+        required: false
+        type: string
+        default: 'medium'
+      timeout-minutes:
+        description: 'Timeout for the audit job in minutes'
+        required: false
+        type: number
+        default: 5
+
+permissions:
+  contents: read
+
+jobs:
+  zizmor:
+    name: Audit GitHub Actions
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Run zizmor
+        uses: zizmorcore/zizmor-action@71321a20a9ded102f6e9ce5718a2fcec2c4f70d8 # v0.5.2
+        with:
+          min-severity: ${{ inputs.min-severity }}
