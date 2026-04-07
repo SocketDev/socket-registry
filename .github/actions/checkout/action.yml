@@ -10,6 +10,10 @@ inputs:
     description: 'Git ref to checkout'
     required: false
     default: ''
+  security-events:
+    description: 'Upload SARIF results to GitHub Code Scanning (requires security-events: write permission)'
+    required: false
+    default: 'false'
   working-directory:
     description: 'Subdirectory to check out into'
     required: false
@@ -36,4 +40,5 @@ runs:
       if: runner.os != 'Windows'
       uses: zizmorcore/zizmor-action@71321a20a9ded102f6e9ce5718a2fcec2c4f70d8 # v0.5.2
       with:
+        advanced-security: ${{ inputs.security-events }}
         min-severity: medium
