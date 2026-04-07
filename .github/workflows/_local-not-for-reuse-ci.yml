@@ -17,7 +17,7 @@ permissions:
 jobs:
   ci:
     name: Run CI Pipeline
-    uses: SocketDev/socket-registry/.github/workflows/ci.yml@da519693b701861bc0f9690a30f50af1a1dcd49c # main
+    uses: SocketDev/socket-registry/.github/workflows/ci.yml@4ea01311d2612815dd255368fa757cfc527670f6 # main
     with:
       fail-fast: false
       lint-script: 'pnpm run lint --all'
@@ -39,11 +39,11 @@ jobs:
           autocrlf: false
           persist-credentials: false
 
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@da519693b701861bc0f9690a30f50af1a1dcd49c # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@4ea01311d2612815dd255368fa757cfc527670f6 # main
         with:
           node-version: 22
 
-      - uses: SocketDev/socket-registry/.github/actions/cache-npm-packages@da519693b701861bc0f9690a30f50af1a1dcd49c # main
+      - uses: SocketDev/socket-registry/.github/actions/cache-npm-packages@4ea01311d2612815dd255368fa757cfc527670f6 # main
 
       - name: Build registry
         shell: bash
