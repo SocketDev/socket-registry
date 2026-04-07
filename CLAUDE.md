@@ -638,6 +638,15 @@ Decision tree:
 - **Registry**: `pnpm run update`, `pnpm run make-npm-override`, `pnpm run release-npm`
 - **Test npm packages**: `node scripts/test-npm-packages.mjs` (long-running, tests all overrides)
 
+## Agents & Skills
+
+- `/security-scan` — runs AgentShield + zizmor security audit
+- `/quality-scan` — comprehensive code quality analysis
+- `/quality-loop` — scan and fix iteratively
+- Agents: `code-reviewer`, `security-reviewer`, `refactor-cleaner` (in `.claude/agents/`)
+- Shared subskills in `.claude/skills/_shared/`
+- Pipeline state tracked in `.claude/ops/queue.yaml`
+
 ### Build System
 
 - esbuild for fast compilation (registry)
