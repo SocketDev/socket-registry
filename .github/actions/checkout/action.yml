@@ -36,8 +36,18 @@ runs:
         fetch-depth: ${{ inputs.fetch-depth }}
         persist-credentials: false
 
+    - name: Check Docker availability
+      id: docker-check
+      shell: bash
+      run: |
+        if command -v docker &>/dev/null && docker info &>/dev/null; then
+          echo "available=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "available=false" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Audit GitHub Actions
-      if: runner.os != 'Windows'
+      if: steps.docker-check.outputs.available == 'true'
       uses: zizmorcore/zizmor-action@71321a20a9ded102f6e9ce5718a2fcec2c4f70d8 # v0.5.2
       with:
         advanced-security: ${{ inputs.security-events }}
