@@ -16,8 +16,8 @@
     "url": "https://socket.dev"
   },
   "engines": {
-    "node": ">=18",
-    "pnpm": ">=10.25.0"
+    "node": ">=18.20.8",
+    "pnpm": ">=10.33.0"
   },
   "scripts": {
     "analyze-ci-failures": "node scripts/testing/analyze-ci-failures.mjs",
