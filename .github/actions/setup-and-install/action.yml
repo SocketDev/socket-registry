@@ -5,7 +5,6 @@ description: 'Aggregate: checkout + setup environment + install dependencies'
 #   - SocketDev/socket-registry/.github/actions/checkout
 #   - SocketDev/socket-registry/.github/actions/setup
 #     - SocketDev/socket-registry/.github/actions/debug
-#     - pnpm/action-setup@v5.0.0
 #     - actions/setup-node@v6.2.0
 #   - SocketDev/socket-registry/.github/actions/install
 
@@ -30,10 +29,6 @@ inputs:
     description: 'Node.js version to use'
     required: false
     default: '25.9.0'
-  pnpm-version:
-    description: 'pnpm version'
-    required: false
-    default: '10.21.0'
   scope:
     description: 'npm registry scope for package authentication'
     required: false
@@ -52,23 +47,22 @@ runs:
   steps:
     - name: Checkout
       if: inputs.checkout == 'true'
-      uses: SocketDev/socket-registry/.github/actions/checkout@927ff0c89c6f7548ece0041833149329e6f91e70 # main
+      uses: SocketDev/socket-registry/.github/actions/checkout@05890584aceba08d49c4189364b543786b0bdf72 # main
       with:
         fetch-depth: ${{ inputs.checkout-fetch-depth }}
         ref: ${{ inputs.checkout-ref }}
         working-directory: ${{ inputs.working-directory }}
 
     - name: Setup environment
-      uses: SocketDev/socket-registry/.github/actions/setup@927ff0c89c6f7548ece0041833149329e6f91e70 # main
+      uses: SocketDev/socket-registry/.github/actions/setup@05890584aceba08d49c4189364b543786b0bdf72 # main
       with:
         debug: ${{ inputs.debug }}
         node-version: ${{ inputs.node-version }}
-        pnpm-version: ${{ inputs.pnpm-version }}
         scope: ${{ inputs.scope }}
         registry-url: ${{ inputs.registry-url }}
         working-directory: ${{ inputs.working-directory }}
 
     - name: Install dependencies
-      uses: SocketDev/socket-registry/.github/actions/install@927ff0c89c6f7548ece0041833149329e6f91e70 # main
+      uses: SocketDev/socket-registry/.github/actions/install@05890584aceba08d49c4189364b543786b0bdf72 # main
       with:
         working-directory: ${{ inputs.working-directory }}
