@@ -55,6 +55,16 @@ runs:
         mkdir -p "$SHIM_DIR"
         IS_WINDOWS=false
         [[ "$OSTYPE" == msys* || "$OSTYPE" == cygwin* ]] && IS_WINDOWS=true
+        # Convert MSYS paths (/c/Users/...) to Windows native (C:\Users\...).
+        # Needed because sfw-free passes paths to PowerShell which cannot
+        # resolve MSYS-style drive mounts.
+        msys_to_win_path() {
+          if $IS_WINDOWS && [[ "$1" =~ ^/([a-zA-Z])/(.*) ]]; then
+            echo "${BASH_REMATCH[1]^^}:\\${BASH_REMATCH[2]//\//\\}"
+          else
+            echo "$1"
+          fi
+        }
         # Build a PATH without the shim dir so "command -v" resolves
         # real binaries, not our own shims. Uses -vxF for exact
         # whole-line matching (won't drop e.g. /tmp/sfw-shim-extra).
@@ -64,6 +74,8 @@ runs:
           # Resolve the real binary path; skip if not installed.
           REAL="$(PATH="$CLEAN_PATH" command -v "$CMD" 2>/dev/null || true)"
           [ -z "$REAL" ] && continue
+          # On Windows, convert MSYS paths to native format for sfw-free.
+          REAL="$(msys_to_win_path "$REAL")"
           # Bash shim: strip shim dir from current $PATH at runtime
           # (not a baked snapshot) so later PATH additions are preserved,
           # then exec sfw with the resolved absolute binary path.
@@ -91,4 +103,4 @@ runs:
         SFW_DEBUG: 'true'
         SFW_SILENT: 'true'
       run: |
-        "$SFW_BIN" pnpm install --loglevel error ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
+        pnpm install --loglevel error ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
