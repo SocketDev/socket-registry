@@ -10,10 +10,6 @@ inputs:
     description: 'Git ref to checkout'
     required: false
     default: ''
-  security-events:
-    description: 'Upload SARIF results to GitHub Code Scanning (requires security-events: write permission)'
-    required: false
-    default: 'false'
   working-directory:
     description: 'Subdirectory to check out into'
     required: false
@@ -25,7 +21,7 @@ runs:
     - name: Clear git extraheader config
       shell: bash
       run: |
-        # Clear any extraheader config that may cause duplicate Authorization headers
+        # Clear any extraheader config that may cause duplicate Authorization headers.
         git config --global --unset-all "http.https://github.com/.extraheader" 2>/dev/null || true
 
     - name: Checkout code
@@ -36,21 +32,51 @@ runs:
         fetch-depth: ${{ inputs.fetch-depth }}
         persist-credentials: false
 
-    - name: Check Docker availability
-      id: docker-check
+    - name: Install zizmor
       shell: bash
-      run: |
-        # Docker must be available and support Linux containers.
-        # Windows runners have Docker but only support Windows containers.
-        if [[ "$RUNNER_OS" != "Windows" ]] && command -v docker &>/dev/null && docker info &>/dev/null; then
-          echo "available=true" >> "$GITHUB_OUTPUT"
-        else
-          echo "available=false" >> "$GITHUB_OUTPUT"
+      run: | # zizmor: ignore[github-env]
+        ZIZMOR_VERSION="1.23.1"
+        ZIZMOR_DIR="${RUNNER_TEMP:-/tmp}/zizmor-bin"
+        KERNEL="$(uname -s | cut -d- -f1)"
+        ARCH="$(uname -m)"
+        case "${KERNEL}-${ARCH}" in
+          Linux-x86_64)                      ASSET="zizmor-x86_64-unknown-linux-gnu.tar.gz"  ; EXPECTED_SHA256="67a8df0a14352dd81882e14876653d097b99b0f4f6b6fe798edc0320cff27aff" ;;
+          Linux-aarch64)                     ASSET="zizmor-aarch64-unknown-linux-gnu.tar.gz"  ; EXPECTED_SHA256="3725d7cd7102e4d70827186389f7d5930b6878232930d0a3eb058d7e5b47e658" ;;
+          Darwin-x86_64)                     ASSET="zizmor-x86_64-apple-darwin.tar.gz"        ; EXPECTED_SHA256="89d5ed42081dd9d0433a10b7545fac42b35f1f030885c278b9712b32c66f2597" ;;
+          Darwin-arm64)                      ASSET="zizmor-aarch64-apple-darwin.tar.gz"       ; EXPECTED_SHA256="2632561b974c69f952258c1ab4b7432d5c7f92e555704155c3ac28a2910bd717" ;;
+          MINGW64_NT-x86_64|MSYS_NT-x86_64) ASSET="zizmor-x86_64-pc-windows-msvc.zip"       ; EXPECTED_SHA256="33c2293ff02834720dd7cd8b47348aafb2e95a19bdc993c0ecaca9c804ade92a" ;;
+          *) echo "Unsupported platform: ${KERNEL}-${ARCH}" >&2; exit 1 ;;
+        esac
+        ZIZMOR_BIN="$ZIZMOR_DIR/zizmor"
+        [[ "$ASSET" == *.zip ]] && ZIZMOR_BIN="$ZIZMOR_DIR/zizmor.exe"
+        if [ ! -x "$ZIZMOR_BIN" ]; then
+          mkdir -p "$ZIZMOR_DIR"
+          DOWNLOAD_URL="https://github.com/woodruffw/zizmor/releases/download/v${ZIZMOR_VERSION}/${ASSET}"
+          DOWNLOAD_FILE="${ZIZMOR_DIR}/${ASSET}"
+          curl -fsSL -o "$DOWNLOAD_FILE" "$DOWNLOAD_URL"
+          ACTUAL_SHA256="$(shasum -a 256 "$DOWNLOAD_FILE" | cut -d' ' -f1)"
+          if [ "$ACTUAL_SHA256" != "$EXPECTED_SHA256" ]; then
+            echo "Checksum mismatch for ${ASSET}!" >&2
+            echo "  Expected: ${EXPECTED_SHA256}" >&2
+            echo "  Actual:   ${ACTUAL_SHA256}" >&2
+            exit 1
+          fi
+          if [[ "$ASSET" == *.zip ]]; then
+            unzip -qo "$DOWNLOAD_FILE" -d "$ZIZMOR_DIR"
+          else
+            tar xzf "$DOWNLOAD_FILE" -C "$ZIZMOR_DIR"
+          fi
+          rm -f "$DOWNLOAD_FILE"
+          chmod +x "$ZIZMOR_BIN"
         fi
+        echo "$ZIZMOR_DIR" >> "${GITHUB_PATH:-/dev/null}"
 
     - name: Audit GitHub Actions
-      if: steps.docker-check.outputs.available == 'true'
-      uses: zizmorcore/zizmor-action@71321a20a9ded102f6e9ce5718a2fcec2c4f70d8 # v0.5.2
-      with:
-        advanced-security: ${{ inputs.security-events }}
-        min-severity: medium
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      run: |
+        if [ -d .github ]; then
+          zizmor .github --gh-token "${GITHUB_TOKEN}" --min-severity medium
+        fi
+
