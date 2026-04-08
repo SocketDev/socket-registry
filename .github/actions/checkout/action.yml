@@ -54,7 +54,7 @@ runs:
           DOWNLOAD_URL="https://github.com/woodruffw/zizmor/releases/download/v${ZIZMOR_VERSION}/${ASSET}"
           DOWNLOAD_FILE="${ZIZMOR_DIR}/${ASSET}"
           curl -fsSL -o "$DOWNLOAD_FILE" "$DOWNLOAD_URL"
-          ACTUAL_SHA256="$(shasum -a 256 "$DOWNLOAD_FILE" | cut -d' ' -f1)"
+          ACTUAL_SHA256="$( (sha256sum "$DOWNLOAD_FILE" 2>/dev/null || shasum -a 256 "$DOWNLOAD_FILE") | cut -d' ' -f1)"
           if [ "$ACTUAL_SHA256" != "$EXPECTED_SHA256" ]; then
             echo "Checksum mismatch for ${ASSET}!" >&2
             echo "  Expected: ${EXPECTED_SHA256}" >&2
