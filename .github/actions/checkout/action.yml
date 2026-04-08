@@ -40,7 +40,9 @@ runs:
       id: docker-check
       shell: bash
       run: |
-        if command -v docker &>/dev/null && docker info &>/dev/null; then
+        # Docker must be available and support Linux containers.
+        # Windows runners have Docker but only support Windows containers.
+        if [[ "$RUNNER_OS" != "Windows" ]] && command -v docker &>/dev/null && docker info &>/dev/null; then
           echo "available=true" >> "$GITHUB_OUTPUT"
         else
           echo "available=false" >> "$GITHUB_OUTPUT"
