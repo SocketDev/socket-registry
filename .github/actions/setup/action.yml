@@ -147,6 +147,7 @@ runs:
         #   JavaScript/TypeScript: npm, yarn, pnpm
         #   Python: pip, uv
         #   Rust: cargo
+        # https://github.com/SocketDev/sfw-free?tab=readme-ov-file#supported-package-managers
         #
         # Additional wrapper mode ecosystems (sfw-enterprise):
         #   Ruby: gem, bundler
@@ -167,7 +168,6 @@ runs:
         }
         strip_shim_dir() { echo "$PATH" | tr ':' '\n' | grep -vxF "$SHIM_DIR" | paste -sd: -; }
         CLEAN_PATH="$(strip_shim_dir)"
-        # https://docs.socket.dev/docs/socket-firewall-free#what-ecosystems-and-package-managers-are-supported
         SSL_WORKAROUND=""
         SHIM_CMDS="npm yarn pnpm pip uv cargo"
         if [ "$SFW_IS_ENTERPRISE" = "true" ]; then
