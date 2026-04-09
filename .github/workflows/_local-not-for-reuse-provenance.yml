@@ -20,7 +20,7 @@ on:
         default: false
         type: boolean
       publish-without-sfw:
-        description: 'Publish directly to npm, bypassing Socket firewall shims'
+        description: 'Publish directly to npm, bypassing Socket firewall'
         required: false
         default: false
         type: boolean
