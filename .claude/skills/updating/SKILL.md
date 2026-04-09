@@ -8,8 +8,8 @@ allowed-tools: Bash, Read, Grep, Glob, Edit
 # updating
 
 <task>
-Your task is to update all npm dependencies to their latest versions, check for
-stale workflow SHA pins, and ensure all builds and tests pass.
+Updates all npm dependencies to their latest versions, checks for stale workflow
+SHA pins, and ensures all builds and tests pass.
 </task>
 
 <context>

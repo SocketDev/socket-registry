@@ -1,5 +1,17 @@
 # quality-scan Reference Documentation
 
+## Table of Contents
+
+- [Core Principles](#core-principles)
+- [Agent Prompts](#agent-prompts)
+- [Scan Configuration](#scan-configuration)
+- [Report Format](#report-format)
+- [Edge Cases](#edge-cases)
+- [Scan Errors](#scan-errors)
+- [Security Scan Agent](#security-scan-agent)
+- [Workflow Optimization Scan Agent](#workflow-optimization-scan-agent)
+- [Documentation Scan Agent](#documentation-scan-agent)
+
 ## Core Principles
 
 ### KISS (Keep It Simple, Stupid)
