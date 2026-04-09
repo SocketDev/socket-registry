@@ -39,3 +39,5 @@ jobs:
       publish-script: 'package-npm-publish' # runs scripts/publish-npm-packages.mjs
       setup-script: 'pnpm run build'
       use-trusted-publishing: true
+    secrets:
+      SOCKET_API_KEY: ${{ secrets.SOCKET_API_KEY }}

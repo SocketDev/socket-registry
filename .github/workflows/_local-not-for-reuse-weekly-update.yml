@@ -25,6 +25,8 @@ jobs:
       has-updates: ${{ steps.check.outputs.has-updates }}
     steps:
       - uses: SocketDev/socket-registry/.github/actions/setup-and-install@4adc02372980edf7fe249df4272f8bc9201e7f50 # main
+        with:
+          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
 
       - name: Check for npm updates
         id: check
@@ -51,6 +53,7 @@ jobs:
       - uses: SocketDev/socket-registry/.github/actions/setup-and-install@4adc02372980edf7fe249df4272f8bc9201e7f50 # main
         with:
           checkout-fetch-depth: '0'
+          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
 
       - name: Create update branch
         id: branch

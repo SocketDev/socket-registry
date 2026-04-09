@@ -81,6 +81,10 @@ on:
         required: false
         type: boolean
         default: true
+    secrets:
+      SOCKET_API_KEY:
+        description: 'Socket API key — when provided, uses sfw-enterprise instead of sfw-free'
+        required: false
 
 permissions:
   contents: write
@@ -113,6 +117,7 @@ jobs:
           debug: ${{ inputs.debug }}
           scope: ${{ inputs.scope }}
           registry-url: ${{ inputs.registry-url }}
+          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
 
       - name: Run setup script
         if: inputs.setup-script != ''
