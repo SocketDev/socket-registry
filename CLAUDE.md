@@ -95,11 +95,11 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 
 ```javascript
 import colors from 'yoctocolors-cjs'
-;`${colors.green('✓')} ${msg}` // Success
-`${colors.red('✗')} ${msg}` // Error
+`${colors.green('✓')} ${msg}`  // Success
+`${colors.red('✗')} ${msg}`    // Error
 `${colors.yellow('⚠')} ${msg}` // Warning
-`${colors.blue('ℹ')} ${msg}` // Info
-`${colors.cyan('→')} ${msg}` // Step/Progress
+`${colors.blue('ℹ')} ${msg}`   // Info
+`${colors.cyan('→')} ${msg}`   // Step/Progress
 ```
 
 Use emojis sparingly (📦 🚀 🎉 💡). Prefer text-based symbols for terminal compatibility.
