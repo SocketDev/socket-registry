@@ -1,6 +1,6 @@
 ---
 name: updating
-description: Updates all npm dependencies to their latest versions. Triggers when user asks to "update dependencies", "update packages", or prepare for a release.
+description: Updates all npm dependencies and workflow SHA pins. Triggers when user asks to "update dependencies", "update packages", "update everything", or prepare for a release.
 user-invocable: true
 allowed-tools: Bash, Read, Grep, Glob, Edit
 ---
@@ -8,15 +8,17 @@ allowed-tools: Bash, Read, Grep, Glob, Edit
 # updating
 
 <task>
-Your task is to update all npm dependencies to their latest versions, ensuring all builds and tests pass.
+Your task is to update all npm dependencies to their latest versions, check for
+stale workflow SHA pins, and ensure all builds and tests pass.
 </task>
 
 <context>
 **What is this?**
-This skill updates npm packages for security patches, bug fixes, and new features.
+This skill updates npm packages and checks workflow SHA pins.
 
 **Update Targets:**
 - npm packages via `pnpm run update`
+- Workflow SHA pins via the `updating-workflows` skill (when stale)
 </context>
 
 <constraints>
@@ -75,7 +77,30 @@ fi
 
 ---
 
-### Phase 3: Final Validation
+### Phase 3: Check Workflow SHA Pins
+
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
+
+Check if any workflow SHA pins are stale:
+
+```bash
+# Get the current pinned SHA from any workflow file
+PINNED_SHA=$(grep -ohP '(?<=@)[0-9a-f]{40}' .github/workflows/_local-not-for-reuse-ci.yml | head -1)
+MAIN_SHA=$(git rev-parse origin/main)
+
+if [ "$PINNED_SHA" != "$MAIN_SHA" ]; then
+  echo "Workflow SHA pins are stale: $PINNED_SHA (pinned) vs $MAIN_SHA (main)"
+  echo "Run /update-workflows to cascade"
+else
+  echo "Workflow SHA pins are up to date"
+fi
+```
+
+If stale, inform the user and offer to run the `updating-workflows` skill.
+
+---
+
+### Phase 4: Final Validation
 
 Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
 
@@ -83,7 +108,7 @@ Follow `_shared/verify-build.md` for build validation.
 
 ---
 
-### Phase 4: Report Summary
+### Phase 5: Report Summary
 
 Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
 
@@ -99,6 +124,7 @@ Generate update report:
 | Category | Status |
 |----------|--------|
 | npm packages | Updated/Up to date |
+| Workflow SHA pins | Up to date/Stale (run /update-workflows) |
 
 ### Commits Created:
 - [list commits if any]

@@ -225,7 +225,12 @@ If anything breaks:
 
 ### GitHub Actions SHA Pin Cascade (CRITICAL)
 
-Actions and workflows reference each other by full 40-char SHA. When any action changes, **all consumers must be updated in dependency order** via separate PRs. Each PR must merge before the next can be created (the new merge SHA becomes the pin).
+**Full reference:** `.claude/skills/updating-workflows/reference.md`
+**Command:** `/update-workflows`
+
+Actions and workflows reference each other by full 40-char SHA. When any action
+changes, all consumers must be updated in dependency order via separate PRs. Each
+PR must merge before the next can be created (the new merge SHA becomes the pin).
 
 **Architecture layers (update in this order):**
 
@@ -235,49 +240,50 @@ Layer 1 — Leaf actions (no internal SocketDev refs):
   run-script, artifacts, cache-npm-packages
 
 Layer 2a — setup (references Layer 1):
-  setup/action.yml         → refs: debug
+  setup/action.yml         -> refs: debug
 
 Layer 2b — setup-and-install (references Layer 1 + 2a):
-  setup-and-install        → refs: checkout, setup, install
+  setup-and-install        -> refs: checkout, setup, install
 
 Layer 3 — Shared reusable workflows (reference Layer 2):
-  ci.yml                   → refs: setup-and-install, run-script
-  provenance.yml           → refs: setup-and-install
+  ci.yml                   -> refs: setup-and-install, run-script
+  provenance.yml           -> refs: setup-and-install
 
 Layer 4 — _local workflows (reference Layer 3, not reused externally):
-  _local-not-for-reuse-ci.yml         → refs: ci.yml, setup-and-install, cache-npm-packages
-  _local-not-for-reuse-provenance.yml → refs: provenance.yml
-  _local-not-for-reuse-weekly-update  → refs: setup-and-install, setup-git-signing, cleanup-git-signing
+  _local-not-for-reuse-ci.yml         -> refs: ci.yml, setup-and-install, cache-npm-packages
+  _local-not-for-reuse-provenance.yml -> refs: provenance.yml
+  _local-not-for-reuse-weekly-update  -> refs: setup-and-install, setup-git-signing, cleanup-git-signing
 ```
 
-**Cascade procedure when a leaf action changes:**
+**Cascade procedure (starting from the layer above the change):**
 
 ```
-1. PR: Update Layer 2a pins (setup)               → merge → get SHA
-2. PR: Update Layer 2b pins (setup-and-install)    → merge → get SHA
-3. PR: Update Layer 3 pins (ci.yml, provenance.yml) → merge → get SHA ← THIS IS THE PROPAGATION SHA
-4. PR: Update Layer 4 pins (_local workflows)      → merge
+1. PR: Update Layer 2a pins (setup)                  -> merge -> get SHA
+2. PR: Update Layer 2b pins (setup-and-install)       -> merge -> get SHA
+3. PR: Update Layer 3 pins (ci.yml, provenance.yml)   -> merge -> get SHA  <-- PROPAGATION SHA
+4. PR: Update Layer 4 pins (_local workflows)         -> merge
 5. Propagate the Layer 3 SHA to all consuming repos
 ```
 
 **The propagation SHA is the Layer 3 merge SHA** — the one where ci.yml and
 provenance.yml were updated. Layer 4 (`_local-not-for-reuse-*`) and external
 repos all pin to this SAME SHA. The Layer 4 merge SHA is NOT used for pinning
-because it only changed \_local wrappers, not the reusable workflows that
+because it only changed `_local` wrappers, not the reusable workflows that
 consumers reference.
 
-**External consuming repos** (all pin the same SHA as Layer 4 does):
-socket-btm, socket-cli, socket-sdk-js, socket-packageurl-js,
-socket-sbom-generator, socket-lib, ultrathink
+**External consuming repos** (all pin the propagation SHA):
+
+- Push directly to main: socket-btm, socket-sbom-generator, ultrathink
+- Create PRs: socket-cli, socket-lib, socket-sdk-js, socket-packageurl-js
 
 **Rules:**
 
 - Each layer gets its own PR — never combine layers.
 - Always `git fetch origin main && git rev-parse origin/main` to get the SHA after merge.
+- Verify SHA exists before using: `gh api repos/SocketDev/socket-registry/commits/<sha>`
 - Use `--no-verify` for pin-only commits (no code changes).
 - Verify with: `grep -rn "SocketDev/socket-registry" .github/ | grep "@" | grep -v "<current-sha>"`.
 - Don't clobber third-party SHAs (e.g., `actions/upload-artifact`) when doing blanket replacements.
-- For external repos: push directly to main where allowed, create PRs where branch protection requires it.
 
 ### Testing & Coverage
 
