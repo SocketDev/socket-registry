@@ -18,4 +18,8 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
+        if [ -z "$SFW_BIN" ] || [ ! -x "$SFW_BIN" ]; then
+          echo "Error: sfw is not set up — run the setup action first" >&2
+          exit 1
+        fi
         pnpm install --loglevel error ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}

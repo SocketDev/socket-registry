@@ -48,6 +48,14 @@ jobs:
 
       - uses: SocketDev/socket-registry/.github/actions/cache-npm-packages@4adc02372980edf7fe249df4272f8bc9201e7f50 # main
 
+      - name: Verify sfw is installed
+        shell: bash
+        run: |
+          if [ -z "$SFW_BIN" ] || [ ! -x "$SFW_BIN" ]; then
+            echo "Error: sfw is not installed — run the setup action first" >&2
+            exit 1
+          fi
+
       - name: Build registry
         shell: bash
         run: |
