@@ -37,6 +37,10 @@ inputs:
     description: 'npm registry URL'
     required: false
     default: 'https://registry.npmjs.org'
+  socket-api-key:
+    description: 'Socket API key — when provided, uses sfw-enterprise instead of sfw-free'
+    required: false
+    default: ''
   working-directory:
     description: 'Working directory'
     required: false
@@ -60,6 +64,7 @@ runs:
         node-version: ${{ inputs.node-version }}
         scope: ${{ inputs.scope }}
         registry-url: ${{ inputs.registry-url }}
+        socket-api-key: ${{ inputs.socket-api-key }}
         working-directory: ${{ inputs.working-directory }}
 
     - name: Install dependencies

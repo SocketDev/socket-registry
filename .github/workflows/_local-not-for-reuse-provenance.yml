@@ -19,6 +19,11 @@ on:
         required: false
         default: false
         type: boolean
+      publish-without-sfw:
+        description: 'Publish directly to npm, bypassing Socket firewall shims'
+        required: false
+        default: false
+        type: boolean
       skip-npm-packages:
         description: 'Skip publishing npm override packages (packages/*)'
         required: false
@@ -35,7 +40,10 @@ jobs:
     with:
       debug: ${{ inputs.debug }}
       force-registry: ${{ inputs.force-registry }}
-      skip-npm-packages: ${{ inputs.skip-npm-packages }}
       publish-script: 'package-npm-publish' # runs scripts/publish-npm-packages.mjs
+      publish-without-sfw: ${{ inputs.publish-without-sfw }}
       setup-script: 'pnpm run build'
+      skip-npm-packages: ${{ inputs.skip-npm-packages }}
       use-trusted-publishing: true
+    secrets:
+      SOCKET_API_KEY: ${{ secrets.SOCKET_API_KEY }}

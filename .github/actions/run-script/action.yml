@@ -34,6 +34,14 @@ outputs:
 runs:
   using: 'composite'
   steps:
+    - name: Verify sfw is installed
+      shell: bash
+      run: |
+        if [ -z "$SFW_BIN" ] || [ ! -x "$SFW_BIN" ]; then
+          echo "Error: sfw is not installed — run SocketDev/socket-registry/.github/actions/setup first" >&2
+          exit 1
+        fi
+
     - name: Run setup script
       if: inputs.setup-script != ''
       shell: ${{ inputs.shell }}

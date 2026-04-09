@@ -28,6 +28,8 @@ jobs:
       test-setup-script: 'pnpm run build'
       type-check-script: 'pnpm run check'
       type-check-setup-script: 'pnpm run build'
+    secrets:
+      SOCKET_API_KEY: ${{ secrets.SOCKET_API_KEY }}
 
   test-npm-packages:
     name: Test NPM Packages
@@ -42,8 +44,17 @@ jobs:
       - uses: SocketDev/socket-registry/.github/actions/setup-and-install@4adc02372980edf7fe249df4272f8bc9201e7f50 # main
         with:
           node-version: 22
+          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
 
       - uses: SocketDev/socket-registry/.github/actions/cache-npm-packages@4adc02372980edf7fe249df4272f8bc9201e7f50 # main
+
+      - name: Verify sfw is installed
+        shell: bash
+        run: |
+          if [ -z "$SFW_BIN" ] || [ ! -x "$SFW_BIN" ]; then
+            echo "Error: sfw is not installed — run SocketDev/socket-registry/.github/actions/setup first" >&2
+            exit 1
+          fi
 
       - name: Build registry
         shell: bash
