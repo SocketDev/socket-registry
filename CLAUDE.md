@@ -184,7 +184,9 @@ via separate PRs. Each PR must merge before the next.
 **Key rules:**
 
 - Each layer gets its own PR — never combine layers
-- Always get SHAs from main AFTER merge (squash merges create new SHAs)
+- **NEVER type/guess SHAs** — always `git fetch origin main && git rev-parse origin/main` AFTER merge
+- **NEVER use a SHA from a PR branch** — only use SHAs from main after the PR merges
+- **Verify SHA exists**: `gh api repos/SocketDev/socket-registry/commits/<sha> --jq '.sha'`
 - The **propagation SHA** is the Layer 3 merge SHA — Layer 4 and external repos all pin to it
 - Don't clobber third-party SHAs when doing blanket replacements
 

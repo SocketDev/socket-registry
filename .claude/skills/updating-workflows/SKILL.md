@@ -32,14 +32,22 @@ Progress:
 
 For each layer from the starting layer through Layer 3:
 
-1. Get current SHA: `git fetch origin main && git rev-parse origin/main`
-2. Create branch: `git checkout -b chore/ci-cascade-layer-N`
-3. Replace old SHA with new SHA in all files at this layer only
-4. Verify no stale refs: `grep -rn "SocketDev/socket-registry" .github/ | grep "@" | grep -v "<new-sha>"`
-5. Don't clobber third-party SHAs (`actions/checkout`, etc.)
-6. Commit: `chore(ci): bump socket-registry action refs to main (<short-sha>)`
-7. Push and create PR
-8. **Wait for merge** before proceeding to next layer
+1. **Wait for previous PR to merge** before starting the next layer
+2. Get the **post-merge** SHA from main — NEVER use a SHA from a PR branch:
+   ```bash
+   git fetch origin main && git rev-parse origin/main
+   ```
+3. **Verify the SHA exists on GitHub** before writing it into any file:
+   ```bash
+   gh api repos/SocketDev/socket-registry/commits/<sha> --jq '.sha'
+   ```
+4. Create branch: `git checkout -b chore/ci-cascade-layer-N`
+5. Replace old SHA with new SHA in all files at this layer only
+6. Verify no stale refs: `grep -rn "SocketDev/socket-registry" .github/ | grep "@" | grep -v "<new-sha>"`
+7. Don't clobber third-party SHAs (`actions/checkout`, etc.)
+8. Commit: `chore(ci): bump socket-registry action refs to main (<short-sha>)`
+9. Push and create PR
+10. **Wait for merge** before proceeding to next layer
 
 After Layer 3 merges, record the merge SHA. This is the **propagation SHA**.
 
