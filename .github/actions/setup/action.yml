@@ -171,7 +171,9 @@ runs:
         SSL_WORKAROUND=""
         SHIM_CMDS="npm yarn pnpm pip uv cargo"
         if [ "$SFW_IS_ENTERPRISE" = "true" ]; then
-          SHIM_CMDS="npm yarn pnpm pip uv cargo gem bundler nuget go"
+          SHIM_CMDS="npm yarn pnpm pip uv cargo gem bundler nuget"
+          # Go wrapper mode is only supported on Linux.
+          [[ "$OSTYPE" == linux* ]] && SHIM_CMDS="$SHIM_CMDS go"
         else
           SSL_WORKAROUND='export GIT_SSL_NO_VERIFY=true # Workaround: sfw-free does not yet set GIT_SSL_CAINFO.'
         fi
