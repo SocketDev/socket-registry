@@ -143,12 +143,12 @@ runs:
       run: | # zizmor: ignore[github-env]
         # Shim supported package managers so their commands route through sfw.
         #
-        # sfw-free ecosystems:
+        # Wrapper mode ecosystems (sfw-free):
         #   JavaScript/TypeScript: npm, yarn, pnpm
         #   Python: pip, uv
         #   Rust: cargo
         #
-        # sfw-enterprise adds (wrapper mode):
+        # Additional wrapper mode ecosystems (sfw-enterprise):
         #   Ruby: gem, bundler
         #   .NET: nuget
         #   Go: go (Linux only)
