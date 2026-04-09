@@ -143,10 +143,16 @@ runs:
       run: | # zizmor: ignore[github-env]
         # Shim supported package managers so their commands route through sfw.
         #
-        # Supported ecosystems:
+        # sfw-free ecosystems:
         #   JavaScript/TypeScript: npm, yarn, pnpm
         #   Python: pip, uv
         #   Rust: cargo
+        #
+        # sfw-enterprise adds (wrapper mode):
+        #   Ruby: gem, bundler
+        #   .NET: nuget
+        #   Go: go (Linux only)
+        # https://github.com/SocketDev/firewall-release/wiki#support-matrix
         SHIM_DIR="${RUNNER_TEMP:-/tmp}/sfw-shim"
         rm -rf "$SHIM_DIR"
         mkdir -p "$SHIM_DIR"
@@ -163,10 +169,13 @@ runs:
         CLEAN_PATH="$(strip_shim_dir)"
         # https://docs.socket.dev/docs/socket-firewall-free#what-ecosystems-and-package-managers-are-supported
         SSL_WORKAROUND=""
-        if [ "$SFW_IS_ENTERPRISE" != "true" ]; then
+        SHIM_CMDS="npm yarn pnpm pip uv cargo"
+        if [ "$SFW_IS_ENTERPRISE" = "true" ]; then
+          SHIM_CMDS="npm yarn pnpm pip uv cargo gem bundler nuget go"
+        else
           SSL_WORKAROUND='export GIT_SSL_NO_VERIFY=true # Workaround: sfw-free does not yet set GIT_SSL_CAINFO.'
         fi
-        for CMD in npm yarn pnpm pip uv cargo; do
+        for CMD in $SHIM_CMDS; do
           REAL="$(PATH="$CLEAN_PATH" command -v "$CMD" 2>/dev/null || true)"
           [ -z "$REAL" ] && continue
           REAL="$(msys_to_win_path "$REAL")"
