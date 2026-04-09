@@ -92,8 +92,15 @@ All pin to the propagation SHA (Layer 3 merge SHA):
 ## Rules
 
 - Each layer gets its own PR — never combine layers
+- **NEVER type or guess SHAs** — always copy the full 40-char SHA from command output:
+  ```bash
+  git fetch origin main && git rev-parse origin/main
+  ```
 - Always get SHAs from main AFTER merge (squash merges create new SHAs)
-- Verify SHA exists: `gh api repos/SocketDev/socket-registry/commits/<sha>`
+- **Verify SHA exists on GitHub before using it in any file**:
+  ```bash
+  gh api repos/SocketDev/socket-registry/commits/<sha> --jq '.sha'
+  ```
 - Use `--no-verify` for pin-only commits (no code changes)
 - Verify no stale refs: `grep -rn "SocketDev/socket-registry" .github/ | grep "@" | grep -v "<current-sha>"`
 - Don't clobber third-party SHAs (`actions/checkout`, `actions/upload-artifact`, etc.)
