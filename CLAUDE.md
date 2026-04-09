@@ -372,7 +372,7 @@ Do not read source files and assert on their contents (`.toContain('pattern')`).
 ### Dependency Alignment (MANDATORY)
 
 - **Core deps**: @typescript/native-preview (tsgo), @types/node, typescript-eslint (unified only)
-- **DevDeps**: @biomejs/biome, @dotenvx/dotenvx, @vitest/coverage-v8, del-cli, eslint, eslint-plugin-\*, globals, husky, knip, lint-staged, npm-run-all2, taze, type-coverage, vitest, yargs-parser, yoctocolors-cjs
+- **DevDeps**: @dotenvx/dotenvx, @vitest/coverage-v8, del-cli, eslint, eslint-plugin-\*, globals, husky, knip, lint-staged, npm-run-all2, oxfmt, taze, type-coverage, vitest, yargs-parser, yoctocolors-cjs
 - **FORBIDDEN**: Separate @typescript-eslint/\* packages; use unified `typescript-eslint`
 - **TSGO PRESERVATION**: Never replace tsgo with tsc
 - **Update**: Use `pnpm run taze` to check/apply updates across all Socket projects
@@ -425,4 +425,4 @@ Do not read source files and assert on their contents (`.toContain('pattern')`).
 - Post-build transform: Converts esbuild wrappers to clear `module.exports = { ... }` for Node ESM named imports
 - Multiple env configs: `.env.local`, `.env.test`, `.env.external`
 - Linting: eslint
-- Formatting: Biome
+- Formatting: oxfmt
