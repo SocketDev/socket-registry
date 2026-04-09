@@ -91,37 +91,18 @@ If user repeats instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
 - ℹ Info - MUST be blue (NOT ℹ️)
 - → Step/progress - MUST be cyan (NOT ➜ or ▶)
 
-**Color Requirements** (apply color to icon ONLY, not entire message):
+**Color**: Apply color to icon ONLY using `yoctocolors-cjs` (NOT ESM `yoctocolors`):
 
 ```javascript
 import colors from 'yoctocolors-cjs'
-;`${colors.green('✓')} ${msg}` // Success
-`${colors.red('✗')} ${msg}` // Error
+`${colors.green('✓')} ${msg}`  // Success
+`${colors.red('✗')} ${msg}`    // Error
 `${colors.yellow('⚠')} ${msg}` // Warning
-`${colors.blue('ℹ')} ${msg}` // Info
-`${colors.cyan('→')} ${msg}` // Step/Progress
+`${colors.blue('ℹ')} ${msg}`   // Info
+`${colors.cyan('→')} ${msg}`   // Step/Progress
 ```
 
-**Color Package**:
-
-- Use `yoctocolors-cjs` (NOT `yoctocolors` ESM package)
-- Pinned dev dependency in all Socket projects
-- CommonJS compatibility for scripts and tooling
-
-**Allowed Emojis** (use sparingly):
-
-- 📦 Packages
-- 💡 Ideas/tips
-- 🚀 Launch/deploy/excitement
-- 🎉 Major success/celebration
-
-**General Philosophy**:
-
-- Prefer colored text-based symbols (✓✗⚠ℹ→) for maximum terminal compatibility
-- Always color-code symbols: green=success, red=error, yellow=warning, blue=info, cyan=step
-- Use emojis sparingly for emphasis and delight
-- Avoid emoji overload - less is more
-- When in doubt, use plain text
+Use emojis sparingly (📦 🚀 🎉 💡). Prefer text-based symbols for terminal compatibility.
 
 ### Cross-Platform (CRITICAL)
 
@@ -139,55 +120,23 @@ import colors from 'yoctocolors-cjs'
 
 ### Backward Compatibility (CRITICAL)
 
-- **🚨 NO BACKWARD COMPATIBILITY**: FORBIDDEN to maintain it - we're our only consumers
-- **Active removal**: MUST remove existing backward compatibility code when encountered
-- **Breaking changes**: Inform about them, but NEVER add compat layers
-- **Dead code**: Backward compat code becomes dead code in our ecosystem
-- **Clean breaks**: Make clean API changes without deprecation paths
-- **Migration**: Quick internal updates preferred over gradual deprecation
-- **Examples of forbidden patterns**:
-  - ❌ Renaming unused `_vars` instead of deleting
-  - ❌ Re-exporting types for "compatibility"
-  - ❌ Adding `// removed` comments for removed code
-  - ❌ Environment variables for legacy behavior
-  - ❌ Feature flags for old implementations
-  - ✅ Just delete unused code completely
+- 🚨 FORBIDDEN to maintain — we're our only consumers
+- Actively remove compat code when encountered (it's dead code)
+- Make clean API breaks; never add deprecation paths or compat layers
+- Just delete unused code completely
 
 ### Safe File Operations (SECURITY CRITICAL)
 
-- **Use safeDelete**: Import from `@socketsecurity/lib/fs`
-- **Source code**: Use `safeDelete()` or `safeDeleteSync()` with error handling
-- **Scripts**: Use `safeDelete()` or `safeDeleteSync()` from `@socketsecurity/lib/fs`
-- **package.json scripts**: Use `del-cli` for inline script situations
-- **NO fs.rm/rmSync**: 🚨 ABSOLUTELY FORBIDDEN - NEVER `fs.rm()`, `fs.rmSync()`, or `rm -rf`
-- HTTP Requests: NEVER use `fetch()` — use `httpJson`/`httpText`/`httpRequest` from `@socketsecurity/lib/http-request`
-- **Examples**:
-  - ✅ Source/Scripts: `import { safeDelete } from '@socketsecurity/lib/fs'` then `await safeDelete(tmpDir)`
-  - ✅ Sync version: `import { safeDeleteSync } from '@socketsecurity/lib/fs'` then `safeDeleteSync(tmpDir)`
-  - ✅ package.json: `"clean": "del-cli dist/**"`
-  - ❌ FORBIDDEN: `fs.rm()`, `fs.rmSync()`, `rm -rf`, `del` package, `trash` package
+- 🚨 FORBIDDEN: `fs.rm()`, `fs.rmSync()`, `rm -rf`
+- Use `safeDelete()`/`safeDeleteSync()` from `@socketsecurity/lib/fs`
+- package.json scripts: use `del-cli`
+- HTTP: NEVER `fetch()` — use `httpJson`/`httpText`/`httpRequest` from `@socketsecurity/lib/http-request`
 
-### Work Safeguards (CRITICAL - PREVENTS DATA LOSS)
+### Work Safeguards (CRITICAL)
 
-**MANDATORY workflow before bulk changes**:
-
-```
-1. Commit WIP     → git add . && git commit -m "WIP before changes"
-2. Create backup  → git checkout -b backup-before-<change>
-3. Return to work → git checkout <original-branch>
-4. Make changes   → (now you have a safety net)
-
-If anything breaks:
-  git checkout backup-before-<change> .
-```
-
-**FORBIDDEN**:
-
-- Automated fix scripts (sed, awk, regex bulk replacements)
-- Scripts that modify multiple files without backup
-- Any bulk operation without backup branch
-
-**WHY**: Prevents irreversible corruption, enables instant recovery
+- Before bulk changes: commit WIP + create backup branch
+- FORBIDDEN: automated fix scripts (sed/awk/regex bulk replacements) without backup
+- FORBIDDEN: multi-file modifications without backup branch
 
 ### Git Workflow
 
@@ -228,62 +177,16 @@ If anything breaks:
 **Full reference:** `.claude/skills/updating-workflows/reference.md`
 **Command:** `/update-workflows`
 
-Actions and workflows reference each other by full 40-char SHA. When any action
-changes, all consumers must be updated in dependency order via separate PRs. Each
-PR must merge before the next can be created (the new merge SHA becomes the pin).
+Actions and workflows reference each other by full 40-char SHA pinned to main.
+When any action changes, update consumers in layer order (Layer 1 -> 2a -> 2b -> 3 -> 4)
+via separate PRs. Each PR must merge before the next.
 
-**Architecture layers (update in this order):**
+**Key rules:**
 
-```
-Layer 1 — Leaf actions (no internal SocketDev refs):
-  checkout, install, debug, setup-git-signing, cleanup-git-signing,
-  run-script, artifacts, cache-npm-packages
-
-Layer 2a — setup (references Layer 1):
-  setup/action.yml         -> refs: debug
-
-Layer 2b — setup-and-install (references Layer 1 + 2a):
-  setup-and-install        -> refs: checkout, setup, install
-
-Layer 3 — Shared reusable workflows (reference Layer 2):
-  ci.yml                   -> refs: setup-and-install, run-script
-  provenance.yml           -> refs: setup-and-install
-
-Layer 4 — _local workflows (reference Layer 3, not reused externally):
-  _local-not-for-reuse-ci.yml         -> refs: ci.yml, setup-and-install, cache-npm-packages
-  _local-not-for-reuse-provenance.yml -> refs: provenance.yml
-  _local-not-for-reuse-weekly-update  -> refs: setup-and-install, setup-git-signing, cleanup-git-signing
-```
-
-**Cascade procedure (starting from the layer above the change):**
-
-```
-1. PR: Update Layer 2a pins (setup)                  -> merge -> get SHA
-2. PR: Update Layer 2b pins (setup-and-install)       -> merge -> get SHA
-3. PR: Update Layer 3 pins (ci.yml, provenance.yml)   -> merge -> get SHA  <-- PROPAGATION SHA
-4. PR: Update Layer 4 pins (_local workflows)         -> merge
-5. Propagate the Layer 3 SHA to all consuming repos
-```
-
-**The propagation SHA is the Layer 3 merge SHA** — the one where ci.yml and
-provenance.yml were updated. Layer 4 (`_local-not-for-reuse-*`) and external
-repos all pin to this SAME SHA. The Layer 4 merge SHA is NOT used for pinning
-because it only changed `_local` wrappers, not the reusable workflows that
-consumers reference.
-
-**External consuming repos** (all pin the propagation SHA):
-
-- Push directly to main: socket-btm, socket-sbom-generator, ultrathink
-- Create PRs: socket-cli, socket-lib, socket-sdk-js, socket-packageurl-js
-
-**Rules:**
-
-- Each layer gets its own PR — never combine layers.
-- Always `git fetch origin main && git rev-parse origin/main` to get the SHA after merge.
-- Verify SHA exists before using: `gh api repos/SocketDev/socket-registry/commits/<sha>`
-- Use `--no-verify` for pin-only commits (no code changes).
-- Verify with: `grep -rn "SocketDev/socket-registry" .github/ | grep "@" | grep -v "<current-sha>"`.
-- Don't clobber third-party SHAs (e.g., `actions/upload-artifact`) when doing blanket replacements.
+- Each layer gets its own PR — never combine layers
+- Always get SHAs from main AFTER merge (squash merges create new SHAs)
+- The **propagation SHA** is the Layer 3 merge SHA — Layer 4 and external repos all pin to it
+- Don't clobber third-party SHAs when doing blanket replacements
 
 ### Testing & Coverage
 
@@ -332,33 +235,9 @@ Do not read source files and assert on their contents (`.toContain('pattern')`).
 
 ### Vitest Configuration Variants
 
-Three configurations available for different use cases:
-
-**Main Config: `.config/vitest.config.mts`** (default)
-
-- Used by `pnpm test` and test scripts
-- Pool: threads (4 max) for speed
-- Timeout: 10s
-- Coverage: 1-80% thresholds (pragmatic)
-- Use: Normal development and CI test runs
-
-**Isolated Config: `.config/vitest.config.isolated.mts`**
-
-- Full process isolation for module-level mocking
-- Pool: forks (8 max) for true isolation
-- Timeout: 10s
-- Coverage: 99% thresholds (strict)
-- Use: Tests requiring `vi.doMock()` or complex module mocking
-- Run: `vitest --config .config/vitest.config.isolated.mts`
-
-**Optimized Config: `.config/vitest.config.optimized.mts`**
-
-- Speed-optimized with lower thresholds
-- Pool: threads (unlimited parallel)
-- Timeout: 30s (longer for slower operations)
-- Coverage: 55% thresholds, `skipFull: true`
-- Use: Quick validation, pre-commit checks
-- Run: `vitest --config .config/vitest.config.optimized.mts`
+- **Default** (`.config/vitest.config.mts`): threads, 10s timeout — used by `pnpm test`
+- **Isolated** (`.config/vitest.config.isolated.mts`): forks for `vi.doMock()` tests
+- **Optimized** (`.config/vitest.config.optimized.mts`): fast validation, pre-commit
 
 ### Package Management
 
@@ -370,34 +249,9 @@ Three configurations available for different use cases:
 
 ### Dependency Management
 
-**Lockfile Updates** (🚨 MANDATORY):
-
-- **After updating `package.json` dependencies**: Run `pnpm install` to update `pnpm-lock.yaml`
-- **After version bumps**: Verify `pnpm-lock.yaml` is current
-- **Commit lockfile changes** with dependency updates
-- **Never manually edit** `pnpm-lock.yaml`
-
-**Common scenarios**:
-
-```bash
-pnpm add <pkg>      # Auto-updates lockfile ✓
-pnpm remove <pkg>   # Auto-updates lockfile ✓
-
-# Manual package.json edits
-vi package.json     # Edit dependencies
-pnpm install        # 🚨 MUST update lockfile
-
-# Release bumps
-pnpm version patch  # Verify lockfile updated
-git status          # Check pnpm-lock.yaml changed
-```
-
-**Why this matters**:
-
-- Ensures reproducible builds across environments
-- Prevents "works on my machine" issues
-- Required for security audits and dependency tracking
-- CI/CD relies on lockfile consistency
+- After editing `package.json` deps: run `pnpm install` to update lockfile
+- Commit `pnpm-lock.yaml` with dependency changes
+- Never manually edit `pnpm-lock.yaml`
 
 ### Script Wrappers
 
@@ -411,93 +265,14 @@ git status          # Check pnpm-lock.yaml changed
 
 ### Documentation Standards
 
-**Location**:
-
-```
-Standard repo:
-  docs/                    # All documentation here
-  ├── api-reference.md
-  ├── build-system.md
-  └── troubleshooting.md
-
-Monorepo:
-  docs/                    # Root-level documentation
-  packages/
-  ├── pkg-a/
-  │   └── docs/            # Package-specific docs
-  └── pkg-b/
-      └── docs/            # Package-specific docs
-```
-
-**Filename conventions**:
-
-```
-✓ lowercase-with-hyphens.md        # Descriptive names
-✓ api-reference.md
-✓ build-system.md
-✓ troubleshooting-guide.md
-
-Exception - Standard repo files (uppercase):
-✓ README.md
-✓ LICENSE
-✓ SECURITY.md
-✓ CHANGELOG.md
-✓ CONTRIBUTING.md
-```
-
-**Writing style**:
-
-- **Pithy**: Critical information first, concise and meaningful
-- **Direct**: No marketing language, get to the point
-- **Visual**: Use ASCII diagrams, flowcharts, directory trees for complex concepts
-- **Scannable**: Code blocks, bullets, clear hierarchy
-
-**Examples of good visualizations**:
-
-```
-Directory structure:
-  src/
-  ├── index.ts
-  └── lib/
-
-Flow diagram:
-  Input → Parse → Validate → Output
-          ↓
-        Error
-
-Decision tree:
-  Build needed?
-    ├─ Yes → Run build
-    └─ No  → Skip
-```
+- **Location**: `docs/` folder; monorepos also have `packages/*/docs/`
+- **Filenames**: `lowercase-with-hyphens.md` (exception: README.md, LICENSE, CHANGELOG.md, etc.)
+- **Style**: Pithy, direct, scannable. Use ASCII diagrams for complex concepts.
 
 ### Package.json Scripts Convention
 
-**Prefer flags over separate scripts**:
-
-```json
-// Good - Single script with flags
-"scripts": {
-  "build": "node scripts/build.mjs"
-}
-// Usage: pnpm run build --watch --verbose
-
-// Avoid - Multiple similar scripts
-"scripts": {
-  "build": "node scripts/build.mjs",
-  "build:watch": "node scripts/build.mjs --watch",
-  "build:prod": "node scripts/build.mjs --prod",
-  "build:dev": "node scripts/build.mjs --dev"
-}
-```
-
-**Benefits**: Fewer scripts, clearer interface, easier maintenance
-
-**Exception**: Composite scripts that orchestrate multiple steps
-
-```json
-"fix:build": "node scripts/fix-build.mjs"  // Runs multiple fix scripts in sequence
-```
+- Prefer single scripts with flags (`pnpm run build --watch`) over multiple variants (`build:watch`, `build:prod`)
+- Exception: composite scripts that orchestrate multiple steps
 
 ### Code Style - File Organization
 
@@ -602,19 +377,9 @@ Decision tree:
 - **TSGO PRESERVATION**: Never replace tsgo with tsc
 - **Update**: Use `pnpm run taze` to check/apply updates across all Socket projects
 
-### Recurring Patterns
-
-1. \***\*proto** ordering\*\*: Always first in object literals
-2. **Options parameter**: `{ __proto__: null, ...options } as SomeOptions`
-3. **Reflect.apply**: `const { apply } = Reflect` + `apply(fn, thisArg, [])`
-4. **Import separation**: Type imports separate from runtime
-5. **Node.js imports**: Always `node:` prefix
-
 ### Scratch Documents
 
-- **Location**: `.claude/` (gitignored)
-- **Purpose**: Working notes, analysis, planning
-- **CRITICAL**: Never commit
+- **Location**: `.claude/` (gitignored) — working notes, never commit
 
 ---
 
