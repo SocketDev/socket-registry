@@ -76,6 +76,11 @@ on:
         required: false
         type: number
         default: 10
+      publish-without-sfw:
+        description: 'Publish directly to npm, bypassing Socket firewall shims'
+        required: false
+        type: boolean
+        default: false
       use-trusted-publishing:
         description: 'Use npm trusted publishing with OIDC instead of npm token'
         required: false
@@ -120,6 +125,7 @@ jobs:
           socket-api-key: ${{ secrets.SOCKET_API_KEY }}
 
       - name: Verify sfw is installed
+        if: inputs.publish-without-sfw != true
         run: |
           if [ -z "$SFW_BIN" ] || [ ! -x "$SFW_BIN" ]; then
             echo "Error: sfw is not installed — run SocketDev/socket-registry/.github/actions/setup first" >&2
@@ -141,6 +147,16 @@ jobs:
           else
             # Script name only - run as pnpm script
             pnpm run $SETUP_SCRIPT
+          fi
+
+      - name: Strip sfw shims for publishing
+        if: inputs.publish-without-sfw == true
+        run: | # zizmor: ignore[github-env]
+          echo "Bypassing Socket firewall shims for publishing"
+          echo "SFW_ORIGINAL_PATH=$PATH" >> "${GITHUB_ENV:-/dev/null}"
+          if [ -n "$SFW_SHIM_DIR" ]; then
+            CLEAN_PATH="$(echo "$PATH" | tr ':' '\n' | grep -vxF "$SFW_SHIM_DIR" | paste -sd: -)"
+            echo "PATH=$CLEAN_PATH" >> "${GITHUB_ENV:-/dev/null}"
           fi
 
       - name: Publish with custom script
@@ -201,6 +217,13 @@ jobs:
           else
             # Script name only - run as pnpm script
             pnpm run $ACCESS_SCRIPT
+          fi
+
+      - name: Restore sfw shims after publishing
+        if: inputs.publish-without-sfw == true && always()
+        run: | # zizmor: ignore[github-env]
+          if [ -n "$SFW_ORIGINAL_PATH" ]; then
+            echo "PATH=$SFW_ORIGINAL_PATH" >> "${GITHUB_ENV:-/dev/null}"
           fi
 
       - name: Set MFA automation
