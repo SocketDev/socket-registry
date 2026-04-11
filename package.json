@@ -1,7 +1,7 @@
 {
   "name": "@socketregistry/monorepo",
   "version": "1.0.0",
-  "packageManager": "pnpm@10.33.0",
+  "packageManager": "pnpm@11.0.0-rc.0",
   "private": true,
   "license": "MIT",
   "description": "Monorepo for Socket.dev optimized package overrides",
@@ -17,7 +17,7 @@
   },
   "engines": {
     "node": ">=18.20.8",
-    "pnpm": ">=10.33.0"
+    "pnpm": ">=11.0.0-rc.0"
   },
   "scripts": {
     "analyze-ci-failures": "node scripts/testing/analyze-ci-failures.mjs",
@@ -131,63 +131,6 @@
     "yargs-parser": "catalog:",
     "yoctocolors-cjs": "catalog:",
     "zod": "catalog:"
-  },
-  "pnpm": {
-    "ignoredBuiltDependencies": [
-      "esbuild",
-      "unrs-resolver"
-    ],
-    "overrides": {
-      "@types/node": "catalog:",
-      "aggregate-error": "npm:@socketregistry/aggregate-error@1.0.15",
-      "array-buffer-byte-length": "npm:@socketregistry/array-buffer-byte-length@1.0.7",
-      "available-typed-arrays": "npm:@socketregistry/available-typed-arrays@1.0.8",
-      "brace-expansion": "catalog:",
-      "es-define-property": "npm:@socketregistry/es-define-property@1.0.7",
-      "es-get-iterator": "npm:@socketregistry/es-get-iterator@1.0.8",
-      "es-set-tostringtag": "npm:@socketregistry/es-set-tostringtag@1.0.10",
-      "for-each": "npm:@socketregistry/for-each@1.0.8",
-      "function-bind": "npm:@socketregistry/function-bind@1.0.7",
-      "gopd": "npm:@socketregistry/gopd@1.0.7",
-      "has-property-descriptors": "npm:@socketregistry/has-property-descriptors@1.0.7",
-      "has-symbols": "npm:@socketregistry/has-symbols@1.0.7",
-      "has-tostringtag": "npm:@socketregistry/has-tostringtag@1.0.7",
-      "hasown": "npm:@socketregistry/hasown@1.0.7",
-      "iconv-lite": "catalog:",
-      "indent-string": "npm:@socketregistry/indent-string@1.0.14",
-      "is-arguments": "npm:@socketregistry/is-arguments@1.0.10",
-      "is-array-buffer": "npm:@socketregistry/is-array-buffer@1.0.10",
-      "is-core-module": "npm:@socketregistry/is-core-module@1.0.11",
-      "is-date-object": "npm:@socketregistry/is-date-object@1.0.10",
-      "is-generator-function": "npm:@socketregistry/is-generator-function@1.0.10",
-      "is-nan": "npm:@socketregistry/is-nan@1.0.8",
-      "is-regex": "npm:@socketregistry/is-regex@1.0.10",
-      "is-shared-array-buffer": "npm:@socketregistry/is-shared-array-buffer@1.0.10",
-      "is-typed-array": "npm:@socketregistry/is-typed-array@1.0.12",
-      "isarray": "npm:@socketregistry/isarray@1.0.8",
-      "json-stable-stringify": "npm:@socketregistry/json-stable-stringify@1.0.13",
-      "jsonify": "npm:@socketregistry/jsonify@1.0.7",
-      "minimatch": "catalog:",
-      "object-is": "npm:@socketregistry/object-is@1.0.8",
-      "object-keys": "npm:@socketregistry/object-keys@1.0.8",
-      "object.assign": "npm:@socketregistry/object.assign@1.0.8",
-      "path-parse": "npm:@socketregistry/path-parse@1.0.8",
-      "regexp.prototype.flags": "npm:@socketregistry/regexp.prototype.flags@1.0.8",
-      "safe-regex-test": "npm:@socketregistry/safe-regex-test@1.0.8",
-      "safer-buffer": "npm:@socketregistry/safer-buffer@1.0.10",
-      "set-function-length": "npm:@socketregistry/set-function-length@1.0.10",
-      "shell-quote": "npm:shell-quote@1.8.3",
-      "side-channel": "npm:@socketregistry/side-channel@1.0.10",
-      "typescript": "catalog:",
-      "vite": "catalog:",
-      "which-boxed-primitive": "npm:@socketregistry/which-boxed-primitive@1.0.9",
-      "which-collection": "npm:@socketregistry/which-collection@1.0.8",
-      "which-typed-array": "npm:@socketregistry/which-typed-array@1.0.9"
-    },
-    "patchedDependencies": {
-      "brace-expansion@2.0.2": "patches/brace-expansion@2.0.2.patch",
-      "minimatch@9.0.5": "patches/minimatch@9.0.5.patch"
-    }
   },
   "typeCoverage": {
     "cache": true,
