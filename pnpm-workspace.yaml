@@ -1,7 +1,6 @@
 # Migrated from .npmrc (pnpm v11 only reads auth/registry from .npmrc).
 ignoreScripts: true
 linkWorkspacePackages: false
-loglevel: error
 
 # Wait 7 days (10080 minutes) before installing newly published packages.
 minimumReleaseAge: 10080
@@ -119,7 +118,6 @@ patchedDependencies:
 # Packages allowed to run build scripts (pnpm v11 strictDepBuilds default).
 allowBuilds:
   esbuild: true
-  unrs-resolver: true
 
 # Dependency overrides (migrated from package.json pnpm.overrides).
 overrides:

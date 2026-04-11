@@ -70,7 +70,7 @@ runs:
           fi
           # v11 ships as tarballs/zips containing pnpm binary + dist/ directory.
           if [[ "$ASSET" == *.zip ]]; then
-            unzip -qo "$ARCHIVE_PATH" -d "$PNPM_DIR"
+            powershell -NoProfile -Command "Expand-Archive -Path '$ARCHIVE_PATH' -DestinationPath '$PNPM_DIR' -Force"
           else
             tar xzf "$ARCHIVE_PATH" -C "$PNPM_DIR"
           fi
