@@ -51,7 +51,7 @@ runs:
         [[ "$ASSET" == *.zip ]] && ZIZMOR_BIN="$ZIZMOR_DIR/zizmor.exe"
         if [ ! -x "$ZIZMOR_BIN" ]; then
           mkdir -p "$ZIZMOR_DIR"
-          DOWNLOAD_URL="https://github.com/woodruffw/zizmor/releases/download/v${ZIZMOR_VERSION}/${ASSET}"
+          DOWNLOAD_URL="https://github.com/zizmorcore/zizmor/releases/download/v${ZIZMOR_VERSION}/${ASSET}"
           DOWNLOAD_FILE="${ZIZMOR_DIR}/${ASSET}"
           curl -fsSL -o "$DOWNLOAD_FILE" "$DOWNLOAD_URL"
           ACTUAL_SHA256="$( (sha256sum "$DOWNLOAD_FILE" 2>/dev/null || shasum -a 256 "$DOWNLOAD_FILE") | cut -d' ' -f1 | tr -d '\\')"
