@@ -145,7 +145,6 @@ const extractors: Record<string, Extractor> = {
     (m): Dep => ({ type: 'nuget', name: m[1] })
   ),
   '.tf': extractTerraform,
-  'brew': extractBrewfile,
   'Brewfile': extractBrewfile,
   'build.gradle': extractMaven,
   'build.gradle.kts': extractMaven,
@@ -154,11 +153,27 @@ const extractors: Record<string, Extractor> = {
     /name\s*=\s*"([\w][\w-]*)"/gm,
     (m): Dep => ({ type: 'cargo', name: m[1] })
   ),
-  'Cargo.toml': extract(
-    // Rust: serde = "1.0" or serde = { version = "1.0", features = [...] }
-    /^(\w[\w-]*)\s*=\s*(?:\{[^}]*version\s*=\s*"[^"]*"|\s*"[^"]*")/gm,
-    (m): Dep => ({ type: 'cargo', name: m[1] })
-  ),
+  'Cargo.toml': (content: string): Dep[] => {
+    // Rust: only extract from [dependencies], [dev-dependencies], [build-dependencies] sections.
+    // Skip [package], [lib], [bin], [workspace], [profile] metadata sections.
+    const deps: Dep[] = []
+    const depSectionRe = /^\[(?:(?:dev-|build-)?dependencies(?:\.[^\]]+)?)\]\s*$/gm
+    const anySectionRe = /^\[/gm
+    let sectionMatch
+    while ((sectionMatch = depSectionRe.exec(content)) !== null) {
+      const sectionStart = sectionMatch.index + sectionMatch[0].length
+      anySectionRe.lastIndex = sectionStart
+      const nextSection = anySectionRe.exec(content)
+      const sectionEnd = nextSection ? nextSection.index : content.length
+      const sectionText = content.slice(sectionStart, sectionEnd)
+      const lineRe = /^(\w[\w-]*)\s*=\s*(?:\{[^}]*version\s*=\s*"[^"]*"|\s*"[^"]*")/gm
+      let m
+      while ((m = lineRe.exec(sectionText)) !== null) {
+        deps.push({ type: 'cargo', name: m[1] })
+      }
+    }
+    return deps
+  },
   'conanfile.py': extractConan,
   'conanfile.txt': extractConan,
   'composer.lock': extract(
@@ -222,16 +237,16 @@ const extractors: Record<string, Extractor> = {
   'package-lock.json': extractNpmLockfile,
   'package.json': extractNpm,
   'Package.swift': extract(
-    // Swift: .package(url: "https://github.com/vapor/vapor", from: "4.0.0")
+    // Swift: .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0")
     /\.package\s*\(\s*url:\s*"https:\/\/github\.com\/([^/]+)\/([^"]+)".*?from:\s*"([^"]+)"/gs,
     (m): Dep => ({
       type: 'swift',
       namespace: `github.com/${m[1]}`,
-      name: m[2],
+      name: m[2].replace(/\.git$/, ''),
       version: m[3],
     })
   ),
-  'Pipfile.lock': extractPypi,
+  'Pipfile.lock': extractPipfileLock,
   'pnpm-lock.yaml': extractNpmLockfile,
   'poetry.lock': extract(
     // Python poetry lockfile: [[package]]\nname = "flask"
@@ -295,9 +310,9 @@ async function check(hook: HookInput): Promise<number> {
   // Edit provides new_string; Write provides content.
   const newContent =
     hook.tool_input?.new_string
-    || hook.tool_input?.content
-    || ''
-  const oldContent = hook.tool_input?.old_string || ''
+    ?? hook.tool_input?.content
+    ?? ''
+  const oldContent = hook.tool_input?.old_string ?? ''
 
   const newDeps = extractor(newContent)
   if (newDeps.length === 0) return 0
@@ -628,6 +643,8 @@ function extractNpm(content: string): Dep[] {
     // catalog:, npm:, *, latest, or starts with ^~><=.
     if (!/^[\^~><=*]|^\d|^workspace:|^catalog:|^npm:|^latest$/.test(val)) continue
     // Only lowercase or scoped names are real deps.
+    // Exclude known package.json metadata fields that look like deps.
+    if (PACKAGE_JSON_METADATA_KEYS.has(raw)) continue
     if (raw.startsWith('@') || /^[a-z]/.test(raw)) {
       const { namespace, name } = parseNpmSpecifier(raw)
       if (name) deps.push({ type: 'npm', namespace, name })
@@ -636,7 +653,38 @@ function extractNpm(content: string): Dep[] {
   return deps
 }
 
-// PyPI (requirements.txt, pyproject.toml, setup.py, Pipfile.lock):
+// package.json metadata fields that match the "key": "value" dep pattern but aren't deps.
+const PACKAGE_JSON_METADATA_KEYS = new Set([
+  'name', 'version', 'description', 'main', 'module', 'browser', 'types',
+  'typings', 'license', 'homepage', 'repository', 'bugs', 'author',
+  'type', 'engines', 'os', 'cpu', 'publishConfig', 'access',
+  'sideEffects', 'unpkg', 'jsdelivr', 'exports',
+])
+
+// Pipfile.lock: JSON with "default" and "develop" sections keyed by package name.
+function extractPipfileLock(content: string): Dep[] {
+  const deps: Dep[] = []
+  try {
+    const lock = JSON.parse(content) as Record<string, Record<string, unknown>>
+    for (const section of ['default', 'develop']) {
+      const packages = lock[section]
+      if (packages && typeof packages === 'object') {
+        for (const name of Object.keys(packages)) {
+          deps.push({ type: 'pypi', name })
+        }
+      }
+    }
+  } catch {
+    // JSON.parse fails on partial content (e.g. Edit new_string fragments).
+    // Fall back to regex matching package name keys in Pipfile.lock JSON.
+    for (const m of content.matchAll(/"([a-zA-Z][\w.-]*)"\s*:\s*\{/g)) {
+      deps.push({ type: 'pypi', name: m[1] })
+    }
+  }
+  return deps
+}
+
+// PyPI (requirements.txt, pyproject.toml, setup.py):
 // requirements.txt: package>=1.0 or package==1.0 at line start
 // pyproject.toml: "package>=1.0" in dependencies arrays
 // setup.py: "package>=1.0" in install_requires lists
