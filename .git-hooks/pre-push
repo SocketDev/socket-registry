@@ -1,6 +1,6 @@
 #!/bin/bash
 # Socket Security Pre-push Hook
-# MANDATORY ENFORCEMENT LAYER - Cannot be bypassed with --no-verify.
+# Security enforcement layer for all pushes.
 # Validates all commits being pushed for security issues and AI attribution.
 
 set -e
@@ -22,8 +22,48 @@ url="$2"
 
 TOTAL_ERRORS=0
 
+# ============================================================================
+# PRE-CHECK 1: AgentShield scan on Claude config (blocks push on failure)
+# ============================================================================
+if command -v agentshield >/dev/null 2>&1 || [ -x "$(pnpm bin 2>/dev/null)/agentshield" ]; then
+  AGENTSHIELD="$(command -v agentshield 2>/dev/null || echo "$(pnpm bin)/agentshield")"
+  if ! "$AGENTSHIELD" scan >/dev/null 2>&1; then
+    printf "${RED}✗ AgentShield: security issues found in Claude config${NC}\n"
+    printf "Run 'pnpm exec agentshield scan' for details\n"
+    TOTAL_ERRORS=$((TOTAL_ERRORS + 1))
+  fi
+fi
+
+# ============================================================================
+# PRE-CHECK 2: zizmor scan on GitHub Actions workflows
+# ============================================================================
+ZIZMOR=""
+if command -v zizmor >/dev/null 2>&1; then
+  ZIZMOR="$(command -v zizmor)"
+elif [ -x "$HOME/.socket/zizmor/bin/zizmor" ]; then
+  ZIZMOR="$HOME/.socket/zizmor/bin/zizmor"
+fi
+if [ -n "$ZIZMOR" ] && [ -d ".github/" ]; then
+  if ! "$ZIZMOR" .github/ 2>/dev/null; then
+    printf "${RED}✗ Zizmor: workflow security issues found${NC}\n"
+    printf "Run 'zizmor .github/' for details\n"
+    TOTAL_ERRORS=$((TOTAL_ERRORS + 1))
+  fi
+fi
+
 # Read stdin for refs being pushed.
 while read local_ref local_sha remote_ref remote_sha; do
+  # Skip tag pushes: tags point to existing commits already validated.
+  if echo "$local_ref" | grep -q '^refs/tags/'; then
+    printf "${GREEN}Skipping tag push: %s${NC}\n" "$local_ref"
+    continue
+  fi
+
+  # Skip delete pushes.
+  if [ "$local_sha" = "0000000000000000000000000000000000000000" ]; then
+    continue
+  fi
+
   # Get the range of commits being pushed.
   if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
     # New branch - only check commits not on the default remote branch.
@@ -34,7 +74,7 @@ while read local_ref local_sha remote_ref remote_sha; do
     if git rev-parse "origin/$default_branch" >/dev/null 2>&1; then
       range="origin/$default_branch..$local_sha"
     else
-      # No remote default branch - fall back to release tag.
+      # No remote default branch, fall back to release tag.
       latest_release=$(git tag --list 'v*' --sort=-version:refname --merged "$local_sha" | head -1)
       if [ -n "$latest_release" ]; then
         range="$latest_release..$local_sha"
@@ -50,9 +90,15 @@ while read local_ref local_sha remote_ref remote_sha; do
       # Only check commits after the latest release that are being pushed.
       range="$latest_release..$local_sha"
     else
-      # No release tags found - check new commits only.
+      # No release tags found, check new commits only.
       range="$remote_sha..$local_sha"
     fi
+  fi
+
+  # Validate the computed range before using it.
+  if ! git rev-list "$range" >/dev/null 2>&1; then
+    printf "${RED}✗ Invalid commit range: %s${NC}\n" "$range" >&2
+    exit 1
   fi
 
   ERRORS=0
@@ -118,7 +164,7 @@ while read local_ref local_sha remote_ref remote_sha; do
     fi
 
     # Check file contents for secrets.
-    for file in $CHANGED_FILES; do
+    while IFS= read -r file; do
       if [ -f "$file" ] && [ ! -d "$file" ]; then
         # Skip test files, example files, and hook scripts.
         if echo "$file" | grep -qE '\.(test|spec)\.(m?[jt]s|tsx?)$|\.example$|/test/|/tests/|fixtures/|\.git-hooks/|\.husky/'; then
@@ -127,39 +173,39 @@ while read local_ref local_sha remote_ref remote_sha; do
 
         # Check for hardcoded user paths.
         if grep -E '(/Users/[^/\s]+/|/home/[^/\s]+/|C:\\Users\\[^\\]+\\)' "$file" 2>/dev/null | grep -q .; then
-          printf "${RED}✗ BLOCKED: Hardcoded personal path found in: $file${NC}\n"
+          printf "${RED}✗ BLOCKED: Hardcoded personal path found in: %s${NC}\n" "$file"
           grep -n -E '(/Users/[^/\s]+/|/home/[^/\s]+/|C:\\Users\\[^\\]+\\)' "$file" | head -3
           ERRORS=$((ERRORS + 1))
         fi
 
         # Check for Socket API keys.
         if grep -E 'sktsec_[a-zA-Z0-9_-]+' "$file" 2>/dev/null | grep -v "$ALLOWED_PUBLIC_KEY" | grep -v 'your_api_key_here' | grep -v 'SOCKET_SECURITY_API_KEY=' | grep -v 'fake-token' | grep -v 'test-token' | grep -q .; then
-          printf "${RED}✗ BLOCKED: Real API key detected in: $file${NC}\n"
+          printf "${RED}✗ BLOCKED: Real API key detected in: %s${NC}\n" "$file"
           grep -n 'sktsec_' "$file" | grep -v "$ALLOWED_PUBLIC_KEY" | grep -v 'your_api_key_here' | grep -v 'fake-token' | grep -v 'test-token' | head -3
           ERRORS=$((ERRORS + 1))
         fi
 
         # Check for AWS keys.
         if grep -iE '(aws_access_key|aws_secret|AKIA[0-9A-Z]{16})' "$file" 2>/dev/null | grep -q .; then
-          printf "${RED}✗ BLOCKED: Potential AWS credentials found in: $file${NC}\n"
+          printf "${RED}✗ BLOCKED: Potential AWS credentials found in: %s${NC}\n" "$file"
           grep -n -iE '(aws_access_key|aws_secret|AKIA[0-9A-Z]{16})' "$file" | head -3
           ERRORS=$((ERRORS + 1))
         fi
 
         # Check for GitHub tokens.
         if grep -E 'gh[ps]_[a-zA-Z0-9]{36}' "$file" 2>/dev/null | grep -q .; then
-          printf "${RED}✗ BLOCKED: Potential GitHub token found in: $file${NC}\n"
+          printf "${RED}✗ BLOCKED: Potential GitHub token found in: %s${NC}\n" "$file"
           grep -n -E 'gh[ps]_[a-zA-Z0-9]{36}' "$file" | head -3
           ERRORS=$((ERRORS + 1))
         fi
 
         # Check for private keys.
         if grep -E '-----BEGIN (RSA |EC |DSA )?PRIVATE KEY-----' "$file" 2>/dev/null | grep -q .; then
-          printf "${RED}✗ BLOCKED: Private key found in: $file${NC}\n"
+          printf "${RED}✗ BLOCKED: Private key found in: %s${NC}\n" "$file"
           ERRORS=$((ERRORS + 1))
         fi
       fi
-    done
+    done <<< "$CHANGED_FILES"
   fi
 
   TOTAL_ERRORS=$((TOTAL_ERRORS + ERRORS))
