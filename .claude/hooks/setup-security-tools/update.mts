@@ -130,19 +130,53 @@ function replaceChecksumValue(
   assetName: string,
   oldHash: string,
   newHash: string,
+  objectName?: string,
 ): string {
   // Match the specific asset line in a checksums object.
   const escaped = assetName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  const pattern = new RegExp(
+  const multiLine = new RegExp(
     `('${escaped}':\\s*\\n\\s*')${oldHash}'`,
   )
-  if (pattern.test(source)) {
-    return source.replace(pattern, `$1${newHash}'`)
-  }
-  // Single-line format: 'asset-name': 'hash',
   const singleLine = new RegExp(
     `('${escaped}':\\s*')${oldHash}'`,
   )
+  // When objectName is provided, scope the replacement to that object block
+  // to avoid ambiguity when multiple objects share the same platform keys
+  // (e.g. SFW_FREE_CHECKSUMS and SFW_ENTERPRISE_CHECKSUMS both use 'linux-arm64').
+  if (objectName) {
+    const objStart = source.indexOf(`const ${objectName}`)
+    if (objStart !== -1) {
+      const braceStart = source.indexOf('{', objStart)
+      if (braceStart !== -1) {
+        // Find the matching closing brace.
+        let depth = 0
+        let braceEnd = -1
+        for (let i = braceStart; i < source.length; i += 1) {
+          if (source[i] === '{') depth += 1
+          else if (source[i] === '}') {
+            depth -= 1
+            if (!depth) {
+              braceEnd = i + 1
+              break
+            }
+          }
+        }
+        if (braceEnd !== -1) {
+          let block = source.slice(objStart, braceEnd)
+          if (multiLine.test(block)) {
+            block = block.replace(multiLine, `$1${newHash}'`)
+          } else {
+            block = block.replace(singleLine, `$1${newHash}'`)
+          }
+          return source.slice(0, objStart) + block + source.slice(braceEnd)
+        }
+      }
+    }
+  }
+  // Unscoped fallback: replace first match in entire source.
+  if (multiLine.test(source)) {
+    return source.replace(multiLine, `$1${newHash}'`)
+  }
   return source.replace(singleLine, `$1${newHash}'`)
 }
 
@@ -179,7 +213,7 @@ async function updateZizmor(source: string): Promise<{
 
   let release: GhRelease
   try {
-    release = await ghApiLatestRelease('woodruffw/zizmor')
+    release = await ghApiLatestRelease('zizmorcore/zizmor')
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     logger.warn(`Failed to fetch zizmor releases: ${msg}`)
@@ -283,6 +317,9 @@ async function updateZizmor(source: string): Promise<{
       logger.log(`  ${assetName}: ${oldHash.slice(0, 12)}... -> ${newHash.slice(0, 12)}...`)
     } else if (oldHash === newHash) {
       logger.log(`  ${assetName}: unchanged`)
+    } else {
+      logger.warn(`  ${assetName}: no existing checksum entry found in source`)
+      allFound = false
     }
   }
 
@@ -346,40 +383,32 @@ async function fetchSfwChecksums(
 
   const newChecksums: Record<string, string> = { __proto__: null } as unknown as Record<string, string>
   let changed = false
+  let allFound = true
 
   for (const { 0: platform, 1: assetName } of Object.entries(assetNames)) {
     const asset = release.assets.find(a => a.name === assetName)
-    if (!asset) {
-      // Use latest/download URL pattern for sfw (uses /releases/latest/download/).
-      const url = `https://github.com/${repo}/releases/latest/download/${assetName}`
-      logger.log(`    Computing checksum for ${assetName}...`)
-      try {
-        const hash = await downloadAndHash(url)
-        newChecksums[platform] = hash
-        if (currentChecksums[platform] !== hash) {
-          logger.log(`    ${platform}: ${(currentChecksums[platform] ?? '').slice(0, 12)}... -> ${hash.slice(0, 12)}...`)
-          changed = true
-        }
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e)
-        logger.warn(`    Failed to download ${assetName}: ${msg}`)
-        newChecksums[platform] = currentChecksums[platform] ?? ''
+    const url = asset
+      ? asset.browser_download_url
+      : `https://github.com/${repo}/releases/latest/download/${assetName}`
+    logger.log(`    Computing checksum for ${assetName}...`)
+    try {
+      const hash = await downloadAndHash(url)
+      newChecksums[platform] = hash
+      if (currentChecksums[platform] !== hash) {
+        logger.log(`    ${platform}: ${(currentChecksums[platform] ?? '').slice(0, 12)}... -> ${hash.slice(0, 12)}...`)
+        changed = true
       }
-    } else {
-      logger.log(`    Computing checksum for ${assetName}...`)
-      try {
-        const hash = await downloadAndHash(asset.browser_download_url)
-        newChecksums[platform] = hash
-        if (currentChecksums[platform] !== hash) {
-          logger.log(`    ${platform}: ${(currentChecksums[platform] ?? '').slice(0, 12)}... -> ${hash.slice(0, 12)}...`)
-          changed = true
-        }
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e)
-        logger.warn(`    Failed to download ${assetName}: ${msg}`)
-        newChecksums[platform] = currentChecksums[platform] ?? ''
-      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      logger.warn(`    Failed to download ${assetName}: ${msg}`)
+      newChecksums[platform] = currentChecksums[platform] ?? ''
+      allFound = false
     }
+  }
+
+  if (!allFound) {
+    logger.warn(`  Some ${label} assets could not be downloaded. Skipping update.`)
+    return { checksums: currentChecksums, changed: false }
   }
 
   return { checksums: newChecksums, changed }
@@ -436,7 +465,7 @@ async function updateSfw(source: string): Promise<{
   if (free.changed) {
     for (const { 0: platform, 1: hash } of Object.entries(free.checksums)) {
       if (currentFree[platform] && currentFree[platform] !== hash) {
-        updated = replaceChecksumValue(updated, platform, currentFree[platform]!, hash)
+        updated = replaceChecksumValue(updated, platform, currentFree[platform]!, hash, 'SFW_FREE_CHECKSUMS')
       }
     }
     results.push({ tool: 'sfw-free', skipped: false, updated: true, reason: 'checksums updated' })
@@ -456,7 +485,7 @@ async function updateSfw(source: string): Promise<{
   if (enterprise.changed) {
     for (const { 0: platform, 1: hash } of Object.entries(enterprise.checksums)) {
       if (currentEnterprise[platform] && currentEnterprise[platform] !== hash) {
-        updated = replaceChecksumValue(updated, platform, currentEnterprise[platform]!, hash)
+        updated = replaceChecksumValue(updated, platform, currentEnterprise[platform]!, hash, 'SFW_ENTERPRISE_CHECKSUMS')
       }
     }
     results.push({ tool: 'sfw-enterprise', skipped: false, updated: true, reason: 'checksums updated' })
