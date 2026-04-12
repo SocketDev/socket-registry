@@ -753,14 +753,28 @@ async function installPackage(packageInfo) {
 
     // pnpm v11 ignores overrides in package.json pnpm.overrides for subdependencies
     // (regression from v10). Overrides in pnpm-workspace.yaml still work.
-    // Write overrides to pnpm-workspace.yaml for pnpm, or package.json for npm.
-    if (packageManager === 'pnpm' && Object.keys(pnpmOverrides).length > 0) {
+    // Also set pnpm v11 settings in workspace yaml since CLI --config flags
+    // may not override workspace-level settings.
+    if (packageManager === 'pnpm') {
       const overrideLines = Object.entries(pnpmOverrides)
         .map(([pkg, spec]) => `  ${pkg}: '${spec}'`)
         .join('\n')
+      const overridesSection =
+        Object.keys(pnpmOverrides).length > 0
+          ? `\noverrides:\n${overrideLines}\n`
+          : ''
       await fs.writeFile(
         path.join(packageTempDir, 'pnpm-workspace.yaml'),
-        `packages:\n  - .\n\noverrides:\n${overrideLines}\n`,
+        [
+          'packages:',
+          '  - .',
+          '',
+          '# pnpm v11 settings for third-party test installs.',
+          'blockExoticSubdeps: false',
+          'strictDepBuilds: false',
+          'resolutionMode: highest',
+          overridesSection,
+        ].join('\n'),
         'utf8',
       )
     } else if (packageManager === 'npm') {

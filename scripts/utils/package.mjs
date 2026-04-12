@@ -30,9 +30,18 @@ const PNPM_NPM_LIKE_FLAGS = [
 ]
 
 // Basic pnpm install flags for CI-friendly behavior.
+// These are for isolated test installs of third-party packages we don't control.
 const PNPM_INSTALL_BASE_FLAGS = [
+  // Allow git-resolved subdeps in third-party packages (e.g. evalmd → markdown-it).
+  '--config.block-exotic-subdeps=false',
   // Prevent interactive prompts in CI environments.
   '--config.confirmModulesPurge=false',
+  // Tell pnpm the registry may not have time metadata (SFW proxy strips it).
+  '--config.registry-supports-time-field=false',
+  // Use highest resolution to avoid time-based resolution failures.
+  '--config.resolution-mode=highest',
+  // Allow third-party build scripts (e.g. core-js, es5-ext postinstall).
+  '--config.strict-dep-builds=false',
   // Allow lockfile updates (required for test package installations).
   '--no-frozen-lockfile',
 ]
