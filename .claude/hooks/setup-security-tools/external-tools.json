@@ -4,13 +4,13 @@
     "zizmor": {
       "description": "GitHub Actions security scanner",
       "version": "1.23.1",
-      "repository": "zizmorcore/zizmor",
+      "repository": "github:zizmorcore/zizmor",
       "assets": {
         "darwin-arm64": "zizmor-aarch64-apple-darwin.tar.gz",
         "darwin-x64": "zizmor-x86_64-apple-darwin.tar.gz",
         "linux-arm64": "zizmor-aarch64-unknown-linux-gnu.tar.gz",
         "linux-x64": "zizmor-x86_64-unknown-linux-gnu.tar.gz",
-        "win32-x64": "zizmor-x86_64-pc-windows-msvc.zip"
+        "win-x64": "zizmor-x86_64-pc-windows-msvc.zip"
       },
       "checksums": {
         "zizmor-aarch64-apple-darwin.tar.gz": "2632561b974c69f952258c1ab4b7432d5c7f92e555704155c3ac28a2910bd717",
@@ -23,13 +23,13 @@
     "sfw-free": {
       "description": "Socket Firewall (free tier)",
       "version": "v1.6.1",
-      "repository": "SocketDev/sfw-free",
+      "repository": "github:SocketDev/sfw-free",
       "platforms": {
         "darwin-arm64": "macos-arm64",
         "darwin-x64": "macos-x86_64",
         "linux-arm64": "linux-arm64",
         "linux-x64": "linux-x86_64",
-        "win32-x64": "windows-x86_64"
+        "win-x64": "windows-x86_64"
       },
       "checksums": {
         "linux-arm64": "df2eedb2daf2572eee047adb8bfd81c9069edcb200fc7d3710fca98ec3ca81a1",
@@ -43,13 +43,13 @@
     "sfw-enterprise": {
       "description": "Socket Firewall (enterprise tier)",
       "version": "v1.6.1",
-      "repository": "SocketDev/firewall-release",
+      "repository": "github:SocketDev/firewall-release",
       "platforms": {
         "darwin-arm64": "macos-arm64",
         "darwin-x64": "macos-x86_64",
         "linux-arm64": "linux-arm64",
         "linux-x64": "linux-x86_64",
-        "win32-x64": "windows-x86_64"
+        "win-x64": "windows-x86_64"
       },
       "checksums": {
         "linux-arm64": "671270231617142404a1564e52672f79b806f9df3f232fcc7606329c0246da55",

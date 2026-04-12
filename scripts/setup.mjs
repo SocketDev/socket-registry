@@ -104,7 +104,8 @@ async function acquireLock(lockPath, timeoutMs = 120_000) {
 }
 
 async function downloadAndVerify(tool, config) {
-  const platformKey = `${process.platform}-${process.arch}`
+  const platform = process.platform === 'win32' ? 'win' : process.platform
+  const platformKey = `${platform}-${process.arch}`
   const platformEntry = config.checksums?.[platformKey]
   if (!platformEntry) {
     log.warn(`No ${tool} binary available for ${platformKey}`)

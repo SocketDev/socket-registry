@@ -121,7 +121,7 @@ async function setupZizmor(): Promise<boolean> {
   }
 
   // Download archive via dlx (handles caching + checksum).
-  const platformKey = `${process.platform}-${process.arch}`
+  const platformKey = `${process.platform === 'win32' ? 'win' : process.platform}-${process.arch}`
   const asset = ZIZMOR.assets?.[platformKey]
   if (!asset) throw new Error(`Unsupported platform: ${platformKey}`)
   const expectedSha = ZIZMOR.checksums?.[asset]
@@ -174,7 +174,7 @@ async function setupSfw(apiKey: string | undefined): Promise<boolean> {
   logger.log(`=== Socket Firewall (${isEnterprise ? 'enterprise' : 'free'}) ===`)
 
   // Platform.
-  const platformKey = `${process.platform}-${process.arch}`
+  const platformKey = `${process.platform === 'win32' ? 'win' : process.platform}-${process.arch}`
   const sfwPlatform = sfwConfig.platforms?.[platformKey]
   if (!sfwPlatform) throw new Error(`Unsupported platform: ${platformKey}`)
 

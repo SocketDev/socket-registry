@@ -21,7 +21,7 @@
         "asset": "zizmor-x86_64-unknown-linux-gnu.tar.gz",
         "sha256": "67a8df0a14352dd81882e14876653d097b99b0f4f6b6fe798edc0320cff27aff"
       },
-      "win32-x64": {
+      "win-x64": {
         "asset": "zizmor-x86_64-pc-windows-msvc.zip",
         "sha256": "33c2293ff02834720dd7cd8b47348aafb2e95a19bdc993c0ecaca9c804ade92a"
       }
@@ -49,11 +49,11 @@
         "asset": "pnpm-linux-x64.tar.gz",
         "sha256": "fe82b94125a6b743456b869e823611a8837b545f2535e4602578e4c9fdb5742a"
       },
-      "win32-arm64": {
+      "win-arm64": {
         "asset": "pnpm-win-arm64.zip",
         "sha256": "f64f888e5a93ad25b6a41e422ef2ba9a21d89ab4e28ee92bdbaf7b5d9931be7b"
       },
-      "win32-x64": {
+      "win-x64": {
         "asset": "pnpm-win-x64.zip",
         "sha256": "3be47a83aee9335b06b9ed5c40e153bba0d047e8324c22e3a2dce6e49b9feb58"
       }
