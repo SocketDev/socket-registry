@@ -26,7 +26,7 @@ const { values: cliArgs } = parseArgs({
     },
     'install-concurrency': {
       type: 'string',
-      default: getCI() ? (WIN32 ? '5' : '10') : '30',
+      default: getCI() ? '3' : '10',
     },
     'test-concurrency': {
       type: 'string',

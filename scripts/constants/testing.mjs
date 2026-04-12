@@ -70,6 +70,9 @@ export const ALLOW_TEST_FAILURES_BY_ECOSYSTEM = new Map([
       'function.prototype.name',
       // is-boolean-object installation fails intermittently in CI environments.
       'is-boolean-object',
+      // is-unicode-supported: xo@0.59.3 → @typescript-eslint/typescript-estree
+      // triggers pnpm v11 ERR_PNPM_MISSING_TIME bug (pnpm/pnpm#11238).
+      'is-unicode-supported',
       // object.assign installation fails intermittently in CI environments.
       'object.assign',
     ]),

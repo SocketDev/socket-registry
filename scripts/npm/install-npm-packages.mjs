@@ -742,23 +742,18 @@ async function installPackage(packageInfo) {
     }
 
     // Create package.json with the original package as a dependency.
-    // Use the appropriate override format for the detected package manager.
+    // Socket overrides are added as direct dependencies (not pnpm.overrides)
+    // because pnpm v11 ignores npm: alias overrides for subdependencies.
+    // Adding as direct deps forces pnpm to install our version and hoist it,
+    // so subdependencies resolve to our override via node_modules hoisting.
     const testPkgJson = {
       name: 'test-temp',
       private: true,
       version: '1.0.0',
       dependencies: {
         [origPkgName]: packageSpec,
+        ...pnpmOverrides,
       },
-    }
-
-    // Add overrides in the appropriate format for the package manager.
-    if (packageManager === 'pnpm') {
-      testPkgJson.pnpm = {
-        overrides: pnpmOverrides,
-      }
-    } else if (packageManager === 'npm') {
-      testPkgJson.overrides = pnpmOverrides
     }
 
     await writeJson(path.join(packageTempDir, PACKAGE_JSON), testPkgJson)

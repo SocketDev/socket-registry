@@ -22,4 +22,7 @@ runs:
           echo "Error: sfw is not installed — run SocketDev/socket-registry/.github/actions/setup first" >&2
           exit 1
         fi
-        pnpm install --loglevel error ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
+        pnpm install \
+          --config.confirmModulesPurge=false \
+          ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }} \
+          --loglevel error

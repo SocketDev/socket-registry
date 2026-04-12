@@ -23,18 +23,28 @@ import process from 'node:process'
 
 // Shared pnpm flags to make it behave like npm with hoisting.
 const PNPM_NPM_LIKE_FLAGS = [
-  '--config.shamefully-hoist=true',
-  '--config.node-linker=hoisted',
   '--config.auto-install-peers=false',
+  '--config.node-linker=hoisted',
+  '--config.shamefully-hoist=true',
   '--config.strict-peer-dependencies=false',
 ]
 
 // Basic pnpm install flags for CI-friendly behavior.
+// These are for isolated test package installs (third-party packages we don't control).
 const PNPM_INSTALL_BASE_FLAGS = [
+  // Disable exotic subdep blocking for test installs — third-party packages
+  // have git-resolved subdeps we can't control (e.g. evalmd → markdown-it).
+  // pnpm v11 has no granular allowlist; CLI overrides don't suppress resolution.
+  '--config.block-exotic-subdeps=false',
+  // Allow build scripts in third-party test packages (e.g. core-js postinstall).
+  '--config.strict-dep-builds=false',
   // Prevent interactive prompts in CI environments.
   '--config.confirmModulesPurge=false',
   // Allow lockfile updates (required for test package installations).
   '--no-frozen-lockfile',
+  // Work around sfw-free proxy not returning the "time" field in registry
+  // metadata, which pnpm v11's default "time-based" resolution-mode requires.
+  '--config.resolution-mode=highest',
 ]
 
 // Pnpm install flags with hoisting for npm-like behavior.
