@@ -1,2 +1,12 @@
+# Migrated from .npmrc (pnpm v11 only reads auth/registry from .npmrc).
+autoInstallPeers: false
+engineStrict: false
+nodeLinker: hoisted
+shamefullyHoist: true
+strictPeerDependencies: false
+# Work around sfw-free proxy not returning the "time" field in registry
+# metadata, which pnpm v11's default "time-based" resolution-mode requires.
+resolutionMode: highest
+
 packages:
   - packages/*

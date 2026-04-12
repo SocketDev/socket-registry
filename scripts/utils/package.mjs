@@ -35,6 +35,9 @@ const PNPM_INSTALL_BASE_FLAGS = [
   '--config.confirmModulesPurge=false',
   // Allow lockfile updates (required for test package installations).
   '--no-frozen-lockfile',
+  // Work around sfw-free proxy not returning the "time" field in registry
+  // metadata, which pnpm v11's default "time-based" resolution-mode requires.
+  '--config.resolution-mode=highest',
 ]
 
 // Pnpm install flags with hoisting for npm-like behavior.
