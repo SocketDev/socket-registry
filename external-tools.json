@@ -1,11 +1,10 @@
 {
   "zizmor": {
     "description": "GitHub Actions security linter",
-    "type": "github-release",
-    "repository": "zizmorcore/zizmor",
+    "repository": "github:zizmorcore/zizmor",
     "version": "1.23.1",
-    "binary": "zizmor",
-    "assets": {
+    "release": "asset",
+    "checksums": {
       "darwin-arm64": {
         "asset": "zizmor-aarch64-apple-darwin.tar.gz",
         "sha256": "2632561b974c69f952258c1ab4b7432d5c7f92e555704155c3ac28a2910bd717"
@@ -30,11 +29,10 @@
   },
   "pnpm": {
     "description": "Fast, disk space efficient package manager",
-    "type": "github-release",
-    "repository": "pnpm/pnpm",
+    "repository": "github:pnpm/pnpm",
     "version": "11.0.0-rc.0",
-    "binary": "pnpm",
-    "assets": {
+    "release": "asset",
+    "checksums": {
       "darwin-arm64": {
         "asset": "pnpm-macos-arm64.tar.gz",
         "sha256": "ff7e95be75a27c793fbcdf49c4f9e0c8adfc54e214c7aea4b1306445f31e5391"

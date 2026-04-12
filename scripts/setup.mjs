@@ -105,21 +105,28 @@ async function acquireLock(lockPath, timeoutMs = 120_000) {
 
 async function downloadAndVerify(tool, config) {
   const platformKey = `${process.platform}-${process.arch}`
-  const assetInfo = config.assets[platformKey]
-  if (!assetInfo) {
+  const platformEntry = config.checksums?.[platformKey]
+  if (!platformEntry) {
     log.warn(`No ${tool} binary available for ${platformKey}`)
     return undefined
   }
 
-  const { version, binary } = config
+  const assetName = platformEntry.asset
+  const expectedSha256 = platformEntry.sha256
+  if (!assetName || !expectedSha256) {
+    log.warn(`No checksum for ${tool} on ${platformKey}`)
+    return undefined
+  }
+
+  const { version } = config
+  const binaryName = WIN32 ? `${tool}.exe` : tool
   const cachePath = getToolCachePath(tool, version)
-  const binaryName = WIN32 ? `${binary}.exe` : binary
   const binaryPath = path.join(cachePath, binaryName)
 
   // Check cache with integrity verification.
   if (
     existsSync(binaryPath) &&
-    verifyCacheIntegrity(cachePath, assetInfo.sha256)
+    verifyCacheIntegrity(cachePath, expectedSha256)
   ) {
     log.step(`Using cached ${tool} ${version}`)
     return binaryPath
@@ -132,7 +139,7 @@ async function downloadAndVerify(tool, config) {
     // Re-check after lock (another process may have completed).
     if (
       existsSync(binaryPath) &&
-      verifyCacheIntegrity(cachePath, assetInfo.sha256)
+      verifyCacheIntegrity(cachePath, expectedSha256)
     ) {
       log.step(`Using cached ${tool} ${version}`)
       return binaryPath
@@ -143,13 +150,14 @@ async function downloadAndVerify(tool, config) {
       await rm(cachePath, { recursive: true, force: true })
     }
 
+    const repo = config.repository.replace(/^github:/, '')
     const tmpDir = path.join(
       getCacheDir(),
       `.tmp-${tool}-${version}-${process.pid}`,
     )
     await mkdir(tmpDir, { recursive: true })
-    const url = `https://github.com/${config.repository}/releases/download/v${version}/${assetInfo.asset}`
-    const archivePath = path.join(tmpDir, assetInfo.asset)
+    const url = `https://github.com/${repo}/releases/download/v${version}/${assetName}`
+    const archivePath = path.join(tmpDir, assetName)
 
     try {
       log.step(`Downloading ${tool} ${version}...`)
@@ -165,17 +173,17 @@ async function downloadAndVerify(tool, config) {
       // Verify checksum.
       log.step('Verifying checksum...')
       const actual = await computeSha256(archivePath)
-      if (actual !== assetInfo.sha256) {
+      if (actual !== expectedSha256) {
         throw new Error(
           `Checksum mismatch for ${tool} ${version}:\n` +
-            `  Expected: ${assetInfo.sha256}\n` +
+            `  Expected: ${expectedSha256}\n` +
             `  Actual:   ${actual}`,
         )
       }
 
       // Extract.
       log.step('Extracting...')
-      if (assetInfo.asset.endsWith('.zip')) {
+      if (assetName.endsWith('.zip')) {
         const unzipResult = await spawn(
           WIN32 ? 'powershell' : 'unzip',
           WIN32
@@ -212,7 +220,7 @@ async function downloadAndVerify(tool, config) {
       if (!WIN32) {
         await chmod(path.join(cachePath, binaryName), 0o755)
       }
-      await writeFile(path.join(cachePath, '.checksum'), assetInfo.sha256)
+      await writeFile(path.join(cachePath, '.checksum'), expectedSha256)
 
       await rm(tmpDir, { recursive: true, force: true }).catch(() => {})
       log.success(`${tool} ${version} installed`)
@@ -241,7 +249,7 @@ async function main() {
 
   let allOk = true
   for (const [tool, toolConfig] of Object.entries(config)) {
-    if (toolConfig.type !== 'github-release') continue
+    if (toolConfig.release !== 'asset') continue
     try {
       const binaryPath = await downloadAndVerify(tool, toolConfig)
       if (binaryPath) {
