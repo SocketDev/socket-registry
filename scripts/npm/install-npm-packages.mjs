@@ -742,7 +742,6 @@ async function installPackage(packageInfo) {
     }
 
     // Create package.json with the original package as a dependency.
-    // Use the appropriate override format for the detected package manager.
     const testPkgJson = {
       name: 'test-temp',
       private: true,
@@ -752,11 +751,18 @@ async function installPackage(packageInfo) {
       },
     }
 
-    // Add overrides in the appropriate format for the package manager.
-    if (packageManager === 'pnpm') {
-      testPkgJson.pnpm = {
-        overrides: pnpmOverrides,
-      }
+    // pnpm v11 ignores overrides in package.json pnpm.overrides for subdependencies
+    // (regression from v10). Overrides in pnpm-workspace.yaml still work.
+    // Write overrides to pnpm-workspace.yaml for pnpm, or package.json for npm.
+    if (packageManager === 'pnpm' && Object.keys(pnpmOverrides).length > 0) {
+      const overrideLines = Object.entries(pnpmOverrides)
+        .map(([pkg, spec]) => `  ${pkg}: '${spec}'`)
+        .join('\n')
+      await fs.writeFile(
+        path.join(packageTempDir, 'pnpm-workspace.yaml'),
+        `packages:\n  - .\n\noverrides:\n${overrideLines}\n`,
+        'utf8',
+      )
     } else if (packageManager === 'npm') {
       testPkgJson.overrides = pnpmOverrides
     }
