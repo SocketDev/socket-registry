@@ -151,7 +151,7 @@ async function downloadAndVerify(tool, config) {
       await rm(cachePath, { recursive: true, force: true })
     }
 
-    const repo = config.repository.replace(/^github:/, '')
+    const repo = config.repository.replace(/^[^:]+:/, '')
     const tmpDir = path.join(
       getCacheDir(),
       `.tmp-${tool}-${version}-${process.pid}`,
