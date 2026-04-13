@@ -14,6 +14,8 @@ import { readPackageJson } from '@socketsecurity/lib/packages/operations'
 import { pEach } from '@socketsecurity/lib/promises'
 import { withSpinner } from '@socketsecurity/lib/spinner'
 
+import { whichSync } from '@socketsecurity/lib/bin'
+
 import { cleanTestScript } from '../../test/utils/script-cleaning.mjs'
 import { testRunners } from '../../test/utils/test-runners.mjs'
 import { DEFAULT_CONCURRENCY } from '../constants/core.mjs'
@@ -21,8 +23,30 @@ import { ROOT_PATH } from '../constants/paths.mjs'
 import { spawn } from './spawn.mjs'
 import process from 'node:process'
 
+// Resolve real pnpm binary, bypassing SFW shim.
+// SFW shims intercept pnpm and proxy registry requests, stripping metadata
+// fields (e.g. "time") which causes pnpm v11 ERR_PNPM_MISSING_TIME failures.
+// Strip the SFW shim dir from PATH to find the real binary.
+function getRealPnpmBin() {
+  const sfwShimDir = process.env['SFW_SHIM_DIR']
+  if (sfwShimDir) {
+    const cleanPath = (process.env['PATH'] ?? '')
+      .split(path.delimiter)
+      .filter(p => p !== sfwShimDir)
+      .join(path.delimiter)
+    const real = whichSync('pnpm', { nothrow: true, path: cleanPath })
+    if (real && typeof real === 'string') {
+      return real
+    }
+  }
+  return 'pnpm'
+}
+
+/** Real pnpm binary path (bypasses SFW shim if present). */
+export const PNPM_REAL_BIN = getRealPnpmBin()
+
 // Shared pnpm flags to make it behave like npm with hoisting.
-const PNPM_NPM_LIKE_FLAGS = [
+export const PNPM_NPM_LIKE_FLAGS = [
   '--config.shamefully-hoist=true',
   '--config.node-linker=hoisted',
   '--config.auto-install-peers=false',
@@ -31,41 +55,41 @@ const PNPM_NPM_LIKE_FLAGS = [
 
 // Basic pnpm install flags for CI-friendly behavior.
 // These are for isolated test installs of third-party packages we don't control.
-const PNPM_INSTALL_BASE_FLAGS = [
+export const PNPM_INSTALL_BASE_FLAGS = [
   // Allow git-resolved subdeps in third-party packages (e.g. evalmd → markdown-it).
-  '--config.block-exotic-subdeps=false',
+  '--config.blockExoticSubdeps=false',
   // Prevent interactive prompts in CI environments.
   '--config.confirmModulesPurge=false',
   // Tell pnpm the registry may not have time metadata (SFW proxy strips it).
-  '--config.registry-supports-time-field=false',
+  '--config.registrySupportsTimeField=false',
   // Use highest resolution to avoid time-based resolution failures.
-  '--config.resolution-mode=highest',
+  '--config.resolutionMode=highest',
   // Allow third-party build scripts (e.g. core-js, es5-ext postinstall).
-  '--config.strict-dep-builds=false',
+  '--config.strictDepBuilds=false',
   // Allow lockfile updates (required for test package installations).
   '--no-frozen-lockfile',
 ]
 
 // Pnpm install flags with hoisting for npm-like behavior.
-const PNPM_HOISTED_INSTALL_FLAGS = [
+export const PNPM_HOISTED_INSTALL_FLAGS = [
   ...PNPM_NPM_LIKE_FLAGS,
   ...PNPM_INSTALL_BASE_FLAGS,
 ]
 
 // Environment override to force pnpm to install devDependencies.
 // By default, pnpm skips devDependencies when CI or NODE_ENV=production is detected.
-const PNPM_INSTALL_ENV = { CI: undefined, NODE_ENV: undefined }
+export const PNPM_INSTALL_ENV = { CI: undefined, NODE_ENV: undefined }
 
 /**
  * Reads and caches editable package.json files to avoid redundant disk I/O.
  * @type {Map<string, any>}
  */
-const editablePackageJsonCache = new Map()
+export const editablePackageJsonCache = new Map()
 
 /**
  * Reads an editable package.json with caching support.
  */
-async function readCachedEditablePackageJson(pkgPath, options = {}) {
+export async function readCachedEditablePackageJson(pkgPath, options = {}) {
   const cacheKey = pkgPath
 
   if (!editablePackageJsonCache.has(cacheKey)) {
@@ -83,14 +107,14 @@ async function readCachedEditablePackageJson(pkgPath, options = {}) {
 /**
  * Clears the editable package.json cache.
  */
-function clearPackageJsonCache() {
+export function clearPackageJsonCache() {
   editablePackageJsonCache.clear()
 }
 
 /**
  * Updates multiple package.json files in parallel.
  */
-async function updatePackagesJson(packages, options = {}) {
+export async function updatePackagesJson(packages, options = {}) {
   const { concurrency = DEFAULT_CONCURRENCY, spinner } = options
 
   await pEach(
@@ -111,7 +135,7 @@ async function updatePackagesJson(packages, options = {}) {
 /**
  * Collects package.json data from multiple packages.
  */
-async function collectPackageData(paths, options = {}) {
+export async function collectPackageData(paths, options = {}) {
   const {
     concurrency = DEFAULT_CONCURRENCY,
     fields = ['name', 'version', 'description'],
@@ -142,7 +166,7 @@ async function collectPackageData(paths, options = {}) {
 /**
  * Common patterns for processing packages with spinner feedback.
  */
-async function processWithSpinner(items, processor, options = {}) {
+export async function processWithSpinner(items, processor, options = {}) {
   const {
     concurrency = DEFAULT_CONCURRENCY,
     errorMessage,
@@ -195,7 +219,7 @@ async function processWithSpinner(items, processor, options = {}) {
 /**
  * Resolves the real path of a file or directory, handling symlinks.
  */
-async function resolveRealPath(pathStr) {
+export async function resolveRealPath(pathStr) {
   try {
     return await fs.realpath(pathStr)
   } catch {
@@ -206,7 +230,7 @@ async function resolveRealPath(pathStr) {
 /**
  * Computes a hash of override package dependencies for cache validation.
  */
-async function computeOverrideHash(overridePath) {
+export async function computeOverrideHash(overridePath) {
   try {
     const pkgJsonPath = path.join(overridePath, 'package.json')
     const pkgJson = await readPackageJson(pkgJsonPath)
@@ -224,7 +248,7 @@ async function computeOverrideHash(overridePath) {
 /**
  * Copies Socket override files to a package directory.
  */
-async function copySocketOverride(fromPath, toPath, options) {
+export async function copySocketOverride(fromPath, toPath, options) {
   const opts = { __proto__: null, ...options }
   const { excludePackageJson = true } = opts
 
@@ -263,7 +287,7 @@ async function copySocketOverride(fromPath, toPath, options) {
 /**
  * Builds test environment with proper PATH for test runners.
  */
-function buildTestEnv(packageTempDir, installedPath) {
+export function buildTestEnv(packageTempDir, installedPath) {
   const packageBinPath = path.join(packageTempDir, 'node_modules', '.bin')
   const nestedBinPath = path.join(installedPath, 'node_modules', '.bin')
   const rootBinPath = path.join(ROOT_PATH, 'node_modules', '.bin')
@@ -276,7 +300,7 @@ function buildTestEnv(packageTempDir, installedPath) {
 /**
  * Run a command with spawn.
  */
-async function runCommand(command, args, options = {}) {
+export async function runCommand(command, args, options = {}) {
   try {
     const result = await spawn(command, args, {
       stdio: 'pipe',
@@ -304,7 +328,11 @@ async function runCommand(command, args, options = {}) {
  * @param {string} [options.versionSpec] - Version or URL to install (optional, for npm packages)
  * @returns {Promise<{installed: boolean, packagePath?: string, reason?: string}>}
  */
-async function installPackageForTesting(sourcePath, packageName, options = {}) {
+export async function installPackageForTesting(
+  sourcePath,
+  packageName,
+  options = {},
+) {
   const { versionSpec } = options
 
   if (!existsSync(sourcePath)) {
@@ -482,23 +510,4 @@ async function installPackageForTesting(sourcePath, packageName, options = {}) {
       reason: error.message,
     }
   }
-}
-
-export {
-  buildTestEnv,
-  clearPackageJsonCache,
-  collectPackageData,
-  computeOverrideHash,
-  copySocketOverride,
-  editablePackageJsonCache,
-  installPackageForTesting,
-  PNPM_HOISTED_INSTALL_FLAGS,
-  PNPM_INSTALL_BASE_FLAGS,
-  PNPM_INSTALL_ENV,
-  PNPM_NPM_LIKE_FLAGS,
-  processWithSpinner,
-  readCachedEditablePackageJson,
-  resolveRealPath,
-  runCommand,
-  updatePackagesJson,
 }

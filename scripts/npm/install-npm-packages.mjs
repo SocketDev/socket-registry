@@ -87,7 +87,12 @@ const ENV = { CI: getCI() }
 const spinner = getDefaultSpinner()
 
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
-import { readFileUtf8, readJson, writeJson } from '@socketsecurity/lib/fs'
+import {
+  readFileUtf8,
+  readJson,
+  safeDelete,
+  writeJson,
+} from '@socketsecurity/lib/fs'
 import { LOG_SYMBOLS, getDefaultLogger } from '@socketsecurity/lib/logger'
 import { readPackageJson } from '@socketsecurity/lib/packages'
 import { pEach, pRetry } from '@socketsecurity/lib/promises'
@@ -104,6 +109,7 @@ import {
 import { filterPackagesByChanges } from '../utils/git.mjs'
 import {
   copySocketOverride,
+  PNPM_REAL_BIN,
   PNPM_HOISTED_INSTALL_FLAGS,
   PNPM_INSTALL_ENV,
 } from '../utils/package.mjs'
@@ -524,7 +530,7 @@ async function installPackage(packageInfo) {
         // If Socket override has different dependencies, install them.
         // Always use pnpm for installation to avoid npm override conflicts.
         if (overridePkgJson.dependencies) {
-          await runCommandQuietStrict('pnpm', ['install'], {
+          await runCommandQuietStrict(PNPM_REAL_BIN, ['install'], {
             cwd: installedPath,
             env: {
               ...process.env,
@@ -539,7 +545,7 @@ async function installPackage(packageInfo) {
         // The hoisted install at parent level makes test runners available to nested package.
         // Always use pnpm for installation to avoid npm override conflicts.
         await runCommandQuietStrict(
-          'pnpm',
+          PNPM_REAL_BIN,
           ['install', ...PNPM_HOISTED_INSTALL_FLAGS],
           {
             cwd: packageTempDir,
@@ -658,7 +664,7 @@ async function installPackage(packageInfo) {
             const pkgJsonStats = await fs.stat(pkgJsonPath)
             const fileContent = await readFileUtf8(pkgJsonPath)
             throw new Error(
-              `Invalid package.json after 3 retries: ${lastError.message}. File size: ${pkgJsonStats.size}, Content preview: ${fileContent.slice(0, 200)}`,
+              `Invalid package.json after ${JSON_PARSE_MAX_RETRIES} retries: ${lastError.message}. File size: ${pkgJsonStats.size}, Content preview: ${fileContent.slice(0, 200)}`,
             )
           }
           const { scripts } = editablePkgJson.content
@@ -751,30 +757,25 @@ async function installPackage(packageInfo) {
       },
     }
 
-    // pnpm v11 ignores overrides in package.json pnpm.overrides for subdependencies
-    // (regression from v10). Overrides in pnpm-workspace.yaml still work.
-    // Also set pnpm v11 settings in workspace yaml since CLI --config flags
-    // may not override workspace-level settings.
+    // pnpm v11: write workspace yaml for every test install.
+    // - registrySupportsTimeField: false — CLI flag is ignored (pnpm/pnpm#11238),
+    //   but the workspace yaml setting works.
+    // - overrides — pnpm v11 ignores package.json pnpm.overrides for subdependencies
+    //   (regression from v10), but workspace yaml overrides still work.
     if (packageManager === 'pnpm') {
-      const overrideLines = Object.entries(pnpmOverrides)
-        .map(([pkg, spec]) => `  ${pkg}: '${spec}'`)
-        .join('\n')
-      const overridesSection =
-        Object.keys(pnpmOverrides).length > 0
-          ? `\noverrides:\n${overrideLines}\n`
-          : ''
+      const sections = [
+        'packages:\n  - .\n',
+        'registrySupportsTimeField: false',
+      ]
+      if (Object.keys(pnpmOverrides).length > 0) {
+        const overrideLines = Object.entries(pnpmOverrides)
+          .map(([pkg, spec]) => `  ${pkg}: '${spec}'`)
+          .join('\n')
+        sections.push(`\noverrides:\n${overrideLines}`)
+      }
       await fs.writeFile(
         path.join(packageTempDir, 'pnpm-workspace.yaml'),
-        [
-          'packages:',
-          '  - .',
-          '',
-          '# pnpm v11 settings for third-party test installs.',
-          'blockExoticSubdeps: false',
-          'strictDepBuilds: false',
-          'resolutionMode: highest',
-          overridesSection,
-        ].join('\n'),
+        sections.join('\n') + '\n',
         'utf8',
       )
     } else if (packageManager === 'npm') {
@@ -789,11 +790,12 @@ async function installPackage(packageInfo) {
     // registry timeouts, and rate limiting from npm registry.
     // Retry up to 3 times with exponential backoff (1s base delay, 2x multiplier).
     // Unset NODE_ENV and CI to prevent package manager from skipping devDependencies.
-    // Always use pnpm for installation to avoid npm override conflicts.
+    // Retry with backoff — pnpm v11 intermittently fails with ERR_PNPM_MISSING_TIME
+    // when registry metadata is cached without the "time" field (pnpm/pnpm#11238).
     await pRetry(
       async () => {
         await runCommandQuietStrict(
-          'pnpm',
+          PNPM_REAL_BIN,
           ['install', ...PNPM_HOISTED_INSTALL_FLAGS],
           {
             cwd: packageTempDir,
@@ -807,8 +809,12 @@ async function installPackage(packageInfo) {
       },
       {
         backoffFactor: 2,
-        baseDelayMs: 1000,
-        retries: 3,
+        baseDelayMs: 3000,
+        onRetry: async () => {
+          await safeDelete(path.join(packageTempDir, 'node_modules'))
+          await safeDelete(path.join(packageTempDir, 'pnpm-lock.yaml'))
+        },
+        retries: 12,
       },
     )
 
@@ -831,7 +837,7 @@ async function installPackage(packageInfo) {
       // Always use pnpm for installation to avoid npm override conflicts.
       writeProgress('👷')
       await runCommandQuietStrict(
-        'pnpm',
+        PNPM_REAL_BIN,
         ['install', ...PNPM_HOISTED_INSTALL_FLAGS],
         {
           cwd: packageTempDir,
@@ -955,7 +961,7 @@ async function installPackage(packageInfo) {
     // If Socket override has different dependencies, install them.
     // Always use pnpm for installation to avoid npm override conflicts.
     if (overridePkgJson.dependencies) {
-      await runCommandQuietStrict('pnpm', ['install'], {
+      await runCommandQuietStrict(PNPM_REAL_BIN, ['install'], {
         cwd: installedPath,
         env: {
           ...process.env,
@@ -970,7 +976,7 @@ async function installPackage(packageInfo) {
     // The hoisted install at parent level makes test runners available to nested package.
     // Always use pnpm for installation to avoid npm override conflicts.
     await runCommandQuietStrict(
-      'pnpm',
+      PNPM_REAL_BIN,
       ['install', ...PNPM_HOISTED_INSTALL_FLAGS],
       {
         cwd: packageTempDir,
