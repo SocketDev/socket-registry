@@ -172,9 +172,9 @@ runs:
         strip_shim_dir() { echo "$PATH" | tr ':' '\n' | grep -vxF "$SHIM_DIR" | paste -sd: -; }
         CLEAN_PATH="$(strip_shim_dir)"
         SSL_WORKAROUND=""
-        SHIM_CMDS="npm yarn pnpm pip uv cargo"
+        SHIM_CMDS="npm yarn pnpm pip pip3 uv cargo"
         if [ "$SFW_IS_ENTERPRISE" = "true" ]; then
-          SHIM_CMDS="npm yarn pnpm pip uv cargo gem bundler nuget"
+          SHIM_CMDS="npm yarn pnpm pip pip3 uv cargo gem bundler nuget"
           # Go wrapper mode is only supported on Linux.
           [[ "$OSTYPE" == linux* ]] && SHIM_CMDS="$SHIM_CMDS go"
         else
