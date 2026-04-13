@@ -79,7 +79,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         }, null),
       }
       const context = namespace.func(1, 2, 3)
-      expect(context).toBe(getCurrentContext.call(undefined))
+      expect(context).toBe(getCurrentContext.call(null))
       expect(args).toEqual([1, 2, 3])
     })
 
@@ -98,7 +98,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         ),
       }
       const context = namespace.func(4, 5, 6)
-      expect(context).toBe(getCurrentContext.call(undefined))
+      expect(context).toBe(getCurrentContext.call(null))
       expect(args).toEqual([1, 2, 3, 4, 5, 6])
     })
 

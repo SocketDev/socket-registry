@@ -158,7 +158,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
     it('should work in environments with the dontEnum bug', () => {
       // eslint-disable-next-line unicorn/consistent-function-scoping
-      const Foo = () => {}
+      function Foo() {}
       Foo.prototype.a = () => {}
       expect(objectKeys(Foo.prototype)).toContain('a')
     })

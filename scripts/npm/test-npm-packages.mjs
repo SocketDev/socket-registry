@@ -22,15 +22,15 @@ const { values: cliArgs } = parseArgs({
     },
     'download-concurrency': {
       type: 'string',
-      default: getCI() ? (WIN32 ? '10' : '20') : '50',
+      default: getCI() ? '3' : '20',
     },
     'install-concurrency': {
       type: 'string',
-      default: getCI() ? (WIN32 ? '5' : '10') : '30',
+      default: getCI() ? '3' : '10',
     },
     'test-concurrency': {
       type: 'string',
-      default: getCI() ? (WIN32 ? '3' : '8') : '40',
+      default: getCI() ? '3' : '20',
     },
     force: {
       type: 'boolean',

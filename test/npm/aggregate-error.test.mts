@@ -19,7 +19,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const aggregateError = new AggregateError(errors)
 
     expect(aggregateError).toBeInstanceOf(Error)
-    expect(aggregateError.message).toBe('')
+    expect(aggregateError.message).toContain('error 1')
+    expect(aggregateError.message).toContain('error 2')
     expect(Array.isArray(aggregateError.errors)).toBe(true)
     expect(aggregateError.errors.length).toBe(2)
   })

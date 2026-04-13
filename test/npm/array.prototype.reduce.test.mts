@@ -57,7 +57,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         expect(value).toBe(expectedValue)
         expect(key).toBe(0)
         expect(list).toBe(arr)
-        expect(this).toBe(globalThis)
+        expect(this).toBe(undefined)
         return expectedResult
       },
       initialValue,

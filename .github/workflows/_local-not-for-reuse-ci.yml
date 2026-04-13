@@ -34,34 +34,14 @@ jobs:
   test-npm-packages:
     name: Test NPM Packages
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          autocrlf: false
-          persist-credentials: false
-
       - uses: SocketDev/socket-registry/.github/actions/setup-and-install@bab1dc8adc59a21c04fa73d3dd4a333c12e2ca9b # main
         with:
           node-version: 22
-          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
 
-      - uses: SocketDev/socket-registry/.github/actions/cache-npm-packages@bab1dc8adc59a21c04fa73d3dd4a333c12e2ca9b # main
-
-      - name: Verify sfw is installed
-        shell: bash
-        run: |
-          if [ -z "$SFW_BIN" ] || [ ! -x "$SFW_BIN" ]; then
-            echo "Error: sfw is not installed — run SocketDev/socket-registry/.github/actions/setup first" >&2
-            exit 1
-          fi
-
-      - name: Build registry
+      - name: Build and test npm packages
         shell: bash
         run: |
           pnpm run build
-
-      - name: Run npm package tests
-        shell: bash
-        run: |
-          node scripts/npm/test-npm-packages.mjs
+          pnpm run test:npm

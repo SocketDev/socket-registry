@@ -371,14 +371,24 @@ export async function installPackageForTesting(
         ),
       )
 
+      // Write pnpm-workspace.yaml with v11 workarounds.
+      await fs.writeFile(
+        path.join(packageTempDir, 'pnpm-workspace.yaml'),
+        'packages:\n  - .\n\nregistrySupportsTimeField: false\n',
+      )
+
       // Install the package.
       const packageSpec = versionSpec.startsWith('https://')
         ? versionSpec
         : `${packageName}@${versionSpec}`
 
-      await runCommand('pnpm', ['add', packageSpec, ...PNPM_NPM_LIKE_FLAGS], {
-        cwd: packageTempDir,
-      })
+      await runCommand(
+        PNPM_REAL_BIN,
+        ['add', packageSpec, ...PNPM_HOISTED_INSTALL_FLAGS],
+        {
+          cwd: packageTempDir,
+        },
+      )
 
       installedPath = path.join(packageTempDir, 'node_modules', packageName)
 
@@ -496,9 +506,13 @@ export async function installPackageForTesting(
     await fs.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 2))
 
     // Install dependencies with pnpm.
-    await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
-      cwd: installedPath,
-    })
+    await runCommand(
+      PNPM_REAL_BIN,
+      ['install', ...PNPM_HOISTED_INSTALL_FLAGS],
+      {
+        cwd: installedPath,
+      },
+    )
 
     return {
       installed: true,
