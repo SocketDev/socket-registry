@@ -267,8 +267,7 @@ async function hasPackageChanged(pkg, manifest_, options) {
         const message = `${pkg.name}: File '${file}' exists in published package but not locally`
         state?.warnings.push(message)
         changed = true
-      }
-      if (remoteHash !== localHash) {
+      } else if (remoteHash !== localHash) {
         const message = `${pkg.name}: File '${file}' content differs`
         state?.changes.push(message)
         changed = true

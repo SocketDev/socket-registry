@@ -183,8 +183,8 @@ async function main() {
     logger.log('  Publish Runner')
     logger.log('────────────────────────────────────────────────────────────')
 
-    // Validate build artifacts if not skipping
-    if (values['skip-build']) {
+    // Validate build artifacts if not skipping.
+    if (!values['skip-build']) {
       const artifactsExist = await validateBuildArtifacts()
       if (!artifactsExist && !values.force) {
         logger.error('Build artifacts missing - run pnpm build first')
