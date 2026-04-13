@@ -96,7 +96,7 @@ const { positionals: cliPositionals, values: cliArgs } = parseArgs({
   strict: false,
 })
 
-const bcaKeysMap = new Map()
+const bcaKeysMap = new WeakMap()
 
 const esShimChoices = [
   {
