@@ -127,7 +127,7 @@ async function setupZizmor(): Promise<boolean> {
     throw new Error(`Unsupported platform: ${platformKey}`)
   }
   const { asset, sha256: expectedSha } = platformEntry
-  const repo = ZIZMOR.repository?.replace(/^github:/, '') ?? ''
+  const repo = ZIZMOR.repository?.replace(/^[^:]+:/, '') ?? ''
   const url = `https://github.com/${repo}/releases/download/v${ZIZMOR.version}/${asset}`
 
   logger.log(`Downloading zizmor v${ZIZMOR.version} (${asset})...`)
@@ -184,7 +184,7 @@ async function setupSfw(apiKey: string | undefined): Promise<boolean> {
 
   // Checksum + asset.
   const { asset, sha256 } = platformEntry
-  const repo = sfwConfig.repository?.replace(/^github:/, '') ?? ''
+  const repo = sfwConfig.repository?.replace(/^[^:]+:/, '') ?? ''
   const url = `https://github.com/${repo}/releases/download/${sfwConfig.version}/${asset}`
   const binaryName = isEnterprise ? 'sfw' : 'sfw-free'
 
