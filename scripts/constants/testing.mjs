@@ -64,10 +64,45 @@ export const ALLOW_TEST_FAILURES_BY_ECOSYSTEM = new Map([
   [
     'npm',
     new Set([
+      // TODO: Remove when pnpm/pnpm#11238 is fixed (ERR_PNPM_MISSING_TIME).
+      // These fail because pnpm v11 intermittently fails to fetch the "time"
+      // field in registry metadata for transitive deps (globals, lodash, dotenv,
+      // undici-types, @typescript-eslint/typescript-estree).
+      'array-buffer-byte-length',
+      'array-includes',
+      'array.from',
+      'array.of',
+      'array.prototype.at',
+      'array.prototype.every',
+      'array.prototype.filter',
+      'array.prototype.find',
+      'array.prototype.findlast',
+      'array.prototype.findlastindex',
+      'array.prototype.flat',
+      'array.prototype.foreach',
+      'array.prototype.map',
+      'array.prototype.reduce',
+      'array.prototype.toreversed',
+      'array.prototype.tosorted',
+      'asynciterator.prototype',
+      'available-typed-arrays',
+      'is-unicode-supported',
+      // es-define-property installation fails intermittently in CI environments.
+      'es-define-property',
       // es-get-iterator installation fails intermittently in CI environments.
       'es-get-iterator',
+      // es-set-tostringtag installation fails intermittently in CI environments.
+      'es-set-tostringtag',
+      // for-each installation fails intermittently in CI environments.
+      'for-each',
+      // function-bind installation fails intermittently in CI environments.
+      'function-bind',
       // function.prototype.name installation fails intermittently in CI environments.
       'function.prototype.name',
+      // get-symbol-description installation fails intermittently in CI environments.
+      'get-symbol-description',
+      // has-tostringtag installation fails intermittently in CI environments.
+      'has-tostringtag',
       // is-boolean-object installation fails intermittently in CI environments.
       'is-boolean-object',
       // object.assign installation fails intermittently in CI environments.
