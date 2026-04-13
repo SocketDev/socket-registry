@@ -137,6 +137,7 @@ jobs:
         env:
           SETUP_SCRIPT: ${{ inputs.setup-script }}
         run: |
+          set -euo pipefail
           # Trim whitespace
           SETUP_SCRIPT=$(echo "$SETUP_SCRIPT" | xargs)
 
@@ -171,6 +172,7 @@ jobs:
           FORCE_REGISTRY: ${{ inputs.force-registry }}
           SKIP_NPM_PACKAGES: ${{ inputs.skip-npm-packages }}
         run: |
+          set -euo pipefail
           # Trim whitespace
           PUBLISH_SCRIPT=$(echo "$PUBLISH_SCRIPT" | xargs)
 
@@ -210,6 +212,7 @@ jobs:
         env:
           ACCESS_SCRIPT: ${{ inputs.access-script }}
         run: |
+          set -euo pipefail
           # Trim whitespace
           ACCESS_SCRIPT=$(echo "$ACCESS_SCRIPT" | xargs)
 
