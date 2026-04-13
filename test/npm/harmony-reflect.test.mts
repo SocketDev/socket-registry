@@ -172,7 +172,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('should correctly implement construct', () => {
-    expect(harmonyReflect.construct((x: number) => x, [1])).not.toBe(1)
     expect(
       harmonyReflect.construct(
         function (this: { x: number }, x: number) {

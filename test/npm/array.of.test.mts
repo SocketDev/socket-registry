@@ -153,7 +153,19 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       },
     })
 
-    const expected = Object.assign(new MyType(), { 0: 'abc', length: 1 })
+    const expected = new MyType()
+    Object.defineProperty(expected, '0', {
+      value: 'abc',
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    })
+    Object.defineProperty(expected, 'length', {
+      value: 1,
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    })
     expect(of.call(MyType, 'abc')).toEqual(expected)
   })
 })

@@ -48,6 +48,7 @@
     "publish:ci": "node scripts/publish.mjs --skip-build --tag ${DIST_TAG:-latest}",
     "release-npm": "node scripts/npm/release-npm-packages.mjs",
     "test": "node scripts/test.mjs",
+    "test:npm": "node scripts/npm/run-vitest-npm.mjs",
     "update": "node scripts/update.mjs",
     "validate-ci": "node scripts/testing/reproduce-ci-locally.mjs",
     "validate-packages": "node scripts/testing/validate-package-tests.mjs"

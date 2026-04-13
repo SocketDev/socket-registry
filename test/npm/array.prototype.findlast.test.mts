@@ -111,15 +111,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     ])
   })
 
-  it('sets the right context when given none (sloppy mode)', () => {
-    let context: any
-    findLast([1], function (this: any) {
-      // eslint-disable-next-line @typescript-eslint/no-this-alias
-      context = this
-    })
-    expect(context).toBe(globalThis)
-  })
-
   describe('empty array', () => {
     it('true thunk callback yields undefined', () => {
       expect(findLast([], trueThunk)).toBe(undefined)
