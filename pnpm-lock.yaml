@@ -224,8 +224,8 @@ catalogs:
       specifier: 8.0.3
       version: 8.0.3
     '@socketregistry/packageurl-js':
-      specifier: 1.4.1
-      version: 1.4.1
+      specifier: 1.4.2
+      version: 1.4.2
     '@socketsecurity/lib':
       specifier: 5.18.2
       version: 5.18.2
@@ -494,10 +494,10 @@ importers:
         version: link:packages/npm/is-unicode-supported
       '@socketregistry/packageurl-js':
         specifier: 'catalog:'
-        version: 1.4.1
+        version: 1.4.2
       '@socketregistry/scripts':
         specifier: file:scripts
-        version: file:scripts
+        version: scripts@file:scripts
       '@socketsecurity/lib':
         specifier: 'catalog:'
         version: 5.18.2(typescript@5.9.2)
@@ -1023,7 +1023,7 @@ importers:
         version: link:../../packages/npm/json-stable-stringify
       '@socketregistry/scripts':
         specifier: file:../../scripts
-        version: file:scripts
+        version: scripts@file:scripts
       '@socketsecurity/registry':
         specifier: file:../../registry
         version: link:../../registry
@@ -2351,9 +2351,9 @@ packages:
     resolution: {integrity: sha512-98+ho3VAnklscf9WVXseef1/Ann9eX2H6vzgQ3wYzqfuonAcu3Wm/GimmNPHQ/fRRgDaSYJns//tf/kFa8U7IQ==}
     engines: {node: '>=18'}
 
-  '@socketregistry/packageurl-js@1.4.1':
-    resolution: {integrity: sha512-t/UrOd1DMYXcGuKo2v07WMbuHCMlKBKOriTHu4cn9OIxfj1qWKoF/kpOswGHOWkG5zwj2Ke/2+qLiDugmx5z+A==}
-    engines: {node: '>=18.20.4', pnpm: '>=10.25.0'}
+  '@socketregistry/packageurl-js@1.4.2':
+    resolution: {integrity: sha512-yt9UfUzD02wZ7kwb67oe4jxG2D9JtgPqjrK/ans2BovFyeie0w8hvRR0MuOWM4mUt2371oFPp7NB6O5ZjYJmlw==}
+    engines: {node: '>=18.20.8', pnpm: '>=11.0.0-rc.0'}
 
   '@socketregistry/regexp.prototype.flags@1.0.8':
     resolution: {integrity: sha512-h1BhmNFsu3SLULRvjUA7aQVUB2dycJMNAxuYSO2RtTcDY6oAvJHA5J/XFW58uFmfD5xOg8mJ9p1qVSErKyb7zQ==}
@@ -2362,9 +2362,6 @@ packages:
   '@socketregistry/safer-buffer@1.0.10':
     resolution: {integrity: sha512-jbEY37bJn51W9pP1pXxIoGcQbmbi9EQDtnXfWBjGLNvKC1iEyNLOaGm8ee7dN7Z+KgJdQbrrDjjD3HbGeOFC4A==}
     engines: {node: '>=18'}
-
-  '@socketregistry/scripts@file:scripts':
-    resolution: {directory: scripts, type: directory}
 
   '@socketregistry/side-channel@1.0.10':
     resolution: {integrity: sha512-nqm2QgbXHldY6DgIBap3i1MlQms+eP7zIC0vPuyy9FmxF62ITa80hjj/3w6zH7DCxV4nQBcJsz3CaGNulQAP7g==}
@@ -3544,10 +3541,6 @@ packages:
     resolution: {integrity: sha512-V7+vQEJ06Z+c5tSye8S+nHUfI51xoXIXjHQ99cQtKUkQqqO1kO/KCJUfZXuB47h/YBlDhah2H3hdUGXn8ie0oA==}
     engines: {node: '>=8.6'}
 
-  picomatch@4.0.3:
-    resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
-    engines: {node: '>=12'}
-
   picomatch@4.0.4:
     resolution: {integrity: sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==}
     engines: {node: '>=12'}
@@ -3656,6 +3649,9 @@ packages:
 
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
+
+  scripts@file:scripts:
+    resolution: {directory: scripts, type: directory}
 
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
@@ -5085,15 +5081,11 @@ snapshots:
 
   '@socketregistry/object.assign@1.0.8': {}
 
-  '@socketregistry/packageurl-js@1.4.1':
-    dependencies:
-      picomatch: 4.0.3
+  '@socketregistry/packageurl-js@1.4.2': {}
 
   '@socketregistry/regexp.prototype.flags@1.0.8': {}
 
   '@socketregistry/safer-buffer@1.0.10': {}
-
-  '@socketregistry/scripts@file:scripts': {}
 
   '@socketregistry/side-channel@1.0.10': {}
 
@@ -6353,8 +6345,6 @@ snapshots:
 
   picomatch@2.3.2: {}
 
-  picomatch@4.0.3: {}
-
   picomatch@4.0.4: {}
 
   pify@2.3.0: {}
@@ -6478,6 +6468,8 @@ snapshots:
   run-parallel@1.2.0:
     dependencies:
       queue-microtask: 1.2.3
+
+  scripts@file:scripts: {}
 
   semver@6.3.1: {}
 

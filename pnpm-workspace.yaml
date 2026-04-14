@@ -26,7 +26,7 @@ catalog:
   '@mdn/browser-compat-data': 7.1.5
   '@npmcli/package-json': 7.0.0
   '@npmcli/promise-spawn': 8.0.3
-  '@socketregistry/packageurl-js': 1.4.1
+  '@socketregistry/packageurl-js': 1.4.2
   '@socketsecurity/lib': 5.18.2
   '@types/fs-extra': 11.0.4
   '@types/node': 24.9.2
