@@ -19,6 +19,7 @@ import { fileURLToPath } from 'node:url'
 import { whichSync } from '@socketsecurity/lib/bin'
 import { downloadBinary } from '@socketsecurity/lib/dlx/binary'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 import { getSocketHomePath } from '@socketsecurity/lib/paths/socket'
 import { spawn, spawnSync } from '@socketsecurity/lib/spawn'
 import { z } from 'zod'
@@ -194,14 +195,6 @@ async function setupSfw(apiKey: string | undefined): Promise<boolean> {
 
   // Create shims.
   const isWindows = process.platform === 'win32'
-
-  // On Windows, MSYS paths like /c/Users/... need to be converted to
-  // native format (C:\Users\...) so sfw and PowerShell can resolve them.
-  const msysToWinPath = (p: string): string => {
-    const match = p.match(/^\/([a-zA-Z])\/(.*)/)
-    return match ? `${match[1].toUpperCase()}:\\${match[2].replace(/\//g, '\\')}` : p
-  }
-  const normalizePath = isWindows ? msysToWinPath : (p: string) => p
 
   const shimDir = path.join(getSocketHomePath(), 'sfw', 'shims')
   await fs.mkdir(shimDir, { recursive: true })
