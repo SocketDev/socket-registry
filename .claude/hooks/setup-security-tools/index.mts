@@ -3,7 +3,7 @@
 //
 // Configures three tools:
 // 1. AgentShield — scans Claude AI config for prompt injection / secrets.
-//    Already a devDep (ecc-agentshield); this script verifies it's installed.
+//    Downloaded as npm package via dlx (pinned version, cached).
 // 2. Zizmor — static analysis for GitHub Actions workflows. Downloads the
 //    correct binary, verifies SHA-256, cached via the dlx system.
 // 3. SFW (Socket Firewall) — intercepts package manager commands to scan
@@ -16,12 +16,14 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
+import { PackageURL } from '@socketregistry/packageurl-js'
 import { whichSync } from '@socketsecurity/lib/bin'
 import { downloadBinary } from '@socketsecurity/lib/dlx/binary'
+import { downloadPackage } from '@socketsecurity/lib/dlx/package'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 import { getSocketHomePath } from '@socketsecurity/lib/paths/socket'
-import { spawn, spawnSync } from '@socketsecurity/lib/spawn'
+import { spawn } from '@socketsecurity/lib/spawn'
 import { z } from 'zod'
 
 const logger = getDefaultLogger()
@@ -30,7 +32,9 @@ const logger = getDefaultLogger()
 
 const toolSchema = z.object({
   description: z.string().optional(),
-  version: z.string(),
+  version: z.string().optional(),
+  purl: z.string().optional(),
+  integrity: z.string().optional(),
   repository: z.string().optional(),
   assets: z.record(z.string(), z.string()).optional(),
   platforms: z.record(z.string(), z.string()).optional(),
@@ -48,6 +52,7 @@ const configPath = path.join(__dirname, 'external-tools.json')
 const rawConfig = JSON.parse(readFileSync(configPath, 'utf8'))
 const config = configSchema.parse(rawConfig)
 
+const AGENTSHIELD = config.tools['agentshield']!
 const ZIZMOR = config.tools['zizmor']!
 const SFW_FREE = config.tools['sfw-free']!
 const SFW_ENTERPRISE = config.tools['sfw-enterprise']!
@@ -79,19 +84,37 @@ function findApiKey(): string | undefined {
 
 // ── AgentShield ──
 
-function setupAgentShield(): boolean {
+async function setupAgentShield(): Promise<boolean> {
   logger.log('=== AgentShield ===')
-  const bin = whichSync('agentshield', { nothrow: true })
-  if (bin && typeof bin === 'string') {
-    const result = spawnSync(bin, ['--version'], { stdio: 'pipe' })
+  const purl = PackageURL.fromString(AGENTSHIELD.purl!)
+  if (purl.type !== 'npm') {
+    throw new Error(`Unsupported PURL type "${purl.type}" — only npm is supported`)
+  }
+  const npmPackage = purl.namespace ? `${purl.namespace}/${purl.name}` : purl.name!
+  const version = AGENTSHIELD.version ?? purl.version
+  const packageSpec = version ? `${npmPackage}@${version}` : npmPackage
+
+  logger.log(`Installing ${packageSpec} via dlx...`)
+  const { binaryPath, installed } = await downloadPackage({
+    package: packageSpec,
+    binaryName: 'agentshield',
+  })
+
+  // Verify version matches pinned config.
+  if (version) {
+    const result = await spawn(binaryPath, ['--version'], { stdio: 'pipe' })
     const ver = typeof result.stdout === 'string'
       ? result.stdout.trim()
       : result.stdout.toString().trim()
-    logger.log(`Found: ${bin} (${ver})`)
-    return true
+    if (!ver.includes(version)) {
+      logger.warn(`Version mismatch: expected ${version}, got ${ver}`)
+      return false
+    }
+    logger.log(installed ? `Installed: ${binaryPath} (${ver})` : `Cached: ${binaryPath} (${ver})`)
+  } else {
+    logger.log(installed ? `Installed: ${binaryPath}` : `Cached: ${binaryPath}`)
   }
-  logger.warn('Not found. Run "pnpm install" to install ecc-agentshield.')
-  return false
+  return true
 }
 
 // ── Zizmor ──
@@ -285,7 +308,7 @@ async function main(): Promise<void> {
 
   const apiKey = findApiKey()
 
-  const agentshieldOk = setupAgentShield()
+  const agentshieldOk = await setupAgentShield()
   logger.log('')
   const zizmorOk = await setupZizmor()
   logger.log('')

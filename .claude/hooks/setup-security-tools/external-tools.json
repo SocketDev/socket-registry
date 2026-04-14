@@ -1,6 +1,11 @@
 {
   "description": "Security tools for Claude Code hooks (self-contained, no external deps)",
   "tools": {
+    "agentshield": {
+      "description": "Claude AI config security scanner (prompt injection, secrets)",
+      "purl": "pkg:npm/ecc-agentshield@1.4.0",
+      "integrity": "sha512-R98OO1Ujyk2lezDLb+iQmMhF6FwTJCHajy3G4FCB6x7wkSTqR9f8+eAelC5KDzYDsGSbc0sOZvjXOOPRBtMpDg=="
+    },
     "zizmor": {
       "description": "GitHub Actions security scanner",
       "version": "1.23.1",
