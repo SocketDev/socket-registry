@@ -227,8 +227,8 @@ catalogs:
       specifier: 1.4.1
       version: 1.4.1
     '@socketsecurity/lib':
-      specifier: 5.18.0
-      version: 5.18.0
+      specifier: 5.18.2
+      version: 5.18.2
     '@types/fs-extra':
       specifier: 11.0.4
       version: 11.0.4
@@ -497,10 +497,10 @@ importers:
         version: 1.4.1
       '@socketregistry/scripts':
         specifier: file:scripts
-        version: scripts@file:scripts
+        version: file:scripts
       '@socketsecurity/lib':
         specifier: 'catalog:'
-        version: 5.18.0(typescript@5.9.2)
+        version: 5.18.2(typescript@5.9.2)
       '@types/fs-extra':
         specifier: 'catalog:'
         version: 11.0.4
@@ -1023,7 +1023,7 @@ importers:
         version: link:../../packages/npm/json-stable-stringify
       '@socketregistry/scripts':
         specifier: file:../../scripts
-        version: scripts@file:scripts
+        version: file:scripts
       '@socketsecurity/registry':
         specifier: file:../../registry
         version: link:../../registry
@@ -1041,7 +1041,7 @@ importers:
     devDependencies:
       '@socketsecurity/lib':
         specifier: 'catalog:'
-        version: 5.18.0(typescript@5.9.2)
+        version: 5.18.2(typescript@5.9.2)
       '@types/node':
         specifier: 24.9.2
         version: 24.9.2
@@ -2363,6 +2363,9 @@ packages:
     resolution: {integrity: sha512-jbEY37bJn51W9pP1pXxIoGcQbmbi9EQDtnXfWBjGLNvKC1iEyNLOaGm8ee7dN7Z+KgJdQbrrDjjD3HbGeOFC4A==}
     engines: {node: '>=18'}
 
+  '@socketregistry/scripts@file:scripts':
+    resolution: {directory: scripts, type: directory}
+
   '@socketregistry/side-channel@1.0.10':
     resolution: {integrity: sha512-nqm2QgbXHldY6DgIBap3i1MlQms+eP7zIC0vPuyy9FmxF62ITa80hjj/3w6zH7DCxV4nQBcJsz3CaGNulQAP7g==}
     engines: {node: '>=18'}
@@ -2379,8 +2382,8 @@ packages:
     resolution: {integrity: sha512-SHikmWH1JumHKinsPLg0/kg/qKNNQH4fdYe/dd4mZ2NHP5wWGDcZyNCS7KaTnKWFi3/XZOR1iLYzo0I4QnHOQw==}
     engines: {node: '>=18'}
 
-  '@socketsecurity/lib@5.18.0':
-    resolution: {integrity: sha512-fjY9HTHqa1U25cs8uJUlQ/ZfUjZrvpyXMQ+uQ1PLIw8dZ+LPNj5e/xS+idCFZ/qgYuAKz2Bah1VRKYXxDt7FoA==}
+  '@socketsecurity/lib@5.18.2':
+    resolution: {integrity: sha512-h6aGfphQ9jdVjUMGIKJcsIvT6BmzBo0OD20HzeK+6KQJi2HupfCUzIH26vDPxf+aYVmrX0/hKJDYI5sXfTGx9A==}
     engines: {node: '>=22', pnpm: '>=11.0.0-rc.0'}
     peerDependencies:
       typescript: 5.9.2
@@ -3653,9 +3656,6 @@ packages:
 
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
-
-  scripts@file:scripts:
-    resolution: {directory: scripts, type: directory}
 
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
@@ -5093,6 +5093,8 @@ snapshots:
 
   '@socketregistry/safer-buffer@1.0.10': {}
 
+  '@socketregistry/scripts@file:scripts': {}
+
   '@socketregistry/side-channel@1.0.10': {}
 
   '@socketregistry/which-boxed-primitive@1.0.9': {}
@@ -5101,7 +5103,7 @@ snapshots:
 
   '@socketregistry/which-typed-array@1.0.9': {}
 
-  '@socketsecurity/lib@5.18.0(typescript@5.9.2)':
+  '@socketsecurity/lib@5.18.2(typescript@5.9.2)':
     optionalDependencies:
       typescript: 5.9.2
 
@@ -6476,8 +6478,6 @@ snapshots:
   run-parallel@1.2.0:
     dependencies:
       queue-microtask: 1.2.3
-
-  scripts@file:scripts: {}
 
   semver@6.3.1: {}
 
