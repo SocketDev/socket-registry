@@ -19,6 +19,7 @@ import { fileURLToPath } from 'node:url'
 import { whichSync } from '@socketsecurity/lib/bin'
 import { downloadBinary } from '@socketsecurity/lib/dlx/binary'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 import { getSocketHomePath } from '@socketsecurity/lib/paths/socket'
 import { spawn, spawnSync } from '@socketsecurity/lib/spawn'
 import { z } from 'zod'
@@ -194,6 +195,7 @@ async function setupSfw(apiKey: string | undefined): Promise<boolean> {
 
   // Create shims.
   const isWindows = process.platform === 'win32'
+
   const shimDir = path.join(getSocketHomePath(), 'sfw', 'shims')
   await fs.mkdir(shimDir, { recursive: true })
   const ecosystems = [...(sfwConfig.ecosystems ?? [])]
@@ -202,12 +204,14 @@ async function setupSfw(apiKey: string | undefined): Promise<boolean> {
   }
   const cleanPath = (process.env['PATH'] ?? '').split(path.delimiter)
     .filter(p => p !== shimDir).join(path.delimiter)
+  const sfwBin = normalizePath(binaryPath)
   const created: string[] = []
   for (const cmd of ecosystems) {
-    const realBin = whichSync(cmd, { nothrow: true, path: cleanPath })
+    let realBin = whichSync(cmd, { nothrow: true, path: cleanPath })
     if (!realBin || typeof realBin !== 'string') continue
+    realBin = normalizePath(realBin)
 
-    // Bash shim (macOS/Linux).
+    // Bash shim (macOS/Linux/Windows Git Bash).
     const bashLines = [
       '#!/bin/bash',
       `export PATH="$(echo "$PATH" | tr ':' '\\n' | grep -vxF '${shimDir}' | paste -sd: -)"`,
@@ -226,7 +230,7 @@ async function setupSfw(apiKey: string | undefined): Promise<boolean> {
         'fi',
       )
     }
-    bashLines.push(`exec "${binaryPath}" "${realBin}" "$@"`)
+    bashLines.push(`exec "${sfwBin}" "${realBin}" "$@"`)
     const bashContent = bashLines.join('\n') + '\n'
     const bashPath = path.join(shimDir, cmd)
     if (!existsSync(bashPath) || await fs.readFile(bashPath, 'utf8').catch(() => '') !== bashContent) {
@@ -256,7 +260,7 @@ async function setupSfw(apiKey: string | undefined): Promise<boolean> {
         + `set "PATH=%PATH:;${shimDir};=%"\r\n`
         + `set "PATH=%PATH:~1,-1%"\r\n`
         + cmdApiKeyBlock
-        + `"${binaryPath}" "${realBin}" %*\r\n`
+        + `"${sfwBin}" "${realBin}" %*\r\n`
       const cmdPath = path.join(shimDir, `${cmd}.cmd`)
       if (!existsSync(cmdPath) || await fs.readFile(cmdPath, 'utf8').catch(() => '') !== cmdContent) {
         await fs.writeFile(cmdPath, cmdContent)
