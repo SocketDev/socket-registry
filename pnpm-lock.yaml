@@ -227,8 +227,8 @@ catalogs:
       specifier: 1.4.1
       version: 1.4.1
     '@socketsecurity/lib':
-      specifier: 5.15.0
-      version: 5.15.0
+      specifier: 5.16.0
+      version: 5.16.0
     '@types/fs-extra':
       specifier: 11.0.4
       version: 11.0.4
@@ -500,7 +500,7 @@ importers:
         version: file:scripts
       '@socketsecurity/lib':
         specifier: 'catalog:'
-        version: 5.15.0(typescript@5.9.2)
+        version: 5.16.0(typescript@5.9.2)
       '@types/fs-extra':
         specifier: 'catalog:'
         version: 11.0.4
@@ -1041,7 +1041,7 @@ importers:
     devDependencies:
       '@socketsecurity/lib':
         specifier: 'catalog:'
-        version: 5.15.0(typescript@5.9.2)
+        version: 5.16.0(typescript@5.9.2)
       '@types/node':
         specifier: 24.9.2
         version: 24.9.2
@@ -2382,9 +2382,9 @@ packages:
     resolution: {integrity: sha512-SHikmWH1JumHKinsPLg0/kg/qKNNQH4fdYe/dd4mZ2NHP5wWGDcZyNCS7KaTnKWFi3/XZOR1iLYzo0I4QnHOQw==}
     engines: {node: '>=18'}
 
-  '@socketsecurity/lib@5.15.0':
-    resolution: {integrity: sha512-+I7+lR0WBCXWgRxMTQx+N70azONVGr68ndi25pz53D6QLdIQ8gfBgOgC34opECXL9lPUqVCMYNr3XFS/bHABIQ==}
-    engines: {node: '>=22', pnpm: '>=10.25.0'}
+  '@socketsecurity/lib@5.16.0':
+    resolution: {integrity: sha512-w3+u6+UbQyQ+/L9PwHtegiX77qStJcEm4RrKU46rsY2fFueN7l86I1PHxCPjpY1iXupRTnrrjgvPp2pko8+VUg==}
+    engines: {node: '>=22', pnpm: '>=11.0.0-rc.0'}
     peerDependencies:
       typescript: 5.9.2
     peerDependenciesMeta:
@@ -5103,7 +5103,7 @@ snapshots:
 
   '@socketregistry/which-typed-array@1.0.9': {}
 
-  '@socketsecurity/lib@5.15.0(typescript@5.9.2)':
+  '@socketsecurity/lib@5.16.0(typescript@5.9.2)':
     optionalDependencies:
       typescript: 5.9.2
 

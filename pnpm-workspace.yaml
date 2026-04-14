@@ -1,19 +1,12 @@
-trustPolicy: no-downgrade
-
-# Wait 7 days (10080 minutes) before installing newly published packages.
-minimumReleaseAge: 10080
-minimumReleaseAgeExclude:
-  - '@anthropic-ai/claude-code@2.1.98'
-  - '@socketaddon/*'
-  - '@socketbin/*'
-  - '@socketregistry/*'
-  - '@socketsecurity/*'
-
 packages:
   - packages/npm/*
   - perf/*
   - registry
   - scripts
+
+# Packages allowed to run build scripts (pnpm v11 strictDepBuilds default).
+allowBuilds:
+  esbuild: true
 
 catalog:
   '@anthropic-ai/claude-code': 2.1.98
@@ -34,7 +27,7 @@ catalog:
   '@npmcli/package-json': 7.0.0
   '@npmcli/promise-spawn': 8.0.3
   '@socketregistry/packageurl-js': 1.4.1
-  '@socketsecurity/lib': 5.15.0
+  '@socketsecurity/lib': 5.16.0
   '@types/fs-extra': 11.0.4
   '@types/node': 24.9.2
   '@types/normalize-package-data': 2.4.4
@@ -59,10 +52,10 @@ catalog:
   clipboardy: 4.0.0
   debug: ^4.4.3
   del: 8.0.1
-  ecc-agentshield: 1.4.0
   del-cli: 6.0.0
   dev-null-cli: 2.0.0
   didyoumean2: 7.0.4
+  ecc-agentshield: 1.4.0
   esbuild: 0.25.11
   eslint: 9.35.0
   eslint-import-resolver-typescript: 4.4.4
@@ -109,13 +102,14 @@ catalog:
   yoctocolors-cjs: 2.1.3
   zod: 4.1.12
 
-patchedDependencies:
-  brace-expansion@2.0.2: patches/brace-expansion@2.0.2.patch
-  minimatch@9.0.5: patches/minimatch@9.0.5.patch
-
-# Packages allowed to run build scripts (pnpm v11 strictDepBuilds default).
-allowBuilds:
-  esbuild: true
+# Wait 7 days (10080 minutes) before installing newly published packages.
+minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  - '@anthropic-ai/claude-code@2.1.98'
+  - '@socketaddon/*'
+  - '@socketbin/*'
+  - '@socketregistry/*'
+  - '@socketsecurity/*'
 
 # Dependency overrides (migrated from package.json pnpm.overrides).
 overrides:
@@ -164,3 +158,8 @@ overrides:
   which-boxed-primitive: 'npm:@socketregistry/which-boxed-primitive@1.0.9'
   which-collection: 'npm:@socketregistry/which-collection@1.0.8'
   which-typed-array: 'npm:@socketregistry/which-typed-array@1.0.9'
+
+patchedDependencies:
+  brace-expansion@2.0.2: patches/brace-expansion@2.0.2.patch
+  minimatch@9.0.5: patches/minimatch@9.0.5.patch
+trustPolicy: no-downgrade
