@@ -19,7 +19,11 @@ import { fileURLToPath } from 'node:url'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { printFooter, printHeader } from '@socketsecurity/lib/stdio/header'
 
-import { runCommand, runCommandQuiet, runParallel } from './utils/run-command.mts'
+import {
+  runCommand,
+  runCommandQuiet,
+  runParallel,
+} from './utils/run-command.mts'
 import process from 'node:process'
 
 const logger = getDefaultLogger()

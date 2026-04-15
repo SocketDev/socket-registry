@@ -45,19 +45,31 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       Object.defineProperty(process, 'platform', {
         value: originalPlatform,
       })
-      if (savedCI !== undefined) process.env['CI'] = savedCI
-      else delete process.env['CI']
-      if (savedTERM !== undefined) process.env['TERM'] = savedTERM
-      else delete process.env['TERM']
-      if (savedTERM_PROGRAM !== undefined)
+      if (savedCI !== undefined) {
+        process.env['CI'] = savedCI
+      } else {
+        delete process.env['CI']
+      }
+      if (savedTERM !== undefined) {
+        process.env['TERM'] = savedTERM
+      } else {
+        delete process.env['TERM']
+      }
+      if (savedTERM_PROGRAM !== undefined) {
         process.env['TERM_PROGRAM'] = savedTERM_PROGRAM
-      else delete process.env['TERM_PROGRAM']
-      if (savedWT_SESSION !== undefined)
+      } else {
+        delete process.env['TERM_PROGRAM']
+      }
+      if (savedWT_SESSION !== undefined) {
         process.env['WT_SESSION'] = savedWT_SESSION
-      else delete process.env['WT_SESSION']
-      if (savedTERMINUS_SUBLIME !== undefined)
+      } else {
+        delete process.env['WT_SESSION']
+      }
+      if (savedTERMINUS_SUBLIME !== undefined) {
         process.env['TERMINUS_SUBLIME'] = savedTERMINUS_SUBLIME
-      else delete process.env['TERMINUS_SUBLIME']
+      } else {
+        delete process.env['TERMINUS_SUBLIME']
+      }
     }
   })
 })

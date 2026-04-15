@@ -64,7 +64,9 @@ function verifyCacheIntegrity(
   expectedSha256: string,
 ): boolean {
   const checksumFile = path.join(cachePath, '.checksum')
-  if (!existsSync(checksumFile)) return false
+  if (!existsSync(checksumFile)) {
+    return false
+  }
   try {
     return readFileSync(checksumFile, 'utf8').trim() === expectedSha256
   } catch {
@@ -283,7 +285,9 @@ async function main(): Promise<void> {
 
   let allOk = true
   for (const [tool, toolConfig] of Object.entries(config)) {
-    if (toolConfig.release !== 'asset') continue
+    if (toolConfig.release !== 'asset') {
+      continue
+    }
     try {
       const binaryPath = await downloadAndVerify(tool, toolConfig)
       if (binaryPath) {

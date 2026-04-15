@@ -19,7 +19,9 @@ const {
 } = await setupNpmPackageTest(import.meta.url)
 
 const loadSub = (subPath: string) => {
-  if (skip) return undefined
+  if (skip) {
+    return undefined
+  }
   try {
     return require(path.join(pkgPath, subPath))
   } catch {

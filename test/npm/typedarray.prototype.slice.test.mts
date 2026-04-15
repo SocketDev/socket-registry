@@ -55,7 +55,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('Typed Arrays', () => {
     for (const name of typedArrayNames) {
       const TA = globalThis[name]
-      if (typeof TA !== 'function') continue
+      if (typeof TA !== 'function') {
+        continue
+      }
       const isBigInt = name.slice(0, 3) === 'Big'
 
       it(`${name}: returns a new instance when sliced with no args`, () => {

@@ -1,19 +1,12 @@
 {
   "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
-  "plugins": [
-    "typescript",
-    "unicorn",
-    "import"
-  ],
+  "plugins": ["typescript", "unicorn", "import"],
   "categories": {
     "correctness": "error",
     "suspicious": "error"
   },
   "rules": {
-    "eslint/curly": [
-      "error",
-      "all"
-    ],
+    "eslint/curly": ["error", "all"],
     "eslint/no-await-in-loop": "off",
     "eslint/no-console": "off",
     "eslint/no-control-regex": "off",
