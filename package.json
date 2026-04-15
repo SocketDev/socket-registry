@@ -48,6 +48,7 @@
     "publish:ci": "node scripts/publish.mts --skip-build --tag ${DIST_TAG:-latest}",
     "release-npm": "node scripts/npm/release-npm-packages.mts",
     "test": "node scripts/test.mts",
+    "typecheck": "tsgo --noEmit",
     "test:npm": "node scripts/npm/run-vitest-npm.mts",
     "update": "node scripts/update.mts",
     "validate-ci": "node scripts/testing/reproduce-ci-locally.mts",
