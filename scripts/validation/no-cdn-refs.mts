@@ -116,7 +116,7 @@ async function findTextFiles(dir, files = []) {
  */
 async function checkFileForCdnRefs(filePath) {
   // Skip this validator script itself (it mentions CDN domains by necessity)
-  if (filePath.endsWith('no-cdn-refs.mjs')) {
+  if (filePath.endsWith('no-cdn-refs.mts')) {
     return []
   }
 

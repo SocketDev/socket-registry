@@ -6,7 +6,7 @@
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import process from 'node:process'
 
-let _cliArgs
+let _cliArgs: Record<string, unknown> | undefined
 
 /**
  * Parse and cache command line arguments.
@@ -38,17 +38,17 @@ function shouldRunTests() {
   const args = getCliArgs()
 
   // Always run in CI.
-  if (process.env.CI === 'true') {
+  if (process.env['CI'] === 'true') {
     return true
   }
 
   // Run if force flag is set.
-  if (args.force || process.env.FORCE_TEST === '1') {
+  if (args['force'] || process.env['FORCE_TEST'] === '1') {
     return true
   }
 
   // Run if not in pre-commit hook.
-  if (!process.env.PRE_COMMIT) {
+  if (!process.env['PRE_COMMIT']) {
     return true
   }
 
@@ -60,27 +60,23 @@ function shouldRunTests() {
  * Check if package testing should be skipped for a given package.
  * Package tests are skipped during pre-commit hooks to speed up commits.
  * They can be forced to run with --force flag or in CI environments.
- *
- * @param {string} _eco - Ecosystem (e.g., "npm")
- * @param {string} _packageName - Package name
- * @returns {boolean} True if package testing should be skipped
  */
-function isPackageTestingSkipped(_eco, _packageName) {
+function isPackageTestingSkipped(_eco: string, _packageName: string) {
   // In pre-commit hooks, skip package tests unless forced.
-  if (process.env.PRE_COMMIT === 'true') {
+  if (process.env['PRE_COMMIT'] === 'true') {
     const args = getCliArgs()
-    return !(args.force || process.env.FORCE_TEST === '1')
+    return !(args['force'] || process.env['FORCE_TEST'] === '1')
   }
 
   // Always run in CI.
-  if (process.env.CI === 'true') {
+  if (process.env['CI'] === 'true') {
     return false
   }
 
   // Skip by default in regular runs to keep tests fast.
   // Use --force flag to run package tests.
   const args = getCliArgs()
-  return !(args.force || process.env.FORCE_TEST === '1')
+  return !(args['force'] || process.env['FORCE_TEST'] === '1')
 }
 
 export { getCliArgs, isPackageTestingSkipped, shouldRunTests }

@@ -318,7 +318,7 @@ async function publishAtCommit(sha) {
 
   // Update manifest.json with latest published versions before publishing registry.
   if (registryPkgToPublish && !fails.includes(registryPkgToPublish.printName)) {
-    await spawn('node', ['scripts/update-manifest.mjs', '--force'], {
+    await spawn('node', ['scripts/npm/update-manifest.mts', '--force'], {
       shell: WIN32,
     })
 

@@ -69,10 +69,10 @@ async function main(): Promise<void> {
     scriptDir,
     '..',
     'validation',
-    'npm-packages.mjs',
+    'npm-packages.mts',
   )
-  const installScript = path.join(scriptDir, 'install-npm-packages.mjs')
-  const testScript = path.join(scriptDir, 'run-npm-package-tests.mjs')
+  const installScript = path.join(scriptDir, 'install-npm-packages.mts')
+  const testScript = path.join(scriptDir, 'run-npm-package-tests.mts')
 
   // Build common arguments.
   const commonArgs = []

@@ -271,8 +271,8 @@ async function main(): Promise<void> {
   const tsRefs = []
   if (isEsShim) {
     const { default: maintainedNodeVersions } =
-      await import('../constants/node.mjs')
-    const { PACKAGE_DEFAULT_NODE_RANGE } = await import('../constants/node.mjs')
+      await import('../constants/node.mts')
+    const { PACKAGE_DEFAULT_NODE_RANGE } = await import('../constants/node.mts')
     const parts = origPkgName
       .split(/[-.]/)
       .filter(p => p !== 'es' && p !== 'helpers')
@@ -405,7 +405,7 @@ async function main(): Promise<void> {
   // First copy the template directory contents to the package path.
   await fs.cp(templatePkgPath, pkgPath, { recursive: true })
   // Then modify the new package's package.json source and write to disk.
-  const { PACKAGE_DEFAULT_NODE_RANGE } = await import('../constants/node.mjs')
+  const { PACKAGE_DEFAULT_NODE_RANGE } = await import('../constants/node.mts')
   await writeAction(
     await getPackageJsonAction(pkgPath, {
       engines: {

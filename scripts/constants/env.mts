@@ -5,7 +5,7 @@
 /**
  * Get environment configuration with inlined values.
  */
-function envAsBoolean(value) {
+function envAsBoolean(value: string | undefined): boolean {
   if (typeof value === 'string') {
     const lower = value.toLowerCase()
     return lower === 'true' || lower === '1'
@@ -20,8 +20,8 @@ export function getEnv() {
   const { env } = process
   return Object.freeze({
     __proto__: null,
-    CI: envAsBoolean(env.CI),
-    NODE_ENV: env.NODE_ENV,
-    VERBOSE_BUILD: envAsBoolean(env.VERBOSE_BUILD),
+    CI: envAsBoolean(env['CI']),
+    NODE_ENV: env['NODE_ENV'],
+    VERBOSE_BUILD: envAsBoolean(env['VERBOSE_BUILD']),
   })
 }

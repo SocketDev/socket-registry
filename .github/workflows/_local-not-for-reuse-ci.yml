@@ -22,7 +22,7 @@ jobs:
       fail-fast: false
       lint-script: 'pnpm run lint --all'
       lint-setup-script: 'pnpm run build'
-      node-versions: '[20, 22, 24]'
+      node-versions: '[22, 24]'
       os-versions: '["ubuntu-latest", "windows-latest"]'
       test-script: 'pnpm run test --all --fast'
       test-setup-script: 'pnpm run build'

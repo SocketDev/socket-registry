@@ -200,7 +200,7 @@ async function runUnitTests(workDir) {
 async function runNpmPackageTests(workDir) {
   logger.info('\n--- Running NPM Package Tests (CI Mode) ---')
 
-  const args = ['scripts/test-npm-packages.mjs']
+  const args = ['scripts/npm/test-npm-packages.mts']
 
   if (cliArgs.package?.length) {
     cliArgs.package.forEach(pkg => {

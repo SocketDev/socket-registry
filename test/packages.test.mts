@@ -28,12 +28,12 @@ import {
   NPM_PACKAGES_PATH,
   PACKAGE_JSON,
   SOCKET_REGISTRY_SCOPE,
-} from '../scripts/constants/paths.mjs'
+} from '../scripts/constants/paths.mts'
 import {
   getEcosystems,
   getNpmPackageNames,
-} from '../scripts/constants/testing.mjs'
-import { getIgnoreGlobs } from '../scripts/constants/utils.mjs'
+} from '../scripts/constants/testing.mts'
+import { getIgnoreGlobs } from '../scripts/constants/utils.mts'
 import process from 'node:process'
 
 const LICENSE_GLOB =

@@ -34,7 +34,7 @@ export async function getCodeCoverage(options) {
       return undefined
     }
 
-    const result = await spawn('node', ['scripts/cover.mjs'], {
+    const result = await spawn('node', ['scripts/cover.mts'], {
       stdio: 'ignore',
       shell: WIN32,
     })
