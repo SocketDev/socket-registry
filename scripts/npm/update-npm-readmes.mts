@@ -1,0 +1,53 @@
+/** @fileoverview Update README.md files for all npm packages using templates. */
+
+import fs from 'node:fs/promises'
+import path from 'node:path'
+
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { UTF8 } from '@socketsecurity/lib/constants/encoding'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+
+const logger = getDefaultLogger()
+
+import {
+  NPM_PACKAGES_PATH,
+  NPM_TEMPLATES_README_PATH,
+  README_MD,
+} from '../constants/paths.mts'
+import { getNpmPackageNames } from '../constants/testing.mts'
+import { isModified } from '../utils/git.mts'
+import { getNpmReadmeAction } from '../utils/templates.mts'
+
+const { values: cliArgs } = parseArgs({
+  options: {
+    force: {
+      type: 'boolean',
+      short: 'f',
+    },
+    quiet: {
+      type: 'boolean',
+    },
+  },
+  strict: false,
+})
+
+/**
+ * Generate and write README.md files for all npm packages.
+ */
+async function main() {
+  // Exit early if no relevant files have been modified.
+  if (!cliArgs.force && !(await isModified(NPM_TEMPLATES_README_PATH))) {
+    return
+  }
+  const npmPackageNames = getNpmPackageNames()
+  await Promise.allSettled(
+    npmPackageNames.map(async sockRegPkgName => {
+      const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
+      const readmePath = path.join(pkgPath, README_MD)
+      const { 1: data } = await getNpmReadmeAction(pkgPath)
+      return fs.writeFile(readmePath, data.readme, UTF8)
+    }),
+  )
+}
+
+main().catch(e => logger.error(e))

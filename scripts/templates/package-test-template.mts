@@ -13,9 +13,9 @@ import path from 'node:path'
 
 import { beforeAll, describe, expect, it } from 'vitest'
 
-import { NPM, NPM_PACKAGES_PATH } from '../../../scripts/constants/paths.mjs'
-import { installPackageForTesting } from '../../../scripts/utils/package.mjs'
-import { isPackageTestingSkipped } from '../../../scripts/utils/tests.mjs'
+import { NPM, NPM_PACKAGES_PATH } from '../../../scripts/constants/paths.mts'
+import { installPackageForTesting } from '../../../scripts/utils/package.mts'
+import { isPackageTestingSkipped } from '../../../scripts/utils/tests.mts'
 
 const eco = NPM
 const sockRegPkgName = path.basename(__filename, '.test.mts')
