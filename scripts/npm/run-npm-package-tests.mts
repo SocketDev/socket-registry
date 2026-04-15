@@ -110,7 +110,7 @@ async function runPackageTest(socketPkgName) {
 
       logger.success(origPkgName)
       return { package: origPkgName, passed: true }
-    } catch (error) {
+    } catch (error: unknown) {
       logger.fail(origPkgName)
       if (error.stderr) {
         const errorInfo = extractErrorInfo(error.stderr)
@@ -188,7 +188,7 @@ async function runPackageTest(socketPkgName) {
 
     logger.success(origPkgName)
     return { package: origPkgName, passed: true }
-  } catch (error) {
+  } catch (error: unknown) {
     const errorStdout = error.stdout || ''
     const errorStderr = error.stderr || ''
 
@@ -254,7 +254,7 @@ async function runPackageTest(socketPkgName) {
   }
 }
 
-async function main() {
+async function main(): Promise<void> {
   suppressMaxListenersWarning()
 
   // Check if install results exist.
@@ -265,7 +265,7 @@ async function main() {
     try {
       const resultsData = await fs.readFile(installResultsFile, 'utf8')
       installResults = JSON.parse(resultsData)
-    } catch (error) {
+    } catch (error: unknown) {
       logger.warn(`Could not read install results: ${error.message}`)
     }
   } else {
@@ -282,7 +282,7 @@ async function main() {
             ...r,
             installed: r.downloaded,
           }))
-      } catch (error) {
+      } catch (error: unknown) {
         logger.warn(`Could not read download results: ${error.message}`)
       }
     }
@@ -373,4 +373,4 @@ async function main() {
   process.exitCode = failed.length ? 1 : 0
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

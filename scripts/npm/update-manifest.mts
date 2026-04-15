@@ -219,7 +219,7 @@ async function addNpmManifestData(manifest, options) {
   return manifest
 }
 
-async function main() {
+async function main(): Promise<void> {
   // Exit early if no relevant files have been modified and not forced.
   if (!cliArgs.force) {
     const modifiedFiles = await getModifiedFiles({
@@ -244,4 +244,4 @@ async function main() {
   })
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

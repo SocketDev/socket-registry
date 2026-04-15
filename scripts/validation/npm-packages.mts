@@ -121,7 +121,7 @@ async function validatePackage(socketPkgName) {
       versionSpec,
       overridePath,
     }
-  } catch (error) {
+  } catch (error: unknown) {
     writeProgress(LOG_SYMBOLS.fail)
     return {
       package: origPkgName,
@@ -132,7 +132,7 @@ async function validatePackage(socketPkgName) {
   }
 }
 
-async function main() {
+async function main(): Promise<void> {
   const packages = cliArgs.package?.length
     ? cliArgs.package
     : getNpmPackageNames()
@@ -287,4 +287,4 @@ async function main() {
   process.exitCode = failed.length ? 1 : 0
 }
 
-main().catch(e => logger.fail(e))
+main().catch((e: unknown) => logger.fail(e))

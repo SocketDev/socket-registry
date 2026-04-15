@@ -371,7 +371,7 @@ async function validateBundleDeps() {
   return { violations, warnings }
 }
 
-async function main() {
+async function main(): Promise<void> {
   await runValidationScript(
     async () => {
       const { violations, warnings } = await validateBundleDeps()

@@ -110,7 +110,7 @@ async function validatePackageJson(_packageName, packageDir) {
         message: 'Missing "version" field in package.json',
       })
     }
-  } catch (e) {
+  } catch (e: unknown) {
     issues.push({
       type: VALIDATION_CHECKS.PACKAGE_JSON,
       severity: 'error',
@@ -193,7 +193,7 @@ async function validateDependencies(packageName, packageDir) {
         message: 'node_modules directory not created after installation',
       })
     }
-  } catch (e) {
+  } catch (e: unknown) {
     issues.push({
       type: VALIDATION_CHECKS.DEPENDENCIES,
       severity: 'error',
@@ -236,7 +236,7 @@ async function validateEslintConfig(_packageName, packageDir) {
           message: `ESLint configuration is invalid: ${result.stderr}`,
         })
       }
-    } catch (e) {
+    } catch (e: unknown) {
       issues.push({
         type: VALIDATION_CHECKS.ESLINT_CONFIG,
         severity: 'warning',
@@ -304,7 +304,7 @@ async function validateModuleResolution(_packageName, packageDir) {
         }
       }
     }
-  } catch (e) {
+  } catch (e: unknown) {
     issues.push({
       type: VALIDATION_CHECKS.MODULE_RESOLUTION,
       severity: 'warning',
@@ -434,7 +434,7 @@ function formatResults(results) {
 /**
  * Main validation flow.
  */
-async function main() {
+async function main(): Promise<void> {
   logger.info('Starting package validation...\n')
 
   const packages = await getPackagesToValidate()
@@ -472,7 +472,7 @@ async function main() {
   }
 }
 
-main().catch(e => {
+main().catch((e: unknown) => {
   logger.error(`Validation failed: ${e.message}`)
   if (cliArgs.verbose) {
     logger.error(e.stack)

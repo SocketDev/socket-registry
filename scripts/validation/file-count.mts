@@ -68,7 +68,7 @@ async function validateStagedFileCount() {
   }
 }
 
-async function main() {
+async function main(): Promise<void> {
   await runValidationScript(
     async () => {
       const violation = await validateStagedFileCount()

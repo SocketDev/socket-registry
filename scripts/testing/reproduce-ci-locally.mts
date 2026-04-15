@@ -225,7 +225,7 @@ async function runNpmPackageTests(workDir) {
 /**
  * Main reproduction flow.
  */
-async function main() {
+async function main(): Promise<void> {
   logger.info('=== Reproducing CI Environment Locally ===\n')
 
   if (cliArgs.package?.length) {
@@ -287,7 +287,7 @@ async function main() {
       logger.info('Fix these issues before pushing to avoid CI failures.')
       process.exitCode = 1
     }
-  } catch (e) {
+  } catch (e: unknown) {
     logger.error(`CI reproduction failed: ${e.message}`)
     if (cliArgs.verbose) {
       logger.error(e.stack)
@@ -304,7 +304,7 @@ async function main() {
   }
 }
 
-main().catch(e => {
+main().catch((e: unknown) => {
   logger.error(`Fatal error: ${e.message}`)
   if (cliArgs.verbose) {
     logger.error(e.stack)

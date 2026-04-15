@@ -16,7 +16,7 @@ import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { spawn } from '@socketsecurity/lib/spawn'
 import process from 'node:process'
 
-async function main() {
+async function main(): Promise<void> {
   const quiet = isQuiet()
   const verbose = isVerbose()
   const logger = getDefaultLogger()
@@ -89,7 +89,7 @@ async function main() {
         logger.log('')
       }
     }
-  } catch (error) {
+  } catch (error: unknown) {
     if (!quiet) {
       logger.fail(`Update failed: ${error.message}`)
     }
@@ -100,7 +100,7 @@ async function main() {
   }
 }
 
-main().catch(e => {
+main().catch((e: unknown) => {
   const logger = getDefaultLogger()
   logger.error(e)
   process.exitCode = 1

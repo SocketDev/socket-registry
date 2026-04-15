@@ -54,7 +54,7 @@ async function cleanDirectories(tasks, options = {}) {
           logger.done(`Cleaned ${name} (already clean)`)
         }
       }
-    } catch (error) {
+    } catch (error: unknown) {
       if (!quiet) {
         logger.error(`Failed to clean ${name}`)
         logger.error(error.message)
@@ -66,7 +66,7 @@ async function cleanDirectories(tasks, options = {}) {
   return 0
 }
 
-async function main() {
+async function main(): Promise<void> {
   try {
     // Parse arguments
     const { values } = parseArgs({
@@ -202,10 +202,10 @@ async function main() {
         logger.success('Clean completed successfully!')
       }
     }
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error(`Clean runner failed: ${error.message}`)
     process.exitCode = 1
   }
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

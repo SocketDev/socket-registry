@@ -28,7 +28,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.resolve(__dirname, '..')
 const registryDistPath = path.join(rootPath, 'registry', 'dist', 'index.js')
 
-async function main() {
+async function main(): Promise<void> {
   try {
     const all = process.argv.includes('--all')
     const staged = process.argv.includes('--staged')
@@ -148,13 +148,13 @@ async function main() {
       logger.success('All checks passed')
       printFooter()
     }
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error(`Check failed: ${error.message}`)
     process.exitCode = 1
   }
 }
 
-main().catch(e => {
+main().catch((e: unknown) => {
   logger.error(e)
   process.exitCode = 1
 })

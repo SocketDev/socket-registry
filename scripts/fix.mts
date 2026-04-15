@@ -32,7 +32,7 @@ async function run(cmd, args, { label, required = true } = {}) {
       logger.warn(`${label || cmd}: exited ${result.code} (non-blocking)`)
     }
     return 0
-  } catch (e) {
+  } catch (e: unknown) {
     if (!required) {
       logger.warn(`${label || cmd}: ${e.message} (non-blocking)`)
       return 0
@@ -41,7 +41,7 @@ async function run(cmd, args, { label, required = true } = {}) {
   }
 }
 
-async function main() {
+async function main(): Promise<void> {
   // Step 1: Lint fix — delegates to per-package lint scripts.
   const lintExit = await run(
     'pnpm',
@@ -71,7 +71,7 @@ async function main() {
   }
 }
 
-main().catch(e => {
+main().catch((e: unknown) => {
   logger.error(e)
   process.exitCode = 1
 })

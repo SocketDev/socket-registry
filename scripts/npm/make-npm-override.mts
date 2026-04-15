@@ -176,7 +176,7 @@ function toChoice(value) {
   return { name: value, value: value }
 }
 
-async function main() {
+async function main(): Promise<void> {
   const origPkgName = await input({
     message: 'What is the name of the package to override?',
     default: cliPositionals.at(0),
@@ -485,10 +485,10 @@ async function main() {
     if (!cliArgs.quiet) {
       logger.log('Finished 🎉')
     }
-  } catch (e) {
+  } catch (e: unknown) {
     logger.fail('Package override finalization encountered an error:')
     logger.error(e)
   }
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

@@ -15,7 +15,7 @@ const logger = getDefaultLogger()
 
 import { ROOT_PATH } from '../constants/paths.mts'
 
-async function main() {
+async function main(): Promise<void> {
   const dirPaths = (
     await fastGlob.glob(['**/'], {
       ignore: [NODE_MODULES_GLOB_RECURSIVE],
@@ -37,4 +37,4 @@ async function main() {
   }
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

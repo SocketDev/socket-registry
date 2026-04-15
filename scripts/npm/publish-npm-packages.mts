@@ -430,7 +430,7 @@ async function publishTrusted(pkg, state, options) {
       }
       // Success - exit retry loop.
       return
-    } catch (e) {
+    } catch (e: unknown) {
       lastError = e
       const stderr = e?.stderr ?? ''
       // Don't retry if package already exists.
@@ -457,7 +457,7 @@ async function publishTrusted(pkg, state, options) {
 /**
  * Find unpublished version bumps and publish them in chronological order.
  */
-async function main() {
+async function main(): Promise<void> {
   // Ensure npm version is >= 11.5.1 for trusted publishing FIRST.
   // This must happen before any other operations.
   await ensureNpmVersion()
@@ -602,4 +602,4 @@ async function main() {
   }
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

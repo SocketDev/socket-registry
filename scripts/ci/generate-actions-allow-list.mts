@@ -65,7 +65,7 @@ async function getAllYamlFiles(dir) {
 /**
  * Generate and display GitHub Actions allow list.
  */
-async function main() {
+async function main(): Promise<void> {
   const allDependencies = new Map()
 
   // Process workflow files.
@@ -181,4 +181,4 @@ async function main() {
   }
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

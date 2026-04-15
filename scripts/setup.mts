@@ -235,7 +235,7 @@ async function downloadAndVerify(tool, config) {
   }
 }
 
-async function main() {
+async function main(): Promise<void> {
   if (!quiet) {
     logger.log('\n🔧 Developer Setup\n')
   }
@@ -274,7 +274,7 @@ async function main() {
   }
 }
 
-main().catch(e => {
+main().catch((e: unknown) => {
   logger.error(e)
   process.exitCode = 1
 })

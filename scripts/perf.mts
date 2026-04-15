@@ -12,7 +12,7 @@ const logger = getDefaultLogger()
 
 import { PERF_NPM_PATH, TSX_EXEC_PATH } from './constants/paths.mts'
 
-async function main() {
+async function main(): Promise<void> {
   for (const perfFile of await fastGlob.glob(['*.perf.ts'], {
     cwd: PERF_NPM_PATH,
   })) {
@@ -23,4 +23,4 @@ async function main() {
   }
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

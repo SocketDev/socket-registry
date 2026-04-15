@@ -91,7 +91,7 @@ async function getAllYamlFiles(dir) {
 /**
  * Generate and display dependency tree for all GitHub Actions.
  */
-async function main() {
+async function main(): Promise<void> {
   const allDependencies = new Set()
   // Map of file -> structured dependencies.
   const dependencyTree = new Map()
@@ -184,4 +184,4 @@ async function main() {
   logger.info(`Total: ${allDependencies.size} unique actions/workflows`)
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

@@ -113,7 +113,7 @@ async function checkPackageJson(filePath) {
   return violations
 }
 
-async function main() {
+async function main(): Promise<void> {
   await runValidationScript(
     async () => {
       const packageJsonFiles = await findPackageJsonFiles(rootPath)

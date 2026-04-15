@@ -105,7 +105,7 @@ async function publishComplex(options = {}) {
   return true
 }
 
-async function main() {
+async function main(): Promise<void> {
   try {
     // Parse arguments
     const { values } = parseArgs({
@@ -211,13 +211,13 @@ async function main() {
     logger.log('\n────────────────────────────────────────────────────────────')
     logger.success('Publish completed successfully!')
     process.exitCode = 0
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error(`Publish runner failed: ${error.message}`)
     process.exitCode = 1
   }
 }
 
-main().catch(e => {
+main().catch((e: unknown) => {
   logger.error(e)
   process.exitCode = 1
 })

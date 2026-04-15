@@ -143,7 +143,7 @@ async function checkFileForCdnRefs(filePath) {
     }
 
     return violations
-  } catch (error) {
+  } catch (error: unknown) {
     // Skip files we can't read (likely binary despite extension)
     if (error.code === 'EISDIR' || error.message.includes('ENOENT')) {
       return []
@@ -168,7 +168,7 @@ async function validateNoCdnRefs() {
   return allViolations
 }
 
-async function main() {
+async function main(): Promise<void> {
   await runValidationScript(
     async () => {
       const violations = await validateNoCdnRefs()

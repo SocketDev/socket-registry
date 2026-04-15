@@ -292,7 +292,7 @@ async function runTests(options, positionals = []) {
   return result.code
 }
 
-async function main() {
+async function main(): Promise<void> {
   try {
     // Parse arguments
     const { positionals, values } = parseArgs({
@@ -411,7 +411,7 @@ async function main() {
     } else {
       logger.success('All tests passed!')
     }
-  } catch (error) {
+  } catch (error: unknown) {
     // Ensure spinner is stopped
     try {
       spinner.stop()

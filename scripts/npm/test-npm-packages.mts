@@ -63,7 +63,7 @@ const { values: cliArgs } = parseArgs({
 // Use cache directory by default for persistent caching across runs.
 const tempBaseDir = cliArgs.tempDir || cliArgs.cacheDir
 
-async function main() {
+async function main(): Promise<void> {
   const scriptDir = path.dirname(fileURLToPath(import.meta.url))
   const validateScript = path.join(
     scriptDir,
@@ -155,11 +155,11 @@ async function main() {
     // Never clean up the cache directory - it's persistent by design.
     // Users can explicitly clear it with --clear-cache flag in validate phase.
     process.exitCode = 0
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('')
     logger.fail(`Operation failed: ${error.message}`)
     process.exitCode = 1
   }
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

@@ -34,7 +34,7 @@ const { values: cliArgs } = parseArgs({
 /**
  * Generate and write README.md files for all npm packages.
  */
-async function main() {
+async function main(): Promise<void> {
   // Exit early if no relevant files have been modified.
   if (!cliArgs.force && !(await isModified(NPM_TEMPLATES_README_PATH))) {
     return
@@ -50,4 +50,4 @@ async function main() {
   )
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

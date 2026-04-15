@@ -17,7 +17,7 @@ import { getIgnoreGlobs, getLicenseContent } from '../constants/utils.mts'
 
 const logger = getDefaultLogger()
 
-async function main() {
+async function main(): Promise<void> {
   // Stream all LICENSE files in the project, excluding originals and templates.
   const stream = globStreamLicenses(ROOT_PATH, {
     recursive: true,
@@ -33,4 +33,4 @@ async function main() {
   )
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

@@ -26,7 +26,7 @@ import {
 /**
  * Update package.json files and validate subpath exports.
  */
-async function main() {
+async function main(): Promise<void> {
   const useDebug = isDebug()
   const warnings = []
   await Promise.allSettled(
@@ -86,4 +86,4 @@ async function main() {
   }
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

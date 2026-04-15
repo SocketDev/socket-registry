@@ -381,7 +381,7 @@ function formatResults(failures, recommendations) {
 /**
  * Main analysis flow.
  */
-async function main() {
+async function main(): Promise<void> {
   try {
     logger.info('Fetching CI log...')
     const logContent = await fetchLogContent()
@@ -396,7 +396,7 @@ async function main() {
     if (failures.some(f => f.severity === 'error')) {
       process.exitCode = 1
     }
-  } catch (e) {
+  } catch (e: unknown) {
     logger.error(`Analysis failed: ${e.message}`)
     if (cliArgs.verbose) {
       logger.error(e.stack)
@@ -405,4 +405,4 @@ async function main() {
   }
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

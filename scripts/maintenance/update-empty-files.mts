@@ -31,7 +31,7 @@ const { values: cliArgs } = parseArgs({
 
 const AUTO_FILE_GLOB_RECURSIVE = '**/auto.{d.ts,js}'
 
-async function main() {
+async function main(): Promise<void> {
   const ignoreGlobs = getIgnoreGlobs()
   const modifiedAutoFile = (
     await getModifiedFiles({ absolute: true, cwd: NPM_TEMPLATES_PATH })
@@ -77,4 +77,4 @@ async function main() {
   )
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

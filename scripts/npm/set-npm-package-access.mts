@@ -44,7 +44,7 @@ function packageData(data) {
 /**
  * Configure MFA automation for token-based packages.
  */
-async function main() {
+async function main(): Promise<void> {
   // Exit early if not running in CI or with --force.
   const ENV = getEnv()
   if (!(cliArgs.force || ENV.CI)) {
@@ -92,7 +92,7 @@ async function main() {
             })
           ).stdout
           logger.log(stdout)
-        } catch (e) {
+        } catch (e: unknown) {
           const stderr = e?.stderr ?? ''
           fails.push(pkg.printName)
           if (stderr) {
@@ -113,4 +113,4 @@ async function main() {
   }
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

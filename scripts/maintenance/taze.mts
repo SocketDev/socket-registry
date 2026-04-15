@@ -15,7 +15,7 @@ function includesProvenanceDowngradeWarning(output) {
   )
 }
 
-async function main() {
+async function main(): Promise<void> {
   // Run with command line arguments.
   const args = process.argv.slice(2)
 
@@ -62,4 +62,4 @@ async function main() {
   await tazePromise
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

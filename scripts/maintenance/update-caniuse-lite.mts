@@ -12,7 +12,7 @@ import process from 'node:process'
 /**
  * Update caniuse-lite to latest version.
  */
-async function main() {
+async function main(): Promise<void> {
   try {
     // Manually update caniuse-lite to avoid triggering prepare script
     logger.log('Updating caniuse-lite version')
@@ -35,10 +35,10 @@ async function main() {
     }
 
     logger.log('Done')
-  } catch (e) {
+  } catch (e: unknown) {
     logger.fail(`update caniuse-lite: ${e.message}`)
     process.exitCode = 1
   }
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

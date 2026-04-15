@@ -79,7 +79,7 @@ async function getLocalPackageFileHashes(packagePath) {
   let pkgJson
   try {
     pkgJson = JSON.parse(pkgJsonContent)
-  } catch (e) {
+  } catch (e: unknown) {
     throw new Error(`Failed to parse package.json at ${pkgJsonPath}`, {
       cause: e,
     })
@@ -192,7 +192,7 @@ async function getRemotePackageFileHashes(spec) {
               let pkgJson
               try {
                 pkgJson = JSON.parse(content)
-              } catch (e) {
+              } catch (e: unknown) {
                 throw new Error(`Failed to parse package.json at ${fullPath}`, {
                   cause: e,
                 })
@@ -273,7 +273,7 @@ async function hasPackageChanged(pkg, manifest_, options) {
         changed = true
       }
     }
-  } catch (e) {
+  } catch (e: unknown) {
     // If comparison fails, be conservative and assume changes.
     const message = `${pkg.name}: ${e?.message}`
     state?.warnings.push(message)
@@ -379,7 +379,7 @@ function packageData(data) {
 /**
  * Detect changes and bump versions for all packages.
  */
-async function main() {
+async function main(): Promise<void> {
   const npmPackages = Array.from(npmPackageNames, sockRegPkgName => {
     const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
     const pkgJson = readPackageJsonSync(pkgPath)
@@ -452,4 +452,4 @@ async function main() {
   })
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

@@ -90,7 +90,7 @@ async function processFile(filePath, token, dryRun) {
     try {
       const sha = await resolveRefToSha(owner, repo, ref, { token })
       depMap.set(`${owner}/${repoPath}@${ref}`, { owner, ref, repoPath, sha })
-    } catch (e) {
+    } catch (e: unknown) {
       logger.error(
         `Failed to resolve ${owner}/${repoPath}@${ref}: ${e.message}`,
       )
@@ -168,7 +168,7 @@ async function getAllYamlFiles(dir) {
 /**
  * Main function to process all workflow and action files.
  */
-async function main() {
+async function main(): Promise<void> {
   const args = process.argv.slice(2)
   const dryRun = args.includes('--dry-run')
   const token = process.env.GITHUB_TOKEN || ''
@@ -285,4 +285,4 @@ async function main() {
   }
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

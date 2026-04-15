@@ -11,7 +11,7 @@ const logger = getDefaultLogger()
 /**
  * Update engines field in root package.json.
  */
-async function main() {
+async function main(): Promise<void> {
   const rootEditablePkgJson = await readPackageJson(ROOT_PACKAGE_JSON_PATH, {
     editable: true,
     normalize: true,
@@ -26,4 +26,4 @@ async function main() {
   await rootEditablePkgJson.save()
 }
 
-main().catch(e => logger.error(e))
+main().catch((e: unknown) => logger.error(e))

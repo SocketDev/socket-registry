@@ -22,7 +22,7 @@ const registryPath = path.join(rootPath, 'registry')
 const args = process.argv.slice(2)
 const isQuiet = args.includes('--quiet') || args.includes('--silent')
 
-async function main() {
+async function main(): Promise<void> {
   // Build the @socketsecurity/registry package.
   // This is required before running tests that import from it.
   // Pass all arguments through to the registry build script.
