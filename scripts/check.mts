@@ -19,7 +19,7 @@ import { fileURLToPath } from 'node:url'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { printFooter, printHeader } from '@socketsecurity/lib/stdio/header'
 
-import { runCommand, runParallel } from './utils/run-command.mts'
+import { runCommand, runCommandQuiet, runParallel } from './utils/run-command.mts'
 import process from 'node:process'
 
 const logger = getDefaultLogger()
@@ -28,9 +28,30 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.resolve(__dirname, '..')
 const registryDistPath = path.join(rootPath, 'registry', 'dist', 'index.js')
 
+async function runTypeCheck(quiet = false): Promise<number> {
+  if (!quiet) {
+    logger.progress('Checking TypeScript')
+  }
+  const result = await runCommandQuiet('tsgo', ['--noEmit'])
+  if (result.exitCode !== 0) {
+    if (!quiet) {
+      logger.error('Type checks failed')
+    }
+    if (result.stdout) {
+      console.log(result.stdout)
+    }
+    return result.exitCode
+  }
+  if (!quiet) {
+    logger.clearLine().done('Type checks passed')
+  }
+  return 0
+}
+
 async function main(): Promise<void> {
   try {
     const all = process.argv.includes('--all')
+    const quiet = process.argv.includes('--quiet')
     const staged = process.argv.includes('--staged')
     const help = process.argv.includes('--help') || process.argv.includes('-h')
 
@@ -75,13 +96,6 @@ async function main(): Promise<void> {
     const checks = [
       {
         args: lintArgs,
-        command: 'pnpm',
-        options: {
-          ...(process.platform === 'win32' && { shell: true }),
-        },
-      },
-      {
-        args: ['exec', 'tsgo', '--noEmit'],
         command: 'pnpm',
         options: {
           ...(process.platform === 'win32' && { shell: true }),
@@ -144,10 +158,17 @@ async function main(): Promise<void> {
     if (failed) {
       logger.error('Some checks failed')
       process.exitCode = 1
-    } else {
-      logger.success('All checks passed')
-      printFooter()
+      return
     }
+
+    const typeCheckExitCode = await runTypeCheck(quiet)
+    if (typeCheckExitCode !== 0) {
+      process.exitCode = typeCheckExitCode
+      return
+    }
+
+    logger.success('All checks passed')
+    printFooter()
   } catch (error) {
     logger.error(`Check failed: ${error.message}`)
     process.exitCode = 1
