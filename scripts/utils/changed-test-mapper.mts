@@ -136,7 +136,7 @@ export function getTestsToRun(
   let changedFiles
   try {
     changedFiles = staged ? getStagedFilesSync() : getChangedFilesSync()
-  } catch (e: unknown) {
+  } catch (e) {
     // Fallback to all tests if git detection fails
     debug(`Git detection failed: ${e.message}`)
     return {

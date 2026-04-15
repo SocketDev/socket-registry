@@ -208,7 +208,7 @@ async function getWorkspaceCacheVersion() {
     cachedWorkspaceCacheVersion =
       actionYaml?.inputs?.['cache-version']?.default || 'v1'
     return cachedWorkspaceCacheVersion
-  } catch (e: unknown) {
+  } catch (e) {
     logger.warn(
       `Could not read cache version from action.yml: ${e.message}. Using fallback 'v1'.`,
     )
@@ -647,7 +647,7 @@ async function installPackage(packageInfo) {
                 editable: true,
               })
               break
-            } catch (error: unknown) {
+            } catch (error) {
               lastError = error
               if (attempt < JSON_PARSE_MAX_RETRIES) {
                 // Wait longer on each retry (200ms, 400ms).
@@ -720,7 +720,7 @@ async function installPackage(packageInfo) {
           packageSpec = pathToFileURL(repackedTarball).href
           modifiedPackagePath = tempExtractDir
         }
-      } catch (e: unknown) {
+      } catch (e) {
         // If extraction fails, fall back to the original GitHub URL.
         logger.warn(
           `Warning: Could not extract GitHub tarball for ${origPkgName}, using URL directly: ${e.message}`,
@@ -1023,7 +1023,7 @@ async function installPackage(packageInfo) {
       installed: true,
       tempDir: packageTempDir,
     }
-  } catch (error: unknown) {
+  } catch (error) {
     // Clean up temporary GitHub tarball extraction directory.
     if (modifiedPackagePath) {
       try {
@@ -1118,7 +1118,7 @@ async function main(): Promise<void> {
     if (!Array.isArray(downloadResults)) {
       throw new Error('Download results must be an array')
     }
-  } catch (error: unknown) {
+  } catch (error) {
     logger.fail(`Could not read download results: ${error.message}`)
     if (error instanceof SyntaxError) {
       logger.fail(

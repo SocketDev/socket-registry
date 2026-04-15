@@ -92,7 +92,7 @@ async function main(): Promise<void> {
             })
           ).stdout
           logger.log(stdout)
-        } catch (e: unknown) {
+        } catch (e) {
           const stderr = e?.stderr ?? ''
           fails.push(pkg.printName)
           if (stderr) {

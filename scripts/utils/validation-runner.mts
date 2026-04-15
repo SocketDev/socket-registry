@@ -40,7 +40,7 @@ export async function runValidation(validationFn, options = {}) {
     logger.fail(failureMessage || 'Validation failed')
     process.exitCode = 1
     return { passed: false, result }
-  } catch (e: unknown) {
+  } catch (e) {
     logger.fail(`Validation failed: ${e.message}`)
     process.exitCode = 1
     throw e
@@ -54,7 +54,7 @@ export async function runValidation(validationFn, options = {}) {
 export async function runValidationScript(validationFn, options = {}) {
   try {
     await runValidation(validationFn, options)
-  } catch (e: unknown) {
+  } catch (e) {
     const logger = getDefaultLogger()
     logger.fail(`Validation failed: ${e}`)
     process.exitCode = 1

@@ -89,7 +89,7 @@ async function runCommand(command, args = []) {
       )
     }
     return result.stdout
-  } catch (e: unknown) {
+  } catch (e) {
     throw new Error(`Command failed: ${e.message}`)
   }
 }
@@ -226,7 +226,7 @@ async function getPackagesFromManifest() {
     }
 
     return Array.from(packages).sort()
-  } catch (error: unknown) {
+  } catch (error) {
     logger.error('Failed to read manifest.json:', error.message)
     return []
   }
@@ -242,7 +242,7 @@ async function getPackagesFromScope(scope) {
     ])
     const results = JSON.parse(output)
     return results.map(pkg => pkg.name)
-  } catch (error: unknown) {
+  } catch (error) {
     logger.error(`Failed to search for ${scope} packages:`, error.message)
     return []
   }
@@ -316,7 +316,7 @@ async function main(): Promise<void> {
       } else {
         results.failed.push(packageName)
       }
-    } catch (error: unknown) {
+    } catch (error) {
       if (args.debug) {
         logger.groupEnd()
       }

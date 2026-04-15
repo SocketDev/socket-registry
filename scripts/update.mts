@@ -89,7 +89,7 @@ async function main(): Promise<void> {
         logger.log('')
       }
     }
-  } catch (error: unknown) {
+  } catch (error) {
     if (!quiet) {
       logger.fail(`Update failed: ${error.message}`)
     }

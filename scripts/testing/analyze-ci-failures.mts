@@ -396,7 +396,7 @@ async function main(): Promise<void> {
     if (failures.some(f => f.severity === 'error')) {
       process.exitCode = 1
     }
-  } catch (e: unknown) {
+  } catch (e) {
     logger.error(`Analysis failed: ${e.message}`)
     if (cliArgs.verbose) {
       logger.error(e.stack)

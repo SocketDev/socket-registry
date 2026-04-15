@@ -447,7 +447,7 @@ async function main(): Promise<void> {
     } else {
       logger.success('All tests passed!')
     }
-  } catch (error: unknown) {
+  } catch (error) {
     // Ensure spinner is stopped
     try {
       spinner.stop()

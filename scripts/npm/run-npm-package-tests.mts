@@ -110,7 +110,7 @@ async function runPackageTest(socketPkgName) {
 
       logger.success(origPkgName)
       return { package: origPkgName, passed: true }
-    } catch (error: unknown) {
+    } catch (error) {
       logger.fail(origPkgName)
       if (error.stderr) {
         const errorInfo = extractErrorInfo(error.stderr)
@@ -188,7 +188,7 @@ async function runPackageTest(socketPkgName) {
 
     logger.success(origPkgName)
     return { package: origPkgName, passed: true }
-  } catch (error: unknown) {
+  } catch (error) {
     const errorStdout = error.stdout || ''
     const errorStderr = error.stderr || ''
 
@@ -265,7 +265,7 @@ async function main(): Promise<void> {
     try {
       const resultsData = await fs.readFile(installResultsFile, 'utf8')
       installResults = JSON.parse(resultsData)
-    } catch (error: unknown) {
+    } catch (error) {
       logger.warn(`Could not read install results: ${error.message}`)
     }
   } else {
@@ -282,7 +282,7 @@ async function main(): Promise<void> {
             ...r,
             installed: r.downloaded,
           }))
-      } catch (error: unknown) {
+      } catch (error) {
         logger.warn(`Could not read download results: ${error.message}`)
       }
     }

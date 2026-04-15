@@ -485,7 +485,7 @@ async function main(): Promise<void> {
     if (!cliArgs.quiet) {
       logger.log('Finished 🎉')
     }
-  } catch (e: unknown) {
+  } catch (e) {
     logger.fail('Package override finalization encountered an error:')
     logger.error(e)
   }

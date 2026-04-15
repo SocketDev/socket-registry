@@ -40,7 +40,7 @@ export function parseArgs(config = {}) {
       values: result.values,
       positionals: result.positionals || [],
     }
-  } catch (error: unknown) {
+  } catch (error) {
     // If parsing fails in non-strict mode, return empty values.
     if (!strict) {
       return {

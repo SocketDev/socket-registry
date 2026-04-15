@@ -35,7 +35,7 @@ async function readJsonFile(filepath) {
   try {
     const content = await fs.readFile(filepath, 'utf8')
     return JSON.parse(content)
-  } catch (e: unknown) {
+  } catch (e) {
     throw new Error(`Failed to read or parse ${filepath}: ${e.message}`, {
       cause: e,
     })

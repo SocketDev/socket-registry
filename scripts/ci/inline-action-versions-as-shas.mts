@@ -90,7 +90,7 @@ async function processFile(filePath, token, dryRun) {
     try {
       const sha = await resolveRefToSha(owner, repo, ref, { token })
       depMap.set(`${owner}/${repoPath}@${ref}`, { owner, ref, repoPath, sha })
-    } catch (e: unknown) {
+    } catch (e) {
       logger.error(
         `Failed to resolve ${owner}/${repoPath}@${ref}: ${e.message}`,
       )

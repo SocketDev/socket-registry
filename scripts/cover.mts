@@ -305,7 +305,7 @@ try {
   }
 
   process.exitCode = exitCode
-} catch (error: unknown) {
+} catch (error) {
   logger.error(`Coverage script failed: ${error.message}`)
   process.exitCode = 1
 }

@@ -235,7 +235,7 @@ async function main(): Promise<void> {
     logger.log('\n────────────────────────────────────────────────────────────')
     logger.success('Publish completed successfully!')
     process.exitCode = 0
-  } catch (error: unknown) {
+  } catch (error) {
     logger.error(`Publish runner failed: ${error.message}`)
     process.exitCode = 1
   }

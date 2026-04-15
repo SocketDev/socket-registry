@@ -287,7 +287,7 @@ async function main(): Promise<void> {
       logger.info('Fix these issues before pushing to avoid CI failures.')
       process.exitCode = 1
     }
-  } catch (e: unknown) {
+  } catch (e) {
     logger.error(`CI reproduction failed: ${e.message}`)
     if (cliArgs.verbose) {
       logger.error(e.stack)

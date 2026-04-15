@@ -35,7 +35,7 @@ async function main(): Promise<void> {
     }
 
     logger.log('Done')
-  } catch (e: unknown) {
+  } catch (e) {
     logger.fail(`update caniuse-lite: ${e.message}`)
     process.exitCode = 1
   }

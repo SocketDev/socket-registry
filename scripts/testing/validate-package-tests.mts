@@ -110,7 +110,7 @@ async function validatePackageJson(_packageName, packageDir) {
         message: 'Missing "version" field in package.json',
       })
     }
-  } catch (e: unknown) {
+  } catch (e) {
     issues.push({
       type: VALIDATION_CHECKS.PACKAGE_JSON,
       severity: 'error',
@@ -193,7 +193,7 @@ async function validateDependencies(packageName, packageDir) {
         message: 'node_modules directory not created after installation',
       })
     }
-  } catch (e: unknown) {
+  } catch (e) {
     issues.push({
       type: VALIDATION_CHECKS.DEPENDENCIES,
       severity: 'error',
@@ -236,7 +236,7 @@ async function validateEslintConfig(_packageName, packageDir) {
           message: `ESLint configuration is invalid: ${result.stderr}`,
         })
       }
-    } catch (e: unknown) {
+    } catch (e) {
       issues.push({
         type: VALIDATION_CHECKS.ESLINT_CONFIG,
         severity: 'warning',
@@ -304,7 +304,7 @@ async function validateModuleResolution(_packageName, packageDir) {
         }
       }
     }
-  } catch (e: unknown) {
+  } catch (e) {
     issues.push({
       type: VALIDATION_CHECKS.MODULE_RESOLUTION,
       severity: 'warning',

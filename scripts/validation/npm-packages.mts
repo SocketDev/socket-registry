@@ -121,7 +121,7 @@ async function validatePackage(socketPkgName) {
       versionSpec,
       overridePath,
     }
-  } catch (error: unknown) {
+  } catch (error) {
     writeProgress(LOG_SYMBOLS.fail)
     return {
       package: origPkgName,

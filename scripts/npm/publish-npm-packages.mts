@@ -430,7 +430,7 @@ async function publishTrusted(pkg, state, options) {
       }
       // Success - exit retry loop.
       return
-    } catch (e: unknown) {
+    } catch (e) {
       lastError = e
       const stderr = e?.stderr ?? ''
       // Don't retry if package already exists.

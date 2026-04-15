@@ -185,7 +185,7 @@ export async function processWithSpinner(items, processor, options = {}) {
         try {
           const result = await processor(item)
           results.push(result)
-        } catch (error: unknown) {
+        } catch (error) {
           errors.push({ item, error })
         }
       },
@@ -271,7 +271,7 @@ export async function copySocketOverride(fromPath, toPath, options) {
       recursive: true,
       ...(WIN32 ? { maxRetries: 3, retryDelay: 100 } : {}),
     })
-  } catch (e: unknown) {
+  } catch (e) {
     if (
       e.code === 'ERR_FS_CP_EINVAL' ||
       e.message?.includes('Source and destination must not be the same')
@@ -308,7 +308,7 @@ export async function runCommand(command, args, options = {}) {
       ...options,
     })
     return { stdout: result.stdout, stderr: result.stderr }
-  } catch (error: unknown) {
+  } catch (error) {
     const commandError = new Error(
       `Command failed: ${command} ${args.join(' ')}`,
     )
@@ -447,7 +447,7 @@ export async function installPackageForTesting(
     let pkgJson
     try {
       pkgJson = JSON.parse(await fs.readFile(pkgJsonPath, 'utf8'))
-    } catch (e: unknown) {
+    } catch (e) {
       throw new Error(`Failed to parse package.json at ${pkgJsonPath}`, {
         cause: e,
       })
@@ -518,7 +518,7 @@ export async function installPackageForTesting(
       installed: true,
       packagePath: installedPath,
     }
-  } catch (error: unknown) {
+  } catch (error) {
     return {
       installed: false,
       reason: error.message,

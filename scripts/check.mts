@@ -148,7 +148,7 @@ async function main(): Promise<void> {
       logger.success('All checks passed')
       printFooter()
     }
-  } catch (error: unknown) {
+  } catch (error) {
     logger.error(`Check failed: ${error.message}`)
     process.exitCode = 1
   }

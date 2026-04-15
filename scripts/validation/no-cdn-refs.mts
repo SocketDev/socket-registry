@@ -143,7 +143,7 @@ async function checkFileForCdnRefs(filePath) {
     }
 
     return violations
-  } catch (error: unknown) {
+  } catch (error) {
     // Skip files we can't read (likely binary despite extension)
     if (error.code === 'EISDIR' || error.message.includes('ENOENT')) {
       return []
