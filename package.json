@@ -42,7 +42,7 @@
     "precommit": "pnpm run check --staged",
     "security": "agentshield scan && { command -v zizmor >/dev/null && zizmor .github/ || echo 'zizmor not installed — run pnpm run setup to install'; }",
     "setup": "node scripts/setup.mjs",
-    "prepare": "husky && pnpm run build",
+    "prepare": "husky",
     "prepublishOnly": "echo 'ERROR: Use GitHub Actions workflow for publishing' && exit 1",
     "publish": "node scripts/publish.mjs",
     "publish:ci": "node scripts/publish.mjs --skip-build --tag ${DIST_TAG:-latest}",
