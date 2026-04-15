@@ -23,29 +23,33 @@ const logger = getDefaultLogger()
 const quiet = process.argv.includes('--quiet')
 
 const log = {
-  error: msg => logger.error(msg),
-  info: msg => !quiet && logger.info(msg),
-  step: msg => !quiet && logger.substep(msg),
-  success: msg => !quiet && logger.success(msg),
-  warn: msg => logger.warn(msg),
+  error: (msg: string) => logger.error(msg),
+  info: (msg: string) => !quiet && logger.info(msg),
+  step: (msg: string) => !quiet && logger.substep(msg),
+  success: (msg: string) => !quiet && logger.success(msg),
+  warn: (msg: string) => logger.warn(msg),
 }
 
 // Tools cached in repo root (.cache/external-tools/), gitignored via **/.cache.
-function getCacheDir() {
+function getCacheDir(): string {
   if (process.env.EXTERNAL_TOOLS_CACHE) {
     return process.env.EXTERNAL_TOOLS_CACHE
   }
   return path.join(process.cwd(), '.cache', 'external-tools')
 }
 
-function getToolCachePath(tool, version) {
-  const archMap = { arm64: 'aarch64', x64: 'x86_64' }
-  const osMap = { darwin: 'darwin', linux: 'linux', win32: 'win32' }
+function getToolCachePath(tool: string, version: string): string {
+  const archMap: Record<string, string> = { arm64: 'aarch64', x64: 'x86_64' }
+  const osMap: Record<string, string> = {
+    darwin: 'darwin',
+    linux: 'linux',
+    win32: 'win32',
+  }
   const target = `${osMap[process.platform] || process.platform}-${archMap[process.arch] || process.arch}`
   return path.join(getCacheDir(), tool, `${version}-${target}`)
 }
 
-function computeSha256(filePath) {
+function computeSha256(filePath: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const hash = createHash('sha256')
     const stream = createReadStream(filePath)
@@ -55,7 +59,10 @@ function computeSha256(filePath) {
   })
 }
 
-function verifyCacheIntegrity(cachePath, expectedSha256) {
+function verifyCacheIntegrity(
+  cachePath: string,
+  expectedSha256: string,
+): boolean {
   const checksumFile = path.join(cachePath, '.checksum')
   if (!existsSync(checksumFile)) return false
   try {
@@ -65,7 +72,7 @@ function verifyCacheIntegrity(cachePath, expectedSha256) {
   }
 }
 
-function isProcessAlive(pid) {
+function isProcessAlive(pid: number): boolean {
   try {
     process.kill(pid, 0)
     return true
@@ -74,7 +81,10 @@ function isProcessAlive(pid) {
   }
 }
 
-async function acquireLock(lockPath, timeoutMs = 120_000) {
+async function acquireLock(
+  lockPath: string,
+  timeoutMs: number = 120_000,
+): Promise<() => Promise<void>> {
   await mkdir(path.dirname(lockPath), { recursive: true })
   const start = Date.now()
   while (Date.now() - start < timeoutMs) {
@@ -85,8 +95,13 @@ async function acquireLock(lockPath, timeoutMs = 120_000) {
       return async () => {
         await unlink(lockPath).catch(() => {})
       }
-    } catch (err) {
-      if (err.code === 'EEXIST') {
+    } catch (err: unknown) {
+      if (
+        err &&
+        typeof err === 'object' &&
+        'code' in err &&
+        (err as { code: string }).code === 'EEXIST'
+      ) {
         try {
           const pid = parseInt(readFileSync(lockPath, 'utf8').trim(), 10)
           if (pid && !isProcessAlive(pid)) {
@@ -94,7 +109,7 @@ async function acquireLock(lockPath, timeoutMs = 120_000) {
             continue
           }
         } catch {}
-        await new Promise(r => setTimeout(r, 500))
+        await new Promise<void>(r => setTimeout(r, 500))
         continue
       }
       throw err
@@ -103,7 +118,22 @@ async function acquireLock(lockPath, timeoutMs = 120_000) {
   throw new Error(`Timed out waiting for lock: ${lockPath}`)
 }
 
-async function downloadAndVerify(tool, config) {
+interface PlatformEntry {
+  asset: string
+  sha256: string
+}
+
+interface ToolConfig {
+  checksums?: Record<string, PlatformEntry>
+  release?: string
+  repository: string
+  version: string
+}
+
+async function downloadAndVerify(
+  tool: string,
+  config: ToolConfig,
+): Promise<string | undefined> {
   const platform = process.platform === 'win32' ? 'win' : process.platform
   const platformKey = `${platform}-${process.arch}`
   const platformEntry = config.checksums?.[platformKey]
@@ -246,7 +276,10 @@ async function main(): Promise<void> {
     log.warn('No external-tools.json found')
     return
   }
-  const config = JSON.parse(await readFile(configPath, 'utf8'))
+  const config = JSON.parse(await readFile(configPath, 'utf8')) as Record<
+    string,
+    ToolConfig
+  >
 
   let allOk = true
   for (const [tool, toolConfig] of Object.entries(config)) {
@@ -258,8 +291,10 @@ async function main(): Promise<void> {
       } else {
         log.warn(`${tool}: skipped (unsupported platform)`)
       }
-    } catch (err) {
-      log.error(`Failed to install ${tool}: ${err.message}`)
+    } catch (err: unknown) {
+      log.error(
+        `Failed to install ${tool}: ${err instanceof Error ? err.message : String(err)}`,
+      )
       allOk = false
     }
   }

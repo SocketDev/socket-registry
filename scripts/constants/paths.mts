@@ -12,14 +12,14 @@ import process from 'node:process'
 /**
  * Normalize path separators for cross-platform compatibility.
  */
-function normalizePath(p) {
+function normalizePath(p: string): string {
   return p.split(path.sep).join(path.posix.sep)
 }
 
 /**
  * Find project root by looking for pnpm-workspace.yaml.
  */
-function findProjectRoot() {
+function findProjectRoot(): string {
   let currentPath = process.cwd()
   const root = path.parse(currentPath).root
 

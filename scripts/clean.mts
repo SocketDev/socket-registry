@@ -23,12 +23,21 @@ const rootPath = path.resolve(
 /**
  * Clean specific directories.
  */
-async function cleanDirectories(tasks, options = {}) {
+interface CleanTask {
+  name: string
+  pattern?: string
+  patterns?: string[]
+}
+
+async function cleanDirectories(
+  tasks: CleanTask[],
+  options: { quiet?: boolean } = {},
+): Promise<number> {
   const { quiet = false } = options
 
   for (const task of tasks) {
     const { name, pattern, patterns } = task
-    const patternsToDelete = patterns || [pattern]
+    const patternsToDelete = patterns ?? (pattern ? [pattern] : [])
 
     if (!quiet) {
       logger.progress(`Cleaning ${name}`)

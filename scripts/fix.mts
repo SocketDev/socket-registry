@@ -17,7 +17,16 @@ import { spawn } from '@socketsecurity/lib/spawn'
 const WIN32 = process.platform === 'win32'
 const logger = getDefaultLogger()
 
-async function run(cmd, args, { label, required = true } = {}) {
+interface RunOptions {
+  label?: string
+  required?: boolean
+}
+
+async function run(
+  cmd: string,
+  args: string[],
+  { label, required = true }: RunOptions = {},
+): Promise<number> {
   try {
     const result = await spawn(cmd, args, {
       shell: WIN32,

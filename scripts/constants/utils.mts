@@ -20,44 +20,44 @@ import {
 /**
  * Get cached default which command options with augmented PATH.
  */
-let _defaultWhichOptions
-export function getDefaultWhichOptions() {
+let _defaultWhichOptions: { path: string } | undefined
+export function getDefaultWhichOptions(): { path: string } {
   if (_defaultWhichOptions === undefined) {
     _defaultWhichOptions = {
       __proto__: null,
-      path: `${ROOT_NODE_MODULES_BIN_PATH}${path.delimiter}${process.env.PATH}`,
-    }
+      path: `${ROOT_NODE_MODULES_BIN_PATH}${path.delimiter}${process.env['PATH']}`,
+    } as { path: string }
   }
-  return _defaultWhichOptions
+  return _defaultWhichOptions!
 }
 
 /**
  * Get root LICENSE file content.
  */
-let _licenseContent
-export function getLicenseContent() {
+let _licenseContent: string | undefined
+export function getLicenseContent(): string {
   if (_licenseContent === undefined) {
     _licenseContent = fs.readFileSync(ROOT_LICENSE_PATH, 'utf8')
   }
-  return _licenseContent
+  return _licenseContent!
 }
 
 /**
  * Get git executable path.
  */
-let _gitExecPath
-export function getGitExecPath() {
+let _gitExecPath: string | undefined
+export function getGitExecPath(): string {
   if (_gitExecPath === undefined) {
     _gitExecPath = which.sync('git', getDefaultWhichOptions())
   }
-  return _gitExecPath
+  return _gitExecPath!
 }
 
 /**
  * Get tsx executable path.
  */
-let _tsxExecPath
-export function getTsxExecPath() {
+let _tsxExecPath: string | undefined
+export function getTsxExecPath(): string {
   if (_tsxExecPath === undefined) {
     const tsxPath = path.join(ROOT_NODE_MODULES_BIN_PATH, 'tsx')
     if (fs.existsSync(tsxPath)) {
@@ -66,14 +66,14 @@ export function getTsxExecPath() {
       _tsxExecPath = which.sync('tsx', getDefaultWhichOptions())
     }
   }
-  return _tsxExecPath
+  return _tsxExecPath!
 }
 
 /**
  * Parse gitignore file and return ignore patterns.
  */
-let _gitIgnorePatterns
-export function getGitIgnorePatterns() {
+let _gitIgnorePatterns: string[] | undefined
+export function getGitIgnorePatterns(): string[] {
   if (_gitIgnorePatterns === undefined) {
     const gitignorePath = path.join(ROOT_PATH, '.gitignore')
     const content = fs.readFileSync(gitignorePath, 'utf8')
@@ -82,14 +82,14 @@ export function getGitIgnorePatterns() {
       .map(line => line.trim())
       .filter(line => line && !line.startsWith('#'))
   }
-  return _gitIgnorePatterns
+  return _gitIgnorePatterns!
 }
 
 /**
  * Get merged ignore globs from gitignore and standard exclusions.
  */
-let _ignoreGlobs
-export function getIgnoreGlobs() {
+let _ignoreGlobs: readonly string[] | undefined
+export function getIgnoreGlobs(): readonly string[] {
   if (_ignoreGlobs === undefined) {
     _ignoreGlobs = Object.freeze([
       ...new Set([
@@ -107,7 +107,7 @@ export function getIgnoreGlobs() {
       ]),
     ])
   }
-  return _ignoreGlobs
+  return _ignoreGlobs!
 }
 
 /**

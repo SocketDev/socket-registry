@@ -7,7 +7,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 // Get root path - registry-specific utility.
-export const getRootPath = importMetaUrl => {
+export const getRootPath = (importMetaUrl: string): string => {
   const __dirname = path.dirname(fileURLToPath(importMetaUrl))
   return path.join(__dirname, '..')
 }

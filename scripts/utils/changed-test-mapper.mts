@@ -18,7 +18,7 @@ const logger = getDefaultLogger()
 const rootPath = path.resolve(process.cwd())
 const DEBUG = process.env.DEBUG_TEST_MAPPER === '1'
 
-function debug(message) {
+function debug(message: string): void {
   if (DEBUG) {
     logger.log(`[test-mapper] ${message}`)
   }
@@ -44,7 +44,7 @@ const CORE_FILES = [
  * Map source files to their corresponding test files.
  * Returns array of test paths or ['all'] for core files.
  */
-function mapSourceToTests(filepath) {
+function mapSourceToTests(filepath: string): string[] {
   const normalized = normalizePath(filepath)
 
   // Skip non-code files
@@ -101,7 +101,20 @@ function mapSourceToTests(filepath) {
  * @throws {Error} When root path does not exist.
  * @throws {Error} When git detection fails.
  */
-export function getTestsToRun(options = {}) {
+interface GetTestsToRunOptions {
+  all?: boolean
+  staged?: boolean
+}
+
+interface TestsToRunResult {
+  tests: string[] | 'all' | undefined
+  reason?: string
+  mode: string
+}
+
+export function getTestsToRun(
+  options: GetTestsToRunOptions = {},
+): TestsToRunResult {
   const { all = false, staged = false } = options
 
   // Validate root path exists
@@ -141,7 +154,7 @@ export function getTestsToRun(options = {}) {
     return { tests: undefined, mode }
   }
 
-  const testFiles = new Set()
+  const testFiles = new Set<string>()
   let runAllTests = false
   let runAllReason = ''
 

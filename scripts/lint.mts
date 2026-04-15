@@ -41,7 +41,7 @@ const CONFIG_PATTERNS = [
 /**
  * Get oxfmt exclude patterns from .oxfmtrc.json.
  */
-function getOxfmtExcludePatterns() {
+function getOxfmtExcludePatterns(): string[] {
   try {
     const oxfmtConfigPath = path.join(process.cwd(), '.oxfmtrc.json')
     if (!existsSync(oxfmtConfigPath)) {
@@ -59,7 +59,7 @@ function getOxfmtExcludePatterns() {
 /**
  * Check if a file matches any of the exclude patterns.
  */
-function isExcludedByOxfmt(file, excludePatterns) {
+function isExcludedByOxfmt(file: string, excludePatterns: string[]): boolean {
   for (const pattern of excludePatterns) {
     // Convert glob pattern to regex-like matching.
     // Support **/ for directory wildcards and * for filename wildcards.
@@ -82,7 +82,10 @@ function isExcludedByOxfmt(file, excludePatterns) {
 /**
  * Check if we should run all linters based on changed files.
  */
-function shouldRunAllLinters(changedFiles) {
+function shouldRunAllLinters(changedFiles: string[]): {
+  runAll: boolean
+  reason?: string
+} {
   for (const file of changedFiles) {
     // Core library files
     if (CORE_FILES.has(file)) {
@@ -103,7 +106,7 @@ function shouldRunAllLinters(changedFiles) {
 /**
  * Filter files to only those that should be linted.
  */
-function filterLintableFiles(files) {
+function filterLintableFiles(files: string[]): string[] {
   // Only include extensions actually supported by oxfmt/oxlint
   const lintableExtensions = new Set([
     '.js',
@@ -139,18 +142,27 @@ function filterLintableFiles(files) {
  * @param {{ stderr?: string }} result
  * @returns {boolean}
  */
-function isOxfmtNoFilesResult(result) {
+function isOxfmtNoFilesResult(result: { stderr?: string }): boolean {
   const { stderr } = result
   return (
-    stderr?.includes('Expected at least one target file') ||
-    stderr?.includes('No files were processed in the specified paths')
+    (stderr?.includes('Expected at least one target file') ||
+      stderr?.includes('No files were processed in the specified paths')) ??
+    false
   )
 }
 
 /**
  * Run linters on specific files.
  */
-async function runLintOnFiles(files, options = {}) {
+interface LintOptions {
+  fix?: boolean
+  quiet?: boolean
+}
+
+async function runLintOnFiles(
+  files: string[],
+  options: LintOptions = {},
+): Promise<number> {
   const { fix = false, quiet = false } = options
 
   if (!files.length) {
@@ -217,7 +229,7 @@ async function runLintOnFiles(files, options = {}) {
 /**
  * Run linters on all files.
  */
-async function runLintOnAll(options = {}) {
+async function runLintOnAll(options: LintOptions = {}): Promise<number> {
   const { fix = false, quiet = false } = options
 
   if (!quiet) {
@@ -272,7 +284,21 @@ async function runLintOnAll(options = {}) {
 /**
  * Get files to lint based on options.
  */
-async function getFilesToLint(options) {
+interface GetFilesToLintOptions {
+  all?: boolean
+  changed?: boolean
+  staged?: boolean
+}
+
+interface FilesToLintResult {
+  files: string[] | 'all' | undefined
+  reason?: string
+  mode: string
+}
+
+async function getFilesToLint(
+  options: GetFilesToLintOptions,
+): Promise<FilesToLintResult> {
   const { all, changed, staged } = options
 
   // If --all, return early
@@ -308,7 +334,7 @@ async function getFilesToLint(options) {
 
   // Check if we should run all based on changed files
   const { reason, runAll } = shouldRunAllLinters(changedFiles)
-  if (runAll) {
+  if (runAll && reason) {
     return { files: 'all', reason, mode: 'all' }
   }
 
@@ -318,7 +344,7 @@ async function getFilesToLint(options) {
     return { files: undefined, reason: 'no lintable files changed', mode }
   }
 
-  return { files: lintableFiles, reason: undefined, mode }
+  return { files: lintableFiles, mode }
 }
 
 async function main(): Promise<void> {
@@ -381,6 +407,7 @@ async function main(): Promise<void> {
     }
 
     const quiet = isQuiet(values)
+    const fix = Boolean(values['fix'])
 
     if (!quiet) {
       printHeader('Lint Runner')
@@ -396,7 +423,7 @@ async function main(): Promise<void> {
         logger.step('Linting specified files')
       }
       exitCode = await runLintOnFiles(files, {
-        fix: values.fix,
+        fix,
         quiet,
       })
     } else {
@@ -414,7 +441,7 @@ async function main(): Promise<void> {
           logger.step(`Linting all files (${reason})`)
         }
         exitCode = await runLintOnAll({
-          fix: values.fix,
+          fix,
           quiet,
         })
       } else {
@@ -423,7 +450,7 @@ async function main(): Promise<void> {
           logger.step(`Linting ${modeText} files`)
         }
         exitCode = await runLintOnFiles(files, {
-          fix: values.fix,
+          fix,
           quiet,
         })
       }

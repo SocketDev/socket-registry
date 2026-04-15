@@ -7,6 +7,8 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import type { SpawnOptions } from '@socketsecurity/lib/spawn'
+
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { spawn } from '@socketsecurity/lib/spawn'
@@ -21,7 +23,11 @@ const WIN32 = process.platform === 'win32'
 /**
  * Run a command with spawn.
  */
-async function runCommand(command, args = [], options = {}) {
+async function runCommand(
+  command: string,
+  args: string[] = [],
+  options: SpawnOptions = {},
+): Promise<number> {
   const result = await spawn(command, args, {
     stdio: 'inherit',
     cwd: rootPath,
@@ -34,7 +40,7 @@ async function runCommand(command, args = [], options = {}) {
 /**
  * Validate that build artifacts exist.
  */
-async function validateBuildArtifacts() {
+async function validateBuildArtifacts(): Promise<boolean> {
   logger.step('Validating build artifacts')
 
   // Check for registry package dist directory
@@ -59,7 +65,15 @@ async function validateBuildArtifacts() {
  * Publish packages using the complex multi-package flow.
  * Delegates to scripts/npm/publish-npm-packages.mjs.
  */
-async function publishComplex(options = {}) {
+interface PublishOptions {
+  force?: boolean
+  forcePublish?: boolean
+  forceRegistry?: boolean
+  skipNpmPackages?: boolean
+  tag?: string
+}
+
+async function publishComplex(options: PublishOptions = {}): Promise<boolean> {
   const {
     force = false,
     forcePublish = false,
@@ -194,13 +208,23 @@ async function main(): Promise<void> {
     }
 
     // Publish using complex flow (delegates to package-npm-publish script)
-    const publishSuccess = await publishComplex({
-      force: values.force,
-      forcePublish: values['force-publish'],
-      forceRegistry: values['force-registry'],
-      skipNpmPackages: values['skip-npm-packages'],
-      tag: values.tag,
-    })
+    const publishOpts: PublishOptions = {}
+    if (values['force']) {
+      publishOpts.force = true
+    }
+    if (values['force-publish']) {
+      publishOpts.forcePublish = true
+    }
+    if (values['force-registry']) {
+      publishOpts.forceRegistry = true
+    }
+    if (values['skip-npm-packages']) {
+      publishOpts.skipNpmPackages = true
+    }
+    if (values['tag']) {
+      publishOpts.tag = values['tag'] as string
+    }
+    const publishSuccess = await publishComplex(publishOpts)
 
     if (!publishSuccess && !values.force) {
       logger.error('Publish failed')

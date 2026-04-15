@@ -3,6 +3,8 @@
  * Combines check, build, and test steps with clean, consistent output.
  */
 
+import type { ChildProcess, SpawnOptions } from 'node:child_process'
+
 import { spawn } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
@@ -42,7 +44,7 @@ const rootPath = path.resolve(__dirname, '..')
 const nodeModulesBinPath = path.join(rootPath, 'node_modules', '.bin')
 
 // Track running processes for cleanup
-const runningProcesses = new Set()
+const runningProcesses = new Set<ChildProcess>()
 
 // Setup exit handler
 const removeExitHandler = onExit((_code, signal) => {
@@ -65,7 +67,11 @@ const removeExitHandler = onExit((_code, signal) => {
   }
 })
 
-async function runCommand(command, args = [], options = {}) {
+async function runCommand(
+  command: string,
+  args: string[] = [],
+  options: SpawnOptions = {},
+): Promise<number> {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
       stdio: 'inherit',
@@ -75,19 +81,29 @@ async function runCommand(command, args = [], options = {}) {
 
     runningProcesses.add(child)
 
-    child.on('exit', code => {
+    child.on('exit', (code: number | null) => {
       runningProcesses.delete(child)
       resolve(code || 0)
     })
 
-    child.on('error', error => {
+    child.on('error', (error: Error) => {
       runningProcesses.delete(child)
       reject(error)
     })
   })
 }
 
-async function runCommandWithOutput(command, args = [], options = {}) {
+interface CommandOutput {
+  code: number
+  stdout: string
+  stderr: string
+}
+
+async function runCommandWithOutput(
+  command: string,
+  args: string[] = [],
+  options: SpawnOptions = {},
+): Promise<CommandOutput> {
   return new Promise((resolve, reject) => {
     let stdout = ''
     let stderr = ''
@@ -100,30 +116,30 @@ async function runCommandWithOutput(command, args = [], options = {}) {
     runningProcesses.add(child)
 
     if (child.stdout) {
-      child.stdout.on('data', data => {
+      child.stdout.on('data', (data: Buffer) => {
         stdout += data.toString()
       })
     }
 
     if (child.stderr) {
-      child.stderr.on('data', data => {
+      child.stderr.on('data', (data: Buffer) => {
         stderr += data.toString()
       })
     }
 
-    child.on('exit', code => {
+    child.on('exit', (code: number | null) => {
       runningProcesses.delete(child)
       resolve({ code: code || 0, stdout, stderr })
     })
 
-    child.on('error', error => {
+    child.on('error', (error: Error) => {
       runningProcesses.delete(child)
       reject(error)
     })
   })
 }
 
-async function runCheck() {
+async function runCheck(): Promise<number> {
   logger.step('Running checks')
 
   // Run fix (auto-format) quietly since it has its own output
@@ -179,7 +195,7 @@ async function runCheck() {
   return 0
 }
 
-async function runBuild() {
+async function runBuild(): Promise<number> {
   const distIndexPath = path.join(rootPath, 'dist', 'index.js')
   if (!existsSync(distIndexPath)) {
     logger.step('Building project')
@@ -188,12 +204,26 @@ async function runBuild() {
   return 0
 }
 
-async function runTests(options, positionals = []) {
+interface TestOptions {
+  all?: boolean
+  coverage?: boolean
+  force?: boolean
+  staged?: boolean
+  update?: boolean
+}
+
+async function runTests(
+  options: TestOptions,
+  positionals: string[] = [],
+): Promise<number> {
   const { all, coverage, force, staged, update } = options
-  const runAll = all || force
+  const runAll = Boolean(all || force)
 
   // Get tests to run
-  const testInfo = getTestsToRun({ staged, all: runAll })
+  const testInfo = getTestsToRun({
+    staged: Boolean(staged),
+    all: runAll,
+  })
   const { mode, reason, tests: testsToRun } = testInfo
 
   // No tests needed
@@ -401,7 +431,13 @@ async function main(): Promise<void> {
 
     // Run tests
     exitCode = await runTests(
-      { ...values, coverage: withCoverage },
+      {
+        all: Boolean(values['all']),
+        coverage: Boolean(withCoverage),
+        force: Boolean(values['force']),
+        staged: Boolean(values['staged']),
+        update: Boolean(values['update']),
+      },
       positionals,
     )
 

@@ -1,5 +1,7 @@
 /** @fileoverview Utility for running shell commands with proper error handling. */
 
+import type { SpawnOptions } from '@socketsecurity/lib/spawn'
+
 import { spawn, spawnSync } from '@socketsecurity/lib/spawn'
 
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
@@ -14,7 +16,11 @@ const logger = getDefaultLogger()
  * @param {object} options - Spawn options
  * @returns {Promise<number>} Exit code
  */
-export async function runCommand(command, args = [], options = {}) {
+export async function runCommand(
+  command: string,
+  args: string[] = [],
+  options: SpawnOptions = {},
+): Promise<number> {
   try {
     const result = await spawn(command, args, {
       stdio: 'inherit',
@@ -26,7 +32,7 @@ export async function runCommand(command, args = [], options = {}) {
     // spawn() from @socketsecurity/lib throws on non-zero exit
     // Return the exit code from the error
     if (error && typeof error === 'object' && 'code' in error) {
-      return error.code
+      return (error as { code: number }).code
     }
     throw error
   }
@@ -39,7 +45,11 @@ export async function runCommand(command, args = [], options = {}) {
  * @param {object} options - Spawn options
  * @returns {number} Exit code
  */
-export function runCommandSync(command, args = [], options = {}) {
+export function runCommandSync(
+  command: string,
+  args: string[] = [],
+  options: SpawnOptions = {},
+): number {
   const result = spawnSync(command, args, {
     stdio: 'inherit',
     ...(process.platform === 'win32' && { shell: true }),
@@ -56,7 +66,11 @@ export function runCommandSync(command, args = [], options = {}) {
  * @param {object} options - Spawn options
  * @returns {Promise<number>} Exit code
  */
-export async function runPnpmScript(scriptName, extraArgs = [], options = {}) {
+export async function runPnpmScript(
+  scriptName: string,
+  extraArgs: string[] = [],
+  options: SpawnOptions = {},
+): Promise<number> {
   return runCommand('pnpm', ['run', scriptName, ...extraArgs], options)
 }
 
@@ -65,7 +79,13 @@ export async function runPnpmScript(scriptName, extraArgs = [], options = {}) {
  * @param {Array<{command: string, args?: string[], options?: object}>} commands
  * @returns {Promise<number>} Exit code of first failing command, or 0 if all succeed
  */
-export async function runSequence(commands) {
+export interface CommandSpec {
+  command: string
+  args?: string[]
+  options?: SpawnOptions
+}
+
+export async function runSequence(commands: CommandSpec[]): Promise<number> {
   for (const { args = [], command, options = {} } of commands) {
     const exitCode = await runCommand(command, args, options)
     if (exitCode !== 0) {
@@ -81,11 +101,19 @@ export async function runSequence(commands) {
  * where child processes may exit but leave stdio handles with pending writes.
  * This function waits for those handles to clear before returning.
  */
-async function waitForStdioFlush(timeoutMs = 1000) {
+async function waitForStdioFlush(timeoutMs: number = 1000): Promise<void> {
   const startTime = Date.now()
 
   while (Date.now() - startTime < timeoutMs) {
-    const handles = process._getActiveHandles()
+    const handles = (
+      process as unknown as {
+        _getActiveHandles(): Array<{
+          constructor?: { name?: string }
+          _isStdio?: boolean
+          _writableState?: { pendingcb: number }
+        }>
+      }
+    )._getActiveHandles()
 
     // Check if we still have stdio handles with pending writes.
     const hasStdioWithPendingWrites = handles.some(handle => {
@@ -112,7 +140,7 @@ async function waitForStdioFlush(timeoutMs = 1000) {
  * @param {Array<{command: string, args?: string[], options?: object}>} commands
  * @returns {Promise<number[]>} Array of exit codes
  */
-export async function runParallel(commands) {
+export async function runParallel(commands: CommandSpec[]): Promise<number[]> {
   const promises = commands.map(({ args = [], command, options = {} }) =>
     runCommand(command, args, options),
   )
@@ -133,7 +161,17 @@ export async function runParallel(commands) {
  * @param {object} options - Spawn options
  * @returns {Promise<{exitCode: number, stdout: string, stderr: string}>}
  */
-export async function runCommandQuiet(command, args = [], options = {}) {
+export interface QuietCommandResult {
+  exitCode: number
+  stdout: string
+  stderr: string
+}
+
+export async function runCommandQuiet(
+  command: string,
+  args: string[] = [],
+  options: SpawnOptions = {},
+): Promise<QuietCommandResult> {
   try {
     const result = await spawn(command, args, {
       ...options,
@@ -144,8 +182,8 @@ export async function runCommandQuiet(command, args = [], options = {}) {
 
     return {
       exitCode: result.code,
-      stderr: result.stderr,
-      stdout: result.stdout,
+      stderr: result.stderr as string,
+      stdout: result.stdout as string,
     }
   } catch (error: unknown) {
     // spawn() from @socketsecurity/lib throws on non-zero exit
@@ -157,10 +195,11 @@ export async function runCommandQuiet(command, args = [], options = {}) {
       'stdout' in error &&
       'stderr' in error
     ) {
+      const spawnErr = error as { code: number; stdout: string; stderr: string }
       return {
-        exitCode: error.code,
-        stderr: error.stderr,
-        stdout: error.stdout,
+        exitCode: spawnErr.code,
+        stderr: spawnErr.stderr,
+        stdout: spawnErr.stdout,
       }
     }
     throw error
@@ -175,10 +214,16 @@ export async function runCommandQuiet(command, args = [], options = {}) {
  * @returns {Promise<void>}
  * @throws {Error} If command exits with non-zero code
  */
-export async function runCommandStrict(command, args = [], options = {}) {
+export async function runCommandStrict(
+  command: string,
+  args: string[] = [],
+  options: SpawnOptions = {},
+): Promise<void> {
   const exitCode = await runCommand(command, args, options)
   if (exitCode !== 0) {
-    const error = new Error(`Command failed: ${command} ${args.join(' ')}`)
+    const error: Error & { code?: number } = new Error(
+      `Command failed: ${command} ${args.join(' ')}`,
+    )
     error.code = exitCode
     throw error
   }
@@ -192,14 +237,19 @@ export async function runCommandStrict(command, args = [], options = {}) {
  * @returns {Promise<{stdout: string, stderr: string}>}
  * @throws {Error} If command exits with non-zero code
  */
-export async function runCommandQuietStrict(command, args = [], options = {}) {
+export async function runCommandQuietStrict(
+  command: string,
+  args: string[] = [],
+  options: SpawnOptions = {},
+): Promise<{ stdout: string; stderr: string }> {
   const { exitCode, stderr, stdout } = await runCommandQuiet(
     command,
     args,
     options,
   )
   if (exitCode !== 0) {
-    const error = new Error(`Command failed: ${command} ${args.join(' ')}`)
+    const error: Error & { code?: number; stdout?: string; stderr?: string } =
+      new Error(`Command failed: ${command} ${args.join(' ')}`)
     error.code = exitCode
     error.stdout = stdout
     error.stderr = stderr
@@ -216,7 +266,12 @@ export async function runCommandQuietStrict(command, args = [], options = {}) {
  * @param {object} options - Spawn options
  * @returns {Promise<number>} Exit code
  */
-export async function logAndRun(description, command, args = [], options = {}) {
+export async function logAndRun(
+  description: string,
+  command: string,
+  args: string[] = [],
+  options: SpawnOptions = {},
+): Promise<number> {
   logger.log(description)
   return runCommand(command, args, options)
 }
