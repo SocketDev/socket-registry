@@ -92,6 +92,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       const obj = qs.parse('?toString&__proto__=lol')
       expect(typeof obj).toBe('object')
       expect(typeof obj.toString).toBe('function')
+      // eslint-disable-next-line no-proto -- testing prototype pollution protection.
       expect(obj.__proto__).not.toBe('lol')
     })
 

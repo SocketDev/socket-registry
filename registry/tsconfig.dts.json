@@ -3,6 +3,8 @@
   "compilerOptions": {
     "declaration": true,
     "emitDeclarationOnly": true,
+    "module": "node16",
+    "moduleResolution": "node16",
     "noEmit": false
   },
   "include": ["src/**/*.ts"],

@@ -20,6 +20,9 @@ module.exports = Object.defineProperties(
     shim: desc(require('./shim')),
   },
 )
+// eslint-disable-next-line no-self-assign -- CJS named export hints.
 module.exports.getPolyfill = module.exports.getPolyfill
+// eslint-disable-next-line no-self-assign -- CJS named export hints.
 module.exports.implementation = module.exports.implementation
+// eslint-disable-next-line no-self-assign -- CJS named export hints.
 module.exports.shim = module.exports.shim
