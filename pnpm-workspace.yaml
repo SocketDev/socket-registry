@@ -1,3 +1,5 @@
+resolutionMode: highest
+
 packages:
   - packages/npm/*
   - perf/*
