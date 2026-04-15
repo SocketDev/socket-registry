@@ -82,7 +82,7 @@
     "@types/spdx-expression-parse": "catalog:",
     "@types/validate-npm-package-name": "catalog:",
     "@types/which": "catalog:",
-    "@typescript/native-preview": "catalog:",
+    "@typescript/native-preview": "7.0.0-dev.20260415.1",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
     "@zkochan/js-yaml": "catalog:",
