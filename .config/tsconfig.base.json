@@ -5,7 +5,7 @@
     "composite": false,
     "declaration": false,
     "declarationMap": false,
-    "erasableSyntaxOnly": true,
+    "erasableSyntaxOnly": false,
     "esModuleInterop": true,
     "exactOptionalPropertyTypes": true,
     "forceConsistentCasingInFileNames": true,
