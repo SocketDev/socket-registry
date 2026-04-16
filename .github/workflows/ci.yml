@@ -1,7 +1,9 @@
 name: 🔗 CI
 
-# Comprehensive CI orchestrator that runs lint, type checks, and tests.
-# Orchestrates multiple quality checks in parallel for efficient CI execution.
+# CI orchestrator that runs checks and tests.
+#
+# By default runs `pnpm run check --all` (lint + type) as a single job.
+# Set `run-check: false` and enable `run-lint`/`run-type-check` to split them.
 #
 # Dependencies:
 #   - SocketDev/socket-registry/.github/actions/setup-and-install
@@ -10,6 +12,26 @@ name: 🔗 CI
 on:
   workflow_call:
     inputs:
+      check-node-version:
+        description: 'Node.js version for checks'
+        required: false
+        type: string
+        default: '25.9.0'
+      check-script:
+        description: 'Check command — runs lint + type checks (e.g., "pnpm run check --all")'
+        required: false
+        type: string
+        default: 'pnpm run check --all'
+      check-setup-script:
+        description: 'Setup script before checks'
+        required: false
+        type: string
+        default: ''
+      check-timeout-minutes:
+        description: 'Timeout for check job in minutes'
+        required: false
+        type: number
+        default: 10
       debug:
         description: 'Enable debug output (e.g., "1" for verbose logging)'
         required: false
@@ -46,45 +68,45 @@ on:
         type: number
         default: 4
       node-versions:
-        description: 'Node.js versions for testing (e.g., ''[20, 22, 24]'')'
+        description: 'Node.js versions for testing (e.g., ''["22", "24"]'')'
         required: false
         type: string
-        default: '[20, 22, 24]'
+        default: '["25.9.0"]'
       os-versions:
         description: 'Operating systems for testing (e.g., ''["ubuntu-latest", "windows-latest"]'')'
         required: false
         type: string
-        default: '["ubuntu-latest", "windows-latest"]'
-      retention-days:
-        description: 'Days to retain artifacts'
-        required: false
-        type: number
-        default: 7
-      run-lint:
-        description: 'Include lint check job'
+        default: '["ubuntu-latest", "macos-latest", "windows-latest"]'
+      run-check:
+        description: 'Include combined check job (lint + type)'
         required: false
         type: boolean
         default: true
+      run-lint:
+        description: 'Include standalone lint job'
+        required: false
+        type: boolean
+        default: false
       run-test:
         description: 'Include test matrix job'
         required: false
         type: boolean
         default: true
       run-type-check:
-        description: 'Include type check job'
+        description: 'Include standalone type check job'
         required: false
         type: boolean
-        default: true
+        default: false
       test-script:
-        description: 'Test command (e.g., "pnpm run test --all")'
+        description: 'Test command (e.g., "pnpm test")'
         required: false
         type: string
-        default: 'pnpm run test --all'
+        default: 'pnpm test'
       test-setup-script:
         description: 'Setup script before tests (e.g., "pnpm run build")'
         required: false
         type: string
-        default: ''
+        default: 'pnpm run build'
       test-timeout-minutes:
         description: 'Timeout for test jobs in minutes'
         required: false
@@ -96,10 +118,10 @@ on:
         type: string
         default: '25.9.0'
       type-check-script:
-        description: 'Type check command (e.g., "pnpm run check")'
+        description: 'Type check command (e.g., "pnpm run type")'
         required: false
         type: string
-        default: 'pnpm run check'
+        default: 'pnpm run type'
       type-check-setup-script:
         description: 'Setup script before type checking'
         required: false
@@ -128,9 +150,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  check:
+    if: inputs.run-check
+    name: 🔎 Check
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.check-timeout-minutes }}
+    steps:
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@f9f6e265d2fb36f7d1c6b557bde308d92151a670 # main
+        with:
+          debug: ${{ inputs.debug }}
+          node-version: ${{ inputs.check-node-version }}
+          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
+          working-directory: ${{ inputs.working-directory }}
+
+      - uses: SocketDev/socket-registry/.github/actions/run-script@f9f6e265d2fb36f7d1c6b557bde308d92151a670 # main
+        with:
+          main-script: ${{ inputs.check-script }}
+          setup-script: ${{ inputs.check-setup-script }}
+          working-directory: ${{ inputs.working-directory }}
+
   lint:
     if: inputs.run-lint
-    name: 🧹 Lint Check
+    name: 🧹 Lint
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.lint-timeout-minutes }}
     steps:
@@ -149,7 +190,7 @@ jobs:
 
   type-check:
     if: inputs.run-type-check
-    name: 🔍 Type Check
+    name: 🏷️ Type Check
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.type-check-timeout-minutes }}
     steps:

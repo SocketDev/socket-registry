@@ -19,15 +19,9 @@ jobs:
     name: Run CI Pipeline
     uses: SocketDev/socket-registry/.github/workflows/ci.yml@b86b2cb3fefa4ffa6c1a702476f9785f6c3bb887 # main
     with:
-      fail-fast: false
-      lint-script: 'pnpm run lint --all'
-      lint-setup-script: 'pnpm run build'
-      node-versions: '[22, 24]'
-      os-versions: '["ubuntu-latest", "windows-latest"]'
       test-script: 'pnpm run test --all --fast'
-      test-setup-script: 'pnpm run build'
-      type-check-script: 'pnpm run check'
-      type-check-setup-script: 'pnpm run build'
+      node-versions: '["22", "24"]'
+      os-versions: '["ubuntu-latest", "windows-latest"]'
     secrets:
       SOCKET_API_KEY: ${{ secrets.SOCKET_API_KEY }}
 
