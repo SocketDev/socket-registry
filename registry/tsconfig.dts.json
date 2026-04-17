@@ -2,10 +2,12 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "declaration": true,
+    "declarationMap": false,
     "emitDeclarationOnly": true,
     "module": "node16",
     "moduleResolution": "node16",
-    "noEmit": false
+    "noEmit": false,
+    "sourceMap": false
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist/**/*", "lib", "test", "src/**/*.js"]
