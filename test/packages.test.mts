@@ -3,7 +3,7 @@ import { existsSync, promises as fs } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 
-import { fix } from '@npmcli/package-json'
+import PackageJson from '@npmcli/package-json'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { EXT_JSON } from '@socketsecurity/lib/paths/exts'
 import { readJson } from '@socketsecurity/lib/fs'
@@ -251,7 +251,7 @@ for (const eco of ecosystems) {
 
         it('should not need package.json fixing', () => {
           const changes: string[] = []
-          fix(pkgPath, { changes })
+          PackageJson.fix(pkgPath, { changes })
           expect(changes.length).toBe(0)
         })
 

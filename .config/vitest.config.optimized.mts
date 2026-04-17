@@ -47,6 +47,7 @@ export default defineConfig({
     ],
   },
   test: {
+    deps: { interopDefault: false },
     globalSetup: [path.resolve(__dirname, 'vitest-global-setup.mts')],
     globals: false,
     environment: 'node',

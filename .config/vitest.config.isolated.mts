@@ -19,6 +19,7 @@ const isCoverageEnabled =
 
 export default defineConfig({
   test: {
+    deps: { interopDefault: false },
     globals: false,
     environment: 'node',
     include: ['test/**/*.test.{js,ts,mjs,mts,cjs}'],
