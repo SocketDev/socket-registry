@@ -132,6 +132,7 @@ Use emojis sparingly (📦 🚀 🎉 💡). Prefer text-based symbols for termin
 - Use `safeDelete()`/`safeDeleteSync()` from `@socketsecurity/lib/fs`
 - package.json scripts: use `del-cli`
 - HTTP: NEVER `fetch()` — use `httpJson`/`httpText`/`httpRequest` from `@socketsecurity/lib/http-request`
+- File existence: ALWAYS `existsSync` from `node:fs`. NEVER `fs.access`, `fs.stat`-for-existence, or an async `fileExists` wrapper. Import form: `import { existsSync, promises as fs } from 'node:fs'`.
 
 ### Work Safeguards (CRITICAL)
 
