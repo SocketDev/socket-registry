@@ -62,7 +62,7 @@ export async function runValidationScript(
     await runValidation(validationFn, options)
   } catch (e) {
     const logger = getDefaultLogger()
-    logger.fail(`Validation failed: ${e}`)
+    logger.fail(`Validation failed: ${(e as Error).message}`)
     process.exitCode = 1
   }
 }

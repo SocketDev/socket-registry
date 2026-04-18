@@ -67,16 +67,16 @@ export const standardInvalidValues = [
 /**
  * Creates comprehensive tests for a type-checking function.
  *
- *
- *
- * const { module: isString, ... } = await setupNpmPackageTest(import.meta.url)
+ * @example
+ * ```ts
+ * const { module: isString } = await setupNpmPackageTest(import.meta.url)
  *
  * createTypeCheckerTests({
  *   checkerFn: isString,
  *   typeName: 'String',
  *   validValues: ['foo', Object('foo')],
  *   invalidValues: [undefined, null, 42, [], {}, new Date()],
- *   toStringTagTests: true
+ *   toStringTagTests: true,
  * })
  * ```
  */

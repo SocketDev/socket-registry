@@ -125,7 +125,7 @@ export function expectArrayLength(
  */
 export function expectInstanceOf<T>(
   value: unknown,
-  constructor: new (...args: any[]) => T,
+  constructor: new (...args: unknown[]) => T,
   message?: string,
 ): asserts value is T {
   if (!(value instanceof constructor)) {
