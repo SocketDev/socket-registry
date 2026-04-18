@@ -207,7 +207,6 @@ via separate PRs. Each PR must merge before the next.
 #### Test Structure
 
 - **Directories**: `test/npm/` - NPM package tests; `test/registry.test.mts` + `test/packages.test.mts` - registry-level tests
-- **Fixtures**: `test/fixtures/` - Test fixtures
 - **Utils**: `test/utils/` - Shared test utilities (see below)
 - **Naming**: Descriptive file/describe/test names for coverage clarity
 - **Coverage**: MANDATORY - never decrease, always maintain/increase
@@ -218,9 +217,9 @@ via separate PRs. Each PR must merge before the next.
 Test helpers available in `test/utils/`:
 
 - `setupNpmPackageTest()` - NPM package test boilerplate (npm-package-helper.mts)
-- `withTempDir/withTempFile/runWithTempDir()` - Temp file management (temp-file-helper.mts)
 - `itOnWindows/itOnUnix/normalizePath()` - Platform-specific tests (platform-test-helpers.mts)
-- `expectString/expectFrozen/expectHasProperties()` - Assertions (assertion-helpers.mts)
+- `expect*` family (`expectString`, `expectFrozen`, `expectInRange`, `expectDefined`, etc.) - Assertions (assertion-helpers.mts)
+- `createTypeCheckerTests()` / `createInvalidValuesExcluding()` - Type-checker test generator (type-checker-helper.mts)
 
 #### Running Tests
 

@@ -71,7 +71,6 @@
     "**/external",
     "**/node_modules",
     "**/patches",
-    "**/test/fixtures",
     "**/test/packages",
     "**/*.d.ts",
     "**/*.d.ts.map",
