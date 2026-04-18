@@ -67,7 +67,6 @@
     "@npmcli/promise-spawn": "catalog:",
     "@socketregistry/is-unicode-supported": "workspace:*",
     "@socketregistry/packageurl-js": "catalog:",
-    "@socketregistry/scripts": "file:scripts",
     "@socketsecurity/lib": "catalog:",
     "@types/fs-extra": "catalog:",
     "@types/node": "catalog:",

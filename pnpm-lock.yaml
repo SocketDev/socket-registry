@@ -492,9 +492,6 @@ importers:
       '@socketregistry/packageurl-js':
         specifier: 'catalog:'
         version: 1.4.2
-      '@socketregistry/scripts':
-        specifier: file:scripts
-        version: file:scripts
       '@socketsecurity/lib':
         specifier: 'catalog:'
         version: 5.18.2(typescript@5.9.2)
@@ -1018,9 +1015,6 @@ importers:
       '@socketregistry/json-stable-stringify':
         specifier: workspace:^
         version: link:../../packages/npm/json-stable-stringify
-      '@socketregistry/scripts':
-        specifier: file:../../scripts
-        version: file:scripts
       '@socketsecurity/registry':
         specifier: file:../../registry
         version: link:../../registry
@@ -2359,9 +2353,6 @@ packages:
   '@socketregistry/safer-buffer@1.0.10':
     resolution: {integrity: sha512-jbEY37bJn51W9pP1pXxIoGcQbmbi9EQDtnXfWBjGLNvKC1iEyNLOaGm8ee7dN7Z+KgJdQbrrDjjD3HbGeOFC4A==}
     engines: {node: '>=18'}
-
-  '@socketregistry/scripts@file:scripts':
-    resolution: {directory: scripts, type: directory}
 
   '@socketregistry/side-channel@1.0.10':
     resolution: {integrity: sha512-nqm2QgbXHldY6DgIBap3i1MlQms+eP7zIC0vPuyy9FmxF62ITa80hjj/3w6zH7DCxV4nQBcJsz3CaGNulQAP7g==}
@@ -5083,8 +5074,6 @@ snapshots:
   '@socketregistry/regexp.prototype.flags@1.0.8': {}
 
   '@socketregistry/safer-buffer@1.0.10': {}
-
-  '@socketregistry/scripts@file:scripts': {}
 
   '@socketregistry/side-channel@1.0.10': {}
 

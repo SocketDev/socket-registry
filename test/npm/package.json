@@ -6,7 +6,6 @@
     "packages/*"
   ],
   "devDependencies": {
-    "@socketregistry/scripts": "file:../../scripts",
     "@socketsecurity/registry": "file:../../registry",
     "@hyrious/bun.lockb": "https://github.com/hyrious/bun.lockb/archive/e4bab9e77b8c51c13eb02d526fb294e60955e7d8.tar.gz",
     "array-buffer-byte-length": "1.0.2",

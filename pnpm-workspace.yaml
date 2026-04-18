@@ -4,7 +4,6 @@ packages:
   - packages/npm/*
   - perf/*
   - registry
-  - scripts
 
 # Packages allowed to run build scripts (pnpm v11 strictDepBuilds default).
 allowBuilds:
