@@ -189,8 +189,17 @@ via separate PRs. Each PR must merge before the next.
 - **NEVER type/guess SHAs** — always `git fetch origin main && git rev-parse origin/main` AFTER merge
 - **NEVER use a SHA from a PR branch** — only use SHAs from main after the PR merges
 - **Verify SHA exists**: `gh api repos/SocketDev/socket-registry/commits/<sha> --jq '.sha'`
-- The **propagation SHA** is the Layer 3 merge SHA — Layer 4 and external repos all pin to it
+- **Propagation SHA = whatever `.github/workflows/_local-not-for-reuse-*.yml` currently pin.** That's the operational source of truth for external repos. Retrieve it with:
+
+  ```bash
+  grep -hE 'SocketDev/socket-registry.*@[0-9a-f]{40}' .github/workflows/_local-not-for-reuse-*.yml \
+    | grep -oE '@[0-9a-f]{40}' | sort -u
+  ```
+
+  Expect **exactly one** SHA. If you get more than one, the Layer 4 bump is incomplete — finish that before propagating. Conceptually this is the Layer 3 merge SHA (after Layer 4 picks it up), but don't try to rederive it — read it from the files.
+- When your change is contained to L3/L4 (reusable workflow edits, not L1/L2 actions): skip straight to a Layer 4 bump. External repos pin to L3 workflows + L2 actions, both of which already exist at the new main SHA.
 - Don't clobber third-party SHAs when doing blanket replacements
+- External repos that consume socket-registry: **direct push** — socket-btm, socket-sdxgen, ultrathink; **PR** — socket-cli, socket-lib, socket-sdk-js, socket-packageurl-js
 
 ### Testing & Coverage
 
