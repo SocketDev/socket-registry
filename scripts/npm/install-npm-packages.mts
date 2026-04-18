@@ -99,7 +99,7 @@ import { pEach, pRetry } from '@socketsecurity/lib/promises'
 import { pluralize } from '@socketsecurity/lib/words'
 
 const logger = getDefaultLogger()
-import { cleanTestScript } from '../../test/utils/script-cleaning.mts'
+import { cleanTestScript } from '../utils/script-cleaning.mts'
 import { ALLOW_TEST_FAILURES_BY_ECOSYSTEM } from '../constants/testing.mts'
 import {
   NPM_PACKAGES_PATH,

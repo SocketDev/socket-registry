@@ -17,8 +17,8 @@ import { withSpinner } from '@socketsecurity/lib/spinner'
 
 import { whichSync } from '@socketsecurity/lib/bin'
 
-import { cleanTestScript } from '../../test/utils/script-cleaning.mts'
-import { testRunners } from '../../test/utils/test-runners.mts'
+import { cleanTestScript } from './script-cleaning.mts'
+import { testRunners } from './test-runners.mts'
 import { DEFAULT_CONCURRENCY } from '../constants/core.mts'
 import { ROOT_PATH } from '../constants/paths.mts'
 import { spawn } from './spawn.mts'

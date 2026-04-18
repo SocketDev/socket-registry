@@ -15,7 +15,7 @@ import { pEach } from '@socketsecurity/lib/promises'
 
 const logger = getDefaultLogger()
 
-import { cleanTestScript } from '../../test/utils/script-cleaning.mts'
+import { cleanTestScript } from '../utils/script-cleaning.mts'
 import { ROOT_PATH, TEST_NPM_PATH } from '../constants/paths.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
 import { extractErrorInfo } from '../utils/errors.mts'

@@ -16,8 +16,8 @@ import {
   NPM_PACKAGES_PATH,
   TEST_NPM_PKG_JSON_PATH,
 } from '../../scripts/constants/paths.mts'
-import { cleanTestScript } from './script-cleaning.mts'
-import { testRunners } from './test-runners.mts'
+import { cleanTestScript } from '../../scripts/utils/script-cleaning.mts'
+import { testRunners } from '../../scripts/utils/test-runners.mts'
 
 const npmPackagesPath = NPM_PACKAGES_PATH
 const testNpmPkgJsonPath = TEST_NPM_PKG_JSON_PATH
@@ -77,12 +77,16 @@ export async function isolatePackage(
 
   return await registryIsolatePackage(resolvedSpec, {
     imports,
-    onPackageJson: async (pkgJson: any) => {
+    onPackageJson: async (pkgJson: Record<string, unknown>) => {
       if (hasSourcePath) {
-        const originalScripts = pkgJson.scripts
+        const originalScripts = pkgJson['scripts'] as
+          | Record<string, string>
+          | undefined
 
         if (originalScripts) {
-          pkgJson.scripts = pkgJson.scripts || {}
+          const scripts: Record<string, string> =
+            (pkgJson['scripts'] as Record<string, string>) || {}
+          pkgJson['scripts'] = scripts
 
           const additionalTestRunners = [
             ...testRunners,
@@ -95,30 +99,29 @@ export async function isolatePackage(
 
           if (!actualTestScript && originalScripts['test']) {
             const testMatch = originalScripts['test'].match(/npm run ([-:\w]+)/)
-            if (testMatch && originalScripts[testMatch[1]]) {
+            if (testMatch && originalScripts[testMatch[1]!]) {
               actualTestScript = testMatch[1]
             }
           }
 
           if (actualTestScript && originalScripts[actualTestScript]) {
-            pkgJson.scripts['test'] = cleanTestScript(
-              originalScripts[actualTestScript],
+            scripts['test'] = cleanTestScript(
+              originalScripts[actualTestScript]!,
             )
             if (actualTestScript !== 'test') {
-              pkgJson.scripts[actualTestScript] = cleanTestScript(
-                originalScripts[actualTestScript],
+              scripts[actualTestScript] = cleanTestScript(
+                originalScripts[actualTestScript]!,
               )
             }
           } else if (originalScripts['test']) {
-            pkgJson.scripts['test'] = cleanTestScript(originalScripts['test'])
+            scripts['test'] = cleanTestScript(originalScripts['test'])
           }
 
           for (const { 0: key, 1: value } of Object.entries(originalScripts)) {
-            if (
-              (key.startsWith('test:') || key.startsWith('tests')) &&
-              !pkgJson.scripts[key]
-            ) {
-              pkgJson.scripts[key] = cleanTestScript(value as string)
+            // Match test:* (e.g., test:unit) and the exact key 'tests', but not
+            // unrelated names that happen to start with "tests" like "testsuite".
+            if ((key.startsWith('test:') || key === 'tests') && !scripts[key]) {
+              scripts[key] = cleanTestScript(value)
             }
           }
         }
