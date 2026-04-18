@@ -1,18 +1,18 @@
 /**
  * @fileoverview Maps changed source files to test files for affected test running.
- * Uses git utilities from socket-registry to detect changes.
+ * Uses git utilities from @socketsecurity/lib to detect changes.
  */
 
 import { existsSync } from 'node:fs'
 import path from 'node:path'
+import process from 'node:process'
 
 import {
   getChangedFilesSync,
   getStagedFilesSync,
 } from '@socketsecurity/lib/git'
-import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
-import process from 'node:process'
+import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 
 const logger = getDefaultLogger()
 const rootPath = path.resolve(process.cwd())
@@ -24,213 +24,117 @@ function debug(message: string): void {
   }
 }
 
-/**
- * Core files that require running all tests when changed.
- */
-const CORE_FILES = [
-  'src/helpers.ts',
-  'src/strings.ts',
-  'src/constants.ts',
-  'src/lang.ts',
-  'src/error.ts',
-  'src/validate.ts',
-  'src/normalize.ts',
-  'src/encode.ts',
-  'src/decode.ts',
-  'src/objects.ts',
-]
-
-/**
- * Map source files to their corresponding test files.
- * Returns array of test paths or ['all'] for core files.
- */
-function mapSourceToTests(filepath: string): string[] {
-  const normalized = normalizePath(filepath)
-
-  // Skip non-code files
-  const ext = path.extname(normalized)
-  const codeExtensions = ['.js', '.mjs', '.cjs', '.ts', '.cts', '.mts', '.json']
-  if (!codeExtensions.includes(ext)) {
-    return []
-  }
-
-  // Core utilities affect all tests
-  if (CORE_FILES.some(f => normalized.includes(f))) {
-    return ['all']
-  }
-
-  // Map specific files to their test files
-  const basename = path.basename(normalized, path.extname(normalized))
-  const testFile = `test/${basename}.test.mts`
-
-  // Check if corresponding test exists
-  if (existsSync(path.join(rootPath, testFile))) {
-    debug(`Mapped ${normalized} to ${testFile}`)
-    return [testFile]
-  }
-
-  // Warn if mapped test file is missing
-  if (process.env.NODE_ENV !== 'test') {
-    logger.warn(`Warning: Expected test file not found: ${testFile}`)
-  }
-
-  // Special mappings
-  if (normalized.includes('src/package-url.ts')) {
-    return ['test/package-url.test.mts', 'test/integration.test.mts']
-  }
-  if (normalized.includes('src/package-url-builder.ts')) {
-    return ['test/package-url-builder.test.mts', 'test/integration.test.mts']
-  }
-  if (normalized.includes('src/url-converter.ts')) {
-    return ['test/url-converter.test.mts']
-  }
-  if (normalized.includes('src/result.ts')) {
-    return ['test/result.test.mts']
-  }
-
-  // If no specific mapping, run all tests to be safe
-  return ['all']
-}
-
-/**
- * Get affected test files to run based on changed files.
- * Returns all tests in CI environment or when explicitly requested.
- * Returns null if no changes detected. Returns specific test files
- * based on source file mappings otherwise.
- *
- * @throws {Error} When root path does not exist.
- * @throws {Error} When git detection fails.
- */
 interface GetTestsToRunOptions {
   all?: boolean
   staged?: boolean
 }
 
 interface TestsToRunResult {
-  tests: string[] | 'all' | undefined
-  reason?: string
   mode: string
+  reason?: string
+  tests: string[] | 'all' | undefined
 }
 
+/**
+ * Get affected test files to run based on changed files.
+ * Returns 'all' in CI, when explicitly requested, or when structural files change.
+ * Returns undefined if no relevant changes detected.
+ * Returns a list of specific test files otherwise.
+ *
+ * @throws {Error} When root path does not exist.
+ */
 export function getTestsToRun(
   options: GetTestsToRunOptions = {},
 ): TestsToRunResult {
-  const { all = false, staged = false } = options
+  const { all = false, staged = false } = {
+    __proto__: null,
+    ...options,
+  } as GetTestsToRunOptions
 
-  // Validate root path exists
   if (!existsSync(rootPath)) {
     throw new Error(`Root path does not exist: "${rootPath}"`)
   }
 
-  // All mode runs all tests
   if (all || process.env.FORCE_TEST === '1') {
-    return { tests: 'all', reason: 'explicit --all flag', mode: 'all' }
+    return { mode: 'all', reason: 'explicit --all flag', tests: 'all' }
   }
 
-  // CI always runs all tests
   if (process.env.CI === 'true') {
-    return { tests: 'all', reason: 'CI environment', mode: 'all' }
+    return { mode: 'all', reason: 'CI environment', tests: 'all' }
   }
 
-  // Get changed files with error handling
-  let changedFiles
+  let changedFiles: string[]
   try {
     changedFiles = staged ? getStagedFilesSync() : getChangedFilesSync()
   } catch (e) {
-    // Fallback to all tests if git detection fails
-    debug(`Git detection failed: ${e.message}`)
-    return {
-      tests: 'all',
-      reason: 'git detection failed',
-      mode: 'all',
-    }
+    debug(`Git detection failed: ${(e as Error).message}`)
+    return { mode: 'all', reason: 'git detection failed', tests: 'all' }
   }
 
   const mode = staged ? 'staged' : 'changed'
   debug(`Found ${changedFiles.length} changed files (${mode})`)
 
-  if (changedFiles.length === 0) {
-    // No changes, skip tests
-    return { tests: undefined, mode }
+  if (!changedFiles.length) {
+    return { mode, tests: undefined }
   }
 
   const testFiles = new Set<string>()
-  let runAllTests = false
   let runAllReason = ''
 
   for (const file of changedFiles) {
     const normalized = normalizePath(file)
 
-    // Test files always run themselves
+    // Test files run themselves (if not deleted).
     if (normalized.startsWith('test/') && normalized.includes('.test.')) {
-      // Skip deleted files.
       if (existsSync(path.join(rootPath, file))) {
         testFiles.add(file)
       }
       continue
     }
 
-    // Source files map to test files
-    if (normalized.startsWith('src/')) {
-      const tests = mapSourceToTests(normalized)
-      if (tests.includes('all')) {
-        runAllTests = true
-        runAllReason = 'core file changes'
-        break
-      }
-      for (const test of tests) {
-        // Skip deleted files.
-        if (existsSync(path.join(rootPath, test))) {
-          testFiles.add(test)
-        }
+    // Structural/config changes — run everything.
+    if (
+      normalized.includes('vitest.config') ||
+      normalized.includes('tsconfig') ||
+      normalized === 'package.json' ||
+      normalized === 'pnpm-lock.yaml'
+    ) {
+      runAllReason = `${normalized} changed`
+      break
+    }
+
+    // Registry source changes — run registry + packages tests.
+    if (normalized.startsWith('registry/')) {
+      runAllReason = 'registry source changed'
+      break
+    }
+
+    // Package override changes — run packages test.
+    if (normalized.startsWith('packages/npm/')) {
+      const packagesTest = 'test/packages.test.mts'
+      if (existsSync(path.join(rootPath, packagesTest))) {
+        testFiles.add(packagesTest)
       }
       continue
     }
 
-    // Config changes run all tests
-    if (normalized.includes('vitest.config')) {
-      runAllTests = true
-      runAllReason = 'vitest config changed'
+    // Scripts / utility changes — run all to be safe.
+    if (normalized.startsWith('scripts/')) {
+      runAllReason = 'scripts changed'
       break
-    }
-
-    if (normalized.includes('tsconfig')) {
-      runAllTests = true
-      runAllReason = 'TypeScript config changed'
-      break
-    }
-
-    // Data changes run integration tests
-    if (normalized.startsWith('data/')) {
-      // Skip deleted files.
-      if (existsSync(path.join(rootPath, 'test/integration.test.mts'))) {
-        testFiles.add('test/integration.test.mts')
-      }
-      if (existsSync(path.join(rootPath, 'test/purl-types.test.mts'))) {
-        testFiles.add('test/purl-types.test.mts')
-      }
     }
   }
 
-  if (runAllTests) {
+  if (runAllReason) {
     debug(`Running all tests: ${runAllReason}`)
-    return { tests: 'all', reason: runAllReason, mode: 'all' }
+    return { mode: 'all', reason: runAllReason, tests: 'all' }
   }
 
-  if (testFiles.size === 0) {
-    // If we had source changes but no valid tests, run all tests for safety
-    if (changedFiles.length > 0) {
-      debug('No valid test mappings found, running all tests for safety')
-      return {
-        tests: 'all',
-        reason: 'no valid test mappings found',
-        mode: 'all',
-      }
-    }
-    return { tests: undefined, mode }
+  if (!testFiles.size) {
+    return { mode, tests: undefined }
   }
 
   const tests = Array.from(testFiles)
   debug(`Running ${tests.length} specific test(s): ${tests.join(', ')}`)
-  return { tests, mode }
+  return { mode, tests }
 }
