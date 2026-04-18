@@ -437,6 +437,6 @@ Do not read source files and assert on their contents (`.toContain('pattern')`).
 - esbuild for fast compilation (registry)
 - TypeScript → CommonJS (unminified for better Node ESM interop)
 - Post-build transform: Converts esbuild wrappers to clear `module.exports = { ... }` for Node ESM named imports
-- Env configs: `.env.test` (test-only), `.env.precommit` (pre-commit hook runtime)
+- Env configs: `.env.test` (test-only)
 - Linting: oxlint
 - Formatting: oxfmt

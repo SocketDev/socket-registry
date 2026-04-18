@@ -42,12 +42,12 @@ if echo "$STAGED_FILES" | grep -E '\.log$' | grep -v 'test.*\.log'; then
 fi
 
 # Check for .env files.
-# Allowlist: .env.example (template), .env.precommit and .env.test (tracked
-# placeholders). Everything else matching .env* is blocked.
+# Allowlist: .env.example (template) and .env.test (tracked placeholder).
+# Everything else matching .env* is blocked.
 printf "Checking for .env files...\n"
-if echo "$STAGED_FILES" | grep -E '^\.env(\.[^/]+)?$' | grep -vE '^\.env\.(example|precommit|test)$' | grep -q .; then
+if echo "$STAGED_FILES" | grep -E '^\.env(\.[^/]+)?$' | grep -vE '^\.env\.(example|test)$' | grep -q .; then
   printf "${RED}✗ ERROR: .env file detected!${NC}\n"
-  echo "$STAGED_FILES" | grep -E '^\.env(\.[^/]+)?$' | grep -vE '^\.env\.(example|precommit|test)$'
+  echo "$STAGED_FILES" | grep -E '^\.env(\.[^/]+)?$' | grep -vE '^\.env\.(example|test)$'
   printf "These files should never be committed. Use .env.example for templates.\n"
   ERRORS=$((ERRORS + 1))
 fi

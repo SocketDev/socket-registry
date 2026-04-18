@@ -115,10 +115,10 @@ while read -r local_ref local_sha remote_ref remote_sha; do
 
   if [ -n "$CHANGED_FILES" ]; then
     # Check for sensitive files (.env, .DS_Store, log files).
-    # Allowlist: .env.example / .env.precommit / .env.test are tracked intentionally.
-    if echo "$CHANGED_FILES" | grep -E '^\.env(\.[^/]+)?$' | grep -vE '^\.env\.(example|precommit|test)$' | grep -q .; then
+    # Allowlist: .env.example / .env.test are tracked intentionally.
+    if echo "$CHANGED_FILES" | grep -E '^\.env(\.[^/]+)?$' | grep -vE '^\.env\.(example|test)$' | grep -q .; then
       printf "${RED}✗ BLOCKED: Attempting to push .env file!${NC}\n"
-      printf "Files: %s\n" "$(echo "$CHANGED_FILES" | grep -E '^\.env(\.[^/]+)?$' | grep -vE '^\.env\.(example|precommit|test)$')"
+      printf "Files: %s\n" "$(echo "$CHANGED_FILES" | grep -E '^\.env(\.[^/]+)?$' | grep -vE '^\.env\.(example|test)$')"
       ERRORS=$((ERRORS + 1))
     fi
 
