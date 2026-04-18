@@ -18,6 +18,7 @@ set -e
 # Colors for output.
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
 NC='\033[0m'
 
 printf "${GREEN}Running mandatory pre-push validation...${NC}\n"
@@ -114,9 +115,10 @@ while read -r local_ref local_sha remote_ref remote_sha; do
 
   if [ -n "$CHANGED_FILES" ]; then
     # Check for sensitive files (.env, .DS_Store, log files).
-    if echo "$CHANGED_FILES" | grep -qE '^\.env(\.local)?$'; then
+    # Allowlist: .env.example / .env.precommit / .env.test are tracked intentionally.
+    if echo "$CHANGED_FILES" | grep -E '^\.env(\.[^/]+)?$' | grep -vE '^\.env\.(example|precommit|test)$' | grep -q .; then
       printf "${RED}✗ BLOCKED: Attempting to push .env file!${NC}\n"
-      printf "Files: %s\n" "$(echo "$CHANGED_FILES" | grep -E '^\.env(\.local)?$')"
+      printf "Files: %s\n" "$(echo "$CHANGED_FILES" | grep -E '^\.env(\.[^/]+)?$' | grep -vE '^\.env\.(example|precommit|test)$')"
       ERRORS=$((ERRORS + 1))
     fi
 
@@ -149,7 +151,14 @@ while read -r local_ref local_sha remote_ref remote_sha; do
         fi
 
         if [ "$is_binary" = true ]; then
-          file_text=$(strings "$file" 2>/dev/null)
+          if command -v strings >/dev/null 2>&1; then
+            file_text=$(strings "$file" 2>/dev/null)
+          else
+            # strings (binutils) not installed — fall back to grep -a, which
+            # treats binary as text. Less accurate but beats silently skipping.
+            printf "${YELLOW}⚠ strings not installed — binary scan via grep -a (install binutils / Xcode CLT for full coverage)${NC}\n" >&2
+            file_text=$(grep -a . "$file" 2>/dev/null)
+          fi
         else
           file_text=$(cat "$file" 2>/dev/null)
         fi

@@ -8,7 +8,9 @@ else
 fi
 
 if [ -z "${DISABLE_PRECOMMIT_TEST}" ]; then
-  NODE_COMPILE_CACHE="./.cache" PRE_COMMIT=1 pnpm test --staged
+  # --fast skips the lint/type pass inside test.mts — pnpm lint --staged above
+  # already ran it, so this avoids doing the same work twice.
+  NODE_COMPILE_CACHE="./.cache" PRE_COMMIT=1 pnpm test --staged --fast
 else
   printf "Skipping testing due to DISABLE_PRECOMMIT_TEST env var\n"
 fi

@@ -29,7 +29,8 @@ if [ -n "$COMMITTED_FILES" ]; then
       fi
 
       # Check for .env files.
-      if echo "$file" | grep -qE '^\.env(\.local)?$'; then
+      # Allowlist: .env.example / .env.precommit / .env.test are tracked intentionally.
+      if echo "$file" | grep -qE '^\.env(\.[^/]+)?$' && ! echo "$file" | grep -qE '^\.env\.(example|precommit|test)$'; then
         printf "${RED}✗ SECURITY: .env file in commit!${NC}\n"
         ERRORS=$((ERRORS + 1))
       fi
