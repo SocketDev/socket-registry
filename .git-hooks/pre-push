@@ -32,7 +32,7 @@ url="$2"
 TOTAL_ERRORS=0
 
 # Read stdin for refs being pushed (git provides: local_ref local_sha remote_ref remote_sha).
-while read local_ref local_sha remote_ref remote_sha; do
+while read -r local_ref local_sha remote_ref remote_sha; do
   # Skip tag pushes: tags point to existing commits already validated.
   if echo "$local_ref" | grep -q '^refs/tags/'; then
     printf "${GREEN}Skipping tag push: %s${NC}\n" "$local_ref"
@@ -155,9 +155,9 @@ while read local_ref local_sha remote_ref remote_sha; do
         fi
 
         # Hardcoded personal paths (/Users/foo/, /home/foo/, C:\\Users\\foo\\).
-        if echo "$file_text" | grep -qE '(/Users/[^/[:space:]]+/|/home/[^/[:space:]]+/|C:\\Users\\[^\\]+\\)'; then
+        if echo "$file_text" | grep -qE '(/Users/[^[:space:]/]+/|/home/[^[:space:]/]+/|C:\\Users\\[^[:space:]\\]+\\)'; then
           printf "${RED}✗ BLOCKED: Hardcoded personal path found in: %s${NC}\n" "$file"
-          echo "$file_text" | grep -nE '(/Users/[^/[:space:]]+/|/home/[^/[:space:]]+/|C:\\Users\\[^\\]+\\)' | head -3
+          echo "$file_text" | grep -nE '(/Users/[^[:space:]/]+/|/home/[^[:space:]/]+/|C:\\Users\\[^[:space:]\\]+\\)' | head -3
           ERRORS=$((ERRORS + 1))
         fi
 
