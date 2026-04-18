@@ -115,7 +115,10 @@ export function clearPackageJsonCache() {
  * Updates multiple package.json files in parallel.
  */
 export async function updatePackagesJson(packages, options = {}) {
-  const { concurrency = DEFAULT_CONCURRENCY, spinner } = options
+  const { concurrency = DEFAULT_CONCURRENCY, spinner } = {
+    __proto__: null,
+    ...options,
+  } as { concurrency?: number; spinner?: unknown }
 
   await pEach(
     packages,
@@ -139,7 +142,10 @@ export async function collectPackageData(paths, options = {}) {
   const {
     concurrency = DEFAULT_CONCURRENCY,
     fields = ['name', 'version', 'description'],
-  } = options
+  } = { __proto__: null, ...options } as {
+    concurrency?: number
+    fields?: string[]
+  }
 
   const results = []
 
@@ -173,7 +179,13 @@ export async function processWithSpinner(items, processor, options = {}) {
     spinner,
     startMessage,
     successMessage,
-  } = options
+  } = { __proto__: null, ...options } as {
+    concurrency?: number
+    errorMessage?: string
+    spinner?: unknown
+    startMessage?: string
+    successMessage?: string
+  }
 
   const results = []
   const errors = []
@@ -345,7 +357,9 @@ export async function installPackageForTesting(
   packageName,
   options = {},
 ) {
-  const { versionSpec } = options
+  const { versionSpec } = { __proto__: null, ...options } as {
+    versionSpec?: string
+  }
 
   if (!existsSync(sourcePath)) {
     return {

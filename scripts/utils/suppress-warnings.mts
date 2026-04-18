@@ -1,5 +1,6 @@
-import process from 'node:process'
 /** @fileoverview Utility to suppress specific process warnings. */
+
+import process from 'node:process'
 
 const { apply: ReflectApply } = Reflect
 

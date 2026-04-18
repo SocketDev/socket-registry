@@ -3,21 +3,34 @@
  * Standardized across all socket-* repositories.
  */
 
-import { runWithMask } from '@socketsecurity/lib/stdio/mask'
 import process from 'node:process'
+
+import { runWithMask } from '@socketsecurity/lib/stdio/mask'
+
+interface RunWithOutputOptions {
+  cwd?: string
+  env?: NodeJS.ProcessEnv
+  message?: string
+  toggleText?: string
+  verbose?: boolean
+}
 
 /**
  * Run a command with interactive output control.
  * Standard experience across all socket-* repos.
  */
-export async function runWithOutput(command, args = [], options = {}) {
+export async function runWithOutput(
+  command: string,
+  args: string[] = [],
+  options: RunWithOutputOptions = {},
+) {
   const {
     cwd = process.cwd(),
     env = process.env,
     message = 'Running',
     toggleText = 'to see output',
     verbose = false,
-  } = options
+  } = { __proto__: null, ...options } as RunWithOutputOptions
 
   return runWithMask(command, args, {
     cwd,
@@ -31,7 +44,11 @@ export async function runWithOutput(command, args = [], options = {}) {
 /**
  * Standard test runner with interactive output.
  */
-export async function runTests(command, args, options = {}) {
+export async function runTests(
+  command: string,
+  args: string[],
+  options: RunWithOutputOptions = {},
+) {
   return runWithOutput(command, args, {
     message: 'Running tests',
     toggleText: 'to see test output',
@@ -42,7 +59,11 @@ export async function runTests(command, args, options = {}) {
 /**
  * Standard lint runner with interactive output.
  */
-export async function runLint(command, args, options = {}) {
+export async function runLint(
+  command: string,
+  args: string[],
+  options: RunWithOutputOptions = {},
+) {
   return runWithOutput(command, args, {
     message: 'Running linter',
     toggleText: 'to see lint results',
@@ -53,7 +74,11 @@ export async function runLint(command, args, options = {}) {
 /**
  * Standard build runner with interactive output.
  */
-export async function runBuild(command, args, options = {}) {
+export async function runBuild(
+  command: string,
+  args: string[],
+  options: RunWithOutputOptions = {},
+) {
   return runWithOutput(command, args, {
     message: 'Building',
     toggleText: 'to see build output',
