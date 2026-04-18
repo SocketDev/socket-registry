@@ -71,8 +71,10 @@ Progress:
 
 All external repos pin to the **propagation SHA** (NOT the Layer 4 merge SHA).
 
-- Push directly to main: socket-btm, socket-sbom-generator, ultrathink
+- Push directly to main: socket-btm, sdxgen, ultrathink
 - Create PRs: socket-cli, socket-lib, socket-sdk-js, socket-packageurl-js
+
+> **Note:** the `sdxgen` repo's local checkout lives at `../socket-sdxgen/` but the GitHub remote is `SocketDev/sdxgen`. Use the bare name for `gh` commands.
 
 ```
 Progress:
@@ -81,7 +83,7 @@ Progress:
 - [ ] socket-lib
 - [ ] socket-sdk-js
 - [ ] socket-packageurl-js
-- [ ] socket-sbom-generator
+- [ ] sdxgen
 - [ ] ultrathink
 ```
 

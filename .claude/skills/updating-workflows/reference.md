@@ -80,7 +80,7 @@ All pin to the propagation SHA (Layer 3 merge SHA):
 | Repo | Method |
 |------|--------|
 | socket-btm | Push directly to main |
-| socket-sbom-generator | Push directly to main |
+| sdxgen | Push directly to main (local checkout at `../socket-sdxgen/`) |
 | ultrathink | Push directly to main |
 | socket-cli | Create PR |
 | socket-lib | Create PR |

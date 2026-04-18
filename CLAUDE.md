@@ -200,7 +200,7 @@ via separate PRs. Each PR must merge before the next.
 
 - When your change is contained to L3/L4 (reusable workflow edits, not L1/L2 actions): skip straight to a Layer 4 bump. External repos pin to L3 workflows + L2 actions, both of which already exist at the new main SHA.
 - Don't clobber third-party SHAs when doing blanket replacements
-- External repos that consume socket-registry: **direct push** — socket-btm, socket-sdxgen, ultrathink; **PR** — socket-cli, socket-lib, socket-sdk-js, socket-packageurl-js
+- External repos that consume socket-registry: **direct push** — socket-btm, sdxgen, ultrathink; **PR** — socket-cli, socket-lib, socket-sdk-js, socket-packageurl-js. Note: the `sdxgen` repo's local checkout is named `socket-sdxgen/`, but the GitHub repo is `SocketDev/sdxgen` — use the bare name for `gh` commands.
 
 ### Testing & Coverage
 
