@@ -112,13 +112,16 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   printf "Checking files for security issues...\n"
 
   CHANGED_FILES=$(git diff --name-only "$range" 2>/dev/null || echo "")
+  # Limit content-security checks to added/modified files only — deletions
+  # can't leak data (the file is being removed).
+  ADDED_OR_MODIFIED=$(git diff --name-only --diff-filter=AM "$range" 2>/dev/null || echo "")
 
   if [ -n "$CHANGED_FILES" ]; then
     # Check for sensitive files (.env, .DS_Store, log files).
     # Allowlist: .env.example / .env.test are tracked intentionally.
-    if echo "$CHANGED_FILES" | grep -E '^\.env(\.[^/]+)?$' | grep -vE '^\.env\.(example|test)$' | grep -q .; then
+    if echo "$ADDED_OR_MODIFIED" | grep -E '^\.env(\.[^/]+)?$' | grep -vE '^\.env\.(example|test)$' | grep -q .; then
       printf "${RED}✗ BLOCKED: Attempting to push .env file!${NC}\n"
-      printf "Files: %s\n" "$(echo "$CHANGED_FILES" | grep -E '^\.env(\.[^/]+)?$' | grep -vE '^\.env\.(example|test)$')"
+      printf "Files: %s\n" "$(echo "$ADDED_OR_MODIFIED" | grep -E '^\.env(\.[^/]+)?$' | grep -vE '^\.env\.(example|test)$')"
       ERRORS=$((ERRORS + 1))
     fi
 
