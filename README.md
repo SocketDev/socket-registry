@@ -13,12 +13,24 @@ Optimized package overrides for [Socket Optimize](https://socket.dev/features/op
 
 ## Quick Start
 
+Install the Socket CLI globally, then run it inside any project:
+
 ```bash
-pnpm dlx socket optimize
+# pnpm (recommended)
+pnpm add -g socket
+
+# npm
+npm install -g socket
+
+# yarn
+yarn global add socket
+
+# Then, from your project root:
+socket optimize
 ```
 
-This command analyzes your dependencies and suggests optimized replacements from
-the Socket Registry.
+`socket optimize` analyzes your dependencies and suggests optimized
+replacements from the Socket Registry.
 
 ## What Are Package Overrides?
 
