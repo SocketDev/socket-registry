@@ -7,7 +7,7 @@ import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import fastJsonStableStringify from 'fast-json-stable-stringify'
 import { Bench } from 'tinybench'
 
-import { PERF_NPM_FIXTURES_PATH } from '../../scripts/constants/paths.mjs'
+import { PERF_NPM_FIXTURES_PATH } from '../../scripts/constants/paths.mts'
 
 const logger = getDefaultLogger()
 

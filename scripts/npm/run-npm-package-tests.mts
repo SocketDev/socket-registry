@@ -65,21 +65,21 @@ const packageJsonCache = new Map()
 /**
  * Check if cleaned script only runs non-test commands.
  */
-function isNonTestScript(cleanedScript) {
+function isNonTestScript(cleanedScript: string): boolean {
   return (
     /^npm run (?:lint|build|prepare|prepublish|pretest)$/.test(cleanedScript) ||
     cleanedScript === 'exit 0'
   )
 }
 
-function hasModuleError(stdout, stderr) {
+function hasModuleError(stdout: string, stderr: string): boolean {
   const output = `${stdout}\n${stderr}`.toLowerCase()
   return (
     output.includes('cannot find module') || output.includes('module not found')
   )
 }
 
-async function runPackageTest(socketPkgName) {
+async function runPackageTest(socketPkgName: string) {
   const origPkgName = resolveOriginalPackageName(socketPkgName)
 
   // Check if we have a custom test file in test/npm/.
@@ -239,8 +239,9 @@ async function runPackageTest(socketPkgName) {
         return { package: origPkgName, passed: true, reinstalled: true }
       } catch (retryError) {
         logger.fail(`${origPkgName} (reinstall failed)`)
-        if (retryError.stderr) {
-          const errorInfo = extractErrorInfo(retryError.stderr)
+        const retryErr = retryError as { stderr?: string }
+        if (retryErr.stderr) {
+          const errorInfo = extractErrorInfo(retryErr.stderr)
           logger.log(`   ${errorInfo}`)
         }
         return {
