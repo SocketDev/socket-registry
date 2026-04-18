@@ -171,7 +171,7 @@ Use emojis sparingly (📦 🚀 🎉 💡). Prefer text-based symbols for termin
 
 - **MANDATORY**: Use `SocketDev/socket-registry/.github/workflows/ci.yml@<SHA>` with full commit SHA
 - **Reusable workflows**: Centralized lint/type-check/test/coverage
-- **Matrix testing**: Node.js 20/22/24, cross-platform
+- **Matrix testing**: Node.js 22/24, cross-platform
 - **CI script naming**: `lint-ci`, `test-ci`, `type-ci` (no watch/fix modes)
 
 ### GitHub Actions SHA Pin Cascade (CRITICAL)
