@@ -5,12 +5,12 @@
 
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import process from 'node:process'
 
 import colors from 'yoctocolors-cjs'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 
 import { runCommand } from './utils/run-command.mts'
-import process from 'node:process'
 
 const logger = getDefaultLogger()
 

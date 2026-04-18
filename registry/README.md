@@ -16,13 +16,56 @@ pnpm install @socketsecurity/registry
 
 ## Usage
 
+`getManifestData()` has three forms. Return type narrows based on arguments.
+
+### Look up a single package
+
 ```typescript
 import { getManifestData } from '@socketsecurity/registry'
 
 const pkg = getManifestData('npm', 'deep-equal')
-console.log(pkg.name) // '@socketregistry/deep-equal'
-console.log(pkg.version) // '1.0.22'
-console.log(pkg.categories) // ['cleanup']
+// ManifestEntryData | ManifestEntry | undefined
+console.log(pkg?.name) // '@socketregistry/deep-equal'
+console.log(pkg?.version) // current override version
+console.log(pkg?.categories) // ['cleanup']
+```
+
+### List all overrides for an ecosystem
+
+Returns the raw `[purl, data]` tuples — iterate them, don't assume they're a map:
+
+```typescript
+const entries = getManifestData('npm')
+// ManifestEntry[] | undefined
+for (const [purl, data] of entries ?? []) {
+  console.log(purl, data.package, data.version)
+}
+```
+
+### Get the full manifest
+
+Zero-arg call returns every ecosystem. Useful for cross-ecosystem dashboards:
+
+```typescript
+const manifest = getManifestData()
+// Manifest
+for (const [eco, entries] of Object.entries(manifest)) {
+  console.log(`${eco}: ${entries.length} overrides`)
+}
+```
+
+## Types
+
+```typescript
+import type {
+  CategoryString,
+  EcosystemString,
+  InteropString,
+  Manifest,
+  ManifestEntry,
+  ManifestEntryData,
+  PURLString,
+} from '@socketsecurity/registry/types'
 ```
 
 ## License
