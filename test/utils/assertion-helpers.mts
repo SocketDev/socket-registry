@@ -75,13 +75,13 @@ export function expectSealed(obj: object, message?: string): void {
 }
 
 /**
- * Asserts that a value is defined (not undefined).
+ * Asserts that a value is defined (not null or undefined).
  */
 export function expectDefined<T>(
   value: T,
   message?: string,
 ): asserts value is NonNullable<T> {
-  if (value === undefined) {
+  if (value === undefined || value === null) {
     throw new Error(message ?? 'Expected value to be defined')
   }
 }
@@ -208,8 +208,8 @@ export function expectDeepEqual(
  */
 export function expectInRange(
   value: number,
-  max: number,
   min: number,
+  max: number,
   message?: string,
 ): void {
   if (value < min || value > max) {

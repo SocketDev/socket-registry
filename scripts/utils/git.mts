@@ -26,8 +26,20 @@ import {
 } from './git-helpers.mts'
 import { getGlobMatcher } from './globs.mts'
 
-function innerGetPackages(eco, files, options) {
-  const { asSet = false, ...matcherOptions } = { __proto__: null, ...options }
+interface GetPackagesOptions {
+  asSet?: boolean
+  [key: string]: unknown
+}
+
+function innerGetPackages(
+  eco: string,
+  files: string[],
+  options?: GetPackagesOptions,
+): string[] | Set<string> {
+  const { asSet = false, ...matcherOptions } = {
+    __proto__: null,
+    ...options,
+  } as GetPackagesOptions
   const ecoPackagesPath = path.join(ROOT_PACKAGES_PATH, eco)
   const relEcoPackagesPath = normalizePath(
     path.relative(ROOT_PATH, ecoPackagesPath),
@@ -66,91 +78,101 @@ function innerGetPackages(eco, files, options) {
 /**
  * Get all changed package names for the specified ecosystem.
  */
-async function getAllChangedPackages(eco, options) {
+async function getAllChangedPackages(
+  eco: string,
+  options?: GetPackagesOptions,
+) {
   return innerGetPackages(eco, await getChangedFiles(), options)
 }
 
 /**
  * Get all changed package names for the specified ecosystem.
  */
-function getAllChangedPackagesSync(eco, options) {
+function getAllChangedPackagesSync(eco: string, options?: GetPackagesOptions) {
   return innerGetPackages(eco, getChangedFilesSync(), options)
 }
 
 /**
  * Get modified package names for the specified ecosystem.
  */
-async function getModifiedPackages(eco, options) {
+async function getModifiedPackages(eco: string, options?: GetPackagesOptions) {
   return innerGetPackages(eco, await getUnstagedFiles(), options)
 }
 
 /**
  * Get modified package names for the specified ecosystem.
  */
-function getModifiedPackagesSync(eco, options) {
+function getModifiedPackagesSync(eco: string, options?: GetPackagesOptions) {
   return innerGetPackages(eco, getUnstagedFilesSync(), options)
 }
 
 /**
  * Get staged package names for the specified ecosystem.
  */
-async function getStagedPackages(eco, options) {
+async function getStagedPackages(eco: string, options?: GetPackagesOptions) {
   return innerGetPackages(eco, await getStagedFiles(), options)
 }
 
 /**
  * Get staged package names for the specified ecosystem.
  */
-function getStagedPackagesSync(eco, options) {
+function getStagedPackagesSync(eco: string, options?: GetPackagesOptions) {
   return innerGetPackages(eco, getStagedFilesSync(), options)
 }
 
 /**
  * Alias for getUnstagedFiles.
  */
-export async function getModifiedFiles(options) {
-  return await getUnstagedFiles(options)
+export async function getModifiedFiles(options?: { cwd?: string }) {
+  return await getUnstagedFiles(options?.cwd)
 }
 
 /**
  * Alias for getUnstagedFilesSync.
  */
-export function getModifiedFilesSync(options) {
-  return getUnstagedFilesSync(options)
+export function getModifiedFilesSync(options?: { cwd?: string }) {
+  return getUnstagedFilesSync(options?.cwd)
 }
 
 /**
  * Alias for isUnstaged.
  */
-export async function isModified(pathname, options) {
-  return await isUnstagedImport(pathname, options)
+export async function isModified(pathname: string, options?: { cwd?: string }) {
+  return await isUnstagedImport(pathname, options?.cwd)
 }
 
 /**
  * Alias for isUnstagedSync.
  */
-export function isModifiedSync(pathname, options) {
-  return isUnstagedSyncImport(pathname, options)
+export function isModifiedSync(pathname: string, options?: { cwd?: string }) {
+  return isUnstagedSyncImport(pathname, options?.cwd)
+}
+
+interface FilterPackagesOptions {
+  force?: boolean
+  packageKey?: string
 }
 
 /**
  * Filter packages to only those with changes, unless force mode is enabled.
  */
-export async function filterPackagesByChanges(packages, eco, options) {
+export async function filterPackagesByChanges<
+  T extends Record<string, unknown>,
+>(packages: T[], eco: string, options?: FilterPackagesOptions): Promise<T[]> {
   const { force = false, packageKey = 'socketPackage' } = {
     __proto__: null,
     ...options,
-  }
+  } as FilterPackagesOptions
   if (force) {
     return packages
   }
-  const changedPackages = await getAllChangedPackages(eco)
+  const changedPackages = (await getAllChangedPackages(eco)) as string[]
   if (!changedPackages.length) {
     return []
   }
   const changedSet = new Set(changedPackages)
   return packages.filter(pkg => {
-    const pkgName = pkg[packageKey] || pkg.package
+    const pkgName = (pkg[packageKey] as string) || (pkg['package'] as string)
     return changedSet.has(pkgName)
   })
 }

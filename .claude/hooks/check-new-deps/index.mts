@@ -17,6 +17,8 @@
 //   0 = allow (no new deps, all clean, or non-dep file)
 //   2 = block (malware detected by Socket.dev)
 
+import process from 'node:process'
+
 import {
   parseNpmSpecifier,
   stringify,

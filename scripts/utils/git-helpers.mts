@@ -128,6 +128,33 @@ export function getUnstagedFilesSync(cwd = process.cwd()): string[] {
 }
 
 /**
+ * Parse `git status --porcelain -z` output.
+ *
+ * @example
+ * // With -z, rename entries occupy two NUL-terminated records:
+ * //   "R  new-path\0old-path\0"
+ * // Regular entries are one record with XY-status prefix:
+ * //   " M file.ts\0"
+ */
+function parsePorcelainZ(raw: string, gitRoot: string): string[] {
+  const records = raw.split('\0').filter(Boolean)
+  const out: string[] = []
+  for (let i = 0; i < records.length; i += 1) {
+    const record = records[i]!
+    const status = record.slice(0, 2)
+    const filepath = record.slice(3)
+    // Rename / copy — next record is the old path; skip it.
+    if (status[0] === 'R' || status[0] === 'C') {
+      i += 1
+    }
+    if (existsSync(path.join(gitRoot, filepath))) {
+      out.push(filepath)
+    }
+  }
+  return out
+}
+
+/**
  * Get changed files synchronously (paths relative to git root).
  */
 export function getChangedFilesSync(cwd = process.cwd()): string[] {
@@ -136,19 +163,14 @@ export function getChangedFilesSync(cwd = process.cwd()): string[] {
     if (!gitRoot) {
       return []
     }
-    const result = spawnSync('git', ['status', '--porcelain'], {
+    const result = spawnSync('git', ['status', '--porcelain', '-z'], {
       cwd: gitRoot,
       stdioString: true,
     })
     if (result.status !== 0) {
       return []
     }
-    return (result.stdout as string)
-      .trim()
-      .split('\n')
-      .filter(Boolean)
-      .map(line => line.slice(3))
-      .filter(file => existsSync(path.join(gitRoot, file)))
+    return parsePorcelainZ(result.stdout as string, gitRoot)
   } catch {
     return []
   }

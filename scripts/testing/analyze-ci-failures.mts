@@ -3,12 +3,11 @@
 import { promises as fs } from 'node:fs'
 import process from 'node:process'
 
-import parseArgsModule from '@socketsecurity/lib/argv/parse'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { httpText } from '@socketsecurity/lib/http-request'
-import loggerModule from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 
-const { parseArgs } = parseArgsModule
-const { logger } = loggerModule
+const logger = getDefaultLogger()
 
 const { values: cliArgs } = parseArgs({
   options: {

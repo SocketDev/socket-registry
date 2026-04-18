@@ -10,7 +10,7 @@
 //    for malware. Downloads binary, verifies SHA-256, creates PATH shims.
 //    Enterprise vs free determined by SOCKET_API_KEY in env / .env / .env.local.
 
-import { existsSync, readFileSync, promises as fs } from 'node:fs'
+import { existsSync, promises as fs, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
@@ -20,6 +20,7 @@ import { PackageURL } from '@socketregistry/packageurl-js'
 import { whichSync } from '@socketsecurity/lib/bin'
 import { downloadBinary } from '@socketsecurity/lib/dlx/binary'
 import { downloadPackage } from '@socketsecurity/lib/dlx/package'
+import { safeDelete } from '@socketsecurity/lib/fs'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 import { getSocketHomePath } from '@socketsecurity/lib/paths/socket'
@@ -30,15 +31,19 @@ const logger = getDefaultLogger()
 
 // ── Tool config loaded from external-tools.json (self-contained) ──
 
+const checksumEntrySchema = z.object({
+  asset: z.string(),
+  sha256: z.string(),
+})
+
 const toolSchema = z.object({
   description: z.string().optional(),
   version: z.string().optional(),
   purl: z.string().optional(),
   integrity: z.string().optional(),
   repository: z.string().optional(),
-  assets: z.record(z.string(), z.string()).optional(),
-  platforms: z.record(z.string(), z.string()).optional(),
-  checksums: z.record(z.string(), z.string()).optional(),
+  release: z.string().optional(),
+  checksums: z.record(z.string(), checksumEntrySchema).optional(),
   ecosystems: z.array(z.string()).optional(),
 })
 
@@ -185,7 +190,7 @@ async function setupZizmor(): Promise<boolean> {
     await fs.copyFile(extractedBin, binPath)
     await fs.chmod(binPath, 0o755)
   } finally {
-    await fs.rm(extractDir, { recursive: true, force: true }).catch(() => {})
+    await safeDelete(extractDir).catch(() => {})
   }
 
   logger.log(`Installed to ${binPath}`)
