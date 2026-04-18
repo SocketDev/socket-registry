@@ -50,7 +50,7 @@ See [reference.md](reference.md) for detailed agent prompts. Scan types:
 
 ## Scan Scope
 
-Primary: `registry/lib/`, `scripts/`, `test/`, `.github/workflows/`, `packages/npm/`
+Primary: `registry/src/`, `scripts/`, `test/`, `.github/workflows/`, `packages/npm/`
 Excluded: `node_modules/`, `dist/`, `build/`, `.pnpm-store/`
 
 ## Error Recovery
