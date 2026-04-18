@@ -2,12 +2,12 @@
  * @fileoverview Path constants for project structure.
  */
 
-import fs from 'node:fs'
+import { existsSync } from 'node:fs'
 import path from 'node:path'
+import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import { getTsxExecPath } from './utils.mts'
-import process from 'node:process'
 
 /**
  * Normalize path separators for cross-platform compatibility.
@@ -24,7 +24,7 @@ function findProjectRoot(): string {
   const root = path.parse(currentPath).root
 
   while (currentPath !== root) {
-    if (fs.existsSync(path.join(currentPath, 'pnpm-workspace.yaml'))) {
+    if (existsSync(path.join(currentPath, 'pnpm-workspace.yaml'))) {
       return normalizePath(currentPath)
     }
     currentPath = path.dirname(currentPath)

@@ -2,7 +2,7 @@
  * @fileoverview Package utilities for checking test status and package metadata.
  */
 
-import fs from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -22,7 +22,7 @@ function getTestNpmPackageJson() {
       '../../test/npm/package.json',
     )
     _cachedTestNpmPackageJson = JSON.parse(
-      fs.readFileSync(testNpmPackageJsonPath, 'utf8'),
+      readFileSync(testNpmPackageJsonPath, 'utf8'),
     )
   }
   return _cachedTestNpmPackageJson
@@ -41,7 +41,7 @@ export function shouldSkipTests(packageName, options) {
 
   // Check if package has test file.
   const testFilePath = path.join(testPath, `${packageName}.test.mts`)
-  if (fs.existsSync(testFilePath)) {
+  if (existsSync(testFilePath)) {
     return false
   }
 

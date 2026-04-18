@@ -2,7 +2,7 @@
  * @fileoverview Utility functions for constants.
  */
 
-import fs from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
@@ -37,7 +37,7 @@ export function getDefaultWhichOptions(): { path: string } {
 let _licenseContent: string | undefined
 export function getLicenseContent(): string {
   if (_licenseContent === undefined) {
-    _licenseContent = fs.readFileSync(ROOT_LICENSE_PATH, 'utf8')
+    _licenseContent = readFileSync(ROOT_LICENSE_PATH, 'utf8')
   }
   return _licenseContent!
 }
@@ -60,7 +60,7 @@ let _tsxExecPath: string | undefined
 export function getTsxExecPath(): string {
   if (_tsxExecPath === undefined) {
     const tsxPath = path.join(ROOT_NODE_MODULES_BIN_PATH, 'tsx')
-    if (fs.existsSync(tsxPath)) {
+    if (existsSync(tsxPath)) {
       _tsxExecPath = tsxPath
     } else {
       _tsxExecPath = which.sync('tsx', getDefaultWhichOptions())
@@ -76,7 +76,7 @@ let _gitIgnorePatterns: string[] | undefined
 export function getGitIgnorePatterns(): string[] {
   if (_gitIgnorePatterns === undefined) {
     const gitignorePath = path.join(ROOT_PATH, '.gitignore')
-    const content = fs.readFileSync(gitignorePath, 'utf8')
+    const content = readFileSync(gitignorePath, 'utf8')
     _gitIgnorePatterns = content
       .split('\n')
       .map(line => line.trim())

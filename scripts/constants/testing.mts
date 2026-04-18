@@ -2,7 +2,8 @@
  * @fileoverview Testing-related constants and utilities.
  */
 
-import fs from 'node:fs'
+import { readdirSync } from 'node:fs'
+
 import { WIN32 } from './node.mts'
 import {
   NPM_PACKAGES_PATH,
@@ -14,8 +15,7 @@ import {
  * Get npm package names from packages directory.
  */
 export function getNpmPackageNames() {
-  return fs
-    .readdirSync(NPM_PACKAGES_PATH, { withFileTypes: true })
+  return readdirSync(NPM_PACKAGES_PATH, { withFileTypes: true })
     .filter(dirent => dirent.isDirectory() && !dirent.name.startsWith('.'))
     .map(dirent => dirent.name)
 }
@@ -24,7 +24,7 @@ export function getNpmPackageNames() {
  * Get available package ecosystems.
  */
 export function getEcosystems() {
-  return fs.readdirSync(ROOT_PACKAGES_PATH)
+  return readdirSync(ROOT_PACKAGES_PATH)
 }
 
 /**
@@ -32,8 +32,7 @@ export function getEcosystems() {
  */
 export function getSkipTestsByEcosystem() {
   // Get all test files from test/npm directory.
-  const testFiles = fs
-    .readdirSync(TEST_NPM_PATH)
+  const testFiles = readdirSync(TEST_NPM_PATH)
     .filter(name => name.endsWith('.test.mts'))
     .map(name => name.slice(0, -'.test.mts'.length))
 

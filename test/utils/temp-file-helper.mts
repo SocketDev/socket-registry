@@ -4,11 +4,11 @@
  */
 
 import { randomUUID } from 'node:crypto'
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-import { deleteAsync as del } from 'del'
+import { safeDelete, safeDeleteSync } from '@socketsecurity/lib/fs'
 
 interface TempDirResult {
   cleanup: () => Promise<void>
@@ -50,7 +50,7 @@ export async function withTempDir(prefix = 'test-'): Promise<TempDirResult> {
   return {
     cleanup: async () => {
       // Force delete temp directory outside CWD.
-      await del(tmpDir, { force: true })
+      await safeDelete(tmpDir)
     },
     path: tmpDir,
   }
@@ -77,11 +77,7 @@ export function withTempDirSync(
 
   return {
     cleanup: () => {
-      try {
-        rmSync(tmpDir, { force: true, recursive: true })
-      } catch {
-        // Ignore cleanup errors
-      }
+      safeDeleteSync(tmpDir)
     },
     path: tmpDir,
   }
@@ -121,11 +117,7 @@ export async function withTempFile(
 
   return {
     cleanup: async () => {
-      try {
-        await del(tmpFile, { force: true })
-      } catch {
-        // Ignore cleanup errors
-      }
+      await safeDelete(tmpFile)
     },
     path: tmpFile,
   }
@@ -182,7 +174,7 @@ export async function withTempFiles(
 
   return {
     cleanup: async () => {
-      await del(tmpDir, { force: true })
+      await safeDelete(tmpDir)
     },
     dir: tmpDir,
     files: filePaths,
