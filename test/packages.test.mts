@@ -201,11 +201,6 @@ for (const eco of ecosystems) {
                 expect(files.includes(relativeDtsPath)).toBe(true)
               }
             }
-
-            // If there are type files exported, we trust the exports configuration.
-            if (typeFilePaths.length > 0) {
-              expect(typeFilePaths.length).toBeGreaterThan(0)
-            }
           })
         }
 

@@ -207,7 +207,10 @@ async function addNpmManifestData(manifest, options) {
         return
       }
       const { version } = nmPkgManifest
-      entry[0] = `${entry[0].slice(0, -AT_LATEST.length)}@${version}`
+      const key = entry[0].endsWith(AT_LATEST)
+        ? entry[0].slice(0, -AT_LATEST.length)
+        : entry[0]
+      entry[0] = `${key}@${version}`
       entry[1].version = version
     },
     { concurrency: DEFAULT_CONCURRENCY },
