@@ -223,6 +223,8 @@ async function main(): Promise<void> {
     }
     if (values['tag']) {
       publishOpts.tag = values['tag'] as string
+    } else if (process.env['DIST_TAG']) {
+      publishOpts.tag = process.env['DIST_TAG']
     }
     const publishSuccess = await publishComplex(publishOpts)
 
