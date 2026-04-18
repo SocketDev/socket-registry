@@ -176,8 +176,8 @@ async function setupZizmor(): Promise<boolean> {
   }
 
   const isZip = asset.endsWith('.zip')
-  const extractDir = path.join(tmpdir(), `zizmor-extract-${Date.now()}`)
-  await fs.mkdir(extractDir, { recursive: true })
+  // mkdtemp is collision-safe, unlike Date.now()-only naming.
+  const extractDir = await fs.mkdtemp(path.join(tmpdir(), 'zizmor-extract-'))
   try {
     if (isZip) {
       await spawn('powershell', ['-NoProfile', '-Command',

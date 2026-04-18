@@ -279,7 +279,19 @@ if (import.meta.filename === process.argv[1]) {
   // Read the full JSON blob from stdin (piped by Claude Code).
   let input = ''
   for await (const chunk of process.stdin) input += chunk
-  const hook: HookInput = JSON.parse(input)
+
+  let hook: HookInput
+  try {
+    hook = JSON.parse(input)
+  } catch (e) {
+    // Fail-block (exit 2) on malformed input — a security hook should never
+    // silently pass through when it can't parse its own contract.
+    logger.error(
+      `Socket: malformed hook input: ${(e as Error).message}`,
+    )
+    process.exitCode = 2
+    throw e
+  }
 
   if (hook.tool_name !== 'Edit' && hook.tool_name !== 'Write') {
     process.exitCode = 0
