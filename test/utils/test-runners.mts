@@ -3,7 +3,7 @@
 /**
  * List of test script names to try in order of preference.
  */
-const testScripts = [
+export const testScripts: string[] = [
   // Order is significant. First in, first tried.
   'mocha',
   'specs',
@@ -16,7 +16,7 @@ const testScripts = [
 /**
  * List of test runner script names.
  */
-const testRunners = [
+export const testRunners: string[] = [
   'mocha',
   'jest',
   'ava',
@@ -28,5 +28,3 @@ const testRunners = [
   'test:stock',
   'test:all',
 ]
-
-export { testRunners, testScripts }

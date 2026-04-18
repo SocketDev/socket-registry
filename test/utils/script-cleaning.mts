@@ -3,7 +3,7 @@
 /**
  * Clean test script by removing unsupported flags and pre/post actions.
  */
-function cleanTestScript(testScript) {
+export function cleanTestScript(testScript: string): string {
   // Remove unsupported Node flag "--es-staging".
   const cleaned = testScript.replace(/ --es-staging\b/g, '')
 
@@ -18,5 +18,3 @@ function cleanTestScript(testScript) {
 
   return filtered.join(' && ').trim()
 }
-
-export { cleanTestScript }

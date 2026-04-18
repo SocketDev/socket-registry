@@ -7,53 +7,48 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 
 import {
-  readPackageJson,
   isolatePackage as registryIsolatePackage,
+  readPackageJson,
   resolveOriginalPackageName,
 } from '@socketsecurity/lib/packages'
+
 import {
   NPM_PACKAGES_PATH,
   TEST_NPM_PKG_JSON_PATH,
-} from '../../scripts/constants/paths.mjs'
-import { cleanTestScript } from './script-cleaning.mjs'
-import { testRunners } from './test-runners.mjs'
+} from '../../scripts/constants/paths.mts'
+import { cleanTestScript } from './script-cleaning.mts'
+import { testRunners } from './test-runners.mts'
 
 const npmPackagesPath = NPM_PACKAGES_PATH
 const testNpmPkgJsonPath = TEST_NPM_PKG_JSON_PATH
 
+interface IsolatePackageOptions {
+  imports?: Record<string, string>
+}
+
+interface IsolatePackageResult {
+  exports?: Record<string, unknown> | undefined
+  tmpdir: string
+}
+
+interface SetupMultiEntryTestResult {
+  modules: unknown[]
+  tmpdir: string
+}
+
 /**
  * Isolates a package in a temporary test environment.
- *
- * Supports multiple input types:
- * 1. Socket registry packages: Pass package name (e.g., '@socketregistry/packageurl-js')
- * 2. Local development packages: Pass relative or absolute path (e.g., '../../socket-packageurl-js' or '.')
- * 3. npm package specs: Pass any npm-package-arg compatible spec
- *
- * @param {string} packageSpec - Package name, path, or npm package spec.
- * @param {object} [options] - Optional configuration.
- * @param {Record<string, string>} [options.imports] - Map of import names to module specifiers (e.g., { PackageURL: './package-url.js' }).
- * @returns {Promise<{exports?: Record<string, any>, tmpdir: string}>}
- *
- * @example
- * const { tmpdir } = await isolatePackage('@socketregistry/packageurl-js')
- *
- * @example
- * const { tmpdir } = await isolatePackage('../../socket-packageurl-js')
- *
- * @example
- * const { tmpdir, exports } = await isolatePackage('packageurl-js@1.0.0', {
- *   imports: { PackageURL: './package-url.js', convert: './url-converter.js' }
- * })
- * // exports.PackageURL, exports.convert
  */
-async function isolatePackage(packageSpec, options = {}) {
-  const { imports } = options
+export async function isolatePackage(
+  packageSpec: string,
+  options: IsolatePackageOptions = {},
+): Promise<IsolatePackageResult> {
+  const { imports } = { __proto__: null, ...options } as IsolatePackageOptions
 
   let resolvedSpec = packageSpec
-  let sourcePath
+  let sourcePath: string | undefined
   let hasSourcePath = false
 
-  // Check if this is a Socket registry package.
   if (
     packageSpec.startsWith('@socketregistry/') &&
     !packageSpec.includes('@', 1)
@@ -65,14 +60,12 @@ async function isolatePackage(packageSpec, options = {}) {
       throw new Error(`No Socket override found for ${socketPkgName}`)
     }
 
-    // Resolve to original npm package name.
     const packageName = resolveOriginalPackageName(socketPkgName)
 
-    // Get version spec from test/npm/package.json.
     const testPkgJson = await readPackageJson(testNpmPkgJsonPath, {
       normalize: true,
     })
-    const spec = testPkgJson.devDependencies?.[packageName]
+    const spec = testPkgJson?.devDependencies?.[packageName]
 
     if (!spec) {
       throw new Error(`${packageName} not in devDependencies`)
@@ -82,10 +75,9 @@ async function isolatePackage(packageSpec, options = {}) {
     hasSourcePath = true
   }
 
-  const result = await registryIsolatePackage(resolvedSpec, {
+  return await registryIsolatePackage(resolvedSpec, {
     imports,
-    onPackageJson: async pkgJson => {
-      // Preserve test scripts for registry packages.
+    onPackageJson: async (pkgJson: any) => {
       if (hasSourcePath) {
         const originalScripts = pkgJson.scripts
 
@@ -97,19 +89,19 @@ async function isolatePackage(packageSpec, options = {}) {
             'test:stock',
             'test:all',
           ]
-          let actualTestScript = additionalTestRunners.find(
-            runner => originalScripts[runner],
+          let actualTestScript: string | undefined = additionalTestRunners.find(
+            (runner: string) => originalScripts[runner],
           )
 
-          if (!actualTestScript && originalScripts.test) {
-            const testMatch = originalScripts.test.match(/npm run ([-:\w]+)/)
+          if (!actualTestScript && originalScripts['test']) {
+            const testMatch = originalScripts['test'].match(/npm run ([-:\w]+)/)
             if (testMatch && originalScripts[testMatch[1]]) {
               actualTestScript = testMatch[1]
             }
           }
 
           if (actualTestScript && originalScripts[actualTestScript]) {
-            pkgJson.scripts.test = cleanTestScript(
+            pkgJson.scripts['test'] = cleanTestScript(
               originalScripts[actualTestScript],
             )
             if (actualTestScript !== 'test') {
@@ -117,8 +109,8 @@ async function isolatePackage(packageSpec, options = {}) {
                 originalScripts[actualTestScript],
               )
             }
-          } else if (originalScripts.test) {
-            pkgJson.scripts.test = cleanTestScript(originalScripts.test)
+          } else if (originalScripts['test']) {
+            pkgJson.scripts['test'] = cleanTestScript(originalScripts['test'])
           }
 
           for (const { 0: key, 1: value } of Object.entries(originalScripts)) {
@@ -126,7 +118,7 @@ async function isolatePackage(packageSpec, options = {}) {
               (key.startsWith('test:') || key.startsWith('tests')) &&
               !pkgJson.scripts[key]
             ) {
-              pkgJson.scripts[key] = cleanTestScript(value)
+              pkgJson.scripts[key] = cleanTestScript(value as string)
             }
           }
         }
@@ -136,28 +128,25 @@ async function isolatePackage(packageSpec, options = {}) {
     },
     sourcePath,
   })
-
-  return result
 }
 
 /**
  * Sets up a test environment for packages with multiple entry points.
- *
- * @param {string} packageSpec - Package name or spec.
- * @param {string[]} entryPoints - Array of entry point paths relative to package root (e.g., ['index.js', 'lib/utils.js']).
- * @returns {Promise<{modules: any[], tmpdir: string}>}
  */
-async function setupMultiEntryTest(packageSpec, entryPoints = ['index.js']) {
-  const imports = { __proto__: null }
+export async function setupMultiEntryTest(
+  packageSpec: string,
+  entryPoints: string[] = ['index.js'],
+): Promise<SetupMultiEntryTestResult> {
+  const imports: Record<string, string> = Object.create(null)
   for (const { 0: index, 1: entry } of Object.entries(entryPoints)) {
     imports[`entry_${index}`] = entry
   }
 
   const result = await isolatePackage(packageSpec, { imports })
 
-  const modules = []
+  const modules: unknown[] = []
   for (const { 0: index } of Object.entries(entryPoints)) {
-    modules.push(result.exports[`entry_${index}`])
+    modules.push(result.exports?.[`entry_${index}`])
   }
 
   return {
@@ -165,5 +154,3 @@ async function setupMultiEntryTest(packageSpec, entryPoints = ['index.js']) {
     tmpdir: result.tmpdir,
   }
 }
-
-export { isolatePackage, setupMultiEntryTest }
