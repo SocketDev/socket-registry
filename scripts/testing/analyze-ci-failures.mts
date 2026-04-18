@@ -1,11 +1,11 @@
 /** @fileoverview Analyzes CI failure logs and suggests fixes based on known patterns. */
 
 import { promises as fs } from 'node:fs'
-import { get as httpGet } from 'node:http'
-import { get as httpsGet } from 'node:https'
-import parseArgsModule from '@socketsecurity/lib/argv/parse'
-import loggerModule from '@socketsecurity/lib/logger'
 import process from 'node:process'
+
+import parseArgsModule from '@socketsecurity/lib/argv/parse'
+import { httpText } from '@socketsecurity/lib/http-request'
+import loggerModule from '@socketsecurity/lib/logger'
 
 const { parseArgs } = parseArgsModule
 const { logger } = loggerModule
@@ -143,32 +143,7 @@ async function fetchLogContent() {
   }
 
   if (cliArgs.logUrl) {
-    const parsedUrl = new URL(cliArgs.logUrl)
-    const isHttps = parsedUrl.protocol === 'https:'
-    const get = isHttps ? httpsGet : httpGet
-
-    return new Promise((resolve, reject) => {
-      const request = get(cliArgs.logUrl, res => {
-        const { statusCode } = res
-        const chunks = []
-
-        res.on('data', chunk => {
-          chunks.push(chunk)
-        })
-
-        res.on('end', () => {
-          if (statusCode >= 200 && statusCode < 300) {
-            resolve(Buffer.concat(chunks).toString('utf8'))
-          } else {
-            reject(new Error(`Failed to fetch log: ${statusCode}`))
-          }
-        })
-      })
-
-      request.on('error', e => {
-        reject(new Error(`HTTP request failed: ${e.message}`))
-      })
-    })
+    return await httpText(cliArgs.logUrl, { timeout: 30_000 })
   }
 
   throw new Error('Must provide --log-file or --log-url')

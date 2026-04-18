@@ -11,11 +11,12 @@
 
 import { createHash } from 'node:crypto'
 import { createReadStream, existsSync, readFileSync } from 'node:fs'
-import { mkdir, open, readFile, rm, unlink, writeFile } from 'node:fs/promises'
+import { mkdir, open, readFile, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 
 import { WIN32 } from '@socketsecurity/lib/constants/platform'
+import { safeDelete } from '@socketsecurity/lib/fs'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { spawn } from '@socketsecurity/lib/spawn'
 
@@ -180,7 +181,7 @@ async function downloadAndVerify(
 
     // Clean corrupted cache.
     if (existsSync(cachePath)) {
-      await rm(cachePath, { recursive: true, force: true })
+      await safeDelete(cachePath)
     }
 
     const repo = config.repository.replace(/^[^:]+:/, '')
@@ -255,12 +256,12 @@ async function downloadAndVerify(
       }
       await writeFile(path.join(cachePath, '.checksum'), expectedSha256)
 
-      await rm(tmpDir, { recursive: true, force: true }).catch(() => {})
+      await safeDelete(tmpDir)
       log.success(`${tool} ${version} installed`)
       return path.join(cachePath, binaryName)
-    } catch (err) {
-      await rm(tmpDir, { recursive: true, force: true }).catch(() => {})
-      throw err
+    } catch (e) {
+      await safeDelete(tmpDir)
+      throw e
     }
   } finally {
     await releaseLock()
