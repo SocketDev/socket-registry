@@ -154,7 +154,9 @@ async function getNpmReadmeAction(pkgPath, options) {
           ...(interop ? { interop } : {}),
           adjectivesText: `${capitalize(determineArticle(adjectives[0]))} ${joinAnd(adjectives)}`,
           categories,
-          dependencies: isObjectObject(pkgJson.dependencies) ?? {},
+          dependencies: isObjectObject(pkgJson.dependencies)
+            ? pkgJson.dependencies
+            : {},
           originalName: resolveOriginalPackageName(sockRegPkgName),
           purl: pkgPurlObj,
           version: semver.parse(pkgJson.version),

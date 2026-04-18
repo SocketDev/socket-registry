@@ -71,7 +71,7 @@ try {
   if (buildResult.code !== 0) {
     logger.error('Build with source maps failed')
     process.exitCode = buildResult.code ?? 1
-    throw new Error('Build with source maps failed')
+    return
   }
   logger.log('')
 
@@ -308,5 +308,6 @@ try {
   process.exitCode = exitCode
 } catch (e) {
   logger.error(`Coverage script failed: ${(e as Error).message}`)
-  process.exitCode = 1
+  // Preserve any exit code already set by an earlier failure branch.
+  process.exitCode = process.exitCode ?? 1
 }

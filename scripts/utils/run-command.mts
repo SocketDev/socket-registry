@@ -162,7 +162,8 @@ export async function runCommandQuiet(
     })
 
     return {
-      exitCode: result.code,
+      // @socketsecurity/lib/spawn reports null on signal termination.
+      exitCode: result.code ?? 1,
       stderr: result.stderr as string,
       stdout: result.stdout as string,
     }
@@ -174,9 +175,13 @@ export async function runCommandQuiet(
       'stdout' in e &&
       'stderr' in e
     ) {
-      const spawnErr = e as { code: number; stderr: string; stdout: string }
+      const spawnErr = e as {
+        code: number | null
+        stderr: string
+        stdout: string
+      }
       return {
-        exitCode: spawnErr.code,
+        exitCode: spawnErr.code ?? 1,
         stderr: spawnErr.stderr,
         stdout: spawnErr.stdout,
       }

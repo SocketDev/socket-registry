@@ -298,13 +298,23 @@ export function buildTestEnv(packageTempDir, installedPath) {
 }
 
 /**
- * Run a command with spawn.
+ * Run a command with spawn, piping stdio and normalizing error shape.
+ *
+ * Different semantics from `runCommand` in `./run-command.mts`:
+ * - This one defaults to `stdio: 'pipe'` and returns `{ stdout, stderr }`.
+ * - On non-zero exit it throws an Error augmented with `code`/`stdout`/`stderr`.
+ *
+ * Renaming would ripple to every caller; kept as-is with this note instead.
  */
-export async function runCommand(command, args, options = {}) {
+export async function runCommand(
+  command: string,
+  args: string[],
+  options: Record<string, unknown> = {},
+) {
   try {
     const result = await spawn(command, args, {
       stdio: 'pipe',
-      shell: process.platform.startsWith('win'),
+      shell: WIN32,
       ...options,
     })
     return { stdout: result.stdout, stderr: result.stderr }
@@ -494,10 +504,11 @@ export async function installPackageForTesting(
         pkgJson.scripts.test = cleanTestScript(originalScripts.test)
       }
 
-      // Preserve any test:* and tests-* scripts that might be referenced.
+      // Preserve test:* scripts and the exact key 'tests', but not unrelated
+      // names like 'testsuite' that merely begin with 'tests'.
       for (const { 0: key, 1: value } of Object.entries(originalScripts)) {
         if (
-          (key.startsWith('test:') || key.startsWith('tests')) &&
+          (key.startsWith('test:') || key === 'tests') &&
           !pkgJson.scripts[key]
         ) {
           pkgJson.scripts[key] = cleanTestScript(value)
