@@ -312,13 +312,11 @@ export function buildTestEnv(packageTempDir, installedPath) {
 /**
  * Run a command with spawn, piping stdio and normalizing error shape.
  *
- * Different semantics from `runCommand` in `./run-command.mts`:
- * - This one defaults to `stdio: 'pipe'` and returns `{ stdout, stderr }`.
- * - On non-zero exit it throws an Error augmented with `code`/`stdout`/`stderr`.
- *
- * Renaming would ripple to every caller; kept as-is with this note instead.
+ * On non-zero exit this throws an Error augmented with `code`/`stdout`/`stderr`,
+ * unlike `runCommand` in `./run-command.mts` which returns a number and never
+ * throws on non-zero. Use this when you need captured stdio on failure.
  */
-export async function runCommand(
+export async function spawnCapture(
   command: string,
   args: string[],
   options: Record<string, unknown> = {},
@@ -408,7 +406,7 @@ export async function installPackageForTesting(
         ? versionSpec
         : `${packageName}@${versionSpec}`
 
-      await runCommand(
+      await spawnCapture(
         PNPM_REAL_BIN,
         ['add', packageSpec, ...PNPM_HOISTED_INSTALL_FLAGS],
         {
@@ -533,7 +531,7 @@ export async function installPackageForTesting(
     await fs.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 2))
 
     // Install dependencies with pnpm.
-    await runCommand(
+    await spawnCapture(
       PNPM_REAL_BIN,
       ['install', ...PNPM_HOISTED_INSTALL_FLAGS],
       {

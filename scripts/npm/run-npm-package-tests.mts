@@ -25,7 +25,7 @@ import {
   PNPM_HOISTED_INSTALL_FLAGS,
   PNPM_INSTALL_BASE_FLAGS,
   PNPM_INSTALL_ENV,
-  runCommand,
+  spawnCapture,
 } from '../utils/package.mts'
 import { suppressMaxListenersWarning } from '../utils/suppress-warnings.mts'
 
@@ -89,7 +89,7 @@ async function runPackageTest(socketPkgName) {
     // Run vitest on the custom test file.
     // Set INCLUDE_NPM_TESTS to bypass the exclude pattern in vitest.config.mts.
     try {
-      await runCommand(
+      await spawnCapture(
         'pnpm',
         [
           'vitest',
@@ -186,7 +186,7 @@ async function runPackageTest(socketPkgName) {
     const env = buildTestEnv(packageTempDir, installedPath)
     const shell = WIN32 ? 'cmd' : 'sh'
     const shellFlag = WIN32 ? '/c' : '-c'
-    await runCommand(shell, [shellFlag, cleanedScript], {
+    await spawnCapture(shell, [shellFlag, cleanedScript], {
       cwd: installedPath,
       env,
     })
@@ -215,14 +215,14 @@ async function runPackageTest(socketPkgName) {
         }
 
         // First reinstall in the root (installs prod dependencies of main package).
-        await runCommand('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
+        await spawnCapture('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
           cwd: packageTempDir,
           env,
         })
 
         // Then reinstall all dependencies (including devDependencies) of the nested package.
         // Use isolated mode to avoid conflicts with parent installation.
-        await runCommand('pnpm', ['install', ...PNPM_INSTALL_BASE_FLAGS], {
+        await spawnCapture('pnpm', ['install', ...PNPM_INSTALL_BASE_FLAGS], {
           cwd: installedPath,
           env,
         })
@@ -230,7 +230,7 @@ async function runPackageTest(socketPkgName) {
         // Retry the test after reinstall using cleaned script.
         const shell = WIN32 ? 'cmd' : 'sh'
         const shellFlag = WIN32 ? '/c' : '-c'
-        await runCommand(shell, [shellFlag, cleanedScript], {
+        await spawnCapture(shell, [shellFlag, cleanedScript], {
           cwd: installedPath,
           env,
         })
