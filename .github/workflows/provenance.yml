@@ -91,9 +91,7 @@ on:
         description: 'Socket API key — when provided, uses sfw-enterprise instead of sfw-free'
         required: false
 
-permissions:
-  contents: write
-  id-token: write
+permissions: {}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -104,6 +102,11 @@ jobs:
     name: Build and Publish
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout-minutes }}
+    permissions:
+      # Needed to create release tags and commits.
+      contents: write
+      # Needed for npm provenance via OIDC trusted publishing.
+      id-token: write
     steps:
       - name: Validate inputs
         env:
