@@ -40,7 +40,7 @@ export type PURLString =
   | 'swift'
   | 'vcs'
 
-// Alias for backward compatibility and semantic clarity
+// Semantic alias — a PURL string in a Manifest key slot represents an ecosystem.
 export type EcosystemString = PURLString
 
 // Manifest types for Socket Registry

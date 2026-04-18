@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Upgraded @socketregistry/packageurl-js to 1.4.2
-- Build system refinements and type definition cleanup
+- Regenerated `manifest.json` after the root @socketregistry/packageurl-js 1.4.2 bump.
+- Build system refinements and type definition cleanup.
 
 ## [2.0.2] - 2025-11-02
 
