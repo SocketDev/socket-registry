@@ -4,9 +4,9 @@
  * EXECUTION FLOW:
  *
  * This script is part of a 3-phase testing pipeline:
- *   1. validation/npm-packages.mjs - Validates packages have manual tests or are in devDependencies
- *   2. install-npm-packages.mjs  - Installs packages with Socket overrides (THIS FILE)
- *   3. run-npm-package-tests.mjs - Runs tests for installed packages
+ *   1. validation/npm-packages.mts - Validates packages have manual tests or are in devDependencies
+ *   2. install-npm-packages.mts  - Installs packages with Socket overrides (THIS FILE)
+ *   3. run-npm-package-tests.mts - Runs tests for installed packages
  *
  * WHAT THIS SCRIPT DOES:
  *
@@ -65,7 +65,7 @@
  *
  * OUTPUT:
  *   - Installed packages in: /tmp/npm-package-tests/{package-name}/
- *   - Install results JSON for run-npm-package-tests.mjs
+ *   - Install results JSON for run-npm-package-tests.mts
  */
 
 import crypto from 'node:crypto'

@@ -62,7 +62,7 @@ async function validateBuildArtifacts(): Promise<boolean> {
 
 /**
  * Publish packages using the complex multi-package flow.
- * Delegates to scripts/npm/publish-npm-packages.mjs.
+ * Delegates to scripts/npm/publish-npm-packages.mts.
  */
 interface PublishOptions {
   force?: boolean

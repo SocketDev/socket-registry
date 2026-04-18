@@ -40,7 +40,7 @@ jobs:
     with:
       debug: ${{ inputs.debug }}
       force-registry: ${{ inputs.force-registry }}
-      publish-script: 'package-npm-publish' # runs scripts/publish-npm-packages.mjs
+      publish-script: 'package-npm-publish' # runs scripts/npm/publish-npm-packages.mts
       publish-without-sfw: ${{ inputs.publish-without-sfw }}
       setup-script: 'pnpm run build'
       skip-npm-packages: ${{ inputs.skip-npm-packages }}

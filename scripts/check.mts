@@ -5,7 +5,7 @@
  * - TypeScript type checking
  *
  * Usage:
- *   node scripts/check.mjs [options]
+ *   node scripts/check.mts [options]
  *
  * Options:
  *   --all      Run on all files (default behavior)
@@ -66,17 +66,17 @@ async function main(): Promise<void> {
 
     if (help) {
       logger.log('Check Runner')
-      logger.log('\nUsage: node scripts/check.mjs [options]')
+      logger.log('\nUsage: node scripts/check.mts [options]')
       logger.log('\nOptions:')
       logger.log('  --help, -h     Show this help message')
       logger.log('  --all          Run on all files (default behavior)')
       logger.log('  --staged       Run on staged files only')
       logger.log('\nExamples:')
-      logger.log('  node scripts/check.mjs          # Run on all files')
+      logger.log('  node scripts/check.mts          # Run on all files')
       logger.log(
-        '  node scripts/check.mjs --all    # Run on all files (explicit)',
+        '  node scripts/check.mts --all    # Run on all files (explicit)',
       )
-      logger.log('  node scripts/check.mjs --staged # Run on staged files')
+      logger.log('  node scripts/check.mts --staged # Run on staged files')
       process.exitCode = 0
       return
     }
