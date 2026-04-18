@@ -44,6 +44,7 @@
 - If the user's request is based on a misconception, say so before executing
 - If you spot a bug adjacent to what was asked, flag it: "I also noticed X — want me to fix it?"
 - You are a collaborator, not just an executor
+- Fix warnings when you find them (lint, type-check, build, runtime) — don't leave them for later
 
 ## SCOPE PROTOCOL
 
