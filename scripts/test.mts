@@ -77,7 +77,7 @@ async function runCommand(
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
       stdio: 'inherit',
-      ...(process.platform === 'win32' && { shell: true }),
+      shell: WIN32,
       ...options,
     })
 
@@ -111,7 +111,7 @@ async function runCommandWithOutput(
     let stderr = ''
 
     const child = spawn(command, args, {
-      ...(process.platform === 'win32' && { shell: true }),
+      shell: WIN32,
       ...options,
     })
 

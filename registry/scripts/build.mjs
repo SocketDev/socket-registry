@@ -44,7 +44,7 @@ async function buildSource(options = {}) {
         command: 'pnpm',
         options: {
           cwd: rootPath,
-          ...(process.platform === 'win32' && { shell: true }),
+          shell: process.platform === 'win32',
         },
       },
     ])
@@ -73,7 +73,7 @@ async function buildSource(options = {}) {
         command: 'node',
         options: {
           cwd: rootPath,
-          ...(process.platform === 'win32' && { shell: true }),
+          shell: process.platform === 'win32',
         },
       },
     ])
@@ -114,7 +114,7 @@ async function buildTypes(options = {}) {
       command: 'pnpm',
       options: {
         cwd: rootPath,
-        ...(process.platform === 'win32' && { shell: true }),
+        shell: process.platform === 'win32',
       },
     })
   }
@@ -124,7 +124,7 @@ async function buildTypes(options = {}) {
     command: 'pnpm',
     options: {
       cwd: rootPath,
-      ...(process.platform === 'win32' && { shell: true }),
+      shell: process.platform === 'win32',
     },
   })
 
@@ -419,7 +419,7 @@ async function main() {
           command: 'pnpm',
           options: {
             cwd: rootPath,
-            ...(process.platform === 'win32' && { shell: true }),
+            shell: process.platform === 'win32',
           },
         },
       ])

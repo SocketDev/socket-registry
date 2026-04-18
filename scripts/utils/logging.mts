@@ -7,35 +7,39 @@ const logger = getDefaultLogger()
 // Default formatting constants.
 const DEFAULT_RULE_WIDTH = 50
 const DEFAULT_RULE_CHAR = '─'
+
+interface HeaderOptions {
+  emoji?: string
+  ruleChar?: string
+  ruleWidth?: number
+}
+
 /**
  * Create a horizontal rule of specified width.
  */
 export function createHorizontalRule(
-  width = DEFAULT_RULE_WIDTH,
-  char = DEFAULT_RULE_CHAR,
-) {
+  width: number = DEFAULT_RULE_WIDTH,
+  char: string = DEFAULT_RULE_CHAR,
+): string {
   return char.repeat(width)
 }
 
 /**
  * Format a header title with optional emoji prefix.
  */
-function formatHeaderTitle(title, emoji) {
+function formatHeaderTitle(title: string, emoji?: string): string {
   return emoji ? `${emoji} ${title}` : title
 }
 
 /**
  * Log a section header with optional emoji and horizontal rule.
  */
-export function logSectionHeader(title, options) {
+export function logSectionHeader(title: string, options?: HeaderOptions): void {
   const {
     emoji,
     ruleChar = DEFAULT_RULE_CHAR,
     ruleWidth = DEFAULT_RULE_WIDTH,
-  } = {
-    __proto__: null,
-    ...options,
-  }
+  } = { __proto__: null, ...options } as HeaderOptions
 
   const header = formatHeaderTitle(title, emoji)
   logger.log(`\n${header}`)
@@ -45,8 +49,11 @@ export function logSectionHeader(title, options) {
 /**
  * Log a subsection header without horizontal rule.
  */
-export function logSubsectionHeader(title, options) {
-  const { emoji } = { __proto__: null, ...options }
+export function logSubsectionHeader(
+  title: string,
+  options?: HeaderOptions,
+): void {
+  const { emoji } = { __proto__: null, ...options } as HeaderOptions
   const header = formatHeaderTitle(title, emoji)
   logger.log(`\n${header}`)
 }

@@ -47,33 +47,34 @@ const { values } = parseArgs({
 printHeader('Test Coverage')
 logger.log('')
 
-// Rebuild with source maps enabled for coverage
-logger.info('Building with source maps for coverage...')
-const buildResult = await spawn('node', ['scripts/build.mts'], {
-  cwd: rootPath,
-  stdio: 'inherit',
-  env: envWithMemoryLimits,
-})
-if (buildResult.code !== 0) {
-  throw new Error('Build with source maps failed')
-}
-logger.log('')
-
-// Run vitest with coverage enabled, capturing output
-// Filter out custom flags that vitest doesn't understand
+// Filter out custom flags that vitest doesn't understand.
 const customFlags = ['--code-only', '--type-only', '--summary']
 const vitestArgs = [
   'exec',
   'vitest',
   'run',
   '--coverage',
-  // Exclude packages test - it imports all 200+ npm packages which pollutes coverage
+  // Exclude packages test — it imports all 200+ npm packages, polluting coverage.
   '--exclude=test/packages.test.mts',
   ...process.argv.slice(2).filter(arg => !customFlags.includes(arg)),
 ]
 const typeCoverageArgs = ['exec', 'type-coverage']
 
 try {
+  // Rebuild with source maps enabled for coverage.
+  logger.info('Building with source maps for coverage...')
+  const buildResult = await spawn('node', ['scripts/build.mts'], {
+    cwd: rootPath,
+    stdio: 'inherit',
+    env: envWithMemoryLimits,
+  })
+  if (buildResult.code !== 0) {
+    logger.error('Build with source maps failed')
+    process.exitCode = buildResult.code ?? 1
+    throw new Error('Build with source maps failed')
+  }
+  logger.log('')
+
   let exitCode = 0
   let codeCoverageResult
   let typeCoverageResult

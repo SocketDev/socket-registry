@@ -3,8 +3,9 @@
  * Formats content using Biome CLI via pnpm exec.
  */
 
-import { spawnSync } from '@socketsecurity/lib/spawn'
 import process from 'node:process'
+
+import { spawnSync } from '@socketsecurity/lib/spawn'
 
 /**
  * Format content using Biome.

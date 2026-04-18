@@ -14,8 +14,10 @@
 
 import { existsSync } from 'node:fs'
 import path from 'node:path'
+import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { printFooter, printHeader } from '@socketsecurity/lib/stdio/header'
 
@@ -24,7 +26,6 @@ import {
   runCommandQuiet,
   runParallel,
 } from './utils/run-command.mts'
-import process from 'node:process'
 
 const logger = getDefaultLogger()
 
@@ -36,13 +37,17 @@ async function runTypeCheck(quiet = false): Promise<number> {
   if (!quiet) {
     logger.progress('Checking TypeScript')
   }
-  const result = await runCommandQuiet('tsgo', ['--noEmit'])
+  const result = await runCommandQuiet('tsgo', [
+    '--noEmit',
+    '-p',
+    'tsconfig.json',
+  ])
   if (result.exitCode !== 0) {
     if (!quiet) {
       logger.error('Type checks failed')
     }
     if (result.stdout) {
-      console.log(result.stdout)
+      logger.log(result.stdout)
     }
     return result.exitCode
   }
@@ -102,56 +107,56 @@ async function main(): Promise<void> {
         args: lintArgs,
         command: 'pnpm',
         options: {
-          ...(process.platform === 'win32' && { shell: true }),
+          shell: WIN32,
         },
       },
       {
         args: ['scripts/validation/no-link-deps.mts'],
         command: 'node',
         options: {
-          ...(process.platform === 'win32' && { shell: true }),
+          shell: WIN32,
         },
       },
       {
         args: ['scripts/validation/bundle-deps.mts'],
         command: 'node',
         options: {
-          ...(process.platform === 'win32' && { shell: true }),
+          shell: WIN32,
         },
       },
       {
         args: ['scripts/validation/esbuild-minify.mts'],
         command: 'node',
         options: {
-          ...(process.platform === 'win32' && { shell: true }),
+          shell: WIN32,
         },
       },
       {
         args: ['scripts/validation/no-cdn-refs.mts'],
         command: 'node',
         options: {
-          ...(process.platform === 'win32' && { shell: true }),
+          shell: WIN32,
         },
       },
       {
         args: ['scripts/validation/markdown-filenames.mts'],
         command: 'node',
         options: {
-          ...(process.platform === 'win32' && { shell: true }),
+          shell: WIN32,
         },
       },
       {
         args: ['scripts/validation/file-size.mts'],
         command: 'node',
         options: {
-          ...(process.platform === 'win32' && { shell: true }),
+          shell: WIN32,
         },
       },
       {
         args: ['scripts/validation/file-count.mts'],
         command: 'node',
         options: {
-          ...(process.platform === 'win32' && { shell: true }),
+          shell: WIN32,
         },
       },
     ]

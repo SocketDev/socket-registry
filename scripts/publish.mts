@@ -5,20 +5,19 @@
 
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import process from 'node:process'
-
-import type { SpawnOptions } from '@socketsecurity/lib/spawn'
+import { fileURLToPath } from 'node:url'
 
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import type { SpawnOptions } from '@socketsecurity/lib/spawn'
 import { spawn } from '@socketsecurity/lib/spawn'
 
 const logger = getDefaultLogger()
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.join(__dirname, '..')
-const WIN32 = process.platform === 'win32'
 
 /**
  * Run a command with spawn.
@@ -31,7 +30,7 @@ async function runCommand(
   const result = await spawn(command, args, {
     stdio: 'inherit',
     cwd: rootPath,
-    ...(WIN32 && { shell: true }),
+    shell: WIN32,
     ...options,
   })
   return result.code ?? 1

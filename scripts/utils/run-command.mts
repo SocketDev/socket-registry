@@ -23,10 +23,12 @@ export async function runCommand(
       shell: WIN32,
       ...options,
     })
-    return result.code
+    // @socketsecurity/lib/spawn reports null on signal termination.
+    return result.code ?? 1
   } catch (e) {
     if (e && typeof e === 'object' && 'code' in e) {
-      return (e as { code: number }).code
+      const code = (e as { code: unknown }).code
+      return typeof code === 'number' ? code : 1
     }
     throw e
   }

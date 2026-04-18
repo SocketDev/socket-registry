@@ -6,8 +6,8 @@
  * dependencies where build scripts depend on the built dist output.
  */
 
-import { parseArgs as nodeParseArgs } from 'node:util'
 import process from 'node:process'
+import { parseArgs as nodeParseArgs } from 'node:util'
 
 /**
  * Parse command-line arguments using Node.js built-in parseArgs.
@@ -65,7 +65,24 @@ export function getPositionalArgs(startIndex = 2) {
 
 /**
  * Check if a specific flag is present in argv.
+ *
+ * @example
+ * // Pass aliases explicitly — this helper does NOT infer single-char aliases
+ * // from the flag name (e.g., hasFlag('verbose') will not match '-v').
+ * hasFlag('verbose', ['-v'])
  */
-export function hasFlag(flag, argv = process.argv) {
-  return argv.includes(`--${flag}`) || argv.includes(`-${flag.charAt(0)}`)
+export function hasFlag(
+  flag: string,
+  aliases: string[] = [],
+  argv: string[] = process.argv,
+): boolean {
+  if (argv.includes(`--${flag}`)) {
+    return true
+  }
+  for (const alias of aliases) {
+    if (argv.includes(alias)) {
+      return true
+    }
+  }
+  return false
 }

@@ -12,30 +12,20 @@ import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { getChangedFiles, getStagedFiles } from '@socketsecurity/lib/git'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { printHeader } from '@socketsecurity/lib/stdio/header'
-
-const logger = getDefaultLogger()
+import { minimatch } from 'minimatch'
 
 import { runCommandQuiet } from './utils/run-command.mts'
 
-// Files that trigger a full lint when changed
-const CORE_FILES = new Set([
-  'src/constants.ts',
-  'src/error.ts',
-  'src/helpers.ts',
-  'src/lang.ts',
-  'src/objects.ts',
-  'src/strings.ts',
-  'src/validate.ts',
-  'src/purl-type.ts',
-])
+const logger = getDefaultLogger()
 
-// Config patterns that trigger a full lint
-const CONFIG_PATTERNS = [
+// Glob patterns for changes that trigger a full lint (matched with minimatch).
+const FULL_LINT_TRIGGERS = [
   '.config/**',
   'scripts/utils/**',
   'pnpm-lock.yaml',
   'tsconfig*.json',
-  'eslint.config.*',
+  '.oxlintrc.json',
+  '.oxfmtrc.json',
 ]
 
 /**
@@ -87,14 +77,8 @@ function shouldRunAllLinters(changedFiles: string[]): {
   reason?: string
 } {
   for (const file of changedFiles) {
-    // Core library files
-    if (CORE_FILES.has(file)) {
-      return { runAll: true, reason: 'core files changed' }
-    }
-
-    // Config or infrastructure files
-    for (const pattern of CONFIG_PATTERNS) {
-      if (file.includes(pattern.replace('**', ''))) {
+    for (const pattern of FULL_LINT_TRIGGERS) {
+      if (minimatch(file, pattern)) {
         return { runAll: true, reason: 'config files changed' }
       }
     }

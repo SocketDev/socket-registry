@@ -3,8 +3,9 @@
  * Provides utilities for determining which tests to run based on changes.
  */
 
-import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import process from 'node:process'
+
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
 
 let _cliArgs: Record<string, unknown> | undefined
 

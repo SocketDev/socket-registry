@@ -3,9 +3,9 @@
 /**
  * Extract concise npm error from stderr.
  */
-function extractNpmError(stderr) {
+function extractNpmError(stderr: string): string {
   const lines = stderr.split('\n')
-  const errorLines = []
+  const errorLines: string[] = []
 
   for (const line of lines) {
     // Skip npm warnings and notices.
@@ -18,7 +18,7 @@ function extractNpmError(stderr) {
     }
   }
 
-  return errorLines.length > 0
+  return errorLines.length
     ? errorLines.join('\n')
     : lines
         .filter(l => l.trim() && !l.startsWith('npm warn'))
@@ -29,9 +29,9 @@ function extractNpmError(stderr) {
 /**
  * Extract concise error information from stderr.
  */
-function extractErrorInfo(stderr) {
+function extractErrorInfo(stderr: string): string {
   const lines = stderr.split('\n')
-  const result = []
+  const result: string[] = []
 
   // Find the main error message.
   let foundError = false
@@ -59,7 +59,7 @@ function extractErrorInfo(stderr) {
     }
   }
 
-  return result.length > 0
+  return result.length
     ? result.join('\n')
     : stderr.split('\n').slice(0, 3).join('\n')
 }
