@@ -1,6 +1,6 @@
 ---
 name: release
-description: Release pipeline orchestrator. Runs quality and security gates, generates changelog, bumps version, and offers to publish.
+description: Orchestrates a release by chaining quality-scan and security-scan as gates, generating a changelog, bumping the version, and offering to publish. Use when preparing a release, cutting a new version, or when `/release-changelog` is invoked.
 ---
 
 # Release
