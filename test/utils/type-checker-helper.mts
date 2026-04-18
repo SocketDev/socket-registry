@@ -104,8 +104,7 @@ export function createTypeCheckerTests(config: TypeCheckerTestConfig): void {
 
     // Test @@toStringTag spoofing if requested.
     if (toStringTagTests) {
-      const hasToStringTag = Symbol?.toStringTag
-      describe('@@toStringTag', { skip: !hasToStringTag }, () => {
+      describe('@@toStringTag', () => {
         it('should not be fooled by toStringTag', () => {
           const faker = {
             [Symbol.toStringTag]: typeName,
@@ -186,7 +185,7 @@ export function createInvalidValuesExcluding(
   if (!exclusionSet.has('date')) {
     values.push(new Date())
   }
-  if (!exclusionSet.has('symbol') && typeof Symbol !== 'undefined') {
+  if (!exclusionSet.has('symbol')) {
     values.push(Symbol('test'))
   }
 

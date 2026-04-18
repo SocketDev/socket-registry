@@ -58,7 +58,10 @@ export async function withTempFile(
   content: Buffer | string,
   options: { extension?: string; prefix?: string } = {},
 ): Promise<TempFileResult> {
-  const { extension = '.txt', prefix = 'test-file-' } = options
+  const { extension = '.txt', prefix = 'test-file-' } = {
+    __proto__: null,
+    ...options,
+  } as { extension?: string; prefix?: string }
   const tmpFile = path.join(os.tmpdir(), `${prefix}${randomUUID()}${extension}`)
 
   writeFileSync(tmpFile, content)
@@ -91,11 +94,18 @@ export async function withTempFiles(
 
   const filePaths: Record<string, string> = {}
 
+  const tmpDirWithSep = tmpDir.endsWith(path.sep) ? tmpDir : tmpDir + path.sep
   for (const file of files) {
-    const filePath = path.join(tmpDir, file.name)
+    const filePath = path.resolve(tmpDir, file.name)
+    // Reject path traversal — file.name must resolve inside tmpDir.
+    if (!filePath.startsWith(tmpDirWithSep) && filePath !== tmpDir) {
+      throw new Error(
+        `Rejected path traversal in withTempFiles: "${file.name}"`,
+      )
+    }
     const fileDir = path.dirname(filePath)
 
-    // Create subdirectories if needed
+    // Create subdirectories if needed.
     if (fileDir !== tmpDir) {
       mkdirSync(fileDir, { recursive: true })
     }
@@ -136,7 +146,14 @@ export async function runWithTempFile<T>(
   callback: (tmpFile: string) => Promise<T> | T,
   options: { extension?: string; prefix?: string } = {},
 ): Promise<T> {
-  const { cleanup, path: tmpFile } = await withTempFile(content, options)
+  const normalizedOptions = { __proto__: null, ...options } as {
+    extension?: string
+    prefix?: string
+  }
+  const { cleanup, path: tmpFile } = await withTempFile(
+    content,
+    normalizedOptions,
+  )
   try {
     return await callback(tmpFile)
   } finally {

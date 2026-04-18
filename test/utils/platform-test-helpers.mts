@@ -3,10 +3,11 @@
  * Provides cross-platform test helpers and assertions.
  */
 
+import os from 'node:os'
 import path from 'node:path'
+import process from 'node:process'
 
 import { describe, it } from 'vitest'
-import process from 'node:process'
 
 /**
  * Platform detection utilities.
@@ -141,91 +142,11 @@ export function isPlatformAbsolute(testPath: string): boolean {
  * Gets a temp directory path appropriate for the current platform.
  */
 export function getPlatformTempDir(): string {
-  return process.platform === 'win32'
-    ? (process.env['TEMP'] ?? process.env['TMP'] ?? 'C:\\Windows\\Temp')
-    : (process.env['TMPDIR'] ?? '/tmp')
+  return os.tmpdir()
 }
 
-/**
- * JavaScript feature detection.
- * Checks for availability of built-in types and features.
- */
-export const features = {
-  hasMap: typeof Map === 'function',
-  hasSet: typeof Set === 'function',
-  hasSymbol: typeof Symbol === 'function',
-  hasWeakMap: typeof WeakMap === 'function',
-  hasWeakSet: typeof WeakSet === 'function',
-} as const
-
-/**
- * Conditionally run tests only when Map is available.
- */
-export function itIfMap(name: string, fn: () => void | Promise<void>): void {
-  if (features.hasMap) {
-    it(name, fn)
-  } else {
-    it.skip(name, fn)
-  }
-}
-
-/**
- * Conditionally run tests only when Set is available.
- */
-export function itIfSet(name: string, fn: () => void | Promise<void>): void {
-  if (features.hasSet) {
-    it(name, fn)
-  } else {
-    it.skip(name, fn)
-  }
-}
-
-/**
- * Conditionally run tests only when WeakMap is available.
- */
-export function itIfWeakMap(
-  name: string,
-  fn: () => void | Promise<void>,
-): void {
-  if (features.hasWeakMap) {
-    it(name, fn)
-  } else {
-    it.skip(name, fn)
-  }
-}
-
-/**
- * Conditionally run tests only when WeakSet is available.
- */
-export function itIfWeakSet(
-  name: string,
-  fn: () => void | Promise<void>,
-): void {
-  if (features.hasWeakSet) {
-    it(name, fn)
-  } else {
-    it.skip(name, fn)
-  }
-}
-
-/**
- * Conditionally run describe block only when Map is available.
- */
-export function describeIfMap(name: string, fn: () => void): void {
-  if (features.hasMap) {
-    describe(name, fn)
-  } else {
-    describe.skip(name, fn)
-  }
-}
-
-/**
- * Conditionally run describe block only when Set is available.
- */
-export function describeIfSet(name: string, fn: () => void): void {
-  if (features.hasSet) {
-    describe(name, fn)
-  } else {
-    describe.skip(name, fn)
-  }
-}
+// Map / Set / WeakMap / WeakSet / Symbol have been baseline since Node 4, so
+// these aliases are unconditional on Node 18+. Kept as aliases so existing
+// callers that express "this suite needs feature X" stay readable.
+export const describeIfMap = describe
+export const describeIfSet = describe
