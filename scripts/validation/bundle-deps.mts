@@ -396,7 +396,7 @@ async function main(): Promise<void> {
       }
 
       // Only fail on violations, not warnings.
-      return violations.length > 0 ? violations : null
+      return violations.length ? violations : undefined
     },
     {
       failureMessage: 'Bundle dependencies validation failed',

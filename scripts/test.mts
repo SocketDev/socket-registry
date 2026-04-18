@@ -28,7 +28,9 @@ const WIN32 = process.platform === 'win32'
 
 // Suppress non-fatal worker termination unhandled rejections
 process.on('unhandledRejection', (reason, _promise) => {
-  const errorMessage = String(reason?.message || reason || '')
+  const errorMessage = String(
+    (reason as Error | undefined)?.message || reason || '',
+  )
   // Filter out known non-fatal worker termination errors
   if (
     errorMessage.includes('Terminating worker thread') ||

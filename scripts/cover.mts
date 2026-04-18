@@ -149,7 +149,7 @@ try {
               .map(line => line.trim())
               .join('\n'),
           }
-        : null
+        : undefined
     if (!values.summary && testSummaryMatch) {
       logger.log('')
       logger.log(testSummaryMatch[0])
@@ -236,7 +236,7 @@ try {
               .map(line => line.trim())
               .join('\n'),
           }
-        : null
+        : undefined
 
     // Extract coverage summary: header + registry/src row
     // Match from "% Coverage" header through the registry/src line and closing border
