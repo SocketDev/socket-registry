@@ -5,7 +5,7 @@
  * Ignores original license files and template directories.
  */
 
-import fs from 'node:fs/promises'
+import { promises as fs } from 'node:fs'
 
 import { UTF8 } from '@socketsecurity/lib/constants/encoding'
 import { globStreamLicenses } from '@socketsecurity/lib/globs'
@@ -33,4 +33,7 @@ async function main(): Promise<void> {
   )
 }
 
-main().catch((e: unknown) => logger.error(e))
+main().catch((e: unknown) => {
+  logger.error(e)
+  process.exitCode = 1
+})

@@ -2,7 +2,7 @@
 
 import { execFile } from 'node:child_process'
 import crypto from 'node:crypto'
-import fs from 'node:fs/promises'
+import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { promisify } from 'node:util'
 
@@ -452,4 +452,7 @@ async function main(): Promise<void> {
   })
 }
 
-main().catch((e: unknown) => logger.error(e))
+main().catch((e: unknown) => {
+  logger.error(e)
+  process.exitCode = 1
+})

@@ -1,14 +1,13 @@
 /** @fileoverview Convert GitHub Actions tags/branches to commit SHAs in workflow files. */
 
-import { existsSync } from 'node:fs'
-import fs from 'node:fs/promises'
+import { existsSync, promises as fs } from 'node:fs'
 import path from 'node:path'
+import process from 'node:process'
 
 import { resolveRefToSha } from '@socketsecurity/lib/github'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 
 import { ROOT_PATH } from '../constants/paths.mts'
-import process from 'node:process'
 
 const logger = getDefaultLogger()
 
@@ -107,7 +106,7 @@ async function processFile(filePath, token, dryRun) {
   const changes = []
 
   // Process in reverse order to maintain correct string positions.
-  for (const stmt of usesStatements.toReversed()) {
+  for (const stmt of usesStatements.slice().reverse()) {
     const { fullMatch, indent, owner, ref: currentRef, repoPath } = stmt
 
     // Skip if already using a SHA (40-character hex string).
@@ -231,10 +230,9 @@ async function main(): Promise<void> {
     for (const dir of actionDirs) {
       if (dir.isDirectory()) {
         const actionFile = path.join(actionsPath, dir.name, 'action.yml')
-        try {
-          await fs.access(actionFile)
+        if (existsSync(actionFile)) {
           allFiles.push(actionFile)
-        } catch {}
+        }
       }
     }
   } catch {}
@@ -285,4 +283,7 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((e: unknown) => logger.error(e))
+main().catch((e: unknown) => {
+  logger.error(e)
+  process.exitCode = 1
+})

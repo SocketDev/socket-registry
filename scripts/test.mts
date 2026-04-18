@@ -310,9 +310,8 @@ async function runTests(
 
   const output = result.stdout + result.stderr
   const hasTestFailures =
-    output.includes('FAIL') ||
-    (output.includes('Test Files') && output.match(/(\d+) failed/) !== null) ||
-    (output.includes('Tests') && output.match(/Tests\s+\d+ failed/) !== null)
+    /Test Files\s+[1-9]\d* failed/.test(output) ||
+    /Tests\s+[1-9]\d* failed/.test(output)
 
   // Override exit code if we only have worker termination errors
   if (result.code !== 0 && hasWorkerTerminationError && !hasTestFailures) {

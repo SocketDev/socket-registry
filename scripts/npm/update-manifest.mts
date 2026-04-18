@@ -3,7 +3,7 @@
  * Creates and maintains the Socket registry manifest file with package metadata.
  */
 
-import fs from 'node:fs/promises'
+import { promises as fs } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 
@@ -244,4 +244,7 @@ async function main(): Promise<void> {
   })
 }
 
-main().catch((e: unknown) => logger.error(e))
+main().catch((e: unknown) => {
+  logger.error(e)
+  process.exitCode = 1
+})

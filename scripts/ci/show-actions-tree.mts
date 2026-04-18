@@ -1,6 +1,6 @@
 /** @fileoverview Display GitHub Actions dependency tree showing direct and transitive dependencies. */
 
-import fs from 'node:fs/promises'
+import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
@@ -184,4 +184,7 @@ async function main(): Promise<void> {
   logger.info(`Total: ${allDependencies.size} unique actions/workflows`)
 }
 
-main().catch((e: unknown) => logger.error(e))
+main().catch((e: unknown) => {
+  logger.error(e)
+  process.exitCode = 1
+})

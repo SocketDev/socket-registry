@@ -405,4 +405,7 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((e: unknown) => logger.error(e))
+main().catch((e: unknown) => {
+  logger.error(e)
+  process.exitCode = 1
+})

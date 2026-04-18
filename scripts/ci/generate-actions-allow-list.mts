@@ -1,6 +1,6 @@
 /** @fileoverview Generate GitHub Actions allow list from workflow and action dependencies. */
 
-import fs from 'node:fs/promises'
+import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
@@ -181,4 +181,7 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((e: unknown) => logger.error(e))
+main().catch((e: unknown) => {
+  logger.error(e)
+  process.exitCode = 1
+})

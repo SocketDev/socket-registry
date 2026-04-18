@@ -1298,4 +1298,7 @@ async function main(): Promise<void> {
   process.exitCode = criticalFailures.length ? 1 : 0
 }
 
-main().catch((e: unknown) => logger.error(e))
+main().catch((e: unknown) => {
+  logger.error(e)
+  process.exitCode = 1
+})

@@ -26,4 +26,7 @@ async function main(): Promise<void> {
   await rootEditablePkgJson.save()
 }
 
-main().catch((e: unknown) => logger.error(e))
+main().catch((e: unknown) => {
+  logger.error(e)
+  process.exitCode = 1
+})
