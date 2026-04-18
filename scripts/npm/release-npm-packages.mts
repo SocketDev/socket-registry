@@ -1,10 +1,8 @@
 /** @fileoverview Detect package changes and bump versions for npm release. */
 
-import { execFile } from 'node:child_process'
 import crypto from 'node:crypto'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-import { promisify } from 'node:util'
 
 import { execScript } from '@socketsecurity/lib/agent'
 import { getAbortSignal } from '@socketsecurity/lib/constants/process'
@@ -19,6 +17,7 @@ import {
   readPackageJsonSync,
 } from '@socketsecurity/lib/packages'
 import { pEach } from '@socketsecurity/lib/promises'
+import { spawn } from '@socketsecurity/lib/spawn'
 import { getDefaultSpinner, withSpinner } from '@socketsecurity/lib/spinner'
 import { minimatch } from 'minimatch'
 import semver from 'semver'
@@ -34,8 +33,6 @@ import { getNpmPackageNames } from '../constants/testing.mts'
 import { logSectionHeader } from '../utils/logging.mts'
 
 const logger = getDefaultLogger()
-
-const execFileAsync = promisify(execFile)
 
 const abortSignal = getAbortSignal()
 const spinner = getDefaultSpinner()
@@ -55,12 +52,12 @@ async function hasGitChanges(packagePath) {
   try {
     const relPath = path.relative(ROOT_PATH, packagePath)
     // Check both staged and unstaged changes.
-    const { stdout } = await execFileAsync(
+    const { stdout } = await spawn(
       'git',
       ['status', '--porcelain', '--', relPath],
-      { cwd: ROOT_PATH },
+      { cwd: ROOT_PATH, stdioString: true },
     )
-    return stdout.trim().length > 0
+    return (stdout as string).trim().length > 0
   } catch {
     // If git fails, fall back to full comparison.
     return false

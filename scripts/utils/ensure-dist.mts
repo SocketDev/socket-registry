@@ -3,10 +3,11 @@
  * Used by other scripts to auto-build when needed.
  */
 
-import { spawn } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+import { spawn } from '@socketsecurity/lib/spawn'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.join(__dirname, '..', '..')
@@ -20,39 +21,40 @@ const externalPath = path.join(
 
 /**
  * Check if the dist directory and external dependencies exist.
- * @returns {boolean} True if everything exists
  */
-export function isDistBuilt() {
-  // Check if a key external dependency exists as a proxy for all externals
+export function isDistBuilt(): boolean {
   return existsSync(externalPath)
 }
 
+interface EnsureDistBuiltOptions {
+  silent?: boolean
+}
+
 /**
- * Run a minimal build if needed - fast and quiet.
- * @param {object} options - Options
- * @param {boolean} options.silent - Completely suppress output
- * @returns {Promise<number>} Exit code
+ * Run a minimal build if needed — fast and quiet.
  */
-export async function ensureDistBuilt(options = {}) {
-  const { silent = false } = options
+export async function ensureDistBuilt(
+  options: EnsureDistBuiltOptions = {},
+): Promise<number> {
+  const { silent = false } = {
+    __proto__: null,
+    ...options,
+  } as EnsureDistBuiltOptions
 
   if (isDistBuilt()) {
     return 0
   }
 
-  return new Promise((resolve, reject) => {
-    // Use build --fast --needed for quick builds
-    const child = spawn('pnpm', ['build', '--fast', '--needed'], {
-      stdio: silent ? 'pipe' : 'inherit',
+  try {
+    const result = await spawn('pnpm', ['build', '--fast', '--needed'], {
       cwd: rootPath,
+      stdio: silent ? 'pipe' : 'inherit',
     })
-
-    child.on('exit', code => {
-      resolve(code || 0)
-    })
-
-    child.on('error', error => {
-      reject(error)
-    })
-  })
+    return result.code ?? 0
+  } catch (e) {
+    if (e && typeof e === 'object' && 'code' in e) {
+      return (e as { code: number }).code
+    }
+    throw e
+  }
 }

@@ -31,32 +31,6 @@ function getCliArgs() {
 }
 
 /**
- * Check if tests should be skipped for a given test file or module.
- * Tests are always run in CI or when --force flag is present.
- */
-function shouldRunTests() {
-  const args = getCliArgs()
-
-  // Always run in CI.
-  if (process.env['CI'] === 'true') {
-    return true
-  }
-
-  // Run if force flag is set.
-  if (args['force'] || process.env['FORCE_TEST'] === '1') {
-    return true
-  }
-
-  // Run if not in pre-commit hook.
-  if (!process.env['PRE_COMMIT']) {
-    return true
-  }
-
-  // In pre-commit, run tests by default (can be customized later).
-  return true
-}
-
-/**
  * Check if package testing should be skipped for a given package.
  * Package tests are skipped during pre-commit hooks to speed up commits.
  * They can be forced to run with --force flag or in CI environments.
@@ -79,4 +53,4 @@ function isPackageTestingSkipped(_eco: string, _packageName: string) {
   return !(args['force'] || process.env['FORCE_TEST'] === '1')
 }
 
-export { getCliArgs, isPackageTestingSkipped, shouldRunTests }
+export { getCliArgs, isPackageTestingSkipped }

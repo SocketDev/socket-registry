@@ -7,17 +7,15 @@
  * - Prevents overly large commits that are hard to review
  */
 
-import { exec } from 'node:child_process'
 import path from 'node:path'
-import { promisify } from 'node:util'
 import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { spawn } from '@socketsecurity/lib/spawn'
 
 import { runValidationScript } from '../utils/validation-runner.mts'
 
 const logger = getDefaultLogger()
-const execAsync = promisify(exec)
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.join(__dirname, '..', '..')
@@ -30,25 +28,20 @@ const MAX_FILES_PER_COMMIT = 50
  */
 async function validateStagedFileCount() {
   try {
-    // Check if we're in a git repository
-    const { stdout: gitRoot } = await execAsync(
-      'git rev-parse --show-toplevel',
-      {
-        cwd: rootPath,
-      },
-    )
-
-    if (!gitRoot.trim()) {
-      // Not a git repository
+    const gitRootResult = await spawn('git', ['rev-parse', '--show-toplevel'], {
+      cwd: rootPath,
+      stdioString: true,
+    })
+    if (!(gitRootResult.stdout as string).trim()) {
       return undefined
     }
 
-    // Get list of staged files
-    const { stdout } = await execAsync('git diff --cached --name-only', {
+    const { stdout } = await spawn('git', ['diff', '--cached', '--name-only'], {
       cwd: rootPath,
+      stdioString: true,
     })
 
-    const stagedFiles = stdout
+    const stagedFiles = (stdout as string)
       .trim()
       .split('\n')
       .filter(line => line.length > 0)

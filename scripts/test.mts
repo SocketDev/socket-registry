@@ -3,6 +3,8 @@
  * Combines check, build, and test steps with clean, consistent output.
  */
 
+// Use raw node:child_process here (not @socketsecurity/lib/spawn) to retain the
+// ChildProcess handle for tracking and SIGTERM-on-parent-exit cleanup.
 import type { ChildProcess, SpawnOptions } from 'node:child_process'
 
 import { spawn } from 'node:child_process'
