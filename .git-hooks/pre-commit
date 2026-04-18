@@ -60,9 +60,9 @@ for file in $STAGED_FILES; do
     fi
 
     # Check for common user path patterns.
-    if grep -E '(/Users/[^/\s]+/|/home/[^/\s]+/|C:\\Users\\[^\\]+\\)' "$file" 2>/dev/null | grep -q .; then
+    if grep -E '(/Users/[^/[:space:]]+/|/home/[^/[:space:]]+/|C:\\Users\\[^\\]+\\)' "$file" 2>/dev/null | grep -q .; then
       printf "${RED}✗ ERROR: Hardcoded personal path found in: $file${NC}\n"
-      grep -n -E '(/Users/[^/\s]+/|/home/[^/\s]+/|C:\\Users\\[^\\]+\\)' "$file" | head -3
+      grep -n -E '(/Users/[^/[:space:]]+/|/home/[^/[:space:]]+/|C:\\Users\\[^\\]+\\)' "$file" | head -3
       printf "Replace with relative paths or environment variables.\n"
       ERRORS=$((ERRORS + 1))
     fi
