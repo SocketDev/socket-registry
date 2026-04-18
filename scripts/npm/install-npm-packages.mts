@@ -647,8 +647,8 @@ async function installPackage(packageInfo) {
                 editable: true,
               })
               break
-            } catch (error) {
-              lastError = error
+            } catch (e) {
+              lastError = e
               if (attempt < JSON_PARSE_MAX_RETRIES) {
                 // Wait longer on each retry (200ms, 400ms).
 
@@ -1023,7 +1023,7 @@ async function installPackage(packageInfo) {
       installed: true,
       tempDir: packageTempDir,
     }
-  } catch (error) {
+  } catch (e) {
     // Clean up temporary GitHub tarball extraction directory.
     if (modifiedPackagePath) {
       try {
@@ -1036,18 +1036,19 @@ async function installPackage(packageInfo) {
 
     writeProgress(LOG_SYMBOLS.fail)
     completePackage()
-    const errorDetails = [error.message]
+    const err = e as { message?: string; stderr?: string; stdout?: string }
+    const errorDetails = [err.message ?? String(e)]
     // Show last ERROR_OUTPUT_TRUNCATE_LENGTH chars of stderr (where actual errors appear).
-    if (error.stderr) {
-      const stderrText = error.stderr.slice(-ERROR_OUTPUT_TRUNCATE_LENGTH)
+    if (err.stderr) {
+      const stderrText = err.stderr.slice(-ERROR_OUTPUT_TRUNCATE_LENGTH)
       errorDetails.push(
         `STDERR (last ${ERROR_OUTPUT_TRUNCATE_LENGTH} chars):`,
         stderrText,
       )
     }
     // Show last ERROR_OUTPUT_TRUNCATE_LENGTH chars of stdout.
-    if (error.stdout) {
-      const stdoutText = error.stdout.slice(-ERROR_OUTPUT_TRUNCATE_LENGTH)
+    if (err.stdout) {
+      const stdoutText = err.stdout.slice(-ERROR_OUTPUT_TRUNCATE_LENGTH)
       errorDetails.push(
         `STDOUT (last ${ERROR_OUTPUT_TRUNCATE_LENGTH} chars):`,
         stdoutText,
@@ -1118,9 +1119,9 @@ async function main(): Promise<void> {
     if (!Array.isArray(downloadResults)) {
       throw new Error('Download results must be an array')
     }
-  } catch (error) {
-    logger.fail(`Could not read download results: ${error.message}`)
-    if (error instanceof SyntaxError) {
+  } catch (e) {
+    logger.fail(`Could not read download results: ${(e as Error).message}`)
+    if (e instanceof SyntaxError) {
       logger.fail(
         'File contains invalid JSON. Try running download phase again.',
       )
@@ -1157,7 +1158,7 @@ async function main(): Promise<void> {
     force: cliArgs.force,
   })
 
-  if (filteredPackages.length === 0) {
+  if (!filteredPackages.length) {
     logger.log('No changed packages to install')
     process.exitCode = 0
     return

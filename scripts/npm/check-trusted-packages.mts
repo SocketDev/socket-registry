@@ -7,11 +7,11 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import process from 'node:process'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { COLUMN_LIMIT } from '@socketsecurity/lib/constants/core'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { spawn } from '@socketsecurity/lib/spawn'
-import process from 'node:process'
 
 const logger = getDefaultLogger()
 
@@ -226,8 +226,8 @@ async function getPackagesFromManifest() {
     }
 
     return Array.from(packages).sort()
-  } catch (error) {
-    logger.error('Failed to read manifest.json:', error.message)
+  } catch (e) {
+    logger.error('Failed to read manifest.json:', (e as Error).message)
     return []
   }
 }
@@ -242,8 +242,11 @@ async function getPackagesFromScope(scope) {
     ])
     const results = JSON.parse(output)
     return results.map(pkg => pkg.name)
-  } catch (error) {
-    logger.error(`Failed to search for ${scope} packages:`, error.message)
+  } catch (e) {
+    logger.error(
+      `Failed to search for ${scope} packages:`,
+      (e as Error).message,
+    )
     return []
   }
 }
@@ -316,11 +319,11 @@ async function main(): Promise<void> {
       } else {
         results.failed.push(packageName)
       }
-    } catch (error) {
+    } catch (e) {
       if (args.debug) {
         logger.groupEnd()
       }
-      logger.error(`Error checking ${packageName}:`, error.message)
+      logger.error(`Error checking ${packageName}:`, (e as Error).message)
       results.failed.push(packageName)
     }
   }

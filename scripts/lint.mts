@@ -139,8 +139,6 @@ function filterLintableFiles(files: string[]): string[] {
  * Check if an oxfmt result indicates no files were processed (not a real error).
  * Covers exit 2 ("Expected at least one target file" — all files ignored by config)
  * and exit 1 ("No files were processed in the specified paths" — no path matches).
- * @param {{ stderr?: string }} result
- * @returns {boolean}
  */
 function isOxfmtNoFilesResult(result: { stderr?: string }): boolean {
   const { stderr } = result
@@ -468,8 +466,8 @@ async function main(): Promise<void> {
         logger.success('All lint checks passed!')
       }
     }
-  } catch (error) {
-    logger.error(`Lint runner failed: ${error.message}`)
+  } catch (e) {
+    logger.error(`Lint runner failed: ${(e as Error).message}`)
     process.exitCode = 1
   }
 }

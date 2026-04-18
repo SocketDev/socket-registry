@@ -6,13 +6,13 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import process from 'node:process'
 
 import type { SpawnOptions } from '@socketsecurity/lib/spawn'
 
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { spawn } from '@socketsecurity/lib/spawn'
-import process from 'node:process'
 
 const logger = getDefaultLogger()
 
@@ -237,8 +237,8 @@ async function main(): Promise<void> {
     logger.log('\n────────────────────────────────────────────────────────────')
     logger.success('Publish completed successfully!')
     process.exitCode = 0
-  } catch (error) {
-    logger.error(`Publish runner failed: ${error.message}`)
+  } catch (e) {
+    logger.error(`Publish runner failed: ${(e as Error).message}`)
     process.exitCode = 1
   }
 }

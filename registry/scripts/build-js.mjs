@@ -44,7 +44,7 @@ function isBuildNeeded() {
     ignore: ['**/*.d.ts'],
   })
 
-  if (sourceFiles.length === 0) {
+  if (!sourceFiles.length) {
     return false
   }
 
@@ -63,7 +63,7 @@ function isBuildNeeded() {
     absolute: true,
   })
 
-  if (outputFiles.length === 0) {
+  if (!outputFiles.length) {
     return true
   }
 
@@ -114,10 +114,10 @@ async function buildJS() {
     }
 
     return 0
-  } catch (error) {
+  } catch (e) {
     if (!isQuiet) {
       logger.error('JavaScript build failed')
-      console.error(error)
+      console.error(e)
     }
     return 1
   }
@@ -175,10 +175,10 @@ async function watchJS() {
 
     // Wait indefinitely
     await new Promise(() => {})
-  } catch (error) {
+  } catch (e) {
     if (!isQuiet) {
       logger.error('Watch mode failed')
-      console.error(error)
+      console.error(e)
     }
     return 1
   }

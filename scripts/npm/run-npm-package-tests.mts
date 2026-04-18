@@ -3,6 +3,7 @@
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import process from 'node:process'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { WIN32 } from '@socketsecurity/lib/constants/platform'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
@@ -27,7 +28,6 @@ import {
   runCommand,
 } from '../utils/package.mts'
 import { suppressMaxListenersWarning } from '../utils/suppress-warnings.mts'
-import process from 'node:process'
 
 const { values: cliArgs } = parseArgs({
   options: {
@@ -110,13 +110,18 @@ async function runPackageTest(socketPkgName) {
 
       logger.success(origPkgName)
       return { package: origPkgName, passed: true }
-    } catch (error) {
+    } catch (e) {
       logger.fail(origPkgName)
-      if (error.stderr) {
-        const errorInfo = extractErrorInfo(error.stderr)
+      const err = e as { message?: string; stderr?: string }
+      if (err.stderr) {
+        const errorInfo = extractErrorInfo(err.stderr)
         logger.log(`   ${errorInfo}`)
       }
-      return { package: origPkgName, passed: false, reason: error.message }
+      return {
+        package: origPkgName,
+        passed: false,
+        reason: err.message ?? String(e),
+      }
     }
   }
 
@@ -188,9 +193,10 @@ async function runPackageTest(socketPkgName) {
 
     logger.success(origPkgName)
     return { package: origPkgName, passed: true }
-  } catch (error) {
-    const errorStdout = error.stdout || ''
-    const errorStderr = error.stderr || ''
+  } catch (e) {
+    const err = e as { message?: string; stdout?: string; stderr?: string }
+    const errorStdout = err.stdout || ''
+    const errorStderr = err.stderr || ''
 
     // Check if this is a module resolution error.
     // Only attempt reinstall if --skip-reinstall-retry is false (opt-in behavior).
@@ -250,7 +256,11 @@ async function runPackageTest(socketPkgName) {
       const errorInfo = extractErrorInfo(errorStderr)
       logger.log(`   ${errorInfo}`)
     }
-    return { package: origPkgName, passed: false, reason: error.message }
+    return {
+      package: origPkgName,
+      passed: false,
+      reason: err.message ?? String(e),
+    }
   }
 }
 
@@ -265,8 +275,8 @@ async function main(): Promise<void> {
     try {
       const resultsData = await fs.readFile(installResultsFile, 'utf8')
       installResults = JSON.parse(resultsData)
-    } catch (error) {
-      logger.warn(`Could not read install results: ${error.message}`)
+    } catch (e) {
+      logger.warn(`Could not read install results: ${(e as Error).message}`)
     }
   } else {
     // Fallback to download results for backwards compatibility.
@@ -282,8 +292,8 @@ async function main(): Promise<void> {
             ...r,
             installed: r.downloaded,
           }))
-      } catch (error) {
-        logger.warn(`Could not read download results: ${error.message}`)
+      } catch (e) {
+        logger.warn(`Could not read download results: ${(e as Error).message}`)
       }
     }
   }
@@ -312,7 +322,7 @@ async function main(): Promise<void> {
       { force: cliArgs.force },
     )
 
-    if (filteredPackages.length === 0) {
+    if (!filteredPackages.length) {
       logger.log(
         cliArgs.force
           ? 'No packages available to test'
@@ -326,7 +336,7 @@ async function main(): Promise<void> {
     packagesToTest = filteredPackages.map(pkg => pkg.socketPackage)
   }
 
-  if (packagesToTest.length === 0) {
+  if (!packagesToTest.length) {
     logger.warn('No packages to test\n')
     process.exitCode = 0
     return

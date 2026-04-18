@@ -5,13 +5,13 @@
 
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import process from 'node:process'
 import { isQuiet } from '@socketsecurity/lib/argv/flags'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { createSectionHeader } from '@socketsecurity/lib/stdio/header'
 import { deleteAsync } from 'del'
 import fastGlob from 'fast-glob'
-import process from 'node:process'
 
 const logger = getDefaultLogger()
 
@@ -63,10 +63,10 @@ async function cleanDirectories(
           logger.done(`Cleaned ${name} (already clean)`)
         }
       }
-    } catch (error) {
+    } catch (e) {
       if (!quiet) {
         logger.error(`Failed to clean ${name}`)
-        logger.error(error.message)
+        logger.error((e as Error).message)
       }
       return 1
     }
@@ -183,7 +183,7 @@ async function main(): Promise<void> {
     }
 
     // Check if there's anything to clean
-    if (tasks.length === 0) {
+    if (!tasks.length) {
       if (!quiet) {
         logger.info('Nothing to clean')
       }
@@ -211,8 +211,8 @@ async function main(): Promise<void> {
         logger.success('Clean completed successfully!')
       }
     }
-  } catch (error) {
-    logger.error(`Clean runner failed: ${error.message}`)
+  } catch (e) {
+    logger.error(`Clean runner failed: ${(e as Error).message}`)
     process.exitCode = 1
   }
 }

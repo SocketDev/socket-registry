@@ -155,9 +155,9 @@ async function main(): Promise<void> {
     // Never clean up the cache directory - it's persistent by design.
     // Users can explicitly clear it with --clear-cache flag in validate phase.
     process.exitCode = 0
-  } catch (error) {
+  } catch (e) {
     logger.error('')
-    logger.fail(`Operation failed: ${error.message}`)
+    logger.fail(`Operation failed: ${(e as Error).message}`)
     process.exitCode = 1
   }
 }

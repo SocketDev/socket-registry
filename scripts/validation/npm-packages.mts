@@ -121,13 +121,13 @@ async function validatePackage(socketPkgName) {
       versionSpec,
       overridePath,
     }
-  } catch (error) {
+  } catch (e) {
     writeProgress(LOG_SYMBOLS.fail)
     return {
       package: origPkgName,
       socketPackage: socketPkgName,
       downloaded: false,
-      reason: error.message,
+      reason: (e as Error).message,
     }
   }
 }
@@ -174,7 +174,7 @@ async function main(): Promise<void> {
         pkg => !cachedPackageNames.has(pkg),
       )
 
-      if (missingPackages.length === 0) {
+      if (!missingPackages.length) {
         // All requested packages are cached.
         const relevantResults = cachedResults.filter(
           r =>

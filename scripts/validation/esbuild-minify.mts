@@ -52,8 +52,8 @@ async function validateEsbuildMinify() {
     }
 
     return violations
-  } catch (error) {
-    logger.fail(`Failed to load esbuild config: ${error.message}`)
+  } catch (e) {
+    logger.fail(`Failed to load esbuild config: ${(e as Error).message}`)
     process.exitCode = 1
     return []
   }

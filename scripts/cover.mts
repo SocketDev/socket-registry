@@ -10,6 +10,7 @@
 
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import process from 'node:process'
 
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
@@ -17,7 +18,6 @@ import { spawn } from '@socketsecurity/lib/spawn'
 import { printHeader } from '@socketsecurity/lib/stdio/header'
 
 import { runCommandQuiet } from './utils/run-command.mts'
-import process from 'node:process'
 
 const logger = getDefaultLogger()
 
@@ -305,7 +305,7 @@ try {
   }
 
   process.exitCode = exitCode
-} catch (error) {
-  logger.error(`Coverage script failed: ${error.message}`)
+} catch (e) {
+  logger.error(`Coverage script failed: ${(e as Error).message}`)
   process.exitCode = 1
 }

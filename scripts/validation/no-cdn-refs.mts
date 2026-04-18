@@ -143,12 +143,13 @@ async function checkFileForCdnRefs(filePath) {
     }
 
     return violations
-  } catch (error) {
-    // Skip files we can't read (likely binary despite extension)
-    if (error.code === 'EISDIR' || error.message.includes('ENOENT')) {
+  } catch (e) {
+    // Skip files we can't read (likely binary despite extension).
+    const err = e as NodeJS.ErrnoException
+    if (err.code === 'EISDIR' || err.message?.includes('ENOENT')) {
       return []
     }
-    // For other errors, try to continue
+    // For other errors, try to continue.
     return []
   }
 }

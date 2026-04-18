@@ -8,6 +8,7 @@ import crypto from 'node:crypto'
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import process from 'node:process'
 
 import { WIN32 } from '@socketsecurity/lib/constants/platform'
 import { readPackageJson } from '@socketsecurity/lib/packages/operations'
@@ -21,7 +22,6 @@ import { testRunners } from '../../test/utils/test-runners.mts'
 import { DEFAULT_CONCURRENCY } from '../constants/core.mts'
 import { ROOT_PATH } from '../constants/paths.mts'
 import { spawn } from './spawn.mts'
-import process from 'node:process'
 
 // Resolve real pnpm binary, bypassing SFW shim.
 // SFW shims intercept pnpm and proxy registry requests, stripping metadata
@@ -185,8 +185,8 @@ export async function processWithSpinner(items, processor, options = {}) {
         try {
           const result = await processor(item)
           results.push(result)
-        } catch (error) {
-          errors.push({ item, error })
+        } catch (e) {
+          errors.push({ item, error: e })
         }
       },
       { concurrency },
@@ -308,25 +308,27 @@ export async function runCommand(command, args, options = {}) {
       ...options,
     })
     return { stdout: result.stdout, stderr: result.stderr }
-  } catch (error) {
-    const commandError = new Error(
-      `Command failed: ${command} ${args.join(' ')}`,
-    )
-    commandError.code = error.code || error.exitCode
-    commandError.stdout = error.stdout || ''
-    commandError.stderr = error.stderr || ''
+  } catch (e) {
+    const err = e as {
+      code?: number
+      exitCode?: number
+      stdout?: string
+      stderr?: string
+    }
+    const commandError: Error & {
+      code?: number
+      stdout?: string
+      stderr?: string
+    } = new Error(`Command failed: ${command} ${args.join(' ')}`)
+    commandError.code = err.code ?? err.exitCode
+    commandError.stdout = err.stdout || ''
+    commandError.stderr = err.stderr || ''
     throw commandError
   }
 }
 
 /**
  * Install a package for testing in a temporary directory.
- *
- * @param {string} sourcePath - Absolute path to package source directory
- * @param {string} packageName - Package name for node_modules installation
- * @param {object} options - Installation options
- * @param {string} [options.versionSpec] - Version or URL to install (optional, for npm packages)
- * @returns {Promise<{installed: boolean, packagePath?: string, reason?: string}>}
  */
 export async function installPackageForTesting(
   sourcePath,
@@ -518,10 +520,10 @@ export async function installPackageForTesting(
       installed: true,
       packagePath: installedPath,
     }
-  } catch (error) {
+  } catch (e) {
     return {
       installed: false,
-      reason: error.message,
+      reason: (e as Error).message,
     }
   }
 }

@@ -11,6 +11,7 @@ import { spawn } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import process from 'node:process'
 
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
@@ -19,7 +20,6 @@ import { getDefaultSpinner } from '@socketsecurity/lib/spinner'
 import { printHeader } from '@socketsecurity/lib/stdio/header'
 
 import { getTestsToRun } from './utils/changed-test-mapper.mts'
-import process from 'node:process'
 
 const logger = getDefaultLogger()
 const spinner = getDefaultSpinner()
@@ -448,12 +448,12 @@ async function main(): Promise<void> {
     } else {
       logger.success('All tests passed!')
     }
-  } catch (error) {
-    // Ensure spinner is stopped
+  } catch (e) {
+    // Ensure spinner is stopped.
     try {
       spinner.stop()
     } catch {}
-    logger.error(`Test runner failed: ${error.message}`)
+    logger.error(`Test runner failed: ${(e as Error).message}`)
     process.exitCode = 1
   } finally {
     // Ensure spinner is stopped

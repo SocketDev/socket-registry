@@ -47,7 +47,7 @@ try {
   writeFileSync(indexPath, transformedContent, 'utf8')
 
   logger.success('Transformed exports for Node ESM interop')
-} catch (error) {
-  logger.error(`Post-build transform failed: ${error.message}`)
+} catch (e) {
+  logger.error(`Post-build transform failed: ${e.message}`)
   process.exit(1)
 }

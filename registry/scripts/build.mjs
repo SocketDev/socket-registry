@@ -86,10 +86,10 @@ async function buildSource(options = {}) {
     }
 
     return { exitCode: 0, buildTime, result }
-  } catch (error) {
+  } catch (e) {
     if (!quiet) {
       logger.error('Source build failed')
-      console.error(error)
+      console.error(e)
     }
     return { exitCode: 1, buildTime: 0, result: null }
   }
@@ -197,9 +197,9 @@ async function watchBuild(options = {}) {
 
     // Wait indefinitely.
     await new Promise(() => {})
-  } catch (error) {
+  } catch (e) {
     if (!quiet) {
-      logger.error('Watch mode failed:', error)
+      logger.error('Watch mode failed:', e)
     }
     return 1
   }
@@ -223,7 +223,7 @@ function isBuildNeeded() {
     ignore: ['**/*.d.ts'],
   })
 
-  if (sourceFiles.length === 0) {
+  if (!sourceFiles.length) {
     return false
   }
 
@@ -242,7 +242,7 @@ function isBuildNeeded() {
     absolute: true,
   })
 
-  if (outputFiles.length === 0) {
+  if (!outputFiles.length) {
     return true
   }
 
@@ -473,8 +473,8 @@ async function main() {
     if (exitCode !== 0) {
       process.exitCode = exitCode
     }
-  } catch (error) {
-    logger.error(`Build runner failed: ${error.message}`)
+  } catch (e) {
+    logger.error(`Build runner failed: ${e.message}`)
     process.exitCode = 1
   }
 }
