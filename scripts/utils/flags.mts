@@ -1,4 +1,3 @@
-import process from 'node:process'
 /**
  * @fileoverview Simplified flag utilities for build scripts.
  *
@@ -6,143 +5,24 @@ import process from 'node:process'
  * dependencies where build scripts depend on the built dist output.
  */
 
-/**
- * Check if quiet/silent mode is enabled.
- *
- * @param {object|string[]|undefined} input - Parsed values, argv array, or undefined
- * @returns {boolean}
- */
-export function isQuiet(input) {
-  if (!input) {
-    return process.argv.includes('--quiet') || process.argv.includes('--silent')
-  }
-  if (Array.isArray(input)) {
-    return input.includes('--quiet') || input.includes('--silent')
-  }
-  return !!(input.quiet || input.silent)
-}
+import process from 'node:process'
 
-/**
- * Check if verbose mode is enabled.
- *
- * @param {object|string[]|undefined} input - Parsed values, argv array, or undefined
- * @returns {boolean}
- */
-export function isVerbose(input) {
-  if (!input) {
-    return process.argv.includes('--verbose')
-  }
-  if (Array.isArray(input)) {
-    return input.includes('--verbose')
-  }
-  return !!input.verbose
-}
+type FlagInput = Record<string, unknown> | string[] | undefined
 
-/**
- * Check if debug mode is enabled.
- *
- * @param {object|string[]|undefined} input - Parsed values, argv array, or undefined
- * @returns {boolean}
- */
-export function isDebug(input) {
+function hasArg(input: FlagInput, argv: string[], matches: string[]): boolean {
   if (!input) {
-    return process.argv.includes('--debug')
+    return matches.some(m => argv.includes(m))
   }
   if (Array.isArray(input)) {
-    return input.includes('--debug')
+    return matches.some(m => input.includes(m))
   }
-  return !!input.debug
-}
-
-/**
- * Check if help flag is set.
- *
- * @param {object|string[]|undefined} input - Parsed values, argv array, or undefined
- * @returns {boolean}
- */
-export function isHelp(input) {
-  if (!input) {
-    return process.argv.includes('--help') || process.argv.includes('-h')
-  }
-  if (Array.isArray(input)) {
-    return input.includes('--help') || input.includes('-h')
-  }
-  return !!input.help
-}
-
-/**
- * Check if watch mode is enabled.
- *
- * @param {object|string[]|undefined} input - Parsed values, argv array, or undefined
- * @returns {boolean}
- */
-export function isWatch(input) {
-  if (!input) {
-    return process.argv.includes('--watch') || process.argv.includes('-w')
-  }
-  if (Array.isArray(input)) {
-    return input.includes('--watch') || input.includes('-w')
-  }
-  return !!input.watch
-}
-
-/**
- * Check if force mode is enabled.
- *
- * @param {object|string[]|undefined} input - Parsed values, argv array, or undefined
- * @returns {boolean}
- */
-export function isForce(input) {
-  if (!input) {
-    return process.argv.includes('--force')
-  }
-  if (Array.isArray(input)) {
-    return input.includes('--force')
-  }
-  return !!input.force
-}
-
-/**
- * Check if fix/autofix mode is enabled.
- *
- * @param {object|string[]|undefined} input - Parsed values, argv array, or undefined
- * @returns {boolean}
- */
-export function isFix(input) {
-  if (!input) {
-    return process.argv.includes('--fix')
-  }
-  if (Array.isArray(input)) {
-    return input.includes('--fix')
-  }
-  return !!input.fix
-}
-
-/**
- * Check if coverage mode is enabled.
- *
- * @param {object|string[]|undefined} input - Parsed values, argv array, or undefined
- * @returns {boolean}
- */
-export function isCoverage(input) {
-  if (!input) {
-    return (
-      process.argv.includes('--coverage') || process.argv.includes('--cover')
-    )
-  }
-  if (Array.isArray(input)) {
-    return input.includes('--coverage') || input.includes('--cover')
-  }
-  return !!(input.coverage || input.cover)
+  return false
 }
 
 /**
  * Get the appropriate log level based on flags.
- *
- * @param {object|string[]|undefined} input - Parsed values, argv array, or undefined
- * @returns {string} One of: 'silent', 'error', 'warn', 'info', 'verbose', 'debug'
  */
-export function getLogLevel(input) {
+export function getLogLevel(input: FlagInput): string {
   if (isQuiet(input)) {
     return 'silent'
   }
@@ -153,4 +33,108 @@ export function getLogLevel(input) {
     return 'verbose'
   }
   return 'info'
+}
+
+/**
+ * Check if coverage mode is enabled.
+ */
+export function isCoverage(input: FlagInput): boolean {
+  if (hasArg(input, process.argv, ['--coverage', '--cover'])) {
+    return true
+  }
+  if (!input || Array.isArray(input)) {
+    return false
+  }
+  return !!(input['coverage'] || input['cover'])
+}
+
+/**
+ * Check if debug mode is enabled.
+ */
+export function isDebug(input: FlagInput): boolean {
+  if (hasArg(input, process.argv, ['--debug'])) {
+    return true
+  }
+  if (!input || Array.isArray(input)) {
+    return false
+  }
+  return !!input['debug']
+}
+
+/**
+ * Check if fix/autofix mode is enabled.
+ */
+export function isFix(input: FlagInput): boolean {
+  if (hasArg(input, process.argv, ['--fix'])) {
+    return true
+  }
+  if (!input || Array.isArray(input)) {
+    return false
+  }
+  return !!input['fix']
+}
+
+/**
+ * Check if force mode is enabled.
+ */
+export function isForce(input: FlagInput): boolean {
+  if (hasArg(input, process.argv, ['--force'])) {
+    return true
+  }
+  if (!input || Array.isArray(input)) {
+    return false
+  }
+  return !!input['force']
+}
+
+/**
+ * Check if help flag is set.
+ */
+export function isHelp(input: FlagInput): boolean {
+  if (hasArg(input, process.argv, ['--help', '-h'])) {
+    return true
+  }
+  if (!input || Array.isArray(input)) {
+    return false
+  }
+  return !!input['help']
+}
+
+/**
+ * Check if quiet/silent mode is enabled.
+ */
+export function isQuiet(input: FlagInput): boolean {
+  if (hasArg(input, process.argv, ['--quiet', '--silent'])) {
+    return true
+  }
+  if (!input || Array.isArray(input)) {
+    return false
+  }
+  return !!(input['quiet'] || input['silent'])
+}
+
+/**
+ * Check if verbose mode is enabled.
+ */
+export function isVerbose(input: FlagInput): boolean {
+  if (hasArg(input, process.argv, ['--verbose'])) {
+    return true
+  }
+  if (!input || Array.isArray(input)) {
+    return false
+  }
+  return !!input['verbose']
+}
+
+/**
+ * Check if watch mode is enabled.
+ */
+export function isWatch(input: FlagInput): boolean {
+  if (hasArg(input, process.argv, ['--watch', '-w'])) {
+    return true
+  }
+  if (!input || Array.isArray(input)) {
+    return false
+  }
+  return !!input['watch']
 }

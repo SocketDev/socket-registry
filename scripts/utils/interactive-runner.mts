@@ -9,15 +9,6 @@ import process from 'node:process'
 /**
  * Run a command with interactive output control.
  * Standard experience across all socket-* repos.
- *
- * @param {string} command - Command to run
- * @param {string[]} args - Command arguments
- * @param {object} options - Options
- * @param {string} options.message - Progress message
- * @param {string} options.toggleText - Text after "ctrl+o" (default: "to see output")
- * @param {boolean} options.showOnError - Show output on error (default: true)
- * @param {boolean} options.verbose - Start in verbose mode (default: false)
- * @returns {Promise<number>} Exit code
  */
 export async function runWithOutput(command, args = [], options = {}) {
   const {

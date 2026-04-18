@@ -22,27 +22,6 @@ interface TempFileResult {
 
 /**
  * Creates a temporary directory with automatic cleanup.
- *
- * @param prefix - Optional prefix for the temp directory name (default: 'test-').
- * @returns Object with temp directory path and cleanup function.
- *
- * @example
- * const { path: tmpDir, cleanup } = await withTempDir('my-test-')
- * try {
- *   // Use tmpDir...
- * } finally {
- *   await cleanup()
- * }
- *
- * @example
- * // With custom prefix matching existing patterns
- * const { path: testCacheDir, cleanup } = await withTempDir('cacache-test-')
- * try {
- *   testCacheDir = mkdtempSync(path.join(os.tmpdir(), 'cacache-test-'))
- *   // ...test code...
- * } finally {
- *   await cleanup()
- * }
  */
 export async function withTempDir(prefix = 'test-'): Promise<TempDirResult> {
   const tmpDir = mkdtempSync(path.join(os.tmpdir(), prefix))
@@ -58,17 +37,6 @@ export async function withTempDir(prefix = 'test-'): Promise<TempDirResult> {
 
 /**
  * Creates a temporary directory synchronously with automatic cleanup.
- *
- * @param prefix - Optional prefix for the temp directory name (default: 'test-').
- * @returns Object with temp directory path and cleanup function.
- *
- * @example
- * const { path: tmpDir, cleanup } = withTempDirSync('my-test-')
- * try {
- *   // Use tmpDir...
- * } finally {
- *   cleanup()
- * }
  */
 export function withTempDirSync(
   prefix = 'test-',
@@ -85,26 +53,6 @@ export function withTempDirSync(
 
 /**
  * Creates a temporary file with content and automatic cleanup.
- *
- * @param content - File content (string or Buffer).
- * @param options - Optional configuration.
- * @param options.extension - File extension (default: '.txt').
- * @param options.prefix - Filename prefix (default: 'test-file-').
- * @returns Object with temp file path and cleanup function.
- *
- * @example
- * const { path: tmpFile, cleanup } = await withTempFile('test content')
- * try {
- *   // Use tmpFile...
- * } finally {
- *   await cleanup()
- * }
- *
- * @example
- * const { path: jsonFile, cleanup } = await withTempFile('{"key": "value"}', {
- *   extension: '.json',
- *   prefix: 'config-'
- * })
  */
 export async function withTempFile(
   content: Buffer | string,
@@ -125,22 +73,6 @@ export async function withTempFile(
 
 /**
  * Creates multiple temporary files with automatic cleanup.
- *
- * @param files - Array of file definitions with name and content.
- * @param baseDir - Optional base directory (defaults to os.tmpdir()).
- * @returns Object with temp directory path, file paths map, and cleanup function.
- *
- * @example
- * const { cleanup, dir, files } = await withTempFiles([
- *   { name: 'config.json', content: '{"key": "value"}' },
- *   { name: 'data.txt', content: 'test data' }
- * ])
- * try {
- *   console.log(files['config.json']) // Full path to config.json
- *   console.log(files['data.txt'])    // Full path to data.txt
- * } finally {
- *   await cleanup()
- * }
  */
 export async function withTempFiles(
   files: Array<{ content: Buffer | string; name: string }>,
@@ -183,17 +115,6 @@ export async function withTempFiles(
 
 /**
  * Executes a callback with a temporary directory, ensuring cleanup.
- *
- * @param callback - Function to execute with the temp directory path.
- * @param prefix - Optional prefix for the temp directory name (default: 'test-').
- * @returns The result of the callback.
- *
- * @example
- * await runWithTempDir(async (tmpDir) => {
- *   const file = path.join(tmpDir, 'test.txt')
- *   writeFileSync(file, 'content')
- *   // ...test code...
- * }, 'my-test-')
  */
 export async function runWithTempDir<T>(
   callback: (tmpDir: string) => Promise<T> | T,
@@ -209,17 +130,6 @@ export async function runWithTempDir<T>(
 
 /**
  * Executes a callback with a temporary file, ensuring cleanup.
- *
- * @param content - File content (string or Buffer).
- * @param callback - Function to execute with the temp file path.
- * @param options - Optional configuration for temp file.
- * @returns The result of the callback.
- *
- * @example
- * await runWithTempFile('test content', async (tmpFile) => {
- *   const content = readFileSync(tmpFile, 'utf8')
- *   expect(content).toBe('test content')
- * })
  */
 export async function runWithTempFile<T>(
   content: Buffer | string,

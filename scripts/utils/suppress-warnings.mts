@@ -49,8 +49,6 @@ export function suppressMaxListenersWarning() {
 
 /**
  * Suppress all process warnings of a specific type.
- *
- * @param {string} warningType - The warning type to suppress (e.g., 'DeprecationWarning', 'ExperimentalWarning')
  */
 export function suppressWarningType(warningType) {
   suppressedWarnings.add(warningType)
@@ -70,9 +68,6 @@ export function suppressWarningType(warningType) {
  *
  * Instead of calling events.setMaxListeners(n, target) we set the symbol
  * property directly to avoid depending on 'node:events' module.
- *
- * @param {EventTarget | AbortSignal} target - The EventTarget or AbortSignal to configure
- * @param {number} [maxListeners=10] - Maximum number of listeners (defaults to 10, the Node.js default)
  */
 export function setMaxEventTargetListeners(target, maxListeners = 10) {
   const symbols = Object.getOwnPropertySymbols(target)
@@ -100,10 +95,6 @@ export function restoreWarnings() {
 
 /**
  * Suppress warnings temporarily within a callback.
- *
- * @param {string} warningType - The warning type to suppress
- * @param {Function} callback - Function to execute with warnings suppressed
- * @returns {Promise<*>} The result of the callback
  */
 export async function withSuppressedWarnings(warningType, callback) {
   const original = process.emitWarning

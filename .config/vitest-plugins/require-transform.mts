@@ -37,9 +37,6 @@ export function createRequireTransformPlugin(): Plugin {
    * 5. Extract the source code of safe expressions for inlining
    *
    * Returns the stringified value if inlineable, null otherwise.
-   *
-   * @param resolvedPath - Absolute path to the constant file
-   * @returns Source code string to inline, or null if not inlineable
    */
   function loadConstant(resolvedPath: string): string | null {
     // Step 1: Check cache to avoid re-parsing the same file
@@ -202,10 +199,6 @@ export function createRequireTransformPlugin(): Plugin {
      * 5. For each require('./X.js'), try to inline the constant value
      * 6. Use MagicString to perform precise source code replacements
      * 7. Generate source map for debugging
-     *
-     * @param code - Source code of the file
-     * @param id - Absolute path to the file being transformed
-     * @returns Transformed code with inlined constants, or null if no changes
      */
     transform(code: string, id: string) {
       // Step 1: Only apply to our registry lib files during coverage

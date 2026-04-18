@@ -5,14 +5,6 @@
 
 /**
  * Asserts that a value is of a specific primitive type.
- *
- * @param value - The value to check.
- * @param expectedType - Expected type ('string', 'number', 'boolean', 'function', etc.).
- * @param message - Optional custom error message.
- *
- * @example
- * expectType(result, 'string')
- * expectType(callback, 'function', 'Callback must be a function')
  */
 export function expectType(
   value: unknown,
@@ -29,13 +21,6 @@ export function expectType(
 
 /**
  * Asserts that a value is a string.
- *
- * @param value - The value to check.
- * @param message - Optional custom error message.
- *
- * @example
- * expectString(result)
- * expectString(path, 'Path must be a string')
  */
 export function expectString(value: unknown, message?: string): void {
   expectType(value, 'string', message)
@@ -43,13 +28,6 @@ export function expectString(value: unknown, message?: string): void {
 
 /**
  * Asserts that a value is a number.
- *
- * @param value - The value to check.
- * @param message - Optional custom error message.
- *
- * @example
- * expectNumber(count)
- * expectNumber(age, 'Age must be a number')
  */
 export function expectNumber(value: unknown, message?: string): void {
   expectType(value, 'number', message)
@@ -57,13 +35,6 @@ export function expectNumber(value: unknown, message?: string): void {
 
 /**
  * Asserts that a value is a boolean.
- *
- * @param value - The value to check.
- * @param message - Optional custom error message.
- *
- * @example
- * expectBoolean(isValid)
- * expectBoolean(result, 'Result must be a boolean')
  */
 export function expectBoolean(value: unknown, message?: string): void {
   expectType(value, 'boolean', message)
@@ -71,13 +42,6 @@ export function expectBoolean(value: unknown, message?: string): void {
 
 /**
  * Asserts that a value is a function.
- *
- * @param value - The value to check.
- * @param message - Optional custom error message.
- *
- * @example
- * expectFunction(callback)
- * expectFunction(handler, 'Handler must be a function')
  */
 export function expectFunction(value: unknown, message?: string): void {
   expectType(value, 'function', message)
@@ -85,13 +49,6 @@ export function expectFunction(value: unknown, message?: string): void {
 
 /**
  * Asserts that an object is frozen (Object.isFrozen).
- *
- * @param obj - The object to check.
- * @param message - Optional custom error message.
- *
- * @example
- * expectFrozen(constants)
- * expectFrozen(config, 'Config should be frozen')
  */
 export function expectFrozen(obj: object, message?: string): void {
   if (!Object.isFrozen(obj)) {
@@ -101,12 +58,6 @@ export function expectFrozen(obj: object, message?: string): void {
 
 /**
  * Asserts that an object is not frozen.
- *
- * @param obj - The object to check.
- * @param message - Optional custom error message.
- *
- * @example
- * expectNotFrozen(mutableConfig)
  */
 export function expectNotFrozen(obj: object, message?: string): void {
   if (Object.isFrozen(obj)) {
@@ -116,12 +67,6 @@ export function expectNotFrozen(obj: object, message?: string): void {
 
 /**
  * Asserts that an object is sealed (Object.isSealed).
- *
- * @param obj - The object to check.
- * @param message - Optional custom error message.
- *
- * @example
- * expectSealed(options)
  */
 export function expectSealed(obj: object, message?: string): void {
   if (!Object.isSealed(obj)) {
@@ -131,13 +76,6 @@ export function expectSealed(obj: object, message?: string): void {
 
 /**
  * Asserts that a value is defined (not undefined).
- *
- * @param value - The value to check.
- * @param message - Optional custom error message.
- *
- * @example
- * expectDefined(result)
- * expectDefined(user.name, 'User name must be defined')
  */
 export function expectDefined<T>(
   value: T,
@@ -150,13 +88,6 @@ export function expectDefined<T>(
 
 /**
  * Asserts that a value is truthy.
- *
- * @param value - The value to check.
- * @param message - Optional custom error message.
- *
- * @example
- * expectTruthy(result)
- * expectTruthy(isValid, 'Validation must pass')
  */
 export function expectTruthy(value: unknown, message?: string): void {
   if (!value) {
@@ -166,13 +97,6 @@ export function expectTruthy(value: unknown, message?: string): void {
 
 /**
  * Asserts that a value is falsy.
- *
- * @param value - The value to check.
- * @param message - Optional custom error message.
- *
- * @example
- * expectFalsy(result)
- * expectFalsy(error, 'Should not have error')
  */
 export function expectFalsy(value: unknown, message?: string): void {
   if (value) {
@@ -182,14 +106,6 @@ export function expectFalsy(value: unknown, message?: string): void {
 
 /**
  * Asserts that an array has a specific length.
- *
- * @param array - The array to check.
- * @param expectedLength - Expected array length.
- * @param message - Optional custom error message.
- *
- * @example
- * expectArrayLength(results, 5)
- * expectArrayLength(items, 0, 'Array should be empty')
  */
 export function expectArrayLength(
   array: unknown[],
@@ -206,14 +122,6 @@ export function expectArrayLength(
 
 /**
  * Asserts that a value is an instance of a specific class/constructor.
- *
- * @param value - The value to check.
- * @param constructor - Expected constructor function.
- * @param message - Optional custom error message.
- *
- * @example
- * expectInstanceOf(error, Error)
- * expectInstanceOf(date, Date, 'Must be a Date instance')
  */
 export function expectInstanceOf<T>(
   value: unknown,
@@ -230,14 +138,6 @@ export function expectInstanceOf<T>(
 
 /**
  * Asserts that an object has a specific property.
- *
- * @param obj - The object to check.
- * @param property - Property name to check for.
- * @param message - Optional custom error message.
- *
- * @example
- * expectHasProperty(config, 'apiKey')
- * expectHasProperty(user, 'email', 'User must have email')
  */
 export function expectHasProperty<T extends object>(
   obj: T,
@@ -253,13 +153,6 @@ export function expectHasProperty<T extends object>(
 
 /**
  * Asserts that an object has all specified properties.
- *
- * @param obj - The object to check.
- * @param properties - Array of property names to check for.
- * @param message - Optional custom error message.
- *
- * @example
- * expectHasProperties(user, ['id', 'name', 'email'])
  */
 export function expectHasProperties<T extends object>(
   obj: T,
@@ -278,14 +171,6 @@ export function expectHasProperties<T extends object>(
 
 /**
  * Asserts that a value matches a regular expression.
- *
- * @param value - The value to check.
- * @param pattern - Regular expression to match against.
- * @param message - Optional custom error message.
- *
- * @example
- * expectMatches(email, /^[\w.-]+@[\w.-]+\.\w+$/)
- * expectMatches(version, /^\d+\.\d+\.\d+$/, 'Invalid version format')
  */
 export function expectMatches(
   value: string,
@@ -301,13 +186,6 @@ export function expectMatches(
 
 /**
  * Asserts that two values are deeply equal.
- *
- * @param actual - Actual value.
- * @param expected - Expected value.
- * @param message - Optional custom error message.
- *
- * @example
- * expectDeepEqual(result, { id: 1, name: 'test' })
  */
 export function expectDeepEqual(
   actual: unknown,
@@ -327,15 +205,6 @@ export function expectDeepEqual(
 
 /**
  * Asserts that a value is within a numeric range (inclusive).
- *
- * @param value - The numeric value to check.
- * @param min - Minimum value (inclusive).
- * @param max - Maximum value (inclusive).
- * @param message - Optional custom error message.
- *
- * @example
- * expectInRange(age, 0, 120)
- * expectInRange(percentage, 0, 100, 'Percentage must be 0-100')
  */
 export function expectInRange(
   value: number,
@@ -353,15 +222,6 @@ export function expectInRange(
 /**
  * Asserts that a package has valid structure with path and module definition.
  * Common pattern for testing NPM package overrides.
- *
- * @param pkgPath - Package path that should be truthy.
- * @param module - Module that should be defined.
- * @param expectedType - Expected type of the module ('function' or 'object').
- * @param message - Optional custom error message.
- *
- * @example
- * expectValidPackageStructure(pkgPath, deepEqual, 'function')
- * expectValidPackageStructure(pkgPath, assert, 'object')
  */
 export function expectValidPackageStructure(
   pkgPath: string,

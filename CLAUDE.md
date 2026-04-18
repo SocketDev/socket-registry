@@ -336,7 +336,7 @@ Do not read source files and assert on their contents (`.toContain('pattern')`).
 - **Style**: Single-line (`//`) over multiline
 - **Periods**: MANDATORY - All comments end with periods (except directives/URLs)
 - **Placement**: Own line above code
-- **JSDoc**: Description + optional `@throws` only - NO `@param`, `@returns`, `@author`, `@example`
+- **JSDoc**: Description + optional `@throws`. NO `@param`/`@returns`/`@author` — types in signatures already say that. `@example` is only acceptable when the usage is non-obvious (e.g., a surprising invocation pattern, platform-specific quirk, or subtle interaction). If a reader can guess how to call it from the signature, no `@example`.
 - **Examples**: `// This validates input.` (correct) | `// this validates` (incorrect)
 
 ### Code Style - Sorting

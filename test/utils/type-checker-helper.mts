@@ -67,11 +67,7 @@ export const standardInvalidValues = [
 /**
  * Creates comprehensive tests for a type-checking function.
  *
- * @param config - Configuration object for the type-checker tests
  *
- * @example
- * ```typescript
- * import { createTypeCheckerTests } from '../utils/type-checker-helper.mts'
  *
  * const { module: isString, ... } = await setupNpmPackageTest(import.meta.url)
  *
@@ -137,15 +133,6 @@ export function createTypeCheckerTests(config: TypeCheckerTestConfig): void {
 
 /**
  * Helper to create common invalid value sets excluding specific types.
- *
- * @param exclude - Types to exclude from the standard invalid values
- * @returns Array of invalid values
- *
- * @example
- * ```typescript
- * // Get all invalid values except strings
- * const invalidValues = createInvalidValuesExcluding(['string'])
- * ```
  */
 export function createInvalidValuesExcluding(
   exclude: Array<

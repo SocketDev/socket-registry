@@ -18,10 +18,6 @@ interface SetupNpmPackageTestResult {
 
 /**
  * Sets up an NPM package test by loading the module from packages/npm/.
- *
- * @example
- * const { module: myMod, skip, eco, sockRegPkgName } = await setupNpmPackageTest(import.meta.url)
- * describe(`${eco} > ${sockRegPkgName}`, { skip }, () => { ... })
  */
 export async function setupNpmPackageTest(
   filename: string,
