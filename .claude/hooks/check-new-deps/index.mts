@@ -311,13 +311,13 @@ async function check(hook: HookInput): Promise<number> {
   const oldContent = hook.tool_input?.old_string ?? ''
 
   const newDeps = extractor(newContent)
-  if (newDeps.length === 0) return 0
+  if (!newDeps.length) return 0
 
   // Diff-aware: only check deps added in this edit, not pre-existing.
   const deps = oldContent
     ? diffDeps(newDeps, extractor(oldContent))
     : newDeps
-  if (deps.length === 0) return 0
+  if (!deps.length) return 0
 
   // Check all deps via SDK checkMalware().
   const blocked = await checkDepsBatch(deps)

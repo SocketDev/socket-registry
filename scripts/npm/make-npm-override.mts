@@ -217,9 +217,9 @@ async function main(): Promise<void> {
     licenses = resolvePackageLicenses(nmPkgJson.license, nmPkgPath)
     licenseWarnings = collectLicenseWarnings(licenses)
     badLicenses = collectIncompatibleLicenses(licenses)
-    if (badLicenses.length === 0) {
+    if (!badLicenses.length) {
       licenseContents = await readLicenses(nmPkgPath)
-      if (licenseContents.length === 0) {
+      if (!licenseContents.length) {
         const tgzUrl = await resolveGitHubTgzUrl(origPkgName, nmPkgJson)
         if (tgzUrl) {
           await extractPackage(tgzUrl, async tarDirPath => {
@@ -328,7 +328,7 @@ async function main(): Promise<void> {
     // Exit if user force closed the prompt.
     return
   }
-  if (tsRefs.length === 0) {
+  if (!tsRefs.length) {
     const answer = await confirm({
       message: 'Need a TypeScript lib/types reference?',
       default: false,
@@ -366,7 +366,7 @@ async function main(): Promise<void> {
               threshold: 0.2,
             })
           }
-          if (matches.length === 0) {
+          if (!matches.length) {
             return [toChoice(input)]
           }
           const firstMatch = matches[0]

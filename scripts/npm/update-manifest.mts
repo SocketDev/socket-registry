@@ -228,7 +228,7 @@ async function main(): Promise<void> {
     const modifiedFiles = await getModifiedFiles({
       cwd: ROOT_PACKAGES_PATH,
     })
-    if (modifiedFiles.length === 0) {
+    if (!modifiedFiles.length) {
       return
     }
   }

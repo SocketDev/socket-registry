@@ -411,7 +411,7 @@ function formatResults(results) {
   const warnings = []
 
   for (const result of results) {
-    if (result.issues.length === 0) {
+    if (!result.issues.length) {
       logger.success(`✓ ${result.packageName}: All checks passed`)
       continue
     }
@@ -456,7 +456,7 @@ async function main(): Promise<void> {
 
   logger.info('\n--- Summary ---')
   logger.info(`Total packages: ${packages.length}`)
-  logger.info(`Passed: ${results.filter(r => r.issues.length === 0).length}`)
+  logger.info(`Passed: ${results.filter(r => !r.issues.length).length}`)
   logger.info(
     `With warnings: ${results.filter(r => r.hasWarnings && !r.hasErrors).length}`,
   )

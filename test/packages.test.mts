@@ -2,6 +2,7 @@
 import { existsSync, promises as fs } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
+import process from 'node:process'
 
 import PackageJson from '@npmcli/package-json'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
@@ -34,7 +35,6 @@ import {
   getNpmPackageNames,
 } from '../scripts/constants/testing.mts'
 import { getIgnoreGlobs } from '../scripts/constants/utils.mts'
-import process from 'node:process'
 
 const LICENSE_GLOB =
   '**/+(LICENSE|LICENCE|LICENSE.original|LICENSE.*.original)*'
@@ -191,7 +191,7 @@ for (const eco of ecosystems) {
             for (const jsFilePath of jsFilePaths) {
               // Check if there's any type file in the exports.
               // This is a simplified check - just ensure type files exist somewhere.
-              if (typeFilePaths.length === 0) {
+              if (!typeFilePaths.length) {
                 // If no type files at all, check for co-located type files.
                 const dtsFilePath = jsFilePath
                   .replace(/\.js$/, '.d.ts')

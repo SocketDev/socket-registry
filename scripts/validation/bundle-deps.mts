@@ -88,7 +88,7 @@ function isValidPackageSpecifier(specifier) {
     specifier === 'peerDependencies' ||
     specifier === 'version' ||
     specifier === 'description' ||
-    specifier.length === 0 ||
+    !specifier.length ||
     // Filter out strings that look like code fragments
     specifier.includes('\n') ||
     specifier.includes(';') ||
@@ -214,7 +214,7 @@ async function extractBundledPackages(filePath) {
       packageName === 'node' ||
       packageName === 'pnpm' ||
       packageName === 'yarn' ||
-      packageName.length === 0 ||
+      !packageName.length ||
       // npm package name max length
       packageName.length > 214
     ) {
@@ -252,7 +252,7 @@ function getPackageName(specifier) {
     specifier === 'false' ||
     specifier === 'null' ||
     specifier === 'undefined' ||
-    specifier.length === 0 ||
+    !specifier.length ||
     // Filter out strings that look like code fragments
     specifier.includes('\n') ||
     specifier.includes(';') ||
@@ -305,7 +305,7 @@ async function validateBundleDeps() {
   // Find all dist files
   const distFiles = await findDistFiles(distPath)
 
-  if (distFiles.length === 0) {
+  if (!distFiles.length) {
     logger.log('ℹ No dist files found - run build first')
     return { violations: [], warnings: [] }
   }

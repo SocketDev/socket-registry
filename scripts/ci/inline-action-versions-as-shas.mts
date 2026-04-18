@@ -73,7 +73,7 @@ async function processFile(filePath, token, dryRun) {
   const content = await fs.readFile(filePath, 'utf8')
   const dependencies = extractDependencies(content)
 
-  if (dependencies.length === 0) {
+  if (!dependencies.length) {
     return { hasChanges: false }
   }
 
@@ -237,7 +237,7 @@ async function main(): Promise<void> {
     }
   } catch {}
 
-  if (allFiles.length === 0) {
+  if (!allFiles.length) {
     logger.warn('No workflow or action files found')
     return
   }
@@ -255,7 +255,7 @@ async function main(): Promise<void> {
     }
   }
 
-  if (processedFiles.length === 0) {
+  if (!processedFiles.length) {
     logger.success('All actions are already using commit SHAs')
     return
   }

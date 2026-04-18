@@ -145,7 +145,7 @@ export async function filterPackagesByChanges(packages, eco, options) {
     return packages
   }
   const changedPackages = await getAllChangedPackages(eco)
-  if (changedPackages.length === 0) {
+  if (!changedPackages.length) {
     return []
   }
   const changedSet = new Set(changedPackages)

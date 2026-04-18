@@ -249,7 +249,7 @@ function generateRecommendations(_failures, grouped) {
   for (const { 0: category, 1: categoryFailures } of Object.entries(
     grouped.byCategory,
   )) {
-    if (categoryFailures.length === 0) {
+    if (!categoryFailures.length) {
       continue
     }
 
@@ -265,7 +265,7 @@ function generateRecommendations(_failures, grouped) {
   for (const { 0: packageName, 1: packageFailures } of Object.entries(
     grouped.byPackage,
   )) {
-    if (packageFailures.length === 0) {
+    if (!packageFailures.length) {
       continue
     }
 
@@ -293,7 +293,7 @@ function generateRecommendations(_failures, grouped) {
 function formatResults(failures, recommendations) {
   logger.info('=== CI Failure Analysis ===\n')
 
-  if (failures.length === 0) {
+  if (!failures.length) {
     logger.success('No failures detected in log')
     return
   }

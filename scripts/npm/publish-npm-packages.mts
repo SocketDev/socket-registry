@@ -294,7 +294,7 @@ async function publishAtCommit(sha) {
     }
   }
 
-  if (packagesToPublish.length === 0) {
+  if (!packagesToPublish.length) {
     logger.log('No packages to publish at this commit')
     return { fails, skipped }
   }
@@ -508,7 +508,7 @@ async function main(): Promise<void> {
     // Find all version bump commits.
     const bumpCommits = await findVersionBumpCommits()
 
-    if (bumpCommits.length === 0) {
+    if (!bumpCommits.length) {
       logger.info('No version bump commits found')
       // If --force-registry is set, still try to publish at HEAD.
       if (forceRegistryFlag) {
@@ -553,7 +553,7 @@ async function main(): Promise<void> {
       )
     }
 
-    if (bumpCommits.length === 0) {
+    if (!bumpCommits.length) {
       logger.info('No registry version bumps to publish')
       logger.log('\nChecking for unpublished packages at HEAD...')
       // Even if there are no registry version bumps, we should check
