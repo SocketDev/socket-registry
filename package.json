@@ -23,10 +23,8 @@
     "analyze-ci-failures": "node scripts/testing/analyze-ci-failures.mts",
     "build": "node scripts/build.mts",
     "check": "node scripts/check.mts",
-    "check-registry-package-types": "node --experimental-strip-types scripts/check-registry-package-types.mts",
     "check-trusted": "node scripts/npm/check-trusted-packages.mts",
     "clean": "node scripts/clean.mts",
-    "claude": "node scripts/claude.mts",
     "cover": "node scripts/cover.mts",
     "fix": "node scripts/fix.mts",
     "format": "oxfmt --write .",
@@ -49,6 +47,7 @@
     "release-npm": "node scripts/npm/release-npm-packages.mts",
     "test": "node scripts/test.mts",
     "test:npm": "node scripts/npm/run-vitest-npm.mts",
+    "type": "tsgo --noEmit -p tsconfig.json",
     "update": "node scripts/update.mts",
     "validate-ci": "node scripts/testing/reproduce-ci-locally.mts",
     "validate-packages": "node scripts/testing/validate-package-tests.mts"
