@@ -9,8 +9,8 @@
  */
 
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import process from 'node:process'
+import { fileURLToPath } from 'node:url'
 
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
@@ -44,9 +44,6 @@ const { values } = parseArgs({
   strict: false,
 })
 
-printHeader('Test Coverage')
-logger.log('')
-
 // Filter out custom flags that vitest doesn't understand.
 const customFlags = ['--code-only', '--type-only', '--summary']
 const vitestArgs = [
@@ -60,7 +57,10 @@ const vitestArgs = [
 ]
 const typeCoverageArgs = ['exec', 'type-coverage']
 
-try {
+async function main(): Promise<void> {
+  printHeader('Test Coverage')
+  logger.log('')
+
   // Rebuild with source maps enabled for coverage.
   logger.info('Building with source maps for coverage...')
   const buildResult = await spawn('node', ['scripts/build.mts'], {
@@ -306,8 +306,9 @@ try {
   }
 
   process.exitCode = exitCode
-} catch (e) {
-  logger.error(`Coverage script failed: ${(e as Error).message}`)
-  // Preserve any exit code already set by an earlier failure branch.
-  process.exitCode = process.exitCode ?? 1
 }
+
+main().catch((e: unknown) => {
+  logger.error(`Coverage script failed: ${(e as Error).message}`)
+  process.exitCode = process.exitCode ?? 1
+})

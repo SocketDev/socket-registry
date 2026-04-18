@@ -34,7 +34,8 @@ async function run(
     })
     if (result.code !== 0 && required) {
       logger.error(`${label || cmd} failed (exit ${result.code})`)
-      return result.code
+      // @socketsecurity/lib/spawn reports null on signal termination.
+      return result.code ?? 1
     }
     if (result.code !== 0) {
       // Non-blocking: log warning and continue.

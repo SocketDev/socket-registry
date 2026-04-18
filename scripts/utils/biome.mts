@@ -3,6 +3,7 @@
  * Formats content using Biome CLI via pnpm exec.
  */
 
+import path from 'node:path'
 import process from 'node:process'
 
 import { spawnSync } from '@socketsecurity/lib/spawn'
@@ -24,10 +25,10 @@ export function biomeFormat(
   } as BiomeFormatOptions
 
   // Use stdin mode to avoid path-based exclusions in biome.json.
-  // Guard against filenames without an extension (split('.').pop() returns
-  // the whole basename in that case).
-  const dotIdx = filepath.lastIndexOf('.')
-  const extension = dotIdx === -1 ? 'json' : filepath.slice(dotIdx + 1)
+  // path.extname handles dotted directory names correctly (e.g. 'dir.with.dots/file'
+  // returns '' rather than mis-interpreting the directory dot as an extension).
+  const ext = path.extname(filepath)
+  const extension = ext ? ext.slice(1) : 'json'
   const result = spawnSync(
     'pnpm',
     ['exec', 'biome', 'format', `--stdin-file-path=temp.${extension}`],
