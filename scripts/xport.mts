@@ -35,13 +35,13 @@
  *     code 2 semantics: ultrathink/acorn/scripts/xlang-harness.mts.
  */
 
-import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { spawnSync } from '@socketsecurity/lib/spawn'
 
 import {
   XportManifestSchema,
@@ -208,10 +208,19 @@ function loadManifestTree(rootManifestPath: string): {
 }
 
 function gitIn(submoduleDir: string, args: string[]): string {
-  return execFileSync('git', ['-C', submoduleDir, ...args], {
-    encoding: 'utf8',
+  const result = spawnSync('git', ['-C', submoduleDir, ...args], {
     stdio: ['ignore', 'pipe', 'pipe'],
+    stdioString: true,
   })
+  if (result.error) {
+    throw result.error
+  }
+  if (result.status !== 0) {
+    throw new Error(
+      `git ${args.join(' ')} failed (status ${result.status}): ${String(result.stderr).trim()}`,
+    )
+  }
+  return String(result.stdout)
 }
 
 function shaIsReachable(submoduleDir: string, sha: string): boolean {
