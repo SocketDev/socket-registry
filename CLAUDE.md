@@ -63,7 +63,7 @@
 
 - Never create files unless necessary; always prefer editing existing files
 - Forbidden to create docs unless requested
-- 🚨 **NEVER use `npx`, `pnpm dlx`, or `yarn dlx`** — use `pnpm exec <pkg>` or `pnpm run <script>`; add tools as pinned devDependencies first
+- 🚨 **NEVER use `npx`, `pnpm dlx`, or `yarn dlx`** — use `pnpm exec <pkg>` or `pnpm run <script>`; add tools as pinned devDependencies first # zizmor: documentation-prohibition
 - **minimumReleaseAge**: NEVER add packages to `minimumReleaseAgeExclude` in CI. Locally, ASK before adding — the age threshold is a security control.
 
 ## EVOLUTION
