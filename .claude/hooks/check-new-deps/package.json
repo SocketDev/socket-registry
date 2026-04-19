@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@socketregistry/packageurl-js": "1.4.1",
-    "@socketsecurity/lib": "5.15.0",
+    "@socketsecurity/lib": "5.19.0",
     "@socketsecurity/sdk": "4.0.0"
   },
   "devDependencies": {

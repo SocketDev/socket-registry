@@ -19,7 +19,8 @@ import { fileURLToPath } from 'node:url'
 
 import { WIN32 } from '@socketsecurity/lib/constants/platform'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
-import { printFooter, printHeader } from '@socketsecurity/lib/stdio/header'
+import { printFooter } from '@socketsecurity/lib/stdio/footer'
+import { printHeader } from '@socketsecurity/lib/stdio/header'
 
 import {
   runCommand,
