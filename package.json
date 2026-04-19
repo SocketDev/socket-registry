@@ -49,7 +49,9 @@
     "type": "tsgo --noEmit -p tsconfig.json",
     "update": "node scripts/update.mts",
     "validate-ci": "node scripts/testing/reproduce-ci-locally.mts",
-    "validate-packages": "node scripts/testing/validate-package-tests.mts"
+    "validate-packages": "node scripts/testing/validate-package-tests.mts",
+    "xport": "node scripts/xport.mts",
+    "xport:emit-schema": "node scripts/xport-emit-schema.mts"
   },
   "devDependencies": {
     "@anthropic-ai/claude-code": "catalog:",
