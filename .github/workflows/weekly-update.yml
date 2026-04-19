@@ -184,8 +184,10 @@ jobs:
       - name: Initialize submodules
         if: inputs.checkout-submodules != 'false'
         shell: bash
+        env:
+          SUBMODULES: ${{ inputs.checkout-submodules }}
         run: |
-          if [ "${{ inputs.checkout-submodules }}" = "recursive" ]; then
+          if [ "$SUBMODULES" = "recursive" ]; then
             git submodule update --init --recursive
           else
             git submodule update --init
@@ -333,11 +335,12 @@ jobs:
         if: steps.final.outputs.success == 'true'
         env:
           VALIDATE_PATTERNS: ${{ inputs.validate-file-patterns }}
+          PR_BASE: ${{ inputs.pr-base }}
         run: |
           UNEXPECTED=""
           # Build a case-glob test from pipe-separated patterns
           PATTERNS=$(echo "$VALIDATE_PATTERNS" | tr '|' ' ')
-          for file in $(git diff --name-only origin/${{ inputs.pr-base }}..HEAD); do
+          for file in $(git diff --name-only "origin/${PR_BASE}..HEAD"); do
             MATCH=false
             for pat in $PATTERNS; do
               case "$file" in
@@ -353,8 +356,10 @@ jobs:
 
       - name: Check for changes
         id: changes
+        env:
+          PR_BASE: ${{ inputs.pr-base }}
         run: |
-          if [ "$(git rev-list --count HEAD ^origin/${{ inputs.pr-base }})" -gt 0 ]; then
+          if [ "$(git rev-list --count HEAD "^origin/${PR_BASE}")" -gt 0 ]; then
             echo "has-changes=true" >> $GITHUB_OUTPUT
           else
             echo "has-changes=false" >> $GITHUB_OUTPUT
@@ -406,11 +411,12 @@ jobs:
           BRANCH_NAME: ${{ steps.branch.outputs.branch }}
           FINAL_REASON: ${{ steps.final.outputs.reason }}
           HAS_CHANGES: ${{ steps.changes.outputs.has-changes }}
+          PR_BASE: ${{ inputs.pr-base }}
         run: |
           echo "## Weekly Update" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ "$HAS_CHANGES" = "true" ]; then
-            COMMIT_COUNT=$(git rev-list --count origin/${{ inputs.pr-base }}..HEAD 2>/dev/null || echo 0)
+            COMMIT_COUNT=$(git rev-list --count "origin/${PR_BASE}..HEAD" 2>/dev/null || echo 0)
             echo "**Branch:** \`${BRANCH_NAME}\`" >> $GITHUB_STEP_SUMMARY
             echo "**Commits:** ${COMMIT_COUNT}" >> $GITHUB_STEP_SUMMARY
             echo "**Status:** ${FINAL_REASON}" >> $GITHUB_STEP_SUMMARY
