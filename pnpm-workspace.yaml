@@ -4,6 +4,7 @@ packages:
   - packages/npm/*
   - perf/*
   - registry
+  - .claude/hooks/*
 
 # Packages allowed to run build scripts (pnpm v11 strictDepBuilds default).
 allowBuilds:
