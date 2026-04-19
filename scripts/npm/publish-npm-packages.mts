@@ -411,20 +411,22 @@ async function publishTrusted(pkg, state, options) {
         await new Promise(resolve => setTimeout(resolve, delay))
       }
 
-      // Use npm for trusted publishing with OIDC tokens.
-
-      const result = await spawn(
-        'npm',
-        ['publish', '--provenance', '--access', 'public'],
-        {
-          cwd: pkg.path,
-          env: {
-            ...process.env,
-            // Don't set NODE_AUTH_TOKEN for trusted publishing - uses OIDC.
-          },
-          shell: WIN32,
+      // Use npm for trusted publishing with OIDC tokens. `--provenance`
+      // requires the GitHub Actions OIDC id-token endpoint, so it's
+      // gated on GITHUB_ACTIONS=true — local emergency publishes (run
+      // with a classic npm token) still work without provenance.
+      const publishArgs = ['publish', '--access', 'public']
+      if (process.env['GITHUB_ACTIONS'] === 'true') {
+        publishArgs.splice(1, 0, '--provenance')
+      }
+      const result = await spawn('npm', publishArgs, {
+        cwd: pkg.path,
+        env: {
+          ...process.env,
+          // Don't set NODE_AUTH_TOKEN for trusted publishing - uses OIDC.
         },
-      )
+        shell: WIN32,
+      })
       if (result.stdout) {
         logger.log(result.stdout)
       }
