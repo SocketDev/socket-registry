@@ -2,7 +2,6 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/SocketDev/xport.schema.json",
   "title": "xport lock-step manifest",
-  "description": "Unified lock-step manifest shared across Socket repos. One schema, all cases — `kind` discriminator on each row selects which flavor of lock-step applies.",
   "type": "object",
   "properties": {
     "$schema": {
@@ -32,18 +31,15 @@
         "type": "object",
         "properties": {
           "submodule": {
-            "description": "Submodule path, relative to repo root.",
-            "type": "string"
+            "type": "string",
+            "description": "Submodule path, relative to repo root."
           },
           "repo": {
             "type": "string",
             "format": "uri"
           }
         },
-        "required": [
-          "submodule",
-          "repo"
-        ],
+        "required": ["submodule", "repo"],
         "additionalProperties": false
       }
     },
@@ -57,26 +53,23 @@
         "type": "object",
         "properties": {
           "path": {
-            "description": "Path to the port's root directory, relative to repo root.",
-            "type": "string"
+            "type": "string",
+            "description": "Path to the port's root directory, relative to repo root."
           },
           "language": {
             "description": "Language label, for human reports.",
             "type": "string"
           }
         },
-        "required": [
-          "path"
-        ],
+        "required": ["path"],
         "additionalProperties": false
       }
     },
     "rows": {
       "type": "array",
       "items": {
-        "anyOf": [
+        "oneOf": [
           {
-            "description": "A local file derived from an upstream file with intentional modifications. Drift = upstream moved forward without us.",
             "type": "object",
             "properties": {
               "kind": {
@@ -84,48 +77,48 @@
                 "const": "file-fork"
               },
               "id": {
-                "description": "Stable identifier, unique within the manifest. Starts with lowercase letter or digit; remaining characters are letters/digits/hyphens. Kebab-case preferred, but camelCase segments are allowed (e.g. `export-findNodeAt` when the id mirrors an API name).",
                 "type": "string",
-                "pattern": "^[a-z0-9][A-Za-z0-9-]*$"
+                "pattern": "^[a-z0-9][A-Za-z0-9-]*$",
+                "description": "Stable identifier, unique within the manifest. Starts with lowercase letter or digit; remaining characters are letters/digits/hyphens. Kebab-case preferred, but camelCase segments are allowed (e.g. `export-findNodeAt` when the id mirrors an API name)."
               },
               "upstream": {
-                "description": "Key into the top-level `upstreams` map.",
-                "type": "string"
+                "type": "string",
+                "description": "Key into the top-level `upstreams` map."
               },
               "criticality": {
-                "description": "Stay-in-step importance (1 = cosmetic, 10 = security-sensitive). Harness surfaces high-criticality drift louder.",
                 "type": "integer",
                 "minimum": 1,
-                "maximum": 10
+                "maximum": 10,
+                "description": "Stay-in-step importance (1 = cosmetic, 10 = security-sensitive). Harness surfaces high-criticality drift louder."
               },
               "conformance_test": {
-                "description": "Path to a test that enforces behavior parity (modulo documented deviations). Strongly recommended — static checks can't catch silent behavioral drift.",
-                "type": "string"
+                "type": "string",
+                "description": "Path to a test that enforces behavior parity (modulo documented deviations). Strongly recommended — static checks can't catch silent behavioral drift."
               },
               "notes": {
-                "description": "Free-form context — why this row exists, what gotchas to watch for.",
-                "type": "string"
+                "type": "string",
+                "description": "Free-form context — why this row exists, what gotchas to watch for."
               },
               "local": {
-                "description": "Path to our ported file, relative to repo root.",
-                "type": "string"
+                "type": "string",
+                "description": "Path to our ported file, relative to repo root."
               },
               "upstream_path": {
-                "description": "Path to the source file within the upstream submodule.",
-                "type": "string"
+                "type": "string",
+                "description": "Path to the source file within the upstream submodule."
               },
               "forked_at_sha": {
-                "description": "Full 40-char SHA of the upstream commit we forked from. Harness runs `git log <sha>..HEAD -- <upstream_path>` to surface drift.",
                 "type": "string",
-                "pattern": "^[0-9a-f]{40}$"
+                "pattern": "^[0-9a-f]{40}$",
+                "description": "Full 40-char SHA of the upstream commit we forked from. Harness runs `git log <sha>..HEAD -- <upstream_path>` to surface drift."
               },
               "deviations": {
-                "description": "Human-readable list of intentional differences. Zero deviations = use upstream directly; don't fork.",
                 "minItems": 1,
                 "type": "array",
                 "items": {
                   "type": "string"
-                }
+                },
+                "description": "Human-readable list of intentional differences. Zero deviations = use upstream directly; don't fork."
               }
             },
             "required": [
@@ -137,10 +130,10 @@
               "forked_at_sha",
               "deviations"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "description": "A local file derived from an upstream file with intentional modifications. Drift = upstream moved forward without us."
           },
           {
-            "description": "A submodule pinned to an upstream release. Drift = upstream cut a new release we haven't adopted.",
             "type": "object",
             "properties": {
               "kind": {
@@ -148,45 +141,41 @@
                 "const": "version-pin"
               },
               "id": {
-                "description": "Stable identifier, unique within the manifest. Starts with lowercase letter or digit; remaining characters are letters/digits/hyphens. Kebab-case preferred, but camelCase segments are allowed (e.g. `export-findNodeAt` when the id mirrors an API name).",
                 "type": "string",
-                "pattern": "^[a-z0-9][A-Za-z0-9-]*$"
+                "pattern": "^[a-z0-9][A-Za-z0-9-]*$",
+                "description": "Stable identifier, unique within the manifest. Starts with lowercase letter or digit; remaining characters are letters/digits/hyphens. Kebab-case preferred, but camelCase segments are allowed (e.g. `export-findNodeAt` when the id mirrors an API name)."
               },
               "upstream": {
-                "description": "Key into the top-level `upstreams` map.",
-                "type": "string"
+                "type": "string",
+                "description": "Key into the top-level `upstreams` map."
               },
               "criticality": {
-                "description": "Stay-in-step importance (1 = cosmetic, 10 = security-sensitive). Harness surfaces high-criticality drift louder.",
                 "type": "integer",
                 "minimum": 1,
-                "maximum": 10
+                "maximum": 10,
+                "description": "Stay-in-step importance (1 = cosmetic, 10 = security-sensitive). Harness surfaces high-criticality drift louder."
               },
               "conformance_test": {
-                "description": "Path to a test that enforces behavior parity (modulo documented deviations). Strongly recommended — static checks can't catch silent behavioral drift.",
-                "type": "string"
+                "type": "string",
+                "description": "Path to a test that enforces behavior parity (modulo documented deviations). Strongly recommended — static checks can't catch silent behavioral drift."
               },
               "notes": {
-                "description": "Free-form context — why this row exists, what gotchas to watch for.",
-                "type": "string"
+                "type": "string",
+                "description": "Free-form context — why this row exists, what gotchas to watch for."
               },
               "pinned_sha": {
-                "description": "Full 40-char SHA the submodule is pinned to.",
                 "type": "string",
-                "pattern": "^[0-9a-f]{40}$"
+                "pattern": "^[0-9a-f]{40}$",
+                "description": "Full 40-char SHA the submodule is pinned to."
               },
               "pinned_tag": {
                 "description": "Human-readable release tag (e.g., `v3.2.1`). Optional — the SHA is authoritative.",
                 "type": "string"
               },
               "upgrade_policy": {
-                "description": "track-latest: any new release is actionable; major-gate: only major bumps require review; locked: explicit decision per upgrade.",
                 "type": "string",
-                "enum": [
-                  "track-latest",
-                  "major-gate",
-                  "locked"
-                ]
+                "enum": ["track-latest", "major-gate", "locked"],
+                "description": "track-latest: any new release is actionable; major-gate: only major bumps require review; locked: explicit decision per upgrade."
               }
             },
             "required": [
@@ -196,10 +185,10 @@
               "pinned_sha",
               "upgrade_policy"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "description": "A submodule pinned to an upstream release. Drift = upstream cut a new release we haven't adopted."
           },
           {
-            "description": "A behavioral feature reimplemented locally to match upstream behavior. Three-pillar validation: code patterns, test patterns, fixture snapshots.",
             "type": "object",
             "properties": {
               "kind": {
@@ -207,31 +196,31 @@
                 "const": "feature-parity"
               },
               "id": {
-                "description": "Stable identifier, unique within the manifest. Starts with lowercase letter or digit; remaining characters are letters/digits/hyphens. Kebab-case preferred, but camelCase segments are allowed (e.g. `export-findNodeAt` when the id mirrors an API name).",
                 "type": "string",
-                "pattern": "^[a-z0-9][A-Za-z0-9-]*$"
+                "pattern": "^[a-z0-9][A-Za-z0-9-]*$",
+                "description": "Stable identifier, unique within the manifest. Starts with lowercase letter or digit; remaining characters are letters/digits/hyphens. Kebab-case preferred, but camelCase segments are allowed (e.g. `export-findNodeAt` when the id mirrors an API name)."
               },
               "upstream": {
-                "description": "Key into the top-level `upstreams` map.",
-                "type": "string"
+                "type": "string",
+                "description": "Key into the top-level `upstreams` map."
               },
               "criticality": {
-                "description": "Stay-in-step importance (1 = cosmetic, 10 = security-sensitive). Harness surfaces high-criticality drift louder.",
                 "type": "integer",
                 "minimum": 1,
-                "maximum": 10
+                "maximum": 10,
+                "description": "Stay-in-step importance (1 = cosmetic, 10 = security-sensitive). Harness surfaces high-criticality drift louder."
               },
               "conformance_test": {
-                "description": "Path to a test that enforces behavior parity (modulo documented deviations). Strongly recommended — static checks can't catch silent behavioral drift.",
-                "type": "string"
+                "type": "string",
+                "description": "Path to a test that enforces behavior parity (modulo documented deviations). Strongly recommended — static checks can't catch silent behavioral drift."
               },
               "notes": {
-                "description": "Free-form context — why this row exists, what gotchas to watch for.",
-                "type": "string"
+                "type": "string",
+                "description": "Free-form context — why this row exists, what gotchas to watch for."
               },
               "local_area": {
-                "description": "Path to the local module/directory implementing the feature. Code pattern scan targets this directory (excluding test files).",
-                "type": "string"
+                "type": "string",
+                "description": "Path to the local module/directory implementing the feature. Code pattern scan targets this directory (excluding test files)."
               },
               "test_area": {
                 "description": "Optional path to the directory where tests for this feature live. When absent, the harness searches inside `local_area`.",
@@ -252,7 +241,6 @@
                 }
               },
               "fixture_check": {
-                "description": "Golden-input verification. Prefer snapshot-based diffs over hardcoded counts (brittleness lesson from sdxgen's lock-step-features).",
                 "type": "object",
                 "properties": {
                   "fixture_path": {
@@ -263,30 +251,19 @@
                   },
                   "diff_tolerance": {
                     "type": "string",
-                    "enum": [
-                      "exact",
-                      "line-by-line",
-                      "semantic"
-                    ]
+                    "enum": ["exact", "line-by-line", "semantic"]
                   }
                 },
-                "required": [
-                  "fixture_path"
-                ],
-                "additionalProperties": false
+                "required": ["fixture_path"],
+                "additionalProperties": false,
+                "description": "Golden-input verification. Prefer snapshot-based diffs over hardcoded counts (brittleness lesson from sdxgen's lock-step-features)."
               }
             },
-            "required": [
-              "kind",
-              "id",
-              "upstream",
-              "criticality",
-              "local_area"
-            ],
-            "additionalProperties": false
+            "required": ["kind", "id", "upstream", "criticality", "local_area"],
+            "additionalProperties": false,
+            "description": "A behavioral feature reimplemented locally to match upstream behavior. Three-pillar validation: code patterns, test patterns, fixture snapshots."
           },
           {
-            "description": "A local reimplementation of an external specification. Drift = the spec was revised.",
             "type": "object",
             "properties": {
               "kind": {
@@ -294,27 +271,27 @@
                 "const": "spec-conformance"
               },
               "id": {
-                "description": "Stable identifier, unique within the manifest. Starts with lowercase letter or digit; remaining characters are letters/digits/hyphens. Kebab-case preferred, but camelCase segments are allowed (e.g. `export-findNodeAt` when the id mirrors an API name).",
                 "type": "string",
-                "pattern": "^[a-z0-9][A-Za-z0-9-]*$"
+                "pattern": "^[a-z0-9][A-Za-z0-9-]*$",
+                "description": "Stable identifier, unique within the manifest. Starts with lowercase letter or digit; remaining characters are letters/digits/hyphens. Kebab-case preferred, but camelCase segments are allowed (e.g. `export-findNodeAt` when the id mirrors an API name)."
               },
               "upstream": {
-                "description": "Key into the top-level `upstreams` map.",
-                "type": "string"
+                "type": "string",
+                "description": "Key into the top-level `upstreams` map."
               },
               "criticality": {
-                "description": "Stay-in-step importance (1 = cosmetic, 10 = security-sensitive). Harness surfaces high-criticality drift louder.",
                 "type": "integer",
                 "minimum": 1,
-                "maximum": 10
+                "maximum": 10,
+                "description": "Stay-in-step importance (1 = cosmetic, 10 = security-sensitive). Harness surfaces high-criticality drift louder."
               },
               "conformance_test": {
-                "description": "Path to a test that enforces behavior parity (modulo documented deviations). Strongly recommended — static checks can't catch silent behavioral drift.",
-                "type": "string"
+                "type": "string",
+                "description": "Path to a test that enforces behavior parity (modulo documented deviations). Strongly recommended — static checks can't catch silent behavioral drift."
               },
               "notes": {
-                "description": "Free-form context — why this row exists, what gotchas to watch for.",
-                "type": "string"
+                "type": "string",
+                "description": "Free-form context — why this row exists, what gotchas to watch for."
               },
               "local_impl": {
                 "type": "string"
@@ -334,10 +311,10 @@
               "local_impl",
               "spec_version"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "description": "A local reimplementation of an external specification. Drift = the spec was revised."
           },
           {
-            "description": "N sibling language ports of one spec within a single project. Drift = one port diverged from its siblings.",
             "type": "object",
             "properties": {
               "kind": {
@@ -345,9 +322,9 @@
                 "const": "lang-parity"
               },
               "id": {
-                "description": "Stable identifier, unique within the manifest. Starts with lowercase letter or digit; remaining characters are letters/digits/hyphens. Kebab-case preferred, but camelCase segments are allowed (e.g. `export-findNodeAt` when the id mirrors an API name).",
                 "type": "string",
-                "pattern": "^[a-z0-9][A-Za-z0-9-]*$"
+                "pattern": "^[a-z0-9][A-Za-z0-9-]*$",
+                "description": "Stable identifier, unique within the manifest. Starts with lowercase letter or digit; remaining characters are letters/digits/hyphens. Kebab-case preferred, but camelCase segments are allowed (e.g. `export-findNodeAt` when the id mirrors an API name)."
               },
               "name": {
                 "type": "string"
@@ -356,22 +333,22 @@
                 "type": "string"
               },
               "category": {
-                "description": "Grouping tag. `rejected` is reserved for anti-patterns (every port must be opt-out; reintroduction exits 2).",
-                "type": "string"
+                "type": "string",
+                "description": "Grouping tag. `rejected` is reserved for anti-patterns (every port must be opt-out; reintroduction exits 2)."
               },
               "criticality": {
-                "description": "Stay-in-step importance (1 = cosmetic, 10 = security-sensitive). Harness surfaces high-criticality drift louder.",
                 "type": "integer",
                 "minimum": 1,
-                "maximum": 10
+                "maximum": 10,
+                "description": "Stay-in-step importance (1 = cosmetic, 10 = security-sensitive). Harness surfaces high-criticality drift louder."
               },
               "conformance_test": {
-                "description": "Path to a test that enforces behavior parity (modulo documented deviations). Strongly recommended — static checks can't catch silent behavioral drift.",
-                "type": "string"
+                "type": "string",
+                "description": "Path to a test that enforces behavior parity (modulo documented deviations). Strongly recommended — static checks can't catch silent behavioral drift."
               },
               "notes": {
-                "description": "Free-form context — why this row exists, what gotchas to watch for.",
-                "type": "string"
+                "type": "string",
+                "description": "Free-form context — why this row exists, what gotchas to watch for."
               },
               "assertions": {
                 "description": "Open-ended assertion list. Each has a `kind` string the harness dispatches on. Unknown kinds are skipped with a log line.",
@@ -392,21 +369,16 @@
                 }
               },
               "ports": {
-                "description": "Per-site status. Keys must match top-level `sites`.",
                 "type": "object",
                 "propertyNames": {
                   "type": "string"
                 },
                 "additionalProperties": {
-                  "description": "Per-port status for a lang-parity row. `implemented` = port meets assertions; `opt-out` = port consciously skips, requires non-empty `reason`.",
                   "type": "object",
                   "properties": {
                     "status": {
                       "type": "string",
-                      "enum": [
-                        "implemented",
-                        "opt-out"
-                      ]
+                      "enum": ["implemented", "opt-out"]
                     },
                     "reason": {
                       "description": "Required when status is `opt-out`. Explain why.",
@@ -421,11 +393,11 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "status"
-                  ],
-                  "additionalProperties": false
-                }
+                  "required": ["status"],
+                  "additionalProperties": false,
+                  "description": "Per-port status for a lang-parity row. `implemented` = port meets assertions; `opt-out` = port consciously skips, requires non-empty `reason`."
+                },
+                "description": "Per-site status. Keys must match top-level `sites`."
               }
             },
             "required": [
@@ -436,14 +408,14 @@
               "category",
               "ports"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "description": "N sibling language ports of one spec within a single project. Drift = one port diverged from its siblings."
           }
         ]
       }
     }
   },
-  "required": [
-    "rows"
-  ],
-  "additionalProperties": false
+  "required": ["rows"],
+  "additionalProperties": false,
+  "description": "Unified lock-step manifest shared across Socket repos. One schema, all cases — `kind` discriminator on each row selects which flavor of lock-step applies."
 }
