@@ -30,19 +30,20 @@ Layer 2b — setup-and-install (references Layer 1 + 2a):
 Layer 3 — Shared reusable workflows (reference Layer 2):
   ci.yml                   -> refs: setup-and-install, run-script
   provenance.yml           -> refs: setup-and-install
+  weekly-update.yml        -> refs: setup-and-install, setup-git-signing, cleanup-git-signing
 
 Layer 4 — _local workflows (reference Layer 3, not reused externally):
-  _local-not-for-reuse-ci.yml         -> refs: ci.yml, setup-and-install, cache-npm-packages
-  _local-not-for-reuse-provenance.yml -> refs: provenance.yml
-  _local-not-for-reuse-weekly-update  -> refs: setup-and-install, setup-git-signing, cleanup-git-signing
+  _local-not-for-reuse-ci.yml             -> refs: ci.yml, setup-and-install, cache-npm-packages
+  _local-not-for-reuse-provenance.yml     -> refs: provenance.yml
+  _local-not-for-reuse-weekly-update.yml  -> refs: weekly-update.yml (via uses) OR setup-and-install directly
 ```
 
 ---
 
 ## Propagation SHA
 
-The **propagation SHA** is the Layer 3 merge SHA — the one where `ci.yml` and
-`provenance.yml` were updated.
+The **propagation SHA** is the Layer 3 merge SHA — the one where `ci.yml`,
+`provenance.yml`, or `weekly-update.yml` were updated.
 
 - Layer 4 (`_local-not-for-reuse-*`) pins to the propagation SHA
 - External repos pin to the propagation SHA
@@ -81,6 +82,7 @@ All pin to the propagation SHA (Layer 3 merge SHA):
 |------|--------|
 | socket-btm | Push directly to main |
 | sdxgen | Push directly to main (local checkout at `../socket-sdxgen/`) |
+| stuie | Push directly to main (local checkout at `../socket-tui/`) |
 | ultrathink | Push directly to main |
 | socket-cli | Create PR |
 | socket-lib | Create PR |

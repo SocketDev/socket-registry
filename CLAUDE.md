@@ -88,11 +88,11 @@ Color the icon only, using `yoctocolors-cjs` (NOT ESM `yoctocolors`):
 
 ```javascript
 import colors from 'yoctocolors-cjs'
-`${colors.green('✓')} ${msg}`
-`${colors.red('✗')} ${msg}`
-`${colors.yellow('⚠')} ${msg}`
-`${colors.blue('ℹ')} ${msg}`
-`${colors.cyan('→')} ${msg}`
+const success = `${colors.green('✓')} ${msg}`
+const error = `${colors.red('✗')} ${msg}`
+const warning = `${colors.yellow('⚠')} ${msg}`
+const info = `${colors.blue('ℹ')} ${msg}`
+const step = `${colors.cyan('→')} ${msg}`
 ```
 
 Use emojis sparingly. Prefer text symbols for terminal compatibility.
@@ -162,7 +162,7 @@ Actions and workflows reference each other by full 40-char SHA pinned to main. W
 
 - L3/L4-only changes (reusable workflow edits, no L1/L2 action changes): skip to Layer 4 bump
 - Don't clobber third-party SHAs during blanket replacements
-- Consumer repos: **direct push** — socket-btm, sdxgen, ultrathink; **PR** — socket-cli, socket-lib, socket-sdk-js, socket-packageurl-js. Note: `sdxgen` local checkout is `socket-sdxgen/` but GitHub repo is `SocketDev/sdxgen` — use bare name for `gh` commands.
+- Consumer repos: **direct push** — socket-btm, sdxgen, stuie, ultrathink; **PR** — socket-cli, socket-lib, socket-sdk-js, socket-packageurl-js. Note: `sdxgen` local checkout is `socket-sdxgen/` but GitHub repo is `SocketDev/sdxgen` — use bare name for `gh` commands. `stuie` local checkout is `socket-tui/` but GitHub repo is `SocketDev/stuie`.
 
 ### CI Testing Infrastructure
 
@@ -300,7 +300,7 @@ Actions and workflows reference each other by full 40-char SHA pinned to main. W
 ### Dependency Alignment
 
 - Core: @typescript/native-preview (tsgo), @types/node, typescript-eslint (unified only)
-- DevDeps: @dotenvx/dotenvx, @vitest/coverage-v8, del-cli, eslint, eslint-plugin-*, globals, husky, knip, lint-staged, npm-run-all2, oxfmt, taze, type-coverage, vitest, yargs-parser, yoctocolors-cjs
+- DevDeps: @dotenvx/dotenvx, @vitest/coverage-v8, del-cli, eslint, eslint-plugin-\*, globals, husky, knip, lint-staged, npm-run-all2, oxfmt, taze, type-coverage, vitest, yargs-parser, yoctocolors-cjs
 - **FORBIDDEN**: separate `@typescript-eslint/*` packages; use unified `typescript-eslint`
 - **TSGO PRESERVATION**: never replace tsgo with tsc
 - Update: `pnpm run taze`

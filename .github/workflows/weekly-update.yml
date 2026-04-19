@@ -1,0 +1,460 @@
+name: 🔄 Weekly Update
+
+# Reusable weekly-update workflow for socket-* repos.
+#
+# Each consumer repo's `.github/workflows/weekly-update.yml` becomes a thin
+# delegator that invokes this workflow. The actual update logic lives in the
+# consumer repo's `/updating` skill, which this workflow calls via Claude Code.
+#
+# The `/updating` skill is the umbrella — it reads repo state (presence of
+# `xport.json`, `.gitmodules`) and delegates to `updating-xport` /
+# `updating-upstream` / `updating-workflows` as applicable.
+#
+# Dependencies:
+#   - SocketDev/socket-registry/.github/actions/setup-and-install
+#   - SocketDev/socket-registry/.github/actions/setup-git-signing
+#   - SocketDev/socket-registry/.github/actions/cleanup-git-signing
+
+on:
+  workflow_call:
+    inputs:
+      branch-prefix:
+        description: 'Branch name prefix for the PR branch (date suffix added automatically)'
+        required: false
+        type: string
+        default: 'weekly-update'
+      check-timeout-minutes:
+        description: 'Timeout for the check-updates job'
+        required: false
+        type: number
+        default: 10
+      checkout-fetch-depth:
+        description: 'Fetch depth for checkout (0 = full history; recommended for submodule drift analysis)'
+        required: false
+        type: string
+        default: '0'
+      checkout-submodules:
+        description: 'Submodule init mode: "false" (no submodules), "true" (top-level only), or "recursive"'
+        required: false
+        type: string
+        default: 'false'
+      fix-model:
+        description: 'Claude model for the fix-test-failures step (escalation after haiku update)'
+        required: false
+        type: string
+        default: 'sonnet'
+      fix-timeout-minutes:
+        description: 'Timeout for the fix-test-failures step'
+        required: false
+        type: number
+        default: 15
+      pr-base:
+        description: 'Base branch for the PR'
+        required: false
+        type: string
+        default: 'main'
+      pr-body-extra:
+        description: 'Optional markdown appended to the PR body (e.g., cross-linked PR references for cascade tracking)'
+        required: false
+        type: string
+        default: ''
+      pr-title-prefix:
+        description: 'PR title prefix (date suffix added automatically: "... (YYYY-MM-DD)")'
+        required: false
+        type: string
+        default: 'chore(deps): weekly dependency update'
+      test-setup-script:
+        description: 'Command to run before tests (e.g., "pnpm run build")'
+        required: false
+        type: string
+        default: 'pnpm run build'
+      test-script:
+        description: 'Test command'
+        required: false
+        type: string
+        default: 'pnpm test'
+      test-timeout-minutes:
+        description: 'Timeout for the test step'
+        required: false
+        type: number
+        default: 15
+      update-model:
+        description: 'Claude model for the update step'
+        required: false
+        type: string
+        default: 'haiku'
+      update-timeout-minutes:
+        description: 'Timeout for the update step'
+        required: false
+        type: number
+        default: 10
+      updating-skill:
+        description: 'Skill to invoke for the update. Defaults to the /updating umbrella.'
+        required: false
+        type: string
+        default: 'updating'
+      validate-file-patterns:
+        description: 'Shell case-glob patterns (pipe-separated) of file paths allowed to change during the update. Default covers npm + submodules + xport manifest; add source patterns for repos that auto-fix source.'
+        required: false
+        type: string
+        default: 'package.json|*/package.json|pnpm-lock.yaml|*/pnpm-lock.yaml|.npmrc|pnpm-workspace.yaml|.gitmodules|xport.json'
+    secrets:
+      ANTHROPIC_API_KEY:
+        description: 'Anthropic API key for Claude Code invocations'
+        required: true
+      BOT_GPG_PRIVATE_KEY:
+        description: 'GPG private key for signing commits'
+        required: true
+      SOCKET_API_KEY:
+        description: 'Socket API key — sfw-enterprise instead of sfw-free when provided'
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  check-updates:
+    name: Check for updates
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: ${{ inputs.check-timeout-minutes }}
+    outputs:
+      has-updates: ${{ steps.check.outputs.has-updates }}
+    steps:
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@f9f6e265d2fb36f7d1c6b557bde308d92151a670 # main
+        with:
+          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
+
+      - name: Check for actionable updates
+        id: check
+        shell: bash
+        run: |
+          HAS_UPDATES=false
+
+          # npm outdated check
+          if pnpm outdated 2>/dev/null | grep -qv "No outdated"; then
+            HAS_UPDATES=true
+          fi
+
+          # xport drift check (exit code 2 = drift; 0 = clean; 1 = schema error)
+          if [ -f xport.json ]; then
+            set +e
+            pnpm run xport --json > /tmp/xport-report.json 2>&1
+            XPORT_EXIT=$?
+            set -e
+            if [ "$XPORT_EXIT" = "2" ]; then
+              HAS_UPDATES=true
+            fi
+          fi
+
+          # Plain submodule check (for repos without xport)
+          if [ -f .gitmodules ] && [ ! -f xport.json ]; then
+            # Any submodule with upstream commits past its current pin?
+            while IFS= read -r SM; do
+              (cd "$SM" && git fetch origin --tags --quiet 2>/dev/null || true)
+              BEHIND=$(cd "$SM" && git rev-list --count HEAD..origin/HEAD 2>/dev/null || echo 0)
+              if [ "$BEHIND" -gt 0 ]; then
+                HAS_UPDATES=true
+                break
+              fi
+            done < <(git config --file .gitmodules --get-regexp path | awk '{print $2}')
+          fi
+
+          echo "has-updates=$HAS_UPDATES" >> $GITHUB_OUTPUT
+
+  apply-updates:
+    name: Apply updates via /updating skill
+    needs: check-updates
+    if: needs.check-updates.outputs.has-updates == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@f9f6e265d2fb36f7d1c6b557bde308d92151a670 # main
+        with:
+          checkout-fetch-depth: ${{ inputs.checkout-fetch-depth }}
+          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
+
+      - name: Initialize submodules
+        if: inputs.checkout-submodules != 'false'
+        shell: bash
+        env:
+          SUBMODULES: ${{ inputs.checkout-submodules }}
+        run: |
+          if [ "$SUBMODULES" = "recursive" ]; then
+            git submodule update --init --recursive
+          else
+            git submodule update --init
+          fi
+
+      - name: Create update branch
+        id: branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          BRANCH_PREFIX: ${{ inputs.branch-prefix }}
+        run: |
+          BRANCH_NAME="${BRANCH_PREFIX}-$(date +%Y%m%d)"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git"
+          git checkout -b "$BRANCH_NAME"
+          echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
+      - uses: SocketDev/socket-registry/.github/actions/setup-git-signing@f9f6e265d2fb36f7d1c6b557bde308d92151a670 # main
+        with:
+          gpg-private-key: ${{ secrets.BOT_GPG_PRIVATE_KEY }}
+
+      - name: Run /updating skill
+        id: update
+        timeout-minutes: ${{ inputs.update-timeout-minutes }}
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_ACTIONS: 'true'
+          UPDATE_MODEL: ${{ inputs.update-model }}
+          UPDATING_SKILL: ${{ inputs.updating-skill }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "ANTHROPIC_API_KEY not set — aborting"
+            echo "success=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+          set +e
+          claude --print \
+            --allowedTools "Bash(pnpm:*)" "Bash(git:*)" "Bash(jq:*)" "Read" "Write" "Edit" "Glob" "Grep" \
+            --model "$UPDATE_MODEL" \
+            --max-turns 25 \
+            "/$UPDATING_SKILL — Run the $UPDATING_SKILL skill to update everything applicable to this repo (npm, xport, submodules, workflow pins). CI mode: skip builds/tests. Create atomic commits. Do NOT push or create a PR; this workflow handles that." \
+            2>&1 | tee claude-update.log
+          CLAUDE_EXIT=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$CLAUDE_EXIT" -eq 0 ]; then
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "success=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run tests
+        id: tests
+        if: steps.update.outputs.success == 'true'
+        timeout-minutes: ${{ inputs.test-timeout-minutes }}
+        env:
+          TEST_SETUP_SCRIPT: ${{ inputs.test-setup-script }}
+          TEST_SCRIPT: ${{ inputs.test-script }}
+        run: |
+          set +e
+          if [ -n "$TEST_SETUP_SCRIPT" ]; then
+            bash -c "$TEST_SETUP_SCRIPT" 2>&1 | tee build-output.log
+            BUILD_EXIT=${PIPESTATUS[0]}
+          else
+            BUILD_EXIT=0
+            : > build-output.log
+          fi
+
+          bash -c "$TEST_SCRIPT" 2>&1 | tee test-output.log
+          TEST_EXIT=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$BUILD_EXIT" -eq 0 ] && [ "$TEST_EXIT" -eq 0 ]; then
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "success=false" >> $GITHUB_OUTPUT
+            {
+              echo "BUILD_LOG<<GHEOF"
+              tail -100 build-output.log
+              echo "GHEOF"
+              echo "TEST_LOG<<GHEOF"
+              tail -100 test-output.log
+              echo "GHEOF"
+            } >> $GITHUB_OUTPUT
+          fi
+
+      - name: Fix test failures
+        id: fix
+        if: steps.update.outputs.success == 'true' && steps.tests.outputs.success == 'false'
+        timeout-minutes: ${{ inputs.fix-timeout-minutes }}
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_ACTIONS: 'true'
+          FIX_MODEL: ${{ inputs.fix-model }}
+          BUILD_LOG: ${{ steps.tests.outputs.BUILD_LOG }}
+          TEST_LOG: ${{ steps.tests.outputs.TEST_LOG }}
+        run: |
+          set +e
+          claude --print \
+            --allowedTools "Bash(pnpm:*)" "Bash(git:*)" "Read" "Write" "Edit" "Glob" "Grep" \
+            --model "$FIX_MODEL" \
+            --max-turns 25 \
+            "Dependency updates were applied but tests are failing. Fix the failures and commit fixes atomically. Do NOT push or create a PR.
+
+          Build output (last 100 lines):
+          $BUILD_LOG
+
+          Test output (last 100 lines):
+          $TEST_LOG" \
+            2>&1 | tee claude-fix.log
+          FIX_EXIT=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$FIX_EXIT" -eq 0 ]; then
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "success=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set final status
+        id: final
+        if: always()
+        env:
+          UPDATE_SUCCESS: ${{ steps.update.outputs.success }}
+          TESTS_SUCCESS: ${{ steps.tests.outputs.success }}
+          FIX_SUCCESS: ${{ steps.fix.outputs.success }}
+        run: |
+          if [ "$UPDATE_SUCCESS" != "true" ]; then
+            echo "success=false" >> $GITHUB_OUTPUT
+            echo "reason=update-failed" >> $GITHUB_OUTPUT
+          elif [ "$TESTS_SUCCESS" = "true" ]; then
+            echo "success=true" >> $GITHUB_OUTPUT
+            echo "reason=tests-passed" >> $GITHUB_OUTPUT
+          elif [ "$FIX_SUCCESS" = "true" ]; then
+            echo "success=true" >> $GITHUB_OUTPUT
+            echo "reason=fixes-applied" >> $GITHUB_OUTPUT
+          else
+            echo "success=false" >> $GITHUB_OUTPUT
+            echo "reason=fixes-failed" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Validate changes
+        id: validate
+        if: steps.final.outputs.success == 'true'
+        env:
+          VALIDATE_PATTERNS: ${{ inputs.validate-file-patterns }}
+          PR_BASE: ${{ inputs.pr-base }}
+        run: |
+          UNEXPECTED=""
+          # Build a case-glob test from pipe-separated patterns
+          PATTERNS=$(echo "$VALIDATE_PATTERNS" | tr '|' ' ')
+          for file in $(git diff --name-only "origin/${PR_BASE}..HEAD"); do
+            MATCH=false
+            for pat in $PATTERNS; do
+              case "$file" in
+                $pat) MATCH=true; break ;;
+              esac
+            done
+            [ "$MATCH" = "false" ] && UNEXPECTED="$UNEXPECTED $file"
+          done
+          if [ -n "$UNEXPECTED" ]; then
+            echo "::warning::Non-allowlisted files modified:$UNEXPECTED"
+          fi
+          echo "valid=true" >> $GITHUB_OUTPUT
+
+      - name: Check for changes
+        id: changes
+        env:
+          PR_BASE: ${{ inputs.pr-base }}
+        run: |
+          if [ "$(git rev-list --count HEAD "^origin/${PR_BASE}")" -gt 0 ]; then
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Push branch
+        if: steps.final.outputs.success == 'true' && steps.validate.outputs.valid == 'true' && steps.changes.outputs.has-changes == 'true'
+        env:
+          BRANCH_NAME: ${{ steps.branch.outputs.branch }}
+        run: git push origin "$BRANCH_NAME"
+
+      - name: Create pull request
+        if: steps.final.outputs.success == 'true' && steps.validate.outputs.valid == 'true' && steps.changes.outputs.has-changes == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH_NAME: ${{ steps.branch.outputs.branch }}
+          PR_TITLE_PREFIX: ${{ inputs.pr-title-prefix }}
+          PR_BASE: ${{ inputs.pr-base }}
+          PR_BODY_EXTRA: ${{ inputs.pr-body-extra }}
+        run: |
+          COMMITS=$(git log --oneline origin/${PR_BASE}..HEAD)
+          COMMIT_COUNT=$(git rev-list --count origin/${PR_BASE}..HEAD)
+
+          PR_BODY="## Weekly Update"$'\n\n'
+          PR_BODY+="Automated weekly update — runs the \`/updating\` skill umbrella (npm + xport + submodules + workflow pins)."$'\n\n'
+          if [ -n "$PR_BODY_EXTRA" ]; then
+            PR_BODY+="$PR_BODY_EXTRA"$'\n\n'
+          fi
+          PR_BODY+="---"$'\n\n'
+          PR_BODY+="### Commits (${COMMIT_COUNT})"$'\n\n'
+          PR_BODY+="<details><summary>View commit history</summary>"$'\n\n'
+          PR_BODY+="\`\`\`"$'\n'
+          PR_BODY+="${COMMITS}"$'\n'
+          PR_BODY+="\`\`\`"$'\n\n'
+          PR_BODY+="</details>"$'\n\n'
+          PR_BODY+="---"$'\n\n'
+          PR_BODY+="<sub>Generated by SocketDev/socket-registry weekly-update.yml reusable workflow.</sub>"
+
+          gh pr create \
+            --title "${PR_TITLE_PREFIX} ($(date +%Y-%m-%d))" \
+            --body "$PR_BODY" \
+            --draft \
+            --head "$BRANCH_NAME" \
+            --base "$PR_BASE"
+
+      - name: Add job summary
+        if: always()
+        env:
+          BRANCH_NAME: ${{ steps.branch.outputs.branch }}
+          FINAL_REASON: ${{ steps.final.outputs.reason }}
+          HAS_CHANGES: ${{ steps.changes.outputs.has-changes }}
+          PR_BASE: ${{ inputs.pr-base }}
+        run: |
+          echo "## Weekly Update" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "$HAS_CHANGES" = "true" ]; then
+            COMMIT_COUNT=$(git rev-list --count "origin/${PR_BASE}..HEAD" 2>/dev/null || echo 0)
+            echo "**Branch:** \`${BRANCH_NAME}\`" >> $GITHUB_STEP_SUMMARY
+            echo "**Commits:** ${COMMIT_COUNT}" >> $GITHUB_STEP_SUMMARY
+            echo "**Status:** ${FINAL_REASON}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No changes to apply." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload Claude logs
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: claude-weekly-update-${{ github.run_id }}
+          path: |
+            claude-update.log
+            claude-fix.log
+            build-output.log
+            test-output.log
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - uses: SocketDev/socket-registry/.github/actions/cleanup-git-signing@f9f6e265d2fb36f7d1c6b557bde308d92151a670 # main
+        if: always()
+
+  notify:
+    name: Notify
+    needs: [check-updates, apply-updates]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Report
+        env:
+          HAS_UPDATES: ${{ needs.check-updates.outputs.has-updates }}
+          APPLY_RESULT: ${{ needs.apply-updates.result }}
+        run: |
+          if [ "$HAS_UPDATES" = "true" ]; then
+            echo "Weekly update workflow completed (apply-updates: $APPLY_RESULT)"
+          else
+            echo "No updates available — all dependencies up to date."
+          fi
