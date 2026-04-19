@@ -1,8 +1,8 @@
 ---
 name: updating
-description: Updates all npm dependencies and workflow SHA pins. Triggers when user asks to "update dependencies", "update packages", "update everything", or prepare for a release.
+description: Umbrella update skill. Runs `pnpm run update` (npm), then delegates to `updating-xport` (if `xport.json` exists), `updating-upstream` (if `.gitmodules` exists), and `updating-workflows` (if SHA pins are stale). Triggers when user asks to "update dependencies", "update packages", "update everything", or prepare for a release.
 user-invocable: true
-allowed-tools: Bash, Read, Grep, Glob, Edit
+allowed-tools: Skill, Bash, Read, Grep, Glob, Edit
 ---
 
 # updating
@@ -14,11 +14,15 @@ SHA pins, and ensures all builds and tests pass.
 
 <context>
 **What is this?**
-This skill updates npm packages and checks workflow SHA pins.
+The umbrella update skill. Runs `pnpm run update` for npm deps, then delegates to sub-skills based on what the repo has:
 
 **Update Targets:**
-- npm packages via `pnpm run update`
-- Workflow SHA pins via the `updating-workflows` skill (when stale)
+- **npm packages** — via `pnpm run update` (every Socket repo has this script)
+- **xport-managed upstreams** — via the `updating-xport` skill if `xport.json` exists (manifest-managed submodules + advisory drift)
+- **Other submodules** — via the `updating-upstream` skill if `.gitmodules` has submodules not claimed by xport
+- **Workflow SHA pins** — via the `updating-workflows` skill (when stale)
+
+Sub-skills are invoked only when applicable — this umbrella reads repo state (presence of `xport.json`, `.gitmodules`) to discover what to run.
 </context>
 
 <constraints>
@@ -77,6 +81,42 @@ fi
 
 ---
 
+### Phase 2.5: xport-managed upstreams (if applicable)
+
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
+
+If `xport.json` exists at repo root, invoke the `updating-xport` skill:
+
+```
+<Skill tool invocation>
+skill: updating-xport
+</Skill tool invocation>
+```
+
+The sub-skill auto-bumps `version-pin` rows per their `upgrade_policy` and emits advisory notes for `file-fork` / `feature-parity` / `spec-conformance` / `lang-parity` findings. Capture its HANDOFF block for the final summary.
+
+If `xport.json` does NOT exist, skip this phase.
+
+---
+
+### Phase 2.75: Remaining submodules (if applicable)
+
+Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
+
+If `.gitmodules` exists, invoke the `updating-upstream` skill:
+
+```
+<Skill tool invocation>
+skill: updating-upstream
+</Skill tool invocation>
+```
+
+The sub-skill automatically skips submodules claimed by xport's `version-pin` rows. It bumps the rest to their latest stable tags.
+
+If no `.gitmodules`, skip this phase.
+
+---
+
 ### Phase 3: Check Workflow SHA Pins
 
 Update queue: advance `current_phase` in `.claude/ops/queue.yaml`
@@ -127,6 +167,8 @@ Generate update report:
 | Category | Status |
 |----------|--------|
 | npm packages | Updated/Up to date |
+| xport upstreams | N version-pin rows bumped, M advisory (or n/a if no `xport.json`) |
+| Other submodules | K bumped (or n/a if no `.gitmodules`) |
 | Workflow SHA pins | Up to date/Stale (run /update-workflows) |
 
 ### Commits Created:

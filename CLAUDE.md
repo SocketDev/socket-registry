@@ -162,7 +162,7 @@ Actions and workflows reference each other by full 40-char SHA pinned to main. W
 
 - L3/L4-only changes (reusable workflow edits, no L1/L2 action changes): skip to Layer 4 bump
 - Don't clobber third-party SHAs during blanket replacements
-- Consumer repos: **direct push** — socket-btm, sdxgen, ultrathink; **PR** — socket-cli, socket-lib, socket-sdk-js, socket-packageurl-js. Note: `sdxgen` local checkout is `socket-sdxgen/` but GitHub repo is `SocketDev/sdxgen` — use bare name for `gh` commands.
+- Consumer repos: **direct push** — socket-btm, sdxgen, stuie, ultrathink; **PR** — socket-cli, socket-lib, socket-sdk-js, socket-packageurl-js. Note: `sdxgen` local checkout is `socket-sdxgen/` but GitHub repo is `SocketDev/sdxgen` — use bare name for `gh` commands. `stuie` local checkout is `socket-tui/` but GitHub repo is `SocketDev/stuie`.
 
 ### CI Testing Infrastructure
 
