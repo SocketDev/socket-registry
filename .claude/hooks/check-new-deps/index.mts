@@ -287,7 +287,7 @@ if (import.meta.filename === process.argv[1]) {
     // Fail-block (exit 2) on malformed input — a security hook should never
     // silently pass through when it can't parse its own contract.
     logger.error(
-      `Socket: malformed hook input: ${(e as Error).message}`,
+      `Socket: malformed hook input: ${e instanceof Error ? e.message : String(e)}`,
     )
     process.exitCode = 2
     throw e
@@ -418,7 +418,7 @@ async function checkDepsBatch(
     // Network failure — log and allow all deps through.
     logger.warn(
       `Socket: network error`
-      + ` (${(e as Error).message}), allowing all`
+      + ` (${e instanceof Error ? e.message : String(e)}), allowing all`
     )
   }
 
