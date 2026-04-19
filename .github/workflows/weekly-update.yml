@@ -126,7 +126,7 @@ jobs:
     outputs:
       has-updates: ${{ steps.check.outputs.has-updates }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@f9f6e265d2fb36f7d1c6b557bde308d92151a670 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@9fd1452cde716654724b4e9b99e69fbd16111b9c # main
         with:
           socket-api-key: ${{ secrets.SOCKET_API_KEY }}
 
@@ -176,7 +176,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@f9f6e265d2fb36f7d1c6b557bde308d92151a670 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@9fd1452cde716654724b4e9b99e69fbd16111b9c # main
         with:
           checkout-fetch-depth: ${{ inputs.checkout-fetch-depth }}
           socket-api-key: ${{ secrets.SOCKET_API_KEY }}
@@ -205,7 +205,7 @@ jobs:
           git checkout -b "$BRANCH_NAME"
           echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
-      - uses: SocketDev/socket-registry/.github/actions/setup-git-signing@f9f6e265d2fb36f7d1c6b557bde308d92151a670 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-git-signing@9fd1452cde716654724b4e9b99e69fbd16111b9c # main
         with:
           gpg-private-key: ${{ secrets.BOT_GPG_PRIVATE_KEY }}
 
@@ -437,7 +437,7 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-      - uses: SocketDev/socket-registry/.github/actions/cleanup-git-signing@f9f6e265d2fb36f7d1c6b557bde308d92151a670 # main
+      - uses: SocketDev/socket-registry/.github/actions/cleanup-git-signing@9fd1452cde716654724b4e9b99e69fbd16111b9c # main
         if: always()
 
   notify:
