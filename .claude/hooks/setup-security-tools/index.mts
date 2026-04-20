@@ -27,7 +27,7 @@ import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 import { getSocketHomePath } from '@socketsecurity/lib/paths/socket'
 import { spawn } from '@socketsecurity/lib/spawn'
-import { parseSchema } from '@socketsecurity/lib/validation/validate-schema'
+import { parseSchema } from '@socketsecurity/lib/schema/parse'
 
 const logger = getDefaultLogger()
 

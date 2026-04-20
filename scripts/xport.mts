@@ -42,7 +42,7 @@ import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { spawnSync } from '@socketsecurity/lib/spawn'
-import { validateSchema } from '@socketsecurity/lib/validation/validate-schema'
+import { validateSchema } from '@socketsecurity/lib/schema/validate'
 
 import {
   XportManifestSchema,

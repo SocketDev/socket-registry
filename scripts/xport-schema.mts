@@ -7,7 +7,7 @@
  *     TypeBox schema, emitted by scripts/xport-emit-schema.mts
  *   - Runtime validation at harness startup via
  *     `validateSchema(XportManifestSchema, ...)` from
- *     `@socketsecurity/lib/validation/validate-schema`
+ *     `@socketsecurity/lib/schema/validate`
  *
  * Byte-identical across socket-tui / socket-btm / socket-sdxgen / ultrathink /
  * socket-registry / socket-repo-template via sync-scaffolding.mjs.
