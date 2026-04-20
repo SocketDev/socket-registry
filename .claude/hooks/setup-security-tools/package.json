@@ -4,7 +4,7 @@
   "type": "module",
   "main": "./index.mts",
   "dependencies": {
-    "@socketsecurity/lib": "5.19.1",
+    "@socketsecurity/lib": "catalog:",
     "zod": "4.1.12"
   }
 }
