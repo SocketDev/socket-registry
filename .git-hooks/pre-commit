@@ -4,8 +4,8 @@
 
 set -e
 
-# shellcheck source=./_api-key-check.sh
-. "$(dirname "$0")/_api-key-check.sh"
+# shellcheck source=./_helpers.sh
+. "$(dirname "$0")/_helpers.sh"
 
 printf "${GREEN}Running Socket Security checks...${NC}\n"
 

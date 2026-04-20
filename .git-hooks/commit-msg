@@ -4,8 +4,8 @@
 
 set -e
 
-# shellcheck source=./_api-key-check.sh
-. "$(dirname "$0")/_api-key-check.sh"
+# shellcheck source=./_helpers.sh
+. "$(dirname "$0")/_helpers.sh"
 
 ERRORS=0
 
@@ -38,8 +38,25 @@ if [ -n "$COMMITTED_FILES" ]; then
   done
 fi
 
-# Auto-strip AI attribution from commit message.
+# Block Linear issue references in the commit message.
+# Linear tracking lives in Linear; keep commit history tool-agnostic.
+# Team keys enumerated from the Socket workspace. PATCH listed before PAT so
+# the engine matches the longer prefix first on strings like "PATCH-123".
 COMMIT_MSG_FILE="$1"
+LINEAR_TEAM_KEYS='ASK|AUTO|BOT|CE|CORE|DAT|DES|DEV|ENG|INFRA|LAB|MAR|MET|OPS|PAR|PATCH|PAT|PLAT|REA|SALES|SBOM|SEC|SMO|SUP|TES|TI|WEB'
+if [ -f "$COMMIT_MSG_FILE" ]; then
+  LINEAR_HITS=$(grep -vE '^#' "$COMMIT_MSG_FILE" 2>/dev/null \
+    | grep -oE "(^|[^A-Za-z0-9_])($LINEAR_TEAM_KEYS)-[0-9]+($|[^A-Za-z0-9_])|linear\.app/[A-Za-z0-9/_-]+" \
+    | head -5 || true)
+  if [ -n "$LINEAR_HITS" ]; then
+    printf "${RED}✗ Commit message references Linear issue(s):${NC}\n"
+    printf '%s\n' "$LINEAR_HITS" | sed 's/^/  /'
+    printf "${RED}Linear tracking lives in Linear. Remove the reference from the commit message.${NC}\n"
+    ERRORS=$((ERRORS + 1))
+  fi
+fi
+
+# Auto-strip AI attribution from commit message.
 if [ -f "$COMMIT_MSG_FILE" ]; then
   # Create a temporary file to store the cleaned message.
   TEMP_FILE=$(mktemp) || {
