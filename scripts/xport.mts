@@ -186,13 +186,20 @@ function loadManifestTree(rootManifestPath: string): {
     areas.push({ area, manifest: sub })
   }
 
-  const mergedUpstreams: Record<string, Upstream> = {}
-  const mergedSites: Record<string, Site> = {}
+  // Null-prototype objects prevent prototype-pollution via untrusted
+  // manifest keys. Object.create(null) + a plain-object cast works
+  // under both relaxed and strict (exactOptionalPropertyTypes) tsconfigs.
+  const mergedUpstreams = Object.create(null) as Record<string, Upstream>
+  const mergedSites = Object.create(null) as Record<string, Site>
   const mergedRows: Row[] = []
   // Include order, root last so it wins on duplicate keys.
   for (const { manifest } of [...areas.slice(1), ...areas.slice(0, 1)]) {
-    Object.assign(mergedUpstreams, manifest.upstreams ?? {})
-    Object.assign(mergedSites, manifest.sites ?? {})
+    for (const [k, v] of Object.entries(manifest.upstreams ?? {})) {
+      mergedUpstreams[k] = v
+    }
+    for (const [k, v] of Object.entries(manifest.sites ?? {})) {
+      mergedSites[k] = v
+    }
   }
   for (const { manifest } of areas) {
     mergedRows.push(...manifest.rows)
