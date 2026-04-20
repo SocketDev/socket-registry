@@ -17,6 +17,8 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import { PackageURL } from '@socketregistry/packageurl-js'
+import { Type } from '@sinclair/typebox'
+
 import { whichSync } from '@socketsecurity/lib/bin'
 import { downloadBinary } from '@socketsecurity/lib/dlx/binary'
 import { downloadPackage } from '@socketsecurity/lib/dlx/package'
@@ -25,37 +27,37 @@ import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 import { getSocketHomePath } from '@socketsecurity/lib/paths/socket'
 import { spawn } from '@socketsecurity/lib/spawn'
-import { z } from 'zod'
+import { parseSchema } from '@socketsecurity/lib/validation/validate-schema'
 
 const logger = getDefaultLogger()
 
 // ── Tool config loaded from external-tools.json (self-contained) ──
 
-const checksumEntrySchema = z.object({
-  asset: z.string(),
-  sha256: z.string(),
+const checksumEntrySchema = Type.Object({
+  asset: Type.String(),
+  sha256: Type.String(),
 })
 
-const toolSchema = z.object({
-  description: z.string().optional(),
-  version: z.string().optional(),
-  purl: z.string().optional(),
-  integrity: z.string().optional(),
-  repository: z.string().optional(),
-  release: z.string().optional(),
-  checksums: z.record(z.string(), checksumEntrySchema).optional(),
-  ecosystems: z.array(z.string()).optional(),
+const toolSchema = Type.Object({
+  description: Type.Optional(Type.String()),
+  version: Type.Optional(Type.String()),
+  purl: Type.Optional(Type.String()),
+  integrity: Type.Optional(Type.String()),
+  repository: Type.Optional(Type.String()),
+  release: Type.Optional(Type.String()),
+  checksums: Type.Optional(Type.Record(Type.String(), checksumEntrySchema)),
+  ecosystems: Type.Optional(Type.Array(Type.String())),
 })
 
-const configSchema = z.object({
-  description: z.string().optional(),
-  tools: z.record(z.string(), toolSchema),
+const configSchema = Type.Object({
+  description: Type.Optional(Type.String()),
+  tools: Type.Record(Type.String(), toolSchema),
 })
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const configPath = path.join(__dirname, 'external-tools.json')
 const rawConfig = JSON.parse(readFileSync(configPath, 'utf8'))
-const config = configSchema.parse(rawConfig)
+const config = parseSchema(configSchema, rawConfig)
 
 const AGENTSHIELD = config.tools['agentshield']!
 const ZIZMOR = config.tools['zizmor']!

@@ -4,7 +4,7 @@
   "type": "module",
   "main": "./index.mts",
   "dependencies": {
-    "@socketsecurity/lib": "catalog:",
-    "zod": "4.1.12"
+    "@sinclair/typebox": "catalog:",
+    "@socketsecurity/lib": "catalog:"
   }
 }

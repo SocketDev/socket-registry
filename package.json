@@ -66,6 +66,7 @@
     "@mdn/browser-compat-data": "catalog:",
     "@npmcli/package-json": "catalog:",
     "@npmcli/promise-spawn": "catalog:",
+    "@sinclair/typebox": "catalog:",
     "@socketregistry/is-unicode-supported": "workspace:*",
     "@socketregistry/packageurl-js": "catalog:",
     "@socketsecurity/lib": "catalog:",
@@ -129,8 +130,7 @@
     "vitest": "catalog:",
     "which": "catalog:",
     "yargs-parser": "catalog:",
-    "yoctocolors-cjs": "catalog:",
-    "zod": "catalog:"
+    "yoctocolors-cjs": "catalog:"
   },
   "typeCoverage": {
     "cache": true,

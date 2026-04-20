@@ -223,6 +223,9 @@ catalogs:
     '@npmcli/promise-spawn':
       specifier: 8.0.3
       version: 8.0.3
+    '@sinclair/typebox':
+      specifier: 0.34.49
+      version: 0.34.49
     '@socketregistry/packageurl-js':
       specifier: 1.4.2
       version: 1.4.2
@@ -391,9 +394,6 @@ catalogs:
     yoctocolors-cjs:
       specifier: 2.1.3
       version: 2.1.3
-    zod:
-      specifier: 4.3.6
-      version: 4.3.6
 
 overrides:
   '@types/node': 24.9.2
@@ -486,6 +486,9 @@ importers:
       '@npmcli/promise-spawn':
         specifier: 'catalog:'
         version: 8.0.3
+      '@sinclair/typebox':
+        specifier: 'catalog:'
+        version: 0.34.49
       '@socketregistry/is-unicode-supported':
         specifier: workspace:*
         version: link:packages/npm/is-unicode-supported
@@ -678,9 +681,6 @@ importers:
       yoctocolors-cjs:
         specifier: 'catalog:'
         version: 2.1.3
-      zod:
-        specifier: 'catalog:'
-        version: 4.3.6
 
   .claude/hooks/check-new-deps:
     dependencies:
@@ -700,12 +700,12 @@ importers:
 
   .claude/hooks/setup-security-tools:
     dependencies:
+      '@sinclair/typebox':
+        specifier: 'catalog:'
+        version: 0.34.49
       '@socketsecurity/lib':
         specifier: 'catalog:'
         version: 5.20.1(typescript@5.9.2)
-      zod:
-        specifier: 4.1.12
-        version: 4.1.12
 
   packages/npm/abab: {}
 
@@ -2273,6 +2273,9 @@ packages:
   '@sigstore/verify@3.1.0':
     resolution: {integrity: sha512-mNe0Iigql08YupSOGv197YdHpPPr+EzDZmfCgMc7RPNaZTw5aLN01nBl6CHJOh3BGtnMIj83EeN4butBchc8Ag==}
     engines: {node: ^20.17.0 || >=22.9.0}
+
+  '@sinclair/typebox@0.34.49':
+    resolution: {integrity: sha512-brySQQs7Jtn0joV8Xh9ZV/hZb9Ozb0pmazDIASBkYKCjXrXU3mpcFahmK/z4YDhGkQvP9mWJbVyahdtU5wQA+A==}
 
   '@sindresorhus/chunkify@2.0.0':
     resolution: {integrity: sha512-srajPSoMTC98FETCJIeXJhJqB77IRPJSu8g907jLuuioLORHZJ3YAOY2DsP5ebrZrjOrAwjqf+Cgkg/I8TGPpw==}
@@ -4110,12 +4113,6 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
-  zod@4.1.12:
-    resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
-
-  zod@4.3.6:
-    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
-
 snapshots:
 
   '@antfu/ni@27.0.1':
@@ -5052,6 +5049,8 @@ snapshots:
       '@sigstore/bundle': 4.0.0
       '@sigstore/core': 3.2.0
       '@sigstore/protobuf-specs': 0.5.0
+
+  '@sinclair/typebox@0.34.49': {}
 
   '@sindresorhus/chunkify@2.0.0': {}
 
@@ -6898,7 +6897,3 @@ snapshots:
   yoctocolors-cjs@2.1.3: {}
 
   zod@3.25.76: {}
-
-  zod@4.1.12: {}
-
-  zod@4.3.6: {}

@@ -42,6 +42,7 @@ import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { spawnSync } from '@socketsecurity/lib/spawn'
+import { validateSchema } from '@socketsecurity/lib/validation/validate-schema'
 
 import {
   XportManifestSchema,
@@ -150,16 +151,16 @@ function readManifest(manifestPath: string): Manifest {
     logger.fail(`  ${e instanceof Error ? e.message : String(e)}`)
     process.exit(1)
   }
-  const result = XportManifestSchema.safeParse(raw)
-  if (!result.success) {
-    logger.error(`xport: schema validation failed for ${manifestPath}`)
-    for (const issue of result.error.issues) {
-      const loc = issue.path.length ? issue.path.join('.') : '<root>'
-      logger.fail(`  ${loc}: ${issue.message}`)
-    }
-    process.exit(1)
+  const result = validateSchema(XportManifestSchema, raw)
+  if (result.ok) {
+    return result.value
   }
-  return result.data
+  logger.error(`xport: schema validation failed for ${manifestPath}`)
+  for (const issue of result.errors) {
+    const loc = issue.path.length ? issue.path.join('.') : '<root>'
+    logger.fail(`  ${loc}: ${issue.message}`)
+  }
+  process.exit(1)
 }
 
 /**
@@ -700,7 +701,8 @@ function checkLangParity(
   }
 
   if (row.category === 'rejected') {
-    for (const [port, state] of Object.entries(row.ports)) {
+    for (const port of Object.keys(row.ports)) {
+      const state = row.ports[port]!
       if (state.status !== 'opt-out') {
         base.severity = 'drift'
         messages.push(
