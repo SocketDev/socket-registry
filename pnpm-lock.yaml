@@ -227,8 +227,8 @@ catalogs:
       specifier: 1.4.2
       version: 1.4.2
     '@socketsecurity/lib':
-      specifier: 5.19.1
-      version: 5.19.1
+      specifier: 5.20.1
+      version: 5.20.1
     '@types/fs-extra':
       specifier: 11.0.4
       version: 11.0.4
@@ -494,7 +494,7 @@ importers:
         version: 1.4.2
       '@socketsecurity/lib':
         specifier: 'catalog:'
-        version: 5.19.1(typescript@5.9.2)
+        version: 5.20.1(typescript@5.9.2)
       '@types/fs-extra':
         specifier: 'catalog:'
         version: 11.0.4
@@ -685,11 +685,11 @@ importers:
   .claude/hooks/check-new-deps:
     dependencies:
       '@socketregistry/packageurl-js':
-        specifier: 1.4.2
+        specifier: 'catalog:'
         version: 1.4.2
       '@socketsecurity/lib':
-        specifier: 5.19.1
-        version: 5.19.1(typescript@5.9.2)
+        specifier: 'catalog:'
+        version: 5.20.1(typescript@5.9.2)
       '@socketsecurity/sdk':
         specifier: 4.0.1
         version: 4.0.1
@@ -701,8 +701,8 @@ importers:
   .claude/hooks/setup-security-tools:
     dependencies:
       '@socketsecurity/lib':
-        specifier: 5.19.1
-        version: 5.19.1(typescript@5.9.2)
+        specifier: 'catalog:'
+        version: 5.20.1(typescript@5.9.2)
       zod:
         specifier: 4.1.12
         version: 4.1.12
@@ -1057,7 +1057,7 @@ importers:
     devDependencies:
       '@socketsecurity/lib':
         specifier: 'catalog:'
-        version: 5.19.1(typescript@5.9.2)
+        version: 5.20.1(typescript@5.9.2)
       '@types/node':
         specifier: 24.9.2
         version: 24.9.2
@@ -2369,7 +2369,7 @@ packages:
 
   '@socketregistry/packageurl-js@1.4.2':
     resolution: {integrity: sha512-yt9UfUzD02wZ7kwb67oe4jxG2D9JtgPqjrK/ans2BovFyeie0w8hvRR0MuOWM4mUt2371oFPp7NB6O5ZjYJmlw==}
-    engines: {node: '>=18.20.8', pnpm: '>=11.0.0-rc.2'}
+    engines: {node: '>=18.20.8', pnpm: '>=11.0.0-rc.0'}
 
   '@socketregistry/regexp.prototype.flags@1.0.8':
     resolution: {integrity: sha512-h1BhmNFsu3SLULRvjUA7aQVUB2dycJMNAxuYSO2RtTcDY6oAvJHA5J/XFW58uFmfD5xOg8mJ9p1qVSErKyb7zQ==}
@@ -2395,9 +2395,9 @@ packages:
     resolution: {integrity: sha512-SHikmWH1JumHKinsPLg0/kg/qKNNQH4fdYe/dd4mZ2NHP5wWGDcZyNCS7KaTnKWFi3/XZOR1iLYzo0I4QnHOQw==}
     engines: {node: '>=18'}
 
-  '@socketsecurity/lib@5.19.1':
-    resolution: {integrity: sha512-ZjAOIHCPxYpwNWMdY1pxcetsYg5c2Tnvo/Z0mnnv2Fe/QRbcCoBVYCmXcssW7iGyOQsVhQT9A1PF0TPCl3hI3g==}
-    engines: {node: '>=22', pnpm: '>=11.0.0-rc.2'}
+  '@socketsecurity/lib@5.20.1':
+    resolution: {integrity: sha512-3v0i+DJaFpGReZfOoY210JDJHwovcMOGODAtsCB6E8cOTa25NdkjUEPP5O7nmfG8hYIYNlcpAFbluiIpFXy8Vw==}
+    engines: {node: '>=22', pnpm: '>=11.0.0-rc.0'}
     peerDependencies:
       typescript: 5.9.2
     peerDependenciesMeta:
@@ -2406,7 +2406,7 @@ packages:
 
   '@socketsecurity/sdk@4.0.1':
     resolution: {integrity: sha512-fe3DQp2dFwhc0G6Za36GIMSV+QaPAP5L96K3ZOtywt9nhbwxc9IQwqzdOVztdn5Rbez3t9EHU9Esj24/hWdP0g==}
-    engines: {node: '>=18.20.8', pnpm: '>=11.0.0-rc.2'}
+    engines: {node: '>=18.20.8', pnpm: '>=11.0.0-rc.0'}
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
@@ -5115,7 +5115,7 @@ snapshots:
 
   '@socketregistry/which-typed-array@1.0.9': {}
 
-  '@socketsecurity/lib@5.19.1(typescript@5.9.2)':
+  '@socketsecurity/lib@5.20.1(typescript@5.9.2)':
     optionalDependencies:
       typescript: 5.9.2
 
