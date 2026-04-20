@@ -186,11 +186,17 @@ function loadManifestTree(rootManifestPath: string): {
     areas.push({ area, manifest: sub })
   }
 
-  // Null-prototype objects prevent prototype-pollution via untrusted
-  // manifest keys. Object.create(null) + a plain-object cast works
-  // under both relaxed and strict (exactOptionalPropertyTypes) tsconfigs.
-  const mergedUpstreams = Object.create(null) as Record<string, Upstream>
-  const mergedSites = Object.create(null) as Record<string, Site>
+  // Null-prototype maps guard against prototype pollution via untrusted
+  // manifest keys. Double-cast through `unknown` so the
+  // `exactOptionalPropertyTypes + noUncheckedIndexedAccess` strict
+  // tsconfig in some repos accepts the `__proto__` sigil.
+  const mergedUpstreams: Record<string, Upstream> = {
+    __proto__: null,
+  } as unknown as Record<string, Upstream>
+  const mergedSites: Record<string, Site> = {
+    __proto__: null,
+  } as unknown as Record<string, Site>
+
   const mergedRows: Row[] = []
   // Include order, root last so it wins on duplicate keys.
   for (const { manifest } of [...areas.slice(1), ...areas.slice(0, 1)]) {
