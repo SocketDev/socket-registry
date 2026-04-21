@@ -76,11 +76,6 @@ on:
         required: false
         type: number
         default: 10
-      publish-without-sfw:
-        description: 'Publish directly to npm, bypassing Socket firewall shims'
-        required: false
-        type: boolean
-        default: false
       use-trusted-publishing:
         description: 'Use npm trusted publishing with OIDC instead of npm token'
         required: false
@@ -128,7 +123,6 @@ jobs:
           socket-api-key: ${{ secrets.SOCKET_API_TOKEN }}
 
       - name: Verify sfw is installed
-        if: inputs.publish-without-sfw != true
         run: |
           if [ -z "$SFW_BIN" ] || [ ! -x "$SFW_BIN" ]; then
             echo "Error: sfw is not installed — run SocketDev/socket-registry/.github/actions/setup first" >&2
@@ -150,19 +144,6 @@ jobs:
           else
             # Script name only - run as pnpm script
             pnpm run $SETUP_SCRIPT
-          fi
-
-      - name: Strip sfw shims for publishing
-        if: inputs.publish-without-sfw == true
-        run: |
-          echo "Bypassing Socket firewall shims for publishing"
-          # Rename shim files so real binaries resolve from PATH.
-          # Writing PATH to GITHUB_ENV doesn't work because GITHUB_PATH
-          # entries are prepended by the runner after GITHUB_ENV is applied.
-          if [ -n "$SFW_SHIM_DIR" ] && [ -d "$SFW_SHIM_DIR" ]; then
-            for SHIM in "$SFW_SHIM_DIR"/*; do
-              [ -f "$SHIM" ] && mv "$SHIM" "${SHIM}.disabled"
-            done
           fi
 
       - name: Publish with custom script
@@ -223,15 +204,6 @@ jobs:
           else
             # Script name only - run as pnpm script
             pnpm run $ACCESS_SCRIPT
-          fi
-
-      - name: Restore sfw shims after publishing
-        if: inputs.publish-without-sfw == true && always()
-        run: |
-          if [ -n "$SFW_SHIM_DIR" ] && [ -d "$SFW_SHIM_DIR" ]; then
-            for SHIM in "$SFW_SHIM_DIR"/*.disabled; do
-              [ -f "$SHIM" ] && mv "$SHIM" "${SHIM%.disabled}"
-            done
           fi
 
       - name: Set MFA automation
