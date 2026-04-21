@@ -42,16 +42,16 @@ runs:
     - name: Install pnpm
       shell: bash
       run: | # zizmor: ignore[github-env]
-        PNPM_VERSION="11.0.0-rc.2"
+        PNPM_VERSION="11.0.0-rc.3"
         PNPM_DIR="${RUNNER_TEMP:-/tmp}/pnpm-bin"
         KERNEL="$(uname -s | cut -d- -f1)"
         ARCH="$(uname -m)"
         case "${KERNEL}-${ARCH}" in
-          Linux-x86_64)                      ASSET="pnpm-linux-x64.tar.gz"  ; EXPECTED_SHA256="e2d435cb196c90cdd95fa42a64e560f48b249524d397e6ab81478244e50bd6af" ;;
-          Linux-aarch64)                     ASSET="pnpm-linux-arm64.tar.gz" ; EXPECTED_SHA256="ff00839480ae51aba12406a9ef4545f686128441106a5403d466f8ac90f037f5" ;;
-          Darwin-x86_64)                     ASSET="pnpm-macos-x64.tar.gz"  ; EXPECTED_SHA256="c7a0049458ff2262a7eef60eee81d7d5e38ee889696b859397798bcd8132847b" ;;
-          Darwin-arm64)                      ASSET="pnpm-macos-arm64.tar.gz" ; EXPECTED_SHA256="b735b58888fb4aa3d68309152929bdfcf8893479d90dba061b93f2ffbbdd1498" ;;
-          MINGW64_NT-x86_64|MSYS_NT-x86_64) ASSET="pnpm-win-x64.zip"       ; EXPECTED_SHA256="cfea67c6db75d426a9f80c9ac968404ed1e1b32962cf195552e22a5f14926b2e" ;;
+          Linux-x86_64)                      ASSET="pnpm-linux-x64.tar.gz"   ; EXPECTED_SHA256="cc85db707e851b7f69ab0ab912273293d057295e5013417fa7b6bbd9ca0b89a2" ;;
+          Linux-aarch64)                     ASSET="pnpm-linux-arm64.tar.gz" ; EXPECTED_SHA256="e9635c73d0e190de3b307f699a6a685edb5c9a4e0f730a86f334b12d5bed4a93" ;;
+          Darwin-x86_64)                     ASSET="pnpm-darwin-x64.tar.gz"  ; EXPECTED_SHA256="d1f2912f367af53452790696d99371861ed99c865b40fc9d9f3fce95d3f80541" ;;
+          Darwin-arm64)                      ASSET="pnpm-darwin-arm64.tar.gz"; EXPECTED_SHA256="df590612ad588eecdeba6d22a6870409436acc0df1d990f638e839452806aed8" ;;
+          MINGW64_NT-x86_64|MSYS_NT-x86_64) ASSET="pnpm-win32-x64.zip"      ; EXPECTED_SHA256="33e2f62326932a13cedc0a88f1668ec51f929d9a7cd3b8b5218bd83aa79734a3" ;;
           *) echo "Unsupported platform: ${KERNEL}-${ARCH}" >&2; exit 1 ;;
         esac
         PNPM_BIN="$PNPM_DIR/pnpm"
