@@ -208,3 +208,84 @@ runs:
         done
         echo "$SHIM_DIR" >> "${GITHUB_PATH:-/dev/null}"
         echo "SFW_SHIM_DIR=$SHIM_DIR" >> "${GITHUB_ENV:-/dev/null}"
+
+    - name: Export SFW_CUSTOM_REGISTRIES bypass list
+      shell: bash
+      run: | # zizmor: ignore[github-env]
+        # Ship an up-to-date host bypass list to both sfw-free and
+        # sfw-enterprise via SFW_CUSTOM_REGISTRIES, so consumers pick up
+        # new hosts without waiting for a binary release.
+        # Kinds accepted: npm, pypi, golang, maven, gem, cargo, nuget,
+        # block, wrap, bypass.
+        # Format: comma- or newline-separated kind:fqdn entries.
+        # Source of truth (baked into the binary) lives at
+        # SocketDev/firewall:src/lib/registries/default.ts.
+        {
+          echo 'SFW_CUSTOM_REGISTRIES<<EOF'
+          # GitHub release-asset CDNs (targets of github.com/*/releases/download/*
+          # and github.com/*/archive/* redirects).
+          echo 'bypass:objects.githubusercontent.com'
+          echo 'bypass:release-assets.githubusercontent.com'
+          echo 'bypass:raw.githubusercontent.com'
+          echo 'bypass:gist.githubusercontent.com'
+          # VCS fallbacks (Go modules, npm git-deps, Ruby git sources).
+          echo 'bypass:gitlab.com'
+          echo 'bypass:bitbucket.org'
+          # Build-tool toolchain downloads.
+          echo 'bypass:ziglang.org'
+          echo 'bypass:cmake.org'
+          echo 'bypass:sh.rustup.rs'
+          echo 'bypass:nodejs.org'
+          echo 'bypass:bootstrap.pypa.io'
+          # Cargo web portal (search/info API).
+          echo 'bypass:crates.io'
+          # Conda ecosystem.
+          echo 'bypass:repo.anaconda.com'
+          echo 'bypass:conda.anaconda.org'
+          echo 'bypass:anaconda.org'
+          echo 'bypass:conda-forge.org'
+          # Composer (PHP).
+          echo 'bypass:packagist.org'
+          echo 'bypass:repo.packagist.org'
+          # Conan (C/C++).
+          echo 'bypass:center.conan.io'
+          echo 'bypass:conan.io'
+          # CocoaPods (Swift/Obj-C).
+          echo 'bypass:cdn.cocoapods.org'
+          # Hackage (Haskell).
+          echo 'bypass:hackage.haskell.org'
+          # Hex (Elixir/Erlang).
+          echo 'bypass:hex.pm'
+          echo 'bypass:repo.hex.pm'
+          echo 'bypass:builds.hex.pm'
+          # HuggingFace model hub.
+          echo 'bypass:huggingface.co'
+          # Julia.
+          echo 'bypass:pkg.julialang.org'
+          echo 'bypass:julialang-s3.julialang.org'
+          # LuaRocks.
+          echo 'bypass:luarocks.org'
+          # OPAM + OCaml toolchain.
+          echo 'bypass:opam.ocaml.org'
+          echo 'bypass:ocaml.org'
+          # pub.dev (Dart / Flutter).
+          echo 'bypass:pub.dev'
+          # CPAN (Perl).
+          echo 'bypass:metacpan.org'
+          echo 'bypass:cpan.metacpan.org'
+          # CRAN (R).
+          echo 'bypass:cran.r-project.org'
+          echo 'bypass:cran.rstudio.com'
+          echo 'bypass:bioconductor.org'
+          # Bitnami.
+          echo 'bypass:downloads.bitnami.com'
+          # Swift toolchain + package index.
+          echo 'bypass:swift.org'
+          echo 'bypass:download.swift.org'
+          echo 'bypass:swiftpackageindex.com'
+          # VSCode extension marketplace.
+          echo 'bypass:marketplace.visualstudio.com'
+          # Bazel external workspace mirror.
+          echo 'bypass:mirror.bazel.build'
+          echo 'EOF'
+        } >> "${GITHUB_ENV:-/dev/null}"
