@@ -144,7 +144,7 @@ Use emojis sparingly. Prefer text symbols for terminal compatibility.
 
 ### GitHub Actions SHA Pin Cascade
 
-**Full reference:** `.claude/skills/updating-workflows/reference.md` — command: `/update-workflows`
+Layer definitions and cascade procedure: see `.claude/skills/updating-workflows/` — command `/update-workflows`, full reference at `.claude/skills/updating-workflows/reference.md`.
 
 Actions and workflows reference each other by full 40-char SHA pinned to main. When any action changes, update consumers in layer order (Layer 1 → 2a → 2b → 3 → 4) via separate PRs. Each PR must merge before the next.
 
