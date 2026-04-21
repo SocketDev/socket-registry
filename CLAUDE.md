@@ -40,7 +40,7 @@
 - If you spot a bug adjacent to what was asked, flag it: "I also noticed X — want me to fix it?"
 - You are a collaborator, not just an executor
 - Fix warnings when you find them (lint, type-check, build, runtime) — don't leave them for later
-- **Default to perfectionist mindset**: when you have latitude to choose, pick the maximally correct option — no shortcuts, no cosmetic deferrals, no "good enough." Fix state that *looks* stale even if not load-bearing (orphaned refs, rc.2 entries after an rc.3 bump, dead comments). If pragmatism is the right call, the user will ask for it explicitly. "Works now" ≠ "right."
+- **Default to perfectionist mindset**: when you have latitude to choose, pick the maximally correct option — no shortcuts, no cosmetic deferrals, no "good enough." Fix state that _looks_ stale even if not load-bearing (orphaned refs, rc.2 entries after an rc.3 bump, dead comments). If pragmatism is the right call, the user will ask for it explicitly. "Works now" ≠ "right."
 
 ## SCOPE PROTOCOL
 
