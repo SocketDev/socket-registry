@@ -19,11 +19,6 @@ on:
         required: false
         default: false
         type: boolean
-      publish-without-sfw:
-        description: 'Publish directly to npm, bypassing Socket firewall shims'
-        required: false
-        default: false
-        type: boolean
       skip-npm-packages:
         description: 'Skip publishing npm override packages (packages/*)'
         required: false
@@ -36,12 +31,11 @@ permissions:
 
 jobs:
   publish:
-    uses: SocketDev/socket-registry/.github/workflows/provenance.yml@a5923566cd8bcf70aefa1eefacf21f96e328be45 # main
+    uses: SocketDev/socket-registry/.github/workflows/provenance.yml@d638c11f4bc7ac637e0f61f05729a54d68af40e0 # main
     with:
       debug: ${{ inputs.debug }}
       force-registry: ${{ inputs.force-registry }}
       publish-script: 'package-npm-publish' # runs scripts/npm/publish-npm-packages.mts
-      publish-without-sfw: ${{ inputs.publish-without-sfw }}
       setup-script: 'pnpm run build'
       skip-npm-packages: ${{ inputs.skip-npm-packages }}
       use-trusted-publishing: true
