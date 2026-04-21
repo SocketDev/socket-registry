@@ -17,20 +17,20 @@ permissions:
 jobs:
   ci:
     name: Run CI Pipeline
-    uses: SocketDev/socket-registry/.github/workflows/ci.yml@46132ceb75d2efd44bb0af38504101366f73ca68 # main
+    uses: SocketDev/socket-registry/.github/workflows/ci.yml@a5923566cd8bcf70aefa1eefacf21f96e328be45 # main
     with:
       test-script: 'pnpm run test --all --fast'
       node-versions: '["22", "24"]'
       os-versions: '["ubuntu-latest", "windows-latest"]'
     secrets:
-      SOCKET_API_KEY: ${{ secrets.SOCKET_API_KEY }}
+      SOCKET_API_KEY: ${{ secrets.SOCKET_API_TOKEN }}
 
   test-npm-packages:
     name: Test NPM Packages
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@46132ceb75d2efd44bb0af38504101366f73ca68 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@a5923566cd8bcf70aefa1eefacf21f96e328be45 # main
         with:
           node-version: 22
 

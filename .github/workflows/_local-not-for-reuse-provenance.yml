@@ -36,7 +36,7 @@ permissions:
 
 jobs:
   publish:
-    uses: SocketDev/socket-registry/.github/workflows/provenance.yml@46132ceb75d2efd44bb0af38504101366f73ca68 # main
+    uses: SocketDev/socket-registry/.github/workflows/provenance.yml@a5923566cd8bcf70aefa1eefacf21f96e328be45 # main
     with:
       debug: ${{ inputs.debug }}
       force-registry: ${{ inputs.force-registry }}
@@ -46,4 +46,4 @@ jobs:
       skip-npm-packages: ${{ inputs.skip-npm-packages }}
       use-trusted-publishing: true
     secrets:
-      SOCKET_API_KEY: ${{ secrets.SOCKET_API_KEY }}
+      SOCKET_API_KEY: ${{ secrets.SOCKET_API_TOKEN }}

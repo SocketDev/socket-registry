@@ -15,11 +15,11 @@ permissions:
 
 jobs:
   weekly-update:
-    uses: SocketDev/socket-registry/.github/workflows/weekly-update.yml@46132ceb75d2efd44bb0af38504101366f73ca68 # main
+    uses: SocketDev/socket-registry/.github/workflows/weekly-update.yml@a5923566cd8bcf70aefa1eefacf21f96e328be45 # main
     with:
       test-setup-script: ''
       test-script: 'pnpm test'
     secrets:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       BOT_GPG_PRIVATE_KEY: ${{ secrets.BOT_GPG_PRIVATE_KEY }}
-      SOCKET_API_KEY: ${{ secrets.SOCKET_API_KEY }}
+      SOCKET_API_KEY: ${{ secrets.SOCKET_API_TOKEN }}
