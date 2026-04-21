@@ -15,35 +15,11 @@ import { readPackageJson } from '@socketsecurity/lib/packages/operations'
 import { pEach } from '@socketsecurity/lib/promises'
 import { withSpinner } from '@socketsecurity/lib/spinner'
 
-import { whichSync } from '@socketsecurity/lib/bin'
-
 import { cleanTestScript } from './script-cleaning.mts'
 import { testRunners } from './test-runners.mts'
 import { DEFAULT_CONCURRENCY } from '../constants/core.mts'
 import { ROOT_PATH } from '../constants/paths.mts'
 import { spawn } from './spawn.mts'
-
-// Resolve real pnpm binary, bypassing SFW shim.
-// SFW shims intercept pnpm and proxy registry requests, stripping metadata
-// fields (e.g. "time") which causes pnpm v11 ERR_PNPM_MISSING_TIME failures.
-// Strip the SFW shim dir from PATH to find the real binary.
-function getRealPnpmBin() {
-  const sfwShimDir = process.env['SFW_SHIM_DIR']
-  if (sfwShimDir) {
-    const cleanPath = (process.env['PATH'] ?? '')
-      .split(path.delimiter)
-      .filter(p => p !== sfwShimDir)
-      .join(path.delimiter)
-    const real = whichSync('pnpm', { nothrow: true, path: cleanPath })
-    if (real && typeof real === 'string') {
-      return real
-    }
-  }
-  return 'pnpm'
-}
-
-/** Real pnpm binary path (bypasses SFW shim if present). */
-export const PNPM_REAL_BIN = getRealPnpmBin()
 
 // Shared pnpm flags to make it behave like npm with hoisting.
 export const PNPM_NPM_LIKE_FLAGS = [
@@ -60,10 +36,6 @@ export const PNPM_INSTALL_BASE_FLAGS = [
   '--config.blockExoticSubdeps=false',
   // Prevent interactive prompts in CI environments.
   '--config.confirmModulesPurge=false',
-  // Tell pnpm the registry may not have time metadata (SFW proxy strips it).
-  '--config.registrySupportsTimeField=false',
-  // Use highest resolution to avoid time-based resolution failures.
-  '--config.resolutionMode=highest',
   // Allow third-party build scripts (e.g. core-js, es5-ext postinstall).
   '--config.strictDepBuilds=false',
   // Allow lockfile updates (required for test package installations).
@@ -395,10 +367,10 @@ export async function installPackageForTesting(
         ),
       )
 
-      // Write pnpm-workspace.yaml with v11 workarounds.
+      // Write pnpm-workspace.yaml to scope the temp install.
       await fs.writeFile(
         path.join(packageTempDir, 'pnpm-workspace.yaml'),
-        'packages:\n  - .\n\nregistrySupportsTimeField: false\n',
+        'packages:\n  - .\n',
       )
 
       // Install the package.
@@ -407,7 +379,7 @@ export async function installPackageForTesting(
         : `${packageName}@${versionSpec}`
 
       await spawnCapture(
-        PNPM_REAL_BIN,
+        'pnpm',
         ['add', packageSpec, ...PNPM_HOISTED_INSTALL_FLAGS],
         {
           cwd: packageTempDir,
@@ -531,13 +503,9 @@ export async function installPackageForTesting(
     await fs.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 2))
 
     // Install dependencies with pnpm.
-    await spawnCapture(
-      PNPM_REAL_BIN,
-      ['install', ...PNPM_HOISTED_INSTALL_FLAGS],
-      {
-        cwd: installedPath,
-      },
-    )
+    await spawnCapture('pnpm', ['install', ...PNPM_HOISTED_INSTALL_FLAGS], {
+      cwd: installedPath,
+    })
 
     return {
       installed: true,
