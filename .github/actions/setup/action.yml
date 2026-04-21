@@ -42,18 +42,22 @@ runs:
     - name: Install pnpm
       shell: bash
       run: | # zizmor: ignore[github-env]
-        PNPM_VERSION="11.0.0-rc.3"
+        # Single source of truth: external-tools.json at the repo root of this action's checkout.
+        TOOLS_FILE="${GITHUB_ACTION_PATH}/../../../external-tools.json"
+        PNPM_VERSION="$(jq -r .pnpm.version "$TOOLS_FILE")"
         PNPM_DIR="${RUNNER_TEMP:-/tmp}/pnpm-bin"
         KERNEL="$(uname -s | cut -d- -f1)"
         ARCH="$(uname -m)"
         case "${KERNEL}-${ARCH}" in
-          Linux-x86_64)                      ASSET="pnpm-linux-x64.tar.gz"   ; EXPECTED_SHA256="cc85db707e851b7f69ab0ab912273293d057295e5013417fa7b6bbd9ca0b89a2" ;;
-          Linux-aarch64)                     ASSET="pnpm-linux-arm64.tar.gz" ; EXPECTED_SHA256="e9635c73d0e190de3b307f699a6a685edb5c9a4e0f730a86f334b12d5bed4a93" ;;
-          Darwin-x86_64)                     ASSET="pnpm-darwin-x64.tar.gz"  ; EXPECTED_SHA256="d1f2912f367af53452790696d99371861ed99c865b40fc9d9f3fce95d3f80541" ;;
-          Darwin-arm64)                      ASSET="pnpm-darwin-arm64.tar.gz"; EXPECTED_SHA256="df590612ad588eecdeba6d22a6870409436acc0df1d990f638e839452806aed8" ;;
-          MINGW64_NT-x86_64|MSYS_NT-x86_64) ASSET="pnpm-win32-x64.zip"      ; EXPECTED_SHA256="33e2f62326932a13cedc0a88f1668ec51f929d9a7cd3b8b5218bd83aa79734a3" ;;
+          Linux-x86_64)                      PLATFORM="linux-x64"    ;;
+          Linux-aarch64)                     PLATFORM="linux-arm64"  ;;
+          Darwin-x86_64)                     PLATFORM="darwin-x64"   ;;
+          Darwin-arm64)                      PLATFORM="darwin-arm64" ;;
+          MINGW64_NT-x86_64|MSYS_NT-x86_64) PLATFORM="win-x64"       ;;
           *) echo "Unsupported platform: ${KERNEL}-${ARCH}" >&2; exit 1 ;;
         esac
+        ASSET="$(jq -r ".pnpm.checksums[\"$PLATFORM\"].asset" "$TOOLS_FILE")"
+        EXPECTED_SHA256="$(jq -r ".pnpm.checksums[\"$PLATFORM\"].sha256" "$TOOLS_FILE")"
         PNPM_BIN="$PNPM_DIR/pnpm"
         [[ "$ASSET" == *.zip ]] && PNPM_BIN="$PNPM_DIR/pnpm.exe"
         if [ ! -x "$PNPM_BIN" ]; then

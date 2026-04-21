@@ -30,32 +30,32 @@
   "pnpm": {
     "description": "Fast, disk space efficient package manager",
     "repository": "github:pnpm/pnpm",
-    "version": "11.0.0-rc.3",
+    "version": "11.0.0-rc.5",
     "release": "asset",
     "checksums": {
       "darwin-arm64": {
         "asset": "pnpm-darwin-arm64.tar.gz",
-        "sha256": "df590612ad588eecdeba6d22a6870409436acc0df1d990f638e839452806aed8"
+        "sha256": "32a50710ccacfdcf14e6d5995d5368298eec913b0ce3903b9e09b6555f06f4e5"
       },
       "darwin-x64": {
         "asset": "pnpm-darwin-x64.tar.gz",
-        "sha256": "d1f2912f367af53452790696d99371861ed99c865b40fc9d9f3fce95d3f80541"
+        "sha256": "71dca33f4275da6b43bf1eb40bdc4d876f59a116716eacbf01079c3d985ff85d"
       },
       "linux-arm64": {
         "asset": "pnpm-linux-arm64.tar.gz",
-        "sha256": "e9635c73d0e190de3b307f699a6a685edb5c9a4e0f730a86f334b12d5bed4a93"
+        "sha256": "2dd04127ff10b1f9dd20bae248b779c77a8ec67e3afa35e7256e5f94abddd493"
       },
       "linux-x64": {
         "asset": "pnpm-linux-x64.tar.gz",
-        "sha256": "cc85db707e851b7f69ab0ab912273293d057295e5013417fa7b6bbd9ca0b89a2"
+        "sha256": "7ebef4b616ba41fb0d54a207b36508fae3346723283a088b43fc1e038ee6fed0"
       },
       "win-arm64": {
         "asset": "pnpm-win32-arm64.zip",
-        "sha256": "ec530b53ea9769687094917d33d6329c1898f9dad305002aa3565f70b2aa5085"
+        "sha256": "e4a39ad4c251db5e34b18b98561ef25bab5506ad65cad2fa3602af58d1972667"
       },
       "win-x64": {
         "asset": "pnpm-win32-x64.zip",
-        "sha256": "33e2f62326932a13cedc0a88f1668ec51f929d9a7cd3b8b5218bd83aa79734a3"
+        "sha256": "147485ae2f38c3d1ccf2f5db00d0244416bcd22b9114c02388e6a78f41538fc4"
       }
     }
   }
