@@ -128,7 +128,7 @@ jobs:
     steps:
       - uses: SocketDev/socket-registry/.github/actions/setup-and-install@ea60ce98fb4a0070c3ec98c3bd41709d034c9e8a # main
         with:
-          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
+          socket-api-key: ${{ secrets.SOCKET_API_TOKEN }}
 
       - name: Check for actionable updates
         id: check
@@ -179,7 +179,7 @@ jobs:
       - uses: SocketDev/socket-registry/.github/actions/setup-and-install@ea60ce98fb4a0070c3ec98c3bd41709d034c9e8a # main
         with:
           checkout-fetch-depth: ${{ inputs.checkout-fetch-depth }}
-          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
+          socket-api-key: ${{ secrets.SOCKET_API_TOKEN }}
 
       - name: Initialize submodules
         if: inputs.checkout-submodules != 'false'

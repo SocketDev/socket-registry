@@ -160,7 +160,7 @@ jobs:
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.check-node-version }}
-          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
+          socket-api-key: ${{ secrets.SOCKET_API_TOKEN }}
           working-directory: ${{ inputs.working-directory }}
 
       - uses: SocketDev/socket-registry/.github/actions/run-script@ea60ce98fb4a0070c3ec98c3bd41709d034c9e8a # main
@@ -179,7 +179,7 @@ jobs:
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.lint-node-version }}
-          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
+          socket-api-key: ${{ secrets.SOCKET_API_TOKEN }}
           working-directory: ${{ inputs.working-directory }}
 
       - uses: SocketDev/socket-registry/.github/actions/run-script@ea60ce98fb4a0070c3ec98c3bd41709d034c9e8a # main
@@ -198,7 +198,7 @@ jobs:
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.type-check-node-version }}
-          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
+          socket-api-key: ${{ secrets.SOCKET_API_TOKEN }}
           working-directory: ${{ inputs.working-directory }}
 
       - uses: SocketDev/socket-registry/.github/actions/run-script@ea60ce98fb4a0070c3ec98c3bd41709d034c9e8a # main
@@ -223,7 +223,7 @@ jobs:
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ matrix.node-version }}
-          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
+          socket-api-key: ${{ secrets.SOCKET_API_TOKEN }}
           working-directory: ${{ inputs.working-directory }}
 
       - uses: SocketDev/socket-registry/.github/actions/run-script@ea60ce98fb4a0070c3ec98c3bd41709d034c9e8a # main
