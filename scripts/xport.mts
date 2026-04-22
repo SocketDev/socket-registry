@@ -40,6 +40,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
+import { errorMessage } from '@socketsecurity/lib/errors'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { spawnSync } from '@socketsecurity/lib/spawn'
 import { validateSchema } from '@socketsecurity/lib/schema/validate'
@@ -148,7 +149,7 @@ function readManifest(manifestPath: string): Manifest {
     raw = JSON.parse(readFileSync(manifestPath, 'utf8'))
   } catch (e) {
     logger.error(`xport: could not parse ${manifestPath}`)
-    logger.fail(`  ${e instanceof Error ? e.message : String(e)}`)
+    logger.fail(`  ${errorMessage(e)}`)
     process.exit(1)
   }
   const result = validateSchema(XportManifestSchema, raw)
@@ -340,9 +341,7 @@ function countPatternHits(files: string[], patterns: string[]): number {
       compiled.push(new RegExp(p))
     } catch (e) {
       logger.warn(
-        `xport: skipping invalid regex ${JSON.stringify(p)}: ${
-          e instanceof Error ? e.message : String(e)
-        }`,
+        `xport: skipping invalid regex ${JSON.stringify(p)}: ${errorMessage(e)}`,
       )
     }
   }

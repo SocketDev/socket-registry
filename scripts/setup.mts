@@ -16,6 +16,7 @@ import path from 'node:path'
 import process from 'node:process'
 
 import { WIN32 } from '@socketsecurity/lib/constants/platform'
+import { errorMessage, isErrnoException } from '@socketsecurity/lib/errors'
 import { safeDelete } from '@socketsecurity/lib/fs'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { spawn } from '@socketsecurity/lib/spawn'
@@ -99,12 +100,7 @@ async function acquireLock(
         await unlink(lockPath).catch(() => {})
       }
     } catch (err: unknown) {
-      if (
-        err &&
-        typeof err === 'object' &&
-        'code' in err &&
-        (err as { code: string }).code === 'EEXIST'
-      ) {
+      if (isErrnoException(err) && err.code === 'EEXIST') {
         try {
           const pid = parseInt(readFileSync(lockPath, 'utf8').trim(), 10)
           if (pid && !isProcessAlive(pid)) {
@@ -297,9 +293,7 @@ async function main(): Promise<void> {
         log.warn(`${tool}: skipped (unsupported platform)`)
       }
     } catch (err: unknown) {
-      log.error(
-        `Failed to install ${tool}: ${err instanceof Error ? err.message : String(err)}`,
-      )
+      log.error(`Failed to install ${tool}: ${errorMessage(err)}`)
       allOk = false
     }
   }
