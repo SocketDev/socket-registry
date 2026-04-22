@@ -293,3 +293,8 @@ runs:
           echo 'bypass:mirror.bazel.build'
           echo 'EOF'
         } >> "${GITHUB_ENV:-/dev/null}"
+        # Opt out of gh CLI telemetry (on-by-default as of late 2025).
+        # DO_NOT_TRACK covers tools honoring consoledonottrack.com;
+        # GH_TELEMETRY is gh-specific and takes precedence.
+        echo "DO_NOT_TRACK=1" >> "${GITHUB_ENV:-/dev/null}"
+        echo "GH_TELEMETRY=0" >> "${GITHUB_ENV:-/dev/null}"
