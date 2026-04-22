@@ -46,8 +46,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     try {
       await pNo(1, 2, 3)
       expect.fail('should have rejected')
-    } catch (err) {
-      expect(err).toEqual([1, 2, 3])
+    } catch (e) {
+      expect(e).toEqual([1, 2, 3])
     }
   })
 
