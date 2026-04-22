@@ -85,6 +85,38 @@ The umbrella rule: never run a git command that mutates state belonging to a pat
 - Offer to checkpoint before risky changes
 - Flag files >400 LOC for potential splitting
 
+## ERROR MESSAGES
+
+An error message is UI. The reader should be able to fix the problem from the message alone, without opening your source.
+
+Every message needs four ingredients, in order:
+
+1. **What** — the rule that was broken (e.g. "must be lowercase"), not the fallout ("invalid").
+2. **Where** — the exact file, line, key, field, or CLI flag. Not "somewhere in config".
+3. **Saw vs. wanted** — the bad value and the allowed shape or set.
+4. **Fix** — one concrete action, in imperative voice (`rename the key to …`, not `the key was not renamed`).
+
+Length depends on the audience:
+
+- **Library API errors** (thrown from a published package): terse. Callers may match on the message text, so every word counts. All four ingredients often fit in one sentence — e.g. `name "__proto__" cannot start with an underscore` covers rule, where (`name`), saw (`__proto__`), and implies the fix.
+- **Validator / config / build-tool errors** (developer reading a terminal): verbose. Give each ingredient its own words so the reader can find the bad record without re-running the tool.
+- **Programmatic errors** (internal assertions, invariant checks): terse, rule only. No end user will see it; short keeps the check readable.
+
+Rules for every message:
+
+- Imperative voice for the fix — `add "filename" to part 3`, not `"filename" was missing`.
+- Never "invalid" on its own. `invalid filename 'My Part'` is fallout; `filename 'My Part' must be [a-z]+ (lowercase, no spaces)` is a rule.
+- On a collision, name **both** sides, not just the second one found.
+- Suggest, don't auto-correct. Silently fixing state hides the bug next time.
+- Bloat check: if removing a word keeps the information, drop it.
+
+Examples:
+
+- ✗ `Error: invalid config` → ✓ `config.json: part 3 is missing "filename". Add a lowercase filename (e.g. "parsing").`
+- ✗ `Error: invalid component` → ✓ `npm "name" component is required`
+
+See `docs/references/error-messages.md` for worked examples and anti-patterns.
+
 ## ABSOLUTE RULES
 
 - Never create files unless necessary; always prefer editing existing files
