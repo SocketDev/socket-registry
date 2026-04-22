@@ -234,7 +234,7 @@ Actions and workflows reference each other by full 40-char SHA pinned to main. W
 
 - **MANDATORY**: actions reference commit SHAs, not tags — `uses: owner/repo@sha # vX.Y.Z`
 - Standard SHAs: actions/checkout@v5, pnpm/action-setup@v4, actions/setup-node@v5, actions/upload-artifact@v4
-- 🚨 **NEVER use `sed` to edit YAML workflow files** — use the Edit tool. `sed` silently clobbers SHAs/quoting/indentation.
+- 🚨 **NEVER use `sed` (or `awk`/`perl -i`/other stream editors) to edit YAML workflow files** — use the Edit tool, one occurrence at a time, with `replace_all` when the old_string is unique. This applies even for "safe-looking" bulk swaps like SHA bumps across many files — `sed` silently clobbers quoting/indentation on lines the regex wasn't designed for, and failures are invisible until CI parses the file. If the swap spans many files, loop over them with Edit calls, not a single `sed -i`.
 
 ### Testing
 
