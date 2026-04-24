@@ -48,6 +48,7 @@
     "test:npm": "node scripts/npm/run-vitest-npm.mts",
     "type": "tsgo --noEmit -p tsconfig.json",
     "update": "node scripts/update.mts",
+    "update:external-tools": "node scripts/update-external-tools.mts",
     "validate-ci": "node scripts/testing/reproduce-ci-locally.mts",
     "validate-packages": "node scripts/testing/validate-package-tests.mts",
     "xport": "node scripts/xport.mts",

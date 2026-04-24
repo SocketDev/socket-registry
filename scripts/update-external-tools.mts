@@ -1,0 +1,348 @@
+#!/usr/bin/env node
+/**
+ * Update the repo-root `external-tools.json` to pick up new releases
+ * of every tool listed with `"release": "asset"` (today: pnpm, zizmor).
+ *
+ * Contract for this file:
+ * - Read minimumReleaseAge from pnpm-workspace.yaml (minutes → ms).
+ *   Skip releases younger than the cooldown window to dodge malicious
+ *   fresh uploads (matches `.claude/hooks/setup-security-tools/update.mts`
+ *   behavior).
+ * - For each tool, hit `repos/<owner>/<name>/releases/latest`.
+ *   Compare `tag_name` (stripping any leading `v`) against the pinned
+ *   `version`. If newer AND past cooldown, download every listed
+ *   platform asset, recompute sha256, and rewrite the entry.
+ * - Invoked by the `updating` umbrella skill; runnable standalone via
+ *   `pnpm run update:external-tools` (exposed in package.json).
+ * - Exits 0 on success, 1 on any HTTP / parse / download failure.
+ *
+ * The sibling script under `.claude/hooks/setup-security-tools/update.mts`
+ * targets a DIFFERENT file (the hook's colocated tools manifest) and
+ * has a different schema. Keep the two independent — merging would
+ * require either schema convergence or conditional code paths and the
+ * benefit is minimal since each script only handles 2–3 tools.
+ */
+
+import { createHash } from 'node:crypto'
+import { existsSync, promises as fs, readFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
+import process from 'node:process'
+import { fileURLToPath } from 'node:url'
+
+import { type Static, Type } from '@sinclair/typebox'
+
+import { httpDownload } from '@socketsecurity/lib/http-request'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { parseSchema } from '@socketsecurity/lib/schema/parse'
+import { spawn } from '@socketsecurity/lib/spawn'
+
+const logger = getDefaultLogger()
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const REPO_ROOT = path.resolve(__dirname, '..')
+const CONFIG_FILE = path.join(REPO_ROOT, 'external-tools.json')
+
+const MS_PER_MINUTE = 60_000
+const DEFAULT_COOLDOWN_MINUTES = 10_080
+
+function readCooldownMs(): number {
+  const candidate = path.join(REPO_ROOT, 'pnpm-workspace.yaml')
+  if (existsSync(candidate)) {
+    try {
+      const content = readFileSync(candidate, 'utf8')
+      const match = /^minimumReleaseAge:\s*(\d+)/m.exec(content)
+      if (match) {
+        return Number(match[1]) * MS_PER_MINUTE
+      }
+    } catch {
+      // Read error.
+    }
+    logger.warn(
+      `Could not read minimumReleaseAge from ${candidate}, defaulting to ${DEFAULT_COOLDOWN_MINUTES} minutes`,
+    )
+  } else {
+    logger.warn(
+      `pnpm-workspace.yaml not found, defaulting cooldown to ${DEFAULT_COOLDOWN_MINUTES} minutes`,
+    )
+  }
+  return DEFAULT_COOLDOWN_MINUTES * MS_PER_MINUTE
+}
+
+const COOLDOWN_MS = readCooldownMs()
+
+interface GhAsset {
+  browser_download_url: string
+  name: string
+}
+
+interface GhRelease {
+  assets: GhAsset[]
+  published_at: string
+  tag_name: string
+}
+
+async function ghApiLatestRelease(
+  repo: string,
+  includePrerelease: boolean,
+): Promise<GhRelease> {
+  // Two tracks:
+  //   stable     → `/releases/latest` returns the latest non-prerelease
+  //                non-draft release. Good default for mature tools.
+  //   prerelease → `/releases?per_page=20` + filter `prerelease: true`.
+  //                We sort by created_at so the first match is newest.
+  //                Picking the stable channel here would silently
+  //                regress prerelease-tracked pins (pnpm@11.0.0-rc.5
+  //                is newer than stable pnpm@10.x despite the lower
+  //                major, because stable 11 hasn't shipped yet).
+  const endpoint = includePrerelease
+    ? `repos/${repo}/releases?per_page=20`
+    : `repos/${repo}/releases/latest`
+  const result = await spawn(
+    'gh',
+    ['api', endpoint, '--cache', '1h'],
+    { stdio: 'pipe' },
+  )
+  const stdout =
+    typeof result.stdout === 'string'
+      ? result.stdout
+      : (result.stdout ?? Buffer.alloc(0)).toString()
+  const parsed = JSON.parse(stdout) as GhRelease | GhRelease[]
+  if (Array.isArray(parsed)) {
+    // When on a prerelease track, only prerelease entries are
+    // candidates. `prerelease` and `draft` are both advisory — GitHub
+    // surfaces drafts only to authenticated callers, and we never
+    // want to pin an unpublished asset.
+    const newest = parsed.find(r => {
+      const withFlags = r as GhRelease & {
+        draft?: boolean
+        prerelease?: boolean
+      }
+      return !withFlags.draft && withFlags.prerelease === true
+    })
+    if (!newest) {
+      throw new Error(`No prerelease found for ${repo}`)
+    }
+    return newest
+  }
+  return parsed
+}
+
+function isOlderThanCooldown(publishedAt: string): boolean {
+  const published = new Date(publishedAt).getTime()
+  return Date.now() - published >= COOLDOWN_MS
+}
+
+function versionFromTag(tag: string): string {
+  return tag.replace(/^v/, '')
+}
+
+async function computeSha256(filePath: string): Promise<string> {
+  const content = await fs.readFile(filePath)
+  return createHash('sha256').update(content).digest('hex')
+}
+
+async function downloadAndHash(url: string): Promise<string> {
+  const tmpFile = path.join(
+    tmpdir(),
+    `external-tools-update-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+  )
+  try {
+    await httpDownload(url, tmpFile, { retries: 2 })
+    return await computeSha256(tmpFile)
+  } finally {
+    await fs.unlink(tmpFile).catch(() => {})
+  }
+}
+
+// Schema matches the sibling security-tools hook style (typebox +
+// parseSchema via @socketsecurity/lib/schema/parse). Keep the two in
+// sync — both consume `external-tools.json`-shaped data.
+const checksumEntrySchema = Type.Object({
+  asset: Type.String(),
+  sha256: Type.String(),
+})
+
+const toolSchema = Type.Object({
+  description: Type.Optional(Type.String()),
+  repository: Type.Optional(Type.String()),
+  version: Type.String(),
+  release: Type.Optional(Type.String()),
+  checksums: Type.Optional(Type.Record(Type.String(), checksumEntrySchema)),
+  notes: Type.Optional(
+    Type.Union([Type.String(), Type.Array(Type.String())]),
+  ),
+})
+
+const rootConfigSchema = Type.Record(Type.String(), toolSchema)
+
+type ChecksumEntry = Static<typeof checksumEntrySchema>
+type RootConfig = Static<typeof rootConfigSchema>
+
+function readConfig(): RootConfig {
+  const raw = JSON.parse(readFileSync(CONFIG_FILE, 'utf8'))
+  return parseSchema(rootConfigSchema, raw)
+}
+
+async function writeConfig(config: RootConfig): Promise<void> {
+  await fs.writeFile(
+    CONFIG_FILE,
+    JSON.stringify(config, undefined, 2) + '\n',
+    'utf8',
+  )
+}
+
+function ownerAndNameFromRepository(repository: string | undefined): string {
+  if (!repository) {
+    throw new Error('Missing `repository` field on tool entry')
+  }
+  // Accept either "github:owner/name" or "owner/name".
+  const idx = repository.indexOf(':')
+  return idx === -1 ? repository : repository.slice(idx + 1)
+}
+
+interface UpdateResult {
+  tool: string
+  skipped: boolean
+  updated: boolean
+  reason: string
+}
+
+async function updateTool(
+  name: string,
+  config: RootConfig,
+): Promise<UpdateResult> {
+  logger.log(`=== Checking ${name} ===`)
+
+  const toolConfig = config[name]
+  if (!toolConfig) {
+    return { tool: name, skipped: true, updated: false, reason: 'not in config' }
+  }
+
+  // Only tools that distribute via GitHub release assets are managed
+  // here. Others (e.g. runtime-resolved pins) stay manual.
+  if (toolConfig.release !== 'asset') {
+    return {
+      tool: name,
+      skipped: true,
+      updated: false,
+      reason: `release type is ${toolConfig.release ?? 'unset'}, only "asset" is supported`,
+    }
+  }
+
+  const repo = ownerAndNameFromRepository(toolConfig.repository)
+
+  // Detect whether the tool is pinned to a prerelease track. A
+  // prerelease tag conventionally contains a hyphen segment after
+  // the version core (e.g. `11.0.0-rc.5`, `2.0.0-beta.3`). If we're
+  // already on a prerelease, stay on the prerelease channel so the
+  // updater doesn't regress to the last stable release.
+  const includePrerelease = toolConfig.version.includes('-')
+
+  let release: GhRelease
+  try {
+    release = await ghApiLatestRelease(repo, includePrerelease)
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    logger.warn(`Failed to fetch ${name} releases: ${msg}`)
+    return { tool: name, skipped: true, updated: false, reason: `API error: ${msg}` }
+  }
+
+  const latestVersion = versionFromTag(release.tag_name)
+  const currentVersion = toolConfig.version
+  logger.log(`Current: v${currentVersion}, Latest: v${latestVersion}`)
+
+  if (latestVersion === currentVersion) {
+    logger.log('Already current.')
+    return { tool: name, skipped: false, updated: false, reason: 'already current' }
+  }
+
+  if (!isOlderThanCooldown(release.published_at)) {
+    const daysOld = (
+      (Date.now() - new Date(release.published_at).getTime()) /
+      86_400_000
+    ).toFixed(1)
+    const cooldownDays = (COOLDOWN_MS / 86_400_000).toFixed(0)
+    logger.log(
+      `v${latestVersion} is only ${daysOld} days old (need ${cooldownDays}). Skipping.`,
+    )
+    return {
+      tool: name,
+      skipped: true,
+      updated: false,
+      reason: `too new (${daysOld} days, need ${cooldownDays})`,
+    }
+  }
+
+  logger.log(`Updating ${name} to v${latestVersion}...`)
+
+  const checksums = toolConfig.checksums ?? {}
+  const newChecksums: Record<string, ChecksumEntry> = {}
+
+  for (const [platform, entry] of Object.entries(checksums)) {
+    // Re-resolve the asset name against the latest release's asset
+    // list. Most tools reuse the same filename pattern across
+    // releases, but a tool might rename assets between versions
+    // (e.g. pnpm's Windows asset layout changed pre-v10). Prefer a
+    // case-insensitive exact match on the pinned asset name; fall
+    // back to the pinned name if the release listing is missing it
+    // (downloadAndHash will surface a 404 loudly in that case).
+    const pinnedAsset = entry.asset
+    const asset =
+      release.assets.find(
+        a => a.name.toLowerCase() === pinnedAsset.toLowerCase(),
+      ) ??
+      release.assets.find(a => a.name === pinnedAsset) ?? {
+        browser_download_url: `https://github.com/${repo}/releases/download/${release.tag_name}/${pinnedAsset}`,
+        name: pinnedAsset,
+      }
+
+    logger.log(`  ${platform}: hashing ${asset.name}`)
+    const sha256 = await downloadAndHash(asset.browser_download_url)
+    newChecksums[platform] = { asset: asset.name, sha256 }
+  }
+
+  toolConfig.version = latestVersion
+  toolConfig.checksums = newChecksums
+
+  return {
+    tool: name,
+    skipped: false,
+    updated: true,
+    reason: `bumped to v${latestVersion}`,
+  }
+}
+
+async function main(): Promise<void> {
+  const config = readConfig()
+  const results: UpdateResult[] = []
+
+  for (const name of Object.keys(config)) {
+    // eslint-disable-next-line no-await-in-loop
+    const r = await updateTool(name, config)
+    results.push(r)
+  }
+
+  const updated = results.filter(r => r.updated)
+  if (updated.length > 0) {
+    await writeConfig(config)
+    logger.log('')
+    logger.log(`Wrote ${CONFIG_FILE}`)
+  }
+
+  logger.log('')
+  logger.log('Summary:')
+  for (const r of results) {
+    const tag = r.updated
+      ? 'updated'
+      : r.skipped
+        ? 'skipped'
+        : 'unchanged'
+    logger.log(`  ${r.tool}: ${tag} (${r.reason})`)
+  }
+}
+
+main().catch((e: unknown) => {
+  logger.error(e)
+  process.exitCode = 1
+})

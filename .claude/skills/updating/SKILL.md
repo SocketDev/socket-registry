@@ -139,6 +139,7 @@ fi
 If stale, inform the user and offer to run the `updating-workflows` skill.
 
 3b. **Update Security Tools** - Run `node .claude/hooks/setup-security-tools/update.mts` to check for new zizmor/sfw releases. Respects pnpm `minimumReleaseAge` cooldown for third-party tools (zizmor) but updates Socket tools (sfw) immediately. Updates embedded checksums in the setup hook.
+3b-root. **Update Root External Tools** - Run `pnpm run update:external-tools` to check for new pnpm/zizmor releases and refresh the repo-root `external-tools.json` (consumed by `setup/action.yml` for CI and by `scripts/setup.mts` for local dev). Respects the same `minimumReleaseAge` cooldown. If a tool is bumped, every listed platform's sha256 is recomputed before the file is rewritten.
 3c. **Sync Claude Code version** - Run `claude --version` to get the installed version. If it's newer than the `@anthropic-ai/claude-code` entry in `pnpm-workspace.yaml` catalog, update both the catalog entry AND the `minimumReleaseAgeExclude` pinned version. This bypasses cooldown since we're the ones running it. Then run `pnpm install` to update the lockfile.
 
 ---
