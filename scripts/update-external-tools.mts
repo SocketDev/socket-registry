@@ -232,12 +232,15 @@ async function updateTool(
 
   const repo = ownerAndNameFromRepository(toolConfig.repository)
 
-  // Detect whether the tool is pinned to a prerelease track. A
-  // prerelease tag conventionally contains a hyphen segment after
-  // the version core (e.g. `11.0.0-rc.5`, `2.0.0-beta.3`). If we're
-  // already on a prerelease, stay on the prerelease channel so the
-  // updater doesn't regress to the last stable release.
-  const includePrerelease = toolConfig.version.includes('-')
+  // Special case — pnpm only. pnpm 11 ships as release candidates on
+  // the `prerelease: true` channel while stable stays on 10.x; we
+  // intentionally track the pre-GA 11 line. Every other tool in this
+  // file (and any future addition) is expected to follow stable
+  // releases only. If a second prerelease-tracked tool ever lands
+  // here, extend this allowlist explicitly rather than flipping it
+  // back to a version-string heuristic — the explicit form makes
+  // "why is this tool different?" grep-able.
+  const includePrerelease = name === 'pnpm'
 
   let release: GhRelease
   try {
