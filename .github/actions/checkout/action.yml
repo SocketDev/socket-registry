@@ -33,6 +33,16 @@ runs:
         persist-credentials: false
 
     - name: Install zizmor
+      # Auto-skip in matrix cells: zizmor has its own per-platform
+      # binary support matrix (darwin-arm64, linux-x64, …), and its
+      # `.github` audit is Node-version-indifferent — running it in
+      # every (Node 22/24 × ubuntu/macos/windows) cell wastes runner
+      # minutes and breaks on unsupported cells. `strategy.job-total`
+      # is empty for non-matrix jobs and `1` for 1×1 matrices, so
+      # `< 2` keeps scan-style jobs running zizmor while matrix test
+      # cells silently skip. No user-facing input — preventing PR
+      # authors from disabling scans via workflow inputs.
+      if: strategy.job-total < 2
       shell: bash
       run: | # zizmor: ignore[github-env]
         # Single source of truth: external-tools.json at the repo root of this action's checkout.
@@ -89,6 +99,9 @@ runs:
         } >> "${GITHUB_ENV:-/dev/null}"
 
     - name: Audit GitHub Actions
+      # Paired with "Install zizmor" above; see that step's comment
+      # for the rationale behind the matrix-auto-skip.
+      if: strategy.job-total < 2
       shell: bash
       env:
         GITHUB_TOKEN: ${{ github.token }}
