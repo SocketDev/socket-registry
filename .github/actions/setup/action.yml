@@ -82,6 +82,18 @@ runs:
           chmod +x "$PNPM_BIN"
         fi
         echo "$PNPM_DIR" >> "${GITHUB_PATH:-/dev/null}"
+        # Export canonical pnpm provenance for downstream steps and
+        # Docker builds — lets consumers pass `--build-arg
+        # PNPM_VERSION=${{ env.SOCKET_TOOL_PNPM_VERSION }}` instead of
+        # hardcoding a drift-prone ARG default.
+        {
+          echo "SOCKET_TOOL_PNPM_VERSION=$PNPM_VERSION"
+          echo "SOCKET_TOOL_PNPM_PLATFORM=$PLATFORM"
+          echo "SOCKET_TOOL_PNPM_ASSET=$ASSET"
+          echo "SOCKET_TOOL_PNPM_SHA256=$EXPECTED_SHA256"
+          echo "SOCKET_TOOL_PNPM_BIN=$PNPM_BIN"
+          echo "SOCKET_TOOL_PNPM_DIR=$PNPM_DIR"
+        } >> "${GITHUB_ENV:-/dev/null}"
 
     - name: Setup Node.js
       uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
@@ -89,6 +101,18 @@ runs:
         node-version: ${{ inputs.node-version }}
         registry-url: ${{ inputs.registry-url }}
         scope: ${{ inputs.scope }}
+
+    - name: Export Node.js version
+      shell: bash
+      env:
+        # Route through env to avoid zizmor template-injection findings —
+        # the input is still plumbed from the caller but never expanded
+        # directly into the shell source.
+        NODE_VERSION: ${{ inputs.node-version }}
+      run: | # zizmor: ignore[github-env]
+        # Mirror the node version that setup-node resolved so Docker
+        # builds COPY'd from CI can pin to the same Node major.
+        echo "SOCKET_TOOL_NODE_VERSION=$NODE_VERSION" >> "${GITHUB_ENV:-/dev/null}"
 
     - name: Download sfw
       shell: bash
@@ -156,6 +180,21 @@ runs:
         if $USE_ENTERPRISE; then
           echo "SOCKET_API_KEY=$SOCKET_API_KEY" >> "${GITHUB_ENV:-/dev/null}"
         fi
+        # Export canonical sfw provenance in the shared SOCKET_TOOL_*
+        # namespace. `SOCKET_TOOL_SFW_FLAVOR` tells consumers which
+        # release repo was used without re-reading SFW_IS_ENTERPRISE.
+        if $USE_ENTERPRISE; then
+          SFW_FLAVOR="enterprise"
+        else
+          SFW_FLAVOR="free"
+        fi
+        {
+          echo "SOCKET_TOOL_SFW_FLAVOR=$SFW_FLAVOR"
+          echo "SOCKET_TOOL_SFW_VERSION=$SFW_VERSION"
+          echo "SOCKET_TOOL_SFW_PLATFORM=${KERNEL}-${ARCH}"
+          echo "SOCKET_TOOL_SFW_ASSET=$ASSET"
+          echo "SOCKET_TOOL_SFW_SHA256=$EXPECTED_SHA256"
+        } >> "${GITHUB_ENV:-/dev/null}"
 
     - name: Create sfw shims
       shell: bash

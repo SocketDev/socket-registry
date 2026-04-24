@@ -1,5 +1,5 @@
 name: 'Install'
-description: 'Install pnpm dependencies (sfw shims are set up by the setup action)'
+description: 'Install pnpm dependencies and provision ecc-agentshield (sfw shims are set up by the setup action)'
 
 inputs:
   frozen-lockfile:
@@ -23,3 +23,108 @@ runs:
           exit 1
         fi
         pnpm install --loglevel error ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
+
+    - name: Verify @socketsecurity/lib is resolvable
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        # @socketsecurity/lib is required for downloadPackage (used below
+        # to provision ecc-agentshield) and for several downstream build
+        # scripts across the Socket fleet. We resolve it via Node's own
+        # resolver rather than a file check, so the guard fires the same
+        # way we'd actually fail at runtime.
+        if ! node -e "require.resolve('@socketsecurity/lib/package.json')" 2>/dev/null; then
+          CWD="$(pwd)"
+          cat >&2 <<EOF
+        × @socketsecurity/lib not resolvable from ${CWD}.
+          The socket-registry install action requires it at runtime for
+          downloadPackage (used to provision ecc-agentshield and related
+          tools). Expected Node's module resolver to find the package
+          after \`pnpm install\` completed, but
+          \`node -e "require.resolve('@socketsecurity/lib/package.json')"\`
+          failed.
+          Fix: add "@socketsecurity/lib" as a pinned exact version (e.g.
+          "5.24.0", not "^5.24.0" or "*") to your package.json — prefer
+          referencing a pnpm-workspace.yaml catalog entry so every
+          workspace package shares the same pin. Commit the updated
+          pnpm-lock.yaml, then push and re-run the workflow.
+        EOF
+          exit 1
+        fi
+
+    - name: Install ecc-agentshield
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: | # zizmor: ignore[github-env]
+        # Version resolution precedence (highest to lowest):
+        #   1. package.json dependencies["ecc-agentshield"]      (literal, not "catalog:")
+        #   2. package.json devDependencies["ecc-agentshield"]   (literal, not "catalog:")
+        #   3. pnpm-workspace.yaml catalog ecc-agentshield
+        #   4. Hardcoded fallback "1.4.0"
+        #
+        # Install goes through @socketsecurity/lib's downloadPackage
+        # (the same helper the setup-security-tools Claude hook uses),
+        # which caches into ~/.socket/_dlx/<hash>/. Every consumer that
+        # uses this action gets agentshield provisioned regardless of
+        # whether they declare a dep on it — the fallback ensures that.
+        FALLBACK_VERSION="1.4.0"
+        resolve_version() {
+          if [ -f package.json ]; then
+            local v
+            v="$(jq -r '.dependencies["ecc-agentshield"] // empty' package.json 2>/dev/null)"
+            if [ -n "$v" ] && [ "$v" != "catalog:" ] && [ "$v" != "null" ]; then
+              echo "$v"
+              return
+            fi
+            v="$(jq -r '.devDependencies["ecc-agentshield"] // empty' package.json 2>/dev/null)"
+            if [ -n "$v" ] && [ "$v" != "catalog:" ] && [ "$v" != "null" ]; then
+              echo "$v"
+              return
+            fi
+          fi
+          if [ -f pnpm-workspace.yaml ]; then
+            local v
+            v="$(grep -E '^[[:space:]]*ecc-agentshield:[[:space:]]*' pnpm-workspace.yaml \
+                 | sed -E 's/^[[:space:]]*ecc-agentshield:[[:space:]]*//' \
+                 | sed -E 's/[[:space:]]*#.*$//' \
+                 | head -n1 \
+                 | tr -d "\"'")"
+            if [ -n "$v" ]; then
+              echo "$v"
+              return
+            fi
+          fi
+          echo "$FALLBACK_VERSION"
+        }
+        AGENTSHIELD_VERSION="$(resolve_version)"
+        echo "ecc-agentshield version: $AGENTSHIELD_VERSION"
+
+        # Strip leading range/comparison chars — downloadPackage wants an
+        # exact version. Discouraged forms like "^1.4.0" or "~1.4.0"
+        # still work here but we prefer exact pins.
+        CLEAN_VERSION="${AGENTSHIELD_VERSION#[\^~>=<]}"
+        CLEAN_VERSION="${CLEAN_VERSION#=}"
+
+        # Invoke downloadPackage via Node. Node sees the consumer repo's
+        # node_modules (already installed above), so the dynamic import
+        # of @socketsecurity/lib/dlx/package resolves the workspace copy.
+        RESULT_JSON="$(AGENTSHIELD_SPEC="ecc-agentshield@${CLEAN_VERSION}" \
+          node --input-type=module -e "
+            import { downloadPackage } from '@socketsecurity/lib/dlx/package';
+            const { binaryPath, installed } = await downloadPackage({
+              package: process.env.AGENTSHIELD_SPEC,
+              binaryName: 'agentshield',
+            });
+            process.stdout.write(JSON.stringify({ binaryPath, installed }));
+          ")"
+        BIN="$(echo "$RESULT_JSON" | jq -r .binaryPath)"
+        if [ -z "$BIN" ] || [ "$BIN" = "null" ] || [ ! -x "$BIN" ]; then
+          echo "× ecc-agentshield install failed — downloadPackage did not return an executable binary path" >&2
+          echo "  Got: $RESULT_JSON" >&2
+          exit 1
+        fi
+        {
+          echo "SOCKET_TOOL_AGENTSHIELD_VERSION=$CLEAN_VERSION"
+          echo "SOCKET_TOOL_AGENTSHIELD_BIN=$BIN"
+        } >> "${GITHUB_ENV:-/dev/null}"
+        echo "AgentShield ready: $BIN (v$CLEAN_VERSION)"

@@ -35,18 +35,24 @@ runs:
     - name: Install zizmor
       shell: bash
       run: | # zizmor: ignore[github-env]
-        ZIZMOR_VERSION="1.23.1"
+        # Single source of truth: external-tools.json at the repo root of this action's checkout.
+        # Previously duplicated the version + per-platform SHAs inline; a bump had to land in
+        # both places. Now reads from the same file setup/action.yml uses for pnpm.
+        TOOLS_FILE="${GITHUB_ACTION_PATH}/../../../external-tools.json"
+        ZIZMOR_VERSION="$(jq -r .zizmor.version "$TOOLS_FILE")"
         ZIZMOR_DIR="${RUNNER_TEMP:-/tmp}/zizmor-bin"
         KERNEL="$(uname -s | cut -d- -f1)"
         ARCH="$(uname -m)"
         case "${KERNEL}-${ARCH}" in
-          Linux-x86_64)                      ASSET="zizmor-x86_64-unknown-linux-gnu.tar.gz"  ; EXPECTED_SHA256="67a8df0a14352dd81882e14876653d097b99b0f4f6b6fe798edc0320cff27aff" ;;
-          Linux-aarch64)                     ASSET="zizmor-aarch64-unknown-linux-gnu.tar.gz"  ; EXPECTED_SHA256="3725d7cd7102e4d70827186389f7d5930b6878232930d0a3eb058d7e5b47e658" ;;
-          Darwin-x86_64)                     ASSET="zizmor-x86_64-apple-darwin.tar.gz"        ; EXPECTED_SHA256="89d5ed42081dd9d0433a10b7545fac42b35f1f030885c278b9712b32c66f2597" ;;
-          Darwin-arm64)                      ASSET="zizmor-aarch64-apple-darwin.tar.gz"       ; EXPECTED_SHA256="2632561b974c69f952258c1ab4b7432d5c7f92e555704155c3ac28a2910bd717" ;;
-          MINGW64_NT-x86_64|MSYS_NT-x86_64) ASSET="zizmor-x86_64-pc-windows-msvc.zip"       ; EXPECTED_SHA256="33c2293ff02834720dd7cd8b47348aafb2e95a19bdc993c0ecaca9c804ade92a" ;;
+          Linux-x86_64)                      PLATFORM="linux-x64"    ;;
+          Linux-aarch64)                     PLATFORM="linux-arm64"  ;;
+          Darwin-x86_64)                     PLATFORM="darwin-x64"   ;;
+          Darwin-arm64)                      PLATFORM="darwin-arm64" ;;
+          MINGW64_NT-x86_64|MSYS_NT-x86_64) PLATFORM="win-x64"       ;;
           *) echo "Unsupported platform: ${KERNEL}-${ARCH}" >&2; exit 1 ;;
         esac
+        ASSET="$(jq -r ".zizmor.checksums[\"$PLATFORM\"].asset" "$TOOLS_FILE")"
+        EXPECTED_SHA256="$(jq -r ".zizmor.checksums[\"$PLATFORM\"].sha256" "$TOOLS_FILE")"
         ZIZMOR_BIN="$ZIZMOR_DIR/zizmor"
         [[ "$ASSET" == *.zip ]] && ZIZMOR_BIN="$ZIZMOR_DIR/zizmor.exe"
         if [ ! -x "$ZIZMOR_BIN" ]; then
@@ -70,6 +76,17 @@ runs:
           chmod +x "$ZIZMOR_BIN"
         fi
         echo "$ZIZMOR_DIR" >> "${GITHUB_PATH:-/dev/null}"
+        # Export canonical zizmor provenance in the shared SOCKET_TOOL_*
+        # namespace so consumer jobs and Docker builds can reference a
+        # single SOT without re-parsing external-tools.json.
+        {
+          echo "SOCKET_TOOL_ZIZMOR_VERSION=$ZIZMOR_VERSION"
+          echo "SOCKET_TOOL_ZIZMOR_PLATFORM=$PLATFORM"
+          echo "SOCKET_TOOL_ZIZMOR_ASSET=$ASSET"
+          echo "SOCKET_TOOL_ZIZMOR_SHA256=$EXPECTED_SHA256"
+          echo "SOCKET_TOOL_ZIZMOR_BIN=$ZIZMOR_BIN"
+          echo "SOCKET_TOOL_ZIZMOR_DIR=$ZIZMOR_DIR"
+        } >> "${GITHUB_ENV:-/dev/null}"
 
     - name: Audit GitHub Actions
       shell: bash
