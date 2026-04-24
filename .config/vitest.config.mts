@@ -22,6 +22,9 @@ function toPosixPath(filepath) {
 }
 
 export default defineConfig({
+  // Keep vitest's cache under node_modules so `pnpm install`
+  // clears it automatically — no dedicated clean step.
+  cacheDir: './node_modules/.cache/vitest',
   // Disabled complex transform plugins - we now test src/ directly
   // plugins: [
   //   createImportTransformPlugin(isCoverageEnabled, __dirname),
