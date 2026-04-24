@@ -44,6 +44,17 @@ runs:
       run: | # zizmor: ignore[github-env]
         # Single source of truth: external-tools.json at the repo root of this action's checkout.
         TOOLS_FILE="${GITHUB_ACTION_PATH}/../../../external-tools.json"
+        # Copy the tools file to RUNNER_TEMP so consumer workflows and
+        # Docker builds can reach it after `setup` finishes. Actions
+        # lose their $GITHUB_ACTION_PATH scope between steps, so we
+        # stash the file at a stable location and export the path via
+        # SOCKET_TOOL_CHECKSUMS_FILE. Dockerfiles that verify any
+        # registry-published tool (pnpm, zizmor, …) can `COPY` this
+        # into their build context without duplicating per-platform
+        # SHAs across each Dockerfile.
+        TOOLS_DEST="${RUNNER_TEMP:-/tmp}/socket-registry-external-tools.json"
+        cp "$TOOLS_FILE" "$TOOLS_DEST"
+        echo "SOCKET_TOOL_CHECKSUMS_FILE=$TOOLS_DEST" >> "${GITHUB_ENV:-/dev/null}"
         PNPM_VERSION="$(jq -r .pnpm.version "$TOOLS_FILE")"
         PNPM_DIR="${RUNNER_TEMP:-/tmp}/pnpm-bin"
         KERNEL="$(uname -s | cut -d- -f1)"
