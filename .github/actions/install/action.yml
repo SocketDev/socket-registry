@@ -24,7 +24,7 @@ runs:
         fi
         pnpm install --loglevel error ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }}
 
-    - name: Verify @socketsecurity/lib is resolvable
+    - name: Verify @socketsecurity/lib resolvable and >= floor version
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
@@ -33,7 +33,24 @@ runs:
         # scripts across the Socket fleet. We resolve it via Node's own
         # resolver rather than a file check, so the guard fires the same
         # way we'd actually fail at runtime.
-        if ! node -e "require.resolve('@socketsecurity/lib/package.json')" 2>/dev/null; then
+        #
+        # Floor version: the latest @socketsecurity/lib published to npm,
+        # queried at action runtime so the floor tracks reality without
+        # manual bumps in this action. If the npm query fails (offline,
+        # rate-limited, registry down), fall back to HARDCODED_FLOOR —
+        # the lowest version known to contain the un-stubbed pacote
+        # fetchers required by downloadPackage (commit 320c757, shipped
+        # in 5.24.0). Older versions throw "this pacote fetcher is
+        # stubbed out" at runtime.
+        HARDCODED_FLOOR="5.24.0"
+        ACTUAL_VERSION="$(node -e "
+          try {
+            process.stdout.write(require('@socketsecurity/lib/package.json').version);
+          } catch {
+            process.stdout.write('');
+          }
+        ")"
+        if [ -z "$ACTUAL_VERSION" ]; then
           CWD="$(pwd)"
           cat >&2 <<EOF
         × @socketsecurity/lib not resolvable from ${CWD}.
@@ -41,16 +58,55 @@ runs:
           downloadPackage (used to provision ecc-agentshield and related
           tools). Expected Node's module resolver to find the package
           after \`pnpm install\` completed, but
-          \`node -e "require.resolve('@socketsecurity/lib/package.json')"\`
-          failed.
+          \`require('@socketsecurity/lib/package.json')\` failed.
           Fix: add "@socketsecurity/lib" as a pinned exact version (e.g.
-          "5.24.0", not "^5.24.0" or "*") to your package.json — prefer
-          referencing a pnpm-workspace.yaml catalog entry so every
-          workspace package shares the same pin. Commit the updated
+          "${HARDCODED_FLOOR}", not "^${HARDCODED_FLOOR}" or "*") to your
+          package.json — prefer referencing a pnpm-workspace.yaml catalog
+          entry so every workspace package shares the same pin. Commit
+          the updated pnpm-lock.yaml, then push and re-run the workflow.
+        EOF
+          exit 1
+        fi
+        # Latest published version is the ideal floor. Bound the npm
+        # query to 10s so a slow registry doesn't stall the job.
+        NPM_LATEST="$(timeout 10 npm view @socketsecurity/lib version 2>/dev/null || true)"
+        if [ -n "$NPM_LATEST" ]; then
+          MIN_VERSION="$NPM_LATEST"
+          MIN_SOURCE="latest published on npm"
+        else
+          MIN_VERSION="$HARDCODED_FLOOR"
+          MIN_SOURCE="hardcoded floor (npm query failed)"
+        fi
+        # Pure-bash semver compare on major.minor.patch, ignoring any
+        # pre-release suffix. socket-lib releases are plain semver so
+        # this is sufficient. Returns 0 if $1 < $2.
+        version_lt() {
+          local a1 a2 a3 b1 b2 b3
+          IFS='.' read -r a1 a2 a3 <<< "${1%%-*}"
+          IFS='.' read -r b1 b2 b3 <<< "${2%%-*}"
+          a1=${a1:-0}; a2=${a2:-0}; a3=${a3:-0}
+          b1=${b1:-0}; b2=${b2:-0}; b3=${b3:-0}
+          if [ "$a1" -ne "$b1" ]; then [ "$a1" -lt "$b1" ]; return; fi
+          if [ "$a2" -ne "$b2" ]; then [ "$a2" -lt "$b2" ]; return; fi
+          [ "$a3" -lt "$b3" ]
+        }
+        if version_lt "$ACTUAL_VERSION" "$MIN_VERSION"; then
+          cat >&2 <<EOF
+        × @socketsecurity/lib ${ACTUAL_VERSION} is below the required
+          floor ${MIN_VERSION} (${MIN_SOURCE}).
+          The socket-registry install action requires
+          @socketsecurity/lib >= ${MIN_VERSION}; older versions either
+          ship a stubbed pacote fetcher (< ${HARDCODED_FLOOR}) or are
+          missing fixes consumed by downloadPackage and related fleet
+          tooling.
+          Fix: bump "@socketsecurity/lib" in package.json (or the
+          pnpm-workspace.yaml catalog entry) to "${MIN_VERSION}" — pin
+          exact, not "^" or "~". Run \`pnpm install\`, commit
           pnpm-lock.yaml, then push and re-run the workflow.
         EOF
           exit 1
         fi
+        echo "@socketsecurity/lib ${ACTUAL_VERSION} >= ${MIN_VERSION} (${MIN_SOURCE})"
 
     - name: Install ecc-agentshield
       # Auto-skip in matrix cells: AgentShield's scan is
