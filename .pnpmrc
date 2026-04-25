@@ -1,11 +1,16 @@
-# Security: Block all install scripts (no native dependencies)
+# Block install scripts unconditionally. Native deps that must run
+# install scripts (esbuild, etc.) are allowlisted in
+# pnpm-workspace.yaml under allowBuilds.
 ignore-scripts=true
 
-# Enable pre/post scripts for the main project (e.g., prepare -> husky)
+# Run pre/post lifecycle scripts on the workspace root (e.g.
+# prepare -> husky). This is the pnpm default; declared explicitly
+# so a future default flip can't silently disable husky setup.
 enable-pre-post-scripts=true
 
-# Wait 7 days (10080 minutes) before installing newly published versions.
-# Provides a quarantine buffer to detect compromised packages.
+# Wait 7 days (10080 minutes) before installing newly published
+# versions. Provides a quarantine buffer to detect compromised
+# packages before install.
 # Allowlist via pnpm-workspace.yaml minimumReleaseAgeExclude.
 minimumReleaseAge=10080
 
