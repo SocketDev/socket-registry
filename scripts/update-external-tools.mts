@@ -98,11 +98,9 @@ async function ghApiLatestRelease(
   const endpoint = includePrerelease
     ? `repos/${repo}/releases?per_page=20`
     : `repos/${repo}/releases/latest`
-  const result = await spawn(
-    'gh',
-    ['api', endpoint, '--cache', '1h'],
-    { stdio: 'pipe' },
-  )
+  const result = await spawn('gh', ['api', endpoint, '--cache', '1h'], {
+    stdio: 'pipe',
+  })
   const stdout =
     typeof result.stdout === 'string'
       ? result.stdout
@@ -158,9 +156,24 @@ async function downloadAndHash(url: string): Promise<string> {
 // Schema matches the sibling security-tools hook style (typebox +
 // parseSchema via @socketsecurity/lib/schema/parse). Keep the two in
 // sync — both consume `external-tools.json`-shaped data.
+//
+// Two tool shapes are supported:
+//   1. Single-flavor (pnpm, zizmor): `{ repository, checksums, … }`
+//      with checksums at the top level.
+//   2. Multi-flavor (sfw): `{ free: { repository, binaryName, checksums },
+//      enterprise: { ... } }` — flavors carry their own repository
+//      and per-platform checksums while sharing one `version`.
 const checksumEntrySchema = Type.Object({
   asset: Type.String(),
-  sha256: Type.String(),
+  sha256: Type.String({ pattern: '^[0-9a-f]{64}$' }),
+})
+
+const checksumsSchema = Type.Record(Type.String(), checksumEntrySchema)
+
+const flavorSchema = Type.Object({
+  repository: Type.String(),
+  binaryName: Type.String(),
+  checksums: checksumsSchema,
 })
 
 const toolSchema = Type.Object({
@@ -168,10 +181,10 @@ const toolSchema = Type.Object({
   repository: Type.Optional(Type.String()),
   version: Type.String(),
   release: Type.Optional(Type.String()),
-  checksums: Type.Optional(Type.Record(Type.String(), checksumEntrySchema)),
-  notes: Type.Optional(
-    Type.Union([Type.String(), Type.Array(Type.String())]),
-  ),
+  checksums: Type.Optional(checksumsSchema),
+  free: Type.Optional(flavorSchema),
+  enterprise: Type.Optional(flavorSchema),
+  notes: Type.Optional(Type.Union([Type.String(), Type.Array(Type.String())])),
 })
 
 const rootConfigSchema = Type.Record(Type.String(), toolSchema)
@@ -216,7 +229,12 @@ async function updateTool(
 
   const toolConfig = config[name]
   if (!toolConfig) {
-    return { tool: name, skipped: true, updated: false, reason: 'not in config' }
+    return {
+      tool: name,
+      skipped: true,
+      updated: false,
+      reason: 'not in config',
+    }
   }
 
   // Only tools that distribute via GitHub release assets are managed
@@ -248,7 +266,12 @@ async function updateTool(
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     logger.warn(`Failed to fetch ${name} releases: ${msg}`)
-    return { tool: name, skipped: true, updated: false, reason: `API error: ${msg}` }
+    return {
+      tool: name,
+      skipped: true,
+      updated: false,
+      reason: `API error: ${msg}`,
+    }
   }
 
   const latestVersion = versionFromTag(release.tag_name)
@@ -257,7 +280,12 @@ async function updateTool(
 
   if (latestVersion === currentVersion) {
     logger.log('Already current.')
-    return { tool: name, skipped: false, updated: false, reason: 'already current' }
+    return {
+      tool: name,
+      skipped: false,
+      updated: false,
+      reason: 'already current',
+    }
   }
 
   if (!isOlderThanCooldown(release.published_at)) {
@@ -291,10 +319,9 @@ async function updateTool(
     // back to the pinned name if the release listing is missing it
     // (downloadAndHash will surface a 404 loudly in that case).
     const pinnedAsset = entry.asset
-    const asset =
-      release.assets.find(
-        a => a.name.toLowerCase() === pinnedAsset.toLowerCase(),
-      ) ??
+    const asset = release.assets.find(
+      a => a.name.toLowerCase() === pinnedAsset.toLowerCase(),
+    ) ??
       release.assets.find(a => a.name === pinnedAsset) ?? {
         browser_download_url: `https://github.com/${repo}/releases/download/${release.tag_name}/${pinnedAsset}`,
         name: pinnedAsset,
@@ -336,11 +363,7 @@ async function main(): Promise<void> {
   logger.log('')
   logger.log('Summary:')
   for (const r of results) {
-    const tag = r.updated
-      ? 'updated'
-      : r.skipped
-        ? 'skipped'
-        : 'unchanged'
+    const tag = r.updated ? 'updated' : r.skipped ? 'skipped' : 'unchanged'
     logger.log(`  ${r.tool}: ${tag} (${r.reason})`)
   }
 }

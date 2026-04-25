@@ -42,8 +42,14 @@ runs:
     - name: Install pnpm
       shell: bash
       run: | # zizmor: ignore[github-env]
+        set -euo pipefail
         # Single source of truth: external-tools.json at the repo root of this action's checkout.
         TOOLS_FILE="${GITHUB_ACTION_PATH}/../../../external-tools.json"
+        if [ ! -f "$TOOLS_FILE" ]; then
+          echo "× socket-registry setup action is broken: external-tools.json not found at ${TOOLS_FILE}." >&2
+          echo "  This is a packaging bug in SocketDev/socket-registry, not a consumer issue. File a bug." >&2
+          exit 1
+        fi
         # Copy the tools file to RUNNER_TEMP so consumer workflows and
         # Docker builds can reach it after `setup` finishes. Actions
         # lose their $GITHUB_ACTION_PATH scope between steps, so we
@@ -54,43 +60,37 @@ runs:
         # SHAs across each Dockerfile.
         TOOLS_DEST="${RUNNER_TEMP:-/tmp}/socket-registry-external-tools.json"
         cp "$TOOLS_FILE" "$TOOLS_DEST"
+        if [ ! -s "$TOOLS_DEST" ]; then
+          echo "× failed to stage external-tools.json at ${TOOLS_DEST} (missing or empty after copy)." >&2
+          exit 1
+        fi
         echo "SOCKET_TOOL_CHECKSUMS_FILE=$TOOLS_DEST" >> "${GITHUB_ENV:-/dev/null}"
-        PNPM_VERSION="$(jq -r .pnpm.version "$TOOLS_FILE")"
+        # Read JSON values via lib/jq.mjs. Node is preinstalled on
+        # every GitHub-hosted runner image and in node:* Docker base
+        # images, so this avoids depending on jq (absent from
+        # node:*-alpine and distroless). The reader exits non-zero on
+        # missing/empty values, so set -e turns a packaging bug here
+        # into a loud failure rather than a silent empty env export
+        # that surfaces later as `cp: cannot stat ''`.
+        JQ="${GITHUB_ACTION_PATH}/../lib/jq.mjs"
+        PNPM_VERSION="$(node "$JQ" "$TOOLS_FILE" pnpm version)"
         PNPM_DIR="${RUNNER_TEMP:-/tmp}/pnpm-bin"
-        KERNEL="$(uname -s | cut -d- -f1)"
-        ARCH="$(uname -m)"
-        case "${KERNEL}-${ARCH}" in
-          Linux-x86_64)                      PLATFORM="linux-x64"    ;;
-          Linux-aarch64)                     PLATFORM="linux-arm64"  ;;
-          Darwin-x86_64)                     PLATFORM="darwin-x64"   ;;
-          Darwin-arm64)                      PLATFORM="darwin-arm64" ;;
-          MINGW64_NT-x86_64|MSYS_NT-x86_64) PLATFORM="win-x64"       ;;
-          *) echo "Unsupported platform: ${KERNEL}-${ARCH}" >&2; exit 1 ;;
-        esac
-        ASSET="$(jq -r ".pnpm.checksums[\"$PLATFORM\"].asset" "$TOOLS_FILE")"
-        EXPECTED_SHA256="$(jq -r ".pnpm.checksums[\"$PLATFORM\"].sha256" "$TOOLS_FILE")"
+        # Canonical platform string (linux-x64, linux-arm64-musl,
+        # darwin-arm64, win-x64, …). Detects musl via Node's own
+        # process.report so we don't shell out to ldd.
+        PLATFORM_TOOL="${GITHUB_ACTION_PATH}/../lib/platform.mjs"
+        PLATFORM="$(node "$PLATFORM_TOOL")"
+        ASSET="$(node "$JQ" "$TOOLS_FILE" pnpm checksums "$PLATFORM" asset)"
+        EXPECTED_SHA256="$(node "$JQ" "$TOOLS_FILE" pnpm checksums "$PLATFORM" sha256)"
         PNPM_BIN="$PNPM_DIR/pnpm"
         [[ "$ASSET" == *.zip ]] && PNPM_BIN="$PNPM_DIR/pnpm.exe"
+        # Shared installer: fetches, verifies sha256, extracts, chmods.
+        INSTALL_TOOL="${GITHUB_ACTION_PATH}/../lib/install-tool.mjs"
         if [ ! -x "$PNPM_BIN" ]; then
-          mkdir -p "$PNPM_DIR"
-          ARCHIVE_PATH="$PNPM_DIR/$ASSET"
-          curl -fsSL -o "$ARCHIVE_PATH" "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/${ASSET}"
-          ACTUAL_SHA256="$( (sha256sum "$ARCHIVE_PATH" 2>/dev/null || shasum -a 256 "$ARCHIVE_PATH") | cut -d' ' -f1 | tr -d '\\')"
-          if [ "$ACTUAL_SHA256" != "$EXPECTED_SHA256" ]; then
-            echo "Checksum mismatch for ${ASSET}!" >&2
-            echo "  Expected: ${EXPECTED_SHA256}" >&2
-            echo "  Actual:   ${ACTUAL_SHA256}" >&2
-            rm -f "$ARCHIVE_PATH"
-            exit 1
-          fi
-          # v11 ships as tarballs/zips containing pnpm binary + dist/ directory.
-          if [[ "$ASSET" == *.zip ]]; then
-            powershell -NoProfile -Command "Expand-Archive -Path '$ARCHIVE_PATH' -DestinationPath '$PNPM_DIR' -Force"
-          else
-            tar xzf "$ARCHIVE_PATH" -C "$PNPM_DIR"
-          fi
-          rm -f "$ARCHIVE_PATH"
-          chmod +x "$PNPM_BIN"
+          node "$INSTALL_TOOL" \
+            "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/${ASSET}" \
+            "$EXPECTED_SHA256" \
+            "$PNPM_DIR"
         fi
         echo "$PNPM_DIR" >> "${GITHUB_PATH:-/dev/null}"
         # Export canonical pnpm provenance for downstream steps and
@@ -128,81 +128,69 @@ runs:
     - name: Download sfw
       shell: bash
       env:
-        GH_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ github.token }}
         SOCKET_API_KEY: ${{ inputs.socket-api-key }}
       run: | # zizmor: ignore[github-env]
-        # Pinned version + per-platform checksum pairs. Bumping a tool
-        # requires updating the matching version AND every platform's
-        # SHA256 in the same commit, otherwise the download / verify
-        # steps will diverge.
-        SFW_FREE_VERSION="1.7.2"
-        SFW_ENTERPRISE_VERSION="1.7.2"
-        SFW_DIR="${RUNNER_TEMP:-/tmp}/sfw-bin"
-        KERNEL="$(uname -s | cut -d- -f1)"
-        ARCH="$(uname -m)"
-        USE_ENTERPRISE=false
+        set -euo pipefail
+        # SFW (Socket Firewall) version + per-platform asset/sha256
+        # live in external-tools.json under sfw.<flavor>.checksums.
+        # Bumping a tool requires updating the version AND every
+        # platform's sha256 there in the same commit. The lib/ scripts
+        # below resolve platform → asset → URL → install at the
+        # currently-detected runner.
+        TOOLS_FILE="${GITHUB_ACTION_PATH}/../../../external-tools.json"
+        JQ="${GITHUB_ACTION_PATH}/../lib/jq.mjs"
+        PLATFORM_TOOL="${GITHUB_ACTION_PATH}/../lib/platform.mjs"
+        INSTALL_TOOL="${GITHUB_ACTION_PATH}/../lib/install-tool.mjs"
+        # Enterprise flavor when SOCKET_API_KEY is set, otherwise free.
+        # Enterprise downloads from the private firewall-release repo
+        # are auth'd via GITHUB_TOKEN inside install-tool.mjs.
         if [ -n "$SOCKET_API_KEY" ]; then
-          USE_ENTERPRISE=true
-        fi
-        if $USE_ENTERPRISE; then
-          REPO="SocketDev/firewall-release"
-          SFW_VERSION="$SFW_ENTERPRISE_VERSION"
-          case "${KERNEL}-${ARCH}" in
-            Linux-x86_64)                      ASSET="sfw-linux-x86_64"       ; SFW_BIN="$SFW_DIR/sfw"     ; EXPECTED_SHA256="4482b52e6367bd4610519bfd57a104d5907ec87d5399142ed3bb3d222de1f33d" ;;
-            Linux-aarch64)                     ASSET="sfw-linux-arm64"         ; SFW_BIN="$SFW_DIR/sfw"     ; EXPECTED_SHA256="c24a79c27e1a01a59b7a160c165930ae029816c72b141fcfcdb2f73e0774898a" ;;
-            Darwin-x86_64)                     ASSET="sfw-macos-x86_64"       ; SFW_BIN="$SFW_DIR/sfw"     ; EXPECTED_SHA256="da252d2a9a5d0edb271bb771e0d01b9cd6fa1635b6d765f61efd61edb6739f12" ;;
-            Darwin-arm64)                      ASSET="sfw-macos-arm64"        ; SFW_BIN="$SFW_DIR/sfw"     ; EXPECTED_SHA256="b1cdc3bdbd2a3161247bd5cc215eb3c44a90b87fe0b800a33889a14f61bb0d6d" ;;
-            MINGW64_NT-x86_64|MSYS_NT-x86_64) ASSET="sfw-windows-x86_64.exe" ; SFW_BIN="$SFW_DIR/sfw.exe" ; EXPECTED_SHA256="e52ad806a1c41b440f04098eb1c7e407845f03f5740a6a79006ba6fd172056ec" ;;
-            *) echo "Unsupported platform: ${KERNEL}-${ARCH}" >&2; exit 1 ;;
-          esac
+          SFW_FLAVOR="enterprise"
+          SFW_REPO="SocketDev/firewall-release"
         else
-          REPO="SocketDev/sfw-free"
-          SFW_VERSION="$SFW_FREE_VERSION"
-          case "${KERNEL}-${ARCH}" in
-            Linux-x86_64)                      ASSET="sfw-free-linux-x86_64"       ; SFW_BIN="$SFW_DIR/sfw"     ; EXPECTED_SHA256="93e2d9dfa244b82a74e014dc26b1c6af18b4adec20f35254378943db5fe91411" ;;
-            Linux-aarch64)                     ASSET="sfw-free-linux-arm64"         ; SFW_BIN="$SFW_DIR/sfw"     ; EXPECTED_SHA256="84a045e4e1bb320cc5c0d3929f02e53f199398b5be0637e8846d02d9ef0027b1" ;;
-            Darwin-x86_64)                     ASSET="sfw-free-macos-x86_64"       ; SFW_BIN="$SFW_DIR/sfw"     ; EXPECTED_SHA256="a5427d479d440f08e3789fa191ba57599be64997196daf42e67d964fec0382b4" ;;
-            Darwin-arm64)                      ASSET="sfw-free-macos-arm64"        ; SFW_BIN="$SFW_DIR/sfw"     ; EXPECTED_SHA256="248fb588e1e1a27e7192f7b079f739fc29a9de61f0bad7e90928363022dc5643" ;;
-            MINGW64_NT-x86_64|MSYS_NT-x86_64) ASSET="sfw-free-windows-x86_64.exe" ; SFW_BIN="$SFW_DIR/sfw.exe" ; EXPECTED_SHA256="6d333b4cac9d7c5712e2e99677ca634ac8a3020d550c6308312c60bea97f0a28" ;;
-            *) echo "Unsupported platform: ${KERNEL}-${ARCH}" >&2; exit 1 ;;
-          esac
+          SFW_FLAVOR="free"
+          SFW_REPO="SocketDev/sfw-free"
         fi
+        SFW_VERSION="$(node "$JQ" "$TOOLS_FILE" sfw version)"
+        PLATFORM="$(node "$PLATFORM_TOOL")"
+        # Hard-fail with a clear message on unsupported platforms (eg
+        # win-arm64) rather than silently skipping. SFW is a required
+        # dependency of the install flow, unlike zizmor (audit-only).
+        if ! ASSET="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" checksums "$PLATFORM" asset 2>/dev/null)"; then
+          echo "× SFW (${SFW_FLAVOR}) is not published for ${PLATFORM} at v${SFW_VERSION}." >&2
+          echo "  Supported: linux-{x64,arm64}{,-musl}, darwin-{x64,arm64}, win-x64." >&2
+          echo "  win-arm64 has no upstream binary — skip SFW-dependent steps on that runner or wait for upstream support." >&2
+          exit 1
+        fi
+        EXPECTED_SHA256="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" checksums "$PLATFORM" sha256)"
+        SFW_BIN_NAME="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" binaryName)"
+        if [[ "$ASSET" == *.exe ]]; then
+          SFW_BIN_NAME="${SFW_BIN_NAME}.exe"
+        fi
+        SFW_DIR="${RUNNER_TEMP:-/tmp}/sfw-bin"
+        SFW_BIN="$SFW_DIR/$SFW_BIN_NAME"
         if [ ! -x "$SFW_BIN" ]; then
-          mkdir -p "$SFW_DIR"
-          DOWNLOAD_URL="$(gh api "repos/${REPO}/releases/tags/v${SFW_VERSION}" \
-            --jq ".assets[] | select(.name == \"$ASSET\") | .browser_download_url")"
-          if [ -z "$DOWNLOAD_URL" ]; then
-            echo "Asset ${ASSET} not found in ${REPO}@v${SFW_VERSION}" >&2
-            exit 1
-          fi
-          curl -fsSL -o "$SFW_BIN" "$DOWNLOAD_URL"
-          ACTUAL_SHA256="$( (sha256sum "$SFW_BIN" 2>/dev/null || shasum -a 256 "$SFW_BIN") | cut -d' ' -f1 | tr -d '\\')"
-          if [ "$ACTUAL_SHA256" != "$EXPECTED_SHA256" ]; then
-            echo "Checksum mismatch for ${ASSET} (${REPO}@v${SFW_VERSION})!" >&2
-            echo "  Expected: ${EXPECTED_SHA256}" >&2
-            echo "  Actual:   ${ACTUAL_SHA256}" >&2
-            rm -f "$SFW_BIN"
-            exit 1
-          fi
-          chmod +x "$SFW_BIN"
-        fi
-        echo "SFW_BIN=$SFW_BIN" >> "${GITHUB_ENV:-/dev/null}"
-        echo "SFW_IS_ENTERPRISE=$USE_ENTERPRISE" >> "${GITHUB_ENV:-/dev/null}"
-        if $USE_ENTERPRISE; then
-          echo "SOCKET_API_KEY=$SOCKET_API_KEY" >> "${GITHUB_ENV:-/dev/null}"
+          node "$INSTALL_TOOL" \
+            "https://github.com/${SFW_REPO}/releases/download/v${SFW_VERSION}/${ASSET}" \
+            "$EXPECTED_SHA256" \
+            "$SFW_DIR" \
+            "$SFW_BIN_NAME"
         fi
         # Export canonical sfw provenance in the shared SOCKET_TOOL_*
         # namespace. `SOCKET_TOOL_SFW_FLAVOR` tells consumers which
         # release repo was used without re-reading SFW_IS_ENTERPRISE.
-        if $USE_ENTERPRISE; then
-          SFW_FLAVOR="enterprise"
-        else
-          SFW_FLAVOR="free"
+        SFW_IS_ENTERPRISE=false
+        if [ "$SFW_FLAVOR" = "enterprise" ]; then
+          SFW_IS_ENTERPRISE=true
+          echo "SOCKET_API_KEY=$SOCKET_API_KEY" >> "${GITHUB_ENV:-/dev/null}"
         fi
         {
+          echo "SFW_BIN=$SFW_BIN"
+          echo "SFW_IS_ENTERPRISE=$SFW_IS_ENTERPRISE"
           echo "SOCKET_TOOL_SFW_FLAVOR=$SFW_FLAVOR"
           echo "SOCKET_TOOL_SFW_VERSION=$SFW_VERSION"
-          echo "SOCKET_TOOL_SFW_PLATFORM=${KERNEL}-${ARCH}"
+          echo "SOCKET_TOOL_SFW_PLATFORM=$PLATFORM"
           echo "SOCKET_TOOL_SFW_ASSET=$ASSET"
           echo "SOCKET_TOOL_SFW_SHA256=$EXPECTED_SHA256"
         } >> "${GITHUB_ENV:-/dev/null}"

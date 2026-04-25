@@ -1,5 +1,83 @@
 {
+  "sfw": {
+    "notes": [
+      "SFW (Socket Firewall) is published in two flavors: free (public, SocketDev/sfw-free) and enterprise (private, SocketDev/firewall-release). Both ship the same 7-platform set: linux-{x64,arm64}{,-musl}, darwin-{x64,arm64}, win-x64. win-arm64 is intentionally absent — upstream does not yet build it. Unlike zizmor (a security audit), SFW is a required dependency of the install flow, so consumers on win-arm64 must skip SFW-dependent steps until upstream support lands.",
+      "Setup action picks the enterprise flavor when SOCKET_API_KEY is in env, otherwise the free flavor. Enterprise downloads require GITHUB_TOKEN auth (private repo); install-tool.mjs forwards GITHUB_TOKEN automatically when set."
+    ],
+    "description": "Socket Firewall — package manager command wrapper",
+    "version": "1.7.2",
+    "release": "asset",
+    "free": {
+      "repository": "github:SocketDev/sfw-free",
+      "binaryName": "sfw",
+      "checksums": {
+        "darwin-arm64": {
+          "asset": "sfw-free-macos-arm64",
+          "sha256": "248fb588e1e1a27e7192f7b079f739fc29a9de61f0bad7e90928363022dc5643"
+        },
+        "darwin-x64": {
+          "asset": "sfw-free-macos-x86_64",
+          "sha256": "a5427d479d440f08e3789fa191ba57599be64997196daf42e67d964fec0382b4"
+        },
+        "linux-arm64": {
+          "asset": "sfw-free-linux-arm64",
+          "sha256": "84a045e4e1bb320cc5c0d3929f02e53f199398b5be0637e8846d02d9ef0027b1"
+        },
+        "linux-arm64-musl": {
+          "asset": "sfw-free-musl-linux-arm64",
+          "sha256": "8e4db8201721d70c566faf3b84d7d67aec6f2ef460ae2f6408c6cfa502b6f14d"
+        },
+        "linux-x64": {
+          "asset": "sfw-free-linux-x86_64",
+          "sha256": "93e2d9dfa244b82a74e014dc26b1c6af18b4adec20f35254378943db5fe91411"
+        },
+        "linux-x64-musl": {
+          "asset": "sfw-free-musl-linux-x86_64",
+          "sha256": "2c827767bb350818c39f4bcede4be91613089ca6371978f67290e33403855dd1"
+        },
+        "win-x64": {
+          "asset": "sfw-free-windows-x86_64.exe",
+          "sha256": "6d333b4cac9d7c5712e2e99677ca634ac8a3020d550c6308312c60bea97f0a28"
+        }
+      }
+    },
+    "enterprise": {
+      "repository": "github:SocketDev/firewall-release",
+      "binaryName": "sfw",
+      "checksums": {
+        "darwin-arm64": {
+          "asset": "sfw-macos-arm64",
+          "sha256": "b1cdc3bdbd2a3161247bd5cc215eb3c44a90b87fe0b800a33889a14f61bb0d6d"
+        },
+        "darwin-x64": {
+          "asset": "sfw-macos-x86_64",
+          "sha256": "da252d2a9a5d0edb271bb771e0d01b9cd6fa1635b6d765f61efd61edb6739f12"
+        },
+        "linux-arm64": {
+          "asset": "sfw-linux-arm64",
+          "sha256": "c24a79c27e1a01a59b7a160c165930ae029816c72b141fcfcdb2f73e0774898a"
+        },
+        "linux-arm64-musl": {
+          "asset": "sfw-musl-linux-arm64",
+          "sha256": "81b0a501b1c8640912282abbe24a5de4c4669d219570c4b368e8443af67fba38"
+        },
+        "linux-x64": {
+          "asset": "sfw-linux-x86_64",
+          "sha256": "4482b52e6367bd4610519bfd57a104d5907ec87d5399142ed3bb3d222de1f33d"
+        },
+        "linux-x64-musl": {
+          "asset": "sfw-musl-linux-x86_64",
+          "sha256": "ce3b942df1a6644a83ddc61a729957d29f8f859883fe7e6c953c1e6abf82256f"
+        },
+        "win-x64": {
+          "asset": "sfw-windows-x86_64.exe",
+          "sha256": "e52ad806a1c41b440f04098eb1c7e407845f03f5740a6a79006ba6fd172056ec"
+        }
+      }
+    }
+  },
   "zizmor": {
+    "notes": "Socket fleet targets 8 platforms: linux-x64, linux-arm64, linux-x64-musl, linux-arm64-musl, darwin-x64, darwin-arm64, win-x64, win-arm64. zizmor upstream (zizmorcore/zizmor) only publishes 5 of those: linux-gnu x64+arm64, darwin x64+arm64, win-x64. The three unsupported combos (linux-x64-musl, linux-arm64-musl, win-arm64) are intentionally absent below — adding alias keys with mismatched binaries would break sha256 verification on those runners. Workflows that need zizmor on linux-musl or win-arm64 must conditionally skip the audit on those cells until upstream ships matching binaries.",
     "description": "GitHub Actions security linter",
     "repository": "github:zizmorcore/zizmor",
     "version": "1.23.1",
@@ -28,6 +106,7 @@
     }
   },
   "pnpm": {
+    "notes": "pnpm upstream publishes all 8 Socket platforms (linux-x64, linux-arm64, linux-x64-musl, linux-arm64-musl, darwin-x64, darwin-arm64, win-x64, win-arm64). The linux-*-musl entries below are first-class assets (pnpm-linux-{x64,arm64}-musl.tar.gz), NOT aliases of the glibc tarballs — their sha256s are genuinely distinct, verified against pnpm/pnpm v11.0.0-rc.5 release assets. Do not 'simplify' them by pointing at the glibc asset; the binaries are linked against different libcs and only the matching one runs on its target.",
     "description": "Fast, disk space efficient package manager",
     "repository": "github:pnpm/pnpm",
     "version": "11.0.0-rc.5",
@@ -45,9 +124,17 @@
         "asset": "pnpm-linux-arm64.tar.gz",
         "sha256": "2dd04127ff10b1f9dd20bae248b779c77a8ec67e3afa35e7256e5f94abddd493"
       },
+      "linux-arm64-musl": {
+        "asset": "pnpm-linux-arm64-musl.tar.gz",
+        "sha256": "b2c16219e49ec6d77ea6ec0e849bfed858f3864f195bcde20a2855ceefd4569a"
+      },
       "linux-x64": {
         "asset": "pnpm-linux-x64.tar.gz",
         "sha256": "7ebef4b616ba41fb0d54a207b36508fae3346723283a088b43fc1e038ee6fed0"
+      },
+      "linux-x64-musl": {
+        "asset": "pnpm-linux-x64-musl.tar.gz",
+        "sha256": "b0a8b9fa1b1a963155c962400dfc36d1c3a939e20d1f914d0af512ba740ebbb5"
       },
       "win-arm64": {
         "asset": "pnpm-win32-arm64.zip",

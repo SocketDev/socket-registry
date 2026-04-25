@@ -45,51 +45,64 @@ runs:
       if: strategy.job-total < 2
       shell: bash
       run: | # zizmor: ignore[github-env]
+        set -euo pipefail
         # Single source of truth: external-tools.json at the repo root of this action's checkout.
         # Previously duplicated the version + per-platform SHAs inline; a bump had to land in
         # both places. Now reads from the same file setup/action.yml uses for pnpm.
         TOOLS_FILE="${GITHUB_ACTION_PATH}/../../../external-tools.json"
-        ZIZMOR_VERSION="$(jq -r .zizmor.version "$TOOLS_FILE")"
+        if [ ! -f "$TOOLS_FILE" ]; then
+          echo "× socket-registry checkout action is broken: external-tools.json not found at ${TOOLS_FILE}." >&2
+          echo "  This is a packaging bug in SocketDev/socket-registry, not a consumer issue. File a bug." >&2
+          exit 1
+        fi
+        # Read JSON values via lib/jq.mjs. See setup/action.yml for
+        # the rationale (Node is universally preinstalled where jq is
+        # not). The reader exits non-zero on missing/empty values, so
+        # set -e turns a packaging bug here into a loud failure.
+        JQ="${GITHUB_ACTION_PATH}/../lib/jq.mjs"
+        ZIZMOR_VERSION="$(node "$JQ" "$TOOLS_FILE" zizmor version)"
         ZIZMOR_DIR="${RUNNER_TEMP:-/tmp}/zizmor-bin"
-        KERNEL="$(uname -s | cut -d- -f1)"
-        ARCH="$(uname -m)"
-        case "${KERNEL}-${ARCH}" in
-          Linux-x86_64)                      PLATFORM="linux-x64"    ;;
-          Linux-aarch64)                     PLATFORM="linux-arm64"  ;;
-          Darwin-x86_64)                     PLATFORM="darwin-x64"   ;;
-          Darwin-arm64)                      PLATFORM="darwin-arm64" ;;
-          MINGW64_NT-x86_64|MSYS_NT-x86_64) PLATFORM="win-x64"       ;;
-          *) echo "Unsupported platform: ${KERNEL}-${ARCH}" >&2; exit 1 ;;
-        esac
-        ASSET="$(jq -r ".zizmor.checksums[\"$PLATFORM\"].asset" "$TOOLS_FILE")"
-        EXPECTED_SHA256="$(jq -r ".zizmor.checksums[\"$PLATFORM\"].sha256" "$TOOLS_FILE")"
+        # zizmor upstream does NOT publish musl or win-arm64 binaries
+        # — see external-tools.json zizmor._notes. On those platforms
+        # we gracefully skip the install (below) and stash a sentinel
+        # so the paired Audit step can detect "no zizmor available"
+        # without failing the job. Skipping is preferable to hard-
+        # failing because zizmor is a security audit, not a build
+        # dependency: losing the audit on win-arm64 is worse than
+        # failing the whole build there.
+        PLATFORM_TOOL="${GITHUB_ACTION_PATH}/../lib/platform.mjs"
+        PLATFORM="$(node "$PLATFORM_TOOL")"
+        # Soft-skip when zizmor upstream has no binary for this
+        # platform. SOCKET_TOOL_ZIZMOR_AVAILABLE=false signals the
+        # Audit step to skip cleanly. lib/jq.mjs exits non-zero when
+        # the key is missing — capture that without tripping set -e.
+        ASSET=""
+        if ASSET_TRY="$(node "$JQ" "$TOOLS_FILE" zizmor checksums "$PLATFORM" asset 2>/dev/null)"; then
+          ASSET="$ASSET_TRY"
+        fi
+        if [ -z "$ASSET" ]; then
+          echo "ℹ zizmor is not published for ${PLATFORM} at v${ZIZMOR_VERSION} — skipping audit on this runner."
+          echo "  See SocketDev/socket-registry external-tools.json zizmor._notes for the supported set."
+          echo "SOCKET_TOOL_ZIZMOR_AVAILABLE=false" >> "${GITHUB_ENV:-/dev/null}"
+          exit 0
+        fi
+        EXPECTED_SHA256="$(node "$JQ" "$TOOLS_FILE" zizmor checksums "$PLATFORM" sha256)"
         ZIZMOR_BIN="$ZIZMOR_DIR/zizmor"
         [[ "$ASSET" == *.zip ]] && ZIZMOR_BIN="$ZIZMOR_DIR/zizmor.exe"
+        # Shared installer: fetches, verifies sha256, extracts, chmods.
+        INSTALL_TOOL="${GITHUB_ACTION_PATH}/../lib/install-tool.mjs"
         if [ ! -x "$ZIZMOR_BIN" ]; then
-          mkdir -p "$ZIZMOR_DIR"
-          DOWNLOAD_URL="https://github.com/zizmorcore/zizmor/releases/download/v${ZIZMOR_VERSION}/${ASSET}"
-          DOWNLOAD_FILE="${ZIZMOR_DIR}/${ASSET}"
-          curl -fsSL -o "$DOWNLOAD_FILE" "$DOWNLOAD_URL"
-          ACTUAL_SHA256="$( (sha256sum "$DOWNLOAD_FILE" 2>/dev/null || shasum -a 256 "$DOWNLOAD_FILE") | cut -d' ' -f1 | tr -d '\\')"
-          if [ "$ACTUAL_SHA256" != "$EXPECTED_SHA256" ]; then
-            echo "Checksum mismatch for ${ASSET}!" >&2
-            echo "  Expected: ${EXPECTED_SHA256}" >&2
-            echo "  Actual:   ${ACTUAL_SHA256}" >&2
-            exit 1
-          fi
-          if [[ "$ASSET" == *.zip ]]; then
-            unzip -qo "$DOWNLOAD_FILE" -d "$ZIZMOR_DIR"
-          else
-            tar xzf "$DOWNLOAD_FILE" -C "$ZIZMOR_DIR"
-          fi
-          rm -f "$DOWNLOAD_FILE"
-          chmod +x "$ZIZMOR_BIN"
+          node "$INSTALL_TOOL" \
+            "https://github.com/zizmorcore/zizmor/releases/download/v${ZIZMOR_VERSION}/${ASSET}" \
+            "$EXPECTED_SHA256" \
+            "$ZIZMOR_DIR"
         fi
         echo "$ZIZMOR_DIR" >> "${GITHUB_PATH:-/dev/null}"
         # Export canonical zizmor provenance in the shared SOCKET_TOOL_*
         # namespace so consumer jobs and Docker builds can reference a
         # single SOT without re-parsing external-tools.json.
         {
+          echo "SOCKET_TOOL_ZIZMOR_AVAILABLE=true"
           echo "SOCKET_TOOL_ZIZMOR_VERSION=$ZIZMOR_VERSION"
           echo "SOCKET_TOOL_ZIZMOR_PLATFORM=$PLATFORM"
           echo "SOCKET_TOOL_ZIZMOR_ASSET=$ASSET"
@@ -101,7 +114,13 @@ runs:
     - name: Audit GitHub Actions
       # Paired with "Install zizmor" above; see that step's comment
       # for the rationale behind the matrix-auto-skip.
-      if: strategy.job-total < 2
+      # Also honors SOCKET_TOOL_ZIZMOR_AVAILABLE=false, which the
+      # install step sets when zizmor upstream has no binary for the
+      # current runner platform (linux-musl, win-arm64). Skipping
+      # silently is intentional: zizmor is a security audit, not a
+      # build dep, so losing audit coverage on an unsupported runner
+      # is preferable to failing every build there.
+      if: strategy.job-total < 2 && env.SOCKET_TOOL_ZIZMOR_AVAILABLE != 'false'
       shell: bash
       env:
         GITHUB_TOKEN: ${{ github.token }}
