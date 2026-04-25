@@ -10,5 +10,12 @@
     "sourceMap": false
   },
   "include": ["src/**/*.ts"],
-  "exclude": [".cache", "dist/**/*", "lib", "node_modules", "src/**/*.js", "test"]
+  "exclude": [
+    ".cache",
+    "dist/**/*",
+    "lib",
+    "node_modules",
+    "src/**/*.js",
+    "test"
+  ]
 }
