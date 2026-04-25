@@ -10,11 +10,12 @@
   },
   "include": ["**/*.ts", "**/*.mts", "**/*.cts"],
   "exclude": [
+    "**/.cache/**",
     "**/node_modules/**",
     "packages/npm/**",
     "scripts/**",
     "test/**/packages/**",
-    "test/npm/node_modules/**",
-    "test/npm/**/*.d.ts"
+    "test/npm/**/*.d.ts",
+    "test/npm/node_modules/**"
   ]
 }
