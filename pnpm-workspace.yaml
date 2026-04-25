@@ -168,3 +168,16 @@ patchedDependencies:
   brace-expansion@2.0.2: patches/brace-expansion@2.0.2.patch
   minimatch@9.0.5: patches/minimatch@9.0.5.patch
 trustPolicy: no-downgrade
+
+# Auto-install missing peer deps (pnpm default). Declared explicitly
+# so a future default flip can't silently change install behavior.
+autoInstallPeers: true
+
+# Run pre/post lifecycle scripts on the workspace root (e.g.
+# prepare -> husky). This is the pnpm default; declared explicitly
+# so a future default flip can't silently disable husky setup.
+enablePrePostScripts: true
+
+# Pin exact versions on `pnpm add`. Catalog and overrides should
+# also be exact pins (5.24.0, not ^5.24.0).
+saveExact: true
