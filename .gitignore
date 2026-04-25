@@ -51,6 +51,7 @@ package-lock.json
 .eslintcache
 
 # Build artifacts
+**/.cache/
 **/coverage
 **/dist
 **/html

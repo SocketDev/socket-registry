@@ -28,9 +28,11 @@ if [ -n "$COMMITTED_FILES" ]; then
         ERRORS=$((ERRORS + 1))
       fi
 
-      # Check for .env files.
-      # Allowlist: .env.example / .env.test are tracked intentionally.
-      if echo "$file" | grep -qE '^\.env(\.[^/]+)?$' && ! echo "$file" | grep -qE '^\.env\.(example|test)$'; then
+      # Check for .env files. Allow committed templates (.env.example,
+      # .env.test, .env.precommit) at any depth — they're tooling
+      # config, not secrets. Block bare .env / .env.local at any depth.
+      base=$(basename "$file")
+      if echo "$base" | grep -qE '^\.env(\.[^/]+)?$' && ! echo "$base" | grep -qE '^\.env\.(example|test|precommit)$'; then
         printf "${RED}✗ SECURITY: .env file in commit!${NC}\n"
         ERRORS=$((ERRORS + 1))
       fi
