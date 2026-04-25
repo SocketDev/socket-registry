@@ -344,6 +344,28 @@ Actions and workflows reference each other by full 40-char SHA pinned to main. W
 
 When you spot duplication, the answer is never "update both" — the answer is "delete one and import the other." Fix the architecture, not the symptom.
 
+### Inclusive Language
+
+Use precise, neutral terms over historical metaphors that imply hierarchy or exclusion. The substitutes are not euphemisms — they're more *accurate* (a list of allowed values genuinely is an "allowlist"; "whitelist" is a metaphor that hides what the list does).
+
+| Replace                                  | With                                                  |
+| ---------------------------------------- | ----------------------------------------------------- |
+| `whitelist` / `whitelisted`              | `allowlist` / `allowed` / `allowlisted`               |
+| `blacklist` / `blacklisted`              | `denylist` / `denied` / `blocklisted` / `blocked`     |
+| `master` (branch, process, copy)         | `main` (branch); `primary` / `controller` (process)   |
+| `slave`                                  | `replica`, `worker`, `secondary`, `follower`          |
+| `grandfathered`                          | `legacy`, `pre-existing`, `exempted`                  |
+| `sanity check`                           | `quick check`, `confidence check`, `smoke test`       |
+| `dummy` (placeholder)                    | `placeholder`, `stub`                                 |
+
+Apply across **code** (identifiers, comments, string literals), **docs** (READMEs, CLAUDE.md, markdown), **config files** (YAML, JSON), **commit messages**, **PR titles/descriptions**, and **CI logs** you control.
+
+Two exceptions where the legacy term must remain (because changing it breaks something external):
+- **Third-party APIs / upstream code**: when interfacing with an external API field literally named `whitelist`, keep the field name; rename your local variable. E.g. `const allowedDomains = response.whitelist`.
+- **Vendored upstream sources**: don't rewrite vendored code (`vendor/**`, `upstream/**`, `**/fixtures/**`). Patch around it if needed.
+
+When you encounter a legacy term during unrelated work, fix it inline — don't defer.
+
 ### Sorting
 
 Sort lists alphanumerically (literal byte order, ASCII before letters). Apply this to:
