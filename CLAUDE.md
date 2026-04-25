@@ -332,6 +332,18 @@ Actions and workflows reference each other by full 40-char SHA pinned to main. W
 - Own line above code
 - JSDoc: description + optional `@throws`. NO `@param`/`@returns`/`@author` — types in signatures say that. `@example` only when the call site is non-obvious.
 
+### Paths: One Path, One Reference
+
+**If a path appears in two places, that's a bug.** Every artifact (build output, cache directory, generated file, config location) lives at exactly one canonical location, and that location is defined in exactly one place — typically a `paths.mts` (or equivalent path helper) module. Everything else — other scripts, READMEs, Dockerfiles, workflows, tests — derives from that source. No hand-assembled `path.join(...)` strings outside the module that owns them.
+
+- **Within a package**: every script imports its own path module. No script computes paths from raw segments.
+- **Across packages**: when package B consumes package A's artifact, B imports A's path module (or a typed helper exported from it) — never reconstructs the path from string segments. The classic failure: A adds a new path segment (e.g. inserts a `wasm/` directory), B's hand-built copy of the path drifts, builds break.
+- **Doc strings**: README "Output:" lines and `@fileoverview` comments describe the path; they don't *encode* it for tools to parse. The doc is for humans only — and even there, it must match what the path module actually produces, verified by running the function.
+- **Workflows / Dockerfiles**: GitHub Actions YAML and Dockerfiles can't `import` TS, so they're allowed to reference the path string directly — but they MUST add a comment pointing at the canonical path module so the next person editing knows where the source of truth lives, and any path string must match the module byte-for-byte. If you find yourself writing the same path twice in one workflow, hoist it to a step output or a job-level env var; reference that everywhere downstream.
+- **Comments that re-state the path**: forbidden. A comment like `// Path mirrors getBuildPaths(): build/<mode>/<arch>/out/Final/...` is duplication wearing a comment costume. The import statement is the comment.
+
+When you spot duplication, the answer is never "update both" — the answer is "delete one and import the other." Fix the architecture, not the symptom.
+
 ### Sorting
 
 Sort lists alphanumerically (literal byte order, ASCII before letters). Apply this to:
