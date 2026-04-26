@@ -160,6 +160,15 @@ async function main(): Promise<void> {
           shell: WIN32,
         },
       },
+      // Path-hygiene gate (1 path, 1 reference). See
+      // .claude/skills/path-guard/ + .claude/hooks/path-guard/.
+      {
+        args: ['scripts/check-paths.mts', '--quiet'],
+        command: 'node',
+        options: {
+          shell: WIN32,
+        },
+      },
     ]
 
     const exitCodes = await runParallel(checks)
