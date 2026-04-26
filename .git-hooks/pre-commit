@@ -55,10 +55,15 @@ for file in $STAGED_FILES; do
       continue
     fi
 
-    # Check for common user path patterns.
-    if grep -E '(/Users/[^[:space:]/]+/|/home/[^[:space:]/]+/|C:\\Users\\[^[:space:]\\]+\\)' "$file" 2>/dev/null | grep -q .; then
+    # Check for common user path patterns. Placeholders like /Users/<name>/,
+    # /home/<user>/, /Users/$USER/, /home/${USER}/ are allowed — those are
+    # documentation and shell-script idioms, not real leaks.
+    path_hits=$(grep -nE '(/Users/[^[:space:]/]+/|/home/[^[:space:]/]+/|C:\\Users\\[^[:space:]\\]+\\)' "$file" 2>/dev/null \
+      | grep -vE '(/Users/<[^>]*>/|/home/<[^>]*>/|C:\\Users\\<[^>]*>\\|/Users/\$\{?[A-Z_]+\}?/|/home/\$\{?[A-Z_]+\}?/)' \
+      || true)
+    if [ -n "$path_hits" ]; then
       printf "${RED}✗ ERROR: Hardcoded personal path found in: $file${NC}\n"
-      grep -n -E '(/Users/[^[:space:]/]+/|/home/[^[:space:]/]+/|C:\\Users\\[^[:space:]\\]+\\)' "$file" | head -3
+      echo "$path_hits" | head -3
       printf "Replace with relative paths or environment variables.\n"
       ERRORS=$((ERRORS + 1))
     fi

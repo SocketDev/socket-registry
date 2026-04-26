@@ -205,9 +205,14 @@ while read local_ref local_sha remote_ref remote_sha; do
         fi
 
         # Hardcoded personal paths (/Users/foo/, /home/foo/, C:\\Users\\foo\\).
-        if echo "$file_text" | grep -qE '(/Users/[^/\s]+/|/home/[^/\s]+/|C:\\Users\\[^\\]+\\)'; then
+        # Placeholders like /Users/<name>/, /home/<user>/, /Users/$USER/,
+        # /home/${USER}/ are allowed — those are documentation, not leaks.
+        path_hits=$(echo "$file_text" | grep -nE '(/Users/[^/[:space:]]+/|/home/[^/[:space:]]+/|C:\\Users\\[^\\]+\\)' \
+          | grep -vE '(/Users/<[^>]*>/|/home/<[^>]*>/|C:\\Users\\<[^>]*>\\|/Users/\$\{?[A-Z_]+\}?/|/home/\$\{?[A-Z_]+\}?/)' \
+          || true)
+        if [ -n "$path_hits" ]; then
           printf "${RED}✗ BLOCKED: Hardcoded personal path found in: %s${NC}\n" "$file"
-          echo "$file_text" | grep -nE '(/Users/[^/\s]+/|/home/[^/\s]+/|C:\\Users\\[^\\]+\\)' | head -3
+          echo "$path_hits" | head -3
           ERRORS=$((ERRORS + 1))
         fi
 
