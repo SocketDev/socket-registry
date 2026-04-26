@@ -56,77 +56,12 @@
 
 import process from 'node:process'
 
-// "Stage" segments — appearing two or more in the same path.join /
-// template literal is a Rule A violation. These come from
-// build-infra/lib/constants.mts BUILD_STAGES plus their lowercase
-// directory-name siblings used by some builders (yoga's `wasm/`,
-// build-infra's `downloaded/`).
-const STAGE_SEGMENTS = new Set([
-  'Final',
-  'Release',
-  'Stripped',
-  'Compressed',
-  'Optimized',
-  'Synced',
-  'wasm',
-  'downloaded',
-])
-
-// "Build-root" segments — at least one must be present together with a
-// stage segment to confirm we're constructing a build output path
-// rather than something coincidental. Example: `path.join(SRC,
-// 'wasm', 'lib')` shouldn't fire (no build root); `path.join(PKG,
-// 'build', 'wasm', 'out', 'Final')` should (build root + wasm + out +
-// Final).
-const BUILD_ROOT_SEGMENTS = new Set(['build', 'out'])
-
-// Mode segments — appearing alongside stage + build-root tightens the
-// match further. `'dev'` and `'prod'` alone are too generic; we count
-// them as a confirming signal, not a trigger.
-const MODE_SEGMENTS = new Set(['dev', 'prod', 'shared'])
-
-// Sibling Socket-fleet packages whose build output is reached via
-// `path.join(*, '..', '<name>', 'build', ...)`. Union of all packages
-// across the Socket fleet — the hook is byte-identical via
-// sync-scaffolding, so listing every fleet package keeps Rule B firing
-// in any repo. When a new package joins the workspace, add it here
-// and propagate via `node scripts/sync-scaffolding.mjs --all --fix`
-// from socket-repo-template.
-const KNOWN_SIBLING_PACKAGES = new Set([
-  // socket-btm
-  'binflate',
-  'binject',
-  'binpress',
-  'bin-infra',
-  'build-infra',
-  'codet5-models-builder',
-  'curl-builder',
-  'iocraft-builder',
-  'ink-builder',
-  'libpq-builder',
-  'lief-builder',
-  'minilm-builder',
-  'models',
-  'napi-go',
-  'node-smol-builder',
-  'onnxruntime-builder',
-  'opentui-builder',
-  'stubs-builder',
-  'ultraviolet-builder',
-  'yoga-layout-builder',
-  // socket-cli
-  'cli',
-  'package-builder',
-  // socket-tui
-  'core',
-  'react',
-  'renderer',
-  'ultraviolet',
-  'yoga',
-  // socket-registry / ultrathink
-  'acorn',
-  'npm',
-])
+import {
+  BUILD_ROOT_SEGMENTS,
+  KNOWN_SIBLING_PACKAGES,
+  MODE_SEGMENTS,
+  STAGE_SEGMENTS,
+} from './segments.mts'
 
 // File-path patterns that are exempt from the hook entirely. Edits to
 // these files legitimately need to enumerate path segments.
@@ -293,13 +228,58 @@ const checkRuleB = (calls: ReturnType<typeof extractPathCalls>): void => {
   }
 }
 
+// Backtick template-literal detection. Path construction via
+// `${buildDir}/out/Final/${binary}` follows the same shape as
+// path.join() and constitutes the same Rule A violation. Placeholders
+// (${...}) are stripped to a sentinel that won't match any segment
+// set, so segments composed entirely of interpolation contribute
+// nothing to the trigger.
+const TEMPLATE_LITERAL_RE = /`((?:\\.|(?:\$\{(?:[^{}]|\{[^{}]*\})*\})|(?!`)[^\\])*)`/g
+
+const checkRuleATemplate = (source: string): void => {
+  TEMPLATE_LITERAL_RE.lastIndex = 0
+  let m: RegExpExecArray | null
+  while ((m = TEMPLATE_LITERAL_RE.exec(source)) !== null) {
+    const body = m[1] ?? ''
+    if (!body.includes('/')) {
+      continue
+    }
+    const stripped = body.replace(/\$\{(?:[^{}]|\{[^{}]*\})*\}/g, '\x00')
+    const segments = stripped
+      .split('/')
+      .filter(s => s.length > 0 && s !== '\x00')
+    const stages = segments.filter(s => STAGE_SEGMENTS.has(s))
+    const buildRoots = segments.filter(s => BUILD_ROOT_SEGMENTS.has(s))
+    const modes = segments.filter(s => MODE_SEGMENTS.has(s))
+    // Template literal trigger is tighter than path.join() because
+    // backtick strings often appear in patch fixtures, error messages,
+    // and other multi-line content that incidentally contains stage
+    // tokens like `wasm`. Require the canonical build-output shape.
+    const hasBuildAndOut =
+      buildRoots.includes('build') && buildRoots.includes('out')
+    const hasOut = buildRoots.includes('out')
+    const hasBuild = buildRoots.includes('build')
+    const triggers =
+      (hasBuildAndOut && stages.length >= 1) ||
+      (stages.length >= 2 && hasOut) ||
+      (hasBuild && stages.length >= 1 && modes.length >= 1)
+    if (triggers) {
+      throw new BlockError(
+        'A — multi-stage path constructed inline via template literal',
+        'Construct this path in the owning `paths.mts` (or a build-infra helper) and import the computed value here. 1 path, 1 reference.',
+        m[0],
+      )
+    }
+  }
+}
+
 const check = (source: string): void => {
   const calls = extractPathCalls(source)
-  if (calls.length === 0) {
-    return
+  if (calls.length > 0) {
+    checkRuleA(calls)
+    checkRuleB(calls)
   }
-  checkRuleA(calls)
-  checkRuleB(calls)
+  checkRuleATemplate(source)
 }
 
 const emitBlock = (filePath: string, err: BlockError): void => {
