@@ -2,8 +2,7 @@
 name: updating
 description: Umbrella update skill. Runs `pnpm run update` (npm), then delegates to `updating-xport` (if `xport.json` exists), `updating-upstream` (if `.gitmodules` exists), and `updating-workflows` (if SHA pins are stale). Triggers when user asks to "update dependencies", "update packages", "update everything", or prepare for a release.
 user-invocable: true
-allowed-tools: Skill, Bash, Read, Grep, Glob, Edit
----
+allowed-tools: Skill, Bash(pnpm:*), Bash(npm:*), Bash(git:*), Bash(node:*), Bash(rg:*), Bash(grep:*), Bash(find:*), Bash(ls:*), Bash(cat:*), Bash(head:*), Bash(tail:*), Bash(wc:*), Bash(diff:*), Read, Grep, Glob, Edit---
 
 # updating
 
