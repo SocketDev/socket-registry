@@ -18,7 +18,6 @@
 //   2 = block (malware detected by Socket.dev)
 
 import path from 'node:path'
-import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import {
@@ -161,23 +160,46 @@ const extractors: Record<string, Extractor> = {
     (m): Dep => ({ type: 'cargo', name: m[1] })
   ),
   'Cargo.toml': (content: string): Dep[] => {
-    // Rust: only extract from [dependencies], [dev-dependencies], [build-dependencies] sections.
-    // Skip [package], [lib], [bin], [workspace], [profile] metadata sections.
+    // Rust: extract crate names from dep lines.
+    //
+    // Two-mode strategy because the hook receives either a full
+    // Cargo.toml (Write) or a fragment (Edit's new_string, often just
+    // the added line with no section header):
+    //
+    //   Full file  — scan only [dependencies] / [dev-dependencies] /
+    //                [build-dependencies] (incl. target-specific
+    //                [target.*.dependencies] via the `.<name>` suffix)
+    //                and skip [package], [features], [profile], etc.
+    //   Fragment   — no section headers at all → treat the whole
+    //                content as an implicit [dependencies] body and
+    //                match any `name = "..."` or `name = { version = "..." }`.
+    //
+    // The lineRe requires the value to look like a version spec
+    // (string or table with a `version` key), so `[features]`-style
+    // `key = ["derive"]` array values don't match even in fragment mode.
     const deps: Dep[] = []
-    const depSectionRe = /^\[(?:(?:dev-|build-)?dependencies(?:\.[^\]]+)?)\]\s*$/gm
+    const depSectionRe = /^\[(?:(?:dev-|build-)?dependencies(?:\.[^\]]+)?|target\.[^\]]+\.(?:dev-|build-)?dependencies(?:\.[^\]]+)?)\]\s*$/gm
     const anySectionRe = /^\[/gm
+    const lineRe = /^(\w[\w-]*)\s*=\s*(?:\{[^}]*version\s*=\s*"[^"]*"|\s*"[^"]*")/gm
+    const push = (section: string) => {
+      let m
+      while ((m = lineRe.exec(section)) !== null) {
+        deps.push({ type: 'cargo', name: m[1] })
+      }
+      lineRe.lastIndex = 0
+    }
+    const hasAnySection = /^\[/m.test(content)
+    if (!hasAnySection) {
+      push(content)
+      return deps
+    }
     let sectionMatch
     while ((sectionMatch = depSectionRe.exec(content)) !== null) {
       const sectionStart = sectionMatch.index + sectionMatch[0].length
       anySectionRe.lastIndex = sectionStart
       const nextSection = anySectionRe.exec(content)
       const sectionEnd = nextSection ? nextSection.index : content.length
-      const sectionText = content.slice(sectionStart, sectionEnd)
-      const lineRe = /^(\w[\w-]*)\s*=\s*(?:\{[^}]*version\s*=\s*"[^"]*"|\s*"[^"]*")/gm
-      let m
-      while ((m = lineRe.exec(sectionText)) !== null) {
-        deps.push({ type: 'cargo', name: m[1] })
-      }
+      push(content.slice(sectionStart, sectionEnd))
     }
     return deps
   },
@@ -282,31 +304,6 @@ const extractors: Record<string, Extractor> = {
   'yarn.lock': extractNpmLockfile,
 }
 
-// --- main (only when executed directly, not imported) ---
-
-if (fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
-  // Read the full JSON blob from stdin (piped by Claude Code).
-  let input = ''
-  for await (const chunk of process.stdin) input += chunk
-
-  let hook: HookInput
-  try {
-    hook = JSON.parse(input)
-  } catch (e) {
-    // Fail-block (exit 2) on malformed input — a security hook should never
-    // silently pass through when it can't parse its own contract.
-    logger.error(`Socket: malformed hook input: ${errorMessage(e)}`)
-    process.exitCode = 2
-    throw e
-  }
-
-  if (hook.tool_name !== 'Edit' && hook.tool_name !== 'Write') {
-    process.exitCode = 0
-  } else {
-    process.exitCode = await check(hook)
-  }
-}
-
 // --- core ---
 
 // Orchestrates the full check: extract deps, diff against old, query API.
@@ -332,13 +329,13 @@ async function check(hook: HookInput): Promise<number> {
   const oldContent = hook.tool_input?.old_string ?? ''
 
   const newDeps = extractor(newContent)
-  if (!newDeps.length) return 0
+  if (newDeps.length === 0) return 0
 
   // Diff-aware: only check deps added in this edit, not pre-existing.
   const deps = oldContent
     ? diffDeps(newDeps, extractor(oldContent))
     : newDeps
-  if (!deps.length) return 0
+  if (deps.length === 0) return 0
 
   // Check all deps via SDK checkMalware().
   const blocked = await checkDepsBatch(deps)
@@ -739,4 +736,27 @@ export {
   extractPypi,
   extractTerraform,
   findExtractor,
+}
+
+// --- main (only when executed directly, not imported) ---
+//
+// Kept at the bottom because the module uses top-level await
+// (`for await (const chunk of process.stdin)`) to read the hook payload.
+// Top-level await suspends module evaluation at the suspension point, so
+// any `const` declared AFTER the suspending block is still in the TDZ
+// when the awaited work calls back into the module (e.g. extractNpm →
+// PACKAGE_JSON_METADATA_KEYS). Placing main last guarantees every
+// module-level declaration is initialized before main runs.
+
+if (fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+  // Read the full JSON blob from stdin (piped by Claude Code).
+  let input = ''
+  for await (const chunk of process.stdin) input += chunk
+  const hook: HookInput = JSON.parse(input)
+
+  if (hook.tool_name !== 'Edit' && hook.tool_name !== 'Write') {
+    process.exitCode = 0
+  } else {
+    process.exitCode = await check(hook)
+  }
 }
