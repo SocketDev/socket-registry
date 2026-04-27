@@ -514,7 +514,7 @@ importers:
   .claude/hooks/check-new-deps:
     dependencies:
       '@socketregistry/packageurl-js':
-        specifier: 'catalog:'
+        specifier: 1.4.2
         version: 1.4.2
       '@socketsecurity/lib':
         specifier: 'catalog:'
@@ -528,6 +528,24 @@ importers:
         version: 24.9.2
 
   .claude/hooks/path-guard: {}
+
+  .claude/hooks/private-name-guard:
+    devDependencies:
+      '@types/node':
+        specifier: 24.9.2
+        version: 24.9.2
+
+  .claude/hooks/public-surface-reminder:
+    devDependencies:
+      '@types/node':
+        specifier: 24.9.2
+        version: 24.9.2
+
+  .claude/hooks/release-workflow-guard:
+    devDependencies:
+      '@types/node':
+        specifier: 24.9.2
+        version: 24.9.2
 
   .claude/hooks/setup-security-tools:
     dependencies:
