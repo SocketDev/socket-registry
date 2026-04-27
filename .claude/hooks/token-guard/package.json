@@ -1,5 +1,5 @@
 {
-  "name": "@socketsecurityhook-token-guard",
+  "name": "hook-token-guard",
   "private": true,
   "type": "module",
   "main": "./index.mts",

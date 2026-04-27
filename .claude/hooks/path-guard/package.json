@@ -1,5 +1,5 @@
 {
-  "name": "@socketsecurityhook-path-guard",
+  "name": "hook-path-guard",
   "private": true,
   "type": "module",
   "main": "./index.mts",

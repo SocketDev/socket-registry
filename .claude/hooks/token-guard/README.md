@@ -41,7 +41,7 @@ The hook reads the tool-use payload from stdin, type-checks `tool_name === 'Bash
 ## Testing
 
 ```bash
-pnpm --filter @socketsecurityhook-token-guard test
+pnpm --filter hook-token-guard test
 ```
 
 Adding new token-shape detections: update `LITERAL_TOKEN_PATTERNS` in `index.mts`, add a positive and negative test in `test/token-guard.test.mts`.
