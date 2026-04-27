@@ -34,7 +34,7 @@ catalog:
   '@npmcli/promise-spawn': 8.0.3
   '@sinclair/typebox': 0.34.49
   '@socketregistry/packageurl-js': 1.4.2
-  '@socketsecurity/lib': 5.24.0
+  '@socketsecurity/lib': 5.26.0
   '@types/fs-extra': 11.0.4
   '@types/node': 24.9.2
   '@types/normalize-package-data': 2.4.4
