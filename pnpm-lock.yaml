@@ -527,6 +527,8 @@ importers:
         specifier: 24.9.2
         version: 24.9.2
 
+  .claude/hooks/path-guard: {}
+
   .claude/hooks/setup-security-tools:
     dependencies:
       '@sinclair/typebox':
@@ -535,6 +537,8 @@ importers:
       '@socketsecurity/lib':
         specifier: 'catalog:'
         version: 5.24.0(typescript@5.9.2)
+
+  .claude/hooks/token-guard: {}
 
   packages/npm/abab: {}
 
