@@ -58,7 +58,7 @@ runs:
         working-directory: ${{ inputs.working-directory }}
 
     - name: Setup environment
-      uses: SocketDev/socket-registry/.github/actions/setup@9c9c7c54bee9388ba48268721592944340b77534 # main
+      uses: SocketDev/socket-registry/.github/actions/setup@0ba7c8885b5028d5e6e5b2f307d6fa81388c5826 # main
       with:
         debug: ${{ inputs.debug }}
         node-version: ${{ inputs.node-version }}
@@ -68,6 +68,6 @@ runs:
         working-directory: ${{ inputs.working-directory }}
 
     - name: Install dependencies
-      uses: SocketDev/socket-registry/.github/actions/install@9c9c7c54bee9388ba48268721592944340b77534 # main
+      uses: SocketDev/socket-registry/.github/actions/install@0ba7c8885b5028d5e6e5b2f307d6fa81388c5826 # main
       with:
         working-directory: ${{ inputs.working-directory }}
