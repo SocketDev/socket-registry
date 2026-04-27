@@ -49,7 +49,7 @@ const main = async (): Promise<number> => {
   try {
     const res = await fetch(url, {
       headers: {
-        'User-Agent': 'socket-registry-install-action/1.0',
+        'User-Agent': 'socket-registry-setup-action/1.0',
         Accept: 'application/json',
       },
       signal: controller.signal,

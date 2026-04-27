@@ -10,7 +10,7 @@
  * Usage:
  *   node read-pinned-version.mts <package-name>
  *
- * Used by the install composite action's bootstrap step. Kept as a
+ * Used by the setup composite action's bootstrap step. Kept as a
  * standalone .mts file (rather than an inline `node -e "..."` blob
  * in action.yml) so the YAML stays readable and the parsing logic
  * is testable.
