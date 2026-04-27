@@ -45,7 +45,10 @@ interface FirewallResponse {
 
 const main = async (): Promise<number> => {
   const controller = new AbortController()
+  // unref so the timer doesn't keep the event loop alive past
+  // main() resolution.
   const timer = setTimeout(() => controller.abort(), FIREWALL_TIMEOUT_MS)
+  timer.unref?.()
   try {
     const res = await fetch(url, {
       headers: {
@@ -92,4 +95,10 @@ const main = async (): Promise<number> => {
   }
 }
 
-main().then(code => exit(code))
+// Use exitCode + natural drain instead of process.exit() so libuv
+// can finish closing the fetch handles cleanly. process.exit() while
+// async handles are mid-shutdown trips an `Assertion failed:
+// !(handle->flags & UV_HANDLE_CLOSING)` abort on Node 24 + Windows.
+main().then(code => {
+  process.exitCode = code
+})
