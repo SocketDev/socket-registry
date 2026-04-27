@@ -1,5 +1,5 @@
 {
-  "name": "@socketsecurity/hook-setup-security-tools",
+  "name": "@socketsecurityhook-setup-security-tools",
   "private": true,
   "type": "module",
   "main": "./index.mts",

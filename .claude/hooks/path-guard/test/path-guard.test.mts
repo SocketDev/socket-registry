@@ -2,7 +2,7 @@
 // mock PreToolUse payload to the hook's stdin and asserts on its exit
 // code + stderr. Exit 2 = blocked; exit 0 = allowed.
 //
-// Run: pnpm --filter @socketsecurity/hook-path-guard test
+// Run: pnpm --filter @socketsecurityhook-path-guard test
 //      (or directly: node --test test/*.test.mts)
 
 import { spawnSync } from 'node:child_process'

@@ -50,7 +50,7 @@ Hook bugs fail **open** — a crash in the hook writes a log line and returns ex
 ## Testing
 
 ```bash
-pnpm --filter @socketsecurity/hook-path-guard test
+pnpm --filter @socketsecurityhook-path-guard test
 ```
 
 Adding a new detection pattern: update `STAGE_SEGMENTS` (or `KNOWN_SIBLING_PACKAGES`) in `index.mts`, add a positive and negative test in `test/path-guard.test.mts`.
