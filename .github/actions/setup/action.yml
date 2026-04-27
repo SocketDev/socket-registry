@@ -1,5 +1,5 @@
 name: 'Setup'
-description: 'Setup debug, Node.js, pnpm, Socket firewall shims, and bootstrap @socketsecurity/lib'
+description: 'Setup debug, Node.js, pnpm, Socket firewall shims, and bootstrap zero-dep Socket packages (@socketsecurity/lib, @socketregistry/packageurl-js, @sinclair/typebox)'
 
 # Dependencies:
 #   - actions/setup-node@v6.2.0
@@ -337,65 +337,87 @@ runs:
         echo "DO_NOT_TRACK=1" >> "${GITHUB_ENV:-/dev/null}"
         echo "GH_TELEMETRY=0" >> "${GITHUB_ENV:-/dev/null}"
 
-    - name: Bootstrap @socketsecurity/lib from npm registry
+    - name: Bootstrap zero-dep packages from npm registry
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       env:
         ACTION_DIR: ${{ github.action_path }}
       run: |
-        # Bootstrap @socketsecurity/lib into node_modules/ BEFORE
-        # pnpm install runs. Several Socket repos have root scripts
-        # (setup.mts, postinstall hooks) that import @socketsecurity/lib
-        # at module-load time. On a fresh checkout, pnpm install
-        # itself runs scripts that import the package — but pnpm
-        # install hasn't completed yet, so the imports fail with
-        # ERR_MODULE_NOT_FOUND. Pre-seeding from the npm registry
-        # tarball solves the chicken-and-egg.
+        # Bootstrap a small set of zero-dep packages into node_modules/
+        # BEFORE pnpm install runs. Several Socket repos have root
+        # scripts (setup.mts, postinstall hooks, .claude/hooks/*) that
+        # import these packages at module-load time. On a fresh
+        # checkout, pnpm install itself runs scripts that import them —
+        # but pnpm install hasn't completed yet, so the imports fail
+        # with ERR_MODULE_NOT_FOUND. Pre-seeding each package's tarball
+        # directly into node_modules/<scope>/<name>/ solves the
+        # chicken-and-egg.
         #
-        # Lives in `setup` (alongside zizmor + sfw provisioning)
-        # rather than `install` so consumers calling only `setup`
-        # also benefit, not just consumers of `setup-and-install`
-        # or `install` directly.
+        # Restricted to ZERO-DEP packages so a tarball extract is the
+        # whole install — no transitive resolution needed. Any package
+        # we add here must `npm view <pkg> dependencies` empty; if it
+        # picks up a dep later, drop it from this list.
         #
-        # Skipped silently when:
+        # Lives in `setup` (alongside zizmor + sfw provisioning) rather
+        # than `install` so consumers calling only `setup` also benefit,
+        # not just consumers of `setup-and-install` or `install`
+        # directly.
+        #
+        # Per-package skip rules:
         #   - the repo has its own scripts/bootstrap-from-registry.mts
-        #     (the preinstall hook handles it; no need to duplicate)
-        #   - @socketsecurity/lib is already resolvable
-        #   - the repo doesn't depend on @socketsecurity/lib at all
+        #     (the preinstall hook handles all packages; no duplicate)
+        #   - <pkg> is already resolvable from the working directory
+        #   - <pkg> isn't pinned in this repo's package.json /
+        #     pnpm-workspace.yaml catalog (skip silently)
         #
-        # Before downloading, the version is checked against the Socket
-        # Firewall API (firewall-api.socket.dev/purl). Critical/high
-        # severity alerts block the bootstrap; firewall errors are
-        # non-fatal.
+        # Before each download, the version is checked against the
+        # Socket Firewall API (firewall-api.socket.dev/purl). Critical/
+        # high severity alerts block the bootstrap; firewall errors
+        # are non-fatal so a network blip doesn't break a fresh clone.
         set -euo pipefail
         if [ -f scripts/bootstrap-from-registry.mts ]; then
           echo "Repo has its own bootstrap-from-registry.mts; skipping action-level bootstrap."
           exit 0
         fi
-        if node -e "require.resolve('@socketsecurity/lib/package.json')" 2>/dev/null; then
-          echo "@socketsecurity/lib already resolvable; skipping bootstrap."
-          exit 0
-        fi
-        VERSION="$(node "${ACTION_DIR}/../lib/read-pinned-version.mts" '@socketsecurity/lib')"
-        if [ -z "$VERSION" ]; then
-          echo "@socketsecurity/lib not pinned in this repo; skipping bootstrap."
-          exit 0
-        fi
-        # Firewall check — bail loudly on critical/high alerts.
-        if ! node "${ACTION_DIR}/../lib/check-firewall.mts" '@socketsecurity/lib' "$VERSION"; then
-          exit 1
-        fi
-        echo "Bootstrapping @socketsecurity/lib@${VERSION} from npm registry..."
-        TARBALL_URL="https://registry.npmjs.org/@socketsecurity/lib/-/lib-${VERSION}.tgz"
-        TARBALL="$(mktemp -t socket-lib-XXXXXX.tgz)"
-        if ! curl -fsSL "$TARBALL_URL" -o "$TARBALL"; then
-          echo "Warning: failed to fetch ${TARBALL_URL}; pnpm install will resolve it." >&2
+        # Zero-dep packages worth pre-seeding so .claude/hooks/* and
+        # root scripts can import them at module-load time. Order
+        # matters only for log readability.
+        PACKAGES=(
+          '@socketsecurity/lib'
+          '@socketregistry/packageurl-js'
+          '@sinclair/typebox'
+        )
+        for PKG in "${PACKAGES[@]}"; do
+          # Already resolvable? Skip.
+          if node -e "require.resolve('${PKG}/package.json')" 2>/dev/null; then
+            echo "${PKG} already resolvable; skipping."
+            continue
+          fi
+          # Pinned somewhere in the consumer repo?
+          VERSION="$(node "${ACTION_DIR}/../lib/read-pinned-version.mts" "${PKG}")"
+          if [ -z "$VERSION" ]; then
+            echo "${PKG} not pinned in this repo; skipping."
+            continue
+          fi
+          # Firewall check — bail loudly on critical/high alerts.
+          if ! node "${ACTION_DIR}/../lib/check-firewall.mts" "${PKG}" "$VERSION"; then
+            exit 1
+          fi
+          # Strip leading scope from package name for tarball path.
+          # `@scope/name` → `name`; `name` → `name`.
+          BASE="${PKG##*/}"
+          echo "Bootstrapping ${PKG}@${VERSION} from npm registry..."
+          TARBALL_URL="https://registry.npmjs.org/${PKG}/-/${BASE}-${VERSION}.tgz"
+          TARBALL="$(mktemp -t bootstrap-XXXXXX.tgz)"
+          if ! curl -fsSL "$TARBALL_URL" -o "$TARBALL"; then
+            echo "Warning: failed to fetch ${TARBALL_URL}; pnpm install will resolve it." >&2
+            rm -f "$TARBALL"
+            continue
+          fi
+          DEST="node_modules/${PKG}"
+          rm -rf "$DEST"
+          mkdir -p "$DEST"
+          tar -xzf "$TARBALL" --strip-components=1 -C "$DEST"
           rm -f "$TARBALL"
-          exit 0
-        fi
-        DEST="node_modules/@socketsecurity/lib"
-        rm -rf "$DEST"
-        mkdir -p "$DEST"
-        tar -xzf "$TARBALL" --strip-components=1 -C "$DEST"
-        rm -f "$TARBALL"
-        echo "✓ @socketsecurity/lib@${VERSION} → ${DEST}"
+          echo "✓ ${PKG}@${VERSION} → ${DEST}"
+        done
