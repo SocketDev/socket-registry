@@ -30,6 +30,7 @@
 
 - **REQUIRED for staging**: surgical `git add <specific-file> [<file>…]` with explicit paths. Never `-A` / `.`.
 - **If you need a quick WIP save**: commit on a new branch from inside a worktree, not a stash.
+- **NEVER revert files you didn't touch.** If `git status` shows files you didn't modify, those belong to another session, an upstream pull, or a hook side-effect — leave them alone. Specifically: do not run `git checkout -- <unrelated-path>` to "clean up" the diff before committing, and do not include unrelated paths in `git add`. Stage only the explicit files you edited.
 
 The umbrella rule: never run a git command that mutates state belonging to a path other than the file you just edited.
 
@@ -334,14 +335,14 @@ Actions and workflows reference each other by full 40-char SHA pinned to main. W
 
 ### 1 path, 1 reference
 
-**A path is *constructed* exactly once. Everywhere else *references* the constructed value.**
+**A path is _constructed_ exactly once. Everywhere else _references_ the constructed value.**
 
-Referencing a single computed path many times is fine — that's the whole point of computing it once. What's banned is *re-constructing* the same path in multiple places, because that's where drift is born.
+Referencing a single computed path many times is fine — that's the whole point of computing it once. What's banned is _re-constructing_ the same path in multiple places, because that's where drift is born.
 
 - **Within a package**: every script imports its own `scripts/paths.mts` (or `lib/paths.mts`). No `path.join('build', mode, ...)` outside that module.
 - **Across packages**: when package B consumes package A's output, B imports A's `paths.mts` via the workspace `exports` field. Never `path.join(PKG, '..', '<sibling>', 'build', ...)`.
 - **Workflows, Dockerfiles, shell scripts**: they can't `import` TS, so they construct the string once and reference it everywhere downstream. Workflows: a "Compute paths" step exposes `steps.paths.outputs.final_dir`; later steps read `${{ steps.paths.outputs.final_dir }}`. Dockerfiles/shell: assign once to a variable / `ENV`, reference by name thereafter. Each canonical construction carries a comment naming the source-of-truth `paths.mts`. **Re-building** the same path in a second step is the violation, not referring to the constructed value many times.
-- **Comments**: may describe path *structure* with placeholders ("`<mode>/<arch>`") but should not encode a complete literal path string. The import statement IS the comment.
+- **Comments**: may describe path _structure_ with placeholders ("`<mode>/<arch>`") but should not encode a complete literal path string. The import statement IS the comment.
 
 Code execution takes priority over docs: violations in `.mts`/`.cts`, Makefiles, Dockerfiles, workflow YAML, and shell scripts are blocking. README and doc-comment violations are advisory unless they contain a fully-qualified path with no parametric placeholders.
 
@@ -355,21 +356,22 @@ The mantra is intentionally short so it sticks: **1 path, 1 reference**. When in
 
 ### Inclusive Language
 
-Use precise, neutral terms over historical metaphors that imply hierarchy or exclusion. The substitutes are not euphemisms — they're more *accurate* (a list of allowed values genuinely is an "allowlist"; "whitelist" is a metaphor that hides what the list does).
+Use precise, neutral terms over historical metaphors that imply hierarchy or exclusion. The substitutes are not euphemisms — they're more _accurate_ (a list of allowed values genuinely is an "allowlist"; "whitelist" is a metaphor that hides what the list does).
 
-| Replace                                  | With                                                  |
-| ---------------------------------------- | ----------------------------------------------------- |
-| `whitelist` / `whitelisted`              | `allowlist` / `allowed` / `allowlisted`               |
-| `blacklist` / `blacklisted`              | `denylist` / `denied` / `blocklisted` / `blocked`     |
-| `master` (branch, process, copy)         | `main` (branch); `primary` / `controller` (process)   |
-| `slave`                                  | `replica`, `worker`, `secondary`, `follower`          |
-| `grandfathered`                          | `legacy`, `pre-existing`, `exempted`                  |
-| `sanity check`                           | `quick check`, `confidence check`, `smoke test`       |
-| `dummy` (placeholder)                    | `placeholder`, `stub`                                 |
+| Replace                          | With                                                |
+| -------------------------------- | --------------------------------------------------- |
+| `whitelist` / `whitelisted`      | `allowlist` / `allowed` / `allowlisted`             |
+| `blacklist` / `blacklisted`      | `denylist` / `denied` / `blocklisted` / `blocked`   |
+| `master` (branch, process, copy) | `main` (branch); `primary` / `controller` (process) |
+| `slave`                          | `replica`, `worker`, `secondary`, `follower`        |
+| `grandfathered`                  | `legacy`, `pre-existing`, `exempted`                |
+| `sanity check`                   | `quick check`, `confidence check`, `smoke test`     |
+| `dummy` (placeholder)            | `placeholder`, `stub`                               |
 
 Apply across **code** (identifiers, comments, string literals), **docs** (READMEs, CLAUDE.md, markdown), **config files** (YAML, JSON), **commit messages**, **PR titles/descriptions**, and **CI logs** you control.
 
 Two exceptions where the legacy term must remain (because changing it breaks something external):
+
 - **Third-party APIs / upstream code**: when interfacing with an external API field literally named `whitelist`, keep the field name; rename your local variable. E.g. `const allowedDomains = response.whitelist`.
 - **Vendored upstream sources**: don't rewrite vendored code (`vendor/**`, `upstream/**`, `**/fixtures/**`). Patch around it if needed.
 
