@@ -5,12 +5,16 @@
  * Endpoint: GET https://firewall-api.socket.dev/purl/<encoded-purl>
  * Response: { alerts?: [{ severity?, type?, key? }, ...] }
  *
- * Exits 0 if the package is OK to install (no critical/high alerts,
- * or the firewall is unreachable — non-fatal so a network blip
- * doesn't break the bootstrap).
+ * Socket Firewall is a malware detector. The API returns alerts only
+ * when a package is flagged as malicious — there's no "minor severity
+ * informational alert" tier. ANY alert in the response means malware,
+ * regardless of severity / type / key fields. Block unconditionally.
  *
- * Exits 1 if the firewall reports a blocking alert
- * (severity: critical | high).
+ * Exits 0 if the firewall returned no alerts, OR if the firewall is
+ * unreachable / non-2xx (non-fatal so a network blip doesn't break a
+ * fresh clone).
+ *
+ * Exits 1 if the firewall returned any alert at all.
  *
  * Usage:
  *   node check-firewall.mts <package-name> <version>
@@ -29,7 +33,6 @@ if (!pkgName || !version) {
 
 const FIREWALL_API_URL = 'https://firewall-api.socket.dev/purl'
 const FIREWALL_TIMEOUT_MS = 10_000
-const BLOCK_SEVERITIES = new Set(['critical', 'high'])
 
 const purl = `pkg:npm/${pkgName}@${version}`
 const url = `${FIREWALL_API_URL}/${encodeURIComponent(purl)}`
@@ -65,20 +68,20 @@ const main = async (): Promise<number> => {
       return 0
     }
     const data = (await res.json()) as FirewallResponse
-    const blocking = (data.alerts ?? []).filter(
-      a => typeof a.severity === 'string' && BLOCK_SEVERITIES.has(a.severity),
-    )
-    if (blocking.length > 0) {
+    const alerts = data.alerts ?? []
+    if (alerts.length > 0) {
+      // Any alert from the firewall means malware. Block unconditionally;
+      // do not branch on severity / type / key.
       stderr.write(
-        `\n✗ Socket Firewall BLOCKED ${pkgName}@${version} (${blocking.length} alert(s)):\n`,
+        `\n✗ Socket Firewall flagged ${pkgName}@${version} as malware (${alerts.length} alert(s)):\n`,
       )
-      for (const a of blocking.slice(0, 10)) {
+      for (const a of alerts.slice(0, 10)) {
         stderr.write(
-          `    ${a.severity}: ${a.type ?? a.key ?? 'unknown'}\n`,
+          `    ${a.type ?? a.key ?? 'malware'}${a.severity ? ` (${a.severity})` : ''}\n`,
         )
       }
       stderr.write(
-        '\nFix: bump the pinned version in pnpm-workspace.yaml or package.json.\n',
+        '\nFix: bump the pinned version in pnpm-workspace.yaml or package.json to a known-good release.\n',
       )
       return 1
     }
