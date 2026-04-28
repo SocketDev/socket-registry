@@ -225,8 +225,17 @@ jobs:
           fi
 
           set +e
+          # Lockdown — see .claude/skills/programmatic-claude-lockdown/SKILL.md.
+          # Four-flag pattern from https://code.claude.com/docs/en/agent-sdk/permissions:
+          # tools (base set) + allowedTools (auto-approve) + disallowedTools
+          # (deny-first) + permission-mode dontAsk (deny unmatched).
+          DISALLOW_BASE='Agent Task NotebookEdit WebFetch WebSearch Bash(curl:*) Bash(wget:*) Bash(rm -rf*) Bash(sudo:*)'
+          DISALLOW_PKG_EXEC='Bash(npx:*) Bash(pnpm dlx:*) Bash(yarn dlx:*)'  # zizmor: documentation-prohibition
           claude --print \
+            --tools "Bash" "Read" "Write" "Edit" "Glob" "Grep" \
             --allowedTools "Bash(pnpm:*)" "Bash(git:*)" "Bash(jq:*)" "Read" "Write" "Edit" "Glob" "Grep" \
+            --disallowedTools $DISALLOW_BASE $DISALLOW_PKG_EXEC \
+            --permission-mode dontAsk \
             --model "$UPDATE_MODEL" \
             --max-turns 25 \
             "/$UPDATING_SKILL — Run the $UPDATING_SKILL skill to update everything applicable to this repo (npm, xport, submodules, workflow pins). CI mode: skip builds/tests. Create atomic commits. Do NOT push or create a PR; this workflow handles that." \
@@ -287,8 +296,15 @@ jobs:
           TEST_LOG: ${{ steps.tests.outputs.TEST_LOG }}
         run: |
           set +e
+          # Lockdown — same shape as the /updating step above.
+          # See .claude/skills/programmatic-claude-lockdown/SKILL.md.
+          DISALLOW_BASE='Agent Task NotebookEdit WebFetch WebSearch Bash(curl:*) Bash(wget:*) Bash(rm -rf*) Bash(sudo:*)'
+          DISALLOW_PKG_EXEC='Bash(npx:*) Bash(pnpm dlx:*) Bash(yarn dlx:*)'  # zizmor: documentation-prohibition
           claude --print \
+            --tools "Bash" "Read" "Write" "Edit" "Glob" "Grep" \
             --allowedTools "Bash(pnpm:*)" "Bash(git:*)" "Read" "Write" "Edit" "Glob" "Grep" \
+            --disallowedTools $DISALLOW_BASE $DISALLOW_PKG_EXEC \
+            --permission-mode dontAsk \
             --model "$FIX_MODEL" \
             --max-turns 25 \
             "Dependency updates were applied but tests are failing. Fix the failures and commit fixes atomically. Do NOT push or create a PR.
