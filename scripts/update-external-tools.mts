@@ -91,10 +91,10 @@ async function ghApiLatestRelease(
   //                non-draft release. Good default for mature tools.
   //   prerelease → `/releases?per_page=20` + filter `prerelease: true`.
   //                We sort by created_at so the first match is newest.
-  //                Picking the stable channel here would silently
-  //                regress prerelease-tracked pins (pnpm@11.0.0-rc.5
-  //                is newer than stable pnpm@10.x despite the lower
-  //                major, because stable 11 hasn't shipped yet).
+  //                Used for tools we want to track ahead of stable
+  //                (e.g. while a major was still in rc, we tracked
+  //                pnpm@11.0.0-rc.x via this path; once stable 11
+  //                shipped the pin moved back to the stable track).
   const endpoint = includePrerelease
     ? `repos/${repo}/releases?per_page=20`
     : `repos/${repo}/releases/latest`
