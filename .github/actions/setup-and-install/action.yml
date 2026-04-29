@@ -51,14 +51,14 @@ runs:
   steps:
     - name: Checkout
       if: inputs.checkout == 'true'
-      uses: SocketDev/socket-registry/.github/actions/checkout@c5c61c327186d6c3e3a3b4c7e5ee49eef4ec15df # main
+      uses: SocketDev/socket-registry/.github/actions/checkout@eeb81520395947c6c4ab701b4f7f690a2296b816 # main
       with:
         fetch-depth: ${{ inputs.checkout-fetch-depth }}
         ref: ${{ inputs.checkout-ref }}
         working-directory: ${{ inputs.working-directory }}
 
     - name: Setup environment
-      uses: SocketDev/socket-registry/.github/actions/setup@e4193847405326bff848639953aa8caa9d18b098 # main
+      uses: SocketDev/socket-registry/.github/actions/setup@eeb81520395947c6c4ab701b4f7f690a2296b816 # main
       with:
         debug: ${{ inputs.debug }}
         node-version: ${{ inputs.node-version }}
@@ -68,6 +68,6 @@ runs:
         working-directory: ${{ inputs.working-directory }}
 
     - name: Install dependencies
-      uses: SocketDev/socket-registry/.github/actions/install@e4193847405326bff848639953aa8caa9d18b098 # main
+      uses: SocketDev/socket-registry/.github/actions/install@eeb81520395947c6c4ab701b4f7f690a2296b816 # main
       with:
         working-directory: ${{ inputs.working-directory }}
