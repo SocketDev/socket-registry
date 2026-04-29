@@ -31,7 +31,7 @@ permissions:
 
 jobs:
   publish:
-    uses: SocketDev/socket-registry/.github/workflows/provenance.yml@eeb81520395947c6c4ab701b4f7f690a2296b816 # main
+    uses: SocketDev/socket-registry/.github/workflows/provenance.yml@024156f860be6d0e0e060360fa90747b8b6fbcf3 # main
     with:
       debug: ${{ inputs.debug }}
       force-registry: ${{ inputs.force-registry }}
