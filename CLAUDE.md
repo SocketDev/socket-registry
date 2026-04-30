@@ -2,163 +2,165 @@
 
 **MANDATORY**: Act as principal-level engineer. Follow these guidelines exactly.
 
-## USER CONTEXT
+<!-- BEGIN FLEET-CANONICAL — sync via socket-repo-template/scripts/sync-scaffolding.mjs. Do not edit downstream. -->
 
-- Identify users by git credentials (commit author, GitHub account); use their actual name, never "the user"
-- Use "you/your" when speaking directly; use names when referencing their commits/contributions
-- Example: git shows "John-David Dalton <jdalton@example.com>" → "John-David"
+## 📚 Fleet Standards
 
-## PARALLEL CLAUDE SESSIONS - WORKTREE REQUIRED
+### Identifying users
 
-**This repo may have multiple Claude sessions running concurrently against the same checkout, against parallel git worktrees, or against sibling clones.** Several common git operations are hostile to that and silently destroy or hijack the other session's work.
+Identify users by git credentials and use their actual name. Use "you/your" when speaking directly; use names when referencing contributions.
 
-- **FORBIDDEN in the primary checkout** (the one another Claude may be editing):
-  - `git stash` — shared stash store; another session can `pop` yours.
-  - `git add -A` / `git add .` — sweeps files belonging to other sessions.
-  - `git checkout <branch>` / `git switch <branch>` — yanks the working tree out from under another session.
-  - `git reset --hard` against a non-HEAD ref — discards another session's commits.
-- **REQUIRED for branch work**: spawn a worktree instead of switching branches in place. Each worktree has its own HEAD, so branch operations inside it are safe.
+### Parallel Claude sessions
 
-  ```bash
-  # From the primary checkout — does NOT touch the working tree here.
-  git worktree add -b <task-branch> ../<repo>-<task> main
-  cd ../<repo>-<task>
-  # edit, commit, push from here; the primary checkout is untouched.
-  cd -
-  git worktree remove ../<repo>-<task>
-  ```
+This repo may have multiple Claude sessions running concurrently against the same checkout, against parallel git worktrees, or against sibling clones. Several common git operations are hostile to that.
 
-- **REQUIRED for staging**: surgical `git add <specific-file> [<file>…]` with explicit paths. Never `-A` / `.`.
-- **If you need a quick WIP save**: commit on a new branch from inside a worktree, not a stash.
-- **NEVER revert files you didn't touch.** If `git status` shows files you didn't modify, those belong to another session, an upstream pull, or a hook side-effect — leave them alone. Specifically: do not run `git checkout -- <unrelated-path>` to "clean up" the diff before committing, and do not include unrelated paths in `git add`. Stage only the explicit files you edited.
+**Forbidden in the primary checkout:**
+
+- `git stash` — shared store; another session can `pop` yours
+- `git add -A` / `git add .` — sweeps files from other sessions
+- `git checkout <branch>` / `git switch <branch>` — yanks the working tree out from under another session
+- `git reset --hard` against a non-HEAD ref — discards another session's commits
+
+**Required for branch work:** spawn a worktree.
+
+```bash
+git worktree add -b <task-branch> ../<repo>-<task> main
+cd ../<repo>-<task>
+# edit / commit / push from here; primary checkout is untouched
+git worktree remove ../<repo>-<task>
+```
+
+**Required for staging:** surgical `git add <specific-file>`. Never `-A` / `.`.
+
+**Never revert files you didn't touch.** If `git status` shows unfamiliar changes, leave them — they belong to another session, an upstream pull, or a hook side-effect.
 
 The umbrella rule: never run a git command that mutates state belonging to a path other than the file you just edited.
 
-## PRE-ACTION PROTOCOL
+### Public-surface hygiene
 
-**MANDATORY**: Review CLAUDE.md before any action. No exceptions.
+🚨 The four rules below have hooks that re-print the rule on every public-surface `git` / `gh` command. The rules apply even when the hooks are not installed.
 
-- Before ANY structural refactor on a file >300 LOC: remove dead code first, commit separately
-- Multi-file changes: phases of ≤5 files, verify each before the next
-- Study existing code before building — working code is a better spec than any description
-- Work from raw error data, not theories — if no error output, ask for it
-- On "yes", "do it", or "go": execute immediately, no plan recap
+- **Real customer / company names** — never write one into a commit, PR, issue, comment, or release note. Replace with `Acme Inc` or rewrite the sentence to not need the reference. (No enumerated denylist exists — a denylist is itself a leak.)
+- **Private repos / internal project names** — never mention. Omit the reference entirely; don't substitute "an internal tool" — the placeholder is a tell.
+- **Linear refs** — never put `SOC-123`/`ENG-456`/Linear URLs in code, comments, or PR text. Linear lives in Linear.
+- **Publish / release / build-release workflows** — never `gh workflow run|dispatch` or `gh api …/dispatches`. Dispatches are irrevocable. The user runs them manually.
 
-## VERIFICATION PROTOCOL
+### Commits & PRs
 
-1. Run the actual command — execute, don't assume
-2. State what you verified, not just "looks good"
-3. **FORBIDDEN**: Claiming "Done" when tests show failures
-4. Run type-check/lint if configured; fix ALL errors before reporting done
-5. Re-read every modified file; confirm nothing references removed items
+- Conventional Commits `<type>(<scope>): <description>` — NO AI attribution.
+- **When adding commits to an OPEN PR**, update the PR title and description to match the new scope. Use `gh pr edit <num> --title … --body …`. The reviewer should know what's in the PR without scrolling commits.
+- **Replying to Cursor Bugbot** — reply on the inline review-comment thread, not as a detached PR comment: `gh api repos/{owner}/{repo}/pulls/{pr}/comments/{comment_id}/replies -X POST -f body=…`.
 
-## CONTEXT & EDIT SAFETY
+### Programmatic Claude calls
 
-- After 10+ messages: re-read files before editing
-- Read files >500 LOC in chunks using offset/limit
-- Before every edit: re-read. After every edit: re-read to confirm
-- When renaming: search direct calls, type refs, string literals, dynamic imports, re-exports, tests
-- Never fix a display bug by duplicating state — one source of truth
+🚨 Workflows / skills / scripts that invoke `claude` CLI or `@anthropic-ai/claude-agent-sdk` MUST set all four lockdown flags: `tools`, `allowedTools`, `disallowedTools`, `permissionMode: 'dontAsk'`. Never `default` mode in headless contexts. Never `bypassPermissions`. See `.claude/skills/programmatic-claude-lockdown/SKILL.md`.
 
-## JUDGMENT PROTOCOL
+### Tooling
 
-- If the user's request is based on a misconception, say so before executing
-- If you spot a bug adjacent to what was asked, flag it: "I also noticed X — want me to fix it?"
-- You are a collaborator, not just an executor
-- Fix warnings when you find them (lint, type-check, build, runtime) — don't leave them for later
-- **Default to perfectionist mindset**: when you have latitude to choose, pick the maximally correct option — no shortcuts, no cosmetic deferrals, no "good enough." Fix state that _looks_ stale even if not load-bearing (orphaned refs, rc.2 entries after an rc.3 bump, dead comments). If pragmatism is the right call, the user will ask for it explicitly. "Works now" ≠ "right."
+- **Package manager**: `pnpm`. Run scripts via `pnpm run foo --flag`, never `foo:bar`. After `package.json` edits, `pnpm install`.
+- 🚨 NEVER use `npx`, `pnpm dlx`, or `yarn dlx` — use `pnpm exec <package>` or `pnpm run <script>` # zizmor: documentation-prohibition
+- **`minimumReleaseAge`** — never add packages to `minimumReleaseAgeExclude` in CI. Locally, ASK before adding (security control).
+- **Backward compatibility** — FORBIDDEN to maintain. Actively remove when encountered.
 
-## SCOPE PROTOCOL
+### Code style
 
-- Do not add features or improvements beyond what was asked — band-aids when asked for band-aids
-- Simplest approach first; flag architectural flaws and wait for approval
-- When asked to "make a plan," output only the plan — no code until given the go-ahead
+- **Comments** — default to none. Write one only when the WHY is non-obvious to a senior engineer.
+- **Completion** — never leave `TODO` / `FIXME` / `XXX` / shims / stubs / placeholders. Finish 100%. If too large for one pass, ask before cutting scope.
+- **`null` vs `undefined`** — use `undefined`. `null` is allowed only for `__proto__: null` or external API requirements.
+- **Object literals** — `{ __proto__: null, ... }` for config / return / internal-state.
+- **Imports** — no dynamic `await import()`. `node:fs` cherry-picks (`existsSync`, `promises as fs`); `path` / `os` / `url` / `crypto` use default imports. Exception: `fileURLToPath` from `node:url`.
+- **HTTP** — never `fetch()`. Use `httpJson` / `httpText` / `httpRequest` from `@socketsecurity/lib/http-request`.
+- **File existence** — `existsSync` from `node:fs`. Never `fs.access` / `fs.stat`-for-existence / async `fileExists` wrapper.
+- **File deletion** — route every delete through `safeDelete()` / `safeDeleteSync()` from `@socketsecurity/lib/fs`. Never `fs.rm` / `fs.unlink` / `fs.rmdir` / `rm -rf` directly — even for one known file.
+- **Edits** — Edit tool, never `sed` / `awk`.
+- **Inclusive language** — see [`docs/references/inclusive-language.md`](docs/references/inclusive-language.md) for the substitution table.
+- **Sorting** — sort lists alphanumerically; details in [`docs/references/sorting.md`](docs/references/sorting.md). When in doubt, sort.
+- **`Promise.race` / `Promise.any` in loops** — never re-race a pool that survives across iterations (the handlers stack). See `.claude/skills/promise-race-pitfall/SKILL.md`.
 
-## SELF-EVALUATION
+### 1 path, 1 reference
 
-- Before calling done: present two views — perfectionist reject vs. pragmatist ship — and let the user decide. If the user gives no signal, default to perfectionist: do the fuller fix.
-- After fixing a bug: explain why it happened and what category of bug it is
-- If a fix fails twice: stop, re-read top-down, state where the mental model was wrong, try something fundamentally different
-- On "step back" or "we're going in circles": drop everything, rethink from scratch
+A path is constructed exactly once. Everywhere else references the constructed value.
 
-## HOUSEKEEPING
+- **Within a package**: every script imports its own `scripts/paths.mts`. No `path.join('build', mode, …)` outside that module.
+- **Across packages**: package B imports package A's `paths.mts` via the workspace `exports` field. Never `path.join(PKG, '..', '<sibling>', 'build', …)`.
+- **Workflows / Dockerfiles / shell** can't `import` TS — construct once, reference by output / `ENV` / variable.
 
-- Offer to checkpoint before risky changes
-- Flag files >400 LOC for potential splitting
+Three-level enforcement: `.claude/hooks/path-guard/` blocks at edit time; `scripts/check-paths.mts` is the whole-repo gate run by `pnpm check`; `/path-guard` is the audit-and-fix skill. Find the canonical owner and import from it.
 
-## ERROR MESSAGES
+### Background Bash
 
-An error message is UI. The reader should be able to fix the problem from the message alone, without opening your source.
+Never use `Bash(run_in_background: true)` for test / build commands (`vitest`, `pnpm test`, `pnpm build`, `tsgo`). Backgrounded runs you don't poll get abandoned and leak Node workers. Background mode is for dev servers and long migrations whose results you'll consume. If a run hangs, kill it: `pkill -f "vitest/dist/workers"`. The `.claude/hooks/stale-process-sweeper/` `Stop` hook reaps true orphans as a safety net.
 
-Every message needs four ingredients, in order:
+### Judgment & self-evaluation
 
-1. **What** — the rule that was broken (e.g. "must be lowercase"), not the fallout ("invalid").
-2. **Where** — the exact file, line, key, field, or CLI flag. Not "somewhere in config".
+- If the request is based on a misconception, say so before executing.
+- If you spot an adjacent bug, flag it: "I also noticed X — want me to fix it?"
+- Fix warnings (lint / type / build / runtime) when you see them — don't leave them for later.
+- **Default to perfectionist** when you have latitude. "Works now" ≠ "right."
+- Before calling done: perfectionist vs. pragmatist views. Default perfectionist absent a signal.
+- If a fix fails twice: stop, re-read top-down, state where the mental model was wrong, try something fundamentally different.
+
+### Error messages
+
+An error message is UI. The reader should fix the problem from the message alone. Four ingredients in order:
+
+1. **What** — the rule, not the fallout (`must be lowercase`, not `invalid`).
+2. **Where** — exact file / line / key / field / flag.
 3. **Saw vs. wanted** — the bad value and the allowed shape or set.
-4. **Fix** — one concrete action, in imperative voice (`rename the key to …`, not `the key was not renamed`).
+4. **Fix** — one imperative action (`rename the key to …`).
 
-Length depends on the audience:
+Use `isError` / `isErrnoException` / `errorMessage` / `errorStack` from `@socketsecurity/lib/errors` over hand-rolled checks. Use `joinAnd` / `joinOr` from `@socketsecurity/lib/arrays` for allowed-set lists. Full guidance in [`docs/references/error-messages.md`](docs/references/error-messages.md).
 
-- **Library API errors** (thrown from a published package): terse. Callers may match on the message text, so every word counts. All four ingredients often fit in one sentence — e.g. `name "__proto__" cannot start with an underscore` covers rule, where (`name`), saw (`__proto__`), and implies the fix.
-- **Validator / config / build-tool errors** (developer reading a terminal): verbose. Give each ingredient its own words so the reader can find the bad record without re-running the tool.
-- **Programmatic errors** (internal assertions, invariant checks): terse, rule only. No end user will see it; short keeps the check readable.
+### Token hygiene
 
-Rules for every message:
+🚨 Never emit the raw value of any secret to tool output, commits, comments, or replies. The `.claude/hooks/token-guard/` `PreToolUse` hook blocks the deterministic patterns (literal token shapes, env dumps, `.env*` reads, unfiltered `curl -H "Authorization:"`, sensitive-name commands without redaction). When the hook blocks a command, rewrite — don't bypass.
 
-- Imperative voice for the fix — `add "filename" to part 3`, not `"filename" was missing`.
-- Never "invalid" on its own. `invalid filename 'My Part'` is fallout; `filename 'My Part' must be [a-z]+ (lowercase, no spaces)` is a rule.
-- On a collision, name **both** sides, not just the second one found.
-- Suggest, don't auto-correct. Silently fixing state hides the bug next time.
-- Bloat check: if removing a word keeps the information, drop it.
-- For allowed-set / conflict lists, use `joinAnd` / `joinOr` from `@socketsecurity/lib/arrays` — `must be one of: ${joinOr(allowed)}` reads better than a hand-formatted list.
+Behavior the hook can't catch: redact `token` / `jwt` / `access_token` / `refresh_token` / `api_key` / `secret` / `password` / `authorization` fields when citing API responses. Show key *names* only when displaying `.env.local`. If a user pastes a secret, treat it as compromised and ask them to rotate.
 
-Examples:
+Full hook spec in [`.claude/hooks/token-guard/README.md`](.claude/hooks/token-guard/README.md).
 
-- ✗ `Error: invalid config` → ✓ `config.json: part 3 is missing "filename". Add a lowercase filename (e.g. "parsing").`
-- ✗ `Error: invalid component` → ✓ `npm "name" component is required`
+### Agents & skills
 
-See `docs/references/error-messages.md` for worked examples and anti-patterns.
+- `/security-scan` — AgentShield + zizmor audit
+- `/quality-scan` — quality analysis
+- Shared subskills in `.claude/skills/_shared/`
 
-## ABSOLUTE RULES
+<!-- END FLEET-CANONICAL -->
 
-- Never create files unless necessary; always prefer editing existing files
-- Forbidden to create docs unless requested
-- 🚨 **NEVER use `npx`, `pnpm dlx`, or `yarn dlx`** — use `pnpm exec <pkg>` or `pnpm run <script>`; add tools as pinned devDependencies first # zizmor: documentation-prohibition
-- **minimumReleaseAge**: NEVER add packages to `minimumReleaseAgeExclude` in CI. Locally, ASK before adding — the age threshold is a security control.
-- 🚨 **NEVER mention private repos or internal project names** in commits, PR titles/descriptions/comments, issues, release notes, or any public-surface text. Internal codenames, unreleased product names, internal tooling repo names not on the public org page, customer names, partner names — none belong in public surfaces. **Omit the reference entirely.** Don't substitute a placeholder ("an internal tool", "a downstream consumer", etc.) — the placeholder itself is a tell that something is being elided. Rewrite the sentence to not need the reference at all.
-- 🚨 **NEVER trigger Publish / Release / Provenance / Build-Release workflows** — no `gh workflow run`, `gh workflow dispatch`, or `gh api .../dispatches`. Workflow dispatches are irrevocable: Publish workflows push npm versions (unpublishable after 24h), Build/Release workflows pin GitHub releases by SHA, container workflows push immutable tags. Even build workflows with a `dry_run` input still treat the dispatch itself as the prod trigger. The user runs workflow_dispatch jobs manually after CI passes on the release commit + tag — Claude **never** dispatches them. If the user asks for a publish, tell them to run the command in their own terminal (or the GitHub Actions UI).
-- 🚨 **Programmatic Claude calls** (workflows, skills, scripts that invoke `claude` CLI or `@anthropic-ai/claude-agent-sdk`) MUST set all four lockdown flags: `--tools`/`tools`, `--allowedTools`/`allowedTools`, `--disallowedTools`/`disallowedTools`, and `--permission-mode dontAsk`/`permissionMode: 'dontAsk'`. NEVER `default` mode in headless contexts (falls through to a missing `canUseTool` → undefined behavior). NEVER `bypassPermissions`. See `.claude/skills/programmatic-claude-lockdown/SKILL.md` for the recipe + reference impl (`socket-lib/tools/prim/src/disambiguate.mts`).
+## 🏗️ Registry-Specific
 
-## EVOLUTION
+### Architecture
 
-If user repeats an instruction 2+ times, ask: "Should I add this to CLAUDE.md?"
+- `/registry/src/` — TypeScript source
+- `/registry/dist/` — build output (esbuild)
+- `/scripts/` — dev/build scripts (all `.mts`)
+- `/test/` — test files/fixtures
+- `/packages/npm/` — NPM package overrides
+- Primary export: `getManifestData(ecosystem, packageName)` from `@socketsecurity/registry`
 
----
+### Performance
 
-## SHARED STANDARDS
+- Optimize for speed without sacrificing correctness (serves Socket security infrastructure)
+- Benchmark performance-sensitive changes
+- Avoid unnecessary allocations in hot paths
 
-### Emoji & Output Style
+### Package Manager Spawning
 
-**Terminal symbols** (from `@socketsecurity/lib/logger` LOG_SYMBOLS):
+- Lives in `@socketsecurity/lib/spawn`, not this repo.
 
-- ✓ Success — green (NOT ✅)
-- ✗ Error — red (NOT ❌)
-- ⚠ Warning — yellow (NOT ⚠️)
-- ℹ Info — blue (NOT ℹ️)
-- → Step — cyan (NOT ➜ or ▶)
+### Commands
 
-Color the icon only, using `yoctocolors-cjs` (NOT ESM `yoctocolors`):
+- Dev: `pnpm run build`, `pnpm run test`, `pnpm run check`, `pnpm run fix`
+- Type check: `pnpm run type` (tsgo, no emit)
+- Registry: `pnpm run update`, `pnpm run make-npm-override`, `pnpm run release-npm`
+- Test npm packages: `node scripts/npm/test-npm-packages.mts` (long-running)
 
-```javascript
-import colors from 'yoctocolors-cjs'
-const success = `${colors.green('✓')} ${msg}`
-const error = `${colors.red('✗')} ${msg}`
-const warning = `${colors.yellow('⚠')} ${msg}`
-const info = `${colors.blue('ℹ')} ${msg}`
-const step = `${colors.cyan('→')} ${msg}`
-```
+### Build System
 
-Use emojis sparingly. Prefer text symbols for terminal compatibility.
+- esbuild (registry); TypeScript → CommonJS (unminified for Node ESM interop)
+- Post-build transform converts esbuild wrappers to clear `module.exports = { ... }` for Node ESM named imports
+- Env configs: `.env.test`
+- Lint: oxlint. Format: oxfmt.
 
 ### Cross-Platform (MANDATORY)
 
@@ -172,23 +174,6 @@ Use emojis sparingly. Prefer text symbols for terminal compatibility.
 - Minimum: Node.js 18.0.0
 - **FORBIDDEN ES2023+**: `toReversed()`, `toSorted()`, `toSpliced()`, `with()`
 - Use `slice().reverse()`, `slice().sort()` instead
-
-### Backward Compatibility
-
-- 🚨 FORBIDDEN to maintain — we're our only consumers. Remove compat code on sight. Make clean breaks; no deprecation paths.
-
-### Safe File Operations (SECURITY CRITICAL)
-
-- 🚨 FORBIDDEN: `fs.rm()`, `fs.rmSync()`, `rm -rf`. Use `safeDelete()`/`safeDeleteSync()` from `@socketsecurity/lib/fs`.
-- package.json scripts: use `del-cli`
-- 🚨 HTTP: NEVER `fetch()` — use `httpJson`/`httpText`/`httpRequest` from `@socketsecurity/lib/http-request`
-- 🚨 File existence: ALWAYS `existsSync` from `node:fs`. NEVER `fs.access`, `fs.stat`-for-existence, or an async `fileExists` wrapper. Import: `import { existsSync, promises as fs } from 'node:fs'`
-
-### Work Safeguards
-
-- Before bulk changes: commit WIP + create backup branch
-- FORBIDDEN: automated fix scripts (sed/awk/regex bulk replacements) without backup
-- FORBIDDEN: multi-file modifications without backup branch
 
 ### Git Workflow
 
@@ -280,125 +265,6 @@ Actions and workflows reference each other by full 40-char SHA pinned to main. W
 - Filenames: `lowercase-with-hyphens.md` (except README.md, LICENSE, CHANGELOG.md)
 - Style: pithy, direct, scannable; ASCII diagrams for complex concepts
 
-### Code Style — File Organization
-
-- Extensions: `.js` (JSDoc), `.mjs` (ES modules), `.mts` (TypeScript modules)
-- kebab-case filenames
-- **MANDATORY** `@fileoverview` as first content
-- **MANDATORY** `node:` prefix for Node imports
-- Import sorting: 1) Node built-ins, 2) External, 3) `@socketsecurity/*`, 4) Local, 5) Types. Blank lines between groups, alphabetical within.
-- fs imports: `import { syncMethod, promises as fs } from 'node:fs'`
-
-### Code Style — Patterns
-
-- Constants: `UPPER_SNAKE_CASE`
-- **Avoid `null`** — use `undefined` everywhere
-  - Default params: `function foo(bar = undefined)` or `function foo(bar)`
-  - Init: `let x` or `let x = undefined`, not `let x = null`
-  - Return `undefined`, not `null`
-  - Optional properties: `?:` not `| null`
-  - Exceptions: `__proto__: null` (required pattern); external APIs requiring `null`
-- **`__proto__`**: MANDATORY first in literals: `{ __proto__: null, ...opts }`
-- Null-prototype objects: `Object.create(null)` for empty; `{ __proto__: null, key: val }` with props
-- Options pattern: MANDATORY `const opts = { __proto__: null, ...options } as SomeOptions`
-- Array destructuring: `{ 0: key, 1: val }` for `Object.entries()` loops (V8 perf)
-- Array checks: `!array.length` not `array.length === 0`
-- Increments: `var += 1` not `var++` (standalone)
-- Type safety: FORBIDDEN `any`; use `unknown` or specific types
-- Loop annotations: FORBIDDEN on `for...of` variables
-- Strings: MANDATORY template literals, not concatenation
-- Semicolons: omit (except SDK which uses them)
-
-### Code Style — Functions
-
-- Order: alphabetical; private first, then exported
-- `await` in loops: add `// eslint-disable-next-line no-await-in-loop` when intentional
-- Process spawning: use `spawn` from `@socketsecurity/lib/spawn`, not `child_process.spawn`
-- **spawn() with `shell: WIN32`**: 🚨 NEVER change to `shell: true`
-  - `shell: WIN32` is the correct cross-platform pattern (shell on Windows, off on Unix)
-  - ENOENT means args are wrong, not the shell param. Separate command and args:
-
-    ```javascript
-    // WRONG — full command as string
-    spawn('python3 -m module arg1 arg2', [], { shell: WIN32 })
-
-    // CORRECT
-    spawn('python3', ['-m', 'module', 'arg1', 'arg2'], { shell: WIN32 })
-    ```
-
-- **Working directory**: 🚨 NEVER use `process.chdir()` — pass `{ cwd: absolutePath }` to spawn/exec/fs. `process.chdir` breaks tests, worker threads, and causes races.
-
-### Code Style — Comments
-
-- Default to NO comments. Add one only when the WHY is non-obvious to a senior engineer reading cold.
-- Single-line (`//`) over multiline
-- **MANDATORY** all comments end with periods (except directives/URLs)
-- Own line above code
-- JSDoc: description + optional `@throws`. NO `@param`/`@returns`/`@author` — types in signatures say that. `@example` only when the call site is non-obvious.
-
-### 1 path, 1 reference
-
-**A path is _constructed_ exactly once. Everywhere else _references_ the constructed value.**
-
-Referencing a single computed path many times is fine — that's the whole point of computing it once. What's banned is _re-constructing_ the same path in multiple places, because that's where drift is born.
-
-- **Within a package**: every script imports its own `scripts/paths.mts` (or `lib/paths.mts`). No `path.join('build', mode, ...)` outside that module.
-- **Across packages**: when package B consumes package A's output, B imports A's `paths.mts` via the workspace `exports` field. Never `path.join(PKG, '..', '<sibling>', 'build', ...)`.
-- **Workflows, Dockerfiles, shell scripts**: they can't `import` TS, so they construct the string once and reference it everywhere downstream. Workflows: a "Compute paths" step exposes `steps.paths.outputs.final_dir`; later steps read `${{ steps.paths.outputs.final_dir }}`. Dockerfiles/shell: assign once to a variable / `ENV`, reference by name thereafter. Each canonical construction carries a comment naming the source-of-truth `paths.mts`. **Re-building** the same path in a second step is the violation, not referring to the constructed value many times.
-- **Comments**: may describe path _structure_ with placeholders ("`<mode>/<arch>`") but should not encode a complete literal path string. The import statement IS the comment.
-
-Code execution takes priority over docs: violations in `.mts`/`.cts`, Makefiles, Dockerfiles, workflow YAML, and shell scripts are blocking. README and doc-comment violations are advisory unless they contain a fully-qualified path with no parametric placeholders.
-
-**Three-level enforcement:**
-
-- **Hook** — `.claude/hooks/path-guard/` blocks `Edit`/`Write` calls that would introduce a violation in a `.mts`/`.cts` file at edit time.
-- **Gate** — `scripts/check-paths.mts` runs in `pnpm check`. Fails the build on any violation that isn't allowlisted in `.github/paths-allowlist.yml`.
-- **Skill** — `/path-guard` audits the repo and fixes findings; `/path-guard check` reports only; `/path-guard install` drops the gate + hook + rule into a fresh repo.
-
-The mantra is intentionally short so it sticks: **1 path, 1 reference**. When in doubt, find the canonical owner and import from it.
-
-### Inclusive Language
-
-Use precise, neutral terms over historical metaphors that imply hierarchy or exclusion. The substitutes are not euphemisms — they're more _accurate_ (a list of allowed values genuinely is an "allowlist"; "whitelist" is a metaphor that hides what the list does).
-
-| Replace                          | With                                                |
-| -------------------------------- | --------------------------------------------------- |
-| `whitelist` / `whitelisted`      | `allowlist` / `allowed` / `allowlisted`             |
-| `blacklist` / `blacklisted`      | `denylist` / `denied` / `blocklisted` / `blocked`   |
-| `master` (branch, process, copy) | `main` (branch); `primary` / `controller` (process) |
-| `slave`                          | `replica`, `worker`, `secondary`, `follower`        |
-| `grandfathered`                  | `legacy`, `pre-existing`, `exempted`                |
-| `sanity check`                   | `quick check`, `confidence check`, `smoke test`     |
-| `dummy` (placeholder)            | `placeholder`, `stub`                               |
-
-Apply across **code** (identifiers, comments, string literals), **docs** (READMEs, CLAUDE.md, markdown), **config files** (YAML, JSON), **commit messages**, **PR titles/descriptions**, and **CI logs** you control.
-
-Two exceptions where the legacy term must remain (because changing it breaks something external):
-
-- **Third-party APIs / upstream code**: when interfacing with an external API field literally named `whitelist`, keep the field name; rename your local variable. E.g. `const allowedDomains = response.whitelist`.
-- **Vendored upstream sources**: don't rewrite vendored code (`vendor/**`, `upstream/**`, `**/fixtures/**`). Patch around it if needed.
-
-When you encounter a legacy term during unrelated work, fix it inline — don't defer.
-
-### Sorting
-
-Sort lists alphanumerically (literal byte order, ASCII before letters). Apply this to:
-
-- **Config lists** — `permissions.allow` / `permissions.deny` in `.claude/settings.json`, `external-tools.json` checksum keys, allowlists in workflow YAML.
-- **Object key entries** — sort keys in plain JSON config + return-shape literals + internal-state objects. (Exception: `__proto__: null` always comes first, ahead of any data keys.)
-- **Import specifiers** — sort named imports inside a single statement: `import { encrypt, randomDataKey, wrapKey } from './crypto.mts'`. Imports that say `import type` follow the same rule. Statement _order_ is the project's existing convention (`node:` → external → local → types) — that's separate from specifier order _within_ a statement.
-- **Method / function source placement** — within a module, sort top-level functions alphabetically. Convention: private functions (lowercase / un-exported) sort first, exported functions second. The first-line `export` keyword is the divider.
-- **Array literals** — when the array is a config list, allowlist, or set-like collection. Position-bearing arrays (e.g. argv, anything where index matters semantically) keep their meaningful order.
-- **`Set` constructor arguments** — `new Set([...])` and `new SafeSet([...])` literals. The runtime is order-insensitive, so source order is alphanumeric. Same rationale as Array literals: predictable diffs, no merge conflicts on insertions.
-
-When in doubt, sort. The cost of a sorted list that didn't need to be is approximately zero; the cost of an unsorted list that did need to be is a merge conflict.
-
-### Code Style — Sorting
-
-- **MANDATORY** sort lists, exports, object properties, destructuring alphabetically
-- Type properties: required first, then optional; alphabetical within groups
-- Class members: 1) private properties, 2) private methods, 3) public methods (all alphabetical)
-
 ### Error Handling
 
 - `catch (e)` not `catch (error)`
@@ -410,13 +276,6 @@ When in doubt, sort. The cost of a sorted list that didn't need to be is approxi
   - `failed to parse {format}` / `unable to {action} "{component}"`
 - Throw errors (no silent failures); include `{ cause: e }` when wrapping; no `process.exit()` except script entry
 - JSDoc: `@throws {ErrorType} When condition.`
-
-### Changelog
-
-- Format: `## [version](https://github.com/SocketDev/socket-registry/releases/tag/vversion) - YYYY-MM-DD`
-- Follow [Keep a Changelog](https://keepachangelog.com/)
-- Sections: Added, Changed, Fixed, Removed
-- User-facing only (no internal refactoring/deps/CI)
 
 ### Dependency Alignment
 
@@ -431,51 +290,3 @@ When in doubt, sort. The cost of a sorted list that didn't need to be is approxi
 - Location: `.claude/` (gitignored) — working notes, never commit
 
 ---
-
-## REGISTRY-SPECIFIC
-
-### Architecture
-
-- `/registry/src/` — TypeScript source
-- `/registry/dist/` — build output (esbuild)
-- `/scripts/` — dev/build scripts (all `.mts`)
-- `/test/` — test files/fixtures
-- `/packages/npm/` — NPM package overrides
-- Primary export: `getManifestData(ecosystem, packageName)` from `@socketsecurity/registry`
-
-### Performance
-
-- Optimize for speed without sacrificing correctness (serves Socket security infrastructure)
-- Benchmark performance-sensitive changes
-- Avoid unnecessary allocations in hot paths
-
-### Package Manager Spawning
-
-- Lives in `@socketsecurity/lib/spawn`, not this repo.
-
-### Commands
-
-- Dev: `pnpm run build`, `pnpm run test`, `pnpm run check`, `pnpm run fix`
-- Type check: `pnpm run type` (tsgo, no emit)
-- Registry: `pnpm run update`, `pnpm run make-npm-override`, `pnpm run release-npm`
-- Test npm packages: `node scripts/npm/test-npm-packages.mts` (long-running)
-
-### Build System
-
-- esbuild (registry); TypeScript → CommonJS (unminified for Node ESM interop)
-- Post-build transform converts esbuild wrappers to clear `module.exports = { ... }` for Node ESM named imports
-- Env configs: `.env.test`
-- Lint: oxlint. Format: oxfmt.
-
-### Background Bash
-
-Never use `Bash(run_in_background: true)` for test/build commands (`vitest`, `pnpm test`, `pnpm build`, `tsgo`). Backgrounded runs you don't poll get abandoned and leak Node workers. Background mode is for dev servers and long migrations whose results you'll consume. If a run hangs, kill it: `pkill -f "vitest/dist/workers"`.
-
-## Agents & Skills
-
-- `/security-scan` — AgentShield + zizmor security audit
-- `/quality-scan` — comprehensive code quality analysis
-- `/quality-loop` — scan and fix iteratively
-- Agents: `code-reviewer`, `security-reviewer`, `refactor-cleaner` (in `.claude/agents/`)
-- Shared subskills in `.claude/skills/_shared/`
-- Pipeline state: `.claude/ops/queue.yaml`
