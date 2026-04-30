@@ -556,6 +556,8 @@ importers:
         specifier: 'catalog:'
         version: 5.25.1(typescript@5.9.2)
 
+  .claude/hooks/stale-process-sweeper: {}
+
   .claude/hooks/token-guard: {}
 
   packages/npm/abab: {}
