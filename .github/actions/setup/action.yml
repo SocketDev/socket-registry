@@ -279,6 +279,16 @@ runs:
           echo 'bypass:sh.rustup.rs'
           echo 'bypass:nodejs.org'
           echo 'bypass:bootstrap.pypa.io'
+          # Go module proxy + toolchain auto-download. proxy.golang.org
+          # serves modules and 302s to storage.googleapis.com for the
+          # `go: downloading go1.x.y` flow; sum.golang.org is the
+          # checksum DB. Without these, `go build` fails with
+          # `tls: failed to verify certificate: x509: certificate
+          # signed by unknown authority` because SFW's MITM breaks
+          # the cert chain at the redirect target.
+          echo 'bypass:proxy.golang.org'
+          echo 'bypass:sum.golang.org'
+          echo 'bypass:storage.googleapis.com'
           # Cargo web portal (search/info API).
           echo 'bypass:crates.io'
           # Conda ecosystem.
