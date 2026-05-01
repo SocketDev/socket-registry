@@ -192,7 +192,10 @@ async function main(): Promise<void> {
       return
     }
     if (dryRun) {
-      console.log('(dry-run: stopping after one iteration — pins would converge over multiple commits)')
+      // No commits land in dry-run mode, so HEAD never advances and
+      // a second iteration would find the same pins. Stop after one
+      // pass; re-run without --dry-run to actually cascade.
+      console.log('(dry-run: stopping after first pass; re-run without --dry-run to cascade)')
       return
     }
   }
