@@ -398,5 +398,9 @@
     "categories": [
       "cleanup"
     ]
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

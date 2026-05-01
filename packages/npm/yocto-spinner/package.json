@@ -57,5 +57,9 @@
   },
   "dependencies": {
     "yoctocolors-cjs": "2.1.3"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }
