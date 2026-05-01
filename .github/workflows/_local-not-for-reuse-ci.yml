@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@b74ae5083d662df0045731bcf35b4e54b1e03d37 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@e8e253975a55a519be7e4b520d83a33f52c0b1a4 # main
         with:
           node-version: 22
 
