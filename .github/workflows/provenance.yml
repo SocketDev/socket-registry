@@ -21,6 +21,11 @@ on:
         required: false
         type: string
         default: 'latest'
+      dry-run:
+        description: 'Stage everything but pass --dry-run to npm publish; nothing reaches the registry. Useful for verifying the manifest + tarball before a real release. Defaults to true: opting INTO a real publish requires unchecking this, so an accidental dispatch never publishes.'
+        required: false
+        type: boolean
+        default: true
       force-publish:
         description: 'Force publish without commit checks'
         required: false
@@ -150,6 +155,7 @@ jobs:
         if: inputs.publish-script != ''
         env:
           DIST_TAG: ${{ inputs.dist-tag }}
+          DRY_RUN: ${{ inputs.dry-run }}
           PUBLISH_SCRIPT: ${{ inputs.publish-script }}
           FORCE_PUBLISH: ${{ inputs.force-publish }}
           FORCE_REGISTRY: ${{ inputs.force-registry }}
@@ -168,10 +174,16 @@ jobs:
           if [ "$SKIP_NPM_PACKAGES" = "true" ]; then
             FLAGS="$FLAGS --skip-npm-packages"
           fi
+          if [ "$DRY_RUN" = "true" ]; then
+            FLAGS="$FLAGS --dry-run"
+          fi
 
           # Detect if it contains spaces or shell operators (command) vs script name
           if [[ "$PUBLISH_SCRIPT" =~ ( |&&|\|\||;|\|) ]]; then
-            # Contains space or shell operators - run as command
+            # Contains space or shell operators - run as command. The
+            # caller's command is responsible for honoring the FLAGS;
+            # we still export DRY_RUN so command-form scripts can
+            # branch on it directly.
             $PUBLISH_SCRIPT
           else
             # Script name only - run as pnpm script
@@ -187,7 +199,13 @@ jobs:
         env:
           NPM_CONFIG_IGNORE_SCRIPTS: true
           DIST_TAG: ${{ inputs.dist-tag }}
-        run: npm publish --access public --tag $DIST_TAG
+          DRY_RUN: ${{ inputs.dry-run }}
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then
+            npm publish --access public --tag $DIST_TAG --dry-run
+          else
+            npm publish --access public --tag $DIST_TAG
+          fi
 
       - name: Set package access
         if: inputs.access-script != ''
