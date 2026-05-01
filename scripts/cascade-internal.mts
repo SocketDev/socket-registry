@@ -17,8 +17,9 @@
  *   # Preview without committing:
  *   node scripts/cascade-internal.mts --dry-run
  *
- * Pre-flight: working tree must be clean (commit your change first),
- * branch must be `main`, at least one commit ahead of origin/main.
+ * Pre-flight: working tree must be clean (commit your change first).
+ * Cascade commits land on the current branch; safe to run from a
+ * release branch or PR branch as well as main.
  *
  * The scan uses one regex
  * `SocketDev/socket-registry(<path>)@<40-hex>` — third-party action
@@ -180,10 +181,6 @@ async function main(): Promise<void> {
   }
   if (git('status', '--porcelain').length > 0) {
     throw new Error('working tree is dirty — commit your change first')
-  }
-  const branch = git('rev-parse', '--abbrev-ref', 'HEAD')
-  if (branch !== 'main') {
-    throw new Error(`must be on main (currently on ${branch})`)
   }
 
   let total = 0
