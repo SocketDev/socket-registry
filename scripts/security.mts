@@ -1,4 +1,30 @@
-/** @fileoverview Run local security scans (agentshield + zizmor). Cross-platform wrapper. */
+/**
+ * @fileoverview Canonical fleet security-scan runner.
+ *
+ * Runs the two static-analysis tools the fleet uses for local security
+ * checks before push:
+ *
+ *   1. AgentShield — scans `.claude/` config for prompt-injection,
+ *      leaked secrets, and overly-permissive tool permissions.
+ *   2. zizmor      — static analysis for `.github/workflows/*.yml`
+ *      (unpinned actions, secret exposure, template injection,
+ *      permission issues).
+ *
+ * Either tool missing prints a "run pnpm run setup" hint (which
+ * downloads + verifies the pinned binary via the setup-security-tools
+ * hook) and skips that scan rather than failing the entire run.
+ *
+ * Cross-platform: uses `which` from npm for binary discovery (handles
+ * Windows .exe/.cmd resolution) and `spawn` from
+ * `@socketsecurity/lib/spawn` for proper async lifecycle.
+ *
+ * Wired in via `package.json`:
+ *
+ *   "security": "node scripts/security.mts"
+ *
+ * Byte-identical across every fleet repo. Sync-scaffolding flags
+ * drift.
+ */
 
 import process from 'node:process'
 
