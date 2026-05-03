@@ -14,8 +14,9 @@
  * downloads + verifies the pinned binary via the setup-security-tools
  * hook) and skips that scan rather than failing the entire run.
  *
- * Cross-platform: uses `which` from npm for binary discovery (handles
- * Windows .exe/.cmd resolution) and `spawn` from
+ * Cross-platform: uses `which` from `@socketsecurity/lib/bin` for
+ * binary discovery (handles Windows .exe/.cmd resolution; returns null
+ * rather than throwing on miss) and `spawn` from
  * `@socketsecurity/lib/spawn` for proper async lifecycle.
  *
  * Wired in via `package.json`:
@@ -28,8 +29,7 @@
 
 import process from 'node:process'
 
-import which from 'which'
-
+import { which } from '@socketsecurity/lib/bin'
 import { WIN32 } from '@socketsecurity/lib/constants/platform'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { spawn } from '@socketsecurity/lib/spawn'
@@ -37,12 +37,9 @@ import { spawn } from '@socketsecurity/lib/spawn'
 const logger = getDefaultLogger()
 
 async function hasExecutable(name: string): Promise<boolean> {
-  try {
-    await which(name)
-    return true
-  } catch {
-    return false
-  }
+  // socket-lib's `which` returns null when the binary isn't on PATH
+  // (no throw), so a simple truthy check suffices.
+  return Boolean(await which(name))
 }
 
 async function runTool(command: string, args: string[]): Promise<number> {
