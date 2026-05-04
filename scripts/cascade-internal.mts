@@ -35,7 +35,10 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
-const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const REPO_ROOT = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+)
 
 // One regex captures the pin path + SHA. The path group is the suffix
 // after `socket-registry`, including the leading `/`, so a pin like
@@ -117,7 +120,11 @@ function isStale(pin: Pin, head: string): boolean {
   )
 }
 
-async function rewriteFile(file: string, pinsInFile: Pin[], head: string): Promise<void> {
+async function rewriteFile(
+  file: string,
+  pinsInFile: Pin[],
+  head: string,
+): Promise<void> {
   let text = await fs.readFile(file, 'utf8')
   // Rewrite right-to-left so earlier offsets remain valid.
   for (const pin of [...pinsInFile].sort((a, b) => b.shaStart - a.shaStart)) {
@@ -126,7 +133,9 @@ async function rewriteFile(file: string, pinsInFile: Pin[], head: string): Promi
   await fs.writeFile(file, text)
 }
 
-async function runIteration(dryRun: boolean): Promise<{ commits: number; converged: boolean }> {
+async function runIteration(
+  dryRun: boolean,
+): Promise<{ commits: number; converged: boolean }> {
   const head = git('rev-parse', 'HEAD')
   const pins = await scanPins()
   const stale = pins.filter(p => isStale(p, head))
@@ -142,9 +151,13 @@ async function runIteration(dryRun: boolean): Promise<{ commits: number; converg
       byFile.set(p.file, [p])
     }
   }
-  const relFiles = [...byFile.keys()].map(f => path.relative(REPO_ROOT, f)).sort()
+  const relFiles = [...byFile.keys()]
+    .map(f => path.relative(REPO_ROOT, f))
+    .sort()
   const pinPaths = [...new Set(stale.map(p => p.pinPath))].sort()
-  console.log(`  bumping ${stale.length} stale pins across ${byFile.size} files → ${head.slice(0, 8)}`)
+  console.log(
+    `  bumping ${stale.length} stale pins across ${byFile.size} files → ${head.slice(0, 8)}`,
+  )
   for (const p of pinPaths) {
     console.log(`    ${p}`)
   }
@@ -188,14 +201,20 @@ async function main(): Promise<void> {
     const { commits, converged } = await runIteration(dryRun)
     total += commits
     if (converged) {
-      console.log(total === 0 ? 'No stale pins.' : `Converged after ${total} cascade commits.`)
+      console.log(
+        total === 0
+          ? 'No stale pins.'
+          : `Converged after ${total} cascade commits.`,
+      )
       return
     }
     if (dryRun) {
       // No commits land in dry-run mode, so HEAD never advances and
       // a second iteration would find the same pins. Stop after one
       // pass; re-run without --dry-run to actually cascade.
-      console.log('(dry-run: stopping after first pass; re-run without --dry-run to cascade)')
+      console.log(
+        '(dry-run: stopping after first pass; re-run without --dry-run to cascade)',
+      )
       return
     }
   }
