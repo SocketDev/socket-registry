@@ -105,6 +105,15 @@
       }
     }
   },
+  "rust": {
+    "notes": "Rust toolchain — required by socket-btm's Node 26+ build to link the temporal_rs Rust crate that backs Temporal. Per Node BUILDING.md \"Building Node.js with Temporal support\": rustc/cargo >= 1.82 with LLVM >= 19. The minimum is what configure.py asserts at build time; downstream consumers (CI runners + local dev machines) typically have a newer stable toolchain via rustup, which is fine. Unlike pnpm/sfw/zizmor this entry has no per-platform integrity — Rust is installed via rustup or a runner-image preinstall, not by downloading a single tarball. Workflows install it via `dtolnay/rust-toolchain@stable` (CI) or `rustup default stable` (local).",
+    "description": "Rust toolchain — required for Node 26+ Temporal support",
+    "repository": "rust-lang/rust",
+    "minVersion": "1.82.0",
+    "minLlvmVersion": "19",
+    "release": "rustup",
+    "components": ["rustc", "cargo"]
+  },
   "pnpm": {
     "notes": "pnpm upstream publishes 7 platform-native binaries: linux-{x64,arm64}{,-musl}, darwin-arm64, win-{x64,arm64}. The linux-*-musl entries are first-class assets (pnpm-linux-{x64,arm64}-musl.tar.gz), NOT aliases of the glibc tarballs — their hashes are genuinely distinct. Do not \"simplify\" them by pointing at the glibc asset; the binaries are linked against different libcs and only the matching one runs on its target. darwin-x64 is intentionally a different shape: upstream dropped the SEA binary in 11.0.5 because of an upstream Node.js LIEF/Mach-O bug (nodejs/node#62893) that the Node team has declined to fix. Intel Mac instead installs the npm-registry JS tarball + runs it through the system Node — see source/binary fields below.",
     "description": "Fast, disk space efficient package manager",
