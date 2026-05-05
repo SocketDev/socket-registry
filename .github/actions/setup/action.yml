@@ -271,14 +271,25 @@ runs:
             # missing tool (`gem install foo` on a runner without Ruby)
             # fails with a generic "command not found" — the stub makes
             # the error self-explanatory and points at the install path.
+            #
+            # We emit each `echo` line as a single-quoted argument so
+            # the message renders verbatim at run time (no expansion of
+            # $foo / backticks / inner double quotes). The sed pass on
+            # each value escapes any embedded single quote via the
+            # `'\''` idiom. Mirrors the local-install regenerator at
+            # ~/.socket/sfw/regenerate-shims.sh — keep both in sync
+            # when adjusting wording.
             HINT="$(hint_for "$CMD")"
+            sq_escape() { printf "%s" "$1" | sed "s/'/'\\\\''/g"; }
+            MSG_HINT="$(sq_escape "  $HINT")"
+            MSG_TITLE="$(sq_escape "× sfw: \"$CMD\" is not installed on this runner.")"
             {
               printf '%s\n' '#!/bin/bash'
               printf '%s\n' "# Socket Firewall shim — placeholder for $CMD (not installed at setup time)."
               printf '%s\n' 'exec >&2'
-              printf 'echo "%s"\n' "× sfw: \"$CMD\" is not installed on this runner."
+              printf "echo '%s'\n" "$MSG_TITLE"
               printf '%s\n' 'echo'
-              printf 'echo "  %s"\n' "$HINT"
+              printf "echo '%s'\n" "$MSG_HINT"
               printf '%s\n' 'echo'
               printf '%s\n' 'echo "  Add a setup step that installs the tool BEFORE the step that"'
               printf '%s\n' 'echo "  uses it; the shim is regenerated on the next setup-and-install run."'
