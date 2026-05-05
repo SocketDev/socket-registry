@@ -93,7 +93,8 @@ fi
 
 ### Phase 3: Validate xport manifest (if applicable)
 
-If `xport.json` exists at repo root, run the harness:
+If `xport.json` exists at repo root, run the harness in read-only mode
+to classify drift before acting on it:
 
 ```bash
 if [ -f xport.json ]; then
@@ -101,38 +102,54 @@ if [ -f xport.json ]; then
   XPORT_EXIT=$?
 
   case $XPORT_EXIT in
-    0) echo "✓ xport clean — manifest valid, no drift" ;;
+    0) echo "✓ xport clean — manifest valid, no drift; skip Phase 4 xport step" ;;
     1) echo "✗ xport schema/structural error — stopping"; exit 1 ;;
-    2) echo "⚠ xport drift — review advisories; not a blocker" ;;
+    2) echo "⚠ xport drift — Phase 4 will invoke updating-xport to act" ;;
   esac
 fi
 ```
 
 Exit code semantics:
-- **0** — manifest valid, no drift; proceed.
+- **0** — manifest valid, no drift; nothing for `updating-xport` to do.
 - **1** — schema violation, missing file, or unreachable baseline. Stop
   and investigate via `scripts/xport-schema.mts` and the failing row's
   `local_*`/`upstream` fields. Do not auto-retry.
-- **2** — drift detected. This is an **advisory signal** (upstream
-  advanced, feature-parity score below floor, rejected anti-pattern
-  reintroduced). Review the harness output, file follow-up tasks, and
-  proceed with the update.
+- **2** — drift detected. Phase 4 invokes the `updating-xport` skill,
+  which auto-bumps mechanical `version-pin` rows (per `upgrade_policy`)
+  and surfaces everything else (`file-fork` / `feature-parity` /
+  `spec-conformance` / `lang-parity` / `locked` version-pins) as
+  advisory notes for the PR body. Drift on `locked` rows never
+  auto-bumps — they need a coordinated upstream change first (e.g.,
+  `temporal-rs` is `locked` because Node vendors it and bumping is
+  gated on a Node bump landing first).
 
 If `xport.json` does NOT exist, skip this phase.
 
 ---
 
-### Phase 4: Update Upstream Submodules (if applicable)
+### Phase 4: Apply xport drift + update other submodules (if applicable)
 
-Invoke each `updating-*` sub-skill that this repo defines. Sub-skills
-handle their own submodule bumps, version detection, and commits.
+**4a. xport drift** — if Phase 3 reported exit 2 (drift), invoke the
+`updating-xport` skill. It auto-bumps `version-pin` rows whose
+`upgrade_policy` is `track-latest` or `major-gate` (patch/minor only,
+majors → advisory), and emits an advisory block for everything else.
+Each auto-bumped row becomes its own atomic commit.
 
-xport-managed submodules (`version-pin` rows) are auto-bumped in
-Phase 3 via the harness; do NOT also run a dedicated sub-skill for
-them. Only run sub-skills for submodules NOT claimed by xport.
+```bash
+if [ "$XPORT_EXIT" = "2" ]; then
+  # Invoke via the Skill tool / programmatic-claude flow used by the
+  # weekly-update workflow. Standalone runs can do `/updating-xport`.
+  echo "Invoking updating-xport for drift handling"
+fi
+```
 
-If no `.gitmodules` exists (or all submodules are xport-managed),
-skip this phase.
+**4b. Non-xport submodules** — invoke each `updating-*` sub-skill this
+repo defines (e.g., `updating-node`, `updating-curl`) for submodules
+NOT claimed by an xport `version-pin` row. These sub-skills know about
+build inputs that aren't tracked in xport (cache-versions bumps,
+patch regeneration, etc.).
+
+If no `.gitmodules` exists, skip 4b.
 
 ---
 
