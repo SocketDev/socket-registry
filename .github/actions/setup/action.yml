@@ -13,7 +13,7 @@ inputs:
   node-version:
     description: 'Node.js version'
     required: false
-    default: '25.9.0'
+    default: '26.0.0'
   scope:
     description: 'npm registry scope for package authentication'
     required: false
@@ -81,16 +81,37 @@ runs:
         PLATFORM_TOOL="${GITHUB_ACTION_PATH}/../lib/platform.mjs"
         PLATFORM="$(node "$PLATFORM_TOOL")"
         ASSET="$(node "$JQ" "$TOOLS_FILE" pnpm checksums "$PLATFORM" asset)"
-        EXPECTED_SHA256="$(node "$JQ" "$TOOLS_FILE" pnpm checksums "$PLATFORM" sha256)"
+        INTEGRITY="$(node "$JQ" "$TOOLS_FILE" pnpm checksums "$PLATFORM" integrity)"
+        # Optional `source` field. When set to `npm-registry`, the asset
+        # is a JS-only npm tarball (e.g. pnpm-11.0.6.tgz) — runs through
+        # the system Node instead of being a SEA binary. Currently used
+        # only for darwin-x64 because upstream pnpm dropped the SEA
+        # binary in 11.0.5 due to nodejs/node#62893.
+        SOURCE="$(node "$JQ" "$TOOLS_FILE" pnpm checksums "$PLATFORM" source 2>/dev/null || echo "")"
+        BINARY_REL="$(node "$JQ" "$TOOLS_FILE" pnpm checksums "$PLATFORM" binary 2>/dev/null || echo "")"
         PNPM_BIN="$PNPM_DIR/pnpm"
         [[ "$ASSET" == *.zip ]] && PNPM_BIN="$PNPM_DIR/pnpm.exe"
-        # Shared installer: fetches, verifies sha256, extracts, chmods.
+        # Shared installer: fetches, integrity-verifies (SRI), extracts.
         INSTALL_TOOL="${GITHUB_ACTION_PATH}/../lib/install-tool.mjs"
         if [ ! -x "$PNPM_BIN" ]; then
-          node "$INSTALL_TOOL" \
-            "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/${ASSET}" \
-            "$EXPECTED_SHA256" \
-            "$PNPM_DIR"
+          if [ "$SOURCE" = "npm-registry" ]; then
+            URL="https://registry.npmjs.org/pnpm/-/${ASSET}"
+          else
+            URL="https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/${ASSET}"
+          fi
+          node "$INSTALL_TOOL" "$URL" "$INTEGRITY" "$PNPM_DIR"
+        fi
+        # If the platform uses the npm-registry shape, the extracted
+        # tarball is a JS package — no native binary. Write a wrapper
+        # that runs it through the system Node.
+        if [ "$SOURCE" = "npm-registry" ]; then
+          BINARY_PATH="$PNPM_DIR/$BINARY_REL"
+          if [ ! -f "$BINARY_PATH" ]; then
+            echo "× pnpm npm-registry tarball missing $BINARY_REL after extract" >&2
+            exit 1
+          fi
+          printf '#!/bin/bash\nexec node "%s" "$@"\n' "$BINARY_PATH" > "$PNPM_BIN"
+          chmod +x "$PNPM_BIN"
         fi
         echo "$PNPM_DIR" >> "${GITHUB_PATH:-/dev/null}"
         # Export canonical pnpm provenance for downstream steps and
@@ -101,7 +122,7 @@ runs:
           echo "SOCKET_TOOL_PNPM_VERSION=$PNPM_VERSION"
           echo "SOCKET_TOOL_PNPM_PLATFORM=$PLATFORM"
           echo "SOCKET_TOOL_PNPM_ASSET=$ASSET"
-          echo "SOCKET_TOOL_PNPM_SHA256=$EXPECTED_SHA256"
+          echo "SOCKET_TOOL_PNPM_INTEGRITY=$INTEGRITY"
           echo "SOCKET_TOOL_PNPM_BIN=$PNPM_BIN"
           echo "SOCKET_TOOL_PNPM_DIR=$PNPM_DIR"
         } >> "${GITHUB_ENV:-/dev/null}"
@@ -132,12 +153,12 @@ runs:
         SOCKET_API_KEY: ${{ inputs.socket-api-key }}
       run: | # zizmor: ignore[github-env]
         set -euo pipefail
-        # SFW (Socket Firewall) version + per-platform asset/sha256
+        # SFW (Socket Firewall) version + per-platform asset/integrity
         # live in external-tools.json under sfw.<flavor>.checksums.
         # Bumping a tool requires updating the version AND every
-        # platform's sha256 there in the same commit. The lib/ scripts
-        # below resolve platform → asset → URL → install at the
-        # currently-detected runner.
+        # platform's integrity (SRI string) there in the same commit.
+        # The lib/ scripts below resolve platform → asset → URL →
+        # install at the currently-detected runner.
         TOOLS_FILE="${GITHUB_ACTION_PATH}/../../../external-tools.json"
         JQ="${GITHUB_ACTION_PATH}/../lib/jq.mjs"
         PLATFORM_TOOL="${GITHUB_ACTION_PATH}/../lib/platform.mjs"
@@ -163,7 +184,7 @@ runs:
           echo "  win-arm64 has no upstream binary — skip SFW-dependent steps on that runner or wait for upstream support." >&2
           exit 1
         fi
-        EXPECTED_SHA256="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" checksums "$PLATFORM" sha256)"
+        INTEGRITY="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" checksums "$PLATFORM" integrity)"
         SFW_BIN_NAME="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" binaryName)"
         if [[ "$ASSET" == *.exe ]]; then
           SFW_BIN_NAME="${SFW_BIN_NAME}.exe"
@@ -173,7 +194,7 @@ runs:
         if [ ! -x "$SFW_BIN" ]; then
           node "$INSTALL_TOOL" \
             "https://github.com/${SFW_REPO}/releases/download/v${SFW_VERSION}/${ASSET}" \
-            "$EXPECTED_SHA256" \
+            "$INTEGRITY" \
             "$SFW_DIR" \
             "$SFW_BIN_NAME"
         fi
@@ -192,7 +213,7 @@ runs:
           echo "SOCKET_TOOL_SFW_VERSION=$SFW_VERSION"
           echo "SOCKET_TOOL_SFW_PLATFORM=$PLATFORM"
           echo "SOCKET_TOOL_SFW_ASSET=$ASSET"
-          echo "SOCKET_TOOL_SFW_SHA256=$EXPECTED_SHA256"
+          echo "SOCKET_TOOL_SFW_INTEGRITY=$INTEGRITY"
         } >> "${GITHUB_ENV:-/dev/null}"
 
     - name: Create sfw shims

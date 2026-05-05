@@ -86,15 +86,15 @@ runs:
           echo "SOCKET_TOOL_ZIZMOR_AVAILABLE=false" >> "${GITHUB_ENV:-/dev/null}"
           exit 0
         fi
-        EXPECTED_SHA256="$(node "$JQ" "$TOOLS_FILE" zizmor checksums "$PLATFORM" sha256)"
+        INTEGRITY="$(node "$JQ" "$TOOLS_FILE" zizmor checksums "$PLATFORM" integrity)"
         ZIZMOR_BIN="$ZIZMOR_DIR/zizmor"
         [[ "$ASSET" == *.zip ]] && ZIZMOR_BIN="$ZIZMOR_DIR/zizmor.exe"
-        # Shared installer: fetches, verifies sha256, extracts, chmods.
+        # Shared installer: fetches, integrity-verifies (SRI), extracts.
         INSTALL_TOOL="${GITHUB_ACTION_PATH}/../lib/install-tool.mjs"
         if [ ! -x "$ZIZMOR_BIN" ]; then
           node "$INSTALL_TOOL" \
             "https://github.com/zizmorcore/zizmor/releases/download/v${ZIZMOR_VERSION}/${ASSET}" \
-            "$EXPECTED_SHA256" \
+            "$INTEGRITY" \
             "$ZIZMOR_DIR"
         fi
         echo "$ZIZMOR_DIR" >> "${GITHUB_PATH:-/dev/null}"
@@ -106,7 +106,7 @@ runs:
           echo "SOCKET_TOOL_ZIZMOR_VERSION=$ZIZMOR_VERSION"
           echo "SOCKET_TOOL_ZIZMOR_PLATFORM=$PLATFORM"
           echo "SOCKET_TOOL_ZIZMOR_ASSET=$ASSET"
-          echo "SOCKET_TOOL_ZIZMOR_SHA256=$EXPECTED_SHA256"
+          echo "SOCKET_TOOL_ZIZMOR_INTEGRITY=$INTEGRITY"
           echo "SOCKET_TOOL_ZIZMOR_BIN=$ZIZMOR_BIN"
           echo "SOCKET_TOOL_ZIZMOR_DIR=$ZIZMOR_DIR"
         } >> "${GITHUB_ENV:-/dev/null}"

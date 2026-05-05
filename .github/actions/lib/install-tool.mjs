@@ -1,18 +1,28 @@
 /**
- * @fileoverview Downloads, sha256-verifies, and extracts a release asset.
+ * @fileoverview Downloads, integrity-verifies, and extracts a release asset.
  *
  * Replaces the curl + sha256sum/shasum + tar/unzip dance repeated
  * across pnpm/sfw/zizmor install steps. Built-in `fetch` follows
  * redirects automatically (github.com → objects.githubusercontent.com),
- * `node:crypto.createHash` computes sha256 in-process, and tar/unzip
+ * `node:crypto.createHash` computes the digest in-process, and tar/unzip
  * shell out (already preinstalled on every supported runner image).
  *
  * Usage:
- *   node .github/actions/lib/install-tool.mjs <url> <expected-sha256> <dest-dir> [<bin-name>]
+ *   node install-tool.mjs <url> <integrity> <dest-dir> [<bin-name>]
+ *
+ *   <integrity> is a Subresource Integrity string: `<algo>-<base64>`.
+ *   Examples: `sha256-67PM...=`, `sha512-l/kG...==`. The algorithm is
+ *   parsed from the prefix; multiple algos are supported (sha256, sha384,
+ *   sha512). Same encoding as npm package-lock.json's `integrity` field
+ *   and as `external-tools.json`'s `integrity` field.
+ *
+ *   Backward compat: a bare 64-char hex string is also accepted and
+ *   treated as `sha256-<base64-of-hex>` for transition. Deprecated; new
+ *   call sites should pass SRI directly.
  *
  * Behavior:
  *   - Streams the asset to <dest-dir>/<basename(url)>.
- *   - Aborts and removes the file if sha256 mismatches.
+ *   - Aborts and removes the file if integrity mismatches.
  *   - Extracts .tar.gz/.tgz with tar, .zip with unzip (POSIX) or
  *     Expand-Archive (Windows). Removes the archive after extracting.
  *   - For non-archive assets (bare binaries like sfw): the asset IS
@@ -21,7 +31,7 @@
  * Exit codes:
  *   0  success
  *   1  download or extraction failed
- *   2  sha256 mismatch (stderr names expected vs actual + the path)
+ *   2  integrity mismatch (stderr names expected vs actual + the path)
  */
 
 import { spawnSync } from 'node:child_process'
@@ -29,12 +39,37 @@ import { createHash } from 'node:crypto'
 import { chmodSync, mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
-const [, , url, expectedSha256, destDir, binName] = process.argv
+const [, , url, integrityArg, destDir, binName] = process.argv
 
-if (!url || !expectedSha256 || !destDir) {
-  console.error('× usage: install-tool.mjs <url> <expected-sha256> <dest-dir> [<bin-name>]')
+if (!url || !integrityArg || !destDir) {
+  console.error(
+    '× usage: install-tool.mjs <url> <integrity> <dest-dir> [<bin-name>]',
+  )
   process.exit(1)
 }
+
+// Parse SRI string `<algo>-<base64>`. Bare 64-char hex is treated as
+// sha256 for backward compat — deprecated, will be removed once all
+// call sites pass SRI directly.
+function parseIntegrity(s) {
+  const m = /^(sha(?:256|384|512))-(.+)$/.exec(s)
+  if (m) {
+    return { algo: m[1], expected: m[2] }
+  }
+  if (/^[0-9a-f]{64}$/i.test(s)) {
+    // Bare sha256 hex — convert to SRI base64 for the comparison.
+    return {
+      algo: 'sha256',
+      expected: Buffer.from(s, 'hex').toString('base64'),
+    }
+  }
+  console.error(
+    `× unrecognized integrity format: ${s}\n  Expected SRI (e.g. sha256-base64=)`,
+  )
+  process.exit(1)
+}
+
+const { algo, expected } = parseIntegrity(integrityArg)
 
 mkdirSync(destDir, { recursive: true })
 
@@ -52,17 +87,23 @@ if (process.env.GITHUB_TOKEN) {
 
 const res = await fetch(url, { redirect: 'follow', headers })
 if (!res.ok) {
-  console.error(`× download failed: HTTP ${res.status} ${res.statusText} for ${url}`)
+  console.error(
+    `× download failed: HTTP ${res.status} ${res.statusText} for ${url}`,
+  )
   process.exit(1)
 }
 
 const bytes = new Uint8Array(await res.arrayBuffer())
-const actualSha256 = createHash('sha256').update(bytes).digest('hex')
+const actual = createHash(algo).update(bytes).digest('base64')
 
-if (actualSha256 !== expectedSha256) {
-  console.error(`× sha256 mismatch for ${assetName}`)
-  console.error(`  Expected: ${expectedSha256}`)
-  console.error(`  Actual:   ${actualSha256}`)
+// Compare base64 forms directly. Trailing `=` padding may differ
+// (npm strips it, our hash adds it) — strip both sides before
+// comparing so `sha512-...=` and `sha512-...` match.
+const stripPadding = b64 => b64.replace(/=+$/, '')
+if (stripPadding(actual) !== stripPadding(expected)) {
+  console.error(`× ${algo} integrity mismatch for ${assetName}`)
+  console.error(`  Expected: ${algo}-${expected}`)
+  console.error(`  Actual:   ${algo}-${actual}`)
   console.error(`  URL:      ${url}`)
   process.exit(2)
 }
@@ -72,7 +113,10 @@ writeFileSync(archivePath, bytes)
 const lower = assetName.toLowerCase()
 let extractCmd
 let extractArgs
-if (lower.endsWith('.tar.gz') || lower.endsWith('.tgz')) {
+if (
+  lower.endsWith('.tar.gz') ||
+  lower.endsWith('.tgz')
+) {
   extractCmd = 'tar'
   extractArgs = ['xzf', archivePath, '-C', destDir]
 } else if (lower.endsWith('.zip')) {
