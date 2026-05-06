@@ -153,7 +153,6 @@ async function main(): Promise<void> {
         },
         tag: {
           type: 'string',
-          default: 'latest',
         },
       },
       allowPositionals: false,
@@ -220,11 +219,10 @@ async function main(): Promise<void> {
     if (values['skip-npm-packages']) {
       publishOpts.skipNpmPackages = true
     }
-    if (values['tag']) {
-      publishOpts.tag = values['tag'] as string
-    } else if (process.env['DIST_TAG']) {
-      publishOpts.tag = process.env['DIST_TAG']
-    }
+    publishOpts.tag =
+      (values['tag'] as string | undefined) ??
+      process.env['DIST_TAG'] ??
+      'latest'
     const publishSuccess = await publishComplex(publishOpts)
 
     if (!publishSuccess && !values.force) {
