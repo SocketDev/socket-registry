@@ -221,6 +221,44 @@ interface UpdateResult {
   reason: string
 }
 
+/**
+ * Recompute every checksum in the supplied map against the resolved
+ * GitHub release. Mutates the map in place and returns a fresh object
+ * with the new entries. Shared by the single-flavor and per-flavor
+ * code paths.
+ */
+async function recomputeChecksums(
+  label: string,
+  repo: string,
+  release: GhRelease,
+  checksums: Record<string, ChecksumEntry>,
+): Promise<Record<string, ChecksumEntry>> {
+  const newChecksums: Record<string, ChecksumEntry> = {}
+  for (const [platform, entry] of Object.entries(checksums)) {
+    // Re-resolve the asset name against the latest release's asset
+    // list. Most tools reuse the same filename pattern across
+    // releases, but a tool might rename assets between versions
+    // (e.g. pnpm's Windows asset layout changed pre-v10). Prefer a
+    // case-insensitive exact match on the pinned asset name; fall
+    // back to the pinned name if the release listing is missing it
+    // (downloadAndHash will surface a 404 loudly in that case).
+    const pinnedAsset = entry.asset
+    const asset = release.assets.find(
+      a => a.name.toLowerCase() === pinnedAsset.toLowerCase(),
+    ) ??
+      release.assets.find(a => a.name === pinnedAsset) ?? {
+        browser_download_url: `https://github.com/${repo}/releases/download/${release.tag_name}/${pinnedAsset}`,
+        name: pinnedAsset,
+      }
+
+    logger.log(`  ${label}/${platform}: hashing ${asset.name}`)
+    // eslint-disable-next-line no-await-in-loop
+    const sha256 = await downloadAndHash(asset.browser_download_url)
+    newChecksums[platform] = { asset: asset.name, sha256 }
+  }
+  return newChecksums
+}
+
 async function updateTool(
   name: string,
   config: RootConfig,
@@ -248,7 +286,18 @@ async function updateTool(
     }
   }
 
-  const repo = ownerAndNameFromRepository(toolConfig.repository)
+  // Detect multi-flavor shape: tools like `sfw` ship as `free` and
+  // `enterprise` flavors. Each flavor carries its own `repository`
+  // and `checksums`; only `version` is shared at the top level.
+  // Single-flavor tools carry `repository` + `checksums` at the top.
+  const flavors: Array<{ key: 'free' | 'enterprise' }> = []
+  if (toolConfig.free?.checksums) {
+    flavors.push({ key: 'free' })
+  }
+  if (toolConfig.enterprise?.checksums) {
+    flavors.push({ key: 'enterprise' })
+  }
+  const isMultiFlavor = flavors.length > 0
 
   // Special case — pnpm only. pnpm 11 ships as release candidates on
   // the `prerelease: true` channel while stable stays on 10.x; we
@@ -260,9 +309,19 @@ async function updateTool(
   // "why is this tool different?" grep-able.
   const includePrerelease = name === 'pnpm'
 
+  // Resolve the canonical release used for the version comparison.
+  // For multi-flavor tools we anchor on the first flavor's repo —
+  // flavors are expected to ship in lockstep (the schema enforces
+  // a shared top-level `version`).
+  const primaryRepo = ownerAndNameFromRepository(
+    isMultiFlavor
+      ? toolConfig[flavors[0]!.key]!.repository
+      : toolConfig.repository,
+  )
+
   let release: GhRelease
   try {
-    release = await ghApiLatestRelease(repo, includePrerelease)
+    release = await ghApiLatestRelease(primaryRepo, includePrerelease)
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     logger.warn(`Failed to fetch ${name} releases: ${msg}`)
@@ -307,33 +366,37 @@ async function updateTool(
 
   logger.log(`Updating ${name} to v${latestVersion}...`)
 
-  const checksums = toolConfig.checksums ?? {}
-  const newChecksums: Record<string, ChecksumEntry> = {}
-
-  for (const [platform, entry] of Object.entries(checksums)) {
-    // Re-resolve the asset name against the latest release's asset
-    // list. Most tools reuse the same filename pattern across
-    // releases, but a tool might rename assets between versions
-    // (e.g. pnpm's Windows asset layout changed pre-v10). Prefer a
-    // case-insensitive exact match on the pinned asset name; fall
-    // back to the pinned name if the release listing is missing it
-    // (downloadAndHash will surface a 404 loudly in that case).
-    const pinnedAsset = entry.asset
-    const asset = release.assets.find(
-      a => a.name.toLowerCase() === pinnedAsset.toLowerCase(),
-    ) ??
-      release.assets.find(a => a.name === pinnedAsset) ?? {
-        browser_download_url: `https://github.com/${repo}/releases/download/${release.tag_name}/${pinnedAsset}`,
-        name: pinnedAsset,
+  if (isMultiFlavor) {
+    // Resolve and hash each flavor against ITS OWN repository. Without
+    // this loop the per-flavor sha256s would stay pinned to the old
+    // release while `version` advanced — silent corruption.
+    for (const { key } of flavors) {
+      const flavor = toolConfig[key]!
+      const flavorRepo = ownerAndNameFromRepository(flavor.repository)
+      let flavorRelease: GhRelease = release
+      if (flavorRepo !== primaryRepo) {
+        // eslint-disable-next-line no-await-in-loop
+        flavorRelease = await ghApiLatestRelease(flavorRepo, includePrerelease)
       }
-
-    logger.log(`  ${platform}: hashing ${asset.name}`)
-    const sha256 = await downloadAndHash(asset.browser_download_url)
-    newChecksums[platform] = { asset: asset.name, sha256 }
+      // eslint-disable-next-line no-await-in-loop
+      flavor.checksums = await recomputeChecksums(
+        key,
+        flavorRepo,
+        flavorRelease,
+        flavor.checksums,
+      )
+    }
+  } else {
+    const repo = ownerAndNameFromRepository(toolConfig.repository)
+    toolConfig.checksums = await recomputeChecksums(
+      name,
+      repo,
+      release,
+      toolConfig.checksums ?? {},
+    )
   }
 
   toolConfig.version = latestVersion
-  toolConfig.checksums = newChecksums
 
   return {
     tool: name,
