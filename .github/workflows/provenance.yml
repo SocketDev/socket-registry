@@ -118,14 +118,14 @@ jobs:
             exit 1
           fi
 
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@4cab9187ea25d49b4973fe1b8bac2e606fb1e4c9 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@4e4c9cc225f595d5b45630a067b5780b23a3d897 # main
         with:
           checkout-ref: ${{ inputs.ref }}
           node-version: ${{ inputs.node-version }}
           debug: ${{ inputs.debug }}
           scope: ${{ inputs.scope }}
           registry-url: ${{ inputs.registry-url }}
-          socket-api-key: ${{ secrets.SOCKET_API_TOKEN }}
+          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
 
       - name: Verify sfw is installed
         run: |
