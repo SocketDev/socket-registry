@@ -92,6 +92,19 @@ on:
         required: false
         type: boolean
         default: true
+      setup-go:
+        description: |
+          Run setup-go-toolchain after install. Required for repos whose
+          test/build steps invoke `go` on macOS/Windows (where the
+          toolcache go is not always on PATH after sfw setup).
+        required: false
+        type: boolean
+        default: false
+      setup-go-version:
+        description: 'Major.minor Go version to ensure when setup-go is true'
+        required: false
+        type: string
+        default: ''
       run-type-check:
         description: 'Include standalone type check job'
         required: false
@@ -156,7 +169,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.check-timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@4cab9187ea25d49b4973fe1b8bac2e606fb1e4c9 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@956b9e6bb1d75a65422871f63607b28690ae1f8d # main
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.check-node-version }}
@@ -175,7 +188,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.lint-timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@4cab9187ea25d49b4973fe1b8bac2e606fb1e4c9 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@956b9e6bb1d75a65422871f63607b28690ae1f8d # main
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.lint-node-version }}
@@ -194,7 +207,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.type-check-timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@4cab9187ea25d49b4973fe1b8bac2e606fb1e4c9 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@956b9e6bb1d75a65422871f63607b28690ae1f8d # main
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.type-check-node-version }}
@@ -219,10 +232,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: ${{ inputs.test-timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@4cab9187ea25d49b4973fe1b8bac2e606fb1e4c9 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@956b9e6bb1d75a65422871f63607b28690ae1f8d # main
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ matrix.node-version }}
+          setup-go: ${{ inputs.setup-go && 'true' || 'false' }}
+          setup-go-version: ${{ inputs.setup-go-version }}
           socket-api-key: ${{ secrets.SOCKET_API_TOKEN }}
           working-directory: ${{ inputs.working-directory }}
 
