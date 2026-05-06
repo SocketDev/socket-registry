@@ -151,8 +151,11 @@ on:
         type: string
         default: '.'
     secrets:
+      SOCKET_API_TOKEN:
+        description: 'Socket API token — when provided, uses sfw-enterprise instead of sfw-free'
+        required: false
       SOCKET_API_KEY:
-        description: 'Socket API key — when provided, uses sfw-enterprise instead of sfw-free'
+        description: 'DEPRECATED alias of SOCKET_API_TOKEN. Pass `SOCKET_API_TOKEN:` instead. Tracked for one cycle so existing callers keep working.'
         required: false
 
 permissions:
@@ -169,11 +172,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.check-timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@4e4c9cc225f595d5b45630a067b5780b23a3d897 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@8e7df83af2a3b2d6e2b7d20da0cb05df4dccc52e # main
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.check-node-version }}
-          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
+          socket-api-token: ${{ secrets.SOCKET_API_TOKEN || secrets.SOCKET_API_KEY }}
           working-directory: ${{ inputs.working-directory }}
 
       - uses: SocketDev/socket-registry/.github/actions/run-script@e8e253975a55a519be7e4b520d83a33f52c0b1a4 # main
@@ -188,11 +191,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.lint-timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@4e4c9cc225f595d5b45630a067b5780b23a3d897 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@8e7df83af2a3b2d6e2b7d20da0cb05df4dccc52e # main
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.lint-node-version }}
-          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
+          socket-api-token: ${{ secrets.SOCKET_API_TOKEN || secrets.SOCKET_API_KEY }}
           working-directory: ${{ inputs.working-directory }}
 
       - uses: SocketDev/socket-registry/.github/actions/run-script@e8e253975a55a519be7e4b520d83a33f52c0b1a4 # main
@@ -207,11 +210,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.type-check-timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@4e4c9cc225f595d5b45630a067b5780b23a3d897 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@8e7df83af2a3b2d6e2b7d20da0cb05df4dccc52e # main
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.type-check-node-version }}
-          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
+          socket-api-token: ${{ secrets.SOCKET_API_TOKEN || secrets.SOCKET_API_KEY }}
           working-directory: ${{ inputs.working-directory }}
 
       - uses: SocketDev/socket-registry/.github/actions/run-script@e8e253975a55a519be7e4b520d83a33f52c0b1a4 # main
@@ -232,13 +235,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: ${{ inputs.test-timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@4e4c9cc225f595d5b45630a067b5780b23a3d897 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@8e7df83af2a3b2d6e2b7d20da0cb05df4dccc52e # main
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ matrix.node-version }}
           setup-go: ${{ inputs.setup-go && 'true' || 'false' }}
           setup-go-version: ${{ inputs.setup-go-version }}
-          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
+          socket-api-token: ${{ secrets.SOCKET_API_TOKEN || secrets.SOCKET_API_KEY }}
           working-directory: ${{ inputs.working-directory }}
 
       - uses: SocketDev/socket-registry/.github/actions/run-script@e8e253975a55a519be7e4b520d83a33f52c0b1a4 # main

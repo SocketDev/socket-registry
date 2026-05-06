@@ -105,8 +105,11 @@ on:
       BOT_GPG_PRIVATE_KEY:
         description: 'GPG private key for signing commits'
         required: true
+      SOCKET_API_TOKEN:
+        description: 'Socket API token — sfw-enterprise instead of sfw-free when provided'
+        required: false
       SOCKET_API_KEY:
-        description: 'Socket API key — sfw-enterprise instead of sfw-free when provided'
+        description: 'DEPRECATED alias of SOCKET_API_TOKEN. Pass `SOCKET_API_TOKEN:` instead. Tracked for one cycle so existing callers keep working.'
         required: false
 
 permissions:
@@ -126,9 +129,9 @@ jobs:
     outputs:
       has-updates: ${{ steps.check.outputs.has-updates }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@4e4c9cc225f595d5b45630a067b5780b23a3d897 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@8e7df83af2a3b2d6e2b7d20da0cb05df4dccc52e # main
         with:
-          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
+          socket-api-token: ${{ secrets.SOCKET_API_TOKEN || secrets.SOCKET_API_KEY }}
 
       - name: Check for actionable updates
         id: check
@@ -176,10 +179,10 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@4e4c9cc225f595d5b45630a067b5780b23a3d897 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@8e7df83af2a3b2d6e2b7d20da0cb05df4dccc52e # main
         with:
           checkout-fetch-depth: ${{ inputs.checkout-fetch-depth }}
-          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
+          socket-api-token: ${{ secrets.SOCKET_API_TOKEN || secrets.SOCKET_API_KEY }}
 
       - name: Initialize submodules
         if: inputs.checkout-submodules != 'false'

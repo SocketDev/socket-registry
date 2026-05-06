@@ -87,8 +87,11 @@ on:
         type: boolean
         default: true
     secrets:
+      SOCKET_API_TOKEN:
+        description: 'Socket API token — when provided, uses sfw-enterprise instead of sfw-free'
+        required: false
       SOCKET_API_KEY:
-        description: 'Socket API key — when provided, uses sfw-enterprise instead of sfw-free'
+        description: 'DEPRECATED alias of SOCKET_API_TOKEN. Pass `SOCKET_API_TOKEN:` instead. Tracked for one cycle so existing callers keep working.'
         required: false
 
 permissions: {}
@@ -118,14 +121,14 @@ jobs:
             exit 1
           fi
 
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@4e4c9cc225f595d5b45630a067b5780b23a3d897 # main
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@8e7df83af2a3b2d6e2b7d20da0cb05df4dccc52e # main
         with:
           checkout-ref: ${{ inputs.ref }}
           node-version: ${{ inputs.node-version }}
           debug: ${{ inputs.debug }}
           scope: ${{ inputs.scope }}
           registry-url: ${{ inputs.registry-url }}
-          socket-api-key: ${{ secrets.SOCKET_API_KEY }}
+          socket-api-token: ${{ secrets.SOCKET_API_TOKEN || secrets.SOCKET_API_KEY }}
 
       - name: Verify sfw is installed
         run: |
