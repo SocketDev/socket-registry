@@ -398,8 +398,8 @@ async function main(): Promise<void> {
 
   const interop = [
     'cjs',
-    ...(TEMPLATE_CJS_ESM ? ['esm'] : []),
-    ...(TEMPLATE_CJS_BROWSER ? ['browserify'] : []),
+    ...(templateChoice === TEMPLATE_CJS_ESM ? ['esm'] : []),
+    ...(templateChoice === TEMPLATE_CJS_BROWSER ? ['browserify'] : []),
   ]
 
   // First copy the template directory contents to the package path.
