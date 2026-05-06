@@ -433,6 +433,12 @@ runs:
           echo 'bypass:marketplace.visualstudio.com'
           # Bazel external workspace mirror.
           echo 'bypass:mirror.bazel.build'
+          # Homebrew anonymous analytics (InfluxDB Cloud bucket). brew sends
+          # usage telemetry on every command; the writes fail-fast and
+          # silent if blocked, but listing as bypass avoids users debugging
+          # phantom timeouts on runners that have brew installed.
+          # HOMEBREW_NO_ANALYTICS=1 opts out at the source.
+          echo 'bypass:eu-central-1-1.aws.cloud2.influxdata.com'
           echo 'EOF'
         } >> "${GITHUB_ENV:-/dev/null}"
         # Opt out of gh CLI telemetry (on-by-default as of late 2025).
