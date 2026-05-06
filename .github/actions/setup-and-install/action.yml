@@ -53,8 +53,12 @@ inputs:
       picks the runner's default toolcache version.
     required: false
     default: ''
+  socket-api-token:
+    description: 'Socket API token — when provided, uses sfw-enterprise instead of sfw-free'
+    required: false
+    default: ''
   socket-api-key:
-    description: 'Socket API key — when provided, uses sfw-enterprise instead of sfw-free'
+    description: 'DEPRECATED alias of socket-api-token. Pass `socket-api-token:` instead. Tracked for one cycle so existing callers keep working.'
     required: false
     default: ''
   working-directory:
@@ -80,7 +84,7 @@ runs:
         node-version: ${{ inputs.node-version }}
         scope: ${{ inputs.scope }}
         registry-url: ${{ inputs.registry-url }}
-        socket-api-key: ${{ inputs.socket-api-key }}
+        socket-api-token: ${{ inputs.socket-api-token != '' && inputs.socket-api-token || inputs.socket-api-key }}
         working-directory: ${{ inputs.working-directory }}
 
     - name: Install dependencies
