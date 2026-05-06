@@ -22,8 +22,12 @@ inputs:
     description: 'npm registry URL'
     required: false
     default: 'https://registry.npmjs.org'
+  socket-api-token:
+    description: 'Socket API token — when provided, uses sfw-enterprise instead of sfw-free'
+    required: false
+    default: ''
   socket-api-key:
-    description: 'Socket API key — when provided, uses sfw-enterprise instead of sfw-free'
+    description: 'DEPRECATED alias of socket-api-token. Pass `socket-api-token:` instead. Tracked for one cycle so existing callers keep working.'
     required: false
     default: ''
   working-directory:
@@ -150,7 +154,11 @@ runs:
       shell: bash
       env:
         GITHUB_TOKEN: ${{ github.token }}
-        SOCKET_API_KEY: ${{ inputs.socket-api-key }}
+        # `socket-api-token` is the canonical input; `socket-api-key`
+        # is a deprecated alias kept for one cycle. Coalesce here so
+        # downstream `SOCKET_API_TOKEN` checks see the value regardless
+        # of which input the caller used.
+        SOCKET_API_TOKEN: ${{ inputs.socket-api-token != '' && inputs.socket-api-token || inputs.socket-api-key }}
       run: | # zizmor: ignore[github-env]
         set -euo pipefail
         # SFW (Socket Firewall) version + per-platform asset/integrity
@@ -163,10 +171,10 @@ runs:
         JQ="${GITHUB_ACTION_PATH}/../lib/jq.mjs"
         PLATFORM_TOOL="${GITHUB_ACTION_PATH}/../lib/platform.mjs"
         INSTALL_TOOL="${GITHUB_ACTION_PATH}/../lib/install-tool.mjs"
-        # Enterprise flavor when SOCKET_API_KEY is set, otherwise free.
+        # Enterprise flavor when SOCKET_API_TOKEN is set, otherwise free.
         # Enterprise downloads from the private firewall-release repo
         # are auth'd via GITHUB_TOKEN inside install-tool.mjs.
-        if [ -n "$SOCKET_API_KEY" ]; then
+        if [ -n "$SOCKET_API_TOKEN" ]; then
           SFW_FLAVOR="enterprise"
           SFW_REPO="SocketDev/firewall-release"
         else
@@ -204,7 +212,14 @@ runs:
         SFW_IS_ENTERPRISE=false
         if [ "$SFW_FLAVOR" = "enterprise" ]; then
           SFW_IS_ENTERPRISE=true
-          echo "SOCKET_API_KEY=$SOCKET_API_KEY" >> "${GITHUB_ENV:-/dev/null}"
+          # Export both names — SOCKET_API_TOKEN is canonical;
+          # SOCKET_API_KEY is the deprecated alias kept readable for
+          # one cycle so downstream consumers (sfw, scripts, tests)
+          # that still read the old name don't break in lockstep.
+          {
+            echo "SOCKET_API_TOKEN=$SOCKET_API_TOKEN"
+            echo "SOCKET_API_KEY=$SOCKET_API_TOKEN"
+          } >> "${GITHUB_ENV:-/dev/null}"
         fi
         {
           echo "SFW_BIN=$SFW_BIN"
