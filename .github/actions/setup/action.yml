@@ -246,14 +246,11 @@ runs:
         }
         strip_shim_dir() { echo "$PATH" | tr ':' '\n' | grep -vxF "$SHIM_DIR" | paste -sd: -; }
         CLEAN_PATH="$(strip_shim_dir)"
-        SSL_WORKAROUND=""
         SHIM_CMDS="npm yarn pnpm pip pip3 uv cargo"
         if [ "$SFW_IS_ENTERPRISE" = "true" ]; then
           SHIM_CMDS="npm yarn pnpm pip pip3 uv cargo gem bundler nuget"
           # Go wrapper mode is only supported on Linux.
           [[ "$OSTYPE" == linux* ]] && SHIM_CMDS="$SHIM_CMDS go"
-        else
-          SSL_WORKAROUND='export GIT_SSL_NO_VERIFY=true # Workaround: sfw-free does not yet set GIT_SSL_CAINFO.'
         fi
         # Per-command install hint surfaced when a tool isn't on PATH.
         # Mirrors the local-install regenerate-shims.sh in
@@ -279,7 +276,6 @@ runs:
           if [ -n "$REAL" ]; then
             REAL="$(msys_to_win_path "$REAL")"
             SHIM_LINES=('#!/bin/bash' "export PATH=\"\$(echo \"\$PATH\" | tr ':' '\n' | grep -vxF '${SHIM_DIR}' | paste -sd: -)\"")
-            [ -n "$SSL_WORKAROUND" ] && SHIM_LINES+=("$SSL_WORKAROUND")
             SHIM_LINES+=("exec \"${SFW_BIN}\" \"${REAL}\" \"\$@\"")
             printf '%s\n' "${SHIM_LINES[@]}" > "$SHIM_DIR/$CMD"
             chmod +x "$SHIM_DIR/$CMD"
