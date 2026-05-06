@@ -118,43 +118,43 @@
     "notes": "pnpm upstream publishes 7 platform-native binaries: linux-{x64,arm64}{,-musl}, darwin-arm64, win-{x64,arm64}. The linux-*-musl entries are first-class assets (pnpm-linux-{x64,arm64}-musl.tar.gz), NOT aliases of the glibc tarballs — their hashes are genuinely distinct. Do not \"simplify\" them by pointing at the glibc asset; the binaries are linked against different libcs and only the matching one runs on its target. darwin-x64 is intentionally a different shape: upstream dropped the SEA binary in 11.0.5 because of an upstream Node.js LIEF/Mach-O bug (nodejs/node#62893) that the Node team has declined to fix. Intel Mac instead installs the npm-registry JS tarball + runs it through the system Node — see source/binary fields below.",
     "description": "Fast, disk space efficient package manager",
     "repository": "github:pnpm/pnpm",
-    "version": "11.0.6",
+    "version": "11.0.7",
     "release": "asset",
     "checksums": {
       "darwin-arm64": {
         "asset": "pnpm-darwin-arm64.tar.gz",
-        "integrity": "sha256-rkGcOkDwKYiEDpQkuhqX64jFvbITUFbLdUxvtPTw9qc="
+        "integrity": "sha256-CS9oKFz4d5YcaofV/2iD3UyZywmg8RvKkoVVA/KS55M=="
       },
       "darwin-x64": {
-        "asset": "pnpm-11.0.6.tgz",
-        "integrity": "sha512-l/kG4dor7aw9+DytrgS0dToTAJLdSdVc02glrT5iPp3z+XdU+PJZ5pkXKjYPrFaazy+Qjncyva4+3bLc9+Eh/Q==",
+        "asset": "pnpm-11.0.7.tgz",
+        "integrity": "sha512-ckp7XSMZzdcAnWXhWiwpqunTkCtQWFyhY9OKdzfrhbxOchloef9Zdopx6B/jKqcei3DwiLLiS55KKFDYfkYHtQ==",
         "source": "npm-registry",
         "binary": "package/dist/pnpm.cjs",
         "notes": "Intel Mac uses the npm-registry JS tarball + system Node (no SEA binary). Upstream dropped darwin-x64 SEA in pnpm 11.0.5 due to nodejs/node#62893 (upstream LIEF/Mach-O bug Node has declined to fix)."
       },
       "linux-arm64": {
         "asset": "pnpm-linux-arm64.tar.gz",
-        "integrity": "sha256-jP8KeVV/+rzZsl1A5w2dhZoWDwW1QFtIMUIjdGDqhQ0="
+        "integrity": "sha256-95PYD1qnfQv3f3HvOHHxsvVJy110OCK4/D4zPTJrmLU=="
       },
       "linux-arm64-musl": {
         "asset": "pnpm-linux-arm64-musl.tar.gz",
-        "integrity": "sha256-PCunRaYh4f1pN2dadgnu3c+7zz1zftkGZ7xW7B8wAFI="
+        "integrity": "sha256-dNSB0G/qcbTitg+I7akSWDdjdeEXWE9bg2Rh7curPVc=="
       },
       "linux-x64": {
         "asset": "pnpm-linux-x64.tar.gz",
-        "integrity": "sha256-8ngfniUKdQW/qmuA/tefKpZ4hWd8AaCd+t0CT43Oksk="
+        "integrity": "sha256-S328Zy3CijwV0o++hf7zMDyq6C7oMBdoTCVTJiQZUck=="
       },
       "linux-x64-musl": {
         "asset": "pnpm-linux-x64-musl.tar.gz",
-        "integrity": "sha256-ykugxp1sXDYTTYZru5mIJdq6tlmbXdsqY3RNFwLmaOU="
+        "integrity": "sha256-rxfY9h5ucWzP+zALV2UY7XndkGcX5Ufv8jN9ZTJ0snM=="
       },
       "win-arm64": {
         "asset": "pnpm-win32-arm64.zip",
-        "integrity": "sha256-5RogI0Jwsf3v7UmepMyLIe3YsFdYsNL6SrreSYT34r0="
+        "integrity": "sha256-aVE6x0eIUcwJlFxlRSefM/X2RvvGfFyRWjMSXAgM12s=="
       },
       "win-x64": {
         "asset": "pnpm-win32-x64.zip",
-        "integrity": "sha256-67PM243F1n205ecrVYs9tkazumI5BPiJu9yB4d/ycEo="
+        "integrity": "sha256-qJZqOyNj4BQQe6xOKKecONSBRuw6C3dy10nopYkEQLI=="
       }
     }
   }
