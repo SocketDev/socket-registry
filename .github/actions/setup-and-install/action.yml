@@ -7,6 +7,7 @@ description: 'Aggregate: checkout + setup environment + install dependencies'
 #     - SocketDev/socket-registry/.github/actions/debug
 #     - actions/setup-node@v6.2.0
 #   - SocketDev/socket-registry/.github/actions/install
+#   - SocketDev/socket-registry/.github/actions/setup-go-toolchain (when setup-go: 'true')
 
 inputs:
   checkout:
@@ -37,6 +38,21 @@ inputs:
     description: 'npm registry URL'
     required: false
     default: 'https://registry.npmjs.org'
+  setup-go:
+    description: |
+      "true" runs setup-go-toolchain after install — surfaces a usable
+      `go` on macOS/Windows runners (where the hosted toolcache version
+      isn't always on PATH after node + sfw setup) and on Linux for
+      consistency. "false" skips. Default "false" preserves existing
+      behavior for repos that don't need go.
+    required: false
+    default: 'false'
+  setup-go-version:
+    description: |
+      Major.minor Go version to ensure when setup-go is "true". Empty
+      picks the runner's default toolcache version.
+    required: false
+    default: ''
   socket-api-key:
     description: 'Socket API key — when provided, uses sfw-enterprise instead of sfw-free'
     required: false
@@ -71,3 +87,9 @@ runs:
       uses: SocketDev/socket-registry/.github/actions/install@906cdd95b4df2231f1c7a721ddaf55a43349e280 # main
       with:
         working-directory: ${{ inputs.working-directory }}
+
+    - name: Setup Go toolchain
+      if: inputs.setup-go == 'true'
+      uses: SocketDev/socket-registry/.github/actions/setup-go-toolchain@d081a1351313a03e86aac2830c79241d1cdcdcec # main
+      with:
+        version: ${{ inputs.setup-go-version }}
