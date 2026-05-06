@@ -59,8 +59,8 @@ catalogs:
       specifier: 1.4.2
       version: 1.4.2
     '@socketsecurity/lib':
-      specifier: 5.26.1
-      version: 5.26.1
+      specifier: 5.28.0
+      version: 5.28.0
     '@types/fs-extra':
       specifier: 11.0.4
       version: 11.0.4
@@ -326,7 +326,7 @@ importers:
         version: 1.4.2
       '@socketsecurity/lib':
         specifier: 'catalog:'
-        version: 5.26.1(typescript@5.9.2)
+        version: 5.28.0(typescript@5.9.2)
       '@types/fs-extra':
         specifier: 'catalog:'
         version: 11.0.4
@@ -515,7 +515,7 @@ importers:
     dependencies:
       '@socketsecurity/lib':
         specifier: 'catalog:'
-        version: 5.26.1(typescript@5.9.2)
+        version: 5.28.0(typescript@5.9.2)
     devDependencies:
       '@types/node':
         specifier: 24.9.2
@@ -528,7 +528,7 @@ importers:
         version: 1.4.2
       '@socketsecurity/lib':
         specifier: 'catalog:'
-        version: 5.26.1(typescript@5.9.2)
+        version: 5.28.0(typescript@5.9.2)
       '@socketsecurity/sdk':
         specifier: 4.0.1
         version: 4.0.1
@@ -561,7 +561,7 @@ importers:
     devDependencies:
       '@socketsecurity/lib':
         specifier: 'catalog:'
-        version: 5.26.1(typescript@5.9.2)
+        version: 5.28.0(typescript@5.9.2)
       '@types/node':
         specifier: 24.9.2
         version: 24.9.2
@@ -573,7 +573,7 @@ importers:
         version: 0.34.49
       '@socketsecurity/lib':
         specifier: 'catalog:'
-        version: 5.26.1(typescript@5.9.2)
+        version: 5.28.0(typescript@5.9.2)
 
   .claude/hooks/stale-process-sweeper: {}
 
@@ -929,7 +929,7 @@ importers:
     devDependencies:
       '@socketsecurity/lib':
         specifier: 'catalog:'
-        version: 5.26.1(typescript@5.9.2)
+        version: 5.28.0(typescript@5.9.2)
       '@types/node':
         specifier: 24.9.2
         version: 24.9.2
@@ -2270,9 +2270,10 @@ packages:
     resolution: {integrity: sha512-SHikmWH1JumHKinsPLg0/kg/qKNNQH4fdYe/dd4mZ2NHP5wWGDcZyNCS7KaTnKWFi3/XZOR1iLYzo0I4QnHOQw==}
     engines: {node: '>=18'}
 
-  '@socketsecurity/lib@5.26.1':
-    resolution: {integrity: sha512-ppyhOC/vPBY0gZVRtzNpmf/8nodILERmNV8J62pzVo7GvAB9S1q0/k/vSF2tor2NJEDtim+m6N+J5qtQ0mR99A==}
-    engines: {node: '>=22', pnpm: '>=11.0.0-rc.0'}
+  '@socketsecurity/lib@5.28.0':
+    resolution: {integrity: sha512-SVVq+ODU3H6KAQXwaANnnq2sNHj+JgHM67R0ww93V8J38upiSUlUR8Mxx3P5mo922B+gY6WNFU0zSJfEOjbKew==}
+    engines: {node: '>=22', pnpm: '>=11.0.6'}
+    hasBin: true
     peerDependencies:
       typescript: 5.9.2
     peerDependenciesMeta:
@@ -4986,7 +4987,7 @@ snapshots:
 
   '@socketregistry/which-typed-array@1.0.9': {}
 
-  '@socketsecurity/lib@5.26.1(typescript@5.9.2)':
+  '@socketsecurity/lib@5.28.0(typescript@5.9.2)':
     optionalDependencies:
       typescript: 5.9.2
 
