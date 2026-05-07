@@ -87,7 +87,7 @@ runs:
         ASSET="$(node "$JQ" "$TOOLS_FILE" pnpm checksums "$PLATFORM" asset)"
         INTEGRITY="$(node "$JQ" "$TOOLS_FILE" pnpm checksums "$PLATFORM" integrity)"
         # Optional `source` field. When set to `npm-registry`, the asset
-        # is a JS-only npm tarball (e.g. pnpm-11.0.6.tgz) — runs through
+        # is a JS-only npm tarball (e.g. pnpm-11.0.8.tgz) — runs through
         # the system Node instead of being a SEA binary. Currently used
         # only for darwin-x64 because upstream pnpm dropped the SEA
         # binary in 11.0.5 due to nodejs/node#62893.

@@ -84,7 +84,7 @@ In all other cases: fix it in the same commit, or in a sibling commit on the sam
 
 Where drift commonly hides:
 
-- `external-tools.json` — pnpm/zizmor/sfw versions + per-platform sha256s
+- `external-tools.json` — pnpm/zizmor/sfw versions + per-platform sha256s. **Bumping pnpm here also requires bumping the inner SHA pins inside `setup-and-install/action.yml` and `setup/action.yml` (the lines that pin `setup`/`install`/`checkout`/`debug`/`setup-go-toolchain` at `@<sha>`).** The outer pin is what consumers reference, but the action dispatches into inner actions at THEIR pinned SHA — those inner actions read `external-tools.json` from THEIR own checkout. An outer-only bump leaves the bootstrap on the older pnpm and pnpm-version-sensitive steps (e.g. `update-checksums`) explode mid-run with a version mismatch (`SOCKET_TOOL_PNPM_VERSION: <old>` even though external-tools at the outer pin says new). Cascade: bump external-tools → commit A → bump inner pins to commit A's SHA → commit B → push → cascade commit B's SHA outward to consumers.
 - `socket-registry/.github/actions/*` — composite-action SHAs pinned in consumer workflows
 - `template/CLAUDE.md` `<!-- BEGIN FLEET-CANONICAL -->` block — must be byte-identical across the fleet
 - `template/.claude/hooks/*` — same hook, same code
