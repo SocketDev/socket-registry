@@ -16,7 +16,7 @@ on:
         description: 'Node.js version for checks'
         required: false
         type: string
-        default: '25.9.0'
+        default: '26.1.0'
       check-script:
         description: 'Check command — runs lint + type checks (e.g., "pnpm run check --all")'
         required: false
@@ -46,7 +46,7 @@ on:
         description: 'Node.js version for linting'
         required: false
         type: string
-        default: '25.9.0'
+        default: '26.1.0'
       lint-script:
         description: 'Lint command (e.g., "pnpm run lint --all")'
         required: false
@@ -71,7 +71,7 @@ on:
         description: 'Node.js versions for testing (e.g., ''["22", "24"]'')'
         required: false
         type: string
-        default: '["25.9.0"]'
+        default: '["26.1.0"]'
       os-versions:
         description: 'Operating systems for testing (e.g., ''["ubuntu-latest", "windows-latest"]'')'
         required: false
@@ -129,7 +129,7 @@ on:
         description: 'Node.js version for type checking'
         required: false
         type: string
-        default: '25.9.0'
+        default: '26.1.0'
       type-check-script:
         description: 'Type check command (e.g., "pnpm run type")'
         required: false

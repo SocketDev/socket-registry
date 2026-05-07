@@ -45,7 +45,7 @@ on:
         description: 'Node version to use'
         required: false
         type: string
-        default: '25.9.0'
+        default: '26.1.0'
       package-name:
         description: 'Package name (e.g., "@socketregistry/sdk") - used when scripts are not provided'
         required: false

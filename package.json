@@ -1,7 +1,7 @@
 {
   "name": "@socketregistry/monorepo",
   "version": "1.0.0",
-  "packageManager": "pnpm@11.0.7",
+  "packageManager": "pnpm@11.0.8",
   "private": true,
   "license": "MIT",
   "description": "Monorepo for Socket.dev optimized package overrides",
@@ -17,7 +17,7 @@
   },
   "engines": {
     "node": ">=18.20.8",
-    "pnpm": ">=11.0.7"
+    "pnpm": ">=11.0.8"
   },
   "scripts": {
     "analyze-ci-failures": "node scripts/testing/analyze-ci-failures.mts",
