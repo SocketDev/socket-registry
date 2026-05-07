@@ -34,6 +34,8 @@
     "generate-actions-tree": "node scripts/ci/show-actions-tree.mts",
     "inline-action-shas": "node scripts/ci/inline-action-versions-as-shas.mts",
     "lint": "node scripts/lint.mts",
+    "lockstep": "node scripts/lockstep.mts",
+    "lockstep:emit-schema": "node scripts/lockstep-emit-schema.mts",
     "make-npm-override": "node scripts/npm/make-npm-override.mts",
     "package-npm-access": "node scripts/npm/set-npm-package-access.mts",
     "package-npm-publish": "node scripts/npm/publish-npm-packages.mts",
@@ -51,9 +53,7 @@
     "update": "node scripts/update.mts",
     "update:external-tools": "node scripts/update-external-tools.mts",
     "validate-ci": "node scripts/testing/reproduce-ci-locally.mts",
-    "validate-packages": "node scripts/testing/validate-package-tests.mts",
-    "xport": "node scripts/xport.mts",
-    "xport:emit-schema": "node scripts/xport-emit-schema.mts"
+    "validate-packages": "node scripts/testing/validate-package-tests.mts"
   },
   "devDependencies": {
     "@anthropic-ai/claude-code": "catalog:",

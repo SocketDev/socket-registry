@@ -1,7 +1,0 @@
-{
-  "$schema": "./xport.schema.json",
-  "area": "socket-registry",
-  "description": "xport lock-step manifest for socket-registry. socket-registry is the fleet's canonical authority for shared skills, workflows, hooks, and scaffolding — it doesn't currently port from an upstream or track feature-parity against an external spec, so this manifest ships empty. Present so sync-scaffolding doesn't flag registry as missing xport infrastructure and so future lock-step rows (e.g. if registry ever tracks an upstream) have a home.",
-  "upstreams": {},
-  "rows": []
-}

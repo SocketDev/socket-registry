@@ -7,7 +7,7 @@ name: 🔄 Weekly Update
 # consumer repo's `/updating` skill, which this workflow calls via Claude Code.
 #
 # The `/updating` skill is the umbrella — it reads repo state (presence of
-# `xport.json`, `.gitmodules`) and delegates to `updating-xport` /
+# `lockstep.json`, `.gitmodules`) and delegates to `updating-lockstep` /
 # `updating-upstream` / `updating-workflows` as applicable.
 #
 # Dependencies:
@@ -94,10 +94,10 @@ on:
         type: string
         default: 'updating'
       validate-file-patterns:
-        description: 'Shell case-glob patterns (pipe-separated) of file paths allowed to change during the update. Default covers npm + submodules + xport manifest; add source patterns for repos that auto-fix source.'
+        description: 'Shell case-glob patterns (pipe-separated) of file paths allowed to change during the update. Default covers npm + submodules + lockstep manifest; add source patterns for repos that auto-fix source.'
         required: false
         type: string
-        default: 'package.json|*/package.json|pnpm-lock.yaml|*/pnpm-lock.yaml|.npmrc|pnpm-workspace.yaml|.gitmodules|xport.json'
+        default: 'package.json|*/package.json|pnpm-lock.yaml|*/pnpm-lock.yaml|.npmrc|pnpm-workspace.yaml|.gitmodules|lockstep.json'
     secrets:
       ANTHROPIC_API_KEY:
         description: 'Anthropic API key for Claude Code invocations'
@@ -144,19 +144,19 @@ jobs:
             HAS_UPDATES=true
           fi
 
-          # xport drift check (exit code 2 = drift; 0 = clean; 1 = schema error)
-          if [ -f xport.json ]; then
+          # lockstep drift check (exit code 2 = drift; 0 = clean; 1 = schema error)
+          if [ -f lockstep.json ]; then
             set +e
-            pnpm run xport --json > /tmp/xport-report.json 2>&1
-            XPORT_EXIT=$?
+            pnpm run lockstep --json > /tmp/lockstep-report.json 2>&1
+            LOCKSTEP_EXIT=$?
             set -e
-            if [ "$XPORT_EXIT" = "2" ]; then
+            if [ "$LOCKSTEP_EXIT" = "2" ]; then
               HAS_UPDATES=true
             fi
           fi
 
-          # Plain submodule check (for repos without xport)
-          if [ -f .gitmodules ] && [ ! -f xport.json ]; then
+          # Plain submodule check (for repos without lockstep)
+          if [ -f .gitmodules ] && [ ! -f lockstep.json ]; then
             # Any submodule with upstream commits past its current pin?
             while IFS= read -r SM; do
               (cd "$SM" && git fetch origin --tags --quiet 2>/dev/null || true)
@@ -241,7 +241,7 @@ jobs:
             --permission-mode dontAsk \
             --model "$UPDATE_MODEL" \
             --max-turns 25 \
-            "/$UPDATING_SKILL — Run the $UPDATING_SKILL skill to update everything applicable to this repo (npm, xport, submodules, workflow pins). CI mode: skip builds/tests. Create atomic commits. Do NOT push or create a PR; this workflow handles that." \
+            "/$UPDATING_SKILL — Run the $UPDATING_SKILL skill to update everything applicable to this repo (npm, lockstep, submodules, workflow pins). CI mode: skip builds/tests. Create atomic commits. Do NOT push or create a PR; this workflow handles that." \
             2>&1 | tee claude-update.log
           CLAUDE_EXIT=${PIPESTATUS[0]}
           set -e
@@ -403,7 +403,7 @@ jobs:
           COMMIT_COUNT=$(git rev-list --count origin/${PR_BASE}..HEAD)
 
           PR_BODY="## Weekly Update"$'\n\n'
-          PR_BODY+="Automated weekly update — runs the \`/updating\` skill umbrella (npm + xport + submodules + workflow pins)."$'\n\n'
+          PR_BODY+="Automated weekly update — runs the \`/updating\` skill umbrella (npm + lockstep + submodules + workflow pins)."$'\n\n'
           if [ -n "$PR_BODY_EXTRA" ]; then
             PR_BODY+="$PR_BODY_EXTRA"$'\n\n'
           fi

@@ -1,13 +1,13 @@
 ---
 name: updating-upstream
-description: Bumps git submodules declared in `.gitmodules` to their latest stable upstream tag, for submodules NOT managed by an xport `version-pin` row. Reads the `# <name>-<version>` comment above each submodule as the current pin, finds the latest stable tag (excluding pre-releases), checks out, updates the comment, commits atomically. Invoked by the `updating` umbrella skill; can also be invoked standalone.
+description: Bumps git submodules declared in `.gitmodules` to their latest stable upstream tag, for submodules NOT managed by an lockstep `version-pin` row. Reads the `# <name>-<version>` comment above each submodule as the current pin, finds the latest stable tag (excluding pre-releases), checks out, updates the comment, commits atomically. Invoked by the `updating` umbrella skill; can also be invoked standalone.
 user-invocable: true
 allowed-tools: Bash(pnpm:*), Bash(npm:*), Bash(git:*), Bash(node:*), Bash(rg:*), Bash(grep:*), Bash(find:*), Bash(ls:*), Bash(cat:*), Bash(head:*), Bash(tail:*), Bash(wc:*), Bash(diff:*), Read, Edit, Grep, Glob---
 
 # updating-upstream
 
 <task>
-Bump every git submodule in `.gitmodules` that is NOT managed by an xport `version-pin` row, to its latest stable upstream tag. One atomic commit per submodule. Exits cleanly when the repo has no `.gitmodules` or when all submodules are owned by xport.
+Bump every git submodule in `.gitmodules` that is NOT managed by an lockstep `version-pin` row, to its latest stable upstream tag. One atomic commit per submodule. Exits cleanly when the repo has no `.gitmodules` or when all submodules are owned by lockstep.
 </task>
 
 <context>
@@ -21,8 +21,8 @@ Bump every git submodule in `.gitmodules` that is NOT managed by an xport `versi
   ignore = dirty
 ```
 
-**Division of labor with xport:**
-- If `xport.json` exists AND a submodule's path matches an `upstreams[<alias>].submodule` referenced by a `version-pin` row, it's owned by `updating-xport`. Skip it here.
+**Division of labor with lockstep:**
+- If `lockstep.json` exists AND a submodule's path matches an `upstreams[<alias>].submodule` referenced by a `version-pin` row, it's owned by `updating-lockstep`. Skip it here.
 - All other submodules are owned by this skill.
 
 **Tag scheme detection** (in order of preference):
@@ -40,7 +40,7 @@ Bump every git submodule in `.gitmodules` that is NOT managed by an xport `versi
 - Exclude pre-releases: `-rc`, `-alpha`, `-beta`, `-dev`, `-snapshot`, `-nightly`, `-preview`
 
 **Forbidden:**
-- Never bump a submodule managed by xport (defer to `updating-xport`)
+- Never bump a submodule managed by lockstep (defer to `updating-lockstep`)
 - Never bump to a pre-release tag
 - Never use `npx`, `pnpm dlx`, `yarn dlx`
 - Never use sed to edit YAML/JSON (per CLAUDE.md) — use Edit tool
@@ -67,16 +67,16 @@ List every submodule path:
 git config --file .gitmodules --get-regexp path | awk '{print $2}'
 ```
 
-For each path, check xport ownership:
+For each path, check lockstep ownership:
 
 ```bash
-if [ -f xport.json ]; then
+if [ -f lockstep.json ]; then
   OWNED=$(jq --arg p "$SM_PATH" \
     '[.rows[] | select(.kind=="version-pin") | .upstream] as $pinned
      | .upstreams | to_entries
      | map(select(.key as $k | $pinned | index($k)))
-     | map(select(.value.submodule == $p)) | length' xport.json)
-  [ "$OWNED" -gt 0 ] && { echo "skipping $SM_PATH (owned by xport)"; continue; }
+     | map(select(.value.submodule == $p)) | length' lockstep.json)
+  [ "$OWNED" -gt 0 ] && { echo "skipping $SM_PATH (owned by lockstep)"; continue; }
 fi
 ```
 
@@ -148,7 +148,7 @@ git commit -m "chore(deps): bump $SM_NAME to $LATEST"
 **Bumped:** <N> submodule(s)
 <list with OLD_TAG → NEW_TAG>
 
-**Skipped (managed by xport):** <M> submodule(s)
+**Skipped (managed by lockstep):** <M> submodule(s)
 <list>
 
 **Skipped (no stable tag / already latest):** <K> submodule(s)
@@ -160,7 +160,7 @@ Emit HANDOFF block per `_shared/report-format.md`:
 ```
 === HANDOFF: updating-upstream ===
 Status: {pass|fail}
-Findings: {bumped: N, skipped_xport: M, skipped_other: K}
+Findings: {bumped: N, skipped_lockstep: M, skipped_other: K}
 Summary: {one-line description}
 === END HANDOFF ===
 ```
@@ -169,7 +169,7 @@ Summary: {one-line description}
 
 ## Success Criteria
 
-- Every non-xport submodule bumped to latest stable (or skipped with explicit reason)
+- Every non-lockstep submodule bumped to latest stable (or skipped with explicit reason)
 - One atomic commit per bumped submodule
 - `.gitmodules` version comments synchronized
 - No pre-release tags introduced
