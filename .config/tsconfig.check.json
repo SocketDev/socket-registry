@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": false,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "sourceMap": false
+  },
+  "include": ["../**/*.ts", "../**/*.mts", "../**/*.cts"],
+  "exclude": [
+    "../**/.cache/**",
+    "../**/node_modules/**",
+    "../packages/npm/**",
+    "../scripts/**",
+    "../test/**/packages/**",
+    "../test/npm/**/*.d.ts",
+    "../test/npm/node_modules/**"
+  ]
+}

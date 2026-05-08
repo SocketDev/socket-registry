@@ -49,7 +49,7 @@
     "release-npm": "node scripts/npm/release-npm-packages.mts",
     "test": "node scripts/test.mts",
     "test:npm": "node scripts/npm/run-vitest-npm.mts",
-    "type": "tsgo --noEmit -p tsconfig.json",
+    "type": "tsgo --noEmit -p .config/tsconfig.check.json",
     "update": "node scripts/update.mts",
     "update:external-tools": "node scripts/update-external-tools.mts",
     "validate-ci": "node scripts/testing/reproduce-ci-locally.mts",
