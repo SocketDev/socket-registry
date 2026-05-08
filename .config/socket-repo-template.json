@@ -2,5 +2,6 @@
   "$schema": "./socket-repo-template-schema.json",
   "schemaVersion": 1,
   "repoName": "socket-registry",
-  "kind": "mono-no-native"
+  "layout": "monorepo",
+  "native": "none"
 }
