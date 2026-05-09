@@ -90,20 +90,20 @@ const checkSubmodules = (): number => {
   return 0
 }
 
-// Computes the commit range to scan. Returns undefined if no scan needed
+// Computes the commit range to scan. Returns null if no scan needed
 // (skip case — tag, delete, or no baseline).
 const computeRange = (
   remote: string,
   localRef: string,
   localSha: string,
   remoteSha: string,
-): string | undefined => {
+): string | null => {
   if (localRef.startsWith('refs/tags/')) {
     logger.info(`Skipping tag push: ${localRef}`)
-    return undefined
+    return null
   }
   if (localSha === ZERO_SHA) {
-    return undefined
+    return null
   }
 
   const defaultBranchOf = (remoteName: string): string => {
@@ -132,7 +132,7 @@ const computeRange = (
     const baseRef = `${remote}/${def}`
     if (!refExists(baseRef)) {
       logger.success('Skipping validation (no baseline to compare against)')
-      return undefined
+      return null
     }
     return `${baseRef}..${localSha}`
   }
@@ -144,7 +144,7 @@ const computeRange = (
     const baseRef = `${remote}/${def}`
     if (!refExists(baseRef)) {
       logger.success('Skipping validation (no baseline for force-push)')
-      return undefined
+      return null
     }
     return `${baseRef}..${localSha}`
   }
@@ -389,7 +389,7 @@ const main = async (): Promise<number> => {
       continue
     }
     const range = computeRange(remote, localRef, localSha, remoteSha)
-    if (range === undefined) {
+    if (range === null) {
       continue
     }
     // Validate range.
