@@ -1,3 +1,4 @@
+/* oxlint-disable socket/no-console-prefer-logger -- composite action helper, runs on raw runner before setup-node (no node_modules) */
 /**
  * @fileoverview Minimal JSON reader for composite-action shells.
  *

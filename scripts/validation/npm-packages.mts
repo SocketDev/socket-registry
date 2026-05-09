@@ -146,6 +146,7 @@ async function main(): Promise<void> {
 
   // Clear cache if requested.
   if (clearCache && existsSync(resultsFile)) {
+    // oxlint-disable-next-line socket/prefer-safe-delete -- existsSync gated, no ENOENT possible
     await fs.unlink(resultsFile)
     logger.log('🗑️ Cleared download cache')
   }

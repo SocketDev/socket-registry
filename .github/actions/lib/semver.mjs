@@ -1,3 +1,4 @@
+/* oxlint-disable socket/no-console-prefer-logger socket/export-top-level-functions -- composite action helper, runs on raw runner before setup-node (no node_modules) */
 /**
  * @fileoverview Semver validate + compare for composite-action shells.
  *

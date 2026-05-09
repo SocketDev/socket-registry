@@ -149,6 +149,7 @@ async function downloadAndHash(url: string): Promise<string> {
     await httpDownload(url, tmpFile, { retries: 2 })
     return await computeSha256(tmpFile)
   } finally {
+    // oxlint-disable-next-line socket/prefer-safe-delete -- finally cleanup with explicit catch
     await fs.unlink(tmpFile).catch(() => {})
   }
 }

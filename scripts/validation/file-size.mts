@@ -25,18 +25,18 @@ const MAX_FILE_SIZE = 2 * 1024 * 1024
 
 // Directories to skip
 const SKIP_DIRS = new Set([
-  'node_modules',
-  '.git',
-  'dist',
-  'build',
   '.cache',
-  'coverage',
+  '.git',
   '.next',
   '.nuxt',
   '.output',
   '.turbo',
   '.vercel',
   '.vscode',
+  'build',
+  'coverage',
+  'dist',
+  'node_modules',
   'tmp',
 ])
 
@@ -76,6 +76,7 @@ async function scanDirectory(dir, violations = []) {
         }
       } else if (entry.isFile()) {
         try {
+          // oxlint-disable-next-line socket/prefer-exists-sync -- need .size metadata
           const stats = await fs.stat(fullPath)
           if (stats.size > MAX_FILE_SIZE) {
             const relativePath = path.relative(rootPath, fullPath)

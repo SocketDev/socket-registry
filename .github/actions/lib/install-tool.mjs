@@ -1,3 +1,4 @@
+/* oxlint-disable socket/no-console-prefer-logger socket/no-fetch-prefer-http-request socket/export-top-level-functions -- composite action helper, runs on raw runner before setup-node (no node_modules) */
 /**
  * @fileoverview Downloads, integrity-verifies, and extracts a release asset.
  *

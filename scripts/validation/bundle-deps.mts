@@ -387,7 +387,7 @@ async function main(): Promise<void> {
       }
 
       if (warnings.length > 0) {
-        logger.log('⚠ Warnings:\n')
+        logger.warn('Warnings:\n')
 
         for (const warning of warnings) {
           logger.log(`  ${warning.message}`)

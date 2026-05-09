@@ -634,6 +634,7 @@ async function installPackage(packageInfo) {
             attempt += 1
           ) {
             try {
+              // oxlint-disable-next-line socket/prefer-exists-sync -- need .size metadata
               const pkgJsonStats = await fs.stat(pkgJsonPath)
               if (pkgJsonStats.size === 0) {
                 throw new Error(`Extracted ${PACKAGE_JSON} is empty`)
@@ -660,6 +661,7 @@ async function installPackage(packageInfo) {
 
           if (!editablePkgJson) {
             // All retries failed, add diagnostic info.
+            // oxlint-disable-next-line socket/prefer-exists-sync -- need .size for diagnostic
             const pkgJsonStats = await fs.stat(pkgJsonPath)
             const fileContent = await readFileUtf8(pkgJsonPath)
             throw new Error(

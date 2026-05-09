@@ -22,15 +22,15 @@ import { argv, exit, stdout } from 'node:process'
 
 const pkgName = argv[2]
 if (!pkgName) {
-  process.stderr.write('Usage: node read-pinned-version.mts <package-name>\n')
+  process.stderr.write('Usage: node read-pinned-version.mts <package-name>\n') // socket-hook: allow logger -- composite action helper, raw stderr for usage
   exit(2)
 }
 
 const stripRange = (v: string): string => v.replace(/^[\^~>=<]+/, '').trim()
 
-const fromCatalog = (pkg: string): string | null => {
+const fromCatalog = (pkg: string): string | undefined => {
   if (!existsSync('pnpm-workspace.yaml')) {
-    return null
+    return undefined
   }
   const content = readFileSync('pnpm-workspace.yaml', 'utf8')
   const lines = content.split('\n')
@@ -57,12 +57,12 @@ const fromCatalog = (pkg: string): string | null => {
       return stripRange(m[2]!)
     }
   }
-  return null
+  return undefined
 }
 
-const fromPackageJson = (pkg: string): string | null => {
+const fromPackageJson = (pkg: string): string | undefined => {
   if (!existsSync('package.json')) {
-    return null
+    return undefined
   }
   const json = JSON.parse(readFileSync('package.json', 'utf8'))
   for (const field of ['dependencies', 'devDependencies'] as const) {
@@ -79,7 +79,7 @@ const fromPackageJson = (pkg: string): string | null => {
       }
     }
   }
-  return null
+  return undefined
 }
 
 const version = fromCatalog(pkgName) ?? fromPackageJson(pkgName)

@@ -54,6 +54,7 @@ async function main(): Promise<void> {
 
   await Promise.allSettled(
     autoFiles.map(async filepath => {
+      // oxlint-disable-next-line socket/prefer-exists-sync -- need .size metadata
       if ((await fs.stat(filepath)).size === OLD_EMPTY_CONTENT_BYTES) {
         await fs.writeFile(filepath, EMPTY_FILE, UTF8)
       }
@@ -68,6 +69,7 @@ async function main(): Promise<void> {
       })
     ).map(async filepath => {
       if (
+        // oxlint-disable-next-line socket/prefer-exists-sync -- need .size metadata
         (await fs.stat(filepath)).size === OLD_EMPTY_CONTENT_BYTES &&
         (await fs.readFile(filepath, UTF8)) === OLD_EMPTY_CONTENT
       ) {
