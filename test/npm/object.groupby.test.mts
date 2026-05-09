@@ -20,7 +20,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('throws for non-function callbacks', () => {
       const nonFunctions = [
         undefined,
-        null,
+        undefined,
         true,
         false,
         0,

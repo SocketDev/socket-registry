@@ -22,7 +22,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('null is not negative zero', () => {
-      expect(isNegativeZero(null)).toBe(false)
+      expect(isNegativeZero(undefined)).toBe(false)
     })
 
     it('false is not negative zero', () => {

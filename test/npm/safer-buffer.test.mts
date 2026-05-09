@@ -19,8 +19,10 @@ const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
 // https://github.com/ChALkeR/safer-buffer/issues/16
 // https://github.com/ChALkeR/safer-buffer/blob/v2.1.2/tests.js
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
-  const safer = skip ? null : require(path.join(pkgPath, 'safer.js'))
-  const dangerous = skip ? null : require(path.join(pkgPath, 'dangerous.js'))
+  const safer = skip ? undefined : require(path.join(pkgPath, 'safer.js'))
+  const dangerous = skip
+    ? undefined
+    : require(path.join(pkgPath, 'dangerous.js'))
   const implementations = [safer, dangerous]
 
   it('Default is Safer', () => {
@@ -250,7 +252,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         impl.Buffer.from(Number.NaN)
       }).toThrow()
       expect(() => {
-        impl.Buffer.from(null)
+        impl.Buffer.from(undefined)
       }).toThrow()
       expect(() => {
         impl.Buffer.from(undefined)
@@ -291,7 +293,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         impl.Buffer.alloc(Number.NEGATIVE_INFINITY)
       }).toThrow()
       expect(() => {
-        impl.Buffer.alloc(null)
+        impl.Buffer.alloc(undefined)
       }).toThrow()
       expect(() => {
         impl.Buffer.alloc(undefined)
@@ -343,7 +345,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         }).toThrow()
       }
       expect(() => {
-        dangerous.Buffer[method](null)
+        dangerous.Buffer[method](undefined)
       }).toThrow()
       expect(() => {
         dangerous.Buffer[method](undefined)

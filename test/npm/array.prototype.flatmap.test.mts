@@ -17,7 +17,7 @@ const {
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('callback function', () => {
-    it.each([[], {}, true, false, 42, 'foo', /a/g, null])(
+    it.each([[], {}, true, false, 42, 'foo', /a/g, undefined])(
       'throws for non-function %s',
       nonFunction => {
         expect(() => flatMap([], nonFunction)).toThrow(TypeError)

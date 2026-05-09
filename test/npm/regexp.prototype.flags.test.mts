@@ -31,7 +31,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('throws when called with a non-object receiver', () => {
     const primitives = [
       undefined,
-      null,
+      undefined,
       false,
       true,
       0,

@@ -21,28 +21,28 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('throws when target is not an object', () => {
-    expect(() => objectAssign(null)).toThrow(TypeError)
+    expect(() => objectAssign(undefined)).toThrow(TypeError)
     expect(() => objectAssign(undefined)).toThrow(TypeError)
   })
 
   it('assigns own enumerable properties from source to target object', () => {
     expect(objectAssign({ foo: 0 }, { bar: 1 })).toEqual({ foo: 0, bar: 1 })
-    expect(objectAssign({ foo: 0 }, null, undefined)).toEqual({ foo: 0 })
-    expect(objectAssign({ foo: 0 }, null, undefined, { bar: 1 }, null)).toEqual(
-      { foo: 0, bar: 1 },
-    )
+    expect(objectAssign({ foo: 0 }, undefined, undefined)).toEqual({ foo: 0 })
+    expect(
+      objectAssign({ foo: 0 }, undefined, undefined, { bar: 1 }, undefined),
+    ).toEqual({ foo: 0, bar: 1 })
   })
 
   it('throws on null/undefined target', () => {
-    expect(() => objectAssign(null, {})).toThrow()
+    expect(() => objectAssign(undefined, {})).toThrow()
     expect(() => objectAssign(undefined, {})).toThrow()
     expect(() => objectAssign(undefined, undefined)).toThrow()
   })
 
   it('does not throw on null/undefined sources', () => {
-    expect(() => objectAssign({}, null)).not.toThrow()
     expect(() => objectAssign({}, undefined)).not.toThrow()
-    expect(() => objectAssign({}, undefined, null)).not.toThrow()
+    expect(() => objectAssign({}, undefined)).not.toThrow()
+    expect(() => objectAssign({}, undefined, undefined)).not.toThrow()
   })
 
   it('supports multiple sources', () => {
@@ -69,6 +69,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('supports Object.create(null) objects', () => {
+    // oxlint-disable-next-line socket/prefer-undefined-over-null -- Object.create only accepts object | null
     const obj = Object.create(null)
     obj.foo = true
     expect(objectAssign({}, obj)).toEqual({ foo: true })

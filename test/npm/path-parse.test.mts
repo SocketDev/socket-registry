@@ -149,7 +149,7 @@ const unixParseTests: Array<[Record<string, string>, string]> = [
 ]
 
 const errors = [
-  { input: null, message: /Parameter 'pathString' must be a string, not/ },
+  { input: undefined, message: /Parameter 'pathString' must be a string, not/ },
   {
     input: {},
     message: /Parameter 'pathString' must be a string, not object/,

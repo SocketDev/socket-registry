@@ -24,7 +24,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     expect(numberIsNan()).toBe(false)
     expect(numberIsNan(true)).toBe(false)
     expect(numberIsNan(false)).toBe(false)
-    expect(numberIsNan(null)).toBe(false)
+    expect(numberIsNan(undefined)).toBe(false)
     expect(numberIsNan(0)).toBe(false)
     expect(numberIsNan(Infinity)).toBe(false)
     expect(numberIsNan(-Infinity)).toBe(false)

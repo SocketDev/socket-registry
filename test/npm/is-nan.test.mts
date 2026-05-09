@@ -23,7 +23,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       })
 
       it('null is not NaN', () => {
-        expect(numberIsNaN(null)).toBe(false)
+        expect(numberIsNaN(undefined)).toBe(false)
       })
 
       it('false is not NaN', () => {

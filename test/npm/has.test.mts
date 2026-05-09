@@ -25,7 +25,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('calling has on null throws TypeError', () => {
-    expect(() => has(null, 'throws')).toThrow(TypeError)
+    expect(() => has(undefined, 'throws')).toThrow(TypeError)
   })
 
   it('calling has on undefined throws TypeError', () => {

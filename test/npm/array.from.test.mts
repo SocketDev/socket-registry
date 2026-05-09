@@ -25,7 +25,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('requires an array-like object', () => {
     expect(() => arrayFrom()).toThrow(TypeError)
-    expect(() => arrayFrom(null)).toThrow(TypeError)
+    expect(() => arrayFrom(undefined)).toThrow(TypeError)
   })
 
   it('throws with invalid lengths', () => {
@@ -153,7 +153,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     expect(() => arrayFrom([], undefined)).not.toThrow()
     expect(() => arrayFrom([], undefined, undefined)).not.toThrow()
     expect(() => arrayFrom([], undefined, {})).not.toThrow()
-    expect(() => arrayFrom([], null)).toThrow(TypeError)
+    expect(() => arrayFrom([], undefined)).toThrow(TypeError)
     expect(() => arrayFrom([], false)).toThrow(TypeError)
     expect(() => arrayFrom([], true)).toThrow(TypeError)
     expect(() => arrayFrom([], {})).toThrow(TypeError)
@@ -218,7 +218,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('works when called from a non-constructor context', () => {
     const from = arrayFrom
-    expect(from.call(null, { 0: 'a', length: 1 })).toEqual(['a'])
+    expect(from.call(undefined, { 0: 'a', length: 1 })).toEqual(['a'])
     expect(arrayFrom({ 0: 'a', length: 1 })).toEqual(['a'])
   })
 

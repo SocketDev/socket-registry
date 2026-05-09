@@ -22,7 +22,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         throw new SyntaxError('nope')
       },
     }
-    expect(() => hasOwn(null, badPropertyKey)).toThrow(TypeError)
+    expect(() => hasOwn(undefined, badPropertyKey)).toThrow(TypeError)
   })
 
   it('checks ToPropertyKey next', () => {

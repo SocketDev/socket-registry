@@ -45,6 +45,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('works with nulled objects', () => {
+      // oxlint-disable-next-line socket/prefer-undefined-over-null -- Object.create only accepts object | null
       const o = Object.create(null)
       o.foo = 'bar'
       expect(qs.stringify(o)).toBe('foo=bar')
@@ -59,7 +60,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('transforms null into nothing', () => {
-      expect(qs.stringify({ foo: null })).toBe('foo=')
+      expect(qs.stringify({ foo: undefined })).toBe('foo=')
     })
   })
 

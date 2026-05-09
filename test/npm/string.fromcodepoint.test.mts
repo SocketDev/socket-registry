@@ -25,7 +25,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       expect(fromCodePoint(-0)).toBe('\0')
       expect(fromCodePoint(0)).toBe('\0')
       expect(fromCodePoint(false)).toBe('\0')
-      expect(fromCodePoint(null)).toBe('\0')
+      expect(fromCodePoint(undefined)).toBe('\0')
     })
   })
 
@@ -79,14 +79,14 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       while (--counter >= 0) {
         result.push(0)
       }
-      expect(() => fromCodePoint.apply(null, result)).not.toThrow()
+      expect(() => fromCodePoint.apply(undefined, result)).not.toThrow()
 
       counter = (Math.pow(2, 15) * 3) / 2
       result = []
       while (--counter >= 0) {
         result.push(0xffff + 1)
       }
-      expect(() => fromCodePoint.apply(null, result)).not.toThrow()
+      expect(() => fromCodePoint.apply(undefined, result)).not.toThrow()
     })
   })
 })

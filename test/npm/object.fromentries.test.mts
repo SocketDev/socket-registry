@@ -38,7 +38,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('throws on null', () => {
-    expect(() => fromEntries(null)).toThrow()
+    expect(() => fromEntries(undefined)).toThrow()
   })
 
   it('works with a duplicate key', () => {

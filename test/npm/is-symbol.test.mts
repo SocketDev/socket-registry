@@ -22,7 +22,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('non-symbol values', () => {
     it.each([
       undefined,
-      null,
+      undefined,
       true,
       false,
       0,

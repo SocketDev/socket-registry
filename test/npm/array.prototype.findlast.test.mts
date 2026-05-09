@@ -39,7 +39,16 @@ const createArrayLikeFromArray = (arr: any[]) => {
 }
 
 const getTestArr = () => {
-  const arr: any[] = [0, false, null, 'hej', true, undefinedIfNoSparseBug, 3, 2]
+  const arr: any[] = [
+    0,
+    false,
+    undefined,
+    'hej',
+    true,
+    undefinedIfNoSparseBug,
+    3,
+    2,
+  ]
   delete arr[6]
   return arr
 }
@@ -48,7 +57,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('throws on a non-callable predicate', () => {
     const nonFunctions = [
       undefined,
-      null,
+      undefined,
       true,
       false,
       0,

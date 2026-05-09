@@ -19,7 +19,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('returns empty string for falsy counts', () => {
       expect(repeat('abc')).toBe('')
       expect(repeat('abc', undefined)).toBe('')
-      expect(repeat('abc', null)).toBe('')
+      expect(repeat('abc', undefined)).toBe('')
       expect(repeat('abc', false)).toBe('')
       expect(repeat('abc', NaN)).toBe('')
       expect(repeat('abc', 'abc')).toBe('')
@@ -49,8 +49,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('throws TypeError', () => {
       expect(() => repeat(undefined)).toThrow(TypeError)
       expect(() => repeat(undefined, 4)).toThrow(TypeError)
-      expect(() => repeat(null)).toThrow(TypeError)
-      expect(() => repeat(null, 4)).toThrow(TypeError)
+      expect(() => repeat(undefined)).toThrow(TypeError)
+      expect(() => repeat(undefined, 4)).toThrow(TypeError)
     })
   })
 

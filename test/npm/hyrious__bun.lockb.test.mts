@@ -18,7 +18,7 @@ const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
 // Test case from https://github.com/daggerok/bun-examples/tree/master/hello-bun.
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   const hyriousBunLockbIndex = skip
-    ? null
+    ? undefined
     : require(path.join(pkgPath, 'index.cjs'))
 
   it('parses bun.lockb into yarn.lock contents', () => {

@@ -76,10 +76,10 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         func: functionBind.call(function (this: unknown, ...a: unknown[]) {
           args = a
           return this
-        }, null),
+        }, undefined),
       }
       const context = namespace.func(1, 2, 3)
-      expect(context).toBe(getCurrentContext.call(null))
+      expect(context).toBe(getCurrentContext.call(undefined))
       expect(args).toEqual([1, 2, 3])
     })
 
@@ -91,14 +91,14 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
             args = a
             return this
           },
-          null,
+          undefined,
           1,
           2,
           3,
         ),
       }
       const context = namespace.func(4, 5, 6)
-      expect(context).toBe(getCurrentContext.call(null))
+      expect(context).toBe(getCurrentContext.call(undefined))
       expect(args).toEqual([1, 2, 3, 4, 5, 6])
     })
 
@@ -113,14 +113,14 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         const expectedReturnValue = [1, 2, 3]
         const Constructor = functionBind.call(
           thunkify(expectedReturnValue),
-          null,
+          undefined,
         )
         const result = new Constructor()
         expect(result).toBe(expectedReturnValue)
       })
 
       it('does not return primitive value', () => {
-        const Constructor = functionBind.call(thunkify(42), null)
+        const Constructor = functionBind.call(thunkify(42), undefined)
         const result = new Constructor()
         expect(result).not.toBe(42)
       })
@@ -129,7 +129,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         const A = function (this: any, x?: string) {
           this.name = x || 'A'
         }
-        const B = functionBind.call(A, null, 'B')
+        const B = functionBind.call(A, undefined, 'B')
 
         const result = new B()
         expect(result instanceof B).toBe(true)

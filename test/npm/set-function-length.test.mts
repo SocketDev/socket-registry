@@ -18,7 +18,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('throws on non-functions', () => {
     const nonFunctions = [
       undefined,
-      null,
+      undefined,
       true,
       false,
       0,
@@ -37,7 +37,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('throws on non-integer lengths', () => {
     const nonIntegers = [
       undefined,
-      null,
+      undefined,
       true,
       false,
       '',

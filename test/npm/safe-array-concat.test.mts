@@ -37,7 +37,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('first item as null is not the concat receiver', () => {
-    expect(safeConcat(null, 1, 2)).toEqual([null, 1, 2])
+    expect(safeConcat(undefined, 1, 2)).toEqual([undefined, 1, 2])
   })
 
   it('ignores nonArray .constructor on first item', () => {

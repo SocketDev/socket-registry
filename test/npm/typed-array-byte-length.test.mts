@@ -32,7 +32,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('not typed arrays', () => {
     it('returns false for non-typed-array primitives', () => {
       expect(typedArrayByteLength()).toBe(false)
-      expect(typedArrayByteLength(null)).toBe(false)
+      expect(typedArrayByteLength(undefined)).toBe(false)
       expect(typedArrayByteLength(false)).toBe(false)
       expect(typedArrayByteLength(true)).toBe(false)
     })

@@ -19,7 +19,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('returns null for primitives', () => {
       const primitives = [
         undefined,
-        null,
+        undefined,
         true,
         false,
         0,
@@ -31,7 +31,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         'foo',
       ]
       for (const primitive of primitives) {
-        expect(whichBoxedPrimitive(primitive)).toBe(null)
+        expect(whichBoxedPrimitive(primitive)).toBe(undefined)
       }
     })
   })

@@ -22,7 +22,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('throws on non-regexes', () => {
     const nonRegexes = [
       undefined,
-      null,
+      undefined,
       true,
       false,
       0,

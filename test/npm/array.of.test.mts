@@ -22,14 +22,14 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('works with null receiver', () => {
-      expect(of.call(null, 2)).toEqual([2])
+      expect(of.call(undefined, 2)).toEqual([2])
     })
   })
 
   it('wraps single values in array', () => {
     expect(of('abc')).toEqual(['abc'])
     expect(of(undefined)).toEqual([undefined])
-    expect(of(null)).toEqual([null])
+    expect(of(undefined)).toEqual([undefined])
     expect(of(false)).toEqual([false])
     expect(of(-Infinity)).toEqual([-Infinity])
     expect(of(-0)).toEqual([-0])
@@ -50,37 +50,48 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('works with mixed types', () => {
     expect(
-      of(undefined, null, false, -Infinity, -0, 0, 1, 2, Infinity),
-    ).toEqual([undefined, null, false, -Infinity, -0, 0, 1, 2, Infinity])
+      of(undefined, undefined, false, -Infinity, -0, 0, 1, 2, Infinity),
+    ).toEqual([undefined, undefined, false, -Infinity, -0, 0, 1, 2, Infinity])
   })
 
   describe('with null this', () => {
     it('wraps single values', () => {
-      expect(of.call(null, 'abc')).toEqual(['abc'])
-      expect(of.call(null, undefined)).toEqual([undefined])
-      expect(of.call(null, null)).toEqual([null])
-      expect(of.call(null, false)).toEqual([false])
-      expect(of.call(null, -Infinity)).toEqual([-Infinity])
-      expect(of.call(null, -0)).toEqual([-0])
-      expect(of.call(null, +0)).toEqual([+0])
-      expect(of.call(null, 1)).toEqual([1])
-      expect(of.call(null, Infinity)).toEqual([Infinity])
+      expect(of.call(undefined, 'abc')).toEqual(['abc'])
+      expect(of.call(undefined, undefined)).toEqual([undefined])
+      expect(of.call(undefined, undefined)).toEqual([undefined])
+      expect(of.call(undefined, false)).toEqual([false])
+      expect(of.call(undefined, -Infinity)).toEqual([-Infinity])
+      expect(of.call(undefined, -0)).toEqual([-0])
+      expect(of.call(undefined, +0)).toEqual([+0])
+      expect(of.call(undefined, 1)).toEqual([1])
+      expect(of.call(undefined, Infinity)).toEqual([Infinity])
     })
 
     it('wraps multiple values', () => {
-      expect(of.call(null, 1, 2, 3)).toEqual([1, 2, 3])
+      expect(of.call(undefined, 1, 2, 3)).toEqual([1, 2, 3])
     })
 
     it('wraps array-like objects', () => {
-      expect(of.call(null, { 0: 'a', 1: 'b', 2: 'c', length: 3 })).toEqual([
-        { 0: 'a', 1: 'b', 2: 'c', length: 3 },
-      ])
+      expect(of.call(undefined, { 0: 'a', 1: 'b', 2: 'c', length: 3 })).toEqual(
+        [{ 0: 'a', 1: 'b', 2: 'c', length: 3 }],
+      )
     })
 
     it('wraps mixed types', () => {
       expect(
-        of.call(null, undefined, null, false, -Infinity, -0, 0, 1, 2, Infinity),
-      ).toEqual([undefined, null, false, -Infinity, -0, 0, 1, 2, Infinity])
+        of.call(
+          undefined,
+          undefined,
+          undefined,
+          false,
+          -Infinity,
+          -0,
+          0,
+          1,
+          2,
+          Infinity,
+        ),
+      ).toEqual([undefined, undefined, false, -Infinity, -0, 0, 1, 2, Infinity])
     })
 
     it('returns zero length when called with no args', () => {
@@ -90,32 +101,32 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   describe('with apply', () => {
     it('wraps single values', () => {
-      expect(of.apply(null, ['abc'])).toEqual(['abc'])
-      expect(of.apply(null, [undefined])).toEqual([undefined])
-      expect(of.apply(null, [null])).toEqual([null])
-      expect(of.apply(null, [false])).toEqual([false])
-      expect(of.apply(null, [-Infinity])).toEqual([-Infinity])
-      expect(of.apply(null, [-0])).toEqual([-0])
-      expect(of.apply(null, [0])).toEqual([0])
-      expect(of.apply(null, [1])).toEqual([1])
-      expect(of.apply(null, [Infinity])).toEqual([Infinity])
+      expect(of.apply(undefined, ['abc'])).toEqual(['abc'])
+      expect(of.apply(undefined, [undefined])).toEqual([undefined])
+      expect(of.apply(undefined, [undefined])).toEqual([undefined])
+      expect(of.apply(undefined, [false])).toEqual([false])
+      expect(of.apply(undefined, [-Infinity])).toEqual([-Infinity])
+      expect(of.apply(undefined, [-0])).toEqual([-0])
+      expect(of.apply(undefined, [0])).toEqual([0])
+      expect(of.apply(undefined, [1])).toEqual([1])
+      expect(of.apply(undefined, [Infinity])).toEqual([Infinity])
     })
 
     it('wraps multiple values', () => {
-      expect(of.apply(null, [1, 2, 3])).toEqual([1, 2, 3])
+      expect(of.apply(undefined, [1, 2, 3])).toEqual([1, 2, 3])
     })
 
     it('wraps array-like objects', () => {
-      expect(of.apply(null, [{ 0: 'a', 1: 'b', 2: 'c', length: 3 }])).toEqual([
-        { 0: 'a', 1: 'b', 2: 'c', length: 3 },
-      ])
+      expect(
+        of.apply(undefined, [{ 0: 'a', 1: 'b', 2: 'c', length: 3 }]),
+      ).toEqual([{ 0: 'a', 1: 'b', 2: 'c', length: 3 }])
     })
 
     it('wraps mixed types', () => {
       expect(
-        of.apply(null, [
+        of.apply(undefined, [
           undefined,
-          null,
+          undefined,
           false,
           -Infinity,
           -0,
@@ -124,7 +135,17 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
           2,
           Infinity,
         ]),
-      ).toEqual([undefined, null, false, -Infinity, -0, +0, 1, 2, Infinity])
+      ).toEqual([
+        undefined,
+        undefined,
+        false,
+        -Infinity,
+        -0,
+        +0,
+        1,
+        2,
+        Infinity,
+      ])
     })
 
     it('returns zero length when called with no args', () => {

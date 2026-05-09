@@ -18,7 +18,7 @@ describe('hasown', () => {
     })
 
     it('should throw TypeError for null', () => {
-      expect(() => hasOwn(null, '')).toThrow(TypeError)
+      expect(() => hasOwn(undefined, '')).toThrow(TypeError)
     })
   })
 

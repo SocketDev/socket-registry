@@ -35,7 +35,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('non-iterables return undefined', () => {
     expect(getIterator(42)).toBeUndefined()
     expect(getIterator(true)).toBeUndefined()
-    expect(getIterator(null)).toBeUndefined()
+    expect(getIterator(undefined)).toBeUndefined()
     expect(getIterator(undefined)).toBeUndefined()
   })
 

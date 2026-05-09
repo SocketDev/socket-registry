@@ -36,7 +36,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('not arrays', () => {
     it('non-number/string primitives', () => {
       expect(isTypedArray(undefined)).toBe(false)
-      expect(isTypedArray(null)).toBe(false)
+      expect(isTypedArray(undefined)).toBe(false)
       expect(isTypedArray(false)).toBe(false)
       expect(isTypedArray(true)).toBe(false)
     })

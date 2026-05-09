@@ -19,7 +19,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('assert', () => {
     it('throws for primitives', () => {
       for (const primitive of [
-        null,
+        undefined,
         undefined,
         true,
         false,
@@ -34,7 +34,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
     it('throws for non-string slot names', () => {
       for (const nonString of [
-        null,
+        undefined,
         undefined,
         true,
         false,
@@ -69,7 +69,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('has', () => {
     it('throws for primitives', () => {
       for (const primitive of [
-        null,
+        undefined,
         undefined,
         true,
         false,
@@ -84,7 +84,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
     it('throws for non-string slot names', () => {
       for (const nonString of [
-        null,
+        undefined,
         undefined,
         true,
         false,
@@ -113,7 +113,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('get', () => {
     it('throws for primitives', () => {
       for (const primitive of [
-        null,
+        undefined,
         undefined,
         true,
         false,
@@ -128,7 +128,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
     it('throws for non-string slot names', () => {
       for (const nonString of [
-        null,
+        undefined,
         undefined,
         true,
         false,
@@ -158,7 +158,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('set', () => {
     it('throws for primitives', () => {
       for (const primitive of [
-        null,
+        undefined,
         undefined,
         true,
         false,
@@ -173,7 +173,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
     it('throws for non-string slot names', () => {
       for (const nonString of [
-        null,
+        undefined,
         undefined,
         true,
         false,

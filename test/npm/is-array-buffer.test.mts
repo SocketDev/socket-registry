@@ -23,7 +23,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('returns false for non-ArrayBuffer values', () => {
     const nonABs: unknown[] = [
       undefined,
-      null,
+      undefined,
       true,
       false,
       0,

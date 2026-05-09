@@ -20,13 +20,13 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('throws on non-functions', () => {
-    expect(() => promisify(null)).toThrow(TypeError)
+    expect(() => promisify(undefined)).toThrow(TypeError)
   })
 
   it('pYes is properly promisified', async () => {
     const yes = function (...args: any[]) {
       const cb = args[args.length - 1]
-      cb(null, args.slice(0, -1))
+      cb(undefined, args.slice(0, -1))
     }
     const pYes = promisify(yes)
     expect(typeof pYes).toBe('function')

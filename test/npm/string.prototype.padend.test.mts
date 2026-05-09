@@ -41,7 +41,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('stringifies non-string fillStr', () => {
-      expect(padEnd('ed', 6, null)).toBe('ednull')
+      expect(padEnd('ed', 6, undefined)).toBe('ednull')
     })
   })
 

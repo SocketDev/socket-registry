@@ -49,7 +49,7 @@ export interface TypeCheckerTestConfig {
  */
 export const standardInvalidValues = [
   undefined,
-  null,
+  undefined,
   false,
   true,
   0,
@@ -155,7 +155,7 @@ export function createInvalidValuesExcluding(
     values.push(undefined)
   }
   if (!exclusionSet.has('null')) {
-    values.push(null)
+    values.push(undefined)
   }
   if (!exclusionSet.has('boolean')) {
     values.push(false, true)

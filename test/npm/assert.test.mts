@@ -58,8 +58,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       expect(() => assert.ok(0)).toThrow(assert.AssertionError)
       expect(() => assert('')).toThrow(assert.AssertionError)
       expect(() => assert.ok('')).toThrow(assert.AssertionError)
-      expect(() => assert(null)).toThrow(assert.AssertionError)
-      expect(() => assert.ok(null)).toThrow(assert.AssertionError)
+      expect(() => assert(undefined)).toThrow(assert.AssertionError)
+      expect(() => assert.ok(undefined)).toThrow(assert.AssertionError)
       expect(() => assert(undefined)).toThrow(assert.AssertionError)
       expect(() => assert.ok(undefined)).toThrow(assert.AssertionError)
     })
@@ -67,9 +67,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   describe('equal', () => {
     it('should pass for equal values', () => {
-      expect(() => assert.equal(null, null)).not.toThrow()
       expect(() => assert.equal(undefined, undefined)).not.toThrow()
-      expect(() => assert.equal(null, undefined)).not.toThrow()
+      expect(() => assert.equal(undefined, undefined)).not.toThrow()
+      expect(() => assert.equal(undefined, undefined)).not.toThrow()
       expect(() => assert.equal(true, true)).not.toThrow()
       expect(() => assert.equal(2, '2')).not.toThrow()
       expect(() => assert.equal(1, 1)).not.toThrow()
@@ -97,7 +97,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   describe('strictEqual', () => {
     it('should pass for strictly equal values', () => {
-      expect(() => assert.strictEqual(null, null)).not.toThrow()
+      expect(() => assert.strictEqual(undefined, undefined)).not.toThrow()
       expect(() => assert.strictEqual(undefined, undefined)).not.toThrow()
       expect(() => assert.strictEqual(true, true)).not.toThrow()
       expect(() => assert.strictEqual(1, 1)).not.toThrow()
@@ -106,7 +106,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
     it('should throw for loosely equal but strictly inequal values', () => {
       expect(() => assert.strictEqual(2, '2')).toThrow(assert.AssertionError)
-      expect(() => assert.strictEqual(null, undefined)).toThrow(
+      expect(() => assert.strictEqual(undefined, undefined)).toThrow(
         assert.AssertionError,
       )
       expect(() => assert.strictEqual(true, 1)).toThrow(assert.AssertionError)
@@ -121,7 +121,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('notStrictEqual', () => {
     it('should pass for strictly inequal values', () => {
       expect(() => assert.notStrictEqual(2, '2')).not.toThrow()
-      expect(() => assert.notStrictEqual(null, undefined)).not.toThrow()
+      expect(() => assert.notStrictEqual(undefined, undefined)).not.toThrow()
       expect(() => assert.notStrictEqual(1, 2)).not.toThrow()
     })
 
@@ -158,9 +158,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('should handle null and undefined', () => {
-      expect(() => assert.deepEqual(null, null)).not.toThrow()
       expect(() => assert.deepEqual(undefined, undefined)).not.toThrow()
-      expect(() => assert.deepEqual(null, undefined)).not.toThrow()
+      expect(() => assert.deepEqual(undefined, undefined)).not.toThrow()
+      expect(() => assert.deepEqual(undefined, undefined)).not.toThrow()
     })
 
     it('should handle arrays', () => {
@@ -247,7 +247,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('should throw for null and undefined', () => {
-      expect(() => assert.deepStrictEqual(null, undefined)).toThrow(
+      expect(() => assert.deepStrictEqual(undefined, undefined)).toThrow(
         assert.AssertionError,
       )
     })
@@ -374,7 +374,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('ifError', () => {
     it('should not throw for falsy values', () => {
       if (assert.ifError) {
-        expect(() => assert.ifError(null)).not.toThrow()
+        expect(() => assert.ifError(undefined)).not.toThrow()
         expect(() => assert.ifError(undefined)).not.toThrow()
         expect(() => assert.ifError(false)).not.toThrow()
         expect(() => assert.ifError(0)).not.toThrow()

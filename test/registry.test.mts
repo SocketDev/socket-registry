@@ -59,6 +59,7 @@ describe(SOCKET_REGISTRY_PACKAGE_NAME, () => {
     const { isObjectObject } = await import('@socketsecurity/lib/objects')
     expect(typeof isObjectObject).toBe('function')
     expect(isObjectObject({})).toBe(true)
+    // oxlint-disable-next-line socket/prefer-undefined-over-null -- testing null branch
     expect(isObjectObject(null)).toBe(false)
     expect(isObjectObject([])).toBe(false)
   })

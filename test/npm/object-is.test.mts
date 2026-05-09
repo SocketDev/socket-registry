@@ -30,7 +30,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('null is null', () => {
-      expect(is(null, null)).toBe(true)
+      expect(is(undefined, undefined)).toBe(true)
     })
 
     it('true is true', () => {

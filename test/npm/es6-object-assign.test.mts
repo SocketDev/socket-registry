@@ -15,7 +15,7 @@ const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
 // https://github.com/rubennorte/es6-object-assign/tree/v1.1.0
 // Tests from https://github.com/ljharb/object.assign/tree/v4.1.5/test.
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
-  const es6oa = skip ? null : require(path.join(pkgPath, 'index.js'))
+  const es6oa = skip ? undefined : require(path.join(pkgPath, 'index.js'))
 
   it('does not have "pending exception" logic in implementation', () => {
     /*
@@ -31,13 +31,13 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('error cases', () => {
     expect(() => {
-      es6oa.assign(null)
+      es6oa.assign(undefined)
     }).toThrow(TypeError)
     expect(() => {
       es6oa.assign(undefined)
     }).toThrow(TypeError)
     expect(() => {
-      es6oa.assign(null, {})
+      es6oa.assign(undefined, {})
     }).toThrow(TypeError)
     expect(() => {
       es6oa.assign(undefined, {})
@@ -81,7 +81,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('non-object sources', () => {
-    expect(es6oa.assign({ a: 1 }, null, { b: 2 })).toEqual({ a: 1, b: 2 })
+    expect(es6oa.assign({ a: 1 }, undefined, { b: 2 })).toEqual({ a: 1, b: 2 })
     expect(es6oa.assign({ a: 1 }, { b: 2 }, undefined)).toEqual({
       a: 1,
       b: 2,

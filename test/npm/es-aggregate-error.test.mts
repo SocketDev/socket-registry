@@ -43,7 +43,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('non-iterable errors', () => {
     it.each([
       undefined,
-      null,
+      undefined,
       true,
       false,
       42,

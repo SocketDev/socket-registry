@@ -102,7 +102,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         i += 1
         arr.push(v + 3)
       },
-      null,
+      undefined,
     )
     expect(arr).toEqual([1, 2, 3, 4, 5, 6])
     expect(i).toBe(3)
@@ -126,7 +126,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         arrayLike[arrayLike['length']] = v + 3
         arrayLike['length'] += 1
       },
-      null,
+      undefined,
     )
     expect(Array.prototype.slice.call(arrayLike)).toEqual([1, 2, 3, 4, 5, 6])
     expect(i).toBe(3)
@@ -163,7 +163,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         }
         return 0
       },
-      null,
+      undefined,
     )
     expect(visited).toEqual({ 1: true, 3: true })
 
@@ -185,13 +185,13 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     reduce(
       'f',
       (acc: any, item: string, _index: number, list: any) => {
-        expect(acc).toBe(null)
+        expect(acc).toBe(undefined)
         expect(item).toBe('f')
         expect(typeof list).toBe('object')
         expect(Object.prototype.toString.call(list)).toBe('[object String]')
         called = true
       },
-      null,
+      undefined,
     )
     expect(called).toBe(true)
   })

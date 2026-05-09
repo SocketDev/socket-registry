@@ -17,7 +17,7 @@ describe(
   () => {
     const pkgRequireIndexJsPath = `${pkgPath}/index.js`
     const _jsonStableStringifyModule =
-      skip || ENV.CI ? null : require(pkgRequireIndexJsPath)
+      skip || ENV.CI ? undefined : require(pkgRequireIndexJsPath)
 
     const rawJSON: ((_str: string) => { rawJSON: string }) | undefined = (
       JSON as any

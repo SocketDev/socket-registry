@@ -17,12 +17,12 @@ const {
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('error cases', () => {
-    expect(() => assign(null)).toThrow(TypeError)
+    expect(() => assign(undefined)).toThrow(TypeError)
     expect(() => assign(undefined)).toThrow(TypeError)
   })
 
   it('non-object sources', () => {
-    expect(assign({ a: 1 }, null, { b: 2 })).toEqual({ a: 1, b: 2 })
+    expect(assign({ a: 1 }, undefined, { b: 2 })).toEqual({ a: 1, b: 2 })
     expect(assign({ a: 1 }, { b: 2 }, undefined)).toEqual({ a: 1, b: 2 })
   })
 

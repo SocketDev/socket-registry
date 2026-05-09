@@ -24,7 +24,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('basic functionality', () => {
     it('should work with an object literal', () => {
       const obj = {
-        aNull: null,
+        aNull: undefined,
         arr: [],
         bool: true,
         num: 42,
@@ -145,7 +145,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   describe('edge cases', () => {
     it('should throw for non-objects', () => {
-      expect(() => objectKeys(null)).toThrow(TypeError)
+      expect(() => objectKeys(undefined)).toThrow(TypeError)
       expect(() => objectKeys(undefined)).toThrow(TypeError)
     })
 

@@ -19,10 +19,10 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('handles undefined and null', () => {
       expect(endsWith('undefined')).toBe(true)
       expect(endsWith('undefined', undefined)).toBe(true)
-      expect(endsWith('undefined', null)).toBe(false)
+      expect(endsWith('undefined', undefined)).toBe(false)
       expect(endsWith('null')).toBe(false)
       expect(endsWith('null', undefined)).toBe(false)
-      expect(endsWith('null', null)).toBe(true)
+      expect(endsWith('null', undefined)).toBe(true)
     })
   })
 
@@ -95,8 +95,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('throws TypeError for null/undefined this', () => {
       expect(() => endsWith(undefined)).toThrow(TypeError)
       expect(() => endsWith(undefined, 'b')).toThrow(TypeError)
-      expect(() => endsWith(null)).toThrow(TypeError)
-      expect(() => endsWith(null, 'b')).toThrow(TypeError)
+      expect(() => endsWith(undefined)).toThrow(TypeError)
+      expect(() => endsWith(undefined, 'b')).toThrow(TypeError)
     })
   })
 

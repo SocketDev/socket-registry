@@ -38,7 +38,16 @@ const createArrayLikeFromArray = (arr: any[]) => {
 }
 
 const getTestArr = () => {
-  const arr: any[] = [2, 3, undefinedIfNoSparseBug, true, 'hej', null, false, 0]
+  const arr: any[] = [
+    2,
+    3,
+    undefinedIfNoSparseBug,
+    true,
+    'hej',
+    undefined,
+    false,
+    0,
+  ]
   delete arr[1]
   return arr
 }
@@ -62,7 +71,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       [undefinedIfNoSparseBug],
       [true],
       ['hej'],
-      [null],
+      [undefined],
       [false],
       [0],
     ]

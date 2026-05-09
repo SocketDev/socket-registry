@@ -43,11 +43,11 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         'hello',
         true,
         false,
-        null,
+        undefined,
         [1, 2, 3],
         { a: 1, b: 2 },
         { nested: { key: 'value' } },
-        [1, 'two', true, null],
+        [1, 'two', true, undefined],
       ]
       for (const obj of testValues) {
         expect(json.stringify(obj)).toBe(JSON.stringify(obj))

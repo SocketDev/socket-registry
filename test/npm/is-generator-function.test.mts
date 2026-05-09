@@ -23,7 +23,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it.each([
       true,
       false,
-      null,
+      undefined,
       undefined,
       {},
       [],

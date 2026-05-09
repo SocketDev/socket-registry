@@ -21,7 +21,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('throws for null', () => {
-    expect(() => getPrototypeOf(null)).toThrow(TypeError)
+    expect(() => getPrototypeOf(undefined)).toThrow(TypeError)
   })
 
   it('throws for primitives', () => {
@@ -50,7 +50,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     if ('toString' in obj) {
       expect(getPrototypeOf(obj)).toBe(Object.prototype)
     } else {
-      expect(getPrototypeOf(obj)).toBe(null)
+      expect(getPrototypeOf(obj)).toBe(undefined)
     }
   })
 })

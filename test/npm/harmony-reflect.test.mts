@@ -12,7 +12,9 @@ const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
 // harmony-reflect has known failures in its package and requires running tests in browser.
 // https://github.com/tvcutsem/harmony-reflect/tree/v1.6.2/test
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
-  const harmonyReflect = skip ? null : require(path.join(pkgPath, 'index.js'))
+  const harmonyReflect = skip
+    ? undefined
+    : require(path.join(pkgPath, 'index.js'))
 
   it('should be able to define a property', () => {
     const obj: {
@@ -138,14 +140,14 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     expect(harmonyReflect.set(target, 'x', 2, target)).toBe(true)
     expect(target.x).toBe(2)
 
-    out = null
+    out = undefined
     expect(harmonyReflect.set(target, 'y', 1, target)).toBe(true)
     expect(out).toBe(target)
 
     expect(harmonyReflect.set(target, 'z', 4, target)).toBe(true)
     expect(target.z).toBe(4)
 
-    out = null
+    out = undefined
     expect(harmonyReflect.set(target, 'w', 1, target)).toBe(true)
     expect(out).toBe(target)
 

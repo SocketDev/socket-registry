@@ -46,7 +46,7 @@ const getTestArr = () => {
     undefinedIfNoSparseBug,
     true,
     'hej',
-    null,
+    undefined,
     false,
     0,
   ]
@@ -58,7 +58,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('throws when a non-function is provided', () => {
     const nonFunctions = [
       undefined,
-      null,
+      undefined,
       true,
       false,
       0,

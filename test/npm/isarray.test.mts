@@ -25,7 +25,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('null is not an array', () => {
-    expect(isArray(null)).toBe(false)
+    expect(isArray(undefined)).toBe(false)
   })
 
   it('false is not an array', () => {

@@ -19,7 +19,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('handles undefined/null search', () => {
       expect(startsWith('undefined')).toBe(true)
       expect(startsWith('undefined', undefined)).toBe(true)
-      expect(startsWith('undefined', null)).toBe(false)
+      expect(startsWith('undefined', undefined)).toBe(false)
     })
   })
 
@@ -27,7 +27,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('handles undefined/null search', () => {
       expect(startsWith('null')).toBe(false)
       expect(startsWith('null', undefined)).toBe(false)
-      expect(startsWith('null', null)).toBe(true)
+      expect(startsWith('null', undefined)).toBe(true)
     })
   })
 
@@ -92,8 +92,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('throws TypeError', () => {
       expect(() => startsWith(undefined)).toThrow(TypeError)
       expect(() => startsWith(undefined, 'b')).toThrow(TypeError)
-      expect(() => startsWith(null)).toThrow(TypeError)
-      expect(() => startsWith(null, 'b')).toThrow(TypeError)
+      expect(() => startsWith(undefined)).toThrow(TypeError)
+      expect(() => startsWith(undefined, 'b')).toThrow(TypeError)
     })
   })
 

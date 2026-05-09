@@ -17,7 +17,7 @@ const {
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('primitives', () => {
     it('throws for null and undefined', () => {
-      expect(() => unboxPrimitive(null)).toThrow(TypeError)
+      expect(() => unboxPrimitive(undefined)).toThrow(TypeError)
       expect(() => unboxPrimitive(undefined)).toThrow(TypeError)
     })
 

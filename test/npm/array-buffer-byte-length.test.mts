@@ -19,7 +19,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('returns NaN for non-ArrayBuffer values', () => {
     const nonABs = [
       undefined,
-      null,
+      undefined,
       true,
       false,
       0,

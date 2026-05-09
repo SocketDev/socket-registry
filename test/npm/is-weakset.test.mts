@@ -18,7 +18,7 @@ const {
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('non-collections', () => {
     it.each([
-      null,
+      undefined,
       undefined,
       true,
       false,

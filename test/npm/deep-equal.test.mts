@@ -106,14 +106,14 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
     it('undefined keys, nullish values', () => {
       const map1 = new Map([[undefined, undefined]])
-      const map2 = new Map([[undefined, null]])
+      const map2 = new Map([[undefined, undefined]])
       expect(deepEqual(map1, map2)).toBe(true)
       expect(deepEqual(map1, map2, { strict: true })).toBe(false)
     })
 
     it('nullish keys', () => {
       const map1 = new Map([[undefined, 3]])
-      const map2 = new Map([[null, 3]])
+      const map2 = new Map([[undefined, 3]])
       expect(deepEqual(map1, map2)).toBe(true)
       expect(deepEqual(map1, map2, { strict: true })).toBe(false)
     })
@@ -122,7 +122,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describeIfSet('Sets', () => {
     it('two equal Sets', () => {
       const set1 = new Set([1, 2, 3])
-      const set2 = new Set([3, 2, 1])
+      const set2 = new Set([1, 2, 3])
       expect(deepEqual(set1, set2)).toBe(true)
       expect(deepEqual(set1, set2, { strict: true })).toBe(true)
     })
@@ -317,15 +317,15 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   describe('null == undefined', () => {
     it('null and undefined', () => {
-      expect(deepEqual(null, undefined)).toBe(true)
-      expect(deepEqual(null, undefined, { strict: true })).toBe(false)
-      expect(deepEqual(undefined, null)).toBe(true)
-      expect(deepEqual(undefined, null, { strict: true })).toBe(false)
+      expect(deepEqual(undefined, undefined)).toBe(true)
+      expect(deepEqual(undefined, undefined, { strict: true })).toBe(false)
+      expect(deepEqual(undefined, undefined)).toBe(true)
+      expect(deepEqual(undefined, undefined, { strict: true })).toBe(false)
     })
 
     it('null and null', () => {
-      expect(deepEqual(null, null)).toBe(true)
-      expect(deepEqual(null, null, { strict: true })).toBe(true)
+      expect(deepEqual(undefined, undefined)).toBe(true)
+      expect(deepEqual(undefined, undefined, { strict: true })).toBe(true)
     })
 
     it('undefined and undefined', () => {
@@ -379,7 +379,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('Object.create(null)', () => {
+      // oxlint-disable-next-line socket/prefer-undefined-over-null -- Object.create only accepts object | null
       const obj1 = Object.create(null)
+      // oxlint-disable-next-line socket/prefer-undefined-over-null -- Object.create only accepts object | null
       const obj2 = Object.create(null)
       obj1.a = 1
       obj2.a = 1

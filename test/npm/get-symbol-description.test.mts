@@ -22,7 +22,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('throws for non-symbol values', () => {
     const nonSymbols = [
       undefined,
-      null,
+      undefined,
       true,
       false,
       0,
@@ -46,7 +46,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       const cases: Array<[symbol, string | undefined]> = [
         [Symbol(), undefined],
         [Symbol(undefined), undefined],
-        [Symbol(null as any), 'null'],
+        [Symbol(undefined as any), 'null'],
         [Symbol.iterator, 'Symbol.iterator'],
         [Symbol('foo'), 'foo'],
       ]

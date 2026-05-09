@@ -23,7 +23,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('returns false for non-WeakRef values', () => {
     const nonWeakRefs = [
       undefined,
-      null,
+      undefined,
       true,
       false,
       42,

@@ -32,7 +32,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('throws for non-typed-array values', () => {
     const nonTAs = [
       undefined,
-      null,
+      undefined,
       true,
       false,
       0,

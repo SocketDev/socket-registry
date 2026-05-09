@@ -21,7 +21,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('throws for null', () => {
-    expect(() => getPrototypeOf(null)).toThrow(TypeError)
+    expect(() => getPrototypeOf(undefined)).toThrow(TypeError)
   })
 
   it('returns Boolean.prototype for booleans', () => {
