@@ -35,6 +35,10 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+
+const logger = getDefaultLogger()
+
 const REPO_ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '..',
@@ -155,11 +159,11 @@ async function runIteration(
     .map(f => path.relative(REPO_ROOT, f))
     .sort()
   const pinPaths = [...new Set(stale.map(p => p.pinPath))].sort()
-  console.log(
+  logger.log(
     `  bumping ${stale.length} stale pins across ${byFile.size} files → ${head.slice(0, 8)}`,
   )
   for (const p of pinPaths) {
-    console.log(`    ${p}`)
+    logger.log(`    ${p}`)
   }
   if (dryRun) {
     return { commits: 0, converged: false }
@@ -189,7 +193,7 @@ async function runIteration(
 async function main(): Promise<void> {
   const dryRun = process.argv.includes('--dry-run')
   if (process.argv.includes('--help') || process.argv.includes('-h')) {
-    console.log('Usage: node scripts/cascade-internal.mts [--dry-run]')
+    logger.log('Usage: node scripts/cascade-internal.mts [--dry-run]')
     return
   }
   if (git('status', '--porcelain').length > 0) {
@@ -201,7 +205,7 @@ async function main(): Promise<void> {
     const { commits, converged } = await runIteration(dryRun)
     total += commits
     if (converged) {
-      console.log(
+      logger.log(
         total === 0
           ? 'No stale pins.'
           : `Converged after ${total} cascade commits.`,
@@ -212,7 +216,7 @@ async function main(): Promise<void> {
       // No commits land in dry-run mode, so HEAD never advances and
       // a second iteration would find the same pins. Stop after one
       // pass; re-run without --dry-run to actually cascade.
-      console.log(
+      logger.log(
         '(dry-run: stopping after first pass; re-run without --dry-run to cascade)',
       )
       return
@@ -222,6 +226,6 @@ async function main(): Promise<void> {
 
 main().catch((e: unknown) => {
   const msg = e instanceof Error ? e.message : String(e)
-  console.error(`cascade-internal: ${msg}`)
+  logger.fail(`cascade-internal: ${msg}`)
   process.exitCode = 1
 })

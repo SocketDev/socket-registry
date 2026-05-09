@@ -93,12 +93,12 @@ function shouldRunAllLinters(changedFiles: string[]): {
 function filterLintableFiles(files: string[]): string[] {
   // Only include extensions actually supported by oxfmt/oxlint
   const lintableExtensions = new Set([
+    '.cjs',
+    '.cts',
     '.js',
     '.mjs',
-    '.cjs',
-    '.ts',
-    '.cts',
     '.mts',
+    '.ts',
   ])
 
   const oxfmtExcludePatterns = getOxfmtExcludePatterns()

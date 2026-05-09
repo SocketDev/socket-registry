@@ -27,7 +27,7 @@ try {
   )
 
   if (!annotationMatch) {
-    console.error('Could not find export annotation in built file')
+    logger.fail('Could not find export annotation in built file')
     process.exit(1)
   }
 

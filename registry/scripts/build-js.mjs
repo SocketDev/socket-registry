@@ -87,13 +87,13 @@ async function buildJS() {
     // Check if build is needed when --needed flag is passed.
     if (isNeeded && !isBuildNeeded()) {
       if (!isQuiet) {
-        console.log('→ Build not needed, skipping')
+        logger.log('→ Build not needed, skipping')
       }
       return 0
     }
 
     if (!isQuiet) {
-      console.log('→ Building JavaScript with esbuild')
+      logger.log('→ Building JavaScript with esbuild')
     }
 
     const startTime = Date.now()
@@ -105,11 +105,11 @@ async function buildJS() {
     const buildTime = Date.now() - startTime
 
     if (!isQuiet) {
-      console.log(`  JavaScript built in ${buildTime}ms`)
+      logger.log(`  JavaScript built in ${buildTime}ms`)
 
       if (result?.metafile && isVerbose) {
         const analysis = analyzeMetafile(result.metafile)
-        console.log(`  Total size: ${analysis.totalSize}`)
+        logger.log(`  Total size: ${analysis.totalSize}`)
       }
     }
 
@@ -117,7 +117,7 @@ async function buildJS() {
   } catch (e) {
     if (!isQuiet) {
       logger.error('JavaScript build failed')
-      console.error(e)
+      logger.fail(e)
     }
     return 1
   }
@@ -129,8 +129,8 @@ async function buildJS() {
 async function watchJS() {
   try {
     if (!isQuiet) {
-      console.log('→ Starting watch mode with incremental builds')
-      console.log('  Watching for file changes...')
+      logger.log('→ Starting watch mode with incremental builds')
+      logger.log('  Watching for file changes...')
     }
 
     const ctx = await context({
@@ -152,7 +152,7 @@ async function watchJS() {
 
                   if (result?.metafile && isVerbose) {
                     const analysis = analyzeMetafile(result.metafile)
-                    console.log(`  Total size: ${analysis.totalSize}`)
+                    logger.log(`  Total size: ${analysis.totalSize}`)
                   }
                 }
               }
@@ -167,7 +167,7 @@ async function watchJS() {
     // Keep process alive
     process.on('SIGINT', async () => {
       if (!isQuiet) {
-        console.log('\nStopping watch mode...')
+        logger.log('\nStopping watch mode...')
       }
       await ctx.dispose()
       process.exit(0)
@@ -178,7 +178,7 @@ async function watchJS() {
   } catch (e) {
     if (!isQuiet) {
       logger.error('Watch mode failed')
-      console.error(e)
+      logger.fail(e)
     }
     return 1
   }
@@ -187,7 +187,7 @@ async function watchJS() {
 // Main
 if (isWatch) {
   watchJS().catch(error => {
-    console.error(error)
+    logger.fail(error)
     process.exit(1)
   })
 } else {
@@ -196,7 +196,7 @@ if (isWatch) {
       process.exitCode = code
     })
     .catch(error => {
-      console.error(error)
+      logger.fail(error)
       process.exitCode = 1
     })
 }

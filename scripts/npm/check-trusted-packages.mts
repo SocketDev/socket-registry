@@ -18,8 +18,8 @@ const logger = getDefaultLogger()
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const allowedMaintainers = new Set([
-  'socket-bot <eng@socket.dev>',
   'feross <feross@feross.org>',
+  'socket-bot <eng@socket.dev>',
 ])
 
 const coreSocketPackages = [
