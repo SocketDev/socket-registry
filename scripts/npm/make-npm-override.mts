@@ -12,7 +12,7 @@
 import { existsSync, promises as fs } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
-import { execScript } from '@socketsecurity/lib/agent'
+import { execScript } from '@socketsecurity/lib/eco/npm/script'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { isDirEmptySync } from '@socketsecurity/lib/fs'
 import { globStreamLicenses } from '@socketsecurity/lib/globs'

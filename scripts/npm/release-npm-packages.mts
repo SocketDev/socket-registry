@@ -5,7 +5,7 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
-import { execScript } from '@socketsecurity/lib/agent'
+import { execScript } from '@socketsecurity/lib/eco/npm/script'
 import { getAbortSignal } from '@socketsecurity/lib/constants/process'
 import { readFileUtf8 } from '@socketsecurity/lib/fs'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
