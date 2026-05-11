@@ -1,3 +1,4 @@
+/* oxlint-disable socket/no-placeholders -- this rule documents the markers it bans. */
 /**
  * @fileoverview Per CLAUDE.md "Completion" rule: never leave TODO /
  * FIXME / XXX / shims / stubs / placeholders. Finish the work 100% or

@@ -141,11 +141,11 @@ function sortAlternativesIfSimple(pattern, group) {
   const alts = group.altsRanges.map(r => pattern.slice(r.start, r.end))
   const allSimple = alts.every(a => SIMPLE_ALT_ELEMENT_RE.test(a))
   if (!allSimple) {
-    return undefined
+    return null
   }
   const sorted = [...alts].sort()
   if (alts.every((a, i) => a === sorted[i])) {
-    return undefined
+    return null
   }
   return { actual: alts, sorted }
 }

@@ -156,8 +156,8 @@ const rule = {
         // First pass: collect entries + detect violations.
         const entries = []
         let lastVisibilityRank = -1
-        let lastNameInGroup = undefined
-        let currentVisibility = undefined
+        let lastNameInGroup = null
+        let currentVisibility = null
         const violations = []
 
         // First find the next program-body node after each function, so
