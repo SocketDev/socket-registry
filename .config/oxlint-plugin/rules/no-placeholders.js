@@ -32,8 +32,7 @@
  *     stub detector requires a marker comment in the body.
  */
 
-const COMMENT_MARKER_RE =
-  /\b(TODO|FIXME|XXX|HACK|TBD|STUB|WIP|UNIMPLEMENTED)\b/
+const COMMENT_MARKER_RE = /\b(TODO|FIXME|XXX|HACK|TBD|STUB|WIP|UNIMPLEMENTED)\b/
 
 const STUB_BODY_MARKER_RE =
   /\b(TODO|FIXME|XXX|HACK|TBD|STUB|WIP|UNIMPLEMENTED|not\s+implemented|unimplemented|placeholder|stub)\b/i

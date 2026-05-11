@@ -49,7 +49,12 @@ function setupRepo(): string {
   return dir
 }
 
-function commit(dir: string, file: string, content: string, msg: string): string {
+function commit(
+  dir: string,
+  file: string,
+  content: string,
+  msg: string,
+): string {
   writeFileSync(path.join(dir, file), content)
   spawnSync('git', ['add', file], { cwd: dir })
   spawnSync('git', ['commit', '-q', '-m', msg, '--no-verify'], { cwd: dir })

@@ -557,6 +557,22 @@ importers:
         specifier: 24.9.2
         version: 24.9.2
 
+  .claude/hooks/markdown-filename-guard:
+    devDependencies:
+      '@types/node':
+        specifier: 24.9.2
+        version: 24.9.2
+
+  .claude/hooks/no-fleet-fork-guard:
+    dependencies:
+      '@socketsecurity/lib':
+        specifier: 'catalog:'
+        version: 5.28.0(typescript@5.9.2)
+    devDependencies:
+      '@types/node':
+        specifier: 24.9.2
+        version: 24.9.2
+
   .claude/hooks/no-revert-guard:
     devDependencies:
       '@types/node':
