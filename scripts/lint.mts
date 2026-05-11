@@ -23,9 +23,9 @@ const FULL_LINT_TRIGGERS = [
   '.config/**',
   'scripts/utils/**',
   'pnpm-lock.yaml',
-  'tsconfig*.json',
-  '.oxlintrc.json',
-  '.oxfmtrc.json',
+  
+
+
 ]
 
 /**
@@ -33,7 +33,7 @@ const FULL_LINT_TRIGGERS = [
  */
 function getOxfmtExcludePatterns(): string[] {
   try {
-    const oxfmtConfigPath = path.join(process.cwd(), '.oxfmtrc.json')
+    const oxfmtConfigPath = path.join(process.cwd(), '.config', 'oxfmtrc.json')
     if (!existsSync(oxfmtConfigPath)) {
       return []
     }
@@ -159,12 +159,26 @@ async function runLintOnFiles(
   // Build the linter configurations.
   const linters = [
     {
-      args: ['exec', 'oxfmt', ...(fix ? ['--write'] : ['--check']), ...files],
+      args: [
+        'exec',
+        'oxfmt',
+        '-c',
+        '.config/oxfmtrc.json',
+        ...(fix ? ['--write'] : ['--check']),
+        ...files,
+      ],
       name: 'oxfmt',
       enabled: true,
     },
     {
-      args: ['exec', 'oxlint', ...(fix ? ['--fix'] : []), ...files],
+      args: [
+        'exec',
+        'oxlint',
+        '-c',
+        '.config/oxlintrc.json',
+        ...(fix ? ['--fix'] : []),
+        ...files,
+      ],
       name: 'oxlint',
       enabled: true,
     },
@@ -219,11 +233,25 @@ async function runLintOnAll(options: LintOptions = {}): Promise<number> {
 
   const linters = [
     {
-      args: ['exec', 'oxfmt', ...(fix ? ['--write'] : ['--check']), '.'],
+      args: [
+        'exec',
+        'oxfmt',
+        '-c',
+        '.config/oxfmtrc.json',
+        ...(fix ? ['--write'] : ['--check']),
+        '.',
+      ],
       name: 'oxfmt',
     },
     {
-      args: ['exec', 'oxlint', ...(fix ? ['--fix'] : []), '.'],
+      args: [
+        'exec',
+        'oxlint',
+        '-c',
+        '.config/oxlintrc.json',
+        ...(fix ? ['--fix'] : []),
+        '.',
+      ],
       name: 'oxlint',
     },
   ]
