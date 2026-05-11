@@ -49,7 +49,7 @@ const { values: cliArgs } = parseArgs({
  * Excludes node_modules, build artifacts, and version control to ensure
  * clean install matching CI behavior.
  */
-async function createTestEnvironment() {
+export async function createTestEnvironment() {
   const tempDir = mkdtempSync(path.join(os.tmpdir(), 'ci-reproduce-'))
   logger.info(`Created temporary directory: ${tempDir}`)
 
@@ -76,7 +76,7 @@ async function createTestEnvironment() {
 /**
  * Run build in CI environment.
  */
-async function runBuild(workDir) {
+export async function runBuild(workDir) {
   logger.info('\n--- Building Project (CI Mode) ---')
   const result = await runCiCommand('pnpm', ['run', 'build'], { cwd: workDir })
 
@@ -93,7 +93,7 @@ async function runBuild(workDir) {
  * Run command with CI-like environment variables.
  * Sets up environment to match actual CI execution context.
  */
-async function runCiCommand(command, args, options = {}) {
+export async function runCiCommand(command, args, options = {}) {
   const ciEnv = {
     ...process.env,
     // Core CI indicators.
@@ -118,7 +118,7 @@ async function runCiCommand(command, args, options = {}) {
 /**
  * Run dependency installation.
  */
-async function runInstall(workDir) {
+export async function runInstall(workDir) {
   logger.info('\n--- Installing Dependencies (CI Mode) ---')
   const result = await runCiCommand('pnpm', ['install', '--frozen-lockfile'], {
     cwd: workDir,
@@ -136,7 +136,7 @@ async function runInstall(workDir) {
 /**
  * Run linting checks.
  */
-async function runLint(workDir) {
+export async function runLint(workDir) {
   logger.info('\n--- Running Linting (CI Mode) ---')
   const result = await runCiCommand('pnpm', ['run', 'lint-ci'], {
     cwd: workDir,
@@ -157,7 +157,7 @@ async function runLint(workDir) {
 /**
  * Run npm package tests.
  */
-async function runNpmPackageTests(workDir) {
+export async function runNpmPackageTests(workDir) {
   logger.info('\n--- Running NPM Package Tests (CI Mode) ---')
 
   const args = ['scripts/npm/test-npm-packages.mts']
@@ -185,7 +185,7 @@ async function runNpmPackageTests(workDir) {
 /**
  * Run type checking.
  */
-async function runTypecheck(workDir) {
+export async function runTypecheck(workDir) {
   logger.info('\n--- Running Type Check (CI Mode) ---')
   const result = await runCiCommand('pnpm', ['run', 'type-ci'], {
     cwd: workDir,
@@ -206,7 +206,7 @@ async function runTypecheck(workDir) {
 /**
  * Run unit tests.
  */
-async function runUnitTests(workDir) {
+export async function runUnitTests(workDir) {
   logger.info('\n--- Running Unit Tests (CI Mode) ---')
   const result = await runCiCommand('pnpm', ['run', 'test-ci'], {
     cwd: workDir,

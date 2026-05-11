@@ -14,7 +14,7 @@ const suppressedWarnings = new Set()
  * Internal function to set up warning suppression.
  * Only wraps process.emitWarning once, regardless of how many times it's called.
  */
-function setupSuppression() {
+export function setupSuppression() {
   // Only wrap once - store the original on first call.
   if (!originalEmitWarning) {
     originalEmitWarning = process.emitWarning

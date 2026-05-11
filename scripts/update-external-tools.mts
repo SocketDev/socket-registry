@@ -206,7 +206,9 @@ export async function writeConfig(config: RootConfig): Promise<void> {
   )
 }
 
-export function ownerAndNameFromRepository(repository: string | undefined): string {
+export function ownerAndNameFromRepository(
+  repository: string | undefined,
+): string {
   if (!repository) {
     throw new Error('Missing `repository` field on tool entry')
   }

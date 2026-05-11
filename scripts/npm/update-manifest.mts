@@ -67,7 +67,7 @@ const { values: cliArgs } = parseArgs({
   strict: false,
 })
 
-async function addNpmManifestData(manifest, options) {
+export async function addNpmManifestData(manifest, options) {
   const { spinner } = { __proto__: null, ...options }
   const eco = NPM
   const manifestData = []
@@ -213,7 +213,7 @@ async function addNpmManifestData(manifest, options) {
 }
 
 // Helper function to filter out package manager engines from engines object.
-function filterEngines(engines) {
+export function filterEngines(engines) {
   if (!engines) {
     return engines
   }

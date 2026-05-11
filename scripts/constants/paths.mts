@@ -12,7 +12,7 @@ import { getTsxExecPath } from './utils.mts'
 /**
  * Find project root by looking for pnpm-workspace.yaml.
  */
-function findProjectRoot(): string {
+export function findProjectRoot(): string {
   let currentPath = process.cwd()
   const root = path.parse(currentPath).root
 
@@ -32,7 +32,7 @@ function findProjectRoot(): string {
 /**
  * Normalize path separators for cross-platform compatibility.
  */
-function normalizePath(p: string): string {
+export function normalizePath(p: string): string {
   return p.split(path.sep).join(path.posix.sep)
 }
 

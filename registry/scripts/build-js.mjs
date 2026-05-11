@@ -33,7 +33,7 @@ const isNeeded = process.argv.includes('--needed')
 /**
  * Standard build for production
  */
-async function buildJS() {
+export async function buildJS() {
   try {
     // Check if build is needed when --needed flag is passed.
     if (isNeeded && !isBuildNeeded()) {
@@ -77,7 +77,7 @@ async function buildJS() {
 /**
  * Check if build is needed by comparing source and output timestamps.
  */
-function isBuildNeeded() {
+export function isBuildNeeded() {
   if (!existsSync(distPath)) {
     return true
   }
@@ -126,7 +126,7 @@ function isBuildNeeded() {
 /**
  * Watch mode with incremental builds (68% faster rebuilds)
  */
-async function watchJS() {
+export async function watchJS() {
   try {
     if (!isQuiet) {
       logger.log('→ Starting watch mode with incremental builds')

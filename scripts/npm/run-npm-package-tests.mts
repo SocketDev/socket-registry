@@ -62,7 +62,7 @@ const tempBaseDir = cliArgs.tempDir
 // Cache for package.json reads to avoid repeated filesystem access
 const packageJsonCache = new Map()
 
-function hasModuleError(stdout: string, stderr: string): boolean {
+export function hasModuleError(stdout: string, stderr: string): boolean {
   const output = `${stdout}\n${stderr}`.toLowerCase()
   return (
     output.includes('cannot find module') || output.includes('module not found')
@@ -72,14 +72,14 @@ function hasModuleError(stdout: string, stderr: string): boolean {
 /**
  * Check if cleaned script only runs non-test commands.
  */
-function isNonTestScript(cleanedScript: string): boolean {
+export function isNonTestScript(cleanedScript: string): boolean {
   return (
     /^npm run (?:lint|build|prepare|prepublish|pretest)$/.test(cleanedScript) ||
     cleanedScript === 'exit 0'
   )
 }
 
-async function runPackageTest(socketPkgName: string) {
+export async function runPackageTest(socketPkgName: string) {
   const origPkgName = resolveOriginalPackageName(socketPkgName)
 
   // Check if we have a custom test file in test/npm/.

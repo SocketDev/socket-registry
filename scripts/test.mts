@@ -168,7 +168,7 @@ export async function runCheck(): Promise<number> {
     runCommand('oxlint', ['.'], {
       stdio: 'pipe',
     }),
-    runCommand('tsgo', ['--noEmit', '-p', 'tsconfig.json'], {
+    runCommand('tsgo', ['--noEmit', '-p', '.config/tsconfig.check.json'], {
       stdio: 'pipe',
     }),
   ])
@@ -191,7 +191,7 @@ export async function runCheck(): Promise<number> {
   if (tsExitCode !== 0) {
     logger.error('TypeScript check failed')
     // Re-run with output to show errors.
-    await runCommand('tsgo', ['--noEmit', '-p', 'tsconfig.json'])
+    await runCommand('tsgo', ['--noEmit', '-p', '.config/tsconfig.check.json'])
     return tsExitCode
   }
   logger.success('TypeScript check passed')

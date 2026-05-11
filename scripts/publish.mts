@@ -72,7 +72,9 @@ interface PublishOptions {
   tag?: string
 }
 
-export async function publishComplex(options: PublishOptions = {}): Promise<boolean> {
+export async function publishComplex(
+  options: PublishOptions = {},
+): Promise<boolean> {
   const {
     force = false,
     forcePublish = false,

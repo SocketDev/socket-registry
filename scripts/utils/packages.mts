@@ -15,7 +15,7 @@ let _cachedTestNpmPackageJson
 /**
  * Get cached test npm package.json.
  */
-function getTestNpmPackageJson() {
+export function getTestNpmPackageJson() {
   if (_cachedTestNpmPackageJson === undefined) {
     const testNpmPackageJsonPath = path.resolve(
       __dirname,

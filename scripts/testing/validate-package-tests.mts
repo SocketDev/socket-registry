@@ -56,7 +56,7 @@ const VALIDATION_CHECKS = {
 /**
  * Format validation results for display.
  */
-function formatResults(results) {
+export function formatResults(results) {
   const errors = []
   const warnings = []
 
@@ -84,7 +84,7 @@ function formatResults(results) {
 /**
  * Get list of package directories to validate.
  */
-async function getPackagesToValidate() {
+export async function getPackagesToValidate() {
   if (cliArgs.package?.length) {
     return cliArgs.package
   }
@@ -99,7 +99,7 @@ async function getPackagesToValidate() {
  * Check for required build artifacts.
  * Verifies that all entry points declared in package.json actually exist.
  */
-async function validateBuildArtifacts(_packageName, packageDir) {
+export async function validateBuildArtifacts(_packageName, packageDir) {
   const issues = []
   const packageJsonPath = path.join(packageDir, 'package.json')
 
@@ -150,7 +150,7 @@ async function validateBuildArtifacts(_packageName, packageDir) {
 /**
  * Validate dependencies are properly installed in isolated environment.
  */
-async function validateDependencies(packageName, packageDir) {
+export async function validateDependencies(packageName, packageDir) {
   const issues = []
   const tempDir = await fs.mkdtemp(
     path.join(os.tmpdir(), `validate-${packageName}-`),
@@ -200,7 +200,7 @@ async function validateDependencies(packageName, packageDir) {
 /**
  * Check for ESLint configuration issues.
  */
-async function validateEslintConfig(_packageName, packageDir) {
+export async function validateEslintConfig(_packageName, packageDir) {
   const issues = []
   const eslintConfigPath = path.join(packageDir, '.eslintrc')
   const eslintConfigJsPath = path.join(packageDir, '.eslintrc.js')
@@ -243,7 +243,7 @@ async function validateEslintConfig(_packageName, packageDir) {
  * Scans all JavaScript/TypeScript files for problematic import patterns
  * that commonly cause CI failures.
  */
-async function validateModuleResolution(_packageName, packageDir) {
+export async function validateModuleResolution(_packageName, packageDir) {
   const issues = []
 
   // Collect all source files recursively.
@@ -308,7 +308,7 @@ async function validateModuleResolution(_packageName, packageDir) {
 /**
  * Run all validations for a package.
  */
-async function validatePackage(packageName) {
+export async function validatePackage(packageName) {
   const packageDir = path.join(PACKAGES_DIR, packageName)
   const allIssues = []
 
@@ -344,7 +344,7 @@ async function validatePackage(packageName) {
 /**
  * Check if package.json exists and is valid.
  */
-async function validatePackageJson(_packageName, packageDir) {
+export async function validatePackageJson(_packageName, packageDir) {
   const issues = []
   const packageJsonPath = path.join(packageDir, 'package.json')
 
@@ -400,7 +400,7 @@ async function validatePackageJson(_packageName, packageDir) {
 /**
  * Check if test files exist and are in expected locations.
  */
-async function validateTestFiles(_packageName, packageDir) {
+export async function validateTestFiles(_packageName, packageDir) {
   const issues = []
   const commonTestPaths = [
     'test',

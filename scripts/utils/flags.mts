@@ -9,16 +9,6 @@ import process from 'node:process'
 
 type FlagInput = Record<string, unknown> | string[] | undefined
 
-export function hasArg(input: FlagInput, argv: string[], matches: string[]): boolean {
-  if (!input) {
-    return matches.some(m => argv.includes(m))
-  }
-  if (Array.isArray(input)) {
-    return matches.some(m => input.includes(m))
-  }
-  return false
-}
-
 /**
  * Get the appropriate log level based on flags.
  */
@@ -33,6 +23,20 @@ export function getLogLevel(input: FlagInput): string {
     return 'verbose'
   }
   return 'info'
+}
+
+export function hasArg(
+  input: FlagInput,
+  argv: string[],
+  matches: string[],
+): boolean {
+  if (!input) {
+    return matches.some(m => argv.includes(m))
+  }
+  if (Array.isArray(input)) {
+    return matches.some(m => input.includes(m))
+  }
+  return false
 }
 
 /**

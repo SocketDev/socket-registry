@@ -32,7 +32,7 @@ const BUILTIN_MODULES = new Set([
 /**
  * Extract bundled package names from node_modules paths in comments and code.
  */
-async function extractBundledPackages(filePath) {
+export async function extractBundledPackages(filePath) {
   const content = await fs.readFile(filePath, 'utf8')
   const bundled = new Set()
 
@@ -96,7 +96,7 @@ async function extractBundledPackages(filePath) {
 /**
  * Extract external package names from require() and import statements in built files.
  */
-async function extractExternalPackages(filePath) {
+export async function extractExternalPackages(filePath) {
   const content = await fs.readFile(filePath, 'utf8')
   const externals = new Set()
 
@@ -158,7 +158,7 @@ async function extractExternalPackages(filePath) {
 /**
  * Find all JavaScript files in dist directory.
  */
-async function findDistFiles(distPath) {
+export async function findDistFiles(distPath) {
   const files = []
 
   try {
@@ -188,7 +188,7 @@ async function findDistFiles(distPath) {
 /**
  * Get package name from a module specifier (strip subpaths).
  */
-function getPackageName(specifier) {
+export function getPackageName(specifier) {
   // Relative imports are not packages
   if (specifier.startsWith('.') || specifier.startsWith('/')) {
     return undefined
@@ -241,7 +241,7 @@ function getPackageName(specifier) {
 /**
  * Check if a string is a valid package specifier.
  */
-function isValidPackageSpecifier(specifier) {
+export function isValidPackageSpecifier(specifier) {
   // Relative imports
   if (specifier.startsWith('.') || specifier.startsWith('/')) {
     return false
@@ -285,7 +285,7 @@ function isValidPackageSpecifier(specifier) {
 /**
  * Read and parse package.json.
  */
-async function readPackageJson() {
+export async function readPackageJson() {
   const packageJsonPath = path.join(rootPath, 'package.json')
   const content = await fs.readFile(packageJsonPath, 'utf8')
   return JSON.parse(content)
@@ -294,7 +294,7 @@ async function readPackageJson() {
 /**
  * Validate bundle dependencies.
  */
-async function validateBundleDeps() {
+export async function validateBundleDeps() {
   const distPath = path.join(rootPath, 'dist')
   const pkg = await readPackageJson()
 

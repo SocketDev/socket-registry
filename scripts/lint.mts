@@ -19,14 +19,7 @@ import { runCommandQuiet } from './utils/run-command.mts'
 const logger = getDefaultLogger()
 
 // Glob patterns for changes that trigger a full lint (matched with minimatch).
-const FULL_LINT_TRIGGERS = [
-  '.config/**',
-  'scripts/utils/**',
-  'pnpm-lock.yaml',
-  
-
-
-]
+const FULL_LINT_TRIGGERS = ['.config/**', 'scripts/utils/**', 'pnpm-lock.yaml']
 
 /**
  * Get oxfmt exclude patterns from .oxfmtrc.json.
@@ -49,7 +42,10 @@ export function getOxfmtExcludePatterns(): string[] {
 /**
  * Check if a file matches any of the exclude patterns.
  */
-export function isExcludedByOxfmt(file: string, excludePatterns: string[]): boolean {
+export function isExcludedByOxfmt(
+  file: string,
+  excludePatterns: string[],
+): boolean {
   for (const pattern of excludePatterns) {
     // Convert glob pattern to regex-like matching.
     // Support **/ for directory wildcards and * for filename wildcards.

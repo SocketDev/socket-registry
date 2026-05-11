@@ -51,7 +51,7 @@ const EXTRACT_PACKAGE_TMP_PREFIX = 'release-npm-'
 /**
  * Compute SHA256 hashes for all files in a local package directory.
  */
-async function getLocalPackageFileHashes(packagePath) {
+export async function getLocalPackageFileHashes(packagePath) {
   const fileHashes = {}
 
   // Read package.json to get files field.
@@ -144,7 +144,7 @@ async function getLocalPackageFileHashes(packagePath) {
 /**
  * Compute SHA256 hashes for all files in a remote published package.
  */
-async function getRemotePackageFileHashes(spec) {
+export async function getRemotePackageFileHashes(spec) {
   const fileHashes = {}
 
   // Extract remote package and hash files.
@@ -215,7 +215,7 @@ async function getRemotePackageFileHashes(spec) {
 /**
  * Check if there are uncommitted changes in registry directory.
  */
-async function hasGitChanges(packagePath) {
+export async function hasGitChanges(packagePath) {
   try {
     const relPath = path.relative(ROOT_PATH, packagePath)
     // Check both staged and unstaged changes.
@@ -234,7 +234,7 @@ async function hasGitChanges(packagePath) {
 /**
  * Compare local and remote package files to detect changes.
  */
-async function hasPackageChanged(pkg, manifest_, options) {
+export async function hasPackageChanged(pkg, manifest_, options) {
   const { state } = { __proto__: null, ...options }
 
   const manifest =
@@ -285,7 +285,7 @@ async function hasPackageChanged(pkg, manifest_, options) {
 /**
  * Check if a file is automatically included by npm in published packages.
  */
-function isNpmAutoIncluded(fileName) {
+export function isNpmAutoIncluded(fileName) {
   const upperName = fileName.toUpperCase()
   // NPM automatically includes LICENSE and README files with any case and extension.
   return upperName.startsWith('LICENSE') || upperName.startsWith('README')
@@ -294,7 +294,7 @@ function isNpmAutoIncluded(fileName) {
 /**
  * Bump package version if changes are detected.
  */
-async function maybeBumpPackage(pkg, options) {
+export async function maybeBumpPackage(pkg, options) {
   const {
     spinner,
     state = {
@@ -366,7 +366,7 @@ async function maybeBumpPackage(pkg, options) {
 /**
  * Create package metadata with defaults.
  */
-function packageData(data) {
+export function packageData(data) {
   const { manifest, printName = data.name, tag = LATEST, version } = data
   return Object.assign(data, {
     manifest,

@@ -92,7 +92,9 @@ export async function runSequence(commands: CommandSpec[]): Promise<number> {
  * exit while leaving stdio handles with pending write callbacks; polling for
  * drain prevents intermittent hangs.
  */
-export async function waitForStdioFlush(timeoutMs: number = 1000): Promise<void> {
+export async function waitForStdioFlush(
+  timeoutMs: number = 1000,
+): Promise<void> {
   const startTime = Date.now()
 
   while (Date.now() - startTime < timeoutMs) {

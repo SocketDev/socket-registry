@@ -136,7 +136,7 @@ const FAILURE_PATTERNS = {
 /**
  * Analyze log content for failure patterns.
  */
-function analyzeLog(logContent) {
+export function analyzeLog(logContent) {
   const lines = logContent.split('\n')
   const failures = []
   let currentPackage
@@ -178,7 +178,7 @@ function analyzeLog(logContent) {
 /**
  * Parse package name from log line.
  */
-function extractPackageName(line) {
+export function extractPackageName(line) {
   // Try various patterns to extract package name.
   const patterns = [
     /Testing package: ([^\s]+)/,
@@ -200,7 +200,7 @@ function extractPackageName(line) {
 /**
  * Fetch log content from URL or file.
  */
-async function fetchLogContent() {
+export async function fetchLogContent() {
   if (cliArgs.logFile) {
     return await fs.readFile(cliArgs.logFile, 'utf8')
   }
@@ -215,7 +215,7 @@ async function fetchLogContent() {
 /**
  * Format analysis results for display.
  */
-function formatResults(failures, recommendations) {
+export function formatResults(failures, recommendations) {
   logger.info('=== CI Failure Analysis ===\n')
 
   if (!failures.length) {
@@ -281,7 +281,7 @@ function formatResults(failures, recommendations) {
 /**
  * Generate fix recommendations.
  */
-function generateRecommendations(_failures, grouped) {
+export function generateRecommendations(_failures, grouped) {
   const recommendations = []
 
   // Category-level recommendations.
@@ -329,7 +329,7 @@ function generateRecommendations(_failures, grouped) {
 /**
  * Group failures by category and package.
  */
-function groupFailures(failures) {
+export function groupFailures(failures) {
   const byCategory = { __proto__: null }
   const byPackage = { __proto__: null }
 

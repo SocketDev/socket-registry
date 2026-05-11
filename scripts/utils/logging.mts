@@ -17,7 +17,7 @@ interface HeaderOptions {
 /**
  * Format a header title with optional emoji prefix.
  */
-function formatHeaderTitle(title: string, emoji?: string): string {
+export function formatHeaderTitle(title: string, emoji?: string): string {
   return emoji ? `${emoji} ${title}` : title
 }
 

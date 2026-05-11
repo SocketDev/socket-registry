@@ -18,7 +18,7 @@ const rootPath = path.join(__dirname, '..', '..')
 /**
  * Check if a package.json contains link: dependencies.
  */
-async function checkPackageJson(filePath) {
+export async function checkPackageJson(filePath) {
   const content = await fs.readFile(filePath, 'utf8')
   const pkg = JSON.parse(content)
 
@@ -86,7 +86,7 @@ async function checkPackageJson(filePath) {
 /**
  * Find all package.json files in the repository.
  */
-async function findPackageJsonFiles(dir) {
+export async function findPackageJsonFiles(dir) {
   const files = []
   const entries = await fs.readdir(dir, { withFileTypes: true })
 

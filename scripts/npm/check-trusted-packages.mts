@@ -77,6 +77,90 @@ With --all flag, adds:
   process.exitCode = 0
 }
 
+async function getPackageInfo(packageName) {
+  try {
+    // Get the latest version specifically to ensure we get detailed info
+    const output = await runCommand('npm', [
+      'view',
+      packageName,
+      '--json',
+      'name',
+      'version',
+      'maintainers',
+      'repository',
+      'dist',
+    ])
+    return JSON.parse(output)
+  } catch {
+    return undefined
+  }
+}
+
+async function getPackagesFromManifest() {
+  try {
+    const manifestPath = path.join(__dirname, '..', 'registry', 'manifest.json')
+    const content = await readFile(manifestPath, 'utf8')
+    const manifest = JSON.parse(content)
+    const packages = new Set()
+
+    if (manifest.npm && Array.isArray(manifest.npm)) {
+      for (const entry of manifest.npm) {
+        const [, data] = entry
+        if (data?.name) {
+          // Only include @socketregistry/* and @socketoverride/* packages
+          if (
+            data.name.startsWith('@socketregistry/') ||
+            data.name.startsWith('@socketoverride/')
+          ) {
+            packages.add(data.name)
+          }
+        }
+      }
+    }
+
+    return Array.from(packages).sort()
+  } catch (e) {
+    logger.error('Failed to read manifest.json:', (e as Error).message)
+    return []
+  }
+}
+
+async function getPackagesFromScope(scope) {
+  try {
+    const output = await runCommand('npm', [
+      'search',
+      '--json',
+      `scope:${scope}`,
+      '--searchlimit=1000',
+    ])
+    const results = JSON.parse(output)
+    return results.map(pkg => pkg.name)
+  } catch (e) {
+    logger.error(
+      `Failed to search for ${scope} packages:`,
+      (e as Error).message,
+    )
+    return []
+  }
+}
+
+async function runCommand(command, args = []) {
+  try {
+    const result = await spawn(command, args, {
+      shell: process.platform === 'win32',
+      stdio: 'pipe',
+    })
+    if (result.code !== 0) {
+      throw new Error(
+        `Command failed with exit code ${result.code}: ${result.stderr}`,
+      )
+    }
+    return result.stdout
+  } catch (e) {
+    throw new Error(`Command failed: ${e.message}`)
+  }
+}
+
 export async function checkTrustedPackage(packageName, state) {
   const info = await getPackageInfo(packageName)
 
@@ -165,90 +249,6 @@ export async function checkTrustedPackage(packageName, state) {
   }
 
   return true
-}
-
-async function getPackageInfo(packageName) {
-  try {
-    // Get the latest version specifically to ensure we get detailed info
-    const output = await runCommand('npm', [
-      'view',
-      packageName,
-      '--json',
-      'name',
-      'version',
-      'maintainers',
-      'repository',
-      'dist',
-    ])
-    return JSON.parse(output)
-  } catch {
-    return undefined
-  }
-}
-
-async function getPackagesFromManifest() {
-  try {
-    const manifestPath = path.join(__dirname, '..', 'registry', 'manifest.json')
-    const content = await readFile(manifestPath, 'utf8')
-    const manifest = JSON.parse(content)
-    const packages = new Set()
-
-    if (manifest.npm && Array.isArray(manifest.npm)) {
-      for (const entry of manifest.npm) {
-        const [, data] = entry
-        if (data?.name) {
-          // Only include @socketregistry/* and @socketoverride/* packages
-          if (
-            data.name.startsWith('@socketregistry/') ||
-            data.name.startsWith('@socketoverride/')
-          ) {
-            packages.add(data.name)
-          }
-        }
-      }
-    }
-
-    return Array.from(packages).sort()
-  } catch (e) {
-    logger.error('Failed to read manifest.json:', (e as Error).message)
-    return []
-  }
-}
-
-async function getPackagesFromScope(scope) {
-  try {
-    const output = await runCommand('npm', [
-      'search',
-      '--json',
-      `scope:${scope}`,
-      '--searchlimit=1000',
-    ])
-    const results = JSON.parse(output)
-    return results.map(pkg => pkg.name)
-  } catch (e) {
-    logger.error(
-      `Failed to search for ${scope} packages:`,
-      (e as Error).message,
-    )
-    return []
-  }
-}
-
-async function runCommand(command, args = []) {
-  try {
-    const result = await spawn(command, args, {
-      shell: process.platform === 'win32',
-      stdio: 'pipe',
-    })
-    if (result.code !== 0) {
-      throw new Error(
-        `Command failed with exit code ${result.code}: ${result.stderr}`,
-      )
-    }
-    return result.stdout
-  } catch (e) {
-    throw new Error(`Command failed: ${e.message}`)
-  }
 }
 
 async function main(): Promise<void> {

@@ -10,14 +10,6 @@ import process from 'node:process'
 
 import { spawn, spawnSync } from '@socketsecurity/lib/spawn'
 
-export function filterRelativeToRoot(stdout: string, gitRoot: string): string[] {
-  return stdout
-    .trim()
-    .split('\n')
-    .filter(Boolean)
-    .filter(file => existsSync(path.join(gitRoot, file)))
-}
-
 function getGitRoot(cwd: string): string | undefined {
   try {
     const result = spawnSync('git', ['rev-parse', '--show-toplevel'], {
@@ -70,6 +62,17 @@ function parsePorcelainZ(raw: string, gitRoot: string): string[] {
     }
   }
   return out
+}
+
+export function filterRelativeToRoot(
+  stdout: string,
+  gitRoot: string,
+): string[] {
+  return stdout
+    .trim()
+    .split('\n')
+    .filter(Boolean)
+    .filter(file => existsSync(path.join(gitRoot, file)))
 }
 
 /**

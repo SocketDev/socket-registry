@@ -14,7 +14,7 @@ const logger = getDefaultLogger()
 /**
  * Extract dependencies from the Dependencies comment block.
  */
-function extractDependencies(content) {
+export function extractDependencies(content) {
   const dependencies = []
 
   // Extract dependencies from # Dependencies: comment blocks.
@@ -45,7 +45,7 @@ function extractDependencies(content) {
 /**
  * Extract uses statements and their positions in the file.
  */
-function extractUsesStatements(content) {
+export function extractUsesStatements(content) {
   const statements = []
   const usesRegex = /^(\s*)uses:\s*([^/\s]+)\/([^@\s]+)@([^\s#]+)(\s*#.*)?$/gm
 
@@ -69,7 +69,7 @@ function extractUsesStatements(content) {
 /**
  * Recursively find all YAML files in a directory.
  */
-async function getAllYamlFiles(dir) {
+export async function getAllYamlFiles(dir) {
   const files = []
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true })
@@ -88,7 +88,7 @@ async function getAllYamlFiles(dir) {
 /**
  * Process a single file and update action references.
  */
-async function processFile(filePath, token, dryRun) {
+export async function processFile(filePath, token, dryRun) {
   const content = await fs.readFile(filePath, 'utf8')
   const dependencies = extractDependencies(content)
 

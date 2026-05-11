@@ -34,7 +34,7 @@ const rootPath = path.resolve(
  * Build source code with esbuild.
  * Returns { exitCode, buildTime, result } for external logging.
  */
-async function buildSource(options = {}) {
+export async function buildSource(options = {}) {
   const { quiet = false, skipClean = false, verbose = false } = options
 
   // Clean dist directory if needed.
@@ -100,7 +100,7 @@ async function buildSource(options = {}) {
  * Build TypeScript declarations.
  * Returns exitCode for external logging.
  */
-async function buildTypes(options = {}) {
+export async function buildTypes(options = {}) {
   const {
     quiet = false,
     skipClean = false,
@@ -143,7 +143,7 @@ async function buildTypes(options = {}) {
 /**
  * Check if build is needed by comparing source and output timestamps.
  */
-function isBuildNeeded() {
+export function isBuildNeeded() {
   const distPath = path.join(rootPath, 'dist')
   const srcPath = path.join(rootPath, 'src')
 
@@ -196,7 +196,7 @@ function isBuildNeeded() {
 /**
  * Watch mode for development with incremental builds (68% faster rebuilds).
  */
-async function watchBuild(options = {}) {
+export async function watchBuild(options = {}) {
   const { quiet = false, verbose = false } = options
 
   if (!quiet) {
