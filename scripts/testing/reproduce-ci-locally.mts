@@ -1,3 +1,5 @@
+/* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
+
 /** @fileoverview Reproduces CI test environment locally to catch issues before pushing. */
 
 import { promises as fs, mkdtempSync } from 'node:fs'

@@ -1,3 +1,5 @@
+/* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
+
 /** @fileoverview Validates package overrides before release to catch test infrastructure issues early. */
 
 import { existsSync, promises as fs } from 'node:fs'

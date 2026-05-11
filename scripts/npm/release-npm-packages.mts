@@ -1,3 +1,5 @@
+/* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
+
 /** @fileoverview Detect package changes and bump versions for npm release. */
 
 import crypto from 'node:crypto'

@@ -1,3 +1,5 @@
+/* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
+
 /* oxlint-disable socket/no-fetch-prefer-http-request -- composite action helper, runs on raw runner before setup-node (no node_modules) */
 /**
  * @fileoverview Check a Socket package against the firewall API
