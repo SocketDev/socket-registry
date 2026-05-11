@@ -18,7 +18,7 @@ const logger = getDefaultLogger()
 const rootPath = path.resolve(process.cwd())
 const DEBUG = process.env.DEBUG_TEST_MAPPER === '1'
 
-function debug(message: string): void {
+export function debug(message: string): void {
   if (DEBUG) {
     logger.log(`[test-mapper] ${message}`)
   }

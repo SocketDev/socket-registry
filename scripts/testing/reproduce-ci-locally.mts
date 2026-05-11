@@ -43,32 +43,6 @@ const { values: cliArgs } = parseArgs({
 })
 
 /**
- * Run command with CI-like environment variables.
- * Sets up environment to match actual CI execution context.
- */
-async function runCiCommand(command, args, options = {}) {
-  const ciEnv = {
-    ...process.env,
-    // Core CI indicators.
-    CI: 'true',
-    NODE_ENV: 'test',
-    // Suppress Node.js warnings for cleaner output.
-    NODE_NO_WARNINGS: '1',
-    // Disable color output for consistent comparison with CI logs.
-    FORCE_COLOR: '0',
-    NO_COLOR: '1',
-  }
-
-  const result = await spawn(command, args, {
-    stdio: cliArgs.verbose ? 'inherit' : 'pipe',
-    env: ciEnv,
-    ...options,
-  })
-
-  return result
-}
-
-/**
  * Create isolated test environment by copying project to temp directory.
  * Excludes node_modules, build artifacts, and version control to ensure
  * clean install matching CI behavior.
@@ -114,6 +88,32 @@ async function runBuild(workDir) {
 }
 
 /**
+ * Run command with CI-like environment variables.
+ * Sets up environment to match actual CI execution context.
+ */
+async function runCiCommand(command, args, options = {}) {
+  const ciEnv = {
+    ...process.env,
+    // Core CI indicators.
+    CI: 'true',
+    NODE_ENV: 'test',
+    // Suppress Node.js warnings for cleaner output.
+    NODE_NO_WARNINGS: '1',
+    // Disable color output for consistent comparison with CI logs.
+    FORCE_COLOR: '0',
+    NO_COLOR: '1',
+  }
+
+  const result = await spawn(command, args, {
+    stdio: cliArgs.verbose ? 'inherit' : 'pipe',
+    env: ciEnv,
+    ...options,
+  })
+
+  return result
+}
+
+/**
  * Run dependency installation.
  */
 async function runInstall(workDir) {
@@ -149,6 +149,34 @@ async function runLint(workDir) {
   }
 
   logger.success('✓ Linting passed')
+  return true
+}
+
+/**
+ * Run npm package tests.
+ */
+async function runNpmPackageTests(workDir) {
+  logger.info('\n--- Running NPM Package Tests (CI Mode) ---')
+
+  const args = ['scripts/npm/test-npm-packages.mts']
+
+  if (cliArgs.package?.length) {
+    cliArgs.package.forEach(pkg => {
+      args.push('--package', pkg)
+    })
+  }
+
+  const result = await runCiCommand('node', args, { cwd: workDir })
+
+  if (result.code !== 0) {
+    logger.error('NPM package tests failed')
+    if (!cliArgs.verbose) {
+      logger.error(result.stderr || result.stdout)
+    }
+    return false
+  }
+
+  logger.success('✓ NPM package tests passed')
   return true
 }
 
@@ -191,34 +219,6 @@ async function runUnitTests(workDir) {
   }
 
   logger.success('✓ Unit tests passed')
-  return true
-}
-
-/**
- * Run npm package tests.
- */
-async function runNpmPackageTests(workDir) {
-  logger.info('\n--- Running NPM Package Tests (CI Mode) ---')
-
-  const args = ['scripts/npm/test-npm-packages.mts']
-
-  if (cliArgs.package?.length) {
-    cliArgs.package.forEach(pkg => {
-      args.push('--package', pkg)
-    })
-  }
-
-  const result = await runCiCommand('node', args, { cwd: workDir })
-
-  if (result.code !== 0) {
-    logger.error('NPM package tests failed')
-    if (!cliArgs.verbose) {
-      logger.error(result.stderr || result.stdout)
-    }
-    return false
-  }
-
-  logger.success('✓ NPM package tests passed')
   return true
 }
 

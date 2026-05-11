@@ -141,6 +141,59 @@ async function buildTypes(options = {}) {
 }
 
 /**
+ * Check if build is needed by comparing source and output timestamps.
+ */
+function isBuildNeeded() {
+  const distPath = path.join(rootPath, 'dist')
+  const srcPath = path.join(rootPath, 'src')
+
+  if (!existsSync(distPath)) {
+    return true
+  }
+
+  // Use fast-glob to find source files.
+  const sourceFiles = fg.sync('**/*.{ts,mts,cts}', {
+    cwd: srcPath,
+    absolute: true,
+    ignore: ['**/*.d.ts'],
+  })
+
+  if (!sourceFiles.length) {
+    return false
+  }
+
+  // Find newest source file timestamp.
+  let newestSource = 0
+  for (const file of sourceFiles) {
+    const stat = statSync(file)
+    if (stat.mtimeMs > newestSource) {
+      newestSource = stat.mtimeMs
+    }
+  }
+
+  // Find oldest output file timestamp.
+  const outputFiles = fg.sync('**/*.js', {
+    cwd: distPath,
+    absolute: true,
+  })
+
+  if (!outputFiles.length) {
+    return true
+  }
+
+  let oldestOutput = Number.POSITIVE_INFINITY
+  for (const file of outputFiles) {
+    const stat = statSync(file)
+    if (stat.mtimeMs < oldestOutput) {
+      oldestOutput = stat.mtimeMs
+    }
+  }
+
+  // Build needed if any source is newer than oldest output.
+  return newestSource > oldestOutput
+}
+
+/**
  * Watch mode for development with incremental builds (68% faster rebuilds).
  */
 async function watchBuild(options = {}) {
@@ -204,59 +257,6 @@ async function watchBuild(options = {}) {
     }
     return 1
   }
-}
-
-/**
- * Check if build is needed by comparing source and output timestamps.
- */
-function isBuildNeeded() {
-  const distPath = path.join(rootPath, 'dist')
-  const srcPath = path.join(rootPath, 'src')
-
-  if (!existsSync(distPath)) {
-    return true
-  }
-
-  // Use fast-glob to find source files.
-  const sourceFiles = fg.sync('**/*.{ts,mts,cts}', {
-    cwd: srcPath,
-    absolute: true,
-    ignore: ['**/*.d.ts'],
-  })
-
-  if (!sourceFiles.length) {
-    return false
-  }
-
-  // Find newest source file timestamp.
-  let newestSource = 0
-  for (const file of sourceFiles) {
-    const stat = statSync(file)
-    if (stat.mtimeMs > newestSource) {
-      newestSource = stat.mtimeMs
-    }
-  }
-
-  // Find oldest output file timestamp.
-  const outputFiles = fg.sync('**/*.js', {
-    cwd: distPath,
-    absolute: true,
-  })
-
-  if (!outputFiles.length) {
-    return true
-  }
-
-  let oldestOutput = Number.POSITIVE_INFINITY
-  for (const file of outputFiles) {
-    const stat = statSync(file)
-    if (stat.mtimeMs < oldestOutput) {
-      oldestOutput = stat.mtimeMs
-    }
-  }
-
-  // Build needed if any source is newer than oldest output.
-  return newestSource > oldestOutput
 }
 
 async function main() {

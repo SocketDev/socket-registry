@@ -51,7 +51,7 @@ const REPO_ROOT = path.resolve(
 // using it as a `git diff` path argument.
 const PIN_RE = /SocketDev\/socket-registry(\/[^@\s]+)@([a-f0-9]{40})/g
 
-function git(...args: string[]): string {
+export function git(...args: string[]): string {
   const r = spawnSync('git', args, { cwd: REPO_ROOT, encoding: 'utf8' })
   if (r.status !== 0) {
     throw new Error(`git ${args.join(' ')} failed: ${r.stderr.trim()}`)
@@ -59,7 +59,7 @@ function git(...args: string[]): string {
   return r.stdout.trim()
 }
 
-async function walkYaml(dir: string): Promise<string[]> {
+export async function walkYaml(dir: string): Promise<string[]> {
   const out: string[] = []
   if (!existsSync(dir)) {
     return out
@@ -82,7 +82,7 @@ interface Pin {
   shaStart: number
 }
 
-async function scanPins(): Promise<Pin[]> {
+export async function scanPins(): Promise<Pin[]> {
   const files = await walkYaml(path.join(REPO_ROOT, '.github'))
   const pins: Pin[] = []
   for (const file of files) {
@@ -104,7 +104,7 @@ async function scanPins(): Promise<Pin[]> {
 // A pin is stale when the subtree it references differs between its
 // pinned SHA and HEAD. `git diff --quiet <sha> HEAD -- <pinPath>`
 // returns 0 (no diff) or 1 (diff). Anything else is an error.
-function isStale(pin: Pin, head: string): boolean {
+export function isStale(pin: Pin, head: string): boolean {
   if (pin.sha === head) {
     return false
   }
@@ -124,7 +124,7 @@ function isStale(pin: Pin, head: string): boolean {
   )
 }
 
-async function rewriteFile(
+export async function rewriteFile(
   file: string,
   pinsInFile: Pin[],
   head: string,
@@ -137,7 +137,7 @@ async function rewriteFile(
   await fs.writeFile(file, text)
 }
 
-async function runIteration(
+export async function runIteration(
   dryRun: boolean,
 ): Promise<{ commits: number; converged: boolean }> {
   const head = git('rev-parse', 'HEAD')

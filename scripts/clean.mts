@@ -29,7 +29,7 @@ interface CleanTask {
   patterns?: string[]
 }
 
-async function cleanDirectories(
+export async function cleanDirectories(
   tasks: CleanTask[],
   options: { quiet?: boolean } = {},
 ): Promise<number> {

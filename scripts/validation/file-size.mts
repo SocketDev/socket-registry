@@ -43,7 +43,7 @@ const SKIP_DIRS = new Set([
 /**
  * Format bytes to human-readable size.
  */
-function formatBytes(bytes) {
+export function formatBytes(bytes) {
   if (bytes === 0) {
     return '0 B'
   }
@@ -56,7 +56,7 @@ function formatBytes(bytes) {
 /**
  * Recursively scan directory for files exceeding size limit.
  */
-async function scanDirectory(dir, violations = []) {
+export async function scanDirectory(dir, violations = []) {
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true })
 
@@ -102,7 +102,7 @@ async function scanDirectory(dir, violations = []) {
 /**
  * Validate file sizes in repository.
  */
-async function validateFileSizes() {
+export async function validateFileSizes() {
   const violations = await scanDirectory(rootPath)
 
   // Sort by size descending (largest first)

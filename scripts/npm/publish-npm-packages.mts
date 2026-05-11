@@ -73,7 +73,7 @@ logger.log(
 /**
  * Checkout a specific commit and discard uncommitted changes.
  */
-async function checkoutCommit(sha) {
+export async function checkoutCommit(sha) {
   // Discard any uncommitted changes from previous builds.
   await spawn('git', ['reset', '--hard'])
   await spawn('git', ['checkout', sha])
@@ -82,7 +82,7 @@ async function checkoutCommit(sha) {
 /**
  * Ensure npm version meets requirements for trusted publishing.
  */
-async function ensureNpmVersion() {
+export async function ensureNpmVersion() {
   // Check current npm version first.
   const currentVersionResult = await spawn('npm', ['--version'], {
     shell: WIN32,
@@ -116,7 +116,7 @@ async function ensureNpmVersion() {
 /**
  * Find all commits with version bumps in the registry package.
  */
-async function findVersionBumpCommits() {
+export async function findVersionBumpCommits() {
   // Get git log with commit messages for version bumps.
   // Matches both old style "Bump..." and new conventional commit style "chore(registry): bump...".
   const result = await spawn('git', [
@@ -179,7 +179,7 @@ async function findVersionBumpCommits() {
 /**
  * Get the full commit SHA for a given ref.
  */
-async function getCommitSha(ref) {
+export async function getCommitSha(ref) {
   const result = await spawn('git', ['rev-parse', ref])
   return result.stdout.trim()
 }
@@ -187,7 +187,7 @@ async function getCommitSha(ref) {
 /**
  * Get the name of the current git branch.
  */
-async function getCurrentBranch() {
+export async function getCurrentBranch() {
   const result = await spawn('git', ['rev-parse', '--abbrev-ref', 'HEAD'])
   return result.stdout.trim()
 }
@@ -195,7 +195,7 @@ async function getCurrentBranch() {
 /**
  * Create package metadata with defaults.
  */
-function packageData(data) {
+export function packageData(data) {
   const { printName = data.name, tag = LATEST } = data
   return Object.assign(data, { printName, tag })
 }
@@ -204,14 +204,14 @@ function packageData(data) {
  * Publish package using npm with OIDC trusted publishing.
  * @throws {TypeError} When state parameter is not an object.
  */
-async function publish(pkg, state, options) {
+export async function publish(pkg, state, options) {
   await publishTrusted(pkg, state, options)
 }
 
 /**
  * Publish packages at a specific commit.
  */
-async function publishAtCommit(sha) {
+export async function publishAtCommit(sha) {
   const headSha = await getCommitSha('HEAD')
   const isHead = sha === headSha
   logger.log(`\nChecking out ${isHead ? 'HEAD at ' : ''}commit ${sha}...`)
@@ -369,7 +369,7 @@ async function publishAtCommit(sha) {
  * Publish multiple packages with concurrency control.
  * @throws {TypeError} When state parameter is not an object.
  */
-async function publishPackages(packages, state, options) {
+export async function publishPackages(packages, state, options) {
   const okayPackages = packages.filter(
     pkg => !state.fails.includes(pkg.printName),
   )
@@ -387,7 +387,7 @@ async function publishPackages(packages, state, options) {
  * Publish package using npm with OIDC trusted publishing.
  * @throws {TypeError} When state parameter is not an object.
  */
-async function publishTrusted(pkg, state, options) {
+export async function publishTrusted(pkg, state, options) {
   const { maxRetries = 3, retryDelay = 1000 } = { __proto__: null, ...options }
   if (!isObjectObject(state)) {
     throw new TypeError('A state object is required')

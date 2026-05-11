@@ -16,36 +16,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.join(__dirname, '..', '..')
 
 /**
- * Find all package.json files in the repository.
- */
-async function findPackageJsonFiles(dir) {
-  const files = []
-  const entries = await fs.readdir(dir, { withFileTypes: true })
-
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name)
-
-    // Skip node_modules, .git, and build directories.
-    if (
-      entry.name === 'node_modules' ||
-      entry.name === '.git' ||
-      entry.name === 'build' ||
-      entry.name === 'dist'
-    ) {
-      continue
-    }
-
-    if (entry.isDirectory()) {
-      files.push(...(await findPackageJsonFiles(fullPath)))
-    } else if (entry.name === 'package.json') {
-      files.push(fullPath)
-    }
-  }
-
-  return files
-}
-
-/**
  * Check if a package.json contains link: dependencies.
  */
 async function checkPackageJson(filePath) {
@@ -111,6 +81,36 @@ async function checkPackageJson(filePath) {
   }
 
   return violations
+}
+
+/**
+ * Find all package.json files in the repository.
+ */
+async function findPackageJsonFiles(dir) {
+  const files = []
+  const entries = await fs.readdir(dir, { withFileTypes: true })
+
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name)
+
+    // Skip node_modules, .git, and build directories.
+    if (
+      entry.name === 'node_modules' ||
+      entry.name === '.git' ||
+      entry.name === 'build' ||
+      entry.name === 'dist'
+    ) {
+      continue
+    }
+
+    if (entry.isDirectory()) {
+      files.push(...(await findPackageJsonFiles(fullPath)))
+    } else if (entry.name === 'package.json') {
+      files.push(fullPath)
+    }
+  }
+
+  return files
 }
 
 async function main(): Promise<void> {

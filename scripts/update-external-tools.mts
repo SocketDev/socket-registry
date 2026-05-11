@@ -46,7 +46,7 @@ const CONFIG_FILE = path.join(REPO_ROOT, 'external-tools.json')
 const MS_PER_MINUTE = 60_000
 const DEFAULT_COOLDOWN_MINUTES = 10_080
 
-function readCooldownMs(): number {
+export function readCooldownMs(): number {
   const candidate = path.join(REPO_ROOT, 'pnpm-workspace.yaml')
   if (existsSync(candidate)) {
     try {
@@ -82,7 +82,7 @@ interface GhRelease {
   tag_name: string
 }
 
-async function ghApiLatestRelease(
+export async function ghApiLatestRelease(
   repo: string,
   includePrerelease: boolean,
 ): Promise<GhRelease> {
@@ -126,21 +126,21 @@ async function ghApiLatestRelease(
   return parsed
 }
 
-function isOlderThanCooldown(publishedAt: string): boolean {
+export function isOlderThanCooldown(publishedAt: string): boolean {
   const published = new Date(publishedAt).getTime()
   return Date.now() - published >= COOLDOWN_MS
 }
 
-function versionFromTag(tag: string): string {
+export function versionFromTag(tag: string): string {
   return tag.replace(/^v/, '')
 }
 
-async function computeSha256(filePath: string): Promise<string> {
+export async function computeSha256(filePath: string): Promise<string> {
   const content = await fs.readFile(filePath)
   return createHash('sha256').update(content).digest('hex')
 }
 
-async function downloadAndHash(url: string): Promise<string> {
+export async function downloadAndHash(url: string): Promise<string> {
   const tmpFile = path.join(
     tmpdir(),
     `external-tools-update-${Date.now()}-${Math.random().toString(36).slice(2)}`,
@@ -193,12 +193,12 @@ const rootConfigSchema = Type.Record(Type.String(), toolSchema)
 type ChecksumEntry = Static<typeof checksumEntrySchema>
 type RootConfig = Static<typeof rootConfigSchema>
 
-function readConfig(): RootConfig {
+export function readConfig(): RootConfig {
   const raw = JSON.parse(readFileSync(CONFIG_FILE, 'utf8'))
   return parseSchema(rootConfigSchema, raw)
 }
 
-async function writeConfig(config: RootConfig): Promise<void> {
+export async function writeConfig(config: RootConfig): Promise<void> {
   await fs.writeFile(
     CONFIG_FILE,
     JSON.stringify(config, undefined, 2) + '\n',
@@ -206,7 +206,7 @@ async function writeConfig(config: RootConfig): Promise<void> {
   )
 }
 
-function ownerAndNameFromRepository(repository: string | undefined): string {
+export function ownerAndNameFromRepository(repository: string | undefined): string {
   if (!repository) {
     throw new Error('Missing `repository` field on tool entry')
   }
@@ -228,7 +228,7 @@ interface UpdateResult {
  * with the new entries. Shared by the single-flavor and per-flavor
  * code paths.
  */
-async function recomputeChecksums(
+export async function recomputeChecksums(
   label: string,
   repo: string,
   release: GhRelease,
@@ -260,7 +260,7 @@ async function recomputeChecksums(
   return newChecksums
 }
 
-async function updateTool(
+export async function updateTool(
   name: string,
   config: RootConfig,
 ): Promise<UpdateResult> {

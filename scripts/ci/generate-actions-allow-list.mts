@@ -16,7 +16,7 @@ import {
 /**
  * Extract action dependencies from a workflow or action file.
  */
-async function extractDependencies(filePath) {
+export async function extractDependencies(filePath) {
   const content = await fs.readFile(filePath, 'utf8')
   const dependencies = new Map()
 
@@ -44,7 +44,7 @@ async function extractDependencies(filePath) {
 /**
  * Recursively find all YAML files in a directory.
  */
-async function getAllYamlFiles(dir) {
+export async function getAllYamlFiles(dir) {
   const files = []
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true })

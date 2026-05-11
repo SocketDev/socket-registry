@@ -16,7 +16,7 @@ import {
 /**
  * Extract structured dependency information from a workflow or action file.
  */
-async function extractDependenciesWithStructure(filePath) {
+export async function extractDependenciesWithStructure(filePath) {
   const content = await fs.readFile(filePath, 'utf8')
   const flatDependencies = new Set()
   const structuredDependencies = []
@@ -70,7 +70,7 @@ async function extractDependenciesWithStructure(filePath) {
 /**
  * Recursively find all YAML files in a directory.
  */
-async function getAllYamlFiles(dir) {
+export async function getAllYamlFiles(dir) {
   const files = []
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true })

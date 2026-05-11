@@ -22,7 +22,7 @@ const rootPath = path.join(__dirname, '..')
 /**
  * Run a command with spawn.
  */
-async function runCommand(
+export async function runCommand(
   command: string,
   args: string[] = [],
   options: SpawnOptions = {},
@@ -39,7 +39,7 @@ async function runCommand(
 /**
  * Validate that build artifacts exist.
  */
-async function validateBuildArtifacts(): Promise<boolean> {
+export async function validateBuildArtifacts(): Promise<boolean> {
   logger.step('Validating build artifacts')
 
   // Check for registry package dist directory
@@ -72,7 +72,7 @@ interface PublishOptions {
   tag?: string
 }
 
-async function publishComplex(options: PublishOptions = {}): Promise<boolean> {
+export async function publishComplex(options: PublishOptions = {}): Promise<boolean> {
   const {
     force = false,
     forcePublish = false,

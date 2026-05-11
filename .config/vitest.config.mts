@@ -17,7 +17,7 @@ const projectRoot = path.resolve(__dirname, '..')
 
 // Convert Windows paths to POSIX format for glob patterns.
 // Glob patterns require forward slashes even on Windows.
-function toPosixPath(filepath) {
+export function toPosixPath(filepath) {
   return filepath.split(path.sep).join('/')
 }
 

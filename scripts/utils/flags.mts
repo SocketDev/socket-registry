@@ -9,7 +9,7 @@ import process from 'node:process'
 
 type FlagInput = Record<string, unknown> | string[] | undefined
 
-function hasArg(input: FlagInput, argv: string[], matches: string[]): boolean {
+export function hasArg(input: FlagInput, argv: string[], matches: string[]): boolean {
   if (!input) {
     return matches.some(m => argv.includes(m))
   }

@@ -29,7 +29,7 @@ const npmPackagesPath = path.join(rootPath, 'packages', 'npm')
 const testNpmPath = path.join(rootPath, 'test', 'npm')
 const testNpmPkgJsonPath = path.join(testNpmPath, 'package.json')
 
-function getNpmPackageNames() {
+export function getNpmPackageNames() {
   return readdirSync(npmPackagesPath, { withFileTypes: true })
     .filter(dirent => dirent.isDirectory() && !dirent.name.startsWith('.'))
     .map(dirent => dirent.name)
@@ -60,11 +60,11 @@ const { values: cliArgs } = parseArgs({
 const concurrency = Math.max(1, Number.parseInt(cliArgs.concurrency, 10))
 const tempBaseDir = cliArgs.tempDir
 
-function writeProgress() {
+export function writeProgress() {
   // Don't output progress dots, too noisy.
 }
 
-async function validatePackage(socketPkgName) {
+export async function validatePackage(socketPkgName) {
   const origPkgName = resolveOriginalPackageName(socketPkgName)
 
   const overridePath = path.join(npmPackagesPath, socketPkgName)

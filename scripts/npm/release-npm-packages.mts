@@ -47,25 +47,6 @@ const registryPkg = packageData({
 const EXTRACT_PACKAGE_TMP_PREFIX = 'release-npm-'
 
 /**
- * Check if there are uncommitted changes in registry directory.
- */
-async function hasGitChanges(packagePath) {
-  try {
-    const relPath = path.relative(ROOT_PATH, packagePath)
-    // Check both staged and unstaged changes.
-    const { stdout } = await spawn(
-      'git',
-      ['status', '--porcelain', '--', relPath],
-      { cwd: ROOT_PATH, stdioString: true },
-    )
-    return (stdout as string).trim().length > 0
-  } catch {
-    // If git fails, fall back to full comparison.
-    return false
-  }
-}
-
-/**
  * Compute SHA256 hashes for all files in a local package directory.
  */
 async function getLocalPackageFileHashes(packagePath) {
@@ -227,6 +208,25 @@ async function getRemotePackageFileHashes(spec) {
   )
 
   return toSortedObject(fileHashes)
+}
+
+/**
+ * Check if there are uncommitted changes in registry directory.
+ */
+async function hasGitChanges(packagePath) {
+  try {
+    const relPath = path.relative(ROOT_PATH, packagePath)
+    // Check both staged and unstaged changes.
+    const { stdout } = await spawn(
+      'git',
+      ['status', '--porcelain', '--', relPath],
+      { cwd: ROOT_PATH, stdioString: true },
+    )
+    return (stdout as string).trim().length > 0
+  } catch {
+    // If git fails, fall back to full comparison.
+    return false
+  }
 }
 
 /**

@@ -67,16 +67,6 @@ const { values: cliArgs } = parseArgs({
   strict: false,
 })
 
-// Helper function to filter out package manager engines from engines object.
-function filterEngines(engines) {
-  if (!engines) {
-    return engines
-  }
-  // biome-ignore lint/correctness/noUnusedVariables: Destructuring to exclude keys.
-  const { npm, pnpm, yarn, ...filteredEngines } = engines
-  return filteredEngines
-}
-
 async function addNpmManifestData(manifest, options) {
   const { spinner } = { __proto__: null, ...options }
   const eco = NPM
@@ -220,6 +210,16 @@ async function addNpmManifestData(manifest, options) {
     manifest[eco] = manifestData.sort((a, b) => naturalCompare(a[0], b[0]))
   }
   return manifest
+}
+
+// Helper function to filter out package manager engines from engines object.
+function filterEngines(engines) {
+  if (!engines) {
+    return engines
+  }
+  // biome-ignore lint/correctness/noUnusedVariables: Destructuring to exclude keys.
+  const { npm, pnpm, yarn, ...filteredEngines } = engines
+  return filteredEngines
 }
 
 async function main(): Promise<void> {

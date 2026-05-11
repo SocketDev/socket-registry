@@ -30,77 +30,67 @@ const BUILTIN_MODULES = new Set([
 ])
 
 /**
- * Find all JavaScript files in dist directory.
+ * Extract bundled package names from node_modules paths in comments and code.
  */
-async function findDistFiles(distPath) {
-  const files = []
+async function extractBundledPackages(filePath) {
+  const content = await fs.readFile(filePath, 'utf8')
+  const bundled = new Set()
 
-  try {
-    const entries = await fs.readdir(distPath, { withFileTypes: true })
+  // Match node_modules paths in comments: node_modules/.pnpm/@scope+package@version/...
+  // or node_modules/@scope/package/...
+  // or node_modules/package/...
+  const nodeModulesPattern =
+    /node_modules\/(?:\.pnpm\/)?(@[^/]+\+[^@/]+|@[^/]+\/[^/]+|[^/@]+)/g
 
-    for (const entry of entries) {
-      const fullPath = path.join(distPath, entry.name)
+  let match = nodeModulesPattern.exec(content)
+  while (match !== null) {
+    let packageName = match[1]
 
-      if (entry.isDirectory()) {
-        files.push(...(await findDistFiles(fullPath)))
-      } else if (
-        entry.name.endsWith('.js') ||
-        entry.name.endsWith('.mjs') ||
-        entry.name.endsWith('.cjs')
-      ) {
-        files.push(fullPath)
-      }
+    // Handle pnpm path format: @scope+package -> @scope/package
+    if (packageName.includes('+')) {
+      packageName = packageName.replace('+', '/')
     }
-  } catch {
-    // Directory doesn't exist or can't be read
-    return []
+
+    // Filter out invalid package names (contains special chars, code fragments, etc.)
+    if (
+      packageName.includes('"') ||
+      packageName.includes("'") ||
+      packageName.includes('`') ||
+      packageName.includes('${') ||
+      packageName.includes('\\') ||
+      packageName.includes(';') ||
+      packageName.includes('\n') ||
+      packageName.includes('function') ||
+      packageName.includes('const') ||
+      packageName.includes('let') ||
+      packageName.includes('var') ||
+      packageName.includes('=') ||
+      packageName.includes('{') ||
+      packageName.includes('}') ||
+      packageName.includes('[') ||
+      packageName.includes(']') ||
+      packageName.includes('(') ||
+      packageName.includes(')') ||
+      // Filter out common false positives (strings that appear in code but aren't packages)
+      packageName === 'bin' ||
+      packageName === '.bin' ||
+      packageName === 'npm' ||
+      packageName === 'node' ||
+      packageName === 'pnpm' ||
+      packageName === 'yarn' ||
+      !packageName.length ||
+      // npm package name max length
+      packageName.length > 214
+    ) {
+      match = nodeModulesPattern.exec(content)
+      continue
+    }
+
+    bundled.add(packageName)
+    match = nodeModulesPattern.exec(content)
   }
 
-  return files
-}
-
-/**
- * Check if a string is a valid package specifier.
- */
-function isValidPackageSpecifier(specifier) {
-  // Relative imports
-  if (specifier.startsWith('.') || specifier.startsWith('/')) {
-    return false
-  }
-
-  // Subpath imports (Node.js internal imports starting with #)
-  if (specifier.startsWith('#')) {
-    return false
-  }
-
-  // Filter out invalid patterns
-  if (
-    specifier.includes('${') ||
-    specifier.includes('"}') ||
-    specifier.includes('`') ||
-    specifier === 'true' ||
-    specifier === 'false' ||
-    specifier === 'null' ||
-    specifier === 'undefined' ||
-    specifier === 'name' ||
-    specifier === 'dependencies' ||
-    specifier === 'devDependencies' ||
-    specifier === 'peerDependencies' ||
-    specifier === 'version' ||
-    specifier === 'description' ||
-    !specifier.length ||
-    // Filter out strings that look like code fragments
-    specifier.includes('\n') ||
-    specifier.includes(';') ||
-    specifier.includes('function') ||
-    specifier.includes('const ') ||
-    specifier.includes('let ') ||
-    specifier.includes('var ')
-  ) {
-    return false
-  }
-
-  return true
+  return bundled
 }
 
 /**
@@ -166,67 +156,33 @@ async function extractExternalPackages(filePath) {
 }
 
 /**
- * Extract bundled package names from node_modules paths in comments and code.
+ * Find all JavaScript files in dist directory.
  */
-async function extractBundledPackages(filePath) {
-  const content = await fs.readFile(filePath, 'utf8')
-  const bundled = new Set()
+async function findDistFiles(distPath) {
+  const files = []
 
-  // Match node_modules paths in comments: node_modules/.pnpm/@scope+package@version/...
-  // or node_modules/@scope/package/...
-  // or node_modules/package/...
-  const nodeModulesPattern =
-    /node_modules\/(?:\.pnpm\/)?(@[^/]+\+[^@/]+|@[^/]+\/[^/]+|[^/@]+)/g
+  try {
+    const entries = await fs.readdir(distPath, { withFileTypes: true })
 
-  let match = nodeModulesPattern.exec(content)
-  while (match !== null) {
-    let packageName = match[1]
+    for (const entry of entries) {
+      const fullPath = path.join(distPath, entry.name)
 
-    // Handle pnpm path format: @scope+package -> @scope/package
-    if (packageName.includes('+')) {
-      packageName = packageName.replace('+', '/')
+      if (entry.isDirectory()) {
+        files.push(...(await findDistFiles(fullPath)))
+      } else if (
+        entry.name.endsWith('.js') ||
+        entry.name.endsWith('.mjs') ||
+        entry.name.endsWith('.cjs')
+      ) {
+        files.push(fullPath)
+      }
     }
-
-    // Filter out invalid package names (contains special chars, code fragments, etc.)
-    if (
-      packageName.includes('"') ||
-      packageName.includes("'") ||
-      packageName.includes('`') ||
-      packageName.includes('${') ||
-      packageName.includes('\\') ||
-      packageName.includes(';') ||
-      packageName.includes('\n') ||
-      packageName.includes('function') ||
-      packageName.includes('const') ||
-      packageName.includes('let') ||
-      packageName.includes('var') ||
-      packageName.includes('=') ||
-      packageName.includes('{') ||
-      packageName.includes('}') ||
-      packageName.includes('[') ||
-      packageName.includes(']') ||
-      packageName.includes('(') ||
-      packageName.includes(')') ||
-      // Filter out common false positives (strings that appear in code but aren't packages)
-      packageName === 'bin' ||
-      packageName === '.bin' ||
-      packageName === 'npm' ||
-      packageName === 'node' ||
-      packageName === 'pnpm' ||
-      packageName === 'yarn' ||
-      !packageName.length ||
-      // npm package name max length
-      packageName.length > 214
-    ) {
-      match = nodeModulesPattern.exec(content)
-      continue
-    }
-
-    bundled.add(packageName)
-    match = nodeModulesPattern.exec(content)
+  } catch {
+    // Directory doesn't exist or can't be read
+    return []
   }
 
-  return bundled
+  return files
 }
 
 /**
@@ -280,6 +236,50 @@ function getPackageName(specifier) {
   // Regular package: package or package/subpath
   const parts = specifier.split('/')
   return parts[0]
+}
+
+/**
+ * Check if a string is a valid package specifier.
+ */
+function isValidPackageSpecifier(specifier) {
+  // Relative imports
+  if (specifier.startsWith('.') || specifier.startsWith('/')) {
+    return false
+  }
+
+  // Subpath imports (Node.js internal imports starting with #)
+  if (specifier.startsWith('#')) {
+    return false
+  }
+
+  // Filter out invalid patterns
+  if (
+    specifier.includes('${') ||
+    specifier.includes('"}') ||
+    specifier.includes('`') ||
+    specifier === 'true' ||
+    specifier === 'false' ||
+    specifier === 'null' ||
+    specifier === 'undefined' ||
+    specifier === 'name' ||
+    specifier === 'dependencies' ||
+    specifier === 'devDependencies' ||
+    specifier === 'peerDependencies' ||
+    specifier === 'version' ||
+    specifier === 'description' ||
+    !specifier.length ||
+    // Filter out strings that look like code fragments
+    specifier.includes('\n') ||
+    specifier.includes(';') ||
+    specifier.includes('function') ||
+    specifier.includes('const ') ||
+    specifier.includes('let ') ||
+    specifier.includes('var ')
+  ) {
+    return false
+  }
+
+  return true
 }
 
 /**

@@ -52,6 +52,34 @@ const VALIDATION_CHECKS = {
 }
 
 /**
+ * Format validation results for display.
+ */
+function formatResults(results) {
+  const errors = []
+  const warnings = []
+
+  for (const result of results) {
+    if (!result.issues.length) {
+      logger.success(`✓ ${result.packageName}: All checks passed`)
+      continue
+    }
+
+    for (const issue of result.issues) {
+      const message = `${result.packageName}: ${issue.message}`
+      if (issue.severity === 'error') {
+        errors.push(message)
+        logger.error(`✗ ${message}`)
+      } else {
+        warnings.push(message)
+        logger.warn(`⚠ ${message}`)
+      }
+    }
+  }
+
+  return { errors, warnings }
+}
+
+/**
  * Get list of package directories to validate.
  */
 async function getPackagesToValidate() {
@@ -66,92 +94,52 @@ async function getPackagesToValidate() {
 }
 
 /**
- * Check if package.json exists and is valid.
+ * Check for required build artifacts.
+ * Verifies that all entry points declared in package.json actually exist.
  */
-async function validatePackageJson(_packageName, packageDir) {
+async function validateBuildArtifacts(_packageName, packageDir) {
   const issues = []
   const packageJsonPath = path.join(packageDir, 'package.json')
-
-  if (!existsSync(packageJsonPath)) {
-    issues.push({
-      type: VALIDATION_CHECKS.PACKAGE_JSON,
-      severity: 'error',
-      message: 'package.json not found',
-    })
-    return issues
-  }
 
   try {
     const content = await fs.readFile(packageJsonPath, 'utf8')
     const packageJson = JSON.parse(content)
 
-    // Check for test script.
-    if (!packageJson.scripts?.test) {
-      issues.push({
-        type: VALIDATION_CHECKS.PACKAGE_JSON,
-        severity: 'warning',
-        message: 'No test script defined in package.json',
-      })
+    // Collect all entry points from main and exports fields.
+    const entryPoints = []
+    if (packageJson.main) {
+      entryPoints.push(packageJson.main)
+    }
+    if (packageJson.exports) {
+      if (typeof packageJson.exports === 'string') {
+        entryPoints.push(packageJson.exports)
+      } else if (typeof packageJson.exports === 'object') {
+        // Recursively extract string values from exports object structure.
+        const collectExports = obj => {
+          for (const value of Object.values(obj)) {
+            if (typeof value === 'string') {
+              entryPoints.push(value)
+            } else if (typeof value === 'object' && value !== null) {
+              collectExports(value)
+            }
+          }
+        }
+        collectExports(packageJson.exports)
+      }
     }
 
-    // Check for required fields.
-    if (!packageJson.name) {
-      issues.push({
-        type: VALIDATION_CHECKS.PACKAGE_JSON,
-        severity: 'error',
-        message: 'Missing "name" field in package.json',
-      })
+    for (const entryPoint of entryPoints) {
+      const fullPath = path.join(packageDir, entryPoint)
+      if (!existsSync(fullPath)) {
+        issues.push({
+          type: VALIDATION_CHECKS.BUILD_ARTIFACTS,
+          severity: 'error',
+          message: `Entry point "${entryPoint}" does not exist`,
+        })
+      }
     }
-
-    if (!packageJson.version) {
-      issues.push({
-        type: VALIDATION_CHECKS.PACKAGE_JSON,
-        severity: 'error',
-        message: 'Missing "version" field in package.json',
-      })
-    }
-  } catch (e) {
-    issues.push({
-      type: VALIDATION_CHECKS.PACKAGE_JSON,
-      severity: 'error',
-      message: `Failed to parse package.json: ${e.message}`,
-    })
-  }
-
-  return issues
-}
-
-/**
- * Check if test files exist and are in expected locations.
- */
-async function validateTestFiles(_packageName, packageDir) {
-  const issues = []
-  const commonTestPaths = [
-    'test',
-    'tests',
-    '__tests__',
-    'spec',
-    'test.js',
-    'test.mjs',
-    'test.cjs',
-    'tests.js',
-  ]
-
-  let hasTests = false
-  for (const testPath of commonTestPaths) {
-    const fullPath = path.join(packageDir, testPath)
-    if (existsSync(fullPath)) {
-      hasTests = true
-      break
-    }
-  }
-
-  if (!hasTests) {
-    issues.push({
-      type: VALIDATION_CHECKS.TEST_FILES,
-      severity: 'warning',
-      message: 'No test directory or test files found',
-    })
+  } catch {
+    // Already handled by validatePackageJson.
   }
 
   return issues
@@ -316,58 +304,6 @@ async function validateModuleResolution(_packageName, packageDir) {
 }
 
 /**
- * Check for required build artifacts.
- * Verifies that all entry points declared in package.json actually exist.
- */
-async function validateBuildArtifacts(_packageName, packageDir) {
-  const issues = []
-  const packageJsonPath = path.join(packageDir, 'package.json')
-
-  try {
-    const content = await fs.readFile(packageJsonPath, 'utf8')
-    const packageJson = JSON.parse(content)
-
-    // Collect all entry points from main and exports fields.
-    const entryPoints = []
-    if (packageJson.main) {
-      entryPoints.push(packageJson.main)
-    }
-    if (packageJson.exports) {
-      if (typeof packageJson.exports === 'string') {
-        entryPoints.push(packageJson.exports)
-      } else if (typeof packageJson.exports === 'object') {
-        // Recursively extract string values from exports object structure.
-        const collectExports = obj => {
-          for (const value of Object.values(obj)) {
-            if (typeof value === 'string') {
-              entryPoints.push(value)
-            } else if (typeof value === 'object' && value !== null) {
-              collectExports(value)
-            }
-          }
-        }
-        collectExports(packageJson.exports)
-      }
-    }
-
-    for (const entryPoint of entryPoints) {
-      const fullPath = path.join(packageDir, entryPoint)
-      if (!existsSync(fullPath)) {
-        issues.push({
-          type: VALIDATION_CHECKS.BUILD_ARTIFACTS,
-          severity: 'error',
-          message: `Entry point "${entryPoint}" does not exist`,
-        })
-      }
-    }
-  } catch {
-    // Already handled by validatePackageJson.
-  }
-
-  return issues
-}
-
-/**
  * Run all validations for a package.
  */
 async function validatePackage(packageName) {
@@ -404,31 +340,95 @@ async function validatePackage(packageName) {
 }
 
 /**
- * Format validation results for display.
+ * Check if package.json exists and is valid.
  */
-function formatResults(results) {
-  const errors = []
-  const warnings = []
+async function validatePackageJson(_packageName, packageDir) {
+  const issues = []
+  const packageJsonPath = path.join(packageDir, 'package.json')
 
-  for (const result of results) {
-    if (!result.issues.length) {
-      logger.success(`✓ ${result.packageName}: All checks passed`)
-      continue
+  if (!existsSync(packageJsonPath)) {
+    issues.push({
+      type: VALIDATION_CHECKS.PACKAGE_JSON,
+      severity: 'error',
+      message: 'package.json not found',
+    })
+    return issues
+  }
+
+  try {
+    const content = await fs.readFile(packageJsonPath, 'utf8')
+    const packageJson = JSON.parse(content)
+
+    // Check for test script.
+    if (!packageJson.scripts?.test) {
+      issues.push({
+        type: VALIDATION_CHECKS.PACKAGE_JSON,
+        severity: 'warning',
+        message: 'No test script defined in package.json',
+      })
     }
 
-    for (const issue of result.issues) {
-      const message = `${result.packageName}: ${issue.message}`
-      if (issue.severity === 'error') {
-        errors.push(message)
-        logger.error(`✗ ${message}`)
-      } else {
-        warnings.push(message)
-        logger.warn(`⚠ ${message}`)
-      }
+    // Check for required fields.
+    if (!packageJson.name) {
+      issues.push({
+        type: VALIDATION_CHECKS.PACKAGE_JSON,
+        severity: 'error',
+        message: 'Missing "name" field in package.json',
+      })
+    }
+
+    if (!packageJson.version) {
+      issues.push({
+        type: VALIDATION_CHECKS.PACKAGE_JSON,
+        severity: 'error',
+        message: 'Missing "version" field in package.json',
+      })
+    }
+  } catch (e) {
+    issues.push({
+      type: VALIDATION_CHECKS.PACKAGE_JSON,
+      severity: 'error',
+      message: `Failed to parse package.json: ${e.message}`,
+    })
+  }
+
+  return issues
+}
+
+/**
+ * Check if test files exist and are in expected locations.
+ */
+async function validateTestFiles(_packageName, packageDir) {
+  const issues = []
+  const commonTestPaths = [
+    'test',
+    'tests',
+    '__tests__',
+    'spec',
+    'test.js',
+    'test.mjs',
+    'test.cjs',
+    'tests.js',
+  ]
+
+  let hasTests = false
+  for (const testPath of commonTestPaths) {
+    const fullPath = path.join(packageDir, testPath)
+    if (existsSync(fullPath)) {
+      hasTests = true
+      break
     }
   }
 
-  return { errors, warnings }
+  if (!hasTests) {
+    issues.push({
+      type: VALIDATION_CHECKS.TEST_FILES,
+      severity: 'warning',
+      message: 'No test directory or test files found',
+    })
+  }
+
+  return issues
 }
 
 /**

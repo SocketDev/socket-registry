@@ -59,21 +59,16 @@ export const PNPM_INSTALL_ENV = { CI: undefined, NODE_ENV: undefined }
 export const editablePackageJsonCache = new Map()
 
 /**
- * Reads an editable package.json with caching support.
+ * Builds test environment with proper PATH for test runners.
  */
-export async function readCachedEditablePackageJson(pkgPath, options = {}) {
-  const cacheKey = pkgPath
-
-  if (!editablePackageJsonCache.has(cacheKey)) {
-    const editablePackageJson = await readPackageJson(pkgPath, {
-      ...options,
-      editable: true,
-      normalize: true,
-    })
-    editablePackageJsonCache.set(cacheKey, editablePackageJson)
+export function buildTestEnv(packageTempDir, installedPath) {
+  const packageBinPath = path.join(packageTempDir, 'node_modules', '.bin')
+  const nestedBinPath = path.join(installedPath, 'node_modules', '.bin')
+  const rootBinPath = path.join(ROOT_PATH, 'node_modules', '.bin')
+  return {
+    ...process.env,
+    PATH: `${nestedBinPath}${path.delimiter}${packageBinPath}${path.delimiter}${rootBinPath}${path.delimiter}${process.env.PATH}`,
   }
-
-  return editablePackageJsonCache.get(cacheKey)
 }
 
 /**
@@ -81,30 +76,6 @@ export async function readCachedEditablePackageJson(pkgPath, options = {}) {
  */
 export function clearPackageJsonCache() {
   editablePackageJsonCache.clear()
-}
-
-/**
- * Updates multiple package.json files in parallel.
- */
-export async function updatePackagesJson(packages, options = {}) {
-  const { concurrency = DEFAULT_CONCURRENCY, spinner } = {
-    __proto__: null,
-    ...options,
-  } as { concurrency?: number; spinner?: unknown }
-
-  await pEach(
-    packages,
-    async ({ path: pkgPath, updates }) => {
-      const editablePkgJson = await readCachedEditablePackageJson(pkgPath)
-      editablePkgJson.update(updates)
-      await editablePkgJson.save()
-
-      if (spinner && updates.version) {
-        spinner.log(`Updated ${pkgPath} to version ${updates.version}`)
-      }
-    },
-    { concurrency },
-  )
 }
 
 /**
@@ -139,76 +110,6 @@ export async function collectPackageData(paths, options = {}) {
   )
 
   return results
-}
-
-/**
- * Common patterns for processing packages with spinner feedback.
- */
-export async function processWithSpinner(items, processor, options = {}) {
-  const {
-    concurrency = DEFAULT_CONCURRENCY,
-    errorMessage,
-    spinner,
-    startMessage,
-    successMessage,
-  } = { __proto__: null, ...options } as {
-    concurrency?: number
-    errorMessage?: string
-    spinner?: unknown
-    startMessage?: string
-    successMessage?: string
-  }
-
-  const results = []
-  const errors = []
-
-  const processItems = async () => {
-    await pEach(
-      items,
-      async item => {
-        try {
-          const result = await processor(item)
-          results.push(result)
-        } catch (e) {
-          errors.push({ item, error: e })
-        }
-      },
-      { concurrency },
-    )
-  }
-
-  if (spinner && startMessage) {
-    await withSpinner({
-      message: startMessage,
-      operation: processItems,
-      spinner,
-    })
-
-    if (errors.length > 0 && errorMessage) {
-      spinner.error(`${errorMessage}: ${errors.length} failed`)
-      // Ensure spinner is fully cleared and we're on a fresh line
-      process.stdout.write('\r\x1b[K')
-    } else if (successMessage) {
-      spinner.success(successMessage)
-      // Ensure spinner is fully cleared and we're on a fresh line
-      process.stdout.write('\r\x1b[K')
-    }
-  } else {
-    await processItems()
-  }
-
-  return { results, errors }
-}
-
-/**
- * Resolves the real path of a file or directory, handling symlinks.
- */
-export async function resolveRealPath(pathStr) {
-  try {
-    return await fs.realpath(pathStr)
-  } catch {
-    return path.resolve(pathStr)
-  }
 }
 
 /**
@@ -265,57 +166,6 @@ export async function copySocketOverride(fromPath, toPath, options) {
     if (e.code !== 'ENOENT') {
       throw e
     }
-  }
-}
-
-/**
- * Builds test environment with proper PATH for test runners.
- */
-export function buildTestEnv(packageTempDir, installedPath) {
-  const packageBinPath = path.join(packageTempDir, 'node_modules', '.bin')
-  const nestedBinPath = path.join(installedPath, 'node_modules', '.bin')
-  const rootBinPath = path.join(ROOT_PATH, 'node_modules', '.bin')
-  return {
-    ...process.env,
-    PATH: `${nestedBinPath}${path.delimiter}${packageBinPath}${path.delimiter}${rootBinPath}${path.delimiter}${process.env.PATH}`,
-  }
-}
-
-/**
- * Run a command with spawn, piping stdio and normalizing error shape.
- *
- * On non-zero exit this throws an Error augmented with `code`/`stdout`/`stderr`,
- * unlike `runCommand` in `./run-command.mts` which returns a number and never
- * throws on non-zero. Use this when you need captured stdio on failure.
- */
-export async function spawnCapture(
-  command: string,
-  args: string[],
-  options: Record<string, unknown> = {},
-) {
-  try {
-    const result = await spawn(command, args, {
-      stdio: 'pipe',
-      shell: WIN32,
-      ...options,
-    })
-    return { stdout: result.stdout, stderr: result.stderr }
-  } catch (e) {
-    const err = e as {
-      code?: number
-      exitCode?: number
-      stdout?: string
-      stderr?: string
-    }
-    const commandError: Error & {
-      code?: number
-      stdout?: string
-      stderr?: string
-    } = new Error(`Command failed: ${command} ${args.join(' ')}`)
-    commandError.code = err.code ?? err.exitCode
-    commandError.stdout = err.stdout || ''
-    commandError.stderr = err.stderr || ''
-    throw commandError
   }
 }
 
@@ -517,4 +367,154 @@ export async function installPackageForTesting(
       reason: (e as Error).message,
     }
   }
+}
+
+/**
+ * Common patterns for processing packages with spinner feedback.
+ */
+export async function processWithSpinner(items, processor, options = {}) {
+  const {
+    concurrency = DEFAULT_CONCURRENCY,
+    errorMessage,
+    spinner,
+    startMessage,
+    successMessage,
+  } = { __proto__: null, ...options } as {
+    concurrency?: number
+    errorMessage?: string
+    spinner?: unknown
+    startMessage?: string
+    successMessage?: string
+  }
+
+  const results = []
+  const errors = []
+
+  const processItems = async () => {
+    await pEach(
+      items,
+      async item => {
+        try {
+          const result = await processor(item)
+          results.push(result)
+        } catch (e) {
+          errors.push({ item, error: e })
+        }
+      },
+      { concurrency },
+    )
+  }
+
+  if (spinner && startMessage) {
+    await withSpinner({
+      message: startMessage,
+      operation: processItems,
+      spinner,
+    })
+
+    if (errors.length > 0 && errorMessage) {
+      spinner.error(`${errorMessage}: ${errors.length} failed`)
+      // Ensure spinner is fully cleared and we're on a fresh line
+      process.stdout.write('\r\x1b[K')
+    } else if (successMessage) {
+      spinner.success(successMessage)
+      // Ensure spinner is fully cleared and we're on a fresh line
+      process.stdout.write('\r\x1b[K')
+    }
+  } else {
+    await processItems()
+  }
+
+  return { results, errors }
+}
+
+/**
+ * Reads an editable package.json with caching support.
+ */
+export async function readCachedEditablePackageJson(pkgPath, options = {}) {
+  const cacheKey = pkgPath
+
+  if (!editablePackageJsonCache.has(cacheKey)) {
+    const editablePackageJson = await readPackageJson(pkgPath, {
+      ...options,
+      editable: true,
+      normalize: true,
+    })
+    editablePackageJsonCache.set(cacheKey, editablePackageJson)
+  }
+
+  return editablePackageJsonCache.get(cacheKey)
+}
+
+/**
+ * Resolves the real path of a file or directory, handling symlinks.
+ */
+export async function resolveRealPath(pathStr) {
+  try {
+    return await fs.realpath(pathStr)
+  } catch {
+    return path.resolve(pathStr)
+  }
+}
+
+/**
+ * Run a command with spawn, piping stdio and normalizing error shape.
+ *
+ * On non-zero exit this throws an Error augmented with `code`/`stdout`/`stderr`,
+ * unlike `runCommand` in `./run-command.mts` which returns a number and never
+ * throws on non-zero. Use this when you need captured stdio on failure.
+ */
+export async function spawnCapture(
+  command: string,
+  args: string[],
+  options: Record<string, unknown> = {},
+) {
+  try {
+    const result = await spawn(command, args, {
+      stdio: 'pipe',
+      shell: WIN32,
+      ...options,
+    })
+    return { stdout: result.stdout, stderr: result.stderr }
+  } catch (e) {
+    const err = e as {
+      code?: number
+      exitCode?: number
+      stdout?: string
+      stderr?: string
+    }
+    const commandError: Error & {
+      code?: number
+      stdout?: string
+      stderr?: string
+    } = new Error(`Command failed: ${command} ${args.join(' ')}`)
+    commandError.code = err.code ?? err.exitCode
+    commandError.stdout = err.stdout || ''
+    commandError.stderr = err.stderr || ''
+    throw commandError
+  }
+}
+
+/**
+ * Updates multiple package.json files in parallel.
+ */
+export async function updatePackagesJson(packages, options = {}) {
+  const { concurrency = DEFAULT_CONCURRENCY, spinner } = {
+    __proto__: null,
+    ...options,
+  } as { concurrency?: number; spinner?: unknown }
+
+  await pEach(
+    packages,
+    async ({ path: pkgPath, updates }) => {
+      const editablePkgJson = await readCachedEditablePackageJson(pkgPath)
+      editablePkgJson.update(updates)
+      await editablePkgJson.save()
+
+      if (spinner && updates.version) {
+        spinner.log(`Updated ${pkgPath} to version ${updates.version}`)
+      }
+    },
+    { concurrency },
+  )
 }

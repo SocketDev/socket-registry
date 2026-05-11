@@ -77,43 +77,7 @@ With --all flag, adds:
   process.exitCode = 0
 }
 
-async function runCommand(command, args = []) {
-  try {
-    const result = await spawn(command, args, {
-      shell: process.platform === 'win32',
-      stdio: 'pipe',
-    })
-    if (result.code !== 0) {
-      throw new Error(
-        `Command failed with exit code ${result.code}: ${result.stderr}`,
-      )
-    }
-    return result.stdout
-  } catch (e) {
-    throw new Error(`Command failed: ${e.message}`)
-  }
-}
-
-async function getPackageInfo(packageName) {
-  try {
-    // Get the latest version specifically to ensure we get detailed info
-    const output = await runCommand('npm', [
-      'view',
-      packageName,
-      '--json',
-      'name',
-      'version',
-      'maintainers',
-      'repository',
-      'dist',
-    ])
-    return JSON.parse(output)
-  } catch {
-    return undefined
-  }
-}
-
-async function checkTrustedPackage(packageName, state) {
+export async function checkTrustedPackage(packageName, state) {
   const info = await getPackageInfo(packageName)
 
   if (!info) {
@@ -203,6 +167,25 @@ async function checkTrustedPackage(packageName, state) {
   return true
 }
 
+async function getPackageInfo(packageName) {
+  try {
+    // Get the latest version specifically to ensure we get detailed info
+    const output = await runCommand('npm', [
+      'view',
+      packageName,
+      '--json',
+      'name',
+      'version',
+      'maintainers',
+      'repository',
+      'dist',
+    ])
+    return JSON.parse(output)
+  } catch {
+    return undefined
+  }
+}
+
 async function getPackagesFromManifest() {
   try {
     const manifestPath = path.join(__dirname, '..', 'registry', 'manifest.json')
@@ -248,6 +231,23 @@ async function getPackagesFromScope(scope) {
       (e as Error).message,
     )
     return []
+  }
+}
+
+async function runCommand(command, args = []) {
+  try {
+    const result = await spawn(command, args, {
+      shell: process.platform === 'win32',
+      stdio: 'pipe',
+    })
+    if (result.code !== 0) {
+      throw new Error(
+        `Command failed with exit code ${result.code}: ${result.stderr}`,
+      )
+    }
+    return result.stdout
+  } catch (e) {
+    throw new Error(`Command failed: ${e.message}`)
   }
 }
 

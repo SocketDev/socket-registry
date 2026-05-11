@@ -10,6 +10,14 @@ import process from 'node:process'
 
 import { spawn, spawnSync } from '@socketsecurity/lib/spawn'
 
+export function filterRelativeToRoot(stdout: string, gitRoot: string): string[] {
+  return stdout
+    .trim()
+    .split('\n')
+    .filter(Boolean)
+    .filter(file => existsSync(path.join(gitRoot, file)))
+}
+
 function getGitRoot(cwd: string): string | undefined {
   try {
     const result = spawnSync('git', ['rev-parse', '--show-toplevel'], {
@@ -37,12 +45,53 @@ async function getGitRootAsync(cwd: string): Promise<string | undefined> {
   }
 }
 
-function filterRelativeToRoot(stdout: string, gitRoot: string): string[] {
-  return stdout
-    .trim()
-    .split('\n')
-    .filter(Boolean)
-    .filter(file => existsSync(path.join(gitRoot, file)))
+/**
+ * Parse `git status --porcelain -z` output.
+ *
+ * @example
+ * // With -z, rename entries occupy two NUL-terminated records:
+ * //   "R  new-path\0old-path\0"
+ * // Regular entries are one record with XY-status prefix:
+ * //   " M file.ts\0"
+ */
+function parsePorcelainZ(raw: string, gitRoot: string): string[] {
+  const records = raw.split('\0').filter(Boolean)
+  const out: string[] = []
+  for (let i = 0; i < records.length; i += 1) {
+    const record = records[i]!
+    const status = record.slice(0, 2)
+    const filepath = record.slice(3)
+    // Rename / copy — next record is the old path; skip it.
+    if (status[0] === 'R' || status[0] === 'C') {
+      i += 1
+    }
+    if (existsSync(path.join(gitRoot, filepath))) {
+      out.push(filepath)
+    }
+  }
+  return out
+}
+
+/**
+ * Get changed files synchronously (paths relative to git root).
+ */
+export function getChangedFilesSync(cwd = process.cwd()): string[] {
+  try {
+    const gitRoot = getGitRoot(cwd)
+    if (!gitRoot) {
+      return []
+    }
+    const result = spawnSync('git', ['status', '--porcelain', '-z'], {
+      cwd: gitRoot,
+      stdioString: true,
+    })
+    if (result.status !== 0) {
+      return []
+    }
+    return parsePorcelainZ(result.stdout as string, gitRoot)
+  } catch {
+    return []
+  }
 }
 
 /**
@@ -122,55 +171,6 @@ export function getUnstagedFilesSync(cwd = process.cwd()): string[] {
       return []
     }
     return filterRelativeToRoot(result.stdout as string, gitRoot)
-  } catch {
-    return []
-  }
-}
-
-/**
- * Parse `git status --porcelain -z` output.
- *
- * @example
- * // With -z, rename entries occupy two NUL-terminated records:
- * //   "R  new-path\0old-path\0"
- * // Regular entries are one record with XY-status prefix:
- * //   " M file.ts\0"
- */
-function parsePorcelainZ(raw: string, gitRoot: string): string[] {
-  const records = raw.split('\0').filter(Boolean)
-  const out: string[] = []
-  for (let i = 0; i < records.length; i += 1) {
-    const record = records[i]!
-    const status = record.slice(0, 2)
-    const filepath = record.slice(3)
-    // Rename / copy — next record is the old path; skip it.
-    if (status[0] === 'R' || status[0] === 'C') {
-      i += 1
-    }
-    if (existsSync(path.join(gitRoot, filepath))) {
-      out.push(filepath)
-    }
-  }
-  return out
-}
-
-/**
- * Get changed files synchronously (paths relative to git root).
- */
-export function getChangedFilesSync(cwd = process.cwd()): string[] {
-  try {
-    const gitRoot = getGitRoot(cwd)
-    if (!gitRoot) {
-      return []
-    }
-    const result = spawnSync('git', ['status', '--porcelain', '-z'], {
-      cwd: gitRoot,
-      stdioString: true,
-    })
-    if (result.status !== 0) {
-      return []
-    }
-    return parsePorcelainZ(result.stdout as string, gitRoot)
   } catch {
     return []
   }

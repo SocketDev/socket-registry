@@ -7,7 +7,7 @@ import process from 'node:process'
 
 const logger = getDefaultLogger()
 
-function includesProvenanceDowngradeWarning(output) {
+export function includesProvenanceDowngradeWarning(output) {
   const lowered = output.toString().toLowerCase()
   return (
     lowered.includes('provenance') &&

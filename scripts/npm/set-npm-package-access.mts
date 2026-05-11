@@ -36,7 +36,7 @@ const { values: cliArgs } = parseArgs({
 /**
  * Create package metadata with defaults.
  */
-function packageData(data) {
+export function packageData(data) {
   const { printName = data.name } = data
   return Object.assign(data, { printName })
 }

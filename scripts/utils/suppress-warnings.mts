@@ -40,20 +40,15 @@ function setupSuppression() {
 }
 
 /**
- * Suppress MaxListenersExceededWarning messages.
- * This is useful in tests or scripts where multiple listeners are expected.
+ * Restore the original process.emitWarning function.
+ * Call this to re-enable all warnings after suppressing them.
  */
-export function suppressMaxListenersWarning() {
-  suppressedWarnings.add('MaxListenersExceededWarning')
-  setupSuppression()
-}
-
-/**
- * Suppress all process warnings of a specific type.
- */
-export function suppressWarningType(warningType) {
-  suppressedWarnings.add(warningType)
-  setupSuppression()
+export function restoreWarnings() {
+  if (originalEmitWarning) {
+    process.emitWarning = originalEmitWarning
+    originalEmitWarning = undefined
+    suppressedWarnings.clear()
+  }
 }
 
 /**
@@ -83,15 +78,20 @@ export function setMaxEventTargetListeners(target, maxListeners = 10) {
 }
 
 /**
- * Restore the original process.emitWarning function.
- * Call this to re-enable all warnings after suppressing them.
+ * Suppress MaxListenersExceededWarning messages.
+ * This is useful in tests or scripts where multiple listeners are expected.
  */
-export function restoreWarnings() {
-  if (originalEmitWarning) {
-    process.emitWarning = originalEmitWarning
-    originalEmitWarning = undefined
-    suppressedWarnings.clear()
-  }
+export function suppressMaxListenersWarning() {
+  suppressedWarnings.add('MaxListenersExceededWarning')
+  setupSuppression()
+}
+
+/**
+ * Suppress all process warnings of a specific type.
+ */
+export function suppressWarningType(warningType) {
+  suppressedWarnings.add(warningType)
+  setupSuppression()
 }
 
 /**

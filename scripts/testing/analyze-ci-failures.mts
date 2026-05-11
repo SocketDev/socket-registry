@@ -134,43 +134,6 @@ const FAILURE_PATTERNS = {
 }
 
 /**
- * Fetch log content from URL or file.
- */
-async function fetchLogContent() {
-  if (cliArgs.logFile) {
-    return await fs.readFile(cliArgs.logFile, 'utf8')
-  }
-
-  if (cliArgs.logUrl) {
-    return await httpText(cliArgs.logUrl, { timeout: 30_000 })
-  }
-
-  throw new Error('Must provide --log-file or --log-url')
-}
-
-/**
- * Parse package name from log line.
- */
-function extractPackageName(line) {
-  // Try various patterns to extract package name.
-  const patterns = [
-    /Testing package: ([^\s]+)/,
-    /Package: ([^\s]+)/,
-    /npm\/([^/\s]+)/,
-    /@socketregistry\/([^\s]+)/,
-  ]
-
-  for (const pattern of patterns) {
-    const match = line.match(pattern)
-    if (match) {
-      return match[1]
-    }
-  }
-
-  return undefined
-}
-
-/**
  * Analyze log content for failure patterns.
  */
 function analyzeLog(logContent) {
@@ -213,77 +176,40 @@ function analyzeLog(logContent) {
 }
 
 /**
- * Group failures by category and package.
+ * Parse package name from log line.
  */
-function groupFailures(failures) {
-  const byCategory = { __proto__: null }
-  const byPackage = { __proto__: null }
+function extractPackageName(line) {
+  // Try various patterns to extract package name.
+  const patterns = [
+    /Testing package: ([^\s]+)/,
+    /Package: ([^\s]+)/,
+    /npm\/([^/\s]+)/,
+    /@socketregistry\/([^\s]+)/,
+  ]
 
-  for (const failure of failures) {
-    // Group by category.
-    if (!byCategory[failure.category]) {
-      byCategory[failure.category] = []
-    }
-    byCategory[failure.category].push(failure)
-
-    // Group by package.
-    if (failure.package) {
-      if (!byPackage[failure.package]) {
-        byPackage[failure.package] = []
-      }
-      byPackage[failure.package].push(failure)
+  for (const pattern of patterns) {
+    const match = line.match(pattern)
+    if (match) {
+      return match[1]
     }
   }
 
-  return { byCategory, byPackage }
+  return undefined
 }
 
 /**
- * Generate fix recommendations.
+ * Fetch log content from URL or file.
  */
-function generateRecommendations(_failures, grouped) {
-  const recommendations = []
-
-  // Category-level recommendations.
-  for (const { 0: category, 1: categoryFailures } of Object.entries(
-    grouped.byCategory,
-  )) {
-    if (!categoryFailures.length) {
-      continue
-    }
-
-    recommendations.push({
-      level: 'category',
-      category,
-      count: categoryFailures.length,
-      suggestions: categoryFailures[0].suggestions,
-    })
+async function fetchLogContent() {
+  if (cliArgs.logFile) {
+    return await fs.readFile(cliArgs.logFile, 'utf8')
   }
 
-  // Package-level recommendations.
-  for (const { 0: packageName, 1: packageFailures } of Object.entries(
-    grouped.byPackage,
-  )) {
-    if (!packageFailures.length) {
-      continue
-    }
-
-    recommendations.push({
-      level: 'package',
-      package: packageName,
-      count: packageFailures.length,
-      issues: packageFailures.map(f => ({
-        category: f.category,
-        details: f.details,
-      })),
-      actions: [
-        `Run: node scripts/validate-package-tests.mjs --package ${packageName} --verbose`,
-        `Reproduce: node scripts/reproduce-ci-locally.mjs --package ${packageName}`,
-      ],
-    })
+  if (cliArgs.logUrl) {
+    return await httpText(cliArgs.logUrl, { timeout: 30_000 })
   }
 
-  return recommendations
+  throw new Error('Must provide --log-file or --log-url')
 }
 
 /**
@@ -350,6 +276,80 @@ function formatResults(failures, recommendations) {
       }
     }
   }
+}
+
+/**
+ * Generate fix recommendations.
+ */
+function generateRecommendations(_failures, grouped) {
+  const recommendations = []
+
+  // Category-level recommendations.
+  for (const { 0: category, 1: categoryFailures } of Object.entries(
+    grouped.byCategory,
+  )) {
+    if (!categoryFailures.length) {
+      continue
+    }
+
+    recommendations.push({
+      level: 'category',
+      category,
+      count: categoryFailures.length,
+      suggestions: categoryFailures[0].suggestions,
+    })
+  }
+
+  // Package-level recommendations.
+  for (const { 0: packageName, 1: packageFailures } of Object.entries(
+    grouped.byPackage,
+  )) {
+    if (!packageFailures.length) {
+      continue
+    }
+
+    recommendations.push({
+      level: 'package',
+      package: packageName,
+      count: packageFailures.length,
+      issues: packageFailures.map(f => ({
+        category: f.category,
+        details: f.details,
+      })),
+      actions: [
+        `Run: node scripts/validate-package-tests.mjs --package ${packageName} --verbose`,
+        `Reproduce: node scripts/reproduce-ci-locally.mjs --package ${packageName}`,
+      ],
+    })
+  }
+
+  return recommendations
+}
+
+/**
+ * Group failures by category and package.
+ */
+function groupFailures(failures) {
+  const byCategory = { __proto__: null }
+  const byPackage = { __proto__: null }
+
+  for (const failure of failures) {
+    // Group by category.
+    if (!byCategory[failure.category]) {
+      byCategory[failure.category] = []
+    }
+    byCategory[failure.category].push(failure)
+
+    // Group by package.
+    if (failure.package) {
+      if (!byPackage[failure.package]) {
+        byPackage[failure.package] = []
+      }
+      byPackage[failure.package].push(failure)
+    }
+  }
+
+  return { byCategory, byPackage }
 }
 
 /**

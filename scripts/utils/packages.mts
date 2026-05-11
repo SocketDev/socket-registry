@@ -29,6 +29,18 @@ function getTestNpmPackageJson() {
 }
 
 /**
+ * Get the version spec for a package from test package.json.
+ */
+export function getPackageVersionSpec(packageName, options) {
+  const { testNpmPackageJson = getTestNpmPackageJson() } = {
+    __proto__: null,
+    ...options,
+  }
+
+  return testNpmPackageJson?.devDependencies?.[packageName] || undefined
+}
+
+/**
  * Check if a package should skip tests.
  * @throws {Error} When unable to determine test status.
  */
@@ -54,16 +66,4 @@ export function shouldSkipTests(packageName, options) {
   }
 
   return true
-}
-
-/**
- * Get the version spec for a package from test package.json.
- */
-export function getPackageVersionSpec(packageName, options) {
-  const { testNpmPackageJson = getTestNpmPackageJson() } = {
-    __proto__: null,
-    ...options,
-  }
-
-  return testNpmPackageJson?.devDependencies?.[packageName] || undefined
 }

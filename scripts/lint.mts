@@ -31,7 +31,7 @@ const FULL_LINT_TRIGGERS = [
 /**
  * Get oxfmt exclude patterns from .oxfmtrc.json.
  */
-function getOxfmtExcludePatterns(): string[] {
+export function getOxfmtExcludePatterns(): string[] {
   try {
     const oxfmtConfigPath = path.join(process.cwd(), '.config', 'oxfmtrc.json')
     if (!existsSync(oxfmtConfigPath)) {
@@ -49,7 +49,7 @@ function getOxfmtExcludePatterns(): string[] {
 /**
  * Check if a file matches any of the exclude patterns.
  */
-function isExcludedByOxfmt(file: string, excludePatterns: string[]): boolean {
+export function isExcludedByOxfmt(file: string, excludePatterns: string[]): boolean {
   for (const pattern of excludePatterns) {
     // Convert glob pattern to regex-like matching.
     // Support **/ for directory wildcards and * for filename wildcards.
@@ -72,7 +72,7 @@ function isExcludedByOxfmt(file: string, excludePatterns: string[]): boolean {
 /**
  * Check if we should run all linters based on changed files.
  */
-function shouldRunAllLinters(changedFiles: string[]): {
+export function shouldRunAllLinters(changedFiles: string[]): {
   runAll: boolean
   reason?: string
 } {
@@ -90,7 +90,7 @@ function shouldRunAllLinters(changedFiles: string[]): {
 /**
  * Filter files to only those that should be linted.
  */
-function filterLintableFiles(files: string[]): string[] {
+export function filterLintableFiles(files: string[]): string[] {
   // Only include extensions actually supported by oxfmt/oxlint
   const lintableExtensions = new Set([
     '.cjs',
@@ -124,7 +124,7 @@ function filterLintableFiles(files: string[]): string[] {
  * Covers exit 2 ("Expected at least one target file" — all files ignored by config)
  * and exit 1 ("No files were processed in the specified paths" — no path matches).
  */
-function isOxfmtNoFilesResult(result: { stderr?: string }): boolean {
+export function isOxfmtNoFilesResult(result: { stderr?: string }): boolean {
   const { stderr } = result
   return (
     (stderr?.includes('Expected at least one target file') ||
@@ -141,7 +141,7 @@ interface LintOptions {
   quiet?: boolean
 }
 
-async function runLintOnFiles(
+export async function runLintOnFiles(
   files: string[],
   options: LintOptions = {},
 ): Promise<number> {
@@ -224,7 +224,7 @@ async function runLintOnFiles(
 /**
  * Run linters on all files.
  */
-async function runLintOnAll(options: LintOptions = {}): Promise<number> {
+export async function runLintOnAll(options: LintOptions = {}): Promise<number> {
   const { fix = false, quiet = false } = options
 
   if (!quiet) {
@@ -304,7 +304,7 @@ interface FilesToLintResult {
   mode: string
 }
 
-async function getFilesToLint(
+export async function getFilesToLint(
   options: GetFilesToLintOptions,
 ): Promise<FilesToLintResult> {
   const { all, changed, staged } = options

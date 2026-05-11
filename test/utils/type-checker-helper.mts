@@ -65,6 +65,68 @@ export const standardInvalidValues = [
 ]
 
 /**
+ * Helper to create common invalid value sets excluding specific types.
+ */
+export function createInvalidValuesExcluding(
+  exclude: Array<
+    | 'undefined'
+    | 'null'
+    | 'boolean'
+    | 'number'
+    | 'string'
+    | 'array'
+    | 'object'
+    | 'function'
+    | 'regexp'
+    | 'date'
+    | 'symbol'
+  >,
+): unknown[] {
+  const exclusionSet = new Set(exclude)
+  const values: unknown[] = []
+
+  if (!exclusionSet.has('undefined')) {
+    values.push(undefined)
+  }
+  if (!exclusionSet.has('null')) {
+    values.push(undefined)
+  }
+  if (!exclusionSet.has('boolean')) {
+    values.push(false, true)
+  }
+  if (!exclusionSet.has('number')) {
+    values.push(0, 42, -1, 3.14, Number.NaN, Number.POSITIVE_INFINITY)
+  }
+  if (!exclusionSet.has('string')) {
+    values.push('', 'string', 'test')
+  }
+  if (!exclusionSet.has('array')) {
+    values.push([], [1, 2, 3])
+  }
+  if (!exclusionSet.has('object')) {
+    values.push({}, { key: 'value' })
+  }
+  if (!exclusionSet.has('function')) {
+    values.push(
+      () => {},
+      function () {},
+      async () => {},
+    )
+  }
+  if (!exclusionSet.has('regexp')) {
+    values.push(/regex/, /test/)
+  }
+  if (!exclusionSet.has('date')) {
+    values.push(new Date())
+  }
+  if (!exclusionSet.has('symbol')) {
+    values.push(Symbol('test'))
+  }
+
+  return values
+}
+
+/**
  * Creates comprehensive tests for a type-checking function.
  *
  * @example
@@ -128,66 +190,4 @@ export function createTypeCheckerTests(config: TypeCheckerTestConfig): void {
       }
     })
   })
-}
-
-/**
- * Helper to create common invalid value sets excluding specific types.
- */
-export function createInvalidValuesExcluding(
-  exclude: Array<
-    | 'undefined'
-    | 'null'
-    | 'boolean'
-    | 'number'
-    | 'string'
-    | 'array'
-    | 'object'
-    | 'function'
-    | 'regexp'
-    | 'date'
-    | 'symbol'
-  >,
-): unknown[] {
-  const exclusionSet = new Set(exclude)
-  const values: unknown[] = []
-
-  if (!exclusionSet.has('undefined')) {
-    values.push(undefined)
-  }
-  if (!exclusionSet.has('null')) {
-    values.push(undefined)
-  }
-  if (!exclusionSet.has('boolean')) {
-    values.push(false, true)
-  }
-  if (!exclusionSet.has('number')) {
-    values.push(0, 42, -1, 3.14, Number.NaN, Number.POSITIVE_INFINITY)
-  }
-  if (!exclusionSet.has('string')) {
-    values.push('', 'string', 'test')
-  }
-  if (!exclusionSet.has('array')) {
-    values.push([], [1, 2, 3])
-  }
-  if (!exclusionSet.has('object')) {
-    values.push({}, { key: 'value' })
-  }
-  if (!exclusionSet.has('function')) {
-    values.push(
-      () => {},
-      function () {},
-      async () => {},
-    )
-  }
-  if (!exclusionSet.has('regexp')) {
-    values.push(/regex/, /test/)
-  }
-  if (!exclusionSet.has('date')) {
-    values.push(new Date())
-  }
-  if (!exclusionSet.has('symbol')) {
-    values.push(Symbol('test'))
-  }
-
-  return values
 }

@@ -33,14 +33,14 @@ const log = {
 }
 
 // Tools cached in repo root (.cache/external-tools/), gitignored via **/.cache.
-function getCacheDir(): string {
+export function getCacheDir(): string {
   if (process.env.EXTERNAL_TOOLS_CACHE) {
     return process.env.EXTERNAL_TOOLS_CACHE
   }
   return path.join(process.cwd(), '.cache', 'external-tools')
 }
 
-function getToolCachePath(tool: string, version: string): string {
+export function getToolCachePath(tool: string, version: string): string {
   const archMap: Record<string, string> = { arm64: 'aarch64', x64: 'x86_64' }
   const osMap: Record<string, string> = {
     darwin: 'darwin',
@@ -51,7 +51,7 @@ function getToolCachePath(tool: string, version: string): string {
   return path.join(getCacheDir(), tool, `${version}-${target}`)
 }
 
-function computeSha256(filePath: string): Promise<string> {
+export function computeSha256(filePath: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const hash = createHash('sha256')
     const stream = createReadStream(filePath)
@@ -61,7 +61,7 @@ function computeSha256(filePath: string): Promise<string> {
   })
 }
 
-function verifyCacheIntegrity(
+export function verifyCacheIntegrity(
   cachePath: string,
   expectedSha256: string,
 ): boolean {
@@ -76,7 +76,7 @@ function verifyCacheIntegrity(
   }
 }
 
-function isProcessAlive(pid: number): boolean {
+export function isProcessAlive(pid: number): boolean {
   try {
     process.kill(pid, 0)
     return true
@@ -85,7 +85,7 @@ function isProcessAlive(pid: number): boolean {
   }
 }
 
-async function acquireLock(
+export async function acquireLock(
   lockPath: string,
   timeoutMs: number = 120_000,
 ): Promise<() => Promise<void>> {
@@ -129,7 +129,7 @@ interface ToolConfig {
   version: string
 }
 
-async function downloadAndVerify(
+export async function downloadAndVerify(
   tool: string,
   config: ToolConfig,
 ): Promise<string | undefined> {

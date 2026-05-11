@@ -37,19 +37,32 @@ export const platformPaths = {
 } as const
 
 /**
- * Normalizes a path for cross-platform comparison.
- * Converts all separators to forward slashes and handles drive letters.
+ * Creates a path using the correct separator for the current platform.
  */
-export function normalizePath(inputPath: string): string {
-  // Normalize separators to forward slashes
-  let normalized = inputPath.replace(/\\/g, '/')
+export function createPlatformPath(...parts: string[]): string {
+  return path.join(...parts)
+}
 
-  // Handle Windows drive letters (C: -> /c)
-  if (/^[A-Z]:/i.test(normalized)) {
-    normalized = `/${normalized.charAt(0).toLowerCase()}${normalized.slice(2)}`
+/**
+ * Conditionally run tests only on Unix-like systems (Linux/Mac).
+ */
+export function describeOnUnix(name: string, fn: () => void): void {
+  if (platform.isUnix) {
+    describe(name, fn)
+  } else {
+    describe.skip(name, fn)
   }
+}
 
-  return normalized
+/**
+ * Conditionally run tests only on Windows.
+ */
+export function describeOnWindows(name: string, fn: () => void): void {
+  if (platform.isWindows) {
+    describe(name, fn)
+  } else {
+    describe.skip(name, fn)
+  }
 }
 
 /**
@@ -68,24 +81,37 @@ export function expectNormalizedPath(actual: string, expected: string): void {
 }
 
 /**
- * Conditionally run tests only on Windows.
+ * Gets the appropriate path for the current platform.
  */
-export function describeOnWindows(name: string, fn: () => void): void {
-  if (platform.isWindows) {
-    describe(name, fn)
-  } else {
-    describe.skip(name, fn)
-  }
+export function getPlatformPath(paths: {
+  posix: string
+  win32: string
+}): string {
+  return platform.isWindows ? paths.win32 : paths.posix
 }
 
 /**
- * Conditionally run tests only on Unix-like systems (Linux/Mac).
+ * Gets a temp directory path appropriate for the current platform.
  */
-export function describeOnUnix(name: string, fn: () => void): void {
+export function getPlatformTempDir(): string {
+  return os.tmpdir()
+}
+
+/**
+ * Checks if a path would be considered absolute on the current platform.
+ */
+export function isPlatformAbsolute(testPath: string): boolean {
+  return path.isAbsolute(testPath)
+}
+
+/**
+ * Conditionally run a single test only on Unix-like systems.
+ */
+export function itOnUnix(name: string, fn: () => void | Promise<void>): void {
   if (platform.isUnix) {
-    describe(name, fn)
+    it(name, fn)
   } else {
-    describe.skip(name, fn)
+    it.skip(name, fn)
   }
 }
 
@@ -104,45 +130,19 @@ export function itOnWindows(
 }
 
 /**
- * Conditionally run a single test only on Unix-like systems.
+ * Normalizes a path for cross-platform comparison.
+ * Converts all separators to forward slashes and handles drive letters.
  */
-export function itOnUnix(name: string, fn: () => void | Promise<void>): void {
-  if (platform.isUnix) {
-    it(name, fn)
-  } else {
-    it.skip(name, fn)
+export function normalizePath(inputPath: string): string {
+  // Normalize separators to forward slashes
+  let normalized = inputPath.replace(/\\/g, '/')
+
+  // Handle Windows drive letters (C: -> /c)
+  if (/^[A-Z]:/i.test(normalized)) {
+    normalized = `/${normalized.charAt(0).toLowerCase()}${normalized.slice(2)}`
   }
-}
 
-/**
- * Gets the appropriate path for the current platform.
- */
-export function getPlatformPath(paths: {
-  posix: string
-  win32: string
-}): string {
-  return platform.isWindows ? paths.win32 : paths.posix
-}
-
-/**
- * Creates a path using the correct separator for the current platform.
- */
-export function createPlatformPath(...parts: string[]): string {
-  return path.join(...parts)
-}
-
-/**
- * Checks if a path would be considered absolute on the current platform.
- */
-export function isPlatformAbsolute(testPath: string): boolean {
-  return path.isAbsolute(testPath)
-}
-
-/**
- * Gets a temp directory path appropriate for the current platform.
- */
-export function getPlatformTempDir(): string {
-  return os.tmpdir()
+  return normalized
 }
 
 // Map / Set / WeakMap / WeakSet / Symbol have been baseline since Node 4, so

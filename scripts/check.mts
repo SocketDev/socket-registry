@@ -34,7 +34,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.resolve(__dirname, '..')
 const registryDistPath = path.join(rootPath, 'registry', 'dist', 'index.js')
 
-async function runTypeCheck(quiet = false): Promise<number> {
+export async function runTypeCheck(quiet = false): Promise<number> {
   if (!quiet) {
     logger.progress('Checking TypeScript')
   }

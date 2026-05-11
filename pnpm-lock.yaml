@@ -524,7 +524,7 @@ importers:
   .claude/hooks/check-new-deps:
     dependencies:
       '@socketregistry/packageurl-js':
-        specifier: 'catalog:'
+        specifier: 1.4.2
         version: 1.4.2
       '@socketsecurity/lib':
         specifier: 'catalog:'
@@ -549,6 +549,12 @@ importers:
         specifier: 24.9.2
         version: 24.9.2
 
+  .claude/hooks/excuse-detector:
+    devDependencies:
+      '@types/node':
+        specifier: 24.9.2
+        version: 24.9.2
+
   .claude/hooks/gitmodules-comment-guard: {}
 
   .claude/hooks/logger-guard:
@@ -558,6 +564,12 @@ importers:
         version: 24.9.2
 
   .claude/hooks/markdown-filename-guard:
+    devDependencies:
+      '@types/node':
+        specifier: 24.9.2
+        version: 24.9.2
+
+  .claude/hooks/no-experimental-strip-types-guard:
     devDependencies:
       '@types/node':
         specifier: 24.9.2

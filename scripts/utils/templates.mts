@@ -51,7 +51,7 @@ const PACKAGE_DEFAULT_VERSION = '1.0.0'
 /**
  * Get manifest data from the registry manifest.json.
  */
-function getManifestData(ecosystem, packageName) {
+export function getManifestData(ecosystem, packageName) {
   if (!ecosystem) {
     return manifestData
   }
@@ -67,7 +67,7 @@ function getManifestData(ecosystem, packageName) {
 }
 
 let eta
-async function getEta() {
+export async function getEta() {
   if (!eta) {
     eta = new Eta()
   }
@@ -75,7 +75,7 @@ async function getEta() {
 }
 
 let _templates
-function getTemplates() {
+export function getTemplates() {
   if (_templates === undefined) {
     _templates = Object.freeze({
       __proto__: null,
@@ -220,7 +220,7 @@ async function getTypeScriptActions(pkgPath, options) {
 /**
  * Preprocess template content by unwrapping encoded tags and stripping comments.
  */
-function prepareTemplate(content) {
+export function prepareTemplate(content) {
   return (
     content
       // Replace strings that look like "//_ <%...%>" with <%...%>.

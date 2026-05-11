@@ -62,6 +62,13 @@ const tempBaseDir = cliArgs.tempDir
 // Cache for package.json reads to avoid repeated filesystem access
 const packageJsonCache = new Map()
 
+function hasModuleError(stdout: string, stderr: string): boolean {
+  const output = `${stdout}\n${stderr}`.toLowerCase()
+  return (
+    output.includes('cannot find module') || output.includes('module not found')
+  )
+}
+
 /**
  * Check if cleaned script only runs non-test commands.
  */
@@ -69,13 +76,6 @@ function isNonTestScript(cleanedScript: string): boolean {
   return (
     /^npm run (?:lint|build|prepare|prepublish|pretest)$/.test(cleanedScript) ||
     cleanedScript === 'exit 0'
-  )
-}
-
-function hasModuleError(stdout: string, stderr: string): boolean {
-  const output = `${stdout}\n${stderr}`.toLowerCase()
-  return (
-    output.includes('cannot find module') || output.includes('module not found')
   )
 }
 

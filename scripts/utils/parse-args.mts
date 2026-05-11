@@ -10,42 +10,6 @@ import process from 'node:process'
 import { parseArgs as nodeParseArgs } from 'node:util'
 
 /**
- * Parse command-line arguments using Node.js built-in parseArgs.
- * Simplified version for build scripts that don't need yargs-parser features.
- */
-export function parseArgs(config = {}) {
-  const {
-    allowPositionals = true,
-    args = process.argv.slice(2),
-    options = {},
-    strict = false,
-  } = config
-
-  try {
-    const result = nodeParseArgs({
-      args,
-      options,
-      strict,
-      allowPositionals,
-    })
-
-    return {
-      values: result.values,
-      positionals: result.positionals || [],
-    }
-  } catch (e) {
-    // If parsing fails in non-strict mode, return empty values.
-    if (!strict) {
-      return {
-        values: {},
-        positionals: args.filter(arg => !arg.startsWith('-')),
-      }
-    }
-    throw e
-  }
-}
-
-/**
  * Extract positional arguments from process.argv.
  */
 export function getPositionalArgs(startIndex = 2) {
@@ -85,4 +49,40 @@ export function hasFlag(
     }
   }
   return false
+}
+
+/**
+ * Parse command-line arguments using Node.js built-in parseArgs.
+ * Simplified version for build scripts that don't need yargs-parser features.
+ */
+export function parseArgs(config = {}) {
+  const {
+    allowPositionals = true,
+    args = process.argv.slice(2),
+    options = {},
+    strict = false,
+  } = config
+
+  try {
+    const result = nodeParseArgs({
+      args,
+      options,
+      strict,
+      allowPositionals,
+    })
+
+    return {
+      values: result.values,
+      positionals: result.positionals || [],
+    }
+  } catch (e) {
+    // If parsing fails in non-strict mode, return empty values.
+    if (!strict) {
+      return {
+        values: {},
+        positionals: args.filter(arg => !arg.startsWith('-')),
+      }
+    }
+    throw e
+  }
 }

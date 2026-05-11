@@ -172,7 +172,7 @@ let failedCount = 0
 let installedCount = 0
 let totalPackagesCount = 0
 
-function writeProgress(symbol) {
+export function writeProgress(symbol) {
   // Track counts silently.
   if (symbol === '💾') {
     cachedCount += 1
@@ -183,13 +183,13 @@ function writeProgress(symbol) {
   }
 }
 
-function completePackage() {
+export function completePackage() {
   completedPackages += 1
 }
 
 let cachedWorkspaceCacheVersion
 
-async function getWorkspaceCacheVersion() {
+export async function getWorkspaceCacheVersion() {
   if (cachedWorkspaceCacheVersion) {
     return cachedWorkspaceCacheVersion
   }
@@ -216,7 +216,7 @@ async function getWorkspaceCacheVersion() {
   }
 }
 
-async function computeOverrideHash(overridePath) {
+export async function computeOverrideHash(overridePath) {
   try {
     const pkgJsonPath = path.join(overridePath, PACKAGE_JSON)
     const pkgJson = await readPackageJson(pkgJsonPath)
@@ -238,7 +238,7 @@ async function computeOverrideHash(overridePath) {
 /**
  * Detect the preferred package manager for a package.
  */
-function detectPackageManager(pkgJson) {
+export function detectPackageManager(pkgJson) {
   // 1. Check packageManager field (official way).
   if (pkgJson.packageManager) {
     if (pkgJson.packageManager.startsWith('npm')) {
@@ -267,7 +267,7 @@ function detectPackageManager(pkgJson) {
 
 let cachedPnpmOverrides
 
-async function generatePnpmOverrides(options) {
+export async function generatePnpmOverrides(options) {
   const opts = { __proto__: null, ...options }
   const { excludes = [] } = opts
 
@@ -329,7 +329,7 @@ async function generatePnpmOverrides(options) {
   return overrides
 }
 
-async function applyNestedSocketOverrides(packagePath) {
+export async function applyNestedSocketOverrides(packagePath) {
   const nodeModulesPath = path.join(packagePath, 'node_modules')
 
   // Check if node_modules exists.
@@ -392,7 +392,7 @@ async function applyNestedSocketOverrides(packagePath) {
   await Promise.all(tasks)
 }
 
-async function applySocketOverrideIfExists(packageName, packagePath) {
+export async function applySocketOverrideIfExists(packageName, packagePath) {
   // Check if Socket override exists.
   const overridePath = path.join(
     NPM_PACKAGES_PATH,
@@ -450,7 +450,7 @@ async function applySocketOverrideIfExists(packageName, packagePath) {
   await existingPkgJson.save()
 }
 
-async function installPackage(packageInfo) {
+export async function installPackage(packageInfo) {
   const {
     overridePath,
     package: origPkgName,

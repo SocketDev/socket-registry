@@ -67,6 +67,25 @@ function extractUsesStatements(content) {
 }
 
 /**
+ * Recursively find all YAML files in a directory.
+ */
+async function getAllYamlFiles(dir) {
+  const files = []
+  try {
+    const entries = await fs.readdir(dir, { withFileTypes: true })
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name)
+      if (entry.isFile() && entry.name.endsWith('.yml')) {
+        files.push(fullPath)
+      } else if (entry.isDirectory()) {
+        files.push(...(await getAllYamlFiles(fullPath)))
+      }
+    }
+  } catch {}
+  return files
+}
+
+/**
  * Process a single file and update action references.
  */
 async function processFile(filePath, token, dryRun) {
@@ -143,25 +162,6 @@ async function processFile(filePath, token, dryRun) {
   }
 
   return { hasChanges: false }
-}
-
-/**
- * Recursively find all YAML files in a directory.
- */
-async function getAllYamlFiles(dir) {
-  const files = []
-  try {
-    const entries = await fs.readdir(dir, { withFileTypes: true })
-    for (const entry of entries) {
-      const fullPath = path.join(dir, entry.name)
-      if (entry.isFile() && entry.name.endsWith('.yml')) {
-        files.push(fullPath)
-      } else if (entry.isDirectory()) {
-        files.push(...(await getAllYamlFiles(fullPath)))
-      }
-    }
-  } catch {}
-  return files
 }
 
 /**

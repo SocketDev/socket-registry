@@ -12,7 +12,7 @@ import process from 'node:process'
 /**
  * Count how many items in array are covered (greater than 0).
  */
-function countCovered(counts) {
+export function countCovered(counts) {
   return counts.filter(count => count > 0).length
 }
 

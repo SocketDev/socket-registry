@@ -15,6 +15,13 @@ interface HeaderOptions {
 }
 
 /**
+ * Format a header title with optional emoji prefix.
+ */
+function formatHeaderTitle(title: string, emoji?: string): string {
+  return emoji ? `${emoji} ${title}` : title
+}
+
+/**
  * Create a horizontal rule of specified width.
  */
 export function createHorizontalRule(
@@ -22,13 +29,6 @@ export function createHorizontalRule(
   char: string = DEFAULT_RULE_CHAR,
 ): string {
   return char.repeat(width)
-}
-
-/**
- * Format a header title with optional emoji prefix.
- */
-function formatHeaderTitle(title: string, emoji?: string): string {
-  return emoji ? `${emoji} ${title}` : title
 }
 
 /**

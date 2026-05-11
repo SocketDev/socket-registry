@@ -1,32 +1,6 @@
 /** @fileoverview Error extraction utilities for cleaner error logging. */
 
 /**
- * Extract concise npm error from stderr.
- */
-function extractNpmError(stderr: string): string {
-  const lines = stderr.split('\n')
-  const errorLines: string[] = []
-
-  for (const line of lines) {
-    // Skip npm warnings and notices.
-    if (line.startsWith('npm warn') || line.startsWith('npm notice')) {
-      continue
-    }
-    // Include npm errors.
-    if (line.startsWith('npm error')) {
-      errorLines.push(line)
-    }
-  }
-
-  return errorLines.length
-    ? errorLines.join('\n')
-    : lines
-        .filter(l => l.trim() && !l.startsWith('npm warn'))
-        .slice(0, 5)
-        .join('\n')
-}
-
-/**
  * Extract concise error information from stderr.
  */
 function extractErrorInfo(stderr: string): string {
@@ -62,6 +36,32 @@ function extractErrorInfo(stderr: string): string {
   return result.length
     ? result.join('\n')
     : stderr.split('\n').slice(0, 3).join('\n')
+}
+
+/**
+ * Extract concise npm error from stderr.
+ */
+function extractNpmError(stderr: string): string {
+  const lines = stderr.split('\n')
+  const errorLines: string[] = []
+
+  for (const line of lines) {
+    // Skip npm warnings and notices.
+    if (line.startsWith('npm warn') || line.startsWith('npm notice')) {
+      continue
+    }
+    // Include npm errors.
+    if (line.startsWith('npm error')) {
+      errorLines.push(line)
+    }
+  }
+
+  return errorLines.length
+    ? errorLines.join('\n')
+    : lines
+        .filter(l => l.trim() && !l.startsWith('npm warn'))
+        .slice(0, 5)
+        .join('\n')
 }
 
 export { extractErrorInfo, extractNpmError }

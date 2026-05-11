@@ -31,7 +31,7 @@ interface GetPackagesOptions {
   [key: string]: unknown
 }
 
-function innerGetPackages(
+export function innerGetPackages(
   eco: string,
   files: string[],
   options?: GetPackagesOptions,

@@ -5,7 +5,7 @@
 /**
  * Get environment configuration with inlined values.
  */
-function envAsBoolean(value: string | undefined): boolean {
+export function envAsBoolean(value: string | undefined): boolean {
   if (typeof value === 'string') {
     const lower = value.toLowerCase()
     return lower === 'true' || lower === '1'

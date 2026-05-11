@@ -65,7 +65,7 @@ parseArgs({
 
 const shimApiKeys = ['getPolyfill', 'implementation', 'shim']
 
-function findLeakedApiKey(keys: string[]): string | undefined {
+export function findLeakedApiKey(keys: string[]): string | undefined {
   return shimApiKeys.find(k => keys.includes(k))
 }
 
@@ -74,16 +74,16 @@ function isDotFile(filepath: string) {
   return basename.length > 0 && basename.charCodeAt(0) === 46 /*'.'*/
 }
 
-function isSrcFile(filepath: string) {
-  return filepath.startsWith('src/')
-}
-
 function isDotPattern(pattern: string) {
   return (
     pattern.length > 2 &&
     pattern.charCodeAt(0) === 46 /*'.'*/ &&
     pattern.charCodeAt(1) !== 46 /*'.'*/
   )
+}
+
+function isSrcFile(filepath: string) {
+  return filepath.startsWith('src/')
 }
 
 function prepareReqId(id: string) {

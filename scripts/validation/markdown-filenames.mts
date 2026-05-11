@@ -64,28 +64,6 @@ const SKIP_DIRS = new Set([
 ])
 
 /**
- * Check if a filename is in SCREAMING_CASE (all uppercase with optional underscores).
- */
-function isScreamingCase(filename) {
-  // Remove extension for checking
-  const nameWithoutExt = filename.replace(/\.(md|MD)$/, '')
-
-  // Check if it contains any lowercase letters
-  return /^[A-Z0-9_]+$/.test(nameWithoutExt) && /[A-Z]/.test(nameWithoutExt)
-}
-
-/**
- * Check if a filename is lowercase-with-hyphens.
- */
-function isLowercaseHyphenated(filename) {
-  // Remove extension for checking
-  const nameWithoutExt = filename.replace(/\.md$/, '')
-
-  // Must be lowercase letters, numbers, and hyphens only
-  return /^[a-z0-9]+(-[a-z0-9]+)*$/.test(nameWithoutExt)
-}
-
-/**
  * Recursively find all markdown files.
  */
 async function findMarkdownFiles(dir, files = []) {
@@ -111,6 +89,27 @@ async function findMarkdownFiles(dir, files = []) {
   }
 
   return files
+}
+
+/**
+ * Check if file is in an allowed location for regular markdown files.
+ * Regular .md files must be within docs/ or .claude/ directories.
+ */
+function isInAllowedLocationForRegularMd(filePath) {
+  const relativePath = path.relative(rootPath, filePath)
+  const dir = path.dirname(relativePath)
+
+  // Must be within docs/ (any depth)
+  if (dir === 'docs' || dir.startsWith('docs/')) {
+    return true
+  }
+
+  // Must be within .claude/ (any depth)
+  if (dir === '.claude' || dir.startsWith('.claude/')) {
+    return true
+  }
+
+  return false
 }
 
 /**
@@ -140,27 +139,6 @@ function isInAllowedLocationForScreamingCase(filePath) {
 }
 
 /**
- * Check if file is in an allowed location for regular markdown files.
- * Regular .md files must be within docs/ or .claude/ directories.
- */
-function isInAllowedLocationForRegularMd(filePath) {
-  const relativePath = path.relative(rootPath, filePath)
-  const dir = path.dirname(relativePath)
-
-  // Must be within docs/ (any depth)
-  if (dir === 'docs' || dir.startsWith('docs/')) {
-    return true
-  }
-
-  // Must be within .claude/ (any depth)
-  if (dir === '.claude' || dir.startsWith('.claude/')) {
-    return true
-  }
-
-  return false
-}
-
-/**
  * Check if file is in a monorepo package directory.
  */
 function isInPackageDirectory(filePath) {
@@ -177,6 +155,28 @@ function isInPackageDirectory(filePath) {
   }
 
   return false
+}
+
+/**
+ * Check if a filename is lowercase-with-hyphens.
+ */
+function isLowercaseHyphenated(filename) {
+  // Remove extension for checking
+  const nameWithoutExt = filename.replace(/\.md$/, '')
+
+  // Must be lowercase letters, numbers, and hyphens only
+  return /^[a-z0-9]+(-[a-z0-9]+)*$/.test(nameWithoutExt)
+}
+
+/**
+ * Check if a filename is in SCREAMING_CASE (all uppercase with optional underscores).
+ */
+function isScreamingCase(filename) {
+  // Remove extension for checking
+  const nameWithoutExt = filename.replace(/\.(md|MD)$/, '')
+
+  // Check if it contains any lowercase letters
+  return /^[A-Z0-9_]+$/.test(nameWithoutExt) && /[A-Z]/.test(nameWithoutExt)
 }
 
 /**

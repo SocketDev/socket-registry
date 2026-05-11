@@ -110,7 +110,7 @@ const esShimChoices = [
 const possibleTsRefs = [...tsLibsAvailable, ...tsTypesAvailable]
 const maxTsRefLength = possibleTsRefs.reduce((n, v) => Math.max(n, v.length), 0)
 
-function getBcdKeysMap(obj) {
+export function getBcdKeysMap(obj) {
   let keysMap = bcaKeysMap.get(obj)
   if (keysMap === undefined) {
     keysMap = new Map()
@@ -122,6 +122,11 @@ function getBcdKeysMap(obj) {
     bcaKeysMap.set(obj, keysMap)
   }
   return keysMap
+}
+
+function getCompatData(props) {
+  const data = getCompatDataRaw(props)
+  return data?.__compat
 }
 
 function getCompatDataRaw(props) {
@@ -149,11 +154,6 @@ function getCompatDataRaw(props) {
     obj = newObj
   }
   return obj
-}
-
-function getCompatData(props) {
-  const data = getCompatDataRaw(props)
-  return data?.__compat
 }
 
 async function readLicenses(dirname) {

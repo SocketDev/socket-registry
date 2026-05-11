@@ -31,6 +31,50 @@ const isWatch = process.argv.includes('--watch')
 const isNeeded = process.argv.includes('--needed')
 
 /**
+ * Standard build for production
+ */
+async function buildJS() {
+  try {
+    // Check if build is needed when --needed flag is passed.
+    if (isNeeded && !isBuildNeeded()) {
+      if (!isQuiet) {
+        logger.log('→ Build not needed, skipping')
+      }
+      return 0
+    }
+
+    if (!isQuiet) {
+      logger.log('→ Building JavaScript with esbuild')
+    }
+
+    const startTime = Date.now()
+    const result = await build({
+      ...buildConfig,
+      logLevel: isQuiet ? 'silent' : isVerbose ? 'debug' : 'info',
+    })
+
+    const buildTime = Date.now() - startTime
+
+    if (!isQuiet) {
+      logger.log(`  JavaScript built in ${buildTime}ms`)
+
+      if (result?.metafile && isVerbose) {
+        const analysis = analyzeMetafile(result.metafile)
+        logger.log(`  Total size: ${analysis.totalSize}`)
+      }
+    }
+
+    return 0
+  } catch (e) {
+    if (!isQuiet) {
+      logger.error('JavaScript build failed')
+      logger.fail(e)
+    }
+    return 1
+  }
+}
+
+/**
  * Check if build is needed by comparing source and output timestamps.
  */
 function isBuildNeeded() {
@@ -77,50 +121,6 @@ function isBuildNeeded() {
 
   // Build needed if any source is newer than oldest output.
   return newestSource > oldestOutput
-}
-
-/**
- * Standard build for production
- */
-async function buildJS() {
-  try {
-    // Check if build is needed when --needed flag is passed.
-    if (isNeeded && !isBuildNeeded()) {
-      if (!isQuiet) {
-        logger.log('→ Build not needed, skipping')
-      }
-      return 0
-    }
-
-    if (!isQuiet) {
-      logger.log('→ Building JavaScript with esbuild')
-    }
-
-    const startTime = Date.now()
-    const result = await build({
-      ...buildConfig,
-      logLevel: isQuiet ? 'silent' : isVerbose ? 'debug' : 'info',
-    })
-
-    const buildTime = Date.now() - startTime
-
-    if (!isQuiet) {
-      logger.log(`  JavaScript built in ${buildTime}ms`)
-
-      if (result?.metafile && isVerbose) {
-        const analysis = analyzeMetafile(result.metafile)
-        logger.log(`  Total size: ${analysis.totalSize}`)
-      }
-    }
-
-    return 0
-  } catch (e) {
-    if (!isQuiet) {
-      logger.error('JavaScript build failed')
-      logger.fail(e)
-    }
-    return 1
-  }
 }
 
 /**

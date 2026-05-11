@@ -10,13 +10,6 @@ import { fileURLToPath } from 'node:url'
 import { getTsxExecPath } from './utils.mts'
 
 /**
- * Normalize path separators for cross-platform compatibility.
- */
-function normalizePath(p: string): string {
-  return p.split(path.sep).join(path.posix.sep)
-}
-
-/**
  * Find project root by looking for pnpm-workspace.yaml.
  */
 function findProjectRoot(): string {
@@ -34,6 +27,13 @@ function findProjectRoot(): string {
   const __filename = fileURLToPath(import.meta.url)
   const __dirname = path.dirname(__filename)
   return normalizePath(path.resolve(__dirname, '..', '..'))
+}
+
+/**
+ * Normalize path separators for cross-platform compatibility.
+ */
+function normalizePath(p: string): string {
+  return p.split(path.sep).join(path.posix.sep)
 }
 
 // File and directory names.
