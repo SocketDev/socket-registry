@@ -2,13 +2,13 @@
  * @fileoverview Node.js-related constants.
  */
 
-import { EOL, platform } from 'node:os'
+import os from 'node:os'
 
-const _platform = platform()
+const _platform = os.platform()
 export const DARWIN = _platform === 'darwin'
 export const WIN32 = _platform === 'win32'
 
-export const NEWLINE = EOL
+export const NEWLINE = os.EOL
 
 // Maintained Node.js versions.
 // Manual version list: https://nodejs.org/en/about/previous-releases

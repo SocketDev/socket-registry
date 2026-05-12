@@ -35,9 +35,16 @@
  *   2  integrity mismatch (stderr names expected vs actual + the path)
  */
 
+// oxlint-disable-next-line socket/prefer-async-spawn -- composite-action helper runs on the raw runner before setup-node; node_modules is unavailable and the download / extract pipeline is naturally sync.
 import { spawnSync } from 'node:child_process'
-import { createHash } from 'node:crypto'
-import { chmodSync, mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs'
+import crypto from 'node:crypto'
+import {
+  chmodSync,
+  mkdirSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import path from 'node:path'
 
 const [, , url, integrityArg, destDir, binName] = process.argv
@@ -95,7 +102,7 @@ if (!res.ok) {
 }
 
 const bytes = new Uint8Array(await res.arrayBuffer())
-const actual = createHash(algo).update(bytes).digest('base64')
+const actual = crypto.createHash(algo).update(bytes).digest('base64')
 
 // Compare base64 forms directly. Trailing `=` padding may differ
 // (npm strips it, our hash adds it) — strip both sides before
@@ -114,10 +121,7 @@ writeFileSync(archivePath, bytes)
 const lower = assetName.toLowerCase()
 let extractCmd
 let extractArgs
-if (
-  lower.endsWith('.tar.gz') ||
-  lower.endsWith('.tgz')
-) {
+if (lower.endsWith('.tar.gz') || lower.endsWith('.tgz')) {
   extractCmd = 'tar'
   extractArgs = ['xzf', archivePath, '-C', destDir]
 } else if (lower.endsWith('.zip')) {

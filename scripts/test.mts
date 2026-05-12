@@ -4,10 +4,13 @@
  */
 
 // Use raw node:child_process here (not @socketsecurity/lib/spawn) to retain the
-// ChildProcess handle for tracking and SIGTERM-on-parent-exit cleanup.
+// ChildProcess handle for tracking and SIGTERM-on-parent-exit cleanup. The
+// wheelhouse helper returns a Promise and would erase the handle the rest of
+// this module needs.
 import type { ChildProcess, SpawnOptions } from 'node:child_process'
-
+// oxlint-disable-next-line socket/prefer-async-spawn -- need the raw ChildProcess handle for runningProcesses tracking + SIGTERM cleanup; the wheelhouse async helper erases it.
 import { spawn } from 'node:child_process'
+
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -57,7 +60,9 @@ const removeExitHandler = onExit((_code, signal) => {
     spinner.stop()
   } catch {}
 
-  // Kill all running processes
+  // Kill all running processes. `runningProcesses` is a Set, not an
+  // array — the cached-length rule's autofix was incorrect here.
+  // oxlint-disable-next-line socket/prefer-cached-for-loop -- Set, not array.
   for (const child of runningProcesses) {
     try {
       child.kill('SIGTERM')
@@ -84,6 +89,14 @@ export async function runCommand(
     })
 
     runningProcesses.add(child)
+
+    // When the caller asks for `stdio: 'pipe'` (oxlint/tsgo in the parallel
+    // check phase) but ignores the streams, drain them ourselves — otherwise
+    // the child blocks once its stdout buffer fills (~64 KiB on macOS), which
+    // is exactly the symptom we saw: oxlint . hanging at 0% CPU forever.
+    // Callers that want the output should use runCommandWithOutput.
+    child.stdout?.resume()
+    child.stderr?.resume()
 
     child.on('exit', (code: number | null) => {
       runningProcesses.delete(child)
@@ -267,7 +280,8 @@ export async function runTests(
   } else {
     const modeText = mode === 'staged' ? 'staged' : 'changed'
     logger.step(`Running tests for ${modeText} files:`)
-    for (const test of testsToRun) {
+    for (let i = 0, { length } = testsToRun; i < length; i += 1) {
+      const test = testsToRun[i]
       logger.substep(test)
     }
     vitestArgs.push(...testsToRun)

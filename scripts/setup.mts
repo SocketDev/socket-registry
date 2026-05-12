@@ -1,3 +1,4 @@
+/* oxlint-disable socket/prefer-cached-for-loop -- iterates Object.entries() of a tool-config map; the cached-length rewrite would be incorrect. */
 /**
  * @fileoverview Developer setup script.
  *
@@ -9,7 +10,7 @@
  *   pnpm run setup --quiet        # Minimal output (for postinstall)
  */
 
-import { createHash } from 'node:crypto'
+import crypto from 'node:crypto'
 import { createReadStream, existsSync, readFileSync } from 'node:fs'
 import { mkdir, open, readFile, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
@@ -53,7 +54,7 @@ export function getToolCachePath(tool: string, version: string): string {
 
 export function computeSha256(filePath: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    const hash = createHash('sha256')
+    const hash = crypto.createHash('sha256')
     const stream = createReadStream(filePath)
     stream.on('data', data => hash.update(data))
     stream.on('end', () => resolve(hash.digest('hex')))

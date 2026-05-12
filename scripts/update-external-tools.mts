@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* oxlint-disable socket/prefer-cached-for-loop -- iterates Object.entries() of platform/tool config maps; the cached-length rewrite would be incorrect. */
 /**
  * Update the repo-root `external-tools.json` to pick up new releases
  * of every tool listed with `"release": "asset"` (today: pnpm, zizmor).
@@ -23,14 +24,15 @@
  * benefit is minimal since each script only handles 2–3 tools.
  */
 
-import { createHash } from 'node:crypto'
+import crypto from 'node:crypto'
 import { existsSync, promises as fs, readFileSync } from 'node:fs'
-import { tmpdir } from 'node:os'
+import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
-import { type Static, Type } from '@sinclair/typebox'
+import { Type } from '@sinclair/typebox'
+import type { Static } from '@sinclair/typebox'
 
 import { httpDownload } from '@socketsecurity/lib/http-request'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
@@ -137,12 +139,12 @@ export function versionFromTag(tag: string): string {
 
 export async function computeSha256(filePath: string): Promise<string> {
   const content = await fs.readFile(filePath)
-  return createHash('sha256').update(content).digest('hex')
+  return crypto.createHash('sha256').update(content).digest('hex')
 }
 
 export async function downloadAndHash(url: string): Promise<string> {
   const tmpFile = path.join(
-    tmpdir(),
+    os.tmpdir(),
     `external-tools-update-${Date.now()}-${Math.random().toString(36).slice(2)}`,
   )
   try {
@@ -428,7 +430,8 @@ async function main(): Promise<void> {
 
   logger.log('')
   logger.log('Summary:')
-  for (const r of results) {
+  for (let i = 0, { length } = results; i < length; i += 1) {
+    const r = results[i]
     const tag = r.updated ? 'updated' : r.skipped ? 'skipped' : 'unchanged'
     logger.log(`  ${r.tool}: ${tag} (${r.reason})`)
   }

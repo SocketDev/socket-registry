@@ -1,4 +1,6 @@
 /* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
+/* oxlint-disable socket/prefer-cached-for-loop -- iterates Dirent results inside async tasks; the cached-length rewrite is unsafe under await chains. */
+/* max-file-lines: legitimate — monolithic npm-install driver (resolution + override application + nested traversal + progress UI). The phases share enough live state (tasks queue, override map, scoped-vs-unscoped branch) that splitting them produces a tangle of cross-file mutables. */
 
 /**
  * @fileoverview Script for installing npm packages with Socket overrides for testing.
@@ -74,7 +76,7 @@ import crypto from 'node:crypto'
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { pathToFileURL } from 'node:url'
+import url from 'node:url'
 import { NODE_MODULES } from '@socketsecurity/lib/paths/dirnames'
 import { PACKAGE_JSON } from '@socketsecurity/lib/paths/filenames'
 import { WIN32 } from '@socketsecurity/lib/constants/platform'
@@ -110,9 +112,9 @@ import {
 } from '../constants/paths.mts'
 import { filterPackagesByChanges } from '../utils/git.mts'
 import {
-  copySocketOverride,
   PNPM_HOISTED_INSTALL_FLAGS,
   PNPM_INSTALL_ENV,
+  copySocketOverride,
 } from '../utils/package.mts'
 import { runCommandQuietStrict } from '../utils/run-command.mts'
 import { suppressMaxListenersWarning } from '../utils/suppress-warnings.mts'
@@ -295,7 +297,8 @@ export async function generatePnpmOverrides(options) {
   // Get all Socket override packages.
   const entries = await fs.readdir(npmPackagesDir, { withFileTypes: true })
 
-  for (const entry of entries) {
+  for (let i = 0, { length } = entries; i < length; i += 1) {
+    const entry = entries[i]
     if (!entry.isDirectory()) {
       continue
     }
@@ -317,7 +320,7 @@ export async function generatePnpmOverrides(options) {
         // Use file:// protocol to point to local Socket override packages.
         // This allows unpublished versions to be used in testing.
         // pathToFileURL ensures correct file URL format on all platforms (Windows/Unix).
-        overrides[packageName] = pathToFileURL(packagePath).href
+        overrides[packageName] = url.pathToFileURL(packagePath).href
       }
     } catch {
       // Skip packages without valid package.json.
@@ -345,7 +348,8 @@ export async function applyNestedSocketOverrides(packagePath) {
   // Process packages in parallel for better performance
   const tasks = []
 
-  for (const entry of entries) {
+  for (let i = 0, { length } = entries; i < length; i += 1) {
+    const entry = entries[i]
     if (!entry.isDirectory()) {
       continue
     }
@@ -360,7 +364,8 @@ export async function applyNestedSocketOverrides(packagePath) {
             withFileTypes: true,
           })
 
-          for (const scopedEntry of scopedEntries) {
+          for (let i = 0, { length } = scopedEntries; i < length; i += 1) {
+            const scopedEntry = scopedEntries[i]
             if (!scopedEntry.isDirectory()) {
               continue
             }
@@ -720,7 +725,7 @@ export async function installPackage(packageInfo) {
           )
 
           // Use file:// URL to point pnpm to our repacked tarball that contains all files.
-          packageSpec = pathToFileURL(repackedTarball).href
+          packageSpec = url.pathToFileURL(repackedTarball).href
           modifiedPackagePath = tempExtractDir
         }
       } catch (e) {
@@ -1072,7 +1077,8 @@ async function main(): Promise<void> {
     const entries = await fs.readdir(npmPackagesDir, { withFileTypes: true })
     const nodeModulesPaths = []
 
-    for (const entry of entries) {
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const entry = entries[i]
       if (entry.isDirectory()) {
         const nodeModulesPath = path.join(
           npmPackagesDir,
@@ -1265,7 +1271,8 @@ async function main(): Promise<void> {
       logger.warn(`No test script: ${noTestScript.length} packages`)
       if (noTestScript.length <= 5) {
         logger.group()
-        for (const pkg of noTestScript) {
+        for (let i = 0, { length } = noTestScript; i < length; i += 1) {
+          const pkg = noTestScript[i]
           logger.log(`- ${pkg.package}`)
         }
         logger.groupEnd()
@@ -1275,7 +1282,8 @@ async function main(): Promise<void> {
       logger.warn(`Allowed failures: ${allowedFailures.length} packages`)
       if (allowedFailures.length <= 5) {
         logger.group()
-        for (const pkg of allowedFailures) {
+        for (let i = 0, { length } = allowedFailures; i < length; i += 1) {
+          const pkg = allowedFailures[i]
           logger.log(`- ${pkg.package}: ${pkg.reason}`)
         }
         logger.groupEnd()
@@ -1284,7 +1292,8 @@ async function main(): Promise<void> {
     if (criticalFailures.length > 0) {
       logger.fail(`Failed: ${criticalFailures.length} packages`)
       logger.group()
-      for (const pkg of criticalFailures) {
+      for (let i = 0, { length } = criticalFailures; i < length; i += 1) {
+        const pkg = criticalFailures[i]
         logger.log(`- ${pkg.package}: ${pkg.reason}`)
       }
       logger.groupEnd()
