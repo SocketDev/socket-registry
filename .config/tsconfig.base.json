@@ -1,9 +1,7 @@
 {
   "compilerOptions": {
-    "allowImportingTsExtensions": true,
     "allowJs": false,
     "composite": false,
-    "declaration": false,
     "declarationMap": false,
     "erasableSyntaxOnly": true,
     "esModuleInterop": true,
@@ -12,7 +10,6 @@
     "incremental": false,
     "isolatedModules": true,
     "lib": ["ES2024"],
-    "noEmit": true,
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
