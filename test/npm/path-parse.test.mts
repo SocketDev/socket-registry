@@ -1,3 +1,4 @@
+/* oxlint-disable socket/prefer-cached-for-loop -- ports upstream test loops verbatim; rewriting would diverge from the source map to upstream. */
 /**
  * @fileoverview Tests for path-parse NPM package override.
  * Ported 1:1 from upstream v1.0.7 (f7e258dd):
@@ -186,7 +187,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   describe('win32 errors', () => {
-    for (const errorCase of errors) {
+    for (let i = 0, { length } = errors; i < length; i += 1) {
+      const errorCase = errors[i]!
       it(`throws for ${typeof errorCase.input} input`, () => {
         try {
           pathParse.win32(errorCase.input)
@@ -200,7 +202,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   describe('posix errors', () => {
-    for (const errorCase of errors) {
+    for (let i = 0, { length } = errors; i < length; i += 1) {
+      const errorCase = errors[i]!
       it(`throws for ${typeof errorCase.input} input`, () => {
         try {
           pathParse.posix(errorCase.input)

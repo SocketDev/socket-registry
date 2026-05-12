@@ -1,3 +1,4 @@
+/* oxlint-disable socket/prefer-cached-for-loop -- ports upstream test loops verbatim; rewriting would diverge from the source map to upstream. */
 /**
  * @fileoverview Tests for internal-slot NPM package override.
  * Ported 1:1 from upstream v1.1.0 (705000a7):

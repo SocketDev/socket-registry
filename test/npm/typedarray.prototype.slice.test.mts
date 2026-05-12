@@ -47,13 +47,15 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       new Date(),
       () => {},
     ]
-    for (const nonTA of nonTAs) {
+    for (let i = 0, { length } = nonTAs; i < length; i += 1) {
+      const nonTA = nonTAs[i]
       expect(() => slice(nonTA)).toThrow(TypeError)
     }
   })
 
   describe('Typed Arrays', () => {
-    for (const name of typedArrayNames) {
+    for (let i = 0, { length } = typedArrayNames; i < length; i += 1) {
+      const name = typedArrayNames[i]!
       const TA = globalThis[name]
       if (typeof TA !== 'function') {
         continue

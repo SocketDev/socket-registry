@@ -1,4 +1,5 @@
 /** @fileoverview Analyzes CI failure logs and suggests fixes based on known patterns. */
+/* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Object.entries) and small destructured records; the cached-length rewrite would be incorrect. */
 
 import { promises as fs } from 'node:fs'
 import process from 'node:process'
@@ -141,7 +142,8 @@ export function analyzeLog(logContent) {
   const failures = []
   let currentPackage
 
-  for (const line of lines) {
+  for (let i = 0, { length } = lines; i < length; i += 1) {
+    const line = lines[i]
     // Track current package being tested.
     const packageName = extractPackageName(line)
     if (packageName) {
@@ -187,7 +189,8 @@ export function extractPackageName(line) {
     /@socketregistry\/([^\s]+)/,
   ]
 
-  for (const pattern of patterns) {
+  for (let i = 0, { length } = patterns; i < length; i += 1) {
+    const pattern = patterns[i]
     const match = line.match(pattern)
     if (match) {
       return match[1]
@@ -228,13 +231,15 @@ export function formatResults(failures, recommendations) {
   // Display category summary.
   logger.info('--- Failures by Category ---')
   const categoryRecs = recommendations.filter(r => r.level === 'category')
-  for (const rec of categoryRecs) {
+  for (let i = 0, { length } = categoryRecs; i < length; i += 1) {
+    const rec = categoryRecs[i]
     logger.warn(`${rec.category}: ${rec.count} occurrence(s)`)
   }
 
   logger.info('\n--- Affected Packages ---')
   const packageRecs = recommendations.filter(r => r.level === 'package')
-  for (const rec of packageRecs) {
+  for (let i = 0, { length } = packageRecs; i < length; i += 1) {
+    const rec = packageRecs[i]
     logger.error(`${rec.package}: ${rec.count} issue(s)`)
     for (const issue of rec.issues) {
       logger.info(
@@ -245,7 +250,8 @@ export function formatResults(failures, recommendations) {
 
   // Display recommendations.
   logger.info('\n--- Recommended Actions ---')
-  for (const rec of packageRecs) {
+  for (let i = 0, { length } = packageRecs; i < length; i += 1) {
+    const rec = packageRecs[i]
     logger.info(`\nPackage: ${rec.package}`)
     for (const action of rec.actions) {
       logger.info(`  ${action}`)
@@ -255,7 +261,8 @@ export function formatResults(failures, recommendations) {
   // Display general suggestions.
   logger.info('\n--- General Suggestions ---')
   const uniqueCategories = [...new Set(categoryRecs.map(r => r.category))]
-  for (const category of uniqueCategories) {
+  for (let i = 0, { length } = uniqueCategories; i < length; i += 1) {
+    const category = uniqueCategories[i]
     const rec = categoryRecs.find(r => r.category === category)
     logger.info(`\n${category}:`)
     for (const suggestion of rec.suggestions) {
@@ -266,7 +273,8 @@ export function formatResults(failures, recommendations) {
   // Verbose output.
   if (cliArgs.verbose) {
     logger.info('\n--- Detailed Failures ---')
-    for (const failure of failures) {
+    for (let i = 0, { length } = failures; i < length; i += 1) {
+      const failure = failures[i]
       logger.info(
         `\n[${failure.severity.toUpperCase()}] ${failure.category} (${failure.package || 'unknown'})`,
       )
@@ -333,7 +341,8 @@ export function groupFailures(failures) {
   const byCategory = { __proto__: null }
   const byPackage = { __proto__: null }
 
-  for (const failure of failures) {
+  for (let i = 0, { length } = failures; i < length; i += 1) {
+    const failure = failures[i]
     // Group by category.
     if (!byCategory[failure.category]) {
       byCategory[failure.category] = []

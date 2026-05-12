@@ -35,7 +35,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       {},
       () => {},
     ]
-    for (const val of nonRegexes) {
+    for (let i = 0, { length } = nonRegexes; i < length; i += 1) {
+      const val = nonRegexes[i]
       expect(() => regexTester(val)).toThrow(TypeError)
     }
   })

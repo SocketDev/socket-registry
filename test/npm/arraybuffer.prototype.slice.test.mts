@@ -33,7 +33,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       function () {},
       /a/g,
     ]
-    for (const nonAB of nonABs) {
+    for (let i = 0, { length } = nonABs; i < length; i += 1) {
+      const nonAB = nonABs[i]
       expect(() => slice(nonAB)).toThrow(TypeError)
     }
   })

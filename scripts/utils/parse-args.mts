@@ -16,7 +16,8 @@ export function getPositionalArgs(startIndex = 2) {
   const args = process.argv.slice(startIndex)
   const positionals = []
 
-  for (const arg of args) {
+  for (let i = 0, { length } = args; i < length; i += 1) {
+    const arg = args[i]
     // Stop at first flag.
     if (arg.startsWith('-')) {
       break
@@ -43,7 +44,8 @@ export function hasFlag(
   if (argv.includes(`--${flag}`)) {
     return true
   }
-  for (const alias of aliases) {
+  for (let i = 0, { length } = aliases; i < length; i += 1) {
+    const alias = aliases[i]
     if (argv.includes(alias)) {
       return true
     }

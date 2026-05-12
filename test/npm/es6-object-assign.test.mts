@@ -1,4 +1,5 @@
 /** @fileoverview Tests for @socketregistry/es6-object-assign npm package override. */
+/* oxlint-disable socket/prefer-cached-for-loop -- test iterates short literal arrays; perf rewrite is noise. */
 import path from 'node:path'
 // eslint-disable-next-line n/no-extraneous-import
 import { getDefaultLogger } from '@socketsecurity/lib/logger'

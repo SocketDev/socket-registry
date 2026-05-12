@@ -30,7 +30,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         '',
         'foo',
       ]
-      for (const primitive of primitives) {
+      for (let i = 0, { length } = primitives; i < length; i += 1) {
+        const primitive = primitives[i]
         expect(whichBoxedPrimitive(primitive)).toBe(undefined)
       }
     })
@@ -53,7 +54,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('non-primitive objects', () => {
     it('returns undefined for non-boxed objects', () => {
       const objects = [/a/g, new Date(), function () {}, [], {}]
-      for (const obj of objects) {
+      for (let i = 0, { length } = objects; i < length; i += 1) {
+        const obj = objects[i]
         expect(whichBoxedPrimitive(obj)).toBe(undefined)
       }
     })

@@ -81,7 +81,8 @@ export function getTestsToRun(
   const testFiles = new Set<string>()
   let runAllReason = ''
 
-  for (const file of changedFiles) {
+  for (let i = 0, { length } = changedFiles; i < length; i += 1) {
+    const file = changedFiles[i]
     const normalized = normalizePath(file)
 
     // Test files run themselves (if not deleted).

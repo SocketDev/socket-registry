@@ -1,4 +1,5 @@
 /** @fileoverview Publish npm packages with version bump detection and retry logic. */
+/* max-file-lines: legitimate — single end-to-end publish workflow (version detection + retry + GH release); splitting would fragment one phased pipeline across three files. */
 
 import path from 'node:path'
 
@@ -130,7 +131,8 @@ export async function findVersionBumpCommits() {
   const commits = []
   const lines = result.stdout.trim().split('\n')
 
-  for (const line of lines) {
+  for (let i = 0, { length } = lines; i < length; i += 1) {
+    const line = lines[i]
     const match = /^([a-f0-9]+) (.+)$/.exec(line)
     if (!match) {
       continue
@@ -255,7 +257,8 @@ export async function publishAtCommit(sha) {
   // Filter packages to only publish those with bumped versions.
   const packagesToPublish = []
 
-  for (const pkg of allPackages) {
+  for (let i = 0, { length } = allPackages; i < length; i += 1) {
+    const pkg = allPackages[i]
     const pkgJson = readPackageJsonSync(pkg.path)
     const localVersion = pkgJson.version
 
@@ -540,7 +543,8 @@ async function main(): Promise<void> {
 
       // Filter to only commits with versions newer than published version.
       const newerCommits = []
-      for (const commit of bumpCommits) {
+      for (let i = 0, { length } = bumpCommits; i < length; i += 1) {
+        const commit = bumpCommits[i]
         if (semver.gt(commit.version, publishedVersion)) {
           newerCommits.push(commit)
         }
@@ -575,7 +579,8 @@ async function main(): Promise<void> {
       ? bumpCommits
       : bumpCommits.slice(0, 10)
 
-    for (const commit of displayCommits) {
+    for (let i = 0, { length } = displayCommits; i < length; i += 1) {
+      const commit = displayCommits[i]
       logger.info(
         `@socketsecurity/registry@${commit.version} - ${commit.sha.slice(0, 7)}`,
       )
@@ -583,7 +588,8 @@ async function main(): Promise<void> {
     logger.groupEnd()
     logger.log('')
 
-    for (const commit of bumpCommits) {
+    for (let i = 0, { length } = bumpCommits; i < length; i += 1) {
+      const commit = bumpCommits[i]
       await publishAtCommit(commit.sha)
     }
 

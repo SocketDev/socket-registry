@@ -34,7 +34,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       new Date(),
       () => {},
     ]
-    for (const nonAB of nonABs) {
+    for (let i = 0, { length } = nonABs; i < length; i += 1) {
+      const nonAB = nonABs[i]
       expect(byteLength(nonAB)).toBeNaN()
     }
   })

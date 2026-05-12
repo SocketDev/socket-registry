@@ -51,7 +51,8 @@ async function main(): Promise<void> {
           },
         )
         const subpaths = getSubpaths(entryExports).map(trimLeadingDotSlash)
-        for (const subpath of subpaths) {
+        for (let i = 0, { length } = subpaths; i < length; i += 1) {
+          const subpath = subpaths[i]
           if (!availableFiles.includes(subpath)) {
             const warning = `${fullName}: ${subpath} subpath file does not exist`
             warnings.push(warning)
@@ -60,7 +61,8 @@ async function main(): Promise<void> {
             }
           }
         }
-        for (const relPath of availableFiles) {
+        for (let i = 0, { length } = availableFiles; i < length; i += 1) {
+          const relPath = availableFiles[i]
           if (!relPath.startsWith('package/') && !subpaths.includes(relPath)) {
             const warning = `${fullName}: ${relPath} missing from subpath exports`
             warnings.push(warning)

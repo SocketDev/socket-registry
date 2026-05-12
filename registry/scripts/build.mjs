@@ -1,3 +1,4 @@
+/* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Object.values recursion); the cached-length rewrite would be incorrect. */
 /**
  * @fileoverview Fast build runner using esbuild for smaller bundles and faster builds.
  */
@@ -164,7 +165,8 @@ export function isBuildNeeded() {
 
   // Find newest source file timestamp.
   let newestSource = 0
-  for (const file of sourceFiles) {
+  for (let i = 0, { length } = sourceFiles; i < length; i += 1) {
+    const file = sourceFiles[i]
     const stat = statSync(file)
     if (stat.mtimeMs > newestSource) {
       newestSource = stat.mtimeMs
@@ -182,7 +184,8 @@ export function isBuildNeeded() {
   }
 
   let oldestOutput = Number.POSITIVE_INFINITY
-  for (const file of outputFiles) {
+  for (let i = 0, { length } = outputFiles; i < length; i += 1) {
+    const file = outputFiles[i]
     const stat = statSync(file)
     if (stat.mtimeMs < oldestOutput) {
       oldestOutput = stat.mtimeMs

@@ -8,7 +8,7 @@
 export function envAsBoolean(value: string | undefined): boolean {
   if (typeof value === 'string') {
     const lower = value.toLowerCase()
-    return lower === 'true' || lower === '1'
+    return lower === '1' || lower === 'true'
   }
   return Boolean(value)
 }

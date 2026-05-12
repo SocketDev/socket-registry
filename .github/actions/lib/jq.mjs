@@ -21,11 +21,13 @@ const raw = file === '-'
   : readFileSync(file, 'utf8')
 
 let v = JSON.parse(raw)
-for (const k of keys) {
+for (let i = 0, { length } = keys; i < length; i += 1) {
+  const k = keys[i]
   if (v == null || typeof v !== 'object') {
     process.exit(1)
   }
   v = v[k]
+
 }
 
 if (v == null || v === '') {

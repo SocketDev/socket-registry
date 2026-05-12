@@ -27,7 +27,8 @@ export async function extractDependenciesWithStructure(filePath) {
     const lines = dependencyMatch[1].split('\n')
     let currentParent
 
-    for (const line of lines) {
+    for (let i = 0, { length } = lines; i < length; i += 1) {
+      const line = lines[i]
       // Match top-level dependencies (starting with #   -).
       const topLevelMatch = line.match(/^# {3}- (.+)$/)
       if (topLevelMatch) {
@@ -54,7 +55,8 @@ export async function extractDependenciesWithStructure(filePath) {
 
   // Also extract from uses: statements for completeness.
   const usesMatches = content.matchAll(/^\s*uses:\s*(.+)$/gm)
-  for (const match of usesMatches) {
+  for (let i = 0, { length } = usesMatches; i < length; i += 1) {
+    const match = usesMatches[i]
     let action = match[1].trim()
     // Remove inline comments from uses statements.
     action = action.replace(/\s+#.*$/, '')
@@ -74,7 +76,8 @@ export async function getAllYamlFiles(dir) {
   const files = []
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true })
-    for (const entry of entries) {
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const entry = entries[i]
       const fullPath = path.join(dir, entry.name)
       if (entry.isFile() && entry.name.endsWith('.yml')) {
         files.push(fullPath)
@@ -98,9 +101,11 @@ async function main(): Promise<void> {
 
   // Process workflow files.
   const workflowFiles = await getAllYamlFiles(ROOT_DOT_GITHUB_WORKFLOWS_PATH)
-  for (const file of workflowFiles) {
+  for (let i = 0, { length } = workflowFiles; i < length; i += 1) {
+    const file = workflowFiles[i]
     const { flat, structured } = await extractDependenciesWithStructure(file)
-    for (const dep of flat) {
+    for (let i = 0, { length } = flat; i < length; i += 1) {
+      const dep = flat[i]
       allDependencies.add(dep)
     }
     if (structured.length > 0) {
@@ -113,7 +118,8 @@ async function main(): Promise<void> {
   const actionDirs = await fs.readdir(ROOT_DOT_GITHUB_ACTIONS_PATH, {
     withFileTypes: true,
   })
-  for (const dir of actionDirs) {
+  for (let i = 0, { length } = actionDirs; i < length; i += 1) {
+    const dir = actionDirs[i]
     if (dir.isDirectory()) {
       const actionFile = path.join(
         ROOT_DOT_GITHUB_ACTIONS_PATH,
@@ -123,7 +129,8 @@ async function main(): Promise<void> {
       try {
         const { flat, structured } =
           await extractDependenciesWithStructure(actionFile)
-        for (const dep of flat) {
+        for (let i = 0, { length } = flat; i < length; i += 1) {
+          const dep = flat[i]
           allDependencies.add(dep)
         }
         if (structured.length > 0) {

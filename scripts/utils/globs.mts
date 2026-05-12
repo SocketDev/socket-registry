@@ -20,7 +20,8 @@ export function getGlobMatcher(patterns, options = {}) {
   const includes = []
   const excludes = []
 
-  for (const pattern of patternArray) {
+  for (let i = 0, { length } = patternArray; i < length; i += 1) {
+    const pattern = patternArray[i]
     if (pattern.startsWith('!')) {
       excludes.push(pattern.slice(1))
     } else {

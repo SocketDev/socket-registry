@@ -2,7 +2,7 @@
 
 /** @fileoverview Reproduces CI test environment locally to catch issues before pushing. */
 
-import { promises as fs, mkdtempSync } from 'node:fs'
+import { mkdtempSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -163,9 +163,10 @@ export async function runNpmPackageTests(workDir) {
   const args = ['scripts/npm/test-npm-packages.mts']
 
   if (cliArgs.package?.length) {
-    cliArgs.package.forEach(pkg => {
+    for (let i = 0, { length } = cliArgs.package; i < length; i += 1) {
+      const pkg = cliArgs.package[i]
       args.push('--package', pkg)
-    })
+    }
   }
 
   const result = await runCiCommand('node', args, { cwd: workDir })

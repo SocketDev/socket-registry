@@ -1,3 +1,4 @@
+/* oxlint-disable socket/prefer-cached-for-loop -- ports upstream test loops verbatim; rewriting would diverge from the source map to upstream. */
 /**
  * @fileoverview Tests for get-symbol-description NPM package override.
  * Ported 1:1 from upstream v1.1.0 (1489d87a1af261f0f90faa73c619090363f7976b):
@@ -36,7 +37,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       /a/g,
       () => {},
     ]
-    for (const nonSymbol of nonSymbols) {
+    for (let i = 0, { length } = nonSymbols; i < length; i += 1) {
+      const nonSymbol = nonSymbols[i]
       expect(() => getSymbolDescription(nonSymbol)).toThrow()
     }
   })

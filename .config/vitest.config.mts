@@ -21,6 +21,7 @@ export function toPosixPath(filepath) {
   return filepath.split(path.sep).join('/')
 }
 
+// oxlint-disable-next-line socket/no-default-export -- vitest config loader requires a default export.
 export default defineConfig({
   // Keep vitest's cache under node_modules so `pnpm install`
   // clears it automatically — no dedicated clean step.

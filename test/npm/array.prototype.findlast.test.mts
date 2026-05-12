@@ -70,7 +70,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       {},
       /a/g,
     ]
-    for (const nonFunction of nonFunctions) {
+    for (let i = 0, { length } = nonFunctions; i < length; i += 1) {
+      const nonFunction = nonFunctions[i]
       expect(() => findLast([], nonFunction)).toThrow(TypeError)
     }
   })

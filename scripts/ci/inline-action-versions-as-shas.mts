@@ -1,4 +1,5 @@
 /** @fileoverview Convert GitHub Actions tags/branches to commit SHAs in workflow files. */
+/* oxlint-disable socket/prefer-cached-for-loop -- iterates `usesStatements.slice().reverse()` / non-array iterables; the cached-length rewrite would be incorrect or lose the reverse pass. */
 
 import { existsSync, promises as fs } from 'node:fs'
 import path from 'node:path'
@@ -24,7 +25,8 @@ export function extractDependencies(content) {
   }
 
   const lines = dependencyMatch[1].split('\n')
-  for (const line of lines) {
+  for (let i = 0, { length } = lines; i < length; i += 1) {
+    const line = lines[i]
     // Match dependency format: #   - owner/repo@ref or #   - owner/repo/.github/path@ref
     // If @ref is omitted, defaults to @main
     const depMatch = line.match(/^#\s+-\s+([^/\s]+)\/([^@\s#]+)(?:@([^\s#]+))?/)
@@ -73,7 +75,8 @@ export async function getAllYamlFiles(dir) {
   const files = []
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true })
-    for (const entry of entries) {
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const entry = entries[i]
       const fullPath = path.join(dir, entry.name)
       if (entry.isFile() && entry.name.endsWith('.yml')) {
         files.push(fullPath)
@@ -99,7 +102,8 @@ export async function processFile(filePath, token, dryRun) {
   // Build a map of dependencies with their resolved SHAs.
   const depMap = new Map()
 
-  for (const dep of dependencies) {
+  for (let i = 0, { length } = dependencies; i < length; i += 1) {
+    const dep = dependencies[i]
     const { owner, ref, repoPath } = dep
 
     // Extract just the repo name (first part before any slashes in repoPath).
@@ -227,7 +231,8 @@ async function main(): Promise<void> {
   // Collect action files.
   try {
     const actionDirs = await fs.readdir(actionsPath, { withFileTypes: true })
-    for (const dir of actionDirs) {
+    for (let i = 0, { length } = actionDirs; i < length; i += 1) {
+      const dir = actionDirs[i]
       if (dir.isDirectory()) {
         const actionFile = path.join(actionsPath, dir.name, 'action.yml')
         if (existsSync(actionFile)) {
@@ -247,7 +252,8 @@ async function main(): Promise<void> {
   let totalChanges = 0
   const processedFiles = []
 
-  for (const file of allFiles) {
+  for (let i = 0, { length } = allFiles; i < length; i += 1) {
+    const file = allFiles[i]
     const result = await processFile(file, token, dryRun)
     if (result.hasChanges) {
       processedFiles.push({ changes: result.changes, file })
@@ -263,7 +269,8 @@ async function main(): Promise<void> {
   // Display changes.
   for (const { changes, file } of processedFiles) {
     logger.info(`\n${path.relative(cwd, file)}:`)
-    for (const change of changes) {
+    for (let i = 0, { length } = changes; i < length; i += 1) {
+      const change = changes[i]
       logger.log(`  ${change.action}@${change.ref} → ${change.sha.slice(0, 7)}`)
       if (!dryRun) {
         logger.log(`    - ${change.oldLine}`)

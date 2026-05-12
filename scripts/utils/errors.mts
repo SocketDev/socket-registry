@@ -9,7 +9,8 @@ function extractErrorInfo(stderr: string): string {
 
   // Find the main error message.
   let foundError = false
-  for (const line of lines) {
+  for (let i = 0, { length } = lines; i < length; i += 1) {
+    const line = lines[i]
     // Skip Node.js internal stack trace lines.
     if (/^\s+at\s+/.test(line) || /node:internal/.test(line)) {
       continue
@@ -45,7 +46,8 @@ function extractNpmError(stderr: string): string {
   const lines = stderr.split('\n')
   const errorLines: string[] = []
 
-  for (const line of lines) {
+  for (let i = 0, { length } = lines; i < length; i += 1) {
+    const line = lines[i]
     // Skip npm warnings and notices.
     if (line.startsWith('npm warn') || line.startsWith('npm notice')) {
       continue

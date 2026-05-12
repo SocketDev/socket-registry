@@ -2,6 +2,7 @@
  * @fileoverview Test for assert package override.
  * Tests ported from https://github.com/browserify/commonjs-assert/blob/c628adcf35900c423ae2c14914eab133cfe9f2ad/test/parallel/test-assert.js
  */
+/* max-file-lines: legitimate — mirrors upstream assert parallel test file; splitting drifts from the source map to upstream. */
 
 import { describe, expect, it } from 'vitest'
 

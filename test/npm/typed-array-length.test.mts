@@ -63,7 +63,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   describe('Typed Arrays', () => {
     it('returns correct length', () => {
-      for (const name of typedArrayNames) {
+      for (let i = 0, { length } = typedArrayNames; i < length; i += 1) {
+        const name = typedArrayNames[i]!
         const TA = globalThis[name]
         if (typeof TA === 'function') {
           const length = 10

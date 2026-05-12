@@ -1,4 +1,5 @@
 /** @fileoverview Utility for running shell commands with proper error handling. */
+/* oxlint-disable socket/prefer-cached-for-loop -- iterates a destructured command-list record; the cached-length rewrite would be incorrect. */
 
 import process from 'node:process'
 

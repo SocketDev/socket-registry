@@ -1,3 +1,4 @@
+/* oxlint-disable socket/prefer-cached-for-loop -- perf harness iterates the case matrix; loop overhead is dwarfed by the operation being benchmarked. */
 import assert from 'node:assert/strict'
 import path from 'node:path'
 

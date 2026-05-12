@@ -63,13 +63,14 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   describe('Typed Arrays', () => {
     it('returns correct byte length', () => {
-      const length = 64
+      const bufferLength = 64
       const byteOffset = 32
 
-      for (const name of typedArrayNames) {
+      for (let i = 0, { length } = typedArrayNames; i < length; i += 1) {
+        const name = typedArrayNames[i]!
         const TA = globalThis[name]
         if (typeof TA === 'function') {
-          const buffer = new ArrayBuffer(length)
+          const buffer = new ArrayBuffer(bufferLength)
           const arr = new TA(buffer, byteOffset)
           expect(typedArrayByteLength(arr)).toBe(byteOffset)
         }

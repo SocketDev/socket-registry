@@ -1,3 +1,4 @@
+/* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Object.entries); the cached-length rewrite would be incorrect. */
 /**
  * @fileoverview Creates Socket registry package overrides for npm packages.
  * Interactive CLI tool that guides users through creating secure package overrides:
@@ -43,7 +44,7 @@ import { naturalCompare, naturalSorter } from '@socketsecurity/lib/sorts'
 import { transform } from '@socketsecurity/lib/streams'
 import { indentString } from '@socketsecurity/lib/strings'
 import { pluralize } from '@socketsecurity/lib/words'
-import { default as didYouMean, ReturnTypeEnums } from 'didyoumean2'
+import { ReturnTypeEnums, default as didYouMean } from 'didyoumean2'
 import fastGlob from 'fast-glob'
 import { open } from 'out-url'
 import semver from 'semver'
@@ -293,7 +294,7 @@ async function main(): Promise<void> {
     const loweredSpecUrl = compatData?.spec_url?.toLowerCase() ?? ''
     if (
       (parts.length === 3 &&
-        (parts[1] === 'prototype' || parts[1] === 'proto')) ||
+        (parts[1] === 'proto' || parts[1] === 'prototype')) ||
       loweredSpecUrl.includes(`${parts[0]}.prototype`)
     ) {
       templateChoice = TEMPLATE_ES_SHIM_PROTOTYPE_METHOD

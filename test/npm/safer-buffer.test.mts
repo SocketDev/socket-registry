@@ -1,5 +1,7 @@
 /** @fileoverview Tests for @socketregistry/safer-buffer npm package override. */
 /* eslint-disable n/no-deprecated-api */
+/* oxlint-disable socket/prefer-cached-for-loop -- tests iterate short literal arrays / Object.keys() return values; per-iteration overhead is irrelevant and rewriting obscures the test intent. */
+/* max-file-lines: legitimate — exhaustive Buffer API parity matrix; the test surface is intrinsic to the package being tested and splitting it scatters one describe-tree across files. */
 import buffer from 'node:buffer'
 import path from 'node:path'
 // eslint-disable-next-line n/no-extraneous-import
@@ -30,7 +32,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('Is not a function', () => {
-    for (const impl of implementations) {
+    for (let i = 0, { length } = implementations; i < length; i += 1) {
+      const impl = implementations[i]
       expect(typeof impl).toBe('object')
       expect(typeof impl.Buffer).toBe('object')
     }
@@ -39,7 +42,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('Constructor throws', () => {
-    for (const impl of implementations) {
+    for (let i = 0, { length } = implementations; i < length; i += 1) {
+      const impl = implementations[i]
       expect(() => {
         impl.Buffer()
       }).toThrow()
@@ -72,7 +76,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('Safe methods exist', () => {
-    for (const impl of implementations) {
+    for (let i = 0, { length } = implementations; i < length; i += 1) {
+      const impl = implementations[i]
       expect(typeof impl.Buffer.alloc).toBe('function')
       expect(typeof impl.Buffer.from).toBe('function')
     }
@@ -87,7 +92,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('Generic methods/properties are defined and equal', () => {
     for (const method of ['poolSize', 'isBuffer', 'concat', 'byteLength']) {
-      for (const impl of implementations) {
+      for (let i = 0, { length } = implementations; i < length; i += 1) {
+        const impl = implementations[i]
         expect(impl.Buffer[method]).toBe((buffer as any).Buffer[method])
         expect(typeof impl.Buffer[method]).not.toBe('undefined')
       }
@@ -96,10 +102,11 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('Built-in buffer static methods/properties are inherited', () => {
     for (const method of Object.keys(buffer)) {
-      if (method === 'SlowBuffer' || method === 'Buffer') {
+      if (method === 'Buffer' || method === 'SlowBuffer') {
         continue
       }
-      for (const impl of implementations) {
+      for (let i = 0, { length } = implementations; i < length; i += 1) {
+        const impl = implementations[i]
         expect(impl[method]).toBe((buffer as any)[method])
         expect(typeof impl[method]).not.toBe('undefined')
       }
@@ -111,7 +118,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       if (method === 'allocUnsafe' || method === 'allocUnsafeSlow') {
         continue
       }
-      for (const impl of implementations) {
+      for (let i = 0, { length } = implementations; i < length; i += 1) {
+        const impl = implementations[i]
         expect(impl.Buffer[method]).toBe((buffer as any).Buffer[method])
         expect(typeof impl.Buffer[method]).not.toBe('undefined')
       }
@@ -119,7 +127,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('.prototype property of Buffer is inherited', () => {
-    for (const impl of implementations) {
+    for (let i = 0, { length } = implementations; i < length; i += 1) {
+      const impl = implementations[i]
       expect(impl.Buffer.prototype).toBe(buffer.Buffer.prototype)
       expect(typeof impl.Buffer.prototype).not.toBe('undefined')
     }
@@ -130,13 +139,15 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       if (method === 'Buffer') {
         continue
       }
-      for (const impl of implementations) {
+      for (let i = 0, { length } = implementations; i < length; i += 1) {
+        const impl = implementations[i]
         expect(impl[method]).toBe(safer[method])
         expect(typeof impl[method]).not.toBe('undefined')
       }
     }
     for (const method of Object.keys(safer.Buffer)) {
-      for (const impl of implementations) {
+      for (let i = 0, { length } = implementations; i < length; i += 1) {
+        const impl = implementations[i]
         expect(impl.Buffer[method]).toBe(safer.Buffer[method])
         expect(typeof impl.Buffer[method]).not.toBe('undefined')
       }
@@ -148,7 +159,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       if (method === 'Buffer') {
         continue
       }
-      for (const impl of implementations) {
+      for (let i = 0, { length } = implementations; i < length; i += 1) {
+        const impl = implementations[i]
         expect(impl[method]).toBe(dangerous[method])
         expect(typeof impl[method]).not.toBe('undefined')
       }
@@ -157,7 +169,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       if (method === 'allocUnsafe' || method === 'allocUnsafeSlow') {
         continue
       }
-      for (const impl of implementations) {
+      for (let i = 0, { length } = implementations; i < length; i += 1) {
+        const impl = implementations[i]
         expect(impl.Buffer[method]).toBe(dangerous.Buffer[method])
         expect(typeof impl.Buffer[method]).not.toBe('undefined')
       }
@@ -167,7 +180,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   /* Behaviour tests */
 
   it('Methods return Buffers', () => {
-    for (const impl of implementations) {
+    for (let i = 0, { length } = implementations; i < length; i += 1) {
+      const impl = implementations[i]
       expect(buffer.Buffer.isBuffer(impl.Buffer.alloc(0))).toBe(true)
       expect(buffer.Buffer.isBuffer(impl.Buffer.alloc(0, 10))).toBe(true)
       expect(buffer.Buffer.isBuffer(impl.Buffer.alloc(0, 'a'))).toBe(true)
@@ -193,7 +207,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('Constructor is buffer.Buffer', () => {
-    for (const impl of implementations) {
+    for (let i = 0, { length } = implementations; i < length; i += 1) {
+      const impl = implementations[i]
       expect(impl.Buffer.alloc(0).constructor).toBe(buffer.Buffer)
       expect(impl.Buffer.alloc(0, 10).constructor).toBe(buffer.Buffer)
       expect(impl.Buffer.alloc(0, 'a').constructor).toBe(buffer.Buffer)
@@ -223,7 +238,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('Invalid calls throw', () => {
-    for (const impl of implementations) {
+    for (let i = 0, { length } = implementations; i < length; i += 1) {
+      const impl = implementations[i]
       expect(() => {
         impl.Buffer.from(0)
       }).toThrow()
@@ -366,7 +382,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('Buffers have appropriate lengths', () => {
-    for (const impl of implementations) {
+    for (let i = 0, { length } = implementations; i < length; i += 1) {
+      const impl = implementations[i]
       expect(impl.Buffer.alloc(0).length).toBe(0)
       expect(impl.Buffer.alloc(10).length).toBe(10)
       expect(impl.Buffer.from('').length).toBe(0)
@@ -497,7 +514,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('safer.Buffer.from returns results same as Buffer constructor', () => {
-    for (const impl of implementations) {
+    for (let i = 0, { length } = implementations; i < length; i += 1) {
+      const impl = implementations[i]
       expect(impl.Buffer.from('')).toEqual(new buffer.Buffer(''))
       expect(impl.Buffer.from('string')).toEqual(new buffer.Buffer('string'))
       expect(impl.Buffer.from('string', 'utf-8')).toEqual(
@@ -517,7 +535,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('safer.Buffer.from returns consistent results', () => {
-    for (const impl of implementations) {
+    for (let i = 0, { length } = implementations; i < length; i += 1) {
+      const impl = implementations[i]
       expect(impl.Buffer.from('')).toEqual(impl.Buffer.alloc(0))
       expect(impl.Buffer.from([])).toEqual(impl.Buffer.alloc(0))
       expect(impl.Buffer.from(new Uint8Array([]))).toEqual(impl.Buffer.alloc(0))

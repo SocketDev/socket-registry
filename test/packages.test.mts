@@ -1,4 +1,5 @@
 /** @fileoverview Tests for package validation and manifest generation. */
+/* oxlint-disable socket/prefer-cached-for-loop -- test loops iterate small literal sets / for-await-of streams; perf rewrite obscures intent. */
 import { existsSync, promises as fs } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
@@ -90,7 +91,8 @@ export function findLeakedApiKey(keys: string[]): string | undefined {
   return shimApiKeys.find(k => keys.includes(k))
 }
 
-for (const eco of ecosystems) {
+for (let i = 0, { length } = ecosystems; i < length; i += 1) {
+  const eco = ecosystems[i]
   if (eco !== NPM) {
     continue
   }
@@ -104,7 +106,8 @@ for (const eco of ecosystems) {
       return
     }
 
-    for (const sockRegPkgName of packageNames) {
+    for (let i = 0, { length } = packageNames; i < length; i += 1) {
+      const sockRegPkgName = packageNames[i]!
       const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
       const pkgJsonExists = existsSync(pkgJsonPath)

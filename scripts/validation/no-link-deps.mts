@@ -2,6 +2,7 @@
  * @fileoverview Validates that no package.json files contain link: dependencies.
  * Link dependencies are prohibited - use workspace: or catalog: instead.
  */
+/* oxlint-disable socket/prefer-cached-for-loop -- iterates Map.entries() / destructured tuples; the cached-length rewrite would be incorrect. */
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
@@ -90,15 +91,16 @@ export async function findPackageJsonFiles(dir) {
   const files = []
   const entries = await fs.readdir(dir, { withFileTypes: true })
 
-  for (const entry of entries) {
+  for (let i = 0, { length } = entries; i < length; i += 1) {
+    const entry = entries[i]
     const fullPath = path.join(dir, entry.name)
 
     // Skip node_modules, .git, and build directories.
     if (
-      entry.name === 'node_modules' ||
       entry.name === '.git' ||
       entry.name === 'build' ||
-      entry.name === 'dist'
+      entry.name === 'dist' ||
+      entry.name === 'node_modules'
     ) {
       continue
     }
@@ -119,7 +121,8 @@ async function main(): Promise<void> {
       const packageJsonFiles = await findPackageJsonFiles(rootPath)
       const allViolations = []
 
-      for (const file of packageJsonFiles) {
+      for (let i = 0, { length } = packageJsonFiles; i < length; i += 1) {
+        const file = packageJsonFiles[i]
         const violations = await checkPackageJson(file)
         allViolations.push(...violations)
       }
@@ -131,7 +134,8 @@ async function main(): Promise<void> {
         )
         logger.log('')
 
-        for (const violation of allViolations) {
+        for (let i = 0, { length } = allViolations; i < length; i += 1) {
+          const violation = allViolations[i]
           const relativePath = path.relative(rootPath, violation.file)
           logger.log(`  ${relativePath}`)
           logger.log(

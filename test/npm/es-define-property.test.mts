@@ -54,7 +54,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('typeof is undefined or boolean', () => {
-      expect(typeof $defineProperty).toMatch(/^(?:undefined|boolean)$/)
+      expect(typeof $defineProperty).toMatch(/^(?:boolean|undefined)$/)
     })
   })
 })

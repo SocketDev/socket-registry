@@ -1,3 +1,4 @@
+/* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Object.entries); the cached-length rewrite would be incorrect. */
 /**
  * @fileoverview Print the pinned version of a Socket package to
  * stdout, reading from (in order):
@@ -35,7 +36,8 @@ const fromCatalog = (pkg: string): string | undefined => {
   const content = readFileSync('pnpm-workspace.yaml', 'utf8')
   const lines = content.split('\n')
   let inCatalog = false
-  for (const rawLine of lines) {
+  for (let i = 0, { length } = lines; i < length; i += 1) {
+    const rawLine = lines[i]
     const line = rawLine.replace(/\r$/, '')
     if (/^catalog:\s*$/.test(line)) {
       inCatalog = true
@@ -56,6 +58,7 @@ const fromCatalog = (pkg: string): string | undefined => {
     if (m && m[1] === pkg) {
       return stripRange(m[2]!)
     }
+  
   }
   return undefined
 }

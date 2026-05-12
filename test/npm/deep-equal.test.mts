@@ -2,6 +2,7 @@
  * @fileoverview Test for deep-equal package override.
  * Tests ported from https://github.com/inspect-js/node-deep-equal/blob/48d3bb5b7fe3e65fd564b737c69a9411eb40bc65/test/cmp.js
  */
+/* max-file-lines: legitimate — mirrors upstream deep-equal cmp test file; splitting drifts from the source map to upstream. */
 
 import { describe, expect, it } from 'vitest'
 

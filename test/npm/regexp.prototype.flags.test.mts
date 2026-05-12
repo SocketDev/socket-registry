@@ -43,7 +43,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       '',
       'foo',
     ]
-    for (const nonObject of primitives) {
+    for (let i = 0, { length } = primitives; i < length; i += 1) {
+      const nonObject = primitives[i]
       expect(() => flags(nonObject)).toThrow(TypeError)
     }
   })

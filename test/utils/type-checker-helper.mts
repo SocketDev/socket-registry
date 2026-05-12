@@ -157,7 +157,8 @@ export function createTypeCheckerTests(config: TypeCheckerTestConfig): void {
   describeFn(`${typeName} type checker`, () => {
     // Test invalid values.
     describe(`not ${typeName}s`, () => {
-      for (const value of invalidValues) {
+      for (let i = 0, { length } = invalidValues; i < length; i += 1) {
+        const value = invalidValues[i]
         it(`should return false for ${String(value)}`, () => {
           expect(checkerFn(value)).toBe(false)
         })
@@ -178,7 +179,8 @@ export function createTypeCheckerTests(config: TypeCheckerTestConfig): void {
 
     // Test valid values.
     describe(`${typeName}s`, () => {
-      for (const value of validValues) {
+      for (let i = 0, { length } = validValues; i < length; i += 1) {
+        const value = validValues[i]
         const valueDesc =
           typeof value === 'object' && value !== null
             ? `${value.constructor?.name || 'Object'} instance`

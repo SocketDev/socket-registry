@@ -27,7 +27,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('non-functions', () => {
     it('throws TypeError for non-function values', () => {
       const nonFunctions = [true, false, [], {}, 42, 'foo', NaN, /a/g]
-      for (const nonFunction of nonFunctions) {
+      for (let i = 0, { length } = nonFunctions; i < length; i += 1) {
+        const nonFunction = nonFunctions[i]
         expect(() => functionBind.call(nonFunction)).toThrow(TypeError)
       }
     })

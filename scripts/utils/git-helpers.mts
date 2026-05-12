@@ -54,7 +54,7 @@ function parsePorcelainZ(raw: string, gitRoot: string): string[] {
     const status = record.slice(0, 2)
     const filepath = record.slice(3)
     // Rename / copy — next record is the old path; skip it.
-    if (status[0] === 'R' || status[0] === 'C') {
+    if (status[0] === 'C' || status[0] === 'R') {
       i += 1
     }
     if (existsSync(path.join(gitRoot, filepath))) {

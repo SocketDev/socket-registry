@@ -80,9 +80,10 @@ async function main(): Promise<void> {
   const commonArgs = []
 
   if (cliArgs.package?.length) {
-    cliArgs.package.forEach(pkg => {
+    for (let i = 0, { length } = cliArgs.package; i < length; i += 1) {
+      const pkg = cliArgs.package[i]
       commonArgs.push('--package', pkg)
-    })
+    }
   }
 
   // Validate args with validate concurrency.

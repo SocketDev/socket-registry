@@ -1,4 +1,5 @@
 /** @fileoverview Tests for @socketregistry/json-stable-stringify npm package override. */
+/* oxlint-disable socket/prefer-cached-for-loop -- test iterates short literal arrays; perf rewrite is noise. */
 import { describe, expect, it } from 'vitest'
 
 import { getEnv } from '../../scripts/constants/env.mts'

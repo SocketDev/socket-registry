@@ -22,7 +22,8 @@ export function setupSuppression() {
       // Check both string warnings and warning objects.
       if (typeof warning === 'string') {
         // Check if any suppressed warning type matches.
-        for (const suppressedType of suppressedWarnings) {
+        for (let i = 0, { length } = suppressedWarnings; i < length; i += 1) {
+          const suppressedType = suppressedWarnings[i]
           if (warning.includes(suppressedType)) {
             return
           }

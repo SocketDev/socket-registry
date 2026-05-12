@@ -30,7 +30,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         '{"nested":{"key":"value"}}',
         '[1,"two",true,null]',
       ]
-      for (const s of testValues) {
+      for (let i = 0, { length } = testValues; i < length; i += 1) {
+        const s = testValues[i]!
         expect(json.parse(s)).toEqual(JSON.parse(s))
       }
     })
@@ -49,7 +50,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         { nested: { key: 'value' } },
         [1, 'two', true, undefined],
       ]
-      for (const obj of testValues) {
+      for (let i = 0, { length } = testValues; i < length; i += 1) {
+        const obj = testValues[i]
         expect(json.stringify(obj)).toBe(JSON.stringify(obj))
       }
     })

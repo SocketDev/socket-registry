@@ -1,4 +1,5 @@
 /* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
+/* oxlint-disable socket/prefer-cached-for-loop -- iterates destructured records and async-settled results; the cached-length rewrite would be incorrect. */
 
 /** @fileoverview Validates package overrides before release to catch test infrastructure issues early. */
 
@@ -60,7 +61,8 @@ export function formatResults(results) {
   const errors = []
   const warnings = []
 
-  for (const result of results) {
+  for (let i = 0, { length } = results; i < length; i += 1) {
+    const result = results[i]
     if (!result.issues.length) {
       logger.success(`✓ ${result.packageName}: All checks passed`)
       continue
@@ -130,7 +132,8 @@ export async function validateBuildArtifacts(_packageName, packageDir) {
       }
     }
 
-    for (const entryPoint of entryPoints) {
+    for (let i = 0, { length } = entryPoints; i < length; i += 1) {
+      const entryPoint = entryPoints[i]
       const fullPath = path.join(packageDir, entryPoint)
       if (!existsSync(fullPath)) {
         issues.push({
@@ -250,13 +253,14 @@ export async function validateModuleResolution(_packageName, packageDir) {
   const sourceFiles = []
   const collectFiles = async dir => {
     const entries = await fs.readdir(dir, { withFileTypes: true })
-    for (const entry of entries) {
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const entry = entries[i]
       const fullPath = path.join(dir, entry.name)
       if (entry.isDirectory() && entry.name !== 'node_modules') {
         // Recursively scan subdirectories, excluding node_modules.
 
         await collectFiles(fullPath)
-      } else if (entry.isFile() && /\.(js|mjs|cjs|ts)$/.test(entry.name)) {
+      } else if (entry.isFile() && /\.(cjs|js|mjs|ts)$/.test(entry.name)) {
         sourceFiles.push(fullPath)
       }
     }
@@ -265,7 +269,8 @@ export async function validateModuleResolution(_packageName, packageDir) {
   try {
     await collectFiles(packageDir)
 
-    for (const file of sourceFiles) {
+    for (let i = 0, { length } = sourceFiles; i < length; i += 1) {
+      const file = sourceFiles[i]
       const content = await fs.readFile(file, 'utf8')
 
       // Check for problematic import patterns.
@@ -327,7 +332,8 @@ export async function validatePackage(packageName) {
   ]
 
   const settled = await Promise.allSettled(validations)
-  for (const result of settled) {
+  for (let i = 0, { length } = settled; i < length; i += 1) {
+    const result = settled[i]
     if (result.status === 'fulfilled') {
       allIssues.push(...result.value)
     }
@@ -414,7 +420,8 @@ export async function validateTestFiles(_packageName, packageDir) {
   ]
 
   let hasTests = false
-  for (const testPath of commonTestPaths) {
+  for (let i = 0, { length } = commonTestPaths; i < length; i += 1) {
+    const testPath = commonTestPaths[i]
     const fullPath = path.join(packageDir, testPath)
     if (existsSync(fullPath)) {
       hasTests = true

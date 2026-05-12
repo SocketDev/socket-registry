@@ -1,4 +1,5 @@
 /** @fileoverview Generate GitHub Actions allow list from workflow and action dependencies. */
+/* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Map / Object.entries); the cached-length rewrite would be incorrect. */
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
@@ -22,7 +23,8 @@ export async function extractDependencies(filePath) {
 
   // Extract from uses: statements only (these have SHAs).
   const usesMatches = content.matchAll(/^\s*uses:\s*(.+)$/gm)
-  for (const match of usesMatches) {
+  for (let i = 0, { length } = usesMatches; i < length; i += 1) {
+    const match = usesMatches[i]
     let action = match[1].trim()
     // Remove inline comments from uses statements.
     action = action.replace(/\s+#.*$/, '')
@@ -48,7 +50,8 @@ export async function getAllYamlFiles(dir) {
   const files = []
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true })
-    for (const entry of entries) {
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const entry = entries[i]
       const fullPath = path.join(dir, entry.name)
       if (entry.isFile() && entry.name.endsWith('.yml')) {
         files.push(fullPath)
@@ -70,7 +73,8 @@ async function main(): Promise<void> {
 
   // Process workflow files.
   const workflowFiles = await getAllYamlFiles(ROOT_DOT_GITHUB_WORKFLOWS_PATH)
-  for (const file of workflowFiles) {
+  for (let i = 0, { length } = workflowFiles; i < length; i += 1) {
+    const file = workflowFiles[i]
     const deps = await extractDependencies(file)
     for (const { 0: key, 1: value } of deps.entries()) {
       allDependencies.set(key, value)
@@ -81,7 +85,8 @@ async function main(): Promise<void> {
   const actionDirs = await fs.readdir(ROOT_DOT_GITHUB_ACTIONS_PATH, {
     withFileTypes: true,
   })
-  for (const dir of actionDirs) {
+  for (let i = 0, { length } = actionDirs; i < length; i += 1) {
+    const dir = actionDirs[i]
     if (dir.isDirectory()) {
       const actionFile = path.join(
         ROOT_DOT_GITHUB_ACTIONS_PATH,

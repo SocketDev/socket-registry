@@ -29,7 +29,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       [],
       {},
     ]
-    for (const nonFn of nonFunctions) {
+    for (let i = 0, { length } = nonFunctions; i < length; i += 1) {
+      const nonFn = nonFunctions[i]
       expect(() => setFunctionLength(nonFn)).toThrow(TypeError)
     }
   })
@@ -48,7 +49,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       1.5,
       0xffffffff + 1,
     ]
-    for (const nonInt of nonIntegers) {
+    for (let i = 0, { length } = nonIntegers; i < length; i += 1) {
+      const nonInt = nonIntegers[i]
       expect(() => setFunctionLength(function () {}, nonInt)).toThrow(TypeError)
     }
   })
@@ -59,7 +61,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       function one(_x: any) {},
       function two(_x: any, _y: any) {},
     ]
-    for (const fn of fns) {
+    for (let i = 0, { length } = fns; i < length; i += 1) {
+      const fn = fns[i]!
       const origLength = fn.length
       const newLength = origLength * 2 + 12
       expect(setFunctionLength(fn, newLength)).toBe(fn)

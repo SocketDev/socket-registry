@@ -78,9 +78,11 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('preserves property order', () => {
     const letters = 'abcdefghijklmnopqrst'
     const source: Record<string, string> = {}
-    letters.split('').forEach(letter => {
+    const splitLetters = letters.split('')
+    for (let i = 0, { length } = splitLetters; i < length; i += 1) {
+      const letter = splitLetters[i]!
       source[letter] = letter
-    })
+    }
     const target = objectAssign({}, source)
     expect(Object.keys(target).join('')).toBe(letters)
   })

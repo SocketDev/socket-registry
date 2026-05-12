@@ -89,7 +89,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         c: 3,
       }
       const keys = objectKeys(obj)
-      for (const key of keys) {
+      for (let i = 0, { length } = keys; i < length; i += 1) {
+        const key = keys[i]
         expect(Object.hasOwn(obj, key)).toBe(true)
       }
     })
@@ -103,7 +104,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         }
       }
       const keys = objectKeys(obj)
-      for (const key of keys) {
+      for (let i = 0, { length } = keys; i < length; i += 1) {
+        const key = keys[i]
         expect(loopedValues).toContain(key)
       }
     })

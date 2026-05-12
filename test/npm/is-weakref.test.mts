@@ -35,7 +35,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       {},
       [],
     ]
-    for (const nonWeakRef of nonWeakRefs) {
+    for (let i = 0, { length } = nonWeakRefs; i < length; i += 1) {
+      const nonWeakRef = nonWeakRefs[i]
       expect(isWeakRef(nonWeakRef)).toBe(false)
     }
   })

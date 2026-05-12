@@ -78,7 +78,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   describe('@@toStringTag', { skip: !hasToStringTag }, () => {
     it('faked typed arrays are not typed arrays', () => {
-      for (const name of typedArrayNames) {
+      for (let i = 0, { length } = typedArrayNames; i < length; i += 1) {
+        const name = typedArrayNames[i]!
         if (typeof (globalThis as any)[name] === 'function') {
           const fakeTypedArray: any = []
           fakeTypedArray[Symbol.toStringTag] = name
@@ -95,7 +96,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   describe('Typed Arrays', () => {
-    for (const name of typedArrayNames) {
+    for (let i = 0, { length } = typedArrayNames; i < length; i += 1) {
+      const name = typedArrayNames[i]!
       const TypedArray = (globalThis as any)[name]
       if (typeof TypedArray === 'function') {
         it(`new ${name}(10) is typed array`, () => {

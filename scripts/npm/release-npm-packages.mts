@@ -1,4 +1,5 @@
 /* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
+/* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (state.warnings / state.changes / Object.entries); the cached-length rewrite would be incorrect. */
 
 /** @fileoverview Detect package changes and bump versions for npm release. */
 
@@ -88,7 +89,8 @@ export async function getLocalPackageFileHashes(packagePath) {
   // Walk and hash files.
   async function walkDir(dir, baseDir = packagePath) {
     const entries = await fs.readdir(dir, { withFileTypes: true })
-    for (const entry of entries) {
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const entry = entries[i]
       const fullPath = path.join(dir, entry.name)
       const relativePath = path.relative(baseDir, fullPath)
 
@@ -157,7 +159,8 @@ export async function getRemotePackageFileHashes(spec) {
       // Walk the directory and compute hashes for all files.
       async function walkDir(dir, baseDir = tmpDir) {
         const entries = await fs.readdir(dir, { withFileTypes: true })
-        for (const entry of entries) {
+        for (let i = 0, { length } = entries; i < length; i += 1) {
+          const entry = entries[i]
           const fullPath = path.join(dir, entry.name)
           const relativePath = path.relative(baseDir, fullPath)
 

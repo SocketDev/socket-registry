@@ -3,6 +3,7 @@
  * Checks @socketregistry/*, @socketoverride/*, and @socketsecurity/registry packages by default.
  * Use --all flag to check all Socket packages across all scopes.
  */
+/* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Object.entries); the cached-length rewrite would be incorrect. */
 
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
@@ -218,10 +219,12 @@ export async function checkTrustedPackage(packageName, state) {
     }
     logger.warn(`${packageName}:`)
     logger.indent()
-    for (const success of successes) {
+    for (let i = 0, { length } = successes; i < length; i += 1) {
+      const success = successes[i]
       logger.success(success)
     }
-    for (const issue of issues) {
+    for (let i = 0, { length } = issues; i < length; i += 1) {
+      const issue = issues[i]
       logger.fail(issue)
     }
     if (info.version) {
@@ -234,7 +237,8 @@ export async function checkTrustedPackage(packageName, state) {
 
   // Success - show minimal output unless debug mode
   if (args.debug) {
-    for (const success of successes) {
+    for (let i = 0, { length } = successes; i < length; i += 1) {
+      const success = successes[i]
       logger.success(success)
     }
     logger.info(`Latest version: ${info.version}`)
@@ -256,37 +260,43 @@ async function main(): Promise<void> {
 
   // Always include packages from manifest (@socketregistry/*, @socketoverride/*).
   const manifestPackages = await getPackagesFromManifest()
-  manifestPackages.forEach(pkg => {
+  for (let i = 0, { length } = manifestPackages; i < length; i += 1) {
+    const pkg = manifestPackages[i]
     packagesToCheck.add(pkg)
-  })
+  }
 
   // Supplement with @socketregistry/* and @socketoverride/* packages from npm.
   const socketRegistryPackages = await getPackagesFromScope('socketregistry')
-  socketRegistryPackages.forEach(pkg => {
+  for (let i = 0, { length } = socketRegistryPackages; i < length; i += 1) {
+    const pkg = socketRegistryPackages[i]
     packagesToCheck.add(pkg)
-  })
+  }
 
   const socketOverridePackages = await getPackagesFromScope('socketoverride')
-  socketOverridePackages.forEach(pkg => {
+  for (let i = 0, { length } = socketOverridePackages; i < length; i += 1) {
+    const pkg = socketOverridePackages[i]
     packagesToCheck.add(pkg)
-  })
+  }
 
   // Always check core Socket packages.
-  coreSocketPackages.forEach(pkg => {
+  for (let i = 0, { length } = coreSocketPackages; i < length; i += 1) {
+    const pkg = coreSocketPackages[i]
     packagesToCheck.add(pkg)
-  })
+  }
 
   if (args.all) {
     // Add hardcoded other Socket packages.
-    otherSocketPackages.forEach(pkg => {
+    for (let i = 0, { length } = otherSocketPackages; i < length; i += 1) {
+      const pkg = otherSocketPackages[i]
       packagesToCheck.add(pkg)
-    })
+    }
 
     // Supplement with any additional @socketsecurity/* packages from npm.
     const socketSecurityPackages = await getPackagesFromScope('socketsecurity')
-    socketSecurityPackages.forEach(pkg => {
+    for (let i = 0, { length } = socketSecurityPackages; i < length; i += 1) {
+      const pkg = socketSecurityPackages[i]
       packagesToCheck.add(pkg)
-    })
+    }
   }
 
   logger.write(`🔍 Checking ${packagesToCheck.size} Socket packages`)
@@ -302,7 +312,8 @@ async function main(): Promise<void> {
   // Sort packages for consistent output
   const sortedPackages = Array.from(packagesToCheck).sort()
 
-  for (const packageName of sortedPackages) {
+  for (let i = 0, { length } = sortedPackages; i < length; i += 1) {
+    const packageName = sortedPackages[i]
     try {
       if (args.debug) {
         logger.group(packageName)

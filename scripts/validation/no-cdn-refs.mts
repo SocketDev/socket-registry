@@ -92,7 +92,8 @@ export async function checkFileForCdnRefs(filePath) {
       const line = lines[i]
       const lineNumber = i + 1
 
-      for (const pattern of CDN_PATTERNS) {
+      for (let i = 0, { length } = CDN_PATTERNS; i < length; i += 1) {
+        const pattern = CDN_PATTERNS[i]
         if (pattern.test(line)) {
           const match = line.match(pattern)
           violations.push({
@@ -124,7 +125,8 @@ export async function findTextFiles(dir, files = []) {
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true })
 
-    for (const entry of entries) {
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const entry = entries[i]
       const fullPath = path.join(dir, entry.name)
 
       if (entry.isDirectory()) {
@@ -161,7 +163,8 @@ export async function validateNoCdnRefs() {
   const files = await findTextFiles(rootPath)
   const allViolations = []
 
-  for (const file of files) {
+  for (let i = 0, { length } = files; i < length; i += 1) {
+    const file = files[i]
     const violations = await checkFileForCdnRefs(file)
     allViolations.push(...violations)
   }
@@ -190,7 +193,8 @@ async function main(): Promise<void> {
         logger.log('Violations:')
         logger.log('')
 
-        for (const violation of violations) {
+        for (let i = 0, { length } = violations; i < length; i += 1) {
+          const violation = violations[i]
           logger.log(`  ${violation.file}:${violation.line}`)
           logger.log(`    Domain: ${violation.cdnDomain}`)
           logger.log(`    Content: ${violation.content}`)

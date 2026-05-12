@@ -45,14 +45,16 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('core list', () => {
     it('known core modules can be required', () => {
       const knownCore = ['fs', 'path', 'http', 'https', 'url', 'os', 'util']
-      for (const mod of knownCore) {
+      for (let i = 0, { length } = knownCore; i < length; i += 1) {
+        const mod = knownCore[i]
         expect(isCore(mod)).toBe(true)
       }
     })
 
     it('non-core modules are detected', () => {
       const nonCore = ['express', 'lodash', 'react', 'not-a-module']
-      for (const mod of nonCore) {
+      for (let i = 0, { length } = nonCore; i < length; i += 1) {
+        const mod = nonCore[i]
         expect(isCore(mod)).toBe(false)
       }
     })

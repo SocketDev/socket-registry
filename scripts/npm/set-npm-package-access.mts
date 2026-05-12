@@ -72,7 +72,8 @@ async function main(): Promise<void> {
 
   // Process trusted publishing packages (skip MFA automation as it requires npm_token).
   logger.log('Skipping MFA automation for trusted publishing packages:')
-  for (const pkg of trustedPublishingPackages) {
+  for (let i = 0, { length } = trustedPublishingPackages; i < length; i += 1) {
+    const pkg = trustedPublishingPackages[i]
     logger.log(
       `  ${pkg.printName}: Trusted publishing uses OIDC tokens which don't support npm access commands. ` +
         'MFA settings should be configured through npm web interface.',

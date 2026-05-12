@@ -33,7 +33,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       {},
       function () {},
     ]
-    for (const nonCollection of nonCollections) {
+    for (let i = 0, { length } = nonCollections; i < length; i += 1) {
+      const nonCollection = nonCollections[i]
       expect(whichCollection(nonCollection)).toBe(false)
     }
   })

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Map / Set / Object.entries); the cached-length rewrite would be incorrect. */
 /**
  * @fileoverview Recursively bump stale internal SHA pins to HEAD.
  *
@@ -29,7 +30,7 @@
  * didn't change.
  */
 
-import { spawnSync } from 'node:child_process'
+import { spawn } from '@socketsecurity/lib/spawn'
 import { existsSync, promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -85,7 +86,8 @@ interface Pin {
 export async function scanPins(): Promise<Pin[]> {
   const files = await walkYaml(path.join(REPO_ROOT, '.github'))
   const pins: Pin[] = []
-  for (const file of files) {
+  for (let i = 0, { length } = files; i < length; i += 1) {
+    const file = files[i]
     const text = await fs.readFile(file, 'utf8')
     PIN_RE.lastIndex = 0
     let m: RegExpExecArray | null
@@ -147,7 +149,8 @@ export async function runIteration(
     return { commits: 0, converged: true }
   }
   const byFile = new Map<string, Pin[]>()
-  for (const p of stale) {
+  for (let i = 0, { length } = stale; i < length; i += 1) {
+    const p = stale[i]
     const arr = byFile.get(p.file)
     if (arr) {
       arr.push(p)
@@ -162,7 +165,8 @@ export async function runIteration(
   logger.log(
     `  bumping ${stale.length} stale pins across ${byFile.size} files → ${head.slice(0, 8)}`,
   )
-  for (const p of pinPaths) {
+  for (let i = 0, { length } = pinPaths; i < length; i += 1) {
+    const p = pinPaths[i]
     logger.log(`    ${p}`)
   }
   if (dryRun) {
@@ -171,7 +175,8 @@ export async function runIteration(
   for (const [file, pinsInFile] of byFile) {
     await rewriteFile(file, pinsInFile, head)
   }
-  for (const f of relFiles) {
+  for (let i = 0, { length } = relFiles; i < length; i += 1) {
+    const f = relFiles[i]
     git('add', f)
   }
   const subject =

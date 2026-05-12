@@ -5,7 +5,7 @@
  * Validates that Socket overrides either have manual tests (test/npm/<pkg-name>.test.mts) or are in test/npm/package.json devDependencies.
  */
 
-import { existsSync, readdirSync, promises as fs } from 'node:fs'
+import { existsSync, promises as fs, readdirSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'

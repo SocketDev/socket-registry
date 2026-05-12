@@ -63,7 +63,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   describe('@@toStringTag fakes', () => {
     it('returns false for faked typed arrays', () => {
-      for (const name of typedArrayNames) {
+      for (let i = 0, { length } = typedArrayNames; i < length; i += 1) {
+        const name = typedArrayNames[i]!
         if (typeof globalThis[name] === 'function') {
           const fakeTypedArray: any = []
           fakeTypedArray[Symbol.toStringTag] = name
@@ -75,7 +76,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   describe('Typed Arrays', () => {
     it('returns the correct type name', () => {
-      for (const name of typedArrayNames) {
+      for (let i = 0, { length } = typedArrayNames; i < length; i += 1) {
+        const name = typedArrayNames[i]!
         const TA = globalThis[name]
         if (typeof TA === 'function') {
           const arr = new TA(10)

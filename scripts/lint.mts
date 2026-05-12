@@ -2,6 +2,7 @@
  * @fileoverview Unified lint runner with flag-based configuration.
  * Provides smart linting that can target affected files or lint everything.
  */
+/* oxlint-disable socket/prefer-cached-for-loop -- iterates a configured linter list (destructured loop variable); the cached-length rewrite would be incorrect. */
 
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -46,7 +47,8 @@ export function isExcludedByOxfmt(
   file: string,
   excludePatterns: string[],
 ): boolean {
-  for (const pattern of excludePatterns) {
+  for (let i = 0, { length } = excludePatterns; i < length; i += 1) {
+    const pattern = excludePatterns[i]
     // Convert glob pattern to regex-like matching.
     // Support **/ for directory wildcards and * for filename wildcards.
     const regexPattern = pattern
@@ -72,8 +74,10 @@ export function shouldRunAllLinters(changedFiles: string[]): {
   runAll: boolean
   reason?: string
 } {
-  for (const file of changedFiles) {
-    for (const pattern of FULL_LINT_TRIGGERS) {
+  for (let i = 0, { length } = changedFiles; i < length; i += 1) {
+    const file = changedFiles[i]
+    for (let i = 0, { length } = FULL_LINT_TRIGGERS; i < length; i += 1) {
+      const pattern = FULL_LINT_TRIGGERS[i]
       if (minimatch(file, pattern)) {
         return { runAll: true, reason: 'config files changed' }
       }

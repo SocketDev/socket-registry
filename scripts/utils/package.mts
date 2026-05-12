@@ -1,3 +1,5 @@
+/* max-file-lines: legitimate — shared package.json toolkit; every helper is co-consumed by multiple npm scripts and splitting would fan-out imports without a real domain seam (only ~22 LOC over the soft cap). */
+/* oxlint-disable socket/prefer-cached-for-loop -- iterates Object.entries() of script tables; the cached-length rewrite would be incorrect. */
 /**
  * @fileoverview Common utilities for working with package.json files.
  * Provides helper functions for reading, updating, and managing package.json
@@ -98,7 +100,8 @@ export async function collectPackageData(paths, options = {}) {
       const pkgJson = await readPackageJson(pkgPath, { normalize: true })
       const data = { path: pkgPath }
 
-      for (const field of fields) {
+      for (let i = 0, { length } = fields; i < length; i += 1) {
+        const field = fields[i]
         if (field in pkgJson) {
           data[field] = pkgJson[field]
         }

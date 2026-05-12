@@ -21,10 +21,10 @@ import { getNpmPackageNames } from '../constants/testing.mts'
 import { extractErrorInfo } from '../utils/errors.mts'
 import { filterPackagesByChanges } from '../utils/git.mts'
 import {
-  buildTestEnv,
   PNPM_HOISTED_INSTALL_FLAGS,
   PNPM_INSTALL_BASE_FLAGS,
   PNPM_INSTALL_ENV,
+  buildTestEnv,
   spawnCapture,
 } from '../utils/package.mts'
 import { suppressMaxListenersWarning } from '../utils/suppress-warnings.mts'
@@ -74,7 +74,7 @@ export function hasModuleError(stdout: string, stderr: string): boolean {
  */
 export function isNonTestScript(cleanedScript: string): boolean {
   return (
-    /^npm run (?:lint|build|prepare|prepublish|pretest)$/.test(cleanedScript) ||
+    /^npm run (?:build|lint|prepare|prepublish|pretest)$/.test(cleanedScript) ||
     cleanedScript === 'exit 0'
   )
 }

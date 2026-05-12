@@ -40,7 +40,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     if (typeof SharedArrayBuffer === 'function') {
       nonABs.push(new SharedArrayBuffer(0))
     }
-    for (const nonAB of nonABs) {
+    for (let i = 0, { length } = nonABs; i < length; i += 1) {
+      const nonAB = nonABs[i]!
       expect(isArrayBuffer(nonAB)).toBe(false)
     }
   })
@@ -81,7 +82,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       'BigUint64Array',
     ]
 
-    for (const name of typedArrayNames) {
+    for (let i = 0, { length } = typedArrayNames; i < length; i += 1) {
+      const name = typedArrayNames[i]!
       const TypedArray = (globalThis as any)[name]
       if (typeof TypedArray === 'function') {
         it(`${name} buffer is an ArrayBuffer`, () => {
