@@ -34,8 +34,14 @@ catalog:
   '@npmcli/promise-spawn': 8.0.3
   '@sinclair/typebox': 0.34.49
   '@socketregistry/packageurl-js': 1.4.2
+  '@socketregistry/packageurl-js-stable': npm:@socketregistry/packageurl-js@1.4.2
   '@socketsecurity/lib': 5.28.0
+  '@socketsecurity/lib-stable': npm:@socketsecurity/lib@5.28.0
+  '@socketsecurity/registry': 2.0.2
+  '@socketsecurity/sdk': 4.0.1
+  '@socketsecurity/sdk-stable': npm:@socketsecurity/sdk@4.0.1
   '@types/fs-extra': 11.0.4
+  '@types/mdast': 4.0.4
   '@types/node': 24.9.2
   '@types/normalize-package-data': 2.4.4
   '@types/npm-package-arg': 6.1.4
@@ -47,6 +53,7 @@ catalog:
   '@types/spdx-expression-parse': 3.0.5
   '@types/validate-npm-package-name': 4.0.2
   '@types/which': 3.0.4
+  '@typescript/native-preview': 7.0.0-dev.20260415.1
   '@vitest/coverage-v8': 4.0.3
   '@vitest/ui': 4.0.3
   '@yarnpkg/extensions': 2.0.6
@@ -81,10 +88,14 @@ catalog:
   libnpmpack: 9.0.9
   magic-string: 0.30.17
   make-fetch-happen: 15.0.2
+  'mdast-util-from-markdown': 2.0.3
+  'micromark': 4.0.2
   minimatch: 9.0.5
   normalize-package-data: 8.0.0
   npm-package-arg: 13.0.0
   out-url: 1.2.2
+  'oxfmt': 0.37.0
+  'oxlint': 1.52.0
   pacote: 21.0.1
   read-yaml-file: 2.1.0
   semver: 7.7.4
