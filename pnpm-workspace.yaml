@@ -183,6 +183,9 @@ patchedDependencies:
   brace-expansion@2.0.2: patches/brace-expansion@2.0.2.patch
   minimatch@9.0.5: patches/minimatch@9.0.5.patch
 trustPolicy: no-downgrade
+trustPolicyExclude:
+  - 'compromise@14.15.0'
+
 
 # Auto-install missing peer deps (pnpm default). Declared explicitly
 # so a future default flip can't silently change install behavior.
