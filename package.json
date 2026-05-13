@@ -42,7 +42,7 @@
     "perf": "node scripts/perf.mts",
     "security": "node scripts/security.mts",
     "setup": "node scripts/setup.mts",
-    "prepare": "husky",
+    "prepare": "node scripts/install-git-hooks.mts",
     "prepublishOnly": "echo 'ERROR: Use GitHub Actions workflow for publishing' && exit 1",
     "publish": "node scripts/publish.mts",
     "publish:ci": "node scripts/publish.mts --skip-build",
