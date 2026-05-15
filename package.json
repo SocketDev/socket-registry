@@ -71,6 +71,7 @@
     "@sinclair/typebox": "catalog:",
     "@socketregistry/is-unicode-supported": "workspace:*",
     "@socketregistry/packageurl-js-stable": "catalog:",
+    "@socketsecurity/lib": "catalog:",
     "@socketsecurity/lib-stable": "catalog:",
     "@socketsecurity/sdk-stable": "catalog:",
     "@types/fs-extra": "catalog:",
