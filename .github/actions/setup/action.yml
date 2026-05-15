@@ -357,10 +357,14 @@ runs:
         # Source of truth (baked into the binary) lives at
         # SocketDev/firewall:src/lib/registries/default.ts.
         #
-        # The bypass list itself lives in sibling file sfw-bypass-list.txt
-        # so socket-btm's local install-sfw.mts can read the same canonical
-        # source without re-deriving the entries from this YAML heredoc.
-        BYPASS_FILE="${{ github.action_path }}/sfw-bypass-list.txt"
+        # The bypass list itself lives in the wheelhouse-canonical
+        # location `.config/sfw-bypass-list.txt` (action_path is the
+        # action's own checkout, i.e. socket-registry@<pinned SHA>;
+        # `../../../.config/` walks up out of `.github/actions/setup/`
+        # to repo root). Every fleet repo gets a byte-identical copy
+        # via sync-scaffolding, so socket-btm's install-sfw.mts can
+        # read its own local copy at the same path.
+        BYPASS_FILE="${{ github.action_path }}/../../../.config/sfw-bypass-list.txt"
         {
           echo 'SFW_CUSTOM_REGISTRIES<<EOF'
           # Strip comments + blank lines so the env var holds only real entries.
