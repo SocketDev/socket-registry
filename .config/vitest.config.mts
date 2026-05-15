@@ -138,9 +138,14 @@ export default defineConfig({
       threads: {
         // Use single thread for coverage to reduce memory, parallel otherwise.
         singleThread: isCoverageEnabled,
-        // Limit threads based on environment: CI can handle more parallelism.
-        maxThreads: isCoverageEnabled ? 1 : process.env.CI ? 16 : 4,
-        minThreads: isCoverageEnabled ? 1 : process.env.CI ? 4 : 2,
+        // Thread count tuned to physical CPUs. GH Actions ubuntu-latest
+        // has 4 cores — pushing 16 threads there oversubscribes 4× and
+        // burns wall time on context-switching. Dev laptops typically
+        // have 8-16 cores so the higher local cap pays for itself.
+        // Use `'CI' in process.env` (not truthy `process.env.CI`) so
+        // self-hosted runners that set CI="" or CI=0 still count.
+        maxThreads: isCoverageEnabled ? 1 : 'CI' in process.env ? 4 : 16,
+        minThreads: isCoverageEnabled ? 1 : 'CI' in process.env ? 2 : 4,
         // IMPORTANT: isolate: false for performance and test compatibility
         //
         // Tradeoff Analysis:
@@ -165,7 +170,7 @@ export default defineConfig({
     testTimeout: 10_000,
     hookTimeout: 10_000,
     // Bail out early in CI to fail fast
-    bail: process.env.CI ? 1 : undefined,
+    bail: 'CI' in process.env ? 1 : 0,
     server: {
       deps: {
         // Inline dependencies to enable source transformation for coverage.
