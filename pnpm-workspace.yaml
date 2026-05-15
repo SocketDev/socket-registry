@@ -194,6 +194,12 @@ patchedDependencies:
 trustPolicy: no-downgrade
 trustPolicyExclude:
   - 'compromise@14.15.0'
+  # semver@6.x series doesn't ship provenance attestations; semver@7.x
+  # does. Pulled in transitively via @babel/core@7.28.4's hard `^6.3.1`
+  # pin (we can't bump that without an upstream @babel/core change).
+  # Trust-downgrade is a false positive here — same publisher, just an
+  # older major branch maintained separately. 6.3.1 is the latest 6.x.
+  - 'semver@6.3.1'
 
 
 # Auto-install missing peer deps (pnpm default). Declared explicitly
