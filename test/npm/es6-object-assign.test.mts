@@ -2,7 +2,7 @@
 /* oxlint-disable socket/prefer-cached-for-loop -- test iterates short literal arrays; perf rewrite is noise. */
 import path from 'node:path'
 // eslint-disable-next-line n/no-extraneous-import
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 import { describe, expect, it } from 'vitest'
 import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
 

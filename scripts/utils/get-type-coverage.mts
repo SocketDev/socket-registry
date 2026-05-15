@@ -1,5 +1,5 @@
 /** @fileoverview Utility to calculate TypeScript type coverage percentage. */
-import { WIN32 } from '@socketsecurity/lib/constants/platform'
+import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
 
 import { spawn } from './spawn.mts'
 

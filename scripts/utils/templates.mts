@@ -6,22 +6,22 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 
-import { PackageURL } from '@socketregistry/packageurl-js'
+import { PackageURL } from '@socketregistry/packageurl-js-stable'
 
 import manifestData from '../../registry/manifest.json' with { type: 'json' }
-import { joinAnd } from '@socketsecurity/lib/arrays'
-import { globStreamLicenses } from '@socketsecurity/lib/globs'
-import { isObjectObject } from '@socketsecurity/lib/objects'
+import { joinAnd } from '@socketsecurity/lib-stable/arrays'
+import { globStreamLicenses } from '@socketsecurity/lib-stable/globs'
+import { isObjectObject } from '@socketsecurity/lib-stable/objects'
 import {
   readPackageJson,
   resolveOriginalPackageName,
-} from '@socketsecurity/lib/packages'
-import { capitalize, determineArticle } from '@socketsecurity/lib/words'
+} from '@socketsecurity/lib-stable/packages'
+import { capitalize, determineArticle } from '@socketsecurity/lib-stable/words'
 import { Eta } from 'eta'
 import fastGlob from 'fast-glob'
 import semver from 'semver'
 
-import { UTF8 } from '@socketsecurity/lib/constants/encoding'
+import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'
 import {
   NPM,
   NPM_TEMPLATES_PATH,

@@ -34,10 +34,10 @@ import { fileURLToPath } from 'node:url'
 import { Type } from '@sinclair/typebox'
 import type { Static } from '@sinclair/typebox'
 
-import { httpDownload } from '@socketsecurity/lib/http-request'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
-import { parseSchema } from '@socketsecurity/lib/schema/parse'
-import { spawn } from '@socketsecurity/lib/spawn'
+import { httpDownload } from '@socketsecurity/lib-stable/http-request'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { parseSchema } from '@socketsecurity/lib-stable/schema/parse'
+import { spawn } from '@socketsecurity/lib-stable/spawn'
 
 const logger = getDefaultLogger()
 

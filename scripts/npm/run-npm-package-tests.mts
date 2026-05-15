@@ -4,14 +4,14 @@ import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
-import { parseArgs } from '@socketsecurity/lib/argv/parse'
-import { WIN32 } from '@socketsecurity/lib/constants/platform'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 import {
   readPackageJson,
   resolveOriginalPackageName,
-} from '@socketsecurity/lib/packages'
-import { pEach } from '@socketsecurity/lib/promises'
+} from '@socketsecurity/lib-stable/packages'
+import { pEach } from '@socketsecurity/lib-stable/promises'
 
 const logger = getDefaultLogger()
 

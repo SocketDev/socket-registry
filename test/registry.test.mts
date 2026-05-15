@@ -56,7 +56,7 @@ describe(SOCKET_REGISTRY_PACKAGE_NAME, () => {
   })
 
   it('should have working utility functions', async () => {
-    const { isObjectObject } = await import('@socketsecurity/lib/objects')
+    const { isObjectObject } = await import('@socketsecurity/lib-stable/objects')
     expect(typeof isObjectObject).toBe('function')
     expect(isObjectObject({})).toBe(true)
     // oxlint-disable-next-line socket/prefer-undefined-over-null -- testing null branch

@@ -11,8 +11,8 @@ import { fileURLToPath } from 'node:url'
 
 import colors from 'yoctocolors-cjs'
 
-import { isQuiet } from '@socketsecurity/lib/argv/flags'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { isQuiet } from '@socketsecurity/lib-stable/argv/flags'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 
 import { runCommand } from './utils/run-command.mts'
 

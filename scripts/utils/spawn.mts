@@ -8,4 +8,4 @@ export {
   isStdioType,
   spawn,
   spawnSync,
-} from '@socketsecurity/lib/spawn'
+} from '@socketsecurity/lib-stable/spawn'

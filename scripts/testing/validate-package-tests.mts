@@ -7,10 +7,10 @@ import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import parseArgsModule from '@socketsecurity/lib/argv/parse'
-import loggerModule from '@socketsecurity/lib/logger'
-import promisesModule from '@socketsecurity/lib/promises'
-import spawnModule from '@socketsecurity/lib/spawn'
+import parseArgsModule from '@socketsecurity/lib-stable/argv/parse'
+import loggerModule from '@socketsecurity/lib-stable/logger'
+import promisesModule from '@socketsecurity/lib-stable/promises'
+import spawnModule from '@socketsecurity/lib-stable/spawn'
 
 const { parseArgs } = parseArgsModule
 const { logger } = loggerModule

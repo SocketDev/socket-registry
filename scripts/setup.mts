@@ -16,11 +16,11 @@ import { mkdir, open, readFile, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 
-import { WIN32 } from '@socketsecurity/lib/constants/platform'
-import { errorMessage, isErrnoException } from '@socketsecurity/lib/errors'
-import { safeDelete } from '@socketsecurity/lib/fs'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
-import { spawn } from '@socketsecurity/lib/spawn'
+import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
+import { errorMessage, isErrnoException } from '@socketsecurity/lib-stable/errors'
+import { safeDelete } from '@socketsecurity/lib-stable/fs'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { spawn } from '@socketsecurity/lib-stable/spawn'
 
 const logger = getDefaultLogger()
 const quiet = process.argv.includes('--quiet')
