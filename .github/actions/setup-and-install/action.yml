@@ -94,6 +94,6 @@ runs:
 
     - name: Setup Go toolchain
       if: inputs.setup-go == 'true'
-      uses: SocketDev/socket-registry/.github/actions/setup-go-toolchain@64eb126e90301045eb095cf18f8050db3ff358a2 # main (2026-05-15)
+      uses: SocketDev/socket-registry/.github/actions/setup-go-toolchain@14180727893eebd1b2ba06cdf7e867a804db25fd # main (2026-05-15)
       with:
         version: ${{ inputs.setup-go-version }}
