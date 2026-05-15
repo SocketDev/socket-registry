@@ -1,0 +1,128 @@
+name: 'Setup ccache'
+description: |
+  Install ccache (or sccache on Windows) via the platform package manager,
+  restore the ccache directory from actions/cache@v4, configure CCACHE_DIR
+  + CCACHE_MAXSIZE, and prepend the binary to GITHUB_PATH.
+
+  Replaces the third-party `hendrikmuhs/ccache-action` so the consumer's
+  allowlist doesn't need `hendrikmuhs/ccache-action@*`. The cache layer
+  uses `actions/cache@*` which is already on the canonical allowlist.
+
+  Saves the cache at job end via actions/cache@v4's automatic
+  save-on-success behavior (the post step).
+
+inputs:
+  key:
+    description: |
+      Cache key (passed straight through to actions/cache@v4). The
+      caller usually composes os + arch + build-mode (e.g.
+      "linux-x86_64-prod") so each variant gets its own cache.
+    required: true
+  variant:
+    description: |
+      "ccache" (default) or "sccache". Use sccache on Windows where
+      ccache support is limited.
+    required: false
+    default: 'ccache'
+  max-size:
+    description: |
+      Ceiling for the cache directory. Examples: "2G", "4G", "500M".
+      Default 2G — large enough for most node-class builds, small
+      enough to fit comfortably in GitHub's 10GB per-repo cache quota.
+    required: false
+    default: '2G'
+  save:
+    description: |
+      Whether to save the cache at job end. Default 'true'. Set to
+      'false' for matrix slots that only consume the cache (e.g.
+      release-only slots after the warming slot has run).
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install ccache / sccache
+      shell: bash
+      env:
+        VARIANT: ${{ inputs.variant }}
+      run: |
+        set -euo pipefail
+
+        if command -v "$VARIANT" >/dev/null 2>&1; then
+          BIN="$(command -v "$VARIANT")"
+          echo "$VARIANT already on PATH: $BIN"
+          "$BIN" --version | head -1
+          exit 0
+        fi
+
+        case "$(uname -s)" in
+          Linux)
+            # apt path. Ubuntu's `ccache` and `sccache` packages are both
+            # available in default repos. sudo is preinstalled on hosted
+            # runners; on self-hosted root-owned containers it's a no-op.
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends "$VARIANT"
+            ;;
+          Darwin)
+            # Homebrew is preinstalled on macOS hosted runners.
+            brew install "$VARIANT"
+            ;;
+          MINGW*|MSYS*|CYGWIN*)
+            # Choco preinstalled on hosted Windows runners. sccache is
+            # available; ccache is too but sccache is what the matrix
+            # uses (better Windows support).
+            choco install -y --no-progress "$VARIANT"
+            ;;
+          *)
+            echo "× Unsupported platform: $(uname -s)" >&2
+            exit 1
+            ;;
+        esac
+
+        echo "Installed $VARIANT:"
+        command -v "$VARIANT"
+        "$VARIANT" --version | head -1
+
+    - name: Restore ccache cache
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      with:
+        path: ${{ runner.os == 'Windows' && format('{0}\AppData\Local\Mozilla\sccache', runner.temp) || format('{0}/.ccache', runner.temp) }}
+        key: ${{ inputs.variant }}-${{ inputs.key }}-${{ github.run_id }}
+        restore-keys: |
+          ${{ inputs.variant }}-${{ inputs.key }}-
+        save-always: ${{ inputs.save }}
+
+    - name: Configure ccache environment
+      shell: bash
+      env:
+        VARIANT: ${{ inputs.variant }}
+        MAX_SIZE: ${{ inputs.max-size }}
+        RUNNER_TEMP: ${{ runner.temp }}
+      run: |
+        set -euo pipefail
+
+        if [ "$VARIANT" = "sccache" ]; then
+          # sccache uses SCCACHE_* env vars + RUSTC_WRAPPER (rust) or
+          # CC=sccache cc (C). We export CCACHE_DIR-equivalent for
+          # caller convenience.
+          if [ "$(uname -s)" = "Linux" ] || [ "$(uname -s)" = "Darwin" ]; then
+            SCCACHE_DIR="$RUNNER_TEMP/.ccache"
+          else
+            SCCACHE_DIR="$LOCALAPPDATA/Mozilla/sccache"
+          fi
+          echo "SCCACHE_DIR=$SCCACHE_DIR" >> "$GITHUB_ENV"
+          echo "SCCACHE_CACHE_SIZE=$MAX_SIZE" >> "$GITHUB_ENV"
+          echo "SCCACHE_IDLE_TIMEOUT=0" >> "$GITHUB_ENV"
+        else
+          CCACHE_DIR="$RUNNER_TEMP/.ccache"
+          mkdir -p "$CCACHE_DIR"
+          echo "CCACHE_DIR=$CCACHE_DIR" >> "$GITHUB_ENV"
+          echo "CCACHE_MAXSIZE=$MAX_SIZE" >> "$GITHUB_ENV"
+          # CCACHE_COMPRESS=1 trades a small amount of CPU for ~2-3x
+          # capacity in the same disk budget.
+          echo "CCACHE_COMPRESS=1" >> "$GITHUB_ENV"
+        fi
+
+        echo "$VARIANT configured. Stats:"
+        "$VARIANT" --show-stats 2>/dev/null || true
