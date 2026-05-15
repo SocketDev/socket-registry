@@ -129,7 +129,7 @@ jobs:
     outputs:
       has-updates: ${{ steps.check.outputs.has-updates }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@64eb126e90301045eb095cf18f8050db3ff358a2 # main (2026-05-15)
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@f8100a9981bf5ca60b62b3a06a6a93a29067619b # main (2026-05-15)
         with:
           socket-api-token: ${{ secrets.SOCKET_API_TOKEN || secrets.SOCKET_API_KEY }}
 
@@ -179,7 +179,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@64eb126e90301045eb095cf18f8050db3ff358a2 # main (2026-05-15)
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@f8100a9981bf5ca60b62b3a06a6a93a29067619b # main (2026-05-15)
         with:
           checkout-fetch-depth: ${{ inputs.checkout-fetch-depth }}
           socket-api-token: ${{ secrets.SOCKET_API_TOKEN || secrets.SOCKET_API_KEY }}
