@@ -20,7 +20,7 @@
     "socket-registry — Layer 4 (_local-not-for-reuse-*.yml) SHAs are not valid pins for",
     "external consumers."
   ],
-  "propagationSha": "13bbf03c297e37f6bd770570284730d2108f8156",
+  "propagationSha": "a92445215e7370ce7f7ded560e9f150370e7dd43",
   "propagationShaUpdatedAt": "2026-05-15",
-  "propagationShaCommitSubject": "refactor(setup): read sfw bypass list from wheelhouse-canonical .config/"
+  "propagationShaCommitSubject": "chore(catalog): drop non-stable Socket entries from catalog"
 }
