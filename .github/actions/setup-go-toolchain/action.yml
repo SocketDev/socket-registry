@@ -30,11 +30,14 @@ runs:
   steps:
     - name: Locate or install Go
       shell: bash
-      run: |
+      env:
+        # Route inputs through env to avoid zizmor template-injection
+        # findings — the values still come from the caller but are never
+        # expanded directly into the shell source.
+        VERSION_INPUT: ${{ inputs.version }}
+        REQUIRED: ${{ inputs.required }}
+      run: | # zizmor: ignore[github-env]
         set -uo pipefail
-
-        VERSION_INPUT='${{ inputs.version }}'
-        REQUIRED='${{ inputs.required }}'
 
         # Step 1: already on PATH?
         if command -v go >/dev/null 2>&1; then

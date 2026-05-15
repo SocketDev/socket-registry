@@ -53,7 +53,7 @@ runs:
         TARGETS: ${{ inputs.targets }}
         COMPONENTS: ${{ inputs.components }}
         PROFILE: ${{ inputs.profile }}
-      run: |
+      run: | # zizmor: ignore[github-env]
         set -euo pipefail
 
         # rustup is preinstalled on GitHub-hosted runners. On

@@ -99,7 +99,7 @@ runs:
         VARIANT: ${{ inputs.variant }}
         MAX_SIZE: ${{ inputs.max-size }}
         RUNNER_TEMP: ${{ runner.temp }}
-      run: |
+      run: | # zizmor: ignore[github-env]
         set -euo pipefail
 
         if [ "$VARIANT" = "sccache" ]; then

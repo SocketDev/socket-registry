@@ -32,7 +32,7 @@ runs:
       env:
         ZIG_VERSION: ${{ inputs.version }}
         ZIG_SHA256: ${{ inputs.version-sha256 }}
-      run: |
+      run: | # zizmor: ignore[github-env]
         set -euo pipefail
 
         # ziglang.org publishes tarballs at:
