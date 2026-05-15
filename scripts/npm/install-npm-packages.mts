@@ -1037,7 +1037,7 @@ export async function installPackage(packageInfo) {
 
     writeProgress(LOG_SYMBOLS.fail)
     completePackage()
-    const err = e as { message?: string; stderr?: string; stdout?: string }
+    const err = e as { message?: string | undefined; stderr?: string | undefined; stdout?: string | undefined }
     const errorDetails = [err.message ?? String(e)]
     // Show last ERROR_OUTPUT_TRUNCATE_LENGTH chars of stderr (where actual errors appear).
     if (err.stderr) {

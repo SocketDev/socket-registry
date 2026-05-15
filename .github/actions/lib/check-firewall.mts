@@ -42,12 +42,12 @@ const purl = `pkg:npm/${pkgName}@${version}`
 const url = `${FIREWALL_API_URL}/${encodeURIComponent(purl)}`
 
 interface Alert {
-  severity?: string
-  type?: string
-  key?: string
+  severity?: string | undefined
+  type?: string | undefined
+  key?: string | undefined
 }
 interface FirewallResponse {
-  alerts?: Alert[]
+  alerts?: Alert[] | undefined
 }
 
 const main = async (): Promise<number> => {

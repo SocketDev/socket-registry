@@ -124,8 +124,8 @@ interface PlatformEntry {
 }
 
 interface ToolConfig {
-  checksums?: Record<string, PlatformEntry>
-  release?: string
+  checksums?: Record<string, PlatformEntry> | undefined
+  release?: string | undefined
   repository: string
   version: string
 }

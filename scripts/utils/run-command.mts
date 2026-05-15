@@ -68,9 +68,9 @@ export async function runPnpmScript(
 }
 
 export interface CommandSpec {
-  args?: string[]
+  args?: string[] | undefined
   command: string
-  options?: SpawnOptions
+  options?: SpawnOptions | undefined
 }
 
 /**
@@ -102,9 +102,9 @@ export async function waitForStdioFlush(
     const handles = (
       process as unknown as {
         _getActiveHandles(): Array<{
-          _isStdio?: boolean
-          _writableState?: { pendingcb: number }
-          constructor?: { name?: string }
+          _isStdio?: boolean | undefined
+          _writableState?: { pendingcb: number } | undefined
+          constructor?: { name?: string | undefined } | undefined
         }>
       }
     )._getActiveHandles()
@@ -205,7 +205,7 @@ export async function runCommandStrict(
 ): Promise<void> {
   const exitCode = await runCommand(command, args, options)
   if (exitCode !== 0) {
-    const error: Error & { code?: number } = new Error(
+    const error: Error & { code?: number | undefined } = new Error(
       `Command failed: ${command} ${args.join(' ')}`,
     )
     error.code = exitCode
@@ -229,7 +229,7 @@ export async function runCommandQuietStrict(
     options,
   )
   if (exitCode !== 0) {
-    const error: Error & { code?: number; stderr?: string; stdout?: string } =
+    const error: Error & { code?: number | undefined; stderr?: string | undefined; stdout?: string | undefined } =
       new Error(`Command failed: ${command} ${args.join(' ')}`)
     error.code = exitCode
     error.stdout = stdout

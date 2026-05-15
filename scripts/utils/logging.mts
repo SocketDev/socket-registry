@@ -9,9 +9,9 @@ const DEFAULT_RULE_WIDTH = 50
 const DEFAULT_RULE_CHAR = '─'
 
 interface HeaderOptions {
-  emoji?: string
-  ruleChar?: string
-  ruleWidth?: number
+  emoji?: string | undefined
+  ruleChar?: string | undefined
+  ruleWidth?: number | undefined
 }
 
 /**

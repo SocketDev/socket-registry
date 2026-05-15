@@ -35,12 +35,12 @@ export interface TypeCheckerTestConfig {
    * Whether to include @@toStringTag tests (optional, default: false).
    * Only applicable for types that support custom toStringTag.
    */
-  toStringTagTests?: boolean
+  toStringTagTests?: boolean | undefined
 
   /**
    * Skip all tests (optional).
    */
-  skip?: boolean
+  skip?: boolean | undefined
 }
 
 /**

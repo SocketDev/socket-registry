@@ -8,11 +8,11 @@ import process from 'node:process'
 import { runWithMask } from '@socketsecurity/lib-stable/stdio/mask'
 
 interface RunWithOutputOptions {
-  cwd?: string
-  env?: NodeJS.ProcessEnv
-  message?: string
-  toggleText?: string
-  verbose?: boolean
+  cwd?: string | undefined
+  env?: NodeJS.ProcessEnv | undefined
+  message?: string | undefined
+  toggleText?: string | undefined
+  verbose?: boolean | undefined
 }
 
 /**

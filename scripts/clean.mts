@@ -25,13 +25,13 @@ const rootPath = path.resolve(
  */
 interface CleanTask {
   name: string
-  pattern?: string
-  patterns?: string[]
+  pattern?: string | undefined
+  patterns?: string[] | undefined
 }
 
 export async function cleanDirectories(
   tasks: CleanTask[],
-  options: { quiet?: boolean } = {},
+  options: { quiet?: boolean | undefined } = {},
 ): Promise<number> {
   const { quiet = false } = options
 

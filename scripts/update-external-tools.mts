@@ -115,8 +115,8 @@ export async function ghApiLatestRelease(
     // want to pin an unpublished asset.
     const newest = parsed.find(r => {
       const withFlags = r as GhRelease & {
-        draft?: boolean
-        prerelease?: boolean
+        draft?: boolean | undefined
+        prerelease?: boolean | undefined
       }
       return !withFlags.draft && withFlags.prerelease === true
     })

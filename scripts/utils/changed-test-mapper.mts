@@ -25,13 +25,13 @@ export function debug(message: string): void {
 }
 
 interface GetTestsToRunOptions {
-  all?: boolean
-  staged?: boolean
+  all?: boolean | undefined
+  staged?: boolean | undefined
 }
 
 interface TestsToRunResult {
   mode: string
-  reason?: string
+  reason?: string | undefined
   tests: string[] | 'all' | undefined
 }
 

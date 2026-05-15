@@ -65,11 +65,11 @@ export async function validateBuildArtifacts(): Promise<boolean> {
  * Delegates to scripts/npm/publish-npm-packages.mts.
  */
 interface PublishOptions {
-  force?: boolean
-  forcePublish?: boolean
-  forceRegistry?: boolean
-  skipNpmPackages?: boolean
-  tag?: string
+  force?: boolean | undefined
+  forcePublish?: boolean | undefined
+  forceRegistry?: boolean | undefined
+  skipNpmPackages?: boolean | undefined
+  tag?: string | undefined
 }
 
 export async function publishComplex(

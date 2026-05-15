@@ -8,8 +8,8 @@ import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 
 interface RunValidationOptions {
-  failureMessage?: string
-  successMessage?: string
+  failureMessage?: string | undefined
+  successMessage?: string | undefined
 }
 
 /**

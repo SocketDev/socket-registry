@@ -88,8 +88,8 @@ export async function collectPackageData(paths, options = {}) {
     concurrency = DEFAULT_CONCURRENCY,
     fields = ['name', 'version', 'description'],
   } = { __proto__: null, ...options } as {
-    concurrency?: number
-    fields?: string[]
+    concurrency?: number | undefined
+    fields?: string[] | undefined
   }
 
   const results = []
@@ -181,7 +181,7 @@ export async function installPackageForTesting(
   options = {},
 ) {
   const { versionSpec } = { __proto__: null, ...options } as {
-    versionSpec?: string
+    versionSpec?: string | undefined
   }
 
   if (!existsSync(sourcePath)) {
@@ -383,11 +383,11 @@ export async function processWithSpinner(items, processor, options = {}) {
     startMessage,
     successMessage,
   } = { __proto__: null, ...options } as {
-    concurrency?: number
-    errorMessage?: string
-    spinner?: unknown
-    startMessage?: string
-    successMessage?: string
+    concurrency?: number | undefined
+    errorMessage?: string | undefined
+    spinner?: unknown | undefined
+    startMessage?: string | undefined
+    successMessage?: string | undefined
   }
 
   const results = []
@@ -481,15 +481,15 @@ export async function spawnCapture(
     return { stdout: result.stdout, stderr: result.stderr }
   } catch (e) {
     const err = e as {
-      code?: number
-      exitCode?: number
-      stdout?: string
-      stderr?: string
+      code?: number | undefined
+      exitCode?: number | undefined
+      stdout?: string | undefined
+      stderr?: string | undefined
     }
     const commandError: Error & {
-      code?: number
-      stdout?: string
-      stderr?: string
+      code?: number | undefined
+      stdout?: string | undefined
+      stderr?: string | undefined
     } = new Error(`Command failed: ${command} ${args.join(' ')}`)
     commandError.code = err.code ?? err.exitCode
     commandError.stdout = err.stdout || ''
@@ -505,7 +505,7 @@ export async function updatePackagesJson(packages, options = {}) {
   const { concurrency = DEFAULT_CONCURRENCY, spinner } = {
     __proto__: null,
     ...options,
-  } as { concurrency?: number; spinner?: unknown }
+  } as { concurrency?: number | undefined; spinner?: unknown | undefined }
 
   await pEach(
     packages,

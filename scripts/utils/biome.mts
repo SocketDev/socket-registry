@@ -9,7 +9,7 @@ import process from 'node:process'
 import { spawnSync } from '@socketsecurity/lib-stable/spawn'
 
 interface BiomeFormatOptions {
-  filepath?: string
+  filepath?: string | undefined
 }
 
 /**

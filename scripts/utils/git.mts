@@ -27,7 +27,7 @@ import {
 import { getGlobMatcher } from './globs.mts'
 
 interface GetPackagesOptions {
-  asSet?: boolean
+  asSet?: boolean | undefined
   [key: string]: unknown
 }
 
@@ -124,34 +124,34 @@ function getStagedPackagesSync(eco: string, options?: GetPackagesOptions) {
 /**
  * Alias for getUnstagedFiles.
  */
-export async function getModifiedFiles(options?: { cwd?: string }) {
+export async function getModifiedFiles(options?: { cwd?: string | undefined }) {
   return await getUnstagedFiles(options?.cwd)
 }
 
 /**
  * Alias for getUnstagedFilesSync.
  */
-export function getModifiedFilesSync(options?: { cwd?: string }) {
+export function getModifiedFilesSync(options?: { cwd?: string | undefined }) {
   return getUnstagedFilesSync(options?.cwd)
 }
 
 /**
  * Alias for isUnstaged.
  */
-export async function isModified(pathname: string, options?: { cwd?: string }) {
+export async function isModified(pathname: string, options?: { cwd?: string | undefined }) {
   return await isUnstagedImport(pathname, options?.cwd)
 }
 
 /**
  * Alias for isUnstagedSync.
  */
-export function isModifiedSync(pathname: string, options?: { cwd?: string }) {
+export function isModifiedSync(pathname: string, options?: { cwd?: string | undefined }) {
   return isUnstagedSyncImport(pathname, options?.cwd)
 }
 
 interface FilterPackagesOptions {
-  force?: boolean
-  packageKey?: string
+  force?: boolean | undefined
+  packageKey?: string | undefined
 }
 
 /**

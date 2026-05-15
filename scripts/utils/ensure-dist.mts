@@ -27,7 +27,7 @@ export function isDistBuilt(): boolean {
 }
 
 interface EnsureDistBuiltOptions {
-  silent?: boolean
+  silent?: boolean | undefined
 }
 
 /**

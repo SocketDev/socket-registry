@@ -166,7 +166,7 @@ for (let i = 0, { length } = ecosystems; i < length; i += 1) {
 
         it('package name should be included in "repository.directory" field of package.json', () => {
           expect(
-            (pkgJson.repository as { directory?: string })?.directory,
+            (pkgJson.repository as { directory?: string | undefined })?.directory,
           ).toBe(`packages/npm/${sockRegPkgName}`)
         })
 
@@ -299,7 +299,7 @@ for (let i = 0, { length } = ecosystems; i < length; i += 1) {
                   ? (mainEntry.at(-1) as unknown as { default: string })
                       ?.default
                   : typeof mainEntry === 'object' && mainEntry !== null
-                    ? (mainEntry as { default?: string })?.default
+                    ? (mainEntry as { default?: string | undefined })?.default
                     : (mainEntry as string | undefined)
                 if (defaultMainEntry) {
                   expect(() => req.resolve(defaultMainEntry)).not.toThrow()

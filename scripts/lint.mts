@@ -72,7 +72,7 @@ export function isExcludedByOxfmt(
  */
 export function shouldRunAllLinters(changedFiles: string[]): {
   runAll: boolean
-  reason?: string
+  reason?: string | undefined
 } {
   for (let i = 0, { length } = changedFiles; i < length; i += 1) {
     const file = changedFiles[i]
@@ -124,7 +124,7 @@ export function filterLintableFiles(files: string[]): string[] {
  * Covers exit 2 ("Expected at least one target file" — all files ignored by config)
  * and exit 1 ("No files were processed in the specified paths" — no path matches).
  */
-export function isOxfmtNoFilesResult(result: { stderr?: string }): boolean {
+export function isOxfmtNoFilesResult(result: { stderr?: string | undefined }): boolean {
   const { stderr } = result
   return (
     (stderr?.includes('Expected at least one target file') ||
@@ -137,8 +137,8 @@ export function isOxfmtNoFilesResult(result: { stderr?: string }): boolean {
  * Run linters on specific files.
  */
 interface LintOptions {
-  fix?: boolean
-  quiet?: boolean
+  fix?: boolean | undefined
+  quiet?: boolean | undefined
 }
 
 export async function runLintOnFiles(
@@ -293,14 +293,14 @@ export async function runLintOnAll(options: LintOptions = {}): Promise<number> {
  * Get files to lint based on options.
  */
 interface GetFilesToLintOptions {
-  all?: boolean
-  changed?: boolean
-  staged?: boolean
+  all?: boolean | undefined
+  changed?: boolean | undefined
+  staged?: boolean | undefined
 }
 
 interface FilesToLintResult {
   files: string[] | 'all' | undefined
-  reason?: string
+  reason?: string | undefined
   mode: string
 }
 

@@ -112,7 +112,7 @@ export async function runPackageTest(socketPkgName: string) {
       return { package: origPkgName, passed: true }
     } catch (e) {
       logger.fail(origPkgName)
-      const err = e as { message?: string; stderr?: string }
+      const err = e as { message?: string | undefined; stderr?: string | undefined }
       if (err.stderr) {
         const errorInfo = extractErrorInfo(err.stderr)
         logger.log(`   ${errorInfo}`)
@@ -194,7 +194,7 @@ export async function runPackageTest(socketPkgName: string) {
     logger.success(origPkgName)
     return { package: origPkgName, passed: true }
   } catch (e) {
-    const err = e as { message?: string; stdout?: string; stderr?: string }
+    const err = e as { message?: string | undefined; stdout?: string | undefined; stderr?: string | undefined }
     const errorStdout = err.stdout || ''
     const errorStderr = err.stderr || ''
 
@@ -239,7 +239,7 @@ export async function runPackageTest(socketPkgName: string) {
         return { package: origPkgName, passed: true, reinstalled: true }
       } catch (retryError) {
         logger.fail(`${origPkgName} (reinstall failed)`)
-        const retryErr = retryError as { stderr?: string }
+        const retryErr = retryError as { stderr?: string | undefined }
         if (retryErr.stderr) {
           const errorInfo = extractErrorInfo(retryErr.stderr)
           logger.log(`   ${errorInfo}`)
