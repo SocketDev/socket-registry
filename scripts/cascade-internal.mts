@@ -30,7 +30,7 @@
  * didn't change.
  */
 
-import { spawn } from '@socketsecurity/lib/spawn'
+import { spawnSync } from '@socketsecurity/lib/spawn'
 import { existsSync, promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
