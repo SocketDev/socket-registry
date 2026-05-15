@@ -112,49 +112,59 @@
     "minVersion": "1.82.0",
     "minLlvmVersion": "19",
     "release": "rustup",
-    "components": ["rustc", "cargo"]
+    "components": [
+      "rustc",
+      "cargo"
+    ]
   },
   "pnpm": {
     "notes": "pnpm upstream publishes 7 platform-native binaries: linux-{x64,arm64}{,-musl}, darwin-arm64, win-{x64,arm64}. The linux-*-musl entries are first-class assets (pnpm-linux-{x64,arm64}-musl.tar.gz), NOT aliases of the glibc tarballs — their hashes are genuinely distinct. Do not \"simplify\" them by pointing at the glibc asset; the binaries are linked against different libcs and only the matching one runs on its target. darwin-x64 is intentionally a different shape: upstream dropped the SEA binary in 11.0.5 because of an upstream Node.js LIEF/Mach-O bug (nodejs/node#62893) that the Node team has declined to fix. Intel Mac instead installs the npm-registry JS tarball + runs it through the system Node — see source/binary fields below.",
     "description": "Fast, disk space efficient package manager",
     "repository": "github:pnpm/pnpm",
-    "version": "11.0.8",
+    "version": "11.1.2",
     "release": "asset",
     "checksums": {
       "darwin-arm64": {
         "asset": "pnpm-darwin-arm64.tar.gz",
-        "integrity": "sha256-2Yijgk2f/W90652dcD0kt6QmMNrPp943W4vs7wcGKVw="
+        "integrity": "sha256-2Yijgk2f/W90652dcD0kt6QmMNrPp943W4vs7wcGKVw=",
+        "sha256": "2f46bcb7ac3c693af72e06e68467b3a9127cbf2a24b778382bc8beaff8463aee"
       },
       "darwin-x64": {
-        "asset": "pnpm-11.0.8.tgz",
-        "integrity": "sha512-TECX4d0tQjcsTn+lp5H/KPx1pITHrBkuZLHfD97xdZS6mC+bT+2a37PHV4RvVlt5mydj+zcz0d4by4LPRmhJEg==",
+        "asset": "pnpm-11.1.2.tgz",
+        "integrity": "sha512-QVocwll0cx51RVwUaDcb50xapft2IbUNQFbSIkUWCfEUEvI/1gLmFp8eBgRmZB95hZfhvpYaEGiINqZ7FlaUmQ==",
         "source": "npm-registry",
         "binary": "package/dist/pnpm.cjs",
         "notes": "Intel Mac uses the npm-registry JS tarball + system Node (no SEA binary). Upstream dropped darwin-x64 SEA in pnpm 11.0.5 due to nodejs/node#62893 (upstream LIEF/Mach-O bug Node has declined to fix)."
       },
       "linux-arm64": {
         "asset": "pnpm-linux-arm64.tar.gz",
-        "integrity": "sha256-Q5PtumS4yHQSO4/KhfqUDMUiSjkmUJk+XoSQnfr4D58="
+        "integrity": "sha256-Q5PtumS4yHQSO4/KhfqUDMUiSjkmUJk+XoSQnfr4D58=",
+        "sha256": "a62ca954f27cb0494d29f1a632d1d7a8a06d2c3608a4645f5c0714a3204da02b"
       },
       "linux-arm64-musl": {
         "asset": "pnpm-linux-arm64-musl.tar.gz",
-        "integrity": "sha256-PirzIyLAObVcjuyukR/NKf6/Kky/UM/UhgdwABExsjI="
+        "integrity": "sha256-PirzIyLAObVcjuyukR/NKf6/Kky/UM/UhgdwABExsjI=",
+        "sha256": "c315f8fff832352686fd5e0d67a1c721ab80bb903ba8376a8c4e49e5e341a09e"
       },
       "linux-x64": {
         "asset": "pnpm-linux-x64.tar.gz",
-        "integrity": "sha256-rJ/tms94y56s87bnlk403Bluk8Kq0u01QP5e9cLv+us="
+        "integrity": "sha256-rJ/tms94y56s87bnlk403Bluk8Kq0u01QP5e9cLv+us=",
+        "sha256": "f82f761572d9621c5a646ccc00a1ecec4cf5839d66b714497e6ca10cd2e086ee"
       },
       "linux-x64-musl": {
         "asset": "pnpm-linux-x64-musl.tar.gz",
-        "integrity": "sha256-pQcM/aQTtvzaOlAfxrCxxXMJ7lkOrci6UfBeOiskGV8="
+        "integrity": "sha256-pQcM/aQTtvzaOlAfxrCxxXMJ7lkOrci6UfBeOiskGV8=",
+        "sha256": "3c98dfa5f0c2ba86eb48916318108dbfa0a0710dac46861b3f64d72e3defda00"
       },
       "win-arm64": {
         "asset": "pnpm-win32-arm64.zip",
-        "integrity": "sha256-bZ6eWdJVv8BALF2Mb4nIUhNxdD4DBO2iLyiPePd2VwU="
+        "integrity": "sha256-bZ6eWdJVv8BALF2Mb4nIUhNxdD4DBO2iLyiPePd2VwU=",
+        "sha256": "6e84576ee53a948d4ae6f804d5f7fd3a82953ebe7077fc0fdfe004a874bcb438"
       },
       "win-x64": {
         "asset": "pnpm-win32-x64.zip",
-        "integrity": "sha256-GcSi1nWSCt8CpmFMIFWkQ5OiIcW6kUcISJvjluF2O9E="
+        "integrity": "sha256-GcSi1nWSCt8CpmFMIFWkQ5OiIcW6kUcISJvjluF2O9E=",
+        "sha256": "441509ba8a5e860b7c9f41e3371aab6d2dda76a071aa95abbbedda8ab5c84798"
       }
     }
   }
