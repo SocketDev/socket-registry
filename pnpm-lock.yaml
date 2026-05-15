@@ -58,9 +58,6 @@ catalogs:
     '@socketregistry/packageurl-js-stable':
       specifier: npm:@socketregistry/packageurl-js@1.4.2
       version: 1.4.2
-    '@socketsecurity/lib':
-      specifier: 5.28.0
-      version: 5.28.0
     '@socketsecurity/lib-stable':
       specifier: npm:@socketsecurity/lib@5.28.0
       version: 5.28.0
@@ -1171,9 +1168,9 @@ importers:
 
   registry:
     devDependencies:
-      '@socketsecurity/lib':
+      '@socketsecurity/lib-stable':
         specifier: 'catalog:'
-        version: 5.28.0(typescript@5.9.2)
+        version: '@socketsecurity/lib@5.28.0(typescript@5.9.2)'
       '@types/node':
         specifier: 24.9.2
         version: 24.9.2
