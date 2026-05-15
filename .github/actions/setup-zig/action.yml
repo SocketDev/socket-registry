@@ -1,0 +1,118 @@
+name: 'Setup Zig'
+description: |
+  Download the Zig compiler tarball for the runner's platform/arch, extract
+  to a stable location under $RUNNER_TOOL_CACHE (so it survives across
+  steps of the same job), and prepend the bin dir to GITHUB_PATH.
+
+  Replaces the third-party `mlugg/setup-zig` action so the consumer's
+  GH Actions allowlist doesn't need `mlugg/setup-zig@*`. Zig's tarball
+  layout is stable and self-contained — no compilation, no install
+  script — so a hand-rolled fetch + extract is the right shape.
+
+inputs:
+  version:
+    description: |
+      Zig version to install (e.g. "0.13.0", "0.14.1", "0.15.1").
+      Required — we deliberately do not default to "master" to avoid
+      surprise upgrades.
+    required: true
+  version-sha256:
+    description: |
+      Optional sha256 of the tarball, to pin the artifact. When empty,
+      the action skips checksum verification — fine for short-lived
+      installs but recommended for release-build workflows.
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Download and extract Zig
+      shell: bash
+      env:
+        ZIG_VERSION: ${{ inputs.version }}
+        ZIG_SHA256: ${{ inputs.version-sha256 }}
+      run: |
+        set -euo pipefail
+
+        # ziglang.org publishes tarballs at:
+        #   https://ziglang.org/download/<version>/zig-<arch>-<platform>-<version>.<ext>
+        # Linux/macOS ship .tar.xz, Windows ships .zip.
+
+        case "$(uname -s)" in
+          Linux)
+            PLATFORM=linux
+            EXT=tar.xz
+            ;;
+          Darwin)
+            PLATFORM=macos
+            EXT=tar.xz
+            ;;
+          MINGW*|MSYS*|CYGWIN*)
+            PLATFORM=windows
+            EXT=zip
+            ;;
+          *)
+            echo "× Unsupported platform: $(uname -s)" >&2
+            exit 1
+            ;;
+        esac
+
+        case "$(uname -m)" in
+          x86_64|amd64)
+            ARCH=x86_64
+            ;;
+          aarch64|arm64)
+            ARCH=aarch64
+            ;;
+          *)
+            echo "× Unsupported arch: $(uname -m)" >&2
+            exit 1
+            ;;
+        esac
+
+        # Zig 0.11+ uses arch-platform; <0.11 used platform-arch. The
+        # fleet only consumes 0.13+, so the arch-platform form is
+        # always correct here.
+        TARBALL="zig-${ARCH}-${PLATFORM}-${ZIG_VERSION}.${EXT}"
+        URL="https://ziglang.org/download/${ZIG_VERSION}/${TARBALL}"
+
+        # Stable per-job install dir. RUNNER_TOOL_CACHE is GHA's
+        # canonical "survives across steps but not across jobs" location.
+        INSTALL_DIR="${RUNNER_TOOL_CACHE:-${HOME}/.cache}/zig/${ZIG_VERSION}/${ARCH}"
+        mkdir -p "$INSTALL_DIR"
+        cd "$INSTALL_DIR"
+
+        echo "Downloading $URL"
+        curl -fsSL --retry 3 --retry-delay 2 -o "$TARBALL" "$URL"
+
+        if [ -n "$ZIG_SHA256" ]; then
+          echo "$ZIG_SHA256  $TARBALL" | sha256sum -c -
+        else
+          echo "ⓘ No version-sha256 given; skipping checksum verification."
+        fi
+
+        case "$EXT" in
+          tar.xz)
+            tar -xf "$TARBALL" --strip-components=1
+            ;;
+          zip)
+            # bsdtar (preinstalled on GitHub Windows runners) handles
+            # zip; strip the top-level dir by extracting then moving.
+            bsdtar -xf "$TARBALL"
+            mv zig-*/* . && rm -rf zig-*
+            ;;
+        esac
+        rm "$TARBALL"
+
+        echo "Installed Zig at: $INSTALL_DIR"
+        ls "$INSTALL_DIR/zig"* >/dev/null 2>&1 || {
+          echo "× zig binary not found after extraction" >&2
+          exit 1
+        }
+
+        # Append to GITHUB_PATH so subsequent steps see `zig` on PATH.
+        echo "$INSTALL_DIR" >> "$GITHUB_PATH"
+
+        # Sanity log.
+        "$INSTALL_DIR/zig" version
