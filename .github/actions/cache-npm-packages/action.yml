@@ -19,7 +19,7 @@ description: 'Cache npm test packages to speed up subsequent CI runs'
 #   - Cached test packages remain untouched in ~/.socket-npm-test-cache/
 #
 # Dependencies:
-#   - actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+#   - actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5 (2026-05-15)
 
 inputs:
   path:
@@ -64,7 +64,7 @@ runs:
 
     - name: Cache npm test packages
       id: cache
-      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5 (2026-05-15)
       with:
         path: ${{ steps.cache-path.outputs.cache-path }}
         # Use cache version, package manifest hash and OS in cache key for specificity
