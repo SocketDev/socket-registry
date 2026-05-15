@@ -103,9 +103,44 @@ export async function scanPins(): Promise<Pin[]> {
   return pins
 }
 
-// A pin is stale when the subtree it references differs between its
-// pinned SHA and HEAD. `git diff --quiet <sha> HEAD -- <pinPath>`
-// returns 0 (no diff) or 1 (diff). Anything else is an error.
+// Files that aren't part of any pin's subtree but ARE read at action
+// runtime relative to the action's checkout SHA. When any of these
+// differs between a pin's SHA and HEAD, the pin is stale even if its
+// own subtree didn't change — consumers pinning to the old SHA would
+// load stale data at action runtime.
+//
+// external-tools.json: read by setup-and-install + setup actions to
+// resolve pnpm / sfw / zizmor versions + integrity SRIs. The 11.0.8
+// → 11.1.2 cascade left every consumer pinned at SHAs whose external-
+// tools.json had stale integrity values; pinSubtreeChanged didn't
+// catch it because the file lives at repo root.
+const RUNTIME_FILES: readonly string[] = ['external-tools.json']
+
+function runtimeFilesChanged(sha: string, head: string): boolean {
+  if (sha === head) {
+    return false
+  }
+  const r = spawnSync(
+    'git',
+    ['diff', '--quiet', sha, head, '--', ...RUNTIME_FILES],
+    { cwd: REPO_ROOT },
+  )
+  if (r.status === 0) {
+    return false
+  }
+  if (r.status === 1) {
+    return true
+  }
+  throw new Error(
+    `git diff ${sha.slice(0, 8)} HEAD -- ${RUNTIME_FILES.join(' ')} exited ${r.status}`,
+  )
+}
+
+// A pin is stale when either the subtree it references differs
+// between its pinned SHA and HEAD, OR any RUNTIME_FILES (read at
+// action runtime relative to the action's checkout) differ between
+// those two SHAs. `git diff --quiet <sha> HEAD -- <path>` returns
+// 0 (no diff) or 1 (diff). Anything else is an error.
 export function isStale(pin: Pin, head: string): boolean {
   if (pin.sha === head) {
     return false
@@ -116,7 +151,9 @@ export function isStale(pin: Pin, head: string): boolean {
     { cwd: REPO_ROOT },
   )
   if (r.status === 0) {
-    return false
+    // Subtree unchanged — but check runtime files too. If any of
+    // those differ, the action's runtime-resolved data is stale.
+    return runtimeFilesChanged(pin.sha, head)
   }
   if (r.status === 1) {
     return true
