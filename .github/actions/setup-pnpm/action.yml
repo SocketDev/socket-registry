@@ -1,0 +1,77 @@
+name: 'Setup pnpm'
+description: |
+  Locate or install pnpm. Replaces the third-party `pnpm/action-setup`
+  action so the consumer's GH Actions allowlist doesn't need
+  `pnpm/action-setup@*`.
+
+  Resolution order (first match wins):
+    1. `pnpm` already on PATH (GitHub-hosted runners usually have it).
+    2. corepack-managed pnpm matching package.json's `packageManager` field.
+    3. Direct npm install of the requested version into the runner's tool cache.
+
+  The fleet pins pnpm via `packageManager: "pnpm@<x.y.z>"` in root
+  package.json; corepack resolves that automatically when enabled. Use
+  `version` input only when the workflow runs OUTSIDE a package with
+  a packageManager pin (rare).
+
+inputs:
+  version:
+    description: |
+      Explicit pnpm version (e.g. "11.0.8") to install. When empty
+      (default), prefers an existing PATH install, then corepack's
+      packageManager-pinned version.
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Locate or install pnpm
+      shell: bash
+      env:
+        VERSION_INPUT: ${{ inputs.version }}
+      run: |
+        set -uo pipefail
+
+        # Step 1: already on PATH?
+        if command -v pnpm >/dev/null 2>&1; then
+          PNPM_BIN="$(command -v pnpm)"
+          PNPM_VERSION="$(pnpm --version 2>/dev/null)"
+          echo "pnpm found on PATH: $PNPM_BIN ($PNPM_VERSION)"
+          if [ -n "$VERSION_INPUT" ] && [ "$PNPM_VERSION" != "$VERSION_INPUT" ]; then
+            echo "ⓘ Requested $VERSION_INPUT but on-PATH is $PNPM_VERSION — letting corepack handle the swap."
+          else
+            exit 0
+          fi
+        fi
+
+        # Step 2: corepack. Node ships corepack out of the box; the
+        # fleet pins pnpm via packageManager in package.json. Enabling
+        # corepack here lets it resolve the pinned version on first
+        # call.
+        if command -v corepack >/dev/null 2>&1; then
+          corepack enable
+          if [ -n "$VERSION_INPUT" ]; then
+            corepack prepare "pnpm@$VERSION_INPUT" --activate
+          fi
+          if command -v pnpm >/dev/null 2>&1; then
+            echo "pnpm via corepack: $(command -v pnpm) ($(pnpm --version))"
+            exit 0
+          fi
+        fi
+
+        # Step 3: npm install -g as a fallback. Hosted runners always
+        # have npm; we don't lock-step pin npm here.
+        if [ -z "$VERSION_INPUT" ]; then
+          echo "× pnpm not on PATH, corepack unavailable, and no version input given." >&2
+          echo "  Pass version: <x.y.z> to setup-pnpm to install via npm." >&2
+          exit 1
+        fi
+        echo "Installing pnpm@$VERSION_INPUT via npm..."
+        npm install -g "pnpm@$VERSION_INPUT"
+
+        if ! command -v pnpm >/dev/null 2>&1; then
+          echo "× pnpm install reported success but the binary is not on PATH." >&2
+          exit 1
+        fi
+        echo "pnpm installed: $(command -v pnpm) ($(pnpm --version))"

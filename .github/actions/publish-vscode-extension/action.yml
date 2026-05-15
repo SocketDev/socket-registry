@@ -1,0 +1,168 @@
+name: 'Publish VSCode Extension'
+description: |
+  Publish a packaged VSCode extension (.vsix) to either the VS Marketplace
+  or OpenVSX, using the official `@vscode/vsce` and `ovsx` CLIs respectively.
+
+  Replaces the third-party `HaaLeo/publish-vscode-extension` action so
+  the consumer's allowlist doesn't need `HaaLeo/publish-vscode-extension@*`.
+
+  Modes:
+    - registry-url=https://marketplace.visualstudio.com (or empty) → vsce
+    - registry-url=https://open-vsx.org/api               → ovsx
+
+  Outputs the .vsix path so a follow-up step (or this action's other
+  call) can consume it.
+
+inputs:
+  pat:
+    description: |
+      Personal access token for the chosen registry. For OpenVSX, the
+      token comes from open-vsx.org/user-settings/tokens. For VS
+      Marketplace, the Azure DevOps PAT scoped to "Manage" on
+      Marketplace.
+    required: true
+  dry-run:
+    description: |
+      "true" runs `vsce package` (or `ovsx publish --no-dependencies`
+      with --dry-run) without uploading. Default "false".
+    required: false
+    default: 'false'
+  pre-release:
+    description: |
+      "true" marks the upload as a pre-release version. Default "false".
+    required: false
+    default: 'false'
+  skip-duplicate:
+    description: |
+      "true" silently succeeds when the same version is already
+      published. Useful for re-runs.
+    required: false
+    default: 'true'
+  extension-file:
+    description: |
+      Path to a pre-packaged .vsix. When empty, the action runs
+      `vsce package` from the working directory first. Required when
+      uploading to a non-default registry-url.
+    required: false
+    default: ''
+  registry-url:
+    description: |
+      Target registry. Empty or "https://marketplace.visualstudio.com"
+      uses vsce → VS Marketplace. "https://open-vsx.org/api" uses ovsx
+      → OpenVSX.
+    required: false
+    default: ''
+
+outputs:
+  vsix-path:
+    description: |
+      Absolute path to the .vsix file uploaded (or that would have been
+      uploaded under dry-run).
+    value: ${{ steps.publish.outputs.vsix-path }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Publish via vsce or ovsx
+      id: publish
+      shell: bash
+      env:
+        PAT: ${{ inputs.pat }}
+        DRY_RUN: ${{ inputs.dry-run }}
+        PRE_RELEASE: ${{ inputs.pre-release }}
+        SKIP_DUPLICATE: ${{ inputs.skip-duplicate }}
+        EXTENSION_FILE: ${{ inputs.extension-file }}
+        REGISTRY_URL: ${{ inputs.registry-url }}
+      run: |
+        set -euo pipefail
+
+        # Decide tool based on registry URL.
+        case "$REGISTRY_URL" in
+          ''|'https://marketplace.visualstudio.com')
+            TOOL=vsce
+            ;;
+          'https://open-vsx.org/api')
+            TOOL=ovsx
+            ;;
+          *)
+            echo "× Unknown registry-url: $REGISTRY_URL" >&2
+            echo "  Supported: '' (VS Marketplace), 'https://open-vsx.org/api'." >&2
+            exit 1
+            ;;
+        esac
+
+        # Ensure the tool is available. Both ship via npm; we use npx
+        # so each invocation grabs a fresh copy without leaving a
+        # global install. ⚠️ npx hits the SocketDev allowlist via the
+        # SFW bypass list; in CI the bypass is preconfigured.
+        case "$TOOL" in
+          vsce)
+            PKG="@vscode/vsce"
+            ;;
+          ovsx)
+            PKG="ovsx"
+            ;;
+        esac
+
+        # Package first if no extension-file given. vsce only — ovsx
+        # consumes a pre-built .vsix.
+        VSIX_PATH="$EXTENSION_FILE"
+        if [ -z "$VSIX_PATH" ]; then
+          if [ "$TOOL" = "ovsx" ]; then
+            echo "× ovsx requires --extension-file <path>; cannot package on the fly." >&2
+            exit 1
+          fi
+          echo "Packaging via vsce..."
+          # vsce package writes <name>-<version>.vsix in cwd. Capture
+          # the result by listing before/after.
+          BEFORE="$(ls *.vsix 2>/dev/null || true)"
+          npx --yes "@vscode/vsce" package --no-dependencies
+          AFTER="$(ls *.vsix 2>/dev/null || true)"
+          NEW_VSIX="$(comm -13 <(echo "$BEFORE" | sort) <(echo "$AFTER" | sort) | head -1)"
+          if [ -z "$NEW_VSIX" ]; then
+            echo "× vsce package produced no new .vsix file." >&2
+            exit 1
+          fi
+          VSIX_PATH="$(pwd)/$NEW_VSIX"
+          echo "Packaged: $VSIX_PATH"
+        fi
+
+        echo "vsix-path=$VSIX_PATH" >> "$GITHUB_OUTPUT"
+
+        # Build the publish argv per tool.
+        ARGS=()
+        case "$TOOL" in
+          vsce)
+            ARGS+=(publish)
+            [ "$DRY_RUN" = 'true' ] && ARGS+=(--no-update-package-json --no-git-tag-version)
+            [ "$PRE_RELEASE" = 'true' ] && ARGS+=(--pre-release)
+            ARGS+=(--packagePath "$VSIX_PATH")
+            ARGS+=(--pat "$PAT")
+            ;;
+          ovsx)
+            ARGS+=(publish "$VSIX_PATH")
+            ARGS+=(--pat "$PAT")
+            [ "$PRE_RELEASE" = 'true' ] && ARGS+=(--pre-release)
+            ;;
+        esac
+
+        if [ "$DRY_RUN" = 'true' ]; then
+          echo "ⓘ DRY-RUN: would invoke $TOOL ${ARGS[*]}"
+          exit 0
+        fi
+
+        # Run the publish; treat "duplicate version" as success when
+        # skip-duplicate=true. The exact error text differs by tool;
+        # we match conservatively.
+        set +e
+        OUT="$(npx --yes "$PKG" "${ARGS[@]}" 2>&1)"
+        RC=$?
+        set -e
+        echo "$OUT"
+        if [ "$RC" -ne 0 ] && [ "$SKIP_DUPLICATE" = 'true' ]; then
+          if echo "$OUT" | grep -qiE "already (published|exists)|duplicate version"; then
+            echo "ⓘ Duplicate version — skipping per skip-duplicate=true."
+            exit 0
+          fi
+        fi
+        exit "$RC"

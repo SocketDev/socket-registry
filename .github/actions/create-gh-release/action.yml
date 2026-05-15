@@ -1,0 +1,143 @@
+name: 'Create GitHub Release'
+description: |
+  Create (or update) a GitHub release for the current ref via `gh release`,
+  optionally uploading one or more asset files. Replaces the third-party
+  `softprops/action-gh-release` so the consumer's allowlist doesn't need
+  `softprops/action-gh-release@*` — gh is preinstalled on hosted runners.
+
+  Idempotent: if a release with the same tag already exists, the action
+  updates its body / pre-release flag and uploads the new files (replacing
+  same-named assets) rather than erroring.
+
+inputs:
+  tag:
+    description: |
+      Git tag to release. Default: ${{ github.ref_name }} when the ref
+      is a tag (refs/tags/<x>). When running on a branch ref, the
+      caller MUST pass an explicit tag.
+    required: false
+    default: ''
+  body:
+    description: |
+      Release body markdown. Multi-line OK. When empty, gh auto-generates
+      from the commit log between this tag and the previous one.
+    required: false
+    default: ''
+  files:
+    description: |
+      Newline- or space-separated list of asset file paths/globs to
+      upload. Examples:
+        path/to/foo.tar.gz
+        dist/*.zip
+      Each glob is expanded by `bash`; missing files are tolerated
+      with a warning unless required=true.
+    required: false
+    default: ''
+  pre-release:
+    description: |
+      "true" marks the release as a pre-release (rc / beta).
+    required: false
+    default: 'false'
+  draft:
+    description: |
+      "true" creates the release as a draft. Default "false" (publish
+      immediately).
+    required: false
+    default: 'false'
+  generate-notes:
+    description: |
+      "true" asks gh to auto-generate release notes from PRs merged
+      since the previous tag. Useful when body is empty.
+    required: false
+    default: 'false'
+
+outputs:
+  release-url:
+    description: HTML URL of the created or updated release.
+    value: ${{ steps.create.outputs.release-url }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create or update release
+      id: create
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG_INPUT: ${{ inputs.tag }}
+        BODY: ${{ inputs.body }}
+        FILES: ${{ inputs.files }}
+        PRE_RELEASE: ${{ inputs.pre-release }}
+        DRAFT: ${{ inputs.draft }}
+        GENERATE_NOTES: ${{ inputs.generate-notes }}
+        GITHUB_REF: ${{ github.ref }}
+        GITHUB_REF_NAME: ${{ github.ref_name }}
+      run: |
+        set -euo pipefail
+
+        # Resolve tag: explicit input wins; fall back to ref_name when
+        # running on a tag ref; error otherwise (we won't guess from a
+        # branch ref).
+        if [ -n "$TAG_INPUT" ]; then
+          TAG="$TAG_INPUT"
+        elif [[ "$GITHUB_REF" == refs/tags/* ]]; then
+          TAG="$GITHUB_REF_NAME"
+        else
+          echo "× No tag input and current ref ($GITHUB_REF) is not a tag." >&2
+          echo "  Pass tag: <name> when running on a branch / PR ref." >&2
+          exit 1
+        fi
+        echo "Tag: $TAG"
+
+        # Expand the file list. We tolerate missing globs by listing
+        # them with `compgen -G` and concatenating non-empty matches.
+        ASSET_ARGS=()
+        if [ -n "$FILES" ]; then
+          while IFS= read -r line; do
+            line="$(echo "$line" | tr -s ' ' '\n')"
+            while IFS= read -r entry; do
+              [ -z "$entry" ] && continue
+              # Pass through ggrep-style glob expansion. compgen
+              # returns 1 with no matches; tolerate that.
+              if compgen -G "$entry" > /dev/null; then
+                while IFS= read -r match; do
+                  ASSET_ARGS+=("$match")
+                done < <(compgen -G "$entry")
+              else
+                echo "⚠ No matches for asset pattern: $entry"
+              fi
+            done <<<"$line"
+          done <<<"$FILES"
+        fi
+
+        # Look up existing release for this tag.
+        if gh release view "$TAG" --json url >/dev/null 2>&1; then
+          echo "Release already exists for $TAG — updating."
+          EDIT_ARGS=()
+          [ -n "$BODY" ] && EDIT_ARGS+=(--notes "$BODY")
+          [ "$PRE_RELEASE" = 'true' ] && EDIT_ARGS+=(--prerelease)
+          [ "$DRAFT" = 'true' ] && EDIT_ARGS+=(--draft)
+          if [ "${#EDIT_ARGS[@]}" -gt 0 ]; then
+            gh release edit "$TAG" "${EDIT_ARGS[@]}"
+          fi
+          if [ "${#ASSET_ARGS[@]}" -gt 0 ]; then
+            # --clobber replaces same-named assets.
+            gh release upload "$TAG" "${ASSET_ARGS[@]}" --clobber
+          fi
+        else
+          echo "Creating new release for $TAG."
+          CREATE_ARGS=("$TAG")
+          [ -n "$BODY" ] && CREATE_ARGS+=(--notes "$BODY")
+          [ -z "$BODY" ] && [ "$GENERATE_NOTES" = 'true' ] && CREATE_ARGS+=(--generate-notes)
+          [ "$PRE_RELEASE" = 'true' ] && CREATE_ARGS+=(--prerelease)
+          [ "$DRAFT" = 'true' ] && CREATE_ARGS+=(--draft)
+          if [ "${#ASSET_ARGS[@]}" -gt 0 ]; then
+            CREATE_ARGS+=("${ASSET_ARGS[@]}")
+          fi
+          gh release create "${CREATE_ARGS[@]}"
+        fi
+
+        # Output the canonical URL for downstream steps.
+        URL="$(gh release view "$TAG" --json url -q .url)"
+        echo "release-url=$URL" >> "$GITHUB_OUTPUT"
+        echo "Release URL: $URL"
