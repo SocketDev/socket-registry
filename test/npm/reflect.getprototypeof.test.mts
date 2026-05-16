@@ -21,7 +21,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('throws for null', () => {
-    expect(() => getPrototypeOf(undefined)).toThrow(TypeError)
+    // oxlint-disable-next-line socket/prefer-undefined-over-null -- spec test: Reflect.getPrototypeOf(null) throws TypeError per ToObject(null).
+    expect(() => getPrototypeOf(null)).toThrow(TypeError)
   })
 
   it('throws for primitives', () => {
@@ -50,7 +51,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     if ('toString' in obj) {
       expect(getPrototypeOf(obj)).toBe(Object.prototype)
     } else {
-      expect(getPrototypeOf(obj)).toBe(undefined)
+      // oxlint-disable-next-line socket/prefer-undefined-over-null -- spec: getPrototypeOf({__proto__: null}) returns null, not undefined.
+      expect(getPrototypeOf(obj)).toBe(null)
     }
   })
 })

@@ -22,7 +22,10 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       expect(includes('abc', undefined)).toBe(false)
       expect(includes('aundefinedb', undefined)).toBe(true)
       expect(includes('abc', undefined)).toBe(false)
-      expect(includes('anullb', undefined)).toBe(true)
+      // oxlint-disable-next-line socket/prefer-undefined-over-null -- spec: includes stringifies null to "null".
+      expect(includes('abc', null)).toBe(false)
+      // oxlint-disable-next-line socket/prefer-undefined-over-null -- spec: includes stringifies null to "null", matches 'anullb'.
+      expect(includes('anullb', null)).toBe(true)
       expect(includes('abc', false)).toBe(false)
       expect(includes('afalseb', false)).toBe(true)
       expect(includes('abc', NaN)).toBe(false)
@@ -51,7 +54,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       expect(includes('abc', 'b', 'x')).toBe(true)
       expect(includes('abc', 'b', false)).toBe(true)
       expect(includes('abc', 'b', undefined)).toBe(true)
-      expect(includes('abc', 'b', undefined)).toBe(true)
+      // oxlint-disable-next-line socket/prefer-undefined-over-null -- spec: ToInteger(null) === 0, matches 'b' at position 0.
+      expect(includes('abc', 'b', null)).toBe(true)
       expect(includes('abc', 'b', 1)).toBe(true)
       expect(includes('abc', 'b', 2)).toBe(false)
       expect(includes('abc', 'b', 3)).toBe(false)

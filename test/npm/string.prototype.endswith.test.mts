@@ -19,10 +19,12 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('handles undefined and null', () => {
       expect(endsWith('undefined')).toBe(true)
       expect(endsWith('undefined', undefined)).toBe(true)
-      expect(endsWith('undefined', undefined)).toBe(false)
+      // oxlint-disable-next-line socket/prefer-undefined-over-null -- spec: endsWith stringifies null to "null", not "undefined".
+      expect(endsWith('undefined', null)).toBe(false)
       expect(endsWith('null')).toBe(false)
       expect(endsWith('null', undefined)).toBe(false)
-      expect(endsWith('null', undefined)).toBe(true)
+      // oxlint-disable-next-line socket/prefer-undefined-over-null -- spec: endsWith stringifies null to "null", matches 'null'.
+      expect(endsWith('null', null)).toBe(true)
     })
   })
 

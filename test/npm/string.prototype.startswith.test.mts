@@ -19,7 +19,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('handles undefined/null search', () => {
       expect(startsWith('undefined')).toBe(true)
       expect(startsWith('undefined', undefined)).toBe(true)
-      expect(startsWith('undefined', undefined)).toBe(false)
+      // oxlint-disable-next-line socket/prefer-undefined-over-null -- spec: startsWith stringifies null to "null", does not match 'undefined'.
+      expect(startsWith('undefined', null)).toBe(false)
     })
   })
 
@@ -27,7 +28,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('handles undefined/null search', () => {
       expect(startsWith('null')).toBe(false)
       expect(startsWith('null', undefined)).toBe(false)
-      expect(startsWith('null', undefined)).toBe(true)
+      // oxlint-disable-next-line socket/prefer-undefined-over-null -- spec: startsWith stringifies null to "null", matches 'null'.
+      expect(startsWith('null', null)).toBe(true)
     })
   })
 

@@ -25,7 +25,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       expect(fromCodePoint(-0)).toBe('\0')
       expect(fromCodePoint(0)).toBe('\0')
       expect(fromCodePoint(false)).toBe('\0')
-      expect(fromCodePoint(undefined)).toBe('\0')
+      // oxlint-disable-next-line socket/prefer-undefined-over-null -- spec: Number(null) === 0 → \\0; Number(undefined) is NaN → RangeError.
+      expect(fromCodePoint(null)).toBe('\0')
     })
   })
 

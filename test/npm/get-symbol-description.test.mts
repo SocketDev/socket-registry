@@ -23,7 +23,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('throws for non-symbol values', () => {
     const nonSymbols = [
       undefined,
-      undefined,
+      // oxlint-disable-next-line socket/prefer-undefined-over-null -- spec test: getSymbolDescription throws for both null and undefined; both must be exercised.
+      null,
       true,
       false,
       0,
@@ -48,7 +49,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       const cases: Array<[symbol, string | undefined]> = [
         [Symbol(), undefined],
         [Symbol(undefined), undefined],
-        [Symbol(undefined as any), 'null'],
+        // oxlint-disable-next-line socket/prefer-undefined-over-null -- spec: Symbol(null).description === "null"; Symbol(undefined).description === undefined.
+        [Symbol(null as any), 'null'],
         [Symbol.iterator, 'Symbol.iterator'],
         [Symbol('foo'), 'foo'],
       ]

@@ -41,7 +41,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('stringifies non-string fillStr', () => {
-      expect(padStart('ed', 6, undefined)).toBe('nulled')
+      // oxlint-disable-next-line socket/prefer-undefined-over-null -- spec: padStart stringifies non-undefined null fillStr to "null"; undefined fillStr defaults to space (covered above).
+      expect(padStart('ed', 6, null)).toBe('nulled')
     })
   })
 
