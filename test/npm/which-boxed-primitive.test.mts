@@ -19,7 +19,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('returns null for primitives', () => {
       const primitives = [
         undefined,
-        undefined,
+        // oxlint-disable-next-line socket/prefer-undefined-over-null -- spec test: which-boxed-primitive must exercise both null and undefined receivers; both return null.
+        null,
         true,
         false,
         0,
@@ -32,7 +33,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       ]
       for (let i = 0, { length } = primitives; i < length; i += 1) {
         const primitive = primitives[i]
-        expect(whichBoxedPrimitive(primitive)).toBe(undefined)
+        // oxlint-disable-next-line socket/prefer-undefined-over-null -- spec: whichBoxedPrimitive returns null for non-boxed inputs (per its public API).
+        expect(whichBoxedPrimitive(primitive)).toBe(null)
       }
     })
   })
