@@ -8,21 +8,21 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
-import { execScript } from '@socketsecurity/lib-stable/eco/npm/script'
-import { getAbortSignal } from '@socketsecurity/lib-stable/constants/process'
-import { readFileUtf8 } from '@socketsecurity/lib-stable/fs'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-import { isObjectObject, toSortedObject } from '@socketsecurity/lib-stable/objects'
+import { execScript } from '@socketsecurity/lib/eco/npm/script'
+import { getAbortSignal } from '@socketsecurity/lib/constants/process'
+import { readFileUtf8 } from '@socketsecurity/lib/fs'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { isObjectObject, toSortedObject } from '@socketsecurity/lib/objects'
 import {
   extractPackage,
   fetchPackageManifest,
   getReleaseTag,
   readPackageJson,
   readPackageJsonSync,
-} from '@socketsecurity/lib-stable/packages'
-import { pEach } from '@socketsecurity/lib-stable/promises'
-import { spawn } from '@socketsecurity/lib-stable/spawn'
-import { getDefaultSpinner, withSpinner } from '@socketsecurity/lib-stable/spinner'
+} from '@socketsecurity/lib/packages'
+import { pEach } from '@socketsecurity/lib/promises'
+import { spawn } from '@socketsecurity/lib/spawn'
+import { getDefaultSpinner, withSpinner } from '@socketsecurity/lib/spinner'
 import { minimatch } from 'minimatch'
 import semver from 'semver'
 import { LATEST, SOCKET_REGISTRY_PACKAGE_NAME } from '../constants/packages.mts'

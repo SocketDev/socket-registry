@@ -77,11 +77,11 @@ import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import url from 'node:url'
-import { NODE_MODULES } from '@socketsecurity/lib-stable/paths/dirnames'
-import { PACKAGE_JSON } from '@socketsecurity/lib-stable/paths/filenames'
-import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
-import { getCI } from '@socketsecurity/lib-stable/env/ci'
-import { getDefaultSpinner, withSpinner } from '@socketsecurity/lib-stable/spinner'
+import { NODE_MODULES } from '@socketsecurity/lib/paths/dirnames'
+import { PACKAGE_JSON } from '@socketsecurity/lib/paths/filenames'
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
+import { getCI } from '@socketsecurity/lib/env/ci'
+import { getDefaultSpinner, withSpinner } from '@socketsecurity/lib/spinner'
 import { deleteAsync as del } from 'del'
 import { load as yamlLoad } from 'js-yaml'
 import pacote from 'pacote'
@@ -90,17 +90,17 @@ import { c as tarCreate } from 'tar'
 const ENV = { CI: getCI() }
 const spinner = getDefaultSpinner()
 
-import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import {
   readFileUtf8,
   readJson,
   safeDelete,
   writeJson,
-} from '@socketsecurity/lib-stable/fs'
-import { LOG_SYMBOLS, getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-import { readPackageJson } from '@socketsecurity/lib-stable/packages'
-import { pEach, pRetry } from '@socketsecurity/lib-stable/promises'
-import { pluralize } from '@socketsecurity/lib-stable/words'
+} from '@socketsecurity/lib/fs'
+import { LOG_SYMBOLS, getDefaultLogger } from '@socketsecurity/lib/logger'
+import { readPackageJson } from '@socketsecurity/lib/packages'
+import { pEach, pRetry } from '@socketsecurity/lib/promises'
+import { pluralize } from '@socketsecurity/lib/words'
 
 const logger = getDefaultLogger()
 import { cleanTestScript } from '../util/script-cleaning.mts'
@@ -1037,7 +1037,11 @@ export async function installPackage(packageInfo) {
 
     writeProgress(LOG_SYMBOLS.fail)
     completePackage()
-    const err = e as { message?: string | undefined; stderr?: string | undefined; stdout?: string | undefined }
+    const err = e as {
+      message?: string | undefined
+      stderr?: string | undefined
+      stdout?: string | undefined
+    }
     const errorDetails = [err.message ?? String(e)]
     // Show last ERROR_OUTPUT_TRUNCATE_LENGTH chars of stderr (where actual errors appear).
     if (err.stderr) {

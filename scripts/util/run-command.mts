@@ -3,10 +3,10 @@
 
 import process from 'node:process'
 
-import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-import type { SpawnOptions } from '@socketsecurity/lib-stable/spawn'
-import { spawn, spawnSync } from '@socketsecurity/lib-stable/spawn'
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import type { SpawnOptions } from '@socketsecurity/lib/spawn'
+import { spawn, spawnSync } from '@socketsecurity/lib/spawn'
 
 const logger = getDefaultLogger()
 
@@ -229,8 +229,11 @@ export async function runCommandQuietStrict(
     options,
   )
   if (exitCode !== 0) {
-    const error: Error & { code?: number | undefined; stderr?: string | undefined; stdout?: string | undefined } =
-      new Error(`Command failed: ${command} ${args.join(' ')}`)
+    const error: Error & {
+      code?: number | undefined
+      stderr?: string | undefined
+      stdout?: string | undefined
+    } = new Error(`Command failed: ${command} ${args.join(' ')}`)
     error.code = exitCode
     error.stdout = stdout
     error.stderr = stderr

@@ -3,7 +3,7 @@
  * @fileoverview Run vitest on test/npm/ packages with INCLUDE_NPM_TESTS set
  * so vitest config includes test/npm/.
  */
-import { spawn } from '@socketsecurity/lib-stable/spawn'
+import { spawn } from '@socketsecurity/lib/spawn'
 
 process.env['INCLUDE_NPM_TESTS'] = '1'
 const result = await spawn(

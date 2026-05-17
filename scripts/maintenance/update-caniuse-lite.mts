@@ -1,8 +1,8 @@
 /** @fileoverview Update caniuse-lite database without triggering prepare scripts. */
 
-import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-import { spawnSync } from '@socketsecurity/lib-stable/spawn'
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { spawnSync } from '@socketsecurity/lib/spawn'
 
 const logger = getDefaultLogger()
 

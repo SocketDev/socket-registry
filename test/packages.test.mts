@@ -6,19 +6,19 @@ import path from 'node:path'
 import process from 'node:process'
 
 import PackageJson from '@npmcli/package-json'
-import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
-import { EXT_JSON } from '@socketsecurity/lib-stable/paths/exts'
-import { readJson } from '@socketsecurity/lib-stable/fs'
-import { isObjectObject, objectEntries } from '@socketsecurity/lib-stable/objects'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { EXT_JSON } from '@socketsecurity/lib/paths/exts'
+import { readJson } from '@socketsecurity/lib/fs'
+import { isObjectObject, objectEntries } from '@socketsecurity/lib/objects'
 import {
   getExportFilePaths,
   isValidPackageName,
   readPackageJson,
   resolveOriginalPackageName,
-} from '@socketsecurity/lib-stable/packages'
-import { trimLeadingDotSlash } from '@socketsecurity/lib-stable/paths/normalize'
-import { naturalCompare } from '@socketsecurity/lib-stable/sorts'
-import { isNonEmptyString } from '@socketsecurity/lib-stable/strings'
+} from '@socketsecurity/lib/packages'
+import { trimLeadingDotSlash } from '@socketsecurity/lib/paths/normalize'
+import { naturalCompare } from '@socketsecurity/lib/sorts'
+import { isNonEmptyString } from '@socketsecurity/lib/strings'
 import fastGlob from 'fast-glob'
 import semver from 'semver'
 import { describe, expect, it } from 'vitest'
@@ -166,7 +166,8 @@ for (let i = 0, { length } = ecosystems; i < length; i += 1) {
 
         it('package name should be included in "repository.directory" field of package.json', () => {
           expect(
-            (pkgJson.repository as { directory?: string | undefined })?.directory,
+            (pkgJson.repository as { directory?: string | undefined })
+              ?.directory,
           ).toBe(`packages/npm/${sockRegPkgName}`)
         })
 

@@ -5,9 +5,9 @@
  * shallowest to catch newly emptied parent directories.
  */
 
-import { NODE_MODULES_GLOB_RECURSIVE } from '@socketsecurity/lib-stable/paths/globs'
-import { isDirEmptySync } from '@socketsecurity/lib-stable/fs'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { NODE_MODULES_GLOB_RECURSIVE } from '@socketsecurity/lib/paths/globs'
+import { isDirEmptySync } from '@socketsecurity/lib/fs'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { deleteAsync as del } from 'del'
 import fastGlob from 'fast-glob'
 

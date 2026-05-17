@@ -5,8 +5,8 @@
 import path from 'node:path'
 
 // Import from registry v2.0 (async only)
-import { getChangedFiles } from '@socketsecurity/lib-stable/git'
-import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
+import { getChangedFiles } from '@socketsecurity/lib/git'
+import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 
 import {
   NPM,
@@ -138,14 +138,20 @@ export function getModifiedFilesSync(options?: { cwd?: string | undefined }) {
 /**
  * Alias for isUnstaged.
  */
-export async function isModified(pathname: string, options?: { cwd?: string | undefined }) {
+export async function isModified(
+  pathname: string,
+  options?: { cwd?: string | undefined },
+) {
   return await isUnstagedImport(pathname, options?.cwd)
 }
 
 /**
  * Alias for isUnstagedSync.
  */
-export function isModifiedSync(pathname: string, options?: { cwd?: string | undefined }) {
+export function isModifiedSync(
+  pathname: string,
+  options?: { cwd?: string | undefined },
+) {
   return isUnstagedSyncImport(pathname, options?.cwd)
 }
 

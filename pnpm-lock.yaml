@@ -1,13 +1,3 @@
----
-lockfileVersion: '9.0'
-
-importers:
-
-  .:
-    configDependencies: {}
-    packageManagerDependencies: {}
-
----
 lockfileVersion: '9.0'
 
 settings:
@@ -55,15 +45,6 @@ catalogs:
     '@sinclair/typebox':
       specifier: 0.34.49
       version: 0.34.49
-    '@socketregistry/packageurl-js-stable':
-      specifier: npm:@socketregistry/packageurl-js@1.4.2
-      version: 1.4.2
-    '@socketsecurity/lib-stable':
-      specifier: npm:@socketsecurity/lib@5.28.0
-      version: 5.28.0
-    '@socketsecurity/sdk-stable':
-      specifier: npm:@socketsecurity/sdk@4.0.1
-      version: 4.0.1
     '@types/fs-extra':
       specifier: 11.0.4
       version: 11.0.4
@@ -225,6 +206,10 @@ catalogs:
       version: 2.1.3
 
 overrides:
+  '@socketregistry/packageurl-js': 1.4.2
+  '@socketsecurity/lib': 5.28.0
+  '@socketsecurity/registry': 2.0.2
+  '@socketsecurity/sdk': 4.0.1
   '@types/node': 24.9.2
   aggregate-error: npm:@socketregistry/aggregate-error@1.0.15
   array-buffer-byte-length: npm:@socketregistry/array-buffer-byte-length@1.0.7
@@ -321,15 +306,15 @@ importers:
       '@socketregistry/is-unicode-supported':
         specifier: workspace:*
         version: link:packages/npm/is-unicode-supported
-      '@socketregistry/packageurl-js-stable':
-        specifier: 'catalog:'
-        version: '@socketregistry/packageurl-js@1.4.2'
-      '@socketsecurity/lib-stable':
-        specifier: 'catalog:'
-        version: '@socketsecurity/lib@5.28.0(typescript@5.9.2)'
-      '@socketsecurity/sdk-stable':
-        specifier: 'catalog:'
-        version: '@socketsecurity/sdk@4.0.1'
+      '@socketregistry/packageurl-js':
+        specifier: 1.4.2
+        version: 1.4.2
+      '@socketsecurity/lib':
+        specifier: 5.28.0
+        version: 5.28.0(typescript@5.9.2)
+      '@socketsecurity/sdk':
+        specifier: 4.0.1
+        version: 4.0.1
       '@types/fs-extra':
         specifier: 'catalog:'
         version: 11.0.4
@@ -513,9 +498,9 @@ importers:
 
   .claude/hooks/auth-rotation-reminder:
     dependencies:
-      '@socketsecurity/lib-stable':
-        specifier: 'catalog:'
-        version: '@socketsecurity/lib@5.28.0(typescript@5.9.2)'
+      '@socketsecurity/lib':
+        specifier: 5.28.0
+        version: 5.28.0(typescript@5.9.2)
     devDependencies:
       '@types/node':
         specifier: 24.9.2
@@ -523,15 +508,15 @@ importers:
 
   .claude/hooks/check-new-deps:
     dependencies:
-      '@socketregistry/packageurl-js-stable':
-        specifier: 'catalog:'
-        version: '@socketregistry/packageurl-js@1.4.2'
-      '@socketsecurity/lib-stable':
-        specifier: 'catalog:'
-        version: '@socketsecurity/lib@5.28.0(typescript@5.9.2)'
-      '@socketsecurity/sdk-stable':
-        specifier: 'catalog:'
-        version: '@socketsecurity/sdk@4.0.1'
+      '@socketregistry/packageurl-js':
+        specifier: 1.4.2
+        version: 1.4.2
+      '@socketsecurity/lib':
+        specifier: 5.28.0
+        version: 5.28.0(typescript@5.9.2)
+      '@socketsecurity/sdk':
+        specifier: 4.0.1
+        version: 4.0.1
     devDependencies:
       '@types/node':
         specifier: 24.9.2
@@ -539,9 +524,9 @@ importers:
 
   .claude/hooks/claude-md-section-size-guard:
     dependencies:
-      '@socketsecurity/lib-stable':
-        specifier: 'catalog:'
-        version: '@socketsecurity/lib@5.28.0(typescript@5.9.2)'
+      '@socketsecurity/lib':
+        specifier: 5.28.0
+        version: 5.28.0(typescript@5.9.2)
     devDependencies:
       '@types/node':
         specifier: 24.9.2
@@ -579,9 +564,9 @@ importers:
 
   .claude/hooks/cross-repo-guard:
     dependencies:
-      '@socketsecurity/lib-stable':
-        specifier: 'catalog:'
-        version: '@socketsecurity/lib@5.28.0(typescript@5.9.2)'
+      '@socketsecurity/lib':
+        specifier: 5.28.0
+        version: 5.28.0(typescript@5.9.2)
     devDependencies:
       '@types/node':
         specifier: 24.9.2
@@ -649,9 +634,9 @@ importers:
 
   .claude/hooks/markdown-filename-guard:
     dependencies:
-      '@socketsecurity/lib-stable':
-        specifier: 'catalog:'
-        version: '@socketsecurity/lib@5.28.0(typescript@5.9.2)'
+      '@socketsecurity/lib':
+        specifier: 5.28.0
+        version: 5.28.0(typescript@5.9.2)
     devDependencies:
       '@types/node':
         specifier: 24.9.2
@@ -671,9 +656,9 @@ importers:
 
   .claude/hooks/no-external-issue-ref-guard:
     dependencies:
-      '@socketsecurity/lib-stable':
-        specifier: 'catalog:'
-        version: '@socketsecurity/lib@5.28.0(typescript@5.9.2)'
+      '@socketsecurity/lib':
+        specifier: 5.28.0
+        version: 5.28.0(typescript@5.9.2)
     devDependencies:
       '@types/node':
         specifier: 24.9.2
@@ -681,9 +666,9 @@ importers:
 
   .claude/hooks/no-fleet-fork-guard:
     dependencies:
-      '@socketsecurity/lib-stable':
-        specifier: 'catalog:'
-        version: '@socketsecurity/lib@5.28.0(typescript@5.9.2)'
+      '@socketsecurity/lib':
+        specifier: 5.28.0
+        version: 5.28.0(typescript@5.9.2)
     devDependencies:
       '@types/node':
         specifier: 24.9.2
@@ -723,9 +708,9 @@ importers:
 
   .claude/hooks/paths-mts-inherit-guard:
     dependencies:
-      '@socketsecurity/lib-stable':
-        specifier: 'catalog:'
-        version: '@socketsecurity/lib@5.28.0(typescript@5.9.2)'
+      '@socketsecurity/lib':
+        specifier: 5.28.0
+        version: 5.28.0(typescript@5.9.2)
     devDependencies:
       '@types/node':
         specifier: 24.9.2
@@ -739,9 +724,9 @@ importers:
 
   .claude/hooks/plan-location-guard:
     dependencies:
-      '@socketsecurity/lib-stable':
-        specifier: 'catalog:'
-        version: '@socketsecurity/lib@5.28.0(typescript@5.9.2)'
+      '@socketsecurity/lib':
+        specifier: 5.28.0
+        version: 5.28.0(typescript@5.9.2)
     devDependencies:
       '@types/node':
         specifier: 24.9.2
@@ -785,9 +770,9 @@ importers:
 
   .claude/hooks/release-workflow-guard:
     devDependencies:
-      '@socketsecurity/lib-stable':
-        specifier: 'catalog:'
-        version: '@socketsecurity/lib@5.28.0(typescript@5.9.2)'
+      '@socketsecurity/lib':
+        specifier: 5.28.0
+        version: 5.28.0(typescript@5.9.2)
       '@types/node':
         specifier: 24.9.2
         version: 24.9.2
@@ -797,12 +782,12 @@ importers:
       '@sinclair/typebox':
         specifier: 'catalog:'
         version: 0.34.49
-      '@socketregistry/packageurl-js-stable':
-        specifier: 'catalog:'
-        version: '@socketregistry/packageurl-js@1.4.2'
-      '@socketsecurity/lib-stable':
-        specifier: 'catalog:'
-        version: '@socketsecurity/lib@5.28.0(typescript@5.9.2)'
+      '@socketregistry/packageurl-js':
+        specifier: 1.4.2
+        version: 1.4.2
+      '@socketsecurity/lib':
+        specifier: 5.28.0
+        version: 5.28.0(typescript@5.9.2)
 
   .claude/hooks/stale-process-sweeper: {}
 
@@ -1154,8 +1139,8 @@ importers:
         specifier: workspace:^
         version: link:../../packages/npm/json-stable-stringify
       '@socketsecurity/registry':
-        specifier: file:../../registry
-        version: link:../../registry
+        specifier: 2.0.2
+        version: 2.0.2(typescript@5.9.2)
       fast-json-stable-stringify:
         specifier: 2.1.0
         version: 2.1.0
@@ -1168,9 +1153,9 @@ importers:
 
   registry:
     devDependencies:
-      '@socketsecurity/lib-stable':
-        specifier: 'catalog:'
-        version: '@socketsecurity/lib@5.28.0(typescript@5.9.2)'
+      '@socketsecurity/lib':
+        specifier: 5.28.0
+        version: 5.28.0(typescript@5.9.2)
       '@types/node':
         specifier: 24.9.2
         version: 24.9.2
@@ -2515,6 +2500,15 @@ packages:
     resolution: {integrity: sha512-SVVq+ODU3H6KAQXwaANnnq2sNHj+JgHM67R0ww93V8J38upiSUlUR8Mxx3P5mo922B+gY6WNFU0zSJfEOjbKew==}
     engines: {node: '>=22', pnpm: '>=11.0.6'}
     hasBin: true
+    peerDependencies:
+      typescript: 5.9.2
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  '@socketsecurity/registry@2.0.2':
+    resolution: {integrity: sha512-hGfteZxSnPN2gmOc9A5cJmyTZBumgMWmg2MVOMRmQjFwxVssk/Bs5dgETGGSOfWBmo/g1K5rBfPs1vE0n/SXMQ==}
+    engines: {node: '>=18'}
     peerDependencies:
       typescript: 5.9.2
     peerDependenciesMeta:
@@ -5239,6 +5233,10 @@ snapshots:
   '@socketregistry/which-typed-array@1.0.9': {}
 
   '@socketsecurity/lib@5.28.0(typescript@5.9.2)':
+    optionalDependencies:
+      typescript: 5.9.2
+
+  '@socketsecurity/registry@2.0.2(typescript@5.9.2)':
     optionalDependencies:
       typescript: 5.9.2
 

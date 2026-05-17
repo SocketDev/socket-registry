@@ -47,8 +47,8 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-import { safeDeleteSync } from '@socketsecurity/lib-stable/fs'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { safeDeleteSync } from '@socketsecurity/lib/fs'
 
 const logger = getDefaultLogger()
 
@@ -237,7 +237,9 @@ export class RuleTester {
       return
     }
 
-    const tmpdir = mkdtempSync(path.join(os.tmpdir(), `oxlint-test-${ruleName}-`))
+    const tmpdir = mkdtempSync(
+      path.join(os.tmpdir(), `oxlint-test-${ruleName}-`),
+    )
     try {
       const configPath = path.join(tmpdir, '.oxlintrc.json')
       writeFileSync(configPath, buildConfig(ruleName))

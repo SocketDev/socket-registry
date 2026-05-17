@@ -10,9 +10,9 @@ import process from 'node:process'
 import {
   getChangedFilesSync,
   getStagedFilesSync,
-} from '@socketsecurity/lib-stable/git'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
+} from '@socketsecurity/lib/git'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 
 const logger = getDefaultLogger()
 const rootPath = path.resolve(process.cwd())

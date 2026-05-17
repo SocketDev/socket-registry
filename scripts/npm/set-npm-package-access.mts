@@ -1,12 +1,12 @@
 /** @fileoverview Set MFA automation access level for published npm packages. */
 
 import path from 'node:path'
-import { execNpm } from '@socketsecurity/lib-stable/eco/npm/npm'
-import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
-import { joinAnd } from '@socketsecurity/lib-stable/arrays'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-import { pEach } from '@socketsecurity/lib-stable/promises'
-import { pluralize } from '@socketsecurity/lib-stable/words'
+import { execNpm } from '@socketsecurity/lib/eco/npm/npm'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { joinAnd } from '@socketsecurity/lib/arrays'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { pEach } from '@socketsecurity/lib/promises'
+import { pluralize } from '@socketsecurity/lib/words'
 
 const logger = getDefaultLogger()
 

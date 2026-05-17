@@ -3,20 +3,20 @@
 
 import path from 'node:path'
 
-import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
 
-import { joinAnd } from '@socketsecurity/lib-stable/arrays'
-import { getChangedFiles } from '@socketsecurity/lib-stable/git'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-import { isObjectObject } from '@socketsecurity/lib-stable/objects'
+import { joinAnd } from '@socketsecurity/lib/arrays'
+import { getChangedFiles } from '@socketsecurity/lib/git'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { isObjectObject } from '@socketsecurity/lib/objects'
 import {
   fetchPackageManifest,
   getReleaseTag,
   readPackageJsonSync,
-} from '@socketsecurity/lib-stable/packages'
-import { pEach } from '@socketsecurity/lib-stable/promises'
-import { spawn } from '@socketsecurity/lib-stable/spawn'
-import { pluralize } from '@socketsecurity/lib-stable/words'
+} from '@socketsecurity/lib/packages'
+import { pEach } from '@socketsecurity/lib/promises'
+import { spawn } from '@socketsecurity/lib/spawn'
+import { pluralize } from '@socketsecurity/lib/words'
 import semver from 'semver'
 
 import { getEnv } from '../constants/env.mts'

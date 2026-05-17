@@ -7,10 +7,10 @@
 
 import { promises as fs } from 'node:fs'
 
-import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'
-import { globStreamLicenses } from '@socketsecurity/lib-stable/globs'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-import { parallelEach } from '@socketsecurity/lib-stable/streams'
+import { UTF8 } from '@socketsecurity/lib/constants/encoding'
+import { globStreamLicenses } from '@socketsecurity/lib/globs'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { parallelEach } from '@socketsecurity/lib/streams'
 
 import { LICENSE, ROOT_PATH } from '../constants/paths.mts'
 import { getIgnoreGlobs, getLicenseContent } from '../constants/utils.mts'

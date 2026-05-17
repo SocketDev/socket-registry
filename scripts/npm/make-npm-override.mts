@@ -13,12 +13,12 @@
 import { existsSync, promises as fs } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
-import { execScript } from '@socketsecurity/lib-stable/eco/npm/script'
-import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
-import { isDirEmptySync } from '@socketsecurity/lib-stable/fs'
-import { globStreamLicenses } from '@socketsecurity/lib-stable/globs'
-import { LOG_SYMBOLS, getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-import { isObject } from '@socketsecurity/lib-stable/objects'
+import { execScript } from '@socketsecurity/lib/eco/npm/script'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { isDirEmptySync } from '@socketsecurity/lib/fs'
+import { globStreamLicenses } from '@socketsecurity/lib/globs'
+import { LOG_SYMBOLS, getDefaultLogger } from '@socketsecurity/lib/logger'
+import { isObject } from '@socketsecurity/lib/objects'
 
 const logger = getDefaultLogger()
 import {
@@ -33,23 +33,23 @@ import {
   resolvePackageJsonEntryExports,
   resolvePackageLicenses,
   resolveRegistryPackageName,
-} from '@socketsecurity/lib-stable/packages'
+} from '@socketsecurity/lib/packages'
 import {
   confirm,
   input,
   search,
   select,
-} from '@socketsecurity/lib-stable/stdio/prompts'
-import { naturalCompare, naturalSorter } from '@socketsecurity/lib-stable/sorts'
-import { transform } from '@socketsecurity/lib-stable/streams'
-import { indentString } from '@socketsecurity/lib-stable/strings'
-import { pluralize } from '@socketsecurity/lib-stable/words'
+} from '@socketsecurity/lib/stdio/prompts'
+import { naturalCompare, naturalSorter } from '@socketsecurity/lib/sorts'
+import { transform } from '@socketsecurity/lib/streams'
+import { indentString } from '@socketsecurity/lib/strings'
+import { pluralize } from '@socketsecurity/lib/words'
 import { ReturnTypeEnums, default as didYouMean } from 'didyoumean2'
 import fastGlob from 'fast-glob'
 import { open } from 'out-url'
 import semver from 'semver'
 
-import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'
+import { UTF8 } from '@socketsecurity/lib/constants/encoding'
 
 import { ESNEXT } from '../constants/core.mts'
 import {

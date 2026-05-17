@@ -17,10 +17,10 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
-import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-import { printFooter } from '@socketsecurity/lib-stable/stdio/footer'
-import { printHeader } from '@socketsecurity/lib-stable/stdio/header'
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { printFooter } from '@socketsecurity/lib/stdio/footer'
+import { printHeader } from '@socketsecurity/lib/stdio/header'
 
 import {
   runCommand,

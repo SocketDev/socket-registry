@@ -58,7 +58,7 @@
     "type-ci": "pnpm run check"
   },
   "devDependencies": {
-    "@socketsecurity/lib-stable": "catalog:",
+    "@socketsecurity/lib": "catalog:",
     "@types/node": "catalog:",
     "del-cli": "catalog:",
     "esbuild": "catalog:",

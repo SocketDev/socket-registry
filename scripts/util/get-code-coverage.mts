@@ -3,9 +3,9 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 
-import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
-import { readJson } from '@socketsecurity/lib-stable/fs'
-import { isObjectObject } from '@socketsecurity/lib-stable/objects'
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
+import { readJson } from '@socketsecurity/lib/fs'
+import { isObjectObject } from '@socketsecurity/lib/objects'
 
 import { spawn } from './spawn.mts'
 import process from 'node:process'

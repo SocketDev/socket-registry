@@ -4,14 +4,14 @@ import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
-import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
-import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import {
   readPackageJson,
   resolveOriginalPackageName,
-} from '@socketsecurity/lib-stable/packages'
-import { pEach } from '@socketsecurity/lib-stable/promises'
+} from '@socketsecurity/lib/packages'
+import { pEach } from '@socketsecurity/lib/promises'
 
 const logger = getDefaultLogger()
 
@@ -112,7 +112,10 @@ export async function runPackageTest(socketPkgName: string) {
       return { package: origPkgName, passed: true }
     } catch (e) {
       logger.fail(origPkgName)
-      const err = e as { message?: string | undefined; stderr?: string | undefined }
+      const err = e as {
+        message?: string | undefined
+        stderr?: string | undefined
+      }
       if (err.stderr) {
         const errorInfo = extractErrorInfo(err.stderr)
         logger.log(`   ${errorInfo}`)
@@ -194,7 +197,11 @@ export async function runPackageTest(socketPkgName: string) {
     logger.success(origPkgName)
     return { package: origPkgName, passed: true }
   } catch (e) {
-    const err = e as { message?: string | undefined; stdout?: string | undefined; stderr?: string | undefined }
+    const err = e as {
+      message?: string | undefined
+      stdout?: string | undefined
+      stderr?: string | undefined
+    }
     const errorStdout = err.stdout || ''
     const errorStderr = err.stderr || ''
 

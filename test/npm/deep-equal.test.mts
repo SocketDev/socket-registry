@@ -8,10 +8,7 @@ import { describe, expect, it } from 'vitest'
 
 import { expectValidPackageStructure } from '../util/assertion-helpers.mts'
 import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
-import {
-  describeIfMap,
-  describeIfSet,
-} from '../util/platform-test-helpers.mts'
+import { describeIfMap, describeIfSet } from '../util/platform-test-helpers.mts'
 
 const {
   eco,

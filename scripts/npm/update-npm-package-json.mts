@@ -1,19 +1,19 @@
 /** @fileoverview Update and validate package.json files for all npm packages. */
 
 import path from 'node:path'
-import { isDebug } from '@socketsecurity/lib-stable/debug'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { isDebug } from '@socketsecurity/lib/debug'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import {
   createPackageJson,
   getSubpaths,
   isSubpathExports,
   readPackageJson,
   resolvePackageJsonEntryExports,
-} from '@socketsecurity/lib-stable/packages'
+} from '@socketsecurity/lib/packages'
 
 const logger = getDefaultLogger()
-import { trimLeadingDotSlash } from '@socketsecurity/lib-stable/paths/normalize'
-import { pluralize } from '@socketsecurity/lib-stable/words'
+import { trimLeadingDotSlash } from '@socketsecurity/lib/paths/normalize'
+import { pluralize } from '@socketsecurity/lib/words'
 import fastGlob from 'fast-glob'
 
 import { getNpmPackageNames } from '../constants/testing.mts'

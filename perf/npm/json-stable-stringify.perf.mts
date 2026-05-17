@@ -4,7 +4,7 @@ import path from 'node:path'
 
 import jsonStableStringify from '@socketregistry/json-stable-stringify'
 // eslint-disable-next-line n/no-extraneous-import
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import fastJsonStableStringify from 'fast-json-stable-stringify'
 import { Bench } from 'tinybench'
 

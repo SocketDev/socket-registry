@@ -9,16 +9,16 @@ import { existsSync, promises as fs, readdirSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
-import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
-import { getCI } from '@socketsecurity/lib-stable/env/ci'
-import { LOG_SYMBOLS, getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { WIN32 } from '@socketsecurity/lib/constants/platform'
+import { getCI } from '@socketsecurity/lib/env/ci'
+import { LOG_SYMBOLS, getDefaultLogger } from '@socketsecurity/lib/logger'
 import {
   readPackageJson,
   resolveOriginalPackageName,
-} from '@socketsecurity/lib-stable/packages'
-import { pEach } from '@socketsecurity/lib-stable/promises'
-import { pluralize } from '@socketsecurity/lib-stable/words'
+} from '@socketsecurity/lib/packages'
+import { pEach } from '@socketsecurity/lib/promises'
+import { pluralize } from '@socketsecurity/lib/words'
 import process from 'node:process'
 
 const logger = getDefaultLogger()

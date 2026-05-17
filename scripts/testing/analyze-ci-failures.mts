@@ -4,9 +4,9 @@
 import { promises as fs } from 'node:fs'
 import process from 'node:process'
 
-import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
-import { httpText } from '@socketsecurity/lib-stable/http-request'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { httpText } from '@socketsecurity/lib/http-request'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
 
 const logger = getDefaultLogger()
 
