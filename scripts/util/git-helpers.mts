@@ -1,3 +1,4 @@
+/* oxlint-disable socket/no-process-cwd-in-scripts-hooks -- every exported helper accepts a `cwd` parameter the caller can override; the `process.cwd()` defaults are convenience for ad-hoc invocations and don't bypass the anchor-on-script-location rule. */
 /**
  * @fileoverview Git helper functions for listing staged / unstaged / changed files.
  * All returned paths are relative to the git top-level, so downstream glob matchers

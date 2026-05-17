@@ -70,6 +70,7 @@ export async function runWithOutput(
   options: RunWithOutputOptions = {},
 ) {
   const {
+    // oxlint-disable-next-line socket/no-process-cwd-in-scripts-hooks -- caller-overridable default; callers always pass a script-anchored cwd or accept the cwd they invoke from.
     cwd = process.cwd(),
     env = process.env,
     message = 'Running',

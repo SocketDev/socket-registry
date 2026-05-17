@@ -22,6 +22,8 @@ import { safeDelete } from '@socketsecurity/lib/fs'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { spawn } from '@socketsecurity/lib/spawn'
 
+import { REPO_ROOT } from './paths.mts'
+
 const logger = getDefaultLogger()
 const quiet = process.argv.includes('--quiet')
 
@@ -33,12 +35,12 @@ const log = {
   warn: (msg: string) => logger.warn(msg),
 }
 
-// Tools cached in repo root (.cache/external-tools/), gitignored via **/.cache.
+// Tools cached under node_modules/.cache/external-tools/ (auto-gitignored).
 export function getCacheDir(): string {
   if (process.env.EXTERNAL_TOOLS_CACHE) {
     return process.env.EXTERNAL_TOOLS_CACHE
   }
-  return path.join(process.cwd(), '.cache', 'external-tools')
+  return path.join(REPO_ROOT, 'node_modules', '.cache', 'external-tools')
 }
 
 export function getToolCachePath(tool: string, version: string): string {
@@ -271,7 +273,7 @@ async function main(): Promise<void> {
   }
 
   // Load external tools config.
-  const configPath = path.join(process.cwd(), 'external-tools.json')
+  const configPath = path.join(REPO_ROOT, 'external-tools.json')
   if (!existsSync(configPath)) {
     log.warn('No external-tools.json found')
     return

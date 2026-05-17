@@ -15,6 +15,7 @@ import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { printHeader } from '@socketsecurity/lib/stdio/header'
 import { minimatch } from 'minimatch'
 
+import { REPO_ROOT } from './paths.mts'
 import { runCommandQuiet } from './util/run-command.mts'
 
 const logger = getDefaultLogger()
@@ -27,7 +28,7 @@ const FULL_LINT_TRIGGERS = ['.config/**', 'scripts/util/**', 'pnpm-lock.yaml']
  */
 export function getOxfmtExcludePatterns(): string[] {
   try {
-    const oxfmtConfigPath = path.join(process.cwd(), '.config', 'oxfmtrc.json')
+    const oxfmtConfigPath = path.join(REPO_ROOT, '.config', 'oxfmtrc.json')
     if (!existsSync(oxfmtConfigPath)) {
       return []
     }

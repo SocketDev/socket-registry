@@ -5,6 +5,8 @@ import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { spawn } from '@socketsecurity/lib/spawn'
 import process from 'node:process'
 
+import { REPO_ROOT } from '../paths.mts'
+
 const logger = getDefaultLogger()
 
 export function includesProvenanceDowngradeWarning(output) {
@@ -23,7 +25,7 @@ async function main(): Promise<void> {
     'pnpm',
     ['taze', '--config', '.config/taze.config.mts', ...args],
     {
-      cwd: process.cwd(),
+      cwd: REPO_ROOT,
       shell: WIN32,
       stdio: 'pipe',
     },

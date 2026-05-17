@@ -33,6 +33,7 @@ export function biomeFormat(
     'pnpm',
     ['exec', 'biome', 'format', `--stdin-file-path=temp.${extension}`],
     {
+      // oxlint-disable-next-line socket/no-process-cwd-in-scripts-hooks -- biome reads from stdin (no file resolution); cwd is purely for `pnpm exec` to find the biome binary in node_modules.
       cwd: process.cwd(),
       input: content,
       encoding: 'utf8',

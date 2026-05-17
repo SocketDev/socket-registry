@@ -60,6 +60,7 @@ export const defaultIgnore = [
   '**/dist/**',
   '**/build/**',
   '**/coverage/**',
+  // oxlint-disable-next-line socket/prefer-node-modules-dot-cache -- search-ignore glob, not a new cache location.
   '**/.cache/**',
   '**/.tmp/**',
   '**/tmp/**',

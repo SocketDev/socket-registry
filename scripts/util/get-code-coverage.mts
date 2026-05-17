@@ -7,6 +7,7 @@ import { WIN32 } from '@socketsecurity/lib/constants/platform'
 import { readJson } from '@socketsecurity/lib/fs'
 import { isObjectObject } from '@socketsecurity/lib/objects'
 
+import { REPO_ROOT } from '../paths.mts'
 import { spawn } from './spawn.mts'
 import process from 'node:process'
 
@@ -25,7 +26,7 @@ export async function getCodeCoverage(options) {
   const { generateIfMissing = true } = { __proto__: null, ...options }
 
   const coverageJsonPath = path.join(
-    process.cwd(),
+    REPO_ROOT,
     'coverage',
     'coverage-final.json',
   )

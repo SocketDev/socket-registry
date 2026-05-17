@@ -14,8 +14,10 @@ import {
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 
+import { REPO_ROOT } from '../paths.mts'
+
 const logger = getDefaultLogger()
-const rootPath = path.resolve(process.cwd())
+const rootPath = REPO_ROOT
 const DEBUG = process.env.DEBUG_TEST_MAPPER === '1'
 
 export function debug(message: string): void {

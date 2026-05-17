@@ -12,6 +12,7 @@ import {
   ROOT_DOT_GITHUB_ACTIONS_PATH,
   ROOT_DOT_GITHUB_WORKFLOWS_PATH,
 } from '../constants/paths.mts'
+import { REPO_ROOT } from '../paths.mts'
 
 /**
  * Extract structured dependency information from a workflow or action file.
@@ -109,7 +110,7 @@ async function main(): Promise<void> {
       allDependencies.add(dep)
     }
     if (structured.length > 0) {
-      const relativePath = path.relative(process.cwd(), file)
+      const relativePath = path.relative(REPO_ROOT, file)
       dependencyTree.set(relativePath, structured)
     }
   }
@@ -134,7 +135,7 @@ async function main(): Promise<void> {
           allDependencies.add(dep)
         }
         if (structured.length > 0) {
-          const relativePath = path.relative(process.cwd(), actionFile)
+          const relativePath = path.relative(REPO_ROOT, actionFile)
           dependencyTree.set(relativePath, structured)
         }
       } catch {}

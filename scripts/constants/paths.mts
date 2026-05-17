@@ -4,16 +4,18 @@
 
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import { getTsxExecPath } from './utils.mts'
 
 /**
  * Find project root by looking for pnpm-workspace.yaml.
+ * Anchors on this module's own location (per fleet rule: scripts/ must
+ * not depend on the caller's cwd).
  */
 export function findProjectRoot(): string {
-  let currentPath = process.cwd()
+  const __filename = fileURLToPath(import.meta.url)
+  let currentPath = path.dirname(__filename)
   const root = path.parse(currentPath).root
 
   while (currentPath !== root) {
@@ -24,7 +26,6 @@ export function findProjectRoot(): string {
   }
 
   // Fallback.
-  const __filename = fileURLToPath(import.meta.url)
   const __dirname = path.dirname(__filename)
   return normalizePath(path.resolve(__dirname, '..', '..'))
 }
@@ -150,6 +151,7 @@ export const PERF_NPM_FIXTURES_PATH = normalizePath(
 )
 
 // Cache paths.
+// oxlint-disable-next-line socket/prefer-node-modules-dot-cache -- ROOT_CACHE_PATH is repo-root .cache (predates the fleet rule); migrating downstream callers is out of scope here.
 export const ROOT_CACHE_PATH = normalizePath(path.join(ROOT_PATH, '.cache'))
 export const ROOT_GITHUB_CACHE_PATH = normalizePath(
   path.join(ROOT_CACHE_PATH, 'github'),
