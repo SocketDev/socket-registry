@@ -199,12 +199,38 @@ runs:
         fi
         SFW_DIR="${RUNNER_TEMP:-/tmp}/sfw-bin"
         SFW_BIN="$SFW_DIR/$SFW_BIN_NAME"
-        if [ ! -x "$SFW_BIN" ]; then
+        # `install-tool.mjs` exits non-zero on download failure or
+        # integrity mismatch and bails the step via `set -e`. Wrap the
+        # invocation in an explicit branch so we can echo before/after
+        # — silent SFW provisioning broke install-action downstream in
+        # the past (binary path exported via $GITHUB_ENV but file
+        # missing on disk). Recover gracefully if a prior partial step
+        # left a non-executable file at the target path.
+        if [ -x "$SFW_BIN" ]; then
+          echo "sfw binary already present: $SFW_BIN"
+        else
+          echo "Installing sfw → $SFW_BIN (asset: $ASSET)"
+          if [ -e "$SFW_BIN" ]; then
+            # Non-executable artifact from an interrupted prior run.
+            echo "Removing stale non-executable artifact at $SFW_BIN"
+            rm -f "$SFW_BIN"
+          fi
           node "$INSTALL_TOOL" \
             "https://github.com/${SFW_REPO}/releases/download/v${SFW_VERSION}/${ASSET}" \
             "$INTEGRITY" \
             "$SFW_DIR" \
             "$SFW_BIN_NAME"
+          # `install-tool.mjs` should produce an executable; surface
+          # the failure here with diagnostics if it didn't, instead of
+          # letting downstream steps fail with the opaque
+          # "sfw is not installed" message.
+          if [ ! -x "$SFW_BIN" ]; then
+            echo "× SFW install reported success but $SFW_BIN is missing or not executable." >&2
+            echo "  Contents of $SFW_DIR:" >&2
+            ls -la "$SFW_DIR" >&2 || true
+            exit 1
+          fi
+          echo "sfw installed: $(ls -la "$SFW_BIN")"
         fi
         # Export canonical sfw provenance in the shared SOCKET_TOOL_*
         # namespace. `SOCKET_TOOL_SFW_FLAVOR` tells consumers which
