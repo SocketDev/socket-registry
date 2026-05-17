@@ -163,8 +163,10 @@ async function main(): Promise<void> {
 
     // Show help if requested
     if (values.help) {
-      logger.log('\nUsage: pnpm publish [options]')
-      logger.log('\nOptions:')
+      logger.log('')
+      logger.log('Usage: pnpm publish [options]')
+      logger.log('')
+      logger.log('Options:')
       logger.log('  --help                Show this help message')
       logger.log('  --force               Force publish even with warnings')
       logger.log(
@@ -181,7 +183,8 @@ async function main(): Promise<void> {
         '  --skip-npm-packages   Skip publishing npm override packages',
       )
       logger.log('  --tag <tag>           npm dist-tag (default: latest)')
-      logger.log('\nExamples:')
+      logger.log('')
+      logger.log('Examples:')
       logger.log('  pnpm publish                    # Standard publish flow')
       logger.log(
         '  pnpm publish --force-registry   # Force publish registry package',
@@ -193,7 +196,8 @@ async function main(): Promise<void> {
       return
     }
 
-    logger.log('\n────────────────────────────────────────────────────────────')
+    logger.log('')
+    logger.log('────────────────────────────────────────────────────────────')
     logger.log('  Publish Runner')
     logger.log('────────────────────────────────────────────────────────────')
 
@@ -233,7 +237,8 @@ async function main(): Promise<void> {
       return
     }
 
-    logger.log('\n────────────────────────────────────────────────────────────')
+    logger.log('')
+    logger.log('────────────────────────────────────────────────────────────')
     logger.success('Publish completed successfully!')
     process.exitCode = 0
   } catch (e) {

@@ -93,7 +93,8 @@ function main(): void {
   const findings: string[] = []
 
   // Direct duplicates: same basename at root AND in .config/.
-  for (const basename of CONFIG_BASENAMES) {
+  for (let i = 0, { length } = CONFIG_BASENAMES; i < length; i += 1) {
+    const basename = CONFIG_BASENAMES[i]!
     const rootCopy = path.join(rootPath, basename)
     const configCopy = path.join(configPath, basename)
     if (existsSync(rootCopy) && existsSync(configCopy)) {
@@ -105,6 +106,7 @@ function main(): void {
         `Stale root config: ${basename} should live in .config/, not at the repo root. Move it.`,
       )
     }
+  
   }
 
   // Dotfile aliases: only ONE of the pair should exist.
@@ -122,13 +124,15 @@ function main(): void {
   // repo root (single-package) or each `packages/<pkg>/` (monorepo).
   // tsc + IDE discover them natively at cwd; burying them in `.config/`
   // breaks language-server lookups and forces explicit `-p <path>`.
-  for (const basename of CONCRETE_TSCONFIG_BASENAMES) {
+  for (let i = 0, { length } = CONCRETE_TSCONFIG_BASENAMES; i < length; i += 1) {
+    const basename = CONCRETE_TSCONFIG_BASENAMES[i]!
     const configCopy = path.join(configPath, basename)
     if (existsSync(configCopy)) {
       findings.push(
         `Concrete tsconfig in .config/: .config/${basename} should live at the package root, not in .config/. Move it (single-package: repo root; monorepo: packages/<pkg>/).`,
       )
     }
+  
   }
 
   if (findings.length === 0) {
@@ -140,8 +144,10 @@ function main(): void {
   }
 
   logger.error(`Config-path hygiene violations (${findings.length}):`)
-  for (const f of findings) {
+  for (let i = 0, { length } = findings; i < length; i += 1) {
+    const f = findings[i]!
     logger.error(`  ${f}`)
+  
   }
   process.exitCode = 1
 }

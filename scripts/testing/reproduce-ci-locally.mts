@@ -77,7 +77,8 @@ export async function createTestEnvironment() {
  * Run build in CI environment.
  */
 export async function runBuild(workDir) {
-  logger.info('\n--- Building Project (CI Mode) ---')
+  logger.error('')
+  logger.info('--- Building Project (CI Mode) ---')
   const result = await runCiCommand('pnpm', ['run', 'build'], { cwd: workDir })
 
   if (result.code !== 0) {
@@ -119,7 +120,8 @@ export async function runCiCommand(command, args, options = {}) {
  * Run dependency installation.
  */
 export async function runInstall(workDir) {
-  logger.info('\n--- Installing Dependencies (CI Mode) ---')
+  logger.error('')
+  logger.info('--- Installing Dependencies (CI Mode) ---')
   const result = await runCiCommand('pnpm', ['install', '--frozen-lockfile'], {
     cwd: workDir,
   })
@@ -137,7 +139,8 @@ export async function runInstall(workDir) {
  * Run linting checks.
  */
 export async function runLint(workDir) {
-  logger.info('\n--- Running Linting (CI Mode) ---')
+  logger.error('')
+  logger.info('--- Running Linting (CI Mode) ---')
   const result = await runCiCommand('pnpm', ['run', 'lint-ci'], {
     cwd: workDir,
   })
@@ -158,7 +161,8 @@ export async function runLint(workDir) {
  * Run npm package tests.
  */
 export async function runNpmPackageTests(workDir) {
-  logger.info('\n--- Running NPM Package Tests (CI Mode) ---')
+  logger.error('')
+  logger.info('--- Running NPM Package Tests (CI Mode) ---')
 
   const args = ['scripts/npm/test-npm-packages.mts']
 
@@ -187,7 +191,8 @@ export async function runNpmPackageTests(workDir) {
  * Run type checking.
  */
 export async function runTypecheck(workDir) {
-  logger.info('\n--- Running Type Check (CI Mode) ---')
+  logger.error('')
+  logger.info('--- Running Type Check (CI Mode) ---')
   const result = await runCiCommand('pnpm', ['run', 'type-ci'], {
     cwd: workDir,
   })
@@ -208,7 +213,8 @@ export async function runTypecheck(workDir) {
  * Run unit tests.
  */
 export async function runUnitTests(workDir) {
-  logger.info('\n--- Running Unit Tests (CI Mode) ---')
+  logger.error('')
+  logger.info('--- Running Unit Tests (CI Mode) ---')
   const result = await runCiCommand('pnpm', ['run', 'test-ci'], {
     cwd: workDir,
   })
@@ -229,10 +235,12 @@ export async function runUnitTests(workDir) {
  * Main reproduction flow.
  */
 async function main(): Promise<void> {
-  logger.info('=== Reproducing CI Environment Locally ===\n')
+  logger.info('=== Reproducing CI Environment Locally ===')
+  logger.error('')
 
   if (cliArgs.package?.length) {
-    logger.info(`Testing specific packages: ${cliArgs.package.join(', ')}\n`)
+    logger.info(`Testing specific packages: ${cliArgs.package.join(', ')}`)
+    logger.error('')
   }
 
   let tempDir
@@ -279,7 +287,8 @@ async function main(): Promise<void> {
       }
     }
 
-    logger.info('\n=== CI Reproduction Summary ===')
+    logger.error('')
+    logger.info('=== CI Reproduction Summary ===')
     if (success) {
       logger.success('✓ All CI checks passed locally!')
       logger.info(
@@ -298,11 +307,13 @@ async function main(): Promise<void> {
     process.exitCode = 1
   } finally {
     if (tempDir && !cliArgs.keepTemp) {
-      logger.info(`\nCleaning up temporary directory: ${tempDir}`)
+      logger.error('')
+      logger.info(`Cleaning up temporary directory: ${tempDir}`)
       // Force delete temp directory outside CWD.
       await del(tempDir, { force: true })
     } else if (tempDir && cliArgs.keepTemp) {
-      logger.info(`\nTemporary directory preserved: ${tempDir}`)
+      logger.error('')
+      logger.info(`Temporary directory preserved: ${tempDir}`)
     }
   }
 }

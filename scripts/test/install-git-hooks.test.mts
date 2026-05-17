@@ -11,10 +11,10 @@
 // core.hooksPath value via `git config`. Idempotency is verified by
 // running the installer twice and confirming the second run is silent.
 
-import { spawnSync } from 'node:child_process'
+import { spawnSync } from '@socketsecurity/lib/spawn'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { tmpdir } from 'node:os'
+import os from 'node:os'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { fileURLToPath } from 'node:url'

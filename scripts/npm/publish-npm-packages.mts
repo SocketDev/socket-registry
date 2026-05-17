@@ -216,7 +216,8 @@ export async function publish(pkg, state, options) {
 export async function publishAtCommit(sha) {
   const headSha = await getCommitSha('HEAD')
   const isHead = sha === headSha
-  logger.log(`\nChecking out ${isHead ? 'HEAD at ' : ''}commit ${sha}...`)
+  logger.log('')
+  logger.log(`Checking out ${isHead ? 'HEAD at ' : ''}commit ${sha}...`)
   await checkoutCommit(sha)
 
   // Rebuild at this commit to ensure we have the correct registry dist files.
@@ -331,9 +332,8 @@ export async function publishAtCommit(sha) {
     const manifestChanged = changedFiles.includes(manifestPath)
 
     if (manifestChanged) {
-      logger.log(
-        '\nUpdating and committing manifest.json with latest npm versions...',
-      )
+      logger.log('')
+      logger.log('Updating and committing manifest.json with latest npm versions...')
       await spawn('git', ['config', 'user.name', 'Socket Bot'])
       await spawn('git', [
         'config',
@@ -517,9 +517,8 @@ async function main(): Promise<void> {
       logger.info('No version bump commits found')
       // If --force-registry is set, still try to publish at HEAD.
       if (forceRegistryFlag) {
-        logger.log(
-          '\nForce-registry flag is set, checking HEAD for unpublished packages...',
-        )
+        logger.log('')
+        logger.log('Force-registry flag is set, checking HEAD for unpublished packages...')
         const headSha = await getCommitSha('HEAD')
         await publishAtCommit(headSha)
       }
@@ -561,7 +560,8 @@ async function main(): Promise<void> {
 
     if (!bumpCommits.length) {
       logger.info('No registry version bumps to publish')
-      logger.log('\nChecking for unpublished packages at HEAD...')
+      logger.log('')
+      logger.log('Checking for unpublished packages at HEAD...')
       // Even if there are no registry version bumps, we should check
       // if any @socketregistry/* packages have unpublished versions.
       const headSha = await getCommitSha('HEAD')
@@ -569,10 +569,8 @@ async function main(): Promise<void> {
       return
     }
 
-    logger
-      .log(
-        `\nPublishing ${bumpCommits.length} unpublished version ${pluralize('bump', { count: bumpCommits.length })}:`,
-      )
+    logger.log('')
+    logger.log(`Publishing ${bumpCommits.length} unpublished version ${pluralize('bump', { count: bumpCommits.length })}:`)
       .group()
 
     const displayCommits = cliArgs.debug
@@ -597,7 +595,8 @@ async function main(): Promise<void> {
     logger.success('All versions published successfully')
   } finally {
     // Always return to the original branch/commit.
-    logger.log(`\nReturning to ${originalBranch}...`)
+    logger.log('')
+    logger.log(`Returning to ${originalBranch}...`)
 
     // Discard any uncommitted changes from the build process.
     await spawn('git', ['reset', '--hard'])

@@ -219,14 +219,16 @@ export async function fetchLogContent() {
  * Format analysis results for display.
  */
 export function formatResults(failures, recommendations) {
-  logger.info('=== CI Failure Analysis ===\n')
+  logger.info('=== CI Failure Analysis ===')
+  logger.error('')
 
   if (!failures.length) {
     logger.success('No failures detected in log')
     return
   }
 
-  logger.info(`Found ${failures.length} failure(s)\n`)
+  logger.info(`Found ${failures.length} failure(s)`)
+  logger.error('')
 
   // Display category summary.
   logger.info('--- Failures by Category ---')
@@ -236,7 +238,8 @@ export function formatResults(failures, recommendations) {
     logger.warn(`${rec.category}: ${rec.count} occurrence(s)`)
   }
 
-  logger.info('\n--- Affected Packages ---')
+  logger.error('')
+  logger.info('--- Affected Packages ---')
   const packageRecs = recommendations.filter(r => r.level === 'package')
   for (let i = 0, { length } = packageRecs; i < length; i += 1) {
     const rec = packageRecs[i]
@@ -249,22 +252,26 @@ export function formatResults(failures, recommendations) {
   }
 
   // Display recommendations.
-  logger.info('\n--- Recommended Actions ---')
+  logger.error('')
+  logger.info('--- Recommended Actions ---')
   for (let i = 0, { length } = packageRecs; i < length; i += 1) {
     const rec = packageRecs[i]
-    logger.info(`\nPackage: ${rec.package}`)
+    logger.error('')
+    logger.info(`Package: ${rec.package}`)
     for (const action of rec.actions) {
       logger.info(`  ${action}`)
     }
   }
 
   // Display general suggestions.
-  logger.info('\n--- General Suggestions ---')
+  logger.error('')
+  logger.info('--- General Suggestions ---')
   const uniqueCategories = [...new Set(categoryRecs.map(r => r.category))]
   for (let i = 0, { length } = uniqueCategories; i < length; i += 1) {
     const category = uniqueCategories[i]
     const rec = categoryRecs.find(r => r.category === category)
-    logger.info(`\n${category}:`)
+    logger.error('')
+    logger.info(`${category}:`)
     for (const suggestion of rec.suggestions) {
       logger.info(`  - ${suggestion}`)
     }
@@ -272,12 +279,12 @@ export function formatResults(failures, recommendations) {
 
   // Verbose output.
   if (cliArgs.verbose) {
-    logger.info('\n--- Detailed Failures ---')
+    logger.error('')
+    logger.info('--- Detailed Failures ---')
     for (let i = 0, { length } = failures; i < length; i += 1) {
       const failure = failures[i]
-      logger.info(
-        `\n[${failure.severity.toUpperCase()}] ${failure.category} (${failure.package || 'unknown'})`,
-      )
+      logger.error('')
+      logger.info(`[${failure.severity.toUpperCase()}] ${failure.category} (${failure.package || 'unknown'})`)
       logger.info(`  Line: ${failure.line}`)
       if (failure.details) {
         logger.info(`  Details: ${JSON.stringify(failure.details, null, 2)}`)

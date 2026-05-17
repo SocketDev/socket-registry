@@ -268,7 +268,8 @@ async function main(): Promise<void> {
 
   // Display changes.
   for (const { changes, file } of processedFiles) {
-    logger.info(`\n${path.relative(cwd, file)}:`)
+    logger.error('')
+    logger.info(`${path.relative(cwd, file)}:`)
     for (let i = 0, { length } = changes; i < length; i += 1) {
       const change = changes[i]
       logger.log(`  ${change.action}@${change.ref} → ${change.sha.slice(0, 7)}`)
@@ -279,14 +280,15 @@ async function main(): Promise<void> {
     }
   }
 
-  logger.info(
-    `\nTotal: ${totalChanges} actions updated in ${processedFiles.length} files`,
-  )
+  logger.error('')
+  logger.info(`Total: ${totalChanges} actions updated in ${processedFiles.length} files`)
 
   if (dryRun) {
-    logger.info('\nRun without --dry-run to apply changes')
+    logger.error('')
+    logger.info('Run without --dry-run to apply changes')
   } else {
-    logger.success('\nAll actions have been updated to use commit SHAs')
+    logger.error('')
+    logger.success('All actions have been updated to use commit SHAs')
   }
 }
 

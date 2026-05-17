@@ -269,7 +269,8 @@ export async function downloadAndVerify(
 
 async function main(): Promise<void> {
   if (!quiet) {
-    logger.log('\n🔧 Developer Setup\n')
+    logger.log('')
+    logger.log('🔧 Developer Setup\n')
   }
 
   // Load external tools config.

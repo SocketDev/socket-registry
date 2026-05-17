@@ -345,14 +345,14 @@ async function main(): Promise<void> {
   }
 
   if (!packagesToTest.length) {
-    logger.warn('No packages to test\n')
+    logger.warn('No packages to test')
+    logger.error('')
     process.exitCode = 0
     return
   }
 
-  logger.log(
-    `Running tests for ${packagesToTest.length} packages (concurrency ${concurrency})\n`,
-  )
+  logger.log(`Running tests for ${packagesToTest.length} packages (concurrency ${concurrency})`)
+  logger.log('')
 
   const results = []
 
@@ -366,7 +366,8 @@ async function main(): Promise<void> {
   )
 
   // Summary.
-  logger.log(`\n${'='.repeat(60)}`)
+  logger.log('')
+  logger.log(`${'='.repeat(60)}`)
   logger.log('TEST SUMMARY')
   logger.log('='.repeat(60))
 
@@ -381,9 +382,8 @@ async function main(): Promise<void> {
     logger.log(`Skipped: ${skipped.length} (no test script)`)
   }
 
-  logger.success(
-    `Passed: ${passed.length}/${totalTested} (${results.length} total)\n`,
-  )
+  logger.success(`Passed: ${passed.length}/${totalTested} (${results.length} total)`)
+  logger.error('')
 
   // Never clean up the cache directory - it's persistent by design.
 

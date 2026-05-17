@@ -169,7 +169,8 @@ export async function watchJS() {
     // Keep process alive
     process.on('SIGINT', async () => {
       if (!isQuiet) {
-        logger.log('\nStopping watch mode...')
+        logger.log('')
+        logger.log('Stopping watch mode...')
       }
       await ctx.dispose()
       process.exit(0)

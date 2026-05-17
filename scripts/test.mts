@@ -70,7 +70,8 @@ const removeExitHandler = onExit((_code, signal) => {
   }
 
   if (signal) {
-    logger.log(`\nReceived ${signal}, cleaning up...`)
+    logger.log('')
+    logger.log(`Received ${signal}, cleaning up...`)
     // Let onExit handle the exit with proper code
     process.exitCode = 128 + (signal === 'SIGINT' ? 2 : 15)
   }
@@ -401,8 +402,10 @@ async function main(): Promise<void> {
     // Show help if requested
     if (values.help) {
       logger.log('Test Runner')
-      logger.log('\nUsage: pnpm test [options] [-- vitest-args...]')
-      logger.log('\nOptions:')
+      logger.log('')
+      logger.log('Usage: pnpm test [options] [-- vitest-args...]')
+      logger.log('')
+      logger.log('Options:')
       logger.log('  --help              Show this help message')
       logger.log(
         '  --fast, --quick     Skip lint/type checks for faster execution',
@@ -412,7 +415,8 @@ async function main(): Promise<void> {
       logger.log('  --all, --force      Run all tests regardless of changes')
       logger.log('  --staged            Run tests affected by staged changes')
       logger.log('  --skip-build        Skip the build step')
-      logger.log('\nExamples:')
+      logger.log('')
+      logger.log('Examples:')
       logger.log(
         '  pnpm test                  # Run checks, build, and tests for changed files',
       )

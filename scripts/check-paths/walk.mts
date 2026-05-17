@@ -12,16 +12,7 @@
 import { readdirSync } from 'node:fs'
 import path from 'node:path'
 
-export const SKIP_DIRS = new Set([
-  '.git',
-  'node_modules',
-  'build',
-  'dist',
-  'out',
-  'target',
-  '.cache',
-  'upstream',
-])
+export const SKIP_DIRS = new Set(['.cache', '.git', 'build', 'dist', 'node_modules', 'out', 'target', 'upstream'])
 
 export const walk = function* (
   repoRoot: string,
@@ -34,7 +25,8 @@ export const walk = function* (
   } catch {
     return
   }
-  for (const e of entries) {
+  for (let i = 0, { length } = entries; i < length; i += 1) {
+    const e = entries[i]!
     if (SKIP_DIRS.has(e.name)) {
       continue
     }
@@ -45,5 +37,6 @@ export const walk = function* (
     } else if (e.isFile() && filter(rel)) {
       yield rel
     }
+  
   }
 }

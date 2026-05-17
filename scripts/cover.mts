@@ -182,7 +182,8 @@ async function main(): Promise<void> {
       logger.log(` Code Coverage: ${codeCoveragePercent.toFixed(2)}%`)
       logger.log('')
     } else if (exitCode !== 0) {
-      logger.log('\n--- Output ---')
+      logger.log('')
+      logger.log('--- Output ---')
       logger.log(output)
     }
   }

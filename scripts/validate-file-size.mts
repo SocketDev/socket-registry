@@ -74,7 +74,8 @@ async function scanDirectory(
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true })
 
-    for (const entry of entries) {
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const entry = entries[i]!
       const fullPath = path.join(dir, entry.name)
 
       if (entry.isDirectory()) {
@@ -105,6 +106,7 @@ async function scanDirectory(
           // Skip files we can't stat
         }
       }
+    
     }
   } catch {
     // Skip directories we can't read
@@ -142,13 +144,15 @@ async function main(): Promise<void> {
     logger.log('Files exceeding limit:')
     logger.log('')
 
-    for (const violation of violations) {
+    for (let i = 0, { length } = violations; i < length; i += 1) {
+      const violation = violations[i]!
       logger.log(`  ${violation.file}`)
       logger.log(`    Size: ${violation.formattedSize}`)
       logger.log(
         `    Exceeds limit by: ${formatBytes(violation.size - MAX_FILE_SIZE)}`,
       )
       logger.log('')
+    
     }
 
     logger.log(

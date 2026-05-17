@@ -231,7 +231,8 @@ export async function checkTrustedPackage(packageName, state) {
       logger.info(`Latest version: ${info.version}`)
     }
     logger.dedent()
-    logger.log('\n')
+    logger.log('')
+    logger.log('')
     return false
   }
 
@@ -345,7 +346,8 @@ async function main(): Promise<void> {
   }
 
   // Summary
-  logger.log('\n')
+  logger.log('')
+  logger.log('')
   logger.log('📊 Summary:')
   logger.success(`${results.success.length} packages verified`)
 
@@ -355,7 +357,8 @@ async function main(): Promise<void> {
     return
   }
 
-  logger.log('\n✨ All packages have correct trusted setup!')
+  logger.log('')
+  logger.log('✨ All packages have correct trusted setup!')
 }
 
 main().catch(error => {

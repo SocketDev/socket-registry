@@ -103,7 +103,8 @@ async function detectLinux(): Promise<boolean> {
   }
   try {
     const entries = await fs.readdir(psDir)
-    for (const entry of entries) {
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const entry = entries[i]!
       const onlineFile = path.join(psDir, entry, 'online')
       if (!existsSync(onlineFile)) {
         continue
@@ -116,6 +117,7 @@ async function detectLinux(): Promise<boolean> {
       } catch {
         // Unreadable entry — skip; another entry may report.
       }
+    
     }
   } catch {
     // Directory enumeration failed — fall through to AC.

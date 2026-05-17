@@ -42,7 +42,8 @@ export function logSectionHeader(title: string, options?: HeaderOptions): void {
   } = { __proto__: null, ...options } as HeaderOptions
 
   const header = formatHeaderTitle(title, emoji)
-  logger.log(`\n${header}`)
+  logger.log('')
+  logger.log(`${header}`)
   logger.log(createHorizontalRule(ruleWidth, ruleChar))
 }
 
@@ -55,5 +56,6 @@ export function logSubsectionHeader(
 ): void {
   const { emoji } = { __proto__: null, ...options } as HeaderOptions
   const header = formatHeaderTitle(title, emoji)
-  logger.log(`\n${header}`)
+  logger.log('')
+  logger.log(`${header}`)
 }

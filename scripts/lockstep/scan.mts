@@ -33,7 +33,8 @@ export function walkDirFiles(dir: string, extRe: RegExp): string[] {
     } catch {
       continue
     }
-    for (const entry of entries) {
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const entry = entries[i]!
       if (entry === 'node_modules' || entry === '.git' || entry === 'dist') {
         continue
       }
@@ -49,6 +50,7 @@ export function walkDirFiles(dir: string, extRe: RegExp): string[] {
       } else if (stat.isFile() && extRe.test(entry)) {
         files.push(full)
       }
+    
     }
   }
   return files
@@ -62,7 +64,8 @@ export function countPatternHits(files: string[], patterns: string[]): number {
   // pattern and keep going rather than throwing a SyntaxError that
   // kills the whole run.
   const compiled: RegExp[] = []
-  for (const p of patterns) {
+  for (let i = 0, { length } = patterns; i < length; i += 1) {
+    const p = patterns[i]!
     try {
       compiled.push(new RegExp(p))
     } catch (e) {
@@ -70,9 +73,11 @@ export function countPatternHits(files: string[], patterns: string[]): number {
         `lockstep: skipping invalid regex ${JSON.stringify(p)}: ${errorMessage(e)}`,
       )
     }
+  
   }
   let hits = 0
-  for (const pat of compiled) {
+  for (let i = 0, { length } = compiled; i < length; i += 1) {
+    const pat = compiled[i]!
     for (const file of files) {
       let content: string
       try {
@@ -85,6 +90,7 @@ export function countPatternHits(files: string[], patterns: string[]): number {
         break
       }
     }
+  
   }
   return hits
 }

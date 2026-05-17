@@ -444,10 +444,12 @@ export async function validateTestFiles(_packageName, packageDir) {
  * Main validation flow.
  */
 async function main(): Promise<void> {
-  logger.info('Starting package validation...\n')
+  logger.info('Starting package validation...')
+  logger.error('')
 
   const packages = await getPackagesToValidate()
-  logger.info(`Found ${packages.length} packages to validate\n`)
+  logger.info(`Found ${packages.length} packages to validate`)
+  logger.error('')
 
   const concurrency = Number.parseInt(cliArgs.concurrency, 10)
   const results = []
@@ -460,10 +462,12 @@ async function main(): Promise<void> {
     { concurrency },
   )
 
-  logger.info('\n--- Validation Results ---\n')
+  logger.error('')
+  logger.info('--- Validation Results ---\n')
   const { errors, warnings } = formatResults(results)
 
-  logger.info('\n--- Summary ---')
+  logger.error('')
+  logger.info('--- Summary ---')
   logger.info(`Total packages: ${packages.length}`)
   logger.info(`Passed: ${results.filter(r => !r.issues.length).length}`)
   logger.info(
@@ -472,12 +476,15 @@ async function main(): Promise<void> {
   logger.info(`With errors: ${results.filter(r => r.hasErrors).length}`)
 
   if (errors.length > 0) {
-    logger.error(`\n${errors.length} error(s) found`)
+    logger.error('')
+    logger.error(`${errors.length} error(s) found`)
     process.exitCode = 1
   } else if (warnings.length > 0) {
-    logger.warn(`\n${warnings.length} warning(s) found`)
+    logger.error('')
+    logger.warn(`${warnings.length} warning(s) found`)
   } else {
-    logger.success('\n✓ All packages validated successfully!')
+    logger.error('')
+    logger.success('✓ All packages validated successfully!')
   }
 }
 

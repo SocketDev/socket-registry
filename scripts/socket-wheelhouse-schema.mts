@@ -22,7 +22,8 @@
  * Byte-identical across the fleet via sync-scaffolding's IDENTICAL_FILES.
  */
 
-import { Type, type Static } from '@sinclair/typebox'
+import { Type } from '@sinclair/typebox'
+import type { Static } from '@sinclair/typebox'
 
 // ---------------------------------------------------------------------------
 // Two orthogonal axes describe a fleet repo:
