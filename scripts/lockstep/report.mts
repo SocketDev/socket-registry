@@ -42,10 +42,7 @@ export function summarize(reports: Report[]): AreaSummary[] {
   return [...byArea.values()].sort((a, b) => a.area.localeCompare(b.area))
 }
 
-export function emitHuman(
-  reports: Report[],
-  summaries: AreaSummary[],
-): number {
+export function emitHuman(reports: Report[], summaries: AreaSummary[]): number {
   logger.info(
     `lockstep — ${reports.length} row(s) across ${summaries.length} area(s)`,
   )

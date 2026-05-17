@@ -132,8 +132,7 @@ function main(): void {
   }
 
   if (findings.length === 0) {
-    const total =
-      CONFIG_BASENAMES.length + CONCRETE_TSCONFIG_BASENAMES.length
+    const total = CONFIG_BASENAMES.length + CONCRETE_TSCONFIG_BASENAMES.length
     logger.success(
       `Config-path hygiene OK — ${total} basenames checked, no drift.`,
     )

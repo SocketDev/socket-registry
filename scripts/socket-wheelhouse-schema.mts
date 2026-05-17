@@ -269,8 +269,7 @@ const PathsAllowlistEntrySchema = Type.Object(
   {
     rule: Type.Optional(
       Type.String({
-        description:
-          'Rule letter (A, B, C, D, F, G). Omit to match any rule.',
+        description: 'Rule letter (A, B, C, D, F, G). Omit to match any rule.',
       }),
     ),
     file: Type.Optional(
@@ -291,7 +290,7 @@ const PathsAllowlistEntrySchema = Type.Object(
     snippet_hash: Type.Optional(
       Type.String({
         description:
-          '12-char SHA-256 prefix of the normalized snippet (whitespace collapsed). Drift-resistant: keeps matching after reformatting that doesn\'t change the offending construction. Get via `node scripts/check-paths.mts --show-hashes`.',
+          "12-char SHA-256 prefix of the normalized snippet (whitespace collapsed). Drift-resistant: keeps matching after reformatting that doesn't change the offending construction. Get via `node scripts/check-paths.mts --show-hashes`.",
       }),
     ),
     reason: Type.String({
