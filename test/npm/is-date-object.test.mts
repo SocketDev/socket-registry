@@ -2,7 +2,7 @@
 import {
   createInvalidValuesExcluding,
   createTypeCheckerTests,
-} from '../utils/type-checker-helper.mts'
+} from '../util/type-checker-helper.mts'
 
 const isDate = require('../../packages/npm/is-date-object')
 

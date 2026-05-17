@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { getEnv } from '../../scripts/constants/env.mts'
-import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
+import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 
 const ENV = getEnv()
 const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(

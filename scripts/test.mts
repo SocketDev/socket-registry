@@ -22,7 +22,7 @@ import { onExit } from '@socketsecurity/lib-stable/signal-exit'
 import { getDefaultSpinner } from '@socketsecurity/lib-stable/spinner'
 import { printHeader } from '@socketsecurity/lib-stable/stdio/header'
 
-import { getTestsToRun } from './utils/changed-test-mapper.mts'
+import { getTestsToRun } from './util/changed-test-mapper.mts'
 
 const logger = getDefaultLogger()
 const spinner = getDefaultSpinner()
@@ -308,7 +308,7 @@ export async function runTests(
 
   // Use interactive runner for interactive Ctrl+O experience when appropriate
   if (process.stdout.isTTY) {
-    const { runTests } = await import('./utils/interactive-runner.mts')
+    const { runTests } = await import('./util/interactive-runner.mts')
     return runTests(vitestPath, vitestArgs, {
       env: spawnOptions.env,
       cwd: spawnOptions.cwd,

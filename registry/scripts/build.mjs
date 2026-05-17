@@ -20,8 +20,8 @@ import {
   buildConfig,
   watchConfig,
 } from '../.config/esbuild.config.mjs'
-import { parseArgs } from '../../scripts/utils/parse-args.mts'
-import { runSequence } from '../../scripts/utils/run-command.mts'
+import { parseArgs } from '../../scripts/util/parse-args.mts'
+import { runSequence } from '../../scripts/util/run-command.mts'
 import process from 'node:process'
 
 const logger = getDefaultLogger()

@@ -7,7 +7,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
+import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 
 const {
   eco,

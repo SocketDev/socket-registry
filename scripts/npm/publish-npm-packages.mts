@@ -24,7 +24,7 @@ import { WIN32 } from '../constants/node.mts'
 import { LATEST } from '../constants/packages.mts'
 import { NPM_PACKAGES_PATH, REGISTRY_PKG_PATH } from '../constants/paths.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
-import { extractNpmError } from '../utils/errors.mts'
+import { extractNpmError } from '../util/errors.mts'
 import process from 'node:process'
 
 const logger = getDefaultLogger()

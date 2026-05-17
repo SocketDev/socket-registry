@@ -17,7 +17,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 import { spawn } from '@socketsecurity/lib-stable/spawn'
 import { printHeader } from '@socketsecurity/lib-stable/stdio/header'
 
-import { runCommandQuiet } from './utils/run-command.mts'
+import { runCommandQuiet } from './util/run-command.mts'
 
 const logger = getDefaultLogger()
 

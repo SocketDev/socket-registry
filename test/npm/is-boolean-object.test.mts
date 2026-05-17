@@ -2,7 +2,7 @@
 import {
   createInvalidValuesExcluding,
   createTypeCheckerTests,
-} from '../utils/type-checker-helper.mts'
+} from '../util/type-checker-helper.mts'
 
 const isBoolean = require('../../packages/npm/is-boolean-object')
 

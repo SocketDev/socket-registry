@@ -75,7 +75,7 @@ import {
   getTemplate,
   getTypeScriptActions,
   writeAction,
-} from '../utils/templates.mts'
+} from '../util/templates.mts'
 
 const require = createRequire(import.meta.url)
 

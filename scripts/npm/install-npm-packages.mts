@@ -103,21 +103,21 @@ import { pEach, pRetry } from '@socketsecurity/lib-stable/promises'
 import { pluralize } from '@socketsecurity/lib-stable/words'
 
 const logger = getDefaultLogger()
-import { cleanTestScript } from '../utils/script-cleaning.mts'
+import { cleanTestScript } from '../util/script-cleaning.mts'
 import { ALLOW_TEST_FAILURES_BY_ECOSYSTEM } from '../constants/testing.mts'
 import {
   NPM_PACKAGES_PATH,
   ROOT_PATH,
   TEST_NPM_PATH,
 } from '../constants/paths.mts'
-import { filterPackagesByChanges } from '../utils/git.mts'
+import { filterPackagesByChanges } from '../util/git.mts'
 import {
   PNPM_HOISTED_INSTALL_FLAGS,
   PNPM_INSTALL_ENV,
   copySocketOverride,
-} from '../utils/package.mts'
-import { runCommandQuietStrict } from '../utils/run-command.mts'
-import { suppressMaxListenersWarning } from '../utils/suppress-warnings.mts'
+} from '../util/package.mts'
+import { runCommandQuietStrict } from '../util/run-command.mts'
+import { suppressMaxListenersWarning } from '../util/suppress-warnings.mts'
 import process from 'node:process'
 
 // Default concurrency values based on environment and platform.

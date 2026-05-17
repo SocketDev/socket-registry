@@ -12,8 +12,8 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 
 const logger = getDefaultLogger()
 
-import { logSectionHeader } from '../utils/logging.mts'
-import { runCommandStrict } from '../utils/run-command.mts'
+import { logSectionHeader } from '../util/logging.mts'
+import { runCommandStrict } from '../util/run-command.mts'
 import process from 'node:process'
 
 const { values: cliArgs } = parseArgs({

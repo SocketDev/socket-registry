@@ -26,7 +26,7 @@ import {
   runCommand,
   runCommandQuiet,
   runParallel,
-} from './utils/run-command.mts'
+} from './util/run-command.mts'
 
 const logger = getDefaultLogger()
 

@@ -591,8 +591,8 @@ Analyze workflow files systematically and report all issues found. If workflows 
 ### Coverage Targets
 
 - **critical**: All src/ files
-- **logic**: src/parsers/ (19 ecosystems) + src/utils/
-- **cache**: src/utils/file-cache.mts + related
+- **logic**: src/parsers/ (19 ecosystems) + src/util/
+- **cache**: src/util/file-cache.mts + related
 - **workflow**: scripts/, package.json, .git-hooks/, CI
 
 ---
@@ -604,7 +604,7 @@ Analyze workflow files systematically and report all issues found. If workflows 
 Each finding should include:
 ```typescript
 {
-  file: "src/utils/file-cache.mts:89",
+  file: "src/util/file-cache.mts:89",
   issue: "Potential race condition in cache update",
   severity: "High",
   scanType: "cache",
@@ -626,7 +626,7 @@ Each finding should include:
 
 ## Critical Issues (Priority 1) - 2 found
 
-### src/utils/file-cache.mts:89
+### src/util/file-cache.mts:89
 - **Issue**: Potential null pointer access on cache miss
 - **Pattern**: `const stats = await fs.stat(normalizedPath)`
 - **Fix**: Add try-catch or check file existence first

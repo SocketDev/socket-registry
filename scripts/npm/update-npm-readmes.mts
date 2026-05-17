@@ -15,8 +15,8 @@ import {
   README_MD,
 } from '../constants/paths.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
-import { isModified } from '../utils/git.mts'
-import { getNpmReadmeAction } from '../utils/templates.mts'
+import { isModified } from '../util/git.mts'
+import { getNpmReadmeAction } from '../util/templates.mts'
 
 const { values: cliArgs } = parseArgs({
   options: {

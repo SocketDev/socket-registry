@@ -309,7 +309,7 @@ Actions and workflows reference each other by full 40-char SHA pinned to main. W
 ### Testing
 
 - Dirs: `test/npm/` (NPM package tests), `test/registry.test.mts` + `test/packages.test.mts` (registry-level)
-- Utils: `test/utils/` — `setupNpmPackageTest()`, `itOnWindows/itOnUnix/normalizePath()`, `expect*` helpers, `createTypeCheckerTests()`
+- Utils: `test/util/` — `setupNpmPackageTest()`, `itOnWindows/itOnUnix/normalizePath()`, `expect*` helpers, `createTypeCheckerTests()`
 - Coverage: **MANDATORY** — never decrease; `c8 ignore` must include reason ending with period
 - Commands: `pnpm test`, `pnpm test path/to/file.test.ts`, `pnpm run cover`, `node scripts/npm/test-npm-packages.mts`
 - 🚨 **NEVER use `--` before test paths** — runs ALL tests

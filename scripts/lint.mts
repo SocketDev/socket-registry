@@ -15,12 +15,12 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 import { printHeader } from '@socketsecurity/lib-stable/stdio/header'
 import { minimatch } from 'minimatch'
 
-import { runCommandQuiet } from './utils/run-command.mts'
+import { runCommandQuiet } from './util/run-command.mts'
 
 const logger = getDefaultLogger()
 
 // Glob patterns for changes that trigger a full lint (matched with minimatch).
-const FULL_LINT_TRIGGERS = ['.config/**', 'scripts/utils/**', 'pnpm-lock.yaml']
+const FULL_LINT_TRIGGERS = ['.config/**', 'scripts/util/**', 'pnpm-lock.yaml']
 
 /**
  * Get oxfmt exclude patterns from .oxfmtrc.json.

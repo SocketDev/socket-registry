@@ -14,7 +14,7 @@ import colors from 'yoctocolors-cjs'
 import { isQuiet } from '@socketsecurity/lib-stable/argv/flags'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 
-import { runCommand } from './utils/run-command.mts'
+import { runCommand } from './util/run-command.mts'
 
 const logger = getDefaultLogger()
 

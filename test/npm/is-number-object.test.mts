@@ -2,7 +2,7 @@
 import {
   createInvalidValuesExcluding,
   createTypeCheckerTests,
-} from '../utils/type-checker-helper.mts'
+} from '../util/type-checker-helper.mts'
 
 const isNumber = require('../../packages/npm/is-number-object')
 

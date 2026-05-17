@@ -2,7 +2,7 @@
 import {
   createInvalidValuesExcluding,
   createTypeCheckerTests,
-} from '../utils/type-checker-helper.mts'
+} from '../util/type-checker-helper.mts'
 
 const isString = require('../../packages/npm/is-string')
 
