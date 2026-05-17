@@ -698,6 +698,12 @@ importers:
         specifier: 24.9.2
         version: 24.9.2
 
+  .claude/hooks/overeager-staging-guard:
+    devDependencies:
+      '@types/node':
+        specifier: 24.9.2
+        version: 24.9.2
+
   .claude/hooks/path-guard: {}
 
   .claude/hooks/path-regex-normalize-reminder:
