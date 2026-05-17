@@ -1,6 +1,6 @@
 /**
  * @fileoverview Maps changed source files to test files for affected test running.
- * Uses git utilities from @socketsecurity/lib to detect changes.
+ * Uses git utilities from @socketsecurity/lib-stable to detect changes.
  */
 
 import { existsSync } from 'node:fs'
@@ -10,9 +10,9 @@ import process from 'node:process'
 import {
   getChangedFilesSync,
   getStagedFilesSync,
-} from '@socketsecurity/lib/git'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
-import { normalizePath } from '@socketsecurity/lib/paths/normalize'
+} from '@socketsecurity/lib-stable/git'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
 
 import { REPO_ROOT } from '../paths.mts'
 

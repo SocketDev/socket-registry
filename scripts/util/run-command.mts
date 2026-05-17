@@ -3,10 +3,10 @@
 
 import process from 'node:process'
 
-import { WIN32 } from '@socketsecurity/lib/constants/platform'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
-import type { SpawnOptions } from '@socketsecurity/lib/spawn'
-import { spawn, spawnSync } from '@socketsecurity/lib/spawn'
+import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import type { SpawnOptions } from '@socketsecurity/lib-stable/spawn'
+import { spawn, spawnSync } from '@socketsecurity/lib-stable/spawn'
 
 const logger = getDefaultLogger()
 
@@ -24,7 +24,7 @@ export async function runCommand(
       shell: WIN32,
       ...options,
     })
-    // @socketsecurity/lib/spawn reports null on signal termination.
+    // @socketsecurity/lib-stable/spawn reports null on signal termination.
     return result.code ?? 1
   } catch (e) {
     if (e && typeof e === 'object' && 'code' in e) {
@@ -165,7 +165,7 @@ export async function runCommandQuiet(
     })
 
     return {
-      // @socketsecurity/lib/spawn reports null on signal termination.
+      // @socketsecurity/lib-stable/spawn reports null on signal termination.
       exitCode: result.code ?? 1,
       stderr: result.stderr as string,
       stdout: result.stdout as string,

@@ -5,8 +5,8 @@ import { existsSync, promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
-import { resolveRefToSha } from '@socketsecurity/lib/github'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { resolveRefToSha } from '@socketsecurity/lib-stable/github'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 
 import { ROOT_PATH } from '../constants/paths.mts'
 

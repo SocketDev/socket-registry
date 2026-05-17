@@ -45,9 +45,9 @@ export default defineConfig({
         replacement: path.resolve(projectRoot, 'scripts'),
       },
       {
-        // Always map @socketsecurity/registry to src/ for all tests
+        // Always map @socketsecurity/registry-stable to src/ for all tests
         // This simplifies coverage and avoids complex dist/ → src/ transforms
-        find: '@socketsecurity/registry',
+        find: '@socketsecurity/registry-stable',
         replacement: path.resolve(projectRoot, 'registry/src'),
       },
       // Map external dependencies to their dist versions

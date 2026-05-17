@@ -1,6 +1,6 @@
 /**
  * @fileoverview Check that Socket packages have trusted package setup correctly.
- * Checks @socketregistry/*, @socketoverride/*, and @socketsecurity/registry packages by default.
+ * Checks @socketregistry/*, @socketoverride/*, and @socketsecurity/registry-stable packages by default.
  * Use --all flag to check all Socket packages across all scopes.
  */
 /* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Object.entries); the cached-length rewrite would be incorrect. */
@@ -9,10 +9,10 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import process from 'node:process'
-import { parseArgs } from '@socketsecurity/lib/argv/parse'
-import { COLUMN_LIMIT } from '@socketsecurity/lib/constants/core'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
-import { spawn } from '@socketsecurity/lib/spawn'
+import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { COLUMN_LIMIT } from '@socketsecurity/lib-stable/constants/core'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { spawn } from '@socketsecurity/lib-stable/spawn'
 
 const logger = getDefaultLogger()
 
@@ -25,8 +25,8 @@ const allowedMaintainers = new Set([
 
 const coreSocketPackages = [
   '@socketsecurity/cli',
-  '@socketsecurity/registry',
-  '@socketsecurity/sdk',
+  '@socketsecurity/registry-stable',
+  '@socketsecurity/sdk-stable',
   'sfw',
   'socket',
 ]

@@ -17,10 +17,10 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
-import { WIN32 } from '@socketsecurity/lib/constants/platform'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
-import { printFooter } from '@socketsecurity/lib/stdio/footer'
-import { printHeader } from '@socketsecurity/lib/stdio/header'
+import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { printFooter } from '@socketsecurity/lib-stable/stdio/footer'
+import { printHeader } from '@socketsecurity/lib-stable/stdio/header'
 
 import {
   runCommand,
@@ -87,7 +87,7 @@ async function main(): Promise<void> {
 
     printHeader('Running Checks')
 
-    // Build @socketsecurity/registry if not already built.
+    // Build @socketsecurity/registry-stable if not already built.
     // This is required for type checking tests that import from it.
     if (!existsSync(registryDistPath)) {
       const buildExitCode = await runCommand('pnpm', ['run', 'build'])

@@ -3,7 +3,7 @@
  * Combines check, build, and test steps with clean, consistent output.
  */
 
-// Use raw node:child_process here (not @socketsecurity/lib/spawn) to retain the
+// Use raw node:child_process here (not @socketsecurity/lib-stable/spawn) to retain the
 // ChildProcess handle for tracking and SIGTERM-on-parent-exit cleanup. The
 // wheelhouse helper returns a Promise and would erase the handle the rest of
 // this module needs.
@@ -16,11 +16,11 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import process from 'node:process'
 
-import { parseArgs } from '@socketsecurity/lib/argv/parse'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
-import { onExit } from '@socketsecurity/lib/signal-exit'
-import { getDefaultSpinner } from '@socketsecurity/lib/spinner'
-import { printHeader } from '@socketsecurity/lib/stdio/header'
+import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { onExit } from '@socketsecurity/lib-stable/signal-exit'
+import { getDefaultSpinner } from '@socketsecurity/lib-stable/spinner'
+import { printHeader } from '@socketsecurity/lib-stable/stdio/header'
 
 import { getTestsToRun } from './util/changed-test-mapper.mts'
 

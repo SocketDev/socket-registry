@@ -4,8 +4,8 @@
  */
 /* oxlint-disable socket/prefer-cached-for-loop -- iterates an async glob() generator; the cached-length rewrite is incorrect for AsyncIterables. */
 
-import { execBin } from '@socketsecurity/lib/bin'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { execBin } from '@socketsecurity/lib-stable/bin'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 
 import fastGlob from 'fast-glob'
 

@@ -34,10 +34,10 @@ import { fileURLToPath } from 'node:url'
 import { Type } from '@sinclair/typebox'
 import type { Static } from '@sinclair/typebox'
 
-import { httpDownload } from '@socketsecurity/lib/http-request'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
-import { parseSchema } from '@socketsecurity/lib/schema/parse'
-import { spawn } from '@socketsecurity/lib/spawn'
+import { httpDownload } from '@socketsecurity/lib-stable/http-request'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { parseSchema } from '@socketsecurity/lib-stable/schema/parse'
+import { spawn } from '@socketsecurity/lib-stable/spawn'
 
 const logger = getDefaultLogger()
 
@@ -157,7 +157,7 @@ export async function downloadAndHash(url: string): Promise<string> {
 }
 
 // Schema matches the sibling security-tools hook style (typebox +
-// parseSchema via @socketsecurity/lib/schema/parse). Keep the two in
+// parseSchema via @socketsecurity/lib-stable/schema/parse). Keep the two in
 // sync — both consume `external-tools.json`-shaped data.
 //
 // Two tool shapes are supported:

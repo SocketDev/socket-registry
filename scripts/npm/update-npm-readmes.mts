@@ -3,9 +3,9 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 
-import { parseArgs } from '@socketsecurity/lib/argv/parse'
-import { UTF8 } from '@socketsecurity/lib/constants/encoding'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 
 const logger = getDefaultLogger()
 

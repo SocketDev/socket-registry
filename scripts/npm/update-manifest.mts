@@ -7,21 +7,21 @@ import { promises as fs } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 
-import { PackageURL } from '@socketregistry/packageurl-js'
-import { parseArgs } from '@socketsecurity/lib/argv/parse'
-import { UNLICENSED } from '@socketsecurity/lib/constants/licenses'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { PackageURL } from '@socketregistry/packageurl-js-stable'
+import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { UNLICENSED } from '@socketsecurity/lib-stable/constants/licenses'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 import {
   AT_LATEST,
   getPackageDefaultNodeRange,
-} from '@socketsecurity/lib/constants/packages'
+} from '@socketsecurity/lib-stable/constants/packages'
 
 const logger = getDefaultLogger()
 import {
   objectEntries,
   toSortedObject,
   toSortedObjectFromEntries,
-} from '@socketsecurity/lib/objects'
+} from '@socketsecurity/lib-stable/objects'
 import {
   extractPackage,
   fetchPackageManifest,
@@ -29,10 +29,10 @@ import {
   readPackageJson,
   resolveOriginalPackageName,
   resolvePackageJsonEntryExports,
-} from '@socketsecurity/lib/packages'
-import { pEach } from '@socketsecurity/lib/promises'
-import { naturalCompare } from '@socketsecurity/lib/sorts'
-import { getDefaultSpinner, withSpinner } from '@socketsecurity/lib/spinner'
+} from '@socketsecurity/lib-stable/packages'
+import { pEach } from '@socketsecurity/lib-stable/promises'
+import { naturalCompare } from '@socketsecurity/lib-stable/sorts'
+import { getDefaultSpinner, withSpinner } from '@socketsecurity/lib-stable/spinner'
 
 import { DEFAULT_CONCURRENCY } from '../constants/core.mts'
 import {

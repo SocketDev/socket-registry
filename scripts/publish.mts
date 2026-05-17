@@ -8,11 +8,11 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
-import { parseArgs } from '@socketsecurity/lib/argv/parse'
-import { WIN32 } from '@socketsecurity/lib/constants/platform'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
-import type { SpawnOptions } from '@socketsecurity/lib/spawn'
-import { spawn } from '@socketsecurity/lib/spawn'
+import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import type { SpawnOptions } from '@socketsecurity/lib-stable/spawn'
+import { spawn } from '@socketsecurity/lib-stable/spawn'
 
 const logger = getDefaultLogger()
 
@@ -173,7 +173,7 @@ async function main(): Promise<void> {
         '  --force-publish       Force publish all packages without commit checks',
       )
       logger.log(
-        '  --force-registry      Force publish @socketsecurity/registry',
+        '  --force-registry      Force publish @socketsecurity/registry-stable',
       )
       logger.log(
         '  --skip-build          Skip build validation (validates artifacts exist)',

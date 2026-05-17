@@ -11,8 +11,8 @@ import { fileURLToPath } from 'node:url'
 
 import colors from 'yoctocolors-cjs'
 
-import { isQuiet } from '@socketsecurity/lib/argv/flags'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { isQuiet } from '@socketsecurity/lib-stable/argv/flags'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 
 import { runCommand } from './util/run-command.mts'
 
@@ -27,7 +27,7 @@ const args = process.argv.slice(2)
 const quiet = isQuiet(args)
 
 async function main(): Promise<void> {
-  // Build the @socketsecurity/registry package.
+  // Build the @socketsecurity/registry-stable package.
   // This is required before running tests that import from it.
   // Pass all arguments through to the registry build script.
   const buildArgs = ['run', 'build']
@@ -41,7 +41,7 @@ async function main(): Promise<void> {
 
   if (exitCode !== 0) {
     if (!quiet) {
-      logger.error(colors.red('✗ Failed to build @socketsecurity/registry'))
+      logger.error(colors.red('✗ Failed to build @socketsecurity/registry-stable'))
     }
     process.exitCode = exitCode
     return

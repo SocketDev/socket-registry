@@ -3,20 +3,20 @@
 
 import path from 'node:path'
 
-import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 
-import { joinAnd } from '@socketsecurity/lib/arrays'
-import { getChangedFiles } from '@socketsecurity/lib/git'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
-import { isObjectObject } from '@socketsecurity/lib/objects'
+import { joinAnd } from '@socketsecurity/lib-stable/arrays'
+import { getChangedFiles } from '@socketsecurity/lib-stable/git'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { isObjectObject } from '@socketsecurity/lib-stable/objects'
 import {
   fetchPackageManifest,
   getReleaseTag,
   readPackageJsonSync,
-} from '@socketsecurity/lib/packages'
-import { pEach } from '@socketsecurity/lib/promises'
-import { spawn } from '@socketsecurity/lib/spawn'
-import { pluralize } from '@socketsecurity/lib/words'
+} from '@socketsecurity/lib-stable/packages'
+import { pEach } from '@socketsecurity/lib-stable/promises'
+import { spawn } from '@socketsecurity/lib-stable/spawn'
+import { pluralize } from '@socketsecurity/lib-stable/words'
 import semver from 'semver'
 
 import { getEnv } from '../constants/env.mts'
@@ -264,7 +264,7 @@ export async function publishAtCommit(sha) {
     const localVersion = pkgJson.version
 
     // Force-include registry package if --force-registry flag is set.
-    const isRegistryPkg = pkg.printName === '@socketsecurity/registry'
+    const isRegistryPkg = pkg.printName === '@socketsecurity/registry-stable'
     const forceRegistryFlag =
       cliArgs.forceRegistry ||
       cliArgs['force-registry'] ||
@@ -309,10 +309,10 @@ export async function publishAtCommit(sha) {
 
   // Separate registry package from other packages.
   const registryPkgToPublish = packagesToPublish.find(
-    pkg => pkg.printName === '@socketsecurity/registry',
+    pkg => pkg.printName === '@socketsecurity/registry-stable',
   )
   const otherPackagesToPublish = packagesToPublish.filter(
-    pkg => pkg.printName !== '@socketsecurity/registry',
+    pkg => pkg.printName !== '@socketsecurity/registry-stable',
   )
 
   // Publish non-registry packages first.
@@ -580,7 +580,7 @@ async function main(): Promise<void> {
     for (let i = 0, { length } = displayCommits; i < length; i += 1) {
       const commit = displayCommits[i]
       logger.info(
-        `@socketsecurity/registry@${commit.version} - ${commit.sha.slice(0, 7)}`,
+        `@socketsecurity/registry-stable@${commit.version} - ${commit.sha.slice(0, 7)}`,
       )
     }
     logger.groupEnd()

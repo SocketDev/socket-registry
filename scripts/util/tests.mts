@@ -5,7 +5,7 @@
 
 import process from 'node:process'
 
-import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 
 let _cliArgs: Record<string, unknown> | undefined
 

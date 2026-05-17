@@ -1,6 +1,6 @@
 /** @fileoverview Reusable logging utilities for consistent output formatting. */
 
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 
 const logger = getDefaultLogger()
 
