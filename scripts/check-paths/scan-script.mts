@@ -19,7 +19,7 @@ import path from 'node:path'
 import { pushFinding } from './state.mts'
 
 export const SCRIPT_HAND_BUILT_RE =
-  /build\/\$?\{?(?:BUILD_MODE|MODE|dev|prod)\}?\/[\w${}.-]*\/out\/(?:Final|Release|Stripped|Compressed|Optimized|Synced)/g
+  /build\/\$?\{?(?:BUILD_MODE|MODE|prod|dev)\}?\/[\w${}.-]*\/out\/(?:Final|Release|Stripped|Compressed|Optimized|Synced)/g
 
 export const scanScriptFile = (repoRoot: string, relPath: string): void => {
   const full = path.join(repoRoot, relPath)
@@ -65,20 +65,17 @@ export const scanScriptFile = (repoRoot: string, relPath: string): void => {
   // times within the SAME Dockerfile stage (or anywhere in non-
   // Dockerfile scripts, where stages don't apply).
   const grouped = new Map<string, Hit[]>()
-  for (let i = 0, { length } = hits; i < length; i += 1) {
-    const h = hits[i]!
+  for (const h of hits) {
     const key = `${h.stage}::${h.pathStr}`
     const list = grouped.get(key) ?? []
     list.push(h)
     grouped.set(key, list)
-  
   }
   for (const [, list] of grouped) {
     if (list.length < 2) {
       continue
     }
-    for (let i = 0, { length } = list; i < length; i += 1) {
-      const hit = list[i]!
+    for (const hit of list) {
       pushFinding({
         rule: 'G',
         file: relPath,
@@ -87,7 +84,6 @@ export const scanScriptFile = (repoRoot: string, relPath: string): void => {
         message: `Hand-built multi-stage path constructed ${list.length} times in this file: ${hit.pathStr}`,
         fix: 'Assign to a variable / ENV once near the top of the script / Dockerfile stage, with a comment naming the canonical paths.mts. Reference the variable everywhere downstream. References of a single construction are unlimited; reconstructing the same path is the violation.',
       })
-    
     }
   }
 }

@@ -178,13 +178,11 @@ export function checkVersionPin(
       // inclusive-language: external-api — git's historical default branch.
       'refs/remotes/origin/master',
     ]
-    for (let i = 0, { length } = pref; i < length; i += 1) {
-      const p = pref[i]!
+    for (const p of pref) {
       if (lines.includes(p)) {
         driftRef = p
         break
       }
-    
     }
   } catch {
     // no remotes available — drift can't be computed; report OK with a note.
@@ -245,7 +243,7 @@ export function checkFeatureParity(
   const codePatterns = row.code_patterns ?? []
   const testPatterns = row.test_patterns ?? []
   const codeFiles = walkDirFiles(localAreaPath, /\.(m?[jt]sx?|json)$/).filter(
-    f => !/[/\\](__tests__|test|tests)[/\\]|\.test\.|\.spec\./.test(f),
+    f => !/[/\\](test|tests|__tests__)[/\\]|\.test\.|\.spec\./.test(f),
   )
 
   const codeScore =
@@ -261,7 +259,7 @@ export function checkFeatureParity(
   const testFiles = row.test_area
     ? testAreaFiles
     : testAreaFiles.filter(f =>
-        /[/\\](__tests__|test|tests)[/\\]|\.test\.|\.spec\./.test(f),
+        /[/\\](test|tests|__tests__)[/\\]|\.test\.|\.spec\./.test(f),
       )
   const testScore =
     testPatterns.length === 0
@@ -366,13 +364,11 @@ export function checkLangParity(
     return base
   }
 
-  for (let i = 0, { length } = declaredSites; i < length; i += 1) {
-    const site = declaredSites[i]!
+  for (const site of declaredSites) {
     if (!(site in row.ports)) {
       base.severity = 'error'
       messages.push(`port '${site}' missing (declared in sites)`)
     }
-  
   }
   for (const port of Object.keys(row.ports)) {
     if (!declaredSites.includes(port)) {
@@ -438,10 +434,10 @@ export function checkCrossRowConsistency(
     areaIds.add(row.id)
 
     if (
-      row.kind === 'feature-parity' ||
       row.kind === 'file-fork' ||
-      row.kind === 'spec-conformance' ||
-      row.kind === 'version-pin'
+      row.kind === 'version-pin' ||
+      row.kind === 'feature-parity' ||
+      row.kind === 'spec-conformance'
     ) {
       if (!upstreamAliases.has(row.upstream)) {
         errors.push(

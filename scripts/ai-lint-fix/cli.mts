@@ -45,8 +45,8 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
-import { isSpawnError, spawn } from '@socketsecurity/lib/spawn'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { isSpawnError, spawn } from '@socketsecurity/lib-stable/spawn'
 
 import { AI_HANDLED_RULES, RULE_GUIDANCE } from './rule-guidance.mts'
 
@@ -157,6 +157,7 @@ function parseArgs(argv: readonly string[]): CliArgs {
       continue
     }
     passthrough.push(arg)
+  
   }
   return { all, noAi, passthrough, staged }
 }
@@ -219,6 +220,7 @@ function bucketFindings(files: OxlintFile[]): Map<string, OxlintMessage[]> {
       continue
     }
     byFile.set(f.filePath, handled)
+  
   }
   return byFile
 }
@@ -244,6 +246,7 @@ function renderRuleGuidance(findings: OxlintMessage[]): string {
     if (f.ruleId) {
       seen.add(f.ruleId)
     }
+  
   }
   const entries = [...seen]
     .sort()

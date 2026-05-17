@@ -39,7 +39,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 
 const logger = getDefaultLogger()
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -93,8 +93,7 @@ function main(): void {
   const findings: string[] = []
 
   // Direct duplicates: same basename at root AND in .config/.
-  for (let i = 0, { length } = CONFIG_BASENAMES; i < length; i += 1) {
-    const basename = CONFIG_BASENAMES[i]!
+  for (const basename of CONFIG_BASENAMES) {
     const rootCopy = path.join(rootPath, basename)
     const configCopy = path.join(configPath, basename)
     if (existsSync(rootCopy) && existsSync(configCopy)) {
@@ -106,7 +105,6 @@ function main(): void {
         `Stale root config: ${basename} should live in .config/, not at the repo root. Move it.`,
       )
     }
-  
   }
 
   // Dotfile aliases: only ONE of the pair should exist.
@@ -124,19 +122,18 @@ function main(): void {
   // repo root (single-package) or each `packages/<pkg>/` (monorepo).
   // tsc + IDE discover them natively at cwd; burying them in `.config/`
   // breaks language-server lookups and forces explicit `-p <path>`.
-  for (let i = 0, { length } = CONCRETE_TSCONFIG_BASENAMES; i < length; i += 1) {
-    const basename = CONCRETE_TSCONFIG_BASENAMES[i]!
+  for (const basename of CONCRETE_TSCONFIG_BASENAMES) {
     const configCopy = path.join(configPath, basename)
     if (existsSync(configCopy)) {
       findings.push(
         `Concrete tsconfig in .config/: .config/${basename} should live at the package root, not in .config/. Move it (single-package: repo root; monorepo: packages/<pkg>/).`,
       )
     }
-  
   }
 
   if (findings.length === 0) {
-    const total = CONFIG_BASENAMES.length + CONCRETE_TSCONFIG_BASENAMES.length
+    const total =
+      CONFIG_BASENAMES.length + CONCRETE_TSCONFIG_BASENAMES.length
     logger.success(
       `Config-path hygiene OK — ${total} basenames checked, no drift.`,
     )
@@ -144,10 +141,8 @@ function main(): void {
   }
 
   logger.error(`Config-path hygiene violations (${findings.length}):`)
-  for (let i = 0, { length } = findings; i < length; i += 1) {
-    const f = findings[i]!
+  for (const f of findings) {
     logger.error(`  ${f}`)
-  
   }
   process.exitCode = 1
 }

@@ -38,7 +38,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 
 import {
   checkCrossRowConsistency,
@@ -120,10 +120,8 @@ function main(): void {
 
   const crossRowErrors = checkCrossRowConsistency(rowsWithArea, merged)
   if (crossRowErrors.length > 0) {
-    for (let i = 0, { length } = crossRowErrors; i < length; i += 1) {
-      const err = crossRowErrors[i]!
+    for (const err of crossRowErrors) {
       logger.fail(err)
-    
     }
     logger.error(
       `lockstep: ${crossRowErrors.length} cross-row error(s) — fix before running drift checks`,

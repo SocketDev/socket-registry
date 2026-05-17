@@ -22,8 +22,8 @@
 import { existsSync } from 'node:fs'
 import process from 'node:process'
 
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
-import { spawn } from '@socketsecurity/lib/spawn'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { spawn } from '@socketsecurity/lib-stable/spawn'
 
 const WIN32 = process.platform === 'win32'
 const logger = getDefaultLogger()
@@ -31,7 +31,7 @@ const logger = getDefaultLogger()
 async function run(
   cmd: string,
   args: string[],
-  { label, required = true }: { label?: string | undefined; required?: boolean | undefined } = {},
+  { label, required = true }: { label?: string; required?: boolean } = {},
 ): Promise<number> {
   try {
     const result = await spawn(cmd, args, {

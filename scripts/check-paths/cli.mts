@@ -60,7 +60,7 @@ import { scanWorkflowFile } from './scan-workflow.mts'
 import { getFindings } from './state.mts'
 import { walk } from './walk.mts'
 
-// Plain stderr/stdout output — no @socketsecurity/lib dependency so
+// Plain stderr/stdout output — no @socketsecurity/lib-stable dependency so
 // the gate is self-contained and works in socket-lib itself (which
 // would otherwise import itself).
 const logger = {
@@ -162,8 +162,7 @@ const main = (): number => {
   logger.log('')
   logger.log('Mantra: 1 path, 1 reference')
   logger.log('')
-  for (let i = 0, { length } = blocking; i < length; i += 1) {
-    const f = blocking[i]!
+  for (const f of blocking) {
     logger.log(`  [${f.rule}] ${f.file}:${f.line}`)
     logger.log(`      ${f.snippet}`)
     logger.log(`      → ${f.message}`)
@@ -174,7 +173,6 @@ const main = (): number => {
       logger.log(`      Fix: ${f.fix}`)
     }
     logger.log('')
-  
   }
   if (!args.values.explain) {
     logger.log('Run with --explain to see fix suggestions per finding.')

@@ -17,12 +17,16 @@ import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
-import { errorMessage } from '@socketsecurity/lib/errors'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
-import { validateSchema } from '@socketsecurity/lib/schema/validate'
+import { errorMessage } from '@socketsecurity/lib-stable/errors'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { validateSchema } from '@socketsecurity/lib-stable/schema/validate'
 
-import { LockstepManifestSchema } from './schema.mts'
-import type { Row, Site, Upstream } from './schema.mts'
+import {
+  LockstepManifestSchema,
+  type Row,
+  type Site,
+  type Upstream,
+} from './schema.mts'
 
 import type { Manifest } from './types.mts'
 
@@ -70,14 +74,12 @@ export function loadManifestTree(rootManifestPath: string): {
 
   const includes = rootManifest.includes ?? []
   const baseDir = path.dirname(rootManifestPath)
-  for (let i = 0, { length } = includes; i < length; i += 1) {
-    const rel = includes[i]!
+  for (const rel of includes) {
     const subPath = path.resolve(baseDir, rel)
     const sub = readManifest(subPath)
     const area =
       sub.area ?? path.basename(rel, '.json').replace(/^lockstep-/, '')
     areas.push({ area, manifest: sub })
-  
   }
 
   // Null-prototype maps guard against prototype pollution via untrusted

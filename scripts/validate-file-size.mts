@@ -13,7 +13,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 
 const logger = getDefaultLogger()
 
@@ -74,8 +74,7 @@ async function scanDirectory(
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true })
 
-    for (let i = 0, { length } = entries; i < length; i += 1) {
-      const entry = entries[i]!
+    for (const entry of entries) {
       const fullPath = path.join(dir, entry.name)
 
       if (entry.isDirectory()) {
@@ -106,7 +105,6 @@ async function scanDirectory(
           // Skip files we can't stat
         }
       }
-    
     }
   } catch {
     // Skip directories we can't read
@@ -144,15 +142,13 @@ async function main(): Promise<void> {
     logger.log('Files exceeding limit:')
     logger.log('')
 
-    for (let i = 0, { length } = violations; i < length; i += 1) {
-      const violation = violations[i]!
+    for (const violation of violations) {
       logger.log(`  ${violation.file}`)
       logger.log(`    Size: ${violation.formattedSize}`)
       logger.log(
         `    Exceeds limit by: ${formatBytes(violation.size - MAX_FILE_SIZE)}`,
       )
       logger.log('')
-    
     }
 
     logger.log(

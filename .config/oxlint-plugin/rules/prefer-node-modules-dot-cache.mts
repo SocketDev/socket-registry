@@ -36,7 +36,7 @@
  * Scope: .ts / .cts / .mts / .js / .cjs / .mjs.
  */
 
-import { normalizePath } from '@socketsecurity/lib/paths/normalize'
+import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
 
 // Match `.cache` only as a path segment inside a larger path, never as
 // a bare standalone string. A bare `.cache` is conventionally a
@@ -44,7 +44,7 @@ import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 // can apply the user-home-dir exemption. Detecting bare `.cache` here
 // double-flags every `path.join(home, '.cache', app)` from XDG helpers.
 //
-// Inputs are normalized through @socketsecurity/lib's `normalizePath`
+// Inputs are normalized through @socketsecurity/lib-stable's `normalizePath`
 // before this regex runs, so we only have to match the `/` form.
 
 import type { AstNode, RuleContext } from '../lib/rule-types.mts'
@@ -76,7 +76,7 @@ const rule = {
       pathLiteral:
         'Cache path `{{value}}` should live under `node_modules/.cache/`, not repo-root `.cache/`. Fleet convention puts per-repo tool caches in `node_modules/.cache/<name>` (auto-gitignored, swept on `pnpm install`).',
       pathJoin:
-        "`path.join(..., '.cache', ...)` puts the cache at repo root. Use `path.join(<pkgRoot>, 'node_modules', '.cache', <name>)` instead.",
+        '`path.join(..., \'.cache\', ...)` puts the cache at repo root. Use `path.join(<pkgRoot>, \'node_modules\', \'.cache\', <name>)` instead.',
     },
     schema: [],
   },
@@ -104,9 +104,7 @@ const rule = {
       const raw =
         node.type === 'TemplateElement'
           ? (node.value?.cooked ?? '')
-          : typeof node.value === 'string'
-            ? node.value
-            : ''
+          : (typeof node.value === 'string' ? node.value : '')
       if (!raw) return false
       // Normalize backslashes → forward slashes, collapse `.` / `..` segments,
       // preserve UNC/namespace prefixes. Lets us use a single-separator
@@ -220,7 +218,9 @@ const rule = {
     function checkLiteral(node: AstNode) {
       if (!isRepoRootCacheString(node)) return
       const value =
-        node.type === 'TemplateElement' ? node.value?.cooked : node.value
+        node.type === 'TemplateElement'
+          ? node.value?.cooked
+          : node.value
       context.report({
         node,
         messageId: 'pathLiteral',

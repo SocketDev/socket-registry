@@ -14,8 +14,8 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import path from 'node:path'
 
-import { errorMessage } from '@socketsecurity/lib/errors'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { errorMessage } from '@socketsecurity/lib-stable/errors'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 
 const logger = getDefaultLogger()
 
@@ -33,8 +33,7 @@ export function walkDirFiles(dir: string, extRe: RegExp): string[] {
     } catch {
       continue
     }
-    for (let i = 0, { length } = entries; i < length; i += 1) {
-      const entry = entries[i]!
+    for (const entry of entries) {
       if (entry === 'node_modules' || entry === '.git' || entry === 'dist') {
         continue
       }
@@ -50,7 +49,6 @@ export function walkDirFiles(dir: string, extRe: RegExp): string[] {
       } else if (stat.isFile() && extRe.test(entry)) {
         files.push(full)
       }
-    
     }
   }
   return files
@@ -64,8 +62,7 @@ export function countPatternHits(files: string[], patterns: string[]): number {
   // pattern and keep going rather than throwing a SyntaxError that
   // kills the whole run.
   const compiled: RegExp[] = []
-  for (let i = 0, { length } = patterns; i < length; i += 1) {
-    const p = patterns[i]!
+  for (const p of patterns) {
     try {
       compiled.push(new RegExp(p))
     } catch (e) {
@@ -73,11 +70,9 @@ export function countPatternHits(files: string[], patterns: string[]): number {
         `lockstep: skipping invalid regex ${JSON.stringify(p)}: ${errorMessage(e)}`,
       )
     }
-  
   }
   let hits = 0
-  for (let i = 0, { length } = compiled; i < length; i += 1) {
-    const pat = compiled[i]!
+  for (const pat of compiled) {
     for (const file of files) {
       let content: string
       try {
@@ -90,7 +85,6 @@ export function countPatternHits(files: string[], patterns: string[]): number {
         break
       }
     }
-  
   }
   return hits
 }

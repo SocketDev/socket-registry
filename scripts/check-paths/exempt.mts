@@ -10,7 +10,7 @@
 // File-path patterns that legitimately enumerate path segments.
 export const EXEMPT_FILE_PATTERNS: RegExp[] = [
   // Any paths.mts is the canonical constructor.
-  /(^|\/)paths\.(cts|js|mts)$/,
+  /(^|\/)paths\.(mts|cts|js)$/,
   // Build-infra owns shared helpers that enumerate stages.
   /packages\/build-infra\/lib\/paths\.mts$/,
   /packages\/build-infra\/lib\/constants\.mts$/,

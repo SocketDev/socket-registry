@@ -82,7 +82,7 @@ const LOGGER_METHODS = new Set([
 ])
 
 /* oxlint-disable socket/no-status-emoji -- this rule defines the emoji→method table it scans for. */
-// Mirrors @socketsecurity/lib/logger's LOG_SYMBOLS (the table built
+// Mirrors @socketsecurity/lib-stable/logger's LOG_SYMBOLS (the table built
 // by `symbols-builder.ts`). Each logger method has TWO render
 // shapes — the Unicode form (used on terminals with unicode support)
 // and the ASCII fallback (used otherwise). Authors hand-rolling a
@@ -145,8 +145,8 @@ const UNAMBIGUOUS_EMOJI = {
   '⛔': 'warn',
   '‼': 'warn',
   // info
-  ℹ: 'info',
-  ℹ️: 'info',
+  'ℹ': 'info',
+  'ℹ️': 'info',
 }
 
 // ANCHORED — match only at the start of the string, followed by
@@ -486,12 +486,7 @@ const rule = {
             // The original template starts with backtick then the
             // raw first-quasi content. Strip the leading newline(s)
             // from the source representation to keep escape parity.
-            const newTpl =
-              '`' +
-              originalTpl
-                .slice(1)
-                .replace(/^\\?n+/, '')
-                .replace(/^\n+/, '')
+            const newTpl = '`' + originalTpl.slice(1).replace(/^\\?n+/, '').replace(/^\n+/, '')
             const found = findStatusEmoji(firstCooked)
             const semanticMethod = found?.method ?? origMethod
             const blankCall = blankCallFor(semanticMethod)
