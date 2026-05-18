@@ -364,7 +364,9 @@ async function main(): Promise<void> {
   out.push(
     '  CI gate: scripts/check-lock-step-refs.mts (run via `pnpm check`).',
   )
-  out.push('  Bypass: "Allow lock-step bypass" in a recent user message, or')
+  out.push(
+    '  Bypass: "Allow lock-step bypass" in a recent user message, or',
+  )
   out.push(`  ${ENV_DISABLE}=1.`)
   out.push('')
   process.stderr.write(out.join('\n') + '\n')
