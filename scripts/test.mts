@@ -307,17 +307,7 @@ export async function runTests(
     stdio: 'inherit',
   }
 
-  // Use interactive runner for interactive Ctrl+O experience when appropriate
-  if (process.stdout.isTTY) {
-    const { runTests } = await import('./util/interactive-runner.mts')
-    return runTests(vitestPath, vitestArgs, {
-      env: spawnOptions.env,
-      cwd: spawnOptions.cwd,
-      verbose: false,
-    })
-  }
-
-  // Fallback to execution with output capture to handle worker termination errors
+  // Capture output so vitest worker-termination noise can be filtered below.
   const result = await runCommandWithOutput(vitestPath, vitestArgs, {
     ...spawnOptions,
     stdio: ['inherit', 'pipe', 'pipe'],
