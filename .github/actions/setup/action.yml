@@ -52,6 +52,17 @@ runs:
         if [ ! -f "$TOOLS_FILE" ]; then
           echo "× socket-registry setup action is broken: external-tools.json not found at ${TOOLS_FILE}." >&2
           echo "  This is a packaging bug in SocketDev/socket-registry, not a consumer issue. File a bug." >&2
+          echo "" >&2
+          echo "  Diagnostics — what's actually present at runtime:" >&2
+          echo "    GITHUB_ACTION_PATH=${GITHUB_ACTION_PATH}" >&2
+          echo "    ls -la \"\${GITHUB_ACTION_PATH}\":" >&2
+          ls -la "${GITHUB_ACTION_PATH}" 2>&1 | sed 's/^/      /' >&2 || true
+          echo "    ls -la \"\${GITHUB_ACTION_PATH}/..\" (parent — should be .github/actions/):" >&2
+          ls -la "${GITHUB_ACTION_PATH}/.." 2>&1 | sed 's/^/      /' >&2 || true
+          echo "    ls -la \"\${GITHUB_ACTION_PATH}/../..\" (grandparent — should be .github/):" >&2
+          ls -la "${GITHUB_ACTION_PATH}/../.." 2>&1 | sed 's/^/      /' >&2 || true
+          echo "    ls -la \"\${GITHUB_ACTION_PATH}/../../..\" (great-grandparent — should be repo root):" >&2
+          ls -la "${GITHUB_ACTION_PATH}/../../.." 2>&1 | sed 's/^/      /' >&2 || true
           exit 1
         fi
         # Copy the tools file to RUNNER_TEMP so consumer workflows and
