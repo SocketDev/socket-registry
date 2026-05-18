@@ -18,7 +18,7 @@
  *     `.claude-plugin/README.md` with matching version + sha + ISO date.
  */
 
-import { spawnSync } from 'node:child_process'
+import { spawnSync } from '@socketsecurity/lib-stable/spawn'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -44,24 +44,24 @@ const CODEX_TRUSTED_ENV_PARENTS_KEY = 'CODEX_TRUSTED_ENV_PARENTS'
 interface MarketplaceListEntry {
   name: string
   source: string
-  installLocation?: string
+  installLocation?: string | undefined
 }
 
 interface PluginListEntry {
   id: string
-  version?: string
-  scope?: string
-  enabled?: boolean
-  installPath?: string
+  version?: string | undefined
+  scope?: string | undefined
+  enabled?: boolean | undefined
+  installPath?: string | undefined
 }
 
 interface MarketplacePluginSource {
   source: string
-  url?: string
-  path?: string
-  ref?: string
-  sha?: string
-  commit?: string
+  url?: string | undefined
+  path?: string | undefined
+  ref?: string | undefined
+  sha?: string | undefined
+  commit?: string | undefined
 }
 
 interface MarketplacePlugin {
@@ -70,8 +70,8 @@ interface MarketplacePlugin {
 }
 
 interface MarketplaceManifest {
-  name?: string
-  plugins?: MarketplacePlugin[]
+  name?: string | undefined
+  plugins?: MarketplacePlugin[] | undefined
 }
 
 /**
@@ -216,7 +216,7 @@ function ensurePluginInstalled(plugin: MarketplacePlugin): void {
 }
 
 interface SettingsShape {
-  env?: Record<string, string>
+  env?: Record<string, string> | undefined
   [k: string]: unknown
 }
 
@@ -277,8 +277,10 @@ function main(): void {
       `marketplace "${MARKETPLACE_NAME}" has no plugins listed — nothing to install.`,
     )
   }
-  for (const plugin of plugins) {
+  for (let i = 0, { length } = plugins; i < length; i += 1) {
+    const plugin = plugins[i]!
     ensurePluginInstalled(plugin)
+  
   }
   mergeTrustedEnvParent()
   logger.log('Done.')

@@ -193,7 +193,8 @@ for (let i = 0, { length } = ecosystems; i < length; i += 1) {
             )
 
             // For each JS file, check if there's a corresponding type file.
-            for (const jsFilePath of jsFilePaths) {
+            for (let i = 0, { length } = jsFilePaths; i < length; i += 1) {
+              const jsFilePath = jsFilePaths[i]!
               // Check if there's any type file in the exports.
               // This is a simplified check - just ensure type files exist somewhere.
               if (!typeFilePaths.length) {
@@ -205,6 +206,7 @@ for (let i = 0, { length } = ecosystems; i < length; i += 1) {
                 const relativeDtsPath = trimLeadingDotSlash(dtsFilePath)
                 expect(files.includes(relativeDtsPath)).toBe(true)
               }
+            
             }
           })
         }

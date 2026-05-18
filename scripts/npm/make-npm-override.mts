@@ -1,3 +1,4 @@
+/* max-file-lines: legitimate — interactive override-generator CLI; the package-extract / license-resolve / template-pick / file-write phases share enough live state (origPkgName, sockRegPkgName, nmPkgJson, licenseContents) that splitting them produces a tangle of cross-file mutables. Only a few LOC over the soft cap. */
 /**
  * @file Creates Socket registry package overrides for npm packages. Interactive
  *   CLI tool that guides users through creating secure package overrides:

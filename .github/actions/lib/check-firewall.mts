@@ -44,6 +44,7 @@ const main = async (): Promise<number> => {
   const timer = setTimeout(() => controller.abort(), FIREWALL_TIMEOUT_MS)
   timer.unref?.()
   try {
+    // oxlint-disable-next-line socket/no-fetch-prefer-http-request -- composite-action helper runs on the raw runner before setup-node; @socketsecurity/lib-stable not installed yet.
     const res = await fetch(url, {
       headers: {
         'User-Agent': 'socket-registry-setup-action/1.0',
