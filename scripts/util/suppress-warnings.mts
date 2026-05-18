@@ -21,9 +21,9 @@ export function setupSuppression() {
     process.emitWarning = (warning, ...args) => {
       // Check both string warnings and warning objects.
       if (typeof warning === 'string') {
-        // Check if any suppressed warning type matches.
-        for (let i = 0, { length } = suppressedWarnings; i < length; i += 1) {
-          const suppressedType = suppressedWarnings[i]
+        // `suppressedWarnings` is a Set — iterate with for...of
+        // since the body only needs each element, not an index.
+        for (const suppressedType of suppressedWarnings) {
           if (warning.includes(suppressedType)) {
             return
           }
