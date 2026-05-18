@@ -67,6 +67,10 @@ Apply in: worktree creation, base-ref resolution for `git diff`/`git rev-list`, 
 - **Backward compatibility** — FORBIDDEN to maintain. Actively remove when encountered.
 - Full ruleset (packageManager field, `.config/` placement, `.mts` runners, soak time, shallow submodules, monorepo `engines.node`) in [`docs/claude.md/fleet/tooling.md`](docs/claude.md/fleet/tooling.md).
 
+### Claude Code plugin pins
+
+🚨 Fleet-blessed Claude Code plugins are SHA-pinned in the wheelhouse-canonical [`.claude-plugin/marketplace.json`](../.claude-plugin/marketplace.json), with companion human-readable metadata (pin date, pinner) in [`.claude-plugin/README.md`](../.claude-plugin/README.md). The pair is enforced together: every `plugins[].source.sha` in `marketplace.json` must have a row in the README table with matching `version` + `sha` + an ISO-8601 `date`. Same staleness signal the GHA `uses:` SHA-pin comments carry. Bump the SHA → bump the row. Run `pnpm run install-claude-plugins` to reconcile a machine to the pinned set; the script also merges `env.CODEX_TRUSTED_ENV_PARENTS` into `~/.claude/settings.json` so the upstream codex plugin honors `~/.claude/session-env/` as a trusted env-file parent (enforced by `.claude/hooks/marketplace-comment-guard/`).
+
 ### Fix it, don't defer
 
 🚨 See a lint/type/test error or broken comment in your reading window — fix it. Stop current task, fix the issue in a sibling commit, resume. Don't label as "pre-existing", "unrelated", or "out of scope" — the labels are rationalizations (enforced by `.claude/hooks/excuse-detector/`).
