@@ -1,4 +1,3 @@
-/* oxlint-disable socket/no-console-prefer-logger socket/no-fetch-prefer-http-request socket/export-top-level-functions -- composite action helper, runs on raw runner before setup-node (no node_modules) */
 /**
  * @file Downloads, integrity-verifies, and extracts a release asset. Replaces
  *   the curl + sha256sum/shasum + tar/unzip dance repeated across
@@ -52,6 +51,7 @@ if (!url || !integrityArg || !destDir) {
 // Parse SRI string `<algo>-<base64>`. Bare 64-char hex is treated as
 // sha256 for backward compat — deprecated, will be removed once all
 // call sites pass SRI directly.
+// oxlint-disable-next-line socket/export-top-level-functions -- composite-action helper runs on the raw runner before setup-node; no node_modules, no module boundary worth exporting across.
 function parseIntegrity(s) {
   const m = /^(sha(?:256|384|512))-(.+)$/.exec(s)
   if (m) {
@@ -64,6 +64,7 @@ function parseIntegrity(s) {
       expected: Buffer.from(s, 'hex').toString('base64'),
     }
   }
+  // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; @socketsecurity/lib-stable not installed yet.
   console.error(
     `× unrecognized integrity format: ${s}\n  Expected SRI (e.g. sha256-base64=)`,
   )
