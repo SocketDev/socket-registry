@@ -327,12 +327,22 @@ runs:
           REAL="$(PATH="$CLEAN_PATH" command -v "$CMD" 2>/dev/null || true)"
           if [ -n "$REAL" ]; then
             REAL="$(msys_to_win_path "$REAL")"
+            # SFW_UNKNOWN_HOST_ACTION=ignore: only sfw-enterprise reads this
+            # env var (sfw-free hardcodes 'ignore' internally). Enterprise's
+            # built-in default is 'block', which fails dev workflows that hit
+            # hosts outside the registries[] allowlist (Anthropic API, GitHub
+            # clones, telemetry, etc.). Setting 'ignore' lets non-allowlisted
+            # traffic pass unscored while still scanning the registries we
+            # care about. Free mode ignores the var, so we set it
+            # unconditionally — no branching needed. See
+            # firewall/src/lib/firewall/connect.ts.
             SHIM_LINES=('#!/bin/bash' "export PATH=\"\$(echo \"\$PATH\" | tr ':' '\n' | grep -vxF '${SHIM_DIR}' | paste -sd: -)\"")
+            SHIM_LINES+=('export SFW_UNKNOWN_HOST_ACTION=ignore')
             SHIM_LINES+=("exec \"${SFW_BIN}\" \"${REAL}\" \"\$@\"")
             printf '%s\n' "${SHIM_LINES[@]}" > "$SHIM_DIR/$CMD"
             chmod +x "$SHIM_DIR/$CMD"
             if $IS_WINDOWS; then
-              printf '@echo off\r\nset "PATH=;%%PATH%%;"\r\nset "PATH=%%PATH:;%s;=;%%"\r\nset "PATH=%%PATH:~1,-1%%"\r\n"%s" "%s" %%*\r\n' \
+              printf '@echo off\r\nset "PATH=;%%PATH%%;"\r\nset "PATH=%%PATH:;%s;=;%%"\r\nset "PATH=%%PATH:~1,-1%%"\r\nset "SFW_UNKNOWN_HOST_ACTION=ignore"\r\n"%s" "%s" %%*\r\n' \
                 "$SHIM_DIR" "$SFW_BIN" "$REAL" > "$SHIM_DIR/$CMD.cmd"
             fi
           else
