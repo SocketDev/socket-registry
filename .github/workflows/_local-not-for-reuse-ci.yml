@@ -17,7 +17,7 @@ permissions:
 jobs:
   ci:
     name: Run CI Pipeline
-    uses: SocketDev/socket-registry/.github/workflows/ci.yml@dea9b15a558831273aaa6c9ab94c4efb9f8b06ca # main (2026-05-15)
+    uses: SocketDev/socket-registry/.github/workflows/ci.yml@4bc650438ac95c1d940c92bdb29b87c81201de03 # main (2026-05-15)
     with:
       test-script: 'pnpm run test --all --fast'
       node-versions: '["22", "24"]'
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@56be73d6881212e642f35a3cd165e27cb1c09aef # main (2026-05-15)
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@4bc650438ac95c1d940c92bdb29b87c81201de03 # main (2026-05-15)
         with:
           node-version: 22
 

@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   weekly-update:
-    uses: SocketDev/socket-registry/.github/workflows/weekly-update.yml@dea9b15a558831273aaa6c9ab94c4efb9f8b06ca # main (2026-05-15)
+    uses: SocketDev/socket-registry/.github/workflows/weekly-update.yml@4bc650438ac95c1d940c92bdb29b87c81201de03 # main (2026-05-15)
     with:
       test-setup-script: ''
       test-script: 'pnpm test'
