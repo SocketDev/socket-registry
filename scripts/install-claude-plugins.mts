@@ -3,23 +3,23 @@
  * @file Reconcile the local machine's Claude Code plugin state to the
  *   wheelhouse-canonical SHA-pinned set.
  *
- *   - Ensures the `socket-wheelhouse` marketplace is added to Claude Code
- *     (`~/.claude/plugins/known_marketplaces.json`).
+ *   - Ensures the `socket-wheelhouse` marketplace is added to Claude
+ *     Code (`~/.claude/plugins/known_marketplaces.json`).
  *   - For each plugin in the wheelhouse marketplace's
- *     `.claude-plugin/marketplace.json`, ensures it's installed at the pinned
- *     SHA.
- *   - Merges `env.CODEX_TRUSTED_ENV_PARENTS` into `~/.claude/settings.json` so
- *     the upstream codex plugin's SessionStart hook honors
- *     `~/.claude/session-env/` as a trusted parent (Claude Code places
- *     per-session env files there, outside `os.tmpdir()`). Idempotent — running
- *     twice is a no-op. Designed for `pnpm setup` wiring in every fleet repo.
- *     Pin discipline is enforced by `.claude/hooks/marketplace-comment-guard/`:
- *     every `plugins[].source.sha` in `marketplace.json` must have a row in
- *     `.claude-plugin/README.md` with matching version + sha + ISO date.
+ *     `.claude-plugin/marketplace.json`, ensures it's installed at the
+ *     pinned SHA.
+ *
+ *   Idempotent — running twice is a no-op. Designed for `pnpm setup`
+ *   wiring in every fleet repo.
+ *
+ *   Pin discipline is enforced by `.claude/hooks/marketplace-comment-guard/`:
+ *   every `plugins[].source.sha` in `marketplace.json` must have a row
+ *   in `.claude-plugin/README.md` with matching version + sha + ISO
+ *   date.
  */
 
-import { spawnSync } from '@socketsecurity/lib-stable/spawn'
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
@@ -34,34 +34,27 @@ const logger = getDefaultLogger()
 const MARKETPLACE_NAME = 'socket-wheelhouse'
 const MARKETPLACE_URL = 'https://github.com/SocketDev/socket-wheelhouse'
 
-// The env var the codex plugin's SessionStart hook reads. Setting it
-// in `~/.claude/settings.json:env` makes Claude Code pass it to every
-// hook invocation. The value is the path Claude Code places per-session
-// env files under; the hook treats it as a trusted parent in addition
-// to `os.tmpdir()`.
-const CODEX_TRUSTED_ENV_PARENTS_KEY = 'CODEX_TRUSTED_ENV_PARENTS'
-
 interface MarketplaceListEntry {
   name: string
   source: string
-  installLocation?: string | undefined
+  installLocation?: string
 }
 
 interface PluginListEntry {
   id: string
-  version?: string | undefined
-  scope?: string | undefined
-  enabled?: boolean | undefined
-  installPath?: string | undefined
+  version?: string
+  scope?: string
+  enabled?: boolean
+  installPath?: string
 }
 
 interface MarketplacePluginSource {
   source: string
-  url?: string | undefined
-  path?: string | undefined
-  ref?: string | undefined
-  sha?: string | undefined
-  commit?: string | undefined
+  url?: string
+  path?: string
+  ref?: string
+  sha?: string
+  commit?: string
 }
 
 interface MarketplacePlugin {
@@ -70,37 +63,15 @@ interface MarketplacePlugin {
 }
 
 interface MarketplaceManifest {
-  name?: string | undefined
-  plugins?: MarketplacePlugin[] | undefined
+  name?: string
+  plugins?: MarketplacePlugin[]
 }
 
 /**
- * Resolve the user's home directory. Matches the resolution order
- * `@socketsecurity/lib/env/home` uses (HOME → USERPROFILE), with a fail-fast
- * guard against the degenerate empty-string case.
- */
-function resolveHome(): string {
-  for (const candidate of [process.env['HOME'], process.env['USERPROFILE']]) {
-    if (candidate && path.isAbsolute(candidate)) {
-      return candidate
-    }
-  }
-  throw new Error(
-    'HOME / USERPROFILE not set to an absolute path — cannot resolve ' +
-      'Claude Code config dir.',
-  )
-}
-
-const HOME = resolveHome()
-const CLAUDE_CONFIG_DIR = path.join(HOME, '.claude')
-const CLAUDE_SETTINGS_JSON = path.join(CLAUDE_CONFIG_DIR, 'settings.json')
-const CLAUDE_SESSION_ENV_DIR = path.join(CLAUDE_CONFIG_DIR, 'session-env')
-
-/**
- * Run `claude` CLI synchronously; return stdout + exit code. Stderr goes
- * through to our own stderr so the user sees CLI errors in real time. Fails
- * loudly on non-zero exit codes — the install flow has no graceful fallback if
- * the CLI itself is broken.
+ * Run `claude` CLI synchronously; return stdout + exit code. Stderr
+ * goes through to our own stderr so the user sees CLI errors in real
+ * time. Fails loudly on non-zero exit codes — the install flow has no
+ * graceful fallback if the CLI itself is broken.
  */
 function runClaudeCli(args: string[]): string {
   const result = spawnSync('claude', args, {
@@ -147,9 +118,7 @@ function ensureMarketplace(): MarketplaceListEntry {
     )
     return existing
   }
-  logger.log(
-    `Adding marketplace "${MARKETPLACE_NAME}" from ${MARKETPLACE_URL}…`,
-  )
+  logger.log(`Adding marketplace "${MARKETPLACE_NAME}" from ${MARKETPLACE_URL}…`)
   runClaudeCli([
     'plugin',
     'marketplace',
@@ -197,14 +166,10 @@ function ensurePluginInstalled(plugin: MarketplacePlugin): void {
   const installId = `${plugin.name}@${MARKETPLACE_NAME}`
   const installed = listPlugins().find(p => p.id === installId)
   if (installed) {
-    logger.log(
-      `Plugin ${installId} already installed (scope: ${installed.scope ?? 'unknown'}).`,
-    )
+    logger.log(`Plugin ${installId} already installed (scope: ${installed.scope ?? 'unknown'}).`)
     return
   }
-  logger.log(
-    `Installing ${installId} pinned to ${plugin.source.sha ?? plugin.source.ref ?? '<no ref>'}…`,
-  )
+  logger.log(`Installing ${installId} pinned to ${plugin.source.sha ?? plugin.source.ref ?? '<no ref>'}…`)
   runClaudeCli(['plugin', 'install', installId, '--scope', 'user'])
   const after = listPlugins().find(p => p.id === installId)
   if (!after) {
@@ -213,58 +178,6 @@ function ensurePluginInstalled(plugin: MarketplacePlugin): void {
         '— check the CLI output above.',
     )
   }
-}
-
-interface SettingsShape {
-  env?: Record<string, string> | undefined
-  [k: string]: unknown
-}
-
-function mergeTrustedEnvParent(): boolean {
-  let settings: SettingsShape = {}
-  if (existsSync(CLAUDE_SETTINGS_JSON)) {
-    try {
-      settings = JSON.parse(
-        readFileSync(CLAUDE_SETTINGS_JSON, 'utf8'),
-      ) as SettingsShape
-    } catch (e) {
-      throw new Error(
-        `~/.claude/settings.json is not parseable JSON: ${errorMessage(e)}. ` +
-          'Fix it by hand before re-running this script.',
-      )
-    }
-  }
-
-  const env = settings.env ?? {}
-  const existing = env[CODEX_TRUSTED_ENV_PARENTS_KEY]
-  const existingEntries = existing
-    ? existing
-        .split(path.delimiter)
-        .map(s => s.trim())
-        .filter(Boolean)
-    : []
-  if (existingEntries.includes(CLAUDE_SESSION_ENV_DIR)) {
-    logger.log(
-      `${CODEX_TRUSTED_ENV_PARENTS_KEY} already includes ${CLAUDE_SESSION_ENV_DIR}.`,
-    )
-    return false
-  }
-  const merged = [...existingEntries, CLAUDE_SESSION_ENV_DIR].join(
-    path.delimiter,
-  )
-  const next: SettingsShape = {
-    ...settings,
-    env: { ...env, [CODEX_TRUSTED_ENV_PARENTS_KEY]: merged },
-  }
-  writeFileSync(
-    CLAUDE_SETTINGS_JSON,
-    JSON.stringify(next, null, 2) + '\n',
-    'utf8',
-  )
-  logger.log(
-    `Set ${CODEX_TRUSTED_ENV_PARENTS_KEY}=${merged} in ${CLAUDE_SETTINGS_JSON}.`,
-  )
-  return true
 }
 
 function main(): void {
@@ -277,12 +190,9 @@ function main(): void {
       `marketplace "${MARKETPLACE_NAME}" has no plugins listed — nothing to install.`,
     )
   }
-  for (let i = 0, { length } = plugins; i < length; i += 1) {
-    const plugin = plugins[i]!
+  for (const plugin of plugins) {
     ensurePluginInstalled(plugin)
-  
   }
-  mergeTrustedEnvParent()
   logger.log('Done.')
 }
 

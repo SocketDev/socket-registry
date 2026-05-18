@@ -32,18 +32,17 @@ against — opaque pins look fine and stay broken for months.
         "source": "git-subdir",
         "url": "https://github.com/openai/codex-plugin-cc.git",
         "ref": "v1.0.1",
-        "sha": "9cb4fe4099195b2587c402117a3efce6ab5aac78",
-      },
-    },
-  ],
+        "sha": "9cb4fe4099195b2587c402117a3efce6ab5aac78"
+      }
+    }
+  ]
 }
 ```
 
 ```markdown
 <!-- .claude-plugin/README.md -->
-
 | plugin | version | sha                                      | date       | by      |
-| ------ | ------- | ---------------------------------------- | ---------- | ------- |
+|--------|---------|------------------------------------------|------------|---------|
 | codex  | v1.0.1  | 9cb4fe4099195b2587c402117a3efce6ab5aac78 | 2026-05-18 | jdalton |
 ```
 
