@@ -30,12 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      # TEMPORARY: pin to the diagnostic SHA so the `ls -la` block
-      # added in setup/action.yml + checkout/action.yml actually
-      # runs (the previous SHA-pinned setup-and-install@56be73d6
-      # doesn't have the diagnostic yet). Revert to a stable SHA
-      # once external-tools.json path resolution is fixed.
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@92c6ffb792d8a4bdc59ba53a93dc69cf03ea7b9d # diagnostic (2026-05-18)
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@56be73d6881212e642f35a3cd165e27cb1c09aef # main (2026-05-15)
         with:
           node-version: 22
 
