@@ -206,7 +206,6 @@ for (let i = 0, { length } = ecosystems; i < length; i += 1) {
                 const relativeDtsPath = trimLeadingDotSlash(dtsFilePath)
                 expect(files.includes(relativeDtsPath)).toBe(true)
               }
-            
             }
           })
         }

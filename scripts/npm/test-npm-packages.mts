@@ -1,4 +1,3 @@
-
 /**
  * @file Test script for npm packages that handles downloading, installing, and
  *   testing.

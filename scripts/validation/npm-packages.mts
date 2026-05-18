@@ -1,4 +1,3 @@
-
 /**
  * @file Package validation utility for npm package testing. Validates that
  *   Socket overrides either have manual tests (test/npm/<pkg-name>.test.mts) or

@@ -1,4 +1,3 @@
-
 /**
  * @file Build script for socket-registry monorepo. Delegates to the registry
  *   package build with proper flag handling.

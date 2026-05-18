@@ -1,4 +1,3 @@
-
 /**
  * @file Validates package overrides before release to catch test infrastructure
  *   issues early.

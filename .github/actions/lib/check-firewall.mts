@@ -1,4 +1,3 @@
-
 /**
  * @file Check a Socket package against the firewall API before downloading its
  *   tarball directly from the npm registry. Endpoint: GET

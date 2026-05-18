@@ -1,4 +1,3 @@
-
 /**
  * @file Detect package changes and bump versions for npm release.
  */
