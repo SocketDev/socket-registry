@@ -1,7 +1,6 @@
 /**
  * @file Utility for running shell commands with proper error handling.
  */
-/* oxlint-disable socket/prefer-cached-for-loop -- iterates a destructured command-list record; the cached-length rewrite would be incorrect. */
 
 import process from 'node:process'
 
@@ -79,6 +78,7 @@ export interface CommandSpec {
  * Run multiple commands in sequence, stopping on first failure.
  */
 export async function runSequence(commands: CommandSpec[]): Promise<number> {
+  // oxlint-disable-next-line socket/prefer-cached-for-loop -- destructured command-list record; the cached-length rewrite would lose the destructuring shape.
   for (const { args = [], command, options = {} } of commands) {
     // eslint-disable-next-line no-await-in-loop
     const exitCode = await runCommand(command, args, options)

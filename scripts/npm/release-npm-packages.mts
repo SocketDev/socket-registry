@@ -1,5 +1,3 @@
-/* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
-/* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (state.warnings / state.changes / Object.entries); the cached-length rewrite would be incorrect. */
 
 /**
  * @file Detect package changes and bump versions for npm release.

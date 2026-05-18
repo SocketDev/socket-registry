@@ -1,4 +1,3 @@
-/* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
 
 /**
  * @file Package validation utility for npm package testing. Validates that

@@ -2,7 +2,6 @@
  * @file Generate GitHub Actions allow list from workflow and action
  *   dependencies.
  */
-/* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Map / Object.entries); the cached-length rewrite would be incorrect. */
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
@@ -79,6 +78,7 @@ async function main(): Promise<void> {
   for (let i = 0, { length } = workflowFiles; i < length; i += 1) {
     const file = workflowFiles[i]
     const deps = await extractDependencies(file)
+    // oxlint-disable-next-line socket/prefer-cached-for-loop -- iterates Map.entries() (non-array iterable); cached-length would be incorrect.
     for (const { 0: key, 1: value } of deps.entries()) {
       allDependencies.set(key, value)
     }
@@ -98,6 +98,7 @@ async function main(): Promise<void> {
       )
       try {
         const deps = await extractDependencies(actionFile)
+        // oxlint-disable-next-line socket/prefer-cached-for-loop -- iterates Map.entries() (non-array iterable); cached-length would be incorrect.
         for (const { 0: key, 1: value } of deps.entries()) {
           allDependencies.set(key, value)
         }
@@ -108,6 +109,8 @@ async function main(): Promise<void> {
   // Categorize dependencies.
   const socketDevActions = []
   const externalActions = []
+
+  // oxlint-disable-next-line socket/prefer-cached-for-loop -- iterates Map.values() (non-array iterable); cached-length would be incorrect.
 
   for (const dep of allDependencies.values()) {
     if (dep.startsWith('SocketDev/')) {

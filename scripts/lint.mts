@@ -2,7 +2,6 @@
  * @file Unified lint runner with flag-based configuration. Provides smart
  *   linting that can target affected files or lint everything.
  */
-/* oxlint-disable socket/prefer-cached-for-loop -- iterates a configured linter list (destructured loop variable); the cached-length rewrite would be incorrect. */
 
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -188,6 +187,7 @@ export async function runLintOnFiles(
     },
   ]
 
+  // oxlint-disable-next-line socket/prefer-cached-for-loop -- destructured linter-config tuple; cached-length rewrite would scatter the destructure.
   for (const { args, enabled } of linters) {
     if (!enabled) {
       continue
@@ -260,6 +260,7 @@ export async function runLintOnAll(options: LintOptions = {}): Promise<number> {
     },
   ]
 
+  // oxlint-disable-next-line socket/prefer-cached-for-loop -- destructured linter-config tuple; cached-length rewrite would scatter the destructure.
   for (const { args } of linters) {
     const result = await runCommandQuiet('pnpm', args)
 

@@ -1,7 +1,6 @@
 /**
  * @file Convert GitHub Actions tags/branches to commit SHAs in workflow files.
  */
-/* oxlint-disable socket/prefer-cached-for-loop -- iterates `usesStatements.slice().reverse()` / non-array iterables; the cached-length rewrite would be incorrect or lose the reverse pass. */
 
 import { existsSync, promises as fs } from 'node:fs'
 import path from 'node:path'
@@ -131,6 +130,7 @@ export async function processFile(filePath, token, dryRun) {
   const changes = []
 
   // Process in reverse order to maintain correct string positions.
+  // oxlint-disable-next-line socket/prefer-cached-for-loop -- iterates a reversed slice; cached-length form would lose the reverse pass.
   for (const stmt of usesStatements.slice().reverse()) {
     const { fullMatch, indent, owner, ref: currentRef, repoPath } = stmt
 
@@ -269,6 +269,7 @@ async function main(): Promise<void> {
   }
 
   // Display changes.
+  // oxlint-disable-next-line socket/prefer-cached-for-loop -- destructured loop variable; cached-length rewrite would scatter the destructure.
   for (const { changes, file } of processedFiles) {
     logger.error('')
     logger.info(`${path.relative(cwd, file)}:`)

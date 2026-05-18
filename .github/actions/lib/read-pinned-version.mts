@@ -1,4 +1,3 @@
-/* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Object.entries); the cached-length rewrite would be incorrect. */
 /**
  * @file Print the pinned version of a Socket package to stdout, reading from
  *   (in order):
@@ -63,6 +62,7 @@ const fromPackageJson = (pkg: string): string | undefined => {
     return undefined
   }
   const json = JSON.parse(readFileSync('package.json', 'utf8'))
+  // oxlint-disable-next-line socket/prefer-cached-for-loop -- iterates a 2-element const tuple; cached-length form would obscure the literal pair.
   for (const field of ['dependencies', 'devDependencies'] as const) {
     const deps = json[field]
     if (deps && typeof deps[pkg] === 'string') {

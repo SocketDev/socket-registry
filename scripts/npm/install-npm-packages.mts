@@ -1,5 +1,3 @@
-/* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
-/* oxlint-disable socket/prefer-cached-for-loop -- iterates Dirent results inside async tasks; the cached-length rewrite is unsafe under await chains. */
 /* max-file-lines: legitimate — monolithic npm-install driver (resolution + override application + nested traversal + progress UI). The phases share enough live state (tasks queue, override map, scoped-vs-unscoped branch) that splitting them produces a tangle of cross-file mutables. */
 
 /**

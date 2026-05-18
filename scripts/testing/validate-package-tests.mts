@@ -1,5 +1,3 @@
-/* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
-/* oxlint-disable socket/prefer-cached-for-loop -- iterates destructured records and async-settled results; the cached-length rewrite would be incorrect. */
 
 /**
  * @file Validates package overrides before release to catch test infrastructure

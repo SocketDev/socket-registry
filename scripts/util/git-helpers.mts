@@ -1,4 +1,3 @@
-/* oxlint-disable socket/no-process-cwd-in-scripts-hooks -- every exported helper accepts a `cwd` parameter the caller can override; the `process.cwd()` defaults are convenience for ad-hoc invocations and don't bypass the anchor-on-script-location rule. */
 /**
  * @file Git helper functions for listing staged / unstaged / changed files. All
  *   returned paths are relative to the git top-level, so downstream glob
@@ -79,6 +78,7 @@ export function filterRelativeToRoot(
 /**
  * Get changed files synchronously (paths relative to git root).
  */
+// oxlint-disable-next-line socket/no-process-cwd-in-scripts-hooks -- helper accepts cwd; process.cwd() is the ad-hoc-invocation default, not a bypass of the anchor-on-script-location rule.
 export function getChangedFilesSync(cwd = process.cwd()): string[] {
   try {
     const gitRoot = getGitRoot(cwd)
@@ -101,6 +101,7 @@ export function getChangedFilesSync(cwd = process.cwd()): string[] {
 /**
  * Get staged files (paths relative to git root).
  */
+// oxlint-disable-next-line socket/no-process-cwd-in-scripts-hooks -- helper accepts cwd; process.cwd() is the ad-hoc-invocation default, not a bypass of the anchor-on-script-location rule.
 export async function getStagedFiles(cwd = process.cwd()): Promise<string[]> {
   try {
     const gitRoot = await getGitRootAsync(cwd)
@@ -120,6 +121,7 @@ export async function getStagedFiles(cwd = process.cwd()): Promise<string[]> {
 /**
  * Get staged files synchronously (paths relative to git root).
  */
+// oxlint-disable-next-line socket/no-process-cwd-in-scripts-hooks -- helper accepts cwd; process.cwd() is the ad-hoc-invocation default, not a bypass of the anchor-on-script-location rule.
 export function getStagedFilesSync(cwd = process.cwd()): string[] {
   try {
     const gitRoot = getGitRoot(cwd)
@@ -142,6 +144,7 @@ export function getStagedFilesSync(cwd = process.cwd()): string[] {
 /**
  * Get unstaged files (paths relative to git root).
  */
+// oxlint-disable-next-line socket/no-process-cwd-in-scripts-hooks -- helper accepts cwd; process.cwd() is the ad-hoc-invocation default, not a bypass of the anchor-on-script-location rule.
 export async function getUnstagedFiles(cwd = process.cwd()): Promise<string[]> {
   try {
     const gitRoot = await getGitRootAsync(cwd)
@@ -161,6 +164,7 @@ export async function getUnstagedFiles(cwd = process.cwd()): Promise<string[]> {
 /**
  * Get unstaged files synchronously (paths relative to git root).
  */
+// oxlint-disable-next-line socket/no-process-cwd-in-scripts-hooks -- helper accepts cwd; process.cwd() is the ad-hoc-invocation default, not a bypass of the anchor-on-script-location rule.
 export function getUnstagedFilesSync(cwd = process.cwd()): string[] {
   try {
     const gitRoot = getGitRoot(cwd)
@@ -185,6 +189,7 @@ export function getUnstagedFilesSync(cwd = process.cwd()): string[] {
  */
 export async function isUnstaged(
   pathname: string,
+  // oxlint-disable-next-line socket/no-process-cwd-in-scripts-hooks -- multi-arg form: default for ad-hoc invocations only.
   cwd = process.cwd(),
 ): Promise<boolean> {
   const files = await getUnstagedFiles(cwd)
@@ -194,6 +199,7 @@ export async function isUnstaged(
 /**
  * Check if a file is unstaged synchronously.
  */
+// oxlint-disable-next-line socket/no-process-cwd-in-scripts-hooks -- helper accepts cwd; process.cwd() is the ad-hoc-invocation default, not a bypass of the anchor-on-script-location rule.
 export function isUnstagedSync(pathname: string, cwd = process.cwd()): boolean {
   const files = getUnstagedFilesSync(cwd)
   return files.includes(pathname)
