@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for array.prototype.reduce NPM package override.
- * Ported 1:1 from upstream v1.0.8 (27597d0bba6159b678f7d44bbc9cef550f294851):
- * https://github.com/es-shims/Array.prototype.reduce/blob/27597d0bba6159b678f7d44bbc9cef550f294851/test/tests.js
+ * @file Tests for array.prototype.reduce NPM package override. Ported 1:1 from
+ *   upstream v1.0.8 (27597d0bba6159b678f7d44bbc9cef550f294851):
+ *   https://github.com/es-shims/Array.prototype.reduce/blob/27597d0bba6159b678f7d44bbc9cef550f294851/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

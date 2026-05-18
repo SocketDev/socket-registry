@@ -1,5 +1,5 @@
 /**
- * @fileoverview Biome formatter utility.
+ * @file Biome formatter utility.
  * Formats content using Biome CLI via pnpm exec.
  */
 

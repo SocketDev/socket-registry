@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for string.prototype.includes NPM package override.
- * Ported 1:1 from upstream v2.0.1 (4dd89acb):
- * https://github.com/mathiasbynens/String.prototype.includes/blob/4dd89acb/tests/tests.js
+ * @file Tests for string.prototype.includes NPM package override. Ported 1:1
+ *   from upstream v2.0.1 (4dd89acb):
+ *   https://github.com/mathiasbynens/String.prototype.includes/blob/4dd89acb/tests/tests.js.
  */
 import { describe, expect, it } from 'vitest'
 

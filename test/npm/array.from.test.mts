@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for array.from NPM package override.
- * Ported 1:1 from upstream v1.1.5 (10637c09c1e8dff7386a357bdf755eca85ae9a3d):
- * https://github.com/es-shims/Array.from/blob/10637c09c1e8dff7386a357bdf755eca85ae9a3d/test/index.js
+ * @file Tests for array.from NPM package override. Ported 1:1 from upstream
+ *   v1.1.5 (10637c09c1e8dff7386a357bdf755eca85ae9a3d):
+ *   https://github.com/es-shims/Array.from/blob/10637c09c1e8dff7386a357bdf755eca85ae9a3d/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

@@ -1,5 +1,5 @@
 /**
- * @fileoverview Tests for is-regex NPM package override.
+ * @file Tests for is-regex NPM package override.
  */
 
 import { describe, expect, it } from 'vitest'

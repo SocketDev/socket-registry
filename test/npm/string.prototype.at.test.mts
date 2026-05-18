@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for string.prototype.at NPM package override.
- * Ported 1:1 from upstream v1.0.6 (515b26f9):
- * https://github.com/es-shims/String.prototype.at/blob/515b26f9/test/tests.js
+ * @file Tests for string.prototype.at NPM package override. Ported 1:1 from
+ *   upstream v1.0.6 (515b26f9):
+ *   https://github.com/es-shims/String.prototype.at/blob/515b26f9/test/tests.js.
  */
 import { describe, expect, it } from 'vitest'
 

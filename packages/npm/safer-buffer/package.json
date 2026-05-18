@@ -1,18 +1,23 @@
 {
   "name": "@socketregistry/safer-buffer",
   "version": "1.0.10",
-  "license": "MIT",
   "description": "Socket.dev optimized package override for safer-buffer",
   "keywords": [
     "Socket.dev",
     "package-overrides"
   ],
   "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/safer-buffer",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",
     "directory": "packages/npm/safer-buffer"
   },
+  "files": [
+    "*.d.ts",
+    "*.js"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./safer.d.ts",
@@ -28,21 +33,16 @@
     },
     "./package.json": "./package.json"
   },
-  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "engines": {
     "node": ">=18"
   },
-  "files": [
-    "*.d.ts",
-    "*.js"
-  ],
   "socket": {
     "categories": [
       "cleanup"
     ]
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
   }
 }

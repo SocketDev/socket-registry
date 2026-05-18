@@ -1,23 +1,18 @@
 {
   "name": "@socketregistry/monorepo",
   "version": "1.0.0",
-  "packageManager": "pnpm@11.1.2",
   "private": true,
-  "license": "MIT",
   "description": "Monorepo for Socket.dev optimized package overrides",
   "homepage": "http://github.com/SocketDev/socket-registry",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/SocketDev/socket-registry.git"
-  },
+  "license": "MIT",
   "author": {
     "name": "Socket Inc",
     "email": "eng@socket.dev",
     "url": "https://socket.dev"
   },
-  "engines": {
-    "node": ">=18.20.8",
-    "pnpm": ">=11.1.2"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SocketDev/socket-registry.git"
   },
   "scripts": {
     "analyze-ci-failures": "node scripts/testing/analyze-ci-failures.mts",
@@ -89,7 +84,7 @@
     "@types/spdx-expression-parse": "catalog:",
     "@types/validate-npm-package-name": "catalog:",
     "@types/which": "catalog:",
-    "@typescript/native-preview": "7.0.0-dev.20260415.1",
+    "@typescript/native-preview": "7.0.0-dev.20260511.1",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
     "@zkochan/js-yaml": "catalog:",
@@ -116,8 +111,8 @@
     "normalize-package-data": "catalog:",
     "npm-package-arg": "catalog:",
     "out-url": "catalog:",
-    "oxfmt": "0.37.0",
-    "oxlint": "1.52.0",
+    "oxfmt": "0.48.0",
+    "oxlint": "1.63.0",
     "pacote": "catalog:",
     "read-yaml-file": "catalog:",
     "semver": "catalog:",
@@ -126,7 +121,7 @@
     "spdx-expression-parse": "catalog:",
     "streaming-iterables": "catalog:",
     "tar": "catalog:",
-    "taze": "19.9.2",
+    "taze": "19.11.0",
     "trash": "catalog:",
     "tsx": "catalog:",
     "type-coverage": "catalog:",
@@ -139,13 +134,13 @@
     "yoctocolors-cjs": "catalog:"
   },
   "typeCoverage": {
-    "cache": true,
     "atLeast": 99,
+    "cache": true,
+    "ignore-non-null-assertion": true,
+    "ignore-type-assertion": true,
     "ignoreAsAssertion": true,
     "ignoreCatch": true,
     "ignoreEmptyType": true,
-    "ignore-non-null-assertion": true,
-    "ignore-type-assertion": true,
     "ignoreFiles": [
       "test/**/*.{ts,mts}",
       "perf/**/*.{ts,mts}",
@@ -153,5 +148,10 @@
       "packages/**/*.{ts,d.ts}"
     ],
     "strict": true
-  }
+  },
+  "engines": {
+    "node": ">=18.20.8",
+    "pnpm": ">=11.1.2"
+  },
+  "packageManager": "pnpm@11.1.2"
 }

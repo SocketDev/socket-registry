@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for string.prototype.replaceall NPM package override.
- * Ported 1:1 from upstream v1.0.11 (6c1ae0c6):
- * https://github.com/es-shims/String.prototype.replaceAll/blob/6c1ae0c6/test/tests.js
+ * @file Tests for string.prototype.replaceall NPM package override. Ported 1:1
+ *   from upstream v1.0.11 (6c1ae0c6):
+ *   https://github.com/es-shims/String.prototype.replaceAll/blob/6c1ae0c6/test/tests.js.
  */
 import { describe, expect, it } from 'vitest'
 

@@ -1,5 +1,5 @@
 /**
- * @fileoverview Package utilities for checking test status and package metadata.
+ * @file Package utilities for checking test status and package metadata.
  */
 
 import { existsSync, readFileSync } from 'node:fs'
@@ -42,6 +42,7 @@ export function getPackageVersionSpec(packageName, options) {
 
 /**
  * Check if a package should skip tests.
+ *
  * @throws {Error} When unable to determine test status.
  */
 export function shouldSkipTests(packageName, options) {

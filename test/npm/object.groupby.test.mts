@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for object.groupby NPM package override.
- * Ported 1:1 from upstream v1.0.3 (fa1c331c):
- * https://github.com/es-shims/Object.groupBy/blob/fa1c331c346bc6e852a06d0f8fd7093be25846ab/test/tests.js
+ * @file Tests for object.groupby NPM package override. Ported 1:1 from upstream
+ *   v1.0.3 (fa1c331c):
+ *   https://github.com/es-shims/Object.groupBy/blob/fa1c331c346bc6e852a06d0f8fd7093be25846ab/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

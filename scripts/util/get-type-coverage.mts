@@ -1,10 +1,13 @@
-/** @fileoverview Utility to calculate TypeScript type coverage percentage. */
+/**
+ * @file Utility to calculate TypeScript type coverage percentage.
+ */
 import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
 
 import { spawn } from './spawn.mts'
 
 /**
  * Execute type-coverage command and extract percentage from output.
+ *
  * @throws {Error} When type coverage command fails.
  */
 export async function getTypeCoverage() {

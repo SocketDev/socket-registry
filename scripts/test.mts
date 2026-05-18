@@ -1,6 +1,6 @@
 /**
- * @fileoverview Unified test runner that provides a smooth, single-script experience.
- * Combines check, build, and test steps with clean, consistent output.
+ * @file Unified test runner that provides a smooth, single-script experience.
+ *   Combines check, build, and test steps with clean, consistent output.
  */
 
 // Use raw node:child_process here (not @socketsecurity/lib-stable/spawn) to retain the

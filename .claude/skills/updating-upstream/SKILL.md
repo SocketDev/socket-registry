@@ -1,8 +1,9 @@
 ---
+
 name: updating-upstream
 description: Bumps git submodules declared in `.gitmodules` to their latest stable upstream tag, for submodules NOT managed by an lockstep `version-pin` row. Reads the `# <name>-<version>` comment above each submodule as the current pin, finds the latest stable tag (excluding pre-releases), checks out, updates the comment, commits atomically. Invoked by the `updating` umbrella skill; can also be invoked standalone.
 user-invocable: true
-allowed-tools: Bash(pnpm:*), Bash(npm:*), Bash(git:*), Bash(node:*), Bash(rg:*), Bash(grep:*), Bash(find:*), Bash(ls:*), Bash(cat:*), Bash(head:*), Bash(tail:*), Bash(wc:*), Bash(diff:*), Read, Edit, Grep, Glob---
+allowed-tools: Bash(pnpm:_), Bash(npm:_), Bash(git:_), Bash(node:_), Bash(rg:_), Bash(grep:_), Bash(find:_), Bash(ls:_), Bash(cat:_), Bash(head:_), Bash(tail:_), Bash(wc:_), Bash(diff:\*), Read, Edit, Grep, Glob---
 
 # updating-upstream
 
@@ -22,15 +23,17 @@ Bump every git submodule in `.gitmodules` that is NOT managed by an lockstep `ve
 ```
 
 **Division of labor with lockstep:**
+
 - If `lockstep.json` exists AND a submodule's path matches an `upstreams[<alias>].submodule` referenced by a `version-pin` row, it's owned by `updating-lockstep`. Skip it here.
 - All other submodules are owned by this skill.
 
 **Tag scheme detection** (in order of preference):
+
 1. Existing `# <prefix>-<version>` comment — use that prefix to find the next tag
 2. `v1.2.3` (v-prefixed semver)
 3. `1.2.3` (bare semver)
 4. Underscore style: `curl-8_19_0`, `liburing-2.14`
-</context>
+   </context>
 
 <constraints>
 **Requirements:**
@@ -40,6 +43,7 @@ Bump every git submodule in `.gitmodules` that is NOT managed by an lockstep `ve
 - Exclude pre-releases: `-rc`, `-alpha`, `-beta`, `-dev`, `-snapshot`, `-nightly`, `-preview`
 
 **Forbidden:**
+
 - Never bump a submodule managed by lockstep (defer to `updating-lockstep`)
 - Never bump to a pre-release tag
 - Never use `npx`, `pnpm dlx`, `yarn dlx`

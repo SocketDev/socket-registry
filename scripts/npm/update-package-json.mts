@@ -1,4 +1,6 @@
-/** @fileoverview Update root package.json with default Node.js engine range. */
+/**
+ * @file Update root package.json with default Node.js engine range.
+ */
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 import { readPackageJson } from '@socketsecurity/lib-stable/packages'

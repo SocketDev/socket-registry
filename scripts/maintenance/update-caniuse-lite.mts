@@ -1,4 +1,6 @@
-/** @fileoverview Update caniuse-lite database without triggering prepare scripts. */
+/**
+ * @file Update caniuse-lite database without triggering prepare scripts.
+ */
 
 import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for unbox-primitive NPM package override.
- * Ported 1:1 from upstream v1.1.0 (57a9506f):
- * https://github.com/ljharb/unbox-primitive/blob/57a9506f/test/index.js
+ * @file Tests for unbox-primitive NPM package override. Ported 1:1 from
+ *   upstream v1.1.0 (57a9506f):
+ *   https://github.com/ljharb/unbox-primitive/blob/57a9506f/test/index.js.
  */
 import { describe, expect, it } from 'vitest'
 

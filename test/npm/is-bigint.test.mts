@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for is-bigint NPM package override.
- * Ported 1:1 from upstream v1.1.0 (053a24a4):
- * https://github.com/inspect-js/is-bigint/blob/053a24a40506e5f90e12e265583f65575d4f5703/test/index.js
+ * @file Tests for is-bigint NPM package override. Ported 1:1 from upstream
+ *   v1.1.0 (053a24a4):
+ *   https://github.com/inspect-js/is-bigint/blob/053a24a40506e5f90e12e265583f65575d4f5703/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

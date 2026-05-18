@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for which-typed-array NPM package override.
- * Ported 1:1 from upstream v1.1.20 (2710ad21):
- * https://github.com/inspect-js/which-typed-array/blob/2710ad21/test/index.js
+ * @file Tests for which-typed-array NPM package override. Ported 1:1 from
+ *   upstream v1.1.20 (2710ad21):
+ *   https://github.com/inspect-js/which-typed-array/blob/2710ad21/test/index.js.
  */
 import { describe, expect, it } from 'vitest'
 

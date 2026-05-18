@@ -1,4 +1,7 @@
-/** @fileoverview Display GitHub Actions dependency tree showing direct and transitive dependencies. */
+/**
+ * @file Display GitHub Actions dependency tree showing direct and transitive
+ *   dependencies.
+ */
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'

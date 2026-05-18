@@ -1,5 +1,5 @@
 /**
- * @fileoverview Tests for @socketsecurity/registry package.
+ * @file Tests for @socketsecurity/registry package.
  */
 
 import { describe, expect, it } from 'vitest'

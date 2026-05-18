@@ -1,6 +1,6 @@
 /**
- * @fileoverview Global setup for Vitest.
- * Ensures necessary directories exist before running tests.
+ * @file Global setup for Vitest. Ensures necessary directories exist before
+ *   running tests.
  */
 
 import { mkdir } from 'node:fs/promises'

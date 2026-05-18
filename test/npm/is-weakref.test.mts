@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for is-weakref NPM package override.
- * Ported 1:1 from upstream v1.1.1 (d20d4798):
- * https://github.com/inspect-js/is-weakref/blob/d20d47987837a1178a83893b8766e8ec0cc574e4/test/index.js
+ * @file Tests for is-weakref NPM package override. Ported 1:1 from upstream
+ *   v1.1.1 (d20d4798):
+ *   https://github.com/inspect-js/is-weakref/blob/d20d47987837a1178a83893b8766e8ec0cc574e4/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

@@ -1,6 +1,6 @@
 /**
- * @fileoverview Helper utilities for common test assertions.
- * Provides reusable assertion patterns for cleaner tests.
+ * @file Helper utilities for common test assertions. Provides reusable
+ *   assertion patterns for cleaner tests.
  */
 
 /**

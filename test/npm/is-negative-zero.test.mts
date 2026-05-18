@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for is-negative-zero NPM package override.
- * Ported 1:1 from upstream v2.0.3 (8a42c03b):
- * https://github.com/inspect-js/is-negative-zero/blob/8a42c03bc623e5ceaf3f6e9e001a36d99e019649/test/index.js
+ * @file Tests for is-negative-zero NPM package override. Ported 1:1 from
+ *   upstream v2.0.3 (8a42c03b):
+ *   https://github.com/inspect-js/is-negative-zero/blob/8a42c03bc623e5ceaf3f6e9e001a36d99e019649/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

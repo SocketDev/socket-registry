@@ -1,6 +1,6 @@
 /**
- * @fileoverview Registry manifest generation and updating script.
- * Creates and maintains the Socket registry manifest file with package metadata.
+ * @file Registry manifest generation and updating script. Creates and maintains
+ *   the Socket registry manifest file with package metadata.
  */
 
 import { promises as fs } from 'node:fs'

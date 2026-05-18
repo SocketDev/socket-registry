@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for isarray NPM package override.
- * Ported 1:1 from upstream v2.0.5 (juliangruber/isarray):
- * https://github.com/juliangruber/isarray/blob/v2.0.5/test.js
+ * @file Tests for isarray NPM package override. Ported 1:1 from upstream v2.0.5
+ *   (juliangruber/isarray):
+ *   https://github.com/juliangruber/isarray/blob/v2.0.5/test.js.
  */
 
 import { describe, expect, it } from 'vitest'

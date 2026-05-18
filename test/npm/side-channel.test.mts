@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for side-channel NPM package override.
- * Ported 1:1 from upstream v1.1.0 (26e368c3):
- * https://github.com/ljharb/side-channel/blob/26e368c3/test/index.js
+ * @file Tests for side-channel NPM package override. Ported 1:1 from upstream
+ *   v1.1.0 (26e368c3):
+ *   https://github.com/ljharb/side-channel/blob/26e368c3/test/index.js.
  */
 import { describe, expect, it } from 'vitest'
 

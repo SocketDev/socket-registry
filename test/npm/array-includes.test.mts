@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for array-includes NPM package override.
- * Ported 1:1 from upstream v3.1.9 (afad86453393b4bde08e2ce692909078d5bccefa):
- * https://github.com/es-shims/array-includes/blob/afad86453393b4bde08e2ce692909078d5bccefa/test/tests.js
+ * @file Tests for array-includes NPM package override. Ported 1:1 from upstream
+ *   v3.1.9 (afad86453393b4bde08e2ce692909078d5bccefa):
+ *   https://github.com/es-shims/array-includes/blob/afad86453393b4bde08e2ce692909078d5bccefa/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

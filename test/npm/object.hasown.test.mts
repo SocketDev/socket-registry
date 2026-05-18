@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for object.hasown NPM package override.
- * Ported 1:1 from upstream v1.1.4 (4e44c2dd):
- * https://github.com/es-shims/Object.hasOwn/blob/4e44c2ddaedaa40c4054383b80209797555b54a6/test/tests.js
+ * @file Tests for object.hasown NPM package override. Ported 1:1 from upstream
+ *   v1.1.4 (4e44c2dd):
+ *   https://github.com/es-shims/Object.hasOwn/blob/4e44c2ddaedaa40c4054383b80209797555b54a6/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

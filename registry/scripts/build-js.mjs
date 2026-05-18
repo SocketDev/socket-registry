@@ -1,6 +1,6 @@
 /**
- * @fileoverview JavaScript compilation using esbuild (10x faster than tsgo)
- * This replaces tsgo for JS compilation while keeping tsgo for declarations
+ * @file JavaScript compilation using esbuild (10x faster than tsgo) This
+ *   replaces tsgo for JS compilation while keeping tsgo for declarations.
  */
 import { existsSync, statSync } from 'node:fs'
 import path from 'node:path'
@@ -31,7 +31,7 @@ const isWatch = process.argv.includes('--watch')
 const isNeeded = process.argv.includes('--needed')
 
 /**
- * Standard build for production
+ * Standard build for production.
  */
 export async function buildJS() {
   try {

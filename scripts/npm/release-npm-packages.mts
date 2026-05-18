@@ -1,7 +1,9 @@
 /* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
 /* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (state.warnings / state.changes / Object.entries); the cached-length rewrite would be incorrect. */
 
-/** @fileoverview Detect package changes and bump versions for npm release. */
+/**
+ * @file Detect package changes and bump versions for npm release.
+ */
 
 import crypto from 'node:crypto'
 import { promises as fs } from 'node:fs'

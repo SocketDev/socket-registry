@@ -1,5 +1,5 @@
 /**
- * @fileoverview Glob matching utilities for scripts.
+ * @file Glob matching utilities for scripts.
  */
 
 import { minimatch } from 'minimatch'

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for object.values NPM package override.
- * Ported 1:1 from upstream v1.2.0 (7ac272ed):
- * https://github.com/es-shims/Object.values/blob/7ac272edeabd13b4ea662e71a2612358b28cfbce/test/tests.js
+ * @file Tests for object.values NPM package override. Ported 1:1 from upstream
+ *   v1.2.0 (7ac272ed):
+ *   https://github.com/es-shims/Object.values/blob/7ac272edeabd13b4ea662e71a2612358b28cfbce/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

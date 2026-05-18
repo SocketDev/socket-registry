@@ -1,8 +1,8 @@
 /* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
 
 /**
- * @fileoverview Build script for socket-registry monorepo.
- * Delegates to the registry package build with proper flag handling.
+ * @file Build script for socket-registry monorepo. Delegates to the registry
+ *   package build with proper flag handling.
  */
 
 import path from 'node:path'

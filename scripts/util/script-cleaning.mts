@@ -1,4 +1,6 @@
-/** @fileoverview Test script cleaning utilities for normalizing test commands. */
+/**
+ * @file Test script cleaning utilities for normalizing test commands.
+ */
 
 /**
  * Clean test script by removing unsupported flags and pre/post actions.

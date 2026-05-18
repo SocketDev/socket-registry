@@ -1,27 +1,27 @@
 #!/usr/bin/env node
 /* oxlint-disable socket/prefer-cached-for-loop -- iterates Object.entries() of platform/tool config maps; the cached-length rewrite would be incorrect. */
 /**
- * Update the repo-root `external-tools.json` to pick up new releases
- * of every tool listed with `"release": "asset"` (today: pnpm, zizmor).
+ * Update the repo-root `external-tools.json` to pick up new releases of every
+ * tool listed with `"release": "asset"` (today: pnpm, zizmor).
  *
  * Contract for this file:
- * - Read minimumReleaseAge from pnpm-workspace.yaml (minutes → ms).
- *   Skip releases younger than the cooldown window to dodge malicious
- *   fresh uploads (matches `.claude/hooks/setup-security-tools/update.mts`
- *   behavior).
- * - For each tool, hit `repos/<owner>/<name>/releases/latest`.
- *   Compare `tag_name` (stripping any leading `v`) against the pinned
- *   `version`. If newer AND past cooldown, download every listed
- *   platform asset, recompute sha256, and rewrite the entry.
- * - Invoked by the `updating` umbrella skill; runnable standalone via
- *   `pnpm run update:external-tools` (exposed in package.json).
+ *
+ * - Read minimumReleaseAge from pnpm-workspace.yaml (minutes → ms). Skip releases
+ *   younger than the cooldown window to dodge malicious fresh uploads (matches
+ *   `.claude/hooks/setup-security-tools/update.mts` behavior).
+ * - For each tool, hit `repos/<owner>/<name>/releases/latest`. Compare `tag_name`
+ *   (stripping any leading `v`) against the pinned `version`. If newer AND past
+ *   cooldown, download every listed platform asset, recompute sha256, and
+ *   rewrite the entry.
+ * - Invoked by the `updating` umbrella skill; runnable standalone via `pnpm run
+ *   update:external-tools` (exposed in package.json).
  * - Exits 0 on success, 1 on any HTTP / parse / download failure.
  *
  * The sibling script under `.claude/hooks/setup-security-tools/update.mts`
- * targets a DIFFERENT file (the hook's colocated tools manifest) and
- * has a different schema. Keep the two independent — merging would
- * require either schema convergence or conditional code paths and the
- * benefit is minimal since each script only handles 2–3 tools.
+ * targets a DIFFERENT file (the hook's colocated tools manifest) and has a
+ * different schema. Keep the two independent — merging would require either
+ * schema convergence or conditional code paths and the benefit is minimal since
+ * each script only handles 2–3 tools.
  */
 
 import crypto from 'node:crypto'
@@ -227,10 +227,9 @@ interface UpdateResult {
 }
 
 /**
- * Recompute every checksum in the supplied map against the resolved
- * GitHub release. Mutates the map in place and returns a fresh object
- * with the new entries. Shared by the single-flavor and per-flavor
- * code paths.
+ * Recompute every checksum in the supplied map against the resolved GitHub
+ * release. Mutates the map in place and returns a fresh object with the new
+ * entries. Shared by the single-flavor and per-flavor code paths.
  */
 export async function recomputeChecksums(
   label: string,

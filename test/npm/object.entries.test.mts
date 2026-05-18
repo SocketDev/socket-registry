@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for object.entries NPM package override.
- * Ported 1:1 from upstream v1.1.8 (cff1adb0):
- * https://github.com/es-shims/Object.entries/blob/cff1adb0bb7340cad95fe34bb5ea9989cd1f7c1e/test/tests.js
+ * @file Tests for object.entries NPM package override. Ported 1:1 from upstream
+ *   v1.1.8 (cff1adb0):
+ *   https://github.com/es-shims/Object.entries/blob/cff1adb0bb7340cad95fe34bb5ea9989cd1f7c1e/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

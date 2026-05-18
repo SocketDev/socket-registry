@@ -1,5 +1,5 @@
 /**
- * @fileoverview Core constants used across build scripts.
+ * @file Core constants used across build scripts.
  */
 
 export const BIOME_JSON = 'biome.json'

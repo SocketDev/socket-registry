@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for is-nan NPM package override.
- * Ported 1:1 from upstream v1.3.2 (96ed4e7b):
- * https://github.com/es-shims/is-nan/blob/96ed4e7bf4482c535782ced50f2eca11fce55d42/test/tests.js
+ * @file Tests for is-nan NPM package override. Ported 1:1 from upstream v1.3.2
+ *   (96ed4e7b):
+ *   https://github.com/es-shims/is-nan/blob/96ed4e7bf4482c535782ced50f2eca11fce55d42/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

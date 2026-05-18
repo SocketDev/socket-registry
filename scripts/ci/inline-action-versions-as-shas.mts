@@ -1,4 +1,6 @@
-/** @fileoverview Convert GitHub Actions tags/branches to commit SHAs in workflow files. */
+/**
+ * @file Convert GitHub Actions tags/branches to commit SHAs in workflow files.
+ */
 /* oxlint-disable socket/prefer-cached-for-loop -- iterates `usesStatements.slice().reverse()` / non-array iterables; the cached-length rewrite would be incorrect or lose the reverse pass. */
 
 import { existsSync, promises as fs } from 'node:fs'

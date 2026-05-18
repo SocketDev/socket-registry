@@ -1,19 +1,27 @@
 {
   "name": "@socketregistry/<%= it.name %>",
   "version": "<%= it.version %>",
-  "license": "MIT",
   "description": "Socket.dev optimized package override for <%= it.originalName %>",
   "keywords": [
     "Socket.dev",
     "package-overrides"
   ],
   "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/<%= it.name %>",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",
     "directory": "packages/npm/<%= it.name %>"
   },
+  "files": [
+    "*.d.cts",
+    "*.d.mts",
+    "*.d.ts",
+    "*.cjs",
+    "*.js"
+  ],
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "node": {
@@ -39,17 +47,9 @@
     "./index.d.mts": "./index.d.mts",
     "./package.json": "./package.json"
   },
-  "sideEffects": false,
   "engines": {
     "node": "<%~ it.engines.node %>"
   },
-  "files": [
-    "*.d.cts",
-    "*.d.mts",
-    "*.d.ts",
-    "*.cjs",
-    "*.js"
-  ],
   "socket": {
     "categories": "//_ <%~ JSON.stringify(it.categories) %>"
   }

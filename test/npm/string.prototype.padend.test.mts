@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for string.prototype.padend NPM package override.
- * Ported 1:1 from upstream v3.1.6 (674778e9):
- * https://github.com/es-shims/String.prototype.padEnd/blob/674778e9/test/tests.js
+ * @file Tests for string.prototype.padend NPM package override. Ported 1:1 from
+ *   upstream v3.1.6 (674778e9):
+ *   https://github.com/es-shims/String.prototype.padEnd/blob/674778e9/test/tests.js.
  */
 import { describe, expect, it } from 'vitest'
 

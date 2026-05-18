@@ -1,4 +1,6 @@
-/** @fileoverview Taze wrapper that errors on provenance downgrades. */
+/**
+ * @file Taze wrapper that errors on provenance downgrades.
+ */
 
 import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'

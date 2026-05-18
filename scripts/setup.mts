@@ -1,13 +1,9 @@
 /* oxlint-disable socket/prefer-cached-for-loop -- iterates Object.entries() of a tool-config map; the cached-length rewrite would be incorrect. */
 /**
- * @fileoverview Developer setup script.
- *
- * Checks prerequisites and installs pinned external tools
- * (currently: zizmor for GitHub Actions security scanning).
- *
- * Usage:
- *   pnpm run setup                # Check prerequisites, install tools
- *   pnpm run setup --quiet        # Minimal output (for postinstall)
+ * @file Developer setup script. Checks prerequisites and installs pinned
+ *   external tools (currently: zizmor for GitHub Actions security scanning).
+ *   Usage: pnpm run setup # Check prerequisites, install tools pnpm run setup
+ *   --quiet # Minimal output (for postinstall)
  */
 
 import crypto from 'node:crypto'

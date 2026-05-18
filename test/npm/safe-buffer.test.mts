@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for safe-buffer NPM package override.
- * Ported 1:1 from upstream v5.2.1 (c937d657):
- * https://github.com/feross/safe-buffer/blob/c937d657/test/basic.js
+ * @file Tests for safe-buffer NPM package override. Ported 1:1 from upstream
+ *   v5.2.1 (c937d657):
+ *   https://github.com/feross/safe-buffer/blob/c937d657/test/basic.js.
  */
 import { describe, expect, it } from 'vitest'
 

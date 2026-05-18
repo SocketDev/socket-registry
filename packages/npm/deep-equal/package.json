@@ -1,18 +1,28 @@
 {
   "name": "@socketregistry/deep-equal",
   "version": "1.0.22",
-  "license": "MIT",
   "description": "Socket.dev optimized package override for deep-equal",
   "keywords": [
     "Socket.dev",
     "package-overrides"
   ],
   "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/deep-equal",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",
     "directory": "packages/npm/deep-equal"
   },
+  "files": [
+    "*.d.cts",
+    "*.d.ts",
+    "*.cjs",
+    "*.js",
+    "**/*.js",
+    "**/LICENSE",
+    "**/LICENSE.original"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "node": {
@@ -30,7 +40,10 @@
     },
     "./package.json": "./package.json"
   },
-  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "dependencies": {
     "array-buffer-byte-length": "npm:@socketregistry/array-buffer-byte-length@^1.0.7",
     "es-get-iterator": "npm:@socketregistry/es-get-iterator@^1.0.8",
@@ -52,22 +65,9 @@
   "engines": {
     "node": ">=18"
   },
-  "files": [
-    "*.d.cts",
-    "*.d.ts",
-    "*.cjs",
-    "*.js",
-    "**/*.js",
-    "**/LICENSE",
-    "**/LICENSE.original"
-  ],
   "socket": {
     "categories": [
       "cleanup"
     ]
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
   }
 }

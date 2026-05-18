@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * @fileoverview Run vitest on test/npm/ packages with INCLUDE_NPM_TESTS set
- * so vitest config includes test/npm/.
+ * @file Run vitest on test/npm/ packages with INCLUDE_NPM_TESTS set so vitest
+ *   config includes test/npm/.
  */
 import { spawn } from '@socketsecurity/lib-stable/spawn'
 

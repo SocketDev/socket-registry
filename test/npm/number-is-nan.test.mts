@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for number-is-nan NPM package override.
- * Ported 1:1 from upstream v1.0.1 (8982e8c4):
- * https://github.com/sindresorhus/number-is-nan/blob/8982e8c42c724434bfa107f8bb65c19d4b16930d/test.js
+ * @file Tests for number-is-nan NPM package override. Ported 1:1 from upstream
+ *   v1.0.1 (8982e8c4):
+ *   https://github.com/sindresorhus/number-is-nan/blob/8982e8c42c724434bfa107f8bb65c19d4b16930d/test.js.
  */
 
 import { describe, expect, it } from 'vitest'

@@ -1,20 +1,16 @@
 /* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Object.entries); the cached-length rewrite would be incorrect. */
 /**
- * @fileoverview Print the pinned version of a Socket package to
- * stdout, reading from (in order):
+ * @file Print the pinned version of a Socket package to stdout, reading from
+ *   (in order):
+ *
  *   1. pnpm-workspace.yaml `catalog:` entries
- *   2. Root package.json `dependencies` / `devDependencies`
- *      (skipping "catalog:" / "workspace:" / "*" / "" placeholders)
- *
- * Prints the empty string if not pinned (caller decides what to do).
- *
- * Usage:
- *   node read-pinned-version.mts <package-name>
- *
- * Used by the setup composite action's bootstrap step. Kept as a
- * standalone .mts file (rather than an inline `node -e "..."` blob
- * in action.yml) so the YAML stays readable and the parsing logic
- * is testable.
+ *   2. Root package.json `dependencies` / `devDependencies` (skipping "catalog:" /
+ *      "workspace:" / "*" / "" placeholders) Prints the empty string if not
+ *      pinned (caller decides what to do). Usage: node read-pinned-version.mts
+ *      <package-name> Used by the setup composite action's bootstrap step. Kept
+ *      as a standalone .mts file (rather than an inline `node -e "..."` blob in
+ *      action.yml) so the YAML stays readable and the parsing logic is
+ *      testable.
  */
 
 import { existsSync, readFileSync } from 'node:fs'
@@ -58,7 +54,6 @@ const fromCatalog = (pkg: string): string | undefined => {
     if (m && m[1] === pkg) {
       return stripRange(m[2]!)
     }
-  
   }
   return undefined
 }

@@ -1,15 +1,10 @@
 /**
- * @fileoverview Check script for the registry.
- * Runs all quality checks in parallel:
- * - Linting (via lint command)
- * - TypeScript type checking
+ * @file Check script for the registry. Runs all quality checks in parallel:
  *
- * Usage:
- *   node scripts/check.mts [options]
- *
- * Options:
- *   --all      Run on all files (default behavior)
- *   --staged   Run on staged files only
+ *   - Linting (via lint command)
+ *   - TypeScript type checking Usage: node scripts/check.mts [options] Options:
+ *     --all Run on all files (default behavior) --staged Run on staged files
+ *     only
  */
 
 import { existsSync } from 'node:fs'

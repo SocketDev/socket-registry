@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for has NPM package override.
- * Ported 1:1 from upstream v1.0.4 (50e19324):
- * https://github.com/tarruda/has/blob/50e19324b8aeb19b4534d5f4e38bba1405463bc1/test/index.js
+ * @file Tests for has NPM package override. Ported 1:1 from upstream v1.0.4
+ *   (50e19324):
+ *   https://github.com/tarruda/has/blob/50e19324b8aeb19b4534d5f4e38bba1405463bc1/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

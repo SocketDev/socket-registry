@@ -1,6 +1,6 @@
 /**
- * @fileoverview Validates that esbuild configuration has minify: false.
- * Minification breaks ESM/CJS interop and makes debugging harder.
+ * @file Validates that esbuild configuration has minify: false. Minification
+ *   breaks ESM/CJS interop and makes debugging harder.
  */
 
 import path from 'node:path'

@@ -1,6 +1,6 @@
 /**
- * @fileoverview Maps changed source files to test files for affected test running.
- * Uses git utilities from @socketsecurity/lib-stable to detect changes.
+ * @file Maps changed source files to test files for affected test running. Uses
+ *   git utilities from @socketsecurity/lib-stable to detect changes.
  */
 
 import { existsSync } from 'node:fs'
@@ -38,10 +38,10 @@ interface TestsToRunResult {
 }
 
 /**
- * Get affected test files to run based on changed files.
- * Returns 'all' in CI, when explicitly requested, or when structural files change.
- * Returns undefined if no relevant changes detected.
- * Returns a list of specific test files otherwise.
+ * Get affected test files to run based on changed files. Returns 'all' in CI,
+ * when explicitly requested, or when structural files change. Returns undefined
+ * if no relevant changes detected. Returns a list of specific test files
+ * otherwise.
  *
  * @throws {Error} When root path does not exist.
  */

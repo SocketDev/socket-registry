@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for array.prototype.flat NPM package override.
- * Ported 1:1 from upstream v1.3.3 (a0fa5660c4b1cf49ca9833329ca98aa8e956ed50):
- * https://github.com/es-shims/Array.prototype.flat/blob/a0fa5660c4b1cf49ca9833329ca98aa8e956ed50/test/tests.js
+ * @file Tests for array.prototype.flat NPM package override. Ported 1:1 from
+ *   upstream v1.3.3 (a0fa5660c4b1cf49ca9833329ca98aa8e956ed50):
+ *   https://github.com/es-shims/Array.prototype.flat/blob/a0fa5660c4b1cf49ca9833329ca98aa8e956ed50/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

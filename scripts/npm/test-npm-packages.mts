@@ -1,6 +1,9 @@
 /* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
 
-/** @fileoverview Test script for npm packages that handles downloading, installing, and testing. */
+/**
+ * @file Test script for npm packages that handles downloading, installing, and
+ *   testing.
+ */
 
 import os from 'node:os'
 import path from 'node:path'

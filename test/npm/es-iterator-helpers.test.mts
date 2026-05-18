@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for es-iterator-helpers NPM package override.
- * Ported 1:1 from upstream v1.3.2 (1a9241c3):
- * https://github.com/es-shims/iterator-helpers/blob/1a9241c33779dce25110474feedb2c4a1b15c7ff/test/Iterator.js
+ * @file Tests for es-iterator-helpers NPM package override. Ported 1:1 from
+ *   upstream v1.3.2 (1a9241c3):
+ *   https://github.com/es-shims/iterator-helpers/blob/1a9241c33779dce25110474feedb2c4a1b15c7ff/test/Iterator.js.
  */
 
 import path from 'node:path'

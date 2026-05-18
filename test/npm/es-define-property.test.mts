@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for es-define-property NPM package override.
- * Ported 1:1 from upstream v1.0.1 (50ef129225ae17336a774f0eefc4e6bc88c79b8e):
- * https://github.com/ljharb/es-define-property/blob/50ef129225ae17336a774f0eefc4e6bc88c79b8e/test/index.js
+ * @file Tests for es-define-property NPM package override. Ported 1:1 from
+ *   upstream v1.0.1 (50ef129225ae17336a774f0eefc4e6bc88c79b8e):
+ *   https://github.com/ljharb/es-define-property/blob/50ef129225ae17336a774f0eefc4e6bc88c79b8e/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

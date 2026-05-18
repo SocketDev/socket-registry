@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for array-buffer-byte-length NPM package override.
- * Ported 1:1 from upstream v1.0.2 (59deea89141b4aeeb64122e5e15efda485942c00):
- * https://github.com/inspect-js/array-buffer-byte-length/blob/59deea89141b4aeeb64122e5e15efda485942c00/test/index.js
+ * @file Tests for array-buffer-byte-length NPM package override. Ported 1:1
+ *   from upstream v1.0.2 (59deea89141b4aeeb64122e5e15efda485942c00):
+ *   https://github.com/inspect-js/array-buffer-byte-length/blob/59deea89141b4aeeb64122e5e15efda485942c00/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

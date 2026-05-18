@@ -1,5 +1,5 @@
 /**
- * @fileoverview Tests for abab NPM package override.
+ * @file Tests for abab NPM package override.
  */
 
 import { describe, expect, it } from 'vitest'

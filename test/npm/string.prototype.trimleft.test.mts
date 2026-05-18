@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for string.prototype.trimleft NPM package override.
- * Ported 1:1 from upstream v2.1.3 (ff9bea31):
- * https://github.com/es-shims/String.prototype.trimLeft/blob/ff9bea31/test/tests.js
+ * @file Tests for string.prototype.trimleft NPM package override. Ported 1:1
+ *   from upstream v2.1.3 (ff9bea31):
+ *   https://github.com/es-shims/String.prototype.trimLeft/blob/ff9bea31/test/tests.js.
  */
 import { describe, expect, it } from 'vitest'
 

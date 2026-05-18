@@ -1,6 +1,6 @@
 /**
- * @fileoverview Helper for NPM package testing.
- * Loads override modules directly from packages/npm/ without installing.
+ * @file Helper for NPM package testing. Loads override modules directly from
+ *   packages/npm/ without installing.
  */
 
 import path from 'node:path'

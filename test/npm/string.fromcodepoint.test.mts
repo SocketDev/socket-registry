@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for string.fromcodepoint NPM package override.
- * Ported 1:1 from upstream v1.0.3 (e3cfae0b):
- * https://github.com/mathiasbynens/String.fromCodePoint/blob/e3cfae0b/tests/tests.js
+ * @file Tests for string.fromcodepoint NPM package override. Ported 1:1 from
+ *   upstream v1.0.3 (e3cfae0b):
+ *   https://github.com/mathiasbynens/String.fromCodePoint/blob/e3cfae0b/tests/tests.js.
  */
 import { describe, expect, it } from 'vitest'
 

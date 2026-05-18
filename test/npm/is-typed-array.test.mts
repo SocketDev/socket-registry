@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for is-typed-array NPM package override.
- * Ported 1:1 from upstream v1.1.15 (4f2611d5):
- * https://github.com/inspect-js/is-typed-array/blob/4f2611d57b40760c01748181c4685c37145c6521/test/index.js
+ * @file Tests for is-typed-array NPM package override. Ported 1:1 from upstream
+ *   v1.1.15 (4f2611d5):
+ *   https://github.com/inspect-js/is-typed-array/blob/4f2611d57b40760c01748181c4685c37145c6521/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

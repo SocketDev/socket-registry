@@ -1,4 +1,6 @@
-/** @fileoverview Publish npm packages with version bump detection and retry logic. */
+/**
+ * @file Publish npm packages with version bump detection and retry logic.
+ */
 /* max-file-lines: legitimate — single end-to-end publish workflow (version detection + retry + GH release); splitting would fragment one phased pipeline across three files. */
 
 import path from 'node:path'
@@ -204,6 +206,7 @@ export function packageData(data) {
 
 /**
  * Publish package using npm with OIDC trusted publishing.
+ *
  * @throws {TypeError} When state parameter is not an object.
  */
 export async function publish(pkg, state, options) {
@@ -372,6 +375,7 @@ export async function publishAtCommit(sha) {
 
 /**
  * Publish multiple packages with concurrency control.
+ *
  * @throws {TypeError} When state parameter is not an object.
  */
 export async function publishPackages(packages, state, options) {
@@ -390,6 +394,7 @@ export async function publishPackages(packages, state, options) {
 
 /**
  * Publish package using npm with OIDC trusted publishing.
+ *
  * @throws {TypeError} When state parameter is not an object.
  */
 export async function publishTrusted(pkg, state, options) {

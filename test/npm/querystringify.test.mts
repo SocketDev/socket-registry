@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for querystringify NPM package override.
- * Ported 1:1 from upstream v2.2.0 (73db95a5):
- * https://github.com/unshiftio/querystringify/blob/73db95a504f988dce3f790e174e298ceb2b46a8e/test.js
+ * @file Tests for querystringify NPM package override. Ported 1:1 from upstream
+ *   v2.2.0 (73db95a5):
+ *   https://github.com/unshiftio/querystringify/blob/73db95a504f988dce3f790e174e298ceb2b46a8e/test.js.
  */
 
 import { describe, expect, it } from 'vitest'

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for is-arguments NPM package override.
- * Ported 1:1 from upstream v1.2.0 (8d6e11a8):
- * https://github.com/inspect-js/is-arguments/blob/8d6e11a8f6b2616a70ada0da45c3ee860c633af6/test/index.js
+ * @file Tests for is-arguments NPM package override. Ported 1:1 from upstream
+ *   v1.2.0 (8d6e11a8):
+ *   https://github.com/inspect-js/is-arguments/blob/8d6e11a8f6b2616a70ada0da45c3ee860c633af6/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

@@ -1,4 +1,6 @@
-/** @fileoverview Utility to suppress specific process warnings. */
+/**
+ * @file Utility to suppress specific process warnings.
+ */
 
 import process from 'node:process'
 
@@ -11,8 +13,8 @@ let originalEmitWarning
 const suppressedWarnings = new Set()
 
 /**
- * Internal function to set up warning suppression.
- * Only wraps process.emitWarning once, regardless of how many times it's called.
+ * Internal function to set up warning suppression. Only wraps
+ * process.emitWarning once, regardless of how many times it's called.
  */
 export function setupSuppression() {
   // Only wrap once - store the original on first call.
@@ -41,8 +43,8 @@ export function setupSuppression() {
 }
 
 /**
- * Restore the original process.emitWarning function.
- * Call this to re-enable all warnings after suppressing them.
+ * Restore the original process.emitWarning function. Call this to re-enable all
+ * warnings after suppressing them.
  */
 export function restoreWarnings() {
   if (originalEmitWarning) {
@@ -56,11 +58,10 @@ export function restoreWarnings() {
  * Set max listeners on an EventTarget (like AbortSignal) to avoid TypeError.
  *
  * By manually setting `kMaxEventTargetListeners` on the target we avoid:
- *   TypeError [ERR_INVALID_ARG_TYPE]: The "emitter" argument must be an
- *   instance of EventEmitter or EventTarget. Received an instance of
- *   AbortSignal
+ * TypeError [ERR_INVALID_ARG_TYPE]: The "emitter" argument must be an instance
+ * of EventEmitter or EventTarget. Received an instance of AbortSignal.
  *
- * in some patch releases of Node 18-23 when calling events.getMaxListeners().
+ * In some patch releases of Node 18-23 when calling events.getMaxListeners().
  * See https://github.com/nodejs/node/pull/56807.
  *
  * Instead of calling events.setMaxListeners(n, target) we set the symbol
@@ -79,8 +80,8 @@ export function setMaxEventTargetListeners(target, maxListeners = 10) {
 }
 
 /**
- * Suppress MaxListenersExceededWarning messages.
- * This is useful in tests or scripts where multiple listeners are expected.
+ * Suppress MaxListenersExceededWarning messages. This is useful in tests or
+ * scripts where multiple listeners are expected.
  */
 export function suppressMaxListenersWarning() {
   suppressedWarnings.add('MaxListenersExceededWarning')

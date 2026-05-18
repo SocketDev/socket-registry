@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for is-shared-array-buffer NPM package override.
- * Ported 1:1 from upstream v1.0.4 (9ccbf054):
- * https://github.com/inspect-js/is-shared-array-buffer/blob/9ccbf054625ea8b05f753bec04a510f091147d2b/test/index.js
+ * @file Tests for is-shared-array-buffer NPM package override. Ported 1:1 from
+ *   upstream v1.0.4 (9ccbf054):
+ *   https://github.com/inspect-js/is-shared-array-buffer/blob/9ccbf054625ea8b05f753bec04a510f091147d2b/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

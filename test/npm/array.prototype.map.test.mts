@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for array.prototype.map NPM package override.
- * Ported 1:1 from upstream v1.0.8 (3e6c614156e4efa3d0c8007c49712ee64333a314):
- * https://github.com/es-shims/Array.prototype.map/blob/3e6c614156e4efa3d0c8007c49712ee64333a314/test/tests.js
+ * @file Tests for array.prototype.map NPM package override. Ported 1:1 from
+ *   upstream v1.0.8 (3e6c614156e4efa3d0c8007c49712ee64333a314):
+ *   https://github.com/es-shims/Array.prototype.map/blob/3e6c614156e4efa3d0c8007c49712ee64333a314/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

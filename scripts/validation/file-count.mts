@@ -1,10 +1,9 @@
 /**
- * @fileoverview Validates that commits don't contain too many files.
+ * @file Validates that commits don't contain too many files. Rules:
  *
- * Rules:
- * - No single commit should contain 50+ files
- * - Helps catch accidentally staging too many files or generated content
- * - Prevents overly large commits that are hard to review
+ *   - No single commit should contain 50+ files
+ *   - Helps catch accidentally staging too many files or generated content
+ *   - Prevents overly large commits that are hard to review
  */
 
 import path from 'node:path'

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for regexp.prototype.flags NPM package override.
- * Ported 1:1 from upstream v1.5.4 (8e2eeaab):
- * https://github.com/es-shims/RegExp.prototype.flags/blob/8e2eeaabb66e005d34c9508ab6d83456ff1d4010/test/tests.js
+ * @file Tests for regexp.prototype.flags NPM package override. Ported 1:1 from
+ *   upstream v1.5.4 (8e2eeaab):
+ *   https://github.com/es-shims/RegExp.prototype.flags/blob/8e2eeaabb66e005d34c9508ab6d83456ff1d4010/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

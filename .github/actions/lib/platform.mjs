@@ -1,17 +1,13 @@
 /* oxlint-disable socket/no-console-prefer-logger -- composite action helper, runs on raw runner before setup-node (no node_modules) */
 /**
- * @fileoverview Prints the canonical Socket platform string for this runner.
- *
- * Output: linux-x64, linux-arm64, linux-x64-musl, linux-arm64-musl,
- * darwin-x64, darwin-arm64, win-x64, win-arm64.
- *
- * Replaces the uname + ldd dance repeated across action steps. Node
- * gives us platform/arch directly, and `process.report` exposes libc
- * (glibcVersionRuntime is the string "musl" on musl Node, otherwise
- * a glibc version number). No shelling out.
- *
- * Usage: node .github/actions/lib/platform.mjs
- * Exits non-zero on unsupported platform/arch.
+ * @file Prints the canonical Socket platform string for this runner. Output:
+ *   linux-x64, linux-arm64, linux-x64-musl, linux-arm64-musl, darwin-x64,
+ *   darwin-arm64, win-x64, win-arm64. Replaces the uname + ldd dance repeated
+ *   across action steps. Node gives us platform/arch directly, and
+ *   `process.report` exposes libc (glibcVersionRuntime is the string "musl" on
+ *   musl Node, otherwise a glibc version number). No shelling out. Usage: node
+ *   .github/actions/lib/platform.mjs Exits non-zero on unsupported
+ *   platform/arch.
  */
 
 import { existsSync, readdirSync } from 'node:fs'

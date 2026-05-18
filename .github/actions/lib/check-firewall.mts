@@ -3,25 +3,17 @@
 
 /* oxlint-disable socket/no-fetch-prefer-http-request -- composite action helper, runs on raw runner before setup-node (no node_modules) */
 /**
- * @fileoverview Check a Socket package against the firewall API
- * before downloading its tarball directly from the npm registry.
- *
- * Endpoint: GET https://firewall-api.socket.dev/purl/<encoded-purl>
- * Response: { alerts?: [{ severity?, type?, key? }, ...] }
- *
- * Socket Firewall is a malware detector. The API returns alerts only
- * when a package is flagged as malicious — there's no "minor severity
- * informational alert" tier. ANY alert in the response means malware,
- * regardless of severity / type / key fields. Block unconditionally.
- *
- * Exits 0 if the firewall returned no alerts, OR if the firewall is
- * unreachable / non-2xx (non-fatal so a network blip doesn't break a
- * fresh clone).
- *
- * Exits 1 if the firewall returned any alert at all.
- *
- * Usage:
- *   node check-firewall.mts <package-name> <version>
+ * @file Check a Socket package against the firewall API before downloading its
+ *   tarball directly from the npm registry. Endpoint: GET
+ *   https://firewall-api.socket.dev/purl/<encoded-purl> Response: { alerts?: [{
+ *   severity?, type?, key? }, ...] } Socket Firewall is a malware detector. The
+ *   API returns alerts only when a package is flagged as malicious — there's no
+ *   "minor severity informational alert" tier. ANY alert in the response means
+ *   malware, regardless of severity / type / key fields. Block unconditionally.
+ *   Exits 0 if the firewall returned no alerts, OR if the firewall is
+ *   unreachable / non-2xx (non-fatal so a network blip doesn't break a fresh
+ *   clone). Exits 1 if the firewall returned any alert at all. Usage: node
+ *   check-firewall.mts <package-name> <version>
  */
 
 import { argv, exit, stderr, stdout } from 'node:process'
@@ -29,9 +21,7 @@ import { argv, exit, stderr, stdout } from 'node:process'
 const pkgName = argv[2]
 const version = argv[3]
 if (!pkgName || !version) {
-  stderr.write(
-    'Usage: node check-firewall.mts <package-name> <version>\n',
-  )
+  stderr.write('Usage: node check-firewall.mts <package-name> <version>\n')
   exit(2)
 }
 

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for object.getprototypeof NPM package override.
- * Ported 1:1 from upstream v1.0.7 (9efa3c7f):
- * https://github.com/es-shims/Object.getPrototypeOf/blob/9efa3c7f024b20f065ac420c4fa168ea7c3ce6c6/test/tests.js
+ * @file Tests for object.getprototypeof NPM package override. Ported 1:1 from
+ *   upstream v1.0.7 (9efa3c7f):
+ *   https://github.com/es-shims/Object.getPrototypeOf/blob/9efa3c7f024b20f065ac420c4fa168ea7c3ce6c6/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

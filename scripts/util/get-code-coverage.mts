@@ -1,4 +1,6 @@
-/** @fileoverview Utility to generate and calculate code coverage metrics. */
+/**
+ * @file Utility to generate and calculate code coverage metrics.
+ */
 /* oxlint-disable socket/prefer-cached-for-loop -- iterates Object.values() of a coverage map; the cached-length rewrite would be incorrect. */
 import { existsSync } from 'node:fs'
 import path from 'node:path'
@@ -20,6 +22,7 @@ export function countCovered(counts) {
 
 /**
  * Get code coverage metrics from c8 coverage data.
+ *
  * @throws {Error} When coverage generation fails or data is invalid.
  */
 export async function getCodeCoverage(options) {

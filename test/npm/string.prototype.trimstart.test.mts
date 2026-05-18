@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for string.prototype.trimstart NPM package override.
- * Ported 1:1 from upstream v1.0.8 (e0ebce2a):
- * https://github.com/es-shims/String.prototype.trimStart/blob/e0ebce2a/test/tests.js
+ * @file Tests for string.prototype.trimstart NPM package override. Ported 1:1
+ *   from upstream v1.0.8 (e0ebce2a):
+ *   https://github.com/es-shims/String.prototype.trimStart/blob/e0ebce2a/test/tests.js.
  */
 import { describe, expect, it } from 'vitest'
 

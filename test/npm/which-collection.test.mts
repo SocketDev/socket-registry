@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for which-collection NPM package override.
- * Ported 1:1 from upstream v1.0.2 (fda9470d):
- * https://github.com/inspect-js/which-collection/blob/fda9470d/test/index.js
+ * @file Tests for which-collection NPM package override. Ported 1:1 from
+ *   upstream v1.0.2 (fda9470d):
+ *   https://github.com/inspect-js/which-collection/blob/fda9470d/test/index.js.
  */
 import { describe, expect, it } from 'vitest'
 

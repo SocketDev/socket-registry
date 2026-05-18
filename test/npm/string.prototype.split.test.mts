@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for string.prototype.split NPM package override.
- * Ported 1:1 from upstream v1.0.9 (9aa9b69d):
- * https://github.com/es-shims/String.prototype.split/blob/9aa9b69d/test/tests.js
+ * @file Tests for string.prototype.split NPM package override. Ported 1:1 from
+ *   upstream v1.0.9 (9aa9b69d):
+ *   https://github.com/es-shims/String.prototype.split/blob/9aa9b69d/test/tests.js.
  */
 import { describe, expect, it } from 'vitest'
 

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for es-get-iterator NPM package override.
- * Simplified from upstream v1.1.3 (683c7aad):
- * https://github.com/ljharb/es-get-iterator/blob/683c7aad2e941d18e8de3cc537d91f1301f07ee6/test/index.js
+ * @file Tests for es-get-iterator NPM package override. Simplified from
+ *   upstream v1.1.3 (683c7aad):
+ *   https://github.com/ljharb/es-get-iterator/blob/683c7aad2e941d18e8de3cc537d91f1301f07ee6/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

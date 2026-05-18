@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for object.assign NPM package override.
- * Simplified from upstream v4.1.7 (c64df7ab):
- * https://github.com/ljharb/object.assign/blob/c64df7abffac60f4f345a7406d3fb4556d254251/test/tests.js
+ * @file Tests for object.assign NPM package override. Simplified from upstream
+ *   v4.1.7 (c64df7ab):
+ *   https://github.com/ljharb/object.assign/blob/c64df7abffac60f4f345a7406d3fb4556d254251/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

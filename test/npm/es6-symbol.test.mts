@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for es6-symbol NPM package override.
- * Ported 1:1 from upstream v3.1.4 (c57f8d88):
- * https://github.com/medikoo/es6-symbol/blob/c57f8d88070cec913ff4e3e0ed5192b2330373b2/test/index.js
+ * @file Tests for es6-symbol NPM package override. Ported 1:1 from upstream
+ *   v3.1.4 (c57f8d88):
+ *   https://github.com/medikoo/es6-symbol/blob/c57f8d88070cec913ff4e3e0ed5192b2330373b2/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for object-assign NPM package override.
- * Ported 1:1 from upstream v4.1.1 (a29ce505):
- * https://github.com/sindresorhus/object-assign/blob/a29ce5053398661d882e368e60da6553d3d82434/test.js
+ * @file Tests for object-assign NPM package override. Ported 1:1 from upstream
+ *   v4.1.1 (a29ce505):
+ *   https://github.com/sindresorhus/object-assign/blob/a29ce5053398661d882e368e60da6553d3d82434/test.js.
  */
 
 import { describe, expect, it } from 'vitest'

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for has-symbols NPM package override.
- * Ported 1:1 from upstream v1.1.0 (7aefe479):
- * https://github.com/inspect-js/has-symbols/blob/7aefe479e315c27d742a2a329207d8eb7d3a5cec/test/index.js
+ * @file Tests for has-symbols NPM package override. Ported 1:1 from upstream
+ *   v1.1.0 (7aefe479):
+ *   https://github.com/inspect-js/has-symbols/blob/7aefe479e315c27d742a2a329207d8eb7d3a5cec/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

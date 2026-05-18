@@ -1,8 +1,8 @@
 /* oxlint-disable socket/prefer-cached-for-loop -- ports upstream test loops verbatim; rewriting would diverge from the source map to upstream. */
 /**
- * @fileoverview Tests for internal-slot NPM package override.
- * Ported 1:1 from upstream v1.1.0 (705000a7):
- * https://github.com/ljharb/internal-slot/blob/705000a750605f9c01af424de2ededc20403f87d/test/index.js
+ * @file Tests for internal-slot NPM package override. Ported 1:1 from upstream
+ *   v1.1.0 (705000a7):
+ *   https://github.com/ljharb/internal-slot/blob/705000a750605f9c01af424de2ededc20403f87d/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

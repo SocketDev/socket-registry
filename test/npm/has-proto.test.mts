@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for has-proto NPM package override.
- * Ported 1:1 from upstream v1.2.0 (8f9ec131):
- * https://github.com/inspect-js/has-proto/blob/8f9ec1310fbedee155bd1022941a3fd80ef835f6/test/index.js
+ * @file Tests for has-proto NPM package override. Ported 1:1 from upstream
+ *   v1.2.0 (8f9ec131):
+ *   https://github.com/inspect-js/has-proto/blob/8f9ec1310fbedee155bd1022941a3fd80ef835f6/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

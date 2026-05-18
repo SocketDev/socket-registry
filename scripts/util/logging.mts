@@ -1,4 +1,6 @@
-/** @fileoverview Reusable logging utilities for consistent output formatting. */
+/**
+ * @file Reusable logging utilities for consistent output formatting.
+ */
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 

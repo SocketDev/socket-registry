@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for array.prototype.at NPM package override.
- * Ported 1:1 from upstream v1.1.3 (69290c016ce3eec58ea0d17f9cc187d582fb5505):
- * https://github.com/es-shims/Array.prototype.at/blob/69290c016ce3eec58ea0d17f9cc187d582fb5505/test/tests.js
+ * @file Tests for array.prototype.at NPM package override. Ported 1:1 from
+ *   upstream v1.1.3 (69290c016ce3eec58ea0d17f9cc187d582fb5505):
+ *   https://github.com/es-shims/Array.prototype.at/blob/69290c016ce3eec58ea0d17f9cc187d582fb5505/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

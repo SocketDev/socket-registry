@@ -1,6 +1,6 @@
 /**
- * @fileoverview Unified lint runner with flag-based configuration.
- * Provides smart linting that can target affected files or lint everything.
+ * @file Unified lint runner with flag-based configuration. Provides smart
+ *   linting that can target affected files or lint everything.
  */
 /* oxlint-disable socket/prefer-cached-for-loop -- iterates a configured linter list (destructured loop variable); the cached-length rewrite would be incorrect. */
 
@@ -121,9 +121,10 @@ export function filterLintableFiles(files: string[]): string[] {
 }
 
 /**
- * Check if an oxfmt result indicates no files were processed (not a real error).
- * Covers exit 2 ("Expected at least one target file" — all files ignored by config)
- * and exit 1 ("No files were processed in the specified paths" — no path matches).
+ * Check if an oxfmt result indicates no files were processed (not a real
+ * error). Covers exit 2 ("Expected at least one target file" — all files
+ * ignored by config) and exit 1 ("No files were processed in the specified
+ * paths" — no path matches).
  */
 export function isOxfmtNoFilesResult(result: {
   stderr?: string | undefined

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for function-bind NPM package override.
- * Ported 1:1 from upstream v1.1.2 (40197beb5f4cf89dd005f0b268256c1e4716ea81):
- * https://github.com/Raynos/function-bind/blob/40197beb5f4cf89dd005f0b268256c1e4716ea81/test/index.js
+ * @file Tests for function-bind NPM package override. Ported 1:1 from upstream
+ *   v1.1.2 (40197beb5f4cf89dd005f0b268256c1e4716ea81):
+ *   https://github.com/Raynos/function-bind/blob/40197beb5f4cf89dd005f0b268256c1e4716ea81/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

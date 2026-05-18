@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for typedarray.prototype.slice NPM package override.
- * Ported 1:1 from upstream v1.0.5 (3d0a3276):
- * https://github.com/es-shims/TypedArray.prototype.slice/blob/3d0a3276/test/tests.js
+ * @file Tests for typedarray.prototype.slice NPM package override. Ported 1:1
+ *   from upstream v1.0.5 (3d0a3276):
+ *   https://github.com/es-shims/TypedArray.prototype.slice/blob/3d0a3276/test/tests.js.
  */
 import { describe, expect, it } from 'vitest'
 

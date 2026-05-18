@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for string.prototype.trimright NPM package override.
- * Ported 1:1 from upstream v2.1.3 (9228baa6):
- * https://github.com/es-shims/String.prototype.trimRight/blob/9228baa6/test/tests.js
+ * @file Tests for string.prototype.trimright NPM package override. Ported 1:1
+ *   from upstream v2.1.3 (9228baa6):
+ *   https://github.com/es-shims/String.prototype.trimRight/blob/9228baa6/test/tests.js.
  */
 import { describe, expect, it } from 'vitest'
 

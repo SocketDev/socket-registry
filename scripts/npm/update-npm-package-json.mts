@@ -1,4 +1,6 @@
-/** @fileoverview Update and validate package.json files for all npm packages. */
+/**
+ * @file Update and validate package.json files for all npm packages.
+ */
 
 import path from 'node:path'
 import { isDebug } from '@socketsecurity/lib-stable/debug'

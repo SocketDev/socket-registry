@@ -1,4 +1,6 @@
-/** @fileoverview Shared helper functions for testing scripts. */
+/**
+ * @file Shared helper functions for testing scripts.
+ */
 
 import { existsSync, promises as fs } from 'node:fs'
 

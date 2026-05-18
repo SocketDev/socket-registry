@@ -1,6 +1,6 @@
 /* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Object.values recursion); the cached-length rewrite would be incorrect. */
 /**
- * @fileoverview Fast build runner using esbuild for smaller bundles and faster builds.
+ * @file Fast build runner using esbuild for smaller bundles and faster builds.
  */
 
 import { existsSync, statSync } from 'node:fs'
@@ -32,8 +32,8 @@ const rootPath = path.resolve(
 )
 
 /**
- * Build source code with esbuild.
- * Returns { exitCode, buildTime, result } for external logging.
+ * Build source code with esbuild. Returns { exitCode, buildTime, result } for
+ * external logging.
  */
 export async function buildSource(options = {}) {
   const { quiet = false, skipClean = false, verbose = false } = options
@@ -98,8 +98,7 @@ export async function buildSource(options = {}) {
 }
 
 /**
- * Build TypeScript declarations.
- * Returns exitCode for external logging.
+ * Build TypeScript declarations. Returns exitCode for external logging.
  */
 export async function buildTypes(options = {}) {
   const {

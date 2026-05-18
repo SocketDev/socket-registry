@@ -1,8 +1,8 @@
 /* oxlint-disable socket/prefer-cached-for-loop -- ports upstream test loops verbatim; rewriting would diverge from the source map to upstream. */
 /**
- * @fileoverview Tests for path-parse NPM package override.
- * Ported 1:1 from upstream v1.0.7 (f7e258dd):
- * https://github.com/jbgutierrez/path-parse/blob/f7e258ddf7c6ec87a0236c75247fc6fd21ee7bd9/test.js
+ * @file Tests for path-parse NPM package override. Ported 1:1 from upstream
+ *   v1.0.7 (f7e258dd):
+ *   https://github.com/jbgutierrez/path-parse/blob/f7e258ddf7c6ec87a0236c75247fc6fd21ee7bd9/test.js.
  */
 
 import { describe, expect, it } from 'vitest'

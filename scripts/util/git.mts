@@ -1,5 +1,5 @@
 /**
- * @fileoverview Git operations with package filtering utilities.
+ * @file Git operations with package filtering utilities.
  */
 
 import path from 'node:path'

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for es-set-tostringtag NPM package override.
- * Ported 1:1 from upstream v2.1.0 (90e506fbfe24630e6fe3871639000d2f0ba09d6f):
- * https://github.com/es-shims/es-set-tostringtag/blob/90e506fbfe24630e6fe3871639000d2f0ba09d6f/test/index.js
+ * @file Tests for es-set-tostringtag NPM package override. Ported 1:1 from
+ *   upstream v2.1.0 (90e506fbfe24630e6fe3871639000d2f0ba09d6f):
+ *   https://github.com/es-shims/es-set-tostringtag/blob/90e506fbfe24630e6fe3871639000d2f0ba09d6f/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

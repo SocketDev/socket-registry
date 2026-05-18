@@ -1,6 +1,6 @@
 /**
- * @fileoverview Test execution coordination and test filtering logic.
- * Provides utilities for determining which tests to run based on changes.
+ * @file Test execution coordination and test filtering logic. Provides
+ *   utilities for determining which tests to run based on changes.
  */
 
 import process from 'node:process'
@@ -32,9 +32,9 @@ function getCliArgs() {
 }
 
 /**
- * Check if package testing should be skipped for a given package.
- * Package tests are skipped during pre-commit hooks to speed up commits.
- * They can be forced to run with --force flag or in CI environments.
+ * Check if package testing should be skipped for a given package. Package tests
+ * are skipped during pre-commit hooks to speed up commits. They can be forced
+ * to run with --force flag or in CI environments.
  */
 function isPackageTestingSkipped(_eco: string, _packageName: string) {
   // In pre-commit hooks, skip package tests unless forced.

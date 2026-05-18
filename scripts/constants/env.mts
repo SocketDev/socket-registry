@@ -1,5 +1,5 @@
 /**
- * @fileoverview Environment configuration constants.
+ * @file Environment configuration constants.
  */
 
 /**

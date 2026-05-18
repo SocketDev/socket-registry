@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for is-set NPM package override.
- * Ported 1:1 from upstream v2.0.3 (150c3cc4):
- * https://github.com/inspect-js/is-set/blob/150c3cc40592eb269c51ee831a271ecc0d24d974/test/index.js
+ * @file Tests for is-set NPM package override. Ported 1:1 from upstream v2.0.3
+ *   (150c3cc4):
+ *   https://github.com/inspect-js/is-set/blob/150c3cc40592eb269c51ee831a271ecc0d24d974/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

@@ -98,7 +98,7 @@ permissions: {}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: false  # Don't cancel publishing
+  cancel-in-progress: false # Don't cancel publishing
 
 jobs:
   build-and-publish:

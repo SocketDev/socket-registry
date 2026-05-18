@@ -1,8 +1,8 @@
 /**
- * @fileoverview Updates all LICENSE files in the project to match the root LICENSE.
- * Ensures consistent licensing across all packages and subdirectories by copying
- * the root LICENSE content to all LICENSE files found in the project tree.
- * Ignores original license files and template directories.
+ * @file Updates all LICENSE files in the project to match the root LICENSE.
+ *   Ensures consistent licensing across all packages and subdirectories by
+ *   copying the root LICENSE content to all LICENSE files found in the project
+ *   tree. Ignores original license files and template directories.
  */
 
 import { promises as fs } from 'node:fs'

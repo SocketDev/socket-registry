@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for string.prototype.padstart NPM package override.
- * Ported 1:1 from upstream v3.1.7 (24c67699):
- * https://github.com/es-shims/String.prototype.padStart/blob/24c67699/test/tests.js
+ * @file Tests for string.prototype.padstart NPM package override. Ported 1:1
+ *   from upstream v3.1.7 (24c67699):
+ *   https://github.com/es-shims/String.prototype.padStart/blob/24c67699/test/tests.js.
  */
 import { describe, expect, it } from 'vitest'
 

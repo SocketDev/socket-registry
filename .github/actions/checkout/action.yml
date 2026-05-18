@@ -128,4 +128,3 @@ runs:
         if [ -d .github ]; then
           zizmor .github --gh-token "${GITHUB_TOKEN}" --min-severity medium
         fi
-

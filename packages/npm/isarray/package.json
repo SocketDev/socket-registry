@@ -1,18 +1,27 @@
 {
   "name": "@socketregistry/isarray",
   "version": "1.0.8",
-  "license": "MIT",
   "description": "Socket.dev optimized package override for isarray",
   "keywords": [
     "Socket.dev",
     "package-overrides"
   ],
   "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/isarray",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",
     "directory": "packages/npm/isarray"
   },
+  "files": [
+    "*.d.cts",
+    "*.d.mts",
+    "*.d.ts",
+    "*.cjs",
+    "*.mjs",
+    "*.js"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "import": {
@@ -29,25 +38,16 @@
     "./index.mjs": "./index.mjs",
     "./package.json": "./package.json"
   },
-  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "engines": {
     "node": ">=18"
   },
-  "files": [
-    "*.d.cts",
-    "*.d.mts",
-    "*.d.ts",
-    "*.cjs",
-    "*.mjs",
-    "*.js"
-  ],
   "socket": {
     "categories": [
       "cleanup"
     ]
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
   }
 }

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for typed-array-buffer NPM package override.
- * Ported 1:1 from upstream v1.0.3 (a4141b67):
- * https://github.com/inspect-js/typed-array-buffer/blob/a4141b67/test/index.js
+ * @file Tests for typed-array-buffer NPM package override. Ported 1:1 from
+ *   upstream v1.0.3 (a4141b67):
+ *   https://github.com/inspect-js/typed-array-buffer/blob/a4141b67/test/index.js.
  */
 import { describe, expect, it } from 'vitest'
 

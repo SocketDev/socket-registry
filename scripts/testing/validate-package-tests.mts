@@ -1,7 +1,10 @@
 /* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
 /* oxlint-disable socket/prefer-cached-for-loop -- iterates destructured records and async-settled results; the cached-length rewrite would be incorrect. */
 
-/** @fileoverview Validates package overrides before release to catch test infrastructure issues early. */
+/**
+ * @file Validates package overrides before release to catch test infrastructure
+ *   issues early.
+ */
 
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
@@ -98,8 +101,8 @@ export async function getPackagesToValidate() {
 }
 
 /**
- * Check for required build artifacts.
- * Verifies that all entry points declared in package.json actually exist.
+ * Check for required build artifacts. Verifies that all entry points declared
+ * in package.json actually exist.
  */
 export async function validateBuildArtifacts(_packageName, packageDir) {
   const issues = []
@@ -242,9 +245,9 @@ export async function validateEslintConfig(_packageName, packageDir) {
 }
 
 /**
- * Check for module resolution issues by analyzing imports.
- * Scans all JavaScript/TypeScript files for problematic import patterns
- * that commonly cause CI failures.
+ * Check for module resolution issues by analyzing imports. Scans all
+ * JavaScript/TypeScript files for problematic import patterns that commonly
+ * cause CI failures.
  */
 export async function validateModuleResolution(_packageName, packageDir) {
   const issues = []

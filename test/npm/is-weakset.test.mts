@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for is-weakset NPM package override.
- * Ported 1:1 from upstream v2.0.4 (a63f2927):
- * https://github.com/inspect-js/is-weakset/blob/a63f292737acdc9e0df55284317a98c1bf0be90d/test/index.js
+ * @file Tests for is-weakset NPM package override. Ported 1:1 from upstream
+ *   v2.0.4 (a63f2927):
+ *   https://github.com/inspect-js/is-weakset/blob/a63f292737acdc9e0df55284317a98c1bf0be90d/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

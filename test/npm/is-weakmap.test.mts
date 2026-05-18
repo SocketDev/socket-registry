@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for is-weakmap NPM package override.
- * Ported 1:1 from upstream v2.0.2 (a747afa3):
- * https://github.com/inspect-js/is-weakmap/blob/a747afa315110eb6849e5be97686a577d2f16953/test/index.js
+ * @file Tests for is-weakmap NPM package override. Ported 1:1 from upstream
+ *   v2.0.2 (a747afa3):
+ *   https://github.com/inspect-js/is-weakmap/blob/a747afa315110eb6849e5be97686a577d2f16953/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

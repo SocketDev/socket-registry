@@ -1,4 +1,6 @@
-/** @fileoverview Tests for @socketregistry/harmony-reflect npm package override. */
+/**
+ * @file Tests for @socketregistry/harmony-reflect npm package override.
+ */
 import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'

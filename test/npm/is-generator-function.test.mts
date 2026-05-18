@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for is-generator-function NPM package override.
- * Ported 1:1 from upstream v1.1.2 (625a966a):
- * https://github.com/inspect-js/is-generator-function/blob/625a966a49815f5dd4aa484acd118b49c9ea8fc8/test/index.js
+ * @file Tests for is-generator-function NPM package override. Ported 1:1 from
+ *   upstream v1.1.2 (625a966a):
+ *   https://github.com/inspect-js/is-generator-function/blob/625a966a49815f5dd4aa484acd118b49c9ea8fc8/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

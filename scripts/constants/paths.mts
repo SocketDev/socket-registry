@@ -1,5 +1,5 @@
 /**
- * @fileoverview Path constants for project structure.
+ * @file Path constants for project structure.
  */
 
 import { existsSync } from 'node:fs'
@@ -9,9 +9,9 @@ import { fileURLToPath } from 'node:url'
 import { getTsxExecPath } from './utils.mts'
 
 /**
- * Find project root by looking for pnpm-workspace.yaml.
- * Anchors on this module's own location (per fleet rule: scripts/ must
- * not depend on the caller's cwd).
+ * Find project root by looking for pnpm-workspace.yaml. Anchors on this
+ * module's own location (per fleet rule: scripts/ must not depend on the
+ * caller's cwd).
  */
 export function findProjectRoot(): string {
   const __filename = fileURLToPath(import.meta.url)

@@ -1,18 +1,24 @@
 {
   "name": "@socketregistry/es-iterator-helpers",
   "version": "1.0.14",
-  "license": "MIT",
   "description": "Socket.dev optimized package override for es-iterator-helpers",
   "keywords": [
     "Socket.dev",
     "package-overrides"
   ],
   "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/es-iterator-helpers",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",
     "directory": "packages/npm/es-iterator-helpers"
   },
+  "files": [
+    "**/*.d.ts",
+    "**/*.js",
+    "*.json"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": "./index.json",
     "./auto": {
@@ -385,22 +391,16 @@
     },
     "./package.json": "./package.json"
   },
-  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "engines": {
     "node": ">=18"
   },
-  "files": [
-    "**/*.d.ts",
-    "**/*.js",
-    "*.json"
-  ],
   "socket": {
     "categories": [
       "cleanup"
     ]
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
   }
 }

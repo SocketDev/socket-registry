@@ -1,7 +1,9 @@
 /**
- * @fileoverview Check that Socket packages have trusted package setup correctly.
- * Checks @socketregistry/*, @socketoverride/*, and @socketsecurity/registry-stable packages by default.
- * Use --all flag to check all Socket packages across all scopes.
+ * @file Check that Socket packages have trusted package setup correctly. Checks
+ *
+ * @socketregistry/_, @socketoverride/_, and @socketsecurity/registry-stable
+ *   packages by default. Use --all flag to check all Socket packages across all
+ *   scopes.
  */
 /* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Object.entries); the cached-length rewrite would be incorrect. */
 

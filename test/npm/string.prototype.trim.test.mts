@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for string.prototype.trim NPM package override.
- * Ported 1:1 from upstream v1.2.10 (0ce6d13c):
- * https://github.com/es-shims/String.prototype.trim/blob/0ce6d13c/test/tests.js
+ * @file Tests for string.prototype.trim NPM package override. Ported 1:1 from
+ *   upstream v1.2.10 (0ce6d13c):
+ *   https://github.com/es-shims/String.prototype.trim/blob/0ce6d13c/test/tests.js.
  */
 import { describe, expect, it } from 'vitest'
 

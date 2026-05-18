@@ -1,6 +1,6 @@
 /**
- * @fileoverview Helper utilities for platform-specific testing.
- * Provides cross-platform test helpers and assertions.
+ * @file Helper utilities for platform-specific testing. Provides cross-platform
+ *   test helpers and assertions.
  */
 
 import os from 'node:os'
@@ -66,8 +66,8 @@ export function describeOnWindows(name: string, fn: () => void): void {
 }
 
 /**
- * Asserts that two paths are equal after normalization.
- * Useful for cross-platform path comparisons.
+ * Asserts that two paths are equal after normalization. Useful for
+ * cross-platform path comparisons.
  */
 export function expectNormalizedPath(actual: string, expected: string): void {
   const normalizedActual = normalizePath(actual)
@@ -130,8 +130,8 @@ export function itOnWindows(
 }
 
 /**
- * Normalizes a path for cross-platform comparison.
- * Converts all separators to forward slashes and handles drive letters.
+ * Normalizes a path for cross-platform comparison. Converts all separators to
+ * forward slashes and handles drive letters.
  */
 export function normalizePath(inputPath: string): string {
   // Normalize separators to forward slashes

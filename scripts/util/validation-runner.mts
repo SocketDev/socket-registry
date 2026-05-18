@@ -1,6 +1,6 @@
 /**
- * @fileoverview Base utility for validation scripts.
- * Provides common pattern for running validations and reporting results.
+ * @file Base utility for validation scripts. Provides common pattern for
+ *   running validations and reporting results.
  */
 
 import process from 'node:process'
@@ -51,8 +51,8 @@ export async function runValidation(
 }
 
 /**
- * Main entry point wrapper for validation scripts.
- * Handles errors and ensures proper exit codes.
+ * Main entry point wrapper for validation scripts. Handles errors and ensures
+ * proper exit codes.
  */
 export async function runValidationScript(
   validationFn: () => Promise<unknown> | unknown,

@@ -1,6 +1,6 @@
 /**
- * @fileoverview Test for object-keys package override.
- * Tests ported from https://github.com/ljharb/object-keys/blob/ba2c1989270c7de969aa8498fc3b7c8e677806f3/test/shim.js
+ * @file Test for object-keys package override. Tests ported from
+ *   https://github.com/ljharb/object-keys/blob/ba2c1989270c7de969aa8498fc3b7c8e677806f3/test/shim.js.
  */
 
 import { describe, expect, it } from 'vitest'

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for array.prototype.findlastindex NPM package override.
- * Ported 1:1 from upstream v1.2.6 (e037a525a28d6694481a76db2e8719542b7505e2):
- * https://github.com/es-shims/Array.prototype.findLastIndex/blob/e037a525a28d6694481a76db2e8719542b7505e2/test/tests.js
+ * @file Tests for array.prototype.findlastindex NPM package override. Ported
+ *   1:1 from upstream v1.2.6 (e037a525a28d6694481a76db2e8719542b7505e2):
+ *   https://github.com/es-shims/Array.prototype.findLastIndex/blob/e037a525a28d6694481a76db2e8719542b7505e2/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

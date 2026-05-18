@@ -1,6 +1,6 @@
 /**
- * @fileoverview Validates that no package.json files contain link: dependencies.
- * Link dependencies are prohibited - use workspace: or catalog: instead.
+ * @file Validates that no package.json files contain link: dependencies. Link
+ *   dependencies are prohibited - use workspace: or catalog: instead.
  */
 /* oxlint-disable socket/prefer-cached-for-loop -- iterates Map.entries() / destructured tuples; the cached-length rewrite would be incorrect. */
 

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for set-function-length NPM package override.
- * Ported 1:1 from upstream v1.2.2 (2290d3ea):
- * https://github.com/ljharb/set-function-length/blob/2290d3ea/test/index.js
+ * @file Tests for set-function-length NPM package override. Ported 1:1 from
+ *   upstream v1.2.2 (2290d3ea):
+ *   https://github.com/ljharb/set-function-length/blob/2290d3ea/test/index.js.
  */
 import { describe, expect, it } from 'vitest'
 

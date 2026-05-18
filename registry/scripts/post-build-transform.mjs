@@ -1,7 +1,7 @@
 /**
- * @fileoverview Post-build transform for Node ESM interop.
- * Converts esbuild's __toCommonJS wrapper to clear module.exports literal.
- * Node ESM requires: module.exports = { foo, bar } for named imports.
+ * @file Post-build transform for Node ESM interop. Converts esbuild's
+ *   **toCommonJS wrapper to clear module.exports literal. Node ESM requires:
+ *   module.exports = { foo, bar } for named imports.
  */
 
 import { readFileSync, writeFileSync } from 'node:fs'

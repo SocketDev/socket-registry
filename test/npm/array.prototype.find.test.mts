@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for array.prototype.find NPM package override.
- * Ported 1:1 from upstream v2.2.3 (cdc51a13770d15cfaa2ef8f650d7bc6627603bf4):
- * https://github.com/es-shims/Array.prototype.find/blob/cdc51a13770d15cfaa2ef8f650d7bc6627603bf4/test/tests.js
+ * @file Tests for array.prototype.find NPM package override. Ported 1:1 from
+ *   upstream v2.2.3 (cdc51a13770d15cfaa2ef8f650d7bc6627603bf4):
+ *   https://github.com/es-shims/Array.prototype.find/blob/cdc51a13770d15cfaa2ef8f650d7bc6627603bf4/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

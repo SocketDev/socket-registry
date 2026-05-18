@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for array.prototype.toreversed NPM package override.
- * Ported 1:1 from upstream v1.1.2 (dae18065b74fb98686ddfb5462294963c4310600):
- * https://github.com/es-shims/Array.prototype.toReversed/blob/dae18065b74fb98686ddfb5462294963c4310600/test/tests.js
+ * @file Tests for array.prototype.toreversed NPM package override. Ported 1:1
+ *   from upstream v1.1.2 (dae18065b74fb98686ddfb5462294963c4310600):
+ *   https://github.com/es-shims/Array.prototype.toReversed/blob/dae18065b74fb98686ddfb5462294963c4310600/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

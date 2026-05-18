@@ -1,4 +1,6 @@
-/** @fileoverview Test runner configuration and script name utilities. */
+/**
+ * @file Test runner configuration and script name utilities.
+ */
 
 /**
  * List of test script names to try in order of preference.

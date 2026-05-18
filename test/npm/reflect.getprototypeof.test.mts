@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for reflect.getprototypeof NPM package override.
- * Ported 1:1 from upstream v1.0.10 (00db5482):
- * https://github.com/es-shims/Reflect.getPrototypeOf/blob/00db548275a0c1bb078d31679c3f4a0fc0ccdf58/test/tests.js
+ * @file Tests for reflect.getprototypeof NPM package override. Ported 1:1 from
+ *   upstream v1.0.10 (00db5482):
+ *   https://github.com/es-shims/Reflect.getPrototypeOf/blob/00db548275a0c1bb078d31679c3f4a0fc0ccdf58/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

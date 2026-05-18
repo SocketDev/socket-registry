@@ -1,8 +1,8 @@
 /**
- * @fileoverview Removes empty directories from the project.
- * Scans the entire project tree (excluding node_modules) and removes
- * any empty directories found. Processes directories from deepest to
- * shallowest to catch newly emptied parent directories.
+ * @file Removes empty directories from the project. Scans the entire project
+ *   tree (excluding node_modules) and removes any empty directories found.
+ *   Processes directories from deepest to shallowest to catch newly emptied
+ *   parent directories.
  */
 
 import { NODE_MODULES_GLOB_RECURSIVE } from '@socketsecurity/lib-stable/paths/globs'

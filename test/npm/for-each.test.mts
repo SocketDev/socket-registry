@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for for-each NPM package override.
- * Ported 1:1 from upstream v0.3.5 (45229651ed893773058ba9ccc42af8999014409f):
- * https://github.com/Raynos/for-each/blob/45229651ed893773058ba9ccc42af8999014409f/test/test.js
+ * @file Tests for for-each NPM package override. Ported 1:1 from upstream
+ *   v0.3.5 (45229651ed893773058ba9ccc42af8999014409f):
+ *   https://github.com/Raynos/for-each/blob/45229651ed893773058ba9ccc42af8999014409f/test/test.js.
  */
 
 import { describe, expect, it } from 'vitest'

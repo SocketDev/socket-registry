@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for typed-array-byte-offset NPM package override.
- * Ported 1:1 from upstream v1.0.4 (392d04c8):
- * https://github.com/inspect-js/typed-array-byte-offset/blob/392d04c8/test/index.js
+ * @file Tests for typed-array-byte-offset NPM package override. Ported 1:1 from
+ *   upstream v1.0.4 (392d04c8):
+ *   https://github.com/inspect-js/typed-array-byte-offset/blob/392d04c8/test/index.js.
  */
 import { describe, expect, it } from 'vitest'
 

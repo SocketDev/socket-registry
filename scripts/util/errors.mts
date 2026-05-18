@@ -1,4 +1,6 @@
-/** @fileoverview Error extraction utilities for cleaner error logging. */
+/**
+ * @file Error extraction utilities for cleaner error logging.
+ */
 
 /**
  * Extract concise error information from stderr.

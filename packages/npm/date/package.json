@@ -1,18 +1,24 @@
 {
   "name": "@socketregistry/date",
   "version": "1.0.8",
-  "license": "MIT",
   "description": "Socket.dev optimized package override for date",
   "keywords": [
     "Socket.dev",
     "package-overrides"
   ],
   "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/date",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",
     "directory": "packages/npm/date"
   },
+  "files": [
+    "**/*.d.ts",
+    "**/*.js",
+    "*.json"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": "./index.json",
     "./auto": {
@@ -305,22 +311,16 @@
     },
     "./package.json": "./package.json"
   },
-  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "engines": {
     "node": ">=18"
   },
-  "files": [
-    "**/*.d.ts",
-    "**/*.js",
-    "*.json"
-  ],
   "socket": {
     "categories": [
       "cleanup"
     ]
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
   }
 }

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for string.prototype.matchall NPM package override.
- * Ported 1:1 from upstream v4.0.12 (c3d18708):
- * https://github.com/es-shims/String.prototype.matchAll/blob/c3d18708/test/tests.js
+ * @file Tests for string.prototype.matchall NPM package override. Ported 1:1
+ *   from upstream v4.0.12 (c3d18708):
+ *   https://github.com/es-shims/String.prototype.matchAll/blob/c3d18708/test/tests.js.
  */
 import { describe, expect, it } from 'vitest'
 

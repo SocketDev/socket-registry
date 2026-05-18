@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for which-boxed-primitive NPM package override.
- * Ported 1:1 from upstream v1.1.1 (7f06bcbc):
- * https://github.com/inspect-js/which-boxed-primitive/blob/7f06bcbc/test/index.js
+ * @file Tests for which-boxed-primitive NPM package override. Ported 1:1 from
+ *   upstream v1.1.1 (7f06bcbc):
+ *   https://github.com/inspect-js/which-boxed-primitive/blob/7f06bcbc/test/index.js.
  */
 import { describe, expect, it } from 'vitest'
 

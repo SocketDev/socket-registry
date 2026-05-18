@@ -1,8 +1,10 @@
 /**
  * Determines the type of the given collection, or returns false.
  *
- * @param {unknown} value The potential collection
- * @returns {'Map' | 'Set' | 'WeakMap' | 'WeakSet' | false} 'Map' | 'Set' | 'WeakMap' | 'WeakSet' | false
+ * @param {unknown} value The potential collection.
+ *
+ * @returns {'Map' | 'Set' | 'WeakMap' | 'WeakSet' | false} 'Map' | 'Set' |
+ *   'WeakMap' | 'WeakSet' | false.
  */
 declare function whichCollection<K, V>(value: Map<K, V>): 'Map'
 declare function whichCollection<T>(value: Set<T>): 'Set'

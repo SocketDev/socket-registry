@@ -1,4 +1,7 @@
-/** @fileoverview Generate GitHub Actions allow list from workflow and action dependencies. */
+/**
+ * @file Generate GitHub Actions allow list from workflow and action
+ *   dependencies.
+ */
 /* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Map / Object.entries); the cached-length rewrite would be incorrect. */
 
 import { promises as fs } from 'node:fs'

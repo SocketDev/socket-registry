@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for object.fromentries NPM package override.
- * Ported 1:1 from upstream v2.0.8 (4889d056):
- * https://github.com/es-shims/Object.fromEntries/blob/4889d0564c7bf79c53748e0021f3925d393c083b/test/tests.js
+ * @file Tests for object.fromentries NPM package override. Ported 1:1 from
+ *   upstream v2.0.8 (4889d056):
+ *   https://github.com/es-shims/Object.fromEntries/blob/4889d0564c7bf79c53748e0021f3925d393c083b/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

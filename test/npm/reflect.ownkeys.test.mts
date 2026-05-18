@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for reflect.ownkeys NPM package override.
- * Ported 1:1 from upstream v1.1.6 (0fb9ad70):
- * https://github.com/es-shims/Reflect.ownKeys/blob/0fb9ad709d66d2b4fe8d113028f00a6d21eb1fbc/test/tests.js
+ * @file Tests for reflect.ownkeys NPM package override. Ported 1:1 from
+ *   upstream v1.1.6 (0fb9ad70):
+ *   https://github.com/es-shims/Reflect.ownKeys/blob/0fb9ad709d66d2b4fe8d113028f00a6d21eb1fbc/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

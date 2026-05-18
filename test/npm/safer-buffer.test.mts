@@ -1,4 +1,6 @@
-/** @fileoverview Tests for @socketregistry/safer-buffer npm package override. */
+/**
+ * @file Tests for @socketregistry/safer-buffer npm package override.
+ */
 /* eslint-disable n/no-deprecated-api */
 /* oxlint-disable socket/prefer-cached-for-loop -- tests iterate short literal arrays / Object.keys() return values; per-iteration overhead is irrelevant and rewriting obscures the test intent. */
 /* max-file-lines: legitimate — exhaustive Buffer API parity matrix; the test surface is intrinsic to the package being tested and splitting it scatters one describe-tree across files. */

@@ -1,11 +1,8 @@
 /**
- * @fileoverview Coverage script that runs tests with coverage reporting.
- * Masks test output and shows only the coverage summary.
- *
- * Options:
- *   --code-only  Run only code coverage (skip type coverage)
- *   --type-only  Run only type coverage (skip code coverage)
- *   --summary    Show only coverage summary (hide detailed output)
+ * @file Coverage script that runs tests with coverage reporting. Masks test
+ *   output and shows only the coverage summary. Options: --code-only Run only
+ *   code coverage (skip type coverage) --type-only Run only type coverage (skip
+ *   code coverage) --summary Show only coverage summary (hide detailed output)
  */
 
 import path from 'node:path'

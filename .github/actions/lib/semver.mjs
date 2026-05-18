@@ -1,17 +1,17 @@
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+const logger = getDefaultLogger()
+
 /* oxlint-disable socket/no-console-prefer-logger socket/export-top-level-functions -- composite action helper, runs on raw runner before setup-node (no node_modules) */
 /**
- * @fileoverview Semver validate + compare for composite-action shells.
+ * @file Semver validate + compare for composite-action shells. Replaces inline
+ *   bash regex + pure-bash version_lt(). Two modes: node lib/semver.mjs valid
+ *   <version>
  *
- * Replaces inline bash regex + pure-bash version_lt(). Two modes:
- *
- *   node lib/semver.mjs valid <version>
- *     - Exit 0 if <version> matches MAJOR.MINOR.PATCH[-pre|+build].
- *     - Exit 1 otherwise (no output).
- *
- *   node lib/semver.mjs lt <a> <b>
- *     - Exit 0 if a < b (major.minor.patch only, pre-release ignored).
- *     - Exit 1 if a >= b.
- *     - Exit 2 if either is invalid (stderr names which).
+ *   - Exit 0 if <version> matches MAJOR.MINOR.PATCH[-pre|+build].
+ *   - Exit 1 otherwise (no output). node lib/semver.mjs lt <a> <b>
+ *   - Exit 0 if a < b (major.minor.patch only, pre-release ignored).
+ *   - Exit 1 if a >= b.
+ *   - Exit 2 if either is invalid (stderr names which).
  */
 
 const SEMVER_RE = /^(\d+)\.(\d+)\.(\d+)(?:[-+][0-9A-Za-z.+-]+)?$/
@@ -34,7 +34,7 @@ if (mode === 'lt') {
   const pa = parts(a)
   const pb = parts(b)
   if (!pa) {
-    console.error(`× not semver: "${a}"`)
+    logger.fail(`× not semver: "${a}"`)
     process.exit(2)
   }
   if (!pb) {

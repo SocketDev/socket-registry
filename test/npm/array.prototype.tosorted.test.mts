@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for array.prototype.tosorted NPM package override.
- * Ported 1:1 from upstream v1.1.4 (850c48e17f4eeffd1eaeff5898b083916224dfef):
- * https://github.com/es-shims/Array.prototype.toSorted/blob/850c48e17f4eeffd1eaeff5898b083916224dfef/test/tests.js
+ * @file Tests for array.prototype.tosorted NPM package override. Ported 1:1
+ *   from upstream v1.1.4 (850c48e17f4eeffd1eaeff5898b083916224dfef):
+ *   https://github.com/es-shims/Array.prototype.toSorted/blob/850c48e17f4eeffd1eaeff5898b083916224dfef/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

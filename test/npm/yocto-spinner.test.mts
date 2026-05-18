@@ -1,5 +1,5 @@
 /**
- * @fileoverview Tests for yocto-spinner NPM package override.
+ * @file Tests for yocto-spinner NPM package override.
  */
 
 import { describe, expect, it } from 'vitest'

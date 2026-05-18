@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for promise.allsettled NPM package override.
- * Ported 1:1 from upstream v1.0.7 (3d082d99):
- * https://github.com/es-shims/Promise.allSettled/blob/3d082d994f0899a16e40eb5cce901340290581dc/test/tests.js
+ * @file Tests for promise.allsettled NPM package override. Ported 1:1 from
+ *   upstream v1.0.7 (3d082d99):
+ *   https://github.com/es-shims/Promise.allSettled/blob/3d082d994f0899a16e40eb5cce901340290581dc/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

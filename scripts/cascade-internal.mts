@@ -1,33 +1,24 @@
 #!/usr/bin/env node
 /* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Map / Set / Object.entries); the cached-length rewrite would be incorrect. */
 /**
- * @fileoverview Recursively bump stale internal SHA pins to HEAD.
- *
- * socket-registry's `.github/actions/` and `.github/workflows/` files
- * pin each other by absolute SHA. When you commit a change, every pin
- * to a path that change touched is now stale (points at an older SHA
- * that doesn't include your change). The bump itself creates a new
- * commit, which may make further pins stale, and so on.
- *
- * This script does the bump-until-stable in one command.
- *
- * Usage:
- *   git commit -m "fix(setup): ..."
- *   node scripts/cascade-internal.mts
+ * @file Recursively bump stale internal SHA pins to HEAD. socket-registry's
+ *   `.github/actions/` and `.github/workflows/` files pin each other by
+ *   absolute SHA. When you commit a change, every pin to a path that change
+ *   touched is now stale (points at an older SHA that doesn't include your
+ *   change). The bump itself creates a new commit, which may make further pins
+ *   stale, and so on. This script does the bump-until-stable in one command.
+ *   Usage: git commit -m "fix(setup): ..." node scripts/cascade-internal.mts.
  *
  *   # Preview without committing:
- *   node scripts/cascade-internal.mts --dry-run
  *
- * Pre-flight: working tree must be clean (commit your change first).
- * Cascade commits land on the current branch; safe to run from a
- * release branch or PR branch as well as main.
- *
- * The scan uses one regex
- * `SocketDev/socket-registry(<path>)@<40-hex>` — third-party action
- * pins (actions/checkout, etc.) are untouched. A pin is "stale" when
- * its referenced subtree has changed between its pinned SHA and HEAD;
- * `git diff` decides this so we never bump pins to subtrees that
- * didn't change.
+ *   node scripts/cascade-internal.mts --dry-run Pre-flight: working tree must
+ *   be clean (commit your change first). Cascade commits land on the current
+ *   branch; safe to run from a release branch or PR branch as well as main. The
+ *   scan uses one regex `SocketDev/socket-registry(<path>)@<40-hex>` —
+ *   third-party action pins (actions/checkout, etc.) are untouched. A pin is
+ *   "stale" when its referenced subtree has changed between its pinned SHA and
+ *   HEAD; `git diff` decides this so we never bump pins to subtrees that didn't
+ *   change.
  */
 
 import { spawnSync } from '@socketsecurity/lib-stable/spawn'

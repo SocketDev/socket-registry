@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for string.prototype.repeat NPM package override.
- * Ported 1:1 from upstream v1.0.0 (c9da0749):
- * https://github.com/mathiasbynens/String.prototype.repeat/blob/c9da0749/tests/tests.js
+ * @file Tests for string.prototype.repeat NPM package override. Ported 1:1 from
+ *   upstream v1.0.0 (c9da0749):
+ *   https://github.com/mathiasbynens/String.prototype.repeat/blob/c9da0749/tests/tests.js.
  */
 import { describe, expect, it } from 'vitest'
 

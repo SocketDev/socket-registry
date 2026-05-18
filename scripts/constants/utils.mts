@@ -1,5 +1,5 @@
 /**
- * @fileoverview Utility functions for constants.
+ * @file Utility functions for constants.
  */
 
 import { existsSync, readFileSync } from 'node:fs'

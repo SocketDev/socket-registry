@@ -1,12 +1,12 @@
 /**
- * @fileoverview Validates that bundled vs external dependencies are correctly declared in package.json.
+ * @file Validates that bundled vs external dependencies are correctly declared
+ *   in package.json. Rules:
  *
- * Rules:
- * - Bundled packages (code copied into dist/) should be in devDependencies
- * - External packages (require() calls in dist/) should be in dependencies or peerDependencies
- * - Packages used only for building should be in devDependencies
- *
- * This ensures consumers install only what they need.
+ *   - Bundled packages (code copied into dist/) should be in devDependencies
+ *   - External packages (require() calls in dist/) should be in dependencies or
+ *     peerDependencies
+ *   - Packages used only for building should be in devDependencies This ensures
+ *     consumers install only what they need.
  */
 
 import { promises as fs } from 'node:fs'
@@ -94,7 +94,8 @@ export async function extractBundledPackages(filePath) {
 }
 
 /**
- * Extract external package names from require() and import statements in built files.
+ * Extract external package names from require() and import statements in built
+ * files.
  */
 export async function extractExternalPackages(filePath) {
   const content = await fs.readFile(filePath, 'utf8')
@@ -322,14 +323,16 @@ export async function validateBundleDeps() {
 
     // `externals` and `bundled` are Sets — use for...of, not the
     // cached-length for-loop.
-    for (const ext of externals) {
+    for (let i = 0, { length } = externals; i < length; i += 1) {
+      const ext = externals[i]!
       const packageName = getPackageName(ext)
       if (packageName && !BUILTIN_MODULES.has(packageName)) {
         allExternals.add(packageName)
       }
     }
 
-    for (const bun of bundled) {
+    for (let i = 0, { length } = bundled; i < length; i += 1) {
+      const bun = bundled[i]!
       allBundled.add(bun)
     }
   }

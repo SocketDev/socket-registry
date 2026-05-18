@@ -1,5 +1,5 @@
 /**
- * @fileoverview Tests for indent-string NPM package override.
+ * @file Tests for indent-string NPM package override.
  */
 
 import { describe, expect, it } from 'vitest'

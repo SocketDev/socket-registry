@@ -1,4 +1,6 @@
-/** @fileoverview Tests for @socketregistry/is-string npm package override. */
+/**
+ * @file Tests for @socketregistry/is-string npm package override.
+ */
 import {
   createInvalidValuesExcluding,
   createTypeCheckerTests,

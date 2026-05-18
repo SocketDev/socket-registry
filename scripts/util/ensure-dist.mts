@@ -1,6 +1,6 @@
 /**
- * @fileoverview Ensures dist directory and external dependencies are built.
- * Used by other scripts to auto-build when needed.
+ * @file Ensures dist directory and external dependencies are built. Used by
+ *   other scripts to auto-build when needed.
  */
 
 import { existsSync } from 'node:fs'

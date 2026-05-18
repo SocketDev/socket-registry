@@ -1,5 +1,5 @@
 /**
- * @fileoverview Testing-related constants and utilities.
+ * @file Testing-related constants and utilities.
  */
 
 import { readdirSync } from 'node:fs'

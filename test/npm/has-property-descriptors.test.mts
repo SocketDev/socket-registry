@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for has-property-descriptors NPM package override.
- * Ported 1:1 from upstream v1.0.2 (4ac370bb):
- * https://github.com/inspect-js/has-property-descriptors/blob/4ac370bba561e51dacf87cd43b69c26dd44cd173/test/index.js
+ * @file Tests for has-property-descriptors NPM package override. Ported 1:1
+ *   from upstream v1.0.2 (4ac370bb):
+ *   https://github.com/inspect-js/has-property-descriptors/blob/4ac370bba561e51dacf87cd43b69c26dd44cd173/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

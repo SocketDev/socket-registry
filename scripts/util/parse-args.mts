@@ -1,9 +1,8 @@
 /**
- * @fileoverview Simplified argument parsing for build scripts.
- * Uses Node.js built-in util.parseArgs (available in Node 22+).
- *
- * This is intentionally separate from src/argv/parse.ts to avoid circular
- * dependencies where build scripts depend on the built dist output.
+ * @file Simplified argument parsing for build scripts. Uses Node.js built-in
+ *   util.parseArgs (available in Node 22+). This is intentionally separate from
+ *   src/argv/parse.ts to avoid circular dependencies where build scripts depend
+ *   on the built dist output.
  */
 
 import process from 'node:process'
@@ -32,9 +31,9 @@ export function getPositionalArgs(startIndex = 2) {
  * Check if a specific flag is present in argv.
  *
  * @example
- * // Pass aliases explicitly — this helper does NOT infer single-char aliases
- * // from the flag name (e.g., hasFlag('verbose') will not match '-v').
- * hasFlag('verbose', ['-v'])
+ *   // Pass aliases explicitly — this helper does NOT infer single-char aliases
+ *   // from the flag name (e.g., hasFlag('verbose') will not match '-v').
+ *   hasFlag('verbose', ['-v'])
  */
 export function hasFlag(
   flag: string,
@@ -54,8 +53,8 @@ export function hasFlag(
 }
 
 /**
- * Parse command-line arguments using Node.js built-in parseArgs.
- * Simplified version for build scripts that don't need yargs-parser features.
+ * Parse command-line arguments using Node.js built-in parseArgs. Simplified
+ * version for build scripts that don't need yargs-parser features.
  */
 export function parseArgs(config = {}) {
   const {

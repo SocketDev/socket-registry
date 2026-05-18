@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for available-typed-arrays NPM package override.
- * Ported 1:1 from upstream v1.0.7 (d72cd6154ce39482ca83bed2200ff3b56c76e8d8):
- * https://github.com/inspect-js/available-typed-arrays/blob/d72cd6154ce39482ca83bed2200ff3b56c76e8d8/test/index.js
+ * @file Tests for available-typed-arrays NPM package override. Ported 1:1 from
+ *   upstream v1.0.7 (d72cd6154ce39482ca83bed2200ff3b56c76e8d8):
+ *   https://github.com/inspect-js/available-typed-arrays/blob/d72cd6154ce39482ca83bed2200ff3b56c76e8d8/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

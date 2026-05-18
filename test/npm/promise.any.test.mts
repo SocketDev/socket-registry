@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for promise.any NPM package override.
- * Ported 1:1 from upstream v2.0.6 (cd47c039):
- * https://github.com/es-shims/Promise.any/blob/cd47c0397d3655cd56305cc98a42f8d8fb85f3bb/test/tests.js
+ * @file Tests for promise.any NPM package override. Ported 1:1 from upstream
+ *   v2.0.6 (cd47c039):
+ *   https://github.com/es-shims/Promise.any/blob/cd47c0397d3655cd56305cc98a42f8d8fb85f3bb/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for globalthis NPM package override.
- * Ported 1:1 from upstream v1.0.4 (1776bde5):
- * https://github.com/ljharb/System.global/blob/1776bde58ddfc1e3de7d49c859acdce57a5b21a0/test/tests.js
+ * @file Tests for globalthis NPM package override. Ported 1:1 from upstream
+ *   v1.0.4 (1776bde5):
+ *   https://github.com/ljharb/System.global/blob/1776bde58ddfc1e3de7d49c859acdce57a5b21a0/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

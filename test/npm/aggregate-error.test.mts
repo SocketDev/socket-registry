@@ -1,5 +1,5 @@
 /**
- * @fileoverview Tests for aggregate-error NPM package override.
+ * @file Tests for aggregate-error NPM package override.
  */
 
 import { describe, expect, it } from 'vitest'

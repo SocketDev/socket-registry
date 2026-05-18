@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for safe-array-concat NPM package override.
- * Ported 1:1 from upstream v1.1.3 (eff5359f):
- * https://github.com/ljharb/safe-array-concat/blob/eff5359f/test/index.js
+ * @file Tests for safe-array-concat NPM package override. Ported 1:1 from
+ *   upstream v1.1.3 (eff5359f):
+ *   https://github.com/ljharb/safe-array-concat/blob/eff5359f/test/index.js.
  */
 import { describe, expect, it } from 'vitest'
 

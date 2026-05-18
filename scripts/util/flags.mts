@@ -1,8 +1,7 @@
 /**
- * @fileoverview Simplified flag utilities for build scripts.
- *
- * This is intentionally separate from src/argv/flags.ts to avoid circular
- * dependencies where build scripts depend on the built dist output.
+ * @file Simplified flag utilities for build scripts. This is intentionally
+ *   separate from src/argv/flags.ts to avoid circular dependencies where build
+ *   scripts depend on the built dist output.
  */
 
 import process from 'node:process'

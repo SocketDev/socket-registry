@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for array.prototype.findlast NPM package override.
- * Ported 1:1 from upstream v1.2.5 (86df6af8f39b82ad2d5cac3a362f920813bae030):
- * https://github.com/es-shims/Array.prototype.findLast/blob/86df6af8f39b82ad2d5cac3a362f920813bae030/test/tests.js
+ * @file Tests for array.prototype.findlast NPM package override. Ported 1:1
+ *   from upstream v1.2.5 (86df6af8f39b82ad2d5cac3a362f920813bae030):
+ *   https://github.com/es-shims/Array.prototype.findLast/blob/86df6af8f39b82ad2d5cac3a362f920813bae030/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

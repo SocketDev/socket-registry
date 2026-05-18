@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for functions-have-names NPM package override.
- * Ported 1:1 from upstream v1.2.3 (64b47a22):
- * https://github.com/inspect-js/functions-have-names/blob/64b47a22365205afc910782e99fc4b554d937171/test/index.js
+ * @file Tests for functions-have-names NPM package override. Ported 1:1 from
+ *   upstream v1.2.3 (64b47a22):
+ *   https://github.com/inspect-js/functions-have-names/blob/64b47a22365205afc910782e99fc4b554d937171/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for safe-regex-test NPM package override.
- * Ported 1:1 from upstream v1.1.0 (9360cf07):
- * https://github.com/ljharb/safe-regex-test/blob/9360cf07/test/index.js
+ * @file Tests for safe-regex-test NPM package override. Ported 1:1 from
+ *   upstream v1.1.0 (9360cf07):
+ *   https://github.com/ljharb/safe-regex-test/blob/9360cf07/test/index.js.
  */
 import { describe, expect, it } from 'vitest'
 

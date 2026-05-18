@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for function.prototype.name NPM package override.
- * Simplified from upstream v1.1.8 (1e04422c):
- * https://github.com/es-shims/Function.prototype.name/blob/1e04422c64ec87a634955827aa346294967580c4/test/tests.js
+ * @file Tests for function.prototype.name NPM package override. Simplified from
+ *   upstream v1.1.8 (1e04422c):
+ *   https://github.com/es-shims/Function.prototype.name/blob/1e04422c64ec87a634955827aa346294967580c4/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

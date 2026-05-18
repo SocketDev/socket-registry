@@ -1,4 +1,6 @@
-/** @fileoverview Utility for running shell commands with proper error handling. */
+/**
+ * @file Utility for running shell commands with proper error handling.
+ */
 /* oxlint-disable socket/prefer-cached-for-loop -- iterates a destructured command-list record; the cached-length rewrite would be incorrect. */
 
 import process from 'node:process'
@@ -88,10 +90,9 @@ export async function runSequence(commands: CommandSpec[]): Promise<number> {
 }
 
 /**
- * Wait for stdio handles to finish flushing.
- * When spawning multiple processes with stdio: 'inherit', child processes can
- * exit while leaving stdio handles with pending write callbacks; polling for
- * drain prevents intermittent hangs.
+ * Wait for stdio handles to finish flushing. When spawning multiple processes
+ * with stdio: 'inherit', child processes can exit while leaving stdio handles
+ * with pending write callbacks; polling for drain prevents intermittent hangs.
  */
 export async function waitForStdioFlush(
   timeoutMs: number = 1000,

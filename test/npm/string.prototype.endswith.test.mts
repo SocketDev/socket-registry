@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for string.prototype.endswith NPM package override.
- * Ported 1:1 from upstream v1.0.2 (3803a49d):
- * https://github.com/mathiasbynens/String.prototype.endsWith/blob/3803a49d/test/tests.js
+ * @file Tests for string.prototype.endswith NPM package override. Ported 1:1
+ *   from upstream v1.0.2 (3803a49d):
+ *   https://github.com/mathiasbynens/String.prototype.endsWith/blob/3803a49d/test/tests.js.
  */
 import { describe, expect, it } from 'vitest'
 

@@ -21,6 +21,7 @@ Run the `/quality-scan` skill with all scan types enabled.
 **Gate condition**: zero CRITICAL findings. If any CRITICAL findings exist, abort the release and report them.
 
 Read the HANDOFF block from quality-scan to check:
+
 ```
 Findings: {critical: N, ...}
 ```
@@ -38,6 +39,7 @@ Run the `/security-scan` skill.
 **Gate condition**: grade B or above. If grade is C, D, or F, abort the release and report findings.
 
 Read the HANDOFF block from security-scan to check:
+
 ```
 Grade: {A-F}
 ```
@@ -66,6 +68,7 @@ Update queue: `current_phase: changelog`
 ### Phase 4: Version Bump
 
 Determine version bump from commit types:
+
 - `feat` commits → minor bump
 - `fix` commits only → patch bump
 - Breaking changes (noted in commits) → major bump
@@ -73,6 +76,7 @@ Determine version bump from commit types:
 Update `version` in `package.json`.
 
 Present the version change for approval. Commit changelog + version bump together:
+
 ```
 chore(release): X.Y.Z
 ```
@@ -84,5 +88,6 @@ Update queue: `status: done`
 ### Post-Release (Manual)
 
 After the release commit is merged:
+
 1. Tag: `git tag vX.Y.Z && git push origin vX.Y.Z`
 2. The provenance workflow handles npm publishing

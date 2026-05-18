@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for util.promisify NPM package override.
- * Ported 1:1 from upstream v1.1.3 (4e6f368e):
- * https://github.com/ljharb/util.promisify/blob/4e6f368e/test/tests.js
+ * @file Tests for util.promisify NPM package override. Ported 1:1 from upstream
+ *   v1.1.3 (4e6f368e):
+ *   https://github.com/ljharb/util.promisify/blob/4e6f368e/test/tests.js.
  */
 import { describe, expect, it } from 'vitest'
 

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for es-aggregate-error NPM package override.
- * Ported 1:1 from upstream v1.0.14 (9a60200e):
- * https://github.com/es-shims/AggregateError/blob/9a60200ed1a2128f48ef2d00e5a07d7c1a09c49c/test/tests.js
+ * @file Tests for es-aggregate-error NPM package override. Ported 1:1 from
+ *   upstream v1.0.14 (9a60200e):
+ *   https://github.com/es-shims/AggregateError/blob/9a60200ed1a2128f48ef2d00e5a07d7c1a09c49c/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

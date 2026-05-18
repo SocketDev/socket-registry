@@ -19,6 +19,7 @@
 **Always prioritize simplicity** - the simpler the code, the fewer bugs it will have.
 
 Common violations to flag:
+
 - **Over-abstraction**: Creating utilities, helpers, or wrappers for one-time operations
 - **Premature optimization**: Complex caching, memoization, or performance tricks before profiling
 - **Unnecessary indirection**: Multiple layers of function calls when direct code would be clearer
@@ -28,14 +29,16 @@ Common violations to flag:
 Examples:
 
 **BAD - Ignoring return values and reconstructing paths:**
+
 ```javascript
 await downloadAsset({ asset, downloadDir, tool: 'package' })
-const downloadedPath = path.join(downloadDir, 'package', 'assets', asset)  // ❌ Assumes path structure
+const downloadedPath = path.join(downloadDir, 'package', 'assets', asset) // ❌ Assumes path structure
 ```
 
 **GOOD - Use the return value:**
+
 ```javascript
-const downloadedPath = await downloadAsset({ asset, downloadDir })  // ✅ Simple, trust the function
+const downloadedPath = await downloadAsset({ asset, downloadDir }) // ✅ Simple, trust the function
 ```
 
 **Principle**: If a function returns what you need, use it. Don't reconstruct or assume.
@@ -49,6 +52,7 @@ const downloadedPath = await downloadAsset({ asset, downloadDir })  // ✅ Simpl
 **Scan Targets**: All `.mts` files in `src/`
 
 **Prompt Template:**
+
 ```
 Your task is to perform a critical bug scan on the codebase. Identify bugs that could cause crashes, data corruption, or security vulnerabilities.
 
@@ -162,6 +166,7 @@ Scan systematically and report all critical bugs found. If no critical bugs are 
 **Scan Targets**: All source code files
 
 **Prompt Template:**
+
 ```
 Your task is to detect logic errors in the codebase that could produce incorrect output or incorrect behavior. Focus on algorithm correctness, edge case handling, and data validation.
 
@@ -261,6 +266,7 @@ Analyze systematically and report all logic errors found. If no errors are found
 **Scan Targets**: Caching logic across the codebase (if applicable)
 
 **Prompt Template:**
+
 ```
 Your task is to analyze caching implementation for correctness, staleness bugs, and performance issues. Focus on cache corruption, invalidation failures, and race conditions.
 
@@ -389,6 +395,7 @@ Analyze the checkpoint implementation thoroughly across all checkpoint stages an
 **Scan Targets**: All `scripts/`, `package.json`, `.git-hooks/*`, `.husky/*`, `.github/workflows/*` across packages
 
 **Prompt Template:**
+
 ```
 Your task is to identify issues in socket-registry's development workflows, build scripts, and CI configuration that could cause build failures, test flakiness, or poor developer experience.
 
@@ -574,12 +581,12 @@ Analyze workflow files systematically and report all issues found. If workflows 
 
 ### Severity Levels
 
-| Level | Description | Action Required |
-|-------|-------------|-----------------|
-| **Critical** | Crashes, security vulnerabilities, data corruption | Fix immediately |
-| **High** | Logic errors, incorrect output, resource leaks | Fix before release |
-| **Medium** | Performance issues, edge case bugs | Fix in next sprint |
-| **Low** | Code smells, minor inconsistencies | Fix when convenient |
+| Level        | Description                                        | Action Required     |
+| ------------ | -------------------------------------------------- | ------------------- |
+| **Critical** | Crashes, security vulnerabilities, data corruption | Fix immediately     |
+| **High**     | Logic errors, incorrect output, resource leaks     | Fix before release  |
+| **Medium**   | Performance issues, edge case bugs                 | Fix in next sprint  |
+| **Low**      | Code smells, minor inconsistencies                 | Fix when convenient |
 
 ### Scan Priority Order
 
@@ -602,6 +609,7 @@ Analyze workflow files systematically and report all issues found. If workflows 
 ### Structured Findings
 
 Each finding should include:
+
 ```typescript
 {
   file: "src/util/file-cache.mts:89",
@@ -627,12 +635,14 @@ Each finding should include:
 ## Critical Issues (Priority 1) - 2 found
 
 ### src/util/file-cache.mts:89
+
 - **Issue**: Potential null pointer access on cache miss
 - **Pattern**: `const stats = await fs.stat(normalizedPath)`
 - **Fix**: Add try-catch or check file existence first
 - **Impact**: Crashes when file deleted between cache check and stat
 
 ### src/parsers/npm/index.mts:234
+
 - **Issue**: Unhandled promise rejection
 - **Pattern**: `parsePackageJson(path)` without await or .catch()
 - **Fix**: Add await or .catch() handler
@@ -641,6 +651,7 @@ Each finding should include:
 ## High Issues (Priority 2) - 5 found
 
 ### src/parsers/pypi/index.mts:512
+
 - **Issue**: Off-by-one error in bracket depth calculation
 - **Pattern**: `bracketDepth - 1` can go negative
 - **Fix**: Use `Math.max(0, bracketDepth - 1)`
@@ -649,12 +660,14 @@ Each finding should include:
 ...
 
 ## Scan Coverage
+
 - **Critical scan**: 127 files analyzed in src/
 - **Logic scan**: 19 parsers + 15 utils analyzed
 - **Cache scan**: 1 file + related code paths
 - **Workflow scan**: 12 scripts + package.json + 3 hooks
 
 ## Recommendations
+
 1. Address 2 critical issues immediately before next release
 2. Review 5 high-severity logic errors in parsers
 3. Schedule medium issues for next sprint
@@ -668,6 +681,7 @@ Each finding should include:
 ### No Findings
 
 If scan finds no issues:
+
 ```markdown
 # Quality Scan Report
 
@@ -686,6 +700,7 @@ All scans completed successfully with no findings.
 ### Scan Failures
 
 If an agent fails or times out:
+
 ```markdown
 ## Scan Errors
 
@@ -701,6 +716,7 @@ If an agent fails or times out:
 ### Partial Scans
 
 User can request specific scan types:
+
 ```bash
 # Only run critical and logic scans
 quality-scan --types critical,logic
@@ -717,7 +733,8 @@ Report only includes requested scan types and notes which were skipped.
 **Scan Targets**: All `.yml` files in `.github/workflows/`
 
 **Prompt Template:**
-```
+
+````
 Your task is to run the zizmor security scanner on GitHub Actions workflows to identify security vulnerabilities such as template injection, cache poisoning, and other workflow security issues.
 
 <context>
@@ -739,7 +756,7 @@ Zizmor is not an npm package. See `_shared/security-tools.md` for detection and 
 1. Run zizmor on all GitHub Actions workflow files:
    ```bash
    zizmor .github/workflows/
-   ```
+````
 
 2. Parse the zizmor output and identify all findings:
    - Extract severity level (info, low, medium, high, error)
@@ -759,7 +776,7 @@ Zizmor is not an npm package. See `_shared/security-tools.md` for detection and 
 4. If zizmor reports no findings, state explicitly: "✓ No security issues found in GitHub Actions workflows"
 
 5. Note any suppressed findings (shown by zizmor but marked as suppressed)
-</instructions>
+   </instructions>
 
 <pattern name="template_injection">
 Look for findings like:
@@ -788,29 +805,31 @@ Look for findings like:
 For each finding, output in this structured format:
 
 {
-  file: ".github/workflows/workflow-name.yml:123",
-  issue: "Template injection vulnerability in run block",
-  severity: "High",
-  scanType: "security",
-  pattern: "run: echo ${{ github.event.comment.body }}",
+file: ".github/workflows/workflow-name.yml:123",
+issue: "Template injection vulnerability in run block",
+severity: "High",
+scanType: "security",
+pattern: "run: echo ${{ github.event.comment.body }}",
   trigger: "Untrusted user input from PR comment",
   fix: "Use environment variables: env: COMMENT: ${{ github.event.comment.body }} then echo \"$COMMENT\"",
-  impact: "Attacker can execute arbitrary code in CI environment",
-  autofix: true
+impact: "Attacker can execute arbitrary code in CI environment",
+autofix: true
 }
 
 Group findings by severity (Error → High → Medium → Low → Info)
 </output_format>
 
 <quality_guidelines>
+
 - Only report actual zizmor findings (don't invent issues)
 - Include all details from zizmor output
 - Note the audit confidence level for each finding
 - Indicate if auto-fix is available
 - If no findings, explicitly state the workflows are secure
 - Report suppressed findings separately
-</quality_guidelines>
-```
+  </quality_guidelines>
+
+````
 
 ### Example Security Scan Output
 
@@ -836,7 +855,7 @@ Group findings by severity (Error → High → Medium → Low → Info)
 - **Impact**: Attacker could poison dependency cache and inject malicious code into releases
 - **Auto-fix**: Not available
 - **Confidence**: Low
-```
+````
 
 ---
 
@@ -847,7 +866,8 @@ Group findings by severity (Error → High → Medium → Low → Info)
 **Scan Targets**: All `.github/workflows/*.yml` files
 
 **Prompt Template:**
-```
+
+````
 Your task is to verify GitHub Actions workflows properly optimize CI time by using caching, conditional steps, and avoiding redundant installations.
 
 <context>
@@ -872,9 +892,10 @@ Systematically verify all workflows optimize CI time:
 **Step 1: Identify workflows with caching**
 ```bash
 ls .github/workflows/*.yml
-```
+````
 
 **Step 2: For each workflow, check:**
+
 1. Is pnpm store cached? (`actions/cache` or `pnpm/action-setup` with cache)
 2. Are build outputs cached when possible?
 3. Are installation steps conditional on cache misses?
@@ -888,11 +909,13 @@ Workflows that install dependencies without caching:
 - run: pnpm install
 
 # GOOD - with pnpm store cache
+
 - uses: pnpm/action-setup@v4
 - uses: actions/setup-node@v4
   with:
-    cache: 'pnpm'
+  cache: 'pnpm'
 - run: pnpm install
+
 ```
 </pattern>
 
@@ -958,7 +981,8 @@ Systematically analyze all workflows and report all missing optimizations. If wo
 **Scan Targets**: All README.md files, documentation files, and inline code examples
 
 **Prompt Template:**
-```
+
+````
 Your task is to verify documentation accuracy across all README files and documentation by comparing documented behavior, examples, commands, and API descriptions against the actual codebase implementation.
 
 <context>
@@ -985,7 +1009,7 @@ Systematically verify all README files and documentation against the actual code
 1. **Find all documentation files**:
    ```bash
    find . -name "README.md" -o -name "*.md" -path "*/docs/*"
-   ```
+````
 
 2. **For each README, verify**:
    - Package names match package.json "name" field
@@ -1063,11 +1087,12 @@ Look for:
 - Patch counts that don't match actual patches
 
 **CRITICAL: For dependency versions:**
+
 - DO NOT blindly "correct" documented versions without verification
 - Check package.json files as the source of truth for dependency versions
 - If unsure about a version, SKIP reporting it as incorrect - ask user to verify
 - When in doubt, assume documentation is correct unless you can definitively verify otherwise
-</pattern>
+  </pattern>
 
 <pattern name="missing_documentation">
 Look for:
@@ -1081,6 +1106,7 @@ Look for:
 **CRITICAL: Evaluate documentation from a junior developer perspective**
 
 Check for junior-developer unfriendly patterns:
+
 - Missing "Why" explanations (e.g., "Use overrides to replace packages" without explaining what overrides are)
 - Assumed knowledge not documented (npm overrides, pnpm workspaces)
 - No examples for common workflows (first-time setup, typical usage)
@@ -1093,6 +1119,7 @@ Check for junior-developer unfriendly patterns:
 - Undocumented debugging techniques
 
 **Pay special attention to:**
+
 1. **Root README.md** - First thing junior devs see, must be welcoming and clear
 2. **Package READMEs** - Should explain purpose, use cases, and provide examples
 3. **CLAUDE.md** - Project guidelines must be understandable by junior contributors
@@ -1100,31 +1127,35 @@ Check for junior-developer unfriendly patterns:
 5. **Error message handling** - Should help debug, not confuse
 
 **Areas requiring extra scrutiny:**
+
 - npm override concepts (how overrides work, why they exist)
 - Package registry architecture (packages/npm/ structure, registry/lib/)
 - Build scripts and automation (scripts/ directory)
 - CI/CD workflows (reusable workflows, publishing)
 
 For each junior-dev issue:
+
 - Identify the knowledge gap or assumption
 - Explain why this is confusing for juniors
 - Suggest specific documentation additions (not just "add more docs")
 - Provide example of clear explanation
 
 Example findings:
+
 - "README assumes knowledge of npm overrides without explaining them"
 - "No explanation of what 'override packages' means or why they exist"
 - "Technical term 'pnpm workspaces' used without definition"
 - "Build errors not documented in troubleshooting section"
-</pattern>
+  </pattern>
 
 For each issue found:
+
 1. Read the documented information
 2. Read the actual code/config to verify
 3. Determine the discrepancy
 4. Provide the correct information
 5. Evaluate junior developer friendliness
-</instructions>
+   </instructions>
 
 <output_format>
 For each finding, report:
@@ -1138,6 +1169,7 @@ Fix: [Exact documentation correction needed]
 Impact: [Why this matters - confusion, errors, etc.]
 
 Severity Guidelines:
+
 - High: Critical inaccuracies that would cause errors if followed (wrong commands, non-existent APIs)
 - Medium: Outdated information that misleads but doesn't immediately break (wrong paths, old examples)
 - Low: Minor inaccuracies or missing non-critical information
@@ -1227,6 +1259,7 @@ Impact: Without concrete starting point, juniors struggle to use overrides
 </output_format>
 
 <quality_guidelines>
+
 - Verify every claim against actual code - don't assume documentation is correct
 - Read package.json files to check names, scripts, versions
 - Run --help commands to verify CLI flags when possible
@@ -1237,10 +1270,11 @@ Impact: Without concrete starting point, juniors struggle to use overrides
 - Group related issues (e.g., "5 packages using @scope incorrectly")
 - Provide exact fixes, not vague suggestions
 - If a README is mostly missing (75%+ of package undocumented), report as single high-severity issue
-</quality_guidelines>
+  </quality_guidelines>
 
 Scan all README.md files in the repository and report all documentation inaccuracies found. If documentation is accurate, state that explicitly.
-```
+
+````
 
 ### Example Documentation Scan Output
 
@@ -1308,5 +1342,4 @@ Scan all README.md files in the repository and report all documentation inaccura
 - **Actual**: Requires pnpm.overrides configuration; not automatic
 - **Fix**: Clarify that overrides require pnpm.overrides configuration
 - **Impact**: Confusion about override activation process
-```
-
+````

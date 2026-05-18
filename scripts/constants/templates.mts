@@ -1,5 +1,5 @@
 /**
- * @fileoverview Template-related constants.
+ * @file Template-related constants.
  */
 
 export const TEMPLATE_CJS = 'cjs'

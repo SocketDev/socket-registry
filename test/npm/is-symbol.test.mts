@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for is-symbol NPM package override.
- * Ported 1:1 from upstream v1.1.1 (b1561d99):
- * https://github.com/inspect-js/is-symbol/blob/b1561d99da494df9bd1a768b1444ce9d1bc8ac1a/test/index.js
+ * @file Tests for is-symbol NPM package override. Ported 1:1 from upstream
+ *   v1.1.1 (b1561d99):
+ *   https://github.com/inspect-js/is-symbol/blob/b1561d99da494df9bd1a768b1444ce9d1bc8ac1a/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

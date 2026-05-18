@@ -1,7 +1,7 @@
 {
-  "private": true,
   "name": "perf-npm",
   "version": "1.0.0",
+  "private": true,
   "bin": {},
   "devDependencies": {
     "@socketregistry/json-stable-stringify": "workspace:^",

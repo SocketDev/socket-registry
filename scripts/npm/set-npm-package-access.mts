@@ -1,4 +1,6 @@
-/** @fileoverview Set MFA automation access level for published npm packages. */
+/**
+ * @file Set MFA automation access level for published npm packages.
+ */
 
 import path from 'node:path'
 import { execNpm } from '@socketsecurity/lib-stable/eco/npm/npm'

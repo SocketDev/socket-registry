@@ -1,5 +1,7 @@
 import process from 'node:process'
-/** @fileoverview Vitest setup file for coverage mode require() interception. */
+/**
+ * @file Vitest setup file for coverage mode require() interception.
+ */
 
 // Check if coverage is enabled.
 const isCoverageEnabled =

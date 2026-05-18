@@ -1,8 +1,8 @@
 /**
- * @fileoverview Tests for jsonify NPM package override.
- * Ported 1:1 from upstream v0.0.1 (7629309d):
- * https://github.com/ljharb/jsonify/blob/7629309dc2f145cdd7680ea174979330f1e39855/test/stringify.js
- * https://github.com/ljharb/jsonify/blob/7629309dc2f145cdd7680ea174979330f1e39855/test/parse.js
+ * @file Tests for jsonify NPM package override. Ported 1:1 from upstream v0.0.1
+ *   (7629309d):
+ *   https://github.com/ljharb/jsonify/blob/7629309dc2f145cdd7680ea174979330f1e39855/test/stringify.js
+ *   https://github.com/ljharb/jsonify/blob/7629309dc2f145cdd7680ea174979330f1e39855/test/parse.js.
  */
 
 import { describe, expect, it } from 'vitest'

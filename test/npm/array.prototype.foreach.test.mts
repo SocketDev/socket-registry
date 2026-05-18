@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for array.prototype.foreach NPM package override.
- * Ported 1:1 from upstream v1.0.7 (221db09c351c56fd4c9172e40391f601cf6b8d8a):
- * https://github.com/es-shims/Array.prototype.forEach/blob/221db09c351c56fd4c9172e40391f601cf6b8d8a/test/tests.js
+ * @file Tests for array.prototype.foreach NPM package override. Ported 1:1 from
+ *   upstream v1.0.7 (221db09c351c56fd4c9172e40391f601cf6b8d8a):
+ *   https://github.com/es-shims/Array.prototype.forEach/blob/221db09c351c56fd4c9172e40391f601cf6b8d8a/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

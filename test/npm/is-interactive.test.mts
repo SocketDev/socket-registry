@@ -1,5 +1,5 @@
 /**
- * @fileoverview Tests for is-interactive NPM package override.
+ * @file Tests for is-interactive NPM package override.
  */
 
 import { describe, expect, it } from 'vitest'

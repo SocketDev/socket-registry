@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for typed-array-byte-length NPM package override.
- * Ported 1:1 from upstream v1.0.3 (1ff4b117):
- * https://github.com/inspect-js/typed-array-byte-length/blob/1ff4b117/test/index.js
+ * @file Tests for typed-array-byte-length NPM package override. Ported 1:1 from
+ *   upstream v1.0.3 (1ff4b117):
+ *   https://github.com/inspect-js/typed-array-byte-length/blob/1ff4b117/test/index.js.
  */
 import { describe, expect, it } from 'vitest'
 

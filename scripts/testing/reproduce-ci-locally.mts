@@ -1,6 +1,8 @@
 /* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
 
-/** @fileoverview Reproduces CI test environment locally to catch issues before pushing. */
+/**
+ * @file Reproduces CI test environment locally to catch issues before pushing.
+ */
 
 import { mkdtempSync, promises as fs } from 'node:fs'
 import os from 'node:os'
@@ -46,8 +48,8 @@ const { values: cliArgs } = parseArgs({
 
 /**
  * Create isolated test environment by copying project to temp directory.
- * Excludes node_modules, build artifacts, and version control to ensure
- * clean install matching CI behavior.
+ * Excludes node_modules, build artifacts, and version control to ensure clean
+ * install matching CI behavior.
  */
 export async function createTestEnvironment() {
   const tempDir = mkdtempSync(path.join(os.tmpdir(), 'ci-reproduce-'))
@@ -91,8 +93,8 @@ export async function runBuild(workDir) {
 }
 
 /**
- * Run command with CI-like environment variables.
- * Sets up environment to match actual CI execution context.
+ * Run command with CI-like environment variables. Sets up environment to match
+ * actual CI execution context.
  */
 export async function runCiCommand(command, args, options = {}) {
   const ciEnv = {

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for iterator.prototype NPM package override.
- * Ported 1:1 from upstream v1.1.5 (9cd8a50f):
- * https://github.com/ljharb/Iterator.prototype/blob/9cd8a50f98006f3d13da871a971c174ea29edb0c/test/index.js
+ * @file Tests for iterator.prototype NPM package override. Ported 1:1 from
+ *   upstream v1.1.5 (9cd8a50f):
+ *   https://github.com/ljharb/Iterator.prototype/blob/9cd8a50f98006f3d13da871a971c174ea29edb0c/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

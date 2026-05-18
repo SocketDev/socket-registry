@@ -1,13 +1,13 @@
 {
-  "private": true,
   "name": "npm",
   "version": "",
+  "private": true,
   "workspaces": [
     "packages/*"
   ],
   "devDependencies": {
-    "@socketsecurity/registry": "file:../../registry",
     "@hyrious/bun.lockb": "https://github.com/hyrious/bun.lockb/archive/e4bab9e77b8c51c13eb02d526fb294e60955e7d8.tar.gz",
+    "@socketsecurity/registry": "file:../../registry",
     "array-buffer-byte-length": "1.0.2",
     "array-flatten": "https://github.com/blakeembrey/array-flatten/archive/34b6d5a64b9bd844263321c321c86483f5147875.tar.gz",
     "array-includes": "3.1.9",

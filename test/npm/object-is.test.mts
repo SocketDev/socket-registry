@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for object-is NPM package override.
- * Ported 1:1 from upstream v1.1.6 (de5db308):
- * https://github.com/es-shims/object-is/blob/de5db308d01cf04294a71022c26e0b6d1b0d7ad6/test/tests.js
+ * @file Tests for object-is NPM package override. Ported 1:1 from upstream
+ *   v1.1.6 (de5db308):
+ *   https://github.com/es-shims/object-is/blob/de5db308d01cf04294a71022c26e0b6d1b0d7ad6/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

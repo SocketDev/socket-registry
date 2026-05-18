@@ -1,18 +1,23 @@
 {
   "name": "@socketregistry/set-function-length",
   "version": "1.0.10",
-  "license": "MIT",
   "description": "Socket.dev optimized package override for set-function-length",
   "keywords": [
     "Socket.dev",
     "package-overrides"
   ],
   "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/set-function-length",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",
     "directory": "packages/npm/set-function-length"
   },
+  "files": [
+    "*.d.ts",
+    "*.js"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./index.d.ts",
@@ -24,21 +29,16 @@
     },
     "./package.json": "./package.json"
   },
-  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "engines": {
     "node": ">=18"
   },
-  "files": [
-    "*.d.ts",
-    "*.js"
-  ],
   "socket": {
     "categories": [
       "cleanup"
     ]
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
   }
 }

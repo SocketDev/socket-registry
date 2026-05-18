@@ -1,4 +1,6 @@
-/** @fileoverview Analyzes CI failure logs and suggests fixes based on known patterns. */
+/**
+ * @file Analyzes CI failure logs and suggests fixes based on known patterns.
+ */
 /* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Object.entries) and small destructured records; the cached-length rewrite would be incorrect. */
 
 import { promises as fs } from 'node:fs'
@@ -27,13 +29,11 @@ const { values: cliArgs } = parseArgs({
 })
 
 /**
- * Failure pattern definitions for automated CI log analysis.
- * Each pattern includes:
- * - pattern: Regex to match error in logs
- * - category: Human-readable category for grouping
- * - severity: 'error' or 'warning'
- * - extract: Optional function to extract specific details from match
- * - suggestions: Actionable fixes for this failure type
+ * Failure pattern definitions for automated CI log analysis. Each pattern
+ * includes: - pattern: Regex to match error in logs - category: Human-readable
+ * category for grouping - severity: 'error' or 'warning' - extract: Optional
+ * function to extract specific details from match - suggestions: Actionable
+ * fixes for this failure type.
  */
 const FAILURE_PATTERNS = {
   // Module resolution and import errors.

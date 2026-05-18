@@ -1,9 +1,9 @@
 /* max-file-lines: legitimate — shared package.json toolkit; every helper is co-consumed by multiple npm scripts and splitting would fan-out imports without a real domain seam (only ~22 LOC over the soft cap). */
 /* oxlint-disable socket/prefer-cached-for-loop -- iterates Object.entries() of script tables; the cached-length rewrite would be incorrect. */
 /**
- * @fileoverview Common utilities for working with package.json files.
- * Provides helper functions for reading, updating, and managing package.json
- * files across the project.
+ * @file Common utilities for working with package.json files. Provides helper
+ *   functions for reading, updating, and managing package.json files across the
+ *   project.
  */
 
 import crypto from 'node:crypto'
@@ -56,6 +56,7 @@ export const PNPM_INSTALL_ENV = { CI: undefined, NODE_ENV: undefined }
 
 /**
  * Reads and caches editable package.json files to avoid redundant disk I/O.
+ *
  * @type {Map<string, any>}
  */
 export const editablePackageJsonCache = new Map()
@@ -463,9 +464,10 @@ export async function resolveRealPath(pathStr) {
 /**
  * Run a command with spawn, piping stdio and normalizing error shape.
  *
- * On non-zero exit this throws an Error augmented with `code`/`stdout`/`stderr`,
- * unlike `runCommand` in `./run-command.mts` which returns a number and never
- * throws on non-zero. Use this when you need captured stdio on failure.
+ * On non-zero exit this throws an Error augmented with
+ * `code`/`stdout`/`stderr`, unlike `runCommand` in `./run-command.mts` which
+ * returns a number and never throws on non-zero. Use this when you need
+ * captured stdio on failure.
  */
 export async function spawnCapture(
   command: string,

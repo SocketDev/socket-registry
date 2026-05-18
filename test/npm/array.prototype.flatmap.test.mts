@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for array.prototype.flatmap NPM package override.
- * Ported 1:1 from upstream v1.3.3 (7ebde137):
- * https://github.com/es-shims/Array.prototype.flatMap/blob/7ebde137246788a04036a73f1a6ffed5b600f22e/test/tests.js
+ * @file Tests for array.prototype.flatmap NPM package override. Ported 1:1 from
+ *   upstream v1.3.3 (7ebde137):
+ *   https://github.com/es-shims/Array.prototype.flatMap/blob/7ebde137246788a04036a73f1a6ffed5b600f22e/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

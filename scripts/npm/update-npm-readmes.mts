@@ -1,4 +1,6 @@
-/** @fileoverview Update README.md files for all npm packages using templates. */
+/**
+ * @file Update README.md files for all npm packages using templates.
+ */
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'

@@ -3,71 +3,85 @@
 /* max-file-lines: legitimate — monolithic npm-install driver (resolution + override application + nested traversal + progress UI). The phases share enough live state (tasks queue, override map, scoped-vs-unscoped branch) that splitting them produces a tangle of cross-file mutables. */
 
 /**
- * @fileoverview Script for installing npm packages with Socket overrides for testing.
+ * @file Script for installing npm packages with Socket overrides for testing.
+ *   EXECUTION FLOW: This script is part of a 3-phase testing pipeline:
  *
- * EXECUTION FLOW:
+ *   1. validation/npm-packages.mts - Validates packages have manual tests or are
+ *      in devDependencies
+ *   2. install-npm-packages.mts - Installs packages with Socket overrides (THIS
+ *      FILE)
+ *   3. run-npm-package-tests.mts - Runs tests for installed packages WHAT THIS
+ *      SCRIPT DOES:
+ *   4. Cleanup Phase (before processing packages):
  *
- * This script is part of a 3-phase testing pipeline:
- *   1. validation/npm-packages.mts - Validates packages have manual tests or are in devDependencies
- *   2. install-npm-packages.mts  - Installs packages with Socket overrides (THIS FILE)
- *   3. run-npm-package-tests.mts - Runs tests for installed packages
+ *   - Removes node_modules directories from packages/npm/* to prevent pnpm
+ *     workspace symlink conflicts between local development and CI
+ *     environments
+ *   - NOTE: socket-test-extract-* directories are NOT cleaned up here, as they
+ *     may still be referenced by cached installations. They accumulate in /tmp
+ *     but are harmless and will be cleaned by OS temp directory cleanup For
+ *     each package in test/npm/package.json devDependencies:
  *
- * WHAT THIS SCRIPT DOES:
+ *   1. GitHub Tarball Handling (if versionSpec is a GitHub URL):
  *
- * 0. Cleanup Phase (before processing packages):
- *    - Removes node_modules directories from packages/npm/* to prevent pnpm workspace
- *      symlink conflicts between local development and CI environments
- *    - NOTE: socket-test-extract-* directories are NOT cleaned up here, as they may
- *      still be referenced by cached installations. They accumulate in /tmp but are
- *      harmless and will be cleaned by OS temp directory cleanup
+ *   - Downloads and extracts the GitHub tarball using pacote to
+ *     /tmp/socket-test-extract-{timestamp}
+ *   - Removes the "files" field from package.json to preserve test files (GitHub
+ *     tarballs often have "files": ["index.js"] which excludes test files)
+ *   - Removes unnecessary lifecycle scripts (prepublishOnly, prepack, etc.) while
+ *     keeping test-related scripts (test_, pretest, posttest)
+ *   - Points pnpm to the modified local directory using file:// URL
+ *   - On failure: Falls back to GitHub URL and cleans up failed extraction
+ *     directory
+ *   - On success: Extraction directory is preserved (cleaned up after
+ *     installation)
  *
- * For each package in test/npm/package.json devDependencies:
+ *   2. Package Manager Detection:
  *
- * 1. GitHub Tarball Handling (if versionSpec is a GitHub URL):
- *    - Downloads and extracts the GitHub tarball using pacote to /tmp/socket-test-extract-{timestamp}
- *    - Removes the "files" field from package.json to preserve test files
- *      (GitHub tarballs often have "files": ["index.js"] which excludes test files)
- *    - Removes unnecessary lifecycle scripts (prepublishOnly, prepack, etc.)
- *      while keeping test-related scripts (test*, pretest, posttest)
- *    - Points pnpm to the modified local directory using file:// URL
- *    - On failure: Falls back to GitHub URL and cleans up failed extraction directory
- *    - On success: Extraction directory is preserved (cleaned up after installation)
+ *   - Detects the preferred package manager by checking: a) packageManager field
+ *     in package.json (official standard) b) Script patterns (e.g., "npm run"
+ *     commands suggest npm) c) Defaults to pnpm if no preference detected
  *
- * 2. Package Manager Detection:
- *    - Detects the preferred package manager by checking:
- *      a) packageManager field in package.json (official standard)
- *      b) Script patterns (e.g., "npm run" commands suggest npm)
- *      c) Defaults to pnpm if no preference detected
+ *   3. Package Installation:
  *
- * 3. Package Installation:
- *    - Creates a temporary directory with a dummy package.json
- *    - Installs the package using the detected package manager with Socket registry overrides
- *    - Socket overrides are applied to all dependencies EXCEPT the package being tested
- *      (this ensures the original package is installed, not replaced by our override)
- *    - Uses appropriate override format: pnpm.overrides for pnpm, overrides for npm
+ *   - Creates a temporary directory with a dummy package.json
+ *   - Installs the package using the detected package manager with Socket
+ *     registry overrides
+ *   - Socket overrides are applied to all dependencies EXCEPT the package being
+ *     tested (this ensures the original package is installed, not replaced by
+ *     our override)
+ *   - Uses appropriate override format: pnpm.overrides for pnpm, overrides for
+ *     npm
  *
- * 4. DevDependencies Installation:
- *    - Reads the installed package's devDependencies (test runners like ava, tape, mocha)
- *    - Adds them to the dummy package.json
- *    - Runs install again using the detected package manager to install test dependencies
+ *   4. DevDependencies Installation:
  *
- * 5. Socket Override Application:
- *    - Copies Socket override files (index.js, etc.) to the installed package
- *    - Does NOT overwrite test files or package.json test scripts
- *    - Updates package.json with Socket override metadata (exports, main, module, dependencies, etc.)
- *    - If Socket override has different dependencies, installs them using detected package manager
- *    - Recursively applies Socket overrides to nested dependencies
+ *   - Reads the installed package's devDependencies (test runners like ava, tape,
+ *     mocha)
+ *   - Adds them to the dummy package.json
+ *   - Runs install again using the detected package manager to install test
+ *     dependencies
  *
- * 6. Caching:
- *    - Creates a .socket-install-complete marker with version and override hash
- *    - On subsequent runs, skips installation if marker matches current version/hash
- *    - Always reapplies Socket override files even for cached packages
- *    - Cache directory: ~/.socket-npm-test-cache/ (GitHub Actions caches this)
- *    - Cache invalidation: Hash of all npm package.json files in packages/npm/
- *    - Cache cleanup (Phase 0): Removes node_modules from packages/npm/* only
- *      (socket-test-extract-* dirs are preserved for cached installations)
+ *   5. Socket Override Application:
  *
- * OUTPUT:
+ *   - Copies Socket override files (index.js, etc.) to the installed package
+ *   - Does NOT overwrite test files or package.json test scripts
+ *   - Updates package.json with Socket override metadata (exports, main, module,
+ *     dependencies, etc.)
+ *   - If Socket override has different dependencies, installs them using detected
+ *     package manager
+ *   - Recursively applies Socket overrides to nested dependencies
+ *
+ *   6. Caching:
+ *
+ *   - Creates a .socket-install-complete marker with version and override hash
+ *   - On subsequent runs, skips installation if marker matches current
+ *     version/hash
+ *   - Always reapplies Socket override files even for cached packages
+ *   - Cache directory: ~/.socket-npm-test-cache/ (GitHub Actions caches this)
+ *   - Cache invalidation: Hash of all npm package.json files in packages/npm/
+ *   - Cache cleanup (Phase 0): Removes node_modules from packages/npm/_ only
+ *     (socket-test-extract-* dirs are preserved for cached installations)
+ *     OUTPUT:
  *   - Installed packages in: /tmp/npm-package-tests/{package-name}/
  *   - Install results JSON for run-npm-package-tests.mts
  */

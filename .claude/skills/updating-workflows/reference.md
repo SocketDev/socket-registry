@@ -83,33 +83,37 @@ All pin to the propagation SHA (Layer 3 merge SHA).
 Don't rely on this skill's hard-coded table alone — repo rulesets change. Query GitHub before pushing:
 
 1. **Check rulesets on main:**
+
    ```bash
    gh api repos/SocketDev/<repo>/rules/branches/main \
      --jq '[.[] | {type, enforcement: .enforcement // {}}]'
    ```
+
    If any entry has `type: "pull_request"`, PR is required. No `pull_request` entry → direct push to main is permitted.
 
 2. **SocketDev override — `temporarily-doesnt-touch-customers`:**
+
    ```bash
    gh api repos/SocketDev/<repo>/properties/values \
      --jq '.[] | select(.property_name == "temporarily-doesnt-touch-customers") | .value'
    ```
+
    If this prints `true`, direct push is sanctioned regardless of rulesets (the repo is flagged as not currently serving customer-facing releases). If unset/`false`, follow the ruleset answer.
 
 3. **When uncertain, ask the user.** The table below is a snapshot; a ruleset update or property flip supersedes it.
 
 ### Current snapshot
 
-| Repo | Method |
-|------|--------|
-| socket-btm | Push directly to main |
-| sdxgen | Push directly to main (local checkout at `../socket-sdxgen/`) |
-| stuie | Push directly to main (local checkout at `../socket-tui/`) |
-| ultrathink | Push directly to main |
-| socket-cli | Create PR |
-| socket-lib | Create PR |
-| socket-sdk-js | Create PR |
-| socket-packageurl-js | Create PR |
+| Repo                 | Method                                                        |
+| -------------------- | ------------------------------------------------------------- |
+| socket-btm           | Push directly to main                                         |
+| sdxgen               | Push directly to main (local checkout at `../socket-sdxgen/`) |
+| stuie                | Push directly to main (local checkout at `../socket-tui/`)    |
+| ultrathink           | Push directly to main                                         |
+| socket-cli           | Create PR                                                     |
+| socket-lib           | Create PR                                                     |
+| socket-sdk-js        | Create PR                                                     |
+| socket-packageurl-js | Create PR                                                     |
 
 ---
 

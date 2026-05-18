@@ -1,5 +1,5 @@
 /**
- * @fileoverview Node.js-related constants.
+ * @file Node.js-related constants.
  */
 
 import os from 'node:os'

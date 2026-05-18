@@ -1,8 +1,8 @@
 /* oxlint-disable socket/no-process-cwd-in-scripts-hooks -- every exported helper accepts a `cwd` parameter the caller can override; the `process.cwd()` defaults are convenience for ad-hoc invocations and don't bypass the anchor-on-script-location rule. */
 /**
- * @fileoverview Git helper functions for listing staged / unstaged / changed files.
- * All returned paths are relative to the git top-level, so downstream glob matchers
- * keyed on repo-relative paths work regardless of the caller's cwd.
+ * @file Git helper functions for listing staged / unstaged / changed files. All
+ *   returned paths are relative to the git top-level, so downstream glob
+ *   matchers keyed on repo-relative paths work regardless of the caller's cwd.
  */
 
 import { existsSync } from 'node:fs'
@@ -42,10 +42,10 @@ async function getGitRootAsync(cwd: string): Promise<string | undefined> {
  * Parse `git status --porcelain -z` output.
  *
  * @example
- * // With -z, rename entries occupy two NUL-terminated records:
- * //   "R  new-path\0old-path\0"
- * // Regular entries are one record with XY-status prefix:
- * //   " M file.ts\0"
+ *   // With -z, rename entries occupy two NUL-terminated records:
+ *   //   "R  new-path\0old-path\0"
+ *   // Regular entries are one record with XY-status prefix:
+ *   //   " M file.ts\0"
  */
 function parsePorcelainZ(raw: string, gitRoot: string): string[] {
   const records = raw.split('\0').filter(Boolean)

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for typedarray NPM package override.
- * Ported 1:1 from upstream v0.0.7 (f7387a01):
- * https://github.com/es-shims/typedarray/blob/f7387a01/test/tarray.js
+ * @file Tests for typedarray NPM package override. Ported 1:1 from upstream
+ *   v0.0.7 (f7387a01):
+ *   https://github.com/es-shims/typedarray/blob/f7387a01/test/tarray.js.
  */
 import { describe, expect, it } from 'vitest'
 

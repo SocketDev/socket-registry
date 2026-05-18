@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for object.getownpropertydescriptors NPM package override.
- * Ported 1:1 from upstream v2.1.9 (d4bfaba1):
- * https://github.com/es-shims/object.getownpropertydescriptors/blob/d4bfaba101663919e4066f0502f3083138ad1cc6/test/tests.js
+ * @file Tests for object.getownpropertydescriptors NPM package override. Ported
+ *   1:1 from upstream v2.1.9 (d4bfaba1):
+ *   https://github.com/es-shims/object.getownpropertydescriptors/blob/d4bfaba101663919e4066f0502f3083138ad1cc6/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

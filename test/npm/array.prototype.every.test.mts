@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for array.prototype.every NPM package override.
- * Ported 1:1 from upstream v1.1.7 (2630e8d13ff85946c3e8ed194d9edf04c3d62dd5):
- * https://github.com/es-shims/Array.prototype.every/blob/2630e8d13ff85946c3e8ed194d9edf04c3d62dd5/test/tests.js
+ * @file Tests for array.prototype.every NPM package override. Ported 1:1 from
+ *   upstream v1.1.7 (2630e8d13ff85946c3e8ed194d9edf04c3d62dd5):
+ *   https://github.com/es-shims/Array.prototype.every/blob/2630e8d13ff85946c3e8ed194d9edf04c3d62dd5/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

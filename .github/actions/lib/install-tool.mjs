@@ -1,38 +1,28 @@
 /* oxlint-disable socket/no-console-prefer-logger socket/no-fetch-prefer-http-request socket/export-top-level-functions -- composite action helper, runs on raw runner before setup-node (no node_modules) */
 /**
- * @fileoverview Downloads, integrity-verifies, and extracts a release asset.
+ * @file Downloads, integrity-verifies, and extracts a release asset. Replaces
+ *   the curl + sha256sum/shasum + tar/unzip dance repeated across
+ *   pnpm/sfw/zizmor install steps. Built-in `fetch` follows redirects
+ *   automatically (github.com → objects.githubusercontent.com),
+ *   `node:crypto.createHash` computes the digest in-process, and tar/unzip
+ *   shell out (already preinstalled on every supported runner image). Usage:
+ *   node install-tool.mjs <url> <integrity> <dest-dir> [<bin-name>] <integrity>
+ *   is a Subresource Integrity string: `<algo>-<base64>`. Examples:
+ *   `sha256-67PM...=`, `sha512-l/kG...==`. The algorithm is parsed from the
+ *   prefix; multiple algos are supported (sha256, sha384, sha512). Same
+ *   encoding as npm package-lock.json's `integrity` field and as
+ *   `external-tools.json`'s `integrity` field. Backward compat: a bare 64-char
+ *   hex string is also accepted and treated as `sha256-<base64-of-hex>` for
+ *   transition. Deprecated; new call sites should pass SRI directly. Behavior:
  *
- * Replaces the curl + sha256sum/shasum + tar/unzip dance repeated
- * across pnpm/sfw/zizmor install steps. Built-in `fetch` follows
- * redirects automatically (github.com → objects.githubusercontent.com),
- * `node:crypto.createHash` computes the digest in-process, and tar/unzip
- * shell out (already preinstalled on every supported runner image).
- *
- * Usage:
- *   node install-tool.mjs <url> <integrity> <dest-dir> [<bin-name>]
- *
- *   <integrity> is a Subresource Integrity string: `<algo>-<base64>`.
- *   Examples: `sha256-67PM...=`, `sha512-l/kG...==`. The algorithm is
- *   parsed from the prefix; multiple algos are supported (sha256, sha384,
- *   sha512). Same encoding as npm package-lock.json's `integrity` field
- *   and as `external-tools.json`'s `integrity` field.
- *
- *   Backward compat: a bare 64-char hex string is also accepted and
- *   treated as `sha256-<base64-of-hex>` for transition. Deprecated; new
- *   call sites should pass SRI directly.
- *
- * Behavior:
  *   - Streams the asset to <dest-dir>/<basename(url)>.
  *   - Aborts and removes the file if integrity mismatches.
- *   - Extracts .tar.gz/.tgz with tar, .zip with unzip (POSIX) or
- *     Expand-Archive (Windows). Removes the archive after extracting.
- *   - For non-archive assets (bare binaries like sfw): the asset IS
- *     the binary — chmod +x it and rename to <bin-name> if provided.
- *
- * Exit codes:
- *   0  success
- *   1  download or extraction failed
- *   2  integrity mismatch (stderr names expected vs actual + the path)
+ *   - Extracts .tar.gz/.tgz with tar, .zip with unzip (POSIX) or Expand-Archive
+ *     (Windows). Removes the archive after extracting.
+ *   - For non-archive assets (bare binaries like sfw): the asset IS the binary —
+ *     chmod +x it and rename to <bin-name> if provided. Exit codes: 0 success 1
+ *     download or extraction failed 2 integrity mismatch (stderr names expected
+ *     vs actual + the path)
  */
 
 // oxlint-disable-next-line socket/prefer-async-spawn -- composite-action helper runs on the raw runner before setup-node; node_modules is unavailable and the download / extract pipeline is naturally sync.
@@ -46,11 +36,14 @@ import {
   writeFileSync,
 } from 'node:fs'
 import path from 'node:path'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+
+const logger = getDefaultLogger()
 
 const [, , url, integrityArg, destDir, binName] = process.argv
 
 if (!url || !integrityArg || !destDir) {
-  console.error(
+  logger.fail(
     '× usage: install-tool.mjs <url> <integrity> <dest-dir> [<bin-name>]',
   )
   process.exit(1)

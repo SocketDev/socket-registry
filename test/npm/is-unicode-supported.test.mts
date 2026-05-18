@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for is-unicode-supported NPM package override.
- * Ported 1:1 from upstream v2.1.0 (e0373335038856c63034c8eef6ac43ee3827a601):
- * https://github.com/sindresorhus/is-unicode-supported/blob/e0373335038856c63034c8eef6ac43ee3827a601/test.js
+ * @file Tests for is-unicode-supported NPM package override. Ported 1:1 from
+ *   upstream v2.1.0 (e0373335038856c63034c8eef6ac43ee3827a601):
+ *   https://github.com/sindresorhus/is-unicode-supported/blob/e0373335038856c63034c8eef6ac43ee3827a601/test.js.
  */
 
 import process from 'node:process'

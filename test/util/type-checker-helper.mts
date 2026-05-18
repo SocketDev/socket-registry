@@ -1,8 +1,8 @@
 /**
- * @fileoverview Helper for testing type-checking functions (is-* packages).
- *
- * Reduces duplication when testing type-checking functions like isString, isDate, etc.
- * that follow the pattern of testing valid values (return true) and invalid values (return false).
+ * @file Helper for testing type-checking functions (is-* packages). Reduces
+ *   duplication when testing type-checking functions like isString, isDate,
+ *   etc. that follow the pattern of testing valid values (return true) and
+ *   invalid values (return false).
  */
 
 import { describe, expect, it } from 'vitest'
@@ -32,8 +32,8 @@ export interface TypeCheckerTestConfig {
   invalidValues: unknown[]
 
   /**
-   * Whether to include @@toStringTag tests (optional, default: false).
-   * Only applicable for types that support custom toStringTag.
+   * Whether to include @@toStringTag tests (optional, default: false). Only
+   * applicable for types that support custom toStringTag.
    */
   toStringTagTests?: boolean | undefined
 
@@ -44,8 +44,8 @@ export interface TypeCheckerTestConfig {
 }
 
 /**
- * Standard set of invalid values for type checkers.
- * Covers common primitives and objects that should fail most type checks.
+ * Standard set of invalid values for type checkers. Covers common primitives
+ * and objects that should fail most type checks.
  */
 export const standardInvalidValues = [
   undefined,
@@ -130,17 +130,17 @@ export function createInvalidValuesExcluding(
  * Creates comprehensive tests for a type-checking function.
  *
  * @example
- * ```ts
- * const { module: isString } = await setupNpmPackageTest(import.meta.url)
+ *   ;```ts
+ *   const { module: isString } = await setupNpmPackageTest(import.meta.url)
  *
- * createTypeCheckerTests({
- *   checkerFn: isString,
- *   typeName: 'String',
- *   validValues: ['foo', Object('foo')],
- *   invalidValues: [undefined, null, 42, [], {}, new Date()],
- *   toStringTagTests: true,
- * })
- * ```
+ *   createTypeCheckerTests({
+ *     checkerFn: isString,
+ *     typeName: 'String',
+ *     validValues: ['foo', Object('foo')],
+ *     invalidValues: [undefined, null, 42, [], {}, new Date()],
+ *     toStringTagTests: true,
+ *   })
+ *   ```
  */
 export function createTypeCheckerTests(config: TypeCheckerTestConfig): void {
   const {

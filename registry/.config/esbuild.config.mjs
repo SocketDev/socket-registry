@@ -1,6 +1,6 @@
 /**
- * @fileoverview esbuild configuration for socket-registry
- * Fast JS compilation with esbuild, declarations with tsgo
+ * @file Esbuild configuration for socket-registry Fast JS compilation with
+ *   esbuild, declarations with tsgo.
  */
 
 import path from 'node:path'
@@ -68,7 +68,7 @@ export const watchConfig = {
 }
 
 /**
- * Analyze build output for size information
+ * Analyze build output for size information.
  */
 export function analyzeMetafile(metafile) {
   const outputs = Object.keys(metafile.outputs)

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for arraybuffer.prototype.slice NPM package override.
- * Ported 1:1 from upstream v1.0.4 (d8ac7211):
- * https://github.com/es-shims/ArrayBuffer.prototype.slice/blob/d8ac72119e74c40234e6da003763fa564d49ac0e/test/tests.js
+ * @file Tests for arraybuffer.prototype.slice NPM package override. Ported 1:1
+ *   from upstream v1.0.4 (d8ac7211):
+ *   https://github.com/es-shims/ArrayBuffer.prototype.slice/blob/d8ac72119e74c40234e6da003763fa564d49ac0e/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

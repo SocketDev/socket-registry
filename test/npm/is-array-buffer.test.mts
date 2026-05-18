@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for is-array-buffer NPM package override.
- * Ported 1:1 from upstream v3.0.5 (9a91db98):
- * https://github.com/inspect-js/is-array-buffer/blob/9a91db98411737952175ef8d6ede3301e570fbc1/test/index.js
+ * @file Tests for is-array-buffer NPM package override. Ported 1:1 from
+ *   upstream v3.0.5 (9a91db98):
+ *   https://github.com/inspect-js/is-array-buffer/blob/9a91db98411737952175ef8d6ede3301e570fbc1/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

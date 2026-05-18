@@ -1,26 +1,34 @@
 {
   "name": "@socketsecurity/registry",
   "version": "2.0.3",
-  "license": "MIT",
   "description": "Socket Registry - Core utilities and infrastructure for Socket.dev security tools",
   "keywords": [
     "Socket.dev",
-    "security",
-    "registry",
     "npm",
-    "packages"
+    "packages",
+    "registry",
+    "security"
   ],
   "homepage": "https://github.com/SocketDev/socket-registry",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/SocketDev/socket-registry.git",
-    "directory": "registry"
-  },
+  "license": "MIT",
   "author": {
     "name": "Socket Inc",
     "email": "eng@socket.dev",
     "url": "https://socket.dev"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SocketDev/socket-registry.git",
+    "directory": "registry"
+  },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.ts",
+    "CHANGELOG.md",
+    "extensions.json",
+    "manifest.json"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -36,17 +44,6 @@
     "./tsconfig.dts.json": "./tsconfig.dts.json",
     "./tsconfig.json": "./tsconfig.json"
   },
-  "files": [
-    "dist/**/*.js",
-    "dist/**/*.ts",
-    "CHANGELOG.md",
-    "extensions.json",
-    "manifest.json"
-  ],
-  "engines": {
-    "node": ">=18"
-  },
-  "sideEffects": false,
   "scripts": {
     "build": "node scripts/build.mjs",
     "build:watch": "node scripts/build.mjs --watch",
@@ -74,5 +71,8 @@
     "typescript": {
       "optional": true
     }
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

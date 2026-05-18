@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for string.prototype.startswith NPM package override.
- * Ported 1:1 from upstream v1.0.1 (10f437ce):
- * https://github.com/mathiasbynens/String.prototype.startsWith/blob/10f437ce/tests/tests.js
+ * @file Tests for string.prototype.startswith NPM package override. Ported 1:1
+ *   from upstream v1.0.1 (10f437ce):
+ *   https://github.com/mathiasbynens/String.prototype.startsWith/blob/10f437ce/tests/tests.js.
  */
 import { describe, expect, it } from 'vitest'
 

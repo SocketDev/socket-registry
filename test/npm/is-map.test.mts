@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for is-map NPM package override.
- * Ported 1:1 from upstream v2.0.3 (8e53e508):
- * https://github.com/inspect-js/is-map/blob/8e53e50836254a8589aae5620019f6eaccb8729b/test/index.js
+ * @file Tests for is-map NPM package override. Ported 1:1 from upstream v2.0.3
+ *   (8e53e508):
+ *   https://github.com/inspect-js/is-map/blob/8e53e50836254a8589aae5620019f6eaccb8729b/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

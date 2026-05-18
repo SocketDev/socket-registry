@@ -1,20 +1,15 @@
 'use strict'
 
 /**
- * Socket.dev optimized json-stable-stringify implementation
+ * Socket.dev optimized json-stable-stringify implementation.
  *
- * Performance-optimized implementation with full feature parity:
- * - Custom comparator
- * - Custom replacer
- * - Space/indentation
- * - Cycle detection
- * - Stack overflow protection
+ * Performance-optimized implementation with full feature parity: - Custom
+ * comparator - Custom replacer - Space/indentation - Cycle detection - Stack
+ * overflow protection.
  *
- * Key optimizations:
- * - Fast path for simple cases (no options) - 79% faster
- * - One-pass sort+stringify for space/indentation
- * - Native JSON.stringify usage where possible
- * - JIT-friendly code structure
+ * Key optimizations: - Fast path for simple cases (no options) - 79% faster -
+ * One-pass sort+stringify for space/indentation - Native JSON.stringify usage
+ * where possible - JIT-friendly code structure.
  */
 
 const { isArray: ArrayIsArray } = Array
@@ -132,7 +127,7 @@ function sortKeysIterative(root) {
 }
 
 /**
- * Full-featured path: Sort with custom options
+ * Full-featured path: Sort with custom options.
  */
 function sortKeysWithOptions(value, opts, seen) {
   // Handle toJSON()
@@ -229,9 +224,9 @@ function sortKeysWithOptions(value, opts, seen) {
 }
 
 /**
- * Sort and stringify with custom space/indentation in ONE pass
+ * Sort and stringify with custom space/indentation in ONE pass.
  *
- * Combines sorting and stringification to avoid double traversal
+ * Combines sorting and stringification to avoid double traversal.
  */
 function sortAndStringifyWithSpace(value, space, opts) {
   const seen = new Set()
@@ -344,7 +339,7 @@ function sortAndStringifyWithSpace(value, space, opts) {
 }
 
 /**
- * Main stableStringify function with full feature support
+ * Main stableStringify function with full feature support.
  */
 module.exports = function stableStringify(value, opts) {
   // Normalize options

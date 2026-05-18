@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for has-tostringtag NPM package override.
- * Ported 1:1 from upstream v1.0.2 (690da6a3afbddcf018aa162c42869dcf4f8375f1):
- * https://github.com/inspect-js/has-tostringtag/blob/690da6a3afbddcf018aa162c42869dcf4f8375f1/test/index.js
+ * @file Tests for has-tostringtag NPM package override. Ported 1:1 from
+ *   upstream v1.0.2 (690da6a3afbddcf018aa162c42869dcf4f8375f1):
+ *   https://github.com/inspect-js/has-tostringtag/blob/690da6a3afbddcf018aa162c42869dcf4f8375f1/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'

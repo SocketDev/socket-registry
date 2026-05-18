@@ -1,5 +1,5 @@
 /**
- * @fileoverview Type definitions for Socket Registry.
+ * @file Type definitions for Socket Registry.
  */
 
 // Type definitions

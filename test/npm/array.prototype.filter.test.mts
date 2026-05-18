@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for array.prototype.filter NPM package override.
- * Ported 1:1 from upstream v1.0.4 (28594fd0b9640eb92bf62598265ed4c4dcbbb32e):
- * https://github.com/es-shims/Array.prototype.filter/blob/28594fd0b9640eb92bf62598265ed4c4dcbbb32e/test/tests.js
+ * @file Tests for array.prototype.filter NPM package override. Ported 1:1 from
+ *   upstream v1.0.4 (28594fd0b9640eb92bf62598265ed4c4dcbbb32e):
+ *   https://github.com/es-shims/Array.prototype.filter/blob/28594fd0b9640eb92bf62598265ed4c4dcbbb32e/test/tests.js.
  */
 
 import { describe, expect, it } from 'vitest'

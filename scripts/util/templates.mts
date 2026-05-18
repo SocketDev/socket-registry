@@ -1,6 +1,6 @@
 /**
- * @fileoverview Package template generation utilities for Socket registry.
- * Provides template-based package creation and code generation functions.
+ * @file Package template generation utilities for Socket registry. Provides
+ *   template-based package creation and code generation functions.
  */
 
 import { promises as fs } from 'node:fs'
@@ -218,7 +218,8 @@ async function getTypeScriptActions(pkgPath, options) {
 }
 
 /**
- * Preprocess template content by unwrapping encoded tags and stripping comments.
+ * Preprocess template content by unwrapping encoded tags and stripping
+ * comments.
  */
 export function prepareTemplate(content) {
   return (

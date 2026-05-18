@@ -1,7 +1,7 @@
 /**
- * @fileoverview Tests for is-core-module NPM package override.
- * Ported 1:1 from upstream v2.16.1 (9d91e714):
- * https://github.com/inspect-js/is-core-module/blob/9d91e714e294b2ee41c1b6beae1ad06aacdaf5ca/test/index.js
+ * @file Tests for is-core-module NPM package override. Ported 1:1 from upstream
+ *   v2.16.1 (9d91e714):
+ *   https://github.com/inspect-js/is-core-module/blob/9d91e714e294b2ee41c1b6beae1ad06aacdaf5ca/test/index.js.
  */
 
 import { describe, expect, it } from 'vitest'
