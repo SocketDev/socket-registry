@@ -81,7 +81,10 @@ import { NODE_MODULES } from '@socketsecurity/lib-stable/paths/dirnames'
 import { PACKAGE_JSON } from '@socketsecurity/lib-stable/paths/filenames'
 import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
 import { getCI } from '@socketsecurity/lib-stable/env/ci'
-import { getDefaultSpinner, withSpinner } from '@socketsecurity/lib-stable/spinner'
+import {
+  getDefaultSpinner,
+  withSpinner,
+} from '@socketsecurity/lib-stable/spinner'
 import { deleteAsync as del } from 'del'
 import { load as yamlLoad } from 'js-yaml'
 import pacote from 'pacote'
@@ -97,7 +100,10 @@ import {
   safeDelete,
   writeJson,
 } from '@socketsecurity/lib-stable/fs'
-import { LOG_SYMBOLS, getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import {
+  LOG_SYMBOLS,
+  getDefaultLogger,
+} from '@socketsecurity/lib-stable/logger'
 import { readPackageJson } from '@socketsecurity/lib-stable/packages'
 import { pEach, pRetry } from '@socketsecurity/lib-stable/promises'
 import { pluralize } from '@socketsecurity/lib-stable/words'

@@ -12,7 +12,10 @@ import { fileURLToPath } from 'node:url'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
 import { getCI } from '@socketsecurity/lib-stable/env/ci'
-import { LOG_SYMBOLS, getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import {
+  LOG_SYMBOLS,
+  getDefaultLogger,
+} from '@socketsecurity/lib-stable/logger'
 import {
   readPackageJson,
   resolveOriginalPackageName,

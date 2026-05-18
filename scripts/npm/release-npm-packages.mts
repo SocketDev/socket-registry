@@ -12,7 +12,10 @@ import { execScript } from '@socketsecurity/lib-stable/eco/npm/script'
 import { getAbortSignal } from '@socketsecurity/lib-stable/constants/process'
 import { readFileUtf8 } from '@socketsecurity/lib-stable/fs'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-import { isObjectObject, toSortedObject } from '@socketsecurity/lib-stable/objects'
+import {
+  isObjectObject,
+  toSortedObject,
+} from '@socketsecurity/lib-stable/objects'
 import {
   extractPackage,
   fetchPackageManifest,
@@ -22,7 +25,10 @@ import {
 } from '@socketsecurity/lib-stable/packages'
 import { pEach } from '@socketsecurity/lib-stable/promises'
 import { spawn } from '@socketsecurity/lib-stable/spawn'
-import { getDefaultSpinner, withSpinner } from '@socketsecurity/lib-stable/spinner'
+import {
+  getDefaultSpinner,
+  withSpinner,
+} from '@socketsecurity/lib-stable/spinner'
 import { minimatch } from 'minimatch'
 import semver from 'semver'
 import { LATEST, SOCKET_REGISTRY_PACKAGE_NAME } from '../constants/packages.mts'

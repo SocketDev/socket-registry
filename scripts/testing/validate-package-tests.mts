@@ -463,7 +463,8 @@ async function main(): Promise<void> {
   )
 
   logger.error('')
-  logger.info('--- Validation Results ---\n')
+  logger.info('--- Validation Results ---')
+  logger.error('')
   const { errors, warnings } = formatResults(results)
 
   logger.error('')

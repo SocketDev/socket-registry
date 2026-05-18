@@ -284,7 +284,9 @@ export function formatResults(failures, recommendations) {
     for (let i = 0, { length } = failures; i < length; i += 1) {
       const failure = failures[i]
       logger.error('')
-      logger.info(`[${failure.severity.toUpperCase()}] ${failure.category} (${failure.package || 'unknown'})`)
+      logger.info(
+        `[${failure.severity.toUpperCase()}] ${failure.category} (${failure.package || 'unknown'})`,
+      )
       logger.info(`  Line: ${failure.line}`)
       if (failure.details) {
         logger.info(`  Details: ${JSON.stringify(failure.details, null, 2)}`)

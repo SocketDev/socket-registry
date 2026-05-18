@@ -351,7 +351,9 @@ async function main(): Promise<void> {
     return
   }
 
-  logger.log(`Running tests for ${packagesToTest.length} packages (concurrency ${concurrency})`)
+  logger.log(
+    `Running tests for ${packagesToTest.length} packages (concurrency ${concurrency})`,
+  )
   logger.log('')
 
   const results = []
@@ -382,7 +384,9 @@ async function main(): Promise<void> {
     logger.log(`Skipped: ${skipped.length} (no test script)`)
   }
 
-  logger.success(`Passed: ${passed.length}/${totalTested} (${results.length} total)`)
+  logger.success(
+    `Passed: ${passed.length}/${totalTested} (${results.length} total)`,
+  )
   logger.error('')
 
   // Never clean up the cache directory - it's persistent by design.

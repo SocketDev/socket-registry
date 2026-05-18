@@ -17,7 +17,10 @@ import path from 'node:path'
 import process from 'node:process'
 
 import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
-import { errorMessage, isErrnoException } from '@socketsecurity/lib-stable/errors'
+import {
+  errorMessage,
+  isErrnoException,
+} from '@socketsecurity/lib-stable/errors'
 import { safeDelete } from '@socketsecurity/lib-stable/fs'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 import { spawn } from '@socketsecurity/lib-stable/spawn'
@@ -270,7 +273,8 @@ export async function downloadAndVerify(
 async function main(): Promise<void> {
   if (!quiet) {
     logger.log('')
-    logger.log('🔧 Developer Setup\n')
+    logger.log('🔧 Developer Setup')
+    logger.log('')
   }
 
   // Load external tools config.

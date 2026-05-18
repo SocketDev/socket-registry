@@ -17,7 +17,10 @@ import { execScript } from '@socketsecurity/lib-stable/eco/npm/script'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { isDirEmptySync } from '@socketsecurity/lib-stable/fs'
 import { globStreamLicenses } from '@socketsecurity/lib-stable/globs'
-import { LOG_SYMBOLS, getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import {
+  LOG_SYMBOLS,
+  getDefaultLogger,
+} from '@socketsecurity/lib-stable/logger'
 import { isObject } from '@socketsecurity/lib-stable/objects'
 
 const logger = getDefaultLogger()

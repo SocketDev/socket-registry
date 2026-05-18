@@ -281,7 +281,9 @@ async function main(): Promise<void> {
   }
 
   logger.error('')
-  logger.info(`Total: ${totalChanges} actions updated in ${processedFiles.length} files`)
+  logger.info(
+    `Total: ${totalChanges} actions updated in ${processedFiles.length} files`,
+  )
 
   if (dryRun) {
     logger.error('')

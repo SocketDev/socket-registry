@@ -333,7 +333,9 @@ export async function publishAtCommit(sha) {
 
     if (manifestChanged) {
       logger.log('')
-      logger.log('Updating and committing manifest.json with latest npm versions...')
+      logger.log(
+        'Updating and committing manifest.json with latest npm versions...',
+      )
       await spawn('git', ['config', 'user.name', 'Socket Bot'])
       await spawn('git', [
         'config',
@@ -518,7 +520,9 @@ async function main(): Promise<void> {
       // If --force-registry is set, still try to publish at HEAD.
       if (forceRegistryFlag) {
         logger.log('')
-        logger.log('Force-registry flag is set, checking HEAD for unpublished packages...')
+        logger.log(
+          'Force-registry flag is set, checking HEAD for unpublished packages...',
+        )
         const headSha = await getCommitSha('HEAD')
         await publishAtCommit(headSha)
       }
@@ -570,7 +574,10 @@ async function main(): Promise<void> {
     }
 
     logger.log('')
-    logger.log(`Publishing ${bumpCommits.length} unpublished version ${pluralize('bump', { count: bumpCommits.length })}:`)
+    logger
+      .log(
+        `Publishing ${bumpCommits.length} unpublished version ${pluralize('bump', { count: bumpCommits.length })}:`,
+      )
       .group()
 
     const displayCommits = cliArgs.debug

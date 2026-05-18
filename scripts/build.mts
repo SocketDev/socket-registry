@@ -41,7 +41,9 @@ async function main(): Promise<void> {
 
   if (exitCode !== 0) {
     if (!quiet) {
-      logger.error(colors.red('✗ Failed to build @socketsecurity/registry-stable'))
+      logger.error(
+        colors.red('✗ Failed to build @socketsecurity/registry-stable'),
+      )
     }
     process.exitCode = exitCode
     return
