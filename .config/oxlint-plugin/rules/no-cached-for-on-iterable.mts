@@ -77,7 +77,10 @@
  * diagnostic message names it explicitly.
  */
 
-import { FLAGGED_KINDS, createKindResolver } from '../lib/iterable-kind.mts'
+import {
+  FLAGGED_KINDS,
+  createKindResolver,
+} from '../lib/iterable-kind.mts'
 import type { AstNode, RuleContext } from '../lib/rule-types.mts'
 
 /**
@@ -134,7 +137,7 @@ const rule = {
       lengthOnIterable:
         '`{{name}}.length` reads `undefined` — {{kind}} has `.size`, not `.length`. Either rename to `.size`, or convert `{{name}}` to an array first if the semantics demand `.length`.',
       indexedAccessOnIterable:
-        "`{{name}}[…]` returns `undefined` — {{kind}} isn't integer-indexable. Use `for (const item of {{name}})` (or one of the entries / keys / values iterators) to read elements.",
+        '`{{name}}[…]` returns `undefined` — {{kind}} isn\'t integer-indexable. Use `for (const item of {{name}})` (or one of the entries / keys / values iterators) to read elements.',
     },
     schema: [],
   },
