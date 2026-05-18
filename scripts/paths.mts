@@ -1,4 +1,3 @@
-/* oxlint-disable socket/sort-source-methods -- ordered as path resolution flow (resolver → primary roots → derived constants → helpers); alphabetizing would scatter the flow. */
 /**
  * @file Canonical path constants + resolvers for this package. Mantra: 1 path,
  *   1 reference. Every path the scripts in this directory need — config files,

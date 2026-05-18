@@ -1,4 +1,3 @@
-/* oxlint-disable socket/prefer-cached-for-loop -- iterates Object.entries() of a tool-config map; the cached-length rewrite would be incorrect. */
 /**
  * @file Developer setup script. Checks prerequisites and installs pinned
  *   external tools (currently: zizmor for GitHub Actions security scanning).

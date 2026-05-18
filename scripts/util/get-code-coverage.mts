@@ -1,7 +1,6 @@
 /**
  * @file Utility to generate and calculate code coverage metrics.
  */
-/* oxlint-disable socket/prefer-cached-for-loop -- iterates Object.values() of a coverage map; the cached-length rewrite would be incorrect. */
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 

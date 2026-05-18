@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-/* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Map / Set / Object.entries); the cached-length rewrite would be incorrect. */
 /**
  * @file Recursively bump stale internal SHA pins to HEAD. socket-registry's
  *   `.github/actions/` and `.github/workflows/` files pin each other by

@@ -1,7 +1,6 @@
 /**
  * @file Tests for package validation and manifest generation.
  */
-/* oxlint-disable socket/prefer-cached-for-loop -- test loops iterate small literal sets / for-await-of streams; perf rewrite obscures intent. */
 import { existsSync, promises as fs } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'

@@ -2,7 +2,6 @@
  * @file Validates that no package.json files contain link: dependencies. Link
  *   dependencies are prohibited - use workspace: or catalog: instead.
  */
-/* oxlint-disable socket/prefer-cached-for-loop -- iterates Map.entries() / destructured tuples; the cached-length rewrite would be incorrect. */
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'

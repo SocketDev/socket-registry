@@ -1,4 +1,3 @@
-/* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
 
 /**
  * @file Test script for npm packages that handles downloading, installing, and

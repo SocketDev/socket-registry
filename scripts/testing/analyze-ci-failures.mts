@@ -1,7 +1,6 @@
 /**
  * @file Analyzes CI failure logs and suggests fixes based on known patterns.
  */
-/* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Object.entries) and small destructured records; the cached-length rewrite would be incorrect. */
 
 import { promises as fs } from 'node:fs'
 import process from 'node:process'

@@ -1,7 +1,6 @@
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 const logger = getDefaultLogger()
 
-/* oxlint-disable socket/no-console-prefer-logger socket/export-top-level-functions -- composite action helper, runs on raw runner before setup-node (no node_modules) */
 /**
  * @file Semver validate + compare for composite-action shells. Replaces inline
  *   bash regex + pure-bash version_lt(). Two modes: node lib/semver.mjs valid

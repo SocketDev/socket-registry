@@ -1,4 +1,3 @@
-/* oxlint-disable socket/no-console-prefer-logger -- composite action helper, runs on raw runner before setup-node (no node_modules) */
 /**
  * @file Prints the canonical Socket platform string for this runner. Output:
  *   linux-x64, linux-arm64, linux-x64-musl, linux-arm64-musl, darwin-x64,

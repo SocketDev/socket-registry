@@ -1,4 +1,3 @@
-/* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Object.values recursion); the cached-length rewrite would be incorrect. */
 /**
  * @file Fast build runner using esbuild for smaller bundles and faster builds.
  */

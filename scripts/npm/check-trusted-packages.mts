@@ -5,7 +5,6 @@
  *   packages by default. Use --all flag to check all Socket packages across all
  *   scopes.
  */
-/* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Object.entries); the cached-length rewrite would be incorrect. */
 
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'

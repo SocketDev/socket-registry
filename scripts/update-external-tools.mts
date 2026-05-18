@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-/* oxlint-disable socket/prefer-cached-for-loop -- iterates Object.entries() of platform/tool config maps; the cached-length rewrite would be incorrect. */
 /**
  * Update the repo-root `external-tools.json` to pick up new releases of every
  * tool listed with `"release": "asset"` (today: pnpm, zizmor).

@@ -1,7 +1,4 @@
-/* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
-/* oxlint-disable socket/prefer-cached-for-loop -- iterates non-array iterables (Object.entries / Map values); the cached-length rewrite would be incorrect. */
 
-/* oxlint-disable socket/no-fetch-prefer-http-request -- composite action helper, runs on raw runner before setup-node (no node_modules) */
 /**
  * @file Check a Socket package against the firewall API before downloading its
  *   tarball directly from the npm registry. Endpoint: GET

@@ -1,4 +1,3 @@
-/* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
 
 /**
  * @file Reproduces CI test environment locally to catch issues before pushing.

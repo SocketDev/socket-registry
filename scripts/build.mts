@@ -1,4 +1,3 @@
-/* oxlint-disable socket/no-status-emoji -- intentional emoji output. */
 
 /**
  * @file Build script for socket-registry monorepo. Delegates to the registry

@@ -1,4 +1,3 @@
-/* oxlint-disable socket/no-console-prefer-logger -- composite action helper, runs on raw runner before setup-node (no node_modules) */
 /**
  * @file Minimal JSON reader for composite-action shells. Replaces jq for action
  *   steps that run before actions/setup-node, so this only relies on the system
