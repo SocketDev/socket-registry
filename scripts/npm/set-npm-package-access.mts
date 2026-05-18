@@ -100,7 +100,9 @@ async function main(): Promise<void> {
           fails.push(pkg.printName)
           if (stderr) {
             const errorInfo = extractNpmError(stderr)
-            logger.log(`\n${errorInfo}\n`)
+            logger.log('')
+            logger.log(errorInfo)
+            logger.log('')
           }
         }
       },

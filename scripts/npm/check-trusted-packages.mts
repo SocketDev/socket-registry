@@ -61,22 +61,28 @@ const { values: args } = parseArgs({
 })
 
 if (args.help) {
-  logger.log(`
-Usage: node check-trusted-packages.mjs [options]
-
-Options:
-  --all     Check all Socket packages (@socketsecurity/*, @socketregistry/*, @socketoverride/*)
-  --debug   Show detailed information for all packages (not just failures)
-  --help    Show this help message
-
-By default, checks:
-  - All @socketregistry/* packages
-  - All @socketoverride/* packages
-  - Core Socket packages (sfw, socket, etc.)
-
-With --all flag, adds:
-  - Additional Socket packages (@socketsecurity/config, @socketsecurity/mcp, etc.)
-`)
+  logger.log('')
+  logger.log('Usage: node check-trusted-packages.mjs [options]')
+  logger.log('')
+  logger.log('Options:')
+  logger.log(
+    '  --all     Check all Socket packages (@socketsecurity/*, @socketregistry/*, @socketoverride/*)',
+  )
+  logger.log(
+    '  --debug   Show detailed information for all packages (not just failures)',
+  )
+  logger.log('  --help    Show this help message')
+  logger.log('')
+  logger.log('By default, checks:')
+  logger.log('  - All @socketregistry/* packages')
+  logger.log('  - All @socketoverride/* packages')
+  logger.log('  - Core Socket packages (sfw, socket, etc.)')
+  logger.log('')
+  logger.log('With --all flag, adds:')
+  logger.log(
+    '  - Additional Socket packages (@socketsecurity/config, @socketsecurity/mcp, etc.)',
+  )
+  logger.log('')
   process.exitCode = 0
 }
 

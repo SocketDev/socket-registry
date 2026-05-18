@@ -87,8 +87,10 @@ if (process.env.GITHUB_TOKEN) {
   headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`
 }
 
+// oxlint-disable-next-line socket/no-fetch-prefer-http-request -- pre-setup-node action; @socketsecurity/lib-stable not installed yet, only built-in fetch is available.
 const res = await fetch(url, { redirect: 'follow', headers })
 if (!res.ok) {
+  // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; @socketsecurity/lib-stable not installed yet.
   console.error(
     `× download failed: HTTP ${res.status} ${res.statusText} for ${url}`,
   )
@@ -103,9 +105,13 @@ const actual = crypto.createHash(algo).update(bytes).digest('base64')
 // comparing so `sha512-...=` and `sha512-...` match.
 const stripPadding = b64 => b64.replace(/=+$/, '')
 if (stripPadding(actual) !== stripPadding(expected)) {
+  // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; @socketsecurity/lib-stable not installed yet.
   console.error(`× ${algo} integrity mismatch for ${assetName}`)
+  // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; same.
   console.error(`  Expected: ${algo}-${expected}`)
+  // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; same.
   console.error(`  Actual:   ${algo}-${actual}`)
+  // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; same.
   console.error(`  URL:      ${url}`)
   process.exit(2)
 }
@@ -135,6 +141,7 @@ if (lower.endsWith('.tar.gz') || lower.endsWith('.tgz')) {
 if (extractCmd) {
   const r = spawnSync(extractCmd, extractArgs, { stdio: 'inherit' })
   if (r.status !== 0) {
+    // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; @socketsecurity/lib-stable not installed yet.
     console.error(`× extraction failed: ${extractCmd} exited ${r.status}`)
     process.exit(1)
   }

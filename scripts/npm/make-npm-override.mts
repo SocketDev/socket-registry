@@ -242,9 +242,10 @@ async function main(): Promise<void> {
     const formattedWarnings = licenseWarnings.map(w =>
       indentString(`· ${w}`, { count: 2 }),
     )
-    logger.warn(
-      `${origPkgName} has license warnings:\n${formattedWarnings.join('\n')}`,
-    )
+    logger.warn(`${origPkgName} has license warnings:`)
+    for (let i = 0, { length } = formattedWarnings; i < length; i += 1) {
+      logger.warn(formattedWarnings[i]!)
+    }
   }
   if (badLicenses.length) {
     const singularOrPlural = pluralize('license', {

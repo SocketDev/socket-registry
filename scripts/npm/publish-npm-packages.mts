@@ -306,9 +306,11 @@ export async function publishAtCommit(sha) {
     return { fails, skipped }
   }
 
+  logger.log('')
   logger.log(
-    `\nPublishing ${packagesToPublish.length} ${pluralize('package', { count: packagesToPublish.length })}...\n`,
+    `Publishing ${packagesToPublish.length} ${pluralize('package', { count: packagesToPublish.length })}...`,
   )
+  logger.log('')
 
   // Separate registry package from other packages.
   const registryPkgToPublish = packagesToPublish.find(

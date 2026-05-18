@@ -34,11 +34,11 @@ if (mode === 'lt') {
   const pa = parts(a)
   const pb = parts(b)
   if (!pa) {
-    logger.fail(`× not semver: "${a}"`)
+    logger.fail(`not semver: "${a}"`)
     process.exit(2)
   }
   if (!pb) {
-    console.error(`× not semver: "${b}"`)
+    logger.fail(`not semver: "${b}"`)
     process.exit(2)
   }
   for (let i = 0; i < 3; i += 1) {
@@ -49,5 +49,5 @@ if (mode === 'lt') {
   process.exit(1)
 }
 
-console.error(`× unknown mode "${mode}" (expected "valid" or "lt")`)
+logger.fail(`unknown mode "${mode}" (expected "valid" or "lt")`)
 process.exit(2)
